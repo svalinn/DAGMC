@@ -135,6 +135,8 @@ public:
                                 double &len);
 
 private:
+  bool have_obb_tree();
+
   MBTag get_tag( const char* name, int size, MBTagType store, MBDataType type,
                  bool create_if_missing = true);
 

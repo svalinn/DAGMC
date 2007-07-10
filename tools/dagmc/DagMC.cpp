@@ -366,10 +366,8 @@ MBErrorCode DagMC::point_in_volume_slow( MBEntityHandle volume,
 // point is inside or outside of the volume.  If the point is closest to
 // an edge joining two facets, then the point is inside the volume if 
 // that edge is at a concavity wrt the volume.  If the point is closest
-// to a vertex in the facetting, then if the normals of the facets are
-// sufficiently close to each other as simple inside/outside test is
-// used for each facet.  If not, the (very) slow spherical-area method 
-// is used.
+// to a vertex in the facetting, it relies on the fact that the closest
+// vertex cannot be a saddle: it must be a strict concavity or convexity.
 MBErrorCode DagMC::point_in_volume( MBEntityHandle volume, 
                              double x, double y, double z,
                              int& result )
@@ -382,6 +380,8 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
 
     // Get closest triangles in volume
   static std::vector<MBEntityHandle> tris, surfs;
+  tris.clear();
+  surfs.clear();
   const MBCartVect point(x,y,z);
   MBErrorCode rval = obbTree.closest_to_location( point.array(), root, epsilon, tris, &surfs );
   if (MB_SUCCESS != rval) return rval;
@@ -508,45 +508,79 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
     return MB_SUCCESS;
   }
   
-    // Otherwise test triangles about each vertex that the point was closest to
-    
-    // First get unique list of vertices
-  std::vector<MBEntityHandle> vertices( tris.size() ), uvertices;
+    // Otherwise pick a vertex that the point was closest to remove
+    // any triangles from lists that are not adjacent to that vertex.
+  assert( topo[0] < 3 ); // if here, must be closest to vertex
+  rval = moab_instance()->get_connectivity( tris[0], conn, len );
+  if (MB_SUCCESS != rval || len != 3) 
+    return MB_FAILURE;
+  const MBEntityHandle closest_vert = conn[topo[0]];
+  unsigned w = 1;
+  for (unsigned r = 1; r < tris.size(); ++r) {
+    assert( topo[r] < 3 ); // if here, must be closest to vertex
+    moab_instance()->get_connectivity( tris[r], conn, len );
+    if (conn[topo[r]] == closest_vert) {
+      tris[w] = tris[r];
+      surfs[w] = surfs[r];
+      normals[w] = normals[r];
+      ++w;
+    }
+  }
+  tris.resize(w);
+  surfs.resize(w);
+  normals.resize(w);
+  
+    // use algorithm from:
+    // (referance)
+    // to determine inside vs. outside.
+  
+    // first find single triangle for which all other triangles are to
+    // one side.
+  bool some_above, some_below;
+  MBCartVect vertcoords, closestcoords;
+  moab_instance()->get_coords( &closest_vert, 1, closestcoords.array() );
   for (unsigned i = 0; i < tris.size(); ++i) {
-    assert( (unsigned)(topo[i]) < 3);
-    moab_instance()->get_connectivity( tris[1], conn, len, true );
-    vertices.push_back( conn[topo[i]] );
-  }
-  uvertices = vertices;
-  std::sort( uvertices.begin(), uvertices.end() );
-  uvertices.erase( std::unique( uvertices.begin(), uvertices.end() ), uvertices.end() );
-  
-    // Now for each vertex, test if we are inside or outside all the triangles
-  for (unsigned i = 0; i < uvertices.size(); ++i) {
-    bool inside_all = true, outside_all = true;
+    some_above = some_below = false;
     for (unsigned j = 0; j < tris.size(); ++j) {
-      if (vertices[j] != uvertices[i])
+      if (j == i)
         continue;
-        
-      const double dot = normals[j] % (closest[j] - point);
-      if (dot < -std::numeric_limits<double>::epsilon())
-        inside_all = false;
-      if (dot > std::numeric_limits<double>::epsilon())
-        outside_all = false;
+      
+      moab_instance()->get_connectivity( tris[j], conn, len );
+      for (int k = 0; k < len; ++k) {
+        moab_instance()->get_coords( conn+k, 1, vertcoords.array() );
+        const double dot = normals[i] % (closestcoords - vertcoords);
+        if (dot * dot / (normals[i] % normals[i]) > epsilon * epsilon) {
+          if (dot < 0.0)
+            some_above = true;
+          else
+            some_below = true;
+        }
+      }
     }
-    if (inside_all) {
-      result = 1;
+    
+      // All triangles are roughly co-planar: if we're inside of
+      // one then we're inside of all.
+    if (!some_above && !some_below) {
+      result = (normals[i] % (closestcoords - point)) > 0.0;
       return MB_SUCCESS;
     }
-    else if (outside_all) {
-      result = 0;
+      // All other triangles to one side of this triangle:
+    else if (some_above != some_below) {
+        // If all other triangles are above this one (some_above == true),
+        // then the vertex is a concavity so the input point is inside.
+        // If all other triangles are below this one (some_above == false),
+        // then the vertex is a convexity and the input point must be outside.
+      result = some_above;
       return MB_SUCCESS;
     }
   }
   
-    // If this far, then closest to only vertices in the facetting
-    // and cannot determine inside/outside at any vertex.
-    // Use the (very) slow method
+    // If we got here, then something's wrong somewhere.
+    // We appear to be closest to a "saddle" vertex in the
+    // triangulation.  That shoudn't be possible (must be 
+    // closer to at least one of the adjacent triagles than
+    // to the saddle vertex.)
+  assert(false /*shouldn't be here*/);
   return point_in_volume_slow( volume, x, y, z, result );
 }
 
@@ -787,7 +821,8 @@ MBErrorCode DagMC::load_file_and_init(const char* cfile,
     return rval;
 
   // Build OBB trees for everything, but only if we only read geometry
-  if (is_geom) {
+  // Changed to build obb tree if tree does not already exist. -- JK
+  if (!have_obb_tree()) {
     rval = build_obbs(surfs, vols);
     if (MB_SUCCESS != rval) {
       std::cerr << "Failed to build obb." << std::endl;
@@ -814,6 +849,15 @@ MBErrorCode DagMC::load_file_and_init(const char* cfile,
   
   return MB_SUCCESS;
 }
+
+bool DagMC::have_obb_tree()
+{
+  MBRange entities;
+  MBErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+                                                           &obbTag, 0, 1,
+                                                           entities );
+  return MB_SUCCESS == rval && !entities.empty();
+}                                                    
 
 MBEntityHandle DagMC::entity_by_id( int dimension, int id )
 {
@@ -1319,6 +1363,8 @@ MBErrorCode DagMC::CAD_ray_intersect(const double *point,
   
   return MB_SUCCESS;
 #endif
+#else
+  return MB_FAILURE;
 #endif
 }
 
