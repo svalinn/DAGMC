@@ -278,7 +278,7 @@ MBErrorCode DagMC::poly_solid_angle( MBEntityHandle face, const MBCartVect& poin
     return rval;
   
     // calculate normal
-  MBCartVect norm, v1, v0 = coords[1] - coords[0];
+  MBCartVect norm(0.0), v1, v0 = coords[1] - coords[0];
   for (int i = 2; i < len; ++i) {
     v1 = coords[i] - coords[0];
     norm += v0 * v1;
