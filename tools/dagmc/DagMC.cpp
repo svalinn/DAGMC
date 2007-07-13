@@ -1473,6 +1473,8 @@ MBErrorCode DagMC::build_obbs(MBRange &surfs, MBRange &vols)
     rval = moab_instance()->get_entities_by_dimension( *i, 2, tris );
     if (MB_SUCCESS != rval) 
       return rval;
+    if (tris.empty()) 
+      std::cerr << "WARNING: Surface " << get_entity_id(*i) << " has no facets." << std::endl;
     rval = obbTree.build( tris, root );
     if (MB_SUCCESS != rval) 
       return rval;
