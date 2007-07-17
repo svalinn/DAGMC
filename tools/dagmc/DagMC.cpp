@@ -6,9 +6,8 @@
 #include "MBGeomUtil.hpp"
 
 #ifdef CGM
+#include "InitCGMA.hpp"
 #include "CGMApp.hpp"
-#include "AcisQueryEngine.hpp"
-#include "AcisModifyEngine.hpp"
 #include "CubitDefines.h"
 #include "GeometryQueryTool.hpp"
 #include "CubitVector.hpp"
@@ -762,9 +761,8 @@ MBErrorCode DagMC::load_file_and_init(const char* cfile,
     
 #ifdef CGM
       // initialize cgm
-    CGMApp::instance()->startup( 0, NULL );
-    AcisQueryEngine::instance();
-    AcisModifyEngine::instance();
+    InitCGMA::initialize_cgma();
+    InitCGMA::initialize_engine("ACIS");
     CGMApp::instance()->attrib_manager()->set_all_auto_read_flags(true);
     CGMApp::instance()->attrib_manager()->set_all_auto_actuate_flags(true);
     CubitStatus s = GeometryQueryTool::instance()->import_solid_model( scfile.c_str(), "ACIS_SAT");
