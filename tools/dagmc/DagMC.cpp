@@ -1285,7 +1285,7 @@ MBErrorCode DagMC::get_angle(MBEntityHandle surf,
   MBErrorCode rval = obbTree.closest_to_location( in_pt, root, tolerance(), facets );
   assert(MB_SUCCESS == rval);
   
-  MBCartVect coords[3], normal;
+  MBCartVect coords[3], normal(0.0);
   const MBEntityHandle *conn;
   int len;
   for (unsigned i = 0; i < facets.size(); ++i) {
