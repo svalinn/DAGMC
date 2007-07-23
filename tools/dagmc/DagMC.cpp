@@ -371,163 +371,59 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
                              double x, double y, double z,
                              int& result )
 {
+  MBErrorCode rval;
   const double epsilon = moabMCNPTolerance;
   
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
   MBEntityHandle root = rootSets[volume - setOffset];
 
-    // Get closest triangles in volume
-  static std::vector<MBEntityHandle> tris, surfs;
-  tris.clear();
-  surfs.clear();
+    // Get closest point in triangulation
   const MBCartVect point(x,y,z);
-  MBErrorCode rval = obbTree.closest_to_location( point.array(), root, epsilon, tris, &surfs );
-  if (MB_SUCCESS != rval) return rval;
+  MBEntityHandle facet;
+  MBCartVect closest, diff;
+  rval = obbTree.closest_to_location( point.array(), root, closest.array(), facet );
+  if (MB_SUCCESS != rval)  return rval;
   
-    // Get sense of each surface wrt volume
-  std::vector<int> senses( surfs.size() );
-  rval = surface_sense( volume, surfs.size(), &surfs[0], &senses[0] );
-  if (MB_SUCCESS != rval) return rval;
-  
-    // Get closest point on each triangle, and group triangles
-    // by intersection type
-  std::vector<int> edge_tris, vertex_tris;
-  
-    // Get corrected normal, closest point and topolgocal closest for each triangle
-  std::vector<MBCartVect> normals( tris.size() ), closest( tris.size() );
-  std::vector<int> topo( tris.size() );
-  const MBEntityHandle* conn;
-  int len;
-  MBCartVect coords[3];
-  for (unsigned i = 0; i < tris.size(); ++i) {
-      // volume tree shouldn't contain non-manifold surfaces
-    assert(senses[i]);
-    
-    rval = moab_instance()->get_connectivity( tris[i], conn, len );
-    if (MB_SUCCESS != rval || len != 3) 
-      return MB_FAILURE;
-    rval = moab_instance()->get_coords( conn, len, coords[0].array() );
-    if (MB_SUCCESS != rval)
-      return rval;
-    
-    MBGeomUtil::closest_location_on_tri( point, coords, epsilon, closest[i], topo[i] );
-    coords[1] -= coords[0];
-    coords[2] -= coords[0];
-    normals[i] = senses[i] * coords[1] * coords[2];
-  }
-  
-    // If within tolerance of triangle, then return that point is on boundary
-  if ((point - closest[0]).length() < epsilon) {
+    // Check for on-boundary case
+  diff = closest - point;
+  if (diff%diff <= epsilon*epsilon) {
     result = -1;
     return MB_SUCCESS;
   }
   
-    // if only one, then return 
+    // Get triangles at closest point
+  static std::vector<MBEntityHandle> tris, surfs;
+  tris.clear();
+  surfs.clear();
+  rval = obbTree.sphere_intersect_triangles( closest.array(), epsilon, root, tris, &surfs );
+  if (MB_SUCCESS != rval) return rval;
+  
+    // One-triangle case : determine if point is above or below triangle
+  const MBEntityHandle* conn;
+  int len, sense;
+  MBCartVect coords[3], normal;
   if (tris.size() == 1) {
-      // Ignore the possibility of being in the plane of the 
-      // triangle.  If parallel to one triangle, should have
-      // at least one other triangle.
-    result = (normals[0] % (closest[0] - point) > 0.0);
-    return MB_SUCCESS;
-  }
-  
-    // If we found any triangle for which the closest point was in
-    // the interior, just use that one
-  std::vector<int>::iterator ii = std::find( topo.begin(), topo.end(), 6 );
-  if (ii != topo.end()) {
-    int idx = ii - topo.begin();
-    result = (normals[idx] % (closest[idx] - point) > 0.0);
-    return MB_SUCCESS;
-  }
-  
-    // Otherwise if we found any triangle for which the
-    // closest point was at an edge, find it's neighbor and use the pair
-  for (ii = topo.begin(); ii != topo.end() && *ii < 3; ++ii);
-  if (ii != topo.end()) // found one
-  {
-    unsigned idx1 = ii - topo.end();
-    int idx2 = -1;
-    MBEntityHandle edge[2];
-    moab_instance()->get_connectivity( tris[idx1], conn, len, true );
-    edge[0] = conn[*ii - 3];
-    edge[1] = conn[(*ii - 2) % 3];
-    for (unsigned i = 0; i < tris.size(); ++i) {
-      if (i == idx1)
-        continue;
-      moab_instance()->get_connectivity( tris[i], conn, len, true );
-      int j;
-      for (j = 0; j < 3; ++j)
-        if (conn[j] == edge[0])
-          if (conn[(j+1)%3] == edge[1] || conn[(j+2)%3] == edge[1])
-            break;
-      if (j < 3) {
-        idx2 = i;
-        break;
-      }
-    }
+    rval = moab_instance()->get_connectivity( tris.front(), conn, len );
+    if (MB_SUCCESS != rval || len != 3) 
+      return MB_FAILURE;
+    rval = moab_instance()->get_coords( conn, len, coords[0].array() );
+    if (MB_SUCCESS != rval) return rval;
     
-    if (idx2 < 0) { // if no adjacent triangle
-      assert(false);
-      result = (normals[idx1] % (closest[idx1] - point) > 0.0);
-      return MB_SUCCESS;
-    }
-    
-      // Check if inside or outside of both facets first.
-      // This avoids potential rounding/accuracy issues 
-      // when testing for convexity/concavity if the facets
-      // are near co-planer, and handles the special case 
-      // where both facets are exactly coplanar.
-    const double dot1 = normals[idx1] % (closest[idx1] - point);
-    const double dot2 = normals[idx2] % (closest[idx2] - point);
-    const bool inside1 = dot1 > -std::numeric_limits<double>::epsilon();
-    const bool inside2 = dot2 > -std::numeric_limits<double>::epsilon();
-    const bool outside1 = dot1 < std::numeric_limits<double>::epsilon();
-    const bool outside2 = dot2 < std::numeric_limits<double>::epsilon();
-    if (inside1 && inside2)
-      result = 1;
-    else if (outside1 && outside2)
-      result = 0;
-    else {
-        // Edge is at a concavity if the projection of the normal of 
-        // triangle A into the plane of triangle B points into triangle
-        // B.  It is a convexity if it points out of triangle B (from the
-        // shared edge).  This test can be reduced to checking the sign of
-        // dot product of the normal of triangle A with any vector pointing
-        // into triangle B from the shared edge.  
-        
-        // Get triangle coordinates
-      moab_instance()->get_connectivity( tris[idx2], conn, len, true );
-      moab_instance()->get_coords( conn, len, coords[0].array() );
-        // Get a vector from edge end point to opposite vertex
-      const MBCartVect vect2 = coords[(topo[idx2] - 1) % 3] - coords[topo[idx2]];
-      result = (vect2 % normals[idx1] >= 0.0); // true if a concavity
-        result = inside1 || inside2;
-    }
+    rval = surface_sense( volume, 1, &surfs.front(), &sense );
+    if (MB_SUCCESS != rval) return rval;
+
+      // get triangle normal
+    coords[1] -= coords[0];
+    coords[2] -= coords[0];
+    normal = sense * coords[1] * coords[2];
+      // compare relative sense
+    result = (normal % (point - closest) < 0.0);
     return MB_SUCCESS;
   }
   
-    // Otherwise pick a vertex that the point was closest to remove
-    // any triangles from lists that are not adjacent to that vertex.
-  assert( topo[0] < 3 ); // if here, must be closest to vertex
-  rval = moab_instance()->get_connectivity( tris[0], conn, len );
-  if (MB_SUCCESS != rval || len != 3) 
-    return MB_FAILURE;
-  const MBEntityHandle closest_vert = conn[topo[0]];
-  unsigned w = 1;
-  for (unsigned r = 1; r < tris.size(); ++r) {
-    assert( topo[r] < 3 ); // if here, must be closest to vertex
-    moab_instance()->get_connectivity( tris[r], conn, len );
-    if (conn[topo[r]] == closest_vert) {
-      tris[w] = tris[r];
-      surfs[w] = surfs[r];
-      normals[w] = normals[r];
-      ++w;
-    }
-  }
-  tris.resize(w);
-  surfs.resize(w);
-  normals.resize(w);
+    // many triangle case : determine if closest point is convexity or concavity
+  
   
     // use algorithm from:
     // (referance)
@@ -536,20 +432,40 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
     // first find single triangle for which all other triangles are to
     // one side.
   bool some_above, some_below;
-  MBCartVect vertcoords, closestcoords;
-  moab_instance()->get_coords( &closest_vert, 1, closestcoords.array() );
   for (unsigned i = 0; i < tris.size(); ++i) {
     some_above = some_below = false;
+
+    rval = moab_instance()->get_connectivity( tris[i], conn, len );
+    if (MB_SUCCESS != rval || len != 3) 
+      return MB_FAILURE;
+    rval = moab_instance()->get_coords( conn, len, coords[0].array() );
+    if (MB_SUCCESS != rval) return rval;
+    
+    rval = surface_sense( volume, 1, &surfs.front(), &sense );
+    if (MB_SUCCESS != rval) return rval;
+
+      // get triangle normal
+    coords[1] -= coords[0];
+    coords[2] -= coords[0];
+    normal = sense * coords[1] * coords[2];
+    closest = coords[0];
+    const double norm_len_sqr = normal % normal;
+
     for (unsigned j = 0; j < tris.size(); ++j) {
       if (j == i)
         continue;
       
-      moab_instance()->get_connectivity( tris[j], conn, len );
+      rval = moab_instance()->get_connectivity( tris[j], conn, len );
+      if (MB_SUCCESS != rval || len != 3)
+        return MB_FAILURE;
+      rval = moab_instance()->get_coords( conn, len, coords[0].array() );
+      if (MB_SUCCESS != rval)
+        return rval;
+      
       for (int k = 0; k < len; ++k) {
-        moab_instance()->get_coords( conn+k, 1, vertcoords.array() );
-        const double dot = normals[i] % (closestcoords - vertcoords);
-        if (dot * dot / (normals[i] % normals[i]) > epsilon * epsilon) {
-          if (dot < 0.0)
+        const double dot = normal % (coords[k] - closest);
+        if (dot * dot / norm_len_sqr > epsilon * epsilon) {
+          if (dot > 0.0)
             some_above = true;
           else
             some_below = true;
@@ -560,7 +476,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
       // All triangles are roughly co-planar: if we're inside of
       // one then we're inside of all.
     if (!some_above && !some_below) {
-      result = (normals[i] % (closestcoords - point)) > 0.0;
+      result = (normal % (closest - point)) > 0.0;
       return MB_SUCCESS;
     }
       // All other triangles to one side of this triangle:
@@ -586,9 +502,6 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
 // detemine distance to nearest surface
 MBErrorCode DagMC::closest_to_location( MBEntityHandle volume, double* coords, double& result)
 {
-
-  const double epsilon = moabMCNPTolerance;
-  
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
   MBEntityHandle root = rootSets[volume - setOffset];
@@ -597,7 +510,7 @@ MBErrorCode DagMC::closest_to_location( MBEntityHandle volume, double* coords, d
   const MBCartVect point(coords);
   MBCartVect nearest;
   MBEntityHandle facet_out;
-  MBErrorCode rval = obbTree.closest_to_location( point.array(), root, epsilon, nearest.array(), facet_out );
+  MBErrorCode rval = obbTree.closest_to_location( point.array(), root, nearest.array(), facet_out );
   if (MB_SUCCESS != rval) return rval;
 
   // calculate distance between point and nearest facet
