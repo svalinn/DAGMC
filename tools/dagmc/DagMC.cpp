@@ -55,6 +55,10 @@ DagMC::DagMC(MBInterface *mb_impl)
   geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TAG_DENSE, MB_TYPE_INTEGER );
 
   obbTag = get_tag( MB_OBB_TREE_TAG_NAME, sizeof(MBEntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
+  
+    // get sense of surfaces wrt volumes
+  senseTag = get_tag( "GEOM_SENSE_2", 2*sizeof(MBEntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
+
 }
 
 MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_surf_hit, 
@@ -77,8 +81,8 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   MBErrorCode rval;
     // delcare some stuff static so we don't need to re-created
     // it for every call
-  static std::vector<double> distances;
-  static std::vector<MBEntityHandle> surfaces;
+  std::vector<double> &distances = distList;
+  std::vector<MBEntityHandle> &surfaces = surfList;
   
   
     // do ray fire
@@ -263,8 +267,8 @@ MBErrorCode DagMC::poly_solid_angle( MBEntityHandle face, const MBCartVect& poin
     return rval;
   
     // Allocate space to store vertices
-  static MBCartVect coords_static[4];
-  static std::vector<MBCartVect> coords_dynamic;
+  MBCartVect coords_static[4];
+  std::vector<MBCartVect> coords_dynamic;
   MBCartVect* coords = coords_static;
   if ((unsigned)len > (sizeof(coords_static)/sizeof(coords_static[0]))) {
     coords_dynamic.resize(len);
@@ -393,7 +397,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
   }
   
     // Get triangles at closest point
-  static std::vector<MBEntityHandle> tris, surfs;
+  std::vector<MBEntityHandle> &tris = triList, &surfs = surfList;
   tris.clear();
   surfs.clear();
   rval = obbTree.sphere_intersect_triangles( closest.array(), epsilon, root, tris, &surfs );
@@ -410,7 +414,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
     rval = moab_instance()->get_coords( conn, len, coords[0].array() );
     if (MB_SUCCESS != rval) return rval;
     
-    rval = surface_sense( volume, 1, &surfs.front(), &sense );
+    rval = surface_sense( volume, surfs.front(), sense );
     if (MB_SUCCESS != rval) return rval;
 
       // get triangle normal
@@ -441,7 +445,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
     rval = moab_instance()->get_coords( conn, len, coords[0].array() );
     if (MB_SUCCESS != rval) return rval;
     
-    rval = surface_sense( volume, 1, &surfs.front(), &sense );
+    rval = surface_sense( volume, surfs.front(), sense );
     if (MB_SUCCESS != rval) return rval;
 
       // get triangle normal
@@ -621,12 +625,8 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
                            const MBEntityHandle* surfaces,
                            int* senses_out )
 {
-  
-    // get sense of surfaces wrt volumes
-  static const MBTag tag = get_tag( "GEOM_SENSE_2", 2*sizeof(MBEntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
-
   std::vector<MBEntityHandle> surf_volumes( 2*num_surfaces );
-  MBErrorCode rval = moab_instance()->tag_get_data( tag, surfaces, num_surfaces, &surf_volumes[0] );
+  MBErrorCode rval = moab_instance()->tag_get_data( sense_tag(), surfaces, num_surfaces, &surf_volumes[0] );
   if (MB_SUCCESS != rval)  return rval;
   
   const MBEntityHandle* end = surfaces + num_surfaces;
@@ -644,6 +644,26 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
     ++surfaces;
     ++senses_out;
   }
+  
+  return MB_SUCCESS;
+}
+
+// get sense of surface(s) wrt volume
+MBErrorCode DagMC::surface_sense( MBEntityHandle volume, 
+                                  MBEntityHandle surface,
+                                  int& sense_out )
+{
+    // get sense of surfaces wrt volumes
+  MBEntityHandle surf_volumes[2];
+  MBErrorCode rval = moab_instance()->tag_get_data( sense_tag(), &surface, 1, surf_volumes );
+  if (MB_SUCCESS != rval)  return rval;
+  
+  if (surf_volumes[0] == volume)
+    sense_out = (surf_volumes[1] != volume); // zero if both, otherwise 1
+  else if (surf_volumes[1] == volume) 
+    sense_out = -1;
+  else
+    return MB_ENTITY_NOT_FOUND;
   
   return MB_SUCCESS;
 }
@@ -1193,7 +1213,7 @@ MBErrorCode DagMC::get_angle(MBEntityHandle surf,
   MBEntityHandle root = rootSets[surf - setOffset];
   
   const double in_pt[] = { xxx, yyy, zzz };
-  static std::vector<MBEntityHandle> facets;
+  std::vector<MBEntityHandle> &facets = triList;
   facets.clear();
   MBErrorCode rval = obbTree.closest_to_location( in_pt, root, tolerance(), facets );
   assert(MB_SUCCESS == rval);
@@ -1411,7 +1431,7 @@ MBErrorCode DagMC::build_obbs(MBRange &surfs, MBRange &vols)
         // skip any surfaces that are non-manifold in the volume
         // because point containment code will get confused by them
       int sense;
-      rval = surface_sense( *i, 1, &*j, &sense );
+      rval = surface_sense( *i, *j, sense );
       if (MB_SUCCESS != rval) {
         std::cerr << "Surface/Volume sense data missing." << std::endl;
         return rval;

@@ -62,6 +62,10 @@ public:
                              const MBEntityHandle* surfaces,
                              int* senses_out );
 
+    // Get the sense of surfaces wrt a volume.  Sense values are:
+    // {-1 -> reversed, 0 -> both, 1 -> forward}
+  MBErrorCode surface_sense( MBEntityHandle volume, MBEntityHandle surface, int& sense_out );
+
     // load mesh and initialize
   MBErrorCode load_file_and_init(const char* cfile,
                                  const int clen,
@@ -97,6 +101,8 @@ public:
   MBTag id_tag() {return idTag;}
 
   MBTag name_tag() {return nameTag;}
+  
+  MBTag sense_tag() { return senseTag; }
 
   double distance_limit() {return distanceLimit;}
   void distance_limit(double this_limit) {distanceLimit = this_limit;}
@@ -164,7 +170,7 @@ private:
   MBInterface *mbImpl;
 
   MBOrientedBoxTreeTool obbTree;
-  MBTag obbTag, geomTag, idTag, nameTag;
+  MBTag obbTag, geomTag, idTag, nameTag, senseTag;
   
   Option options[4];
 
@@ -201,6 +207,10 @@ private:
   DagMC(MBInterface *mb_impl);
   
   static DagMC *instance_;
+  
+    // temporary storage so functions don't have to reallocate vectors
+  std::vector<MBEntityHandle> triList, surfList;
+  std::vector<double> distList;
 };
 
 inline char *DagMC::get_spec_reflect() 
