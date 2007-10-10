@@ -34,17 +34,21 @@ const bool debug = false;
 
 DagMC::DagMC(MBInterface *mb_impl) 
     : mbImpl(mb_impl), obbTree(mb_impl), 
-      moabMCNPTolerance(1e-6), moabMCNPSourceCell(0), moabMCNPUseDistLimit(false)
+      distanceTolerance(1e-6), facetingTolerance(0.001), 
+      moabMCNPSourceCell(0), moabMCNPUseDistLimit(false)
 {
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
   options[1] = Option( "distance_tolerance", "positive real value", "0.001" );
   options[2] = Option( "use_distance_limit", "one to enable distance limit optimization, zero otherwise", "0" );
   options[3] = Option( "use_cad", "one to ray-trace to cad, zero for just facets", "0" );
+  options[4] = Option( "faceting_tolerance", "graphics faceting tolerance", "0.001" );
   
   memset( specReflectName, 0, NAME_TAG_SIZE );
   strcpy( specReflectName, "spec_reflect" );
   memset( whiteReflectName, 0, NAME_TAG_SIZE );
   strcpy( whiteReflectName, "white_reflect" );
+  memset( implComplName, 0, NAME_TAG_SIZE );
+  strcpy( implComplName , "impl_complement" );
 
   distanceLimit = std::numeric_limits<double>::max();
 
@@ -95,7 +99,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   rval = obbTree.ray_intersect_sets( distances,
                                      surfaces, 
                                      root, 
-                                     tolerance(),
+                                     distance_tolerance(),
                                      2,
                                      point, dir,
                                      &len);
@@ -104,7 +108,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
 #ifdef CGM
   if (useCAD) {
 #ifdef CUBIT_CGM
-    std::cout << "USE_CAD = 1 not supported with this build of CGM/DagMC;"
+    std::cout << "use_cad = 1 not supported with this build of CGM/DagMC;"
               << std:: endl
               << "need an ACIS-based install of CGM." << std::endl;
     return MB_NOT_IMPLEMENTED;
@@ -128,7 +132,8 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   int smallest = std::min_element( distances.begin(), distances.end() ) - distances.begin();
   
     // If intersected previous surface near start of ray, reject it
-  if (surfaces[smallest] == last_surf_hit && distances[smallest] < tolerance()) {
+  if (surfaces[smallest] == last_surf_hit && 
+      distances[smallest] < distance_tolerance()) {
     distances.erase( distances.begin() + smallest );
     surfaces.erase( surfaces.begin() + smallest );
   
@@ -176,12 +181,23 @@ void DagMC::parse_settings() {
     std::cerr << "Invalid source_cell = " << moabMCNPSourceCell << std::endl;
     exit(2);
   }
-  moabMCNPTolerance = strtod( options[1].value.c_str(), 0 );
-  if (moabMCNPTolerance <= 0 || moabMCNPTolerance > 1) {
-    std::cerr << "Invalid distance_tolerance = " << moabMCNPTolerance << std::endl;
+  distanceTolerance = strtod( options[1].value.c_str(), 0 );
+  if (distanceTolerance <= 0 || distanceTolerance > 1) {
+    std::cerr << "Invalid distance_tolerance = " << distanceTolerance << std::endl;
     exit(2);
   }
+
   moabMCNPUseDistLimit = !!atoi( options[2].value.c_str() );
+
+  useCAD = !!atoi( options[3].value.c_str() );
+#ifdef CUBIT_CGM
+  if (useCAD) {
+    std::cout << "Warning: use_cad = 1 not supported with this build of "
+              << "CGM/DagMC;" << std:: endl
+              << "need an ACIS-based install of CGM." << std::endl;
+  }
+#endif  
+    
 }
 
 void DagMC::read_settings( const char* filename )
@@ -376,7 +392,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
                              int& result )
 {
   MBErrorCode rval;
-  const double epsilon = moabMCNPTolerance;
+  const double epsilon = distanceTolerance;
   
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
@@ -534,6 +550,12 @@ MBErrorCode DagMC::measure_volume( MBEntityHandle volume, double& result )
   std::vector<MBEntityHandle> surfaces, surf_volumes;
   result = 0.0;
   
+   // don't try to calculate volume of implicit complement
+  if (volume == impl_compl_handle) {
+    result = 1.0;
+    return MB_SUCCESS;
+  }
+
     // get surfaces from volume
   rval = moab_instance()->get_child_meshsets( volume, surfaces );
   if (MB_SUCCESS != rval) return rval;
@@ -704,7 +726,7 @@ MBErrorCode DagMC::load_file_and_init(const char* cfile,
                 << std::endl;
       exit(2);
     }
-    if (!cgm2moab(moab_instance())) {
+    if (!cgm2moab(moab_instance(), facetingTolerance)) {
       std::cerr << "Internal error copying geometry" << std::endl;
       exit(5);
     }
@@ -750,6 +772,14 @@ MBErrorCode DagMC::load_file_and_init(const char* cfile,
   rval = moab_instance()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, two_val, 1, surfs );
   if (MB_SUCCESS != rval)
     return rval;
+
+    // If it doesn't already exist, create implicit complement
+    // Create data structures for implicit complement
+  rval = get_impl_compl();
+  if (MB_SUCCESS != rval) {
+    std::cerr << "Failed to find or create implicit complement handle." << std::endl;
+    return rval;
+  }
 
   // Build OBB trees for everything, but only if we only read geometry
   // Changed to build obb tree if tree does not already exist. -- JK
@@ -901,13 +931,27 @@ void DagMC::write_log(std::string ifile, const bool overwrite)
       const char *cdensity = density_str.c_str();
       int matid = atoi(cmatid);
       double density = atof(cdensity);
-        // Get the volumes in the current group                                    
-      MBRange grp_vols = grp_sets.intersect(vols_save);
-      for (MBRange::iterator rit = grp_vols.begin(); rit != grp_vols.end(); rit++) {
-        MBEntityHandle vol = *rit;
-        int cell_num = index_by_handle(vol);
-        mats[cell_num-1]=matid;
-        dens[cell_num-1]=density;
+
+        // check for material definition in complement
+      if (grp_names[0].find("comp",0) < 20) {
+
+        std::cout<<"write_log: complement material and density specified" << std::endl;
+        mats[ncells-1]=matid;
+        dens[ncells-1]=density;
+
+      }
+      else {
+
+          // Get the volumes in the current group                                    
+        MBRange grp_vols = grp_sets.intersect(vols_save);
+        for (MBRange::iterator rit = grp_vols.begin(); 
+             rit != grp_vols.end(); rit++) {
+          MBEntityHandle vol = *rit;
+          int cell_num = index_by_handle(vol);
+          mats[cell_num-1]=matid;
+          dens[cell_num-1]=density;
+        }
+
       }
     }
     else if ((grp_names[0].find("spec_reflect",0)==0) ||
@@ -1215,7 +1259,7 @@ MBErrorCode DagMC::get_angle(MBEntityHandle surf,
   const double in_pt[] = { xxx, yyy, zzz };
   std::vector<MBEntityHandle> &facets = triList;
   facets.clear();
-  MBErrorCode rval = obbTree.closest_to_location( in_pt, root, tolerance(), facets );
+  MBErrorCode rval = obbTree.closest_to_location( in_pt, root, distance_tolerance(), facets );
   assert(MB_SUCCESS == rval);
   
   MBCartVect coords[3], normal(0.0);
@@ -1306,9 +1350,14 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
   
     // surf/vol offsets are just first handles
   setOffset = (*surfs.begin() < *vols.begin() ? *surfs.begin() : *vols.begin());
-  unsigned int tmp_offset = (surfs.back() > vols.back() ? surfs.back() : vols.back())
-    - setOffset + 1;
-  rootSets.resize(tmp_offset);
+  setOffset = (impl_compl_handle < setOffset ? impl_compl_handle : setOffset);
+    // max
+  unsigned int tmp_offset = (surfs.back() > vols.back() ? 
+                             surfs.back() : vols.back());
+  tmp_offset = (impl_compl_handle > tmp_offset ? 
+                impl_compl_handle : tmp_offset);
+    // set size
+  rootSets.resize(tmp_offset - setOffset + 1);
   entIndices.resize(rootSets.size());
 
     // store surf/vol handles lists (surf/vol by index) and
@@ -1317,6 +1366,7 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
   std::vector<MBEntityHandle>::iterator iter = entHandles[2].begin();
   *(iter++) = 0;
   std::copy( surfs.begin(), surfs.end(), iter );
+  entHandles[3].push_back(impl_compl_handle);
   int idx = 1;
   for (MBRange::iterator rit = surfs.begin(); rit != surfs.end(); rit++)
     entIndices[*rit-setOffset] = idx++;
@@ -1326,8 +1376,21 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
   *(iter++) = 0;
   std::copy( vols.begin(), vols.end(), iter );
   idx = 1;
-  for (MBRange::iterator rit = vols.begin(); rit != vols.end(); rit++)
+  int max_id = -1;
+  for (MBRange::iterator rit = vols.begin(); rit != vols.end(); rit++)    {
     entIndices[*rit-setOffset] = idx++;
+    int result=0;
+    moab_instance()->tag_get_data( idTag, &*rit, 1, &result );
+    max_id = (max_id > result ? max_id : result);
+  }
+    // add implicit complement to entity index
+  entIndices[impl_compl_handle-setOffset] = idx++ ;
+
+    // assign ID to implicit complement
+  max_id++;
+  moab_instance()->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
+  
+
 
 #ifdef CGM
   if (is_geom) {
@@ -1390,6 +1453,13 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
   if (MB_SUCCESS != rval) return MB_FAILURE;
   for (i = 0, rit = vols.begin(); rit != vols.end(); rit++, i++)
     rootSets[*rit-setOffset] = rsets[i];
+
+  // add implicit complement root set
+  rsets.resize(1);
+  rval = moab_instance()->tag_get_data(obb_tag(), &impl_compl_handle, 1, 
+                                       &rsets[0]);
+  if (MB_SUCCESS != rval) return MB_FAILURE;
+  rootSets[impl_compl_handle-setOffset] = rsets[0];
 
   return MB_SUCCESS;
 }
@@ -1456,5 +1526,126 @@ MBErrorCode DagMC::build_obbs(MBRange &surfs, MBRange &vols)
 
   }
 
+  rval = build_obb_impl_compl(surfs);
+  if (MB_SUCCESS != rval) {
+    std::cerr << "Unable to build OBB tree for implicit complement." << std::endl;
+    return rval;
+  }
+
   return MB_SUCCESS;
 }
+
+MBErrorCode DagMC::build_obb_impl_compl(MBRange &surfs) 
+{
+  MBEntityHandle comp_root, surf_obb_root;
+  MBRange comp_tree;
+  MBErrorCode rval;
+  std::vector<MBEntityHandle> parent_vols;
+  
+    // search through all surfaces  
+  for (MBRange::iterator surf_i = surfs.begin(); surf_i != surfs.end(); ++surf_i) {
+    
+    parent_vols.clear();
+      // get parents of each surface
+    rval = moab_instance()->get_parent_meshsets( *surf_i, parent_vols );
+    if (MB_SUCCESS != rval)
+      return rval;
+
+      // if only one parent, get the OBB root for this surface
+    if (parent_vols.size() == 1 ) {
+      rval = moab_instance()->tag_get_data( obbTag, &*surf_i, 1, &surf_obb_root );
+      if (MB_SUCCESS != rval)
+        return rval;
+      if (!surf_obb_root)
+        return MB_FAILURE;
+      
+        // add obb root to list of obb roots
+      comp_tree.insert( surf_obb_root );
+    }  
+  }
+  
+    // join surface trees to make OBB tree for implicit complement
+  rval = obbTree.join_trees( comp_tree, comp_root );
+  if (MB_SUCCESS != rval)
+    return rval;
+  
+    // tag the implicit complement handle with the handle for its own OBB tree
+  rval = moab_instance()->tag_set_data( obbTag, &impl_compl_handle, 1, &comp_root );
+  if (MB_SUCCESS != rval)
+    return rval;
+  
+  return MB_SUCCESS;
+
+}
+
+MBErrorCode DagMC::getobb(MBEntityHandle volume, double minPt[3],
+                          double maxPt[3])
+{
+  double center[3], axis1[3], axis2[3], axis3[3];
+ 
+    // get center point and vectors to OBB faces
+  MBErrorCode rval = getobb(volume, center, axis1, axis2, axis3);
+  if (MB_SUCCESS != rval)
+    return rval;
+     
+    // compute min and max verticies
+  for (int i=0; i<3; i++) 
+  {
+    minPt[i] = center[i] - (axis1[i] + axis2[i] + axis3[i]);
+    maxPt[i] = center[i] + (axis1[i] + axis2[i] + axis3[i]);
+  }
+  return MB_SUCCESS;
+}
+
+MBErrorCode DagMC::getobb(MBEntityHandle volume, double center[3], double axis1[3],
+                          double axis2[3], double axis3[3])
+{
+    //find MBEntityHandle node_set for use in box
+  MBEntityHandle root = rootSets[volume - setOffset];
+  
+    // call box to get center and vectors to faces
+  return obbTree.box(root, center, axis1, axis2, axis3);
+  
+}
+
+MBErrorCode DagMC::get_impl_compl()
+{
+  MBRange entities;
+  const void* const tagdata[] = {implComplName};
+  MBErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+                                                           &nameTag, tagdata, 1,
+                                                           entities );
+  if (MB_SUCCESS != rval) {
+    std::cerr << "Unable to query for implicit complement." << std::endl;
+    return rval;
+  }
+
+  if (entities.size() > 1) {
+    std::cerr << "Too many implicit complement sets." << std::endl;
+    return MB_MULTIPLE_ENTITIES_FOUND;
+  }
+
+  if (entities.empty()) {
+    rval= moab_instance()->create_meshset(MESHSET_SET,impl_compl_handle);
+    if (MB_SUCCESS != rval) {
+      std::cerr << "Failed to create mesh set for implicit complement." << std::endl;
+      return rval;
+    }
+      // tag this entity with name for implicit complement
+    rval = moab_instance()->tag_set_data(nameTag,&impl_compl_handle,1,&implComplName);
+    if (MB_SUCCESS != rval) {
+      std::cerr << "Failed to tag new entity as implicit complement." << std::endl;
+    }
+
+    return rval;
+
+  } else {
+    impl_compl_handle = entities.front();
+    return MB_SUCCESS;
+  }
+  
+  
+}                                                    
+
+  
+

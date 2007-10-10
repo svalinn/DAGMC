@@ -154,7 +154,6 @@ static bool run_test( std::string name, int argc, char* argv[] )
     std::cout << #A << "... " << std::endl; \
     if (MB_SUCCESS != A ( dagmc ) ) { \
       ++errors; \
-      std::cout << "<<FAILED>>" << std::endl; \
     } \
   } \
 } while(false)
@@ -180,7 +179,7 @@ int main( int argc, char* argv[] )
   }
   
   int errors = 0;
-  //RUN_TEST( test_ray_fire );
+  RUN_TEST( test_ray_fire );
   RUN_TEST( test_point_in_volume );
   RUN_TEST( test_measure_volume );
   RUN_TEST( test_measure_area );

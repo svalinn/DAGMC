@@ -120,12 +120,22 @@ public:
   MBErrorCode get_angle(MBEntityHandle surf, 
                         double xxx, double yyy, double zzz, double *ang);
   
+
+    // get the corners of the OBB for a given volume
+  MBErrorCode getobb(MBEntityHandle volume, double minPt[3], double maxPt[3]);
+
+    // get the center point and three vectors for the OBB of a given volume
+  MBErrorCode getobb(MBEntityHandle volume, double center[3], 
+                     double axis1[3], double axis2[3], double axis3[3]);
+
   int get_entity_id(MBEntityHandle this_ent);
 
     // Get the instance of MOAB used by functions in this file.
   MBInterface* moab_instance() {return mbImpl;}
 
-  double tolerance() {return moabMCNPTolerance;}
+  double distance_tolerance() {return distanceTolerance;}
+  
+  double faceting_tolerance() {return facetingTolerance;}
   
   int source_cell() {return moabMCNPSourceCell;}
 
@@ -143,6 +153,8 @@ public:
 private:
   bool have_obb_tree();
 
+  MBErrorCode get_impl_compl();
+  
   MBTag get_tag( const char* name, int size, MBTagType store, MBDataType type,
                  bool create_if_missing = true);
 
@@ -156,6 +168,7 @@ private:
   
     // build obb structure
   MBErrorCode build_obbs(MBRange &surfs, MBRange &vols);
+  MBErrorCode build_obb_impl_compl(MBRange &surfs);
   
   class Option {
   public:
@@ -176,10 +189,14 @@ private:
 
   char specReflectName[NAME_TAG_SIZE];
   char whiteReflectName[NAME_TAG_SIZE];
+  char implComplName[NAME_TAG_SIZE];
 
   std::vector<MBEntityHandle> entHandles[5];
 
-  double moabMCNPTolerance;
+  MBEntityHandle impl_compl_handle;
+
+  double distanceTolerance;
+  double facetingTolerance;
   int moabMCNPSourceCell;
   bool moabMCNPUseDistLimit;
   bool useCAD;
