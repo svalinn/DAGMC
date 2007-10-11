@@ -181,6 +181,7 @@ void DagMC::parse_settings() {
     std::cerr << "Invalid source_cell = " << moabMCNPSourceCell << std::endl;
     exit(2);
   }
+
   distanceTolerance = strtod( options[1].value.c_str(), 0 );
   if (distanceTolerance <= 0 || distanceTolerance > 1) {
     std::cerr << "Invalid distance_tolerance = " << distanceTolerance << std::endl;
@@ -198,12 +199,19 @@ void DagMC::parse_settings() {
   }
 #endif  
     
+  facetingTolerance = strtod( options[4].value.c_str(), 0 );
+  if (facetingTolerance <= 0) {
+    std::cerr << "Invalid faceting_tolerance = " << facetingTolerance << std::endl;
+    exit(2);
+  }
+
 }
 
 void DagMC::read_settings( const char* filename )
 {
   int num_opt = sizeof(options) / sizeof(options[0]);
   FILE* file;
+  
   if (filename && (file = fopen( filename, "r" ))) {
     int line = 0;
     char buffer[256];
@@ -248,6 +256,7 @@ void DagMC::read_settings( const char* filename )
         if (options[i].name == p) {
           found = true;
           options[i].value = v;
+          options[i].user_set = true;
         }
       }
       if (!found) 
@@ -755,6 +764,10 @@ MBErrorCode DagMC::load_file_and_init(const char* cfile,
                 << "a mesh file;" << std::endl
                 << " turning that parameter off for you." << std::endl;
       useCAD = 0;
+    }
+    else if (options[4].user_set == true) {
+      std::cerr << "Warning: user-set tolerance won't apply to pre-generated mesh file." 
+                << std::endl;
     }
   }
 
@@ -1363,18 +1376,18 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
     // store surf/vol handles lists (surf/vol by index) and
     // index by handle lists
   surf_handles().resize( surfs.size() + 1 );
-  std::vector<MBEntityHandle>::iterator iter = entHandles[2].begin();
+  std::vector<MBEntityHandle>::iterator iter = surf_handles().begin();
   *(iter++) = 0;
   std::copy( surfs.begin(), surfs.end(), iter );
-  entHandles[3].push_back(impl_compl_handle);
   int idx = 1;
   for (MBRange::iterator rit = surfs.begin(); rit != surfs.end(); rit++)
     entIndices[*rit-setOffset] = idx++;
   
-  entHandles[3].resize( vols.size() + 1 );
-  iter = entHandles[3].begin();
+  vol_handles().resize( vols.size() + 1 );
+  iter = vol_handles().begin();
   *(iter++) = 0;
   std::copy( vols.begin(), vols.end(), iter );
+  vol_handles().push_back(impl_compl_handle);
   idx = 1;
   int max_id = -1;
   for (MBRange::iterator rit = vols.begin(); rit != vols.end(); rit++)    {
@@ -1434,9 +1447,9 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
                                                        group_val, 1, groups);
   if (MB_SUCCESS != rval)
     return rval;
-  entHandles[4].resize(groups.size()+1);
-  entHandles[4][0] = 0;
-  std::copy(groups.begin(), groups.end(), &entHandles[4][1]);
+  group_handles().resize(groups.size()+1);
+  group_handles()[0] = 0;
+  std::copy(groups.begin(), groups.end(), &group_handles()[1]);
 
     // populate root sets vector
   std::vector<MBEntityHandle> rsets;

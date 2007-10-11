@@ -16,6 +16,9 @@ class MBCartVect;
 class RefEntity;
 #endif
 
+#define DAGMC_VERSION 0.99
+#define DAGMC_VERSION_STRING "0.99"
+
 class DagMC 
 {
 public:
@@ -23,6 +26,9 @@ public:
   
   ~DagMC();
   
+    // Return the version of this library
+  float version(std::string *version_string = NULL);
+
   MBErrorCode ray_fire(const MBEntityHandle cell, const MBEntityHandle last_surf_hit, 
                        const int num_pts,
                        const double uuu, const double vvv, const double www,
@@ -174,8 +180,9 @@ private:
   public:
     Option(){}
     Option( const char* n, const char* d, const char* v )
-        : name(n), desc(d), value(v) {}
+        : name(n), desc(d), value(v), user_set(false) {}
     std::string name, desc, value;
+    bool user_set;
   };
 
   std::string itos(int ival);
@@ -229,6 +236,13 @@ private:
   std::vector<MBEntityHandle> triList, surfList;
   std::vector<double> distList;
 };
+
+inline float DagMC::version(std::string *version_string) 
+{
+  if (NULL != version_string)
+    *version_string = std::string("DagMC version ") + std::string(DAGMC_VERSION_STRING);
+  return DAGMC_VERSION;
+}
 
 inline char *DagMC::get_spec_reflect() 
 {
