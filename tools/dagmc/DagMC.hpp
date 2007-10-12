@@ -192,7 +192,7 @@ private:
   MBOrientedBoxTreeTool obbTree;
   MBTag obbTag, geomTag, idTag, nameTag, senseTag;
   
-  Option options[4];
+  Option options[5];
 
   char specReflectName[NAME_TAG_SIZE];
   char whiteReflectName[NAME_TAG_SIZE];
