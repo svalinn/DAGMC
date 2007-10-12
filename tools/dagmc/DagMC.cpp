@@ -38,7 +38,7 @@ DagMC::DagMC(MBInterface *mb_impl)
       moabMCNPSourceCell(0), moabMCNPUseDistLimit(false)
 {
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
-  options[1] = Option( "distance_tolerance", "positive real value", "0.001" );
+  options[1] = Option( "distance_tolerance", "positive real value", "0.000001" );
   options[2] = Option( "use_distance_limit", "one to enable distance limit optimization, zero otherwise", "0" );
   options[3] = Option( "use_cad", "one to ray-trace to cad, zero for just facets", "0" );
   options[4] = Option( "faceting_tolerance", "graphics faceting tolerance", "0.001" );
