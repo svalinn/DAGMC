@@ -38,7 +38,7 @@ DagMC::DagMC(MBInterface *mb_impl)
       moabMCNPSourceCell(0), moabMCNPUseDistLimit(false)
 {
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
-  options[1] = Option( "distance_tolerance", "positive real value", "0.000001" );
+  options[1] = Option( "distance_tolerance", "positive real value", "0.001" );
   options[2] = Option( "use_distance_limit", "one to enable distance limit optimization, zero otherwise", "0" );
   options[3] = Option( "use_cad", "one to ray-trace to cad, zero for just facets", "0" );
   options[4] = Option( "faceting_tolerance", "graphics faceting tolerance", "0.001" );
@@ -382,6 +382,62 @@ MBErrorCode DagMC::point_in_volume_slow( MBEntityHandle volume,
   return MB_SUCCESS;
 }
 
+// If point is on boundary, then this function is called to 
+// discriminate cases in which the ray is entering or leaving.
+// result= 1 -> inside volume or entering volume
+// result= 0 -> outside volume or leaving volume
+// result=-1 -> on boundary with null or tangent uvw
+MBErrorCode DagMC::boundary_case( MBEntityHandle volume, int& result, 
+				  double u, double v, double w,
+				  MBEntityHandle facet,
+				  MBEntityHandle surface)
+{
+  MBErrorCode rval;
+
+  // test to see if uvx is provided
+  if ( u <= 1.0 && v <= 1.0 && w <= 1.0 ) {
+
+    const MBCartVect ray_vector(u, v, w);
+    MBCartVect coords[3], normal(0.0);
+    const MBEntityHandle *conn;
+    int len, sense_out;
+   
+    rval = mbImpl->get_connectivity( facet, conn, len );
+      assert( MB_SUCCESS == rval );
+      assert( 3 == len );
+  
+    rval = mbImpl->get_coords( conn, 3, coords[0].array() );
+      assert(MB_SUCCESS == rval);
+   
+    rval = surface_sense( volume, surface, sense_out );
+      assert( MB_SUCCESS == rval);
+
+    coords[1] -= coords[0];
+    coords[2] -= coords[0];
+    normal = sense_out * (coords[1] * coords[2]);
+
+    double sense = ray_vector % normal;
+
+    if ( sense < 0.0 ) {
+      result = 1;     // inside or entering
+    } else  if ( sense > 0.0 ) {
+      result = 0;     // outside or leaving
+    } else  if ( sense == 0.0 ) {
+      result = -1;    // tangent, therefore on boundary
+    } else {
+      result = -1;    // failure
+      return MB_FAILURE;
+    }
+  
+  // if uvw not provided, return on_boundary.
+  } else {
+    result = -1;      // on boundary
+    return MB_SUCCESS;
+  
+  }
+
+  return MB_SUCCESS;
+}
 
 // Fast point_in_volume code.  This function assumes that there is an 
 // OBB tree containing only manifold surfaces in the volume, such that
@@ -398,7 +454,8 @@ MBErrorCode DagMC::point_in_volume_slow( MBEntityHandle volume,
 // vertex cannot be a saddle: it must be a strict concavity or convexity.
 MBErrorCode DagMC::point_in_volume( MBEntityHandle volume, 
                              double x, double y, double z,
-                             int& result )
+                             int& result,
+			     double u, double v, double w)
 {
   MBErrorCode rval;
   const double epsilon = distanceTolerance;
@@ -409,15 +466,15 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
 
     // Get closest point in triangulation
   const MBCartVect point(x,y,z);
-  MBEntityHandle facet;
+  MBEntityHandle facet, surface;
   MBCartVect closest, diff;
-  rval = obbTree.closest_to_location( point.array(), root, closest.array(), facet );
+  rval = obbTree.closest_to_location( point.array(), root, closest.array(), facet, &surface );
   if (MB_SUCCESS != rval)  return rval;
   
     // Check for on-boundary case
   diff = closest - point;
   if (diff%diff <= epsilon*epsilon) {
-    result = -1;
+    return boundary_case( volume, result, u, v, w, facet, surface );
     return MB_SUCCESS;
   }
   
