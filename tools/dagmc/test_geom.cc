@@ -446,12 +446,12 @@ MBErrorCode test_point_in_volume( DagMC& dagmc )
 
   for (int i = 0; i < num_test; ++i) {
     int result;
-    
+    double u, v, w;
     rval = dagmc.point_in_volume( vol, 
                                   tests[i].coords[0],
                                   tests[i].coords[1],
                                   tests[i].coords[2],
-                                  result );
+                                  result, u, v, w);
     CHKERR;
     if (result != tests[i].result) {
       std::cerr << "ERROR testing point_in_volume[" << i << "]:" << std::endl

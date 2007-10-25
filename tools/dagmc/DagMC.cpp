@@ -1422,8 +1422,8 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
   setOffset = (*surfs.begin() < *vols.begin() ? *surfs.begin() : *vols.begin());
   setOffset = (impl_compl_handle < setOffset ? impl_compl_handle : setOffset);
     // max
-  unsigned int tmp_offset = (surfs.back() > vols.back() ? 
-                             surfs.back() : vols.back());
+  MBEntityHandle tmp_offset = (surfs.back() > vols.back() ? 
+                               surfs.back() : vols.back());
   tmp_offset = (impl_compl_handle > tmp_offset ? 
                 impl_compl_handle : tmp_offset);
     // set size

@@ -48,7 +48,8 @@ public:
     // Return values: {0 : outside, 1: inside, -1: on boundary}
   MBErrorCode point_in_volume( MBEntityHandle volume, 
                                double x, double y, double z,
-                               int& result );
+                               int& result,
+                               double u, double v, double w);
 
     // Find the distance to the nearest surface
   MBErrorCode closest_to_location( MBEntityHandle volume,
@@ -156,6 +157,11 @@ public:
                                 std::vector<MBEntityHandle> &surfaces, 
                                 double &len);
 
+  MBErrorCode boundary_case( MBEntityHandle volume, int& result, 
+                             double u, double v, double w,
+                             MBEntityHandle facet,
+                             MBEntityHandle surface);
+  
 private:
   bool have_obb_tree();
 
