@@ -126,7 +126,7 @@ public:
 
   MBErrorCode get_angle(MBEntityHandle surf, 
                         double xxx, double yyy, double zzz, double *ang);
-  
+
 
     // get the corners of the OBB for a given volume
   MBErrorCode getobb(MBEntityHandle volume, double minPt[3], double maxPt[3]);

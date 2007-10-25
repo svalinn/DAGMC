@@ -198,7 +198,7 @@ void DagMC::parse_settings() {
               << "need an ACIS-based install of CGM." << std::endl;
   }
 #endif  
-    
+
   facetingTolerance = strtod( options[4].value.c_str(), 0 );
   if (facetingTolerance <= 0) {
     std::cerr << "Invalid faceting_tolerance = " << facetingTolerance << std::endl;
@@ -713,6 +713,13 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
                            const MBEntityHandle* surfaces,
                            int* senses_out )
 {
+
+  /* The sense tags do not reference the implicit complement handle.
+     All surfaces that interact with the implicit complement should have
+     a null handle in the direction of the implicit complement. */
+  if (volume == impl_compl_handle)
+    volume = (MBEntityHandle) 0;
+
   std::vector<MBEntityHandle> surf_volumes( 2*num_surfaces );
   MBErrorCode rval = moab_instance()->tag_get_data( sense_tag(), surfaces, num_surfaces, &surf_volumes[0] );
   if (MB_SUCCESS != rval)  return rval;
@@ -741,6 +748,12 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
                                   MBEntityHandle surface,
                                   int& sense_out )
 {
+  /* The sense tags do not reference the implicit complement handle.
+     All surfaces that interact with the implicit complement should have
+     a null handle in the direction of the implicit complement. */
+  if (volume == impl_compl_handle)
+    volume = (MBEntityHandle) 0;
+
     // get sense of surfaces wrt volumes
   MBEntityHandle surf_volumes[2];
   MBErrorCode rval = moab_instance()->tag_get_data( sense_tag(), &surface, 1, surf_volumes );
@@ -1417,7 +1430,7 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
                                   bool is_geom) 
 {
   MBErrorCode rval = MB_SUCCESS;
-  
+
     // surf/vol offsets are just first handles
   setOffset = (*surfs.begin() < *vols.begin() ? *surfs.begin() : *vols.begin());
   setOffset = (impl_compl_handle < setOffset ? impl_compl_handle : setOffset);
@@ -1461,7 +1474,7 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols,
   moab_instance()->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
   
 
-
+ 
 #ifdef CGM
   if (is_geom) {
     geomEntities.resize(rootSets.size());
@@ -1716,6 +1729,3 @@ MBErrorCode DagMC::get_impl_compl()
   
   
 }                                                    
-
-  
-
