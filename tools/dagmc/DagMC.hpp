@@ -18,6 +18,7 @@ class RefEntity;
 
 #define DAGMC_VERSION 0.99
 #define DAGMC_VERSION_STRING "0.99"
+#define DAGMC_INTERFACE_REVISION "$Rev$"
 
 class DagMC 
 {
