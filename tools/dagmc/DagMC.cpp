@@ -24,6 +24,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define CATEGORY_TAG_LENGTH 32
@@ -31,6 +32,15 @@
 DagMC *DagMC::instance_ = NULL;
 
 const bool debug = false;
+
+
+unsigned int DagMC::interface_revision()
+{
+  unsigned int result = 0;
+  sscanf( DAGMC_INTERFACE_REVISION, "$Rev: %u $\n", &result );
+  return result;
+}
+  
 
 DagMC::DagMC(MBInterface *mb_impl) 
     : mbImpl(mb_impl), obbTree(mb_impl), 

@@ -163,6 +163,9 @@ public:
                              MBEntityHandle facet,
                              MBEntityHandle surface);
   
+    /** Get subversion revision of this file (DagMC.hpp) */
+  static unsigned int interface_revision();
+  
 private:
   bool have_obb_tree();
 
