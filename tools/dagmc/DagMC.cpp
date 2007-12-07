@@ -20,6 +20,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 #include <ctype.h>
 #include <string.h>
