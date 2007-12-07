@@ -34,7 +34,7 @@ public:
                        const int num_pts,
                        const double uuu, const double vvv, const double www,
                        const double xxx, const double yyy, const double zzz,
-                       const double huge,
+                       const double huge_val,
                        double &dist_traveled, MBEntityHandle &next_surf_hit);
 
     // Test if point is inside or outside of a volume using unit sphere area method
@@ -153,7 +153,7 @@ public:
 
   MBErrorCode CAD_ray_intersect(const double *point, 
                                 const double *dir, 
-                                const double huge,
+                                const double huge_val,
                                 std::vector<double> &distances,
                                 std::vector<MBEntityHandle> &surfaces, 
                                 double &len);

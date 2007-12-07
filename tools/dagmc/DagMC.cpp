@@ -80,7 +80,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
                              const int num_pts,
                              const double uuu, const double vvv, const double www,
                              const double xxx, const double yyy, const double zzz,
-                             const double huge,
+                             const double huge_val,
                              double &dist_traveled, MBEntityHandle &next_surf_hit) 
 {
   if (debug) {
@@ -105,7 +105,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   const double dir[] = {uuu, vvv, www};
   distances.clear();
   surfaces.clear();
-  double len = use_dist_limit() ? distance_limit() : huge;
+  double len = use_dist_limit() ? distance_limit() : huge_val;
 
   rval = obbTree.ray_intersect_sets( distances,
                                      surfaces, 
@@ -124,7 +124,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
               << "need an ACIS-based install of CGM." << std::endl;
     return MB_NOT_IMPLEMENTED;
 #else    
-    rval = CAD_ray_intersect(point, dir, huge,
+    rval = CAD_ray_intersect(point, dir, huge_val,
                              distances, surfaces, len);
     if (MB_SUCCESS != rval) return rval;
 #endif
@@ -134,9 +134,9 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
     // Find smallest intersection
   if (distances.empty()) {
     next_surf_hit = 0;
-    dist_traveled = (use_dist_limit() ? len*10.0 : huge);
+    dist_traveled = (use_dist_limit() ? len*10.0 : huge_val);
     if (debug) {
-      std::cout << "next surf hit = " << 0 << ", dist = (huge)" << std::endl;
+      std::cout << "next surf hit = " << 0 << ", dist = (huge_val)" << std::endl;
     }
     return MB_SUCCESS;
   }
@@ -151,9 +151,9 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
       // Find smallest intersection
     if (distances.empty()) {
       next_surf_hit = 0;
-      dist_traveled = (use_dist_limit() ? distance_limit()*10.0 : huge);
+      dist_traveled = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
       if (debug) {
-        std::cout << "next surf hit = " << 0 << ", dist = (huge)" << std::endl;
+        std::cout << "next surf hit = " << 0 << ", dist = (huge_val)" << std::endl;
       }
       return MB_SUCCESS;
     }
@@ -1380,7 +1380,7 @@ MBErrorCode DagMC::get_angle(MBEntityHandle surf,
 
 MBErrorCode DagMC::CAD_ray_intersect(const double *point, 
                                       const double *dir, 
-                                      const double huge,
+                                      const double huge_val,
                                       std::vector<double> &distances,
                                       std::vector<MBEntityHandle> &surfaces, 
                                       double &len) 
@@ -1406,7 +1406,7 @@ MBErrorCode DagMC::CAD_ray_intersect(const double *point,
       ray_params.reset();
       *dit = ray_params.get();
     }
-    else *dit = huge;
+    else *dit = huge_val;
   }
   
     // now bubble sort list
