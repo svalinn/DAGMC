@@ -7,6 +7,7 @@
 #include <iostream>
 #include <math.h>
 #include <limits>
+#include <algorithm>
 
 #define CHKERR if (MB_SUCCESS != rval) return rval
 
