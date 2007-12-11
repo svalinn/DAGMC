@@ -141,8 +141,10 @@ public:
     // Get the instance of MOAB used by functions in this file.
   MBInterface* moab_instance() {return mbImpl;}
 
-  double distance_tolerance() {return distanceTolerance;}
-  
+  double add_dist_tol() {return addDistTol;}
+
+  double discard_dist_tol() {return discardDistTol;}
+
   double faceting_tolerance() {return facetingTolerance;}
   
   int source_cell() {return moabMCNPSourceCell;}
@@ -212,7 +214,8 @@ private:
 
   MBEntityHandle impl_compl_handle;
 
-  double distanceTolerance;
+  double discardDistTol;
+  double addDistTol;
   double facetingTolerance;
   int moabMCNPSourceCell;
   bool moabMCNPUseDistLimit;

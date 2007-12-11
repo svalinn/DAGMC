@@ -45,15 +45,17 @@ unsigned int DagMC::interface_revision()
 
 DagMC::DagMC(MBInterface *mb_impl) 
     : mbImpl(mb_impl), obbTree(mb_impl), 
-      distanceTolerance(1e-6), facetingTolerance(0.001), 
+      facetingTolerance(0.001), 
+      addDistTol(1e-6), discardDistTol(1e-6),
       moabMCNPSourceCell(0), moabMCNPUseDistLimit(false)
 {
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
-  options[1] = Option( "distance_tolerance", "positive real value", "0.001" );
+  options[1] = Option( "discard_distance_tolerance", "positive real value", "0.001" );
   options[2] = Option( "use_distance_limit", "one to enable distance limit optimization, zero otherwise", "0" );
   options[3] = Option( "use_cad", "one to ray-trace to cad, zero for just facets", "0" );
   options[4] = Option( "faceting_tolerance", "graphics faceting tolerance", "0.001" );
-  
+  options[5] = Option( "add_distance_tolerance", "positive real value", "0.001" );
+
   memset( specReflectName, 0, NAME_TAG_SIZE );
   strcpy( specReflectName, "spec_reflect" );
   memset( whiteReflectName, 0, NAME_TAG_SIZE );
@@ -106,12 +108,13 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   distances.clear();
   surfaces.clear();
   double len = use_dist_limit() ? distance_limit() : huge_val;
+  unsigned min_tolerance_intersections = 3;
 
   rval = obbTree.ray_intersect_sets( distances,
                                      surfaces, 
                                      root, 
-                                     distance_tolerance(),
-                                     2,
+                                     add_dist_tol(),
+                                     min_tolerance_intersections,
                                      point, dir,
                                      &len);
   assert( MB_SUCCESS == rval );
@@ -141,12 +144,16 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
     return MB_SUCCESS;
   }
   int smallest = std::min_element( distances.begin(), distances.end() ) - distances.begin();
-  
-    // If intersected previous surface near start of ray, reject it
-  if (surfaces[smallest] == last_surf_hit && 
-      distances[smallest] < distance_tolerance()) {
+
+    // Sometimes a ray hits the boundary of two triangles.  In the next ray_fire the 
+    // two hits are at zero distance.  An infinite loop occurs between the two neighboring
+    // triangles.  This fix rejects surfaces closer than 100*machine_precision to avoid 
+    // infinite looping at zero distance.  It required changing min_tolerance_intersections
+    // from 2 to 3.  Last_surf_hit!=0 ensures that source particles close to a surface are
+    // not rejected.
+  while (   ( last_surf_hit!=0 )    &&    ( distances[smallest] < discard_dist_tol() )   ) {
     distances.erase( distances.begin() + smallest );
-    surfaces.erase( surfaces.begin() + smallest );
+    surfaces.erase(  surfaces.begin()  + smallest );
   
       // Find smallest intersection
     if (distances.empty()) {
@@ -159,7 +166,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
     }
     smallest = std::min_element( distances.begin(), distances.end() ) - distances.begin();
   }
-  
+
     // return results
   dist_traveled = distances[smallest];
   next_surf_hit = surfaces[smallest];
@@ -193,9 +200,15 @@ void DagMC::parse_settings() {
     exit(2);
   }
 
-  distanceTolerance = strtod( options[1].value.c_str(), 0 );
-  if (distanceTolerance <= 0 || distanceTolerance > 1) {
-    std::cerr << "Invalid distance_tolerance = " << distanceTolerance << std::endl;
+  addDistTol = strtod( options[5].value.c_str(), 0 );
+  if (addDistTol <= 0 || addDistTol > 1) {
+    std::cerr << "Invalid add_distance_tolerance = " << addDistTol << std::endl;
+    exit(2);
+  }
+
+  discardDistTol = strtod( options[1].value.c_str(), 0 );
+  if (discardDistTol <= 0 || discardDistTol > 1) {
+    std::cerr << "Invalid discard_distance_tolerance = " << discardDistTol << std::endl;
     exit(2);
   }
 
@@ -469,7 +482,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
 			     double u, double v, double w)
 {
   MBErrorCode rval;
-  const double epsilon = distanceTolerance;
+  const double epsilon = discardDistTol;
   
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
@@ -1353,7 +1366,7 @@ MBErrorCode DagMC::get_angle(MBEntityHandle surf,
   const double in_pt[] = { xxx, yyy, zzz };
   std::vector<MBEntityHandle> &facets = triList;
   facets.clear();
-  MBErrorCode rval = obbTree.closest_to_location( in_pt, root, distance_tolerance(), facets );
+  MBErrorCode rval = obbTree.closest_to_location( in_pt, root, add_dist_tol(), facets );
   assert(MB_SUCCESS == rval);
   
   MBCartVect coords[3], normal(0.0);
