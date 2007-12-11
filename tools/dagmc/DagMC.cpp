@@ -46,7 +46,7 @@ unsigned int DagMC::interface_revision()
 DagMC::DagMC(MBInterface *mb_impl) 
     : mbImpl(mb_impl), obbTree(mb_impl), 
       facetingTolerance(0.001), 
-      addDistTol(1e-6), discardDistTol(1e-6),
+      addDistTol(1e-6), discardDistTol(1e-8),
       moabMCNPSourceCell(0), moabMCNPUseDistLimit(false)
 {
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
@@ -108,7 +108,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   distances.clear();
   surfaces.clear();
   double len = use_dist_limit() ? distance_limit() : huge_val;
-  unsigned min_tolerance_intersections = 3;
+  unsigned min_tolerance_intersections = 1000;
 
   rval = obbTree.ray_intersect_sets( distances,
                                      surfaces, 
@@ -147,9 +147,10 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
 
     // Sometimes a ray hits the boundary of two triangles.  In the next ray_fire the 
     // two hits are at zero distance.  An infinite loop occurs between the two neighboring
-    // triangles.  This fix rejects surfaces closer than 100*machine_precision to avoid 
+    // triangles.  This fix rejects surfaces closer than discard_dist_tol to avoid 
     // infinite looping at zero distance.  It required changing min_tolerance_intersections
-    // from 2 to 3.  Last_surf_hit!=0 ensures that source particles close to a surface are
+    // to a very large number to make sure that we get at least one hit beyond add_dist_tol.
+    // Last_surf_hit!=0 ensures that source particles close to a surface are
     // not rejected.
   while (   ( last_surf_hit!=0 )    &&    ( distances[smallest] < discard_dist_tol() )   ) {
     distances.erase( distances.begin() + smallest );
