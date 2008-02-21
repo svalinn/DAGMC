@@ -78,7 +78,8 @@ public:
   MBErrorCode load_file_and_init(const char* cfile,
                                  const int clen,
                                  const char* ffile,
-                                 const int flen);
+                                 const int flen,
+				 const double facet_tolerance = 0);
 
     // map between MBEntityHandle, base-1 index, and GLOBAL_ID
   MBEntityHandle entity_by_index( int dimension, int index );
@@ -95,6 +96,8 @@ public:
   void read_settings( const char* filename );
   void write_settings( FILE* filp, bool with_description = true );
   void parse_settings();
+  void set_settings(int source_cell, int use_cad, int use_dist_limit,
+		    double distance_tolerance);
 
   char *get_spec_reflect();
   char *get_white_reflect();
@@ -146,7 +149,7 @@ public:
   double discard_dist_tol() {return discardDistTol;}
 
   double faceting_tolerance() {return facetingTolerance;}
-  
+
   int source_cell() {return moabMCNPSourceCell;}
 
   bool use_dist_limit() {return moabMCNPUseDistLimit;}

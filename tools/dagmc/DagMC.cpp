@@ -231,6 +231,40 @@ void DagMC::parse_settings() {
   }
 
 }
+void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
+			 double distance_tolerance) {
+  moabMCNPSourceCell = source_cell;
+  if (moabMCNPSourceCell < 0) {
+    std::cerr << "Invalid source_cell = " << moabMCNPSourceCell << std::endl;
+    exit(2);
+  }
+
+  std::cout << "Set Source Cell = " << moabMCNPSourceCell << std::endl;
+
+  distanceTolerance = distance_tolerance;
+  if (distanceTolerance <= 0 || distanceTolerance > 1) {
+    std::cerr << "Invalid distance_tolerance = " << distanceTolerance << std::endl;
+    exit(2);
+  }
+
+  std::cout << "Set distance tolerance = " << distanceTolerance << std::endl;
+
+  moabMCNPUseDistLimit = !!(use_dist_limit);
+
+  std::cout << "Turned " << (moabMCNPUseDistLimit?"ON":"OFF") << " distance limit." << std::endl;
+
+  useCAD = !!(use_cad);
+  std::cout << "Turned " << (useCAD?"ON":"OFF") << " ray firing on full CAD model." << std::endl;
+#ifdef CUBIT_CGM
+  if (useCAD) {
+    std::cout << "Warning: use_cad = 1 not supported with this build of "
+              << "CGM/DagMC;" << std:: endl
+              << "need an ACIS-based install of CGM." << std::endl;
+  }
+#endif  
+
+
+}
 
 void DagMC::read_settings( const char* filename )
 {
@@ -795,15 +829,19 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
 }
 
 MBErrorCode DagMC::load_file_and_init(const char* cfile,
-                                       const int clen,
-                                       const char* ffile,
-                                       const int flen)
+                                      const int clen,
+                                      const char* ffile,
+                                      const int flen,
+				      const double facet_tolerance)
 {
     // Always do this first to make sure we have at least the
     // default values if noone ever calls read_settings(). If
     // read_settings() has already been called, it will just
     // re-parse the same values.
   read_settings(0);
+
+  if (facet_tolerance > 0 )
+    facetingTolerance = facet_tolerance;
 
   MBErrorCode rval;
   
