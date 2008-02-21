@@ -97,7 +97,8 @@ public:
   void write_settings( FILE* filp, bool with_description = true );
   void parse_settings();
   void set_settings(int source_cell, int use_cad, int use_dist_limit,
-		    double distance_tolerance);
+		    double add_distance_tolerance,
+		    double discard_distance_tolerance);
 
   char *get_spec_reflect();
   char *get_white_reflect();

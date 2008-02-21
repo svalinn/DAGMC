@@ -45,8 +45,9 @@ unsigned int DagMC::interface_revision()
 
 DagMC::DagMC(MBInterface *mb_impl) 
     : mbImpl(mb_impl), obbTree(mb_impl), 
+      discardDistTol(1e-8),
+      addDistTol(1e-6), 
       facetingTolerance(0.001), 
-      addDistTol(1e-6), discardDistTol(1e-8),
       moabMCNPSourceCell(0), moabMCNPUseDistLimit(false)
 {
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
@@ -232,7 +233,8 @@ void DagMC::parse_settings() {
 
 }
 void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
-			 double distance_tolerance) {
+			 double add_distance_tolerance, 
+			 double discard_distance_tolerance) {
   moabMCNPSourceCell = source_cell;
   if (moabMCNPSourceCell < 0) {
     std::cerr << "Invalid source_cell = " << moabMCNPSourceCell << std::endl;
@@ -241,13 +243,21 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
   std::cout << "Set Source Cell = " << moabMCNPSourceCell << std::endl;
 
-  distanceTolerance = distance_tolerance;
-  if (distanceTolerance <= 0 || distanceTolerance > 1) {
-    std::cerr << "Invalid distance_tolerance = " << distanceTolerance << std::endl;
+  addDistTol = add_distance_tolerance;
+  if (addDistTol <= 0 || addDistTol > 1) {
+    std::cerr << "Invalid add_distance_tolerance = " << addDistTol << std::endl;
     exit(2);
   }
 
-  std::cout << "Set distance tolerance = " << distanceTolerance << std::endl;
+  std::cout << "Set distance tolerance 1 = " << addDistTol << std::endl;
+
+  discardDistTol = discard_distance_tolerance;
+  if (discardDistTol <= 0 || discardDistTol > 1) {
+    std::cerr << "Invalid add_distance_tolerance = " << discardDistTol << std::endl;
+    exit(2);
+  }
+
+  std::cout << "Set distance tolerance 2 = " << discardDistTol << std::endl;
 
   moabMCNPUseDistLimit = !!(use_dist_limit);
 
