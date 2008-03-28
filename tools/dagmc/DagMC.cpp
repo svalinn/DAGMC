@@ -543,8 +543,8 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
     // Check for on-boundary case
   diff = closest - point;
   if (diff%diff <= epsilon*epsilon) {
+    u = v = w = 2;
     return boundary_case( volume, result, u, v, w, facet, surface );
-    return MB_SUCCESS;
   }
   
     // Get triangles at closest point
