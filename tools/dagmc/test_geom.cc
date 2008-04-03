@@ -447,7 +447,7 @@ MBErrorCode test_point_in_volume( DagMC& dagmc )
 
   for (int i = 0; i < num_test; ++i) {
     int result;
-    double u, v, w;
+    double u = 2, v = 2, w = 2; // values greater than 1 should get ignored
     rval = dagmc.point_in_volume( vol, 
                                   tests[i].coords[0],
                                   tests[i].coords[1],
