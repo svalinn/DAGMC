@@ -1747,8 +1747,9 @@ MBErrorCode DagMC::getobb(MBEntityHandle volume, double minPt[3],
     // compute min and max verticies
   for (int i=0; i<3; i++) 
   {
-    minPt[i] = center[i] - (axis1[i] + axis2[i] + axis3[i]);
-    maxPt[i] = center[i] + (axis1[i] + axis2[i] + axis3[i]);
+    double sum = fabs(axis1[i]) + fabs(axis2[i]) + fabs(axis3[i]);
+    minPt[i] = center[i] - sum;
+    maxPt[i] = center[i] + sum;
   }
   return MB_SUCCESS;
 }
