@@ -596,7 +596,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
     rval = moab_instance()->get_coords( conn, len, coords[0].array() );
     if (MB_SUCCESS != rval) return rval;
     
-    rval = surface_sense( volume, surfs.front(), sense );
+    rval = surface_sense( volume, surfs[i], sense );
     if (MB_SUCCESS != rval) return rval;
 
       // get triangle normal
