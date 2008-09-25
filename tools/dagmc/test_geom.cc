@@ -2,6 +2,7 @@
 #include "MBCore.hpp"
 #include "DagMC.hpp"
 #include "MBTagConventions.hpp"
+#include "MBRange.hpp"
 
 #include <vector>
 #include <iostream>
