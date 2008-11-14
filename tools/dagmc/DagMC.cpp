@@ -868,8 +868,7 @@ MBErrorCode DagMC::load_file_and_init(const char* cfile,
     
 #ifdef CGM
       // initialize cgm
-    InitCGMA::initialize_cgma();
-    InitCGMA::initialize_engine("ACIS");
+    InitCGMA::initialize_cgma("ACIS");
     CGMApp::instance()->attrib_manager()->set_all_auto_read_flags(true);
     CGMApp::instance()->attrib_manager()->set_all_auto_actuate_flags(true);
     CubitStatus s = GeometryQueryTool::instance()->import_solid_model( scfile.c_str(), "ACIS_SAT");
