@@ -123,10 +123,11 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
 
 #ifdef CGM
   if (useCAD) {
-#ifdef CUBIT_CGM
-    std::cout << "use_cad = 1 not supported with this build of CGM/DagMC;"
-              << std:: endl
-              << "need an ACIS-based install of CGM." << std::endl;
+#ifndef HAVE_CGM_FIRE_RAY
+    std::cout << "use_cad = 1 not supported with this build of CGM/DagMC."
+              << std::endl
+              << "Required ray-fire query not available. (Cubit-based CGM?)" 
+              << std::endl;
     return MB_NOT_IMPLEMENTED;
 #else    
     rval = CAD_ray_intersect(point, dir, huge_val,
@@ -218,11 +219,12 @@ void DagMC::parse_settings() {
   moabMCNPUseDistLimit = !!atoi( options[2].value.c_str() );
 
   useCAD = !!atoi( options[3].value.c_str() );
-#ifdef CUBIT_CGM
+#ifndef HAVE_CGM_FIRE_RAY
   if (useCAD) {
     std::cout << "Warning: use_cad = 1 not supported with this build of "
               << "CGM/DagMC;" << std:: endl
-              << "need an ACIS-based install of CGM." << std::endl;
+              << "Required ray-fire query not available. (Cubit-based CGM?)" 
+              << std::endl;
   }
 #endif  
 
@@ -266,11 +268,12 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
   useCAD = !!(use_cad);
   std::cout << "Turned " << (useCAD?"ON":"OFF") << " ray firing on full CAD model." << std::endl;
-#ifdef CUBIT_CGM
+#ifndef HAVE_CGM_FIRE_RAY
   if (useCAD) {
     std::cout << "Warning: use_cad = 1 not supported with this build of "
               << "CGM/DagMC;" << std:: endl
-              << "need an ACIS-based install of CGM." << std::endl;
+              << "Required ray-fire query not available. (Cubit-based CGM?)" 
+              << std::endl;
   }
 #endif  
 
@@ -1447,7 +1450,7 @@ MBErrorCode DagMC::CAD_ray_intersect(const double *point,
                                       double &len) 
 {
 #ifdef CGM
-#ifdef CUBIT_CGM
+#ifndef HAVE_CGM_FIRE_RAY
   return MB_NOT_IMPLEMENTED;
 #else
   std::vector<double>::iterator dit = distances.begin();
