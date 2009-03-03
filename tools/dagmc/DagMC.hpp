@@ -140,6 +140,9 @@ public:
   MBErrorCode getobb(MBEntityHandle volume, double center[3], 
                      double axis1[3], double axis2[3], double axis3[3]);
 
+    // get the root of the obbtree for a given entity
+  MBErrorCode get_root(MBEntityHandle vol_or_surf, MBEntityHandle &root);
+
   int get_entity_id(MBEntityHandle this_ent);
 
     // Get the instance of MOAB used by functions in this file.
@@ -295,6 +298,14 @@ inline MBEntityHandle DagMC::entity_by_index( int dimension, int index )
 {
   assert(2 <= dimension && 3 >= dimension && (unsigned) index < entHandles[dimension].size());
   return entHandles[dimension][index];
+}
+
+    // get the root of the obbtree for a given entity
+inline MBErrorCode DagMC::get_root(MBEntityHandle vol_or_surf, MBEntityHandle &root) 
+{
+  unsigned int index = vol_or_surf - setOffset;
+  root = (index < rootSets.size() ? rootSets[index] : 0);
+  return (root ? MB_SUCCESS : MB_INDEX_OUT_OF_RANGE);
 }
 
 #endif
