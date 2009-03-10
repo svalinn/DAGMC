@@ -33,25 +33,26 @@ int main( int argc, char* argv[] )
 {
   MBErrorCode rval;
 
-  if (argc < 3) {
+  if (argc < 4) {
     std::cerr << "Usage: " << argv[0] << " <mesh_filename> "
-              << " <facet_tol> <#calls> " << std::endl;
+              << " <facet_tol> <source_rad> <#calls> " << std::endl;
     return 1;
   }
   
   char* filename = argv[1];
-  double tol = atof(argv[2]);
-  int ncalls = atoi(argv[3]);
+  double facet_tol = atof(argv[2]);
+  double rad = atof(argv[3]);
+  int ncalls = atoi(argv[4]);
   
   
   DagMC& dagmc = *DagMC::instance();
-  rval = dagmc.load_file_and_init( filename, strlen(filename), 0, 0, tol);
+  rval = dagmc.load_file_and_init( filename, strlen(filename), 0, 0, facet_tol);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to initialize DagMC." << std::endl;
     return 2;
   }
 
-  MBEntityHandle vol = dagmc.entity_by_index(3, 1);
+  MBEntityHandle vol = dagmc.entity_by_index(3, 2);
   if (0 == vol) {
     std::cerr << "Problem getting first volume." << std::endl;
     return 2;
@@ -63,7 +64,7 @@ int main( int argc, char* argv[] )
     // initialize random number generator using ttime1
   srand((unsigned int) ttime1);
   double denom = 1.0 / ((double) RAND_MAX);
-  double u, v, w, normal, dist;
+  double x, y, z, u, v, w, normal, dist;
   MBEntityHandle nsurf;
   
   for (int i = 0; i < ncalls; i++) {
@@ -75,7 +76,11 @@ int main( int argc, char* argv[] )
     v *= normal;
     w *= normal;
     
-    dagmc.ray_fire(vol, 0, 1, u, v, w, 0.0, 0.0, 0.0, DBL_MAX,
+    x = u*rad;
+    y = v*rad;
+    z = w*rad;
+
+    dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
                    dist, nsurf);
   }
   get_time_mem(ttime2, utime2, stime2, tmem1);
