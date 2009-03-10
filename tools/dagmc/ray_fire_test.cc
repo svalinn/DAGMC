@@ -33,16 +33,17 @@ int main( int argc, char* argv[] )
 {
   MBErrorCode rval;
 
-  if (argc < 4) {
+  if (argc < 6) {
     std::cerr << "Usage: " << argv[0] << " <mesh_filename> "
-              << " <facet_tol> <source_rad> <#calls> " << std::endl;
+              << " <facet_tol> <source_rad> <vol_index> <#calls> " << std::endl;
     return 1;
   }
   
   char* filename = argv[1];
   double facet_tol = atof(argv[2]);
   double rad = atof(argv[3]);
-  int ncalls = atoi(argv[4]);
+  int vol_idx = atoi(argv[4]);
+  int ncalls = atoi(argv[5]);
   
   
   DagMC& dagmc = *DagMC::instance();
@@ -52,7 +53,7 @@ int main( int argc, char* argv[] )
     return 2;
   }
 
-  MBEntityHandle vol = dagmc.entity_by_index(3, 2);
+  MBEntityHandle vol = dagmc.entity_by_index(3, vol_idx);
   if (0 == vol) {
     std::cerr << "Problem getting first volume." << std::endl;
     return 2;
