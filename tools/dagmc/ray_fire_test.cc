@@ -25,17 +25,24 @@ extern "C" int getrusage(int, struct rusage *);
 
 #define CHKERR if (MB_SUCCESS != rval) return rval
 
+//#define DEBUG
+
 void get_time_mem(double &tot_time, double &user_time,
                   double &sys_time, double &tot_mem);
 
-#define RNDVEC(u, v, w, az)                        \
-    {\
-      double theta = denom * az * rand();     \
-      double phi = denomPI * rand();     \
-      u = cos(theta)*sin(phi);            \
-      v = sin(theta)*sin(phi);            \
-      z = cos(phi);\
-    }
+const double PI = acos(-1.0);
+double denom = 1.0 / ((double) RAND_MAX);
+double denomPI = PI * denom;
+  
+inline void RNDVEC(double &u, double &v, double &w, double &az) 
+{
+  
+  double theta = denom * az * rand();
+  double phi = denomPI * rand();
+  u = cos(theta)*sin(phi);
+  v = sin(theta)*sin(phi);
+  w = cos(phi);
+}
 
 int main( int argc, char* argv[] )
 {
@@ -75,7 +82,7 @@ int main( int argc, char* argv[] )
   int vol_idx = atoi(argv[i++]);
   ncalls = atoi(argv[i++]);
 
-  double location_az = 2.0 * PI / 180.0, direction_az = location_az;
+  double location_az = 2.0 * PI, direction_az = location_az;
   
   if (i < argc) location_az = atof(argv[i++]) * PI / 180.0;
   if (i < argc) direction_az = atof(argv[i++]) * PI / 180.0;
@@ -100,6 +107,10 @@ int main( int argc, char* argv[] )
   srand((unsigned int) ttime1);
   double x, y, z, u, v, w, dist;
   MBEntityHandle nsurf;
+
+#ifdef DEBUG
+  double uavg = 0.0, vavg = 0.0, wavg = 0.0;
+#endif
   
   for (int j = 0; j < ncalls; j++) {
     RNDVEC(u, v, w, location_az);
@@ -112,8 +123,15 @@ int main( int argc, char* argv[] )
       RNDVEC(u, v, w, direction_az);
     }
 
+#ifdef DEBUG
+      std::cout << "x, y, z, u, v, w, u^2 + v^2 + w^2 = "
+                << u << " " << v << " " << w << " " << (u*u + v*v + w*w) << std::endl;
+      uavg += u; vavg += v; wavg += w;
+#endif
+    
     dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
                    dist, nsurf);
+
   }
   get_time_mem(ttime2, utime2, stime2, tmem1);
   double timewith = ttime2 - ttime1;
@@ -156,7 +174,11 @@ int main( int argc, char* argv[] )
     std::cout << "Tree data: " << std::endl;
     dagmc.obb_tree()->stats(root, std::cout);
   }
-  
+
+#ifdef DEBUG
+  std::cout << "uavg, vavg, wavg = " << uavg << " " << vavg << " " << wavg << std::endl;
+#endif
+
   return 0;
 }
 
