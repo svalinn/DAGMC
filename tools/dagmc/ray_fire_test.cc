@@ -65,7 +65,6 @@ int main( int argc, char* argv[] )
   
   char* filename = argv[i++];
   facet_tol = atof(argv[i++]);
-  ncalls = atoi(argv[i++]);
   double rad = atof(argv[i++]);
   int vol_idx = atoi(argv[i++]);
   ncalls = atoi(argv[i++]);
