@@ -28,14 +28,14 @@ extern "C" int getrusage(int, struct rusage *);
 void get_time_mem(double &tot_time, double &user_time,
                   double &sys_time, double &tot_mem);
 
-#define RNDVEC(u, v, w) \
-    {u = 2.0 * (denom * rand() - 0.5);          \
-    v = 2.0 * (denom * rand() - 0.5); \
-    w = 2.0 * (denom * rand() - 0.5); \
-    double normal = 1.0 / (u*u + v*v + w*w); \
-    u *= normal; \
-    v *= normal; \
-    w *= normal;}
+#define RNDVEC(u, v, w, az)                        \
+    {\
+      double theta = denom * az * rand();     \
+      double phi = denomPI * rand();     \
+      u = cos(theta)*sin(phi);            \
+      v = sin(theta)*sin(phi);            \
+      z = cos(phi);\
+    }
 
 int main( int argc, char* argv[] )
 {
@@ -43,7 +43,7 @@ int main( int argc, char* argv[] )
 
   if (argc < 6) {
     std::cerr << "Usage: " << argv[0] << " [-f] <filename> "
-              << " <facet_tol> <source_rad> <vol_index> <#calls> " << std::endl;
+              << " <facet_tol> <source_rad> <vol_index> <#calls> [<location_az>] [<direction_az>]" << std::endl;
     std::cerr << "-f: report full tree statistics" << std::endl;
     std::cerr << "filename: mesh or geometry filename" << std::endl;
     std::cerr << "facet_tol: facet tolerance" << std::endl;
@@ -51,8 +51,14 @@ int main( int argc, char* argv[] )
     std::cerr << "            otherwise, ray at radius and random angle, pointed in random direction;" << std::endl;
     std::cerr << "vol_index: index of the volume at which to fire rays" << std::endl;
     std::cerr << "#calls: # iterations of ray-tracing loop" << std::endl;
+    std::cerr << "location_az: if present, ray location is limited to between +-<azimuthal_limit> degrees" << std::endl;
+    std::cerr << "direction_az: if present, ray direction is limited to between +-<azimuthal_limit> degrees" << std::endl;
     return 1;
   }
+  
+  const double PI = acos(-1.0);
+  double denom = 1.0 / ((double) RAND_MAX);
+  double denomPI = PI * denom;
   
   double facet_tol;
   int ncalls;
@@ -68,6 +74,11 @@ int main( int argc, char* argv[] )
   double rad = atof(argv[i++]);
   int vol_idx = atoi(argv[i++]);
   ncalls = atoi(argv[i++]);
+
+  double location_az = 2.0 * PI / 180.0, direction_az = location_az;
+  
+  if (i < argc) location_az = atof(argv[i++]) * PI / 180.0;
+  if (i < argc) direction_az = atof(argv[i++]) * PI / 180.0;
   
   DagMC& dagmc = *DagMC::instance();
   rval = dagmc.load_file_and_init( filename, strlen(filename), 0, 0, facet_tol);
@@ -87,19 +98,18 @@ int main( int argc, char* argv[] )
 
     // initialize random number generator using ttime1
   srand((unsigned int) ttime1);
-  double denom = 1.0 / ((double) RAND_MAX);
   double x, y, z, u, v, w, dist;
   MBEntityHandle nsurf;
   
   for (int j = 0; j < ncalls; j++) {
-    RNDVEC(u, v, w);
+    RNDVEC(u, v, w, location_az);
 
     x = -u*rad;
     y = -v*rad;
     z = -w*rad;
 
     if (rad >= 0.0) {
-      RNDVEC(u, v, w);
+      RNDVEC(u, v, w, direction_az);
     }
 
     dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
@@ -110,14 +120,14 @@ int main( int argc, char* argv[] )
 
     // now without ray fire call, to subtract out overhead
   for (int j = 0; j < ncalls; j++) {
-    RNDVEC(u, v, w);
+    RNDVEC(u, v, w, location_az);
 
     x = -u*rad;
     y = -v*rad;
     z = -w*rad;
 
     if (rad >= 0.0) {
-      RNDVEC(u, v, w);
+      RNDVEC(u, v, w, direction_az);
     }
   }
   
