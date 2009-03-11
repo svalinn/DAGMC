@@ -28,23 +28,47 @@ extern "C" int getrusage(int, struct rusage *);
 void get_time_mem(double &tot_time, double &user_time,
                   double &sys_time, double &tot_mem);
 
+#define RNDVEC(u, v, w) \
+    {u = 2.0 * (denom * rand() - 0.5);          \
+    v = 2.0 * (denom * rand() - 0.5); \
+    w = 2.0 * (denom * rand() - 0.5); \
+    double normal = 1.0 / (u*u + v*v + w*w); \
+    u *= normal; \
+    v *= normal; \
+    w *= normal;}
 
 int main( int argc, char* argv[] )
 {
   MBErrorCode rval;
 
   if (argc < 6) {
-    std::cerr << "Usage: " << argv[0] << " <mesh_filename> "
+    std::cerr << "Usage: " << argv[0] << " [-f] <filename> "
               << " <facet_tol> <source_rad> <vol_index> <#calls> " << std::endl;
+    std::cerr << "-f: report full tree statistics" << std::endl;
+    std::cerr << "filename: mesh or geometry filename" << std::endl;
+    std::cerr << "facet_tol: facet tolerance" << std::endl;
+    std::cerr << "source_rad: if < 0, ray at source_rad and random angle pointed at origin;" << std::endl;
+    std::cerr << "            otherwise, ray at radius and random angle, pointed in random direction;" << std::endl;
+    std::cerr << "vol_index: index of the volume at which to fire rays" << std::endl;
+    std::cerr << "#calls: # iterations of ray-tracing loop" << std::endl;
     return 1;
   }
   
-  char* filename = argv[1];
-  double facet_tol = atof(argv[2]);
-  double rad = atof(argv[3]);
-  int vol_idx = atoi(argv[4]);
-  int ncalls = atoi(argv[5]);
+  double facet_tol;
+  int ncalls;
+  bool full = false;
+  int i = 1;
+  if (!strcmp(argv[i], "-f")) {
+    full = true;
+    i++;
+  }
   
+  char* filename = argv[i++];
+  facet_tol = atof(argv[i++]);
+  ncalls = atoi(argv[i++]);
+  double rad = atof(argv[i++]);
+  int vol_idx = atoi(argv[i++]);
+  ncalls = atoi(argv[i++]);
   
   DagMC& dagmc = *DagMC::instance();
   rval = dagmc.load_file_and_init( filename, strlen(filename), 0, 0, facet_tol);
@@ -65,21 +89,19 @@ int main( int argc, char* argv[] )
     // initialize random number generator using ttime1
   srand((unsigned int) ttime1);
   double denom = 1.0 / ((double) RAND_MAX);
-  double x, y, z, u, v, w, normal, dist;
+  double x, y, z, u, v, w, dist;
   MBEntityHandle nsurf;
   
-  for (int i = 0; i < ncalls; i++) {
-    u = denom * rand();
-    v = denom * rand();
-    w = denom * rand();
-    normal = 1.0 / (u*u + v*v + w*w);
-    u *= normal;
-    v *= normal;
-    w *= normal;
-    
-    x = u*rad;
-    y = v*rad;
-    z = w*rad;
+  for (int j = 0; j < ncalls; j++) {
+    RNDVEC(u, v, w);
+
+    x = -u*rad;
+    y = -v*rad;
+    z = -w*rad;
+
+    if (rad >= 0.0) {
+      RNDVEC(u, v, w);
+    }
 
     dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
                    dist, nsurf);
@@ -88,14 +110,16 @@ int main( int argc, char* argv[] )
   double timewith = ttime2 - ttime1;
 
     // now without ray fire call, to subtract out overhead
-  for (int i = 0; i < ncalls; i++) {
-    u = denom * rand();
-    v = denom * rand();
-    w = denom * rand();
-    normal = 1.0 / (u*u + v*v + w*w);
-    u *= normal;
-    v *= normal;
-    w *= normal;
+  for (int j = 0; j < ncalls; j++) {
+    RNDVEC(u, v, w);
+
+    x = -u*rad;
+    y = -v*rad;
+    z = -w*rad;
+
+    if (rad >= 0.0) {
+      RNDVEC(u, v, w);
+    }
   }
   
   get_time_mem(ttime1, utime1, stime1, tmem2);
@@ -119,6 +143,11 @@ int main( int argc, char* argv[] )
   std::cout << "Tree stats: facets, tree_height, num_leaves = " 
             << entities_in_tree << " " << tree_height << " " << num_leaves << std::endl;
 
+  if (full) {
+    std::cout << "Tree data: " << std::endl;
+    dagmc.obb_tree()->stats(root, std::cout);
+  }
+  
   return 0;
 }
 
