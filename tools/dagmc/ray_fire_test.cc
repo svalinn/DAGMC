@@ -65,7 +65,6 @@ int main( int argc, char* argv[] )
   
   const double PI = acos(-1.0);
   double denom = 1.0 / ((double) RAND_MAX);
-  double denomPI = PI * denom;
   
   double facet_tol;
   int ncalls;
