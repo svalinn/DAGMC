@@ -1101,7 +1101,7 @@ void DagMC::write_log(std::string ifile, const bool overwrite)
       else {
 
           // Get the volumes in the current group                                    
-        MBRange grp_vols = grp_sets.intersect(vols_save);
+        MBRange grp_vols = intersect( grp_sets, vols_save);
         for (MBRange::iterator rit = grp_vols.begin(); 
              rit != grp_vols.end(); rit++) {
           MBEntityHandle vol = *rit;
@@ -1121,7 +1121,7 @@ void DagMC::write_log(std::string ifile, const bool overwrite)
       else
         bc_id = 2;
         // Get the surfaces in the current group                                   
-      MBRange grp_faces = grp_sets.intersect(surfs_save);
+      MBRange grp_faces = intersect( grp_sets, surfs_save);
       for (MBRange::iterator rit = grp_faces.begin(); rit != grp_faces.end(); rit++) {
         MBEntityHandle surf = *rit;
         int surf_num = index_by_handle(surf);
@@ -1141,7 +1141,7 @@ void DagMC::write_log(std::string ifile, const bool overwrite)
       const char *cbc_id = bc_str.c_str();
       bc_id = -1*atoi(cbc_id);
         // Get the surfaces in the current group                                   
-      MBRange grp_faces = grp_sets.intersect(surfs_save);
+      MBRange grp_faces = intersect( grp_sets, surfs_save);
       for (MBRange::iterator rit = grp_faces.begin(); rit != grp_faces.end(); rit++) {
         MBEntityHandle surf = *rit;
         int surf_num = index_by_handle(surf);
@@ -1152,7 +1152,7 @@ void DagMC::write_log(std::string ifile, const bool overwrite)
     else if ((grp_names[0].find("graveyard",0)==0)||(grp_names[0].find("outside_world",0)==0)
              ||(grp_names[0].find("rest_of_world",0)==0)) {
         // Get the volumes in the current group                                    
-      MBRange grp_vols = grp_sets.intersect(vols_save);
+      MBRange grp_vols = intersect( grp_sets, vols_save);
       for (MBRange::iterator rit = grp_vols.begin(); rit != grp_vols.end(); rit++) {
         MBEntityHandle vol = *rit;
         int vol_num = index_by_handle(vol);
@@ -1312,7 +1312,7 @@ void DagMC::write_log(std::string ifile, const bool overwrite)
             MBErrorCode result = moab_instance()->get_entities_by_type(group, MBENTITYSET, grp_sets);
             if (MB_SUCCESS != result) continue;
             if ((tidx == 1) || (tidx == 2)) {
-              MBRange grp_faces = grp_sets.intersect(surfs_save);
+              MBRange grp_faces = intersect( grp_sets, surfs_save);
               for (MBRange::iterator rit = grp_faces.begin(); rit != grp_faces.end(); rit++) {
                 int jtal = get_entity_id(*rit);
                 std::stringstream spos1;
@@ -1326,7 +1326,7 @@ void DagMC::write_log(std::string ifile, const bool overwrite)
               }
             }
             else if ((tidx == 4) || ((tidx >= 6) && (tidx <= 8))) {
-              MBRange grp_vols = grp_sets.intersect(vols_save);
+              MBRange grp_vols = intersect( grp_sets, vols_save);
               for (MBRange::iterator rit = grp_vols.begin(); rit != grp_vols.end(); rit++) {
                 int jtal = get_entity_id(*rit);
                 std::stringstream spos1;
