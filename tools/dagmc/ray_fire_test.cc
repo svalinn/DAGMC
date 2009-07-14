@@ -87,11 +87,17 @@ int main( int argc, char* argv[] )
   if (i < argc) direction_az = atof(argv[i++]) * PI / 180.0;
   
   DagMC& dagmc = *DagMC::instance();
-  rval = dagmc.load_file_and_init( filename, strlen(filename), 0, 0, facet_tol);
+  rval = dagmc.load_file( filename, facet_tol );
+  if (MB_SUCCESS != rval) {
+    std::cerr << "Failed to load file." << std::endl;
+    return 2;
+  }
+  rval = dagmc.init_OBBTree( );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to initialize DagMC." << std::endl;
     return 2;
   }
+
 
   MBEntityHandle vol = dagmc.entity_by_index(3, vol_idx);
   if (0 == vol) {

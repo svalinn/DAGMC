@@ -173,8 +173,13 @@ int main( int argc, char* argv[] )
   }
   
   DagMC& dagmc = *DagMC::instance();
-  rval = dagmc.load_file_and_init( filename, strlen(filename), 0, 0 );
+  rval = dagmc.load_file( filename, 0 );
   remove( filename );
+  if (MB_SUCCESS != rval) {
+    std::cerr << "Failed to load file." << std::endl;
+    return 2;
+  }
+  rval = dagmc.init_OBBTree();
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to initialize DagMC." << std::endl;
     return 2;
