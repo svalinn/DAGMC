@@ -1291,7 +1291,7 @@ MBErrorCode DagMC::parse_metadata()
       } else {
 	// apply tag to range of volumes
 	grp_ents.clear();
-	grp_ents = intersect(grp_sets.vols);
+	grp_ents = intersect(grp_sets,vols);
 	  matid_list.assign(grp_ents.size(),matid);
 	density_list.assign(grp_ents.size(),density);
 	MBI->tag_set_data(matTag ,grp_ents,&(*matid_list.begin()));
@@ -1302,7 +1302,7 @@ MBErrorCode DagMC::parse_metadata()
     case BC_WHITE:
       bc_id = keywords[tokens[0]];
       grp_ents.clear();
-      grp_ents = intersect(grp_sets.surfs);
+      grp_ents = intersect(grp_sets,surfs);
       bc_id_list.assign(grp_ents.size(),bc_id);
       MBI->tag_set_data(bcTag ,grp_ents, &(*bc_id_list.begin()));
       break;
