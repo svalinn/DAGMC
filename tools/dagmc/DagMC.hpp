@@ -74,12 +74,18 @@ public:
     // {-1 -> reversed, 0 -> both, 1 -> forward}
   MBErrorCode surface_sense( MBEntityHandle volume, MBEntityHandle surface, int& sense_out );
 
-    // load mesh and initialize
-  MBErrorCode load_file_and_init(const char* cfile,
-                                 const int clen,
-                                 const char* ffile,
-                                 const int flen,
-				 const double facet_tolerance = 0);
+    // load mesh
+  MBErrorCode load_file(const char* cfile,
+			const double facet_tolerance = 0);
+
+  MBErrorCode init_OBBtree();
+
+  MBErrorCode write_mesh(const char* ffile,
+			 const int flen);
+
+
+    // initialize data structures and OBB tree
+  MBErrorCode init_OBBTree();
 
     // map between MBEntityHandle, base-1 index, and GLOBAL_ID
   MBEntityHandle entity_by_index( int dimension, int index );
@@ -92,10 +98,12 @@ public:
     // if dimension == 2).
   int num_entities( int dimension );
 
-    // read/write settings 
+    // read/write settings from file
   void read_settings( const char* filename );
   void write_settings( FILE* filp, bool with_description = true );
   void parse_settings();
+
+    // pass settings from calling application
   void set_settings(int source_cell, int use_cad, int use_dist_limit,
 		    double add_distance_tolerance,
 		    double discard_distance_tolerance);
@@ -125,7 +133,11 @@ public:
       
   std::vector<MBEntityHandle>& group_handles() {return entHandles[4];}
       
-  void write_log(std::string ifile, const bool overwrite = true);
+  MBErrorCode write_mcnp(std::string ifile, const bool overwrite = true);
+  MBErrorCode parse_metadata();
+  void tokenize( const std::string& str,
+			std::vector<std::string>& tokens,
+			const char* delimiters );
   
   MBErrorCode poly_solid_angle( MBEntityHandle face, const MBCartVect& point, double& area );
 
@@ -154,9 +166,9 @@ public:
 
   double faceting_tolerance() {return facetingTolerance;}
 
-  int source_cell() {return moabMCNPSourceCell;}
+  int source_cell() {return sourceCell;}
 
-  bool use_dist_limit() {return moabMCNPUseDistLimit;}
+  bool use_dist_limit() {return useDistLimit;}
 
   bool use_cad() {return useCAD;}
 
@@ -181,15 +193,14 @@ private:
   MBErrorCode get_impl_compl();
   
   MBTag get_tag( const char* name, int size, MBTagType store, MBDataType type,
-                 bool create_if_missing = true);
+                 const void* def_value = NULL, bool create_if_missing = true);
 
   bool get_group_names(MBEntityHandle group_set, std::vector<std::string> &grp_names);
   
   static void create_instance(MBInterface *mb_impl = NULL);
   
     // build internal index vectors that speed up handle-by-id, etc.
-  MBErrorCode build_indices(MBRange &surfs, MBRange &vols,
-                            bool is_geom);
+  MBErrorCode build_indices(MBRange &surfs, MBRange &vols);
   
     // build obb structure
   MBErrorCode build_obbs(MBRange &surfs, MBRange &vols);
@@ -204,12 +215,16 @@ private:
     bool user_set;
   };
 
+  std::vector<int> tallyList;
+
   std::string itos(int ival);
 
   MBInterface *mbImpl;
 
   MBOrientedBoxTreeTool obbTree;
   MBTag obbTag, geomTag, idTag, nameTag, senseTag;
+  // metadata
+  MBTag matTag, densTag, bcTag, impTag, tallyTag;
   
   Option options[6];
 
@@ -224,9 +239,10 @@ private:
   double discardDistTol;
   double addDistTol;
   double facetingTolerance;
-  int moabMCNPSourceCell;
-  bool moabMCNPUseDistLimit;
+  int sourceCell;
+  bool useDistLimit;
   bool useCAD;
+  bool is_geom;
 
   double distanceLimit;
 
