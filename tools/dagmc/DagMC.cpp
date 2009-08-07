@@ -1122,7 +1122,8 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
     MBEntityHandle group = group_handles()[*grp];
     grp_names.clear();
     bool success = get_group_names(group, grp_names);
-    assert(success);
+    if (!success)
+      return MB_FAILURE;
     if (grp_names.empty()) continue;
     
     // get sets associated with this group
@@ -1248,7 +1249,8 @@ MBErrorCode DagMC::parse_metadata()
     group = group_handles()[grp];
     grp_names.clear();
     bool success = get_group_names(group, grp_names);
-    assert(success);
+    if (!success)
+      return MB_FAILURE;
     if (grp_names.empty()) continue;
 
     // get sets associated with this group

@@ -20,6 +20,7 @@ MBErrorCode test_pt_volume(DagMC &dagmc, int volID, double xxx, double yyy, doub
   MBEntityHandle vol = dagmc.entity_by_id(3,volID);
 
   double u, v, w;
+  u=v=w=0;
   rval = dagmc.point_in_volume( vol, xxx, yyy, zzz, inside, u, v, w);
   CHKERR;
   
