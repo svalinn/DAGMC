@@ -186,7 +186,7 @@ int main( int argc, char* argv[] )
   }
   
   int errors = 0;
-  //RUN_TEST( test_ray_fire );
+  RUN_TEST( test_ray_fire );
   RUN_TEST( test_point_in_volume );
   RUN_TEST( test_measure_volume );
   RUN_TEST( test_measure_area );
@@ -320,8 +320,8 @@ MBErrorCode test_ray_fire( DagMC& dagmc )
     { 1, { 0.0, 0.0, -1. }, { -1.0/ROOT2, 0.0, 1.0/ROOT2 }, 4, ROOT2 },
     { 1, { 0.0, 0.0, -1. }, {  1.0/ROOT2, 0.0, 1.0/ROOT2 }, 2, ROOT2 },
     { 1, { 0.0, 0.0, -1. }, {  0.0, 1.0/ROOT2, 1.0/ROOT2 }, 3, ROOT2 },
-    { 1, { 0.5, 0.5, -1. }, {  0.0, 0.0, 1.0 },             6, 3     },
-    { 2, { 1.0, 0.0, 0.5 }, { -1.0, 0.0, 0.0 },             6, 1     } };
+    { 1, { 0.5, 0.5, -1. }, {  0.0, 0.0, 1.0 },             6, 1.5   },
+    { 2, { 1.0, 0.0, 0.5 }, { -1.0, 0.0, 0.0 },             6, 0.5   } };
 
   MBErrorCode rval;
   MBInterface& moab = *dagmc.moab_instance();
