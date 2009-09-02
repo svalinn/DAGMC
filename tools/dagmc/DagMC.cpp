@@ -29,6 +29,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <math.h>
+#ifndef M_PI  /* windows */
+# define M_PI 3.14159265358979323846
+#endif
+
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define CATEGORY_TAG_LENGTH 32
 
