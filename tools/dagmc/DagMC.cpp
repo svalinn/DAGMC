@@ -14,7 +14,6 @@
 #include "CubitVector.hpp"
 #include "RefFace.hpp"
 #include "RefVolume.hpp"
-#include "cgm2moab.hpp"
 #endif
 
 #include <string>
