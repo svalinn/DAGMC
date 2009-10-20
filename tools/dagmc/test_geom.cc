@@ -9,6 +9,7 @@
 #include <math.h>
 #include <limits>
 #include <algorithm>
+#include <stdio.h> // for remove()
 
 #define CHKERR if (MB_SUCCESS != rval) return rval
 
