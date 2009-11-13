@@ -174,8 +174,7 @@ int main( int argc, char* argv[] )
   }
   
   DagMC& dagmc = *DagMC::instance();
-  MBEntityHandle file_set;
-  rval = dagmc.moab_instance()->load_file( filename, file_set );
+  rval = dagmc.moab_instance()->load_file( filename );
   //rval = dagmc.load_file( filename, 0 );
   remove( filename );
   if (MB_SUCCESS != rval) {

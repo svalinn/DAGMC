@@ -887,7 +887,6 @@ MBErrorCode DagMC::load_file(const char* cfile,
 			     const double facet_tolerance)
 {
   MBErrorCode rval;
-  MBEntityHandle file_set;
   
     // override default value of facetingTolerance with passed value
   if (facet_tolerance > 0 )
@@ -901,7 +900,7 @@ MBErrorCode DagMC::load_file(const char* cfile,
   char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
   strcat(options,facetTolStr);
     
-  rval = MBI->load_file(cfile, file_set, options, NULL, 0, 0);
+  rval = MBI->load_file(cfile, 0, options, NULL, 0, 0);
   if (MB_SUCCESS != rval) {
     std::cerr << "Couldn't read file " << cfile << std::endl;
     return rval;
