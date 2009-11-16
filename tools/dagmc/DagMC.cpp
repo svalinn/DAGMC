@@ -899,6 +899,18 @@ MBErrorCode DagMC::load_file(const char* cfile,
   // what if we are using default faceting tolerance???
   char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
   strcat(options,facetTolStr);
+
+  // As of r3273, loading fails if we pass options that a file reader can't recognize.
+  // In particular, the h5m reader does not recognize the options given above.
+  // As a temporary workaround, check for an .h5m filename and throw
+  // away the options if one is found.  -- sjackson, 11/16/09
+  {
+    std::string filename(cfile);
+    if( filename.length() > 4 && filename.substr(filename.length()-4) == ".h5m"){
+      options[0]='\0';
+    }
+  }
+
     
   rval = MBI->load_file(cfile, 0, options, NULL, 0, 0);
   if (MB_SUCCESS != rval) {
