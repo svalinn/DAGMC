@@ -900,20 +900,17 @@ MBErrorCode DagMC::load_file(const char* cfile,
   char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
   strcat(options,facetTolStr);
 
-  // As of r3273, loading fails if we pass options that a file reader can't recognize.
-  // In particular, the h5m reader does not recognize the options given above.
-  // As a temporary workaround, check for an .h5m filename and throw
-  // away the options if one is found.  -- sjackson, 11/16/09
-  {
+  rval = MBI->load_file(cfile, 0, options, NULL, 0, 0);
+  
+  if( MB_UNHANDLED_OPTION == rval ){
+    // Some options were unhandled; this is common for loading h5m files.
+    // Print a warning if an option was unhandled for a file that does not end in '.h5m'
     std::string filename(cfile);
-    if( filename.length() > 4 && filename.substr(filename.length()-4) == ".h5m"){
-      options[0]='\0';
+    if( filename.length() < 4 || filename.substr(filename.length()-4) != ".h5m"){
+      std::cerr << "DagMC warning: unhandled file loading options." << std::endl;
     }
   }
-
-    
-  rval = MBI->load_file(cfile, 0, options, NULL, 0, 0);
-  if (MB_SUCCESS != rval) {
+  else if (MB_SUCCESS != rval) {
     std::cerr << "Couldn't read file " << cfile << std::endl;
     return rval;
   }
