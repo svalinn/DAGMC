@@ -1087,13 +1087,17 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
     int cellid,matid;
     double imp, density;
 
-    MBI->tag_get_data( idTag , &(*iter), 1, &cellid   );
-    MBI->tag_get_data(impTag , &(*iter), 1, &imp      );
-    MBI->tag_get_data(matTag , &(*iter), 1, &matid    );
+    rval = MBI->tag_get_data( idTag , &(*iter), 1, &cellid   );
+    if (MB_SUCCESS != rval) return rval;
+    rval = MBI->tag_get_data(impTag , &(*iter), 1, &imp      );
+    if (MB_SUCCESS != rval) return rval;
+    rval = MBI->tag_get_data(matTag , &(*iter), 1, &matid    );
+    if (MB_SUCCESS != rval) return rval;
     if (0 == matid) {
       cgmfile << cellid << " " << matid << " imp:n=" << imp ;
     } else {
-      MBI->tag_get_data(densTag, &(*iter), 1, &density  );
+      rval = MBI->tag_get_data(densTag, &(*iter), 1, &density  );
+      if (MB_SUCCESS != rval) return rval;
       cgmfile << cellid << " " << matid << " " << density << " imp:n=" << imp ;
     }      
     if (*iter == impl_compl_handle)
@@ -1109,13 +1113,17 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
     
     int surfid, bc_id;
 
-    MBI->tag_get_data( idTag, &(*iter), 1, &surfid );
-    MBI->tag_get_data( bcTag, &(*iter), 1, &bc_id  );
+    rval = MBI->tag_get_data( idTag, &(*iter), 1, &surfid );
+    if (MB_SUCCESS != rval) return rval;
+    rval = MBI->tag_get_data( bcTag, &(*iter), 1, &bc_id  );
+    if (MB_SUCCESS != rval && MB_TAG_NOT_FOUND != rval) return rval;
 
-    if (BC_SPEC == bc_id)
-      cgmfile << "*";
-    if (BC_WHITE == bc_id)
-      cgmfile << "+";
+    if (MB_TAG_NOT_FOUND != rval) {
+      if (BC_SPEC == bc_id)
+	cgmfile << "*";
+      if (BC_WHITE == bc_id)
+	cgmfile << "+";
+    }
     cgmfile << surfid << std::endl;
 
   }
