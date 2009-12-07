@@ -69,9 +69,27 @@ void DagMC::create_instance(MBInterface *mb_impl)
   instance_ = new DagMC(mb_impl);
 }
 
+void DagMC::set_useCAD( bool use_cad ){
+  useCAD = use_cad;
+  if( useCAD ){
+    if( !have_cgm_geom ){
+      std::cerr << "Warning: CAD-based ray tracing not avaiable, because CGM has no data." << std::endl;
+      std::cerr << "         your input file was probably not a CAD format." << std::endl;
+      useCAD = false;
+    }
+
+#ifndef HAVE_CGM_FIRE_RAY
+    {
+      std::cerr << "Warning: use_cad = 1 not supported with this build of CGM/DagMC." << std:: endl;
+      std::cerr << "         Required ray-fire query not available. (Cubit-based CGM?)" <<  std::endl;
+      useCAD = false;
+    }
+#endif
+  }
+}
 
 DagMC::DagMC(MBInterface *mb_impl) 
-  : mbImpl(mb_impl), obbTree(mb_impl), is_geom(false)
+  : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
@@ -158,21 +176,14 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
                                      &len);
   assert( MB_SUCCESS == rval );
 
-#ifdef CGM
+
+  // if useCAD is true at this point, then we know we can call CGM's ray casting function.
   if (useCAD) {
-#ifndef HAVE_CGM_FIRE_RAY
-    std::cout << "use_cad = 1 not supported with this build of CGM/DagMC."
-              << std::endl
-              << "Required ray-fire query not available. (Cubit-based CGM?)" 
-              << std::endl;
-    return MB_NOT_IMPLEMENTED;
-#else    
     rval = CAD_ray_intersect(point, dir, huge_val,
                              distances, surfaces, len);
     if (MB_SUCCESS != rval) return rval;
-#endif
   }
-#endif
+
   
     // Find smallest intersection
   if (distances.empty()) {
@@ -311,15 +322,7 @@ void DagMC::parse_settings() {
 
   useDistLimit = !!atoi( options[2].value.c_str() );
 
-  useCAD = !!atoi( options[3].value.c_str() );
-#ifndef HAVE_CGM_FIRE_RAY
-  if (useCAD) {
-    std::cout << "Warning: use_cad = 1 not supported with this build of "
-              << "CGM/DagMC;" << std:: endl
-              << "Required ray-fire query not available. (Cubit-based CGM?)" 
-              << std::endl;
-  }
-#endif  
+  set_useCAD( !!atoi( options[3].value.c_str() ) );
 
   facetingTolerance = strtod( options[4].value.c_str(), 0 );
   if (facetingTolerance <= 0) {
@@ -371,16 +374,9 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
   std::cout << "Turned " << (useDistLimit?"ON":"OFF") << " distance limit." << std::endl;
 
-  useCAD = !!(use_cad);
+  set_useCAD( use_cad );
+
   std::cout << "Turned " << (useCAD?"ON":"OFF") << " ray firing on full CAD model." << std::endl;
-#ifndef HAVE_CGM_FIRE_RAY
-  if (useCAD) {
-    std::cout << "Warning: use_cad = 1 not supported with this build of "
-              << "CGM/DagMC;" << std:: endl
-              << "Required ray-fire query not available. (Cubit-based CGM?)" 
-              << std::endl;
-  }
-#endif  
 
 
 }
@@ -888,6 +884,11 @@ MBErrorCode DagMC::load_file(const char* cfile,
 {
   MBErrorCode rval;
   
+#ifdef CGM
+  // cgm must be initialized so we can check it for CAD data after the load
+  InitCGMA::initialize_cgma();
+#endif
+
     // override default value of facetingTolerance with passed value
   if (facet_tolerance > 0 )
     facetingTolerance = facet_tolerance;
@@ -899,7 +900,7 @@ MBErrorCode DagMC::load_file(const char* cfile,
   // what if we are using default faceting tolerance???
   char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
   strcat(options,facetTolStr);
-
+  
   rval = MBI->load_file(cfile, 0, options, NULL, 0, 0);
   
   if( MB_UNHANDLED_OPTION == rval ){
@@ -911,14 +912,17 @@ MBErrorCode DagMC::load_file(const char* cfile,
     }
   }
   else if (MB_SUCCESS != rval) {
-    std::cerr << "Couldn't read file " << cfile << std::endl;
+    std::cerr << "DagMC Couldn't read file " << cfile << std::endl;
     return rval;
   }
-  
-  // How do we know what type of file we read for downstream issues:
-  // * useCad
-  // * is_geom in build_indices
 
+#ifdef CGM  
+  // check to see if CGM has data; if so, assume it corresponds to the data we loaded in.
+  if( GeometryQueryTool::instance()->num_ref_volumes() > 0 ){
+    std::cerr << "Setting have_cgm_geom = true" << std::endl;
+    have_cgm_geom = true;
+  }
+#endif
 
   return MB_SUCCESS;
 
@@ -1564,7 +1568,10 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
 
  
 #ifdef CGM
-  if (is_geom) {
+  if ( have_cgm_geom ) {
+    // TODO: this block should only execute if the user has explicitly requested useCAD for ray firing.
+    // however, this function curently executes before we know if useCAD will be specified, so do it every time.
+
     geomEntities.resize(rootSets.size());
       // get geometry entities by id and cache in this vector
     std::vector<int> ids;

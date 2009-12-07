@@ -206,6 +206,9 @@ private:
   MBErrorCode build_obbs(MBRange &surfs, MBRange &vols);
   MBErrorCode build_obb_impl_compl(MBRange &surfs);
   
+  // attempt to set useCAD, first checking for availability
+  void set_useCAD( bool use_cad ); 
+
   class Option {
   public:
     Option(){}
@@ -241,8 +244,8 @@ private:
   double facetingTolerance;
   int sourceCell;
   bool useDistLimit;
-  bool useCAD;
-  bool is_geom;
+  bool useCAD;         /// true if user requested CAD-based ray firing
+  bool have_cgm_geom;  /// true if CGM contains problem geometry; required for CAD-based ray firing.
 
   double distanceLimit;
 
