@@ -919,7 +919,6 @@ MBErrorCode DagMC::load_file(const char* cfile,
 #ifdef CGM  
   // check to see if CGM has data; if so, assume it corresponds to the data we loaded in.
   if( GeometryQueryTool::instance()->num_ref_volumes() > 0 ){
-    std::cerr << "Setting have_cgm_geom = true" << std::endl;
     have_cgm_geom = true;
   }
 #endif
