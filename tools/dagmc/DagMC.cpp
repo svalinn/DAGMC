@@ -157,6 +157,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
     // it for every call
   std::vector<double> &distances = distList;
   std::vector<MBEntityHandle> &surfaces = surfList;
+  std::vector<MBEntityHandle> &facets = facetList;
   
   
     // do ray fire
@@ -164,11 +165,13 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   const double dir[] = {uuu, vvv, www};
   distances.clear();
   surfaces.clear();
+  facets.clear();
   double len = use_dist_limit() ? distance_limit() : huge_val;
   unsigned min_tolerance_intersections = 1000;
 
   rval = obbTree.ray_intersect_sets( distances,
-                                     surfaces, 
+                                     surfaces,
+                                     facets, 
                                      root, 
                                      add_dist_tol(),
                                      min_tolerance_intersections,

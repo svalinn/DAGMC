@@ -272,7 +272,7 @@ private:
   static DagMC *instance_;
   
     // temporary storage so functions don't have to reallocate vectors
-  std::vector<MBEntityHandle> triList, surfList;
+  std::vector<MBEntityHandle> triList, surfList, facetList;
   std::vector<double> distList;
 };
 

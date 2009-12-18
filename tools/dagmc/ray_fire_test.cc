@@ -52,6 +52,7 @@ int main( int argc, char* argv[] )
     std::cerr << "Usage: " << argv[0] << " [-f] <filename> "
               << " <facet_tol> <source_rad> <vol_index> <#calls> [<location_az>] [<direction_az>]" << std::endl;
     std::cerr << "-f: report full tree statistics" << std::endl;
+    std::cerr << "-s: perform a simple ray_fire with <filename> <facet_tol> <vol_id> <x y z> <u v w>" << std::endl;
     std::cerr << "filename: mesh or geometry filename" << std::endl;
     std::cerr << "facet_tol: facet tolerance" << std::endl;
     std::cerr << "source_rad: if < 0, ray at source_rad and random angle pointed at origin;" << std::endl;
@@ -63,10 +64,69 @@ int main( int argc, char* argv[] )
     return 1;
   }
   
+  // declare variables used for all ray_fires
   const double PI = acos(-1.0);
-  
+  char *filename;  
   double facet_tol;
+  double x, y, z, u, v, w, dist;
   int ncalls;
+  MBEntityHandle surf = 0, vol = 0;
+
+  // Simply test 1 ray against 1 volume with no timing
+  if(strcmp(argv[2], "-s")) {
+    if(11 > argc) {
+      std::cerr << "Need more input arguments for simple test" << std::endl;
+      return 1;
+    }
+
+    int i=2;
+    filename = argv[i++];
+    facet_tol = atof(argv[i++]);
+    int vol_id = atoi(argv[i++]);
+    x = atof(argv[i++]);
+    y = atof(argv[i++]);
+    z = atof(argv[i++]);
+    u = atof(argv[i++]);
+    v = atof(argv[i++]);
+    w = atof(argv[i++]);
+
+    DagMC& dagmc = *DagMC::instance();
+    rval = dagmc.load_file( filename, facet_tol );
+    if(MB_SUCCESS != rval) {
+      std::cerr << "Failed to load file." << std::endl;
+      return 2;
+    }
+
+    rval = dagmc.init_OBBTree( );
+    if(MB_SUCCESS != rval) {
+      std::cerr << "Failed to initialize DagMC." << std::endl;
+      return 2;
+    }
+ 
+    vol = dagmc.entity_by_id(3, vol_id);
+    if(0 == vol) {
+      std::cerr << "Problem getting volume." << std::endl;
+      return 2;
+    }
+
+    rval = dagmc.ray_fire( vol, 0, 1, u, v, w, x, y, z, DBL_MAX, dist, surf ); 
+    if(MB_SUCCESS != rval) {
+      std::cerr << "Problem with ray_fire" << std::endl;
+      return 2;
+    }
+
+    if(0 == surf) {
+      std::cerr << "Particle is lost" << std::endl;
+      return 2;
+    }
+
+    int surf_id = dagmc.id_by_index( 2, dagmc.index_by_handle( surf ) );
+    std::cout << "dist=" << dist << " surf_id=" << surf_id << " new_xyz="
+              << x+dist*u << " " << y+dist*v << " " << z+dist*w << std::endl;
+    return 0;
+
+  } else {
+
   bool full = false;
   int i = 1;
   if (!strcmp(argv[i], "-f")) {
@@ -74,7 +134,7 @@ int main( int argc, char* argv[] )
     i++;
   }
   
-  char* filename = argv[i++];
+  filename = argv[i++];
   facet_tol = atof(argv[i++]);
   double rad = atof(argv[i++]);
   int vol_idx = atoi(argv[i++]);
@@ -98,7 +158,7 @@ int main( int argc, char* argv[] )
   }
 
 
-  MBEntityHandle vol = dagmc.entity_by_index(3, vol_idx);
+  vol = dagmc.entity_by_index(3, vol_idx);
   if (0 == vol) {
     std::cerr << "Problem getting first volume." << std::endl;
     return 2;
@@ -109,8 +169,6 @@ int main( int argc, char* argv[] )
 
     // initialize random number generator using ttime1
   srand((unsigned int) ttime1);
-  double x, y, z, u, v, w, dist;
-  MBEntityHandle nsurf;
 
 #ifdef DEBUG
   double uavg = 0.0, vavg = 0.0, wavg = 0.0;
@@ -134,7 +192,7 @@ int main( int argc, char* argv[] )
 #endif
     
     dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
-                   dist, nsurf);
+                   dist, surf);
 
   }
   get_time_mem(ttime2, utime2, stime2, tmem1);
@@ -184,6 +242,7 @@ int main( int argc, char* argv[] )
 #endif
 
   return 0;
+  }
 }
 
 void get_time_mem(double &tot_time, double &user_time,
