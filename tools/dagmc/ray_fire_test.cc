@@ -73,7 +73,7 @@ int main( int argc, char* argv[] )
   MBEntityHandle surf = 0, vol = 0;
 
   // Simply test 1 ray against 1 volume with no timing
-  if(strcmp(argv[2], "-s")) {
+  if(!strcmp(argv[2], "-s")) {
     if(11 > argc) {
       std::cerr << "Need more input arguments for simple test" << std::endl;
       return 1;
