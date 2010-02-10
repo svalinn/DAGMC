@@ -80,7 +80,7 @@ static void usage( const char* error, const char* opt, const char* name = "ray_f
   if( !error ){
     str << "-h  print this help" << std::endl;
     str << "-s  print OBB tree structural statistics" << std::endl;
-    str << "-S  track and print OBB tree traversal statistics (to be implemented soon)" << std::endl;
+    str << "-S  track and print OBB tree traversal statistics" << std::endl;
     str << "-i <int>   specify volume to upon which to test ray intersections (default 1)" << std::endl;
     str << "-t <real>  specify faceting tolerance (default 1e-4)" << std::endl;
     str << "-n <int>   specify number of random rays to fire (default 1000)" << std::endl;
@@ -202,6 +202,8 @@ int main( int argc, char* argv[] )
   MBEntityHandle surf = 0, vol = 0;
   double x, y, z, u, v, w, dist;
 
+  MBOrientedBoxTreeTool::TrvStats* trv_stats = NULL;
+  if( do_trv_stats ){ trv_stats = new MBOrientedBoxTreeTool::TrvStats; }
 
   /* Initialize DAGMC and find the appropriate volume */
   std::cout << "Initializing DagMC, facet_tol = " << facet_tol << std::endl;
@@ -236,7 +238,7 @@ int main( int argc, char* argv[] )
       rval = dagmc.ray_fire( vol, 0, 1, 
                              ray.v[0], ray.v[1], ray.v[2], 
                              ray.p[0], ray.p[1], ray.p[2], 
-                             DBL_MAX, dist, surf ); 
+                             DBL_MAX, dist, surf, trv_stats ); 
 
       if(MB_SUCCESS != rval) {
         std::cerr << "ERROR: ray_fire() failed!" << std::endl;
@@ -288,7 +290,7 @@ int main( int argc, char* argv[] )
 #endif
     
     dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
-                   dist, surf);
+                   dist, surf, trv_stats);
 
   }
   get_time_mem(ttime2, utime2, stime2, tmem1);
@@ -312,11 +314,12 @@ int main( int argc, char* argv[] )
 
   std::cout << " done." << std::endl;
   
-   
-  std::cout << "Total time per ray fire: " << timewith/num_random_rays 
-            << " sec" << std::endl;
-  std::cout << "Estimated time per call (excluding ray generation): " 
-            << (timewith - timewithout) / num_random_rays << " sec" << std::endl;
+  if( num_random_rays > 0 ){
+    std::cout << "Total time per ray fire: " << timewith/num_random_rays 
+	      << " sec" << std::endl;
+    std::cout << "Estimated time per call (excluding ray generation): " 
+	      << (timewith - timewithout) / num_random_rays << " sec" << std::endl;
+  }
   std::cout << "Program memory used: " 
             << tmem2 << " bytes (" << tmem2/(1024*1024) << " MB)" << std::endl;
 
@@ -341,6 +344,11 @@ int main( int argc, char* argv[] )
     std::cout << "Tree dimensions:" << std::endl;
     std::cout << "   facets: " << entities_in_tree << ", height: " << tree_height << std::endl;
     std::cout << "   num leaves: " << num_leaves << ", num nodes: " << node_count << std::endl;
+  }
+
+  if( do_trv_stats ){
+    std::cout << "Traversal statistics:" << std::endl;
+    trv_stats->print( std::cout );
   }
 
 #ifdef DEBUG

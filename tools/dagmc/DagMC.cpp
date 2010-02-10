@@ -140,7 +140,8 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
                              const double uuu, const double vvv, const double www,
                              const double xxx, const double yyy, const double zzz,
                              const double huge_val,
-                             double &dist_traveled, MBEntityHandle &next_surf_hit) 
+                             double &dist_traveled, MBEntityHandle &next_surf_hit, 
+                             MBOrientedBoxTreeTool::TrvStats* stats ) 
 {
   if (debug) {
     std::cout << "Vol " << id_by_index(3, index_by_handle(vol)) << ", xyz = " 
@@ -176,7 +177,7 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
                                      add_dist_tol(),
                                      min_tolerance_intersections,
                                      point, dir,
-                                     &len);
+                                     &len, stats);
   assert( MB_SUCCESS == rval );
 
 

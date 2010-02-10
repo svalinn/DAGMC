@@ -35,7 +35,8 @@ public:
                        const double uuu, const double vvv, const double www,
                        const double xxx, const double yyy, const double zzz,
                        const double huge_val,
-                       double &dist_traveled, MBEntityHandle &next_surf_hit);
+                       double &dist_traveled, MBEntityHandle &next_surf_hit,
+                       MBOrientedBoxTreeTool::TrvStats* stats = NULL );
 
     // Test if point is inside or outside of a volume using unit sphere area method
     // Requires sense of surfaces wrt volume.
