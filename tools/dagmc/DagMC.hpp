@@ -79,8 +79,6 @@ public:
   MBErrorCode load_file(const char* cfile,
 			const double facet_tolerance = 0);
 
-  MBErrorCode init_OBBtree();
-
   MBErrorCode write_mesh(const char* ffile,
 			 const int flen);
 
