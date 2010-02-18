@@ -11,7 +11,9 @@
 #include <limits>
 #include <fcntl.h>
 #include <stdio.h>
+#include <time.h>
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <cfloat>
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
@@ -29,6 +31,9 @@ extern "C" int getrusage(int, struct rusage *);
 
 void get_time_mem(double &tot_time, double &user_time,
                   double &sys_time, double &tot_mem);
+
+void dump_pyfile( char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
+		  MBOrientedBoxTreeTool::TrvStats* trv_stats, MBEntityHandle tree_root );
 
 static const double PI = acos(-1.0);
 static const double denom = 1.0 / ((double) RAND_MAX);
@@ -48,6 +53,7 @@ inline void RNDVEC(double &u, double &v, double &w, double &az)
 typedef struct{ MBCartVect p; MBCartVect v; } ray_t;
 std::vector< ray_t > rays; // list of user-specified rays (given with -f flag)
 
+static MBCartVect ray_source(0,0,0);
 
 static double facet_tol = 1e-4;
 static double source_rad = 0;
@@ -58,6 +64,9 @@ static bool do_stat_report = false;
 static bool do_trv_stats   = false;
 static double location_az = 2.0 * PI;
 static double direction_az = location_az;
+static const char* pyfile = NULL;
+
+static int random_rays_missed = 0; // count of random rays that did not hit a surface
 
 /* Most of the argument handling code was stolen/adapted from MOAB/test/obb/obb_test.cpp */
 static void usage( const char* error, const char* opt, const char* name = "ray_fire_test" )
@@ -84,14 +93,17 @@ static void usage( const char* error, const char* opt, const char* name = "ray_f
     str << "-i <int>   specify volume to upon which to test ray intersections (default 1)" << std::endl;
     str << "-t <real>  specify faceting tolerance (default 1e-4)" << std::endl;
     str << "-n <int>   specify number of random rays to fire (default 1000)" << std::endl;
-    str << "-r <real>  random ray radius.  Random rays begin at this distance from the origin." << std::endl;
-    str << "           if < 0, fire rays inward through the origin" << std::endl;
-    str << "           if >= 0, fire random rays outward.  (default 0)" << std::endl;
+    str << "-c <x> <y> <z>  Specify center of of random ray generation (default origin)." << std::endl;
+    str << "-r <real>  random ray radius.  Random rays begin at this distance from the center." << std::endl;
+    str << "           if < 0, fire rays inward through the center" << std::endl;
+    str << "           if >= 0, fire randomly directed rays.  (default 0)" << std::endl;
     str << "-f <x> <y> <z> <u> <v> <w>  Fire one given ray and report result." << std::endl;
     str << "           (May be given multiple times.  -s implies -n 0)" << std::endl;
     str << "-z <int>   seed the random number generator (default 12345)" << std::endl;
     str << "-L <real>  if present, limit random ray Location to between +-<value> degrees" << std::endl;
     str << "-D <real>  if present, limit random ray Direction to between +-<value> degrees" << std::endl;
+    str << "           (unused if random ray radius < 0)" << std::endl;
+    str << "-p <filename>  if present, save parameters and results to a python dictionary" << std::endl;
   }
 
   exit( error ? 1 : 0 );
@@ -120,6 +132,25 @@ static double get_double_option( int& i, int argc, char* argv[] ) {
   if (!*str || *end_ptr) 
     usage( "Expected real number following option", argv[i-1] );
   return val;
+}
+
+static MBCartVect parse_vector( int& i, int argc, char* argv[] ){
+  double params[3]; bool err = false;
+  for( int j = 0; j<3 && !err; ++j ){
+    if( ++i == argc ){
+      err = true; break;
+    }    
+    char* end_ptr;
+    params[j] = strtod( argv[i], &end_ptr );
+    if( !argv[i][0] || *end_ptr ){
+      err = true; break;
+    }
+  }
+  if( err ){
+      usage( "Expected vector specified as <x> <y> <z>", 0, argv[0] );
+  }
+
+  return MBCartVect(params);
 }
 
 static void parse_ray( int& i, int argc, char* argv[] )
@@ -177,6 +208,9 @@ int main( int argc, char* argv[] )
 	  parse_ray( i, argc, argv );
           num_random_rays = 0;
 	  break;
+        case 'c':
+          ray_source = parse_vector( i, argc, argv );
+          break;
         case 'z':
           randseed = get_int_option( i, argc, argv );
           break;
@@ -186,6 +220,9 @@ int main( int argc, char* argv[] )
         case 'D':
           direction_az = get_double_option( i, argc, argv ) * (PI / 180.0);
           break;        
+        case 'p':
+	  pyfile = get_option( i, argc, argv );
+	  break;
       }
     }
     else {
@@ -275,34 +312,38 @@ int main( int argc, char* argv[] )
   for (int j = 0; j < num_random_rays; j++) {
     RNDVEC(u, v, w, location_az);
 
-    x = -u*source_rad;
-    y = -v*source_rad;
-    z = -w*source_rad;
+    x = u*source_rad + ray_source[0];
+    y = v*source_rad + ray_source[1];
+    z = w*source_rad + ray_source[2];
 
     if (source_rad >= 0.0) {
       RNDVEC(u, v, w, direction_az);
     }
 
 #ifdef DEBUG
-      std::cout << "x, y, z, u, v, w, u^2 + v^2 + w^2 = "
-                << u << " " << v << " " << w << " " << (u*u + v*v + w*w) << std::endl;
+      std::cout << "x,y,z,u,v,w,u^2 + v^2 + w^2 = " << x << " " << y << " " << z 
+                << " " << u << " " << v << " " << w << " " << (u*u + v*v + w*w) << std::endl;
       uavg += u; vavg += v; wavg += w;
 #endif
     
     dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
                    dist, surf, trv_stats);
 
+    if( surf == 0){ random_rays_missed++; }
+
   }
   get_time_mem(ttime2, utime2, stime2, tmem1);
   double timewith = ttime2 - ttime1;
+
+  srand(randseed); // reseed to generate the same values as before
 
     // now without ray fire call, to subtract out overhead
   for (int j = 0; j < num_random_rays; j++) {
     RNDVEC(u, v, w, location_az);
 
-    x = -u*source_rad;
-    y = -v*source_rad;
-    z = -w*source_rad;
+    x = u*source_rad + ray_source[0];
+    y = v*source_rad + ray_source[1];
+    z = w*source_rad + ray_source[2];
 
     if (source_rad >= 0.0) {
       RNDVEC(u, v, w, direction_az);
@@ -313,6 +354,10 @@ int main( int argc, char* argv[] )
   double timewithout = ttime1 - ttime2;
 
   std::cout << " done." << std::endl;
+
+  if( random_rays_missed ){
+    std::cout << "Warning: " << random_rays_missed << " random rays did not hit the target volume" << std::endl;
+  }
   
   if( num_random_rays > 0 ){
     std::cout << "Total time per ray fire: " << timewith/num_random_rays 
@@ -349,6 +394,10 @@ int main( int argc, char* argv[] )
   if( do_trv_stats ){
     std::cout << "Traversal statistics:" << std::endl;
     trv_stats->print( std::cout );
+  }
+
+  if( pyfile ){
+    dump_pyfile( filename, timewith, timewithout, tmem2, dagmc, trv_stats, root );
   }
 
 #ifdef DEBUG
@@ -409,4 +458,118 @@ void get_time_mem(double &tot_time, double &user_time,
     if (num_fields == 24)
       tot_mem = ((double)vm_size);
   }
+}
+
+
+class HistogramBuilder : public MBOrientedBoxTreeTool::Op {
+
+protected:
+  int last_depth;
+
+  void ensure_depth( unsigned depth ){
+    while( node_counts.size() < depth+1 ){
+      node_counts.push_back(0);
+      leaf_counts.push_back(0);
+    }
+  }
+
+public:
+  std::vector<int> node_counts;
+  std::vector<int> leaf_counts;
+
+  virtual MBErrorCode visit( MBEntityHandle node, int depth, bool& descend ){
+    ensure_depth( depth );
+    last_depth = depth;
+
+    node_counts[last_depth] += 1;
+    
+    descend = true;
+    return MB_SUCCESS;
+  }
+       
+  virtual MBErrorCode leaf( MBEntityHandle node ){
+    leaf_counts[last_depth] += 1;
+    return MB_SUCCESS;
+  }
+};
+
+void write_obbtree_histogram( MBEntityHandle root, MBOrientedBoxTreeTool& tree, std::ostream& out ){
+
+  HistogramBuilder hb;
+  tree.preorder_traverse( root, hb ); 
+
+  out << "[";
+  for( unsigned i = 0; i < hb.node_counts.size(); ++i ){
+    out << "(" << hb.node_counts[i] << ", " << hb.leaf_counts.at(i) << "),";
+  }
+  out << "]";
+
+}
+
+#define DICT_VAL(X) out << "'" #X "':" << X << "," << std::endl;
+#define DICT_VAL_STR(X) out << "'" #X  "':'" << X << "'," << std::endl;
+void dump_pyfile( char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
+		  MBOrientedBoxTreeTool::TrvStats* trv_stats, MBEntityHandle tree_root ){
+  std::ofstream out(pyfile);
+  out.precision( 14 );
+
+  out << "# This file was automatically generated by ray_fire_test, and contains" << std::endl;
+  out << "# the results of a single program run.  It is formatted as a python dictionary," << std::endl;
+  out << "# and its contents may be loaded into python with a command such as: " << std::endl;
+  out << "#  data = eval( compile( open('filename').read(), 'filename','eval')" << std::endl;
+  out << "# (with the name of this file substituted for 'filename')" << std::endl;
+  out << "{" << std::endl;
+
+  time_t now = time(NULL);
+  std::string finish_time = ctime(&now);
+  // remove trailing \n
+  finish_time.resize( finish_time.length()-1 );
+  DICT_VAL_STR(finish_time);
+  DICT_VAL_STR(filename);
+  DICT_VAL(facet_tol);
+  out << "'ray_source':[" << ray_source[0] << "," << ray_source[1] << "," << ray_source[2] << "]," << std::endl;
+  DICT_VAL(source_rad);
+  unsigned num_user_rays = rays.size();
+  DICT_VAL(num_user_rays);
+  DICT_VAL(num_random_rays);
+  DICT_VAL(random_rays_missed);
+  if( num_random_rays > 0 ){
+    DICT_VAL(randseed);
+    DICT_VAL(timewith);
+    DICT_VAL(timewith-timewithout);
+  }
+  DICT_VAL(tmem);
+
+  unsigned int entities_in_tree, tree_height, node_count, num_leaves;
+  double root_volume, tot_node_volume, tot_to_root_volume;
+  dagmc.obb_tree()->stats(tree_root, entities_in_tree, root_volume, tot_node_volume,
+			  tot_to_root_volume, tree_height, node_count, num_leaves);
+  
+  DICT_VAL( entities_in_tree );
+  DICT_VAL( tree_height );
+  DICT_VAL( node_count );
+  DICT_VAL( num_leaves );
+
+  out << "'tree_structure':";
+  write_obbtree_histogram( tree_root, *dagmc.obb_tree(), out );
+  out << "," <<  std::endl;
+
+  if(trv_stats){
+    unsigned stat_depth = trv_stats->nodes_visited().size();
+    out << "'nodes_visited':[";
+    for( unsigned i = 0; i < stat_depth; ++i){
+      out << trv_stats->nodes_visited()[i] << ",";
+    }
+    out << "]," << std::endl;
+    
+    out << "'traversals_ended':[";
+    for( unsigned i = 0; i < stat_depth; ++i){
+      out << trv_stats->traversals_ended()[i] << ",";
+    }
+    out << "]," << std::endl;
+  }
+
+  out << "}" << std::endl;
+  
+  
 }
