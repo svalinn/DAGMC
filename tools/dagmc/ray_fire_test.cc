@@ -561,7 +561,13 @@ void dump_pyfile( char* filename, double timewith, double timewithout, double tm
       out << trv_stats->nodes_visited()[i] << ",";
     }
     out << "]," << std::endl;
-    
+
+    out << "'leaves_visited':[";
+    for( unsigned i = 0; i < stat_depth; ++i){
+      out << trv_stats->leaves_visited()[i] << ",";
+    }
+    out << "]," << std::endl;
+
     out << "'traversals_ended':[";
     for( unsigned i = 0; i < stat_depth; ++i){
       out << trv_stats->traversals_ended()[i] << ",";
