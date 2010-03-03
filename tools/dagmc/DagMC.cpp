@@ -574,7 +574,7 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
 {
   MBErrorCode rval;
   const double epsilon = discardDistTol;
-  
+
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
   MBEntityHandle root = rootSets[volume - setOffset];
@@ -695,7 +695,10 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
     // triangulation.  That shoudn't be possible (must be 
     // closer to at least one of the adjacent triagles than
     // to the saddle vertex.)
-  assert(false /*shouldn't be here*/);
+  std::cout << "point_in_volume fast test failure: xyz= " << x << " " << y << " " << z 
+            << " uvw= " << u << " " << v << " " << w 
+            << " vol=" << id_by_index(3, index_by_handle(volume)) << std::endl; 
+  // For now, proceed with the slow test.
   return point_in_volume_slow( volume, x, y, z, result );
 }
 
@@ -760,8 +763,12 @@ MBErrorCode DagMC::measure_volume( MBEntityHandle volume, double& result )
     if (MB_SUCCESS != rval) 
       return rval;
     if (!triangles.all_of_type(MBTRI)) {
-      std::cerr << "ERROR: Surface contains non-triangle elements.  Cannot calculate volume." << std::endl;
-      return MB_FAILURE;
+      std::cout << "WARNING: Surface " << id_by_index(2, index_by_handle(surfaces[i]))
+                << " contains non-triangle elements. Volume calculation may be incorrect." 
+                << std::endl;
+      triangles.clear();
+      rval = MBI->get_entities_by_type( surfaces[i], MBTRI, triangles );
+      if (MB_SUCCESS != rval) return rval;
     }
     
       // calculate signed volume beneath surface (x 6.0)
@@ -796,8 +803,12 @@ MBErrorCode DagMC::measure_area( MBEntityHandle surface, double& result )
   if (MB_SUCCESS != rval) 
     return rval;
   if (!triangles.all_of_type(MBTRI)) {
-    std::cerr << "ERROR: Surface contains non-triangle elements.  Cannot calculate area." << std::endl;
-    return MB_FAILURE;
+    std::cout << "WARNING: Surface " << id_by_index(2, index_by_handle(surface))
+              << " contains non-triangle elements. Area calculation may be incorrect." 
+              << std::endl;
+    triangles.clear();
+    rval = MBI->get_entities_by_type( surface, MBTRI, triangles );
+    if (MB_SUCCESS != rval) return rval;
   }
 
     // calculate sum of area of triangles
@@ -1154,6 +1165,7 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
     if (grp_names.empty()) continue;
     
     // get sets associated with this group
+    grp_sets.clear();
     rval = MBI->get_entities_by_type(group, MBENTITYSET, grp_sets);
     if (MB_SUCCESS != rval) continue;
 
