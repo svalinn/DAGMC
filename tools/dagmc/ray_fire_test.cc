@@ -1,8 +1,8 @@
-#include "MBInterface.hpp"
-#include "MBCore.hpp"
+#include "moab/Interface.hpp"
+#include "moab/Core.hpp"
 #include "DagMC.hpp"
-#include "MBTagConventions.hpp"
-#include "MBCartVect.hpp"
+#include "moab/MBTagConventions.hpp"
+#include "moab/CartVect.hpp"
 
 #include <vector>
 #include <iostream>
@@ -26,6 +26,8 @@ extern "C" int getrusage(int, struct rusage *);
 #endif
 #endif
 
+using namespace moab;
+
 // define following macro for verbose debugging of random ray generation
 //#define DEBUG
 
@@ -33,7 +35,7 @@ void get_time_mem(double &tot_time, double &user_time,
                   double &sys_time, double &tot_mem);
 
 void dump_pyfile( char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
-		  MBOrientedBoxTreeTool::TrvStats* trv_stats, MBEntityHandle tree_root );
+		  OrientedBoxTreeTool::TrvStats* trv_stats, EntityHandle tree_root );
 
 static const double PI = acos(-1.0);
 static const double denom = 1.0 / ((double) RAND_MAX);
@@ -50,10 +52,10 @@ inline void RNDVEC(double &u, double &v, double &w, double &az)
 }
 
 /* program global data, including settings with their defaults*/
-typedef struct{ MBCartVect p; MBCartVect v; } ray_t;
+typedef struct{ CartVect p; CartVect v; } ray_t;
 std::vector< ray_t > rays; // list of user-specified rays (given with -f flag)
 
-static MBCartVect ray_source(0,0,0);
+static CartVect ray_source(0,0,0);
 
 static double facet_tol = 1e-4;
 static double source_rad = 0;
@@ -134,7 +136,7 @@ static double get_double_option( int& i, int argc, char* argv[] ) {
   return val;
 }
 
-static MBCartVect parse_vector( int& i, int argc, char* argv[] ){
+static CartVect parse_vector( int& i, int argc, char* argv[] ){
   double params[3]; bool err = false;
   for( int j = 0; j<3 && !err; ++j ){
     if( ++i == argc ){
@@ -150,7 +152,7 @@ static MBCartVect parse_vector( int& i, int argc, char* argv[] ){
       usage( "Expected vector specified as <x> <y> <z>", 0, argv[0] );
   }
 
-  return MBCartVect(params);
+  return CartVect(params);
 }
 
 static void parse_ray( int& i, int argc, char* argv[] )
@@ -170,7 +172,7 @@ static void parse_ray( int& i, int argc, char* argv[] )
       usage( "Expected ray specified as <x> <y> <z> <u> <v> <w>", 0, argv[0] );
   }
 
-  MBCartVect point(params), direction(params+3); 
+  CartVect point(params), direction(params+3); 
   direction.normalize(); 
   ray_t ray; ray.p = point; ray.v = direction;
   rays.push_back( ray );
@@ -235,12 +237,12 @@ int main( int argc, char* argv[] )
     usage("No filename specified", 0, argv[0] );
   }
      
-  MBErrorCode rval;
-  MBEntityHandle surf = 0, vol = 0;
+  ErrorCode rval;
+  EntityHandle surf = 0, vol = 0;
   double x, y, z, u, v, w, dist;
 
-  MBOrientedBoxTreeTool::TrvStats* trv_stats = NULL;
-  if( do_trv_stats ){ trv_stats = new MBOrientedBoxTreeTool::TrvStats; }
+  OrientedBoxTreeTool::TrvStats* trv_stats = NULL;
+  if( do_trv_stats ){ trv_stats = new OrientedBoxTreeTool::TrvStats; }
 
   /* Initialize DAGMC and find the appropriate volume */
   std::cout << "Initializing DagMC, facet_tol = " << facet_tol << std::endl;
@@ -369,8 +371,8 @@ int main( int argc, char* argv[] )
             << tmem2 << " bytes (" << tmem2/(1024*1024) << " MB)" << std::endl;
 
   /* Gather OBB tree stats and make final reports */
-  MBEntityHandle root;
-  MBErrorCode result = dagmc.get_root(vol, root);
+  EntityHandle root;
+  ErrorCode result = dagmc.get_root(vol, root);
   if (MB_SUCCESS != result) {
     std::cerr << "Trouble getting tree stats." << std::endl;
     return 2;
@@ -461,7 +463,7 @@ void get_time_mem(double &tot_time, double &user_time,
 }
 
 
-class HistogramBuilder : public MBOrientedBoxTreeTool::Op {
+class HistogramBuilder : public OrientedBoxTreeTool::Op {
 
 protected:
   int last_depth;
@@ -477,7 +479,7 @@ public:
   std::vector<int> node_counts;
   std::vector<int> leaf_counts;
 
-  virtual MBErrorCode visit( MBEntityHandle node, int depth, bool& descend ){
+  virtual ErrorCode visit( EntityHandle node, int depth, bool& descend ){
     ensure_depth( depth );
     last_depth = depth;
 
@@ -487,13 +489,13 @@ public:
     return MB_SUCCESS;
   }
        
-  virtual MBErrorCode leaf( MBEntityHandle node ){
+  virtual ErrorCode leaf( EntityHandle node ){
     leaf_counts[last_depth] += 1;
     return MB_SUCCESS;
   }
 };
 
-void write_obbtree_histogram( MBEntityHandle root, MBOrientedBoxTreeTool& tree, std::ostream& out ){
+void write_obbtree_histogram( EntityHandle root, OrientedBoxTreeTool& tree, std::ostream& out ){
 
   HistogramBuilder hb;
   tree.preorder_traverse( root, hb ); 
@@ -509,7 +511,7 @@ void write_obbtree_histogram( MBEntityHandle root, MBOrientedBoxTreeTool& tree, 
 #define DICT_VAL(X) out << "'" #X "':" << X << "," << std::endl;
 #define DICT_VAL_STR(X) out << "'" #X  "':'" << X << "'," << std::endl;
 void dump_pyfile( char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
-		  MBOrientedBoxTreeTool::TrvStats* trv_stats, MBEntityHandle tree_root ){
+		  OrientedBoxTreeTool::TrvStats* trv_stats, EntityHandle tree_root ){
   std::ofstream out(pyfile);
   out.precision( 14 );
 

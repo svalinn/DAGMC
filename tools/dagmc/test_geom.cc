@@ -1,8 +1,8 @@
-#include "MBInterface.hpp"
-#include "MBCore.hpp"
+#include "moab/Interface.hpp"
+#include "moab/Core.hpp"
 #include "DagMC.hpp"
-#include "MBTagConventions.hpp"
-#include "MBRange.hpp"
+#include "moab/MBTagConventions.hpp"
+#include "moab/Range.hpp"
 
 #include <vector>
 #include <iostream>
@@ -15,27 +15,29 @@
 
 const double ROOT2 = 1.4142135623730951;
 
+using namespace moab;
+
 // Create file containing geometry for 2x2x2 cube 
 // centered at origin and having a convex +Z face
 // (center of face at origin).
-MBErrorCode write_geometry( const char* output_file_name );
+ErrorCode write_geometry( const char* output_file_name );
 
-MBErrorCode test_ray_fire( DagMC& );
+ErrorCode test_ray_fire( DagMC& );
 
-MBErrorCode test_point_in_volume( DagMC& );
+ErrorCode test_point_in_volume( DagMC& );
 
-MBErrorCode test_measure_volume( DagMC& );
+ErrorCode test_measure_volume( DagMC& );
 
-MBErrorCode test_measure_area( DagMC& );
+ErrorCode test_measure_area( DagMC& );
 
-MBErrorCode test_surface_sense( DagMC& );
+ErrorCode test_surface_sense( DagMC& );
 
 
-MBErrorCode write_geometry( const char* output_file_name )
+ErrorCode write_geometry( const char* output_file_name )
 {
-  MBErrorCode rval;
-  MBCore moab_instance;
-  MBInterface& moab = moab_instance;
+  ErrorCode rval;
+  Core moab_instance;
+  Interface& moab = moab_instance;
   
     // Define a 2x2x2 cube centered at orgin
     // with concavity in +Z face.
@@ -64,13 +66,13 @@ MBErrorCode write_geometry( const char* output_file_name )
   const unsigned num_verts = sizeof(coords) / (3*sizeof(double));
   const unsigned num_tris = sizeof(connectivity) / (3*sizeof(int));
   const unsigned num_surfs = sizeof(tris_per_surf) / sizeof(unsigned);
-  MBEntityHandle verts[num_verts], tris[num_tris], surfs[num_surfs];
+  EntityHandle verts[num_verts], tris[num_tris], surfs[num_surfs];
   for (unsigned i = 0; i < num_verts; ++i) {
     rval = moab.create_vertex( coords + 3*i, verts[i] ); 
     CHKERR;
   }
   for (unsigned i = 0; i < num_tris; ++i) {
-    const MBEntityHandle conn[] = { verts[connectivity[3*i  ]], 
+    const EntityHandle conn[] = { verts[connectivity[3*i  ]], 
                                     verts[connectivity[3*i+1]], 
                                     verts[connectivity[3*i+2]] };
     rval = moab.create_element( MBTRI, conn, 3, tris[i] );
@@ -78,7 +80,7 @@ MBErrorCode write_geometry( const char* output_file_name )
   }
   
     // create CAD topology
-  MBEntityHandle* tri_iter = tris;
+  EntityHandle* tri_iter = tris;
   for (unsigned i = 0; i < num_surfs; ++i) {
     rval = moab.create_meshset( MESHSET_SET, surfs[i] );
     CHKERR;
@@ -87,7 +89,7 @@ MBErrorCode write_geometry( const char* output_file_name )
     tri_iter += tris_per_surf[i];
   }
   
-  MBTag dim_tag, id_tag, sense_tag;
+  Tag dim_tag, id_tag, sense_tag;
   rval = moab.tag_create( GEOM_DIMENSION_TAG_NAME,
                           sizeof(int),
                           MB_TAG_SPARSE,
@@ -101,7 +103,7 @@ MBErrorCode write_geometry( const char* output_file_name )
                           id_tag, 0, true );
   CHKERR;
   rval = moab.tag_create( "GEOM_SENSE_2",
-                           2*sizeof(MBEntityHandle),
+                           2*sizeof(EntityHandle),
                            MB_TAG_SPARSE,
                            MB_TYPE_HANDLE,
                            sense_tag, 0, true );
@@ -115,7 +117,7 @@ MBErrorCode write_geometry( const char* output_file_name )
   rval = moab.tag_set_data( id_tag, surfs, num_surfs, &ids[0] );
   CHKERR;
 
-  MBEntityHandle volume;
+  EntityHandle volume;
   rval = moab.create_meshset( MESHSET_SET, volume );
   CHKERR;
   for (unsigned i = 0; i < num_surfs; ++i) {
@@ -123,7 +125,7 @@ MBErrorCode write_geometry( const char* output_file_name )
     CHKERR;
   }
   
-  std::vector<MBEntityHandle> senses( 2*num_surfs, 0 );
+  std::vector<EntityHandle> senses( 2*num_surfs, 0 );
   for (size_t i = 0; i < senses.size(); i += 2)
     senses[i] = volume;
   rval = moab.tag_set_data( sense_tag, surfs, num_surfs, &senses[0] );
@@ -163,7 +165,7 @@ static bool run_test( std::string name, int argc, char* argv[] )
 
 int main( int argc, char* argv[] )
 {
-  MBErrorCode rval;
+  ErrorCode rval;
   const char* filename = "test_geom.h5m";
   
   rval = write_geometry( filename );
@@ -197,13 +199,13 @@ int main( int argc, char* argv[] )
   return errors;
 }
 
-MBErrorCode test_surface_sense( DagMC& dagmc )
+ErrorCode test_surface_sense( DagMC& dagmc )
 {
-  MBErrorCode rval;
-  MBInterface& moab = *dagmc.moab_instance();
+  ErrorCode rval;
+  Interface& moab = *dagmc.moab_instance();
 
-  MBTag dim_tag = dagmc.geom_tag();
-  MBRange surfs, vols;
+  Tag dim_tag = dagmc.geom_tag();
+  Range surfs, vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, ptrs, 1, surfs );
@@ -220,7 +222,7 @@ MBErrorCode test_surface_sense( DagMC& dagmc )
     return MB_FAILURE;
   }
   
-  for (MBRange::iterator i = surfs.begin(); i != surfs.end(); ++i) {
+  for (Range::iterator i = surfs.begin(); i != surfs.end(); ++i) {
     int sense = 0;
     rval = dagmc.surface_sense( vols.front(), 1, &*i, &sense );
     if (MB_SUCCESS != rval || sense != 1) {
@@ -232,13 +234,13 @@ MBErrorCode test_surface_sense( DagMC& dagmc )
   return MB_SUCCESS;
 }  
 
-MBErrorCode test_measure_volume( DagMC& dagmc )
+ErrorCode test_measure_volume( DagMC& dagmc )
 {
-  MBErrorCode rval;
-  MBInterface& moab = *dagmc.moab_instance();
+  ErrorCode rval;
+  Interface& moab = *dagmc.moab_instance();
   
-  MBTag dim_tag = dagmc.geom_tag();
-  MBRange vols;
+  Tag dim_tag = dagmc.geom_tag();
+  Range vols;
   const int three = 3;
   const void* ptr = &three;
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, &ptr, 1, vols );
@@ -264,13 +266,13 @@ MBErrorCode test_measure_volume( DagMC& dagmc )
   return MB_SUCCESS;
 }
 
-MBErrorCode test_measure_area( DagMC& dagmc )
+ErrorCode test_measure_area( DagMC& dagmc )
 {
-  MBErrorCode rval;
-  MBInterface& moab = *dagmc.moab_instance();
+  ErrorCode rval;
+  Interface& moab = *dagmc.moab_instance();
 
-  MBTag dim_tag = dagmc.geom_tag();
-  MBRange surfs;
+  Tag dim_tag = dagmc.geom_tag();
+  Range surfs;
   const int two = 2;
   const void* ptr = &two;
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, &ptr, 1, surfs );
@@ -287,7 +289,7 @@ MBErrorCode test_measure_area( DagMC& dagmc )
   
     // expect area of 4 for all faces except face 6.
     // face 6 should have area == 4*sqrt(2)
-  MBRange::iterator iter = surfs.begin();
+  Range::iterator iter = surfs.begin();
   for (unsigned i = 0; i < 6; ++i, ++iter) {
     double expected = 4.0;
     if (ids[i] == 6)
@@ -315,7 +317,7 @@ struct ray_fire {
   double distance;
 };
 
-MBErrorCode test_ray_fire( DagMC& dagmc )
+ErrorCode test_ray_fire( DagMC& dagmc )
 {
   const struct ray_fire tests[] = {
   /* src    origin               direction                 dest dist */
@@ -325,11 +327,11 @@ MBErrorCode test_ray_fire( DagMC& dagmc )
     { 1, { 0.5, 0.5, -1. }, {  0.0, 0.0, 1.0 },             6, 1.5   },
     { 2, { 1.0, 0.0, 0.5 }, { -1.0, 0.0, 0.0 },             6, 0.5   } };
 
-  MBErrorCode rval;
-  MBInterface& moab = *dagmc.moab_instance();
+  ErrorCode rval;
+  Interface& moab = *dagmc.moab_instance();
 
-  MBTag dim_tag = dagmc.geom_tag();
-  MBRange surfs, vols;
+  Tag dim_tag = dagmc.geom_tag();
+  Range surfs, vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, ptrs, 1, surfs );
@@ -349,7 +351,7 @@ MBErrorCode test_ray_fire( DagMC& dagmc )
   int ids[6];
   rval = moab.tag_get_data( dagmc.id_tag(), surfs, ids );
   CHKERR;
-  MBEntityHandle surf[6];
+  EntityHandle surf[6];
   std::copy( surfs.begin(), surfs.end(), surf );
   
   const int num_test = sizeof(tests) / sizeof(tests[0]);
@@ -360,7 +362,7 @@ MBErrorCode test_ray_fire( DagMC& dagmc )
       std::cerr << "Surface " << tests[i].prev_surf << " not found." << std::endl;
       return MB_FAILURE;
     }
-    const MBEntityHandle src_surf = surf[idx];
+    const EntityHandle src_surf = surf[idx];
     
     ptr = std::find( ids, ids+6, tests[i].hit_surf );
     idx = ptr - ids;
@@ -368,10 +370,10 @@ MBErrorCode test_ray_fire( DagMC& dagmc )
       std::cerr << "Surface " << tests[i].hit_surf << " not found." << std::endl;
       return MB_FAILURE;
     }
-    const MBEntityHandle hit_surf = surf[idx];
+    const EntityHandle hit_surf = surf[idx];
     
     double dist;
-    MBEntityHandle result;
+    EntityHandle result;
     rval = dagmc.ray_fire( vols.front(), 
                            src_surf, 
                            2, 
@@ -385,7 +387,7 @@ MBErrorCode test_ray_fire( DagMC& dagmc )
                            dist, result );
     
     if (result != hit_surf || fabs(dist - tests[i].distance) > 1e-6) {
-      MBEntityHandle *p = std::find( surf, surf+6, result );
+      EntityHandle *p = std::find( surf, surf+6, result );
       idx = p - surf;
       int id = idx > 5 ? 0 : ids[idx];
       
@@ -410,7 +412,7 @@ MBErrorCode test_ray_fire( DagMC& dagmc )
 
 struct PointInVol { double coords[3]; int result; };
 
-MBErrorCode test_point_in_volume( DagMC& dagmc )
+ErrorCode test_point_in_volume( DagMC& dagmc )
 {
   const char* const NAME_ARR[] = { "Boundary", "Outside", "Inside" };
   const char* const* names = NAME_ARR + 1;
@@ -438,11 +440,11 @@ MBErrorCode test_point_in_volume( DagMC& dagmc )
     { { 0.0, 0.0,-1.0 }, BOUNDARY} };
   const int num_test = sizeof(tests) / sizeof(tests[0]);
 
-  MBErrorCode rval;
-  MBInterface& moab = *dagmc.moab_instance();
+  ErrorCode rval;
+  Interface& moab = *dagmc.moab_instance();
 
-  MBTag dim_tag = dagmc.geom_tag();
-  MBRange vols;
+  Tag dim_tag = dagmc.geom_tag();
+  Range vols;
   const int three = 3;
   const void* ptr = &three;
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, &ptr, 1, vols );
@@ -451,7 +453,7 @@ MBErrorCode test_point_in_volume( DagMC& dagmc )
     std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() << std::endl;
     return MB_FAILURE;
   }
-  const MBEntityHandle vol = vols.front();
+  const EntityHandle vol = vols.front();
 
   for (int i = 0; i < num_test; ++i) {
     int result;

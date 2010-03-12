@@ -1,9 +1,9 @@
 #include "DagMC.hpp"
-#include "MBTagConventions.hpp"
-#include "MBCartVect.hpp"
-#include "MBRange.hpp"
-#include "MBCore.hpp"
-#include "MBGeomUtil.hpp"
+#include "moab/MBTagConventions.hpp"
+#include "moab/CartVect.hpp"
+#include "moab/Range.hpp"
+#include "moab/Core.hpp"
+#include "moab/GeomUtil.hpp"
 #include "FileOptions.hpp"
 
 #ifdef CGM
@@ -51,6 +51,8 @@
 
 #define MBI moab_instance()
 
+namespace moab {
+
 DagMC *DagMC::instance_ = NULL;
 
 const bool debug = false;
@@ -63,9 +65,9 @@ unsigned int DagMC::interface_revision()
 }
   
 
-void DagMC::create_instance(MBInterface *mb_impl) 
+void DagMC::create_instance(Interface *mb_impl) 
 {
-  if (NULL == mb_impl) mb_impl = new MBCore();
+  if (NULL == mb_impl) mb_impl = new Core();
   instance_ = new DagMC(mb_impl);
 }
 
@@ -88,7 +90,7 @@ void DagMC::set_useCAD( bool use_cad ){
   }
 }
 
-DagMC::DagMC(MBInterface *mb_impl) 
+DagMC::DagMC(Interface *mb_impl) 
   : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
@@ -117,10 +119,10 @@ DagMC::DagMC(MBInterface *mb_impl)
   
   geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TAG_DENSE, MB_TYPE_INTEGER );
 
-  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, sizeof(MBEntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
+  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, sizeof(EntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
   
     // get sense of surfaces wrt volumes
-  senseTag = get_tag( "GEOM_SENSE_2", 2*sizeof(MBEntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
+  senseTag = get_tag( "GEOM_SENSE_2", 2*sizeof(EntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
 
   int matid = 0;
   const void *def_matid = &matid;
@@ -135,13 +137,13 @@ DagMC::DagMC(MBInterface *mb_impl)
 
 }
 
-MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_surf_hit, 
+ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_hit, 
                              const int num_pts,
                              const double uuu, const double vvv, const double www,
                              const double xxx, const double yyy, const double zzz,
                              const double huge_val,
-                             double &dist_traveled, MBEntityHandle &next_surf_hit, 
-                             MBOrientedBoxTreeTool::TrvStats* stats ) 
+                             double &dist_traveled, EntityHandle &next_surf_hit, 
+                             OrientedBoxTreeTool::TrvStats* stats ) 
 {
   if (debug) {
     std::cout << "Vol " << id_by_index(3, index_by_handle(vol)) << ", xyz = " 
@@ -152,13 +154,13 @@ MBErrorCode DagMC::ray_fire(const MBEntityHandle vol, const MBEntityHandle last_
   
   assert(vol - setOffset < rootSets.size());
   
-  MBEntityHandle root = rootSets[vol - setOffset];
-  MBErrorCode rval;
+  EntityHandle root = rootSets[vol - setOffset];
+  ErrorCode rval;
     // delcare some stuff static so we don't need to re-created
     // it for every call
   std::vector<double> &distances = distList;
-  std::vector<MBEntityHandle> &surfaces = surfList;
-  std::vector<MBEntityHandle> &facets = facetList;
+  std::vector<EntityHandle> &surfaces = surfList;
+  std::vector<EntityHandle> &facets = facetList;
   
   
     // do ray fire
@@ -395,21 +397,21 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
 // helper function for point_in_volume_slow.  calculate area of a polygon 
 // projected into a unit-sphere space
-MBErrorCode DagMC::poly_solid_angle( MBEntityHandle face, const MBCartVect& point, double& area )
+ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, double& area )
 {
-  MBErrorCode rval;
+  ErrorCode rval;
   
     // Get connectivity
-  const MBEntityHandle* conn;
+  const EntityHandle* conn;
   int len;
   rval = MBI->get_connectivity( face, conn, len, true );
   if (MB_SUCCESS != rval)
     return rval;
   
     // Allocate space to store vertices
-  MBCartVect coords_static[4];
-  std::vector<MBCartVect> coords_dynamic;
-  MBCartVect* coords = coords_static;
+  CartVect coords_static[4];
+  std::vector<CartVect> coords_dynamic;
+  CartVect* coords = coords_static;
   if ((unsigned)len > (sizeof(coords_static)/sizeof(coords_static[0]))) {
     coords_dynamic.resize(len);
     coords = &coords_dynamic[0];
@@ -421,7 +423,7 @@ MBErrorCode DagMC::poly_solid_angle( MBEntityHandle face, const MBCartVect& poin
     return rval;
   
     // calculate normal
-  MBCartVect norm(0.0), v1, v0 = coords[1] - coords[0];
+  CartVect norm(0.0), v1, v0 = coords[1] - coords[0];
   for (int i = 2; i < len; ++i) {
     v1 = coords[i] - coords[0];
     norm += v0 * v1;
@@ -431,7 +433,7 @@ MBErrorCode DagMC::poly_solid_angle( MBEntityHandle face, const MBCartVect& poin
     // calculate area
   double s, ang;
   area = 0.0;
-  MBCartVect r, n1, n2, b, a = coords[len-1] - coords[0];
+  CartVect r, n1, n2, b, a = coords[len-1] - coords[0];
   for (int i = 0; i < len; ++i) {
     r = coords[i] - point;
     b = coords[(i+1)%len] - coords[i];
@@ -452,16 +454,16 @@ MBErrorCode DagMC::poly_solid_angle( MBEntityHandle face, const MBCartVect& poin
   
   
 // use spherical area test to determine inside/outside of a polyhedron.
-MBErrorCode DagMC::point_in_volume_slow( MBEntityHandle volume,
+ErrorCode DagMC::point_in_volume_slow( EntityHandle volume,
                                   double x, double y, double z,
                                   int& result )
 {
-  MBErrorCode rval;
-  MBRange faces;
-  std::vector<MBEntityHandle> surfs;
+  ErrorCode rval;
+  Range faces;
+  std::vector<EntityHandle> surfs;
   std::vector<int> senses;
   double sum = 0.0;
-  const MBCartVect point(x,y,z);
+  const CartVect point(x,y,z);
   
   rval = MBI->get_child_meshsets( volume, surfs );
   if (MB_SUCCESS != rval)
@@ -482,7 +484,7 @@ MBErrorCode DagMC::point_in_volume_slow( MBEntityHandle volume,
     if (MB_SUCCESS != rval)
       return rval;
     
-    for (MBRange::iterator j = faces.begin(); j != faces.end(); ++j) {
+    for (Range::iterator j = faces.begin(); j != faces.end(); ++j) {
       rval = poly_solid_angle( *j, point, face_area );
       if (MB_SUCCESS != rval)
         return rval;
@@ -502,19 +504,19 @@ MBErrorCode DagMC::point_in_volume_slow( MBEntityHandle volume,
 // result= 1 -> inside volume or entering volume
 // result= 0 -> outside volume or leaving volume
 // result=-1 -> on boundary with null or tangent uvw
-MBErrorCode DagMC::boundary_case( MBEntityHandle volume, int& result, 
+ErrorCode DagMC::boundary_case( EntityHandle volume, int& result, 
 				  double u, double v, double w,
-				  MBEntityHandle facet,
-				  MBEntityHandle surface)
+				  EntityHandle facet,
+				  EntityHandle surface)
 {
-  MBErrorCode rval;
+  ErrorCode rval;
 
   // test to see if uvx is provided
   if ( u <= 1.0 && v <= 1.0 && w <= 1.0 ) {
 
-    const MBCartVect ray_vector(u, v, w);
-    MBCartVect coords[3], normal(0.0);
-    const MBEntityHandle *conn;
+    const CartVect ray_vector(u, v, w);
+    CartVect coords[3], normal(0.0);
+    const EntityHandle *conn;
     int len, sense_out;
    
     rval = mbImpl->get_connectivity( facet, conn, len );
@@ -567,22 +569,22 @@ MBErrorCode DagMC::boundary_case( MBEntityHandle volume, int& result,
 // that edge is at a concavity wrt the volume.  If the point is closest
 // to a vertex in the facetting, it relies on the fact that the closest
 // vertex cannot be a saddle: it must be a strict concavity or convexity.
-MBErrorCode DagMC::point_in_volume( MBEntityHandle volume, 
+ErrorCode DagMC::point_in_volume( EntityHandle volume, 
                              double x, double y, double z,
                              int& result,
 			     double u, double v, double w)
 {
-  MBErrorCode rval;
+  ErrorCode rval;
   const double epsilon = discardDistTol;
 
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
-  MBEntityHandle root = rootSets[volume - setOffset];
+  EntityHandle root = rootSets[volume - setOffset];
 
     // Get closest point in triangulation
-  const MBCartVect point(x,y,z);
-  MBEntityHandle facet, surface;
-  MBCartVect closest, diff;
+  const CartVect point(x,y,z);
+  EntityHandle facet, surface;
+  CartVect closest, diff;
   rval = obbTree.closest_to_location( point.array(), root, closest.array(), facet, &surface );
   if (MB_SUCCESS != rval)  return rval;
   
@@ -593,16 +595,16 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
   }
   
     // Get triangles at closest point
-  std::vector<MBEntityHandle> &tris = triList, &surfs = surfList;
+  std::vector<EntityHandle> &tris = triList, &surfs = surfList;
   tris.clear();
   surfs.clear();
   rval = obbTree.sphere_intersect_triangles( closest.array(), epsilon, root, tris, &surfs );
   if (MB_SUCCESS != rval) return rval;
   
     // One-triangle case : determine if point is above or below triangle
-  const MBEntityHandle* conn;
+  const EntityHandle* conn;
   int len, sense;
-  MBCartVect coords[3], normal;
+  CartVect coords[3], normal;
   if (tris.size() == 1) {
     rval = MBI->get_connectivity( tris.front(), conn, len );
     if (MB_SUCCESS != rval || len != 3) 
@@ -703,17 +705,17 @@ MBErrorCode DagMC::point_in_volume( MBEntityHandle volume,
 }
 
 // detemine distance to nearest surface
-MBErrorCode DagMC::closest_to_location( MBEntityHandle volume, double* coords, double& result)
+ErrorCode DagMC::closest_to_location( EntityHandle volume, double* coords, double& result)
 {
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
-  MBEntityHandle root = rootSets[volume - setOffset];
+  EntityHandle root = rootSets[volume - setOffset];
 
     // Get closest triangles in volume
-  const MBCartVect point(coords);
-  MBCartVect nearest;
-  MBEntityHandle facet_out;
-  MBErrorCode rval = obbTree.closest_to_location( point.array(), root, nearest.array(), facet_out );
+  const CartVect point(coords);
+  CartVect nearest;
+  EntityHandle facet_out;
+  ErrorCode rval = obbTree.closest_to_location( point.array(), root, nearest.array(), facet_out );
   if (MB_SUCCESS != rval) return rval;
 
   // calculate distance between point and nearest facet
@@ -727,10 +729,10 @@ MBErrorCode DagMC::closest_to_location( MBEntityHandle volume, double* coords, d
 
 
 // calculate volume of polyhedron
-MBErrorCode DagMC::measure_volume( MBEntityHandle volume, double& result )
+ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
 {
-  MBErrorCode rval;
-  std::vector<MBEntityHandle> surfaces, surf_volumes;
+  ErrorCode rval;
+  std::vector<EntityHandle> surfaces, surf_volumes;
   result = 0.0;
   
    // don't try to calculate volume of implicit complement
@@ -758,7 +760,7 @@ MBErrorCode DagMC::measure_volume( MBEntityHandle volume, double& result )
       continue;
     
       // get triangles in surface
-    MBRange triangles;
+    Range triangles;
     rval = MBI->get_entities_by_dimension( surfaces[i], 2, triangles );
     if (MB_SUCCESS != rval) 
       return rval;
@@ -773,10 +775,10 @@ MBErrorCode DagMC::measure_volume( MBEntityHandle volume, double& result )
     
       // calculate signed volume beneath surface (x 6.0)
     double surf_sum = 0.0;
-    const MBEntityHandle *conn;
+    const EntityHandle *conn;
     int len;
-    MBCartVect coords[3];
-    for (MBRange::iterator j = triangles.begin(); j != triangles.end(); ++j) {
+    CartVect coords[3];
+    for (Range::iterator j = triangles.begin(); j != triangles.end(); ++j) {
       rval = MBI->get_connectivity( *j, conn, len, true );
       if (MB_SUCCESS != rval) return rval;
       assert(3 == len);
@@ -795,11 +797,11 @@ MBErrorCode DagMC::measure_volume( MBEntityHandle volume, double& result )
 }
 
 // sum area of elements in surface
-MBErrorCode DagMC::measure_area( MBEntityHandle surface, double& result )
+ErrorCode DagMC::measure_area( EntityHandle surface, double& result )
 {
     // get triangles in surface
-  MBRange triangles;
-  MBErrorCode rval = MBI->get_entities_by_dimension( surface, 2, triangles );
+  Range triangles;
+  ErrorCode rval = MBI->get_entities_by_dimension( surface, 2, triangles );
   if (MB_SUCCESS != rval) 
     return rval;
   if (!triangles.all_of_type(MBTRI)) {
@@ -813,10 +815,10 @@ MBErrorCode DagMC::measure_area( MBEntityHandle surface, double& result )
 
     // calculate sum of area of triangles
   result = 0.0;
-  const MBEntityHandle *conn;
+  const EntityHandle *conn;
   int len;
-  MBCartVect coords[3];
-  for (MBRange::iterator j = triangles.begin(); j != triangles.end(); ++j) {
+  CartVect coords[3];
+  for (Range::iterator j = triangles.begin(); j != triangles.end(); ++j) {
     rval = MBI->get_connectivity( *j, conn, len, true );
     if (MB_SUCCESS != rval) return rval;
     assert(3 == len);
@@ -833,9 +835,9 @@ MBErrorCode DagMC::measure_area( MBEntityHandle surface, double& result )
 }
 
 // get sense of surface(s) wrt volume
-MBErrorCode DagMC::surface_sense( MBEntityHandle volume, 
+ErrorCode DagMC::surface_sense( EntityHandle volume, 
                            int num_surfaces,
-                           const MBEntityHandle* surfaces,
+                           const EntityHandle* surfaces,
                            int* senses_out )
 {
 
@@ -843,17 +845,17 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
      All surfaces that interact with the implicit complement should have
      a null handle in the direction of the implicit complement. */
   if (volume == impl_compl_handle)
-    volume = (MBEntityHandle) 0;
+    volume = (EntityHandle) 0;
 
-  std::vector<MBEntityHandle> surf_volumes( 2*num_surfaces );
-  MBErrorCode rval = MBI->tag_get_data( sense_tag(), surfaces, num_surfaces, &surf_volumes[0] );
+  std::vector<EntityHandle> surf_volumes( 2*num_surfaces );
+  ErrorCode rval = MBI->tag_get_data( sense_tag(), surfaces, num_surfaces, &surf_volumes[0] );
   if (MB_SUCCESS != rval)  return rval;
   
-  const MBEntityHandle* end = surfaces + num_surfaces;
-  std::vector<MBEntityHandle>::const_iterator surf_vols = surf_volumes.begin();
+  const EntityHandle* end = surfaces + num_surfaces;
+  std::vector<EntityHandle>::const_iterator surf_vols = surf_volumes.begin();
   while (surfaces != end) {
-    MBEntityHandle forward = *surf_vols; ++surf_vols;
-    MBEntityHandle reverse = *surf_vols; ++surf_vols;
+    EntityHandle forward = *surf_vols; ++surf_vols;
+    EntityHandle reverse = *surf_vols; ++surf_vols;
     if (volume == forward) 
       *senses_out = (volume != reverse); // zero if both, otherwise 1
     else if (volume == reverse)
@@ -869,19 +871,19 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
 }
 
 // get sense of surface(s) wrt volume
-MBErrorCode DagMC::surface_sense( MBEntityHandle volume, 
-                                  MBEntityHandle surface,
+ErrorCode DagMC::surface_sense( EntityHandle volume, 
+                                  EntityHandle surface,
                                   int& sense_out )
 {
   /* The sense tags do not reference the implicit complement handle.
      All surfaces that interact with the implicit complement should have
      a null handle in the direction of the implicit complement. */
   if (volume == impl_compl_handle)
-    volume = (MBEntityHandle) 0;
+    volume = (EntityHandle) 0;
 
     // get sense of surfaces wrt volumes
-  MBEntityHandle surf_volumes[2];
-  MBErrorCode rval = MBI->tag_get_data( sense_tag(), &surface, 1, surf_volumes );
+  EntityHandle surf_volumes[2];
+  ErrorCode rval = MBI->tag_get_data( sense_tag(), &surface, 1, surf_volumes );
   if (MB_SUCCESS != rval)  return rval;
   
   if (surf_volumes[0] == volume)
@@ -894,10 +896,10 @@ MBErrorCode DagMC::surface_sense( MBEntityHandle volume,
   return MB_SUCCESS;
 }
 
-MBErrorCode DagMC::load_file(const char* cfile,
+ErrorCode DagMC::load_file(const char* cfile,
 			     const double facet_tolerance)
 {
-  MBErrorCode rval;
+  ErrorCode rval;
   
 #ifdef CGM
   // cgm must be initialized so we can check it for CAD data after the load
@@ -942,12 +944,12 @@ MBErrorCode DagMC::load_file(const char* cfile,
 
 }
 
-MBErrorCode DagMC::init_OBBTree() 
+ErrorCode DagMC::init_OBBTree() 
 {
 
-  MBErrorCode rval;
+  ErrorCode rval;
 
-  MBRange surfs, vols;
+  Range surfs, vols;
   const int three = 3;
   const void* const three_val[] = {&three};
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, 
@@ -991,10 +993,10 @@ MBErrorCode DagMC::init_OBBTree()
 }
 
 
-MBErrorCode DagMC::write_mesh(const char* ffile,
+ErrorCode DagMC::write_mesh(const char* ffile,
 			      const int flen)
 {
-  MBErrorCode rval;
+  ErrorCode rval;
   
     // write out a mesh file if requested
   if (ffile && 0 < flen) {
@@ -1011,21 +1013,21 @@ MBErrorCode DagMC::write_mesh(const char* ffile,
 
 bool DagMC::have_obb_tree()
 {
-  MBRange entities;
-  MBErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+  Range entities;
+  ErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
                                                            &obbTag, 0, 1,
                                                            entities );
   return MB_SUCCESS == rval && !entities.empty();
 }                                                    
 
-MBEntityHandle DagMC::entity_by_id( int dimension, int id )
+EntityHandle DagMC::entity_by_id( int dimension, int id )
 {
   assert(0 <= dimension && 3 >= dimension);
-  const MBTag tags[] = { idTag, geomTag };
+  const Tag tags[] = { idTag, geomTag };
   const void* const vals[] = { &id, &dimension };
-  MBErrorCode rval;
+  ErrorCode rval;
   
-  MBRange results;
+  Range results;
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, tags, vals, 2, results );
   if (MB_SUCCESS != rval || results.empty())
     return 0;
@@ -1035,7 +1037,7 @@ MBEntityHandle DagMC::entity_by_id( int dimension, int id )
 
 int DagMC::id_by_index( int dimension, int index )
 {
-  MBEntityHandle h = entity_by_index( dimension, index );
+  EntityHandle h = entity_by_index( dimension, index );
   if (!h)
     return 0;
   
@@ -1062,7 +1064,7 @@ int DagMC::id_by_index( int dimension, int index )
 
 
 
-MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite) 
+ErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite) 
 {
   std::map<std::string,int> tallyKeywords;
   
@@ -1073,7 +1075,7 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
   tallyKeywords["cell.fission"] = 7;
   tallyKeywords["pulse.height"] = 8;
 
-  std::vector<MBEntityHandle>::iterator iter;
+  std::vector<EntityHandle>::iterator iter;
 
   if (!overwrite) {
       // if not overwriting, test for file, and if it exists, just return;
@@ -1093,10 +1095,10 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
   std::cout << " # groups: " << group_handles().size()-1 << std::endl;
   std::cout << "# tallies: " << tallyList.size() << std::endl;
 
-  MBRange grp_sets, grp_ents;
-  MBErrorCode rval;
+  Range grp_sets, grp_ents;
+  ErrorCode rval;
 
-  MBRange surfs, vols;
+  Range surfs, vols;
 
 
   // write cell information (skip first entry)             
@@ -1157,7 +1159,7 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
     
     std::stringstream tallyCard;
     
-    MBEntityHandle group = group_handles()[*grp];
+    EntityHandle group = group_handles()[*grp];
     grp_names.clear();
     bool success = get_group_names(group, grp_names);
     if (!success)
@@ -1216,13 +1218,13 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
 
     // get entities of correct dimension
     const void* dim_val[] = {&dim};
-    MBRange ents;
+    Range ents;
     rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, dim_val, 1, ents );
     if (MB_SUCCESS != rval)
       return rval;
-    MBRange  grp_ents = intersect(grp_sets,ents);
+    Range  grp_ents = intersect(grp_sets,ents);
 
-    for (MBRange::iterator ent = grp_ents.begin(); ent != grp_ents.end(); ent++)
+    for (Range::iterator ent = grp_ents.begin(); ent != grp_ents.end(); ent++)
       tallyCard << " " << get_entity_id(*ent);
 
     tallyCard << " T";
@@ -1257,22 +1259,22 @@ MBErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
 //    b) check for b.c. -> get list of surfaces and tag b.c.
 //    c) check for graveyard -> tag imp
 
-MBErrorCode DagMC::parse_metadata()
+ErrorCode DagMC::parse_metadata()
 {
   std::vector<std::string> grp_names;
   std::vector<std::string> tokens;
   std::map<std::string,int> keywords;
 
-  MBEntityHandle group;
-  MBRange grp_sets, grp_ents;
-  MBErrorCode rval;
+  EntityHandle group;
+  Range grp_sets, grp_ents;
+  ErrorCode rval;
 
-  MBRange vols, surfs;
+  Range vols, surfs;
 
   std::copy(vol_handles().begin()+1,  vol_handles().end(),
-	    mb_range_inserter(vols));
+	    range_inserter(vols));
   std::copy(surf_handles().begin()+1, surf_handles().end(),
-	    mb_range_inserter(surfs));
+	    range_inserter(surfs));
 
   keywords["mat"]           = MAT_GROUP;
   keywords["spec.reflect"]  = BC_SPEC;
@@ -1390,13 +1392,13 @@ std::string DagMC::itos(int ival) {
   return s.str();
 }
 
-bool DagMC::get_group_names(MBEntityHandle group_set, 
+bool DagMC::get_group_names(EntityHandle group_set, 
                              std::vector<std::string> &grp_names) 
 {
     // get names
   char name0[NAME_TAG_SIZE];
   std::fill(name0, name0+NAME_TAG_SIZE, '\0');
-  MBErrorCode result = MBI->tag_get_data(name_tag(), &group_set, 1,
+  ErrorCode result = MBI->tag_get_data(name_tag(), &group_set, 1,
                                                      &name0);
   if (MB_SUCCESS != result && MB_TAG_NOT_FOUND != result) return false;
 
@@ -1406,7 +1408,7 @@ bool DagMC::get_group_names(MBEntityHandle group_set,
   while (true) {
     sprintf(name0, "%s%s%d", "EXTRA_", NAME_TAG_NAME, extra_num);
     extra_num++;
-    MBTag this_tag = get_tag(name0, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, 
+    Tag this_tag = get_tag(name0, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, 
                              false);
     if (0 == this_tag) break;
     std::fill(name0, name0+NAME_TAG_SIZE, '\0');
@@ -1419,12 +1421,12 @@ bool DagMC::get_group_names(MBEntityHandle group_set,
   return true;
 }
 
-MBTag DagMC::get_tag( const char* name, int size, MBTagType store, 
-		      MBDataType type, const void* def_value,
+Tag DagMC::get_tag( const char* name, int size, TagType store, 
+		      DataType type, const void* def_value,
 		      bool create_if_missing) 
 {
-  MBTag retval = 0;
-  MBErrorCode result = MBI->tag_create(name, size, store, type,
+  Tag retval = 0;
+  ErrorCode result = MBI->tag_create(name, size, store, type,
                                                    retval, def_value, create_if_missing);
   if (create_if_missing && MB_SUCCESS != result) 
     std::cerr << "Couldn't find nor create tag named " << name << std::endl;
@@ -1432,29 +1434,29 @@ MBTag DagMC::get_tag( const char* name, int size, MBTagType store,
   return retval;
 }
 
-int DagMC::get_entity_id(MBEntityHandle this_ent) 
+int DagMC::get_entity_id(EntityHandle this_ent) 
 {
   int id = 0;
-  MBErrorCode result = MBI->tag_get_data(idTag, &this_ent, 1, &id);
+  ErrorCode result = MBI->tag_get_data(idTag, &this_ent, 1, &id);
   if (MB_TAG_NOT_FOUND == result)
     id = MBI->id_from_handle(this_ent);
     
   return id;
 }
 
-MBErrorCode DagMC::get_angle(MBEntityHandle surf, 
+ErrorCode DagMC::get_angle(EntityHandle surf, 
                               double xxx, double yyy, double zzz, double *ang)
 {
-  MBEntityHandle root = rootSets[surf - setOffset];
+  EntityHandle root = rootSets[surf - setOffset];
   
   const double in_pt[] = { xxx, yyy, zzz };
-  std::vector<MBEntityHandle> &facets = triList;
+  std::vector<EntityHandle> &facets = triList;
   facets.clear();
-  MBErrorCode rval = obbTree.closest_to_location( in_pt, root, add_dist_tol(), facets );
+  ErrorCode rval = obbTree.closest_to_location( in_pt, root, add_dist_tol(), facets );
   assert(MB_SUCCESS == rval);
   
-  MBCartVect coords[3], normal(0.0);
-  const MBEntityHandle *conn;
+  CartVect coords[3], normal(0.0);
+  const EntityHandle *conn;
   int len;
   for (unsigned i = 0; i < facets.size(); ++i) {
     rval = mbImpl->get_connectivity( facets[i], conn, len );
@@ -1475,11 +1477,11 @@ MBErrorCode DagMC::get_angle(MBEntityHandle surf,
   return MB_SUCCESS;
 }
 
-MBErrorCode DagMC::CAD_ray_intersect(const double *point, 
+ErrorCode DagMC::CAD_ray_intersect(const double *point, 
                                       const double *dir, 
                                       const double huge_val,
                                       std::vector<double> &distances,
-                                      std::vector<MBEntityHandle> &surfaces, 
+                                      std::vector<EntityHandle> &surfaces, 
                                       double &len) 
 {
 #ifdef CGM
@@ -1487,7 +1489,7 @@ MBErrorCode DagMC::CAD_ray_intersect(const double *point,
   return MB_NOT_IMPLEMENTED;
 #else
   std::vector<double>::iterator dit = distances.begin();
-  std::vector<MBEntityHandle>::iterator sit = surfaces.begin();
+  std::vector<EntityHandle>::iterator sit = surfaces.begin();
   static DLIList<double> ray_params;
   
   for (; dit != distances.end(); dit++, sit++) {
@@ -1517,7 +1519,7 @@ MBErrorCode DagMC::CAD_ray_intersect(const double *point,
         double tmp_dist = *dit;
         *dit = *(dit+1);
         *(dit+1) = tmp_dist;
-        MBEntityHandle tmp_hand = *sit;
+        EntityHandle tmp_hand = *sit;
         *sit = *(sit+1);
         *(sit+1) = tmp_hand;
         done = false;
@@ -1534,15 +1536,15 @@ MBErrorCode DagMC::CAD_ray_intersect(const double *point,
 #endif
 }
 
-MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
+ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
 {
-  MBErrorCode rval = MB_SUCCESS;
+  ErrorCode rval = MB_SUCCESS;
 
     // surf/vol offsets are just first handles
   setOffset = (*surfs.begin() < *vols.begin() ? *surfs.begin() : *vols.begin());
   setOffset = (impl_compl_handle < setOffset ? impl_compl_handle : setOffset);
     // max
-  MBEntityHandle tmp_offset = (surfs.back() > vols.back() ? 
+  EntityHandle tmp_offset = (surfs.back() > vols.back() ? 
                                surfs.back() : vols.back());
   tmp_offset = (impl_compl_handle > tmp_offset ? 
                 impl_compl_handle : tmp_offset);
@@ -1553,11 +1555,11 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
     // store surf/vol handles lists (surf/vol by index) and
     // index by handle lists
   surf_handles().resize( surfs.size() + 1 );
-  std::vector<MBEntityHandle>::iterator iter = surf_handles().begin();
+  std::vector<EntityHandle>::iterator iter = surf_handles().begin();
   *(iter++) = 0;
   std::copy( surfs.begin(), surfs.end(), iter );
   int idx = 1;
-  for (MBRange::iterator rit = surfs.begin(); rit != surfs.end(); rit++)
+  for (Range::iterator rit = surfs.begin(); rit != surfs.end(); rit++)
     entIndices[*rit-setOffset] = idx++;
   
   vol_handles().resize( vols.size() + 1 );
@@ -1567,7 +1569,7 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
   vol_handles().push_back(impl_compl_handle);
   idx = 1;
   int max_id = -1;
-  for (MBRange::iterator rit = vols.begin(); rit != vols.end(); rit++)    {
+  for (Range::iterator rit = vols.begin(); rit != vols.end(); rit++)    {
     entIndices[*rit-setOffset] = idx++;
     int result=0;
     MBI->tag_get_data( idTag, &*rit, 1, &result );
@@ -1594,7 +1596,7 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
     rval = MBI->tag_get_data(id_tag(), surfs, &ids[0]);
     if (MB_SUCCESS != rval) return MB_FAILURE;
     int i = 0;
-    MBRange::iterator rit = surfs.begin();
+    Range::iterator rit = surfs.begin();
     for (; rit != surfs.end(); rit++, i++) {
       RefEntity *this_surf = GeometryQueryTool::instance()->
         get_ref_face(ids[i]);
@@ -1616,13 +1618,13 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
 #endif  
 
     // get group handles
-  MBTag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_LENGTH, 
+  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_LENGTH, 
                                MB_TAG_SPARSE, MB_TYPE_OPAQUE);
   char group_category[CATEGORY_TAG_SIZE];
   std::fill(group_category, group_category+CATEGORY_TAG_SIZE, '\0');
   sprintf(group_category, "%s", "Group");
   const void* const group_val[] = {&group_category};
-  MBRange groups;
+  Range groups;
   rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &category_tag, 
 					   group_val, 1, groups);
   if (MB_SUCCESS != rval)
@@ -1632,11 +1634,11 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
   std::copy(groups.begin(), groups.end(), &group_handles()[1]);
 
     // populate root sets vector
-  std::vector<MBEntityHandle> rsets;
+  std::vector<EntityHandle> rsets;
   rsets.resize(surfs.size());
   rval = MBI->tag_get_data(obb_tag(), surfs, &rsets[0]);
   if (MB_SUCCESS != rval) return MB_FAILURE;
-  MBRange::iterator rit;
+  Range::iterator rit;
   int i;
   for (i = 0, rit = surfs.begin(); rit != surfs.end(); rit++, i++)
     rootSets[*rit-setOffset] = rsets[i];
@@ -1657,13 +1659,13 @@ MBErrorCode DagMC::build_indices(MBRange &surfs, MBRange &vols)
   return MB_SUCCESS;
 }
 
-MBErrorCode DagMC::build_obbs(MBRange &surfs, MBRange &vols) 
+ErrorCode DagMC::build_obbs(Range &surfs, Range &vols) 
 {
-  MBErrorCode rval = MB_SUCCESS;
+  ErrorCode rval = MB_SUCCESS;
   
-  for (MBRange::iterator i = surfs.begin(); i != surfs.end(); ++i) {
-    MBEntityHandle root;
-    MBRange tris;
+  for (Range::iterator i = surfs.begin(); i != surfs.end(); ++i) {
+    EntityHandle root;
+    Range tris;
     rval = MBI->get_entities_by_dimension( *i, 2, tris );
     if (MB_SUCCESS != rval) 
       return rval;
@@ -1680,17 +1682,17 @@ MBErrorCode DagMC::build_obbs(MBRange &surfs, MBRange &vols)
       return rval;
   }
   
-  for (MBRange::iterator i = vols.begin(); i != vols.end(); ++i) {
+  for (Range::iterator i = vols.begin(); i != vols.end(); ++i) {
       // get all surfaces in volume
-    MBRange tmp_surfs;
+    Range tmp_surfs;
     rval = MBI->get_child_meshsets( *i, tmp_surfs );
     if (MB_SUCCESS != rval)
       return rval;
     
       // get OBB trees for each surface
-    MBEntityHandle root;
-    MBRange trees;
-    for (MBRange::iterator j = tmp_surfs.begin();  j != tmp_surfs.end(); ++j) {
+    EntityHandle root;
+    Range trees;
+    for (Range::iterator j = tmp_surfs.begin();  j != tmp_surfs.end(); ++j) {
         // skip any surfaces that are non-manifold in the volume
         // because point containment code will get confused by them
       int sense;
@@ -1728,15 +1730,15 @@ MBErrorCode DagMC::build_obbs(MBRange &surfs, MBRange &vols)
   return MB_SUCCESS;
 }
 
-MBErrorCode DagMC::build_obb_impl_compl(MBRange &surfs) 
+ErrorCode DagMC::build_obb_impl_compl(Range &surfs) 
 {
-  MBEntityHandle comp_root, surf_obb_root;
-  MBRange comp_tree;
-  MBErrorCode rval;
-  std::vector<MBEntityHandle> parent_vols;
+  EntityHandle comp_root, surf_obb_root;
+  Range comp_tree;
+  ErrorCode rval;
+  std::vector<EntityHandle> parent_vols;
   
     // search through all surfaces  
-  for (MBRange::iterator surf_i = surfs.begin(); surf_i != surfs.end(); ++surf_i) {
+  for (Range::iterator surf_i = surfs.begin(); surf_i != surfs.end(); ++surf_i) {
     
     parent_vols.clear();
       // get parents of each surface
@@ -1771,13 +1773,13 @@ MBErrorCode DagMC::build_obb_impl_compl(MBRange &surfs)
 
 }
 
-MBErrorCode DagMC::getobb(MBEntityHandle volume, double minPt[3],
+ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
                           double maxPt[3])
 {
   double center[3], axis1[3], axis2[3], axis3[3];
  
     // get center point and vectors to OBB faces
-  MBErrorCode rval = getobb(volume, center, axis1, axis2, axis3);
+  ErrorCode rval = getobb(volume, center, axis1, axis2, axis3);
   if (MB_SUCCESS != rval)
     return rval;
      
@@ -1791,22 +1793,22 @@ MBErrorCode DagMC::getobb(MBEntityHandle volume, double minPt[3],
   return MB_SUCCESS;
 }
 
-MBErrorCode DagMC::getobb(MBEntityHandle volume, double center[3], double axis1[3],
+ErrorCode DagMC::getobb(EntityHandle volume, double center[3], double axis1[3],
                           double axis2[3], double axis3[3])
 {
-    //find MBEntityHandle node_set for use in box
-  MBEntityHandle root = rootSets[volume - setOffset];
+    //find EntityHandle node_set for use in box
+  EntityHandle root = rootSets[volume - setOffset];
   
     // call box to get center and vectors to faces
   return obbTree.box(root, center, axis1, axis2, axis3);
   
 }
 
-MBErrorCode DagMC::get_impl_compl()
+ErrorCode DagMC::get_impl_compl()
 {
-  MBRange entities;
+  Range entities;
   const void* const tagdata[] = {implComplName};
-  MBErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+  ErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
                                                            &nameTag, tagdata, 1,
                                                            entities );
   // query error
@@ -1843,5 +1845,7 @@ MBErrorCode DagMC::get_impl_compl()
   }
   
   
-}                                                    
+}
+
+} // namespace moab
 

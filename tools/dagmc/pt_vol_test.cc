@@ -1,7 +1,7 @@
-#include "MBInterface.hpp"
-#include "MBCore.hpp"
+#include "moab/Interface.hpp"
+#include "moab/Core.hpp"
 #include "DagMC.hpp"
-#include "MBTagConventions.hpp"
+#include "moab/MBTagConventions.hpp"
 
 #include <vector>
 #include <iostream>
@@ -11,13 +11,13 @@
 
 #define CHKERR if (MB_SUCCESS != rval) return rval
 
+using namespace moab;
 
-
-MBErrorCode test_pt_volume(DagMC &dagmc, int volID, double xxx, double yyy, double zzz, int &inside)
+ErrorCode test_pt_volume(DagMC &dagmc, int volID, double xxx, double yyy, double zzz, int &inside)
 {
-  MBErrorCode rval;
+  ErrorCode rval;
 
-  MBEntityHandle vol = dagmc.entity_by_id(3,volID);
+  EntityHandle vol = dagmc.entity_by_id(3,volID);
 
   double u, v, w;
   u=v=w=0;
@@ -28,11 +28,11 @@ MBErrorCode test_pt_volume(DagMC &dagmc, int volID, double xxx, double yyy, doub
 
 }
 
-MBErrorCode test_pt_volume_slow(DagMC &dagmc, int volID, double xxx, double yyy, double zzz, int &inside)
+ErrorCode test_pt_volume_slow(DagMC &dagmc, int volID, double xxx, double yyy, double zzz, int &inside)
 {
-  MBErrorCode rval;
+  ErrorCode rval;
 
-  MBEntityHandle vol = dagmc.entity_by_id(3,volID);
+  EntityHandle vol = dagmc.entity_by_id(3,volID);
 
   rval = dagmc.point_in_volume_slow( vol, xxx, yyy, zzz, inside);
   CHKERR;
@@ -43,7 +43,7 @@ MBErrorCode test_pt_volume_slow(DagMC &dagmc, int volID, double xxx, double yyy,
 
 int main( int argc, char* argv[] )
 {
-  MBErrorCode rval;
+  ErrorCode rval;
 
   if (argc < 6) {
     std::cerr << "Usage: " << argv[0] << " <mesh_filename> "
