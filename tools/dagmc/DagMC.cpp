@@ -1,5 +1,5 @@
 #include "DagMC.hpp"
-#include "moab/MBTagConventions.hpp"
+#include "MBTagConventions.hpp"
 #include "moab/CartVect.hpp"
 #include "moab/Range.hpp"
 #include "moab/Core.hpp"

@@ -2,7 +2,7 @@
 #define MOABMC_HPP
 
 #include "moab/Interface.hpp"
-#include "moab/MBTagConventions.hpp"
+#include "MBTagConventions.hpp"
 
 #include <vector>
 #include <string>
