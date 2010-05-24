@@ -95,11 +95,11 @@ DagMC::DagMC(Interface *mb_impl)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
-  options[1] = Option( "discard_distance_tolerance", "positive real value", "0.001" );
+  options[1] = Option( "discard_distance_tolerance", "positive real value", "1e-8" );
   options[2] = Option( "use_distance_limit", "one to enable distance limit optimization, zero otherwise", "0" );
   options[3] = Option( "use_cad", "one to ray-trace to cad, zero for just facets", "0" );
   options[4] = Option( "faceting_tolerance", "graphics faceting tolerance", "0.001" );
-  options[5] = Option( "add_distance_tolerance", "positive real value", "0.001" );
+  options[5] = Option( "add_distance_tolerance", "positive real value", "1e-6" );
 
     // call parse settings to initialize default values for settings from options
   parse_settings();
@@ -366,15 +366,15 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
     exit(2);
   }
 
-  std::cout << "Set distance tolerance 1 = " << addDistTol << std::endl;
+  std::cout << "Set add distance tolerance = " << addDistTol << std::endl;
 
   discardDistTol = discard_distance_tolerance;
   if (discardDistTol <= 0 || discardDistTol > 1) {
-    std::cerr << "Invalid add_distance_tolerance = " << discardDistTol << std::endl;
+    std::cerr << "Invalid discard_distance_tolerance = " << discardDistTol << std::endl;
     exit(2);
   }
 
-  std::cout << "Set distance tolerance 2 = " << discardDistTol << std::endl;
+  std::cout << "Set discard distance tolerance = " << discardDistTol << std::endl;
 
   useDistLimit = !!(use_dist_limit);
 
@@ -384,6 +384,19 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
   std::cout << "Turned " << (useCAD?"ON":"OFF") << " ray firing on full CAD model." << std::endl;
 
+
+}
+
+void DagMC::get_settings(int *source_cell, int *use_cad, int *use_dist_limit,
+			 double *discard_distance_tolerance) {
+
+  *source_cell = sourceCell;
+
+  *discard_distance_tolerance = discardDistTol;
+
+  *use_dist_limit = !!(useDistLimit);
+
+  *use_cad = !!(useCAD);
 
 }
 

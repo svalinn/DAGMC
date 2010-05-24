@@ -108,6 +108,8 @@ public:
   void set_settings(int source_cell, int use_cad, int use_dist_limit,
 		    double add_distance_tolerance,
 		    double discard_distance_tolerance);
+  void get_settings(int* source_cell, int* use_cad, int* use_dist_limit,
+		    double* discard_distance_tolerance);
 
   char *get_spec_reflect();
   char *get_white_reflect();
