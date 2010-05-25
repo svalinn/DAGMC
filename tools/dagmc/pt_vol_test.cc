@@ -13,15 +13,14 @@
 
 using namespace moab;
 
-ErrorCode test_pt_volume(DagMC &dagmc, int volID, double xxx, double yyy, double zzz, int &inside)
+ErrorCode test_pt_volume(DagMC &dagmc, int volID, double xxx, double yyy, double zzz, int &inside,
+			 double uuu, double vvv, double www)
 {
   ErrorCode rval;
 
   EntityHandle vol = dagmc.entity_by_id(3,volID);
 
-  double u, v, w;
-  u=v=w=0;
-  rval = dagmc.point_in_volume( vol, xxx, yyy, zzz, inside, u, v, w);
+  rval = dagmc.point_in_volume( vol, xxx, yyy, zzz, inside, uuu, vvv, www);
   CHKERR;
   
   return MB_SUCCESS;
@@ -45,9 +44,9 @@ int main( int argc, char* argv[] )
 {
   ErrorCode rval;
 
-  if (argc < 6) {
+  if (argc != 6 && argc != 9) {
     std::cerr << "Usage: " << argv[0] << " <mesh_filename> "
-              << " <vol_id> <xxx> <yyy> <zzz> " << std::endl;
+              << " <vol_id> <xxx> <yyy> <zzz> [<uuu> <vvv> <www>]" << std::endl;
     return 1;
   }
   
@@ -56,6 +55,16 @@ int main( int argc, char* argv[] )
   double xxx = atof(argv[3]);
   double yyy = atof(argv[4]);
   double zzz = atof(argv[5]);
+  double uuu = 0;
+  double vvv = 0;
+  double www = 0;
+
+  if (argc > 6) {
+    uuu = atof(argv[6]);
+    vvv = atof(argv[7]);
+    www = atof(argv[8]);
+  }
+
   int inside;
   
   std::cout << "Checking pt_in_volume for:" << std::endl
@@ -78,7 +87,7 @@ int main( int argc, char* argv[] )
   
   int errors = 0;
   
-  rval = test_pt_volume(dagmc,volID,xxx,yyy,zzz,inside);
+  rval = test_pt_volume(dagmc,volID,xxx,yyy,zzz,inside,uuu,vvv,www);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to test point in volume [fast]." << std::endl;
     return 3;
