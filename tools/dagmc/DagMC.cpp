@@ -388,7 +388,7 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 }
 
 void DagMC::get_settings(int *source_cell, int *use_cad, int *use_dist_limit,
-			 double *discard_distance_tolerance) {
+			 double *discard_distance_tolerance, double *facet_tol) {
 
   *source_cell = sourceCell;
 
@@ -397,6 +397,8 @@ void DagMC::get_settings(int *source_cell, int *use_cad, int *use_dist_limit,
   *use_dist_limit = !!(useDistLimit);
 
   *use_cad = !!(useCAD);
+
+  *facet_tol = facetingTolerance;
 
 }
 
@@ -589,6 +591,7 @@ ErrorCode DagMC::point_in_volume( EntityHandle volume,
 {
   ErrorCode rval;
   const double epsilon = discardDistTol;
+  const double boundary_epsilon = facetingTolerance;
 
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
@@ -603,7 +606,7 @@ ErrorCode DagMC::point_in_volume( EntityHandle volume,
   
     // Check for on-boundary case
   diff = closest - point;
-  if (diff%diff <= epsilon*epsilon) {
+  if (diff%diff <= boundary_epsilon*boundary_epsilon) {
     return boundary_case( volume, result, u, v, w, facet, surface );
   }
   
@@ -910,7 +913,7 @@ ErrorCode DagMC::surface_sense( EntityHandle volume,
 }
 
 ErrorCode DagMC::load_file(const char* cfile,
-			     const double facet_tolerance)
+			   const double facet_tolerance)
 {
   ErrorCode rval;
   
@@ -931,7 +934,12 @@ ErrorCode DagMC::load_file(const char* cfile,
   char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
   strcat(options,facetTolStr);
   
-  rval = MBI->load_file(cfile, 0, options, NULL, 0, 0);
+  EntityHandle file_set;
+  rval = MBI->create_meshset( MESHSET_SET, file_set );
+  if (MB_SUCCESS != rval)
+    return rval;
+
+  rval = MBI->load_file(cfile, &file_set, options, NULL, 0, 0);
   
   if( MB_UNHANDLED_OPTION == rval ){
     // Some options were unhandled; this is common for loading h5m files.
@@ -952,6 +960,35 @@ ErrorCode DagMC::load_file(const char* cfile,
     have_cgm_geom = true;
   }
 #endif
+
+
+  // search for a tag that has the faceting tolerance
+  // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
+  // on the file_set.
+  // If we read a CGM file here, the file_set created above should be tagged
+  // If we read an H5M file that is derived from a CGM geometry through MOAB::ReadCGM, 
+  //     it could also have a file_set tagged with this.
+  // Otherwise, there may not be anything - how to detect and/or respond?
+  Tag faceting_tol_tag;
+  rval = MBI->tag_create( "FACETING_TOL", sizeof(double), MB_TAG_SPARSE,
+			  MB_TYPE_DOUBLE, faceting_tol_tag, 0, true );
+  Range facet_tol_tagged_set;
+  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &faceting_tol_tag,
+					    NULL, 1, facet_tol_tagged_set );
+  if (MB_SUCCESS != rval) return rval;
+  if (1!=facet_tol_tagged_set.size())
+    return MB_FAILURE;
+
+  double facet_tol_tagvalue;
+  rval = MBI->tag_get_data( faceting_tol_tag, &facet_tol_tagged_set.front(), 1,  
+			    &facet_tol_tagvalue );
+  if (MB_SUCCESS != rval) return rval;
+
+  if (facet_tol_tagvalue > 0)
+    facetingTolerance = facet_tol_tagvalue;
+  
+  std::cout << "Set faceting tolerance: " << facetingTolerance << std::endl;
+
 
   return MB_SUCCESS;
 
