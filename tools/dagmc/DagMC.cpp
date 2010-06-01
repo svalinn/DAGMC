@@ -591,7 +591,7 @@ ErrorCode DagMC::point_in_volume( EntityHandle volume,
 {
   ErrorCode rval;
   const double epsilon = discardDistTol;
-  const double boundary_epsilon = facetingTolerance;
+  const double boundary_epsilon = epsilon;
 
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
@@ -1806,6 +1806,11 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
       
         // add obb root to list of obb roots
       comp_tree.insert( surf_obb_root );
+
+      // add this surf to the topology of the implicit complement volume
+      rval = MBI->add_parent_child(impl_compl_handle,*surf_i);
+      if (MB_SUCCESS != rval)
+	return rval;
     }  
   }
   
