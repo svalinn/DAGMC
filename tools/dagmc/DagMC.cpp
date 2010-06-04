@@ -617,6 +617,13 @@ ErrorCode DagMC::point_in_volume( EntityHandle volume,
   rval = obbTree.sphere_intersect_triangles( closest.array(), epsilon, root, tris, &surfs );
   if (MB_SUCCESS != rval) return rval;
   
+    // Make sure this list of triangles includes the facet of this closest point
+  if(tris.size() == 0 || 
+     find(tris.begin(),tris.end(),facet) == tris.end() ) {
+    tris.push_back(facet);
+    surfs.push_back(surface);
+  }
+
     // One-triangle case : determine if point is above or below triangle
   const EntityHandle* conn;
   int len, sense;
