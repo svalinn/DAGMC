@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <assert.h>
+#include <stdio.h>
 
 #include "moab/OrientedBoxTreeTool.hpp"
 
