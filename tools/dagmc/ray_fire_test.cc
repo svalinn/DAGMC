@@ -582,6 +582,9 @@ void dump_pyfile( char* filename, double timewith, double timewithout, double tm
       out << trv_stats->traversals_ended()[i] << ",";
     }
     out << "]," << std::endl;
+
+    unsigned int tri_test_count = trv_stats->ray_tri_tests(); 
+    DICT_VAL( tri_test_count );
   }
 
   out << "}" << std::endl;
