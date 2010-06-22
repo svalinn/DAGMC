@@ -7,7 +7,8 @@
 #include <vector>
 #include <string>
 #include <assert.h>
-#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "moab/OrientedBoxTreeTool.hpp"
 
@@ -31,7 +32,7 @@ public:
   ~DagMC();
 
   /** Return the version of this library */
-  float version(std::string *version_string = NULL);  /* PPHW: should this be static? */
+  static float version(std::string *version_string = NULL);
   /** Get subversion revision of this file (DagMC.hpp) */
   static unsigned int interface_revision();
 
@@ -395,7 +396,11 @@ inline float DagMC::version(std::string *version_string)
 inline unsigned int DagMC::interface_revision()
 {
   unsigned int result = 0;
-  sscanf( DAGMC_INTERFACE_REVISION, "$Rev$\n", &result );
+  const char* interface_string = DAGMC_INTERFACE_REVISION; 
+  if( strlen(interface_string) >= 5 ){
+    // start looking for the revision number after "$Rev: " 
+    result = strtol( interface_string+5, NULL, 10 ); 
+  }
   return result;
 }
   

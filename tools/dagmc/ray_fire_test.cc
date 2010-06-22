@@ -233,6 +233,9 @@ int main( int argc, char* argv[] )
     }
   }
 
+  std::cout << "DagMC Version: " << DagMC::version()
+	    << ", svn revision: " << DagMC::interface_revision() << std::endl;
+
   if( !filename ){
     usage("No filename specified", 0, argv[0] );
   }
