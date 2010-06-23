@@ -12,9 +12,7 @@
 
 #include "moab/OrientedBoxTreeTool.hpp"
 
-#ifdef CGM
 class RefEntity;
-#endif
 
 namespace moab {
 
@@ -349,10 +347,8 @@ private:
     // entity index (contiguous 1-N indices) indexed like rootSets are
   std::vector<int> entIndices;
 
-#ifdef CGM
     // corresponding geometric entities indexed like rootSets are
   std::vector<RefEntity *> geomEntities;
-#endif
   
   // metadata
   Tag matTag, densTag, bcTag, impTag, tallyTag;
