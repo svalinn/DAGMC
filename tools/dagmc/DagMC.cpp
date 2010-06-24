@@ -34,19 +34,23 @@
 #endif
 
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
+#define FACETING_TOL_TAG_NAME "FACETING_TOL"
 #define CATEGORY_TAG_LENGTH 32
+#define COMP_NAME_TAG_LENGTH 64
 
 #define MAT_GROUP 0
 #define BC_SPEC 1
 #define BC_WHITE 2
 #define IMP_ZERO 3
 #define TALLY_GROUP 4
+#define COMP_GROUP 5
 
 #define MATERIAL_TAG_NAME "DAGMC_MATERIAL_ID"
 #define DENSITY_TAG_NAME  "DAGMC_MATERIAL_DENSITY"
 #define BC_TAG_NAME       "DAGMC_BOUNDARY_CONDITION"
 #define IMP_TAG_NAME      "DAGMC_IMPORTANCE"
 #define TALLY_TAG_NAME    "DAGMC_TALLY"
+#define COMP_TAG_NAME     "DAGMC_COMPOSITION"
 
 
 #define MBI moab_instance()
@@ -93,6 +97,8 @@ DagMC::DagMC(Interface *mb_impl)
   geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TAG_DENSE, MB_TYPE_INTEGER );
 
   obbTag = get_tag( MB_OBB_TREE_TAG_NAME, sizeof(EntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
+
+  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, sizeof(double), MB_TAG_SPARSE, MB_TYPE_DOUBLE );
   
     // get sense of surfaces wrt volumes
   senseTag = get_tag( "GEOM_SENSE_2", 2*sizeof(EntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
@@ -101,6 +107,7 @@ DagMC::DagMC(Interface *mb_impl)
   const void *def_matid = &matid;
   matTag   = get_tag(MATERIAL_TAG_NAME, sizeof(int), MB_TAG_DENSE, MB_TYPE_INTEGER, def_matid );
   densTag  = get_tag(DENSITY_TAG_NAME, sizeof(double), MB_TAG_DENSE, MB_TYPE_DOUBLE );
+  compTag  = get_tag(COMP_TAG_NAME, COMP_NAME_TAG_LENGTH, MB_TAG_SPARSE, MB_TYPE_OPAQUE );
   bcTag    = get_tag(BC_TAG_NAME, sizeof(int), MB_TAG_SPARSE, MB_TYPE_INTEGER);
 
   double imp_one = 1;
@@ -119,6 +126,8 @@ ErrorCode DagMC::load_file(const char* cfile,
 			   const double facet_tolerance)
 {
   ErrorCode rval;
+
+  std::cout << "Requested faceting tolerance: " << facet_tolerance << std::endl;
   
 #ifdef CGM
   // cgm must be initialized so we can check it for CAD data after the load
@@ -166,25 +175,23 @@ ErrorCode DagMC::load_file(const char* cfile,
 
 
   // search for a tag that has the faceting tolerance
-  Tag faceting_tol_tag;
   Range tagged_sets;
   double facet_tol_tagvalue = 0;
   bool other_set_tagged = false, root_tagged = false;
-  rval = MBI->tag_create( "FACETING_TOL", sizeof(double), MB_TAG_SPARSE,
-			  MB_TYPE_DOUBLE, faceting_tol_tag, 0, true );
+
   // get list of entity sets that are tagged with faceting tolerance 
   // (possibly empty set)
-  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &faceting_tol_tag,
+  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &facetingTolTag,
 					    NULL, 1, tagged_sets );
   // if NOT empty set
   if (MB_SUCCESS == rval && !tagged_sets.empty()) {
-    rval = MBI->tag_get_data( faceting_tol_tag, &(*tagged_sets.begin()), 1, &facet_tol_tagvalue );
+    rval = MBI->tag_get_data( facetingTolTag, &(*tagged_sets.begin()), 1, &facet_tol_tagvalue );
     if (MB_SUCCESS != rval) return rval;
     other_set_tagged = true;
   }
   else if (MB_SUCCESS == rval) {
     // check to see if interface is tagged
-    rval = MBI->tag_get_data( faceting_tol_tag, 0, 0, &facet_tol_tagvalue );
+    rval = MBI->tag_get_data( facetingTolTag, 0, 0, &facet_tol_tagvalue );
     if (MB_SUCCESS == rval) root_tagged = true;
     else rval = MB_SUCCESS;
   }
@@ -1422,6 +1429,14 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
   std::cout << "Set Source Cell = " << sourceCell << std::endl;
 
+  discardDistTol = discard_distance_tolerance;
+  if (discardDistTol <= 0 || discardDistTol > 1) {
+    std::cerr << "Invalid discard_distance_tolerance = " << discardDistTol << std::endl;
+    exit(2);
+  }
+
+  std::cout << "Set discard distance tolerance = " << discardDistTol << std::endl;
+
   addDistTol = add_distance_tolerance;
   if (addDistTol <= 0 || addDistTol > 1) {
     std::cerr << "Invalid add_distance_tolerance = " << addDistTol << std::endl;
@@ -1430,13 +1445,6 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
   std::cout << "Set add distance tolerance = " << addDistTol << std::endl;
 
-  discardDistTol = discard_distance_tolerance;
-  if (discardDistTol <= 0 || discardDistTol > 1) {
-    std::cerr << "Invalid discard_distance_tolerance = " << discardDistTol << std::endl;
-    exit(2);
-  }
-
-  std::cout << "Set discard distance tolerance = " << discardDistTol << std::endl;
 
   useDistLimit = !!(use_dist_limit);
 
@@ -1525,6 +1533,7 @@ ErrorCode DagMC::parse_metadata()
 	    range_inserter(surfs));
 
   keywords["mat"]           = MAT_GROUP;
+  keywords["comp"]          = COMP_GROUP;
   keywords["spec.reflect"]  = BC_SPEC;
   keywords["white.reflect"] = BC_WHITE;
   keywords["graveyard"]     = IMP_ZERO;
@@ -1589,6 +1598,25 @@ ErrorCode DagMC::parse_metadata()
 	MBI->tag_set_data(densTag,grp_ents,&(*density_list.begin()));
       }
       break;
+    case COMP_GROUP:
+      //
+      char namebuf[COMP_NAME_TAG_LENGTH];
+      memset( namebuf, '\0', COMP_NAME_TAG_LENGTH );
+      strncpy( namebuf, tokens[1].c_str(), COMP_NAME_TAG_LENGTH - 1 );
+      if (tokens[1].length() >= (unsigned)COMP_NAME_TAG_LENGTH) 
+      std::cout << "WARNING: composition name '" << tokens[1].c_str() 
+                << "' truncated to '" << namebuf << "'" << std::endl;
+
+      // check to see if this is the implicit complement
+      if ( tokens.size() > 2 && tokens[2].compare("comp") == 0 ) {
+	MBI->tag_set_data(compTag, &impl_compl_handle, 1, namebuf);
+      } else {
+	grp_ents.clear();
+	grp_ents = intersect(grp_sets,vols);
+	for (Range::iterator grp =grp_ents.begin();grp!=grp_ents.end();grp++)
+	  MBI->tag_set_data(compTag, &(*grp), 1, namebuf);
+      }
+      break;
     case BC_SPEC:
     case BC_WHITE:
       bc_id = keywords[tokens[0]];
@@ -1601,6 +1629,8 @@ ErrorCode DagMC::parse_metadata()
       grp_ents.clear();
       grp_ents = intersect(grp_sets,vols);
       imp_zero_list.assign(grp_ents.size(),imp_zero);
+      for (Range::iterator i=grp_ents.begin();i!=grp_ents.end();++i)
+	graveyard_vols.push_back(*i);
       MBI->tag_set_data(impTag ,grp_ents, &(*imp_zero_list.begin()));
       break;
     case TALLY_GROUP:
@@ -1615,6 +1645,85 @@ ErrorCode DagMC::parse_metadata()
 
   return MB_SUCCESS;
 }
+
+ErrorCode DagMC::get_volume_metadata(EntityHandle volume, DagmcVolData &volData)
+{
+  ErrorCode rval;
+  
+  rval = MBI->tag_get_data( matTag, &volume, 1, &(volData.mat_id));
+  if (MB_TAG_NOT_FOUND == rval)
+    volData.mat_id = -1;
+  else if (MB_SUCCESS != rval) return rval;
+
+  if (volData.mat_id > 0)
+    {
+      rval = MBI->tag_get_data( densTag, &volume, 1, &(volData.density));
+      if (MB_TAG_NOT_FOUND == rval)
+	volData.density = 0;
+      else if (MB_SUCCESS != rval) return rval;
+    }
+
+  rval = MBI->tag_get_data( impTag, &volume, 1, &(volData.importance));
+  if (MB_TAG_NOT_FOUND == rval)
+    volData.importance = 1;
+  else if (MB_SUCCESS != rval) return rval;
+
+  char comp_name[COMP_NAME_TAG_LENGTH];
+  std::fill(comp_name, comp_name+COMP_NAME_TAG_LENGTH, '\0');
+  rval = MBI->tag_get_data( compTag, &volume, 1, &comp_name);
+  if (MB_TAG_NOT_FOUND == rval)
+    volData.comp_name = "";
+  else if (MB_SUCCESS != rval) return rval;
+  volData.comp_name = comp_name;
+  
+  return MB_SUCCESS;
+}
+
+bool DagMC::is_graveyard(EntityHandle volume) 
+{
+  ErrorCode rval;
+  double imp;
+
+  rval = MBI->tag_get_data( impTag, &volume, 1, &imp);
+  if (0.0 == imp)
+    return true;
+  else
+    return false;
+
+}
+
+bool DagMC::is_spec_reflect(EntityHandle surf)
+{
+  ErrorCode rval;
+  int bc_value;
+  bool spec_reflect=false;
+
+  rval = MBI->tag_get_data(bcTag,&surf,1,&bc_value);
+  if (MB_SUCCESS == rval && 
+      BC_SPEC == bc_value)
+    spec_reflect = true;
+
+  return spec_reflect;
+
+
+}
+
+bool DagMC::is_white_reflect(EntityHandle surf)
+{
+  ErrorCode rval;
+  int bc_value;
+  bool white_reflect=false;
+
+  rval = MBI->tag_get_data(bcTag,&surf,1,&bc_value);
+  if (MB_SUCCESS == rval && 
+      BC_WHITE == bc_value)
+    white_reflect = true;
+
+  return white_reflect;
+
+
+}
+
 
 ErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite) 
 {

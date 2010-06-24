@@ -14,6 +14,13 @@
 
 class RefEntity;
 
+struct DagmcVolData {
+  int mat_id;
+  double density, importance;
+  std::string comp_name;
+};
+  
+
 namespace moab {
 
 class CartVect;
@@ -21,6 +28,7 @@ class CartVect;
 #define DAGMC_VERSION 0.99
 #define DAGMC_VERSION_STRING "0.99"
 #define DAGMC_INTERFACE_REVISION "$Rev$"
+
 
 class DagMC 
 {
@@ -267,6 +275,13 @@ public:
    */
   ErrorCode parse_metadata();
 
+  ErrorCode get_volume_metadata(EntityHandle volume, DagmcVolData &volData);
+
+  ErrorCode get_graveyard(std::vector<EntityHandle> &graveyard_vol_list);
+  bool is_graveyard(EntityHandle volume);
+  bool is_spec_reflect(EntityHandle surf);
+  bool is_white_reflect(EntityHandle surf);
+
   /** write metadata to temporary file for use by MCNP5 */
   ErrorCode write_mcnp(std::string ifile, const bool overwrite = true);
 
@@ -334,7 +349,7 @@ private:
 
   OrientedBoxTreeTool obbTree;
   EntityHandle impl_compl_handle;
-  Tag obbTag, geomTag, idTag, nameTag, senseTag;
+  Tag obbTag, geomTag, idTag, nameTag, senseTag, facetingTolTag;
 
   std::vector<EntityHandle> entHandles[5];
     // store some lists indexed by handle
@@ -351,11 +366,12 @@ private:
   std::vector<RefEntity *> geomEntities;
   
   // metadata
-  Tag matTag, densTag, bcTag, impTag, tallyTag;
+  Tag matTag, densTag, compTag, bcTag, impTag, tallyTag;
   std::vector<int> tallyList;
   char specReflectName[NAME_TAG_SIZE];
   char whiteReflectName[NAME_TAG_SIZE];
   char implComplName[NAME_TAG_SIZE];
+  std::vector<EntityHandle> graveyard_vols;
 
   // settings
   Option options[6];
@@ -430,6 +446,14 @@ inline char *DagMC::get_white_reflect()
 {
   return whiteReflectName;
 }
+
+inline ErrorCode DagMC::get_graveyard(std::vector<EntityHandle> &graveyard_vol_list)
+{ 
+  graveyard_vol_list = graveyard_vols;
+
+  return MB_SUCCESS;
+}
+
 
     // get the root of the obbtree for a given entity
 inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle &root) 
