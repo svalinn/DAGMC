@@ -66,6 +66,25 @@ void DagMC::create_instance(Interface *mb_impl)
 }
 
 
+float DagMC::version(std::string *version_string) 
+{
+  if (NULL != version_string)
+    *version_string = std::string("DagMC version ") + std::string(DAGMC_VERSION_STRING);
+  return DAGMC_VERSION;
+}
+
+unsigned int DagMC::interface_revision()
+{
+  unsigned int result = 0;
+  const char* interface_string = DAGMC_INTERFACE_REVISION; 
+  if( strlen(interface_string) >= 5 ){
+    // start looking for the revision number after "$Rev: " 
+    result = strtol( interface_string+5, NULL, 10 ); 
+  }
+  return result;
+}
+
+
 const bool debug = false;
 DagMC::DagMC(Interface *mb_impl) 
   : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false)

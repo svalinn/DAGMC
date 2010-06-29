@@ -7,8 +7,6 @@
 #include <vector>
 #include <string>
 #include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "moab/OrientedBoxTreeTool.hpp"
 
@@ -397,25 +395,6 @@ inline DagMC *DagMC::instance(Interface *mb_impl)
   
   return instance_;
 }
-
-inline float DagMC::version(std::string *version_string) 
-{
-  if (NULL != version_string)
-    *version_string = std::string("DagMC version ") + std::string(DAGMC_VERSION_STRING);
-  return DAGMC_VERSION;
-}
-
-inline unsigned int DagMC::interface_revision()
-{
-  unsigned int result = 0;
-  const char* interface_string = DAGMC_INTERFACE_REVISION; 
-  if( strlen(interface_string) >= 5 ){
-    // start looking for the revision number after "$Rev: " 
-    result = strtol( interface_string+5, NULL, 10 ); 
-  }
-  return result;
-}
-  
 
 inline EntityHandle DagMC::entity_by_index( int dimension, int index )
 {
