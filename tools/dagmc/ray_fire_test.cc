@@ -424,12 +424,8 @@ void get_time_mem(double &tot_time, double &user_time,
     ((double)r_usage.ru_stime.tv_usec/1.e6);
   tot_time = user_time + sys_time;
   tot_mem = 0;
-  if (0 != r_usage.ru_maxrss) {
-    tot_mem = r_usage.ru_idrss; 
-  }
-  else {
-      // this machine doesn't return rss - try going to /proc
-      // print the file name to open
+
+  // try going to /proc to estimate total memory
     char file_str[4096], dum_str[4096];
     int file_ptr = -1, file_len;
     file_ptr = open("/proc/self/stat", O_RDONLY);
@@ -462,7 +458,7 @@ void get_time_mem(double &tot_time, double &user_time,
                             &vm_size, &rss);
     if (num_fields == 24)
       tot_mem = ((double)vm_size);
-  }
+
 }
 
 
@@ -511,6 +507,16 @@ void write_obbtree_histogram( EntityHandle root, OrientedBoxTreeTool& tree, std:
 
 }
 
+void moab_memory_estimates( Interface* mbi, int& moab_data_bytes, int& moab_alldata_est_bytes ){
+  
+  unsigned long storage, amortized_storage;
+  mbi->estimated_memory_use( NULL, 0, &storage, &amortized_storage );
+
+  moab_data_bytes = storage;
+  moab_alldata_est_bytes = amortized_storage;
+
+}
+
 #define DICT_VAL(X) out << "'" #X "':" << X << "," << std::endl;
 #define DICT_VAL_STR(X) out << "'" #X  "':'" << X << "'," << std::endl;
 void dump_pyfile( char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
@@ -551,6 +557,10 @@ void dump_pyfile( char* filename, double timewith, double timewithout, double tm
     DICT_VAL(timewith-timewithout);
   }
   DICT_VAL(tmem);
+  int moab_data_bytes, moab_alldata_est_bytes;
+  moab_memory_estimates( dagmc.moab_instance(), moab_data_bytes, moab_alldata_est_bytes );
+  DICT_VAL( moab_data_bytes );
+  DICT_VAL( moab_alldata_est_bytes );
 
   unsigned int entities_in_tree, tree_height, node_count, num_leaves;
   double root_volume, tot_node_volume, tot_to_root_volume;
@@ -589,6 +599,10 @@ void dump_pyfile( char* filename, double timewith, double timewithout, double tm
     unsigned int tri_test_count = trv_stats->ray_tri_tests(); 
     DICT_VAL( tri_test_count );
   }
+
+  out << "'stat_string':\"\"\"";
+  dagmc.obb_tree()->stats(tree_root, out);
+  out << "\"\"\"" << std::endl;
 
   out << "}" << std::endl;
   
