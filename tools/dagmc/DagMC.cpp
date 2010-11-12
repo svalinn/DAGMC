@@ -161,7 +161,6 @@ ErrorCode DagMC::load_file(const char* cfile,
 
   sprintf(facetTolStr,"%g",facetingTolerance);
 
-  // what if we are using default faceting tolerance???
   char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
   strcat(options,facetTolStr);
   
@@ -182,6 +181,10 @@ ErrorCode DagMC::load_file(const char* cfile,
   }
   else if (MB_SUCCESS != rval) {
     std::cerr << "DagMC Couldn't read file " << cfile << std::endl;
+    std::string message;
+    if (MB_SUCCESS == MBI->get_last_error(message) && !message.empty())
+        std::cerr << "Error message: " << message << std::endl;
+    
     return rval;
   }
 
