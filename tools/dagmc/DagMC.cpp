@@ -57,6 +57,40 @@
 
 namespace moab {
 
+/* Tolerance Summary
+ 
+   Facet Tolerance:
+   Maximum distance between continuous solid model surface and faceted surface.
+     Performance:  increasing tolerance increased performance (fewer triangles)
+     Robustness:   should not be affected
+     Knowledge:    user must understand how coarser faceting influences accuracy
+                   of results
+ 
+   Overlap Thickness:
+   This tolerance is the maximum normal distance between two overlapping
+   volumes. This should be zero unless geometry has overlaps. User must provide
+   guidance about the magnitude of overlaps. Overlap thickness depends upon 
+   geometric model and must be small enough not to significantly affect physics.
+   For CAD models, 0.1 cm is suggested.
+     Performance: increasing tolerance decreases performance
+     Robustness:  increasing tolerance increases robustness
+     Knowledge:   user must have intuition of overlap thickness
+
+   Numerical Precision:
+   This tolerance is used for obb.intersect_ray, finding neighborhood of
+   adjacent triangle for edge/node intersections, and error in advancing
+   geometric position of particle (x' ~= x + d*u). When determining the
+   neighborhood of adjacent triangles for edge/node intersections, the facet
+   based model is expected to be watertight.
+     Performance: increasing tolerance decreases performance (but not very much)
+     Robustness:  increasing tolerance increases robustness
+     Knowledge:   user should not change this tolerance
+
+*/
+
+  const bool debug    = false; /* controls print statements */
+  const bool counting = false; /* controls counts of ray casts and pt_in_vols */
+
 DagMC *DagMC::instance_ = NULL;
 
 void DagMC::create_instance(Interface *mb_impl) 
@@ -84,18 +118,16 @@ unsigned int DagMC::interface_revision()
   return result;
 }
 
-
-const bool debug = false;
 DagMC::DagMC(Interface *mb_impl) 
   : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
-  options[1] = Option( "discard_distance_tolerance", "positive real value", "1e-8" );
+  options[1] = Option( "overlap_thickness",  "nonnegative real value", "0" );
   options[2] = Option( "use_distance_limit", "one to enable distance limit optimization, zero otherwise", "0" );
-  options[3] = Option( "use_cad", "one to ray-trace to cad, zero for just facets", "0" );
+  options[3] = Option( "use_cad",            "one to ray-trace to cad, zero for just facets", "0" );
   options[4] = Option( "faceting_tolerance", "graphics faceting tolerance", "0.001" );
-  options[5] = Option( "add_distance_tolerance", "positive real value", "1e-6" );
+  options[5] = Option( "numerical_precision","positive real value", "0.001" );
 
     // call parse settings to initialize default values for settings from options
   parse_settings();
@@ -133,6 +165,10 @@ DagMC::DagMC(Interface *mb_impl)
   const void *def_imp = &imp_one;
   impTag   = get_tag(IMP_TAG_NAME, sizeof(double), MB_TAG_DENSE, MB_TYPE_DOUBLE, def_imp );
   tallyTag = get_tag(TALLY_TAG_NAME, sizeof(int), MB_TAG_SPARSE, MB_TYPE_INTEGER);
+
+  // get some statistics for the computer geometry folks
+  n_ray_fire_calls  = 0;
+  n_pt_in_vol_calls = 0;
 
 }
 
@@ -433,6 +469,23 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
       rval = MBI->add_parent_child(impl_compl_handle,*surf_i);
       if (MB_SUCCESS != rval)
 	return rval;
+
+      // get the surface sense wrt original volume
+      EntityHandle sense_data[2] = {0,0};
+      rval = MBI->tag_get_data( sense_tag(), &(*surf_i), 1, sense_data );
+      if (MB_SUCCESS != rval) return rval;
+      
+      // set the surface sense wrt implicit complement volume
+      if(0==sense_data[0] && 0==sense_data[1]) return MB_FAILURE;
+      if(0==sense_data[0])
+        sense_data[0] = impl_compl_handle;
+      else if(0==sense_data[1])
+        sense_data[1] = impl_compl_handle;
+      else
+        return MB_FAILURE;
+      rval = MBI->tag_set_data( sense_tag(), &(*surf_i), 1, sense_data );
+      if (MB_SUCCESS != rval)  return rval;
+
     }  
   }
   
@@ -451,104 +504,365 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
 }
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
-
 ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_hit, 
-                             const int num_pts,
-                             const double uuu, const double vvv, const double www,
-                             const double xxx, const double yyy, const double zzz,
-                             const double huge_val,
-                             double &dist_traveled, EntityHandle &next_surf_hit, 
-                             OrientedBoxTreeTool::TrvStats* stats ) 
-{
-  if (debug) {
-    std::cout << "Vol " << id_by_index(3, index_by_handle(vol)) << ", xyz = " 
-              << xxx << " " << yyy << " " << zzz 
-              << ", uvw = " 
-              << uuu << " " << vvv << " " << www << std::endl;
+                          const int n_particles,
+                          const double u, const double v, const double w,
+                          const double x, const double y, const double z,
+                          const double huge_val,
+ 			  double &dist_traveled, EntityHandle &next_surf_hit, 
+                          OrientedBoxTreeTool::TrvStats* stats ) {
+
+  // take some stats that are independent of nps
+  if(counting) {
+    ++n_ray_fire_calls;
+    if(0==n_ray_fire_calls%10000000) {
+      std::cout << "n_ray_fires="   << n_ray_fire_calls 
+                << " n_pt_in_vols=" << n_pt_in_vol_calls << std::endl;
+    }
   }
-  
-  assert(vol - setOffset < rootSets.size());
-  
-  EntityHandle root = rootSets[vol - setOffset];
-  ErrorCode rval;
-    // delcare some stuff static so we don't need to re-created
-    // it for every call
-  std::vector<double> &distances = distList;
-  std::vector<EntityHandle> &surfaces = surfList;
-  std::vector<EntityHandle> &facets = facetList;
-  
-  
-    // do ray fire
-  const double point[] = {xxx, yyy, zzz};
-  const double dir[] = {uuu, vvv, www};
-  distances.clear();
-  surfaces.clear();
+
+  if (debug) {
+    std::cout << "ray_fire:" 
+              << " xyz=" << x << " " << y << " " << z 
+              << " uvw=" << u << " " << v << " " << w
+              << " vol_id=" << id_by_index(3, index_by_handle(vol))
+              << " last_surf_id=";
+    if(last_surf_hit) std::cout << id_by_index(2, index_by_handle(last_surf_hit));
+    else              std::cout << "?";
+    std::cout << " dist_traveled=" << dist_traveled << " nps=" << n_particles << std::endl;
+  }
+
+  // don't recreate these every call
+  std::vector<double>       &dists       = distList;
+  std::vector<EntityHandle> &surfs       = surfList;
+  std::vector<EntityHandle> &facets      = facetList;  
+  std::vector<EntityHandle> &prev_facets = prevFacetList;
+  dists.clear();
+  surfs.clear();
   facets.clear();
-  double len = use_dist_limit() ? distance_limit() : huge_val;
-  unsigned min_tolerance_intersections = 1000;
 
-  rval = obbTree.ray_intersect_sets( distances,
-                                     surfaces,
-                                     facets, 
-                                     root, 
-                                     add_dist_tol(),
+  assert(vol - setOffset < rootSets.size());  
+  const EntityHandle root = rootSets[vol - setOffset];
+  ErrorCode rval;
+  const double point[] = {x, y, z};
+  const double dir[]   = {u, v, w};
+
+  // If this is the first ray_fire after birth 0==last_surf_hit.
+  // If the particle has a collision, 0==last_surf_hit and the direction vector changes.
+  // If the particle hits a reflective boundary, the direction vector changes.
+  // Streaming/reflecting control the memory of previously intersected facets.
+  // A ray (streaming) never intersects a planar surface (facet) twice.
+
+  // Streaming=true if it can be proven that the particle is streaming.
+  const bool streaming = (0!=last_surf_hit) && (last_n_particles==n_particles) && 
+                         (u_last==u) && (v_last==v) && (w_last==w);
+  bool reflecting = false;
+ 
+  // if not streaming, update the uvw_last
+  if(!streaming) {
+    u_last = u;
+    v_last = v;
+    w_last = w;
+    last_n_particles = n_particles;
+
+    // When reflection occurs, the previous surface should be saved for the point
+    // membership test.
+    int bc_id;
+    rval = MBI->tag_get_data( bcTag, &last_surf_hit, 1, &bc_id  );
+    if (MB_SUCCESS != rval && MB_TAG_NOT_FOUND != rval) return rval;
+    if (MB_TAG_NOT_FOUND != rval) {
+      if(BC_SPEC==bc_id || BC_WHITE==bc_id) reflecting = true;
+    }
+  }
+
+  // if the ray has changed directions, clear the facet history
+  if(reflecting) {
+    assert(!prev_facets.empty());
+    const EntityHandle last_facet_hit = prev_facets.back();
+    prev_facets.clear();
+    prev_facets.push_back(last_facet_hit);
+  } else if (!streaming) {
+    prev_facets.clear();
+  }
+
+  double neg_ray_len;
+  // no overlaps
+  if(0 == overlapThickness) {
+    neg_ray_len = -numericalPrecision;
+
+  // overlaps
+  } else {
+    // If the previous facet (surface) is unknown, use large neg_ray_len. 
+    // Although an overlap does not occur after a collision, it may occur after 
+    // a particle starts on a surface (cell-based weight windows).
+    if(prev_facets.empty()) {
+      neg_ray_len = -100*overlapThickness;
+
+    // if the previous facet is known, use the angle made with the normal
+    } else {
+      // get coords of prev facet
+      const EntityHandle* conn;
+      int len;
+      CartVect coords[3], normal;
+      rval = MBI->get_connectivity( prev_facets.back(), conn, len );
+      if (MB_SUCCESS != rval || len != 3) return MB_FAILURE;
+      rval = MBI->get_coords( conn, len, coords[0].array() );
+      if (MB_SUCCESS != rval) return rval;
+      // get normal of prev facet
+      coords[1] -= coords[0];
+      coords[2] -= coords[0];
+      normal = coords[1] * coords[2];
+      normal.normalize();
+      double dot_prod = dir[0]*normal[0] + dir[1]*normal[1] + dir[2]*normal[2];
+      // get neg_ray_len
+      neg_ray_len = -overlapThickness/fabs(dot_prod);
+    }
+  }
+
+  // optionally, limit the nonneg_ray_len with the distance to next collision.
+  double physics_limit = use_dist_limit() ? distance_limit() : huge_val;
+  
+  // ensure that neg_ray_len <= physics_limit
+  if(physics_limit < -neg_ray_len) neg_ray_len = -physics_limit;
+  assert(0 <= physics_limit);
+  assert(0 > neg_ray_len);
+  
+  // min_tolerance_intersections is passed but not used in this call
+  const int min_tolerance_intersections = 0;
+
+  // only get exit intersections
+  const int desired_orientation = 1;
+
+  // numericalPrecision is used for box.intersect_ray and find triangles in the
+  // neighborhood of edge/node intersections.
+  rval = obbTree.ray_intersect_sets( dists, surfs, facets,
+                                     root, numericalPrecision, 
                                      min_tolerance_intersections,
-                                     point, dir,
-                                     &len, stats);
+                                     point, dir, &physics_limit,
+                                     stats, &neg_ray_len, &vol, &senseTag, 
+                                     &desired_orientation, &prev_facets );
   assert( MB_SUCCESS == rval );
-
+  if(MB_SUCCESS != rval) return rval;
 
   // if useCAD is true at this point, then we know we can call CGM's ray casting function.
   if (useCAD) {
-    rval = CAD_ray_intersect(point, dir, huge_val,
-                             distances, surfaces, len);
+    rval = CAD_ray_intersect(point, dir, huge_val, dists, surfs, physics_limit);
     if (MB_SUCCESS != rval) return rval;
   }
-
   
-    // Find smallest intersection
-  if (distances.empty()) {
+  // If no distances are returned, the particle is lost unless the physics limit
+  // is being used. If the physics limit is being used, there is no way to tell
+  // if the particle is lost. To avoid ambiguity, DO NOT use the distance limit 
+  // unless you know lost particles do not occur.
+  if( dists.empty() ) {
     next_surf_hit = 0;
-    dist_traveled = (use_dist_limit() ? len*10.0 : huge_val);
+    // Make this large enough so that the physics limit is not reached first!
+    dist_traveled = (use_dist_limit() ? physics_limit*10.0 : huge_val);
+    if(debug) {
+      std::cout << "          next_surf_hit=" << 0 << " dist=" << dist_traveled << std::endl;
+    }
+    return MB_SUCCESS;
+  }
+
+  // Assume that a (neg, nonneg) pair of RTIs could be returned,
+  // however, only one or the other may exist. dists[] may be populated, but 
+  // intersections are ONLY indicated by nonzero surfs[] and facets[].
+  assert(2 == dists.size());
+  assert(2 == facets.size());
+  assert(0.0 >= dists[0]);
+  assert(0.0 <= dists[1]);
+
+  // If both negative and nonnegative RTIs are returned, the negative RTI must
+  // closer to the origin.
+  if(0!=facets[0] && 0!=facets[1]) {
+    assert(-dists[0] < dists[1]);
+  }
+
+  // If an RTI is found at negative distance, perform a PMT to see if the 
+  // particle is inside an overlap.
+  int exit_idx = -1;
+  if(0!=facets[0]) {
+    // get the next volume
+    std::vector<EntityHandle> vols;
+    EntityHandle next_vol;
+    rval = MBI->get_parent_meshsets( surfs[0], vols );
+    if(MB_SUCCESS != rval) return rval;
+    assert(2 == vols.size());
+    if(vols.front() == vol) {
+      next_vol = vols.back();
+    } else {
+      next_vol = vols.front();
+    }
+    // Check to see if the point is actually in the next volume.
+    // The list of previous facets is used to topologically identify the 
+    // "on_boundary" result of the PMT. This avoids a test that uses proximity 
+    // (a tolerance).
+    int result;
+    rval = point_in_volume( next_vol, x, y, z, result, u, v, w,
+			    &prev_facets );
+    if(MB_SUCCESS != rval) return rval;
+    if(1==result) exit_idx = 0;
+
+  }
+
+  // if the negative distance is not the exit, try the nonnegative distance
+  if(-1==exit_idx && 0!=facets[1]) exit_idx = 1;
+  
+  // if the exit index is still unknown, the particle is lost
+  if(-1 == exit_idx) {
+    next_surf_hit = 0;
+    dist_traveled = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
     if (debug) {
       std::cout << "next surf hit = " << 0 << ", dist = (huge_val)" << std::endl;
     }
     return MB_SUCCESS;
   }
-  int smallest = std::min_element( distances.begin(), distances.end() ) - distances.begin();
 
-    // Sometimes a ray hits the boundary of two triangles.  In the next ray_fire the 
-    // two hits are at zero distance.  An infinite loop occurs between the two neighboring
-    // triangles.  This fix rejects surfaces closer than discard_dist_tol to avoid 
-    // infinite looping at zero distance.  It required changing min_tolerance_intersections
-    // to a very large number to make sure that we get at least one hit beyond add_dist_tol.
-    // Last_surf_hit!=0 ensures that source particles close to a surface are
-    // not rejected.
-  while (   ( last_surf_hit!=0 )    &&    ( distances[smallest] < discard_dist_tol() )   ) {
-    distances.erase( distances.begin() + smallest );
-    surfaces.erase(  surfaces.begin()  + smallest );
-  
-      // Find smallest intersection
-    if (distances.empty()) {
-      next_surf_hit = 0;
-      dist_traveled = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
-      if (debug) {
-        std::cout << "next surf hit = " << 0 << ", dist = (huge_val)" << std::endl;
-      }
-      return MB_SUCCESS;
-    }
-    smallest = std::min_element( distances.begin(), distances.end() ) - distances.begin();
+  // return the intersection
+  next_surf_hit = surfs[exit_idx];
+  prev_facets.push_back( facets[exit_idx] );
+  dist_traveled = ( 0>dists[exit_idx] ? 0 : dists[exit_idx]);
+
+  // print a warning if the negative ray length was excessive
+  if(-0.1 > dists[exit_idx]) {
+    std:: cout << "WARNING: overlap track length=" << dists[exit_idx] 
+               <<  " next_surf=" << id_by_index(2, index_by_handle(next_surf_hit)) 
+               << " vol_id=" << id_by_index(3, index_by_handle(vol))
+               << " last_surf_id=";
+    if(last_surf_hit) std::cout << id_by_index(2, index_by_handle(last_surf_hit));
+    else              std::cout << "?";
+    std::cout << " nps=" << n_particles << std::endl;
   }
 
-    // return results
-  dist_traveled = distances[smallest];
-  next_surf_hit = surfaces[smallest];
-  
   if (debug) {
-    std::cout << "next surf hit = " <<  id_by_index(2, index_by_handle(next_surf_hit)) 
-              << ", dist = " << dist_traveled << std::endl;
+    std::cout << "          next_surf_hit = " <<  id_by_index(2, index_by_handle(next_surf_hit)) 
+              << ", dist = " << dist_traveled << " new_pt="
+              << x+u*dist_traveled << " " << y+v*dist_traveled << " "
+              << z+w*dist_traveled << std::endl;
   }
 
+  return MB_SUCCESS;
+}
+
+ErrorCode DagMC::point_in_volume(const EntityHandle volume, 
+                                 const double x, const double y, const double z,
+                                 int& result,
+				 double u, double v, double w,
+				 std::vector<EntityHandle>* prev_facets) {
+  // take some stats that are independent of nps
+  if(counting) ++n_pt_in_vol_calls;
+
+  // get OBB Tree for volume
+  assert(volume - setOffset < rootSets.size());
+  EntityHandle root = rootSets[volume - setOffset];
+
+  // Don't recreate these every call. These cannot be the same as the ray_fire
+  // vectors because both are used simultaneously.
+  std::vector<double>       &dists = disList;
+  std::vector<EntityHandle> &surfs = surList;
+  std::vector<EntityHandle> &facets= facList;
+  std::vector<int>          &dirs  = dirList;
+  dists.clear();
+  surfs.clear();
+  facets.clear();
+  dirs.clear();
+
+  // if uvw is not given, use random
+  if( -1>u || 1<u || -1>v || 1<v || -1>w || 1<w || (0==u && 0==v && 0==w) ) {
+    u = rand();
+    v = rand();
+    w = rand();
+    const double magnitude = sqrt( u*u + v*v + w*w );
+    u /= magnitude;
+    v /= magnitude;
+    w /= magnitude;
+  }
+
+  const double ray_origin[]    = { x, y, z };
+  const double ray_direction[] = { u, v, w };
+  
+  // if overlaps, ray must be cast to infinity and all RTIs must be returned
+  const double   large       = 1e15;
+  const double   ray_length  = large;
+
+  unsigned min_tolerance_intersections;
+  double   keep_all_hits_dist;
+
+  // If overlaps occur, the pt is inside if traveling along the ray from the
+  // origin, there are ever more exits than entrances. In lieu of implementing
+  // that, all intersections to infinity are required if overlaps occur (expensive)
+  if(0 != overlapThickness) {
+    min_tolerance_intersections = 1000000;
+    keep_all_hits_dist = large;
+  // only the first intersection is needed if overlaps do not occur (cheap)
+  } else {
+    min_tolerance_intersections = 1;
+    keep_all_hits_dist = numericalPrecision;
+  }
+
+  // Get intersection(s) of forward and reverse orientation. Do not return 
+  // glancing intersections or previous facets.
+  ErrorCode rval = obbTree.ray_intersect_sets( dists, surfs, facets, root,
+                                               keep_all_hits_dist, 
+                                               min_tolerance_intersections,
+                                               ray_origin, ray_direction,
+                                               &ray_length, NULL, NULL, &volume,
+                                               &senseTag, NULL, prev_facets );
+  if(MB_SUCCESS != rval) return rval;
+
+  // determine orientation of all intersections
+  // 1 for entering, 0 for leaving, -1 for tangent
+  // Tangent intersections are not returned from ray_tri_intersect.
+  dirs.resize(dists.size());
+  for(unsigned i=0; i<dists.size(); ++i) {
+    rval = boundary_case( volume, dirs[i], u, v, w, facets[i], surfs[i] );
+    if(MB_SUCCESS != rval) return rval;
+  }
+
+  // count all crossings
+  if(0 != overlapThickness) {
+    int sum = 0;
+    for(unsigned i=0; i<dirs.size(); ++i) {
+      if     ( 1==dirs[i]) sum+=1; // +1 for entering
+      else if( 0==dirs[i]) sum-=1; // -1 for leaving
+      else if(-1==dirs[i]) {       //  0 for tangent
+  	std::cout << "direction==tangent" << std::endl;
+	sum+=0;
+      } else {
+	std::cout << "error: unknown direction" << std::endl;
+	return MB_FAILURE;
+      }
+    }
+
+    // inside/outside depends on the sum
+    if(0<sum)                          result = 0; // pt is outside (for all vols)
+    else if(0>sum)                     result = 1; // pt is inside  (for all vols)
+    else if(impl_compl_handle==volume) result = 1; // pt is inside  (for impl_compl_vol)
+    else                               result = 0; // pt is inside  (for all other vols)
+
+  // Only use the first crossing
+  } else {
+      if( dirs.empty() ) {
+      result = 0; // pt is inside
+    } else {
+      int smallest = std::min_element( dists.begin(), dists.end() ) - dists.begin();
+      if     ( 1==dirs[smallest] ) result = 0; // pt is inside
+      else if( 0==dirs[smallest] ) result = 1; // pt is outside
+      else if(-1==dirs[smallest] ) {           // should not be here
+        std::cout << "direction==tangent" << std::endl;
+        result = -1;
+      } else {
+        std::cout << "error: unknown direction" << std::endl;
+        return MB_FAILURE;
+      }
+    }
+  }
+
+  if(debug)
+    std::cout << "pt_in_vol: result=" << result
+              << " xyz=" << x << " " << y << " " << z << " uvw=" << u << " " << v << " " << w
+              << " vol_id=" << id_by_index(3, index_by_handle(volume)) << std::endl;
+  
   return MB_SUCCESS;
 }
 
@@ -565,7 +879,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
 // that edge is at a concavity wrt the volume.  If the point is closest
 // to a vertex in the facetting, it relies on the fact that the closest
 // vertex cannot be a saddle: it must be a strict concavity or convexity.
-ErrorCode DagMC::point_in_volume( EntityHandle volume, 
+/* ErrorCode DagMC::point_in_volume( EntityHandle volume, 
                              double x, double y, double z,
                              int& result,
 			     double u, double v, double w)
@@ -670,6 +984,7 @@ ErrorCode DagMC::point_in_volume( EntityHandle volume,
       
       for (int k = 0; k < len; ++k) {
         const double dot = normal % (coords[k] - closest);
+        // Should the same epsilon the represents distance also represent angle?
         if (dot * dot / norm_len_sqr > epsilon * epsilon) {
           if (dot > 0.0)
             some_above = true;
@@ -706,7 +1021,7 @@ ErrorCode DagMC::point_in_volume( EntityHandle volume,
             << " vol=" << id_by_index(3, index_by_handle(volume)) << std::endl; 
   // For now, proceed with the slow test.
   return point_in_volume_slow( volume, x, y, z, result );
-}
+} */
 
 // use spherical area test to determine inside/outside of a polyhedron.
 ErrorCode DagMC::point_in_volume_slow( EntityHandle volume,
@@ -896,8 +1211,8 @@ ErrorCode DagMC::surface_sense( EntityHandle volume,
   /* The sense tags do not reference the implicit complement handle.
      All surfaces that interact with the implicit complement should have
      a null handle in the direction of the implicit complement. */
-  if (volume == impl_compl_handle)
-    volume = (EntityHandle) 0;
+  //if (volume == impl_compl_handle)
+  //  volume = (EntityHandle) 0;
 
   std::vector<EntityHandle> surf_volumes( 2*num_surfaces );
   ErrorCode rval = MBI->tag_get_data( sense_tag(), surfaces, num_surfaces, &surf_volumes[0] );
@@ -930,8 +1245,8 @@ ErrorCode DagMC::surface_sense( EntityHandle volume,
   /* The sense tags do not reference the implicit complement handle.
      All surfaces that interact with the implicit complement should have
      a null handle in the direction of the implicit complement. */
-  if (volume == impl_compl_handle)
-    volume = (EntityHandle) 0;
+  //if (volume == impl_compl_handle)
+  //  volume = (EntityHandle) 0;
 
     // get sense of surfaces wrt volumes
   EntityHandle surf_volumes[2];
@@ -954,9 +1269,11 @@ ErrorCode DagMC::get_angle(EntityHandle surf,
   EntityHandle root = rootSets[surf - setOffset];
   
   const double in_pt[] = { xxx, yyy, zzz };
-  std::vector<EntityHandle> &facets = triList;
-  facets.clear();
-  ErrorCode rval = obbTree.closest_to_location( in_pt, root, add_dist_tol(), facets );
+  //std::vector<EntityHandle> &facets = triList;
+  std::vector<EntityHandle> facets; // = triList;
+  //facets.clear();
+  //ErrorCode rval = obbTree.closest_to_location( in_pt, root, add_dist_tol(), facets );
+  ErrorCode rval = obbTree.closest_to_location( in_pt, root, numericalPrecision, facets );
   assert(MB_SUCCESS == rval);
   
   CartVect coords[3], normal(0.0);
@@ -1008,6 +1325,7 @@ ErrorCode DagMC::CAD_ray_intersect(const double *point,
       fire_ray(dynamic_cast<RefFace*>(this_face), CubitVector(point),
                CubitVector(dir), ray_params);
     assert(CUBIT_SUCCESS == result);
+    if(CUBIT_SUCCESS != result) return MB_FAILURE;
     if (ray_params.size() != 0) {
       ray_params.reset();
       *dit = ray_params.get();
@@ -1108,7 +1426,7 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
 
 // helper function for point_in_volume_slow.  calculate area of a polygon 
 // projected into a unit-sphere space
-ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, double& area )
+   ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, double& area )
 {
   ErrorCode rval;
   
@@ -1148,11 +1466,11 @@ ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, dou
   for (int i = 0; i < len; ++i) {
     r = coords[i] - point;
     b = coords[(i+1)%len] - coords[i];
-    n1 = a * r;
-    n2 = r * b;
-    s = (n1 % n2) / (n1.length() * n2.length());
-    ang = s <= -1.0 ? M_PI : s >= 1.0 ? 0.0 : acos(s);
-    s = (b * a) % norm;
+    n1 = a * r; // = norm1 (magnitude is important)
+    n2 = r * b; // = norm2 (magnitude is important)
+    s = (n1 % n2) / (n1.length() * n2.length()); // = cos(angle between norm1,norm2)
+    ang = s <= -1.0 ? M_PI : s >= 1.0 ? 0.0 : acos(s); // = acos(s)
+    s = (b * a) % norm; // =orientation of triangle wrt point
     area += s > 0.0 ? M_PI - ang : M_PI + ang;
     a = -b;
   }
@@ -1413,15 +1731,15 @@ void DagMC::parse_settings() {
     exit(2);
   }
 
-  addDistTol = strtod( options[5].value.c_str(), 0 );
-  if (addDistTol <= 0 || addDistTol > 1) {
-    std::cerr << "Invalid add_distance_tolerance = " << addDistTol << std::endl;
+  overlapThickness = strtod( options[1].value.c_str(), 0 );
+  if (overlapThickness < 0 || overlapThickness > 1) {
+    std::cerr << "Invid overlap_thickness = " << overlapThickness << std::endl;
     exit(2);
   }
 
-  discardDistTol = strtod( options[1].value.c_str(), 0 );
-  if (discardDistTol <= 0 || discardDistTol > 1) {
-    std::cerr << "Invalid discard_distance_tolerance = " << discardDistTol << std::endl;
+  numericalPrecision = strtod( options[5].value.c_str(), 0 );
+  if (numericalPrecision <= 0 || numericalPrecision > 1) {
+    std::cerr << "Invalid numerical_precision = " << numericalPrecision << std::endl;
     exit(2);
   }
 
@@ -1441,8 +1759,8 @@ void DagMC::parse_settings() {
 // This is the prefered way to set DAGMC settings
 
 void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
-			 double add_distance_tolerance, 
-			 double discard_distance_tolerance) {
+			 double overlap_thickness, double numerical_precision) {
+
   sourceCell = source_cell;
   if (sourceCell < 0) {
     std::cerr << "Invalid source_cell = " << sourceCell << std::endl;
@@ -1451,22 +1769,21 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 
   std::cout << "Set Source Cell = " << sourceCell << std::endl;
 
-  discardDistTol = discard_distance_tolerance;
-  if (discardDistTol <= 0 || discardDistTol > 1) {
-    std::cerr << "Invalid discard_distance_tolerance = " << discardDistTol << std::endl;
+  overlapThickness = overlap_thickness;
+  if (overlapThickness < 0 || overlapThickness > 1) {
+    std::cerr << "Invalid ovap_thickness = " << overlapThickness << std::endl;
     exit(2);
   }
 
-  std::cout << "Set discard distance tolerance = " << discardDistTol << std::endl;
+  std::cout << "Set overlap thickness = " << overlapThickness << std::endl;
 
-  addDistTol = add_distance_tolerance;
-  if (addDistTol <= 0 || addDistTol > 1) {
-    std::cerr << "Invalid add_distance_tolerance = " << addDistTol << std::endl;
+  numericalPrecision = numerical_precision;
+  if (numericalPrecision <= 0 || numericalPrecision > 1) {
+    std::cerr << "Invalid numerical_precision = " << numericalPrecision << std::endl;
     exit(2);
   }
 
-  std::cout << "Set add distance tolerance = " << addDistTol << std::endl;
-
+  std::cout << "Set numerical precision = " << numericalPrecision << std::endl;
 
   useDistLimit = !!(use_dist_limit);
 
@@ -1480,11 +1797,13 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
 }
 
 void DagMC::get_settings(int *source_cell, int *use_cad, int *use_dist_limit,
-			 double *discard_distance_tolerance, double *facet_tol) {
+			 double *overlap_thickness, double *facet_tol) {
 
   *source_cell = sourceCell;
 
-  *discard_distance_tolerance = discardDistTol;
+  *overlap_thickness = overlapThickness;
+
+  //*numerical_precision = numericalPrecision;
 
   *use_dist_limit = !!(useDistLimit);
 

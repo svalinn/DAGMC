@@ -319,13 +319,27 @@ struct ray_fire {
 
 ErrorCode test_ray_fire( DagMC& dagmc )
 {
+  // Glancing ray-triangle intersections are not valid exit intersections. 
+  // Piercing ray-triangle intersections are valid exit intersections.
+  // "0" destination surface implies that it is ambiguous.
   const struct ray_fire tests[] = {
-  /* src    origin               direction                 dest dist */
+  /* src_srf origin               direction                 dest dist */
+    // piercing edge
     { 1, { 0.0, 0.0, -1. }, { -1.0/ROOT2, 0.0, 1.0/ROOT2 }, 4, ROOT2 },
+    // piercing edge
     { 1, { 0.0, 0.0, -1. }, {  1.0/ROOT2, 0.0, 1.0/ROOT2 }, 2, ROOT2 },
+    // piercing edge
     { 1, { 0.0, 0.0, -1. }, {  0.0, 1.0/ROOT2, 1.0/ROOT2 }, 3, ROOT2 },
+    // piercing edge
     { 1, { 0.5, 0.5, -1. }, {  0.0, 0.0, 1.0 },             6, 1.5   },
-    { 2, { 1.0, 0.0, 0.5 }, { -1.0, 0.0, 0.0 },             6, 0.5   } };
+    // interior
+    { 2, { 1.0, 0.0, 0.5 }, { -1.0, 0.0, 0.0 },             6, 0.5   },
+    // glancing node then piercing edge
+    { 2, { 1.0, 0.0, 0.0 }, { -1.0, 0.0, 0.0 },             4, 2.0   },
+    // piercing node
+    { 1, { 0.0, 0.0, -1. }, {  0.0, 0.0, 1.0 },             6, 1.0   },
+    // glancing edge then interior
+    { 2, { 1.0, 0.0, 0.5 }, { -1.0/ROOT2, 1.0/ROOT2, 0.0 }, 3, ROOT2 } };
 
   ErrorCode rval;
   Interface& moab = *dagmc.moab_instance();
@@ -371,7 +385,7 @@ ErrorCode test_ray_fire( DagMC& dagmc )
       return MB_FAILURE;
     }
     const EntityHandle hit_surf = surf[idx];
-    
+
     double dist;
     EntityHandle result;
     rval = dagmc.ray_fire( vols.front(), 
@@ -410,7 +424,7 @@ ErrorCode test_ray_fire( DagMC& dagmc )
   return MB_SUCCESS;
 }
 
-struct PointInVol { double coords[3]; int result; };
+struct PointInVol { double coords[3]; int result; double dir[3]; };
 
 ErrorCode test_point_in_volume( DagMC& dagmc )
 {
@@ -418,26 +432,32 @@ ErrorCode test_point_in_volume( DagMC& dagmc )
   const char* const* names = NAME_ARR + 1;
   const int INSIDE = 1, OUTSIDE = 0, BOUNDARY = -1;
   const struct PointInVol tests[] = {
-    { { 0.0, 0.0, 0.5 }, OUTSIDE },
-    { { 0.0, 0.0,-0.5 }, INSIDE  },
-    { { 0.7, 0.0, 0.0 }, INSIDE  },
-    { {-0.7, 0.0, 0.0 }, INSIDE  },
-    { { 0.0,-0.7, 0.0 }, INSIDE  },
-    { { 0.0,-0.7, 0.0 }, INSIDE  },
-    { { 1.1, 1.1, 1.1 }, OUTSIDE },
-    { {-1.1, 1.1, 1.1 }, OUTSIDE },
-    { {-1.1,-1.1, 1.1 }, OUTSIDE },
-    { { 1.1,-1.1, 1.1 }, OUTSIDE },
-    { { 1.1, 1.1,-1.1 }, OUTSIDE },
-    { {-1.1, 1.1,-1.1 }, OUTSIDE },
-    { {-1.1,-1.1,-1.1 }, OUTSIDE },
-    { { 1.1,-1.1,-1.1 }, OUTSIDE },
-    { { 1.0, 0.0, 0.0 }, BOUNDARY},
-    { {-1.0, 0.0, 0.0 }, BOUNDARY},
-    { { 0.0, 1.0, 0.0 }, BOUNDARY},
-    { { 0.0,-1.0, 0.0 }, BOUNDARY},
-    { { 0.0, 0.0, 0.0 }, BOUNDARY},
-    { { 0.0, 0.0,-1.0 }, BOUNDARY} };
+    { { 0.0, 0.0, 0.5 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { { 0.0, 0.0,-0.5 }, INSIDE , { 0.0, 0.0, 0.0} },
+    { { 0.7, 0.0, 0.0 }, INSIDE , { 0.0, 0.0, 0.0} },
+    { {-0.7, 0.0, 0.0 }, INSIDE , { 0.0, 0.0, 0.0} },
+    { { 0.0,-0.7, 0.0 }, INSIDE , { 0.0, 0.0, 0.0} },
+    { { 0.0,-0.7, 0.0 }, INSIDE , { 0.0, 0.0, 0.0} },
+    { { 1.1, 1.1, 1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { {-1.1, 1.1, 1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { {-1.1,-1.1, 1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { { 1.1,-1.1, 1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { { 1.1, 1.1,-1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { {-1.1, 1.1,-1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { {-1.1,-1.1,-1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+    { { 1.1,-1.1,-1.1 }, OUTSIDE, { 0.0, 0.0, 0.0} },
+  // Add some directions to test special cases of edge/node intersection
+    { { 0.5, 0.0, 0.0 }, INSIDE,  {-1.0, 0.0, 0.0} },
+    { { 0.5, 0.0, 0.0 }, INSIDE,  { 1.0, 0.0, 0.0} },
+    { { 0.0, 0.0, 2.0 }, OUTSIDE, { 0.0, 0.0,-1.0} },
+    { { 0.5, 0.0,-0.5 }, INSIDE,  {-1.0, 0.0, 0.0} } };
+
+    //    { { 1.0, 0.0, 0.0 }, BOUNDARY}, MCNP doesn't return on boundary
+    //{ {-1.0, 0.0, 0.0 }, BOUNDARY},
+    //{ { 0.0, 1.0, 0.0 }, BOUNDARY},
+    //{ { 0.0,-1.0, 0.0 }, BOUNDARY},
+    //{ { 0.0, 0.0, 0.0 }, BOUNDARY},
+    //{ { 0.0, 0.0,-1.0 }, BOUNDARY} };
   const int num_test = sizeof(tests) / sizeof(tests[0]);
 
   ErrorCode rval;
@@ -457,12 +477,12 @@ ErrorCode test_point_in_volume( DagMC& dagmc )
 
   for (int i = 0; i < num_test; ++i) {
     int result;
-    double u = 2, v = 2, w = 2; // values greater than 1 should get ignored
     rval = dagmc.point_in_volume( vol, 
                                   tests[i].coords[0],
                                   tests[i].coords[1],
                                   tests[i].coords[2],
-                                  result, u, v, w);
+                                  result, tests[i].dir[0],
+                                  tests[i].dir[1], tests[i].dir[2]);
     CHKERR;
     if (result != tests[i].result) {
       std::cerr << "ERROR testing point_in_volume[" << i << "]:" << std::endl

@@ -103,10 +103,11 @@ public:
    * Requires sense of surfaces wrt volume.
    * Return values: {0 : outside, 1: inside, -1: on boundary}
    */
-  ErrorCode point_in_volume( EntityHandle volume, 
-                               double x, double y, double z,
-                               int& result,
-                               double u, double v, double w);
+  ErrorCode point_in_volume(const EntityHandle volume, 
+                            const double x, const double y, const double z,
+                            int& result,
+			    double u, double v, double w,
+			    std::vector<EntityHandle>* prev_facets = NULL );
 
   /**\brief Robust test if a point is inside or outside a volume using unit sphere area method
    *
@@ -223,19 +224,17 @@ public:
   void write_settings( FILE* filp, bool with_description = true );
   /** parse settings read from file - also used to initialize defaults */
   void parse_settings();
-
   /** pass settings from calling application */
   void set_settings(int source_cell, int use_cad, int use_dist_limit,
-		    double add_distance_tolerance,
-		    double discard_distance_tolerance);
+		    double overlap_thickness, double numerical_precision);
   /** return settings to calling application */
   void get_settings(int* source_cell, int* use_cad, int* use_dist_limit,
-		    double* discard_distance_tolerance, double* facet_tol);
+		    double* overlap_thickness, double* facet_tol);
 
-  /** retrieve add distance tolerance */
-  double add_dist_tol() {return addDistTol;}
-  /** retrieve discard distance tolerance */
-  double discard_dist_tol() {return discardDistTol;}
+  /** retrieve overlap thickness */
+  double overlap_thickness() {return overlapThickness;}
+  /** retrieve numerical precision */
+  double numerical_precision() {return numericalPrecision;}
   /** retrieve faceting tolerance */
   double faceting_tolerance() {return facetingTolerance;}
   /** retrieve source cell paramter value */
@@ -374,8 +373,8 @@ private:
   // settings
   Option options[6];
 
-  double discardDistTol;
-  double addDistTol;
+  double overlapThickness;
+  double numericalPrecision;
   double facetingTolerance;
   int sourceCell;
   bool useDistLimit;
@@ -384,9 +383,22 @@ private:
 
   double distanceLimit;
 
-    // temporary storage so functions don't have to reallocate vectors
-  std::vector<EntityHandle> triList, surfList, facetList;
+  // to determine if particle is streaming in ray_fire
+  double u_last, v_last, w_last;
+  int last_n_particles;
+
+  // temporary storage so functions don't have to reallocate vectors
+  // for ray_fire:
   std::vector<double> distList;
+  std::vector<EntityHandle> prevFacetList, surfList, facetList;
+  // for point_in_volume:
+  std::vector<double> disList;
+  std::vector<int>    dirList;
+  std::vector<EntityHandle> surList, facList;
+
+  // for (optional) counting
+  long long int n_pt_in_vol_calls, n_ray_fire_calls;
+
 };
 
 inline DagMC *DagMC::instance(Interface *mb_impl) 
