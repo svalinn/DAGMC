@@ -785,25 +785,21 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
   const double   large       = 1e15;
   const double   ray_length  = large;
 
-  unsigned min_tolerance_intersections;
-  double   keep_all_hits_dist;
-
   // If overlaps occur, the pt is inside if traveling along the ray from the
   // origin, there are ever more exits than entrances. In lieu of implementing
   // that, all intersections to infinity are required if overlaps occur (expensive)
+  unsigned min_tolerance_intersections;
   if(0 != overlapThickness) {
-    min_tolerance_intersections = 1000000;
-    keep_all_hits_dist = large;
+    min_tolerance_intersections = -1;
   // only the first intersection is needed if overlaps do not occur (cheap)
   } else {
     min_tolerance_intersections = 1;
-    keep_all_hits_dist = numericalPrecision;
   }
 
   // Get intersection(s) of forward and reverse orientation. Do not return 
   // glancing intersections or previous facets.
   ErrorCode rval = obbTree.ray_intersect_sets( dists, surfs, facets, root,
-                                               keep_all_hits_dist, 
+                                               numericalPrecision, 
                                                min_tolerance_intersections,
                                                ray_origin, ray_direction,
                                                &ray_length, NULL, NULL, &volume,
@@ -1382,14 +1378,17 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     int len, sense_out;
    
     rval = mbImpl->get_connectivity( facet, conn, len );
-      assert( MB_SUCCESS == rval );
-      assert( 3 == len );
+    assert( MB_SUCCESS == rval );
+    if(MB_SUCCESS != rval) return rval;
+    assert( 3 == len );
   
     rval = mbImpl->get_coords( conn, 3, coords[0].array() );
-      assert(MB_SUCCESS == rval);
+    assert(MB_SUCCESS == rval);
+    if(MB_SUCCESS != rval) return rval;
    
     rval = surface_sense( volume, surface, sense_out );
-      assert( MB_SUCCESS == rval);
+    assert( MB_SUCCESS == rval);
+    if(MB_SUCCESS != rval) return rval;
 
     coords[1] -= coords[0];
     coords[2] -= coords[0];
