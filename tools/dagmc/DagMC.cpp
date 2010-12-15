@@ -152,7 +152,7 @@ DagMC::DagMC(Interface *mb_impl)
   facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, sizeof(double), MB_TAG_SPARSE, MB_TYPE_DOUBLE );
   
     // get sense of surfaces wrt volumes
-  senseTag = get_tag( "GEOM_SENSE_2", 2*sizeof(EntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
+  senseTag = get_tag( "GEOM_SENSE_2", 2*sizeof(EntityHandle), MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
   int matid = 0;
   const void *def_matid = &matid;
