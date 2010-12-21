@@ -195,7 +195,12 @@ int main( int argc, char* argv[] )
   RUN_TEST( test_measure_volume );
   RUN_TEST( test_measure_area );
   RUN_TEST( test_surface_sense );
-  
+ 
+  // change settings to use overlap-tolerant mode 
+  dagmc.set_settings( 0, 0, 0, 0.1, 0.001);
+  RUN_TEST( test_ray_fire );
+  RUN_TEST( test_point_in_volume );
+
   return errors;
 }
 
@@ -450,7 +455,8 @@ ErrorCode test_point_in_volume( DagMC& dagmc )
     { { 0.5, 0.0, 0.0 }, INSIDE,  {-1.0, 0.0, 0.0} },
     { { 0.5, 0.0, 0.0 }, INSIDE,  { 1.0, 0.0, 0.0} },
     { { 0.0, 0.0, 2.0 }, OUTSIDE, { 0.0, 0.0,-1.0} },
-    { { 0.5, 0.0,-0.5 }, INSIDE,  {-1.0, 0.0, 0.0} } };
+    { { 0.5, 0.0,-0.5 }, INSIDE,  {-1.0, 0.0, 0.0} },
+    { { 0.5,-0.5,-2.0 }, OUTSIDE, { 0.0, 0.0, 1.0} } };
 
     //    { { 1.0, 0.0, 0.0 }, BOUNDARY}, MCNP doesn't return on boundary
     //{ {-1.0, 0.0, 0.0 }, BOUNDARY},
