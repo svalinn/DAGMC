@@ -119,7 +119,9 @@ unsigned int DagMC::interface_revision()
 }
 
 DagMC::DagMC(Interface *mb_impl) 
-  : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false)
+  : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false),
+    u_last(0), v_last(0), w_last(0), last_n_particles(-1), 
+    n_pt_in_vol_calls(0), n_ray_fire_calls(0)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
   options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
@@ -165,10 +167,6 @@ DagMC::DagMC(Interface *mb_impl)
   const void *def_imp = &imp_one;
   impTag   = get_tag(IMP_TAG_NAME, sizeof(double), MB_TAG_DENSE, MB_TYPE_DOUBLE, def_imp );
   tallyTag = get_tag(TALLY_TAG_NAME, sizeof(int), MB_TAG_SPARSE, MB_TYPE_INTEGER);
-
-  // get some statistics for the computer geometry folks
-  n_ray_fire_calls  = 0;
-  n_pt_in_vol_calls = 0;
 
 }
 
