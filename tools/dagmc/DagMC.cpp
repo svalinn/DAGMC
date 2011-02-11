@@ -67,11 +67,9 @@ namespace moab {
                    of results
  
    Overlap Thickness:
-   This tolerance is the maximum normal distance between two overlapping
-   volumes. This should be zero unless geometry has overlaps. User must provide
-   guidance about the magnitude of overlaps. Overlap thickness depends upon 
-   geometric model and must be small enough not to significantly affect physics.
-   For CAD models, 0.1 cm is suggested.
+   This tolerance is the maximum distance across an overlap. It should be zero 
+   unless the geometry has overlaps. The overlap thickness is set using the dagmc 
+   card. Overlaps must be small enough not to significantly affect physics.
      Performance: increasing tolerance decreases performance
      Robustness:  increasing tolerance increases robustness
      Knowledge:   user must have intuition of overlap thickness
@@ -583,47 +581,27 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
     prev_facets.clear();
   }
 
+  // check behind the ray origin for intersections
   double neg_ray_len;
-  // no overlaps
   if(0 == overlapThickness) {
     neg_ray_len = -numericalPrecision;
-
-  // overlaps
   } else {
-    // If the previous facet (surface) is unknown, use large neg_ray_len. 
-    // Although an overlap does not occur after a collision, it may occur after 
-    // a particle starts on a surface (cell-based weight windows).
-    if(prev_facets.empty()) {
-      neg_ray_len = -100*overlapThickness;
-
-    // if the previous facet is known, use the angle made with the normal
-    } else {
-      // get coords of prev facet
-      const EntityHandle* conn;
-      int len;
-      CartVect coords[3], normal;
-      rval = MBI->get_connectivity( prev_facets.back(), conn, len );
-      if (MB_SUCCESS != rval || len != 3) return MB_FAILURE;
-      rval = MBI->get_coords( conn, len, coords[0].array() );
-      if (MB_SUCCESS != rval) return rval;
-      // get normal of prev facet
-      coords[1] -= coords[0];
-      coords[2] -= coords[0];
-      normal = coords[1] * coords[2];
-      normal.normalize();
-      double dot_prod = dir[0]*normal[0] + dir[1]*normal[1] + dir[2]*normal[2];
-      // get neg_ray_len
-      neg_ray_len = -overlapThickness/fabs(dot_prod);
-    }
+    neg_ray_len = -overlapThickness;
   }
 
   // optionally, limit the nonneg_ray_len with the distance to next collision.
-  double physics_limit = use_dist_limit() ? distance_limit() : huge_val;
-  
-  // ensure that neg_ray_len <= physics_limit
-  if(physics_limit < -neg_ray_len) neg_ray_len = -physics_limit;
-  assert(0 <= physics_limit);
-  assert(0 > neg_ray_len);
+  double nonneg_ray_len;
+  if(use_dist_limit()) {
+    nonneg_ray_len = distance_limit();
+  } else {
+    nonneg_ray_len = huge_val;
+  }
+
+  // the nonneg_ray_len should not be less than -neg_ray_len, or an overlap 
+  // may be missed due to optimization within ray_intersect_sets
+  if(nonneg_ray_len < -neg_ray_len) nonneg_ray_len = -neg_ray_len;
+  assert(0 <= nonneg_ray_len);
+  assert(0 >     neg_ray_len);
   
   // min_tolerance_intersections is passed but not used in this call
   const int min_tolerance_intersections = 0;
@@ -636,7 +614,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
   rval = obbTree.ray_intersect_sets( dists, surfs, facets,
                                      root, numericalPrecision, 
                                      min_tolerance_intersections,
-                                     point, dir, &physics_limit,
+                                     point, dir, &nonneg_ray_len,
                                      stats, &neg_ray_len, &vol, &senseTag, 
                                      &desired_orientation, &prev_facets );
   assert( MB_SUCCESS == rval );
@@ -644,7 +622,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
 
   // if useCAD is true at this point, then we know we can call CGM's ray casting function.
   if (useCAD) {
-    rval = CAD_ray_intersect(point, dir, huge_val, dists, surfs, physics_limit);
+    rval = CAD_ray_intersect( point, dir, huge_val, dists, surfs, nonneg_ray_len );
     if (MB_SUCCESS != rval) return rval;
   }
   
@@ -655,7 +633,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
   if( dists.empty() ) {
     next_surf_hit = 0;
     // Make this large enough so that the physics limit is not reached first!
-    dist_traveled = (use_dist_limit() ? physics_limit*10.0 : huge_val);
+    dist_traveled = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
     if(debug) {
       std::cout << "          next_surf_hit=" << 0 << " dist=" << dist_traveled << std::endl;
     }
@@ -832,17 +810,19 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
     if(0<sum)                          result = 0; // pt is outside (for all vols)
     else if(0>sum)                     result = 1; // pt is inside  (for all vols)
     else if(impl_compl_handle==volume) result = 1; // pt is inside  (for impl_compl_vol)
-    else                               result = 0; // pt is inside  (for all other vols)
+    else                               result = 0; // pt is outside (for all other vols)
 
   // Only use the first crossing
   } else {
       if( dirs.empty() ) {
-      result = 0; // pt is inside
+      result = 0; // pt is outside
     } else {
       int smallest = std::min_element( dists.begin(), dists.end() ) - dists.begin();
-      if     ( 1==dirs[smallest] ) result = 0; // pt is inside
-      else if( 0==dirs[smallest] ) result = 1; // pt is outside
-      else if(-1==dirs[smallest] ) {           // should not be here
+      if     ( 1==dirs[smallest] ) result = 0; // pt is outside
+      else if( 0==dirs[smallest] ) result = 1; // pt is inside
+      else if(-1==dirs[smallest] ) {
+        // Should not be here because Plucker ray-triangle test does not 
+        // return coplanar rays as intersections. 
         std::cout << "direction==tangent" << std::endl;
         result = -1;
       } else {
@@ -1729,8 +1709,8 @@ void DagMC::parse_settings() {
   }
 
   overlapThickness = strtod( options[1].value.c_str(), 0 );
-  if (overlapThickness < 0 || overlapThickness > 1) {
-    std::cerr << "Invid overlap_thickness = " << overlapThickness << std::endl;
+  if (overlapThickness < 0 || overlapThickness > 100) {
+    std::cerr << "Invalid overlap_thickness = " << overlapThickness << std::endl;
     exit(2);
   }
 
@@ -1767,8 +1747,8 @@ void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
   std::cout << "Set Source Cell = " << sourceCell << std::endl;
 
   overlapThickness = overlap_thickness;
-  if (overlapThickness < 0 || overlapThickness > 1) {
-    std::cerr << "Invalid ovap_thickness = " << overlapThickness << std::endl;
+  if (overlapThickness < 0 || overlapThickness > 100) {
+    std::cerr << "Invalid overlap_thickness = " << overlapThickness << std::endl;
     exit(2);
   }
 
