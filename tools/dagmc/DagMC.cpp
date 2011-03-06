@@ -651,7 +651,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
   // If both negative and nonnegative RTIs are returned, the negative RTI must
   // closer to the origin.
   if(0!=facets[0] && 0!=facets[1]) {
-    assert(-dists[0] < dists[1]);
+    assert(-dists[0] <= dists[1]);
   }
 
   // If an RTI is found at negative distance, perform a PMT to see if the 
