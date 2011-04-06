@@ -441,6 +441,9 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
   ErrorCode rval;
   std::vector<EntityHandle> parent_vols;
   
+  int impl_compl_surf_count = 0;
+  double impl_compl_surf_area = 0.0;
+
     // search through all surfaces  
   for (Range::iterator surf_i = surfs.begin(); surf_i != surfs.end(); ++surf_i) {
     
@@ -452,6 +455,12 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
 
       // if only one parent, get the OBB root for this surface
     if (parent_vols.size() == 1 ) {
+
+      double a;
+      measure_area( *surf_i, a );
+      impl_compl_surf_count += 1;
+      impl_compl_surf_area  += a;
+
       rval = MBI->tag_get_data( obbTag, &*surf_i, 1, &surf_obb_root );
       if (MB_SUCCESS != rval)
         return rval;
@@ -483,6 +492,14 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
       if (MB_SUCCESS != rval)  return rval;
 
     }  
+  }
+  // print info about the implicit complement if one was created
+  if( impl_compl_surf_count ){
+    bool one = (impl_compl_surf_count == 1);
+    std::cout << "The implicit complement bounds " << impl_compl_surf_count
+	      << (one ? " surface" : " surfaces") << std::endl;
+    std::cout << "The implicit complement's total surface area = " 
+	      << impl_compl_surf_area << std::endl;
   }
   
     // join surface trees to make OBB tree for implicit complement
@@ -1106,7 +1123,7 @@ ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
     if (MB_SUCCESS != rval) 
       return rval;
     if (!triangles.all_of_type(MBTRI)) {
-      std::cout << "WARNING: Surface " << id_by_index(2, index_by_handle(surfaces[i]))
+      std::cout << "WARNING: Surface " << get_entity_id(surfaces[i])
                 << " contains non-triangle elements. Volume calculation may be incorrect." 
                 << std::endl;
       triangles.clear();
@@ -1146,7 +1163,7 @@ ErrorCode DagMC::measure_area( EntityHandle surface, double& result )
   if (MB_SUCCESS != rval) 
     return rval;
   if (!triangles.all_of_type(MBTRI)) {
-    std::cout << "WARNING: Surface " << id_by_index(2, index_by_handle(surface))
+    std::cout << "WARNING: Surface " << get_entity_id(surface)
               << " contains non-triangle elements. Area calculation may be incorrect." 
               << std::endl;
     triangles.clear();
