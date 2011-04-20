@@ -1292,12 +1292,23 @@ ErrorCode DagMC::get_angle(EntityHandle surf,
 
 /* SECTION II (private) */
 
-ErrorCode DagMC::CAD_ray_intersect(const double *point, 
-                                      const double *dir, 
-                                      const double huge_val,
-                                      std::vector<double> &distances,
-                                      std::vector<EntityHandle> &surfaces, 
-                                      double &len) 
+ErrorCode DagMC::CAD_ray_intersect(
+#if defined(CGM) && defined(HAVE_CGM_FIRE_RAY)
+    const double *point, 
+    const double *dir, 
+    const double huge_val,
+    std::vector<double> &distances,
+    std::vector<EntityHandle> &surfaces, 
+    double &len
+#else
+    const double *, 
+    const double *, 
+    const double ,
+    std::vector<double> &,
+    std::vector<EntityHandle> &, 
+    double &
+#endif
+) 
 {
 #ifdef CGM
 #ifndef HAVE_CGM_FIRE_RAY
@@ -1948,8 +1959,8 @@ ErrorCode DagMC::parse_metadata()
       } else {
 	grp_ents.clear();
 	grp_ents = intersect(grp_sets,vols);
-	for (Range::iterator grp =grp_ents.begin();grp!=grp_ents.end();grp++)
-	  MBI->tag_set_data(compTag, &(*grp), 1, namebuf);
+	for (Range::iterator grpit =grp_ents.begin();grpit!=grp_ents.end();grpit++)
+	  MBI->tag_set_data(compTag, &(*grpit), 1, namebuf);
       }
       break;
     case BC_SPEC:
@@ -2016,10 +2027,9 @@ ErrorCode DagMC::get_volume_metadata(EntityHandle volume, DagmcVolData &volData)
 
 bool DagMC::is_graveyard(EntityHandle volume) 
 {
-  ErrorCode rval;
   double imp;
 
-  rval = MBI->tag_get_data( impTag, &volume, 1, &imp);
+  MBI->tag_get_data( impTag, &volume, 1, &imp);
   if (0.0 == imp)
     return true;
   else
@@ -2091,7 +2101,7 @@ ErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
   std::cout << " # groups: " << group_handles().size()-1 << std::endl;
   std::cout << "# tallies: " << tallyList.size() << std::endl;
 
-  Range grp_sets, grp_ents;
+  Range grp_sets;
   ErrorCode rval;
 
   Range surfs, vols;
