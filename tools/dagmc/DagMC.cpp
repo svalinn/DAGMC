@@ -781,7 +781,7 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
   // If overlaps occur, the pt is inside if traveling along the ray from the
   // origin, there are ever more exits than entrances. In lieu of implementing
   // that, all intersections to infinity are required if overlaps occur (expensive)
-  unsigned min_tolerance_intersections;
+  int min_tolerance_intersections;
   if(0 != overlapThickness) {
     min_tolerance_intersections = -1;
   // only the first intersection is needed if overlaps do not occur (cheap)
