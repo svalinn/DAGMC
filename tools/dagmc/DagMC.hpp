@@ -278,6 +278,7 @@ public:
   bool is_graveyard(EntityHandle volume);
   bool is_spec_reflect(EntityHandle surf);
   bool is_white_reflect(EntityHandle surf);
+  bool is_implicit_complement(EntityHandle volume);
 
   /** write metadata to temporary file for use by MCNP5 */
   ErrorCode write_mcnp(std::string ifile, const bool overwrite = true);

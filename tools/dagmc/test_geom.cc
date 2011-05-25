@@ -391,8 +391,8 @@ ErrorCode test_surface_sense( DagMC& dagmc )
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, ptrs+1, 1, vols );
   CHKERR;
   
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() << std::endl;
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
     return MB_FAILURE;
   }
   if (surfs.size() != 6) {
@@ -428,8 +428,8 @@ ErrorCode overlap_test_surface_sense( DagMC& dagmc )
                                             ptrs+1, 1, vols );
   CHKERR;
   
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() 
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() 
               << std::endl;
     return MB_FAILURE;
   }
@@ -462,8 +462,8 @@ ErrorCode test_measure_volume( DagMC& dagmc )
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, &ptr, 1, vols );
   CHKERR;
   
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() << std::endl;
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
     return MB_FAILURE;
   }
   
@@ -494,8 +494,8 @@ ErrorCode overlap_test_measure_volume( DagMC& dagmc )
                                             &ptr, 1, vols );
   CHKERR;
   
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() 
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() 
               << std::endl;
     return MB_FAILURE;
   }
@@ -648,8 +648,8 @@ ErrorCode test_ray_fire( DagMC& dagmc )
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, ptrs+1, 1, vols );
   CHKERR;
   
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() << std::endl;
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
     return MB_FAILURE;
   }
   if (surfs.size() != 6) {
@@ -773,8 +773,8 @@ ErrorCode overlap_test_ray_fire( DagMC& dagmc )
                                             ptrs+1, 1, vols );
   CHKERR;
   
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() 
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() 
               << std::endl;
     return MB_FAILURE;
   }
@@ -893,8 +893,8 @@ ErrorCode test_point_in_volume( DagMC& dagmc )
   const void* ptr = &three;
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, &ptr, 1, vols );
   CHKERR;
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() << std::endl;
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
     return MB_FAILURE;
   }
   const EntityHandle vol = vols.front();
@@ -986,8 +986,8 @@ ErrorCode overlap_test_point_in_volume( DagMC& dagmc )
   rval = moab.get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag,
                                             &ptr, 1, vols );
   CHKERR;
-  if (vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 volume in input, found " << vols.size() 
+  if (vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() 
               << std::endl;
     return MB_FAILURE;
   }
@@ -1059,8 +1059,8 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
                                             ptrs+1, 1, explicit_vols );
   CHKERR;
   
-  if (explicit_vols.size() != 1) {
-    std::cerr << "ERROR: Expected 1 explicit volume in input, found " 
+  if (explicit_vols.size() != 2) {
+    std::cerr << "ERROR: Expected 2 explicit volumes in input, found " 
               << explicit_vols.size() << std::endl;
     return MB_FAILURE;
   }

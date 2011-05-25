@@ -513,6 +513,19 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
   if (MB_SUCCESS != rval)
     return rval;
   
+  // following ReadCGM, assign dimension and category tags
+  int three = 3;
+  rval = MBI->tag_set_data(geomTag, &impl_compl_handle, 1, &three );
+  if (MB_SUCCESS != rval)
+    return rval;
+
+  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_LENGTH, 
+	  		     MB_TAG_SPARSE, MB_TYPE_OPAQUE);
+  static const char volume_category[CATEGORY_TAG_SIZE] = "Volume\0";
+  rval = MBI->tag_set_data(category_tag, &impl_compl_handle, 1, volume_category );
+  if (MB_SUCCESS != rval)
+    return rval;
+
   return MB_SUCCESS;
 
 }
@@ -1562,7 +1575,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     entIndices[*rit-setOffset] = idx++;
     int result=0;
     MBI->tag_get_data( idTag, &*rit, 1, &result );
-    max_id = (max_id > result ? max_id : result);
+    max_id = std::max( max_id, result ); 
   }
     // add implicit complement to entity index
   entIndices[impl_compl_handle-setOffset] = idx++ ;
@@ -1572,7 +1585,6 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   MBI->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
   
 
- 
 #ifdef CGM
   if ( have_cgm_geom ) {
     // TODO: this block should only execute if the user has explicitly requested useCAD for ray firing.
@@ -2070,6 +2082,11 @@ bool DagMC::is_white_reflect(EntityHandle surf)
 
 }
 
+bool DagMC::is_implicit_complement(EntityHandle volume)
+{
+  return volume == impl_compl_handle;
+}
+
 
 ErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite) 
 {
@@ -2127,7 +2144,7 @@ ErrorCode DagMC::write_mcnp(std::string ifile, const bool overwrite)
       if (MB_SUCCESS != rval) return rval;
       cgmfile << cellid << " " << matid << " " << density << " imp:n=" << imp ;
     }      
-    if (*iter == impl_compl_handle)
+    if ( is_implicit_complement(*iter) )
       cgmfile << "   $ implicit complement ";
     cgmfile << std::endl;
   }
