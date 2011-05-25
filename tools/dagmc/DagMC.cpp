@@ -245,7 +245,8 @@ ErrorCode DagMC::load_file(const char* cfile,
   }
   else if (MB_SUCCESS == rval) {
     // check to see if interface is tagged
-    rval = MBI->tag_get_data( facetingTolTag, 0, 0, &facet_tol_tagvalue );
+    EntityHandle root = 0;
+    rval = MBI->tag_get_data( facetingTolTag, &root, 1, &facet_tol_tagvalue );
     if (MB_SUCCESS == rval) root_tagged = true;
     else rval = MB_SUCCESS;
   }
