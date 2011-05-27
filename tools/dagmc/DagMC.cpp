@@ -1280,6 +1280,7 @@ ErrorCode DagMC::get_angle(EntityHandle surf,
   //ErrorCode rval = obbTree.closest_to_location( in_pt, root, add_dist_tol(), facets );
   ErrorCode rval = obbTree.closest_to_location( in_pt, root, numericalPrecision, facets );
   assert(MB_SUCCESS == rval);
+  if (MB_SUCCESS != rval) return rval;
   
   CartVect coords[3], normal(0.0);
   const EntityHandle *conn;
