@@ -227,12 +227,24 @@ ErrorCode DagMC::load_file(const char* cfile,
   }
 #endif
 
+  return finish_loading();
 
+}
+
+ErrorCode DagMC::load_existing_contents( ){
+  
+  return finish_loading();
+}
+
+ErrorCode DagMC::finish_loading()
+{
+
+  ErrorCode rval;
   // search for a tag that has the faceting tolerance
   Range tagged_sets;
   double facet_tol_tagvalue = 0;
   bool other_set_tagged = false, root_tagged = false;
-
+  
   // get list of entity sets that are tagged with faceting tolerance 
   // (possibly empty set)
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &facetingTolTag,
@@ -250,7 +262,7 @@ ErrorCode DagMC::load_file(const char* cfile,
     if (MB_SUCCESS == rval) root_tagged = true;
     else rval = MB_SUCCESS;
   }
-
+  
   if ( (root_tagged || other_set_tagged) && facet_tol_tagvalue > 0) {
     facetingTolerance = facet_tol_tagvalue;
   }

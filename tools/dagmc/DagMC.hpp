@@ -56,6 +56,18 @@ public:
   ErrorCode load_file(const char* cfile,
 			const double facet_tolerance = 0);
 
+  /*\brief Use pre-loaded geometry set
+   *
+   * Works like load_file, but using data that has been externally 
+   * loaded into DagMC's MOAB instance. 
+   * Only one of the two functions should be called.
+   * 
+   * TODO: this function should accept a parameter, being the
+   * entity set to use for DagMC's data.  Currently DagMC always
+   * assumes that all the contents of its MOAB instance belong to it.
+   */
+  ErrorCode load_existing_contents();
+
   /**\brief initialize the OBB tree structure for ray firing acceleration
    *
    * This method generates an OBB tree from the faceted representation of
@@ -65,6 +77,9 @@ public:
   ErrorCode init_OBBTree();
 
 private:
+  /** loading code shared by load_file and load_existing_contents */
+  ErrorCode finish_loading(); 
+
   /** test for existing OBB Tree */
   bool have_obb_tree();
 
