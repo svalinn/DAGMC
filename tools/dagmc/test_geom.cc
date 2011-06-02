@@ -97,23 +97,20 @@ ErrorCode write_geometry( const char* output_file_name )
   }
   
   Tag dim_tag, id_tag, sense_tag;
-  rval = moab.tag_create( GEOM_DIMENSION_TAG_NAME,
-                          sizeof(int),
-                          MB_TAG_SPARSE,
-                          MB_TYPE_INTEGER,
-                          dim_tag, 0, true );
+  rval = moab.tag_get_handle( GEOM_DIMENSION_TAG_NAME, 
+                              1, MB_TYPE_INTEGER, 
+                              dim_tag,
+                              MB_TAG_SPARSE|MB_TAG_CREAT );
   CHKERR;
-  rval = moab.tag_create( GLOBAL_ID_TAG_NAME,
-                          sizeof(int),
-                          MB_TAG_DENSE,
-                          MB_TYPE_INTEGER,
-                          id_tag, 0, true );
+  rval = moab.tag_get_handle( GLOBAL_ID_TAG_NAME, 
+                              1, MB_TYPE_INTEGER, 
+                              id_tag,
+                              MB_TAG_DENSE|MB_TAG_CREAT );
   CHKERR;
-  rval = moab.tag_create( "GEOM_SENSE_2",
-                           2*sizeof(EntityHandle),
-                           MB_TAG_SPARSE,
-                           MB_TYPE_HANDLE,
-                           sense_tag, 0, true );
+  rval = moab.tag_get_handle( "GEOM_SENSE_2", 
+                              2, MB_TYPE_HANDLE, 
+                              sense_tag,
+                              MB_TAG_SPARSE|MB_TAG_CREAT );
   CHKERR;
 
   std::vector<int> dims( num_surfs, 2 );
@@ -225,23 +222,20 @@ ErrorCode overlap_write_geometry( const char* output_file_name )
   }
   
   Tag dim_tag, id_tag, sense_tag;
-  rval = moab.tag_create( GEOM_DIMENSION_TAG_NAME,
-                          sizeof(int),
-                          MB_TAG_SPARSE,
-                          MB_TYPE_INTEGER,
-                          dim_tag, 0, true );
+  rval = moab.tag_get_handle( GEOM_DIMENSION_TAG_NAME, 
+                              1, MB_TYPE_INTEGER, 
+                              dim_tag,
+                              MB_TAG_SPARSE|MB_TAG_CREAT );
   CHKERR;
-  rval = moab.tag_create( GLOBAL_ID_TAG_NAME,
-                          sizeof(int),
-                          MB_TAG_DENSE,
-                          MB_TYPE_INTEGER,
-                          id_tag, 0, true );
+  rval = moab.tag_get_handle( GLOBAL_ID_TAG_NAME, 
+                              1, MB_TYPE_INTEGER, 
+                              id_tag,
+                              MB_TAG_DENSE|MB_TAG_CREAT );
   CHKERR;
-  rval = moab.tag_create( "GEOM_SENSE_2",
-                           2*sizeof(EntityHandle),
-                           MB_TAG_SPARSE,
-                           MB_TYPE_HANDLE,
-                           sense_tag, 0, true );
+  rval = moab.tag_get_handle( "GEOM_SENSE_2", 
+                              2, MB_TYPE_HANDLE, 
+                              sense_tag,
+                              MB_TAG_SPARSE|MB_TAG_CREAT );
   CHKERR;
 
   std::vector<int> dims( num_surfs, 2 );

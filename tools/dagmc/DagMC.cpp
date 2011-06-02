@@ -143,28 +143,28 @@ DagMC::DagMC(Interface *mb_impl)
 
   nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
   
-  idTag = get_tag( GLOBAL_ID_TAG_NAME, sizeof(int), MB_TAG_DENSE, MB_TYPE_INTEGER );
+  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
   
-  geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TAG_DENSE, MB_TYPE_INTEGER );
+  geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
 
-  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, sizeof(EntityHandle), MB_TAG_DENSE, MB_TYPE_HANDLE );
+  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
 
-  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, sizeof(double), MB_TAG_SPARSE, MB_TYPE_DOUBLE );
+  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
   
     // get sense of surfaces wrt volumes
-  senseTag = get_tag( "GEOM_SENSE_2", 2*sizeof(EntityHandle), MB_TAG_SPARSE, MB_TYPE_HANDLE );
+  senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
   int matid = 0;
   const void *def_matid = &matid;
-  matTag   = get_tag(MATERIAL_TAG_NAME, sizeof(int), MB_TAG_DENSE, MB_TYPE_INTEGER, def_matid );
-  densTag  = get_tag(DENSITY_TAG_NAME, sizeof(double), MB_TAG_DENSE, MB_TYPE_DOUBLE );
+  matTag   = get_tag(MATERIAL_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER, def_matid );
+  densTag  = get_tag(DENSITY_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE );
   compTag  = get_tag(COMP_TAG_NAME, COMP_NAME_TAG_LENGTH, MB_TAG_SPARSE, MB_TYPE_OPAQUE );
-  bcTag    = get_tag(BC_TAG_NAME, sizeof(int), MB_TAG_SPARSE, MB_TYPE_INTEGER);
+  bcTag    = get_tag(BC_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
 
   double imp_one = 1;
   const void *def_imp = &imp_one;
-  impTag   = get_tag(IMP_TAG_NAME, sizeof(double), MB_TAG_DENSE, MB_TYPE_DOUBLE, def_imp );
-  tallyTag = get_tag(TALLY_TAG_NAME, sizeof(int), MB_TAG_SPARSE, MB_TYPE_INTEGER);
+  impTag   = get_tag(IMP_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE, def_imp );
+  tallyTag = get_tag(TALLY_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
 
 }
 
@@ -2324,7 +2324,7 @@ bool DagMC::get_group_names(EntityHandle group_set,
     sprintf(name0, "%s%s%d", "EXTRA_", NAME_TAG_NAME, extra_num);
     extra_num++;
     Tag this_tag = get_tag(name0, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, 
-                             false);
+                            0, false);
     if (0 == this_tag) break;
     std::fill(name0, name0+NAME_TAG_SIZE, '\0');
     result = MBI->tag_get_data(this_tag, &group_set, 1, &name0);
@@ -2341,8 +2341,14 @@ Tag DagMC::get_tag( const char* name, int size, TagType store,
 		      bool create_if_missing) 
 {
   Tag retval = 0;
-  ErrorCode result = MBI->tag_create(name, size, store, type,
-                                                   retval, def_value, create_if_missing);
+  unsigned flags = store|MB_TAG_CREAT;
+  // NOTE: this function seens to be broken in that create_if_missing has
+  // the opposite meaning from what its name implies.  However, changing the
+  // behavior causes tests to fail, so I'm leaving the existing behavior
+  // in place.  -- j.kraftcheck.
+  if (!create_if_missing)  
+    flags |= MB_TAG_EXCL;
+  ErrorCode result = MBI->tag_get_handle(name, size, type, retval, flags, def_value);
   if (create_if_missing && MB_SUCCESS != result) 
     std::cerr << "Couldn't find nor create tag named " << name << std::endl;
   
