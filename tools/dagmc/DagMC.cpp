@@ -141,31 +141,7 @@ DagMC::DagMC(Interface *mb_impl)
 
   distanceLimit = std::numeric_limits<double>::max();
 
-  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
-  
-  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
-  
-  geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
-
-  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
-
-  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
-  
-    // get sense of surfaces wrt volumes
-  senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
-
-  int matid = 0;
-  const void *def_matid = &matid;
-  matTag   = get_tag(MATERIAL_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER, def_matid );
-  densTag  = get_tag(DENSITY_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE );
-  compTag  = get_tag(COMP_TAG_NAME, COMP_NAME_TAG_LENGTH, MB_TAG_SPARSE, MB_TYPE_OPAQUE );
-  bcTag    = get_tag(BC_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
-
-  double imp_one = 1;
-  const void *def_imp = &imp_one;
-  impTag   = get_tag(IMP_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE, def_imp );
-  tallyTag = get_tag(TALLY_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
-
+ 
 }
 
 
@@ -240,6 +216,37 @@ ErrorCode DagMC::finish_loading()
 {
 
   ErrorCode rval;
+
+
+  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
+  
+  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
+  
+  geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
+
+  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
+
+  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
+  
+    // get sense of surfaces wrt volumes
+  std::cerr << "Geom sense 2 tag make, DagMC" << std::endl;
+  EntityHandle geom_sense_default[2] = {0,0};
+  senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE, NULL );
+
+  int matid = 0;
+  const void *def_matid = &matid;
+  matTag   = get_tag(MATERIAL_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER, def_matid );
+  densTag  = get_tag(DENSITY_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE );
+  compTag  = get_tag(COMP_TAG_NAME, COMP_NAME_TAG_LENGTH, MB_TAG_SPARSE, MB_TYPE_OPAQUE );
+  bcTag    = get_tag(BC_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
+
+  double imp_one = 1;
+  const void *def_imp = &imp_one;
+  impTag   = get_tag(IMP_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE, def_imp );
+  tallyTag = get_tag(TALLY_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
+
+
+
   // search for a tag that has the faceting tolerance
   Range tagged_sets;
   double facet_tol_tagvalue = 0;

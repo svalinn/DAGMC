@@ -305,8 +305,8 @@ int main( int argc, char* argv[] )
   }
   
   DagMC& dagmc = *DagMC::instance();
-  rval = dagmc.moab_instance()->load_file( filename );
-  //rval = dagmc.load_file( filename, 0 );
+  //rval = dagmc.moab_instance()->load_file( filename );
+  rval = dagmc.load_file( filename, 0 );
   remove( filename );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file." << std::endl;
