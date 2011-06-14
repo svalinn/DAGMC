@@ -229,9 +229,7 @@ ErrorCode DagMC::finish_loading()
   facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
   
     // get sense of surfaces wrt volumes
-  std::cerr << "Geom sense 2 tag make, DagMC" << std::endl;
-  EntityHandle geom_sense_default[2] = {0,0};
-  senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE, NULL );
+  senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
   int matid = 0;
   const void *def_matid = &matid;
