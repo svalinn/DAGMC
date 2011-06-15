@@ -95,21 +95,76 @@ private:
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
 public:
-  /**\brief find the next surface crossing from a current point in a given direction
+
+  /**\brief State object used in calls to ray_fire()
+   * 
+   * Storage for the "history" of a ray.  This represents the surface facets 
+   * that the ray is known to have crossed, which cannot be crossed again 
+   * as long as the ray does not change direction.  It is intended to be used
+   * with a series of consecutive calls to ray_fire(), in which a ray passes
+   * over potentially many surfaces. 
+   */
+  class RayHistory {
+
+  public:
+    /** 
+     * Clear this entire history-- logically equivalent to creating a new history,
+     * but probably more efficient.
+     */ 
+    void reset();
+
+    /**
+     * Clear the history up to the most recent intersection.  This should be
+     * called when a ray changes direction at the site of a surface crossing,
+     * a situation that most commonly occurs at a reflecting boundary.
+     */ 
+    void reset_to_last_intersection(); 
+
+  private:    
+    std::vector<EntityHandle> prev_facets;
+
+    friend class DagMC;
+    
+  };
+
+  /**\brief find the next surface crossing from a given point in a given direction
    *
    * This is the primary method of DagMC, enabling ray tracing through a geometry.
-   * This method will fire a ray from the point xxx,yyy,zzz in the direction uuu,vvv,www
-   * within the current cell and determine the next surface that is hit (next_surf_hit)
-   * and the distance traveled (dist_traveled) to that surface.
+   * Given a volume and a ray, it computes the surface ID and distance to the 
+   * nearest intersection on that volume.  The caller can compute the location of 
+   * the intersection by adding the distance to the ray.
+   *
+   * When a series of calls to this function are made along the same ray (e.g. for
+   * the purpose of tracking a ray through several volumes), the optional history 
+   * argument should be given.  The history prevents previously intersected facets
+   * from being intersected again.  A single history should be used as long as a 
+   * ray is proceeding forward without changing direction.  This situation is 
+   * sometimes referred to as "streaming." 
+   * 
+   * If a ray changes direction at an intersection site, the caller should call
+   * reset_to_last_intersection() on the history object before the next ray fire.
+   * 
+   * @param volume The volume to fire the ray at. 
+   * @param ray_start An array of x,y,z coordinates from which to start the ray.
+   * @param ray_dir An array of x,y,z coordinates indicating the direction of the ray.
+   *                Must be of unit length.
+   * @param next_surf Output parameter indicating the next surface intersected by the ray.
+   *                If no intersection is found, will be set to 0.
+   * @param next_surf_dist Output parameter indicating distance to next_surf.  If next_surf is
+   *                0, this value should not be used.
+   * @param history Optional RayHistory object.  If provided, the facets in the history are 
+   *                assumed to not intersect with the given ray.  The facet intersected 
+   *                by this query will also be added to the history.
+   * @param stats Optional TrvStats object used to measure performance of underlying OBB
+   *              ray-firing query.  See OrientedBoxTreeTool.hpp for details.
+   * 
    */
-  ErrorCode ray_fire(const EntityHandle cell, const EntityHandle last_surf_hit, 
-                       const int num_pts,
-                       const double uuu, const double vvv, const double www,
-                       const double xxx, const double yyy, const double zzz,
-                       const double huge_val,
-                       double &dist_traveled, EntityHandle &next_surf_hit,
-                       OrientedBoxTreeTool::TrvStats* stats = NULL );
-
+  ErrorCode ray_fire(const EntityHandle volume, 
+                     const double ray_start[3], const double ray_dir[3],
+                     EntityHandle& next_surf, double& next_surf_dist,
+                     RayHistory* history = NULL, 
+                     OrientedBoxTreeTool::TrvStats* stats = NULL );
+  
   /**\brief Test if a point is inside or outside a volume using an OBB Tree
    *
    * This method finds the point on the boundary of the volume that is nearest
@@ -398,10 +453,6 @@ private:
   bool have_cgm_geom;  /// true if CGM contains problem geometry; required for CAD-based ray firing.
 
   double distanceLimit;
-
-  // to determine if particle is streaming in ray_fire
-  double u_last, v_last, w_last;
-  int last_n_particles;
 
   // temporary storage so functions don't have to reallocate vectors
   // for ray_fire:

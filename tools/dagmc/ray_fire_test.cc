@@ -41,14 +41,14 @@ static const double PI = acos(-1.0);
 static const double denom = 1.0 / ((double) RAND_MAX);
 static const double denomPI = PI * denom;
   
-inline void RNDVEC(double &u, double &v, double &w, double &az) 
+inline void RNDVEC(CartVect& uvw, double &az) 
 {
   
   double theta = denom * az * rand();
   double phi = denomPI * rand();
-  u = cos(theta)*sin(phi);
-  v = sin(theta)*sin(phi);
-  w = cos(phi);
+  uvw[0] = cos(theta)*sin(phi);
+  uvw[1] = sin(theta)*sin(phi);
+  uvw[1] = cos(phi);
 }
 
 /* program global data, including settings with their defaults*/
@@ -242,7 +242,7 @@ int main( int argc, char* argv[] )
      
   ErrorCode rval;
   EntityHandle surf = 0, vol = 0;
-  double x, y, z, u, v, w, dist;
+  double dist;
 
   OrientedBoxTreeTool::TrvStats* trv_stats = NULL;
   if( do_trv_stats ){ trv_stats = new OrientedBoxTreeTool::TrvStats; }
@@ -277,10 +277,7 @@ int main( int argc, char* argv[] )
       ray_t ray = rays[i];
       std::cout << " Ray: point = " << ray.p << " dir = " << ray.v << std::endl;
 
-      rval = dagmc.ray_fire( vol, 0, 1, 
-                             ray.v[0], ray.v[1], ray.v[2], 
-                             ray.p[0], ray.p[1], ray.p[2], 
-                             DBL_MAX, dist, surf, trv_stats ); 
+      rval = dagmc.ray_fire( vol, ray.p.array(), ray.v.array(), surf, dist, NULL, trv_stats );
 
       if(MB_SUCCESS != rval) {
         std::cerr << "ERROR: ray_fire() failed!" << std::endl;
@@ -305,6 +302,8 @@ int main( int argc, char* argv[] )
               << " random rays at volume " << vol_index << "..." << std::flush;
   }
 
+  CartVect xyz, uvw;
+
   double ttime1, utime1, stime1, tmem1, ttime2, utime2, stime2, tmem2;
   get_time_mem(ttime1, utime1, stime1, tmem1);
 
@@ -315,24 +314,20 @@ int main( int argc, char* argv[] )
 #endif
   
   for (int j = 0; j < num_random_rays; j++) {
-    RNDVEC(u, v, w, location_az);
+    RNDVEC(uvw, location_az);
 
-    x = u*source_rad + ray_source[0];
-    y = v*source_rad + ray_source[1];
-    z = w*source_rad + ray_source[2];
-
+    xyz = uvw * source_rad + ray_source;
     if (source_rad >= 0.0) {
-      RNDVEC(u, v, w, direction_az);
+      RNDVEC(uvw, direction_az);
     }
 
 #ifdef DEBUG
-      std::cout << "x,y,z,u,v,w,u^2 + v^2 + w^2 = " << x << " " << y << " " << z 
-                << " " << u << " " << v << " " << w << " " << (u*u + v*v + w*w) << std::endl;
-      uavg += u; vavg += v; wavg += w;
+    std::cout << "x,y,z,u,v,w,u^2 + v^2 + w^2 = " << xyz 
+              << " " << uvw << " " << uvw%uvw << std::endl;
+    uavg += uvw[0]; vavg += uvw[1]; wavg += uvw[2];
 #endif
     
-    dagmc.ray_fire(vol, 0, 1, u, v, w, x, y, z, DBL_MAX,
-                   dist, surf, trv_stats);
+    dagmc.ray_fire(vol, xyz.array(), uvw.array(), surf, dist, NULL, trv_stats );
 
     if( surf == 0){ random_rays_missed++; }
 
@@ -344,14 +339,11 @@ int main( int argc, char* argv[] )
 
     // now without ray fire call, to subtract out overhead
   for (int j = 0; j < num_random_rays; j++) {
-    RNDVEC(u, v, w, location_az);
+    RNDVEC(uvw, location_az);
 
-    x = u*source_rad + ray_source[0];
-    y = v*source_rad + ray_source[1];
-    z = w*source_rad + ray_source[2];
-
+    xyz = uvw * source_rad + ray_source;
     if (source_rad >= 0.0) {
-      RNDVEC(u, v, w, direction_az);
+      RNDVEC(uvw, direction_az);
     }
   }
   

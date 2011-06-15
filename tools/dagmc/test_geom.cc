@@ -665,7 +665,7 @@ ErrorCode test_ray_fire( DagMC& dagmc )
       std::cerr << "Surface " << tests[i].prev_surf << " not found." << std::endl;
       return MB_FAILURE;
     }
-    const EntityHandle src_surf = surf[idx];
+    //const EntityHandle src_surf = surf[idx];
     
     ptr = std::find( ids, ids+6, tests[i].hit_surf );
     idx = ptr - ids;
@@ -678,16 +678,8 @@ ErrorCode test_ray_fire( DagMC& dagmc )
     double dist;
     EntityHandle result;
     rval = dagmc.ray_fire( vols.front(), 
-                           src_surf, 
-                           2, 
-                           tests[i].direction[0],
-                           tests[i].direction[1],
-                           tests[i].direction[2],
-                           tests[i].origin[0],
-                           tests[i].origin[1],
-                           tests[i].origin[2],
-                           HUGE_VAL,
-                           dist, result );
+                           tests[i].origin, tests[i].direction,
+                           result, dist );
     
     if (result != hit_surf || fabs(dist - tests[i].distance) > 1e-6) {
       EntityHandle *p = std::find( surf, surf+6, result );
@@ -793,7 +785,7 @@ ErrorCode overlap_test_ray_fire( DagMC& dagmc )
       std::cerr << "Surface " << tests[i].prev_surf << " not found." << std::endl;
       return MB_FAILURE;
     }
-    const EntityHandle src_surf = surf[idx];
+    //const EntityHandle src_surf = surf[idx];
     
     ptr = std::find( ids, ids+num_surf, tests[i].hit_surf );
     idx = ptr - ids;
@@ -806,16 +798,8 @@ ErrorCode overlap_test_ray_fire( DagMC& dagmc )
     double dist;
     EntityHandle result;
     rval = dagmc.ray_fire( vols.front(), 
-                           src_surf, 
-                           2, 
-                           tests[i].direction[0],
-                           tests[i].direction[1],
-                           tests[i].direction[2],
-                           tests[i].origin[0],
-                           tests[i].origin[1],
-                           tests[i].origin[2],
-                           HUGE_VAL,
-                           dist, result );
+                           tests[i].origin, tests[i].direction,
+                           result, dist );
     
     if (result != hit_surf || fabs(dist - tests[i].distance) > 1e-6) {
       EntityHandle *p = std::find( surf, surf+6, result );
@@ -1084,10 +1068,8 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
   double dist;
   EntityHandle next_surf;
   EntityHandle prev_surf = 0;
-  rval = dagmc.ray_fire( vol, prev_surf, 1, 
-                         dir[0], dir[1], dir[2],
-                         point[0], point[1], point[2],
-                         HUGE_VAL, dist, next_surf );
+  DagMC::RayHistory history;
+  rval = dagmc.ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[7] || fabs(dist - 0.91) > 1e-6) {
     std::cerr << "ERROR: failed on advance 1" << std::endl;
@@ -1110,10 +1092,7 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
   // get the next surface (behind numerical location)
   vol       = next_vol;
   prev_surf = next_surf;
-  rval = dagmc.ray_fire( vol, prev_surf, 1, 
-                         dir[0], dir[1], dir[2],
-                         point[0], point[1], point[2],
-                         HUGE_VAL, dist, next_surf );
+  rval = dagmc.ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[3] || fabs(dist - 0.0) > 1e-6) {
     std::cerr << "ERROR: failed on advance 2" << std::endl;
@@ -1134,10 +1113,7 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
   // get the next surface
   vol       = next_vol;
   prev_surf = next_surf;
-  rval = dagmc.ray_fire( vol, prev_surf, 1, 
-                         dir[0], dir[1], dir[2],
-                         point[0], point[1], point[2],
-                         HUGE_VAL, dist, next_surf );
+  rval = dagmc.ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[1] || fabs(dist - 0.99) > 1e-6) {
     std::cerr << "ERROR: failed on advance 3" << std::endl;

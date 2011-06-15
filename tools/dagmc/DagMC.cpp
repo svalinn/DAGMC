@@ -118,7 +118,6 @@ unsigned int DagMC::interface_revision()
 
 DagMC::DagMC(Interface *mb_impl) 
   : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false),
-    u_last(0), v_last(0), w_last(0), last_n_particles(-1), 
     n_pt_in_vol_calls(0), n_ray_fire_calls(0)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
@@ -548,13 +547,22 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
 }
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
-ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_hit, 
-                          const int n_particles,
-                          const double u, const double v, const double w,
-                          const double x, const double y, const double z,
-                          const double huge_val,
- 			  double &dist_traveled, EntityHandle &next_surf_hit, 
-                          OrientedBoxTreeTool::TrvStats* stats ) {
+void DagMC::RayHistory::reset() { 
+  prev_facets.clear();
+}
+
+void DagMC::RayHistory::reset_to_last_intersection() {
+  assert(!prev_facets.empty());
+  const EntityHandle last_facet_hit = prev_facets.back();
+  prev_facets.clear();
+  prev_facets.push_back(last_facet_hit);
+}
+
+ErrorCode DagMC::ray_fire(const EntityHandle vol, 
+                          const double point[3], const double dir[3],
+                          EntityHandle& next_surf, double& next_surf_dist,
+                          RayHistory* history, 
+                          OrientedBoxTreeTool::TrvStats* stats ) { 
 
   // take some stats that are independent of nps
   if(counting) {
@@ -567,20 +575,17 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
 
   if (debug) {
     std::cout << "ray_fire:" 
-              << " xyz=" << x << " " << y << " " << z 
-              << " uvw=" << u << " " << v << " " << w
-              << " vol_id=" << id_by_index(3, index_by_handle(vol))
-              << " last_surf_id=";
-    if(last_surf_hit) std::cout << id_by_index(2, index_by_handle(last_surf_hit));
-    else              std::cout << "?";
-    std::cout << " dist_traveled=" << dist_traveled << " nps=" << n_particles << std::endl;
-  }
+              << " xyz=" << point[0] << " " << point[1] << " " << point[2]
+              << " uvw=" << dir[0] << " " << dir[1] << " " << dir[2]
+              << " vol_id=" << id_by_index(3, index_by_handle(vol)) << std::endl;
+    }
+
+  double huge_val = std::numeric_limits<double>::max();
 
   // don't recreate these every call
   std::vector<double>       &dists       = distList;
   std::vector<EntityHandle> &surfs       = surfList;
   std::vector<EntityHandle> &facets      = facetList;  
-  std::vector<EntityHandle> &prev_facets = prevFacetList;
   dists.clear();
   surfs.clear();
   facets.clear();
@@ -588,47 +593,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
   assert(vol - setOffset < rootSets.size());  
   const EntityHandle root = rootSets[vol - setOffset];
   ErrorCode rval;
-  const double point[] = {x, y, z};
-  const double dir[]   = {u, v, w};
-
-  // If this is the first ray_fire after birth 0==last_surf_hit.
-  // If the particle has a collision, 0==last_surf_hit and the direction vector changes.
-  // If the particle hits a reflective boundary, the direction vector changes.
-  // Streaming/reflecting control the memory of previously intersected facets.
-  // A ray (streaming) never intersects a planar surface (facet) twice.
-
-  // Streaming=true if it can be proven that the particle is streaming.
-  const bool streaming = (0!=last_surf_hit) && (last_n_particles==n_particles) && 
-                         (u_last==u) && (v_last==v) && (w_last==w);
-  bool reflecting = false;
  
-  // if not streaming, update the uvw_last
-  if(!streaming) {
-    u_last = u;
-    v_last = v;
-    w_last = w;
-    last_n_particles = n_particles;
-
-    // When reflection occurs, the previous surface should be saved for the point
-    // membership test.
-    int bc_id;
-    rval = MBI->tag_get_data( bcTag, &last_surf_hit, 1, &bc_id  );
-    if (MB_SUCCESS != rval && MB_TAG_NOT_FOUND != rval) return rval;
-    if (MB_TAG_NOT_FOUND != rval) {
-      if(BC_SPEC==bc_id || BC_WHITE==bc_id) reflecting = true;
-    }
-  }
-
-  // if the ray has changed directions, clear the facet history
-  if(reflecting) {
-    assert(!prev_facets.empty());
-    const EntityHandle last_facet_hit = prev_facets.back();
-    prev_facets.clear();
-    prev_facets.push_back(last_facet_hit);
-  } else if (!streaming) {
-    prev_facets.clear();
-  }
-
   // check behind the ray origin for intersections
   double neg_ray_len;
   if(0 == overlapThickness) {
@@ -664,7 +629,8 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
                                      min_tolerance_intersections,
                                      point, dir, &nonneg_ray_len,
                                      stats, &neg_ray_len, &vol, &senseTag, 
-                                     &desired_orientation, &prev_facets );
+                                     &desired_orientation, 
+                                     history ? &(history->prev_facets) : NULL );
   assert( MB_SUCCESS == rval );
   if(MB_SUCCESS != rval) return rval;
 
@@ -679,11 +645,11 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
   // if the particle is lost. To avoid ambiguity, DO NOT use the distance limit 
   // unless you know lost particles do not occur.
   if( dists.empty() ) {
-    next_surf_hit = 0;
+    next_surf = 0;
     // Make this large enough so that the physics limit is not reached first!
-    dist_traveled = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
+    next_surf_dist = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
     if(debug) {
-      std::cout << "          next_surf_hit=" << 0 << " dist=" << dist_traveled << std::endl;
+      std::cout << "          next_surf=" << 0 << " dist=" << next_surf_dist << std::endl;
     }
     return MB_SUCCESS;
   }
@@ -722,8 +688,8 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
     // "on_boundary" result of the PMT. This avoids a test that uses proximity 
     // (a tolerance).
     int result;
-    rval = point_in_volume( next_vol, x, y, z, result, u, v, w,
-			    &prev_facets );
+    rval = point_in_volume( next_vol, point[0], point[1], point[2], result, dir[0], dir[1], dir[2],
+                            history ? &(history->prev_facets) : NULL );
     if(MB_SUCCESS != rval) return rval;
     if(1==result) exit_idx = 0;
 
@@ -734,8 +700,8 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
   
   // if the exit index is still unknown, the particle is lost
   if(-1 == exit_idx) {
-    next_surf_hit = 0;
-    dist_traveled = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
+    next_surf = 0;
+    next_surf_dist = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
     if (debug) {
       std::cout << "next surf hit = " << 0 << ", dist = (huge_val)" << std::endl;
     }
@@ -743,26 +709,27 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol, const EntityHandle last_surf_h
   }
 
   // return the intersection
-  next_surf_hit = surfs[exit_idx];
-  prev_facets.push_back( facets[exit_idx] );
-  dist_traveled = ( 0>dists[exit_idx] ? 0 : dists[exit_idx]);
+  next_surf = surfs[exit_idx];
+  next_surf_dist = ( 0>dists[exit_idx] ? 0 : dists[exit_idx]);
+
+  if( history ){
+    history->prev_facets.push_back( facets[exit_idx] );
+  }
 
   // print a warning if the negative ray length was excessive
   if(-0.1 > dists[exit_idx]) {
     std:: cout << "WARNING: overlap track length=" << dists[exit_idx] 
-               <<  " next_surf=" << id_by_index(2, index_by_handle(next_surf_hit)) 
-               << " vol_id=" << id_by_index(3, index_by_handle(vol))
-               << " last_surf_id=";
-    if(last_surf_hit) std::cout << id_by_index(2, index_by_handle(last_surf_hit));
-    else              std::cout << "?";
-    std::cout << " nps=" << n_particles << std::endl;
+               <<  " next_surf=" << id_by_index(2, index_by_handle(next_surf)) 
+               << " vol_id=" << id_by_index(3, index_by_handle(vol)) << std::endl;
   }
 
   if (debug) {
-    std::cout << "          next_surf_hit = " <<  id_by_index(2, index_by_handle(next_surf_hit)) 
-              << ", dist = " << dist_traveled << " new_pt="
-              << x+u*dist_traveled << " " << y+v*dist_traveled << " "
-              << z+w*dist_traveled << std::endl;
+    std::cout << "          next_surf = " <<  id_by_index(2, index_by_handle(next_surf)) 
+              << ", dist = " << next_surf_dist << " new_pt=";
+    for( int i = 0; i < 3; ++i ){
+      std::cout << point[i]+dir[i]*next_surf_dist << " ";
+    }
+    std::cout << std::endl;
   }
 
   return MB_SUCCESS;
