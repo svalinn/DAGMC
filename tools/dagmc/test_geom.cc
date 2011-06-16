@@ -1078,16 +1078,9 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
   for(unsigned i=0; i<3; i++) point[i]+=dist*dir[i];
 
   // get the next volume (implicit complement)
-  std::vector<EntityHandle> vols;
   EntityHandle next_vol;
-  rval = moab.get_parent_meshsets( next_surf, vols );
+  rval = dagmc.next_vol( next_surf, vol, next_vol ); 
   CHKERR;
-  if (2 != vols.size()) {
-    std::cerr << "ERROR: failed on next_vol 1" << std::endl;
-    return MB_FAILURE;
-  }
-  if (vol == vols.front()) next_vol = vols.back();
-  else                     next_vol = vols.front();
 
   // get the next surface (behind numerical location)
   vol       = next_vol;
@@ -1101,14 +1094,8 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
   for(unsigned i=0; i<3; i++) point[i]+=dist*dir[i];
 
   // get the next volume (the explicit volume)
-  rval = moab.get_parent_meshsets( next_surf, vols );
+  rval = dagmc.next_vol( next_surf, vol, next_vol );
   CHKERR;
-  if (2 != vols.size() ) {
-    std::cerr << "ERROR: failed on next_vol 2" << std::endl;
-    return MB_FAILURE;
-  }
-  if (vol == vols.front()) next_vol = vols.back();
-  else                     next_vol = vols.front();
 
   // get the next surface
   vol       = next_vol;

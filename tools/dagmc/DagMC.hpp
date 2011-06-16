@@ -223,6 +223,16 @@ public:
   ErrorCode get_angle(EntityHandle surf, 
                       double xxx, double yyy, double zzz, double *ang);
 
+  /** Get the volume on the other side of a surface
+   *
+   * @param A surface to query 
+   * @param old_volume A volume on one side of surface
+   * @param new_volume Output parameter for volume on the other side of surface
+   * @return MB_SUCCESS if new_volume was set successfully, error if not.
+   */
+  ErrorCode next_vol( EntityHandle surface, EntityHandle old_volume, 
+                      EntityHandle& new_volume );
+
 private:
   /**\brief pass the ray_intersection test to the solid modeling engine
    *
