@@ -879,12 +879,8 @@ ErrorCode test_point_in_volume( DagMC& dagmc )
 
   for (int i = 0; i < num_test; ++i) {
     int result;
-    rval = dagmc.point_in_volume( vol, 
-                                  tests[i].coords[0],
-                                  tests[i].coords[1],
-                                  tests[i].coords[2],
-                                  result, tests[i].dir[0],
-                                  tests[i].dir[1], tests[i].dir[2]);
+    rval = dagmc.point_in_volume( vol, tests[i].coords,
+                                  result, tests[i].dir );
     CHKERR;
     if (result != tests[i].result) {
       std::cerr << "ERROR testing point_in_volume[" << i << "]:" << std::endl
@@ -899,11 +895,7 @@ ErrorCode test_point_in_volume( DagMC& dagmc )
     if (tests[i].result == BOUNDARY)
       continue;
      
-    rval = dagmc.point_in_volume_slow( vol, 
-                                  tests[i].coords[0],
-                                  tests[i].coords[1],
-                                  tests[i].coords[2],
-                                  result );
+    rval = dagmc.point_in_volume_slow( vol, tests[i].coords, result );
     CHKERR;
       
     if (result != tests[i].result) {
@@ -972,12 +964,8 @@ ErrorCode overlap_test_point_in_volume( DagMC& dagmc )
   const EntityHandle vol = vols.front();
   for (int i = 0; i < num_test; ++i) {
     int result;
-    rval = dagmc.point_in_volume( vol, 
-                                  tests[i].coords[0],
-                                  tests[i].coords[1],
-                                  tests[i].coords[2],
-                                  result, tests[i].dir[0],
-                                  tests[i].dir[1], tests[i].dir[2]);
+    rval = dagmc.point_in_volume( vol, tests[i].coords,
+                                  result, tests[i].dir );
     CHKERR;
     if (result != tests[i].result) {
       std::cerr << "ERROR testing point_in_volume[" << i << "]:" << std::endl
@@ -992,11 +980,7 @@ ErrorCode overlap_test_point_in_volume( DagMC& dagmc )
     if (tests[i].result == BOUNDARY)
       continue;
      
-    rval = dagmc.point_in_volume_slow( vol, 
-                                  tests[i].coords[0],
-                                  tests[i].coords[1],
-                                  tests[i].coords[2],
-                                  result );
+    rval = dagmc.point_in_volume_slow( vol, tests[i].coords, result ); 
     CHKERR;
       
     if (result != tests[i].result) {
@@ -1056,8 +1040,7 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
   EntityHandle vol = explicit_vol;
   int result;
   const int INSIDE = 1; // OUTSIDE = 0, BOUNDARY = -1;
-  rval = dagmc.point_in_volume( explicit_vol, point[0], point[1], point[2],
-                                result, dir[0], dir[1], dir[2] );
+  rval = dagmc.point_in_volume( explicit_vol, point, result, dir );
   CHKERR;
   if (result != INSIDE) {
     std::cerr << "ERROR: particle not inside explicit volume" << std::endl;

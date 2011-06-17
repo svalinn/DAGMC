@@ -688,8 +688,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
     // "on_boundary" result of the PMT. This avoids a test that uses proximity 
     // (a tolerance).
     int result;
-    rval = point_in_volume( next_vol, point[0], point[1], point[2], result, dir[0], dir[1], dir[2],
-                            history ? &(history->prev_facets) : NULL );
+    rval = point_in_volume( next_vol, point, result, dir, history );
     if(MB_SUCCESS != rval) return rval;
     if(1==result) exit_idx = 0;
 
@@ -736,10 +735,10 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
 }
 
 ErrorCode DagMC::point_in_volume(const EntityHandle volume, 
-                                 const double x, const double y, const double z,
+                                 const double xyz[3],
                                  int& result,
-				 double u, double v, double w,
-				 std::vector<EntityHandle>* prev_facets) {
+                                 const double *uvw,
+                                 const RayHistory *history) {
   // take some stats that are independent of nps
   if(counting) ++n_pt_in_vol_calls;
 
@@ -758,8 +757,15 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
   facets.clear();
   dirs.clear();
 
-  // if uvw is not given, use random
-  if( -1>u || 1<u || -1>v || 1<v || -1>w || 1<w || (0==u && 0==v && 0==w) ) {
+  // if uvw is not given or is full of zeros, use a random direction
+  double u = 0, v = 0, w = 0;
+
+  if( uvw ){
+    u = uvw[0]; v=uvw[1], w=uvw[2];
+  }
+
+  if( u == 0 && v == 0 && w == 0 )
+  { 
     u = rand();
     v = rand();
     w = rand();
@@ -769,7 +775,6 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
     w /= magnitude;
   }
 
-  const double ray_origin[]    = { x, y, z };
   const double ray_direction[] = { u, v, w };
   
   // if overlaps, ray must be cast to infinity and all RTIs must be returned
@@ -792,9 +797,10 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
   ErrorCode rval = obbTree.ray_intersect_sets( dists, surfs, facets, root,
                                                numericalPrecision, 
                                                min_tolerance_intersections,
-                                               ray_origin, ray_direction,
+                                               xyz, ray_direction,
                                                &ray_length, NULL, NULL, &volume,
-                                               &senseTag, NULL, prev_facets );
+                                               &senseTag, NULL, 
+                                               history ? &(history->prev_facets) : NULL );
   if(MB_SUCCESS != rval) return rval;
 
   // determine orientation of all intersections
@@ -849,23 +855,21 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
 
   if(debug)
     std::cout << "pt_in_vol: result=" << result
-              << " xyz=" << x << " " << y << " " << z << " uvw=" << u << " " << v << " " << w
+              << " xyz=" << xyz[0] << " " << xyz[1] << " " << xyz[2] << " uvw=" << u << " " << v << " " << w
               << " vol_id=" << id_by_index(3, index_by_handle(volume)) << std::endl;
   
   return MB_SUCCESS;
 }
 
 // use spherical area test to determine inside/outside of a polyhedron.
-ErrorCode DagMC::point_in_volume_slow( EntityHandle volume,
-                                  double x, double y, double z,
-                                  int& result )
+ErrorCode DagMC::point_in_volume_slow( EntityHandle volume, const double xyz[3], int& result )
 {
   ErrorCode rval;
   Range faces;
   std::vector<EntityHandle> surfs;
   std::vector<int> senses;
   double sum = 0.0;
-  const CartVect point(x,y,z);
+  const CartVect point(xyz);
   
   rval = MBI->get_child_meshsets( volume, surfs );
   if (MB_SUCCESS != rval)

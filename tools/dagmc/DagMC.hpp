@@ -165,31 +165,36 @@ public:
                      RayHistory* history = NULL, 
                      OrientedBoxTreeTool::TrvStats* stats = NULL );
   
-  /**\brief Test if a point is inside or outside a volume using an OBB Tree
-   *
+  /**\brief Test if a point is inside or outside a volume 
+   * 
    * This method finds the point on the boundary of the volume that is nearest
-   * the test point (x,y,z).  If that point is "close" a boundary test is performed
-   * based on the normal of the surface at that point and the ray direction (u,v,w).
-   * Requires sense of surfaces wrt volume.
-   * Return values: {0 : outside, 1: inside, -1: on boundary}
+   * the test point (x,y,z).  If that point is "close" to a surface, a boundary test 
+   * is performed based on the normal of the surface at that point and the 
+   * optional ray direction (u,v,w).
+   * @param volume The volume to test
+   * @param xyz The location to test for volume containment
+   * @param result 0 if xyz it outside volume, 1 if inside, and -1 if on boundary.
+   * @param Optional direction to use for underlying ray fire query.  Used to ensure
+   *        consistent results when a ray direction is known.  If NULL or {0,0,0} is
+   *        given, a random direction will be used.
+   * @param history Optional RayHistory object to pass to underlying ray fire query.
+   *        The history is not modified by this call.
    */
   ErrorCode point_in_volume(const EntityHandle volume, 
-                            const double x, const double y, const double z,
+                            const double xyz[3],
                             int& result,
-			    double u, double v, double w,
-			    std::vector<EntityHandle>* prev_facets = NULL );
+                            const double* uvw = NULL,
+                            const RayHistory* history = NULL );
 
   /**\brief Robust test if a point is inside or outside a volume using unit sphere area method
    *
-   * This test is more robust that the standard point_in_volume but much slower.
-   * It is invoked when the standard point_in_volume is unable to determine an 
-   * un-ambiguous result.
-   * Requires sense of surfaces wrt volume.
-   * Return values: {0 : outside, 1: inside, -1: on boundary}
+   * This test may be more robust that the standard point_in_volume, but is much slower.
+   * It does not detect 'on boundary' situations as point_in_volume does.
+   * @param volume The volume to test
+   * @param xyz The location to test for volume containment
+   * @param result 0 if xyz it outside volume, 1 if inside.
    */
-  ErrorCode point_in_volume_slow( EntityHandle volume, 
-                                    double x, double y, double z,
-                                    int& result );
+  ErrorCode point_in_volume_slow( const EntityHandle volume, const double xyz[3], int& result ); 
 
   /**\brief Find the distance to the point on the boundary of the volume closest to the test point
    *

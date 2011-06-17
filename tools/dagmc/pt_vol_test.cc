@@ -19,8 +19,10 @@ ErrorCode test_pt_volume(DagMC &dagmc, int volID, double xxx, double yyy, double
   ErrorCode rval;
 
   EntityHandle vol = dagmc.entity_by_id(3,volID);
+  double xyz[3] = {xxx,yyy,zzz};
+  double uvw[3] = {uuu,vvv,www};
 
-  rval = dagmc.point_in_volume( vol, xxx, yyy, zzz, inside, uuu, vvv, www);
+  rval = dagmc.point_in_volume( vol, xyz, inside, uvw );
   CHKERR;
   
   return MB_SUCCESS;
@@ -32,8 +34,9 @@ ErrorCode test_pt_volume_slow(DagMC &dagmc, int volID, double xxx, double yyy, d
   ErrorCode rval;
 
   EntityHandle vol = dagmc.entity_by_id(3,volID);
+  double xyz[3] = {xxx,yyy,zzz};
 
-  rval = dagmc.point_in_volume_slow( vol, xxx, yyy, zzz, inside);
+  rval = dagmc.point_in_volume_slow( vol, xyz, inside);
   CHKERR;
   
   return MB_SUCCESS;
