@@ -173,7 +173,7 @@ public:
    * optional ray direction (u,v,w).
    * @param volume The volume to test
    * @param xyz The location to test for volume containment
-   * @param result 0 if xyz it outside volume, 1 if inside, and -1 if on boundary.
+   * @param result Set to 0 if xyz it outside volume, 1 if inside, and -1 if on boundary.
    * @param Optional direction to use for underlying ray fire query.  Used to ensure
    *        consistent results when a ray direction is known.  If NULL or {0,0,0} is
    *        given, a random direction will be used.
@@ -192,18 +192,17 @@ public:
    * It does not detect 'on boundary' situations as point_in_volume does.
    * @param volume The volume to test
    * @param xyz The location to test for volume containment
-   * @param result 0 if xyz it outside volume, 1 if inside.
+   * @param result Set to 0 if xyz it outside volume, 1 if inside.
    */
   ErrorCode point_in_volume_slow( const EntityHandle volume, const double xyz[3], int& result ); 
 
   /**\brief Find the distance to the point on the boundary of the volume closest to the test point
    *
-   * Using the OBB Tree, find the distance to the nearest surface of the current volume from the
-   * test point.
+   * @param volume Volume to query
+   * @param point Coordinates of test point
+   * @param result Set to the minimum distance from point to a surface in volume
    */
-  ErrorCode closest_to_location( EntityHandle volume,
-                                   double* point,
-                                   double& result);
+  ErrorCode closest_to_location( EntityHandle volume, const double point[3], double& result);
 
   /** Calculate the volume contained in a 'volume' */
   ErrorCode measure_volume( EntityHandle volume, double& result );
@@ -224,9 +223,14 @@ public:
    */
   ErrorCode surface_sense( EntityHandle volume, EntityHandle surface, int& sense_out );
 
-  /** Get the normal to a given surface at a given point */
-  ErrorCode get_angle(EntityHandle surf, 
-                      double xxx, double yyy, double zzz, double *ang);
+  /** Get the normal to a given surface at the point on the surface closest to a given point
+   *
+   * @param surf Surface on which to get normal
+   * @param xyz Point on surf
+   * @param angle Set to coordinates of surface normal nearest xyz
+   * 
+   */
+  ErrorCode get_angle(EntityHandle surf, const double xyz[3], double angle[3] );
 
   /** Get the volume on the other side of a surface
    *

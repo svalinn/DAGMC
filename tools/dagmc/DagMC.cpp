@@ -908,7 +908,7 @@ ErrorCode DagMC::point_in_volume_slow( EntityHandle volume, const double xyz[3],
 
 
 // detemine distance to nearest surface
-ErrorCode DagMC::closest_to_location( EntityHandle volume, double* coords, double& result)
+ErrorCode DagMC::closest_to_location( EntityHandle volume, const double coords[3], double& result)
 {
     // Get OBB Tree for volume
   assert(volume - setOffset < rootSets.size());
@@ -1099,16 +1099,11 @@ ErrorCode DagMC::surface_sense( EntityHandle volume,
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::get_angle(EntityHandle surf, 
-                              double xxx, double yyy, double zzz, double *ang)
+ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3], double angle[3] )
 {
   EntityHandle root = rootSets[surf - setOffset];
   
-  const double in_pt[] = { xxx, yyy, zzz };
-  //std::vector<EntityHandle> &facets = triList;
-  std::vector<EntityHandle> facets; // = triList;
-  //facets.clear();
-  //ErrorCode rval = obbTree.closest_to_location( in_pt, root, add_dist_tol(), facets );
+  std::vector<EntityHandle> facets;
   ErrorCode rval = obbTree.closest_to_location( in_pt, root, numericalPrecision, facets );
   assert(MB_SUCCESS == rval);
   if (MB_SUCCESS != rval) return rval;
@@ -1130,7 +1125,7 @@ ErrorCode DagMC::get_angle(EntityHandle surf,
   }
   
   normal.normalize();
-  normal.get( ang );
+  normal.get( angle );
 
   return MB_SUCCESS;
 }
