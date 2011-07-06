@@ -552,10 +552,17 @@ void DagMC::RayHistory::reset() {
 }
 
 void DagMC::RayHistory::reset_to_last_intersection() {
-  assert(!prev_facets.empty());
-  const EntityHandle last_facet_hit = prev_facets.back();
-  prev_facets.clear();
-  prev_facets.push_back(last_facet_hit);
+
+  if( prev_facets.size() > 1 ){
+    prev_facets[0] = prev_facets.back();
+    prev_facets.resize( 1 );
+  }
+
+}
+
+void DagMC::RayHistory::rollback_last_intersection() {
+  if( prev_facets.size() )
+    prev_facets.pop_back();
 }
 
 ErrorCode DagMC::ray_fire(const EntityHandle vol, 

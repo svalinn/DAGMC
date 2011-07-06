@@ -120,6 +120,12 @@ public:
      */ 
     void reset_to_last_intersection(); 
 
+    /**
+     * Remove the most recent intersection.  This allows a subsequent call
+     * along the same ray to return the same intersection.
+     */
+    void rollback_last_intersection();
+
   private:    
     std::vector<EntityHandle> prev_facets;
 
