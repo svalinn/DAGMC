@@ -315,6 +315,11 @@ ErrorCode DagMC::init_OBBTree()
     }
   }
 
+  // build_indices expects the implicit complement to be in vols.
+  if( vols.find(impl_compl_handle) == vols.end() ){
+    vols.insert( vols.end(), impl_compl_handle );
+  }
+
     // build the various index vectors used for efficiency
   rval = build_indices(surfs, vols);
   if (MB_SUCCESS != rval) {
@@ -1401,13 +1406,11 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   ErrorCode rval = MB_SUCCESS;
 
     // surf/vol offsets are just first handles
-  setOffset = (*surfs.begin() < *vols.begin() ? *surfs.begin() : *vols.begin());
-  setOffset = (impl_compl_handle < setOffset ? impl_compl_handle : setOffset);
+  setOffset = std::min( *surfs.begin(), *vols.begin() );
+
     // max
-  EntityHandle tmp_offset = (surfs.back() > vols.back() ? 
-                               surfs.back() : vols.back());
-  tmp_offset = (impl_compl_handle > tmp_offset ? 
-                impl_compl_handle : tmp_offset);
+  EntityHandle tmp_offset = std::max( surfs.back(), vols.back() );
+
     // set size
   rootSets.resize(tmp_offset - setOffset + 1);
   entIndices.resize(rootSets.size());
@@ -1426,19 +1429,20 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   iter = vol_handles().begin();
   *(iter++) = 0;
   std::copy( vols.begin(), vols.end(), iter );
-  vol_handles().push_back(impl_compl_handle);
+
   idx = 1;
   int max_id = -1;
   for (Range::iterator rit = vols.begin(); rit != vols.end(); rit++)    {
     entIndices[*rit-setOffset] = idx++;
-    int result=0;
-    MBI->tag_get_data( idTag, &*rit, 1, &result );
-    max_id = std::max( max_id, result ); 
-  }
-    // add implicit complement to entity index
-  entIndices[impl_compl_handle-setOffset] = idx++ ;
 
+    if( *rit != impl_compl_handle ){
+      int result=0;
+      MBI->tag_get_data( idTag, &*rit, 1, &result );
+      max_id = std::max( max_id, result ); 
+    }
+  }
     // assign ID to implicit complement
+    // for consistency with earlier versions of DagMC, make sure it always has the highest ID
   max_id++;
   MBI->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
   
@@ -1507,13 +1511,6 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   if (MB_SUCCESS != rval) return MB_FAILURE;
   for (i = 0, rit = vols.begin(); rit != vols.end(); rit++, i++)
     rootSets[*rit-setOffset] = rsets[i];
-
-  // add implicit complement root set
-  rsets.resize(1);
-  rval = MBI->tag_get_data(obb_tag(), &impl_compl_handle, 1, 
-                                       &rsets[0]);
-  if (MB_SUCCESS != rval) return MB_FAILURE;
-  rootSets[impl_compl_handle-setOffset] = rsets[0];
 
   return MB_SUCCESS;
 }
