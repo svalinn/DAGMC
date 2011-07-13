@@ -1111,15 +1111,24 @@ ErrorCode DagMC::surface_sense( EntityHandle volume,
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3], double angle[3] )
+ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3], double angle[3], const RayHistory* history )
 {
   EntityHandle root = rootSets[surf - setOffset];
+  ErrorCode rval;
   
   std::vector<EntityHandle> facets;
-  ErrorCode rval = obbTree.closest_to_location( in_pt, root, numericalPrecision, facets );
-  assert(MB_SUCCESS == rval);
-  if (MB_SUCCESS != rval) return rval;
-  
+
+  // if no history or history empty, use nearby facets
+  if( !history || (history->prev_facets.size() == 0) ){
+    rval = obbTree.closest_to_location( in_pt, root, numericalPrecision, facets );
+    assert(MB_SUCCESS == rval);
+    if (MB_SUCCESS != rval) return rval;
+  }
+  // otherwise use most recent facet in history
+  else{
+    facets.push_back( history->prev_facets.back() );
+  }
+
   CartVect coords[3], normal(0.0);
   const EntityHandle *conn;
   int len;

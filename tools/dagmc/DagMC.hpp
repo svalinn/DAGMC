@@ -234,9 +234,12 @@ public:
    * @param surf Surface on which to get normal
    * @param xyz Point on surf
    * @param angle Set to coordinates of surface normal nearest xyz
-   * 
+   * @param history Optional ray history from a previous call to ray_fire().  
+   *        If present and non-empty, return the normal 
+   *        of the most recently intersected facet, ignoring xyz.
    */
-  ErrorCode get_angle(EntityHandle surf, const double xyz[3], double angle[3] );
+  ErrorCode get_angle(EntityHandle surf, const double xyz[3], double angle[3], 
+                      const RayHistory* history = NULL );
 
   /** Get the volume on the other side of a surface
    *
