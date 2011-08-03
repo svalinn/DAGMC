@@ -3,6 +3,7 @@
 #include "DagMC.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
+#include "moab/CartVect.hpp"
 
 #include <vector>
 #include <iostream>
@@ -677,9 +678,10 @@ ErrorCode test_ray_fire( DagMC& dagmc )
 
     double dist;
     EntityHandle result;
+    DagMC::RayHistory history;
     rval = dagmc.ray_fire( vols.front(), 
                            tests[i].origin, tests[i].direction,
-                           result, dist );
+                           result, dist, &history );
     
     if (result != hit_surf || fabs(dist - tests[i].distance) > 1e-6) {
       EntityHandle *p = std::find( surf, surf+6, result );
@@ -700,6 +702,42 @@ ErrorCode test_ray_fire( DagMC& dagmc )
                 << std::endl;
       return MB_FAILURE;
     }
+
+    CartVect loc = CartVect(tests[i].origin) + (dist * CartVect(tests[i].direction));
+    
+    std::vector< std::pair<int,DagMC::RayHistory*> > boundary_tests;
+    boundary_tests.push_back( std::make_pair( 1, &history ) );
+    boundary_tests.push_back( std::make_pair( 0, &history ) );
+    boundary_tests.push_back( std::make_pair( 1, (DagMC::RayHistory*)NULL ) );
+    boundary_tests.push_back( std::make_pair( 0, (DagMC::RayHistory*)NULL ) );
+
+
+    for( unsigned int bt = 0; bt < boundary_tests.size(); ++bt ) {
+      
+      int expected = boundary_tests[bt].first;
+      DagMC::RayHistory* h = boundary_tests[bt].second;
+      
+      // pick the direction based on expected result of test. Either reuse the ray_fire
+      // vector, or reverse it to check for a vector that enters the cell
+      CartVect uvw( tests[i].direction );
+      if( expected == 1 )
+        uvw = -uvw; 
+
+      int boundary_result = -1;
+      
+      rval = dagmc.test_volume_boundary( vols.front(), result, loc.array(), 
+                                         uvw.array(), boundary_result, h );
+      
+      
+      if( boundary_result != expected ){
+        std::cerr << "DagMC::test_volume_boundary failed (" << ( (expected==0)?"+":"-" )
+                  << " dir," << ( (h)?"+":"-" ) << " history, i=" << i << ")" <<  std::endl;
+        return MB_FAILURE;
+      }
+      
+    }
+    
+ 
   }
   
   return MB_SUCCESS;

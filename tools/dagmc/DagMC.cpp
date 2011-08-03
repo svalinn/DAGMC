@@ -873,6 +873,43 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
   return MB_SUCCESS;
 }
 
+ErrorCode DagMC::test_volume_boundary( const EntityHandle volume, const EntityHandle surface,
+                                       const double xyz[3], const double uvw[3], int& result,
+                                       const RayHistory* history )
+{
+  ErrorCode rval;
+  int dir;
+
+  if( history && history->prev_facets.size() ){
+    // the current facet is already available
+    rval = boundary_case( volume, dir, uvw[0], uvw[1], uvw[2], history->prev_facets.back(), surface );
+    if (MB_SUCCESS != rval) return rval;
+  }
+  else{
+    // look up nearest facet
+
+    // Get OBB Tree for surface
+    assert(volume - setOffset < rootSets.size());
+    EntityHandle root = rootSets[volume - setOffset];
+    
+    // Get closest triangle on surface
+    const CartVect point(xyz);
+    CartVect nearest;
+    EntityHandle facet_out;
+    rval = obbTree.closest_to_location( point.array(), root, nearest.array(), facet_out );
+    if (MB_SUCCESS != rval) return rval;
+
+    rval = boundary_case( volume, dir, uvw[0], uvw[1], uvw[2], facet_out, surface );
+    if (MB_SUCCESS != rval) return rval;
+
+  }
+
+  result = dir;
+
+  return MB_SUCCESS;
+
+}
+
 // use spherical area test to determine inside/outside of a polyhedron.
 ErrorCode DagMC::point_in_volume_slow( EntityHandle volume, const double xyz[3], int& result )
 {

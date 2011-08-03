@@ -126,6 +126,11 @@ public:
      */
     void rollback_last_intersection();
 
+    /**
+     * @return the number of surface crossings currently represented by this ray history
+     */
+    int size() const { return prev_facets.size(); }
+
   private:    
     std::vector<EntityHandle> prev_facets;
 
@@ -201,6 +206,27 @@ public:
    * @param result Set to 0 if xyz it outside volume, 1 if inside.
    */
   ErrorCode point_in_volume_slow( const EntityHandle volume, const double xyz[3], int& result ); 
+
+
+  /** \brief Given a ray starting at a surface of a volume, check whether the ray enters or exits the volume
+   *
+   * This function is most useful for rays that change directions at a surface crossing.  
+   * It can be used to check whether a direction change redirects the ray back into the originating
+   * volume.
+   *
+   * @param volume The volume to test 
+   * @param surface A surface on volume
+   * @param xyz A point location on surface
+   * @param uvw A (unit) direction vector
+   * @param result Set to 1 if ray is entering volume, or 0 if it is leaving
+   * @param history Optional ray history object from a previous call to ray_fire.  If present and non-empty, 
+   *        the history is used to look up the surface facet at which the ray begins.  Absent a 
+   *        history, the facet nearest to xyz will be looked up.  The history should always be
+   *        provided if available, as it avoids the computational expense of a nearest-facet query.
+   */
+  ErrorCode test_volume_boundary( const EntityHandle volume, const EntityHandle surface,
+                                  const double xyz[3], const double uvw[3], int& result,
+                                  const RayHistory* history = NULL );
 
   /**\brief Find the distance to the point on the boundary of the volume closest to the test point
    *
