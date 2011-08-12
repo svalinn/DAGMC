@@ -121,16 +121,11 @@ DagMC::DagMC(Interface *mb_impl)
     n_pt_in_vol_calls(0), n_ray_fire_calls(0)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
-  options[0] = Option( "source_cell",        "source cell ID, or zero if unknown", "0" );
-  options[1] = Option( "overlap_thickness",  "nonnegative real value", "0" );
-  options[2] = Option( "use_distance_limit", "one to enable distance limit optimization, zero otherwise", "0" );
-  options[3] = Option( "use_cad",            "one to ray-trace to cad, zero for just facets", "0" );
-  options[4] = Option( "faceting_tolerance", "graphics faceting tolerance", "0.001" );
-  options[5] = Option( "numerical_precision","positive real value", "0.001" );
-
-    // call parse settings to initialize default values for settings from options
-  parse_settings();
-
+  overlapThickness = 0; // must be nonnegative 
+  defaultFacetingTolerance = .001;
+  numericalPrecision = .001; 
+  useCAD = false;  
+  
   memset( specReflectName, 0, NAME_TAG_SIZE );
   strcpy( specReflectName, "spec_reflect" );
   memset( whiteReflectName, 0, NAME_TAG_SIZE );
@@ -138,9 +133,6 @@ DagMC::DagMC(Interface *mb_impl)
   memset( implComplName, 0, NAME_TAG_SIZE );
   strcpy( implComplName , "impl_complement" );
 
-  distanceLimit = std::numeric_limits<double>::max();
-
- 
 }
 
 
@@ -160,6 +152,7 @@ ErrorCode DagMC::load_file(const char* cfile,
   InitCGMA::initialize_cgma();
 #endif
 
+  facetingTolerance = defaultFacetingTolerance;
     // override default value of facetingTolerance with passed value
   if (facet_tolerance > 0 )
     facetingTolerance = facet_tolerance;
@@ -573,7 +566,7 @@ void DagMC::RayHistory::rollback_last_intersection() {
 ErrorCode DagMC::ray_fire(const EntityHandle vol, 
                           const double point[3], const double dir[3],
                           EntityHandle& next_surf, double& next_surf_dist,
-                          RayHistory* history, 
+                          RayHistory* history, double user_dist_limit,
                           OrientedBoxTreeTool::TrvStats* stats ) { 
 
   // take some stats that are independent of nps
@@ -592,7 +585,10 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
               << " vol_id=" << id_by_index(3, index_by_handle(vol)) << std::endl;
     }
 
-  double huge_val = std::numeric_limits<double>::max();
+  const double huge_val = std::numeric_limits<double>::max();
+  double dist_limit = huge_val;
+  if( user_dist_limit > 0 )
+    dist_limit = user_dist_limit;
 
   // don't recreate these every call
   std::vector<double>       &dists       = distList;
@@ -615,12 +611,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   }
 
   // optionally, limit the nonneg_ray_len with the distance to next collision.
-  double nonneg_ray_len;
-  if(use_dist_limit()) {
-    nonneg_ray_len = distance_limit();
-  } else {
-    nonneg_ray_len = huge_val;
-  }
+  double nonneg_ray_len = dist_limit;
 
   // the nonneg_ray_len should not be less than -neg_ray_len, or an overlap 
   // may be missed due to optimization within ray_intersect_sets
@@ -658,10 +649,8 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   // unless you know lost particles do not occur.
   if( dists.empty() ) {
     next_surf = 0;
-    // Make this large enough so that the physics limit is not reached first!
-    next_surf_dist = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
     if(debug) {
-      std::cout << "          next_surf=" << 0 << " dist=" << next_surf_dist << std::endl;
+      std::cout << "          next_surf=0 dist=(undef)" << std::endl; 
     }
     return MB_SUCCESS;
   }
@@ -712,9 +701,8 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   // if the exit index is still unknown, the particle is lost
   if(-1 == exit_idx) {
     next_surf = 0;
-    next_surf_dist = (use_dist_limit() ? distance_limit()*10.0 : huge_val);
     if (debug) {
-      std::cout << "next surf hit = " << 0 << ", dist = (huge_val)" << std::endl;
+      std::cout << "next surf hit = 0, dist = (undef)" << std::endl;
     }
     return MB_SUCCESS;
   }
@@ -1565,174 +1553,32 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
 
 /* SECTION IV */  
 
-// **** HANDLING FILES TO INPUT DAGMC SETTINGS ****
-// there is a movement away from using a settings file and, instead, incorporating this
-// information into the native input file of the calling application 
+void DagMC::set_overlap_thickness( double new_thickness ){
 
-void DagMC::read_settings( const char* filename )
-{
-  int num_opt = sizeof(options) / sizeof(options[0]);
-  FILE* file;
-  
-  if (filename && (file = fopen( filename, "r" ))) {
-    int line = 0;
-    char buffer[256];
-    bool havenl = true;
-    while ( fgets( buffer, sizeof(buffer), file ) ) {
-      if (havenl) {
-        havenl = false;
-        ++line;
-      }
-      int len = strlen(buffer);
-      if (len && buffer[len-1] == '\n')
-        havenl = true;
-        
-        // chop off any thing after the '#' comman indicator
-      char* c = strchr( buffer, '#' );
-      if (c) *c = '\0';
-        // skip leading white space
-      char* p = buffer;
-      while (isspace(*p)) ++p;
-        // if empty line, done
-      if (!*p)
-        continue;
-        // find '='
-      c = strchr( p, '=' );
-      if (!c) {
-        fprintf(stderr, "Invalid option at line %d of config file '%s'\n", line, filename );
-        exit(2);
-      }
-        // get rid of white space around '='
-      char* v = c+1;
-      *c = ' ';
-      while (c > p && isspace(*c)) {
-        *c = '\0';
-        --c;
-      }
-      while (isspace(*v))
-        ++v;
-      
-        // search for option
-      bool found = false;
-      for (int i = 0; i < num_opt; ++i) {
-        if (options[i].name == p) {
-          found = true;
-          options[i].value = v;
-          options[i].user_set = true;
-        }
-      }
-      if (!found) 
-        fprintf(stderr,"Warning: unknown option at line %d of '%s': %s\n", line, filename, p );
-    } // while( fgets() )
-    
-    fclose(file);
-  } // file(file)
-  
-  // always do this, even if no file was found.
-  // it will either read the default values, or re-parse
-  // the values previously read from some other file.
-  parse_settings();
-}
-
-void DagMC::write_settings( FILE* fptr, bool desc ) {
-  int num_opt = sizeof(options) / sizeof(options[0]);
-  if (desc) for (int i = 0; i < num_opt; ++i) 
-    fprintf( fptr, "%s = %s  # %s\n", options[i].name.c_str(), options[i].value.c_str(), options[i].desc.c_str() );
-  else for (int i = 0; i < num_opt; ++i) 
-    fprintf( fptr, "%s = %s\n", options[i].name.c_str(), options[i].value.c_str() );
-}
-
-  // this method sets the default values from options[] if none were read from file
-void DagMC::parse_settings() {
-  sourceCell = atoi( options[0].value.c_str() );
-  if (sourceCell < 0) {
-    std::cerr << "Invalid source_cell = " << sourceCell << std::endl;
-    exit(2);
+  if (new_thickness < 0 || new_thickness > 100) {
+    std::cerr << "Invalid overlap_thickness = " << new_thickness << std::endl;
   }
-
-  overlapThickness = strtod( options[1].value.c_str(), 0 );
-  if (overlapThickness < 0 || overlapThickness > 100) {
-    std::cerr << "Invalid overlap_thickness = " << overlapThickness << std::endl;
-    exit(2);
+  else{
+    overlapThickness = new_thickness;
   }
-
-  numericalPrecision = strtod( options[5].value.c_str(), 0 );
-  if (numericalPrecision <= 0 || numericalPrecision > 1) {
-    std::cerr << "Invalid numerical_precision = " << numericalPrecision << std::endl;
-    exit(2);
-  }
-
-  useDistLimit = !!atoi( options[2].value.c_str() );
-
-  set_useCAD( !!atoi( options[3].value.c_str() ) );
-
-  facetingTolerance = strtod( options[4].value.c_str(), 0 );
-  if (facetingTolerance <= 0) {
-    std::cerr << "Invalid faceting_tolerance = " << facetingTolerance << std::endl;
-    exit(2);
-  }
-
-}
-
-// **** PASS SETTINGS FROM CALLING APPLICATION ****
-// This is the prefered way to set DAGMC settings
-
-void DagMC::set_settings(int source_cell, int use_cad, int use_dist_limit,
-			 double overlap_thickness, double numerical_precision) {
-
-  sourceCell = source_cell;
-  if (sourceCell < 0) {
-    std::cerr << "Invalid source_cell = " << sourceCell << std::endl;
-    exit(2);
-  }
-
-  std::cout << "Set Source Cell = " << sourceCell << std::endl;
-
-  overlapThickness = overlap_thickness;
-  if (overlapThickness < 0 || overlapThickness > 100) {
-    std::cerr << "Invalid overlap_thickness = " << overlapThickness << std::endl;
-    exit(2);
-  }
-
   std::cout << "Set overlap thickness = " << overlapThickness << std::endl;
 
-  numericalPrecision = numerical_precision;
-  if (numericalPrecision <= 0 || numericalPrecision > 1) {
+}
+
+void DagMC::set_numerical_precision( double new_precision ){
+
+  if ( new_precision <= 0 || new_precision > 1) {
     std::cerr << "Invalid numerical_precision = " << numericalPrecision << std::endl;
-    exit(2);
+  }
+  else{
+    numericalPrecision = new_precision;
   }
 
   std::cout << "Set numerical precision = " << numericalPrecision << std::endl;
 
-  useDistLimit = !!(use_dist_limit);
-
-  std::cout << "Turned " << (useDistLimit?"ON":"OFF") << " distance limit." << std::endl;
-
-  set_useCAD( use_cad );
-
-  std::cout << "Turned " << (useCAD?"ON":"OFF") << " ray firing on full CAD model." << std::endl;
-
-
 }
 
-void DagMC::get_settings(int *source_cell, int *use_cad, int *use_dist_limit,
-			 double *overlap_thickness, double *facet_tol) {
-
-  *source_cell = sourceCell;
-
-  *overlap_thickness = overlapThickness;
-
-  //*numerical_precision = numericalPrecision;
-
-  *use_dist_limit = !!(useDistLimit);
-
-  *use_cad = !!(useCAD);
-
-  *facet_tol = facetingTolerance;
-
-}
-
-void DagMC::set_useCAD( bool use_cad ){
+void DagMC::set_use_CAD( bool use_cad ){
   useCAD = use_cad;
   if( useCAD ){
     if( !have_cgm_geom ){
@@ -1749,11 +1595,10 @@ void DagMC::set_useCAD( bool use_cad ){
     }
 #endif
   }
+
+  std::cout << "Turned " << (useCAD?"ON":"OFF") << " ray firing on full CAD model." << std::endl;
+
 }
-
-
-
-
 
 ErrorCode DagMC::write_mesh(const char* ffile,
 			      const int flen)

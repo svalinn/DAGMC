@@ -328,7 +328,7 @@ int main( int argc, char* argv[] )
  
   // change settings to use overlap-tolerant mode (arbitrary thickness)
   double overlap_thickness = 0.1;
-  dagmc.set_settings( 0, 0, 0, overlap_thickness, 0.001);
+  dagmc.set_overlap_thickness( overlap_thickness );
   RUN_TEST( test_ray_fire );
   RUN_TEST( test_point_in_volume );
 
@@ -361,7 +361,7 @@ int main( int argc, char* argv[] )
   }
   // change settings to use overlap-tolerant mode (with a large enough thickness)
   overlap_thickness = 3;
-  dagmc.set_settings( 0, 0, 0, overlap_thickness, 0.001);
+  dagmc.set_overlap_thickness( overlap_thickness );
   RUN_TEST( overlap_test_ray_fire );
   RUN_TEST( overlap_test_point_in_volume );
   RUN_TEST( overlap_test_measure_volume );

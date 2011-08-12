@@ -162,10 +162,12 @@ public:
    * @param next_surf Output parameter indicating the next surface intersected by the ray.
    *                If no intersection is found, will be set to 0.
    * @param next_surf_dist Output parameter indicating distance to next_surf.  If next_surf is
-   *                0, this value should not be used.
+   *                0, this value is undefined and should not be used.
    * @param history Optional RayHistory object.  If provided, the facets in the history are 
    *                assumed to not intersect with the given ray.  The facet intersected 
    *                by this query will also be added to the history.
+   * @param dist_limit Optional distance limit.  If provided and > 0, no intersections at a 
+   *                distance further than this value will be returned.
    * @param stats Optional TrvStats object used to measure performance of underlying OBB
    *              ray-firing query.  See OrientedBoxTreeTool.hpp for details.
    * 
@@ -173,7 +175,7 @@ public:
   ErrorCode ray_fire(const EntityHandle volume, 
                      const double ray_start[3], const double ray_dir[3],
                      EntityHandle& next_surf, double& next_surf_dist,
-                     RayHistory* history = NULL, 
+                     RayHistory* history = NULL, double dist_limit = 0,
                      OrientedBoxTreeTool::TrvStats* stats = NULL );
   
   /**\brief Test if a point is inside or outside a volume 
@@ -342,18 +344,6 @@ private:
 
   /* SECTION IV: Handling DagMC settings */
 public:
-  /** read settings from file (largely deprecated) */
-  void read_settings( const char* filename );
-  /** write settings to file (largely deprecated) */
-  void write_settings( FILE* filp, bool with_description = true );
-  /** parse settings read from file - also used to initialize defaults */
-  void parse_settings();
-  /** pass settings from calling application */
-  void set_settings(int source_cell, int use_cad, int use_dist_limit,
-		    double overlap_thickness, double numerical_precision);
-  /** return settings to calling application */
-  void get_settings(int* source_cell, int* use_cad, int* use_dist_limit,
-		    double* overlap_thickness, double* facet_tol);
 
   /** retrieve overlap thickness */
   double overlap_thickness() {return overlapThickness;}
@@ -361,33 +351,21 @@ public:
   double numerical_precision() {return numericalPrecision;}
   /** retrieve faceting tolerance */
   double faceting_tolerance() {return facetingTolerance;}
-  /** retrieve source cell paramter value */
-  int source_cell() {return sourceCell;}
-  /** retrieve distance limit toggle */
-  bool use_dist_limit() {return useDistLimit;}
   /** retrieve use CAD toggle */
-  bool use_cad() {return useCAD;}
-  /** retrieve distance limit */
-  double distance_limit() {return distanceLimit;}
-  /** set distance limit */
-  void distance_limit(double this_limit) {distanceLimit = this_limit;}
+  bool use_CAD() {return useCAD;}
 
-private:
+  /** Attempt to set a new overlap thickness tolerance, first checking for sanity */
+  void set_overlap_thickness( double new_overlap_thickness );
+
+  /** Attempt to set a new numerical precision , first checking for sanity
+   *  Use of this function is discouraged; see top of DagMC.cpp 
+   */
+  void set_numerical_precision( double new_precision );
+
   /** attempt to set useCAD, first checking for availability */
-  void set_useCAD( bool use_cad ); 
-
-  class Option {
-  public:
-    Option(){}
-    Option( const char* n, const char* d, const char* v )
-        : name(n), desc(d), value(v), user_set(false) {}
-    std::string name, desc, value;
-    bool user_set;
-  };
-
+  void set_use_CAD( bool use_cad ); 
 
   /* SECTION V: Metadata handling */
-public:
   /**\brief translate metadata stored in geometry to tags on MOAB representation
    *
    * For each of the recognized pieces of metadata, tags are created on the geometry
@@ -467,8 +445,6 @@ private:
   static DagMC *instance_;
   Interface *mbImpl;
 
-  std::string itos(int ival);
-
   OrientedBoxTreeTool obbTree;
   EntityHandle impl_compl_handle;
   Tag obbTag, geomTag, idTag, nameTag, senseTag, facetingTolTag;
@@ -495,18 +471,11 @@ private:
   char implComplName[NAME_TAG_SIZE];
   std::vector<EntityHandle> graveyard_vols;
 
-  // settings
-  Option options[6];
-
   double overlapThickness;
   double numericalPrecision;
-  double facetingTolerance;
-  int sourceCell;
-  bool useDistLimit;
+  double facetingTolerance, defaultFacetingTolerance;
   bool useCAD;         /// true if user requested CAD-based ray firing
   bool have_cgm_geom;  /// true if CGM contains problem geometry; required for CAD-based ray firing.
-
-  double distanceLimit;
 
   // temporary storage so functions don't have to reallocate vectors
   // for ray_fire:

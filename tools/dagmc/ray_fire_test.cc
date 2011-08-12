@@ -277,7 +277,7 @@ int main( int argc, char* argv[] )
       ray_t ray = rays[i];
       std::cout << " Ray: point = " << ray.p << " dir = " << ray.v << std::endl;
 
-      rval = dagmc.ray_fire( vol, ray.p.array(), ray.v.array(), surf, dist, NULL, trv_stats );
+      rval = dagmc.ray_fire( vol, ray.p.array(), ray.v.array(), surf, dist, NULL, 0, trv_stats );
 
       if(MB_SUCCESS != rval) {
         std::cerr << "ERROR: ray_fire() failed!" << std::endl;
@@ -327,7 +327,7 @@ int main( int argc, char* argv[] )
     uavg += uvw[0]; vavg += uvw[1]; wavg += uvw[2];
 #endif
     
-    dagmc.ray_fire(vol, xyz.array(), uvw.array(), surf, dist, NULL, trv_stats );
+    dagmc.ray_fire(vol, xyz.array(), uvw.array(), surf, dist, NULL, 0, trv_stats );
 
     if( surf == 0){ random_rays_missed++; }
 
