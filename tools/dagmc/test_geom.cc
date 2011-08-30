@@ -5,6 +5,10 @@
 #include "moab/Range.hpp"
 #include "moab/CartVect.hpp"
 
+#ifdef USE_MPI
+#include "moab_mpi.h"
+#endif
+
 #include <vector>
 #include <iostream>
 #include <math.h>
@@ -298,6 +302,11 @@ int main( int argc, char* argv[] )
   ErrorCode rval;
   const char* filename = "test_geom.h5m";
   
+#ifdef USE_MPI
+  int fail = MPI_Init(&argc, &argv);
+  if (fail) return fail;
+#endif
+
   rval = write_geometry( filename );
   if (MB_SUCCESS != rval) {
     remove( filename );
@@ -369,6 +378,11 @@ int main( int argc, char* argv[] )
   RUN_TEST( overlap_test_surface_sense );
   RUN_TEST( overlap_test_tracking );
  
+#ifdef USE_MPI
+  fail = MPI_Finalize();
+  if (fail) return fail;
+#endif
+
   return errors;
 }
 
