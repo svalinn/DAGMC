@@ -1506,6 +1506,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     i = 0;
     rit = vols.begin();
     for (; rit != vols.end(); rit++, i++) {
+      if( is_implicit_complement( *rit ) ) continue;
       RefEntity *this_vol = GeometryQueryTool::instance()->
         get_ref_volume(ids[i]);
       assert(NULL != this_vol);
