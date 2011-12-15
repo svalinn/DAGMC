@@ -715,14 +715,10 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
     history->prev_facets.push_back( facets[exit_idx] );
   }
 
-  // print a warning if the negative ray length was excessive
-  if(-0.1 > dists[exit_idx]) {
-    std:: cout << "WARNING: overlap track length=" << dists[exit_idx] 
-               <<  " next_surf=" << id_by_index(2, index_by_handle(next_surf)) 
-               << " vol_id=" << id_by_index(3, index_by_handle(vol)) << std::endl;
-  }
-
   if (debug) {
+    if( 0 > dists[exit_idx] ){
+      std::cout << "          OVERLAP track length=" << dists[exit_idx] << std::endl;
+    }
     std::cout << "          next_surf = " <<  id_by_index(2, index_by_handle(next_surf)) 
               << ", dist = " << next_surf_dist << " new_pt=";
     for( int i = 0; i < 3; ++i ){
