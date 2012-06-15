@@ -5,6 +5,7 @@
 #include "MBTagConventions.hpp"
 
 #include <vector>
+#include <map>
 #include <string>
 #include <assert.h>
 
@@ -33,6 +34,7 @@ class DagMC
 public:
   static DagMC *instance(Interface *mb_impl = NULL);
 
+  
   ~DagMC();
 
   /** Return the version of this library */
@@ -374,6 +376,48 @@ public:
    */
   ErrorCode parse_metadata();
 
+  /** Detect all the property keywords that appear in the loaded geometry
+   *
+   * @param keywords_out The result list of keywords.  This list could be
+   *        validly passed to parse_properties().
+   */
+  ErrorCode detect_available_props( std::vector<std::string>& keywords_out );
+
+  /** Parse properties from group names per metadata syntax standard
+   * 
+   * @param keywords A list of keywords to parse.  These are considered the canonical
+   *                 names of the properties, and constitute the valid inputs to 
+   *                 has_prop() and prop_value().
+   * @param synonyms An optional mapping of synonym keywords to canonical keywords. 
+   *                 This allows more than one group name keyword to take on the same
+   *                 meaning
+   *                 e.g. if synonyms["rest.of.world"] = "graveyard", then volumes
+   *                 in the "rest.of.world" group will behave as if they were in a
+   *                 group named "graveyard".
+   */
+  ErrorCode parse_properties( const std::vector<std::string>& keywords, 
+                            const std::map<std::string,std::string>& synonyms = no_synonyms );
+
+  /** Get the value of a property on a volume or surface
+   *
+   * @param eh The entity handle to get a property value on
+   * @param prop The canonical property name
+   * @param value Output parameter, the value of the property.  If no value was
+   *              set on the handle, this will be the empty string.
+   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from 
+   *         MOAB, or MB_SUCCESS if successful
+   */
+  ErrorCode prop_value( EntityHandle eh, const std::string& prop, std::string& value );
+
+  /** Return true if a volume or surface has the named property set upon it
+   *
+   * @param eh The entity handle to query
+   * @param prop The canonical property name
+   * @retrun True if the handle has the property set, or false if not.
+   *         False is also returned if a MOAB error occurs.
+   */
+  bool has_prop( EntityHandle eh, const std::string& prop );
+
   ErrorCode get_volume_metadata(EntityHandle volume, DagmcVolData &volData);
 
   ErrorCode get_graveyard(std::vector<EntityHandle> &graveyard_vol_list);
@@ -401,10 +445,17 @@ public:
 private:
   /** tokenize the metadata stored in group names - basically borroed from ReadCGM.cpp */
   void tokenize( const std::string& str,
-			std::vector<std::string>& tokens,
-			const char* delimiters );
+                 std::vector<std::string>& tokens,
+                 const char* delimiters ) const;
 
+  // a common type within the property and group name functions
+  typedef std::map<std::string, std::string> prop_map;
 
+  /** Store the name of a group in a string */
+  ErrorCode get_group_name( EntityHandle group_set, std::string& name );
+  /** Parse a group name into a set of key:value pairs */
+  ErrorCode parse_group_name( EntityHandle group_set, prop_map& result );
+  
   std::vector<EntityHandle>& surf_handles() {return entHandles[2];}
   std::vector<EntityHandle>& vol_handles() {return entHandles[3];}
   std::vector<EntityHandle>& group_handles() {return entHandles[4];}
@@ -464,6 +515,11 @@ private:
   std::vector<RefEntity *> geomEntities;
   
   // metadata
+  // an empty synonym map to provide as a default argument to parse_properties()
+  static const std::map<std::string,std::string> no_synonyms;
+  // a map from the canonical property names to the tags representing them
+  std::map<std::string, Tag> property_tagmap;
+
   Tag matTag, densTag, compTag, bcTag, impTag, tallyTag;
   std::vector<int> tallyList;
   char specReflectName[NAME_TAG_SIZE];
