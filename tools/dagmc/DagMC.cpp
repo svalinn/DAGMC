@@ -1744,10 +1744,11 @@ ErrorCode DagMC::parse_properties( const std::vector<std::string>& keywords,
       std::string groupkey = (*i).first;
       std::string groupval = (*i).second;
 
-      Tag proptag = property_tagmap[(*i).first];
-      rval = MBI->tag_clear_data( proptag, grp_sets, groupval.c_str(), groupval.length()+1 );
+      if( property_tagmap.find( groupkey ) != property_tagmap.end() ){
+        Tag proptag = property_tagmap[groupkey];
+        rval = MBI->tag_clear_data( proptag, grp_sets, groupval.c_str(), groupval.length()+1 );
+      }
     }
-    
   }
   return MB_SUCCESS;
 }
