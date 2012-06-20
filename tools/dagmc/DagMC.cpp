@@ -1687,6 +1687,58 @@ ErrorCode DagMC::detect_available_props( std::vector<std::string>& keywords_list
   return MB_SUCCESS;
 }
 
+ErrorCode DagMC::append_packed_string( Tag tag, EntityHandle eh,
+                                       std::string& new_string )
+{
+    // When properties have multiple values, the values are tagged in a single character array
+    // with the different values separated by null characters
+  ErrorCode rval;
+  const void* p;
+  const char* str;
+  int len;
+  rval = MBI->tag_get_by_ptr( tag, &eh, 1, &p, &len );
+  if( rval == MB_TAG_NOT_FOUND ){
+    // This is the first entry, and can be set directly
+    p = new_string.c_str();
+    return MBI->tag_clear_data( tag, &eh, 1, p, new_string.length()+1);
+  }
+  else if( rval != MB_SUCCESS ) return rval;
+  else{ 
+    str = static_cast<const char*>(p);
+  }
+
+  // append a new value for the property to the existing property string
+  unsigned int tail_len = new_string.length() + 1;
+  char* new_packed_string = new char[ len + tail_len ];
+  memcpy( new_packed_string, str, len );
+  memcpy( new_packed_string + len, new_string.c_str(), tail_len );
+
+  int new_len = len + tail_len;
+  p = new_packed_string;
+  rval = MBI->tag_set_by_ptr( tag, &eh, 1, &p, &new_len );
+  delete[] new_packed_string;
+  return rval;
+}
+
+ErrorCode DagMC::unpack_packed_string( Tag tag, EntityHandle eh, 
+                                       std::vector< std::string >& values )
+{
+  ErrorCode rval;
+  const void* p;
+  const char* str;
+  int len;
+  rval = MBI->tag_get_by_ptr( tag, &eh, 1, &p, &len );
+  if( rval != MB_SUCCESS ) return rval;
+  str = static_cast<const char*>(p);
+  int idx = 0;
+  while( idx < len ){
+    std::string item(str + idx);
+    values.push_back( item );
+    idx += item.length() + 1;
+  }
+  return MB_SUCCESS;
+}
+
 ErrorCode DagMC::parse_properties( const std::vector<std::string>& keywords,
                                    const std::map<std::string, std::string>& keyword_synonyms )
 {
@@ -1746,7 +1798,10 @@ ErrorCode DagMC::parse_properties( const std::vector<std::string>& keywords,
 
       if( property_tagmap.find( groupkey ) != property_tagmap.end() ){
         Tag proptag = property_tagmap[groupkey];
-        rval = MBI->tag_clear_data( proptag, grp_sets, groupval.c_str(), groupval.length()+1 );
+        const unsigned int groupsize = grp_sets.size();
+        for( unsigned int j = 0; j < groupsize; ++j){
+            rval = append_packed_string( proptag, grp_sets[j], groupval );
+        }
       }
     }
   }
@@ -1770,6 +1825,20 @@ ErrorCode DagMC::prop_value( EntityHandle eh, const std::string& prop, std::stri
   if( rval != MB_SUCCESS ) return rval;
   value = static_cast<const char*>(data);
   return MB_SUCCESS;
+}
+
+ErrorCode DagMC::prop_values( EntityHandle eh, const std::string& prop, 
+                              std::vector< std::string >& values )
+{
+
+  std::map<std::string, Tag>::iterator it = property_tagmap.find(prop);
+  if( it == property_tagmap.end() ){
+      return MB_TAG_NOT_FOUND;
+  }
+  Tag proptag = (*it).second;
+
+  return unpack_packed_string( proptag, eh, values );
+
 }
 
 bool DagMC::has_prop( EntityHandle eh, const std::string& prop )

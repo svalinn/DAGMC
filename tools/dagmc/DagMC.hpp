@@ -409,6 +409,18 @@ public:
    */
   ErrorCode prop_value( EntityHandle eh, const std::string& prop, std::string& value );
 
+  /** Get the value of a property on a volume or surface
+   *
+   * @param eh The entity handle to get a property value on
+   * @param prop The canonical property name
+   * @param values Output parameter, the values of the property will be appended to this list.  If no value was
+   *               set on the handle, no entries will be added.
+   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from 
+   *         MOAB, or MB_SUCCESS if successful
+   */
+  ErrorCode prop_values( EntityHandle eh, const std::string& prop, 
+                         std::vector< std::string >& value );
+
   /** Return true if a volume or surface has the named property set upon it
    *
    * @param eh The entity handle to query
@@ -455,6 +467,11 @@ private:
   ErrorCode get_group_name( EntityHandle group_set, std::string& name );
   /** Parse a group name into a set of key:value pairs */
   ErrorCode parse_group_name( EntityHandle group_set, prop_map& result );
+  /** Add a string value to a property tag for a given entity */
+  ErrorCode append_packed_string( Tag, EntityHandle, std::string& );
+  /** Convert a property tag's value on a handle to a list of strings */
+  ErrorCode unpack_packed_string( Tag tag, EntityHandle eh, 
+                                  std::vector< std::string >& values );
   
   std::vector<EntityHandle>& surf_handles() {return entHandles[2];}
   std::vector<EntityHandle>& vol_handles() {return entHandles[3];}
