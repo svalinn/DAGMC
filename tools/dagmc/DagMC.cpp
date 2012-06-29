@@ -1859,6 +1859,70 @@ bool DagMC::has_prop( EntityHandle eh, const std::string& prop )
 
 }
 
+
+ErrorCode DagMC::get_all_prop_values( const std::string& prop, std::vector<std::string>& return_list )
+{
+  ErrorCode rval;
+  std::map<std::string, Tag>::iterator it = property_tagmap.find(prop);
+  if( it == property_tagmap.end() ){
+    return MB_TAG_NOT_FOUND;
+  }
+  Tag proptag = (*it).second;
+  Range all_ents;
+
+  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &proptag, NULL, 1, all_ents );
+  if( MB_SUCCESS != rval ) return rval;
+
+  std::set<std::string> unique_values;
+  for( Range::iterator i = all_ents.begin(); i!= all_ents.end(); ++i){
+    std::vector<std::string> values;
+    rval = prop_values( *i, prop, values );
+    if( MB_SUCCESS != rval ) return rval;
+    unique_values.insert( values.begin(), values.end() );
+  }
+
+  return_list.assign( unique_values.begin(), unique_values.end() );
+  return MB_SUCCESS;
+}
+
+ErrorCode DagMC::entities_by_property( const std::string& prop, std::vector<EntityHandle>& return_list,
+                                       int dimension, const std::string* value )
+{
+  ErrorCode rval;
+  std::map<std::string, Tag>::iterator it = property_tagmap.find(prop);
+  if( it == property_tagmap.end() ){
+    return MB_TAG_NOT_FOUND;
+  }
+  Tag proptag = (*it).second;
+  Range all_ents;
+
+  // Note that we cannot specify values for proptag here-- the passed value,
+  // if it exists, may be only a subset of the packed string representation
+  // of this tag.
+  Tag tags[2] = {proptag, geomTag };
+  void* vals[2] = {NULL, (dimension!=0) ? &dimension : NULL };
+  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, tags, vals, 2, all_ents );
+  if( MB_SUCCESS != rval ) return rval;
+
+  std::set<EntityHandle> handles;
+  for( Range::iterator i = all_ents.begin(); i!=all_ents.end(); ++i){
+    std::vector<std::string> values;
+    rval = prop_values( *i, prop, values );
+    if( MB_SUCCESS != rval ) return rval;
+    if( value ){
+      if( std::find(values.begin(), values.end(), *value) != values.end() ){
+        handles.insert(*i);
+      }
+    }
+    else{
+      handles.insert(*i);
+    }
+  }
+
+  return_list.assign( handles.begin(), handles.end() );
+  return MB_SUCCESS;
+}
+
 ErrorCode DagMC::parse_metadata()
 {
   std::vector<std::string> grp_names;

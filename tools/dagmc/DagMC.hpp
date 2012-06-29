@@ -396,7 +396,7 @@ public:
    *                 group named "graveyard".
    */
   ErrorCode parse_properties( const std::vector<std::string>& keywords, 
-                            const std::map<std::string,std::string>& synonyms = no_synonyms );
+                              const std::map<std::string,std::string>& synonyms = no_synonyms );
 
   /** Get the value of a property on a volume or surface
    *
@@ -429,6 +429,28 @@ public:
    *         False is also returned if a MOAB error occurs.
    */
   bool has_prop( EntityHandle eh, const std::string& prop );
+
+  /** Get a list of all unique values assigned to a named property on any entity
+   *
+   * @param prop The canonical property name
+   * @param return_list Output param, a list of unique strings that are set as values for this property
+   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
+   *         MOAB, or MB_SUCCESS if succesful
+   */
+  ErrorCode get_all_prop_values( const std::string& prop, std::vector<std::string>& return_list );
+
+  /** Get a list of all entities which have a given property
+   * 
+   * @param prop The canonical property name
+   * @param return_list Output param, a list of entity handles that have this property
+   * @param dimension If nonzero, entities returned will be restricted to the given dimension,
+   *                  i.e. 2 for surfaces and 3 for volumes
+   * @parm value If non-NULL, only entities for which the property takes on this value will be returned.
+   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
+   *         MOAB, or MB_SUCCESS if succesful
+   */
+  ErrorCode entities_by_property( const std::string& prop, std::vector<EntityHandle>& return_list,
+                                  int dimension = 0, const std::string* value = NULL );
 
   ErrorCode get_volume_metadata(EntityHandle volume, DagmcVolData &volData);
 
