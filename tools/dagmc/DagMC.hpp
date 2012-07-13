@@ -56,7 +56,7 @@ public:
    *        - other MB ErrorCodes returned from MOAB
    */
   ErrorCode load_file(const char* cfile,
-			const double facet_tolerance = 0);
+                      const double facet_tolerance = 0);
 
   /*\brief Use pre-loaded geometry set
    *
@@ -368,14 +368,6 @@ public:
   void set_use_CAD( bool use_cad ); 
 
   /* SECTION V: Metadata handling */
-  /**\brief translate metadata stored in geometry to tags on MOAB representation
-   *
-   * For each of the recognized pieces of metadata, tags are created on the geometry
-   * and the metadata values are stored there.  This includes material assignment,
-   * material density, tallies, importance, etc.
-   */
-  ErrorCode parse_metadata();
-
   /** Detect all the property keywords that appear in the loaded geometry
    *
    * @param keywords_out The result list of keywords.  This list could be
@@ -452,18 +444,8 @@ public:
   ErrorCode entities_by_property( const std::string& prop, std::vector<EntityHandle>& return_list,
                                   int dimension = 0, const std::string* value = NULL );
 
-  ErrorCode get_volume_metadata(EntityHandle volume, DagmcVolData &volData);
-
-  ErrorCode get_graveyard(std::vector<EntityHandle> &graveyard_vol_list);
-  bool is_graveyard(EntityHandle volume);
-  bool is_spec_reflect(EntityHandle surf);
-  bool is_white_reflect(EntityHandle surf);
   bool is_implicit_complement(EntityHandle volume);
 
-  /** get the metadata label for specular reflection */
-  char *get_spec_reflect();
-  /** get the metadata label for white reflection */
-  char *get_white_reflect();
   /** get the tag for the "name" of a surface == global ID */
   Tag name_tag() {return nameTag;}
 
@@ -498,7 +480,6 @@ private:
 
   Tag get_tag( const char* name, int size, TagType store, DataType type,
                  const void* def_value = NULL, bool create_if_missing = true);
-  bool get_group_names(EntityHandle group_set, std::vector<std::string> &grp_names);
   
   /* SECTION VI: Other */
 public:
@@ -556,12 +537,7 @@ private:
   // a map from the canonical property names to the tags representing them
   std::map<std::string, Tag> property_tagmap;
 
-  Tag matTag, densTag, compTag, bcTag, impTag, tallyTag;
-  std::vector<int> tallyList;
-  char specReflectName[NAME_TAG_SIZE];
-  char whiteReflectName[NAME_TAG_SIZE];
   char implComplName[NAME_TAG_SIZE];
-  std::vector<EntityHandle> graveyard_vols;
 
   double overlapThickness;
   double numericalPrecision;
@@ -608,25 +584,6 @@ inline int DagMC::num_entities( int dimension )
   
   return entHandles[dimension].size() - 1;
 }
-
-
-inline char *DagMC::get_spec_reflect() 
-{
-  return specReflectName;
-}
-
-inline char *DagMC::get_white_reflect() 
-{
-  return whiteReflectName;
-}
-
-inline ErrorCode DagMC::get_graveyard(std::vector<EntityHandle> &graveyard_vol_list)
-{ 
-  graveyard_vol_list = graveyard_vols;
-
-  return MB_SUCCESS;
-}
-
 
     // get the root of the obbtree for a given entity
 inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle &root) 

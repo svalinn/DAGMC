@@ -37,22 +37,6 @@
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
 #define CATEGORY_TAG_LENGTH 32
-#define COMP_NAME_TAG_LENGTH 64
-
-#define MAT_GROUP 0
-#define BC_SPEC 1
-#define BC_WHITE 2
-#define IMP_ZERO 3
-#define TALLY_GROUP 4
-#define COMP_GROUP 5
-
-#define MATERIAL_TAG_NAME "DAGMC_MATERIAL_ID"
-#define DENSITY_TAG_NAME  "DAGMC_MATERIAL_DENSITY"
-#define BC_TAG_NAME       "DAGMC_BOUNDARY_CONDITION"
-#define IMP_TAG_NAME      "DAGMC_IMPORTANCE"
-#define TALLY_TAG_NAME    "DAGMC_TALLY"
-#define COMP_TAG_NAME     "DAGMC_COMPOSITION"
-
 
 #define MBI moab_instance()
 
@@ -101,7 +85,6 @@ void DagMC::create_instance(Interface *mb_impl)
   instance_ = new DagMC(mb_impl);
 }
 
-
 float DagMC::version(std::string *version_string) 
 {
   if (NULL != version_string)
@@ -130,10 +113,6 @@ DagMC::DagMC(Interface *mb_impl)
   numericalPrecision = .001; 
   useCAD = false;  
   
-  memset( specReflectName, 0, NAME_TAG_SIZE );
-  strcpy( specReflectName, "spec_reflect" );
-  memset( whiteReflectName, 0, NAME_TAG_SIZE );
-  strcpy( whiteReflectName, "white_reflect" );
   memset( implComplName, 0, NAME_TAG_SIZE );
   strcpy( implComplName , "impl_complement" );
 
@@ -145,7 +124,7 @@ DagMC::DagMC(Interface *mb_impl)
 /* SECTION I: Geometry Initialization */
 
 ErrorCode DagMC::load_file(const char* cfile,
-			   const double facet_tolerance)
+                           const double facet_tolerance)
 {
   ErrorCode rval;
 
@@ -227,20 +206,6 @@ ErrorCode DagMC::finish_loading()
     // get sense of surfaces wrt volumes
   senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
-  int matid = 0;
-  const void *def_matid = &matid;
-  matTag   = get_tag(MATERIAL_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER, def_matid );
-  densTag  = get_tag(DENSITY_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE );
-  compTag  = get_tag(COMP_TAG_NAME, COMP_NAME_TAG_LENGTH, MB_TAG_SPARSE, MB_TYPE_OPAQUE );
-  bcTag    = get_tag(BC_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
-
-  double imp_one = 1;
-  const void *def_imp = &imp_one;
-  impTag   = get_tag(IMP_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_DOUBLE, def_imp );
-  tallyTag = get_tag(TALLY_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_INTEGER);
-
-
-
   // search for a tag that has the faceting tolerance
   Range tagged_sets;
   double facet_tol_tagvalue = 0;
@@ -249,7 +214,7 @@ ErrorCode DagMC::finish_loading()
   // get list of entity sets that are tagged with faceting tolerance 
   // (possibly empty set)
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &facetingTolTag,
-					    NULL, 1, tagged_sets );
+                                            NULL, 1, tagged_sets );
   // if NOT empty set
   if (MB_SUCCESS == rval && !tagged_sets.empty()) {
     rval = MBI->tag_get_data( facetingTolTag, &(*tagged_sets.begin()), 1, &facet_tol_tagvalue );
@@ -283,14 +248,14 @@ ErrorCode DagMC::init_OBBTree()
   const int three = 3;
   const void* const three_val[] = {&three};
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, 
-				       three_val, 1, vols );
+                                            three_val, 1, vols );
   if (MB_SUCCESS != rval)
     return rval;
 
   const int two = 2;
   const void* const two_val[] = {&two};
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, 
-					    two_val, 1, surfs );
+                                            two_val, 1, surfs );
   if (MB_SUCCESS != rval)
     return rval;
 
@@ -492,7 +457,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
       // add this surf to the topology of the implicit complement volume
       rval = MBI->add_parent_child(impl_compl_handle,*surf_i);
       if (MB_SUCCESS != rval)
-	return rval;
+        return rval;
 
       // get the surface sense wrt original volume
       EntityHandle sense_data[2] = {0,0};
@@ -516,9 +481,9 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
   if( impl_compl_surf_count ){
     bool one = (impl_compl_surf_count == 1);
     std::cout << "The implicit complement bounds " << impl_compl_surf_count
-	      << (one ? " surface" : " surfaces") << std::endl;
+              << (one ? " surface" : " surfaces") << std::endl;
     std::cout << "The implicit complement's total surface area = " 
-	      << impl_compl_surf_area << std::endl;
+              << impl_compl_surf_area << std::endl;
   }
   
     // join surface trees to make OBB tree for implicit complement
@@ -538,7 +503,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
     return rval;
 
   Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_LENGTH, 
-	  		     MB_TAG_SPARSE, MB_TYPE_OPAQUE);
+                             MB_TAG_SPARSE, MB_TYPE_OPAQUE);
   static const char volume_category[CATEGORY_TAG_SIZE] = "Volume\0";
   rval = MBI->tag_set_data(category_tag, &impl_compl_handle, 1, volume_category );
   if (MB_SUCCESS != rval)
@@ -819,11 +784,11 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
       if     ( 1==dirs[i]) sum+=1; // +1 for entering
       else if( 0==dirs[i]) sum-=1; // -1 for leaving
       else if(-1==dirs[i]) {       //  0 for tangent
-  	std::cout << "direction==tangent" << std::endl;
-	sum+=0;
+        std::cout << "direction==tangent" << std::endl;
+        sum+=0;
       } else {
-	std::cout << "error: unknown direction" << std::endl;
-	return MB_FAILURE;
+        std::cout << "error: unknown direction" << std::endl;
+        return MB_FAILURE;
       }
     }
 
@@ -964,9 +929,6 @@ ErrorCode DagMC::closest_to_location( EntityHandle volume, const double coords[3
   return MB_SUCCESS;
 
 }
-
-
-
 
 // calculate volume of polyhedron
 ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
@@ -1280,9 +1242,9 @@ ErrorCode DagMC::CAD_ray_intersect(
 // result= 0 -> outside volume or leaving volume
 // result=-1 -> on boundary with null or tangent uvw
 ErrorCode DagMC::boundary_case( EntityHandle volume, int& result, 
-				  double u, double v, double w,
-				  EntityHandle facet,
-				  EntityHandle surface)
+                                double u, double v, double w,
+                                EntityHandle facet,
+                                EntityHandle surface)
 {
   ErrorCode rval;
 
@@ -1490,7 +1452,6 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     // for consistency with earlier versions of DagMC, make sure it always has the highest ID
   max_id++;
   MBI->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
-  
 
 #ifdef CGM
   if ( have_cgm_geom ) {
@@ -1535,7 +1496,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   const void* const group_val[] = {&group_category};
   Range groups;
   rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &category_tag, 
-					   group_val, 1, groups);
+                                           group_val, 1, groups);
   if (MB_SUCCESS != rval)
     return rval;
   group_handles().resize(groups.size()+1);
@@ -1613,7 +1574,7 @@ void DagMC::set_use_CAD( bool use_cad ){
 }
 
 ErrorCode DagMC::write_mesh(const char* ffile,
-			      const int flen)
+                            const int flen)
 {
   ErrorCode rval;
   
@@ -1627,7 +1588,6 @@ ErrorCode DagMC::write_mesh(const char* ffile,
   }
  
   return MB_SUCCESS;
- 
 }
 
 /* SECTION V: Metadata handling */
@@ -1923,214 +1883,6 @@ ErrorCode DagMC::entities_by_property( const std::string& prop, std::vector<Enti
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::parse_metadata()
-{
-  std::vector<std::string> grp_names;
-  std::vector<std::string> tokens;
-  std::map<std::string,int> keywords;
-
-  EntityHandle group;
-  Range grp_sets, grp_ents;
-  ErrorCode rval;
-
-  Range vols, surfs;
-
-  std::copy(vol_handles().begin()+1,  vol_handles().end(),
-	    range_inserter(vols));
-  std::copy(surf_handles().begin()+1, surf_handles().end(),
-	    range_inserter(surfs));
-
-  keywords["mat"]           = MAT_GROUP;
-  keywords["comp"]          = COMP_GROUP;
-  keywords["spec.reflect"]  = BC_SPEC;
-  keywords["white.reflect"] = BC_WHITE;
-  keywords["graveyard"]     = IMP_ZERO;
-  keywords["outside.world"] = IMP_ZERO;
-  keywords["rest.of.world"] = IMP_ZERO;
-  keywords["tally"]         = TALLY_GROUP;
-
-  for (unsigned int grp=0; grp < group_handles().size(); grp++) {
-
-    // get group handle & names
-    group = group_handles()[grp];
-    grp_names.clear();
-    bool success = get_group_names(group, grp_names);
-    if (!success)
-      return MB_FAILURE;
-    if (grp_names.empty()) continue;
-
-    // get sets associated with this group
-    grp_sets.clear();
-    rval = MBI->get_entities_by_type(group, MBENTITYSET, grp_sets);
-    if (MB_SUCCESS != rval) continue;
-
-    tokens.clear();
-    tokenize(grp_names[0],tokens,"_");
-
-    // is this a keyword?
-    if (keywords.count(tokens[0]) == 0 ) {
-      std::cout << "Ignoring group with name: " << grp_names[0] << std:: endl;
-      continue;
-    }
-
-    int matid, bc_id;
-    std::vector<int> matid_list, bc_id_list;
-    double density, imp_zero = 0;
-    std::vector<double> density_list, imp_zero_list;
-
-    // actions for each keyword
-    switch (keywords[tokens[0]]) {
-    case MAT_GROUP:
-      // missing density
-      if ( tokens[2].compare("rho") != 0 ) {
-	std::cout << "Specified material with no density " << grp_names[0] << std::endl;
-	continue;
-      }
-
-        matid = atoi(tokens[1].c_str());
-      density = atof(tokens[3].c_str());
-      
-      // check to see if this is the implicit complement
-      if ( tokens.size() > 4 && tokens[4].compare("comp") == 0 ) {
-        std::cout<<"parse_metadata: complement material and density specified" << std::endl;
-	// TAG IMPL COMPL WITH MAT & DENS
- 	MBI->tag_set_data(matTag ,&impl_compl_handle,1,&matid);
- 	MBI->tag_set_data(densTag,&impl_compl_handle,1,&density);
-      } else {
-	// apply tag to range of volumes
-	grp_ents.clear();
-	grp_ents = intersect(grp_sets,vols);
-	  matid_list.assign(grp_ents.size(),matid);
-	density_list.assign(grp_ents.size(),density);
-	MBI->tag_set_data(matTag ,grp_ents,&(*matid_list.begin()));
-	MBI->tag_set_data(densTag,grp_ents,&(*density_list.begin()));
-      }
-      break;
-    case COMP_GROUP:
-      //
-      char namebuf[COMP_NAME_TAG_LENGTH];
-      memset( namebuf, '\0', COMP_NAME_TAG_LENGTH );
-      strncpy( namebuf, tokens[1].c_str(), COMP_NAME_TAG_LENGTH - 1 );
-      if (tokens[1].length() >= (unsigned)COMP_NAME_TAG_LENGTH) 
-      std::cout << "WARNING: composition name '" << tokens[1].c_str() 
-                << "' truncated to '" << namebuf << "'" << std::endl;
-
-      // check to see if this is the implicit complement
-      if ( tokens.size() > 2 && tokens[2].compare("comp") == 0 ) {
-	MBI->tag_set_data(compTag, &impl_compl_handle, 1, namebuf);
-      } else {
-	grp_ents.clear();
-	grp_ents = intersect(grp_sets,vols);
-	for (Range::iterator grpit =grp_ents.begin();grpit!=grp_ents.end();grpit++)
-	  MBI->tag_set_data(compTag, &(*grpit), 1, namebuf);
-      }
-      break;
-    case BC_SPEC:
-    case BC_WHITE:
-      bc_id = keywords[tokens[0]];
-      grp_ents.clear();
-      grp_ents = intersect(grp_sets,surfs);
-      bc_id_list.assign(grp_ents.size(),bc_id);
-      MBI->tag_set_data(bcTag ,grp_ents, &(*bc_id_list.begin()));
-      break;
-    case IMP_ZERO:
-      grp_ents.clear();
-      grp_ents = intersect(grp_sets,vols);
-      imp_zero_list.assign(grp_ents.size(),imp_zero);
-      for (Range::iterator i=grp_ents.begin();i!=grp_ents.end();++i)
-	graveyard_vols.push_back(*i);
-      MBI->tag_set_data(impTag ,grp_ents, &(*imp_zero_list.begin()));
-      break;
-    case TALLY_GROUP:
-      // make list of groups that are tallies
-      grp_ents.clear();
-      grp_ents = intersect(grp_sets,vols);
-      tallyList.push_back(grp);
-      break;
-    }
-    
-  }
-
-  return MB_SUCCESS;
-}
-
-ErrorCode DagMC::get_volume_metadata(EntityHandle volume, DagmcVolData &volData)
-{
-  ErrorCode rval;
-  
-  rval = MBI->tag_get_data( matTag, &volume, 1, &(volData.mat_id));
-  if (MB_TAG_NOT_FOUND == rval)
-    volData.mat_id = -1;
-  else if (MB_SUCCESS != rval) return rval;
-
-  if (volData.mat_id > 0)
-    {
-      rval = MBI->tag_get_data( densTag, &volume, 1, &(volData.density));
-      if (MB_TAG_NOT_FOUND == rval)
-	volData.density = 0;
-      else if (MB_SUCCESS != rval) return rval;
-    }
-
-  rval = MBI->tag_get_data( impTag, &volume, 1, &(volData.importance));
-  if (MB_TAG_NOT_FOUND == rval)
-    volData.importance = 1;
-  else if (MB_SUCCESS != rval) return rval;
-
-  char comp_name[COMP_NAME_TAG_LENGTH];
-  std::fill(comp_name, comp_name+COMP_NAME_TAG_LENGTH, '\0');
-  rval = MBI->tag_get_data( compTag, &volume, 1, &comp_name);
-  if (MB_TAG_NOT_FOUND == rval)
-    volData.comp_name = "";
-  else if (MB_SUCCESS != rval) return rval;
-  volData.comp_name = comp_name;
-  
-  return MB_SUCCESS;
-}
-
-bool DagMC::is_graveyard(EntityHandle volume) 
-{
-  double imp;
-
-  MBI->tag_get_data( impTag, &volume, 1, &imp);
-  if (0.0 == imp)
-    return true;
-  else
-    return false;
-
-}
-
-bool DagMC::is_spec_reflect(EntityHandle surf)
-{
-  ErrorCode rval;
-  int bc_value;
-  bool spec_reflect=false;
-
-  rval = MBI->tag_get_data(bcTag,&surf,1,&bc_value);
-  if (MB_SUCCESS == rval && 
-      BC_SPEC == bc_value)
-    spec_reflect = true;
-
-  return spec_reflect;
-
-
-}
-
-bool DagMC::is_white_reflect(EntityHandle surf)
-{
-  ErrorCode rval;
-  int bc_value;
-  bool white_reflect=false;
-
-  rval = MBI->tag_get_data(bcTag,&surf,1,&bc_value);
-  if (MB_SUCCESS == rval && 
-      BC_WHITE == bc_value)
-    white_reflect = true;
-
-  return white_reflect;
-
-
-}
-
 bool DagMC::is_implicit_complement(EntityHandle volume)
 {
   return volume == impl_compl_handle;
@@ -2150,42 +1902,13 @@ void DagMC::tokenize( const std::string& str,
       last = str.find_first_not_of( delimiters, pos );
       pos  = str.find_first_of( delimiters, last );
       if(std::string::npos == pos)
-	pos = str.size();
+        pos = str.size();
     }
 }
 
-bool DagMC::get_group_names(EntityHandle group_set, 
-                             std::vector<std::string> &grp_names) 
-{
-    // get names
-  char name0[NAME_TAG_SIZE];
-  std::fill(name0, name0+NAME_TAG_SIZE, '\0');
-  ErrorCode result = MBI->tag_get_data(name_tag(), &group_set, 1,
-                                                     &name0);
-  if (MB_SUCCESS != result && MB_TAG_NOT_FOUND != result) return false;
-
-  if (MB_TAG_NOT_FOUND != result) grp_names.push_back(std::string(name0));
-
-  int extra_num = 0;
-  while (true) {
-    sprintf(name0, "%s%s%d", "EXTRA_", NAME_TAG_NAME, extra_num);
-    extra_num++;
-    Tag this_tag = get_tag(name0, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, 
-                            0, false);
-    if (0 == this_tag) break;
-    std::fill(name0, name0+NAME_TAG_SIZE, '\0');
-    result = MBI->tag_get_data(this_tag, &group_set, 1, &name0);
-    if (MB_SUCCESS != result && MB_TAG_NOT_FOUND != result) return false;
-    if (MB_TAG_NOT_FOUND == result) break;
-    else grp_names.push_back(std::string(name0));
-  }
-  
-  return true;
-}
-
 Tag DagMC::get_tag( const char* name, int size, TagType store, 
-		      DataType type, const void* def_value,
-		      bool create_if_missing) 
+                    DataType type, const void* def_value,
+                    bool create_if_missing) 
 {
   Tag retval = 0;
   unsigned flags = store|MB_TAG_CREAT;
