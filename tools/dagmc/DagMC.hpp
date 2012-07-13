@@ -24,8 +24,8 @@ namespace moab {
 
 class CartVect;
 
-#define DAGMC_VERSION 0.99
-#define DAGMC_VERSION_STRING "0.99"
+#define DAGMC_VERSION 1.0
+#define DAGMC_VERSION_STRING "1.0"
 #define DAGMC_INTERFACE_REVISION "$Rev$"
 
 
@@ -459,9 +459,6 @@ public:
   bool is_spec_reflect(EntityHandle surf);
   bool is_white_reflect(EntityHandle surf);
   bool is_implicit_complement(EntityHandle volume);
-
-  /** write metadata to temporary file for use by MCNP5 */
-  ErrorCode write_mcnp(std::string ifile, const bool overwrite = true);
 
   /** get the metadata label for specular reflection */
   char *get_spec_reflect();
