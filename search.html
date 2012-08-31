@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>DAGMC &mdash; DAGMC</title>
+    <title>Search &mdash; DAGMC</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,7 +25,13 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="DAGMC" href="#" /> 
+    <script type="text/javascript" src="_static/searchtools.js"></script>
+    <link rel="top" title="DAGMC" href="index.html" />
+  <script type="text/javascript">
+    jQuery(function() { Search.loadIndex("searchindex.js"); });
+  </script>
+   
+
   </head>
   <body> 
 <div id="page-div" class="page">
@@ -39,21 +45,11 @@
       <li><a href="http://map.wisc.edu">Map</a></li>
       <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
     </ul>
-    <form role="search" action="search.html" method="get" id="cse-search-box">
-      <div>
-      <label class="screen-reader-text" for="q">Search for:</label>
-      <input type="text" id="q" name="q" value="Enter keywords here...." />
-      <input type="submit" id="sa" value="Search" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-      </div>
-    </form>
-<script type="text/javascript">$('#searchbox').show(0);</script>
 </div>
 
     <div id="nav" class="main-menu-container">
       <ul id="menu-main" class="sf-menu">
-        <li class="menu-item"><a href="#">DAGMC</a></li>
+        <li class="menu-item"><a href="index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -70,23 +66,29 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="dagmc">
-<h1>DAGMC<a class="headerlink" href="#dagmc" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul class="simple">
-</ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
-</ul>
-</div>
-
+  <h1 id="search-documentation">Search</h1>
+  <div id="fallback" class="admonition warning">
+  <script type="text/javascript">$('#fallback').hide();</script>
+  <p>
+    Please activate JavaScript to enable the search
+    functionality.
+  </p>
+  </div>
+  <p>
+    From here you can search these documents. Enter your search
+    words into the box below and click "search". Note that the search
+    function will automatically search for all of the words. Pages
+    containing fewer words won't appear in the result list.
+  </p>
+  <form action="" method="get">
+    <input type="text" name="q" value="" />
+    <input type="submit" value="search" />
+    <span id="search-progress" style="padding-left: 10px"></span>
+  </form>
+  
+  <div id="search-results">
+  
+  </div>
 
           </div>
       </div>
