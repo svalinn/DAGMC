@@ -21,7 +21,7 @@ distributed through RSICC (in the US) and the NEA Databank.
 .. toctree::
    :maxdepth: 1
 
-   doc/usersguide
+   doc/usersguide/index
    CNERG Support for DAGMC
    DagmcDevelopersGuide
    DagmcPublications
