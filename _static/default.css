@@ -45,10 +45,15 @@ table, caption, tbody, tfoot, thead, tr, th, td {
   background: transparent;
 }
 
-p { margin-top: 0.5em; }
+p { margin-top: 0.75em; }
+
+.highlight-python { padding: 4px; border: 2px solid #000000; margin-left: 2em; }
+pre { font-family: courier; font-size: 80%;}
+.pre { font-family: courier; font-size: 90%;}
 
 body { line-height: 1; }
-ol, ul { list-style: none; }
+/* ol, ul { list-style: none; }*/
+ol {list-style: arabic;}
 
 /*tables still need 'cellspacing="0"' in the markup*/
 table {
@@ -697,6 +702,8 @@ body {
   margin: 0 0 0 10px;
 }
 
+#sidebar ul, #sidebar ol { list-style: none; }
+
 .page #sidebar .related_posts {
   margin: 16px 16px 32px;
   padding: 0 12px 12px;
@@ -718,7 +725,6 @@ body {
 
 h1, h2, h3 {margin-top: 0em; color:rgba(50, 04, 3e, 1); font-family:"Myriad Pro",Trebuchet,Arial,sans-serif;}
 
-h2 {text-decoration: underline;}
 
 /*Innovations single*/
 
@@ -773,10 +779,12 @@ thead th.ab-email {width: 40%;}
 
 /*Posts*/
 .post {margin-bottom: 20px; clear: left;}
-.post h2 {font-size: 1.2em;}
+.post h2 {font-size: 1.5em; text-decoration: underline; line-height: 1.6em;}
 .post .entry-content h2:first-child {margin-top: 0;}
-.post h3 {font-size: 1.25em; line-height: 1.2; margin: 1em 0 .25em 0;}
+.post h3 {font-size: 1.25em; font-weight: bold; line-height: 1.2; margin: 1em 0 .25em 0;}
+.post h4 {font-weight: bold; font-style: italic; line-height: 1.2; margin: 1em 0 .25em 0;}
 .post ul {margin-left: 20px;}
+.post ol {margin-left: 20px;}
 .post div.postmetadata {margin-top: 6px; margin-bottom: 10px; font-size: .7em;}
 .post_date {
   font-size: 0.8em;
