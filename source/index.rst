@@ -19,7 +19,7 @@ MCNP5 software developed at Los Alamos National Laboratory and
 distributed through RSICC (in the US) and the NEA Databank.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    doc/usersguide
    CNERG Support for DAGMC
