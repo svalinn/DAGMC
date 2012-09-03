@@ -18,16 +18,13 @@ CNERG group at UW-Madison has been focusing its development on the
 MCNP5 software developed at Los Alamos National Laboratory and
 distributed through RSICC (in the US) and the NEA Databank.
 
-* `DAGMC Users Guide <doc/usersguide>`_
-* CNERG Support for DAGMC
-* DagmcDevelopersGuide
-* DagmcPublications
-* Upcoming Features in DAGMC
-
 .. toctree::
    :maxdepth: 1
-   :hidden:
 
    doc/usersguide
+   CNERG Support for DAGMC
+   DagmcDevelopersGuide
+   DagmcPublications
+   Upcoming Features in DAGMC
 
 .. _MOAB: http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
