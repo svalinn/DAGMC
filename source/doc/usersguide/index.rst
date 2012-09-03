@@ -5,6 +5,15 @@ This document is intended for users of the DAGMC toolkit and includes
 instructions for installation and use with a variety of Monte Carlo
 codes.
 
+.. toctree::
+   :maxdepth: 1
+
+   get_install
+   workflow
+   dag-mcnp5
+   dag-tripoli4
+   faq
+
 Related Tools
 --------
 

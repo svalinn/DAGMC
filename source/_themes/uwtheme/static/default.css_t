@@ -48,6 +48,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 p { margin-top: 0.75em; }
 
 .highlight-python { padding: 4px; border: 2px solid #000000; margin-left: 2em; }
+.highlight { background: #ffffff; }
 pre { font-family: courier; font-size: 80%;}
 .pre { font-family: courier; font-size: 90%;}
 

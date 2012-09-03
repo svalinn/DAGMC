@@ -198,6 +198,8 @@ thousand volumes, the imprint and merge steps can take up to three
 hours. However, small geometries (on the order of 100 volumes) the
 process is rather quick.
 
+.. _grouping-basics:
+
 Grouping Volumes and Surfaces
 """""""""""""""""""""""""""""
 
@@ -249,6 +251,8 @@ For the remainder of this documentation, the geometry file will be
 referred to as "geom.sat". Also, as noted before, the CUBIT conversion
 process can be automated as described on the follow webpage:
 AutomatedCubitConversion.
+
+.. _additional_parameters:
 
 Additional Input Parameters for DAGMC
 ++++++++++++++++++++++++++++++++++++++
