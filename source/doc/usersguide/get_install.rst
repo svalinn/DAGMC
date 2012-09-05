@@ -21,7 +21,7 @@ packages/libraries is necessary:
     * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
     * `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_ (SVN:
       https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk)
-        * ACIS v16, or `CUBIT <http://cubit.sandia.gov>`_ v10.2
+        * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2
 
 Installing the DAGMC Toolkit
 ++++++++++++++++++++++++++++
@@ -30,7 +30,7 @@ The following 4 steps are required to install the MOAB library,
 including the DAGMC toolkit, for use in Monte Carlo radiation
 transport tools.
 
-1. Install `CUBIT <http://cubit.sandia.gov>`_ v10.2
+1. Install `CUBIT <http://cubit.sandia.gov>`_ v12.2
 2. Install `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_, using the --with-cubit options
 3. Install `HDF5 <http://www.hdfgroup.org/HDF5/>`_
 4. Install `MOAB <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_,
@@ -63,10 +63,10 @@ If installing from SVN repository:
     prompt%> cd ..
     prompt%> ln -s trunk src
 
-If installing from a tarball, ``CGM-10.2.2.tar.gz``:
+If installing from a tarball, ``CGM-12.2.0.tar.gz``:
 ::
-    prompt%> tar xzf ~/CGM-10.2.2.tar.gz
-    prompt%> ln -s CGM-10.2.2 src
+    prompt%> tar xzf ~/CGM-12.2.0.tar.gz
+    prompt%> ln -s CGM-12.2.0 src
 
 In all cases:
 ::
