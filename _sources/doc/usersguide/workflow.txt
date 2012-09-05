@@ -242,10 +242,10 @@ following:
      set attribute on
 
 Finally, export the file as an ACIS file with a .sat extension.  If
-you are using a version of CUBIT newer that v10.x, be sure to set the
-ACIS geometry level back to version 16:
+you are using a version of CUBIT newer that v12.x, be sure to set the
+ACIS geometry level back to version 19:
 ::
-     set geom version 1600
+     set geom version 1900
 
 For the remainder of this documentation, the geometry file will be
 referred to as "geom.sat". Also, as noted before, the CUBIT conversion

@@ -25,7 +25,10 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="DAGMC" href="../../index.html" /> 
+    <link rel="top" title="DAGMC" href="../../index.html" />
+    <link rel="up" title="DAGMC User’s Guide" href="index.html" />
+    <link rel="next" title="Using DAGMC - The DAGMC Workflow" href="workflow.html" />
+    <link rel="prev" title="DAGMC User’s Guide" href="index.html" /> 
   </head>
   <body> 
 <div id="page-div" class="page">
@@ -55,15 +58,25 @@
       <ul id="menu-main" class="sf-menu">
         <li class="menu-item"><a href="../../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
+          <a href="index.html" title="DAGMC User’s Guide"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="workflow.html" title="Using DAGMC - The DAGMC Workflow"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a>
-          </li> 
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">DAGMC User&#8217;s Guide</a></li> 
       </ul>
     </div>
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"></div>
- <div id="sidebar_section"><ul class="simple">
+ <div id="sidebar_section"><ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">DAGMC User&#8217;s Guide</a></li>
 </ul>
  </div>
 </div> 
@@ -95,7 +108,7 @@ packages/libraries is necessary:</p>
 <a class="reference external" href="https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk">https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk</a>)</p>
 <blockquote>
 <div><ul class="simple">
-<li>ACIS v16, or <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v10.2</li>
+<li>ACIS v19, or <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2</li>
 </ul>
 </div></blockquote>
 </li>
@@ -109,7 +122,7 @@ packages/libraries is necessary:</p>
 including the DAGMC toolkit, for use in Monte Carlo radiation
 transport tools.</p>
 <ol class="arabic simple">
-<li>Install <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v10.2</li>
+<li>Install <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2</li>
 <li>Install <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a>, using the &#8211;with-cubit options</li>
 <li>Install <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a></li>
 <li>Install <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB</a>,
@@ -138,9 +151,9 @@ prompt%&gt; autoreconf -fi
 prompt%&gt; cd ..
 prompt%&gt; ln -s trunk src</pre>
 </div>
-<p>If installing from a tarball, <tt class="docutils literal"><span class="pre">CGM-10.2.2.tar.gz</span></tt>:</p>
-<div class="highlight-python"><pre>prompt%&gt; tar xzf ~/CGM-10.2.2.tar.gz
-prompt%&gt; ln -s CGM-10.2.2 src</pre>
+<p>If installing from a tarball, <tt class="docutils literal"><span class="pre">CGM-12.2.0.tar.gz</span></tt>:</p>
+<div class="highlight-python"><pre>prompt%&gt; tar xzf ~/CGM-12.2.0.tar.gz
+prompt%&gt; ln -s CGM-12.2.0 src</pre>
 </div>
 <p>In all cases:</p>
 <div class="highlight-python"><pre>prompt%&gt; cd bld
@@ -291,7 +304,7 @@ access to DAG-Tripoli4, please contact <a class="reference external" href="mailt
         &copy; Copyright 2012, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Sep 03, 2012.
+      Last updated on Sep 04, 2012.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
