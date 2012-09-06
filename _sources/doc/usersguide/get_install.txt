@@ -159,9 +159,11 @@ The following steps are required to install DAG-MCNP5.  Most of these steps are 
 
 1. Install the DAGMC Toolkit as described above
 2. Download a copy of the patch file for your version of MCNP:
-    * `MCNP5 v1.51 </software/dagmc.patch.5.1.51>`_
-    * `MCNP4 v1.40 </software/dagmc.patch.5.1.40>`_
-3. Apply the patch your copy of the MCNP5.1.51 source code
+    * `MCNP5 v1.60 <https://raw.github.com/svalinn/DAGMC/master/patch/dagmc.patch.5.1.60>`_
+    * `MCNP5 v1.51 <https://raw.github.com/svalinn/DAGMC/master/patch/dagmc.patch.5.1.51>`_
+    * `MCNP4 v1.40 <https://raw.github.com/svalinn/DAGMC/master/patch/dagmc.patch.5.1.40>`_
+3. Apply the patch your copy of the MCNP5.1.60 (or appropriate
+   version) source code
 4. Build & install the patched version of MCNP5
 
 Some assumptions/conventions:
@@ -171,13 +173,13 @@ Some assumptions/conventions:
 * all tarballs reside in user's home directory
 * MCNP5 source code is available in location ``$HOME/dagmc_bld/MCNP5``
 
-Apply DAGMC Patch to MCNP5 v1.51
+Apply DAGMC Patch to MCNP5 v1.60
 ................................
 
 Perform the following steps:
 ::
     prompt%> cd $HOME/dagmc_bld/MCNP5/Source
-    prompt%> patch -p 0 < ~/dagmc_install.patch
+    prompt%> patch -p 0 < ~/dagmc_install.patch.5.1.60
 
 
 Build DAG-MCNP5 from modified code

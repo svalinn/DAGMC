@@ -232,13 +232,15 @@ DagmcBuildPackage to create a working install of DAG-MCNP5.1.51.</p>
 <li><dl class="first docutils">
 <dt>Download a copy of the patch file for your version of MCNP:</dt>
 <dd><ul class="first last simple">
-<li><a class="reference external" href="/software/dagmc.patch.5.1.51">MCNP5 v1.51</a></li>
-<li><a class="reference external" href="/software/dagmc.patch.5.1.40">MCNP4 v1.40</a></li>
+<li><a class="reference external" href="https://raw.github.com/svalinn/DAGMC/master/patch/dagmc.patch.5.1.60">MCNP5 v1.60</a></li>
+<li><a class="reference external" href="https://raw.github.com/svalinn/DAGMC/master/patch/dagmc.patch.5.1.51">MCNP5 v1.51</a></li>
+<li><a class="reference external" href="https://raw.github.com/svalinn/DAGMC/master/patch/dagmc.patch.5.1.40">MCNP4 v1.40</a></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><p class="first">Apply the patch your copy of the MCNP5.1.51 source code</p>
+<li><p class="first">Apply the patch your copy of the MCNP5.1.60 (or appropriate
+version) source code</p>
 </li>
 <li><p class="first">Build &amp; install the patched version of MCNP5</p>
 </li>
@@ -250,11 +252,11 @@ DagmcBuildPackage to create a working install of DAG-MCNP5.1.51.</p>
 <li>all tarballs reside in user&#8217;s home directory</li>
 <li>MCNP5 source code is available in location <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5</span></tt></li>
 </ul>
-<div class="section" id="apply-dagmc-patch-to-mcnp5-v1-51">
-<h5>Apply DAGMC Patch to MCNP5 v1.51<a class="headerlink" href="#apply-dagmc-patch-to-mcnp5-v1-51" title="Permalink to this headline">¶</a></h5>
+<div class="section" id="apply-dagmc-patch-to-mcnp5-v1-60">
+<h5>Apply DAGMC Patch to MCNP5 v1.60<a class="headerlink" href="#apply-dagmc-patch-to-mcnp5-v1-60" title="Permalink to this headline">¶</a></h5>
 <p>Perform the following steps:</p>
 <div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld/MCNP5/Source
-prompt%&gt; patch -p 0 &lt; ~/dagmc_install.patch</pre>
+prompt%&gt; patch -p 0 &lt; ~/dagmc_install.patch.5.1.60</pre>
 </div>
 </div>
 <div class="section" id="build-dag-mcnp5-from-modified-code">
