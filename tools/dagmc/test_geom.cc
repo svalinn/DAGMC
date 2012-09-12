@@ -483,7 +483,7 @@ ErrorCode test_measure_volume( DagMC& dagmc )
 
   rval = dagmc.measure_volume( vols.front(), result );
   CHKERR;
-  if (fabs(result - vol) > std::numeric_limits<double>::epsilon()) {
+  if (fabs(result - vol) > 10*std::numeric_limits<double>::epsilon()) {
     std::cerr << "ERROR: Expected " << vol << " as measure of volume, got " << result << std::endl;
     return MB_FAILURE;
   }
