@@ -1102,7 +1102,6 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
   // get next surface
   double dist;
   EntityHandle next_surf;
-  EntityHandle prev_surf = 0;
   DagMC::RayHistory history;
   rval = dagmc.ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
@@ -1119,7 +1118,6 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
 
   // get the next surface (behind numerical location)
   vol       = next_vol;
-  prev_surf = next_surf;
   rval = dagmc.ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[3] || fabs(dist - 0.0) > 1e-6) {
@@ -1134,7 +1132,6 @@ ErrorCode overlap_test_tracking( DagMC& dagmc )
 
   // get the next surface
   vol       = next_vol;
-  prev_surf = next_surf;
   rval = dagmc.ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[1] || fabs(dist - 0.99) > 1e-6) {
