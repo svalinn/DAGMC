@@ -218,7 +218,7 @@ prompt%&gt; ln -s MOAB-3.99 src</pre>
 <p>In all cases:</p>
 <div class="highlight-python"><pre>prompt%&gt; cd bld
 prompt%&gt; ../src/configure --enable-optimize --disable-debug \
-          --with-cgm=$HOME/dagmc_bld/CGMA  \
+          --with-cgm=$HOME/dagmc_bld/CGM  \
           --with-hdf5=$HOME/dagmc_bld/HDF5 \
           --prefix=$HOME/dagmc_bld/MOAB
 prompt%&gt; make
@@ -291,7 +291,7 @@ usually in the form:</p>
 <p>or similar.  Starting from these options, you can build DAG-MCNP5 from
 a patched source code with:</p>
 <div class="highlight-python"><pre>prompt%&gt; make build CONFIG="seq plot gfortran dagmc" FC=gfortran MARCH=M64 \
-             MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit</pre>
+             MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit/bin</pre>
 </div>
 <p>If you are less familiar with building MCNP5 from the <tt class="docutils literal"><span class="pre">makefile</span></tt> you
 may want to use the interactive <tt class="docutils literal"><span class="pre">install</span></tt> script provided by LANL:</p>
@@ -327,7 +327,7 @@ access to DAG-Tripoli4, please contact <a class="reference external" href="mailt
         &copy; Copyright 2012, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Sep 06, 2012.
+      Last updated on Sep 26, 2012.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.

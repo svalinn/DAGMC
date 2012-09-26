@@ -120,7 +120,7 @@ In all cases:
 ::
     prompt%> cd bld
     prompt%> ../src/configure --enable-optimize --disable-debug \
-              --with-cgm=$HOME/dagmc_bld/CGMA  \
+              --with-cgm=$HOME/dagmc_bld/CGM  \
               --with-hdf5=$HOME/dagmc_bld/HDF5 \
               --prefix=$HOME/dagmc_bld/MOAB
     prompt%> make
@@ -196,7 +196,7 @@ or similar.  Starting from these options, you can build DAG-MCNP5 from
 a patched source code with:
 ::
     prompt%> make build CONFIG="seq plot gfortran dagmc" FC=gfortran MARCH=M64 \
-                 MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit
+                 MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit/bin
 
 
 If you are less familiar with building MCNP5 from the ``makefile`` you
