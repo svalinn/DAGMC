@@ -77,25 +77,15 @@
  <div id="sidebar_section"></div>
  <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
 <li><a class="reference internal" href="#">Getting &amp; Installing the DAGMC Toolkit</a><ul>
-<li><a class="reference internal" href="#installing-the-dagmc-toolkit">Installing the DAGMC Toolkit</a><ul>
-<li><a class="reference internal" href="#installing-cgm">Installing CGM</a></li>
-<li><a class="reference internal" href="#installing-hdf5">Installing HDF5</a></li>
-<li><a class="reference internal" href="#installing-moab">Installing MOAB</a></li>
+<li><a class="reference internal" href="#dagmc-dependencies-and-user-workflows">DAGMC Dependencies and User Workflows</a><ul>
+<li><a class="reference internal" href="#manual-geometry-preparation">Manual Geometry Preparation</a></li>
+<li><a class="reference internal" href="#automated-model-pre-processing">Automated Model Pre-processing</a></li>
+<li><a class="reference internal" href="#model-analysis">Model Analysis</a></li>
+<li><a class="reference internal" href="#summary-of-dependencies">Summary of Dependencies</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#applying-dagmc-to-specific-monte-carlo-codes">Applying DAGMC to Specific Monte Carlo Codes</a><ul>
-<li><a class="reference internal" href="#installing-dag-mcnp5">Installing DAG-MCNP5</a><ul>
-<li><a class="reference internal" href="#automatic-installation">Automatic Installation</a></li>
-<li><a class="reference internal" href="#manual-installation">Manual Installation</a><ul>
-<li><a class="reference internal" href="#apply-dagmc-patch-to-mcnp5-v1-60">Apply DAGMC Patch to MCNP5 v1.60</a></li>
-<li><a class="reference internal" href="#build-dag-mcnp5-from-modified-code">Build DAG-MCNP5 from modified code</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#access-to-dag-tripoli4">Access to DAG-Tripoli4</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#installing-the-dagmc-toolkit">Installing the DAGMC Toolkit</a></li>
+<li><a class="reference internal" href="#applying-dagmc-to-specific-monte-carlo-codes">Applying DAGMC to Specific Monte Carlo Codes</a></li>
 </ul>
 </li>
 </ul>
@@ -115,33 +105,78 @@ and distributed by the <a class="reference external" href="http://rsicc.ornl.gov
 <p>These instructions describe the basic steps for downloading and
 installing the software libraries that provide the DAGMC toolkit for
 integration with Monte Carlo codes.  After this, code-specific
-instructions will be give for each code. For access to the DAGMC
-toolkit alone, the following combination of software
-packages/libraries is necessary:</p>
-<ul>
-<li><p class="first"><a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB/DAGMC</a>
-(SVN: <a class="reference external" href="https://svn.mcs.anl.gov/repos/ITAPS/MOAB/trunk">https://svn.mcs.anl.gov/repos/ITAPS/MOAB/trunk</a>)</p>
-<blockquote>
-<div><ul>
-<li><p class="first"><a class="reference external" href="http://www.hdfgroup.org/HDF5/release/obtain5.html">HDF5</a></p>
-</li>
-<li><p class="first"><a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a> (SVN:
-<a class="reference external" href="https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk">https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk</a>)</p>
+instructions will be give for each code.</p>
+<div class="section" id="dagmc-dependencies-and-user-workflows">
+<h2>DAGMC Dependencies and User Workflows<a class="headerlink" href="#dagmc-dependencies-and-user-workflows" title="Permalink to this headline">¶</a></h2>
+<p>It is useful to consider how users will use the DAGMC workflow prior
+to making some installation decisions.  There are three main stages
+for the workflow:</p>
 <blockquote>
 <div><ul class="simple">
+<li>manual preparation of geometric models</li>
+<li>automated pre-processing of models</li>
+<li>use of the models in analysis</li>
+</ul>
+</div></blockquote>
+<p>While the second and third stages can be combined, these instructions
+will be based on treating them as separate stages with comments about
+how they would be combined where appropriate.</p>
+<div class="section" id="manual-geometry-preparation">
+<h3>Manual Geometry Preparation<a class="headerlink" href="#manual-geometry-preparation" title="Permalink to this headline">¶</a></h3>
+<p>Because this stage is highly interactive, most users prefer to perform
+this stage on their desktop or laptop computer.  The only software
+required for this stage is the interactive Cubit software.</p>
+</div>
+<div class="section" id="automated-model-pre-processing">
+<h3>Automated Model Pre-processing<a class="headerlink" href="#automated-model-pre-processing" title="Permalink to this headline">¶</a></h3>
+<p>The primary purpose of this stage is to &#8220;translate&#8221; from the solid
+model representation to the faceted representation.  As such, it
+requires Cubit, CGM and MOAB, and typically results in dependencies on
+shared libraries.</p>
+</div>
+<div class="section" id="model-analysis">
+<h3>Model Analysis<a class="headerlink" href="#model-analysis" title="Permalink to this headline">¶</a></h3>
+<p>During analysis, only the faceted model is necessary, requiring only
+MOAB and the physics code.  It is also possible to combine this stage
+with the previous one, requiring Cubit, CGM, MOAB and the physics
+code, and will also result in dependencies on shared libraries.</p>
+</div>
+<div class="section" id="summary-of-dependencies">
+<h3>Summary of Dependencies<a class="headerlink" href="#summary-of-dependencies" title="Permalink to this headline">¶</a></h3>
+<ul>
+<li><dl class="first docutils">
+<dt>Some physics package, e.g. MCNP5</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB/DAGMC</a></dt>
+<dd><ul class="first last">
+<li><p class="first"><a class="reference external" href="http://www.hdfgroup.org/HDF5/release/obtain5.html">HDF5</a></p>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a></dt>
+<dd><ul class="first last simple">
 <li>ACIS v19, or <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2</li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 </li>
 </ul>
-</div></blockquote>
+</dd>
+</dl>
 </li>
 </ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
 <div class="section" id="installing-the-dagmc-toolkit">
 <h2>Installing the DAGMC Toolkit<a class="headerlink" href="#installing-the-dagmc-toolkit" title="Permalink to this headline">¶</a></h2>
 <p>The following 4 steps are required to install the MOAB library,
 including the DAGMC toolkit, for use in Monte Carlo radiation
-transport tools.</p>
+transport tools.  Following these steps, all the pre-requisites for
+the automated processing stage will be available.</p>
 <ol class="arabic simple">
 <li>Install <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2</li>
 <li>Install <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a>, using the &#8211;with-cubit options</li>
@@ -159,8 +194,6 @@ also be useful but not necessary)</li>
 <p>If these do not apply to you, please modify your steps accordingly.</p>
 <blockquote>
 <div><em>(For a shortcut to installing DAG-MCNP5.1.51 you may be able to use the DagmcBuildPackage .)</em></div></blockquote>
-<div class="section" id="installing-cgm">
-<h3>Installing CGM<a class="headerlink" href="#installing-cgm" title="Permalink to this headline">¶</a></h3>
 <p>Create a directory to build CGM:</p>
 <div class="highlight-python"><pre>prompt%&gt; mkdir -p $HOME/dagmc_bld/CGM/bld
 prompt%&gt; cd $HOME/dagmc_bld/CGM</pre>
@@ -184,9 +217,6 @@ prompt%&gt; ../src/configure --enable-optimize --disable-debug \
 prompt%&gt; make
 prompt%&gt; make install</pre>
 </div>
-</div>
-<div class="section" id="installing-hdf5">
-<h3>Installing HDF5<a class="headerlink" href="#installing-hdf5" title="Permalink to this headline">¶</a></h3>
 <p>Follow these steps</p>
 <div class="highlight-python"><pre>prompt%&gt; mkdir $HOME/dagmc_bld/HDF5/bld
 prompt%&gt; cd $HOME/dagmc_bld/HDF5
@@ -197,9 +227,6 @@ prompt%&gt; ../src/configure --prefix=$HOME/dagmc_bld/HDF5
 prompt%&gt; make
 prompt%&gt; make install</pre>
 </div>
-</div>
-<div class="section" id="installing-moab">
-<h3>Installing MOAB<a class="headerlink" href="#installing-moab" title="Permalink to this headline">¶</a></h3>
 <p>Create a directory to install MOAB:</p>
 <div class="highlight-python"><pre>prompt%&gt; mkdir -p $HOME/dagmc_bld/MOAB/bld
 prompt%&gt; cd $HOME/dagmc_bld/MOAB</pre>
@@ -225,27 +252,19 @@ prompt%&gt; make
 prompt%&gt; make install</pre>
 </div>
 </div>
-</div>
 <div class="section" id="applying-dagmc-to-specific-monte-carlo-codes">
 <h2>Applying DAGMC to Specific Monte Carlo Codes<a class="headerlink" href="#applying-dagmc-to-specific-monte-carlo-codes" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="installing-dag-mcnp5">
-<h3>Installing DAG-MCNP5<a class="headerlink" href="#installing-dag-mcnp5" title="Permalink to this headline">¶</a></h3>
 <p>If you would like to use DAGMC with MCNP5, known as DAG-MCNP5, you will also need:</p>
 <ul class="simple">
 <li>MCNP5.1.51 source code from <a class="reference external" href="http://rsicc.ornl.gov">RSICC</a></li>
 <li>DAG-MCNP5.1.51 patch file from the UW-Madison</li>
 </ul>
-<div class="section" id="automatic-installation">
-<h4>Automatic Installation<a class="headerlink" href="#automatic-installation" title="Permalink to this headline">¶</a></h4>
 <p>A package has been prepared that includes many of the requires
 software libraries and an automated build script.  Because the DAGMC
 team is not authorized to distribute <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> nor <a class="reference external" href="http://mcnp.lanl.gov">MCNP5.1.51 source code</a>, you must acquire those through the
 appropriate channels on your own.</p>
 <p>Once you have both of those things, you should be able to use the
 DagmcBuildPackage to create a working install of DAG-MCNP5.1.51.</p>
-</div>
-<div class="section" id="manual-installation">
-<h4>Manual Installation<a class="headerlink" href="#manual-installation" title="Permalink to this headline">¶</a></h4>
 <p>The following steps are required to install DAG-MCNP5.  Most of these steps are described in more detail below.</p>
 <ol class="arabic">
 <li><p class="first">Install the DAGMC Toolkit as described above</p>
@@ -273,15 +292,10 @@ version) source code</p>
 <li>all tarballs reside in user&#8217;s home directory</li>
 <li>MCNP5 source code is available in location <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5</span></tt></li>
 </ul>
-<div class="section" id="apply-dagmc-patch-to-mcnp5-v1-60">
-<h5>Apply DAGMC Patch to MCNP5 v1.60<a class="headerlink" href="#apply-dagmc-patch-to-mcnp5-v1-60" title="Permalink to this headline">¶</a></h5>
 <p>Perform the following steps:</p>
 <div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld/MCNP5/Source
 prompt%&gt; patch -p 0 &lt; ~/dagmc_install.patch.5.1.60</pre>
 </div>
-</div>
-<div class="section" id="build-dag-mcnp5-from-modified-code">
-<h5>Build DAG-MCNP5 from modified code<a class="headerlink" href="#build-dag-mcnp5-from-modified-code" title="Permalink to this headline">¶</a></h5>
 <p>One of the easiest ways to build DAG-MCNP5 is directly using the
 <tt class="docutils literal"><span class="pre">makefile</span></tt> from the command-line.  To do this, you must know the
 <tt class="docutils literal"><span class="pre">makefile</span></tt> options to build a version of MCNP5 without DAGMC,
@@ -305,14 +319,8 @@ may want to use the interactive <tt class="docutils literal"><span class="pre">i
 </ul>
 <p>From the main menu, choose <tt class="docutils literal"><span class="pre">C</span></tt> to compile.</p>
 <p>Your executable should be available as <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5/Source/src/mcnp5</span></tt>.</p>
-</div>
-</div>
-</div>
-<div class="section" id="access-to-dag-tripoli4">
-<h3>Access to DAG-Tripoli4<a class="headerlink" href="#access-to-dag-tripoli4" title="Permalink to this headline">¶</a></h3>
 <p>Tripoli4 is distributed by CEA/Saclay as a binary executable.  For
 access to DAG-Tripoli4, please contact <a class="reference external" href="mailto:jean-christophe&#46;trama&#37;&#52;&#48;cea&#46;fr">Jean-Christophe Trama</a>.</p>
-</div>
 </div>
 </div>
 
@@ -327,7 +335,7 @@ access to DAG-Tripoli4, please contact <a class="reference external" href="mailt
         &copy; Copyright 2012, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Sep 26, 2012.
+      Last updated on Oct 08, 2012.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
