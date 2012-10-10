@@ -12,23 +12,63 @@ and distributed by the `Radiation Safety Information Computing Center
 These instructions describe the basic steps for downloading and
 installing the software libraries that provide the DAGMC toolkit for
 integration with Monte Carlo codes.  After this, code-specific
-instructions will be give for each code. For access to the DAGMC
-toolkit alone, the following combination of software
-packages/libraries is necessary:
+instructions will be give for each code. 
 
-* `MOAB/DAGMC <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_
-  (SVN: https://svn.mcs.anl.gov/repos/ITAPS/MOAB/trunk)
-    * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
-    * `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_ (SVN:
-      https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk)
-        * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2
+DAGMC Dependencies and User Workflows
++++++++++++++++++++++++++++++++++++++++
+
+It is useful to consider how users will use the DAGMC workflow prior
+to making some installation decisions.  There are three main stages
+for the workflow:
+ * manual preparation of geometric models
+ * automated pre-processing of models
+ * use of the models in analysis
+
+While the second and third stages can be combined, these instructions
+will be based on treating them as separate stages with comments about
+how they would be combined where appropriate.
+
+Manual Geometry Preparation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Because this stage is highly interactive, most users prefer to perform
+this stage on their desktop or laptop computer.  The only software
+required for this stage is the interactive Cubit software.
+
+Automated Model Pre-processing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The primary purpose of this stage is to "translate" from the solid
+model representation to the faceted representation.  As such, it
+requires Cubit, CGM and MOAB, and typically results in dependencies on
+shared libraries.
+
+Model Analysis
+~~~~~~~~~~~~~~
+
+During analysis, only the faceted model is necessary, requiring only
+MOAB and the physics code.  It is also possible to combine this stage
+with the previous one, requiring Cubit, CGM, MOAB and the physics
+code, and will also result in dependencies on shared libraries.
+
+Summary of Dependencies
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* Some physics package, e.g. MCNP5
+   * `MOAB/DAGMC <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_
+       * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
+       * `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_ 
+            * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2
+
+
 
 Installing the DAGMC Toolkit
 ++++++++++++++++++++++++++++
 
 The following 4 steps are required to install the MOAB library,
 including the DAGMC toolkit, for use in Monte Carlo radiation
-transport tools.
+transport tools.  Following these steps, all the pre-requisites for
+the automated processing stage will be available.
 
 1. Install `CUBIT <http://cubit.sandia.gov>`_ v12.2
 2. Install `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_, using the --with-cubit options
