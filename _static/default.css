@@ -701,6 +701,8 @@ body {
 
 #sidebar_section {
   margin: 0 0 0 10px;
+  position: fixed;
+  width: 245px;
 }
 
 #sidebar ul, #sidebar ol { list-style: none; }
