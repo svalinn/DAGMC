@@ -142,7 +142,7 @@ file, however, the user has to make sure that the tally indices are
 not duplicated lest a fatal error will occur.  Tallies are specified
 as group names in the following format:
 ::
-      tally_[CUBIT tally ID]_[tally type keyword]_[particles]
+      tally_[CUBIT tally ID].[tally type keyword].[particles]
 
 The ``[CUBIT tally ID]`` field is an integer from 0 to 99.  Different
 tally types may have the same CUBIT ID and are still consistent.  The
@@ -181,13 +181,13 @@ neutrons will be tallied.
 
 Some CUBIT commands to do tallies:
 ::
-    group "tally_0_surf.current" add surf 1 to 4
-    group "tally_0_cell.flux_p" add vol 7
-    group "tally_1_ecell.heating_np" add vol 2 6
-    group "tally_6_cell.heating_n" add vol 2 6
-    group "tally_7_cell.flux_p" add vol 1 to 3
-    group "tally_12_pulse.height_p" add vol 10 to 14
-    group "tally_14_qpulse.height_p" add vol 10 to 14
+    group "tally_0.surf.current" add surf 1 to 4
+    group "tally_0.cell.flux.p" add vol 7
+    group "tally_1.ecell.heating.np" add vol 2 6
+    group "tally_6.cell.heating.n" add vol 2 6
+    group "tally_7.cell.flux.p" add vol 1 to 3
+    group "tally_12.pulse.height.p" add vol 10 to 14
+    group "tally_14.qpulse.height.p" add vol 10 to 14
 
 The above are equivalent to following MCNP definitions:
 ::
