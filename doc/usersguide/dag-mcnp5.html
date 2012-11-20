@@ -218,7 +218,7 @@ directly.  It is still possible to specify tallies in the MCNP input
 file, however, the user has to make sure that the tally indices are
 not duplicated lest a fatal error will occur.  Tallies are specified
 as group names in the following format:</p>
-<div class="highlight-python"><pre>tally_[CUBIT tally ID]_[tally type keyword]_[particles]</pre>
+<div class="highlight-python"><pre>tally_[CUBIT tally ID].[tally type keyword].[particles]</pre>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">[CUBIT</span> <span class="pre">tally</span> <span class="pre">ID]</span></tt> field is an integer from 0 to 99.  Different
 tally types may have the same CUBIT ID and are still consistent.  The
@@ -265,13 +265,13 @@ tallied.  To tally both photons and neutrons, set the tag to &#8220;np&#8221;.
 The default is neutrons only.  Should this be tag be omitted, only
 neutrons will be tallied.</p>
 <p>Some CUBIT commands to do tallies:</p>
-<div class="highlight-python"><pre>group "tally_0_surf.current" add surf 1 to 4
-group "tally_0_cell.flux_p" add vol 7
-group "tally_1_ecell.heating_np" add vol 2 6
-group "tally_6_cell.heating_n" add vol 2 6
-group "tally_7_cell.flux_p" add vol 1 to 3
-group "tally_12_pulse.height_p" add vol 10 to 14
-group "tally_14_qpulse.height_p" add vol 10 to 14</pre>
+<div class="highlight-python"><pre>group "tally_0.surf.current" add surf 1 to 4
+group "tally_0.cell.flux.p" add vol 7
+group "tally_1.ecell.heating.np" add vol 2 6
+group "tally_6.cell.heating.n" add vol 2 6
+group "tally_7.cell.flux.p" add vol 1 to 3
+group "tally_12.pulse.height.p" add vol 10 to 14
+group "tally_14.qpulse.height.p" add vol 10 to 14</pre>
 </div>
 <p>The above are equivalent to following MCNP definitions:</p>
 <div class="highlight-python"><pre>f1:n 1 2 3 4 T
@@ -396,7 +396,7 @@ to the DAG-MCNP5 implementation of DAGMC.</td>
         &copy; Copyright 2012, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 19, 2012.
+      Last updated on Nov 20, 2012.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
