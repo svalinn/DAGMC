@@ -644,21 +644,21 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   if(0!=facets[0]) {
     // get the next volume
     std::vector<EntityHandle> vols;
-    EntityHandle next_vol;
+    EntityHandle nx_vol;
     rval = MBI->get_parent_meshsets( surfs[0], vols );
     if(MB_SUCCESS != rval) return rval;
     assert(2 == vols.size());
     if(vols.front() == vol) {
-      next_vol = vols.back();
+      nx_vol = vols.back();
     } else {
-      next_vol = vols.front();
+      nx_vol = vols.front();
     }
     // Check to see if the point is actually in the next volume.
     // The list of previous facets is used to topologically identify the 
     // "on_boundary" result of the PMT. This avoids a test that uses proximity 
     // (a tolerance).
     int result;
-    rval = point_in_volume( next_vol, point, result, dir, history );
+    rval = point_in_volume( nx_vol, point, result, dir, history );
     if(MB_SUCCESS != rval) return rval;
     if(1==result) exit_idx = 0;
 
