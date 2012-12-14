@@ -470,7 +470,7 @@ public:
   std::vector<int> node_counts;
   std::vector<int> leaf_counts;
 
-  virtual ErrorCode visit( EntityHandle node, int depth, bool& descend ){
+  virtual ErrorCode visit( EntityHandle /*node*/, int depth, bool& descend ){
     ensure_depth( depth );
     last_depth = depth;
 
@@ -480,7 +480,7 @@ public:
     return MB_SUCCESS;
   }
        
-  virtual ErrorCode leaf( EntityHandle node ){
+  virtual ErrorCode leaf( EntityHandle /*node*/ ){
     leaf_counts[last_depth] += 1;
     return MB_SUCCESS;
   }
