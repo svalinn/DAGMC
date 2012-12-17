@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Monte Carlo Code-Specific Steps for DAG-Tripoli4 &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../../index.html" />
+    <link rel="up" title="DAGMC User’s Guide" href="index.html" />
+    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="prev" title="Monte Carlo Code-Specific Steps for DAG-MCNP5" href="dag-mcnp5.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header"><a id="uwhome" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> <a id="crest" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="/"><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="../../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="dag-mcnp5.html" title="Monte Carlo Code-Specific Steps for DAG-MCNP5"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="faq.html" title="Frequently Asked Questions"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">DAGMC User&#8217;s Guide</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"></div>
+ <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
+<li><a class="reference internal" href="#">Monte Carlo Code-Specific Steps for DAG-Tripoli4</a><ul>
+<li><a class="reference internal" href="#geometry-metadata">Geometry Metadata</a><ul>
+<li><a class="reference internal" href="#assigning-materials-densities">Assigning Materials &amp; Densities</a></li>
+<li><a class="reference internal" href="#defining-boundary-conditions">Defining Boundary Conditions</a></li>
+<li><a class="reference internal" href="#dagmc-runtime-parameters">DAGMC Runtime Parameters</a></li>
+<li><a class="reference internal" href="#running-dagmc-tripoli">Running DAGMC-Tripoli</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="monte-carlo-code-specific-steps-for-dag-tripoli4">
+<h1>Monte Carlo Code-Specific Steps for DAG-Tripoli4<a class="headerlink" href="#monte-carlo-code-specific-steps-for-dag-tripoli4" title="Permalink to this headline">¶</a></h1>
+<p>There are three varieties of code-specific steps:</p>
+<ol class="arabic simple">
+<li>defining attributes of the geometry using groups in CUBIT</li>
+<li>defining DAGMC runtime parameters using input file syntax</li>
+<li>changes to the command-line</li>
+</ol>
+<div class="section" id="geometry-metadata">
+<h2>Geometry Metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
+<p>The current version of DAG-Tripoli4 allows the definition of material
+compositions and boundary conditions in the geometry.</p>
+<div class="section" id="assigning-materials-densities">
+<h3>Assigning Materials &amp; Densities<a class="headerlink" href="#assigning-materials-densities" title="Permalink to this headline">¶</a></h3>
+<p>The generic workflow description includes details on
+<a class="reference internal" href="workflow.html#grouping-basics"><em>Grouping Volumes and Surfaces</em></a>, but a specific naming convention is required
+for DAG-Tripoli4. To define materials, the Tripoli composition name
+must be provided in the group name. The format for the group name is
+as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">comp_</span><span class="p">[</span><span class="n">compname</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">[compname]</span></tt> is replaced by the composition name that will be
+specified in the Tripoli4 input file.  <tt class="docutils literal"><span class="pre">[density]</span></tt> is replaced by
+either the atomic density or the mass density.  Like the MCNP cell
+cards, positive values are atomic densities in [atoms/barn-cm] and
+negative values are mass densities in [g/cc].</p>
+<p>For example, suppose UO2 is composition <tt class="docutils literal"><span class="pre">Uoxide</span></tt> in the problem and
+volumes 4 through 18 consist of this material.  To assign materials to
+these volumes, the following command would be used:</p>
+<div class="highlight-python"><pre>group "comp_Uoxide" add vol 4 to 18</pre>
+</div>
+<p><em>Note: If a volume is not assigned to a specific group, when run in
+DAGMC it will be treated as a void; the material for that cell will be
+zero. This can actually become a fairly useful debugging tool to
+identify volumes that were not assigned to their appropriate group.</em></p>
+<p>If you would like to assign a material to the explicit complement, you
+can use the same mechanism, but add the string <tt class="docutils literal"><span class="pre">_comp</span></tt> to the end of
+the group name.  Since DAGMC only recognizes those groups that contain
+an entity, it is necessary to add a volume to this group, recognizing
+that this material will NOT be assigned to that volume.  (_It is often
+convenient to assign the graveyard volume (see below) to the implicit
+complement material group to minimize confusion._) For example, if you
+would like the explicit complement to be modeled with the composition
+named &#8220;air&#8221;:</p>
+<div class="highlight-python"><pre>create group "comp_air_comp"</pre>
+</div>
+</div>
+<div class="section" id="defining-boundary-conditions">
+<h3>Defining Boundary Conditions<a class="headerlink" href="#defining-boundary-conditions" title="Permalink to this headline">¶</a></h3>
+<p>There are two general classes of boundary condition supported by
+DAG-Tripoli4. a vacuum boundary and reflecting surfaces, and they are
+implemented in different ways.</p>
+<ul class="simple">
+<li><strong>Defining the &#8220;graveyard&#8221;: vacuum boundaries</strong></li>
+</ul>
+<p>A vacuum boundary condition is typically defined in Tripoli4 by simply
+having a surface with not defined volume on its other side.  Since
+DAGMC&#8217;s implicit complement is also defined this way, it is not
+possible to use this convention in DAG-Tripoli4.  Instead, volumes are
+created on the vacuum side of those same surfaces, but those volumes
+are placed in a special group, known as the &#8220;graveyard&#8221; to change
+their behavior.  Any geometric shape can be used for this; however, a
+cubic shell is often preferred.  This shell volume will represent the
+outside world and will be the cell where all of the particles are
+terminated (thus it will have an importance of zero).</p>
+<p>[need more on implicit complement in context of Tripoli]</p>
+<p>To create this volume create two volumes in CUBIT with the same shape,
+same center, and one slightly larger than the other.  Subtract the
+smaller from the larger.  The remaining volume is the graveyard.</p>
+<p>Like the material definitions and boundary conditions discussed in the
+previous section. The graveyard is defined by assigning it a specific
+group name, one of the following keywords:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">graveyard</span>
+<span class="n">outside</span><span class="o">.</span><span class="n">world</span>
+<span class="n">rest</span><span class="o">.</span><span class="n">of</span><span class="o">.</span><span class="n">world</span>
+</pre></div>
+</div>
+<p>Consider a geometry with 99 volumes that all fit within a cube
+centered at the origin with side-length 99 cm.  To create a graveyard
+for this problem in CUBIT, you could issue the following commands:</p>
+<div class="highlight-python"><pre>cubit_prompt&gt; create brick x 100
+cubit_prompt&gt; create brick x 105
+cubit_prompt&gt; subtract vol 100 from vol 101
+cubit_prompt&gt; group "graveyard" add vol 102</pre>
+</div>
+<p>When DAG-Tripoli4 is run, the surfaces of volume 102 (or any other
+volumes included in the group) will be defined as having only one
+volume - the one on the OTHER SIDE relative to voluem 102. (_Note:
+this assumes that the two <tt class="docutils literal"><span class="pre">create</span> <span class="pre">brick</span></tt> commands generate volumes
+numbered 100 and 101, respectively, and that the Boolean subtraction
+results in a new volume number 102.</p>
+<p>If you have boundary conditions (reflecting, white, or periodic) it is
+not required that you surround them with the bounding volume, but is
+not incorrect to do so.  Only areas where particles should escape need
+to be enclosed.  However, it is often easiest to simply create a
+single graveyard that covers all directions and volumes of the system.</p>
+<ul class="simple">
+<li><strong>Surface boundary conditions: reflection</strong></li>
+</ul>
+<p>Surface boundary conditions are similarly enforced by specifying a
+group name. This type of attribute (surface boundary condition) is
+only required if reflective or white boundary conditions are used in
+the problem.  If not, this section may be skipped.  <em>Note that
+periodic boundary conditions are not yet supported.</em></p>
+<p>Specifying reflecting and white boundary conditions are fairly
+straightforward.  The group names for reflecting and white are
+respectively:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">spec</span><span class="o">.</span><span class="n">reflect</span>
+<span class="n">white</span><span class="o">.</span><span class="n">reflect</span>
+</pre></div>
+</div>
+<p>Suppose surfaces 10 and 11 are reflecting boundary conditions.  To
+specify these as reflecting surfaces, the following group would be
+created:</p>
+<div class="highlight-python"><pre>group "spec.reflect" add surf 10 11</pre>
+</div>
+</div>
+<div class="section" id="dagmc-runtime-parameters">
+<h3>DAGMC Runtime Parameters<a class="headerlink" href="#dagmc-runtime-parameters" title="Permalink to this headline">¶</a></h3>
+<p>The DAGMC-Tripoli input file is formatted just like any other Tripoli
+input file but using the <tt class="docutils literal"><span class="pre">DAGMC_GEOMETRY</span></tt> block to indicate the
+geometry.  This block has the following parameters:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>&lt;geometry_filename&gt;</td>
+<td>This must be the first parameter</td>
+</tr>
+<tr class="row-even"><td>facet_tol &lt;double faceting tolerance&gt;</td>
+<td>(optional: default=0.001)</td>
+</tr>
+<tr class="row-odd"><td>facet_file &lt;string faceting filename&gt;</td>
+<td>(optional)</td>
+</tr>
+<tr class="row-even"><td>check_src_cell &lt;&#8221;off&#8221;|&#8221;false&#8221;|&#8221;no&#8221;&gt;</td>
+<td>(optional: default=on)</td>
+</tr>
+<tr class="row-odd"><td>usecad &lt;&#8221;on&#8221;|&#8221;true&#8221;|&#8221;yes&#8221;&gt;</td>
+<td>(optional: default=off)</td>
+</tr>
+<tr class="row-even"><td>distlimit &lt;&#8221;on&#8221;|&#8221;true&#8221;|&#8221;yes&#8221;&gt;</td>
+<td>(optional: default=off)</td>
+</tr>
+<tr class="row-odd"><td>tolerance &lt;double ray firing tolerance&gt;</td>
+<td>(optional: default=1e-8)</td>
+</tr>
+</tbody>
+</table>
+<p>These parameters are described in <a class="reference internal" href="workflow.html#additional-parameters"><em>the workflow description</em></a>.  In addition to many other Tripoli input
+blocks, it is important to define the material compositions that have
+been assigned in the previous step.</p>
+</div>
+<div class="section" id="running-dagmc-tripoli">
+<h3>Running DAGMC-Tripoli<a class="headerlink" href="#running-dagmc-tripoli" title="Permalink to this headline">¶</a></h3>
+<p>Running DAGMC-Tripoli is identical to running the standard Tripoli.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Dec 17, 2012.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      </p>
+    </div>
+  </body>
+</html>
