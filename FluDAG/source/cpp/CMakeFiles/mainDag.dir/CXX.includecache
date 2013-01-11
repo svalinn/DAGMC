@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/filespace/people/z/zachman/DAGMC/FluDAG/source/cpp/fludagW.cpp
+moab/Interface.hpp
+/filespace/people/z/zachman/DAGMC/FluDAG/source/cpp/moab/Interface.hpp
+iostream
+-
+
+/filespace/people/z/zachman/DAGMC/FluDAG/source/cpp/mainDag.cpp
+

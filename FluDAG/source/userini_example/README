@@ -1,0 +1,4 @@
+Run the follwoing command in this directory:
+$FLUPRO/flutil/rfluka -e myfluka -N0 -M5 userexample &
+
+Note:  userexample.inp contains a USRICALL card 

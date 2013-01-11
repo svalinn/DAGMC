@@ -1,0 +1,306 @@
+# fludbmake.gmk
+# After...
+# $Id: binmake.gmk,v 1.2 2007/07/19 14:05:37 witoldp Exp $
+# ----------------------------------------------------------
+# Script defining rules and paths for making binaries.
+#    First implementation: Gabriele Cosmo, 25/06/1998.
+# ----------------------------------------------------------
+
+ifndef LDFLAGS
+  include $(FLUDINSTALL)/config/fludarch.gmk
+endif
+
+#G4LIBDIR := $(G4LIB)/$(G4SYSTEM)
+FLUDLIBDIR = $(FLUDLIB)
+
+# Define variable checking for existence of centrally installed headers.
+# If check will be true, avoid explicit definition of paths to INCFLAGS.
+#
+
+FLUDINCLUDE_EXEC := $(shell [ -r $(FLUDINCLUDE)/globals.hh ] && echo 1)
+
+
+#ifndef FLUDLIB_USE_GRANULAR
+#    GLOBALLIBS := $(shell test -f $(FLUDLIB)/$(G4SYSTEM)/libG4global.a && echo yes)
+#  ifndef GLOBALLIBS
+#    GLOBALLIBS := $(shell test -f $(G4LIB)/$(G4SYSTEM)/libG4global.$(SHEXT) && echo yes)
+#    SHAREDLIBS := $(shell test -f $(G4LIB)/$(G4SYSTEM)/libG4global.$(SHEXT) && echo yes)
+#  endif
+#endif
+
+ifndef SHAREDLIBS
+  SHAREDLIBS := $(shell test -f $(FLUDLIB)/libFLUDglobman.$(SHEXT) && echo yes)
+endif
+  
+ifndef INCFLAGS
+ ifeq ($(FLUDINCLUDE_EXEC),1)
+  INCFLAGS := -I$(FLUDINCLUDE)
+ else
+  INCFLAGS := \
+              -I$(FLUDBASE)/global/management/include \
+              -I$(FLUDBASE)/global/HEPRandom/include \
+              -I$(FLUDBASE)/global/HEPGeometry/include \
+              -I$(FLUDBASE)/global/HEPNumerics/include \
+              -I$(FLUDBASE)/materials/include \
+              -I$(FLUDBASE)/geometry/management/include \
+              -I$(FLUDBASE)/geometry/solids/CSG/include \
+              -I$(FLUDBASE)/geometry/solids/specific/include \
+              -I$(FLUDBASE)/geometry/solids/BREPS/include \
+              -I$(FLUDBASE)/geometry/solids/Boolean/include \
+              -I$(FLUDBASE)/geometry/divisions/include \
+              -I$(FLUDBASE)/geometry/volumes/include \
+	      -I$(FLUDBASE)/geometry/navigation/include \
+              -I$(FLUDBASE)/geometry/verification/include \
+              -I$(FLUDBASE)/geometry/magneticfield/include \
+              -I$(FLUDBASE)/graphics_reps/include \
+	      -I$(FLUDBASE)/dummyG4/include \
+	      -I$(FLUDBASE)/Wrappers/include
+
+  endif
+ endif
+endif
+
+CPPFLAGS += $(INCFLAGS)
+LDFLAGS += -L$(FLUDLIBDIR)
+
+# Addded for FLUGG: fortran and fluka libraries path
+LDFLAGS += -L/lib -L$(FLUPRO)
+
+FLUDTMPDIR := $(FLUDTMP)/$(FLUDTARGET)
+FLUDBINDIR := $(FLUDBIN)
+
+ifdef FLUDEXLIB
+  FLUDLIBDIR := $(FLUDTMPDIR)
+  LDFLAGS += -L$(FLUDLIBDIR)
+  ifdef SHAREDLIBS
+    ifdef FLUDRUNPATHOPTION
+#         For the example dependent directory, keep the 
+#         path to the shared lib in the executable.
+      LDFLAGS += $(FLUDRUNPATHOPTION)$(FLUDLIBDIR)
+    endif
+  endif
+  include $(FLUDINSTALL)/config/common.gmk
+endif
+
+ifdef LDLIBS
+  USER_DEFINED_LDLIBS := 1
+endif
+
+# Because of the script for granular libraries which replaces part of LDLIBS
+# and because of the way user defined LDLIBS was augmented historically I
+# have split LDLIBS into 4 parts...
+#
+ifndef USER_DEFINED_LDLIBS
+
+# LDLIBS1 contains the very high level libraries...
+#
+ifdef G4EXLIB
+  LDLIBS1 := -l$(G4TARGET)
+endif
+LDLIBS1 += $(EXTRALIBS)
+
+# VISLIBS and UILIBS are now handled by the granular library script...
+#
+ifdef GLOBALLIBS
+  LDLIBS1 += $(VISLIBS) $(UILIBS) # -lG4persistency
+
+  LDLIBS2 := \
+	     -lFggWrappers \
+             -lG4geometry \
+             -lG4materials \
+             -lG4graphics_reps \
+             -lG4intercoms \
+	     -lG4dummy \
+             -lG4global 
+else
+# The next lines specifically should read LDLIBS2 = , not LDLIBS2 :=, so
+# that it is not expanded until the directory G4TMPDIR is created.
+  ifeq ($(G4INCLUDE_EXEC),1)
+    LDLIBS2 = $(shell \
+        G4TMP=$(G4TMP); export G4TMP; \
+	if [ \( -f $(G4LIB)/$(G4SYSTEM)/liblist \
+	  -a -f $(G4LIB)/$(G4SYSTEM)/libname.map \) ]; then \
+	$(G4LIB)/$(G4SYSTEM)/liblist \
+	  -m $(G4LIB)/$(G4SYSTEM) \
+	  < $(G4LIB)/$(G4SYSTEM)/libname.map; fi)
+  else
+    LDLIBS2 = $(shell \
+        G4TMP=$(G4TMP); export G4TMP; \
+	if [ \( -f $(G4LIB)/$(G4SYSTEM)/liblist \
+	  -a -f $(G4LIB)/$(G4SYSTEM)/libname.map \) ]; then \
+	$(G4LIB)/$(G4SYSTEM)/liblist \
+	  -d $(G4TMPDIR) \
+	  < $(G4LIB)/$(G4SYSTEM)/libname.map; fi)
+# Warning: do not add to LDLIBS2 with += because this causes it to be
+# expanded too soon.  Hence extra libraries must have a different name...
+# Extra libraries to resolve remaining circular dependencies...
+#  LDLIBS2EXTRA = 
+  endif
+endif
+
+# LDLIBS3 contains the first set of low level libraries...
+#
+LDLIBS3 += $(INTYLIBS)
+LDLIBS3 += $(ANALYSISLIBS)
+
+endif # ifndef USER_DEFINED_LDLIBS
+
+# LDLIBS4 contains the next set of low level libraries which historically
+# (why?) the user is not supposed to be able to define...
+#
+LDLIBS4 += $(LOADLIBS)
+
+# Finally assemble libraries...
+#
+ifdef USER_DEFINED_LDLIBS
+  LDLIBS_PREFINAL := $(LDLIBS)
+else
+# Again, do not use := or +=.  See note on LDLIBS2 above.
+  LDLIBS_PREFINAL = $(LDLIBS1) $(LDLIBS2) $(LDLIBS2EXTRA) $(LDLIBS3)
+endif
+LDLIBS_PREFINAL += $(LDLIBS4)
+
+ifneq (,$(findstring WIN32-VC,$(G4SYSTEM)))
+  WIN32TMP := $(patsubst -L%,$(LIB_PATH)%,$(LDFLAGS))
+  LDFLAGS  = $(patsubst /,$(PATH_DEL),$(WIN32TMP))
+  LDLIBS = $(patsubst -l%,lib%.a,$(LDLIBS_PREFINAL))
+else
+  LDLIBS = $(LDLIBS_PREFINAL)
+endif
+
+# Addded for FLUGG: fortan and fluka libraries
+LDLIBS += -lc
+LDLIBS += -lflukahp
+LDLIBS += -lgfortran -lstdc++
+#
+
+ifdef transform-RPath
+#invoke system specific transformation of 
+include $(FLUGGINSTALL)/config/sys/$(G4SYSTEM)-runpath.gmk
+endif
+	
+sources := $(wildcard $(G4TARGET).cc)
+objects := $(patsubst %.cc,$(G4TMPDIR)/exe/%.o,$(sources))
+dependencies := $(patsubst %.cc,$(G4TMPDIR)/exe/%.d,$(sources))
+
+#
+# extra fortran source files for FLUKA 
+#
+sources += $(wildcard for/*.f)
+objects += $(patsubst for/%.f,$(G4TMPDIR)/exe/%.o,$(wildcard for/*.f))
+
+$(G4TMPDIR)/exe/%.o: for/%.f
+	@echo Compiling $*.f ...
+	@$(FLUPRO)/flutil/fff for/$*.f
+	@mv for/$*.o $(G4TMPDIR)/exe/$*.o
+
+##
+LINK_DEPENDENCIES := $(G4TMPDIR)/exe/obj.last $(EXTRA_LINK_DEPENDENCIES)
+
+.PHONY: bin clean clean_bin debug
+
+# Make $(G4TARGET) executable.
+
+bin: $(G4BINDIR)/$(G4TARGET)
+
+$(G4BINDIR)/$(G4TARGET): $(LINK_DEPENDENCIES)
+ifndef USER_DEFINED_LDLIBS
+  ifndef GLOBALLIBS
+	@echo "Using granular libraries ..."
+	@if [ ! \( -f $(G4LIB)/$(G4SYSTEM)/liblist \
+	  -a -f $(G4LIB)/$(G4SYSTEM)/libname.map \) ]; then \
+	  echo "ERROR: No liblist program or library map file."; \
+	  echo "       These are needed for building with granular"; \
+	  echo "       libraries."; \
+	  echo "         cd $$FLUGGINSTALL/source"; \
+	  echo "         gmake"; \
+	  echo "       or if you are sure you have already made all the"; \
+	  echo "       granular libraries:"; \
+	  echo "         gmake libmap"; \
+	  exit 1; fi
+  else
+	@echo "Using global libraries."
+  endif
+endif
+	@if [ ! -d $(G4BINDIR) ] ; then mkdir $(G4BINDIR) ;fi
+	@echo $(G4EXLIB)
+
+ifdef CPPVERBOSE
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) \
+	  -o $(G4BINDIR)/$(G4TARGET) $(objects) $(LDFLAGS) \
+	  $(LDLIBS)
+else
+	@echo Linking $(G4TARGET) ...
+	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) \
+	  -o $(G4BINDIR)/$(G4TARGET) $(objects) $(LDFLAGS) \
+	  $(LDLIBS)
+endif
+
+# Touch the versioning file
+ifdef G4EXLIB
+$(G4TMPDIR)/exe/obj.last: lib $(objects)
+else
+$(G4TMPDIR)/exe/obj.last: $(objects)
+endif
+	@touch $@
+
+# Make the $(G4TARGET).o file.
+$(G4TMPDIR)/exe/$(G4TARGET).o : $(G4TARGET).cc
+ifdef CPPVERBOSE
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(APPFLAGS) \
+	 -c $(OUT_OBJ)$(G4TMPDIR)/exe/$(G4TARGET).o $(G4TARGET).cc
+else
+	@echo Compiling $(G4TARGET).cc ...
+	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(APPFLAGS) \
+	 -c $(OUT_OBJ)$(G4TMPDIR)/exe/$(G4TARGET).o $(G4TARGET).cc
+endif
+
+GPPFLAGS := "-M"
+
+# Make the $(G4TARGET).d file and include it.
+
+# The ideas for this come from the GNU Make Manual, Section 4.12,
+# Generating Prerequisites Automatically.  The g++ compiler has an
+# option -M or -MM to write to standard output a list of dependencies
+# based on the #include statements.  The "sed" adds the dependency
+# file itself as a second target.  The result is a mini-makefile which
+# specifies the .o and .d files as targets which depend on all the
+# files found through the #include statements.  This file is then
+# included, causing GNU Make to honour these dependencies.
+
+# The "set -e" causes the shell to exit with an error when the "g++"
+# fails (otherwise it would only notice the last command in the
+# pipeline, namely "sed").  GNU Make notices the error and exits
+# sooner than it otherwise would (still not as soon as I expect,
+# though!).  Even then, an empty file is made, so "[ -s $@ ] || rm -f
+# $@" removes it ([ -s filename ] gives zero exit code only if file
+# exists and has a size greater than zero).  This avoids making
+# corrupt .d files which would play havoc with your next build.
+
+$(G4TMPDIR)/exe/$(G4TARGET).d: $(G4TARGET).cc
+	@if [ ! -d $(G4TMP)/$(G4SYSTEM) ] ; then mkdir $(G4TMP)/$(G4SYSTEM) ;fi
+	@if [ ! -d $(G4TMPDIR) ] ; then mkdir $(G4TMPDIR) ;fi
+	@if [ ! -d $(G4TMPDIR)/exe ] ; then mkdir $(G4TMPDIR)/exe ;fi
+	@echo Making dependency for file $<...
+	@set -e;\
+	g++ $(GPPFLAGS) $(CPPFLAGS) -w $< |\
+	sed 's!$(G4TARGET)\.o!$(G4TMPDIR)/exe/& $@!' >$@;\
+	[ -s $@ ] || rm -f $@
+ifneq ($(dependencies),)
+-include $(dependencies)
+endif
+
+clean:
+	@echo Cleaning up ...
+	@rm -f ./core
+	@rm -rf $(G4TMPDIR)
+	@rm -f $(G4LIBDIR)/lib$(G4TARGET).a
+	@rm -f $(G4BINDIR)/$(G4TARGET)
+ifdef CFRONT
+	@rm -rf $(G4TREP)/exec
+endif
+
+clean_bin:
+	@echo Removing application $(G4TARGET) ...
+	@rm -f ./core
+	@rm -f $(G4BINDIR)/$(G4TARGET)
