@@ -1,1 +1,1 @@
-$FLUPRO/flutil/rfluka -e $HOME/DAGMC/FluDAG/source/myfluka -N0 -M5 userexample &
+$FLUPRO/flutil/rfluka -e myfluka -N0 -M5 example &
