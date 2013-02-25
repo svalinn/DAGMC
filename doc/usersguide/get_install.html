@@ -257,7 +257,7 @@ prompt%&gt; make install</pre>
 <p>If you would like to use DAGMC with MCNP5, known as DAG-MCNP5, you will also need:</p>
 <ul class="simple">
 <li>MCNP5.1.51 source code from <a class="reference external" href="http://rsicc.ornl.gov">RSICC</a></li>
-<li>DAG-MCNP5.1.51 patch file from the UW-Madison</li>
+<li>a local copy of UW-Madison&#8217;s <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC git repo</a></li>
 </ul>
 <p>A package has been prepared that includes many of the requires
 software libraries and an automated build script.  Because the DAGMC
@@ -266,24 +266,11 @@ appropriate channels on your own.</p>
 <p>Once you have both of those things, you should be able to use the
 DagmcBuildPackage to create a working install of DAG-MCNP5.1.51.</p>
 <p>The following steps are required to install DAG-MCNP5.  Most of these steps are described in more detail below.</p>
-<ol class="arabic">
-<li><p class="first">Install the DAGMC Toolkit as described above</p>
-</li>
-<li><dl class="first docutils">
-<dt>Download a copy of the patch file for your version of MCNP:</dt>
-<dd><ul class="first last simple">
-<li><a class="reference external" href="https://raw.github.com/svalinn/DAGMC/master/MCNP5/patch/dagmc.patch.5.1.60">MCNP5 v1.60</a></li>
-<li><a class="reference external" href="https://raw.github.com/svalinn/DAGMC/master/MCNP5/patch/dagmc.patch.5.1.51">MCNP5 v1.51</a></li>
-<li><a class="reference external" href="https://raw.github.com/svalinn/DAGMC/master/MCNP5/patch/dagmc.patch.5.1.40">MCNP4 v1.40</a></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><p class="first">Apply the patch your copy of the MCNP5.1.60 (or appropriate
-version) source code</p>
-</li>
-<li><p class="first">Build &amp; install the patched version of MCNP5</p>
-</li>
+<ol class="arabic simple">
+<li>Install the DAGMC Toolkit as described above</li>
+<li>Clone a copy of the DAGMC git repo.</li>
+<li>Apply the appropriate patch from DAGMC/MCNP5/patch/ to your copy of the MCNP5 source code</li>
+<li>Build &amp; install the patched version of MCNP5</li>
 </ol>
 <p>Some assumptions/conventions:</p>
 <ul class="simple">
@@ -291,10 +278,11 @@ version) source code</p>
 <li>path to CUBIT files is known, e.g. <tt class="docutils literal"><span class="pre">/path/to/cubit</span></tt></li>
 <li>all tarballs reside in user&#8217;s home directory</li>
 <li>MCNP5 source code is available in location <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5</span></tt></li>
+<li>A cloned DAGMC git repo can be found at <tt class="docutils literal"><span class="pre">/path/to/DAGMC</span></tt></li>
 </ul>
 <p>Perform the following steps:</p>
 <div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld/MCNP5/Source
-prompt%&gt; patch -p1 &lt; ~/dagmc.patch.5.1.60</pre>
+prompt%&gt; patch -p1 &lt; /path/to/DAGMC/MCNP5/patch/dagmc.patch.5.1.60</pre>
 </div>
 <p>One of the easiest ways to build DAG-MCNP5 is directly using the
 <tt class="docutils literal"><span class="pre">makefile</span></tt> from the command-line.  To do this, you must know the
@@ -305,7 +293,8 @@ usually in the form:</p>
 <p>or similar.  Starting from these options, you can build DAG-MCNP5 from
 a patched source code with:</p>
 <div class="highlight-python"><pre>prompt%&gt; make build CONFIG="seq plot gfortran dagmc" FC=gfortran MARCH=M64 \
-             MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit/bin</pre>
+             MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit/bin \
+             DAGMC_DIR=/path/to/DAGMC/MCNP5/dagmc</pre>
 </div>
 <p>If you are less familiar with building MCNP5 from the <tt class="docutils literal"><span class="pre">makefile</span></tt> you
 may want to use the interactive <tt class="docutils literal"><span class="pre">install</span></tt> script provided by LANL:</p>
@@ -317,10 +306,11 @@ may want to use the interactive <tt class="docutils literal"><span class="pre">i
 <li>provide the path to MOAB: <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MOAB</span></tt></li>
 <li>provide the path to CUBIT: <tt class="docutils literal"><span class="pre">/path/to/cubit</span></tt></li>
 </ul>
-<p>From the main menu, choose <tt class="docutils literal"><span class="pre">C</span></tt> to compile.</p>
-<p>Your executable should be available as <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5/Source/src/mcnp5</span></tt>.</p>
+<p>src/Makefile gh-preview
+Your executable should be available as <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5/Source/src/mcnp5</span></tt>.</p>
 <p>Tripoli4 is distributed by CEA/Saclay as a binary executable.  For
-access to DAG-Tripoli4, please contact <a class="reference external" href="mailto:jean-christophe&#46;trama&#37;&#52;&#48;cea&#46;fr">Jean-Christophe Trama</a>.</p>
+access to DAG-Tripoli4, please contact <a class="reference external" href="mailto:jean-christophe&#46;trama&#37;&#52;&#48;cea&#46;fr">Jean-Christophe Trama</a>.
+make -f doc-src/Makefile gh-preview</p>
 </div>
 </div>
 
@@ -335,7 +325,7 @@ access to DAG-Tripoli4, please contact <a class="reference external" href="mailt
         &copy; Copyright 2012, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 19, 2013.
+      Last updated on Feb 25, 2013.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
