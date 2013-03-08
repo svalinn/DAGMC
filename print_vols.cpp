@@ -14,7 +14,31 @@
 int main(int argc, char *argv[])
 {  
   std::string filename;
-  filename = "iter.h5m";
+  int i;
+
+  if( argc <= 1 ) 
+    {
+      std::cout << "Usage is print_vols <mesh_file> " << std::endl;
+      return 1;
+    }
+  else
+    {
+      for ( i = 1 ; i <= argc-1 ; i++ )
+	{
+	  if ( std::string::npos != std::string(argv[i]).find(std::string(".h5m")) )
+	    {
+	      filename = argv[i];
+	    }
+	  else
+	    {
+	      std::cout << "Cannot open h5m file, " << argv[i] << std::endl;
+	    }
+	}
+    }
+
+
+
+  //filename = "iter.h5m";
   // instantiate & load a mesh from a file
   MBCore *mb = new MBCore();
   MBErrorCode rval = mb->load_mesh(filename.c_str());
