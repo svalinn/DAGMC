@@ -123,6 +123,8 @@ int main(int argc ,char *argv[])
       //      MPI::COMM_WORLD.Barrier( ); 
       // MPI::Finalize( );
       /* do transport */
+      /* need to modify to take NpStart and NpFinish as args */
+      /* need more robust way to deal with seed */
       TransportCycle(123456789,NumPar,Position); // using arbitrary seed
 
       /* all done */
