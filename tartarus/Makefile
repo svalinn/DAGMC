@@ -1,6 +1,6 @@
-include /opt/dagmc/moab/lib/moab.make
+include /data/opt/dagmc/moab/lib/moab.make
 CXXFLAGS += ${MOAB_CXXFLAGS} -g -pg
-CC = g++
+CC = mpicxx
 LD_FLAGS = -pg -std=c++11 
 CPPFLAGS += ${MOAB_INCLUDES} -pg
 CFLAGS   += ${MOAB_CFLAGS} -pg
@@ -8,10 +8,10 @@ CFLAGS   += ${MOAB_CFLAGS} -pg
 
 all: tartarus
 
-tartarus: tartarus.o
+tartarus: tartarus.o 
 	$(CC) $(LD_FLAGS) -o tartarus tartarus.o ${MOAB_LIBS_LINK} -ldagmc
 
-tartarus.o: tartarus.cpp
+tartarus.o: tartarus.cpp 
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c tartarus.cpp $(LD_FLAGS) -ldagmc
 
 clean:
