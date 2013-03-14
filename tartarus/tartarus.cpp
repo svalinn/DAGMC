@@ -12,6 +12,8 @@
 #include "MBInterface.hpp"
 #include "MBCartVect.hpp"
 
+#include "mpi.h"
+
 using moab::DagMC;
 using namespace std;
 
@@ -24,7 +26,7 @@ using namespace std;
     double z;
   };
 
-
+/* function prototype */
 void PrintUsage(void); // prototype for print usage
 void TransportCycle(int, int , double [3] ); // prototype for TransportCycle
 int FindStartVolume(double[3],MBEntityHandle &); // prototype for FindStartVolume
@@ -34,6 +36,9 @@ int CheckGraveyard(MBEntityHandle); // check if the current volume is the gravey
 void CheckForGraveyard(void);  // check to ensure graveyard exists anywhere in the model
 void PrintLostParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information 
 void DumpParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information to vtk
+void EndMPI( void );
+void GetNpsRange(int,int,int,int&,int&);
+
 
 int main(int argc ,char *argv[])
 {
@@ -45,10 +50,19 @@ int main(int argc ,char *argv[])
   int ErrorCode ; //Error code returns from DAG functions
   std::string DagInputFile; // DAG filename
 
+  MPI::Init (argc,argv); //
+
+
+  int CpuId = MPI::COMM_WORLD.Get_rank( );
+  int WorldSize = MPI::COMM_WORLD.Get_size( );
  
   if( argc <= 1 ) // no arguments provided
     {
-      PrintUsage(); // print how to use code
+      if ( CpuId == 0 )
+	{
+	   PrintUsage(); // print how to use code	   
+	}
+      EndMPI();
     }
   else
     {
@@ -59,6 +73,15 @@ int main(int argc ,char *argv[])
 	      DagInputFile = argv[i+1];
 	      std::cout << "Opening DAG input " << DagInputFile << std::endl;
 	      ErrorCode = DAG -> load_file(DagInputFile.c_str()); // open the Dag file
+	      if ( ErrorCode != MB_SUCCESS )
+		{
+		  if ( CpuId == 0 )
+		    {
+		      std::cout << "Could not load dag file" << std::endl;
+		    }
+		  EndMPI();
+  		  exit(5);
+		}
 	    }
 	  if ( argv[i] == std::string("--nps") ) // if nps keyword
 	    {
@@ -76,16 +99,34 @@ int main(int argc ,char *argv[])
 
       if( NumPar == 0 )
 	{
-	  std::cout << "Nps = 0!" << std::endl;
+	  if ( CpuId == 0 )		     
+	    {
+	      std::cout << "Nps = 0!" << std::endl;
+	    }
+	  EndMPI();
 	  exit(5);
 	}
 
+
+
+      /* otherwise everything ok, init dag */
       ErrorCode = DAG -> init_OBBTree(); // initialise the geometry
 
+      /* ensure graveyard exists */
       CheckForGraveyard();
+      int NpStart = 0,NpFinish = 0 ;
+      GetNpsRange(CpuId,WorldSize,NumPar,NpStart,NpFinish);
+      std::cout << CpuId << " " << NpStart << " " << NpFinish << std::endl;
+      EndMPI();
+      return 0;
 
+      //      MPI::COMM_WORLD.Barrier( ); 
+      // MPI::Finalize( );
+      /* do transport */
       TransportCycle(123456789,NumPar,Position); // using arbitrary seed
 
+      /* all done */
+      EndMPI();
     }
 
   return 0;
@@ -112,7 +153,7 @@ void TransportCycle(int Seed, int NumPar, double Position[3])
 
 
   // ephemeric vars
-  int i,j;
+  int i; //,j;
   int rval; 
   // Routine Variables
   MBErrorCode ErrorCode;
@@ -123,7 +164,7 @@ void TransportCycle(int Seed, int NumPar, double Position[3])
   double HitDist = 10.0;
   double OriginalHistory[3]; // original location of start history
   int grave; // in graveyard flag 1 true 0 false
-  int count = 0;
+  //  int count = 0;
 
   // Lost particles
   int LostParticle = 0; // number of lost particles;
@@ -134,7 +175,7 @@ void TransportCycle(int Seed, int NumPar, double Position[3])
   // Lost Particle History
   std::vector<std::vector<Location>> LostParticleHistory;
   static DagMC::RayHistory history; //keep the facets
-  MBEntityHandle FacetNumber;
+  //  MBEntityHandle FacetNumber;
 
   // Begining of Routine
   OriginalHistory[0] = Position[0], OriginalHistory[1] = Position[1], OriginalHistory[2] = Position[2];
@@ -177,24 +218,16 @@ void TransportCycle(int Seed, int NumPar, double Position[3])
 	Position[2] = (Position[2]+(HitDist*Direction[2])); // update position
 
 	CurrentPosition.x=Position[0], CurrentPosition.y=Position[1], CurrentPosition.z=Position[2];
-	//	std::cout << CurrentPosition.x << " " << CurrentPosition.y << " " << CurrentPosition.z << std::endl;
-	ParticleHistory.push_back(CurrentPosition);
+	ParticleHistory.push_back(CurrentPosition); /* append to "ray history" */
 
 	rval = FindStartVolume(Position,Volume); // get the current volume of position 
-	//	std::cout << Volume << std::endl;
+
 	if ( rval == 0) // particle is lost
 	  {
 	    LostParticle++; // increment the counter by one
 	    std::cout << "Lost particle " << LostParticle << " of " << NumPar << std::endl;
 	    LostParticleHistory.push_back(ParticleHistory); // add this particle to bank
 	    ParticleHistory.clear(); // clear the particle history
-	    //std::cout << history.size() << std::endl;
-	    //for ( j = 0 ; j <= history.size()-1 ; j++ )
-	    //  {
-	    //	FacetNumber = history.dump_facet_history(j);
-	    //		std::cout << FacetNumber << std::endl;
-	    // }
-	    //history.reset();
 	    break; // new history
 	  }  
 
@@ -209,8 +242,6 @@ void TransportCycle(int Seed, int NumPar, double Position[3])
        } while( HitDist >= 0.0 );
       
     } // end of transport loop
-
-  // PrintLostParticles(LostParticleHistory);
 
   std::cout << "There were " << LostParticleHistory.size() << " lost particles " << std::endl;
   if ( LostParticleHistory.size() > 0 ) 
@@ -259,7 +290,7 @@ Generates a random direction isotropic on the unit sphere.
 
 void GetIsoDirection(double Direction[3],int Seed)
 {
-  double u,v,w; // direction vectors
+  //  double u,v,w; // direction vectors
   double theta,phi; // components
 
   theta = RandomNumber(Seed)*2*3.14149;
@@ -313,7 +344,7 @@ void CheckForGraveyard()
   int i;
   int rval;
   int NumVol;
-  bool ReturnVal;
+  //  bool ReturnVal;
   std::vector<std::string> props;
   MBEntityHandle Volume;
 
@@ -364,9 +395,9 @@ void PrintLostParticles(std::vector<std::vector<Location> > AllLostParticles )
 
 void DumpParticles(std::vector<std::vector<Location> > AllLostParticles )
 {
-  int i;
+  unsigned int i;
   // routine variables
-  int LostParticleCount = 0; 
+  unsigned int LostParticleCount = 0; 
   std::vector<std::vector<Location> >::const_iterator LostParticleNo;
   std::vector<Location>::const_iterator PositionHistory;
 
@@ -418,6 +449,44 @@ void DumpParticles(std::vector<std::vector<Location> > AllLostParticles )
 
       OutputFile.close(); // close the file
     }
+
+  return;
+}
+
+/* terminates all MPI communications nicely */
+void EndMPI( )
+{
+   MPI::COMM_WORLD.Barrier( ); 
+   MPI::Finalize( );
+   return;
+}
+
+/* get nps range */
+// Determines the split of which particle ranges to simulate on which cpu
+void GetNpsRange( int CpuId, int WorldSize, int NumPar, int &NumStart, int &NumFinish)
+{
+  int Nps,Remainder;
+  int start,finish;
+
+  Remainder =  NumPar%WorldSize;
+  Nps = NumPar/WorldSize;
+  //  std::cout << Remainder << std::endl;
+  //  std::cout << Nps << std::endl;
+
+  if ( CpuId == 0 )
+    {
+      start = 1;
+      finish = ((CpuId+1)*Nps)+Remainder; // always give remainder to master
+    }
+  else // slave tasks
+    {
+      start = (CpuId*Nps)+2;
+      finish = ((CpuId+1)*Nps)+1; 
+    }
+
+  //  std::cout << "CPU " << CpuId << " starts = " << start << " finshes = " << finish << std::endl;
+  NumStart = start;
+  NumFinish = finish;
 
   return;
 }
