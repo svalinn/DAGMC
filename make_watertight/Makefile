@@ -1,4 +1,6 @@
-include /opt/dagmc/moab/lib/moab.make
+include /data/opt/dagmc/moab/lib/moab.make
+MOAB_CXXFLAGS =  -Wall -pipe -pedantic -Wno-long-long 
+MOAB_CFLAGS = -Wall -pipe -pedantic -Wno-long-long
 CXXFLAGS += ${MOAB_CXXFLAGS} -g 
 CC = g++
 LD_FLAGS = -g

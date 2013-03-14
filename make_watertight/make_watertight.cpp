@@ -1472,7 +1472,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
                                           const MBTag size_tag ) 
 {
   MBErrorCode rval;
-  for( int dim = 1 ; dim <= 3 ; ++dim ) 
+  for( int dim = 1 ; dim < 4 ; ++dim ) 
     {
     for(MBRange::iterator i=geom_sets[dim].begin() ; i != geom_sets[dim].end() ; i++) 
       {
@@ -1485,8 +1485,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
 	    return rval;
 	  }
 
-	std::cout << "size_tag = " << size_tag << " *i = " 
-		  << *i << " size = " << size << std::endl;
+	std::cout <<  " *i = " << *i << " size = " << size << std::endl;
 
 	rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
 	std::cout << " here in set tag data" << std::endl;
@@ -1496,6 +1495,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
 	  }
       }
     }
+  std::cout << "finished in get_geom_size_before_sealing" << std::endl;
   return MB_SUCCESS;
 }
 
@@ -1693,7 +1693,8 @@ int main(int argc, char **argv)
     // This is the same as what ReadCGM uses.
       } 
 
-    /*  recreate to only perform these operations on h5m meshes  
+    /*
+     // recreate to only perform these operations on h5m meshes  
     else if(std::string::npos!=input_name.find("sat") && 
 	      ((2==argc) || (3==argc)) ) 
       {
@@ -1727,36 +1728,38 @@ int main(int argc, char **argv)
 	std::cout << "incorrect input arguments" << std::endl;
 	return MB_FAILURE;
       }
-    */ //not required if  only doing this with h5m files
+     //not required if  only doing this with h5m files
+     */
 
     // create tags
     clock_t load_time = clock();    
     MBTag geom_tag, id_tag, normal_tag, merge_tag, faceting_tol_tag, 
       geometry_resabs_tag, size_tag, orig_curve_tag;
-    result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TYPE_INTEGER
-				    , geom_tag, MB_TAG_DENSE, 0 );
+  
+    result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, 1,
+				MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
     assert( MB_SUCCESS == result );
-    result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, sizeof(int), 
-				MB_TYPE_INTEGER, id_tag, MB_TAG_DENSE, 0 );
+    result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1,
+				MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
     assert( MB_SUCCESS == result );
-    result = MBI()->tag_get_handle( "NORMAL", sizeof(MBCartVect),
-                                MB_TYPE_OPAQUE, normal_tag, MB_TAG_DENSE, 0);
+    result = MBI()->tag_get_handle( "NORMAL", sizeof(MBCartVect), MB_TYPE_OPAQUE,
+        normal_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
     assert( MB_SUCCESS == result );
-    result = MBI()->tag_get_handle( "MERGE", sizeof(MBEntityHandle), 
-                                MB_TYPE_HANDLE, merge_tag, MB_TAG_SPARSE, 0);
+    result = MBI()->tag_get_handle( "MERGE", 1, MB_TYPE_HANDLE,
+        merge_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
     assert( MB_SUCCESS == result );  
-    result = MBI()->tag_get_handle( "FACETING_TOL", sizeof(double),
-                                MB_TYPE_DOUBLE, faceting_tol_tag, MB_TAG_SPARSE, 0 );
+    result = MBI()->tag_get_handle( "FACETING_TOL", 1, MB_TYPE_DOUBLE,
+        faceting_tol_tag , moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
     assert( MB_SUCCESS == result );  
-    result = MBI()->tag_get_handle( "GEOMETRY_RESABS", sizeof(double), 
-                                MB_TYPE_DOUBLE, geometry_resabs_tag,MB_TAG_SPARSE, 0 );
+    result = MBI()->tag_get_handle( "GEOMETRY_RESABS", 1,     MB_TYPE_DOUBLE,
+                             geometry_resabs_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT  );
     assert( MB_SUCCESS == result );  
-    result = MBI()->tag_get_handle( "GEOM_SIZE", sizeof(double), 
-				    MB_TYPE_DOUBLE, size_tag,MB_TAG_DENSE,0);
-    assert( MB_SUCCESS == result );
+    result = MBI()->tag_get_handle( "GEOM_SIZE", 1, MB_TYPE_DOUBLE,
+				    size_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT  );
+    assert( (MB_SUCCESS == result) );
     int true_int = 1;    
-    result = MBI()->tag_get_handle( "ORIG_CURVE", sizeof(int),
-				MB_TYPE_INTEGER, orig_curve_tag, MB_TAG_DENSE, &true_int );
+    result = MBI()->tag_get_handle( "ORIG_CURVE", 1,
+				MB_TYPE_INTEGER, orig_curve_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT, &true_int );
     assert( MB_SUCCESS == result );
 
     // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
@@ -1838,8 +1841,9 @@ int main(int argc, char **argv)
 
     std::cout << "I am here" << std::endl;
 
-    /* this could be related to when there are sat files rather than mesh?
+    // this could be related to when there are sat files rather than mesh?
     // If desired, find each entity's size before sealing.
+    /*
     if(check_geom_size) 
       {
 	std::cout << "I am checking the geometry size" << std::endl;
@@ -1849,6 +1853,7 @@ int main(int argc, char **argv)
 	    return result;
 	  }
       }
+    
     */
 
     std::cout << "Get entity count before sealing" << std::endl;
@@ -1917,12 +1922,14 @@ int main(int argc, char **argv)
     result = fix_normals(geom_sets[2], id_tag, normal_tag, debug);
     assert(MB_SUCCESS == result);
 
+    /*
     // As sanity check, did zipping drastically change the entity's size?
     if(check_geom_size) {
       std::cout << "Checking size change of zipped entities..." << std::endl;
       result = get_geom_size_after_sealing( geom_sets, geom_tag, size_tag, FACET_TOL );
       if(gen::error(MB_SUCCESS!=result,"measuring geom size failed")) return result;
     }
+    */
 
     // This tool stores curves as a set of ordered edges. MOAB stores curves as
     // ordered vertices and edges. MOAB represents curve endpoints as geometry

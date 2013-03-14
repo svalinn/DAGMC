@@ -1508,20 +1508,32 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
   //  return MB_SUCCESS;
   //}
 
-    // get surfaces from volume
+  std::cout << "in measure_volume 1" << std::endl;
+
+  // get surfaces from volume
   rval = MBI()->get_child_meshsets( volume, surfaces );
   if (MB_SUCCESS != rval) return rval;
-  
+  std::cout << "in measure_volume 1" << std::endl;
+
     // get surface senses
   std::vector<int> senses( surfaces.size() );
   moab::DagMC &dagmc = *moab::DagMC::instance( MBI() );
+
+  std::cout << surfaces.size() << std::endl;
+  std::cout << volume << std::endl;
+
   rval = dagmc.surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
+
+  std::cout << "in measure_volume 2" << std::endl;
+
   if (MB_SUCCESS != rval) {
     std::cerr << "ERROR: Surface-Volume relative sense not available. "
               << "Cannot calculate volume." << std::endl;
     return rval;
   }
-  
+
+  std::cout << "in measure_volume 2" << std::endl;
+
   for (unsigned i = 0; i < surfaces.size(); ++i) {
       // skip non-manifold surfaces
     if (!senses[i])
@@ -1614,7 +1626,9 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     } else if(3 == dim) {
       //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() );
       //result = dagmc.measure_volume( set, size );
+      std::cout << "in measure volume" << std::endl;
       result = measure_volume( set, size );
+      std::cout << "in measure volume" << std::endl;
       if(MB_SUCCESS != result) {
         std::cout << "result=" << result << " vol_id=" 
                   << gen::geom_id_by_handle(set) << std::endl;
