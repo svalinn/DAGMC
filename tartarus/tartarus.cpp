@@ -7,6 +7,8 @@
 #include <sstream>
 #include <string>
 #include <random>
+#include <algorithm>
+#include <iterator>
 
 #include "DagMC.hpp"
 #include "MBInterface.hpp"
@@ -288,6 +290,7 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
   if ( CpuId == 0 )
     {
       std::cout << "There were " << TotalNumLost << " lost particles " << std::endl;
+      return;
       if ( LostParticleHistory.size() > 0 ) 
 	{
 	  DumpParticles(LostParticleHistory);
@@ -568,31 +571,59 @@ void CollectLostParticleData(int NumPar, std::vector<double> x_local, std::vecto
       for ( i = 1 ; i <= NumProc-1 ; i++)
 	{
 	  MPI::COMM_WORLD.Recv (&num_lost[i],1,MPI_INT,i,i);
-	  std::cout << num_lost[i] << std::endl;
 	}
 
+      // masters x data
+      x_pos.resize(x_local.size());
+      std::copy (x_local.begin(),x_local.end(), x_pos.begin() );
+      // masters y data
+      y_pos.resize(y_local.size());
+      std::copy (y_local.begin(),y_local.end(), y_pos.begin() );
+      // masters z data
+      z_pos.resize(z_local.size());
+      std::copy (z_local.begin(),z_local.end(), z_pos.begin() );
+
+      // get the x data
       for ( i = 1 ; i <= NumProc-1 ; i++ )
 	{
 	  if ( num_lost[i] != 0 )
 	    {
+	      int tag;
 	      std::cout << "Creating double array " << std::endl;
-	      double* tmp_store = new double[num_lost[i]];
-	      std::cout << i << " " << sizeof(tmp_store) << std::endl;
-	      MPI::COMM_WORLD.Recv ( &tmp_store,num_lost[i],MPI_DOUBLE,i,i);
+	      double* tmp_store = new double [num_lost[i]] ; // tmp array storage for x pos data
+	      std::vector<double> tmp_vector;                // tmp vector for x pos data
+	      MPI::COMM_WORLD.Irecv ( &tmp_store,num_lost[tag],MPI_DOUBLE,MPI_ANY_TAG,tag); // get the messages back
+	      tmp_vector.resize( num_lost[i] );
+	      std::copy ( tmp_store, tmp_store+num_lost[i],tmp_vector.begin() );
+	      x_pos.insert(x_pos.end(),tmp_vector.begin(),tmp_vector.end() );
+	      MPI::COMM_WORLD.Irecv ( &tmp_store,num_lost[tag],MPI_DOUBLE,MPI_ANY_TAG,tag); // get the messages back
+	      tmp_vector.resize( num_lost[i] );
+	      std::copy ( tmp_store, tmp_store+num_lost[i],tmp_vector.begin() );
+	      y_pos.insert(y_pos.end(),tmp_vector.begin(),tmp_vector.end() );
+	      MPI::COMM_WORLD.Irecv ( &tmp_store,num_lost[tag],MPI_DOUBLE,MPI_ANY_TAG,tag); // get the messages back
+	      tmp_vector.resize( num_lost[i] );
+	      std::copy ( tmp_store, tmp_store+num_lost[i],tmp_vector.begin() );
+	      z_pos.insert(z_pos.end(),tmp_vector.begin(),tmp_vector.end() );
+
 	      delete[] tmp_store; // delete the particle positions
+	      tmp_vector.clear();
+	      tmp_vector.shrink_to_fit();
 	    }
+
 	}
 
       delete[] num_lost; // delete the lost particle counts from each cpu
+
+
     }
   else
     {
       MPI::COMM_WORLD.Send (&NumPar,1,MPI_INT,0,CpuId); // send the number of lost particles (from each core)
-      //      std::cout << "CpuId = " << CpuId << " NumPar = " << NumPar << std::endl;
       if ( NumPar != 0 )
 	{
-	  std::cout << "CpuId = " << CpuId << " NumPar = " << NumPar << std::endl;
-	  MPI::COMM_WORLD.Send (&x_local,NumPar,MPI_DOUBLE,0,CpuId); // send the data per core 
+	  MPI::COMM_WORLD.Isend (&x_local,NumPar,MPI_DOUBLE,0,CpuId); // send the data per core 
+	  MPI::COMM_WORLD.Isend (&y_local,NumPar,MPI_DOUBLE,0,CpuId); // send the data per core 
+	  MPI::COMM_WORLD.Isend (&z_local,NumPar,MPI_DOUBLE,0,CpuId); // send the data per core 
 	}
     }
 
