@@ -38,6 +38,8 @@ void PrintLostParticles(std::vector< std::vector< Location > > ); // Dump the lo
 void DumpParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information to vtk
 void EndMPI( void );
 void GetNpsRange(int,int,int,int&,int&);
+void CollectLostParticleData(int, std::vector<double>, std::vector<double>, std::vector<double>,
+			      std::vector<double>&, std::vector<double>&, std::vector<double>&);
 
 
 int main(int argc ,char *argv[])
@@ -50,11 +52,10 @@ int main(int argc ,char *argv[])
   int ErrorCode ; //Error code returns from DAG functions
   std::string DagInputFile; // DAG filename
 
-  MPI::Init (argc,argv); //
+  MPI::Init (argc,argv); //start MPI
 
-
-  int CpuId = MPI::COMM_WORLD.Get_rank( );
-  int WorldSize = MPI::COMM_WORLD.Get_size( );
+  int CpuId = MPI::COMM_WORLD.Get_rank( ); // CPU Id #
+  int WorldSize = MPI::COMM_WORLD.Get_size( ); // Size of the world
  
   if( argc <= 1 ) // no arguments provided
     {
@@ -129,18 +130,10 @@ int main(int argc ,char *argv[])
 	}
 
 	      
-
+      // determine which particle id's the sub tasks are running
       int NpStart = 0,NpFinish = 0 ;
       GetNpsRange(CpuId,WorldSize,NumPar,NpStart,NpFinish);
-      //std::cout << CpuId << " " << NpStart << " " << NpFinish << std::endl;
-      //EndMPI();
-      //return 0;
-
-      //      MPI::COMM_WORLD.Barrier( ); 
-      // MPI::Finalize( );
-      /* do transport */
-      /* need to modify to take NpStart and NpFinish as args */
-      /* need more robust way to deal with seed */
+      // Run transport
       TransportCycle(123456789,NpStart,NpFinish,Position); // using arbitrary seed
 
       /* all done */
@@ -170,30 +163,45 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
 {
 
 
-  // ephemeric vars
+  // Temporary Variables
   int i; //,j;
   int rval; 
+
+  // mpi vars
+  int CpuId,SizeWorld; // cpu id number and size of the mpi world
+
   // Routine Variables
   MBErrorCode ErrorCode;
   MBEntityHandle Surface = 0; // surface number
   MBEntityHandle Volume = 0; // volume number
+
   double Direction[3]; // vector containg the particle direction
   int stride = 5000000; // rn stride
+
   double HitDist = 10.0;
   double OriginalHistory[3]; // original location of start history
+
   int grave; // in graveyard flag 1 true 0 false
   //  int count = 0;
 
   // Lost particles
   int LostParticle = 0; // number of lost particles;
   Location CurrentPosition; //Struct of a position 
+
+  // Collection of the lost particle data
   std::vector<Location>  ParticleHistory; // vector of particle locations
   std::vector<Location>::const_iterator position_iterator;
-
   // Lost Particle History
   std::vector<std::vector<Location>> LostParticleHistory;
+  std::vector<std::vector<Location>> AllTheLostParticles;
+  std::vector<double> x,y,z;
+  std::vector<double> x_coord,y_coord,z_coord;
+
+
   static DagMC::RayHistory history; //keep the facets
-  //  MBEntityHandle FacetNumber;
+ 
+  CpuId = MPI::COMM_WORLD.Get_rank( ); // CPU Id #
+  SizeWorld = MPI::COMM_WORLD.Get_size( ); // Size of the world
 
   // Begining of Routine
   OriginalHistory[0] = Position[0], OriginalHistory[1] = Position[1], OriginalHistory[2] = Position[2];
@@ -207,6 +215,10 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
       Position[0]=OriginalHistory[0], Position[1]=OriginalHistory[1], Position[2]=OriginalHistory[2] ; // reset location
       CurrentPosition.x=Position[0], CurrentPosition.y=Position[1], CurrentPosition.z=Position[2]; // record the start location
       ParticleHistory.push_back(CurrentPosition); // push it to the storage array
+
+      //x.push_back(Position[0]); // initial array allocation
+      //y.push_back(Position[1]); //
+      //z.push_back(Position[2]); //
     
       rval = FindStartVolume(Position,Volume); //determine our start Volume
       if( rval == 1)
@@ -243,8 +255,9 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
 	if ( rval == 0) // particle is lost
 	  {
 	    LostParticle++; // increment the counter by one
-	    //	    std::cout << "Lost particle " << LostParticle << " of " << NumPar << std::endl;
+	    // std::cout << "Lost particle " << LostParticle << std::endl;
 	    LostParticleHistory.push_back(ParticleHistory); // add this particle to bank
+	    x.push_back(Position[0]),y.push_back(Position[1]),z.push_back(Position[2]);
 	    ParticleHistory.clear(); // clear the particle history
 	    break; // new history
 	  }  
@@ -258,13 +271,31 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
 	  }
 
        } while( HitDist >= 0.0 );
-      
-    } // end of transport loop
+ 
+   } // end of transport loop
 
-  std::cout << "There were " << LostParticleHistory.size() << " lost particles " << std::endl;
-  if ( LostParticleHistory.size() > 0 ) 
+
+  // transport is done 
+  //Get the total number of lost particles
+  int TotalNumLost = 0;
+  MPI::COMM_WORLD.Barrier( ); 
+  MPI::COMM_WORLD.Reduce(&LostParticle,&TotalNumLost,1,MPI::INT,MPI::SUM,0); // add up the local lost particle counts
+  std::cout << "tot lost = " << TotalNumLost << " " << LostParticle << std::endl;
+ 
+  // get all the lost particle data
+  CollectLostParticleData(LostParticle,x,y,z,x_coord,y_coord,z_coord);
+
+  if ( CpuId == 0 )
     {
-      DumpParticles(LostParticleHistory);
+      std::cout << "There were " << TotalNumLost << " lost particles " << std::endl;
+      if ( LostParticleHistory.size() > 0 ) 
+	{
+	  DumpParticles(LostParticleHistory);
+	  return;
+	}
+    }
+  else
+    {
       return;
     }
 }
@@ -355,8 +386,9 @@ int CheckGraveyard(MBEntityHandle Volume)
 
 /* 
    Loop through all volumes to ensure we have a graveyard in the list
+   This program relies on the fact that there is an all encompassing volume
+   that particles must enter when traversing the geometry in question
 */
-
 int CheckForGraveyard()
 {
   int i;
@@ -505,9 +537,66 @@ void GetNpsRange( int CpuId, int WorldSize, int NumPar, int &NumStart, int &NumF
       finish = ((CpuId+1)*Nps)+1; 
     }
 
-  //  std::cout << "CPU " << CpuId << " starts = " << start << " finshes = " << finish << std::endl;
+  std::cout << "CPU " << CpuId << " starts = " << start << " finshes = " << finish << std::endl;
   NumStart = start;
   NumFinish = finish;
+
+  return;
+}
+
+void CollectLostParticleData(int NumPar, std::vector<double> x_local, std::vector<double> y_local, std::vector<double> z_local,
+			     std::vector<double> &x_pos, std::vector<double> &y_pos, std::vector<double> &z_pos)
+{
+  int CpuId, NumProc;
+  int NumParMaster;
+    
+  CpuId = MPI::COMM_WORLD.Get_rank( ); // CPU Id #
+  NumProc = MPI::COMM_WORLD.Get_size( ); // Size of the world
+
+  int i = 0;
+
+  MPI::COMM_WORLD.Barrier( ); 
+
+  /* Get size of the particle arrays */
+  if ( CpuId == 0 )
+    {
+
+      int* num_lost = new int [NumProc];
+
+      num_lost[0] = NumPar;
+      //  std::cout << num_lost[i] << std::endl;
+      for ( i = 1 ; i <= NumProc-1 ; i++)
+	{
+	  MPI::COMM_WORLD.Recv (&num_lost[i],1,MPI_INT,i,i);
+	  std::cout << num_lost[i] << std::endl;
+	}
+
+      for ( i = 1 ; i <= NumProc-1 ; i++ )
+	{
+	  if ( num_lost[i] != 0 )
+	    {
+	      std::cout << "Creating double array " << std::endl;
+	      double* tmp_store = new double[num_lost[i]];
+	      std::cout << i << " " << sizeof(tmp_store) << std::endl;
+	      MPI::COMM_WORLD.Recv ( &tmp_store,num_lost[i],MPI_DOUBLE,i,i);
+	      delete[] tmp_store; // delete the particle positions
+	    }
+	}
+
+      delete[] num_lost; // delete the lost particle counts from each cpu
+    }
+  else
+    {
+      MPI::COMM_WORLD.Send (&NumPar,1,MPI_INT,0,CpuId); // send the number of lost particles (from each core)
+      //      std::cout << "CpuId = " << CpuId << " NumPar = " << NumPar << std::endl;
+      if ( NumPar != 0 )
+	{
+	  std::cout << "CpuId = " << CpuId << " NumPar = " << NumPar << std::endl;
+	  MPI::COMM_WORLD.Send (&x_local,NumPar,MPI_DOUBLE,0,CpuId); // send the data per core 
+	}
+    }
+
+
 
   return;
 }
