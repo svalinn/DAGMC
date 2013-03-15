@@ -28,12 +28,12 @@ using namespace std;
 
 /* function prototype */
 void PrintUsage(void); // prototype for print usage
-void TransportCycle(int, int , double [3] ); // prototype for TransportCycle
+void TransportCycle(int, int, int , double [3] ); // prototype for TransportCycle
 int FindStartVolume(double[3],MBEntityHandle &); // prototype for FindStartVolume
 void GetIsoDirection(double[3], int); // get a random isotropically distributed uvw
 double RandomNumber(int); // random number generator
 int CheckGraveyard(MBEntityHandle); // check if the current volume is the graveyard
-void CheckForGraveyard(void);  // check to ensure graveyard exists anywhere in the model
+int CheckForGraveyard(void);  // check to ensure graveyard exists anywhere in the model
 void PrintLostParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information 
 void DumpParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information to vtk
 void EndMPI( void );
@@ -113,19 +113,35 @@ int main(int argc ,char *argv[])
       ErrorCode = DAG -> init_OBBTree(); // initialise the geometry
 
       /* ensure graveyard exists */
-      CheckForGraveyard();
+      ErrorCode = CheckForGraveyard();
+      if ( CpuId == 0 )
+	{
+	  if ( ErrorCode == 0 )
+	    {
+	      std::cout << "No Graveyard Detected!" << std::endl;
+	    }
+	}
+
+      if ( ErrorCode == 0 )
+	{
+	  EndMPI();
+	  return 1;
+	}
+
+	      
+
       int NpStart = 0,NpFinish = 0 ;
       GetNpsRange(CpuId,WorldSize,NumPar,NpStart,NpFinish);
-      std::cout << CpuId << " " << NpStart << " " << NpFinish << std::endl;
-      EndMPI();
-      return 0;
+      //std::cout << CpuId << " " << NpStart << " " << NpFinish << std::endl;
+      //EndMPI();
+      //return 0;
 
       //      MPI::COMM_WORLD.Barrier( ); 
       // MPI::Finalize( );
       /* do transport */
       /* need to modify to take NpStart and NpFinish as args */
       /* need more robust way to deal with seed */
-      TransportCycle(123456789,NumPar,Position); // using arbitrary seed
+      TransportCycle(123456789,NpStart,NpFinish,Position); // using arbitrary seed
 
       /* all done */
       EndMPI();
@@ -150,7 +166,7 @@ Loop through the required number of particles
  */
 
 // NumPar is the number of particles, and position is the start location (x,y,z)
-void TransportCycle(int Seed, int NumPar, double Position[3])
+void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
 {
 
 
@@ -183,10 +199,10 @@ void TransportCycle(int Seed, int NumPar, double Position[3])
   OriginalHistory[0] = Position[0], OriginalHistory[1] = Position[1], OriginalHistory[2] = Position[2];
 
 
-  for ( i = 1 ; i <= NumPar ; i++ )
+  for ( i = StartPar ; i <= EndPar ; i++ )
     {
-      if( i%(NumPar/10) == 0 )
-	std::cout << "nps = " << i << std::endl;
+      //      if( i%(NumPar/10) == 0 )
+      //	std::cout << "nps = " << i << std::endl;
 
       Position[0]=OriginalHistory[0], Position[1]=OriginalHistory[1], Position[2]=OriginalHistory[2] ; // reset location
       CurrentPosition.x=Position[0], CurrentPosition.y=Position[1], CurrentPosition.z=Position[2]; // record the start location
@@ -227,7 +243,7 @@ void TransportCycle(int Seed, int NumPar, double Position[3])
 	if ( rval == 0) // particle is lost
 	  {
 	    LostParticle++; // increment the counter by one
-	    std::cout << "Lost particle " << LostParticle << " of " << NumPar << std::endl;
+	    //	    std::cout << "Lost particle " << LostParticle << " of " << NumPar << std::endl;
 	    LostParticleHistory.push_back(ParticleHistory); // add this particle to bank
 	    ParticleHistory.clear(); // clear the particle history
 	    break; // new history
@@ -341,7 +357,7 @@ int CheckGraveyard(MBEntityHandle Volume)
    Loop through all volumes to ensure we have a graveyard in the list
 */
 
-void CheckForGraveyard()
+int CheckForGraveyard()
 {
   int i;
   int rval;
@@ -353,10 +369,11 @@ void CheckForGraveyard()
   props.push_back("graveyard");
   rval = DAG->parse_properties(props);
 
-  if (MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
+  if (MB_SUCCESS != rval) 
+    {
+      std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
+      exit(EXIT_FAILURE);
+    }
 
   NumVol =  DAG->num_entities(3); // get the number of volumes
   
@@ -365,11 +382,13 @@ void CheckForGraveyard()
       Volume = DAG->entity_by_index(3,i); // convert index to MBHandle
       rval = CheckGraveyard(Volume);
       if(rval == 1)
-	return;
+	{
+	  return 1;
+	}
     }
 
-  std::cout << "No Graveyard detected" << std::endl;
-  exit(0);
+  //std::cout << "No Graveyard detected" << std::endl;
+  return 0;
 }
 
 void PrintLostParticles(std::vector<std::vector<Location> > AllLostParticles )
