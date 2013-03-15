@@ -1084,8 +1084,9 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   int geom_id_by_handle( const MBEntityHandle set ) {
     MBErrorCode result;
     MBTag id_tag;
-    result = MBI()->tag_create( GLOBAL_ID_TAG_NAME, sizeof(int), MB_TAG_DENSE,
-                                MB_TYPE_INTEGER, id_tag, 0, true );           
+    //result = MBI()->tag_create( GLOBAL_ID_TAG_NAME, sizeof(int), MB_TAG_DENSE,
+    //                                MB_TYPE_INTEGER, id_tag, 0, true );           
+    result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1, MB_TYPE_INTEGER,id_tag,moab::MB_TAG_DENSE);
     assert(MB_SUCCESS==result || MB_ALREADY_ALLOCATED==result);                       
     int id;
     result = MBI()->tag_get_data( id_tag, &set, 1, &id );                  
