@@ -18,6 +18,9 @@
 // make CXXFLAGS=-g for debug
 // make CXXFLAGS=-pg for profiling
 
+// modified by Andrew Davis 2012
+// Updated deprecated MOAB calls
+
 #include <iostream>
 #include <sstream>
 #include <iomanip> // for setprecision
@@ -38,8 +41,64 @@
 #include "zip.hpp"
 #include "cleanup.hpp"
 
-
 MBInterface *MBI();
+
+void moab_printer(MBErrorCode error_code)
+{
+  if ( error_code == MB_INDEX_OUT_OF_RANGE )
+    {
+      std::cerr << "ERROR: MB_INDEX_OUT_OF_RANGE" << std::endl;
+    }
+  if ( error_code == MB_MEMORY_ALLOCATION_FAILED )
+    {
+      std::cerr << "ERROR: MB_MEMORY_ALLOCATION_FAILED" << std::endl;
+    }
+  if ( error_code == MB_ENTITY_NOT_FOUND )
+    {
+      std::cerr << "ERROR: MB_ENTITY_NOT_FOUND" << std::endl;
+    }
+  if ( error_code == MB_MULTIPLE_ENTITIES_FOUND )
+    {
+      std::cerr << "ERROR: MB_MULTIPLE_ENTITIES_FOUND" << std::endl;
+    }
+  if ( error_code == MB_TAG_NOT_FOUND )
+    {
+      std::cerr << "ERROR: MB_TAG_NOT_FOUND" << std::endl;
+    }
+  if ( error_code == MB_FILE_DOES_NOT_EXIST )
+    {
+      std::cerr << "ERROR: MB_FILE_DOES_NOT_EXIST" << std::endl;
+    }    
+  if ( error_code == MB_FILE_WRITE_ERROR )
+    {
+      std::cerr << "ERROR: MB_FILE_WRITE_ERROR" << std::endl;
+    }    
+  if ( error_code == MB_ALREADY_ALLOCATED )
+    {
+      std::cerr << "ERROR: MB_ALREADY_ALLOCATED" << std::endl;
+    }    
+  if ( error_code == MB_VARIABLE_DATA_LENGTH )
+    {
+      std::cerr << "ERROR: MB_VARIABLE_DATA_LENGTH" << std::endl;
+    }  
+  if ( error_code == MB_INVALID_SIZE )
+    {
+      std::cerr << "ERROR: MB_INVALID_SIZE" << std::endl;
+    }  
+  if ( error_code == MB_UNSUPPORTED_OPERATION )
+    {
+      std::cerr << "ERROR: MB_UNSUPPORTED_OPERATION" << std::endl;
+    }  
+  if ( error_code == MB_UNHANDLED_OPTION )
+    {
+      std::cerr << "ERROR: MB_UNHANDLED_OPTION" << std::endl;
+    }  
+  if ( error_code == MB_FAILURE )
+    {
+      std::cerr << "ERROR: MB_FAILURE" << std::endl;
+    }  
+  return;
+}
 
 MBErrorCode delete_all_edges() {
   // delete all of the edges. Never keep edges. They are too hard to track and use
@@ -1739,29 +1798,60 @@ int main(int argc, char **argv)
     result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, 1,
 				MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
     assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
     result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1,
 				MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
     assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
     result = MBI()->tag_get_handle( "NORMAL", sizeof(MBCartVect), MB_TYPE_OPAQUE,
         normal_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
     assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
     result = MBI()->tag_get_handle( "MERGE", 1, MB_TYPE_HANDLE,
         merge_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
-    assert( MB_SUCCESS == result );  
+    assert( MB_SUCCESS == result ); 
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      } 
     result = MBI()->tag_get_handle( "FACETING_TOL", 1, MB_TYPE_DOUBLE,
         faceting_tol_tag , moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
     assert( MB_SUCCESS == result );  
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
     result = MBI()->tag_get_handle( "GEOMETRY_RESABS", 1,     MB_TYPE_DOUBLE,
                              geometry_resabs_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT  );
     assert( MB_SUCCESS == result );  
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
     result = MBI()->tag_get_handle( "GEOM_SIZE", 1, MB_TYPE_DOUBLE,
 				    size_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT  );
     assert( (MB_SUCCESS == result) );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
     int true_int = 1;    
     result = MBI()->tag_get_handle( "ORIG_CURVE", 1,
 				MB_TYPE_INTEGER, orig_curve_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT, &true_int );
     assert( MB_SUCCESS == result );
-
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
     // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
     // on the file_set.
     MBRange file_set;
@@ -1868,7 +1958,8 @@ int main(int argc, char **argv)
               << geom_sets[2].size() << " surfaces, " << geom_sets[1].size() 
               << " curves, and " << orig_n_tris << " triangles" << std::endl;  
 
-    //result = find_degenerate_tris();
+    std::cout << "Finding degenerate triangles " << std::endl;
+    result = find_degenerate_tris();
 
     result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, 
                            FACET_TOL, debug);
@@ -1880,6 +1971,11 @@ int main(int argc, char **argv)
                               orig_curve_tag,SME_RESABS_TOL, FACET_TOL, debug);
 
     assert( MB_SUCCESS == result );
+    moab_printer(result);
+    if ( result != MB_SUCCESS ) 
+      {
+	std::cout << "I have failed to zip" << std::endl;
+      }
 
     std::cout << "i have zipped" << std::endl;
 
@@ -1891,6 +1987,7 @@ int main(int argc, char **argv)
     result = MBI()->get_entities_by_type_and_tag(0, MBENTITYSET, &merge_tag, NULL,
                                                  1, curves_to_delete);
     assert(MB_SUCCESS == result);
+    // loop over the curves to delete 
     for(MBRange::const_iterator i=curves_to_delete.begin(); i!=curves_to_delete.end(); ++i) {
       // get the curve_to_keep
       MBEntityHandle curve_to_keep;
@@ -1910,6 +2007,10 @@ int main(int argc, char **argv)
     }
     result = MBI()->delete_entities( curves_to_delete );
     assert(MB_SUCCESS == result);
+    if ( result != MB_SUCCESS ) 
+      {
+	std::cout << "Houston, we have a problem" << std::endl;
+      }
     geom_sets[1] = subtract(geom_sets[1], curves_to_delete );
     if(debug) std::cout << "deleted " << curves_to_delete.size() << " curves." << std::endl;
 
