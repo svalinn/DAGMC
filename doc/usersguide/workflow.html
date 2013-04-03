@@ -287,13 +287,15 @@ better understanding of CUBIT.</p>
 be imprinted and merged.  Imprinting creates a common surface
 interface between touching volumes.  Merging then takes the touching
 surfaces and makes them into one surface.</p>
-<p>To imprint, issue the following command</p>
+<p>To imprint, issue the following command:</p>
 <div class="highlight-python"><pre>imprint body all</pre>
 </div>
 <p>Should the imprint be successful, then the next step is to merge the
 geometry. Sometimes it may be important to specify a merge tolerance.
-To set the tolerance and merge, issue the following commands: :: merge
-tol 5e-7 merge all</p>
+To set the tolerance and merge, issue the following commands:</p>
+<div class="highlight-python"><pre>merge tol 5e-7
+merge all</pre>
+</div>
 <p>This process can be very time consuming. For large models of several
 thousand volumes, the imprint and merge steps can take up to three
 hours. However, small geometries (on the order of 100 volumes) the
@@ -453,7 +455,7 @@ including bounding box tests in the OBB tree search.</p>
         &copy; Copyright 2012, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 25, 2013.
+      Last updated on Apr 03, 2013.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
