@@ -16,3 +16,4 @@ iter.sat
 bob
 complex_models/*
 make_watertight/cube/*
+test/cones.stl
