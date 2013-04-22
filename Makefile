@@ -2,6 +2,8 @@
 #
 
 GH_PAGES_SOURCES = doc-src
+SOURCE_BRANCH = master
+BUILD_BRANCH = gh-pages
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
@@ -33,8 +35,8 @@ gh-revert:
 gh-push:
 	rm -rf $(GH_PAGES_SOURCES) build
 	git add -A
-	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages
-	git checkout master
+	git commit -m "Generated $(BUILD_BRANCH) for `git log master -1 --pretty=short --abbrev-commit`" && git push origin $(BUILD_BRANCH)
+	git checkout $(SOURCE_BRANCH)
 
 
 
