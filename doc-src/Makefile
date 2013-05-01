@@ -50,8 +50,7 @@ gh-pages:
 	git reset HEAD
 	rm -rf _static _sources doc doctrees build
 	make  html
-	mv -fv build/* .
-	rm -rf $(GH_PAGES_SOURCES) build
+	make install
 	git add -A
 	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages
 	git checkout master
@@ -62,8 +61,7 @@ gh-preview:
 	git reset HEAD
 	rm -rf _static _sources doc doctrees build
 	make  html
-	mv -fv build/* .
-
+	make install
 
 clean:
 	-rm -rf _images _sources people projects papers 
