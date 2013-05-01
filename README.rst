@@ -57,11 +57,11 @@ The documentation for DAGMC has been configured such that the source is
 in the master branch, to be distributed with the source code. To change
 any documentation, check out a separate branch::
 
-	git checkout -b source
+	git checkout -b update_docs
 
 After making changes to any of the ReST files and commiting those changes
-to the  branch, the HTML version can be generated
-and pushed automatically to the gh-pages branch by running::
+to the  branch, the HTML version can be generated and pushed automatically
+ to the gh-pages branch by running::
 
      make -f doc-src/Makefile gh-preview
 
@@ -70,9 +70,9 @@ the html branch for viewing the local file in your browser.  If you would
 like to make changes, run::
 
      make gh-revert
-     git checkout source
+     git checkout update_docs
 
-and you will be returned to the source branch. If you are happy with the
+and you will be returned to the `update_docs` branch. If you are happy with the
 generated html you can run::
 
      make gh-push
@@ -83,12 +83,12 @@ If you would like to build and push html files in one step, you can run::
 
      make -f doc-src/Makefile gh-pages
 
-in the top-level directory of source.
+in the top-level directory of `master`.
 
-Once the rendered documentation has been pushed to GitHub, the source branch
+Once the rendered documentation has been pushed to GitHub, the `update_docs` branch
 needs to be merged back into master.  This can be done by running::
 
-	git merge source
-	git branch -d source
+	git merge update_docs
+	git branch -d update_docs
 
 
