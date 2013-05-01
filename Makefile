@@ -49,3 +49,9 @@ html:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
+install:
+	rsync -a $(BUILDDIR)/html/* .
+	rm -rf $(BUILDDIR)/html/*
+
+
+
