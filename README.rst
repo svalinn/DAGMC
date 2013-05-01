@@ -57,7 +57,7 @@ The documentation for DAGMC has been configured such that the source is
 in the master branch, to be distributed with the source code. To change
 any documentation, check out a separate branch::
 
-git checkout -b source
+	git checkout -b source
 
 After making changes to any of the ReST files and commiting those changes
 to the  branch, the HTML version can be generated
