@@ -71,9 +71,9 @@ like to make changes, run::
      make gh-revert
      git checkout update_docs
 
-and you will be returned to the `update_docs` branch.Once the changes
-to source have been made and need to be pushed to GitHub, the `update_docs`
- branch needs to be merged back into master. This can be done by running::
+and you will be returned to the `update_docs` branch. Once the changes
+to source have been made and need to be pushed to GitHub, the `update_docs` branch
+needs to be merged back into master. This can be done by running::
 
         git merge update_docs
         git branch -d update_docs
