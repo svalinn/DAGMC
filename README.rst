@@ -88,7 +88,7 @@ in the top-level directory of source.
 Once the rendered documentation has been pushed to GitHub, the source branch
 needs to be merged back into master.  This can be done by running::
 
-git merge source
-git branch -d source
+	git merge source
+	git branch -d source
 
 
