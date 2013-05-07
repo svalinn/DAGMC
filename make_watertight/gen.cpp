@@ -13,6 +13,10 @@
 #include "MBSkinner.hpp"
 #include "DagMC.hpp"
 
+#define DAG DagMC::instance()
+
+using moab::DagMC;
+
 namespace gen {
 
   bool error( const bool error_has_occured, const std::string message ) {
@@ -1503,55 +1507,77 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
   std::vector<MBEntityHandle> surfaces, surf_volumes;
   result = 0.0;
   
+ 
    // don't try to calculate volume of implicit complement
   //if (volume == impl_compl_handle) {
   //  result = 1.0;
   //  return MB_SUCCESS;
   //}
 
-  std::cout << "in measure_volume 1" << std::endl;
-
   // get surfaces from volume
   rval = MBI()->get_child_meshsets( volume, surfaces );
-  if (MB_SUCCESS != rval) return rval;
+  if (MB_SUCCESS != rval)
+    {
+      return rval;
+    }
   std::cout << "in measure_volume 1" << std::endl;
 
     // get surface senses
   std::vector<int> senses( surfaces.size() );
-  moab::DagMC &dagmc = *moab::DagMC::instance( MBI() );
+  //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() ); // this starts a new moab instance
+  //  DAG->build_indices(volumes,surface);
+  //DAG->instance(MBI());
+  //moab::DagMC(MBI());
+  //DAG->create_instance(MBI());
 
-  std::cout << surfaces.size() << std::endl;
-  std::cout << volume << std::endl;
-
-  rval = dagmc.surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
+  if (rval != MB_SUCCESS)
+    {
+      std::cout << "Could not measure volume" << std::endl;
+      std::cout << "This can happen for 2 reasons, there are no volumes" << std::endl;
+      std::cout << "or the pointer to the Moab instance is poor" << std::endl;
+      exit(rval);
+    }
+  std::cout << surfaces.size() << " " << result << std::endl;
+  //std::cout << volume << std::endl;
+  
+  //rval = dagmc.build_indices( surfaces, volume);
+  rval = surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
+  
 
   std::cout << "in measure_volume 2" << std::endl;
 
-  if (MB_SUCCESS != rval) {
-    std::cerr << "ERROR: Surface-Volume relative sense not available. "
-              << "Cannot calculate volume." << std::endl;
-    return rval;
-  }
+  if (MB_SUCCESS != rval) 
+    {
+      std::cerr << "ERROR: Surface-Volume relative sense not available. "
+                << "Cannot calculate volume." << std::endl;
+      return rval;
+    }
 
-  std::cout << "in measure_volume 2" << std::endl;
 
-  for (unsigned i = 0; i < surfaces.size(); ++i) {
+  for (unsigned i = 0; i < surfaces.size(); ++i) 
+    {
       // skip non-manifold surfaces
-    if (!senses[i])
-      continue;
+      if (!senses[i])
+	continue;
     
       // get triangles in surface
-    MBRange triangles;
-    rval = MBI()->get_entities_by_dimension( surfaces[i], 2, triangles );
-    if (MB_SUCCESS != rval) 
-      return rval;
-    if (!triangles.all_of_type(MBTRI)) {
-      std::cout << "WARNING: Surface " << geom_id_by_handle(surfaces[i])
-                << " contains non-triangle elements. Volume calculation may be incorrect."
-                << std::endl;
-      triangles.clear();
-      rval = MBI()->get_entities_by_type( surfaces[i], MBTRI, triangles );
-      if (MB_SUCCESS != rval) return rval;
+      MBRange triangles;
+      rval = MBI()->get_entities_by_dimension( surfaces[i], 2, triangles );
+      if (MB_SUCCESS != rval) 
+	{
+	  return rval;
+	}
+    if (!triangles.all_of_type(MBTRI)) 
+      {
+	std::cout << "WARNING: Surface " << geom_id_by_handle(surfaces[i])
+		  << " contains non-triangle elements. Volume calculation may be incorrect."
+		  << std::endl;
+	triangles.clear();
+	rval = MBI()->get_entities_by_type( surfaces[i], MBTRI, triangles );
+	if (MB_SUCCESS != rval) 
+	  {
+	    return rval;
+	  }
     }
     
       // calculate signed volume beneath surface (x 6.0)
@@ -1574,6 +1600,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
   }
   
   result /= 6.0;
+  std::cout << result << std::endl;
   return MB_SUCCESS;
 }
 
@@ -1667,5 +1694,93 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     
     return MB_SUCCESS;
   }
+
+  MBErrorCode surface_sense( MBEntityHandle volume, 
+                           int num_surfaces,
+                           const MBEntityHandle* surfaces,
+                           int* senses_out )
+  {
+    std::vector<MBEntityHandle> surf_volumes( 2*num_surfaces );
+    MBTag senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE, NULL, false );
+    MBErrorCode rval = MBI()->tag_get_data( senseTag , surfaces, num_surfaces, &surf_volumes[0] );
+    if (MB_SUCCESS != rval)
+      {
+	return rval;
+      }
+  
+    const MBEntityHandle* end = surfaces + num_surfaces;
+    std::vector<MBEntityHandle>::const_iterator surf_vols = surf_volumes.begin();
+    while (surfaces != end) 
+      {
+	MBEntityHandle forward = *surf_vols; ++surf_vols;
+	MBEntityHandle reverse = *surf_vols; ++surf_vols;
+	if (volume == forward) 
+	  {
+	    *senses_out = (volume != reverse); // zero if both, otherwise 1
+	  }
+	else if (volume == reverse)
+	  {
+	    *senses_out = -1;
+	  }
+	else 
+	  {
+	    return MB_ENTITY_NOT_FOUND;
+	  }
+    
+	++surfaces;
+	++senses_out;
+      }
+  
+    return MB_SUCCESS;
+  }
+
+  // get sense of surface(s) wrt volume
+  MBErrorCode surface_sense( MBEntityHandle volume, 
+                             MBEntityHandle surface,
+                             int& sense_out )
+  {
+    // get sense of surfaces wrt volumes
+    MBEntityHandle surf_volumes[2];
+    MBTag senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE, NULL, false );
+    MBErrorCode rval = MBI()->tag_get_data( senseTag , &surface, 1, surf_volumes );
+    if (MB_SUCCESS != rval) 
+      {
+	return rval;
+      }
+  
+    if (surf_volumes[0] == volume)
+      {
+	sense_out = (surf_volumes[1] != volume); // zero if both, otherwise 1
+      }
+    else if (surf_volumes[1] == volume)
+      {
+	sense_out = -1;
+      }
+    else
+      {
+	return MB_ENTITY_NOT_FOUND;
+      }
+  
+  return MB_SUCCESS;
+ }
+
+ MBTag get_tag( const char* name, int size, MBTagType store,
+		     MBDataType type, const void* def_value,
+		     bool create_if_missing)
+ {
+   MBTag retval = 0;
+   unsigned flags = store|moab::MB_TAG_CREAT;
+   if (!create_if_missing)
+     {
+       flags |= moab::MB_TAG_EXCL;
+     }
+   MBErrorCode result = MBI()->tag_get_handle(name, size, type, retval, flags, def_value);
+   if (create_if_missing && MB_SUCCESS != result)
+     {
+       std::cerr << "Couldn't find nor create tag named " << name << std::endl;
+     }
+
+   return retval;
+ }
 
 }
