@@ -187,6 +187,12 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   MBErrorCode get_curve_surf_sense( const MBEntityHandle surf_set, const MBEntityHandle curve_set,
                                     int &sense );
 
+  MBErrorCode surface_sense( MBEntityHandle volume, int num_surfaces,const MBEntityHandle* surfaces,int* senses_out );
+  MBErrorCode surface_sense( MBEntityHandle volume, MBEntityHandle surface, int& sense_out );
+
+  MBTag get_tag( const char* name, int size, MBTagType store,MBDataType type, const void* def_value, bool create_if_missing);
+
+
 
 }
 
