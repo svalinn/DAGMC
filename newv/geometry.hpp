@@ -34,4 +34,7 @@ namespace geometry
   MBErrorCode surface_sense( MBEntityHandle volume, MBEntityHandle surface, int& sense_out );
 
   MBTag get_tag( const char* name, int size, MBTagType store,MBDataType type, const void* def_value, bool create_if_missing);
+
+  bool triangle_degenerate( const MBEntityHandle tri );
+  bool triangle_degenerate( const MBEntityHandle v0, const MBEntityHandle v1, const MBEntityHandle v2 );
 }
