@@ -41,7 +41,7 @@
 #include "zip.hpp"
 #include "cleanup.hpp"
 
-MBInterface *MBI();
+MBInterface *MOAB();
 
 void moab_printer(MBErrorCode error_code)
 {
@@ -129,7 +129,7 @@ MBErrorCode find_degenerate_tris() {
       ++counter;
     }
   }
-  std::cout << "find_degenerate_tris: " << counter << " tris found." << std::endl;
+  std::cout << "Found " << counter << " degenerate triangles. " << std::endl;
   return MB_SUCCESS;
 }
 
@@ -1890,6 +1890,7 @@ int main(int argc, char **argv)
     std::cout << "  faceting tolerance=" << facet_tol << " cm" << std::endl;
     std::cout << "  absolute tolerance=" << sme_resabs_tol << " cm" << std::endl;
     
+
     // get all geometry sets
     MBRange geom_sets[4];
     for(unsigned dim=0; dim<4; dim++) 
@@ -1933,7 +1934,7 @@ int main(int argc, char **argv)
 
     // this could be related to when there are sat files rather than mesh?
     // If desired, find each entity's size before sealing.
-    /*
+    ///*
     if(check_geom_size) 
       {
 	std::cout << "I am checking the geometry size" << std::endl;
@@ -1944,7 +1945,7 @@ int main(int argc, char **argv)
 	  }
       }
     
-    */
+    //*/
 
     std::cout << "Get entity count before sealing" << std::endl;
     // Get entity count before sealing.
@@ -1960,24 +1961,27 @@ int main(int argc, char **argv)
 
     std::cout << "Finding degenerate triangles " << std::endl;
     result = find_degenerate_tris();
+    if(gen::error(result!=MB_SUCCESS,"could not determine if triangles were degenerate or not"))
+      {
+	return(result);
+      }
 
-    result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, 
-                           FACET_TOL, debug);
-    assert(MB_SUCCESS == result);
+    result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug);
+    if(gen::error(result!=MB_SUCCESS,"could not prepare the curves"))
+      {
+	return(result);
+      }
 
     std::cout << "Zipping loops and removing small surfaces whose curves were all merged as pairs..." << std::endl;
     std::cout << "SME_RESABS_TOL = " << SME_RESABS_TOL << " FACET_TOL = " << FACET_TOL << std::endl;
     result = prepare_surfaces(geom_sets[2], geom_tag, id_tag, normal_tag, merge_tag,
                               orig_curve_tag,SME_RESABS_TOL, FACET_TOL, debug);
-
     assert( MB_SUCCESS == result );
-    moab_printer(result);
     if ( result != MB_SUCCESS ) 
       {
 	std::cout << "I have failed to zip" << std::endl;
+	return result;
       }
-
-    std::cout << "i have zipped" << std::endl;
 
     // After zipping surfaces, merged curve entity_to_deletes are no longer needed.
     // Swap surface parent-childs for curves to delete with curve to keep. 
@@ -2119,7 +2123,8 @@ int main(int argc, char **argv)
     return 0;  
   }
 
-  MBInterface *MBI() {
+MBInterface *MBI() 
+{
     static MBCore instance;
     return &instance;
-  }
+}
