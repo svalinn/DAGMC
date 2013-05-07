@@ -37,7 +37,7 @@ double RandomNumber(int); // random number generator
 int CheckGraveyard(MBEntityHandle); // check if the current volume is the graveyard
 int CheckForGraveyard(void);  // check to ensure graveyard exists anywhere in the model
 void PrintLostParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information 
-void DumpParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information to vtk
+//void DumpParticles(std::vector< std::vector< Location > > ); // Dump the lost particle information to vtk
 void EndMPI( void );
 void GetNpsRange(int,int,int,int&,int&);
 void CollectLostParticleData(int, std::vector<double>, std::vector<double>, std::vector<double>,
@@ -175,6 +175,7 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
   // Routine Variables
   MBErrorCode ErrorCode;
   MBEntityHandle Surface = 0; // surface number
+  MBEntityHandle NextVolume = 0; // next surface
   MBEntityHandle Volume = 0; // volume number
 
   double Direction[3]; // vector containg the particle direction
@@ -211,18 +212,13 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
 
   for ( i = StartPar ; i <= EndPar ; i++ )
     {
-      //      if( i%(NumPar/10) == 0 )
-      //	std::cout << "nps = " << i << std::endl;
 
       Position[0]=OriginalHistory[0], Position[1]=OriginalHistory[1], Position[2]=OriginalHistory[2] ; // reset location
       CurrentPosition.x=Position[0], CurrentPosition.y=Position[1], CurrentPosition.z=Position[2]; // record the start location
       ParticleHistory.push_back(CurrentPosition); // push it to the storage array
-
-      //x.push_back(Position[0]); // initial array allocation
-      //y.push_back(Position[1]); //
-      //z.push_back(Position[2]); //
     
       rval = FindStartVolume(Position,Volume); //determine our start Volume
+     
       if( rval == 1)
 	{
 	  GetIsoDirection(Direction,Seed+(i*stride));       // pick a random isotropic direction
@@ -232,28 +228,66 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
 	  std::cout << "Particle not in any volume" << std::endl;
 	  exit(0);
 	}
+
+      // we have set direction, volume and position
  
-      do 
+      do // fire until we enter the graveyard
       {
+	// see if we are in graveyard
+	grave = CheckGraveyard(Volume);  //  see if its the graveyard
+	if (grave == 1)
+	  {
+	    ParticleHistory.clear(); // wipe out the history
+	    history.reset();
+	    break; // we are in graveyard end of normal history
+	  }
+
+	// fire a ray along dir
+
 	ErrorCode = DAG->ray_fire(Volume,Position,Direction,Surface,HitDist,&history); // find next collision
-	//	std::cout << history.prev_facets[1] << std::endl;
-	
 	if (MB_SUCCESS != ErrorCode )
 	  {
 	    std::cout << "ray_fire error" << std::endl;
 	  }
 	
+	if ( Surface == 0 )
+	  {
+	    std::cout << "Lost Particle !!!" << std::endl;
+	    std::cout << "next surface is 0" << std::endl;
+	    LostParticle++; // increment the counter by one
+	    // std::cout << "Lost particle " << LostParticle << std::endl;
+	    LostParticleHistory.push_back(ParticleHistory); // add this particle to bank
+	    x.push_back(Position[0]),y.push_back(Position[1]),z.push_back(Position[2]);
+	    ParticleHistory.clear(); // clear the particle history
+	    break; // new history
+	    exit(0);
+	  }
+
 	HitDist = HitDist + 1.0e-5; // bump the particle
 
 	Position[0] = (Position[0]+(HitDist*Direction[0]));
 	Position[1] = (Position[1]+(HitDist*Direction[1]));
 	Position[2] = (Position[2]+(HitDist*Direction[2])); // update position
 
-	CurrentPosition.x=Position[0], CurrentPosition.y=Position[1], CurrentPosition.z=Position[2];
+	CurrentPosition.x=Position[0], CurrentPosition.y=Position[1], CurrentPosition.z=Position[2]; // update strorage
 	ParticleHistory.push_back(CurrentPosition); /* append to "ray history" */
 
-	rval = FindStartVolume(Position,Volume); // get the current volume of position 
+	
+	//	std::cout << i << " " << Position[0] << " " << Position[1] << " " << Position[2] << std::endl;
+        rval = DAG->next_vol(Surface,Volume,NextVolume);
+	//std::cout << "cur_vol = " << Volume << std::endl;
+	//std::cout << "next vol = " << NextVolume << std::endl;
+        //std::cout << "next surface is 0" << std::endl;
 
+        if ( Surface == 0 )
+	  {
+	    std::cout << "next surface is 0" << std::endl;
+	    exit(0);
+	  }
+
+	//rval = FindStartVolume(Position,Volume); // get the current volume of position 
+
+	/*
 	if ( rval == 0) // particle is lost
 	  {
 	    LostParticle++; // increment the counter by one
@@ -263,14 +297,9 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
 	    ParticleHistory.clear(); // clear the particle history
 	    break; // new history
 	  }  
+	*/
 
-	grave = CheckGraveyard(Volume);  //  see if its the graveyard
-	if (grave == 1)
-	  {
-	    ParticleHistory.clear(); // wipe out the history
-	    history.reset();
-	    break; // we are in graveyard end of normal history
-	  }
+	Volume = NextVolume;
 
        } while( HitDist >= 0.0 );
  
@@ -286,14 +315,31 @@ void TransportCycle(int Seed, int StartPar, int EndPar, double Position[3])
  
   // get all the lost particle data
   CollectLostParticleData(LostParticle,x,y,z,x_coord,y_coord,z_coord);
+  Location CartPos;
 
   if ( CpuId == 0 )
     {
+
+      LostParticleHistory.clear();
+      LostParticleHistory.shrink_to_fit();
+
+      for (int j = 0 ; j <= TotalNumLost-1 ; j++ )
+	{
+	  ParticleHistory.clear(); 
+
+	  CartPos.x=OriginalHistory[0],CartPos.y=OriginalHistory[1],CartPos.z=OriginalHistory[2];
+	  ParticleHistory.push_back(CartPos);
+	  CartPos.x=x_coord[j],CartPos.y=y_coord[j],CartPos.z=z_coord[j];
+	  ParticleHistory.push_back(CartPos);
+	  LostParticleHistory.push_back(ParticleHistory);
+	  ParticleHistory.clear(); // clear the particle history
+	}
+
       std::cout << "There were " << TotalNumLost << " lost particles " << std::endl;
-      return;
+      //      return;
       if ( LostParticleHistory.size() > 0 ) 
 	{
-	  DumpParticles(LostParticleHistory);
+	  //	  DumpParticles(LostParticleHistory);
 	  return;
 	}
     }
@@ -315,7 +361,7 @@ int FindStartVolume(double Position[3], MBEntityHandle &Volume)
   
   NumVol = DAG->num_entities(3); // get the number of volumes
   
-  for ( i = 1 ; i <= NumVol-1 ; i++) // loop over all volumes
+  for ( i = 1 ; i <= NumVol ; i++) // loop over all volumes
     {
       Volume = DAG->entity_by_index(3,i); // convert index to MBHandle
       ErrorCode = DAG->point_in_volume(Volume,Position,result); // Find which volume we are in
@@ -449,65 +495,7 @@ void PrintLostParticles(std::vector<std::vector<Location> > AllLostParticles )
 }
 
 
-void DumpParticles(std::vector<std::vector<Location> > AllLostParticles )
-{
-  unsigned int i;
-  // routine variables
-  unsigned int LostParticleCount = 0; 
-  std::vector<std::vector<Location> >::const_iterator LostParticleNo;
-  std::vector<Location>::const_iterator PositionHistory;
 
-  std::stringstream intermediate;
-  std::string FileString = "lostparticle_";
-  std::string FilePost   = ".vtk";
-  std::string Filename; 
-
-  std::ofstream OutputFile; // Output file pointer
-
-  std::cout << "Dumping lost particle information to file..." << std::endl;
-
-  for ( LostParticleNo = AllLostParticles.begin() ; LostParticleNo != AllLostParticles.end() ; ++LostParticleNo )
-    {
-      ++LostParticleCount;
-      intermediate << FileString << LostParticleCount << FilePost;
-      Filename = intermediate.str();
-     
-      OutputFile.open(Filename.c_str(), ios::out | ios::trunc ); //open the file
-      Filename = std::string(); // clear the filename string for reuse.
-      intermediate.str(std::string()); // clear the strings for reuse
-
-      OutputFile << "# vtk DataFile Version 2.0 " << std::endl;
-      OutputFile << "Lost Particle Information" << std::endl;
-      OutputFile << "ASCII" << std::endl;
-      OutputFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
-
-      // Print out the points
-      OutputFile << "POINTS " << AllLostParticles[LostParticleCount-1].size() << " FLOAT" << std::endl;
-      for ( PositionHistory = LostParticleNo->begin() ; PositionHistory != LostParticleNo->end() ; ++PositionHistory )
-	{
-	   OutputFile << (PositionHistory->x) << " "
-		      << (PositionHistory->y) << " "
-		      << (PositionHistory->z) << std::endl;	  
-	}
-
-      OutputFile << std::endl;
-      OutputFile << "CELLS " << (AllLostParticles[LostParticleCount-1].size())-1 << " " 
-		             << (((AllLostParticles[LostParticleCount-1].size())-1)*3) << std::endl;
-      for ( i = 0 ; i <= AllLostParticles[LostParticleCount-1].size()-2 ; i++ )
-	{
-	  OutputFile << "2 " << i << " " << i+1 << std::endl;
-	}
-      OutputFile << "CELL_TYPES " << AllLostParticles[LostParticleCount-1].size()-1 << std::endl;
-      for ( i = 0 ; i <= AllLostParticles[LostParticleCount-1].size()-2 ; i++ )
-	{
-	  OutputFile << "3" << std::endl;
-	}
-
-      OutputFile.close(); // close the file
-    }
-
-  return;
-}
 
 /* terminates all MPI communications nicely */
 void EndMPI( )
