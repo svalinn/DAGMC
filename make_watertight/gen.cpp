@@ -11,11 +11,6 @@
 #include "gen.hpp"
 #include "zip.hpp"
 #include "MBSkinner.hpp"
-#include "DagMC.hpp"
-
-#define DAG DagMC::instance()
-
-using moab::DagMC;
 
 namespace gen {
 
