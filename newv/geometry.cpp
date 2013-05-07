@@ -397,6 +397,22 @@ double triangle_area( const MBCartVect a, const MBCartVect b,
    return retval;
  }
 
+  bool triangle_degenerate( const MBEntityHandle tri ) 
+  {
+    MBErrorCode result;
+    const MBEntityHandle *conn;
+    int n_verts;
+    result = MOAB()->get_connectivity( tri, conn, n_verts );
+    assert(MB_SUCCESS == result);
+    assert(3 == n_verts);
+    return triangle_degenerate( conn[0], conn[1], conn[2] );
+  }
 
+  bool triangle_degenerate( const MBEntityHandle v0, const MBEntityHandle v1,
+			    const MBEntityHandle v2 ) 
+  { 
+    if(v0==v1 || v1==v2 || v2==v0) return true;
+    return false;
+  }
 }
 
