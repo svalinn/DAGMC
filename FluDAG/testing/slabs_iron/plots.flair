@@ -1,0 +1,495 @@
+#!/opt/fluka/flair/flair
+# FLUKA Project file
+Version: 1
+Title: 
+Input: 
+DefMain: True
+LinkPrg: lfluka
+F77bound: True
+F77dline: False
+
+# Run information
+Run: <default>
+	Prev:     0
+	Last:     5
+	Status:   0
+	Pid:      0
+	StartRun: 0
+End
+
+# Geometry Information
+Geometry:
+End
+
+# Dicom
+Dicom: voxel
+End
+
+# USR-1D plot "Volume 1 FLux"
+Plot: plot01
+	Title: Volume 1 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 0
+	det.1: 0
+	ndetectors: 2
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	pt.1: 1
+	x.1: 2
+	show.1: 1
+	show.0: 1
+	with.0: steps
+	with.1: steps
+	key.0: 1
+	key.1: 1
+	x2tics: 0
+	axes.1: x1y1
+	axes.0: x1y1
+	ps.1: 1
+	ps.0: 1
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	x.0: 2
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 2 FLux"
+Plot: plot02
+	Title: Volume 2 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 1
+	det.1: 1
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 3 FLux"
+Plot: plot03
+	Title: Volume 3 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 2
+	det.1: 2
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 4 FLux"
+Plot: plot04
+	Title: Volume 4 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 3
+	det.1: 3
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 5 FLux"
+Plot: plot05
+	Title: Volume 5 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 4
+	det.1: 4
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+# USR-1D plot "Volume 6 FLux"
+Plot: plot06
+	Title: Volume 6 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 5
+	det.1: 5
+	ndetectors: 2
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	pt.1: 1
+	x.1: 2
+	show.1: 1
+	show.0: 1
+	with.0: steps
+	with.1: steps
+	key.0: 1
+	key.1: 1
+	x2tics: 0
+	axes.1: x1y1
+	axes.0: x1y1
+	ps.1: 1
+	ps.0: 1
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	x.0: 2
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 7 FLux"
+Plot: plot07
+	Title: Volume 7 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 6
+	det.1: 6
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 8 FLux"
+Plot: plot08
+	Title: Volume 8 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 7
+	det.1: 7
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 9 FLux"
+Plot: plot09
+	Title: Volume 9 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 8
+	det.1: 8
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
+
+# USR-1D plot "Volume 10 FLux"
+Plot: plot10
+	Title: Volume 10 FLux
+	Format:     .eps
+	Type:       USR-1D
+	LineType:   
+	Keys:       1
+	xlog: 1
+	key.1: 1
+	with.0: steps
+	ylog: 1
+	lt.0: 1
+	lt.1: 1
+	name.1: FluDAG
+	name.0: FLUKA
+	ls.1: 0
+	ls.0: 0
+	det.0: 9
+	det.1: 9
+	with.1: steps
+	lc.1: blue
+	block.0: 0
+	block.1: 0
+	y2log: 0
+	axes.1: x1y1
+	ps.1: 1
+	show.1: 1
+	show.0: 1
+	ndetectors: 2
+	key.0: 1
+	ps.0: 1
+	x2tics: 0
+	axes.0: x1y1
+	x.1: 2
+	x.0: 2
+	lw.1: 2
+	lw.0: 2
+	y2tics: 0
+	pt.0: 1
+	pt.1: 1
+	x2log: 0
+	y.0: 0
+	y.1: 0
+	file.0: fluka/slabs_track_tab.lis
+	file.1: fludag/slabs_track_tab.lis
+End
