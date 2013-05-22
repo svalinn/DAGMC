@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# extract the data
+grep 'Tot. response' fluka/spheres_track_sum.lis | awk '{print $4}' > fluka.txt
+grep 'Tot. response' fludag/spheres_track_sum.lis | awk '{print $4}' > fludag.txt
+
+echo "Volume # |   Fluka     |   FluDAG "
+echo "---------+-------------+----------"
+for (( i = 1 ; i <= 3 ; i++ )) do
+  fluka=`sed -n "$i"p fluka.txt`
+  fludag=`sed -n "$i"p fludag.txt`
+  if [ $i -gt 9 ] ; then
+   echo "   " $i"   |  " $fluka " |  " $fludag
+  else
+   echo "   " $i"    |  " $fluka " |  " $fludag
+  fi
+
+done
+
+diff fluka.txt fludag.txt
+if [ $? -eq 0 ]; then
+    echo "Results are identical, test passed" 
+else
+    echo "Results are not identical test failed"
+fi
+
+rm -rf fludag.txt fluka.txt

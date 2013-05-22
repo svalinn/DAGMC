@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "slabs001_fort.21" > inp
+echo "slabs002_fort.21" >> inp
+echo "slabs003_fort.21" >> inp
+echo "slabs004_fort.21" >> inp
+echo "slabs005_fort.21" >> inp
+echo " " >> inp
+echo "slabs_track" >> inp
+$FLUPRO/flutil/ustsuw < inp 
+rm inp
