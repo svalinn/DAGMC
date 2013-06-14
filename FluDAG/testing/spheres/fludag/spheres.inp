@@ -1,0 +1,36 @@
+TITLE
+
+* Set the defaults for precision simulations
+DEFAULTS                                                              PRECISIO
+* Define the beam characteristics
+BEAM          -0.014             10000.0                              NEUTRON
+* Define the beam position
+BEAMPOS          0.0       0.0       0.0
+GEOBEGIN                                                              FLUGG
+GEOEND
+*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+ASSIGNMAT     VACUUM         1
+ASSIGNMAT     VACUUM         2
+ASSIGNMAT     VACUUM         3
+ASSIGNMAT     VACUUM         4
+ASSIGNMAT   BLCKHOLE         5
+ASSIGNMAT     VACUUM         6
+*
+*ASSIGNMA        IRON        C1
+*ASSIGNMA       WATER        C2
+*ASSIGNMA    TUNGSTEN        C3
+*ASSIGNMA      VACUUM        C4
+*ASSIGNMA      VACUUM        C5
+*ASSIGNMA    BLCKHOLE        C6
+LOW-NEUT        260.                           0.0                -11.
+USRTRACK         -1.   NEUTRON      -21.       1.0       1.0       1.0NFLUX1
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       2.0       1.0       1.0NFLUX2
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       3.0       1.0       1.0NFLUX3
+USRTRACK        0.02   1.0E-14                                         &
+* Set the random number seed
+RANDOMIZ         1.0
+* Set the number of primary histories to be simulated in the run
+START       100000.0                            1.
+STOP

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "running test laminar slabs on FLUKA..."
+cd fluka
+$FLUPRO/flutil/rfluka -N0 -M1 slabs.inp
+cp ../prod_data .
+./prod_data
+
+cd ..
+echo "running test laminar slabs on FluDAG..." 
+cd fludag
+$FLUPRO/flutil/rfluka -N0 -M1 -e /opt/DAGMC/FluDAG/bin/mainfludag -d slabs.h5m slabs.inp
+cp ../prod_data .
+./prod_data
+
+cd ..
+echo "Comparing results..."
+./get_data

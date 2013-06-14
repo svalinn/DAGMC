@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "spheres001_fort.21" > inp
+echo "spheres002_fort.21" >> inp
+echo "spheres003_fort.21" >> inp
+echo "spheres004_fort.21" >> inp
+echo "spheres005_fort.21" >> inp
+echo " " >> inp
+echo "spheres_track" >> inp
+$FLUPRO/flutil/ustsuw < inp 
+rm inp
