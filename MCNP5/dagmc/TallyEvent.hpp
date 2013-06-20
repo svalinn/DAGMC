@@ -124,6 +124,11 @@ class TallyEvent
     /// Type of tally event this event represents
     EventType event_type;
 
+
+    // Store particle state for the event
+    ParticleState particle;
+};
+
 #endif // DAGMC_TALLY_EVENT_HPP
 
 // end of MCNP5/dagmc/TallyEvent.hpp
