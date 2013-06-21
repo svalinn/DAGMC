@@ -14,7 +14,7 @@
 #include "fludag_utils.h"
 
 #include "DagWrappers.hh"
-// #include "DagWrapUtils.hh"
+#include "dagmc_utils.hpp"
 
 #include "MBInterface.hpp"
 #include "MBCartVect.hpp"
@@ -34,6 +34,8 @@ using moab::DagMC;
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <set>
+#include <cstring>
 
 #ifdef CUBIT_LIBS_PRESENT
 #include <fenv.h>
@@ -55,10 +57,26 @@ using moab::DagMC;
 static std::ostream* raystat_dump = NULL;
 
 #endif 
-
 #define DEBUG 1
+/* These 37 strings are predefined FLUKA materials. Any ASSIGNMAt of unique 
+ * materials not on this list requires a MATERIAL card. */
+std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
+"HELIUM", "BERYLLIU", "CARBON", "NITROGEN", "OXYGEN", "MAGNESIU",      
+"ALUMINUM", "IRON", "COPPER", "SILVER", "SILICON", "GOLD", "MERCURY",  
+"LEAD", "TANTALUM", "SODIUM", "ARGON", "CALCIUM", "TIN", "TUNGSTEN",   
+"TITANIUM", "NICKEL", "WATER", "POLYSTYR", "PLASCINT", "PMMA",         
+"BONECOMP", "BONECORT", "MUSCLESK", "MUSCLEST", "ADTISSUE", "KAPTON",  
+"POLYETHY", "AIR"};
 
-bool debug = true;
+int NUM_FLUKA_MATS = 37;
+
+/* Create a set out of the hardcoded string array. */
+std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
+
+/* Maximum character-length of a cubit-named material property */
+int MAX_MATERIAL_NAME_SIZE = 32;
+
+bool debug = false; //true ;
 
 /* Static values used by dagmctrack_ */
 
@@ -72,9 +90,12 @@ static bool visited_surface = false;
 static bool use_dist_limit = false;
 static double dist_limit; // needs to be thread-local
 
-MBEntityHandle next_surf;
+MBEntityHandle next_surf; // the next suface the ray will hit
+MBEntityHandle prev_surf; // the last value of next surface
+MBEntityHandle PrevRegion; // the integer region that the particle was in previously
 
-std::string ExePath() {
+std::string ExePath() 
+{
     int MAX_PATH = 256;
     char buffer[MAX_PATH];
     getcwd(  buffer, MAX_PATH );
@@ -82,7 +103,6 @@ std::string ExePath() {
     // return std::string( buffer ).substr( 0, pos);
     return std::string( buffer );
 }
-
 /**	
   dagmcinit_ is meant to be called from a fortran caller.  Strings have to be 
   accompanied by their length, and will need to be null-appended.
@@ -107,17 +127,12 @@ void dagmcinit_(char *cfile, int *clen,  // geom
    cpp_dagmcinit is called directly from c++ or from a fortran-called wrapper.
   Precondition:  myfile exists and is readable
 */
-void cpp_dagmcinit(const char *myfile,        // geom
+void cpp_dagmcinit(std::string infile,         // geom
                 int parallel_file_mode, // parallel read mode
                 int max_pbl)
 {
  
   MBErrorCode rval;
-
-#ifdef ENABLE_RAYSTAT_DUMPS
-  // the file to which ray statistics dumps will be written
-  raystat_dump = new std::ofstream("dagmc_raystat_dump.csv");
-#endif 
 
   // initialize this as -1 so that DAGMC internal defaults are preserved
   // user doesn't set this
@@ -127,34 +142,21 @@ void cpp_dagmcinit(const char *myfile,        // geom
   // if ( *ftlen > 0 ) arg_facet_tolerance = atof(ftol);
 
   // read geometry
-  std::cerr << "Loading " << myfile << std::endl;
-  rval = DAG->load_file(myfile, arg_facet_tolerance );
-  if (MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to read input file: " << myfile << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-#ifdef CUBIT_LIBS_PRESENT
-  // The Cubit 10.2 libraries enable floating point exceptions.  
-  // This is bad because MOAB may divide by zero and expect to continue executing.
-  // See MOAB mailing list discussion on April 28 2010.
-  // As a workaround, put a hold exceptions when Cubit is present.
-
-  fenv_t old_fenv;
-  if ( feholdexcept( &old_fenv ) ){
-    std::cerr << "Warning: could not hold floating-point exceptions!" << std::endl;
-  }
-#endif
-
+  std::cerr << "Loading " << infile << std::endl;
+  rval = DAG->load_file(infile.c_str(), arg_facet_tolerance );
+  if (MB_SUCCESS != rval) 
+    {
+      std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
+      exit(EXIT_FAILURE);
+    }
  
   // initialize geometry
   rval = DAG->init_OBBTree();
-  if (MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  pblcm_history_stack.resize( max_pbl+1 ); // fortran will index from 1
+  if (MB_SUCCESS != rval) 
+    {
+      std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
+      exit(EXIT_FAILURE);
+    }
 }
 
 /**************************************************************************************************/
@@ -211,6 +213,8 @@ void g1wr(double& pSx,
           double* sLt,         // .
           int* jrLt)           // .
 {
+  double safety; // safety parameter
+
   if(debug)
     {
       std::cout<<"============= G1WR =============="<<std::endl;    
@@ -223,11 +227,12 @@ void g1wr(double& pSx,
   double point[3] = {pSx,pSy,pSz};
   double dir[3]   = {pV[0],pV[1],pV[2]};  
 
-  // Separate the body of this function to a testable call
-  g1_fire(oldReg, point, dir, retStep, newReg);
-  
+  g1_fire(oldReg, point, dir, propStep, retStep, newReg); // fire a ray 
+
   if(debug)
     {
+      std::cout << "saf = " << saf << std::endl;
+      std::cout << std::setw(20) << std::scientific;
       std::cout << "newReg = " << newReg << " retStep = " << retStep << std::endl;
     }
 
@@ -235,47 +240,126 @@ void g1wr(double& pSx,
 }
 
 //---------------------------------------------------------------------------//
-// g1(int& old Region, int& newRegion)
+// void g1_fire(int& oldRegion, double point[], double dir[], 
+//              double &propStep, double& retStep,  int& newRegion)
 //---------------------------------------------------------------------------//
-// oldRegion should be the region the point is in
-// retStep is set to next_surf_dist
+// oldRegion - the region of the particle's current coordinates
+// point     - the particle's coordinate location vector
+// dir       - the direction vector of the particle's current path (ray)
+// propStep  - ??
+// retStep   - returned as the distance from the particle's current location, along its ray, to the next boundary
+// newRegion - gotten from the value returned by DAG->next_vol
 // newRegion is gotten from the volue returned by DAG->next_vol
-void g1_fire(int& oldRegion, double point[], double dir[], double& retStep,  int& newRegion)
+void g1_fire(int& oldRegion, double point[], double dir[], double &propStep, double& retStep,  int& newRegion)
 {
-  if(false)
+
+  /*
+  if (PrevRegion != oldRegion) // if the particle is not in the correct volume since could be a banked history
+    {
+      int dummy;
+      int errFlg;
+      lkwr(point[0],point[1],point[2],dir,0,dummy,oldRegion,errFlg,dummy); // where is particle
+    }
+  */
+
+  if(debug)
   {
       std::cout<<"============= g1_fire =============="<<std::endl;    
       std::cout << "Point " << point[0] << " " << point[1] << " " << point[2] << std::endl;
       std::cout << "Direction vector " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
   }
   MBEntityHandle vol = DAG->entity_by_index(3,oldRegion);
-
   double next_surf_dist;
   MBEntityHandle newvol = 0;
 
+  next_surf = prev_surf;
+
+  // vol = check_reg(vol,point,dir); // check we are where we say we are
+  oldRegion = DAG->index_by_handle(vol);
   // next_surf is a global
   MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist );
-  retStep = next_surf_dist;
+  if ( result != MB_SUCCESS )
+    {
+      std::cout << "DAG ray fire error" << std::endl;
+      exit(0);
+    }
 
-  MBErrorCode rval = DAG->next_vol(next_surf,vol,newvol);
-  newRegion = DAG->index_by_handle(newvol);
-  if(false)
+  retStep = next_surf_dist; // the returned step length is the distance to next surf
+
+  if ( next_surf == 0 ) // if next_surface is 0 then we are lost
+    {
+      std::cout << "!!! Lost Particle !!! " << std::endl;
+      std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3,oldRegion) << std::endl;  
+
+      std::cout.precision(25);
+      std::cout << std::scientific ; 
+      std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
+      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
+      std::cout << "!!! Lost Particle !!!" << std::endl;
+      exit(0);
+    }
+  
+  if ( propStep > retStep ) // will cross into next volume next step
+    {
+      MBErrorCode rval = DAG->next_vol(next_surf,vol,newvol);
+      newRegion = DAG->index_by_handle(newvol);
+      retStep = retStep ; // path limited by geometry
+    }
+  else
+    {
+      newRegion = oldRegion;
+      retStep = propStep; //physics limits step
+      next_surf = prev_surf;
+    }
+
+  PrevRegion = newRegion; // particle will be moving to PrevRegion upon next entry.
+
+  if(debug)
   {
-     std::cerr << "Region on other side of surface is  = " << newRegion << \
+     std::cout << "Region on other side of surface is  = " << newRegion << \
                   ", Distance to next surf is " << retStep << std::endl;
   }
+
+  prev_surf = next_surf;
+
   return;
 }
 ///////			End g1wr and g1
 /////////////////////////////////////////////////////////////////////
 
 //---------------------------------------------------------------------------//
+// normal
+//---------------------------------------------------------------------------//
+// Local wrapper for fortran-called, nrmlwr.  This function is supplied for testing
+// purposes.  Its signature shows what parameters are being used in our wrapper 
+// implementation.  
+// Any FluDAG calls to nrmlwr should use this call instead.
+// ASSUMES:  no ray history
+// Notes
+// - direction is not taken into account 
+// - curRegion is not currently used.  It is expected to be implemented as a check
+//   on what the sign of the normal should be.  It is used in a call to DAG->surface_sense
+int  normal (double& posx, double& posy, double& posz, double *norml, int& curRegion)
+{
+   int flagErr; 
+   int dummyReg;
+   double dummyDirx, dummyDiry, dummyDirz;
+   nrmlwr(posx, posy, posz, dummyDirx, dummyDiry, dummyDirz, norml, curRegion, dummyReg, flagErr);
+   return flagErr;
+}
+//---------------------------------------------------------------------------//
 // nrmlwr(..)
 //---------------------------------------------------------------------------//
 /// From Flugg Wrappers WrapNorml.cc
 //  Note:  The normal is calculated at the point on the surface nearest the 
 //         given point
-//  Does NOT set newReg.
+// ASSUMES:  Point is on the boundary
+// Parameters Set:
+//     norml vector
+//     flagErr = 0 if ok, !=0 otherwise
+// Does NOT set any region, point or direction vector.
+// Globals used:
+//     next_surf, set by ray_fire 
 void nrmlwr(double& pSx, double& pSy, double& pSz,
             double& pVx, double& pVy, double& pVz,
 	    double* norml, const int& oldRegion, 
@@ -287,8 +371,8 @@ void nrmlwr(double& pSx, double& pSy, double& pSz,
   }
 
   flagErr=0;
-  double xyz[3]; //tmp storage of position
-  xyz[0]=pSx,xyz[1]=pSy,xyz[2]=pSz;
+  double xyz[3] = {pSx, pSy, pSz}; 
+  // xyz[0]=pSx,xyz[1]=pSy,xyz[2]=pSz;
   MBErrorCode ErrorCode = DAG->get_angle(next_surf,xyz,norml); 
   if(ErrorCode != MB_SUCCESS)
   {
@@ -298,15 +382,20 @@ void nrmlwr(double& pSx, double& pSy, double& pSz,
   }
   // sense of next_surf with respect to oldRegion (volume)
   int sense = getSense(oldRegion);
+  if (sense == 1 )
+    {
+      norml[0]=norml[0]*-1.0;
+      norml[0]=norml[0]*-1.0;
+      norml[0]=norml[0]*-1.0;
+    }
+  // otherwise out of old region and should point away 
+    
   if(debug)
   {
       std::cout << "Normal: " << norml[0] << ", " << norml[1] << ", " << norml[2]  << std::endl;
   }
   return;
 }
-///////			End nrmlwr
-/////////////////////////////////////////////////////////////////////
-
 //---------------------------------------------------------------------------//
 // getSense(..)
 //---------------------------------------------------------------------------//
@@ -325,10 +414,25 @@ int getSense(int region)
   }
   return sense; 
 } 
-
-///////			End nrmlwr
+///////			End nrmlwr, normal, and getSense(..)
 /////////////////////////////////////////////////////////////////////
 
+//---------------------------------------------------------------------------//
+// look(..)
+//---------------------------------------------------------------------------//
+// Testable local wrapper for fortran-called, lkwr
+// This function signature shows what parameters are being used in our wrapper implementation
+// oldRegion is looked at if we are no a boundary, but it is not set.
+// ASSUMES:  position is not on a boundary
+// RETURNS: nextRegion, the region the given point is in 
+int look( double& posx, double& posy, double& posz, double* dir, int& oldRegion)
+{
+   int flagErr;
+   int lattice_dummy;  // not used
+   int nextRegion;     
+   lkwr(posx, posy, posz, dir, oldRegion, lattice_dummy, nextRegion, flagErr, lattice_dummy);
+   return nextRegion;
+}
 //---------------------------------------------------------------------------//
 // lkwr(..)
 //---------------------------------------------------------------------------//
@@ -339,12 +443,14 @@ int getSense(int region)
 //            code passes it to a geant call 
 //           "ptrNavig->LocateGlobalPointAndUpdateTouchable()"
 //////////////////////////////////////////////////////////////////
-// What volume is the point in?  
-// Set newReg to volume of point.
-// Ignore oldReg UNLESS volume is on the boundary, then set newReg=oldReg
+// This function answers the question What volume is the point in?  
+// oldReg - not looked at UNLESS the volume is on the boundary, then newReg=oldReg
+// nextRegion - set to the volume index the point is in.
+// ToDo:  Is there an error condition for the flagErr that is guaranteed not to be equal to the next region?
+//        Find a way to make use of the error return from point_in_volume
 void lkwr(double& pSx, double& pSy, double& pSz,
           double* pV, const int& oldReg, const int& oldLttc,
-          int& region, int& flagErr, int& newLttc)
+          int& nextRegion, int& flagErr, int& newLttc)
 {
   if(debug)
   {
@@ -352,50 +458,134 @@ void lkwr(double& pSx, double& pSy, double& pSz,
       std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl; 
   }
 
-  const double xyz[] = {pSx, pSy, pSz}; // location of the particle (xyz)
-  int is_inside = 0; // logical inside or outside of volume
-  int num_vols = DAG->num_entities(3); // number of volumes
+  double xyz[] = {pSx, pSy, pSz}; // location of the particle (xyz)
+  const double dir[] = {pV[0],pV[1],pV[2]};
+  int is_inside = 0;                    // logical inside or outside of volume
+  int num_vols = DAG->num_entities(3);  // number of volumes
 
   for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
     {
       MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
       // No ray history or ray direction.
-      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside);
+      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside,dir);
 
       // check for non error
       if(MB_SUCCESS != code) 
 	{
 	  std::cout << "Error return from point_in_volume!" << std::endl;
-	  flagErr = 1;
+	  flagErr = -33;
 	  return;
 	}
-      
-      if (is_inside == -1)  // we are on a boundary
-      {
-          region = oldReg;
-          flagErr = oldReg;
-          if(debug)
-          {
-             std::cout << "oldReg = " << oldReg << std::endl;
-             std::cout << "point is on a boundary, setting region = oldReg" << std::endl;
-          }
-          return;
-      }
-      else if ( is_inside == 1 ) // we are inside the cell tested
+
+      if ( is_inside == 1 ) // we are inside the cell tested
 	{
-	  region = i;
-          //BIZARRELY - WHEN WE ARE INSIDE A VOLUME, BOTH, region has to equal flagErr
-	  flagErr = i;
-          if(debug)
-          {
-              std::cout << "point is in region = " << region << std::endl;
-          }
-          return;
+	  nextRegion = i;
+          //BIZARRELY - WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
+	  flagErr = nextRegion;
+	  return;	  
+	}
+      else if ( is_inside == -1 )
+	{
+	  std::cout << "We cannot be here" << std::endl;
+	  exit(0);
 	}
     }  // end loop over all volumes
 
-  std::cout << "point is not in any volume" << std::endl;
+  //special_check(xyz,dir,nextRegion);
+  // if we return update xyz
+  //pSx=xyz[0];
+  //pSy=xyz[1];
+  //pSz=xyz[2];
+  // if we are here do slow check
+  slow_check(xyz,dir,nextRegion);
+  flagErr = nextRegion; // return nextRegion
   return;
+}
+
+void slow_check(double pos[3], const double dir[3], int &oldReg)
+{
+  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
+  std::cout << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
+  int num_vols = DAG->num_entities(3);  // number of volumes
+  int is_inside;
+  for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
+    {
+      MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+      MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir); 
+      if ( code != MB_SUCCESS)
+	{
+	 std::cout << "Failure from point in volume" << std::endl;
+	 exit(0);
+	}
+
+      if ( is_inside == 1) // if in volume
+	{
+	  oldReg = DAG->index_by_handle(volume); //set oldReg
+	  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << " " << oldReg << std::endl;
+	  return;
+	}
+    }
+
+  std::cout << "FAILED SLOW CHECK" << std::endl;
+  exit(0);
+}
+
+MBEntityHandle check_reg(MBEntityHandle volume, double point[3], double dir[3]) // check we are where we say we are
+{
+  int is_inside;
+  MBErrorCode code = DAG->point_in_volume(volume, point, is_inside,dir); 
+  if (is_inside == 1 )
+    {
+      // we are where we say we are
+      return volume;
+    }
+  else
+    {
+      int num_vols = DAG->num_entities(3);  // number of volumes
+      for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
+	{
+	  MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+	  MBErrorCode code = DAG->point_in_volume(volume, point, is_inside,dir); 
+	  if ( is_inside == 1) // if in volume
+	    {
+	      return volume;
+	    }
+	}
+      std::cout.precision(25);
+      std::cout << std::scientific ; 
+      std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
+      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
+      std::cout << "particle not nowhere" << std::endl;
+      exit(0);
+    }
+}
+
+void special_check(double pos[3],const double dir[3], int& oldReg)
+{
+  int num_vols = DAG->num_entities(3);  // number of volumes
+  int counter = 0; //
+  int is_inside = 0;
+  do 
+    {
+      // bump particle position along dir
+      pos[0]=pos[0]+(dir[0]*1.0e-9);
+      pos[1]=pos[1]+(dir[1]*1.0e-9);
+      pos[2]=pos[2]+(dir[2]*1.0e-9);
+
+      for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
+	{
+	  MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+	  MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir); 
+	  if ( is_inside == 1) // if in volume
+	    {
+	      std::cout << "had to bump " << counter << " times" << std::endl;
+	      oldReg = DAG->index_by_handle(volume); //set oldReg
+	      return;
+	    }
+	}
+      counter++;
+    }
+  while ( is_inside != 0 );
 }
 
 // Defined in WrapIncrHist.cc
@@ -451,7 +641,9 @@ void g1rtwr(void)
 
 /*
  * WrapIniHist
+ * Removed from header
  */
+/*
 void inihwr(int& intHist)
 {
   if(debug)
@@ -461,11 +653,11 @@ void inihwr(int& intHist)
     }
   return;
 }
-
+*/
 /*
  * WrapSavHist
  */
-int isvhwr(const int& fCheck, const int& intHist)
+/*int isvhwr(const int& fCheck, const int& intHist)
 {
   if(debug)
     {
@@ -479,6 +671,7 @@ int isvhwr(const int& fCheck, const int& intHist)
     }
   return 1;
 }
+*/
 
 /**************************************************************************************************/
 /******                                End of FLUKA stubs                                  ********/
@@ -628,67 +821,174 @@ static char* get_tallyspec( std::string spec, int& dim ){
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-/////////////
-/////////////		fludagwrite_assignma
-/////////////
-//////////////////////////////////////////////////////////////////////////
-/**
-   After mcnp_funcs:dagmcwritemcnp_
-*/
+//---------------------------------------------------------------------------//
+// fludagwrite_assignma
+//---------------------------------------------------------------------------//
+/// Called from mainFludag when only one argument is given to the program.
+//  This function writes out a simple numerical material assignment to the named argument file
+//  Example usage:  mainFludag dagmc.html
+//  Outputs
+//           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
+//                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
+//                    The string after "M_" is considered to be t he material for that volume.
+//                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
+//                    For the remaining materials, there is one MATERIAL card apiece (no dups)
+//                    User-named (not predefined) materials are TRUNCATED to 8 chars.
+//                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
+//           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
+//  Note that a preprocessing step to this call sets up the the DAG object that contains 
+//  all the geometry information contained in dagmc.html.  
+//  the name of the (currently hardcoded) output file is "mat.inp"
+//  The graveyard is assumed to be the last region.
 void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
 {
-
   int num_vols = DAG->num_entities(3);
   std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
   std::cout << "\tnum_vols is " << num_vols << std::endl;
   std::cout << "Graveyard list: " << std::endl;
   MBErrorCode ret;
-  MBEntityHandle entity = NULL;
+  MBEntityHandle entity = 0;
+  int id;
 
   std::vector< std::string > keywords;
   ret = DAG->detect_available_props( keywords );
   // parse data from geometry so that property can be found
   ret = DAG->parse_properties( keywords );
 
-// if (MB_SUCCESS != ret) {
-//    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-//    exit(EXIT_FAILURE);
-//    }
-
-  // Open an outputstring
-  std::ostringstream ostr;
-  // Loop through 3d entities.  In model_complete.h5m there are 90 vols
-  for (unsigned i = 1; i<=num_vols; i++)
+  if (MB_SUCCESS != ret) 
   {
-      entity = DAG->entity_by_index(3, i);
-      // std::string props = make_property_string(*DAG, entity, keywords);
-      // if (props.length()) std::cout << "Parsed props: " << props << std::endl; 
-      if (DAG->has_prop(entity, "graveyard"))
+    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
+    exit(EXIT_FAILURE);
+  }
+  // Preprocessing loop:  make a string, "props",  for each vol entity
+  // This loop could be removed if the user doesn't care to see terminal output
+  for (unsigned i=1; i<=num_vols; i++)
+  {
+     
+      std::string props = mat_property_string(i, keywords);
+      id = DAG->id_by_index(3, i);
+      if (props.length()) 
       {
-	 ostr << std::setw(10) << std::left  << "ASSIGNMAT";
-	 ostr << std::setw(10) << std::right << "BLCKHOLE";
-	 ostr << std::setw(10) << std::right << i + 1 << std::endl;
+         std::cout << "Vol " << i << ", id=" << id << ": parsed props: " << props << std::endl; 
       }
       else
       {
-	 ostr << std::setw(10) << std::left  << "ASSIGNMAT";
-	 ostr << std::setw(10) << std::right << "VACUUM";
-	 ostr << std::setw(10) << std::right << i + 1 << std::endl;
+         std::cout << "Vol " << i << ", id=" << id << " has no props: " <<  std::endl; 
       }
   }
-  // Show the output string just created
-  // std::cout << ostr.str();
+
+  // Open an outputstring for mat.inp
+  std::ostringstream ostr;
+  // Open an outputstring for index-id table and put a header in it
+  std::ostringstream idstr;
+  idstr << std::setw(5) <<  "Index" ;
+  idstr << std::setw(5) <<  "   Id" << std::endl;
+
+  // Prepare a list to contain unique materials not in Flulka's list
+  std::list<std::string> uniqueMatList;
+
+  // Loop through 3d entities.  In model_complete.h5m there are 90 vols
+  std::vector<std::string> vals;
+  std::string material;
+  char buffer[MAX_MATERIAL_NAME_SIZE];
+  for (unsigned i = 1 ; i <= num_vols ; i++)
+  {
+      vals.clear();
+      entity = DAG->entity_by_index(3, i);
+      id = DAG->id_by_index(3, i);
+      // Create the id-index string for this vol
+      idstr << std::setw(5) << std::right << i;
+      idstr << std::setw(5) << std::right << id << std::endl;
+      // Create the mat.inp string for this vol
+      if (DAG->has_prop(entity, "graveyard"))
+      {
+	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+	 ostr << std::setw(10) << std::right << "BLCKHOLE";
+	 ostr << std::setw(10) << std::right << i << std::endl;
+      }
+      else if (DAG->has_prop(entity, "M"))
+      {
+         ret = DAG->prop_values(entity, "M", vals);
+         if (vals.size() >= 1)
+         {
+            // Make a copy of string in vals[0]; full string needs to be compared to
+            // FLUKA materials list; copy is for potential truncation
+            std::strcpy(buffer, vals[0].c_str());
+            material = std::string(buffer);
+            
+            if (vals[0].size() > 8)
+            {
+               material.resize(8);
+            }
+            if (FLUKA_mat_set.find(vals[0]) == FLUKA_mat_set.end())
+            {
+                // current material is not in the pre-existing FLUKA material list
+                uniqueMatList.push_back(material); 
+                std::cerr << "Adding material " << material << " to the MATERIAL card list" << std::endl;
+            }
+         }
+         else
+         {
+            material = "moreThanOne";
+         }
+	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+	 ostr << std::setw(10) << std::right << material;
+	 ostr << std::setw(10) << std::right << i << std::endl;
+      }
+  }
+  // Finish the ostr with the implicit complement card
+  std::string implicit_comp_comment = "* The next volume is the implicit complement";
+  ostr << implicit_comp_comment << std::endl;
+  ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+  ostr << std::setw(10) << std::right << "VACUUM";
+  ostr << std::setw(10) << std::right << num_vols+1 << std::endl;
+
+  // Process the uniqueMatList list so that it truly is unique
+  uniqueMatList.sort();
+  uniqueMatList.unique();
+  // Print the final list
+  if (debug)
+  {
+     std::list<std::string>::iterator it; 
+     for (it=uniqueMatList.begin(); it!=uniqueMatList.end(); ++it)
+     {
+        std::cerr << *it << std::endl;
+     }
+  
+     // Show the output string just created
+     std::cout << ostr.str();
+  }
 
   // Prepare an output file of the given name; put a header and the output string in it
-  std::cerr << "Going to write an lcad file = " << lfname << std::endl;
   std::ofstream lcadfile( lfname.c_str());
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
+  if (uniqueMatList.size() != 0)
+  {
+     int matID = 25;
+     lcadfile << header << std::endl;
+     std::list<std::string>::iterator it; 
+     for (it=uniqueMatList.begin(); it!=uniqueMatList.end(); ++it)
+     {
+        lcadfile << std::setw(10) << std::left << "MATERIAL";
+        lcadfile << std::setw(10) << std::right << "at. no.";
+        lcadfile << std::setw(10) << std::right << "g/mole";
+        lcadfile << std::setw(10) << std::right << ++matID;
+        lcadfile << std::setw(10) << std::right << "alt. no.";
+        lcadfile << std::setw(10) << std::right << "mass no.";
+        lcadfile << std::setw(10) << std::right << *it << std::endl;
+     }
+  }
   lcadfile << header << std::endl;
   lcadfile << ostr.str();
+  lcadfile.close();
 
-  std::cerr << "Writing lcad file = " << lfname << std::endl;
-  // Before opening file for writing, check for an existing file
+  // Prepare an output file named "index_id.txt" for idstr
+  std::string index_id_filename = "index_id.txt";
+  std::ofstream index_id(index_id_filename.c_str());
+  index_id << idstr.str();
+  index_id.close(); 
+  std::cerr << "Writing lcad file = " << lfname << std::endl; 
+// Before opening file for writing, check for an existing file
 /*
   if( lfname != "lcad" ){
     // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"
@@ -698,8 +998,101 @@ void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
     }
   }
 */
+
 }
 
+//---------------------------------------------------------------------------//
+// mat_property_string
+//---------------------------------------------------------------------------//
+// For a given volume, find the values of all properties named "MAT".   
+// Create a string with these properites
+// Modified from make_property_string
+// This function helps with debugging, but is not germane to writing cards.
+std::string mat_property_string (int index, std::vector<std::string> &properties)
+{
+  ErrorCode ret;
+  std::string propstring;
+  EntityHandle entity = DAG->entity_by_index(3,index);
+  int id = DAG->id_by_index(3, index);
+  for (std::vector<std::string>::iterator p = properties.begin(); p != properties.end(); ++p)
+  {
+     if ( DAG->has_prop(entity, *p) )
+     {
+        std::vector<std::string> vals;
+        ret = DAG->prop_values(entity, *p, vals);
+        CHECKERR(*DAG, ret);
+        propstring += *p;
+        if (vals.size() == 1)
+        {
+ 	   propstring += "=";
+           propstring += vals[0];
+        }
+        else if (vals.size() > 1)
+        {
+ 	   // this property has multiple values; list within brackets
+           propstring += "=[";
+	   for (std::vector<std::string>::iterator i = vals.begin(); i != vals.end(); ++i)
+           {
+	       propstring += *i;
+               propstring += ",";
+           }
+           // replace the last trailing comma with a close bracket
+           propstring[ propstring.length() -1 ] = ']';
+        }
+        propstring += ", ";
+     }
+  }
+  if (propstring.length())
+  {
+     propstring.resize( propstring.length() - 2); // drop trailing comma
+  }
+  return propstring;
+}
+
+//---------------------------------------------------------------------------//
+// make_property_string
+//---------------------------------------------------------------------------//
+// For a given volume, find all properties associated with it, and any and all 
+//     values associated with each property
+// Copied and modified from obb_analysis.cpp
+static std::string make_property_string (EntityHandle eh, std::vector<std::string> &properties)
+{
+  ErrorCode ret;
+  std::string propstring;
+  for (std::vector<std::string>::iterator p = properties.begin(); p != properties.end(); ++p)
+  {
+     if ( DAG->has_prop(eh, *p) )
+     {
+        std::vector<std::string> vals;
+        ret = DAG->prop_values(eh, *p, vals);
+        CHECKERR(*DAG, ret);
+        propstring += *p;
+        if (vals.size() == 1)
+        {
+ 	   propstring += "=";
+           propstring += vals[0];
+        }
+        else if (vals.size() > 1)
+        {
+ 	   // this property has multiple values; list within brackets
+           propstring += "=[";
+	   for (std::vector<std::string>::iterator i = vals.begin(); i != vals.end(); ++i)
+           {
+	       propstring += *i;
+               propstring += ",";
+           }
+           // replace the last trailing comma with a close bracket
+           propstring[ propstring.length() -1 ] = ']';
+        }
+        propstring += ", ";
+     }
+  }
+  if (propstring.length())
+  {
+     propstring.resize( propstring.length() - 2); // drop trailing comma
+  }
+  return propstring;
+}
 
 //////////////////////////////////////////////////////////////////////////
 /////////////
