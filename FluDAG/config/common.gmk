@@ -1,0 +1,144 @@
+# $Id: common.gmk,v 1.1 2007/07/19 12:46:59 witoldp Exp $
+# ----------------------------------------------------------------
+# Common part of GNUmakefile for libraries.  John Allison, 5/7/95.
+# ----------------------------------------------------------------
+# Libraries are created according to G4SYSTEM=Linux-g++. G.Cosmo, 11/6/96.
+# Introduced G4LIBDIR and G4TMPDIR. G.Cosmo, 23/6/98.
+
+ifndef FLUDLIBDIR
+  FLUDLIBDIR := $(FLUDLIB)
+endif
+FLUDTMPDIR := $(FLUDTMP)/$(name)
+
+sources := $(wildcard src/*.cc)
+objects := $(patsubst src/%.cc,$(FLUDTMPDIR)/%.o,$(sources))
+dependencies := $(patsubst src/%.cc,$(FLUDTMPDIR)/%.d,$(sources))
+
+   fludlibraries_to_build :=
+ifneq ($(FLUDLIB_BUILD_SHARED),)
+   fludlibraries_to_build += $(FLUDLIBDIR)/lib$(name).$(SHEXT)
+endif
+ifneq ($(FLUDLIB_BUILD_STATIC),)
+   fludlibraries_to_build += $(G4LIBDIR)/lib$(name).a
+endif
+
+# GPPFLAGS is defined here to make the .d file(s) and include it(them).
+
+GPPFLAGS := "-M"
+
+###############################################################################
+#
+# Actual gmake targets.
+#
+
+lib: $(fludlibraries_to_build)
+
+ifneq ($(G4LIB_BUILD_SHARED),)
+# Make shared library.
+$(G4LIBDIR)/lib$(name).$(SHEXT): $(G4TMPDIR)/obj.last
+	@if [ ! -d $(G4LIBDIR) ] ; then mkdir $(G4LIBDIR) ;fi
+	@echo Creating shared library $@
+	@$(RM) $@
+#      use architecture specific macro defined in sys/$(G4SYSTEM).gmk
+	$(build-granular-shared-lib)
+endif
+
+ifneq ($(G4LIB_BUILD_STATIC),)
+# Make static (archive) library.
+$(G4LIBDIR)/lib$(name).a: $(G4TMPDIR)/obj.last
+	@if [ ! -d $(G4LIBDIR) ] ; then mkdir $(G4LIBDIR) ;fi
+	@echo Creating/replacing object files in $(G4LIBDIR)/lib$(name).a
+	@rm -f $(G4LIBDIR)/lib$(name).a
+	@$(AR) $(OUT_LIB)$(G4LIBDIR)/lib$(name).a $(G4TMPDIR)/*.o
+	@if [ -f /usr/bin/ranlib -o -f /bin/ranlib ] ; then ranlib $(G4LIBDIR)/lib$(name).a ;fi
+endif
+
+###############################################################################
+#
+# Actual targets for .o, .d files
+#
+
+$(G4TMPDIR)/%.o: src/%.cc
+ifdef CPPVERBOSE
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $(OUT_OBJ)$(G4TMPDIR)/$(*F).o src/$*.cc
+else
+	@echo Compiling $*.cc ...
+	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $(OUT_OBJ)$(G4TMPDIR)/$(*F).o src/$*.cc
+endif
+
+# .PHONY targets are executed regardless of time-stamp of any file of
+# same name.
+.PHONY: all obj lib clean clean_libs includes
+
+obj: $(G4TMPDIR)/obj.last
+
+# Touch the versioning file
+$(G4TMPDIR)/obj.last: $(objects)
+	@touch $@
+
+# Make the .d file(s) and include it(them).
+
+# The ideas for this come from the GNU Make Manual, Section 4.12,
+# Generating Prerequisites Automatically.  The g++ compiler has an
+# option -M or -MM to write to standard output a list of dependencies
+# based on the #include statements.  The "sed" adds the dependency
+# file itself as a second target.  The result is a mini-makefile which
+# specifies the .o and .d files as targets which depend on all the
+# files found through the #include statements.  This file is then
+# included, causing GNU Make to honour these dependencies.
+
+# The "set -e" causes the shell to exit with an error when the "g++"
+# fails (otherwise it would only notice the last command in the
+# pipeline, namely "sed").  GNU Make notices the error and exits
+# sooner than it otherwise would (still not as soon as I expect,
+# though!).  Even then, an empty file is made, so "[ -s $@ ] || rm -f
+# $@" removes it ([ -s filename ] gives zero exit code only if file
+# exists and has a size greater than zero).  This avoids making
+# corrupt .d files which would play havoc with your next build.
+
+$(G4TMPDIR)/%.d: src/%.cc
+	@echo Making dependency for file $< ...
+	@echo $(CPPFLAGS)
+	@if [ ! -d $(G4TMPDIR) ] ; then mkdir -p $(G4TMPDIR)  ;fi
+	@set -e;\
+	g++ $(GPPFLAGS) $(CPPFLAGS) -w $< |\
+	sed 's!$*\.o!$(FLUDTMPDIR)/& $@!' >$@;\
+	[ -s $@ ] || rm -f $@
+ifneq ($(dependencies),)
+-include $(dependencies)
+endif
+
+#
+# Installation of include files
+#
+installed_includes:=$(foreach file,$(wildcard include/*),$(shell test -f $(file) && echo $(file)))
+installed_includes:=$(patsubst include/%,$(FLUDINCLUDE)/%,$(installed_includes))
+
+# NOTE: the double colon rule allows to add other rules for the same target
+#
+includes::	$(installed_includes)
+
+# Static Pattern rules, see GNU make manual for details.
+#           target(s): target-pattern : dep-pattern	
+#
+$(installed_includes): $(FLUDINCLUDE)/% : include/%
+	@cp -p $< $@
+
+#
+# Clean up libraries
+#
+ifndef FLUDEXLIB
+clean:
+	@echo Cleaning up ...
+	@rm -f $(FLUDLIBDIR)/lib$(name).a
+	@rm -f $(FLUDLIBDIR)/lib$(name).$(SHEXT)
+	@rm -rf $(FLUDTMPDIR)
+endif
+
+clean_libs:
+	@if [ -f $(FLUDLIBDIR)/lib$(name).a ] ; then \
+	$(ECHO) Removing library lib$(name).a ... ; \
+	$(RM) -f $(FLUDLIBDIR)/lib$(name).a ; fi
+	@if [ -f $(FLUDLIBDIR)/lib$(name).$(SHEXT) ] ; then \
+	$(ECHO) Removing library lib$(name).$(SHEXT) ... ; \
+	$(RM) -f $(FLUDLIBDIR)/lib$(name).$(SHEXT) ; fi
