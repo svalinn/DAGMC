@@ -1,1 +1,0 @@
-gfortran -o mainf obj/main_f.o  obj/simple.o obj/test.o obj/fludagW.o  obj/dagmcinit.o -L/filespace/people/z/zachman/dagmc_bld/MOAB/lib -lm -lMOAB -ldagmc  -L/filespace/people/z/zachman/flugg_bld/FLUKA -lflukahp -lstdc++

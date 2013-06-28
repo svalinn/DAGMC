@@ -1,5 +1,0 @@
-.nfs*  # ignore the .nfs...... files
-*.o    # Do not check in object files
-*.swp  # Do not check in editing file copies
-*~     # likewise
-core*  # no cores, not that there are any
