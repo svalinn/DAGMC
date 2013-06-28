@@ -38,7 +38,7 @@ gh-revert:
 gh-push:
 	rm -rf $(GH_SOURCE_DIRS) build
 	git add -A 
-	git commit -m "Generated $(GH_BUILD_BRANCH) for `git log $(GH_SOURCE_BRANCH) -1 --pretty=short --abbrev-commit`" && git push origin $(GH_BUILD_BRANCH) && git push publish $(GH_BUILD_BRANCH)
+	git commit -m "Generated $(GH_BUILD_BRANCH) for `git log $(GH_SOURCE_BRANCH) -1 --pretty=short --abbrev-commit`" && git push origin $(GH_BUILD_BRANCH)
 	git checkout $(GH_SOURCE_BRANCH)
 
 
