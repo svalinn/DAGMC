@@ -50,17 +50,32 @@ gh-pages:
 	git checkout $(GH_BUILD_BRANCH)
 	git checkout $(GH_SOURCE_BRANCH) $(GH_SOURCE_DIRS)
 	git reset HEAD
+<<<<<<< HEAD:doc-src/Makefile
+	rm -rf _static _sources doc doctrees build
+	make  html
+	make gh-install
+	git add -A
+	git commit -m "Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`" && git push origin gh-pages
+	git checkout master
+=======
 	make html
 	make gh-install
 	make gh-push
+>>>>>>> upstream/master:Makefile
 
 gh-preview:
 	git checkout $(GH_BUILD_BRANCH)
 	git checkout $(GH_CURRENT_BRANCH) $(GH_SOURCE_DIRS)
 	git reset HEAD
+<<<<<<< HEAD:doc-src/Makefile
+	rm -rf _static _sources doc doctrees build
+	make  html
+	make gh-install
+=======
 	make html
 	make gh-install
 
+>>>>>>> upstream/master:Makefile
 
 clean:
 	-rm -rf _images _sources people projects papers 
