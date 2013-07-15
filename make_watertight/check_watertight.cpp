@@ -179,15 +179,19 @@ int main(int argc, char **argv)
 
   // create tags on geometry
   MBTag geom_tag, id_tag;
-  result = MBI()->tag_create( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TAG_DENSE,
-                            MB_TYPE_INTEGER, geom_tag, 0, true );
+  //result = MBI()->tag_create( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TAG_DENSE,
+                            //MB_TYPE_INTEGER, geom_tag, 0, true );
+  result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, sizeof(int), 
+                            MB_TYPE_INTEGER, geom_tag, MB_TAG_DENSE, 0, 0 );
   if(MB_SUCCESS != result) 
     {
       return result;  
     }
 
-  result = MBI()->tag_create( GLOBAL_ID_TAG_NAME, sizeof(int), MB_TAG_DENSE,
-                            MB_TYPE_INTEGER, id_tag, 0, true );
+  //result = MBI()->tag_create( GLOBAL_ID_TAG_NAME, sizeof(int), MB_TAG_DENSE,
+                            //MB_TYPE_INTEGER, id_tag, 0, true );
+  result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, sizeof(int), 
+                            MB_TYPE_INTEGER, id_tag, MB_TAG_DENSE, 0, 0 );
   if(MB_SUCCESS != result) 
     {
       return result;

@@ -14,8 +14,10 @@ namespace cleanup {
     MBErrorCode result;
     MBRange obb_entities;
     MBTag obbTag;
-    result = MBI()->tag_create( "OBB_TREE", sizeof(MBEntityHandle),
-	       		  MB_TAG_DENSE, MB_TYPE_HANDLE, obbTag, NULL, true );
+    //result = MBI()->tag_create( "OBB_TREE", sizeof(MBEntityHandle),
+	       		  //MB_TAG_DENSE, MB_TYPE_HANDLE, obbTag, NULL, true );
+    result = MBI()->tag_get_handle( "OBB_TREE", sizeof(MBEntityHandle),
+	       		  MB_TYPE_HANDLE, obbTag, MB_TAG_DENSE, NULL, 0 );
     assert(MB_SUCCESS == result);
     // This gets the surface/volume sets. I don't want to delete the sets.
     // I want to remove the obbTag that contains the tree root handle and
@@ -42,8 +44,10 @@ namespace cleanup {
     assert(MB_SUCCESS == result);
 
 
-    result = MBI()->tag_create( "OBB", sizeof(double), MB_TAG_SPARSE,
-     				  MB_TYPE_DOUBLE, rootTag, 0, false);
+    //result = MBI()->tag_create( "OBB", sizeof(double), MB_TAG_SPARSE,
+     				  //MB_TYPE_DOUBLE, rootTag, 0, false);
+    result = MBI()->tag_get_handle ( "OBB", sizeof(double), 
+     				  MB_TYPE_DOUBLE, rootTag, MB_TAG_SPARSE, 0, false);
     assert(MB_SUCCESS==result || MB_ALREADY_ALLOCATED==result);
     /*    result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &rootTag, 
                                                    NULL, 1, trees );
