@@ -1,5 +1,6 @@
-#ifndef DAGMC_TRACK_LENGTH_MESH_TALLY_HPP
-#define DAGMC_TRACK_LENGTH_MESH_TALLY_HPP
+#ifndef DAGMC_TRACK_LENGTH_MESH_TALLY_H
+#define DAGMC_TRACK_LENGTH_MESH_TALLY_H
+
 
 #include <string>
 #include <cassert>
@@ -11,7 +12,16 @@
 
 #include "Matrix3.hpp"
 #include "MeshTally.hpp"
-#include "TallyEvent.hpp"
+
+
+struct MCNPTrackParam {
+  int *fmesh_index;
+  double *erg;
+  double *wgt;
+
+  MCNPTrackParam(int *i, double *e, double *w): 
+    fmesh_index(i), erg(e), wgt(w) {}
+};
 
 namespace moab{
 
@@ -20,50 +30,70 @@ class AdaptiveKDTree;
 class OrientedBoxTreeTool;
 
 
-class TrackLengthMeshTally : public MeshTally
-{ 
+class TrackLengthMeshTally : public MeshTally{ 
 
 public:
-  TrackLengthMeshTally( int id, const TallyInput& input );
+  /**
+   * Public constructor interface- actual constructor is protected.
+   */
+  static TrackLengthMeshTally* setup( const fmesh_card& params, Interface* mbi, const int* cur_mcnp_cell );
 
   /**
-   * \brief Computes mesh tally scores for the given tally event
-   * \param event the parameters needed to compute the mesh tally scores
-   * \param ebin index representing energy bin
+   * Tally a single particle track segment
    */
-  virtual void compute_score(const TallyEvent& event);
+  void add_track_segment( CartVect& start, CartVect& vec, double length, int ebin,  MCNPTrackParam* score_params );
   
   virtual void end_history ();
- 
-  virtual void write_data( double num_particles);
     
+  virtual void print(  double sp_norm, double mult_fact );
+
   ~TrackLengthMeshTally();
 
+ 
 
 protected:
 
-  ErrorCode compute_barycentric_data (const Range& all_tets);
-  void build_trees (Range& all_tets);
-                       
+  Range get_adjacency_info(Range input_handles);
+  
+  bool point_in_tet_ad(CartVect pos, EntityHandle tet);
+
+  int tet_index(Range tets, EntityHandle tet_handle);
+
+  EntityHandle point_in_which_tet (CartVect point);
+
+  EntityHandle remainder( CartVect start, CartVect dir, double distance, double left_over);
+
+  ErrorCode load_mesh( const std::string& input_filename, 
+                       std::string tag_name, std::vector<std::string>& tag_values );  
+  ErrorCode write_results( double sp_norm, double mult_fact, 
+                           const std::string* override_output_filename = NULL );
+
   bool point_in_tet( const CartVect& point, const EntityHandle* tet );
 
+  void add_score_to_mesh_cell( EntityHandle mesh_cell, double score, int ebin );
  
   void get_skin_triangle_adjacencies( EntityHandle triangle, 
                                       EntityHandle& tetrahedron, EntityHandle vertices[3] );
 
 
-  EntityHandle find_next_tet_by_ray_fire(const CartVect& start, const CartVect& vec, double length, 
-                                         EntityHandle first_tri[3], double& first_t, 
-                                         EntityHandle last_crossing = 0);
+  EntityHandle find_next_tet_by_ray_fire( CartVect& start, CartVect& vec, double length, 
+                                          EntityHandle first_tri[3], double& first_t, 
+                                          EntityHandle last_crossing = 0 );
 
-  EntityHandle get_starting_tet(const CartVect& start, const CartVect& vec, double length, 
-                                EntityHandle first_tri[3], double& first_t);
+  EntityHandle get_starting_tet( CartVect& start, CartVect& vec, double length, 
+                                 EntityHandle first_tri[3], double& first_t );
     
 
-  EntityHandle get_starting_tet_conformal(const CartVect& start, EntityHandle first_tri[3]);
+  EntityHandle get_starting_tet_conformal( CartVect& start, EntityHandle first_tri[3] );
 
+
+  void set_convex_flag( bool c ){ convex = c; } 
 
   Interface* mb;
+
+  std::string output_filename;
+
+  EntityHandle tally_set;
 
   AdaptiveKDTree* kdtree;
   EntityHandle kdtree_root;
@@ -77,24 +107,24 @@ protected:
 
   bool convex; // true if user asserts this mesh tally has convex geometry
 
-  // if not empty, user has asserted mesh tally geometry
+  // if non-null, user has asserted mesh tally geometry
   // conforms to the cells identified in this set
-  std::set<int> conformality; 
+  std::set<int>* conformality; 
   bool conformal_surface_source;
 
+  const int* mcnp_current_cell; // non-null if user has asserted conformal geometry
   int last_cell;
+  std::set<EntityHandle> visited_this_history; 
     
+  TrackLengthMeshTally( const fmesh_card& fmesh_params, Interface* mb_p, const std::string& output_filename );
 
 private:
-  void parse_tally_options();
-  void set_tally_meshset();
   TrackLengthMeshTally& operator=( const TrackLengthMeshTally& mt ); // unimplemented
   TrackLengthMeshTally( const TrackLengthMeshTally& mt ); // unimplemented
 
-  int num_negative_tracks;
 };
 
 } // end namespace moab
 
 
-#endif /* DAGMC_TRACK_LENGTH_MESH_TALLY_HPP */
+#endif /* DAGMC_TRACK_LENGTH_MESH_TALLY_H */
