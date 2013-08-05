@@ -26,8 +26,7 @@ extern "C" {
  */
 
   void slow_check(double pos[3], const double dir[3], int &oldReg);
-  // check we are where we say we are
-  MBEntityHandle check_reg(MBEntityHandle volume, double point[3], double dir[3]); 
+  MBEntityHandle check_reg(MBEntityHandle volume, double point[3], double dir[3]); // check we are where we say we are
   bool check_vol( double pos[3], double dir[3], int oldRegion);
 
   /* get the sense of a region with respect to the global next_surf,
