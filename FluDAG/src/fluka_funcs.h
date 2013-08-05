@@ -24,13 +24,11 @@ extern "C" {
  * 
  * 14 Feb 2013  jcz added boolean running_with_fluka, which prepends "../" to the file name
  */
-  void cpp_dagmcinit(const std::string infile, 
-                int parallel_file_mode, // parallel read mode
-                int max_pbl);
 
   void slow_check(double pos[3], const double dir[3], int &oldReg);
   // check we are where we say we are
   MBEntityHandle check_reg(MBEntityHandle volume, double point[3], double dir[3]); 
+  bool check_vol( double pos[3], double dir[3], int oldRegion);
 
   /* get the sense of a region with respect to the global next_surf,
    * which is set by a call to rayfire
