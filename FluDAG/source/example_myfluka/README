@@ -1,4 +1,0 @@
-Run the follwoing command in this directory:
-$FLUPRO/flutil/rfluka -e myfluka -N0 -M5 example &
-
-Note:  example does not contain a USRICALL card, this is just a basic test
