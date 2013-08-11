@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Monte Carlo Code-Specific Steps for FluDAG &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../index.html" />
+    <link rel="up" title="DAGMC User’s Guide" href="index.html" />
+    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="prev" title="Monte Carlo Code-Specific Steps for DAG-Tripoli4" href="dag-tripoli4.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header"><a id="uwhome" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> <a id="crest" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="/"><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="dag-tripoli4.html" title="Monte Carlo Code-Specific Steps for DAG-Tripoli4"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="faq.html" title="Frequently Asked Questions"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">DAGMC User&#8217;s Guide</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"></div>
+ <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
+<li><a class="reference internal" href="#">Monte Carlo Code-Specific Steps for FluDAG</a><ul>
+<li><a class="reference internal" href="#geometry-metadata">Geometry Metadata</a><ul>
+<li><a class="reference internal" href="#assigning-materials-densities">Assigning Materials &amp; Densities</a></li>
+<li><a class="reference internal" href="#defining-the-graveyard">Defining the Graveyard</a></li>
+<li><a class="reference internal" href="#scoring-assignments">Scoring Assignments</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#preparing-the-fludag-input-file">Preparing the FluDAG Input File</a></li>
+<li><a class="reference internal" href="#running-fludag">Running FluDAG</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="monte-carlo-code-specific-steps-for-fludag">
+<h1>Monte Carlo Code-Specific Steps for FluDAG<a class="headerlink" href="#monte-carlo-code-specific-steps-for-fludag" title="Permalink to this headline">¶</a></h1>
+<p>There are several varieties of code-specific steps:</p>
+<ol class="arabic simple">
+<li>defining attributes of the geometry using groups in CUBIT</li>
+<li>producing material assignments in FLUKA input format from the h5m file, with the help of FluDAG</li>
+<li>preparing the FLUKA input file for running with DAGMC</li>
+<li>inserting the material assignments into the FLUKA input deck</li>
+</ol>
+<div class="section" id="geometry-metadata">
+<h2>Geometry Metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
+<p>In FluDAG, the geometry file can be used to define material
+assignments, and eventually we would like to add the capability to
+define boundary conditions and tally locations.</p>
+<div class="section" id="assigning-materials-densities">
+<h3>Assigning Materials &amp; Densities<a class="headerlink" href="#assigning-materials-densities" title="Permalink to this headline">¶</a></h3>
+<p>The generic workflow description includes details on
+<a class="reference internal" href="workflow.html#grouping-basics"><em>Grouping Volumes and Surfaces</em></a>, but a specific naming convention is required
+for FluDAG.
+To define
+materials, the FLUKA material name must be
+provided in the group name. The format for the group
+name is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">M_</span><span class="p">[</span><span class="n">material_name</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For example, suppose we wish to add volumes 1 through 5 to a group
+that defines the material to be iron.  The following command
+would be used.</p>
+<div class="highlight-python"><pre>group "M_IRON" add volume 1 to 5</pre>
+</div>
+<p>This will produce in the input file,</p>
+<div class="highlight-python"><pre>ASSIGNMA        IRON         1
+ASSIGNMA        IRON         2
+ASSIGNMA        IRON         3
+ASSIGNMA        IRON         4
+ASSIGNMA        IRON         5</pre>
+</div>
+<p>Compounds are also supported by FluDAG, for example, if we wish to have volume 6
+belong to a group whose material name is STAINLESS then we can can use</p>
+<div class="highlight-python"><pre>group "M_STAINLESS" add volume 6</pre>
+</div>
+<p>This will produce in the input file:</p>
+<div class="highlight-python"><pre>MATERIAL                                        26                    STAINLES
+*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+ASSIGNMA    STAINLES         6</pre>
+</div>
+<p><a href="#id1"><span class="problematic" id="id2">*</span></a>Note: Material names longer than 8 characters are truncated to the first 8
+characters.</p>
+<p>Be aware that there are several predefined material names in FLUKA, and they
+are appropriately treated by FluDAG.</p>
+<p><a href="#id3"><span class="problematic" id="id4">*</span></a>Note: All volumes must belong to a group, if they do not have any information
+FluDAG will not assign material information.</p>
+<p>The implicit complement is automatically assigned the value 1 + the id of the
+highest numberd volume.</p>
+</div>
+<div class="section" id="defining-the-graveyard">
+<h3>Defining the Graveyard<a class="headerlink" href="#defining-the-graveyard" title="Permalink to this headline">¶</a></h3>
+<p>A typical usage of Monte Carlo codes include a volume that extends
+to infinity with an importance of 0 that bounds the active volumes of interest.
+Since solid models cannot include any infinite volumes, it is
+necessary to place a finite volume of importance 0 to define the
+problem boundary.  You will need to surround the entire geometry with a
+shell of finite thickness, known as the &#8220;graveyard&#8221;.  Any geometric
+shape can be used for this, however a cubic shell is usually preferred.  This
+shell volume will represent the outside world and will be the volume
+where all of the particles are terminated.</p>
+<p>To create this volume create two volumes in CUBIT with the same shape,
+same center, and one slightly larger than the other.  Subtract the
+smaller from the larger.  The remaining volume is the graveyard.</p>
+<p>As with the material definitions discussed in the previous section the
+graveyard is defined by assigning the volume a keyword
+group name,</p>
+<div class="highlight-python"><pre>group "M_BLCKHOLE" add volume X</pre>
+</div>
+<p>Consider a geometry with 99 volumes that all fit within a cube
+centered at the origin with side-length 99 cm.  To create a graveyard
+for this problem in CUBIT, you could issue the following commands:</p>
+<div class="highlight-python"><pre>cubit_prompt&gt; create brick x 100
+cubit_prompt&gt; create brick x 105
+cubit_prompt&gt; subtract vol 100 from vol 101
+cubit_prompt&gt; group "M_BLCKHOLE" add vol 102</pre>
+</div>
+<p>When FLuDAG is run all the particles that enter volumes in group &#8220;M_BLCKHOLE&#8221;
+will be killed.  This is effectively the same as the concept of importance
+in MCNP.</p>
+</div>
+<div class="section" id="scoring-assignments">
+<h3>Scoring Assignments<a class="headerlink" href="#scoring-assignments" title="Permalink to this headline">¶</a></h3>
+<p>We do not currently support scoring assignments through group names. The user must manually
+add these to the FLUKA input deck.</p>
+<p>The proposed naming scheme would be the following,</p>
+<div class="highlight-python"><pre>group "[tally_type]_[particle_name]" add volume &lt;list&gt;</pre>
+</div>
+<p>For example</p>
+<div class="highlight-python"><pre>group "usrtrack_neutron" add volume 1 2 5 6
+group "usrbdx_proton" add volume 1 2 4 9</pre>
+</div>
+</div>
+</div>
+<div class="section" id="preparing-the-fludag-input-file">
+<h2>Preparing the FluDAG Input File<a class="headerlink" href="#preparing-the-fludag-input-file" title="Permalink to this headline">¶</a></h2>
+<p>The FluDAG (FLUKA) input file will look almost identical to the originating
+Fluka input file. The exception will be the removal of all data between
+the cards GEOBEGIN and GEOEND, i.e. all native Fluka input data. The last entry
+on the line of GEOBEGIN should be FLUGG.</p>
+<p>For example the most simple valid FLUKA geometry is as follows,</p>
+<div class="highlight-python"><pre>GEOBEGIN                                                              COMBNAME
+    0    0
+SPH S1         0.0 0.0 0.0 50.0
+CELL1        5 +S1
+CELL2        5 -S1
+GEOEND</pre>
+</div>
+<p>To run this geometry with FluDAG, remove all data between GEOBEGIN and GEOEND, and
+switch the last entry to FLUGG,</p>
+<div class="highlight-python"><pre>GEOBEGIN                                                              FLUGG
+GEOEND</pre>
+</div>
+</div>
+<div class="section" id="running-fludag">
+<h2>Running FluDAG<a class="headerlink" href="#running-fludag" title="Permalink to this headline">¶</a></h2>
+<p>Running FluDAG bears some similarity to running FLUGG: the first step is to create the CAD
+geometry of the problem you wish to run. In order to produce the material assignment
+data from the CAD geometry we must first facet the file:</p>
+<div class="highlight-python"><pre>dagmc_preproc -f &lt;facet_tol&gt; &lt;cad_file.sat&gt; -o &lt;name.h5m&gt;</pre>
+</div>
+<p>This will facet the geometry file to a tolerance of &lt;facet_tol&gt; and produce a faceted file
+called &lt;name.h5m&gt;. From that facet file we can produce the material &#8220;snippet&#8221; file</p>
+<div class="highlight-python"><pre>/path/to/fludag/executable/mainfludag &lt;name.h5m&gt;</pre>
+</div>
+<p>Will load the named h5m file and produce the material assignments information.
+This information should then be pasted into the FLUKA input file and any adjustments
+that need to be made should be made, for example adding the density of non standard
+materials, or adding your scoring information. <strong>Please note that the user must always
+include the additional material and compound information themselves and take
+responsibility to ensure that the FLUKA material index number does not overlap with one
+produced by FluDAG.</strong></p>
+<p>The FluDAG calculation is now ok to run,</p>
+<div class="highlight-python"><pre>$FLUPRO/flutil/rfluka -e &lt;path/to/fludag/executable/mainfludag&gt; \
+-d &lt;path/to/h5m/file/name.h5m&gt; \
+++{standard fluka options}++ &lt;fludag_input_file&gt;</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2013, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Aug 11, 2013.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      </p>
+    </div>
+  </body>
+</html>
