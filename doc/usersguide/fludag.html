@@ -98,8 +98,6 @@
 <p>There are several varieties of code-specific steps:</p>
 <ol class="arabic simple">
 <li>defining attributes of the geometry using groups in CUBIT</li>
-<li>exporting CUBIT files to the appropriate ACIS version</li>
-<li>converting the ACIS file to H5M, possibly setting a faceting tolerance</li>
 <li>producing material assignments in FLUKA input format from the h5m file, with the help of FluDAG</li>
 <li>preparing the FLUKA input file for running with DAGMC</li>
 <li>inserting the material assignments into the FLUKA input deck</li>
@@ -111,7 +109,10 @@ assignments, and eventually we would like to add the capability to
 define boundary conditions and tally locations.</p>
 <div class="section" id="assigning-materials-densities">
 <h3>Assigning Materials &amp; Densities<a class="headerlink" href="#assigning-materials-densities" title="Permalink to this headline">¶</a></h3>
-<p>A specific naming convention is required for FluDAG. To define
+<p>The generic workflow description includes details on
+<a class="reference internal" href="workflow.html#grouping-basics"><em>Grouping Volumes and Surfaces</em></a>, but a specific naming convention is required
+for FluDAG.
+To define
 materials, the FLUKA material name must be
 provided in the group name. The format for the group
 name is as follows:</p>
@@ -249,7 +250,7 @@ produced by FluDAG.</strong></p>
         &copy; Copyright 2012-2013, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Aug 09, 2013.
+      Last updated on Aug 11, 2013.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.

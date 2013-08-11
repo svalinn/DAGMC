@@ -407,14 +407,17 @@ Add this statement to your login script:</p>
 prompt%&gt; ./run_test test_input</pre>
 </div>
 <p>Some of the tests are slow, so the above command will take some time.
-If you want to run just the fast tests, or just the magnetic tests</p>
+If you want to run just the fast tests, or just the magnetic tests:</p>
 <div class="highlight-python"><pre>prompt%&gt; ./run_test test_fast
 prompt%&gt; ./run_test test_magnetic</pre>
 </div>
 <p>The slow tests can be run separately:</p>
 <div class="highlight-python"><pre>prompt%&gt; ./run_test test_slow</pre>
 </div>
-<p>At this time, not all tests will pass.</p>
+<p>Some of the tests check the installation and can be run separately:</p>
+<div class="highlight-python"><pre>prompt%&gt; ./run_test test_install</pre>
+</div>
+<p>At this time, some tests may not pass.</p>
 </div>
 </div>
 </div>
@@ -430,7 +433,7 @@ prompt%&gt; ./run_test test_magnetic</pre>
         &copy; Copyright 2012-2013, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Aug 09, 2013.
+      Last updated on Aug 11, 2013.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
