@@ -51,7 +51,7 @@ complement material group to minimize confusion.*) For example, if you
 would like the explicit complement to be modeled as material 9 with
 density 1 g/cc:
 ::
-     create group "mat_9_rho_-1_comp"
+    create group "mat_9_rho_-1_comp"
 
 Defining Boundary Conditions
 ..............................
@@ -84,6 +84,7 @@ group name, one of the following keywords:
     graveyard
     outside.world
     rest.of.world
+
 
 Consider a geometry with 99 volumes that all fit within a cube
 centered at the origin with side-length 99 cm.  To create a graveyard

@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Understanding Ray History State in DAG-MCNP5 &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="index.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header"><a id="uwhome" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> <a id="crest" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="/"><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"></div>
+ <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
+<li><a class="reference internal" href="#">Understanding Ray History State in DAG-MCNP5</a><ul>
+<li><a class="reference internal" href="#documenting-calls-to-the-track-method-in-mcnp5">Documenting Calls to the track() Method in MCNP5</a></li>
+<li><a class="reference internal" href="#mapping-the-possible-ray-history-states">Mapping the possible Ray History States</a></li>
+<li><a class="reference internal" href="#other-history-state-variables">Other History State Variables</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="understanding-ray-history-state-in-dag-mcnp5">
+<h1>Understanding Ray History State in DAG-MCNP5<a class="headerlink" href="#understanding-ray-history-state-in-dag-mcnp5" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="documenting-calls-to-the-track-method-in-mcnp5">
+<h2>Documenting Calls to the track() Method in MCNP5<a class="headerlink" href="#documenting-calls-to-the-track-method-in-mcnp5" title="Permalink to this headline">¶</a></h2>
+<p>The method used in MCNP5 to find the distance to the next boundary is
+track().  DAGMC completely circumvents any call to track() and uses
+its own version.</p>
+<p>As a first step to understanding the generic set of use cases for the
+ray-to-boundary method, and in particular, the different states of the
+physics code during these uses cases, this document will itemize these
+cases for MCNP5.</p>
+<ol class="arabic simple">
+<li>(hstory.F90): non-forced collision neutral particle transport</li>
+<li>(hstory.F90): forced collision neutral particle transport</li>
+<li>(tally.F90): tracking to tally segmenting surface (not relevant for DAGMC)</li>
+<li>(transm.F90): optical thickness of material for point detector/dxtran</li>
+<li>(electr.F90): electron substep transport  (also in the updated electron_history.F90)</li>
+</ol>
+</div>
+<div class="section" id="mapping-the-possible-ray-history-states">
+<h2>Mapping the possible Ray History States<a class="headerlink" href="#mapping-the-possible-ray-history-states" title="Permalink to this headline">¶</a></h2>
+<p>For each new particle history, the ray history is reset to be empty.</p>
+<p>The only mechanism by which a ray history can grow is during ray firing:
+MBErrorCode result = DAG-&gt;ray_fire(vol, point, dir, next_surf, next_surf_dist, &amp;history,</p>
+<blockquote>
+<div>(use_dist_limit ? dist_limit : 0 ) )</div></blockquote>
+<p>Theere are 2 circumstances that reset a ray history:
+* particle history termination
+* a change in direction other than reflection</p>
+<blockquote>
+<div><ul class="simple">
+<li>note that during reflection, the previous direction is changed
+to make it look like a boundary crossing/streaming event
+(dagmc_surf_reflection)</li>
+</ul>
+</div></blockquote>
+<p>During reflection, we reset the history to the last interaction,
+erasing the tail except for the last facet.</p>
+<p>It is also possible to rollback the history removing the most recent interaction.</p>
+</div>
+<div class="section" id="other-history-state-variables">
+<h2>Other History State Variables<a class="headerlink" href="#other-history-state-variables" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><dl class="first docutils">
+<dt>visited_surface (bool)</dt>
+<dd><ul class="first last simple">
+<li>turned on when a surface interaction is handled either in surface crossing or reflection</li>
+<li>turned off immediately following the next ray fire</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>last_uvw (unit direction vector)</dt>
+<dd><ul class="first last simple">
+<li>set during reflection to spoof a surface crossing</li>
+<li>set following every ray fire to record direction of last ray_fire</li>
+<li>note: not reset for each history because is not used until after
+the first ray_fire in each history</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>last_nps (int)</dt>
+<dd><ul class="first last simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2013, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Aug 09, 2013.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      </p>
+    </div>
+  </body>
+</html>
