@@ -18,7 +18,7 @@ namespace cleanup {
 	       		  //MB_TAG_DENSE, MB_TYPE_HANDLE, obbTag, NULL, true );
     result = MBI()->tag_get_handle( "OBB_TREE", sizeof(MBEntityHandle),
 	       		  MB_TYPE_HANDLE, obbTag, MB_TAG_DENSE, NULL, 0 );
-    assert(MB_SUCCESS == result);
+    if(gen::error(MB_SUCCESS != result, "could not get OBB tree handle")) return result;
     // This gets the surface/volume sets. I don't want to delete the sets.
     // I want to remove the obbTag that contains the tree root handle and
     // delete the tree.

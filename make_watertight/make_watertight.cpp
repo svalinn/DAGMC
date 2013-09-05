@@ -2064,7 +2064,7 @@ int main(int argc, char **argv)
     // surface and volume sets, then build a new tree.    
     std::cout << "Removing stale OBB trees..." << std::endl;
     result = cleanup::remove_obb_tree();
-    assert(MB_SUCCESS == result);
+    //assert(MB_SUCCESS == result);
 
     //std::cout << "INSERT FUNCTION HERE TO REMOVE STALE VERTS, EDGES, TRIS, VERT SETS, ETC"
     //        << std::endl;
