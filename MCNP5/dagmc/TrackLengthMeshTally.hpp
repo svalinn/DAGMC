@@ -53,6 +53,16 @@ public:
 
 protected:
 
+  Range get_adjacency_info(Range input_handles);
+  
+  bool point_in_tet_ad(CartVect pos, EntityHandle tet);
+
+  int tet_index(Range tets, EntityHandle tet_handle);
+
+  EntityHandle point_in_which_tet (CartVect point);
+
+  EntityHandle remainder( CartVect start, CartVect dir, double distance, double left_over);
+
   ErrorCode load_mesh( const std::string& input_filename, 
                        std::string tag_name, std::vector<std::string>& tag_values );  
   ErrorCode write_results( double sp_norm, double mult_fact, 
@@ -112,7 +122,6 @@ private:
   TrackLengthMeshTally& operator=( const TrackLengthMeshTally& mt ); // unimplemented
   TrackLengthMeshTally( const TrackLengthMeshTally& mt ); // unimplemented
 
-  int num_negative_tracks;
 };
 
 } // end namespace moab

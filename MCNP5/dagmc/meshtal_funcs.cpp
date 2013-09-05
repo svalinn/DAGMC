@@ -7,6 +7,7 @@
 
 #include "moab/Core.hpp"
 #include "MeshTally.hpp"
+#include "TallyEvent.hpp"
 #include "TrackLengthMeshTally.hpp"
 
 using moab::TrackLengthMeshTally;
@@ -24,21 +25,17 @@ static int history_count = 0;
 /// number of calls to dagmc_fmesh_score - used for debugging only
 static int score_count = 0;
 
-/// The following four lists are indexed by the fmesh_index values
+/// The following three lists are indexed by the fmesh_index values
 /// used to index fmesh tallies in the fortran code.  Entries in 
 /// these lists may be NULL.
 
 /// List of all track length tallies that have been created.
 /// These tallies respond to fmesh mesh_score calls
-static std::vector< TrackLengthMeshTally* > tracklen_tallies;
+static std::vector<MeshTally*> track_tallies;
 
 /// List of all KDE collision tallies that have been created.
 /// These tallies respond to dagmc_kde_tally calls
 static std::vector< KDEMeshTally* > kde_coll_tallies;
-
-/// List of all KDE track/subtrack tallies that have been created.
-/// These tallies respond to fmesh mesh_score calls
-static std::vector< KDEMeshTally* > kde_track_tallies;
 
 /// List of all dagmc-typed fmesh tallies: the entries are duplicates
 /// of the above lists with the same indexing.
@@ -54,6 +51,30 @@ void mcnp_weight_calculation( int* index, double* erg, double* wgt,
     FMESH_FUNC(dagmc_mesh_score)( index, erg, wgt, dist, score_result );
 }
 
+/*
+ToDo:  This has been moved from TrackLengthMeshTally to here:  it is mcnp-related
+ToDo:  Get this working in meshtal_funcs
+       Probably:  Converts the name read in from the input file 
+                  to the MCNP index
+static 
+bool map_conformal_names( std::set<int>& input, std::set<int>& output ){
+  
+  for( std::set<int>::iterator i = input.begin(); i!=input.end(); ++i){
+    int x, y, one = 1;
+    x = *i;
+    y = namchg_( &one, &x );
+#ifdef MESHTAL_DEBUG
+    std::cerr << "namchg mapped cell " << *i << " to name " << y << std::endl;
+#endif
+    if( y == 0 ){
+        std::cerr << " conformality cell " << *i << " does not exist." << std::endl;
+        return false;
+    }
+    output.insert( y );
+  }
+  return true;
+}
+*/
 
 
 /********************************************************************
@@ -81,12 +102,12 @@ void dagmc_fmesh_initialize_( const int* mcnp_icl ){
 /**
  * Convert the contents of an FC card to an fmesh_params_t (i.e. a multimap<string,string>)
  * @param fc_content The FC card's comment content as a string
- * @param results The output data
+ * @param results The output data, as a multimap
  * @param fcid The tally ID of the FC card
  * @return true on success, or false if the input has serious enough formatting problems
  *         to make parameter parsing impossible.
  */
-static bool parse_fc_card( std::string& fc_content, fmesh_card::fc_params_t& results, int fcid ){
+static bool parse_fc_card( std::string& fc_content, MeshTallyInput::TallyOptions& results, int fcid ){
 
   // convert '=' chars to spaces 
   size_t found;
@@ -176,26 +197,46 @@ void dagmc_fmesh_setup_mesh_( int* /*ipt*/, int* id, int* fmesh_index,
     delete[] c_comment;
 
   }
-  
-  fmesh_card fmesh_settings;
-  fmesh_settings.id = *id;
-  fmesh_settings.fmesh_index = *fmesh_index;
-  fmesh_settings.num_ebin_bounds = *n_energy_mesh;
-  fmesh_settings.energy_bin_bounds = energy_mesh;
+
+  // Copy emesh bin boundaries from MCNP (includes 0 MeV)
+  std::vector<double> emesh_boundaries;
+
+  for( int i = 0; i < *n_energy_mesh; ++i ){
+    emesh_boundaries.push_back(energy_mesh[i]);
+  }
+
+  // Parse FC card and create input data for MeshTally
+  MeshTallyInput fmesh_settings;
+  fmesh_settings.tally_id = *id;
+  fmesh_settings.energy_bin_bounds = emesh_boundaries;
   fmesh_settings.total_energy_bin = (*tot_energy_bin == 1);
 
-  fmesh_card::fc_params_t& fc_settings = fmesh_settings.fc_params;
+  MeshTallyInput::TallyOptions& fc_settings = fmesh_settings.options;
 
   bool success = parse_fc_card( comment_str, fc_settings, *id );
   if( !success ){
     exit(EXIT_FAILURE);
   }
 
+  // Set the filename for the input mesh to be tallied
+  MeshTallyInput::TallyOptions::iterator it = fc_settings.find("inp");
+
+  if (it != fc_settings.end())
+  {
+      fmesh_settings.input_filename = it->second;
+      fc_settings.erase(it);
+  }
+  else // use default input file name
+  {
+      std::stringstream str;
+      str << "fmesh" << *id << ".h5m";
+      str >> fmesh_settings.input_filename;
+  }
+
   // pad all tally lists with nulls up to a max of (*fmesh_index)
   while( all_tallies.size() <= (unsigned)(*fmesh_index) ){
-    tracklen_tallies.push_back(NULL);
+    track_tallies.push_back(NULL);
     kde_coll_tallies.push_back(NULL);
-    kde_track_tallies.push_back(NULL);
     all_tallies.push_back(NULL);
     
   }
@@ -215,33 +256,31 @@ void dagmc_fmesh_setup_mesh_( int* /*ipt*/, int* id, int* fmesh_index,
     fc_settings.erase("type"); 
   }
   
-  moab::Interface* mbi = new moab::Core();
-
   MeshTally *new_tally;
 
   if( type == "tracklen" ){
 
-    TrackLengthMeshTally* t = TrackLengthMeshTally::setup( fmesh_settings, mbi, current_mcnp_cell );
-    new_tally = tracklen_tallies[*fmesh_index] = t;
+    TrackLengthMeshTally* t = TrackLengthMeshTally::setup( fmesh_settings, current_mcnp_cell );
+    new_tally = track_tallies[*fmesh_index] = t;
+
+  }
+  else if( type == "kde_track" || type == "kde_subtrack" ){
+
+    KDEMeshTally::Estimator estimator = KDEMeshTally::INTEGRAL_TRACK;
+
+    if ( type == "kde_subtrack" )
+      estimator = KDEMeshTally::SUB_TRACK;
+
+    KDEMeshTally* kde = new KDEMeshTally( fmesh_settings, estimator );
+    new_tally = track_tallies[*fmesh_index] = kde;
 
   }
   else if( type == "kde_coll" ){
   
     *is_collision_tally = 1; 
 
-    KDEMeshTally* kde = KDEMeshTally::setup( fmesh_settings, mbi );
+    KDEMeshTally* kde = new KDEMeshTally( fmesh_settings );
     new_tally = kde_coll_tallies[*fmesh_index] = kde;
-
-  }
-  else if( type == "kde_track" || type == "kde_subtrack" ){
-
-    KDEMeshTally::TallyType kde_type = KDEMeshTally::TRACKLENGTH;
-
-    if ( type == "kde_subtrack" )
-      kde_type = KDEMeshTally::SUBTRACK;
-
-    KDEMeshTally* kde = KDEMeshTally::setup( fmesh_settings, mbi, kde_type );
-    new_tally = kde_track_tallies[*fmesh_index] = kde;
 
   }
   else{
@@ -380,34 +419,35 @@ void dagmc_fmesh_end_history_(){
 void dagmc_fmesh_score_( int *fmesh_index, double *x, double *y, double *z,
                          double *u, double *v, double *w, double *erg,double *wgt,double *d, int* ien )
 {
-
-  if( tracklen_tallies[*fmesh_index] ){
+  // process score if track length mesh tally exists for the given fmesh index
+  if (track_tallies[*fmesh_index])
+  {
     score_count += 1;
-    
-    moab::CartVect ray = moab::CartVect(*x,*y,*z);
-    moab::CartVect vec = moab::CartVect(*u,*v,*w);
-    
-    MCNPTrackParam param( fmesh_index, erg, wgt );
-    
+
+    // create a track-based tally event
+    TrackData data;
+    data.track_length = *d;
+    data.start_point = moab::CartVect(*x, *y, *z);
+    data.direction = moab::CartVect(*u, *v, *w);
+
+    TallyEvent event(*erg, *wgt);
+    event.set_track_event(data);
+
 #ifdef MESHTAL_DEBUG
-    std::cout << "meshtal particle: " << ray << " " << vec << " " << *d << std::endl;
+    std::cout << "meshtal particle: " << start_point << " " << direction;
+    std::cout << " " << *d << std::endl;
 #endif
-    
-    tracklen_tallies[*fmesh_index]->add_track_segment( ray, vec, *d, (*ien)-1, &param );
 
+    // TODO temporary until dagmc_mesh_score has been modified
+    // determine and set energy-dependent tally multiplier from MCNP
+    double value = 1;
+    double ignore = 1;
+    mcnp_weight_calculation(fmesh_index, erg, &ignore, &ignore, &value);
+    event.set_tally_multiplier(value);
+
+    // compute score for this track-based tally event
+    track_tallies[*fmesh_index]->compute_score(event, (*ien)-1); 
   }
-  else if ( kde_track_tallies[*fmesh_index] ) {
-
-    moab::CartVect loc( *x, *y, *z );
-    moab::CartVect dir( *u, *v, *w );
-    
-    KDEWeightParam param( fmesh_index, wgt, erg );
-    param.tracklength = d;    
-    
-    kde_track_tallies[*fmesh_index]->tally_track( param, loc, dir, (*ien)-1 ); 
-
-  }
-
 }
 
 /**
@@ -434,27 +474,40 @@ void dagmc_fmesh_print_( int* fmesh_index, double* sp_norm, double* fmesh_fact )
 void dagmc_kde_tally_( double* x, double* y, double* z, double* wgt,
                        double* ple, double* erg )
 {
+  // counter for determining the fmesh_index of the KDE collision tallies
+  int fmesh_index = 0;
+
   // Record collision on all valid KDE tallies
   for( std::vector<KDEMeshTally*>::iterator i = kde_coll_tallies.begin(); i!=kde_coll_tallies.end(); ++i ){
     if( *i ){
 
       int ien; // index of the energy bin for this collision 
-      int idx = (*i)->get_fmesh_index();
-      
+
       // ask Fortran to pick the energy bin for this collision
-      FMESH_FUNC( dagmc_mesh_choose_ebin )( &idx, erg, &ien );
+      FMESH_FUNC( dagmc_mesh_choose_ebin )( &fmesh_index, erg, &ien );
 
       if( ien == -1 ) continue; // erg falls outside of requested energy bins for this mesh
 
       ien -= 1; // convert fortran array index to C index
 
-      moab::CartVect collision_loc( *x, *y, *z );
+      // create a collision event
+      CollisionData data;
+      data.total_cross_section = *ple;
+      data.collision_point = moab::CartVect(*x, *y, *z);
 
-      KDEWeightParam param( &idx, wgt, erg );
-      param.total_xs = ple;
+      TallyEvent event(*erg, *wgt);
+      event.set_collision_event(data);
 
-      (*i)->tally_collision( param, collision_loc, ien );
+      // TODO temporary until dagmc_mesh_score has been modified
+      // determine energy-dependent tally multiplier from MCNP
+      double score = 1;
+      double ignore = 1;
+      mcnp_weight_calculation(&fmesh_index, erg, &ignore, &ignore, &score);
+      event.set_tally_multiplier(score);
+
+      (*i)->compute_score(event, ien);
     }
+    ++fmesh_index;
   }
 }
 
