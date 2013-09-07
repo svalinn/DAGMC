@@ -183,10 +183,7 @@ int main(int argc, char **argv)
                             //MB_TYPE_INTEGER, geom_tag, 0, true );
   result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, sizeof(int), 
                             MB_TYPE_INTEGER, geom_tag, MB_TAG_DENSE, 0, 0 );
-  if(MB_SUCCESS != result) 
-    {
-      return result;  
-    }
+  if(gen::error(MB_SUCCESS != result, "tag_get_handle problem gen.cpp line 186")) return result; 
 
   //result = MBI()->tag_create( GLOBAL_ID_TAG_NAME, sizeof(int), MB_TAG_DENSE,
                             //MB_TYPE_INTEGER, id_tag, 0, true );

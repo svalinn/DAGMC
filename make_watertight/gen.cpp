@@ -1684,9 +1684,19 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     // special case: parent surface does not exist
     if(gen::error(0==counter,"failed to find a surf in sense list")) return MB_FAILURE;
 
-    // special case: ambiguous
+   
+
+
+    if(sense==1)
+    {
+     sense = 0;
+    } else if (sense==-1)
+    {
+     sense = 1;
+    }
+
+     // special case: ambiguous
     if(1<counter) sense = -1;
-    
     return MB_SUCCESS;
   }
 

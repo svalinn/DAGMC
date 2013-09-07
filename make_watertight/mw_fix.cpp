@@ -161,7 +161,7 @@ MBErrorCode get_senses(MBEntityHandle entity,
     std::copy(ents_data, ents_data + num_ents, std::back_inserter(wrt_entities));
 
     MBTag senseNSensesTag;
-    rval = MBI()->tag_get_handle(GEOM_SENSE_N_SENSES_TAG_NAME, 0 , MB_TYPE_HANDLE, senseNSensesTag, flags);
+    rval = MBI()->tag_get_handle(GEOM_SENSE_N_SENSES_TAG_NAME, 0 , MB_TYPE_INTEGER, senseNSensesTag, flags);
     if (gen::error(MB_SUCCESS!=rval, "could not get senses handle")) return rval;
     rval = MBI()->tag_get_by_ptr(senseNSensesTag, &entity, 1, &dum_ptr,
         &num_ents);
@@ -518,7 +518,8 @@ MBErrorCode get_senses(MBEntityHandle entity,
     //Sense Handle
     std::cout << std::endl << "Getting sense_handle directly..." << std::endl;
     MBTag sense_handle; 
-    result = MBI()->tag_get_handle(GEOM_SENSE_2_TAG_NAME, sense_handle);
+    unsigned flags = MB_TAG_SPARSE;
+    result = MBI()->tag_get_handle(GEOM_SENSE_2_TAG_NAME, 2 , MB_TYPE_HANDLE, sense_handle, flags );
     if (gen::error(MB_SUCCESS!=result, "could not get sense tag handle")) return result;
     std::cout << "sense_handle = " << sense_handle << std::endl;
 
@@ -534,7 +535,12 @@ MBErrorCode get_senses(MBEntityHandle entity,
     MBEntityHandle test_surf= geom_sets[2][0];
     const void *dum_ptr;
     int size;
+    MBEntityHandle sense_data[2]= {0 , 0};
     
+    //result = MBI() -> tag_get_data( sense_handle, &test_surf, 1, 
+
+
+    //USING POINTER METHOD
     result = MBI() -> tag_get_by_ptr( sense_handle, &test_surf , 1, &dum_ptr, &size);
     if (gen::error(MB_SUCCESS!=result, "could not retrieve sense data")) return result;
 
@@ -556,6 +562,15 @@ MBErrorCode get_senses(MBEntityHandle entity,
     std::vector<int> sens;   
     result = get_senses( test_edge, wrt_entities, sens);
     if (gen::error( MB_SUCCESS != result, "could not get_senses")) return result;
+    
+    std::cout << std::endl << "size of data returned = " << sens.size() << std::endl;
+    
+    for(unsigned int index=0; index< sens.size() ; index ++)
+    {
+     std::cout << "wrt_entities[" << index << "] = " << wrt_entities[index] << std::endl;
+     std::cout << "sense[" << index << "] = " << sens[index] << std::endl;
+    }
+      
 
     
 

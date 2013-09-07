@@ -40,4 +40,4 @@ fix: mw_fix.o gen.o arc.o zip.o cleanup.o
 
 clean:
 	rm -f make_watertight.o make_watertight gen.o arc.o zip.o \
-	cleanup.o post_process.o post_process check_watertight.o check_watertight
+	cleanup.o post_process.o post_process check_watertight.o check_watertight mw_fix mw_fix.o
