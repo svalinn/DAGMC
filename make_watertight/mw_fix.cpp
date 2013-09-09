@@ -37,8 +37,12 @@
 #include "zip.hpp"
 #include "cleanup.hpp"
 
-const char GEOM_SENSE_2_TAG_NAME[] = "GEOM_SENSE_2";
+#define SENSE_FORWARD() 1
+#define SENSE_REVERSE() -1
+#define SENSE_UNKNOWN() 0
 
+
+const char GEOM_SENSE_2_TAG_NAME[] = "GEOM_SENSE_2";
 const char GEOM_SENSE_N_ENTS_TAG_NAME[] = "GEOM_SENSE_N_ENTS";
 const char GEOM_SENSE_N_SENSES_TAG_NAME[] = "GEOM_SENSE_N_SENSES"; 
 
@@ -572,7 +576,9 @@ MBErrorCode get_senses(MBEntityHandle entity,
     }
       
 
-    
+    std::cout << SENSE_FORWARD() << std::endl;
+    std::cout << SENSE_REVERSE() << std::endl;
+    std::cout << SENSE_UNKNOWN() << std::endl;
 
   
 }

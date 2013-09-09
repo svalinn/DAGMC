@@ -12,6 +12,11 @@
 #include "zip.hpp"
 #include "MBSkinner.hpp"
 
+//SENSE CONVENTIONS
+#define SENSE_FORWARD() 1
+#define SENSE_REVERSE() -1
+#define SENSE_UNKNOWN() 0
+
 namespace gen {
 
   bool error( const bool error_has_occured, const std::string message ) {
@@ -1685,15 +1690,6 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     if(gen::error(0==counter,"failed to find a surf in sense list")) return MB_FAILURE;
 
    
-
-
-    if(sense==1)
-    {
-     sense = 0;
-    } else if (sense==-1)
-    {
-     sense = 1;
-    }
 
      // special case: ambiguous
     if(1<counter) sense = -1;

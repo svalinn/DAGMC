@@ -36,6 +36,12 @@
 #include "zip.hpp"
 #include "cleanup.hpp"
 
+//SENSE CONVENTIONS
+#define SENSE_FORWARD() 1
+#define SENSE_REVERSE() -1
+#define SENSE_UNKNOWN() 0
+
+
 MBInterface *MBI();
 
 MBErrorCode delete_all_edges() {

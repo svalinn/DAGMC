@@ -11,6 +11,12 @@
 
 #include "moab/GeomTopoTool.hpp"
 
+//SENSE CONVENTIONS
+#define SENSE_FORWARD() 1
+#define SENSE_REVERSE() -1
+#define SENSE_UNKNOWN() 0
+
+
 namespace arc {
 
   MBErrorCode orient_edge_with_tri( const MBEntityHandle edge, const MBEntityHandle tri ) {
