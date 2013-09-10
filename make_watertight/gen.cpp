@@ -1668,7 +1668,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     return MB_SUCCESS;
   }
 
-  // From CGMA/builds/dbg/include/CubitDefines, CUBIT_UNKNOWN=-1, CUBIT_FORWARD=0, CUBIT_REVERSED=1
+  // From CGMA/builds/dbg/include/CubitDefines
   MBErrorCode get_curve_surf_sense( const MBEntityHandle surf_set, const MBEntityHandle curve_set,
                                     int &sense ) {
     std::vector<MBEntityHandle> surfs;
@@ -1692,7 +1692,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
    
 
      // special case: ambiguous
-    if(1<counter) sense = -1;
+    if(1<counter) sense = SENSE_UNKNOWN();
     return MB_SUCCESS;
   }
 
@@ -1721,7 +1721,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
 	  }
 	else if (volume == reverse)
 	  {
-	    *senses_out = -1;
+	    *senses_out = SENSE_UNKNOWN();
 	  }
 	else 
 	  {
@@ -1755,7 +1755,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       }
     else if (surf_volumes[1] == volume)
       {
-	sense_out = -1;
+	sense_out = SENSE_UNKNOWN();
       }
     else
       {

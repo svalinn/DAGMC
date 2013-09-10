@@ -333,7 +333,7 @@ MBErrorCode create_arc_pair(  const double FACET_TOL,
     }
 
     // Get the curve-surface relative sense. From CGMA/builds/dbg/include/CubitDefines,
-    // CUBIT_UNKNOWN=-1, CUBIT_FORWARD=0, CUBIT_REVERSED=1
+    
     int sense;
     rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );
     if(gen::error(MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
