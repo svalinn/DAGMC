@@ -1310,8 +1310,14 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 		                		       curve_to_keep_senses.end() );
           combined_senses.insert(combined_senses.end(),curve_to_delete_senses.begin(),
 		                		       curve_to_delete_senses.end() );
+          std::cout << combined_surfs.size() << std::endl;
+          std::cout << combined_senses.size() << std::endl;
+          for(unsigned int index=0; index < combined_senses.size(); index++)
+          {
+           std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
+          }
           result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
-          if(gen::error(MB_SUCCESS!=result,"failed to set senses")) return result;
+          //if(gen::error(MB_SUCCESS!=result,"failed to set senses")) return result;
 
           // add the duplicate curve_to_keep to the vector of curves
           *j = merged_curve;
@@ -1982,7 +1988,6 @@ int main(int argc, char **argv)
     std::cout << "SME_RESABS_TOL = " << SME_RESABS_TOL << " FACET_TOL = " << FACET_TOL << std::endl;
     result = prepare_surfaces(geom_sets[2], geom_tag, id_tag, normal_tag, merge_tag,
                               orig_curve_tag,SME_RESABS_TOL, FACET_TOL, debug);
-    assert( MB_SUCCESS == result );
     if ( result != MB_SUCCESS ) 
       {
 	std::cout << "I have failed to zip" << std::endl;

@@ -494,7 +494,7 @@ MBErrorCode get_senses(MBEntityHandle entity,
               << geom_sets[2].size() << " surfaces, " << geom_sets[1].size() 
               << " curves, and " << orig_n_tris << " triangles" << std::endl;  
 
-
+/*
     //Print all geometry entities
     std::cout << "Surfaces" << std::endl;
     for (unsigned int index=0; index < geom_sets[2].size(); index++)
@@ -516,70 +516,27 @@ MBErrorCode get_senses(MBEntityHandle entity,
       std::cout << "volume handle = " << geom_sets[3][index] << std::endl;
       std::cout << "volume id = " << gen::geom_id_by_handle(geom_sets[3][index]) << std::endl;
     }
-
-// Trying to get sense data
-
-    //Sense Handle
-    std::cout << std::endl << "Getting sense_handle directly..." << std::endl;
-    MBTag sense_handle; 
-    unsigned flags = MB_TAG_SPARSE;
-    result = MBI()->tag_get_handle(GEOM_SENSE_2_TAG_NAME, 2 , MB_TYPE_HANDLE, sense_handle, flags );
-    if (gen::error(MB_SUCCESS!=result, "could not get sense tag handle")) return result;
-    std::cout << "sense_handle = " << sense_handle << std::endl;
-
-   //Sense Name
-
-    std::string sense_name;
-    result = MBI()-> tag_get_name(sense_handle, sense_name);
-    if(gen::error(MB_SUCCESS!=result, "could not get sense_name")) return result;
-    std::cout << "sense name = " << sense_name << std::endl;
-
-
-   //Get Sense Data
-    MBEntityHandle test_surf= geom_sets[2][0];
-    const void *dum_ptr;
-    int size;
-    MBEntityHandle sense_data[2]= {0 , 0};
+*/
     
-    //result = MBI() -> tag_get_data( sense_handle, &test_surf, 1, 
-
-
-    //USING POINTER METHOD
-    result = MBI() -> tag_get_by_ptr( sense_handle, &test_surf , 1, &dum_ptr, &size);
-    if (gen::error(MB_SUCCESS!=result, "could not retrieve sense data")) return result;
-
-    const int *senses_data = static_cast<const int*> (dum_ptr);
-   
-    std::cout << "senses_data = " << *senses_data << std::endl;
+    moab::GeomTopoTool gt(MBI(), false);
     
+    for( unsigned int i=0; i<geom_sets[1].size(); i++)
+    {
+    MBEntityHandle curve = geom_sets[1][i];
+    std::vector<MBEntityHandle> surfs;
     std::vector<int> senses;
+    rval = gt.get_senses( curve, surfs, senses);
 
-    std::copy(senses_data, senses_data + size, std::back_inserter(senses));
-
-    for ( unsigned int index=0; index < senses.size() ; index ++)
-    {
-     std::cout << "senses[" << index << "] = " << senses[index] << std::endl;
+    std::cout << "Number of senses for " << curve << " = " << senses.size() << std::endl;
+    for (unsigned int index=0; index<senses.size() ; index++)
+    { 
+     std::cout << "sense = " << senses[index] << std::endl;
     }
-    
-    MBEntityHandle test_edge = geom_sets[1][0];
-    std::vector<MBEntityHandle> wrt_entities;
-    std::vector<int> sens;   
-    result = get_senses( test_edge, wrt_entities, sens);
-    if (gen::error( MB_SUCCESS != result, "could not get_senses")) return result;
-    
-    std::cout << std::endl << "size of data returned = " << sens.size() << std::endl;
-    
-    for(unsigned int index=0; index< sens.size() ; index ++)
-    {
-     std::cout << "wrt_entities[" << index << "] = " << wrt_entities[index] << std::endl;
-     std::cout << "sense[" << index << "] = " << sens[index] << std::endl;
+    std::cout << std::endl;
     }
-      
 
-    std::cout << SENSE_FORWARD() << std::endl;
-    std::cout << SENSE_REVERSE() << std::endl;
-    std::cout << SENSE_UNKNOWN() << std::endl;
-
+    std::cout << geom_sets[1][0] << std::endl;
+    
   
 }
 //==========EOL=============//
