@@ -4,7 +4,7 @@
 #include "moab/Range.hpp"
 #include "moab/Core.hpp"
 #include "moab/GeomUtil.hpp"
-#include "FileOptions.hpp"
+#include "moab/FileOptions.hpp"
 
 #ifdef CGM
 #include "InitCGMA.hpp"
