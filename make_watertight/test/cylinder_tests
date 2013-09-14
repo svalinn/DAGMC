@@ -4,6 +4,7 @@
 
 # Single verticie move test
 echo
+echo CYLINDER TESTS:
 echo TEST 1: SINGLE VERT BUMP
 python bump_vert.py &>-
 
@@ -24,6 +25,7 @@ python bump_verts.py &>-
 ../check_watertight cyl_mod_zip.h5m -f 1e-04
 
 echo
+rm -rf -
 exit 0
 
 
