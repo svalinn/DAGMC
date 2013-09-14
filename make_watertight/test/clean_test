@@ -1,0 +1,10 @@
+#! /bin/bash
+
+cp cyl.h5m cyl1
+
+rm -rf *.h5m 
+
+mv cyl1 cyl.h5m 
+
+exit 0
+

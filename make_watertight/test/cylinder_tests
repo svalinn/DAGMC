@@ -1,0 +1,29 @@
+#! /bin/bash
+
+###NOTE: FILE EXPECTED TO BE RUN IN DIR WITH REFERENCED .h5m FILES!!!####
+
+# Single verticie move test
+echo
+echo TEST 1: SINGLE VERT BUMP
+python bump_vert.py &>-
+
+../check_watertight cyl_mod.h5m -f 1e-04 &>-
+
+../make_watertight cyl_mod.h5m &>- 
+
+../check_watertight cyl_mod_zip.h5m -f 1e-04
+
+echo
+echo TEST 2: SERIES VERT BUMP
+python bump_verts.py &>-
+
+../check_watertight cyl_mod.h5m -f 1e-04 &>-
+
+../make_watertight cyl_mod.h5m &>- 
+
+../check_watertight cyl_mod_zip.h5m -f 1e-04
+
+echo
+exit 0
+
+
