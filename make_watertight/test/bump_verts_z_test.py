@@ -16,7 +16,26 @@ vertices=mesh.getEntities(0)
 j=0
 bump_start=(mesh.getNumOfTopo(0)-10)
 for i in vertices:
-	if j > bump_start:
+	if j > bump_start and j < (bump_start+4):
+		x, y, z = mesh.getVtxCoords(i)
+		print "%f, %f, %f" % (x, y, z)
+		coords=[x,y,z]
+
+		mesh.setVtxCoords(i,coords)
+		x, y, z = mesh.getVtxCoords(i)
+		print "%f, %f, %f" % (x, y, z)
+		j+=1
+
+        elif j == (bump_start+4):
+                x, y, z = mesh.getVtxCoords(i)
+		print "%f, %f, %f" % (x, y, z)
+		coords=[x-4e-02,y-1e-02,z+1e-02]
+
+		mesh.setVtxCoords(i,coords)
+		x, y, z = mesh.getVtxCoords(i)
+		print "%f, %f, %f" % (x, y, z)
+		j+=1
+        elif j == (bump_start+5):
 		x, y, z = mesh.getVtxCoords(i)
 		print "%f, %f, %f" % (x, y, z)
 		coords=[x,y,z+1e-02]
@@ -25,7 +44,7 @@ for i in vertices:
 		x, y, z = mesh.getVtxCoords(i)
 		print "%f, %f, %f" % (x, y, z)
 		j+=1
-
+		
 	else:
 		pass
 		j+=1

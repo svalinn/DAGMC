@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from itaps import iMesh, iBase
+from itaps import iMesh
 
 datafile="cyl.h5m"
 
@@ -14,25 +14,16 @@ print mesh.getNumOfTopo(3)
 
 vertices=mesh.getEntities(0)
 j=0
-bump_start=(mesh.getNumOfTopo(0)-10)
 for i in vertices:
-	if j > bump_start:
-		x, y, z = mesh.getVtxCoords(i)
-		print "%f, %f, %f" % (x, y, z)
-		coords=[x,y,z+1e-02]
-
-		mesh.setVtxCoords(i,coords)
-		x, y, z = mesh.getVtxCoords(i)
-		print "%f, %f, %f" % (x, y, z)
-		j+=1
-
-	else:
+	if j == 0 :
+		mesh.remove(i)
+	else:   
 		pass
-		j+=1
 
 
 newfile="cyl_mod.h5m"
 mesh.save(newfile)
+
 #for i in vertices:
  #   for j in i:
 #    x, y, z = mesh.getVtxCoords(i)

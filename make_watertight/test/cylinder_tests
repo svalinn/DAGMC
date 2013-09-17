@@ -25,6 +25,26 @@ python bump_verts.py &>-
 ../check_watertight cyl_mod_zip.h5m -f 1e-04
 
 echo
+echo TEST 3: p_arc is next
+python parc_is_next_cyl.py &>-
+
+../check_watertight cyl_mod.h5m -f 1e-04 &>-
+
+../make_watertight cyl_mod.h5m &>- 
+
+../check_watertight cyl_mod_zip.h5m -f 1e-04
+
+echo
+echo TEST 4: p_curve is next
+python pcurve_is_next_cyl.py &>-
+
+../check_watertight cyl_mod.h5m -f 1e-04 &>-
+
+../make_watertight cyl_mod.h5m &>- 
+
+../check_watertight cyl_mod_zip.h5m -f 1e-04
+
+echo
 rm -rf -
 exit 0
 

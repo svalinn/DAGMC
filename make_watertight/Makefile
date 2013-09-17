@@ -1,4 +1,6 @@
-include /home/patrick/moab_4.6.0/MOAB/lib/moab.make
+# include /home/patrick/moab_4.6.0/MOAB/lib/moab.make
+include /filespace/people/s/shriwise/make_watertight_test_suite/moabs/wo_cgm/4.6.0/moab/lib/moab.make
+
 MOAB_CXXFLAGS =  -Wall -pipe -pedantic -Wno-long-long 
 MOAB_CFLAGS = -Wall -pipe -pedantic -Wno-long-long
 CXXFLAGS += ${MOAB_CXXFLAGS} -g 
