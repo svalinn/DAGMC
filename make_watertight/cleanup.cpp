@@ -36,7 +36,7 @@ namespace cleanup {
     for(MBRange::iterator i=obb_entities.begin(); i!=obb_entities.end(); i++) {
       MBEntityHandle root;
       result = MBI()->tag_get_data( obbTag, &(*i), 1, &root );
-      //if(MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
+      if(gen::error(MB_SUCCESS!=result, "coule not get OBB tree data")) return result;
       //assert(MB_SUCCESS == result);
       tool.delete_tree( root );
     }

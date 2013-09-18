@@ -115,9 +115,9 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
     std::cout << "dim = " << dim << std::endl;
     for(MBRange::iterator i=geom_sets[dim].begin(); i!=geom_sets[dim].end(); i++) {
       double size = 0;
-	std::cout << "*i =" << *i << std::endl;
-	std::cout << "geom_tag =" << geom_tag << std::endl;
-	std::cout << "size =" << size << std::endl;
+	//std::cout << "*i =" << *i << std::endl;
+	//std::cout << "geom_tag =" << geom_tag << std::endl;
+	//std::cout << "size =" << size << std::endl;
 
 
       rval = gen::measure( *i, geom_tag, size );
@@ -125,9 +125,9 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
       rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
       if(gen::error(MB_SUCCESS!=rval,"could not set size tag")) return rval;
 
-	std::cout << "*i =" << *i << std::endl;
-	std::cout << "geom_tag =" << geom_tag << std::endl;
-	std::cout << "size =" << size << std::endl;
+	//std::cout << "*i =" << *i << std::endl;
+	//std::cout << "geom_tag =" << geom_tag << std::endl;
+	//std::cout << "size =" << size << std::endl;
 
     }
   }
@@ -527,9 +527,10 @@ MBErrorCode get_senses(MBEntityHandle entity,
     std::vector<int> senses;
     rval = gt.get_senses( curve, surfs, senses);
 
-    std::cout << "Number of senses for " << curve << " = " << senses.size() << std::endl;
+    std::cout << "Number of senses for " << gen::geom_id_by_handle(curve) << " = " << senses.size() << std::endl;
     for (unsigned int index=0; index<senses.size() ; index++)
     { 
+     std::cout << "curve = " << gen::geom_id_by_handle(surfs[index]) << std::endl;
      std::cout << "sense = " << senses[index] << std::endl;
     }
     std::cout << std::endl;

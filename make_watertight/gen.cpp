@@ -1094,7 +1094,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     assert(MB_SUCCESS==result || MB_ALREADY_ALLOCATED==result);                       
     int id;
     result = MBI()->tag_get_data( id_tag, &set, 1, &id );                  
-    assert(MB_SUCCESS == result);                           
+    //assert(MB_SUCCESS == result);                           
     return id;
   }
   
@@ -1679,13 +1679,28 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     if(gen::error(MB_SUCCESS!=rval,"failed to get_senses")) return rval;
     
     unsigned counter = 0;
-    for(unsigned i=0; i<surfs.size(); ++i) {
-      if(surf_set==surfs[i]) {
+    int edim;
+    for(unsigned i=0; i<surfs.size(); i++) {
+      edim=gt.dimension(surfs[i]);
+      if( edim == -1)
+      { 
+        surfs.erase(surfs.begin()+i);
+        senses.erase(senses.begin()+i);
+        i=0;
+      }
+     if(surf_set==surfs[i]) {
         sense = senses[i];
+        
         ++counter;
       }
     }
 
+   for(unsigned int index=0; index < surfs.size() ; index++)
+   {
+    std::cout << "surf = " << geom_id_by_handle(surfs[index]) << std::endl;
+    std::cout << "sense = " << senses[index] << std::endl;
+   }
+  
     // special case: parent surface does not exist
     if(gen::error(0==counter,"failed to find a surf in sense list")) return MB_FAILURE;
 

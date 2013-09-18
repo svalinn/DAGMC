@@ -335,6 +335,8 @@ MBErrorCode create_arc_pair(  const double FACET_TOL,
     // Get the curve-surface relative sense. From CGMA/builds/dbg/include/CubitDefines,
     
     int sense;
+    std::cout << "surf_set = " << gen::geom_id_by_handle(surf_set) << std::endl;
+    std::cout << "curve_set = " << gen::geom_id_by_handle(curve_sets[i]) << std::endl;
     rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );
     if(gen::error(MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
 
@@ -867,6 +869,8 @@ MBErrorCode seal_loop( bool debug,
 
       // determine the orientation of the curve wrt the surf.
       int sense;
+      std::cout << "surf_set = " << gen::geom_id_by_handle(surf_set) << std::endl;
+      std::cout << "curve_set = " << gen::geom_id_by_handle(curve_sets[i]) << std::endl;
       rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );  
       if(gen::error(MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
       // select the front wrt the skin.
@@ -1033,7 +1037,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 {
    
     MBErrorCode result;
-
+   
     // loop over each surface meshset
     for(MBRange::iterator i=surface_sets.begin(); i!=surface_sets.end(); i++ ) 
       {
@@ -1049,7 +1053,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 
 	assert(MB_SUCCESS == result);
 
-	if(debug) std::cout << "  surf id= " << surf_id << std::endl;
+	if(1) std::cout << "  surf id= " << surf_id << std::endl;
 
 	// get the 2D entities in the surface set
 	MBRange dim2_ents;
@@ -1074,7 +1078,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       MBRange not_tris = subtract( dim2_ents, tris );
       if(!not_tris.empty()) {
         result = MBI()->delete_entities( not_tris );
-        if(gen::error(MB_SUCCESS!=result,"could not delete tris")) return result;
+        if(gen::error(MB_SUCCESS!=result,"could not delete not_tris")) return result;
         assert(MB_SUCCESS == result);
         std::cout << "  removed " << not_tris.size() 
                   << " 2D elements that were not triangles from surface " 
@@ -1098,7 +1102,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         if(MB_TAG_NOT_FOUND==result) {
           curve = *j;
         } else if(MB_SUCCESS == result) {
-	  if(debug) {
+	  if(1) {
             std::cout << "  curve_id=" << gen::geom_id_by_handle(*j) 
                       << " is entity_to_delete" << std::endl;
           }
@@ -1302,6 +1306,21 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
           if(gen::error(MB_SUCCESS!=result,"failed to get senses 0")) return result;
           result = gt.get_senses( merged_curve, curve_to_keep_surfs, curve_to_keep_senses );
           if(gen::error(MB_SUCCESS!=result,"failed to get senses 1")) return result;
+          std::cout << "curve to keep id = " << gen::geom_id_by_handle(merged_curve) << std::endl;
+          std::cout << "curve to delete id = " << gen::geom_id_by_handle(*j) << std::endl;
+          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
+          {
+           std::cout << "curve_to_keep_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_keep_surfs[index]) << std::endl;
+           std::cout << "curve_to_keep_sense " << index << " = " << curve_to_keep_senses[index] << std::endl;
+           
+          }
+          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
+          {
+          
+          std::cout << "curve_to_delete_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_delete_surfs[index]) << std::endl;
+          std::cout << "curve_to_delete_sense " << index << " = " << curve_to_delete_senses[index] << std::endl;
+          }
+
           combined_surfs.insert( combined_surfs.end(), curve_to_keep_surfs.begin(), 
                                                        curve_to_keep_surfs.end() );
           combined_surfs.insert( combined_surfs.end(), curve_to_delete_surfs.begin(), 
@@ -1312,8 +1331,24 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 		                		       curve_to_delete_senses.end() );
           std::cout << combined_surfs.size() << std::endl;
           std::cout << combined_senses.size() << std::endl;
+          int edim;
           for(unsigned int index=0; index < combined_senses.size(); index++)
           {
+
+            edim=gt.dimension(combined_surfs[index]);
+            std::cout << edim << std::endl;
+            if (edim == -1)
+            {
+             combined_surfs.erase(combined_surfs.begin() +index);
+            
+             combined_senses.erase(combined_senses.begin() +index);
+            index=-1;
+            }
+          }
+ for(unsigned int index=0; index < combined_senses.size(); index++)
+          {
+
+           std::cout << "combined_surfs{"<< index << "] = " << gen::geom_id_by_handle(combined_surfs[index]) << std::endl;
            std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
           }
           result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
@@ -1321,7 +1356,8 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 
           // add the duplicate curve_to_keep to the vector of curves
           *j = merged_curve;
- 
+          
+          
         }
 	//	result = MBI()->tag_get_data( id_tag, &(*j), 1, &curve_id );
 	//assert(MB_SUCCESS == result);
