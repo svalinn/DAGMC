@@ -36,10 +36,7 @@
 #include "zip.hpp"
 #include "cleanup.hpp"
 
-//SENSE CONVENTIONS
-#define SENSE_FORWARD() 1
-#define SENSE_REVERSE() -1
-#define SENSE_UNKNOWN() 0
+
 
 
 MBInterface *MBI();
@@ -389,28 +386,18 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 
     // create tags
     MBTag geom_tag, id_tag, sense_tag, normal_tag, merge_tag;
-    //result = MBI()->tag_create( GEOM_DIMENSION_TAG_NAME, sizeof(int), MB_TAG_DENSE,
-				//MB_TYPE_INTEGER, geom_tag, 0, true );
     result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, sizeof(int), 
 				MB_TYPE_INTEGER, geom_tag, MB_TAG_DENSE, 0, 0 );
     assert( MB_SUCCESS == result );
-    //result = MBI()->tag_create( GLOBAL_ID_TAG_NAME, sizeof(int), MB_TAG_DENSE,
-				//MB_TYPE_INTEGER, id_tag, 0, true );
     result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, sizeof(int), 
 				MB_TYPE_INTEGER, id_tag,MB_TAG_DENSE, 0, 0 );
     assert( MB_SUCCESS == result );
-    //result = MBI()->tag_create( "GEOM_SENSE_2", 2*sizeof(MBEntityHandle), MB_TAG_DENSE,
-                                //MB_TYPE_HANDLE, sense_tag, 0, true );
     result = MBI()->tag_get_handle( "GEOM_SENSE_2", 2*sizeof(MBEntityHandle), 
                                 MB_TYPE_HANDLE, sense_tag, MB_TAG_DENSE, 0, 0 );
     assert( MB_SUCCESS == result );
-    //result = MBI()->tag_create( "NORMAL", sizeof(MBCartVect), MB_TAG_DENSE,
-                                //MB_TYPE_OPAQUE, normal_tag, 0, true );
     result = MBI()->tag_get_handle( "NORMAL", sizeof(MBCartVect), 
                                 MB_TYPE_OPAQUE, normal_tag, MB_TAG_DENSE, 0, 0 );
     assert( MB_SUCCESS == result );
-    //result = MBI()->tag_create( "MERGE", sizeof(MBEntityHandle), MB_TAG_SPARSE,
-                                //MB_TYPE_HANDLE, merge_tag, 0, true );
     result = MBI()->tag_get_handle( "MERGE", sizeof(MBEntityHandle), 
                                 MB_TYPE_HANDLE, merge_tag, MB_TAG_SPARSE, 0, 0 );
     assert( MB_SUCCESS == result );  

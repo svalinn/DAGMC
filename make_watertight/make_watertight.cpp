@@ -41,10 +41,7 @@
 #include "zip.hpp"
 #include "cleanup.hpp"
 
-//SENSE CONVENTIONS
-#define SENSE_FORWARD() 1
-#define SENSE_REVERSE() -1
-#define SENSE_UNKNOWN() 0
+
 
 
 MBInterface *MOAB();
@@ -348,7 +345,7 @@ MBErrorCode create_arc_pair(  const double FACET_TOL,
 
     // is it forward oriented? To allow for ambiguous cases, instead of accepting
     // only forward-oriented curves, only reject reverse-oriented curves.
-    if(front_endpt==temp_curve.front() && SENSE_REVERSE()!=sense) {
+    if(front_endpt==temp_curve.front() && SENSE_REVERSE!=sense) {
       // find the closest skin pt to the curve endpt
       unsigned pos;
       // if only one curve is left, take the entire skin. Otherwise, due to 
@@ -382,7 +379,7 @@ MBErrorCode create_arc_pair(  const double FACET_TOL,
       }
     }
     // is it reverse oriented?
-    if(front_endpt==temp_curve.back() && SENSE_FORWARD()!=sense) {
+    if(front_endpt==temp_curve.back() && SENSE_FORWARD!=sense) {
       reverse( temp_curve.begin(), temp_curve.end() );
       // find the closest skin pt to the curve endpt
       unsigned pos;
@@ -874,7 +871,7 @@ MBErrorCode seal_loop( bool debug,
       rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );  
       if(gen::error(MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
       // select the front wrt the skin.
-      MBEntityHandle curve_endpt = (SENSE_FORWARD()==sense) ? curve.front() : curve.back();
+      MBEntityHandle curve_endpt = (SENSE_FORWARD==sense) ? curve.front() : curve.back();
 
       // find closest skin vert to front of curve
       std::vector<double> d;
@@ -1352,8 +1349,11 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
            std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
           }
           result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
-          //if(gen::error(MB_SUCCESS!=result,"failed to set senses")) return result;
-
+          if(gen::error(MB_SUCCESS!=result,"failed to set senses: "))
+          {
+           moab_printer(result);
+           return result;
+          }
           // add the duplicate curve_to_keep to the vector of curves
           *j = merged_curve;
           
@@ -1584,18 +1584,18 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
     for(MBRange::iterator i=geom_sets[dim].begin() ; i != geom_sets[dim].end() ; i++) 
       {
 	double size;
-	std::cout << "dim = " << dim << " *i =" << *i << std::endl;
+	//std::cout << "dim = " << dim << " *i =" << *i << std::endl;
 	rval = gen::measure( *i, geom_tag, size );
-	std::cout << " here in gen mesaure" << std::endl;
+	//std::cout << " here in gen mesaure" << std::endl;
 	if(gen::error(MB_SUCCESS!=rval,"could not measure")) 
 	  {
 	    return rval;
 	  }
 
-	std::cout <<  " *i = " << *i << " size = " << size << std::endl;
+	//std::cout <<  " *i = " << *i << " size = " << size << std::endl;
 
 	rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
-	std::cout << " here in set tag data" << std::endl;
+	//std::cout << " here in set tag data" << std::endl;
 	if(gen::error(MB_SUCCESS!=rval,"could not set size tag")) 
 	  {
 	    return rval;

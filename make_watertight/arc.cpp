@@ -11,10 +11,7 @@
 
 #include "moab/GeomTopoTool.hpp"
 
-//SENSE CONVENTIONS
-#define SENSE_FORWARD() 1
-#define SENSE_REVERSE() -1
-#define SENSE_UNKNOWN() 0
+
 
 
 namespace arc {
@@ -649,14 +646,14 @@ namespace arc {
           if(gen::error(MB_SUCCESS!=result,"failed to get senses")) return result;
           for(unsigned k=0; k<surfs.size(); ++k) {
             //forward to reverse
-            if(SENSE_FORWARD()==senses[k])
-              senses[k] = SENSE_REVERSE();
+            if(SENSE_FORWARD==senses[k])
+              senses[k] = SENSE_REVERSE;
             //reverse to forward
-            else if(SENSE_REVERSE()==senses[k])
-              senses[k] = SENSE_FORWARD();
+            else if(SENSE_REVERSE==senses[k])
+              senses[k] = SENSE_FORWARD;
             //unknown to unknown 
-            else if(SENSE_UNKNOWN()==senses[k])
-              senses[k] = SENSE_UNKNOWN();
+            else if(SENSE_UNKNOWN==senses[k])
+              senses[k] = SENSE_UNKNOWN;
             else
               if(gen::error(true,"unrecognized sense")) return MB_FAILURE;
           }   

@@ -14,8 +14,6 @@ namespace cleanup {
     MBErrorCode result;
     MBRange obb_entities;
     MBTag obbTag;
-    //result = MBI()->tag_create( "OBB_TREE", sizeof(MBEntityHandle),
-	       		  //MB_TAG_DENSE, MB_TYPE_HANDLE, obbTag, NULL, true );
     result = MBI()->tag_get_handle( "OBB_TREE", sizeof(MBEntityHandle),
 	       		  MB_TYPE_HANDLE, obbTag, MB_TAG_DENSE, NULL, 0 );
     if(gen::error(MB_SUCCESS != result, "could not get OBB tree handle")) return result;
@@ -44,8 +42,6 @@ namespace cleanup {
     assert(MB_SUCCESS == result);
 
 
-    //result = MBI()->tag_create( "OBB", sizeof(double), MB_TAG_SPARSE,
-     				  //MB_TYPE_DOUBLE, rootTag, 0, false);
     result = MBI()->tag_get_handle ( "OBB", sizeof(double), 
      				  MB_TYPE_DOUBLE, rootTag, MB_TAG_SPARSE, 0, false);
     assert(MB_SUCCESS==result || MB_ALREADY_ALLOCATED==result);

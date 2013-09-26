@@ -12,10 +12,7 @@
 #include "zip.hpp"
 #include "MBSkinner.hpp"
 
-//SENSE CONVENTIONS
-#define SENSE_FORWARD() 1
-#define SENSE_REVERSE() -1
-#define SENSE_UNKNOWN() 0
+
 
 namespace gen {
 
@@ -1707,7 +1704,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
    
 
      // special case: ambiguous
-    if(1<counter) sense = SENSE_UNKNOWN();
+    if(1<counter) sense = SENSE_UNKNOWN;
     return MB_SUCCESS;
   }
 
@@ -1736,7 +1733,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
 	  }
 	else if (volume == reverse)
 	  {
-	    *senses_out = SENSE_UNKNOWN();
+	    *senses_out = SENSE_UNKNOWN;
 	  }
 	else 
 	  {
@@ -1770,7 +1767,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       }
     else if (surf_volumes[1] == volume)
       {
-	sense_out = SENSE_UNKNOWN();
+	sense_out = SENSE_UNKNOWN;
       }
     else
       {
