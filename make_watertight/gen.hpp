@@ -14,7 +14,7 @@
 #include "MBAdaptiveKDTree.hpp" // for merging verts
 #include "MBCartVect.hpp"
 
-//SENSE CONVENTIONS
+// SENSE CONVENTIONS
 #define SENSE_FORWARD 1
 #define SENSE_REVERSE -1
 #define SENSE_UNKNOWN 0
