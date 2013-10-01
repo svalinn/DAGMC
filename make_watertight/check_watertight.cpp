@@ -180,8 +180,11 @@ int main(int argc, char **argv)
 
   // replaced much of this code with a more modular version in check_watertight_func for testing purposes 
   std::set<int> leaky_surfs, leaky_vols;
-  bool sealed;
-  result=check_watertight_func::check_model_for_watertightness( input_set, tol, verbose, check_topology, sealed);
+  bool sealed, test;
+  test=false;
+  // is the order of the optional variables going to be a problem?
+  // (i.e. we 'skipped' the variable test)
+  result=check_watertight_func::check_model_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
 
   clock_t end_time = clock();

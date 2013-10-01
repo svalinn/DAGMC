@@ -1,3 +1,10 @@
+// *********************************
+
+// Patrick Shriwise
+// October, 2013
+
+// functions needed to check models for watertightness
+
 #include <iostream>
 #include <iomanip> // for setprecision
 #include <limits> // for min/max values
@@ -23,7 +30,7 @@
 
 namespace check_watertight_func {
 
- MBErrorCode check_model_for_watertightness( MBEntityHandle input_set, double tol, bool verbose, bool check_topology, bool &sealed, bool test)
+ MBErrorCode check_model_for_watertightness( MBEntityHandle input_set, double tol, bool &sealed, bool test, bool verbose, bool check_topology )
  {
 
   MBErrorCode result; 
@@ -376,8 +383,8 @@ namespace check_watertight_func {
   std::cout << std::endl;
  }
 
- std::cout << unmatched_counter << std::endl;
- if( !unmatched_counter )
+
+ if(unmatched_counter == 0 && leaky_vols.size() == 0 && leaky_surfs.size() == 0 )
  {
   sealed=true;
  }

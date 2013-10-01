@@ -68,14 +68,12 @@ MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dis
   std::cout << "z = " << coords[2] << std::endl;
 
   //write new coordinates to the mesh
+  // might not be necesarry any longer as we move to doing tests on a moab-instance basis
   result=MBI()-> set_coords( &vertex, 1, coords);
   if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
-  
-  
- 
-  
+  // alter output filename
   std::string output_filename = root_name + "_mod.h5m";
-
+  //write file
   result=MBI()->write_mesh(output_filename.c_str());
   if(gen::error(MB_SUCCESS!=result,"could not write the mesh to output_filename")) return result; 
 
@@ -84,6 +82,10 @@ MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dis
 
 int main(int argc, char **argv)
 {
+
+//open moab instance
+MBInterface *MBI();
+
 // ******************************************************************
   // Load the h5m file and create tags.
   // ******************************************************************
@@ -99,9 +101,9 @@ int main(int argc, char **argv)
   if( argc < 2 || argc > 5) 
     {
     std::cout << "To check using topology of facet points:              " << std::endl;
-    std::cout << "./check_watertight <filename> <verbose(true or false)>" << std::endl;
+    std::cout << "./test_cyl <filename> <verbose(true or false)>" << std::endl;
     std::cout << "To check using geometry tolerance of facet points:    " << std::endl;
-    std::cout << "./check_watertight <filename> <verbose(true or false)> <tolerance>" << std::endl;
+    std::cout << "./test_cyl <filename> <verbose(true or false)> <tolerance>" << std::endl;
     return 1;
     }
 
@@ -158,27 +160,50 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
       return result;
     }
     
-   //vertex sets
-   dim= 0;
+  //vertex sets
+  dim= 0;
   MBRange verts;
   result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
   if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+  
   if(gen::error(MB_SUCCESS!=result, "could not get vertex coordinates")) return result; 
+
   std::cout<< "number of verticies= " << verts.size() << std::endl;  
   std::cout<< "number of surfaces= " << surf_sets.size() << std::endl;
   std::cout<< "number of volumes= "  << vol_sets.size() << std::endl;
 
-  result=single_vert_bump(verts, 0 , 0 , 0,  root_name); 
+  //perform single vertex bump and test
+  result=single_vert_bump(verts, 0 , 0 , 10*tol,  root_name); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
  
+  
   bool verbose, check_topology, test, sealed;
   verbose=false;
   check_topology=false;
   test=true;
-
-  result=check_watertight_func::check_model_for_watertightness( input_set, tol, verbose, check_topology, sealed, test);
+  
+  //check that geometry is unsealed
+  result=check_watertight_func::check_model_for_watertightness( input_set, tol, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
+  if(sealed)
+  {
+   std::cout << "Warning: geometry was not broken by single bump vert" << std::endl;
+  }
+
+  // When ready, insert the modular function for make_watertight here...
+  
+  
+
+
+
+
+  // Lastly Check to see if make_watertight fixed the model
+  // result=check_watertight_func::check_model_for_watertightness( input_set, tol, sealed, test);
+  // if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+  /*
   if(sealed)
   {
    std::cout << "PASS" << std::endl;
@@ -188,7 +213,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
    std::cout << "FAIL" << std::endl;
    exit(0);
   }
-
+  */
 
  
 }

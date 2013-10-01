@@ -18,7 +18,7 @@
 MBInterface *MBI();
 namespace check_watertight_func {
 
- MBErrorCode check_model_for_watertightness( MBEntityHandle input_set, double tol, bool verbose, bool check_topology, bool &sealed, bool test = false );
+ MBErrorCode check_model_for_watertightness( MBEntityHandle input_set, double tol, bool &sealed, bool test = false,  bool verbose = false , bool check_topology = false );
 
  int compare_by_coords(const void *a, const void *b);
  
