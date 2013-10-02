@@ -39,7 +39,7 @@
 #include "MBRange.hpp"
 #include "MBSkinner.hpp"
 
-#include "check_watertight_func.hpp"
+#include "cw_func.hpp"
 #include "gen.hpp"
 #include "arc.hpp"
 #include "zip.hpp"
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
   test=false;
   // is the order of the optional variables going to be a problem?
   // (i.e. we 'skipped' the variable test)
-  result=check_watertight_func::check_model_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
+  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
 
   clock_t end_time = clock();

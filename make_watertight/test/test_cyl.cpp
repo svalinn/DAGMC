@@ -20,7 +20,8 @@
 #include "MBRange.hpp"
 #include "MBSkinner.hpp"
 
-#include "check_watertight_func.hpp"
+#include "mw_func.hpp"
+#include "cw_func.hpp"
 #include "gen.hpp"
 #include "arc.hpp"
 #include "zip.hpp"
@@ -183,7 +184,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
   test=true;
   
   //check that geometry is unsealed
-  result=check_watertight_func::check_model_for_watertightness( input_set, tol, sealed, test);
+  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
   if(sealed)
@@ -191,7 +192,10 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
    std::cout << "Warning: geometry was not broken by single bump vert" << std::endl;
   }
 
-  // When ready, insert the modular function for make_watertight here...
+  //seal the mesh
+  double facet_tol;
+  result=mw_func::make_mesh_watertight (input_set, facet_tol);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
   
   
 

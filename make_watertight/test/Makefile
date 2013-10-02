@@ -1,5 +1,5 @@
-#include /home/patrick/moab_4.6.0/MOAB/lib/moab.make
-include /filespace/people/s/shriwise/make_watertight_test_suite/moabs/wo_cgm/4.6.0/moab/lib/moab.make
+include /home/patrick/moab_4.6.0/MOAB/lib/moab.make
+#include /filespace/people/s/shriwise/make_watertight_test_suite/moabs/wo_cgm/4.6.0/moab/lib/moab.make
 
 INC = -I/home/patrick/scratch/moab_tools/make_watertight
 #INC = -I/filespace/people/s/shriwise/scratch/moab_tools/make_watertight
@@ -26,14 +26,17 @@ zip.o: ../zip.cpp ../zip.hpp
 cleanup.o: ../cleanup.cpp ../cleanup.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c ../cleanup.cpp
 
-check_watertight_func.o: ../check_watertight_func.cpp ../check_watertight_func.hpp
-	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c ../check_watertight_func.cpp
+cw_func.o: ../cw_func.cpp ../cw_func.hpp
+	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c ../cw_func.cpp
 
-test: test_cyl.o gen.o arc.o zip.o cleanup.o check_watertight_func.o
-	$(CC) $(LD_FLAGS) -o test_cyl test_cyl.o gen.o arc.o zip.o cleanup.o check_watertight_func.o  \
-	${MOAB_LIBS_LINK} -ldagmc
+mw_func.o: ../mw_func.cpp ../mw_func.hpp
+	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c ../mw_func.cpp
+
+test: test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
+	$(CC) $(LD_FLAGS) -o test_cyl test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o  \
+	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
 
 
 clean:
 	rm -f make_watertight.o make_watertight gen.o arc.o zip.o \
-	cleanup.o post_process.o post_process check_watertight_func.o mw_fix mw_fix.o test_cyl test_cyl.o
+	cleanup.o post_process.o post_process cw_func.o mw_fix mw_fix.o test_cyl test_cyl.o mw_func.o

@@ -25,8 +25,8 @@ zip.o: zip.cpp zip.hpp
 cleanup.o: cleanup.cpp cleanup.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c cleanup.cpp
 
-check_watertight_func.o: check_watertight_func.cpp check_watertight_func.hpp
-	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c check_watertight_func.cpp
+cw_func.o: cw_func.cpp cw_func.hpp
+	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c cw_func.cpp
 
 mw_func.0: mw_func.cpp mw_func.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c mw_func.cpp
@@ -39,9 +39,9 @@ post_process: post_process.o gen.o arc.o zip.o cleanup.o
 	$(CC) $(LD_FLAGS) -o post_process post_process.o gen.o \
 	arc.o zip.o cleanup.o ${MOAB_LIBS_LINK} 
 
-check_watertight: check_watertight.o gen.o cleanup.o check_watertight_func.o
+check_watertight: check_watertight.o gen.o cleanup.o cw_func.o
 	$(CC) $(LD_FLAGS) -o check_watertight check_watertight.o gen.o \
-	arc.o zip.o cleanup.o check_watertight_func.o ${MOAB_LIBS_LINK} 
+	arc.o zip.o cleanup.o cw_func.o ${MOAB_LIBS_LINK} 
 
 fix: mw_fix.o gen.o arc.o zip.o cleanup.o
 	$(CC) $(LD_FLAGS) -o mw_fix mw_fix.o gen.o arc.o zip.o cleanup.o  \
@@ -49,4 +49,4 @@ fix: mw_fix.o gen.o arc.o zip.o cleanup.o
 
 clean:
 	rm -f make_watertight.o make_watertight gen.o arc.o zip.o \
-	cleanup.o post_process.o post_process check_watertight.o check_watertight mw_fix mw_fix.o mw_func.o
+	cleanup.o post_process.o post_process check_watertight.o check_watertight mw_fix mw_fix.o mw_func.o cw_func.o
