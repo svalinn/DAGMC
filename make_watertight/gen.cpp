@@ -1651,9 +1651,9 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     } else if(3 == dim) {
       //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() );
       //result = dagmc.measure_volume( set, size );
-      std::cout << "in measure volume" << std::endl;
+      //std::cout << "in measure volume" << std::endl;
       result = measure_volume( set, size );
-      std::cout << "in measure volume" << std::endl;
+      //std::cout << "in measure volume" << std::endl;
       if(MB_SUCCESS != result) {
         std::cout << "result=" << result << " vol_id=" 
                   << gen::geom_id_by_handle(set) << std::endl;
@@ -1692,12 +1692,14 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       }
     }
 
-   for(unsigned int index=0; index < surfs.size() ; index++)
+   if(verbose)
    {
-    std::cout << "surf = " << geom_id_by_handle(surfs[index]) << std::endl;
-    std::cout << "sense = " << senses[index] << std::endl;
+    for(unsigned int index=0; index < surfs.size() ; index++)
+    {
+     std::cout << "surf = " << geom_id_by_handle(surfs[index]) << std::endl;
+     std::cout << "sense = " << senses[index] << std::endl;
+    }
    }
-  
     // special case: parent surface does not exist
     if(gen::error(0==counter,"failed to find a surf in sense list")) return MB_FAILURE;
 

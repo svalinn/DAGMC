@@ -77,7 +77,8 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 MBErrorCode fix_normals(MBRange surface_sets, 
                         MBTag id_tag, 
                         MBTag normal_tag,
-                        const bool debug);
+                        const bool debug
+                        const bool verbose);
 
 MBErrorCode restore_moab_curve_representation( const MBRange curve_sets );
 
@@ -90,7 +91,7 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
                                          const MBTag size_tag,
                                          const double FACET_TOL );
 
-MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol);
+MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = false);
 
 
 

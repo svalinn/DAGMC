@@ -10,13 +10,20 @@ namespace cleanup {
   //  -Surface/volume set handles are added to the root meshset.
   // Somehow, delete the old tree without deleting the
   // surface and volume sets, then build a new tree.
-  MBErrorCode remove_obb_tree() {
+  MBErrorCode remove_obb_tree(bool verbose) {
     MBErrorCode result;
     MBRange obb_entities;
     MBTag obbTag;
     result = MBI()->tag_get_handle( "OBB_TREE", sizeof(MBEntityHandle),
 	       		  MB_TYPE_HANDLE, obbTag, MB_TAG_DENSE, NULL, 0 );
+    if(verbose)
+    {
     if(gen::error(MB_SUCCESS != result, "could not get OBB tree handle")) return result;
+    }
+    else
+    {
+    if(gen::error(MB_SUCCESS != result, "")) return result;
+    }
     // This gets the surface/volume sets. I don't want to delete the sets.
     // I want to remove the obbTag that contains the tree root handle and
     // delete the tree.

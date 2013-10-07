@@ -15,7 +15,7 @@ namespace cleanup {
   //  -Surface/volume set handles are added to the root meshset.
   // Somehow, delete the old tree without deleting the
   // surface and volume sets, then build a new tree.
-  MBErrorCode remove_obb_tree();
+  MBErrorCode remove_obb_tree(bool verbose = false);
 
   MBErrorCode delete_small_edge_and_tris( const MBEntityHandle vert0, 
                                           MBEntityHandle &vert1, const double tol);

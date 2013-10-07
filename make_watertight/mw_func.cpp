@@ -126,7 +126,10 @@ MBErrorCode find_degenerate_tris() {
       ++counter;
     }
   }
+  if(counter != 0)
+  {
   std::cout << "Found " << counter << " degenerate triangles. " << std::endl;
+  }
   return MB_SUCCESS;
 }
 
@@ -138,7 +141,7 @@ MBErrorCode prepare_curves(MBRange &curve_sets,
                            MBTag geom_tag, MBTag id_tag, MBTag merge_tag, 
                            const double FACET_TOL, const bool debug) {
   MBErrorCode result;
-  std::cout << "Modifying faceted curve representation and removing small curves..." 
+  if (verbose) std::cout << "Modifying faceted curve representation and removing small curves..." 
             << std::endl;
 
   // process each curve
@@ -242,7 +245,7 @@ MBErrorCode prepare_curves(MBRange &curve_sets,
   }
 
   // merge curves that are the same within facet_tol 
-  std::cout << "Identifying coincident curves to be merged..." << std::endl;
+  if (verbose) std::cout << "Identifying coincident curves to be merged..." << std::endl;
   result = arc::merge_curves(curve_sets, FACET_TOL, id_tag, merge_tag, debug );
   if(gen::error(MB_SUCCESS!=result,"could not merge_curves")) return result;
 
@@ -326,8 +329,11 @@ MBErrorCode create_arc_pair(  const double FACET_TOL,
     // Get the curve-surface relative sense. From CGMA/builds/dbg/include/CubitDefines,
     
     int sense;
+    if(debug)
+    {
     std::cout << "surf_set = " << gen::geom_id_by_handle(surf_set) << std::endl;
     std::cout << "curve_set = " << gen::geom_id_by_handle(curve_sets[i]) << std::endl;
+    }
     rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );
     if(gen::error(MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
 
@@ -1408,7 +1414,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
     return MB_SUCCESS;
   }
 
-MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, const bool debug) {
+MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, const bool debug, const bool verbose) {
     MBErrorCode result;
     if(debug) std::cout<< "number of surfaces=" << surface_sets.size() << std::endl;
     int inverted_tri_counter = 0;
@@ -1464,8 +1470,11 @@ MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, co
       result = delete_all_edges();
       assert(MB_SUCCESS == result);
     }
+    if(verbose)
+    {
     std::cout << "  Before fixing, " << inverted_tri_counter 
               << " inverted triangles were found." << std::endl;
+    }
     return MB_SUCCESS;
   }
 
@@ -1597,7 +1606,10 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
 	  }
       }
     }
+  if (verbose)
+  { 
   std::cout << "finished in get_geom_size_before_sealing" << std::endl;
+  }
   return MB_SUCCESS;
 }
 
@@ -1733,7 +1745,7 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
       return MB_SUCCESS;
 }
 
-MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol) 
+MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose) 
   {
 
 
@@ -1843,9 +1855,11 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
 
     const double SME_RESABS_TOL = sme_resabs_tol; // from ACIS through CGM
     const double FACET_TOL = facet_tol; // specified by user when faceting cad
+    if(verbose)
+    {
     std::cout << "  faceting tolerance=" << facet_tol << " cm" << std::endl;
     std::cout << "  absolute tolerance=" << sme_resabs_tol << " cm" << std::endl;
-    
+    }
 
     // get all geometry sets
     MBRange geom_sets[4];
@@ -1854,8 +1868,10 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
 	void *val[] = {&dim};
 	result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geom_tag,
 	  					    val, 1, geom_sets[dim] );
+        if(verbose)
+        {
 	std::cout << "Get entities by type and tag" << std::endl;
-
+        }
 	assert(MB_SUCCESS == result);
 
 	// make sure that sets TRACK membership and curves are ordered
@@ -1886,14 +1902,14 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
 	  }
       }
 
-    std::cout << "I am here" << std::endl;
+    
 
     // this could be related to when there are sat files rather than mesh?
     // If desired, find each entity's size before sealing.
     ///*
     if(check_geom_size) 
       {
-	std::cout << "I am checking the geometry size" << std::endl;
+	//std::cout << "I am checking the geometry size" << std::endl;
 	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag );
 	if(gen::error(MB_SUCCESS!=result,"measuring geom size failed"))
 	  {
@@ -1902,20 +1918,22 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
       }
     
     //*/
-
-    std::cout << "Get entity count before sealing" << std::endl;
+    
+    if (verbose) std::cout << "Get entity count before sealing" << std::endl;
     // Get entity count before sealing.
     int orig_n_tris;
     result = MBI()->get_number_entities_by_type( 0, MBTRI, orig_n_tris );
     std::cout << result << std::endl;
 
     assert(MB_SUCCESS == result);
-
+    if(verbose)
+    {
     std::cout << "  input faceted geometry contains " << geom_sets[3].size() << " volumes, " 
               << geom_sets[2].size() << " surfaces, " << geom_sets[1].size() 
               << " curves, and " << orig_n_tris << " triangles" << std::endl;  
-
+    
     std::cout << "Finding degenerate triangles " << std::endl;
+    }
     result = find_degenerate_tris();
     if(gen::error(result!=MB_SUCCESS,"could not determine if triangles were degenerate or not"))
       {
@@ -1928,8 +1946,11 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
 	return(result);
       }
 
+    if (verbose) 
+    {
     std::cout << "Zipping loops and removing small surfaces whose curves were all merged as pairs..." << std::endl;
     std::cout << "SME_RESABS_TOL = " << SME_RESABS_TOL << " FACET_TOL = " << FACET_TOL << std::endl;
+    }
     result = prepare_surfaces(geom_sets[2], geom_tag, id_tag, normal_tag, merge_tag,
                               orig_curve_tag,SME_RESABS_TOL, FACET_TOL, debug);
     if ( result != MB_SUCCESS ) 
@@ -1941,7 +1962,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
     // After zipping surfaces, merged curve entity_to_deletes are no longer needed.
     // Swap surface parent-childs for curves to delete with curve to keep. 
     // ARE THEIR ORPHANED CHILD VERTEX SETS STILL AROUND? 
-    std::cout << "Adjusting parent-child links then removing merged curves..." << std::endl;
+    if(verbose) std::cout << "Adjusting parent-child links then removing merged curves..." << std::endl;
     MBRange curves_to_delete;
     result = MBI()->get_entities_by_type_and_tag(0, MBENTITYSET, &merge_tag, NULL,
                                                  1, curves_to_delete);
@@ -1978,8 +1999,8 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
     // facet pt is within 2x tol of the opposing surface.
 
     // This function is still screwed up, but 99% right.
-    std::cout << "Fixing inverted triangles..." << std::endl;
-    result = fix_normals(geom_sets[2], id_tag, normal_tag, debug);
+    if (verbose) std::cout << "Fixing inverted triangles..." << std::endl;
+    result = fix_normals(geom_sets[2], id_tag, normal_tag, debug, verbose);
     assert(MB_SUCCESS == result);
 
     /*
@@ -1995,11 +2016,11 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
     // ordered vertices and edges. MOAB represents curve endpoints as geometry
     // sets containing a singe vertex. This function restores MOAB's curve
     // representation.
-    std::cout << "Restoring faceted curve representation..." << std::endl;
+    if (verbose) std::cout << "Restoring faceted curve representation..." << std::endl;
     result = restore_moab_curve_representation( geom_sets[1] );
     if(gen::error(MB_SUCCESS!=result,"restore_moab_curve_representation failed")) return result;    
     // If all of a volume's surfaces have been deleted, delete the volume.
-    std::cout << "Removing small volumes if all surfaces have been removed..." << std::endl;
+    if (verbose) std::cout << "Removing small volumes if all surfaces have been removed..." << std::endl;
     for(MBRange::iterator i=geom_sets[3].begin(); i!=geom_sets[3].end(); ++i) {
       int n_surfs;
       result = MBI()->num_child_meshsets( *i, &n_surfs );
@@ -2017,7 +2038,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
     // Surface and volume sets are tagged with tags holding the obb tree
     // root handles. Somehow, delete the old tree without deleting the
     // surface and volume sets, then build a new tree.    
-    std::cout << "Removing stale OBB trees..." << std::endl;
+    if (verbose) std::cout << "Removing stale OBB trees..." << std::endl;
     result = cleanup::remove_obb_tree();
     //assert(MB_SUCCESS == result);
 
@@ -2025,7 +2046,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
     //        << std::endl;
 
     // Resetting meshsets so that they no longer track.
-    std::cout << "Restoring original meshset options and tags..." << std::endl;
+    if (verbose) std::cout << "Restoring original meshset options and tags..." << std::endl;
     for(unsigned dim=0; dim<4; dim++) {
       for(MBRange::iterator i=geom_sets[dim].begin(); i!=geom_sets[dim].end(); i++) {
         result = MBI()->set_meshset_options(*i, 1==dim ? MESHSET_ORDERED : MESHSET_SET);
@@ -2046,15 +2067,17 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol)
 
     // Write output file
     int sealed_n_tris;
-    std::cout << "Writing zipped file..." << std::endl;
+    if (verbose) std::cout << "Writing zipped file..." << std::endl;
     result = MBI()->get_number_entities_by_type( 0, MBTRI, sealed_n_tris );
     assert(MB_SUCCESS == result);
+    if (verbose)
+    {
     std::cout << "  output file contains " << geom_sets[3].size() << " volumes, " 
               << geom_sets[2].size() << " surfaces, " << geom_sets[1].size() 
               << " curves, and " << sealed_n_tris << " triangles" << std::endl;  
     std::cout << "  triangle count changed " << (double)sealed_n_tris/orig_n_tris
               << "x (sealed/unsealed)" << std::endl;
-    
+    }
     return MB_SUCCESS;  
   }
 
