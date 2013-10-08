@@ -106,7 +106,8 @@ void moab_printer(MBErrorCode error_code)
 
 MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[], 
                                           const MBTag geom_tag,
-                                          const MBTag size_tag ) {
+                                          const MBTag size_tag,
+                                          bool verbose ) {
   MBErrorCode rval;
   for(int dim=1; dim <= 3 ; dim++) {
     std::cout << "dim = " << dim << std::endl;
@@ -117,7 +118,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
 	//std::cout << "size =" << size << std::endl;
 
 
-      rval = gen::measure( *i, geom_tag, size );
+      rval = gen::measure( *i, geom_tag, size, verbose );
       if(gen::error(MB_SUCCESS!=rval,"could not measure")) return rval;
       rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
       if(gen::error(MB_SUCCESS!=rval,"could not set size tag")) return rval;
@@ -230,6 +231,7 @@ MBErrorCode get_senses(MBEntityHandle entity,
     clock_t start_time = clock();
     const bool debug = false;
     const bool check_geom_size = true;
+    bool verbose = true;
 
     // check input args
     if( 2 > argc || 3 < argc ) 
@@ -470,7 +472,7 @@ MBErrorCode get_senses(MBEntityHandle entity,
     if(check_geom_size) 
       {
 	std::cout << "I am checking the geometry size" << std::endl;
-	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag );
+	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag, verbose );
 	if(gen::error(MB_SUCCESS!=result,"measuring geom size failed"))
 	  {
 	    return result;

@@ -1498,7 +1498,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 // Copied from DagMC, without index_by_handle. The dagmc function will
 // segfault if build_indices is not first called. For sealing there is
 // no need to build_indices.
-MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
+MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool verbose )
 {
   MBErrorCode rval;
   std::vector<MBEntityHandle> surfaces, surf_volumes;
@@ -1517,7 +1517,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     {
       return rval;
     }
-  std::cout << "in measure_volume 1" << std::endl;
+  if(verbose) std::cout << "in measure_volume 1" << std::endl;
 
     // get surface senses
   std::vector<int> senses( surfaces.size() );
@@ -1534,14 +1534,14 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       std::cout << "or the pointer to the Moab instance is poor" << std::endl;
       exit(rval);
     }
-  std::cout << surfaces.size() << " " << result << std::endl;
+  if(verbose) std::cout << surfaces.size() << " " << result << std::endl;
   //std::cout << volume << std::endl;
   
   //rval = dagmc.build_indices( surfaces, volume);
   rval = surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
   
 
-  std::cout << "in measure_volume 2" << std::endl;
+  if(verbose) std::cout << "in measure_volume 2" << std::endl;
 
   if (MB_SUCCESS != rval) 
     {
@@ -1597,7 +1597,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
   }
   
   result /= 6.0;
-  std::cout << result << std::endl;
+  if(verbose)  std::cout << result << std::endl;
   return MB_SUCCESS;
 }
 
@@ -1627,7 +1627,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     return MB_SUCCESS;                              
   }                 
 
-  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size ) {
+  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size, bool verbose ) {
     MBErrorCode result;
     int dim;
     result = MBI()->tag_get_data( geom_tag, &set, 1, &dim );                  
@@ -1652,7 +1652,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() );
       //result = dagmc.measure_volume( set, size );
       //std::cout << "in measure volume" << std::endl;
-      result = measure_volume( set, size );
+      result = measure_volume( set, size, verbose );
       //std::cout << "in measure volume" << std::endl;
       if(MB_SUCCESS != result) {
         std::cout << "result=" << result << " vol_id=" 
@@ -1667,7 +1667,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
 
   // From CGMA/builds/dbg/include/CubitDefines
   MBErrorCode get_curve_surf_sense( const MBEntityHandle surf_set, const MBEntityHandle curve_set,
-                                    int &sense ) {
+                                    int &sense, bool debug ) {
     std::vector<MBEntityHandle> surfs;
     std::vector<int> senses;
     MBErrorCode rval;
@@ -1692,7 +1692,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       }
     }
 
-   if(verbose)
+   if(debug)
    {
     for(unsigned int index=0; index < surfs.size() ; index++)
     {

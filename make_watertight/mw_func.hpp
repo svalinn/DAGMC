@@ -36,7 +36,8 @@ MBErrorCode prepare_curves(MBRange &curve_sets,
                            MBTag id_tag, 
                            MBTag merge_tag, 
                            const double FACET_TOL, 
-                           const bool debug);
+                           const bool debug,
+                           bool verbose = true );
 
 MBErrorCode create_arc_pair(  const double FACET_TOL,
                               const MBEntityHandle surf_set,
@@ -72,26 +73,29 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
                              MBTag orig_curve_tag,
                              const double SME_RESABS_TOL,
                              const double FACET_TOL, 
-                             const bool debug);
+                             const bool debug,
+                             bool verbose = true);
 
 MBErrorCode fix_normals(MBRange surface_sets, 
                         MBTag id_tag, 
                         MBTag normal_tag,
-                        const bool debug
+                        const bool debug,
                         const bool verbose);
 
 MBErrorCode restore_moab_curve_representation( const MBRange curve_sets );
 
 MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[], 
                                           const MBTag geom_tag,
-                                          const MBTag size_tag );
+                                          const MBTag size_tag,
+                                          bool verbose = true );
 
 MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[], 
                                          const MBTag geom_tag,
                                          const MBTag size_tag,
-                                         const double FACET_TOL );
+                                         const double FACET_TOL,
+                                         bool verbose = true );
 
-MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = false);
+MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = true);
 
 
 

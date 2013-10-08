@@ -43,7 +43,7 @@ struct coords_and_id {
   MBEntityHandle vert2;
 };
 
-MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name ) {
+MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = true ) {
  
   MBErrorCode result; 
   
@@ -52,6 +52,8 @@ MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dis
   MBEntityHandle vertex=verts.back();
   result= MBI()-> get_coords( &vertex , 1 , coords );
  
+ if(verbose)
+ {
   //original coordinates
   std::cout << std::endl << "Original Coordinates" << std::endl;
   std::cout << "x = " << coords[0] << std::endl;
@@ -67,7 +69,7 @@ MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dis
   std::cout << "x = " << coords[0] << std::endl;
   std::cout << "y = " << coords[1] << std::endl;
   std::cout << "z = " << coords[2] << std::endl;
-
+ }
   //write new coordinates to the mesh
   // might not be necesarry any longer as we move to doing tests on a moab-instance basis
   result=MBI()-> set_coords( &vertex, 1, coords);
@@ -86,6 +88,9 @@ int main(int argc, char **argv)
 
 //open moab instance
 MBInterface *MBI();
+
+//for unit testing purposes, we don't care about the output. Just PASS or FAIL. 
+bool verbose=false;
 
 // ******************************************************************
   // Load the h5m file and create tags.
@@ -169,24 +174,28 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
   
   if(gen::error(MB_SUCCESS!=result, "could not get vertex coordinates")) return result; 
 
+if(verbose)
+{
   std::cout<< "number of verticies= " << verts.size() << std::endl;  
   std::cout<< "number of surfaces= " << surf_sets.size() << std::endl;
   std::cout<< "number of volumes= "  << vol_sets.size() << std::endl;
+}
 
   //perform single vertex bump and test
-  result=single_vert_bump(verts, 0 , 0 , 10*tol,  root_name); 
+  result=single_vert_bump(verts, 0 , 0 , 10*tol, root_name, verbose ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
  
   
-  bool verbose, check_topology, test, sealed;
-  verbose=false;
+  bool check_topology, test, sealed;
   check_topology=false;
   test=true;
   
+  /*
   //check that geometry is unsealed
   result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
+  */
+
   if(sealed)
   {
    std::cout << "Warning: geometry was not broken by single bump vert" << std::endl;
@@ -194,7 +203,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
 
   //seal the mesh
   double facet_tol;
-  result=mw_func::make_mesh_watertight (input_set, facet_tol);
+  result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
   
   
@@ -203,11 +212,10 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
 
 
   // Lastly Check to see if make_watertight fixed the model
-  // result=check_watertight_func::check_model_for_watertightness( input_set, tol, sealed, test);
-  // if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
 
-  /*
   if(sealed)
   {
    std::cout << "PASS" << std::endl;
@@ -217,7 +225,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
    std::cout << "FAIL" << std::endl;
    exit(0);
   }
-  */
+  
 
  
 }

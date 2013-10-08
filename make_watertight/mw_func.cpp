@@ -139,7 +139,7 @@ MBErrorCode find_degenerate_tris() {
 // Output: Ordered sets of verts that do track ownership. All edges are deleted.
 MBErrorCode prepare_curves(MBRange &curve_sets, 
                            MBTag geom_tag, MBTag id_tag, MBTag merge_tag, 
-                           const double FACET_TOL, const bool debug) {
+                           const double FACET_TOL, const bool debug, bool verbose ) {
   MBErrorCode result;
   if (verbose) std::cout << "Modifying faceted curve representation and removing small curves..." 
             << std::endl;
@@ -866,8 +866,11 @@ MBErrorCode seal_loop( bool debug,
 
       // determine the orientation of the curve wrt the surf.
       int sense;
+      if(debug)
+      {
       std::cout << "surf_set = " << gen::geom_id_by_handle(surf_set) << std::endl;
       std::cout << "curve_set = " << gen::geom_id_by_handle(curve_sets[i]) << std::endl;
+      }
       rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );  
       if(gen::error(MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
       // select the front wrt the skin.
@@ -1030,7 +1033,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
                              MBTag geom_tag, MBTag id_tag, MBTag normal_tag, MBTag merge_tag,
                              MBTag orig_curve_tag,
                              const double SME_RESABS_TOL, const double FACET_TOL, 
-                               const bool debug) 
+                               const bool debug, bool verbose) 
 {
    
     MBErrorCode result;
@@ -1050,7 +1053,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 
 	assert(MB_SUCCESS == result);
 
-	if(1) std::cout << "  surf id= " << surf_id << std::endl;
+	if(debug) std::cout << "  surf id= " << surf_id << std::endl;
 
 	// get the 2D entities in the surface set
 	MBRange dim2_ents;
@@ -1126,7 +1129,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       // THIS ALSO REMOVES SURFACES THAT HAVE ALL CURVES DELETED?
       if(unmerged_curve_sets.empty()) {
         double area;
-        result = gen::measure( *i, geom_tag, area );
+        result = gen::measure( *i, geom_tag, area, verbose );
         if(gen::error(MB_SUCCESS!=result,"could not measure area")) return result;
         assert(MB_SUCCESS == result);
         result = MBI()->remove_entities( *i, tris);                          
@@ -1329,6 +1332,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
           std::cout << combined_surfs.size() << std::endl;
           std::cout << combined_senses.size() << std::endl;
           int edim;
+          //don't send surfaces that aren't in the mesh anymore to set_senses
           for(unsigned int index=0; index < combined_senses.size(); index++)
           {
 
@@ -1341,15 +1345,31 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
              combined_senses.erase(combined_senses.begin() +index);
             index=-1;
             }
+            
           }
- for(unsigned int index=0; index < combined_senses.size(); index++)
+          
+          //don't send unknown senses to set_senses
+          /*
+          for(unsigned int index=0; index < combined_senses.size() ; index++)
+          {
+          if (combined_senses[index]==0)
+            {
+             combined_surfs.erase(combined_surfs.begin() + index);
+  
+             combined_senses.erase(combined_senses.begin() + index);
+             index = -1;
+            }
+          }
+          */
+          for(unsigned int index=0; index < combined_senses.size(); index++)
           {
 
            std::cout << "combined_surfs{"<< index << "] = " << gen::geom_id_by_handle(combined_surfs[index]) << std::endl;
            std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
           }
           result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
-          /*if(gen::error(MB_SUCCESS!=result,"failed to set senses: "))
+          /*
+          if(gen::error(MB_SUCCESS!=result,"failed to set senses: "))
           {
            moab_printer(result);
            return result;
@@ -1580,7 +1600,8 @@ MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, co
 
 MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[], 
                                           const MBTag geom_tag,
-                                          const MBTag size_tag ) 
+                                          const MBTag size_tag,
+                                          bool verbose ) 
 {
   MBErrorCode rval;
   for( int dim = 1 ; dim < 4 ; ++dim ) 
@@ -1589,7 +1610,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
       {
 	double size;
 	//std::cout << "dim = " << dim << " *i =" << *i << std::endl;
-	rval = gen::measure( *i, geom_tag, size );
+	rval = gen::measure( *i, geom_tag, size, verbose );
 	//std::cout << " here in gen mesaure" << std::endl;
 	if(gen::error(MB_SUCCESS!=rval,"could not measure")) 
 	  {
@@ -1616,7 +1637,8 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
 MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[], 
                                          const MBTag geom_tag,
                                          const MBTag size_tag,
-                                         const double FACET_TOL ) {
+                                         const double FACET_TOL,
+                                         bool verbose ) {
   const bool debug = false;
       // save the largest difference for each dimension
       struct size_data {
@@ -1639,7 +1661,7 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
 	    std::cout << "rval=" << rval << " id=" << gen::geom_id_by_handle(*i) << std::endl;
 	  }
 	  assert(MB_SUCCESS == rval);
-	  rval = gen::measure( *i, geom_tag, new_size );
+	  rval = gen::measure( *i, geom_tag, new_size, verbose );
 	  assert(MB_SUCCESS == rval);
 
           // Remember the largest difference and associated percent difference
@@ -1910,7 +1932,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     if(check_geom_size) 
       {
 	//std::cout << "I am checking the geometry size" << std::endl;
-	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag );
+	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag, verbose );
 	if(gen::error(MB_SUCCESS!=result,"measuring geom size failed"))
 	  {
 	    return result;
@@ -1940,7 +1962,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
 	return(result);
       }
 
-    result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug);
+    result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug, verbose);
     if(gen::error(result!=MB_SUCCESS,"could not prepare the curves"))
       {
 	return(result);
@@ -2038,8 +2060,11 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     // Surface and volume sets are tagged with tags holding the obb tree
     // root handles. Somehow, delete the old tree without deleting the
     // surface and volume sets, then build a new tree.    
-    if (verbose) std::cout << "Removing stale OBB trees..." << std::endl;
-    result = cleanup::remove_obb_tree();
+    
+    // removing this for now, has something to do with an interaction with DAGMC 
+    // which doesn't actually occur any more
+    //if (verbose) std::cout << "Removing stale OBB trees..." << std::endl;
+    //result = cleanup::remove_obb_tree();
     //assert(MB_SUCCESS == result);
 
     //std::cout << "INSERT FUNCTION HERE TO REMOVE STALE VERTS, EDGES, TRIS, VERT SETS, ETC"
