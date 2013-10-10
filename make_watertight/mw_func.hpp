@@ -76,6 +76,8 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
                              const bool debug,
                              bool verbose = true);
 
+MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf);
+
 MBErrorCode fix_normals(MBRange surface_sets, 
                         MBTag id_tag, 
                         MBTag normal_tag,

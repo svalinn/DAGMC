@@ -8,8 +8,7 @@
 // make CXXFLAGS=-g for debug
 // make CXXFLAGS=-pg for profiling
 
-// modified by Andrew Davis 2012
-// Updated deprecated MOAB calls
+
 
 
 #include <iostream>
@@ -1145,24 +1144,14 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 	std::cout << "  deleted surface " << surf_id
                   << ", area=" << area << " cm^2, n_facets=" << tris.size() << std::endl;
 
-        // get the curves of the surface
-        std::vector<MBEntityHandle> del_surf_curves;
-        result = MBI() -> get_child_meshsets( *i, del_surf_curves);
-        if(gen::error(MB_SUCCESS!=result,"could not get the curves of the surface to delete")) return result;
-        std::cout << "got the curves" << std::endl;
-        moab::GeomTopoTool gt(MBI(), false);
-   
-        std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
-        for(unsigned int index =0 ; index < del_surf_curves.size() ; index++)
-        {
-          std::cout << "deleted surface curve id " << index << " = " << gen::geom_id_by_handle(del_surf_curves[index]) << std::endl;
-        }        
-
-
         // delete triangles from mesh data
 	result = MBI()->delete_entities( tris );                               
         if(gen::error(MB_SUCCESS!=result,"could not delete tris")) return result;
 	assert(MB_SUCCESS == result);
+
+        //remove the sense data for the surface from its child curves
+        result = remove_surf_sense_data(*i);
+        if(gen::error(MB_SUCCESS!=result, "could not remove surface's sense data")) return result;
 
         // remove the surface set itself
         result = MBI()->delete_entities( &(*i), 1);
@@ -1356,22 +1345,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
           std::cout << combined_surfs.size() << std::endl;
           std::cout << combined_senses.size() << std::endl;
           int edim;
-          //don't send surfaces that aren't in the mesh anymore to set_senses
-          for(unsigned int index=0; index < combined_senses.size(); index++)
-          {
-
-            edim=gt.dimension(combined_surfs[index]);
-            std::cout << edim << std::endl;
-            if (edim == -1)
-            {
-             combined_surfs.erase(combined_surfs.begin() +index);
-            
-             combined_senses.erase(combined_senses.begin() +index);
-            index=-1;
-            }
-            
-          }
-          
+           
           //don't send unknown senses to set_senses
           /*
           for(unsigned int index=0; index < combined_senses.size() ; index++)
@@ -1392,13 +1366,13 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
            std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
           }
           result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
-          
+          /*
           if(gen::error(MB_SUCCESS!=result,"failed to set senses: "))
           {
            moab_printer(result);
            return result;
           }
-          
+          */
           // add the duplicate curve_to_keep to the vector of curves
           *j = merged_curve;
           
@@ -1457,6 +1431,73 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
     } // loop over each surface
     return MB_SUCCESS;
   }
+
+// removes sense data from all curves associated with the surface given to the function
+
+MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf) {
+ MBErrorCode result;
+ // get the curves of the surface
+        MBRange del_surf_curves;
+        result = MBI() -> get_child_meshsets( del_surf, del_surf_curves);
+        if(gen::error(MB_SUCCESS!=result,"could not get the curves of the surface to delete")) return result;
+        std::cout << "got the curves" << std::endl;
+        moab::GeomTopoTool gt(MBI(), false);
+  
+
+        std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
+        for(unsigned int index =0 ; index < del_surf_curves.size() ; index++)
+        {
+          std::cout << "deleted surface's child curve id " << index << " = " << gen::geom_id_by_handle(del_surf_curves[index]) << std::endl;
+        }        
+  
+        //get the sense data for each curve
+
+        //get sense_tag handles from MOAB
+        MBTag senseEnts, senseSenses;
+        unsigned flags = MB_TAG_SPARSE;
+     
+        //get tag for the entities with sense data associated with a given moab entity
+        result = MBI()-> tag_get_handle(GEOM_SENSE_N_ENTS_TAG_NAME, 0, MB_TYPE_HANDLE, senseEnts, flags);
+        if(gen::error(MB_SUCCESS!=result, "could not get senseEnts tag")) return result;
+        
+        //get tag for the sense data associated with the senseEnts entities for a given moab entity
+        result = MBI()-> tag_get_handle(GEOM_SENSE_N_SENSES_TAG_NAME, 0, MB_TYPE_INTEGER, senseSenses, flags);
+        if(gen::error(MB_SUCCESS!=result,"could not get senseSenses tag")) return result;
+        
+        //initialize vectors for entities and sense data
+        std::vector<MBEntityHandle> surfaces;
+        std::vector<int> senses;
+        for(MBRange::iterator i=del_surf_curves.begin(); i!=del_surf_curves.end(); i++ ) 
+        {
+       
+        result = gt.get_senses(*i, surfaces, senses);
+        if(gen::error(MB_SUCCESS!=result, "could not get the senses for the del_surf_curve")) return result;
+          // if the surface to be deleted (del_surf) exists in the sense data (which it should), then remove it
+          for(unsigned int index = 0; index < senses.size() ; index++)
+          {
+            if(surfaces[index]==del_surf)
+            {
+             surfaces.erase(surfaces.begin() + index);
+             senses.erase(senses.begin() +index);
+             index=-1;
+            }
+          }
+          //remove existing sense entity data for the curve
+          result= MBI()-> tag_delete_data( senseEnts, &*i, 1);
+          if(gen::error(MB_SUCCESS!=result, "could not delete sense entity data")) return result;
+       
+          //remove existing sense data for the curve
+          result = MBI()-> tag_delete_data(senseSenses, &*i, 1);
+          if(gen::error(MB_SUCCESS!=result, "could not delete sense data")) return result;
+
+          //reset the sense data for each curve 
+          result = gt.set_senses( *i, surfaces, senses);
+          if(gen::error(MB_SUCCESS!=result, "could not update sense data for surface deletion")) return result;
+
+        }
+
+return MB_SUCCESS;
+} 
 
 MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, const bool debug, const bool verbose) {
     MBErrorCode result;
