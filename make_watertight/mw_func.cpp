@@ -34,6 +34,9 @@
 #include "cleanup.hpp"
 
 
+const char GEOM_SENSE_2_TAG_NAME[] = "GEOM_SENSE_2";
+const char GEOM_SENSE_N_ENTS_TAG_NAME[] = "GEOM_SENSE_N_ENTS";
+const char GEOM_SENSE_N_SENSES_TAG_NAME[] = "GEOM_SENSE_N_SENSES"; 
 
 
 MBInterface *MOAB();
@@ -1128,18 +1131,39 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       // If all of the curves are merged, remove the surfaces facets.
       // THIS ALSO REMOVES SURFACES THAT HAVE ALL CURVES DELETED?
       if(unmerged_curve_sets.empty()) {
+        //measure area of the surface  
         double area;
         result = gen::measure( *i, geom_tag, area, verbose );
         if(gen::error(MB_SUCCESS!=result,"could not measure area")) return result;
         assert(MB_SUCCESS == result);
+
+        //remove triagngles from the surface
         result = MBI()->remove_entities( *i, tris);                          
         if(gen::error(MB_SUCCESS!=result,"could not remove tris")) return result;
-	assert(MB_SUCCESS == result);                                                         
+	assert(MB_SUCCESS == result);                                                        
+
 	std::cout << "  deleted surface " << surf_id
                   << ", area=" << area << " cm^2, n_facets=" << tris.size() << std::endl;
+
+        // get the curves of the surface
+        std::vector<MBEntityHandle> del_surf_curves;
+        result = MBI() -> get_child_meshsets( *i, del_surf_curves);
+        if(gen::error(MB_SUCCESS!=result,"could not get the curves of the surface to delete")) return result;
+        std::cout << "got the curves" << std::endl;
+        moab::GeomTopoTool gt(MBI(), false);
+   
+        std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
+        for(unsigned int index =0 ; index < del_surf_curves.size() ; index++)
+        {
+          std::cout << "deleted surface curve id " << index << " = " << gen::geom_id_by_handle(del_surf_curves[index]) << std::endl;
+        }        
+
+
+        // delete triangles from mesh data
 	result = MBI()->delete_entities( tris );                               
         if(gen::error(MB_SUCCESS!=result,"could not delete tris")) return result;
 	assert(MB_SUCCESS == result);
+
         // remove the surface set itself
         result = MBI()->delete_entities( &(*i), 1);
         if(gen::error(MB_SUCCESS!=result,"could not delete surface set")) return result;
@@ -1368,13 +1392,13 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
            std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
           }
           result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
-          /*
+          
           if(gen::error(MB_SUCCESS!=result,"failed to set senses: "))
           {
            moab_printer(result);
            return result;
           }
-          */
+          
           // add the duplicate curve_to_keep to the vector of curves
           *j = merged_curve;
           
