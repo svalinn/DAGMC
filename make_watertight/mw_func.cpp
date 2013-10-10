@@ -1435,13 +1435,19 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 // removes sense data from all curves associated with the surface given to the function
 
 MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf) {
- MBErrorCode result;
+ 
+  MBErrorCode result;
+  moab::GeomTopoTool gt(MBI(), false);
+    int edim = gt.dimension(del_surf);
+
+    if(gen::error(edim!=2,"could not remove sense data: entity is of the wrong dimension")) return MB_FAILURE;
+
  // get the curves of the surface
         MBRange del_surf_curves;
         result = MBI() -> get_child_meshsets( del_surf, del_surf_curves);
         if(gen::error(MB_SUCCESS!=result,"could not get the curves of the surface to delete")) return result;
         std::cout << "got the curves" << std::endl;
-        moab::GeomTopoTool gt(MBI(), false);
+       
   
 
         std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
