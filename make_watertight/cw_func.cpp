@@ -88,14 +88,16 @@ namespace cw_func {
     {
       return result; // failed
     }
-
+//10/11/13
+//removed as a result of the change from the gen::find_skin function to the moab::Skinner:find_skin function 
+/*
   result = MBI()->delete_entities( edges ); //otherwise delete all edge
   
   if(MB_SUCCESS != result) // failed to delete edge data
     {
       return result; // failed
     }
-  
+*/  
   // loop over each volume meshset
   int vol_counter = 0;
   for(MBRange::iterator i=vol_sets.begin(); i!=vol_sets.end(); ++i) 
@@ -170,9 +172,10 @@ namespace cw_func {
 	  // generalized find_skin_vertices for MOAB it killed performance. As it stands,
 	  // gen::find_skin is ~7x faster (January 29, 2010).
 	  MBRange skin_edges;
+          moab::Skinner sk(MBI());
 	  if(!facets.empty()) 
 	    {
-	      result = gen::find_skin( facets, 1, skin_edges, false );
+	      result = sk.find_skin( facets, 1, skin_edges, false );
 	      if(MB_SUCCESS != result) 
 		{
 		  return result;
@@ -237,14 +240,20 @@ namespace cw_func {
 	temp.matched = false;
         the_coords_and_id.push_back(temp);
       }
-
+      //10/10/13
+      // Removed the following to avoid altering the data set at all
+      // -No need to delete skin_edges with the moab:Skinner find_skin function
+      // -skin_edges size will be reset to zero upon new MBRange skin_edges; call
       // clean up the edges for the next find_skin call
-      result = MBI()->delete_entities( skin_edges );
-      if(MB_SUCCESS != result) return result;
-      int n_edges;
-      result = MBI()->get_number_entities_by_type(0, MBEDGE, n_edges );
-      if(MB_SUCCESS != result) return result;
-      if(0 != n_edges) return MB_MULTIPLE_ENTITIES_FOUND;
+      //result = MBI()->delete_entities( skin_edges );
+      //if(MB_SUCCESS != result) return result;
+
+      //10/10/13
+      // - No ned to ensure edges aren't in the meshset with moab::Skinner find_skin function
+      //int n_edges;
+      //result = MBI()->get_number_entities_by_type(0, MBEDGE, n_edges );
+      //if(MB_SUCCESS != result) return result;
+      //if(gen::error(0 != n_edges, "n_edges not equal to zero")) return MB_MULTIPLE_ENTITIES_FOUND;
     }
 
     // sort the edges by the first vert. The first vert has a lower handle than the second.
