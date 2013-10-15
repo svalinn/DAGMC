@@ -1366,13 +1366,13 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
            std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
           }
           result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
-          /*
-          if(gen::error(MB_SUCCESS!=result,"failed to set senses: "))
+          
+          if(gen::error(MB_SUCCESS!=result && MB_MULTIPLE_ENTITIES_FOUND!=result,"failed to set senses: "))
           {
            moab_printer(result);
            return result;
           }
-          */
+          
           // add the duplicate curve_to_keep to the vector of curves
           *j = merged_curve;
           
