@@ -43,6 +43,46 @@ struct coords_and_id {
   MBEntityHandle vert2;
 };
 
+MBErrorCode reload_mesh( MBEntityHandle meshset, const char* filename, bool debug = false) {
+
+MBErrorCode result;
+
+  // clear meshset
+  result= MBI() -> clear_meshset(&meshset,1);
+  if(gen::error(MB_SUCCESS!=result, "could not clear the mesh set")) return result;
+
+  // ensure that the meshset no longer contains entities
+  int num_meshsets;
+  result= MBI() -> num_contained_meshsets ( meshset, &num_meshsets);
+  if(gen::error(MB_SUCCESS!=result, "could not get the number of meshsets")) return result; 
+
+  if (debug) std::cout << "number of mesh sets after clear = " << num_meshsets << std::endl;
+  if (num_meshsets!=0) return MB_FAILURE;
+  
+  // re-initialize meshset
+  result= MBI() -> create_meshset(MESHSET_SET, meshset);
+  if(gen::error(MB_SUCCESS!=result, "could not create the new meshset")) return result; 
+ 
+  //reload the file
+  result = MBI() -> load_file(filename, &meshset);
+  if(gen::error(MB_SUCCESS!=result, "could not re-load the file into the mesh set")) return result; 
+   
+  //check that something was loaded into the meshset
+  result= MBI() -> num_contained_meshsets ( meshset, &num_meshsets);
+  if(gen::error(MB_SUCCESS!=result, "could not get the number of meshsets")) return result; 
+
+  if(debug) std::cout << "number of mesh sets after reload = " << num_meshsets << std::endl;
+
+  if(num_meshsets==0) return MB_FAILURE;
+
+ 
+  
+
+return result;
+}
+
+
+
 MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = true ) {
  
   MBErrorCode result; 
@@ -215,7 +255,6 @@ if(verbose)
   result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-
   if(sealed)
   {
    std::cout << "PASS" << std::endl;
@@ -226,8 +265,11 @@ if(verbose)
    exit(0);
   }
   
+  result=reload_mesh(input_set, filename.c_str(), true);
+  if(gen::error(MB_SUCCESS!=result, "could not reload the mesh")) return result; 
 
  
+
 }
 
 MBInterface* MBI() {
