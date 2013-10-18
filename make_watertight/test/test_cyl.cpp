@@ -43,22 +43,16 @@ struct coords_and_id {
   MBEntityHandle vert2;
 };
 
-MBErrorCode reload_mesh( MBEntityHandle meshset, const char* filename, bool debug = false) {
+MBErrorCode reload_mesh(const char* filename,  MBEntityHandle &meshset, bool debug = false) {
 
 MBErrorCode result;
 
-  // clear meshset
-  result= MBI() -> clear_meshset(&meshset,1);
-  if(gen::error(MB_SUCCESS!=result, "could not clear the mesh set")) return result;
+  // delete meshset
+  result= MBI() -> delete_mesh();
+  if(gen::error(MB_SUCCESS!=result, "could not delete the mesh set")) return result;
 
-  // ensure that the meshset no longer contains entities
-  int num_meshsets;
-  result= MBI() -> num_contained_meshsets ( meshset, &num_meshsets);
-  if(gen::error(MB_SUCCESS!=result, "could not get the number of meshsets")) return result; 
 
-  if (debug) std::cout << "number of mesh sets after clear = " << num_meshsets << std::endl;
-  if (num_meshsets!=0) return MB_FAILURE;
-  
+
   // re-initialize meshset
   result= MBI() -> create_meshset(MESHSET_SET, meshset);
   if(gen::error(MB_SUCCESS!=result, "could not create the new meshset")) return result; 
@@ -66,24 +60,23 @@ MBErrorCode result;
   //reload the file
   result = MBI() -> load_file(filename, &meshset);
   if(gen::error(MB_SUCCESS!=result, "could not re-load the file into the mesh set")) return result; 
-   
+
   //check that something was loaded into the meshset
+  int num_meshsets;   
+
   result= MBI() -> num_contained_meshsets ( meshset, &num_meshsets);
   if(gen::error(MB_SUCCESS!=result, "could not get the number of meshsets")) return result; 
-
+  
   if(debug) std::cout << "number of mesh sets after reload = " << num_meshsets << std::endl;
 
   if(num_meshsets==0) return MB_FAILURE;
 
- 
-  
-
-return result;
+  return result;
 }
 
 
 
-MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = true ) {
+MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
   
@@ -214,7 +207,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
   
   if(gen::error(MB_SUCCESS!=result, "could not get vertex coordinates")) return result; 
 
-if(verbose)
+if(true)
 {
   std::cout<< "number of verticies= " << verts.size() << std::endl;  
   std::cout<< "number of surfaces= " << surf_sets.size() << std::endl;
@@ -241,16 +234,15 @@ if(verbose)
    std::cout << "Warning: geometry was not broken by single bump vert" << std::endl;
   }
 
+  // Make sure the model isn't originally watertight
+  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
   //seal the mesh
   double facet_tol;
   result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
   
-  
-
-
-
-
   // Lastly Check to see if make_watertight fixed the model
   result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
@@ -264,11 +256,42 @@ if(verbose)
    std::cout << "FAIL" << std::endl;
    exit(0);
   }
-  
-  result=reload_mesh(input_set, filename.c_str(), true);
-  if(gen::error(MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
  
+
+///////////////BEGIN 2ND TEST////////////////////////
+
+/*
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  // "Break" the geometry
+  result=single_vert_bump(verts, 0 , 0 , 10*tol, root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
+  
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+// Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+*/
 
 }
 

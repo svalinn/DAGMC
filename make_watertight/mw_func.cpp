@@ -1174,13 +1174,13 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       if(gen::error(MB_SUCCESS!=result,"could not get number of edges")) return result;
       assert(MB_SUCCESS == result);
       if(gen::error(0!=n_edges,"edges exist")) return result;
-      assert(0 == n_edges);
+      assert(0 == n_edges); //*** Why can't we have edges? (Also, this assertion is never used)
 
       // get the range of skin edges from the range of facets
       MBSkinner tool(MBI());
       MBRange skin_edges, skin_edges2;
       if(tris.empty()) continue; // nothing to zip
-      result = gen::find_skin( tris, 1, skin_edges, false );
+      result = tool.find_skin( tris, 1, skin_edges, false );
       if(gen::error(MB_SUCCESS!=result,"could not find_skin")) return result;
       assert(MB_SUCCESS == result);
       //std::cout << "my skinner size=" << skin_edges2.size() << std::endl;
@@ -1549,7 +1549,7 @@ MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, co
       int n_edges;
       result = MBI()->get_number_entities_by_type( 0, MBEDGE, n_edges );
       assert(MB_SUCCESS == result);
-      assert(0 == n_edges);
+      assert(0 == n_edges); // *** Why can't we have edges?
   
       // fix the inverted tris
       inverted_tri_counter += inverted_tris.size();
