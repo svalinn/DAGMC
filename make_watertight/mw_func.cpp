@@ -2016,7 +2016,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     // Get entity count before sealing.
     int orig_n_tris;
     result = MBI()->get_number_entities_by_type( 0, MBTRI, orig_n_tris );
-    std::cout << result << std::endl;
+    
 
     assert(MB_SUCCESS == result);
     if(verbose)

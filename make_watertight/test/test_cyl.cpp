@@ -207,12 +207,16 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
   
   if(gen::error(MB_SUCCESS!=result, "could not get vertex coordinates")) return result; 
 
-if(true)
+if(verbose)
 {
   std::cout<< "number of verticies= " << verts.size() << std::endl;  
   std::cout<< "number of surfaces= " << surf_sets.size() << std::endl;
   std::cout<< "number of volumes= "  << vol_sets.size() << std::endl;
 }
+
+///////////////BEGIN 1st TEST////////////////////////
+
+ std::cout << "Test 1: vertex bump in z direction:";
 
   //perform single vertex bump and test
   result=single_vert_bump(verts, 0 , 0 , 10*tol, root_name, verbose ); 
@@ -233,10 +237,6 @@ if(true)
   {
    std::cout << "Warning: geometry was not broken by single bump vert" << std::endl;
   }
-
-  // Make sure the model isn't originally watertight
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
-  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
   //seal the mesh
   double facet_tol;
@@ -260,7 +260,8 @@ if(true)
 
 ///////////////BEGIN 2ND TEST////////////////////////
 
-/*
+  std::cout << "Test 1: vertex bump in y direction:";
+
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
   if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
@@ -270,7 +271,7 @@ if(true)
   if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
 
   // "Break" the geometry
-  result=single_vert_bump(verts, 0 , 0 , 10*tol, root_name ); 
+  result=single_vert_bump(verts, 0 , 10*tol , 0, root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
   // Seal the mesh
@@ -291,7 +292,41 @@ if(true)
    std::cout << "FAIL" << std::endl;
    exit(0);
   }
-*/
+
+///////////////BEGIN 3RD TEST////////////////////////
+
+  std::cout << "Test 1: vertex bump in x direction:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  // "Break" the geometry
+  result=single_vert_bump(verts, 10*tol , 0 , 0, root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
+  
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+// Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
 
 }
 
