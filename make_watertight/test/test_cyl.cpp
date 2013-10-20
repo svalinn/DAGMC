@@ -28,6 +28,7 @@
 
 MBErrorCode move_vert( MBEntityHandle vertex, double dx, double dy, double dz, bool verbose = false );
 MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose = false);
+MBErrorCode move_vert_theta( MBEntityHandle vertex, double tolerance, bool verbose = false);
 
 MBInterface *MBI();
 
@@ -49,7 +50,7 @@ struct coords_and_id {
 // used to clear all mesh data and reload the file as original
 MBErrorCode reload_mesh(const char* filename,  MBEntityHandle &meshset, bool debug = false) {
 
-MBErrorCode result;
+  MBErrorCode result;
 
   // delete meshset
   result= MBI() -> delete_mesh();
@@ -80,13 +81,30 @@ MBErrorCode result;
 
 
 // bumps the last vertex in the model by the x,y,z values given to the problem 
-MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
+MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose = false ) {
  
   MBErrorCode result; 
   MBEntityHandle vertex=verts.back();
   //move the desired vertex by the allotted distance
-  result = move_vert( vertex, bump_dist_x, bump_dist_y, bump_dist_z);
+  result = move_vert( vertex, bump_dist_x, bump_dist_y, bump_dist_z );
   if(gen::error(MB_SUCCESS!=result, "could not move single vert")) return result;
+
+  return MB_SUCCESS;
+}
+
+// moves the last two verticies in the model the same distance
+MBErrorCode locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-1);
+  
+  //move the desired verticies by the allotted distance(s)
+  result = move_vert( vertex1, bump_dist_x, bump_dist_y, bump_dist_z, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = move_vert( vertex2, bump_dist_x, bump_dist_y, bump_dist_z, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
 
 
   // write mesh to a new file (might not be necesarry any longer as we move to doing tests on a moab-instance basis)
@@ -195,11 +213,13 @@ MBErrorCode move_vert( MBEntityHandle vertex, double dx, double dy, double dz, b
   std::cout << "x = " << coords[0] << std::endl;
   std::cout << "y = " << coords[1] << std::endl;
   std::cout << "z = " << coords[2] << std::endl;
-
+ }
   coords[0]+=dx;
   coords[1]+=dy;
   coords[2]+=dz;
   
+ if(verbose)
+ {
   //altered coordinates
   std::cout << std::endl << "Modified Coordinates" << std::endl;
   std::cout << "x = " << coords[0] << std::endl;
@@ -244,11 +264,13 @@ MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose) {
   std::cout << "x = " << coords[0] << std::endl;
   std::cout << "y = " << coords[1] << std::endl;
   std::cout << "z = " << coords[2] << std::endl;
-
+ }
   coords[0]+=dx;
   coords[1]+=dy;
   coords[2]+=dz;
-  
+
+ if(verbose)
+ {
   //altered coordinates
   std::cout << std::endl << "Modified Coordinates" << std::endl;
   std::cout << "x = " << coords[0] << std::endl;
@@ -263,6 +285,83 @@ MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose) {
 return MB_SUCCESS;
 }
 
+MBErrorCode move_vert_theta( MBEntityHandle vertex, double tolerance, bool verbose) {
+
+ MBErrorCode result; 
+  
+  //get vertex coordinates
+  double coords[3];
+  result= MBI()-> get_coords( &vertex , 1 , coords );
+ 
+  // determine radius
+  double radius=sqrt(pow(coords[0],2)+pow(coords[1],2));
+  //std::cout << "radius = " << radius << std::endl;
+
+  // get the current theta value
+  double theta=asin(coords[1]/radius);
+  //std::cout << "theta = " << theta << std::endl;
+  
+  // set the vertex bump distance
+  double dtheta = tolerance/(radius);
+  //std::cout << "dtheta = " << dtheta << std::endl;
+
+  if(verbose){
+  //original coordinates
+  std::cout << std::endl << "Original Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+ // create new x and y values
+  coords[0]=radius*cos(theta+dtheta); 
+  //std::cout << "new x value = " << coords[0] << std::endl;
+  coords[1]=radius*sin(theta+dtheta);
+  //std::cout << "new y value = " << coords[1] << std::endl;
+  if(verbose){
+  //altered coordinates
+  std::cout << std::endl << "Modified Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+  //set new vertex coordinates  
+  result=MBI()-> set_coords( &vertex, 1, coords);
+  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
+
+  return MB_SUCCESS;
+}
+
+MBErrorCode locked_pair_move_theta( MBRange verts, double tolerance, std::string root_name,  bool verbose = false) {
+
+  MBErrorCode result;
+
+  //get vertex coordinates
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=verts.back()-1;
+  
+  result= move_vert_theta( vertex1, tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result,"could not move vertex1 along theta")) return result; 
+  result= move_vert_theta( vertex2, tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result,"could not move vertex1 along theta")) return result; 
+
+   std::string output_filename = root_name + "_mod.h5m";
+  //write file
+  result=MBI()->write_mesh(output_filename.c_str());
+  if(gen::error(MB_SUCCESS!=result,"could not write the mesh to output_filename")) return result; 
+
+  return MB_SUCCESS;
+}
+
+  //for future integration of all single vertex move tests into one function
+/*
+MBErrorCode single_vert_move_tests( MBRange verts, double facet_tol, MBEntityHandle mesh_set, std::srting filename , bool sealed, bool test = true, bool verbose = false){
+  MBErrorCode result;
+
+
+return MB_SUCCESS;
+
+}
+*/
 
 int main(int argc, char **argv)
 {
@@ -313,7 +412,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
     }
 
   /// get faceting tolerance ////
-  double tol;
+  double facet_tolerance;
 
   MBTag faceting_tol_tag;
   //get faceting tolerance handle from file
@@ -327,7 +426,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
                         &faceting_tol_tag, NULL, 1, file_set );
 
   //get facetint tolerance value
-  result = MBI()->tag_get_data( faceting_tol_tag, &file_set.front(), 1, &tol );
+  result = MBI()->tag_get_data( faceting_tol_tag, &file_set.front(), 1, &facet_tolerance );
   if(gen::error(MB_SUCCESS!=result, "could not get the faceting tolerance")) return result; 
 
   // create tags on geometry
@@ -376,37 +475,30 @@ if(verbose)
   std::cout<< "number of volumes= "  << vol_sets.size() << std::endl;
 }
 
+//initialize booleans to pass to make_mesh_watertight
+  bool check_topology, test, sealed;
+       check_topology=false;
+       test=true;
+
+///////////Single Verticie Movement Tests////////////////////
+  //for future integration of all single vertex move tests into one function
+  //result=single_vert_move_tests(verts, facet_tolerance, input_set, sealed );
+  //if(gen::error(MB_SUCCESS!=result, "could not complete single vertex movement tests")) return result;
+
 ///////////////BEGIN 1st TEST////////////////////////
 
  std::cout << "Test 1: vertex bump in z direction:";
 
   //perform single vertex bump and test
-  result=single_vert_bump(verts, 0 , 0 , 10*tol, root_name, verbose ); 
+  result=single_vert_bump(verts, 0 , 0 , 0.9*facet_tolerance); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
- 
   
-  bool check_topology, test, sealed;
-  check_topology=false;
-  test=true;
-  
-  /*
-  //check that geometry is unsealed
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
-  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  */
-
-  if(sealed)
-  {
-   std::cout << "Warning: geometry was not broken by single bump vert" << std::endl;
-  }
-  
-  //seal the mesh
-  double facet_tol;
-  result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
+  // seal the model using make_watertight 
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
   
   // Lastly Check to see if make_watertight fixed the model
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
   if(sealed)
@@ -418,7 +510,6 @@ if(verbose)
    std::cout << "FAIL" << std::endl;
    exit(0);
   }
- 
 
 ///////////////BEGIN 2ND TEST////////////////////////
 
@@ -433,15 +524,15 @@ if(verbose)
   if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
 
   // "Break" the geometry
-  result=single_vert_bump(verts, 0 , 10*tol , 0, root_name ); 
+  result=single_vert_bump(verts, 0 , 0.9*facet_tolerance , 0); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
   // Seal the mesh
-  result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
 // Lastly Check to see if make_watertight fixed the model
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
 
@@ -454,6 +545,7 @@ if(verbose)
    std::cout << "FAIL" << std::endl;
    exit(0);
   }
+
 
 ///////////////BEGIN 3RD TEST////////////////////////
 
@@ -468,15 +560,15 @@ if(verbose)
   if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
 
   // "Break" the geometry
-  result = single_vert_bump(verts, 0.1 , 0 , 0, root_name ); 
+  result = single_vert_bump(verts, 0.1 , 0 , 0 ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
   // Seal the mesh
-  result = mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
+  result = mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
 // Lastly Check to see if make_watertight fixed the model
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
 
@@ -504,15 +596,15 @@ if(verbose)
 
   
   // "Break" the geometry
-  result=theta_vert_bump(verts, 0, tol, root_name ); 
+  result=theta_vert_bump(verts, 0, facet_tolerance, root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
   // Seal the mesh
-  result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
 // Lastly Check to see if make_watertight fixed the model
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
 
@@ -540,17 +632,178 @@ if(verbose)
 
   
   // "Break" the geometry
-  result=rand_vert_bump(verts, tol, root_name, true ); 
+  result=rand_vert_bump(verts, facet_tolerance, root_name); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
   // Seal the mesh
-  result=mw_func::make_mesh_watertight (input_set, facet_tol, verbose);
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
 // Lastly Check to see if make_watertight fixed the model
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test);
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
+
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+///////////////BEGIN 6TH TEST////////////////////////
+
+  std::cout << "Test 6: locked pair of verticies move in z:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_bump(verts, 0 , 0 , 0.9*facet_tolerance , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+
+   // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+  
+
+
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+///////////////BEGIN 7TH TEST////////////////////////
+
+  std::cout << "Test 7: locked pair of verticies move in y:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_bump(verts, 0 , 0.9*facet_tolerance , 0 , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+
+   // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+  
+
+
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+
+///////////////BEGIN 8TH TEST////////////////////////
+
+  std::cout << "Test 8: locked pair of verticies move in x:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_bump(verts, 0.9*facet_tolerance , 0 , 0 , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+
+   // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+  
+
+
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+///////////////BEGIN 9TH TEST////////////////////////
+
+  std::cout << "Test 9: locked pair of verticies move in theta:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_move_theta(verts, facet_tolerance , root_name); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+
+   // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+  
+
 
     if(sealed)
   {
