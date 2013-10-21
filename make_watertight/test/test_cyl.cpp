@@ -46,6 +46,18 @@ struct coords_and_id {
   MBEntityHandle vert2;
 };
 
+//appends "_mod" to the original file name and writes to a new .h5m 
+MBErrorCode write_mod_file( std::string filename) {
+
+ MBErrorCode result;
+ std::string output_filename = filename + "_mod.h5m";
+ //write file
+ result=MBI()->write_mesh(output_filename.c_str());
+ if(gen::error(MB_SUCCESS!=result,"could not write the mesh to output_filename")) return result; 
+
+  return MB_SUCCESS;
+}
+
 
 // used to clear all mesh data and reload the file as original
 MBErrorCode reload_mesh(const char* filename,  MBEntityHandle &meshset, bool debug = false) {
@@ -107,13 +119,7 @@ MBErrorCode locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dis
   if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
 
 
-  // write mesh to a new file (might not be necesarry any longer as we move to doing tests on a moab-instance basis)
-  // alter output filename
-  std::string output_filename = root_name + "_mod.h5m";
-
-  //write file
-  result=MBI()->write_mesh(output_filename.c_str());
-  if(gen::error(MB_SUCCESS!=result,"could not write the mesh to output_filename")) return result; 
+  
 
   return MB_SUCCESS;
 }
@@ -122,19 +128,11 @@ MBErrorCode locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dis
 MBErrorCode rand_vert_bump( MBRange verts, double facet_tol, std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
-  MBEntityHandle vertex=verts.back();
+  MBEntityHandle vertex = verts.back();
   //move the desired vertex by the allotted distance
   result = rand_vert_move( vertex, facet_tol, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not move single vert")) return result;
 
-
-  // write mesh to a new file (might not be necesarry any longer as we move to doing tests on a moab-instance basis)
-  // alter output filename
-  std::string output_filename = root_name + "_mod.h5m";
-
-  //write file
-  result=MBI()->write_mesh(output_filename.c_str());
-  if(gen::error(MB_SUCCESS!=result,"could not write the mesh to output_filename")) return result; 
 
   return MB_SUCCESS;
 }
@@ -159,7 +157,7 @@ MBErrorCode theta_vert_bump( MBRange verts, double bump_dist_theta, double toler
   //std::cout << "theta = " << theta << std::endl;
   
   // set the vertex bump distance
-  double dtheta = tolerance/(radius);
+  double dtheta = 0.5*tolerance/(radius);
   //std::cout << "dtheta = " << dtheta << std::endl;
 
  
@@ -170,29 +168,26 @@ MBErrorCode theta_vert_bump( MBRange verts, double bump_dist_theta, double toler
   std::cout << "x = " << coords[0] << std::endl;
   std::cout << "y = " << coords[1] << std::endl;
   std::cout << "z = " << coords[2] << std::endl;
-
+  }
  // create new x and y values
   coords[0]=radius*cos(theta+dtheta); 
-  std::cout << "new x value = " << coords[0] << std::endl;
-  coords[1]=radius*cos(theta+dtheta);
-  std::cout << "new y value = " << coords[1] << std::endl;
-  
+  //std::cout << "new x value = " << coords[0] << std::endl;
+  coords[1]=radius*sin(theta+dtheta);
+  //std::cout << "new y value = " << coords[1] << std::endl;
+  if(verbose)
+  {
   //altered coordinates
   std::cout << std::endl << "Modified Coordinates" << std::endl;
   std::cout << "x = " << coords[0] << std::endl;
   std::cout << "y = " << coords[1] << std::endl;
   std::cout << "z = " << coords[2] << std::endl;
- }
+  }
   //write new coordinates to the mesh
   // might not be necesarry any longer as we move to doing tests on a moab-instance basis
   result=MBI()-> set_coords( &vertex, 1, coords);
   if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
   // alter output filename
-  std::string output_filename = root_name + "_mod.h5m";
-  //write file
-  result=MBI()->write_mesh(output_filename.c_str());
-  if(gen::error(MB_SUCCESS!=result,"could not write the mesh to output_filename")) return result; 
-
+ 
   return MB_SUCCESS;
 }
 
@@ -343,11 +338,6 @@ MBErrorCode locked_pair_move_theta( MBRange verts, double tolerance, std::string
   if(gen::error(MB_SUCCESS!=result,"could not move vertex1 along theta")) return result; 
   result= move_vert_theta( vertex2, tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result,"could not move vertex1 along theta")) return result; 
-
-   std::string output_filename = root_name + "_mod.h5m";
-  //write file
-  result=MBI()->write_mesh(output_filename.c_str());
-  if(gen::error(MB_SUCCESS!=result,"could not write the mesh to output_filename")) return result; 
 
   return MB_SUCCESS;
 }
@@ -599,6 +589,10 @@ if(verbose)
   result=theta_vert_bump(verts, 0, facet_tolerance, root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
+  //Write to file 
+  result = write_mod_file(root_name); 
+  if(gen::error(MB_SUCCESS!=result, " could not write modified file")) return result; 
+
   // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
