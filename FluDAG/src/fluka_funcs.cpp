@@ -194,7 +194,9 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
       std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;     
       int act_vol = look( point[0],point[1],point[2],dir,oldRegion);
       std::cout << "Point actually belongs to " << act_vol << " aka " << DAG->entity_by_index(3,act_vol) << " aka " << DAG->id_by_index(3,act_vol) << std::endl;
-      exit(0);
+      //      exit(0);
+      oldRegion=act_vol;
+      std::cout << "Resetting the current volume" << std::endl;
     }
   
 
