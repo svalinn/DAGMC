@@ -124,6 +124,24 @@ MBErrorCode locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dis
   return MB_SUCCESS;
 }
 
+// moves the last two verticies in the model the same distance
+MBErrorCode locked_pair_bump_rand( MBRange verts, double facet_tol,  std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-1);
+  
+  //move the desired verticies by the allotted distance(s)
+  result = rand_vert_move( vertex1, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = rand_vert_move( vertex2, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+  return MB_SUCCESS;
+}
+
+
 // moves the last vertex in the model in a random direction by a distance less than the faceting tolerance
 MBErrorCode rand_vert_bump( MBRange verts, double facet_tol, std::string root_name, bool verbose = false ) {
  
@@ -230,6 +248,7 @@ return MB_SUCCESS;
 }
 
 // takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
+// setup to move the vert no further than the faceting tolerance
 MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose) {
 
  MBErrorCode result;
@@ -808,6 +827,51 @@ if(verbose)
    std::cout << "FAIL" << std::endl;
    exit(0);
   }
+
+///////////////BEGIN 10TH TEST////////////////////////
+
+  std::cout << "Test 10: adj. pair of verticies random move:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_bump_rand(verts, facet_tolerance , root_name); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  
+
+   // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+
+  //write the file
+  result = write_mod_file( root_name); 
+  if(gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
+
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+  if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
 
 }
 

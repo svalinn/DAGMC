@@ -1,8 +1,8 @@
 #include /home/patrick/moab_4.6.0/MOAB/lib/moab.make
 include /filespace/people/s/shriwise/dagmc_bld/MOAB/lib/moab.make
 
-INC = -I/home/patrick/scratch/moab_tools/make_watertight
-#INC = -I/filespace/people/s/shriwise/scratch/moab_tools/make_watertight
+#INC = -I/home/patrick/scratch/moab_tools/make_watertight
+INC = -I/filespace/people/s/shriwise/scratch/moab_tools/make_watertight
 MOAB_CXXFLAGS =  -Wall -pipe -pedantic -Wno-long-long ${INC}
 MOAB_CFLAGS = -Wall -pipe -pedantic -Wno-long-long ${INC}
 CXXFLAGS += ${MOAB_CXXFLAGS} -g 
