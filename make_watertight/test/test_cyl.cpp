@@ -29,6 +29,7 @@
 MBErrorCode move_vert( MBEntityHandle vertex, double dx, double dy, double dz, bool verbose = false );
 MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose = false);
 MBErrorCode move_vert_theta( MBEntityHandle vertex, double tolerance, bool verbose = false);
+MBErrorCode move_vert_R ( MBEntityHandle vertex, double tol, bool verbose = false ) ;
 
 MBInterface *MBI();
 
@@ -45,6 +46,187 @@ struct coords_and_id {
   MBEntityHandle vert1;
   MBEntityHandle vert2;
 };
+
+// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
+MBErrorCode move_vert( MBEntityHandle vertex, double dx, double dy, double dz, bool verbose) {
+
+ MBErrorCode result;
+ 
+ //get coordinates from the mesh
+ double coords[3];
+ result= MBI()-> get_coords( &vertex , 1 , coords );
+ if(gen::error(MB_SUCCESS!=result, "could not get the vertex coordinates")) return result; 
+
+ if(verbose)
+ {
+  //original coordinates
+  std::cout << std::endl << "Original Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+  coords[0]+=dx;
+  coords[1]+=dy;
+  coords[2]+=dz;
+  
+ if(verbose)
+ {
+  //altered coordinates
+  std::cout << std::endl << "Modified Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+ 
+  //write new coordinates to the mesh
+  result=MBI()-> set_coords( &vertex, 1, coords);
+  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
+
+return MB_SUCCESS;
+}
+
+// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
+// setup to move the vert no further than the faceting tolerance
+MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose) {
+
+ MBErrorCode result;
+ 
+ //get coordinates from the mesh
+ double coords[3];
+ result= MBI()-> get_coords( &vertex , 1 , coords );
+ if(gen::error(MB_SUCCESS!=result, "could not get the vertex coordinates")) return result; 
+
+ // get random values for the changes in x,y,z
+ double dx,dy,dz;
+ dx=rand(); dy=rand(); dz=rand();
+
+ double mag= sqrt(pow(dx,2)+pow(dy,2)+pow(dz,2));
+
+ // set the change in the vertex to be a unit vector
+ dx/=mag; dy/=mag; dz/=mag;
+
+ // set the change in the vertex to be something slightly less than the facet tolerance
+ dx*=tol*0.9; dy*=tol*0.9; dz*=tol*0.9;
+
+
+ if(verbose)
+ {
+  //original coordinates
+  std::cout << std::endl << "Original Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+  coords[0]+=dx;
+  coords[1]+=dy;
+  coords[2]+=dz;
+
+ if(verbose)
+ {
+  //altered coordinates
+  std::cout << std::endl << "Modified Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+ 
+  //write new coordinates to the mesh
+  result=MBI()-> set_coords( &vertex, 1, coords);
+  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
+
+return MB_SUCCESS;
+}
+
+MBErrorCode move_vert_theta( MBEntityHandle vertex, double tolerance, bool verbose) {
+
+ MBErrorCode result; 
+  
+  //get vertex coordinates
+  double coords[3];
+  result= MBI()-> get_coords( &vertex , 1 , coords );
+ 
+  // determine radius
+  double radius=sqrt(pow(coords[0],2)+pow(coords[1],2));
+  //std::cout << "radius = " << radius << std::endl;
+
+  // get the current theta value
+  // need both because of the oddness/evenness of the inverse functions
+  double theta_x=acos(coords[0]/radius);
+  double theta_y=asin(coords[1]/radius);
+
+  //std::cout << "theta = " << theta << std::endl;
+  
+  // set the vertex bump distance
+  double dtheta = tolerance/(radius);
+  //std::cout << "dtheta = " << dtheta << std::endl;
+
+  if(verbose){
+  //original coordinates
+  std::cout << std::endl << "Original Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+ // create new x and y values
+  coords[0]=radius*cos(theta_x+dtheta); 
+  //std::cout << "new x value = " << coords[0] << std::endl;
+  coords[1]=radius*sin(theta_y+dtheta);
+  //std::cout << "new y value = " << coords[1] << std::endl;
+  if(verbose){
+  //altered coordinates
+  std::cout << std::endl << "Modified Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+ }
+  //set new vertex coordinates  
+  result=MBI()-> set_coords( &vertex, 1, coords);
+  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
+
+  return MB_SUCCESS;
+}
+
+//moves the vertex in R some mag less than tol
+MBErrorCode move_vert_R( MBEntityHandle vertex, double tol, bool verbose ) {
+
+  MBErrorCode result; 
+  
+  //get vertex coordinates
+  double coords[3];
+  result= MBI()-> get_coords( &vertex , 1 , coords );
+ 
+  if(verbose){
+  //original coordinates
+  std::cout << std::endl << "Original Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+  }
+  double radius = sqrt(pow(coords[0],2)+pow(coords[1],2));
+  //get unit vector in x-y plane
+  coords[0]/=radius;
+  coords[1]/=radius;
+  
+  //alter radius to new value of radius+tol
+  radius-=tol;
+  coords[0]*=radius;
+  coords[1]*=radius;
+ 
+  if(verbose){
+  //altered coordinates
+  std::cout << std::endl << "Modified Coordinates" << std::endl;
+  std::cout << "x = " << coords[0] << std::endl;
+  std::cout << "y = " << coords[1] << std::endl;
+  std::cout << "z = " << coords[2] << std::endl;
+  }
+  
+  //set new vertex coordinates  
+  result=MBI()-> set_coords( &vertex, 1, coords);
+  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
+
+return MB_SUCCESS;
+}
+
 
 //appends "_mod" to the original file name and writes to a new .h5m 
 MBErrorCode write_mod_file( std::string filename ) {
@@ -99,6 +281,18 @@ MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dis
   MBEntityHandle vertex=verts.back();
   //move the desired vertex by the allotted distance
   result = move_vert( vertex, bump_dist_x, bump_dist_y, bump_dist_z );
+  if(gen::error(MB_SUCCESS!=result, "could not move single vert")) return result;
+
+  return MB_SUCCESS;
+}
+
+// bumps the last vertex in the model in the R direction
+MBErrorCode single_vert_bump_R( MBRange verts, double facet_tol, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+  MBEntityHandle vertex=verts.back();
+  //move the desired vertex by the allotted distance
+  result = move_vert_R( vertex, facet_tol, verbose );
   if(gen::error(MB_SUCCESS!=result, "could not move single vert")) return result;
 
   return MB_SUCCESS;
@@ -272,145 +466,6 @@ MBErrorCode theta_vert_bump( MBRange verts, double bump_dist_theta, double toler
   if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
   // alter output filename
  
-  return MB_SUCCESS;
-}
-
-// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
-MBErrorCode move_vert( MBEntityHandle vertex, double dx, double dy, double dz, bool verbose) {
-
- MBErrorCode result;
- 
- //get coordinates from the mesh
- double coords[3];
- result= MBI()-> get_coords( &vertex , 1 , coords );
- if(gen::error(MB_SUCCESS!=result, "could not get the vertex coordinates")) return result; 
-
- if(verbose)
- {
-  //original coordinates
-  std::cout << std::endl << "Original Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
- }
-  coords[0]+=dx;
-  coords[1]+=dy;
-  coords[2]+=dz;
-  
- if(verbose)
- {
-  //altered coordinates
-  std::cout << std::endl << "Modified Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
- }
- 
-  //write new coordinates to the mesh
-  result=MBI()-> set_coords( &vertex, 1, coords);
-  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
-
-return MB_SUCCESS;
-}
-
-// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
-// setup to move the vert no further than the faceting tolerance
-MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose) {
-
- MBErrorCode result;
- 
- //get coordinates from the mesh
- double coords[3];
- result= MBI()-> get_coords( &vertex , 1 , coords );
- if(gen::error(MB_SUCCESS!=result, "could not get the vertex coordinates")) return result; 
-
- // get random values for the changes in x,y,z
- double dx,dy,dz;
- dx=rand(); dy=rand(); dz=rand();
-
- double mag= sqrt(pow(dx,2)+pow(dy,2)+pow(dz,2));
-
- // set the change in the vertex to be a unit vector
- dx/=mag; dy/=mag; dz/=mag;
-
- // set the change in the vertex to be something slightly less than the facet tolerance
- dx*=tol*0.9; dy*=tol*0.9; dz*=tol*0.9;
-
-
- if(verbose)
- {
-  //original coordinates
-  std::cout << std::endl << "Original Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
- }
-  coords[0]+=dx;
-  coords[1]+=dy;
-  coords[2]+=dz;
-
- if(verbose)
- {
-  //altered coordinates
-  std::cout << std::endl << "Modified Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
- }
- 
-  //write new coordinates to the mesh
-  result=MBI()-> set_coords( &vertex, 1, coords);
-  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
-
-return MB_SUCCESS;
-}
-
-MBErrorCode move_vert_theta( MBEntityHandle vertex, double tolerance, bool verbose) {
-
- MBErrorCode result; 
-  
-  //get vertex coordinates
-  double coords[3];
-  result= MBI()-> get_coords( &vertex , 1 , coords );
- 
-  // determine radius
-  double radius=sqrt(pow(coords[0],2)+pow(coords[1],2));
-  //std::cout << "radius = " << radius << std::endl;
-
-  // get the current theta value
-  // need both because of the oddness/evenness of the inverse functions
-  double theta_x=acos(coords[0]/radius);
-  double theta_y=asin(coords[1]/radius);
-
-  //std::cout << "theta = " << theta << std::endl;
-  
-  // set the vertex bump distance
-  double dtheta = tolerance/(radius);
-  //std::cout << "dtheta = " << dtheta << std::endl;
-
-  if(verbose){
-  //original coordinates
-  std::cout << std::endl << "Original Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
- }
- // create new x and y values
-  coords[0]=radius*cos(theta_x+dtheta); 
-  //std::cout << "new x value = " << coords[0] << std::endl;
-  coords[1]=radius*sin(theta_y+dtheta);
-  //std::cout << "new y value = " << coords[1] << std::endl;
-  if(verbose){
-  //altered coordinates
-  std::cout << std::endl << "Modified Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
- }
-  //set new vertex coordinates  
-  result=MBI()-> set_coords( &vertex, 1, coords);
-  if (gen::error(MB_SUCCESS!=result, "could not set the vertex coordinates")) return result;
-
   return MB_SUCCESS;
 }
 
@@ -784,6 +839,46 @@ if(verbose)
    exit(0);
   }
 
+
+///////////////BEGIN TEST A////////////////////////
+
+  std::cout << "Test A: vertex bump in R direction:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=single_vert_bump_R(verts, facet_tolerance ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
+  
+  //write the mesh
+  result  = write_mod_file( root_name);
+  if (gen::error(MB_SUCCESS!=result, "could not write the modified file" )) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
 ///////////////BEGIN 4TH TEST////////////////////////
 
   std::cout << "Test 4: vertex bump in theta direction:" ;
