@@ -483,6 +483,79 @@ MBErrorCode adjplone_locked_pair_bump_rand( MBRange verts, double facet_tol , st
 
   return MB_SUCCESS;
 }
+
+
+// selects a random pair of adjacent verticies and bumps them the same amount
+MBErrorCode nonadj_locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  //select random verticies from verts
+  int number_of_verts = verts.size();
+  double num = rand()/static_cast<double>(RAND_MAX);
+  //std::cout << "max index = " << (number_of_verts-2)<< std::endl;
+  int index = static_cast<int>(num*((number_of_verts-2)));
+  //std::cout << "index = " << index << std::endl;
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-index);
+  
+  //move the desired verticies by the allotted distance(s)
+  result = move_vert( vertex1, bump_dist_x, bump_dist_y, bump_dist_z, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = move_vert( vertex2, bump_dist_x, bump_dist_y, bump_dist_z, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+  return MB_SUCCESS;
+}
+
+// selects a random pair of adjacent verticies and bumps them along the theta direction 
+MBErrorCode nonadj_locked_pair_bump_theta( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  //select random verticies from verts
+  int number_of_verts = verts.size();
+  double num = rand()/static_cast<double>(RAND_MAX);
+  //std::cout << "max index = " << (number_of_verts-2)<< std::endl;
+  int index = static_cast<int>(num*((number_of_verts-2)));
+  //std::cout << "index = " << index << std::endl;
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-index);
+  
+  //move the desired verticies by the allotted distance(s)
+  result = move_vert_theta( vertex1, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = move_vert_theta( vertex2, facet_tol , verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+  return MB_SUCCESS;
+}
+
+// selects a random pair of adjacent verticies and bumps them along the theta direction 
+MBErrorCode nonadj_locked_pair_bump_rand( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  //select random verticies from verts
+  int number_of_verts = verts.size();
+  double num = rand()/static_cast<double>(RAND_MAX);
+  //std::cout << "max index = " << (number_of_verts-2)<< std::endl;
+  int index = static_cast<int>(num*((number_of_verts-2)));
+  //std::cout << "index = " << index << std::endl;
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-index);
+  
+  //move the desired verticies by the allotted distance(s)
+  result = rand_vert_move( vertex1, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = rand_vert_move( vertex2, facet_tol , verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+  return MB_SUCCESS;
+}
   //for future integration of all single vertex move tests into one function
 /*
 MBErrorCode single_vert_move_tests( MBRange verts, double facet_tol, MBEntityHandle mesh_set, std::srting filename , bool sealed, bool test = true, bool verbose = false){
@@ -1095,11 +1168,7 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   result=rand_locked_pair_bump_theta(verts, facet_tolerance , root_name); 
   if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
 
-  // write them mesh to check that its truly broken
-  result = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
-
-   // Seal the mesh
+  // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
@@ -1133,11 +1202,7 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   result=rand_locked_pair_bump_rand(verts, facet_tolerance , root_name); 
   if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
 
-  // write them mesh to check that its truly broken
-  result = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
-
-   // Seal the mesh
+  // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
@@ -1176,11 +1241,7 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=adjplone_locked_pair_bump(verts, 0.9*facet_tolerance , 0 , 0 , root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
 
-  // write them mesh to check that its truly broken
-  result = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
-
-   // Seal the mesh
+  // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
@@ -1214,11 +1275,7 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=adjplone_locked_pair_bump(verts, 0 , 0.9*facet_tolerance , 0 , root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
 
-  // write them mesh to check that its truly broken
-  result = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
-
-   // Seal the mesh
+  // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
@@ -1252,11 +1309,7 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=adjplone_locked_pair_bump(verts, 0 , 0 , 0.9*facet_tolerance , root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
 
-  // write them mesh to check that its truly broken
-  result = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
-
-   // Seal the mesh
+  // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
@@ -1291,11 +1344,7 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=adjplone_locked_pair_bump_theta(verts, facet_tolerance , root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
 
-  // write them mesh to check that its truly broken
-  result = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
-
-   // Seal the mesh
+  // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
@@ -1329,11 +1378,7 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=adjplone_locked_pair_bump_rand(verts, facet_tolerance , root_name ); 
   if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
 
-  // write them mesh to check that its truly broken
-  result = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file")) return result; 
-
-   // Seal the mesh
+  // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
   if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
 
@@ -1351,6 +1396,181 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
    exit(0);
   }
 
+//////////NON-ADJACENT LOCKED PAIR TESTS//////////////
+
+std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
+
+///////////////BEGIN 21TH TEST////////////////////////
+
+  std::cout << "Test 21: non-adjacent locked pair of verticies move in x:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  //"Break" the geometry
+  result= nonadj_locked_pair_bump(verts,  0.9*facet_tolerance , 0 , 0 , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+///////////////BEGIN 22TH TEST////////////////////////
+
+  std::cout << "Test 22: non-adjacent locked pair of verticies move in y:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  //"Break" the geometry
+  result= nonadj_locked_pair_bump(verts, 0 ,  0.9*facet_tolerance , 0 , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+
+///////////////BEGIN 23TH TEST////////////////////////
+
+  std::cout << "Test 23: non-adjacent locked pair of verticies move in z:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  //"Break" the geometry
+  result= nonadj_locked_pair_bump(verts, 0 , 0 ,  0.9*facet_tolerance  , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+///////////////BEGIN 24TH TEST////////////////////////
+
+  std::cout << "Test 24: non-adjacent locked pair of verticies move in theta:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  //"Break" the geometry
+  result= nonadj_locked_pair_bump_theta(verts, facet_tolerance , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
+
+
+///////////////BEGIN 25TH TEST////////////////////////
+
+  std::cout << "Test 25: non-adjacent locked pair of verticies move in random dir:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  //"Break" the geometry
+  result= nonadj_locked_pair_bump_rand(verts, facet_tolerance , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   exit(0);
+  }
 }
 
 MBInterface* MBI() {
