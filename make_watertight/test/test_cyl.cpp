@@ -197,6 +197,7 @@ MBErrorCode move_vert_R( MBEntityHandle vertex, double tol, bool verbose ) {
  
   if(verbose){
   //original coordinates
+  std::cout << "Vertex ID: " << gen::geom_id_by_handle(vertex) << std::endl;
   std::cout << std::endl << "Original Coordinates" << std::endl;
   std::cout << "x = " << coords[0] << std::endl;
   std::cout << "y = " << coords[1] << std::endl;
@@ -611,6 +612,86 @@ MBErrorCode nonadj_locked_pair_bump_rand( MBRange verts, double facet_tol , std:
 
   return MB_SUCCESS;
 }
+
+MBErrorCode locked_pair_bump_R( MBRange verts, double facet_tol,  std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-1);
+ 
+  //move the desired verticies by the allotted distance(s)
+  result = move_vert_R( vertex1, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = move_vert_R( vertex2, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+
+  return MB_SUCCESS;
+}
+
+MBErrorCode rand_locked_pair_bump_R( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  //select random verticies from verts
+  int number_of_verts = verts.size();
+  double num = rand()/static_cast<double>(RAND_MAX);
+ 
+  int index = 1+static_cast<int>(num*(number_of_verts-1));
+  //std::cout << "index = " << index << std::endl;
+
+  MBEntityHandle vertex1=(verts.back()-index);
+  MBEntityHandle vertex2=(verts.back()-index-1);
+  
+  //move the desired verticies by the allotted distance(s)
+  result = move_vert_R( vertex1, facet_tol , verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = move_vert_R( vertex2, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+  return MB_SUCCESS;
+}
+
+MBErrorCode adjplone_locked_pair_bump_R( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-2);
+ 
+  //move the desired verticies by the allotted distance(s)
+  result = move_vert_R( vertex1, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = move_vert_R( vertex2, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+
+  return MB_SUCCESS;
+}
+
+MBErrorCode nonadj_locked_pair_bump_R( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
+ 
+  MBErrorCode result; 
+
+  //select random verticies from verts
+  int number_of_verts = verts.size();
+  double num = rand()/static_cast<double>(RAND_MAX);
+  //std::cout << "max index = " << (number_of_verts-2)<< std::endl;
+  int index = static_cast<int>(num*((number_of_verts-2)));
+  //std::cout << "index = " << index << std::endl;
+
+  MBEntityHandle vertex1=verts.back();
+  MBEntityHandle vertex2=(verts.back()-index);
+  
+  //move the desired verticies by the allotted distance(s)
+  result = move_vert_R( vertex1, facet_tol, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex1")) return result;
+  result = move_vert_R( vertex2, facet_tol , verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not move vertex2")) return result;
+
+  return MB_SUCCESS;
+}
   //for future integration of all single vertex move tests into one function
 /*
 MBErrorCode single_vert_move_tests( MBRange verts, double facet_tol, MBEntityHandle mesh_set, std::srting filename , bool sealed, bool test = true, bool verbose = false){
@@ -735,19 +816,23 @@ if(verbose)
 }
 
 //initialize booleans to pass to make_mesh_watertight
+
   bool check_topology, test, sealed;
        check_topology=false;
        test=true;
+  
+// initialize boolean for each set of tests
+  bool test_set_result=true;
 
 ///////////Single Verticie Movement Tests////////////////////
   std::cout << "SINGLE VERTEXT MOVEMENT TESTS" << std::endl;
 
 ///////////////BEGIN 1st TEST////////////////////////
 
- std::cout << "Test 1: vertex bump in z direction:";
+ std::cout << "Test 1: vertex bump in x direction:";
 
   //perform single vertex bump and test
-  result=single_vert_bump(verts, 0 , 0 , 0.9*facet_tolerance); 
+  result=single_vert_bump(verts, 0.9*facet_tolerance , 0 , 0 ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
   // seal the model using make_watertight 
@@ -765,7 +850,7 @@ if(verbose)
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
 ///////////////BEGIN 2ND TEST////////////////////////
@@ -800,13 +885,13 @@ if(verbose)
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
 
 ///////////////BEGIN 3RD TEST////////////////////////
 
-  std::cout << "Test 3: vertex bump in x direction:" ;
+  std::cout << "Test 3: vertex bump in z direction:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -817,7 +902,7 @@ if(verbose)
   if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
 
   // "Break" the geometry
-  result = single_vert_bump(verts, 0.1 , 0 , 0 ); 
+  result = single_vert_bump(verts, 0 , 0 , 0.9*facet_tolerance ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
   // Seal the mesh
@@ -836,13 +921,13 @@ if(verbose)
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
 
-///////////////BEGIN TEST A////////////////////////
+///////////////BEGIN 4th TEST ////////////////////////
 
-  std::cout << "Test A: vertex bump in R direction:" ;
+  std::cout << "Test 4: vertex bump in R direction:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -852,14 +937,10 @@ if(verbose)
   result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
   if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
 
-  
-  // "Break" the geometry
+    // "Break" the geometry
   result=single_vert_bump_R(verts, facet_tolerance ); 
   if(gen::error(MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
   
-  //write the mesh
-  result  = write_mod_file( root_name);
-  if (gen::error(MB_SUCCESS!=result, "could not write the modified file" )) return result;
 
   // Seal the mesh
   result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
@@ -877,11 +958,11 @@ if(verbose)
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
-///////////////BEGIN 4TH TEST////////////////////////
+///////////////BEGIN 5TH TEST////////////////////////
 
-  std::cout << "Test 4: vertex bump in theta direction:" ;
+  std::cout << "Test 5: vertex bump in theta direction:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -912,12 +993,12 @@ if(verbose)
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 5TH TEST////////////////////////
+///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 5: vertex bump in rand direction:" ;
+  std::cout << "Test 6: vertex bump in rand direction:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -941,97 +1022,35 @@ if(verbose)
   if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
 
-    if(sealed)
+  if(sealed)
   {
-   std::cout << "PASS" << std::endl;
+   std::cout << "PASS" << std::endl << std::endl ;
   }
   else
   {
-   std::cout << "FAIL" << std::endl;
-   exit(0);
+   std::cout << "FAIL" << std::endl << std::endl ;
+   test_set_result=false;
   }
 
+//////////END SINGLE VERTEX MOVEMENT TESTS///////////
 
-//////////LOCKED PAIR MOVEMENT TESTS/////////////////
-
-std::cout << "LOCKED PAIR MOVEMENT TESTS" << std::endl;
-
-///////////////BEGIN 6TH TEST////////////////////////
-
-  std::cout << "Test 6: locked pair of verticies move in z:" ;
-
-  // Clear the mesh and reload original geometry for the next test
-  result=reload_mesh( filename.c_str(), input_set);
-  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  
-  // "Break" the geometry
-  result=locked_pair_bump(verts, 0 , 0 , 0.9*facet_tolerance , root_name ); 
-  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-
-   // Seal the mesh
-  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
-  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
-  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-    if(sealed)
+  if(test_set_result)
   {
-   std::cout << "PASS" << std::endl;
+   std::cout << "SINGLE VERTEX MOVEMENT TESTS PASSED" << std::endl << std::endl;
   }
   else
   {
-   std::cout << "FAIL" << std::endl;
+   std::cout << "SINGLE VERTEX MOVEMENT TESTS FAILED" << std::endl << std::endl;
    exit(0);
   }
 
-///////////////BEGIN 7TH TEST////////////////////////
+//////////LOCKED VERTEX PAIR MOVEMENT TESTS/////////////////
 
-  std::cout << "Test 7: locked pair of verticies move in y:" ;
+std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS" << std::endl;
 
-  // Clear the mesh and reload original geometry for the next test
-  result=reload_mesh( filename.c_str(), input_set);
-  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+///////////////BEGIN 1ST TEST////////////////////////
 
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  
-  // "Break" the geometry
-  result=locked_pair_bump(verts, 0 , 0.9*facet_tolerance , 0 , root_name ); 
-  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-
-   // Seal the mesh
-  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
-  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
-  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   exit(0);
-  }
-
-
-///////////////BEGIN 8TH TEST////////////////////////
-
-  std::cout << "Test 8: locked pair of verticies move in x:" ;
+  std::cout << "Test 1: locked pair of verticies move in z:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1062,12 +1081,121 @@ std::cout << "LOCKED PAIR MOVEMENT TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 9TH TEST////////////////////////
+///////////////BEGIN 2ND TEST////////////////////////
 
-  std::cout << "Test 9: locked pair of verticies move in theta:" ;
+  std::cout << "Test 2: locked pair of verticies move in y:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_bump(verts, 0 , 0.9*facet_tolerance , 0 , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+
+   // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   test_set_result=false;
+  }
+
+
+///////////////BEGIN 3RD TEST////////////////////////
+
+  std::cout << "Test 3: locked pair of verticies move in z:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_bump(verts, 0 , 0 , 0.9*facet_tolerance , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+
+   // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   test_set_result=false;
+  }
+
+///////////////BEGIN 4TH TEST////////////////////////
+
+  std::cout << "Test 4: locked pair of verticies move in R:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  
+  // "Break" the geometry
+  result=locked_pair_bump_R(verts, facet_tolerance , root_name); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   test_set_result=false;
+  }
+
+///////////////BEGIN 5TH TEST////////////////////////
+
+  std::cout << "Test 5: locked pair of verticies move in theta:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1098,12 +1226,12 @@ std::cout << "LOCKED PAIR MOVEMENT TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 10TH TEST////////////////////////
+///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 10: adj. pair of verticies random move:" ;
+  std::cout << "Test 6: adj. pair of verticies random move:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1132,21 +1260,35 @@ std::cout << "LOCKED PAIR MOVEMENT TESTS" << std::endl;
 
   if(sealed)
   {
-   std::cout << "PASS" << std::endl;
+   std::cout << "PASS" << std::endl << std::endl ;
   }
   else
   {
-   std::cout << "FAIL" << std::endl;
+   std::cout << "FAIL" << std::endl << std::endl ;
+   test_set_result=false;
+  }
+
+
+//////////END LOCKED VERTEX PAIR MOVEMENT TESTS///////////
+
+  if(test_set_result)
+  {
+   std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
+  }
+  else
+  {
+   std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
    exit(0);
   }
+
 
 ////////////RAND PAIR MOVEMENT TESTS//////////////////
 
 std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
 
-///////////////BEGIN 11TH TEST////////////////////////
+///////////////BEGIN 1ST TEST////////////////////////
 
-  std::cout << "Test 11: random locked pair of verticies move in x:" ;
+  std::cout << "Test 1: random locked pair of verticies move in x:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1175,12 +1317,12 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 12TH TEST////////////////////////
+///////////////BEGIN 2ND TEST////////////////////////
 
-  std::cout << "Test 12: random locked pair of verticies move in y:" ;
+  std::cout << "Test 2: random locked pair of verticies move in y:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1210,12 +1352,12 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 13TH TEST////////////////////////
+///////////////BEGIN 3RD TEST////////////////////////
 
-  std::cout << "Test 13: random locked pair of verticies move in z:" ;
+  std::cout << "Test 3: random locked pair of verticies move in z:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1244,12 +1386,46 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 14TH TEST////////////////////////
+///////////////BEGIN 4TH TEST////////////////////////
 
-  std::cout << "Test 14: random locked pair of verticies move in theta:" ;
+  std::cout << "Test 4: random locked pair of verticies move in R:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  // "Break" the geometry
+  result=rand_locked_pair_bump_R(verts, facet_tolerance , root_name); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   test_set_result=false;
+  }
+
+///////////////BEGIN 5TH TEST////////////////////////
+
+  std::cout << "Test 5: random locked pair of verticies move in theta:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1278,12 +1454,12 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 15TH TEST////////////////////////
+///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 15: random locked pair of verticies move in random dir:" ;
+  std::cout << "Test 6: random locked pair of verticies move in random dir:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1307,11 +1483,24 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   
     if(sealed)
   {
-   std::cout << "PASS" << std::endl;
+   std::cout << "PASS" << std::endl << std::endl ;
   }
   else
   {
-   std::cout << "FAIL" << std::endl;
+   std::cout << "FAIL" << std::endl << std::endl ;
+   test_set_result=false;
+  }
+
+
+//////////END RAND LOCKED VERTEX PAIR MOVEMENT TESTS///////////
+
+  if(test_set_result)
+  {
+   std::cout << "RANDOM LOCKED VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
+  }
+  else
+  {
+   std::cout << "RANDOM LOCKED VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
    exit(0);
   }
 
@@ -1320,9 +1509,9 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
 
 std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
 
-///////////////BEGIN 16TH TEST////////////////////////
+///////////////BEGIN 1ST TEST////////////////////////
 
-  std::cout << "Test 16: locked pair of verticies (adj+1) move in x:" ;
+  std::cout << "Test 1: locked pair of verticies (adj+1) move in x:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1351,12 +1540,12 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 17TH TEST////////////////////////
+///////////////BEGIN 2ND TEST////////////////////////
 
-  std::cout << "Test 17: locked pair of verticies (adj+1) move in y:" ;
+  std::cout << "Test 2: locked pair of verticies (adj+1) move in y:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1385,12 +1574,12 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 18TH TEST////////////////////////
+///////////////BEGIN 3RD TEST////////////////////////
 
-  std::cout << "Test 18: locked pair of verticies (adj+1) move in z:" ;
+  std::cout << "Test 3: locked pair of verticies (adj+1) move in z:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1419,13 +1608,45 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
+///////////////BEGIN 4TH TEST////////////////////////
 
-///////////////BEGIN 19TH TEST////////////////////////
+  std::cout << "Test 4: locked pair of verticies (adj+1) move in R:" ;
 
-  std::cout << "Test 19: locked pair of verticies (adj+1) move in theta:" ;
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  //"Break" the geometry
+  result=adjplone_locked_pair_bump_R(verts, facet_tolerance , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+ 
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   test_set_result=false;
+  }
+///////////////BEGIN 5TH TEST////////////////////////
+
+  std::cout << "Test 5: locked pair of verticies (adj+1) move in theta:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1454,12 +1675,12 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 20TH TEST////////////////////////
+///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 20: locked pair of verticies (adj+1) move in random dir:" ;
+  std::cout << "Test 6: locked pair of verticies (adj+1) move in random dir:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1483,21 +1704,35 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   
     if(sealed)
   {
-   std::cout << "PASS" << std::endl;
+   std::cout << "PASS" << std::endl << std::endl ;
+  }
+  else
+   
+  {
+   std::cout << "FAIL" << std::endl << std::endl ;
+   test_set_result=false;
+  }
+
+//////////END ADJACENT + 1 VERTEX MOVEMENT TESTS///////////
+
+  if(test_set_result)
+  {
+   std::cout << "ADJACENT PLUS ONE VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
   }
   else
   {
-   std::cout << "FAIL" << std::endl;
+   std::cout << "ADJACENT PLUS ONE VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
    exit(0);
   }
+
 
 //////////NON-ADJACENT LOCKED PAIR TESTS//////////////
 
 std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
 
-///////////////BEGIN 21TH TEST////////////////////////
+///////////////BEGIN 1ST TEST////////////////////////
 
-  std::cout << "Test 21: non-adjacent locked pair of verticies move in x:" ;
+  std::cout << "Test 1: non-adjacent locked pair of verticies move in x:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1526,12 +1761,12 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 22TH TEST////////////////////////
+///////////////BEGIN 2ND TEST////////////////////////
 
-  std::cout << "Test 22: non-adjacent locked pair of verticies move in y:" ;
+  std::cout << "Test 2: non-adjacent locked pair of verticies move in y:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1560,13 +1795,13 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
 
-///////////////BEGIN 23TH TEST////////////////////////
+///////////////BEGIN 3RD TEST////////////////////////
 
-  std::cout << "Test 23: non-adjacent locked pair of verticies move in z:" ;
+  std::cout << "Test 3: non-adjacent locked pair of verticies move in z:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1595,12 +1830,50 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
-///////////////BEGIN 24TH TEST////////////////////////
+///////////////BEGIN 4TH TEST////////////////////////
 
-  std::cout << "Test 24: non-adjacent locked pair of verticies move in theta:" ;
+  std::cout << "Test 4: non-adjacent locked pair of verticies move in R:" ;
+
+  // Clear the mesh and reload original geometry for the next test
+  result=reload_mesh( filename.c_str(), input_set);
+  if (gen::error(MB_SUCCESS!=result, "could not reload the mesh" )) return result; 
+
+  // retrieve the verticies again so the model can be broken
+  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
+  if(gen::error(MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
+
+  //"Break" the geometry
+  result= nonadj_locked_pair_bump_R(verts, facet_tolerance , root_name ); 
+  if(gen::error(MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+
+  // write a new file for checking broken geometry
+  result = write_mod_file( root_name);
+  if(gen::error(MB_SUCCESS!=result, "could not write new file")) return result;
+
+  // Seal the mesh
+  result=mw_func::make_mesh_watertight (input_set, facet_tolerance, verbose);
+  if(gen::error(MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+
+  // Lastly Check to see if make_watertight fixed the model
+  result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
+  if(gen::error(MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  
+    if(sealed)
+  {
+   std::cout << "PASS" << std::endl;
+  }
+  else
+  {
+   std::cout << "FAIL" << std::endl;
+   test_set_result=false;
+  }
+
+///////////////BEGIN 5TH TEST////////////////////////
+
+  std::cout << "Test 5: non-adjacent locked pair of verticies move in theta:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1629,13 +1902,13 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   else
   {
    std::cout << "FAIL" << std::endl;
-   exit(0);
+   test_set_result=false;
   }
 
 
-///////////////BEGIN 25TH TEST////////////////////////
+///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 25: non-adjacent locked pair of verticies move in random dir:" ;
+  std::cout << "Test 6: non-adjacent locked pair of verticies move in random dir:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1659,13 +1932,28 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   
     if(sealed)
   {
-   std::cout << "PASS" << std::endl;
+   std::cout << "PASS" << std::endl << std::endl ;
   }
   else
   {
-   std::cout << "FAIL" << std::endl;
+   std::cout << "FAIL" << std::endl << std::endl ;
+   test_set_result=false;
+  }
+
+
+//////////END NON-ADJACNET LOCKED VERTEX PAIR MOVEMENT TESTS///////////
+
+  if(test_set_result)
+  {
+   std::cout << "NON-ADJACENT LOCKED VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
+  }
+  else
+  {
+   std::cout << "NON-ADJACENT LOCKED VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
    exit(0);
   }
+
+
 }
 
 MBInterface* MBI() {
