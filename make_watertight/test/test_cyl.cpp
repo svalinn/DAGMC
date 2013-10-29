@@ -1050,7 +1050,7 @@ std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS" << std::endl;
 
 ///////////////BEGIN 1ST TEST////////////////////////
 
-  std::cout << "Test 1: locked pair of verticies move in z:" ;
+  std::cout << "Test 1: locked pair of verticies move in x:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1459,7 +1459,7 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
 
 ///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 6: random locked pair of verticies move in random dir:" ;
+  std::cout << "Test 6: random pair of verticies move in random dir:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1680,7 +1680,7 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
 
 ///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 6: locked pair of verticies (adj+1) move in random dir:" ;
+  std::cout << "Test 6: pair of verticies (adj+1) move in random dir:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
@@ -1908,7 +1908,7 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
 
 ///////////////BEGIN 6TH TEST////////////////////////
 
-  std::cout << "Test 6: non-adjacent locked pair of verticies move in random dir:" ;
+  std::cout << "Test 6: non-adjacent pair of verticies move in random dir:" ;
 
   // Clear the mesh and reload original geometry for the next test
   result=reload_mesh( filename.c_str(), input_set);
