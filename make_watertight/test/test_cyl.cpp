@@ -1,11 +1,11 @@
-///
-/// Patrick Shriwise
-/// September 2013
-/// This program is designed to run a set of tests on the make_watertight algorithm.
-/// This will be a stand-alone piece of code that uses MOAB to open, modify
-/// (break), and re-seal geometries/ 
-/// input: cyl.h5m file (found in ../make_watertight/test/)
-/// output: pass/fail for each of the tests
+//
+// Patrick Shriwise
+// September 2013
+// This program is designed to run a set of tests on the make_watertight algorithm.
+// This will be a stand-alone piece of code that uses MOAB to open, modify
+// (break), and re-seal geometries/ 
+// input: cyl.h5m file (found in ../make_watertight/test/)
+// output: pass/fail for each of the tests
 
 
 #include <iostream>
@@ -33,7 +33,7 @@ MBErrorCode move_vert_R ( MBEntityHandle vertex, double tol, bool verbose = fals
 
 MBInterface *MBI();
 
-// struct to hold coordinates of skin edge, it's surface id, and a matched flag
+/// struct to hold coordinates of skin edge, it's surface id, and a matched flag
 struct coords_and_id {
   double x1;
   double y1;
@@ -47,7 +47,7 @@ struct coords_and_id {
   MBEntityHandle vert2;
 };
 
-// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
+/// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
 MBErrorCode move_vert( MBEntityHandle vertex, double dx, double dy, double dz, bool verbose) {
 
  MBErrorCode result;
@@ -85,8 +85,8 @@ MBErrorCode move_vert( MBEntityHandle vertex, double dx, double dy, double dz, b
 return MB_SUCCESS;
 }
 
-// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
-// setup to move the vert no further than the faceting tolerance
+/// takes an entity handle vertex, gets the original coordinates, changes and resets the vertex coordinates in the mesh
+/// setup to move the vert no further than the faceting tolerance
 MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose) {
 
  MBErrorCode result;
@@ -137,6 +137,7 @@ MBErrorCode rand_vert_move( MBEntityHandle vertex, double tol, bool verbose) {
 return MB_SUCCESS;
 }
 
+/// moves a vertex along the rim of the cylinder in the theta direction a distance equal to the faceting_tolerance
 MBErrorCode move_vert_theta( MBEntityHandle vertex, double tolerance, bool verbose) {
 
  MBErrorCode result; 
@@ -186,7 +187,7 @@ MBErrorCode move_vert_theta( MBEntityHandle vertex, double tolerance, bool verbo
   return MB_SUCCESS;
 }
 
-//moves the vertex in R some mag less than tol
+/// moves the vertex in R some distance less than tol
 MBErrorCode move_vert_R( MBEntityHandle vertex, double tol, bool verbose ) {
 
   MBErrorCode result; 
@@ -229,7 +230,7 @@ return MB_SUCCESS;
 }
 
 
-//appends "_mod" to the original file name and writes to a new .h5m 
+/// appends "_mod" to the original file name and writes to a new .h5m 
 MBErrorCode write_mod_file( std::string filename ) {
 
  MBErrorCode result;
@@ -275,7 +276,7 @@ MBErrorCode reload_mesh(const char* filename,  MBEntityHandle &meshset, bool deb
 }
 
 
-// bumps the last vertex in the model by the x,y,z values given to the problem 
+/// bumps the last vertex in the model by the x,y,z values given to the problem 
 MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -287,7 +288,7 @@ MBErrorCode single_vert_bump( MBRange verts, double bump_dist_x, double bump_dis
   return MB_SUCCESS;
 }
 
-// bumps the last vertex in the model in the R direction
+/// bumps the last vertex in the cylinder model in the R direction
 MBErrorCode single_vert_bump_R( MBRange verts, double facet_tol, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -299,7 +300,7 @@ MBErrorCode single_vert_bump_R( MBRange verts, double facet_tol, bool verbose = 
   return MB_SUCCESS;
 }
 
-// moves the last two verticies in the model the same distance
+/// moves the last two verticies in the model the same distance in x, y, and z 
 MBErrorCode locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -316,7 +317,7 @@ MBErrorCode locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dis
 
   return MB_SUCCESS;
 }
-//selects a random pair of verticies and moves in random directions w/ mag of change < faceting tol
+/// selects a random pair of verticies from verts and moves them in random directions some distance less than the faceting tolerance
 MBErrorCode rand_locked_pair_bump_rand( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -339,7 +340,8 @@ MBErrorCode rand_locked_pair_bump_rand( MBRange verts, double facet_tol , std::s
 
   return MB_SUCCESS;
 }
-//selects a random pair of verticies and moves them along theta
+
+/// selects a random pair of verticies and moves them along theta a distance less than the faceting tolerance
 MBErrorCode rand_locked_pair_bump_theta( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -362,7 +364,7 @@ MBErrorCode rand_locked_pair_bump_theta( MBRange verts, double facet_tol , std::
 
   return MB_SUCCESS;
 }
-// selects a random pair of adjacent verticies and bumps them the same amount
+/// selects a random pair of adjacent verticies and bumps them in x, y, and z 
 MBErrorCode rand_locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -385,7 +387,7 @@ MBErrorCode rand_locked_pair_bump( MBRange verts, double bump_dist_x, double bum
 
   return MB_SUCCESS;
 }
-// moves the last two verticies in the model the same distance
+/// moves the last two verticies in the model in the same direction some distance less than the faceting tolerance
 MBErrorCode locked_pair_bump_rand( MBRange verts, double facet_tol,  std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -403,7 +405,7 @@ MBErrorCode locked_pair_bump_rand( MBRange verts, double facet_tol,  std::string
 }
 
 
-// moves the last vertex in the model in a random direction by a distance less than the faceting tolerance
+/// moves the last vertex in the model in a random direction by a distance less than the faceting tolerance
 MBErrorCode rand_vert_bump( MBRange verts, double facet_tol, std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -417,7 +419,7 @@ MBErrorCode rand_vert_bump( MBRange verts, double facet_tol, std::string root_na
 }
 
 // FOR CYLINDER TESTING ONLY 
-// moves the last vertex in the model along the curve of the cylinder 
+/// moves the last vertex in the model along the curve of the cylinder some distance bump distance theta
 MBErrorCode theta_vert_bump( MBRange verts, double bump_dist_theta, double tolerance, std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -470,6 +472,7 @@ MBErrorCode theta_vert_bump( MBRange verts, double bump_dist_theta, double toler
   return MB_SUCCESS;
 }
 
+/// moves two adjacent vertices along theta a distance equal to the faceting tolerance
 MBErrorCode locked_pair_move_theta( MBRange verts, double tolerance, std::string root_name,  bool verbose = false) {
 
   MBErrorCode result;
@@ -486,7 +489,7 @@ MBErrorCode locked_pair_move_theta( MBRange verts, double tolerance, std::string
   return MB_SUCCESS;
 }
 
-// moves the third to last and the last vertices in the model the same distance
+/// moves the third to last and the last vertices in the model the same distance in x, y, and z
 MBErrorCode adjplone_locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -504,7 +507,7 @@ MBErrorCode adjplone_locked_pair_bump( MBRange verts, double bump_dist_x, double
   return MB_SUCCESS;
 }
 
-// moves the third to last and the last verticies in the model in theta the same distance
+/// moves the third to last and the last verticies in the model in theta the same distance along theta equal to the faceting tolerance
 MBErrorCode adjplone_locked_pair_bump_theta( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -522,7 +525,7 @@ MBErrorCode adjplone_locked_pair_bump_theta( MBRange verts, double facet_tol , s
   return MB_SUCCESS;
 }
 
-// moves the third to last and the last verticies in the model in rand directions but with mag < facet_tolerance
+/// moves the third to last and the last verticies in the model in rand directions some distance less than the facet_tolerance
 MBErrorCode adjplone_locked_pair_bump_rand( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -541,7 +544,7 @@ MBErrorCode adjplone_locked_pair_bump_rand( MBRange verts, double facet_tol , st
 }
 
 
-// selects a random pair of adjacent verticies and bumps them the same amount
+/// selects a random pair of adjacent verticies and bumps them the same distance in x, y, and z
 MBErrorCode nonadj_locked_pair_bump( MBRange verts, double bump_dist_x, double bump_dist_y, double bump_dist_z,  std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -565,7 +568,7 @@ MBErrorCode nonadj_locked_pair_bump( MBRange verts, double bump_dist_x, double b
   return MB_SUCCESS;
 }
 
-// selects a random pair of adjacent verticies and bumps them along the theta direction 
+/// selects a random pair of adjacent verticies and bumps them along the theta direction a distance equal to the faceting tolerance
 MBErrorCode nonadj_locked_pair_bump_theta( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -589,7 +592,7 @@ MBErrorCode nonadj_locked_pair_bump_theta( MBRange verts, double facet_tol , std
   return MB_SUCCESS;
 }
 
-// selects a random pair of adjacent verticies and bumps them along the theta direction 
+/// selects a random pair of adjacent verticies and bumps them along the theta direction a distance equal to the faceting tolerance
 MBErrorCode nonadj_locked_pair_bump_rand( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -630,6 +633,7 @@ MBErrorCode locked_pair_bump_R( MBRange verts, double facet_tol,  std::string ro
   return MB_SUCCESS;
 }
 
+/// selects random verticies from verts and moves them in R a distance equal to the faceting tolerance
 MBErrorCode rand_locked_pair_bump_R( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -653,6 +657,7 @@ MBErrorCode rand_locked_pair_bump_R( MBRange verts, double facet_tol , std::stri
   return MB_SUCCESS;
 }
 
+/// selects a the last vertex and third to last vertex in the model and moves them in R a distance equal to the faceting tolerance
 MBErrorCode adjplone_locked_pair_bump_R( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -670,6 +675,7 @@ MBErrorCode adjplone_locked_pair_bump_R( MBRange verts, double facet_tol , std::
   return MB_SUCCESS;
 }
 
+/// moves the last vertex in the model and a randomly selected, non-adjacent vertex and moves them both in R a distance equal to the faceting tolerance
 MBErrorCode nonadj_locked_pair_bump_R( MBRange verts, double facet_tol , std::string root_name, bool verbose = false ) {
  
   MBErrorCode result; 
@@ -692,16 +698,7 @@ MBErrorCode nonadj_locked_pair_bump_R( MBRange verts, double facet_tol , std::st
 
   return MB_SUCCESS;
 }
-  //for future integration of all single vertex move tests into one function
-/*
-MBErrorCode single_vert_move_tests( MBRange verts, double facet_tol, MBEntityHandle mesh_set, std::srting filename , bool sealed, bool test = true, bool verbose = false){
-  MBErrorCode result;
-
-
-return MB_SUCCESS;
-
-}
-*/
+ 
 
 int main(int argc, char **argv)
 {
@@ -751,7 +748,7 @@ result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into 
       return result;
     }
 
-  /// get faceting tolerance ////
+  //// get faceting tolerance ////
   double facet_tolerance;
 
   MBTag faceting_tol_tag;
