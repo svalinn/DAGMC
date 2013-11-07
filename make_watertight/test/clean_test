@@ -2,16 +2,12 @@
 
 cp cyl.h5m cyl1
 
-cp cyl_zip.h5m cyl_zip1
-
 cp cone.h5m cone1
 
 rm -rf *.h5m *.stl *.jou
 
 mv cyl1 cyl.h5m
 
-mv cyl_zip1 cyl_zip.h5m
 
-mv cone1 cone.h5m
 exit 0
 
