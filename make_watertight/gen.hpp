@@ -64,9 +64,12 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 			      const  double tol       /* in */);
 			      //bool &merge_vertices_again /* out */);
 
+/// returns the square of the distance between v0 and v1
   MBErrorCode squared_dist_between_verts( const MBEntityHandle v0, 
                                           const MBEntityHandle v1, 
                                           double &d);
+/// returns the distance between v0 and v1
+
   double dist_between_verts( const MBCartVect v0, const MBCartVect v1 );
   MBErrorCode dist_between_verts( const MBEntityHandle v0, const MBEntityHandle v1,
                                   double &d );
@@ -171,7 +174,8 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 /// creates a set of ordered verts from the a set of ordered edges. uses commone vertex between edges to check continuity. 
   MBErrorCode ordered_verts_from_ordered_edges( const std::vector<MBEntityHandle> ordered_edges,
                                                 std::vector<MBEntityHandle> &ordered_verts );
-
+/// returns the average distance between the vertices in arc0 and arc1. assumes the vertices
+/// are ordered appropriately
   MBErrorCode dist_between_arcs( bool debug,
                          const std::vector<MBEntityHandle> arc0,
                          const std::vector<MBEntityHandle> arc1,

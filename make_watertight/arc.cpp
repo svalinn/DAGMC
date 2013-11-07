@@ -611,7 +611,7 @@ namespace arc {
         // Merge the endpts of the curve to preserve topology. Merging (and deleting)
         // the endpoints will also remove them from the KDtree so that the merged
         // curve cannot be selected again. Update the curves when merging to avoid
-        // stake info.
+        // stale info.
 	if(curve_i_verts.front() != curve_j_verts.front()) { 
           result = zip::merge_verts( curve_i_verts.front(), curve_j_verts.front(), 
                                      curve_i_verts, curve_j_verts );

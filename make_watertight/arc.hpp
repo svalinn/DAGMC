@@ -45,6 +45,8 @@ namespace arc {
 /// (apparently child_parent_relations are taken care of here? Edges are created how?)
   MBErrorCode set_meshset( const MBEntityHandle set, const std::vector<MBEntityHandle> vec );
 
+/// goes through curve_sets and finds any curves with coincident ( dist. apart <= FACET_TOL) front and back points.
+/// it then merges the curves topologically. Any merged curves aren't deleted until prepare surfaces. 
   MBErrorCode merge_curves(MBRange curve_sets, const double FACET_TOL,
                            MBTag idTag, MBTag merge_tag, const bool debug );
 }

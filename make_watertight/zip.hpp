@@ -13,7 +13,10 @@ namespace zip {
                        const MBEntityHandle vert2 );
 /// removes the entitiy handle tri from the loaded mesh                
   MBErrorCode delete_degenerate_tris( MBEntityHandle tri );
+/// checks that no triangles in the MBRange tris are degenterate. If 
+/// degenerate triangles are found, they are deleted from the mesh. 
   MBErrorCode delete_degenerate_tris( MBRange tris );
+
   MBErrorCode delete_adj_degenerate_tris( const MBEntityHandle adj_vert );
 
 
