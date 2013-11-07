@@ -40,6 +40,9 @@ namespace arc {
   MBErrorCode order_verts_by_edge( MBRange unordered_edges, std::vector<MBEntityHandle> &ordered_verts );
 
   MBErrorCode get_meshset( const MBEntityHandle set, std::vector<MBEntityHandle> &vec);
+
+/// clears the given meshset set and then adds the entities desired to the meshset
+/// (apparently child_parent_relations are taken care of here? Edges are created how?)
   MBErrorCode set_meshset( const MBEntityHandle set, const std::vector<MBEntityHandle> vec );
 
   MBErrorCode merge_curves(MBRange curve_sets, const double FACET_TOL,

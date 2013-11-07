@@ -167,6 +167,8 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   MBErrorCode flip(const MBEntityHandle tri, const MBEntityHandle vert0, 
                    const MBEntityHandle vert2, const MBEntityHandle surf_set);
 
+
+/// creates a set of ordered verts from the a set of ordered edges. uses commone vertex between edges to check continuity. 
   MBErrorCode ordered_verts_from_ordered_edges( const std::vector<MBEntityHandle> ordered_edges,
                                                 std::vector<MBEntityHandle> &ordered_verts );
 

@@ -29,8 +29,12 @@ void moab_printer(MBErrorCode error_code);
 
 MBErrorCode delete_all_edges();
 
+/// gets all triangles from the mesh set and checks them for degeneracy.
+/// if any degenerate triangles are found, the program will exit
 MBErrorCode find_degenerate_tris();
 
+/// prepares all curves for the make_watertight algorithm. Merges curves that are 
+/// coincident and deletes curves that are smallerthan the faceting tolerance
 MBErrorCode prepare_curves(MBRange &curve_sets, 
                            MBTag geom_tag, 
                            MBTag id_tag, 
@@ -86,6 +90,7 @@ MBErrorCode fix_normals(MBRange surface_sets,
 
 MBErrorCode restore_moab_curve_representation( const MBRange curve_sets );
 
+/// prints the size of every entity in geom_sets
 MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[], 
                                           const MBTag geom_tag,
                                           const MBTag size_tag,
