@@ -9,11 +9,16 @@
 
 MBInterface *MBI(); 
 namespace arc {
+
+/// check that edge is going in the same direction as one of the edges on tri.
+/// If this is not the case, the edge is reversed.
   MBErrorCode orient_edge_with_tri( const MBEntityHandle edge, 
                                     const MBEntityHandle tri );
-
+// checks for degeneracy of edges in the MBRange edges and deletes degenerates if found
   MBErrorCode remove_degenerate_edges( MBRange &edges, const bool debug );
 
+/// deletes any duplicate edges in MBRange edges for which one goes from vertex a to 
+/// vertex b and the other from b to a
   MBErrorCode remove_opposite_pairs_of_edges( MBRange &edges, const bool debug );
   MBErrorCode remove_opposite_pairs_of_edges_fast( MBRange &edges, const bool debug );
 

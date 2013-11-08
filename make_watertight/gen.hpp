@@ -60,6 +60,9 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   */
   // Merge the range of vertices. We do not merge by edges (more
   // stringent) because we do not want to miss corner vertices.
+
+/// finds any vertices within the MBRange vertices that are with in tol of 
+/// each other and merges them
   MBErrorCode merge_vertices( MBRange vertices /* in */, 
 			      const  double tol       /* in */);
 			      //bool &merge_vertices_again /* out */);
@@ -110,6 +113,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   bool triangle_degenerate( const MBEntityHandle triangle );
   bool triangle_degenerate( const MBEntityHandle v0, const MBEntityHandle v1, const MBEntityHandle v2);
 
+/// gets the normal vectors of all triangles in MBRange triangles and returns them as MBCartVect's in normals
   MBErrorCode triangle_normals( const MBRange triangles, std::vector<MBCartVect> &normals );
   MBErrorCode triangle_normal( const MBEntityHandle triangle, MBCartVect &normal );
   MBErrorCode triangle_normal( const MBEntityHandle v0, const MBEntityHandle v1,
@@ -142,29 +146,12 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 				     const MBEntityHandle pt0,
 				     double &dist_along_edge  );
   
-  /*  double area2( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool left( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool left_on( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool collinear( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool logical_xor( const bool x, const bool y );
-  bool intersect_prop( const MBEntityHandle a, const MBEntityHandle b, 
-                       const MBEntityHandle c, const MBEntityHandle d);
-  bool between( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool intersect( const MBEntityHandle a, const MBEntityHandle b, 
-                       const MBEntityHandle c, const MBEntityHandle d);
-  bool diagonalie( const MBEntityHandle a, const MBEntityHandle b,
-                   const std::vector<MBEntityHandle> verts ); 
-  bool in_cone( const MBEntityHandle a, const MBEntityHandle b,
-		const std::vector<MBEntityHandle> verts ); 
-  bool diagonal( const MBEntityHandle a, const MBEntityHandle b,
-		 const std::vector<MBEntityHandle> verts ); 
-  MBErrorCode ear_init( std::vector<MBEntityHandle> polygon_of_verts,
-                        std::vector<bool> &is_ear );
-  */  MBErrorCode ear_clip_polygon( std::vector<MBEntityHandle> polygon_of_verts,
+  MBErrorCode ear_clip_polygon( std::vector<MBEntityHandle> polygon_of_verts,
                                     const MBCartVect plane_normal_vector, MBRange &new_tris );
 
   int geom_id_by_handle( const MBEntityHandle set);
 
+/// gets the normal vector of each triangle in tris and tags each triangle with its normal vector
   MBErrorCode save_normals( MBRange tris, MBTag normal_tag );
 
   MBErrorCode flip(const MBEntityHandle tri, const MBEntityHandle vert0, 
