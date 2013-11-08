@@ -1002,7 +1002,7 @@ MBErrorCode seal_loop( bool debug,
 	std::vector<MBEntityHandle> sealed_curve;
 	rval = seal_arc_pair( debug, FACET_TOL, normal_tag, curve, skin_arc,
                               gen::geom_id_by_handle(surf_set) );
-        if(gen::error(MB_SUCCESS!=rval,"    can't seal pair")) return rval;
+        if(gen::error(MB_SUCCESS!=rval, "    can't seal pair")) return rval;
       }
 
       // get new front_endpt to guide selection of next curve
@@ -1101,10 +1101,10 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         MBEntityHandle merged_curve, curve;
         result = MBI()->tag_get_data( merge_tag, &(*j), 1, &merged_curve );
         assert(MB_TAG_NOT_FOUND==result || MB_SUCCESS==result);     
-        if(MB_TAG_NOT_FOUND==result) {
+        if(MB_TAG_NOT_FOUND == result) {
           curve = *j;
         } else if(MB_SUCCESS == result) {
-	  if(1) {
+	  if(verbose) {
             std::cout << "  curve_id=" << gen::geom_id_by_handle(*j) 
                       << " is entity_to_delete" << std::endl;
           }
@@ -1115,17 +1115,22 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
           return result;        
         }
       
-        // If the curve is in unmerged_curve_sets, then remove it. Otherwise add it.
+	// Add a curve (whether it is merged or not) if it is not in unmerged_merged_curve_sets. 
+        // If it is merged, then the curve handle will appear later and we will remove it. 
 	std::vector<MBEntityHandle>::iterator k=find(unmerged_curve_sets.begin(), 
 	  unmerged_curve_sets.end(), curve);
         if(unmerged_curve_sets.end() == k) {
-  	  //std::cout << "  curve " << gen::geom_id_by_handle(*k) 
-          //          << " is entity_to_keep" << std::endl;
+
           unmerged_curve_sets.push_back(curve);
         } else {
+        
           unmerged_curve_sets.erase(k);
+
         }
+      // If all curves have a partner to be merged to, then unmerged_curve_sets will be empty.
       }
+       
+
 
       // If all of the curves are merged, remove the surfaces facets.
       // THIS ALSO REMOVES SURFACES THAT HAVE ALL CURVES DELETED?
@@ -1183,20 +1188,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       result = tool.find_skin( tris, 1, skin_edges, false );
       if(gen::error(MB_SUCCESS!=result,"could not find_skin")) return result;
       assert(MB_SUCCESS == result);
-      //std::cout << "my skinner size=" << skin_edges2.size() << std::endl;
-      //gen::print_range_of_edges(skin_edges2);
-      //result = MBI()->delete_entities( skin_edges2 );
-      //assert(MB_SUCCESS == result);
-      //result = tool.find_skin( tris, 1, skin_edges, false );
-      //MBRange temp_verts;
-      //result = tool.find_skin_vertices( tris, temp_verts, &skin_edges, true );
-      //assert(MB_SUCCESS == result);
-      //std::cout << "moab skinner size=" << skin_edges.size() << std::endl;
-      //gen::print_range_of_edges(skin_edges);
-      //assert(skin_edges.size() == skin_edges2.size());
-
-      //find_degenerate_tris();
-      //if(881 == surf_id) gen::print_triangles( tris);
+     
 
       // merge the vertices of the skin
       // BRANDON: For some reason cgm2moab does not do this? This was the 
@@ -1346,19 +1338,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
           std::cout << combined_senses.size() << std::endl;
           int edim;
            
-          //don't send unknown senses to set_senses
-          /*
-          for(unsigned int index=0; index < combined_senses.size() ; index++)
-          {
-          if (combined_senses[index]==0)
-            {
-             combined_surfs.erase(combined_surfs.begin() + index);
-  
-             combined_senses.erase(combined_senses.begin() + index);
-             index = -1;
-            }
-          }
-          */
+        
           for(unsigned int index=0; index < combined_senses.size(); index++)
           {
 
@@ -1378,14 +1358,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
           
           
         }
-	//	result = MBI()->tag_get_data( id_tag, &(*j), 1, &curve_id );
-	//assert(MB_SUCCESS == result);
-	//std::cout << "  curve_id=" << curve_id << " handle=" << *j << std::endl;
-	//curve_ids.push_back(curve_id);
-	//std::vector<MBEntityHandle> curve;
-	//result = arc::get_meshset( *j, curve );
-	//assert(MB_SUCCESS == result);
-	//curves.push_back( curve );
+	
       }
 
       // Place skin loops in meshsets to allow moab to update merged entities.

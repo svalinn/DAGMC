@@ -300,14 +300,23 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     // Clean up the created tree, and track verts so that if merged away they are
     // removed from the tree.
     MBAdaptiveKDTree kdtree(MBI(), true, 0, MESHSET_TRACK_OWNER);
+    // initialize the KD Tree
     MBEntityHandle root;
     MBAdaptiveKDTree::Settings settings;
+   
+    // tells the tree to split leaves with more than 6 entities
     settings.maxEntPerLeaf = 6;
+    // tells the tree a maximum depth limit
     settings.maxTreeDepth  = 50;
+    // tells the tree how many candidate split planed to consider in each dimension
     settings.candidateSplitsPerDir = 1;
+    // tells the tree to use the median vertex coordinate values to set planes
     settings.candidatePlaneSet = MBAdaptiveKDTree::VERTEX_MEDIAN;
+   
+    // builds the KD Tree, making the MBEntityHandle root the root of the tree
     result = kdtree.build_tree( verts, root, &settings);
     assert(MB_SUCCESS == result);
+    // create tree iterator to loop over all verts in the tree
     MBAdaptiveKDTreeIter tree_iter;
     kdtree.get_tree_iterator( root, tree_iter );
  
@@ -1458,21 +1467,12 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
             ++i;
           }
         }
-        //assert( !(edges[i].v0==edges[i+2].v0 && edges[i].v1==edges[i+2].v1) );
 	// otherwise a skin edge has been found
       } else {
         const MBEntityHandle conn[2] = {edges[i].v0, edges[i].v1};
-	//std::vector<MBEntityHandle> the_edge(conn, conn+2);     
-        //skin_edges.push_back(the_edge);
-        // see if the edge already exists
-        //MBRange the_edge;
-        //result = MBI()->get_adjacencies( conn, 2, 1, true, the_edge );
-        //assert(MB_SUCCESS == result);
-        //assert(1 == the_edge.size());
         MBEntityHandle edge;
         result = MBI()->create_element( MBEDGE, conn, 2, edge );
-        //if(MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
-        assert(MB_SUCCESS == result);
+        if(gen::error(MB_SUCCESS!=result, "could not create edge element")) return result;
         skin_edges.insert( edge );
       } 
     }
