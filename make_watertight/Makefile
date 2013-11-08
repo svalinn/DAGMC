@@ -31,7 +31,7 @@ cw_func.o: cw_func.cpp cw_func.hpp
 mw_func.0: mw_func.cpp mw_func.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c mw_func.cpp
  
-make_watertight: make_watertight.o gen.o arc.o zip.o cleanup.o mw_func.o
+make_watertight: make_watertight.o gen.o arc.o zip.o cleanup.o mw_func.o doxy
 	$(CC) $(LD_FLAGS) -o make_watertight make_watertight.o gen.o mw_func.o \
 	arc.o zip.o cleanup.o ${MOAB_LIBS_LINK} 
 
@@ -46,6 +46,8 @@ check_watertight: check_watertight.o gen.o cleanup.o cw_func.o
 fix: mw_fix.o gen.o arc.o zip.o cleanup.o
 	$(CC) $(LD_FLAGS) -o mw_fix mw_fix.o gen.o arc.o zip.o cleanup.o  \
 	${MOAB_LIBS_LINK} -ldagmc
+doxy:
+	doxygen mw_doxydoc
 
 clean: clean_doxygen
 	rm -f make_watertight.o make_watertight gen.o arc.o zip.o \
