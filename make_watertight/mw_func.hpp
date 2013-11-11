@@ -67,7 +67,8 @@ MBErrorCode seal_loop( bool debug,
                        const MBTag orig_curve_tag,
                        const MBEntityHandle surf_set,
                        std::vector<MBEntityHandle> &curve_sets,
-                       std::vector<MBEntityHandle> &skin_loop );
+                       std::vector<MBEntityHandle> &skin_loop,
+                       bool verbose = false );
 
 MBErrorCode prepare_surfaces(MBRange &surface_sets,
                              MBTag geom_tag, 

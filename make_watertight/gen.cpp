@@ -263,36 +263,9 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     }
 
             
-	  //sqr_min_dist = sqr_dist;
-	  //if(sqr_min_dist == 0.0) {
-          //  min_dist = 0.0;
-          //  return MB_SUCCESS; // can't do better than this
-          //}
-    //min_dist = sqrt( sqr_min_dist );
-    return MB_SUCCESS;
+   return MB_SUCCESS;
   }
-  /*  MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
-				 const std::vector<std::vector<MBEntityHandle> > loops_of_verts,
-				 unsigned int &loop, unsigned int &position, 
-				 double &min_dist) {
 
-    MBErrorCode result;
-    min_dist = std::numeric_limits<double>::max();
-    for(unsigned int i=0; i<loops_of_verts.size(); i++) {
-      unsigned int p;
-      double d;
-      result = find_closest_vert( reference_vert, loops_of_verts[i], p, d );
-      assert(MB_SUCCESS == result);  
-      if(d < min_dist) {
-	min_dist = d;
-        loop = i;
-        position = p;
-        if(min_dist == 0.0) return MB_SUCCESS; // can't do better than this
-      }
-    }
-    return MB_SUCCESS;
-  }
-  */
   MBErrorCode merge_vertices( MBRange verts /* in */, const double tol /* in */ ) {
 
     MBErrorCode result;

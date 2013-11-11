@@ -282,7 +282,6 @@ MBErrorCode create_arc_pair(  const double FACET_TOL,
     std::cout << curve_sets.size() << " curves remain to be zipped" 
               << " skin_loop.size()=" << skin_loop.size() << " front_endpt="
               << front_endpt << " skin:" << std::endl; 
-    //gen::print_loop(skin_loop);
   }
 
   // initialize stuff
@@ -470,14 +469,7 @@ MBErrorCode seal_arc_pair( const bool debug,
   const double TOL_SQR = FACET_TOL*FACET_TOL;
   if(gen::error(edge.empty() || skin.empty(),"edge or skin has no verts")) 
     return MB_FAILURE;
-  //  sealed_edge.clear();
-  //sealed_edge.reserve( 2*edge.size() );
-  //std::vector<MBEntityHandle>::iterator e, s;
-  //e = edge.begin(); 
-  //s = skin.begin();
-  //MBEntityHandle curr_pt = *e;
-  //sealed_edge.push_back( curr_pt );
-  //++e;
+
 
   //**************************************************************************
   // Merge the front of the skin to the front of the curve
@@ -787,11 +779,12 @@ MBErrorCode seal_loop( bool debug,
                        const MBTag orig_curve_tag,
                        const MBEntityHandle surf_set,
                        std::vector<MBEntityHandle> &curve_sets,
-                       std::vector<MBEntityHandle> &skin_loop ) {
+                       std::vector<MBEntityHandle> &skin_loop,
+                       bool verbose) {
   MBErrorCode rval;
   debug = false;
   // Find a curve that corresponds to the skin. Note that because there is more
-  // then one skin loop, not all curves of the surface correspond to each skin
+  // than one skin loop, not all curves of the surface correspond to each skin
   // Loop.
 
   // To establish an inital connection, find the curve with endpoint closest
@@ -842,8 +835,6 @@ MBErrorCode seal_loop( bool debug,
 
       // check to ensure that the endpt sets aren't degenerate
       if(2==endpt_sets.size() && endpts.front()==endpts.back()) {
-        //if(gen::error(endpts.front()==endpts.back(),
-        //  "geometric endpts degenerate")) return MB_FAILURE;
 	std::cout << "  warning9: curve " << gen::geom_id_by_handle(curve_sets[i]) 
                   << " geometric endpoints degenerate" << std::endl;
       }
@@ -857,7 +848,6 @@ MBErrorCode seal_loop( bool debug,
         if(gen::error(curve.front()!=endpts.front(),
           "geometric verts inconsistent with curve")) return MB_FAILURE;
       } else {
-	//        if(gen::error(curve.front()==curve.back(),"degenerate curve endpts")) return MB_FAILURE;
         if(curve.front()==curve.back()) 
           std::cout << "  warning10: degenerate curve endpts" << std::endl;
         if(gen::error(curve.front()!=endpts.front() && curve.front()!=endpts.back(),
@@ -891,7 +881,6 @@ MBErrorCode seal_loop( bool debug,
         min_dist = d.front();
         curve_idx = i;
         pos = p.front();
-        // select_next_curve uses the front_endpt to choose the next curve
         closest_front_curve_endpt = curve_endpt;
         closest_skin_pt = skin_loop[p.front()];
       }
@@ -900,7 +889,7 @@ MBErrorCode seal_loop( bool debug,
     MBEntityHandle front_endpt = closest_front_curve_endpt;
 
     // The closest points should be within facet tolerance
-    if(100*FACET_TOL<min_dist) {
+    if(100*FACET_TOL<min_dist && verbose) {
       std::cout << "closest skin pt farther than 100*FACET_TOL from curve vert (" 
                 << min_dist << ")" << std::endl; 
       if(true) {
@@ -940,7 +929,6 @@ MBErrorCode seal_loop( bool debug,
     skin_loop = temp_loop;
     if(debug) {
       std::cout << "  skin:" << std::endl;
-      //gen::print_loop(skin_loop);
     }
 
     // Create a set to store skin_loop so that handles are updated during merging.
@@ -995,7 +983,6 @@ MBErrorCode seal_loop( bool debug,
         curve = skin_arc;
         if(debug) std::cout << "  curve " << gen::geom_id_by_handle(curve_set) 
                             << " has been replaced by skin:" << std::endl;
-        //if(debug) gen::print_loop(curve);
 
       } else {
 	// seal the pair together
@@ -1390,7 +1377,6 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         if(MB_SUCCESS != rval) {
 	  std::cout << "failed to zip: surface " << surf_id << ": failed to seal a loop" 
                     << std::endl;
-          //assert(false);
         }
       }
 
@@ -1399,8 +1385,6 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       if(gen::error(MB_SUCCESS!=rval,"failed to zip: deleting skin_loop_sets failed")) 
         return rval;
 
-      // mod13surf2996, 3028 and 2997 are adjacent to the same bad geometry (figure 8 loop)
-      //assert(MB_SUCCESS==result || 2996==surf_id || 2997==surf_id || 3028==surf_id);
     } // loop over each surface
     return MB_SUCCESS;
   }
@@ -1572,7 +1556,7 @@ MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, co
           ordered_verts.front()==ordered_verts.back() ) {
 	std::cout << "warning: curve " << gen::geom_id_by_handle(*i) 
                   << " is one degenerate edge" << std::endl;
-        //return MB_FAILURE;
+        //return MB_FAILURE; **** when this is uncommented, problems occur
       }
 
       // Determine if the curve is a loop or point curve. At least 4 verts are
