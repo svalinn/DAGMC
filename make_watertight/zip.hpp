@@ -38,6 +38,7 @@ namespace zip {
 
   MBErrorCode remove_inverted_tris(MBTag normal_tag, MBRange tris, const bool debug );
 
+/// tests the watertightness of all arcs in the vector-array of moab entity handles arcs
   MBErrorCode test_zipping( const double FACET_TOL,
                             const std::vector< std::vector<MBEntityHandle> > arcs );
 

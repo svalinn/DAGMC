@@ -179,9 +179,9 @@ namespace gen {
   }
 
 
-// Return the closest vertex to the arc.
-// For efficiency: only get_coords on the reference vertex once
-//                 if specified, limit search length along curve
+/// Return the closest vertex to the arc.
+/// For efficiency: only get_coords on the reference vertex once
+///                 if specified, limit search length along curve
 MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
                                const std::vector<MBEntityHandle> arc_of_verts,
                                unsigned &position,

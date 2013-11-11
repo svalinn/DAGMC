@@ -260,9 +260,9 @@ MBErrorCode prepare_curves(MBRange &curve_sets,
      facet_tol that the skin was found to vary within.   
      This method finds the average distance between a curve and skin arc. The
      smallest distance is the next curve. */
-// Cut an arc out of the skin. Return a corresponding curve, the curve's set, and
-// is the curve has ben reversed. The returned skin has the arc cut away. The
-// returned vector of curve sets has the curve removed.
+/// Cut an arc out of the skin. Return a corresponding curve, the curve's set, and
+/// is the curve has ben reversed. The returned skin has the arc cut away. The
+/// returned vector of curve sets has the curve removed.
 MBErrorCode create_arc_pair(  const double FACET_TOL,
                               const MBEntityHandle surf_set,
 			      std::vector<MBEntityHandle> &skin_loop,
@@ -448,6 +448,12 @@ MBErrorCode create_arc_pair(  const double FACET_TOL,
                       << " paired with skin, min_dist =" << min_dist << std::endl;
   return MB_SUCCESS;
 }
+
+
+///Runs the make_watertight algorithm on the edge (curve) and skin (arc). 
+/// See PHD Thesis of Brandon Smith University of Wisconsin - Madison 2011
+/// for details
+
 
 //  -Instead of altering the skin and curve vectors, make them const. Put the
 // sealed curve in a new vector, using only push_back. This
@@ -772,7 +778,7 @@ MBErrorCode seal_arc_pair( const bool debug,
 
 }
 
-// 
+/// seals the skin_loop to the closest curves in curve sets in a watertight fashion
 MBErrorCode seal_loop( bool debug,
                        const double FACET_TOL,
                        const MBTag normal_tag,

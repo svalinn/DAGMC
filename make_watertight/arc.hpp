@@ -44,6 +44,7 @@ namespace arc {
 
   MBErrorCode order_verts_by_edge( MBRange unordered_edges, std::vector<MBEntityHandle> &ordered_verts );
 
+/// gets the moab entities in the meshset, set, and returns them to vec
   MBErrorCode get_meshset( const MBEntityHandle set, std::vector<MBEntityHandle> &vec);
 
 /// clears the given meshset set and then adds the entities desired to the meshset
