@@ -1478,11 +1478,6 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
   result = 0.0;
   
  
-   // don't try to calculate volume of implicit complement
-  //if (volume == impl_compl_handle) {
-  //  result = 1.0;
-  //  return MB_SUCCESS;
-  //}
 
   // get surfaces from volume
   rval = MBI()->get_child_meshsets( volume, surfaces );
@@ -1494,11 +1489,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
 
     // get surface senses
   std::vector<int> senses( surfaces.size() );
-  //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() ); // this starts a new moab instance
-  //  DAG->build_indices(volumes,surface);
-  //DAG->instance(MBI());
-  //moab::DagMC(MBI());
-  //DAG->create_instance(MBI());
+
 
   if (rval != MB_SUCCESS)
     {
@@ -1508,9 +1499,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
       exit(rval);
     }
   if(verbose) std::cout << surfaces.size() << " " << result << std::endl;
-  //std::cout << volume << std::endl;
-  
-  //rval = dagmc.build_indices( surfaces, volume);
+
   rval = surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
   
 
@@ -1574,9 +1563,9 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
   return MB_SUCCESS;
 }
 
-  /* Calculate the signed volumes beneath the surface (x 6.0). Use the triangle's
-     cannonical sense. Do not take sense tags into account. Code taken from 
-     DagMC::measure_volume. */    
+  /// Calculate the signed volumes beneath the surface (x 6.0). Use the triangle's
+  ///   cannonical sense. Do not take sense tags into account. Code taken from 
+  ///   DagMC::measure_volume. 
   MBErrorCode get_signed_volume( const MBEntityHandle surf_set, double &signed_volume) {
     MBErrorCode rval;                                     
     MBRange tris;                          
@@ -1622,11 +1611,9 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
       size = triangle_area( tris );
 
     } else if(3 == dim) {
-      //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() );
-      //result = dagmc.measure_volume( set, size );
-      //std::cout << "in measure volume" << std::endl;
+      
       result = measure_volume( set, size, verbose );
-      //std::cout << "in measure volume" << std::endl;
+      
       if(MB_SUCCESS != result) {
         std::cout << "result=" << result << " vol_id=" 
                   << gen::geom_id_by_handle(set) << std::endl;
@@ -1639,6 +1626,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
   }
 
   // From CGMA/builds/dbg/include/CubitDefines
+  /// gets the surface sense with respect to the curve and returns the value to sense
   MBErrorCode get_curve_surf_sense( const MBEntityHandle surf_set, const MBEntityHandle curve_set,
                                     int &sense, bool debug ) {
     std::vector<MBEntityHandle> surfs;
@@ -1722,7 +1710,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
     return MB_SUCCESS;
   }
 
-  // get sense of surface(s) wrt volume
+  /// get sense of surface(s) wrt volume
   MBErrorCode surface_sense( MBEntityHandle volume, 
                              MBEntityHandle surface,
                              int& sense_out )
