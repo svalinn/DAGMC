@@ -191,7 +191,9 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 
   MBTag get_tag( const char* name, int size, MBTagType store,MBDataType type, const void* def_value, bool create_if_missing);
 
+  MBErrorCode delete_surface( MBEntityHandle surf, MBTag geom_tag, MBRange tris, int id, bool verbose = false);
 
+  MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf);
 
 }
 
