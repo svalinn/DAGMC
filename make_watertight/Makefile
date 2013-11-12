@@ -11,7 +11,7 @@ CPPFLAGS += ${MOAB_INCLUDES} -g
 CFLAGS   += ${MOAB_CFLAGS} -g
 # add -g -pg to both CXX and LD flags to profile
 
-all: make_watertight post_process check_watertight fix
+all: make_watertight post_process check_watertight fix doxy
 
 gen.o: gen.cpp gen.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c gen.cpp
@@ -31,7 +31,7 @@ cw_func.o: cw_func.cpp cw_func.hpp
 mw_func.0: mw_func.cpp mw_func.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c mw_func.cpp
  
-make_watertight: make_watertight.o gen.o arc.o zip.o cleanup.o mw_func.o doxy
+make_watertight: make_watertight.o gen.o arc.o zip.o cleanup.o mw_func.o
 	$(CC) $(LD_FLAGS) -o make_watertight make_watertight.o gen.o mw_func.o \
 	arc.o zip.o cleanup.o ${MOAB_LIBS_LINK} 
 
