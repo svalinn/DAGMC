@@ -195,6 +195,8 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 
   MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf);
 
+  MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> curves, MBTag merge_tag, bool debug = false) ;
+
 }
 
 #endif

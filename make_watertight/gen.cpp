@@ -1873,4 +1873,91 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
  return MB_SUCCESS;
  } 
 
+/// combines the senses of any curves tagged as merged in the vector curves
+ MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> curves, MBTag merge_tag, bool debug) {
+
+  MBErrorCode result; 
+  
+  for(std::vector<MBEntityHandle>::iterator j=curves.begin(); j!=curves.end(); j++) {
+
+
+  MBEntityHandle merged_curve;
+  result = MBI() -> tag_get_data( merge_tag, &(*j), 1, &merged_curve);
+  if(gen::error(MB_SUCCESS!=result && MB_TAG_NOT_FOUND!=result, "could not get the merge_tag data of the curve")) return result;
+
+  if(MB_SUCCESS==result) { // we have found a merged curve pairing
+    // add the senses from the curve_to_delete to curve_to keep
+    // create vectors for the senses and surfaces of each curve
+    std::vector<MBEntityHandle> curve_to_keep_surfs, curve_to_delete_surfs, combined_surfs;
+    std::vector<int> curve_to_keep_senses, curve_to_delete_senses, combined_senses;
+
+    //initialize GeomTopoTool.cpp instance in MOAB
+    moab::GeomTopoTool gt(MBI(), false);
+    // get senses of the iterator curve and place them in the curve_to_delete vectors
+    result = gt.get_senses( *j, curve_to_delete_surfs, curve_to_delete_senses);
+    if(gen::error(MB_SUCCESS!=result, "could not get the surfs/senses of the curve to delete")) return result;
+    // get surfaces/senses of the merged_curve and place them in the curve_to_keep vectors
+    result = gt.get_senses( merged_curve, curve_to_keep_surfs, curve_to_keep_senses);
+    if(gen::error(MB_SUCCESS!=result, "could not get the surfs/senses of the curve to delete")) return result;
+    
+    if(debug){
+          std::cout << "curve to keep id = " << gen::geom_id_by_handle(merged_curve) << std::endl;
+          std::cout << "curve to delete id = " << gen::geom_id_by_handle(*j) << std::endl;
+          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
+          {
+           std::cout << "curve_to_keep_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_keep_surfs[index]) << std::endl;
+           std::cout << "curve_to_keep_sense " << index << " = " << curve_to_keep_senses[index] << std::endl;
+           
+          }
+          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
+          {
+          
+          std::cout << "curve_to_delete_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_delete_surfs[index]) << std::endl;
+          std::cout << "curve_to_delete_sense " << index << " = " << curve_to_delete_senses[index] << std::endl;
+          }
+    } // end of debug st.
+
+    // combine the surface and sense data for both curves into the same vector 
+
+    combined_surfs.insert( combined_surfs.end(), curve_to_keep_surfs.begin(), 
+                                                       curve_to_keep_surfs.end() );
+    combined_surfs.insert( combined_surfs.end(), curve_to_delete_surfs.begin(), 
+                                                       curve_to_delete_surfs.end() );
+    combined_senses.insert(combined_senses.end(),curve_to_keep_senses.begin(),
+		                		       curve_to_keep_senses.end() );
+    combined_senses.insert(combined_senses.end(),curve_to_delete_senses.begin(),
+		                		       curve_to_delete_senses.end() );
+
+    if(debug){
+      std::cout << combined_surfs.size() << std::endl;
+      std::cout << combined_senses.size() << std::endl;
+      for(unsigned int index=0; index < combined_senses.size(); index++)
+          {
+
+           std::cout << "combined_surfs{"<< index << "] = " << gen::geom_id_by_handle(combined_surfs[index]) << std::endl;
+           std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
+          }
+    } // end debug st. 
+
+    result = gt.set_senses(merged_curve, combined_surfs, combined_senses);
+    if(gen::error(MB_SUCCESS!=result && MB_MULTIPLE_ENTITIES_FOUND!=result,"failed to set senses: "));
+
+
+
+    
+
+  } //end merge_tag result if st.
+
+  // add the duplicate curve_to_keep to the vector of curves
+  
+   *j = merged_curve;
+  } //end curves loop
+
+
+
+
+  return MB_SUCCESS;
+  }
+
+
 }

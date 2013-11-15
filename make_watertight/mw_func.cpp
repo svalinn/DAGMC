@@ -1257,9 +1257,13 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 
       /* Get the curves that are part of the surface. Use vectors to store all curve
 	 stuff so that we can remove curves from the set as they are zipped. */
-      //std::vector<int> curve_ids;
-      //int curve_id;
-      //std::vector<std::vector<MBEntityHandle> > curves;
+     
+
+      //new implementation of combining curve senses
+      result = gen::combine_merged_curve_senses( curve_sets, merge_tag, debug );
+      if(gen::error(MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
+
+
       for(std::vector<MBEntityHandle>::iterator j=curve_sets.begin(); 
         j!=curve_sets.end(); j++) {
 
