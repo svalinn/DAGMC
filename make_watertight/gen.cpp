@@ -1874,7 +1874,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
  } 
 
 /// combines the senses of any curves tagged as merged in the vector curves
- MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> curves, MBTag merge_tag, bool debug) {
+ MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> &curves, MBTag merge_tag, bool debug) {
 
   MBErrorCode result; 
   
@@ -1943,14 +1943,13 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
     if(gen::error(MB_SUCCESS!=result && MB_MULTIPLE_ENTITIES_FOUND!=result,"failed to set senses: "));
 
 
-
     
+    // add the duplicate curve_to_keep to the vector of curves
+    *j = merged_curve;
 
-  } //end merge_tag result if st.
+   } //end merge_tag result if st.
 
-  // add the duplicate curve_to_keep to the vector of curves
-  
-   *j = merged_curve;
+
   } //end curves loop
 
 

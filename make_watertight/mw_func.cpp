@@ -1065,7 +1065,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 
 	assert(MB_SUCCESS == result);
 
-      // Remove and 2D entities that are not triangles. This is needed because
+      // Remove any 2D entities that are not triangles. This is needed because
       // ReadCGM will add quads and polygons to the surface set. This code only
       // works with triangles.
       MBRange not_tris = subtract( dim2_ents, tris );
@@ -1130,6 +1130,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
                                                         
         // adjust iterator so *i is still the same surface
         i = surface_sets.erase(i) - 1;
+
         continue;
       }
 
@@ -1258,79 +1259,10 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       /* Get the curves that are part of the surface. Use vectors to store all curve
 	 stuff so that we can remove curves from the set as they are zipped. */
      
-
-      //new implementation of combining curve senses
+      // new implementation of combining curve senses
       result = gen::combine_merged_curve_senses( curve_sets, merge_tag, debug );
       if(gen::error(MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
 
-
-      for(std::vector<MBEntityHandle>::iterator j=curve_sets.begin(); 
-        j!=curve_sets.end(); j++) {
-
-        // If a delete_curve, replace it with the keep_curve. This approach allows
-        // for duplicates because we are using vectors instead of ranges. Note that
-        // parent-child links also cannot store duplicate handles.
-        MBEntityHandle merged_curve;
-        result = MBI()->tag_get_data( merge_tag, &(*j), 1, &merged_curve );     
-        assert(MB_TAG_NOT_FOUND==result || MB_SUCCESS==result);
-        if(MB_SUCCESS == result) {
-          // add senses from curve_to_delete to curve_to_keep
-	  std::vector<MBEntityHandle> curve_to_keep_surfs, curve_to_delete_surfs, combined_surfs;
-	  std::vector<int> curve_to_keep_senses, curve_to_delete_senses, combined_senses;
-	  moab::GeomTopoTool gt(MBI(), false);
-          result = gt.get_senses( *j, curve_to_delete_surfs, curve_to_delete_senses );
-          if(gen::error(MB_SUCCESS!=result,"failed to get senses 0")) return result;
-          result = gt.get_senses( merged_curve, curve_to_keep_surfs, curve_to_keep_senses );
-          if(gen::error(MB_SUCCESS!=result,"failed to get senses 1")) return result;
-          std::cout << "curve to keep id = " << gen::geom_id_by_handle(merged_curve) << std::endl;
-          std::cout << "curve to delete id = " << gen::geom_id_by_handle(*j) << std::endl;
-          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
-          {
-           std::cout << "curve_to_keep_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_keep_surfs[index]) << std::endl;
-           std::cout << "curve_to_keep_sense " << index << " = " << curve_to_keep_senses[index] << std::endl;
-           
-          }
-          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
-          {
-          
-          std::cout << "curve_to_delete_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_delete_surfs[index]) << std::endl;
-          std::cout << "curve_to_delete_sense " << index << " = " << curve_to_delete_senses[index] << std::endl;
-          }
-
-          combined_surfs.insert( combined_surfs.end(), curve_to_keep_surfs.begin(), 
-                                                       curve_to_keep_surfs.end() );
-          combined_surfs.insert( combined_surfs.end(), curve_to_delete_surfs.begin(), 
-                                                       curve_to_delete_surfs.end() );
-          combined_senses.insert(combined_senses.end(),curve_to_keep_senses.begin(),
-		                		       curve_to_keep_senses.end() );
-          combined_senses.insert(combined_senses.end(),curve_to_delete_senses.begin(),
-		                		       curve_to_delete_senses.end() );
-          std::cout << combined_surfs.size() << std::endl;
-          std::cout << combined_senses.size() << std::endl;
-          int edim;
-           
-        
-          for(unsigned int index=0; index < combined_senses.size(); index++)
-          {
-
-           std::cout << "combined_surfs{"<< index << "] = " << gen::geom_id_by_handle(combined_surfs[index]) << std::endl;
-           std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
-          }
-          result = gt.set_senses( merged_curve, combined_surfs, combined_senses );
-          
-          if(gen::error(MB_SUCCESS!=result && MB_MULTIPLE_ENTITIES_FOUND!=result,"failed to set senses: "))
-          {
-           moab_printer(result);
-           return result;
-          }
-          
-          // add the duplicate curve_to_keep to the vector of curves
-          *j = merged_curve;
-          
-          
-        }
-	
-      }
 
       // Place skin loops in meshsets to allow moab to update merged entities.
       // This prevents stale handles. I suspect moab can use upward adjacencies
