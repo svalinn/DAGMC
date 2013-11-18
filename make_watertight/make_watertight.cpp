@@ -45,13 +45,16 @@
 
 
 MBInterface *MOAB();
+MBErrorCode write_sealed_file( std::string root_filename, double facet_tol, bool is_acis);
+
+
 
 int main(int argc, char **argv) 
   {
 
 // ******************************************************************
-    // Load the h5m file and create tags.
-    // ******************************************************************
+// Load the h5m file 
+// ******************************************************************
 
     clock_t start_time = clock();
 
@@ -102,72 +105,21 @@ int main(int argc, char **argv)
 	
 	is_acis = false;
 
-    // If reading a sat file, the facet toleance will default to 1e-3 if it is
-    // not specified. If the user does not specify a facet_tol, default to 1e-3.
-    // This is the same as what ReadCGM uses.
-      } 
-
-    /*
-     // recreate to only perform these operations on h5m meshes  
-    else if(std::string::npos!=input_name.find("sat") && 
-	      ((2==argc) || (3==argc)) ) 
-      {
-	double facet_tol;
-	if(3 == argc) 
-	  {
-	    facet_tol = atof(argv[2]);
-	  }
-	else 
-	  {
-	    facet_tol = 1e-3;
-	  }
-
-	std::string options;
-	options += "FACET_DISTANCE_TOLERANCE=";
-	std::stringstream facet_tol_ss;
-	facet_tol_ss << facet_tol; 
-	options += facet_tol_ss.str();
-	if(debug) std::cout << "  options=" << options << std::endl;
-	rval = MBI()->load_file( input_name.c_str(), &input_set, options.c_str() );
-	if(gen::error(MB_SUCCESS!=rval,"failed to load_file 1")) return rval;      
-
-      // write an HDF5 file of facets with known tolerance   
-	std::string facet_tol_filename = root_name + "_" + facet_tol_ss.str() + ".h5m";
-	rval = MBI()->write_mesh( facet_tol_filename.c_str() );
-	if(gen::error(MB_SUCCESS!=rval,"failed to write_mesh 0")) return rval;      
-	is_acis = true;
-      } 
-    else 
-      {
-	std::cout << "incorrect input arguments" << std::endl;
-	return MB_FAILURE;
-      }
-     //not required if  only doing this with h5m files
-     */
+       }
     //loading completed at this point
     clock_t load_time = clock();  
-
     //seal the input mesh set
     double facet_tol;
     result= mw_func::make_mesh_watertight(input_set, facet_tol);
     if(gen::error(MB_SUCCESS!=result, "could not make model watertight")) return result;
-    
-    //write file  
-    std::string output_filename;
-    if(is_acis) {  
-      std::stringstream facet_tol_ss;
-      facet_tol_ss << facet_tol; 
-      output_filename = root_name + "_" + facet_tol_ss.str() + "_zip.h5m";
-    } else {
-      output_filename = root_name + "_zip.h5m";
-    }
-    // PROBLEM: If I write the input meshset the writer returns MB_FAILURE.
-    // This happens only if I delete vertices when merging.
-    // result = MBI()->write_mesh( filename_new.c_str(), &input_meshset, 1);
-    clock_t zip_time = clock();
-    result = MBI()->write_mesh( output_filename.c_str() );
-    if (MB_SUCCESS != result) std::cout << "result= " << result << std::endl;
-    assert(MB_SUCCESS == result);
+
+  
+    //write file
+    clock_t zip_time = clock();  
+    std::cout << "Writing zipped file..." << std::endl;
+    write_sealed_file( root_name, facet_tol, is_acis);
+    if(gen::error(MB_SUCCESS!=result, "could not write the sealed mesh to a new file"))
+    return result; 
 
     clock_t write_time = clock();
     std::cout << "Timing(seconds): loading=" 
@@ -182,4 +134,25 @@ MBInterface *MBI()
 {
     static MBCore instance;
     return &instance;
+}
+
+MBErrorCode write_sealed_file( std::string root_filename, double facet_tol, bool is_acis){
+
+    MBErrorCode result;
+    std::string output_filename;
+    if(is_acis) {  
+      std::stringstream facet_tol_ss;
+      facet_tol_ss << facet_tol; 
+      output_filename = root_filename + "_" + facet_tol_ss.str() + "_zip.h5m";
+    } else {
+      output_filename = root_filename + "_zip.h5m";
+    }
+    // PROBLEM: If I write the input meshset the writer returns MB_FAILURE.
+    // This happens only if I delete vertices when merging.
+    // result = MBI()->write_mesh( filename_new.c_str(), &input_meshset, 1);
+    result = MBI()->write_mesh( output_filename.c_str() );
+    if (MB_SUCCESS != result) std::cout << "result= " << result << std::endl;
+    assert(MB_SUCCESS == result);  
+
+  return result; 
 }

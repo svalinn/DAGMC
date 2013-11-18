@@ -1584,6 +1584,62 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
       return MB_SUCCESS;
 }
 
+MBErrorCode delete_merged_curves( MBRange &existing_curve_sets, MBTag merge_tag, bool debug){
+
+  MBErrorCode result; 
+
+   MBRange curves_to_delete;
+    result = MBI()->get_entities_by_type_and_tag(0, MBENTITYSET, &merge_tag, NULL,
+                                                 1, curves_to_delete);
+    assert(MB_SUCCESS == result);
+    // loop over the curves to delete 
+    for(MBRange::const_iterator i=curves_to_delete.begin(); i!=curves_to_delete.end(); ++i) {
+      // get the curve_to_keep
+      MBEntityHandle curve_to_keep;
+      result = MBI()->tag_get_data( merge_tag, &(*i), 1, &curve_to_keep );
+      if(MB_SUCCESS != result) return result;
+      // get parent surface of the curve_to_delete
+      MBRange parent_surfs;
+      result = MBI()->get_parent_meshsets( *i, parent_surfs );
+      if(MB_SUCCESS != result) return result;
+      // remove the curve_to_delete and replace with curve_to_keep
+      for(MBRange::iterator j=parent_surfs.begin(); j!=parent_surfs.end(); ++j) {
+        result = MBI()->remove_parent_child( *j, *i );
+        if(MB_SUCCESS != result) return result;
+        result = MBI()->add_parent_child( *j, curve_to_keep );
+        if(MB_SUCCESS != result) return result;
+      }
+    }
+    result = MBI()->delete_entities( curves_to_delete );
+    assert(MB_SUCCESS == result);
+    if ( result != MB_SUCCESS ) 
+      {
+	std::cout << "Houston, we have a problem" << std::endl;
+      }
+    existing_curve_sets = subtract(existing_curve_sets, curves_to_delete );
+    if(debug) std::cout << "deleted " << curves_to_delete.size() << " curves." << std::endl;
+
+
+  return result; 
+
+}
+
+MBErrorCode delete_sealing_tags( MBTag normal_tag, MBTag merge_tag, MBTag size_tag, MBTag orig_curve_tag){
+
+  MBErrorCode result; 
+
+  result = MBI()->tag_delete( normal_tag );
+    if(MB_SUCCESS != result) return result;
+    result = MBI()->tag_delete( merge_tag );
+    if(MB_SUCCESS != result) return result;
+    result = MBI()->tag_delete( size_tag );
+    if(MB_SUCCESS != result) return result;
+    result = MBI()->tag_delete( orig_curve_tag );
+    if(MB_SUCCESS != result) return result;
+
+  return result; 
+}
+
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose) 
   {
 
@@ -1621,56 +1677,41 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     std::cout << "  absolute tolerance=" << sme_resabs_tol << " cm" << std::endl;
     }
 
-    // get all geometry sets
+    // get all geometry sets and set tracking ordering options appropriately
     MBRange geom_sets[4];
-    
     result=gen::get_geometry_meshsets( geom_sets, geom_tag, verbose);
     if(gen::error(MB_SUCCESS!=result, "could not get the geometry meshsets")) return result;
     
-//end function for meshset options here
-
-
-    // this could be related to when there are sat files rather than mesh?
     // If desired, find each entity's size before sealing.
-    ///*
     if(check_geom_size) 
       {
-
 	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag, verbose );
-	if(gen::error(MB_SUCCESS!=result,"measuring geom size failed"))
-	  {
-	    return result;
-	  }
+	if(gen::error(MB_SUCCESS!=result,"measuring geom size failed")) return result;
       }
     
-    //*/
+
     
     if (verbose) std::cout << "Get entity count before sealing" << std::endl;
     // Get entity count before sealing.
     int orig_n_tris;
     result = MBI()->get_number_entities_by_type( 0, MBTRI, orig_n_tris );
-    
-
     assert(MB_SUCCESS == result);
+
     if(verbose)
     {
     std::cout << "  input faceted geometry contains " << geom_sets[3].size() << " volumes, " 
               << geom_sets[2].size() << " surfaces, " << geom_sets[1].size() 
               << " curves, and " << orig_n_tris << " triangles" << std::endl;  
-    
-    std::cout << "Finding degenerate triangles " << std::endl;
     }
+    
+    if(verbose) std::cout << "Finding degenerate triangles " << std::endl;
     result = find_degenerate_tris();
-    if(gen::error(result!=MB_SUCCESS,"could not determine if triangles were degenerate or not"))
-      {
-	return(result);
-      }
+    if(gen::error(result!=MB_SUCCESS,"could not determine if triangles were degenerate or not")) return result;
+      
 
     result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug, verbose);
-    if(gen::error(result!=MB_SUCCESS,"could not prepare the curves"))
-      {
-	return(result);
-      }
+    if(gen::error(result!=MB_SUCCESS,"could not prepare the curves")) return(result);
+      
 
     if (verbose) 
     {
@@ -1679,46 +1720,16 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     }
     result = prepare_surfaces(geom_sets[2], geom_tag, id_tag, normal_tag, merge_tag,
                               orig_curve_tag,SME_RESABS_TOL, FACET_TOL, debug);
-    if ( result != MB_SUCCESS ) 
-      {
-	std::cout << "I have failed to zip" << std::endl;
-	return result;
-      }
+    if ( gen::error(result != MB_SUCCESS, "I have failed to zip")) return result;  
+      
 
     // After zipping surfaces, merged curve entity_to_deletes are no longer needed.
     // Swap surface parent-childs for curves to delete with curve to keep. 
     // ARE THEIR ORPHANED CHILD VERTEX SETS STILL AROUND? 
     if(verbose) std::cout << "Adjusting parent-child links then removing merged curves..." << std::endl;
-    MBRange curves_to_delete;
-    result = MBI()->get_entities_by_type_and_tag(0, MBENTITYSET, &merge_tag, NULL,
-                                                 1, curves_to_delete);
-    assert(MB_SUCCESS == result);
-    // loop over the curves to delete 
-    for(MBRange::const_iterator i=curves_to_delete.begin(); i!=curves_to_delete.end(); ++i) {
-      // get the curve_to_keep
-      MBEntityHandle curve_to_keep;
-      result = MBI()->tag_get_data( merge_tag, &(*i), 1, &curve_to_keep );
-      if(MB_SUCCESS != result) return result;
-      // get parent surface of the curve_to_delete
-      MBRange parent_surfs;
-      result = MBI()->get_parent_meshsets( *i, parent_surfs );
-      if(MB_SUCCESS != result) return result;
-      // remove the curve_to_delete and replace with curve_to_keep
-      for(MBRange::iterator j=parent_surfs.begin(); j!=parent_surfs.end(); ++j) {
-        result = MBI()->remove_parent_child( *j, *i );
-        if(MB_SUCCESS != result) return result;
-        result = MBI()->add_parent_child( *j, curve_to_keep );
-        if(MB_SUCCESS != result) return result;
-      }
-    }
-    result = MBI()->delete_entities( curves_to_delete );
-    assert(MB_SUCCESS == result);
-    if ( result != MB_SUCCESS ) 
-      {
-	std::cout << "Houston, we have a problem" << std::endl;
-      }
-    geom_sets[1] = subtract(geom_sets[1], curves_to_delete );
-    if(debug) std::cout << "deleted " << curves_to_delete.size() << " curves." << std::endl;
+    result = delete_merged_curves( geom_sets[1], merge_tag, debug);
+    if(gen::error(MB_SUCCESS!=result, "could not delete the merged curves")) return result;
+
 
     // SHOULD COINCIDENT SURFACES ALSO BE MERGED?
     // 20100205 Jason: If child curves are the same, check to make sure each
@@ -1729,14 +1740,14 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     result = fix_normals(geom_sets[2], id_tag, normal_tag, debug, verbose);
     assert(MB_SUCCESS == result);
 
-    /*
+   
     // As sanity check, did zipping drastically change the entity's size?
-    if(check_geom_size) {
+    if(check_geom_size && verbose) {
       std::cout << "Checking size change of zipped entities..." << std::endl;
       result = get_geom_size_after_sealing( geom_sets, geom_tag, size_tag, FACET_TOL );
       if(gen::error(MB_SUCCESS!=result,"measuring geom size failed")) return result;
     }
-    */
+   
 
     // This tool stores curves as a set of ordered edges. MOAB stores curves as
     // ordered vertices and edges. MOAB represents curve endpoints as geometry
@@ -1785,18 +1796,11 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
 
     // Tags for merging curves and checking the change in geometry size were added.
     // Delete these because they are no longer needed.
-    result = MBI()->tag_delete( normal_tag );
-    if(MB_SUCCESS != result) return result;
-    result = MBI()->tag_delete( merge_tag );
-    if(MB_SUCCESS != result) return result;
-    result = MBI()->tag_delete( size_tag );
-    if(MB_SUCCESS != result) return result;
-    result = MBI()->tag_delete( orig_curve_tag );
-    if(MB_SUCCESS != result) return result;
+    result = delete_sealing_tags( normal_tag, merge_tag, size_tag, orig_curve_tag); 
+    if(gen::error(MB_SUCCESS!=result, "could not delete sealing tags")) return result; 
 
-    // Write output file
+    // Print new size of the file to the user
     int sealed_n_tris;
-    if (verbose) std::cout << "Writing zipped file..." << std::endl;
     result = MBI()->get_number_entities_by_type( 0, MBTRI, sealed_n_tris );
     assert(MB_SUCCESS == result);
     if (verbose)
@@ -1809,7 +1813,6 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     }
     return MB_SUCCESS;  
   }
-
 
 }
 
