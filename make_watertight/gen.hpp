@@ -215,6 +215,9 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
                              MBTag &size_tag, 
                              MBTag &orig_curve_tag);
 
+ /// sets the tracking and ordering options of meshsets retrieved from the mesh
+  MBErrorCode get_geometry_meshsets( MBRange geometry_sets[], MBTag geom_tag, bool verbose = false);
+
 }
 
 #endif

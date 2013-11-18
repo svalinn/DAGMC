@@ -81,8 +81,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
                              const bool debug,
                              bool verbose = true);
 
-
-
+/// re-orients triangles with inverted normal vectors after being sealed
 MBErrorCode fix_normals(MBRange surface_sets, 
                         MBTag id_tag, 
                         MBTag normal_tag,
@@ -102,6 +101,7 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
                                          const MBTag size_tag,
                                          const double FACET_TOL,
                                          bool verbose = true );
+
 /// takes the mesh in input_set and makes it watertight
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = true);
 

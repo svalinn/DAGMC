@@ -2123,4 +2123,58 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 
   }
 
+  MBErrorCode get_geometry_meshsets( MBRange geometry_sets[], MBTag geom_tag, bool verbose) {
+
+    MBErrorCode result; 
+
+
+    // get all geometry sets
+    
+    for(unsigned dim=0; dim<4; dim++) 
+      {
+	void *val[] = {&dim};
+	result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geom_tag,
+	  					    val, 1, geometry_sets[dim] );
+        if(verbose)
+        {
+	std::cout << "Get entities by type and tag" << std::endl;
+        }
+	assert(MB_SUCCESS == result);
+
+	// make sure that sets TRACK membership and curves are ordered
+	// MESHSET_TRACK_OWNER=0x1, MESHSET_SET=0x2, MESHSET_ORDERED=0x4      
+
+	for(MBRange::iterator i=geometry_sets[dim].begin(); i!=geometry_sets[dim].end(); i++) 
+	  {
+	    unsigned int options;
+	    result = MBI()->get_meshset_options(*i, options );
+	    assert(MB_SUCCESS == result);
+    
+	    // if options are wrong change them
+	    if(dim==1) 
+	      {
+		if( !(MESHSET_TRACK_OWNER&options) || !(MESHSET_ORDERED&options) ) 
+		  {
+		    result = MBI()->set_meshset_options(*i, MESHSET_TRACK_OWNER|MESHSET_ORDERED);
+		    assert(MB_SUCCESS == result);
+		  }
+	      } 
+	    else 
+	      {
+		if( !(MESHSET_TRACK_OWNER&options) ) 
+		  {        
+		    result = MBI()->set_meshset_options(*i, MESHSET_TRACK_OWNER);
+		    assert(MB_SUCCESS == result);
+		  }
+	      }
+	  }
+      }
+ 
+
+
+
+    return MB_SUCCESS;
+
+    }
+
 }

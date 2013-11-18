@@ -1614,6 +1614,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
 
     const double SME_RESABS_TOL = sme_resabs_tol; // from ACIS through CGM
     const double FACET_TOL = facet_tol; // specified by user when faceting cad
+
     if(verbose)
     {
     std::cout << "  faceting tolerance=" << facet_tol << " cm" << std::endl;
@@ -1622,53 +1623,19 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
 
     // get all geometry sets
     MBRange geom_sets[4];
-    for(unsigned dim=0; dim<4; dim++) 
-      {
-	void *val[] = {&dim};
-	result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geom_tag,
-	  					    val, 1, geom_sets[dim] );
-        if(verbose)
-        {
-	std::cout << "Get entities by type and tag" << std::endl;
-        }
-	assert(MB_SUCCESS == result);
-
-	// make sure that sets TRACK membership and curves are ordered
-	// MESHSET_TRACK_OWNER=0x1, MESHSET_SET=0x2, MESHSET_ORDERED=0x4
-	for(MBRange::iterator i=geom_sets[dim].begin(); i!=geom_sets[dim].end(); i++) 
-	  {
-	    unsigned int options;
-	    result = MBI()->get_meshset_options(*i, options );
-	    assert(MB_SUCCESS == result);
     
-	    // if options are wrong change them
-	    if(dim==1) 
-	      {
-		if( !(MESHSET_TRACK_OWNER&options) || !(MESHSET_ORDERED&options) ) 
-		  {
-		    result = MBI()->set_meshset_options(*i, MESHSET_TRACK_OWNER|MESHSET_ORDERED);
-		    assert(MB_SUCCESS == result);
-		  }
-	      } 
-	    else 
-	      {
-		if( !(MESHSET_TRACK_OWNER&options) ) 
-		  {        
-		    result = MBI()->set_meshset_options(*i, MESHSET_TRACK_OWNER);
-		    assert(MB_SUCCESS == result);
-		  }
-	      }
-	  }
-      }
-
+    result=gen::get_geometry_meshsets( geom_sets, geom_tag, verbose);
+    if(gen::error(MB_SUCCESS!=result, "could not get the geometry meshsets")) return result;
     
+//end function for meshset options here
+
 
     // this could be related to when there are sat files rather than mesh?
     // If desired, find each entity's size before sealing.
     ///*
     if(check_geom_size) 
       {
-	//std::cout << "I am checking the geometry size" << std::endl;
+
 	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag, verbose );
 	if(gen::error(MB_SUCCESS!=result,"measuring geom size failed"))
 	  {
@@ -1842,7 +1809,6 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     }
     return MB_SUCCESS;  
   }
-
 
 
 }
