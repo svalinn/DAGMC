@@ -33,6 +33,67 @@ namespace gen {
     }
   }
 
+void moab_printer(MBErrorCode error_code)
+{
+  if ( error_code == MB_INDEX_OUT_OF_RANGE )
+    {
+      std::cerr << "ERROR: MB_INDEX_OUT_OF_RANGE" << std::endl;
+    }
+  if ( error_code == MB_MEMORY_ALLOCATION_FAILED )
+    {
+      std::cerr << "ERROR: MB_MEMORY_ALLOCATION_FAILED" << std::endl;
+    }
+  if ( error_code == MB_ENTITY_NOT_FOUND )
+    {
+      std::cerr << "ERROR: MB_ENTITY_NOT_FOUND" << std::endl;
+    }
+  if ( error_code == MB_MULTIPLE_ENTITIES_FOUND )
+    {
+      std::cerr << "ERROR: MB_MULTIPLE_ENTITIES_FOUND" << std::endl;
+    }
+  if ( error_code == MB_TAG_NOT_FOUND )
+    {
+      std::cerr << "ERROR: MB_TAG_NOT_FOUND" << std::endl;
+    }
+  if ( error_code == MB_FILE_DOES_NOT_EXIST )
+    {
+      std::cerr << "ERROR: MB_FILE_DOES_NOT_EXIST" << std::endl;
+    }    
+  if ( error_code == MB_FILE_WRITE_ERROR )
+    {
+      std::cerr << "ERROR: MB_FILE_WRITE_ERROR" << std::endl;
+    }    
+  if ( error_code == MB_ALREADY_ALLOCATED )
+    {
+      std::cerr << "ERROR: MB_ALREADY_ALLOCATED" << std::endl;
+    }    
+  if ( error_code == MB_VARIABLE_DATA_LENGTH )
+    {
+      std::cerr << "ERROR: MB_VARIABLE_DATA_LENGTH" << std::endl;
+    }  
+  if ( error_code == MB_INVALID_SIZE )
+    {
+      std::cerr << "ERROR: MB_INVALID_SIZE" << std::endl;
+    }  
+  if ( error_code == MB_UNSUPPORTED_OPERATION )
+    {
+      std::cerr << "ERROR: MB_UNSUPPORTED_OPERATION" << std::endl;
+    }  
+  if ( error_code == MB_UNHANDLED_OPTION )
+    {
+      std::cerr << "ERROR: MB_UNHANDLED_OPTION" << std::endl;
+    }  
+  if ( error_code == MB_FAILURE )
+    {
+      std::cerr << "ERROR: MB_FAILURE" << std::endl;
+    }  
+  return;
+}
+
+
+
+
+
   void print_vertex_cubit( const MBEntityHandle vertex ) {
 
     MBErrorCode result;
@@ -1958,5 +2019,108 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
   return MB_SUCCESS;
   }
 
+MBErrorCode get_sealing_mesh_tags( double &facet_tol,
+                           double &sme_resabs_tol,
+                           MBTag &geom_tag, 
+                           MBTag &id_tag, 
+                           MBTag &normal_tag, 
+                           MBTag &merge_tag, 
+                           MBTag &faceting_tol_tag, 
+                           MBTag &geometry_resabs_tag, 
+                           MBTag &size_tag, 
+                           MBTag &orig_curve_tag) {
+
+  MBErrorCode result;
+
+    result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, 1,
+				MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1,
+				MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "NORMAL", sizeof(MBCartVect), MB_TYPE_OPAQUE,
+        normal_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "MERGE", 1, MB_TYPE_HANDLE,
+        merge_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
+    assert( MB_SUCCESS == result ); 
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      } 
+    result = MBI()->tag_get_handle( "FACETING_TOL", 1, MB_TYPE_DOUBLE,
+        faceting_tol_tag , moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
+    assert( MB_SUCCESS == result );  
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "GEOMETRY_RESABS", 1,     MB_TYPE_DOUBLE,
+                             geometry_resabs_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT  );
+    assert( MB_SUCCESS == result );  
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "GEOM_SIZE", 1, MB_TYPE_DOUBLE,
+				    size_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT  );
+    assert( (MB_SUCCESS == result) );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    int true_int = 1;    
+    result = MBI()->tag_get_handle( "ORIG_CURVE", 1,
+				MB_TYPE_INTEGER, orig_curve_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT, &true_int );
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
+    // on the file_set.
+    MBRange file_set;
+    result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &faceting_tol_tag,
+                                                  NULL, 1, file_set );
+
+    if(gen::error(MB_SUCCESS!=result,"could not get faceting_tol_tag")) 
+      {
+	return result;
+      }
+
+    gen::error(file_set.empty(),"file set not found");
+
+    if(gen::error(1!=file_set.size(),"Refacet with newer version of ReadCGM.")) 
+      {
+	return MB_FAILURE;
+      }
+
+    result = MBI()->tag_get_data( faceting_tol_tag, &file_set.front(), 1,  
+                                  &facet_tol );
+    assert(MB_SUCCESS == result);
+    result = MBI()->tag_get_data( geometry_resabs_tag, &file_set.front(), 1,  
+                                  &sme_resabs_tol );
+    if(MB_SUCCESS != result) 
+      {
+	std::cout <<  "absolute tolerance could not be read from file" << std::endl;
+      }
+
+
+
+  return MB_SUCCESS;
+
+  }
 
 }

@@ -23,10 +23,16 @@
 MBInterface *MBI(); 
 namespace gen {
   bool error( const bool error_has_occured, const std::string message="" );
+  
+  /// prints a string of the error code returned from MOAB to standard output 
+  void moab_printer(MBErrorCode error_code);
+
   void print_vertex_cubit( const MBEntityHandle vertex );
+
   void print_vertex_coords( const MBEntityHandle vertex );
 
   void print_triangles( const MBRange tris );
+
   void print_triangle( const MBEntityHandle triangle, bool print_edges );
 
   void print_edge( const MBEntityHandle edge );
@@ -196,6 +202,18 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf);
 
   MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> &curves, MBTag merge_tag, bool debug = false) ;
+
+ /// used to get all mesh tags necessary for sealing a mesh
+  MBErrorCode get_sealing_mesh_tags( double &facet_tol,
+                             double &sme_resabs_tol,
+                             MBTag &geom_tag, 
+                             MBTag &id_tag, 
+                             MBTag &normal_tag, 
+                             MBTag &merge_tag, 
+                             MBTag &faceting_tol_tag, 
+                             MBTag &geometry_resabs_tag, 
+                             MBTag &size_tag, 
+                             MBTag &orig_curve_tag);
 
 }
 

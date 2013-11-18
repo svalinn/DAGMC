@@ -40,62 +40,7 @@ MBInterface *MOAB();
 
 namespace mw_func {
 
-void moab_printer(MBErrorCode error_code)
-{
-  if ( error_code == MB_INDEX_OUT_OF_RANGE )
-    {
-      std::cerr << "ERROR: MB_INDEX_OUT_OF_RANGE" << std::endl;
-    }
-  if ( error_code == MB_MEMORY_ALLOCATION_FAILED )
-    {
-      std::cerr << "ERROR: MB_MEMORY_ALLOCATION_FAILED" << std::endl;
-    }
-  if ( error_code == MB_ENTITY_NOT_FOUND )
-    {
-      std::cerr << "ERROR: MB_ENTITY_NOT_FOUND" << std::endl;
-    }
-  if ( error_code == MB_MULTIPLE_ENTITIES_FOUND )
-    {
-      std::cerr << "ERROR: MB_MULTIPLE_ENTITIES_FOUND" << std::endl;
-    }
-  if ( error_code == MB_TAG_NOT_FOUND )
-    {
-      std::cerr << "ERROR: MB_TAG_NOT_FOUND" << std::endl;
-    }
-  if ( error_code == MB_FILE_DOES_NOT_EXIST )
-    {
-      std::cerr << "ERROR: MB_FILE_DOES_NOT_EXIST" << std::endl;
-    }    
-  if ( error_code == MB_FILE_WRITE_ERROR )
-    {
-      std::cerr << "ERROR: MB_FILE_WRITE_ERROR" << std::endl;
-    }    
-  if ( error_code == MB_ALREADY_ALLOCATED )
-    {
-      std::cerr << "ERROR: MB_ALREADY_ALLOCATED" << std::endl;
-    }    
-  if ( error_code == MB_VARIABLE_DATA_LENGTH )
-    {
-      std::cerr << "ERROR: MB_VARIABLE_DATA_LENGTH" << std::endl;
-    }  
-  if ( error_code == MB_INVALID_SIZE )
-    {
-      std::cerr << "ERROR: MB_INVALID_SIZE" << std::endl;
-    }  
-  if ( error_code == MB_UNSUPPORTED_OPERATION )
-    {
-      std::cerr << "ERROR: MB_UNSUPPORTED_OPERATION" << std::endl;
-    }  
-  if ( error_code == MB_UNHANDLED_OPTION )
-    {
-      std::cerr << "ERROR: MB_UNHANDLED_OPTION" << std::endl;
-    }  
-  if ( error_code == MB_FAILURE )
-    {
-      std::cerr << "ERROR: MB_FAILURE" << std::endl;
-    }  
-  return;
-}
+
 
 MBErrorCode delete_all_edges() {
   // delete all of the edges. Never keep edges. They are too hard to track and use
@@ -1652,96 +1597,16 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     // duplicated here from make_watertight, seemed to always be set to false
     bool is_acis=false;
 
-    // create tags
-   
+   // initialize mesh tags
     MBTag geom_tag, id_tag, normal_tag, merge_tag, faceting_tol_tag, 
       geometry_resabs_tag, size_tag, orig_curve_tag;
-  
-    result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, 1,
-				MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
-    assert( MB_SUCCESS == result );
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      }
-    result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1,
-				MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
-    assert( MB_SUCCESS == result );
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      }
-    result = MBI()->tag_get_handle( "NORMAL", sizeof(MBCartVect), MB_TYPE_OPAQUE,
-        normal_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
-    assert( MB_SUCCESS == result );
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      }
-    result = MBI()->tag_get_handle( "MERGE", 1, MB_TYPE_HANDLE,
-        merge_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
-    assert( MB_SUCCESS == result ); 
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      } 
-    result = MBI()->tag_get_handle( "FACETING_TOL", 1, MB_TYPE_DOUBLE,
-        faceting_tol_tag , moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
-    assert( MB_SUCCESS == result );  
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      }
-    result = MBI()->tag_get_handle( "GEOMETRY_RESABS", 1,     MB_TYPE_DOUBLE,
-                             geometry_resabs_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT  );
-    assert( MB_SUCCESS == result );  
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      }
-    result = MBI()->tag_get_handle( "GEOM_SIZE", 1, MB_TYPE_DOUBLE,
-				    size_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT  );
-    assert( (MB_SUCCESS == result) );
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      }
-    int true_int = 1;    
-    result = MBI()->tag_get_handle( "ORIG_CURVE", 1,
-				MB_TYPE_INTEGER, orig_curve_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT, &true_int );
-    assert( MB_SUCCESS == result );
-    if ( result != MB_SUCCESS )
-      {
-	moab_printer(result);
-      }
-    // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
-    // on the file_set.
-    MBRange file_set;
-    result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &faceting_tol_tag,
-                                                  NULL, 1, file_set );
-
-    if(gen::error(MB_SUCCESS!=result,"could not get faceting_tol_tag")) 
-      {
-	return result;
-      }
-
-    gen::error(file_set.empty(),"file set not found");
-
-    if(gen::error(1!=file_set.size(),"Refacet with newer version of ReadCGM.")) 
-      {
-	return MB_FAILURE;
-      }
-
     double sme_resabs_tol=1e-6;
-    result = MBI()->tag_get_data( faceting_tol_tag, &file_set.front(), 1,  
-                                  &facet_tol );
-    assert(MB_SUCCESS == result);
-    result = MBI()->tag_get_data( geometry_resabs_tag, &file_set.front(), 1,  
-                                  &sme_resabs_tol );
-    if(MB_SUCCESS != result) 
-      {
-	std::cout <<  "absolute tolerance could not be read from file" << std::endl;
-      }
+    
+   // retrieve mesh tags necessary for sealing the mesh
+    result = gen::get_sealing_mesh_tags( facet_tol, sme_resabs_tol, geom_tag, id_tag, normal_tag, merge_tag, faceting_tol_tag, 
+      geometry_resabs_tag, size_tag, orig_curve_tag); 
+    if(gen::error(MB_SUCCESS!=result, "could not get the mesh tags")) return result; 
+
 
     // In practice, use 2*facet_tol because we are always comparing 2 faceted
     // entities. If instead we were comparing a faceted entity and a geometric
@@ -1977,6 +1842,8 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     }
     return MB_SUCCESS;  
   }
+
+
 
 }
 

@@ -102,7 +102,7 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
                                          const MBTag size_tag,
                                          const double FACET_TOL,
                                          bool verbose = true );
-
+/// takes the mesh in input_set and makes it watertight
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = true);
 
 
