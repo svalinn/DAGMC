@@ -971,7 +971,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
                              MBTag geom_tag, MBTag id_tag, MBTag normal_tag, MBTag merge_tag,
                              MBTag orig_curve_tag,
                              const double SME_RESABS_TOL, const double FACET_TOL, 
-                               const bool debug, bool verbose) 
+                             const bool debug, bool verbose) 
 {
    
     MBErrorCode result;
@@ -983,12 +983,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 	// get the surf id of the surface meshset
 	int surf_id;
 	result = MBI()->tag_get_data( id_tag, &(*i), 1, &surf_id );
-
-	if(gen::error(MB_SUCCESS!=result,"could not get id tag"))
-	  {
-	    return result;
-	  }
-
+	if(gen::error(MB_SUCCESS!=result,"could not get id tag")) return result;
 	assert(MB_SUCCESS == result);
 
 	if(debug) std::cout << "  surf id= " << surf_id << std::endl;
@@ -996,142 +991,106 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 	// get the 2D entities in the surface set
 	MBRange dim2_ents;
 	result = MBI()->get_entities_by_dimension( *i, 2, dim2_ents );
-	if(gen::error(MB_SUCCESS!=result,"could not get 3D entities")) 
-	  {
-	    return result;
-	  }
+	if(gen::error(MB_SUCCESS!=result,"could not get 3D entities")) return result;
 	assert(MB_SUCCESS == result);
 
 	// get facets of the surface meshset
 	MBRange tris;
 	result = MBI()->get_entities_by_type( *i, MBTRI, tris );
-
 	if(gen::error(MB_SUCCESS!=result,"could not get tris")) return result;
-
 	assert(MB_SUCCESS == result);
 
-      // Remove any 2D entities that are not triangles. This is needed because
-      // ReadCGM will add quads and polygons to the surface set. This code only
-      // works with triangles.
-      MBRange not_tris = subtract( dim2_ents, tris );
-      if(!not_tris.empty()) {
+        // Remove any 2D entities that are not triangles. This is needed because
+        // ReadCGM will add quads and polygons to the surface set. This code only
+        // works with triangles.
+        MBRange not_tris = subtract( dim2_ents, tris );
+        if(!not_tris.empty()) {
         result = MBI()->delete_entities( not_tris );
         if(gen::error(MB_SUCCESS!=result,"could not delete not_tris")) return result;
         assert(MB_SUCCESS == result);
         std::cout << "  removed " << not_tris.size() 
                   << " 2D elements that were not triangles from surface " 
                   << surf_id << std::endl;
-      }
-
-      // Get the curves sets
-      std::vector<MBEntityHandle> curve_sets, unmerged_curve_sets;
-      result = MBI()->get_child_meshsets( *i, curve_sets );
-      if(gen::error(MB_SUCCESS!=result,"could not get child sets")) return result;
-      assert(MB_SUCCESS==result);
-
-      // Update the curve_sets with that contain entity_to_delete curves with their
-      // entity_to_keep curves. Unmerged_curve_sets will end up holding the curves
-      // of this surface that are not merged with another curve in this surface.
-      for(std::vector<MBEntityHandle>::iterator j=curve_sets.begin();
-	  j!=curve_sets.end(); j++) {
-        MBEntityHandle merged_curve, curve;
-        result = MBI()->tag_get_data( merge_tag, &(*j), 1, &merged_curve );
-        assert(MB_TAG_NOT_FOUND==result || MB_SUCCESS==result);     
-        if(MB_TAG_NOT_FOUND == result) {
-          curve = *j;
-        } else if(MB_SUCCESS == result) {
-	  if(verbose) {
-            std::cout << "  curve_id=" << gen::geom_id_by_handle(*j) 
-                      << " is entity_to_delete" << std::endl;
-          }
-          curve = merged_curve;
-          // should parent-childs be updated for the entity_to_keep?
-        } else {
-	  std::cout << "prepare_surfaces: result=" << result << std::endl;
-          return result;        
         }
+
+        // Get the curves and determine the number of unmerged curves
+        std::vector<MBEntityHandle> curve_sets, unmerged_curve_sets;
+        result = get_unmerged_curves( *i , curve_sets, unmerged_curve_sets, merge_tag, verbose);
+        if(gen::error(MB_SUCCESS!=result, " could not get the curves and unmerged curves" )) return result; 
       
-	// Add a curve (whether it is merged or not) if it is not in unmerged_merged_curve_sets. 
-        // If it is merged, then the curve handle will appear later and we will remove it. 
-	std::vector<MBEntityHandle>::iterator k=find(unmerged_curve_sets.begin(), 
-	  unmerged_curve_sets.end(), curve);
-        if(unmerged_curve_sets.end() == k) {
 
-          unmerged_curve_sets.push_back(curve);
-        } else {
-        
-          unmerged_curve_sets.erase(k);
+        // If all of the curves are merged, remove the surfaces facets.
+        // THIS ALSO REMOVES SURFACES THAT HAVE ALL CURVES DELETED?
+        if(unmerged_curve_sets.empty()) {
+       
+          result = gen::delete_surface( *i , geom_tag, tris, surf_id); 
+          if( gen::error(MB_SUCCESS!=result, "could not delete surface" )) return result;                                              
+          // adjust iterator so *i is still the same surface
+          i = surface_sets.erase(i) - 1;
+          continue;
 
         }
-      // If all curves have a partner to be merged to, then unmerged_curve_sets will be empty.
-      }
-       
-      // If all of the curves are merged, remove the surfaces facets.
-      // THIS ALSO REMOVES SURFACES THAT HAVE ALL CURVES DELETED?
-      if(unmerged_curve_sets.empty()) {
-       
-        result = gen::delete_surface( *i , geom_tag, tris, surf_id); 
-        if( gen::error(MB_SUCCESS!=result, "could not delete surface" )) return result;
-                                                        
-        // adjust iterator so *i is still the same surface
-        i = surface_sets.erase(i) - 1;
 
-        continue;
-      }
+        // new implementation of combining curve senses
+        result = gen::combine_merged_curve_senses( curve_sets, merge_tag, debug );
+        if(gen::error(MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
 
 
-      // Save the normals of the facets. These will later be used to determine if
-      // the tri became inverted.
-      result = gen::save_normals( tris, normal_tag );
-      if(gen::error(MB_SUCCESS!=result,"could not save_normals")) return result;
-      assert(MB_SUCCESS == result);
+        // Save the normals of the facets. These will later be used to determine if
+        // the tri became inverted.
+        result = gen::save_normals( tris, normal_tag );
+        if(gen::error(MB_SUCCESS!=result,"could not save_normals")) return result;
+        assert(MB_SUCCESS == result);
   
-      // do edges already exist?
-      int n_edges;
-      result = MBI()->get_number_entities_by_type(0, MBEDGE, n_edges );
-      if(gen::error(MB_SUCCESS!=result,"could not get number of edges")) return result;
-      assert(MB_SUCCESS == result);
-      if(gen::error(0!=n_edges,"edges exist")) return result;
-      assert(0 == n_edges); //*** Why can't we have edges? (Also, this assertion is never used)
+        // do edges already exist?
+        int n_edges;
+        result = MBI()->get_number_entities_by_type(0, MBEDGE, n_edges );
+        if(gen::error(MB_SUCCESS!=result,"could not get number of edges")) return result;
+        assert(MB_SUCCESS == result);
+        if(gen::error(0!=n_edges,"edges exist")) return result;
+        assert(0 == n_edges); //*** Why can't we have edges? (Also, this assertion is never used)
 
-      // get the range of skin edges from the range of facets
-      MBSkinner tool(MBI());
-      MBRange skin_edges, skin_edges2;
-      if(tris.empty()) continue; // nothing to zip
-      result = tool.find_skin( tris, 1, skin_edges, false );
-      if(gen::error(MB_SUCCESS!=result,"could not find_skin")) return result;
-      assert(MB_SUCCESS == result);
+        // get the range of skin edges from the range of facets
+        MBSkinner tool(MBI());
+        MBRange skin_edges, skin_edges2;
+        if(tris.empty()) continue; // nothing to zip
+        result = tool.find_skin( tris, 1, skin_edges, false );
+        if(gen::error(MB_SUCCESS!=result,"could not find_skin")) return result;
+        assert(MB_SUCCESS == result);
      
 
-      // merge the vertices of the skin
-      // BRANDON: For some reason cgm2moab does not do this? This was the 
-      // problem with mod13 surf 881. Two skin verts were coincident. A tol=1e-10
-      // found the verts, but tol=0 did not.
-      MBRange skin_verts;
-      result = MBI()->get_adjacencies( skin_edges, 0, false, skin_verts, 
+        // merge the vertices of the skin
+        // BRANDON: For some reason cgm2moab does not do this? This was the 
+        // problem with mod13 surf 881. Two skin verts were coincident. A tol=1e-10
+        // found the verts, but tol=0 did not.
+
+        MBRange skin_verts;
+
+
+        result = MBI()->get_adjacencies( skin_edges, 0, false, skin_verts, 
                                        MBInterface::UNION );
-      if(gen::error(MB_SUCCESS!=result,"could not get adj verts")) return result;
-      assert(MB_SUCCESS == result);
-      result = gen::merge_vertices( skin_verts, SME_RESABS_TOL );         
-      if (MB_SUCCESS != result) {                                             
+        if(gen::error(MB_SUCCESS!=result,"could not get adj verts")) return result;
+        assert(MB_SUCCESS == result);
+        result = gen::merge_vertices( skin_verts, SME_RESABS_TOL );         
+        if (MB_SUCCESS != result) {                                             
 	if(debug) std::cout << "result= " << result << std::endl;                  
 	std::cout << "  surface " << surf_id << " failed to zip: could not merge vertices"   
 		  << surf_id << std::endl;  
         result = MBI()->delete_entities(skin_edges);
         assert(MB_SUCCESS == result);
 	continue;
-      }  
+        }  
 
-      // Merging vertices create degenerate edges.
-      result = arc::remove_degenerate_edges( skin_edges, debug );
-      if(MB_SUCCESS!=result) {
+        // Merging vertices create degenerate edges.
+        result = arc::remove_degenerate_edges( skin_edges, debug );
+        if(MB_SUCCESS!=result) {
 	std::cout << "  surface " << surf_id 
                   << " failed to zip: could not remove degenerate edges" << std::endl;
         result = MBI()->delete_entities(skin_edges);
         if(gen::error(MB_SUCCESS!=result,"could not delete skin edges")) return result;
         assert(MB_SUCCESS == result);
 	continue;
-      }  
+        }  
 
  
       /* Remove pairs of edges that are geometrically the same but in opposite 
@@ -1204,9 +1163,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       /* Get the curves that are part of the surface. Use vectors to store all curve
 	 stuff so that we can remove curves from the set as they are zipped. */
      
-      // new implementation of combining curve senses
-      result = gen::combine_merged_curve_senses( curve_sets, merge_tag, debug );
-      if(gen::error(MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
+  
 
 
       // Place skin loops in meshsets to allow moab to update merged entities.
@@ -1638,6 +1595,56 @@ MBErrorCode delete_sealing_tags( MBTag normal_tag, MBTag merge_tag, MBTag size_t
     if(MB_SUCCESS != result) return result;
 
   return result; 
+}
+
+MBErrorCode get_unmerged_curves( MBEntityHandle surface, std::vector<MBEntityHandle> &curves, std::vector<MBEntityHandle> &unmerged_curves, MBTag merge_tag, bool verbose) {
+
+  MBErrorCode result; 
+
+   result = MBI()->get_child_meshsets( surface, curves );
+      if(gen::error(MB_SUCCESS!=result,"could not get child sets")) return result;
+      assert(MB_SUCCESS==result);
+
+      // Update the curve_sets with that contain entity_to_delete curves with their
+      // entity_to_keep curves. Unmerged_curve_sets will end up holding the curves
+      // of this surface that are not merged with another curve in this surface.
+      for(std::vector<MBEntityHandle>::iterator j=curves.begin();
+	  j!=curves.end(); j++) {
+        MBEntityHandle merged_curve, curve;
+        result = MBI()->tag_get_data( merge_tag, &(*j), 1, &merged_curve );
+        assert(MB_TAG_NOT_FOUND==result || MB_SUCCESS==result);     
+        if(MB_TAG_NOT_FOUND == result) {
+          curve = *j;
+        } else if(MB_SUCCESS == result) {
+	  if(verbose) {
+            std::cout << "  curve_id=" << gen::geom_id_by_handle(*j) 
+                      << " is entity_to_delete" << std::endl;
+          }
+          curve = merged_curve;
+          // should parent-childs be updated for the entity_to_keep?
+        } else {
+	  std::cout << "prepare_surfaces: result=" << result << std::endl;
+          return result;        
+        }
+      
+	// Add a curve (whether it is merged or not) if it is not in unmerged_merged_curve_sets. 
+        // If it is merged, then the curve handle will appear later and we will remove it. 
+	std::vector<MBEntityHandle>::iterator k=find(unmerged_curves.begin(), 
+	  unmerged_curves.end(), curve);
+        if(unmerged_curves.end() == k) {
+
+          unmerged_curves.push_back(curve);
+        } else {
+        
+          unmerged_curves.erase(k);
+
+        }
+      // If all curves have a partner to be merged to, then unmerged_curve_sets will be empty.
+      }
+
+
+  return MB_SUCCESS; 
+
 }
 
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose) 

@@ -108,6 +108,13 @@ MBErrorCode delete_merged_curves(MBRange &existing_curve_sets, MBTag merge_tag, 
 /// deletes all tags created for use in sealing the model
 MBErrorCode delete_sealing_tags( MBTag normal_tag, MBTag merge_tag, MBTag size_tag, MBTag orig_curve_tag);
 
+/// gets all curve sets an returns them in curves. Places any unmerged curves in unmerged_curves. 
+MBErrorCode get_unmerged_curves( MBEntityHandle surface, 
+                                 std::vector<MBEntityHandle> &curves, 
+                                 std::vector<MBEntityHandle> &unmerged_curves, 
+                                 MBTag merge_tag, 
+                                 bool verbose);
+
 /// takes the mesh in input_set and makes it watertight
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = true);
 
