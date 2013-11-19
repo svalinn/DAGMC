@@ -975,7 +975,6 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 {
    
     MBErrorCode result;
-   
     // loop over each surface meshset
     for(MBRange::iterator i=surface_sets.begin(); i!=surface_sets.end(); i++ ) 
       {
@@ -985,7 +984,6 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 	result = MBI()->tag_get_data( id_tag, &(*i), 1, &surf_id );
 	if(gen::error(MB_SUCCESS!=result,"could not get id tag")) return result;
 	assert(MB_SUCCESS == result);
-
 	if(debug) std::cout << "  surf id= " << surf_id << std::endl;
 
 	// get the 2D entities in the surface set
@@ -1020,7 +1018,6 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
       
 
         // If all of the curves are merged, remove the surfaces facets.
-        // THIS ALSO REMOVES SURFACES THAT HAVE ALL CURVES DELETED?
         if(unmerged_curve_sets.empty()) {
        
           result = gen::delete_surface( *i , geom_tag, tris, surf_id); 
@@ -1028,21 +1025,20 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
           // adjust iterator so *i is still the same surface
           i = surface_sets.erase(i) - 1;
           continue;
-
         }
 
-        // new implementation of combining curve senses
+        // combine merged curve's surface senses
         result = gen::combine_merged_curve_senses( curve_sets, merge_tag, debug );
         if(gen::error(MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
 
 
-        // Save the normals of the facets. These will later be used to determine if
+        // Save the normals of the facets. These will later be used to determine if 
         // the tri became inverted.
         result = gen::save_normals( tris, normal_tag );
         if(gen::error(MB_SUCCESS!=result,"could not save_normals")) return result;
         assert(MB_SUCCESS == result);
   
-        // do edges already exist?
+        // Check if edges exist
         int n_edges;
         result = MBI()->get_number_entities_by_type(0, MBEDGE, n_edges );
         if(gen::error(MB_SUCCESS!=result,"could not get number of edges")) return result;
@@ -1063,109 +1059,29 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         // BRANDON: For some reason cgm2moab does not do this? This was the 
         // problem with mod13 surf 881. Two skin verts were coincident. A tol=1e-10
         // found the verts, but tol=0 did not.
-
         MBRange skin_verts;
+        bool cont = false;
+        result = merge_skin_verts( skin_verts, skin_edges, SME_RESABS_TOL, surf_id, cont, debug);
+        if(gen::error(MB_SUCCESS!=result,"could not merge the skin verts")) return result; 
+        if(cont) continue;
 
 
-        result = MBI()->get_adjacencies( skin_edges, 0, false, skin_verts, 
-                                       MBInterface::UNION );
-        if(gen::error(MB_SUCCESS!=result,"could not get adj verts")) return result;
-        assert(MB_SUCCESS == result);
-        result = gen::merge_vertices( skin_verts, SME_RESABS_TOL );         
-        if (MB_SUCCESS != result) {                                             
-	if(debug) std::cout << "result= " << result << std::endl;                  
-	std::cout << "  surface " << surf_id << " failed to zip: could not merge vertices"   
-		  << surf_id << std::endl;  
-        result = MBI()->delete_entities(skin_edges);
-        assert(MB_SUCCESS == result);
-	continue;
-        }  
+        // take skin edges and create loops of vertices
+        std::vector < std::vector <MBEntityHandle> > skin;
+        cont = false;
+        result = create_skin_vert_loops ( skin_edges, tris, skin , surf_id, cont, debug);
+        if(gen::error(MB_SUCCESS!=result, " could not create skin loops of vertices")) return result; 
+        if(cont) continue;
 
-        // Merging vertices create degenerate edges.
-        result = arc::remove_degenerate_edges( skin_edges, debug );
-        if(MB_SUCCESS!=result) {
-	std::cout << "  surface " << surf_id 
-                  << " failed to zip: could not remove degenerate edges" << std::endl;
-        result = MBI()->delete_entities(skin_edges);
-        if(gen::error(MB_SUCCESS!=result,"could not delete skin edges")) return result;
-        assert(MB_SUCCESS == result);
-	continue;
-        }  
 
- 
-      /* Remove pairs of edges that are geometrically the same but in opposite 
-        order due to a faceting error ACIS. In other words, merge (a,b) and (b,a). 
-        Examples are mod13surf280 and tbm_surf1605. */
-      result = arc::remove_opposite_pairs_of_edges_fast( skin_edges, debug );
-      if (MB_SUCCESS != result) {                                             
-	std::cout << "  surface " << surf_id << " failed to zip: could not remove opposite edges"   
-		  << surf_id << std::endl;  
-        result = MBI()->delete_entities(skin_edges);
-        if(gen::error(MB_SUCCESS!=result,"could not delete skin edges")) return result;
-        assert(MB_SUCCESS == result);
-	continue;
-      }  
+// separate the remainder into a new function seal surface??
 
-      /* Order the edges so that the triangle is on their left side. Skin
-	 edges are adjacent to only one triangle. */
-      bool catch_error = false;
-      for(MBRange::iterator j=skin_edges.begin(); j!=skin_edges.end(); j++) {
-	MBRange adj_tris;
-	result = MBI()->get_adjacencies( &(*j), 1, 2, false, adj_tris );
-        if(gen::error(MB_SUCCESS!=result,"could not get adj tris")) return result;
-	assert(MB_SUCCESS == result);
-	MBRange skin_tri = intersect( adj_tris, tris );
-        if(1 != skin_tri.size()) {
-          std::cout << "skin_tri.size()=" << skin_tri.size() << std::endl;
-          catch_error = true;
-          break;
-        }
-	result = arc::orient_edge_with_tri( *j, skin_tri.front() );
-        if(gen::error(MB_SUCCESS!=result,"could not orient_edge_with_tri")) return result;
-	assert(MB_SUCCESS == result);
-      }
-      // I NEED TO ADD BETTER CLEANUP AFTER THESE FAILURE CONDITIONS
-      if(catch_error) {
-	std::cout << "  surface " << surf_id << " failed to zip: could not orient edge"   
-                  << std::endl;  
-        result = MBI()->delete_entities(skin_edges);
-        if(gen::error(MB_SUCCESS!=result,"could not delete skin edges")) return result;
-        assert(MB_SUCCESS == result);
-        continue;
-      }
-						      
-      // Create loops with the skin edges.  
-      std::vector< std::vector<MBEntityHandle> > skin_loops_of_edges;
-      result = arc::create_loops_from_oriented_edges( skin_edges, skin_loops_of_edges, debug );
-      if(MB_SUCCESS != result) {
-	std::cout << "  surface " << surf_id << " failed to zip: could not create loops" 
-		  << std::endl;
-        result = MBI()->delete_entities(skin_edges);
-        assert(MB_SUCCESS == result);
-	continue;
-      }
-      if(debug) std::cout << skin_loops_of_edges.size() << " skin loop(s)" << std::endl;
+// separate this part from prepare surfaces into make_mesh_watertight??
 
-      // Convert the loops of skin edges to loops of skin verts.
-      std::vector< std::vector<MBEntityHandle> > skin(skin_loops_of_edges.size());
-      for(unsigned int j=0; j<skin_loops_of_edges.size(); j++) {
-        result = gen::ordered_verts_from_ordered_edges( skin_loops_of_edges[j], skin[j] );
-        assert(MB_SUCCESS == result);
-	// check to make sure that the loop is closed
-	assert(skin[j].front() == skin[j].back());
-      }
-
-      // edges are no longer needed       
-      result = MBI()->delete_entities(skin_edges);
-      if(gen::error(MB_SUCCESS!=result,"could not delete skin_edges")) return result;
-      assert(MB_SUCCESS == result);
 
       /* Get the curves that are part of the surface. Use vectors to store all curve
 	 stuff so that we can remove curves from the set as they are zipped. */
      
-  
-
-
       // Place skin loops in meshsets to allow moab to update merged entities.
       // This prevents stale handles. I suspect moab can use upward adjacencies
       // to do this more efficiently than a manual O(n) search through an 
@@ -1391,8 +1307,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
 	    return rval;
 	  }
 
-	//std::cout <<  " *i = " << *i << " size = " << size << std::endl;
-
+	
 	rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
 	//std::cout << " here in set tag data" << std::endl;
 	if(gen::error(MB_SUCCESS!=rval,"could not set size tag")) 
@@ -1645,6 +1560,129 @@ MBErrorCode get_unmerged_curves( MBEntityHandle surface, std::vector<MBEntityHan
 
   return MB_SUCCESS; 
 
+}
+
+
+MBErrorCode create_skin_vert_loops( MBRange &skin_edges, MBRange tris, std::vector < std::vector <MBEntityHandle> > &skin , int surf_id, bool &cont, bool debug) {
+
+ MBErrorCode result; 
+  
+     /* Remove pairs of edges that are geometrically the same but in opposite 
+        order due to a faceting error ACIS. In other words, merge (a,b) and (b,a). 
+        Examples are mod13surf280 and tbm_surf1605. */
+      result = arc::remove_opposite_pairs_of_edges_fast( skin_edges, debug );
+      if (MB_SUCCESS != result) {                                             
+	std::cout << "  surface " << surf_id << " failed to zip: could not remove opposite edges"   
+		  << surf_id << std::endl;  
+        result = MBI()->delete_entities(skin_edges);
+        if(gen::error(MB_SUCCESS!=result,"could not delete skin edges")) return result;
+        assert(MB_SUCCESS == result);
+        cont = true;
+	return result;
+      }  
+
+
+
+
+      /* Order the edges so that the triangle is on their left side. Skin
+	 edges are adjacent to only one triangle. */
+      bool catch_error = false;
+      for(MBRange::iterator j=skin_edges.begin(); j!=skin_edges.end(); j++) {
+	MBRange adj_tris;
+	result = MBI()->get_adjacencies( &(*j), 1, 2, false, adj_tris );
+        if(gen::error(MB_SUCCESS!=result,"could not get adj tris")) return result;
+	assert(MB_SUCCESS == result);
+	MBRange skin_tri = intersect( adj_tris, tris );
+        if(1 != skin_tri.size()) {
+          std::cout << "skin_tri.size()=" << skin_tri.size() << std::endl;
+          catch_error = true;
+          break;
+        }
+	result = arc::orient_edge_with_tri( *j, skin_tri.front() );
+        if(gen::error(MB_SUCCESS!=result,"could not orient_edge_with_tri")) return result;
+	assert(MB_SUCCESS == result);
+      }
+      // I NEED TO ADD BETTER CLEANUP AFTER THESE FAILURE CONDITIONS
+      if(catch_error) {
+	std::cout << "  surface " << surf_id << " failed to zip: could not orient edge"   
+                  << std::endl;  
+        result = MBI()->delete_entities(skin_edges);
+        if(gen::error(MB_SUCCESS!=result,"could not delete skin edges")) return result;
+        assert(MB_SUCCESS == result);
+        cont = true;
+        return result;
+      }
+
+
+						      
+      // Create loops with the skin edges.  
+      std::vector< std::vector<MBEntityHandle> > skin_loops_of_edges;
+      result = arc::create_loops_from_oriented_edges( skin_edges, skin_loops_of_edges, debug );
+      if(MB_SUCCESS != result) {
+	std::cout << "  surface " << surf_id << " failed to zip: could not create loops" 
+		  << std::endl;
+        result = MBI()->delete_entities(skin_edges);
+        assert(MB_SUCCESS == result);
+	cont = true;
+        return result;
+      }
+      if(debug) std::cout << skin_loops_of_edges.size() << " skin loop(s)" << std::endl;
+
+      // Convert the loops of skin edges to loops of skin verts.
+      std::vector< std::vector<MBEntityHandle> > skin_temp(skin_loops_of_edges.size());
+      for(unsigned int j=0; j<skin_loops_of_edges.size(); j++) {
+        result = gen::ordered_verts_from_ordered_edges( skin_loops_of_edges[j], skin_temp[j] );
+        assert(MB_SUCCESS == result);
+	// check to make sure that the loop is closed
+	assert(skin_temp[j].front() == skin_temp[j].back());
+      }
+
+      skin=skin_temp;
+
+      // edges are no longer needed       
+      result = MBI()->delete_entities(skin_edges);
+      if(gen::error(MB_SUCCESS!=result,"could not delete skin_edges")) return result;
+      assert(MB_SUCCESS == result);
+
+      
+
+ return MB_SUCCESS; 
+
+}
+
+MBErrorCode merge_skin_verts ( MBRange &skin_verts, MBRange &skin_edges, double SME_RESABS_TOL, int surf_id, bool cont, bool debug) {
+
+   MBErrorCode result; 
+
+    result = MBI()->get_adjacencies( skin_edges, 0, false, skin_verts, 
+                                       MBInterface::UNION );
+        if(gen::error(MB_SUCCESS!=result,"could not get adj verts")) return result;
+        assert(MB_SUCCESS == result);
+        result = gen::merge_vertices( skin_verts, SME_RESABS_TOL );         
+        if (MB_SUCCESS != result) {                                             
+	if(debug) std::cout << "result= " << result << std::endl;                  
+	std::cout << "  surface " << surf_id << " failed to zip: could not merge vertices"   
+		  << surf_id << std::endl;  
+        result = MBI()->delete_entities(skin_edges);
+        assert(MB_SUCCESS == result);
+	cont = true;
+        return result;
+        }  
+
+        // Merging vertices create degenerate edges.
+        result = arc::remove_degenerate_edges( skin_edges, debug );
+        if(MB_SUCCESS!=result) {
+	std::cout << "  surface " << surf_id 
+                  << " failed to zip: could not remove degenerate edges" << std::endl;
+        result = MBI()->delete_entities(skin_edges);
+        if(gen::error(MB_SUCCESS!=result,"could not delete skin edges")) return result;
+        assert(MB_SUCCESS == result);
+	cont = true;
+        return result;
+        }  
+
+
+   return MB_SUCCESS;
 }
 
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose) 

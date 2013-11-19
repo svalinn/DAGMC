@@ -115,6 +115,12 @@ MBErrorCode get_unmerged_curves( MBEntityHandle surface,
                                  MBTag merge_tag, 
                                  bool verbose);
 
+/// takes the skin_edges from the moab skinner and creates loops of vertices between the facets and geometric curves.
+/// The vertex loops are returned in the vector array, skin. 
+MBErrorCode create_skin_vert_loops( MBRange &skin_edges, MBRange tris, std::vector < std::vector <MBEntityHandle> > &skin, int surf_id, bool &cont, bool debug);
+
+MBErrorCode merge_skin_verts ( MBRange &skin_verts, MBRange &skin_edges, double SME_RESABS_TOL, int surf_id, bool cont, bool debug);
+
 /// takes the mesh in input_set and makes it watertight
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = true);
 
