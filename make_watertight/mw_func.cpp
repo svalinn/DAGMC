@@ -1079,49 +1079,19 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 // separate this part from prepare surfaces into make_mesh_watertight??
 
 
-      /* Get the curves that are part of the surface. Use vectors to store all curve
-	 stuff so that we can remove curves from the set as they are zipped. */
-     
-      // Place skin loops in meshsets to allow moab to update merged entities.
-      // This prevents stale handles. I suspect moab can use upward adjacencies
-      // to do this more efficiently than a manual O(n) search through an 
-      // unsorted vector.
-      MBErrorCode rval;
-      MBEntityHandle skin_loop_sets[skin.size()];
-      for(unsigned j=0; j<skin.size(); ++j) {
-        rval = MBI()->create_meshset( MESHSET_TRACK_OWNER|MESHSET_ORDERED, skin_loop_sets[j] );
-        if(gen::error(MB_SUCCESS!=rval,"failed to zip: creating skin_loop_set failed"))
-          return rval;   
+        MBEntityHandle skin_loop_sets[skin.size()];
+        result = seal_surface_loops ( *i , skin_loop_sets , skin,  curve_sets, normal_tag, orig_curve_tag, FACET_TOL, surf_id, debug);
+        if(gen::error(MB_SUCCESS!=result,"could not seal the surface loops")) return result; 
 
-        rval = arc::set_meshset( skin_loop_sets[j], skin[j] );    
-        if(gen::error(MB_SUCCESS!=rval,"failed ot zip: setting skin_loop_set failed")) 
-          return rval;      
-      }
+    
+        // Remove the sets of skin loops
+        result = MBI()->delete_entities( &skin_loop_sets[0], skin.size() );
+        if(gen::error(MB_SUCCESS!=result,"failed to zip: deleting skin_loop_sets failed")) 
+        return result;
 
-      // Keep zipping loops until each is either zipped or failed. This function
-      // returns only after all loops are zipped or a failure occurs.
-      for(unsigned j=0; j<skin.size(); ++j) {
-	std::vector<MBEntityHandle> skin_loop;
-        rval = arc::get_meshset( skin_loop_sets[j], skin_loop );    
-        if(gen::error(MB_SUCCESS!=rval,"failed to zip: setting skin_loop_set failed")) 
-          return rval;      
-
-        rval = seal_loop( debug, FACET_TOL, normal_tag, orig_curve_tag, *i, 
-                          curve_sets, skin_loop );
-        if(MB_SUCCESS != rval) {
-	  std::cout << "failed to zip: surface " << surf_id << ": failed to seal a loop" 
-                    << std::endl;
-        }
-      }
-
-      // Remove the sets of skin loops
-      rval = MBI()->delete_entities( &skin_loop_sets[0], skin.size() );
-      if(gen::error(MB_SUCCESS!=rval,"failed to zip: deleting skin_loop_sets failed")) 
-        return rval;
-
-    } // loop over each surface
-    return MB_SUCCESS;
-  }
+      } // loop over each surface
+      return MB_SUCCESS;
+    }
 
 
 MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, const bool debug, const bool verbose) {
@@ -1684,6 +1654,51 @@ MBErrorCode merge_skin_verts ( MBRange &skin_verts, MBRange &skin_edges, double 
 
    return MB_SUCCESS;
 }
+
+
+MBErrorCode seal_surface_loops ( MBEntityHandle surf, MBEntityHandle skin_loops[] , std::vector < std::vector<MBEntityHandle> > skin, std::vector<MBEntityHandle> curves,  MBTag normal_tag, MBTag orig_curve_tag, double FACET_TOL, int surf_id, bool debug) {
+
+
+      /* Get the curves that are part of the surface. Use vectors to store all curve
+	 stuff so that we can remove curves from the set as they are zipped. */
+     
+      // Place skin loops in meshsets to allow moab to update merged entities.
+      // This prevents stale handles. I suspect moab can use upward adjacencies
+      // to do this more efficiently than a manual O(n) search through an 
+      // unsorted vector.
+
+   MBErrorCode rval;
+      for(unsigned j=0; j<skin.size(); ++j) {
+        rval = MBI()->create_meshset( MESHSET_TRACK_OWNER|MESHSET_ORDERED, skin_loops[j] );
+        if(gen::error(MB_SUCCESS!=rval,"failed to zip: creating skin_loop_set failed"))
+          return rval;   
+
+        rval = arc::set_meshset( skin_loops[j], skin[j] );    
+        if(gen::error(MB_SUCCESS!=rval,"failed ot zip: setting skin_loop_set failed")) 
+          return rval;      
+      }
+
+      // Keep zipping loops until each is either zipped or failed. This function
+      // returns only after all loops are zipped or a failure occurs.
+      for(unsigned j=0; j<skin.size(); ++j) {
+	std::vector<MBEntityHandle> skin_loop;
+        rval = arc::get_meshset( skin_loops[j], skin_loop );    
+        if(gen::error(MB_SUCCESS!=rval,"failed to zip: setting skin_loop_set failed")) 
+          return rval;      
+
+        rval = seal_loop( debug, FACET_TOL, normal_tag, orig_curve_tag, surf, 
+                          curves, skin_loop );
+        if(MB_SUCCESS != rval) {
+	  std::cout << "failed to zip: surface " << surf_id << ": failed to seal a loop" 
+                    << std::endl;
+        }
+      }
+ 
+  return MB_SUCCESS;
+
+}
+
+
 
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose) 
   {

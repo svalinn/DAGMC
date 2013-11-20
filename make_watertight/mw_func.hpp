@@ -119,7 +119,20 @@ MBErrorCode get_unmerged_curves( MBEntityHandle surface,
 /// The vertex loops are returned in the vector array, skin. 
 MBErrorCode create_skin_vert_loops( MBRange &skin_edges, MBRange tris, std::vector < std::vector <MBEntityHandle> > &skin, int surf_id, bool &cont, bool debug);
 
+/// merges any skin vertices closer in proximity than the SME_RESABS_TOL.
+/// It then checks the skins for any degenerate edges resultant of vertex merging.
 MBErrorCode merge_skin_verts ( MBRange &skin_verts, MBRange &skin_edges, double SME_RESABS_TOL, int surf_id, bool cont, bool debug);
+
+/// runs the make_watertight algorithm on each set of skin_loops for the surface, surf.
+MBErrorCode seal_surface_loops ( MBEntityHandle surf,
+                                 MBEntityHandle skin_loops[], 
+                                 std::vector < std::vector<MBEntityHandle> > skin, 
+                                 std::vector<MBEntityHandle> curves, 
+                                 MBTag normal_tag, 
+                                 MBTag orig_curve_tag, 
+                                 double FACET_TOL, 
+                                 int surf_id, 
+                                 bool debug);
 
 /// takes the mesh in input_set and makes it watertight
 MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bool verbose = true);
