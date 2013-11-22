@@ -1773,7 +1773,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     if(gen::error(result!=MB_SUCCESS,"could not prepare the curves")) return(result);
       
     result = gen::check_for_geometry_sets(geom_tag, verbose);
-    if(gen::error(MB_SUCCESS!=result,"no geometry sets exist in the model")) return result; 
+    if(gen::error(MB_SUCCESS!=result,"no geometry sets exist in the model. Please check curve faceting.")) return result; 
 
     
     if (verbose) 
