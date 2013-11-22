@@ -1772,7 +1772,10 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug, verbose);
     if(gen::error(result!=MB_SUCCESS,"could not prepare the curves")) return(result);
       
+    result = gen::check_for_geometry_sets(geom_tag, verbose);
+    if(gen::error(MB_SUCCESS!=result,"no geometry sets exist in the model")) return result; 
 
+    
     if (verbose) 
     {
     std::cout << "Zipping loops and removing small surfaces whose curves were all merged as pairs..." << std::endl;

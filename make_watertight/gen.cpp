@@ -2135,10 +2135,7 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 	void *val[] = {&dim};
 	result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geom_tag,
 	  					    val, 1, geometry_sets[dim] );
-        if(verbose)
-        {
-	std::cout << "Get entities by type and tag" << std::endl;
-        }
+        if(verbose) std::cout << "Get entities by type and tag" << std::endl;
 	assert(MB_SUCCESS == result);
 
 	// make sure that sets TRACK membership and curves are ordered
@@ -2177,4 +2174,26 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 
     }
 
-}
+
+  MBErrorCode check_for_geometry_sets(MBTag geom_tag, bool verbose){
+
+    MBErrorCode result; 
+        // go get all geometry sets
+        MBRange geometry_sets[4];
+        result = get_geometry_meshsets( geometry_sets, geom_tag, false);
+        if(gen::error(MB_SUCCESS!=result,"could not get the geometry meshsets")) return result;
+
+
+        //make sure they're there
+        for(unsigned dim=0; dim<4; dim++){
+ 
+          if(geometry_sets[dim].size() == 0) return MB_FAILURE;
+
+        }
+ 
+
+    return MB_SUCCESS;
+  }
+
+
+} //EOL

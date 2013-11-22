@@ -218,6 +218,10 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
  /// sets the tracking and ordering options of meshsets retrieved from the mesh
   MBErrorCode get_geometry_meshsets( MBRange geometry_sets[], MBTag geom_tag, bool verbose = false);
 
+ /// returns MB_SUCCESS if there exists geometry sets of each dimension in the model
+ /// returns MB_FAILURE if there are no geometry sets of any dimension in the model
+  MBErrorCode check_for_geometry_sets(MBTag geom_tag, bool verbose);
+
 }
 
 #endif
