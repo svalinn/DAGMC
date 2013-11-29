@@ -165,8 +165,7 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
 
   
   if(!check_vol(point,dir,oldRegion) && onboundry)
-    {
-      
+    { 
       std::cout << "Not where we should be!" << std::endl;
       std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3,oldRegion) << " aka " << DAG->id_by_index(3,oldRegion) << std::endl;  
       std::cout.precision(25);
@@ -174,8 +173,8 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
       std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
       std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;     
       int act_vol = look( point[0],point[1],point[2],dir,oldRegion);
-      std::cout << "Point actually belongs to " << act_vol << " aka " << DAG->entity_by_index(3,act_vol) << " aka " << DAG->id_by_index(3,act_vol) << std::endl;
-      //      exit(0);
+      std::cout << "Point actually belongs to " << act_vol << " aka " << DAG->entity_by_index(3,act_vol) 
+                << " aka " << DAG->id_by_index(3,act_vol) << std::endl;
       oldRegion=act_vol;
       std::cout << "Resetting the current volume" << std::endl;
     }
@@ -417,6 +416,13 @@ void f_look(double& pSx, double& pSy, double& pSz,
   return;
 }
 
+void f_lostlook(double& pSx, double& pSy, double& pSz,
+          double* pV, const int& oldReg, const int& oldLttc,
+          int& nextRegion, int& flagErr, int& newLttc)
+{
+    f_look(pSx,pSy,pSz,pV,oldReg,oldLttc,nextRegion,flagErr,newLttc);
+    return;
+}
 //---------------------------------------------------------------------------//
 // slow_check(..)
 //---------------------------------------------------------------------------//
