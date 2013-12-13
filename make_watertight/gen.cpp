@@ -12,6 +12,11 @@
 #include "zip.hpp"
 #include "MBSkinner.hpp"
 
+
+const char GEOM_SENSE_2_TAG_NAME[] = "GEOM_SENSE_2";
+const char GEOM_SENSE_N_ENTS_TAG_NAME[] = "GEOM_SENSE_N_ENTS";
+const char GEOM_SENSE_N_SENSES_TAG_NAME[] = "GEOM_SENSE_N_SENSES"; 
+
 namespace gen {
 
   bool error( const bool error_has_occured, const std::string message ) {
@@ -27,6 +32,67 @@ namespace gen {
       return false;
     }
   }
+
+void moab_printer(MBErrorCode error_code)
+{
+  if ( error_code == MB_INDEX_OUT_OF_RANGE )
+    {
+      std::cerr << "ERROR: MB_INDEX_OUT_OF_RANGE" << std::endl;
+    }
+  if ( error_code == MB_MEMORY_ALLOCATION_FAILED )
+    {
+      std::cerr << "ERROR: MB_MEMORY_ALLOCATION_FAILED" << std::endl;
+    }
+  if ( error_code == MB_ENTITY_NOT_FOUND )
+    {
+      std::cerr << "ERROR: MB_ENTITY_NOT_FOUND" << std::endl;
+    }
+  if ( error_code == MB_MULTIPLE_ENTITIES_FOUND )
+    {
+      std::cerr << "ERROR: MB_MULTIPLE_ENTITIES_FOUND" << std::endl;
+    }
+  if ( error_code == MB_TAG_NOT_FOUND )
+    {
+      std::cerr << "ERROR: MB_TAG_NOT_FOUND" << std::endl;
+    }
+  if ( error_code == MB_FILE_DOES_NOT_EXIST )
+    {
+      std::cerr << "ERROR: MB_FILE_DOES_NOT_EXIST" << std::endl;
+    }    
+  if ( error_code == MB_FILE_WRITE_ERROR )
+    {
+      std::cerr << "ERROR: MB_FILE_WRITE_ERROR" << std::endl;
+    }    
+  if ( error_code == MB_ALREADY_ALLOCATED )
+    {
+      std::cerr << "ERROR: MB_ALREADY_ALLOCATED" << std::endl;
+    }    
+  if ( error_code == MB_VARIABLE_DATA_LENGTH )
+    {
+      std::cerr << "ERROR: MB_VARIABLE_DATA_LENGTH" << std::endl;
+    }  
+  if ( error_code == MB_INVALID_SIZE )
+    {
+      std::cerr << "ERROR: MB_INVALID_SIZE" << std::endl;
+    }  
+  if ( error_code == MB_UNSUPPORTED_OPERATION )
+    {
+      std::cerr << "ERROR: MB_UNSUPPORTED_OPERATION" << std::endl;
+    }  
+  if ( error_code == MB_UNHANDLED_OPTION )
+    {
+      std::cerr << "ERROR: MB_UNHANDLED_OPTION" << std::endl;
+    }  
+  if ( error_code == MB_FAILURE )
+    {
+      std::cerr << "ERROR: MB_FAILURE" << std::endl;
+    }  
+  return;
+}
+
+
+
+
 
   void print_vertex_cubit( const MBEntityHandle vertex ) {
 
@@ -177,9 +243,9 @@ namespace gen {
   }
 
 
-// Return the closest vertex to the arc.
-// For efficiency: only get_coords on the reference vertex once
-//                 if specified, limit search length along curve
+/// Return the closest vertex to the arc.
+/// For efficiency: only get_coords on the reference vertex once
+///                 if specified, limit search length along curve
 MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
                                const std::vector<MBEntityHandle> arc_of_verts,
                                unsigned &position,
@@ -261,36 +327,9 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     }
 
             
-	  //sqr_min_dist = sqr_dist;
-	  //if(sqr_min_dist == 0.0) {
-          //  min_dist = 0.0;
-          //  return MB_SUCCESS; // can't do better than this
-          //}
-    //min_dist = sqrt( sqr_min_dist );
-    return MB_SUCCESS;
+   return MB_SUCCESS;
   }
-  /*  MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
-				 const std::vector<std::vector<MBEntityHandle> > loops_of_verts,
-				 unsigned int &loop, unsigned int &position, 
-				 double &min_dist) {
 
-    MBErrorCode result;
-    min_dist = std::numeric_limits<double>::max();
-    for(unsigned int i=0; i<loops_of_verts.size(); i++) {
-      unsigned int p;
-      double d;
-      result = find_closest_vert( reference_vert, loops_of_verts[i], p, d );
-      assert(MB_SUCCESS == result);  
-      if(d < min_dist) {
-	min_dist = d;
-        loop = i;
-        position = p;
-        if(min_dist == 0.0) return MB_SUCCESS; // can't do better than this
-      }
-    }
-    return MB_SUCCESS;
-  }
-  */
   MBErrorCode merge_vertices( MBRange verts /* in */, const double tol /* in */ ) {
 
     MBErrorCode result;
@@ -298,14 +337,23 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     // Clean up the created tree, and track verts so that if merged away they are
     // removed from the tree.
     MBAdaptiveKDTree kdtree(MBI(), true, 0, MESHSET_TRACK_OWNER);
+    // initialize the KD Tree
     MBEntityHandle root;
     MBAdaptiveKDTree::Settings settings;
+   
+    // tells the tree to split leaves with more than 6 entities
     settings.maxEntPerLeaf = 6;
+    // tells the tree a maximum depth limit
     settings.maxTreeDepth  = 50;
+    // tells the tree how many candidate split planed to consider in each dimension
     settings.candidateSplitsPerDir = 1;
+    // tells the tree to use the median vertex coordinate values to set planes
     settings.candidatePlaneSet = MBAdaptiveKDTree::VERTEX_MEDIAN;
+   
+    // builds the KD Tree, making the MBEntityHandle root the root of the tree
     result = kdtree.build_tree( verts, root, &settings);
     assert(MB_SUCCESS == result);
+    // create tree iterator to loop over all verts in the tree
     MBAdaptiveKDTreeIter tree_iter;
     kdtree.get_tree_iterator( root, tree_iter );
  
@@ -1089,7 +1137,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     assert(MB_SUCCESS==result || MB_ALREADY_ALLOCATED==result);                       
     int id;
     result = MBI()->tag_get_data( id_tag, &set, 1, &id );                  
-    assert(MB_SUCCESS == result);                           
+    //assert(MB_SUCCESS == result);                           
     return id;
   }
   
@@ -1456,21 +1504,12 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
             ++i;
           }
         }
-        //assert( !(edges[i].v0==edges[i+2].v0 && edges[i].v1==edges[i+2].v1) );
 	// otherwise a skin edge has been found
       } else {
         const MBEntityHandle conn[2] = {edges[i].v0, edges[i].v1};
-	//std::vector<MBEntityHandle> the_edge(conn, conn+2);     
-        //skin_edges.push_back(the_edge);
-        // see if the edge already exists
-        //MBRange the_edge;
-        //result = MBI()->get_adjacencies( conn, 2, 1, true, the_edge );
-        //assert(MB_SUCCESS == result);
-        //assert(1 == the_edge.size());
         MBEntityHandle edge;
         result = MBI()->create_element( MBEDGE, conn, 2, edge );
-        //if(MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
-        assert(MB_SUCCESS == result);
+        if(gen::error(MB_SUCCESS!=result, "could not create edge element")) return result;
         skin_edges.insert( edge );
       } 
     }
@@ -1496,18 +1535,13 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 // Copied from DagMC, without index_by_handle. The dagmc function will
 // segfault if build_indices is not first called. For sealing there is
 // no need to build_indices.
-MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
+MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool verbose )
 {
   MBErrorCode rval;
   std::vector<MBEntityHandle> surfaces, surf_volumes;
   result = 0.0;
   
  
-   // don't try to calculate volume of implicit complement
-  //if (volume == impl_compl_handle) {
-  //  result = 1.0;
-  //  return MB_SUCCESS;
-  //}
 
   // get surfaces from volume
   rval = MBI()->get_child_meshsets( volume, surfaces );
@@ -1515,15 +1549,11 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     {
       return rval;
     }
-  std::cout << "in measure_volume 1" << std::endl;
+  if(verbose) std::cout << "in measure_volume 1" << std::endl;
 
     // get surface senses
   std::vector<int> senses( surfaces.size() );
-  //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() ); // this starts a new moab instance
-  //  DAG->build_indices(volumes,surface);
-  //DAG->instance(MBI());
-  //moab::DagMC(MBI());
-  //DAG->create_instance(MBI());
+
 
   if (rval != MB_SUCCESS)
     {
@@ -1532,14 +1562,12 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       std::cout << "or the pointer to the Moab instance is poor" << std::endl;
       exit(rval);
     }
-  std::cout << surfaces.size() << " " << result << std::endl;
-  //std::cout << volume << std::endl;
-  
-  //rval = dagmc.build_indices( surfaces, volume);
+  if(verbose) std::cout << surfaces.size() << " " << result << std::endl;
+
   rval = surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
   
 
-  std::cout << "in measure_volume 2" << std::endl;
+  if(verbose) std::cout << "in measure_volume 2" << std::endl;
 
   if (MB_SUCCESS != rval) 
     {
@@ -1595,13 +1623,13 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
   }
   
   result /= 6.0;
-  std::cout << result << std::endl;
+  if(verbose)  std::cout << result << std::endl;
   return MB_SUCCESS;
 }
 
-  /* Calculate the signed volumes beneath the surface (x 6.0). Use the triangle's
-     cannonical sense. Do not take sense tags into account. Code taken from 
-     DagMC::measure_volume. */    
+  /// Calculate the signed volumes beneath the surface (x 6.0). Use the triangle's
+  ///   cannonical sense. Do not take sense tags into account. Code taken from 
+  ///   DagMC::measure_volume. 
   MBErrorCode get_signed_volume( const MBEntityHandle surf_set, double &signed_volume) {
     MBErrorCode rval;                                     
     MBRange tris;                          
@@ -1625,7 +1653,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     return MB_SUCCESS;                              
   }                 
 
-  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size ) {
+  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size, bool verbose ) {
     MBErrorCode result;
     int dim;
     result = MBI()->tag_get_data( geom_tag, &set, 1, &dim );                  
@@ -1647,11 +1675,9 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       size = triangle_area( tris );
 
     } else if(3 == dim) {
-      //moab::DagMC &dagmc = *moab::DagMC::instance( MBI() );
-      //result = dagmc.measure_volume( set, size );
-      std::cout << "in measure volume" << std::endl;
-      result = measure_volume( set, size );
-      std::cout << "in measure volume" << std::endl;
+      
+      result = measure_volume( set, size, verbose );
+      
       if(MB_SUCCESS != result) {
         std::cout << "result=" << result << " vol_id=" 
                   << gen::geom_id_by_handle(set) << std::endl;
@@ -1663,9 +1689,10 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     return MB_SUCCESS;
   }
 
-  // From CGMA/builds/dbg/include/CubitDefines, CUBIT_UNKNOWN=-1, CUBIT_FORWARD=0, CUBIT_REVERSED=1
+  // From CGMA/builds/dbg/include/CubitDefines
+  /// gets the surface sense with respect to the curve and returns the value to sense
   MBErrorCode get_curve_surf_sense( const MBEntityHandle surf_set, const MBEntityHandle curve_set,
-                                    int &sense ) {
+                                    int &sense, bool debug ) {
     std::vector<MBEntityHandle> surfs;
     std::vector<int> senses;
     MBErrorCode rval;
@@ -1674,19 +1701,37 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     if(gen::error(MB_SUCCESS!=rval,"failed to get_senses")) return rval;
     
     unsigned counter = 0;
-    for(unsigned i=0; i<surfs.size(); ++i) {
-      if(surf_set==surfs[i]) {
+    int edim;
+    for(unsigned i=0; i<surfs.size(); i++) {
+      edim=gt.dimension(surfs[i]);
+      if( edim == -1)
+      { 
+        surfs.erase(surfs.begin()+i);
+        senses.erase(senses.begin()+i);
+        i=0;
+      }
+     if(surf_set==surfs[i]) {
         sense = senses[i];
+        
         ++counter;
       }
     }
 
+   if(debug)
+   {
+    for(unsigned int index=0; index < surfs.size() ; index++)
+    {
+     std::cout << "surf = " << geom_id_by_handle(surfs[index]) << std::endl;
+     std::cout << "sense = " << senses[index] << std::endl;
+    }
+   }
     // special case: parent surface does not exist
     if(gen::error(0==counter,"failed to find a surf in sense list")) return MB_FAILURE;
 
-    // special case: ambiguous
-    if(1<counter) sense = -1;
-    
+   
+
+     // special case: ambiguous
+    if(1<counter) sense = SENSE_UNKNOWN;
     return MB_SUCCESS;
   }
 
@@ -1715,7 +1760,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
 	  }
 	else if (volume == reverse)
 	  {
-	    *senses_out = -1;
+	    *senses_out = SENSE_UNKNOWN;
 	  }
 	else 
 	  {
@@ -1729,7 +1774,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
     return MB_SUCCESS;
   }
 
-  // get sense of surface(s) wrt volume
+  /// get sense of surface(s) wrt volume
   MBErrorCode surface_sense( MBEntityHandle volume, 
                              MBEntityHandle surface,
                              int& sense_out )
@@ -1749,7 +1794,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
       }
     else if (surf_volumes[1] == volume)
       {
-	sense_out = -1;
+	sense_out = SENSE_UNKNOWN;
       }
     else
       {
@@ -1777,5 +1822,359 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result )
 
    return retval;
  }
+
+
+
+ MBErrorCode delete_surface( MBEntityHandle surf, MBTag geom_tag, MBRange tris, int id, bool verbose) {
+
+  MBErrorCode result;
+
+  //measure area of the surface  
+        double area;
+        result = gen::measure( surf, geom_tag, area, verbose );
+        if(gen::error(MB_SUCCESS!=result,"could not measure area")) return result;
+        assert(MB_SUCCESS == result);
+
+  //remove triagngles from the surface
+        result = MBI()->remove_entities( surf, tris);                          
+        if(gen::error(MB_SUCCESS!=result,"could not remove tris")) return result;
+	assert(MB_SUCCESS == result);       
+  //print information about the deleted surface if requested by the user
+        if(verbose) std::cout << "  deleted surface " << id
+                  << ", area=" << area << " cm^2, n_facets=" << tris.size() << std::endl;
+
+  // delete triangles from mesh data
+	result = MBI()->delete_entities( tris );                               
+        if(gen::error(MB_SUCCESS!=result,"could not delete tris")) return result;
+	assert(MB_SUCCESS == result);
+
+  //remove the sense data for the surface from its child curves
+        result = remove_surf_sense_data( surf);
+        if(gen::error(MB_SUCCESS!=result, "could not remove surface's sense data")) return result;
+
+  //remove the surface set itself
+        result = MBI()->delete_entities( &(surf), 1);
+        if(gen::error(MB_SUCCESS!=result,"could not delete surface set")) return result;
+        assert(MB_SUCCESS == result);
+
+
+  return MB_SUCCESS;
+ }
+
+ /// removes sense data from all curves associated with the surface given to the function
+
+ MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf) {
+ 
+  MBErrorCode result;
+  moab::GeomTopoTool gt(MBI(), false);
+    int edim = gt.dimension(del_surf);
+
+    if(gen::error(edim!=2,"could not remove sense data: entity is of the wrong dimension")) return MB_FAILURE;
+
+ // get the curves of the surface
+        MBRange del_surf_curves;
+        result = MBI() -> get_child_meshsets( del_surf, del_surf_curves);
+        if(gen::error(MB_SUCCESS!=result,"could not get the curves of the surface to delete")) return result;
+        std::cout << "got the curves" << std::endl;
+       
+  
+
+        std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
+        for(unsigned int index =0 ; index < del_surf_curves.size() ; index++)
+        {
+          std::cout << "deleted surface's child curve id " << index << " = " << gen::geom_id_by_handle(del_surf_curves[index]) << std::endl;
+        }        
+  
+        //get the sense data for each curve
+
+        //get sense_tag handles from MOAB
+        MBTag senseEnts, senseSenses;
+        unsigned flags = MB_TAG_SPARSE;
+     
+        //get tag for the entities with sense data associated with a given moab entity
+        result = MBI()-> tag_get_handle(GEOM_SENSE_N_ENTS_TAG_NAME, 0, MB_TYPE_HANDLE, senseEnts, flags);
+        if(gen::error(MB_SUCCESS!=result, "could not get senseEnts tag")) return result;
+        
+        //get tag for the sense data associated with the senseEnts entities for a given moab entity
+        result = MBI()-> tag_get_handle(GEOM_SENSE_N_SENSES_TAG_NAME, 0, MB_TYPE_INTEGER, senseSenses, flags);
+        if(gen::error(MB_SUCCESS!=result,"could not get senseSenses tag")) return result;
+        
+        //initialize vectors for entities and sense data
+        std::vector<MBEntityHandle> surfaces;
+        std::vector<int> senses;
+        for(MBRange::iterator i=del_surf_curves.begin(); i!=del_surf_curves.end(); i++ ) 
+        {
+       
+        result = gt.get_senses(*i, surfaces, senses);
+        if(gen::error(MB_SUCCESS!=result, "could not get the senses for the del_surf_curve")) return result;
+          // if the surface to be deleted (del_surf) exists in the sense data (which it should), then remove it
+          for(unsigned int index = 0; index < senses.size() ; index++)
+          {
+            if(surfaces[index]==del_surf)
+            {
+             surfaces.erase(surfaces.begin() + index);
+             senses.erase(senses.begin() +index);
+             index=-1;
+            }
+          }
+          //remove existing sense entity data for the curve
+          result= MBI()-> tag_delete_data( senseEnts, &*i, 1);
+          if(gen::error(MB_SUCCESS!=result, "could not delete sense entity data")) return result;
+       
+          //remove existing sense data for the curve
+          result = MBI()-> tag_delete_data(senseSenses, &*i, 1);
+          if(gen::error(MB_SUCCESS!=result, "could not delete sense data")) return result;
+
+          //reset the sense data for each curve 
+          result = gt.set_senses( *i, surfaces, senses);
+          if(gen::error(MB_SUCCESS!=result, "could not update sense data for surface deletion")) return result;
+
+        }
+
+ return MB_SUCCESS;
+ } 
+
+/// combines the senses of any curves tagged as merged in the vector curves
+ MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> &curves, MBTag merge_tag, bool debug) {
+
+  MBErrorCode result; 
+  
+  for(std::vector<MBEntityHandle>::iterator j=curves.begin(); j!=curves.end(); j++) {
+
+
+  MBEntityHandle merged_curve;
+  result = MBI() -> tag_get_data( merge_tag, &(*j), 1, &merged_curve);
+  if(gen::error(MB_SUCCESS!=result && MB_TAG_NOT_FOUND!=result, "could not get the merge_tag data of the curve")) return result;
+
+  if(MB_SUCCESS==result) { // we have found a merged curve pairing
+    // add the senses from the curve_to_delete to curve_to keep
+    // create vectors for the senses and surfaces of each curve
+    std::vector<MBEntityHandle> curve_to_keep_surfs, curve_to_delete_surfs, combined_surfs;
+    std::vector<int> curve_to_keep_senses, curve_to_delete_senses, combined_senses;
+
+    //initialize GeomTopoTool.cpp instance in MOAB
+    moab::GeomTopoTool gt(MBI(), false);
+    // get senses of the iterator curve and place them in the curve_to_delete vectors
+    result = gt.get_senses( *j, curve_to_delete_surfs, curve_to_delete_senses);
+    if(gen::error(MB_SUCCESS!=result, "could not get the surfs/senses of the curve to delete")) return result;
+    // get surfaces/senses of the merged_curve and place them in the curve_to_keep vectors
+    result = gt.get_senses( merged_curve, curve_to_keep_surfs, curve_to_keep_senses);
+    if(gen::error(MB_SUCCESS!=result, "could not get the surfs/senses of the curve to delete")) return result;
+    
+    if(debug){
+          std::cout << "curve to keep id = " << gen::geom_id_by_handle(merged_curve) << std::endl;
+          std::cout << "curve to delete id = " << gen::geom_id_by_handle(*j) << std::endl;
+          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
+          {
+           std::cout << "curve_to_keep_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_keep_surfs[index]) << std::endl;
+           std::cout << "curve_to_keep_sense " << index << " = " << curve_to_keep_senses[index] << std::endl;
+           
+          }
+          for(unsigned int index=0; index < curve_to_keep_surfs.size(); index++)
+          {
+          
+          std::cout << "curve_to_delete_surf " << index << " id = " << gen::geom_id_by_handle(curve_to_delete_surfs[index]) << std::endl;
+          std::cout << "curve_to_delete_sense " << index << " = " << curve_to_delete_senses[index] << std::endl;
+          }
+    } // end of debug st.
+
+    // combine the surface and sense data for both curves into the same vector 
+
+    combined_surfs.insert( combined_surfs.end(), curve_to_keep_surfs.begin(), 
+                                                       curve_to_keep_surfs.end() );
+    combined_surfs.insert( combined_surfs.end(), curve_to_delete_surfs.begin(), 
+                                                       curve_to_delete_surfs.end() );
+    combined_senses.insert(combined_senses.end(),curve_to_keep_senses.begin(),
+		                		       curve_to_keep_senses.end() );
+    combined_senses.insert(combined_senses.end(),curve_to_delete_senses.begin(),
+		                		       curve_to_delete_senses.end() );
+
+    if(debug){
+      std::cout << combined_surfs.size() << std::endl;
+      std::cout << combined_senses.size() << std::endl;
+      for(unsigned int index=0; index < combined_senses.size(); index++)
+          {
+
+           std::cout << "combined_surfs{"<< index << "] = " << gen::geom_id_by_handle(combined_surfs[index]) << std::endl;
+           std::cout << "combined_sense["<< index << "] = " << combined_senses[index] << std::endl;
+          }
+    } // end debug st. 
+
+    result = gt.set_senses(merged_curve, combined_surfs, combined_senses);
+    if(gen::error(MB_SUCCESS!=result && MB_MULTIPLE_ENTITIES_FOUND!=result,"failed to set senses: "));
+
+
+    
+    // add the duplicate curve_to_keep to the vector of curves
+    *j = merged_curve;
+
+   } //end merge_tag result if st.
+
+
+  } //end curves loop
+
+
+
+
+  return MB_SUCCESS;
+  }
+
+MBErrorCode get_sealing_mesh_tags( double &facet_tol,
+                           double &sme_resabs_tol,
+                           MBTag &geom_tag, 
+                           MBTag &id_tag, 
+                           MBTag &normal_tag, 
+                           MBTag &merge_tag, 
+                           MBTag &faceting_tol_tag, 
+                           MBTag &geometry_resabs_tag, 
+                           MBTag &size_tag, 
+                           MBTag &orig_curve_tag) {
+
+  MBErrorCode result;
+
+    result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, 1,
+				MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1,
+				MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "NORMAL", sizeof(MBCartVect), MB_TYPE_OPAQUE,
+        normal_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "MERGE", 1, MB_TYPE_HANDLE,
+        merge_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
+    assert( MB_SUCCESS == result ); 
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      } 
+    result = MBI()->tag_get_handle( "FACETING_TOL", 1, MB_TYPE_DOUBLE,
+        faceting_tol_tag , moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
+    assert( MB_SUCCESS == result );  
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "GEOMETRY_RESABS", 1,     MB_TYPE_DOUBLE,
+                             geometry_resabs_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT  );
+    assert( MB_SUCCESS == result );  
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    result = MBI()->tag_get_handle( "GEOM_SIZE", 1, MB_TYPE_DOUBLE,
+				    size_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT  );
+    assert( (MB_SUCCESS == result) );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    int true_int = 1;    
+    result = MBI()->tag_get_handle( "ORIG_CURVE", 1,
+				MB_TYPE_INTEGER, orig_curve_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT, &true_int );
+    assert( MB_SUCCESS == result );
+    if ( result != MB_SUCCESS )
+      {
+	moab_printer(result);
+      }
+    // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
+    // on the file_set.
+    MBRange file_set;
+    result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &faceting_tol_tag,
+                                                  NULL, 1, file_set );
+
+    if(gen::error(MB_SUCCESS!=result,"could not get faceting_tol_tag")) 
+      {
+	return result;
+      }
+
+    gen::error(file_set.empty(),"file set not found");
+
+    if(gen::error(1!=file_set.size(),"Refacet with newer version of ReadCGM.")) 
+      {
+	return MB_FAILURE;
+      }
+
+    result = MBI()->tag_get_data( faceting_tol_tag, &file_set.front(), 1,  
+                                  &facet_tol );
+    assert(MB_SUCCESS == result);
+    result = MBI()->tag_get_data( geometry_resabs_tag, &file_set.front(), 1,  
+                                  &sme_resabs_tol );
+    if(MB_SUCCESS != result) 
+      {
+	std::cout <<  "absolute tolerance could not be read from file" << std::endl;
+      }
+
+
+
+  return MB_SUCCESS;
+
+  }
+
+  MBErrorCode get_geometry_meshsets( MBRange geometry_sets[], MBTag geom_tag, bool verbose) {
+
+    MBErrorCode result; 
+
+
+    // get all geometry sets
+    
+    for(unsigned dim=0; dim<4; dim++) 
+      {
+	void *val[] = {&dim};
+	result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geom_tag,
+	  					    val, 1, geometry_sets[dim] );
+        if(verbose)
+        {
+	std::cout << "Get entities by type and tag" << std::endl;
+        }
+	assert(MB_SUCCESS == result);
+
+	// make sure that sets TRACK membership and curves are ordered
+	// MESHSET_TRACK_OWNER=0x1, MESHSET_SET=0x2, MESHSET_ORDERED=0x4      
+
+	for(MBRange::iterator i=geometry_sets[dim].begin(); i!=geometry_sets[dim].end(); i++) 
+	  {
+	    unsigned int options;
+	    result = MBI()->get_meshset_options(*i, options );
+	    assert(MB_SUCCESS == result);
+    
+	    // if options are wrong change them
+	    if(dim==1) 
+	      {
+		if( !(MESHSET_TRACK_OWNER&options) || !(MESHSET_ORDERED&options) ) 
+		  {
+		    result = MBI()->set_meshset_options(*i, MESHSET_TRACK_OWNER|MESHSET_ORDERED);
+		    assert(MB_SUCCESS == result);
+		  }
+	      } 
+	    else 
+	      {
+		if( !(MESHSET_TRACK_OWNER&options) ) 
+		  {        
+		    result = MBI()->set_meshset_options(*i, MESHSET_TRACK_OWNER);
+		    assert(MB_SUCCESS == result);
+		  }
+	      }
+	  }
+      }
+ 
+
+
+
+    return MB_SUCCESS;
+
+    }
 
 }

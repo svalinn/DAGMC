@@ -10,13 +10,20 @@ namespace cleanup {
   //  -Surface/volume set handles are added to the root meshset.
   // Somehow, delete the old tree without deleting the
   // surface and volume sets, then build a new tree.
-  MBErrorCode remove_obb_tree() {
+  MBErrorCode remove_obb_tree(bool verbose) {
     MBErrorCode result;
     MBRange obb_entities;
     MBTag obbTag;
-    result = MBI()->tag_create( "OBB_TREE", sizeof(MBEntityHandle),
-	       		  MB_TAG_DENSE, MB_TYPE_HANDLE, obbTag, NULL, true );
-    assert(MB_SUCCESS == result);
+    result = MBI()->tag_get_handle( "OBB_TREE", sizeof(MBEntityHandle),
+	       		  MB_TYPE_HANDLE, obbTag, MB_TAG_DENSE, NULL, 0 );
+    if(verbose)
+    {
+    if(gen::error(MB_SUCCESS != result, "could not get OBB tree handle")) return result;
+    }
+    else
+    {
+    if(gen::error(MB_SUCCESS != result, "")) return result;
+    }
     // This gets the surface/volume sets. I don't want to delete the sets.
     // I want to remove the obbTag that contains the tree root handle and
     // delete the tree.
@@ -34,7 +41,7 @@ namespace cleanup {
     for(MBRange::iterator i=obb_entities.begin(); i!=obb_entities.end(); i++) {
       MBEntityHandle root;
       result = MBI()->tag_get_data( obbTag, &(*i), 1, &root );
-      //if(MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
+      if(gen::error(MB_SUCCESS!=result, "coule not get OBB tree data")) return result;
       //assert(MB_SUCCESS == result);
       tool.delete_tree( root );
     }
@@ -42,8 +49,8 @@ namespace cleanup {
     assert(MB_SUCCESS == result);
 
 
-    result = MBI()->tag_create( "OBB", sizeof(double), MB_TAG_SPARSE,
-     				  MB_TYPE_DOUBLE, rootTag, 0, false);
+    result = MBI()->tag_get_handle ( "OBB", sizeof(double), 
+     				  MB_TYPE_DOUBLE, rootTag, MB_TAG_SPARSE, 0, false);
     assert(MB_SUCCESS==result || MB_ALREADY_ALLOCATED==result);
     /*    result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &rootTag, 
                                                    NULL, 1, trees );

@@ -1,0 +1,18 @@
+#! /bin/bash
+
+###NOTE: FILE EXPECTED TO BE RUN IN DIR WITH REFERENCED .h5m FILES!!!##### Single verticie move test
+echo
+echo CONE TESTS:
+echo TEST 1: SINGLE VERT BUMP
+
+python bump_vert_cone.py &>-
+
+../check_watertight cone_mod.h5m -f 1e-04 &>-
+
+../make_watertight cone_mod.h5m &>- 
+
+../check_watertight cone_mod_zip.h5m -f 1e-04
+
+echo
+rm -rf -
+exit 0

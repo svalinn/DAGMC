@@ -11,6 +11,9 @@
 
 #include "moab/GeomTopoTool.hpp"
 
+
+
+
 namespace arc {
 
   MBErrorCode orient_edge_with_tri( const MBEntityHandle edge, const MBEntityHandle tri ) {
@@ -497,14 +500,21 @@ namespace arc {
 
     // add endpoints to kd-tree. Tree must track ownership to know when verts are
     // merged away (deleted).  
+
     MBAdaptiveKDTree kdtree(MBI(), 0, MESHSET_TRACK_OWNER);                           
     MBEntityHandle root;                                                         
-    MBAdaptiveKDTree::Settings settings;                
-    settings.maxEntPerLeaf = 1;                                                     
+    // initialize setting of the KD Tree
+    MBAdaptiveKDTree::Settings settings;
+    // sets the tree to split any leaves with more than 1 entity                
+    settings.maxEntPerLeaf = 1;                                 
+    // tells the tree how many candidate planes to consider for each dim of the tree                    
     settings.candidateSplitsPerDir = 1;                           
+    // planes are set to be at evenly spaced intervals
     settings.candidatePlaneSet = MBAdaptiveKDTree::SUBDIVISION; 
+    // initialize the tree and pass the root entity handle back into root
     result = kdtree.build_tree( endpoints, root, &settings);            
-    assert(MB_SUCCESS == result);                                               
+    assert(MB_SUCCESS == result);      
+    // create tree iterator                                         
     MBAdaptiveKDTreeIter tree_iter;                                     
     kdtree.get_tree_iterator( root, tree_iter );     
 
@@ -520,16 +530,21 @@ namespace arc {
       MBCartVect endpt_coords;
       //if( endpts[0] == endpts[1]) continue; // special case of point curve or circle
       std::vector<MBEntityHandle> leaves;
+
+      // initialize an array which will contain matched of front points in [0] and 
+      // matches for back points in [1]
       MBRange adj_curves[2];
       // match the front then back endpts                        
       for(unsigned int j=0; j<2; j++) {                                  
-	//gen::print_vertex_coords( endpts[j] );
         result = MBI()->get_coords( &endpts[j], 1, endpt_coords.array());
-        assert(MB_SUCCESS == result);                                        
+        assert(MB_SUCCESS == result);           
+        // takes all leaves of the tree within a distance (facet_tol) of the coordinates
+        // passed in by endpt_coords.array() and returns them in leaves
         result = kdtree.leaves_within_distance( root, endpt_coords.array(), 
                                                 facet_tol, leaves);
         assert(MB_SUCCESS == result);                                
         for(unsigned int k=0; k<leaves.size(); k++) {           
+          // retrieve all information about vertices in leaves
 	  std::vector<MBEntityHandle> leaf_verts;               
           result = MBI()->get_entities_by_type( leaves[k], MBVERTEX, leaf_verts);    
           assert(MB_SUCCESS == result);             
@@ -541,6 +556,7 @@ namespace arc {
 	       already been merged and no longer exists. */     
             if(SQR_TOL >= sqr_dist) {
               MBRange temp_curves;
+              // get the curves for all vertices that are within the squared distance of each other
               result = MBI()->get_adjacencies( &leaf_verts[l], 1, 4, false, temp_curves);
 	      assert(MB_SUCCESS == result);
               // make sure the sets are curve sets before adding them to the list
@@ -554,6 +570,8 @@ namespace arc {
 
       // now find the curves that have matching endpts
       MBRange candidate_curves;
+      // select curves that do not have coincident front AND back points
+      // place them into candidate curves
       candidate_curves =intersect( adj_curves[0], adj_curves[1] );
       if(candidate_curves.empty()) continue;
 
@@ -561,11 +579,9 @@ namespace arc {
       int n_before = candidate_curves.size();
       candidate_curves.erase( *i );
       int n_after = candidate_curves.size();
-      //if(gen::error(n_before!=n_after+1,"could not erase curve")) {
-      //  return MB_FAILURE;
-      //}
+      
 
-      // find matching curves
+      // now find curves who's interior vertices are also coincident and merge them
       for(MBRange::iterator j=candidate_curves.begin(); j!=candidate_curves.end(); j++) {
 	std::vector<MBEntityHandle> curve_j_verts;
         result = get_meshset( *j, curve_j_verts );
@@ -581,6 +597,7 @@ namespace arc {
           std::cout << "curve i_id=" << i_id << " j_id=" << j_id 
                     << " leng0=" << curve_length << " leng1=" << j_curve_length << std::endl;
         }
+
         // reject curves with significantly different length (for efficiency)
         if( facet_tol < abs(curve_length - j_curve_length)) continue;
 
@@ -595,7 +612,7 @@ namespace arc {
         }
 
         // Reject curves if the average distance between them is greater than 
-        // merge_tol.
+        // facet_tol.
         double dist;
         result = gen::dist_between_arcs( debug, curve_i_verts, curve_j_verts, dist );
         assert(MB_SUCCESS == result);
@@ -608,7 +625,7 @@ namespace arc {
         // Merge the endpts of the curve to preserve topology. Merging (and deleting)
         // the endpoints will also remove them from the KDtree so that the merged
         // curve cannot be selected again. Update the curves when merging to avoid
-        // stake info.
+        // stale info.
 	if(curve_i_verts.front() != curve_j_verts.front()) { 
           result = zip::merge_verts( curve_i_verts.front(), curve_j_verts.front(), 
                                      curve_i_verts, curve_j_verts );
@@ -634,7 +651,8 @@ namespace arc {
         result = set_meshset( *j, curve_j_verts ); 
         assert(MB_SUCCESS == result);
 
-        // reverse the curve-surf senses if the curves do not share the same orientation
+        // reverse the curve-surf senses if the merged curve was found to be opposite the 
+        // curve we keep
         if(reversed) {
   	  std::vector<MBEntityHandle> surfs;
           std::vector<int> senses;
@@ -642,12 +660,15 @@ namespace arc {
           result = gt.get_senses( *j, surfs, senses );
           if(gen::error(MB_SUCCESS!=result,"failed to get senses")) return result;
           for(unsigned k=0; k<surfs.size(); ++k) {
-            if(0==senses[k])
-              senses[k] = 1;
-            else if(1==senses[k])
-              senses[k] = 0;
-            else if(-1==senses[k])
-              senses[k] = -1;
+            //forward to reverse
+            if(SENSE_FORWARD==senses[k])
+              senses[k] = SENSE_REVERSE;
+            //reverse to forward
+            else if(SENSE_REVERSE==senses[k])
+              senses[k] = SENSE_FORWARD;
+            //unknown to unknown 
+            else if(SENSE_UNKNOWN==senses[k])
+              senses[k] = SENSE_UNKNOWN;
             else
               if(gen::error(true,"unrecognized sense")) return MB_FAILURE;
           }   

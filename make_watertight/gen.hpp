@@ -14,13 +14,25 @@
 #include "MBAdaptiveKDTree.hpp" // for merging verts
 #include "MBCartVect.hpp"
 
+// SENSE CONVENTIONS
+#define SENSE_FORWARD 1
+#define SENSE_REVERSE -1
+#define SENSE_UNKNOWN 0
+
+
 MBInterface *MBI(); 
 namespace gen {
   bool error( const bool error_has_occured, const std::string message="" );
+  
+  /// prints a string of the error code returned from MOAB to standard output 
+  void moab_printer(MBErrorCode error_code);
+
   void print_vertex_cubit( const MBEntityHandle vertex );
+
   void print_vertex_coords( const MBEntityHandle vertex );
 
   void print_triangles( const MBRange tris );
+
   void print_triangle( const MBEntityHandle triangle, bool print_edges );
 
   void print_edge( const MBEntityHandle edge );
@@ -54,13 +66,19 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   */
   // Merge the range of vertices. We do not merge by edges (more
   // stringent) because we do not want to miss corner vertices.
+
+/// finds any vertices within the MBRange vertices that are with in tol of 
+/// each other and merges them
   MBErrorCode merge_vertices( MBRange vertices /* in */, 
 			      const  double tol       /* in */);
 			      //bool &merge_vertices_again /* out */);
 
+/// returns the square of the distance between v0 and v1
   MBErrorCode squared_dist_between_verts( const MBEntityHandle v0, 
                                           const MBEntityHandle v1, 
                                           double &d);
+/// returns the distance between v0 and v1
+
   double dist_between_verts( const MBCartVect v0, const MBCartVect v1 );
   MBErrorCode dist_between_verts( const MBEntityHandle v0, const MBEntityHandle v1,
                                   double &d );
@@ -101,6 +119,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
   bool triangle_degenerate( const MBEntityHandle triangle );
   bool triangle_degenerate( const MBEntityHandle v0, const MBEntityHandle v1, const MBEntityHandle v2);
 
+/// gets the normal vectors of all triangles in MBRange triangles and returns them as MBCartVect's in normals
   MBErrorCode triangle_normals( const MBRange triangles, std::vector<MBCartVect> &normals );
   MBErrorCode triangle_normal( const MBEntityHandle triangle, MBCartVect &normal );
   MBErrorCode triangle_normal( const MBEntityHandle v0, const MBEntityHandle v1,
@@ -133,37 +152,23 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 				     const MBEntityHandle pt0,
 				     double &dist_along_edge  );
   
-  /*  double area2( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool left( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool left_on( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool collinear( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool logical_xor( const bool x, const bool y );
-  bool intersect_prop( const MBEntityHandle a, const MBEntityHandle b, 
-                       const MBEntityHandle c, const MBEntityHandle d);
-  bool between( const MBEntityHandle a, const MBEntityHandle b, const MBEntityHandle c);
-  bool intersect( const MBEntityHandle a, const MBEntityHandle b, 
-                       const MBEntityHandle c, const MBEntityHandle d);
-  bool diagonalie( const MBEntityHandle a, const MBEntityHandle b,
-                   const std::vector<MBEntityHandle> verts ); 
-  bool in_cone( const MBEntityHandle a, const MBEntityHandle b,
-		const std::vector<MBEntityHandle> verts ); 
-  bool diagonal( const MBEntityHandle a, const MBEntityHandle b,
-		 const std::vector<MBEntityHandle> verts ); 
-  MBErrorCode ear_init( std::vector<MBEntityHandle> polygon_of_verts,
-                        std::vector<bool> &is_ear );
-  */  MBErrorCode ear_clip_polygon( std::vector<MBEntityHandle> polygon_of_verts,
+  MBErrorCode ear_clip_polygon( std::vector<MBEntityHandle> polygon_of_verts,
                                     const MBCartVect plane_normal_vector, MBRange &new_tris );
 
   int geom_id_by_handle( const MBEntityHandle set);
 
+/// gets the normal vector of each triangle in tris and tags each triangle with its normal vector
   MBErrorCode save_normals( MBRange tris, MBTag normal_tag );
 
   MBErrorCode flip(const MBEntityHandle tri, const MBEntityHandle vert0, 
                    const MBEntityHandle vert2, const MBEntityHandle surf_set);
 
+
+/// creates a set of ordered verts from the a set of ordered edges. uses commone vertex between edges to check continuity. 
   MBErrorCode ordered_verts_from_ordered_edges( const std::vector<MBEntityHandle> ordered_edges,
                                                 std::vector<MBEntityHandle> &ordered_verts );
-
+/// returns the average distance between the vertices in arc0 and arc1. assumes the vertices
+/// are ordered appropriately
   MBErrorCode dist_between_arcs( bool debug,
                          const std::vector<MBEntityHandle> arc0,
                          const std::vector<MBEntityHandle> arc1,
@@ -180,19 +185,38 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 			 MBRange &skin_edges,                         
                          const bool );
   //MBErrorCode find_skin( const MBRange tris, const int dim, MBRange &skin_edges, const bool );
-  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size );
+  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size, bool verbose = true );
 
   // Given a curve and surface set, get the relative sense.
   // From CGMA/builds/dbg/include/CubitDefines, CUBIT_UNKNOWN=-1, CUBIT_FORWARD=0, CUBIT_REVERSED=1
   MBErrorCode get_curve_surf_sense( const MBEntityHandle surf_set, const MBEntityHandle curve_set,
-                                    int &sense );
+                                    int &sense, bool debug = false );
 
   MBErrorCode surface_sense( MBEntityHandle volume, int num_surfaces,const MBEntityHandle* surfaces,int* senses_out );
   MBErrorCode surface_sense( MBEntityHandle volume, MBEntityHandle surface, int& sense_out );
 
   MBTag get_tag( const char* name, int size, MBTagType store,MBDataType type, const void* def_value, bool create_if_missing);
 
+  MBErrorCode delete_surface( MBEntityHandle surf, MBTag geom_tag, MBRange tris, int id, bool verbose = false);
 
+  MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf);
+
+  MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> &curves, MBTag merge_tag, bool debug = false) ;
+
+ /// used to get all mesh tags necessary for sealing a mesh
+  MBErrorCode get_sealing_mesh_tags( double &facet_tol,
+                             double &sme_resabs_tol,
+                             MBTag &geom_tag, 
+                             MBTag &id_tag, 
+                             MBTag &normal_tag, 
+                             MBTag &merge_tag, 
+                             MBTag &faceting_tol_tag, 
+                             MBTag &geometry_resabs_tag, 
+                             MBTag &size_tag, 
+                             MBTag &orig_curve_tag);
+
+ /// sets the tracking and ordering options of meshsets retrieved from the mesh
+  MBErrorCode get_geometry_meshsets( MBRange geometry_sets[], MBTag geom_tag, bool verbose = false);
 
 }
 

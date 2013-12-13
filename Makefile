@@ -1,4 +1,4 @@
-include /opt/dagmc/moab/lib/moab.make
+include /filespace/people/s/shriwise/make_watertight_test_suite/moabs/wo_cgm/4.6.0/moab/lib/moab.make
 CXXFLAGS += ${MOAB_CXXFLAGS} -g -pg
 CC = g++
 LD_FLAGS = -pg 

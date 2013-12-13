@@ -1,4 +1,4 @@
-include /data/opt/dagmc/moab/lib/moab.make
+include /filespace/people/s/shriwise/dagmc_bld/MOAB/lib/moab.make
 CXXFLAGS += ${MOAB_CXXFLAGS} -g -pg
 CC = mpicxx
 LD_FLAGS = -pg -std=c++11 
