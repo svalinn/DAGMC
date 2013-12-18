@@ -28,7 +28,7 @@ cleanup.o: cleanup.cpp cleanup.hpp
 cw_func.o: cw_func.cpp cw_func.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c cw_func.cpp
 
-mw_func.0: mw_func.cpp mw_func.hpp
+mw_func.o: mw_func.cpp mw_func.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c mw_func.cpp
  
 make_watertight: make_watertight.o gen.o arc.o zip.o cleanup.o mw_func.o
