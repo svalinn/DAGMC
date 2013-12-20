@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "moab/GeomTopoTool.hpp"
+#include "moab/FileOptions.hpp"
 
 #include "gen.hpp"
 #include "zip.hpp"
@@ -336,9 +337,14 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     const double SQR_TOL = tol*tol;
     // Clean up the created tree, and track verts so that if merged away they are
     // removed from the tree.
-    MBAdaptiveKDTree kdtree(MBI(), true, 0, MESHSET_TRACK_OWNER);
+    MBAdaptiveKDTree kdtree(MBI()); //, true, 0, MESHSET_TRACK_OWNER);
     // initialize the KD Tree
     MBEntityHandle root;
+    const char settings[]="MAX_PER_LEAF6;MAX_DEPTH50;SPLITS_PER_DIR1;";
+    moab::FileOptions fileopts(settings);
+
+
+    /* Old KDTree settings
     MBAdaptiveKDTree::Settings settings;
    
     // tells the tree to split leaves with more than 6 entities
@@ -350,8 +356,10 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     // tells the tree to use the median vertex coordinate values to set planes
     settings.candidatePlaneSet = MBAdaptiveKDTree::VERTEX_MEDIAN;
    
+    */
+
     // builds the KD Tree, making the MBEntityHandle root the root of the tree
-    result = kdtree.build_tree( verts, root, &settings);
+    result = kdtree.build_tree( verts, &root, &fileopts);
     assert(MB_SUCCESS == result);
     // create tree iterator to loop over all verts in the tree
     MBAdaptiveKDTreeIter tree_iter;
