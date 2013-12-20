@@ -372,7 +372,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
       result = MBI()->get_coords( &(*i), 1, from_point);
       assert(MB_SUCCESS == result);
       std::vector<MBEntityHandle> leaves_out;
-      result = kdtree.leaves_within_distance( root, from_point, tol, leaves_out);
+      result = kdtree.distance_search( from_point, tol, leaves_out, root);
       assert(MB_SUCCESS == result);
       for(unsigned int j=0; j<leaves_out.size(); j++) {
 	std::vector<MBEntityHandle> leaf_verts;
