@@ -340,7 +340,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     MBAdaptiveKDTree kdtree(MBI()); //, true, 0, MESHSET_TRACK_OWNER);
     // initialize the KD Tree
     MBEntityHandle root;
-    const char settings[]="MAX_PER_LEAF6;MAX_DEPTH50;SPLITS_PER_DIR1;";
+    const char settings[]="MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;";
     moab::FileOptions fileopts(settings);
 
 
