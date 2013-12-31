@@ -399,7 +399,7 @@ namespace arc {
   }
 
   // return a set of ordered_verts and remaining unordered_edges
-  MBErrorCode order_verts_by_edge( MBRange unordered_edges, 
+  MBErrorCode order_verts_by_edge( MBEntityHandle meshset, MBRange unordered_edges, 
                                    std::vector<MBEntityHandle> &ordered_verts ) {
     if(unordered_edges.empty()) return MB_SUCCESS;
  
@@ -407,7 +407,7 @@ namespace arc {
     MBRange end_verts;
     MBSkinner tool(MBI());
     MBErrorCode result;
-    result = tool.find_skin( unordered_edges, 0, end_verts, false );
+    result = tool.find_skin( meshset, unordered_edges, 0, end_verts, false );
     if(MB_SUCCESS != result) gen::print_range_of_edges( unordered_edges );
     assert(MB_SUCCESS == result);
 

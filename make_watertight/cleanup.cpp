@@ -136,7 +136,7 @@ namespace cleanup {
       MBRange skin_edges;
       //result = gen::find_skin( tris, 1, skin_edges, false );
       MBSkinner tool(MBI());
-      result = tool.find_skin( tris, 1, skin_edges, false );
+      result = tool.find_skin( *i, tris, 1, skin_edges, false );
       assert(MB_SUCCESS == result);
 
       // create the edges
@@ -393,7 +393,7 @@ namespace cleanup {
         result = MBI()->get_entities_by_type( *i, MBTRI, new_tris );
         assert(MB_SUCCESS == result);
         MBRange new_skin_edges;
-        result = tool.find_skin( new_tris, 1, new_skin_edges, false );
+        result = tool.find_skin( *i, new_tris, 1, new_skin_edges, false );
         assert(MB_SUCCESS == result);
         assert(skin_edges.size() == new_skin_edges.size());
         for(unsigned int k=0; k<skin_edges.size(); k++) {
