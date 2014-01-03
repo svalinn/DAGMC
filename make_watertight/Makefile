@@ -1,4 +1,4 @@
-include /local.hd/cnergg/shriwise/dagmc_repo_bld/MOAB/lib/moab.make
+include /local.hd/cnergg/shriwise/dagmc_blds/MOAB_repo/lib/moab.make
 
 MOAB_CXXFLAGS =  -Wall -pipe -pedantic -Wno-long-long ${INC}
 MOAB_CFLAGS = -Wall -pipe -pedantic -Wno-long-long ${INC}
