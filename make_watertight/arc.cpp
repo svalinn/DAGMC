@@ -506,7 +506,7 @@ namespace arc {
     MBEntityHandle root;         
 
     //set tree options
-    const char settings[]="MAX_PER_LEAF=1;SPLITS_PER_DIR=1;";
+    const char settings[]="MAX_PER_LEAF=1;SPLITS_PER_DIR=1;PLANE_SET=0;MESHSET_FLAGS=0x1;TAG_NAME=0";
     moab::FileOptions fileopts(settings);
 
     /* Old settings for the KD Tree                                            
