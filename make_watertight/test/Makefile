@@ -1,6 +1,6 @@
-include /local.hd/cnergg/shriwise/dagmc_repo_bld/MOAB/lib/moab.make
+include ${HOME}/dagmc_blds/MOAB_repo/lib/moab.make
 
-INC = -I/filespace/people/s/shriwise/scratch/moab_tools/make_watertight
+INC = -I${HOME}/moab_tools/make_watertight
 MOAB_CXXFLAGS =  -Wall -pipe -pedantic -Wno-long-long ${INC}
 MOAB_CFLAGS = -Wall -pipe -pedantic -Wno-long-long ${INC}
 CXXFLAGS += ${MOAB_CXXFLAGS} -g 
