@@ -1050,7 +1050,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         MBSkinner tool(MBI());
         MBRange skin_edges, skin_edges2;
         if(tris.empty()) continue; // nothing to zip
-        result = tool.find_skin( *i, tris, 1, skin_edges, false );
+        result = gen::find_skin( tris, 1, skin_edges, false );
         if(gen::error(MB_SUCCESS!=result,"could not find_skin")) return result;
         assert(MB_SUCCESS == result);
      
