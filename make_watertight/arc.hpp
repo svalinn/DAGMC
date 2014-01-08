@@ -42,7 +42,7 @@ namespace arc {
 						std::vector< std::vector<MBEntityHandle> > &loops_of_edges,
                                                 const bool debug );
 
-  MBErrorCode order_verts_by_edge( MBRange unordered_edges, std::vector<MBEntityHandle> &ordered_verts );
+  MBErrorCode order_verts_by_edge( MBEntityHandle meshset, MBRange unordered_edges, std::vector<MBEntityHandle> &ordered_verts );
 
 /// gets the moab entities in the meshset, set, and returns them to vec
   MBErrorCode get_meshset( const MBEntityHandle set, std::vector<MBEntityHandle> &vec);

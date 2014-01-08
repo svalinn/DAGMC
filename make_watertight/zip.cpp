@@ -397,7 +397,7 @@ namespace zip {
 
 	// assemble into a polygon
 	std::vector<MBEntityHandle> polygon_of_verts;
-	result = arc::order_verts_by_edge( unordered_edges, polygon_of_verts );
+	result = arc::order_verts_by_edge( surf_set.front(), unordered_edges, polygon_of_verts );
 	if(debug) gen::print_loop( polygon_of_verts ); 
 	//assert(MB_SUCCESS == result);
 	if(MB_SUCCESS != result) {

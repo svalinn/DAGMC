@@ -175,7 +175,7 @@ namespace cw_func {
           moab::Skinner sk(MBI());
 	  if(!facets.empty()) 
 	    {
-	      result = sk.find_skin( facets, 1, skin_edges, false );
+	      result = sk.find_skin( *j, facets, 1, skin_edges, false );
 	      if(MB_SUCCESS != result) 
 		{
 		  return result;
