@@ -1,4 +1,4 @@
-include ${HOME}/dagmc_blds/MOAB_repo/lib/moab.make
+include ${MOAB_MAKE}
 
 MOAB_CXXFLAGS =  -Wall -pipe -pedantic -Wno-long-long ${INC}
 MOAB_CFLAGS = -Wall -pipe -pedantic -Wno-long-long ${INC}
