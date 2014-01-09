@@ -46,6 +46,18 @@ const char GEOM_SENSE_N_SENSES_TAG_NAME[] = "GEOM_SENSE_N_SENSES";
 MBInterface *MBI();
 
 
+char* sense_printer( int sense)
+{
+
+
+  if ( sense == 1 ) return "FORWARD";
+  if ( sense == -1 ) return  "REVERSE";
+  if ( sense == 0 ) return "UNKNOWN";
+
+}
+
+
+
 void moab_printer(MBErrorCode error_code)
 {
   if ( error_code == MB_INDEX_OUT_OF_RANGE )
@@ -489,9 +501,17 @@ MBErrorCode get_senses(MBEntityHandle entity,
 
     assert(MB_SUCCESS == result);
 
-    std::cout << "  input faceted geometry contains " << geom_sets[3].size() << " volumes, " 
+    std::cout << "==================================" << std::endl;
+    std::cout << "  Input faceted geometry contains: " << std::endl;
+    std::cout << "==================================" << std::endl;
+
+    std::cout << geom_sets[3].size() << " volumes, " 
               << geom_sets[2].size() << " surfaces, " << geom_sets[1].size() 
-              << " curves, and " << orig_n_tris << " triangles" << std::endl;  
+              << " curves, " << orig_n_tris << " triangles, and " 
+              << geom_sets[0].size() << " vertices" << std::endl;  
+
+    std::cout << "==================================" << std::endl;
+
 
 /*
     //Print all geometry entities
@@ -517,6 +537,12 @@ MBErrorCode get_senses(MBEntityHandle entity,
     }
 */
     
+
+// Get all curve senses
+    std::cout << "=====================================" << std::endl;
+    std::cout << " CURVE SENSES " << std::endl;
+    std::cout << "=====================================" << std::endl;
+
     moab::GeomTopoTool gt(MBI(), false);
     
     for( unsigned int i=0; i<geom_sets[1].size(); i++)
@@ -526,16 +552,41 @@ MBErrorCode get_senses(MBEntityHandle entity,
     std::vector<int> senses;
     rval = gt.get_senses( curve, surfs, senses);
 
-    std::cout << "Number of senses for " << gen::geom_id_by_handle(curve) << " = " << senses.size() << std::endl;
+    std::cout << "Number of senses for curve " << gen::geom_id_by_handle(curve) << " = " << senses.size() << std::endl;
     for (unsigned int index=0; index<senses.size() ; index++)
     { 
-     std::cout << "curve = " << gen::geom_id_by_handle(surfs[index]) << std::endl;
-     std::cout << "sense = " << senses[index] << std::endl;
+     std::cout << "surf = " << gen::geom_id_by_handle(surfs[index]) << std::endl;
+     std::cout << "sense = " << sense_printer( senses[index] ) << std::endl;
     }
     std::cout << std::endl;
     }
 
-    std::cout << geom_sets[1][0] << std::endl;
+    
+
+//Get all surface senses
+
+    std::cout << "=====================================" << std::endl;
+    std::cout << " SURFACE SENSES " << std::endl;
+    std::cout << "=====================================" << std::endl;
+
+
+    for( unsigned int i=0; i<geom_sets[2].size(); i++)
+    {
+    MBEntityHandle surf = geom_sets[2][i];
+    std::vector<MBEntityHandle> vols;
+    std::vector<int> surf_senses;
+    rval = gt.get_senses( surf, vols, surf_senses);
+
+    std::cout << "Number of senses for surface " << gen::geom_id_by_handle(surf) << " = " << surf_senses.size() << std::endl;
+    for (unsigned int index=0; index<surf_senses.size() ; index++)
+    { 
+     std::cout << "vol = " << gen::geom_id_by_handle(vols[index]) << std::endl;
+     std::cout << "sense = " << sense_printer( surf_senses[index] ) << std::endl;
+    }
+    std::cout << std::endl;
+    }
+
+    
     
   
 }
