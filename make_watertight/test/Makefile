@@ -1,6 +1,6 @@
-include ${HOME}/dagmc_blds/MOAB_repo/lib/moab.make
+include ${MOAB_MAKE}
 
-INC = -I${HOME}/moab_tools/make_watertight
+INC = -I../
 MOAB_CXXFLAGS =  -Wall -pipe -pedantic -Wno-long-long ${INC}
 MOAB_CFLAGS = -Wall -pipe -pedantic -Wno-long-long ${INC}
 CXXFLAGS += ${MOAB_CXXFLAGS} -g 
