@@ -1050,6 +1050,10 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         MBSkinner tool(MBI());
         MBRange skin_edges, skin_edges2;
         if(tris.empty()) continue; // nothing to zip
+        // The MOAB skinner is not used here currently as it doesn't allow
+        // make_watertight to close loops. The local version of find_skin is used instead. 
+        // This should be ok as the local find_skin fundtion should only be avoided when checking meshes for watertightness
+        // to keep from altering the data set when checking. 
         result = gen::find_skin( tris, 1, skin_edges, false );
         if(gen::error(MB_SUCCESS!=result,"could not find_skin")) return result;
         assert(MB_SUCCESS == result);
