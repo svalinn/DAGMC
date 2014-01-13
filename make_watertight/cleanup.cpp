@@ -136,7 +136,7 @@ namespace cleanup {
       MBRange skin_edges;
       //result = gen::find_skin( tris, 1, skin_edges, false );
       MBSkinner tool(MBI());
-      result = tool.find_skin( *i, tris, 1, skin_edges, false );
+      result = tool.find_skin( 0 , tris, 1, skin_edges, false );
       assert(MB_SUCCESS == result);
 
       // create the edges
