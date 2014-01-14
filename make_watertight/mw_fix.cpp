@@ -50,9 +50,9 @@ char* sense_printer( int sense)
 {
 
 
-  if ( sense == 1 ) return "FORWARD";
-  if ( sense == -1 ) return  "REVERSE";
-  if ( sense == 0 ) return "UNKNOWN";
+  if ( sense == 1 ) return "FORWARD (1)";
+  if ( sense == -1 ) return  "REVERSE (-1)";
+  if ( sense == 0 ) return "UNKNOWN (0)";
 
 }
 
