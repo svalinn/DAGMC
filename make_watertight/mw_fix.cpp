@@ -551,7 +551,7 @@ MBErrorCode get_senses(MBEntityHandle entity,
     std::vector<MBEntityHandle> surfs;
     std::vector<int> senses;
     rval = gt.get_senses( curve, surfs, senses);
-
+    if(gen::error(MB_SUCCESS!=result,"could not get curve senses")) return result;
     std::cout << "Number of senses for curve " << gen::geom_id_by_handle(curve) << " = " << senses.size() << std::endl;
     for (unsigned int index=0; index<senses.size() ; index++)
     { 
@@ -576,7 +576,7 @@ MBErrorCode get_senses(MBEntityHandle entity,
     std::vector<MBEntityHandle> vols;
     std::vector<int> surf_senses;
     rval = gt.get_senses( surf, vols, surf_senses);
-
+    if(gen::error(MB_SUCCESS!=result,"could not get surface senses")) return result;
     std::cout << "Number of senses for surface " << gen::geom_id_by_handle(surf) << " = " << surf_senses.size() << std::endl;
     for (unsigned int index=0; index<surf_senses.size() ; index++)
     { 
@@ -586,9 +586,36 @@ MBErrorCode get_senses(MBEntityHandle entity,
     std::cout << std::endl;
     }
 
-    
-    
-  
+// Print all Vertex Coordinates
+
+    std::cout << "=====================================" << std::endl;
+    std::cout << " Vertex Coordinates " << std::endl;
+    std::cout << "=====================================" << std::endl;
+
+    MBRange verts;
+    rval = MBI()->get_entities_by_type(0, MBVERTEX, verts);
+    if(gen::error(MB_SUCCESS!=result,"could not get vertex handles")) return result;
+    double x[geom_sets[0].size()];
+    double y[geom_sets[0].size()];
+    double z[geom_sets[0].size()];
+
+
+    rval = MBI()-> get_coords( verts, &x[0], &y[0], &z[0]);
+    if(gen::error(MB_SUCCESS!=result,"could not get coordinates of the vertices")) return result;
+
+
+    int j=0;
+    for (MBRange::const_iterator i = verts.begin(); i!=verts.end(); i++)
+    {
+        
+     std::cout << "Vertex ID = " << *i << std::endl;
+     std::cout << "X = " << x[j] << std::endl;
+     std::cout << "Y = " << y[j] << std::endl;
+     std::cout << "Z = " << z[j] << std::endl;
+
+     j++;
+
+   }
 }
 //==========EOL=============//
 
