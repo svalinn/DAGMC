@@ -112,12 +112,10 @@ void moab_printer(MBErrorCode error_code)
 
     MBErrorCode result;
     double coords[3];
-    int n_precision = 20;
     result = MBI()->get_coords( &vertex, 1, coords );
     if(MB_SUCCESS!=result) std::cout << "vert=" << vertex << std::endl;
     assert(MB_SUCCESS == result);
     std::cout << "    vertex " << vertex << " coords= (" 
-      //<< std::setprecision(n_precision)
 	      << coords[0] << "," << coords[1] << "," << coords[2] << ")" 
 	      << std::endl;
   }
