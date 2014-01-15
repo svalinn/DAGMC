@@ -27,7 +27,7 @@ Building Code
 
    ```cd ./moab_tools```
 
-   ```git checkout tags/mw-moab4.6.2```
+   ```git checkout mw-moab4.6.2```
 
 2) go to `/moab_tools/make_watertight/` and update the Makefile so that the first line reads:
 
