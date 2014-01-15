@@ -55,7 +55,7 @@ Testing
 -------
 
 Tests exist for make_watertight in `/moab_tools/make_watertight/test/`.
-These tests can be installed by updating the Makefile in this particular directory
+These tests can be installed by updating the Makefile as described above in this particular directory
 and then running `make`. The tests can then be run (from within this directory) using the command:
 
 ```test_cyl cyl.h5m```
