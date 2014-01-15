@@ -51,6 +51,8 @@ evaluate the success of the sealing algorithm. It is run using:
 
 ```check_watertight /path/to/file/filename_zip.h5m```
 
+*Note: make sure that /path/to/MOAB/include/ is in your LD_LIBARARY_PATH environment  
+       variable before running the program.
 Testing
 -------
 
