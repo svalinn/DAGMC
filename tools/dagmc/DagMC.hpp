@@ -178,6 +178,7 @@ public:
                      const double ray_start[3], const double ray_dir[3],
                      EntityHandle& next_surf, double& next_surf_dist,
                      RayHistory* history = NULL, double dist_limit = 0,
+		     int ray_normal = 1, 
                      OrientedBoxTreeTool::TrvStats* stats = NULL );
   
   /**\brief Test if a point is inside or outside a volume 
