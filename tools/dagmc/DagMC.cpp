@@ -536,6 +536,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
                           const double point[3], const double dir[3],
                           EntityHandle& next_surf, double& next_surf_dist,
                           RayHistory* history, double user_dist_limit,
+			  int ray_orientation, 
                           OrientedBoxTreeTool::TrvStats* stats ) { 
 
   // take some stats that are independent of nps
@@ -592,7 +593,8 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   const int min_tolerance_intersections = 0;
 
   // only get exit intersections
-  const int desired_orientation = 1;
+  // ray_orientation default = 1, only gets exit intersections
+  // ray_orientation if provided = -1, get entrance intersections 
 
   // numericalPrecision is used for box.intersect_ray and find triangles in the
   // neighborhood of edge/node intersections.
@@ -601,7 +603,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
                                      min_tolerance_intersections,
                                      point, dir, &nonneg_ray_len,
                                      stats, &neg_ray_len, &vol, &senseTag, 
-                                     &desired_orientation, 
+                                     &ray_orientation, 
                                      history ? &(history->prev_facets) : NULL );
   assert( MB_SUCCESS == rval );
   if(MB_SUCCESS != rval) return rval;
