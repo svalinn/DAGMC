@@ -54,15 +54,9 @@ bool debug = false; //true ;
 /* Static values used by dagmctrack_ */
 
 static DagMC::RayHistory history;
-static int last_nps = 0;
-static double last_uvw[3] = {0,0,0};
-static DagMC::RayHistory  history_bank;
-static bool visited_surface = false;
 
-static bool use_dist_limit = false;
-static double dist_limit; // needs to be thread-local
-
-bool onboundry;
+bool on_boundary;
+double old_direction[3];
 MBEntityHandle next_surf; // the next suface the ray will hit
 MBEntityHandle prev_surf; // the last value of next surface
 MBEntityHandle PrevRegion; // the integer region that the particle was in previously
@@ -134,7 +128,9 @@ void g_step(double& pSx,
   double point[3] = {pSx,pSy,pSz};
   double dir[3]   = {pV[0],pV[1],pV[2]};  
 
+ ;
   g_fire(oldReg, point, dir, propStep, retStep, newReg); // fire a ray 
+  old_direction[0]=dir[0],old_direction[1]=dir[1],old_direction[2]=dir[2];
 
   if(debug)
     {
@@ -164,44 +160,24 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
   MBEntityHandle newvol = 0;
 
   
-  if(!check_vol(point,dir,oldRegion) && onboundry)
-    { 
-      std::cout << "Not where we should be!" << std::endl;
-      std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3,oldRegion) << " aka " << DAG->id_by_index(3,oldRegion) << std::endl;  
-      std::cout.precision(25);
-      std::cout << std::scientific ; 
-      std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
-      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;     
-      int act_vol = look( point[0],point[1],point[2],dir,oldRegion);
-      std::cout << "Point actually belongs to " << act_vol << " aka " << DAG->entity_by_index(3,act_vol) 
-                << " aka " << DAG->id_by_index(3,act_vol) << std::endl;
-      oldRegion=act_vol;
-      std::cout << "Resetting the current volume" << std::endl;
+  if( dir[0] != old_direction[0] || dir[1] != old_direction[1] || dir[2] != old_direction[2] ) // direction changed reset history
+    history.reset(); // this is a new particle or direction has changed
+  else if (!on_boundary)
+    {
+      history.rollback_last_intersection();
     }
-  
-
-  if(debug)
-  {
-      std::cout<<"============= g_fire =============="<<std::endl;    
-      std::cout << "Point " << point[0] << " " << point[1] << " " << point[2] << std::endl;
-      std::cout << "Direction vector " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
-  }
-
-  next_surf = prev_surf; // sets the next surface to be crossed
-
+  else
+    {
+      history.reset();
+    }
+   
   oldRegion = DAG->index_by_handle(vol); // convert oldRegion int into MBHandle to the volume
-
-  MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist ); // fire a ray 
+  MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist,&history); // fire a ray 
   if ( result != MB_SUCCESS )
     {
       std::cout << "DAG ray fire error" << std::endl;
       exit(0);
     }
-
-  // std::cout << onboundry << " " << oldRegion << " " << point[0] << " " << point[1] << " " << point[2] << " "
-  //	    << propStep << " " << next_surf_dist <<  std::endl;
-
-  retStep = next_surf_dist; // the returned step length is the distance to next surf
 
   if ( next_surf == 0 ) // if next_surface is 0 then we are lost
     {
@@ -213,23 +189,27 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
       std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
       std::cout << "!!! Lost Particle !!!" << std::endl;
       newRegion = -3; // return error
+      return;
     }
   
+
+  retStep = next_surf_dist; // the returned step length is the distance to next surf
   if ( propStep >= retStep ) // will cross into next volume next step
     {
       MBErrorCode rval = DAG->next_vol(next_surf,vol,newvol);
       newRegion = DAG->index_by_handle(newvol);
       retStep = retStep; //+1.0e-9 ; // path limited by geometry
-      onboundry = true;
-      if ( retStep < 1.0e-9 )
-     	retStep = 1.0e-9;
+      next_surf = next_surf;
+      on_boundary=true;
+      // history is preserved
     }
   else // step less than the distance to surface
     {
       newRegion = oldRegion; // dont leave the current region
       retStep = propStep; //physics limits step
       next_surf = prev_surf; // still hit the previous surface
-      onboundry = false;
+      history.reset_to_last_intersection();
+      on_boundary=false;
     }
 
   PrevRegion = newRegion; // particle will be moving to PrevRegion upon next entry.
