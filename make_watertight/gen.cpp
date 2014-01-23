@@ -2133,9 +2133,7 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 
     MBErrorCode result; 
 
-
     // get all geometry sets
-    
     for(unsigned dim=0; dim<4; dim++) 
       {
 	void *val[] = {&dim};
@@ -2173,13 +2171,9 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 	  }
       }
  
-
-
-
     return MB_SUCCESS;
 
     }
-
 
   MBErrorCode check_for_geometry_sets(MBTag geom_tag, bool verbose){
 
@@ -2189,7 +2183,6 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
         result = get_geometry_meshsets( geometry_sets, geom_tag, false);
         if(gen::error(MB_SUCCESS!=result,"could not get the geometry meshsets")) return result;
 
-
         //make sure they're there
         for(unsigned dim=0; dim<4; dim++){
  
@@ -2197,7 +2190,6 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 
         }
  
-
     return MB_SUCCESS;
   }
 

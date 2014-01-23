@@ -46,17 +46,12 @@ const char GEOM_SENSE_N_SENSES_TAG_NAME[] = "GEOM_SENSE_N_SENSES";
 MBInterface *MBI();
 
 
-char* sense_printer( int sense)
-{
-
+char* sense_printer( int sense){
 
   if ( sense == 1 ) return "FORWARD (1)";
   if ( sense == -1 ) return  "REVERSE (-1)";
   if ( sense == 0 ) return "UNKNOWN (0)";
-
 }
-
-
 
 void moab_printer(MBErrorCode error_code)
 {
