@@ -34,18 +34,12 @@ using moab::DagMC;
 
 // globals
 
-#define DAG DagMC::instance()
-
-#define DGFM_SEQ   0
-#define DGFM_READ  1
-#define DGFM_BCAST 2
-
-#ifdef ENABLE_RAYSTAT_DUMPS
-
 #include <fstream>
 #include <numeric>
 
 static std::ostream* raystat_dump = NULL;
+
+#define DAG DagMC::instance()
 
 #endif 
 #define DEBUG 1
@@ -72,15 +66,7 @@ bool debug = false; //true ;
 /* Static values used by dagmctrack_ */
 
 static DagMC::RayHistory history;
-static int last_nps = 0;
-static double last_uvw[3] = {0,0,0};
-static DagMC::RayHistory  history_bank;
-static bool visited_surface = false;
-
-static bool use_dist_limit = false;
-static double dist_limit; // needs to be thread-local
-
-bool onboundry;
+double old_direction[3];
 MBEntityHandle next_surf; // the next suface the ray will hit
 MBEntityHandle prev_surf; // the last value of next surface
 MBEntityHandle PrevRegion; // the integer region that the particle was in previously
@@ -152,7 +138,11 @@ void g_step(double& pSx,
   double point[3] = {pSx,pSy,pSz};
   double dir[3]   = {pV[0],pV[1],pV[2]};  
 
+  // if direction has changed since last entry reset history
+  if( old_direction[0] != pV[0] || old_direction[1] != pV[1] || old_direction[2] != pV[2])
+    history.reset();
   g_fire(oldReg, point, dir, propStep, retStep, newReg); // fire a ray 
+  old_direction[0]=pV[0],old_direction[1]=pV[1],old_direction[2]=pV[2]; 
 
   if(debug)
     {
@@ -183,22 +173,6 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
   MBEntityHandle newvol = 0;
 
   
-  if(!check_vol(point,dir,oldRegion) && onboundry)
-    { 
-      std::cout << "Not where we should be!" << std::endl;
-      std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3,oldRegion) << " aka " << DAG->id_by_index(3,oldRegion) << std::endl;  
-      std::cout.precision(25);
-      std::cout << std::scientific ; 
-      std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
-      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;     
-      int act_vol = look( point[0],point[1],point[2],dir,oldRegion);
-      std::cout << "Point actually belongs to " << act_vol << " aka " << DAG->entity_by_index(3,act_vol) 
-                << " aka " << DAG->id_by_index(3,act_vol) << std::endl;
-      oldRegion=act_vol;
-      std::cout << "Resetting the current volume" << std::endl;
-    }
-  
-
   if(debug)
   {
       std::cout<<"============= g_fire =============="<<std::endl;    
@@ -217,38 +191,26 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
       exit(0);
     }
 
-  // std::cout << onboundry << " " << oldRegion << " " << point[0] << " " << point[1] << " " << point[2] << " "
-  //	    << propStep << " " << next_surf_dist <<  std::endl;
-
   retStep = next_surf_dist; // the returned step length is the distance to next surf
 
   if ( next_surf == 0 ) // if next_surface is 0 then we are lost
     {
-      std::cout << "!!! Lost Particle !!! " << std::endl;
-      std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3,oldRegion) << std::endl;  
-      std::cout.precision(25);
-      std::cout << std::scientific ; 
-      std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
-      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
-      std::cout << "!!! Lost Particle !!!" << std::endl;
-      newRegion = -3; // return error
+      newRegion = -33; // return error
     }
   
   if ( propStep >= retStep ) // will cross into next volume next step
     {
       MBErrorCode rval = DAG->next_vol(next_surf,vol,newvol);
       newRegion = DAG->index_by_handle(newvol);
-      retStep = retStep; //+1.0e-9 ; // path limited by geometry
-      onboundry = true;
-      if ( retStep < 1.0e-9 )
-     	retStep = 1.0e-9;
+      retStep = retStep; // path limited by geometry
+      // ray history unchanged
     }
   else // step less than the distance to surface
     {
       newRegion = oldRegion; // dont leave the current region
       retStep = propStep; //physics limits step
       next_surf = prev_surf; // still hit the previous surface
-      onboundry = false;
+      history.reset_to_last_intersection();
     }
 
   PrevRegion = newRegion; // particle will be moving to PrevRegion upon next entry.
@@ -342,7 +304,7 @@ inline bool check_vol( double pos[3], double dir[3], int oldRegion)
   int is_inside; // in volume or not
   // convert region id into entityhandle
   MBEntityHandle volume = DAG->entity_by_index(3, oldRegion); // get the volume by index
-  MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir);
+  MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir,history);
   if ( code != MB_SUCCESS)
     {
       std::cout << "Failed in DAG call to get point_in_volume" << std::endl;
@@ -405,7 +367,7 @@ void f_look(double& pSx, double& pSy, double& pSz,
     {
       MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
       // No ray history 
-      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside,dir);
+      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside,dir,history);
 
       // check for non error
       if(MB_SUCCESS != code) 
@@ -429,8 +391,6 @@ void f_look(double& pSx, double& pSy, double& pSz,
 	}
     }  // end loop over all volumes
 
-  // if we are here do slow check
-  // slow_check(xyz,dir,nextRegion);
   flagErr = nextRegion; // return nextRegion
   return;
 }
@@ -441,37 +401,6 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
 {
     f_look(pSx,pSy,pSz,pV,oldReg,oldLttc,nextRegion,flagErr,newLttc);
     return;
-}
-//---------------------------------------------------------------------------//
-// slow_check(..)
-//---------------------------------------------------------------------------//
-// Helper function
-void slow_check(double pos[3], const double dir[3], int &oldReg)
-{
-  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
-  std::cout << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
-  int num_vols = DAG->num_entities(3);  // number of volumes
-  int is_inside = 0;
-  for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
-    {
-      MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
-      MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir); 
-      if ( code != MB_SUCCESS)
-	{
-	 std::cout << "Failure from point in volume" << std::endl;
-	 exit(0);
-	}
-
-      if ( is_inside == 1) // if in volume
-	{
-	  oldReg = DAG->index_by_handle(volume); //set oldReg
-	  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << " " << oldReg << std::endl;
-	  return;
-	}
-    }
-
-  std::cout << "FAILED SLOW CHECK" << std::endl;
-  exit(0);
 }
 
 /*
