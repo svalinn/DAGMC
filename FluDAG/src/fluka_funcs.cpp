@@ -41,7 +41,7 @@ static std::ostream* raystat_dump = NULL;
 
 #define DAG DagMC::instance()
 
-#endif 
+ 
 #define DEBUG 1
 /* These 37 strings are predefined FLUKA materials. Any ASSIGNMAt of unique 
  * materials not on this list requires a MATERIAL card. */
@@ -66,6 +66,7 @@ bool debug = false; //true ;
 /* Static values used by dagmctrack_ */
 
 static DagMC::RayHistory history;
+
 double old_direction[3];
 MBEntityHandle next_surf; // the next suface the ray will hit
 MBEntityHandle prev_surf; // the last value of next surface
@@ -184,7 +185,7 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
 
   oldRegion = DAG->index_by_handle(vol); // convert oldRegion int into MBHandle to the volume
 
-  MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist ); // fire a ray 
+  MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist,&history ); // fire a ray 
   if ( result != MB_SUCCESS )
     {
       std::cout << "DAG ray fire error" << std::endl;
@@ -304,7 +305,7 @@ inline bool check_vol( double pos[3], double dir[3], int oldRegion)
   int is_inside; // in volume or not
   // convert region id into entityhandle
   MBEntityHandle volume = DAG->entity_by_index(3, oldRegion); // get the volume by index
-  MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir,history);
+  MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir,&history);
   if ( code != MB_SUCCESS)
     {
       std::cout << "Failed in DAG call to get point_in_volume" << std::endl;
@@ -367,7 +368,7 @@ void f_look(double& pSx, double& pSy, double& pSz,
     {
       MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
       // No ray history 
-      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside,dir,history);
+      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside,dir,&history);
 
       // check for non error
       if(MB_SUCCESS != code) 
@@ -418,7 +419,7 @@ void lkmgwr(double& pSx, double& pSy, double& pSz,
       {
 	MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
 	// No ray history or ray direction.
-	MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside);
+	MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside,pV,&history);
 
 	// check for non error
 	if(MB_SUCCESS != code) 
