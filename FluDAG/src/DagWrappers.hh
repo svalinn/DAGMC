@@ -16,7 +16,7 @@
 #define inihwr inihwr_
 #define jomiwr jomiwr_
 #define f_lookdb lkdbwr_
-#define lkfxwr lkfxwr_
+#define f_lostlook lkfxwr_
 #define lkmgwr lkmgwr_
 #define f_look lkwr_
 #define fldwr fldwr_
@@ -66,11 +66,11 @@ extern "C" void f_lookdb(double& pSx, double& pSy, double& pSz,
                	       int& newReg, int& flagErr, int& newLttc);
 
 // WrapLookFX
-// Stubbed in WrapLookFX.cc and linked in.
+// defined in fluka_funcs.cpp.  It sets some of its return values
 extern "C" void lkfxwr(double& pSx, double& pSy, double& pSz,
                        double* pV, const int& oldReg, const int& oldLttc,
                        int& newReg, int& flagErr, int& newLttc);
-	    
+//	    
 // WrapLookMG.cc stubs this function and is linked in.
 extern "C" void lkmgwr(double& pSx, double& pSy, double& pSz,
                        double* pV, const int& oldReg, const int& oldLttc,
