@@ -170,6 +170,9 @@ public:
    *                by this query will also be added to the history.
    * @param dist_limit Optional distance limit.  If provided and > 0, no intersections at a 
    *                distance further than this value will be returned.
+   * @param ray_orientation Optional ray orientation. If provided determines intersections 
+   *                along the normal provided, e.g. if -1 allows intersections back along the
+   *                the ray direction
    * @param stats Optional TrvStats object used to measure performance of underlying OBB
    *              ray-firing query.  See OrientedBoxTreeTool.hpp for details.
    * 
@@ -178,7 +181,7 @@ public:
                      const double ray_start[3], const double ray_dir[3],
                      EntityHandle& next_surf, double& next_surf_dist,
                      RayHistory* history = NULL, double dist_limit = 0,
-		     int ray_normal = 1, 
+		     int ray_orientation = 1, 
                      OrientedBoxTreeTool::TrvStats* stats = NULL );
   
   /**\brief Test if a point is inside or outside a volume 
