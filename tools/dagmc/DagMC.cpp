@@ -592,10 +592,6 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   // min_tolerance_intersections is passed but not used in this call
   const int min_tolerance_intersections = 0;
 
-  // only get exit intersections
-  // ray_orientation default = 1, only gets exit intersections
-  // ray_orientation if provided = -1, get entrance intersections 
-
   // numericalPrecision is used for box.intersect_ray and find triangles in the
   // neighborhood of edge/node intersections.
   rval = obbTree.ray_intersect_sets( dists, surfs, facets,
