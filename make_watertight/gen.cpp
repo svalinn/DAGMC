@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "moab/GeomTopoTool.hpp"
+#include "moab/FileOptions.hpp"
 
 #include "gen.hpp"
 #include "zip.hpp"
@@ -111,12 +112,10 @@ void moab_printer(MBErrorCode error_code)
 
     MBErrorCode result;
     double coords[3];
-    int n_precision = 20;
     result = MBI()->get_coords( &vertex, 1, coords );
     if(MB_SUCCESS!=result) std::cout << "vert=" << vertex << std::endl;
     assert(MB_SUCCESS == result);
     std::cout << "    vertex " << vertex << " coords= (" 
-      //<< std::setprecision(n_precision)
 	      << coords[0] << "," << coords[1] << "," << coords[2] << ")" 
 	      << std::endl;
   }
@@ -336,9 +335,14 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     const double SQR_TOL = tol*tol;
     // Clean up the created tree, and track verts so that if merged away they are
     // removed from the tree.
-    MBAdaptiveKDTree kdtree(MBI(), true, 0, MESHSET_TRACK_OWNER);
+    MBAdaptiveKDTree kdtree(MBI()); //, true, 0, MESHSET_TRACK_OWNER);
     // initialize the KD Tree
     MBEntityHandle root;
+    const char settings[]="MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;PLANE_SET=2;MESHSET_FLAGS=0x1;TAG_NAME=0";
+    moab::FileOptions fileopts(settings);
+
+
+    /* Old KDTree settings
     MBAdaptiveKDTree::Settings settings;
    
     // tells the tree to split leaves with more than 6 entities
@@ -350,8 +354,10 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
     // tells the tree to use the median vertex coordinate values to set planes
     settings.candidatePlaneSet = MBAdaptiveKDTree::VERTEX_MEDIAN;
    
+    */
+
     // builds the KD Tree, making the MBEntityHandle root the root of the tree
-    result = kdtree.build_tree( verts, root, &settings);
+    result = kdtree.build_tree( verts, &root, &fileopts);
     assert(MB_SUCCESS == result);
     // create tree iterator to loop over all verts in the tree
     MBAdaptiveKDTreeIter tree_iter;
@@ -364,7 +370,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
       result = MBI()->get_coords( &(*i), 1, from_point);
       assert(MB_SUCCESS == result);
       std::vector<MBEntityHandle> leaves_out;
-      result = kdtree.leaves_within_distance( root, from_point, tol, leaves_out);
+      result = kdtree.distance_search( from_point, tol, leaves_out, root);
       assert(MB_SUCCESS == result);
       for(unsigned int j=0; j<leaves_out.size(); j++) {
 	std::vector<MBEntityHandle> leaf_verts;
@@ -2127,18 +2133,13 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 
     MBErrorCode result; 
 
-
     // get all geometry sets
-    
     for(unsigned dim=0; dim<4; dim++) 
       {
 	void *val[] = {&dim};
 	result = MBI()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geom_tag,
 	  					    val, 1, geometry_sets[dim] );
-        if(verbose)
-        {
-	std::cout << "Get entities by type and tag" << std::endl;
-        }
+        if(verbose) std::cout << "Get entities by type and tag" << std::endl;
 	assert(MB_SUCCESS == result);
 
 	// make sure that sets TRACK membership and curves are ordered
@@ -2170,11 +2171,27 @@ MBErrorCode get_sealing_mesh_tags( double &facet_tol,
 	  }
       }
  
-
-
-
     return MB_SUCCESS;
 
     }
 
-}
+  MBErrorCode check_for_geometry_sets(MBTag geom_tag, bool verbose){
+
+    MBErrorCode result; 
+        // go get all geometry sets
+        MBRange geometry_sets[4];
+        result = get_geometry_meshsets( geometry_sets, geom_tag, false);
+        if(gen::error(MB_SUCCESS!=result,"could not get the geometry meshsets")) return result;
+
+        //make sure they're there
+        for(unsigned dim=0; dim<4; dim++){
+ 
+          if(geometry_sets[dim].size() == 0) return MB_FAILURE;
+
+        }
+ 
+    return MB_SUCCESS;
+  }
+
+
+} //EOL

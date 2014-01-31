@@ -1050,7 +1050,11 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         MBSkinner tool(MBI());
         MBRange skin_edges, skin_edges2;
         if(tris.empty()) continue; // nothing to zip
-        result = tool.find_skin( tris, 1, skin_edges, false );
+        // The MOAB skinner is not used here currently as it doesn't allow
+        // make_watertight to close loops. The local version of find_skin is used instead. 
+        // This should be ok as the local find_skin fundtion should only be avoided when checking meshes for watertightness
+        // to keep from altering the data set when checking. 
+        result = tool.find_skin( 0, tris, 1, skin_edges, false);
         if(gen::error(MB_SUCCESS!=result,"could not find_skin")) return result;
         assert(MB_SUCCESS == result);
      
@@ -1772,7 +1776,10 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug, verbose);
     if(gen::error(result!=MB_SUCCESS,"could not prepare the curves")) return(result);
       
+    result = gen::check_for_geometry_sets(geom_tag, verbose);
+    if(gen::error(MB_SUCCESS!=result,"no geometry sets exist in the model. Please check curve faceting.")) return result; 
 
+    
     if (verbose) 
     {
     std::cout << "Zipping loops and removing small surfaces whose curves were all merged as pairs..." << std::endl;

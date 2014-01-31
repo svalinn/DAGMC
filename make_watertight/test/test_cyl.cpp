@@ -716,23 +716,14 @@ bool verbose=false;
   clock_t start_time;
   start_time = clock();
   //save the mesh to a new filename
-  std::string input_name=argv[1];
-  std::string root_name=argv[1];
+  std::string input_name="cyl.h5m";
+  std::string root_name="cyl.h5m";
   int len = root_name.length();
   root_name.erase(len-4);
-  // check input args
-  if( argc < 2 || argc > 5) 
-    {
-    std::cout << "To check using topology of facet points:              " << std::endl;
-    std::cout << "./test_cyl <filename> <verbose(true or false)>" << std::endl;
-    std::cout << "To check using geometry tolerance of facet points:    " << std::endl;
-    std::cout << "./test_cyl <filename> <verbose(true or false)> <tolerance>" << std::endl;
-    return 1;
-    }
 
   // load file and get tolerance from input argument
   MBErrorCode result;
-  std::string filename = argv[1]; //set filename
+  std::string filename = "cyl.h5m"; //set filename
   MBEntityHandle input_set;
   result = MBI()->create_meshset( MESHSET_SET, input_set ); //create handle to meshset
   if(MB_SUCCESS != result) 

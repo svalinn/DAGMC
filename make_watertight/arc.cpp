@@ -10,6 +10,7 @@
 #include "gen.hpp"
 
 #include "moab/GeomTopoTool.hpp"
+#include "moab/FileOptions.hpp"
 
 
 
@@ -406,7 +407,7 @@ namespace arc {
     MBRange end_verts;
     MBSkinner tool(MBI());
     MBErrorCode result;
-    result = tool.find_skin( unordered_edges, 0, end_verts, false );
+    result = tool.find_skin( 0 , unordered_edges, 0, end_verts, false );
     if(MB_SUCCESS != result) gen::print_range_of_edges( unordered_edges );
     assert(MB_SUCCESS == result);
 
@@ -501,9 +502,15 @@ namespace arc {
     // add endpoints to kd-tree. Tree must track ownership to know when verts are
     // merged away (deleted).  
 
-    MBAdaptiveKDTree kdtree(MBI(), 0, MESHSET_TRACK_OWNER);                           
-    MBEntityHandle root;                                                         
-    // initialize setting of the KD Tree
+    MBAdaptiveKDTree kdtree(MBI()); //, 0, MESHSET_TRACK_OWNER);                           
+    MBEntityHandle root;         
+
+    //set tree options
+    const char settings[]="MAX_PER_LEAF=1;SPLITS_PER_DIR=1;PLANE_SET=0;MESHSET_FLAGS=0x1;TAG_NAME=0";
+    moab::FileOptions fileopts(settings);
+
+    /* Old settings for the KD Tree                                            
+    // initialize settings of the KD Tree
     MBAdaptiveKDTree::Settings settings;
     // sets the tree to split any leaves with more than 1 entity                
     settings.maxEntPerLeaf = 1;                                 
@@ -511,8 +518,13 @@ namespace arc {
     settings.candidateSplitsPerDir = 1;                           
     // planes are set to be at evenly spaced intervals
     settings.candidatePlaneSet = MBAdaptiveKDTree::SUBDIVISION; 
+    */
+    
+
+
+
     // initialize the tree and pass the root entity handle back into root
-    result = kdtree.build_tree( endpoints, root, &settings);            
+    result = kdtree.build_tree( endpoints, &root, &fileopts);            
     assert(MB_SUCCESS == result);      
     // create tree iterator                                         
     MBAdaptiveKDTreeIter tree_iter;                                     
@@ -540,8 +552,8 @@ namespace arc {
         assert(MB_SUCCESS == result);           
         // takes all leaves of the tree within a distance (facet_tol) of the coordinates
         // passed in by endpt_coords.array() and returns them in leaves
-        result = kdtree.leaves_within_distance( root, endpt_coords.array(), 
-                                                facet_tol, leaves);
+        result = kdtree.distance_search( endpt_coords.array(), 
+                                                facet_tol, leaves, root );
         assert(MB_SUCCESS == result);                                
         for(unsigned int k=0; k<leaves.size(); k++) {           
           // retrieve all information about vertices in leaves
