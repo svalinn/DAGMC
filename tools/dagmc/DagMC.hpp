@@ -172,7 +172,7 @@ public:
    *                distance further than this value will be returned.
    * @param ray_orientation Optional ray orientation. If provided determines intersections 
    *                along the normal provided, e.g. if -1 allows intersections back along the
-   *                the ray direction
+   *                the ray direction, Default is 1, i.e. exit intersections
    * @param stats Optional TrvStats object used to measure performance of underlying OBB
    *              ray-firing query.  See OrientedBoxTreeTool.hpp for details.
    * 
