@@ -9,6 +9,9 @@
 #ifndef DAGWRAPPERS_HH
 #define DAGWRAPPERS_HH
 
+#include "MBInterface.hpp"
+#include "MBCartVect.hpp"
+#include "moab/Types.hpp"
 
 #define f_idnr idnrwr_
 #define g_step g1wr_
@@ -50,6 +53,8 @@ extern "C" void  g_step(double& pSx, double& pSy, double& pSz, double* pV,
   */
   void g_fire(int& oldRegion, double point[], double dir[], 
                double &propStep, double& retStep,  int& newRegion);
+
+int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3]);
 
 // Stub function
 extern "C" void f_g1rt(void);
