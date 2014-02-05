@@ -146,12 +146,19 @@ void g_step(double& pSx,
   double point[3] = {pSx,pSy,pSz};
   double dir[3]   = {pV[0],pV[1],pV[2]};  
 
- ;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg); // fire a ray 
-  old_direction[0]=dir[0],old_direction[1]=dir[1],old_direction[2]=dir[2];
-
   if(debug)
     {
+      std::cout << "cel = " << oldReg << " pos = " << point[0] << " " << point[1] << " " << point[2];
+      std::cout << " dir = " << dir[0] << " " << dir[1] << " " << dir[2] ;
+      std::cout << " prop = " << propStep ;
+    }
+  g_fire(oldReg, point, dir, propStep, retStep, newReg); // fire a ray 
+  old_direction[0]=dir[0],old_direction[1]=dir[1],old_direction[2]=dir[2];
+  if(debug)
+    {
+      std::cout << " ret = " << retStep;
+      std::cout << " new cel = " << newReg << std::endl;
+
       std::cout << "saf = " << saf << std::endl;
       std::cout << std::setw(20) << std::scientific;
       std::cout << "newReg = " << newReg << " retStep = " << retStep << std::endl;
@@ -178,19 +185,39 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
   double next_surf_dist;
   MBEntityHandle newvol = 0;
 
-  
-  if( dir[0] != old_direction[0] || dir[1] != old_direction[1] || dir[2] != old_direction[2] ) // direction changed reset history
-    history.reset(); // this is a new particle or direction has changed
-  else if (!on_boundary)
+
+  /*
+  if(!check_vol(point,dir,oldRegion))
     {
-      history.rollback_last_intersection();
+      history.reset();
+    }
+  */
+    
+  if( dir[0] == old_direction[0] || dir[1] == old_direction[1] || dir[2] == old_direction[2] ) // direction changed reset history
+    //   history.reset(); // this is a new particle or direction has changed
+    {
+      //
     }
   else
     {
       history.reset();
     }
+
+
+
+  // 
    
   oldRegion = DAG->index_by_handle(vol); // convert oldRegion int into MBHandle to the volume
+  if(on_boundary)
+    {
+      if(boundary_test(vol,point,dir)==0) // if ray not on leaving vol
+	{
+	  history.reset(); // reset history
+	  on_boundary = false; // reset on boundary
+	}
+    }
+  
+
   MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist,&history); // fire a ray 
   if ( result != MB_SUCCESS )
     {
@@ -227,7 +254,8 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
       newRegion = oldRegion; // dont leave the current region
       retStep = propStep; //physics limits step
       next_surf = prev_surf; // still hit the previous surface
-      history.reset_to_last_intersection();
+      history.reset();
+	//_to_last_intersection();
       on_boundary=false;
     }
 
@@ -292,7 +320,7 @@ void f_normal(double& pSx, double& pSy, double& pSz,
   double uvw[3] = {pVx,pVy,pVz}; //particl directoin
   int result; // particle is entering or leaving
 
-  MBErrorCode ErrorCode = DAG->test_volume_boundary( OldReg, next_surf,xyz,uvw, result);  // see if we are on boundary
+  MBErrorCode ErrorCode = DAG->test_volume_boundary( OldReg, next_surf,xyz,uvw, result, &history);  // see if we are on boundary
   ErrorCode = DAG->get_angle(next_surf,xyz,norml); 
   // result = 1 entering, 0 leaving
   if ( result == 0 ) // vector should point towards OldReg
@@ -301,6 +329,7 @@ void f_normal(double& pSx, double& pSy, double& pSz,
       norml[1] = norml[1]*-1.0;
       norml[2] = norml[2]*-1.0;
     }
+
 
   if(debug)
   {
@@ -374,6 +403,8 @@ void f_look(double& pSx, double& pSy, double& pSz,
       std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl; 
   }
 
+  history.reset();
+
   double xyz[] = {pSx, pSy, pSz};       // location of the particle (xyz)
   const double dir[] = {pV[0],pV[1],pV[2]};
   // Initialize to outside boundary.  This value can be 0 or +/-1 for ouside, inside, or on boundary.
@@ -385,7 +416,7 @@ void f_look(double& pSx, double& pSy, double& pSz,
     {
       MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
       // No ray history 
-      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside,dir);
+      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside);
 
       // check for non error
       if(MB_SUCCESS != code) 
@@ -421,6 +452,16 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
 {
     f_look(pSx,pSy,pSz,pV,oldReg,oldLttc,nextRegion,flagErr,newLttc);
     return;
+}
+
+/*
+ * entering or leaving, if particle on boundary 
+ */
+int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
+{
+  int result;
+  MBErrorCode ErrorCode = DAG->test_volume_boundary(vol,next_surf,xyz,uvw, result,&history);  // see if we are on boundary
+  return result;
 }
 //---------------------------------------------------------------------------//
 // slow_check(..)
@@ -461,6 +502,8 @@ void lkmgwr(double& pSx, double& pSy, double& pSz,
             double* pV, const int& oldReg, const int& oldLttc,
 	    int& flagErr, int& newReg, int& newLttc)
 {
+  
+
     const double xyz[] = {pSx, pSy, pSz}; // location of the particle (xyz)
     int is_inside = 0; // logical inside or outside of volume
     int num_vols = DAG->num_entities(3); // number of volumes
