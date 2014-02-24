@@ -34,21 +34,18 @@ test_cyl: test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
 	$(CC) $(LD_FLAGS) -o test_cyl test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o  \
 	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
 
-test_iter : test_iter.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
+test_iter: test_iter.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
 	$(CC) $(LD_FLAGS) -o test_iter test_iter.o gen.o arc.o zip.o cleanup.o cw_func.o  \
 	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
 
-test_bllite : test_bllite.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
+test_bllite: test_bllite.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
 	$(CC) $(LD_FLAGS) -o test_bllite test_bllite.o gen.o arc.o zip.o cleanup.o cw_func.o  \
 	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
 
-test_iter : test_iter.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
-	$(CC) $(LD_FLAGS) -o test_iter test_iter.o gen.o arc.o zip.o cleanup.o cw_func.o  \
+test_fnsf_360: test_fnsf_360.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
+	$(CC) $(LD_FLAGS) -o test_fnsf_360 test_fnsf_360.o gen.o arc.o zip.o cleanup.o cw_func.o  \
 	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
 
-test_bllite : test_bllite.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
-	$(CC) $(LD_FLAGS) -o test_bllite test_bllite.o gen.o arc.o zip.o cleanup.o cw_func.o  \
-	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
 clean:
 	rm -f make_watertight.o make_watertight gen.o arc.o zip.o \
 	cleanup.o post_process.o post_process cw_func.o mw_fix mw_fix.o test_cyl test_cyl.o mw_func.o \
