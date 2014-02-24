@@ -49,4 +49,4 @@ test_fnsf_360: test_fnsf_360.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
 clean:
 	rm -f make_watertight.o make_watertight gen.o arc.o zip.o \
 	cleanup.o post_process.o post_process cw_func.o mw_fix mw_fix.o test_cyl test_cyl.o mw_func.o \
-	test_iter test_bllite test_iter.o test_bllite.o
+	test_iter test_bllite test_iter.o test_bllite.o test_fnsf_360.o test_fnsf_360
