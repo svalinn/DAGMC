@@ -193,10 +193,9 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
     }
   */
     
-  if( dir[0] == old_direction[0] || dir[1] == old_direction[1] || dir[2] == old_direction[2] ) // direction changed reset history
+  if( dir[0] == old_direction[0] && dir[1] == old_direction[1] && dir[2] == old_direction[2] ) // direction changed reset history
     //   history.reset(); // this is a new particle or direction has changed
-    {
-      //
+    {   
     }
   else
     {
@@ -402,7 +401,7 @@ void f_look(double& pSx, double& pSy, double& pSz,
       std::cout << "======= LKWR =======" << std::endl;
       std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl; 
   }
-
+  
   history.reset();
 
   double xyz[] = {pSx, pSy, pSz};       // location of the particle (xyz)
