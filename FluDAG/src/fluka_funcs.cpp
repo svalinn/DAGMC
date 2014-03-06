@@ -108,7 +108,7 @@ void g_step(double& pSx,
           int& nascFlag,       // .
           double& retStep,     // reset in this method
           int& newReg,         // return from callee
-          double& saf,         // ignore
+          double& saf,         // safety 
           int& newLttc,        // .
           int& LttcFlag,       // . 
           double* sLt,         // .
@@ -134,7 +134,7 @@ void g_step(double& pSx,
       std::cout << " dir = " << dir[0] << " " << dir[1] << " " << dir[2] ;
       std::cout << " prop = " << propStep ;
     }
-  g_fire(oldReg, point, dir, propStep, retStep, newReg); // fire a ray 
+  g_fire(oldReg, point, dir, propStep, retStep, saf, newReg); // fire a ray 
   old_direction[0]=dir[0],old_direction[1]=dir[1],old_direction[2]=dir[2];
   if(debug)
     {
@@ -159,7 +159,8 @@ void g_step(double& pSx,
 // propStep  - ??
 // retStep   - returned as the distance from the particle's current location, along its ray, to the next boundary
 // newRegion - gotten from the value returned by DAG->next_vol
-void g_fire(int& oldRegion, double point[], double dir[], double &propStep, double& retStep,  int& newRegion)
+// newRegion is gotten from the volue returned by DAG->next_vol
+void g_fire(int &oldRegion, double point[], double dir[], double &propStep, double &retStep, double &safety,  int &newRegion)
 {
 
   MBEntityHandle vol = DAG->entity_by_index(3,oldRegion);
@@ -217,7 +218,14 @@ void g_fire(int& oldRegion, double point[], double dir[], double &propStep, doub
       newRegion = -3; // return error
       return;
     }
-  
+
+  // set the safety
+  result = DAG->closest_to_location(vol,point,safety);
+  if ( result != MB_SUCCESS )
+    {
+      std::cout << "DAG: Cloest to location error" << std::endl;
+      exit(0);
+    }  
 
   retStep = next_surf_dist; // the returned step length is the distance to next surf
   if ( propStep >= retStep ) // will cross into next volume next step
