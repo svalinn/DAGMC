@@ -220,13 +220,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep, doub
     }
 
   // set the safety
-  result = DAG->closest_to_location(vol,point,safety);
-  if ( result != MB_SUCCESS )
-    {
-      std::cout << "DAG: Cloest to location error" << std::endl;
-      exit(0);
-    }  
-
+  
   retStep = next_surf_dist; // the returned step length is the distance to next surf
   if ( propStep >= retStep ) // will cross into next volume next step
     {
