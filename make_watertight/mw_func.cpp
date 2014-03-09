@@ -1765,7 +1765,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     
 
     
-    if (verbose) std::cout << "Get entity count before sealing" << std::endl;
+    if (verbose) std::cout << "Getting entity count before sealing..." << std::endl;
     // Get entity count before sealing.
     int orig_n_tris;
     result = MBI()->get_number_entities_by_type( 0, MBTRI, orig_n_tris );
@@ -1778,7 +1778,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
               << " curves, and " << orig_n_tris << " triangles" << std::endl;  
     }
     
-    if(verbose) std::cout << "Finding degenerate triangles " << std::endl;
+    if(verbose) std::cout << "Finding degenerate triangles... " << std::endl;
     result = find_degenerate_tris();
     if(gen::error(result!=MB_SUCCESS,"could not determine if triangles were degenerate or not")) return result;
       
