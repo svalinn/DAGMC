@@ -113,7 +113,8 @@ MBErrorCode get_unmerged_curves( MBEntityHandle surface,
                                  std::vector<MBEntityHandle> &curves, 
                                  std::vector<MBEntityHandle> &unmerged_curves, 
                                  MBTag merge_tag, 
-                                 bool verbose);
+                                 bool verbose,
+                                 bool debug);
 
 /// takes the skin_edges from the moab skinner and creates loops of vertices between the facets and geometric curves.
 /// The vertex loops are returned in the vector array, skin. 

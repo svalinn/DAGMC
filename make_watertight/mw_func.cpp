@@ -1013,7 +1013,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
 
         // Get the curves and determine the number of unmerged curves
         std::vector<MBEntityHandle> curve_sets, unmerged_curve_sets;
-        result = get_unmerged_curves( *i , curve_sets, unmerged_curve_sets, merge_tag, verbose);
+        result = get_unmerged_curves( *i , curve_sets, unmerged_curve_sets, merge_tag, verbose, debug);
         if(gen::error(MB_SUCCESS!=result, " could not get the curves and unmerged curves" )) return result; 
       
 
@@ -1486,7 +1486,11 @@ MBErrorCode delete_sealing_tags( MBTag normal_tag, MBTag merge_tag, MBTag size_t
   return result; 
 }
 
-MBErrorCode get_unmerged_curves( MBEntityHandle surface, std::vector<MBEntityHandle> &curves, std::vector<MBEntityHandle> &unmerged_curves, MBTag merge_tag, bool verbose) {
+MBErrorCode get_unmerged_curves( MBEntityHandle surface, std::vector<MBEntityHandle> &curves, 
+                                 std::vector<MBEntityHandle> &unmerged_curves, 
+                                 MBTag merge_tag, 
+                                 bool verbose, 
+                                 bool debug) {
 
   MBErrorCode result; 
 
@@ -1505,7 +1509,7 @@ MBErrorCode get_unmerged_curves( MBEntityHandle surface, std::vector<MBEntityHan
         if(MB_TAG_NOT_FOUND == result) {
           curve = *j;
         } else if(MB_SUCCESS == result) {
-	  if(verbose) {
+	  if(debug) {
             std::cout << "  curve_id=" << gen::geom_id_by_handle(*j) 
                       << " is entity_to_delete" << std::endl;
           }
