@@ -1020,7 +1020,7 @@ MBErrorCode prepare_surfaces(MBRange &surface_sets,
         // If all of the curves are merged, remove the surfaces facets.
         if(unmerged_curve_sets.empty()) {
        
-          result = gen::delete_surface( *i , geom_tag, tris, surf_id); 
+          result = gen::delete_surface( *i , geom_tag, tris, surf_id, debug, verbose); 
           if( gen::error(MB_SUCCESS!=result, "could not delete surface" )) return result;                                              
           // adjust iterator so *i is still the same surface
           i = surface_sets.erase(i) - 1;
@@ -1265,6 +1265,7 @@ MBErrorCode fix_normals(MBRange surface_sets, MBTag id_tag, MBTag normal_tag, co
 MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[], 
                                           const MBTag geom_tag,
                                           const MBTag size_tag,
+                                          bool debug,
                                           bool verbose ) 
 {
   MBErrorCode rval;
@@ -1274,7 +1275,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
       {
 	double size;
 	//std::cout << "dim = " << dim << " *i =" << *i << std::endl;
-	rval = gen::measure( *i, geom_tag, size, verbose );
+	rval = gen::measure( *i, geom_tag, size, debug, verbose );
 	//std::cout << " here in gen mesaure" << std::endl;
 	if(gen::error(MB_SUCCESS!=rval,"could not measure")) 
 	  {
@@ -1301,8 +1302,9 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
                                          const MBTag geom_tag,
                                          const MBTag size_tag,
                                          const double FACET_TOL,
+                                         bool debug,
                                          bool verbose ) {
-  const bool debug = false;
+  
       // save the largest difference for each dimension
       struct size_data {
         double orig_size, new_size, diff, percent;
@@ -1324,7 +1326,7 @@ MBErrorCode get_geom_size_after_sealing( const MBRange geom_sets[],
 	    std::cout << "rval=" << rval << " id=" << gen::geom_id_by_handle(*i) << std::endl;
 	  }
 	  assert(MB_SUCCESS == rval);
-	  rval = gen::measure( *i, geom_tag, new_size, verbose );
+	  rval = gen::measure( *i, geom_tag, new_size, debug, verbose );
 	  assert(MB_SUCCESS == rval);
 
           // Remember the largest difference and associated percent difference
@@ -1753,7 +1755,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     // If desired, find each entity's size before sealing.
     if(check_geom_size) 
       {
-	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag, verbose );
+	result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag, debug, verbose );
 	if(gen::error(MB_SUCCESS!=result,"measuring geom size failed")) return result;
       }
     
@@ -1815,7 +1817,7 @@ MBErrorCode make_mesh_watertight(MBEntityHandle input_set, double &facet_tol, bo
     // As sanity check, did zipping drastically change the entity's size?
     if(check_geom_size && verbose) {
       std::cout << "Checking size change of zipped entities..." << std::endl;
-      result = get_geom_size_after_sealing( geom_sets, geom_tag, size_tag, FACET_TOL );
+      result = get_geom_size_after_sealing( geom_sets, geom_tag, size_tag, FACET_TOL, debug, verbose );
       if(gen::error(MB_SUCCESS!=result,"measuring geom size failed")) return result;
     }
    

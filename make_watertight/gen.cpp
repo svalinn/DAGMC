@@ -1541,7 +1541,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 // Copied from DagMC, without index_by_handle. The dagmc function will
 // segfault if build_indices is not first called. For sealing there is
 // no need to build_indices.
-MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool verbose )
+  MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool debug, bool verbose )
 {
   MBErrorCode rval;
   std::vector<MBEntityHandle> surfaces, surf_volumes;
@@ -1555,7 +1555,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
     {
       return rval;
     }
-  if(verbose) std::cout << "in measure_volume 1" << std::endl;
+  if(debug) std::cout << "in measure_volume 1" << std::endl;
 
     // get surface senses
   std::vector<int> senses( surfaces.size() );
@@ -1568,12 +1568,12 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
       std::cout << "or the pointer to the Moab instance is poor" << std::endl;
       exit(rval);
     }
-  if(verbose) std::cout << surfaces.size() << " " << result << std::endl;
+  if(debug) std::cout << surfaces.size() << " " << result << std::endl;
 
   rval = surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
   
 
-  if(verbose) std::cout << "in measure_volume 2" << std::endl;
+  if(debug) std::cout << "in measure_volume 2" << std::endl;
 
   if (MB_SUCCESS != rval) 
     {
@@ -1629,7 +1629,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
   }
   
   result /= 6.0;
-  if(verbose)  std::cout << result << std::endl;
+  if(debug)  std::cout << result << std::endl;
   return MB_SUCCESS;
 }
 
@@ -1659,7 +1659,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
     return MB_SUCCESS;                              
   }                 
 
-  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size, bool verbose ) {
+MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size, bool debug,  bool verbose ) {
     MBErrorCode result;
     int dim;
     result = MBI()->tag_get_data( geom_tag, &set, 1, &dim );                  
@@ -1682,7 +1682,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
 
     } else if(3 == dim) {
       
-      result = measure_volume( set, size, verbose );
+      result = measure_volume( set, size, debug, verbose );
       
       if(MB_SUCCESS != result) {
         std::cout << "result=" << result << " vol_id=" 
@@ -1831,13 +1831,13 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
 
 
 
- MBErrorCode delete_surface( MBEntityHandle surf, MBTag geom_tag, MBRange tris, int id, bool verbose) {
+MBErrorCode delete_surface( MBEntityHandle surf, MBTag geom_tag, MBRange tris, int id, bool debug, bool verbose ) {
 
   MBErrorCode result;
 
   //measure area of the surface  
         double area;
-        result = gen::measure( surf, geom_tag, area, verbose );
+        result = gen::measure( surf, geom_tag, area, debug, verbose );
         if(gen::error(MB_SUCCESS!=result,"could not measure area")) return result;
         assert(MB_SUCCESS == result);
 
@@ -1846,7 +1846,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
         if(gen::error(MB_SUCCESS!=result,"could not remove tris")) return result;
 	assert(MB_SUCCESS == result);       
   //print information about the deleted surface if requested by the user
-        if(verbose) std::cout << "  deleted surface " << id
+        if(debug) std::cout << "  deleted surface " << id
                   << ", area=" << area << " cm^2, n_facets=" << tris.size() << std::endl;
 
   // delete triangles from mesh data
@@ -1855,7 +1855,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
 	assert(MB_SUCCESS == result);
 
   //remove the sense data for the surface from its child curves
-        result = remove_surf_sense_data( surf);
+        result = remove_surf_sense_data( surf, debug);
         if(gen::error(MB_SUCCESS!=result, "could not remove surface's sense data")) return result;
 
   //remove the surface set itself
@@ -1869,7 +1869,7 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
 
  /// removes sense data from all curves associated with the surface given to the function
 
- MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf) {
+MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf, bool debug) {
  
   MBErrorCode result;
   moab::GeomTopoTool gt(MBI(), false);
@@ -1881,16 +1881,18 @@ MBErrorCode measure_volume( const MBEntityHandle volume, double& result, bool ve
         MBRange del_surf_curves;
         result = MBI() -> get_child_meshsets( del_surf, del_surf_curves);
         if(gen::error(MB_SUCCESS!=result,"could not get the curves of the surface to delete")) return result;
-        std::cout << "got the curves" << std::endl;
+        if (debug) std::cout << "got the curves" << std::endl;
        
   
 
-        std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
-        for(unsigned int index =0 ; index < del_surf_curves.size() ; index++)
-        {
-          std::cout << "deleted surface's child curve id " << index << " = " << gen::geom_id_by_handle(del_surf_curves[index]) << std::endl;
-        }        
-  
+        if (debug)
+	{
+          std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
+          for(unsigned int index =0 ; index < del_surf_curves.size() ; index++)
+          {
+            std::cout << "deleted surface's child curve id " << index << " = " << gen::geom_id_by_handle(del_surf_curves[index]) << std::endl;
+          }        
+        }
         //get the sense data for each curve
 
         //get sense_tag handles from MOAB

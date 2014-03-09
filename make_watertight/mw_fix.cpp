@@ -125,7 +125,7 @@ MBErrorCode get_geom_size_before_sealing( const MBRange geom_sets[],
 	//std::cout << "size =" << size << std::endl;
 
 
-      rval = gen::measure( *i, geom_tag, size, verbose );
+      rval = gen::measure( *i, geom_tag, size, false, verbose );
       if(gen::error(MB_SUCCESS!=rval,"could not measure")) return rval;
       rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
       if(gen::error(MB_SUCCESS!=rval,"could not set size tag")) return rval;

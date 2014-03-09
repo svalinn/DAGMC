@@ -185,7 +185,7 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 			 MBRange &skin_edges,                         
                          const bool );
   //MBErrorCode find_skin( const MBRange tris, const int dim, MBRange &skin_edges, const bool );
-  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size, bool verbose = true );
+  MBErrorCode measure( const MBEntityHandle set, const MBTag geom_tag, double &size, bool debug, bool verbose );
 
   // Given a curve and surface set, get the relative sense.
   // From CGMA/builds/dbg/include/CubitDefines, CUBIT_UNKNOWN=-1, CUBIT_FORWARD=0, CUBIT_REVERSED=1
@@ -197,9 +197,9 @@ MBErrorCode find_closest_vert( const MBEntityHandle reference_vert,
 
   MBTag get_tag( const char* name, int size, MBTagType store,MBDataType type, const void* def_value, bool create_if_missing);
 
-  MBErrorCode delete_surface( MBEntityHandle surf, MBTag geom_tag, MBRange tris, int id, bool verbose = false);
+  MBErrorCode delete_surface( MBEntityHandle surf, MBTag geom_tag, MBRange tris, int id, bool debug, bool verbose);
 
-  MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf);
+  MBErrorCode remove_surf_sense_data(MBEntityHandle del_surf, bool debug);
 
   MBErrorCode combine_merged_curve_senses( std::vector<MBEntityHandle> &curves, MBTag merge_tag, bool debug = false) ;
 
