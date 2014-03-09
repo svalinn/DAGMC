@@ -783,7 +783,9 @@ MBErrorCode seal_loop( bool debug,
       }
 
       // check to ensure that the endpt sets aren't degenerate
-      if(2==endpt_sets.size() && endpts.front()==endpts.back()) {
+
+      if(2==endpt_sets.size() && endpts.front()==endpts.back() && debug ) {
+
 	std::cout << "  warning9: curve " << gen::geom_id_by_handle(curve_sets[i]) 
                   << " geometric endpoints degenerate" << std::endl;
       }
@@ -798,7 +800,7 @@ MBErrorCode seal_loop( bool debug,
           "geometric verts inconsistent with curve")) return MB_FAILURE;
       } else {
         if(curve.front()==curve.back()) 
-          std::cout << "  warning10: degenerate curve endpts" << std::endl;
+          if(debug) std::cout << "  warning10: degenerate curve endpts" << std::endl;
         if(gen::error(curve.front()!=endpts.front() && curve.front()!=endpts.back(),
 		      "endpts not consistent")) return MB_FAILURE;
         if(gen::error(curve.back()!=endpts.front() && curve.back()!=endpts.back(),
