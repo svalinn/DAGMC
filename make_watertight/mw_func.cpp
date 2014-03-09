@@ -107,9 +107,11 @@ MBErrorCode prepare_curves(MBRange &curve_sets,
     during zipping anyhow. Doing this now removes small curves from zipping and
     reduces ambiguity. */
     if(FACET_TOL > gen::length(curve_edges)) {
-      std::cout << "  deleted curve " << id << ", length=" << gen::length(curve_edges) 
-                << " cm, n_verts=" << curve_edges.size()+1 << std::endl;
-
+      if (debug)
+        {
+          std::cout << "  deleted curve " << id << ", length=" << gen::length(curve_edges) 
+          << " cm, n_verts=" << curve_edges.size()+1 << std::endl;
+        }
       // get the endpoints of the curve
       MBRange endpt_sets;
       result = MBI()->get_child_meshsets( *i, endpt_sets );
