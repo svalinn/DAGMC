@@ -6,7 +6,8 @@ namespace zip {
   MBErrorCode t_joint( MBTag normal_tag,
                        const MBEntityHandle vert0,
                        const MBEntityHandle vert1,
-                       const MBEntityHandle vert2 ) {
+                       const MBEntityHandle vert2,
+                       bool debug ) {
     struct triangles {
       MBEntityHandle before_tri;
       const MBEntityHandle *before;
@@ -45,7 +46,7 @@ namespace zip {
   
       // Check to make sure we found a set     
       if(1 != surf_sets.size()) {
-	std::cout << "    t_joint: " << surf_sets.size() << " surface sets found for triangle " 
+	if(debug) std::cout << "    t_joint: " << surf_sets.size() << " surface sets found for triangle " 
                   << joints[i].before_tri << std::endl;
         assert(1 == surf_sets.size());
 	//if(1!=surf_sets.size()) return MB_FAILURE;
@@ -65,7 +66,7 @@ namespace zip {
    
       // test to make sure not degenerate
       //if(conn[0]==conn[1] || conn[1]==conn[2] || conn[2]==conn[0]) {
-      if( gen::triangle_degenerate( joints[i].before_tri )) {
+      if( gen::triangle_degenerate( joints[i].before_tri ) && debug ) {
         std::cout << "    t_joint: degenerate input triangle" << std::endl;
         gen::print_triangle( joints[i].before_tri, false);
         return MB_FAILURE;
@@ -80,7 +81,7 @@ namespace zip {
       // test to make sure not degenerate
       //if(conn0[0]==conn0[1] || conn0[1]==conn0[2] || conn0[2]==conn0[0]) {
       if(gen::triangle_degenerate( joints[i].after0[0], joints[i].after0[1], 
-                                                        joints[i].after0[2])) {
+                                                        joints[i].after0[2]) && debug ) {
 	std::cout << "    t_joint: degenerate output triangle 1" << std::endl;	
         gen::print_triangle( joints[i].before_tri, false );
 	//	return MB_FAILURE;
@@ -88,7 +89,7 @@ namespace zip {
       // test to make sure not degenerate
       //if(conn1[0]==conn1[1] || conn1[1]==conn1[2] || conn1[2]==conn1[0]) {
       if(gen::triangle_degenerate( joints[i].after1[0], joints[i].after1[1], 
-                                                        joints[i].after1[2])) {
+                                                        joints[i].after1[2]) && debug) {
 	std::cout << "    t_joint: degenerate output triangle 2" << std::endl;
         gen::print_triangle( joints[i].before_tri, false );
 	//gen::print_triangle( *i, true );

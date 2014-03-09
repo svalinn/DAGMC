@@ -10,7 +10,8 @@ namespace zip {
   MBErrorCode t_joint( MBTag normal_tag, 
                        const MBEntityHandle vert0,              
                        const MBEntityHandle vert1,                         
-                       const MBEntityHandle vert2 );
+                       const MBEntityHandle vert2,
+                       bool debug );
 /// removes the entitiy handle tri from the loaded mesh                
   MBErrorCode delete_degenerate_tris( MBEntityHandle tri );
 /// checks that no triangles in the MBRange tris are degenterate. If 

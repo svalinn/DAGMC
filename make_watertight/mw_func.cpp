@@ -645,7 +645,7 @@ MBErrorCode seal_arc_pair( const bool debug,
 	  std::cout << "  warning6: surf " << surf_id << " vertex move_dist=" 
                     << move_dist << std::endl;
 	}
-	rval = zip::t_joint( normal_tag, edge[e_pos-1], edge[e_pos], skin[s_pos] );
+	rval = zip::t_joint( normal_tag, edge[e_pos-1], edge[e_pos], skin[s_pos], debug );
         if(gen::error(MB_SUCCESS!=rval,"tjoint failed a")) return rval;
 	skin.insert( skin.begin()+s_pos, edge[e_pos] );
 	e_pos++;
@@ -663,7 +663,7 @@ MBErrorCode seal_arc_pair( const bool debug,
 	  std::cout << "  warning6: surf " << surf_id << " vertex move_dist=" 
                     << move_dist << std::endl;
 	}
-	rval = zip::t_joint( normal_tag, edge[e_pos-1], skin[s_pos], edge[e_pos] );
+	rval = zip::t_joint( normal_tag, edge[e_pos-1], skin[s_pos], edge[e_pos], debug );
         if(gen::error(MB_SUCCESS!=rval,"tjoint failed b")) return rval;
 	edge.insert( edge.begin() + e_pos, skin[s_pos] );
 	e_pos++;
