@@ -631,8 +631,11 @@ namespace arc {
         if( facet_tol < dist ) continue;
 
         // THE CURVE WILL BE MERGED
-	std::cout << "  merging curve " << j_id << " to curve " << i_id 
-                  << ", dist_between_curves=" << dist << " cm" << std::endl;
+        if (debug)
+	  {
+	    std::cout << "  merging curve " << j_id << " to curve " << i_id 
+                      << ", dist_between_curves=" << dist << " cm" << std::endl;
+	  }
 
         // Merge the endpts of the curve to preserve topology. Merging (and deleting)
         // the endpoints will also remove them from the KDtree so that the merged
