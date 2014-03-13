@@ -52,7 +52,7 @@ extern "C" void  g_step(double& pSx, double& pSy, double& pSz, double* pV,
    * newRegion region ofter step
   */
   void g_fire(int& oldRegion, double point[], double dir[], 
-               double &propStep, double& retStep,  int& newRegion);
+	      double &propStep, double& retStep, double &safety, int& newRegion);
 
 int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3]);
 
