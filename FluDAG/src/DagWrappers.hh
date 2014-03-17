@@ -9,6 +9,9 @@
 #ifndef DAGWRAPPERS_HH
 #define DAGWRAPPERS_HH
 
+#include "MBInterface.hpp"
+#include "MBCartVect.hpp"
+#include "moab/Types.hpp"
 
 #define f_idnr idnrwr_
 #define g_step g1wr_
@@ -16,7 +19,7 @@
 #define inihwr inihwr_
 #define jomiwr jomiwr_
 #define f_lookdb lkdbwr_
-#define lkfxwr lkfxwr_
+#define f_lostlook lkfxwr_
 #define lkmgwr lkmgwr_
 #define f_look lkwr_
 #define fldwr fldwr_
@@ -49,7 +52,9 @@ extern "C" void  g_step(double& pSx, double& pSy, double& pSz, double* pV,
    * newRegion region ofter step
   */
   void g_fire(int& oldRegion, double point[], double dir[], 
-               double &propStep, double& retStep,  int& newRegion);
+	      double &propStep, double& retStep, double &safety, int& newRegion);
+
+int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3]);
 
 // Stub function
 extern "C" void f_g1rt(void);
@@ -66,11 +71,11 @@ extern "C" void f_lookdb(double& pSx, double& pSy, double& pSz,
                	       int& newReg, int& flagErr, int& newLttc);
 
 // WrapLookFX
-// Stubbed in WrapLookFX.cc and linked in.
+// defined in fluka_funcs.cpp.  It sets some of its return values
 extern "C" void lkfxwr(double& pSx, double& pSy, double& pSz,
                        double* pV, const int& oldReg, const int& oldLttc,
                        int& newReg, int& flagErr, int& newLttc);
-	    
+//	    
 // WrapLookMG.cc stubs this function and is linked in.
 extern "C" void lkmgwr(double& pSx, double& pSy, double& pSz,
                        double* pV, const int& oldReg, const int& oldLttc,
