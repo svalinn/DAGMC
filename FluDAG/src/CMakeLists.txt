@@ -19,7 +19,6 @@ ADD_LIBRARY(fludag SHARED
 	    ${FLUDAG_SOURCE}/fluka_funcs.cpp
 	    ${FLUDAG_SOURCE}/dagmc_utils.cpp
 	    ${FLUDAG_SOURCE}/WrapMag.cc
-	    ${FLUDAG_SOURCE}/WrapLookFX.cc
 	    ${FLUDAG_SOURCE}/WrapReg.cc
 	    ${FLUDAG_SOURCE}/WrapFlgfwr.cc
 )
