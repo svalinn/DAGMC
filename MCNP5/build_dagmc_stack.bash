@@ -351,13 +351,15 @@ then
    
  if [ $enable_static == "no" ]
     then
-       	../src/configure --enable-optimize --disable-debug \
-	  --with-cgm=$cgm_prefix  \
+       	../src/configure --enable-optimize --disable-debug --enable-shared \
+	  --with-cgm=$cgm_prefix   \
+	  --with-hdf5=$hdf5_prefix \ 
 	  --prefix=$moab_prefix     
     else
-    	../src/configure --enable-optimize --disable-debug \
-	        --enable-static  \
-	        --prefix=$moab_prefix
+    	../src/configure --enable-optimize --disable-debug --enable-static \
+	  --with-cgm=$cgm_prefix   \
+	  --with-hdf5=$hdf5_prefix \
+	  --prefix=$moab_prefix
     fi
 
     checkErr "MOAB Configure failed"
