@@ -1,242 +1,367 @@
-// KDEMeshTally.hpp
+// MCNP5/dagmc/KDEMeshTally.hpp
 
-#ifndef KDEMESHTALLY_H
-#define KDEMESHTALLY_H
+#ifndef DAGMC_KDE_MESH_TALLY_HPP
+#define DAGMC_KDE_MESH_TALLY_HPP
 
-#include <iosfwd>
-#include <set>
-#include <string>
+#include <utility>
+#include <vector>
 
 #include "moab/CartVect.hpp"
-#include "moab/Interface.hpp"
 
 #include "KDEKernel.hpp"
+#include "KDENeighborhood.hpp"
 #include "MeshTally.hpp"
+#include "Quadrature.hpp"
 
 // forward declarations
-class AdaptiveKDTree;
+namespace moab {
+  class Interface;
+}
 
+//===========================================================================//
 /**
- * A struct that contains all the parameters needed to compute the tally
- * weighting factor of a KDEMeshTally score.
+ * \class KDEMeshTally
+ * \brief Represents a mesh tally based on a kernel density estimator
  *
- * @param fmesh_index the index of the KDE mesh tally
- * @param particle_wgt the current weight of the particle
- * @param energy the current energy of the particle
- * @param tracklength (optional) the track length the particle has traveled
- * @param total_xs (optional) the total macroscopic cross section
+ * KDEMeshTally is a concrete class derived from MeshTally that implements
+ * the Tally interface to enable the use of the kernel density estimator as a
+ * mesh tally option in a Monte Carlo particle transport simulation.  Three
+ * different types of KDE mesh tallies can be created
+ *
+ *     1) KDE COLLISION mesh tally, based only on particle collisions
+ *     2) KDE INTEGRAL_TRACK mesh tally, based on full particle tracks
+ *     3) KDE SUB_TRACK mesh tally, based on approximated particle tracks
+ *
+ * The primary difference between these three options is what estimator is used
+ * to compute the tally scores for the TallyEvent::COLLISION or TallyEvent::TRACK
+ * events that are set through the TallyManager.  If a KDEMeshTally object
+ * receives an invalid TallyEvent type for its estimator type, then no scores
+ * are computed.
+ *
+ * For more information on using kernel density estimator methods for mesh tally
+ * purposes, please refer to the following two references
+ *
+ *     1) K. L. Dunn and P. P. H. Wilson, "Kernel Density Estimators for Monte
+ *        Carlo Tallies on Unstructured Meshes," Transactions of the American
+ *        Nuclear Society, 107, pp. 490-493 (2012)
+ *
+ *     2) K. L. Dunn and P. P. H. Wilson, "Monte Carlo Mesh Tallies based on a
+ *        Kernel Density Estimator Approach using Integrated Particle Tracks,"
+ *        Proceedings of the International Conference on Mathematics and
+ *        Computational Methods (M&C 2013), Sun Valley, Idaho, May 5-9 (2013)
+ *
+ * ==========
+ * TallyInput
+ * ==========
+ *
+ * The TallyInput struct needed to construct a KDEMeshTally object is defined
+ * in Tally.hpp and is set through the TallyManager when a Tally is created.
+ * Options that are currently available for KDEMeshTally objects include
+ *
+ * 1) "inp"="input_filename", "out"="output_filename"
+ * --------------------------------------------------
+ * These two options are processed through the MeshTally constructor.  The
+ * "inp" key is REQUIRED for KDEMeshTally objects, whereas the "out" key is
+ * optional.  See MeshTally.hpp for more information.
+ *
+ * 2) "hx"="value", "hy"="value", "hz"="value"
+ * -------------------------------------------
+ * Sets the value of the bandwidth vector components.  Note that these values
+ * must all be positive and non-zero.  The default value is (0.01, 0.01, 0.01).
+ *
+ * 3) "kernel"="type", "order"="value"
+ * -----------------------------------
+ * Defines the type and order of the kernel function to be used.  Valid types
+ * include "epanechnikov", "uniform", "biweight", or "triweight".  Note that
+ * only symmetric versions of these kernels are supported, which means that
+ * "order" must be a multiple of 2.  If "kernel" is omitted or invalid, then
+ * the default is "epanechnikov".  Similarly, if "order" is omitted or invalid,
+ * then the default is 2nd-order.
+ *
+ * 4) "neighborhood"="off"
+ * -----------------------
+ * Turns off the neighborhood-search and computes scores for all calculation
+ * points.  This key will also be used to request different neighborhood-search
+ * methods in the future.  The default is the kd-tree method.
+ *
+ * 5) "boundary"="default"
+ * -----------------------
+ * Indicates that boundary correction is needed for tally points within one
+ * bandwidth of an external boundary.  The "default" method uses the boundary
+ * kernel approach, and is currently the only option available.  Note that
+ * this feature will only work properly for 2nd-order kernels.
+ *
+ * 6) "seed"="value", "subtracks"="value"
+ * --------------------------------------
+ * These two options are only available for KDE sub-track mesh tallies.  The
+ * "seed" option overrides the random number seed value that is used for
+ * determining sub-track points.  The "subtracks" option sets the number
+ * of sub-tracks to use for computing scores.
  */
-struct KDEWeightParam {
-
-  // parameters needed for all KDE tally types
-  int* fmesh_index;
-  double* particle_wgt;
-  double* energy;
-
-  // optional parameters, default to NULL
-  double* tracklength;  // only needed for TRACKLENGTH/SUBTRACK tallies
-  double* total_xs;     // only needed for COLLISION tallies
-
-  KDEWeightParam( int* index, double* wgt, double* erg ):
-    fmesh_index( index ), particle_wgt( wgt ), energy( erg ),
-    tracklength( NULL ), total_xs( NULL ) {}
-
-};
-
-/** 
- * A class that represents a mesh tally based on a kernel density estimator
- * approach for use in a Monte Carlo particle transport simulation.
- */
-class KDEMeshTally : public MeshTally {
-
+//===========================================================================//
+class KDEMeshTally : public MeshTally
+{
   public:
-
-     static moab::CartVect default_bandwidth;  // bandwidth choice for KDE tallies
-
     /**
-     * An enumerative type that specifies the type of tally being used by this
-     * KDEMeshTally object.
+     * \brief Defines type of estimator used in computing KDE mesh tally scores
      *
-     *  - COLLISION tallies are based on the KDE collision estimator
-     *  - TRACKLENGTH tallies are based on the KDE integral track estimator
-     *  - SUBTRACK tallies are based on the KDE subtrack estimator
+     *     0) COLLISION estimator is used for KDE collision tallies
+     *     1) INTEGRAL_TRACK estimator is used for KDE integral-track tallies
+     *     2) SUB_TRACK estimator is used for KDE sub-track tallies
      */
-    enum TallyType { COLLISION = 0, TRACKLENGTH = 1, SUBTRACK = 2 };
+    enum Estimator {COLLISION = 0, INTEGRAL_TRACK = 1, SUB_TRACK = 2};
+    static const char* const kde_estimator_names[];
 
     /**
-     * Allocate and return the specified tally object
-     * @param settings The FC card parameters
-     * @param mbi The associated MOAB interface
-     * @param type The tally type
-     * @return A newly allocated object, ready to receive collisions or tracks 
+     * \brief Constructor
+     * \param[in] input user-defined input parameters for this KDEMeshTally
+     * \param[in] type the type of estimator to use with this KDEMeshTally
      */
-    static KDEMeshTally* setup( const fmesh_card& settings, 
-                                moab::Interface* mbi,
-                                TallyType type = COLLISION );
+    KDEMeshTally(const TallyInput& input, Estimator type = COLLISION);
 
     /**
-     * Constructs a mesh tally object based on a kernel density estimator
-     * approach.  The tally type cannot be changed once a KDEMeshTally object
-     * has been created.
+     * \brief Virtual destructor
+     */
+    virtual ~KDEMeshTally();
+
+    // >>> DERIVED PUBLIC INTERFACE from Tally.hpp
+
+    /**
+     * \brief Computes scores for this KDEMeshTally based on the given TallyEvent
+     * \param[in] event the parameters needed to compute the scores
+     */
+    virtual void compute_score(const TallyEvent& event);
+
+    /**
+     * \brief Write results to the output file for this KDEMeshTally
+     * \param[in] num_histories the number of particle histories tracked
      *
-     * NOTE: the parameter "numSubtracks" is required for SUBTRACK tallies,
-     * but it is optional for TRACKLENGTH tallies for computing an optimal
-     * bandwidth.  It has no meaning for COLLISION tallies.
-     *
-     * @param settings the FC card parameters 
-     * @param moabMesh the MOAB instance containing the mesh information
-     * @param moabSet the MOAB set of entities used in the tally
-     * @param bandwidth the set of bandwidth values (hx, hy, hz)
-     * @param type (optional) the type of tally to be used
-     * @param k (optional) the KernelType function to be used in the computation
-     * @param numSubtracks (optional) the number of subtracks to be used
+     * The write_data() method writes the current tally and relative standard
+     * error results for all of the mesh nodes to the output_filename set for
+     * this KDEMeshTally.  These values are normalized only by the number of
+     * particle histories that were tracked.
      */
-    KDEMeshTally( const fmesh_card& settings,
-                  moab::Interface* moabMesh,
-                  moab::EntityHandle moabSet,
-                  moab::CartVect bandwidth,
-                  TallyType type = COLLISION,
-                  KDEKernel::KernelType k = KDEKernel::EPANECHNIKOV,
-                  unsigned int numSubtracks = 0 );
-
-    /**
-     * Destructor.
-     */
-    ~KDEMeshTally();
-
-    /**
-     * Computes the contribution for the given collision location and adds the
-     * results to the current mesh tally.  Note that the total cross section
-     * parameter in the KDEWeightParam object must be set to a non-NULL value.
-     *
-     * @param param the parameters needed to compute the tally weighting factor
-     * @param collision_loc a point where a collision has occurred
-     * @param ebin the energy bin to tally this collision into (calculated by fortran)
-     */
-    void tally_collision( const KDEWeightParam & param,
-                          const moab::CartVect & collision_loc, 
-                          int ebin );
-
-    /**
-     * Computes the contribution for the given track segment and adds the
-     * results to the current mesh tally.  Note that the track length parameter
-     * in the KDEWeightParam object must be set to a non-NULL value.
-     *
-     * @param param the parameters needed to compute the tally weighting factor
-     * @param start_point the starting location of the track (xo, yo, zo)
-     * @param direction the direction the particle is traveling (uo, vo, wo)
-     * @param ebin the energy bin to tally this track into (calculated by fortran)
-     */
-    void tally_track( const KDEWeightParam & param,
-                      const moab::CartVect & start_point,
-                      const moab::CartVect & direction, 
-                      int ebin );
-
-    /** 
-     * Implement MeshTally end_history interface 
-     */ 
-    virtual void end_history();
-
-    /** 
-     * Implement MeshTally print interface 
-     */ 
-    virtual void print( double sp_norm, double fmesh_fact );
-
-    /**
-     * Write mesh with tags for current tally and error results attached.
-     *
-     * @param sp_norm the number of source particles
-     * @param mult_fact the multiplication factor from the FMESH card
-     */
-    void write_results( double sp_norm, double fmesh_fact );
+    virtual void write_data(double num_histories);
 
   private:
+    // Copy constructor and operator= methods are not implemented
+    KDEMeshTally(const KDEMeshTally& obj);
+    KDEMeshTally& operator=(const KDEMeshTally& obj);
 
-    moab::Interface* mb;           // the MOAB instance
-    
-    moab::CartVect bandwidth;      // the set of bandwidth values (hx, hy, hz)
-    TallyType kde_tally;           // specifies type of KDE tally 
-    KDEKernel* kernel;             // kernel function tally is based on
-    unsigned int subtracks;        // number of subtracks used in tally       
-    
-    std::string output_filename;
-    moab::EntityHandle tally_set;  // the MOAB set of entities used in tally
+  private:
+    // Type of estimator used by this KDE mesh tally
+    Estimator estimator;
 
-    moab::AdaptiveKDTree* tree;    
-    moab::EntityHandle tree_root;
-    
-    // The entityhandles updated in the current particle history; cleared by end_history()
-    std::set<moab::EntityHandle> visited_this_history;
+    // Bandwidth vector (hx, hy, hz) used to compute KDE mesh tally scores
+    moab::CartVect bandwidth;
 
-    /**
-     * Variables needed to compute a running variance for calculating the
-     * optimal bandwidth during runtime.
-     */
+    // Kernel function used to compute KDE mesh tally scores
+    KDEKernel* kernel;
+
+    // Defines neighborhood region for computing scores
+    bool use_kd_tree;
+    KDENeighborhood* region;
+
+    // Variables used if boundary correction method is requested by user
+    bool use_boundary_correction;
+    moab::Tag boundary_tag;
+    moab::Tag distance_tag;
+
+    // Number of sub-tracks used to compute KDE sub-track mesh tally scores
+    unsigned int num_subtracks;
+
+    // Quadrature used to compute KDE integral-track mesh tally scores
+    Quadrature* quadrature;
+
+    // MOAB instance that stores all of the mesh data
+    moab::Interface* mbi;
+
+    // Running variance variables for computing optimal bandwidth at runtime
     bool max_collisions;
-    long long int numCollisions;       
-    moab::CartVect Mn;  // mean
-    moab::CartVect Sn;  // variance       
-    
-    /**
-     * Builds a KD-Tree from all the mesh node entities in the specified meshset,
-     * or if the set is 0, from all mesh nodes in MOAB.
-     */
-    void build_tree( moab::EntityHandle meshset );
+    long long int num_collisions;       
+    moab::CartVect mean;
+    moab::CartVect variance;
+
+    // If true, another instance already set the random number generator seed
+    static bool seed_is_set;
+
+    // >>> PRIVATE METHODS
 
     /**
-     * Adds the given collision coordinates to the running variance formula
-     * used to compute the optimal bandwidth.
+     * \brief Sets bandwidth[i] = value for the given key
+     * \param[in] key the name of the bandwidth vector component
+     * \param[in] value the value of the bandwidth vector component
+     * \param[in] i the index in the bandwidth vector associated with the key
      */
-    void update_bandwidth_variance( const moab::CartVect & collision_loc );
+    void set_bandwidth_value(const std::string& key,
+                             const std::string& value,
+                             unsigned int i);
 
     /**
-     * Computes and returns the optimal bandwidth to achieve the best results
-     * in the kernel density approximation.
+     * \brief Parse the TallyInput options for this KDEMeshTally
      */
-    moab::CartVect get_optimal_bandwidth();
+    void parse_tally_options();
 
     /**
-     * Determines the tally weighting factor for a collision or track
-     * contribution.  This weight includes the particle weight and any tally
-     * multipliers that were used for both tally types.
-     * 
-     * @param param the parameters needed to compute the tally weighting factor
-     * @return the tally weighting factor for a collision or track
-     */
-    double get_score_weight( const KDEWeightParam & param );
-
-    /**
-     * Adds a tally contribution to one calculation point on the mesh.
+     * \brief Initializes MeshTally member variables representing the mesh data
+     * \return the MOAB ErrorCode value
      *
-     * @param mesh_point the calculation point on the mesh
-     * @param score the tally contribution to add
-     * @param ebin the energy bin for the tally contribution
+     * MeshTally variables set by this method include tally_points and
+     * tally_mesh_set.  The tally_points will be defined as the set of mesh
+     * nodes, whereas tally_mesh_set stores the set of all 3D mesh elements.
+     * This method also calls MeshTally::setup_tags() to set the tag names for
+     * the energy bins, and initializes tag handles for boundary correction.
      */
-    void add_score_to_tally( moab::EntityHandle mesh_point,
-                             double score,
-                             int ebin );
+    moab::ErrorCode initialize_mesh_data();
 
     /**
-     * Gets a unique set of all of the vertices that lie within the given box.
+     * \brief Adds the collision point to the running variance formula
+     * \param[in] collision_point the coordinates of the collision point
      *
-     * @param tree a KD-Tree containing all vertices
-     * @param tree_root the root of the KD-Tree
-     * @param box_min the minimum corner of the box
-     * @param box_max the maximum corner of the box
-     * @param points  the unique set of vertices in the box
-     * @return the MOAB ErrorCode value
+     * The update_variance() method updates mean and variance variables with
+     * the coordinates of the new collision point, which can then be used by
+     * get_optimal_bandwidth() to compute the optimal bandwidth vector.
      */
-    moab::ErrorCode points_in_box( moab::AdaptiveKDTree & tree,
-                                   moab::EntityHandle tree_root,
-                                   const double box_min[3],
-                                   const double box_max[3],
-                                   std::vector<moab::EntityHandle> & points );
+    void update_variance(const moab::CartVect& collision_point);
 
-    /// unimplemented 
-    KDEMeshTally( const KDEMeshTally & obj );
-    /// unimplemented
-    KDEMeshTally & operator=( const KDEMeshTally & obj );
+    /**
+     * \brief Computes the optimal bandwidth vector
+     * \return h_optimal = (hx_optimal, hy_optimal, hz_optimal)
+     *
+     * The get_optimal_bandwidth() method determines what the bandwidth should
+     * be to achieve good results using the Kernel Density Estimator.  For the
+     * 3D case it is defined globally by the following formula
+     *
+     *     h_optimal[i] = 0.968625 * stdev[i] * N^(-1.0/7.0)
+     *
+     * where stdev[i] is the standard deviation of the ith component of the
+     * collision point locations, and N is the number of collisions that have
+     * occurred.
+     *
+     * NOTE: stdev is calculated during runtime by calling update_variance()
+     * whenever a collision occurs.
+     */
+    moab::CartVect get_optimal_bandwidth() const;
+  
+    // >>> KDE ESTIMATOR METHODS
 
+    // Declare test fixture as friend for testing KDE estimator methods
+    friend class KDEMeshTallyTest;
+
+    // Defines common data needed for computing score for a calculation point
+    struct CalculationPoint
+    {
+        double coords[3];
+        int boundary_data[3];
+        double distance_data[3];
+    };
+
+    /**
+     * \class PathKernel
+     * \brief Defines the path length kernel function K(X, s)
+     */
+    class PathKernel : public Function
+    {
+      public:
+        /**
+         * \brief Constructor
+         * \param[in] tally the KDEMeshTally object using this path kernel
+         * \param[in] event the tally event containing the track segment data
+         * \param[in] X the calculation point
+         */
+        PathKernel(const KDEMeshTally& tally,
+                   const TallyEvent& event,
+                   const CalculationPoint& X)
+            : tally(tally), event(event), X(X) {}
+
+        /**
+         * \brief Evaluates the path length kernel function
+         * \param[in] s the path length for which to evaluate this function
+         * \return K(X, s)
+         */
+        double evaluate(double s) const;
+
+      private:
+        const KDEMeshTally& tally;
+        const TallyEvent& event;
+        const CalculationPoint& X;
+    };
+
+    /**
+     * \brief Computes value of the 3D kernel function K(x, y, z)
+     * \param[in] X the calculation point
+     * \param[in] observation the random observation point (Xi, Yi, Zi)
+     * \return K(x, y, z)
+     *
+     * Evaluates the general 3D kernel function for the given calculation and
+     * observation points.  Uses the bandwidth vector stored in this KDEMeshTally
+     * and adjusts for the boundary correction as needed.
+     */
+    double evaluate_kernel(const CalculationPoint& X,
+                           const moab::CartVect& observation) const;                    
+
+    /**
+     * \brief Computes tally score based on the integral-track estimator
+     * \param[in] X the calculation point
+     * \param[in] event the tally event containing the track segment data
+     * \return the tally score for the calculation point
+     *
+     * The integral_track_score() method computes the integral of the 3D
+     * path-length dependent kernel function K(X, s) with respect to path-
+     * length s for the given calculation point X, using the limits of
+     * integration as determined by the set_integral_limits() method.
+     */
+    double integral_track_score(const CalculationPoint& X,
+                                const TallyEvent& event) const;
+
+    /**
+     * \brief Determines integration limits for the integral-track estimator
+     * \param[in] event the tally event containing the track segment data
+     * \param[in] coords the (x, y, z) coordinates of the calculation point X
+     * \param[out] limits stores integration limits in form of pair<lower, upper>
+     * \return true if valid limits exist, false otherwise
+     *
+     * The set_integral_limits() method determines the integration limits for
+     * the integral of the 3D path-length dependent kernel function K(X, s)
+     * with respect to path-length s for the given calculation point X.
+     *
+     * NOTE: if this method returns false, that means there are no valid
+     * integration limits within the range from 0 to the total track length.
+     * This essentially means that the resulting integrand over this range
+     * would have been zero and the calculation point can be ignored.
+     */
+    bool set_integral_limits(const TallyEvent& event,
+                             const moab::CartVect& coords,
+                             std::pair<double, double>& limits) const;
+
+    /**
+     * \brief Computes tally score based on the sub-track estimator
+     * \param[in] X the calculation point
+     * \param[in] points the set of sub-track points needed for computing score
+     * \return the tally score for the calculation point
+     *
+     * The subtrack_score() method computes the average 3D kernel contribution
+     * for the number of sub-tracks requested for the given calculation point X,
+     * using the randomly chosen points along the track that were computed by
+     * the choose_points() method.
+     */
+    double subtrack_score(const CalculationPoint& X,
+                          const std::vector<moab::CartVect>& points) const;
+
+    /**
+     * \brief Chooses p random points along a track segment
+     * \param[in] p the number of random points requested
+     * \param[in] event the tally event containing the track segment data
+     * \return the vector of p random points
+     *
+     * The choose_points() method sub-divides the track segment into p
+     * sub-tracks of equal length and randomly chooses the coordinates of
+     * one point from each sub-track.
+     */
+    std::vector<moab::CartVect> choose_points(unsigned int p,
+                                              const TallyEvent& event) const;
 };
 
-#endif
+#endif // DAGMC_KDE_MESH_TALLY_HPP
+
+// end of MCNP5/dagmc/KDEMeshTally.hpp

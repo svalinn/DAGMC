@@ -1,150 +1,154 @@
-#ifndef DAGMC_MESHTALLY_H
-#define DAGMC_MESHTALLY_H
+// MCNP5/dagmc/MeshTally.hpp
+
+#ifndef DAGMC_MESH_TALLY_HPP
+#define DAGMC_MESH_TALLY_HPP
 
 #include <string>
-#include <map>
 #include <vector>
-
-#include <cassert>
 
 #include "moab/Range.hpp"
 
-/**
- * Data from the MCNP FMESH card and its associated dagmc FC card.
- */
-typedef struct {
-
-  /// The user-specified tally ID, i.e. the NN in the fmeshNN card.
-  int id; 
-  /// The index in the fortran 'fm' array, also used to index arrays in meshtal_funcs.cpp
-  int fmesh_index;
-
-  /// Pointer to array of energy bin boundaries, setup with emesh/eints keywords
-  /// These values live in fortran's memory and should not be modified from C
-  const double* energy_bin_bounds;
-  /// The length of energy_bin_boundaries
-  int num_ebin_bounds;
-  /// If true, an extra bin to tally all energy levels will be used
-  bool total_energy_bin;
-
-  /// Typedef for how to access FC card parameters; each key may have one or more values
-  typedef std::multimap<std::string,std::string> fc_params_t;
-
-  /// The params for this tally's FC card. 
-  fc_params_t fc_params;
-
-}  fmesh_card;
+#include "Tally.hpp"
 
 // forward declaration
-namespace moab{
+namespace moab {
   class Interface;
 }
 
+//===========================================================================//
 /**
- * MOAB-based mesh tally class
+ * \class MeshTally
+ * \brief Defines an abstract MeshTally interface
+ *
+ * MeshTally is an abstract class derived from Tally that defines all the
+ * variables and methods needed to implement a generic MeshTally for use in
+ * Monte Carlo particle transport codes.  All Derived classes must implement
+ * the following methods from Tally
+ *
+ *     1) compute_score(const TallyEvent& event)
+ *     2) write_data(double num_histories)
+ *
+ * In general, the default end_history() method that is implemented in Tally
+ * will also be sufficient for most MeshTally objects that use the TallyData
+ * structure for storing their data.  However, it can be extended or overridden
+ * as needed by Derived classes.
+ *
+ * ==================
+ * Input/Output Files
+ * ==================
+ *
+ * All MeshTally objects are REQUIRED to include "inp"="input_filename" as
+ * a TallyOption in the TallyInput struct defined in Tally.hpp and set through
+ * the TallyManager.  This input file contains all of the mesh data that is
+ * needed to compute the mesh tally scores.  It must be created in a file format
+ * that is supported by the Mesh-Oriented Database (MOAB), which includes both
+ * H5M and VTK options.  Source code and more information on MOAB can be found
+ * at https://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
+ *
+ * In addition to the "inp" key, all MeshTally objects can also include an
+ * optional "out"="output_filename" key-value pair.  If the "out" key is not
+ * included as a TallyOption, then the default is a H5M file format named
+ * meshtal<tally_id>.h5m.  To write to a different file format that is
+ * supported by MOAB, simply add the desired extension to the output filename
+ * (i.e. "out"="filename.vtk" will write results to the VTK format).
  */
-class MeshTally {
+//===========================================================================//
+class MeshTally : public Tally
+{
+  protected:
+    /**
+     * \brief Constructor
+     * \param[in] input user-defined input parameters for this mesh tally
+     */
+    explicit MeshTally(const TallyInput& input);
 
-protected:
+  public:
+    /**
+     * \brief Virtual destructor
+     */
+    virtual ~MeshTally(){}
 
+  protected:
+    /// Name of file to which the final tally results will be written
+    std::string output_filename;
 
-  MeshTally( const fmesh_card& input ):
-    fmesh(input)
-  {
-    ebins = fmesh.num_ebin_bounds;
-    if( !fmesh.total_energy_bin ){
-      ebins = fmesh.num_ebin_bounds - 1;
-    }
-    assert( ebins > 0 );
-  }
+    /// Name of file that contains the mesh description (separate from geometry)
+    std::string input_filename;
 
-public:
-  virtual ~MeshTally(){}
-  
-  /**
-   * Print / write results to the AMeshTally's output file.
-   * @param sp_norm The number of source particles, as reported from within mcnp's fortran code.
-   * @param fmesh_fact Multiplication factor from fmesh card.  
-   */
-  virtual void print( double sp_norm, double fmesh_fact) = 0;
+    /// Entity handle for the MOAB mesh data used for this mesh tally
+    moab::EntityHandle tally_mesh_set;
 
-  /**
-   * Updates tally information when the history of a particle ends.
-   */
-  virtual void end_history() = 0;
+    /// Set of tally points (cells, nodes, etc) for this mesh tally
+    moab::Range tally_points;
 
-  /**
-   * get_tally_data(), get_error_data(), get_scratch_data() : 
-   * These functions get pointer to tally data arrays, with length as output parameter.
-   * They are used to load and reload tally data by the runtpe and MPI functions.
-   * A subclass need not use these arrays to store its data, but unless it does,
-   * runtpe and MPI features will not work.  
-   */
+    /// Tag arrays for storing energy bin labels
+    std::vector<moab::Tag> tally_tags, error_tags;
 
-  virtual double* get_tally_data( int& length ){
-    length = tally_data.size();
-    return &(tally_data[0]);
-  }
+    // >>> PROTECTED METHODS
 
-  virtual double* get_error_data( int& length ){
-    length = error_data.size();
-    return &(error_data[0]);
-  }
+    /**
+     * \brief Determines entity index corresponding to tally point
+     * \param[in] tally_point entity handle representing tally point
+     * \return entity index for given tally point
+     */
+    unsigned int get_entity_index(moab::EntityHandle tally_point);
 
-  virtual double* get_scratch_data( int& length ){
-    length = temp_tally_data.size();
-    return &(temp_tally_data[0]);
-  }
+    /**
+     * \brief Loads the MOAB mesh data from the input file for this mesh tally
+     * \param[in] mbi the MOAB interface for this mesh tally
+     * \param[out] mesh_set entity handle for the mesh set that will be created
+     * \return the MOAB ErrorCode value
+     */
+    moab::ErrorCode load_moab_mesh(moab::Interface* mbi,
+                                   moab::EntityHandle& mesh_set);
 
-  virtual void zero_tally_data( ){
-    std::fill( tally_data.begin(), tally_data.end(), 0 );
-    std::fill( error_data.begin(), error_data.end(), 0 );
-    std::fill( temp_tally_data.begin(), temp_tally_data.end(), 0 );
-  }
+    /**
+     * \brief Defines the set of tally points to use for this mesh tally
+     * \param[in] mesh_elements the set of mesh elements to use as tally points
+     *
+     * Note that this method calls resize_data_arrays() to set the tally
+     * data arrays for the given number of tally points.
+     */
+    void set_tally_points(const moab::Range& mesh_elements);
 
-  int get_fmesh_index() { return fmesh.fmesh_index; }
+    /**
+     * \brief Reduces a MOAB mesh set to include only its 3D elements
+     * \param[in] mbi the MOAB interface for this mesh tally
+     * \param[in, out] mesh_set entity handle for the mesh set that will be reduced
+     * \param[out] mesh_elements stores 3D elements that were added to the mesh set
+     * \return the MOAB ErrorCode value
+     *
+     * NOTE: this method will overwrite the mesh set
+     */
+    moab::ErrorCode reduce_meshset_to_3D(moab::Interface* mbi,
+                                         moab::EntityHandle& mesh_set,
+                                         moab::Range& mesh_elements);
 
-protected:
-  /**
-   * Resize data storage arrays to hold a given number of points.
-   * Arrays will be resized to the given size * the number of energy bins
-   */
-  void resize_data_arrays( unsigned int size ){
-    tally_data.resize( size * ebins, 0 );
-    error_data.resize( size * ebins, 0 );
-    temp_tally_data.resize( size * ebins, 0 );
-  }
+    /**
+     * \brief Sets up tally value and error labels for all energy bins
+     * \param[in] mbi the MOAB interface for this mesh tally
+     * \param[in] prefix additional string to be added before each label
+     * \return the MOAB ErrorCode value
+     *
+     * Note that labels are stored as MOAB tag handles in the tally_tags
+     * and error_tags arrays.
+     */
+    moab::ErrorCode setup_tags(moab::Interface* mbi, const char* prefix="");
 
-  unsigned int ent_idx( moab::EntityHandle eh ){
-    
-    unsigned int ret = tally_ents.index( eh );
-    assert( ret < tally_ents.size() );
-    return ret;
-
-  }
-
-  double& data_ref( std::vector<double>& data, moab::EntityHandle eh, unsigned ebin = 0){
-    assert( ebin < ebins );
-    return data[ ent_idx(eh)*ebins + ebin ];
-  }
-
-  moab::ErrorCode setup_tags( moab::Interface* mbi, const char* prefix="" );
-
-  /// User's MCNP input parameters for this mesh tally
-  fmesh_card fmesh;
-
-  /// data arrays
-  std::vector<double> tally_data, error_data, temp_tally_data;
-
-  /// actual number of energy bins implemented in the data arrays
-  unsigned ebins; 
-
-  /// entities on which to compute tally
-  moab::Range tally_ents;
-
-  /// Tag arrays
-  std::vector< moab::Tag > tally_tags, error_tags; 
-
+    /**
+     * \brief Adds weight * score to the mesh tally for the tally point
+     * \param[in] tally_point entity handle representing tally point
+     * \param[in] weight the multiplier value for the score to be tallied
+     * \param[in] score the score that is to be tallied
+     * \param[in] ebin the energy bin index corresponding to the energy
+     *
+     * The weight and ebin can be obtained using Tally::get_score_multiplier
+     * and Tally::get_energy_bin respectively.
+     */
+    void add_score_to_mesh_tally(const moab::EntityHandle& tally_point, 
+                                 double weight, double score, unsigned int ebin);
 };
 
-#endif /* DAGMC_MESHTALLY_H */
+#endif // DAGMC_MESHTALLY_HPP
+
+// end of MCNP5/dagmc/MeshTally.hpp
