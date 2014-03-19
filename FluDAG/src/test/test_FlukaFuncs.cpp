@@ -88,7 +88,7 @@ class FluDAGTest : public ::testing::Test
 
     double retStep;
     int    newReg;
-
+    double safety;
     double dir_norm;
 };
 
@@ -150,7 +150,7 @@ TEST_F(FluDAGTest, GFireBadPropStep)
   oldReg   = 2;
   point[2] = 5.0;
   dir[2]   = 1.0;
-  double safety = 0.0;
+  safety = 0.0;
 
   g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(0.0, retStep);
@@ -164,7 +164,7 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   point[2] = 5.0;
   // Set prepStep to something more realistic than 0.0 
   propStep = 1e38;
-  double safety = 0.0;
+  safety = 0.0;
   
   // +z direction
   dir[2]   = 1.0;
@@ -247,7 +247,7 @@ TEST_F(FluDAGTest, LostParticleDeathTest)
   point[2] = 5.0;
   // Set prepStep to something more realistic than 0.0 
   propStep = 1e38;
-  double safety = 0.0;
+  safety = 0.0;
   
   // ++-
   // Lost Particle!
