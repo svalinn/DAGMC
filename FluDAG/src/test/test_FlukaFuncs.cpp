@@ -150,8 +150,9 @@ TEST_F(FluDAGTest, GFireBadPropStep)
   oldReg   = 2;
   point[2] = 5.0;
   dir[2]   = 1.0;
-  
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  safety = 0.0;
+
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(0.0, retStep);
 }
 //---------------------------------------------------------------------------//
@@ -163,41 +164,42 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   point[2] = 5.0;
   // Set prepStep to something more realistic than 0.0 
   propStep = 1e38;
+  safety = 0.0;
   
   // +z direction
   dir[2]   = 1.0;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   std::cout << "newReg is " << newReg << std::endl;
   // Start in middle of 10x10x10 cube, expect 10/2 to be dist. to next surface
   EXPECT_EQ(5.0, retStep);
   // -z direction
   dir[2] = -dir[2];
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(5.0, retStep);
   // +y direction
   dir[2] = 0.0;
   dir[1] = 1.0;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(5.0, retStep);
   // -y direction
   dir[1] = -dir[1];
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(5.0, retStep);
   // +x direction
   dir[1] = 0.0;
   dir[0] = 1.0;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(5.0, retStep);
   // -x direction
   dir[0] = -dir[0];
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(5.0, retStep);
 
   // +++
   dir[0] = +dir_norm;
   dir[1] = +dir_norm;
   dir[2] = +dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_NEAR(8.660254, retStep, 1e-6);
 
   // ++-
@@ -207,7 +209,7 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   dir[0] = +dir_norm;
   dir[1] = -dir_norm;
   dir[2] = +dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_NEAR(8.660254, retStep, 1e-6);
 
   // +--
@@ -217,7 +219,7 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   dir[0] = -dir_norm;
   dir[1] = +dir_norm;
   dir[2] = +dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_DOUBLE_EQ(5.0/dir_norm, retStep);
 
   // -+-
@@ -227,7 +229,7 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   dir[0] = -dir_norm;
   dir[1] = -dir_norm;
   dir[2] = +dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_DOUBLE_EQ(5.0/dir_norm, retStep);
 
   // ---
@@ -245,37 +247,38 @@ TEST_F(FluDAGTest, LostParticleDeathTest)
   point[2] = 5.0;
   // Set prepStep to something more realistic than 0.0 
   propStep = 1e38;
+  safety = 0.0;
   
   // ++-
   // Lost Particle!
   dir[0] = +dir_norm;
   dir[1] = +dir_norm;
   dir[2] = -dir_norm;
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
+  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, safety, newReg), ::testing::ExitedWithCode(0), "");
 
   // +--
   // Lost Particle!
   dir[0] = +dir_norm;
   dir[1] = -dir_norm;
   dir[2] = -dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
+  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, safety, newReg), ::testing::ExitedWithCode(0), "");
 
   // -+-
   // Lost Particle!
   dir[0] = -dir_norm;
   dir[1] = +dir_norm;
   dir[2] = -dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
+  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, safety, newReg), ::testing::ExitedWithCode(0), "");
 
   // ---
   // Lost Particle!
   dir[0] = -dir_norm;
   dir[1] = -dir_norm;
   dir[2] = -dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
+  g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
+  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, safety, newReg), ::testing::ExitedWithCode(0), "");
 }
 
 //---------------------------------------------------------------------------//
