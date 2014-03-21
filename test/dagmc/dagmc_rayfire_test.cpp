@@ -114,9 +114,15 @@ void dagmc_outside_face_rayfire_history_fail()
   EntityHandle next_surf;
 
   history.reset(); 
+
+  // ray fired exactly along boundary shared by 2 facets on a single surface,
+  // needs to ray_fires to cross, this is expected and ok
+
   // first ray fire with history
   ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist,&history,0,1);
   // second ray fire with history
+  rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
+  // this fire should hit graveyard, i.e. next_surf = 0
   rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
 
   // using history with this geom, there should be no next surface, i.e. 0
@@ -145,17 +151,12 @@ void dagmc_outside_face_rayfire_history()
   xyz[1]=origin[1]+(next_surf_dist*dir[1]);
   xyz[2]=origin[2]+(next_surf_dist*dir[2]);
 
-  rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
-  std::cout << next_surf << " " << history.size() << std::endl;
-  //  std::cout << next_surf << std::endl;
-
-  //  std::cout << next_surf_dist << std::endl;
+  // ray fired execacyl
 
   rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
-  std::cout << next_surf << " " << history.size() << std::endl;
-  //  std::cout << next_surf << std::endl;
 
-  //  std::cout << next_surf_dist << std::endl;
+  rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
+
 
   // using history with this geom, there should be no next surface, i.e. 0
   EntityHandle ZERO = 0;
