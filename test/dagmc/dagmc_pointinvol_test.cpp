@@ -36,393 +36,222 @@ void dagmc_setup_test()
 
   int num_vols = DAG->num_entities(3); 
   EntityHandle vol;
-  EntityHandle volume = 12682136550675316765;
   for ( int i = 0 ; i < num_vols ; i++ )
     {
       vol = DAG->entity_by_index(3,i);
     }
-  CHECK_EQUAL(volume,vol);
+  //EntityHandle volume = 12682136550675316765;
+  //CHECK_EQUAL(volume,vol);
 }
 
 void dagmc_point_in()
 {
   int result = 0;
+  int expected_result=1;
   double xyz[3]={0.0,0.0,0.0};
-  EntityHandle volume = 12682136550675316765;
-  ErrorCode rval = DAG->point_in_volume(volume,xyz,result);
-  CHECK_EQUAL(1,result);
+  int vol_idx=1;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
+  ErrorCode rval = DAG->point_in_volume(vol_h,xyz,result);
+  CHECK_ERR(rval);
+  CHECK_EQUAL(expected_result,result);
+}
+
+int dagmc_point_in_vol_dir(double origin[3],double dir[3],int vol_idx)
+{
+  int result = 0;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
+  double xyz[3];
+  double next_surf_dist;
+  EntityHandle next_surf;
+
+  // normalise the vector
+  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+
+  dir[0]=dir[0]/sqrt(dir_norm);
+  dir[1]=dir[1]/sqrt(dir_norm);
+  dir[2]=dir[2]/sqrt(dir_norm);
+
+  ErrorCode rval = DAG->ray_fire(vol_h,origin,dir,next_surf,next_surf_dist);
+  
+  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
+  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
+  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
+
+  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+
+  rval = DAG->point_in_volume(vol_h,xyz,result,dir);
+  CHECK_ERR(rval);
+  return result;
 }
 
 void dagmc_point_in_vol_1()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
-  double dir[3]={-1.0,0.0,0.0};
+  double dir[3]={ -1.0,0.0,0.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
+  int vol_idx=1;
+  int expected_result=1;
 
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
+  CHECK_EQUAL(expected_result,result);
 
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
 }
 
 void dagmc_point_in_vol_2()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result=1;
+  int vol_idx=1;
   double dir[3]={ 1.0,0.0,0.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
   
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_in_vol_3()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result=1;
+  int vol_idx=1;
   double dir[3]={ 0.0,-1.0,0.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
 
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_in_vol_4()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result=1;
+  int vol_idx=1;
   double dir[3]={ 0.0,1.0,0.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
 
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
+
 }
   
 void dagmc_point_in_vol_5()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result=1;
+  int vol_idx=1;
   double dir[3]={ 0.0,0.0,-1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
 
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_in_vol_6()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result=1;
+  int vol_idx=1;
   double dir[3]={ 0.0,0.0,1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
 
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
+
 }
 
 void dagmc_point_on_corner_1()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result=1;
+  int vol_idx=1;
   double dir[3]={ 1.0,1.0,1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_on_corner_2()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result=1;
+  int vol_idx=1;
   double dir[3]={ -1.0,1.0,1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_on_corner_3()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result = 1;
+  int vol_idx=1;
   double dir[3]={ 1.0,1.0,-1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_on_corner_4()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result = 1;
+  int vol_idx=1;
   double dir[3]={ -1.0,1.0,-1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_on_corner_5()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result = 1;
+  int vol_idx=1;
   double dir[3]={ 1.0,-1.0,1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_on_corner_6()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result = 1;
+  int vol_idx=1;
   double dir[3]={ -1.0,-1.0,1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_on_corner_7()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result = 1;
+  int vol_idx=1;
   double dir[3]={ 1.0,-1.0,-1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 void dagmc_point_on_corner_8()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int expected_result = 1;
+  int vol_idx=1;
   double dir[3]={ -1.0,-1.0,-1.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
-  double next_surf_dist;
-  EntityHandle next_surf;
 
-  // normalise the vector
-  double dir_norm = (dir[0]*dir[0])+(dir[1]*dir[1])+(dir[2]*dir[2]);
+  int result = dagmc_point_in_vol_dir(origin,dir,vol_idx);
 
-  dir[0]=dir[0]/sqrt(dir_norm);
-  dir[1]=dir[1]/sqrt(dir_norm);
-  dir[2]=dir[2]/sqrt(dir_norm);
-
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  
-  xyz[0]=origin[0]+(next_surf_dist*dir[0]);
-  xyz[1]=origin[1]+(next_surf_dist*dir[1]);
-  xyz[2]=origin[2]+(next_surf_dist*dir[2]);
-
-  std::cout << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
-
-  rval = DAG->point_in_volume(volume,xyz,result,dir);
-  CHECK_ERR(rval);
-  CHECK_EQUAL(1,result);
+  CHECK_EQUAL(expected_result,result);
 }
 
 int main(int /* argc */, char** /* argv */)

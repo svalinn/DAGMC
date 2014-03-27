@@ -36,77 +36,77 @@ void dagmc_setup_test()
   CHECK_ERR(rval);
 
   int num_vols = DAG->num_entities(3); 
-  EntityHandle vol;
-  EntityHandle volume = 12682136550675316765;
+  EntityHandle vol_h;
   for ( int i = 0 ; i < num_vols ; i++ )
     {
-      vol = DAG->entity_by_index(3,i);
+      vol_h = DAG->entity_by_index(3,i);
     }
-  CHECK_EQUAL(volume,vol);
+  // EntityHandle volume = 12682136550675316765;
+  // CHECK_EQUAL(volume,vol);
 }
 
 void dagmc_origin_face_rayfire()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int vol_idx = 1;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
   double dir[3]={-1.0,0.0,0.0};
   double origin[3]={0.0,0.0,0.0};
-  double xyz[3];
   double next_surf_dist;
   EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
-  CHECK_REAL_EQUAL(5.0,next_surf_dist,eps);
+  DAG->ray_fire(vol_h,origin,dir,next_surf,next_surf_dist);
+  double expected_next_surf_dist=5.0;
+  CHECK_REAL_EQUAL(expected_next_surf_dist,next_surf_dist,eps);
 }
 
 void dagmc_outside_face_rayfire()
 {
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int vol_idx = 1;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
   double dir[3]={1.0,0.0,0.0}; // ray along x direction
   double origin[3]={-10.0,0.0,0.0}; // origin at -10 0 0 
-  double xyz[3];
   double next_surf_dist;
   EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist);
+  DAG->ray_fire(vol_h,origin,dir,next_surf,next_surf_dist);
   std::cout << next_surf_dist << std::endl;
-  CHECK_REAL_EQUAL(15.0,next_surf_dist,eps);
+  double expected_next_surf_dist=15.0;
+  CHECK_REAL_EQUAL(expected_next_surf_dist,next_surf_dist,eps);
 }
 
 void dagmc_outside_face_rayfire_orient_exit()
 {
   DagMC::RayHistory history;
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int vol_idx = 1;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
   double dir[3]={1.0,0.0,0.0}; // ray along x direction
   double origin[3]={-10.0,0.0,0.0}; // origin at -10 0 0 
-  double xyz[3];
   double next_surf_dist;
   EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist,&history,0,1);
+  DAG->ray_fire(vol_h,origin,dir,next_surf,next_surf_dist,&history,0,1);
   std::cout << next_surf_dist << std::endl;
-  CHECK_REAL_EQUAL(15.0,next_surf_dist,eps);
+  double expected_next_surf_dist=15.0;
+  CHECK_REAL_EQUAL(expected_next_surf_dist,next_surf_dist,eps);
 }
 
 void dagmc_outside_face_rayfire_orient_entrance()
 {
   DagMC::RayHistory history;
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int vol_idx = 1;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
   double dir[3]={1.0,0.0,0.0}; // ray along x direction
   double origin[3]={-10.0,0.0,0.0}; // origin at -10 0 0 
-  double xyz[3];
   double next_surf_dist;
   EntityHandle next_surf;
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist,&history,0.0,-1);
+  DAG->ray_fire(vol_h,origin,dir,next_surf,next_surf_dist,&history,0.0,-1);
   std::cout << next_surf_dist << std::endl;
-  CHECK_REAL_EQUAL(5.0,next_surf_dist,eps);
+  double expected_next_surf_dist=5.0;
+  CHECK_REAL_EQUAL(expected_next_surf_dist,next_surf_dist,eps);
 }
 
 void dagmc_outside_face_rayfire_history_fail()
 {
   DagMC::RayHistory history;
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int vol_idx = 1;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
   double dir[3]={1.0,0.0,0.0}; // ray along x direction
   double origin[3]={-10.0,0.0,0.0}; // origin at -10 0 0 
   double xyz[3];
@@ -116,14 +116,14 @@ void dagmc_outside_face_rayfire_history_fail()
   history.reset(); 
 
   // ray fired exactly along boundary shared by 2 facets on a single surface,
-  // needs to ray_fires to cross, this is expected and ok
+  // needs two ray_fires to cross, this is expected and ok
 
   // first ray fire with history
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist,&history,0,1);
+  DAG->ray_fire(vol_h,origin,dir,next_surf,next_surf_dist,&history,0,1);
   // second ray fire with history
-  rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
+  DAG->ray_fire(vol_h,xyz,dir,next_surf,next_surf_dist,&history,0,1);
   // this fire should hit graveyard, i.e. next_surf = 0
-  rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
+  DAG->ray_fire(vol_h,xyz,dir,next_surf,next_surf_dist,&history,0,1);
 
   // using history with this geom, there should be no next surface, i.e. 0
   EntityHandle ZERO = 0;
@@ -133,8 +133,8 @@ void dagmc_outside_face_rayfire_history_fail()
 void dagmc_outside_face_rayfire_history()
 {
   DagMC::RayHistory history;
-  int result = 0;
-  EntityHandle volume = 12682136550675316765;
+  int vol_idx = 1;
+  EntityHandle vol_h = DAG->entity_by_index(3,vol_idx);
   double dir[3]={1.0,0.0,0.0}; // ray along x direction
   double origin[3]={-10.0,0.0,0.0}; // origin at -10 0 0 
   double xyz[3];
@@ -143,7 +143,7 @@ void dagmc_outside_face_rayfire_history()
 
   history.reset(); 
   // first ray fire with history
-  ErrorCode rval = DAG->ray_fire(volume,origin,dir,next_surf,next_surf_dist,&history,0,1);
+  DAG->ray_fire(vol_h,origin,dir,next_surf,next_surf_dist,&history,0,1);
   std::cout << next_surf << " " << history.size() << std::endl;
   // second ray fire with history
 
@@ -153,9 +153,9 @@ void dagmc_outside_face_rayfire_history()
 
   // ray fired execacyl
 
-  rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
+  DAG->ray_fire(vol_h,xyz,dir,next_surf,next_surf_dist,&history,0,1);
 
-  rval = DAG->ray_fire(volume,xyz,dir,next_surf,next_surf_dist,&history,0,1);
+  DAG->ray_fire(vol_h,xyz,dir,next_surf,next_surf_dist,&history,0,1);
 
 
   // using history with this geom, there should be no next surface, i.e. 0
