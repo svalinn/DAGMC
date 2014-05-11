@@ -7,5 +7,7 @@
 ######################################################################
 
 # Add in directories in layering order, lowest to highest
-# add_subdirectory()
+set(SCI_INDENT "${SCI_INDENT}  ")
+message(STATUS "${SCI_INDENT}Adding dagsolid subdir.")
+add_subdirectory(dagsolid)
 

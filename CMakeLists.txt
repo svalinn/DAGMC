@@ -25,12 +25,15 @@ cmake_minimum_required(VERSION 2.8)
 #
 ######################################################################
 
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/scimake)
-  message(STATUS "${CMAKE_CURRENT_SOURCE_DIR}/scimake found.  Update needed?")
+if (EXISTS ${PROJECT_SOURCE_DIR}/scimake)
+  message(STATUS "${PROJECT_SOURCE_DIR}/scimake found.  Update needed?")
 else ()
   execute_process(COMMAND svn co https://svn.code.sf.net/p/scimake/code/trunk scimake
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   )
+endif ()
+if (NOT EXISTS ${PROJECT_SOURCE_DIR}/scimake)
+  message(FATAL_ERROR "scimake not found.")
 endif ()
 
 ######################################################################
@@ -40,17 +43,15 @@ endif ()
 #
 ######################################################################
 
-if (FALSE)
 set(NOFORTRAN TRUE)
 set(NO_CONFIG_H TRUE)
 include(${PROJECT_SOURCE_DIR}/scimake/SciInit.cmake)
 include_directories(${SCIMAKE_DIR}/include)
-set(CTK_VERSION "${VERSION}-${PROJECT_REV}")
+set(DAGMC_VERSION "${VERSION}-${PROJECT_REV}")
 install(CODE "message(STATUS \"Installing into \${CMAKE_INSTALL_PREFIX}.\")")
-include(${PROJECT_SOURCE_DIR}/txcmake/TxInit.cmake)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "4.4")
-  # Only works on gcc > 4.4
+# Only works on gcc > 4.4
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=return-type")
 endif()
 
@@ -81,105 +82,34 @@ endif ()
 # Add the automatically determined parts of the RPATH that
 # point to directories outside the build tree to the install RPATH
 
-######################################################################
-#
-# Find packages and set includes
-# For libraries that are used for ALL builds
-#
-######################################################################
-
-# To find the right installations
-set(USE_CC4PY_LIBS TRUE)
-
-# Find Qt
-set(QT_REQUIRED_LIBRARIES
-  QtCore QtGui QtOpenGL QtXml QtXmlPatterns QtNetwork QtWebKit
-)
-find_package(SciQt4 COMPONENTS ${QT_REQUIRED_LIBRARIES} REQUIRED)
-include(SciFindQtPkg)
-# SciFindQtPkg(PACKAGE Qt3D HEADERS qglview.h LIBRARIES Qt3D)
-find_package(SciPythonLibs REQUIRED)
-
-######################################################################
-#
-# Find visit related packages
-#
-######################################################################
-
-SciGetInstSubdirs(visit4ctk instDirs)
-set(VisIt_INSTALL_DIRS ${instDirs})
-find_package(SciVisIt REQUIRED)
-
-set(Vtk_INSTALL_DIRS vtk4ctk-cc4py vtk4ctk-sersh vtk4ctk)
-find_package(SciVtk REQUIRED)
-
-# Add VTK headers to the build
-include_directories(${Vtk_INCLUDE_DIRS})
-
 ###################################################
 #
-# For remote operations
+# Common packages
 #
 ###################################################
 
-#if (ENABLE_REMOTE)
-# Make sure we always find the shared installations.
-find_package(TxSsh  REQUIRED)
-find_package(SciLibssh REQUIRED)
-#endif ()
-
-find_package(TxGml)
-if (TXGML_FOUND)
-  add_definitions(${TxGml_DEFINITIONS})
-  find_package(SciOce COMPONENTS XdeIges XdeStep Xde Mesh Step Stl REQUIRED)
-  include(SciFindQtPkg)
-  SciFindQtPkg(PACKAGE Qt3D HEADERS qglview.h LIBRARIES Qt3D)
-  find_package(TxUtils REQUIRED)
-  include_directories(
-    ${TxGml_INCLUDE_DIRS}
-    ${Oce_INCLUDE_DIRS}
-    ${QT_QT3D_INCLUDE_DIRS}
-    ${TxUtils_INCLUDE_DIRS}
-  )
-endif ()
-
-# Licensing
-include(${PROJECT_SOURCE_DIR}/txcmake/TxEnableSecurity.cmake)
-
-###################################################
-#
-# Boost and compression
-#
-###################################################
-
-# Boost needed on windows, zlib is not
-find_package(SciBoost REQUIRED thread chrono system)
-find_package(SciSz)
-find_package(SciZ REQUIRED)
-
-###################################################
-#
-# For basic capabilities
-#
-###################################################
-
-find_package(SciTxBase REQUIRED)
 find_package(SciHdf5 REQUIRED)
+find_package(SciBoost REQUIRED thread chrono system)
 
 ###################################################
 #
-# Code subdirectories that depend on finding something.
+# Packages specific to geometry and monte carlo
 #
 ###################################################
 
-message(STATUS "Adding src subdirectory.")
-add_subdirectory(src)
-message(STATUS "Adding ctkqt subdirectory.")
-add_subdirectory(ctkqt)
-message(STATUS "Adding resources subdirectory.")
-add_subdirectory(resources)
-message(STATUS "Adding ctkscripts subdirectory.")
-add_subdirectory(ctkscripts)
+find_package(SciMoab REQUIRED)
+find_package(SciGeant4 REQUIRED)
+
+###################################################
+#
+# Add subdirectories
+#
+###################################################
+
+message("")
+set(SCI_INDENT "")
+message(STATUS "Adding Geant4 subdir.")
+add_subdirectory(Geant4)
 
 ###################################################
 #
@@ -189,10 +119,9 @@ add_subdirectory(ctkscripts)
 
 find_package(SciDoxygen)
 if (${DOXYGEN_FOUND})
-  message(STATUS "Adding ctkdevdocs subdirectory.")
-  add_subdirectory(ctkdevdocs)
+  message(STATUS "Doxygen found.")
 else ()
-  message(WARNING "Doxygen not found. Not adding ctkdevdocs sub directory")
+  message(WARNING "Doxygen not found.")
 endif ()
 
 ###################################################
@@ -212,38 +141,17 @@ enable_testing()
 #
 ######################################################################
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CtkConfig.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/CtkConfig.h)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CtkVersion.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/CtkVersion.h)
-
-######################################################################
-#
-# Installations at this level
-#
-######################################################################
-
-if (EXISTS ${PROJECT_SOURCE_DIR}/svninfo.txt)
-  install(FILES svninfo.txt DESTINATION share)
-  message(STATUS "--- svninfo.txt found. Will be installed")
-else ()
-  message(STATUS "--- svninfo.txt NOT found. Skipping install")
-endif ()
-
+if (FALSE)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/DagMcConfig.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/DagMcConfig.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/DagMcVersion.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/DagMcVersion.h)
 install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/CMakeCache.txt
-  DESTINATION share
-)
-
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/CtkVersion.h
-  ${CMAKE_CURRENT_BINARY_DIR}/CtkConfig.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/CtkConfig.h.in  # For configuration by composers
+  ${CMAKE_CURRENT_BINARY_DIR}/DagMcVersion.h
+  ${CMAKE_CURRENT_BINARY_DIR}/DagMcConfig.h
   DESTINATION include
 )
-
-# Install the entire resources directory
-install(DIRECTORY resources DESTINATION . PATTERN ".svn" EXCLUDE)
+endif ()
 
 ######################################################################
 #
@@ -256,16 +164,14 @@ set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH}-r${PROJECT_REV})
 
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Tech-X ComposerToolkit Library")
-set(CPACK_PACKAGE_VENDOR "Tech-X Corporation")
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.txt)
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "ctk-${VERSION}-r${PROJECT_REV}"
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "DagMc Library")
+set(CPACK_PACKAGE_VENDOR "No Vendor")
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.rst)
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "dagmc-${VERSION}-r${PROJECT_REV}"
     CACHE INTERNAL "tarball basename")
 set(CPACK_SOURCE_GENERATOR TGZ)
 set(CPACK_SOURCE_IGNORE_FILES
 "/CVS/;/.svn/;.swp$;.#;/#;/build/;/serial/;/parallel/;~$;/autom4te.cache/;/.config;preconfig.out")
 set(CPACK_GENERATOR TGZ)
 include(CPack)
-
-endif ()
 
