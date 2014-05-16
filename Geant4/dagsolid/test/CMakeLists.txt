@@ -72,6 +72,8 @@ set(LIBS
   ${Moab_dagmc_LIBRARY}
   ${Moab_MOAB_LIBRARY}  # Is there a circular dependency in MOAB?
   ${geant_libs}
+  ${Hdf5_hdf5_hl_LIBRARY}
+  ${Hdf5_hdf5_LIBRARY}
   pthread
 )
 
