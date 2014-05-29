@@ -18,6 +18,10 @@
 #include "DagMC.hpp"
 #include "moab/Types.hpp"
 
+#include "material.h"
+#include "nucname.h"
+#include "data.h"
+
 using moab::DagMC;
 
 #include <iomanip>
@@ -748,6 +752,9 @@ void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
   MBErrorCode ret;
   MBEntityHandle entity = 0;
   int id;
+
+  //////////  Test pyne lib
+  pyne::Material pyneMaterial;
 
   std::vector< std::string > keywords;
   ret = DAG->detect_available_props( keywords );
