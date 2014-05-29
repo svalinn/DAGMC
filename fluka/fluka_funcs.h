@@ -11,9 +11,11 @@
 #include "MBCartVect.hpp"
 #include "DagMC.hpp"
 
+/*
 #ifdef __cplusplus
 extern "C" {
 #endif
+*/
 
 /* 
  * This signature is intended to be called from a c++ function.  
@@ -23,18 +25,42 @@ extern "C" {
  * 
  * 14 Feb 2013  jcz added boolean running_with_fluka, which prepends "../" to the file name
  */
+  /*
   void cpp_dagmcinit(const std::string infile, 
                 int parallel_file_mode, // parallel read mode
                 int max_pbl);
+		*/
 
-  void slow_check(double pos[3], const double dir[3], int &oldReg);
+class FluDAG
+{
+   public:
+    /**
+      * \brief Constructor
+      * \param[in] matfile 
+      */
+    FluDAG(std::string matfile);
+
+  // >>> PUBLIC INTERFACE
+    void fludag_setup();
+  /*
+   * Write the material assignment for each volume to a file named matfile
+   */
+    void fludagwrite_assignma(std::string matfile);
+
+  private:
+    std::string output_file;
+    // Defined but not called
+    void slow_check(double pos[3], const double dir[3], int &oldReg);
+
+    unsigned int num_vols;
+
   // check we are where we say we are
-  MBEntityHandle check_reg(MBEntityHandle volume, double point[3], double dir[3]); 
+  // MBEntityHandle check_reg(MBEntityHandle volume, double point[3], double dir[3]); 
 
   /* get the sense of a region with respect to the global next_surf,
    * which is set by a call to rayfire
   */
-  int getSense(int region);
+  // int getSense(int region);
   /*
    * Prepare a descriptive string that creates the properties of the volume whose index is index
    */
@@ -46,6 +72,7 @@ extern "C" {
 #ifdef __cplusplus
 } // extern "C"
 #endif
+*/
 
 
 ///////////////////////////////////////////////////////////////////

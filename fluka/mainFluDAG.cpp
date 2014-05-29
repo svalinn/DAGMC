@@ -95,12 +95,14 @@ int main(int argc, char* argv[])
 
   seconds = difftime(time_after,time_before);
   std::cout << "Time to initialise the geometry" << seconds << std::endl;
-
+  // FluDAG* Fludag;
   // if fluka preprocess run then create mat file to paste into input deck
   if (!flukarun)
     {
       std::string lcad = "mat.inp";
-      fludagwrite_assignma(lcad);
+      FluDAG* Fludag = new FluDAG(lcad);
+      Fludag->fludag_setup();
+      Fludag->fludagwrite_assignma(lcad);
       std::cout << "Producing material snippets" << std::endl;
       std::cout << "please paste these into your input deck" << std::endl;
     }

@@ -467,9 +467,10 @@ int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
 }
 //---------------------------------------------------------------------------//
 // slow_check(..)
+// Not CALLED
 //---------------------------------------------------------------------------//
 // Helper function
-void slow_check(double pos[3], const double dir[3], int &oldReg)
+void FluDAG::slow_check(double pos[3], const double dir[3], int &oldReg)
 {
   std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
   std::cout << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
@@ -725,42 +726,32 @@ static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& p
 
 }
 
+
 //---------------------------------------------------------------------------//
-// fludagwrite_assignma
+// FluDAG Class Functions
 //---------------------------------------------------------------------------//
-/// Called from mainFludag when only one argument is given to the program.
-//  This function writes out a simple numerical material assignment to the named argument file
-//  Example usage:  mainFludag dagmc.html
-//  Outputs
-//           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
-//                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
-//                    The string after "M_" is considered to be the material for that volume.
-//                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
-//                    For the remaining materials, there is one MATERIAL card apiece (no dups)
-//                    User-named (not predefined) materials are TRUNCATED to 8 chars.
-//                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
-//           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
-//  Note that a preprocessing step to this call sets up the the DAG object that contains 
-//  all the geometry information contained in dagmc.html.  
-//  the name of the (currently hardcoded) output file is "mat.inp"
-//  The graveyard is assumed to be the last region.
-void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
+// CONSTRUCTOR
+//---------------------------------------------------------------------------//
+FluDAG::FluDAG(std::string matfile)
 {
-  int num_vols = DAG->num_entities(3);
+  output_file = matfile; 
+}
+//---------------------------------------------------------------------------//
+// PUBLIC INTERFACe
+//---------------------------------------------------------------------------//
+void FluDAG::fludag_setup()
+{
+  num_vols = DAG->num_entities(3);
+  int id;
+
   std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
   std::cout << "\tnum_vols is " << num_vols << std::endl;
   MBErrorCode ret;
-  MBEntityHandle entity = 0;
-  int id;
-
-  //////////  Test pyne lib
-  pyne::Material pyneMaterial;
 
   std::vector< std::string > keywords;
   ret = DAG->detect_available_props( keywords );
   // parse data from geometry so that property can be found
   ret = DAG->parse_properties( keywords );
-
   if (MB_SUCCESS != ret) 
   {
     std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
@@ -784,6 +775,67 @@ void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
       }
   }
 
+}
+//---------------------------------------------------------------------------//
+// fludagwrite_assignma
+//---------------------------------------------------------------------------//
+/// Called from mainFludag when only one argument is given to the program.
+//  This function writes out a simple numerical material assignment to the named argument file
+//  Example usage:  mainFludag dagmc.html
+//  Outputs
+//           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
+//                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
+//                    The string after "M_" is considered to be the material for that volume.
+//                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
+//                    For the remaining materials, there is one MATERIAL card apiece (no dups)
+//                    User-named (not predefined) materials are TRUNCATED to 8 chars.
+//                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
+//           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
+//  Note that a preprocessing step to this call sets up the the DAG object that contains 
+//  all the geometry information contained in dagmc.html.  
+//  the name of the (currently hardcoded) output file is "mat.inp"
+//  The graveyard is assumed to be the last region.
+void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
+{
+  /*
+  int num_vols = DAG->num_entities(3);
+  std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+  std::cout << "\tnum_vols is " << num_vols << std::endl;
+  MBErrorCode ret;
+  MBEntityHandle entity = 0;
+
+  std::vector< std::string > keywords;
+  ret = DAG->detect_available_props( keywords );
+  // parse data from geometry so that property can be found
+  ret = DAG->parse_properties( keywords );
+  if (MB_SUCCESS != ret) 
+  {
+    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
+    exit(EXIT_FAILURE);
+  }
+  // Preprocessing loop:  make a string, "props",  for each vol entity
+  // This loop could be removed if the user doesn't care to see terminal output
+  std::cout << "Property list: " << std::endl;
+  for (unsigned i=1; i<=num_vols; i++)
+  {
+     
+      std::string props = mat_property_string(i, keywords);
+      id = DAG->id_by_index(3, i);
+      if (props.length()) 
+      {
+         std::cout << "Vol " << i << ", id=" << id << ": parsed props: " << props << std::endl; 
+      }
+      else
+      {
+         std::cout << "Vol " << i << ", id=" << id << " has no props: " <<  std::endl; 
+      }
+  }
+ */
+  MBEntityHandle entity = 0;
+  int id;
+  //////////  Test pyne lib
+  pyne::Material pyneMaterial;
+
   // Open an outputstring for mat.inp
   std::ostringstream ostr;
   // Open an outputstring for index-id table and put a header in it
@@ -791,7 +843,7 @@ void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
   idstr << std::setw(5) <<  "Index" ;
   idstr << std::setw(5) <<  "   Id" << std::endl;
 
-  // Prepare a list to contain unique materials not in Flulka's list
+  // Prepare a list to contain unique materials not in Fluka's list
   std::list<std::string> uniqueMatList;
 
   // Loop through 3d entities.  In model_complete.h5m there are 90 vols
@@ -803,6 +855,8 @@ void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
       vals.clear();
       entity = DAG->entity_by_index(3, i);
       id = DAG->id_by_index(3, i);
+
+      pyneMaterial.w
       // Create the id-index string for this vol
       idstr << std::setw(5) << std::right << i;
       idstr << std::setw(5) << std::right << id << std::endl;
@@ -916,7 +970,7 @@ void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
 // Create a string with these properites
 // Modified from make_property_string
 // This function helps with debugging, but is not germane to writing cards.
-std::string mat_property_string (int index, std::vector<std::string> &properties)
+std::string FluDAG::mat_property_string (int index, std::vector<std::string> &properties)
 {
   MBErrorCode ret;
   std::string propstring;
