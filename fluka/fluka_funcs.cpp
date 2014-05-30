@@ -831,6 +831,7 @@ void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface
       }
   }
  */
+  MBErrorCode ret;
   MBEntityHandle entity = 0;
   int id;
   //////////  Test pyne lib
@@ -856,7 +857,6 @@ void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface
       entity = DAG->entity_by_index(3, i);
       id = DAG->id_by_index(3, i);
 
-      pyneMaterial.w
       // Create the id-index string for this vol
       idstr << std::setw(5) << std::right << i;
       idstr << std::setw(5) << std::right << id << std::endl;
@@ -896,6 +896,9 @@ void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface
 	 ostr << std::setw(10) << std::right << material;
 	 ostr << std::setw(10) << std::right << i << std::endl;
       }
+      
+      std::string test = pyneMaterial.write_fluka_material(i);
+      std::cout << test << std::endl;
   }
   // Finish the ostr with the implicit complement card
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
