@@ -1601,7 +1601,7 @@ ErrorCode DagMC::get_group_name( EntityHandle group_set, std::string& name )
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::parse_group_name( EntityHandle group_set, prop_map& result )
+ErrorCode DagMC::parse_group_name( EntityHandle group_set, prop_map& result, const char *delimiters )
 {
   ErrorCode rval;
   std::string group_name;
@@ -1609,7 +1609,7 @@ ErrorCode DagMC::parse_group_name( EntityHandle group_set, prop_map& result )
   if( rval != MB_SUCCESS ) return rval;
 
   std::vector< std::string > group_tokens;
-  tokenize( group_name, group_tokens, "_" );
+  tokenize( group_name, group_tokens, delimiters );
 
   // iterate over all the keyword positions 
   // keywords are even indices, their values (optional) are odd indices
@@ -1623,7 +1623,7 @@ ErrorCode DagMC::parse_group_name( EntityHandle group_set, prop_map& result )
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::detect_available_props( std::vector<std::string>& keywords_list )
+ErrorCode DagMC::detect_available_props( std::vector<std::string>& keywords_list, const char *delimiters )
 {
   ErrorCode rval;
   std::set< std::string > keywords;
@@ -1631,7 +1631,7 @@ ErrorCode DagMC::detect_available_props( std::vector<std::string>& keywords_list
        grp != group_handles().end(); ++grp )
   {
     std::map< std::string, std::string > properties;
-    rval = parse_group_name( *grp, properties );
+    rval = parse_group_name( *grp, properties, delimiters );
     if( rval == MB_TAG_NOT_FOUND ) continue;
     else if( rval != MB_SUCCESS ) return rval;
 
@@ -1698,6 +1698,7 @@ ErrorCode DagMC::unpack_packed_string( Tag tag, EntityHandle eh,
 }
 
 ErrorCode DagMC::parse_properties( const std::vector<std::string>& keywords,
+				   const char *delimiters, 
                                    const std::map<std::string, std::string>& keyword_synonyms )
 {
   ErrorCode rval;
@@ -1739,7 +1740,7 @@ ErrorCode DagMC::parse_properties( const std::vector<std::string>& keywords,
   {
 
     prop_map properties;
-    rval = parse_group_name( *grp, properties );
+    rval = parse_group_name( *grp, properties, delimiters );
     if( rval == MB_TAG_NOT_FOUND ) continue;
     else if( rval != MB_SUCCESS ) return rval;
 
