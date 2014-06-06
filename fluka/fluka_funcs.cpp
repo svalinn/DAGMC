@@ -18,7 +18,7 @@
 #include "DagMC.hpp"
 #include "moab/Types.hpp"
 
-#include "material.h"
+// #include "material.h"
 #include "nucname.h"
 #include "data.h"
 
@@ -180,7 +180,8 @@ void g_step(double& pSx,
 // retStep   - returned as the distance from the particle's current location, along its ray, to the next boundary
 // newRegion - gotten from the value returned by DAG->next_vol
 // newRegion is gotten from the volue returned by DAG->next_vol
-void g_fire(int &oldRegion, double point[], double dir[], double &propStep, double &retStep, double &safety,  int &newRegion)
+void g_fire(int &oldRegion, double point[], double dir[], double &propStep, 
+            double &retStep, double &safety,  int &newRegion)
 {
 
   MBEntityHandle vol = DAG->entity_by_index(3,oldRegion);
@@ -194,9 +195,8 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep, doub
       history.reset();
     }
   */
-    
-  if( dir[0] == old_direction[0] && dir[1] == old_direction[1] && dir[2] == old_direction[2] ) // direction changed reset history
-    //   history.reset(); // this is a new particle or direction has changed
+  // direction changed reset history
+  if( dir[0] == old_direction[0] && dir[1] == old_direction[1] && dir[2] == old_direction[2] ) 
     {   
     }
   else
@@ -470,7 +470,7 @@ int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
 // Not CALLED
 //---------------------------------------------------------------------------//
 // Helper function
-void FluDAG::slow_check(double pos[3], const double dir[3], int &oldReg)
+void slow_check(double pos[3], const double dir[3], int &oldReg)
 {
   std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
   std::cout << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
@@ -728,21 +728,70 @@ static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& p
 
 
 //---------------------------------------------------------------------------//
-// FluDAG Class Functions
+// FluDAG Material Card  Functions
 //---------------------------------------------------------------------------//
-// CONSTRUCTOR
+// 
 //---------------------------------------------------------------------------//
-FluDAG::FluDAG(std::string matfile)
+void fludag_write(std::string matfile, std::string lfname)
 {
-  output_file = matfile; 
+  // Section 0
+  int num_vols = fludag_setup();
+
+  // Section I - ASSIGNMA
+  std::ostringstream astr;
+  std::list<std::string> matNamesList = fludagwrite_assignma(astr, num_vols);
+
+  // Section Ia - index-id
+  // Process the matNamesList list so that it truly is unique
+  matNamesList.sort();
+  matNamesList.unique();
+  int num_mats = matNamesList.size();
+
+  // Print the final list of unique materials
+  if (debug)
+  {
+     std::list<std::string>::iterator it; 
+     for (it=matNamesList.begin(); it!=matNamesList.end(); ++it)
+     {
+        std::cout << *it << std::endl;
+     }
+  }
+
+  // Section II - MATERIAL	
+  std::ostringstream mstr;
+  if (num_mats > 0)
+  {
+     fludag_write_material(mstr, num_mats, matfile);
+  }
+
+  // Section III
+  std::ofstream lcadfile (lfname.c_str());
+  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
+  lcadfile << header << std::endl;
+  lcadfile << astr.str();
+  lcadfile << header << std::endl;
+  lcadfile << mstr.str();
+  lcadfile.close();
+
+  std::cout << "Writing lcad file = " << lfname << std::endl; 
+// Before opening file for writing, check for an existing file
+/*
+  if( lfname != "lcad" ){
+    // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"
+    if( access( lfname.c_str(), R_OK ) == 0 ){
+      std::cout << "DagMC: reading from existing lcad file " << lfname << std::endl;
+      return; 
+    }
+  }
+*/
+
 }
 //---------------------------------------------------------------------------//
-// PUBLIC INTERFACe
+// PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-void FluDAG::fludag_setup()
+int fludag_setup()
 {
-  num_vols = DAG->num_entities(3);
-  int id;
+  int num_vols = DAG->num_entities(3);
 
   std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
   std::cout << "\tnum_vols is " << num_vols << std::endl;
@@ -762,9 +811,8 @@ void FluDAG::fludag_setup()
   std::cout << "Property list: " << std::endl;
   for (unsigned i=1; i<=num_vols; i++)
   {
-     
       std::string props = mat_property_string(i, keywords);
-      id = DAG->id_by_index(3, i);
+      int id = DAG->id_by_index(3, i);
       if (props.length()) 
       {
          std::cout << "Vol " << i << ", id=" << id << ": parsed props: " << props << std::endl; 
@@ -774,102 +822,48 @@ void FluDAG::fludag_setup()
          std::cout << "Vol " << i << ", id=" << id << " has no props: " <<  std::endl; 
       }
   }
-
+  return num_vols;
 }
 //---------------------------------------------------------------------------//
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
-/// Called from mainFludag when only one argument is given to the program.
-//  This function writes out a simple numerical material assignment to the named argument file
-//  Example usage:  mainFludag dagmc.html
-//  Outputs
-//           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
-//                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
-//                    The string after "M_" is considered to be the material for that volume.
-//                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
-//                    For the remaining materials, there is one MATERIAL card apiece (no dups)
-//                    User-named (not predefined) materials are TRUNCATED to 8 chars.
-//                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
-//           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
-//  Note that a preprocessing step to this call sets up the the DAG object that contains 
-//  all the geometry information contained in dagmc.html.  
-//  the name of the (currently hardcoded) output file is "mat.inp"
-//  The graveyard is assumed to be the last region.
-void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
+std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols)  
 {
-  /*
-  int num_vols = DAG->num_entities(3);
-  std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-  std::cout << "\tnum_vols is " << num_vols << std::endl;
   MBErrorCode ret;
   MBEntityHandle entity = 0;
 
-  std::vector< std::string > keywords;
-  ret = DAG->detect_available_props( keywords );
-  // parse data from geometry so that property can be found
-  ret = DAG->parse_properties( keywords );
-  if (MB_SUCCESS != ret) 
-  {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-  // Preprocessing loop:  make a string, "props",  for each vol entity
-  // This loop could be removed if the user doesn't care to see terminal output
-  std::cout << "Property list: " << std::endl;
-  for (unsigned i=1; i<=num_vols; i++)
-  {
-     
-      std::string props = mat_property_string(i, keywords);
-      id = DAG->id_by_index(3, i);
-      if (props.length()) 
-      {
-         std::cout << "Vol " << i << ", id=" << id << ": parsed props: " << props << std::endl; 
-      }
-      else
-      {
-         std::cout << "Vol " << i << ", id=" << id << " has no props: " <<  std::endl; 
-      }
-  }
- */
-  MBErrorCode ret;
-  MBEntityHandle entity = 0;
-  int id;
-  //////////  Test pyne lib
-  pyne::Material pyneMaterial;
-
-  // Open an outputstring for mat.inp
-  std::ostringstream ostr;
   // Open an outputstring for index-id table and put a header in it
   std::ostringstream idstr;
   idstr << std::setw(5) <<  "Index" ;
   idstr << std::setw(5) <<  "   Id" << std::endl;
 
   // Prepare a list to contain unique materials not in Fluka's list
-  std::list<std::string> uniqueMatList;
+  std::list<std::string> matNamesList;
 
-  // Loop through 3d entities.  In model_complete.h5m there are 90 vols
+  // Loop through 3d entities.  
   std::vector<std::string> vals;
   std::string material;
   char buffer[MAX_MATERIAL_NAME_SIZE];
-  for (unsigned i = 1 ; i <= num_vols ; i++)
+  for (unsigned vol_i = 1 ; vol_i <= num_vols ; vol_i++)
   {
       vals.clear();
-      entity = DAG->entity_by_index(3, i);
-      id = DAG->id_by_index(3, i);
+      entity = DAG->entity_by_index(3, vol_i);
+      int id = DAG->id_by_index(3, vol_i);
 
       // Create the id-index string for this vol
-      idstr << std::setw(5) << std::right << i;
+      idstr << std::setw(5) << std::right << vol_i;
       idstr << std::setw(5) << std::right << id << std::endl;
       // Create the mat.inp string for this vol
+      // Create the ASSIGNMA card 
       if (DAG->has_prop(entity, "graveyard"))
       {
 	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
 	 ostr << std::setw(10) << std::right << "BLCKHOLE";
-	 ostr << std::setw(10) << std::right << i << std::endl;
+	 ostr << std::setw(10) << std::right << vol_i << std::endl;
       }
-      else if (DAG->has_prop(entity, "M"))
+      else if (DAG->has_prop(entity, "mat:"))
       {
-         ret = DAG->prop_values(entity, "M", vals);
+         ret = DAG->prop_values(entity, "mat:", vals);
          if (vals.size() >= 1)
          {
             // Make a copy of string in vals[0]; full string needs to be compared to
@@ -884,7 +878,7 @@ void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface
             if (FLUKA_mat_set.find(vals[0]) == FLUKA_mat_set.end())
             {
                 // current material is not in the pre-existing FLUKA material list
-                uniqueMatList.push_back(material); 
+                matNamesList.push_back(material); 
                 std::cout << "Adding material " << material << " to the MATERIAL card list" << std::endl;
             }
          }
@@ -894,76 +888,72 @@ void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface
          }
 	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
 	 ostr << std::setw(10) << std::right << material;
-	 ostr << std::setw(10) << std::right << i << std::endl;
+	 ostr << std::setw(10) << std::right << vol_i << std::endl;
+      }  // end has_prop "mat:"
+      else
+      {
+         std::cout << "No 'mat:' properties for volume " << vol_i << std::endl;
       }
-      
-      std::string test = pyneMaterial.write_fluka_material(i);
-      std::cout << test << std::endl;
-  }
+  }   // end loop over volumes
+
   // Finish the ostr with the implicit complement card
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
   ostr << implicit_comp_comment << std::endl;
   ostr << std::setw(10) << std::left  << "ASSIGNMAt";
   ostr << std::setw(10) << std::right << "VACUUM";
   ostr << std::setw(10) << std::right << num_vols << std::endl;
-
-  // Process the uniqueMatList list so that it truly is unique
-  uniqueMatList.sort();
-  uniqueMatList.unique();
-  // Print the final list
   if (debug)
   {
-     std::list<std::string>::iterator it; 
-     for (it=uniqueMatList.begin(); it!=uniqueMatList.end(); ++it)
-     {
-        std::cout << *it << std::endl;
-     }
-  
      // Show the output string just created
      std::cout << ostr.str();
   }
-
-  // Prepare an output file of the given name; put a header and the output string in it
-  std::ofstream lcadfile( lfname.c_str());
-  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
-  if (uniqueMatList.size() != 0)
-  {
-     int matID = 25;
-     lcadfile << header << std::endl;
-     std::list<std::string>::iterator it; 
-     for (it=uniqueMatList.begin(); it!=uniqueMatList.end(); ++it)
-     {
-        lcadfile << std::setw(10) << std::left << "MATERIAL";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << ++matID;
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::left << *it << std::endl;
-     }
-  }
-  lcadfile << header << std::endl;
-  lcadfile << ostr.str();
-  lcadfile.close();
-
   // Prepare an output file named "index_id.txt" for idstr
   std::string index_id_filename = "index_id.txt";
   std::ofstream index_id(index_id_filename.c_str());
   index_id << idstr.str();
   index_id.close(); 
-  std::cout << "Writing lcad file = " << lfname << std::endl; 
-// Before opening file for writing, check for an existing file
-/*
-  if( lfname != "lcad" ){
-    // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"
-    if( access( lfname.c_str(), R_OK ) == 0 ){
-      std::cout << "DagMC: reading from existing lcad file " << lfname << std::endl;
-      return; 
-    }
-  }
-*/
+  ////////////////////////////////////////////////////////////////////////////////
+  // 
+  // At this point we have 
+  //  o all the ASSIGNMa cards collected in ostr
+  //  o a list of material names (that can be made unique) 
+  //    to be used for the material cards
+  //  o written a helpuful file out called "index_id.txt" 
+  ////////////////////////////////////////////////////////////////////////////////
+  return matNamesList;
+}
+//---------------------------------------------------------------------------//
+// fludag_write_material
+//---------------------------------------------------------------------------//
+void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file)
+{
+  pyne::Material pyneMat = pyne::Material();
 
+  for (int i=0; i<num_mats; ++i)
+  {
+      pyneMat.from_hdf5(mat_file, "/materials", i,1);
+      ostr << pyneMat.fluka();
+  }
+}
+//---------------------------------------------------------------------------//
+// print_material
+//---------------------------------------------------------------------------//
+// Convenience function
+void print_material( pyne::Material test_mat) 
+{
+  pyne::comp_iter it;
+
+  std::cout << "density = " << test_mat.density << std::endl;
+  std::cout << "mass = " << test_mat.mass << std::endl;
+  std::cout << "atoms_per_mol = " << test_mat.atoms_per_molecule << std::endl;
+
+  for ( it = test_mat.comp.begin() ; it != test_mat.comp.end() ; ++it ) {
+    if(it->second <= 0.0)
+      continue;
+    else
+      std::cout << it->first << " " << it->second << std::endl;
+  }
+  std::cout << test_mat.metadata << std::endl;
 }
 
 //---------------------------------------------------------------------------//
@@ -973,7 +963,7 @@ void FluDAG::fludagwrite_assignma(std::string lfname)  // file with cell/surface
 // Create a string with these properites
 // Modified from make_property_string
 // This function helps with debugging, but is not germane to writing cards.
-std::string FluDAG::mat_property_string (int index, std::vector<std::string> &properties)
+std::string mat_property_string (int index, std::vector<std::string> &properties)
 {
   MBErrorCode ret;
   std::string propstring;

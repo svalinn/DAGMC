@@ -6,6 +6,9 @@ EXTRA_ARGS=$@
 
 rm -rf CMakeCache.txt
 rm tests/slabs.h5m
+# Protect from removing the real src and tests dirs
+rm -rf ../bld/src
+rm -rf ../bld/tests
 
 cmake \
 -D MOAB_HOME=$HOME/data/opt/dagmc_bld/moab \

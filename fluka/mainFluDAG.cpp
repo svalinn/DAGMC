@@ -19,10 +19,16 @@ using namespace moab;
 #define flukam flukam_
 #define DAG DagMC::instance()
 
-extern "C" 
-{ 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
   void flukam(const int &GeoFlag);
-}
+
+#ifdef __cplusplus
+} 
+#endif
+
 // This has been modified so that all runs are now fluka runs.  
 // Getting the geometry out of the file is done by dagmc_define
 int main(int argc, char* argv[]) 
@@ -95,14 +101,12 @@ int main(int argc, char* argv[])
 
   seconds = difftime(time_after,time_before);
   std::cout << "Time to initialise the geometry" << seconds << std::endl;
-  // FluDAG* Fludag;
   // if fluka preprocess run then create mat file to paste into input deck
   if (!flukarun)
     {
       std::string lcad = "mat.inp";
-      FluDAG* Fludag = new FluDAG(lcad);
-      Fludag->fludag_setup();
-      Fludag->fludagwrite_assignma(lcad);
+      fludag_write(infile, lcad);
+
       std::cout << "Producing material snippets" << std::endl;
       std::cout << "please paste these into your input deck" << std::endl;
     }
