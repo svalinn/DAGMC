@@ -377,13 +377,15 @@ public:
    * @param keywords_out The result list of keywords.  This list could be
    *        validly passed to parse_properties().
    */
-  ErrorCode detect_available_props( std::vector<std::string>& keywords_out );
+  ErrorCode detect_available_props( std::vector<std::string>& keywords_out, const char *delimiters );
 
   /** Parse properties from group names per metadata syntax standard
    * 
    * @param keywords A list of keywords to parse.  These are considered the canonical
    *                 names of the properties, and constitute the valid inputs to 
    *                 has_prop() and prop_value().
+   * @param delimiters An array of characters the routine will use to split the groupname
+   *                   into properties.
    * @param synonyms An optional mapping of synonym keywords to canonical keywords. 
    *                 This allows more than one group name keyword to take on the same
    *                 meaning
@@ -392,6 +394,7 @@ public:
    *                 group named "graveyard".
    */
   ErrorCode parse_properties( const std::vector<std::string>& keywords, 
+			      const char* delimiters, 
                               const std::map<std::string,std::string>& synonyms = no_synonyms );
 
   /** Get the value of a property on a volume or surface
@@ -471,7 +474,7 @@ private:
   /** Store the name of a group in a string */
   ErrorCode get_group_name( EntityHandle group_set, std::string& name );
   /** Parse a group name into a set of key:value pairs */
-  ErrorCode parse_group_name( EntityHandle group_set, prop_map& result );
+  ErrorCode parse_group_name( EntityHandle group_set, prop_map& result, const char* delimiters);
   /** Add a string value to a property tag for a given entity */
   ErrorCode append_packed_string( Tag, EntityHandle, std::string& );
   /** Convert a property tag's value on a handle to a list of strings */
