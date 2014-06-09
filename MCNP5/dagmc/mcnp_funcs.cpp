@@ -270,8 +270,9 @@ void dagmcwritemcnp_(char *lfile, int *llen)  // file with cell/surface cards
   mcnp5_keyword_synonyms[ "rest.of.world" ] = "graveyard";
   mcnp5_keyword_synonyms[ "outside.world" ] = "graveyard";
 
+  const char *mcnp5_delimiters = "_."; //
   // parse data from geometry
-  rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms );
+  rval = DAG->parse_properties( mcnp5_keywords, mcnp5_delimiters, mcnp5_keyword_synonyms );
   if (MB_SUCCESS != rval) {
     std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
     exit(EXIT_FAILURE);
