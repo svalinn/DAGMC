@@ -13,6 +13,8 @@
 #include "moab/Skinner.hpp"
 #include "moab/CN.hpp"
 
+#include "MBVersion.h"
+
 /* Two macros are available: 
  * MESHTAL_DEBUG: produce much debugging output, with histories of particular particle tracks.
  *
@@ -487,7 +489,14 @@ void TrackLengthMeshTally::build_trees (Range& all_tets)
   // build KD tree of all tetrahedra and triangles
   std::cout << "  Building KD tree of size " << all_tets.size() << "... " << std::flush;
   kdtree = new AdaptiveKDTree( mb );
-  kdtree->build_tree( all_tets, kdtree_root );
+  #if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 
+    kdtree->build_tree( all_tets, kdtree_root );
+  #else
+    const char settings[]="MESHSET_FLAGS=0x1;TAG_NAME=0";
+    FileOptions fileopts(settings);
+    kdtree->build_tree( all_tets, &kdtree_root, &fileopts);
+  #endif
+
   std::cout << "done." << std::endl << std::endl;;
 }
 //---------------------------------------------------------------------------//
@@ -548,7 +557,11 @@ EntityHandle TrackLengthMeshTally::point_in_which_tet (const CartVect& point)
   AdaptiveKDTreeIter tree_iter;
   
   // Check to see if starting point begins inside a tet
-  rval = kdtree->leaf_containing_point( kdtree_root, point.array(), tree_iter );
+  #if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 
+    rval = kdtree->leaf_containing_point( kdtree_root, point.array(), tree_iter );
+  #else
+    rval = kdtree->point_search(point.array(), tree_iter);
+  #endif
   if( rval == MB_SUCCESS )
     {
       EntityHandle leaf = tree_iter.handle();
