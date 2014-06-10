@@ -30,7 +30,6 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<<<<<<< HEAD
 IF ( BUILD_FLUKA OR BUILD_ALL )
    MESSAGE ( STATUS "Including FLUKA in dagmciface library.")
    SET ( DAG_FLUKA_SRCDIR "fluka/src" )
@@ -39,17 +38,6 @@ IF ( BUILD_FLUKA OR BUILD_ALL )
    SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_FLUKA_SRC} )
    INCLUDE_DIRECTORIES( "${DAG_FLUKA_SRCDIR}" )
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
-=======
-#if ( WITH_FLUKA or WITH_ALL )
-if ( WITH_FLUKA )
-	MESSAGE("BUILDING FLUKA")
-	SET ( DAG_FLUKA_SRCDIR "fluka/src" )
-	SET ( DAGMCIFACE_FLUKA_SRC "${DAG_FLUKA_SRCDIR}/fluka_funcs.cpp" )
-	SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_FLUKA_SRC} )
-	INCLUDE_DIRECTORIES( "${DAG_FLUKA_SRCDIR}" )
-endif()
-
->>>>>>> First pass at FLUKA-only build- not good
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # GEANT4
