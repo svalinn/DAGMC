@@ -56,7 +56,11 @@ IF ( BUILD_GEANT OR BUILD_ALL )
    INCLUDE_DIRECTORIES( "${DAG_GEANT_SRCDIR}" )
 ENDIF ( BUILD_GEANT OR BUILD_ALL )
 
-ADD_LIBRARY(dagmciface ${DAGMCIFACE_SRC} )
+IF ( DAGMCIFACE_SRC )
+  ADD_LIBRARY(dagmciface ${DAGMCIFACE_SRC} )
+ELSE ( DAGMCIFACE_SRC )
+  MESSAGE ( STATUS "Not building dagmciface physics interface library")
+ENDIF ( DAGMCIFACE_SRC )
 
 ###################################
 #
