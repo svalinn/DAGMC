@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os, subprocess
 import nose
 import dagmc_get_materials as gtag
