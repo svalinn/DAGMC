@@ -1,5 +1,4 @@
-//----------------------------------*-C++, Fortran-*----------------------------------//
-/*!
+//----------------------------------*-C++, Fortran-*----------------------------------// /*!
  * \file   ~/DAGMC/FluDAG/src/cpp/fluka_funcs.cpp
  * \author Julie Zachman 
  * \date   Mon Mar 22 2013 
@@ -764,7 +763,9 @@ void fludag_write(std::string matfile, std::string lfname)
      fludag_write_material(mstr, num_mats, matfile);
   }
 
-  // Section III
+  // Section III - COMPOUND Cards
+
+  // Section IV - Write out the streams
   std::ofstream lcadfile (lfname.c_str());
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   lcadfile << header << std::endl;
