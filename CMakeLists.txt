@@ -48,19 +48,27 @@ ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF ( BUILD_GEANT OR BUILD_ALL )
-   MESSAGE ( STATUS "Including GEANT4 in dagmciface library.")
-   SET ( DAG_GEANT_SRCDIR "geant4/src" )
-   SET ( DAGMCIFACE_GEANT_SRC "${DAG_GEANT_SRCDIR}/DagSolid.cc" )
-
-   SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_GEANT_SRC} )
-   INCLUDE_DIRECTORIES( "${DAG_GEANT_SRCDIR}" )
+ INCLUDE(geant4/CMakeLists.txt)
 ENDIF ( BUILD_GEANT OR BUILD_ALL )
 
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+# Build the dagmciface lib
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 IF ( DAGMCIFACE_SRC )
-  ADD_LIBRARY(dagmciface ${DAGMCIFACE_SRC} )
+  IF ( STATIC_LIB )
+   ADD_LIBRARY(dagmciface STATIC ${DAGMCIFACE_SRC} )
+  ELSEIF ( NOT STATIC_LIB )
+    ADD_LIBRARY(dagmciface SHARED ${DAGMCIFACE_SRC} )
+  ENDIF ( STATIC_LIB )
 ELSE ( DAGMCIFACE_SRC )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
 ENDIF ( DAGMCIFACE_SRC )
+
+
 
 ###################################
 #
@@ -72,4 +80,5 @@ IF ( BUILD_TALLY )
    MESSAGE ( STATUS "Building dagmctally library." )
    ADD_SUBDIRECTORY(tally)
 ENDIF ( BUILD_TALLY )
+
 
