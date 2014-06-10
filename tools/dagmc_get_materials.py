@@ -103,7 +103,10 @@ returns mat_dens_list, a zipped pair of density and material name
 
 
 def check_matname(tag_values):
-    # loop over tags
+    #loop over tags to check the existence of a 'vacuum' group
+    for tag in tag_values:
+        if ('Vacuum' in tag) or ('vacuum' in tag):
+            tag_values.remove(tag)
     g = 0
     mat_list_matname = []  # list of material names
     mat_list_density = []  # list of density if provided in the group names
