@@ -2,12 +2,17 @@
 #
 # CMakeLists.txt for dagmc Geant4
 #
-# $Id: CMakeLists.txt 6346 2014-01-27 03:33:21Z cary $
-#
 ######################################################################
 
-# Add in directories in layering order, lowest to highest
-set(SCI_INDENT "${SCI_INDENT}  ")
-message(STATUS "${SCI_INDENT}Adding dagsolid subdir.")
-add_subdirectory(dagsolid)
+MESSAGE ( STATUS "Including GEANT4 in dagmciface library.")
+SET ( DAG_GEANT_SRCDIR "geant4/src" )
+SET ( DAGMCIFACE_GEANT_SRC "${DAG_GEANT_SRCDIR}/DagSolid.cc" )
 
+SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_GEANT_SRC} )
+INCLUDE_DIRECTORIES( "${DAG_GEANT_SRCDIR}" )
+
+# Geant4 include dirs
+INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES} ${GEANT4_DIR}/include/Geant4)
+
+# temp moab
+INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES} ${MOAB_DIR}/include)
