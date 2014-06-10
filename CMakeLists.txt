@@ -62,4 +62,7 @@ ADD_LIBRARY(dagmciface ${DAGMCIFACE_SRC} )
 #
 ###################################
 
-#ADD_SUBDIRECTORY(tally)
+IF ( BUILD_TALLY )
+   MESSAGE ( STATUS "Building dagmctally library." )
+   ADD_SUBDIRECTORY(tally)
+ENDIF ( BUILD_TALLY )
