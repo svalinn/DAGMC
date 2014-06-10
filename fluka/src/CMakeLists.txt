@@ -9,8 +9,9 @@ IF (NOT DEFINED FLUPRO)
 	set (FLUPRO "$ENV{FLUPRO}")
 ENDIF (NOT DEFINED FLUPRO)
 
-SET(MOAB_INCLUDE ${MOAB_HOME}/include)
-SET(MOAB_LIB_DIR ${MOAB_HOME}/lib)
+SET(MOAB_INCLUDE ${MOAB_ROOT}/include)
+MESSAGE("Moab_root is " ${MOAB_ROOT})
+SET(MOAB_LIB_DIR ${MOAB_ROOT}/lib)
 SET(moablibs ${MOAB_LIB_DIR}/libdagmc.so ${MOAB_LIB_DIR}/libMOAB.so)
 
 # Where to look for includes
@@ -31,3 +32,7 @@ SET (fluka_libdir ${FLUPRO})
 # Create the executable that can call flukam_
 ADD_EXECUTABLE(mainfludag mainFluDAG.cpp fluka_funcs.cpp)
 TARGET_LINK_LIBRARIES(mainfludag ${moablibs} ${FLUPRO}/libflukahp.a gfortran)
+
+ADD_LIBRARY(fluka_library fluka_funcs.cpp)
+TARGET_LINK_LIBRARIES(fluka_library ${moablibs} ${FLUPRO}/libflukahp.a gfortran)
+

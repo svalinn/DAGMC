@@ -1,10 +1,13 @@
-PROJECT (FluDAG)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
+######################################################################
+#
+# CMakeLists.txt for dagmc fluka
+#
+######################################################################
 
-add_definitions(-DGTEST_HAS_PTHREAD=0)
+MESSAGE ( STATUS "Including FLUKA in dagmciface library.")
+SET ( DAG_FLUKA_SRCDIR "fluka/src" )
 
-# Run cmake on the CMakeLists.txt in these subdirectories
-ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(tests)
+SET ( DAGMCIFACE_FLUKA_SRC "${DAG_FLUKA_SRCDIR}/fluka_funcs.cpp" )
 
-# ToDo:  Maybe Add a POST_BUILD custom command that moves the executables
+SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_FLUKA_SRC} )
+INCLUDE_DIRECTORIES( DAG_FLUKA_SRCDIR )
