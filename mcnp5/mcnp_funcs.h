@@ -121,7 +121,6 @@ extern "C" {
   void dagmc_init_settings_(int* use_dist_limit, int* use_cad,     
                             double* overlap_thickness, double* facet_tol, int* srccell_mode );
 
-  void dagmc_version_(double* dagmcVersion);
 #ifdef __cplusplus
 } // extern "C"
 #endif

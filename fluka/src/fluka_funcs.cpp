@@ -1073,9 +1073,3 @@ void region2name(int volindex, char *vname )  // file with cell/surface cards
    std:strcpy(cstr,istr.str().c_str());
    vname = cstr;
 }
-void dagmc_version_(double* dagmcVersion)
-{
-  *dagmcVersion = DAG->version();
-}
-
-

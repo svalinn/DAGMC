@@ -885,8 +885,4 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 
 }
 
-void dagmc_version_(double* dagmcVersion)
-{
-  *dagmcVersion = DAG->version();
-}
 
