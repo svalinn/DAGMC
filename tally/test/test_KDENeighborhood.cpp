@@ -66,9 +66,10 @@ class GetPointsTest : public ::testing::Test
     // deallocate memory resources
     virtual void TearDown()
     {
-        delete mbi;
         delete region1;
         delete region2;
+        // need to delete mbi after regions since new kd-tree deletes entities
+        delete mbi;
     }
 
   protected:

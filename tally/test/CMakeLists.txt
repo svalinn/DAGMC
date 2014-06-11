@@ -1,14 +1,18 @@
 # CMAKE build script for DAGMC Tally unit testing
 
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
 # Where to look for includes
-INCLUDE_DIRECTORIES("${GTEST_HOME}/gtest-1.7.0/include")
+INCLUDE_DIRECTORIES("${MOAB_ROOT}/include" "${GTEST_HOME}/gtest-1.7.0/include")
+
+MESSAGE(STATUS "${GTEST_HOME}")
 
 # set libraries
 SET(LIBRARIES
     ${GTEST_HOME}/lib/libgtest.a
     ${GTEST_HOME}/lib/libgtest_main.a
     pthread
-    dagtally
+    ${DAGTALLY_LIB}/libdagtally.so
     ${MOAB_ROOT}/lib/libMOAB.so
 )
 
@@ -18,7 +22,7 @@ SET(MESH_FILES
     unstructured_mesh.h5m
 )
 
-FILE(COPY ${MESH_FILES} DESTINATION ${CMAKE_BINARY_DIR}/tally/test/)
+FILE(COPY ${MESH_FILES} DESTINATION ${CMAKE_BINARY_DIR})
 
 # set up DAGMC Tally test cases
 ADD_EXECUTABLE(test_KDEKernel test_KDEKernel.cpp)
