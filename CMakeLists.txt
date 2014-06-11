@@ -77,7 +77,23 @@ ENDIF ( DAGMCIFACE_SRC )
 
 IF ( BUILD_TALLY )
    MESSAGE ( STATUS "Building dagmctally library." )
-   ADD_SUBDIRECTORY(tally)
+#   ADD_SUBDIRECTORY(tally)
+   INCLUDE(tally/CMakeLists.txt)
 ENDIF ( BUILD_TALLY )
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+# Install dirs 
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
+
+# libraries
+INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+INSTALL( TARGETS dagtally LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+
+# Headers
+FILE(GLOB files ${dagmciface_headers})
+INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
