@@ -7,7 +7,7 @@ SET (gtest_dir     "${gtest_home}/gtest-1.7.0")
 SET (fludag_source "${CMAKE_SOURCE_DIR}/src")
 
 # Where to look for includes
-INCLUDE_DIRECTORIES("${MOAB_HOME}/include" "${gtest_dir}" "${gtest_dir}/include" ${fludag_source})
+INCLUDE_DIRECTORIES("${MOAB_ROOT}/include" "${gtest_dir}" "${gtest_dir}/include" ${fludag_source})
 
 # Setup for gtest libraries
 SET(cxx_base_flags "-Wall -Wshadow")
@@ -66,9 +66,9 @@ SET (fludag_test_source ${fludag_source_files}
 # set libraries needed to link to test cases
 SET(LIBS
     pthread
-    ${MOAB_HOME}/lib/libMOAB.so
-    ${MOAB_HOME}/lib/libdagmc.so
-    ${MOAB_HOME}/lib/libMOAB.so
+    ${MOAB_ROOT}/lib/libMOAB.so
+    ${MOAB_ROOT}/lib/libdagmc.so
+    ${MOAB_ROOT}/lib/libMOAB.so
 )
 
 ADD_EXECUTABLE (fludag_unit_tests 
