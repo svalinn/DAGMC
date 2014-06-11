@@ -4,17 +4,19 @@ Authors
 The DAGMC project began as the CAD-MCNPX project in 2003, and since then has
 included contributions from the following:
 
-* Meng-Kuo Wang
-* Paul P.H. Wilson
-* Jason Kraftcheck
-* Tim Tautges
-* Brandon Smith
-* Brian Kiedrowski
-* Steve Jackson
-* Kerry Dunn
 * Andrew Davis
-* Julie Zachman
-* Rachel Slaybaugh
+* Kerry L. Dunn
+* Steve Jackson
+* Brian Kiedrowski
+* Jason Kraftcheck
+* Eric Relson
+* Rachel N. Slaybaugh
+* Brandon Smith
+* Tim Tautges
+* Meng-Kuo Wang
+* Zach Welch
+* Paul P.H. Wilson
+* Julie C. Zachman
 
 The DAGMC project also relies heavily on the MOAB_ and CGM_ projects.
 
