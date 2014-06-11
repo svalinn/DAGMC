@@ -9,8 +9,6 @@ PROJECT (DAGMC)
 SET ( DAGMC_VERSION_MAJOR 1 )
 SET ( DAGMC_VERSION_MINOR 0 )
 
-# LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-
 FIND_PACKAGE ( MOAB REQUIRED ) 
 
 MESSAGE ( STATUS "Found MOAB Version: " ${MOAB_VERSION} )
@@ -77,22 +75,21 @@ ENDIF ( DAGMCIFACE_SRC )
 
 IF ( BUILD_TALLY )
    MESSAGE ( STATUS "Building dagmctally library." )
-#   ADD_SUBDIRECTORY(tally)
    INCLUDE(tally/CMakeLists.txt)
+   INSTALL( TARGETS dagtally LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 ENDIF ( BUILD_TALLY )
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+###################################
 #
 # Install dirs 
 #
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+###################################
 
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
 
 # libraries
 INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
-INSTALL( TARGETS dagtally LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 
 # Headers
 FILE(GLOB files ${dagmciface_headers})

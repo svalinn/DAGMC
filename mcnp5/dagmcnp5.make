@@ -18,6 +18,6 @@ CXXFLAGS += $(MOAB_CXXFLAGS) $(DAGMC_CFLAGS)
 INCLUDES += $(MOAB_INCLUDES)
 LDFLAGS = $(MOAB_LDFLAGS) $(CXX_FORTRAN_LDFLAGS) 
 
-DAGMC_LIBS += $(MOAB_LIBS_LINK) -ldagmc -lMOAB -L$(HOME)/UW/research/software/DAGMC/bld -ldagmciface -lstdc++
+DAGMC_LIBS += $(MOAB_LIBS_LINK) -ldagmc -lMOAB -L$(HOME)/UW/research/software/DAGMC/bld -ldagmciface -ldagtally -lstdc++
 
 DAGMC_MOD=  dagmc_mod$(OBJF)
