@@ -5,7 +5,7 @@
 ######################################################################
 
 MESSAGE ( STATUS "Including FLUKA in dagmciface library.")
-SET ( DAG_FLUKA_SRCDIR "fluka/src" )
+SET ( DAG_FLUKA_SRCDIR "fluka" )
 
 SET ( DAGMCIFACE_FLUKA_SRC "${DAG_FLUKA_SRCDIR}/fluka_funcs.cpp" )
 
