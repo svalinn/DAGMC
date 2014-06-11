@@ -1,6 +1,6 @@
 
 # CMAKE_SOURCE_DIR (without 'CURRENT') is the top-level dir containing CMakeLists.txt
-SET (gtest_home    "${CMAKE_SOURCE_DIR}/../../gtest")
+SET (gtest_home    "${CMAKE_SOURCE_DIR}/gtest")
 SET (gtest_dir     "${gtest_home}/gtest-1.7.0")
 
 # Where to look for includes
@@ -60,18 +60,19 @@ set(dagsolid_test_source
 
 # geant libs needed for test cases
 set(geant_libs
-  ${Geant4_G4geometry_LIBRARY}
-  ${Geant4_G4clhep_LIBRARY}
-  ${Geant4_G4global_LIBRARY}
+  ${GEANT4_DIR}/lib/libG4geometry.so
+  ${GEANT4_DIR}/lib/libG4clhep.so
+  ${GEANT4_DIR}/lib/libG4global.so
 )
 
 # set libraries needed to link to test cases
 set(LIBS
-  dagsolid
-  ${Moab_MOAB_LIBRARY}
-  ${Moab_dagmc_LIBRARY}
-  ${Moab_MOAB_LIBRARY}  # Is there a circular dependency in MOAB?
+  dagmciface
+  # not /lib/ currently
+  ${MOAB_DIR}/libMOAB.so
+  ${MOAB_DIR}/libdagmc.so
   ${geant_libs}
+  ${MOAB_DIR}/libMOAB.so
   pthread
 )
 
