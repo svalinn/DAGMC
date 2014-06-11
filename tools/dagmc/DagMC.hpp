@@ -377,7 +377,7 @@ public:
    * @param keywords_out The result list of keywords.  This list could be
    *        validly passed to parse_properties().
    */
-  ErrorCode detect_available_props( std::vector<std::string>& keywords_out, const char *delimiters = '_' );
+  ErrorCode detect_available_props( std::vector<std::string>& keywords_out, const char *delimiters = "_" );
 
   /** Parse properties from group names per metadata syntax standard
    * 
@@ -395,7 +395,7 @@ public:
    */
   ErrorCode parse_properties( const std::vector<std::string>& keywords, 
                               const std::map<std::string,std::string>& synonyms = no_synonyms, 
-			      const char* delimiters = '_' );
+			      const char* delimiters = "_" );
 
   /** Get the value of a property on a volume or surface
    *
@@ -466,7 +466,7 @@ private:
   /** tokenize the metadata stored in group names - basically borroed from ReadCGM.cpp */
   void tokenize( const std::string& str,
                  std::vector<std::string>& tokens,
-                 const char* delimiters = '_' ) const;
+                 const char* delimiters = "_" ) const;
 
   // a common type within the property and group name functions
   typedef std::map<std::string, std::string> prop_map;
@@ -474,7 +474,7 @@ private:
   /** Store the name of a group in a string */
   ErrorCode get_group_name( EntityHandle group_set, std::string& name );
   /** Parse a group name into a set of key:value pairs */
-  ErrorCode parse_group_name( EntityHandle group_set, prop_map& result, const char* delimiters = '_');
+  ErrorCode parse_group_name( EntityHandle group_set, prop_map& result, const char* delimiters = "_");
   /** Add a string value to a property tag for a given entity */
   ErrorCode append_packed_string( Tag, EntityHandle, std::string& );
   /** Convert a property tag's value on a handle to a list of strings */
