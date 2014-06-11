@@ -43,7 +43,6 @@ extern "C" {
    * Write the material assignment for each volume to a file named matfile
    */
   void fludagwrite_assignma(std::string matfile);
-  void dagmc_version_(double* dagmcVersion);
 #ifdef __cplusplus
 } // extern "C"
 #endif
