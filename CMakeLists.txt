@@ -39,7 +39,7 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
-   INCLUDE(fluka/CMakeLists.txt)
+	INCLUDE(fluka/CMakeModule.txt)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
