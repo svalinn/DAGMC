@@ -10,6 +10,7 @@
 #include "moab/AdaptiveKDTree.hpp"
 #include "moab/CartVect.hpp"
 #include "moab/Range.hpp"
+#include "moab/Version.h"
 
 #include "KDENeighborhood.hpp"
 
@@ -36,8 +37,14 @@ KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
         kd_tree = new moab::AdaptiveKDTree(mbi);
 
         moab::ErrorCode rval = moab::MB_SUCCESS;
-        rval = kd_tree->build_tree(mesh_nodes, kd_tree_root);
 
+#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 && MB_VERSION_PATCH < 3
+        rval = kd_tree->build_tree(mesh_nodes, kd_tree_root);
+#else
+        const char settings[]="MESHSET_FLAGS=0x1;TAG_NAME=0";
+        moab::FileOptions fileopts(settings);
+        rval = kd_tree->build_tree(mesh_nodes, &kd_tree_root, &fileopts);
+#endif
         assert(rval == moab::MB_SUCCESS);
     }
     else
@@ -226,7 +233,11 @@ void KDENeighborhood::points_in_box()
 	exit(1);
       }
 
+#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 && MB_VERSION_PATCH < 3
     rval = kd_tree->leaves_within_distance(kd_tree_root, box_center, radius, leaves);
+#else
+    rval = kd_tree->distance_search(box_center, radius, leaves);
+#endif
     assert(rval == moab::MB_SUCCESS);
 
     // obtain the set of unique points in the box
