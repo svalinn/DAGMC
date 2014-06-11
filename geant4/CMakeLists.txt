@@ -5,7 +5,7 @@
 ######################################################################
 
 MESSAGE ( STATUS "Including GEANT4 in dagmciface library.")
-SET ( DAG_GEANT_SRCDIR "geant4/src" )
+SET ( DAG_GEANT_SRCDIR "geant4" )
 SET ( DAGMCIFACE_GEANT_SRC "${DAG_GEANT_SRCDIR}/DagSolid.cc" )
 
 SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_GEANT_SRC} )
