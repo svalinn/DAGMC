@@ -80,4 +80,18 @@ IF ( BUILD_TALLY )
    ADD_SUBDIRECTORY(tally)
 ENDIF ( BUILD_TALLY )
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+# Install dirs 
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
+
+# libraries
+INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+
+# Headers
+FILE(GLOB files ${dagmciface_headers})
+INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
