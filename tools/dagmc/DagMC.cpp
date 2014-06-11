@@ -1698,7 +1698,7 @@ ErrorCode DagMC::unpack_packed_string( Tag tag, EntityHandle eh,
 }
 
 ErrorCode DagMC::parse_properties( const std::vector<std::string>& keywords,
-                                   const std::map<std::string, std::string>& keyword_synonyms
+                                   const std::map<std::string, std::string>& keyword_synonyms,
 				   const char *delimiters)
 {
   ErrorCode rval;
