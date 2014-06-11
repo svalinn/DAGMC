@@ -48,12 +48,9 @@ However testing of this methodology showed that the input geometry file was not
 read in early enough for material assignments to be set up programmatically
 in a user-defined function.
 
-Another issue with the lfluka link method is that creating a cmake system for it
-will require expertise, assuming it's possible.
-
 Planning
 --------
-This work is reviewed and updated weekly or biweekly.  The following sections 
+This work is reviewed and updated frequently.  The following sections 
 provide an overview of how the code project is to be planned, tracked, tested,
 and documented.
 
@@ -74,8 +71,7 @@ Code Project
 Source Control
 ~~~~~~~~~~~~~~
 The FluDAG project is under Git source control, under svalinn/DAGMC as a publicly
-visible repository.  It has been cloned and placed uder the julry repository, as 
-julry/DAGMC/FluDAG, for local collaboration.
+visible repository.  
 
 Git
 ___
@@ -88,8 +84,8 @@ ___
 - Sample geometry files
 Collaboration and Visibility
 ____________________________
-- Publicly visible svalinn repository, pushed weekly
-- Local collaboration branch in julry, pushed as often as needed
+- Publicly visible svalinn repository
+- Local collaboration branch 
 
 The code is self-documenting, with Doxygen providing the ability to collect and view
 the hyperlinked code documentation in a browser window in file list or graphic form.
@@ -109,7 +105,7 @@ Documentation
 Code
 ____
 Code comments will be formatted and tagged to be used by Doxygen in order to 
-document functions and classes as we go.
+document functions and classes.
 We will use doxywizerd to run Doxygen 1.7.1 on the source file tree.
 Class relationship diagrams and tables can be extracted via doxygen analysis.
 The file named "Doxyfile" has been placed in the git repository.   This file  
@@ -124,4 +120,5 @@ _______
 The User Features and Workflow should be documented via Sphinx in the doc-src directory.
 The Developer Feature status, and its map to the User features should remain in the 
 git repo.
+
 
