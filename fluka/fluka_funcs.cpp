@@ -1,5 +1,5 @@
 //----------------------------------*-C++, Fortran-*----------------------------------// /*!
- * \file   ~/DAGMC/FluDAG/src/cpp/fluka_funcs.cpp
+/* \file   ~/DAGMC/FluDAG/src/cpp/fluka_funcs.cpp
  * \author Julie Zachman 
  * \date   Mon Mar 22 2013 
  * \brief  Functions called by fluka
@@ -1081,8 +1081,6 @@ void region2name(int volindex, char *vname )  // file with cell/surface cards
     exit(EXIT_FAILURE);
   }
 
-// std::ostringstream ostr;
-
   int cmat = 0;
   double crho;
 
@@ -1100,7 +1098,9 @@ void region2name(int volindex, char *vname )  // file with cell/surface cards
        // material for the implicit complement has been specified.
        get_int_prop( vol, cellid, "mat", cmat );
        get_real_prop( vol, cellid, "rho", crho );
-       std::cout << "Detected material and density specified for implicit complement: " << cmat <<", " << crho << std::endl;
+       std::cout 
+            << "Detected material and density specified for implicit complement: " 
+	    << cmat <<", " << crho << std::endl;
      }
    }
    else if( DAG->is_implicit_complement(vol) )
@@ -1127,4 +1127,9 @@ void region2name(int volindex, char *vname )  // file with cell/surface cards
    char *cstr = new char[istr.str().length()+1];
    std:strcpy(cstr,istr.str().c_str());
    vname = cstr;
+}
+// Not Called
+void dagmc_version_(double* dagmcVersion)
+{
+  *dagmcVersion = DAG->version();
 }
