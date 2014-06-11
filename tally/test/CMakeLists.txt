@@ -1,31 +1,7 @@
-# CMAKE build script for DAGMC Tally testing
-
-PROJECT(DAGMCTallyUnitTests)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-
-# ADD_SUBDIRECTORY(gtest/gtest-1.7.0)
-
-# ADD_DIRECTORY(${GTEST_HOME}/gtest-1.7.0)
+# CMAKE build script for DAGMC Tally unit testing
 
 # Where to look for includes
-INCLUDE_DIRECTORIES("${MOAB_HOME}/include" "${GTEST_HOME}/gtest-1.7.0/include")
-
-# make DAGMC Tally source files into a library
-ADD_LIBRARY(dagtally SHARED
-    ${DAGMC_TALLY_SOURCE}/Tally.cpp
-    ${DAGMC_TALLY_SOURCE}/TallyData.cpp
-    ${DAGMC_TALLY_SOURCE}/TallyManager.cpp
-    ${DAGMC_TALLY_SOURCE}/MeshTally.cpp
-    ${DAGMC_TALLY_SOURCE}/TrackLengthMeshTally.cpp
-    ${DAGMC_TALLY_SOURCE}/KDEMeshTally.cpp
-    ${DAGMC_TALLY_SOURCE}/CellTally.cpp
-    ${DAGMC_TALLY_SOURCE}/KDEKernel.cpp
-    ${DAGMC_TALLY_SOURCE}/KDENeighborhood.cpp
-    ${DAGMC_TALLY_SOURCE}/PolynomialKernel.cpp
-    ${DAGMC_TALLY_SOURCE}/Quadrature.cpp
-)
-
-TARGET_LINK_LIBRARIES(dagtally lapack)
+INCLUDE_DIRECTORIES("${GTEST_HOME}/gtest-1.7.0/include")
 
 # set libraries
 SET(LIBRARIES
@@ -33,8 +9,16 @@ SET(LIBRARIES
     ${GTEST_HOME}/lib/libgtest_main.a
     pthread
     dagtally
-    ${MOAB_HOME}/lib/libMOAB.so
+    ${MOAB_ROOT}/lib/libMOAB.so
 )
+
+# copy H5M mesh files to build/test directory
+SET(MESH_FILES
+    structured_mesh.h5m
+    unstructured_mesh.h5m
+)
+
+FILE(COPY ${MESH_FILES} DESTINATION ${CMAKE_BINARY_DIR}/tally/test/)
 
 # set up DAGMC Tally test cases
 ADD_EXECUTABLE(test_KDEKernel test_KDEKernel.cpp)
