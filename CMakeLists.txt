@@ -38,6 +38,7 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
 	INCLUDE(fluka/CMakeModule.txt)
+	ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -73,6 +74,7 @@ ENDIF ( DAGMCIFACE_SRC )
 
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 
 # libraries
 INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
@@ -102,6 +104,10 @@ ENDIF ( BUILD_TALLY )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_TEST )
    MESSAGE ( STATUS "Building tests." )
-   ADD_SUBDIRECTORY(geant4/test)
+   IF (BUILD_GEANT OR BUILD_ALL)
+	   MESSAGE (STATUS "Building Geant4 tests...")
+      	   ADD_SUBDIRECTORY(geant4/test)
+   ENDIF (BUILD_GEANT OR BUILD_ALL)
+   ADD_SUBDIRECTORY(fluka/tests)
 #   INCLUDE(tally/CMakeLists.txt)
 ENDIF ( BUILD_TEST )
