@@ -94,3 +94,14 @@ INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 # Headers
 FILE(GLOB files ${dagmciface_headers})
 INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+# TESTING
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+IF ( BUILD_TEST )
+   MESSAGE ( STATUS "Building tests." )
+   ADD_SUBDIRECTORY(geant4/test)
+#   INCLUDE(tally/CMakeLists.txt)
+ENDIF ( BUILD_TEST )
