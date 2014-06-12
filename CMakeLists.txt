@@ -105,6 +105,7 @@ INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
 # TESTING
 #
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ADD_SUBDIRECTORY(gtest EXCLUDE_FROM_ALL)
 IF ( BUILD_TEST )
    MESSAGE ( STATUS "Building gtest tests..." )
    INCLUDE(gtest/CMakeLists.txt)

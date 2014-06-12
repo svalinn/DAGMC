@@ -61,6 +61,7 @@ SET(LIBS
     ${MOAB_DIR}/libMOAB.so
     ${MOAB_DIR}/libdagmc.so
     ${MOAB_DIR}/libMOAB.so
+    gtest
     pthread
 )
 
@@ -72,14 +73,14 @@ macro(run_test test_target)
       COMMAND ${test_target} #cmake 2.6 required
       DEPENDS ${test_target}
       WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-  add_dependencies(check ${test_target}_runtest)
+  add_dependencies(check ${test_target}_runtest gtest)
 endmacro()
 
 ADD_EXECUTABLE (fludag_unit_tests 
 	fludag_unit_test_driver.cc
 	${fludag_test_source}
     )
-TARGET_LINK_LIBRARIES (fludag_unit_tests ${LIBS} gtest_fluka)
+TARGET_LINK_LIBRARIES (fludag_unit_tests ${LIBS})
 
 
 run_test(fludag_unit_tests)
