@@ -67,7 +67,7 @@ SET(LIBS
     pthread
     ${MOAB_ROOT}/lib/libdagmc.so
     ${MOAB_ROOT}/lib/libMOAB.so
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/libdagmciface.so
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../bld/libdagmciface.so
 )
 
 ADD_EXECUTABLE (fludag_unit_tests 

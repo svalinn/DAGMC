@@ -22,7 +22,8 @@ ENABLE_LANGUAGE(Fortran)
 SET (LIBS 
      ${moablibs} 
      ${FLUPRO}/libflukahp.a 
-     ${CMAKE_CURRENT_BINARY_DIR}/../../lib/libdagmciface.so
+     dagmciface
+     # ${CMAKE_CURRENT_BINARY_DIR}/../../lib/libdagmciface.so
      gfortran
 )
 #SET (fluka_file ${FLUPRO}/usermvax/mgdraw.f)
