@@ -1,13 +1,13 @@
-PROJECT(FluDAGUnitTests)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
+#PROJECT(FluDAGUnitTests)
+#CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
 
-# Note that CMAKE_SOURCE_DIR (without 'CURRNET') is the top-level dir containing CMakeLists.txt
-SET (gtest_home    "${CMAKE_SOURCE_DIR}/../gtest")
+# Note that CMAKE_SOURCE_DIR (without 'CURRENT') is the top-level dir containing CMakeLists.txt
+SET (gtest_home    "${CMAKE_SOURCE_DIR}/gtest")
 SET (gtest_dir     "${gtest_home}/gtest-1.7.0")
-SET (fludag_source "${CMAKE_SOURCE_DIR}/src")
+SET (fludag_source "${CMAKE_SOURCE_DIR}/fluka")
 
 # Where to look for includes
-INCLUDE_DIRECTORIES("${MOAB_HOME}/include" "${gtest_dir}" "${gtest_dir}/include" ${fludag_source})
+INCLUDE_DIRECTORIES("${gtest_dir}" "${gtest_dir}/include" ${fludag_source})
 
 # Setup for gtest libraries
 SET(cxx_base_flags "-Wall -Wshadow")
@@ -54,27 +54,20 @@ ADD_CUSTOM_COMMAND (TARGET ${tgt}
 	VERBATIM
  	)
 
-# make fludag source files into a library
-SET(fludag_source_files 
-	    ${fludag_source}/fluka_funcs.cpp
- )
-
-SET (fludag_test_source ${fludag_source_files}
-	${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp
-	)
+SET (fludag_test_source ${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp)
 
 # set libraries needed to link to test cases
 SET(LIBS
+    dagmciface
+    ${MOAB_DIR}/libMOAB.so
+    ${MOAB_DIR}/libdagmc.so
     pthread
-    ${MOAB_HOME}/lib/libMOAB.so
-    ${MOAB_HOME}/lib/libdagmc.so
-    ${MOAB_HOME}/lib/libMOAB.so
 )
 
 ADD_EXECUTABLE (fludag_unit_tests 
 	fludag_unit_test_driver.cc
 	${fludag_test_source}
-	)
+)
 
 TARGET_LINK_LIBRARIES (fludag_unit_tests ${LIBS} gtest)
 	
