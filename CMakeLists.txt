@@ -106,6 +106,9 @@ INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
 #
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_TEST )
+   MESSAGE ( STATUS "Building gtest tests..." )
+   INCLUDE(gtest/CMakeLists.txt)
+   # build the gtest lib
    MESSAGE ( STATUS "Building tests." )
    IF (BUILD_FLUKA OR BUILD_ALL )
      MESSAGE (STATUS "Building Fluka tests...")
