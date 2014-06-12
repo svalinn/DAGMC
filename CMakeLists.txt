@@ -41,15 +41,15 @@ INCLUDE(common/CMakeLists.txt)
 # MCNP5
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_MCNP5 OR BUILD_ALL )
-  INCLUDE(mcnp5/CMakeLists.txt)
+  ADD_SUBDIRECTORY(mcnp5)
 ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
-  INCLUDE(fluka/CMakeModule.txt)
-#	ADD_SUBDIRECTORY(fluka)
+#  INCLUDE(fluka/CMakeModule.txt)
+  ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

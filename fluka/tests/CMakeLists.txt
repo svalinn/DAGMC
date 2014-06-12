@@ -10,7 +10,7 @@ SET (fludag_source "${CMAKE_SOURCE_DIR}/fluka")
 INCLUDE_DIRECTORIES("${gtest_dir}" "${gtest_dir}/include" ${fludag_source})
 
 # Setup for gtest libraries
-SET(cxx_base_flags "-Wall -Wshadow -Wl,--no-as-needed  ")
+SET(cxx_base_flags "-Wall -Wshadow") # -Wl,--no-as-needed  ")
 SET(cxx_exception_flags "-fexceptions")
 # Ref: https://groups.google.com/forum/#!topic/googletestframework/8S3QSezcoRA
 SET(cxx_strict_flags "-Wextra -Wno-missing-field-initializers")
@@ -66,15 +66,22 @@ SET(LIBS
 
 SET (fludag_test_source ${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp)
 
+add_custom_target(check)
+macro(run_test test_target)
+  add_custom_target(${test_target}_runtest
+      COMMAND ${test_target} #cmake 2.6 required
+      DEPENDS ${test_target}
+      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+  add_dependencies(check ${test_target}_runtest)
+endmacro()
+
 ADD_EXECUTABLE (fludag_unit_tests 
 	fludag_unit_test_driver.cc
 	${fludag_test_source}
-)
-
+    )
 TARGET_LINK_LIBRARIES (fludag_unit_tests ${LIBS} gtest_fluka)
-	
-# enable test cases
-enable_testing()
 
-# list test cases for compatibility with BaTLab
-add_test(test_FlukaFuncs test_FlukaFuncs)
+
+run_test(fludag_unit_tests)
+
+	
