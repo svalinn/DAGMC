@@ -744,6 +744,7 @@ void fludag_write(std::string matfile, std::string lfname)
   int num_vols = fludag_setup();
 
   // Section I - ASSIGNMA
+  std::cout << "Section I --------------------------------------" << std::endl;
   std::ostringstream astr;
   std::list<std::string> matNamesList = fludagwrite_assignma(astr, num_vols);
 
@@ -751,10 +752,12 @@ void fludag_write(std::string matfile, std::string lfname)
 
   // Section Ia - index-id
   // Process the matNamesList list so that it truly is unique
+  std::cout << "Section I -------------------------------------" << std::endl;
   matNamesList.sort();
   matNamesList.unique();
   int num_mats = matNamesList.size();
 
+  std::cout << "num_mats  " << matNamesList.size() << std::endl;
   // Print the final list of unique materials
   if (debug)
   {
@@ -766,6 +769,7 @@ void fludag_write(std::string matfile, std::string lfname)
   }
 
   // Section II - MATERIAL	
+  std::cout << "Section II -------------------------------------" << std::endl;
   std::ostringstream mstr;
   if (num_mats > 0)
   {
@@ -775,6 +779,7 @@ void fludag_write(std::string matfile, std::string lfname)
   // Section III - COMPOUND Cards
 
   // Section IV - Write out the streams
+  std::cout << "Section IV -------------------------------------" << std::endl;
   std::ofstream lcadfile (lfname.c_str());
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   lcadfile << header << std::endl;
@@ -939,11 +944,12 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
 {
   pyne::Material pyneMat = pyne::Material();
 
-  for (int i=0; i<num_mats; ++i)
+  // Skip the implicit complement
+  for (int i=0; i<num_mats-1; ++i)
   {
       pyneMat.from_hdf5(mat_file, "/materials", i,1);
-      print_material(pyneMat);
-      // ostr << pyneMat.fluka();
+      // print_material(pyneMat);
+      ostr << pyneMat.fluka();
   }
 }
 //---------------------------------------------------------------------------//

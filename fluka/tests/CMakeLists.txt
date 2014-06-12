@@ -5,6 +5,7 @@
 SET(LIBS
     pthread
     dagmciface
+    ${pynelibs}
     ${MOAB_DIR}/libMOAB.so
     ${MOAB_DIR}/libdagmc.so
     ${MOAB_DIR}/libMOAB.so
