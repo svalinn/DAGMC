@@ -236,7 +236,10 @@ void KDENeighborhood::points_in_box()
 #if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 && MB_VERSION_PATCH < 3
     rval = kd_tree->leaves_within_distance(kd_tree_root, box_center, radius, leaves);
 #else
-    rval = kd_tree->distance_search(box_center, radius, leaves);
+    // moab::AdaptiveKDTree now checks if box_center is in tree's bounding box,
+    // which does not always work for neighborhood region that overlaps mesh
+    // TODO: using radius as tolerance for temporary fix
+    rval = kd_tree->distance_search(box_center, radius, leaves, radius);
 #endif
     assert(rval == moab::MB_SUCCESS);
 

@@ -28,7 +28,3 @@ ENDIF ()
 ADD_LIBRARY(dagtally SHARED ${DAG_TALLY_FILES} )
 
 TARGET_LINK_LIBRARIES(dagtally lapack)
-
-# Add unit testing subdirectory
-# TODO: omitting test files for now
-#ADD_SUBDIRECTORY(test)
