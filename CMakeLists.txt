@@ -65,20 +65,6 @@ ELSE ( DAGMCIFACE_SRC )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
 ENDIF ( DAGMCIFACE_SRC )
 
-
-
-###################################
-#
-# DAGMC TALLY LIBRARY
-#
-###################################
-
-IF ( BUILD_TALLY )
-   MESSAGE ( STATUS "Building dagmctally library." )
-   INCLUDE(tally/CMakeLists.txt)
-   INSTALL( TARGETS dagtally LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
-ENDIF ( BUILD_TALLY )
-
 ###################################
 #
 # Install dirs 
@@ -94,6 +80,20 @@ INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 # Headers
 FILE(GLOB files ${dagmciface_headers})
 INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
+
+
+###################################
+#
+# DAGMC TALLY LIBRARY
+#
+###################################
+
+IF ( BUILD_TALLY )
+   MESSAGE ( STATUS "Building dagmctally library." )
+   INCLUDE(tally/CMakeLists.txt)
+   INSTALL( TARGETS dagtally LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+ENDIF ( BUILD_TALLY )
+
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
