@@ -38,7 +38,7 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
 	INCLUDE(fluka/CMakeModule.txt)
-	ADD_SUBDIRECTORY(fluka)
+#	ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -104,10 +104,14 @@ ENDIF ( BUILD_TALLY )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_TEST )
    MESSAGE ( STATUS "Building tests." )
+   IF (BUILD_FLUKA OR BUILD_ALL )
+     MESSAGE (STATUS "Building Fluka tests...")
+     ADD_SUBDIRECTORY(fluka/tests)
+   ENDIF (BUILD_FLUKA OR BUILD_ALL )
    IF (BUILD_GEANT OR BUILD_ALL)
-	   MESSAGE (STATUS "Building Geant4 tests...")
-      	   ADD_SUBDIRECTORY(geant4/test)
+     MESSAGE (STATUS "Building Geant4 tests...")
+     ADD_SUBDIRECTORY(geant4/tests)
    ENDIF (BUILD_GEANT OR BUILD_ALL)
-   ADD_SUBDIRECTORY(fluka/tests)
-#   INCLUDE(tally/CMakeLists.txt)
+
+   #   INCLUDE(tally/CMakeLists.txt)
 ENDIF ( BUILD_TEST )
