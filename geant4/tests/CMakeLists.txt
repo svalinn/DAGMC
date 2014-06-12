@@ -67,7 +67,7 @@ set(geant_libs
 
 # set libraries needed to link to test cases
 set(LIBS
-  dagmciface
+  dagsolid
   # not /lib/ currently
   ${MOAB_DIR}/libMOAB.so
   ${MOAB_DIR}/libdagmc.so

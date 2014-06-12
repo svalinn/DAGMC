@@ -17,6 +17,17 @@ INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 
 ###################################
 #
+# Install dirs 
+#
+###################################
+
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+
+
+###################################
+#
 # DAGMC PHYSICS INTERFACE LIBRARY
 #
 ###################################
@@ -37,7 +48,7 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
-	INCLUDE(fluka/CMakeModule.txt)
+  INCLUDE(fluka/CMakeModule.txt)
 #	ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
@@ -46,7 +57,8 @@ ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF ( BUILD_GEANT OR BUILD_ALL )
- INCLUDE(geant4/CMakeLists.txt)
+   INCLUDE(geant4/CMakeLists.txt)
+   INSTALL( TARGETS dagsolid LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 ENDIF ( BUILD_GEANT OR BUILD_ALL )
 
 
@@ -66,23 +78,6 @@ ELSE ( DAGMCIFACE_SRC )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
 ENDIF ( DAGMCIFACE_SRC )
 
-###################################
-#
-# Install dirs 
-#
-###################################
-
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
-set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
-set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-
-# libraries
-INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
-
-# Headers
-FILE(GLOB files ${dagmciface_headers})
-INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
-
 
 ###################################
 #
@@ -95,6 +90,14 @@ IF ( BUILD_TALLY )
    INCLUDE(tally/CMakeLists.txt)
    INSTALL( TARGETS dagtally LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 ENDIF ( BUILD_TALLY )
+
+
+# libraries
+INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+
+# Headers
+FILE(GLOB files ${dagmciface_headers})
+INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
