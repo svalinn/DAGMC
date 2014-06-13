@@ -1,19 +1,22 @@
-######################################################################
-#
-# CMakeLists.txt for dagmc fluka
-#
-######################################################################
-
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE ( STATUS "Including FLUKA in dagmciface library.")
-SET ( DAG_FLUKA_SRCDIR "fluka" )
 
-SET ( DAGMCIFACE_FLUKA_SRC "${DAG_FLUKA_SRCDIR}/fluka_funcs.cpp" )
+SET ( CODE_SRCDIR      "fluka" )
+SET ( CODE_SRC_FILES   "${CODE_SRCDIR}/fluka_funcs.cpp"  )
+SET ( CODE_PUB_HEADERS "${CODE_SRCDIR}/fluka_funcs.h" )
+SET ( CODE_CONFIG       )
 
-SET ( DAGMCIFACE_FLUKA_HEADERS "${DAG_FLUKA_SRCDIR}/fluka_funcs.h")
+SET ( DI_PUB_HEADERS ${DI_PUB_HEADERS}
+                     ${CODE_PUB_HEADERS}
+                     ${CODE_CONFIG}
+      PARENT_SCOPE)
 
-SET( dagmciface_headers ${dagmciface_headers} ${DAGMCIFACE_FLUKA_HEADERS} PARENT_SCOPE)
+SET ( DI_SRC_FILES ${DI_SRC_FILES} 
+                   ${CODE_SRC_FILES} 
+      PARENT_SCOPE)
 
-SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_FLUKA_SRC} PARENT_SCOPE)
-INCLUDE_DIRECTORIES( DAG_FLUKA_SRCDIR )
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${CODE_SRCDIR} )
 
-ADD_SUBDIRECTORY(tests EXCLUDE_FROM_ALL)
+ADD_SUBDIRECTORY(tests)
+
+
