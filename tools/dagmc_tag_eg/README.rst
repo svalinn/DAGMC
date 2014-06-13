@@ -34,4 +34,3 @@ as `shape_zoo_merged.h5m`, but volume with ID=1 has been tagged with
 density=3.5.
 
 
-
