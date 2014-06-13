@@ -131,8 +131,6 @@ int main(int argc, char **argv)
   CHKERR(rval,"Failed to get the density.");
   std::cout << "Retrieved density on volume id " << find_vol_id << " = " << check_density << std::endl;
 
-<<<<<<< HEAD
-=======
   // create new string tag
   MBTag name_tag;
   char name_tag_name [OUR_NAME_TAG_SIZE] = "name\0";
@@ -152,8 +150,6 @@ int main(int argc, char **argv)
   CHKERR(rval,"Failed to get the density.");
   std::cout << "Retrieved density on volume id " << find_vol_id << " = " << name_tag_return << std::endl;
 
-
->>>>>>> develop
   // save the mesh
   rval = MBI()->write_mesh(out_filename);
   CHKERR1(rval,"Failed to write file: ",out_filename);
