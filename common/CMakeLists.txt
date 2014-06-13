@@ -1,11 +1,19 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE ( STATUS "Including Common functions in dagmciface library.")
-SET ( DAG_COMMON_SRCDIR "common" )
-SET ( DAGMCIFACE_COMMON_SRC "${DAG_COMMON_SRCDIR}/dagmciface.cpp" )
-SET ( DAGMCIFACE_COMMON_HEADERS "${DAG_COMMON_SRCDIR}/dagmciface.h" )
 
-SET ( DAGMCIFACE_SRC ${DAGMCIFACE_SRC} ${DAGMCIFACE_COMMON_SRC} )
+SET ( CODE_SRCDIR      "common" )
+SET ( CODE_SRC_FILES   "${CODE_SRCDIR}/dagmciface.cpp"  )
+SET ( CODE_PUB_HEADERS "${CODE_SRCDIR}/dagmciface.h" )
+SET ( CODE_CONFIG       )
 
-SET( dagmciface_headers ${DAGMCIFACE_COMMON_HEADERS} )
+SET ( DI_PUB_HEADERS ${DI_PUB_HEADERS}
+                     ${CODE_PUB_HEADERS}
+                     ${CODE_CONFIG}
+      PARENT_SCOPE)
 
-INCLUDE_DIRECTORIES( "${DAG_COMMON_SRCDIR}")
+SET ( DI_SRC_FILES ${DI_SRC_FILES} 
+                   ${CODE_SRC_FILES} 
+      PARENT_SCOPE)
+
+#ADD_SUBDIRECTORY(tests)
+

@@ -1,44 +1,22 @@
-# PROJECT (mainFluDAG)
-# CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
-MESSAGE (STATUS "Building mainFluDAG")
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+MESSAGE ( STATUS "Including FLUKA in dagmciface library.")
 
-IF (NOT DEFINED HOME) 
-	set (HOME "$ENV{HOME}")
-ENDIF (NOT DEFINED HOME) 
+SET ( CODE_SRCDIR      "fluka" )
+SET ( CODE_SRC_FILES   "${CODE_SRCDIR}/fluka_funcs.cpp"  )
+SET ( CODE_PUB_HEADERS "${CODE_SRCDIR}/fluka_funcs.h" )
+SET ( CODE_CONFIG       )
 
-IF (NOT DEFINED FLUPRO)
-	set (FLUPRO "$ENV{FLUPRO}")
-ENDIF (NOT DEFINED FLUPRO)
+SET ( DI_PUB_HEADERS ${DI_PUB_HEADERS}
+                     ${CODE_PUB_HEADERS}
+                     ${CODE_CONFIG}
+      PARENT_SCOPE)
 
-SET(moablibs 
-	${MOAB_DIR}/libdagmc.so 
-	${MOAB_DIR}/libMOAB.so 
-)
+SET ( DI_SRC_FILES ${DI_SRC_FILES} 
+                   ${CODE_SRC_FILES} 
+      PARENT_SCOPE)
 
-ENABLE_LANGUAGE(Fortran)
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${CODE_SRCDIR} )
 
-SET (LIBS 
-     ${moablibs} 
-     ${FLUPRO}/libflukahp.a 
-     dagmciface
-     gfortran
-)
-#SET (fluka_file ${FLUPRO}/usermvax/mgdraw.f)
-#SET (fluka_includes ${FLUPRO}/flukapro)
-#SET (fluka_libdir ${FLUPRO})
-#ADD_CUSTOM_COMMAND(OUTPUT mgdraw.o
-#       COMMAND gfortran -c ${fluka_file} -I${fluka_includes} 
-#       DEPENDS ${FLUPRO}/usermvax/mgdraw.f
-#       COMMENT "Custom command to compile mgdraw object with parenthetically named includes"
-#       )
-#ADD_CUSTOM_TARGET (mgdraw
-#	        DEPENDS mgdraw.o)
+ADD_SUBDIRECTORY(tests)
 
-# Create the executable that can call flukam_
-ADD_EXECUTABLE(mainfludag mainFluDAG.cpp)
-TARGET_LINK_LIBRARIES(mainfludag ${LIBS})
-INSTALL( TARGETS mainfludag RUNTIME DESTINATION bin)
-
-#ADD_LIBRARY(fluka_library fluka_funcs.cpp)
-#TARGET_LINK_LIBRARIES(fluka_library ${moablibs} ${FLUPRO}/libflukahp.a gfortran)
 

@@ -1,8 +1,9 @@
 # CMAKE build script for DAGMC Tally
 
 # CMAKE_SOURCE_DIR (without 'CURRENT') is the top-level dir containing CMakeLists.txt
-SET (gtest_home    "${CMAKE_SOURCE_DIR}/gtest")
-SET (gtest_dir     "${gtest_home}/gtest-1.7.0")
+SET (gtest_home    "${CMAKE_SOURCE_DIR}/gtest" )
+SET (gtest_dir     "${gtest_home}/gtest-1.7.0" )
+SET (GTEST_INC_DIR ${gtest_dir}/include PARENT_SCOPE)
 
 # Where to look for includes
 INCLUDE_DIRECTORIES(${gtest_dir} ${gtest_dir}/include)

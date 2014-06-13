@@ -9,11 +9,26 @@ PROJECT (DAGMC)
 SET ( DAGMC_VERSION_MAJOR 1 )
 SET ( DAGMC_VERSION_MINOR 0 )
 
+###########################
+#
+# FIND DEPENDENCIES
+#
+##########################
+
 FIND_PACKAGE ( MOAB REQUIRED ) 
-
 MESSAGE ( STATUS "Found MOAB Version: " ${MOAB_VERSION} )
-
 INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
+
+###################################
+#
+# SETUP GTEST DEPENDENCY
+# - only build during make check
+#
+###################################
+
+SET ( GTEST_INC_DIR "" )
+ADD_SUBDIRECTORY(gtest EXCLUDE_FROM_ALL)
+INCLUDE_DIRECTORIES(${GTEST_INC_DIR})
 
 ###################################
 #
@@ -21,10 +36,9 @@ INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 #
 ###################################
 
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
-set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-
+set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
 
 ###################################
 #
@@ -33,23 +47,17 @@ set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 ###################################
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# COMMON
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-INCLUDE(common/CMakeLists.txt)
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # MCNP5
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_MCNP5 OR BUILD_ALL )
-  INCLUDE(mcnp5/CMakeLists.txt)
+  ADD_SUBDIRECTORY(mcnp5)
 ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
-  INCLUDE(fluka/CMakeModule.txt)
-#	ADD_SUBDIRECTORY(fluka)
+  ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,8 +65,9 @@ ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF ( BUILD_GEANT OR BUILD_ALL )
-   INCLUDE(geant4/CMakeLists.txt)
-   INSTALL( TARGETS dagsolid LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+  INCLUDE(geant4/CMakeLists.txt)
+  INSTALL( TARGETS             dagsolid 
+           LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 ENDIF ( BUILD_GEANT OR BUILD_ALL )
 
 
@@ -68,16 +77,27 @@ ENDIF ( BUILD_GEANT OR BUILD_ALL )
 #
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IF ( DAGMCIFACE_SRC )
+IF ( DI_SRC_FILES )
+  ADD_SUBDIRECTORY(common)
   IF ( STATIC_LIB )
-   ADD_LIBRARY(dagmciface STATIC ${DAGMCIFACE_SRC} )
+   ADD_LIBRARY(dagmciface STATIC ${DI_SRC_FILES} )
   ELSEIF ( NOT STATIC_LIB )
-    ADD_LIBRARY(dagmciface SHARED ${DAGMCIFACE_SRC} )
+    ADD_LIBRARY(dagmciface SHARED ${DI_SRC_FILES} )
   ENDIF ( STATIC_LIB )
-ELSE ( DAGMCIFACE_SRC )
-  MESSAGE ( STATUS "Not building dagmciface physics interface library")
-ENDIF ( DAGMCIFACE_SRC )
 
+  SET_TARGET_PROPERTIES( dagmciface        PROPERTIES   
+                         PUBLIC_HEADER     "${DI_PUB_HEADERS}" 
+                         )
+                          
+  INSTALL( TARGETS       dagmciface 
+           LIBRARY        DESTINATION   "${INSTALL_LIB_DIR}"
+           ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
+           PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
+         )
+ELSE ( DI_SRC_FILES )
+  MESSAGE ( STATUS "Not building dagmciface physics interface library")
+ENDIF ( DI_SRC_FILES )
+         
 
 ###################################
 #
@@ -86,38 +106,11 @@ ENDIF ( DAGMCIFACE_SRC )
 ###################################
 
 IF ( BUILD_TALLY )
-   MESSAGE ( STATUS "Building dagmctally library." )
-   INCLUDE(tally/CMakeLists.txt)
-   INSTALL( TARGETS dagtally LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+  ADD_SUBDIRECTORY(tally)
 ENDIF ( BUILD_TALLY )
 
 
-# libraries
-INSTALL( TARGETS dagmciface LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
-
-# Headers
-FILE(GLOB files ${dagmciface_headers})
-INSTALL( FILES ${dagmciface_headers} DESTINATION "${INSTALL_INCLUDE_DIR}")
 
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#
-# TESTING
-#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-IF ( BUILD_TEST )
-   MESSAGE ( STATUS "Building gtest tests..." )
-   INCLUDE(gtest/CMakeLists.txt)
-   # build the gtest lib
-   MESSAGE ( STATUS "Building tests." )
-   IF (BUILD_FLUKA OR BUILD_ALL )
-     MESSAGE (STATUS "Building Fluka tests...")
-     ADD_SUBDIRECTORY(fluka/tests)
-   ENDIF (BUILD_FLUKA OR BUILD_ALL )
-   IF (BUILD_GEANT OR BUILD_ALL)
-     MESSAGE (STATUS "Building Geant4 tests...")
-     ADD_SUBDIRECTORY(geant4/tests)
-   ENDIF (BUILD_GEANT OR BUILD_ALL)
 
-   #   INCLUDE(tally/CMakeLists.txt)
-ENDIF ( BUILD_TEST )
+
