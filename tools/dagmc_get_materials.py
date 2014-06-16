@@ -31,14 +31,14 @@ def get_tag_values(filename):
     tag_values = []
     found_all_tags = 0
     for s in mesh_sets:
-        if found_all_tags == 1:
+        if (found_all_tags == 1):
             break
         # get all the tags
         tags = mesh.getAllTags(s)
         # loop over the tags checking for name
         for t in tags:
             # look for NAME tag
-            if t.name == 'NAME':
+            if (t.name == 'NAME'):
                 # the handle is the tag name
                 t_handle = mesh.getTagHandle(t.name)
                 # get the data for the tag, with taghandle in element i
@@ -75,7 +75,7 @@ def tag_to_script(tag, tag_list):
     #    if not any(test in s for s in tag_list):
     # the original code was incorrectly missing groups when one of the same
     # name with/without rho was added
-    if test not in tag_list:
+    if (test not in tag_list):
         tag_list.append(test)
     return tag_list
 
@@ -103,38 +103,38 @@ returns mat_dens_list, a zipped pair of density and material name
 
 
 def check_matname(tag_values):
-    #loop over tags to check the existence of a 'vacuum' group
+    # loop over tags to check the existence of a 'vacuum' group
     for tag in tag_values:
         if ('Vacuum' in tag) or ('vacuum' in tag):
             tag_values.remove(tag)
     g = 0
     mat_list_matname = []  # list of material names
     mat_list_density = []  # list of density if provided in the group names
-    # loop over the tags in the file
+    # loop over the tags in the file to test the existence of a graveyard
     for tag in tag_values:
         if ('Graveyard' in tag) or ('graveyard' in tag):
             g = 1
             continue
     # look for mat, this id's material in group name
-        if tag[0:3] == 'mat':
+        if (tag[0:3] == 'mat'):
             # split on the basis of "/" being delimiter and split colons from
             # name
-            if '/' in tag:
+            if ('/' in tag):
                 splitted_group_name = mat_dens_split(tag)
             # otherwise we have only "mat:"
-            elif ':' in tag:
+            elif (':' in tag):
                 splitted_group_name = mat_split(tag)
             else:
                 raise Exception(
                     "Couldn\'t find group name in appropriate format; ': is absent' in  %s" % tag)
             mat_list_matname.append(splitted_group_name['material'])
             mat_list_density.append(splitted_group_name['density'])
-    if g == 0:
+    if (g == 0):
         raise Exception(
             "Graveyard group is missing! You must have a graveyard")
     mat_dens_list = zip(mat_list_matname, mat_list_density)
     # error conditions, no tags found
-    if len(mat_dens_list) == 0:
+    if (len(mat_dens_list) == 0):
         raise Exception(
             "No material group names found, you must have materials")
 
@@ -150,22 +150,22 @@ group name containing both material name and density
 def mat_dens_split(tag):
     splitted_group_name = {}
     mat_name = tag.split('/')
-    if ':' not in mat_name[0]:
+    if (':' not in mat_name[0]):
         raise Exception(
             "Couldn\'t find group name in appropriate format; ':' is absent in %s" % tag)
     # list of material name only
     matname = mat_name[0].split(':')
-    if len(matname) > 2:
+    if (len(matname) > 2):
         raise Exception(
             "Wrong format for group names! %s. correct: mat:NAME/rho:VALUE or mat:NAME" % tag)
-    if matname[1] == '':
+    if (matname[1] == ''):
         raise Exception(
             "Couldn\'t find group name in appropriate format; wrong material name in %s" % tag)
     splitted_group_name['material'] = matname[1]
-    if mat_name[1] == '':
+    if (mat_name[1] == ''):
         raise Exception(
             "Couldn\'t find group name in appropriate format; extra \'/\' in %s" % tag)
-    if ':' not in mat_name[1]:
+    if (':' not in mat_name[1]):
         raise Exception(
             "Couldn\'t find group name in appropriate format; ':' is absent after the '/' in %s" % tag)
     matdensity = mat_name[1].split(':')
@@ -186,10 +186,10 @@ group name containing only material name
 def mat_split(tag):
     splitted_group_name = {}
     matname = tag.split(':')
-    if len(matname) > 2:
+    if (len(matname) > 2):
         raise Exception(
             "Wrong format for group names! %s. correct: mat:NAME/rho:VALUE or mat:NAME" % tag)
-    if matname[1] == '':
+    if (matname[1] == ''):
         raise Exception(
             "Couldn\'t find group name in appropriate format; wrong material name in %s" % tag)
     splitted_group_name['material'] = matname[1]
@@ -198,7 +198,7 @@ def mat_split(tag):
 
 """
 function that checks the existence of material names on the PyNE library 
-and creates a list of materials with attributes set
+and creates a list of materials with attributes/metadata set
 -------------------------------------------------------------
 material_list : vector of material_name & density pairs
 mat_lib : PyNE Material library object
@@ -225,17 +225,17 @@ def check_and_create_materials(material_list, mat_lib):
 
                 # rename the material to match the group
                 group_name = "mat:" + material_list[g][0]
-                if material_list[g][1] is not '':
+                if (material_list[g][1] is not ''):
                     group_name += "/rho:" + material_list[g][1]
                 print "grp2", group_name
                 new_mat.metadata['name'] = group_name
 
-                if material_list[g][1] != '':
+                if (material_list[g][1] != ''):
                     new_mat.density = float(material_list[g][1])
 
                 material_object_list.append(new_mat)
                 break
-            if mat_lib.keys().index(key) == len(mat_lib.keys()) - 1:
+            if (mat_lib.keys().index(key) == len(mat_lib.keys()) - 1):
                 print(
                     'Material {%s} doesn\'t exist in pyne material lib' % material)
                 print_near_match(material, mat_lib)
@@ -300,17 +300,17 @@ def fluka_material_naming(material, flukamat_list):
     else:
         pass
     # if name is in list, change name by appending number
-    if matf.upper() in flukamat_list:
+    if (matf.upper() in flukamat_list):
         for a in range(len(flukamat_list)):
             a = a + 1
-            if a <= 9:
+            if (a <= 9):
                 matf = matf.rstrip(matf[-1])
                 matf = matf + str(a)
             else:
                 for i in range(len(a)):
                     matf = matf.rstrip(matf[-1])
                 matf = matf + str(a)
-            if matf.upper() in flukamat_list:
+            if (matf.upper() in flukamat_list):
                 continue
             else:
                 flukamat_list.append(matf.upper())
@@ -355,7 +355,7 @@ function to parse the script, adding options:
 defining 
 -f  : the .h5m file path
 -d  : nuc_data path
--o  : name of the output h5m file "NAME.h5m"
+-o  : name of the output h5m file "NAME.h5m", if not set the input .h5m file will be used
 """
 
 
@@ -373,7 +373,7 @@ def parsing():
     if not args.nuc_data:
         raise Exception('nuc_data file path not specified!!. [-d] is not set')
     if not args.output:
-        args.output = 'output.h5m'
+        args.output = args.datafile
     return args
 
 """
