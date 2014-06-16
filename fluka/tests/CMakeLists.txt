@@ -1,6 +1,13 @@
 #PROJECT(FluDAGUnitTests)
 #CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
 
+SET(pynelibs
+	${HDF5_HOME}/lib/libhdf5.so
+	${PYNE_HOME}/lib/libpyne.so
+	${PYNE_HOME}/lib/libpyne_material.so
+	${PYNE_HOME}/lib/libpyne_nucname.so
+	${PYNE_HOME}/lib/libpyne_data.so
+)
 # set libraries needed to link to test cases
 SET(LIBS
     pthread
