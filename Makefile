@@ -1,6 +1,7 @@
 # Makefile for Sphinx documentation
 #
 
+
 # The included file 'gh-project.mk' should define the following:
 # GH_SOURCE_DIR = top-level directory of all the ReST source files
 # GH_SOURCE_BRANCH = repository branch that contains the source

@@ -25,6 +25,8 @@ ADD_LIBRARY(dagtally SHARED
     ${DAGMC_TALLY_SOURCE}/Quadrature.cpp
 )
 
+TARGET_LINK_LIBRARIES(dagtally lapack)
+
 # set libraries
 SET(LIBRARIES
     ${GTEST_HOME}/lib/libgtest.a
@@ -59,6 +61,9 @@ TARGET_LINK_LIBRARIES(test_TallyEvent ${LIBRARIES})
 ADD_EXECUTABLE(test_TallyData test_TallyData.cpp)
 TARGET_LINK_LIBRARIES(test_TallyData ${LIBRARIES})
 
+ADD_EXECUTABLE(test_Tally test_Tally.cpp)
+TARGET_LINK_LIBRARIES(test_Tally ${LIBRARIES})
+
 # enable DAGMC Tally test cases
 ENABLE_TESTING()
 
@@ -71,3 +76,4 @@ ADD_TEST(test_Quadrature test_Quadrature)
 ADD_TEST(test_CellTally test_CellTally)
 ADD_TEST(test_TallyEvent test_TallyEvent)
 ADD_TEST(test_TallyData test_TallyData)
+ADD_TEST(test_Tally test_Tally)
