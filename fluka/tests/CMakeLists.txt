@@ -1,22 +1,6 @@
 #PROJECT(FluDAGUnitTests)
 #CMAKE_MINIMUM_REQUIRED(VERSION 2.6.4)
 
-SET(pynelibs
-	${HDF5_HOME}/lib/libhdf5.so
-	${PYNE_LIBS_DIR}/libpyne.so
-)
-# set libraries needed to link to test cases
-SET(LIBS
-    pthread
-    dagmciface
-    ${pynelibs}
-    ${MOAB_DIR}/libMOAB.so
-    ${MOAB_DIR}/libdagmc.so
-    ${MOAB_DIR}/libMOAB.so
-    gtest
-    pthread
-)
-
 SET (fludag_test_source ${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp)
 
 add_custom_target(check)
@@ -34,7 +18,10 @@ ADD_EXECUTABLE (fludag_unit_tests
 	${fludag_test_source}
     )
 
-TARGET_LINK_LIBRARIES (fludag_unit_tests ${LIBS})
+TARGET_LINK_LIBRARIES (fludag_unit_tests 
+	${FLUDAG_LIBS} 
+        gtest
+        pthread )
 
 run_test(fludag_unit_tests)
 
