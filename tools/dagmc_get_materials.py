@@ -142,8 +142,8 @@ def get_tally(filename):
                     except:
                         raise Exception(
                             "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % group_name)
-                tally_type_list.append(tally_type)
-                tally_particle_list.append(tally_particle)
+                    tally_type_list.append(tally_type)
+                    tally_particle_list.append(tally_particle)
     tally_list = zip(tally_type_list, tally_objects_list)
     tally_values = zip(tally_particle_list, tally_list)
     print('The tally groups found in the h5m file are: ')
