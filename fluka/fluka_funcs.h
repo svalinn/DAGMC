@@ -10,8 +10,8 @@
 #include "MBInterface.hpp"
 #include "MBCartVect.hpp"
 #include "DagMC.hpp"
+#include "pyne/pyne.h"
 
-#include "material.h"   // needed for print_material args
 
 /// Called from mainFludag when only one argument is given to the program.
 //  This function writes out a simple numerical material assignment to the named argument file

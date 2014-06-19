@@ -14,6 +14,8 @@ SET ( DAGMC_VERSION_MINOR 0 )
 # FIND DEPENDENCIES
 #
 ##########################
+# Needed for FindPyne.cmake
+SET ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 FIND_PACKAGE ( MOAB REQUIRED ) 
 MESSAGE ( STATUS "Found MOAB Version: " ${MOAB_VERSION} )
@@ -29,6 +31,7 @@ INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 SET ( GTEST_INC_DIR "" )
 ADD_SUBDIRECTORY(gtest EXCLUDE_FROM_ALL)
 INCLUDE_DIRECTORIES(${GTEST_INC_DIR})
+
 
 ###################################
 #
@@ -57,6 +60,13 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
+  #Find the Pyne installation
+  find_package(Pyne REQUIRED)
+  link_directories(${PYNE_LIBS_DIR})
+  include_directories(${PYNE_INCLUDE_DIR})
+  INCLUDE_DIRECTORIES(${HDF5_HOME}/include)
+  MESSAGE ( STATUS "PYNE_LIBS_DIR is " ${PYNE_LIBS_DIR})
+  MESSAGE ( STATUS "PYNE_INCLUDE_DIR is " ${PYNE_INCLUDE_DIR})
   ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 

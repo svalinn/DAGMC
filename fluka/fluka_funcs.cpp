@@ -17,10 +17,6 @@
 #include "DagMC.hpp"
 #include "moab/Types.hpp"
 
-// #include "material.h"
-#include "nucname.h"
-#include "data.h"
-
 using moab::DagMC;
 
 #include <iomanip>

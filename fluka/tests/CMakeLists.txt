@@ -3,10 +3,7 @@
 
 SET(pynelibs
 	${HDF5_HOME}/lib/libhdf5.so
-	${PYNE_HOME}/lib/libpyne.so
-	${PYNE_HOME}/lib/libpyne_material.so
-	${PYNE_HOME}/lib/libpyne_nucname.so
-	${PYNE_HOME}/lib/libpyne_data.so
+	${PYNE_LIBS_DIR}/libpyne.so
 )
 # set libraries needed to link to test cases
 SET(LIBS
