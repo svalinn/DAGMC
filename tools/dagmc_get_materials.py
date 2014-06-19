@@ -93,77 +93,106 @@ def load_mat_lib(filename):
     return mat_lib
 
 """
-Function that checks the existence of tally groups and returns a list of particles,
-tally type, and geometry objects included
+Function that checks the existence of tally groups and returns a list of tally type,
+particles, and geometry objects (type and ID) included
 """
-def get_tally(filename): #, tag_values):
-    #get the number of tally groups in the list of tags 'tag_values'
-    #count=0
-    #for (tag in tag_values):
-    #    if 'tally' in tag:
-   #         count=count+1
-   #         continue
-    #load mesh         
+
+
+def get_tally(filename):
+    # load mesh
     mesh = iMesh.Mesh()
     mesh.load(filename)
-    # get all entities
-    ents=mesh.getEntities(iBase.Type.all, iMesh.Topology.triangle)
-    # get mesh set
+    # get mesh sets
     mesh_sets = mesh.getEntSets()
-    print('There are %i Entity sets' %mesh.getNumEntSets())
-    tally_values= []
-    tally_list=[]
-    tally_objects_list=[]
-    tally_type_list=[]
-    tally_particle_list=[]
+    tally_values = []
+    tally_list = []
+    tally_objects_list = []
+    tally_type_list = []
+    tally_particle_list = []
+    # loop over the sets to get the ones included in tally groups
     for s in mesh_sets:
         # get all the tags
         tags = mesh.getAllTags(s)
-        # loop over the tags checking for name
         for t in tags:
             if t.name == 'NAME':
                 tag_h = mesh.getTagHandle(t.name)
                 tag = tag_h[s]
-                a=[]
-                for part in tag:
-                    # if the byte char code is non 0
-                    if (part != 0):
-                        # convert to ascii
-                        a.append(str(unichr(part)))
-                        # join to end string
-                        group_name = ''.join(a)
-                #print s.getNumEntSets(hops=-1)
-                #print s.getEntSets(hops=-1)
+                group_name = tally_to_script(tag)
                 if 'tally' in group_name:
-                    print group_name
+                    # group name in that case is a tally group name and set 's' is a group of sets of geometry
+                    # objects included in the tally
+                    # get the geometry objects included; ID and type of each
+                    get_entity(mesh, s, tags, tally_objects_list)
+                    # split on the basis of '/' to get tally type
                     try:
-                        tally_type=group_name.split('/')[1]
+                        tally_type = group_name.split('/')[1]
+                        if tally_type == '':
+                            raise Exception(
+                                "Tally type is missing in %s" % group_name)
                     except:
-                        raise Exception("Couldn\'t find group name in appropriate format!. '/' is missing in %s" %group_name)
+                        raise Exception(
+                            "Couldn\'t find group name in appropriate format!. '/' is missing in %s" % group_name)
+                    # split on the basis of ':' to get the tally particle
                     try:
-                        group_name=group_name.split('/')
-                        tally_particle=group_name[0].split(':')[1]
+                        group_name = group_name.split('/')
+                        tally_particle = group_name[0].split(':')[1]
+                        if tally_particle == '':
+                            raise Exception(
+                                "Tally particle is missing in %s" % group_name)
                     except:
-                        raise Exception("Couldn\'t find group name in appropriate format!. ':' is missing in %s" %group_name)
-                    tally_type_list.append(tally_type)
-                    tally_particle_list.append(tally_particle)     
-                    
-                    #get the geometry objects included
-                    ID_list=[]
-                    for k in s.getEntSets(hops=-1):
-                        for t in tags:        
-                            if t.name == 'GLOBAL_ID':
-                                ID_h = mesh.getTagHandle(t.name)
-                                ID = ID_h[k]
-                                print ID #tally_object=tag_to_script(tag)
-                                ID_list.append(ID)
-                    tally_objects_list.append(ID_list) 
-    tally_list=zip(tally_type_list, tally_objects_list)
-    tally_values=zip(tally_particle_list, tally_list)                           
+                        raise Exception(
+                            "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % group_name)
+                tally_type_list.append(tally_type)
+                tally_particle_list.append(tally_particle)
+    tally_list = zip(tally_type_list, tally_objects_list)
+    tally_values = zip(tally_particle_list, tally_list)
     print('The tally groups found in the h5m file are: ')
     print tally_values
     return tally_values
 
+"""
+Function that gets both the ID and type of entities included in the tally group
+returns a list of 'type:ID' of geometry objects included
+"""
+
+
+def get_entity(mesh, mesh_set, tags, tally_objects_list):
+    ID_list = []
+    # loop over the tags checking for name
+    for k in mesh_set.getEntSets(hops=-1):
+        for t in tags:
+            # get the type of geometry objects included; vol, surf, etc.
+            if t.name == 'CATEGORY':
+                category_h = mesh.getTagHandle(t.name)
+                category = category_h[k]
+                category = tally_to_script(category)
+                continue
+            # get the ID of geometry objects included
+            if t.name == 'GLOBAL_ID':
+                ID_h = mesh.getTagHandle(t.name)
+                ID = ID_h[k]
+                continue
+        object_type_id = category + ':' + str(ID)
+        ID_list.append(object_type_id)
+    tally_objects_list.append(ID_list)
+    return tally_objects_list
+
+"""
+function that transforms tags into strings
+returns tag
+"""
+
+
+def tally_to_script(tag):
+    a = []
+    for part in tag:
+        # if the byte char code is non 0
+        if (part != 0):
+            # convert to ascii
+            a.append(str(unichr(part)))
+            # join to end string
+            name = ''.join(a)
+    return name
 
 """
 function to check that material group names exist and creates
@@ -459,8 +488,8 @@ def main():
     args = parsing()
     # get list of tag values
     tag_values = get_tag_values(args.datafile)
-    #get list of tally objects
-    tally_values=get_tally(args.datafile) #, tag_values)
+    # get list of tally objects
+    tally_values = get_tally(args.datafile)
     # now load material library
     mat_lib = load_mat_lib(args.nuc_data)
     # check that material tags exist in library # material_list is list of
