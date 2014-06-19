@@ -124,25 +124,10 @@ def get_tally(filename):
                     # get the geometry objects included; ID and type of each
                     get_entity(mesh, s, tags, tally_objects_list)
                     # split on the basis of '/' to get tally type
-                    try:
-                        tally_type = group_name.split('/')[1]
-                        if tally_type == '':
-                            raise Exception(
-                                "Tally type is missing in %s" % group_name)
-                    except:
-                        raise Exception(
-                            "Couldn\'t find group name in appropriate format!. '/' is missing in %s" % group_name)
-                    # split on the basis of ':' to get the tally particle
-                    try:
-                        group_name = group_name.split('/')
-                        tally_particle = group_name[0].split(':')[1]
-                        if tally_particle == '':
-                            raise Exception(
-                                "Tally particle is missing in %s" % group_name)
-                    except:
-                        raise Exception(
-                            "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % group_name)
+                    tally_type = type_split(group_name)
                     tally_type_list.append(tally_type)
+                    # split on the basis of ':' to get the tally particle
+                    tally_particle = particle_split(group_name)
                     tally_particle_list.append(tally_particle)
     tally_list = zip(tally_type_list, tally_objects_list)
     tally_values = zip(tally_particle_list, tally_list)
@@ -193,6 +178,39 @@ def tally_to_script(tag):
             # join to end string
             name = ''.join(a)
     return name
+
+"""
+Function that splits group name on the basis of '/'
+returns tally type
+"""
+
+
+def type_split(tally_group_name):
+    try:
+        tally_type = tally_group_name.split('/')[1]
+    except:
+        raise Exception(
+            "Couldn\'t find group name in appropriate format!. '/' is missing in %s" % tally_group_name)
+    if tally_type == '':
+        raise Exception("Tally type is missing in %s" % tally_group_name)
+    return tally_type
+
+"""
+Function that splits group name on the basis of ':'
+returns tally particle
+"""
+
+
+def particle_split(tally_group_name):
+    try:
+        group_name = tally_group_name.split('/')
+        tally_particle = group_name[0].split(':')[1]
+    except:
+        raise Exception(
+            "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % tally_group_name)
+    if tally_particle == '':
+        raise Exception("Tally particle is missing in %s" % tally_group_name)
+    return tally_particle
 
 """
 function to check that material group names exist and creates
