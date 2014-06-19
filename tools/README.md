@@ -1,4 +1,4 @@
-About the dagmc_get_materials and tests scripts
+About the dagmc_get_materials and test scripts
 ====
 # General:
 'dagmc_get_materials.py' is a Python script to handle the group names from a CAD model by creating a list of all group names and then extract the materials group names which then are used to get the specifications/metadata of each material (for exapmle the composition, density, atoms per molecule and the like). It then creates an output h5m file containing a directory that contains all the materials from the group names on the original CAD model along with all its metadata. In order to be able to copy the material metadata we need a materials library to copy from so some dependencies are required.
