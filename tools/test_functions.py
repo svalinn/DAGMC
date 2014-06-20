@@ -202,19 +202,31 @@ def test_match_1():
     assert_equal(
         gtag.print_near_match('air', material_library), list_of_matches)
         
-        
+
+'''functions linked to get_tally'''        
 """
-test get_tally function
+test type_split function
 """
-#include the following in a test
-    #-----------------------------
-    #|#get the number of tally groups in the list of tags 'tag_values'
-    #|#count=0
-    #|#for (tag in tag_values):
-    #|    if 'tally' in tag:
-    #|         count=count+1
-    #|         continue
-    #------------------------------
+def test_type_split():
+    #tally type is absent
+    tally_1='tally:photon/'
+    assert_raises(Exception, gtag.type_split, tally_1)
+    
+    # '/' is absent
+    tally_2='tally:photonflux'
+    assert_raises(Exception, gtag.type_split, tally_2) 
+    
+"""
+test particle_split function
+"""
+def test_particle_split():
+    #tally particle is absent
+    tally_3='tally:/flux'
+    assert_raises(Exception, gtag.particle_split, tally_3)
+    
+    # ':' is absent
+    tally_4='tallyphoton/flux'
+    assert_raises(Exception, gtag.particle_split, tally_4)       
 
 
         
