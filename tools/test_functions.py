@@ -203,7 +203,7 @@ def test_match_1():
         gtag.print_near_match('air', material_library), list_of_matches)
         
 
-'''functions linked to get_tally'''        
+'''functions linked to get_tally function'''        
 """
 test type_split function
 """
