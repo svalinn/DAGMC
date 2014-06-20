@@ -173,3 +173,20 @@ def test_match_1():
     material_library[air_2.metadata['name']] = air_2
     assert_equal(
         gtag.print_near_match('air', material_library), list_of_matches)
+        
+        
+"""
+test get_tally function
+"""
+#include the following in a test
+    #-----------------------------
+    #|#get the number of tally groups in the list of tags 'tag_values'
+    #|#count=0
+    #|#for (tag in tag_values):
+    #|    if 'tally' in tag:
+    #|         count=count+1
+    #|         continue
+    #------------------------------
+
+
+        
