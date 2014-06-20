@@ -12,12 +12,12 @@ Existence/Absence of a graveyard group
 """
 def test_graveyard_1():
     # 'mat:graveyard' group exists
-    tag_1 = ['mat:graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally_4.cell.flux.p',
+    tag_1 = ['mat:graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
     assert_equal(gtag.check_matname(tag_1), [
                  ('Nitrogen', '-0.001205'), ('Steel, Stainless 321', '-2'), ('Lead', '-11.35'), ('Mercury', '-7.874')])
     # 'mat:Graveyard' group exists
-    tag_2 = ['mat:Graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally_4.cell.flux.p',
+    tag_2 = ['mat:Graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
     assert_equal(gtag.check_matname(tag_2), [
                  ('Nitrogen', '-0.001205'), ('Steel, Stainless 321', '-2'), ('Lead', '-11.35'), ('Mercury', '-7.874')])
@@ -25,17 +25,45 @@ def test_graveyard_1():
 
 def test_graveyard_2():
     # graveyard group is absent
-    tag_3 = ['mat:Nitrogen/rho:-0.001205', 'tally_4.cell.flux.p',
+    tag_3 = ['mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
     assert_raises(Exception, gtag.check_matname, tag_3)
 
 
 def test_graveyard_3():
     # graveyard exists as 'graveyard'
-    tag_4 = ['graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally_4.cell.flux.p',
+    tag_4 = ['graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
     assert_equal(gtag.check_matname(tag_4), [
                  ('Nitrogen', '-0.001205'), ('Steel, Stainless 321', '-2'), ('Lead', '-11.35'), ('Mercury', '-7.874')])
+                 
+"""
+Existence/Absence of a vacuum group
+"""
+def test_vacuum_1():
+    # 'mat:Vacuum' group exists
+    tag_5 = ['mat:graveyard', 'mat:Vacuum', 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
+             'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
+    assert_equal(gtag.check_matname(tag_5), [
+                 ('Nitrogen', '-0.001205'), ('Steel, Stainless 321', '-2'), ('Lead', '-11.35'), ('Mercury', '-7.874')])
+    # 'mat:vacuum' group exists
+    tag_6 = ['mat:graveyard','mat:vacuum', 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
+             'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
+    assert_equal(gtag.check_matname(tag_6), [
+                 ('Nitrogen', '-0.001205'), ('Steel, Stainless 321', '-2'), ('Lead', '-11.35'), ('Mercury', '-7.874')])
+                 
+def test_vacuum_2():                  
+   # 'Vacuum' group exists
+    tag_7 = ['mat:graveyard', 'Vacuum' , 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
+             'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
+    assert_equal(gtag.check_matname(tag_7), [
+                 ('Nitrogen', '-0.001205'), ('Steel, Stainless 321', '-2'), ('Lead', '-11.35'), ('Mercury', '-7.874')])
+   # 'vacuum' group exists
+    tag_8 = ['mat:graveyard', 'vacuum', 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
+             'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
+    assert_equal(gtag.check_matname(tag_8), [
+                 ('Nitrogen', '-0.001205'), ('Steel, Stainless 321', '-2'), ('Lead', '-11.35'), ('Mercury', '-7.874')])
+                                                                         
 
 '''test check_matname function'''
 """
@@ -43,74 +71,74 @@ test groups naming
 """
 def test_group_1():
     # ':' is missing in 'matLead/rho:-11.35'
-    tag_5 = ['mat:Nitrogen/rho:-0.001205', 'tally_4.cell.flux.p',
+    tag_9 = ['mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'matLead/rho:-11.35', 'mat:Mercury/rho:-7.874']
-    assert_raises(Exception, gtag.check_matname, tag_5)
+    assert_raises(Exception, gtag.check_matname, tag_9)
 
 
 def test_group_2():
     # density is in wrong format in 'mat:Mercury/rho:mercury'
-    tag_6 = ['graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally_4.cell.flux.p',
+    tag_10 = ['graveyard', 'mat:Nitrogen/rho:-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:mercury']
-    assert_raises(Exception, gtag.check_matname, tag_6)
+    assert_raises(Exception, gtag.check_matname, tag_10)
 
 
 def test_group_3():
     # material name is absent in 'mat:/rho:-0.001205'
-    tag_7 = ['mat:graveyard', 'mat:/rho:-0.001205', 'tally_4.cell.flux.p',
+    tag_11 = ['mat:graveyard', 'mat:/rho:-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
-    assert_raises(Exception, gtag.check_matname, tag_7)
+    assert_raises(Exception, gtag.check_matname, tag_11)
 
 
 def test_group_4():
     # an error in the group name; "/" without a density in 'mat:Nitrogen/'
-    tag_8 = ['mat:graveyard', 'mat:Nitrogen/', 'tally_4.cell.flux.p',
+    tag_12 = ['mat:graveyard', 'mat:Nitrogen/', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
-    assert_raises(Exception, gtag.check_matname, tag_8)
+    assert_raises(Exception, gtag.check_matname, tag_12)
 
 
 def test_group_5():
     # ':' is absent in the density part in 'mat:Nitrogen/rho-0.001205'
-    tag_9 = ['mat:graveyard', 'mat:Nitrogen/rho-0.001205', 'tally_4.cell.flux.p',
+    tag_13 = ['mat:graveyard', 'mat:Nitrogen/rho-0.001205', 'tally:photon/flux',
              'mat:Steel, Stainless 321/rho:-2', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
-    assert_raises(Exception, gtag.check_matname, tag_9)
+    assert_raises(Exception, gtag.check_matname, tag_13)
 
 
 def test_group_6():
     # no desnity provided
-    tag_10 = ['mat:graveyard', 'mat:Nitrogen', 'tally_4.cell.flux.p',
+    tag_14 = ['mat:graveyard', 'mat:Nitrogen', 'tally:photon/flux',
               'mat:Steel, Stainless 321', 'mat:Lead', 'mat:Mercury']
-    assert_equal(gtag.check_matname(tag_10), [('Nitrogen', ''), (
+    assert_equal(gtag.check_matname(tag_14), [('Nitrogen', ''), (
         'Steel, Stainless 321', ''), ('Lead', ''), ('Mercury', '')])
 
 
 def test_group_7():
     # some densities are provided
-    tag_11 = ['mat:graveyard', 'mat:Nitrogen', 'tally_4.cell.flux.p',
+    tag_15 = ['mat:graveyard', 'mat:Nitrogen', 'tally:photon/flux',
               'mat:Steel, Stainless 321', 'mat:Lead/rho:-11.35', 'mat:Mercury/rho:-7.874']
-    assert_equal(gtag.check_matname(tag_11), [('Nitrogen', ''), (
+    assert_equal(gtag.check_matname(tag_15), [('Nitrogen', ''), (
         'Steel, Stainless 321', ''), ('Lead', '-11.35'), ('Mercury', '-7.874')])
 
 
 def test_group_8():
     # no density provided and material name is absent
-    tag_12 = ['mat:graveyard', 'mat:', 'tally_4.cell.flux.p',
+    tag_16 = ['mat:graveyard', 'mat:', 'tally:photon/flux',
               'mat:Steel, Stainless 321', 'mat:Lead', 'mat:Mercury']
-    assert_raises(Exception, gtag.check_matname, tag_12)
+    assert_raises(Exception, gtag.check_matname, tag_16)
 
 
 def test_group_9():
     # no density is provided and ':' is absent in 'matNitrogen'
-    tag_13 = ['mat:graveyard', 'matNitrogen', 'tally_4.cell.flux.p',
+    tag_17 = ['mat:graveyard', 'matNitrogen', 'tally:photon/flux',
               'mat:Steel, Stainless 321', 'mat:Lead', 'mat:Mercury']
-    assert_raises(Exception, gtag.check_matname, tag_13)
+    assert_raises(Exception, gtag.check_matname, tag_17)
 
 
 def test_group_10():
     # 'mat' is absent from the group names
-    tag_14 = ['graveyard', 'Nitrogen', 'tally_4.cell.flux.p',
+    tag_18 = ['graveyard', 'Nitrogen', 'tally:photon/flux',
               'Steel, Stainless 321', 'Lead', 'Mercury']
-    assert_raises(Exception, gtag.check_matname, tag_14)
+    assert_raises(Exception, gtag.check_matname, tag_18)
 
 
 '''test fluka_material_naming function'''
