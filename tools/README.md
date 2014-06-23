@@ -25,5 +25,5 @@ About the dagmc_get_materials and test scripts
 ('test_output.py') tests the output h5m file created by running the script ans is run as a python script or using nosetests 
 
 - test #3:
-('test\_model.py') tests the group names on the CAD model with the output group names list from 'get\_tag\_values function'.
+('test\_model.py') tests the group names on the CAD model with the output group names list from 'get\_tag\_values' function.
  
