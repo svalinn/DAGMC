@@ -15,7 +15,7 @@ About the dagmc_get_materials and test scripts
 - nose tools (https://nose.readthedocs.org/en/latest/), for testing
 
 # Sample output:
--  An output ('sample_output.h5m') obtained by running the script with an arbitrary input h5m file. 
+-  An output ('sample_output.h5m') obtained by running the script with  test.h5m file. 
   
 
 # Tests:
