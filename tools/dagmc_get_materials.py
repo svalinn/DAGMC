@@ -347,7 +347,7 @@ def check_and_create_materials(material_list, mat_lib):
                 group_name = "mat:" + material_list[g][0]
                 if (material_list[g][1] is not ''):
                     group_name += "/rho:" + material_list[g][1]
-                print "grp2", group_name
+                #print "grp2", group_name
                 new_mat.metadata['name'] = group_name
 
                 if (material_list[g][1] != ''):
