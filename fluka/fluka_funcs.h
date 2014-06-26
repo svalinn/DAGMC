@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string>      // string, cout
 #include <vector>
+#include <set>
 
 #include "moab/Types.hpp"
 #include "MBInterface.hpp"
@@ -36,6 +37,7 @@ void fludag_write(std::string matfile, std::string lfname);
 // parses properties
 int fludag_setup();
 
+std::set<int> make_exception_set();
 /*
  * Write the material assignment for each volume to an output stream
  */

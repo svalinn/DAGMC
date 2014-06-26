@@ -60,9 +60,50 @@ std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
 
 int NUM_FLUKA_MATS = 37;
 
+std::set<int> make_exception_set()
+{
+    std::set<int> nuc_exceptions;
+    
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("H1")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("He")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Be")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("C")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("N")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("O")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Mg")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Al")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Fe")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Cu")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ag")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Si")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Au")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Hg")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Pb")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ta")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Na")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ar")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ca")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Sn")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("W")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ti")));
+    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ni")));
+
+    // Print out results
+    std::cout << "Nucnames of FLUKA exceptions" << std::endl;
+    for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
+         ptr != nuc_exceptions.end(); ++ptr)
+    {
+         std::cout << *ptr << ", ";
+    }
+
+         std::cout << std::endl;
+    return nuc_exceptions;
+}
+
 const char *delimiters = ":/";
-  // an empty synonym map to provide as a default argument to parse_properties()
-    static const std::map<std::string,std::string> no_synonyms;
+
+// an empty synonym map to provide as a default argument to parse_properties()
+static const std::map<std::string,std::string> no_synonyms;
 
 /* Create a set out of the hardcoded string array. */
 std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
@@ -739,14 +780,14 @@ void fludag_write(std::string matfile, std::string lfname)
   // Section 0
   int num_vols = fludag_setup();
 
-  // Section I - ASSIGNMA
+  // Section I - ASSIGNMA records
   std::cout << "Section I --------------------------------------" << std::endl;
   std::ostringstream astr;
   std::list<std::string> matNamesList = fludagwrite_assignma(astr, num_vols);
 
   std::cout << "number of groups " << matNamesList.size() << std::endl;
 
-  // Section Ia - index-id
+  // Section Ia Optional- index-id
   // Process the matNamesList list so that it truly is unique
   std::cout << "Section I -------------------------------------" << std::endl;
   matNamesList.sort();
@@ -764,7 +805,7 @@ void fludag_write(std::string matfile, std::string lfname)
      }
   }
 
-  // Section II - MATERIAL	
+  // Section II - MATERIAL Cards
   std::cout << "Section II -------------------------------------" << std::endl;
   std::ostringstream mstr;
   if (num_mats > 0)
@@ -797,8 +838,6 @@ void fludag_write(std::string matfile, std::string lfname)
 */
 
 }
-//---------------------------------------------------------------------------//
-// PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
 int fludag_setup()
 {
@@ -939,13 +978,31 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file)
 {
   pyne::Material pyneMat = pyne::Material();
+  pyne::Material collmat;
 
+  std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
   // Skip the implicit complement
   for (int i=0; i<num_mats-1; ++i)
   {
       pyneMat.from_hdf5(mat_file, "/materials", i,1);
-      // print_material(pyneMat);
-      ostr << pyneMat.fluka();
+      std::cout << "Material " << i << " before: " << std::endl;
+      std::cout << "------- " << pyneMat.metadata["name"] << " -----------" << std::endl;
+      print_material(pyneMat);
+
+      collmat = pyneMat.collapse_elements(make_exception_set());
+      std::map<std::string,double> comp;
+      /*
+      natmat = Material({"C": 1.0, 902320000: 0.5, "PU": 4.0, "U": 3.0}, 
+                          metadata={"y": 1.0});
+      expmat = natmat.expand_elements();
+      std::cout << "------- natmat -----------" << std::endl;
+      print_material (natmat);
+      std::cout << "------- expmat -----------" << std::endl;
+      print_material (expmat);
+      */
+      std::cout << "Material " << i << " after: " << std::endl;
+      print_material(collmat);
+      // ostr << pyneMat.fluka();
   }
 }
 //---------------------------------------------------------------------------//
