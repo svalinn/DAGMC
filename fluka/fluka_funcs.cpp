@@ -89,14 +89,17 @@ std::set<int> make_exception_set()
     nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ni")));
 
     // Print out results
-    std::cout << "Nucnames of FLUKA exceptions" << std::endl;
-    for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
-         ptr != nuc_exceptions.end(); ++ptr)
+    if (DEBUG)
     {
-         std::cout << *ptr << ", ";
+       std::cout << "Nucnames of FLUKA exceptions" << std::endl;
+       for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
+            ptr != nuc_exceptions.end(); ++ptr)
+       {
+            std::cout << *ptr << ", ";
+       }
+       std::cout << std::endl;
     }
 
-         std::cout << std::endl;
     return nuc_exceptions;
 }
 
@@ -812,13 +815,15 @@ void fludag_write(std::string matfile, std::string lfname)
   {
      fludag_write_material(mstr, num_mats, matfile);
   }
+  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
+  std::cout << header << std::endl;
+  std::cout << mstr.str();
 
   // Section III - COMPOUND Cards
 
   // Section IV - Write out the streams
   std::cout << "Section IV -------------------------------------" << std::endl;
   std::ofstream lcadfile (lfname.c_str());
-  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   lcadfile << header << std::endl;
   lcadfile << astr.str();
   lcadfile << header << std::endl;
@@ -843,8 +848,6 @@ int fludag_setup()
 {
   int num_vols = DAG->num_entities(3);
 
-  std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-  std::cout << "\tnum_vols is " << num_vols << std::endl;
   MBErrorCode ret;
 
   std::vector< std::string > keywords;
@@ -929,7 +932,7 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
             {
                 // current material is not in the pre-existing FLUKA material list
                 matNamesList.push_back(material); 
-                std::cout << "Adding material " << material << " to the MATERIAL card list" << std::endl;
+                // std::cout << "Adding material " << material << " to the MATERIAL card list" << std::endl;
             }
          }
          else
@@ -942,7 +945,7 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
       }  // end has_prop "mat:"
       else
       {
-         std::cout << "No 'mat:' properties for volume " << vol_i << std::endl;
+         // std::cout << "No 'mat:' properties for volume " << vol_i << std::endl;
       }
   }   // end loop over volumes
 
@@ -977,32 +980,21 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 //---------------------------------------------------------------------------//
 void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file)
 {
-  pyne::Material pyneMat = pyne::Material();
+  pyne::Material mat = pyne::Material();
   pyne::Material collmat;
+  std::set<int> exception_set = make_exception_set();
 
-  std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
   // Skip the implicit complement
   for (int i=0; i<num_mats-1; ++i)
   {
-      pyneMat.from_hdf5(mat_file, "/materials", i,1);
-      std::cout << "Material " << i << " before: " << std::endl;
-      std::cout << "------- " << pyneMat.metadata["name"] << " -----------" << std::endl;
-      print_material(pyneMat);
+      mat.from_hdf5(mat_file, "/materials", i,1);
+      collmat = mat.collapse_elements(exception_set);
+      collmat.density = mat.density;
+      collmat.metadata = mat.metadata;
 
-      collmat = pyneMat.collapse_elements(make_exception_set());
-      std::map<std::string,double> comp;
-      /*
-      natmat = Material({"C": 1.0, 902320000: 0.5, "PU": 4.0, "U": 3.0}, 
-                          metadata={"y": 1.0});
-      expmat = natmat.expand_elements();
-      std::cout << "------- natmat -----------" << std::endl;
-      print_material (natmat);
-      std::cout << "------- expmat -----------" << std::endl;
-      print_material (expmat);
-      */
-      std::cout << "Material " << i << " after: " << std::endl;
-      print_material(collmat);
-      // ostr << pyneMat.fluka();
+      std::string line = collmat.fluka();
+      std::cout << line << std::endl;
+      ostr << line;
   }
 }
 //---------------------------------------------------------------------------//
