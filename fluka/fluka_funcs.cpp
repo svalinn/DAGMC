@@ -60,6 +60,8 @@ std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
 
 int NUM_FLUKA_MATS = 37;
 
+bool debug = false; //true ;
+
 std::set<int> make_exception_set()
 {
     std::set<int> nuc_exceptions;
@@ -89,7 +91,7 @@ std::set<int> make_exception_set()
     nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ni")));
 
     // Print out results
-    if (DEBUG)
+    if (debug)
     {
        std::cout << "Nucnames of FLUKA exceptions" << std::endl;
        for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
@@ -114,7 +116,6 @@ std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_M
 /* Maximum character-length of a cubit-named material property */
 int MAX_MATERIAL_NAME_SIZE = 32;
 
-bool debug = false; //true ;
 
 /* Static values used by dagmctrack_ */
 
@@ -780,27 +781,21 @@ static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& p
 //---------------------------------------------------------------------------//
 void fludag_write(std::string matfile, std::string lfname)
 {
-  // Section 0
   int num_vols = fludag_setup();
 
-  // Section I - ASSIGNMA records
-  std::cout << "Section I --------------------------------------" << std::endl;
+  // ASSIGNMA records
   std::ostringstream astr;
   std::list<std::string> matNamesList = fludagwrite_assignma(astr, num_vols);
 
-  std::cout << "number of groups " << matNamesList.size() << std::endl;
-
-  // Section Ia Optional- index-id
   // Process the matNamesList list so that it truly is unique
-  std::cout << "Section I -------------------------------------" << std::endl;
   matNamesList.sort();
   matNamesList.unique();
   int num_mats = matNamesList.size();
 
-  std::cout << "num_mats  " << matNamesList.size() << std::endl;
   // Print the final list of unique materials
   if (debug)
   {
+     std::cout << "num_mats  " << matNamesList.size() << std::endl;
      std::list<std::string>::iterator it; 
      for (it=matNamesList.begin(); it!=matNamesList.end(); ++it)
      {
@@ -808,21 +803,19 @@ void fludag_write(std::string matfile, std::string lfname)
      }
   }
 
-  // Section II - MATERIAL Cards
-  std::cout << "Section II -------------------------------------" << std::endl;
+  // MATERIAL Cards
   std::ostringstream mstr;
   if (num_mats > 0)
   {
      fludag_write_material(mstr, num_mats, matfile);
   }
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
-  std::cout << header << std::endl;
-  std::cout << mstr.str();
+  // std::cout << header << std::endl;
+  // std::cout << mstr.str();
 
-  // Section III - COMPOUND Cards
+  // ToDo: COMPOUND Cards
 
-  // Section IV - Write out the streams
-  std::cout << "Section IV -------------------------------------" << std::endl;
+  // Write out the streams
   std::ofstream lcadfile (lfname.c_str());
   lcadfile << header << std::endl;
   lcadfile << astr.str();
@@ -932,7 +925,6 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
             {
                 // current material is not in the pre-existing FLUKA material list
                 matNamesList.push_back(material); 
-                // std::cout << "Adding material " << material << " to the MATERIAL card list" << std::endl;
             }
          }
          else
@@ -988,10 +980,17 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
   for (int i=0; i<num_mats-1; ++i)
   {
       mat.from_hdf5(mat_file, "/materials", i,1);
+      if (debug)
+      {
+         std::cout << "Printing the material in the file" << std::endl;
+         print_material(mat);
+      }
+
       collmat = mat.collapse_elements(exception_set);
       collmat.density = mat.density;
       collmat.metadata = mat.metadata;
 
+      // First, check to see if the material composition is in atomic_fraction form:
       std::string line = collmat.fluka();
       std::cout << line << std::endl;
       ostr << line;
