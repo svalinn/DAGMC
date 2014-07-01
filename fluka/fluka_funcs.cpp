@@ -807,11 +807,10 @@ void fludag_write(std::string matfile, std::string lfname)
   std::ostringstream mstr;
   if (num_mats > 0)
   {
+     // Do all the materials at once; mstr will be multiline
      fludag_write_material(mstr, num_mats, matfile);
   }
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
-  // std::cout << header << std::endl;
-  // std::cout << mstr.str();
 
   // ToDo: COMPOUND Cards
 
@@ -975,6 +974,10 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
   pyne::Material mat = pyne::Material();
   pyne::Material collmat;
   std::set<int> exception_set = make_exception_set();
+  // these can be ordered
+  std::map<int,std::string> map_ids;
+  std::set<int> mat_ids;
+  int id;
 
   // Skip the implicit complement
   for (int i=0; i<num_mats-1; ++i)
@@ -985,14 +988,17 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
          std::cout << "Printing the material in the file" << std::endl;
          print_material(mat);
       }
-
       collmat = mat.collapse_elements(exception_set);
       collmat.density = mat.density;
       collmat.metadata = mat.metadata;
 
       // First, check to see if the material composition is in atomic_fraction form:
+
       std::string line = collmat.fluka();
-      std::cout << line << std::endl;
+      std::string id_str = line.substr(50,10);
+      id = atoi(id_str.c_str());
+      std::cout << "id is "  << id << std::endl;
+      // std::cout << line << std::endl;
       ostr << line;
   }
 }
