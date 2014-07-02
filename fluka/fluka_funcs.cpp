@@ -22,8 +22,10 @@ using moab::DagMC;
 #include <iomanip>
 #include <fstream>     // ofstream
 #include <sstream>
-#include <set>
 #include <cstring>
+#include <list>        
+#include <algorithm>   // sort
+#include <utility>     // makepair
 
 #ifdef CUBIT_LIBS_PRESENT
 #include <fenv.h>
@@ -974,10 +976,7 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
   pyne::Material mat = pyne::Material();
   pyne::Material collmat;
   std::set<int> exception_set = make_exception_set();
-  // these can be ordered
-  std::map<int,std::string> map_ids;
-  std::set<int> mat_ids;
-  int id;
+  std::list<std::pair<int, std::string> > id_line_list;
 
   // Skip the implicit complement
   for (int i=0; i<num_mats-1; ++i)
@@ -992,14 +991,27 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
       collmat.density = mat.density;
       collmat.metadata = mat.metadata;
 
-      // First, check to see if the material composition is in atomic_fraction form:
-
+      // Construct the material card.
       std::string line = collmat.fluka();
-      std::string id_str = line.substr(50,10);
-      id = atoi(id_str.c_str());
-      std::cout << "id is "  << id << std::endl;
-      // std::cout << line << std::endl;
-      ostr << line;
+
+      // Get the material id so the lines can be sorted on it
+      std::string id_str = mat.metadata["fluka_material_index"].asString();
+      int id = atoi(id_str.c_str());
+      // This will be sorted on the id
+      id_line_list.push_back(make_pair(id, line));
+  }
+  // Lists magically know how to sort pairs
+  id_line_list.sort();
+
+  // Now that it's sorted grab the lines sequentially
+  for (int i=0; i<num_mats-1; ++i)
+  {
+      ostr << id_line_list.front().second;
+      id_line_list.pop_front();
+  }
+  if (debug)
+  {
+     std::cout << ostr.str() << std::endl;
   }
 }
 //---------------------------------------------------------------------------//
