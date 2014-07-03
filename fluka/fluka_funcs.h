@@ -46,7 +46,12 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 /*
  * Write material cards
  */
-void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file);
+std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file);
+/*
+ * Write compound cards
+ */
+void fludag_write_compounds(std::ostringstream& cstr, int num_mats, 
+                            std::vector<pyne::Material> materials);
 
 /*
  * Convenience function

@@ -807,17 +807,27 @@ void fludag_write(std::string matfile, std::string lfname)
   }
 
   // MATERIAL Cards
+  std::vector<pyne::Material> materials;
   std::ostringstream mstr;
   if (num_mats > 0)
   {
      // Do all the materials at once; mstr will be multiline
-     fludag_write_material(mstr, num_mats, matfile);
+     materials = fludag_write_material(mstr, num_mats, matfile);
   }
-  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
+  if (debug)
+  {
+     // print_material(collapsed_mat);
+  }
 
   // ToDo: COMPOUND Cards
+  std::ostringstream cstr;
+  if (num_mats > 0)
+  {
+     fludag_write_compounds(cstr, num_mats, materials);
+  }
 
   // Write out the streams
+  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   std::ofstream lcadfile (lfname.c_str());
   lcadfile << header << std::endl;
   lcadfile << astr.str();
@@ -836,7 +846,6 @@ void fludag_write(std::string matfile, std::string lfname)
     }
   }
 */
-
 }
 //---------------------------------------------------------------------------//
 int fludag_setup()
@@ -974,11 +983,13 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 //---------------------------------------------------------------------------//
 // Return a FLUKA MATERIAL card based on the info in the material file.
 // Yes, this reads a file on disk once for every material.  No that is not good.
-void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file)
+std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
+                                             int num_mats, std::string mat_file)
 {
   pyne::Material mat = pyne::Material();
   pyne::Material collmat;
   std::list<std::pair<int, std::string> > id_line_list;
+  std::vector<pyne::Material> materials;
 
   std::set<int> exception_set = make_exception_set();
 
@@ -995,6 +1006,10 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
       collmat = mat.collapse_elements(exception_set);
       collmat.density = mat.density;
       collmat.metadata = mat.metadata;
+      if (debug)
+      {
+         print_material(collmat);
+      }
 
       // Construct the material card.
       std::string line = collmat.fluka();
@@ -1004,6 +1019,16 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
       int id = atoi(id_str.c_str());
       // The pairs will be sorted on the id
       id_line_list.push_back(make_pair(id, line));
+
+      // And finally, to prepare for for a potential compound card, add this
+      // material to a container if it's not a FLUKA material
+      std::string mat_fluka_name = collmat.metadata["fluka_name"].asString();
+      if (FLUKA_mat_set.find(mat_fluka_name) == FLUKA_mat_set.end())
+      {
+         // current material is not in the pre-existing FLUKA material list
+      //   matNamesList.push_back(material); 
+         materials.push_back(collmat);
+      }
   }
   // Lists magically know how to sort pairs
   id_line_list.sort();
@@ -1014,10 +1039,16 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
       ostr << id_line_list.front().second;
       id_line_list.pop_front();
   }
-  if (debug)
-  {
-     std::cout << ostr.str() << std::endl;
-  }
+  return materials;
+}
+//---------------------------------------------------------------------------//
+// fludag_write_compound
+//---------------------------------------------------------------------------//
+void fludag_write_compounds(std::ostringstream& cstr, int num_mats, 
+                            std::vector<pyne::Material> materials)
+{
+  
+  
 }
 //---------------------------------------------------------------------------//
 // print_material
