@@ -122,7 +122,7 @@ def get_tally(filename):
                     # group name in that case is a tally group name and set 's' is a group of sets of geometry
                     # objects included in the tally
                     # get the geometry objects included; ID and type of each
-                    get_entity(mesh, s, tags, tally_objects_list)
+                    get_entity(mesh, s, tally_objects_list)
                     # split on the basis of '/' to get tally type
                     tally_type = type_split(group_name)
                     tally_type_list.append(tally_type)
@@ -141,10 +141,11 @@ returns a list of 'type:ID' of geometry objects included
 """
 
 
-def get_entity(mesh, mesh_set, tags, tally_objects_list):
+def get_entity(mesh, mesh_set, tally_objects_list):
     ID_list = []
     # loop over the tags checking for name
     for k in mesh_set.getEntSets(hops=-1):
+        tags=mesh.getAllTags(k)
         for t in tags:
             # get the type of geometry objects included; vol, surf, etc.
             if t.name == 'CATEGORY':
