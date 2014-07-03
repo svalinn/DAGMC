@@ -68,34 +68,35 @@ std::set<int> make_exception_set()
 {
     std::set<int> nuc_exceptions;
     
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("H1")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("He")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Be")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("C")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("N")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("O")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Mg")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Al")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Fe")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Cu")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ag")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Si")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Au")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Hg")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Pb")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ta")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Na")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ar")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ca")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Sn")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("W")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ti")));
-    nuc_exceptions.insert(pyne::nucname::znum(const_cast<char *>("Ni")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Be")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("C")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("N")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("O")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Mg")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Al")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Fe")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cu")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ag")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Si")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Au")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Hg")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Pb")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ta")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Na")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ar")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ca")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sn")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("W")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ti")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ni")));
 
     // Print out results
+    debug = 1;
     if (debug)
     {
-       std::cout << "Nucnames of FLUKA exceptions" << std::endl;
+       std::cout << "Nucids of FLUKA exceptions" << std::endl;
        for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
             ptr != nuc_exceptions.end(); ++ptr)
        {
@@ -971,12 +972,15 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 //---------------------------------------------------------------------------//
 // fludag_write_material
 //---------------------------------------------------------------------------//
+// Return a FLUKA MATERIAL card based on the info in the material file.
+// Yes, this reads a file on disk once for every material.  No that is not good.
 void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file)
 {
   pyne::Material mat = pyne::Material();
   pyne::Material collmat;
-  std::set<int> exception_set = make_exception_set();
   std::list<std::pair<int, std::string> > id_line_list;
+
+  std::set<int> exception_set = make_exception_set();
 
   // Skip the implicit complement
   for (int i=0; i<num_mats-1; ++i)
@@ -984,7 +988,8 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
       mat.from_hdf5(mat_file, "/materials", i,1);
       if (debug)
       {
-         std::cout << "Printing the material in the file" << std::endl;
+         std::cout << "Printing material " << mat.metadata["name"] 
+	           << " from " << mat_file << std::endl;
          print_material(mat);
       }
       collmat = mat.collapse_elements(exception_set);
@@ -997,7 +1002,7 @@ void fludag_write_material(std::ostringstream& ostr, int num_mats, std::string m
       // Get the material id so the lines can be sorted on it
       std::string id_str = mat.metadata["fluka_material_index"].asString();
       int id = atoi(id_str.c_str());
-      // This will be sorted on the id
+      // The pairs will be sorted on the id
       id_line_list.push_back(make_pair(id, line));
   }
   // Lists magically know how to sort pairs
