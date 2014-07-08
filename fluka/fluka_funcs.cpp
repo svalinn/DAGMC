@@ -982,7 +982,7 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 // fludag_write_material
 //---------------------------------------------------------------------------//
 // Return a FLUKA MATERIAL card based on the info in the material file.
-// Yes, this reads a file on disk once for every material.  No that is not good.
+// This reads a file on disk once for every material.  
 std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
                                              int num_mats, std::string mat_file)
 {
@@ -1020,13 +1020,12 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
       // The pairs will be sorted on the id
       id_line_list.push_back(make_pair(id, line));
 
-      // And finally, to prepare for for a potential compound card, add this
+      // To prepare for for a potential compound card, add this
       // material to a container if it's not a FLUKA material
       std::string mat_fluka_name = collmat.metadata["fluka_name"].asString();
       if (FLUKA_mat_set.find(mat_fluka_name) == FLUKA_mat_set.end())
       {
          // current material is not in the pre-existing FLUKA material list
-      //   matNamesList.push_back(material); 
          materials.push_back(collmat);
       }
   }
@@ -1048,6 +1047,18 @@ void fludag_write_compounds(std::ostringstream& cstr, int num_mats,
                             std::vector<pyne::Material> materials)
 {
   
+  std::vector<pyne::Material>::iterator mat_ptr;
+  for ( mat_ptr=materials.begin(); mat_ptr != materials.end(); mat_ptr++)
+  {
+      std::cout << "Writing compound card for material " << 
+                    mat_ptr->metadata["fluka_name"].asString() << std::endl;
+      std::map<int, double>::iterator comp_iter = mat_ptr->comp.begin(); 
+      for (; comp_iter != mat_ptr->comp.end(); comp_iter++)
+      {
+          std::cout << "\tcomp, frac: " << comp_iter->first << ", ";
+          std::cout << comp_iter->second << std::endl;
+      }
+  }
   
 }
 //---------------------------------------------------------------------------//
