@@ -1,0 +1,263 @@
+Loading the faceted geometry file ../fluka/saveme/geom_material.h5m...
+Requested faceting tolerance: 0
+Using faceting tolerance: 0.001
+Time to load the h5m file = 0 seconds
+The implicit complement bounds 15 surfaces
+The implicit complement's total surface area = 1.25786e+08
+Time to initialise the geometry3
+Property list: 
+Vol 1, id=1: parsed props: mat=Mercury, rho=-7.874, tally_4.cell.flux.p=
+Vol 2, id=2: parsed props: mat=Lead, rho=-11.35, tally_4.cell.flux.p=
+Vol 3, id=3: parsed props: mat=Steel, Stainless 321, rho=-2, tally_4.cell.flux.p=
+Vol 4, id=5: parsed props: mat=Nitrogen, rho=-0.001205, tally_4.cell.flux.p=
+Vol 5, id=8: parsed props: mat=Graveyard
+Vol 6, id=9 has no props: 
+Nucids of FLUKA exceptions
+10000000, 20000000, 40000000, 60000000, 70000000, 80000000, 110000000, 120000000, 130000000, 140000000, 180000000, 200000000, 220000000, 260000000, 280000000, 290000000, 470000000, 500000000, 730000000, 740000000, 790000000, 800000000, 820000000, 
+Printing material "mat:Nitrogen/rho:-0.001205"
+ from ../fluka/saveme/geom_material.h5m
+density = -0.001205
+mass = 1
+atoms_per_mol = -1
+70140000 0.99636
+70150000 0.00364
+
+{
+	"fluka_material_index" : "26",
+	"fluka_name" : "NITROGEN",
+	"mat_number" : "1",
+	"name" : "mat:Nitrogen/rho:-0.001205"
+}
+
+density = -0.001205
+mass = 1
+atoms_per_mol = -1
+70140000 0.99636
+70150000 0.00364
+
+{
+	"fluka_material_index" : "26",
+	"fluka_name" : "NITROGEN",
+	"mat_number" : "1",
+	"name" : "mat:Nitrogen/rho:-0.001205"
+}
+
+Printing material "mat:Mercury/rho:-7.874"
+ from ../fluka/saveme/geom_material.h5m
+density = -7.874
+mass = 1
+atoms_per_mol = -1
+801960000 0.0015
+801980000 0.0997
+801990000 0.1687
+802000000 0.231
+802010000 0.1318
+802020000 0.2986
+802040000 0.0687
+
+{
+	"fluka_material_index" : "29",
+	"fluka_name" : "MERCURY",
+	"mat_number" : "4",
+	"name" : "mat:Mercury/rho:-7.874"
+}
+
+density = -7.874
+mass = 1
+atoms_per_mol = -1
+801960000 0.0015
+801980000 0.0997
+801990000 0.1687
+802000000 0.231
+802010000 0.1318
+802020000 0.2986
+802040000 0.0687
+
+{
+	"fluka_material_index" : "29",
+	"fluka_name" : "MERCURY",
+	"mat_number" : "4",
+	"name" : "mat:Mercury/rho:-7.874"
+}
+
+Printing material "mat:Lead/rho:-11.35"
+ from ../fluka/saveme/geom_material.h5m
+density = -11.35
+mass = 1
+atoms_per_mol = -1
+822040000 0.014
+822060000 0.241
+822070000 0.221
+822080000 0.524
+
+{
+	"fluka_material_index" : "28",
+	"fluka_name" : "LEAD",
+	"mat_number" : "3",
+	"name" : "mat:Lead/rho:-11.35"
+}
+
+density = -11.35
+mass = 1
+atoms_per_mol = -1
+822040000 0.014
+822060000 0.241
+822070000 0.221
+822080000 0.524
+
+{
+	"fluka_material_index" : "28",
+	"fluka_name" : "LEAD",
+	"mat_number" : "3",
+	"name" : "mat:Lead/rho:-11.35"
+}
+
+Printing material "mat:Steel, Stainless 321/rho:-2"
+ from ../fluka/saveme/geom_material.h5m
+density = -2
+mass = 1
+atoms_per_mol = -1
+60120000 0.109922
+60130000 0.00118889
+140280000 0.10247
+140290000 0.00520556
+140300000 0.00343556
+150310000 0.111111
+160320000 0.105544
+160330000 0.000833333
+160340000 0.00472222
+160360000 1.11111e-05
+220460000 0.00916667
+220470000 0.00826667
+220480000 0.0819111
+220490000 0.00601111
+220500000 0.00575556
+240500000 0.00482778
+240520000 0.0930989
+240530000 0.0105567
+240540000 0.00262778
+250550000 0.111111
+260540000 0.00649444
+260560000 0.101949
+260570000 0.00235444
+260580000 0.000313333
+280580000 0.0756411
+280600000 0.0291367
+280610000 0.00126656
+280620000 0.00403844
+280640000 0.00102833
+
+{
+	"fluka_material_index" : "27",
+	"fluka_name" : "STEELSTA",
+	"mat_number" : "2",
+	"name" : "mat:Steel, Stainless 321/rho:-2"
+}
+
+density = -2
+mass = 1
+atoms_per_mol = -1
+60120000 0.109922
+60130000 0.00118889
+140280000 0.10247
+140290000 0.00520556
+140300000 0.00343556
+150000000 0.111111
+160000000 0.111111
+220460000 0.00916667
+220470000 0.00826667
+220480000 0.0819111
+220490000 0.00601111
+220500000 0.00575556
+240000000 0.111111
+250000000 0.111111
+260540000 0.00649444
+260560000 0.101949
+260570000 0.00235444
+260580000 0.000313333
+280580000 0.0756411
+280600000 0.0291367
+280610000 0.00126656
+280620000 0.00403844
+280640000 0.00102833
+
+{
+	"fluka_material_index" : "27",
+	"fluka_name" : "STEELSTA",
+	"mat_number" : "2",
+	"name" : "mat:Steel, Stainless 321/rho:-2"
+}
+
+Writing compound card for material STEELSTA    Fluka-list   Fluka-name
+	comp, frac: 60120000, 0.109922         CARBON
+	comp, frac: 60130000, 0.00118889       CARBON
+	comp, frac: 140280000, 0.10247         SILICON
+	comp, frac: 140290000, 0.00520556      SILICON
+	comp, frac: 140300000, 0.00343556      SILICON
+	comp, frac: 150000000, 0.111111                        PHOSPHO
+	comp, frac: 160000000, 0.111111                        SULFUR
+	comp, frac: 220460000, 0.00916667      TITANIUM
+	comp, frac: 220470000, 0.00826667      TITANIUM
+	comp, frac: 220480000, 0.0819111       TITANIUM
+	comp, frac: 220490000, 0.00601111      TITANIUM
+	comp, frac: 220500000, 0.00575556      TITANIUM
+	comp, frac: 240000000, 0.111111                        CHROMIUM
+	comp, frac: 250000000, 0.111111                        MANGANES
+	comp, frac: 260540000, 0.00649444      IRON
+	comp, frac: 260560000, 0.101949        IRON
+	comp, frac: 260570000, 0.00235444      IRON
+	comp, frac: 260580000, 0.000313333     IRON
+	comp, frac: 280580000, 0.0756411       NICKEL
+	comp, frac: 280600000, 0.0291367       NICKEL
+	comp, frac: 280610000, 0.00126656      NICKEL
+	comp, frac: 280620000, 0.00403844      NICKEL
+	comp, frac: 280640000, 0.00102833      NICKEL
+NOTES
+Expected output of the above
+*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+MATERIAL         15.                999.       26.                    PHOSPHO
+MATERIAL         16.                999.       27.                    SULFUR
+MATERIAL         24.                999.       28.                    CHROMIUM
+MATERIAL         25.                999.       29.                    MANGANES
+MATERIAL                             2.0       30.                    STEELSTA
+COMPOUND      0.1111    CARBON    0.1111    SULFUR    0.1111   PHOSPHOSTEELSTA
+COMPOUND      0.1111  TITANIUM    0.1111  CHROMIUM    0.1111  MANGANESSTEELSTA
+COMPOUND      0.1111      IRON    0.1111    NICKEL                    STEELSTA
+
+Pseudocode
+fluka_list = predefined names
+fluka_names = map of znum to FLUKA names
+struct compound_element 
+{
+   int atom_no;
+   std::string fluka_name;
+   bool isPredefined = false;
+   double frac = 0.0;
+
+}
+std::map< znum, <compound_element> > = map_c_e;
+foreach component ci in material
+{
+  add its znum zj to set z
+}
+foreach zj in z
+{
+  compound_element ce.atom_no = zj
+  ce.fluka_name = fluka_name[zj]
+  if (zj in fluka_list
+  {
+     ce.isPredefined = true
+  }
+  map_c_e.insert(zj, ce)
+}
+
+foreach ci in material
+{
+  // add the frac of this nucid to the frac 
+  // element of the correct structure
+  ce = map_c_e[znum(ci)]
+  if (ce.isPredefined)
+     ce.frac += material frac for ci
+}
+
+
