@@ -26,6 +26,7 @@ using moab::DagMC;
 #include <list>        
 #include <algorithm>   // sort
 #include <utility>     // makepair
+#include <stdlib.h>  // atoi
 
 #ifdef CUBIT_LIBS_PRESENT
 #include <fenv.h>
@@ -68,6 +69,30 @@ std::set<int> make_exception_set()
 {
     std::set<int> nuc_exceptions;
     
+    // Preserve FLUKA Entropy: Ref Fluka Manual pp. 318-323
+    // Question about 
+    // Xenon (many named isotopes, useful only for detectors?)
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-1")));   // HYDROG-1
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-2")));   // DEUTERIU
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-3")));   // TRITIUM
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He-3")));  // HELIUM-3
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He-4")));  // HELIUM-4
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-6")));  // LITHIU-6
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-7")));  // LITHIU-7
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-10")));  // BORON-10
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-11")));  // BORON-11
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sr-90"))); // 90-SR
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I-129"))); // 129-I
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-135")));// 135-CS
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-137")));// 137-CS
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-230")));// 230-TH
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-232")));// 232-TH
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-233"))); // 233-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-234"))); // 234-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-235"))); // 235-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-238"))); // 238-U
+    /** This list consists of elements from flukaMatStrings, but it is
+        problematic
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H")));
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He")));
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Be")));
@@ -91,6 +116,7 @@ std::set<int> make_exception_set()
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("W")));
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ti")));
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Ni")));
+    */
 
     // Print out results
     debug = 1;
@@ -809,10 +835,12 @@ void fludag_write(std::string matfile, std::string lfname)
   // MATERIAL Cards
   std::vector<pyne::Material> materials;
   std::ostringstream mstr;
+  int last_id;
   if (num_mats > 0)
   {
      // Do all the materials at once; mstr will be multiline
-     materials = fludag_write_material(mstr, num_mats, matfile);
+     // Returning those materials that need to be compounds
+     materials = fludag_write_material(mstr, last_id, num_mats, matfile);
   }
   if (debug)
   {
@@ -821,9 +849,11 @@ void fludag_write(std::string matfile, std::string lfname)
 
   // ToDo: COMPOUND Cards
   std::ostringstream cstr;
-  if (num_mats > 0)
+  std::vector<pyne::Material>::iterator mat_ptr;
+
+  for (mat_ptr = materials.begin(); mat_ptr != materials.end(); mat_ptr++)
   {
-     fludag_write_compounds(cstr, num_mats, materials);
+     fludag_write_compound(cstr, last_id, *mat_ptr);
   }
 
   // Write out the streams
@@ -984,7 +1014,9 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 // Return a FLUKA MATERIAL card based on the info in the material file.
 // This reads a file on disk once for every material.  
 std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
-                                             int num_mats, std::string mat_file)
+                                                  int& last_id,
+                                                  int num_mats, 
+						  std::string mat_file)
 {
   pyne::Material mat = pyne::Material();
   pyne::Material collmat;
@@ -1014,7 +1046,7 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
       // Construct the material card.
       std::string line = collmat.fluka();
 
-      // Get the material id so the lines can be sorted on it
+      // Extract the material id so the lines can be sorted on it
       std::string id_str = mat.metadata["fluka_material_index"].asString();
       int id = atoi(id_str.c_str());
       // The pairs will be sorted on the id
@@ -1028,6 +1060,9 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
          // current material is not in the pre-existing FLUKA material list
          materials.push_back(collmat);
       }
+      // This could also be gotten by adding 25 to the number of volumes
+      // but this avoids error
+      last_id = id;
   }
   // Lists magically know how to sort pairs
   id_line_list.sort();
@@ -1043,24 +1078,289 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
 //---------------------------------------------------------------------------//
 // fludag_write_compound
 //---------------------------------------------------------------------------//
-void fludag_write_compounds(std::ostringstream& cstr, int num_mats, 
-                            std::vector<pyne::Material> materials)
+// Only material objects that have non-fluka names are in this list
+struct CompoundElement 
 {
+   int za_id;  // znum+0000000 or full nucid in the case of deuterium, tritium, etc
+   std::string fluka_name; // may or may not be predefined
+   // "PREDEFINED" => fluka_name is predefined
+   // else fluka_name is their standard name and defined name is used in the 
+   // material/compound card combo
+   std::string defined_name = "PREDEFINED";
+   bool predefined = false;
+   std::string name;
+   double frac = 0.0;
+};
+
+std::string modify_fluka_name(std::string& origName);
+void define_material(std:ostringstream& cstr, int& last_id, std::string dname);
+void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
+                            pyne::Material& material)
+{
+   // create a file-reading object
+   std::ifstream fin;
+   fin.open("../fluka/src/el.txt");
+   if (!fin.good())
+   {
+     // exit if file not found
+     std::cout << "el.txt should be in ../fluka/src" << std::endl;
+     return EXIT_FAILURE;
+   }
+   // ToDo:  move this to calling routine
+   std::map<int, std::string> fluka_name = readElements(fin);
+
   
-  std::vector<pyne::Material>::iterator mat_ptr;
-  for ( mat_ptr=materials.begin(); mat_ptr != materials.end(); mat_ptr++)
-  {
-      std::cout << "Writing compound card for material " << 
-                    mat_ptr->metadata["fluka_name"].asString() << std::endl;
-      std::map<int, double>::iterator comp_iter = mat_ptr->comp.begin(); 
-      for (; comp_iter != mat_ptr->comp.end(); comp_iter++)
+   // Map znum to material info
+   // std::map< int, <CompoundElement> > map_ce;
+   std::list< <CompoundElement> > list_ce;
+
+   std::string material_name = material.metadata["fluka_name"].asString();
+   std::cout << "Writing compound card for material " << 
+                 material.metadata["fluka_name"].asString() << std::endl;
+   std::map<int, double>::iterator comp_iter = material.comp.begin(); 
+   // Go through the composition of this material
+   for (; comp_iter != material.comp.end(); comp_iter++)
+   {
+       CompoundElement ce;
+       std::cout << "\tcomp, frac: " << comp_iter->first << ", ";
+       std::cout << comp_iter->second;
+       
+       std::cout << pyne::nucname.name(comp_iter->second);
+       int znum = pyne::nucname.znum(comp_iter-first);
+       int anum = pyne::nucname.anum(comp_iter-first);
+       // Make the za_id
+       za_id = znum*10000000 + anum*10000;
+
+       // Use za_id to get the fluka_name from special database
+       std::string cur_name = fluka_name[za_id];
+       ce.fluka_name = cur_name; 
+       if (FLUKA_mat_set.find(cur_name) == FLUKA_mat_set.end())
+       {
+          // current name is not in the pre-existing FLUKA material list
+	  // modify it for the compound card
+          ce.name = modify_fluka_name(cur_name);
+       }
+       else
+       {
+          // It is predefined, copy it into the right spot
+          ce.name = cur_name;
+          ce.predefined = true;
+       }
+       std::cout << std::endl;
+
+       list_ce.push_back(ce);
+
+   }  // end compounds
+
+   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
+   std::cout << header << std::endl;
+   while (list_ce.length() >= 3)
+   {
+      CompoundElement ce1 = list_ce.front();
+      if (!ce1.predefined)
       {
-          std::cout << "\tcomp, frac: " << comp_iter->first << ", ";
-          std::cout << comp_iter->second << std::endl;
+         define_material(cstr, ++last_id, ce1.name);
       }
-  }
-  
+      list_ce.pop_front();
+
+      CompoundElement ce2 = list_ce.front();
+      if (!ce2.predefined)
+      {
+         define_material(cstr, ++last_id, ce2.name);
+      }
+      list_ce.pop_front();
+
+      CompoundElement ce3 = list_ce.front();
+      if (!ce3.predefined)
+      {
+         define_material(cstr, ++last_id, ce3.name);
+      }
+      list_ce.pop_front();
+
+      cstr << std::setw(10) << std::left  << "COMPOUND";
+      cstr << std::setw(10) << std::right << ce1.frac;
+      cstr << std::setw(10) << std::right << ce1.name;
+      cstr << std::setw(10) << std::right << ce2.frac;
+      cstr << std::setw(10) << std::right << ce2.name;
+      cstr << std::setw(10) << std::right << ce3.frac;
+      cstr << std::setw(10) << std::right << ce3.name;
+      cstr << std::setw(10) << std::right << ce3.name;
+      cstr << std::setw(10) << std::right << material_name;
+   }
+   // Get the last one or two fractions
+   if (list_ce.length() > 0)
+   {
+      CompoundElement ce = list_ce.front();
+      if (!ce.predefined)
+      {
+         define_material(cstr, ++last_id, ce.name);
+      }
+      list_ce.pop_front();
+
+      cstr << std::setw(10) << std::left  << "COMPOUND";
+      cstr << std::setw(10) << std::right << ce.frac;
+      cstr << std::setw(10) << std::right << ce.name;
+     
+      if (list_ce.length() > 0)
+      {
+         CompoundElement ce = list_ce.front();
+         if (!ce.predefined)
+         {
+            define_material(cstr, ++last_id, ce.name);
+         }
+         cstr << std::setw(10) << std::right << ce.frac;
+         cstr << std::setw(10) << std::right << ce.name;
+      }
+      else
+      {
+	 cstr << std::setw(10) << std::right << ""; 
+	 cstr << std::setw(10) << std::right << ""; 
+      }
+      cstr << std::setw(10) << std::right << ""; 
+      cstr << std::setw(10) << std::right << ""; 
+
+      cstr << std::setw(10) << std::right << material_name;
+   }
 }
+
+void define_material(std:ostringstream& cstr, int& last_id, std::string dname)
+{
+        // Use the defined name in a MATERIAL card
+        cstr << std::setw(10) << std::left << "MATERIAL";
+        cstr << std::setw(10) << std::right << "";
+        cstr << std::setw(10) << std::right << "";
+        cstr << std::setw(10) << std::right << 999;
+        cstr << std::setw(10) << std::right << last_id; 
+        cstr << std::setw(10) << std::right << "";
+        cstr << std::setw(10) << std::right << "";
+        cstr << std::setw(10) << std::left << dname << std::endl;
+}
+
+std::string modify_fluka_name(std::string& origName)
+{
+   if (6 >= origName.length())
+   {
+      return origName.append("_1");
+   }
+   if (7 <= origName.length() && origName.length() <= 8)
+   {
+      return origName.substr(0,6).insert(6,"_1");
+   }
+}
+//---------------------------------------------------------------------------//
+//
+//---------------------------------------------------------------------------//
+// 
+
+const int MAX_CHARS_PER_LINE = 512;
+const int MAX_TOKENS_PER_LINE = 20;
+const char* const DELIMITER = " ";
+
+// Return a vector of structs, one for each line in the file
+std::map<int, string> readElements(std::ifstream& fin);
+
+// Hardcoded to read a file of fluka-named elements, atomic #, 
+// each with 12 or more id's
+std::map<int, string> readElements(std::ifstream& fin)
+{
+   int lastNum = 0;
+   std::map<int, string> fluka_name;
+   int i = 0;
+   int za_id;
+
+   // read each line of the file
+   while (!fin.eof())
+   {
+     // read an entire line into memory
+     char buf[MAX_CHARS_PER_LINE];
+     fin.getline(buf, MAX_CHARS_PER_LINE);
+
+     // parse the line into blank-delimited tokens
+     const char* token;
+
+     // parse the line for the first word
+     token = strtok(buf, DELIMITER);
+     if (debug)
+     {
+        std::cout << "\n" << i++ << ". ";
+     }
+     
+     if (token) // line not blank
+     {
+       // One new struct for every nonempty line
+       std::string name = std::string(token);
+       
+
+       // Get the second token here because we'll need the atomic 
+       // # either for assignment or for checking
+       unsigned int z_num = atoi(strtok(0,DELIMITER));
+
+       // And get the third value, the id
+       int id = atoi(strtok(0,DELIMITER));
+
+       if (z_num == lastNum ) 
+       {
+          // We have a named isotope, the id is  important
+	  za_id = z_num*10000000 + id*10000;
+       }
+       else
+       {
+          // Elemental form
+	  za_id = z_num*10000000;
+       }  // end check for duplicate ids
+       fluka_name.insert( std::make_pair(za_id, fluka_name) );
+       last_nume = z_num;
+
+     } // end if line not blank
+     if (debug)
+     {
+        std::cout << std:: endl;
+     }
+   }   // end while over lines in file
+   
+   return fluka_name;
+}
+
+// Open a filestream for "el2.txt" and use its contents to populate
+// a vector of FlukaElement struct pointers
+/*
+int main()
+{
+   // create a file-reading object
+   std::ifstream fin;
+   fin.open("el2.txt");
+   if (!fin.good())
+   {
+     // exit if file not found
+     return EXIT_FAILURE;
+   }
+   std::vector<FlukaElement*> fe = readElements(fin);
+
+   // Read the new data object and print out the results
+   std::cout << std::endl;
+   std::vector<FlukaElement*>::iterator iter;
+   for (iter = fe.begin(); iter != fe.end();  ++iter) 
+   {
+       std::cout << (*iter)->fluka_name << ", ";
+       std::cout << (*iter)->atomic_number << ", ";
+
+       std::vector<int> id_vector = (*iter)->id; 
+       if (id_vector.size() == 0)
+       {
+          std::cout << "Error: no ids. " << std::endl;
+          exit(EXIT_FAILURE);
+       }
+       std::cout << "(" << id_vector.at(0);
+       for (unsigned int i = 1; i < id_vector.size();  ++i)
+       {
+           std::cout << ", " << id_vector.at(i);
+       }
+       std::cout << ")" << std::endl;   
+   }
+   std::cout << std::endl;
+}
+*/
+
 //---------------------------------------------------------------------------//
 // print_material
 //---------------------------------------------------------------------------//

@@ -1,7 +1,7 @@
 #ifndef FLUDAG_SRC_FLUKA_FUNCS_H
 #define FLUDAG_SRC_FLUKA_FUNCS_H
 
-#include <iostream>
+#include <iostream>    // cout, endl
 #include <stdlib.h>
 #include <string>      // string, cout
 #include <vector>
@@ -46,12 +46,15 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
 /*
  * Write material cards
  */
-std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, int num_mats, std::string mat_file);
+std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
+                                                  int& last_id,
+						  int num_mats, 
+						  std::string mat_file);
 /*
  * Write compound cards
  */
-void fludag_write_compounds(std::ostringstream& cstr, int num_mats, 
-                            std::vector<pyne::Material> materials);
+void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
+                            pyne::Material& material);
 
 /*
  * Convenience function
