@@ -26,7 +26,7 @@ using moab::DagMC;
 #include <list>        
 #include <algorithm>   // sort
 #include <utility>     // makepair
-#include <stdlib.h>  // atoi
+#include <stdlib.h>    // atoi
 
 #ifdef CUBIT_LIBS_PRESENT
 #include <fenv.h>
@@ -63,7 +63,7 @@ std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
 
 int NUM_FLUKA_MATS = 37;
 
-bool debug = false; //true ;
+bool debug = false; 
 
 std::set<int> make_exception_set()
 {
@@ -900,7 +900,7 @@ int fludag_setup()
   {
       std::string props = mat_property_string(i, keywords);
       int id = DAG->id_by_index(3, i);
-      if (props.length()) 
+      if (props.size()) 
       {
          std::cout << "Vol " << i << ", id=" << id << ": parsed props: " << props << std::endl; 
       }
@@ -1086,14 +1086,12 @@ struct CompoundElement
    // "PREDEFINED" => fluka_name is predefined
    // else fluka_name is their standard name and defined name is used in the 
    // material/compound card combo
-   std::string defined_name = "PREDEFINED";
-   bool predefined = false;
+   std::string defined_name;
+   bool predefined;
    std::string name;
-   double frac = 0.0;
+   double frac;
 };
 
-std::string modify_fluka_name(std::string& origName);
-void define_material(std:ostringstream& cstr, int& last_id, std::string dname);
 void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
                             pyne::Material& material)
 {
@@ -1104,7 +1102,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
    {
      // exit if file not found
      std::cout << "el.txt should be in ../fluka/src" << std::endl;
-     return EXIT_FAILURE;
+     exit(EXIT_FAILURE);
    }
    // ToDo:  move this to calling routine
    std::map<int, std::string> fluka_name = readElements(fin);
@@ -1112,7 +1110,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
   
    // Map znum to material info
    // std::map< int, <CompoundElement> > map_ce;
-   std::list< <CompoundElement> > list_ce;
+   std::list< CompoundElement > list_ce;
 
    std::string material_name = material.metadata["fluka_name"].asString();
    std::cout << "Writing compound card for material " << 
@@ -1125,20 +1123,21 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
        std::cout << "\tcomp, frac: " << comp_iter->first << ", ";
        std::cout << comp_iter->second;
        
-       std::cout << pyne::nucname.name(comp_iter->second);
-       int znum = pyne::nucname.znum(comp_iter-first);
-       int anum = pyne::nucname.anum(comp_iter-first);
+       std::cout << pyne::nucname::name(comp_iter->second);
+       int znum = pyne::nucname::znum(comp_iter->first);
+       int anum = pyne::nucname::anum(comp_iter->first);
        // Make the za_id
-       za_id = znum*10000000 + anum*10000;
+       ce.za_id = znum*10000000 + anum*10000;
 
        // Use za_id to get the fluka_name from special database
-       std::string cur_name = fluka_name[za_id];
+       std::string cur_name = fluka_name[ce.za_id];
        ce.fluka_name = cur_name; 
        if (FLUKA_mat_set.find(cur_name) == FLUKA_mat_set.end())
        {
           // current name is not in the pre-existing FLUKA material list
 	  // modify it for the compound card
           ce.name = modify_fluka_name(cur_name);
+          ce.predefined = false;
        }
        else
        {
@@ -1154,7 +1153,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 
    std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
    std::cout << header << std::endl;
-   while (list_ce.length() >= 3)
+   while (list_ce.size() >= 3)
    {
       CompoundElement ce1 = list_ce.front();
       if (!ce1.predefined)
@@ -1188,7 +1187,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
       cstr << std::setw(10) << std::right << material_name;
    }
    // Get the last one or two fractions
-   if (list_ce.length() > 0)
+   if (list_ce.size() > 0)
    {
       CompoundElement ce = list_ce.front();
       if (!ce.predefined)
@@ -1201,7 +1200,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
       cstr << std::setw(10) << std::right << ce.frac;
       cstr << std::setw(10) << std::right << ce.name;
      
-      if (list_ce.length() > 0)
+      if (list_ce.size() > 0)
       {
          CompoundElement ce = list_ce.front();
          if (!ce.predefined)
@@ -1223,7 +1222,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
    }
 }
 
-void define_material(std:ostringstream& cstr, int& last_id, std::string dname)
+void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
 {
         // Use the defined name in a MATERIAL card
         cstr << std::setw(10) << std::left << "MATERIAL";
@@ -1256,17 +1255,14 @@ const int MAX_CHARS_PER_LINE = 512;
 const int MAX_TOKENS_PER_LINE = 20;
 const char* const DELIMITER = " ";
 
-// Return a vector of structs, one for each line in the file
-std::map<int, string> readElements(std::ifstream& fin);
 
 // Hardcoded to read a file of fluka-named elements, atomic #, 
 // each with 12 or more id's
-std::map<int, string> readElements(std::ifstream& fin)
+std::map<int, std::string> readElements(std::ifstream& fin)
 {
    int lastNum = 0;
-   std::map<int, string> fluka_name;
+   std::map<int, std::string> map_fluka_name;
    int i = 0;
-   int za_id;
 
    // read each line of the file
    while (!fin.eof())
@@ -1298,6 +1294,7 @@ std::map<int, string> readElements(std::ifstream& fin)
        // And get the third value, the id
        int id = atoi(strtok(0,DELIMITER));
 
+       int za_id;
        if (z_num == lastNum ) 
        {
           // We have a named isotope, the id is  important
@@ -1308,8 +1305,8 @@ std::map<int, string> readElements(std::ifstream& fin)
           // Elemental form
 	  za_id = z_num*10000000;
        }  // end check for duplicate ids
-       fluka_name.insert( std::make_pair(za_id, fluka_name) );
-       last_nume = z_num;
+       map_fluka_name.insert( std::make_pair(za_id, name) );
+       lastNum = z_num;
 
      } // end if line not blank
      if (debug)
@@ -1318,7 +1315,7 @@ std::map<int, string> readElements(std::ifstream& fin)
      }
    }   // end while over lines in file
    
-   return fluka_name;
+   return map_fluka_name;
 }
 
 // Open a filestream for "el2.txt" and use its contents to populate

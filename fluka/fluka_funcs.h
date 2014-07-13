@@ -6,6 +6,7 @@
 #include <string>      // string, cout
 #include <vector>
 #include <set>
+#include <utility>     // makepair
 
 #include "moab/Types.hpp"
 #include "MBInterface.hpp"
@@ -56,6 +57,18 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
 void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
                             pyne::Material& material);
 
+/*
+ * Convenience function to make a different fluka_name; may not be needed
+ */
+std::string modify_fluka_name(std::string& origName);
+/*
+ * Creates a Fluka MATERIAL card with a fake density
+ */
+void define_material(std::ostringstream &cstr, int &last_id, std::string dname);
+/* 
+ * Return a vector of structs, one for each line in the file
+ */
+std::map<int, std::string> readElements(std::ifstream& fin);
 /*
  * Convenience function
  */
