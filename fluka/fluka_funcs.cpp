@@ -863,6 +863,7 @@ void fludag_write(std::string matfile, std::string lfname)
   lcadfile << astr.str();
   lcadfile << header << std::endl;
   lcadfile << mstr.str();
+  lcadfile << cstr.str();
   lcadfile.close();
 
   std::cout << "Writing lcad file = " << lfname << std::endl; 
@@ -1095,7 +1096,7 @@ struct CompoundElement
 void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
                             pyne::Material& material)
 {
-   // create a file-reading object
+   // create a file-reading object to read the fluka names
    std::ifstream fin;
    fin.open("../fluka/src/el.txt");
    if (!fin.good())
@@ -1107,23 +1108,22 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
    // ToDo:  move this to calling routine
    std::map<int, std::string> fluka_name = readElements(fin);
 
-  
-   // Map znum to material info
-   // std::map< int, <CompoundElement> > map_ce;
    std::list< CompoundElement > list_ce;
 
    std::string material_name = material.metadata["fluka_name"].asString();
    std::cout << "Writing compound card for material " << 
                  material.metadata["fluka_name"].asString() << std::endl;
+   std::cout << "  Nucid,   Frac,  PyNE name " << std::endl;
+
    std::map<int, double>::iterator comp_iter = material.comp.begin(); 
    // Go through the composition of this material
    for (; comp_iter != material.comp.end(); comp_iter++)
    {
        CompoundElement ce;
-       std::cout << "\tcomp, frac: " << comp_iter->first << ", ";
-       std::cout << comp_iter->second;
+       std::cout << comp_iter->first << ", " << comp_iter->second << ", ";
+       std::cout << pyne::nucname::name(comp_iter->first) << std::endl;
        
-       std::cout << pyne::nucname::name(comp_iter->second);
+
        int znum = pyne::nucname::znum(comp_iter->first);
        int anum = pyne::nucname::anum(comp_iter->first);
        // Make the za_id
@@ -1131,7 +1131,9 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 
        // Use za_id to get the fluka_name from special database
        std::string cur_name = fluka_name[ce.za_id];
+
        ce.fluka_name = cur_name; 
+       ce.frac = comp_iter->second;
        if (FLUKA_mat_set.find(cur_name) == FLUKA_mat_set.end())
        {
           // current name is not in the pre-existing FLUKA material list
@@ -1153,6 +1155,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 
    std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
    std::cout << header << std::endl;
+   // Note: List is popped 3 times each time in loop
    while (list_ce.size() >= 3)
    {
       CompoundElement ce1 = list_ce.front();
@@ -1183,8 +1186,8 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
       cstr << std::setw(10) << std::right << ce2.name;
       cstr << std::setw(10) << std::right << ce3.frac;
       cstr << std::setw(10) << std::right << ce3.name;
-      cstr << std::setw(10) << std::right << ce3.name;
       cstr << std::setw(10) << std::right << material_name;
+      cstr << std::endl;
    }
    // Get the last one or two fractions
    if (list_ce.size() > 0)
@@ -1220,8 +1223,12 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 
       cstr << std::setw(10) << std::right << material_name;
    }
-}
+}  // end fludag_write_compound
 
+//---------------------------------------------------------------------------//
+// define_material
+//---------------------------------------------------------------------------//
+// Convenience function to create a material with an irrelevant density
 void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
 {
         // Use the defined name in a MATERIAL card
@@ -1229,7 +1236,7 @@ void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
         cstr << std::setw(10) << std::right << "";
         cstr << std::setw(10) << std::right << "";
         cstr << std::setw(10) << std::right << 999;
-        cstr << std::setw(10) << std::right << last_id; 
+        cstr << std::setw(10) << std::right << last_id << "."; 
         cstr << std::setw(10) << std::right << "";
         cstr << std::setw(10) << std::right << "";
         cstr << std::setw(10) << std::left << dname << std::endl;
@@ -1278,7 +1285,7 @@ std::map<int, std::string> readElements(std::ifstream& fin)
      token = strtok(buf, DELIMITER);
      if (debug)
      {
-        std::cout << "\n" << i++ << ". ";
+        // std::cout << "\n" << i++ << ". ";
      }
      
      if (token) // line not blank
@@ -1311,52 +1318,12 @@ std::map<int, std::string> readElements(std::ifstream& fin)
      } // end if line not blank
      if (debug)
      {
-        std::cout << std:: endl;
+     //    std::cout << std:: endl;
      }
    }   // end while over lines in file
    
    return map_fluka_name;
 }
-
-// Open a filestream for "el2.txt" and use its contents to populate
-// a vector of FlukaElement struct pointers
-/*
-int main()
-{
-   // create a file-reading object
-   std::ifstream fin;
-   fin.open("el2.txt");
-   if (!fin.good())
-   {
-     // exit if file not found
-     return EXIT_FAILURE;
-   }
-   std::vector<FlukaElement*> fe = readElements(fin);
-
-   // Read the new data object and print out the results
-   std::cout << std::endl;
-   std::vector<FlukaElement*>::iterator iter;
-   for (iter = fe.begin(); iter != fe.end();  ++iter) 
-   {
-       std::cout << (*iter)->fluka_name << ", ";
-       std::cout << (*iter)->atomic_number << ", ";
-
-       std::vector<int> id_vector = (*iter)->id; 
-       if (id_vector.size() == 0)
-       {
-          std::cout << "Error: no ids. " << std::endl;
-          exit(EXIT_FAILURE);
-       }
-       std::cout << "(" << id_vector.at(0);
-       for (unsigned int i = 1; i < id_vector.size();  ++i)
-       {
-           std::cout << ", " << id_vector.at(i);
-       }
-       std::cout << ")" << std::endl;   
-   }
-   std::cout << std::endl;
-}
-*/
 
 //---------------------------------------------------------------------------//
 // print_material
