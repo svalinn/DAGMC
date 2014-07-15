@@ -832,31 +832,41 @@ void fludag_write(std::string matfile, std::string lfname)
      }
   }
 
+  ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
-  std::vector<pyne::Material> materials;
+  std::vector<pyne::Material> compounds;
   std::ostringstream mstr;
   int last_id;
   if (num_mats > 0)
   {
      // Do all the materials at once; mstr will be multiline
-     // Returning those materials that need to be compounds
-     materials = fludag_write_material(mstr, last_id, num_mats, matfile);
-  }
-  if (debug)
-  {
-     // print_material(collapsed_mat);
+     compounds = fludag_write_material(mstr, last_id, num_mats, matfile);
   }
 
-  // ToDo: COMPOUND Cards
+  ////////////////////////////////////////////////////////////////////////
+  // COMPOUND Cards
   std::ostringstream cstr;
   std::vector<pyne::Material>::iterator mat_ptr;
 
-  for (mat_ptr = materials.begin(); mat_ptr != materials.end(); mat_ptr++)
+   // create a file-reading object to read the fluka names
+   std::ifstream fin;
+   fin.open("../fluka/doc/el.txt");
+   if (!fin.good())
+   {
+     // exit if file not found
+     std::cout << "el.txt should be in ../fluka/src" << std::endl;
+     exit(EXIT_FAILURE);
+   }
+  fluka_name_map = readElements(fin);
+
+  for (mat_ptr = compounds.begin(); mat_ptr != compounds.end(); mat_ptr++)
   {
      fludag_write_compound(cstr, last_id, *mat_ptr);
   }
 
-  // Write out the streams
+  std::cout << "Past compound loop. " << std::endl;
+  ////////////////////////////////////////////////////////////////////////
+  // Write all the streams to the input file
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   std::ofstream lcadfile (lfname.c_str());
   lcadfile << header << std::endl;
@@ -866,8 +876,9 @@ void fludag_write(std::string matfile, std::string lfname)
   lcadfile << cstr.str();
   lcadfile.close();
 
-  std::cout << "Writing lcad file = " << lfname << std::endl; 
-// Before opening file for writing, check for an existing file
+//   std::cout << "Writing lcad file = " << lfname << std::endl; 
+// Before opening file for writing, check for an existing file;867
+
 /*
   if( lfname != "lcad" ){
     // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"
@@ -879,6 +890,10 @@ void fludag_write(std::string matfile, std::string lfname)
 */
 }
 //---------------------------------------------------------------------------//
+// fludag_setup()
+//---------------------------------------------------------------------------//
+// Get the number of volumes (for looping) and parse the properties in 
+// the geometry
 int fludag_setup()
 {
   int num_vols = DAG->num_entities(3);
@@ -915,6 +930,7 @@ int fludag_setup()
 //---------------------------------------------------------------------------//
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
+// Put the ASSIGNMAt statements in the output ostringstream
 std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols)  
 {
   MBErrorCode ret;
@@ -965,8 +981,8 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
             }
             if (FLUKA_mat_set.find(vals[0]) == FLUKA_mat_set.end())
             {
-                // current material is not in the pre-existing FLUKA material list
-                matNamesList.push_back(material); 
+               // current material is not in the pre-existing FLUKA material list
+               matNamesList.push_back(material); 
             }
          }
          else
@@ -1029,7 +1045,7 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
   // Skip the implicit complement
   for (int i=0; i<num_mats-1; ++i)
   {
-      mat.from_hdf5(mat_file, "/materials", i,1);
+      mat.from_hdf5(mat_file, "/materials", i, 1);
       if (debug)
       {
          std::cout << "Printing material " << mat.metadata["name"] 
@@ -1043,14 +1059,12 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
       {
          print_material(collmat);
       }
-
       // Construct the material card.
       std::string line = collmat.fluka();
 
       // Extract the material id so the lines can be sorted on it
       std::string id_str = mat.metadata["fluka_material_index"].asString();
       int id = atoi(id_str.c_str());
-      // The pairs will be sorted on the id
       id_line_list.push_back(make_pair(id, line));
 
       // To prepare for for a potential compound card, add this
@@ -1061,15 +1075,14 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
          // current material is not in the pre-existing FLUKA material list
          materials.push_back(collmat);
       }
-      // This could also be gotten by adding 25 to the number of volumes
-      // but this avoids error
-      last_id = id;
   }
-  // Lists magically know how to sort pairs
-  id_line_list.sort();
 
-  // Now that it's sorted grab the lines sequentially
-  for (int i=0; i<num_mats-1; ++i)
+  // Lists magically know how to sort <int, string> pairs
+  id_line_list.sort();
+  last_id = id_line_list.back().first;
+
+  // Now that its sorted grab the lines sequentially
+  while ( 0 < id_line_list.size() )
   {
       ostr << id_line_list.front().second;
       id_line_list.pop_front();
@@ -1079,22 +1092,18 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
 //---------------------------------------------------------------------------//
 // fludag_write_compound
 //---------------------------------------------------------------------------//
-// Only material objects that have non-fluka names are in this list
+// Only material objects that have non-fluka names are processed
 struct CompoundElement 
 {
-   int za_id;  // znum+0000000 or full nucid in the case of deuterium, tritium, etc
+   int za_id;              // znum+anum 
    std::string fluka_name; // may or may not be predefined
-   // "PREDEFINED" => fluka_name is predefined
-   // else fluka_name is their standard name and defined name is used in the 
-   // material/compound card combo
-   std::string defined_name;
-   bool predefined;
+   bool predefined;        // True if fluka_name is predefined
    std::string name;
    double frac;
 };
 
 void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
-                            pyne::Material& material)
+                           pyne::Material& material)
 {
    // create a file-reading object to read the fluka names
    std::ifstream fin;
@@ -1105,14 +1114,13 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
      std::cout << "el.txt should be in ../fluka/src" << std::endl;
      exit(EXIT_FAILURE);
    }
-   // ToDo:  move this to calling routine
-   std::map<int, std::string> fluka_name = readElements(fin);
 
    std::list< CompoundElement > list_ce;
 
    std::string material_name = material.metadata["fluka_name"].asString();
    std::cout << "Writing compound card for material " << 
                  material.metadata["fluka_name"].asString() << std::endl;
+
    std::cout << "  Nucid,   Frac,  PyNE name " << std::endl;
 
    std::map<int, double>::iterator comp_iter = material.comp.begin(); 
@@ -1123,14 +1131,13 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
        std::cout << comp_iter->first << ", " << comp_iter->second << ", ";
        std::cout << pyne::nucname::name(comp_iter->first) << std::endl;
        
-
        int znum = pyne::nucname::znum(comp_iter->first);
        int anum = pyne::nucname::anum(comp_iter->first);
        // Make the za_id
        ce.za_id = znum*10000000 + anum*10000;
 
        // Use za_id to get the fluka_name from special database
-       std::string cur_name = fluka_name[ce.za_id];
+       std::string cur_name = fluka_name_map[ce.za_id];
 
        ce.fluka_name = cur_name; 
        ce.frac = comp_iter->second;
@@ -1158,6 +1165,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
    // Note: List is popped 3 times each time in loop
    while (list_ce.size() >= 3)
    {
+      std::cout << "last_id = " << last_id;
       CompoundElement ce1 = list_ce.front();
       if (!ce1.predefined)
       {
@@ -1186,7 +1194,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
       cstr << std::setw(10) << std::right << ce2.name;
       cstr << std::setw(10) << std::right << ce3.frac;
       cstr << std::setw(10) << std::right << ce3.name;
-      cstr << std::setw(10) << std::right << material_name;
+      cstr << std::setw(10) << std::left << material_name;
       cstr << std::endl;
    }
    // Get the last one or two fractions
@@ -1221,7 +1229,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
       cstr << std::setw(10) << std::right << ""; 
       cstr << std::setw(10) << std::right << ""; 
 
-      cstr << std::setw(10) << std::right << material_name;
+      cstr << std::setw(10) << std::left << material_name;
    }
 }  // end fludag_write_compound
 
@@ -1229,19 +1237,26 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 // define_material
 //---------------------------------------------------------------------------//
 // Convenience function to create a material with an irrelevant density
+// The material is to be part of a compound
 void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
 {
-        // Use the defined name in a MATERIAL card
-        cstr << std::setw(10) << std::left << "MATERIAL";
-        cstr << std::setw(10) << std::right << "";
-        cstr << std::setw(10) << std::right << "";
-        cstr << std::setw(10) << std::right << 999;
-        cstr << std::setw(10) << std::right << last_id << "."; 
-        cstr << std::setw(10) << std::right << "";
-        cstr << std::setw(10) << std::right << "";
-        cstr << std::setw(10) << std::left << dname << std::endl;
+    std::cout << "; in define_material, last_id = " << last_id << std::endl;
+    std::stringstream id_stream;
+    id_stream << last_id << ".";
+    // Use the defined name in a MATERIAL card
+    cstr << std::setw(10) << std::left << "MATERIAL";
+    cstr << std::setw(10) << std::right << "";
+    cstr << std::setw(10) << std::right << "";
+    cstr << std::setw(10) << std::right << 999;
+    cstr << std::setw(10) << std::right << id_stream.str();
+    cstr << std::setw(10) << std::right << "";
+    cstr << std::setw(10) << std::right << "";
+    cstr << std::setw(10) << std::left << dname << std::endl;
 }
 
+//---------------------------------------------------------------------------//
+// modify_fluka_name
+//---------------------------------------------------------------------------//
 std::string modify_fluka_name(std::string& origName)
 {
    if (6 >= origName.length())
@@ -1254,7 +1269,7 @@ std::string modify_fluka_name(std::string& origName)
    }
 }
 //---------------------------------------------------------------------------//
-//
+// readElements
 //---------------------------------------------------------------------------//
 // 
 
@@ -1329,21 +1344,22 @@ std::map<int, std::string> readElements(std::ifstream& fin)
 // print_material
 //---------------------------------------------------------------------------//
 // Convenience function
-void print_material( pyne::Material test_mat) 
+void print_material( pyne::Material material) 
 {
   pyne::comp_iter it;
 
-  std::cout << "density = " << test_mat.density << std::endl;
-  std::cout << "mass = " << test_mat.mass << std::endl;
-  std::cout << "atoms_per_mol = " << test_mat.atoms_per_molecule << std::endl;
+  std::cout << "density = " << material.density << std::endl;
+  std::cout << "mass = " << material.mass << std::endl;
+  std::cout << "atoms_per_mol = " << material.atoms_per_molecule << std::endl;
 
-  for ( it = test_mat.comp.begin() ; it != test_mat.comp.end() ; ++it ) {
+  for ( it = material.comp.begin() ; it != material.comp.end() ; ++it ) {
     if(it->second <= 0.0)
       continue;
     else
       std::cout << it->first << " " << it->second << std::endl;
   }
-  std::cout << test_mat.metadata << std::endl;
+  std::cout << "Metadata:" << std::endl;
+  std::cout << material.metadata << std::endl;
 }
 
 //---------------------------------------------------------------------------//

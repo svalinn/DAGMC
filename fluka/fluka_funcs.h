@@ -56,7 +56,10 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
  */
 void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
                             pyne::Material& material);
-
+/*
+ *  Global mapping from z-a nucid to fluka name
+ */
+std::map<int, std::string> fluka_name_map;
 /*
  * Convenience function to make a different fluka_name; may not be needed
  */

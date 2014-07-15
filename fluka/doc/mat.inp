@@ -11,10 +11,10 @@ MATERIAL                       -0.001205       26.                    NITROGEN
 MATERIAL                              -2       27.                    STEELSTA  
 MATERIAL                          -11.35       28.                    LEAD      
 MATERIAL                          -7.874       29.                    MERCURY   
-MATERIAL                             999        28.                    PHOSPH_1  
-COMPOUND    0.111111    CARBON  0.111111   SILICON  0.111111  PHOSPH_1  STEELSTA
-MATERIAL                             999        29.                    SULFUR_1  
-MATERIAL                             999        30.                    CHROMI_1  
-COMPOUND    0.111111  SULFUR_1  0.111111  TITANIUM  0.111111  CHROMI_1  STEELSTA
-MATERIAL                             999        31.                    MANGAN_1  
-COMPOUND    0.111111  MANGAN_1  0.111111      IRON  0.111111    NICKEL  STEELSTA
+MATERIAL                             999       30.                    PHOSPH_1  
+COMPOUND    0.111111    CARBON  0.111111   SILICON  0.111111  PHOSPH_1STEELSTA  
+MATERIAL                             999       31.                    SULFUR_1  
+MATERIAL                             999       32.                    CHROMI_1  
+COMPOUND    0.111111  SULFUR_1  0.111111  TITANIUM  0.111111  CHROMI_1STEELSTA  
+MATERIAL                             999       33.                    MANGAN_1  
+COMPOUND    0.111111  MANGAN_1  0.111111      IRON  0.111111    NICKELSTEELSTA  
