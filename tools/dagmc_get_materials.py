@@ -119,6 +119,14 @@ def get_tally(filename):
                 tag = tag_h[s]
                 group_name = tally_to_script(tag)
                 if 'tally' in group_name:
+                    # get the size and type of tag to be used to create a new tag for all entity sets
+                    # included in the tally group
+                    tag_size= t.sizeValues
+                    tag_type= t.type
+                    # create new tag with the same group name
+                    new_tag=mesh.createTag('Tally_Ents',tag_size, tag_type)
+                    # tag the sets included in the tally group with the group name
+                    tag_sets(mesh, s, tag_h, new_tag )
                     # group name in that case is a tally group name and set 's' is a group of sets of geometry
                     # objects included in the tally
                     # get the geometry objects included; ID and type of each
@@ -134,6 +142,18 @@ def get_tally(filename):
     print('The tally groups found in the h5m file are: ')
     print tally_values
     return tally_values
+
+"""
+function to tag the sets included in a tally group
+with the same group name
+---------------------------------
+new tag == greoup name
+"""
+def tag_sets(mesh, mesh_set, tag_handle, new_tag ):
+    for k in mesh_set.getEntSets(hops=-1):
+        # tag the set with the same name of the tally group
+        new_tag[k]= tag_handle
+    return mesh    
 
 """
 Function that gets both the ID and type of entities included in the tally group
@@ -518,7 +538,7 @@ def main():
     material_object_list = check_and_create_materials(
         mat_dens_list, mat_lib)
     # write materials to file
-    write_mats_h5m(material_object_list, args.output)
+    #write_mats_h5m(material_object_list, args.output)
 
 if __name__ == "__main__":
     main()
