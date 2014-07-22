@@ -37,6 +37,7 @@ void fludag_write(std::string matfile, std::string lfname);
 // Gets the number of volumes via MOAB entities and DAGMC calls;
 // parses properties
 int fludag_setup();
+std::vector<pyne::Material> pyne_get_materials(std::string file, int num_mats);
 
 std::set<int> make_exception_set();
 /*

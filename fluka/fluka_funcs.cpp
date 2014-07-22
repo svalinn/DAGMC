@@ -810,7 +810,13 @@ static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& p
 //---------------------------------------------------------------------------//
 void fludag_write(std::string matfile, std::string lfname)
 {
+  std::vector<pyne::Material> pyne_materials;
   int num_vols = fludag_setup();
+  if (num_vols > 0)
+  {
+     pyne_materials = pyne_get_materials(matfile, num_vols);
+  }
+  std::vector<pyne::Material>::iterator pyne_mat_ptr;
 
   // ASSIGNMA records
   std::ostringstream astr;
@@ -858,13 +864,13 @@ void fludag_write(std::string matfile, std::string lfname)
      exit(EXIT_FAILURE);
    }
   fluka_name_map = readElements(fin);
+  exit(0);
 
   for (mat_ptr = compounds.begin(); mat_ptr != compounds.end(); mat_ptr++)
   {
      fludag_write_compound(cstr, last_id, *mat_ptr);
   }
 
-  std::cout << "Past compound loop. " << std::endl;
   ////////////////////////////////////////////////////////////////////////
   // Write all the streams to the input file
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
@@ -1026,6 +1032,42 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
   return matNamesList;
 }
 //---------------------------------------------------------------------------//
+// pyne_get_materials
+//---------------------------------------------------------------------------//
+// Return the set of all PyNE material objects in the current geometry
+std::vector<pyne::Material> pyne_get_materials(std::string mat_file, int num_mats)
+{
+  pyne::Material mat = pyne::Material();
+  // std::list<std::pair<int, std::string> > id_line_list;
+  std::vector<pyne::Material> materials;
+
+  // Skip the implicit complement
+  std::cout << "Fluka name  and comments" << std::endl;
+  for (int i=0; i<num_mats-1; ++i)
+  {
+      mat.from_hdf5(mat_file, "/materials", i, 1);
+      materials.push_back(mat);
+      //if (mat.metadata.isMember("fluka_name"))
+      //{
+      //   std::cout << mat.metadata["fluka_name"].asString();
+      //}
+      // if (mat.metadata.isMember("comment"))
+      // {
+         // std::cout << mat.metadata["comment"].asString();
+         // std::cout << mat.metadata["comment"];
+      //}
+      /*
+      else
+      {
+         std::cout << "\t----- no comments ----- ";
+      }
+      */
+      std::cout << std::endl; 
+  }
+  return materials;
+}
+
+//---------------------------------------------------------------------------//
 // fludag_write_material
 //---------------------------------------------------------------------------//
 // Return a FLUKA MATERIAL card based on the info in the material file.
@@ -1145,7 +1187,9 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
        {
           // current name is not in the pre-existing FLUKA material list
 	  // modify it for the compound card
-          ce.name = modify_fluka_name(cur_name);
+          // ce.name = modify_fluka_name(cur_name);
+	  // jcz test for segmentation
+          ce.name = cur_name;
           ce.predefined = false;
        }
        else
@@ -1165,7 +1209,6 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
    // Note: List is popped 3 times each time in loop
    while (list_ce.size() >= 3)
    {
-      std::cout << "last_id = " << last_id;
       CompoundElement ce1 = list_ce.front();
       if (!ce1.predefined)
       {
@@ -1247,7 +1290,8 @@ void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
     cstr << std::setw(10) << std::left << "MATERIAL";
     cstr << std::setw(10) << std::right << "";
     cstr << std::setw(10) << std::right << "";
-    cstr << std::setw(10) << std::right << 999;
+    cstr << std::setprecision(0) << std::fixed << std::showpoint 
+         << std::setw(10) << std::right << 999.;
     cstr << std::setw(10) << std::right << id_stream.str();
     cstr << std::setw(10) << std::right << "";
     cstr << std::setw(10) << std::right << "";
@@ -1257,6 +1301,7 @@ void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
 //---------------------------------------------------------------------------//
 // modify_fluka_name
 //---------------------------------------------------------------------------//
+// jcz look at for segmentation
 std::string modify_fluka_name(std::string& origName)
 {
    if (6 >= origName.length())
@@ -1276,7 +1321,6 @@ std::string modify_fluka_name(std::string& origName)
 const int MAX_CHARS_PER_LINE = 512;
 const int MAX_TOKENS_PER_LINE = 20;
 const char* const DELIMITER = " ";
-
 
 // Hardcoded to read a file of fluka-named elements, atomic #, 
 // each with 12 or more id's
@@ -1298,16 +1342,10 @@ std::map<int, std::string> readElements(std::ifstream& fin)
 
      // parse the line for the first word
      token = strtok(buf, DELIMITER);
-     if (debug)
-     {
-        // std::cout << "\n" << i++ << ". ";
-     }
      
      if (token) // line not blank
      {
-       // One new struct for every nonempty line
        std::string name = std::string(token);
-       
 
        // Get the second token here because we'll need the atomic 
        // # either for assignment or for checking
@@ -1326,15 +1364,18 @@ std::map<int, std::string> readElements(std::ifstream& fin)
        {
           // Elemental form
 	  za_id = z_num*10000000;
+	  std::cout << "I'm here" << std::endl;
        }  // end check for duplicate ids
-       map_fluka_name.insert( std::make_pair(za_id, name) );
+       std::pair< int, std::string>  couplet = std::make_pair(za_id, name);
+       std::cout << i++ << ".  " << couplet.first << ", " << couplet.second << std::endl;
+       // map_fluka_name.insert( std::make_pair(za_id, name) );
+       map_fluka_name.insert(couplet);
+       // jcz this is for catch isotopes and ensuring the anum becomes part of 
+       // the nucid; NOTE:  this FAILS for uranium and thorium!! and check others
+       // also plutonium, and americium
        lastNum = z_num;
 
      } // end if line not blank
-     if (debug)
-     {
-     //    std::cout << std:: endl;
-     }
    }   // end while over lines in file
    
    return map_fluka_name;
@@ -1358,8 +1399,8 @@ void print_material( pyne::Material material)
     else
       std::cout << it->first << " " << it->second << std::endl;
   }
-  std::cout << "Metadata:" << std::endl;
-  std::cout << material.metadata << std::endl;
+  // std::cout << "Metadata:" << std::endl;
+  // std::cout << material.metadata << std::endl;
 }
 
 //---------------------------------------------------------------------------//
