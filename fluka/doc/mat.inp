@@ -1,20 +1,17 @@
 *...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
-ASSIGNMAt    Mercury         1
-ASSIGNMAt       Lead         2
-ASSIGNMAt   Steel, S         3
-ASSIGNMAt   Nitrogen         4
-ASSIGNMAt   Graveyar         5
+ASSIGNMAt   NITROGEN        1.
+ASSIGNMAt   STEELSTA        2.
+ASSIGNMAt       LEAD        3.
+ASSIGNMAt    MERCURY        4.
 * The next volume is the implicit complement
-ASSIGNMAt     VACUUM         6
+ASSIGNMAt     VACUUM        6.
 *...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
-MATERIAL                       -0.001205       26.                    NITROGEN  
-MATERIAL                              -2       27.                    STEELSTA  
-MATERIAL                          -11.35       28.                    LEAD      
-MATERIAL                          -7.874       29.                    MERCURY   
-MATERIAL                             999       30.                    PHOSPH_1  
-COMPOUND    0.111111    CARBON  0.111111   SILICON  0.111111  PHOSPH_1STEELSTA  
-MATERIAL                             999       31.                    SULFUR_1  
-MATERIAL                             999       32.                    CHROMI_1  
-COMPOUND    0.111111  SULFUR_1  0.111111  TITANIUM  0.111111  CHROMI_1STEELSTA  
-MATERIAL                             999       33.                    MANGAN_1  
-COMPOUND    0.111111  MANGAN_1  0.111111      IRON  0.111111    NICKELSTEELSTA  
+* 
+MATERIAL                             -2.       27.                    STEELSTA  
+MATERIAL                            999.       28.                    PHOSPHO   
+COMPOUND          0.    CARBON        0.   SILICON        0.   PHOSPHOSTEELSTA  
+MATERIAL                            999.       29.                    SULFUR    
+MATERIAL                            999.       30.                    CHROMIUM  
+COMPOUND          0.    SULFUR        0.  TITANIUM        0.  CHROMIUMSTEELSTA  
+MATERIAL                            999.       31.                    MANGANES  
+COMPOUND          0.  MANGANES        0.      IRON        0.    NICKELSTEELSTA  

@@ -810,44 +810,59 @@ static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& p
 //---------------------------------------------------------------------------//
 void fludag_write(std::string matfile, std::string lfname)
 {
-  std::vector<pyne::Material> pyne_materials;
+  std::map<int, std::pair< int, pyne::Material> > pyne_map;
   int num_vols = fludag_setup();
   if (num_vols > 0)
   {
-     pyne_materials = pyne_get_materials(matfile, num_vols);
+     pyne_map = pyne_get_materials(matfile, num_vols);
   }
-  std::vector<pyne::Material>::iterator pyne_mat_ptr;
 
-  // ASSIGNMA records
+  // ASSIGNMA records:  returns a list of materials for which COMPOUND cards are needed
   std::ostringstream astr;
-  std::list<std::string> matNamesList = fludagwrite_assignma(astr, num_vols);
-
-  // Process the matNamesList list so that it truly is unique
-  matNamesList.sort();
-  matNamesList.unique();
-  int num_mats = matNamesList.size();
-
-  // Print the final list of unique materials
+  std::list<std::pair<int, pyne::Material> > notBuiltIn;
+  notBuiltIn = fludagwrite_assignma(astr, num_vols, pyne_map);
+  int num_mats = notBuiltIn.size();
+  debug = 1;
   if (debug)
   {
-     std::cout << "num_mats  " << matNamesList.size() << std::endl;
+     std::cout << astr.str();
+     std::cout << "Number of materials not built-in = " << num_mats << std::endl;
+  }
+
+  // Process the matNamesList list so that it is unique
+  // matNamesList.sort();
+  // matNamesList.unique();
+
+  // Print the final list of unique materials
+  /*
+
+  if (debug)
+  {
+     std::cout << "num_mats  " << num_mats << std::endl;
      std::list<std::string>::iterator it; 
      for (it=matNamesList.begin(); it!=matNamesList.end(); ++it)
      {
         std::cout << *it << std::endl;
      }
   }
-
+  */
   ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
+  std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+
+  std::set<int> exception_set = make_exception_set();
+  
   std::vector<pyne::Material> compounds;
   std::ostringstream mstr;
   int last_id;
   if (num_mats > 0)
   {
      // Do all the materials at once; mstr will be multiline
-     compounds = fludag_write_material(mstr, last_id, num_mats, matfile);
+     // compounds = fludag_write_material(mstr, last_id, num_mats, matfile);
+     compounds = fludag_write_material(mstr, last_id, num_mats, exception_set, notBuiltIn);
   }
+
+  std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
 
   ////////////////////////////////////////////////////////////////////////
   // COMPOUND Cards
@@ -860,11 +875,12 @@ void fludag_write(std::string matfile, std::string lfname)
    if (!fin.good())
    {
      // exit if file not found
-     std::cout << "el.txt should be in ../fluka/src" << std::endl;
+     std::cout << "el.txt should be in ../fluka/doc" << std::endl;
      exit(EXIT_FAILURE);
    }
+  // This is needed for the *components* of a COMPOUND material
+  // The FLUKa names are not stored
   fluka_name_map = readElements(fin);
-  exit(0);
 
   for (mat_ptr = compounds.begin(); mat_ptr != compounds.end(); mat_ptr++)
   {
@@ -881,7 +897,6 @@ void fludag_write(std::string matfile, std::string lfname)
   lcadfile << mstr.str();
   lcadfile << cstr.str();
   lcadfile.close();
-
 //   std::cout << "Writing lcad file = " << lfname << std::endl; 
 // Before opening file for writing, check for an existing file;867
 
@@ -937,90 +952,49 @@ int fludag_setup()
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
-std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols)  
+// std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
+// ToDo: Verify this should be a list and not a vector
+
+std::list<std::pair<int, pyne::Material> >fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
+                                          std::map<int, std::pair< int, pyne::Material> > pyne_map)  
 {
-  MBErrorCode ret;
-  MBEntityHandle entity = 0;
+  std::list<std::pair<int, pyne::Material> > notBuiltIn;
 
-  // Open an outputstring for index-id table and put a header in it
-  std::ostringstream idstr;
-  idstr << std::setw(5) <<  "Index" ;
-  idstr << std::setw(5) <<  "   Id" << std::endl;
-
-  // Prepare a list to contain unique materials not in Fluka's list
-  std::list<std::string> matNamesList;
-
-  // Loop through 3d entities.  
-  std::vector<std::string> vals;
-  std::string material;
-  char buffer[MAX_MATERIAL_NAME_SIZE];
-  for (unsigned vol_i = 1 ; vol_i <= num_vols ; vol_i++)
+  std::map<int, std::pair< int, pyne::Material> >::iterator mptr; 
+  for (mptr=pyne_map.begin(); mptr != pyne_map.end(); ++mptr)
   {
-      vals.clear();
-      entity = DAG->entity_by_index(3, vol_i);
-      int id = DAG->id_by_index(3, vol_i);
-
-      // Create the id-index string for this vol
-      idstr << std::setw(5) << std::right << vol_i;
-      idstr << std::setw(5) << std::right << id << std::endl;
-      // Create the mat.inp string for this vol
-      // Create the ASSIGNMA card 
-      if (DAG->has_prop(entity, "graveyard"))
-      {
-	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-	 ostr << std::setw(10) << std::right << "BLCKHOLE";
-	 ostr << std::setw(10) << std::right << vol_i << std::endl;
+      int id = mptr->first;  
+      std::pair<int, pyne::Material> fluka_mat_id_pair = mptr->second;
+      pyne::Material mat = fluka_mat_id_pair.second;
+     
+      // pyne::Material mat = mptr->second.second;
+      std::string fluka_name = mat.metadata["fluka_name"].asString();
+      if (FLUKA_mat_set.find(fluka_name) == FLUKA_mat_set.end())
+      { 
+          // current material is not in the pre-existing FLUKA material list
+          notBuiltIn.push_back(fluka_mat_id_pair); 
       }
-      else if (DAG->has_prop(entity, "mat"))
-      {
-         ret = DAG->prop_values(entity, "mat", vals);
-         if (vals.size() >= 1)
-         {
-            // Make a copy of string in vals[0]; full string needs to be compared to
-            // FLUKA materials list; copy is for potential truncation
-            std::strcpy(buffer, vals[0].c_str());
-            material = std::string(buffer);
-            
-            if (vals[0].size() > 8)
-            {
-               material.resize(8);
-            }
-            if (FLUKA_mat_set.find(vals[0]) == FLUKA_mat_set.end())
-            {
-               // current material is not in the pre-existing FLUKA material list
-               matNamesList.push_back(material); 
-            }
-         }
-         else
-         {
-            material = "moreThanOne";
-         }
-	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-	 ostr << std::setw(10) << std::right << material;
-	 ostr << std::setw(10) << std::right << vol_i << std::endl;
-      }  // end has_prop "mat:"
-      else
-      {
-         // std::cout << "No 'mat:' properties for volume " << vol_i << std::endl;
-      }
-  }   // end loop over volumes
+      ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+      ostr << std::setw(10) << std::right << fluka_name;
+      ostr << std::setprecision(0) << std::fixed << std::showpoint 
+         << std::setw(10) << std::right << (float)id << std::endl;
+      
+  }
+//   std::map<int, int> id_index_map = write_id_index(num_vols);
 
   // Finish the ostr with the implicit complement card
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
   ostr << implicit_comp_comment << std::endl;
   ostr << std::setw(10) << std::left  << "ASSIGNMAt";
   ostr << std::setw(10) << std::right << "VACUUM";
-  ostr << std::setw(10) << std::right << num_vols << std::endl;
+  ostr << std::setprecision(0) << std::fixed << std::showpoint 
+         << std::setw(10) << std::right << (float)num_vols << std::endl;
+  debug = 1;
   if (debug)
   {
      // Show the output string just created
      std::cout << ostr.str();
   }
-  // Prepare an output file named "index_id.txt" for idstr
-  std::string index_id_filename = "index_id.txt";
-  std::ofstream index_id(index_id_filename.c_str());
-  index_id << idstr.str();
-  index_id.close(); 
   ////////////////////////////////////////////////////////////////////////////////
   // 
   // At this point we have 
@@ -1029,70 +1003,133 @@ std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vo
   //    to be used for the material cards
   //  o written a helpuful file out called "index_id.txt" 
   ////////////////////////////////////////////////////////////////////////////////
-  return matNamesList;
+
+  return notBuiltIn;
 }
+
+/*
+std::map<int, int> write_id_index(int num_vols)
+{
+  std::map<int, int> id_index_map;
+  // Open an outputstring for index-id table and put a header in it
+  std::ostringstream idstr;
+  idstr << std::setw(5) <<  "Index" ;
+  idstr << std::setw(5) <<  "   Id" << std::endl;
+  MBEntityHandle entity = 0;
+  // Create the index_id map
+  for (unsigned vol_i = 0 ; vol_i <= num_vols ; vol_i++)
+  {
+      entity = DAG->entity_by_index(3, vol_i);
+      int id = DAG->id_by_index(3, vol_i);
+
+      idstr << std::setw(5) << std::right << vol_i;
+      // Mark the vol index negative if it's the graveyard
+      // ToDo:  This loop is never hit.  There is a material named "Graveyar"
+      if (DAG->has_prop(entity, "graveyard"))
+      {
+         std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+         id = -1;
+      }
+      idstr << std::setw(5) << std::right << id << std::endl;
+      id_index_map.insert(std::make_pair(vol_i,id));
+  }
+  // Prepare an output file for idstr
+  std::string index_id_filename = "index_id.txt";
+  std::ofstream index_id(index_id_filename.c_str());
+  index_id << idstr.str();
+  index_id.close(); 
+
+  return id_index_map;
+}
+*/
 //---------------------------------------------------------------------------//
 // pyne_get_materials
 //---------------------------------------------------------------------------//
 // Return the set of all PyNE material objects in the current geometry
-std::vector<pyne::Material> pyne_get_materials(std::string mat_file, int num_mats)
+// This function mimics what MaterialLibary.from_hdf5(..) might return
+std::map<int, std::pair<int, pyne::Material> > pyne_get_materials(std::string mat_file, int num_mats)
 {
-  pyne::Material mat = pyne::Material();
-  // std::list<std::pair<int, std::string> > id_line_list;
-  std::vector<pyne::Material> materials;
+  pyne::Material mat;
+  std::map<int, std::pair< int, pyne::Material> > id_mat_map;
 
   // Skip the implicit complement
-  std::cout << "Fluka name  and comments" << std::endl;
-  for (int i=0; i<num_mats-1; ++i)
+  // Don't look at the graveyard or the material with no properties
+  // ToDo:  may want to get a better looping number a priori
+  std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+  for (int i=0; i<num_mats-1; i++)
   {
+      mat = pyne::Material();
       mat.from_hdf5(mat_file, "/materials", i, 1);
-      materials.push_back(mat);
-      //if (mat.metadata.isMember("fluka_name"))
-      //{
-      //   std::cout << mat.metadata["fluka_name"].asString();
-      //}
-      // if (mat.metadata.isMember("comment"))
-      // {
-         // std::cout << mat.metadata["comment"].asString();
-         // std::cout << mat.metadata["comment"];
-      //}
+
+      if (mat.metadata.isMember("fluka_name"))
+      {
+         std::string fluka_id_str = mat.metadata["fluka_material_index"].asString();
+         std::string mat_id_str = mat.metadata["mat_number"].asString();
+
+         int id = atoi(mat_id_str.c_str());
+         int fluka_mat_id = atoi(fluka_id_str.c_str());
+         std::cout << id << ". " << mat.metadata["fluka_name"].asString() 
+                << " --> " << fluka_mat_id << std::endl;
+
+         id_mat_map[id] = std::make_pair(fluka_mat_id,mat);
+      }
+      else
+      {
+         std::cout << "This material does not have fluka_name as a member" << std::endl;
+	 print_material(mat);
+      }
       /*
+      if (mat.metadata.isMember("fluka_name"))
+      {
+         std::cout << mat.metadata["fluka_name"].asString();
+      }
+      if (mat.metadata.isMember("comment"))
+      {
+         std::cout << mat.metadata["comment"].asString();
+         std::cout << mat.metadata["comment"];
+      }
+      
       else
       {
          std::cout << "\t----- no comments ----- ";
       }
-      */
+     
       std::cout << std::endl; 
+      */
   }
-  return materials;
+  std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+  return id_mat_map;
 }
 
 //---------------------------------------------------------------------------//
 // fludag_write_material
 //---------------------------------------------------------------------------//
-// Return a FLUKA MATERIAL card based on the info in the material file.
-// This reads a file on disk once for every material.  
+// Return a FLUKA MATERIAL card based on the info that has previously been
+// captured from the material file.
+// 
 std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
                                                   int& last_id,
                                                   int num_mats, 
-						  std::string mat_file)
+                                                  std::set<int> exception_set,
+                                                  std::list<std::pair<int, pyne::Material> > notBuiltIn)
 {
-  pyne::Material mat = pyne::Material();
+  pyne::Material mat;
   pyne::Material collmat;
+  // For sorting the MATERIAL cards in order of fluka_mat_id
   std::list<std::pair<int, std::string> > id_line_list;
   std::vector<pyne::Material> materials;
 
-  std::set<int> exception_set = make_exception_set();
-
-  // Skip the implicit complement
-  for (int i=0; i<num_mats-1; ++i)
+  std::list<std::pair<int, pyne::Material> >::iterator ptr;
+  for (ptr=notBuiltIn.begin(); ptr != notBuiltIn.end(); ++ptr)
   {
-      mat.from_hdf5(mat_file, "/materials", i, 1);
+      pyne::Material mat = ptr->second;
+      collmat = mat.collapse_elements(exception_set);
+
+      collmat.density = mat.density;
+      collmat.metadata = mat.metadata;
       if (debug)
       {
-         std::cout << "Printing material " << mat.metadata["name"] 
-	           << " from " << mat_file << std::endl;
-         print_material(mat);
+         print_material(collmat);
       }
       collmat = mat.collapse_elements(exception_set);
       collmat.density = mat.density;
@@ -1107,7 +1144,7 @@ std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr,
       // Extract the material id so the lines can be sorted on it
       std::string id_str = mat.metadata["fluka_material_index"].asString();
       int id = atoi(id_str.c_str());
-      id_line_list.push_back(make_pair(id, line));
+      id_line_list.push_back(std::make_pair(id, line));
 
       // To prepare for for a potential compound card, add this
       // material to a container if it's not a FLUKA material
@@ -1157,6 +1194,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
      exit(EXIT_FAILURE);
    }
 
+   std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
    std::list< CompoundElement > list_ce;
 
    std::string material_name = material.metadata["fluka_name"].asString();
@@ -1291,7 +1329,7 @@ void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
     cstr << std::setw(10) << std::right << "";
     cstr << std::setw(10) << std::right << "";
     cstr << std::setprecision(0) << std::fixed << std::showpoint 
-         << std::setw(10) << std::right << 999.;
+          << std::setw(10) << std::right << 999.;
     cstr << std::setw(10) << std::right << id_stream.str();
     cstr << std::setw(10) << std::right << "";
     cstr << std::setw(10) << std::right << "";
@@ -1370,7 +1408,7 @@ std::map<int, std::string> readElements(std::ifstream& fin)
        std::cout << i++ << ".  " << couplet.first << ", " << couplet.second << std::endl;
        // map_fluka_name.insert( std::make_pair(za_id, name) );
        map_fluka_name.insert(couplet);
-       // jcz this is for catch isotopes and ensuring the anum becomes part of 
+       // jcz this is for catching isotopes and ensuring the anum becomes part of 
        // the nucid; NOTE:  this FAILS for uranium and thorium!! and check others
        // also plutonium, and americium
        lastNum = z_num;
