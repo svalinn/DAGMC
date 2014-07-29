@@ -36,10 +36,11 @@ void fludag_write(std::string matfile, std::string lfname);
 
 // Gets the number of volumes via MOAB entities and DAGMC calls;
 // parses properties
-int fludag_setup();
+int fludag_setup(std::map<int, std::string> id_name_map);
+void showMultiplePropVals(std::vector<std::string> vals);
 // std::vector<pyne::Material> pyne_get_materials(std::string file, int num_mats);
 // std::map<int, pyne::Material> pyne_get_materials(std::string mat_file, int num_mats);
-std::map<int, std::pair<int, pyne::Material> > pyne_get_materials(std::string mat_file, int num_mats);
+std::map<int, pyne::Material> pyne_get_materials(std::string mat_file, int num_vols);
 
 std::set<int> make_exception_set();
 /*
@@ -47,14 +48,12 @@ std::set<int> make_exception_set();
  */
 // std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols);
 
-// std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols, std::vector<pyne::Material> pyne_materials);
-//std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
- //                                           std::map<int, pyne::Material> pyne_map); 
-// std::list<std::pair<int, pyne::Material> >fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-  //                                           std::map<int, pyne::Material> pyne_map);
-std::list<std::pair<int, pyne::Material> > fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-                                          std::map<int, std::pair< int, pyne::Material> > pyne_map);
-std::map<int, int> write_id_index(int num_vols);
+void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
+                                           std::map<int, pyne::Material> pyne_map); 
+// void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
+//                          std::map<int, pyne::Material> pyne_map,
+//                          std::map<int, std::string> id_name_map);
+// std::map<int, int> write_id_index(int num_vols);
 /*
  * Write material cards
  */
