@@ -38,37 +38,27 @@ void fludag_write(std::string matfile, std::string lfname);
 // parses properties
 int fludag_setup(std::map<int, std::string> id_name_map);
 void showMultiplePropVals(std::vector<std::string> vals);
-// std::vector<pyne::Material> pyne_get_materials(std::string file, int num_mats);
-// std::map<int, pyne::Material> pyne_get_materials(std::string mat_file, int num_mats);
-std::map<int, pyne::Material> pyne_get_materials(std::string mat_file, int num_vols);
+
+std::list<pyne::Material> pyne_get_materials(std::string mat_file);
 
 std::set<int> make_exception_set();
 /*
  * Write the material assignment for each volume to an output stream
  */
-// std::list<std::string> fludagwrite_assignma(std::ostringstream& ostr, int num_vols);
-
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
                                            std::map<int, pyne::Material> pyne_map); 
-// void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-//                          std::map<int, pyne::Material> pyne_map,
-//                          std::map<int, std::string> id_name_map);
-// std::map<int, int> write_id_index(int num_vols);
 /*
  * Write material cards
  */
-// std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, int& last_id, int num_mats, std::string mat_file);
 std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
                                                   int& last_id,
-                                                  int num_mats, 
                                                   std::set<int> exception_set,
-                                                  std::list<std::pair<int, pyne::Material> > notBuiltIn);
+                                                  std::map<int, pyne::Material> pyne_map);
 /*
  * Write compound cards
  */
 void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
                             pyne::Material& material);
-std::string fluka(pyne::Material mat);
 /*
  *  Global mapping from z-a nucid to fluka name
  */
@@ -88,7 +78,7 @@ std::map<int, std::string> readElements(std::ifstream& fin);
 /*
  * Convenience function
  */
-void print_material( pyne::Material test_mat);
+void print_material( pyne::Material test_mat, std::string xtraTitle=" ");
 
 // Defined but not called
 void slow_check(double pos[3], const double dir[3], int &oldReg);
