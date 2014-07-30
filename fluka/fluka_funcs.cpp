@@ -815,19 +815,17 @@ void fludag_write(std::string matfile, std::string lfname)
   // *as read in* from tools/parse_material/dagmc_get_materials.py
   // std::map<int, pyne::Material > pyne_map;
   std::list<pyne::Material> pyne_list;
-  // Use DAG to read and count the volumes.  Should only have to read the geometry
-  // 1x with DAG, so while we're there map the vol id to the mat name
-  std::map<int, std::string> id_name_map;
+  // Use DAG to read and count the volumes.  
+  std::set<std::string> name_set;
+  int num_vols = fludag_setup(name_set);
   // Now read with pyne
-  int num_vols = fludag_setup(id_name_map);
   if (num_vols > 0)
   {
-     pyne_list = pyne_get_materials(matfile);
+     pyne_get_materials(matfile, pyne_list);
   }
-/*
   // ASSIGNMA records:  returns a list of materials for which COMPOUND cards are needed
   std::ostringstream astr;
-  fludagwrite_assignma(astr, num_vols, pyne_map);
+  fludagwrite_assignma(astr, num_vols, pyne_list, name_set);
 
   /*
   // Process the matNamesList list so that it is unique
@@ -909,20 +907,18 @@ void fludag_write(std::string matfile, std::string lfname)
 //---------------------------------------------------------------------------//
 // fludag_setup()
 //---------------------------------------------------------------------------//
-// Get the number of volumes (for looping) and parse the properties 
+// Get the number of volumes (for the implicit complement card)) and parse the properties 
 //     This function has optional components useful for debugging.
 //     This function used DAG calls to read the geometry.
 //     This function does not use PyNE
 // ToDo:  remove #1
-// 1.  Fill id_name_map with vol_id and just the mat name from the group 
-//     property, e.g. mat:Nitrogen/rho:-0.001205 is "Nitrogen"
 // 2.  Optionally write out an "index_id.txt" file showing the vol_id,
 //     which DAG considers the ordinal volume index, and its matching
 //     entity id (int) which is some internally stored int attached to the
 //     MOAB entity that is NOT ordinal.  It is not used elsewhere in fludag.
 // 3.  Optionaly look at the entire property string
 
-int fludag_setup(std::map<int, std::string> id_name_map)
+int fludag_setup(std::set<std::string> name_set)
 {
   int num_vols = DAG->num_entities(3);
   MBErrorCode ret;
@@ -955,7 +951,6 @@ int fludag_setup(std::map<int, std::string> id_name_map)
 
   for (unsigned int vol_i=1; vol_i<=num_vols; vol_i++)
   {
-      std::string name; 
       // NOTE:  The code below simplifies and replaces mat_property_string()
       MBEntityHandle entity = DAG->entity_by_index(3,vol_i);
 
@@ -970,9 +965,7 @@ int fludag_setup(std::map<int, std::string> id_name_map)
         }
         if (vals.size() == 1)
         {
-	   name = vals[0];
-	   // Store the key info in a map to be used for the ASSIGNMA cards
-           id_name_map.insert(std::make_pair(vol_i,name));
+	   name_set.insert(vals[0]);
 	}
 	else if (vals.size() > 1)
 	{
@@ -995,7 +988,7 @@ int fludag_setup(std::map<int, std::string> id_name_map)
 
          std::cout << std::setw(5) << std::right << vol_i 
 	           << std::setw(5) << std::right << id 
-		   << std::setw(21)<< std::right << name 
+		   << std::setw(21)<< std::right << vals[0] 
 		   <<  " -- " << props << std::endl; 
       }
       else // no props
@@ -1029,10 +1022,7 @@ int fludag_setup(std::map<int, std::string> id_name_map)
 //---------------------------------------------------------------------------//
 // Return the set of all PyNE material objects in the current geometry
 // This function mimics what MaterialLibary.from_hdf5(..) might return
-// Get the number of unique materials from the group names
-//   Q:  is this the same as the number of materials in the file?
-// could be mroe material objects in the file than there are group names
-std::list<pyne::Material> pyne_get_materials(std::string mat_file)
+void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_list)
 {
   pyne::Material mat;
   std::list<pyne::Material> matList;
@@ -1059,85 +1049,58 @@ std::list<pyne::Material> pyne_get_materials(std::string mat_file)
   std::list<pyne::Material>::iterator ptr;
   for (ptr=matList.begin(); ptr!=matList.end(); ++ptr)
   {
-      print_material(*ptr, mat.metadata["name"].asString());
+      print_material(*ptr, ptr->metadata["name"].asString());
   }
-  return matList;
-  /*
-  for (int vol_i=1; vol_i<=num_vols; vol_i++)
-  {
-      mat = pyne::Material();
-      // ToDo: Check if this is the right try_catch block
-      // ToDo:  double check use of vol_i - 1 in from_hdf5
-      try
-      {
-         mat.from_hdf5(mat_file, "/materials", vol_i-1, 1);
-	 // get material name:  is it already in some list I'm keeping
-      }
-      catch (pyne::MaterialProtocolError)
-      {
-         std::cout << "Volume # " << vol_i << ":  No Material" << std::endl;
-	 vol_i_mat_map[vol_i] = NULLMAT;
-         continue;
-      }
-      if (mat.metadata.isMember("fluka_name"))
-      {
-         // this is the only thing needed in this if block
-	 // Question:  Could the same mat be associated with two different volumes?
-	 //            How do we ensure uniqueness?
-         // std::map<int, Material::pyne>::iterator it = vol_mat_map.find(mat);	
-	 // if (it) == vol_mat_map.end()) { // it's not already in the map
-         vol_i_mat_map[vol_i] = mat;
-	 // } else { vol_i_mat_map[vol_i] = null;  } // it's there already, put a null in
-
-         std::string mat_name     = mat.metadata["name"].asString();
-         std::string fluka_name   = mat.metadata["fluka_name"].asString();
-         std::string fluka_id_str = mat.metadata["fluka_material_index"].asString();
-
-         int fluka_mat_id = atoi(fluka_id_str.c_str());
-         std::cout << vol_i << ". " << std::setw(10) << std::left << fluka_name
-                   << " --> " << fluka_mat_id << ", " << mat_name << std::endl;
-      }
-      else
-      {
-         vol_i_mat_map[vol_i] = NULLMAT;
-         std::cout << vol_i << ". " << std::setw(10) << " "
-	           << ", does not have fluka_name as a member" << std::endl;
-      }
-  }
-  return vol_i_mat_map;
-  */
-
 }
 
 //---------------------------------------------------------------------------//
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
-// - go throught material map 
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-                          std::map<int, pyne::Material> pyne_map)
+                          std::list<pyne::Material> pyne_list,    // unique materials
+			  std::set<std::string> name_set)         // unique names
 {
-  for (unsigned int vol_i=1; vol_i<=num_vols; vol_i++)
+  
+  int region_num = 1;
+  std::set<std::string>::iterator nptr;
+  for (nptr=name_set.begin(); nptr!=name_set.end(); ++nptr)
   {
-      // Get the mat object associated with this index
-      // NOTE:  vol_i is *not* stored in the material
-      pyne::Material mat = pyne_map[vol_i];
-      std::string fluka_name = mat.metadata["fluka_name"].asString();
-      if (fluka_name.length() > 0)
+      std::string name = *nptr;
+      std::list<pyne::Material>::iterator mptr;
+      if (name.compare("Graveyard") || name.compare("graveyard"))
       {
          ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-         ostr << std::setw(10) << std::right << fluka_name;
+         ostr << std::setw(10) << std::right << "BLCKHOLE";
          ostr << std::setprecision(0) << std::fixed << std::showpoint 
-              << std::setw(10) << std::right << (float)vol_i << std::endl;
+              << std::setw(10) << std::right << (float)region_num << std::endl;
+	 ++region_num;
+	 continue;
       }
-      else
+      for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
       {
-	 // We will not need to go through the volumes again; can
-	 // use an iterator and thus depend on the material object 
-	 // in the map being 'good'
-         pyne_map.erase(vol_i);
-      }
-   }
+         std::string longname = mptr->metadata["name"].asString();
+	 // Have to do a "find" until just the name part of the groupname is stored
+	 // under "name"
+	 if (longname.find(name) != std::string::npos)  
+	 {
+	    // The current material's name contains the name we are looking for
+	    // so get the proper fluka
+            std::string fluka_name = mptr->metadata["name"].asString();
+            ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+            ostr << std::setw(10) << std::right << fluka_name;
+            ostr << std::setprecision(0) << std::fixed << std::showpoint 
+                 << std::setw(10) << std::right << (float)region_num << std::endl;
+            ++region_num;	
+	 }
+	 else
+	 {
+	    // Hmmm, what to do?
+	    // Name is not [Gg]raveyard, nor is it known by the materials
+	    // Print error message and continue
+	 }
+      } // end loop through materials 
+   }    // end loop through geom names
 
   // Finish the ostr with the implicit complement card
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
@@ -1458,7 +1421,8 @@ void print_material( pyne::Material material, std::string xtraTitle)
   std::string fluka_name = material.metadata["fluka_name"].asString();
 
   std::cout << std::endl;
-  std::cout << "***************  " << fluka_name << xtraTitle << "*******************" << std::endl;
+  std::cout << "***************  " << fluka_name << "  " << xtraTitle 
+            << "  *******************" << std::endl;
   std::cout << "density = " << material.density << std::endl;
   std::cout << "mass = " << material.mass << std::endl;
   std::cout << "atoms_per_mol = " << material.atoms_per_molecule << std::endl;

@@ -36,17 +36,19 @@ void fludag_write(std::string matfile, std::string lfname);
 
 // Gets the number of volumes via MOAB entities and DAGMC calls;
 // parses properties
-int fludag_setup(std::map<int, std::string> id_name_map);
+// int fludag_setup(std::map<int, std::string> id_name_map);
+int fludag_setup(std::set<std::string> name_set);
 void showMultiplePropVals(std::vector<std::string> vals);
 
-std::list<pyne::Material> pyne_get_materials(std::string mat_file);
+void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_list);
 
 std::set<int> make_exception_set();
 /*
  * Write the material assignment for each volume to an output stream
  */
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-                                           std::map<int, pyne::Material> pyne_map); 
+                                           std::list<pyne::Material> pyne_list, 
+					   std::set<std::string> name_set);
 /*
  * Write material cards
  */
