@@ -1062,6 +1062,7 @@ void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_li
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
+/*
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
                           std::list<pyne::Material> pyne_list,    // unique materials
 			  std::set<std::string> name_set)         // unique names
@@ -1090,9 +1091,9 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
             ostr << std::setprecision(0) << std::fixed << std::showpoint 
                  << std::setw(10) << std::right << (float)region_num << std::endl;
             ++region_num;	
+	    continue;
 	 }
-	 else
-      if (0 == name.compare("Graveyard")|| 0 == name.compare("graveyard"))
+	 else if (0 == name.compare("Graveyard")|| 0 == name.compare("graveyard"))
       {
          ostr << std::setw(10) << std::left  << "ASSIGNMAt";
          ostr << std::setw(10) << std::right << "BLCKHOLE";
@@ -1107,7 +1108,6 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 	 }
       } // end loop through materials 
 
-      /*
       if (0 == name.compare("Graveyard")|| 0 == name.compare("graveyard"))
       {
          ostr << std::setw(10) << std::left  << "ASSIGNMAt";
@@ -1116,8 +1116,75 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
               << std::setw(10) << std::right << (float)region_num << std::endl;
 	 ++region_num;
       }
-      */
    }    // end loop through geom names
+
+  // Finish the ostr with the implicit complement card
+  std::string implicit_comp_comment = "* The next volume is the implicit complement";
+  ostr << implicit_comp_comment << std::endl;
+  ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+  ostr << std::setw(10) << std::right << "VACUUM";
+
+  ostr << std::setprecision(0) << std::fixed << std::showpoint 
+         << std::setw(10) << std::right << (float)num_vols << std::endl;
+}
+*/
+void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
+                          std::list<pyne::Material> pyne_list,    // unique materials
+			  std::set<std::string>& name_set)         // unique names
+{
+  bool has_graveyard = true;
+  
+  if ( 0 == name_set.erase("Graveyard") && 0 == name_set.erase("graveyard") )
+  {
+     has_graveyard = false;
+     std::cerr << "There is no graveyard in this geometry." << std::endl;
+  }
+  std::cout << "Longname                    List of shortnames" << std::endl;
+  int region_num = 1;
+  std::list<pyne::Material>::iterator mptr;
+  for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
+  {
+      std::string longname = mptr->metadata["name"].asString();
+      std::cout << longname << ": (";
+      std::set<std::string>::iterator nptr;
+      for (nptr=name_set.begin(); nptr!=name_set.end(); ++nptr)
+      {
+         std::string name = *nptr;
+	 std::cout << name << ", ";
+
+	 // Find the inner loop (short) name in the outer loop (long) name
+	 if (longname.find(name) != std::string::npos)  
+	 {
+	    // The current material's name contains the name we are looking for
+	    // so get the proper fluka name
+            std::string fluka_name = mptr->metadata["fluka_name"].asString();
+
+            ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+            ostr << std::setw(10) << std::right << fluka_name;
+            ostr << std::setprecision(0) << std::fixed << std::showpoint 
+                 << std::setw(10) << std::right << (float)region_num << std::endl;
+            ++region_num;	
+	    // 
+	    name_set.erase(*nptr);
+	    continue;
+	 }
+	 else
+	 {
+	    // Print error message and continue
+	 }
+      } // end inner loop through group (short) names 
+      std::cout << ") " << std::endl;
+  }   // end loop through long names
+  std::cout << std::endl;
+
+  // We've matched a group name to every material long-name
+  if (has_graveyard)
+  {
+     ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+     ostr << std::setw(10) << std::right << "BLCKHOLE";
+     ostr << std::setprecision(0) << std::fixed << std::showpoint 
+          << std::setw(10) << std::right << (float)region_num << std::endl;
+  }
 
   // Finish the ostr with the implicit complement card
   std::string implicit_comp_comment = "* The next volume is the implicit complement";

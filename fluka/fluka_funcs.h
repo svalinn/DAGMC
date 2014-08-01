@@ -47,7 +47,7 @@ std::set<int> make_exception_set();
  */
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
                                            std::list<pyne::Material> pyne_list, 
-					   std::set<std::string> name_set);
+					   std::set<std::string>& name_set);
 /*
  * Write material cards
  */
