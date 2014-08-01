@@ -531,7 +531,7 @@ def main():
     # get list of tag values
     tag_values = get_tag_values(args.datafile)
     # get list of tally objects
-    tally_values = get_tally(args.datafile)
+    #tally_values = get_tally(args.datafile)
     # now load material library
     mat_lib = load_mat_lib(args.nuc_data)
     # check that material tags exist in library # material_list is list of
@@ -541,7 +541,7 @@ def main():
     material_object_list = check_and_create_materials(
         mat_dens_list, mat_lib)
     # write materials to file
-    #write_mats_h5m(material_object_list, args.output)
+    write_mats_h5m(material_object_list, args.output)
 
 if __name__ == "__main__":
     main()
