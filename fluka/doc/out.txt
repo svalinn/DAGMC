@@ -6,7 +6,7 @@ The implicit complement bounds 15 surfaces
 The implicit complement's total surface area = 1.25786e+08
 Time to initialise the geometry3
 
-In fluka_funcs, fludag_setup:952
+In fluka_funcs, fludag_setup:953
 Mat Property and All Property name list: 
    Vol   id            mat name -- Complete group name
     1    1              Mercury -- mat=Mercury, rho=-7.874, tally_4.cell.flux.p=
@@ -113,12 +113,7 @@ Metadata:
 	"name" : "mat:Steel, Stainless 321/rho:-2"
 }
 
-Longname                    List of shortnames
-mat:Nitrogen/rho:-0.001205: (Lead, Mercury, Nitrogen, Steel, Stainless 321, ) 
-mat:Mercury/rho:-7.874: (Lead, Mercury, Lead, Steel, Stainless 321, ) 
-mat:Lead/rho:-11.35: (Lead, Steel, Stainless 321, ) 
-mat:Steel, Stainless 321/rho:-2: (Steel, Stainless 321, ) 
-
+There is no key at vol id 6
 Nucids of FLUKA exceptions
   10000000,   10010000,   10020000,   10030000,   20000000
   20030000,   20040000,   30000000,   30060000,   30070000

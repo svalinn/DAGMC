@@ -832,8 +832,8 @@ static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& p
 void fludag_write(std::string matfile, std::string lfname)
 {
   // Use DAG to read and count the volumes.  
-  std::set<std::string> name_set;
-  int num_vols = fludag_setup(name_set);
+  std::map<int, std::string> map_name;
+  int num_vols = fludag_setup(map_name);
 
   // Read from same file to get material objects with pyne
   std::list<pyne::Material> pyne_list;
@@ -842,22 +842,23 @@ void fludag_write(std::string matfile, std::string lfname)
      pyne_get_materials(matfile, pyne_list);
   }
 
+  ////////////////////////////////////////////////////////////////////////
+  // ASSIGNMAt Cards
   std::ostringstream astr;
-  fludagwrite_assignma(astr, num_vols, pyne_list, name_set);
+  fludagwrite_assignma(astr, num_vols, pyne_list, map_name);
 
-  std::set<int> exception_set = make_exception_set();
-  /*
   ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
-  
+  std::set<int> exception_set = make_exception_set();
   std::vector<pyne::Material> compounds;
   std::ostringstream mstr;
   int last_id;
   if (num_vols > 0)
   {
-     compounds = fludag_write_material(mstr, last_id, exception_set, pyne_map);
+     // compounds = fludag_write_material(mstr, last_id, exception_set, pyne_map);
   }
 
+  /*
   ////////////////////////////////////////////////////////////////////////
   // COMPOUND Cards
   std::ostringstream cstr;
@@ -912,7 +913,7 @@ void fludag_write(std::string matfile, std::string lfname)
 //---------------------------------------------------------------------------//
 // Get the number of volumes (for the implicit complement card)) and parse the properties 
 //     This function has optional components useful for debugging.
-//     This function used DAG calls to read the geometry.
+//     This function uses DAG calls to read the geometry.
 //     This function does not use PyNE
 // ToDo:  remove #1
 // 2.  Optionally write out an "index_id.txt" file showing the vol_id,
@@ -921,7 +922,7 @@ void fludag_write(std::string matfile, std::string lfname)
 //     MOAB entity that is NOT ordinal.  It is not used elsewhere in fludag.
 // 3.  Optionaly look at the entire property string
 
-int fludag_setup(std::set<std::string>& name_set)
+int fludag_setup(std::map<int, std::string>& map_name)
 {
   int num_vols = DAG->num_entities(3);
   MBErrorCode ret;
@@ -968,12 +969,12 @@ int fludag_setup(std::set<std::string>& name_set)
             std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << std::endl;
             std::exit( EXIT_FAILURE );
         }
-        if (vals.size() == 1)
+        if (1 == vals.size() )
         {
 	   name = vals[0];
-	   name_set.insert(name);
+	   map_name[vol_i] = name;
 	}
-	else if (vals.size() > 1)
+	else if (1 < vals.size())
 	{
 	   // ToDo:  What to do in this situation?
  	   // this property has multiple values; list within brackets
@@ -992,6 +993,7 @@ int fludag_setup(std::set<std::string>& name_set)
       if (props.size())  // not empty
       {
 
+         if ( DAG->has_prop(entity, "mat") )
          std::cout << std::setw(5) << std::right << vol_i 
 	           << std::setw(5) << std::right << id 
 		   << std::setw(21)<< std::right << name
@@ -1035,23 +1037,23 @@ void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_li
   int i = 0;
   while(true)
   {
-         mat = pyne::Material();
+     mat = pyne::Material();
 //	 try
 //	 {
-            mat.from_hdf5(mat_file, "/materials", i++, 1);
+     mat.from_hdf5(mat_file, "/materials", i++, 1);
 //	 }
 //        catch (pyne::MaterialProtocolError)
 //	 {
 //	   keepgoing=false;
 //	 }
-		 if (0 >= mat.metadata["fluka_name"].asString().length())
-		 {
-		    break; 
-		 }
-		 pyne_list.push_back(mat);
-	  }
+      if (0 >= mat.metadata["fluka_name"].asString().length())
+      {
+          break; 
+      }
+      pyne_list.push_back(mat);
+  }
 		
-	  std::list<pyne::Material>::iterator ptr;
+  std::list<pyne::Material>::iterator ptr;
   for (ptr=pyne_list.begin(); ptr!=pyne_list.end(); ++ptr)
   {
       print_material(*ptr, ptr->metadata["name"].asString());
@@ -1062,136 +1064,62 @@ void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_li
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
-/*
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
                           std::list<pyne::Material> pyne_list,    // unique materials
-			  std::set<std::string> name_set)         // unique names
+			  std::map<int, std::string>& map_name)         
 {
-  
-  int region_num = 1;
-  std::set<std::string>::iterator nptr;
-  for (nptr=name_set.begin(); nptr!=name_set.end(); ++nptr)
+  std::map<std::string, pyne::Material> map_name_mat;
+
+  for (unsigned int vol_i=1; vol_i<=num_vols; vol_i++)
   {
-      std::string name = *nptr;
-      std::list<pyne::Material>::iterator mptr;
-
-      for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
+      std::string fluka_name;
+      if (0 == map_name.count(vol_i))
       {
-         std::string longname = mptr->metadata["name"].asString();
-	 // Have to do a "find" until just the name part of the groupname is stored
-	 // under "name"
-	 if (longname.find(name) != std::string::npos)  
-	 {
-	    // The current material's name contains the name we are looking for
-	    // so get the proper fluka name
-            std::string fluka_name = mptr->metadata["fluka_name"].asString();
-
-            ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-            ostr << std::setw(10) << std::right << fluka_name;
-            ostr << std::setprecision(0) << std::fixed << std::showpoint 
-                 << std::setw(10) << std::right << (float)region_num << std::endl;
-            ++region_num;	
-	    continue;
-	 }
-	 else if (0 == name.compare("Graveyard")|| 0 == name.compare("graveyard"))
-      {
-         ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-         ostr << std::setw(10) << std::right << "BLCKHOLE";
-         ostr << std::setprecision(0) << std::fixed << std::showpoint 
-              << std::setw(10) << std::right << (float)region_num << std::endl;
-	 ++region_num;
+	 std::cout << "There is no key at vol id " << vol_i << std::endl;
+	 continue;
       }
-	 else
-	 {
-	    // Name is not [Gg]raveyard, nor is it known by the materials
-	    // Print error message and continue
-	 }
-      } // end loop through materials 
-
-      if (0 == name.compare("Graveyard")|| 0 == name.compare("graveyard"))
+         
+      std::string shortname = map_name[vol_i];
+      if (0 < map_name_mat.count(shortname) )
       {
-         ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-         ostr << std::setw(10) << std::right << "BLCKHOLE";
-         ostr << std::setprecision(0) << std::fixed << std::showpoint 
-              << std::setw(10) << std::right << (float)region_num << std::endl;
-	 ++region_num;
+         // The Material object for this name has already been found
+         pyne::Material mat = map_name_mat[shortname];
+	 // get the proper fluka name
+         fluka_name = mat.metadata["fluka_name"].asString();
       }
-   }    // end loop through geom names
-
+      else  // look for the the material object
+      {
+         std::list<pyne::Material>::iterator mptr;
+         for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
+         {
+             std::string longname = mptr->metadata["name"].asString();
+	     if (longname.find(shortname) != std::string::npos)  
+	     {
+	        // Found, put it in the map for future reference
+	        map_name_mat["shortname"] = *mptr; 
+                fluka_name = mptr->metadata["fluka_name"].asString();
+	     }
+         }
+	 if (0 == fluka_name.length())
+	 {
+	    // The name was not found, this must be the Graveyard
+	    if ("Graveyard" == shortname || "graveyard" == shortname)
+	    {
+	       fluka_name = "BLCKHOLE";
+	    }
+	 }
+      }
+      // The fluka name has been found, create the card
+      ostr << std::setw(10) << std::left  << "ASSIGNMAt";
+      ostr << std::setw(10) << std::right << fluka_name;
+      ostr << std::setprecision(0) << std::fixed << std::showpoint 
+           << std::setw(10) << std::right << (float)vol_i << std::endl;
+  }
   // Finish the ostr with the implicit complement card
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
   ostr << implicit_comp_comment << std::endl;
   ostr << std::setw(10) << std::left  << "ASSIGNMAt";
   ostr << std::setw(10) << std::right << "VACUUM";
-
-  ostr << std::setprecision(0) << std::fixed << std::showpoint 
-         << std::setw(10) << std::right << (float)num_vols << std::endl;
-}
-*/
-void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-                          std::list<pyne::Material> pyne_list,    // unique materials
-			  std::set<std::string>& name_set)         // unique names
-{
-  bool has_graveyard = true;
-  
-  if ( 0 == name_set.erase("Graveyard") && 0 == name_set.erase("graveyard") )
-  {
-     has_graveyard = false;
-     std::cerr << "There is no graveyard in this geometry." << std::endl;
-  }
-  std::cout << "Longname                    List of shortnames" << std::endl;
-  int region_num = 1;
-  std::list<pyne::Material>::iterator mptr;
-  for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
-  {
-      std::string longname = mptr->metadata["name"].asString();
-      std::cout << longname << ": (";
-      std::set<std::string>::iterator nptr;
-      for (nptr=name_set.begin(); nptr!=name_set.end(); ++nptr)
-      {
-         std::string name = *nptr;
-	 std::cout << name << ", ";
-
-	 // Find the inner loop (short) name in the outer loop (long) name
-	 if (longname.find(name) != std::string::npos)  
-	 {
-	    // The current material's name contains the name we are looking for
-	    // so get the proper fluka name
-            std::string fluka_name = mptr->metadata["fluka_name"].asString();
-
-            ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-            ostr << std::setw(10) << std::right << fluka_name;
-            ostr << std::setprecision(0) << std::fixed << std::showpoint 
-                 << std::setw(10) << std::right << (float)region_num << std::endl;
-            ++region_num;	
-	    // 
-	    name_set.erase(*nptr);
-	    continue;
-	 }
-	 else
-	 {
-	    // Print error message and continue
-	 }
-      } // end inner loop through group (short) names 
-      std::cout << ") " << std::endl;
-  }   // end loop through long names
-  std::cout << std::endl;
-
-  // We've matched a group name to every material long-name
-  if (has_graveyard)
-  {
-     ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-     ostr << std::setw(10) << std::right << "BLCKHOLE";
-     ostr << std::setprecision(0) << std::fixed << std::showpoint 
-          << std::setw(10) << std::right << (float)region_num << std::endl;
-  }
-
-  // Finish the ostr with the implicit complement card
-  std::string implicit_comp_comment = "* The next volume is the implicit complement";
-  ostr << implicit_comp_comment << std::endl;
-  ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-  ostr << std::setw(10) << std::right << "VACUUM";
-
   ostr << std::setprecision(0) << std::fixed << std::showpoint 
          << std::setw(10) << std::right << (float)num_vols << std::endl;
 }
@@ -1218,6 +1146,7 @@ std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr,
   {
       pyne::Material mat = *ptr;
 
+      // NOT TRUE
       // Only need MATERIAL card for materials that are not predefined
       std::string mat_fluka_name = mat.metadata["fluka_name"].asString();
       if (FLUKA_mat_set.find(mat_fluka_name) == FLUKA_mat_set.end())
@@ -1285,6 +1214,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
                            pyne::Material& material)
 {
    // create a file-reading object to read the fluka names
+   /*
    std::ifstream fin;
    fin.open("../fluka/src/el.txt");
    if (!fin.good())
@@ -1293,6 +1223,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
      std::cout << "el.txt should be in ../fluka/src" << std::endl;
      exit(EXIT_FAILURE);
    }
+   */
 
    std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
    std::list< CompoundElement > list_ce;

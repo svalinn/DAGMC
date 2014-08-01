@@ -1,8 +1,8 @@
 *...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
-ASSIGNMAt   NITROGEN        1.
-ASSIGNMAt    MERCURY        2.
-ASSIGNMAt       LEAD        3.
-ASSIGNMAt   STEELSTA        4.
+ASSIGNMAt    MERCURY        1.
+ASSIGNMAt       LEAD        2.
+ASSIGNMAt   STEELSTA        3.
+ASSIGNMAt   NITROGEN        4.
 ASSIGNMAt   BLCKHOLE        5.
 * The next volume is the implicit complement
 ASSIGNMAt     VACUUM        6.
