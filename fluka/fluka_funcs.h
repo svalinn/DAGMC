@@ -1,5 +1,5 @@
-#ifndef FLUDAG_SRC_FLUKA_FUNCS_H
-#define FLUDAG_SRC_FLUKA_FUNCS_H
+#ifndef DAGMC_FLUKA_FLUKA_FUNCS_H
+#define DAGMC_FLUKA_FLUKA_FUNCS_H
 
 #include <iostream>    // cout, endl
 #include <stdlib.h>
@@ -36,8 +36,7 @@ void fludag_write(std::string matfile, std::string lfname);
 
 // Gets the number of volumes via MOAB entities and DAGMC calls;
 // parses properties
-// int fludag_setup(std::map<int, std::string> id_name_map);
-int fludag_setup(std::set<std::string> name_set);
+int fludag_setup(std::set<std::string>& name_set);
 void showMultiplePropVals(std::vector<std::string> vals);
 
 void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_list);
@@ -52,10 +51,10 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 /*
  * Write material cards
  */
-std::vector<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
+std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
                                                   int& last_id,
                                                   std::set<int> exception_set,
-                                                  std::map<int, pyne::Material> pyne_map);
+                                                  std::list<pyne::Material> pyne_list);
 /*
  * Write compound cards
  */
@@ -238,4 +237,4 @@ void g_fire(int& oldRegion, double point[], double dir[],
 	      double &propStep, double& retStep, double &safety,
 	      int& newRegion);
 
-#endif /* FLUDAG_SRC_FLUKA_FUNCS_H */
+#endif /* DAGMC_FLUKA_FLUKA_FUNCS_H */
