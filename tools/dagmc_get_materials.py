@@ -43,7 +43,7 @@ def get_tag_values(filename):
                 t_handle = mesh.getTagHandle(t.name)
                 # get the data for the tag, with taghandle in element i
                 tag = t_handle[s]
-                tag_to_script(tag, tag_values)
+                tag_to_string(tag, tag_values)
                 # last tag we are done
                 if any('impl_complement' in s for s in tag_values):
                     found_all_tags = 1
@@ -59,7 +59,7 @@ returns tag_list
 """
 
 
-def tag_to_script(tag, tag_list):
+def tag_to_string(tag, tag_list):
     a = []
     # since we have a byte type tag loop over the 32 elements
     for part in tag:
@@ -92,6 +92,10 @@ def load_mat_lib(filename):
         filename, datapath='/material_library/materials', nucpath='/material_library/nucid')
     return mat_lib
 
+######
+#comment out >>>> not finished
+####
+'''
 """
 Function that checks the existence of tally groups and returns a list of tally type,
 particles, and geometry objects (type and ID) included
@@ -117,16 +121,14 @@ def get_tally(filename):
             if t.name == 'NAME':
                 tag_h = mesh.getTagHandle(t.name)
                 tag = tag_h[s]
-                group_name = tally_to_script(tag)
+                group_name = tally_to_string(tag)
                 if 'tally' in group_name:
                     # get the size and type of tag to be used to create a new tag for all entity sets
                     # included in the tally group
-                    tag_size= t.sizeValues
-                    tag_type= t.type
                     # create new tag with the same group name
-                    new_tag=mesh.createTag('Tally_Ents',tag_size, tag_type)
+                    new_tag=mesh.createTag('Tally_Ents',t.sizeValues, t.type)
                     # tag the sets included in the tally group with the group name
-                    tag_sets(mesh, s, tag_h, new_tag )
+                    tag_sets(mesh, s, t, new_tag )
                     # group name in that case is a tally group name and set 's' is a group of sets of geometry
                     # objects included in the tally
                     # get the geometry objects included; ID and type of each
@@ -149,10 +151,10 @@ with the same group name
 ---------------------------------
 new tag == greoup name
 """
-def tag_sets(mesh, mesh_set, tag_handle, new_tag ):
+def tag_sets(mesh, mesh_set, tag, new_tag ):
     for k in mesh_set.getEntSets(hops=-1):
         # tag the set with the same name of the tally group
-        new_tag[k]= tag_handle
+        new_tag[k] = tag
     return mesh    
 
 """
@@ -171,7 +173,7 @@ def get_entity(mesh, mesh_set, tally_objects_list):
             if t.name == 'CATEGORY':
                 category_h = mesh.getTagHandle(t.name)
                 category = category_h[k]
-                category = tally_to_script(category)
+                category = tally_to_string(category)
                 continue
             # get the ID of geometry objects included
             if t.name == 'GLOBAL_ID':
@@ -189,7 +191,7 @@ returns tag
 """
 
 
-def tally_to_script(tag):
+def tally_to_string(tag):
     a = []
     for part in tag:
         # if the byte char code is non 0
@@ -232,6 +234,7 @@ def particle_split(tally_group_name):
     if tally_particle == '':
         raise Exception("Tally particle is missing in %s" % tally_group_name)
     return tally_particle
+'''
 
 """
 function to check that material group names exist and creates
