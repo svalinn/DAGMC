@@ -850,12 +850,12 @@ void fludag_write(std::string matfile, std::string lfname)
   ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
   std::set<int> exception_set = make_exception_set();
-  std::vector<pyne::Material> compounds;
+  // std::vector<pyne::Material> compounds;
   std::ostringstream mstr;
   int last_id;
   if (num_vols > 0)
   {
-     // compounds = fludag_write_material(mstr, last_id, exception_set, pyne_map);
+      fludag_write_material(mstr, last_id, exception_set, pyne_list);
   }
 
   /*
@@ -891,7 +891,7 @@ void fludag_write(std::string matfile, std::string lfname)
   lcadfile << header << std::endl;
   lcadfile << astr.str();
   lcadfile << header << std::endl;
-  // lcadfile << mstr.str();
+  lcadfile << mstr.str();
   // lcadfile << cstr.str();
   lcadfile.close();
 
@@ -915,14 +915,30 @@ void fludag_write(std::string matfile, std::string lfname)
 //     This function has optional components useful for debugging.
 //     This function uses DAG calls to read the geometry.
 //     This function does not use PyNE
-// ToDo:  remove #1
+// 1.  Create a vol_id-pyne_name map for later matching with the correct 
+//     pyne material object
+//     a.  The connection needs to be made in order to get the fluka_name,
+//         which is stored in the pyne material object
+//     b.  The fluka_name/vol_id connection is needed only for the ASSIGNMAt card
 // 2.  Optionally write out an "index_id.txt" file showing the vol_id,
 //     which DAG considers the ordinal volume index, and its matching
 //     entity id (int) which is some internally stored int attached to the
 //     MOAB entity that is NOT ordinal.  It is not used elsewhere in fludag.
 // 3.  Optionaly look at the entire property string
 
-int fludag_setup(std::map<int, std::string>& map_name)
+/*
+In fluka_funcs, fludag_setup:953
+Mat Property and All Property name list: 
+   Vol   id            mat name -- Complete group name
+    1    1              Mercury -- mat=Mercury, rho=-7.874, tally_4.cell.flux.p=
+    2    2                 Lead -- mat=Lead, rho=-11.35, tally_4.cell.flux.p=
+    3    3 Steel, Stainless 321 -- mat=Steel, Stainless 321, rho=-2, tally_4.cell.flux.p=
+    4    5             Nitrogen -- mat=Nitrogen, rho=-0.001205, tally_4.cell.flux.p=
+    5    8            Graveyard -- mat=Graveyard
+    6    9                      -- has no props: 
+"name" : "mat:Nitrogen/rho:-0.001205"
+*/
+int fludag_setup(std::map<int, std::string>& map_vol_libname)
 {
   int num_vols = DAG->num_entities(3);
   MBErrorCode ret;
@@ -931,7 +947,6 @@ int fludag_setup(std::map<int, std::string>& map_name)
   // Open an output string for index-id table and put a header in it
   bool write_index_id_map = true;
   std::ostringstream idstr;
-  int id;
   if (write_index_id_map)
   {
      idstr << std::setw(5) <<  "Index" ;
@@ -950,66 +965,23 @@ int fludag_setup(std::map<int, std::string>& map_name)
   }
   // Preprocessing loop:  make a string, "props",  for each vol entity
   std::cout << std::endl;
-  std::cout << "In fluka_funcs, " << __func__ << ":" << __LINE__ << std::endl;
   std::cout << "Mat Property and All Property name list: " << std::endl;
-  std::cout << "   Vol   id            mat name -- Complete group name" << std::endl;
-
+  std::cout << "Vol   mat name -- Complete group name" << std::endl;
   for (unsigned int vol_i=1; vol_i<=num_vols; vol_i++)
   {
-      std::string name;
-      // NOTE:  The code below simplifies and replaces mat_property_string()
-      MBEntityHandle entity = DAG->entity_by_index(3,vol_i);
-
-      std::vector<std::string> vals;
-      if ( DAG->has_prop(entity, "mat") )
+      // Get mat and rho properties and compose MaterialLibrary "name" from them
+      std::string matlibname = makeMaterialName(vol_i);
+      std::cout << vol_i << ".    " << matlibname << std::endl;
+      if (0 < matlibname.length())
       {
-        ret = DAG->prop_values(entity, "mat", vals);
-        if( ret != MB_SUCCESS )
-        {
-            std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << std::endl;
-            std::exit( EXIT_FAILURE );
-        }
-        if (1 == vals.size() )
-        {
-	   name = vals[0];
-	   map_name[vol_i] = name;
-	}
-	else if (1 < vals.size())
-	{
-	   // ToDo:  What to do in this situation?
- 	   // this property has multiple values; list within brackets
- 	   std::cout << "This property has multiple values" << std::endl;
-           showMultiplePropVals(vals);
-	}
+         map_vol_libname[vol_i] = matlibname;
       }
-
-      // If write_index_id_map && debug
-      int id = DAG->id_by_index(3, vol_i);
-
-      ///////////////////////////////////////////////////
-      // Optional
-      // Out of curiosity, print the entire property string 
-      std::string props = mat_property_string(vol_i, keywords);
-      if (props.size())  // not empty
-      {
-
-         if ( DAG->has_prop(entity, "mat") )
-         std::cout << std::setw(5) << std::right << vol_i 
-	           << std::setw(5) << std::right << id 
-		   << std::setw(21)<< std::right << name
-		   <<  " -- " << props << std::endl; 
-      }
-      else // no props
-      {
-         std::cout << std::setw(5) << std::right << vol_i 
-	           << std::setw(5) << std::right << id 
-                   << std::setw(22)<< " "
-		   << std::left  << "-- has no props: " <<  std::endl; 
-      }
+     
       ///////////////////////////////////////////
       // make the index_id map. Optional
       if (write_index_id_map)
       {
+         int id = DAG->id_by_index(3, vol_i);
          idstr << std::setw(5) << std::right << vol_i;
          idstr << std::setw(5) << std::right << id << std::endl;
       }
@@ -1076,38 +1048,25 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
       if (0 == map_name.count(vol_i))
       {
 	 std::cout << "There is no key at vol id " << vol_i << std::endl;
-	 continue;
+	 // NOTE:  could set fluka_name = BLCKHOLE here if remove the post loop step
+   	 continue;
       }
-         
-      std::string shortname = map_name[vol_i];
-      if (0 < map_name_mat.count(shortname) )
+      else if ("Graveyard" == map_name[vol_i] || "graveyard" == map_name[vol_i])
       {
-         // The Material object for this name has already been found
-         pyne::Material mat = map_name_mat[shortname];
-	 // get the proper fluka name
-         fluka_name = mat.metadata["fluka_name"].asString();
+	  fluka_name = "BLCKHOLE";
       }
-      else  // look for the the material object
+      else
       {
+         std::string longname = map_name[vol_i];
          std::list<pyne::Material>::iterator mptr;
          for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
          {
-             std::string longname = mptr->metadata["name"].asString();
-	     if (longname.find(shortname) != std::string::npos)  
+	     // Find the material that should be associated with the volume
+	     if (longname == mptr->metadata["name"].asString())
 	     {
-	        // Found, put it in the map for future reference
-	        map_name_mat["shortname"] = *mptr; 
                 fluka_name = mptr->metadata["fluka_name"].asString();
 	     }
          }
-	 if (0 == fluka_name.length())
-	 {
-	    // The name was not found, this must be the Graveyard
-	    if ("Graveyard" == shortname || "graveyard" == shortname)
-	    {
-	       fluka_name = "BLCKHOLE";
-	    }
-	 }
       }
       // The fluka name has been found, create the card
       ostr << std::setw(10) << std::left  << "ASSIGNMAt";
@@ -1116,29 +1075,27 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
            << std::setw(10) << std::right << (float)vol_i << std::endl;
   }
   // Finish the ostr with the implicit complement card
+  // If no material props it's also a vacuum
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
   ostr << implicit_comp_comment << std::endl;
   ostr << std::setw(10) << std::left  << "ASSIGNMAt";
   ostr << std::setw(10) << std::right << "VACUUM";
   ostr << std::setprecision(0) << std::fixed << std::showpoint 
          << std::setw(10) << std::right << (float)num_vols << std::endl;
-}
+}  
 //---------------------------------------------------------------------------//
 // fludag_write_material
 //---------------------------------------------------------------------------//
 // Return a FLUKA MATERIAL card based on the info that has previously been
 // captured from the material file.
 // 
-std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
-                                                  int& last_id,
-                                                  std::set<int> exception_set,
-                                                  std::list<pyne::Material> pyne_list)
+void fludag_write_material(std::ostringstream& ostr, int& last_id,
+                           std::set<int> exception_set, 
+			   std::list<pyne::Material> pyne_list)
 {
   pyne::Material collmat;
   // For sorting the MATERIAL cards in order of fluka_mat_id
   std::list<std::pair<int, std::string> > id_line_list;
-
-  std::list<pyne::Material> materials;
 
   debug = 1;
   std::list<pyne::Material>::iterator ptr;
@@ -1148,9 +1105,9 @@ std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr,
 
       // NOT TRUE
       // Only need MATERIAL card for materials that are not predefined
-      std::string mat_fluka_name = mat.metadata["fluka_name"].asString();
-      if (FLUKA_mat_set.find(mat_fluka_name) == FLUKA_mat_set.end())
-      {
+      // std::string mat_fluka_name = mat.metadata["fluka_name"].asString();
+      // if (FLUKA_mat_set.find(mat_fluka_name) == FLUKA_mat_set.end())
+      // {
          collmat = mat.collapse_elements(exception_set);
 	 // 0.a if only one component, trick fluka into using 
 	 //     the density in the Material oject
@@ -1161,10 +1118,7 @@ std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr,
 	 // 0.b.If it's a named isotope there could be more than one component
 	 //     or if it's a compound
 
-         // current material is not in the pre-existing FLUKA material list
-      //   materials.push_back(collmat);
-
-         collmat.density = mat.density;
+         collmat.density  = mat.density;
          collmat.metadata = mat.metadata;
          if (debug)
          {
@@ -1177,12 +1131,7 @@ std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr,
          std::string id_str = mat.metadata["fluka_material_index"].asString();
          int id = atoi(id_str.c_str());
          id_line_list.push_back(std::make_pair(id, line));
-      }
-      else  // predefined
-      {
-         std::cout << "\tPredefined, do not need material card." << std::endl;
-         std::cout << "\tNo material card => no need to collapse. " << std::endl;
-      }
+      //}
   }
 
   // Lists automagically know how to sort <int, string> pairs
@@ -1195,7 +1144,6 @@ std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr,
       ostr << id_line_list.front().second;
       id_line_list.pop_front();
   }
-  return materials;
 }
 //---------------------------------------------------------------------------//
 // fludag_write_compound
@@ -1461,6 +1409,63 @@ void print_material( pyne::Material material, std::string xtraTitle)
   std::cout << material.metadata << std::endl;
 }
 
+std::string makeMaterialName (int index)
+{
+  MBErrorCode ret;
+  std::string matlibname;
+  MBEntityHandle entity = DAG->entity_by_index(3,index);
+  // int id = DAG->id_by_index(3, index);
+
+  // Placeholder for getting all "mat" and all "rho" properties
+  std::vector<std::string> vals;
+  std::string matProp = "mat";
+  if ( DAG->has_prop(entity, matProp) )
+  {
+        ret = DAG->prop_values(entity, matProp, vals);
+        if( ret != MB_SUCCESS )
+        {
+            std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+            std::exit( EXIT_FAILURE );
+        }
+        matlibname += matProp;
+        if (vals.size() == 1)
+        {
+	   if (vals[0] == "Graveyard" || vals[0] == "graveyard")
+	   {
+	      return vals[0];
+	   }
+ 	   matlibname += ":";
+           matlibname += vals[0];
+ 	   matlibname += "/";
+        }
+        else if (vals.size() > 1)
+        {
+           std::cerr << "Error:  There is more than one mat property." << std::endl;
+        }
+  }
+  std::string rhoProp = "rho";
+  if ( DAG->has_prop(entity, rhoProp) )
+  {
+     vals.clear();
+     ret = DAG->prop_values(entity, rhoProp, vals);
+     if( ret != MB_SUCCESS )
+     {
+         std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+         std::exit( EXIT_FAILURE );
+     }
+     matlibname += rhoProp;
+     if (vals.size() == 1)
+     {
+        matlibname += ":";
+        matlibname += vals[0];
+     }
+     else if (vals.size() > 1)
+     {
+        std::cerr << "Error:  There is more than one mat property." << std::endl;
+     }
+  }
+  return matlibname;
+}
 //---------------------------------------------------------------------------//
 // mat_property_string
 //---------------------------------------------------------------------------//
