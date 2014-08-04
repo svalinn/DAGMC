@@ -927,7 +927,6 @@ void fludag_write(std::string matfile, std::string lfname)
 // 3.  Optionaly look at the entire property string
 
 /*
-In fluka_funcs, fludag_setup:953
 Mat Property and All Property name list: 
    Vol   id            mat name -- Complete group name
     1    1              Mercury -- mat=Mercury, rho=-7.874, tally_4.cell.flux.p=
@@ -1010,19 +1009,12 @@ void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_li
   while(true)
   {
      mat = pyne::Material();
-//	 try
-//	 {
      mat.from_hdf5(mat_file, "/materials", i++, 1);
-//	 }
-//        catch (pyne::MaterialProtocolError)
-//	 {
-//	   keepgoing=false;
-//	 }
-      if (0 >= mat.metadata["fluka_name"].asString().length())
-      {
-          break; 
-      }
-      pyne_list.push_back(mat);
+     if (0 >= mat.metadata["fluka_name"].asString().length())
+     {
+        break; 
+     }
+     pyne_list.push_back(mat);
   }
 		
   std::list<pyne::Material>::iterator ptr;
@@ -1042,26 +1034,26 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 {
   std::map<std::string, pyne::Material> map_name_mat;
 
-  for (unsigned int vol_i=1; vol_i<=num_vols; vol_i++)
+  for (unsigned int vol_i=1; vol_i<num_vols; vol_i++)
   {
       std::string fluka_name;
       if (0 == map_name.count(vol_i))
       {
 	 std::cout << "There is no key at vol id " << vol_i << std::endl;
-	 // NOTE:  could set fluka_name = BLCKHOLE here if remove the post loop step
-   	 continue;
+	 fluka_name = "BLCKHOLE";
       }
       else if ("Graveyard" == map_name[vol_i] || "graveyard" == map_name[vol_i])
       {
-	  fluka_name = "BLCKHOLE";
+         fluka_name = "BLCKHOLE";
       }
       else
       {
          std::string longname = map_name[vol_i];
+
+	 // Find the material that should be associated with the volume
          std::list<pyne::Material>::iterator mptr;
          for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
          {
-	     // Find the material that should be associated with the volume
 	     if (longname == mptr->metadata["name"].asString())
 	     {
                 fluka_name = mptr->metadata["fluka_name"].asString();
@@ -1081,7 +1073,7 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
   ostr << std::setw(10) << std::left  << "ASSIGNMAt";
   ostr << std::setw(10) << std::right << "VACUUM";
   ostr << std::setprecision(0) << std::fixed << std::showpoint 
-         << std::setw(10) << std::right << (float)num_vols << std::endl;
+       << std::setw(10) << std::right << (float)num_vols << std::endl;
 }  
 //---------------------------------------------------------------------------//
 // fludag_write_material
@@ -1409,46 +1401,58 @@ void print_material( pyne::Material material, std::string xtraTitle)
   std::cout << material.metadata << std::endl;
 }
 
+//---------------------------------------------------------------------------//
+// makeMaterialName
+//---------------------------------------------------------------------------//
+// Return the constructed PyNE material object "name" from the property names
 std::string makeMaterialName (int index)
 {
   MBErrorCode ret;
   std::string matlibname;
   MBEntityHandle entity = DAG->entity_by_index(3,index);
-  // int id = DAG->id_by_index(3, index);
 
   // Placeholder for getting all "mat" and all "rho" properties
   std::vector<std::string> vals;
   std::string matProp = "mat";
+  bool isGraveyard = false;
   if ( DAG->has_prop(entity, matProp) )
   {
-        ret = DAG->prop_values(entity, matProp, vals);
-        if( ret != MB_SUCCESS )
+     ret = DAG->prop_values(entity, matProp, vals);
+     if (ret != MB_SUCCESS )
+     {
+        std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+        std::exit( EXIT_FAILURE );
+     }
+     matlibname += matProp;
+     if (vals.size() == 1)
+     {
+	// The graveyard
+        if (vals[0] == "Graveyard" || vals[0] == "graveyard")
         {
-            std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-            std::exit( EXIT_FAILURE );
+           // return vals[0];
+	   matlibname = vals[0];
+	   isGraveyard = true;
         }
-        matlibname += matProp;
-        if (vals.size() == 1)
-        {
-	   if (vals[0] == "Graveyard" || vals[0] == "graveyard")
-	   {
-	      return vals[0];
-	   }
- 	   matlibname += ":";
+	else
+	{
+           matlibname += ":";
            matlibname += vals[0];
  	   matlibname += "/";
-        }
-        else if (vals.size() > 1)
-        {
-           std::cerr << "Error:  There is more than one mat property." << std::endl;
-        }
+	}
+     }
+     else if (vals.size() > 1)
+     {
+        std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
+        std::cerr << "Error:  There is more than one mat property." << std::endl;
+        std::exit( EXIT_FAILURE );
+     }
   }
   std::string rhoProp = "rho";
-  if ( DAG->has_prop(entity, rhoProp) )
+  if (!isGraveyard && DAG->has_prop(entity, rhoProp))
   {
      vals.clear();
      ret = DAG->prop_values(entity, rhoProp, vals);
-     if( ret != MB_SUCCESS )
+     if (ret != MB_SUCCESS )
      {
          std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
          std::exit( EXIT_FAILURE );
@@ -1461,7 +1465,9 @@ std::string makeMaterialName (int index)
      }
      else if (vals.size() > 1)
      {
+        std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
         std::cerr << "Error:  There is more than one mat property." << std::endl;
+        std::exit( EXIT_FAILURE );
      }
   }
   return matlibname;
@@ -1473,6 +1479,7 @@ std::string makeMaterialName (int index)
 // Create a string with these properites
 // Modified from make_property_string
 // This function helps with debugging, but is not germane to writing cards.
+/*
 std::string mat_property_string (int index, std::vector<std::string> &keywords)
 {
   MBErrorCode ret;
@@ -1517,24 +1524,14 @@ std::string mat_property_string (int index, std::vector<std::string> &keywords)
   }
   return propstring;
 }
-void showMultiplePropVals(std::vector<std::string> vals)
-{
-   // this property has multiple values; list within brackets
-   std::string propstring = "mat=[";
-   for (std::vector<std::string>::iterator i = vals.begin(); i != vals.end(); ++i)
-   {
-       propstring += *i;
-       propstring += ",";
-       }
-       // replace the last trailing comma with a close bracket
-       propstring[ propstring.length() -1 ] = ']';
-}
+*/
 //---------------------------------------------------------------------------//
 // make_property_string
 //---------------------------------------------------------------------------//
 // For a given volume, find all properties associated with it, and any and all 
 //     values associated with each property
 // Copied and modified from obb_analysis.cpp
+// Not called
 static std::string make_property_string (MBEntityHandle eh, std::vector<std::string> &properties)
 {
   MBErrorCode ret;

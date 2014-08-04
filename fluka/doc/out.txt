@@ -6,15 +6,14 @@ The implicit complement bounds 15 surfaces
 The implicit complement's total surface area = 1.25786e+08
 Time to initialise the geometry3
 
-In fluka_funcs, fludag_setup:953
 Mat Property and All Property name list: 
-   Vol   id            mat name -- Complete group name
-    1    1              Mercury -- mat=Mercury, rho=-7.874, tally_4.cell.flux.p=
-    2    2                 Lead -- mat=Lead, rho=-11.35, tally_4.cell.flux.p=
-    3    3 Steel, Stainless 321 -- mat=Steel, Stainless 321, rho=-2, tally_4.cell.flux.p=
-    4    5             Nitrogen -- mat=Nitrogen, rho=-0.001205, tally_4.cell.flux.p=
-    5    8            Graveyard -- mat=Graveyard
-    6    9                      -- has no props: 
+Vol   mat name -- Complete group name
+1.    mat:Mercury/rho:-7.874
+2.    mat:Lead/rho:-11.35
+3.    mat:Steel, Stainless 321/rho:-2
+4.    mat:Nitrogen/rho:-0.001205
+5.    Graveyard
+6.    
 
 ***************  NITROGEN  mat:Nitrogen/rho:-0.001205  *******************
 density = -0.001205
@@ -113,13 +112,80 @@ Metadata:
 	"name" : "mat:Steel, Stainless 321/rho:-2"
 }
 
-There is no key at vol id 6
 Nucids of FLUKA exceptions
   10000000,   10010000,   10020000,   10030000,   20000000
   20030000,   20040000,   30000000,   30060000,   30070000
   50000000,   50100000,   50110000,  380000000,  380900000
  530000000,  531290000,  551350000,  551370000,  902300000
  902320000,  922330000,  922340000,  922350000,  922380000
+
+
+***************  NITROGEN    Collapsed   *******************
+density = -0.001205
+mass = 1
+atoms_per_mol = -1
+70000000 1
+Metadata:
+
+{
+	"fluka_material_index" : "26",
+	"fluka_name" : "NITROGEN",
+	"mat_number" : "1",
+	"name" : "mat:Nitrogen/rho:-0.001205"
+}
+
+
+***************  MERCURY    Collapsed   *******************
+density = -7.874
+mass = 1
+atoms_per_mol = -1
+800000000 1
+Metadata:
+
+{
+	"fluka_material_index" : "29",
+	"fluka_name" : "MERCURY",
+	"mat_number" : "4",
+	"name" : "mat:Mercury/rho:-7.874"
+}
+
+
+***************  LEAD    Collapsed   *******************
+density = -11.35
+mass = 1
+atoms_per_mol = -1
+820000000 1
+Metadata:
+
+{
+	"fluka_material_index" : "28",
+	"fluka_name" : "LEAD",
+	"mat_number" : "3",
+	"name" : "mat:Lead/rho:-11.35"
+}
+
+
+***************  STEELSTA    Collapsed   *******************
+density = -2
+mass = 1
+atoms_per_mol = -1
+60000000 0.111111
+140000000 0.111111
+150000000 0.111111
+160000000 0.111111
+220000000 0.111111
+240000000 0.111111
+250000000 0.111111
+260000000 0.111111
+280000000 0.111111
+Metadata:
+
+{
+	"fluka_material_index" : "27",
+	"fluka_name" : "STEELSTA",
+	"mat_number" : "2",
+	"name" : "mat:Steel, Stainless 321/rho:-2"
+}
 
 Producing material snippets
 please paste these into your input deck

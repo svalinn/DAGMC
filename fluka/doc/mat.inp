@@ -7,3 +7,11 @@ ASSIGNMAt   BLCKHOLE        5.
 * The next volume is the implicit complement
 ASSIGNMAt     VACUUM        6.
 *...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+* 
+MATERIAL                       -0.001205       26.                    NITROGEN  
+* 
+MATERIAL                             -2.       27.                    STEELSTA  
+* 
+MATERIAL                          -11.35       28.                    LEAD      
+* 
+MATERIAL                          -7.874       29.                    MERCURY   

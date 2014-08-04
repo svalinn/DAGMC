@@ -37,11 +37,13 @@ void fludag_write(std::string matfile, std::string lfname);
 // Gets the number of volumes via MOAB entities and DAGMC calls;
 // parses properties
 int fludag_setup(std::map<int, std::string>& map_name);
+// Make a string from the groupname
 std::string makeMaterialName (int index);
-void showMultiplePropVals(std::vector<std::string> vals);
 
+// Load the PyNE material objects in the named file
 void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_list);
 
+// Extract PyNE nucids from a known list of elements
 std::set<int> make_exception_set();
 /*
  * Write the material assignment for each volume to an output stream
@@ -63,7 +65,8 @@ void fludag_write_material(std::ostringstream& ostr,
 void fludag_write_compound(std::ostringstream& cstr, int& last_id, 
                             pyne::Material& material);
 /*
- *  Global mapping from z-a nucid to fluka name
+ *  Global mapping from z-a nucid to fluka name.
+ *  WAS filled by readElements()
  */
 std::map<int, std::string> fluka_name_map;
 /*
