@@ -22,5 +22,6 @@ ExternalProject_Add(radioprotection
   URL ${CMAKE_CURRENT_SOURCE_DIR}/radioprotection
   CMAKE_ARGS -DGeant4_DIR:PATH='${Geant4_CONFIG}'
      -DCMAKE_INSTALL_PREFIX:PATH='${CMAKE_INSTALL_PREFIX}'
+     -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=TRUE
   )
 #add_subdirectory(radioprotection)
