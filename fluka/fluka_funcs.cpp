@@ -52,6 +52,8 @@ static std::ostream* raystat_dump = NULL;
 
 #endif 
 #define DEBUG 1
+#define INCLUDE_ZNUM_MASS true
+
 /* These 37 strings are predefined FLUKA materials. Any ASSIGNMAt of unique 
  * materials not on this list requires a MATERIAL card. */
 std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
@@ -65,8 +67,6 @@ std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
 int NUM_FLUKA_MATS = 37;
 
 bool debug = false; 
-
-pyne::Material NULLMAT = pyne::Material();
 
 std::set<int> make_exception_set()
 {
@@ -162,7 +162,8 @@ const char *delimiters = ":/";
 static const std::map<std::string,std::string> no_synonyms;
 
 /* Create a set out of the hardcoded string array. */
-std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
+// std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
+std::set<std::string> FLUKA_builtin(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
 
 /* Maximum character-length of a cubit-named material property */
 int MAX_MATERIAL_NAME_SIZE = 32;
@@ -925,18 +926,6 @@ void fludag_write(std::string matfile, std::string lfname)
 //     entity id (int) which is some internally stored int attached to the
 //     MOAB entity that is NOT ordinal.  It is not used elsewhere in fludag.
 // 3.  Optionaly look at the entire property string
-
-/*
-Mat Property and All Property name list: 
-   Vol   id            mat name -- Complete group name
-    1    1              Mercury -- mat=Mercury, rho=-7.874, tally_4.cell.flux.p=
-    2    2                 Lead -- mat=Lead, rho=-11.35, tally_4.cell.flux.p=
-    3    3 Steel, Stainless 321 -- mat=Steel, Stainless 321, rho=-2, tally_4.cell.flux.p=
-    4    5             Nitrogen -- mat=Nitrogen, rho=-0.001205, tally_4.cell.flux.p=
-    5    8            Graveyard -- mat=Graveyard
-    6    9                      -- has no props: 
-"name" : "mat:Nitrogen/rho:-0.001205"
-*/
 int fludag_setup(std::map<int, std::string>& map_vol_libname)
 {
   int num_vols = DAG->num_entities(3);
@@ -994,8 +983,21 @@ int fludag_setup(std::map<int, std::string>& map_vol_libname)
      index_id << idstr.str();
      index_id.close();
   }
+
+  make_fluka_znum_map; 
   return num_vols;
 } // end fludag_setup()
+
+void make_fluka_znum_map()
+{
+   int size = sizeof(FlukaZNum)/sizeof(Element);
+   // std::map<int, std::string> map_znum_name;
+   for (int i = 0; i<size; i++)
+   {
+       map_fluka_znum.insert(std::pair<std::string, int>(FlukaZNum[i].fluka_name, FlukaZNum[i].znum));
+     //  map_znum_name.insert(std::pair<int, std::string>(FlukaZNum[i].znum, FlukaZNum[i].fluka_name));
+   }
+}
 //---------------------------------------------------------------------------//
 // pyne_get_materials
 //---------------------------------------------------------------------------//
@@ -1030,17 +1032,14 @@ void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_li
 // Put the ASSIGNMAt statements in the output ostringstream
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
                           std::list<pyne::Material> pyne_list,    // unique materials
-			  std::map<int, std::string>& map_name)         
+			  std::map<int, std::string> map_name)         
 {
-  std::map<std::string, pyne::Material> map_name_mat;
-
   for (unsigned int vol_i=1; vol_i<num_vols; vol_i++)
   {
       std::string fluka_name;
       if (0 == map_name.count(vol_i))
       {
-	 std::cout << "There is no key at vol id " << vol_i << std::endl;
-	 fluka_name = "BLCKHOLE";
+	 fluka_name = "VACUUM";
       }
       else if ("Graveyard" == map_name[vol_i] || "graveyard" == map_name[vol_i])
       {
@@ -1066,8 +1065,7 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
       ostr << std::setprecision(0) << std::fixed << std::showpoint 
            << std::setw(10) << std::right << (float)vol_i << std::endl;
   }
-  // Finish the ostr with the implicit complement card
-  // If no material props it's also a vacuum
+  // Finish the ostr with the implicit complement card for the last volume
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
   ostr << implicit_comp_comment << std::endl;
   ostr << std::setw(10) << std::left  << "ASSIGNMAt";
@@ -1081,52 +1079,99 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 // Return a FLUKA MATERIAL card based on the info that has previously been
 // captured from the material file.
 // 
+/*
+
+I don’t have the formatting perfect. Areas of question/confirmation are
+1.  it’s the “new”compound that gets the modified name
+2.  the MATERIAL card for the NITROG-1 needs a consecutive id.
+3.  I put the MATERIAL card for NITROGEN in a comment because it’s predefined.  (I won’t include such a comment in the actual card)
+4.  BUT, if I was doing the same thing for, say HAFNIUM, then I would have something like
+
+MATERIAL          72            999.            28.                    HAFNIUM 
+MATERIAL                       -0.001205        29.                    HAFNIU-1  
+COMPOUND         HAFNIUM        100                                    HAFNIU-1  
+*/
 void fludag_write_material(std::ostringstream& ostr, int& last_id,
                            std::set<int> exception_set, 
 			   std::list<pyne::Material> pyne_list)
 {
   pyne::Material collmat;
   // For sorting the MATERIAL cards in order of fluka_mat_id
-  std::list<std::pair<int, std::string> > id_line_list;
+  // std::list<std::pair<int, std::string> > id_line_list;
 
-  debug = 1;
+  int id = 25;
   std::list<pyne::Material>::iterator ptr;
   for (ptr=pyne_list.begin(); ptr != pyne_list.end(); ++ptr)
   {
       pyne::Material mat = *ptr;
+      std::ostringstream ss;
+      id++;
+      collmat = mat.collapse_elements(exception_set);
 
-      // NOT TRUE
-      // Only need MATERIAL card for materials that are not predefined
-      // std::string mat_fluka_name = mat.metadata["fluka_name"].asString();
-      // if (FLUKA_mat_set.find(mat_fluka_name) == FLUKA_mat_set.end())
-      // {
-         collmat = mat.collapse_elements(exception_set);
-	 // 0.a if only one component, trick fluka into using 
-	 //     the density in the Material oject
-	 // 1.  make a fake name name[len-2]-1
-	 // 2.  MATERIAL atomic#(znum) atomicWt(?) real-density nextID realname
-	 // 3.  MATERIAL                  fake-density nextID fake-name
-	 // 4.  COMPOUND realname 100%                        fake-name
-	 // 0.b.If it's a named isotope there could be more than one component
-	 //     or if it's a compound
+      // EVERY MATERIAL IS A COMPOUND, so as to override named densities
 
-         collmat.density  = mat.density;
-         collmat.metadata = mat.metadata;
+      // ToDo:   Why am I doing this here? maybe collapse_elements should do it 
+      collmat.density  = mat.density;
+      collmat.metadata = mat.metadata;
+      std::string fluka_name = mat.metadata["fluka_name"].asString();
+
+      ss<<id;
+      collmat.metadata["fluka_material_index"] = ss.str();
          if (debug)
          {
             print_material(collmat, "  Collapsed ");
          }
-         // Construct the material card.
-         std::string line = collmat.fluka();
+
+	 // For now we are simply going to restart the ids because by 
+	 // redefining not-built-in materials, we are using two indices for some
+	 // and one for others
+	 // Only one component?  It's an element.  
+	 if (1 == collmat.comp.size())
+	 {
+
+            std::cout << "It's an element................" << std::endl;
+            std::string mod_name = modify_name(fluka_name);
+            std::string real_density_line = collmat.fluka();  
+	    replace(real_density_line, fluka_name, mod_name);   
+            std::ostringstream cstr;
+	    compound_100pct(cstr, fluka_name, mod_name);
+
+	    // It's not builtin, will need REAL material with FAKE density
+            // MATERIAL          72            999.            28.                    HAFNIUM 
+            if (FLUKA_builtin.find(fluka_name) == FLUKA_builtin.end())
+	    {
+	       std::cout << "\t.........that's NOT builtin" << std::endl;
+	       collmat.density = 999; 
+               std::string fake_density_line = collmat.fluka(INCLUDE_ZNUM_MASS);
+               std::cout << "NEW! " << fake_density_line;
+	       ostr << fake_density_line << std::endl;
+	       // reset collmat's density and id
+	       collmat.density = mat.density;
+	       id++;
+               ss<<id;
+               collmat.metadata["fluka_material_index"] = ss.str();
+	    }
+	    // Builtin element or not, need FAKE name/REAL density/nextID + compound lines
+            // MATERIAL                       -0.001205       27.                    NITROG-1  
+            // COMPOUND         NITROGEN            100                              NITROG-1  
+	    // or 
+            // MATERIAL                       -0.001205        29.                    HAFNIU-1  
+            // COMPOUND         HAFNIUM        100                                    HAFNIU-1  
+
+
+	    ostr << real_density_line;
+	    ostr << cstr.str() << std::endl;
+	    // id_line_list.push_back(std::make_pair(fluka_id, fake_name_line+compound_line);
+            
+	 }  // done with single element 
 
          // Extract the material id so the lines can be sorted on it
-         std::string id_str = mat.metadata["fluka_material_index"].asString();
-         int id = atoi(id_str.c_str());
-         id_line_list.push_back(std::make_pair(id, line));
+         // id_line_list.push_back(std::make_pair(id, line));
       //}
   }
 
   // Lists automagically know how to sort <int, string> pairs
+  /*
   id_line_list.sort();
   last_id = id_line_list.back().first;
 
@@ -1136,6 +1181,46 @@ void fludag_write_material(std::ostringstream& ostr, int& last_id,
       ostr << id_line_list.front().second;
       id_line_list.pop_front();
   }
+  */
+}
+//---------------------------------------------------------------------------//
+// compound_100pct
+//---------------------------------------------------------------------------//
+void compound_100pct(std::ostringstream& ss, std::string fluka_name, std::string mod_name)
+{
+    // COMPOUND         HAFNIUM        100                                    HAFNIU-1  
+    ss << std::setw(10) << std::left << "COMPOUND";
+    ss << std::setw(10) << std::right << fluka_name;
+    ss << std::setw(10) << std::right << "100.";
+    ss << std::setw(40) << std::right << mod_name;
+}
+//---------------------------------------------------------------------------//
+// replace
+//---------------------------------------------------------------------------//
+bool replace(std::string& str, const std::string& from, const std::string& to) 
+{
+    size_t start_pos = str.find(from);
+    if(start_pos == std::string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+//---------------------------------------------------------------------------//
+// modify_name
+//---------------------------------------------------------------------------//
+std::string modify_name(std::string origName)
+{
+   std::string mod_name;
+   if (6 >= origName.length())
+   {
+      mod_name = origName.append("_1");
+   }
+   if (7 <= origName.length() && origName.length() <= 8)
+   {
+      mod_name = origName.substr(0,6).insert(6,"_1");
+   }
+   return mod_name;
 }
 //---------------------------------------------------------------------------//
 // fludag_write_compound
@@ -1192,7 +1277,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 
        ce.fluka_name = cur_name; 
        ce.frac = comp_iter->second;
-       if (FLUKA_mat_set.find(cur_name) == FLUKA_mat_set.end())
+       if (FLUKA_builtin.find(cur_name) == FLUKA_builtin.end())
        {
           // current name is not in the pre-existing FLUKA material list
 	  // modify it for the compound card
@@ -1290,7 +1375,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 //---------------------------------------------------------------------------//
 // Convenience function to create a material with an irrelevant density
 // The material is to be part of a compound
-void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
+void define_material(std::ostringstream &cstr, int &last_id, const std::string& dname)
 {
     std::cout << "; in define_material, last_id = " << last_id << std::endl;
     std::stringstream id_stream;
@@ -1299,8 +1384,7 @@ void define_material(std::ostringstream &cstr, int &last_id, std::string dname)
     cstr << std::setw(10) << std::left << "MATERIAL";
     cstr << std::setw(10) << std::right << "";
     cstr << std::setw(10) << std::right << "";
-    cstr << std::setprecision(0) << std::fixed << std::showpoint 
-          << std::setw(10) << std::right << 999.;
+    cstr << std::setw(10) << std::right << 999.;
     cstr << std::setw(10) << std::right << id_stream.str();
     cstr << std::setw(10) << std::right << "";
     cstr << std::setw(10) << std::right << "";
@@ -1318,6 +1402,7 @@ const char* const DELIMITER = " ";
 
 // Hardcoded to read a file of fluka-named elements, atomic #, 
 // each with 12 or more id's
+/*
 std::map<int, std::string> readElements(std::ifstream& fin)
 {
    int lastNum = 0;
@@ -1374,6 +1459,7 @@ std::map<int, std::string> readElements(std::ifstream& fin)
    
    return map_fluka_name;
 }
+*/
 
 //---------------------------------------------------------------------------//
 // print_material

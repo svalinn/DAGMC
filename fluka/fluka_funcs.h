@@ -50,7 +50,7 @@ std::set<int> make_exception_set();
  */
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
                                            std::list<pyne::Material> pyne_list, 
-					   std::map<int, std::string>& map_name);
+					   std::map<int, std::string> map_name);
 /*
  * Write material cards
  */
@@ -59,6 +59,7 @@ void fludag_write_material(std::ostringstream& ostr,
                                                   int& last_id,
                                                   std::set<int> exception_set,
                                                   std::list<pyne::Material> pyne_list);
+void compound_100pct(std::ostringstream& ss, std::string fluka_name, std::string mod_name);
 /*
  * Write compound cards
  */
@@ -69,14 +70,17 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
  *  WAS filled by readElements()
  */
 std::map<int, std::string> fluka_name_map;
+std::map<std::string, int> map_fluka_znum;
+void make_fluka_znum_map();
 /*
  * Convenience function to make a different fluka_name; may not be needed
  */
-std::string modify_fluka_name(std::string& origName);
+std::string modify_name(std::string origName);
+bool replace(std::string& str, const std::string& from, const std::string& to);
 /*
  * Creates a Fluka MATERIAL card with a fake density
  */
-void define_material(std::ostringstream &cstr, int &last_id, std::string dname);
+void define_material(std::ostringstream &cstr, int &last_id, const std::string& dname);
 /* 
  * Return a vector of structs, one for each line in the file
  */
