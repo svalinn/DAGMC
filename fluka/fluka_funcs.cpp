@@ -1121,7 +1121,6 @@ void fludag_write_material(std::ostringstream& ostr, int& last_id,
 	    std::cout << "\t.........that's NOT builtin" << std::endl;
 	    collmat.density = 999; 
 	    // This is a defaulted argument.  
-	    // ToDo:  debug this
             std::string fake_density_line = collmat.fluka(INCLUDE_ZNUM_MASS);
             std::cout << "NEW! " << fake_density_line;
 	    ostr << fake_density_line << std::endl;
@@ -1169,7 +1168,8 @@ void compound_100pct(std::ostringstream& ss, std::string fluka_name, std::string
     ss << std::setw(10) << std::left << "COMPOUND";
     ss << std::setw(10) << std::right << fluka_name;
     ss << std::setw(10) << std::right << "100.";
-    ss << std::setw(40) << std::right << mod_name;
+    ss << std::setw(40) << std::right << " ";
+    ss << std::setw(10) << std::left << mod_name;
 }
 //---------------------------------------------------------------------------//
 // replace
