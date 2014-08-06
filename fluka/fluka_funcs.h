@@ -67,7 +67,6 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
                             pyne::Material& material);
 /*
  *  Global mapping from z-a nucid to fluka name.
- *  WAS filled by readElements()
  */
 std::map<int, std::string> fluka_name_map;
 std::map<std::string, int> map_fluka_znum;
@@ -81,10 +80,6 @@ bool replace(std::string& str, const std::string& from, const std::string& to);
  * Creates a Fluka MATERIAL card with a fake density
  */
 void define_material(std::ostringstream &cstr, int &last_id, const std::string& dname);
-/* 
- * Return a vector of structs, one for each line in the file
- */
-std::map<int, std::string> readElements(std::ifstream& fin);
 /*
  * Convenience function
  */
