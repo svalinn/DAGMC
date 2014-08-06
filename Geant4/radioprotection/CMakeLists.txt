@@ -39,16 +39,27 @@ target_link_libraries(remsim ${Geant4_LIBRARIES} )
 # build radioprotection. This is so that we can run the executable directly because it
 # relies on these scripts being in the current working directory.
 #
-set(radioprotection_SCRIPTS
-    interactive.mac moon.mac physics.mac vehicle1.mac vehicle2.mac vis.mac
-  )
+set(radioprotection_UTIL_SCRIPTS
+  interactive.mac physics.mac vis.mac gcr_min_z=2.txt gcr_min_z=1.txt)
+set(radioprotection_EXAMPLES
+  moon.mac vehicle1.mac vehicle2.mac)
 
-foreach(_script ${radioprotection_SCRIPTS})
+foreach(_script ${radioprotection_EXAMPLES} ${radioprotection_UTIL_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}
     ${PROJECT_BINARY_DIR}/${_script}
     COPYONLY
     )
+endforeach()
+
+foreach(_script ${radioprotection_EXAMPLES})
+  get_filename_component(_basename "${_script}" NAME_WE)
+  install(FILES ${PROJECT_BINARY_DIR}/${_script}
+    DESTINATION examples/${_basename})
+  foreach(_util_script ${radioprotection_UTIL_SCRIPTS})
+    install(FILES ${PROJECT_BINARY_DIR}/${_util_script}
+      DESTINATION examples/${_basename})
+  endforeach()
 endforeach()
 
 #----------------------------------------------------------------------------
