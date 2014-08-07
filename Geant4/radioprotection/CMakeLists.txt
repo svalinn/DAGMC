@@ -42,7 +42,7 @@ target_link_libraries(remsim ${Geant4_LIBRARIES} )
 set(radioprotection_UTIL_SCRIPTS
   interactive.mac physics.mac vis.mac gcr_min_z=2.txt gcr_min_z=1.txt)
 set(radioprotection_EXAMPLES
-  moon.mac vehicle1.mac vehicle2.mac)
+  moon.g4mac vehicle1.g4mac vehicle2.g4mac)
 
 foreach(_script ${radioprotection_EXAMPLES} ${radioprotection_UTIL_SCRIPTS})
   configure_file(
