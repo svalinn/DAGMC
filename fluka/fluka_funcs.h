@@ -41,7 +41,9 @@ int fludag_setup(std::map<int, std::string>& map_name);
 std::string makeMaterialName (int index);
 
 // Load the PyNE material objects in the named file
-void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_list);
+void pyne_get_materials(std::string mat_file, 
+                        std::list<pyne::Material>& pyne_list,
+			std::map<std::string, pyne::Material>& pyne_map);
 
 // Extract PyNE nucids from a known list of elements
 std::set<int> make_exception_set();
@@ -49,12 +51,11 @@ std::set<int> make_exception_set();
  * Write the material assignment for each volume to an output stream
  */
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-                                           std::list<pyne::Material> pyne_list, 
+                                           std::map<std::string, pyne::Material> pyne_map, 
 					   std::map<int, std::string> map_name);
 /*
  * Write material cards
  */
-// std::list<pyne::Material> fludag_write_material(std::ostringstream& ostr, 
 void fludag_write_material(std::ostringstream& ostr, 
                                                   int& last_id,
                                                   std::set<int> exception_set,
@@ -68,6 +69,7 @@ void fludag_write_compound(std::ostringstream& cstr, int& last_id,
 /*
  *  Global mapping from z-a nucid to fluka name.
  */
+// see line 1246
 std::map<int, std::string> fluka_name_map;
 std::map<std::string, int> map_fluka_znum;
 void make_fluka_znum_map();

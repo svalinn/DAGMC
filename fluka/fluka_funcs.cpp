@@ -838,15 +838,16 @@ void fludag_write(std::string matfile, std::string lfname)
 
   // Read from same file to get material objects with pyne
   std::list<pyne::Material> pyne_list;
+  std::map<std::string, pyne::Material> pyne_map;
   if (num_vols > 0)
   {
-     pyne_get_materials(matfile, pyne_list);
+     pyne_get_materials(matfile, pyne_list, pyne_map);
   }
 
   ////////////////////////////////////////////////////////////////////////
   // ASSIGNMAt Cards
   std::ostringstream astr;
-  fludagwrite_assignma(astr, num_vols, pyne_list, map_name);
+  fludagwrite_assignma(astr, num_vols, pyne_map, map_name);
 
   ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
@@ -983,7 +984,9 @@ void make_fluka_znum_map()
 //---------------------------------------------------------------------------//
 // Return the set of all PyNE material objects in the current geometry
 // This function mimics what MaterialLibary.from_hdf5(..) might return
-void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_list)
+void pyne_get_materials(std::string mat_file, 
+                        std::list<pyne::Material>& pyne_list,
+			std::map<std::string, pyne::Material>& pyne_map)
 {
   pyne::Material mat;
 
@@ -992,18 +995,23 @@ void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_li
   {
      mat = pyne::Material();
      mat.from_hdf5(mat_file, "/materials", i++, 1);
+     
      if (0 >= mat.metadata["fluka_name"].asString().length())
      {
         break; 
      }
+     // ASSIGNMAt card: Allows for quick access to the PyNE embedded longname
+     std::string longname = mat.metadata["name"].asString();
+     pyne_map.insert(std::pair<std::string, pyne::Material>(longname, mat));
+     // For COMPOUND card:  leave in for now, could be useful
      pyne_list.push_back(mat);
   }
-		
-  std::list<pyne::Material>::iterator ptr;
-  for (ptr=pyne_list.begin(); ptr!=pyne_list.end(); ++ptr)
-  {
-      print_material(*ptr, ptr->metadata["name"].asString());
-  }
+  
+  // std::list<pyne::Material>::iterator ptr;
+  // for (ptr=pyne_list.begin(); ptr!=pyne_list.end(); ++ptr)
+  // {
+  //    print_material(*ptr, ptr->metadata["name"].asString());
+  // }
 }
 
 //---------------------------------------------------------------------------//
@@ -1011,7 +1019,7 @@ void pyne_get_materials(std::string mat_file, std::list<pyne::Material>& pyne_li
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
 void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
-                          std::list<pyne::Material> pyne_list,    // unique materials
+                          std::map<std::string, pyne::Material> pyne_map,    
 			  std::map<int, std::string> map_name)         
 {
   for (unsigned int vol_i=1; vol_i<num_vols; vol_i++)
@@ -1027,9 +1035,20 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
       }
       else
       {
-         std::string longname = map_name[vol_i];
+         //  std::string longname = map_name[vol_i];
+	 // Makes DAG calls:  depends on properties having been parsed 
+         std::string prop_longname = makeMaterialName(vol_i);
+         std::cout << "vol_i, prop_longname:  " << vol_i << ", " << prop_longname << std::endl;
 
-	 // Find the material that should be associated with the volume
+         pyne::Material mat;
+	 if (0 < pyne_map.count(prop_longname) )
+	 {
+            mat = pyne_map[prop_longname];
+	 }
+         fluka_name = mat.metadata["fluka_name"].asString();
+	
+	 // Find the material/fluka_name associated with the volume
+	 /*
          std::list<pyne::Material>::iterator mptr;
          for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
          {
@@ -1038,13 +1057,15 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
                 fluka_name = mptr->metadata["fluka_name"].asString();
 	     }
          }
+	 */
       }
       // The fluka name has been found, create the card
       ostr << std::setw(10) << std::left  << "ASSIGNMAt";
       ostr << std::setw(10) << std::right << fluka_name;
       ostr << std::setprecision(0) << std::fixed << std::showpoint 
            << std::setw(10) << std::right << (float)vol_i << std::endl;
-  }
+  }   // End loop through vol_i
+  std::cout << std::endl;
   // Finish the ostr with the implicit complement card for the last volume
   std::string implicit_comp_comment = "* The next volume is the implicit complement";
   ostr << implicit_comp_comment << std::endl;
@@ -1146,18 +1167,6 @@ void fludag_write_material(std::ostringstream& ostr, int& last_id,
      
   }  // end iteration through material objects
 
-  // Lists automagically know how to sort <int, string> pairs
-  /*
-  id_line_list.sort();
-  last_id = id_line_list.back().first;
-
-  // Now that its sorted grab the lines sequentially
-  while ( 0 < id_line_list.size() )
-  {
-      ostr << id_line_list.front().second;
-      id_line_list.pop_front();
-  }
-  */
 }
 //---------------------------------------------------------------------------//
 // compound_100pct
