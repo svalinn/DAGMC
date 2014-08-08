@@ -7,7 +7,8 @@ and testing of DAGMC is `MCNP5 <http://mcnp-green.lanl.gov/>`_,
 developed by `Los Alamos National Laboratory <http://www.lanl.gov>`_
 and distributed by the `Radiation Safety Information Computing Center
 <http://rsicc.ornl.gov>`_.  There has also been experience with MCNPX
-(LANL), Tripoli4 (CEA/Saclay), and `FLUKA <http://www.fluka.org/>`_ (CERN/INFN).
+(LANL), Tripoli4 (CEA/Saclay),`FLUKA <http://www.fluka.org/>`_ (CERN/INFN), 
+and `Geant4 <http://www.geant4.cern.ch/>`_ (CERN).
 
 These instructions describe the basic steps for downloading and
 installing the software libraries that provide the DAGMC toolkit for
@@ -61,9 +62,9 @@ Summary
 
 * Some physics package, e.g. MCNP5
    * `MOAB/DAGMC <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_
-       * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
-       * `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_ 
-            * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
+   * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
+   * `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_ 
+       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
 
 
 
@@ -97,7 +98,7 @@ Here are some assumptions/conventions that are used in these instructions:
 
 If these do not apply to you, please modify your steps accordingly.
 
-     *(For a shortcut to installing DAG-MCNP5.1.51 you may be able to use the DagmcBuildPackage .)*
+     *(For a shortcut to installing DAG-MCNP5.1.60 you may be able to use the build_dagmc_stack.bash script .)*
 
 CGM
 ````
@@ -107,13 +108,23 @@ CGM:  Create a directory to build in:
     prompt%> mkdir -p $HOME/dagmc_bld/CGM/bld
     prompt%> cd $HOME/dagmc_bld/CGM
 
-If installing from SVN repository (you *must* use this method if you are using Cubit v13.1):
+If installing from git repository (you *must* use this method if you are using Cubit v13.1):
 ::
-    prompt%> svn co https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk
-    prompt%> cd trunk
+    prompt%> git clone https://bitbucket.org/fathomteam/cgm/
+    prompt%> cd cgm
+    prompt%> git checkout 13.1.1
     prompt%> autoreconf -fi
     prompt%> cd ..
-    prompt%> ln -s trunk src
+    prompt%> ln -s cgm src
+
+If installing from git repository (you *must* use this method if you are using Cubit v12.2):
+::
+    prompt%> git clone https://bitbucket.org/fathomteam/cgm/
+    prompt%> git checkout 12.2.2
+    prompt%> autoreconf -fi
+    prompt%> cd ..
+    prompt%> ln -s cgm src
+
 
 If installing CGM version 12.2 from a tarball, ``CGM-12.2.0.tar.gz``:
 ::
@@ -154,20 +165,14 @@ MOAB: Create a directory to install in
     prompt%> cd $HOME/dagmc_bld/MOAB
 
 
-If installing MOAB from SVN repository:
+If installing MOAB from git repository:
 ::
-    prompt%> svn co https://svn.mcs.anl.gov/repos/ITAPS/MOAB/trunk
-    prompt%> cd trunk
+    prompt%> git clone https://bitbucket.org/fathomteam/moab/
+    prompt%> cd moab
+    prompt%> git checkout 4.6.3
     prompt%> autoreconf -fi
     prompt%> cd ..
     prompt%> ln -s trunk src
-
-
-If installing MOAB from a tarball, ``MOAB-4.60.tar.gz``:
-::
-    prompt%> tar xzf ~/MOAB-4.60.tar.gz
-    prompt%> ln -s MOAB-4.60 src
-
 
 In all MOAB cases:
 ::
@@ -191,6 +196,38 @@ To see the available options, in the directory containing *build_dagmc_stack.bas
 This script is under development.  It is recommended that the components be compiled individually 
 at this time.
 
+
+
+Post Install
+~~~~~~~~~~~~
+
+Having installed all the prerequisite tools, namely Cubit, CGM, HDF5 and MOAB, the user
+must ensure that the system has access to the libraries and programs that have been built.
+We must therefore modify our $PATH and $LD_LIBRARY_PATH enironments accordingly.
+:: 
+
+    prompt%> export PATH=$PATH:/$HOME/dagmc_bld/path/to/cubit/bin: \
+                               /$HOME/dagmc_bld/HDF5/bin: \
+                               /$HOME/dagmc_bld/MOAB/bin
+    prompt%> export PATH=$PATH:/$HOME/dagmc_bld/path/to/cubit/bin:  \
+                               /$HOME/dagmc_bld/HDF5/lib: \
+                               /$HOME/dagmc_bld/MOAB/lib:/$HOME/dagmc_bld/CGM/lib
+ 
+
+DAGMC
+~~~~~
+
+DAGMC: Clone the DAGMC repository
+::
+    prompt%> cd $HOME/dagmc_bld
+    prompt%> git clone https://github.com/svalinn/DAGMC
+    prompt%> cd DAGMC
+    prompt%> git checkout develop
+    prompt%> cd $HOME/dagmc_bld
+
+
+
+
 Applying DAGMC to Specific Monte Carlo Codes
 +++++++++++++++++++++++++++++++++++++++++++++
 
@@ -199,7 +236,7 @@ DAG-MCNP5 Build/Install
 
 If you would like to use DAGMC with MCNP5, known as DAG-MCNP5, you will also need:
 
-* MCNP5.1.51 source code from `RSICC <http://rsicc.ornl.gov>`_
+* MCNP5.1.60 source code from `RSICC <http://rsicc.ornl.gov>`_
 * a local copy of UW-Madison's `DAGMC git repo <https://github.com/svalinn/DAGMC>`_ 
 
 Automatic Installation
@@ -208,12 +245,12 @@ Automatic Installation
 A package has been prepared that includes many of the requires
 software libraries and an automated build script.  Because the DAGMC
 team is not authorized to distribute `CUBIT
-<http://cubit.sandia.gov>`_ nor `MCNP5.1.51 source code
+<http://cubit.sandia.gov>`_ nor `MCNP5.1.60 source code
 <http://mcnp.lanl.gov>`_, you must acquire those through the
 appropriate channels on your own.
 
 Once you have both of those things, you should be able to use the
-DagmcBuildPackage to create a working install of DAG-MCNP5.1.51.
+DagmcBuildPackage to create a working install of DAG-MCNP5.1.60.
 
 Manual Installation
 =====================
@@ -231,7 +268,7 @@ Some assumptions/conventions:
 * path to CUBIT files is known, e.g. ``/path/to/cubit``
 * all tarballs reside in user's home directory
 * MCNP5 source code is available in location ``$HOME/dagmc_bld/MCNP5``
-* A cloned DAGMC git repo can be found at ``/path/to/DAGMC``
+* A cloned DAGMC git repo can be found at ``$HOME/dagmc_bld/DAGMC``
 
 Apply Patch
 ############
@@ -240,7 +277,7 @@ Apply Patch
 
 Perform the following steps:
 ::
-    prompt%> cd $HOME/dagmc_bld/MCNP5/Source
+    prompt%> cd $HOME/dagmc_bld/MCNP5
     prompt%> patch -p1 < /path/to/DAGMC/MCNP5/patch/dagmc.patch.5.1.60
 
 
@@ -261,7 +298,7 @@ a patched source code with:
 ::
     prompt%> make build CONFIG="seq plot gfortran dagmc" FC=gfortran MARCH=M64 \
                  MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit/bin \
-		 DAGMC_DIR=/path/to/DAGMC/MCNP5/dagmc
+		 DAGMC_DIR=$HOME/dagmc_bld/DAGMC/MCNP5/dagmc
 
 
 If you are less familiar with building MCNP5 from the ``makefile`` you
@@ -274,6 +311,7 @@ Within the ``install`` program you will need to set the DAGMC build options:
 * turn on DAGMC mode
 * provide the path to MOAB: ``$HOME/dagmc_bld/MOAB``
 * provide the path to CUBIT: ``/path/to/cubit``
+
 Your executable should be available as ``$HOME/dagmc_bld/MCNP5/Source/src/mcnp5``.
 
 DAG-Tripoli4 Access
@@ -290,60 +328,57 @@ FluDAG uses `FLUKA <http://www.fluka.org>`_ from CERN/INFN with the DAGMC Toolki
 The steps to build and install FluDAG follow.
 
 *Install  FLUKA*
+==================
 
 In order to download FLUKA you need to become a registered user, which you can do at 
-the FLUKA register page from a link on the main FLUKA page.
-Save the user id and password for future FLUKA updates.  
-For a 64 bit linux installation the download filename is of the form *fluka20xx.xx-linux-gfor64bitAA.tar.gz*.  
-See the `FLUKA <http://www.fluka.org>`_ website in the **Install and Run** item of the *Documentation* menu.
+the `FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page from a link on the main FLUKA page.
+Save the user id and password for future FLUKA updates. We recommend a x64 worfklow and as such you should download
+the 64 bit exectubale the download name is of the form *fluka20xx.xx-linux-gfor64bitAA.tar.gz*, `See <http://www.fluka.org/fluka.php?id=ins_run&mm2=3>`_.
 
-Once the environment variables have been set proceed to the FluDAG installation.
+Once the FLUPRO environment variables have been set and you have a confirmed working install of Fluka, please proceed to
+the FluDAG install below.
 
-*FluDAG, Alpha Release*
+*FluDAG Installation*
+=====================
  
-Get the FluDAG Alpha Release repository by cloning the UW-Madison DAGMC repository from github.com and checking out the alpha_release branch:
+Get the FluDAG Development release repository by cloning :ref:`DAGMC` (if you haven't done so)
 ::
 
-    prompt%> cd $HOME
-    prompt%> git clone https://github.com/svalinn/DAGMC.git
-    prompt%> cd DAGMC
-    prompt%> git checkout alpha_release
+    prompt%> cd $HOME/dagmc_bld/DAGMC
+    prompt%> git checkout develop
 
-A run-script provided by FLUKA has been modified to allow it to have input filenames
-longer than 8 characters.  The following steps assume you have the FLUKA environment
-variables defined:
-::
- 
-    prompt%> cd $FLUPRO/flutil
-    prompt%> cp rfluka rfluka.orig
-    prompt%> cd DAGMC/FluDAG/src
-    prompt%> cp rfluka $FLUPRO/flutil
-
-To compile FluDAG you must have the Cubit bin directory in your LD_LIBRARY_PATH.  Add the following
-line to your login script:
-::
-
-    prompt%> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/Cubit/bin
-
-You also need to know where the MOAB libraries are.
-These instructions illustrate passing a known MOAB library path to cmake via the -D switch:
+In order to install we run CMake and provide the path to the MOAB installation, the $FLUPRO
+path is picked up implcitly
 ::
 
     prompt%> cd $HOME/DAGMC/FluDAG
     prompt%> mkdir bld
+    prompt%> cd bld
     prompt%> cmake ../src/. -DMOAB_HOME=$HOME/dagmc_bld/MOAB
     prompt%> make
+    prompt%> mv src/mainfludag .
 
-Upon successful compilation the directory *bld* will have the *mainfludag* executable in it.
-In order to test FluDAG, an environment variable, named 'FLUDAG', with the path to the *bld* directory must be set:
+Upon successful compilation the directory *bld* will have the *mainfludag* executable in it. 
+
+Fluka is typically run by users with the rfluka script, we patch this script below, it will still
+be compatable with standard Fluka inputs
+::
+
+    prompt%> cp $FLUPRO/flutil/rfluka $FLUPRO/flutil/rfluka.orig 
+    prompt%> patch -p1 < ../src/rfluka.patch $FLUPRO/flutil/rfluka
+
+In order to test FluDAG, an environment variable, named 'FLUDAG', with the path to the *bld* 
+directory must be set:
+
 Add this statement to your login script:
 ::
 
-    export FLUDAG=${HOME}/DAGMC/FluDAG/bld/
+    export FLUDAG=${HOME}/dagmc_bld/DAGMC/FluDAG/bld/
 
-The FluDAG tests are in a separate repository, which can be cloned from the UW-Madison website:
+The FluDAG tests are in a separate repository, which can be cloned from github
 ::
 
+    prompt%> cd $HOME/dagmc_bld
     prompt%> git clone https://github.com/svalinn/fludag_testing.git
 
 To run all the tests type:
@@ -352,7 +387,7 @@ To run all the tests type:
     prompt%> cd $HOME/fludag_testing
     prompt%> ./run_test test_input
 
-Some of the tests are slow, so the above command will take some time.  
+Some of the tests are slow, so the above command will take some time.
 If you want to run just the fast tests, or just the magnetic tests:
 :: 
 
@@ -369,6 +404,4 @@ Some of the tests check the installation and can be run separately:
 
     prompt%> ./run_test test_install
 
-
-At this time, some tests may not pass.
 
