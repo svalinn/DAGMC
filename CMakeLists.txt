@@ -79,9 +79,9 @@ ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 # GEANT4
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IF ( BUILD_GEANT OR BUILD_ALL )
+IF ( BUILD_GEANT4 OR BUILD_ALL )
   ADD_SUBDIRECTORY(geant4)
-ENDIF ( BUILD_GEANT OR BUILD_ALL )
+ENDIF ( BUILD_GEANT4 OR BUILD_ALL )
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
