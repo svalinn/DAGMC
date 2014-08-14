@@ -40,6 +40,20 @@ set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
 set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
 
+
+
+###################################
+#
+# DAGMC TALLY LIBRARY
+#
+###################################
+
+IF ( BUILD_TALLY )
+  ADD_SUBDIRECTORY(tally)
+ELSEIF( BUILD_TALLY )
+  MESSAGE ( STATUS "Not building tagtally interface library")
+ENDIF ( BUILD_TALLY )
+
 ###################################
 #
 # DAGMC PHYSICS INTERFACE LIBRARY
@@ -51,6 +65,17 @@ set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executabl
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_MCNP5 OR BUILD_ALL )
   ADD_SUBDIRECTORY(mcnp5)
+  ADD_SUBDIRECTORY(tally)
+
+#  IF(MPI_BUILD)
+#    SET(mcnp_exec "mcnp5")
+#  ELSE(MPI_BUILD)
+#    SET(mcnp_exec "mcnp5.mpi")
+#  ENDIF(MPI_BUILD)
+#  ADD_EXECUTABLE(${mcnp_exec} ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)                         
+#  INSTALL( TARGETS ${mcnp_exec} 
+#    RUNTIME DESTINATION ${INSTALL_BIN})
+
 ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -99,15 +124,6 @@ ELSE ( DI_SRC_FILES )
 ENDIF ( DI_SRC_FILES )
          
 
-###################################
-#
-# DAGMC TALLY LIBRARY
-#
-###################################
-
-IF ( BUILD_TALLY )
-  ADD_SUBDIRECTORY(tally)
-ENDIF ( BUILD_TALLY )
 
 
 
