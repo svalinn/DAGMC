@@ -4,8 +4,8 @@
 #
 #####################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT (DAGMC)
+CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
+PROJECT ( DAGMC )
 SET ( DAGMC_VERSION_MAJOR 1 )
 SET ( DAGMC_VERSION_MINOR 0 )
 
@@ -27,8 +27,8 @@ INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 ###################################
 
 SET ( GTEST_INC_DIR "" )
-ADD_SUBDIRECTORY(gtest EXCLUDE_FROM_ALL)
-INCLUDE_DIRECTORIES(${GTEST_INC_DIR})
+ADD_SUBDIRECTORY( gtest EXCLUDE_FROM_ALL )
+INCLUDE_DIRECTORIES( ${GTEST_INC_DIR} )
 
 ###################################
 #
@@ -36,9 +36,9 @@ INCLUDE_DIRECTORIES(${GTEST_INC_DIR})
 #
 ###################################
 
-set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
-set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
-set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
+SET( INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries" )
+SET( INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header" )
+SET( INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables" )
 
 
 
@@ -49,7 +49,7 @@ set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executabl
 ###################################
 
 IF ( BUILD_TALLY )
-  ADD_SUBDIRECTORY(tally)
+  ADD_SUBDIRECTORY( tally )
 ELSEIF( BUILD_TALLY )
   MESSAGE ( STATUS "Not building tagtally interface library")
 ENDIF ( BUILD_TALLY )
@@ -64,18 +64,8 @@ ENDIF ( BUILD_TALLY )
 # MCNP5
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_MCNP5 OR BUILD_ALL )
-  ADD_SUBDIRECTORY(mcnp5)
-  ADD_SUBDIRECTORY(tally)
-
-#  IF(MPI_BUILD)
-#    SET(mcnp_exec "mcnp5")
-#  ELSE(MPI_BUILD)
-#    SET(mcnp_exec "mcnp5.mpi")
-#  ENDIF(MPI_BUILD)
-#  ADD_EXECUTABLE(${mcnp_exec} ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)                         
-#  INSTALL( TARGETS ${mcnp_exec} 
-#    RUNTIME DESTINATION ${INSTALL_BIN})
-
+  ADD_SUBDIRECTORY( mcnp5 )
+  ADD_SUBDIRECTORY( tally )
 ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -90,9 +80,7 @@ ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF ( BUILD_GEANT OR BUILD_ALL )
-  INCLUDE(geant4/CMakeLists.txt)
-  INSTALL( TARGETS             dagsolid 
-           LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+  ADD_SUBDIRECTORY(geant4)
 ENDIF ( BUILD_GEANT OR BUILD_ALL )
 
 
