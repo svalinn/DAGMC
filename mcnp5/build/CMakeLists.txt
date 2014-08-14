@@ -470,18 +470,4 @@ if(MPI_BUILD)
 endif(MPI_BUILD)
 
 INSTALL( TARGETS ${mcnp_exec}
-  RUNTIME DESTINATION ${INSTALL_BIN_DIR})
-
-#if(MPI_BUILD)
-#  ADD_EXECUTABLE(mcnp5.mpi ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)
-#  target_link_libraries(mcnp5.mpi ${MPI_LIBRARIES})
-#  if(BUILD_MCNP5)
-#   target_link_libraries(mcnp5.mpi dagmciface dagtally ${MOAB_LIBRARIES})
-#  endif()
-#else()
-#  ADD_EXECUTABLE(mcnp5 ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)
-#  if(BUILD_MCNP5)
-#   target_link_libraries(mcnp5 dagmciface dagtally ${MOAB_LIBRARIES})
-#  endif()
-#endif()
-
+  RUNTIME DESTINATION ${INSTALL_BIN_DIR} )
