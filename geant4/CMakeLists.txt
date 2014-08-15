@@ -3,22 +3,20 @@
 # CMakeLists.txt for dagmc Geant4
 #
 ######################################################################
-
+PROJECT( DAGSOLID )
 
 MESSAGE ( STATUS "Building the DagSolid Library for  GEANT4." )
-SET ( DAGSOLID_SRCDIR  "DagSolid.cc" )
+SET ( DAGSOLID_SRC  "DagSolid.cc" )
 SET ( DAGSOLID_HEADERS "DagSolid.hh" )
-
-#INCLUDE_DIRECTORIES( "${DAG_GEANT_SRCDIR}" )
 
 # Geant4 include dirs
 INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES} ${GEANT4_DIR}/include/Geant4 )
 
 # Create DagSolid library
 IF ( STATIC_LIB )
-  ADD_LIBRARY( dagsolid STATIC ${DAGSOLID_SRCDIR} )
+  ADD_LIBRARY( dagsolid STATIC ${DAGSOLID_SRC} )
 ELSE ( STATIC_LIB )
-  ADD_LIBRARY( dagsolid SHARED ${DAGSOLID_SRCDIR} )
+  ADD_LIBRARY( dagsolid SHARED ${DAGSOLID_SRC} )
 ENDIF ( STATIC_LIB )
 
 # set the headers to install
@@ -30,7 +28,8 @@ INSTALL ( TARGETS dagsolid
   PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" )
 
 # make the library
-TARGET_LINK_LIBRARIES(dagsolid)
+TARGET_LINK_LIBRARIES( dagsolid )
+ADD_SUBDIRECTORY( tests )
 
 
 
