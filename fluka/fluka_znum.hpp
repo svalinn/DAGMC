@@ -21,7 +21,11 @@ struct Element
 
 Element FlukaZNum[] = 
 {
+{"HYDROGEN",    1,  -2},
+{"HELIUM",      2,  -2},
+{"LITHIUM",     3,  -2},
 {"BERYLLIU",    4,   9},
+{"BORON",       5,   2},
 {"CARBON",      6,   -2},
 {"NITROGEN",    7,   -2},
 {"OXYGEN",      8,   16},
@@ -52,7 +56,8 @@ Element FlukaZNum[] =
 {"ARSENIC",   33,   75},
 {"BROMINE",   35,   -2},
 {"KRYPTON",   36,   -2},
-{"YTTRIUM",   38,   90},
+{"STRONTIU",  38,   -2},
+{"YTTRIUM",   39,   90},
 {"ZIRCONIU",  40,   -2},
 {"NIOBIUM",   41,   93},
 {"MOLYBDEN",  42,   -2},
@@ -62,6 +67,7 @@ Element FlukaZNum[] =
 {"INDIUM",    49,   -2},
 {"TIN",       50,   -2},
 {"ANTIMONY",  51,   -2},
+{"IODINE",    53,   127},
 {"XENON",     54,   -2},
 {"CESIUM",    55,   133},
 {"BARIUM",    56,   -2},
@@ -96,22 +102,16 @@ Element FlukaZNum[] =
 // s/$/\},/
 Element FlukaNamedIsotopes[] = 
 {
-{"HYDROGEN",    1,  -2},
 {"HYDROG-1",    1,   1},
 {"DEUTERIU",    1,   2},
 {"TRITIUM",     1,   4},
-{"HELIUM",      2,  -2},
 {"HELIUM-3",    2,   3},
 {"HELIUM-4",    2,   4},
-{"LITHIUM",     3,  -2},
 {"LITHIU-6",    3,   6},
 {"LITHIU-7",    3,   7},
-{"BORON",       5,   2},
 {"BORON-10",   5,   10},
 {"BORON-11",   5,   11},
-{"STRONTIU",  38,   -2},
 {"90-SR",     38,   90},
-{"IODINE",    53,   127},
 {"129-I",     53,   129},
 {"124-XE",    54,   124},
 {"126-XE",    54,   126},
