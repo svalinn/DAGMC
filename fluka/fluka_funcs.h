@@ -58,30 +58,11 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
  */
 void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> pyne_list);
 bool add_material_record(std::ostringstream& ostr, pyne::Material elemat, int& id);
-// void fludag_write_material(std::ostringstream& ostr, int& last_id,
-//                                                  std::set<int> exception_set,
-//                                                  std::list<pyne::Material> pyne_list);
 /*
  * Write compound cards
  */
 // void fludag_write_compound(std::ostringstream& cstr, int& last_id, pyne::Material& material);
 void fludag_write_compound(std::ostringstream& cstr, pyne::Material& mix);
-/*
- *  Global mapping from z-a nucid to fluka name.
- */
-// see line 1246
-// std::map<int, std::string> fluka_name_map;
-// std::map<std::string, int> map_fluka_znum;
-// void make_fluka_znum_map();
-/*
- * Convenience function to make a different fluka_name; may not be needed
- */
-// std::string modify_name(std::string origName);
-// bool replace(std::string& str, const std::string& from, const std::string& to);
-/*
- * Creates a Fluka MATERIAL card with a fake density
- */
-// void define_material(std::ostringstream &cstr, int &last_id, const std::string& dname);
 /*
  * Convenience function
  */
