@@ -823,11 +823,12 @@ void fludag_write(std::string matfile, std::string lfname)
 
   ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
-  pyne::NUC_DATA_PATH = "/userspace/z/zachman/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
+  pyne::NUC_DATA_PATH = "/home/davisa/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
   char *pPath;
   pPath = getenv ("PATH");
   std::string sPath = std::string(pPath);
   sPath += "/pyne/nuc_data.h5";
+  //  pyne::NUC_DATA_PATH = sPath;
   bool do_load_atomic_mass_data = false;
   // if (sPath != NULL)
   {
@@ -1012,19 +1013,7 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 	 {
             mat = pyne_map[prop_longname];
 	 }
-         fluka_name = mat.metadata["fluka_name"].asString();
-	
-	 // Find the material/fluka_name associated with the volume
-	 /*
-         std::list<pyne::Material>::iterator mptr;
-         for (mptr=pyne_list.begin(); mptr!=pyne_list.end(); ++mptr)
-         {
-	     if (longname == mptr->metadata["name"].asString())
-	     {
-                fluka_name = mptr->metadata["fluka_name"].asString();
-	     }
-         }
-	 */
+         fluka_name = mat.metadata["fluka_name"].asString();	
       }
       // The fluka name has been found, create the card
       ostr << std::setw(10) << std::left  << "ASSIGNMAt";
@@ -1050,10 +1039,10 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
 {
   // Prepare for getting the atomic_mass:  If the environment variable is not defined,
   // the atomic weight will be set to -1
-  char *pPath;
-  std::string sPath = std::string(getenv("PYTHONPATH"));
-  sPath += "/pyne/nuc_data.h5";
-  std::cout << "Path to atomic_mass data is " << sPath << std::endl;
+
+  // char *pPath;
+  //std::string sPath = std::string(getenv("PYTHONPATH"));
+  //sPath += "/pyne/nuc_data.h5";
   
   std::set<int> exception_set = make_exception_set();
 
@@ -1076,277 +1065,46 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
   std::set<int> nucid_set;
   std::string MATERIAL_lines;
 
-  std::list<pyne::Material>::iterator ptr;
-  for (ptr=pyne_list.begin(); ptr != pyne_list.end(); ++ptr)
+  pyne::Material unique = pyne::Material();
+
+  // generate a unique material which will contain every nuclide
+  // in the problem
+  std::list<pyne::Material>::iterator ptr
+;
+  // loop over all materials, summing
+  for ( ptr = pyne_list.begin(); ptr != pyne_list.end(); ++ptr)
+    unique = unique + *ptr;
+
+  // now collapse elements
+  unique = unique.collapse_elements(exception_set);
+
+  std::cout << unique.mcnp() << std::endl;
+
+  // number of required material cards due to calls
+  int num_mat = unique.comp.size();
+
+  // write out material card for each one
+  int i = 25;
+  pyne::comp_map::iterator element;
+  for ( element = unique.comp.begin() ; element != unique.comp.end() ; ++element)
+    {
+      int nuc_id = element->first; // get the nuc id
+      pyne::comp_map nucvec;
+      nucvec[nuc_id] = 100.0; // create temp nucvec
+      pyne::Material element_tmp = pyne::Material(nucvec); // create temp material
+      std::cout << element_tmp.fluka(i++); // write material line
+    }
+
+  // now write out material card & compound card for each compound
+  for ( ptr = pyne_list.begin() ; ptr != pyne_list.end(); ++ptr)
   {
-      mix = *ptr;
-      collmix = mix.collapse_elements(exception_set);
-      
-      if (1 == collmix.comp.size())
-      {
-         // Get the first (and only) nucid
-         int nucid = mix.comp.begin()->first;
+    pyne::Material compound = (*ptr).collapse_elements(exception_set);
+    std::cout << compound.fluka(i++);
+  }
 
-         // DEBUG
-         std::stringstream nss;
-         nss << "Elemental Material from geometry:  " << nucid;
-         print_material(collmix, nss.str());
-
-	 if (0 == nucid_set.count(nucid) )
-	 {
-	    // This nucid has not previously been converted to a material card, go do it
-	    int len_before = mstr.str().length();
- 	    bool isBuiltIn = add_material_record(mstr, collmix, id);
-   	    if (isBuiltIn)
-	    {
-                std::cout << "Nucid " << nucid << " is builtin, no material card." << std::endl;
-		if (mstr.str().length() != len_before)
-		{
-                   std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_____" << std::endl;
-		   std::cerr << "Error:  a record was added for a built-in material" << std::endl;
-		}
-	    }
-            nucid_set.insert(nucid);
-	 }
-      }
-      else  // more than one component, do each component as a separate material
-      {
-         for (pyne::comp_iter nuc = collmix.comp.begin(); nuc != collmix.comp.end(); ++nuc)
-	 {
-	     // Make an elemental material from the nucid of the current component
-	     // a.  get the nucid of the current component
-	     // b.  create a single-element component map from it
-	     // c.  use the component map to instantiate a material
-             int nucid = nuc->first;
-	    
-	     if (0 == nucid_set.count(nucid) )
-	     {
-	        pyne::comp_map tcm;
-	        tcm.insert(*nuc);
-	        pyne::Material tmat = pyne::Material(tcm);
-                
-	        int len_before = mstr.str().length();
-		bool isBuiltIn = add_material_record(mstr, tcm, id);
-		if (isBuiltIn)
-		{
-                  std::cout << "Nucid " << nucid << " is builtin, no material card." << std::endl;
-		  if (mstr.str().length() != len_before)
-		  {
-		     std::cerr << "Error:  a record was added for a built-in component" << std::endl;
-		  }
-		}
-		// keep a record even if it's builtin 
-                nucid_set.insert(nucid);
-	     }  // end new nucid
-          }  // end loop through each component of compound material (mix)
-	 // Now do the material card for the compound name
-         std::stringstream nss;
-         nss << "Compound Material from geometry:  " << collmix.metadata["fluka_name"].asString();
-         print_material(collmix, nss.str());
-         if (add_material_record(mstr, collmix, id))
-         {
-            std::cerr << "Error:  a compound should not be built-in" << std::endl;
-         }
-      }   // end more than one component
-
-  }   // end loop through all materials mixes in the geometry
-
-  std::cout << mstr.str();
+  return;
 }
-//---------------------------------------------------------------------------//
-// add_material_record
-//---------------------------------------------------------------------------//
-// This function 
-//    a. manages the call and return from the pyne material object function 
-//    b. manages error conditions 
-//       i.  error if expected and calculated material id are not equal
-//       ii. report if material is built in, via return
-// INOUT: the material record string.
-// INOUT: the material id
-// RETURN: true if the material is builtin
-// Requires:  material with single component
-// Does not require:  nucid (directly)
-bool add_material_record(std::ostringstream& ostr, pyne::Material mat, int& id)
-{ 
-   std::string mat_line = mat.write_material(id);
 
-   if (0 == mat_line.length())
-   {
-      std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______" << std::endl;
-      return true;
-   }
-
-   if (0 < mat_line.length())
-   {
-      std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______" << std::endl;
-      std::cout << "mat_line is " << mat_line << std::endl;
-      int mid = atoi(mat.metadata["fluka_material_index"].asString().c_str()); 
-      if (id != mid)
-      {
-         // std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______" << std::endl;
-         std::cerr << "Error:  material record id, " << mid << 
-         ", does not equal the expected id: " << 
-         id << std::endl; 
-      }
-      else
-      {
-         ostr << mat_line;
-         id++;
-      }
-   }  // end of check that new line is created
-   return false;
-}
-//---------------------------------------------------------------------------//
-// fludag_write_compound
-//---------------------------------------------------------------------------//
-// Only material objects that have non-fluka names are processed
-struct CompoundElement 
-{
-   int za_id;              // znum+anum 
-   std::string fluka_name; // may or may not be predefined
-   bool predefined;        // True if fluka_name is predefined
-   std::string name;
-   double frac;
-};
-
-// All mixes 
-void fludag_write_compound(std::ostringstream& cstr, pyne::Material& mix)
-{
-   // std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-   std::list< CompoundElement > list_ce;
-
-   std::string mix_name = mix.metadata["fluka_name"].asString();
-   std::cout << "Writing compound card for material " << 
-                 mix.metadata["fluka_name"].asString() << std::endl;
-
-   std::cout << "  Nucid,   Frac,  PyNE name " << std::endl;
-
-   // Go through the composition of this material
-   for (pyne::comp_iter nuc = mix.comp.begin(); nuc != mix.comp.end(); ++nuc)
-   {
-       CompoundElement ce;
-       std::cout << nuc->first << ", " << nuc->second << ", ";
-       std::cout << pyne::nucname::name(nuc->first) << std::endl;
-       
-       /*
-       int znum = pyne::nucname::znum(nuc->first);
-       int anum = pyne::nucname::anum(nuc->first);
-       // Make the za_id
-       ce.za_id = znum*10000000 + anum*10000;
-
-       // Use za_id to get the fluka_name from special database
-       // Need nucid map to either material or fluka name
-       std::string cur_name = fluka_name_map[ce.za_id];
-       */
-       std::string cur_name = "ToDo";
-
-       ce.fluka_name = cur_name; 
-       ce.frac = nuc->second;
-
-       /*
-       if (FLUKA_builtin.find(cur_name) == FLUKA_builtin.end())
-       {
-          // current name is not in the pre-existing FLUKA material list
-	  // modify it for the compound card
-          // ce.name = modify_fluka_name(cur_name);
-	  // jcz test for segmentation
-          ce.name = cur_name;
-          ce.predefined = false;
-       }
-       else
-       {
-          // It is predefined, copy it into the right spot
-          ce.name = cur_name;
-          ce.predefined = true;
-       }
-       */
-       std::cout << std::endl;
-
-       list_ce.push_back(ce);
-
-   }  // end compounds
-
-   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
-   std::cout << header << std::endl;
-   // Note: List is popped 3 times each time in loop
-   while (list_ce.size() >= 3)
-   {
-      CompoundElement ce1 = list_ce.front();
-      /*
-      if (!ce1.predefined)
-      {
-         define_material(cstr, ++last_id, ce1.name);
-      }
-      */
-      list_ce.pop_front();
-
-      CompoundElement ce2 = list_ce.front();
-      /*
-      if (!ce2.predefined)
-      {
-         define_material(cstr, ++last_id, ce2.name);
-      }
-      */
-      list_ce.pop_front();
-
-      CompoundElement ce3 = list_ce.front();
-      /*
-      if (!ce3.predefined)
-      {
-         define_material(cstr, ++last_id, ce3.name);
-      }
-      */
-      list_ce.pop_front();
-
-      cstr << std::setw(10) << std::left  << "COMPOUND";
-      cstr << std::setw(10) << std::right << ce1.frac;
-      cstr << std::setw(10) << std::right << ce1.name;
-      cstr << std::setw(10) << std::right << ce2.frac;
-      cstr << std::setw(10) << std::right << ce2.name;
-      cstr << std::setw(10) << std::right << ce3.frac;
-      cstr << std::setw(10) << std::right << ce3.name;
-      cstr << std::setw(10) << std::left << mix_name;
-      cstr << std::endl;
-   }
-   // Get the last one or two fractions
-   if (list_ce.size() > 0)
-   {
-      CompoundElement ce = list_ce.front();
-      /*
-      if (!ce.predefined)
-      {
-         define_material(cstr, ++last_id, ce.name);
-      }
-      */
-      list_ce.pop_front();
-
-      cstr << std::setw(10) << std::left  << "COMPOUND";
-      cstr << std::setw(10) << std::right << ce.frac;
-      cstr << std::setw(10) << std::right << ce.name;
-     
-      if (list_ce.size() > 0)
-      {
-         CompoundElement ce = list_ce.front();
-	 /*
-         if (!ce.predefined)
-         {
-            define_material(cstr, ++last_id, ce.name);
-         }
-	 */
-         cstr << std::setw(10) << std::right << ce.frac;
-         cstr << std::setw(10) << std::right << ce.name;
-      }
-      else
-      {
-	 cstr << std::setw(10) << std::right << ""; 
-	 cstr << std::setw(10) << std::right << ""; 
-      }
-      cstr << std::setw(10) << std::right << ""; 
-      cstr << std::setw(10) << std::right << ""; 
-
-      cstr << std::setw(10) << std::left << mix_name;
-   }
-}  // end fludag_write_compound
 
 //---------------------------------------------------------------------------//
 // define_material
