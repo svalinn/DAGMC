@@ -55,15 +55,6 @@ static std::ostream* raystat_dump = NULL;
 
 /* These 37 strings are predefined FLUKA materials. Any ASSIGNMAt of unique 
  * materials not on this list requires a MATERIAL card. */
-std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
-"HELIUM", "BERYLLIU", "CARBON", "NITROGEN", "OXYGEN", "MAGNESIU",      
-"ALUMINUM", "IRON", "COPPER", "SILVER", "SILICON", "GOLD", "MERCURY",  
-"LEAD", "TANTALUM", "SODIUM", "ARGON", "CALCIUM", "TIN", "TUNGSTEN",   
-"TITANIUM", "NICKEL", "WATER", "POLYSTYR", "PLASCINT", "PMMA",         
-"BONECOMP", "BONECORT", "MUSCLESK", "MUSCLEST", "ADTISSUE", "KAPTON",  
-"POLYETHY", "AIR"};
-
-int NUM_FLUKA_MATS = 37;
 
 bool debug = false; 
 
@@ -136,7 +127,7 @@ static const std::map<std::string,std::string> no_synonyms;
 
 /* Create a set out of the hardcoded string array. */
 // std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
-std::set<std::string> FLUKA_builtin(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
+//std::set<std::string> FLUKA_builtin(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
 
 /* Maximum character-length of a cubit-named material property */
 int MAX_MATERIAL_NAME_SIZE = 32;
@@ -810,10 +801,13 @@ void fludag_write(std::string matfile, std::string lfname)
   int num_vols = fludag_setup(map_name);
 
   std::list<pyne::Material> pyne_list;
+
   std::map<std::string, pyne::Material> pyne_map;
+
   if (num_vols > 0)
   {
      pyne_get_materials(matfile, pyne_list, pyne_map);
+     std::cout << pyne_map.size() << std::endl;
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -959,8 +953,8 @@ int fludag_setup(std::map<int, std::string>& map_vol_libname)
 // Return the set of all PyNE material objects in the current geometry
 // This function mimics what MaterialLibary.from_hdf5(..) might return
 void pyne_get_materials(std::string mat_file, 
-                        std::list<pyne::Material>& pyne_list,
-			std::map<std::string, pyne::Material>& pyne_map)
+                        std::list<pyne::Material> &pyne_list,
+			std::map<std::string, pyne::Material> &pyne_map)
 {
   pyne::Material mat;
 
@@ -976,7 +970,7 @@ void pyne_get_materials(std::string mat_file,
      }
      // ASSIGNMAt card: Allows for quick access to the PyNE embedded longname
      std::string longname = mat.metadata["name"].asString();
-     pyne_map.insert(std::pair<std::string, pyne::Material>(longname, mat));
+     pyne_map[longname]=mat;
      // For COMPOUND card:  leave in for now, could be useful
      pyne_list.push_back(mat);
   }
@@ -990,7 +984,7 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
                           std::map<std::string, pyne::Material> pyne_map,    
 			  std::map<int, std::string> map_name)         
 {
-  for (unsigned int vol_i=1; vol_i<num_vols; vol_i++)
+  for (unsigned int vol_i = 1 ; vol_i < num_vols ; vol_i++)
   {
       std::string fluka_name;
       if (0 == map_name.count(vol_i))
