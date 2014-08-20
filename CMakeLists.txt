@@ -105,6 +105,8 @@ message("")
 set(SCI_INDENT "")
 message(STATUS "Adding Geant4 subdir.")
 add_subdirectory(Geant4)
+message(STATUS "Adding tools directory")
+add_subdirectory(tools)
 
 ###################################################
 #
