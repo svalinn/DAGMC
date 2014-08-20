@@ -1080,20 +1080,39 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
   // write out material card for each one
   int i = 25;
   pyne::comp_map::iterator element;
+  std::string mat_line;
   for ( element = unique.comp.begin() ; element != unique.comp.end() ; ++element)
     {
       int nuc_id = element->first; // get the nuc id
       pyne::comp_map nucvec;
       nucvec[nuc_id] = 100.0; // create temp nucvec
       pyne::Material element_tmp = pyne::Material(nucvec); // create temp material
-      std::cout << element_tmp.fluka(i++); // write material line
+      mat_line = element_tmp.fluka(i++);
+      if (mat_line.length() != 0)
+	{
+	  std::cout << mat_line << std::endl;
+	}
+      else
+	{
+	  i--;
+	}
+	//      std::cout << element_tmp.fluka(i++); // write material line
     }
 
   // now write out material card & compound card for each compound
+  std::string compound_string;
   for ( ptr = pyne_list.begin() ; ptr != pyne_list.end(); ++ptr)
   {
     pyne::Material compound = (*ptr).collapse_elements(exception_set);
-    std::cout << compound.fluka(i++);
+    compound_string = compound.fluka(i++);
+    if ( compound_string.length() != 0 )
+      {
+	std::cout << compound_string;
+      }
+    else
+      {
+	i--;
+      }
   }
 
   return;
