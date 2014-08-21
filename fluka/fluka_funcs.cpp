@@ -792,16 +792,15 @@ void fludag_write(std::string matfile, std::string lfname)
   // Use DAG to read and count the volumes.  
   std::map<int, std::string> map_name;
   int num_vols = fludag_setup(map_name);
+  if (0 == num_vols)
+  {
+     std::cout << "Error: there are no volumes in this geometry!" << std::endl;
+     return;
+  }
 
   std::list<pyne::Material> pyne_list;
-
   std::map<std::string, pyne::Material> pyne_map;
-
-  if (num_vols > 0)
-  {
-     pyne_get_materials(matfile, pyne_list, pyne_map);
-     std::cout << pyne_map.size() << std::endl;
-  }
+  pyne_get_materials(matfile, pyne_list, pyne_map);
 
   ////////////////////////////////////////////////////////////////////////
   // ASSIGNMAt Cards
@@ -816,10 +815,7 @@ void fludag_write(std::string matfile, std::string lfname)
   pyne::NUC_DATA_PATH = std::string(pPath) + "/pyne/nuc_data.h5";
 
   std::ostringstream mstr;
-  if (num_vols > 0)
-  {
-     fludag_all_materials(mstr, pyne_list);
-  }
+  fludag_all_materials(mstr, pyne_list);
 
   ////////////////////////////////////////////////////////////////////////
   // Write all the streams to the input file
@@ -998,7 +994,7 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
   ostr << std::setw(10) << std::right << "VACUUM";
   ostr << std::setprecision(0) << std::fixed << std::showpoint 
        << std::setw(10) << std::right << (float)num_vols << std::endl;
-}  
+}  // end fludagwrite_assignma
 
 //---------------------------------------------------------------------------//
 // fludag_all_materials
@@ -1010,36 +1006,16 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
 
   std::map<int, std::string> map_nucid_fname;
 
-  pyne::Material mix;      // as read in from file
-  pyne::Material collmix;  // collapsed material
-
-  // For mix in each material in problem
-  //   if one component only
-  //      if nucid is new
-  //         create the material card for it
-  //   else go through each mix's components
-  //      For each component create a mat obj
-  //         add mat obj and incremented id to map
-  //   Add mix id 
-  std::set<int> nucid_set;
-  std::string MATERIAL_lines;
-
   pyne::Material unique = pyne::Material();
 
-  // generate a unique material which will contain every nuclide
-  // in the problem
-  std::list<pyne::Material>::iterator ptr;
-
   // loop over all materials, summing
-  // Does this pick up components?
-  for ( ptr = pyne_list.begin(); ptr != pyne_list.end(); ++ptr)
+  std::list<pyne::Material>::iterator nuc;
+  for ( nuc = pyne_list.begin(); nuc != pyne_list.end(); ++nuc)
   {
-    unique = unique + *ptr;
+    unique = unique + *nuc;
   }
   // now collapse elements
   unique = unique.collapse_elements(exception_set);
-
-  // std::cout << unique.mcnp() << std::endl;
 
   // number of required material cards due to calls
   int num_mat = unique.comp.size();
@@ -1064,23 +1040,19 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
     }
 
   // now write out material card & compound card for each compound
-  // Question:  What happens if the compound has the same material is was already written?
   std::string compound_string;
-  for ( ptr = pyne_list.begin() ; ptr != pyne_list.end(); ++ptr)
+  for ( nuc = pyne_list.begin() ; nuc != pyne_list.end(); ++nuc)
   {
-    pyne::Material compound = ptr->collapse_elements(exception_set);
+    pyne::Material compound = nuc->collapse_elements(exception_set);
     compound_string = compound.fluka(i);
     if ( compound_string.length() != 0 )
       {
 	i++;
 	std::cout << compound_string;
-	 mstr << compound_string;
+        mstr << compound_string;
       }
   }
-
-  return;
 }
-
 
 //---------------------------------------------------------------------------//
 // print_material
