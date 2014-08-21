@@ -51,10 +51,7 @@ static std::ostream* raystat_dump = NULL;
 
 #endif 
 #define DEBUG 1
-#define INCLUDE_ZNUM_MASS true
-
-/* These 37 strings are predefined FLUKA materials. Any ASSIGNMAt of unique 
- * materials not on this list requires a MATERIAL card. */
+#define ID_START 25
 
 bool debug = false; 
 
@@ -70,7 +67,7 @@ std::set<int> make_exception_set()
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-1")));   // HYDROG-1
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-2")));   // DEUTERIU
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-3")));   // TRITIUM
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He-3")));  // HELIUM-3
+    
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He-4")));  // HELIUM-4
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-6")));  // LITHIU-6
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-7")));  // LITHIU-7
@@ -124,10 +121,6 @@ const char *delimiters = ":/";
 
 // an empty synonym map to provide as a default argument to parse_properties()
 static const std::map<std::string,std::string> no_synonyms;
-
-/* Create a set out of the hardcoded string array. */
-// std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
-//std::set<std::string> FLUKA_builtin(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
 
 /* Maximum character-length of a cubit-named material property */
 int MAX_MATERIAL_NAME_SIZE = 32;
@@ -817,17 +810,10 @@ void fludag_write(std::string matfile, std::string lfname)
 
   ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
-  pyne::NUC_DATA_PATH = "/home/davisa/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
+  // pyne::NUC_DATA_PATH = "/userspace/z/zachman/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
   char *pPath;
-  pPath = getenv ("PATH");
-  std::string sPath = std::string(pPath);
-  sPath += "/pyne/nuc_data.h5";
-  //  pyne::NUC_DATA_PATH = sPath;
-  bool do_load_atomic_mass_data = false;
-  // if (sPath != NULL)
-  {
-     std::cout << "Setting path to atomic_mass data to " << sPath << std::endl;	
-  }
+  pPath = getenv ("PYTHONPATH");
+  pyne::NUC_DATA_PATH = std::string(pPath) + "/pyne/nuc_data.h5";
 
   std::ostringstream mstr;
   if (num_vols > 0)
@@ -835,14 +821,6 @@ void fludag_write(std::string matfile, std::string lfname)
      fludag_all_materials(mstr, pyne_list);
   }
 
-  /*
-  ////////////////////////////////////////////////////////////////////////
-  // COMPOUND Cards
-  std::ostringstream cstr;
-  // Note:  pyne_list should be just those materials with multiple components 
-  // after collapsing, i.e. not elements, unless they contain named isotopes
-  fludag_write_compounds(cstr, last_id, pyne_list);
-  */
   ////////////////////////////////////////////////////////////////////////
   // Write all the streams to the input file
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
@@ -852,7 +830,6 @@ void fludag_write(std::string matfile, std::string lfname)
   lcadfile << header << std::endl;
   // ToDo:  Introduce the MATERIAL cards with a comment
   lcadfile << mstr.str();
-  // lcadfile << cstr.str();
   lcadfile.close();
 
 //   std::cout << "Writing lcad file = " << lfname << std::endl; 
@@ -943,7 +920,6 @@ int fludag_setup(std::map<int, std::string>& map_vol_libname)
      index_id.close();
   }
 
-  // make_fluka_znum_map; 
   return num_vols;
 } // end fludag_setup()
 
@@ -997,7 +973,6 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
       }
       else
       {
-         //  std::string longname = map_name[vol_i];
 	 // Makes DAG calls:  depends on properties having been parsed 
          std::string prop_longname = makeMaterialName(vol_i);
          std::cout << "vol_i, prop_longname:  " << vol_i << ", " << prop_longname << std::endl;
@@ -1031,22 +1006,12 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 // Get material cards for all materials in the problem, both elemental and compounds
 void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> pyne_list)
 {
-  // Prepare for getting the atomic_mass:  If the environment variable is not defined,
-  // the atomic weight will be set to -1
-
-  // char *pPath;
-  //std::string sPath = std::string(getenv("PYTHONPATH"));
-  //sPath += "/pyne/nuc_data.h5";
-  
   std::set<int> exception_set = make_exception_set();
 
-  // std::map<int, pyne::Material> map_id_elemat)
   std::map<int, std::string> map_nucid_fname;
 
   pyne::Material mix;      // as read in from file
   pyne::Material collmix;  // collapsed material
-  // ToDo:  #define
-  int id = 25;
 
   // For mix in each material in problem
   //   if one component only
@@ -1063,22 +1028,24 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
 
   // generate a unique material which will contain every nuclide
   // in the problem
-  std::list<pyne::Material>::iterator ptr
-;
-  // loop over all materials, summing
-  for ( ptr = pyne_list.begin(); ptr != pyne_list.end(); ++ptr)
-    unique = unique + *ptr;
+  std::list<pyne::Material>::iterator ptr;
 
+  // loop over all materials, summing
+  // Does this pick up components?
+  for ( ptr = pyne_list.begin(); ptr != pyne_list.end(); ++ptr)
+  {
+    unique = unique + *ptr;
+  }
   // now collapse elements
   unique = unique.collapse_elements(exception_set);
 
-  std::cout << unique.mcnp() << std::endl;
+  // std::cout << unique.mcnp() << std::endl;
 
   // number of required material cards due to calls
   int num_mat = unique.comp.size();
 
   // write out material card for each one
-  int i = 25;
+  int i = ID_START;
   pyne::comp_map::iterator element;
   std::string mat_line;
   for ( element = unique.comp.begin() ; element != unique.comp.end() ; ++element)
@@ -1087,64 +1054,33 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
       pyne::comp_map nucvec;
       nucvec[nuc_id] = 100.0; // create temp nucvec
       pyne::Material element_tmp = pyne::Material(nucvec); // create temp material
-      mat_line = element_tmp.fluka(i++);
+      mat_line = element_tmp.fluka(i);
       if (mat_line.length() != 0)
-	{
-	  std::cout << mat_line << std::endl;
-	}
-      else
-	{
-	  i--;
-	}
-	//      std::cout << element_tmp.fluka(i++); // write material line
+      {
+         i++;
+         std::cout << mat_line << std::endl;
+	 mstr << mat_line;
+      }
     }
 
   // now write out material card & compound card for each compound
+  // Question:  What happens if the compound has the same material is was already written?
   std::string compound_string;
   for ( ptr = pyne_list.begin() ; ptr != pyne_list.end(); ++ptr)
   {
-    pyne::Material compound = (*ptr).collapse_elements(exception_set);
-    compound_string = compound.fluka(i++);
+    pyne::Material compound = ptr->collapse_elements(exception_set);
+    compound_string = compound.fluka(i);
     if ( compound_string.length() != 0 )
       {
+	i++;
 	std::cout << compound_string;
-      }
-    else
-      {
-	i--;
+	 mstr << compound_string;
       }
   }
 
   return;
 }
 
-
-//---------------------------------------------------------------------------//
-// define_material
-//---------------------------------------------------------------------------//
-// Convenience function to create a material with an irrelevant density
-// The material is to be part of a compound
-// ToDo:  Update this using formatting commands and float-cast last_id
-//        Also call this in fludag_write_material(..)
-// -or- make a fake predefined material object, override the fluka() call to accept
-//      an id, and just us fake_mat.fluka(int last_id)
-/*
-void define_material(std::ostringstream &cstr, int &last_id, const std::string& dname)
-{
-    std::cout << "; in define_material, last_id = " << last_id << std::endl;
-    std::stringstream id_stream;
-    id_stream << last_id << ".";
-    // Use the defined name in a MATERIAL card
-    cstr << std::setw(10) << std::left << "MATERIAL";
-    cstr << std::setw(10) << std::right << "";
-    cstr << std::setw(10) << std::right << "";
-    cstr << std::setw(10) << std::right << 999.;
-    cstr << std::setw(10) << std::right << id_stream.str();
-    cstr << std::setw(10) << std::right << "";
-    cstr << std::setw(10) << std::right << "";
-    cstr << std::setw(10) << std::left << dname << std::endl;
-}
-*/
 
 //---------------------------------------------------------------------------//
 // print_material
