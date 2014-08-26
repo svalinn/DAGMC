@@ -16,6 +16,16 @@ ENDMACRO (DATETIME)
 MESSAGE(STATUS "Building MCNP")
 SET(MCNP_SRC ${CMAKE_CURRENT_SOURCE_DIR})
 
+# if openmp wanted
+IF(OPENMP_BUILD)
+ find_package(OpenMP)
+ if (OPENMP_FOUND)
+     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_Flags} ${OpenMP_Fortran_FLAGS}")
+ endif(OPENMP_FOUND)
+ENDIF(OPENMP_BUILD)
+
 # If mpi then need the dotcomm libs
 IF(MPI_BUILD)
   FIND_package(MPI)
@@ -448,6 +458,10 @@ add_definitions(-DGFORTRAN=ON)
 add_definitions(-DLINUX=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
 add_definitions(-DF90_INT_8BYTE=ON)
+
+if(OPENMP_BUILD)
+  add_definitions(-DOMP=ON)
+endif(OPENMP_BUILD)
 
 
 if(MPI_BUILD)
