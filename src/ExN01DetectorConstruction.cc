@@ -24,6 +24,9 @@
 #include "DagSolid.hh"
 #include "DagMC.hpp"
 
+#include "pyne.h"
+#include "DagSolidMaterial.hh"
+
 using namespace moab;
 
 ExN01DetectorConstruction::ExN01DetectorConstruction()
@@ -38,263 +41,15 @@ ExN01DetectorConstruction::~ExN01DetectorConstruction()
 G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 {
 
-  //------------------------------------------------------ materials
+  const char* h5mfilename = "/data/opt/DagGeant4/atic_uwuw_zip.h5m";
+  std::string dag_file(h5mfilename);
 
-  G4double a;  // atomic mass
-  G4double z;  // atomic number
-  G4double density;
+  // load the material from the UW^2 library
+  std::map<std::string,G4Material*> material_lib;
+  //  material_lib = load_uwuw_materials(dag_file);
+  material_lib = load_uwuw_materials("atic_uwuw_zip.h5m");
 
-  std::string name; 
-  std::string symbol; 
-  G4int iz, n; 
-  G4double abundance; 
-  G4double fractionmass; 
-  G4Isotope* Ar40 = new G4Isotope(name="Ar40", iz=18, n=40, a=39.9623831237*g/mole); 
-  G4Isotope* Ca46 = new G4Isotope(name="Ca46", iz=20, n=46, a=45.953689023*g/mole); 
-  G4Isotope* Ni61 = new G4Isotope(name="Ni61", iz=28, n=61, a=60.93105557*g/mole); 
-  G4Isotope* Ni60 = new G4Isotope(name="Ni60", iz=28, n=60, a=59.930785885*g/mole); 
-  G4Isotope* Ni62 = new G4Isotope(name="Ni62", iz=28, n=62, a=61.928345365*g/mole); 
-  G4Isotope* Ni64 = new G4Isotope(name="Ni64", iz=28, n=64, a=63.927966816*g/mole); 
-  G4Isotope* Na23 = new G4Isotope(name="Na23", iz=11, n=23, a=22.989769282*g/mole); 
-  G4Isotope* Ca40 = new G4Isotope(name="Ca40", iz=20, n=40, a=39.962590863*g/mole); 
-  G4Isotope* Ca48 = new G4Isotope(name="Ca48", iz=20, n=48, a=47.952522765*g/mole); 
-  G4Isotope* Ca42 = new G4Isotope(name="Ca42", iz=20, n=42, a=41.95861783*g/mole); 
-  G4Isotope* Ca43 = new G4Isotope(name="Ca43", iz=20, n=43, a=42.958766438*g/mole); 
-  G4Isotope* Ca44 = new G4Isotope(name="Ca44", iz=20, n=44, a=43.955481561*g/mole); 
-  G4Isotope* B10 = new G4Isotope(name="B10", iz=5, n=10, a=10.012936949*g/mole); 
-  G4Isotope* B11 = new G4Isotope(name="B11", iz=5, n=11, a=11.009305355*g/mole); 
-  G4Isotope* C13 = new G4Isotope(name="C13", iz=6, n=13, a=13.0033548351*g/mole); 
-  G4Isotope* C12 = new G4Isotope(name="C12", iz=6, n=12, a=12.0*g/mole); 
-  G4Isotope* Cr50 = new G4Isotope(name="Cr50", iz=24, n=50, a=49.946041833*g/mole); 
-  G4Isotope* Cr52 = new G4Isotope(name="Cr52", iz=24, n=52, a=51.940506231*g/mole); 
-  G4Isotope* Cr53 = new G4Isotope(name="Cr53", iz=24, n=53, a=52.940648147*g/mole); 
-  G4Isotope* Cr54 = new G4Isotope(name="Cr54", iz=24, n=54, a=53.938879158*g/mole); 
-  G4Isotope* Si30 = new G4Isotope(name="Si30", iz=14, n=30, a=29.973770136*g/mole); 
-  G4Isotope* Fe54 = new G4Isotope(name="Fe54", iz=26, n=54, a=53.939608986*g/mole); 
-  G4Isotope* Ge70 = new G4Isotope(name="Ge70", iz=32, n=70, a=69.92424875*g/mole); 
-  G4Isotope* Fe56 = new G4Isotope(name="Fe56", iz=26, n=56, a=55.934936326*g/mole); 
-  G4Isotope* Fe57 = new G4Isotope(name="Fe57", iz=26, n=57, a=56.935392841*g/mole); 
-  G4Isotope* Ge74 = new G4Isotope(name="Ge74", iz=32, n=74, a=73.921177761*g/mole); 
-  G4Isotope* Ge76 = new G4Isotope(name="Ge76", iz=32, n=76, a=75.921402726*g/mole); 
-  G4Isotope* Ni58 = new G4Isotope(name="Ni58", iz=28, n=58, a=57.935342414*g/mole); 
-  G4Isotope* Mg25 = new G4Isotope(name="Mg25", iz=12, n=25, a=24.985836976*g/mole); 
-  G4Isotope* Fe58 = new G4Isotope(name="Fe58", iz=26, n=58, a=57.933274431*g/mole); 
-  G4Isotope* Al27 = new G4Isotope(name="Al27", iz=13, n=27, a=26.981538531*g/mole); 
-  G4Isotope* Ar36 = new G4Isotope(name="Ar36", iz=18, n=36, a=35.967545105*g/mole); 
-  G4Isotope* F19 = new G4Isotope(name="F19", iz=9, n=19, a=18.9984031627*g/mole); 
-  G4Isotope* Bi209 = new G4Isotope(name="Bi209", iz=83, n=209, a=208.980399068*g/mole); 
-  G4Isotope* Ar38 = new G4Isotope(name="Ar38", iz=18, n=38, a=37.962732106*g/mole); 
-  G4Isotope* Ge72 = new G4Isotope(name="Ge72", iz=32, n=72, a=71.922075826*g/mole); 
-  G4Isotope* O17 = new G4Isotope(name="O17", iz=8, n=17, a=16.9991317565*g/mole); 
-  G4Isotope* O16 = new G4Isotope(name="O16", iz=8, n=16, a=15.9949146196*g/mole); 
-  G4Isotope* Mg26 = new G4Isotope(name="Mg26", iz=12, n=26, a=25.982592968*g/mole); 
-  G4Isotope* Mg24 = new G4Isotope(name="Mg24", iz=12, n=24, a=23.985041697*g/mole); 
-  G4Isotope* N14 = new G4Isotope(name="N14", iz=7, n=14, a=14.0030740044*g/mole); 
-  G4Isotope* N15 = new G4Isotope(name="N15", iz=7, n=15, a=15.0001088989*g/mole); 
-  G4Isotope* H2 = new G4Isotope(name="H2", iz=1, n=2, a=2.01410177812*g/mole); 
-  G4Isotope* H1 = new G4Isotope(name="H1", iz=1, n=1, a=1.00782503223*g/mole); 
-  G4Isotope* O18 = new G4Isotope(name="O18", iz=8, n=18, a=17.9991596129*g/mole); 
-  G4Isotope* Ge73 = new G4Isotope(name="Ge73", iz=32, n=73, a=72.923458956*g/mole); 
-  G4Isotope* Si28 = new G4Isotope(name="Si28", iz=14, n=28, a=27.9769265347*g/mole); 
-  G4Isotope* Si29 = new G4Isotope(name="Si29", iz=14, n=29, a=28.9764946649*g/mole); 
-  G4int ncomponents;
-  // Element for Cr in material Steel
-  G4Element* el_1_Cr = new G4Element(name = "1_Cr", symbol="Cr", ncomponents=4); 
-  el_1_Cr->AddIsotope(Cr50, abundance = 4.17368647311*perCent); 
-  el_1_Cr->AddIsotope(Cr52, abundance = 83.6993624258*perCent); 
-  el_1_Cr->AddIsotope(Cr53, abundance = 9.67358688151*perCent); 
-  el_1_Cr->AddIsotope(Cr54, abundance = 2.45336421961*perCent); 
-  // Element for Fe in material Steel
-  G4Element* el_1_Fe = new G4Element(name = "1_Fe", symbol="Fe", ncomponents=4); 
-  el_1_Fe->AddIsotope(Fe54, abundance = 5.64555822608*perCent); 
-  el_1_Fe->AddIsotope(Fe56, abundance = 91.9015287728*perCent); 
-  el_1_Fe->AddIsotope(Fe57, abundance = 2.16036861685*perCent); 
-  el_1_Fe->AddIsotope(Fe58, abundance = 0.292544384231*perCent); 
-  // Element for Ni in material Steel
-  G4Element* el_1_Ni = new G4Element(name = "1_Ni", symbol="Ni", ncomponents=5); 
-  el_1_Ni->AddIsotope(Ni58, abundance = 67.1978086013*perCent); 
-  el_1_Ni->AddIsotope(Ni60, abundance = 26.775862607*perCent); 
-  el_1_Ni->AddIsotope(Ni61, abundance = 1.18335916522*perCent); 
-  el_1_Ni->AddIsotope(Ni62, abundance = 3.8349280648*perCent); 
-  el_1_Ni->AddIsotope(Ni64, abundance = 1.00804156174*perCent); 
-  // Element for H in material Latex
-  G4Element* el_2_H = new G4Element(name = "2_H", symbol="H", ncomponents=2); 
-  el_2_H->AddIsotope(H1, abundance = 99.9770203057*perCent); 
-  el_2_H->AddIsotope(H2, abundance = 0.0229796943473*perCent); 
-  // Element for C in material Latex
-  G4Element* el_2_C = new G4Element(name = "2_C", symbol="C", ncomponents=2); 
-  el_2_C->AddIsotope(C12, abundance = 98.8415705921*perCent); 
-  el_2_C->AddIsotope(C13, abundance = 1.15842940792*perCent); 
-  // Element for Al in material Aluminium
-  G4Element* el_3_Al = new G4Element(name = "3_Al", symbol="Al", ncomponents=1); 
-  el_3_Al->AddIsotope(Al27, abundance = 100.0*perCent); 
-  // Element for N in material StandardAir
-  G4Element* el_4_N = new G4Element(name = "4_N", symbol="N", ncomponents=2); 
-  el_4_N->AddIsotope(N14, abundance = 99.6101838129*perCent); 
-  el_4_N->AddIsotope(N15, abundance = 0.389816187062*perCent); 
-  // Element for O in material StandardAir
-  G4Element* el_4_O = new G4Element(name = "4_O", symbol="O", ncomponents=3); 
-  el_4_O->AddIsotope(O16, abundance = 99.7290027505*perCent); 
-  el_4_O->AddIsotope(O17, abundance = 0.0403744395371*perCent); 
-  el_4_O->AddIsotope(O18, abundance = 0.230622809916*perCent); 
-  // Element for Ar in material StandardAir
-  G4Element* el_4_Ar = new G4Element(name = "4_Ar", symbol="Ar", ncomponents=3); 
-  el_4_Ar->AddIsotope(Ar36, abundance = 0.300361308469*perCent); 
-  el_4_Ar->AddIsotope(Ar38, abundance = 0.0597744039804*perCent); 
-  el_4_Ar->AddIsotope(Ar40, abundance = 99.6398642876*perCent); 
-  // Element for H in material Fiberglass
-  G4Element* el_5_H = new G4Element(name = "5_H", symbol="H", ncomponents=2); 
-  el_5_H->AddIsotope(H1, abundance = 99.9770203057*perCent); 
-  el_5_H->AddIsotope(H2, abundance = 0.0229796943473*perCent); 
-  // Element for B in material Fiberglass
-  G4Element* el_5_B = new G4Element(name = "5_B", symbol="B", ncomponents=2); 
-  el_5_B->AddIsotope(B10, abundance = 18.4309433393*perCent); 
-  el_5_B->AddIsotope(B11, abundance = 81.5690566607*perCent); 
-  // Element for C in material Fiberglass
-  G4Element* el_5_C = new G4Element(name = "5_C", symbol="C", ncomponents=2); 
-  el_5_C->AddIsotope(C12, abundance = 98.8415705921*perCent); 
-  el_5_C->AddIsotope(C13, abundance = 1.15842940792*perCent); 
-  // Element for O in material Fiberglass
-  G4Element* el_5_O = new G4Element(name = "5_O", symbol="O", ncomponents=3); 
-  el_5_O->AddIsotope(O16, abundance = 99.7290027505*perCent); 
-  el_5_O->AddIsotope(O17, abundance = 0.0403744395371*perCent); 
-  el_5_O->AddIsotope(O18, abundance = 0.230622809916*perCent); 
-  // Element for Na in material Fiberglass
-  G4Element* el_5_Na = new G4Element(name = "5_Na", symbol="Na", ncomponents=1); 
-  el_5_Na->AddIsotope(Na23, abundance = 100.0*perCent); 
-  // Element for Mg in material Fiberglass
-  G4Element* el_5_Mg = new G4Element(name = "5_Mg", symbol="Mg", ncomponents=3); 
-  el_5_Mg->AddIsotope(Mg24, abundance = 77.9499864176*perCent); 
-  el_5_Mg->AddIsotope(Mg25, abundance = 10.280100354*perCent); 
-  el_5_Mg->AddIsotope(Mg26, abundance = 11.7699132284*perCent); 
-  // Element for Al in material Fiberglass
-  G4Element* el_5_Al = new G4Element(name = "5_Al", symbol="Al", ncomponents=1); 
-  el_5_Al->AddIsotope(Al27, abundance = 100.0*perCent); 
-  // Element for Si in material Fiberglass
-  G4Element* el_5_Si = new G4Element(name = "5_Si", symbol="Si", ncomponents=3); 
-  el_5_Si->AddIsotope(Si28, abundance = 91.8664867888*perCent); 
-  el_5_Si->AddIsotope(Si29, abundance = 4.83362887473*perCent); 
-  el_5_Si->AddIsotope(Si30, abundance = 3.29988433646*perCent); 
-  // Element for Ca in material Fiberglass
-  G4Element* el_5_Ca = new G4Element(name = "5_Ca", symbol="Ca", ncomponents=6); 
-  el_5_Ca->AddIsotope(Ca40, abundance = 96.6617931257*perCent); 
-  el_5_Ca->AddIsotope(Ca42, abundance = 0.677359411346*perCent); 
-  el_5_Ca->AddIsotope(Ca43, abundance = 0.144703583305*perCent); 
-  el_5_Ca->AddIsotope(Ca44, abundance = 2.287815835*perCent); 
-  el_5_Ca->AddIsotope(Ca46, abundance = 0.00458642279672*perCent); 
-  el_5_Ca->AddIsotope(Ca48, abundance = 0.223741621847*perCent); 
-  // Element for C in material Teflon
-  G4Element* el_6_C = new G4Element(name = "6_C", symbol="C", ncomponents=2); 
-  el_6_C->AddIsotope(C12, abundance = 98.8415705921*perCent); 
-  el_6_C->AddIsotope(C13, abundance = 1.15842940792*perCent); 
-  // Element for F in material Teflon
-  G4Element* el_6_F = new G4Element(name = "6_F", symbol="F", ncomponents=1); 
-  el_6_F->AddIsotope(F19, abundance = 100.0*perCent); 
-  // Element for Si in material Silicon
-  G4Element* el_7_Si = new G4Element(name = "7_Si", symbol="Si", ncomponents=3); 
-  el_7_Si->AddIsotope(Si28, abundance = 91.8664867888*perCent); 
-  el_7_Si->AddIsotope(Si29, abundance = 4.83362887473*perCent); 
-  el_7_Si->AddIsotope(Si30, abundance = 3.29988433646*perCent); 
-  // Element for H in material Scintillator
-  G4Element* el_8_H = new G4Element(name = "8_H", symbol="H", ncomponents=2); 
-  el_8_H->AddIsotope(H1, abundance = 99.9770203057*perCent); 
-  el_8_H->AddIsotope(H2, abundance = 0.0229796943473*perCent); 
-  // Element for C in material Scintillator
-  G4Element* el_8_C = new G4Element(name = "8_C", symbol="C", ncomponents=2); 
-  el_8_C->AddIsotope(C12, abundance = 98.8415705921*perCent); 
-  el_8_C->AddIsotope(C13, abundance = 1.15842940792*perCent); 
-  // Element for C in material Carbon
-  G4Element* el_9_C = new G4Element(name = "9_C", symbol="C", ncomponents=2); 
-  el_9_C->AddIsotope(C12, abundance = 98.8415705921*perCent); 
-  el_9_C->AddIsotope(C13, abundance = 1.15842940792*perCent); 
-  // Element for O in material BiGeO
-  G4Element* el_10_O = new G4Element(name = "10_O", symbol="O", ncomponents=3); 
-  el_10_O->AddIsotope(O16, abundance = 99.7290027505*perCent); 
-  el_10_O->AddIsotope(O17, abundance = 0.0403744395371*perCent); 
-  el_10_O->AddIsotope(O18, abundance = 0.230622809916*perCent); 
-  // Element for Ge in material BiGeO
-  G4Element* el_10_Ge = new G4Element(name = "10_Ge", symbol="Ge", ncomponents=5); 
-  el_10_Ge->AddIsotope(Ge70, abundance = 19.8043551452*perCent); 
-  el_10_Ge->AddIsotope(Ge72, abundance = 27.1833619191*perCent); 
-  el_10_Ge->AddIsotope(Ge73, abundance = 7.78157607723*perCent); 
-  el_10_Ge->AddIsotope(Ge74, abundance = 37.1501307997*perCent); 
-  el_10_Ge->AddIsotope(Ge76, abundance = 8.08057605883*perCent); 
-  // Element for Bi in material BiGeO
-  G4Element* el_10_Bi = new G4Element(name = "10_Bi", symbol="Bi", ncomponents=1); 
-  el_10_Bi->AddIsotope(Bi209, abundance = 100.0*perCent); 
-  // Element for H in material Mylar
-  G4Element* el_11_H = new G4Element(name = "11_H", symbol="H", ncomponents=2); 
-  el_11_H->AddIsotope(H1, abundance = 99.9770203057*perCent); 
-  el_11_H->AddIsotope(H2, abundance = 0.0229796943473*perCent); 
-  // Element for C in material Mylar
-  G4Element* el_11_C = new G4Element(name = "11_C", symbol="C", ncomponents=2); 
-  el_11_C->AddIsotope(C12, abundance = 98.8415705921*perCent); 
-  el_11_C->AddIsotope(C13, abundance = 1.15842940792*perCent); 
-  // Element for O in material Mylar
-  G4Element* el_11_O = new G4Element(name = "11_O", symbol="O", ncomponents=3); 
-  el_11_O->AddIsotope(O16, abundance = 99.7290027505*perCent); 
-  el_11_O->AddIsotope(O17, abundance = 0.0403744395371*perCent); 
-  el_11_O->AddIsotope(O18, abundance = 0.230622809916*perCent); 
-  // Element for Al in material Mylar
-  G4Element* el_11_Al = new G4Element(name = "11_Al", symbol="Al", ncomponents=1); 
-  el_11_Al->AddIsotope(Al27, abundance = 100.0*perCent); 
-  density = 7.9*g/cm3; 
-  G4Material* mat_1 = new G4Material(name= "Steel", density, ncomponents = 3); 
-  mat_1->AddElement( el_1_Cr , fractionmass = 9.28007133391*perCent); 
-  mat_1->AddElement( el_1_Fe , fractionmass = 69.7691990773*perCent); 
-  mat_1->AddElement( el_1_Ni , fractionmass = 20.9507295888*perCent); 
-  density = 1.8*g/cm3; 
-  G4Material* mat_2 = new G4Material(name= "Latex", density, ncomponents = 2); 
-  mat_2->AddElement( el_2_H , fractionmass = 1.13141589707*perCent); 
-  mat_2->AddElement( el_2_C , fractionmass = 98.8685841029*perCent); 
-  density = 2.699*g/cm3; 
-  G4Material* mat_3 = new G4Material(name= "Aluminium", density, ncomponents = 1); 
-  mat_3->AddElement( el_3_Al , fractionmass = 100.0*perCent); 
-  density = 0.001225*g/cm3; 
-  G4Material* mat_4 = new G4Material(name= "StandardAir", density, ncomponents = 3); 
-  mat_4->AddElement( el_4_O , fractionmass = 23.1586851725*perCent); 
-  mat_4->AddElement( el_4_Ar , fractionmass = 1.28325066388*perCent); 
-  mat_4->AddElement( el_4_N , fractionmass = 75.5580641636*perCent); 
-  density = 1.7*g/cm3; 
-  G4Material* mat_5 = new G4Material(name= "Fiberglass", density, ncomponents = 9); 
-  mat_5->AddElement( el_5_H , fractionmass = 0.190370791398*perCent); 
-  mat_5->AddElement( el_5_B , fractionmass = 0.70229439667*perCent); 
-  mat_5->AddElement( el_5_C , fractionmass = 21.7673070089*perCent); 
-  mat_5->AddElement( el_5_O , fractionmass = 29.781432189*perCent); 
-  mat_5->AddElement( el_5_Na , fractionmass = 0.512026476848*perCent); 
-  mat_5->AddElement( el_5_Mg , fractionmass = 1.76454322771*perCent); 
-  mat_5->AddElement( el_5_Al , fractionmass = 6.00930872534*perCent); 
-  mat_5->AddElement( el_5_Si , fractionmass = 22.0769322985*perCent); 
-  mat_5->AddElement( el_5_Ca , fractionmass = 17.1957848857*perCent); 
-  density = 2.2*g/cm3; 
-  G4Material* mat_6 = new G4Material(name= "Teflon", density, ncomponents = 2); 
-  mat_6->AddElement( el_6_F , fractionmass = 83.3582575917*perCent); 
-  mat_6->AddElement( el_6_C , fractionmass = 16.6417424083*perCent); 
-  density = 2.329*g/cm3; 
-  G4Material* mat_7 = new G4Material(name= "Silicon", density, ncomponents = 1); 
-  mat_7->AddElement( el_7_Si , fractionmass = 100.0*perCent); 
-  density = 1.032*g/cm3; 
-  G4Material* mat_8 = new G4Material(name= "Scintillator", density, ncomponents = 2); 
-  mat_8->AddElement( el_8_H , fractionmass = 7.74226736782*perCent); 
-  mat_8->AddElement( el_8_C , fractionmass = 92.2577326322*perCent); 
-  density = 2.0*g/cm3; 
-  G4Material* mat_9 = new G4Material(name= "Carbon", density, ncomponents = 1); 
-  mat_9->AddElement( el_9_C , fractionmass = 100.0*perCent); 
-  density = 7.1*g/cm3; 
-  G4Material* mat_10 = new G4Material(name= "BiGeO", density, ncomponents = 3); 
-  mat_10->AddElement( el_10_O , fractionmass = 15.4111678193*perCent); 
-  mat_10->AddElement( el_10_Ge , fractionmass = 17.4887742001*perCent); 
-  mat_10->AddElement( el_10_Bi , fractionmass = 67.1000579806*perCent); 
-  density = 1.94*g/cm3; 
-  G4Material* mat_11 = new G4Material(name= "Mylar", density, ncomponents = 4); 
-  mat_11->AddElement( el_11_O , fractionmass = 10.3584734818*perCent); 
-  mat_11->AddElement( el_11_H , fractionmass = 0.0809740362401*perCent); 
-  mat_11->AddElement( el_11_Al , fractionmass = 74.9734287703*perCent); 
-  mat_11->AddElement( el_11_C , fractionmass = 14.5871237116*perCent); 
-
-  G4Material* Vacuum = 
-  new G4Material("Vacuum",z=1., a=1.0*g/mole, density=1.0e-20*mg/cm3);
-  // set the visibility based on the material   
+    
   G4VisAttributes * invis = new G4VisAttributes(G4VisAttributes::Invisible);
 
   //------------------------------------------------------ volumes
@@ -306,7 +61,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4double world_depth  = 120.0*cm;
   
   G4Box* world_volume = new G4Box("world_volume_box",world_width,world_height,world_depth);
-  world_volume_log = new G4LogicalVolume(world_volume,Vacuum,"world_vol_log",0,0,0);
+  world_volume_log = new G4LogicalVolume(world_volume,material_lib["Vacuum"],"world_vol_log",0,0,0);
   world_volume_log->SetVisAttributes(invis);
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
 						      "world_vol",0,false,0); 
@@ -314,7 +69,6 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   
   // dag_volumes
   DagMC* dagmc = DagMC::instance(); // create dag instance
-  const char* h5mfilename = "/data/prod/nasa/atic/atic/geant4/geometry/atic_uwuw_zip.h5m";
   G4cout << "Load sample file = "     << dagmc->load_file(h5mfilename,0) << G4endl;
   G4cout << "Initialize OBB tree = "  << dagmc->init_OBBTree() << G4endl;
 
@@ -322,7 +76,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4int Num_of_objects = dagmc->num_entities(3);
 
   G4cout << "There are " << Num_of_objects << " dag volumes" << G4endl;
-
+  /*
   DagSolid* vol_1 = new DagSolid("vol_1",dagmc,1);
   G4LogicalVolume* vol_1_log = new G4LogicalVolume(vol_1,Vacuum,"vol_1_log",0,0,0);
   vol_1_log->SetVisAttributes(invis);  G4PVPlacement* vol_1_phys = new G4PVPlacement(0,G4ThreeVector(0*cm,0*cm,0*cm),vol_1_log,"vol_1_phys",world_volume_log,false,0);
@@ -32651,7 +32405,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4LogicalVolume* vol_6643_log = new G4LogicalVolume(vol_6643,mat_9,"vol_6643_log",0,0,0);
   vol_6643_log->SetVisAttributes(G4Color(0.340909090909,0.25,0.5));
   G4PVPlacement* vol_6643_phys = new G4PVPlacement(0,G4ThreeVector(0*cm,0*cm,0*cm),vol_6643_log,"vol_6643_phys",world_volume_log,false,0);
-
+  */
   return world_volume_phys;
 }
 
