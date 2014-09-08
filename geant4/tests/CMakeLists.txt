@@ -1,4 +1,4 @@
-PROJECT(DagSolidUnitTests)
+# PROJECT(DagSolidUnitTests)
 
 SET (tgt "gtest")
 ADD_CUSTOM_COMMAND (TARGET ${tgt}
@@ -44,24 +44,14 @@ endmacro()
 # for the DagSolid includes
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../")
 
-# custom driver which calls tests
-#ADD_CUSTOM_TARGET (dagsolid_tests  DEPENDS gtest
-#    	dagsolid_unit_test_driver.cpp
-#	${dagsolid_test_source})
-
 ADD_EXECUTABLE (dagsolid_tests  
-  EXCLUDE_FROM_ALL
     	dagsolid_unit_test_driver.cpp
 	${dagsolid_test_source})
-# INSTALL(TARGETS dagsolid_tests DESTINATION tests)
+
+INSTALL(TARGETS dagsolid_tests DESTINATION tests)
+INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_geom.h5m" DESTINATION tests)
 
 TARGET_LINK_LIBRARIES (dagsolid_tests ${LIBS} dagsolid )
-
-# enable test cases
-ENABLE_TESTING()
-
-# list test cases for compatibility with BaTLab
-ADD_TEST(DagSolid_test DagSolid_test)
 
 #
 RUN_TEST(dagsolid_tests)
