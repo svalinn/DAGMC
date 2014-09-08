@@ -44,14 +44,14 @@ endmacro()
 # for the DagSolid includes
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../")
 
-ADD_EXECUTABLE (dagsolid_tests  
+ADD_EXECUTABLE (dagsolid_unit_tests  
     	dagsolid_unit_test_driver.cpp
 	${dagsolid_test_source})
 
-INSTALL(TARGETS dagsolid_tests DESTINATION tests)
+INSTALL(TARGETS dagsolid_unit_tests DESTINATION tests)
 INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_geom.h5m" DESTINATION tests)
 
-TARGET_LINK_LIBRARIES (dagsolid_tests ${LIBS} dagsolid )
+TARGET_LINK_LIBRARIES (dagsolid_unit_tests ${LIBS} dagsolid )
 
 #
-RUN_TEST(dagsolid_tests)
+RUN_TEST(dagsolid_unit_tests)

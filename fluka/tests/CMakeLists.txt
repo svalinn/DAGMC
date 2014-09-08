@@ -34,16 +34,16 @@ macro(run_test test_target)
   add_dependencies(${test_target}_runtest gtest)
 endmacro()
 
-ADD_EXECUTABLE (fludag_tests 
+ADD_EXECUTABLE (fludag_unit_tests 
         fludag_unit_test_driver.cc
 	${fludag_test_source}
     )
 # install into tests dir
-INSTALL(TARGETS fludag_tests DESTINATION tests)
+INSTALL(TARGETS fludag_unit_tests DESTINATION tests)
 INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/slabs.h5m" DESTINATION tests)
 
-TARGET_LINK_LIBRARIES (fludag_tests ${LIBS})
+TARGET_LINK_LIBRARIES (fludag_unit_tests ${LIBS})
 
-RUN_TEST(fludag_tests)
+RUN_TEST(fludag_unit_tests)
 
 	
