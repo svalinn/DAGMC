@@ -21,7 +21,7 @@ How To
 2) Apply the patch from the patch folder
    patch -p1 < patch/dagmc.patch.5.1.60
 3) Assuming your patch was succesfully applied, i.e. there were no warnings or errors then we can now start building,
-   create assuming you are in the base level of the DAGMC repo, create a new directory and navigate to it.
+   assuming that you are in the base level of the DAGMC repo, create a new directory and navigate to it.
    mkdir bld
    cd bld
 4) We can now configure DAGMC for building, you must include the CMAKE_INSTALL_PREFIX option with a folder where
