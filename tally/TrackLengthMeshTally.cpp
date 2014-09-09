@@ -489,7 +489,7 @@ void TrackLengthMeshTally::build_trees (Range& all_tets)
   std::cout << "  Building KD tree of size " << all_tets.size() << "... " << std::flush;
   kdtree = new AdaptiveKDTree( mb );
 
-#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 && MB_VERSION_PATCH < 3
+#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 
   kdtree->build_tree(all_tets, kdtree_root);
 #else
   const char settings[]="MESHSET_FLAGS=0x1;TAG_NAME=0";
@@ -557,7 +557,7 @@ EntityHandle TrackLengthMeshTally::point_in_which_tet (const CartVect& point)
   AdaptiveKDTreeIter tree_iter;
   
   // Check to see if starting point begins inside a tet
-#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 && MB_VERSION_PATCH < 3
+#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 
   rval = kdtree->leaf_containing_point(kdtree_root, point.array(), tree_iter);
 #else
   rval = kdtree->point_search(point.array(), tree_iter);

@@ -38,7 +38,7 @@ KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
 
         moab::ErrorCode rval = moab::MB_SUCCESS;
 
-#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 && MB_VERSION_PATCH < 3
+#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7
         rval = kd_tree->build_tree(mesh_nodes, kd_tree_root);
 #else
         const char settings[]="MESHSET_FLAGS=0x1;TAG_NAME=0";
@@ -233,7 +233,7 @@ void KDENeighborhood::points_in_box()
 	exit(1);
       }
 
-#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 && MB_VERSION_PATCH < 3
+#if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7 
     rval = kd_tree->leaves_within_distance(kd_tree_root, box_center, radius, leaves);
 #else
     // moab::AdaptiveKDTree now checks if box_center is in tree's bounding box,
