@@ -28,11 +28,12 @@ int main(int argc, char* argv[])
   //
   G4RunManager* runManager = new G4RunManager;
 
+  std::string uwuw_file(argv[1]); // file containing data & uwuw
+
   // set mandatory initialization classes
   //
-  G4VUserDetectorConstruction* detector = new ExN01DetectorConstruction;
+  G4VUserDetectorConstruction* detector = new ExN01DetectorConstruction(uwuw_file);
   runManager->SetUserInitialization(detector);
-  //
 
   G4PhysListFactory *physListFactory = new G4PhysListFactory(); 
   G4VUserPhysicsList *physicsList = 
@@ -45,7 +46,6 @@ int main(int argc, char* argv[])
   ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization();
   runManager->SetUserInitialization(actionInitialization);
 
-
   //  G4VUserPrimaryGeneratorAction* gen_action = new ExN01PrimaryGeneratorAction;
   //runManager->SetUserAction(gen_action);
 
@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
   // Initialize G4 kernel
   //
   runManager->Initialize();
+
   G4VisManager* visManager = new G4VisExecutive;
   visManager->Initialize();
 

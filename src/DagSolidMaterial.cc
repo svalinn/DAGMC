@@ -31,27 +31,23 @@ std::map<std::string,pyne::Material> load_materials(std::string filepath)
 {
   bool end = false;
   std::map<std::string,pyne::Material> material_library;
-  int i;
+  int i = 0;
 
   std::cout << filepath << std::endl;
   while( !end )
     {
       pyne::Material mat; // from file
 
-      mat.from_hdf5(filepath,"/materials",++i);
-      std::cout << mat.metadata["name"].asString() << std::endl;
-      mat.from_hdf5(filepath,"/materials",++i);
-      std::cout << mat.metadata["name"].asString() << std::endl;
-      mat.from_hdf5(filepath,"/materials",++i);
-      std::cout << mat.metadata["name"].asString() << std::endl;
-
+      mat.from_hdf5(filepath,"/materials",i++);
       if ( material_library.count(mat.metadata["name"].asString()) )
 	{
 	   end = true;  
 	}
-      material_library[mat.metadata["name"].asString()]=mat;
-      std::cout << material_library.size() << std::endl;
-      std::cout << mat.metadata["name"].asString() << std::endl;
+      else
+	{
+	  std::cout << mat.metadata["name"].asString() << std::endl;
+	  material_library[mat.metadata["name"].asString()]=mat;
+	}
     }
   
   for(std::map<std::string,pyne::Material>::const_iterator it = material_library.begin() ; it != material_library.end() ; ++it )
@@ -163,9 +159,9 @@ std::map<std::string,G4Material*> get_g4materials(std::map<int,G4Element*> eleme
   // Add vacuum 
   double z,a,density;
   G4Material* Vacuum =
-    new G4Material("Vacuum", z=1., a=1.0*g/mole, density=1.0e-20*mg/cm3);
+    new G4Material("mat:Vacuum", z=1., a=1.0*g/mole, density=1.0e-20*mg/cm3);
   // add to lib
-  material_map["Vacuum"]=Vacuum;
+  material_map["mat:Vacuum"]=Vacuum;
 
   
   G4cout << *(G4Material::GetMaterialTable());

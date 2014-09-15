@@ -17,7 +17,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ExN01EventAction::ExN01EventAction()
- : G4UserEventAction() 
+  : G4UserEventAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -69,5 +69,6 @@ void ExN01EventAction::BeginOfEventAction(const G4Event* /*event*/)
 
 void ExN01EventAction::EndOfEventAction(const G4Event* event)
 {  
+
 }  
 
