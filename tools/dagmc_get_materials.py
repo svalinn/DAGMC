@@ -5,12 +5,14 @@ import argparse
 try:
     from itaps import iMesh, iBase
 except:
-    raise ImportError("The PyTAPS dependency could not be imported")
+    raise ImportError("The PyTAPS dependency could not be imported!")
 try:
     from pyne import material
     from pyne.material import Material, MaterialLibrary
 except:
-    raise ImportError("The PyNE dependency could not be imported")
+    raise ImportError("The PyNE dependency could not be imported!")
+    
+import fluka_predefined_mat as fluka_lib    
 
 """
 function that gets all tags on dagmc geometry
@@ -93,7 +95,7 @@ def load_mat_lib(filename):
     return mat_lib
 
 ######
-#comment out >>>> not finished
+#comment out >>>> unfinished
 ####
 '''
 """
@@ -371,7 +373,7 @@ def check_and_create_materials(material_list, mat_lib):
                 group_name = "mat:" + material_list[g][0]
                 if (material_list[g][1] is not ''):
                     group_name += "/rho:" + material_list[g][1]
-                #print "grp2", group_name
+                    
                 new_mat.metadata['name'] = group_name
 
                 if (material_list[g][1] != ''):
@@ -444,17 +446,25 @@ def fluka_material_naming(material, flukamat_list):
     else:
         pass
     # if name is in list, change name by appending number
-    if (matf.upper() in flukamat_list):
+    if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
         for a in range(len(flukamat_list)):
             a = a + 1
             if (a <= 9):
-                matf = matf.rstrip(matf[-1])
-                matf = matf + str(a)
-            else:
-                for i in range(len(a)):
+                if (len(matf) == 8):
                     matf = matf.rstrip(matf[-1])
-                matf = matf + str(a)
-            if (matf.upper() in flukamat_list):
+                    matf = matf + str(a)
+                elif (8- len(matf) >= 1):
+                    matf=matf + str(a)
+                        
+            else:
+                if (len(matf) == len(a)):
+                     matf = matf + str(a)
+                     
+                else:     
+                    for i in range(len(a)):
+                        matf = matf.rstrip(matf[-1])
+                    matf = matf + str(a)
+            if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
                 continue
             else:
                 flukamat_list.append(matf.upper())
@@ -491,7 +501,7 @@ def write_mats_h5m(materials_list, filename):
     new_matlib = MaterialLibrary()
     for material in materials_list:
         # using fluka name as index since this is unique
-        new_matlib[material.metadata['name']] = material
+        new_matlib[material.metadata['fluka_name']] = material
     new_matlib.write_hdf5(filename)
 
 """
@@ -530,10 +540,10 @@ def main():
     args = parsing()
     # get list of tag values
     tag_values = get_tag_values(args.datafile)
+    # load material library
+    mat_lib = load_mat_lib(args.nuc_data)
     # get list of tally objects
     #tally_values = get_tally(args.datafile)
-    # now load material library
-    mat_lib = load_mat_lib(args.nuc_data)
     # check that material tags exist in library # material_list is list of
     # pyne objects in problem
     mat_dens_list = check_matname(tag_values)
