@@ -441,6 +441,7 @@ Function to prepare fluka material names:
 def fluka_material_naming(material, flukamat_list):
     matf = material.metadata['name']
     matf = ''.join(c for c in matf if c.isalnum())
+    L=len(matf)
     if len(matf) > 8:
         matf = matf[0:8]
     else:
@@ -453,17 +454,13 @@ def fluka_material_naming(material, flukamat_list):
                 if (len(matf) == 8):
                     matf = matf.rstrip(matf[-1])
                     matf = matf + str(a)
-                elif (8- len(matf) >= 1):
+                elif (len(matf) < 8):
+                    matf=matf[0:L]
                     matf=matf + str(a)
-                        
-            else:
-                if (len(matf) == len(a)):
-                     matf = matf + str(a)
-                     
-                else:     
-                    for i in range(len(a)):
-                        matf = matf.rstrip(matf[-1])
-                    matf = matf + str(a)
+            else:  #(a > 9)   
+                for i in range(len(a)):
+                    matf = matf.rstrip(matf[-1])
+                matf = matf + str(a)
             if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
                 continue
             else:
