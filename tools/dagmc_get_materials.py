@@ -448,7 +448,7 @@ def fluka_material_naming(material, flukamat_list):
         pass
     # if name is in list, change name by appending number
     if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
-        for a in range(len(flukamat_list)):
+        for a in range(len(flukamat_list)+1):
             a = a + 1
             if (a <= 9):
                 if (len(matf) == 8):
@@ -457,10 +457,19 @@ def fluka_material_naming(material, flukamat_list):
                 elif (len(matf) < 8):
                     matf=matf[0:L]
                     matf=matf + str(a)
-            else:  #(a > 9)   
-                for i in range(len(a)):
-                    matf = matf.rstrip(matf[-1])
-                matf = matf + str(a)
+            elif (a > 9):  
+                if (len(matf) == 8): 
+                    for i in range(len(str(a))):
+                        matf = matf.rstrip(matf[-1])
+                    matf = matf + str(a)
+                elif (len(matf) < 8) and (8-len(matf) >= len(str(a))) :
+                    matf=matf[0:L]
+                    matf=matf + str(a)   
+                elif (len(matf) < 8) and (8-len(matf) < len(str(a))) : 
+                    difference= len(str(a)) - (8-len(matf)) 
+                    for i in range(difference):
+                        matf = matf.rstrip(matf[-1])
+                    matf = matf + str(a)  
             if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
                 continue
             else:
