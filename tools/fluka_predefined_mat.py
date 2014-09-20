@@ -1,4 +1,6 @@
 #!/usr/bin/python
+
+
 """
 List of pre-defined single-element FLUKA materials
 """
@@ -12,10 +14,3 @@ Fluka_predefined_mat=["BERYLLIU","BARIUM","BISMUTH","BROMINE","RHENIUM","RUTHERF
 "233-U","234-U","235-U","238-U"]
 
 
-"""
-def: Fluka_list is a list of predefined Fluka materials (only names)
-"""
-"""
-Fluka_predefined_mat=['BLCKHOLE', 'VACUUM', 'HYDROGEN', 'HELIUM', 'BERYLLIU', 'CARBON', 'NITROGEN', 'OXYGEN', 'MAGNESIU', 'ALUMINUM', 'IRON', 'COPPER', 'SILVER', 'SILICON', 'GOLD', 'MERCURY', 'LEAD', 'TANTALUM', 'SODIUM', 'ARGON', 'CALCIUM', 'TIN', 'TUNGSTEN', 'TITANIUM', 'NICKEL']
-
-"""
