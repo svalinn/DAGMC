@@ -151,7 +151,7 @@ def test_fluka_1():
     # material doesn't exist before in the fluka materials list
     steel = material.Material({60120000: 0.10992222222222224, 60130000: 0.0011888888888888893, 140280000: 0.10247000000000002, 140290000: 0.005205555555555556, 140300000: 0.0034355555555555563, 150310000: 0.11111111111111112, 160320000: 0.10554444444444445, 160330000: 0.0008333333333333334, 160340000: 0.004722222222222223, 160360000: 1.1111111111111113e-05, 220460000: 0.009166666666666668, 220470000: 0.008266666666666669, 220480000: 0.08191111111111112, 220490000: 0.006011111111111112, 220500000: 0.005755555555555556,
                               240500000: 0.004827777777777778, 240520000: 0.09309888888888891, 240530000: 0.010556666666666667, 240540000: 0.002627777777777779, 250550000: 0.11111111111111112, 260540000: 0.006494444444444446, 260560000: 0.10194888888888891, 260570000: 0.0023544444444444455, 260580000: 0.0003133333333333333, 280580000: 0.07564111111111112, 280600000: 0.029136666666666672, 280610000: 0.0012665555555555557, 280620000: 0.004038444444444445, 280640000: 0.0010283333333333336}, 1.0, -7.0, -1.0, {"mat_number": "4", "name": "Steel, Stainless 321"})
-    flukamat_list = ['NITROGEN', 'LEAD']
+    flukamat_list = ['NITROGE1', 'LEAD1']
     mat = gtag.fluka_material_naming(steel, flukamat_list)
     original_name = mat.metadata['name']
     name = mat.metadata['fluka_name']
@@ -163,11 +163,11 @@ def test_fluka_2():
     # material exists in the fluka materials list
     nitrogen = material.Material(
         {70140000: 0.99636, 70150000: 0.00364}, 1.0, 0.001165, -1.0, {"mat_number": "1", "name": "Nitrogen"})
-    flukamat_list = ['NITROGEN', 'LEAD']
+    flukamat_list = ['NITROGE1', 'LEAD1']
     mat = gtag.fluka_material_naming(nitrogen, flukamat_list)
     original_name = mat.metadata['name']
     name = mat.metadata['fluka_name']
-    assert_equal(name, 'NITROGE1')
+    assert_equal(name, 'NITROGE2')
     assert_equal(original_name, 'Nitrogen')
 
 
@@ -175,13 +175,55 @@ def test_fluka_3():
     # material exists twice in the the fluka materials list
     nitrogen = material.Material(
         {70140000: 0.99636, 70150000: 0.00364}, 1.0, 0.001165, -1.0, {"mat_number": "1", "name": "Nitrogen"})
-    flukamat_list = ['NITROGEN', 'LEAD', 'NITROGE1']
+    flukamat_list = ['NITROGE1', 'LEAD1', 'NITROGE2']
     mat = gtag.fluka_material_naming(nitrogen, flukamat_list)
     original_name = mat.metadata['name']
     name = mat.metadata['fluka_name']
-    assert_equal(name, 'NITROGE2')
+    assert_equal(name, 'NITROGE3')
     assert_equal(original_name, 'Nitrogen')
-
+    
+    
+def test_fluka_4():
+    # material exists in the the fluka materials list
+    lead = material.Material({822040000: 0.013999999999999999, 822060000: 0.24100000000000002, 822070000: 0.22100000000000003, 822080000: 0.524}, 1.0, -100.0, -1.0, {"mat_number":"3","name":"Lead"})
+    flukamat_list = ['LEAD1', 'LEAD2']
+    mat = gtag.fluka_material_naming(lead, flukamat_list)
+    original_name = mat.metadata['name']
+    name = mat.metadata['fluka_name']
+    assert_equal(name, 'LEAD3')
+    assert_equal(original_name, 'Lead')    
+    
+def test_fluka_5():
+    # material exists in the the fluka materials list
+    lead = material.Material({822040000: 0.013999999999999999, 822060000: 0.24100000000000002, 822070000: 0.22100000000000003, 822080000: 0.524}, 1.0, -100.0, -1.0, {"mat_number":"3","name":"Lead"})
+    flukamat_list = ['LEAD1', 'LEAD2','LEAD3','LEAD4','LEAD5','LEAD6','LEAD7','LEAD8','LEAD9']
+    mat = gtag.fluka_material_naming(lead, flukamat_list)
+    original_name = mat.metadata['name']
+    name = mat.metadata['fluka_name']
+    assert_equal(name, 'LEAD10')
+    assert_equal(original_name, 'Lead')      
+    
+      
+def test_fluka_6():
+    # material exists in the the fluka materials list
+    bismuth = material.Material({832090000: 1.0}, 1.0, 9.747, -1.0, {"name":"Bismuth"})
+    flukamat_list = ['BISMUTH1', 'BISMUTH2','BISMUTH3','BISMUTH4','BISMUTH5','BISMUTH6','BISMUTH7','BISMUTH8','BISMUTH9']
+    mat = gtag.fluka_material_naming(bismuth, flukamat_list)
+    original_name = mat.metadata['name']
+    name = mat.metadata['fluka_name']
+    assert_equal(name, 'BISMUT10')
+    assert_equal(original_name, 'Bismuth')   
+    
+def test_fluka_7():
+    # material doesn't exist in the the fluka materials list but  it exsits in the predefined fluka materials list
+    bismuth = material.Material({832090000: 1.0}, 1.0, 9.747, -1.0, {"name":"Bismuth"})
+    flukamat_list = []
+    mat = gtag.fluka_material_naming(bismuth, flukamat_list)
+    original_name = mat.metadata['name']
+    name = mat.metadata['fluka_name']
+    assert_equal(name, 'BISMUTH1')
+    assert_equal(original_name, 'Bismuth')      
+    
 
 ''' test print_near_match function'''
 """
