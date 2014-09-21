@@ -1,6 +1,19 @@
 #ifndef DAGMC_MCNP_IFACE_H
 #define DAGMC_MCNP_IFACE_H
 
+#include <map>
+#include <string>
+
+#include "MBInterface.hpp"
+#include "MBCartVect.hpp"
+
+#include <fstream>
+#include <sstream>
+
+#include "../uwuw/uwuw.hpp"
+#include "pyne/pyne.h"
+#include <unistd.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,8 +49,10 @@ extern "C" {
 /* write facet file after initialization and OBBTree generation */
   void dagmcwritefacets_(char *ffile, int *flen);
 
-/* parse metadata and write applications specific data for: MCNP5 */
-  void dagmcwritemcnp_(char *lfile, int *llen);
+/* parse metadata and write applications specific data for: MCNP5 
+ * includes the UWUW step 
+ */
+  void dagmcwritemcnp_(char *dagmc_file, char *lfile, int *llen);
 
 /* Get normal of surface with id *jsu at location (*xxx,*yyy,*zzz) and store
    in three doubles at ang (an arry of length 3) */
@@ -120,6 +135,31 @@ extern "C" {
 
   void dagmc_init_settings_(int* use_dist_limit, int* use_cad,     
                             double* overlap_thickness, double* facet_tol, int* srccell_mode );
+
+
+  void write_lcad_old(std::ofstream &lcadfile);
+
+  void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data);
+
+  /*
+   * load the pyne materials from the dag file
+   * Not to be called by fortran
+   */
+  std::map<std::string, pyne::Material> load_pyne_materials(std::string filename);
+
+  /*
+   * load the pyne tallies from the dag file
+   * Not to be called by fortran
+   */
+  std::map<std::string, pyne::Tally> load_pyne_tallies(std::string filename);
+
+
+  /*
+   * get all properties by dimension
+   */
+std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, int dimension,
+									    std::string delimiters);
+ 
 
 #ifdef __cplusplus
 } // extern "C"

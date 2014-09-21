@@ -4,8 +4,8 @@
 #
 #####################################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT (DAGMC)
+CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
+PROJECT ( DAGMC )
 SET ( DAGMC_VERSION_MAJOR 1 )
 SET ( DAGMC_VERSION_MINOR 0 )
 
@@ -23,6 +23,13 @@ MESSAGE ( STATUS "Found MOAB Version: " ${MOAB_VERSION} )
   MESSAGE ( STATUS "MOAB_INCLUDE_DIR is " ${MOAB_INCLUDE_DIR})
 INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 
+SET ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} /data/opt/pyne_dev/cmake)
+
+FIND_PACKAGE ( Pyne REQUIRED )
+LINK_DIRECTORIES(${PYNE_LIBS_DIR})
+INCLUDE_DIRECTORIES(${PYNE_INCLUDE_DIR})
+
+INCLUDE_DIRECTORIES(${HDF5_DIR}/include)
 ###################################
 #
 # SETUP GTEST DEPENDENCY
@@ -31,8 +38,8 @@ INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 ###################################
 
 SET ( GTEST_INC_DIR "" )
-ADD_SUBDIRECTORY(gtest EXCLUDE_FROM_ALL)
-INCLUDE_DIRECTORIES(${GTEST_INC_DIR})
+ADD_SUBDIRECTORY( gtest EXCLUDE_FROM_ALL )
+INCLUDE_DIRECTORIES( ${GTEST_INC_DIR} )
 
 
 ###################################
@@ -41,9 +48,23 @@ INCLUDE_DIRECTORIES(${GTEST_INC_DIR})
 #
 ###################################
 
-set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
-set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
-set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
+SET( INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries" )
+SET( INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header" )
+SET( INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables" )
+
+
+
+###################################
+#
+# DAGMC TALLY LIBRARY
+#
+###################################
+
+IF ( BUILD_TALLY )
+  ADD_SUBDIRECTORY( tally )
+ELSEIF( BUILD_TALLY )
+  MESSAGE ( STATUS "Not building tagtally interface library")
+ENDIF ( BUILD_TALLY )
 
 ###################################
 #
@@ -55,18 +76,16 @@ set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executabl
 # MCNP5
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_MCNP5 OR BUILD_ALL )
-  ADD_SUBDIRECTORY(mcnp5)
+  ADD_SUBDIRECTORY( uwuw )
+  ADD_SUBDIRECTORY( mcnp5 )
+  ADD_SUBDIRECTORY( tally )
 ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
-  #Find the Pyne installation
-  find_package(Pyne REQUIRED)
-  link_directories(${PYNE_LIBS_DIR})
-  include_directories(${PYNE_INCLUDE_DIR})
-  INCLUDE_DIRECTORIES(${HDF5_HOME}/include)
+  ADD_SUBDIRECTORY( uwuw )
   ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
@@ -74,11 +93,10 @@ ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 # GEANT4
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IF ( BUILD_GEANT OR BUILD_ALL )
-  INCLUDE(geant4/CMakeLists.txt)
-  INSTALL( TARGETS             dagsolid 
-           LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
-ENDIF ( BUILD_GEANT OR BUILD_ALL )
+IF ( BUILD_GEANT4 OR BUILD_ALL )
+  ADD_SUBDIRECTORY( uwuw )
+  ADD_SUBDIRECTORY(geant4)
+ENDIF ( BUILD_GEANT4 OR BUILD_ALL )
 
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -108,16 +126,6 @@ ELSE ( DI_SRC_FILES )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
 ENDIF ( DI_SRC_FILES )
          
-
-###################################
-#
-# DAGMC TALLY LIBRARY
-#
-###################################
-
-IF ( BUILD_TALLY )
-  ADD_SUBDIRECTORY(tally)
-ENDIF ( BUILD_TALLY )
 
 
 
