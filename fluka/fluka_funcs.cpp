@@ -798,9 +798,12 @@ void fludag_write(std::string matfile, std::string lfname)
      return;
   }
 
+  // get the pyne materials and tallies
+  UWUW workflow_data = UWUW(matfile);
+
   std::list<pyne::Material> pyne_list;
   std::map<std::string, pyne::Material> pyne_map;
-  pyne_get_materials(matfile, pyne_list, pyne_map);
+  pyne_map = workflow_data.material_library;
 
   ////////////////////////////////////////////////////////////////////////
   // ASSIGNMAt Cards
@@ -809,13 +812,10 @@ void fludag_write(std::string matfile, std::string lfname)
 
   ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
-  // pyne::NUC_DATA_PATH = "/userspace/z/zachman/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
-  char *pPath;
-  pPath = getenv ("PYTHONPATH");
-  pyne::NUC_DATA_PATH = std::string(pPath) + "/pyne/nuc_data.h5";
+  pyne::NUC_DATA_PATH = workflow_data.full_filepath;
 
   std::ostringstream mstr;
-  fludag_all_materials(mstr, pyne_list);
+  fludag_all_materials(mstr, pyne_map);
 
   ////////////////////////////////////////////////////////////////////////
   // Write all the streams to the input file
@@ -828,19 +828,8 @@ void fludag_write(std::string matfile, std::string lfname)
   lcadfile << mstr.str();
   lcadfile.close();
 
-//   std::cout << "Writing lcad file = " << lfname << std::endl; 
-// Before opening file for writing, check for an existing file;867
-
-/*
-  if( lfname != "lcad" ){
-    // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"
-    if( access( lfname.c_str(), R_OK ) == 0 ){
-      std::cout << "DagMC: reading from existing lcad file " << lfname << std::endl;
-      return; 
-    }
-  }
-*/
 }
+
 //---------------------------------------------------------------------------//
 // fludag_setup()
 //---------------------------------------------------------------------------//
@@ -1000,7 +989,7 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 // fludag_all_materials
 //---------------------------------------------------------------------------//
 // Get material cards for all materials in the problem, both elemental and compounds
-void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> pyne_list)
+void fludag_all_materials(std::ostringstream& mstr, std::map<std::string,pyne::Material> pyne_map)
 {
   std::set<int> exception_set = make_exception_set();
 
@@ -1009,10 +998,10 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
   pyne::Material unique = pyne::Material();
 
   // loop over all materials, summing
-  std::list<pyne::Material>::iterator nuc;
-  for ( nuc = pyne_list.begin(); nuc != pyne_list.end(); ++nuc)
+  std::map<std::string, pyne::Material>::iterator nuc;
+  for ( nuc = pyne_map.begin(); nuc != pyne_map.end(); ++nuc)
   {
-    unique = unique + *nuc;
+    unique = unique + (nuc->second);
   }
   // now collapse elements
   unique = unique.collapse_elements(exception_set);
@@ -1041,9 +1030,9 @@ void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> py
 
   // now write out material card & compound card for each compound
   std::string compound_string;
-  for ( nuc = pyne_list.begin() ; nuc != pyne_list.end(); ++nuc)
+  for ( nuc = pyne_map.begin() ; nuc != pyne_map.end(); ++nuc)
   {
-    pyne::Material compound = nuc->collapse_elements(exception_set);
+    pyne::Material compound = (nuc->second).collapse_elements(exception_set);
     compound_string = compound.fluka(i);
     if ( compound_string.length() != 0 )
       {
