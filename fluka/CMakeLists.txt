@@ -20,26 +20,21 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/${CODE_SRCDIR} )
 ENABLE_LANGUAGE( Fortran )
 
 SET(FLUDAG_LIBS
-     ${MOAB_LIBRARIES} 
      ${FLUKA_DIR}/libflukahp.a 
      dagmciface
      gfortran
-     ${HDF5_HOME}/lib/libhdf5.so
+     ${HDF5_DIR}/lib/libhdf5.so
      ${PYNE_LIBS_DIR}/libpyne.so
      gfortran
+     ${MOAB_LIBRARIES} 
 )
 # If making mainfludag, define FLUPRO)
 # add_custom_command (TARGET mainfludag
 # PRE_BUILD COMMAND 
-IF (NOT DEFINED FLUPRO) 
-   set (FLUPRO "$ENV{FLUPRO}")
-ENDIF (NOT DEFINED FLUPRO)
-	   # 	COMMENT "Setting $FLUPRO"
-	   # )
-ADD_EXECUTABLE ( mainfludag EXCLUDE_FROM_ALL mainFluDAG.cpp )
+
+ADD_EXECUTABLE ( mainfludag mainFluDAG.cpp )
 TARGET_LINK_LIBRARIES ( mainfludag 
-	${FLUDAG_LIBS}  
-	${FLUPRO}/libflukahp.a )
+	${FLUDAG_LIBS}  )
 
 ADD_SUBDIRECTORY(tests)
 
