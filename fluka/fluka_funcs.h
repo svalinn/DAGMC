@@ -13,6 +13,7 @@
 #include "MBCartVect.hpp"
 #include "DagMC.hpp"
 #include "pyne/pyne.h"
+#include "../uwuw/uwuw.hpp"
 
 
 /// Called from mainFludag when only one argument is given to the program.
@@ -56,7 +57,7 @@ void fludagwrite_assignma(std::ostringstream& ostr, int num_vols,
 /*
  * Write material cards
  */
-void fludag_all_materials(std::ostringstream& mstr, std::list<pyne::Material> pyne_list);
+void fludag_all_materials(std::ostringstream& mstr, std::map<std::string, pyne::Material> pyne_list);
 bool add_material_record(std::ostringstream& ostr, pyne::Material elemat, int& id);
 /*
  * Write compound cards
