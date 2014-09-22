@@ -198,7 +198,7 @@ int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3]);
 std::string mat_property_string (int index, std::vector<std::string> &properties);
 
 // Defined in fluka_funcs, called by rg2nwr
-void region2name(int volindex, char * vname );
+void region2name(int volindex, std::string &vname );
 
 
 /**

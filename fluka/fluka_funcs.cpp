@@ -50,10 +50,10 @@ using moab::DagMC;
 static std::ostream* raystat_dump = NULL;
 
 #endif 
-#define DEBUG 1
+
 #define ID_START 25
 
-bool debug = false; 
+bool debug = true; 
 
 std::set<int> make_exception_set()
 {
@@ -92,7 +92,6 @@ std::set<int> make_exception_set()
     nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I")));
 
     // Print out results
-    debug = 1;
     if (debug)
     {
        std::cout << "Nucids of FLUKA exceptions" << std::endl;
@@ -244,13 +243,6 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   double next_surf_dist;
   MBEntityHandle newvol = 0;
 
-
-  /*
-  if(!check_vol(point,dir,oldRegion))
-    {
-      history.reset();
-    }
-  */
   // direction changed reset history
   if( dir[0] == old_direction[0] && dir[1] == old_direction[1] && dir[2] == old_direction[2] ) 
     {   
@@ -259,10 +251,6 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
     {
       history.reset();
     }
-
-
-
-  // 
    
   oldRegion = DAG->index_by_handle(vol); // convert oldRegion int into MBHandle to the volume
   if(on_boundary)
@@ -648,12 +636,12 @@ int f_idnr(const int & nreg, const int & mlat)
 ///////////////////////////////////////////////////////////////////
 void rg2nwr(const int& mreg, const char* Vname)
 {
-  std::cerr << "============= RG2NWR ==============" << std::endl;    
-  std::cerr << "mreg=" << mreg << std::endl;
-  char * vvname;
+  std::cout << "============= RG2NWR ==============" << std::endl;    
+  std::cout << "mreg=" << mreg << std::endl;
+  std::string vvname;
   region2name(mreg, vvname);
-  Vname = vvname;
-  std::cerr << "reg2nmwr: Vname " << Vname<< std::endl;  
+  Vname = vvname.c_str();
+  std::cout << "reg2nmwr: Vname " << Vname<< std::endl;  
   return;
 }
 
@@ -670,8 +658,8 @@ void rg2nwr(const int& mreg, const char* Vname)
 void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg,
             int* indMother, int* repMother, int& depthFluka)
 {
-  std::cerr << "============= RGRPWR ==============" << std::endl;    
-  std::cerr << "ptrLttc=" << ptrLttc << std::endl;
+  std::cout << "============= RGRPWR ==============" << std::endl;    
+  std::cout << "ptrLttc=" << ptrLttc << std::endl;
   return;
 }
 
@@ -686,7 +674,7 @@ void fldwr(const double& pX, const double& pY, const double& pZ,
             double& Bmag, int& reg, int& idiscflag)
 
 {
-  std::cerr<<"================== MAGFLD ================="<<std::endl;
+  std::cout<<"================== MAGFLD ================="<<std::endl;
   return;
 }
 
@@ -697,7 +685,7 @@ void fldwr(const double& pX, const double& pY, const double& pZ,
 //////////////////////////////////////////////////////////////////
 void flgfwr ( int& flkflg )
 {
-  std::cerr << "=======FLGFWR =======" << std::endl;
+  std::cout << "=======FLGFWR =======" << std::endl;
   return;
 }
 
@@ -711,7 +699,7 @@ void lkfxwr(double& pSx, double& pSy, double& pSz,
             double* pV, const int& oldReg, const int& oldLttc,
 	    int& newReg, int& flagErr, int& newLttc)
 {
-  std::cerr << "======= LKFXWR =======" << std::endl;
+  std::cout << "======= LKFXWR =======" << std::endl;
 
   return;
 }
@@ -937,32 +925,13 @@ void fludag_all_materials(std::ostringstream& mstr, std::map<std::string,pyne::M
   }
 }
 
-
-// region2name - modified from dagmcwrite
-void region2name(int volindex, char *vname )  // file with cell/surface cards
+// region2name 
+void region2name(int volindex, std::string &vname )  // file with cell/surface cards
 {
-  MBErrorCode rval;
-
-  std::vector< std::string > fluka_keywords;
-  fluka_keywords.push_back( "mat" );
-  fluka_keywords.push_back( "rho" );
-  fluka_keywords.push_back( "comp" );
-  fluka_keywords.push_back( "graveyard" );
-
-  // parse data from geometry
-  rval = DAG->parse_properties (fluka_keywords, no_synonyms, delimiters);
-  if (MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  int cmat = 0;
-  double crho;
-
-  MBEntityHandle vol = DAG->entity_by_index( 3, volindex );
-  int cellid = DAG->id_by_index( 3, volindex);
-
-  vname = "";
+  std::stringstream ss;
+  ss << volindex;
+  ss << ".";
+  vname = ss.str();
 }
 
 // get all property in all volumes
@@ -987,7 +956,7 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
   MBErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
 
   if (MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
+    std::cout << "DAGMC failed to parse metadata properties" <<  std::endl;
     exit(EXIT_FAILURE);
   }
 
