@@ -720,79 +720,12 @@ void lkfxwr(double& pSx, double& pSy, double& pSz,
 /******                                End of FLUKA stubs                                  ********/
 /**************************************************************************************************/
 
-/**
- * Helper function for parsing DagMC properties that are integers.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_int_prop( MBEntityHandle vol, int cell_id, const std::string& property, int& result ){
-
-  MBErrorCode rval;
-  if( DAG->has_prop( vol, property ) ){
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( MB_SUCCESS != rval ){ 
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtol( valst, &valend, 10 );
-    if( valend[0] != '\0' ){
-      // strtol did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
-  }
-  else return false;
-
-}
-
-/**
- * Helper function for parsing DagMC properties that are doubles.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& property, double& result ){
-
-  MBErrorCode rval;
-  if( DAG->has_prop( vol, property ) ){
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( MB_SUCCESS != rval ){ 
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtod( valst, &valend );
-    if( valend[0] != '\0' ){
-      // strtod did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
-  }
-  else return false;
-
-}
-
-//---------------------------------------------------------------------------//
 // FluDAG Material Card  Functions
-//---------------------------------------------------------------------------//
-// 
-//---------------------------------------------------------------------------//
 void fludag_write(std::string matfile, std::string lfname)
 {
   // Use DAG to read and count the volumes.  
   std::map<int, std::string> map_name;
-  int num_vols = fludag_setup(map_name);
-  if (0 == num_vols)
+  if (0 == DAG->num_entities(3) )
   {
      std::cout << "Error: there are no volumes in this geometry!" << std::endl;
      return;
@@ -805,185 +738,146 @@ void fludag_write(std::string matfile, std::string lfname)
   std::map<std::string, pyne::Material> pyne_map;
   pyne_map = workflow_data.material_library;
 
-  ////////////////////////////////////////////////////////////////////////
-  // ASSIGNMAt Cards
+  // ASSIGNMA Cards
   std::ostringstream astr;
-  fludagwrite_assignma(astr, num_vols, pyne_map, map_name);
+  fludagwrite_assignma(astr, pyne_map, map_name);
 
-  ////////////////////////////////////////////////////////////////////////
   // MATERIAL Cards
-  pyne::NUC_DATA_PATH = workflow_data.full_filepath;
+  pyne::NUC_DATA_PATH = workflow_data.full_filepath; // for atomic data
 
+  // write COMPOUND CARDS
   std::ostringstream mstr;
   fludag_all_materials(mstr, pyne_map);
 
-  ////////////////////////////////////////////////////////////////////////
   // Write all the streams to the input file
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   std::ofstream lcadfile (lfname.c_str());
   lcadfile << header << std::endl;
   lcadfile << astr.str();
   lcadfile << header << std::endl;
-  // ToDo:  Introduce the MATERIAL cards with a comment
   lcadfile << mstr.str();
+
+  lcadfile << header << std::endl;
+  lcadfile << "* UW**2 tallies" << std::endl;
+  mstr.str("");
+  fludag_all_tallies(mstr,workflow_data.tally_library);
+  lcadfile << mstr.str();
+
+  // all done
   lcadfile.close();
-
-}
-
-//---------------------------------------------------------------------------//
-// fludag_setup()
-//---------------------------------------------------------------------------//
-// Get the number of volumes (for the implicit complement card)) and parse the properties 
-//     This function has optional components useful for debugging.
-//     This function uses DAG calls to read the geometry.
-//     This function does not use PyNE
-// 1.  Create a vol_id-pyne_name map for later matching with the correct 
-//     pyne material object
-//     a.  The connection needs to be made in order to get the fluka_name,
-//         which is stored in the pyne material object
-//     b.  The fluka_name/vol_id connection is needed only for the ASSIGNMAt card
-// 2.  Optionally write out an "index_id.txt" file showing the vol_id,
-//     which DAG considers the ordinal volume index, and its matching
-//     entity id (int) which is some internally stored int attached to the
-//     MOAB entity that is NOT ordinal.  It is not used elsewhere in fludag.
-// 3.  Optionaly look at the entire property string
-int fludag_setup(std::map<int, std::string>& map_vol_libname)
-{
-  int num_vols = DAG->num_entities(3);
-  MBErrorCode ret;
-  ////////////////////////////////////
-  // Entity_id_map setup:  Optional
-  // Open an output string for index-id table and put a header in it
-  bool write_index_id_map = true;
-  std::ostringstream idstr;
-  if (write_index_id_map)
-  {
-     idstr << std::setw(5) <<  "Index" ;
-     idstr << std::setw(5) <<  "   Id" << std::endl;
-  }
-
-  // Leave empty
-  std::vector< std::string > keywords;
-  ret = DAG->detect_available_props( keywords, delimiters );
-  // parse data from geometry so that property can be found
-  ret = DAG->parse_properties( keywords, no_synonyms, delimiters );
-  if (MB_SUCCESS != ret) 
-  {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-  // Preprocessing loop:  make a string, "props",  for each vol entity
-  std::cout << std::endl;
-  std::cout << "Mat Property and All Property name list: " << std::endl;
-  std::cout << "Vol   mat name -- Complete group name" << std::endl;
-  for (unsigned int vol_i=1; vol_i<=num_vols; vol_i++)
-  {
-      // Get mat and rho properties and compose MaterialLibrary "name" from them
-      std::string matlibname = makeMaterialName(vol_i);
-      std::cout << vol_i << ".    " << matlibname << std::endl;
-      if (0 < matlibname.length())
-      {
-         map_vol_libname[vol_i] = matlibname;
-      }
-     
-      ///////////////////////////////////////////
-      // make the index_id map. Optional
-      if (write_index_id_map)
-      {
-         int id = DAG->id_by_index(3, vol_i);
-         idstr << std::setw(5) << std::right << vol_i;
-         idstr << std::setw(5) << std::right << id << std::endl;
-      }
-  }   // end loop over vol_i = 1:num_vols
-  ///////////////////////////////////////////
-  // Finalize index_id_map. Optional
-  if (write_index_id_map)
-  {
-     std::string index_id_filename = "index_id.txt";
-     std::ofstream index_id(index_id_filename.c_str());
-     index_id << idstr.str();
-     index_id.close();
-  }
-
-  return num_vols;
-} // end fludag_setup()
-
-//---------------------------------------------------------------------------//
-// pyne_get_materials
-//---------------------------------------------------------------------------//
-// Return the set of all PyNE material objects in the current geometry
-// This function mimics what MaterialLibary.from_hdf5(..) might return
-void pyne_get_materials(std::string mat_file, 
-                        std::list<pyne::Material> &pyne_list,
-			std::map<std::string, pyne::Material> &pyne_map)
-{
-  pyne::Material mat;
-
-  int i = 0;
-  while(true)
-  {
-     mat = pyne::Material();
-     mat.from_hdf5(mat_file, "/materials", i++, 1);
-     
-     if (0 >= mat.metadata["fluka_name"].asString().length())
-     {
-        break; 
-     }
-     // ASSIGNMAt card: Allows for quick access to the PyNE embedded longname
-     std::string longname = mat.metadata["name"].asString();
-     pyne_map[longname]=mat;
-     // For COMPOUND card:  leave in for now, could be useful
-     pyne_list.push_back(mat);
-  }
 }
 
 //---------------------------------------------------------------------------//
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
-void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
+void fludagwrite_assignma(std::ostringstream& ostr, 
                           std::map<std::string, pyne::Material> pyne_map,    
 			  std::map<int, std::string> map_name)         
 {
-  for (unsigned int vol_i = 1 ; vol_i < num_vols ; vol_i++)
+  // get the material and density props
+  std::map<MBEntityHandle,std::vector<std::string> > material_assignments = get_property_assignments("mat",3,":/");
+  std::map<MBEntityHandle,std::vector<std::string> > density_assignments = get_property_assignments("rho",3,":/");
+
+  pyne::Material material;
+
+  std::vector<std::string> material_props,density_props;
+
+  // loop over all volumes
+  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++)
   {
-      std::string fluka_name;
-      if (0 == map_name.count(vol_i))
+    int cellid = DAG->id_by_index( 3, vol_i );
+    MBEntityHandle entity = DAG->entity_by_index( 3, vol_i );
+
+    material_props = material_assignments[entity];
+    density_props = density_assignments[entity];
+    
+    if( material_props.size() > 1 ) {
+      std::cout << "more than one material for volume with id " << cellid << std::endl;
+      std::cout << cellid << " has the following material assignments" << std::endl;
+      for ( int j = 0 ; j < material_props.size() ; j++ ) {
+	std::cout << material_props[j] << std::endl;
+      }
+      std::cout << "Please check your material assignments " << cellid << std::endl;
+      exit(EXIT_FAILURE);
+    }
+    if(density_props.size() > 1) {
+      std::cout << "More than one density specified for " << cellid <<std::endl;
+      std::cout << cellid << " has the following density assignments" << std::endl;
+      for ( int j = 0 ; j < density_props.size() ; j++ ) {
+	std::cout << density_props[j] << std::endl;
+      }
+      std::cout << "Please check your density assignments " << cellid << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
+    std::string grp_name = "";
+    if (!density_props[0].empty())
+      grp_name = "mat:"+material_props[0]+"/rho:"+density_props[0];
+    else
+      grp_name = "mat:"+material_props[0];
+
+
+    std::string fluka_name = "";
+
+    // not graveyard or vacuum or implicit compliment
+    if (grp_name.find("Graveyard") == std::string::npos && grp_name.find("Vacuum") == std::string::npos 
+	&& !(DAG->is_implicit_complement(entity)) ) 
+      {
+	material = pyne_map[grp_name];
+	fluka_name = material.metadata["fluka_name"].asString();
+      }
+    // found graveyard
+    else if (grp_name.find("Graveyard") != std::string::npos || 
+	     grp_name.find("graveyard") != std::string::npos )  
+      {
+	fluka_name = "BLCKHOLE";
+      }
+    // vacuum
+    else if (grp_name.find("Vacuum") != std::string::npos)  
       {
 	 fluka_name = "VACUUM";
       }
-      else if ("Graveyard" == map_name[vol_i] || "graveyard" == map_name[vol_i])
+    else if (  DAG->is_implicit_complement(entity) )
       {
-         fluka_name = "BLCKHOLE";
+	 fluka_name = "VACUUM";
       }
-      else
-      {
-	 // Makes DAG calls:  depends on properties having been parsed 
-         std::string prop_longname = makeMaterialName(vol_i);
-         std::cout << "vol_i, prop_longname:  " << vol_i << ", " << prop_longname << std::endl;
 
-         pyne::Material mat;
-	 if (0 < pyne_map.count(prop_longname) )
-	 {
-            mat = pyne_map[prop_longname];
-	 }
-         fluka_name = mat.metadata["fluka_name"].asString();	
-      }
-      // The fluka name has been found, create the card
-      ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-      ostr << std::setw(10) << std::right << fluka_name;
-      ostr << std::setprecision(0) << std::fixed << std::showpoint 
-           << std::setw(10) << std::right << (float)vol_i << std::endl;
+    // The fluka name has been found, create the card
+    ostr << std::setw(10) << std::left  << "ASSIGNMA ";
+    ostr << std::setw(10) << std::right << fluka_name;
+    ostr << std::setprecision(0) << std::fixed << std::showpoint 
+	 << std::setw(10) << std::right << (float)vol_i << std::endl;
+
   }   // End loop through vol_i
   std::cout << std::endl;
-  // Finish the ostr with the implicit complement card for the last volume
-  std::string implicit_comp_comment = "* The next volume is the implicit complement";
-  ostr << implicit_comp_comment << std::endl;
-  ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-  ostr << std::setw(10) << std::right << "VACUUM";
-  ostr << std::setprecision(0) << std::fixed << std::showpoint 
-       << std::setw(10) << std::right << (float)num_vols << std::endl;
+
 }  // end fludagwrite_assignma
+
+
+// Get tally cards for all tallies in the problem
+void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tally> tally_map)
+{
+  std::map<std::string,pyne::Tally>::iterator it;
+
+  for ( it = tally_map.begin() ; it != tally_map.end() ; ++it ) {
+    pyne::Tally tally = (it->second);
+    // pyne tallies are by id, FluDAG is by index, need to convert
+    MBEntityHandle vol_eh = DAG->entity_by_id(3,tally.entity_id);
+    // volume index
+    int vol_idx = DAG->index_by_handle(vol_eh);
+    // recast tally to index, use entity_name for setting volume
+
+    std::stringstream ss;
+    ss << vol_idx;
+    ss << ".";
+    tally.entity_name = ss.str();
+
+    mstr << tally.fluka("-21") << std::endl;
+  }
+  
+  return;
+}
 
 //---------------------------------------------------------------------------//
 // fludag_all_materials
@@ -1043,160 +937,8 @@ void fludag_all_materials(std::ostringstream& mstr, std::map<std::string,pyne::M
   }
 }
 
-//---------------------------------------------------------------------------//
-// print_material
-//---------------------------------------------------------------------------//
-// Convenience function
-void print_material( pyne::Material material, std::string xtraTitle) 
-{
-  pyne::comp_iter it;
-  std::string fluka_name = material.metadata["fluka_name"].asString();
 
-  std::cout << std::endl;
-  std::cout << "***************  " << fluka_name << "  " << xtraTitle 
-            << "  *******************" << std::endl;
-  std::cout << "density = " << material.density << std::endl;
-  std::cout << "mass = " << material.mass << std::endl;
-  std::cout << "atoms_per_molecule = " << material.atoms_per_molecule << std::endl;
-  std::cout << " -- Component List, #components is " << material.comp.size() << " --" << std::endl;
-  for ( it = material.comp.begin() ; it != material.comp.end() ; ++it ) {
-    if(it->second <= 0.0)
-      continue;
-    else
-      std::cout << it->first << " " << it->second << std::endl;
-  }
-  std::cout << "Metadata:" << std::endl;
-  std::cout << material.metadata << std::endl;
-}
-
-//---------------------------------------------------------------------------//
-// makeMaterialName
-//---------------------------------------------------------------------------//
-// Return the constructed PyNE material object "name" from the property names
-// See obb_analysis.cpp for inspiration
-std::string makeMaterialName (int index)
-{
-  MBErrorCode ret;
-  std::string matlibname;
-  MBEntityHandle entity = DAG->entity_by_index(3,index);
-
-  // Placeholder for getting all "mat" and all "rho" properties
-  std::vector<std::string> vals;
-  std::string matProp = "mat";
-  bool isGraveyard = false;
-  if ( DAG->has_prop(entity, matProp) )
-  {
-     ret = DAG->prop_values(entity, matProp, vals);
-     if (ret != MB_SUCCESS )
-     {
-        std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-        std::exit( EXIT_FAILURE );
-     }
-     matlibname += matProp;
-     if (vals.size() == 1)
-     {
-	// The graveyard
-        if (vals[0] == "Graveyard" || vals[0] == "graveyard")
-        {
-           // return vals[0];
-	   matlibname = vals[0];
-	   isGraveyard = true;
-        }
-	else
-	{
-           matlibname += ":";
-           matlibname += vals[0];
- 	   matlibname += "/";
-	}
-     }
-     else if (vals.size() > 1)
-     {
-        std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-        std::cerr << "Error:  There is more than one mat property." << std::endl;
-        std::exit( EXIT_FAILURE );
-     }
-  }
-  std::string rhoProp = "rho";
-  if (!isGraveyard && DAG->has_prop(entity, rhoProp))
-  {
-     vals.clear();
-     ret = DAG->prop_values(entity, rhoProp, vals);
-     if (ret != MB_SUCCESS )
-     {
-         std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-         std::exit( EXIT_FAILURE );
-     }
-     matlibname += rhoProp;
-     if (vals.size() == 1)
-     {
-        matlibname += ":";
-        matlibname += vals[0];
-     }
-     else if (vals.size() > 1)
-     {
-        std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-        std::cerr << "Error:  There is more than one mat property." << std::endl;
-        std::exit( EXIT_FAILURE );
-     }
-  }
-  return matlibname;
-}
-//---------------------------------------------------------------------------//
-// make_property_string
-//---------------------------------------------------------------------------//
-// For a given volume, find all properties associated with it, and any and all 
-//     values associated with each property
-// Copied and modified from obb_analysis.cpp
-// Not called;  left in for historical reasons
-static std::string make_property_string (MBEntityHandle eh, std::vector<std::string> &properties)
-{
-  MBErrorCode ret;
-  std::string propstring;
-  for (std::vector<std::string>::iterator p = properties.begin(); p != properties.end(); ++p)
-  {
-     if ( DAG->has_prop(eh, *p) )
-     {
-        std::vector<std::string> vals;
-        ret = DAG->prop_values(eh, *p, vals);
-        if( ret != MB_SUCCESS )
-        {
-            std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-            std::exit( EXIT_FAILURE );
-        }
-        propstring += *p;
-        if (vals.size() == 1)
-        {
- 	   propstring += "=";
-           propstring += vals[0];
-        }
-        else if (vals.size() > 1)
-        {
- 	   // this property has multiple values; list within brackets
-           propstring += "=[";
-	   for (std::vector<std::string>::iterator i = vals.begin(); i != vals.end(); ++i)
-           {
-	       propstring += *i;
-               propstring += ",";
-           }
-           // replace the last trailing comma with a close bracket
-           propstring[ propstring.length() -1 ] = ']';
-        }
-        propstring += ", ";
-     }
-  }
-  if (propstring.length())
-  {
-     propstring.resize( propstring.length() - 2); // drop trailing comma
-  }
-  return propstring;
-}
-
-//////////////////////////////////////////////////////////////////////////
-/////////////
-/////////////		region2name - modified from dagmcwrite
-/////////////
-//                      Called in WrapReg2Name
-//////////////////////////////////////////////////////////////////////////
+// region2name - modified from dagmcwrite
 void region2name(int volindex, char *vname )  // file with cell/surface cards
 {
   MBErrorCode rval;
@@ -1220,49 +962,62 @@ void region2name(int volindex, char *vname )  // file with cell/surface cards
   MBEntityHandle vol = DAG->entity_by_index( 3, volindex );
   int cellid = DAG->id_by_index( 3, volindex);
 
-  bool graveyard = DAG->has_prop( vol, "graveyard" );
-
-  std::ostringstream istr;
-  if( graveyard )
-  {
-     istr << "BLCKHOLE";
-     if( DAG->has_prop(vol, "comp") )
-     {
-       // material for the implicit complement has been specified.
-       get_int_prop( vol, cellid, "mat", cmat );
-       get_real_prop( vol, cellid, "rho", crho );
-       std::cout 
-            << "Detected material and density specified for implicit complement: " 
-	    << cmat <<", " << crho << std::endl;
-     }
-   }
-   else if( DAG->is_implicit_complement(vol) )
-   {
-      istr << "mat_" << cmat;
-      if( cmat != 0 ) istr << "_rho_" << crho;
-   }
-   else
-   {
-      int mat = 0;
-      get_int_prop( vol, cellid, "mat", mat );
-
-      if( mat == 0 )
-      {
-        istr << "0";
-      }
-      else
-      {
-        double rho = 1.0;
-        get_real_prop( vol, cellid, "rho", rho );
-        istr << "mat_" << mat << "_rho_" << rho;
-      }
-   }
-   char *cstr = new char[istr.str().length()+1];
-   std:strcpy(cstr,istr.str().c_str());
-   vname = cstr;
+  vname = "";
 }
-// Not Called
-void dagmc_version_(double* dagmcVersion)
+
+// get all property in all volumes
+std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
+									    int dimension, std::string delimiters)
 {
-  *dagmcVersion = DAG->version();
+
+  std::map<MBEntityHandle,std::vector<std::string> > prop_map;
+
+  std::vector< std::string > mcnp5_keywords;
+  std::map< std::string, std::string > mcnp5_keyword_synonyms;
+
+  // populate keywords
+  mcnp5_keywords.push_back( "mat" );
+  mcnp5_keywords.push_back( "rho" );
+  mcnp5_keywords.push_back( "tally" );
+
+  // get initial sizes
+  int num_entities = DAG->num_entities( dimension );
+
+  // parse data from geometry
+  MBErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
+
+  if (MB_SUCCESS != rval) {
+    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+
+  // loop over all cells
+  for( int i = 1; i <= num_entities; ++i ) {
+    // get cellid
+    MBEntityHandle entity = DAG->entity_by_index( dimension, i );
+
+    std::vector<std::string> properties;
+    std::vector<std::string> tmp_properties;
+
+
+    // get the group contents
+    if( DAG->has_prop( entity, property ) )
+      {
+	rval = DAG->prop_values(entity,property,tmp_properties);
+	properties.push_back(tmp_properties[0]);
+      }
+    else
+      properties.push_back("");
+
+    prop_map[entity]=properties;
+
+    std::cout << property << std::endl;
+    for ( int j = 0 ; j < properties.size() ; j++ )
+    {
+      std::cout << properties[j];
+    }
+  }
+
+  return prop_map;
 }
