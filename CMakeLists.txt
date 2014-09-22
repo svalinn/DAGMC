@@ -76,7 +76,6 @@ ENDIF ( BUILD_TALLY )
 # MCNP5
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_MCNP5 OR BUILD_ALL )
-  ADD_SUBDIRECTORY( uwuw )
   ADD_SUBDIRECTORY( mcnp5 )
   ADD_SUBDIRECTORY( tally )
 ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
@@ -85,7 +84,6 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 # FLUKA
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
-  ADD_SUBDIRECTORY( uwuw )
   ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
@@ -94,7 +92,6 @@ ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF ( BUILD_GEANT4 OR BUILD_ALL )
-  ADD_SUBDIRECTORY( uwuw )
   ADD_SUBDIRECTORY(geant4)
 ENDIF ( BUILD_GEANT4 OR BUILD_ALL )
 
@@ -106,6 +103,7 @@ ENDIF ( BUILD_GEANT4 OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF ( DI_SRC_FILES )
+  ADD_SUBDIRECTORY( uwuw )
   ADD_SUBDIRECTORY(common)
   IF ( STATIC_LIB )
    ADD_LIBRARY(dagmciface STATIC ${DI_SRC_FILES} )
