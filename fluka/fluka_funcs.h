@@ -35,12 +35,6 @@
 //  Overall function call; calls other fludag functions
 void fludag_write(std::string matfile, std::string lfname);
 
-// Gets the number of volumes via MOAB entities and DAGMC calls;
-// parses properties
-int fludag_setup(std::map<int, std::string>& map_name);
-// Make a string from the groupname
-std::string makeMaterialName (int index);
-
 // Load the PyNE material objects in the named file
 void pyne_get_materials(std::string mat_file, 
                         std::list<pyne::Material>& pyne_list,
@@ -51,34 +45,29 @@ std::set<int> make_exception_set();
 /*
  * Write the material assignment for each volume to an output stream
  */
-void fludagwrite_assignma(std::ostringstream& ostr, int num_vols, 
+void fludagwrite_assignma(std::ostringstream& ostr, 
                                            std::map<std::string, pyne::Material> pyne_map, 
 					   std::map<int, std::string> map_name);
 /*
  * Write material cards
  */
 void fludag_all_materials(std::ostringstream& mstr, std::map<std::string, pyne::Material> pyne_list);
+
+/*
+ * 
+ */
+void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tally> tally_map);
+
 bool add_material_record(std::ostringstream& ostr, pyne::Material elemat, int& id);
+
 /*
  * Write compound cards
  */
-// void fludag_write_compound(std::ostringstream& cstr, int& last_id, pyne::Material& material);
 void fludag_write_compound(std::ostringstream& cstr, pyne::Material& mix);
-/*
- * Convenience function
- */
-void print_material( pyne::Material test_mat, std::string xtraTitle=" ");
 
-// Defined but not called
-void slow_check(double pos[3], const double dir[3], int &oldReg);
-
-/*
- * Prepare a descriptive string that creates the properties of the volume whose index is index
- */
-  std::string mat_property_string (int index, std::vector<std::string> &properties);
-
-// This function is defined but never called
-void dagmc_version_(double* dagmcVersion);
+// get all metadata assignments 
+std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
+									    int dimension, std::string delimiters);
 
 
 ///////////////////////////////////////////////////////////////////
