@@ -846,8 +846,22 @@ void fludagwrite_assignma(std::ostringstream& ostr,
 // Get tally cards for all tallies in the problem
 void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tally> tally_map)
 {
+  int start_unit = 21; // starting unit number for tallies
+
   std::map<std::string,pyne::Tally>::iterator it;
 
+  // generate number of tally/particle pairs
+  std::list<std::string> tally_parts;
+  std::string tally_id;
+  for ( it = tally_map.begin() ; it != tally_map.end() ; ++it ) {
+    tally_id = (it->second).tally_type+"/"+(it->second).particle_name;
+    if( std::count(tally_parts.begin(),tally_parts.end(),tally_id) == 0 )
+      {
+	tally_parts.insert(tally_parts.end(),tally_id);
+      }
+  }
+  
+  // loop over tallies in map
   for ( it = tally_map.begin() ; it != tally_map.end() ; ++it ) {
     pyne::Tally tally = (it->second);
     // pyne tallies are by id, FluDAG is by index, need to convert
@@ -861,7 +875,17 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tal
     ss << ".";
     tally.entity_name = ss.str();
 
-    mstr << tally.fluka("-21") << std::endl;
+    std::string tally_id = tally.tally_type+"/"+tally.particle_name;
+
+    std::list<std::string>::iterator iter = std::find (tally_parts.begin(), tally_parts.end(), tally_id);
+
+    int unit_number = std::distance(tally_parts.begin(), iter) + start_unit;
+
+    ss.str(std::string());
+    ss << "-";
+    ss << unit_number;
+    
+    mstr << tally.fluka(ss.str()) << std::endl;
   }
   
   return;
