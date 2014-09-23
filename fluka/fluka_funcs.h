@@ -12,7 +12,7 @@
 #include "MBInterface.hpp"
 #include "MBCartVect.hpp"
 #include "DagMC.hpp"
-#include "pyne/pyne.h"
+#include "pyne.h"
 
 
 /**
