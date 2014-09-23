@@ -15,37 +15,59 @@
 #include "pyne/pyne.h"
 
 
-/// Called from mainFludag when only one argument is given to the program.
-//  This function writes out a simple numerical material assignment to the named argument file
-//  Example usage:  mainFludag dagmc.html
-//  Outputs
-//           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
-//                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
-//                    The string after "M_" is considered to be the material for that volume.
-//                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
-//                    For the remaining materials, there is one MATERIAL card apiece (no dups)
-//                    User-named (not predefined) materials are TRUNCATED to 8 chars.
-//                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
-//           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
-//  Note that a preprocessing step to this call sets up the the DAG object that contains 
-//  all the geometry information contained in dagmc.html.  
-//  the name of the (currently hardcoded) output file is "mat.inp"
-//  The graveyard is assumed to be the last region.
-//  Overall function call; calls other fludag functions
+/**
+ * \brief Called from mainFludag when only one argument is given to the program.
+ *  This function writes out a simple numerical material assignment to the named argument file
+ *  Example usage:  mainFludag dagmc.html
+ *  Outputs
+ *           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
+ *                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
+ *                    The string after "M_" is considered to be the material for that volume.
+ *                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
+ *                    For the remaining materials, there is one MATERIAL card apiece (no dups)
+ *                    User-named (not predefined) materials are TRUNCATED to 8 chars.
+ *                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
+ *           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
+ *  Note that a preprocessing step to this call sets up the the DAG object that contains 
+ *  all the geometry information contained in dagmc.html.  
+ *  the name of the (currently hardcoded) output file is "mat.inp"
+ *  The graveyard is assumed to be the last region.
+ *  Overall function call; calls other fludag functions
+ */
 void fludag_write(std::string matfile, std::string lfname);
 
-// Gets the number of volumes via MOAB entities and DAGMC calls;
-// parses properties
+/**
+ * \brief  Get the number of volumes via MOAB entities and parse the properties
+ *     This function has optional components useful for debugging.
+ *     This function uses DAG calls to read the geometry.
+ *     This function does not use PyNE
+ * 1.  Create a vol_id-pyne_name map for later matching with the correct 
+ *     pyne material object
+ *     a.  The connection needs to be made in order to get the fluka_name,
+ *         which is stored in the pyne material object
+ *     b.  The fluka_name/vol_id connection is needed only for the ASSIGNMAt card
+ * 2.  Optionally write out an "index_id.txt" file showing the vol_id,
+ *     which DAG considers the ordinal volume index, and its matching
+ *     entity id (int) which is some internally stored int attached to the
+ *     MOAB entity that is NOT ordinal.  It is not used elsewhere in fludag.
+ * 3.  Optionaly look at the entire property string
+ */
 int fludag_setup(std::map<int, std::string>& map_name);
-// Make a string from the groupname
+/**
+ * Make a string from the groupname
+ */
 std::string makeMaterialName (int index);
 
-// Load the PyNE material objects in the named file
+/**
+ * Load the PyNE material objects in the named file
+ */
 void pyne_get_materials(std::string mat_file, 
                         std::list<pyne::Material>& pyne_list,
 			std::map<std::string, pyne::Material>& pyne_map);
 
-// Extract PyNE nucids from a known list of elements
+/**
+ * Extract PyNE nucids from a known list of elements
+*/
 std::set<int> make_exception_set();
 /*
  * Write the material assignment for each volume to an output stream
@@ -61,15 +83,11 @@ bool add_material_record(std::ostringstream& ostr, pyne::Material elemat, int& i
 /*
  * Write compound cards
  */
-// void fludag_write_compound(std::ostringstream& cstr, int& last_id, pyne::Material& material);
 void fludag_write_compound(std::ostringstream& cstr, pyne::Material& mix);
 /*
  * Convenience function
  */
 void print_material( pyne::Material test_mat, std::string xtraTitle=" ");
-
-// Defined but not called
-void slow_check(double pos[3], const double dir[3], int &oldReg);
 
 /*
  * Prepare a descriptive string that creates the properties of the volume whose index is index

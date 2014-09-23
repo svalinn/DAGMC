@@ -498,8 +498,6 @@ void f_look(double& pSx, double& pSy, double& pSz,
 	}
     }  // end loop over all volumes
 
-  // if we are here do slow check
-  // slow_check(xyz,dir,nextRegion);
   flagErr = nextRegion; // return nextRegion
   return;
 }
@@ -521,39 +519,6 @@ int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
   MBErrorCode ErrorCode = DAG->test_volume_boundary(vol,next_surf,xyz,uvw, result,&history);  // see if we are on boundary
   return result;
 }
-//---------------------------------------------------------------------------//
-// slow_check(..)
-// Not CALLED
-//---------------------------------------------------------------------------//
-// Helper function
-void slow_check(double pos[3], const double dir[3], int &oldReg)
-{
-  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
-  std::cout << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
-  int num_vols = DAG->num_entities(3);  // number of volumes
-  int is_inside = 0;
-  for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
-    {
-      MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
-      MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir); 
-      if ( code != MB_SUCCESS)
-	{
-	 std::cout << "Failure from point in volume" << std::endl;
-	 exit(0);
-	}
-
-      if ( is_inside == 1) // if in volume
-	{
-	  oldReg = DAG->index_by_handle(volume); //set oldReg
-	  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << " " << oldReg << std::endl;
-	  return;
-	}
-    }
-
-  std::cout << "FAILED SLOW CHECK" << std::endl;
-  exit(0);
-}
-
 /*
  *   Particle localisation when magnetic field tracking is on
  */
@@ -845,19 +810,6 @@ void fludag_write(std::string matfile, std::string lfname)
 // fludag_setup()
 //---------------------------------------------------------------------------//
 // Get the number of volumes (for the implicit complement card)) and parse the properties 
-//     This function has optional components useful for debugging.
-//     This function uses DAG calls to read the geometry.
-//     This function does not use PyNE
-// 1.  Create a vol_id-pyne_name map for later matching with the correct 
-//     pyne material object
-//     a.  The connection needs to be made in order to get the fluka_name,
-//         which is stored in the pyne material object
-//     b.  The fluka_name/vol_id connection is needed only for the ASSIGNMAt card
-// 2.  Optionally write out an "index_id.txt" file showing the vol_id,
-//     which DAG considers the ordinal volume index, and its matching
-//     entity id (int) which is some internally stored int attached to the
-//     MOAB entity that is NOT ordinal.  It is not used elsewhere in fludag.
-// 3.  Optionaly look at the entire property string
 int fludag_setup(std::map<int, std::string>& map_vol_libname)
 {
   int num_vols = DAG->num_entities(3);
