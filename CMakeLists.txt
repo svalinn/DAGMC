@@ -63,9 +63,9 @@ ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IF ( BUILD_FLUKA OR BUILD_ALL )
   #Find the Pyne installation
-  find_package(Pyne REQUIRED)
-  link_directories(${PYNE_LIBS_DIR})
-  include_directories(${PYNE_INCLUDE_DIR})
+  # find_package(Pyne REQUIRED)
+  # link_directories(${PYNE_LIBS_DIR})
+  # include_directories(${PYNE_INCLUDE_DIR})
   INCLUDE_DIRECTORIES(${HDF5_HOME}/include)
   ADD_SUBDIRECTORY(fluka)
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
