@@ -41,7 +41,6 @@ SET ( GTEST_INC_DIR "" )
 ADD_SUBDIRECTORY( gtest EXCLUDE_FROM_ALL )
 INCLUDE_DIRECTORIES( ${GTEST_INC_DIR} )
 
-
 ###################################
 #
 # Install dirs 
@@ -124,7 +123,6 @@ ELSE ( DI_SRC_FILES )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
 ENDIF ( DI_SRC_FILES )
          
-
 
 
 
