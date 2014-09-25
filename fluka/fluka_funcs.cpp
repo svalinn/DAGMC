@@ -51,9 +51,9 @@ static std::ostream* raystat_dump = NULL;
 
 #endif 
 
-#define ID_START 25
+#define ID_START 26
 
-bool debug = true; 
+bool debug = false; 
 
 std::set<int> make_exception_set()
 {
@@ -870,6 +870,8 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tal
     int vol_idx = DAG->index_by_handle(vol_eh);
     // recast tally to index, use entity_name for setting volume
 
+    MBErrorCode rval = DAG->measure_volume(vol_eh,tally.entity_size);
+
     std::stringstream ss;
     ss << vol_idx;
     ss << ".";
@@ -885,6 +887,7 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tal
     ss << "-";
     ss << unit_number;
     
+
     mstr << tally.fluka(ss.str()) << std::endl;
   }
   
@@ -929,7 +932,6 @@ void fludag_all_materials(std::ostringstream& mstr, std::map<std::string,pyne::M
       if (mat_line.length() != 0)
       {
          i++;
-         std::cout << mat_line << std::endl;
 	 mstr << mat_line;
       }
     }
@@ -943,7 +945,6 @@ void fludag_all_materials(std::ostringstream& mstr, std::map<std::string,pyne::M
     if ( compound_string.length() != 0 )
       {
 	i++;
-	std::cout << compound_string;
         mstr << compound_string;
       }
   }
@@ -1005,11 +1006,6 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
 
     prop_map[entity]=properties;
 
-    std::cout << property << std::endl;
-    for ( int j = 0 ; j < properties.size() ; j++ )
-    {
-      std::cout << properties[j];
-    }
   }
 
   return prop_map;
