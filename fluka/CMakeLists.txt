@@ -2,8 +2,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE ( STATUS "Including FLUKA in dagmciface library.")
 
 SET ( CODE_SRCDIR      "fluka" )
-SET ( CODE_SRC_FILES   "${CODE_SRCDIR}/fluka_funcs.cpp"  )
+
+SET ( CODE_SRC_FILES   "${CODE_SRCDIR}/fluka_funcs.cpp" )
 SET ( CODE_PUB_HEADERS "${CODE_SRCDIR}/fluka_funcs.h" )
+
 SET ( CODE_CONFIG       )
 
 SET ( DI_PUB_HEADERS ${DI_PUB_HEADERS}
@@ -25,7 +27,8 @@ SET(FLUDAG_LIBS
      ${PYNE_LIBS_DIR}/libpyne.so
      ${MOAB_LIBRARIES} 
      gfortran
-)
+  )
+
 # If making mainfludag, define FLUPRO)
 # add_custom_command (TARGET mainfludag
 # PRE_BUILD COMMAND 
