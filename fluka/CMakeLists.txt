@@ -31,6 +31,9 @@ SET(FLUDAG_LIBS
 # PRE_BUILD COMMAND 
 
 ADD_EXECUTABLE ( mainfludag mainFluDAG.cpp )
+INSTALL( TARGETS mainfludag 
+  RUNTIME DESTINATION ${INSTALL_BIN_DIR} )
+# Order very important!
 TARGET_LINK_LIBRARIES ( mainfludag ${FLUDAG_LIBS} ${FLUKA_DIR}/libflukahp.a gfortran)
 
 ADD_SUBDIRECTORY(tests)
