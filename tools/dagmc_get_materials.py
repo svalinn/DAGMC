@@ -7,12 +7,14 @@ try:
 except:
     raise ImportError("The PyTAPS dependency could not be imported!")
 try:
-    from pyne import material
+    from pyne import material, particle, tally
     from pyne.material import Material, MaterialLibrary
 except:
     raise ImportError("The PyNE dependency could not be imported!")
-    
-import fluka_predefined_mat as fluka_lib    
+try:    
+    import fluka_predefined_mat as fluka_lib
+except:
+    raise ImportError("The list of pre defined fluka materials; (preDefined-Fluka_mat.py) can't be imported!")        
 
 """
 function that gets all tags on dagmc geometry
@@ -94,13 +96,10 @@ def load_mat_lib(filename):
         filename, datapath='/material_library/materials', nucpath='/material_library/nucid')
     return mat_lib
 
-######
-#comment out >>>> unfinished
-####
-'''
+
 """
 Function that checks the existence of tally groups and returns a list of tally type,
-particles, and geometry objects (type and ID) included
+particles, and geometry objects (type and ID)
 """
 
 
@@ -128,9 +127,9 @@ def get_tally(filename):
                     # get the size and type of tag to be used to create a new tag for all entity sets
                     # included in the tally group
                     # create new tag with the same group name
-                    new_tag=mesh.createTag('Tally_Ents',t.sizeValues, t.type)
+                   # new_tag=mesh.createTag('Tally_Ents',t.sizeValues, t.type)
                     # tag the sets included in the tally group with the group name
-                    tag_sets(mesh, s, t, new_tag )
+                   # tag_sets(mesh, s, t, new_tag )
                     # group name in that case is a tally group name and set 's' is a group of sets of geometry
                     # objects included in the tally
                     # get the geometry objects included; ID and type of each
@@ -143,21 +142,30 @@ def get_tally(filename):
                     tally_particle_list.append(tally_particle)
     tally_list = zip(tally_type_list, tally_objects_list)
     tally_values = zip(tally_particle_list, tally_list)
+'''    
+    # elements in tally_values list are of the form ['particle', ('tally type', ['entity type:entity ID'])]
+    for element in tally_values:
+       for z in range(len(element[1][1])):
+           entity_id = element[1][1][z].split(':')[1]
+           entity_type=element[1][1][z].split(':')[0] 
+           tally.Tally(element[1][0], element[0],entity_id, entity_type, element[1][1][z], element, -1.0, 1.0)
+'''           
     print('The tally groups found in the h5m file are: ')
     print tally_values
     return tally_values
-
+'''
 """
 function to tag the sets included in a tally group
 with the same group name
 ---------------------------------
 new tag == greoup name
 """
-def tag_sets(mesh, mesh_set, tag, new_tag ):
+def tag_sets(mesh, mesh_set, tag, new_tag):
     for k in mesh_set.getEntSets(hops=-1):
         # tag the set with the same name of the tally group
         new_tag[k] = tag
     return mesh    
+'''
 
 """
 Function that gets both the ID and type of entities included in the tally group
@@ -229,14 +237,16 @@ returns tally particle
 def particle_split(tally_group_name):
     try:
         group_name = tally_group_name.split('/')
-        tally_particle = group_name[0].split(':')[1]
+        tally_particle = group_name[0].split(':')[1]    
     except:
         raise Exception(
             "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % tally_group_name)
     if tally_particle == '':
         raise Exception("Tally particle is missing in %s" % tally_group_name)
+    if (str(particle.is_valid(str(tally_particle))) == 'False'):
+        raise Exception("Particle included in group %s is not a valid particle name!" %tally_group_name)        
     return tally_particle
-'''
+
 
 """
 function to check that material group names exist and creates
@@ -549,7 +559,7 @@ def main():
     # load material library
     mat_lib = load_mat_lib(args.nuc_data)
     # get list of tally objects
-    #tally_values = get_tally(args.datafile)
+    tally_values = get_tally(args.datafile)
     # check that material tags exist in library # material_list is list of
     # pyne objects in problem
     mat_dens_list = check_matname(tag_values)
