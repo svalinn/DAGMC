@@ -21,7 +21,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
     virtual G4VPhysicalVolume* Construct();
     virtual void ConstructSDandField();
 
-    std::map<std::string,pyne::Tally> tally_library;
+   std::map<std::string,pyne::Tally> tally_library;
 
   private:
     

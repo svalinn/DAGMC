@@ -24,8 +24,6 @@ public:
   virtual void  BeginOfEventAction(const G4Event* event);
   virtual void    EndOfEventAction(const G4Event* event);
 
-  std::vector<int> TallyHists;
-
 private:
   // methods
   G4THitsMap<G4double>* GetHitsCollection(G4int hcID,

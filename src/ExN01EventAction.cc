@@ -11,6 +11,9 @@
 #include "G4HCofThisEvent.hh"
 #include "G4UnitsTable.hh"
 
+#include "pyne.h"
+#include "ExN01DetectorConstruction.hh"
+
 #include "Randomize.hh"
 #include <iomanip>
 
@@ -63,7 +66,8 @@ G4double ExN01EventAction::GetSum(G4THitsMap<G4double>* hitsMap) const
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void ExN01EventAction::BeginOfEventAction(const G4Event* /*event*/)
-{}
+{
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
