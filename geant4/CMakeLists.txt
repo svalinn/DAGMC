@@ -29,6 +29,9 @@ INSTALL ( TARGETS dagsolid
 
 # make the library
 TARGET_LINK_LIBRARIES( dagsolid )
+
+# build the DAGGeant4 executable
+ADD_SUBDIRECTORY( build )
 ADD_SUBDIRECTORY( tests )
 
 

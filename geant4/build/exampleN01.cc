@@ -9,10 +9,10 @@
 
 #include "ExN01DetectorConstruction.hh"
 #include "ExN01PhysicsList.hh"
-#include "G4PhysListFactory.hh"
 #include "ExN01PrimaryGeneratorAction.hh"
-
 #include "ExN01ActionInitialization.hh"
+
+#include "G4PhysListFactory.hh"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -32,8 +32,9 @@ int main(int argc, char* argv[])
 
   // set mandatory initialization classes
   //
-  G4VUserDetectorConstruction* detector = new ExN01DetectorConstruction(uwuw_file);
-  runManager->SetUserInitialization(detector);
+  //G4VUserDetectorConstruction* detector = new ExN01DetectorConstruction(uwuw_file);
+  runManager->SetUserInitialization(new ExN01DetectorConstruction(uwuw_file));
+  //  runManager->SetUserInitialization(detector);
 
   G4PhysListFactory *physListFactory = new G4PhysListFactory(); 
   G4VUserPhysicsList *physicsList = 

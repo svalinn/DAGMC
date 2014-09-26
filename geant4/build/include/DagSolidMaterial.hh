@@ -1,7 +1,7 @@
 #include <map>
 #include "G4SystemOfUnits.hh"
 #include "G4Material.hh"
-#include "pyne.h"
+#include "pyne/pyne.h"
 
 /*
  * Load the full material collection from PyNE library, return G4Materials

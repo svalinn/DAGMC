@@ -11,7 +11,7 @@
 #include "G4HCofThisEvent.hh"
 #include "G4UnitsTable.hh"
 
-#include "pyne.h"
+#include "pyne/pyne.h"
 #include "ExN01DetectorConstruction.hh"
 
 #include "Randomize.hh"

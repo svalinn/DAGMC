@@ -15,7 +15,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
   public:
 
   ExN01DetectorConstruction(std::string uwuw_file);
-    ~ExN01DetectorConstruction();
+  ~ExN01DetectorConstruction();
 
   public:
     virtual G4VPhysicalVolume* Construct();
