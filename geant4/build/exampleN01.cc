@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
   // set mandatory user action class
   //
-  ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization();
+  ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization(uwuw_file);
   runManager->SetUserInitialization(actionInitialization);
 
   //  G4VUserPrimaryGeneratorAction* gen_action = new ExN01PrimaryGeneratorAction;

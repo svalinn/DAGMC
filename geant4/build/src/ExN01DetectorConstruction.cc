@@ -14,12 +14,18 @@
 #include "globals.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4VisAttributes.hh"
+
 #include "G4SDManager.hh"
 #include "G4SDChargedFilter.hh"
 #include "G4MultiFunctionalDetector.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4PSEnergyDeposit.hh"
 #include "G4PSTrackLength.hh"
+#include "G4PSCellFlux.hh"
+
+#include "G4ParticleTable.hh"
+#include "G4SDParticleFilter.hh"
+//#include "G4VSDFilter.hh"
 
 #include "DagSolid.hh"
 #include "MBInterface.hpp"
@@ -28,31 +34,23 @@
 #include "DagSolidMaterial.hh"
 #include "DagSolidTally.hh"
 
+#include "pyne/pyne.h"
+#include "pyne/particle.h"
+
 using namespace moab;
 
  // dag_volumes
+std::vector<G4LogicalVolume*> dag_logical_volumes;
+
+
 DagMC* dagmc = DagMC::instance(); // create dag instance
- 
+UWUW workflow_data;
 
 ExN01DetectorConstruction::ExN01DetectorConstruction(std::string uwuw_file)
   :  world_volume_log(0)
 
 {
   uwuw_filename = uwuw_file;
-  ;
-}
-
-ExN01DetectorConstruction::~ExN01DetectorConstruction()
-{
-}
-
-G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
-{
-
-  // const char* h5mfilename = "/data/opt/DagGeant4/atic_uwuw_zip.h5m";
- 
-  //  std::string dag_file(uwuw_filename);
-
 
   // check for Materials first
   try
@@ -67,15 +65,22 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 
       exit(1);
     }
+  
+  workflow_data = UWUW(uwuw_filename);
 
+  ;
+}
+
+ExN01DetectorConstruction::~ExN01DetectorConstruction()
+{
+}
+
+G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
+{
 
   // load the material from the UW^2 library
   std::map<std::string,G4Material*> material_lib;
-  //  material_lib = load_uwuw_materials(dag_file);
-
-  material_lib = load_uwuw_materials(uwuw_filename);
-
-  //  std::cout << material_lib["mat:\Lead"] << std::endl;
+  material_lib = load_uwuw_materials(workflow_data);
     
   G4VisAttributes * invis = new G4VisAttributes(G4VisAttributes::Invisible);
 
@@ -112,7 +117,6 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   
   //Store a list of DagSolids, Logical Vols, and Physical Vols
   std::vector<DagSolid*> dag_volumes;
-  std::vector<G4LogicalVolume*> dag_logical_volumes;
   std::vector<G4PVPlacement*> dag_physical_volumes;
   
   for ( int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++ )
@@ -158,6 +162,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
 {
   
   //  std::string filename = "atic_uwuw_zip.h5m";
+
   G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
   // check for tallies first
@@ -176,12 +181,156 @@ void ExN01DetectorConstruction::ConstructSDandField()
   std::map<std::string,pyne::Tally>::iterator t_it;
 
   //  load tallies from the h5m file
-  tally_library = load_uwuw_tallies(uwuw_filename);
+  tally_library = workflow_data.tally_library;
   
-  G4VPrimitiveScorer* primitive; //set g4scorer
-
   // TrackLength Scorer   
-  std::vector<G4MultiFunctionalDetector*> detectors;
+  //  std::vector<G4MultiFunctionalDetector*> detectors;
+
+  // for regisistering particle tallies
+  std::map<std::string,G4SDParticleFilter*> particle_filters;
+
+  /* notes for andy 
+     register logical volume as sensitive only once
+     then apply multiple primative sensitivities and registers
+   */
+
+  std::map<int,std::vector<std::string> > volume_part_map;
+  std::vector<std::string> particles;
+
+  // build map of vectors of volumes vs particle names
+  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
+    {
+      pyne::Tally scorer = t_it -> second; // current tally
+
+      if( scorer.tally_type.find("Flux") != std::string::npos && 
+	  scorer.entity_type.find("Volume") != std::string::npos )
+	{
+	  int vol_id = scorer.entity_id;
+	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
+	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
+	  
+	  particles = volume_part_map[vol_idx];
+	  particles.push_back(scorer.particle_name);
+	  volume_part_map[vol_idx] = particles;
+
+	  // build the filters
+	  if( 0 < particle_filters.count(scorer.particle_name))
+	    {
+	      G4SDParticleFilter *filter = new G4SDParticleFilter(scorer.particle_name);
+	      filter->add(pyne::particle::geant4(scorer.particle_name));
+	      particle_filters[scorer.particle_name]=filter;
+	    }
+	}
+    }
+
+  // pritns the maps
+  std::map<int,std::vector<std::string> >::iterator it;
+  for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
+    {
+      std::vector<std::string>::iterator str;
+      for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
+	{
+	  std::cout << (*str) << std::endl;
+	}
+    }
+
+ 
+  //  loop over the volume indices 
+  for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
+    {
+      // turn the idx into string
+      std::stringstream int_to_string;
+      int_to_string << (it->first);
+      std::string idx_str = int_to_string.str();
+
+      // create new detector
+      G4MultiFunctionalDetector *detector = new G4MultiFunctionalDetector("vol_"+idx_str+"_flux");
+      G4SDManager::GetSDMpointer()->AddNewDetector(detector);
+      dag_logical_volumes[it->first]->SetSensitiveDetector(detector);
+
+      // loop over the vector of particle types 
+      std::vector<std::string>::iterator str;
+      for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
+	{
+	  // set the sensitivity
+	  G4VPrimitiveScorer *particle_flux = new G4PSCellFlux(*str+"CellFlux");
+	  //	  particle_flux->SetFilter(particle_filters[*str]);
+
+	  
+	  G4SDParticleFilter *filter = new G4SDParticleFilter(*str);
+	  filter->add(pyne::particle::geant4(*str));
+	  particle_flux->SetFilter(filter);
+	 
+
+
+	  detector->RegisterPrimitive(particle_flux);
+	  // set the particle filter
+	  std::cout << (*str) << std::endl;
+	}
+
+    }
+  /*
+  // build map of vectors of volumes vs particle names
+  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
+    {
+      pyne::Tally scorer = t_it -> second; // current tally
+
+      if( scorer.tally_type.find("Flux") != std::string::npos && 
+	  scorer.entity_type.find("Volume") != std::string::npos )
+	{
+	  int vol_id = scorer.entity_id;
+	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
+	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
+	  
+	  particles = volume_part_map[vol_idx];
+	  particles.push_back(scorer.particle_name);
+	  volume_part_map[vol_idx] = particles;
+
+	}
+    }
+  
+
+  exit(1);
+  */
+}
+
+  //   G4VPrimitiveScorer* primitive; //set g4scorer
+  // set the sensitive detectors first
+
+  /*
+  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
+    {
+      pyne::Tally scorer = t_it -> second; // current tally
+
+      if( scorer.tally_type.find("Flux") != std::string::npos && 
+	  scorer.entity_type.find("Volume") != std::string::npos )
+	{
+	  int vol_id = scorer.entity_id;
+	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
+	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
+	  // recast tally id to index
+	  scorer.entity_id = vol_idx;
+
+	  
+	  // convert vol_idx to string
+	  std::stringstream int_to_string;
+	  int_to_string << vol_idx;
+	  std::string idx_str = int_to_string.str();
+
+
+	  // create G4Multi
+	  G4MultiFunctionalDetector* vol_det = new G4MultiFunctionalDetector("vol_"+idx_str+"_flux");
+       
+	  detectors[vol_idx]=vol_det;
+
+	  dag_logical_volumes[vol_idx]->SetSensitiveDetector(vol_det);
+
+	  primitive = new G4PSCellFlux("CellFlux");
+	  vol_det->RegisterPrimitive(primitive);
+	  G4SDManager::GetSDMpointer()->AddNewDetector(vol_det);
+	  
+	}
+    }
 
   // loop over the tallies
   for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
@@ -193,22 +342,29 @@ void ExN01DetectorConstruction::ConstructSDandField()
 	  int vol_id = scorer.entity_id;
 	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
 	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
-	  // now get logical volume ( vol_idx - 1 )
+
+
+	  std::cout << (t_it->first) << " " << (t_it->second).particle_name << " " <<  (t_it->second).entity_id << std::endl;
 	  
-	  // convert vol_idx to string
-	  std::stringstream int_to_string;
-	  int_to_string << vol_idx;
-	  std::string idx_str = int_to_string.str();
+	  //
+	    //SetSensitiveDetector("vol_"+idx_str+"_log",vol_det);
 	  
-	  // create G4Multi
-	  G4MultiFunctionalDetector* vol_det = new G4MultiFunctionalDetector("vol_"+idx_str+"_flux");
-	  primitive = new G4PSTrackLength("TrackLength");
-	  vol_det->RegisterPrimitive(primitive);
-	  SetSensitiveDetector("vol_"+idx_str+"_log",vol_det);
+	  // create filter
+	  // if filter for particle doesnt exist in map create it
+	  if( 0 < particle_filters.count(scorer.particle_name))
+	    {
+	      G4SDParticleFilter *filter = new G4SDParticleFilter(scorer.particle_name);
+	      filter->add(pyne::particle::geant4(scorer.particle_name));
+	      particle_filters[scorer.particle_name]=filter;
+	    }
+	  
+	  primative->SetFilter(particle_filters[scorer.particle_name]);
+	  detectors[vol_idx]->Register(primative);
+
+	  //
       
 	  // store detectors
-	  detectors.push_back(vol_det);
 	}
     }
-  
-}
+  */
+//}

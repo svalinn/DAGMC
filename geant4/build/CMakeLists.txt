@@ -30,7 +30,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # NB: headers are included so they will show up in IDEs
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
+# file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
@@ -40,7 +41,8 @@ target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
                                 ${HDF5_DIR}/lib/libhdf5.so
                                 ${PYNE_LIBS_DIR}/libpyne.so
 			        ${MOAB_LIBRARIES}
-				dagsolid)
+				dagsolid
+				dagmciface)
 			      
 
 

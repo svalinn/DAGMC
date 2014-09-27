@@ -1,16 +1,18 @@
 #include "DagSolidMaterial.hh"
 
-std::map<std::string,G4Material*> load_uwuw_materials(std::string filename)
+std::map<std::string,G4Material*> load_uwuw_materials(UWUW workflow_data)
 {
-  std::string nuc_data = "/home/davisa/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
+  //  std::string nuc_data = "/home/davisa/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
   //  std::string filename = "atic_uwuw_zip.h5m";
 
+  //  UWUW workflow_data = UWUW(filename);
+
   // load the pyne nuclear data
-  pyne::NUC_DATA_PATH = nuc_data;
+  pyne::NUC_DATA_PATH = workflow_data.full_filepath;
 
   // new material library
   std::map<std::string,pyne::Material> material_library;
-  material_library = load_materials(filename);
+  material_library = workflow_data.material_library;
 
   std::map<int,G4Isotope*> g4_isotopes;
   g4_isotopes = get_g4isotopes(material_library);
@@ -27,36 +29,6 @@ std::map<std::string,G4Material*> load_uwuw_materials(std::string filename)
   return g4_materials;
 }
 
-std::map<std::string,pyne::Material> load_materials(std::string filepath)
-{
-  bool end = false;
-  std::map<std::string,pyne::Material> material_library;
-  int i = 0;
-
-  std::cout << filepath << std::endl;
-  while( !end )
-    {
-      pyne::Material mat; // from file
-
-      mat.from_hdf5(filepath,"/materials",i++);
-      if ( material_library.count(mat.metadata["name"].asString()) )
-	{
-	   end = true;  
-	}
-      else
-	{
-	  std::cout << mat.metadata["name"].asString() << std::endl;
-	  material_library[mat.metadata["name"].asString()]=mat;
-	}
-    }
-  
-  for(std::map<std::string,pyne::Material>::const_iterator it = material_library.begin() ; it != material_library.end() ; ++it )
-    {
-      std::cout << it->first <<  std::endl;
-    }
-
-  return material_library;
-}
 
 std::map<int,G4Isotope*> get_g4isotopes(std::map<std::string, pyne::Material> material_library)
 {

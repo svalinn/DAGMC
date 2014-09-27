@@ -29,8 +29,13 @@ private:
   G4THitsMap<G4double>* GetHitsCollection(G4int hcID,
                                           const G4Event* event) const;
   G4double GetSum(G4THitsMap<G4double>* hitsMap) const;
-  
+
+  //  void PrintEventStatistics(std::vector<G4Double> tracklengths) const;
+
   // data members                   
+  std::vector<G4double> tracklengths;
+  std::vector<G4int> vol_tl_ids;
+  
 };
                      
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

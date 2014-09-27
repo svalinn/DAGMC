@@ -1,4 +1,5 @@
 #include "DagSolidTally.hh"
+#include "uwuw.hpp"
 
 // loads the tallies from the file
 std::map<std::string,pyne::Tally> load_uwuw_tallies(std::string filepath) {
