@@ -34,9 +34,10 @@ In order to install you must have done the following absolute minimum
    also be useful but not necessary)
    DOUBLE CHCEK LINK
    ADD --WITH-DAGMC
-   --WITH-NETCDF???
+no   --WITH-NETCDF???
 4) Installed Lapack
-    INSTALL INSTRUCTIONS?
+    INSTALL INSTRUCTIONS? via your favorite method
+    if dagtally, need it (built by default by mcnp)
 5) Installed Fluka
    REFER TO WEBSITE FOR INSTALL
 
