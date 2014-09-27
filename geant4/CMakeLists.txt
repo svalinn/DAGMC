@@ -10,7 +10,7 @@ SET ( DAGSOLID_SRC  "DagSolid.cc" )
 SET ( DAGSOLID_HEADERS "DagSolid.hh" )
 
 # Geant4 include dirs
-INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES} ${GEANT4_DIR}/include/Geant4 )
+INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES} ${GEANT4_DIR}/include/Geant4  ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Create DagSolid library
 IF ( STATIC_LIB )
@@ -33,7 +33,3 @@ TARGET_LINK_LIBRARIES( dagsolid )
 # build the DAGGeant4 executable
 ADD_SUBDIRECTORY( build )
 ADD_SUBDIRECTORY( tests )
-
-
-
-
