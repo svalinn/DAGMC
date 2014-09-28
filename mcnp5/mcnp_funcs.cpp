@@ -331,13 +331,13 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
   pyne::Material material;
 
   double density;
-  std::string material_number;
+  int material_number;
 
   // loop over all cells
   for( int i = 1; i <= num_cells; ++i ) {
 
     density = 0.0;
-    material_number = "";
+    material_number = 0;
 
     int cellid = DAG->id_by_index( 3, i );
     MBEntityHandle entity = DAG->entity_by_index( 3, i );
@@ -375,7 +375,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
 	&& !(DAG->is_implicit_complement(entity)) ) 
       {
 	material = material_library[grp_name];
-	material_number = material.metadata["mat_number"].asString();
+	material_number = material.metadata["mat_number"].asInt();
 	density = -1.0*material.density; // -ve for mass density
 	lcadfile << cellid << " " << material_number << " " << density << " imp:n=1" << std::endl;
       }

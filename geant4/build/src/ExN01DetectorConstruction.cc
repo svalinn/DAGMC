@@ -40,7 +40,7 @@
 using namespace moab;
 
  // dag_volumes
-std::vector<G4LogicalVolume*> dag_logical_volumes;
+std::map<int, G4LogicalVolume*> dag_logical_volumes;
 
 
 DagMC* dagmc = DagMC::instance(); // create dag instance
@@ -144,7 +144,8 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 							"vol_"+idx_str+"_log",0,0,0);
       
       std::cout << "vol_" << idx_str << "  has prop " << material_lib["mat:"+dag_material_name] << std::endl;
-      dag_logical_volumes.push_back(dag_vol_log);
+      //      dag_logical_volumes.push_back(dag_vol_log);
+      dag_logical_volumes[dag_idx]=dag_vol_log;
 
       // define physical volumes
       G4PVPlacement* dag_vol_phys = new G4PVPlacement(0,G4ThreeVector(0*cm,0*cm,0*cm),dag_vol_log,
@@ -209,17 +210,19 @@ void ExN01DetectorConstruction::ConstructSDandField()
 	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
 	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
 	  
-	  particles = volume_part_map[vol_idx];
+	  particles = volume_part_map[vol_id];
 	  particles.push_back(scorer.particle_name);
-	  volume_part_map[vol_idx] = particles;
+	  volume_part_map[vol_id] = particles;
 
 	  // build the filters
+	  /*
 	  if( 0 < particle_filters.count(scorer.particle_name))
 	    {
 	      G4SDParticleFilter *filter = new G4SDParticleFilter(scorer.particle_name);
 	      filter->add(pyne::particle::geant4(scorer.particle_name));
 	      particle_filters[scorer.particle_name]=filter;
 	    }
+	  */
 	}
     }
 
@@ -230,7 +233,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
       std::vector<std::string>::iterator str;
       for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
 	{
-	  std::cout << (*str) << std::endl;
+	  std::cout << (it->first) << " " << (*str) << std::endl;
 	}
     }
 
@@ -239,6 +242,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
   for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
     {
       // turn the idx into string
+      std::cout << (it->first) << std::endl;
       std::stringstream int_to_string;
       int_to_string << (it->first);
       std::string idx_str = int_to_string.str();
@@ -246,12 +250,16 @@ void ExN01DetectorConstruction::ConstructSDandField()
       // create new detector
       G4MultiFunctionalDetector *detector = new G4MultiFunctionalDetector("vol_"+idx_str+"_flux");
       G4SDManager::GetSDMpointer()->AddNewDetector(detector);
-      dag_logical_volumes[it->first]->SetSensitiveDetector(detector);
+      
+      MBEntityHandle vol = dagmc->entity_by_id(3,it->first); // convert id to eh
+      int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
+      dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
 
       // loop over the vector of particle types 
       std::vector<std::string>::iterator str;
       for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
 	{
+	  std::cout << *str << std::endl;
 	  // set the sensitivity
 	  G4VPrimitiveScorer *particle_flux = new G4PSCellFlux(*str+"CellFlux");
 	  //	  particle_flux->SetFilter(particle_filters[*str]);

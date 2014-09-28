@@ -50,7 +50,7 @@ ExN01RunAction::ExN01RunAction(UWUW data)
 
       std::string tally_name = ss.str()+"/"+(it->second).tally_type+"/"+(it->second).particle_name;
       // create historgram
-      analysisManager->CreateH1(tally_name,(it->second).tally_name,100,0.,1.*m);
+      analysisManager->CreateH1(tally_name,(it->second).tally_name,100,0.,10.);
       // create tuple
       analysisManager->CreateNtupleDColumn(tally_name);
     }
@@ -118,8 +118,8 @@ void ExN01RunAction::EndOfRunAction(const G4Run* /*run*/)
 	                    << " rms = " << G4BestUnit(analysisManager->GetH1(index)->rms(),  "Length") << G4endl;
       */
 
-      G4cout << tally_name+"  : mean = " << analysisManager->GetH1(index)->mean()/(mm*mm)
-	     << " rms = " << analysisManager->GetH1(index)->rms()/(mm*mm)  << G4endl;
+      G4cout << tally_name+"  : mean = " << analysisManager->GetH1(index)->mean()*cm*cm
+                            << " rms = " << analysisManager->GetH1(index)->rms()*cm*cm  << G4endl;
 
     }
   }    
