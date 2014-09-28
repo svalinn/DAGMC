@@ -880,6 +880,26 @@ void fludag_all_materials(std::ostringstream& mstr, std::map<std::string,pyne::M
   // now collapse elements
   unique = unique.collapse_elements(exception_set);
 
+  // remove those that are no longer needed due to 
+  // compound card inclusions
+    // now write out material card & compound card for each compound
+  for ( nuc = pyne_map.begin() ; nuc != pyne_map.end(); ++nuc)
+  {
+    pyne::Material compound = (nuc->second).collapse_elements(exception_set);
+    // if only one element in comp, then we can remove the one that exists
+    // in the unique material
+    if ( compound.comp.size() == 1 )
+      {
+	pyne::comp_iter nuc = compound.comp.begin();
+	std::set<int> nuc2del;
+	nuc2del.insert(nuc->first);
+	// remove the nuclide from the unique list
+	unique = unique.del_mat(nuc2del);
+      }
+  }
+
+  //del_mat
+
   // number of required material cards due to calls
   int num_mat = unique.comp.size();
 
