@@ -264,9 +264,13 @@ void ExN01DetectorConstruction::ConstructSDandField()
 	  G4VPrimitiveScorer *particle_flux = new G4PSCellFlux(*str+"CellFlux");
 	  //	  particle_flux->SetFilter(particle_filters[*str]);
 
-	  
+
 	  G4SDParticleFilter *filter = new G4SDParticleFilter(*str);
-	  filter->add(pyne::particle::geant4(*str));
+	  if(!pyne::particle::is_heavy_ion(*str))
+	    filter->add(pyne::particle::geant4(*str));
+	  else
+	    // add ion by getting z and a from pyne
+	    filter->addIon(pyne::nucname::znum(*str),pyne::nucname::anum(*str));
 	  particle_flux->SetFilter(filter);
 	 
 
