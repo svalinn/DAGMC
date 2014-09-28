@@ -7,7 +7,7 @@ and testing of DAGMC is `MCNP5 <http://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.
 developed by `Los Alamos National Laboratory <http://www.lanl.gov>`_
 and distributed by the `Radiation Safety Information Computing Center
 <http://rsicc.ornl.gov>`_.  There has also been experience with MCNPX
-(LANL), Tripoli4 (CEA/Saclay),`FLUKA <http://www.fluka.org/>`_ (CERN/INFN), 
+(LANL), Tripoli4 (CEA/Saclay),`FLUKA <http://www.fluka.org>`_ (CERN/INFN), 
 and `Geant4 <http://www.geant4.cern.ch/>`_ (CERN).
 
 These instructions describe the basic steps for downloading and
@@ -15,50 +15,33 @@ installing the software libraries that provide the DAGMC toolkit for
 integration with Monte Carlo codes.  After this, code-specific
 instructions will be give for each code. 
 
-Toolkit Dependencies and Workflows
-+++++++++++++++++++++++++++++++++++++++
+Toolkit Installation
+++++++++++++++++++++++++++++
 
-It is useful to consider how users will use the DAGMC workflow prior
-to making some installation decisions.  There are three main stages
-for the workflow:
+This section details the installation and build steps for the prerequisite packages for the the DAGMC
+toolkit with specific physics codes.
 
-* manual preparation of geometric models
-* automated pre-processing of models
-* use of the models in analysis
+Prerequisites
+~~~~~~~~~~~~~
 
-While the second and third stages can be combined, these instructions
-will be based on treating them as separate stages with comments about
-how they would be combined where appropriate.
+In order to install you must have done the following:
 
-Geometry
-~~~~~~~~~~
-*Manual Geometry Preparation*
+1) Cloned the `DAGMC <http://github.com/svalinn/DAGMC>`_ repository
+2) Installed `HDF5 <http://www.hdfgroup.org/HDF5/>`_
+3) Install `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_, using the --with-cubit option
+4) Installed `MOAB <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_,
+   using options --with-cgm --with-hdf5 --with-dagmc --without-netcdf 
+   If you need to prepare meshed geometries the following are also required
+   a) Install `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1
+5) Installed Lapack
+   Note that the MCNP build automatically builds the dagtally library, which uses Lapack 
+6) Installed `FLUKA <http://www.fluka.org>`_
 
-Because this stage is highly interactive, most users prefer to perform
-this stage on their desktop or laptop computer.  The only software
-required for this stage is the interactive Cubit software.
 
-Pre-Processing
-~~~~~~~~~~~~~~~
-*Automated Model Pre-processing*
+Installation of Prerequisites
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The primary purpose of this stage is to "translate" from the solid
-model representation to the faceted representation.  As such, it
-requires Cubit, CGM and MOAB, and typically results in dependencies on
-shared libraries.
-
-Analysis
-~~~~~~~~~
-*Model Analysis*
-
-During analysis, only the faceted model is necessary, requiring only
-MOAB and the physics code.  It is also possible to combine this stage
-with the previous one, requiring Cubit, CGM, MOAB and the physics
-code, and will also result in dependencies on shared libraries.
-
-Summary
-~~~~~~~
-*Summary of Dependencies* 
+With installation of the DAGMC Toolkit, the dependency stack will look like this:
 
 * Some physics package, e.g. MCNP5
    * `MOAB/DAGMC <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_
@@ -67,33 +50,10 @@ Summary
        * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
 
 
-
-Toolkit Installation
-++++++++++++++++++++++++++++
-
-Installing the MOAB library can be accomplished in either of two ways:
-
-* Compile each component individually in a 4-step process.
-* Run the *build_dagmc_stack.bash* script.
-
-**Compile each component individually**
-
-The following 4 steps are required to install the MOAB library,
-including the DAGMC toolkit, for use in Monte Carlo radiation
-transport tools.  Following these steps, all the pre-requisites for
-the automated processing stage will be available.
-
-1. Install `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1
-2. Install `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_, using the --with-cubit options
-3. Install `HDF5 <http://www.hdfgroup.org/HDF5/>`_
-4. Install `MOAB <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_,
-   using the --with-cgm and --with-hdf5 options (--with-netcdf may
-   also be useful but not necessary)
-
 Here are some assumptions/conventions that are used in these instructions:
 
 * all operations are carried out in the a subdirectory ``dagmc_bld`` of a user's home directory
-* path to CUBIT files is known, e.g. ``/path/to/cubit``.  This is the directory that contains the Python script file ``cubit`` and a ``bin`` subdirectory.  
+* the path to CUBIT files is known, e.g. ``/path/to/cubit``.  This is the directory that contains the Python script file ``cubit`` and a ``bin`` subdirectory.  
 * all tarballs reside in user's home directory
 
 If these do not apply to you, please modify your steps accordingly.
@@ -103,12 +63,12 @@ If these do not apply to you, please modify your steps accordingly.
 CGM
 ````
 
-CGM:  Create a directory to build in:
+Create a CGM directory to build in:
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/CGM/bld
     prompt%> cd $HOME/dagmc_bld/CGM
 
-If installing from git repository (you *must* use this method if you are using Cubit v13.1):
+If you are building CGM with Cubit v13.1 or v12.2 you *must* clone the cgm repository using, respectively, one of the following methods:
 ::
     prompt%> git clone https://bitbucket.org/fathomteam/cgm/
     prompt%> cd cgm
@@ -117,9 +77,10 @@ If installing from git repository (you *must* use this method if you are using C
     prompt%> cd ..
     prompt%> ln -s cgm src
 
-If installing from git repository (you *must* use this method if you are using Cubit v12.2):
+-or-
 ::
     prompt%> git clone https://bitbucket.org/fathomteam/cgm/
+    prompt%> cd cgm
     prompt%> git checkout 12.2.2
     prompt%> autoreconf -fi
     prompt%> cd ..
@@ -141,15 +102,22 @@ In all CGM cases:
     prompt%> make
     prompt%> make install
 
-HDF5
-====
 
-HDF5:  Follow these steps
+HDF5
+````
+
+The HDF5 tarball can be downloaded from the `website <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_ or, on a Linux machine, using the wget command, e.g.
 ::
-    prompt%> mkdir $HOME/dagmc_bld/HDF5/bld
+    prompt%> wget http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.11/src/hdf5-1.8.11.tar.gz
+
+See `ftp versions <https:// http://www.hdfgroup.org/ftp/HDF5/releases>`_ for available versions.
+
+Create a directory and install HDF5:
+::
+    prompt%> mkdir -p $HOME/dagmc_bld/HDF5/bld
     prompt%> cd $HOME/dagmc_bld/HDF5
-    prompt%> tar xzf ~/hdf5-1.8.7.tar.gz
-    prompt%> ln -s hdf5-1.8.7 src
+    prompt%> tar xzf ~/hdf5-1.8.11.tar.gz
+    prompt%> ln -s hdf5-1.8.11 src
     prompt%> cd bld
     prompt%> ../src/configure --enable-shared --prefix=$HOME/dagmc_bld/HDF5
     prompt%> make
@@ -159,17 +127,19 @@ HDF5:  Follow these steps
 MOAB
 ````
 
-MOAB: Create a directory to install in
+Note:  MOAB version 4.7.0 is the earliest version that may be used.
+
+Create a MOAB directory to install in
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/MOAB/bld
     prompt%> cd $HOME/dagmc_bld/MOAB
 
 
-If installing MOAB from git repository:
+If installing MOAB from the git repository:
 ::
     prompt%> git clone https://bitbucket.org/fathomteam/moab/
     prompt%> cd moab
-    prompt%> git checkout 4.6.3
+    prompt%> git checkout 4.7.0
     prompt%> autoreconf -fi
     prompt%> cd ..
     prompt%> ln -s trunk src
@@ -185,25 +155,13 @@ In all MOAB cases:
     prompt%> make
     prompt%> make install
 
-**Build and Install MOAB using a Build Script**
-
-The script *build_dagmc_stack.bash* is in UW-Madison's svalinn/DAGMC repository,
-`DAGMC git repo <https://github.com/svalinn/DAGMC>`_ under DAGMC/MCNP5/
-To see the available options, in the directory containing *build_dagmc_stack.bash* type 
-:: 
-    prompt%> ./build_dagmc_stack.bash --help
-
-This script is under development.  It is recommended that the components be compiled individually 
-at this time.
-
-
 
 Post Install
-~~~~~~~~~~~~
+``````````````
 
 Having installed all the prerequisite tools, namely Cubit, CGM, HDF5 and MOAB, the user
 must ensure that the system has access to the libraries and programs that have been built.
-We must therefore modify our $PATH and $LD_LIBRARY_PATH enironments accordingly.
+Therefore modify the $PATH and $LD_LIBRARY_PATH environments accordingly:
 :: 
 
     prompt%> export PATH=$PATH:/$HOME/dagmc_bld/path/to/cubit/bin: \
@@ -214,23 +172,74 @@ We must therefore modify our $PATH and $LD_LIBRARY_PATH enironments accordingly.
                                /$HOME/dagmc_bld/MOAB/lib:/$HOME/dagmc_bld/CGM/lib
  
 
-DAGMC
-~~~~~
+Applying DAGMC to Specific Monte Carlo Codes
++++++++++++++++++++++++++++++++++++++++++++++
 
-DAGMC: Clone the DAGMC repository
+Install DAGMC
+~~~~~~~~~~~~~
+
+Clone the DAGMC repository
 ::
     prompt%> cd $HOME/dagmc_bld
     prompt%> git clone https://github.com/svalinn/DAGMC
     prompt%> cd DAGMC
     prompt%> git checkout develop
-    prompt%> cd $HOME/dagmc_bld
+
+Note:  a version of the build instructions, INSTALL.rst, is in the DAGMC directory.
+
+Install Instructions
+~~~~~~~~~~~~~~~~~~~~
+
+The DAGMC toolkit now has a full CMake install and build method, for all codes used downstream, even
+going so far to replace the MCNP build method with a CMake file.
+
+Note that in addition to the detailed instructions above for building the MOAB stack, you must also install
+
+1) Lapack, using your favorite method
+2) `Fluka <http://www.fluka.org>`_
+
+How To
+========
+1) Copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the mcnp5/ directory in the DAGMC source tree
+   cp -r <path to cdrom/MCNP5/Source mcnp5/.
+2) Apply the patch from the patch folder
+   patch -p1 < patch/dagmc.patch.5.1.60
+3) Assuming your patch was succesfully applied, i.e. there were no warnings or errors then we can now start building,
+   assuming that you are in the base level of the DAGMC repo, create a new directory and navigate to it.
+   mkdir bld
+   cd bld
+4) We can now configure DAGMC for building, you must include the CMAKE_INSTALL_PREFIX option with a folder where
+   you would like the toolkit to be installed, this directory need not exist.
+
+   For example we could just build the DAGMC interfaces and DAG-MCNP5
+   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+   or to building MCNP5 in parallel
+   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
+   -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+   We could build Fluka as well
+   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
+     -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+   or only Fluka
+   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
+             -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+   and or Geant4
+   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
+          -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DBUILD_GEANT4=ON -DGEANT4_DIR=/mnt/data/opt/geant4  \
+          -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+
+5) Assuming that the cmake step was succesful, i.e. no errors were reported then we can make by issuing the make command
+   make
+6) If there were no errors, then we can install the DAGMC suite of libraries and tools by issing the install command
+   make install
+7) If everything was successful, you may have the mcnp5 and mainfludag executables in the bin folder, the libraries in lib
+   and the header files in the include folder
 
 
+  
 
 
-Applying DAGMC to Specific Monte Carlo Codes
-+++++++++++++++++++++++++++++++++++++++++++++
-
+   
+MOSTLY CUT AFTER HERE
 DAG-MCNP5 Build/Install
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
