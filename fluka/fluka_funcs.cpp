@@ -486,8 +486,6 @@ void f_look(double& pSx, double& pSy, double& pSz,
 	}
     }  // end loop over all volumes
 
-  // if we are here do slow check
-  // slow_check(xyz,dir,nextRegion);
   flagErr = nextRegion; // return nextRegion
   return;
 }
@@ -509,39 +507,6 @@ int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
   MBErrorCode ErrorCode = DAG->test_volume_boundary(vol,next_surf,xyz,uvw, result,&history);  // see if we are on boundary
   return result;
 }
-//---------------------------------------------------------------------------//
-// slow_check(..)
-// Not CALLED
-//---------------------------------------------------------------------------//
-// Helper function
-void slow_check(double pos[3], const double dir[3], int &oldReg)
-{
-  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
-  std::cout << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
-  int num_vols = DAG->num_entities(3);  // number of volumes
-  int is_inside = 0;
-  for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
-    {
-      MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
-      MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir); 
-      if ( code != MB_SUCCESS)
-	{
-	 std::cout << "Failure from point in volume" << std::endl;
-	 exit(0);
-	}
-
-      if ( is_inside == 1) // if in volume
-	{
-	  oldReg = DAG->index_by_handle(volume); //set oldReg
-	  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << " " << oldReg << std::endl;
-	  return;
-	}
-    }
-
-  std::cout << "FAILED SLOW CHECK" << std::endl;
-  exit(0);
-}
-
 /*
  *   Particle localisation when magnetic field tracking is on
  */

@@ -16,23 +16,25 @@
 #include "../uwuw/uwuw.hpp"
 
 
-/// Called from mainFludag when only one argument is given to the program.
-//  This function writes out a simple numerical material assignment to the named argument file
-//  Example usage:  mainFludag dagmc.html
-//  Outputs
-//           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
-//                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
-//                    The string after "M_" is considered to be the material for that volume.
-//                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
-//                    For the remaining materials, there is one MATERIAL card apiece (no dups)
-//                    User-named (not predefined) materials are TRUNCATED to 8 chars.
-//                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
-//           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
-//  Note that a preprocessing step to this call sets up the the DAG object that contains 
-//  all the geometry information contained in dagmc.html.  
-//  the name of the (currently hardcoded) output file is "mat.inp"
-//  The graveyard is assumed to be the last region.
-//  Overall function call; calls other fludag functions
+/**
+ * \brief Called from mainFludag when only one argument is given to the program.
+ *  This function writes out a simple numerical material assignment to the named argument file
+ *  Example usage:  mainFludag dagmc.html
+ *  Outputs
+ *           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
+ *                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
+ *                    The string after "M_" is considered to be the material for that volume.
+ *                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
+ *                    For the remaining materials, there is one MATERIAL card apiece (no dups)
+ *                    User-named (not predefined) materials are TRUNCATED to 8 chars.
+ *                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
+ *           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
+ *  Note that a preprocessing step to this call sets up the the DAG object that contains 
+ *  all the geometry information contained in dagmc.html.  
+ *  the name of the (currently hardcoded) output file is "mat.inp"
+ *  The graveyard is assumed to be the last region.
+ *  Overall function call; calls other fludag functions
+ */
 void fludag_write(std::string matfile, std::string lfname);
 
 // Load the PyNE material objects in the named file
@@ -40,7 +42,9 @@ void pyne_get_materials(std::string mat_file,
                         std::list<pyne::Material>& pyne_list,
 			std::map<std::string, pyne::Material>& pyne_map);
 
-// Extract PyNE nucids from a known list of elements
+/**
+ * Extract PyNE nucids from a known list of elements
+*/
 std::set<int> make_exception_set();
 /*
  * Write the material assignment for each volume to an output stream
