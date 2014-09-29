@@ -48,7 +48,7 @@ inline void RNDVEC(CartVect& uvw, double &az)
   double phi = denomPI * rand();
   uvw[0] = cos(theta)*sin(phi);
   uvw[1] = sin(theta)*sin(phi);
-  uvw[1] = cos(phi);
+  uvw[2] = cos(phi);
 }
 
 /* program global data, including settings with their defaults*/
