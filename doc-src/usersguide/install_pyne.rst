@@ -63,15 +63,16 @@ Install named prerequisites with conda:
 Install PyTAPS:
 ::
     prompt%> cd PyTAPS-1.4
+    prompt%> python setup.py build
     prompt%> python setup.py install --skip-build --prefix=`pwd`/../anaconda
     prompt%> cd ..
 
 Install pyne:
 ::
     prompt%> cd pyne
-    prompt%> python setup.py install --user --prefix=`pwd`/../anaconda --hdf5=$HOME/dagmc_bld/HDF5 
+    prompt%> python setup.py install -- --prefix=`pwd`/../anaconda --hdf5=$HOME/dagmc_bld/HDF5 
     prompt%> cd ..
 
-Verify:
+Verify the PyNE library has just been built:
 ::
     prompt%> ls -l anaconda/lib/libpyne.so
