@@ -23,6 +23,11 @@ SET(LIBS
     pthread
 )
 
+#includes
+
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/fluka )
+#MESSAGE ( STATUS "Not building dagmciface physics interface library" ${DI_PUB_HEADERS} )
+
 #add_custom_target(check)
 macro(run_test test_target)
   add_custom_target(${test_target}_runtest

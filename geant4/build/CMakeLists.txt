@@ -38,7 +38,7 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 #
 add_executable(DagGeant4 exampleN01.cc ${sources} ${headers})
 target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
-                                ${HDF5_DIR}/libhdf5.so
+                                ${HDF5_LIBRARIES}
                                 ${PYNE_LIBS_DIR}/libpyne.so
 			        ${MOAB_LIBRARIES}
 				dagsolid
