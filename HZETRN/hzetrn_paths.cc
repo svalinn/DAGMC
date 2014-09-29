@@ -234,7 +234,6 @@ int main(int argc, char* argv[]) {
       }
       
     }
-    
     for ( unsigned int slab_num=0; slab_num<slab_length.size(); slab_num++) {
       std::cout << slab_mat_name[slab_num] << "\t" << slab_density[slab_num] << "\t" 
                 << slab_length[slab_num] << std::endl;
