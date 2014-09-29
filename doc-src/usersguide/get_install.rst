@@ -7,7 +7,7 @@ and testing of DAGMC is `MCNP5 <http://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.
 developed by `Los Alamos National Laboratory <http://www.lanl.gov>`_
 and distributed by the `Radiation Safety Information Computing Center
 <http://rsicc.ornl.gov>`_.  There has also been experience with MCNPX
-(LANL), Tripoli4 (CEA/Saclay),`FLUKA <http://www.fluka.org>`_ (CERN/INFN), 
+(LANL), Tripoli4 (CEA/Saclay), `FLUKA <http://www.fluka.org>`_ (CERN/INFN), 
 and `Geant4 <http://www.geant4.cern.ch/>`_ (CERN).
 
 These instructions describe the basic steps for downloading and
@@ -21,7 +21,7 @@ Toolkit Installation
 This section details the installation and build steps for the prerequisite packages for the the DAGMC
 toolkit with specific physics codes.
 
-Prerequisites
+Requirements
 ~~~~~~~~~~~~~
 
 In order to install you must have done the following:
@@ -35,10 +35,12 @@ In order to install you must have done the following:
    a) Install `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1
 5) Installed Lapack
    Note that the MCNP build automatically builds the dagtally library, which uses Lapack 
-6) Installed `FLUKA <http://www.fluka.org>`_
+6) Installed PyNE
+7) Installed `FLUKA <http://www.fluka.org>`_ - and/or - 
+8) Installed Geant4
 
 
-Installation of Prerequisites
+Installation 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With installation of the DAGMC Toolkit, the dependency stack will look like this:
@@ -50,7 +52,7 @@ With installation of the DAGMC Toolkit, the dependency stack will look like this
        * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
 
 
-Here are some assumptions/conventions that are used in these instructions:
+Assumptions and conventions that are used in these instructions:
 
 * all operations are carried out in the a subdirectory ``dagmc_bld`` of a user's home directory
 * the path to CUBIT files is known, e.g. ``/path/to/cubit``.  This is the directory that contains the Python script file ``cubit`` and a ``bin`` subdirectory.  
@@ -61,7 +63,7 @@ If these do not apply to you, please modify your steps accordingly.
      *(For a shortcut to installing DAG-MCNP5.1.60 you may be able to use the build_dagmc_stack.bash script .)*
 
 CGM
-````
+=====
 
 Create a CGM directory to build in:
 ::
@@ -104,14 +106,13 @@ In all CGM cases:
 
 
 HDF5
-````
+======
 
 The HDF5 tarball can be downloaded from the `website <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_ or, on a Linux machine, using the wget command, e.g.
 ::
     prompt%> wget http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.11/src/hdf5-1.8.11.tar.gz
 
-See `ftp versions <https:// http://www.hdfgroup.org/ftp/HDF5/releases>`_ for available versions.
-
+See `ftp <http://www.hdfgroup.org/ftp/HDF5/releases>`_ site for available versions.
 Create a directory and install HDF5:
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/HDF5/bld
@@ -125,7 +126,7 @@ Create a directory and install HDF5:
 
 
 MOAB
-````
+======
 
 Note:  MOAB version 4.7.0 is the earliest version that may be used.
 
@@ -156,10 +157,16 @@ In all MOAB cases:
     prompt%> make install
 
 
-Post Install
-``````````````
+PyNE
+=====
+PyNE is a Python-based nuclear materials data handling package.  Integration of the DAGMC Toolkit with any physics package, e.g.
+FLUKA (FluDAG) or Geant4 (DAGSolid), now requires this library be installed.
 
-Having installed all the prerequisite tools, namely Cubit, CGM, HDF5 and MOAB, the user
+
+Post Install
+~~~~~~~~~~~~~~
+
+Having installed all the prerequisite tools, namely Cubit, CGM, HDF5, MOAB and PyNE, the user
 must ensure that the system has access to the libraries and programs that have been built.
 Therefore modify the $PATH and $LD_LIBRARY_PATH environments accordingly:
 :: 
@@ -185,143 +192,136 @@ Clone the DAGMC repository
     prompt%> cd DAGMC
     prompt%> git checkout develop
 
-Note:  a version of the build instructions, INSTALL.rst, is in the DAGMC directory.
+    *(A version of the build instructions, INSTALL.rst, is in the DAGMC directory)*.
 
-Install Instructions
-~~~~~~~~~~~~~~~~~~~~
+Install FLUKA
+~~~~~~~~~~~~~~
+FluDAG uses `FLUKA <http://www.fluka.org>`_ from CERN/INFN with the DAGMC Toolkit.
 
-The DAGMC toolkit now has a full CMake install and build method, for all codes used downstream, even
-going so far to replace the MCNP build method with a CMake file.
+In order to download FLUKA you need to become a registered user, which you can do at 
+the `FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page from a link on the main FLUKA page.
+Save the user id and password for future FLUKA updates.  We recommend an x64 worfklow and as such you should download
+the 64 bit executable.  The download name is of the form *fluka20xx.xx-linux-gfor64bitAA.tar.gz*.
+See the `site <http://www.fluka.org/fluka.php?id=ins_run&mm2=3>`_ for instructions.
+
+Once the FLUPRO environment variables have been set, confirm that you have a working install of Fluka and proceed to
+the next steps.
+
+Build DAGMC Interfaces
+~~~~~~~~~~~~~~~~~~~~~~
+
+The DAGMC toolkit now has a full CMake install and build method for all codes used downstream.  It even
+replaces the MCNP build method with a CMake file.
 
 Note that in addition to the detailed instructions above for building the MOAB stack, you must also install
+Lapack, using your favorite method.
 
-1) Lapack, using your favorite method
-2) `Fluka <http://www.fluka.org>`_
+Populate and Patch 
+============================================
+Populate the mcnp5 subdirectory of DAGMC and apply the dagmc patch.
 
-How To
-========
-1) Copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the mcnp5/ directory in the DAGMC source tree
-   cp -r <path to cdrom/MCNP5/Source mcnp5/.
-2) Apply the patch from the patch folder
-   patch -p1 < patch/dagmc.patch.5.1.60
-3) Assuming your patch was succesfully applied, i.e. there were no warnings or errors then we can now start building,
-   assuming that you are in the base level of the DAGMC repo, create a new directory and navigate to it.
-   mkdir bld
-   cd bld
-4) We can now configure DAGMC for building, you must include the CMAKE_INSTALL_PREFIX option with a folder where
-   you would like the toolkit to be installed, this directory need not exist.
+Copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the mcnp5/ directory in the DAGMC source tree
+::
+    prompt%> cd $HOME/dagmc_bld
+    prompt%> mkdir -p $HOME/damc_bld/mcnp5
+    prompt%> cp -r <path to cdrom/MCNP5/Source mcnp5/
 
-   For example we could just build the DAGMC interfaces and DAG-MCNP5
-   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-   or to building MCNP5 in parallel
-   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
-   -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-   We could build Fluka as well
-   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
-     -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-   or only Fluka
-   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
-             -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-   and or Geant4
-   cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
-          -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DBUILD_GEANT4=ON -DGEANT4_DIR=/mnt/data/opt/geant4  \
-          -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-
-5) Assuming that the cmake step was succesful, i.e. no errors were reported then we can make by issuing the make command
-   make
-6) If there were no errors, then we can install the DAGMC suite of libraries and tools by issing the install command
-   make install
-7) If everything was successful, you may have the mcnp5 and mainfludag executables in the bin folder, the libraries in lib
-   and the header files in the include folder
+Apply the patch from the patch folder
+::
+    prompt%> patch -p1 < patch/dagmc.patch.5.1.60
 
 
-  
+Configure 
+===================
+
+Assuming the patch was succesfully applied, i.e. there were no warnings or errors, then we can now 
+configure the DAGMC cmake system for the desired build.  From the base level of the DAGMC repo 
+create a build directory and navigate to it.
+::
+    prompt%> cd $HOME/dagmc_bld/DAGMC
+    prompt%> mkdir bld
+    prompt%> cd bld
 
 
+We can now configure DAGMC for building.  The CMake system can be configured to build any one of 
+the following
+   * MCNP5 with or without MPI
+   * GEANT4 (DAGSolid)
+   * FLUKA  (FluDAG) 
    
-MOSTLY CUT AFTER HERE
-DAG-MCNP5 Build/Install
-~~~~~~~~~~~~~~~~~~~~~~~~
+You will need to include the CMAKE_INSTALL_PREFIX=install_dir option as part of the configuration.  When the 
+build command 'make install' is invoked, libraries, executables, tests, and include files are installed in 
+subdirectories under install_dir.  It is common to use -DCMAKE_INSTALL_PREFIX=..', which creates and populates 
+these directories one level above the build directory, that is, in the DAGMC directory.  
+Note the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
+for the cmake system.
 
-If you would like to use DAGMC with MCNP5, known as DAG-MCNP5, you will also need:
-
-* MCNP5.1.60 source code from `RSICC <http://rsicc.ornl.gov>`_
-* a local copy of UW-Madison's `DAGMC git repo <https://github.com/svalinn/DAGMC>`_ 
-
-Automatic Installation
-=======================
-
-A package has been prepared that includes many of the requires
-software libraries and an automated build script.  Because the DAGMC
-team is not authorized to distribute `CUBIT
-<http://cubit.sandia.gov>`_ nor `MCNP5.1.60 source code
-<http://mcnp.lanl.gov>`_, you must acquire those through the
-appropriate channels on your own.
-
-Once you have both of those things, you should be able to use the
-DagmcBuildPackage to create a working install of DAG-MCNP5.1.60.
-
-Manual Installation
-=====================
-
-The following steps are required to install DAG-MCNP5.  Most of these steps are described in more detail below.
-
-1. Install the DAGMC Toolkit as described above
-2. Clone a copy of the DAGMC git repo.
-3. Apply the appropriate patch from DAGMC/MCNP5/patch/ to your copy of the MCNP5 source code
-4. Build & install the patched version of MCNP5
-
-Some assumptions/conventions:
-
-* all operations are carried out in the a subdirectory ``dagmc_bld`` of a user's home directory
-* path to CUBIT files is known, e.g. ``/path/to/cubit``
-* all tarballs reside in user's home directory
-* MCNP5 source code is available in location ``$HOME/dagmc_bld/MCNP5``
-* A cloned DAGMC git repo can be found at ``$HOME/dagmc_bld/DAGMC``
-
-Apply Patch
-############
-
-*Apply DAGMC Patch to MCNP5 v1.60*
-
-Perform the following steps:
+For the examples that follow, it is assumed you are in $HOME/dagmc_bld/DAGMC/bld:
 ::
-    prompt%> cd $HOME/dagmc_bld/MCNP5
-    prompt%> patch -p1 < /path/to/DAGMC/MCNP5/patch/dagmc.patch.5.1.60
+    prompt%> cd $HOME/dagmc_bld/DAGMC/bld
 
 
-Build DAG-MCNP5
-################
+DAGM-MCNP5
+###########
 
-*Build DAG-MCNP5 from modified code*
-
-One of the easiest ways to build DAG-MCNP5 is directly using the
-``makefile`` from the command-line.  To do this, you must know the
-``makefile`` options to build a version of MCNP5 without DAGMC,
-usually in the form:
+Build the DAGMC interfaces and DAG-MCNP5
 ::
-    prompt%> make build CONFIG="seq plot gfortran" FC=gfortran MARCH=M64``
+    prompt%> cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON \
+                        -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
-or similar.  Starting from these options, you can build DAG-MCNP5 from
-a patched source code with:
+
+DAG-MCNP5 with MCNP5 in parallel
+#################################
+
+Build MCNP5 in parallel
 ::
-    prompt%> make build CONFIG="seq plot gfortran dagmc" FC=gfortran MARCH=M64 \
-                 MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit/bin \
-		 DAGMC_DIR=$HOME/dagmc_bld/DAGMC/MCNP5/dagmc
+    prompt%> cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON \
+                        -DMPI_BUILD=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-If you are less familiar with building MCNP5 from the ``makefile`` you
-may want to use the interactive ``install`` script provided by LANL:
+DAG_MCNP5, FluDAG
+###################
+
+Build MCNP5 in parallel and build the dagmc-enabled FLUKA. 
+Note that $FLUPRO should have been previously defined as part of the FLUKA install.
 ::
-    prompt%> ./install
+    prompt%> cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON \
+                        -DMPI_BUILD=ON -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
+			-DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
-Within the ``install`` program you will need to set the DAGMC build options:
 
-* turn on DAGMC mode
-* provide the path to MOAB: ``$HOME/dagmc_bld/MOAB``
-* provide the path to CUBIT: ``/path/to/cubit``
+FluDAG
+########
 
-Your executable should be available as ``$HOME/dagmc_bld/MCNP5/Source/src/mcnp5``.
+Build only FluDAG
+::
+    prompt%> cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_FLUKA=ON \
+                        -DFLUKA_DIR=$FLUPRO \
+                        -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+
+FluDAG and DAGSolid
+####################
+
+Build FluDAG and Geant4-enabled DAGMC
+::
+    prompt%> cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
+                        -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
+                        -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+
+Compile and Install
+~~~~~~~~~~~~~~~~~~~~~
+
+Assuming that the cmake step was succesful, i.e. no errors were reported, compile by issuing the make command
+::
+    prompt%> make
+
+If there were no errors, install the DAGMC suite of libraries and tools by issuing the install command
+::
+    prompt%> make install
+
+If everything was successful, you may have the mcnp5 and mainfludag executables in the $INSTALL_PATH/bin folder, 
+the libraries in $INSTALL_PATH/lib and the header files in the $INSTALL_PATH/include folder
+
 
 DAG-Tripoli4 Access
 ~~~~~~~~~~~~~~~~~~~
@@ -330,56 +330,11 @@ Tripoli4 is distributed by CEA/Saclay as a binary executable.  For
 access to DAG-Tripoli4, please contact `Jean-Christophe Trama
 <mailto:jean-christophe.trama@cea.fr>`_.
 
-FluDAG Build
-~~~~~~~~~~~~
 
-FluDAG uses `FLUKA <http://www.fluka.org>`_ from CERN/INFN with the DAGMC Toolkit.
-The steps to build and install FluDAG follow.
+FluDAG Execution and testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*Install  FLUKA*
-==================
-
-In order to download FLUKA you need to become a registered user, which you can do at 
-the `FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page from a link on the main FLUKA page.
-Save the user id and password for future FLUKA updates. We recommend a x64 worfklow and as such you should download
-the 64 bit exectubale the download name is of the form *fluka20xx.xx-linux-gfor64bitAA.tar.gz*, `See <http://www.fluka.org/fluka.php?id=ins_run&mm2=3>`_.
-
-Once the FLUPRO environment variables have been set and you have a confirmed working install of Fluka, please proceed to
-the FluDAG install below.
-
-*FluDAG Installation*
-=====================
- 
-Get the FluDAG Development release repository by cloning :ref:`DAGMC` (if you haven't done so)
-::
-
-    prompt%> cd $HOME/dagmc_bld/DAGMC
-    prompt%> git checkout develop
-
-In order to install we run CMake and provide the path to the MOAB installation, the $FLUPRO
-path is picked up implcitly
-::
-
-    prompt%> cd $HOME/DAGMC/FluDAG
-    prompt%> mkdir bld
-    prompt%> cd bld
-    prompt%> cmake ../src/. -DMOAB_HOME=$HOME/dagmc_bld/MOAB
-    prompt%> make
-    prompt%> mv src/mainfludag .
-
-Upon successful compilation the directory *bld* will have the *mainfludag* executable in it. 
-
-Fluka is typically run by users with the rfluka script, we patch this script below, it will still
-be compatable with standard Fluka inputs
-::
-
-    prompt%> cp $FLUPRO/flutil/rfluka $FLUPRO/flutil/rfluka.orig 
-    prompt%> patch -p1 < ../src/rfluka.patch $FLUPRO/flutil/rfluka
-
-In order to test FluDAG, an environment variable, named 'FLUDAG', with the path to the *bld* 
-directory must be set:
-
-Add this statement to your login script:
+Fluka is typically run by users with the rfluka script, which is patched to facilitate dagmc input.
 ::
 
     export FLUDAG=${HOME}/dagmc_bld/DAGMC/FluDAG/bld/
