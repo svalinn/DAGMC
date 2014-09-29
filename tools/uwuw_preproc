@@ -173,7 +173,7 @@ filename : string of the name of the material library
 returns PyNE MaterialLibrary instance
 """
 def load_mat_lib(filename):
-    mat_lib = material.MaterialLibrary()
+    mat_lib = MaterialLibrary()
     mat_lib.from_hdf5(
         filename, datapath='/material_library/materials', nucpath='/material_library/nucid')
     return mat_lib
