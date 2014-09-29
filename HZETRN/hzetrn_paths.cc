@@ -1,5 +1,6 @@
 #include "DagMC.hpp"
 #include "moab/ProgOptions.hpp"
+#include "moab/CartVect.hpp"
 
 #include <vector>
 #include <deque>
@@ -9,26 +10,23 @@
 
 #define DEFAULT_NUMRAYS 1000
 
-inline std::vector<double> get_rand_dir() {
+void get_rand_dir(moab::CartVect &dir ) {
 
   static const double denom = 1.0 / ((double) RAND_MAX);
   static const double pi = acos(-1.0);
 
   double theta;
 
-  std::vector<double> dir;
-
   dir[0] = dir[1] = dir[2] = 0;
 
-  dir[2] = 2*rand()*denom - 1;
+  dir[2] = rand()*denom;
+  dir[2] = 2*dir[2] -1;
   theta = 2 * pi * rand() * denom;
 
   dir[0] = dir[1] = sqrt(1-dir[2]*dir[2]);
   
   dir[0] *= cos(theta);
   dir[1] *= sin(theta);
-
-  return dir;
 
 }
 
@@ -39,7 +37,7 @@ int main(int argc, char* argv[]) {
 
   std::string geom_file;
   int num_rays;
-  std::vector<double> ref_point;
+  moab::CartVect ref_point;
   moab::EntityHandle start_vol = 0;
   moab::EntityHandle graveyard = 0;
   double huge = std::numeric_limits<double>::max();
@@ -97,6 +95,8 @@ int main(int argc, char* argv[]) {
     // find start volume
     if (inside) {
       start_vol = test_vol;
+      std::cout << "Found start volume: idx=" << dag->index_by_handle(start_vol) 
+                << " id=" << dag->get_entity_id(start_vol) << std::endl;
     }
     
   }
@@ -123,8 +123,9 @@ int main(int argc, char* argv[]) {
     // initialize the new list
     moab::EntityHandle vol = start_vol;
     moab::EntityHandle surf = 0;
-    std::vector<double> current_pt = ref_point;
-    std::vector<double> dir = get_rand_dir();
+    moab::CartVect current_pt = ref_point;
+    moab::CartVect dir;
+    get_rand_dir(dir);
     double dist = 0;
     slab_length.clear();
     slab_density.clear();
@@ -132,14 +133,20 @@ int main(int argc, char* argv[]) {
 
     // while not at the graveyard
     while (vol != graveyard) {
-      rval = dag->ray_fire(vol,&current_pt[0],&dir[0],surf,dist);
-      if (dist < huge) {
+      // std::cout << current_pt << "\t" << dir << std::endl;
+      rval = dag->ray_fire(vol,current_pt.array(),dir.array(),surf,dist);
+      if (dist < huge && surf != 0) {
+        // std::cout << dist << "\t" << surf << std::endl;
         slab_length.push_front(dist);
-        slab_mat_name.push_front("get_mat_name");
+        std::string mat_name;
+        rval = dag->prop_value(vol,"mat",mat_name);
+        std::cout << mat_name << std::endl;
+        slab_mat_name.push_front(mat_name);
         slab_density.push_front(-1);
         moab::EntityHandle new_vol;
         rval = dag->next_vol(surf,vol,new_vol);
         vol = new_vol;
+        current_pt += dir*dist;
       } else {
         vol = graveyard;
       }
