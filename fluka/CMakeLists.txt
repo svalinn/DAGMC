@@ -23,7 +23,7 @@ ENABLE_LANGUAGE( Fortran )
 
 SET(FLUDAG_LIBS
      dagmciface
-     ${HDF5_DIR}/lib/libhdf5.so
+     ${HDF5_DIR}/libhdf5.so
      ${PYNE_LIBS_DIR}/libpyne.so
      ${MOAB_LIBRARIES} 
      gfortran
