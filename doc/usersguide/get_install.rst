@@ -243,8 +243,8 @@ create a build directory and navigate to it.
     prompt%> cd bld
 
 
-We can now configure DAGMC for building.  The CMake system can be configured to build any one of 
-the following
+We can now configure DAGMC for building.  The CMake system can be configured to build any 
+or all of the following
    * MCNP5 with or without MPI
    * GEANT4 (DAGSolid)
    * FLUKA  (FluDAG) 
@@ -256,7 +256,7 @@ these directories one level above the build directory, that is, in the DAGMC dir
 Note the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
 for the cmake system.
 
-For the examples that follow, it is assumed you are in $HOME/dagmc_bld/DAGMC/bld:
+For the examples that follow, it is assumed you are in the bld directory of DAGMC:
 ::
     prompt%> cd $HOME/dagmc_bld/DAGMC/bld
 
@@ -305,7 +305,8 @@ FluDAG and DAGSolid
 Build FluDAG and Geant4-enabled DAGMC
 ::
     prompt%> cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
-                        -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
+                        -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DBUILD_GEANT4=ON \
+			-DGEANT4_DIR=path/to/geant4 \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 Compile and Install
@@ -331,13 +332,8 @@ access to DAG-Tripoli4, please contact `Jean-Christophe Trama
 <mailto:jean-christophe.trama@cea.fr>`_.
 
 
-FluDAG Execution and testing
+FluDAG Testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Fluka is typically run by users with the rfluka script, which is patched to facilitate dagmc input.
-::
-
-    export FLUDAG=${HOME}/dagmc_bld/DAGMC/FluDAG/bld/
 
 The FluDAG tests are in a separate repository, which can be cloned from github
 ::
