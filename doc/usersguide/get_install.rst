@@ -112,7 +112,7 @@ The HDF5 tarball can be downloaded from the `website <http://www.hdfgroup.org/HD
 ::
     prompt%> wget http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.11/src/hdf5-1.8.11.tar.gz
 
-See `ftp <http://www.hdfgroup.org/ftp/HDF5/releases>`_ site for available versions.
+See the `ftp <http://www.hdfgroup.org/ftp/HDF5/releases>`_ site for available versions.
 Create a directory and install HDF5:
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/HDF5/bld
@@ -160,7 +160,7 @@ In all MOAB cases:
 PyNE
 =====
 PyNE is a Python-based nuclear materials data handling package.  Integration of the DAGMC Toolkit with any physics package, e.g.
-FLUKA (FluDAG) or Geant4 (DAGSolid), now requires this library be installed.
+FLUKA (FluDAG) or Geant4 (DAGSolid), now requires this library be installed.  Directions for installing PyNE are :doc:`here ./install_pyne.html`.
 
 
 Post Install
@@ -192,7 +192,8 @@ Clone the DAGMC repository
     prompt%> cd DAGMC
     prompt%> git checkout develop
 
-    *(A version of the build instructions, INSTALL.rst, is in the DAGMC directory)*.
+
+*(A version of the build instructions, INSTALL.rst, is in the DAGMC directory)*.
 
 Install FLUKA
 ~~~~~~~~~~~~~~
