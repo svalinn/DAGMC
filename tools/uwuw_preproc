@@ -26,9 +26,19 @@ try:
 except ImportError:
     HAVE_PARTICLE = False
 
+
 import string
 import argparse
 import os
+
+fluka_predefined_mat=["BERYLLIU","BARIUM","BISMUTH","BROMINE","RHENIUM","RUTHERFO","ROENTGEN","HYDROGEN","PHOSPHO","GERMANIU",
+"GADOLINI","GALLIUM","HASSIUM","ZINC","HAFNIUM","MERCURY","HELIUM","PRASEODY","PLATINUM","239-PU","LEAD","CARBON", "POTASSIU","OXYGEN","SULFUR","TUNGSTEN","EUROPIUM","MAGNESIU","MOLYBDEN","MANGANES","URANIUM","IRON","NICKEL","NITROGEN",
+"SODIUM","NIOBIUM","NEODYMIU","NEON","ZIRCONIU","BORON","COBALT","FLUORINE","CALCIUM","CERIUM","CADMIUM","VANADIUM","CESIUM",
+"CHROMIUM","COPPER","STRONTIU","KRYPTON","SILICON","TIN","SAMARIUM","SCANDIUM","ANTIMONY","LANTHANU","CHLORINE","LITHIUM",
+"TITANIUM","TERBIUM","99-TC", "TANTALUM","SILVER","IODINE","IRIDIUM","241-AM","ALUMINUM","ARSENIC","ARGON","GOLD","INDIUM",
+"YTTRIUM","XENON","HYDROG-1","DEUTERIU","TRITIUM","HELIUM-3","HELIUM-4","LITHIU-6","LITHIU-7","BORON-10","BORON-11","90-SR",
+"129-I","124-XE","126-XE","128-XE","130-XE","131-XE","132-XE","134-XE","135-XE","136-XE","135-CS","137-CS", "230-TH","232-TH",
+"233-U","234-U","235-U","238-U"]
 
 """
 function that gets all tags on dagmc geometry
@@ -384,7 +394,7 @@ def fluka_material_naming(material, flukamat_list):
     else:
         pass
     # if name is in list, change name by appending number
-    if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
+    if (matf.upper() in flukamat_list) or (matf.upper() in fluka_predefined_mat):
         for a in range(len(flukamat_list)+1):
             a = a + 1
             if (a <= 9):
@@ -407,7 +417,7 @@ def fluka_material_naming(material, flukamat_list):
                     for i in range(difference):
                         matf = matf.rstrip(matf[-1])
                     matf = matf + str(a)  
-            if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
+            if (matf.upper() in flukamat_list) or (matf.upper() in fluka_predefined_mat):
                 continue
             else:
                 flukamat_list.append(matf.upper())
