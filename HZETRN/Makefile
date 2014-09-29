@@ -16,10 +16,10 @@ CXXSOURCES = hzetrn_paths.cc
 CXXOBJS = hzetrn_paths.o 
 
 hzetrn_paths: ${CXXOBJS} Makefile
-	${CXX} ${CXXFLAGS} -o $@ ${CXXOBJS} ${MOAB_LIBS_LINK}
+	${CXX} ${CXXFLAGS} -g -o $@ ${CXXOBJS} ${MOAB_LIBS_LINK}
 
 .cc.o:
-	${CXX} ${CXXFLAGS} ${MOAB_CXXFLAGS} ${MOAB_INCLUDES} -o $@ -c $<
+	${CXX} ${CXXFLAGS} ${MOAB_CXXFLAGS} ${MOAB_INCLUDES} -g -o $@ -c $<
 
 clean:
 	rm -rf hzetrn_paths *.o
