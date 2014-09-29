@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
   //
   runManager->Initialize();
 
-  /*
+  
   G4VisManager* visManager = new G4VisExecutive;
   visManager->Initialize();
 
@@ -73,10 +73,11 @@ int main(int argc, char* argv[])
   delete UI;
   return 0;
 
+ 
   UImanager->ApplyCommand("/run/verbose 1");
   UImanager->ApplyCommand("/event/verbose 1");
   UImanager->ApplyCommand("/tracking/verbose 1");
-    */
+  
 
 
   // Start a run
