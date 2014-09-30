@@ -5,6 +5,7 @@
 #include <vector>
 #include <deque>
 #include <iostream>
+#include <fstream>
 #include <math.h>
 #include <limits>
 
@@ -114,7 +115,7 @@ int main(int argc, char* argv[]) {
 
   moab::ErrorCode rval;
 
-  std::string geom_file;
+  std::string geom_file, dir_filename;
   int num_rays;
   moab::CartVect ref_point;
   moab::EntityHandle start_vol = 0;
@@ -131,6 +132,7 @@ int main(int argc, char* argv[]) {
   // - number of rays: default = 1000
   ProgOptions po("hzetrn_paths: a tool to generate rays for HZETRN");
   po.addRequiredArg<std::string>("geometry_file","Path to the DAGMC-compliant geometry file", &geom_file);
+  po.addOpt<std::string>("direction_file","List of directions");
   po.addOpt<double>("ref_point_x,x","X location of point to which rays should be fired from boundary");
   po.addOpt<double>("ref_point_y,y","Y location of point to which rays should be fired from boundary");
   po.addOpt<double>("ref_point_z,z","Z location of point to which rays should be fired from boundary");
@@ -149,11 +151,29 @@ int main(int argc, char* argv[]) {
     ref_point[2] = 0;
   }
 
-  // read the number of rays from command line
-  if (!po.getOpt("num_rays",&num_rays)) {
-    num_rays = DEFAULT_NUMRAYS;
-  }
+  // read dir_file
+  std::vector< moab::CartVect > dir_list;
 
+  if (!po.getOpt("direction_file",&dir_filename)) {
+    // read the number of rays from command line
+    if (!po.getOpt("num_rays",&num_rays)) {
+      num_rays = DEFAULT_NUMRAYS;
+    }
+    for (int ray_num = 0; ray_num < num_rays; ray_num++) {
+      moab::CartVect dir(3);
+      get_rand_dir(dir);
+      dir_list.push_back(dir);
+    }
+  } else {
+    std::ifstream dir_file(dir_filename.c_str());
+    while (!dir_file.eof()) {
+      moab::CartVect dir(3);
+      dir_file >> dir[0] >> dir[1] >> dir[2];
+      dir_list.push_back(dir);
+      dir_file.get();
+    }
+  }
+      
   // load geometry
   rval = DAG->load_file(geom_file.c_str());
   if (moab::MB_SUCCESS != rval) {
@@ -177,7 +197,7 @@ int main(int argc, char* argv[]) {
   rval = find_start_grave_vols(ref_point,graveyard,start_vol);
 
   // for each ray requested in the input
-  for (int ray_num = 0; ray_num < num_rays; ray_num++) {
+  for (unsigned int ray_num = 0; ray_num < dir_list.size(); ray_num++) {
 
     std::cout << "Ray " << ray_num << std::endl;
 
@@ -185,13 +205,12 @@ int main(int argc, char* argv[]) {
     moab::EntityHandle vol = start_vol;
     moab::EntityHandle surf = 0;
     moab::CartVect current_pt = ref_point;
-    moab::CartVect dir;
-    get_rand_dir(dir);
+    moab::CartVect dir = dir_list[ray_num];
     double dist = 0;
     slab_length.clear();
     slab_density.clear();
     slab_mat_name.clear();
-
+    
     // while not at the graveyard
     while (vol != graveyard) {
       // std::cout << current_pt << "\t" << dir << std::endl;
@@ -215,12 +234,13 @@ int main(int argc, char* argv[]) {
       }
       
     }
-
+    
     for ( unsigned int slab_num=0; slab_num<slab_length.size(); slab_num++) {
       std::cout << slab_mat_name[slab_num] << "\t" << slab_density[slab_num] << "\t" 
                 << slab_length[slab_num] << std::endl;
     }
     
   }
-
+  
 }
+  
