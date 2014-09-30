@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
         rval = DAG->prop_value(vol,"mat",mat_name);
         // std::cout << mat_name << std::endl;
         slab_mat_name.push_front(mat_name);
-        slab_density.push_front(-1);
+        slab_density.push_front(density);
         moab::EntityHandle new_vol;
         rval = DAG->next_vol(surf,vol,new_vol);
         vol = new_vol;
