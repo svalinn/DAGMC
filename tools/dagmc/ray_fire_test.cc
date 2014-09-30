@@ -45,10 +45,11 @@ inline void RNDVEC(CartVect& uvw, double &az)
 {
   
   double theta = denom * az * rand();
-  double phi = denomPI * rand();
-  uvw[0] = cos(theta)*sin(phi);
-  uvw[1] = sin(theta)*sin(phi);
-  uvw[2] = cos(phi);
+  double u = 2*denom *rand() - 1;
+  uvw[0] = sqrt(1-u*u)*cos(theta);
+  uvw[1] = sqrt(1-u*u)*sin(theta);
+  uvw[2] = u;
+
 }
 
 /* program global data, including settings with their defaults*/
