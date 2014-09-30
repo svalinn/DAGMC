@@ -48,7 +48,7 @@ ExN01RunAction::ExN01RunAction(UWUW data)
       std::stringstream ss;
       ss << (it->second).entity_id;
 
-      std::string tally_name = ss.str()+"/"+(it->second).tally_type+"/"+(it->second).particle_name;
+      std::string tally_name = ss.str()+"_"+(it->second).tally_type+"_"+(it->second).particle_name;
       // create historgram
       analysisManager->CreateH1(tally_name,(it->second).tally_name,100,0.,10.);
       // create tuple
