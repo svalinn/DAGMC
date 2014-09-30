@@ -38,11 +38,16 @@ moab::ErrorCode get_mat_rho(moab::EntityHandle vol,
   moab::ErrorCode rval;
   std::vector< std::string > tmp_properties;
 
+  mat_name = "";
   if (DAG->has_prop(vol,"mat")) {
     rval = DAG->prop_values(vol,"mat",tmp_properties);
     mat_name = tmp_properties[0];
+  } else {
+    mat_name = "Void";
   }
 
+
+  density = 0;
   if (DAG->has_prop(vol,"rho")) {
     rval = DAG->prop_values(vol,"rho",tmp_properties);
     density = atof(tmp_properties[0].c_str());
