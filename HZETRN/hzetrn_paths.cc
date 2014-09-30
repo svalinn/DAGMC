@@ -9,6 +9,7 @@
 #include <limits>
 
 #define DEFAULT_NUMRAYS 1000
+#define DAG moab::DagMC::instance()
 
 void get_rand_dir(moab::CartVect &dir ) {
 
@@ -30,9 +31,82 @@ void get_rand_dir(moab::CartVect &dir ) {
 
 }
 
+moab::ErrorCode get_mat_rho(moab::EntityHandle vol,
+                            std::string &mat_name,
+                            double &density) {
+
+  moab::ErrorCode rval;
+  std::vector< std::string > tmp_properties;
+
+  if (DAG->has_prop(vol,"mat")) {
+    rval = DAG->prop_values(vol,"mat",tmp_properties);
+    mat_name = tmp_properties[0];
+  }
+
+  if (DAG->has_prop(vol,"rho")) {
+    rval = DAG->prop_values(vol,"rho",tmp_properties);
+    density = atof(tmp_properties[0].c_str());
+  }
+
+  return moab::MB_SUCCESS;
+}
+
+moab::ErrorCode find_start_grave_vols(moab::CartVect &ref_point, 
+                                      moab::EntityHandle &graveyard, 
+                                      moab::EntityHandle &start_vol) {
+
+  moab::ErrorCode rval;
+
+  // for volume in list of volumes check point_in_volume for reference point
+  //   & find graveyard
+  for (int vol_num=DAG->num_entities(3); vol_num > 0; vol_num--) {
+    int inside;
+    moab::EntityHandle test_vol = DAG->entity_by_index(3,vol_num);
+
+    std::vector< std::string > tmp_properties;
+    
+    // find graveyard
+    if (DAG->has_prop(test_vol,"mat")){
+      rval = DAG->prop_values(test_vol,"mat",tmp_properties);
+      for ( int mat_num=tmp_properties.size()-1; mat_num >= 0; mat_num--) {
+        if ( !tmp_properties[mat_num].compare("Graveyard") ) {
+          graveyard = test_vol;
+        }
+      }
+    }
+
+    rval = DAG->point_in_volume(test_vol,&ref_point[0],inside);
+    if (moab::MB_SUCCESS != rval) {
+      return rval;
+    }
+    
+    // find start volume
+    if (inside) {
+      start_vol = test_vol;
+      std::cout << "Found start volume: idx=" << DAG->index_by_handle(start_vol) 
+                << " id=" << DAG->get_entity_id(start_vol) << std::endl;
+    }
+    
+  }
+  
+  if (0 == start_vol) {
+    std::cerr << "Error: Can't find starting volume" << std::endl;
+    return moab::MB_FAILURE;
+  }
+  
+  if (0 == graveyard) {
+    std::cerr << "Warning: No graveryard found.  Using lost ray for boundary." << std::endl;
+  }
+
+  return moab::MB_SUCCESS;
+  
+}
+
+
+
+
 int main(int argc, char* argv[]) {
 
-  moab::DagMC* dag = moab::DagMC::instance();
   moab::ErrorCode rval;
 
   std::string geom_file;
@@ -59,16 +133,6 @@ int main(int argc, char* argv[]) {
 
   po.parseCommandLine( argc, argv );
   
-  // load geometry
-  rval = dag->load_file(geom_file.c_str());
-  if (moab::MB_SUCCESS != rval) {
-    std::cerr << "Could not load file " << geom_file << std::endl;
-    exit(rval);
-  }
-
-  // initialize OBB tree
-  rval = dag->init_OBBTree();
-
   // find volume ID of reference point
   if (!po.getOpt("ref_point_x",&ref_point[0])) {
     ref_point[0] = 0;
@@ -80,40 +144,32 @@ int main(int argc, char* argv[]) {
     ref_point[2] = 0;
   }
 
-  // for volume in list of volumes check point_in_volume for reference point
-  //   & find graveyard
-  for (int vol_num=dag->num_entities(3); vol_num > 0; vol_num--) {
-    int inside;
-    moab::EntityHandle test_vol = dag->entity_by_index(3,vol_num);
-    rval = dag->point_in_volume(test_vol,&ref_point[0],inside);
-    
-    // find graveyard
-    if (dag->has_prop(test_vol,"graveyard")){
-      graveyard = test_vol;
-    }
-
-    // find start volume
-    if (inside) {
-      start_vol = test_vol;
-      std::cout << "Found start volume: idx=" << dag->index_by_handle(start_vol) 
-                << " id=" << dag->get_entity_id(start_vol) << std::endl;
-    }
-    
-  }
-  
-  if (0 == start_vol) {
-    std::cerr << "Error: Can't find starting volume" << std::endl;
-    exit(0);
-  }
-  
-  if (0 == graveyard) {
-    std::cerr << "Warning: No graveryard found.  Using lost ray for boundary." << std::endl;
-  }
-  
   // read the number of rays from command line
   if (!po.getOpt("num_rays",&num_rays)) {
     num_rays = DEFAULT_NUMRAYS;
   }
+
+  // load geometry
+  rval = DAG->load_file(geom_file.c_str());
+  if (moab::MB_SUCCESS != rval) {
+    std::cerr << "Could not load file " << geom_file << std::endl;
+    exit(rval);
+  }
+
+  // initialize OBB tree
+  rval = DAG->init_OBBTree();
+
+  // populate keywords
+  std::vector< std::string > prop_keywords;
+  std::map< std::string, std::string > prop_keyword_synonyms;
+  std::string delimiters = ":/";
+
+  prop_keywords.push_back("mat");
+  prop_keywords.push_back("rho");
+  rval = DAG->parse_properties(prop_keywords,prop_keyword_synonyms, delimiters.c_str());
+
+  // function to get graveyard & start vol
+  rval = find_start_grave_vols(ref_point,graveyard,start_vol);
 
   // for each ray requested in the input
   for (int ray_num = 0; ray_num < num_rays; ray_num++) {
@@ -134,17 +190,19 @@ int main(int argc, char* argv[]) {
     // while not at the graveyard
     while (vol != graveyard) {
       // std::cout << current_pt << "\t" << dir << std::endl;
-      rval = dag->ray_fire(vol,current_pt.array(),dir.array(),surf,dist);
+      rval = DAG->ray_fire(vol,current_pt.array(),dir.array(),surf,dist);
       if (dist < huge && surf != 0) {
         // std::cout << dist << "\t" << surf << std::endl;
         slab_length.push_front(dist);
+        double density;
         std::string mat_name;
-        rval = dag->prop_value(vol,"mat",mat_name);
-        std::cout << mat_name << std::endl;
+        rval = get_mat_rho(vol,mat_name,density);
+        rval = DAG->prop_value(vol,"mat",mat_name);
+        // std::cout << mat_name << std::endl;
         slab_mat_name.push_front(mat_name);
         slab_density.push_front(-1);
         moab::EntityHandle new_vol;
-        rval = dag->next_vol(surf,vol,new_vol);
+        rval = DAG->next_vol(surf,vol,new_vol);
         vol = new_vol;
         current_pt += dir*dist;
       } else {
