@@ -16,18 +16,13 @@ set(dagsolid_test_source
 )
 
 # geant libs needed for test cases
-set(GEANT_LIBS
-  ${GEANT4_DIR}/lib/libG4geometry.so
-  ${GEANT4_DIR}/lib/libG4clhep.so
-  ${GEANT4_DIR}/lib/libG4global.so
-)
 
 
 # two pthreads are needed for final linking, dont know why
 # set libraries needed to link to test cases
 SET(LIBS
   pthread
-  ${GEANT_LIBS}
+  ${Geant4_LIBRARIES}
   ${MOAB_LIBRARIES}
   gtest
   pthread

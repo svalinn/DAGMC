@@ -9,7 +9,10 @@ MESSAGE ( STATUS "Building the DagSolid Library for  GEANT4." )
 SET ( DAGSOLID_SRC  "DagSolid.cc" )
 SET ( DAGSOLID_HEADERS "DagSolid.hh" )
 
+find_package(Geant4 REQUIRED)
 # Geant4 include dirs
+include(${Geant4_USE_FILE})
+
 INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES} ${GEANT4_DIR}/include/Geant4  ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Create DagSolid library
@@ -28,7 +31,7 @@ INSTALL ( TARGETS dagsolid
   PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" )
 
 # make the library
-TARGET_LINK_LIBRARIES( dagsolid )
+TARGET_LINK_LIBRARIES( dagsolid ${Geant4_LIBRARIES})
 
 # build the DAGGeant4 executable
 ADD_SUBDIRECTORY( build )
