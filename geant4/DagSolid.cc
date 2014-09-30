@@ -66,7 +66,7 @@ using namespace moab;
 
 #include "DagSolid.hh"
 
-#define plot false
+#define plot true
 
 //#define G4SPECSDEBUG 1
 ///////////////////////////////////////////////////////////////////////////////
