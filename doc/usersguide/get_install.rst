@@ -160,7 +160,7 @@ In all MOAB cases:
 PyNE
 =====
 PyNE is a Python-based nuclear materials data handling package.  Integration of the DAGMC Toolkit with any physics package, e.g.
-FLUKA (FluDAG) or Geant4 (DAGSolid), now requires this library be installed.  Directions for installing PyNE are :doc:`here ./install_pyne.html`.
+FLUKA (FluDAG) or Geant4 (DAGSolid), now requires this library be installed.  Directions for installing PyNE are `here http://pyne.io/install.html`.
 
 
 Post Install
