@@ -279,7 +279,8 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   lfile[*llen]  = '\0';
 
   std::string lfname(lfile, *llen);
-  std::ofstream lcadfile( lfname.c_str() );
+  // needs to be append otherwise overwrites
+  std::ofstream lcadfile( lfname.c_str(), std::ios::app);
 
   std::cerr << "Going to write an lcad file = " << lfname << std::endl;
   // Before opening file for writing, check for an existing file
