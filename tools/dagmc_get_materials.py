@@ -1,20 +1,42 @@
 #!/usr/bin/python
 
+import os
 import string
 import argparse
 try:
     from itaps import iMesh, iBase
 except:
-    raise ImportError("The PyTAPS dependency could not be imported!")
+    raise ImportError(
+        "The PyTAPS dependency 'iMesh or iBase' could not be imported!")
+
 try:
-    from pyne import material, particle, tally
+    from pyne import material
     from pyne.material import Material, MaterialLibrary
 except:
-    raise ImportError("The PyNE dependency could not be imported!")
-try:    
-    import fluka_predefined_mat as fluka_lib
+    raise ImportError(
+        "The PyNE dependency 'Material or MaterialLibrary' could not be imported!")
+
+try:
+    from pyne.tally import Tally
 except:
-    raise ImportError("The list of pre defined fluka materials; (preDefined-Fluka_mat.py) can't be imported!")        
+    raise ImportError(
+        "The PyNE dependency 'tally module' could not be imported!")
+
+try:
+    from pyne.particle import is_valid, name
+except:
+    raise ImportError(
+        "The PyNE dependency 'particle module' could not be imported!")
+
+# fluka predefined materials:
+fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO", "ROENTGEN", "HYDROGEN", "PHOSPHO", "GERMANIU",
+             "GADOLINI", "GALLIUM", "HASSIUM", "ZINC", "HAFNIUM", "MERCURY", "HELIUM", "PRASEODY", "PLATINUM", "239-PU", "LEAD", "CARBON", "POTASSIU", "OXYGEN", "SULFUR", "TUNGSTEN", "EUROPIUM", "MAGNESIU", "MOLYBDEN", "MANGANES", "URANIUM", "IRON", "NICKEL", "NITROGEN",
+             "SODIUM", "NIOBIUM", "NEODYMIU", "NEON", "ZIRCONIU", "BORON", "COBALT", "FLUORINE", "CALCIUM", "CERIUM", "CADMIUM", "VANADIUM", "CESIUM",
+             "CHROMIUM", "COPPER", "STRONTIU", "KRYPTON", "SILICON", "TIN", "SAMARIUM", "SCANDIUM", "ANTIMONY", "LANTHANU", "CHLORINE", "LITHIUM",
+             "TITANIUM", "TERBIUM", "99-TC", "TANTALUM", "SILVER", "IODINE", "IRIDIUM", "241-AM", "ALUMINUM", "ARSENIC", "ARGON", "GOLD", "INDIUM",
+             "YTTRIUM", "XENON", "HYDROG-1", "DEUTERIU", "TRITIUM", "HELIUM-3", "HELIUM-4", "LITHIU-6", "LITHIU-7", "BORON-10", "BORON-11", "90-SR",
+             "129-I", "124-XE", "126-XE", "128-XE", "130-XE", "131-XE", "132-XE", "134-XE", "135-XE", "136-XE", "135-CS", "137-CS", "230-TH", "232-TH",
+             "233-U", "234-U", "235-U", "238-U"]
 
 """
 function that gets all tags on dagmc geometry
@@ -24,15 +46,22 @@ return vector of tag_values
 """
 
 
-def get_tag_values(filename):
+def get_tag_values(filename, output_filename):
     mesh = iMesh.Mesh()
     mesh.load(filename)
     # get all entities
     ents = mesh.getEntities(iBase.Type.all, iMesh.Topology.triangle)
     # get mesh set
     mesh_sets = mesh.getEntSets()
+    # for material list extraction:
     # tag_values = []  # list of tag values
     tag_values = []
+    # for tally list extraction:
+    tally_values = []
+    tally_list = []
+    tally_objects_list = []
+    tally_type_list = []
+    tally_particle_list = []
     found_all_tags = 0
     for s in mesh_sets:
         if (found_all_tags == 1):
@@ -47,12 +76,29 @@ def get_tag_values(filename):
                 t_handle = mesh.getTagHandle(t.name)
                 # get the data for the tag, with taghandle in element i
                 tag = t_handle[s]
-                tag_to_string(tag, tag_values)
+                group_name = tag_to_string(tag)
+                if (group_name not in tag_values):
+                    tag_values.append(group_name)
+                if 'tally' in group_name:
+                    (tally_type, tally_particle, object_ID) = get_tally(
+                        mesh, s, group_name)
+                    tally_type_list.append(tally_type)
+                    tally_particle_list.append(tally_particle)
+                    tally_objects_list.append(object_ID)
                 # last tag we are done
                 if any('impl_complement' in s for s in tag_values):
                     found_all_tags = 1
+    # create the final tally list of the form tally_values=[('particle',
+    # ('tally_type', ['geom_object:ID']))]
+    tally_list = zip(tally_type_list, tally_objects_list)
+    tally_values = zip(tally_particle_list, tally_list)
+    # write tallies to the output h5m file
+    write_tally_h5m(tally_values, output_filename)
     print('The groups found in the h5m file are: ')
     print tag_values
+    print('The tally groups found in the h5m file are: ')
+    print tally_values
+
     return tag_values
 
 """
@@ -63,7 +109,7 @@ returns tag_list
 """
 
 
-def tag_to_string(tag, tag_list):
+def tag_to_string(tag):
     a = []
     # since we have a byte type tag loop over the 32 elements
     for part in tag:
@@ -72,16 +118,14 @@ def tag_to_string(tag, tag_list):
             # convert to ascii
             a.append(str(unichr(part)))
             # join to end string
-            test = ''.join(a)
+            tag = ''.join(a)
             # the the string we are testing for is not in the list of found
             # tag values, add to the list of tag_values
     # if not already in list append to list
     #    if not any(test in s for s in tag_list):
     # the original code was incorrectly missing groups when one of the same
     # name with/without rho was added
-    if (test not in tag_list):
-        tag_list.append(test)
-    return tag_list
+    return tag
 
 """
 function which loads pyne material library
@@ -103,69 +147,23 @@ particles, and geometry objects (type and ID)
 """
 
 
-def get_tally(filename):
-    # load mesh
-    mesh = iMesh.Mesh()
-    mesh.load(filename)
-    # get mesh sets
-    mesh_sets = mesh.getEntSets()
-    tally_values = []
-    tally_list = []
-    tally_objects_list = []
-    tally_type_list = []
-    tally_particle_list = []
-    # loop over the sets to get the ones included in tally groups
-    for s in mesh_sets:
-        # get all the tags
-        tags = mesh.getAllTags(s)
-        for t in tags:
-            if t.name == 'NAME':
-                tag_h = mesh.getTagHandle(t.name)
-                tag = tag_h[s]
-                group_name = tally_to_string(tag)
-                if 'tally' in group_name:
-                    # get the size and type of tag to be used to create a new tag for all entity sets
-                    # included in the tally group
-                    # create new tag with the same group name
-                   # new_tag=mesh.createTag('Tally_Ents',t.sizeValues, t.type)
-                    # tag the sets included in the tally group with the group name
-                   # tag_sets(mesh, s, t, new_tag )
-                    # group name in that case is a tally group name and set 's' is a group of sets of geometry
-                    # objects included in the tally
-                    # get the geometry objects included; ID and type of each
-                    get_entity(mesh, s, tally_objects_list)
-                    # split on the basis of '/' to get tally type
-                    tally_type = type_split(group_name)
-                    tally_type_list.append(tally_type)
-                    # split on the basis of ':' to get the tally particle
-                    tally_particle = particle_split(group_name)
-                    tally_particle_list.append(tally_particle)
-    tally_list = zip(tally_type_list, tally_objects_list)
-    tally_values = zip(tally_particle_list, tally_list)
-'''    
-    # elements in tally_values list are of the form ['particle', ('tally type', ['entity type:entity ID'])]
-    for element in tally_values:
-       for z in range(len(element[1][1])):
-           entity_id = element[1][1][z].split(':')[1]
-           entity_type=element[1][1][z].split(':')[0] 
-           tally.Tally(element[1][0], element[0],entity_id, entity_type, element[1][1][z], element, -1.0, 1.0)
-'''           
-    print('The tally groups found in the h5m file are: ')
-    print tally_values
-    return tally_values
-'''
-"""
-function to tag the sets included in a tally group
-with the same group name
----------------------------------
-new tag == greoup name
-"""
-def tag_sets(mesh, mesh_set, tag, new_tag):
-    for k in mesh_set.getEntSets(hops=-1):
-        # tag the set with the same name of the tally group
-        new_tag[k] = tag
-    return mesh    
-'''
+def get_tally(mesh, s, group_name):
+    # get the size and type of tag to be used to create a new tag for all entity sets
+    # included in the tally group
+    # create new tag with the same group name
+    # new_tag=mesh.createTag('Tally_Ents',t.sizeValues, t.type)
+    # tag the sets included in the tally group with the group name
+    # tag_sets(mesh, s, t, new_tag )
+    # group name in that case is a tally group name and set 's' is a group of sets of geometry
+    # objects included in the tally
+    # get the geometry objects included; ID and type of each
+    object_ID = get_entity(mesh, s)
+    # split on the basis of '/' to get tally type
+    tally_type = type_split(group_name)
+    # split on the basis of ':' to get the tally particle
+    tally_particle = particle_split(group_name)
+
+    return tally_type, tally_particle, object_ID
 
 """
 Function that gets both the ID and type of entities included in the tally group
@@ -173,11 +171,11 @@ returns a list of 'type:ID' of geometry objects included
 """
 
 
-def get_entity(mesh, mesh_set, tally_objects_list):
+def get_entity(mesh, mesh_set):
     ID_list = []
     # loop over the tags checking for name
     for k in mesh_set.getEntSets(hops=-1):
-        tags=mesh.getAllTags(k)
+        tags = mesh.getAllTags(k)
         for t in tags:
             # get the type of geometry objects included; vol, surf, etc.
             if t.name == 'CATEGORY':
@@ -192,8 +190,8 @@ def get_entity(mesh, mesh_set, tally_objects_list):
                 continue
         object_type_id = category + ':' + str(ID)
         ID_list.append(object_type_id)
-    tally_objects_list.append(ID_list)
-    return tally_objects_list
+    # tally_objects_list.append(ID_list)
+    return ID_list
 
 """
 function that transforms tags into strings
@@ -237,14 +235,14 @@ returns tally particle
 def particle_split(tally_group_name):
     try:
         group_name = tally_group_name.split('/')
-        tally_particle = group_name[0].split(':')[1]    
+        tally_particle = group_name[0].split(':')[1]
     except:
         raise Exception(
             "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % tally_group_name)
     if tally_particle == '':
         raise Exception("Tally particle is missing in %s" % tally_group_name)
-    if (str(particle.is_valid(str(tally_particle))) == 'False'):
-        raise Exception("Particle included in group %s is not a valid particle name!" %tally_group_name)        
+#    if (str(particle.is_valid(str(tally_particle))) == 'False'):
+#        raise Exception("Particle included in group %s is not a valid particle name!" %tally_group_name)
     return tally_particle
 
 
@@ -383,7 +381,7 @@ def check_and_create_materials(material_list, mat_lib):
                 group_name = "mat:" + material_list[g][0]
                 if (material_list[g][1] is not ''):
                     group_name += "/rho:" + material_list[g][1]
-                    
+
                 new_mat.metadata['name'] = group_name
 
                 if (material_list[g][1] != ''):
@@ -451,35 +449,35 @@ Function to prepare fluka material names:
 def fluka_material_naming(material, flukamat_list):
     matf = material.metadata['name']
     matf = ''.join(c for c in matf if c.isalnum())
-    L=len(matf)
+    L = len(matf)
     if len(matf) > 8:
         matf = matf[0:8]
     else:
         pass
     # if name is in list, change name by appending number
     if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
-        for a in range(len(flukamat_list)+1):
+        for a in range(len(flukamat_list) + 1):
             a = a + 1
             if (a <= 9):
                 if (len(matf) == 8):
                     matf = matf.rstrip(matf[-1])
                     matf = matf + str(a)
                 elif (len(matf) < 8):
-                    matf=matf[0:L]
-                    matf=matf + str(a)
-            elif (a > 9):  
-                if (len(matf) == 8): 
+                    matf = matf[0:L]
+                    matf = matf + str(a)
+            elif (a > 9):
+                if (len(matf) == 8):
                     for i in range(len(str(a))):
                         matf = matf.rstrip(matf[-1])
                     matf = matf + str(a)
-                elif (len(matf) < 8) and (8-len(matf) >= len(str(a))) :
-                    matf=matf[0:L]
-                    matf=matf + str(a)   
-                elif (len(matf) < 8) and (8-len(matf) < len(str(a))) : 
-                    difference= len(str(a)) - (8-len(matf)) 
+                elif (len(matf) < 8) and (8 - len(matf) >= len(str(a))):
+                    matf = matf[0:L]
+                    matf = matf + str(a)
+                elif (len(matf) < 8) and (8 - len(matf) < len(str(a))):
+                    difference = len(str(a)) - (8 - len(matf))
                     for i in range(difference):
                         matf = matf.rstrip(matf[-1])
-                    matf = matf + str(a)  
+                    matf = matf + str(a)
             if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
                 continue
             else:
@@ -521,6 +519,29 @@ def write_mats_h5m(materials_list, filename):
     new_matlib.write_hdf5(filename)
 
 """
+Function that writes tally objects to hdf5 file
+-------
+tally_list: list of volume id tally pairs of PyNE Material Objects
+filename: filename to write the objects to
+"""
+
+
+def write_tally_h5m(tally_list, filename):
+    # tally list contains elements of the form ('photon', ('current', ['Surface:4', 'Volume:1']))
+    # loop over list
+    for tally in tally_list:
+        particle_name = tally[0]
+        tally_type = tally[1][0]
+        for k in range(len(tally[1][1])):
+            tally_object = tally[1][1][k].split(':')[0]
+            object_id = tally[1][1][k].split(':')[1]
+            tally_name = particle_name[
+                0] + particle_name[1].upper() + tally_type.upper() + str(object_id)
+            new_tally = Tally(tally_type, particle_name, str(
+                object_id), tally_object, str(tally[0]), tally_name, 0.0, 1.0)
+            new_tally.write_hdf5(filename, "/tally")
+
+"""
 function to parse the script, adding options:
 defining 
 -f  : the .h5m file path
@@ -555,11 +576,9 @@ def main():
     # parse the script
     args = parsing()
     # get list of tag values
-    tag_values = get_tag_values(args.datafile)
+    tag_values = get_tag_values(args.datafile, args.output)
     # load material library
     mat_lib = load_mat_lib(args.nuc_data)
-    # get list of tally objects
-    tally_values = get_tally(args.datafile)
     # check that material tags exist in library # material_list is list of
     # pyne objects in problem
     mat_dens_list = check_matname(tag_values)
