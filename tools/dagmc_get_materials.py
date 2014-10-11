@@ -22,11 +22,11 @@ except:
     raise ImportError(
         "The PyNE dependency 'tally module' could not be imported!")
 
-try:
-    from pyne.particle import is_valid, name
-except:
-    raise ImportError(
-        "The PyNE dependency 'particle module' could not be imported!")
+#try:
+    #from pyne.particle import is_valid, name
+#except:
+    #raise ImportError(
+        #"The PyNE dependency 'particle module' could not be imported!")
 
 # fluka predefined materials:
 fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO", "ROENTGEN", "HYDROGEN", "PHOSPHO", "GERMANIU",
@@ -455,7 +455,7 @@ def fluka_material_naming(material, flukamat_list):
     else:
         pass
     # if name is in list, change name by appending number
-    if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
+    if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib):
         for a in range(len(flukamat_list) + 1):
             a = a + 1
             if (a <= 9):
@@ -478,7 +478,7 @@ def fluka_material_naming(material, flukamat_list):
                     for i in range(difference):
                         matf = matf.rstrip(matf[-1])
                     matf = matf + str(a)
-            if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib.Fluka_predefined_mat):
+            if (matf.upper() in flukamat_list) or (matf.upper() in fluka_lib):
                 continue
             else:
                 flukamat_list.append(matf.upper())
@@ -538,7 +538,7 @@ def write_tally_h5m(tally_list, filename):
             tally_name = particle_name[
                 0] + particle_name[1].upper() + tally_type.upper() + str(object_id)
             new_tally = Tally(tally_type, particle_name, str(
-                object_id), tally_object, str(tally[0]), tally_name, 0.0, 1.0)
+                object_id), "Volume", str(tally[0]), tally_name, 0.0, 1.0)
             new_tally.write_hdf5(filename, "/tally")
 
 """
