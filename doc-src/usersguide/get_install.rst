@@ -216,7 +216,9 @@ the next steps.
 
 Install Geant4
 ~~~~~~~~~~~~~~~~
-To Be Written
+`Geant4 <http://geant4.cern.ch>`_, a toolkit for the simulation of the passage of particles through matter, can be found 
+`here <http://geant4.cern.ch/support/gettingstarted.shtml>`_,  including a link to instructions for installation.
+
 
 Build DAGMC Interfaces
 ~~~~~~~~~~~~~~~~~~~~~~
