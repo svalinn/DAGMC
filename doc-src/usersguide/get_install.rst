@@ -105,17 +105,22 @@ Configure and build CGM:
 HDF5
 ======
 
-The HDF5 tarball can be downloaded from the HDF5 `website <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_.  On a Linux machine the wget command may be used to get the most recent release, which is currently hdf5-1.8.13:
-::
-    prompt%> wget \
-         http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
-
-See the `ftp <http://www.hdfgroup.org/ftp/HDF5/releases>`_ site for available versions.
-Ubuntu users may also conveniently install the latest HDF5 release with the command:
+Debian users may conveniently install the latest HDF5 release with the command:
 ::
     prompt%> sudo apt-get install hdf5-dev
 
-Create a directory and install HDF5:
+Fedora users can do likewise with this command:
+::
+    prompt%> sudo yum install hdf5-dev
+
+The HDF5 tarball can also be downloaded from the HDF5 `website <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_.  On a Linux machine the wget command may be used to get the most recent release, which is currently hdf5-1.8.13:
+::
+    prompt%> wget \
+    http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
+
+See the `HDF5 ftp site <http://www.hdfgroup.org/ftp/HDF5/releases>`_ for available versions.
+
+In the case of a tarball, create a directory and install HDF5:
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/HDF5/bld
     prompt%> cd $HOME/dagmc_bld/HDF5
@@ -142,7 +147,7 @@ If installing MOAB from the git repository:
 ::
     prompt%> git clone https://bitbucket.org/fathomteam/moab/
     prompt%> cd moab
-    prompt%> git checkout 4.7.0
+    prompt%> git checkout Version4.7.0
     prompt%> autoreconf -fi
     prompt%> cd ..
     prompt%> ln -s trunk src
@@ -162,8 +167,11 @@ In all MOAB cases:
 
 PyNE
 =====
-PyNE is a Python-based nuclear materials data handling package.  Integration of the DAGMC Toolkit with any physics package, e.g.
-FLUKA (FluDAG) or Geant4 (DAGSolid), now requires this library be installed.  Directions for installing PyNE are `here <http://pyne.io/install.html>`_.
+`PyNE <http://pyne.io>`_ is a Python-based nuclear materials data handling package.  
+Integration of the DAGMC Toolkit with any physics package, e.g.  FLUKA (FluDAG) or 
+Geant4 (DAGSolid), now requires that this library be installed.  Directions for 
+installing PyNE are `here <http://pyne.io/install.html>`_.  We recommend building the 
+dependencies individually rather than using the Conda Build method.
 
 
 Post Install
@@ -227,7 +235,7 @@ The DAGMC toolkit now has a full CMake install and build method for all codes us
 replaces the MCNP build method with a CMake file.
 
 Note that in addition to the detailed instructions above for building the MOAB stack, you must also install
-Lapack, using your favorite method.
+Lapack using your favorite method, for example, "sudo apt-get".
 
 Populate and Patch 
 ============================================
