@@ -173,7 +173,7 @@ Geant4 (DAGSolid), now requires that this library be installed.  Directions for
 installing PyNE are `here <http://pyne.io/install.html>`_.  We recommend building the 
 dependencies individually rather than using the Conda Build method.
 
-
+.. _postinstall:
 Post Install
 ~~~~~~~~~~~~~~
 
@@ -347,7 +347,8 @@ that $INSTALL_PATH/bin be in your PATH and $INSTALL_PATH/lib be in your LD_LIBRA
     prompt%> export PATH=$PATH:$INSTALL_PATH/bin
     prompt%> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 
-Note that this assumes you have previously set the environment variables per the Post Install section.
+Note that this assumes you have previously set the environment variables per the `Post Install <postinstall>`_ section
+and the `Post Install`_ section.
 
 With these environment variables you can run fludag_unit_tests:
 ::
@@ -379,6 +380,7 @@ Again, with successful execution the last few lines of screen output are:
     [==========] 16 tests from 1 test case ran. (228 ms total)
     [  PASSED  ] 16 tests.
 
+With testing successfully completed you are now ready to run a `problem <index.html>`_.
 
 DAG-Tripoli4 Access
 ~~~~~~~~~~~~~~~~~~~
