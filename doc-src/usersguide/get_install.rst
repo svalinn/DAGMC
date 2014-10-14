@@ -173,7 +173,6 @@ Geant4 (DAGSolid), now requires that this library be installed.  Directions for
 installing PyNE are `here <http://pyne.io/install.html>`_.  We recommend building the 
 dependencies individually rather than using the Conda Build method.
 
-.. _postinstall:
 Post Install
 ~~~~~~~~~~~~~~
 
@@ -295,14 +294,14 @@ other build products to be installed.  It is typically set to the DAGMC director
 
 DAG-MCNP5 with MCNP5 in parallel:
 
-Example 2:  Build MCNP5 in parallel
+**Example 2:**  Build MCNP5 in parallel
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
 
-Example 3:  Build MCNP5 in parallel and build the dagmc-enabled FLUKA 
+**Example 3:**  Build MCNP5 in parallel and build the dagmc-enabled FLUKA 
 Note that $FLUPRO should have been previously defined as part of the FLUKA install.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
@@ -310,14 +309,14 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
 			-DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-Example 4: Build only FluDAG
+**Example 4:** Build only FluDAG
 ::
     prompt%> cmake ../. -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
 
-Example 5:  Build MCNP, FluDAG and Geant4-enabled DAGMC
+**Example 5:**  Build MCNP, FluDAG and Geant4-enabled DAGMC
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
@@ -347,8 +346,7 @@ that $INSTALL_PATH/bin be in your PATH and $INSTALL_PATH/lib be in your LD_LIBRA
     prompt%> export PATH=$PATH:$INSTALL_PATH/bin
     prompt%> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 
-Note that this assumes you have previously set the environment variables per the `Post Install <postinstall>`_ section
-and the `Post Install`_ section.
+Note that this assumes you have previously set the environment variables per the `Post Install`_ section.
 
 With these environment variables you can run fludag_unit_tests:
 ::
