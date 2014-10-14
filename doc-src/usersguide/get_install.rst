@@ -235,7 +235,7 @@ The DAGMC toolkit now has a full CMake install and build method for all codes us
 replaces the MCNP build method with a CMake file.
 
 Note that in addition to the detailed instructions above for building the MOAB stack, you must also install
-Lapack using your favorite method, for example, "sudo apt-get".
+Lapack using your favorite method, for example, "sudo apt-get install liblapack-dev libblas-dev".
 
 Populate and Patch 
 ============================================
@@ -281,42 +281,43 @@ For the examples that follow, it is assumed you are in the bld directory of DAGM
 ::
     prompt%> cd $HOME/dagmc_bld/DAGMC/bld
 
+In the examples, the environment variable, "INSTALL_PATH", can point to any location
+where you want the libraries ($INSTALL_PATH/lib), executables ($INSTALL_PATH/bin), and
+other build products to be installed.  It is typically set to the DAGMC directory, i.e.
+::
+    prompt%> export INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 
-DAGMC-MCNP5:
 
-Build the DAGMC interfaces and DAG-MCNP5
+**Example 1:**  Build the DAGMC interfaces and DAG-MCNP5
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
 DAG-MCNP5 with MCNP5 in parallel:
 
-Build MCNP5 in parallel
+Example 2:  Build MCNP5 in parallel
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-DAG_MCNP5, FluDAG:
 
-Build MCNP5 in parallel and build the dagmc-enabled FLUKA. 
+Example 3:  Build MCNP5 in parallel and build the dagmc-enabled FLUKA 
 Note that $FLUPRO should have been previously defined as part of the FLUKA install.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
 			-DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
-FluDAG:
 
-Build only FluDAG
+Example 4: Build only FluDAG
 ::
     prompt%> cmake ../. -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-FluDAG, DAGSolid, and MCNP:
 
-Build MCNP, FluDAG and Geant4-enabled DAGMC
+Example 5:  Build MCNP, FluDAG and Geant4-enabled DAGMC
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
@@ -337,7 +338,46 @@ If there were no errors, install the DAGMC suite of libraries and tools by issui
 If everything was successful, you may have the mcnp5 and mainfludag executables in the $INSTALL_PATH/bin folder, 
 the libraries in $INSTALL_PATH/lib and the header files in the $INSTALL_PATH/include folder
 
-You may wish to run the tests in the DAGMC/tests directory to verify correct installation.
+Test
+~~~~
+
+You may wish to run the tests in the $INSTALL_PATH/tests directory to verify correct installation.  To do this requires
+that $INSTALL_PATH/bin be in your PATH and $INSTALL_PATH/lib be in your LD_LIBRARY_PATH:
+::
+    prompt%> export PATH=$PATH:$INSTALL_PATH/bin
+    prompt%> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
+
+Note that this assumes you have previously set the environment variables per the Post Install section.
+
+With these environment variables you can run fludag_unit_tests:
+::
+    prompt%> cd $INSTALL_PATH/tests
+    prompt%> ./fludag_unit_tests
+ 
+With successful execution the last few lines of the screen output will look similar to:
+::
+    [       OK ] FluDAGTest.GFireGoodPropStep (5 ms)
+    [----------] 3 tests from FluDAGTest (108 ms total)
+
+    [----------] Global test environment tear-down
+    [==========] 3 tests from 1 test case ran. (108 ms total)
+    [  PASSED  ] 3 tests.
+
+To run dagsolid_unit_test, in addition to the settings just mentioned, you must also execute
+a script that was created at the time geant4 was built:
+::
+    prompt%> source path/to/geant4/bld/geant4make.sh
+    prompt%> cd $INSTALL_PATH/tests
+    prompt%> ./dagsolid_unit_tests
+
+Again, with successful execution the last few lines of screen output are:
+::
+    [       OK ] DagSolidTest.surface_area_test (5 ms)
+    [----------] 16 tests from DagSolidTest (228 ms total)
+
+    [----------] Global test environment tear-down
+    [==========] 16 tests from 1 test case ran. (228 ms total)
+    [  PASSED  ] 16 tests.
 
 
 DAG-Tripoli4 Access
