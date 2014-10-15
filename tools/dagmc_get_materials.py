@@ -535,10 +535,10 @@ def write_tally_h5m(tally_list, filename):
         for k in range(len(tally[1][1])):
             tally_object = tally[1][1][k].split(':')[0]
             object_id = tally[1][1][k].split(':')[1]
-      #      tally_name = 'tally:'+ tally[0] + tally[1][0]
-      #      new_tally = Tally(tally_type, particle_name,
-      #          object_id, tally[1][1][k].split(':')[0], str(object_id), tally_name, 0.0, 1.0)
-      #      new_tally.write_hdf5(filename, "/tally")
+            tally_name = 'tally:'+ tally[0] + tally[1][0]
+            new_tally = Tally(tally_type, particle_name,
+                object_id, tally[1][1][k].split(':')[0], str(object_id), tally_name, 0.0, 1.0)
+            new_tally.write_hdf5(filename, "/tally")
 
 """
 function to parse the script, adding options:
