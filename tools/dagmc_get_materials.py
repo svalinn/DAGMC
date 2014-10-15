@@ -22,13 +22,13 @@ except:
     raise ImportError(
         "The PyNE dependency 'tally module' could not be imported!")
 
-#try:
-    #from pyne.particle import is_valid, name
-#except:
-    #raise ImportError(
-        #"The PyNE dependency 'particle module' could not be imported!")
+try:
+    from pyne.particle import is_valid, name
+except:
+    raise ImportError(
+        "The PyNE dependency 'particle module' could not be imported!")
 
-# fluka predefined materials:
+# list of fluka predefined materials:
 fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO", "ROENTGEN", "HYDROGEN", "PHOSPHO", "GERMANIU",
              "GADOLINI", "GALLIUM", "HASSIUM", "ZINC", "HAFNIUM", "MERCURY", "HELIUM", "PRASEODY", "PLATINUM", "239-PU", "LEAD", "CARBON", "POTASSIU", "OXYGEN", "SULFUR", "TUNGSTEN", "EUROPIUM", "MAGNESIU", "MOLYBDEN", "MANGANES", "URANIUM", "IRON", "NICKEL", "NITROGEN",
              "SODIUM", "NIOBIUM", "NEODYMIU", "NEON", "ZIRCONIU", "BORON", "COBALT", "FLUORINE", "CALCIUM", "CERIUM", "CADMIUM", "VANADIUM", "CESIUM",
@@ -525,7 +525,7 @@ tally_list: list of volume id tally pairs of PyNE Material Objects
 filename: filename to write the objects to
 """
 
-
+''
 def write_tally_h5m(tally_list, filename):
     # tally list contains elements of the form ('photon', ('current', ['Surface:4', 'Volume:1']))
     # loop over list
@@ -535,11 +535,10 @@ def write_tally_h5m(tally_list, filename):
         for k in range(len(tally[1][1])):
             tally_object = tally[1][1][k].split(':')[0]
             object_id = tally[1][1][k].split(':')[1]
-            tally_name = particle_name[
-                0] + particle_name[1].upper() + tally_type.upper() + str(object_id)
-            new_tally = Tally(tally_type, particle_name, str(
-                object_id), "Volume", str(tally[0]), tally_name, 0.0, 1.0)
-            new_tally.write_hdf5(filename, "/tally")
+      #      tally_name = 'tally:'+ tally[0] + tally[1][0]
+      #      new_tally = Tally(tally_type, particle_name,
+      #          object_id, tally[1][1][k].split(':')[0], str(object_id), tally_name, 0.0, 1.0)
+      #      new_tally.write_hdf5(filename, "/tally")
 
 """
 function to parse the script, adding options:
