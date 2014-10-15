@@ -248,21 +248,11 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   
   UWUW workflow_data = UWUW(dagfile);
 
-  /*
-  char *current_dir = get_current_dir_name(); //current working dir needed for pyne load
-
-  std::string cwd(current_dir), dagfilename(dagfile); 
-
-  // pyne needs absolute path
-  std::string full_dagfilename = cwd + '/' + dagfilename;
-
-  // get rid of all trailing white space
-  full_dagfilename.erase(std::remove_if( full_dagfilename.begin(), 
-					 full_dagfilename.end(), ::isspace), 
-		          	         full_dagfilename.end());
-  */
   std::string full_dagfilename = workflow_data.full_filepath;
-  
+
+  std::cout << full_dagfilename << std::endl;
+
+  /*
   if ( !old_method ) {
     try
       {
@@ -275,6 +265,9 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
 	old_method = true;
       }
   }
+  */
+  if ( workflow_data.material_library.size() == 0 )
+    old_method = true;
 
   lfile[*llen]  = '\0';
 
@@ -291,7 +284,7 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   }
 
   // by default overwrites the existing file at lfname.c_str()
-  std::ofstream lcadfile( lfname.c_str() );
+  std::ofstream lcadfile( lfname.c_str(), std::ios::out );
 
   if ( old_method ) 
     write_lcad_old(lcadfile);
