@@ -15,4 +15,5 @@ SET ( DI_SRC_FILES ${DI_SRC_FILES}
                    ${CODE_SRC_FILES} 
       PARENT_SCOPE)
 
+ADD_SUBDIRECTORY( tests )
 
