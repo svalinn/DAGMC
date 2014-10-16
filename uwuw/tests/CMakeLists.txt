@@ -46,7 +46,7 @@ ADD_EXECUTABLE (uwuw_unit_tests
 	${uwuw_test_source})
 
 INSTALL(TARGETS uwuw_unit_tests DESTINATION tests)
-INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_geom.h5m" DESTINATION tests)
+INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_uwuw.h5m" DESTINATION tests)
 
 TARGET_LINK_LIBRARIES (uwuw_unit_tests ${LIBS} )
 
