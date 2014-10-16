@@ -530,14 +530,14 @@ def write_tally_h5m(tally_list, filename):
     # tally list contains elements of the form ('photon', ('current', ['Surface:4', 'Volume:1']))
     # loop over list
     for tally in tally_list:
-        particle_name = tally[0]
+        particle_name = tally[0][0].upper() + tally[0][1:len(tally[0])]
         tally_type = tally[1][0]
         for k in range(len(tally[1][1])):
             tally_object = tally[1][1][k].split(':')[0]
             object_id = tally[1][1][k].split(':')[1]
-            tally_name = particle_name[0:1].upper+ tally_type + str(object_id)
+            tally_name = particle_name[0:2].upper() + tally_type[0: 7-len(object_id)] + str(object_id)
             new_tally = Tally(tally_type, particle_name,
-                object_id, tally[1][1][k].split(':')[0], str(object_id), tally_name, 0.0, 1.0)
+                int(object_id), tally[1][1][k].split(':')[0], str(object_id), tally_name, 0.0, 1.0)
             new_tally.write_hdf5(filename, "/tally")
 
 """
