@@ -3,6 +3,8 @@ Frequently Asked Questions
 
 * Q1_ How does the implicit complement work?
 * Q2_ Can I automate the CUBIT conversion process?
+* Q3_ The install procedure is tedious, isn't there another way?
+* Q4_ My problem doesnt work, it .....
 
 .. _Q1:
 
@@ -33,4 +35,23 @@ Q2: The CUBIT conversion process is tedious and frustrating. Is there a way to a
 necessary steps to perform the CUBIT conversion process with limited
 user input. Information about this script can be found on the
 AutomatedCubitConversion website.
+
+.. _Q3:
+
+Q3: The install procedure is tedious, isn't there another way?
+-----
+
+**A3** Yes, we have written an install script that simplifies the building of DAGMC and its subsequent programs, we 
+recongnize that the dependency stack of DAGMC is large, and a pain to install, but the benefits are that very complex
+geometric problems are now tractable. We also plan on adding more build options in the future.
+
+.. _Q4:
+
+Q4: My problem doesnt work, it crashes, looses particles ....
+------
+
+**A4** Occasionally users experience problems using DAGMC, new workflows, different models, there are several potential
+reasons why your specific problem is not behaving as you expect, we recommend any user that downloads DAGMC also joins
+our Google group <https://groups.google.com/forum/#!forum/dagmc-users>, its an excellent resource and also a repository
+of answers to users previous issues.
 
