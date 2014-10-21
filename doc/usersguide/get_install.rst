@@ -1,24 +1,13 @@
 DAGMC Toolkit
 ----------------------------------------
-Getting and Installing the Toolkit
-
 DAGMC is a toolkit that provides direct geometry support to any Monte
-Carlo radiation transport code.  The primary code used for development
-and testing of DAGMC is `MCNP5 <http://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.shtml>`_,
-developed by `Los Alamos National Laboratory <http://www.lanl.gov>`_
-and distributed by the `Radiation Safety Information Computing Center
-<http://rsicc.ornl.gov>`_.  There has also been experience with MCNPX
-(LANL), Tripoli4 (CEA/Saclay), `FLUKA <http://www.fluka.org>`_ (CERN/INFN), 
-and `Geant4 <http://www.geant4.cern.ch/>`_ (CERN).
-
-These instructions describe the basic steps for downloading and
-installing the software libraries that provide the DAGMC toolkit for
-integration with Monte Carlo codes.  After this, code-specific
-instructions will be give for each code. 
+Carlo radiation transport code. These instructions describe the basic 
+steps for downloading and installing the software libraries that provide 
+the DAGMC toolkit for integration with Monte Carlo codes.  After this, 
+code-specific instructions will be give for each code. 
 
 Toolkit Installation
 ++++++++++++++++++++++++++++
-
 This section details the installation and build steps for the prerequisite packages for the the DAGMC
 toolkit with specific physics codes.
 
@@ -35,30 +24,27 @@ In order to install you must have done the following:
    If you need to prepare meshed geometries the following are also required
    a) Install `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1
  * Installed Lapack
-   Note that the MCNP build automatically builds the dagtally library, which uses Lapack 
- * Installed PyNE
- * Installed `FLUKA <http://www.fluka.org>`_ - and/or - 
- * Installed Geant4
+   Note that the MCNP build automatically builds the dagtally library, which requires Lapack 
+ * Installed `PyNE <http://pyne.io/>`_
+ * Installed `FLUKA <http://www.fluka.org/>`_ - and/or - 
+ * Installed `Geant4 <http://geant4.cern.ch/>`_
 
 
 Building
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 With installation of the DAGMC Toolkit, the dependency stack will look like this:
 
-* Some physics package, e.g. MCNP5
-   * `MOAB/DAGMC <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_
+* Some physics package, e.g. MCNP5, Geant4 etc
+   * `MOAB/DAGMC <http://bitbucket.org/fathomteam/moab>`_
    * `PyNE <http://pyne.io/install.html>`_
    * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
-   * `CGM <http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM>`_ 
-       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
-
+   * `CGM <http://bitbucket.org/fathomteam/cgm>`_ 
+       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 
 
 Assumptions and conventions that are used in these instructions:
 
 * all operations are carried out in the a subdirectory ``dagmc_bld`` of a user's home directory
 * the path to CUBIT files is known, e.g. ``/path/to/cubit``.  This is the directory that contains the Python script file ``cubit`` and a ``bin`` subdirectory.  
-* all tarballs reside in user's home directory
 
 If these do not apply to you, please modify your steps accordingly.
 
@@ -169,7 +155,7 @@ PyNE
 =====
 `PyNE <http://pyne.io>`_ is a Python-based nuclear materials data handling package.  
 Integration of the DAGMC Toolkit with any physics package, e.g.  FLUKA (FluDAG) or 
-Geant4 (DAGSolid), now requires that this library be installed.  Directions for 
+Geant4 (DagSolid), now requires that this library be installed.  Directions for 
 installing PyNE are `here <http://pyne.io/install.html>`_.  We recommend building the 
 dependencies individually rather than using the Conda Build method.
 
@@ -204,9 +190,6 @@ Clone the DAGMC repository
     prompt%> git clone https://github.com/svalinn/DAGMC
     prompt%> cd DAGMC
     prompt%> git checkout develop
-
-
-*(A version of the build instructions, INSTALL.rst, is in the DAGMC directory)*.
 
 Install FLUKA
 ~~~~~~~~~~~~~~
@@ -264,7 +247,8 @@ create a build directory and navigate to it.
 
 
 We can now configure DAGMC for building.  The CMake system can be configured to build any 
-or all of the following
+or all of the following, see `cmake options <cmake_options.html>`_ for a list of all possible options.
+
    * MCNP5 with or without MPI
    * GEANT4 (DAGSolid)
    * FLUKA  (FluDAG) 
