@@ -23,7 +23,7 @@ set(dagsolid_test_source
 SET(LIBS
   pthread
   ${Geant4_LIBRARIES}
-  ${MOAB_LIBRARIES}
+  ${DAGMC_LIBRARIES}
   gtest
   pthread
 )

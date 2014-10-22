@@ -18,7 +18,7 @@ SET (fludag_test_source ${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp)
 SET(LIBS
     pthread
     dagmciface
-     ${MOAB_LIBRARIES} 
+    ${DAGMC_LIBRARIES} 
     gtest
     pthread
 )

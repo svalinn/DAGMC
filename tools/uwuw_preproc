@@ -207,6 +207,8 @@ def check_matname(tag_values):
         if 'Graveyard' in tag or 'graveyard' in tag:
             g = 1
             continue
+        if 'Vacuum' in tag or 'vacuum' in tag:
+            continue
     # look for mat, this id's material in group name
         if tag[0:3] == 'mat':
             # split on the basis of "/" being delimiter and split colons from
@@ -469,7 +471,7 @@ def write_tally_h5m(tally_list,filename):
             print "particle: "+particle_name+" in tally "+name_flux+" in volume "+str(tally[0])
             exit
         tally_type = (name_flux.split('/'))[1].split('\n')[0]
-        tally_name = particle_name[0]+particle_name[1].upper()+tally_type.upper()+str(tally[0])
+        tally_name = particle_name[0]+particle_name[1].upper()+tally_type[0].upper()+tally_type[1].upper()+str(tally[0])
         print particle_name, tally_type, tally_name
         new_tally = Tally(tally_type,particle_name,tally[0],"Volume",str(tally[0]),tally_name,0.0,1.0)
         new_tally.write_hdf5(filename,"/tally")

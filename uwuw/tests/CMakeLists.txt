@@ -26,7 +26,7 @@ SET(LIBS
   ${PYNE_LIBS_DIR}/libpyne.so
   ${HDF5_LIBRARIES}
   dagmciface
-  ${MOAB_LIBRARIES}
+  ${DAGMC_LIBRARIES}
   pthread
 )
 

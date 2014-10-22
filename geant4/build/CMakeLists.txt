@@ -40,7 +40,7 @@ add_executable(DagGeant4 exampleN01.cc ${sources} ${headers})
 target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
                                 ${HDF5_LIBRARIES}
                                 ${PYNE_LIBS_DIR}/libpyne.so
-			        ${MOAB_LIBRARIES}
+			        ${DAGMC_LIBRARIES}
 				dagsolid
 				dagmciface)
 			      

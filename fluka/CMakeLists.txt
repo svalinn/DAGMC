@@ -28,7 +28,7 @@ SET(FLUDAG_LIBS
      dagmciface
      ${HDF5_LIBRARIES}
      ${PYNE_LIBS_DIR}/libpyne.so
-     ${MOAB_LIBRARIES} 
+     ${DAGMC_LIBRARIES} 
      gfortran
   )
 
