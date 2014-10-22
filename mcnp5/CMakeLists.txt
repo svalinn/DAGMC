@@ -5,8 +5,6 @@ SET ( CODE_SRCDIR      "mcnp5" )
 SET ( CODE_SRC_FILES   "${CODE_SRCDIR}/mcnp_funcs.cpp"  )
 SET ( CODE_PUB_HEADERS "${CODE_SRCDIR}/mcnp_funcs.h" )
 
-INCLUDE_DIRECTORIES("/data/opt/DAGMC/uwuw")
-
 SET ( DI_PUB_HEADERS ${DI_PUB_HEADERS}
                      ${CODE_PUB_HEADERS}
                      ${CODE_CONFIG}

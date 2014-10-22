@@ -317,6 +317,8 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
   material_assignments = get_property_assignments("mat",3,":/");
   std::map<MBEntityHandle,std::vector<std::string> > density_assignments;
   density_assignments = get_property_assignments("rho",3,":");
+  std::map<MBEntityHandle,std::vector<std::string> > boundary_assignments;
+  boundary_assignments = get_property_assignments("boundary",2,":");
 
   int num_cells = DAG->num_entities( 3 );
 
@@ -396,10 +398,25 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
   
   int num_surfs = DAG->num_entities( 2 );
 
+  std::vector<std::string> boundary_assignment; // boundary conditions for the current entity
   // loop over all surfaces
   for( int i = 1; i <= num_surfs; ++i ) {
     int surfid = DAG->id_by_index( 2, i );
     MBEntityHandle entity = DAG->entity_by_index( 2, i );
+
+    if(boundary_assignments[entity].size() > 1)
+      {
+	std::cout << "More than one boundary condition applied to surface " << surfid << std::endl;
+	std::cout << "Please rectify" << std::endl;
+	exit(EXIT_FAILURE);
+      }
+
+    boundary_assignment = boundary_assignments[entity];
+    
+    if(boundary_assignment[0].find("reflecting") != std::string::npos )
+      lcadfile << "*";
+    if (boundary_assignment[0].find("white") != std::string::npos )
+      lcadfile << "+";
 
     lcadfile << surfid << std::endl;
   }
