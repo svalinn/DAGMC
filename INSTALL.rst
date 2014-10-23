@@ -42,6 +42,7 @@ How To
    cmake ../. -DMOAB_DIR=$MOAB_PATH/lib -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
           -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DBUILD_GEANT4=ON -DGEANT4_DIR=/mnt/data/opt/geant4  \
           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+
 5) Assuming that the cmake step was succesful, i.e. no errors were reported then we can make by issuing the make command
    make
 6) If there were no errors, then we can install the DAGMC suite of libraries and tools by issing the install command

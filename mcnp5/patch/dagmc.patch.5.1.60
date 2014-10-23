@@ -353,7 +353,7 @@ diff -rN '--unified=0' mcnp_vendor/Source/src/dagmc_mod.F90 mcnp_dagmc/Source/sr
 +
 +
 +     ! parse metadata and write input cards
-+     call dagmcwritemcnp(lcad//char(0), len_trim(lcad))
++     call dagmcwritemcnp(gcad//char(0),lcad//char(0), len_trim(lcad))
 +     
 +     ! Check to ensure that the log file is written
 +     inquire( file = lcad, exist = file_exists)

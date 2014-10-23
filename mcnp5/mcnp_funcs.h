@@ -1,6 +1,19 @@
 #ifndef DAGMC_MCNP_IFACE_H
 #define DAGMC_MCNP_IFACE_H
 
+#include <map>
+#include <string>
+
+#include "MBInterface.hpp"
+#include "MBCartVect.hpp"
+
+#include <fstream>
+#include <sstream>
+
+#include "../uwuw/uwuw.hpp"
+#include "pyne/pyne.h"
+#include <unistd.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,8 +49,10 @@ extern "C" {
 /* write facet file after initialization and OBBTree generation */
   void dagmcwritefacets_(char *ffile, int *flen);
 
-/* parse metadata and write applications specific data for: MCNP5 */
-  void dagmcwritemcnp_(char *lfile, int *llen);
+/* parse metadata and write applications specific data for: MCNP5 
+ * includes the UWUW step 
+ */
+  void dagmcwritemcnp_(char *dagmc_file, char *lfile, int *llen);
 
 /* Get normal of surface with id *jsu at location (*xxx,*yyy,*zzz) and store
    in three doubles at ang (an arry of length 3) */
@@ -107,19 +122,43 @@ extern "C" {
                    double *yyy,double *zzz,double *huge,double *dls,int *jap,int *jsu,
                    int *nps );
 
-/* Measure entities
- * vols - 2xN array where first column contains, as output, measure of every volume.
- * aras - 2xN array where first column contains, as output, measure of every surface
- */                        
+ /* Measure entities
+  * vols - 2xN array where first column contains, as output, measure of every volume.
+  * aras - 2xN array where first column contains, as output, measure of every surface
+  */                        
   void dagmcvolume_(int* mxa, double* vols, int* mxj, double* aras);
 
-/* Set distance limit */
+ /* Set distance limit */
   void dagmc_setdis_(double *d);
 
   void dagmc_set_settings_(int* use_dist_limit, int* use_cad, double* overlap_thickness, int* srccell_mode);
 
   void dagmc_init_settings_(int* use_dist_limit, int* use_cad,     
                             double* overlap_thickness, double* facet_tol, int* srccell_mode );
+
+  /**
+   * \brief Performs the write of the lcad file using the "old" method
+   * \param[in] output file stream pointing to the lcadfile
+   */
+  void write_lcad_old(std::ofstream &lcadfile);
+
+  /**
+   * \brief performs the write of the lcadfile for the UWUW workflow
+   * \param[in] output file stream pointing to the lcadfile
+   * \param[in] UWUW class containing the UWUW workflow data
+   */
+  void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data);
+
+  /**
+   * \brief Get all properties by dimension
+   * \param[in] string (string) of the property you wish to query, e.g. "mat"
+   * \param[in] dimension (int) dimension to be queried (2/3)
+   * \param[in] delimiters (string) the delimiter that breaks up the string
+   * \return entity handle - string map of the property value, empty string in no property
+   */
+  std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, int dimension,
+									    std::string delimiters);
+ 
 
 #ifdef __cplusplus
 } // extern "C"

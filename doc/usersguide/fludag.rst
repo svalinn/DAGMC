@@ -21,11 +21,11 @@ Assigning Materials & Densities
 
 The generic workflow description includes details on
 :ref:`grouping-basics`, but a specific naming convention is required
-for FluDAG. 
-To define 
-materials, the FLUKA material name must be 
-provided in the group name. The format for the group
-name is as follows:
+for FluDAG. To define materials, the FLUKA material name must be 
+provided in the group name. The group name must be that of a valid FLUKA
+material, for example any of the default materials or a valid COMPOUND name,
+note you are limited to 8 characters, as in FLUKA. The format for the group name 
+is as follows:
 ::
     M_[material_name]
 
@@ -64,7 +64,9 @@ are appropriately treated by FluDAG.
 FluDAG will not assign material information.
 
 The implicit complement is automatically assigned the value 1 + the id of the 
-highest numberd volume.
+highest numberd volume. You can easily modify what material property that you
+would like the implicit compliment (or any other volume for that matter) to have
+by changing the material on the ASSIGNMAT card.
 
 Defining the Graveyard
 ..............................
@@ -108,16 +110,6 @@ Scoring Assignments
 ..................
 We do not currently support scoring assignments through group names. The user must manually
 add these to the FLUKA input deck.
-
-The proposed naming scheme would be the following, 
-::
-     group "[tally_type]_[particle_name]" add volume <list>
-     
-For example
-::
-     group "usrtrack_neutron" add volume 1 2 5 6
-     group "usrbdx_proton" add volume 1 2 4 9
-
 
 Preparing the FluDAG Input File
 ''''''''''''''''''''''''''''''''''''

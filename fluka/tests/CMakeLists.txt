@@ -18,12 +18,15 @@ SET (fludag_test_source ${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp)
 SET(LIBS
     pthread
     dagmciface
-    ${MOAB_DIR}/libMOAB.so
-    ${MOAB_DIR}/libdagmc.so
-    ${MOAB_DIR}/libMOAB.so
+    ${DAGMC_LIBRARIES} 
     gtest
     pthread
 )
+
+#includes
+
+INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/fluka )
+#MESSAGE ( STATUS "Not building dagmciface physics interface library" ${DI_PUB_HEADERS} )
 
 #add_custom_target(check)
 macro(run_test test_target)
@@ -42,7 +45,10 @@ ADD_EXECUTABLE (fludag_unit_tests
 INSTALL(TARGETS fludag_unit_tests DESTINATION tests)
 INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/slabs.h5m" DESTINATION tests)
 
-TARGET_LINK_LIBRARIES (fludag_unit_tests ${LIBS})
+TARGET_LINK_LIBRARIES (fludag_unit_tests 
+	${FLUDAG_LIBS} 
+        gtest
+        pthread )
 
 RUN_TEST(fludag_unit_tests)
 

@@ -449,7 +449,7 @@ add_definitions(-DVERS="5")
 DATETIME(DATE)
 # set the date
 add_definitions(-DLODDAT=${DATE})
-add_definitions(-DDPATH="/mnt/data/opt/xs_data/mcnp_data")
+add_definitions(-DDPATH="/data/opt/xs_data/mcnp_data")
 add_definitions(-DTHREAD="MCNP5")
 add_definitions(-DTVERS="1.60")
 
@@ -478,7 +478,7 @@ else(MPI_BUILD)
 endif(MPI_BUILD)
 
 ADD_EXECUTABLE(${mcnp_exec} ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)
-target_link_libraries(${mcnp_exec} dagmciface dagtally ${MOAB_LIBRARIES})
+target_link_libraries(${mcnp_exec} dagmciface dagtally ${DAGMC_LIBRARIES} ${PYNE_LIBS_DIR}/libpyne.so)
 if(MPI_BUILD)
   target_link_libraries(${mcnp_exec} ${MPI_LIBRARIES}) 
 endif(MPI_BUILD)

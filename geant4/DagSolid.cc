@@ -66,6 +66,8 @@ using namespace moab;
 
 #include "DagSolid.hh"
 
+#define plot true
+
 //#define G4SPECSDEBUG 1
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -125,6 +127,7 @@ DagSolid::DagSolid (const G4String &name, DagMC* dagmc, int volID)
   Interface* moab = dagmc->moab_instance();
   moab->get_child_meshsets(fvolEntity, surfs, 1 );
 
+  if ( plot ) {
   //  G4cout<<"please wait for visualization... "<<G4endl;
   for(unsigned i=0 ; i<surfs.size() ; i++)
     {
@@ -162,7 +165,7 @@ DagSolid::DagSolid (const G4String &name, DagMC* dagmc, int volID)
 	}
       tris.clear();
     }
-  
+  }
 
  //SetRandomVectorSet();
 

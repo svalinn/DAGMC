@@ -1,6 +1,5 @@
-//----------------------------------*-C++, Fortran-*----------------------------------//
-/*!
- * \file   ~/DAGMC/FluDAG/src/cpp/fluka_funcs.cpp
+//----------------------------------*-C++, Fortran-*----------------------------------// /*!
+/* \file   ~/DAGMC/FluDAG/src/cpp/fluka_funcs.cpp
  * \author Julie Zachman 
  * \date   Mon Mar 22 2013 
  * \brief  Functions called by fluka
@@ -23,8 +22,11 @@ using moab::DagMC;
 #include <iomanip>
 #include <fstream>     // ofstream
 #include <sstream>
-#include <set>
 #include <cstring>
+#include <list>        
+#include <algorithm>   // sort
+#include <utility>     // makepair
+#include <stdlib.h>    // atoi
 
 #ifdef CUBIT_LIBS_PRESENT
 #include <fenv.h>
@@ -38,7 +40,9 @@ using moab::DagMC;
 #define DGFM_READ  1
 #define DGFM_BCAST 2
 
+
 #ifdef ENABLE_RAYSTAT_DUMPS
+
 
 #include <fstream>
 #include <numeric>
@@ -46,26 +50,80 @@ using moab::DagMC;
 static std::ostream* raystat_dump = NULL;
 
 #endif 
-#define DEBUG 1
-/* These 37 strings are predefined FLUKA materials. Any ASSIGNMAt of unique 
- * materials not on this list requires a MATERIAL card. */
-std::string flukaMatStrings[] = {"BLCKHOLE", "VACUUM", "HYDROGEN",
-"HELIUM", "BERYLLIU", "CARBON", "NITROGEN", "OXYGEN", "MAGNESIU",      
-"ALUMINUM", "IRON", "COPPER", "SILVER", "SILICON", "GOLD", "MERCURY",  
-"LEAD", "TANTALUM", "SODIUM", "ARGON", "CALCIUM", "TIN", "TUNGSTEN",   
-"TITANIUM", "NICKEL", "WATER", "POLYSTYR", "PLASCINT", "PMMA",         
-"BONECOMP", "BONECORT", "MUSCLESK", "MUSCLEST", "ADTISSUE", "KAPTON",  
-"POLYETHY", "AIR"};
 
-int NUM_FLUKA_MATS = 37;
+#define ID_START 26
 
-/* Create a set out of the hardcoded string array. */
-std::set<std::string> FLUKA_mat_set(flukaMatStrings, flukaMatStrings+NUM_FLUKA_MATS); 
+bool debug = false; 
+
+std::set<int> make_exception_set()
+{
+    std::set<int> nuc_exceptions;
+    
+    // Preserve FLUKA Entropy: Ref Fluka Manual pp. 318-323
+    // Question about 
+    // Xenon (many named isotopes, useful only for detectors?)
+    // Question: I think we should also put the stable form on the no-collapse list,
+    // e.g. H, He, Li, B
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-1")));   // HYDROG-1
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-2")));   // DEUTERIU
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-3")));   // TRITIUM
+    
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He-4")));  // HELIUM-4
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-6")));  // LITHIU-6
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-7")));  // LITHIU-7
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-10")));  // BORON-10
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-11")));  // BORON-11
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sr-90"))); // 90-SR
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I-129"))); // 129-I
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-135")));// 135-CS
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-137")));// 137-CS
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-230")));// 230-TH
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-232")));// 232-TH
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-233"))); // 233-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-234"))); // 234-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-235"))); // 235-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-238"))); // 238-U
+    // All isotopes should be on the exception list, including the base isotope
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sr")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I")));
+
+    // Print out results
+    if (debug)
+    {
+       std::cout << "Nucids of FLUKA exceptions" << std::endl;
+       int i=1;
+       for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
+            ptr != nuc_exceptions.end(); ++ptr)
+       {
+            std::cout << std::setw(10) << std::right << *ptr;
+	    if (i%5 == 0)
+	    {
+	       std::cout << std::endl;
+	    }
+	    else
+	    {
+	       std::cout << ", ";
+	    }
+	    i++;
+       }
+       std::cout << std::endl;
+    }
+
+    return nuc_exceptions;
+}
+
+const char *delimiters = ":/";
+
+// an empty synonym map to provide as a default argument to parse_properties()
+static const std::map<std::string,std::string> no_synonyms;
 
 /* Maximum character-length of a cubit-named material property */
 int MAX_MATERIAL_NAME_SIZE = 32;
 
-bool debug = false; //true ;
 
 /* Static values used by dagmctrack_ */
 
@@ -76,6 +134,7 @@ double old_direction[3];
 MBEntityHandle next_surf; // the next suface the ray will hit
 MBEntityHandle prev_surf; // the last value of next surface
 MBEntityHandle PrevRegion; // the integer region that the particle was in previously
+
 
 
 /**************************************************************************************************/
@@ -176,33 +235,22 @@ void g_step(double& pSx,
 // retStep   - returned as the distance from the particle's current location, along its ray, to the next boundary
 // newRegion - gotten from the value returned by DAG->next_vol
 // newRegion is gotten from the volue returned by DAG->next_vol
-void g_fire(int &oldRegion, double point[], double dir[], double &propStep, double &retStep, double &safety,  int &newRegion)
+void g_fire(int &oldRegion, double point[], double dir[], double &propStep, 
+            double &retStep, double &safety,  int &newRegion)
 {
 
   MBEntityHandle vol = DAG->entity_by_index(3,oldRegion);
   double next_surf_dist;
   MBEntityHandle newvol = 0;
 
-
-  /*
-  if(!check_vol(point,dir,oldRegion))
-    {
-      history.reset();
-    }
-  */
-    
-  if( dir[0] == old_direction[0] && dir[1] == old_direction[1] && dir[2] == old_direction[2] ) // direction changed reset history
-    //   history.reset(); // this is a new particle or direction has changed
+  // direction changed reset history
+  if( dir[0] == old_direction[0] && dir[1] == old_direction[1] && dir[2] == old_direction[2] ) 
     {   
     }
   else
     {
       history.reset();
     }
-
-
-
-  // 
    
   oldRegion = DAG->index_by_handle(vol); // convert oldRegion int into MBHandle to the volume
   if(on_boundary)
@@ -438,8 +486,6 @@ void f_look(double& pSx, double& pSy, double& pSz,
 	}
     }  // end loop over all volumes
 
-  // if we are here do slow check
-  // slow_check(xyz,dir,nextRegion);
   flagErr = nextRegion; // return nextRegion
   return;
 }
@@ -461,38 +507,6 @@ int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
   MBErrorCode ErrorCode = DAG->test_volume_boundary(vol,next_surf,xyz,uvw, result,&history);  // see if we are on boundary
   return result;
 }
-//---------------------------------------------------------------------------//
-// slow_check(..)
-//---------------------------------------------------------------------------//
-// Helper function
-void slow_check(double pos[3], const double dir[3], int &oldReg)
-{
-  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
-  std::cout << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
-  int num_vols = DAG->num_entities(3);  // number of volumes
-  int is_inside = 0;
-  for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
-    {
-      MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
-      MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir); 
-      if ( code != MB_SUCCESS)
-	{
-	 std::cout << "Failure from point in volume" << std::endl;
-	 exit(0);
-	}
-
-      if ( is_inside == 1) // if in volume
-	{
-	  oldReg = DAG->index_by_handle(volume); //set oldReg
-	  std::cout << pos[0] << " " << pos[1] << " " << pos[2] << " " << oldReg << std::endl;
-	  return;
-	}
-    }
-
-  std::cout << "FAILED SLOW CHECK" << std::endl;
-  exit(0);
-}
-
 /*
  *   Particle localisation when magnetic field tracking is on
  */
@@ -587,12 +601,12 @@ int f_idnr(const int & nreg, const int & mlat)
 ///////////////////////////////////////////////////////////////////
 void rg2nwr(const int& mreg, const char* Vname)
 {
-  std::cerr << "============= RG2NWR ==============" << std::endl;    
-  std::cerr << "mreg=" << mreg << std::endl;
-  char * vvname;
+  std::cout << "============= RG2NWR ==============" << std::endl;    
+  std::cout << "mreg=" << mreg << std::endl;
+  std::string vvname;
   region2name(mreg, vvname);
-  Vname = vvname;
-  std::cerr << "reg2nmwr: Vname " << Vname<< std::endl;  
+  Vname = vvname.c_str();
+  std::cout << "reg2nmwr: Vname " << Vname<< std::endl;  
   return;
 }
 
@@ -609,8 +623,8 @@ void rg2nwr(const int& mreg, const char* Vname)
 void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg,
             int* indMother, int* repMother, int& depthFluka)
 {
-  std::cerr << "============= RGRPWR ==============" << std::endl;    
-  std::cerr << "ptrLttc=" << ptrLttc << std::endl;
+  std::cout << "============= RGRPWR ==============" << std::endl;    
+  std::cout << "ptrLttc=" << ptrLttc << std::endl;
   return;
 }
 
@@ -625,7 +639,7 @@ void fldwr(const double& pX, const double& pY, const double& pZ,
             double& Bmag, int& reg, int& idiscflag)
 
 {
-  std::cerr<<"================== MAGFLD ================="<<std::endl;
+  std::cout<<"================== MAGFLD ================="<<std::endl;
   return;
 }
 
@@ -636,7 +650,7 @@ void fldwr(const double& pX, const double& pY, const double& pZ,
 //////////////////////////////////////////////////////////////////
 void flgfwr ( int& flkflg )
 {
-  std::cerr << "=======FLGFWR =======" << std::endl;
+  std::cout << "=======FLGFWR =======" << std::endl;
   return;
 }
 
@@ -650,7 +664,7 @@ void lkfxwr(double& pSx, double& pSy, double& pSz,
             double* pV, const int& oldReg, const int& oldLttc,
 	    int& newReg, int& flagErr, int& newLttc)
 {
-  std::cerr << "======= LKFXWR =======" << std::endl;
+  std::cout << "======= LKFXWR =======" << std::endl;
 
   return;
 }
@@ -659,417 +673,325 @@ void lkfxwr(double& pSx, double& pSy, double& pSz,
 /******                                End of FLUKA stubs                                  ********/
 /**************************************************************************************************/
 
-/**
- * Helper function for parsing DagMC properties that are integers.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_int_prop( MBEntityHandle vol, int cell_id, const std::string& property, int& result ){
-
-  MBErrorCode rval;
-  if( DAG->has_prop( vol, property ) ){
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( MB_SUCCESS != rval ){ 
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtol( valst, &valend, 10 );
-    if( valend[0] != '\0' ){
-      // strtol did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
+// FluDAG Material Card  Functions
+void fludag_write(std::string matfile, std::string lfname)
+{
+  // Use DAG to read and count the volumes.  
+  std::map<int, std::string> map_name;
+  if (0 == DAG->num_entities(3) )
+  {
+     std::cout << "Error: there are no volumes in this geometry!" << std::endl;
+     return;
   }
-  else return false;
 
-}
+  // get the pyne materials and tallies
+  UWUW workflow_data = UWUW(matfile);
 
-/**
- * Helper function for parsing DagMC properties that are doubles.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& property, double& result ){
+  std::list<pyne::Material> pyne_list;
+  std::map<std::string, pyne::Material> pyne_map;
+  pyne_map = workflow_data.material_library;
 
-  MBErrorCode rval;
-  if( DAG->has_prop( vol, property ) ){
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( MB_SUCCESS != rval ){ 
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtod( valst, &valend );
-    if( valend[0] != '\0' ){
-      // strtod did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
-  }
-  else return false;
+  // ASSIGNMA Cards
+  std::ostringstream astr;
+  fludagwrite_assignma(astr, pyne_map, map_name);
 
+  // MATERIAL Cards
+  pyne::NUC_DATA_PATH = workflow_data.full_filepath; // for atomic data
+
+  // write COMPOUND CARDS
+  std::ostringstream mstr;
+  fludag_all_materials(mstr, pyne_map);
+
+  // Write all the streams to the input file
+  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
+  std::ofstream lcadfile (lfname.c_str());
+  lcadfile << header << std::endl;
+  lcadfile << astr.str();
+  lcadfile << header << std::endl;
+  lcadfile << mstr.str();
+
+  lcadfile << header << std::endl;
+  lcadfile << "* UW**2 tallies" << std::endl;
+  mstr.str("");
+  fludag_all_tallies(mstr,workflow_data.tally_library);
+  lcadfile << mstr.str();
+
+  // all done
+  lcadfile.close();
 }
 
 //---------------------------------------------------------------------------//
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
-/// Called from mainFludag when only one argument is given to the program.
-//  This function writes out a simple numerical material assignment to the named argument file
-//  Example usage:  mainFludag dagmc.html
-//  Outputs
-//           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
-//                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
-//                    The string after "M_" is considered to be the material for that volume.
-//                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
-//                    For the remaining materials, there is one MATERIAL card apiece (no dups)
-//                    User-named (not predefined) materials are TRUNCATED to 8 chars.
-//                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
-//           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
-//  Note that a preprocessing step to this call sets up the the DAG object that contains 
-//  all the geometry information contained in dagmc.html.  
-//  the name of the (currently hardcoded) output file is "mat.inp"
-//  The graveyard is assumed to be the last region.
-void fludagwrite_assignma(std::string lfname)  // file with cell/surface cards
+// Put the ASSIGNMAt statements in the output ostringstream
+void fludagwrite_assignma(std::ostringstream& ostr, 
+                          std::map<std::string, pyne::Material> pyne_map,    
+			  std::map<int, std::string> map_name)         
 {
-  int num_vols = DAG->num_entities(3);
-  std::cout << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-  std::cout << "\tnum_vols is " << num_vols << std::endl;
-  MBErrorCode ret;
-  MBEntityHandle entity = 0;
-  int id;
+  // get the material and density props
+  std::map<MBEntityHandle,std::vector<std::string> > material_assignments = get_property_assignments("mat",3,":/");
+  std::map<MBEntityHandle,std::vector<std::string> > density_assignments = get_property_assignments("rho",3,":/");
 
-  std::vector< std::string > keywords;
-  ret = DAG->detect_available_props( keywords );
-  // parse data from geometry so that property can be found
-  ret = DAG->parse_properties( keywords );
+  pyne::Material material;
 
-  if (MB_SUCCESS != ret) 
+  std::vector<std::string> material_props,density_props;
+
+  // loop over all volumes
+  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++)
   {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-  // Preprocessing loop:  make a string, "props",  for each vol entity
-  // This loop could be removed if the user doesn't care to see terminal output
-  std::cout << "Property list: " << std::endl;
-  for (unsigned i=1; i<=num_vols; i++)
-  {
-     
-      std::string props = mat_property_string(i, keywords);
-      id = DAG->id_by_index(3, i);
-      if (props.length()) 
-      {
-         std::cout << "Vol " << i << ", id=" << id << ": parsed props: " << props << std::endl; 
+    int cellid = DAG->id_by_index( 3, vol_i );
+    MBEntityHandle entity = DAG->entity_by_index( 3, vol_i );
+
+    material_props = material_assignments[entity];
+    density_props = density_assignments[entity];
+    
+    if( material_props.size() > 1 ) {
+      std::cout << "more than one material for volume with id " << cellid << std::endl;
+      std::cout << cellid << " has the following material assignments" << std::endl;
+      for ( int j = 0 ; j < material_props.size() ; j++ ) {
+	std::cout << material_props[j] << std::endl;
       }
-      else
-      {
-         std::cout << "Vol " << i << ", id=" << id << " has no props: " <<  std::endl; 
-      }
-  }
-
-  // Open an outputstring for mat.inp
-  std::ostringstream ostr;
-  // Open an outputstring for index-id table and put a header in it
-  std::ostringstream idstr;
-  idstr << std::setw(5) <<  "Index" ;
-  idstr << std::setw(5) <<  "   Id" << std::endl;
-
-  // Prepare a list to contain unique materials not in Flulka's list
-  std::list<std::string> uniqueMatList;
-
-  // Loop through 3d entities.  In model_complete.h5m there are 90 vols
-  std::vector<std::string> vals;
-  std::string material;
-  char buffer[MAX_MATERIAL_NAME_SIZE];
-  for (unsigned i = 1 ; i <= num_vols ; i++)
-  {
-      vals.clear();
-      entity = DAG->entity_by_index(3, i);
-      id = DAG->id_by_index(3, i);
-      // Create the id-index string for this vol
-      idstr << std::setw(5) << std::right << i;
-      idstr << std::setw(5) << std::right << id << std::endl;
-      // Create the mat.inp string for this vol
-      if (DAG->has_prop(entity, "graveyard"))
-      {
-	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-	 ostr << std::setw(10) << std::right << "BLCKHOLE";
-	 ostr << std::setw(10) << std::right << i << std::endl;
-      }
-      else if (DAG->has_prop(entity, "M"))
-      {
-         ret = DAG->prop_values(entity, "M", vals);
-         if (vals.size() >= 1)
-         {
-            // Make a copy of string in vals[0]; full string needs to be compared to
-            // FLUKA materials list; copy is for potential truncation
-            std::strcpy(buffer, vals[0].c_str());
-            material = std::string(buffer);
-            
-            if (vals[0].size() > 8)
-            {
-               material.resize(8);
-            }
-            if (FLUKA_mat_set.find(vals[0]) == FLUKA_mat_set.end())
-            {
-                // current material is not in the pre-existing FLUKA material list
-                uniqueMatList.push_back(material); 
-                std::cout << "Adding material " << material << " to the MATERIAL card list" << std::endl;
-            }
-         }
-         else
-         {
-            material = "moreThanOne";
-         }
-	 ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-	 ostr << std::setw(10) << std::right << material;
-	 ostr << std::setw(10) << std::right << i << std::endl;
-      }
-  }
-  // Finish the ostr with the implicit complement card
-  std::string implicit_comp_comment = "* The next volume is the implicit complement";
-  ostr << implicit_comp_comment << std::endl;
-  ostr << std::setw(10) << std::left  << "ASSIGNMAt";
-  ostr << std::setw(10) << std::right << "VACUUM";
-  ostr << std::setw(10) << std::right << num_vols << std::endl;
-
-  // Process the uniqueMatList list so that it truly is unique
-  uniqueMatList.sort();
-  uniqueMatList.unique();
-  // Print the final list
-  if (debug)
-  {
-     std::list<std::string>::iterator it; 
-     for (it=uniqueMatList.begin(); it!=uniqueMatList.end(); ++it)
-     {
-        std::cout << *it << std::endl;
-     }
-  
-     // Show the output string just created
-     std::cout << ostr.str();
-  }
-
-  // Prepare an output file of the given name; put a header and the output string in it
-  std::ofstream lcadfile( lfname.c_str());
-  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
-  if (uniqueMatList.size() != 0)
-  {
-     int matID = 25;
-     lcadfile << header << std::endl;
-     std::list<std::string>::iterator it; 
-     for (it=uniqueMatList.begin(); it!=uniqueMatList.end(); ++it)
-     {
-        lcadfile << std::setw(10) << std::left << "MATERIAL";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << ++matID;
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::right << "";
-        lcadfile << std::setw(10) << std::left << *it << std::endl;
-     }
-  }
-  lcadfile << header << std::endl;
-  lcadfile << ostr.str();
-  lcadfile.close();
-
-  // Prepare an output file named "index_id.txt" for idstr
-  std::string index_id_filename = "index_id.txt";
-  std::ofstream index_id(index_id_filename.c_str());
-  index_id << idstr.str();
-  index_id.close(); 
-  std::cout << "Writing lcad file = " << lfname << std::endl; 
-// Before opening file for writing, check for an existing file
-/*
-  if( lfname != "lcad" ){
-    // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"
-    if( access( lfname.c_str(), R_OK ) == 0 ){
-      std::cout << "DagMC: reading from existing lcad file " << lfname << std::endl;
-      return; 
+      std::cout << "Please check your material assignments " << cellid << std::endl;
+      exit(EXIT_FAILURE);
     }
-  }
-*/
+    if(density_props.size() > 1) {
+      std::cout << "More than one density specified for " << cellid <<std::endl;
+      std::cout << cellid << " has the following density assignments" << std::endl;
+      for ( int j = 0 ; j < density_props.size() ; j++ ) {
+	std::cout << density_props[j] << std::endl;
+      }
+      std::cout << "Please check your density assignments " << cellid << std::endl;
+      exit(EXIT_FAILURE);
+    }
 
+    std::string grp_name = "";
+    if (!density_props[0].empty())
+      grp_name = "mat:"+material_props[0]+"/rho:"+density_props[0];
+    else
+      grp_name = "mat:"+material_props[0];
+
+
+    std::string fluka_name = "";
+
+    // not graveyard or vacuum or implicit compliment
+    if (grp_name.find("Graveyard") == std::string::npos && grp_name.find("Vacuum") == std::string::npos 
+	&& !(DAG->is_implicit_complement(entity)) ) 
+      {
+	material = pyne_map[grp_name];
+	fluka_name = material.metadata["fluka_name"].asString();
+      }
+    // found graveyard
+    else if (grp_name.find("Graveyard") != std::string::npos || 
+	     grp_name.find("graveyard") != std::string::npos )  
+      {
+	fluka_name = "BLCKHOLE";
+      }
+    // vacuum
+    else if (grp_name.find("Vacuum") != std::string::npos)  
+      {
+	 fluka_name = "VACUUM";
+      }
+    else if (  DAG->is_implicit_complement(entity) )
+      {
+	 fluka_name = "VACUUM";
+      }
+
+    // The fluka name has been found, create the card
+    ostr << std::setw(10) << std::left  << "ASSIGNMA ";
+    ostr << std::setw(10) << std::right << fluka_name;
+    ostr << std::setprecision(0) << std::fixed << std::showpoint 
+	 << std::setw(10) << std::right << (float)vol_i << std::endl;
+
+  }   // End loop through vol_i
+  std::cout << std::endl;
+
+}  // end fludagwrite_assignma
+
+
+// Get tally cards for all tallies in the problem
+void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tally> tally_map)
+{
+  int start_unit = 21; // starting unit number for tallies
+
+  std::map<std::string,pyne::Tally>::iterator it;
+
+  // generate number of tally/particle pairs
+  std::list<std::string> tally_parts;
+  std::string tally_id;
+  for ( it = tally_map.begin() ; it != tally_map.end() ; ++it ) {
+    tally_id = (it->second).tally_type+"/"+(it->second).particle_name;
+    if( std::count(tally_parts.begin(),tally_parts.end(),tally_id) == 0 )
+      {
+	tally_parts.insert(tally_parts.end(),tally_id);
+      }
+  }
+  
+  // loop over tallies in map
+  for ( it = tally_map.begin() ; it != tally_map.end() ; ++it ) {
+    pyne::Tally tally = (it->second);
+    // pyne tallies are by id, FluDAG is by index, need to convert
+    MBEntityHandle vol_eh = DAG->entity_by_id(3,tally.entity_id);
+    // volume index
+    int vol_idx = DAG->index_by_handle(vol_eh);
+    // recast tally to index, use entity_name for setting volume
+
+    MBErrorCode rval = DAG->measure_volume(vol_eh,tally.entity_size);
+
+    std::stringstream ss;
+    ss << vol_idx;
+    ss << ".";
+    tally.entity_name = ss.str();
+
+    std::string tally_id = tally.tally_type+"/"+tally.particle_name;
+
+    std::list<std::string>::iterator iter = std::find (tally_parts.begin(), tally_parts.end(), tally_id);
+
+    int unit_number = std::distance(tally_parts.begin(), iter) + start_unit;
+
+    ss.str(std::string());
+    ss << "-";
+    ss << unit_number;
+    
+
+    mstr << tally.fluka(ss.str()) << std::endl;
+  }
+  
+  return;
 }
 
 //---------------------------------------------------------------------------//
-// mat_property_string
+// fludag_all_materials
 //---------------------------------------------------------------------------//
-// For a given volume, find the values of all properties named "MAT".   
-// Create a string with these properites
-// Modified from make_property_string
-// This function helps with debugging, but is not germane to writing cards.
-std::string mat_property_string (int index, std::vector<std::string> &properties)
+// Get material cards for all materials in the problem, both elemental and compounds
+void fludag_all_materials(std::ostringstream& mstr, std::map<std::string,pyne::Material> pyne_map)
 {
-  MBErrorCode ret;
-  std::string propstring;
-  MBEntityHandle entity = DAG->entity_by_index(3,index);
-  int id = DAG->id_by_index(3, index);
-  for (std::vector<std::string>::iterator p = properties.begin(); p != properties.end(); ++p)
+  std::set<int> exception_set = make_exception_set();
+
+  std::map<int, std::string> map_nucid_fname;
+
+  pyne::Material unique = pyne::Material();
+
+  // loop over all materials, summing
+  std::map<std::string, pyne::Material>::iterator nuc;
+  for ( nuc = pyne_map.begin(); nuc != pyne_map.end(); ++nuc)
   {
-     if ( DAG->has_prop(entity, *p) )
-     {
-        std::vector<std::string> vals;
-        ret = DAG->prop_values(entity, *p, vals);
-        if( ret != MB_SUCCESS )
-        {
-            std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-            std::exit( EXIT_FAILURE );
-        }
-        propstring += *p;
-        if (vals.size() == 1)
-        {
- 	   propstring += "=";
-           propstring += vals[0];
-        }
-        else if (vals.size() > 1)
-        {
- 	   // this property has multiple values; list within brackets
-           propstring += "=[";
-	   for (std::vector<std::string>::iterator i = vals.begin(); i != vals.end(); ++i)
-           {
-	       propstring += *i;
-               propstring += ",";
-           }
-           // replace the last trailing comma with a close bracket
-           propstring[ propstring.length() -1 ] = ']';
-        }
-        propstring += ", ";
-     }
+    unique = unique + (nuc->second);
   }
-  if (propstring.length())
+  // now collapse elements
+  unique = unique.collapse_elements(exception_set);
+
+  // remove those that are no longer needed due to 
+  // compound card inclusions
+    // now write out material card & compound card for each compound
+  for ( nuc = pyne_map.begin() ; nuc != pyne_map.end(); ++nuc)
   {
-     propstring.resize( propstring.length() - 2); // drop trailing comma
+    pyne::Material compound = (nuc->second).collapse_elements(exception_set);
+    // if only one element in comp, then we can remove the one that exists
+    // in the unique material
+    if ( compound.comp.size() == 1 )
+      {
+	pyne::comp_iter nuc = compound.comp.begin();
+	std::set<int> nuc2del;
+	nuc2del.insert(nuc->first);
+	// remove the nuclide from the unique list
+	unique = unique.del_mat(nuc2del);
+      }
   }
-  return propstring;
+
+  //del_mat
+
+  // number of required material cards due to calls
+  int num_mat = unique.comp.size();
+
+  // write out material card for each one
+  int i = ID_START;
+  pyne::comp_map::iterator element;
+  std::string mat_line;
+  for ( element = unique.comp.begin() ; element != unique.comp.end() ; ++element)
+    {
+      int nuc_id = element->first; // get the nuc id
+      pyne::comp_map nucvec;
+      nucvec[nuc_id] = 100.0; // create temp nucvec
+      pyne::Material element_tmp = pyne::Material(nucvec); // create temp material
+      mat_line = element_tmp.fluka(i);
+      if (mat_line.length() != 0)
+      {
+         i++;
+	 mstr << mat_line;
+      }
+    }
+
+  // now write out material card & compound card for each compound
+  std::string compound_string;
+  for ( nuc = pyne_map.begin() ; nuc != pyne_map.end(); ++nuc)
+  {
+    pyne::Material compound = (nuc->second).collapse_elements(exception_set);
+    compound_string = compound.fluka(i);
+    if ( compound_string.length() != 0 )
+      {
+	i++;
+        mstr << compound_string;
+      }
+  }
 }
 
-//---------------------------------------------------------------------------//
-// make_property_string
-//---------------------------------------------------------------------------//
-// For a given volume, find all properties associated with it, and any and all 
-//     values associated with each property
-// Copied and modified from obb_analysis.cpp
-static std::string make_property_string (MBEntityHandle eh, std::vector<std::string> &properties)
+// region2name 
+void region2name(int volindex, std::string &vname )  // file with cell/surface cards
 {
-  MBErrorCode ret;
-  std::string propstring;
-  for (std::vector<std::string>::iterator p = properties.begin(); p != properties.end(); ++p)
-  {
-     if ( DAG->has_prop(eh, *p) )
-     {
-        std::vector<std::string> vals;
-        ret = DAG->prop_values(eh, *p, vals);
-        if( ret != MB_SUCCESS )
-        {
-            std::cerr << __FILE__ << ", " << __func__ << ":" << __LINE__ << "_______________" << std::endl;
-            std::exit( EXIT_FAILURE );
-        }
-        propstring += *p;
-        if (vals.size() == 1)
-        {
- 	   propstring += "=";
-           propstring += vals[0];
-        }
-        else if (vals.size() > 1)
-        {
- 	   // this property has multiple values; list within brackets
-           propstring += "=[";
-	   for (std::vector<std::string>::iterator i = vals.begin(); i != vals.end(); ++i)
-           {
-	       propstring += *i;
-               propstring += ",";
-           }
-           // replace the last trailing comma with a close bracket
-           propstring[ propstring.length() -1 ] = ']';
-        }
-        propstring += ", ";
-     }
-  }
-  if (propstring.length())
-  {
-     propstring.resize( propstring.length() - 2); // drop trailing comma
-  }
-  return propstring;
+  std::stringstream ss;
+  ss << volindex;
+  ss << ".";
+  vname = ss.str();
 }
 
-//////////////////////////////////////////////////////////////////////////
-/////////////
-/////////////		region2name - modified from dagmcwrite
-/////////////
-//                      Called in WrapReg2Name
-//////////////////////////////////////////////////////////////////////////
-void region2name(int volindex, char *vname )  // file with cell/surface cards
+// get all property in all volumes
+std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
+									    int dimension, std::string delimiters)
 {
-  MBErrorCode rval;
 
-  std::vector< std::string > fluka_keywords;
-  fluka_keywords.push_back( "mat" );
-  fluka_keywords.push_back( "rho" );
-  fluka_keywords.push_back( "comp" );
-  fluka_keywords.push_back( "graveyard" );
+  std::map<MBEntityHandle,std::vector<std::string> > prop_map;
+
+  std::vector< std::string > mcnp5_keywords;
+  std::map< std::string, std::string > mcnp5_keyword_synonyms;
+
+  // populate keywords
+  mcnp5_keywords.push_back( "mat" );
+  mcnp5_keywords.push_back( "rho" );
+  mcnp5_keywords.push_back( "tally" );
+
+  // get initial sizes
+  int num_entities = DAG->num_entities( dimension );
 
   // parse data from geometry
-  rval = DAG->parse_properties (fluka_keywords);
+  MBErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
+
   if (MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
+    std::cout << "DAGMC failed to parse metadata properties" <<  std::endl;
     exit(EXIT_FAILURE);
   }
 
-// std::ostringstream ostr;
 
-  int cmat = 0;
-  double crho;
+  // loop over all cells
+  for( int i = 1; i <= num_entities; ++i ) {
+    // get cellid
+    MBEntityHandle entity = DAG->entity_by_index( dimension, i );
 
-  MBEntityHandle vol = DAG->entity_by_index( 3, volindex );
-  int cellid = DAG->id_by_index( 3, volindex);
+    std::vector<std::string> properties;
+    std::vector<std::string> tmp_properties;
 
-  bool graveyard = DAG->has_prop( vol, "graveyard" );
 
-  std::ostringstream istr;
-  if( graveyard )
-  {
-     istr << "BLCKHOLE";
-     if( DAG->has_prop(vol, "comp") )
-     {
-       // material for the implicit complement has been specified.
-       get_int_prop( vol, cellid, "mat", cmat );
-       get_real_prop( vol, cellid, "rho", crho );
-       std::cout << "Detected material and density specified for implicit complement: " << cmat <<", " << crho << std::endl;
-     }
-   }
-   else if( DAG->is_implicit_complement(vol) )
-   {
-      istr << "mat_" << cmat;
-      if( cmat != 0 ) istr << "_rho_" << crho;
-   }
-   else
-   {
-      int mat = 0;
-      get_int_prop( vol, cellid, "mat", mat );
-
-      if( mat == 0 )
+    // get the group contents
+    if( DAG->has_prop( entity, property ) )
       {
-        istr << "0";
+	rval = DAG->prop_values(entity,property,tmp_properties);
+	properties.push_back(tmp_properties[0]);
       }
-      else
-      {
-        double rho = 1.0;
-        get_real_prop( vol, cellid, "rho", rho );
-        istr << "mat_" << mat << "_rho_" << rho;
-      }
-   }
-   char *cstr = new char[istr.str().length()+1];
-   std:strcpy(cstr,istr.str().c_str());
-   vname = cstr;
+    else
+      properties.push_back("");
+
+    prop_map[entity]=properties;
+
+  }
+
+  return prop_map;
 }
