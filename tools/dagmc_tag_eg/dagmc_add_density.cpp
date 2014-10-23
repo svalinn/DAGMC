@@ -1,5 +1,7 @@
 #include <iostream>
 
+#define OUR_NAME_TAG_SIZE 128
+
 #include "MBCore.hpp"
 #include "MBTagConventions.hpp"
 
@@ -129,6 +131,29 @@ int main(int argc, char **argv)
   CHKERR(rval,"Failed to get the density.");
   std::cout << "Retrieved density on volume id " << find_vol_id << " = " << check_density << std::endl;
 
+<<<<<<< HEAD
+=======
+  // create new string tag
+  MBTag name_tag;
+  char name_tag_name [OUR_NAME_TAG_SIZE] = "name\0";
+
+  rval = MBI()->tag_get_handle( name_tag_name, OUR_NAME_TAG_SIZE, MB_TYPE_OPAQUE, name_tag,
+				moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT);
+  CHKERR(rval,"Failed to create name tag");
+
+  // set the value
+  char* name_tag_value = "My name is bob\0";
+  rval = MBI()->tag_set_data(name_tag,&vol,1,&name_tag_value);
+  CHKERR(rval,"Failed to set the entity name");
+
+  // check it can be retrieved
+  char* name_tag_return;
+  rval = MBI()->tag_get_data(name_tag, &vol, 1, &name_tag_return);
+  CHKERR(rval,"Failed to get the density.");
+  std::cout << "Retrieved density on volume id " << find_vol_id << " = " << name_tag_return << std::endl;
+
+
+>>>>>>> develop
   // save the mesh
   rval = MBI()->write_mesh(out_filename);
   CHKERR1(rval,"Failed to write file: ",out_filename);
