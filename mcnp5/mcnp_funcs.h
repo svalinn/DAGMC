@@ -122,13 +122,13 @@ extern "C" {
                    double *yyy,double *zzz,double *huge,double *dls,int *jap,int *jsu,
                    int *nps );
 
-/* Measure entities
- * vols - 2xN array where first column contains, as output, measure of every volume.
- * aras - 2xN array where first column contains, as output, measure of every surface
- */                        
+ /* Measure entities
+  * vols - 2xN array where first column contains, as output, measure of every volume.
+  * aras - 2xN array where first column contains, as output, measure of every surface
+  */                        
   void dagmcvolume_(int* mxa, double* vols, int* mxj, double* aras);
 
-/* Set distance limit */
+ /* Set distance limit */
   void dagmc_setdis_(double *d);
 
   void dagmc_set_settings_(int* use_dist_limit, int* use_cad, double* overlap_thickness, int* srccell_mode);
@@ -136,28 +136,27 @@ extern "C" {
   void dagmc_init_settings_(int* use_dist_limit, int* use_cad,     
                             double* overlap_thickness, double* facet_tol, int* srccell_mode );
 
-
+  /**
+   * \brief Performs the write of the lcad file using the "old" method
+   * \param[in] output file stream pointing to the lcadfile
+   */
   void write_lcad_old(std::ofstream &lcadfile);
 
+  /**
+   * \brief performs the write of the lcadfile for the UWUW workflow
+   * \param[in] output file stream pointing to the lcadfile
+   * \param[in] UWUW class containing the UWUW workflow data
+   */
   void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data);
 
-  /*
-   * load the pyne materials from the dag file
-   * Not to be called by fortran
+  /**
+   * \brief Get all properties by dimension
+   * \param[in] string (string) of the property you wish to query, e.g. "mat"
+   * \param[in] dimension (int) dimension to be queried (2/3)
+   * \param[in] delimiters (string) the delimiter that breaks up the string
+   * \return entity handle - string map of the property value, empty string in no property
    */
-  std::map<std::string, pyne::Material> load_pyne_materials(std::string filename);
-
-  /*
-   * load the pyne tallies from the dag file
-   * Not to be called by fortran
-   */
-  std::map<std::string, pyne::Tally> load_pyne_tallies(std::string filename);
-
-
-  /*
-   * get all properties by dimension
-   */
-std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, int dimension,
+  std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, int dimension,
 									    std::string delimiters);
  
 

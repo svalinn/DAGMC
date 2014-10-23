@@ -404,18 +404,24 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
     int surfid = DAG->id_by_index( 2, i );
     MBEntityHandle entity = DAG->entity_by_index( 2, i );
 
-    if(boundary_assignments[entity].size() > 1)
-      {
-	std::cout << "More than one boundary condition applied to surface " << surfid << std::endl;
-	std::cout << "Please rectify" << std::endl;
-	exit(EXIT_FAILURE);
-      }
-
     boundary_assignment = boundary_assignments[entity];
+    if (boundary_assignment.size() != 1 )
+      {
+	std::cout << "More than one boundary conditions specified for " << surfid <<std::endl;
+	std::cout << surfid << " has the following density assignments" << std::endl;
+	for ( int j = 0 ; j < boundary_assignment.size() ; j++ ) {
+	  std::cout << boundary_assignment[j] << std::endl;
+	}
+	std::cout << "Please check your boundary condition assignments " << surfid << std::endl;
+	
+      }
+    // 2d entities have been tagged with the boundary condition property
+    // ie. both surfaces and its members triangles, 
     
-    if(boundary_assignment[0].find("reflecting") != std::string::npos )
+    
+    if(boundary_assignment[0].find("Reflecting") != std::string::npos )
       lcadfile << "*";
-    if (boundary_assignment[0].find("white") != std::string::npos )
+    if (boundary_assignment[0].find("White") != std::string::npos )
       lcadfile << "+";
 
     lcadfile << surfid << std::endl;
@@ -1071,83 +1077,9 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 
 }
 
-// loads all materials into map
-std::map<std::string, pyne::Material> load_pyne_materials(std::string filename) 
-{
-  std::map<std::string, pyne::Material> library; // material library
-  
-  bool end = false; // end of materials
-  int i = -1;
 
-  // neednt check for filename existance, since it is guarenteed to exist
-  while( !end )
-    {
-      pyne::Material mat; // from file
-
-      mat.from_hdf5(filename,"/materials",++i);
-      // if already in the map we have looped through the materials
-      // and need not continue
-      if ( library.count(mat.metadata["name"].asString()) )
-	{
-	  end = true;  
-	}
-      else
-	{
-	  std::string result;
-	  std::ostringstream matnum;   // stream used for the conversion
-	  matnum << i+1;      // insert the textual representation of 'Number' in the characters in the streamng
-	  mat.metadata["mat_number"]=matnum.str();
-
-	  library[mat.metadata["name"].asString()]=mat;
-	  std::cout << library.size() << std::endl;
-
-	}
-    }
-  
-  std::cout << "Materials present in the h5m file" << std::endl;
-  for(std::map<std::string,pyne::Material>::const_iterator it = library.begin() ; it != library.end() ; ++it )
-    {
-      std::cout << it->first <<  std::endl;
-    }
-  
-  return library;
-}
-
-// loads all materials into map
-std::map<std::string, pyne::Tally> load_pyne_tallies(std::string filename) 
-{
-  std::map<std::string, pyne::Tally> library; // material library
-  
-  bool end = false; // end of materials
-  int i = -1;
-
-  // neednt check for filename existance, since it is guarenteed to exist
-  while( !end )
-    {
-      pyne::Tally tally; // from file
-
-      tally.from_hdf5(filename,"/tally",++i);
-      // if already in the map we have looped through the materials
-      // and need not continue
-      if ( library.count(tally.tally_name) )
-	{
-	  end = true;  
-	}
-
-      library[tally.tally_name]=tally;
-    }
-  
-  
-  std::cout << "Tallies present in the h5m file" << std::endl;
-  for(std::map<std::string,pyne::Tally>::const_iterator it = library.begin() ; it != library.end() ; ++it )
-    {
-      std::cout << it->first <<  std::endl;
-    }
-
-  return library;
-}
-
-
+// given a property string, dimension and the delimeter of the string, return an entityhandle wise map of the
+// property value
 std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
 									    int dimension, std::string delimiters)
 {
@@ -1161,6 +1093,7 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
   mcnp5_keywords.push_back( "mat" );
   mcnp5_keywords.push_back( "rho" );
   mcnp5_keywords.push_back( "tally" );
+  mcnp5_keywords.push_back( "boundary" );
 
   // get initial sizes
   int num_entities = DAG->num_entities( dimension );
@@ -1187,6 +1120,13 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
     else
       properties.push_back("");
 
+    // remove duplicates
+    std::vector<std::string>::iterator it;
+    it = std::unique(properties.begin(),properties.end());   
+    // resize vector to remove empty parts
+    properties.resize(std::distance(properties.begin(),it));
+    
+    // assign the map value
     prop_map[entity]=properties;
   }
 
