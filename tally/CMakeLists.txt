@@ -30,7 +30,8 @@ LIST( APPEND CODE_PUB_HEADERS "TallyManager.hpp" )
 LIST( APPEND CODE_PUB_HEADERS "TrackLengthMeshTally.hpp" )
 
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tally ${PROJECT_SOURCE_DIR}/tally/mcnp5)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tally)
+#${PROJECT_SOURCE_DIR}/tally/mcnp5)
 
 
 # Create DAGMC Tally library

@@ -3,7 +3,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # Where to look for includes
-#INCLUDE_DIRECTORIES("${MOAB_ROOT}/include" "${GTEST_HOME}/gtest-1.7.0/include")
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/tally )
 
 MESSAGE(STATUS "${GTEST_HOME}")
@@ -11,8 +10,6 @@ MESSAGE(STATUS "${GTEST_HOME}")
 # set libraries
 SET(LIBRARIES
     pthread
-    dagmciface
-#//    ${DAGTALLLY_LIB}/libdagtally.so 
     ${DAGMC_LIBRARIES}
     dagtally
     gtest
