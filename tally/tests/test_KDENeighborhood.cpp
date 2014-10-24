@@ -88,7 +88,7 @@ class IsCalculationPointTest : public ::testing::Test
         mbi = new moab::Core();
 
         // load the default mesh
-        rval = mbi->load_mesh("../structured_mesh.h5m");
+        rval = mbi->load_mesh("structured_mesh.h5m");
         assert(rval == moab::MB_SUCCESS);
 
         // set up the TallyEvent and bandwidth
@@ -170,7 +170,7 @@ TEST(KDENeighborhoodTest, NoMeshNodes)
     moab::Interface* mbi = &mb_core;
 
     // load default mesh
-    moab::ErrorCode rval = mbi->load_mesh("../structured_mesh.h5m");
+    moab::ErrorCode rval = mbi->load_mesh("structured_mesh.h5m");
     assert(rval == moab::MB_SUCCESS);
 
     // define a Range containing no mesh nodes
