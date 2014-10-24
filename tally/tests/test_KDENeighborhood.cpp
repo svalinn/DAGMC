@@ -21,7 +21,7 @@ const double PI = 3.14159265359;
 // loads default mesh into the mbi instance and gets all mesh nodes
 void load_default_mesh(moab::Interface* mbi, moab::Range& mesh_nodes)
 {
-    moab::ErrorCode rval = mbi->load_mesh("../structured_mesh.h5m");
+    moab::ErrorCode rval = mbi->load_mesh("structured_mesh.h5m");
     assert(rval == moab::MB_SUCCESS);
 
     // copy all mesh nodes into Range

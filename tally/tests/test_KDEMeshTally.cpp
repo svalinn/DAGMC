@@ -22,7 +22,7 @@ class KDEMeshTallyTest : public ::testing::Test
         options.insert(std::make_pair("hx", "0.1"));
         options.insert(std::make_pair("hy", "0.1"));
         options.insert(std::make_pair("hz", "0.1"));
-        options.insert(std::make_pair("inp", "../structured_mesh.h5m"));
+        options.insert(std::make_pair("inp", "structured_mesh.h5m"));
 
         // add general input data
         input.tally_id = 1;

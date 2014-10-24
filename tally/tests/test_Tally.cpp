@@ -100,7 +100,7 @@ TEST_F(TallyFactoryTest, NumEnergyBins)
 TEST_F(TallyFactoryTest, CreateTrackLengthMeshTally)
 {
   input.tally_type = "unstr_track";
-  input.options.insert(std::make_pair("inp", "../unstructured_mesh.h5m"));
+  input.options.insert(std::make_pair("inp", "unstructured_mesh.h5m"));
   tally = Tally::create_tally(input);
   EXPECT_TRUE(tally != NULL);
   EXPECT_EQ("unstr_track", tally->get_tally_type());
@@ -110,7 +110,7 @@ TEST_F(TallyFactoryTest, CreateTrackLengthMeshTally)
 TEST_F(TallyFactoryTest, CreateKDETrackMeshTally)
 {
   input.tally_type = "kde_track";
-  input.options.insert(std::make_pair("inp", "../unstructured_mesh.h5m"));
+  input.options.insert(std::make_pair("inp", "unstructured_mesh.h5m"));
   tally = Tally::create_tally(input);
   EXPECT_TRUE(tally != NULL);
   EXPECT_EQ("kde_track", tally->get_tally_type());
@@ -119,7 +119,7 @@ TEST_F(TallyFactoryTest, CreateKDETrackMeshTally)
 TEST_F(TallyFactoryTest, CreateKDESubtrackMeshTally)
 {
   input.tally_type = "kde_subtrack";
-  input.options.insert(std::make_pair("inp", "../unstructured_mesh.h5m"));
+  input.options.insert(std::make_pair("inp", "unstructured_mesh.h5m"));
   tally = Tally::create_tally(input);
   EXPECT_TRUE(tally != NULL);
   EXPECT_EQ("kde_subtrack", tally->get_tally_type());
@@ -128,7 +128,7 @@ TEST_F(TallyFactoryTest, CreateKDESubtrackMeshTally)
 TEST_F(TallyFactoryTest, CreateKDECollisionMeshTally)
 {
   input.tally_type = "kde_coll";
-  input.options.insert(std::make_pair("inp", "../unstructured_mesh.h5m"));
+  input.options.insert(std::make_pair("inp", "unstructured_mesh.h5m"));
   tally = Tally::create_tally(input);
   EXPECT_TRUE(tally != NULL);
   EXPECT_EQ("kde_coll", tally->get_tally_type());
