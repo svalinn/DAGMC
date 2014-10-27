@@ -147,7 +147,7 @@ If installing MOAB from the git repository:
 ::
     prompt%> git clone https://bitbucket.org/fathomteam/moab/
     prompt%> cd moab
-    prompt%> git checkout Version4.7.0
+    prompt%> git checkout master
     prompt%> autoreconf -fi
     prompt%> cd ..
     prompt%> ln -s trunk src
