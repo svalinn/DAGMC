@@ -323,6 +323,14 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
 			-DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
+**Example 6:**  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests
+::
+    prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
+                        -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
+			-DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
+			-DBUILD_TALLY=ON \
+                        -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+
 Compile and Install
 ~~~~~~~~~~~~~~~~~~~~~
 
