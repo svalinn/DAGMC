@@ -2,11 +2,14 @@
 
 from pyne import material
 from pyne.material import Material, MaterialLibrary
+from pyne.particle import is_valid, name
+from pyne.tally import Tally
 import nose
 from nose.tools import assert_equal, assert_raises
 import dagmc_get_materials as gtag
 
 
+''' Test graveyard and vacuum groups'''
 """
 Existence/Absence of a graveyard group
 """
