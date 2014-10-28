@@ -39,7 +39,8 @@ With installation of the DAGMC Toolkit, the dependency stack will look like this
    * `PyNE <http://pyne.io/install.html>`_
    * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
    * `CGM <http://bitbucket.org/fathomteam/cgm>`_ 
-       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 
+       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
+
 
 Assumptions and conventions that are used in these instructions:
 
@@ -133,10 +134,10 @@ If installing MOAB from the git repository:
 ::
     prompt%> git clone https://bitbucket.org/fathomteam/moab/
     prompt%> cd moab
-    prompt%> git checkout Version4.7.0
+    prompt%> git checkout master
     prompt%> autoreconf -fi
     prompt%> cd ..
-    prompt%> ln -s trunk src
+    prompt%> ln -s moab src
 
 In all MOAB cases:
 ::
@@ -246,11 +247,11 @@ create a build directory and navigate to it.
     prompt%> cd bld
 
 
-We can now configure DAGMC for building.  The CMake system can be configured to build any 
-or all of the following, see `cmake options <cmake_options.html>`_ for a list of all possible options.
+The CMake system can be used to configure a build of any or all of the 
+following, see `cmake options <cmake_options.html>`_ for a list of all possible options.
 
    * MCNP5 with or without MPI
-   * GEANT4 (DAGSolid)
+   * GEANT4 (DagSolid)
    * FLUKA  (FluDAG) 
    
 You will need to include the CMAKE_INSTALL_PREFIX=install_dir option as part of the configuration.  When the 
@@ -307,6 +308,15 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
 			-DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
+
+**Example 6:**  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests
+::
+    prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
+                        -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
+			-DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
+			-DBUILD_TALLY=ON \
+                        -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+
 Compile and Install
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -352,6 +362,9 @@ a script that was created at the time geant4 was built:
     prompt%> source path/to/geant4/bld/geant4make.sh
     prompt%> cd $INSTALL_PATH/tests
     prompt%> ./dagsolid_unit_tests
+
+Note that the path to geant4make.sh is different from the path to the geant4 install 
+directory, defined with -DGEANT4_DIR=path/to/geant4, in the DAGMC compilation examples.
 
 Again, with successful execution the last few lines of screen output are:
 ::
