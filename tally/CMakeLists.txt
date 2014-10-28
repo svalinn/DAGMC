@@ -1,6 +1,6 @@
 # CMAKE build script for DAGMC Tally
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-enable_language(Fortran)
+ENABLE_LANGUAGE(Fortran)
 MESSAGE(STATUS "Creating DAGTally Library WITH " ${DAGMC_LIBRARIES})
 SET ( DAG_TALLY_SRC_FILES
     Tally.cpp
