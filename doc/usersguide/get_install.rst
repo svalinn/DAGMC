@@ -110,8 +110,8 @@ In the case of a tarball, create a directory and install HDF5:
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/HDF5/bld
     prompt%> cd $HOME/dagmc_bld/HDF5
-    prompt%> tar xzf ~/hdf5-1.8.11.tar.gz
-    prompt%> ln -s hdf5-1.8.11 src
+    prompt%> tar xzf ~/hdf5-1.8.13.tar.gz
+    prompt%> ln -s hdf5-1.8.13 src
     prompt%> cd bld
     prompt%> ../src/configure --enable-shared --prefix=$HOME/dagmc_bld/HDF5
     prompt%> make
@@ -121,7 +121,7 @@ In the case of a tarball, create a directory and install HDF5:
 MOAB
 ======
 
-Note:  MOAB version 4.7.0 is the earliest version that may be used.
+The master branch of MOAB is currently at version 4.7.0, which is the earliest version that may be used.
 
 Create a MOAB directory to install in
 ::
@@ -137,6 +137,8 @@ If installing MOAB from the git repository:
     prompt%> autoreconf -fi
     prompt%> cd ..
     prompt%> ln -s moab src
+The command to "git checkout master" is, in general, redundant but is included here for completeness.
+
 
 In all MOAB cases:
 ::
@@ -193,7 +195,7 @@ Clone the DAGMC repository
 
 Install FLUKA
 ~~~~~~~~~~~~~~
-FluDAG uses `FLUKA <http://www.fluka.org>`_ from CERN/INFN with the DAGMC Toolkit.
+FluDAG uses `FLUKA <http://www.fluka.org/fluka.php>`_ from CERN/INFN with the DAGMC Toolkit.
 
 In order to download FLUKA you need to become a registered user, which you can do at 
 the `FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page from a link on the main FLUKA page.
@@ -221,13 +223,12 @@ Lapack using your favorite method, for example, "sudo apt-get install liblapack-
 
 Populate and Patch 
 ============================================
-Populate the mcnp5 subdirectory of DAGMC and apply the dagmc patch.
-
-Copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the mcnp5/ directory in the DAGMC source tree
+In order to populate and patch the MCNP5 source in the DAGMC subdirectory 
+first copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the 
+mcnp5/ directory in the DAGMC source tree
 ::
-    prompt%> cd $HOME/dagmc_bld
-    prompt%> mkdir -p $HOME/damc_bld/mcnp5
-    prompt%> cp -r <path to cdrom/MCNP5/Source mcnp5/
+    prompt%> cd $HOME/dagmc_bld/DAGMC/mcnp5
+    prompt%> cp -r <path to cdrom/MCNP5/Source .
 
 Apply the patch from the patch folder
 ::
