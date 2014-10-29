@@ -12,9 +12,7 @@ codes.
    get_install
    workflow
    uw2
-   dag-mcnp5
    dag-tripoli4
-   fludag
    faq
 
 Related Tools
