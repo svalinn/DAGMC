@@ -169,9 +169,7 @@ described elsewhere, but reading the information below will provided
 the knowledge-base needed to understand the automation process.*
 
 This section focuses on steps that are independent of the MC code used
-for analysis.  Additional steps for `DAG-MCNP5 <#S2Di>`_ and
-`DAG-Tripoli4 <#S2Dii>`_ may be based on the instructions given here,
-but are provided in separate parts of section 2.D below.
+for analysis.  
 
 Importing the Solid Model
 """""""""""""""""""""""""""
