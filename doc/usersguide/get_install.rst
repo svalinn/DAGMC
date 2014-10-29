@@ -248,17 +248,18 @@ create a build directory and navigate to it.
 
 
 The CMake system can be used to configure a build of any or all of the 
-following, see `cmake options <cmake_options.html>`_ for a list of all possible options.
+following, see `cmake options <cmake_options.html>`_ for a list of all possible options, which include
 
    * MCNP5 with or without MPI
    * GEANT4 (DagSolid)
-   * FLUKA  (FluDAG) 
+   * FLUKA  (FluDAG).
+   * TALLY (Tally interface)
    
 You will need to include the CMAKE_INSTALL_PREFIX=install_dir option as part of the configuration.  When the 
 build command 'make install' is invoked, libraries, executables, tests, and include files are installed in 
 subdirectories under install_dir.  It is common to use -DCMAKE_INSTALL_PREFIX=..', which creates and populates 
 these directories one level above the build directory, that is, in the DAGMC directory.  
-Note the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
+Note that the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
 for the cmake system.
 
 For the examples that follow, it is assumed you are in the bld directory of DAGMC:
@@ -277,16 +278,14 @@ other build products to be installed.  It is typically set to the DAGMC director
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-DAG-MCNP5 with MCNP5 in parallel:
-
-**Example 2:**  Build MCNP5 in parallel
+**Example 2:**  Build MCNP5 in parallel.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
 
-**Example 3:**  Build MCNP5 in parallel and build the dagmc-enabled FLUKA 
+**Example 3:**  Build MCNP5 in parallel and build the dagmc-enabled FLUKA.
 Note that $FLUPRO should have been previously defined as part of the FLUKA install.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
@@ -294,14 +293,14 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
 			-DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-**Example 4:** Build only FluDAG
+**Example 4:** Build only FluDAG.
 ::
     prompt%> cmake ../. -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
 
-**Example 5:**  Build MCNP, FluDAG and Geant4-enabled DAGMC
+**Example 5:**  Build MCNP, FluDAG and Geant4-enabled DAGMC.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
@@ -309,7 +308,7 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-**Example 6:**  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests
+**Example 6:**  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
@@ -320,11 +319,11 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
 Compile and Install
 ~~~~~~~~~~~~~~~~~~~~~
 
-Assuming that the cmake step was succesful, i.e. no errors were reported, compile by issuing the make command
+Assuming that the cmake step was succesful, i.e. no errors were reported, compile by issuing the make command:
 ::
     prompt%> make
 
-If there were no errors, install the DAGMC suite of libraries and tools by issuing the install command
+If there were no errors, install the DAGMC suite of libraries and tools by issuing the install command:
 ::
     prompt%> make install
 
