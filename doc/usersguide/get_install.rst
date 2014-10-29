@@ -23,10 +23,9 @@ In order to install you must have done the following:
    using options --with-cgm --with-hdf5 --with-dagmc --without-netcdf 
    If you need to prepare meshed geometries the following are also required
    a) Install `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1
- * Installed Lapack
-   Note that the MCNP build automatically builds the dagtally library, which requires Lapack 
+ * Installed Lapack.  __Note:__ the MCNP build automatically builds the dagtally library, which requires Lapack 
  * Installed `PyNE <http://pyne.io/>`_
- * Installed `FLUKA <http://www.fluka.org/>`_ - and/or - 
+ * Installed `FLUKA <http://www.fluka.org/fluka.php>`_ - and/or - 
  * Installed `Geant4 <http://geant4.cern.ch/>`_
 
 
@@ -39,7 +38,7 @@ With installation of the DAGMC Toolkit, the dependency stack will look like this
    * `PyNE <http://pyne.io/install.html>`_
    * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
    * `CGM <http://bitbucket.org/fathomteam/cgm>`_ 
-       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
+       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 
 
 
 Assumptions and conventions that are used in these instructions:
