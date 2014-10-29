@@ -252,7 +252,7 @@ following, see `cmake options <cmake_options.html>`_ for a list of all possible 
 
    * MCNP5 with or without MPI
    * GEANT4 (DagSolid)
-   * FLUKA  (FluDAG).
+   * FLUKA  (FluDAG)
    * TALLY (Tally interface)
    
 You will need to include the CMAKE_INSTALL_PREFIX=install_dir option as part of the configuration.  When the 

@@ -3,16 +3,21 @@ Using DAGMC - The DAGMC Workflow
 
 The following steps are necessary to perform an analysis with most
 DAGMC versions of Monte Carlo radiation transport codes. (see below
-for more details on each step)
+for more details on each step):
 
 1. create and/or prepare a solid model using the CAD/solid-modeling tool of your choice
-2. pre-processing of the solid model geometry in CUBIT
+
+2. pre-process the solid model geometry in CUBIT:
+
     * assign materials and densities
     * define boundary conditions
     * imprint & merge geometry
     * export that model in the ACIS format
+
 3.  prepare native MC code input file
+
     * understanding additional ``dagmc`` parameters
+
 4. Run MC code, possibly with additional command line parameters
 
 Preparing Solid Models
@@ -49,7 +54,7 @@ manufacturing purposes will have tolerances that are undesirable for
 particle transport applications. For example, a gap might exist
 between fuel pellets and the cladding wall for a PWR fuel rod. While
 this is perfectly acceptable for an individual manufacturing the rod,
-the gap could potentially cause present problems in a DAGMC-based
+the gap could potentially present problems in a DAGMC-based
 analysis, depending on how it is modeled.
 
 Knowing who created the model and to what purpose provides a starting
@@ -151,6 +156,7 @@ It is important to understand whether particles are being lost from an
 important region of your phase space.
 
 [Insert note on the implicit complement here]
+@makeclean?
 
 Pre-processing Solid Models using CUBIT
 +++++++++++++++++++++++++++++++++++++++++
