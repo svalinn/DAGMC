@@ -180,13 +180,14 @@ Your output from this step should look exactly the same as below
 So we see echoed back to us that we requested a Graveyard and two different 
 material assignments: one for Lead, as defined in the material library, and 
 another kind of Lead at a different density than the library version. We 
-also see that 4 tallies were requested, the photon flux in each volume.
+also see that 4 tallies were requested: the photon flux in each volume.
 
 Example Input
 ==============
-We are now ready to run once we have made the input deck for each Monte Carlo code, we wish to launch 10^5 particles, 
-from a point source located at 0 0 0, with isotropic angular behaviour with photons of 1 MeV. The input for MCNP and
-FLUKA are shown below, MCNP for example let us call this mcnp.inp ;
+We are now ready to run, once we have made the input deck for each Monte Carlo 
+code. We wish to launch 10^5 particles from a point source located at 0 0 0, 
+with isotropic angular behaviour for photons of 1 MeV. The input for MCNP and
+FLUKA are shown below, MCNP for example let us call this mcnp.inp;
 ::
    example of UWUW
    c notice no cell cards
