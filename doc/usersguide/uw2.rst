@@ -187,7 +187,9 @@ Example Input
 We are now ready to run, once we have made the input deck for each Monte Carlo 
 code. We wish to launch 10^5 particles from a point source located at 0 0 0, 
 with isotropic angular behaviour for photons of 1 MeV. The input for MCNP and
-FLUKA are shown below, MCNP for example let us call this mcnp.inp;
+FLUKA are shown below. 
+
+MCNP example: let us call this mcnp.inp
 ::
    example of UWUW
    c notice no cell cards
@@ -200,7 +202,7 @@ FLUKA are shown below, MCNP for example let us call this mcnp.inp;
    nps 1e5
    print 
 
-And Fluka, let us called this fluka.inp;
+Fluka example: let us called this fluka.inp 
 ::
    TITLE
    * Set the defaults for precision simulations
@@ -223,7 +225,7 @@ And Fluka, let us called this fluka.inp;
 
 MCNP Run
 ========
-So we are now ready to run the example, first DAG-MCNP5;
+Now we are ready to run the first DAG-MCNP5 example:
 ::
    %> mcnp5 i=mcnp.inp g=example.h5m
 
@@ -275,7 +277,7 @@ expect.
 
 FluDAG Run
 ==========
-And now FluDAG, first we produce the mat.inp snippet file, this must then be pasted into
+For FluDAG, first we produce the mat.inp snippet file: this must then be pasted into
 the full Fluka input deck
 ::
    %> mainfludag example.h5m
@@ -307,20 +309,22 @@ The mat.inp file should look like
    USRTRACK         1.0    PHOTON       -21        4.1.0000e+03     1000.PHFLUX4
    USRTRACK       10.E1     1.E-3                                               &
 
-As of the current time you will need to add two lines manually, this is because the 
-component of the code which identifies neutron cross section data is not yet complete.
+As of the current time you will need to add two lines manually: this is because 
+the component of the code which identifies neutron cross section data is not yet 
+complete.
 ::
    *...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....
    LOW-MAT        LEAD1       82.       -2.      296.                    LEAD 
    LOW-MAT        LEAD2       82.       -2.      296.                    LEAD 
 
-This must be pasted into the Fluka input and then run, as you would any Fluka, but
-with the exception that we give the rfluka script an exectuable argument, and  new
-"-d" argument which specifies the geometry filename
+The lines above must be pasted into the Fluka input and then run as you would 
+any Fluka, with the exception that we give the rfluka script an executable 
+argument and a new "-d" argument, which specifies the geometry filename
 ::
    %> $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
 
-The code should run and sucessfully produce the following
+The code should run and successfully produce screen output similar to the 
+following (the filepaths will change according to your system):
 ::
    $TARGET_MACHINE = Linux
    $FLUPRO = /mnt/data/opt/fluka/fluka/
@@ -339,18 +343,20 @@ The code should run and sucessfully produce the following
 
 DagSolid Run
 ============
-DagSolid is probably the most trivial of all the UWUW enabled codes to run, copy the vis.mac file from DAGMC/geant4/build/vis.mac
+DagSolid is probably the most trivial of all the |UW2| enabled codes to run.  
+Copy the vis.mac file from DAGMC/geant4/build/vis.mac
 ::
    %> DagGeant4 example.h5m
 
-After some loading you should see a GUI window open (if you build geant4 with visualisation on), we can then use the Geant4 general particle
-source to emulate the behaviour of the previous two codes,
+After some loading you should see a GUI window open (if you build geant4 with 
+visualisation on).  We can then use the Geant4 general particle
+source to emulate the behaviour of the previous two codes:
 ::
    Idle> /gps/particle gamma
    Idle> /gps/ang/type iso
    Idle> /gps/energy 1.0 MeV
 
-Now we are ready to run,
+Now we are ready to run:
 ::
    Idle> /run/beamOn 1000000
 
