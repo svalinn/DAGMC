@@ -257,7 +257,8 @@ ACIS geometry level back to version 19:
 For the remainder of this documentation, the geometry file will be
 referred to as "geom.sat". Also, as noted before, the CUBIT conversion
 process can be automated as described on the following webpage:
-AutomatedCubitConversion. @makeclean what is this website?
+
+* `AutomatedCubitConversion <http://github.com/svalinn/DAGMC/blob/develop/tools/finish_dagmc_geom.bash>`_
 
 .. _additional_parameters:
 
@@ -294,7 +295,7 @@ points on each facet are within a tolerance of the nearest points on
 the exact surface representation.  A smaller tolerance results in a
 more faithful representation of the surface at the penalty of
 producing more facets.  The user can control the faceting tolerance
-using when they invoke their simulation, either on the command line or
+when they invoke their simulation, either on the command line or
 in the input file, depending on the MC code being used for the
 analysis.  This option only has an effect with the geometry file is a
 solid model and not when it is a facet file.

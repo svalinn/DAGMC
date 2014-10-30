@@ -1,10 +1,11 @@
 The University of Wisconsin Unified Workflow
 ----------------------------------------
 
-The University of Wisconsin Unified Workflow (UW<sup>2</sup>) aims to solve the 
+.. |UW2| replace:: UW\ :superscript:`2`
+The University of Wisconsin Unified Workflow (|UW2|) aims to solve the 
 issue of running the same Monte Carlo problem using mutiple physics codes. Currently,
 if you wish to run the same problem in multiple codes you must fully recreate the
-input deck for each code, or maybe write a full syntax translator. UW<sup>2</sup>, allows users
+input deck for each code, or maybe write a full syntax translator. |UW2| allows users
 to tag or associate groups of volumes or surfaces with a simple human readable syntax
 that is translated and stored in the geometry file of a DAGMC problem.
 
@@ -51,8 +52,26 @@ Using the underlying PyNE libraries, we can write out the appropriate MC code ta
 snippet, this allows the number of codes the DAGMC supports to grow organically with those that
 PyNE supports. When PYNE cannot fulfill your tally request it will warn you.
 
+Boundary Conditions
+++++++++++++++++++++
+
+All MC codes have an understanding of boundary conditions, and all at least 
+implement some form of Graveyard, Blackhole or some region where particles are 
+'killed'. Some MC codes go further and define reflecting or other boundary 
+conditions; furthermore some apply these boundary conditions to entire Volumes 
+as opposed to Surfaces.  Currently we support only reflecting surface 
+definitions, but in the near term we hope to support full volume reflecting 
+boundaries. One can implement reflecting surfaces in UWUW by adding surfaces 
+to the following group defintion
+::
+     %> group "boundary:Reflecting"
+
+or if you prefer, Lambert (white reflection)
+::
+     %> group "boundary:White"
+
 UWUW Data
-+++++
++++++++++
 The UWUW data is incorporated into the geometry file (*.h5m) file using a Python script, uwuw_preproc, 
 the purpose of which is to take the users material library e.g. my_nuc_library.h5 and extract the materials
 requested, placing them into the geometry file. Having already marked up your geometry using the methods
