@@ -1,7 +1,7 @@
 The University of Wisconsin Unified Workflow
 ----------------------------------------
 
-.. |UW2| replace:: UW\ :superscript:`2`
+.. |UW2| replace:: UW\ :sup:`2`
 The University of Wisconsin Unified Workflow (|UW2|) aims to solve the 
 issue of running the same Monte Carlo problem using mutiple physics codes. Currently,
 if you wish to run the same problem in multiple codes you must fully recreate the
@@ -21,7 +21,7 @@ specifies materials in a different way. Instead, we tag groups of volumes
 with a name and syntax that corresponds to material compositions in a predefined
 material library.
 
-The syntax for describing materials is:
+The Cubit syntax for describing materials is:
 ::
      %> group "mat:<Name of Material>"
 
@@ -40,7 +40,7 @@ Scoring
 
 Each MC code implements tallies, or scores, in very specific ways such that there
 is sometimes no equivalent to a tally you may be familiar with, code to code. However, 
-there is a syntax to allow you to request scores on geomemtric elments, for example,
+there is a Cubit syntax to allow you to request scores on geomemtric elments, for example,
 ::
      %> group "tally:Flux/Neutron"
 
@@ -63,7 +63,7 @@ conditions; furthermore some apply these boundary conditions to entire Volumes
 as opposed to Surfaces.  Currently we support only reflecting surface 
 definitions, but in the near term we hope to support full volume reflecting 
 boundaries. One can implement reflecting surfaces in |UW2| by adding surfaces 
-to the following group defintion
+to the following Cubit group defintion
 ::
      %> group "boundary:Reflecting"
 
@@ -126,7 +126,7 @@ and so on.
 Worked Example
 +++++++++++++++
 
-Open Cubit, and let's place some volumes to create our first cube.  We will 
+Open Cubit, and let's place some volumes to create our first problem.  We will 
 create 4 cubes of side 10 cm, shifting each in a different direction
 ::
    %>brick x 10
@@ -319,12 +319,13 @@ complete.
 
 The lines above must be pasted into the Fluka input and then run as you would 
 any Fluka, with the exception that we give the rfluka script an executable 
-argument and a new "-d" argument, which specifies the geometry filename
+argument and a new "-d" argument, which specifies the geometry filename:
 ::
    %> $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
 
 The code should run and successfully produce screen output similar to the 
-following (the filepaths will change according to your system):
+following (the filepaths will change according to your system, as will the 
+numerical part of "fluka_26362"):
 ::
    $TARGET_MACHINE = Linux
    $FLUPRO = /mnt/data/opt/fluka/fluka/
