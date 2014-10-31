@@ -23,10 +23,9 @@ In order to install you must have done the following:
    using options --with-cgm --with-hdf5 --with-dagmc --without-netcdf 
    If you need to prepare meshed geometries the following are also required
    a) Install `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1
- * Installed Lapack
-   Note that the MCNP build automatically builds the dagtally library, which requires Lapack 
+ * Installed Lapack.  __Note:__ the MCNP build automatically builds the dagtally library, which requires Lapack 
  * Installed `PyNE <http://pyne.io/>`_
- * Installed `FLUKA <http://www.fluka.org/>`_ - and/or - 
+ * Installed `FLUKA <http://www.fluka.org/fluka.php>`_ - and/or - 
  * Installed `Geant4 <http://geant4.cern.ch/>`_
 
 
@@ -39,7 +38,7 @@ With installation of the DAGMC Toolkit, the dependency stack will look like this
    * `PyNE <http://pyne.io/install.html>`_
    * `HDF5 <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_
    * `CGM <http://bitbucket.org/fathomteam/cgm>`_ 
-       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 (with CGM `trunk <http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz>`_ only)
+       * ACIS v19, or `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1 
 
 
 Assumptions and conventions that are used in these instructions:
@@ -111,8 +110,8 @@ In the case of a tarball, create a directory and install HDF5:
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/HDF5/bld
     prompt%> cd $HOME/dagmc_bld/HDF5
-    prompt%> tar xzf ~/hdf5-1.8.11.tar.gz
-    prompt%> ln -s hdf5-1.8.11 src
+    prompt%> tar xzf ~/hdf5-1.8.13.tar.gz
+    prompt%> ln -s hdf5-1.8.13 src
     prompt%> cd bld
     prompt%> ../src/configure --enable-shared --prefix=$HOME/dagmc_bld/HDF5
     prompt%> make
@@ -122,7 +121,7 @@ In the case of a tarball, create a directory and install HDF5:
 MOAB
 ======
 
-Note:  MOAB version 4.7.0 is the earliest version that may be used.
+The master branch of MOAB is currently at version 4.7.0, which is the earliest version that may be used.
 
 Create a MOAB directory to install in
 ::
@@ -138,6 +137,8 @@ If installing MOAB from the git repository:
     prompt%> autoreconf -fi
     prompt%> cd ..
     prompt%> ln -s moab src
+The command to "git checkout master" is, in general, redundant but is included here for completeness.
+
 
 In all MOAB cases:
 ::
@@ -194,7 +195,7 @@ Clone the DAGMC repository
 
 Install FLUKA
 ~~~~~~~~~~~~~~
-FluDAG uses `FLUKA <http://www.fluka.org>`_ from CERN/INFN with the DAGMC Toolkit.
+FluDAG uses `FLUKA <http://www.fluka.org/fluka.php>`_ from CERN/INFN with the DAGMC Toolkit.
 
 In order to download FLUKA you need to become a registered user, which you can do at 
 the `FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page from a link on the main FLUKA page.
@@ -222,13 +223,12 @@ Lapack using your favorite method, for example, "sudo apt-get install liblapack-
 
 Populate and Patch 
 ============================================
-Populate the mcnp5 subdirectory of DAGMC and apply the dagmc patch.
-
-Copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the mcnp5/ directory in the DAGMC source tree
+In order to populate and patch the MCNP5 source in the DAGMC subdirectory 
+first copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the 
+mcnp5/ directory in the DAGMC source tree
 ::
-    prompt%> cd $HOME/dagmc_bld
-    prompt%> mkdir -p $HOME/damc_bld/mcnp5
-    prompt%> cp -r <path to cdrom/MCNP5/Source mcnp5/
+    prompt%> cd $HOME/dagmc_bld/DAGMC/mcnp5
+    prompt%> cp -r <path to cdrom/MCNP5/Source .
 
 Apply the patch from the patch folder
 ::
@@ -248,17 +248,18 @@ create a build directory and navigate to it.
 
 
 The CMake system can be used to configure a build of any or all of the 
-following, see `cmake options <cmake_options.html>`_ for a list of all possible options.
+following, see `cmake options <cmake_options.html>`_ for a list of all possible options, which include
 
    * MCNP5 with or without MPI
    * GEANT4 (DagSolid)
-   * FLUKA  (FluDAG) 
+   * FLUKA  (FluDAG)
+   * TALLY (Tally interface)
    
 You will need to include the CMAKE_INSTALL_PREFIX=install_dir option as part of the configuration.  When the 
 build command 'make install' is invoked, libraries, executables, tests, and include files are installed in 
 subdirectories under install_dir.  It is common to use -DCMAKE_INSTALL_PREFIX=..', which creates and populates 
 these directories one level above the build directory, that is, in the DAGMC directory.  
-Note the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
+Note that the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
 for the cmake system.
 
 For the examples that follow, it is assumed you are in the bld directory of DAGMC:
@@ -277,16 +278,14 @@ other build products to be installed.  It is typically set to the DAGMC director
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-DAG-MCNP5 with MCNP5 in parallel:
-
-**Example 2:**  Build MCNP5 in parallel
+**Example 2:**  Build MCNP5 in parallel.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
 
-**Example 3:**  Build MCNP5 in parallel and build the dagmc-enabled FLUKA 
+**Example 3:**  Build MCNP5 in parallel and build the dagmc-enabled FLUKA.
 Note that $FLUPRO should have been previously defined as part of the FLUKA install.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
@@ -294,14 +293,14 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
 			-DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-**Example 4:** Build only FluDAG
+**Example 4:** Build only FluDAG.
 ::
     prompt%> cmake ../. -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
 
-**Example 5:**  Build MCNP, FluDAG and Geant4-enabled DAGMC
+**Example 5:**  Build MCNP, FluDAG and Geant4-enabled DAGMC.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
@@ -309,7 +308,7 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 
-**Example 6:**  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests
+**Example 6:**  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
@@ -320,11 +319,11 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
 Compile and Install
 ~~~~~~~~~~~~~~~~~~~~~
 
-Assuming that the cmake step was succesful, i.e. no errors were reported, compile by issuing the make command
+Assuming that the cmake step was succesful, i.e. no errors were reported, compile by issuing the make command:
 ::
     prompt%> make
 
-If there were no errors, install the DAGMC suite of libraries and tools by issuing the install command
+If there were no errors, install the DAGMC suite of libraries and tools by issuing the install command:
 ::
     prompt%> make install
 
