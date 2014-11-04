@@ -198,13 +198,22 @@ Install FLUKA
 FluDAG uses `FLUKA <http://www.fluka.org/fluka.php>`_ from CERN/INFN with the DAGMC Toolkit.
 
 In order to download FLUKA you need to become a registered user, which you can do at 
-the `FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page from a link on the main FLUKA page.
-Save the user id and password for future FLUKA updates.  We recommend an x64 worfklow and as such you should download
-the 64 bit executable.  The download name is of the form *fluka20xx.xx-linux-gfor64bitAA.tar.gz*.
-See the `site <http://www.fluka.org/fluka.php?id=ins_run&mm2=3>`_ for instructions.
+the `FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page 
+from a link on the main FLUKA page.
 
-Once the FLUPRO environment variables have been set, confirm that you have a working install of Fluka and proceed to
-the next steps.  
+Save the user id and password for future FLUKA updates.  We recommend an x64 
+worfklow and as such you should download the 64 bit executable.  The download 
+name is of the form *fluka20xx.xx-linux-gfor64bitAA.tar.gz*.  See the 
+`site <http://www.fluka.org/fluka.php?id=ins_run&mm2=3>`_ for instructions.
+
+Follow the FLUKA site instructions to set the FLUPRO and FLUFOR environment 
+variables.  Lastly, you must patch FLUKA's run script, rfluka, to allow for some dagmc options.
+::
+    prompt%> cd $FLUPRO/flutil
+    prompt%> cp rfluka rfluka.orig
+    prompt%> patch rfluka $HOME/dagmc_bld/DAGMC/fluka/rfluka.patch
+
+Confirm that you have a working install of Fluka and proceed to the next steps.  
 
 Install Geant4
 ~~~~~~~~~~~~~~~~
@@ -218,8 +227,8 @@ Build DAGMC Interfaces
 The DAGMC toolkit now has a full CMake install and build method for all codes used downstream.  It even
 replaces the MCNP build method with a CMake file.
 
-Note that in addition to the detailed instructions above for building the MOAB stack, you must also install
-Lapack using your favorite method, for example, "sudo apt-get install liblapack-dev libblas-dev".
+Note that in addition to the detailed instructions above for building the MOAB stack, you may also 
+need to install Lapack using, for example, "sudo apt-get install liblapack-dev libblas-dev".
 
 Populate and Patch 
 ============================================
@@ -238,14 +247,8 @@ Apply the patch from the patch folder
 Configure 
 ===================
 
-Assuming the patch was succesfully applied, i.e. there were no warnings or errors, then we can now 
-configure the DAGMC cmake system for the desired build.  From the base level of the DAGMC repo 
-create a build directory and navigate to it.
-::
-    prompt%> cd $HOME/dagmc_bld/DAGMC
-    prompt%> mkdir bld
-    prompt%> cd bld
-
+Assuming the patch was succesfully applied, i.e. there were no warnings or 
+errors, we can now configure the DAGMC cmake system for the desired build.  
 
 The CMake system can be used to configure a build of any or all of the 
 following, see `cmake options <cmake_options.html>`_ for a list of all possible options, which include
@@ -262,9 +265,11 @@ these directories one level above the build directory, that is, in the DAGMC dir
 Note that the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
 for the cmake system.
 
-For the examples that follow, it is assumed you are in the bld directory of DAGMC:
+From the base level of the DAGMC repo create a build directory and navigate to it.
 ::
-    prompt%> cd $HOME/dagmc_bld/DAGMC/bld
+    prompt%> cd $HOME/dagmc_bld/DAGMC
+    prompt%> mkdir bld
+    prompt%> cd bld
 
 In the examples, the environment variable, "INSTALL_PATH", can point to any location
 where you want the libraries ($INSTALL_PATH/lib), executables ($INSTALL_PATH/bin), and
@@ -374,7 +379,8 @@ Again, with successful execution the last few lines of screen output are:
     [==========] 16 tests from 1 test case ran. (228 ms total)
     [  PASSED  ] 16 tests.
 
-With testing successfully completed you are now ready to run a `problem <index.html>`_.
+With testing successfully completed you are now ready to run a 
+`problem <uw2.html>`_.
 
 DAG-Tripoli4 Access
 ~~~~~~~~~~~~~~~~~~~
