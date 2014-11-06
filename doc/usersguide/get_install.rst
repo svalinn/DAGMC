@@ -265,7 +265,7 @@ these directories one level above the build directory, that is, in the DAGMC dir
 Note that the '-D' in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
 for the cmake system.
 
-From the base level of the DAGMC repo create a build directory and navigate to it.
+From the base level of the DAGMC repository create a build directory and navigate to it.
 ::
     prompt%> cd $HOME/dagmc_bld/DAGMC
     prompt%> mkdir bld
