@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Getting and Installing the DAGMC Toolkit &mdash; DAGMC</title>
+    <title>DAGMC Toolkit &mdash; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -28,7 +28,7 @@
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="DAGMC User’s Guide" href="index.html" />
     <link rel="next" title="Using DAGMC - The DAGMC Workflow" href="workflow.html" />
-    <link rel="prev" title="DAGMC User’s Guide" href="index.html" /> 
+    <link rel="prev" title="DAGMC Quick Start Guide" href="quick_start.html" /> 
   </head>
   <body> 
 <div id="page-div" class="page">
@@ -58,7 +58,7 @@
       <ul id="menu-main" class="sf-menu">
         <li class="menu-item"><a href="../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="index.html" title="DAGMC User’s Guide"
+          <a href="quick_start.html" title="DAGMC Quick Start Guide"
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
@@ -76,27 +76,31 @@
 <div id="sidebar">
  <div id="sidebar_section"></div>
  <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
-<li><a class="reference internal" href="#">Getting and Installing the DAGMC Toolkit</a><ul>
-<li><a class="reference internal" href="#toolkit-dependencies-and-workflows">Toolkit Dependencies and Workflows</a><ul>
-<li><a class="reference internal" href="#geometry">Geometry</a></li>
-<li><a class="reference internal" href="#pre-processing">Pre-Processing</a></li>
-<li><a class="reference internal" href="#analysis">Analysis</a></li>
-<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#">DAGMC Toolkit</a><ul>
+<li><a class="reference internal" href="#toolkit-installation">Toolkit Installation</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#building">Building</a><ul>
+<li><a class="reference internal" href="#id5">CGM</a></li>
+<li><a class="reference internal" href="#id6">HDF5</a></li>
+<li><a class="reference internal" href="#id7">MOAB</a></li>
+<li><a class="reference internal" href="#id8">PyNE</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#toolkit-installation">Toolkit Installation</a></li>
-<li><a class="reference internal" href="#applying-dagmc-to-specific-monte-carlo-codes">Applying DAGMC to Specific Monte Carlo Codes</a><ul>
-<li><a class="reference internal" href="#dag-mcnp5-build-install">DAG-MCNP5 Build/Install</a><ul>
-<li><a class="reference internal" href="#automatic-installation">Automatic Installation</a></li>
-<li><a class="reference internal" href="#manual-installation">Manual Installation</a><ul>
-<li><a class="reference internal" href="#apply-patch">Apply Patch</a></li>
-<li><a class="reference internal" href="#build-dag-mcnp5">Build DAG-MCNP5</a></li>
+<li><a class="reference internal" href="#post-install">Post Install</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#toolkit-applications">Toolkit Applications</a><ul>
+<li><a class="reference internal" href="#install-dagmc">Install DAGMC</a></li>
+<li><a class="reference internal" href="#install-fluka">Install FLUKA</a></li>
+<li><a class="reference internal" href="#install-geant4">Install Geant4</a></li>
+<li><a class="reference internal" href="#build-dagmc-interfaces">Build DAGMC Interfaces</a><ul>
+<li><a class="reference internal" href="#populate-and-patch">Populate and Patch</a></li>
+<li><a class="reference internal" href="#configure">Configure</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#compile-and-install">Compile and Install</a></li>
+<li><a class="reference internal" href="#test">Test</a></li>
 <li><a class="reference internal" href="#dag-tripoli4-access">DAG-Tripoli4 Access</a></li>
-<li><a class="reference internal" href="#fludag-build">FluDAG Build</a></li>
 </ul>
 </li>
 </ul>
@@ -107,70 +111,53 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="getting-and-installing-the-dagmc-toolkit">
-<h1>Getting and Installing the DAGMC Toolkit<a class="headerlink" href="#getting-and-installing-the-dagmc-toolkit" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dagmc-toolkit">
+<h1>DAGMC Toolkit<a class="headerlink" href="#dagmc-toolkit" title="Permalink to this headline">¶</a></h1>
 <p>DAGMC is a toolkit that provides direct geometry support to any Monte
-Carlo radiation transport code.  The primary code used for development
-and testing of DAGMC is <a class="reference external" href="http://mcnp-green.lanl.gov/">MCNP5</a>,
-developed by <a class="reference external" href="http://www.lanl.gov">Los Alamos National Laboratory</a>
-and distributed by the <a class="reference external" href="http://rsicc.ornl.gov">Radiation Safety Information Computing Center</a>.  There has also been experience with MCNPX
-(LANL), Tripoli4 (CEA/Saclay), and <a class="reference external" href="http://www.fluka.org/">FLUKA</a> (CERN/INFN).</p>
-<p>These instructions describe the basic steps for downloading and
-installing the software libraries that provide the DAGMC toolkit for
-integration with Monte Carlo codes.  After this, code-specific
-instructions will be give for each code.</p>
-<div class="section" id="toolkit-dependencies-and-workflows">
-<h2>Toolkit Dependencies and Workflows<a class="headerlink" href="#toolkit-dependencies-and-workflows" title="Permalink to this headline">¶</a></h2>
-<p>It is useful to consider how users will use the DAGMC workflow prior
-to making some installation decisions.  There are three main stages
-for the workflow:</p>
-<ul class="simple">
-<li>manual preparation of geometric models</li>
-<li>automated pre-processing of models</li>
-<li>use of the models in analysis</li>
+Carlo radiation transport code. These instructions describe the basic
+steps for downloading and installing the software libraries that provide
+the DAGMC toolkit for integration with Monte Carlo codes.  After this,
+code-specific instructions will be give for each code.</p>
+<div class="section" id="toolkit-installation">
+<h2>Toolkit Installation<a class="headerlink" href="#toolkit-installation" title="Permalink to this headline">¶</a></h2>
+<p>This section details the installation and build steps for the prerequisite packages for the the DAGMC
+toolkit with specific physics codes.</p>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p>In order to install you must have done the following:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Cloned the <a class="reference external" href="http://github.com/svalinn/DAGMC">DAGMC</a> repository</li>
+<li>Installed <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a></li>
+<li>Install <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a>, using the &#8211;with-cubit option</li>
+<li>Installed <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB</a>,
+using options &#8211;with-cgm &#8211;with-hdf5 &#8211;with-dagmc &#8211;without-netcdf
+If you need to prepare meshed geometries the following are also required
+a) Install <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2 or v13.1</li>
+<li>Installed Lapack.  __Note:__ the MCNP build automatically builds the dagtally library, which requires Lapack</li>
+<li>Installed <a class="reference external" href="http://pyne.io/">PyNE</a></li>
+<li>Installed <a class="reference external" href="http://www.fluka.org/fluka.php">FLUKA</a> - and/or -</li>
+<li>Installed <a class="reference external" href="http://geant4.cern.ch/">Geant4</a></li>
 </ul>
-<p>While the second and third stages can be combined, these instructions
-will be based on treating them as separate stages with comments about
-how they would be combined where appropriate.</p>
-<div class="section" id="geometry">
-<h3>Geometry<a class="headerlink" href="#geometry" title="Permalink to this headline">¶</a></h3>
-<p><em>Manual Geometry Preparation</em></p>
-<p>Because this stage is highly interactive, most users prefer to perform
-this stage on their desktop or laptop computer.  The only software
-required for this stage is the interactive Cubit software.</p>
+</div></blockquote>
 </div>
-<div class="section" id="pre-processing">
-<h3>Pre-Processing<a class="headerlink" href="#pre-processing" title="Permalink to this headline">¶</a></h3>
-<p><em>Automated Model Pre-processing</em></p>
-<p>The primary purpose of this stage is to &#8220;translate&#8221; from the solid
-model representation to the faceted representation.  As such, it
-requires Cubit, CGM and MOAB, and typically results in dependencies on
-shared libraries.</p>
-</div>
-<div class="section" id="analysis">
-<h3>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h3>
-<p><em>Model Analysis</em></p>
-<p>During analysis, only the faceted model is necessary, requiring only
-MOAB and the physics code.  It is also possible to combine this stage
-with the previous one, requiring Cubit, CGM, MOAB and the physics
-code, and will also result in dependencies on shared libraries.</p>
-</div>
-<div class="section" id="summary">
-<h3>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h3>
-<p><em>Summary of Dependencies</em></p>
+<div class="section" id="building">
+<h3>Building<a class="headerlink" href="#building" title="Permalink to this headline">¶</a></h3>
+<p>With installation of the DAGMC Toolkit, the dependency stack will look like this:</p>
 <ul>
 <li><dl class="first docutils">
-<dt>Some physics package, e.g. MCNP5</dt>
+<dt>Some physics package, e.g. MCNP5, Geant4 etc</dt>
 <dd><ul class="first last">
-<li><dl class="first docutils">
-<dt><a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB/DAGMC</a></dt>
-<dd><ul class="first last">
+<li><p class="first"><a class="reference external" href="http://bitbucket.org/fathomteam/moab">MOAB/DAGMC</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="http://pyne.io/install.html">PyNE</a></p>
+</li>
 <li><p class="first"><a class="reference external" href="http://www.hdfgroup.org/HDF5/release/obtain5.html">HDF5</a></p>
 </li>
 <li><dl class="first docutils">
-<dt><a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a></dt>
+<dt><a class="reference external" href="http://bitbucket.org/fathomteam/cgm">CGM</a></dt>
 <dd><ul class="first last simple">
-<li>ACIS v19, or <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2 or v13.1 (with CGM <a class="reference external" href="http://ftp.mcs.anl.gov/pub/fathom/cgm-nightly-trunk.tar.gz">trunk</a> only)</li>
+<li>ACIS v19, or <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2 or v13.1</li>
 </ul>
 </dd>
 </dl>
@@ -180,57 +167,37 @@ code, and will also result in dependencies on shared libraries.</p>
 </dl>
 </li>
 </ul>
-</dd>
-</dl>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="toolkit-installation">
-<h2>Toolkit Installation<a class="headerlink" href="#toolkit-installation" title="Permalink to this headline">¶</a></h2>
-<p>Installing the MOAB library can be accomplished in either of two ways:</p>
-<ul class="simple">
-<li>Compile each component individually in a 4-step process.</li>
-<li>Run the <em>build_dagmc_stack.bash</em> script.</li>
-</ul>
-<p><strong>Compile each component individually</strong></p>
-<p>The following 4 steps are required to install the MOAB library,
-including the DAGMC toolkit, for use in Monte Carlo radiation
-transport tools.  Following these steps, all the pre-requisites for
-the automated processing stage will be available.</p>
-<ol class="arabic simple">
-<li>Install <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> v12.2 or v13.1</li>
-<li>Install <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a>, using the &#8211;with-cubit options</li>
-<li>Install <a class="reference external" href="http://www.hdfgroup.org/HDF5/">HDF5</a></li>
-<li>Install <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB</a>,
-using the &#8211;with-cgm and &#8211;with-hdf5 options (&#8211;with-netcdf may
-also be useful but not necessary)</li>
-</ol>
-<p>Here are some assumptions/conventions that are used in these instructions:</p>
+<p>Assumptions and conventions that are used in these instructions:</p>
 <ul class="simple">
 <li>all operations are carried out in the a subdirectory <tt class="docutils literal"><span class="pre">dagmc_bld</span></tt> of a user&#8217;s home directory</li>
-<li>path to CUBIT files is known, e.g. <tt class="docutils literal"><span class="pre">/path/to/cubit</span></tt>.  This is the directory that contains the Python script file <tt class="docutils literal"><span class="pre">cubit</span></tt> and a <tt class="docutils literal"><span class="pre">bin</span></tt> subdirectory.</li>
-<li>all tarballs reside in user&#8217;s home directory</li>
+<li>the path to CUBIT files is known, e.g. <tt class="docutils literal"><span class="pre">/path/to/cubit</span></tt>.  This is the directory that contains the Python script file <tt class="docutils literal"><span class="pre">cubit</span></tt> and a <tt class="docutils literal"><span class="pre">bin</span></tt> subdirectory.</li>
 </ul>
 <p>If these do not apply to you, please modify your steps accordingly.</p>
 <blockquote>
-<div><em>(For a shortcut to installing DAG-MCNP5.1.51 you may be able to use the DagmcBuildPackage .)</em></div></blockquote>
-<p>CGM:  Create a directory to build in:</p>
+<div><em>(For a shortcut to installing DAG-MCNP5.1.60 you may be able to use the build_dagmc_stack.bash script .)</em></div></blockquote>
+<div class="section" id="id5">
+<h4>CGM<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>Create a CGM directory to build in:</p>
 <div class="highlight-python"><pre>prompt%&gt; mkdir -p $HOME/dagmc_bld/CGM/bld
 prompt%&gt; cd $HOME/dagmc_bld/CGM</pre>
 </div>
-<p>If installing from SVN repository (you <em>must</em> use this method if you are using Cubit v13.1):</p>
-<div class="highlight-python"><pre>prompt%&gt; svn co https://svn.mcs.anl.gov/repos/ITAPS/cgm/trunk
-prompt%&gt; cd trunk
+<p>If you are building CGM with Cubit v13.1 or v12.2 you <em>must</em> clone the cgm repository using, respectively, one of the following methods:</p>
+<div class="highlight-python"><pre>prompt%&gt; git clone https://bitbucket.org/fathomteam/cgm/
+prompt%&gt; cd cgm
+prompt%&gt; git checkout 13.1.1
 prompt%&gt; autoreconf -fi
 prompt%&gt; cd ..
-prompt%&gt; ln -s trunk src</pre>
+prompt%&gt; ln -s cgm src</pre>
 </div>
-<p>If installing CGM version 12.2 from a tarball, <tt class="docutils literal"><span class="pre">CGM-12.2.0.tar.gz</span></tt>:</p>
-<div class="highlight-python"><pre>prompt%&gt; tar xzf ~/CGM-12.2.0.tar.gz
-prompt%&gt; ln -s CGM-12.2.0 src</pre>
+<p>-or-</p>
+<div class="highlight-python"><pre>prompt%&gt; git clone https://bitbucket.org/fathomteam/cgm/
+prompt%&gt; cd cgm
+prompt%&gt; git checkout 12.2.2
+prompt%&gt; autoreconf -fi
+prompt%&gt; cd ..
+prompt%&gt; ln -s cgm src</pre>
 </div>
-<p>In all CGM cases:</p>
+<p>Configure and build CGM:</p>
 <div class="highlight-python"><pre>prompt%&gt; cd bld
 prompt%&gt; ../src/configure --enable-optimize \
           --enable-shared --disable-debug \
@@ -239,187 +206,253 @@ prompt%&gt; ../src/configure --enable-optimize \
 prompt%&gt; make
 prompt%&gt; make install</pre>
 </div>
-<p>HDF5:  Follow these steps</p>
-<div class="highlight-python"><pre>prompt%&gt; mkdir $HOME/dagmc_bld/HDF5/bld
+</div>
+<div class="section" id="id6">
+<h4>HDF5<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<p>Debian users may conveniently install the latest HDF5 release with the command:</p>
+<div class="highlight-python"><pre>prompt%&gt; sudo apt-get install hdf5-dev</pre>
+</div>
+<p>Fedora users can do likewise with this command:</p>
+<div class="highlight-python"><pre>prompt%&gt; sudo yum install hdf5-dev</pre>
+</div>
+<p>The HDF5 tarball can also be downloaded from the HDF5 <a class="reference external" href="http://www.hdfgroup.org/HDF5/release/obtain5.html">website</a>.  On a Linux machine the wget command may be used to get the most recent release, which is currently hdf5-1.8.13:</p>
+<div class="highlight-python"><pre>prompt%&gt; wget \
+http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz</pre>
+</div>
+<p>See the <a class="reference external" href="http://www.hdfgroup.org/ftp/HDF5/releases">HDF5 ftp site</a> for available versions.</p>
+<p>In the case of a tarball, create a directory and install HDF5:</p>
+<div class="highlight-python"><pre>prompt%&gt; mkdir -p $HOME/dagmc_bld/HDF5/bld
 prompt%&gt; cd $HOME/dagmc_bld/HDF5
-prompt%&gt; tar xzf ~/hdf5-1.8.7.tar.gz
-prompt%&gt; ln -s hdf5-1.8.7 src
+prompt%&gt; tar xzf ~/hdf5-1.8.13.tar.gz
+prompt%&gt; ln -s hdf5-1.8.13 src
 prompt%&gt; cd bld
 prompt%&gt; ../src/configure --enable-shared --prefix=$HOME/dagmc_bld/HDF5
 prompt%&gt; make
 prompt%&gt; make install</pre>
 </div>
-<p>MOAB: Create a directory to install in</p>
+</div>
+<div class="section" id="id7">
+<h4>MOAB<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<p>The master branch of MOAB is currently at version 4.7.0, which is the earliest version that may be used.</p>
+<p>Create a MOAB directory to install in</p>
 <div class="highlight-python"><pre>prompt%&gt; mkdir -p $HOME/dagmc_bld/MOAB/bld
 prompt%&gt; cd $HOME/dagmc_bld/MOAB</pre>
 </div>
-<p>If installing MOAB from SVN repository:</p>
-<div class="highlight-python"><pre>prompt%&gt; svn co https://svn.mcs.anl.gov/repos/ITAPS/MOAB/trunk
-prompt%&gt; cd trunk
+<p>If installing MOAB from the git repository:</p>
+<div class="highlight-python"><pre>prompt%&gt; git clone https://bitbucket.org/fathomteam/moab/
+prompt%&gt; cd moab
+prompt%&gt; git checkout master
 prompt%&gt; autoreconf -fi
 prompt%&gt; cd ..
-prompt%&gt; ln -s trunk src</pre>
+prompt%&gt; ln -s moab src</pre>
 </div>
-<p>If installing MOAB from a tarball, <tt class="docutils literal"><span class="pre">MOAB-4.60.tar.gz</span></tt>:</p>
-<div class="highlight-python"><pre>prompt%&gt; tar xzf ~/MOAB-4.60.tar.gz
-prompt%&gt; ln -s MOAB-4.60 src</pre>
-</div>
+<p>The command to &#8220;git checkout master&#8221; is, in general, redundant but is included here for completeness.</p>
 <p>In all MOAB cases:</p>
 <div class="highlight-python"><pre>prompt%&gt; cd bld
 prompt%&gt; ../src/configure --enable-optimize \
           --enable-shared --disable-debug \
           --with-cgm=$HOME/dagmc_bld/CGM  \
           --with-hdf5=$HOME/dagmc_bld/HDF5 \
+          --enable-dagmc \
           --prefix=$HOME/dagmc_bld/MOAB
 prompt%&gt; make
 prompt%&gt; make install</pre>
 </div>
-<p><strong>Build and Install MOAB using a Build Script</strong></p>
-<p>The script <em>build_dagmc_stack.bash</em> is in UW-Madison&#8217;s svalinn/DAGMC repository,
-<a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC git repo</a> under DAGMC/MCNP5/
-To see the available options, in the directory containing <em>build_dagmc_stack.bash</em> type</p>
-<div class="highlight-python"><pre>prompt%&gt; ./build_dagmc_stack.bash --help</pre>
 </div>
-<p>This script is under development.  It is recommended that the components be compiled individually
-at this time.</p>
+<div class="section" id="id8">
+<h4>PyNE<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference external" href="http://pyne.io">PyNE</a> is a Python-based nuclear materials data handling package.
+Integration of the DAGMC Toolkit with any physics package, e.g.  FLUKA (FluDAG) or
+Geant4 (DagSolid), now requires that this library be installed.  Directions for
+installing PyNE are <a class="reference external" href="http://pyne.io/install.html">here</a>.  We recommend building the
+dependencies individually rather than using the Conda Build method.</p>
 </div>
-<div class="section" id="applying-dagmc-to-specific-monte-carlo-codes">
-<h2>Applying DAGMC to Specific Monte Carlo Codes<a class="headerlink" href="#applying-dagmc-to-specific-monte-carlo-codes" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="dag-mcnp5-build-install">
-<h3>DAG-MCNP5 Build/Install<a class="headerlink" href="#dag-mcnp5-build-install" title="Permalink to this headline">¶</a></h3>
-<p>If you would like to use DAGMC with MCNP5, known as DAG-MCNP5, you will also need:</p>
-<ul class="simple">
-<li>MCNP5.1.51 source code from <a class="reference external" href="http://rsicc.ornl.gov">RSICC</a></li>
-<li>a local copy of UW-Madison&#8217;s <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC git repo</a></li>
+</div>
+<div class="section" id="post-install">
+<h3>Post Install<a class="headerlink" href="#post-install" title="Permalink to this headline">¶</a></h3>
+<p>Having installed all the prerequisite tools, namely Cubit, CGM, HDF5, MOAB and PyNE, the user
+must ensure that the system has access to the libraries and programs that have been built.
+Therefore modify the $PATH and $LD_LIBRARY_PATH environments accordingly:</p>
+<div class="highlight-python"><pre>prompt%&gt; export PATH=$PATH:$HOME/dagmc_bld/path/to/cubit/bin: \
+                           $HOME/.local/bin: \
+                           $HOME/dagmc_bld/HDF5/bin: \
+                           $HOME/dagmc_bld/MOAB/bin
+prompt%&gt; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH: \
+                           $HOME/dagmc_bld/path/to/cubit/bin: \
+                           $HOME/.local/lib: \
+                           $HOME/dagmc_bld/HDF5/lib: \
+                           $HOME/dagmc_bld/MOAB/lib:/$HOME/dagmc_bld/CGM/lib</pre>
+</div>
+</div>
+</div>
+<div class="section" id="toolkit-applications">
+<h2>Toolkit Applications<a class="headerlink" href="#toolkit-applications" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="install-dagmc">
+<h3>Install DAGMC<a class="headerlink" href="#install-dagmc" title="Permalink to this headline">¶</a></h3>
+<p>Clone the DAGMC repository</p>
+<div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld
+prompt%&gt; git clone https://github.com/svalinn/DAGMC
+prompt%&gt; cd DAGMC
+prompt%&gt; git checkout develop</pre>
+</div>
+</div>
+<div class="section" id="install-fluka">
+<h3>Install FLUKA<a class="headerlink" href="#install-fluka" title="Permalink to this headline">¶</a></h3>
+<p>FluDAG uses <a class="reference external" href="http://www.fluka.org/fluka.php">FLUKA</a> from CERN/INFN with the DAGMC Toolkit.</p>
+<p>In order to download FLUKA you need to become a registered user, which you can do at
+the <a class="reference external" href="https://www.fluka.org/fluka.php?id=secured_intro">FLUKA register</a> page
+from a link on the main FLUKA page.</p>
+<p>Save the user id and password for future FLUKA updates.  We recommend an x64
+worfklow and as such you should download the 64 bit executable.  The download
+name is of the form <em>fluka20xx.xx-linux-gfor64bitAA.tar.gz</em>.  See the
+<a class="reference external" href="http://www.fluka.org/fluka.php?id=ins_run&amp;mm2=3">site</a> for instructions.</p>
+<p>Follow the FLUKA site instructions to set the FLUPRO and FLUFOR environment
+variables.  Lastly, you must patch FLUKA&#8217;s run script, rfluka, to allow for some dagmc options.</p>
+<div class="highlight-python"><pre>prompt%&gt; cd $FLUPRO/flutil
+prompt%&gt; cp rfluka rfluka.orig
+prompt%&gt; patch rfluka $HOME/dagmc_bld/DAGMC/fluka/rfluka.patch</pre>
+</div>
+<p>Confirm that you have a working install of Fluka and proceed to the next steps.</p>
+</div>
+<div class="section" id="install-geant4">
+<h3>Install Geant4<a class="headerlink" href="#install-geant4" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://geant4.cern.ch">Geant4</a>, a toolkit for the simulation of the passage of particles through matter, can be found
+<a class="reference external" href="http://geant4.cern.ch/support/gettingstarted.shtml">here</a>,  including a link to instructions for installation.</p>
+</div>
+<div class="section" id="build-dagmc-interfaces">
+<h3>Build DAGMC Interfaces<a class="headerlink" href="#build-dagmc-interfaces" title="Permalink to this headline">¶</a></h3>
+<p>The DAGMC toolkit now has a full CMake install and build method for all codes used downstream.  It even
+replaces the MCNP build method with a CMake file.</p>
+<p>Note that in addition to the detailed instructions above for building the MOAB stack, you may also
+need to install Lapack using, for example, &#8220;sudo apt-get install liblapack-dev libblas-dev&#8221;.</p>
+<div class="section" id="populate-and-patch">
+<h4>Populate and Patch<a class="headerlink" href="#populate-and-patch" title="Permalink to this headline">¶</a></h4>
+<p>In order to populate and patch the MCNP5 source in the DAGMC subdirectory
+first copy the &#8220;Source&#8221; directory for MCNP5v16 from the LANL/RSICC CD to the
+mcnp5/ directory in the DAGMC source tree</p>
+<div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld/DAGMC/mcnp5
+prompt%&gt; cp -r &lt;path to cdrom/MCNP5/Source .</pre>
+</div>
+<p>Apply the patch from the patch folder</p>
+<div class="highlight-python"><pre>prompt%&gt; patch -p1 &lt; patch/dagmc.patch.5.1.60</pre>
+</div>
+</div>
+<div class="section" id="configure">
+<h4>Configure<a class="headerlink" href="#configure" title="Permalink to this headline">¶</a></h4>
+<p>Assuming the patch was succesfully applied, i.e. there were no warnings or
+errors, we can now configure the DAGMC cmake system for the desired build.</p>
+<p>The CMake system can be used to configure a build of any or all of the
+following, see <a class="reference external" href="cmake_options.html">cmake options</a> for a list of all possible options, which include</p>
+<blockquote>
+<div><ul class="simple">
+<li>MCNP5 with or without MPI</li>
+<li>GEANT4 (DagSolid)</li>
+<li>FLUKA  (FluDAG)</li>
+<li>TALLY (Tally interface)</li>
 </ul>
-<div class="section" id="automatic-installation">
-<h4>Automatic Installation<a class="headerlink" href="#automatic-installation" title="Permalink to this headline">¶</a></h4>
-<p>A package has been prepared that includes many of the requires
-software libraries and an automated build script.  Because the DAGMC
-team is not authorized to distribute <a class="reference external" href="http://cubit.sandia.gov">CUBIT</a> nor <a class="reference external" href="http://mcnp.lanl.gov">MCNP5.1.51 source code</a>, you must acquire those through the
-appropriate channels on your own.</p>
-<p>Once you have both of those things, you should be able to use the
-DagmcBuildPackage to create a working install of DAG-MCNP5.1.51.</p>
+</div></blockquote>
+<p>You will need to include the CMAKE_INSTALL_PREFIX=install_dir option as part of the configuration.  When the
+build command &#8216;make install&#8217; is invoked, libraries, executables, tests, and include files are installed in
+subdirectories under install_dir.  It is common to use -DCMAKE_INSTALL_PREFIX=..&#8217;, which creates and populates
+these directories one level above the build directory, that is, in the DAGMC directory.
+Note that the &#8216;-D&#8217; in front of CMAKE_INSTALL_PREFIX, and all of the configuration variables, defines the variable
+for the cmake system.</p>
+<p>From the base level of the DAGMC repository create a build directory and navigate to it.</p>
+<div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld/DAGMC
+prompt%&gt; mkdir bld
+prompt%&gt; cd bld</pre>
 </div>
-<div class="section" id="manual-installation">
-<h4>Manual Installation<a class="headerlink" href="#manual-installation" title="Permalink to this headline">¶</a></h4>
-<p>The following steps are required to install DAG-MCNP5.  Most of these steps are described in more detail below.</p>
-<ol class="arabic simple">
-<li>Install the DAGMC Toolkit as described above</li>
-<li>Clone a copy of the DAGMC git repo.</li>
-<li>Apply the appropriate patch from DAGMC/MCNP5/patch/ to your copy of the MCNP5 source code</li>
-<li>Build &amp; install the patched version of MCNP5</li>
-</ol>
-<p>Some assumptions/conventions:</p>
-<ul class="simple">
-<li>all operations are carried out in the a subdirectory <tt class="docutils literal"><span class="pre">dagmc_bld</span></tt> of a user&#8217;s home directory</li>
-<li>path to CUBIT files is known, e.g. <tt class="docutils literal"><span class="pre">/path/to/cubit</span></tt></li>
-<li>all tarballs reside in user&#8217;s home directory</li>
-<li>MCNP5 source code is available in location <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5</span></tt></li>
-<li>A cloned DAGMC git repo can be found at <tt class="docutils literal"><span class="pre">/path/to/DAGMC</span></tt></li>
-</ul>
-<div class="section" id="apply-patch">
-<h5>Apply Patch<a class="headerlink" href="#apply-patch" title="Permalink to this headline">¶</a></h5>
-<p><em>Apply DAGMC Patch to MCNP5 v1.60</em></p>
-<p>Perform the following steps:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld/MCNP5/Source
-prompt%&gt; patch -p1 &lt; /path/to/DAGMC/MCNP5/patch/dagmc.patch.5.1.60</pre>
+<p>In the examples, the environment variable, &#8220;INSTALL_PATH&#8221;, can point to any location
+where you want the libraries ($INSTALL_PATH/lib), executables ($INSTALL_PATH/bin), and
+other build products to be installed.  It is typically set to the DAGMC directory, i.e.</p>
+<div class="highlight-python"><pre>prompt%&gt; export INSTALL_PATH=$HOME/dagmc_bld/DAGMC</pre>
 </div>
+<p><strong>Example 1:</strong>  Build the DAGMC interfaces and DAG-MCNP5</p>
+<div class="highlight-python"><pre>prompt%&gt; cmake ../. -DBUILD_MCNP5=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH</pre>
 </div>
-<div class="section" id="build-dag-mcnp5">
-<h5>Build DAG-MCNP5<a class="headerlink" href="#build-dag-mcnp5" title="Permalink to this headline">¶</a></h5>
-<p><em>Build DAG-MCNP5 from modified code</em></p>
-<p>One of the easiest ways to build DAG-MCNP5 is directly using the
-<tt class="docutils literal"><span class="pre">makefile</span></tt> from the command-line.  To do this, you must know the
-<tt class="docutils literal"><span class="pre">makefile</span></tt> options to build a version of MCNP5 without DAGMC,
-usually in the form:</p>
-<div class="highlight-python"><pre>prompt%&gt; make build CONFIG="seq plot gfortran" FC=gfortran MARCH=M64``</pre>
+<p><strong>Example 2:</strong>  Build MCNP5 in parallel.</p>
+<div class="highlight-python"><pre>prompt%&gt; cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
+                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH</pre>
 </div>
-<p>or similar.  Starting from these options, you can build DAG-MCNP5 from
-a patched source code with:</p>
-<div class="highlight-python"><pre>prompt%&gt; make build CONFIG="seq plot gfortran dagmc" FC=gfortran MARCH=M64 \
-             MOAB_DIR=$HOME/dagmc_bld/MOAB CUBIT_DIR=/path/to/cubit/bin \
-             DAGMC_DIR=/path/to/DAGMC/MCNP5/dagmc</pre>
+<p><strong>Example 3:</strong>  Build MCNP5 in parallel and build the dagmc-enabled FLUKA.
+Note that $FLUPRO should have been previously defined as part of the FLUKA install.</p>
+<div class="highlight-python"><pre>prompt%&gt; cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
+                    -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
+                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH</pre>
 </div>
-<p>If you are less familiar with building MCNP5 from the <tt class="docutils literal"><span class="pre">makefile</span></tt> you
-may want to use the interactive <tt class="docutils literal"><span class="pre">install</span></tt> script provided by LANL:</p>
-<div class="highlight-python"><pre>prompt%&gt; ./install</pre>
+<p><strong>Example 4:</strong> Build only FluDAG.</p>
+<div class="highlight-python"><pre>prompt%&gt; cmake ../. -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
+                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH</pre>
 </div>
-<p>Within the <tt class="docutils literal"><span class="pre">install</span></tt> program you will need to set the DAGMC build options:</p>
-<ul class="simple">
-<li>turn on DAGMC mode</li>
-<li>provide the path to MOAB: <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MOAB</span></tt></li>
-<li>provide the path to CUBIT: <tt class="docutils literal"><span class="pre">/path/to/cubit</span></tt></li>
-</ul>
-<p>Your executable should be available as <tt class="docutils literal"><span class="pre">$HOME/dagmc_bld/MCNP5/Source/src/mcnp5</span></tt>.</p>
+<p><strong>Example 5:</strong>  Build MCNP, FluDAG and Geant4-enabled DAGMC.</p>
+<div class="highlight-python"><pre>prompt%&gt; cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
+                    -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
+                    -DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
+                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH</pre>
+</div>
+<p><strong>Example 6:</strong>  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests.</p>
+<div class="highlight-python"><pre>prompt%&gt; cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
+                    -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
+                    -DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
+                    -DBUILD_TALLY=ON \
+                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH</pre>
 </div>
 </div>
+</div>
+<div class="section" id="compile-and-install">
+<h3>Compile and Install<a class="headerlink" href="#compile-and-install" title="Permalink to this headline">¶</a></h3>
+<p>Assuming that the cmake step was succesful, i.e. no errors were reported, compile by issuing the make command:</p>
+<div class="highlight-python"><pre>prompt%&gt; make</pre>
+</div>
+<p>If there were no errors, install the DAGMC suite of libraries and tools by issuing the install command:</p>
+<div class="highlight-python"><pre>prompt%&gt; make install</pre>
+</div>
+<p>If everything was successful, you may have the mcnp5 and mainfludag executables in the $INSTALL_PATH/bin folder,
+the libraries in $INSTALL_PATH/lib and the header files in the $INSTALL_PATH/include folder</p>
+</div>
+<div class="section" id="test">
+<h3>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h3>
+<p>You may wish to run the tests in the $INSTALL_PATH/tests directory to verify correct installation.  To do this requires
+that $INSTALL_PATH/bin be in your PATH and $INSTALL_PATH/lib be in your LD_LIBRARY_PATH:</p>
+<div class="highlight-python"><pre>prompt%&gt; export PATH=$PATH:$INSTALL_PATH/bin
+prompt%&gt; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib</pre>
+</div>
+<p>Note that this assumes you have previously set the environment variables per the <a class="reference internal" href="#post-install">Post Install</a> section.</p>
+<p>With these environment variables you can run fludag_unit_tests:</p>
+<div class="highlight-python"><pre>prompt%&gt; cd $INSTALL_PATH/tests
+prompt%&gt; ./fludag_unit_tests</pre>
+</div>
+<p>With successful execution the last few lines of the screen output will look similar to:</p>
+<div class="highlight-python"><pre>[       OK ] FluDAGTest.GFireGoodPropStep (5 ms)
+[----------] 3 tests from FluDAGTest (108 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test case ran. (108 ms total)
+[  PASSED  ] 3 tests.</pre>
+</div>
+<p>To run dagsolid_unit_test, in addition to the settings just mentioned, you must also execute
+a script that was created at the time geant4 was built:</p>
+<div class="highlight-python"><pre>prompt%&gt; source path/to/geant4/bld/geant4make.sh
+prompt%&gt; cd $INSTALL_PATH/tests
+prompt%&gt; ./dagsolid_unit_tests</pre>
+</div>
+<p>Note that the path to geant4make.sh is different from the path to the geant4 install
+directory, defined with -DGEANT4_DIR=path/to/geant4, in the DAGMC compilation examples.</p>
+<p>Again, with successful execution the last few lines of screen output are:</p>
+<div class="highlight-python"><pre>[       OK ] DagSolidTest.surface_area_test (5 ms)
+[----------] 16 tests from DagSolidTest (228 ms total)
+
+[----------] Global test environment tear-down
+[==========] 16 tests from 1 test case ran. (228 ms total)
+[  PASSED  ] 16 tests.</pre>
+</div>
+<p>With testing successfully completed you are now ready to run a
+<a class="reference external" href="uw2.html">problem</a>.</p>
 </div>
 <div class="section" id="dag-tripoli4-access">
 <h3>DAG-Tripoli4 Access<a class="headerlink" href="#dag-tripoli4-access" title="Permalink to this headline">¶</a></h3>
 <p>Tripoli4 is distributed by CEA/Saclay as a binary executable.  For
 access to DAG-Tripoli4, please contact <a class="reference external" href="mailto:jean-christophe&#46;trama&#37;&#52;&#48;cea&#46;fr">Jean-Christophe Trama</a>.</p>
-</div>
-<div class="section" id="fludag-build">
-<h3>FluDAG Build<a class="headerlink" href="#fludag-build" title="Permalink to this headline">¶</a></h3>
-<p>FluDAG uses <a class="reference external" href="http://www.fluka.org">FLUKA</a> from CERN/INFN with the DAGMC Toolkit.
-The steps to build and install FluDAG follow.</p>
-<p><em>Install  FLUKA</em></p>
-<p>In order to download FLUKA you need to become a registered user, which you can do at
-the FLUKA register page from a link on the main FLUKA page.
-Save the user id and password for future FLUKA updates.
-For a 64 bit linux installation the download filename is of the form <em>fluka20xx.xx-linux-gfor64bitAA.tar.gz</em>.
-See the <a class="reference external" href="http://www.fluka.org">FLUKA</a> website in the <strong>Install and Run</strong> item of the <em>Documentation</em> menu.</p>
-<p>Once the environment variables have been set proceed to the FluDAG installation.</p>
-<p><em>FluDAG, Alpha Release</em></p>
-<p>Get the FluDAG Alpha Release repository by cloning the UW-Madison DAGMC repository from github.com and checking out the alpha_release branch:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd $HOME
-prompt%&gt; git clone https://github.com/svalinn/DAGMC.git
-prompt%&gt; get checkout alpha_release.</pre>
-</div>
-<p>A run-script provided by FLUKA has been modified to allow it to have input filenames
-longer than 8 characters.  The following steps assume you have the FLUKA environment
-variables defined:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd $FLUPRO/flutil
-prompt%&gt; cp rfluka rfluka.orig
-prompt%&gt; cd DAGMC/FluDAG/src
-prompt%&gt; cp rfluka $FLUPRO/flutil</pre>
-</div>
-<p>To compile FluDAG you must have the Cubit bin directory in your LD_LIBRARY_PATH.  Add the following
-line to your login script:</p>
-<div class="highlight-python"><pre>prompt%&gt; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/Cubit/bin</pre>
-</div>
-<p>You also need to know where the MOAB libraries are.
-These instructions illustrate passing a known MOAB library path to cmake via the -D switch:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd $HOME/DAGMC/FluDAG
-prompt%&gt; mkdir bld
-prompt%&gt; cmake ../src/. -DMOAB_HOME=$HOME/dagmc_bld/MOAB
-prompt%&gt; make</pre>
-</div>
-<p>Upon successful compilation the directory <em>bld</em> will have the <em>mainfludag</em> executable in it.
-In order to test FluDAG, an environment variable, named &#8216;FLUDAG&#8217;, with the path to the <em>bld</em> directory must be set:
-Add this statement to your login script:</p>
-<div class="highlight-python"><pre>export FLUDAG=${HOME}/DAGMC/FluDAG/bld/</pre>
-</div>
-<p>The FluDAG tests are in a separate repository, which can be cloned from the UW-Madison website:</p>
-<div class="highlight-python"><pre>prompt%&gt; git clone https://github.com/svalinn/fludag_testing.git</pre>
-</div>
-<p>To run all the tests type:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd $HOME/fludag_testing
-prompt%&gt; ./run_test test_input</pre>
-</div>
-<p>Some of the tests are slow, so the above command will take some time.
-If you want to run just the fast tests, or just the magnetic tests:</p>
-<div class="highlight-python"><pre>prompt%&gt; ./run_test test_fast
-prompt%&gt; ./run_test test_magnetic</pre>
-</div>
-<p>The slow tests can be run separately:</p>
-<div class="highlight-python"><pre>prompt%&gt; ./run_test test_slow</pre>
-</div>
-<p>Some of the tests check the installation and can be run separately:</p>
-<div class="highlight-python"><pre>prompt%&gt; ./run_test test_install</pre>
-</div>
-<p>At this time, some tests may not pass.</p>
 </div>
 </div>
 </div>
@@ -435,7 +468,7 @@ prompt%&gt; ./run_test test_magnetic</pre>
         &copy; Copyright 2012-2013, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Aug 05, 2013.
+      Last updated on Nov 07, 2014.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.

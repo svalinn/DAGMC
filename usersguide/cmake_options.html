@@ -1,0 +1,121 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CMAKE Install options &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../index.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header"><a id="uwhome" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> <a id="crest" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="/"><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"></div>
+ <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
+<li><a class="reference internal" href="#">CMAKE Install options</a></li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="cmake-install-options">
+<h1>CMAKE Install options<a class="headerlink" href="#cmake-install-options" title="Permalink to this headline">¶</a></h1>
+<p>There are now large number of install options available to the person
+building DAGMC; we use the CMake system, which builds custom makefiles
+for your particular system.</p>
+<p>The options follow.  Note that, unless set, boolean options default to <tt class="docutils literal"><span class="pre">`OFF`</span></tt>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">`-DBUILD_MCNP5`</span></tt> controls whether to build the DAG-MCNP5 executable:  allowed options are <tt class="docutils literal"><span class="pre">`ON`</span></tt> and <tt class="docutils literal"><span class="pre">`OFF`</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">`-DBUILD_FLUKA`</span></tt> controls whether to build the FluDAG exectuable:  allowed
+options are <tt class="docutils literal"><span class="pre">`ON`</span></tt> and <tt class="docutils literal"><span class="pre">`OFF`</span></tt>.  If you would like to build the FluDAG interface,
+you must also set the <tt class="docutils literal"><span class="pre">`-DFLUKA_DIR`</span></tt> variable.</li>
+<li><tt class="docutils literal"><span class="pre">`-DFLUKA_DIR`</span></tt> sets the path to the Fluka libraries and scripts.  This variable must be set
+in order to build the FluDAG executable.  It typically should be set to the $FLUPRO environment variable
+but if you have not got it set, then you should set it to the path to the Fluka directory.</li>
+<li><tt class="docutils literal"><span class="pre">`-DBUILD_GEANT4`</span></tt> controls whether to build the DagSolid libraries and the DagGeant4
+exectuable.  Options are <tt class="docutils literal"><span class="pre">`ON`</span></tt> and <tt class="docutils literal"><span class="pre">`OFF`</span></tt>; you may also need to set the <tt class="docutils literal"><span class="pre">`-DGEANT4_DIR`</span></tt> variable if
+the file <tt class="docutils literal"><span class="pre">`DAGMC/cmake/FindGeant4.cmake`</span></tt> fails to find Geant4.</li>
+<li><tt class="docutils literal"><span class="pre">`-DGEANT4_DIR`</span></tt> sets a hint to the FindGeant4.cmake file to where your Geant4 installation is.  If the FindGeant4.cmake
+file fails to locate Geant4 you should set this to variable to the path to the Geant4 installation directory.</li>
+<li><tt class="docutils literal"><span class="pre">`-DBUILD_TALLY`</span></tt> sets whether build the DagTally interface:  allowed options are <tt class="docutils literal"><span class="pre">`ON`</span></tt> and <tt class="docutils literal"><span class="pre">`OFF`</span></tt>.
+Note that if you have <tt class="docutils literal"><span class="pre">`-DBUILD_MCNP5=ON`</span></tt> then <tt class="docutils literal"><span class="pre">`-DBUILD_TALLY=ON`</span></tt> is automatically set.</li>
+<li><tt class="docutils literal"><span class="pre">`-DBUILD_ALL`</span></tt> sets whether to build all interfaces:  allowed options are <tt class="docutils literal"><span class="pre">`ON`</span></tt> and <tt class="docutils literal"><span class="pre">`OFF`</span></tt>.</li>
+<li><tt class="docutils literal"><span class="pre">`-DSTATIC_LIB`</span></tt> sets whether to make a shared or static build of the Dag libraries.  If you would like them</li>
+</ul>
+<p>static then set it to <tt class="docutils literal"><span class="pre">`ON</span></tt>; this variable defaults to <tt class="docutils literal"><span class="pre">`OFF`</span></tt>.</p>
+</div></blockquote>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2013, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Nov 07, 2014.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      </p>
+    </div>
+  </body>
+</html>
