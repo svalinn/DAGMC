@@ -3,6 +3,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 enable_language(Fortran)
 PROJECT(MCNP5)
 
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../tally/")
+
+
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation Directory for Libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
@@ -434,6 +437,7 @@ set_source_files_properties(mcnp_params.F90 PROPERTIES COMPILE_FLAGS -cpp)
 # if we have dag then add this file 
 IF(BUILD_MCNP5)
  LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/dagmc_mod.F90)
+ LIST(APPEND MCNP_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/meshtal_funcs.cpp)
 ENDIF()
 
 # standard macros
@@ -449,7 +453,7 @@ add_definitions(-DVERS="5")
 DATETIME(DATE)
 # set the date
 add_definitions(-DLODDAT=${DATE})
-add_definitions(-DDPATH="/data/opt/xs_data/mcnp_data")
+add_definitions(-DDPATH="/mnt/data/opt/xs_data/mcnp_data")
 add_definitions(-DTHREAD="MCNP5")
 add_definitions(-DTVERS="1.60")
 

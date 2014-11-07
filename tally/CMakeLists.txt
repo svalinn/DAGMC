@@ -1,6 +1,7 @@
 # CMAKE build script for DAGMC Tally
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-MESSAGE(STATUS "Creating DAGTally Library")
+ENABLE_LANGUAGE(Fortran)
+MESSAGE(STATUS "Creating DAGTally Library WITH " ${DAGMC_LIBRARIES})
 SET ( DAG_TALLY_SRC_FILES
     Tally.cpp
     TallyData.cpp
@@ -15,8 +16,6 @@ SET ( DAG_TALLY_SRC_FILES
     Quadrature.cpp
 )
 
-SET ( CODE_SRC_FILES   "mcnp5/meshtal_funcs.cpp"  )
-LIST( APPEND CODE_PUB_HEADERS "mcnp5/meshtal_funcs.h" )
 LIST( APPEND CODE_PUB_HEADERS "CellTally.hpp" )
 LIST( APPEND CODE_PUB_HEADERS "KDEKernel.hpp" )
 LIST( APPEND CODE_PUB_HEADERS "KDEMeshTally.hpp" )
@@ -33,6 +32,8 @@ LIST( APPEND CODE_PUB_HEADERS "TrackLengthMeshTally.hpp" )
 
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tally)
+#${PROJECT_SOURCE_DIR}/tally/mcnp5)
+
 
 # Create DAGMC Tally library
 IF ( STATIC_LIB )
@@ -51,5 +52,6 @@ INSTALL( TARGETS       dagtally
   )
 
 
+TARGET_LINK_LIBRARIES(dagtally lapack ${DAGMC_LIBRARIES} gfortran)
 
-TARGET_LINK_LIBRARIES(dagtally lapack)
+ADD_SUBDIRECTORY(tests)
