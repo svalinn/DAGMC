@@ -12,8 +12,31 @@ try:
 except:
     raise ImportError("The PyNE dependencies could not be imported.")    
 
+from pyne import dagmc
 import hzetrn as one_d_tool
 
+
+moab::ErrorCode find_start_grave_vols(moab::CartVect &ref_point, 
+                                      moab::EntityHandle &graveyard, 
+                                      moab::EntityHandle &start_vol) {
+
+def find_start_grave_vols(ref_point):
+   # code snippet from dagmc.pyx:find_graveyard_inner_box
+   volumes = dagmc.get_volume_list() 
+   graveyard = 0
+   for v in volumes:
+       if dagmc.volume_is_graveyard(v):
+           graveyard = v
+	   break
+       if dagmc.point_in_volume(v, ref_point):
+           start_vol = v
+
+    if graveyard == 0:
+    	raise DagmcError('Could not find a graveyard volume')
+
+    # ToDo: error checking
+    return [start_vol, graveyard]
+    
 
 """
 Load the pyne material library
@@ -99,8 +122,51 @@ def main():
     # This method will make a subprocess call
     1_d_tool.cross_section_process(input_filename)
 
+    # Use 0,0,0 as a reference point for now
+    ref_point = [0.0, 0.0, 0.0]
+    [start_vol, graveyard]  = find_start_grave_vols(ref_point)
 
+    v = start_vol
+    for dir in ray_tuples:
+    	print dir	
+        [surf, dist] = dagmc.ray_fire(v, ref_point, dir)
+	
+    # initialize the new list
+    # moab::EntityHandle vol = start_vol;
+    # moab::EntityHandle surf = 0;
+    # moab::CartVect current_pt = ref_point;
+    # moab::CartVect dir = dir_list[ray_num];
+    # double dist = 0;
+    # slab_length.clear();
+    # slab_density.clear();
+    # slab_mat_name.clear();
     
+    # while not at the graveyard
+    # Delete this while loop when ray loop above is done
+    while (vol != graveyard) {
+
+      rval = DAG->ray_fire(vol,current_pt.array(),dir.array(),surf,dist);
+      if (dist < huge && surf != 0) {
+        // std::cout << dist << "\t" << surf << std::endl;
+        slab_length.push_front(dist);
+        double density;
+        std::string mat_name;
+        rval = get_mat_rho(vol,mat_name,density);
+        rval = DAG->prop_value(vol,"mat",mat_name);
+        // std::cout << mat_name << std::endl;
+        slab_mat_name.push_front(mat_name);
+        slab_density.push_front(density);
+        moab::EntityHandle new_vol;
+        rval = DAG->next_vol(surf,vol,new_vol);
+        vol = new_vol;
+        current_pt += dir*dist;
+      } else {
+        vol = graveyard;
+      }
+      
+    }
+    # End ray dir
+    ###################################### 
     #
     # load geometry in pydagmc
     dag_geom=iMesh.Mesh()
