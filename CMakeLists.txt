@@ -104,7 +104,7 @@ ENDIF ( BUILD_GEANT4 OR BUILD_ALL )
 #
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IF ( DI_SRC_FILES )
+IF ( DI_SRC_FILES OR BUILD_GEANT4 )
   ADD_SUBDIRECTORY( uwuw )
   ADD_SUBDIRECTORY(common)
   IF ( STATIC_LIB )
@@ -122,10 +122,9 @@ IF ( DI_SRC_FILES )
            ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
            PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
          )
-ELSE ( DI_SRC_FILES )
+ELSE ( DI_SRC_FILES OR BUILD_GEANT4 )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
-ENDIF ( DI_SRC_FILES )
-         
+ENDIF ( DI_SRC_FILES OR BUILD_GEANT4)
 
 
 
