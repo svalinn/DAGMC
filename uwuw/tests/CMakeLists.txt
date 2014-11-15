@@ -24,7 +24,7 @@ SET(LIBS
   pthread
   gtest
   ${PYNE_LIBS_DIR}/libpyne.so
-  ${HDF5_LIBRARIES}
+  ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
   dagmciface
   ${DAGMC_LIBRARIES}
   pthread
