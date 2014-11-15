@@ -1,15 +1,5 @@
 # PROJECT(DagSolidUnitTests)
 
-SET (tgt "gtest")
-ADD_CUSTOM_COMMAND (TARGET ${tgt}
-	COMMAND ln "-sf"
-		"${CMAKE_CURRENT_SOURCE_DIR}/test_geom.h5m"
-		"${CMAKE_CURRENT_BINARY_DIR}/test_geom.h5m"
-		COMMENT "...linking test file in ${CMAKE_CURRENT_SOURCE_DIR} to ${CMAKE_CURRENT_BINARY_DIR}/slabs.h5m"
-	DEPENDS
-	VERBATIM
- 	)
-
 # dagsolid tests
 set(dagsolid_test_source
   ${CMAKE_CURRENT_SOURCE_DIR}/DagSolid_test.cpp
