@@ -16,27 +16,6 @@ from pyne import dagmc
 import hzetrn as one_d_tool
 
 
-moab::ErrorCode find_start_grave_vols(moab::CartVect &ref_point, 
-                                      moab::EntityHandle &graveyard, 
-                                      moab::EntityHandle &start_vol) {
-
-def find_start_grave_vols(ref_point):
-   # code snippet from dagmc.pyx:find_graveyard_inner_box
-   volumes = dagmc.get_volume_list() 
-   graveyard = 0
-   for v in volumes:
-       if dagmc.volume_is_graveyard(v):
-           graveyard = v
-	   break
-       if dagmc.point_in_volume(v, ref_point):
-           start_vol = v
-
-    if graveyard == 0:
-    	raise DagmcError('Could not find a graveyard volume')
-
-    # ToDo: error checking
-    return [start_vol, graveyard]
-    
 
 """
 Load the pyne material library
@@ -63,7 +42,7 @@ def load_ray_tuples(filename):
 	   	     (0.0, 0.0, 1.0)]
     return ray_tuples
 
-def 
+
 """
 Dummy implementation of argument parsing
 returns : args: -f for the input geometry file, -r for the input ray tuple file
@@ -93,6 +72,28 @@ def parsing():
        args.output = 'dummy'
     return args
 
+""" Find the volume of the geometry that contains the ref_point
+Also check and make sure there is a graveyard
+"""
+def find_ref_vol_and_check_graveyard(ref_point):
+   # code snippet from dagmc.pyx:find_graveyard_inner_box
+   volumes = dagmc.get_volume_list() 
+   # ToDo: should -1 be used for next two lines?
+   graveyard = 0
+   ref_vol = 0 
+   for v in volumes:
+       if dagmc.volume_is_graveyard(v):
+           graveyard = v
+	   break
+       if dagmc.point_in_volume(v, ref_point):
+           ref_vol = v
+
+    if graveyard == 0:
+    	raise DagmcError('Could not find a graveyard volume')
+
+    # ToDo: error checking
+    return (ref_vol, graveyard)
+    
 def main():
     # parse the the command line parameters
     args = parsing()
@@ -124,57 +125,50 @@ def main():
 
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
-    [start_vol, graveyard]  = find_start_grave_vols(ref_point)
+    cur_point = ref_point
+    res_tuple = find_ref_vol_and_check_graveyard(ref_point)
+    start_vol = res_tuple[0]
+    graveyard = res_tuple[1]
+    surf = 0
+    dist = 0
+    huge = 1000000000
+    slab_length = []
+    slab_mat_name = []
+    slab_density = []
 
     v = start_vol
     for dir in ray_tuples:
     	print dir	
-        [surf, dist] = dagmc.ray_fire(v, ref_point, dir)
-	
-    # initialize the new list
-    # moab::EntityHandle vol = start_vol;
-    # moab::EntityHandle surf = 0;
-    # moab::CartVect current_pt = ref_point;
-    # moab::CartVect dir = dir_list[ray_num];
-    # double dist = 0;
-    # slab_length.clear();
-    # slab_density.clear();
-    # slab_mat_name.clear();
-    
-    # while not at the graveyard
-    # Delete this while loop when ray loop above is done
-    while (vol != graveyard) {
-
-      rval = DAG->ray_fire(vol,current_pt.array(),dir.array(),surf,dist);
-      if (dist < huge && surf != 0) {
-        // std::cout << dist << "\t" << surf << std::endl;
-        slab_length.push_front(dist);
-        double density;
-        std::string mat_name;
-        rval = get_mat_rho(vol,mat_name,density);
-        rval = DAG->prop_value(vol,"mat",mat_name);
-        // std::cout << mat_name << std::endl;
-        slab_mat_name.push_front(mat_name);
-        slab_density.push_front(density);
-        moab::EntityHandle new_vol;
-        rval = DAG->next_vol(surf,vol,new_vol);
-        vol = new_vol;
-        current_pt += dir*dist;
-      } else {
-        vol = graveyard;
-      }
-      
-    }
+	while v != graveyard:
+            surf_dist_pair = dagmc.ray_fire(v, cur_point, dir)
+	    surf = surf_dist_pair[0]
+	    dist = surf_dist_pair[1]
+	    if dist < huge && surf != 0:
+	        slab_length.append(dist)
+		md = dagmc.get_volume_metadata(v)
+		slab_mat_name.append(md['material'])
+		slab_density.append(md['rho'])
+		# reassign
+		v = dagmc.next_vol(surf,v)
+		# sqrt((dir[0]*dist)^2+dir[1]*dist)^2+ dir[2]*dist)^2)
+		cur_point += dir*dist
+	    else:
+	        v = graveyard
     # End ray dir
+    # now have filled
+    # slab thicknesses (slab_length[])
+    # slab materials (slab_mat_name[])
+    # slab_densities (slab_density[]
     ###################################### 
     #
-    # load geometry in pydagmc
-    dag_geom=iMesh.Mesh()
-    dag_geom.load(args.datafile)
-    # PyTAPS!
-    dag_geom.getEntities()
-    # from get_tag_values in dagmc_get_materials.py
-    # maybe I need these params?
-    # dag_geom.getEntities(iBase.Type.all, iMesh.Topology.triangle)
+    # Write out the file that will be the input for the transport step
+    # ToDo: Note seeing yow we need a density array for this file
+    #       Unless maybe we have materials of same name and different densities
+    1_d_tool.write_spatial_transport_file(slab_length, slab_mat_name, slab_density)
+    1_d_tool.transport_process()
+    1_d_tool.response_process()
+    outcome = 1_d_tool.extract_results()
+    append_csv_file(filename, outcome)
+   
 
 
