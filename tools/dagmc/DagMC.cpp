@@ -36,7 +36,6 @@
 
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
-#define CATEGORY_TAG_LENGTH 32
 
 #define MBI moab_instance()
 
@@ -502,7 +501,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
   if (MB_SUCCESS != rval)
     return rval;
 
-  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_LENGTH, 
+  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE, 
                              MB_TAG_SPARSE, MB_TYPE_OPAQUE);
   static const char volume_category[CATEGORY_TAG_SIZE] = "Volume\0";
   rval = MBI->tag_set_data(category_tag, &impl_compl_handle, 1, volume_category );
@@ -1486,7 +1485,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
 #endif  
 
     // get group handles
-  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_LENGTH, 
+  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE, 
                                MB_TAG_SPARSE, MB_TYPE_OPAQUE);
   char group_category[CATEGORY_TAG_SIZE];
   std::fill(group_category, group_category+CATEGORY_TAG_SIZE, '\0');
