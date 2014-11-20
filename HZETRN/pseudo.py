@@ -2,10 +2,10 @@
 import subprocess
 import argparse
 import string
-try:
-    from itaps import iMesh, iBase
-except:
-    raise ImportError("The PyTAPS dependencies could not be imported.")    
+# try:
+#     from itaps import iMesh, iBase
+# except:
+#     raise ImportError("The PyTAPS dependencies could not be imported.")    
 try:
    from pyne import material
    from pyne.material import Material, MaterialLibrary
@@ -13,16 +13,9 @@ except:
     raise ImportError("The PyNE dependencies could not be imported.")    
 
 from pyne import dagmc
+import numpy as np
 import hzetrn as one_d_tool
 
-
-
-"""
-Load the pyne material library
-filename : string of the name of the material library
-returns  : PyNE MaterialLibrary instance
-ref      : DAGMC/tools/parse_materials/dagmc_get_materials.py
-"""
 
 def load_ray_tuples(filename):
     # do I need to declare this outside the if?
@@ -42,6 +35,16 @@ def load_ray_tuples(filename):
 	   	     (0.0, 0.0, 1.0)]
     return ray_tuples
 
+def get_rand_dir():
+    # [0.0,1.0)
+    rnum = np.random.uniform()
+    # map rnum onto [0.0,1.0)
+    z = 2*rnum - 1
+    theta = 2*np.pi*rnum
+    norm_fac = np.sqrt(1 - z*z)
+    y = norm_fac*np.sin(theta)
+    x = norm_fac*np.cos(theta)
+    return [x, y, z]
 
 """
 Dummy implementation of argument parsing
@@ -52,7 +55,7 @@ def parsing():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '-f', action='store', dest='datafile', 
+        '-f', action='store', dest='uwuw_file', 
 	help='The path to the .h5m file')
     parser.add_argument(
         '-r', action='store', dest='ray_dir_file', 
@@ -60,7 +63,7 @@ def parsing():
 
     args = parser.parse_args
 
-    if not args.datafile:
+    if not args.uwuw_file:
         raise Exception('h5m file path not specified. [-f] not set')
     if not args.nuc_data:
         raise Exception('nuc_data file path not specified. [-d] not set')
@@ -98,8 +101,7 @@ def main():
     # parse the the command line parameters
     args = parsing()
     
-    # get list of rays
-    ray_tuples = load_ray_tuples(args.ray_dir_file) 
+    rtn = dagmc.load(uwuw_file)
 
     # Prepare xs_input.dat
     input_filename = "xs_input.dat"
@@ -109,9 +111,9 @@ def main():
     #       edited later
     # create_and_insert_header_lines(input_filename)
 
-    # load the material library from the geometry file
+    # load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
-    mat_lib.from_hdf5(args.datafile)
+    mat_lib.from_hdf5(args.uwuw_file)
 
     # For each material create an entry and append to input_filename
     for key in mat_lib.iterkeys():
@@ -120,8 +122,14 @@ def main():
 	# ToDo: append material_entry to input_filename
 	# append_entry(input_filename, material_entry)
 
+    # Using the input file just created, prepare the materials subdirectory
     # This method will make a subprocess call
     1_d_tool.cross_section_process(input_filename)
+    # End material cross-section part
+    ##########################################################
+
+    # get list of rays
+    ray_tuples = load_ray_tuples(args.ray_dir_file) 
 
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
@@ -169,6 +177,8 @@ def main():
     1_d_tool.response_process()
     outcome = 1_d_tool.extract_results()
     append_csv_file(filename, outcome)
+    return
    
-
+if __name__ == '__main__':
+    main()
 
