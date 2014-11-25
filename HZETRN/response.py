@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import subprocess
 import argparse
 import string
@@ -79,20 +78,20 @@ def parsing():
 Also check and make sure there is a graveyard
 """
 def find_ref_vol_and_check_graveyard(ref_point):
-   # code snippet from dagmc.pyx:find_graveyard_inner_box
-   volumes = dagmc.get_volume_list() 
-   # ToDo: should -1 be used for next two lines?
-   graveyard = 0
-   ref_vol = 0 
-   for v in volumes:
-       if dagmc.volume_is_graveyard(v):
-           graveyard = v
-	   break
-       if dagmc.point_in_volume(v, ref_point):
-           ref_vol = v
+    # code snippet from dagmc.pyx:find_graveyard_inner_box
+    volumes = dagmc.get_volume_list() 
+    # ToDo: should -1 be used for next two lines?
+    graveyard = 0
+    ref_vol = 0 
+    for v in volumes:
+        if dagmc.volume_is_graveyard(v):
+            graveyard = v
+	    break
+        if dagmc.point_in_volume(v, ref_point):
+            ref_vol = v
 
     if graveyard == 0:
-    	raise DagmcError('Could not find a graveyard volume')
+        raise DagmcError('Could not find a graveyard volume')
 
     # ToDo: error checking
     return (ref_vol, graveyard)
@@ -100,8 +99,6 @@ def find_ref_vol_and_check_graveyard(ref_point):
 def main():
     # parse the the command line parameters
     args = parsing()
-    
-    rtn = dagmc.load(uwuw_file)
 
     # Prepare xs_input.dat
     input_filename = "xs_input.dat"
@@ -115,6 +112,7 @@ def main():
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(args.uwuw_file)
 
+    # Consider appending to string frist, for ease of testing
     # For each material create an entry and append to input_filename
     for key in mat_lib.iterkeys():
     	material_obj = mat_lib.get(key)
@@ -124,19 +122,19 @@ def main():
 
     # Using the input file just created, prepare the materials subdirectory
     # This method will make a subprocess call
-    1_d_tool.cross_section_process(input_filename)
+    one_d_tool.cross_section_process(input_filename)
     # End material cross-section part
     ##########################################################
-
+    # Get the DAG object for this geometry
+    rtn = dagmc.load(uwuw_file)
+   
     # get list of rays
     ray_tuples = load_ray_tuples(args.ray_dir_file) 
 
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
     cur_point = ref_point
-    res_tuple = find_ref_vol_and_check_graveyard(ref_point)
-    start_vol = res_tuple[0]
-    graveyard = res_tuple[1]
+    (start_vol, graveyard) = find_ref_vol_and_check_graveyard(ref_point)
     surf = 0
     dist = 0
     huge = 1000000000
@@ -148,15 +146,13 @@ def main():
     for dir in ray_tuples:
     	print dir	
 	while v != graveyard:
-            surf_dist_pair = dagmc.ray_fire(v, cur_point, dir)
-	    surf = surf_dist_pair[0]
-	    dist = surf_dist_pair[1]
-	    if dist < huge && surf != 0:
+            (surf,dist) = dagmc.ray_fire(v, cur_point, dir)
+	    if (dist < huge) and (surf != 0):
 	        slab_length.append(dist)
 		md = dagmc.get_volume_metadata(v)
 		slab_mat_name.append(md['material'])
 		slab_density.append(md['rho'])
-		# reassign
+		# reassign v to next vol
 		v = dagmc.next_vol(surf,v)
 		# sqrt((dir[0]*dist)^2+dir[1]*dist)^2+ dir[2]*dist)^2)
 		cur_point += dir*dist
@@ -172,11 +168,11 @@ def main():
     # Write out the file that will be the input for the transport step
     # ToDo: Note seeing yow we need a density array for this file
     #       Unless maybe we have materials of same name and different densities
-    1_d_tool.write_spatial_transport_file(slab_length, slab_mat_name, slab_density)
-    1_d_tool.transport_process()
-    1_d_tool.response_process()
-    outcome = 1_d_tool.extract_results()
-    append_csv_file(filename, outcome)
+    one_d_tool.write_spatial_transport_file(slab_length, slab_mat_name, slab_density)
+    one_d_tool.transport_process()
+    one_d_tool.response_process()
+    outcome = one_d_tool.extract_results()
+    # append_csv_file(filename, outcome)
     return
    
 if __name__ == '__main__':
