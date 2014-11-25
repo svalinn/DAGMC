@@ -1,10 +1,7 @@
 import subprocess
 import argparse
 import string
-# try:
-#     from itaps import iMesh, iBase
-# except:
-#     raise ImportError("The PyTAPS dependencies could not be imported.")    
+
 try:
    from pyne import material
    from pyne.material import Material, MaterialLibrary
@@ -96,29 +93,59 @@ def find_ref_vol_and_check_graveyard(ref_point):
     # ToDo: error checking
     return (ref_vol, graveyard)
     
+def xs_create_header():
+    what1 = 'common_static_data'
+    what2 = 'cross_sections_out'
+    comment1 = '# Name of folder where static data is stored'
+    comment2 = '# Name of folder to put data in (folder must already exist)'
+    divider  = '{:-<84}'.format('-')
+    lines = '{:<36}'.format(what1) + comment1 + '\n'
+    lines = '{:<36}'.format(what2) + comment2 + '\n'
+    lines += '\n'
+    lines += divider + '\n'
+    lines += '\n'
+
+    return lines
+
+def create_entries_from_lib(mat_lib):
+    # Consider appending to string frist, for ease of testing
+    # For each material create an entry and append to input_filename
+    material_entry = []
+    for key in mat_lib.iterkeys():
+    	material_obj = mat_lib.get(key)
+	# print material_obj.metadata['name']
+	coll = material_obj.collapse_elements([])
+        print coll
+	print coll.metadata['name']
+	material_entry.append[coll.metadata['name']]
+	
+	# material_entry = get_xs_info(material_obj)
+	# ToDo: append material_entry to input_filename
+	# append_entry(input_filename, material_entry)
+    return material_entry
+
 def main():
     # parse the the command line parameters
     args = parsing()
 
-    # Prepare xs_input.dat
-    input_filename = "xs_input.dat"
     # ToDo: Start the file with header lines which contain the names of 
     #       some folders the cross_section processing will need
     #       These may be hard-coded to start with; they can always be
     #       edited later
-    # create_and_insert_header_lines(input_filename)
+    xs_header = xs_create_header()
 
     # load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(args.uwuw_file)
+    material_entry = create_entries_from_lib(mat_lib)
 
-    # Consider appending to string frist, for ease of testing
-    # For each material create an entry and append to input_filename
-    for key in mat_lib.iterkeys():
-    	material_obj = mat_lib.get(key)
-	material_entry = get_xs_info(material_obj)
-	# ToDo: append material_entry to input_filename
-	# append_entry(input_filename, material_entry)
+    # Prepare xs_input.dat
+    input_filename = 'xs_input.dat'
+    f = open(input_filename, 'w')
+    f.write(xs_header)
+    # for item in material_entry
+    #    f.write(item)
+    f.close()
 
     # Using the input file just created, prepare the materials subdirectory
     # This method will make a subprocess call
@@ -173,6 +200,7 @@ def main():
     one_d_tool.response_process()
     outcome = one_d_tool.extract_results()
     # append_csv_file(filename, outcome)
+
     return
    
 if __name__ == '__main__':
