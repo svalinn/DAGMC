@@ -9,6 +9,8 @@ except:
     raise ImportError("The PyNE dependencies could not be imported.")    
 
 from pyne import dagmc
+from pyne import data
+from pyne import nucname
 import numpy as np
 import hzetrn as one_d_tool
 
@@ -57,18 +59,16 @@ def parsing():
         '-r', action='store', dest='ray_dir_file', 
 	help='The path to the file with ray direction tuples')
 
-    args = parser.parse_args
+    args = parser.parse_args()
 
     if not args.uwuw_file:
         raise Exception('h5m file path not specified. [-f] not set')
-    if not args.nuc_data:
-        raise Exception('nuc_data file path not specified. [-d] not set')
     if not args.ray_dir_file:
-        args.ray_dir_file = FALSE
+        args.ray_dir_file = False
 
     # ToDo: look at what this is used for
-    if not args.output:
-       args.output = 'dummy'
+    # if not args.output:
+    #    args.output = 'dummy'
     return args
 
 """ Find the volume of the geometry that contains the ref_point
@@ -92,42 +92,64 @@ def find_ref_vol_and_check_graveyard(ref_point):
 
     # ToDo: error checking
     return (ref_vol, graveyard)
-    
+
+""" 
+xs_create_header creates a string conting the first few material-
+independent lines of the input file for the cross-section call
+
+returns string contining the lines
+Note: this is not strictly a header, as what1 and what 2 have to match
+the actual directories.
+"""
 def xs_create_header():
     what1 = 'common_static_data'
     what2 = 'cross_sections_out'
     comment1 = '# Name of folder where static data is stored'
     comment2 = '# Name of folder to put data in (folder must already exist)'
+    # 84 dashes
     divider  = '{:-<84}'.format('-')
-    lines = '{:<36}'.format(what1) + comment1 + '\n'
-    lines = '{:<36}'.format(what2) + comment2 + '\n'
+    # right-align, pad with spaces
+    lines  = '{:<36}'.format(what1) + comment1 + '\n'
+    lines += '{:<36}'.format(what2) + comment2 + '\n'
     lines += '\n'
     lines += divider + '\n'
     lines += '\n'
-
     return lines
 
+""" create_entries_from_lib
+From the MaterialLibrary taken from the geometry file extract all the
+information needed for the cross-section input file.
+ToDo:  formatting of species line members
+"""
 def create_entries_from_lib(mat_lib):
-    # Consider appending to string frist, for ease of testing
     # For each material create an entry and append to input_filename
-    material_entry = []
+    material_entries = []
+    num_materials = len(mat_lib.keys())
     for key in mat_lib.iterkeys():
-    	material_obj = mat_lib.get(key)
-	# print material_obj.metadata['name']
+   	material_obj = mat_lib.get(key)
+	print material_obj
 	coll = material_obj.collapse_elements([])
-        print coll
-	print coll.metadata['name']
-	material_entry.append[coll.metadata['name']]
-	
-	# material_entry = get_xs_info(material_obj)
-	# ToDo: append material_entry to input_filename
-	# append_entry(input_filename, material_entry)
-    return material_entry
+	name1 = coll.metadata['name']
+	density = coll.density
+	num_species = len(coll.comp)
+	# Don't know if I need this
+	number_density = coll.number_density()
+	material_entry = name1 + '\n' + str(density) + '\n' + str(num_species) + '\n'
+	for key in coll.comp:
+	    compname = nucname.name(key)
+	    str_comp_atomic_mass = str(data.atomic_mass(key))
+	    str_comp_charge = str(nucname.znum(key))
+	    str_comp_atoms_per_g = str(coll.comp[key]*data.N_A/data.atomic_mass(key))
+	    print compname, str_comp_atomic_mass, str_comp_charge, str_comp_atoms_per_g
+	    material_entry += str_comp_atomic_mass + '  ' + str_comp_charge + '  ' + str_comp_atoms_per_g
+        material_entries.append(material_entry)
+    return material_entries
 
 def main():
     # parse the the command line parameters
     args = parsing()
 
+    print args
     # ToDo: Start the file with header lines which contain the names of 
     #       some folders the cross_section processing will need
     #       These may be hard-coded to start with; they can always be
@@ -137,14 +159,13 @@ def main():
     # load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(args.uwuw_file)
-    material_entry = create_entries_from_lib(mat_lib)
+    material_entries = create_entries_from_lib(mat_lib)
 
     # Prepare xs_input.dat
     input_filename = 'xs_input.dat'
     f = open(input_filename, 'w')
     f.write(xs_header)
-    # for item in material_entry
-    #    f.write(item)
+    f.write("\n".join(material_entries))
     f.close()
 
     # Using the input file just created, prepare the materials subdirectory
@@ -153,7 +174,7 @@ def main():
     # End material cross-section part
     ##########################################################
     # Get the DAG object for this geometry
-    rtn = dagmc.load(uwuw_file)
+    rtn = dagmc.load(args.uwuw_file)
    
     # get list of rays
     ray_tuples = load_ray_tuples(args.ray_dir_file) 
