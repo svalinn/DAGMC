@@ -1,6 +1,7 @@
 import subprocess
 import argparse
 import string
+import os
 
 try:
    from pyne import material
@@ -14,6 +15,8 @@ from pyne import nucname
 import numpy as np
 import hzetrn as one_d_tool
 
+class DagmcError(Exception):
+    pass
 
 def load_ray_tuples(filename):
     # do I need to declare this outside the if?
@@ -54,7 +57,7 @@ def parsing():
 
     parser.add_argument(
         '-f', action='store', dest='uwuw_file', 
-	help='The path to the .h5m file')
+	help='The relative path to the .h5m file')
     parser.add_argument(
         '-r', action='store', dest='ray_dir_file', 
 	help='The path to the file with ray direction tuples')
@@ -66,9 +69,6 @@ def parsing():
     if not args.ray_dir_file:
         args.ray_dir_file = False
 
-    # ToDo: look at what this is used for
-    # if not args.output:
-    #    args.output = 'dummy'
     return args
 
 """ Find the volume of the geometry that contains the ref_point
@@ -80,15 +80,20 @@ def find_ref_vol_and_check_graveyard(ref_point):
     # ToDo: should -1 be used for next two lines?
     graveyard = 0
     ref_vol = 0 
+    print 'v in volumes'
     for v in volumes:
+        print v
         if dagmc.volume_is_graveyard(v):
             graveyard = v
 	    break
         if dagmc.point_in_volume(v, ref_point):
             ref_vol = v
 
+    print 'ref_point'
+    print ref_point
     if graveyard == 0:
-        raise DagmcError('Could not find a graveyard volume')
+        print ('Could not find a graveyard volume')
+        # raise DagmcError('Could not find a graveyard volume')
 
     # ToDo: error checking
     return (ref_vol, graveyard)
@@ -148,8 +153,7 @@ def create_entries_from_lib(mat_lib):
 def main():
     # parse the the command line parameters
     args = parsing()
-
-    print args
+    path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
     # ToDo: Start the file with header lines which contain the names of 
     #       some folders the cross_section processing will need
     #       These may be hard-coded to start with; they can always be
@@ -158,26 +162,30 @@ def main():
 
     # load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
-    mat_lib.from_hdf5(args.uwuw_file)
+    mat_lib.from_hdf5(path)
     material_entries = create_entries_from_lib(mat_lib)
 
     # Prepare xs_input.dat
-    input_filename = 'xs_input.dat'
-    f = open(input_filename, 'w')
+    xs_input_filename = 'xs_input.dat'
+    f = open(xs_input_filename, 'w')
     f.write(xs_header)
     f.write("\n".join(material_entries))
     f.close()
 
     # Using the input file just created, prepare the materials subdirectory
     # This method will make a subprocess call
-    one_d_tool.cross_section_process(input_filename)
+    one_d_tool.cross_section_process(xs_input_filename)
     # End material cross-section part
     ##########################################################
     # Get the DAG object for this geometry
-    rtn = dagmc.load(args.uwuw_file)
+    #path = os.path.join(os.path.dirname('__file__'), 'unitbox.h5m')
+    #rtn = dagmc.load(str(args.uwuw_file))
+    rtn = dagmc.load(path)
    
     # get list of rays
     ray_tuples = load_ray_tuples(args.ray_dir_file) 
+    print('ray_tuples')
+    print ray_tuples
 
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
@@ -191,7 +199,10 @@ def main():
     slab_density = []
 
     v = start_vol
+    print ('start_vol')
+    print v
     for dir in ray_tuples:
+        print('dir')
     	print dir	
 	while v != graveyard:
             (surf,dist) = dagmc.ray_fire(v, cur_point, dir)
