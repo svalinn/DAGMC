@@ -9,12 +9,6 @@ MESSAGE ( STATUS "Building the DagSolid Library for  GEANT4." )
 SET ( DAGSOLID_SRC  "DagSolid.cc" )
 SET ( DAGSOLID_HEADERS "DagSolid.hh" )
 
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dummy.cpp)
-  SET ( CODE_SRCDIR   "geant4" )
-  SET ( DI_SRC_FILES  ${CODE_SRCDIR}/dummy.cpp
-      PARENT_SCOPE)
-endif ()
-
 find_package(Geant4 REQUIRED)
 # Geant4 include dirs
 include(${Geant4_USE_FILE})
