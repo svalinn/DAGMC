@@ -38,12 +38,12 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 #
 add_executable(DagGeant4 exampleN01.cc ${sources} ${headers})
 target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
-                                ${HDF5_LIBRARIES}
+                                ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
                                 ${PYNE_LIBS_DIR}/libpyne.so
 			        ${DAGMC_LIBRARIES}
 				dagsolid
 				dagmciface)
-			      
+
 
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/uwuw)
