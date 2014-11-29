@@ -1,13 +1,12 @@
 ######################################################################
 #
-# CMakeLists.txt for dagmc Geant4
+# CMakeLists.txt for dagmc tools
 #
 # $Id: CMakeLists.txt 6346 2014-01-27 03:33:21Z cary $
 #
 ######################################################################
 
-# install necessary tools
-install(FILES dagmc_get_materials.py DESTINATION bin)
-
-# Add subdir for sample files
+# Add subdir for scripts and sample files
+add_subdirectory(parse_materials)
 add_subdirectory(dagmc_tag_eg)
+
