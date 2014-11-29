@@ -1,12 +1,11 @@
 ######################################################################
 #
-# CMakeLists.txt for dagmc tools
+# CMakeLists.txt for dagmc_tag_eg
 #
 # $Id: CMakeLists.txt 6346 2014-01-27 03:33:21Z cary $
 #
 ######################################################################
 
-# Add subdir for scripts and sample files
-add_subdirectory(parse_materials)
-add_subdirectory(dagmc_tag_eg)
+# install sample files.   Should this not be in share?
+install(FILES shape_zoo_merged.h5m shape_zoo_unmerged.h5m DESTINATION tests)
 
