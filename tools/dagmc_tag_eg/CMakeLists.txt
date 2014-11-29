@@ -1,13 +1,11 @@
 ######################################################################
 #
-# CMakeLists.txt for dagmc Geant4
+# CMakeLists.txt for dagmc_tag_eg
 #
 # $Id: CMakeLists.txt 6346 2014-01-27 03:33:21Z cary $
 #
 ######################################################################
 
 # install necessary tools
-install(FILES dagmc_get_materials.py DESTINATION bin)
+install(FILES shape_zoo_merged.h5m shape_zoo_unmerged.h5m DESTINATION share)
 
-# Add subdir for sample files
-add_subdirectory(dagmc_tag_eg)

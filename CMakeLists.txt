@@ -130,6 +130,11 @@ ELSE ( DI_SRC_FILES )
 ENDIF ( DI_SRC_FILES )
          
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+# Add the tools subdirectory
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+ADD_SUBDIRECTORY(tools)
 
