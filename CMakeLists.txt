@@ -104,8 +104,11 @@ ENDIF ( BUILD_GEANT4 OR BUILD_ALL )
 #
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IF ( DI_SRC_FILES )
+IF ( BUILD_GEANT4 OR BUILD_MCNP5 OR BUILD_FLUKA OR BUILD_ALL )
   ADD_SUBDIRECTORY( uwuw )
+ENDIF ( BUILD_GEANT4 OR BUILD_MCNP5 OR BUILD_FLUKA OR BUILD_ALL )
+
+IF ( DI_SRC_FILES )
   ADD_SUBDIRECTORY(common)
   IF ( STATIC_LIB )
    ADD_LIBRARY(dagmciface STATIC ${DI_SRC_FILES} )
@@ -125,8 +128,13 @@ IF ( DI_SRC_FILES )
 ELSE ( DI_SRC_FILES )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
 ENDIF ( DI_SRC_FILES )
-         
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+# Add the tools subdirectory
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+ADD_SUBDIRECTORY(tools)
 
 
