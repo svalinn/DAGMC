@@ -119,12 +119,12 @@ def xs_create_header():
     lines += '\n'
     return lines
 
-""" create_entries_from_lib
+""" xs_create_entries_from_lib
 From the MaterialLibrary taken from the geometry file extract all the
 information needed for the cross-section input file.
 ToDo:  formatting of species line members
 """
-def create_entries_from_lib(mat_lib):
+def xs_create_entries_from_lib(mat_lib):
     # For each material create an entry and append to input_filename
     material_entries = []
     num_materials = len(mat_lib.keys())
@@ -157,6 +157,15 @@ def get_name_density(vol, mat_assigns, mat_lib):
     density = -1.0
     foundMat = False
     
+    # dagmc.vol_is_implicit_complemetn never returns true
+    """
+    rtn = dagmc.vol_is_implicit_complement(vol)
+    print('return from dagmc.vol_is_implicit_complement', vol, rtn)
+    if rtn:
+       foundMat = True
+       name = 'implicit_complement'
+    """
+  
     for pair in mat_assigns:
         if foundMat:
             break
@@ -179,6 +188,7 @@ def get_name_density(vol, mat_assigns, mat_lib):
 
 def slabs_for_dir(start_vol, ref_point, dir, mat_assigns, mat_lib):
     print ('#################### dir = ', dir, '###################################') 
+    is_graveyard = False
     surf = 0
     dist = 0
     huge = 1000000000
@@ -192,7 +202,7 @@ def slabs_for_dir(start_vol, ref_point, dir, mat_assigns, mat_lib):
     for (vol, dist, surf, xyz) in dagmc.ray_iterator(start_vol, ref_point, dir, yield_xyz=True):
         # print('  next intersection at distance', dist, 'on surface', surf)
         # print('  new xyz =', xyz, 'proceeding into volume', vol)
-        if (dist < huge) and (surf != 0):
+        if not is_graveyard and ((dist < huge) and (surf != 0)):
 	    slab_length.append(dist)
 	    # need data from vol we are leaving
 	    name, density = get_name_density(last_vol, mat_assigns, mat_lib)
@@ -201,8 +211,53 @@ def slabs_for_dir(start_vol, ref_point, dir, mat_assigns, mat_lib):
 	    vols_traversed.append(last_vol)
 	    last_vol = vol
 
+	    if name == 'graveyard':
+	       print 'Graveyard reached'
+	       is_graveyard = True
+
     print ('vols traversed', vols_traversed)
     return slab_length, slab_mat_name, slab_density
+      
+def slabs_for_dir(start_vol, ref_point, dir, mat_for_vol):
+    print ('#################### dir = ', dir, '###################################') 
+    is_graveyard = False
+    foundMat = False
+    surf = 0
+    dist = 0
+    huge = 1000000000
+
+    slab_length = []
+    slab_mat_name = []
+    vols_traversed = []
+
+    last_vol = start_vol
+    for (vol, dist, surf, xyz) in dagmc.ray_iterator(start_vol, ref_point, dir, yield_xyz=True):
+        if not is_graveyard and ((dist < huge) and (surf != 0)):
+	    slab_length.append(dist)
+	    if last_vol in mat_for_vol:
+	        name = mat_for_vol[last_vol]
+            else:
+	        name = 'implicit_complement'
+	    if 'graveyard' in name:
+	        is_graveyard = True
+	    # need data from vol we are leaving
+	    """
+            for pair in mat_assigns:
+		print ('pair', pair)
+                if foundMat:
+                   break
+	        if last_vol == pair[0]:
+		    name = pair[1]
+	            foundMat = True
+		    if 'graveyard' in name:
+		        is_graveyard = True
+	    """
+	    slab_mat_name.append(name)
+            vols_traversed.append(last_vol)
+            last_vol = vol
+
+    print ('vols traversed', vols_traversed)
+    return slab_length, slab_mat_name 
       
 
 def main():
@@ -218,7 +273,7 @@ def main():
     # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(path)
-    xs_material_entries = create_entries_from_lib(mat_lib)
+    xs_material_entries = xs_create_entries_from_lib(mat_lib)
 
     # Prepare xs_input.dat
     xs_input_filename = 'xs_input.dat'
@@ -231,16 +286,23 @@ def main():
     # This method will make a subprocess call
     one_d_tool.cross_section_process(xs_input_filename)
     ##########################################################
-    # Get the DAG object for this geometry
+    # Load the DAG object for this geometry
     rtn = dagmc.load(path)
     # dagmc.load gets us only so far, so get list of tag values
     (tag_values,mat_assigns) = tag_utils.get_mat_tag_values(path)
+    # quick, make it a library
+    vol_mat_dict = {}
+    for pair in mat_assigns:
+        vol_mat_dict[pair[0]]=pair[1]
+        
+
     print ('#####################################################################')
     print ('mat_assigns: ', mat_assigns)
-    """ Produces:
+    """ Produces output like:
     ('mat_assigns: ', [(1, 'mat:Lead'), (2, 'mat:Lead'), (3, 'mat:Lead/rho:12.3'), (4, 'mat:Lead/rho:12.3'), (7, 'mat:graveyard')])
     #####################################################################
     """ 
+    print ('vol_mat_dict  ', vol_mat_dict)
     ##########################################################
     # get list of rays
     ray_tuples = load_ray_tuples(args.ray_dir_file) 
@@ -248,20 +310,44 @@ def main():
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
     start_vol = find_ref_vol(ref_point)
-
+    
+    i=1
     for dir in ray_tuples:
-	slab_length, slab_mat_name, slab_density = slabs_for_dir(start_vol, ref_point, dir, mat_assigns, mat_lib)
+	# slab_length, slab_mat_name, slab_density = slabs_for_dir(start_vol, ref_point, dir, mat_assigns, mat_lib)
+	slab_length, slab_mat_name  = slabs_for_dir(start_vol, ref_point, dir, vol_mat_dict)
 	print ('lengths ',  slab_length)
 	print ('materials', slab_mat_name)
-	print ('densities', slab_density)
+	# print ('densities', slab_density)
+
+	spatial_filename = 'spatial_' + str(i) + '.dat'
+	print ('to file ', spatial_filename)
+	lines = []
+	num_mats = len(slab_mat_name)
+	lines.append(str(num_mats))
+	for n in range(num_mats):
+	    lines.append(slab_mat_name[n])
+	    lines.append('1')
+	    lines.append(str(slab_length[n]))
+        
+	print ('lines', "\n".join(lines))
+	i = i + 1
       
+    """
+    # Prepare xs_input.dat
+    xs_input_filename = 'xs_input.dat'
+    f = open(xs_input_filename, 'w')
+    f.write(xs_header)
+    f.write("\n".join(xs_material_entries))
+    f.close()
+    """
 
     ###################################### 
     #
     # Write out the file that will be the input for the transport step
     # ToDo: Note seeing yow we need a density array for this file
     #       Unless maybe we have materials of same name and different densities
-    one_d_tool.write_spatial_transport_file(slab_length, slab_mat_name, slab_density)
+    # one_d_tool.write_spatial_transport_file(slab_length, slab_mat_name, slab_density)
+    one_d_tool.write_spatial_transport_file(slab_length, slab_mat_name)
     one_d_tool.transport_process()
     one_d_tool.response_process()
     outcome = one_d_tool.extract_results()
