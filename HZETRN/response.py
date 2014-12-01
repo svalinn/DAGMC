@@ -4,10 +4,10 @@ import string
 import os
 
 # Mesh specific imports                                                                                                             
-try:
-    from itaps import iMesh, iBase
-except:
-    raise ImportError("The iMesh dependencies could not be imported.")
+# try:
+#     from itaps import iMesh, iBase
+# except:
+#     raise ImportError("The iMesh dependencies could not be imported.")
 
 try:
    from pyne import material
@@ -177,6 +177,34 @@ def get_name_density(vol, mat_assigns, mat_lib):
         name = 'implicit_complement'
     return name, density
 
+def slabs_for_dir(start_vol, ref_point, dir, mat_assigns, mat_lib):
+    print ('#################### dir = ', dir, '###################################') 
+    surf = 0
+    dist = 0
+    huge = 1000000000
+
+    slab_length = []
+    slab_mat_name = []
+    slab_density = []
+    vols_traversed = []
+
+    last_vol = start_vol
+    for (vol, dist, surf, xyz) in dagmc.ray_iterator(start_vol, ref_point, dir, yield_xyz=True):
+        # print('  next intersection at distance', dist, 'on surface', surf)
+        # print('  new xyz =', xyz, 'proceeding into volume', vol)
+        if (dist < huge) and (surf != 0):
+	    slab_length.append(dist)
+	    # need data from vol we are leaving
+	    name, density = get_name_density(last_vol, mat_assigns, mat_lib)
+	    slab_mat_name.append(name)
+	    slab_density.append(density)
+	    vols_traversed.append(last_vol)
+	    last_vol = vol
+
+    print ('vols traversed', vols_traversed)
+    return slab_length, slab_mat_name, slab_density
+      
+
 def main():
     # Setup: parse the the command line parameters
     args = parsing()
@@ -202,7 +230,6 @@ def main():
     # Using the input file just created, prepare the materials subdirectory
     # This method will make a subprocess call
     one_d_tool.cross_section_process(xs_input_filename)
-    # End material cross-section part
     ##########################################################
     # Get the DAG object for this geometry
     rtn = dagmc.load(path)
@@ -220,41 +247,14 @@ def main():
 
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
-    xyz = ref_point
     start_vol = find_ref_vol(ref_point)
-    surf = 0
-    dist = 0
-    huge = 1000000000
-    slab_length = []
-    slab_mat_name = []
-    slab_density = []
-    vols_traversed = []
 
-    v = start_vol
     for dir in ray_tuples:
-	print ('#################### dir = ', dir, '###################################') 
-	last_vol = start_vol
-        for (vol, dist, surf, xyz) in dagmc.ray_iterator(start_vol, ref_point, dir, yield_xyz=True):
-            # print('  next intersection at distance', dist, 'on surface', surf)
-	    # print('  new xyz =', xyz, 'proceeding into volume', vol)
-	    if (dist < huge) and (surf != 0):
-	        slab_length.append(dist)
-		# need data from vol we are leaving
-		name, density = get_name_density(last_vol, mat_assigns, mat_lib)
-		slab_mat_name.append(name)
-		slab_density.append(density)
-		vols_traversed.append(last_vol)
-	        last_vol = vol
-
+	slab_length, slab_mat_name, slab_density = slabs_for_dir(start_vol, ref_point, dir, mat_assigns, mat_lib)
 	print ('lengths ',  slab_length)
 	print ('materials', slab_mat_name)
 	print ('densities', slab_density)
-	print ('vols traversed', vols_traversed)
       
-        slab_length = []
-        slab_mat_name = []
-        slab_density = []
-	vols_traversed = []
 
     ###################################### 
     #

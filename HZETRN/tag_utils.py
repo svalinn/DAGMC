@@ -7,29 +7,6 @@ except ImportError:
 
     HAVE_PYTAPS = False
 
-try:
-    from pyne.material import Material, MaterialLibrary
-    HAVE_MATERIAL = True
-except ImportError:
-    HAVE_MATERIAL = False
-
-try:
-    from pyne.tally import Tally
-    HAVE_TALLY = True
-except ImportError:
-    HAVE_TALLY = False
-
-try:
-    from pyne.particle import is_valid,name
-    HAVE_PARTICLE = True
-except ImportError:
-    HAVE_PARTICLE = False
-
-
-import string
-import argparse
-import os
-
 """
 function to transform the tags into strings
 tag : string of the tag to add to tag_list
@@ -91,12 +68,10 @@ def get_mat_tag_values(path):
             if tag == mat_tag:
                 mat_list.append(i)
 
-    # This could be deleted
     # for the 3d entities     
     for entity in geom_list:
         if vol_tag[entity] == 3:
              dag_vol_names.append(str(name_tag[entity]))
-    # print dag_vol_names
 
     # loop over all the volumes 
     for entity in geom_list:
@@ -119,6 +94,5 @@ def get_mat_tag_values(path):
         if 'mat:' in tag:
             dag_material_tags.append(tag)
 
-    # print dag_properties
     return dag_material_tags,mat_assigns
 
