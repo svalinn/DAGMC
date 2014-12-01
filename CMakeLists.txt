@@ -128,8 +128,13 @@ IF ( DI_SRC_FILES )
 ELSE ( DI_SRC_FILES )
   MESSAGE ( STATUS "Not building dagmciface physics interface library")
 ENDIF ( DI_SRC_FILES )
-         
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#
+# Add the tools subdirectory
+#
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+ADD_SUBDIRECTORY(tools)
 
 
