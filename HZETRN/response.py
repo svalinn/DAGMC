@@ -69,6 +69,7 @@ def parsing():
     parser.add_argument(
         '-f', action='store', dest='uwuw_file', 
 	help='The relative path to the .h5m file')
+
     parser.add_argument(
         '-r', action='store', dest='ray_dir_file', 
 	help='The path to the file with ray direction tuples')
@@ -84,28 +85,16 @@ def parsing():
 
 
 """ Find the volume of the geometry that contains the ref_point
-Also check and make sure there is a graveyard
 """
-def find_ref_vol_and_check_graveyard(ref_point):
+def find_ref_vol(ref_point):
     # code snippet from dagmc.pyx:find_graveyard_inner_box
     volumes = dagmc.get_volume_list() 
-    # ToDo: should -1 be used for next two lines?
-    graveyard = 0
     ref_vol = 0 
     for v in volumes:
-	# Actually, it doesn't matter if there isn't one
-        if dagmc.volume_is_graveyard(v):
-            graveyard = v
-	    break
         if dagmc.point_in_volume(v, ref_point):
             ref_vol = v
 
-    if graveyard == 0:
-        print ('Could not find a graveyard volume')
-        # raise DagmcError('Could not find a graveyard volume')
-
-    # ToDo: error checking
-    return (ref_vol, graveyard)
+    return ref_vol
 
 """ 
 xs_create_header creates a string conting the first few material-
@@ -141,7 +130,6 @@ def create_entries_from_lib(mat_lib):
     num_materials = len(mat_lib.keys())
     for key in mat_lib.iterkeys():
    	material_obj = mat_lib.get(key)
-	# print material_obj
 	# ToDo:  need exclusion list
 	coll = material_obj.collapse_elements([])
 	name1 = coll.metadata['name']
@@ -161,25 +149,33 @@ def create_entries_from_lib(mat_lib):
     return material_entries
 
 """
-function to transform the tags into strings
-tag : string of the tag to add to tag_list
-tag_list : vector of tags in the problem
-returns tag_list
+For a given volume get the name and the density of the meterial in it
 """
-def tag_to_script(tag):
-    a = []
-    # since we have a byte type tag loop over the 32 elements
-    for part in tag:
-        # if the byte char code is non 0
-        if (part != 0):
-            # convert to ascii
-            a.append(str(unichr(part)))
-            # join to end string
-            test = ''.join(a)
-            # the the string we are testing for is not in the list of found
-            # tag values, add to the list of tag_values
-
-    return test
+def get_name_density(vol, mat_assigns, mat_lib):
+    # Get the material in each vol
+    name = ''
+    density = -1.0
+    foundMat = False
+    
+    for pair in mat_assigns:
+        if foundMat:
+            break
+	if vol == pair[0]:
+	    if 'graveyard' in pair[1]:
+	        name = 'graveyard'
+	        foundMat = True
+	    else:
+                for mat in mat_lib:
+		    if foundMat:
+		        break
+		    if pair[1] == mat:
+	    	        name = pair[1]
+		        density = mat_lib[mat].density
+			foundMat = True
+                    
+    if not foundMat:
+        name = 'implicit_complement'
+    return name, density
 
 def main():
     # Setup: parse the the command line parameters
@@ -194,13 +190,13 @@ def main():
     # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(path)
-    material_entries = create_entries_from_lib(mat_lib)
+    xs_material_entries = create_entries_from_lib(mat_lib)
 
     # Prepare xs_input.dat
     xs_input_filename = 'xs_input.dat'
     f = open(xs_input_filename, 'w')
     f.write(xs_header)
-    f.write("\n".join(material_entries))
+    f.write("\n".join(xs_material_entries))
     f.close()
 
     # Using the input file just created, prepare the materials subdirectory
@@ -210,83 +206,14 @@ def main():
     ##########################################################
     # Get the DAG object for this geometry
     rtn = dagmc.load(path)
-    # get list of tag values
-    (tag_values,tally_assigns) = tag_utils.get_tag_values(path)
+    # dagmc.load gets us only so far, so get list of tag values
+    (tag_values,mat_assigns) = tag_utils.get_mat_tag_values(path)
     print ('#####################################################################')
-    print tag_values, tally_assigns 
-    print ('#####################################################################')
-    """
-    ##########################################################
-    dag_vol_names = [] # list of dag volume names (Cubit id)
-    dag_properties = set()
-    # material tags
-    dag_material_tags = []
-    # tally tags
-    dag_tally_tags=[]
-    # tally assignments
-    tally_assigns=[]
-
-    # create imesh instance  
-    dag_geom = iMesh.Mesh()
-    # load the file
-    dag_geom.load(path)
-
-    # get all entities      
-    ents = dag_geom.getEntities()
-    # create a  mesh set         
-    mesh_set = dag_geom.getEntSets()
-    # list of volume ent handles 
-    mat_list = []
-    # get all geom_dimension ents
-    geom_list = []
-    cat_list  = []
-
-    vol_tag  = dag_geom.getTagHandle('GEOM_DIMENSION')
-    name_tag = dag_geom.getTagHandle('GLOBAL_ID')
-    mat_tag  = dag_geom.getTagHandle('NAME')
-    cat_tag  = dag_geom.getTagHandle('CATEGORY')
-
-    # get the list we need    
-    for i in mesh_set:
-        tags = dag_geom.getAllTags(i)
-        for tag in tags:
-            if tag == vol_tag:
-                geom_list.append(i)
-            if tag == mat_tag:
-                mat_list.append(i)
-            if tag == cat_tag:
-                cat_list.append(i)
-
-    # for the 3d entities     
-    for entity in geom_list:
-        if vol_tag[entity] == 3:
-             dag_vol_names.append(str(name_tag[entity]))
-
-    # loop over all the volumes 
-    for entity in geom_list:
-        # loop over the material sets
-        for meshset in mat_list:
-            # if volume in set       
-            if meshset.contains(entity):
-                mat_name = mat_tag[meshset]
-                volume_name = name_tag[entity]
-                # dag_materials[volume_name]="".join( chr( val ) for val in mat_name )
-                # dag_properties.add("".join( chr( val ) for val in mat_name))
-                dag_properties.add(tag_to_script(mat_name))
-                if 'tally:' in tag_to_script(mat_name):
-                    pair = (volume_name,tag_to_script(mat_name))
-                    tally_assigns.append(pair)
-
-    # now we have dag properties, create one with materials and one with tallies
-    for tag in dag_properties:
-        if 'mat:' in tag:
-            dag_material_tags.append(tag)
-        # if 'tally:' in tag:
-        #     dag_tally_tags.append(tag)
-    print ('#####################################################################')
-    print dag_vol_names, dag_properties
-    print ('#####################################################################')
-    """
+    print ('mat_assigns: ', mat_assigns)
+    """ Produces:
+    ('mat_assigns: ', [(1, 'mat:Lead'), (2, 'mat:Lead'), (3, 'mat:Lead/rho:12.3'), (4, 'mat:Lead/rho:12.3'), (7, 'mat:graveyard')])
+    #####################################################################
+    """ 
     ##########################################################
     # get list of rays
     ray_tuples = load_ray_tuples(args.ray_dir_file) 
@@ -294,45 +221,41 @@ def main():
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
     xyz = ref_point
-    (start_vol, graveyard) = find_ref_vol_and_check_graveyard(ref_point)
+    start_vol = find_ref_vol(ref_point)
     surf = 0
     dist = 0
     huge = 1000000000
+    slab_length = []
+    slab_mat_name = []
+    slab_density = []
+    vols_traversed = []
 
     v = start_vol
     for dir in ray_tuples:
-	# dagmc.tell_ray_story(ref_point, dir)
-        slab_length = []
-        slab_mat_name = []
-        slab_density = []
-        last_vol = start_vol
+	print ('#################### dir = ', dir, '###################################') 
+	last_vol = start_vol
         for (vol, dist, surf, xyz) in dagmc.ray_iterator(start_vol, ref_point, dir, yield_xyz=True):
-            print('  next intersection at distance', dist, 'on surface', surf)
-	    print('  new xyz =', xyz)
-	    print('proceeding into volume', vol)
+            # print('  next intersection at distance', dist, 'on surface', surf)
+	    # print('  new xyz =', xyz, 'proceeding into volume', vol)
 	    if (dist < huge) and (surf != 0):
 	        slab_length.append(dist)
 		# need data from vol we are leaving
-		md = dagmc.volume_metadata(last_vol)
-
-		if 'material' in md:
-		    slab_mat_name.append(md['material'])
-		if 'rho' in md:
-		    slab_density.append(md['rho'])
+		name, density = get_name_density(last_vol, mat_assigns, mat_lib)
+		slab_mat_name.append(name)
+		slab_density.append(density)
+		vols_traversed.append(last_vol)
 	        last_vol = vol
-	    else:
-	        vol = graveyard
-        print('No more intersections for direction')
-	print dir
-	print slab_length
-	print slab_mat_name
-	print slab_density
+
+	print ('lengths ',  slab_length)
+	print ('materials', slab_mat_name)
+	print ('densities', slab_density)
+	print ('vols traversed', vols_traversed)
       
-    # End ray dir
-    # now have filled
-    # slab thicknesses (slab_length[])
-    # slab materials (slab_mat_name[])
-    # slab_densities (slab_density[]
+        slab_length = []
+        slab_mat_name = []
+        slab_density = []
+	vols_traversed = []
+
     ###################################### 
     #
     # Write out the file that will be the input for the transport step
