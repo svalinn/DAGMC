@@ -52,44 +52,35 @@ def tag_to_script(tag):
     return test
 
 """
-function that gets all tags on dagmc geometry
+function that gets all the material tags on dagmc geometry
 ------------------------------
 path : the dagmc filename
 return vector of tag_values
 """
-def get_tag_values(path):
-    ##########################################################
+def get_mat_tag_values(path):
     dag_vol_names = [] # list of dag volume names (Cubit id)
     dag_properties = set()
     # material tags
     dag_material_tags = []
-    # tally tags
-    dag_tally_tags=[]
-    # tally assignments
-    tally_assigns=[]
 
     # material_vol 
     mat_assigns=[]
 
-    # create imesh instance  
+    # create imesh instance  and load the file
     dag_geom = iMesh.Mesh()
-    # load the file
     dag_geom.load(path)
 
     # get all entities      
     ents = dag_geom.getEntities()
     # create a  mesh set         
     mesh_set = dag_geom.getEntSets()
-    # list of volume ent handles 
+    # list of volume ent handles and geom_dimension ents
     mat_list = []
-    # get all geom_dimension ents
     geom_list = []
-    cat_list  = []
 
     vol_tag  = dag_geom.getTagHandle('GEOM_DIMENSION')
     name_tag = dag_geom.getTagHandle('GLOBAL_ID')
     mat_tag  = dag_geom.getTagHandle('NAME')
-    cat_tag  = dag_geom.getTagHandle('CATEGORY')
 
     # get the list we need    
     for i in mesh_set:
@@ -99,13 +90,13 @@ def get_tag_values(path):
                 geom_list.append(i)
             if tag == mat_tag:
                 mat_list.append(i)
-            if tag == cat_tag:
-                cat_list.append(i)
 
+    # This could be deleted
     # for the 3d entities     
     for entity in geom_list:
         if vol_tag[entity] == 3:
              dag_vol_names.append(str(name_tag[entity]))
+    # print dag_vol_names
 
     # loop over all the volumes 
     for entity in geom_list:
@@ -114,28 +105,20 @@ def get_tag_values(path):
             # if volume in set       
             if meshset.contains(entity):
                 mat_name = mat_tag[meshset]
+		# print ('in entity-meshset loop: ', mat_tag, meshset, mat_tag[meshset])
                 volume_name = name_tag[entity]
-                # dag_materials[volume_name]="".join( chr( val ) for val in mat_name )
-                # dag_properties.add("".join( chr( val ) for val in mat_name))
                 dag_properties.add(tag_to_script(mat_name))
 
+		# uwuw_preproc's version, get_tag_values(), uses 'tally:' here
 		if 'mat:' in tag_to_script(mat_name):
 		    pair = (volume_name, tag_to_script(mat_name))
 		    mat_assigns.append(pair)
-		"""
-                if 'tally:' in tag_to_script(mat_name):
-                    pair = (volume_name,tag_to_script(mat_name))
-                    tally_assigns.append(pair)
-		"""
 
-    # now we have dag properties, create one with materials and one with tallies
+    # now we have dag properties
     for tag in dag_properties:
         if 'mat:' in tag:
             dag_material_tags.append(tag)
-        if 'tally:' in tag:
-            dag_tally_tags.append(tag)
 
-    print ('#####################################################################')
-    print dag_vol_names, dag_properties
-    print ('#####################################################################')
+    # print dag_properties
     return dag_material_tags,mat_assigns
+
