@@ -238,12 +238,22 @@ ErrorCode DagMC::finish_loading()
 
 }
 
-ErrorCode DagMC::init_OBBTree() 
+ErrorCode DagMC::setup_impl_compl()
 {
+  // If it doesn't already exist, create implicit complement
+  // Create data structures for implicit complement
+  ErrorCode rval = get_impl_compl();
+  if (MB_SUCCESS != rval) {
+    std::cerr << "Failed to find or create implicit complement handle." << std::endl;
+    return rval;
+  }
+  return MB_SUCCESS;
+}
 
+ErrorCode DagMC::setup_geometry(Range &surfs, Range &vols)
+{
   ErrorCode rval;
 
-  Range surfs, vols;
   const int three = 3;
   const void* const three_val[] = {&three};
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, 
@@ -258,14 +268,20 @@ ErrorCode DagMC::init_OBBTree()
   if (MB_SUCCESS != rval)
     return rval;
 
-    // If it doesn't already exist, create implicit complement
-    // Create data structures for implicit complement
-  rval = get_impl_compl();
-  if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to find or create implicit complement handle." << std::endl;
-    return rval;
-  }
+  return MB_SUCCESS;
+}
 
+ErrorCode DagMC::setup_obbs()
+{
+  ErrorCode rval;
+  Range surfs,vols;
+  rval = setup_geometry(surfs,vols);
+  if(MB_SUCCESS != rval)
+    {
+      std::cerr << "Failed to setup the geometry" << std::endl;
+      return rval;
+    }
+  
   // Build OBB trees for everything, but only if we only read geometry
   // Changed to build obb tree if tree does not already exist. -- JK
   if (!have_obb_tree()) {
@@ -275,21 +291,51 @@ ErrorCode DagMC::init_OBBTree()
       return rval;
     }
   }
-
-  // build_indices expects the implicit complement to be in vols.
-  if( vols.find(impl_compl_handle) == vols.end() ){
-    vols.insert( vols.end(), impl_compl_handle );
-  }
-
-    // build the various index vectors used for efficiency
-  rval = build_indices(surfs, vols);
-  if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to build surface/volume indices." << std::endl;
-    return rval;
-  }
-  
   return MB_SUCCESS;
 }
+
+ErrorCode DagMC::setup_indices()
+{
+  Range surfs, vols;
+  ErrorCode rval = setup_geometry(surfs,vols);
+  
+  // If we havent got the implicit compliment it would be silly to add it
+  if(have_impl_compl())
+    {
+      // build_indices expects the implicit complement to be in vols.
+      if( vols.find(impl_compl_handle) == vols.end() )
+	{
+	  vols.insert( vols.end(), impl_compl_handle );
+	}
+    }
+
+  // build the various index vectors used for efficiency
+  rval = build_indices(surfs, vols);
+  if (MB_SUCCESS != rval) 
+    {
+      std::cerr << "Failed to build surface/volume indices." << std::endl;
+      return rval;
+    }
+  return MB_SUCCESS;
+}
+
+ErrorCode DagMC::init_OBBTree() 
+{
+  // implicit compliment
+  if ( setup_impl_compl() != MB_SUCCESS )
+    return MB_FAILURE;
+ 
+  // build obbs
+  if ( setup_obbs() != MB_SUCCESS )
+    return MB_FAILURE;
+  
+  // setup indices
+  if ( setup_indices() != MB_SUCCESS )
+    return MB_FAILURE;
+
+  return MB_SUCCESS;
+}
+
 
 /* SECTION I (private) */
 
@@ -302,6 +348,18 @@ bool DagMC::have_obb_tree()
   return MB_SUCCESS == rval && !entities.empty();
 }                                                    
 
+bool DagMC::have_impl_compl()
+{
+  Range entities;
+  const void* const tagdata[] = {implComplName};
+  ErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+                                                           &nameTag, tagdata, 1,
+                                                           entities );
+  if (!entities.empty())
+    return true;
+  else
+    return false;
+}
 
 ErrorCode DagMC::get_impl_compl()
 {
@@ -408,11 +466,18 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
 
   }
 
-  rval = build_obb_impl_compl(surfs);
-  if (MB_SUCCESS != rval) {
-    std::cerr << "Unable to build OBB tree for implicit complement." << std::endl;
-    return rval;
-  }
+  if ( !(have_impl_compl()) )
+    {
+      std::cerr << "Warning, there is no implicit compliment" << std::endl;
+    }
+  else
+    {
+      rval = build_obb_impl_compl(surfs);
+      if (MB_SUCCESS != rval) {
+	std::cerr << "Unable to build OBB tree for implicit complement." << std::endl;
+	return rval;
+      }
+    }
 
   return MB_SUCCESS;
 }

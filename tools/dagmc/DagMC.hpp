@@ -78,12 +78,44 @@ public:
    */
   ErrorCode init_OBBTree();
 
+  /**\brief sets up storage for the implicit complimennt 
+   *
+   * This method generates the implicit compliment storage, in normal situations
+   * this will be called just before init_OBBTree();
+   */
+  ErrorCode setup_impl_compl();
+
+  /**\brief sets up ranges of the volume and surface entity sets
+   *
+   * Helper function for setup_obbs & setup_indices, sets ranges containing
+   * all volumes and surfaces
+   */
+  ErrorCode setup_geometry(Range &surfs, Range &vols);
+
+  /**\brief thin wrapper around build_obbs() 
+   *
+   * Very thin wrapper around build_obbs, allows the setup_OBBTree() function to be 
+   * made into atomic chunks
+   */  
+  ErrorCode setup_obbs();
+
+  /**\brief thin wrapper around build_indices() 
+   *
+   * Very thin wrapper around build_indices, allows the setup_OBBTree() function to be 
+   * made into atomic chunks
+   */  
+  ErrorCode setup_indices();
+
+
 private:
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading(); 
 
   /** test for existing OBB Tree */
   bool have_obb_tree();
+
+  /** test for exisiting implicit compliment */
+  bool have_impl_compl();
 
   /** test for pre-existing implicit complement definition, or return a new one */
   ErrorCode get_impl_compl();
