@@ -4,7 +4,7 @@ import os, subprocess
 import nose
 import dagmc_get_materials as gtag
 
-models_list = ['test_model0.h5m','test_model1.h5m', 'test_model2.h5m']
+models_list = ['test_model0.h5m','test_model1.h5m', 'test_model2.h5m', 'test_model3.h5m']
 
 """
 Function that loads the model h5m file and compares the group names with the obtained group names using get_tag_values on the dagmc_get_materials script 
@@ -36,10 +36,10 @@ def test_model_material():
             else:
                 raise ValueError('Mismatch between group names on the model and output of get_tag_values function!!. Error in %s' %group)   
 
-'''           
+           
 def test_model_tally():
     # using subprocess to run mbsize on the h5m CAD file and assign the output to "out"
-    proc = subprocess.Popen(["mbsize -ll %s | grep \"tally:\"" %filename_1], stdout=subprocess.PIPE, shell=True)
+    proc = subprocess.Popen(["mbsize -ll %s | grep \"tally:\"" %test_model0.h5m], stdout=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
     #the output is of <str> type and contains all group names.
     #split to seperate group names
@@ -60,4 +60,4 @@ def test_model_tally():
             continue     
         else:
            raise ValueError('Mismatch between group names on the model and output of get_tag_values function!!. Error in %s' %group)                    
-'''             
+            
