@@ -41,6 +41,9 @@ def load_ray_tuples(filename):
 	   	     (0.0, 0.0, 1.0)]
     return ray_tuples
 
+"""
+Produce a length-one tuple randomly oriented on a sphere
+"""
 def get_rand_dir():
     # [0.0,1.0)
     rnum = np.random.uniform()
@@ -53,7 +56,7 @@ def get_rand_dir():
     return [x, y, z]
 
 """
-Dummy implementation of argument parsing
+Argument parsing
 returns : args: -f for the input geometry file, -r for the input ray tuple file
 ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
 """
@@ -78,7 +81,8 @@ def parsing():
     return args
 
 
-""" Find the volume of the geometry that contains the ref_point
+""" 
+Find the volume of the geometry that contains the ref_point
 """
 def find_ref_vol(ref_point):
     # code snippet from dagmc.pyx:find_graveyard_inner_box
@@ -144,6 +148,15 @@ def xs_create_entries_from_lib(mat_lib):
 
 """
 Do all the work of finding the slab distances and material names
+start_vol  The volume containing the ref_point
+ref_point  the origin of the ray
+dir 	   the direction of the ray
+mat_for_vol a mapping of vol id to material object
+
+returns    arrays  for length and material name as the ray
+           travels from the start point to the graveyard
+
+This depends on dagmc's ray_iterator, which calls ray_fire
 """
 def slabs_for_dir(start_vol, ref_point, dir, mat_for_vol):
     is_graveyard = False
@@ -179,12 +192,14 @@ def main():
     # Setup: parse the the command line parameters
     args = parsing()
     path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
+
+    # Cross-Section: load the material library from the uwuw geometry file
+
     # Start the file with header lines which contain the names of 
     # some folders the cross_section processing will need
     # ToDo: These may be hard-coded to start with; 
     xs_header = xs_create_header()
 
-    # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(path)
     xs_material_entries = xs_create_entries_from_lib(mat_lib)
@@ -220,7 +235,6 @@ def main():
 	# print ('materials', slab_mat_name)
 
 	spatial_filename = 'spatial_' + str(i) + '.dat'
-	# print ('to file ', spatial_filename)
 	lines = []
 	num_mats = len(slab_mat_name)
 	lines.append(str(num_mats))
@@ -229,7 +243,6 @@ def main():
 	    lines.append('1')
 	    lines.append(str(slab_length[n]))
         
-	# print ('lines', "\n".join(lines))
 	f = open(spatial_filename, 'w')
 	f.write("\n".join(lines))
 	f.close()
