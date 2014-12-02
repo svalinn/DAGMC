@@ -99,7 +99,7 @@ def get_tag_values(filename, output_filename):
     print tag_values
     print('The tally groups found in the h5m file are: ')
     print tally_values
-
+    print '--------------------------------------------'
     return tag_values
 
 """
@@ -215,8 +215,11 @@ def particle_split(tally_group_name):
             "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % tally_group_name)
     if tally_particle == '':
         raise Exception("Tally particle is missing in %s" % tally_group_name)
-    if (str(particle.is_valid(str(tally_particle))) == 'False'):
-        raise Exception("Particle included in group %s is not a valid particle name!" %tally_group_name)
+    # chack the validity of the particle name
+    result = '%s' % is_valid('%s' % tally_particle)
+    if (result == 'False'):
+        raise Exception(
+            "Particle included in group %s is not a valid particle name!" % tally_group_name)
     return tally_particle
 
 
@@ -502,6 +505,8 @@ filename: filename to write the objects to
 """
 
 ''
+
+
 def write_tally_h5m(tally_list, filename):
     # tally list contains elements of the form ('photon', ('current', ['Surface:4', 'Volume:1']))
     # loop over list
@@ -511,9 +516,10 @@ def write_tally_h5m(tally_list, filename):
         for k in range(len(tally[1][1])):
             tally_object = tally[1][1][k].split(':')[0]
             object_id = tally[1][1][k].split(':')[1]
-            tally_name = particle_name[0:2].upper() + tally_type[0: 7-len(object_id)] + str(object_id)
+            tally_name = particle_name[
+                0:2].upper() + tally_type[0: 7 - len(object_id)] + str(object_id)
             new_tally = Tally(tally_type, particle_name,
-                int(object_id), tally_object, str(object_id), tally_name, 0.0, 1.0)
+                              int(object_id), tally_object, str(object_id), tally_name, 0.0, 1.0)
             new_tally.write_hdf5(filename, "/tally")
 
 """
@@ -558,8 +564,7 @@ def main():
     # pyne objects in problem
     mat_dens_list = check_matname(tag_values)
     # create material objects from library
-    material_object_list = check_and_create_materials(
-        mat_dens_list, mat_lib)
+    material_object_list = check_and_create_materials(mat_dens_list, mat_lib)
     # write materials to file
     write_mats_h5m(material_object_list, args.output)
 
