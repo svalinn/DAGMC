@@ -264,14 +264,28 @@ def test_type_split():
 """
 test particle_split function
 """
-def test_particle_split():
+def test_particle_split1():
     #tally particle is absent
     tally_3='tally:/flux'
     assert_raises(Exception, gtag.particle_split, tally_3)
     
     # ':' is absent
     tally_4='tallyphoton/flux'
-    assert_raises(Exception, gtag.particle_split, tally_4)       
+    assert_raises(Exception, gtag.particle_split, tally_4)
+    
+"""
+test validity of particle name
+"""
+'''
+def test_particle_split2():
+    #first letter in particle name is not capitalized
+    tally_5='tally:neutron/flux'
+    assert_raises(Exception, gtag.particle_split, tally_5) 
+    
+    #particle name mis-spelled
+    tally_6='tally:Neutrn/current'
+    assert_raises(Exception, gtag.particle_split, tally_6)
+'''               
 
 
         
