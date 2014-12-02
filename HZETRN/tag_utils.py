@@ -93,6 +93,11 @@ def get_mat_tag_values(path):
     for tag in dag_properties:
         if 'mat:' in tag:
             dag_material_tags.append(tag)
+    # a dictiounary will be more convenient
+    vol_mat_dict = {}
+    for pair in mat_assigns:
+        vol_mat_dict[pair[0]]=pair[1]
 
-    return dag_material_tags,mat_assigns
+    # return dag_material_tags, vol_mat_dict
+    return vol_mat_dict
 
