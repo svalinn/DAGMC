@@ -7,14 +7,14 @@ try:
     from itaps import iMesh, iBase
 except:
     raise ImportError(
-        "The PyTAPS dependency 'iMesh or iBase' could not be imported!")
+        "The PyTAPS dependency 'iMesh/iBase' could not be imported!")
 
 try:
     from pyne import material
     from pyne.material import Material, MaterialLibrary
 except:
     raise ImportError(
-        "The PyNE dependency 'Material or MaterialLibrary' could not be imported!")
+        "The PyNE dependency 'Material/MaterialLibrary' could not be imported!")
 
 try:
     from pyne.tally import Tally
@@ -42,7 +42,8 @@ fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO", 
 function that gets all tags on dagmc geometry
 ------------------------------
 filename : the dagmc filename
-return vector of tag_values
+output_filename : output file name set using -o flag
+return vector of tag_values and writes tallies to ouptut .h5m file
 """
 
 
@@ -66,7 +67,7 @@ def get_tag_values(filename, output_filename):
     for s in mesh_sets:
         if (found_all_tags == 1):
             break
-        # get all the tags
+        # get all tags
         tags = mesh.getAllTags(s)
         # loop over the tags checking for name
         for t in tags:
@@ -103,9 +104,8 @@ def get_tag_values(filename, output_filename):
 
 """
 function to transform the tags into strings
-tag : string of the tag to add to tag_list
-tag_list : vector of tags in the problem
-returns tag_list
+tag : string of the tag to be added to tag_list
+returns tag
 """
 
 
@@ -119,16 +119,10 @@ def tag_to_string(tag):
             a.append(str(unichr(part)))
             # join to end string
             tag = ''.join(a)
-            # the the string we are testing for is not in the list of found
-            # tag values, add to the list of tag_values
-    # if not already in list append to list
-    #    if not any(test in s for s in tag_list):
-    # the original code was incorrectly missing groups when one of the same
-    # name with/without rho was added
     return tag
 
 """
-function which loads pyne material library
+function that loads PyNE material library
 filename : string of the name of the material library
 returns PyNE MaterialLibrary instance
 """
@@ -142,19 +136,16 @@ def load_mat_lib(filename):
 
 
 """
-Function that checks the existence of tally groups and returns a list of tally type,
-particles, and geometry objects (type and ID)
+Function that checks the existence of tally groups
+mesh : entire mesh of the dagmc model
+s : set (group) tagged with tally group name  
+tally_type : type of tally (flux, current, etc.)
+tally_particle : name of particle (Neutron, Photon, etc.)
+object_ID : list of the geometry objects included in the tally; ['type:ID']
 """
 
 
 def get_tally(mesh, s, group_name):
-    # get the size and type of tag to be used to create a new tag for all entity sets
-    # included in the tally group
-    # create new tag with the same group name
-    # new_tag=mesh.createTag('Tally_Ents',t.sizeValues, t.type)
-    # tag the sets included in the tally group with the group name
-    # tag_sets(mesh, s, t, new_tag )
-    # group name in that case is a tally group name and set 's' is a group of sets of geometry
     # objects included in the tally
     # get the geometry objects included; ID and type of each
     object_ID = get_entity(mesh, s)
@@ -167,7 +158,8 @@ def get_tally(mesh, s, group_name):
 
 """
 Function that gets both the ID and type of entities included in the tally group
-returns a list of 'type:ID' of geometry objects included
+ID_list : list of the form ['type:ID'] of geometry objects included
+returns ID_list
 """
 
 
@@ -181,7 +173,7 @@ def get_entity(mesh, mesh_set):
             if t.name == 'CATEGORY':
                 category_h = mesh.getTagHandle(t.name)
                 category = category_h[k]
-                category = tally_to_string(category)
+                category = tag_to_string(category)
                 continue
             # get the ID of geometry objects included
             if t.name == 'GLOBAL_ID':
@@ -190,25 +182,7 @@ def get_entity(mesh, mesh_set):
                 continue
         object_type_id = category + ':' + str(ID)
         ID_list.append(object_type_id)
-    # tally_objects_list.append(ID_list)
     return ID_list
-
-"""
-function that transforms tags into strings
-returns tag
-"""
-
-
-def tally_to_string(tag):
-    a = []
-    for part in tag:
-        # if the byte char code is non 0
-        if (part != 0):
-            # convert to ascii
-            a.append(str(unichr(part)))
-            # join to end string
-            name = ''.join(a)
-    return name
 
 """
 Function that splits group name on the basis of '/'
@@ -241,8 +215,8 @@ def particle_split(tally_group_name):
             "Couldn\'t find group name in appropriate format!. ':' is missing in %s" % tally_group_name)
     if tally_particle == '':
         raise Exception("Tally particle is missing in %s" % tally_group_name)
-#    if (str(particle.is_valid(str(tally_particle))) == 'False'):
-#        raise Exception("Particle included in group %s is not a valid particle name!" %tally_group_name)
+    if (str(particle.is_valid(str(tally_particle))) == 'False'):
+        raise Exception("Particle included in group %s is not a valid particle name!" %tally_group_name)
     return tally_particle
 
 
@@ -250,8 +224,8 @@ def particle_split(tally_group_name):
 function to check that material group names exist and creates
 a list of names and densities if provided
 -------------------------------------------------
-tag_values - list of tags from dagmc file
-mat_lib - pyne material library instance
+tag_values : list of tags from dagmc file
+mat_lib : PyNE material library instance
 returns mat_dens_list, a zipped pair of density and material name
 """
 
@@ -269,7 +243,7 @@ def check_matname(tag_values):
         if ('Graveyard' in tag) or ('graveyard' in tag):
             g = 1
             continue
-    # look for mat, this id's material in group name
+        # look for mat, this id's material in group name
         if (tag[0:3] == 'mat'):
             # split on the basis of "/" being delimiter and split colons from
             # name
@@ -425,11 +399,11 @@ def copy_metadata(material, material_from_lib):
 
 
 """
-function to set the attributes of the materials:
+function to set the metadata of materials:
 ----------------------------------------
 mat : PyNE Material Object
 number : mcnp material number
-flukamat_list : 
+flukamat_list : list of materials  
 returns : PyNE Material Object
 """
 
@@ -443,6 +417,7 @@ def set_metadata(mat, number, flukamat_list):
 
 """
 Function to prepare fluka material names:
+flukamat_list : list of material names found in group tags on the model 
 """
 
 
@@ -491,6 +466,7 @@ def fluka_material_naming(material, flukamat_list):
 
 """ 
 function to print near matches to material name
+material_library : PyNE material library
 """
 
 
@@ -504,9 +480,9 @@ def print_near_match(material, material_library):
     return list_of_matches
 
 """
-Function that writes material objects to hdf5 file
+Function that writes material objects to output .h5m file
 -------
-material_list: list of PyNE Material Objects
+material_list: list of materials found on tags of the model
 filename: filename to write the objects to
 """
 
@@ -537,14 +513,14 @@ def write_tally_h5m(tally_list, filename):
             object_id = tally[1][1][k].split(':')[1]
             tally_name = particle_name[0:2].upper() + tally_type[0: 7-len(object_id)] + str(object_id)
             new_tally = Tally(tally_type, particle_name,
-                int(object_id), tally[1][1][k].split(':')[0], str(object_id), tally_name, 0.0, 1.0)
+                int(object_id), tally_object, str(object_id), tally_name, 0.0, 1.0)
             new_tally.write_hdf5(filename, "/tally")
 
 """
 function to parse the script, adding options:
 defining 
 -f  : the .h5m file path
--d  : nuc_data path
+-d  : nuc_data.h5 'the PyNE material library' path
 -o  : name of the output h5m file "NAME.h5m", if not set the input .h5m file will be used
 """
 
