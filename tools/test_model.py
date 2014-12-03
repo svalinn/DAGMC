@@ -2,7 +2,7 @@
 
 import os, subprocess
 import nose
-import dagmc_get_materials as gtag
+import uwuw_preproc as gtag
 
 models_list = ['model0.h5m','model1.h5m', 'model2.h5m', 'model3.h5m']
 
