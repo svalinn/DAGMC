@@ -6,7 +6,7 @@ from pyne.particle import is_valid, name
 from pyne.tally import Tally
 import nose
 from nose.tools import assert_equal, assert_raises
-import dagmc_get_materials as gtag
+import uwuw_preproc as gtag
 
 
 ''' Test graveyard and vacuum groups'''
@@ -276,7 +276,6 @@ def test_particle_split1():
 """
 test validity of particle name
 """
-'''
 def test_particle_split2():
     #first letter in particle name is not capitalized
     tally_5='tally:neutron/flux'
@@ -285,7 +284,7 @@ def test_particle_split2():
     #particle name mis-spelled
     tally_6='tally:Neutrn/current'
     assert_raises(Exception, gtag.particle_split, tally_6)
-'''               
+              
 
 
         

@@ -216,8 +216,7 @@ def particle_split(tally_group_name):
     if (tally_particle == ''):
         raise Exception("Tally particle is missing in %s" % tally_group_name)    
     # chack the validity of the particle name
-    result = '%s' % is_valid(tally_particle)
-    if (result == 'False'):
+    if (is_valid(tally_particle) == False):
         raise Exception(
             "Particle included in group %s is not a valid particle name!" % tally_group_name)
     return tally_particle
