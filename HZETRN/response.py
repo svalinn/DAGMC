@@ -2,6 +2,7 @@ import subprocess
 import argparse
 import string
 import os
+import pprint
 
 try:
    from pyne import material
@@ -23,8 +24,20 @@ import tag_utils
 class DagmcError(Exception):
     pass
 
+"""
+Load or create tuples representing 
+In file with 10,000 tuples, here are the ranges
+('min_theta', 0.00117047, 'max_theta', 3.136877355, 'min_phi', -3.141219364, 'max_phi', 3.14087921)
+"""
 def load_ray_tuples(filename):
-    # do I need to declare this outside the if?
+    """
+    big = 10000.0
+    max_theta = 0.0
+    min_theta = big
+    max_phi = 0.0
+    min_phi = big
+    """
+
     ray_tuples = []
 
     if not filename:
@@ -34,11 +47,57 @@ def load_ray_tuples(filename):
     else:
     # placeholder for code
     # In future, this will be a randomly generated list
-       print('The ray tuples file is')
-       print(filename)
-       ray_tuples = [(1.0, 0.0, 0.0),
-                     (0.0, 1.0, 0.0),
-	   	     (0.0, 0.0, 1.0)]
+       print('The ray tuples file is', filename)
+       with open(filename) as f:
+           for line in f:
+	       nums = map(float, line.split())
+	       z = np.cos(nums[0])
+	       x = np.sin(nums[0])*np.cos(nums[1])
+	       y = np.sin(nums[0])*np.sin(nums[1])
+	       ray_tuples.append((x, y, z))
+	       """
+	       if nums[0] > max_theta:
+	           max_theta = nums[0]
+	       if nums[0] < min_theta:
+	           min_theta = nums[0]
+	       if nums[1] > max_phi:
+	           max_phi = nums[1]
+	       if nums[1] < min_phi:
+	           min_phi = nums[1]
+	       # ray_tuples.append(nums)
+       print ('min_theta', min_theta, 'max_theta', max_theta, 'min_phi', min_phi, 'max_phi', max_phi)
+	       """ 
+       print('ray_tuples                x                 y                z')
+       pprint.pprint(ray_tuples)
+    return ray_tuples
+
+"""
+Load a subset tuples representing directions
+"""
+def subset_ray_tuples(filename):
+    side = 10.0
+    xlate = 20.0
+    adj = xlate - side/2
+    opp   = side/2
+    limit = np.arctan(opp/adj)/2
+    limitfac = 32.0
+
+    ray_tuples = []
+
+    print('The ray tuples file is', filename)
+    with open(filename) as f:
+        for line in f:
+	    # Get the list of numbers from the line
+            nums = map(float, line.split())
+	    theta = nums[0]
+	    phi   = nums[1]
+	    # limit limit by another factor of 2 to get a smaller subset
+	    if (np.pi/2 - limit/limitfac < theta) and (theta < np.pi/2 + limit/limitfac):
+	        z = np.cos(nums[0])
+	        x = np.sin(nums[0])*np.cos(nums[1])
+	        y = np.sin(nums[0])*np.sin(nums[1])
+	        ray_tuples.append((x, y, z))
+        print ('num of rays within 1/', limitfac, 'of x-y plane', len(ray_tuples))
     return ray_tuples
 
 """
@@ -127,21 +186,25 @@ def xs_create_entries_from_lib(mat_lib):
     material_entries = []
     num_materials = len(mat_lib.keys())
     for key in mat_lib.iterkeys():
+    # for key in mat_lib:
    	material_obj = mat_lib.get(key)
-	# ToDo:  need exclusion list
+	# material_obj = mat_lib[key]
+	# Cuckoo
+	if 'Water' in key:
+           h2o_atoms = {'H1': 2.0, 'O16': 1.0}
+	   material_obj.from_atom_frac(h2o_atoms)
+	# ToDo:  what materials do we not want to collapse?
 	coll = material_obj.collapse_elements([])
 	name1 = coll.metadata['name']
 	density = coll.density
 	num_species = len(coll.comp)
-	# Don't know if I need this
-	number_density = coll.number_density()
 	material_entry = name1 + '\n' + str(density) + '\n' + str(num_species) + '\n'
 	for key in coll.comp:
 	    compname = nucname.name(key)
 	    str_comp_atomic_mass = str(data.atomic_mass(key))
 	    str_comp_charge = str(nucname.znum(key))
 	    str_comp_atoms_per_g = str(coll.comp[key]*data.N_A/data.atomic_mass(key))
-	    # # print compname, str_comp_atomic_mass, str_comp_charge, str_comp_atoms_per_g
+	    # print compname, str_comp_atomic_mass, str_comp_charge, str_comp_atoms_per_g
 	    material_entry += str_comp_atomic_mass + '  ' + str_comp_charge + '  ' + str_comp_atoms_per_g + '\n'
         material_entries.append(material_entry)
     return material_entries
@@ -174,7 +237,8 @@ def slabs_for_dir(start_vol, ref_point, dir, mat_for_vol):
         if not is_graveyard and ((dist < huge) and (surf != 0)):
 	    slab_length.append(dist)
 	    if last_vol in mat_for_vol:
-	        name = mat_for_vol[last_vol]
+	        name1 = mat_for_vol[last_vol]
+		name = name1.split(':', 1)[1]
             else:
 	        name = 'implicit_complement'
 	    if 'graveyard' in name:
@@ -184,7 +248,8 @@ def slabs_for_dir(start_vol, ref_point, dir, mat_for_vol):
             vols_traversed.append(last_vol)
             last_vol = vol
 
-    print ('vols traversed', vols_traversed)
+    sdir = [format(dir[0],'.6f'),format(dir[1], '.6f'), format(dir[2], '.6f')]
+    print ('for dir', sdir, 'vols traversed', vols_traversed)
     return slab_length, slab_mat_name 
       
 
@@ -193,13 +258,13 @@ def main():
     args = parsing()
     path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
 
-    # Cross-Section: load the material library from the uwuw geometry file
 
     # Start the file with header lines which contain the names of 
     # some folders the cross_section processing will need
     # ToDo: These may be hard-coded to start with; 
     xs_header = xs_create_header()
 
+    # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(path)
     xs_material_entries = xs_create_entries_from_lib(mat_lib)
@@ -223,6 +288,7 @@ def main():
     print ('vol_mat_dict  ', vol_mat_dict)
     # get list of rays
     ray_tuples = load_ray_tuples(args.ray_dir_file) 
+    # ray_tuples = subset_ray_tuples(args.ray_dir_file) 
 
     # Use 0,0,0 as a reference point for now
     ref_point = [0.0, 0.0, 0.0]
@@ -231,23 +297,31 @@ def main():
     i=1
     for dir in ray_tuples:
 	slab_length, slab_mat_name  = slabs_for_dir(start_vol, ref_point, dir, vol_mat_dict)
-	# print ('lengths ',  slab_length)
-	# print ('materials', slab_mat_name)
+        #############################################
 
-	spatial_filename = 'spatial_' + str(i) + '.dat'
-	lines = []
+	transport_input = []
 	num_mats = len(slab_mat_name)
-	lines.append(str(num_mats))
+	transport_input.append(str(num_mats))
 	for n in range(num_mats):
-	    lines.append(slab_mat_name[n])
-	    lines.append('1')
-	    lines.append(str(slab_length[n]))
-        
+	    transport_input.append(slab_mat_name[n])
+	    transport_input.append('1')
+	    transport_input.append(str(slab_length[n]))
+
+	if len(ray_tuples) < 30:
+	    spatial_filename = 'spatial_' + str(i) + '.dat'
+            #############################################
+	    sslab = []
+            for d in slab_length:
+	        sslab.append(format(d,'.6f'))
+	    print ('dist, mats ',  sslab, slab_mat_name)
+	    print ('---')
+            #############################################
+	else:
+	    spatial_filename = 'spatial.dat'
 	f = open(spatial_filename, 'w')
-	f.write("\n".join(lines))
+	f.write("\n".join(transport_input))
 	f.close()
 	i = i + 1
-      
     ###################################### 
     #
     # Write out the file that will be the input for the transport step
