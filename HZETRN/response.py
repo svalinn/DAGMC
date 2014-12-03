@@ -25,28 +25,20 @@ class DagmcError(Exception):
     pass
 
 """
-Load or create tuples representing 
+Load or create tuples representing dirs
 In file with 10,000 tuples, here are the ranges
 ('min_theta', 0.00117047, 'max_theta', 3.136877355, 'min_phi', -3.141219364, 'max_phi', 3.14087921)
 """
 def load_ray_tuples(filename):
-    """
-    big = 10000.0
-    max_theta = 0.0
-    min_theta = big
-    max_phi = 0.0
-    min_phi = big
-    """
 
     ray_tuples = []
 
+    # ToDo: randomly generate dirs
     if not filename:
        ray_tuples = [(1.0, 0.0, 0.0),
                      (0.0, 1.0, 0.0),
 	   	     (0.0, 0.0, 1.0)]
     else:
-    # placeholder for code
-    # In future, this will be a randomly generated list
        print('The ray tuples file is', filename)
        with open(filename) as f:
            for line in f:
@@ -55,24 +47,13 @@ def load_ray_tuples(filename):
 	       x = np.sin(nums[0])*np.cos(nums[1])
 	       y = np.sin(nums[0])*np.sin(nums[1])
 	       ray_tuples.append((x, y, z))
-	       """
-	       if nums[0] > max_theta:
-	           max_theta = nums[0]
-	       if nums[0] < min_theta:
-	           min_theta = nums[0]
-	       if nums[1] > max_phi:
-	           max_phi = nums[1]
-	       if nums[1] < min_phi:
-	           min_phi = nums[1]
-	       # ray_tuples.append(nums)
-       print ('min_theta', min_theta, 'max_theta', max_theta, 'min_phi', min_phi, 'max_phi', max_phi)
-	       """ 
-       print('ray_tuples                x                 y                z')
+       print('ray_tuples      x                 y                z')
        pprint.pprint(ray_tuples)
     return ray_tuples
 
 """
-Load a subset tuples representing directions
+Load a subset of tuples representing directions
+This loads directions within a tolerance of the z-plane
 """
 def subset_ray_tuples(filename):
     side = 10.0
@@ -141,7 +122,7 @@ def parsing():
 
 
 """ 
-Find the volume of the geometry that contains the ref_point
+Find the vol-id of the geometry that contains the ref_point
 """
 def find_ref_vol(ref_point):
     # code snippet from dagmc.pyx:find_graveyard_inner_box
