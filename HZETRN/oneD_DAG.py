@@ -95,31 +95,6 @@ def get_rand_dir():
     x = norm_fac*np.cos(theta)
     return [x, y, z]
 
-"""
-Argument parsing
-returns : args: -f for the input geometry file, -r for the input ray tuple file
-ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
-"""
-def parsing():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        '-f', action='store', dest='uwuw_file', 
-	help='The relative path to the .h5m file')
-
-    parser.add_argument(
-        '-r', action='store', dest='ray_dir_file', 
-	help='The path to the file with ray direction tuples')
-
-    args = parser.parse_args()
-
-    if not args.uwuw_file:
-        raise Exception('h5m file path not specified. [-f] not set')
-    if not args.ray_dir_file:
-        args.ray_dir_file = False
-
-    return args
-
 
 """ 
 Find the vol-id of the geometry that contains the ref_point
@@ -170,6 +145,7 @@ def xs_create_entries_from_lib(mat_lib):
     # for key in mat_lib:
    	material_obj = mat_lib.get(key)
 	# material_obj = mat_lib[key]
+	print ('xs_create_entries_from_lib: collapsed material_obj:')
 	# Cuckoo
 	if 'Water' in key:
            h2o_atoms = {'H1': 2.0, 'O16': 1.0}
@@ -177,15 +153,20 @@ def xs_create_entries_from_lib(mat_lib):
 	# ToDo:  what materials do we not want to collapse?
 	coll = material_obj.collapse_elements([])
 	name1 = coll.metadata['name']
+	print ('is tally showing?', name1)
+	# ToDo: Need a check here, this assumes a colon-delimited name.
+	# Currently tallys are not seen here.  
+	name = name1.split(':', 1)[1]
 	density = coll.density
 	num_species = len(coll.comp)
-	material_entry = name1 + '\n' + str(density) + '\n' + str(num_species) + '\n'
+	material_entry = name + '\n' + str(density) + '\n' + str(num_species) + '\n'
+	print coll
 	for key in coll.comp:
 	    compname = nucname.name(key)
 	    str_comp_atomic_mass = str(data.atomic_mass(key))
 	    str_comp_charge = str(nucname.znum(key))
 	    str_comp_atoms_per_g = str(coll.comp[key]*data.N_A/data.atomic_mass(key))
-	    # print compname, str_comp_atomic_mass, str_comp_charge, str_comp_atoms_per_g
+	    print compname, str_comp_atomic_mass, str_comp_charge, str_comp_atoms_per_g
 	    material_entry += str_comp_atomic_mass + '  ' + str_comp_charge + '  ' + str_comp_atoms_per_g + '\n'
         material_entries.append(material_entry)
     return material_entries
@@ -229,10 +210,38 @@ def slabs_for_dir(start_vol, ref_point, dir, mat_for_vol):
             vols_traversed.append(last_vol)
             last_vol = vol
 
+    #########################################################################
     sdir = [format(dir[0],'.6f'),format(dir[1], '.6f'), format(dir[2], '.6f')]
     print ('for dir', sdir, 'vols traversed', vols_traversed)
+    #########################################################################
+
     return slab_length, slab_mat_name 
       
+"""
+Argument parsing
+returns : args: -f for the input geometry file, -r for the input ray tuple file
+ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
+"""
+def parsing():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        '-f', action='store', dest='uwuw_file', 
+	help='The relative path to the .h5m file')
+
+    parser.add_argument(
+        '-r', action='store', dest='ray_dir_file', 
+	help='The path to the file with ray direction tuples')
+
+    args = parser.parse_args()
+
+    if not args.uwuw_file:
+        raise Exception('h5m file path not specified. [-f] not set')
+    if not args.ray_dir_file:
+        args.ray_dir_file = False
+
+    return args
+
 
 def main():
     # Setup: parse the the command line parameters
@@ -288,7 +297,7 @@ def main():
 	    transport_input.append('1')
 	    transport_input.append(str(slab_length[n]))
 
-	if len(ray_tuples) < 30:
+	if len(ray_tuples) < 20:
 	    spatial_filename = 'spatial_' + str(i) + '.dat'
             #############################################
 	    sslab = []
@@ -299,9 +308,13 @@ def main():
             #############################################
 	else:
 	    spatial_filename = 'spatial.dat'
-	f = open(spatial_filename, 'w')
-	f.write("\n".join(transport_input))
-	f.close()
+
+        # Don't write more than 50 times. 
+	# ToDo: refactor to pass to transport_process
+	if i < 50:
+	    f = open(spatial_filename, 'w')
+	    f.write("\n".join(transport_input))
+	    f.close()
 	i = i + 1
     ###################################### 
     #
