@@ -24,6 +24,17 @@ import tag_utils
 class DagmcError(Exception):
     pass
 
+def load_ray_start(filename):
+    ray_start = []
+    if not filename:
+        ray_start = [0.0, 0.0, 0.0]
+    else:
+        with open(filename) as f:
+	    for line in f:
+	        ray_start = map(float, line.split())
+    pprint.pprint(ray_start)
+    return ray_start
+
 """
 Load or create tuples representing dirs
 In file with 10,000 tuples, here are the ranges
@@ -39,7 +50,6 @@ def load_ray_tuples(filename):
                      (0.0, 1.0, 0.0),
 	   	     (0.0, 0.0, 1.0)]
     else:
-       print('The ray tuples file is', filename)
        with open(filename) as f:
            for line in f:
 	       nums = map(float, line.split())
@@ -47,7 +57,7 @@ def load_ray_tuples(filename):
 	       x = np.sin(nums[0])*np.cos(nums[1])
 	       y = np.sin(nums[0])*np.sin(nums[1])
 	       ray_tuples.append((x, y, z))
-       print('ray_tuples      x                 y                z')
+       print(filename, 'ray_tuples  x             y                z')
        pprint.pprint(ray_tuples)
     return ray_tuples
 
@@ -153,7 +163,6 @@ def xs_create_entries_from_lib(mat_lib):
 	# ToDo:  what materials do we not want to collapse?
 	coll = material_obj.collapse_elements([])
 	name1 = coll.metadata['name']
-	print ('is tally showing?', name1)
 	# ToDo: Need a check here, this assumes a colon-delimited name.
 	# Currently tallys are not seen here.  
 	name = name1.split(':', 1)[1]
@@ -233,6 +242,10 @@ def parsing():
         '-r', action='store', dest='ray_dir_file', 
 	help='The path to the file with ray direction tuples')
 
+    parser.add_argument(
+        '-p', action='store', dest='ray_start', 
+	help='Cartesion coordinate of starting point of all rays')
+
     args = parser.parse_args()
 
     if not args.uwuw_file:
@@ -280,8 +293,8 @@ def main():
     ray_tuples = load_ray_tuples(args.ray_dir_file) 
     # ray_tuples = subset_ray_tuples(args.ray_dir_file) 
 
-    # Use 0,0,0 as a reference point for now
-    ref_point = [0.0, 0.0, 0.0]
+    # The default starting point is 0,0,0
+    ref_point = load_ray_start(args.ray_start)
     start_vol = find_ref_vol(ref_point)
     
     i=1
@@ -309,7 +322,6 @@ def main():
 	else:
 	    spatial_filename = 'spatial.dat'
 
-        # Don't write more than 50 times. 
 	# ToDo: refactor to pass to transport_process
 	if i < 50:
 	    f = open(spatial_filename, 'w')
