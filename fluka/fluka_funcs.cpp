@@ -129,7 +129,7 @@ int MAX_MATERIAL_NAME_SIZE = 32;
 
 static DagMC::RayHistory history;
 
-bool on_boundary;
+bool on_boundary = false;
 double old_direction[3];
 MBEntityHandle next_surf; // the next suface the ray will hit
 MBEntityHandle prev_surf; // the last value of next surface
@@ -238,7 +238,7 @@ void g_step(double& pSx,
 void g_fire(int &oldRegion, double point[], double dir[], double &propStep, 
             double &retStep, double &safety,  int &newRegion)
 {
-
+  MBErrorCode ec;
   MBEntityHandle vol = DAG->entity_by_index(3,oldRegion);
   double next_surf_dist;
   MBEntityHandle newvol = 0;
@@ -250,16 +250,17 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   else
     {
       history.reset();
+      //      ec = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist);
     }
    
   oldRegion = DAG->index_by_handle(vol); // convert oldRegion int into MBHandle to the volume
   if(on_boundary)
     {
-      if(boundary_test(vol,point,dir)==0) // if ray not on leaving vol
-	{
-	  history.reset(); // reset history
-	  on_boundary = false; // reset on boundary
-	}
+      //      if(boundary_test(vol,point,dir)==0) // if ray not on leaving vol
+      //{
+      //	  history.reset(); // reset history
+      //  on_boundary = false; // reset on boundary
+      //	}
     }
   
 
