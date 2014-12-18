@@ -94,16 +94,20 @@ def subset_ray_tuples(filename):
 """
 Produce a length-one tuple randomly oriented on a sphere
 """
-def get_rand_dir():
-    # [0.0,1.0)
-    rnum = np.random.uniform()
-    # map rnum onto [0.0,1.0)
-    z = 2*rnum - 1
-    theta = 2*np.pi*rnum
-    norm_fac = np.sqrt(1 - z*z)
-    y = norm_fac*np.sin(theta)
-    x = norm_fac*np.cos(theta)
-    return [x, y, z]
+def get_rand_dirs(number):
+    rays = []
+    if number > 0:
+        for i in range number:
+            # [0.0,1.0)
+            rnum = np.random.uniform()
+            # map rnum onto [0.0,1.0)
+            z = 2*rnum - 1
+            theta = 2*np.pi*rnum
+            norm_fac = np.sqrt(1 - z*z)
+            y = norm_fac*np.sin(theta)
+            x = norm_fac*np.cos(theta)
+	    rays.append([x, y, z])
+    return rays
 
 
 """ 
