@@ -1,19 +1,7 @@
-//----------------------------------*-C++, Fortran-*----------------------------------// /*!
-/* \file   ~/DAGMC/FluDAG/src/cpp/fluka_funcs.cpp
- * \author Julie Zachman 
- * \date   Mon Mar 22 2013 
- * \brief  Functions called by fluka
- * \note   After mcnp_funcs
- */
-//---------------------------------------------------------------------------//
-// $Id: 
-//---------------------------------------------------------------------------//
-
 #include "fluka_funcs.h"
 
 #include "MBInterface.hpp"
 #include "MBCartVect.hpp"
-
 #include "DagMC.hpp"
 #include "moab/Types.hpp"
 
@@ -29,13 +17,13 @@ using moab::DagMC;
 #include <stdlib.h>    // atoi
 
 #ifdef CUBIT_LIBS_PRESENT
-#include <fenv.h>
+ #include <fenv.h>
 #endif
 
 // globals
 
 // defines for the flkstk common block structure
-#define STACK_SIZE 40001 // because fortran array goes from [0:40000]
+#define STACK_SIZE 40001 // because the fortran array goes from [0:40000]
 #define MKBMX1 11
 #define MKBMX2 11
 
@@ -91,14 +79,6 @@ extern "C" {
 
 #define DAG DagMC::instance()
 
-#define DGFM_SEQ   0
-#define DGFM_READ  1
-#define DGFM_BCAST 2
-
-
-#ifdef ENABLE_RAYSTAT_DUMPS
-
-
 #include <fstream>
 #include <numeric>
 
@@ -108,99 +88,20 @@ static std::ostream* raystat_dump = NULL;
 
 #define ID_START 26
 
-bool debug = false; 
+bool debug = true; //false; 
 
-std::set<int> make_exception_set()
-{
-    std::set<int> nuc_exceptions;
-    
-    // Preserve FLUKA Entropy: Ref Fluka Manual pp. 318-323
-    // Question about 
-    // Xenon (many named isotopes, useful only for detectors?)
-    // Question: I think we should also put the stable form on the no-collapse list,
-    // e.g. H, He, Li, B
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-1")));   // HYDROG-1
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-2")));   // DEUTERIU
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-3")));   // TRITIUM
-    
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He-4")));  // HELIUM-4
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-6")));  // LITHIU-6
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-7")));  // LITHIU-7
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-10")));  // BORON-10
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-11")));  // BORON-11
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sr-90"))); // 90-SR
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I-129"))); // 129-I
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-135")));// 135-CS
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-137")));// 137-CS
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-230")));// 230-TH
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-232")));// 232-TH
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-233"))); // 233-U
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-234"))); // 234-U
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-235"))); // 235-U
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-238"))); // 238-U
-    // All isotopes should be on the exception list, including the base isotope
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H")));
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He")));
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li")));
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B")));
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sr")));
-    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I")));
-
-    // Print out results
-    if (debug)
-    {
-       std::cout << "Nucids of FLUKA exceptions" << std::endl;
-       int i=1;
-       for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
-            ptr != nuc_exceptions.end(); ++ptr)
-       {
-            std::cout << std::setw(10) << std::right << *ptr;
-	    if (i%5 == 0)
-	    {
-	       std::cout << std::endl;
-	    }
-	    else
-	    {
-	       std::cout << ", ";
-	    }
-	    i++;
-       }
-       std::cout << std::endl;
-    }
-
-    return nuc_exceptions;
-}
-
+// delimiters used by uwuw
 const char *delimiters = ":/";
-
 // an empty synonym map to provide as a default argument to parse_properties()
 static const std::map<std::string,std::string> no_synonyms;
 
 /* Maximum character-length of a cubit-named material property */
 int MAX_MATERIAL_NAME_SIZE = 32;
 
+// current state of the particle
 static particle_state state;
 
-//static DagMC::RayHistory history;
-
-/*
-bool on_boundary = false;
-double old_direction[3];
-MBEntityHandle next_surf; // the next suface the ray will hit
-MBEntityHandle prev_surf; // the last value of next surface
-MBEntityHandle PrevRegion; // the integer region that the particle was in previously 
-*/
-
-/**************************************************************************************************/
-/******                                FLUKA stubs                                         ********/
-/**************************************************************************************************/
-//---------------------------------------------------------------------------//
-
-//---------------------------------------------------------------------------//
-// jomiwr(..)
-//---------------------------------------------------------------------------//
-/// Initialization routine, was in WrapInit.c
-//  For DAGMC only sets the number of volumes in the problem
+/* For DAGMC only sets the number of volumes in the problem */
 void jomiwr(int & nge, const int& lin, const int& lou, int& flukaReg)
 {
 
@@ -222,11 +123,7 @@ void jomiwr(int & nge, const int& lin, const int& lou, int& flukaReg)
   return;
 }
 
-//---------------------------------------------------------------------------//
-// g_step(..)
-//---------------------------------------------------------------------------//
-//  returns approved step of particle and all variables 
-//
+/* returns the approved step from pS along pV */
 void g_step(double& pSx, 
           double& pSy, 
           double& pSz, 
@@ -276,7 +173,6 @@ void g_step(double& pSx,
 void g_fire(int &oldRegion, double point[], double dir[], double &propStep, 
             double &retStep, double &safety,  int &newRegion)
 {
-  MBErrorCode ec; 
   MBEntityHandle vol = DAG->entity_by_index(3,oldRegion); // get eh of current region
   MBEntityHandle next_surf; // next surf we hit
   double next_surf_dist;
@@ -286,10 +182,10 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
 
   // if direction changed or we have retrieved a new particle from the bank 
   // reset all state
-    if(flkstk_.npflka != state.stack_count)
+  if(flkstk_.npflka != state.stack_count)
     {
       reset_state(state); // reset state
-      state.stack_count = flkstk_.npflka; // set new stack size
+      state.stack_count = flkstk_.npflka; // get new stack size
     }
   
   
@@ -304,7 +200,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
    
   if(state.on_boundary)
     {
-      std::cout << point[0] << " " << point[1] << " " << point[2] << std::endl;
+      // if we are not on the boundary but think we should be
       if(boundary_test(vol,point,dir) == 0) // if ray not on boundary of leaving vol
 	{
       	  state.history.reset(); // reset history
@@ -312,6 +208,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
       	}
     }
   
+
   // perform the actual ray fire
   MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist, &state.history); // fire a ray 
   if ( result != MB_SUCCESS )
@@ -389,39 +286,8 @@ void reset_state(particle_state &state)
 }
 
 
-/* reset state 
-void reset_state(particle_state &state)
-{
-  state.history.reset();
-
-  state.on_boundary = false;
-  
-  state.old_direction[0] = -1.;
-  state.old_direction[1] = -1.;
-  state.old_direction[2] = -1.;
- 
-  state.stack_count = -1;
-
-  state.next_surf = 0;
-  state.prev_surf = 0;
-  state.PrevRegion = 0;
- 
-  return;
-}
-*/
-
-//---------------------------------------------------------------------------//
-// normal
-//---------------------------------------------------------------------------//
-// Local wrapper for fortran-called, f_normal.  This function is supplied for testing
-// purposes.  Its signature shows what parameters are being used in our wrapper 
-// implementation.  
-// Any FluDAG calls to f_normal should use this call instead.
-// ASSUMES:  no ray history
-// Notes
-// - direction is not taken into account 
-// - curRegion is not currently used.  
-int  normal (double& posx, double& posy, double& posz, double *norml, int& curRegion)
+/* testable wrapper for f_normal */
+int normal (double& posx, double& posy, double& posz, double *norml, int& curRegion)
 {
    int flagErr; 
    int dummyReg;
@@ -429,18 +295,8 @@ int  normal (double& posx, double& posy, double& posz, double *norml, int& curRe
    f_normal(posx, posy, posz, dummyDirx, dummyDiry, dummyDirz, norml, curRegion, dummyReg, flagErr);
    return flagErr;
 }
-//---------------------------------------------------------------------------//
-// f_normal(..)
-//---------------------------------------------------------------------------//
-//  Note:  The normal is calculated at the point on the surface nearest the 
-//         given point
-// ASSUMES:  Point is on the boundary
-// Parameters Set:
-//     norml vector
-//     flagErr = 0 if ok, !=0 otherwise
-// Does NOT set any region, point or direction vector.
-// Globals used:
-//     next_surf, set by ray_fire 
+
+/* given the particle position, direction, region return the normal to surface */
 void f_normal(double& pSx, double& pSy, double& pSz,
             double& pVx, double& pVy, double& pVz,
 	    double* norml, const int& oldRegion, 
@@ -456,7 +312,8 @@ void f_normal(double& pSx, double& pSy, double& pSz,
   double uvw[3] = {pVx,pVy,pVz}; //particl directoin
   int result; // particle is entering or leaving
 
-  MBErrorCode ErrorCode = DAG->test_volume_boundary( OldReg, state.next_surf,xyz,uvw, result, &state.history);  // see if we are on boundary
+  MBErrorCode ErrorCode = DAG->test_volume_boundary( OldReg, state.next_surf, xyz, uvw 
+						     ,result, &state.history);  // see if we are on boundary
   ErrorCode = DAG->get_angle(state.next_surf,xyz,norml); 
   // result = 1 entering, 0 leaving
   if ( result == 0 ) // vector should point towards OldReg
@@ -473,15 +330,8 @@ void f_normal(double& pSx, double& pSy, double& pSz,
   }
   return;
 }
-///////			End normal() and f_normal()
 
-/////////////////////////////////////////////////////////////////////
-//
-// check_vol(..)
-//
-// Returns either true or false, if the point pos belongs to the region oldRegion
-//
-//
+/* does the position pos belong to region oldRegion */
 inline bool check_vol( double pos[3], double dir[3], int oldRegion)
 {
   int is_inside; // in volume or not
@@ -500,15 +350,7 @@ inline bool check_vol( double pos[3], double dir[3], int oldRegion)
 }
 
 
-/////////////////////////////////////////////////////////////////////
-//---------------------------------------------------------------------------//
-// look(..)
-//---------------------------------------------------------------------------//
-// Testable local wrapper for fortran-called, f_look
-// This function signature shows what parameters are being used in our wrapper implementation
-// oldRegion is looked at if we are no a boundary, but it is not set.
-// ASSUMES:  position is not on a boundary
-// RETURNS: nextRegion, the region the given point is in 
+/* testable wrapper function for f_look */
 int look( double& posx, double& posy, double& posz, double* dir, int& oldRegion)
 {
    int flagErr;
@@ -517,18 +359,9 @@ int look( double& posx, double& posy, double& posz, double* dir, int& oldRegion)
    f_look(posx, posy, posz, dir, oldRegion, lattice_dummy, nextRegion, flagErr, lattice_dummy);
    return nextRegion;
 }
-//---------------------------------------------------------------------------//
-// f_look(..)
-//---------------------------------------------------------------------------//
-// Wrapper for localisation of starting point of particle.
-//
-// Question:  Should pV, the direction vector, be used?  
-//////////////////////////////////////////////////////////////////
-// This function answers the question What volume is the point in?  
-// oldReg - not looked at UNLESS the volume is on the boundary, then newReg=oldReg
-// nextRegion - set to the volume index the point is in.
-// ToDo:  Is there an error condition for the flagErr that is guaranteed not to be equal to the next region?
-//        Find a way to make use of the error return from point_in_volume
+
+
+/* determine where a particle is, given position, direction etc */
 void f_look(double& pSx, double& pSy, double& pSz,
           double* pV, const int& oldReg, const int& oldLttc,
           int& nextRegion, int& flagErr, int& newLttc)
@@ -538,13 +371,7 @@ void f_look(double& pSx, double& pSy, double& pSz,
       std::cout << "======= LKWR =======" << std::endl;
       std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl; 
   }
-
-  //  std::cout << flkstk_.npflka << " " << flkstk_.xflk[0] << " " << flkstk_.yflk[0] 
-  //	    << " " << flkstk_.zflk[0] << " " << flkstk_.nrgflk[0] << std::endl;
-
-  //  if new source particle
-  //  if ( (flkstk_).npflka <= 0 ) 
-  
+ 
   reset_state(state);
   // get the stack count
   state.stack_count = flkstk_.npflka;
@@ -587,6 +414,7 @@ void f_look(double& pSx, double& pSy, double& pSz,
   return;
 }
 
+/* If particle is lost calls this routine */
 void f_lostlook(double& pSx, double& pSy, double& pSz,
           double* pV, const int& oldReg, const int& oldLttc,
           int& nextRegion, int& flagErr, int& newLttc)
@@ -595,24 +423,20 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
     return;
 }
 
-/*
- * entering or leaving, if particle on boundary 
- */
+/* entering or leaving, if particle on boundary */
 int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
 {
   int result;
-  MBErrorCode ErrorCode = DAG->test_volume_boundary(vol,state.next_surf,xyz,uvw, result,&state.history);  // see if we are on boundary
+  MBErrorCode ErrorCode = DAG->test_volume_boundary(vol,state.next_surf,
+						    xyz,uvw, result,&state.history);  // see if we are on boundary
   return result;
 }
-/*
- *   Particle localisation when magnetic field tracking is on
- */
+
+/* Particle localisation when magnetic field tracking is on */
 void lkmgwr(double& pSx, double& pSy, double& pSz,
             double* pV, const int& oldReg, const int& oldLttc,
 	    int& flagErr, int& newReg, int& newLttc)
 {
-  
-
     const double xyz[] = {pSx, pSy, pSz}; // location of the particle (xyz)
     int is_inside = 0; // logical inside or outside of volume
     int num_vols = DAG->num_entities(3); // number of volumes
@@ -649,6 +473,7 @@ void lkmgwr(double& pSx, double& pSy, double& pSz,
     return;
 }
 
+/* */
 void f_lookdb(double& pSx, double& pSy, double& pSz,
 	    double* pV, const int& oldReg, const int& oldLttc,
 	    int& newReg, int& flagErr, int& newLttc)
@@ -666,11 +491,12 @@ void f_lookdb(double& pSx, double& pSy, double& pSz,
 }
 
 
-/*
- * f_g1rt
- */
+/* terminates a history */
 void f_g1rt(void)
 {
+  // reset all state
+  reset_state(state);
+
   if(debug)
     {
       std::cout<<"============ F_G1RT ============="<<std::endl;
@@ -678,45 +504,37 @@ void f_g1rt(void)
     return;
 }
 
-// Set DNEAR option if needed
+/* Set DNEAR option if needed */
 int f_idnr(const int & nreg, const int & mlat) 
-
 {
-	
-
-// returns 0 if user doesn't want Fluka to use DNEAR to compute the 
-// step (the same effect is obtained with the GLOBAL (WHAT(3)=-1)
-// card in fluka input), returns 1 if user wants Fluka always to use DNEAR.
-
-	return 0;
+  // returns 0 if user doesn't want Fluka to use DNEAR to compute the 
+  // step (the same effect is obtained with the GLOBAL (WHAT(3)=-1)
+  // card in fluka input), returns 1 if user wants Fluka always to use DNEAR.
+  return 0;
 }
 
-///////////////////////////////////////////////////////////////////
-// from WrapReg2Name.cc 
-//
-// Wrapper for getting region name corresponding to given region number
-///////////////////////////////////////////////////////////////////
+/* Wrapper for getting region name corresponding to given region number */
 void rg2nwr(const int& mreg, const char* Vname)
 {
-  std::cout << "============= RG2NWR ==============" << std::endl;    
-  std::cout << "mreg=" << mreg << std::endl;
-  std::string vvname;
+  if(debug)
+    {
+      std::cout << "============= RG2NWR ==============" << std::endl;    
+      std::cout << "mreg=" << mreg << std::endl;
+      std::string vvname;
+    }
+
   region2name(mreg, vvname);
   Vname = vvname.c_str();
-  std::cout << "reg2nmwr: Vname " << Vname<< std::endl;  
+  
+  if(debug)
+    {
+    std::cout << "reg2nmwr: Vname " << Vname<< std::endl;  
+    }
+
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// from WrapReg.hh 
-//
-// Wrapper for scoring hits: previous step end-point is taken from 
-// history (and compared with fluka region index, flukaReg),
-// then the wrapper returns all the information regarding the 
-// volume tree, i.e. returns indMother[] array with all the 
-// mother volumes index and repMother[] array with all the 
-// mother volumes repetition number.   
-///////////////////////////////////////////////////////////////////
+/* does nothing */
 void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg,
             int* indMother, int* repMother, int& depthFluka)
 {
@@ -725,12 +543,7 @@ void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg,
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// from WrapMag.hh
-//
-// Wrapper for geometry tracking in magnetic field: returns magnetic 
-// field values in a given position.
-/////////////////////////////////////////////////////////////////
+/* returns magnetic field values in a given position */
 void fldwr(const double& pX, const double& pY, const double& pZ,
             double& cosBx, double& cosBy, double& cosBz, 
             double& Bmag, int& reg, int& idiscflag)
@@ -740,23 +553,14 @@ void fldwr(const double& pX, const double& pY, const double& pZ,
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// from WrapFlgfwr.cc
-//
-// Wrapper for setting of fluka geometry flag
-//////////////////////////////////////////////////////////////////
+/* does nothing */
 void flgfwr ( int& flkflg )
 {
   std::cout << "=======FLGFWR =======" << std::endl;
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// from WrapLookFX.hh
-//
-// Wrapper for localisation of particle to fix particular conditions.
-// At the moment is the same as WrapLookZ.hh. 
-//////////////////////////////////////////////////////////////////
+/* does nothing */
 void lkfxwr(double& pSx, double& pSy, double& pSz,
             double* pV, const int& oldReg, const int& oldLttc,
 	    int& newReg, int& flagErr, int& newLttc)
@@ -769,6 +573,69 @@ void lkfxwr(double& pSx, double& pSy, double& pSz,
 /**************************************************************************************************/
 /******                                End of FLUKA stubs                                  ********/
 /**************************************************************************************************/
+
+/* make the set of nuclides that are to be retained in full */
+std::set<int> make_exception_set()
+{
+    std::set<int> nuc_exceptions;
+    
+    // Preserve FLUKA Entropy: Ref Fluka Manual pp. 318-323
+    // Question about 
+    // Xenon (many named isotopes, useful only for detectors?)
+    // Question: I think we should also put the stable form on the no-collapse list,
+    // e.g. H, He, Li, B
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-1")));   // HYDROG-1
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-2")));   // DEUTERIU
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H-3")));   // TRITIUM
+    
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He-4")));  // HELIUM-4
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-6")));  // LITHIU-6
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li-7")));  // LITHIU-7
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-10")));  // BORON-10
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B-11")));  // BORON-11
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sr-90"))); // 90-SR
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I-129"))); // 129-I
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-135")));// 135-CS
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Cs-137")));// 137-CS
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-230")));// 230-TH
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Th-232")));// 232-TH
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-233"))); // 233-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-234"))); // 234-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-235"))); // 235-U
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("U-238"))); // 238-U
+    // All isotopes should be on the exception list, including the base isotope
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("H")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("He")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Li")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("B")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("Sr")));
+    nuc_exceptions.insert(pyne::nucname::id(const_cast<char *>("I")));
+
+    // Print out results
+    if (debug)
+    {
+       std::cout << "Nucids of FLUKA exceptions" << std::endl;
+       int i=1;
+       for (std::set<int>::iterator ptr = nuc_exceptions.begin(); 
+            ptr != nuc_exceptions.end(); ++ptr)
+       {
+            std::cout << std::setw(10) << std::right << *ptr;
+	    if (i%5 == 0)
+	    {
+	       std::cout << std::endl;
+	    }
+	    else
+	    {
+	       std::cout << ", ";
+	    }
+	    i++;
+       }
+       std::cout << std::endl;
+    }
+
+    return nuc_exceptions;
+}
+
 
 // FluDAG Material Card  Functions
 void fludag_write(std::string matfile, std::string lfname)
