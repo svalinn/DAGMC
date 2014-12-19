@@ -15,6 +15,61 @@
 #include "pyne/pyne.h"
 #include "../uwuw/uwuw.hpp"
 
+// defines for the flkstk common block structure
+#define STACK_SIZE 40001 // because the fortran array goes from [0:40000]
+#define MKBMX1 11
+#define MKBMX2 11
+
+// flkstk common block
+extern "C" {
+  extern struct {
+    // all the doubles
+    double xflk[STACK_SIZE];
+    double yflk[STACK_SIZE];
+    double zflk[STACK_SIZE];
+    double txflk[STACK_SIZE];
+    double tyflk[STACK_SIZE];
+    double tzflk[STACK_SIZE];
+    double txpol[STACK_SIZE];
+    double typol[STACK_SIZE];
+    double tzpol[STACK_SIZE];
+    double txnor[STACK_SIZE];
+    double tynor[STACK_SIZE];
+    double tznor[STACK_SIZE];
+    double wtflk[STACK_SIZE];
+    double pmoflk[STACK_SIZE];
+    double tkeflk[STACK_SIZE];
+    double dfnear[STACK_SIZE];
+    double agestk[STACK_SIZE];
+    double aknshr[STACK_SIZE];
+    double raddly[STACK_SIZE];
+    double cmpath[STACK_SIZE];
+    double frcphn[STACK_SIZE];
+    double dchflk[STACK_SIZE];
+    // spared doubles
+    double sparek[STACK_SIZE][MKBMX1]; // fortran arrays other way round
+    // ints
+    int ispark[STACK_SIZE][MKBMX2];
+    int iloflk[STACK_SIZE];
+    int igroup[STACK_SIZE];
+    int loflk[STACK_SIZE];
+    int louse[STACK_SIZE];
+    int nrgflk[STACK_SIZE];
+    int nlattc[STACK_SIZE];
+    int nhspnt[STACK_SIZE];
+    int nevent[STACK_SIZE];
+    int numpar[STACK_SIZE];
+    int lraddc[STACK_SIZE];
+    int lfrphn[STACK_SIZE];
+    int lchflk[STACK_SIZE];
+    int nparma;
+    int nstmax;
+    int npflka;
+    int nstaol;
+    int igroun;  
+  } flkstk_;
+}
+
 // struct to hold particle state
 struct particle_state {
   moab::DagMC::RayHistory history;

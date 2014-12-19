@@ -22,61 +22,6 @@ using moab::DagMC;
 
 // globals
 
-// defines for the flkstk common block structure
-#define STACK_SIZE 40001 // because the fortran array goes from [0:40000]
-#define MKBMX1 11
-#define MKBMX2 11
-
-// flkstk common block
-extern "C" {
-  extern struct {
-    // all the doubles
-    double xflk[STACK_SIZE];
-    double yflk[STACK_SIZE];
-    double zflk[STACK_SIZE];
-    double txflk[STACK_SIZE];
-    double tyflk[STACK_SIZE];
-    double tzflk[STACK_SIZE];
-    double txpol[STACK_SIZE];
-    double typol[STACK_SIZE];
-    double tzpol[STACK_SIZE];
-    double txnor[STACK_SIZE];
-    double tynor[STACK_SIZE];
-    double tznor[STACK_SIZE];
-    double wtflk[STACK_SIZE];
-    double pmoflk[STACK_SIZE];
-    double tkeflk[STACK_SIZE];
-    double dfnear[STACK_SIZE];
-    double agestk[STACK_SIZE];
-    double aknshr[STACK_SIZE];
-    double raddly[STACK_SIZE];
-    double cmpath[STACK_SIZE];
-    double frcphn[STACK_SIZE];
-    double dchflk[STACK_SIZE];
-    // spared doubles
-    double sparek[STACK_SIZE][MKBMX1]; // fortran arrays other way round
-    // ints
-    int ispark[STACK_SIZE][MKBMX2];
-    int iloflk[STACK_SIZE];
-    int igroup[STACK_SIZE];
-    int loflk[STACK_SIZE];
-    int louse[STACK_SIZE];
-    int nrgflk[STACK_SIZE];
-    int nlattc[STACK_SIZE];
-    int nhspnt[STACK_SIZE];
-    int nevent[STACK_SIZE];
-    int numpar[STACK_SIZE];
-    int lraddc[STACK_SIZE];
-    int lfrphn[STACK_SIZE];
-    int lchflk[STACK_SIZE];
-    int nparma;
-    int nstmax;
-    int npflka;
-    int nstaol;
-    int igroun;  
-  } flkstk_;
-}
-
 #define DAG DagMC::instance()
 
 #include <fstream>
@@ -84,11 +29,9 @@ extern "C" {
 
 static std::ostream* raystat_dump = NULL;
 
-#endif 
-
 #define ID_START 26
 
-bool debug = true; //false; 
+bool debug = false; 
 
 // delimiters used by uwuw
 const char *delimiters = ":/";
@@ -182,12 +125,13 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
 
   // if direction changed or we have retrieved a new particle from the bank 
   // reset all state
+  /*
   if(flkstk_.npflka != state.stack_count)
     {
       reset_state(state); // reset state
       state.stack_count = flkstk_.npflka; // get new stack size
     }
-  
+  */
   
   // direction changed reset history, may not be robust 
   if( dir[0] == state.old_direction[0] && dir[1] == state.old_direction[1] && dir[2] == state.old_direction[2] ) 
@@ -374,7 +318,7 @@ void f_look(double& pSx, double& pSy, double& pSz,
  
   reset_state(state);
   // get the stack count
-  state.stack_count = flkstk_.npflka;
+  //  state.stack_count = flkstk_.npflka;
 
   const double xyz[] = {pSx, pSy, pSz};       // location of the particle (xyz)
   const double dir[] = {pV[0],pV[1],pV[2]};
@@ -516,11 +460,12 @@ int f_idnr(const int & nreg, const int & mlat)
 /* Wrapper for getting region name corresponding to given region number */
 void rg2nwr(const int& mreg, const char* Vname)
 {
+  std::string vvname;
+
   if(debug)
     {
       std::cout << "============= RG2NWR ==============" << std::endl;    
       std::cout << "mreg=" << mreg << std::endl;
-      std::string vvname;
     }
 
   region2name(mreg, vvname);
