@@ -81,6 +81,7 @@ information needed for the cross-section input file.
 ToDo:  formatting of species line members
 """
 def xs_create_entry(coll):
+    print coll
     name1 = coll.metadata['fluka_name']
     density = coll.density
     num_species = len(coll.comp)
@@ -117,7 +118,7 @@ def parsing():
         raise Exception('h5m file path not specified. [-f] not set')
     # Should cs.cfg be in the protected directory?
     if not args.config_file:
-        args.config_file = 'cs.cfg'
+        args.config_file = 'hze.cfg'
 
     return args
 
@@ -132,8 +133,8 @@ def main():
 
     # Start the file with header lines which contain the names of 
     # some folders the cross_section processing will need
-    cs_common = config.get("cs_files", "common_data")
-    cs_outdir = config.get("cs_files", "cs_out")
+    cs_common = config.get("cs", "common_data")
+    cs_outdir = config.get("cs", "cs_out")
     xs_header = xs_create_header(cs_common, cs_outdir)
     print xs_header
 
@@ -145,7 +146,7 @@ def main():
     # Using the input file just created, prepare the materials subdirectory
     # This method will make a subprocess call
     curdir = os.path.dirname(os.path.abspath(__file__))
-    subdir = curdir + '/' + config.get("cs_files", "run_directory")
+    subdir = curdir + '/' + config.get("common", "run_directory")
     for name in cs_file_dict:
 	src = curdir + '/' + cs_file_dict[name]
         one_d_tool.cross_section_process(subdir, src, name, cs_outdir)
