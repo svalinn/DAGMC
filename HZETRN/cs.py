@@ -133,7 +133,7 @@ def main():
 
     # Start the file with header lines which contain the names of 
     # some folders the cross_section processing will need
-    cs_common = config.get("cs", "common_data")
+    cs_common = config.get("common", "common_data")
     cs_outdir = config.get("cs", "cs_out")
     xs_header = xs_create_header(cs_common, cs_outdir)
     print xs_header
@@ -145,10 +145,10 @@ def main():
 
     # Using the input file just created, prepare the materials subdirectory
     # This method will make a subprocess call
-    curdir = os.path.dirname(os.path.abspath(__file__))
-    subdir = curdir + '/' + config.get("common", "run_directory")
+    curdir = os.path.dirname(os.path.abspath(__file__)) + '/'
+    subdir = curdir + config.get("common", "run_directory") + '/'
     for name in cs_file_dict:
-	src = curdir + '/' + cs_file_dict[name]
+	src = curdir + cs_file_dict[name]
         one_d_tool.cross_section_process(subdir, src, name, cs_outdir)
     ##########################################################
     return
