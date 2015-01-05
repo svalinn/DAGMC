@@ -243,8 +243,8 @@ def check_matname(tag_values):
         raise Exception("Graveyard group is missing! You must have a graveyard")
     mat_dens_list = zip(mat_list_matname, mat_list_density)
     # error conditions, no tags found
-    if len(mat_dens_list) == 0:
-        raise Exception("No material group names found, you must have materials")
+#    if len(mat_dens_list) == 0:
+#        raise Exception("No material group names found, you must have materials")
 
     return mat_dens_list
 
@@ -472,7 +472,7 @@ def write_tally_h5m(tally_list,filename):
             exit
         tally_type = (name_flux.split('/'))[1].split('\n')[0]
         tally_name = particle_name[0]+particle_name[1].upper()+tally_type[0].upper()+tally_type[1].upper()+str(tally[0])
-        print particle_name, tally_type, tally_name
+        print particle_name, tally_type, tally_name, tally[0], str(tally[0])
         new_tally = Tally(tally_type,particle_name,tally[0],"Volume",str(tally[0]),tally_name,0.0,1.0)
         new_tally.write_hdf5(filename,"/tally")
 """
@@ -520,7 +520,8 @@ def main():
     material_object_list = check_and_create_materials(
         mat_dens_list, mat_lib)
     # write materials to file
-    write_mats_h5m(material_object_list, args.output)
+    if(len(material_object_list) != 0 ):
+        write_mats_h5m(material_object_list, args.output)
     
     # now get tally data and write to file
     write_tally_h5m(tally_assigns,args.output)
