@@ -2,3 +2,5 @@
 *.o
 # Extensions to ignore
 *.swp
+*~
+#*
