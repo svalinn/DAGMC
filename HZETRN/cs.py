@@ -22,8 +22,6 @@ from pyne import data
 from pyne import nucname
 import hzetrn as one_d_tool
 
-# class DagmcError(Exception):
-
 class CS_CFG_Error(Exception):
     pass
 
@@ -53,12 +51,13 @@ def xs_create_header(common_data_dir, cs_out_dir):
 Create cross_section input files in the current directory with the
 modified default name cs_input_MATERIAL.dat for each material
 
-ToDo:  Think of a better name for this method
 """
-def one_cs_for_each(header, mat_lib, path):
+def write_cs_input(header, mat_lib, path):
     cs_file_mats = {}
     num_materials = len(mat_lib.keys())
     for key in mat_lib:
+        print key
+	print mat_lib[key]
         material_obj = mat_lib[key]
 	# This can be removed after an update
 	if 'Water' in key:
@@ -66,12 +65,11 @@ def one_cs_for_each(header, mat_lib, path):
 	   material_obj.from_atom_frac(h2o_atoms)
 	# ToDo:  what materials do we not want to collapse?
 	coll = material_obj.collapse_elements([])
-	name, xs_material_entry = xs_create_entry(coll)
-        xs_input_filename = 'cs_input_' + name + '.dat'
+	(fluka_name, xs_material_entry) = xs_create_entry(coll)
+        xs_input_filename = 'cs_input_' + fluka_name + '.dat'
 	xs_input_path = path + xs_input_filename
 	# Create a dictionarey of mat_name/input filename pairs.
-	# Slightly redundant, but separate access will be useful.
-	cs_file_mats[name] = xs_input_filename
+	cs_file_mats[fluka_name] = xs_input_filename
         f = open(xs_input_path, 'w')
         f.write(header)
         f.write(xs_material_entry)
@@ -86,11 +84,11 @@ ToDo:  formatting of species line members
 """
 def xs_create_entry(coll):
     print coll
-    name1 = coll.metadata['fluka_name']
+    fluka_name = coll.metadata['fluka_name']
     density = coll.density
     num_species = len(coll.comp)
-    print "       ", name1, ', ', coll.density, ', ', num_species
-    material_entry = name1 + '\n' + "{0:.1f}".format(density) + '\n' + str(num_species) + '\n'
+    print "       ", fluka_name, ', ', coll.density, ', ', num_species
+    material_entry = fluka_name + '\n' + "{0:.1f}".format(density) + '\n' + str(num_species) + '\n'
     for key in coll.comp:
         compname = nucname.name(key)
         str_comp_atomic_mass = "{0:.0f}".format(data.atomic_mass(key)) + '.'
@@ -98,7 +96,7 @@ def xs_create_entry(coll):
         str_comp_atoms_per_g = "{0:.2E}".format(coll.comp[key]*data.N_A/data.atomic_mass(key))
         print compname, str_comp_atomic_mass, str_comp_charge, str_comp_atoms_per_g
         material_entry += str_comp_atomic_mass + '  ' + str_comp_charge + '  ' + str_comp_atoms_per_g + '\n'
-    return name1, material_entry
+    return fluka_name, material_entry
 
 """
 Argument parsing
@@ -164,7 +162,7 @@ def load_config_params(config):
 def main():
     # Setup: parse the the command line parameters
     args = parsing()
-    path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
+    geom_path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
 
     config = ConfigParser.ConfigParser()
     config.read(args.config_file)
@@ -175,8 +173,8 @@ def main():
             print 'Creating path', cross_path
 	    os.mkdir(cross_path)
 	
-	for path in (run_path, cross_path):
-	    assert os.path.isdir(path), "Path '{0}' not found.".format(dir)
+	for pathname in (run_path, cross_path):
+	    assert os.path.isdir(pathname), "Path '{0}' not found.".format(dir)
 
         xs_header = xs_create_header(cs_common, cs_outdir)
         print xs_header
@@ -187,12 +185,13 @@ def main():
 
     # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
-    mat_lib.from_hdf5(path)
-    cs_file_dict = one_cs_for_each(xs_header, mat_lib, cross_path) 
+    print geom_path
+    mat_lib.from_hdf5(geom_path)
+    cs_file_dict = write_cs_input(xs_header, mat_lib, cross_path) 
 
     for name in cs_file_dict:
 	src = cross_path + cs_file_dict[name]
-        one_d_tool.cross_section_process(src, rundir, name, cs_outdir)
+        one_d_tool.cross_section_process(src, run_path, name, cs_outdir)
     ##########################################################
     return
    
