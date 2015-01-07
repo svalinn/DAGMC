@@ -7,6 +7,13 @@ from tempfile import NamedTemporaryFile as NTF
 import ConfigParser
 import cs
 import hzetrn as one_d_tool
+import nose
+
+# from nose.tools import assert_equal, assert_not_equal, assert_raises, raises, \
+#   assert_almost_equal, assert_true, assert_false, assert_in
+from nose.tools import assert_equal, assert_not_equal, assert_raises, raises, \
+   assert_almost_equal, assert_true, assert_false, assert_in
+
 
 class TestLoadConfigs(unittest.TestCase):
 
@@ -41,3 +48,16 @@ class TestLoadConfigs(unittest.TestCase):
 	self.assertEqual(config.get('cs', 'cross_dir'), 'cross')
 	self.assertEqual(cs_outdir, 'cross_sections_out')
 
+    def test_cs(self):
+        header_lines = cs.xs_create_header('test_common_data', 'test_output')
+	expect = "test_common_data                    # Name of folder where static data is stored\ntest_output                         # Name of folder to put data in (folder must already exist)\n\n------------------------------------------------------------------------------------\n\n"
+	assert_equal(header_lines, expect)
+
+        test_dir = 'test_dir'
+        cur_path = os.path.dirname(os.path.abspath(__file__)) + '/'
+        cross_path = cur_path + test_dir + '/'
+	
+	# mat_lib = 
+        # cs_file_dict = write_cs_input(header_lines, mat_lib, cross_path) 
+
+    
