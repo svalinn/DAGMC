@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import subprocess
 import argparse
 import string
@@ -21,7 +22,9 @@ from pyne import data
 from pyne import nucname
 import hzetrn as one_d_tool
 
-class DagmcError(Exception):
+# class DagmcError(Exception):
+
+class CS_CFG_Error(Exception):
     pass
 
 """ 
@@ -52,7 +55,7 @@ modified default name cs_input_MATERIAL.dat for each material
 
 ToDo:  Think of a better name for this method
 """
-def one_cs_for_each(header, mat_lib):
+def one_cs_for_each(header, mat_lib, path):
     cs_file_mats = {}
     num_materials = len(mat_lib.keys())
     for key in mat_lib:
@@ -65,10 +68,11 @@ def one_cs_for_each(header, mat_lib):
 	coll = material_obj.collapse_elements([])
 	name, xs_material_entry = xs_create_entry(coll)
         xs_input_filename = 'cs_input_' + name + '.dat'
+	xs_input_path = path + xs_input_filename
 	# Create a dictionarey of mat_name/input filename pairs.
 	# Slightly redundant, but separate access will be useful.
 	cs_file_mats[name] = xs_input_filename
-        f = open(xs_input_filename, 'w')
+        f = open(xs_input_path, 'w')
         f.write(header)
         f.write(xs_material_entry)
         f.close()
@@ -122,34 +126,73 @@ def parsing():
 
     return args
 
+def load_config_params(config):
+    """Read in config file information for parameters.
+       after r2s_step2.py:load_config_params
+
+    Parameters
+    ----------
+    config : ConfigParser.ConfigParser object
+
+    Returns
+    -------
+    A list of the following values taken from the .cfg file:
+    
+    run_path    path to the directory that holds 1_Cross_sections 
+                and common data)
+    cs_common   name of directory containing all the physical data 
+                to calculate the cross sections
+    cross_path   
+
+    """
+    cur_path = os.path.dirname(os.path.abspath(__file__)) + '/'
+    # Filenames
+    if config.has_section('common'):
+        run_path = cur_path + config.get('common','run_directory') + '/'
+        cs_common = config.get('common','common_data')
+    else:
+        raise CS_CFG_Error("'common' section required in your config file.")
+
+    if config.has_section('cs'):
+        cross_path = cur_path + config.get('cs','cross_dir') + '/'
+        cs_outdir  = config.get('cs','cs_out')
+    else:
+        raise CS_CFG_Error("'cs' section required in your config file.")
+
+    return (run_path, cs_common, cross_path, cs_outdir)
 
 def main():
     # Setup: parse the the command line parameters
     args = parsing()
     path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
+
     config = ConfigParser.ConfigParser()
     config.read(args.config_file)
 
+    try:
+        (run_path, cs_common, cross_path, cs_outdir) = load_config_params(config)
+        if not os.path.isdir(cross_path):
+            print 'Creating path', cross_path
+	    os.mkdir(cross_path)
+	
+	for path in (run_path, cross_path):
+	    assert os.path.isdir(path), "Path '{0}' not found.".format(dir)
 
-    # Start the file with header lines which contain the names of 
-    # some folders the cross_section processing will need
-    cs_common = config.get("common", "common_data")
-    cs_outdir = config.get("cs", "cs_out")
-    xs_header = xs_create_header(cs_common, cs_outdir)
-    print xs_header
+        xs_header = xs_create_header(cs_common, cs_outdir)
+        print xs_header
+
+    except CS_CFG_Error as e:
+        print "ERROR: {0}\n(in hze.cfg file {1})".format( e, \
+	              os.path.abspath(cfgfile))
 
     # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(path)
-    cs_file_dict = one_cs_for_each(xs_header, mat_lib) 
+    cs_file_dict = one_cs_for_each(xs_header, mat_lib, cross_path) 
 
-    # Using the input file just created, prepare the materials subdirectory
-    # This method will make a subprocess call
-    curdir = os.path.dirname(os.path.abspath(__file__)) + '/'
-    subdir = curdir + config.get("common", "run_directory") + '/'
     for name in cs_file_dict:
-	src = curdir + cs_file_dict[name]
-        one_d_tool.cross_section_process(subdir, src, name, cs_outdir)
+	src = cross_path + cs_file_dict[name]
+        one_d_tool.cross_section_process(src, rundir, name, cs_outdir)
     ##########################################################
     return
    

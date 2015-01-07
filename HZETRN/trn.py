@@ -41,10 +41,13 @@ Load or create tuples representing dirs
 In file with 10,000 tuples, here are the ranges
 ('min_theta', 0.00117047, 'max_theta', 3.136877355, 'min_phi', -3.141219364, 'max_phi', 3.14087921)
 """
-def load_ray_tuples(filename):
+def load_ray_tuples(filename, number):
 
     ray_tuples = []
-
+    if number:
+        ray_tuples = get_rand_dirs(number)
+	return ray_tuples
+    
     # ToDo: randomly generate dirs
     if not filename:
        ray_tuples = [(1.0, 0.0, 0.0),
@@ -207,6 +210,10 @@ def parsing():
 	help='The path to the file with ray direction tuples')
 
     parser.add_argument(
+        '-n', action='store', dest='rand_dirs', 
+	help='The number of randome ray directions to use', type=int)
+
+    parser.add_argument(
         '-p', action='store', dest='ray_start', 
 	help='Cartesion coordinate of starting point of all rays')
 
@@ -216,35 +223,10 @@ def parsing():
         raise Exception('h5m file path not specified. [-f] not set')
     if not args.config_file:
         args.config_file = 'hze.cfg'
-    if not args.ray_dir_file:
+    if not args.ray_dir_file and not args.rand_dirs:
         args.ray_dir_file = False
-
+       
     return args
-
-""" create_names_dict
-map fluka_names in the material library to tag names.
-
-We need the fluka_names to put in the spatial input file
-so that it can get the cross sections previously calculated.  
-We need the material library from the from_hdf5 method to
-get those.  
-
-Reworking dagmc.load so it plays with uwuw preprocessed code
-will simplify this
-def create_names_dict(path, volmat_dict):
-    # Cross-Section: load the material library from the uwuw geometry file
-    mat_lib = material.MaterialLibrary()
-    mat_lib.from_hdf5(path)
-    cs_file_mats = {}
-    num_materials = len(mat_lib.keys())
-    for key in mat_lib:
-        material_obj = mat_lib[key]
-	# This is the whole point of this method:  
-        fluka_name = material_obj.metadata['fluka_name']
-	name       = material_obj.metadata['name']
-	cs_file_mats[name] = fluka_name
-    return cs_file_mats
-"""
 
 def main():
     # Setup: parse the the command line parameters
@@ -262,26 +244,25 @@ def main():
         print 'Creating path', spatial_path
 	os.mkdir(spatial_path)
 
-    # transport_outdir = config.get("trn", "trn_out")
-    ##########################################################
-
     # Load the DAG object for this geometry
     rtn = dagmc.load(path)
 
     vol_fname_dict = tag_utils.get_fnames_for_vol(path)
     print 'fnames_dict', vol_fname_dict
     # get list of rays
-    ray_tuples = load_ray_tuples(args.ray_dir_file) 
+    ray_tuples = load_ray_tuples(args.ray_dir_file, args.rand_dirs) 
     # ray_tuples = subset_ray_tuples(args.ray_dir_file) 
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
+    print 'ref_point', ref_point
     start_vol = find_ref_vol(ref_point)
     
     i=1
     for dir in ray_tuples:
 	slab_length, slab_mat_name  = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
         #############################################
+	print dir
 
 	transport_input = []
 	num_mats = len(slab_mat_name)
@@ -295,7 +276,11 @@ def main():
 	transport_input.append('\n')
 
 	if len(ray_tuples) < 20:
-	    spatial_filename = 'spatial_' + str(i) + '.dat'
+	    spatial_filename =  'spatial_' + "{0:.4f}".format(dir[0]) \
+	                              + '_' + "{0:.4f}".format(dir[1]) \
+			   	      + '_' + "{0:.4f}".format(dir[2]) \
+					    + '.dat'
+	    # spatial_filename = 'spatial_' + str(i) + '.dat'
             #############################################
 	    sslab = []
             for d in slab_length:
@@ -314,14 +299,14 @@ def main():
 	f.close()
 	# else:
         one_d_tool.transport_process(src, rundir)
+        one_d_tool.response_process(src, rundir)
+
 	    
 	i = i + 1
     ###################################### 
     #
     # Write out the file that will be the input for the transport step
     # one_d_tool.write_spatial_transport_file(slab_length, slab_mat_name)
-    one_d_tool.response_process()
-    outcome = one_d_tool.extract_results()
     # append_csv_file(filename, outcome)
 
     return

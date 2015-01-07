@@ -42,13 +42,7 @@ path : the dagmc filename
 return vector of tag_values
 """
 def get_mat_tag_values(path):
-    # dag_properties = set()
-    # material tags
-    # dag_material_tags = []
-
-    # material_vol 
-    # mat_assigns=[]
-    # mat_vol_dict = {}
+    
     vol_mat_dict = {}
 
     # create imesh instance  and load the file
@@ -94,28 +88,11 @@ def get_mat_tag_values(path):
                 mat_name = mat_tag[meshset]
 		# print ('in entity-meshset loop: ', mat_tag, meshset, mat_tag[meshset])
                 volume_name = name_tag[entity]
-                # dag_properties.add(tag_to_script(mat_name))
 
 		# uwuw_preproc's version, get_tag_values(), uses 'tally:' here
 		if 'mat:' in tag_to_script(mat_name):
-		    # pair = (volume_name, tag_to_script(mat_name))
-		    # mat_assigns.append(pair)
-                    # mat_vol_dict[tag_to_script(mat_name)] = volume_name
 		    vol_mat_dict[volume_name] = tag_to_script(mat_name)
 		  
-
-    # now we have dag properties
-    # for tag in dag_properties:
-    #     if 'mat:' in tag:
-    #        dag_material_tags.append(tag)
-
-    # a dictiounary will be more convenient
-    # mat_vol_dict = {}
-    # pair 0 is the vol, par 1 is the material tag name
-    # for pair in mat_assigns:
-    #    mat_vol_dict[pair[1]]=pair[0]
-
-    # return mat_vol_dict
     return vol_mat_dict
 
 def get_fnames_for_vol(path):
@@ -125,8 +102,7 @@ def get_fnames_for_vol(path):
     # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(path)
-    # cs_file_mats = {}
-    # num_materials = len(mat_lib.keys())
+    
     for key in mat_lib:
         material_obj = mat_lib[key]
 	mat_name = material_obj.metadata['name']
@@ -135,16 +111,7 @@ def get_fnames_for_vol(path):
 	        vol_fname_dict[vol] = material_obj.metadata['fluka_name']
 	        
 
-	# This is the whole point of this method:  join two tables
-	# name       = material_obj.metadata['name']
-	#vol = mat_vol_dict[material_obj.metadata['name']]
-	
-        # fluka_name = material_obj.metadata['fluka_name']
-        # Associate the vol and the fluka name	
-	#vol_fname_dict[vol] = material_obj.metadata['fluka_name']
-
     # Since 'graveyard' is not a 'fluka_name', add it specifically to the dictionary
-    # for mat in mat_vol_dict:
     for vol in vol_mat_dict:
         if 'graveyard' in vol_mat_dict[vol].lower():
 	   vol_fname_dict[vol] = 'graveyard' 
