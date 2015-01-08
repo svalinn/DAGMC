@@ -224,6 +224,32 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event)
 
   // sort the intersection data
   sort_intersection_data(intersections,triangles);
+
+  /*
+    // remove duplicates
+    std::map<sEntityHandle,double> > distance_surf_collection;
+
+    for ( int i = 0 ; i < intersections.size() ; i++ )
+      {
+	distance_surf_collection[triangle[i]] = intersections[i]; 
+      }
+  */
+
+  /*
+  std::cout << " new " << std::endl;
+  for ( int i = 0 ; i < intersections.size() ; i++ )
+    {
+      std::cout << intersections[i] << " " << triangles[i] << " " << event.track_length << std::endl;
+    }
+  //  exit(1);
+  std::vector<double>::iterator it;
+  for ( it = intersections.begin() ; it != intersections.end() ; ++it )
+    {
+      std::cout << *it << " ";
+    }
+  std::cout << std::endl;
+  */
+
   // compute the tracklengths
   compute_tracklengths(event, ebin, weight, intersections, triangles);
 
@@ -543,7 +569,12 @@ ErrorCode TrackLengthMeshTally::get_all_intersections(const CartVect& position, 
     
     ErrorCode result = kdtree->ray_intersect_triangles( kdtree_root, TRIANGLE_INTERSECTION_TOL, 
 					    direction.array(), position.array(), triangles,
-					    intersections, 0, track_length );
+					    intersections, 0, track_length);    
+    if(result != MB_SUCCESS )
+      {
+	std::cerr << "There is a problem!!" << std::endl;
+      }
+    
     return result;
   }
 
@@ -664,6 +695,7 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
       hit_point.push_back(hit_p); // add to list of hit points
       tet_centroid = ((hit_point[i+1]-hit_point[i])/2.0)+hit_point[i]; // centre of the tet
       //      std::cout << "centroid " << tet_centroid << std::endl;
+
       // determine the tet that the point belongs to
       tet = point_in_which_tet(tet_centroid);
       //      std::cout << tet << std::endl;
