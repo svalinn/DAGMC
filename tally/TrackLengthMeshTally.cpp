@@ -225,31 +225,6 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event)
   // sort the intersection data
   sort_intersection_data(intersections,triangles);
 
-  /*
-    // remove duplicates
-    std::map<sEntityHandle,double> > distance_surf_collection;
-
-    for ( int i = 0 ; i < intersections.size() ; i++ )
-      {
-	distance_surf_collection[triangle[i]] = intersections[i]; 
-      }
-  */
-
-  /*
-  std::cout << " new " << std::endl;
-  for ( int i = 0 ; i < intersections.size() ; i++ )
-    {
-      std::cout << intersections[i] << " " << triangles[i] << " " << event.track_length << std::endl;
-    }
-  //  exit(1);
-  std::vector<double>::iterator it;
-  for ( it = intersections.begin() ; it != intersections.end() ; ++it )
-    {
-      std::cout << *it << " ";
-    }
-  std::cout << std::endl;
-  */
-
   // compute the tracklengths
   compute_tracklengths(event, ebin, weight, intersections, triangles);
 
