@@ -146,8 +146,8 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
     dist = 0
     huge = 1000000000
 
-    slab_length = []
-    slab_mat_name = []
+    slab_lengths = []
+    slab_mat_names = []
     vols_traversed = []
 
     print 'start_vol is', start_vol
@@ -167,9 +167,9 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
         if not is_graveyard and ((dist < huge) and (surf != 0)):
 	    # We have already checked last_vol for being a graveyard
 	    if last_vol in fname_for_vol:
-	        slab_length.append(dist)
+	        slab_lengths.append(dist)
 		# Get a name associated with volume
-	        slab_mat_name.append(fname_for_vol[last_vol])
+	        slab_mat_names.append(fname_for_vol[last_vol])
 		# Optional documentation
                 vols_traversed.append(last_vol)
 
@@ -189,7 +189,7 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
     print ('for dir', sdir, 'vols traversed', vols_traversed)
     #########################################################################
 
-    return slab_length, slab_mat_name 
+    return slab_lengths, slab_mat_names
       
 """
 Argument parsing
@@ -260,21 +260,26 @@ def main():
     
     i=1
     for dir in ray_tuples:
-	slab_length, slab_mat_name  = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
+	slab_lengths, slab_mat_names = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
         #############################################
-	print dir
+
+	num_mats = len(slab_mat_names)
+	print 'num_mats', num_mats
+        # Need to have a non-zero number of mats
+	if 0 == num_mats:
+	    continue
 
 	transport_input = []
-	num_mats = len(slab_mat_name)
 	transport_input.append(str(num_mats))
 	for n in range(num_mats):
-	    transport_input.append(slab_mat_name[n])
+	    transport_input.append(slab_mat_names[n])
 	    transport_input.append('2')
-	    transport_input.append('0.0 ' + "{0:.1f}".format(slab_length[n]))
+	    transport_input.append('0.0 ' + "{0:.1f}".format(slab_lengths[n]))
 
 	# Need a newline at end of file
 	transport_input.append('\n')
-
+        print 'ray_tuple', dir, 'transport_input', transport_input
+	
 	if len(ray_tuples) < 20:
 	    spatial_filename =  'spatial_' + "{0:.4f}".format(dir[0]) \
 	                              + '_' + "{0:.4f}".format(dir[1]) \
@@ -283,9 +288,9 @@ def main():
 	    # spatial_filename = 'spatial_' + str(i) + '.dat'
             #############################################
 	    sslab = []
-            for d in slab_length:
+            for d in slab_lengths:
 	        sslab.append(format(d,'.6f'))
-	    print ('dist, mats ',  sslab, slab_mat_name)
+	    print ('dist, mats ',  sslab, slab_mat_names)
 	    print ('---')
             #############################################
 	else:
