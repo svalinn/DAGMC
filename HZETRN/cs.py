@@ -25,39 +25,19 @@ import hzetrn as one_d_tool
 class CS_CFG_Error(Exception):
     pass
 
-""" 
-xs_create_header creates a string conting the first few material-
-independent lines of the input file for the cross-section call
+# 'cross_dir' is a subdirectory for storing named input files
+cross_dir   = 'cross'
 
-returns string contining the lines
-Note: this is not strictly a header, as what1 and what 2 have to match
-the actual directories.
-"""
-def xs_create_header(common_data_dir, cs_out_dir):
-
-    comment1 = '# Name of folder where static data is stored'
-    comment2 = '# Name of folder to put data in (folder must already exist)'
-    # 84 dashes
-    divider  = '{:-<84}'.format('-')
-    # right-align, pad with spaces
-    lines  = '{:<36}'.format(common_data_dir) + comment1 + '\n'
-    lines += '{:<36}'.format(cs_out_dir) + comment2 + '\n'
-    lines += '\n'
-    lines += divider + '\n'
-    lines += '\n'
-    return lines
-
-""" one_cs_for_each
+""" write_cs_input
 Create cross_section input files in the current directory with the
-modified default name cs_input_MATERIAL.dat for each material
+modified default name cs_input_FLUKA_NAME.dat for each material
 
 """
 def write_cs_input(header, mat_lib, path):
     cs_file_mats = {}
     num_materials = len(mat_lib.keys())
     for key in mat_lib:
-        print key
-	print mat_lib[key]
+        print 'in write_cs_input:', key, mat_lib[key]
         material_obj = mat_lib[key]
 	# This can be removed after an update
 	if 'Water' in key:
@@ -111,87 +91,63 @@ def parsing():
 	help='The relative path to the .h5m file')
 
     parser.add_argument(
-        '-c', action='store', dest='config_file',
-	help='The name of the cs config file')
-
+        '-r', action='store', dest='run_dir',
+	help='The name of the holding directory for all hzetrn runs')
+	
     args = parser.parse_args()
 
     if not args.uwuw_file:
         raise Exception('h5m file path not specified. [-f] not set')
-    # Should cs.cfg be in the protected directory?
-    if not args.config_file:
-        args.config_file = 'hze.cfg'
+
+    if not args.run_dir:
+        raise Exception('Need a directory containing HZETRN executable structure')
 
     return args
 
-def load_config_params(config):
-    """Read in config file information for parameters.
-       after r2s_step2.py:load_config_params
-
-    Parameters
-    ----------
-    config : ConfigParser.ConfigParser object
-
-    Returns
-    -------
-    A list of the following values taken from the .cfg file:
-    
-    run_path    path to the directory that holds 1_Cross_sections 
-                and common data)
-    cs_common   name of directory containing all the physical data 
-                to calculate the cross sections
-    cross_path   
-
-    """
-    cur_path = os.path.dirname(os.path.abspath(__file__)) + '/'
-    # Filenames
-    if config.has_section('common'):
-        run_path = cur_path + config.get('common','run_directory') + '/'
-        cs_common = config.get('common','common_data')
-    else:
-        raise CS_CFG_Error("'common' section required in your config file.")
-
-    if config.has_section('cs'):
-        cross_path = cur_path + config.get('cs','cross_dir') + '/'
-        cs_outdir  = config.get('cs','cs_out')
-    else:
-        raise CS_CFG_Error("'cs' section required in your config file.")
-
-    return (run_path, cs_common, cross_path, cs_outdir)
-
 def main():
+    global run_directory, cross_dir
+
     # Setup: parse the the command line parameters
     args = parsing()
-    geom_path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
+    geom_filepath = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
 
-    config = ConfigParser.ConfigParser()
-    config.read(args.config_file)
+    cur_path = os.path.dirname(os.path.abspath(__file__)) + '/'
+    
+    # Create some generic full paths 
+    run_path = cur_path + args.run_dir + '/'
+    cross_path = cur_path + cross_dir + '/'
 
-    try:
-        (run_path, cs_common, cross_path, cs_outdir) = load_config_params(config)
-        if not os.path.isdir(cross_path):
-            print 'Creating path', cross_path
-	    os.mkdir(cross_path)
+    # Make the cross_path subdir if necessary
+    if not os.path.isdir(cross_path):
+        print 'Creating path', cross_path
+        os.mkdir(cross_path)
+
+    for pathname in (run_path, cross_path):
+        assert os.path.isdir(pathname), "Path '{0}' not found.".format(dir)
+
+    if not os.path.isdir(cross_path):
+        print 'Creating path', cross_path
+        os.mkdir(cross_path)
 	
-	for pathname in (run_path, cross_path):
-	    assert os.path.isdir(pathname), "Path '{0}' not found.".format(dir)
+    for pathname in (run_path, cross_path):
+	assert os.path.isdir(pathname), "Path '{0}' not found.".format(dir)
 
-        xs_header = xs_create_header(cs_common, cs_outdir)
-        print xs_header
-
-    except CS_CFG_Error as e:
-        print "ERROR: {0}\n(in hze.cfg file {1})".format( e, \
-	              os.path.abspath(cfgfile))
+    header = one_d_tool.xs_create_header()
 
     # Cross-Section: load the material library from the uwuw geometry file
     mat_lib = material.MaterialLibrary()
-    print geom_path
-    mat_lib.from_hdf5(geom_path)
-    cs_file_dict = write_cs_input(xs_header, mat_lib, cross_path) 
+    print geom_filepath
+    mat_lib.from_hdf5(geom_filepath)
+    # Create a cs_input file for each material in the problem
+    cs_input_for_name = write_cs_input(header, mat_lib, cross_path) 
 
-    for name in cs_file_dict:
-	src = cross_path + cs_file_dict[name]
-        one_d_tool.cross_section_process(src, run_path, name, cs_outdir)
+    for fname, cs_input in cs_input_for_name.iteritems():
+        one_d_tool.cross_section_process(cross_path + cs_input, run_path, fname)
+
+    # Run each input file
+    # for fname in cs_input_for_name:
+#	src_file = cross_path + cs_input_for_name[fname]
+#        one_d_tool.cross_section_process(src_file, run_path, fname, cs_outdir)
     ##########################################################
     return
    
