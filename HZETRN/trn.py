@@ -25,6 +25,9 @@ import tag_utils
 class DagmcError(Exception):
     pass
 
+# 'spatial_dir' is a subdir for storing input files as they are created
+spatial_dir = 'spatial'
+
 def load_ray_start(filename):
     ray_start = []
     if not filename:
