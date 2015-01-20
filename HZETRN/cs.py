@@ -91,7 +91,7 @@ def parsing():
 	help='The relative path to the .h5m file')
 
     parser.add_argument(
-        '-r', action='store', dest='run_dir',
+        '-d', action='store', dest='run_dir',
 	help='The name of the holding directory for all hzetrn runs')
 	
     args = parser.parse_args()

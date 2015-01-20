@@ -205,9 +205,13 @@ def parsing():
     parser.add_argument(
         '-f', action='store', dest='uwuw_file', 
 	help='The relative path to the .h5m file')
+#    parser.add_argument(
+#        '-c', action='store', dest='config_file',
+#	help='The name of the config file')
     parser.add_argument(
-        '-c', action='store', dest='config_file',
-	help='The name of the config file')
+        '-d', action='store', dest='run_dir',
+	help='The name of the holding directory for all hzetrn runs')
+
     parser.add_argument(
         '-r', action='store', dest='ray_dir_file', 
 	help='The path to the file with ray direction tuples')
@@ -224,25 +228,24 @@ def parsing():
 
     if not args.uwuw_file:
         raise Exception('h5m file path not specified. [-f] not set')
-    if not args.config_file:
-        args.config_file = 'hze.cfg'
+#    if not args.config_file:
+#        args.config_file = 'hze.cfg'
     if not args.ray_dir_file and not args.rand_dirs:
         args.ray_dir_file = False
        
     return args
 
 def main():
+    global spatial_dir
+
     # Setup: parse the the command line parameters
     args = parsing()
     path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
 
-    config = ConfigParser.ConfigParser()
-    config.read(args.config_file)
-
     curdir = os.path.dirname(os.path.abspath(__file__)) + '/'
-    rundir = curdir + config.get("common", "run_directory") + '/'
+    run_path = curdir + args.run_dir + '/'
 
-    spatial_path = curdir + config.get("trn", "spatial_dir") + '/'
+    spatial_path = curdir + spatial_dir + '/'
     if not os.path.isdir(spatial_path):
         print 'Creating path', spatial_path
 	os.mkdir(spatial_path)
@@ -253,64 +256,82 @@ def main():
     vol_fname_dict = tag_utils.get_fnames_for_vol(path)
     print 'fnames_dict', vol_fname_dict
     # get list of rays
-    ray_tuples = load_ray_tuples(args.ray_dir_file, args.rand_dirs) 
-    # ray_tuples = subset_ray_tuples(args.ray_dir_file) 
+    # ray_tuples = load_ray_tuples(args.ray_dir_file, args.rand_dirs) 
+    ray_tuples = subset_ray_tuples(args.ray_dir_file) 
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
     print 'ref_point', ref_point
     start_vol = find_ref_vol(ref_point)
     
-    i=1
+    response_filepath = run_path + 'collect_doseq_table.csv' 
+    with open(response_filepath,'a') as f:
+        f.write('\'' + path+'\'\n')
+       
+    # i=1
     for dir in ray_tuples:
 	slab_lengths, slab_mat_names = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
         #############################################
 
 	num_mats = len(slab_mat_names)
 	print 'num_mats', num_mats
-        # Need to have a non-zero number of mats
-	if 0 == num_mats:
-	    continue
 
+        # Need to have a non-zero number of mats
 	transport_input = []
 	transport_input.append(str(num_mats))
-	for n in range(num_mats):
-	    transport_input.append(slab_mat_names[n])
+	if 0 != num_mats:
+	    for n in range(num_mats):
+	        transport_input.append(slab_mat_names[n])
+	        transport_input.append('2')
+	        transport_input.append('0.0 ' + "{0:.1f}".format(slab_lengths[n]))
+	# Make a bogus spatial file, for the record
+	else:
+	    transport_input.append('No material traversed')
 	    transport_input.append('2')
-	    transport_input.append('0.0 ' + "{0:.1f}".format(slab_lengths[n]))
+	    transport_input.append('0.0 0.0')
 
 	# Need a newline at end of file
 	transport_input.append('\n')
         print 'ray_tuple', dir, 'transport_input', transport_input
 	
+	dir_string = "{0:.4f}".format(dir[0]) + '_' + \
+	             "{0:.4f}".format(dir[1]) + '_' + \
+		     "{0:.4f}".format(dir[2]) 
+
+
 	if len(ray_tuples) < 20:
-	    spatial_filename =  'spatial_' + "{0:.4f}".format(dir[0]) \
-	                              + '_' + "{0:.4f}".format(dir[1]) \
-			   	      + '_' + "{0:.4f}".format(dir[2]) \
-					    + '.dat'
-	    # spatial_filename = 'spatial_' + str(i) + '.dat'
-            #############################################
+	    spatial_filename = 'spatial_' + dir_string + '.dat'
 	    sslab = []
             for d in slab_lengths:
 	        sslab.append(format(d,'.6f'))
-	    print ('dist, mats ',  sslab, slab_mat_names)
-	    print ('---')
+	    print ('dist, mats ', sslab, slab_mat_names)
             #############################################
 	else:
 	    spatial_filename = 'spatial.dat'
 
-	# ToDo: refactor to pass to transport_process?
 	# if i < 50:
-        src = spatial_path + spatial_filename
-	f = open(src, 'w')
+	# Write out the spatial file even for no materials traversed
+        trn_path = spatial_path + spatial_filename
+	f = open(trn_path, 'w')
 	f.write("\n".join(transport_input))
 	f.close()
 	# else:
-        one_d_tool.transport_process(src, rundir)
-        one_d_tool.response_process(src, rundir)
+	if 0 != num_mats:
+            one_d_tool.transport_process(run_path, trn_path)
+            one_d_tool.response_process(run_path)
 
+	data_line = one_d_tool.collect_results_for_dir(run_path, dir_string, trn_path)
+
+        print 'response_filepath:', response_filepath
+        with open(response_filepath,'a') as f:
+            f.write(data_line)
+
+    with open(response_filepath) as f:
+        f.close()
+    return 
+	
 	    
-	i = i + 1
+# 	i = i + 1
     ###################################### 
     #
     # Write out the file that will be the input for the transport step
