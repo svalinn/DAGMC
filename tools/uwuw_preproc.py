@@ -379,6 +379,47 @@ def check_and_create_materials(material_list, mat_lib):
     # return the list of material objects to write to file
     print material_object_list
     return material_object_list
+    
+'''    
+""" #still working on it.
+function to compose materials
+material_object_list: PyNE material library created using 'check_and_create_materials' function
+mat_lib : PyNE Material library object
+tag_values : list of tags from dagmc file
+"""
+def compose_materials(material_object_list, mat_lib, tag_values):
+    # loop over the tags in the tag_values list to detect the "comp:' tags
+    for (tag in tag_values):
+        if (tag[0:4] == 'comp'):
+            try:
+                mat_input= open('inputmat.py','r')
+            except:
+                raise Exception("Composite materials input file is not provided/ not properly named!. NAME:\'inputmat.py\'")    
+        # create a dictionary of composite materials
+        mat_dict= {}
+        for line in mat_input:
+            mat_dict[line.split('=')[0]]= eval(line.split('=')[1])
+        for key in mat_dict.keys():
+            newmat_name= key
+            # create a list of elements of the new material to be mixed
+            for element in mat_dict[key]:
+                newmat_list.append(element)
+            # copy mateials from PyNE material library
+            for (material in newmat_list):
+                # loop over materials in library
+                for k in mat_lib.iterkeys():
+                    if material == k:
+                        # get the material
+                        new_mat = mat_lib.get(k)[:]
+                        copy_metadata(new_mat, mat_lib.get(k))
+                    if (mat_lib.keys().index(k) == len(mat_lib.keys()) - 1):
+                        print('Material {%s} doesn\'t exist in pyne material lib' % material)
+                        print_near_match(material, mat_lib)
+                        raise Exception('Couldn\'t find exact match in material library for : %s' % material)  
+                              
+            
+'''            
+
 
 """
 function to copy the metadata of materials from the PyNE material library
@@ -564,6 +605,8 @@ def main():
     mat_dens_list = check_matname(tag_values)
     # create material objects from library
     material_object_list = check_and_create_materials(mat_dens_list, mat_lib)
+    # create materials that need composition (tagged on the geometry with 'comp:')
+    material_object_list = compose_materials(material_object_list, mat_lib, tag_values)
     # write materials to file
     write_mats_h5m(material_object_list, args.output)
 
