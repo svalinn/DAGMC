@@ -1,0 +1,6 @@
+# HZETRN ignore
+*tmp*
+*save*
+*.csv
+*.pyc
+*.dat
