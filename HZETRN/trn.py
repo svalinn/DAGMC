@@ -3,7 +3,6 @@ import argparse
 import string
 import os
 import pprint
-import ConfigParser
 
 try:
    from pyne import material
@@ -43,6 +42,9 @@ def load_ray_start(filename):
 Load or create tuples representing dirs
 In file with 10,000 tuples, here are the ranges
 ('min_theta', 0.00117047, 'max_theta', 3.136877355, 'min_phi', -3.141219364, 'max_phi', 3.14087921)
+
+filename name of file with rays in it, checked to exist
+         before entering this function
 """
 def load_ray_tuples(filename, number):
 
@@ -51,21 +53,15 @@ def load_ray_tuples(filename, number):
         ray_tuples = get_rand_dirs(number)
 	return ray_tuples
     
-    # ToDo: randomly generate dirs
-    if not filename:
-       ray_tuples = [(1.0, 0.0, 0.0),
-                     (0.0, 1.0, 0.0),
-	   	     (0.0, 0.0, 1.0)]
-    else:
-       with open(filename) as f:
-           for line in f:
-	       nums = map(float, line.split())
-	       z = np.cos(nums[0])
-	       x = np.sin(nums[0])*np.cos(nums[1])
-	       y = np.sin(nums[0])*np.sin(nums[1])
-	       ray_tuples.append((x, y, z))
-       print(filename, 'ray_tuples  x             y                z')
-       pprint.pprint(ray_tuples)
+    with open(filename) as f:
+        for line in f:
+	    nums = map(float, line.split())
+	    z = np.cos(nums[0])
+	    x = np.sin(nums[0])*np.cos(nums[1])
+	    y = np.sin(nums[0])*np.sin(nums[1])
+	    ray_tuples.append((x, y, z))
+    print(filename, 'ray_tuples  x             y                z')
+    pprint.pprint(ray_tuples)
     return ray_tuples
 
 """
@@ -73,7 +69,7 @@ Load a subset of tuples representing directions
 This loads directions within a tolerance of the z-plane
 """
 def subset_ray_tuples(filename):
-    side = 10.0
+    side  = 10.0
     xlate = 20.0
     adj = xlate - side/2
     opp   = side/2
@@ -205,9 +201,7 @@ def parsing():
     parser.add_argument(
         '-f', action='store', dest='uwuw_file', 
 	help='The relative path to the .h5m file')
-#    parser.add_argument(
-#        '-c', action='store', dest='config_file',
-#	help='The name of the config file')
+
     parser.add_argument(
         '-d', action='store', dest='run_dir',
 	help='The name of the holding directory for all hzetrn runs')
@@ -224,12 +218,24 @@ def parsing():
         '-p', action='store', dest='ray_start', 
 	help='Cartesion coordinate of starting point of all rays')
 
+    parser.add_argument(
+        '--ray_subset', dest='ray_subset', action='store_true',
+        help='Use only rays within a small angle of the xy-plane')
+    parser.add_argument(
+        '--no-ray_subset', dest='ray_subset', action='store_false',
+        help='Use all rays')
+    parser.set_defaults(ray_subset=False)
+
+    parser.add_argument(
+        '-target', action='store', dest='target',
+        help='The target in which to calculate the response.  NB: the target material cross-section must exist'    )
+    parser.set_defaults(target='water')
+
     args = parser.parse_args()
 
     if not args.uwuw_file:
         raise Exception('h5m file path not specified. [-f] not set')
-#    if not args.config_file:
-#        args.config_file = 'hze.cfg'
+
     if not args.ray_dir_file and not args.rand_dirs:
         args.ray_dir_file = False
        
@@ -255,9 +261,18 @@ def main():
 
     vol_fname_dict = tag_utils.get_fnames_for_vol(path)
     print 'fnames_dict', vol_fname_dict
-    # get list of rays
-    # ray_tuples = load_ray_tuples(args.ray_dir_file, args.rand_dirs) 
-    ray_tuples = subset_ray_tuples(args.ray_dir_file) 
+    filename = args.ray_dir_file
+    if not filename:
+       ray_tuples = [(1.0, 0.0, 0.0),
+                     (0.0, 1.0, 0.0),
+	   	     (0.0, 0.0, 1.0)]
+    elif args.ray_subset:
+        # Get all the rays from a large ray file that are
+        # within a few degrees of the xy plane 
+        ray_tuples = subset_ray_tuples(filename)
+    else:
+        # get list of rays
+        ray_tuples = load_ray_tuples(filename, args.rand_dirs) 
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
@@ -311,16 +326,16 @@ def main():
 
 	# if i < 50:
 	# Write out the spatial file even for no materials traversed
-        trn_path = spatial_path + spatial_filename
-	f = open(trn_path, 'w')
+        spatial_filepath = spatial_path + spatial_filename
+	f = open(spatial_filepath, 'w')
 	f.write("\n".join(transport_input))
 	f.close()
 	# else:
 	if 0 != num_mats:
-            one_d_tool.transport_process(run_path, trn_path)
-            one_d_tool.response_process(run_path)
+            one_d_tool.transport_process(run_path, spatial_filepath)
+            one_d_tool.response_process(run_path, args.target)
 
-	data_line = one_d_tool.collect_results_for_dir(run_path, dir_string, trn_path)
+	data_line = one_d_tool.collect_results_for_dir(run_path, dir_string, spatial_filepath)
 
         print 'response_filepath:', response_filepath
         with open(response_filepath,'a') as f:
