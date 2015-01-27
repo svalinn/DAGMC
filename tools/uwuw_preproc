@@ -108,7 +108,6 @@ def get_tag_values(filename):
                 if 'tally:' in tag_to_script(mat_name):
                     pair = (volume_name,tag_to_script(mat_name))
                     tally_assigns.append(pair)
-
     # now we have dag properties, create one with materials and one with tallies
     for tag in dag_properties:
         if 'mat:' in tag:
