@@ -46,12 +46,9 @@ In file with 10,000 tuples, here are the ranges
 filename name of file with rays in it, checked to exist
          before entering this function
 """
-def load_ray_tuples(filename, number):
+def load_ray_tuples(filename):
 
     ray_tuples = []
-    if number:
-        ray_tuples = get_rand_dirs(number)
-	return ray_tuples
     
     with open(filename) as f:
         for line in f:
@@ -229,16 +226,13 @@ def parsing():
     parser.add_argument(
         '-target', action='store', dest='target',
         help='The target in which to calculate the response.  NB: the target material cross-section must exist'    )
-    parser.set_defaults(target='water')
+    parser.set_defaults(target='')
 
     args = parser.parse_args()
 
     if not args.uwuw_file:
         raise Exception('h5m file path not specified. [-f] not set')
 
-    if not args.ray_dir_file and not args.rand_dirs:
-        args.ray_dir_file = False
-       
     return args
 
 def main():
@@ -261,18 +255,22 @@ def main():
 
     vol_fname_dict = tag_utils.get_fnames_for_vol(path)
     print 'fnames_dict', vol_fname_dict
-    filename = args.ray_dir_file
-    if not filename:
+    # if a filename is given get the ray directions or a subset from it
+    if args.ray_dir_file:
+        if args.ray_subset:
+            # Get all the rays from a large ray file that are
+            # within a few degrees of the xy plane 
+            ray_tuples = subset_ray_tuples(args.ray_dir_file)
+	else :
+            ray_tuples = load_ray_tuples(args.ray_dir_files, args.rand_dirs) 
+    elif args.rand_dirs > 0:
+	print 'Getting ', args.rand_dirs, ' random directions'
+        ray_tuples = get_rand_dirs(args.rand_dirs)
+ 
+    else:
        ray_tuples = [(1.0, 0.0, 0.0),
                      (0.0, 1.0, 0.0),
 	   	     (0.0, 0.0, 1.0)]
-    elif args.ray_subset:
-        # Get all the rays from a large ray file that are
-        # within a few degrees of the xy plane 
-        ray_tuples = subset_ray_tuples(filename)
-    else:
-        # get list of rays
-        ray_tuples = load_ray_tuples(filename, args.rand_dirs) 
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
@@ -299,7 +297,7 @@ def main():
 	        transport_input.append(slab_mat_names[n])
 	        transport_input.append('2')
 	        transport_input.append('0.0 ' + "{0:.1f}".format(slab_lengths[n]))
-	# Make a bogus spatial file, for the record
+	# No materials for this direction: make a bogus spatial file 
 	else:
 	    transport_input.append('No material traversed')
 	    transport_input.append('2')
@@ -326,6 +324,8 @@ def main():
 
 	# if i < 50:
 	# Write out the spatial file even for no materials traversed
+	# A local subdirectory is used.  This is currently 
+	# hardcoded to ./spatial, but a temporary directory could also be used.
         spatial_filepath = spatial_path + spatial_filename
 	f = open(spatial_filepath, 'w')
 	f.write("\n".join(transport_input))
@@ -335,7 +335,7 @@ def main():
             one_d_tool.transport_process(run_path, spatial_filepath)
             one_d_tool.response_process(run_path, args.target)
 
-	data_line = one_d_tool.collect_results_for_dir(run_path, dir_string, spatial_filepath)
+	data_line = one_d_tool.collect_results_for_dir(run_path, dir_string, num_mats)
 
         print 'response_filepath:', response_filepath
         with open(response_filepath,'a') as f:
