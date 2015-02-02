@@ -11,6 +11,10 @@ dose_filename  = ''
 doseq_filename = ''
 dose_ple_filename  = ''
 doseq_ple_filename = ''
+diflet_filename = '' 
+intlet_filename = ''
+flux_filename = ''
+intflux_filename = ''
 
 class Results:
 
@@ -41,6 +45,56 @@ class nx7(Results):
         vals = np.array([float(words[1]), float(words[2]), float(words[3]), float(words[4]), float(words[5]), float(words[6])])
 	return vals
 
+class n700x2(Results):
+
+    def index_from(self, name, index):
+        # vals = np.array([[]])
+	vals = np.empty((1,700), float)
+	lines = Results.last_lines(self, name, 700)
+	col = 0
+	for line in lines:
+	    words = line.split()
+	    num = float(words[index])
+	    vals[0,col] = num
+	    col = col + 1
+	return vals
+      
+    def last_lines(self, name):
+        vals = self.index_from(name, 1)
+	return vals
+
+    """
+    def last_lines(self, name):
+	vals = np.array([])
+        result_lines = Results.last_lines(self, name, 700)
+	for line in result_lines:
+	    words = line.split()
+	    vals = np.hstack((vals, float(words[1])))
+	return vals
+   """
+
+class n100x7(Results):
+
+    def last_lines(self, name):
+	vals = np.array([])
+	lines = Results.last_lines(self, name, 100)
+	for line in lines:
+	    words = line.split()
+	    # We are skipping the first value, which is a flux bin
+            nums = np.array([float(words[1]), float(words[2]), float(words[3]), float(words[4]), float(words[5]), float(words[6])])
+	    vals = np.vstack((vals, nums))
+	return vals
+      
+    def index_from(self, name, index):
+	vals = np.empty((1,100), float)
+	lines = Results.last_lines(self, name, 100)
+	col = 0
+	for line in lines:
+	    words = line.split()
+	    num = float(words[index])
+	    vals[0,col] = num
+	    col = col + 1
+	return vals
 
 def reversed_lines(file):
     "Generate the lines of file in reverse order."
@@ -82,6 +136,9 @@ def check_last_n_lines(file, n):
 def get_names(file):
     "Fill in the global filenames from a text file."
     global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
+    global diflet_filename, intlet_filename
+    global flux_filename, intflux_filename
+
     lines = []
     with open(file,'r') as f:
 	# Get read of the newline
@@ -91,6 +148,11 @@ def get_names(file):
     doseq_filename     = lines[1]
     dose_ple_filename  = lines[2]
     doseq_ple_filename = lines[3]
+    diflet_filename    = lines[4]
+    intlet_filename    = lines[5]
+    flux_filename      = lines[6]
+    intflux_filename   = lines[7]
+
     return 
 
 def depth_header():
@@ -134,6 +196,8 @@ def parsing():
 
 def main():
     global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
+    global diflet_filename, intlet_filename
+    global flux_filename, intflux_filename
 
     # Setup: parse the the command line parameters
     args = parsing()
@@ -152,7 +216,16 @@ def main():
     depth_data_reader = nx2('')
     depth_particle_reader = nx7('')
 
+    dif_int_block_reader  = n700x2('')
+    flux_block_reader     = n100x7('')
+
     all_depth = np.array([])
+    # dif_block700 = np.array([1,703])
+    dif_block700 = np.array([])
+    int_block700 = np.array([])
+    block700_header = np.array([])
+    block100_header = np.array([])
+    btest           = np.array([])
     # This could be up to 10,000 subdirectories
     ray_subdirs = glob.glob('*')
     for r in ray_subdirs:
@@ -160,12 +233,18 @@ def main():
 	doseq_filepath = r + '/' + doseq_filename
 	dose_part_filepath  = r + '/' + dose_ple_filename 
 	doseq_part_filepath = r + '/' + doseq_ple_filename
+
+	dif_filepath     = r + '/' + diflet_filename
+	int_filepath     = r + '/' + intlet_filename
 	    
+	flux_filepath     = r + '/' + flux_filename
+	intflux_filepath     = r + '/' + intflux_filename
+
+        ray = r.split('_') 
+	ray_vec = np.array([float(ray[0]), float(ray[1]), float(ray[2])])
+
 	if os.path.exists(dose_filepath) and os.path.exists(doseq_filepath) and \
 	   os.path.exists(dose_part_filepath) and os.path.exists(doseq_part_filepath):
-            ray = r.split('_') 
-            # Add ray data to line as separate floates
-	    ray_vec = np.array([float(ray[0]), float(ray[1]), float(ray[2])])
             # Add dose and doseq at depth for 1 or 6 particles
 	    hnums = depth_data_reader.last_lines(dose_filepath)
 	    inums = depth_data_reader.last_lines(doseq_filepath)
@@ -180,6 +259,38 @@ def main():
 	    else:
 	        all_depth = np.vstack((all_depth,one_line)) 
     
+	if os.path.exists(dif_filepath) and os.path.exists(int_filepath):
+	    # Only need to read this once
+	    ray_vec.shape = (1,3)
+	    if block700_header.size == 0:
+	        fnums = dif_int_block_reader.index_from(dif_filepath, 0)
+		pad = np.array([[0.0, 0.0, 0.0]])
+		block700_header = np.hstack((pad,fnums))
+
+	    hnums = dif_int_block_reader.last_lines(dif_filepath)
+	    dif_line = np.hstack((ray_vec,hnums))
+
+	    inums = dif_int_block_reader.last_lines(int_filepath)
+	    int_line = np.hstack((ray_vec,inums))
+
+	    if dif_block700.size == 0:
+	        dif_block700 = dif_line
+		int_block700 = int_line
+	    else:
+	        dif_block700 = np.vstack((dif_block700,dif_line))
+	        int_block700 = np.vstack((int_block700,int_line))
+
+	if os.path.exists(flux_filepath) and os.path.exists(intflux_filepath):
+	    ray_vec.shape = (1,3)
+	    if block100_header.size == 0:
+
+	        enums = flux_block_reader.index_from(flux_filepath, 0)
+	        fnums = flux_block_reader.index_from(intflux_filepath, 0)
+		pad = np.array([[0.0, 0.0, 0.0]])
+		block100_header = np.hstack((pad,fnums))
+		btest           = np.hstack((pad,enums))
+	    
+    ###############################################################
     ave_at_depth = np.average(all_depth,0)
     std_at_depth = np.std(all_depth,0)
 
@@ -196,10 +307,32 @@ def main():
             '{0: <12}'.format('Averages')  + '\n' + ave_words + '\n' + \
 	    '{0: <12}'.format('Std.-Dev.') + '\n' + std_words + '\n' 
 
+    ###############################################################
     os.chdir(owd)
-    # ToDo:  This appends to a previously existing file of the same name; it should be cleared first
+    np.savetxt('tmp1.dat', all_depth, '%14.6E', delimiter=' ', newline='\n', header=depth_hdr, footer=footer) 
+
+    ################################################################
+    ave_diflet = np.average(dif_block700, axis=0)
+    std_diflet = np.std(dif_block700,axis=0)
+    stat_diflet = np.vstack((ave_diflet, std_diflet))
+    # stat_diflet[0:2, 0:3] = 0
+
+    ave_intlet   = np.average(int_block700,0)
+    std_intlet   = np.std(int_block700,0)
+    stat_intlet = np.vstack((ave_intlet, std_intlet))
+    # stat_intlet[0:2, 0:3] = 0
+    ################################################################
+    # Go into append mode
     f_handle = file('tmp1.dat', 'a')
-    np.savetxt(f_handle, all_depth, '%14.6E', delimiter=' ', newline='\n', header=depth_hdr, footer=footer) 
+    np.savetxt(f_handle, block700_header, '%14.6E', delimiter=' ', newline='\n', header='DIF_LET\n')
+    np.savetxt(f_handle, dif_block700,    '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, stat_diflet,     '%14.6E', delimiter=' ', newline='\n', header='DIF-AVERAGES-STD.DEV\n', footer='\n')
+    # get rows 0 and 1
+    # np.savetxt(f_handle, stat_diflet[0,:],  '%14.6E', delimiter=' ', newline='\n', header='DIF-AVERAGES-STD.DEV\n', footer='\n')
+    # np.savetxt(f_handle, stat_diflet[1,:],  '%14.6E', delimiter=' ', newline='\n', header='DIF-AVERAGES-STD.DEV\n', footer='\n')
+    np.savetxt(f_handle, block700_header, '%14.6E', delimiter=' ', newline='\n', header='INT_LET\n')
+    np.savetxt(f_handle, int_block700,    '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, stat_intlet,     '%14.6E', delimiter=' ', newline='\n', header='INT-AVERAGES-STD.DEV\n', footer='\n')
 
 
 if __name__ == '__main__':
