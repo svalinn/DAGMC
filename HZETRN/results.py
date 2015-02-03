@@ -15,6 +15,7 @@ diflet_filename = ''
 intlet_filename = ''
 flux_filename = ''
 intflux_filename = ''
+neutron_flux_filename = ''
 
 class Results:
 
@@ -90,6 +91,33 @@ class n100x7(Results):
 	    col = col + 1
 	return vals
 
+class n100x4(Results):
+
+    def last_lines(self, name):
+	vals = np.array([])
+	nums = np.array([])
+	lines = Results.last_lines(self, name, 100)
+	for line in lines:
+	    words = line.split()
+	    # We are skipping the first value, which is a flux bin
+            nums = np.array([float(words[1]), float(words[2]), float(words[3])] )
+	    if vals.size == 0:
+	        vals = nums
+	    else:
+	        vals = np.vstack((vals, nums))
+	return vals
+      
+    def index_from(self, name, index):
+	vals = np.empty((1,100), float)
+	lines = Results.last_lines(self, name, 100)
+	col = 0
+	for line in lines:
+	    words = line.split()
+	    num = float(words[index])
+	    vals[0,col] = num
+	    col = col + 1
+	return vals
+
 def reversed_lines(file):
     "Generate the lines of file in reverse order."
     part = ''
@@ -132,6 +160,7 @@ def get_names(file):
     global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
     global diflet_filename, intlet_filename
     global flux_filename, intflux_filename
+    global neutron_flux_filename 
 
     lines = []
     with open(file,'r') as f:
@@ -146,6 +175,7 @@ def get_names(file):
     intlet_filename    = lines[5]
     flux_filename      = lines[6]
     intflux_filename   = lines[7]
+    neutron_flux_filename = lines[8]
 
     return 
 
@@ -192,6 +222,7 @@ def main():
     global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
     global diflet_filename, intlet_filename
     global flux_filename, intflux_filename
+    global neutron_flux_filename 
 
     # Setup: parse the the command line parameters
     args = parsing()
@@ -211,18 +242,26 @@ def main():
 
     dif_int_block_reader  = n700x2('')
     flux_block_reader     = n100x7('')
+    nflux_block_reader    = n100x4('')
 
+    # Numpy Arrays
     all_depth = np.array([])
    
     dif_block700 = np.array([])
     int_block700 = np.array([])
     block700_header = np.array([])
     block100_header = np.array([])
-    flux_block100   = np.array([])
-    ray_flux_block100 = np.array([])
+    nblock100_header = np.array([])
+
+    flux_block100        = np.array([])
+    ray_flux_block100    = np.array([])
     ray_intflux_block100 = np.array([])
-    ray_flux_stack = np.array([])
-    ray_intflux_stack = np.array([])
+    ray_flux_stack       = np.array([])
+    ray_intflux_stack    = np.array([])
+
+    nflux_block100     = np.array([])
+    ray_nflux_block100 = np.array([])
+    ray_nflux_stack    = np.array([])
     
     ray_subdirs = glob.glob('*')
     for r in ray_subdirs:
@@ -236,6 +275,8 @@ def main():
 	    
 	flux_filepath     = r + '/' + flux_filename
 	intflux_filepath  = r + '/' + intflux_filename
+
+        neutron_flux_filepath = r + '/' + neutron_flux_filename
 
         ray = r.split('_') 
 	ray_vec = np.array([float(ray[0]), float(ray[1]), float(ray[2])])
@@ -278,10 +319,8 @@ def main():
 	        int_block700 = np.vstack((int_block700,int_line))
 
 	if os.path.exists(flux_filepath) and os.path.exists(intflux_filepath):
-	    ray_vec.shape = (1,3)
 	    if block100_header.size == 0:
-	        enums = flux_block_reader.index_from(flux_filepath, 0)
-	        fnums = flux_block_reader.index_from(intflux_filepath, 0)
+	        fnums = flux_block_reader.index_from(flux_filepath, 0)
 		pad = np.array([[0.0, 0.0, 0.0]])
 		block100_header = np.hstack((pad,fnums))
 
@@ -317,6 +356,32 @@ def main():
 	        # Stack the block of data along the third dimension (= 2)
 	        ray_flux_stack    = np.dstack((ray_flux_stack,   ray_flux_block100))
 	        ray_intflux_stack = np.dstack((ray_intflux_stack,ray_intflux_block100))
+	# Neutron Flux: could possibly be joined with rest of fluxes
+	if os.path.exists(neutron_flux_filepath):
+	    if nblock100_header.size == 0:
+	        nfnums = nflux_block_reader.index_from(neutron_flux_filepath, 0)
+		pad = np.array([[0.0, 0.0, 0.0]])
+		nblock100_header = np.hstack((pad,nfnums))
+
+            jnums = nflux_block_reader.last_lines(neutron_flux_filepath)
+
+	    # Flip the rows and columns: shape (100, 6) -> (6, 100)
+	    rjnums = np.swapaxes(jnums,0,1)
+	    
+	    # Pad the first row to initialize 
+	    ray_nflux_block100 = np.hstack((ray_vec,(rjnums[0,:])))
+    	    
+	    for i in range(1,3):
+	        # pad each row with the ray vector values
+	        tmp_row = np.hstack((ray_vec,rjnums[i,:]))
+		ray_nflux_block100 = np.vstack((ray_nflux_block100, tmp_row))
+
+	    # Now stack up the blocks like they are planes in a 3d image
+            if ray_nflux_stack.size == 0:
+	        ray_nflux_stack = ray_nflux_block100
+            else:
+	        # Stack the block of data along the third dimension (= 2)
+	        ray_nflux_stack = np.dstack((ray_nflux_stack,  ray_nflux_block100))
     ###############################################################
     ave_at_depth = np.average(all_depth,0)
     std_at_depth = np.std(all_depth,0)
@@ -347,6 +412,7 @@ def main():
     std_intlet  = np.std(int_block700,0)
     stat_intlet = np.vstack((ave_intlet, std_intlet))
 
+    # Fluxes
     ave_flux  = np.average(ray_flux_stack, axis=2)
     std_flux  = np.std(ray_flux_stack, axis=2)
     stat_flux = np.dstack((ave_flux, std_flux))
@@ -355,6 +421,10 @@ def main():
     std_intflux  = np.std(ray_intflux_stack, axis=2)
     stat_intflux = np.dstack((ave_intflux, std_intflux))
 
+    # Neutron Flux
+    ave_nflux  = np.average(ray_nflux_stack, axis=2)
+    std_nflux  = np.std(ray_nflux_stack, axis=2)
+    stat_nflux = np.dstack((ave_nflux, std_nflux))
     ################################################################
     # Go into append mode
     f_handle = file('tmp2.csv', 'a')
@@ -419,6 +489,17 @@ def main():
     np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[5,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
     np.savetxt(f_handle, np.swapaxes(stat_intflux[5,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='He4-Average-Std.Dev\n', footer='\n')
     
+    np.savetxt(f_handle, nblock100_header, '%14.6E', delimiter=' ', newline='\n', header='FORWARD-NEUTRON-FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_nflux_stack[0,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_nflux[0,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Forward-Average-Std.Dev\n', footer='\n')
+
+    np.savetxt(f_handle, nblock100_header, '%14.6E', delimiter=' ', newline='\n', header='BACKWARD-NEUTRON-FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_nflux_stack[1,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_nflux[1,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Backward-Average-Std.Dev\n', footer='\n')
+
+    np.savetxt(f_handle, nblock100_header, '%14.6E', delimiter=' ', newline='\n', header='TOTAL-NEUTRON-FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_nflux_stack[2,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_nflux[2,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Total-Average-Std.Dev\n', footer='\n')
 
 if __name__ == '__main__':
     main()
