@@ -63,26 +63,20 @@ class n700x2(Results):
         vals = self.index_from(name, 1)
 	return vals
 
-    """
-    def last_lines(self, name):
-	vals = np.array([])
-        result_lines = Results.last_lines(self, name, 700)
-	for line in result_lines:
-	    words = line.split()
-	    vals = np.hstack((vals, float(words[1])))
-	return vals
-   """
-
 class n100x7(Results):
 
     def last_lines(self, name):
 	vals = np.array([])
+	nums = np.array([])
 	lines = Results.last_lines(self, name, 100)
 	for line in lines:
 	    words = line.split()
 	    # We are skipping the first value, which is a flux bin
             nums = np.array([float(words[1]), float(words[2]), float(words[3]), float(words[4]), float(words[5]), float(words[6])])
-	    vals = np.vstack((vals, nums))
+	    if vals.size == 0:
+	        vals = nums
+	    else:
+	        vals = np.vstack((vals, nums))
 	return vals
       
     def index_from(self, name, index):
@@ -167,14 +161,14 @@ def depth_header():
               '{0: >15}'.format('dose-proton') + \
               '{0: >15}'.format('dose-deut.') + \
               '{0: >15}'.format('dose-trit.') + \
-              '{0: >15}'.format('dose-H3') + \
-              '{0: >15}'.format('dose-H4') + \
+              '{0: >15}'.format('dose-He3') + \
+              '{0: >15}'.format('dose-He4') + \
               '{0: >15}'.format('doseq-neutron') + \
               '{0: >15}'.format('doseq-proton') + \
               '{0: >15}'.format('doseq-deut.') + \
               '{0: >15}'.format('doseq-trit.') + \
-              '{0: >15}'.format('doseq-H3') + \
-              '{0: >15}'.format('doseq-H4') + '\n'
+              '{0: >15}'.format('doseq-He3') + \
+              '{0: >15}'.format('doseq-He4') + '\n'
     return header
 
 """
@@ -204,7 +198,6 @@ def main():
 
     # Set up the names of the data files without them being in this file
     get_names("names.txt")
-    # print dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
     
     # Original Working Directory - will be used for the results file
     owd = os.path.dirname(os.path.abspath(__file__)) + '/'
@@ -220,13 +213,17 @@ def main():
     flux_block_reader     = n100x7('')
 
     all_depth = np.array([])
-    # dif_block700 = np.array([1,703])
+   
     dif_block700 = np.array([])
     int_block700 = np.array([])
     block700_header = np.array([])
     block100_header = np.array([])
-    btest           = np.array([])
-    # This could be up to 10,000 subdirectories
+    flux_block100   = np.array([])
+    ray_flux_block100 = np.array([])
+    ray_intflux_block100 = np.array([])
+    ray_flux_stack = np.array([])
+    ray_intflux_stack = np.array([])
+    
     ray_subdirs = glob.glob('*')
     for r in ray_subdirs:
 	dose_filepath  = r + '/' + dose_filename 
@@ -238,7 +235,7 @@ def main():
 	int_filepath     = r + '/' + intlet_filename
 	    
 	flux_filepath     = r + '/' + flux_filename
-	intflux_filepath     = r + '/' + intflux_filename
+	intflux_filepath  = r + '/' + intflux_filename
 
         ray = r.split('_') 
 	ray_vec = np.array([float(ray[0]), float(ray[1]), float(ray[2])])
@@ -283,13 +280,43 @@ def main():
 	if os.path.exists(flux_filepath) and os.path.exists(intflux_filepath):
 	    ray_vec.shape = (1,3)
 	    if block100_header.size == 0:
-
 	        enums = flux_block_reader.index_from(flux_filepath, 0)
 	        fnums = flux_block_reader.index_from(intflux_filepath, 0)
 		pad = np.array([[0.0, 0.0, 0.0]])
 		block100_header = np.hstack((pad,fnums))
-		btest           = np.hstack((pad,enums))
+
+            hnums = flux_block_reader.last_lines(flux_filepath)
+	    inums = flux_block_reader.last_lines(intflux_filepath)
+
+	    # Flip the rows and columns: shape (100, 6) -> (6, 100)
+	    rhnums = np.swapaxes(hnums,0,1)
+	    rinums = np.swapaxes(inums,0,1)
 	    
+	    # Force the ray vector shape to be such that it can be used for padding
+	    ray_vec.shape = (3)
+
+	    # Pad the first row to initialize 
+	    ray_flux_block100    = np.hstack((ray_vec,(rhnums[0,:])))
+	    ray_intflux_block100 = np.hstack((ray_vec,(rinums[0,:])))
+    	    
+	    for i in range(1,6):
+	        # pad each row with the ray vector values
+	        tmp_row = np.hstack((ray_vec,rhnums[i,:]))
+		ray_flux_block100 = np.vstack((ray_flux_block100, tmp_row))
+
+	        tmp_row = np.hstack((ray_vec,rinums[i,:]))
+		ray_intflux_block100 = np.vstack((ray_intflux_block100, tmp_row))
+	    
+	    # Now stack up the blocks like they are planes in a 3d image
+            if ray_flux_stack.size == 0:
+    	        print 'ray_flux_block100 shape after vstack', ray_flux_block100.shape
+	        ray_flux_stack    = ray_flux_block100
+	        ray_intflux_stack = ray_intflux_block100
+            else:
+		print 'ray_flux_stack shape', ray_flux_stack.shape
+	        # Stack the block of data along the third dimension (= 2)
+	        ray_flux_stack    = np.dstack((ray_flux_stack,   ray_flux_block100))
+	        ray_intflux_stack = np.dstack((ray_intflux_stack,ray_intflux_block100))
     ###############################################################
     ave_at_depth = np.average(all_depth,0)
     std_at_depth = np.std(all_depth,0)
@@ -309,31 +336,89 @@ def main():
 
     ###############################################################
     os.chdir(owd)
-    np.savetxt('tmp1.dat', all_depth, '%14.6E', delimiter=' ', newline='\n', header=depth_hdr, footer=footer) 
+    np.savetxt('tmp2.csv', all_depth, '%14.6E', delimiter=' ', newline='\n', header=depth_hdr, footer=footer) 
 
     ################################################################
-    ave_diflet = np.average(dif_block700, axis=0)
-    std_diflet = np.std(dif_block700,axis=0)
+    ave_diflet  = np.average(dif_block700, axis=0)
+    std_diflet  = np.std(dif_block700,axis=0)
     stat_diflet = np.vstack((ave_diflet, std_diflet))
-    # stat_diflet[0:2, 0:3] = 0
 
-    ave_intlet   = np.average(int_block700,0)
-    std_intlet   = np.std(int_block700,0)
+    ave_intlet  = np.average(int_block700,0)
+    std_intlet  = np.std(int_block700,0)
     stat_intlet = np.vstack((ave_intlet, std_intlet))
-    # stat_intlet[0:2, 0:3] = 0
+
+    ave_flux  = np.average(ray_flux_stack, axis=2)
+    std_flux  = np.std(ray_flux_stack, axis=2)
+    stat_flux = np.dstack((ave_flux, std_flux))
+    
+    ave_intflux  = np.average(ray_intflux_stack, axis=2)
+    std_intflux  = np.std(ray_intflux_stack, axis=2)
+    stat_intflux = np.dstack((ave_intflux, std_intflux))
+
     ################################################################
     # Go into append mode
-    f_handle = file('tmp1.dat', 'a')
+    f_handle = file('tmp2.csv', 'a')
     np.savetxt(f_handle, block700_header, '%14.6E', delimiter=' ', newline='\n', header='DIF_LET\n')
     np.savetxt(f_handle, dif_block700,    '%14.6E', delimiter=' ', newline='\n', footer='\n')
     np.savetxt(f_handle, stat_diflet,     '%14.6E', delimiter=' ', newline='\n', header='DIF-AVERAGES-STD.DEV\n', footer='\n')
     # get rows 0 and 1
-    # np.savetxt(f_handle, stat_diflet[0,:],  '%14.6E', delimiter=' ', newline='\n', header='DIF-AVERAGES-STD.DEV\n', footer='\n')
-    # np.savetxt(f_handle, stat_diflet[1,:],  '%14.6E', delimiter=' ', newline='\n', header='DIF-AVERAGES-STD.DEV\n', footer='\n')
     np.savetxt(f_handle, block700_header, '%14.6E', delimiter=' ', newline='\n', header='INT_LET\n')
     np.savetxt(f_handle, int_block700,    '%14.6E', delimiter=' ', newline='\n', footer='\n')
     np.savetxt(f_handle, stat_intlet,     '%14.6E', delimiter=' ', newline='\n', header='INT-AVERAGES-STD.DEV\n', footer='\n')
 
+    ####################################################################
+    # FLUX
+    # write out the blocks and block averages for all the flux particles
+    ####################################################################
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='PROTON-FLUX' )
+    np.savetxt(f_handle, np.swapaxes(ray_flux_stack[0,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_flux[0,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Proton-Average-Std.Dev\n', footer='\n')
+
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='NEUTRON-FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_flux_stack[1,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_flux[1,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Neutron-Average-Std.Dev\n', footer='\n')
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_flux_stack[2,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='DEUTERON-FLUX')
+    np.savetxt(f_handle, np.swapaxes(stat_flux[2,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Deuteron-Average-Std.Dev\n', footer='\n')
+
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='TRITON-FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_flux_stack[3,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_flux[3,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Triton-Average-Std.Dev\n', footer='\n')
+    
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='He3-FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_flux_stack[4,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_flux[4,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='He3-Average-Std.Dev\n', footer='\n')
+    
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='He4-FLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_flux_stack[5,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_flux[5,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='He4-Average-Std.Dev\n', footer='\n')
+    ####################################################################
+    # INTFLUX
+    # write out the blocks and block averages for all the flux particles
+    ####################################################################
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='PROTON-INTFLUX' )
+    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[0,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_intflux[0,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Proton-Average-Std.Dev\n', footer='\n')
+
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='NEUTRON-INTFLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[1,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_intflux[1,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Neutron-Average-Std.Dev\n', footer='\n')
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='INTFLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[2,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='DEUTERON-INTFLUX')
+    np.savetxt(f_handle, np.swapaxes(stat_intflux[2,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Deuteron-Average-Std.Dev\n', footer='\n')
+
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='TRITON-INTFLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[3,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_intflux[3,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Triton-Average-Std.Dev\n', footer='\n')
+    
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='He3-INTFLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[4,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_intflux[4,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='He3-Average-Std.Dev\n', footer='\n')
+    
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='He4-INTFLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[5,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
+    np.savetxt(f_handle, np.swapaxes(stat_intflux[5,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='He4-Average-Std.Dev\n', footer='\n')
+    
 
 if __name__ == '__main__':
     main()
