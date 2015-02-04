@@ -14,6 +14,10 @@ std::map<std::string,G4Material*> load_uwuw_materials(UWUW workflow_data)
   std::map<std::string,pyne::Material> material_library;
   material_library = workflow_data.material_library;
 
+  std::map<std::string,G4Material*> g4_mat_empty;
+  if (material_library.size() == 0 )
+    return g4_mat_empty;
+
   std::map<int,G4Isotope*> g4_isotopes;
   g4_isotopes = get_g4isotopes(material_library);
 
