@@ -1,6 +1,6 @@
 # CMAKE build script for DAGMC Tally unit testing
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+# CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # Where to look for includes
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/tally )
