@@ -1,5 +1,5 @@
 #include <map>
-#include "pyne/pyne.h"
+#include "../pyne/pyne.h"
 
 /*
  * General note about UWUW-DagSolid tallies, the pure PyNE form is not currently

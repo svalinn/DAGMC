@@ -12,7 +12,7 @@
 #include "MBInterface.hpp"
 #include "MBCartVect.hpp"
 #include "DagMC.hpp"
-#include "pyne/pyne.h"
+#include "../pyne/pyne.h"
 #include "../uwuw/uwuw.hpp"
 
 // defines for the flkstk common block structure

@@ -6,7 +6,11 @@
 
 CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
 CMAKE_POLICY(SET CMP0004 OLD)
-CMAKE_POLICY(SET CMP0040 OLD)
+
+IF(${CMAKE_MAJOR_VERSION} GREATER 3)
+  CMAKE_POLICY(SET CMP0040 OLD)
+ENDIF(${CMAKE_MAJOR_VERSION} GREATER 3)
+
 PROJECT ( DAGMC )
 SET ( DAGMC_VERSION_MAJOR 1 )
 SET ( DAGMC_VERSION_MINOR 0 )
@@ -26,12 +30,6 @@ MESSAGE ( STATUS "Found MOAB Version: " ${MOAB_VERSION} )
 INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 
 SET ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
-
-FIND_PACKAGE ( Pyne REQUIRED )
-
-#ADD_SUBDIRECTORY(pyne)
-LINK_DIRECTORIES(${PYNE_LIBS_DIR})
-INCLUDE_DIRECTORIES(${PYNE_INCLUDE_DIR})
 
 FIND_PACKAGE ( HDF5 REQUIRED )
 INCLUDE_DIRECTORIES( ${HDF5_INCLUDE_DIRS} )
@@ -59,6 +57,13 @@ SET( INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header" 
 SET( INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables" )
 
 
+###################################
+#
+# SET THE AMALGAMTED PYNE
+#
+###################################
+# we now have PyNE Integrated
+ADD_SUBDIRECTORY(pyne)
 
 ###################################
 #
@@ -112,13 +117,23 @@ IF ( BUILD_GEANT4 OR BUILD_MCNP5 OR BUILD_FLUKA OR BUILD_ALL )
   ADD_SUBDIRECTORY( uwuw )
 ENDIF ( BUILD_GEANT4 OR BUILD_MCNP5 OR BUILD_FLUKA OR BUILD_ALL )
 
+# if we want static libs & executables
+IF(STATIC_LIB)
+  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  SET(BUILD_SHARED_LIBRARIES OFF)
+  SET(CMAKE_EXE_LINKER_FLAGS "-static")
+ENDIF(STATIC_LIB)
+
+
 IF ( DI_SRC_FILES )
   ADD_SUBDIRECTORY(common)
-  IF ( STATIC_LIB )
-   ADD_LIBRARY(dagmciface STATIC ${DI_SRC_FILES} )
-  ELSEIF ( NOT STATIC_LIB )
+
+  IF( STATIC_LIB )
+    ADD_LIBRARY(dagmciface STATIC ${DI_SRC_FILES} )
+  ELSEIF( NOT STATIC_LIB )
     ADD_LIBRARY(dagmciface SHARED ${DI_SRC_FILES} )
-  ENDIF ( STATIC_LIB )
+  ENDIF( STATIC_LIB )
+
 
   SET_TARGET_PROPERTIES( dagmciface        PROPERTIES   
                          PUBLIC_HEADER     "${DI_PUB_HEADERS}" 
@@ -129,9 +144,9 @@ IF ( DI_SRC_FILES )
            ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
            PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
          )
-ELSE ( DI_SRC_FILES )
-  MESSAGE ( STATUS "Not building dagmciface physics interface library")
-ENDIF ( DI_SRC_FILES )
+  ELSE ( DI_SRC_FILES )
+    MESSAGE ( STATUS "Not building dagmciface physics interface library")
+  ENDIF ( DI_SRC_FILES )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
