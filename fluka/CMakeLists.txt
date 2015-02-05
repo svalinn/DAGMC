@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE ( STATUS "Including FLUKA in dagmciface library.")
 
 SET ( CODE_SRCDIR      "fluka" )

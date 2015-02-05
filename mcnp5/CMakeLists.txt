@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE ( STATUS "Including MCNP5 in dagmciface library.")
 
 SET ( CODE_SRCDIR      "mcnp5" )
