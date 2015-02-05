@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 #include "uwuw.hpp"
-#include "pyne/pyne.h"
+#include "../pyne/pyne.h"
 
 UWUW *workflow_data;
 

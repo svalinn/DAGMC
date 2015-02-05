@@ -33,13 +33,22 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 # file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
+# in case we chose static libraries executables
+IF(STATIC_LIB)
+  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  SET(BUILD_SHARED_LIBRARIES OFF)
+  SET(CMAKE_EXE_LINKER_FLAGS "-static")
+ENDIF(STATIC_LIB)
+
+
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(DagGeant4 exampleN01.cc ${sources} ${headers})
 target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
                                 ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
-                                ${PYNE_LIBS_DIR}/libpyne.so
+#                                ${PYNE_LIBS_DIR}/libpyne.so
+				pyne
 			        ${DAGMC_LIBRARIES}
 				dagsolid
 				dagmciface)

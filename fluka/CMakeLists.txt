@@ -26,7 +26,7 @@ ENABLE_LANGUAGE( Fortran )
 SET(FLUDAG_LIBS
      dagmciface
      ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
-     ${PYNE_LIBS_DIR}/libpyne.so
+     pyne
      ${DAGMC_LIBRARIES} 
      gfortran
   )
@@ -34,6 +34,13 @@ SET(FLUDAG_LIBS
 # If making mainfludag, define FLUPRO)
 # add_custom_command (TARGET mainfludag
 # PRE_BUILD COMMAND 
+
+# If we have chosen to have a static exectuable
+IF(STATIC_LIB)
+  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  SET(BUILD_SHARED_LIBRARIES OFF)
+  SET(CMAKE_EXE_LINKER_FLAGS "-static")
+ENDIF(STATIC_LIB)
 
 ADD_EXECUTABLE ( mainfludag mainFluDAG.cpp )
 INSTALL( TARGETS mainfludag 

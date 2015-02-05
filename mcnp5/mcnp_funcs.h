@@ -11,7 +11,7 @@
 #include <sstream>
 
 #include "../uwuw/uwuw.hpp"
-#include "pyne/pyne.h"
+#include "../pyne/pyne.h"
 #include <unistd.h>
 
 #ifdef __cplusplus

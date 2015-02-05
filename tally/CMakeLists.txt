@@ -54,6 +54,6 @@ INSTALL( TARGETS       dagtally
   )
 
 
-TARGET_LINK_LIBRARIES(dagtally lapack ${DAGMC_LIBRARIES} gfortran)
+TARGET_LINK_LIBRARIES(dagtally lapack blas ${DAGMC_LIBRARIES} gfortran)
 
 ADD_SUBDIRECTORY(tests)
