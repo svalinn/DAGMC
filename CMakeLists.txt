@@ -27,9 +27,6 @@ INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
 
 SET ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
 
-# we now have PyNE Integrated
-ADD_SUBDIRECTORY(pyne)
-
 FIND_PACKAGE ( HDF5 REQUIRED )
 INCLUDE_DIRECTORIES( ${HDF5_INCLUDE_DIRS} )
 
@@ -56,6 +53,13 @@ SET( INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header" 
 SET( INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables" )
 
 
+###################################
+#
+# SET THE AMALGAMTED PYNE
+#
+###################################
+# we now have PyNE Integrated
+ADD_SUBDIRECTORY(pyne)
 
 ###################################
 #
@@ -119,7 +123,12 @@ ENDIF(STATIC_LIB)
 
 IF ( DI_SRC_FILES )
   ADD_SUBDIRECTORY(common)
-  ADD_LIBRARY(dagmciface ${DI_SRC_FILES} )
+
+  IF( STATIC_LIB )
+    ADD_LIBRARY(dagmciface STATIC ${DI_SRC_FILES} )
+  ELSEIF( NOT STATIC_LIB )
+    ADD_LIBRARY(dagmciface SHARED ${DI_SRC_FILES} )
+  ENDIF( STATIC_LIB )
 
 
   SET_TARGET_PROPERTIES( dagmciface        PROPERTIES   
@@ -131,9 +140,9 @@ IF ( DI_SRC_FILES )
            ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
            PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
          )
-ELSE ( DI_SRC_FILES )
-  MESSAGE ( STATUS "Not building dagmciface physics interface library")
-ENDIF ( DI_SRC_FILES )
+  ELSE ( DI_SRC_FILES )
+    MESSAGE ( STATUS "Not building dagmciface physics interface library")
+  ENDIF ( DI_SRC_FILES )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #

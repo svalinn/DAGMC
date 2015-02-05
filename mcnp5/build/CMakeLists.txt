@@ -431,7 +431,7 @@ LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/ypbssp.F90)
 LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/zaid.F90)
 
 # cpp files go here
-LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/plasma_source.cpp)
+# LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/plasma_source.cpp)
 
 set_source_files_properties(mcnp_params.F90 PROPERTIES COMPILE_FLAGS -cpp)
 
