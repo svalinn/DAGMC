@@ -99,6 +99,13 @@ IF ( BUILD_FLUKA OR BUILD_ALL )
 ENDIF ( BUILD_FLUKA OR BUILD_ALL )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# HZETRN
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+IF ( BUILD_HZETRN OR BUILD_ALL )
+	ADD_SUBDIRECTORY(HZETRN)
+ENDIF ( BUILD_HZETRN OR BUILD_ALL )
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # GEANT4
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
