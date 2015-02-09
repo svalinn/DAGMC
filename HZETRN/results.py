@@ -473,8 +473,8 @@ def main():
     np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='NEUTRON-INTFLUX')
     np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[1,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
     np.savetxt(f_handle, np.swapaxes(stat_intflux[1,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Neutron-Average-Std.Dev\n', footer='\n')
-    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='INTFLUX')
-    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[2,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='DEUTERON-INTFLUX')
+    np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='DEUTERON-INTFLUX')
+    np.savetxt(f_handle, np.swapaxes(ray_intflux_stack[2,:,:],0,1), '%14.6E', delimiter=' ', newline='\n', footer='\n')
     np.savetxt(f_handle, np.swapaxes(stat_intflux[2,:],0,1), '%14.6E', delimiter=' ', newline='\n', header='Deuteron-Average-Std.Dev\n', footer='\n')
 
     np.savetxt(f_handle, block100_header, '%14.6E', delimiter=' ', newline='\n', header='TRITON-INTFLUX')
