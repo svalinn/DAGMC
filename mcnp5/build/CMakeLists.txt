@@ -1,10 +1,8 @@
 # MCNP CMAKE FILE
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 enable_language(Fortran)
 PROJECT(MCNP5)
 
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../tally/")
-
 
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation Directory for Libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header")
@@ -432,6 +430,9 @@ LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/xsgen.F90)
 LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/ypbssp.F90)
 LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/zaid.F90)
 
+# cpp files go here
+# LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/plasma_source.cpp)
+
 set_source_files_properties(mcnp_params.F90 PROPERTIES COMPILE_FLAGS -cpp)
 
 # if we have dag then add this file 
@@ -481,8 +482,21 @@ else(MPI_BUILD)
   SET(mcnp_exec "mcnp5")
 endif(MPI_BUILD)
 
+# if we want a static executable
+IF(STATIC_LIB)
+  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  SET(BUILD_SHARED_LIBRARIES OFF)
+  SET(CMAKE_EXE_LINKER_FLAGS "-static")
+ENDIF(STATIC_LIB)
+
 ADD_EXECUTABLE(${mcnp_exec} ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)
-target_link_libraries(${mcnp_exec} dagmciface dagtally ${DAGMC_LIBRARIES} ${PYNE_LIBS_DIR}/libpyne.so)
+
+target_link_libraries(${mcnp_exec} 
+ 			dagmciface 
+			dagtally 
+			${DAGMC_LIBRARIES} 
+			${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY} 
+			pyne )
 if(MPI_BUILD)
   target_link_libraries(${mcnp_exec} ${MPI_LIBRARIES}) 
 endif(MPI_BUILD)

@@ -23,9 +23,8 @@ set(uwuw_test_source
 SET(LIBS
   pthread
   gtest
-  ${PYNE_LIBS_DIR}/libpyne.so
-  ${HDF5_LIBRARIES}
   dagmciface
+  pyne
   ${DAGMC_LIBRARIES}
   pthread
 )
@@ -40,6 +39,13 @@ endmacro()
 
 # for the DagSolid includes
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../")
+
+# if we want a static executable
+IF(STATIC_LIB)
+  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  SET(BUILD_SHARED_LIBRARIES OFF)
+  SET(CMAKE_EXE_LINKER_FLAGS "-static")
+ENDIF(STATIC_LIB)
 
 ADD_EXECUTABLE (uwuw_unit_tests  
     	uwuw_unit_test_driver.cpp

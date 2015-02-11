@@ -34,8 +34,8 @@
 #include "DagSolidMaterial.hh"
 #include "DagSolidTally.hh"
 
-#include "pyne/pyne.h"
-#include "pyne/particle.h"
+#include "../pyne/pyne.h"
+//#include "pyne/particle.h"
 
 using namespace moab;
 

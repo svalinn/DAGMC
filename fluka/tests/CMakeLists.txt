@@ -48,6 +48,8 @@ INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/slabs.h5m" DESTINATION tests)
 TARGET_LINK_LIBRARIES (fludag_unit_tests 
 	${FLUDAG_LIBS} 
         gtest
+	${FLUKA_DIR}/libflukahp.a
+	gfortran
         pthread )
 
 RUN_TEST(fludag_unit_tests)
