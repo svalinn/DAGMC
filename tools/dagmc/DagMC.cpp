@@ -42,17 +42,17 @@
 namespace moab {
 
 /* Tolerance Summary
- 
+
    Facet Tolerance:
    Maximum distance between continuous solid model surface and faceted surface.
      Performance:  increasing tolerance increased performance (fewer triangles)
      Robustness:   should not be affected
      Knowledge:    user must understand how coarser faceting influences accuracy
                    of results
- 
+
    Overlap Thickness:
-   This tolerance is the maximum distance across an overlap. It should be zero 
-   unless the geometry has overlaps. The overlap thickness is set using the dagmc 
+   This tolerance is the maximum distance across an overlap. It should be zero
+   unless the geometry has overlaps. The overlap thickness is set using the dagmc
    card. Overlaps must be small enough not to significantly affect physics.
      Performance: increasing tolerance decreases performance
      Robustness:  increasing tolerance increases robustness
@@ -78,13 +78,13 @@ DagMC *DagMC::instance_ = NULL;
 // Empty synonym map for DagMC::parse_metadata()
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
-void DagMC::create_instance(Interface *mb_impl) 
+void DagMC::create_instance(Interface *mb_impl)
 {
   if (NULL == mb_impl) mb_impl = new Core();
   instance_ = new DagMC(mb_impl);
 }
 
-float DagMC::version(std::string *version_string) 
+float DagMC::version(std::string *version_string)
 {
   if (NULL != version_string)
     *version_string = std::string("DagMC version ") + std::string(DAGMC_VERSION_STRING);
@@ -94,24 +94,24 @@ float DagMC::version(std::string *version_string)
 unsigned int DagMC::interface_revision()
 {
   unsigned int result = 0;
-  const char* interface_string = DAGMC_INTERFACE_REVISION; 
+  const char* interface_string = DAGMC_INTERFACE_REVISION;
   if( strlen(interface_string) >= 5 ){
-    // start looking for the revision number after "$Rev: " 
-    result = strtol( interface_string+5, NULL, 10 ); 
+    // start looking for the revision number after "$Rev: "
+    result = strtol( interface_string+5, NULL, 10 );
   }
   return result;
 }
 
-DagMC::DagMC(Interface *mb_impl) 
+DagMC::DagMC(Interface *mb_impl)
   : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false),
     n_pt_in_vol_calls(0), n_ray_fire_calls(0)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
-  overlapThickness = 0; // must be nonnegative 
+  overlapThickness = 0; // must be nonnegative
   defaultFacetingTolerance = .001;
-  numericalPrecision = .001; 
-  useCAD = false;  
-  
+  numericalPrecision = .001;
+  useCAD = false;
+
   memset( implComplName, 0, NAME_TAG_SIZE );
   strcpy( implComplName , "impl_complement" );
 
@@ -120,15 +120,16 @@ DagMC::DagMC(Interface *mb_impl)
 
 
 
-/* SECTION I: Geometry Initialization */
+/* SECTION I: Geometry Initialization and problem setup */
 
+// the standard DAGMC load file method
 ErrorCode DagMC::load_file(const char* cfile,
                            const double facet_tolerance)
 {
   ErrorCode rval;
 
   std::cout << "Requested faceting tolerance: " << facet_tolerance << std::endl;
-  
+
 #ifdef CGM
   // cgm must be initialized so we can check it for CAD data after the load
   InitCGMA::initialize_cgma();
@@ -145,14 +146,14 @@ ErrorCode DagMC::load_file(const char* cfile,
 
   char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
   strcat(options,facetTolStr);
-  
+
   EntityHandle file_set;
   rval = MBI->create_meshset( MESHSET_SET, file_set );
   if (MB_SUCCESS != rval)
     return rval;
 
   rval = MBI->load_file(cfile, &file_set, options, NULL, 0, 0);
-  
+
   if( MB_UNHANDLED_OPTION == rval ){
     // Some options were unhandled; this is common for loading h5m files.
     // Print a warning if an option was unhandled for a file that does not end in '.h5m'
@@ -166,11 +167,11 @@ ErrorCode DagMC::load_file(const char* cfile,
     std::string message;
     if (MB_SUCCESS == MBI->get_last_error(message) && !message.empty())
         std::cerr << "Error message: " << message << std::endl;
-    
+
     return rval;
   }
 
-#ifdef CGM  
+#ifdef CGM
   // check to see if CGM has data; if so, assume it corresponds to the data we loaded in.
   if( GeometryQueryTool::instance()->num_ref_volumes() > 0 ){
     have_cgm_geom = true;
@@ -181,27 +182,28 @@ ErrorCode DagMC::load_file(const char* cfile,
 
 }
 
+// helper function to load the existing contents of a MOAB instance into DAGMC
 ErrorCode DagMC::load_existing_contents( ){
-  
+
   return finish_loading();
 }
 
+// helper function to finish setting up required tags.
 ErrorCode DagMC::finish_loading()
 {
 
   ErrorCode rval;
 
-
   nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
-  
+
   idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
-  
+
   geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
 
   obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
 
   facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
-  
+
     // get sense of surfaces wrt volumes
   senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
@@ -209,8 +211,8 @@ ErrorCode DagMC::finish_loading()
   Range tagged_sets;
   double facet_tol_tagvalue = 0;
   bool other_set_tagged = false, root_tagged = false;
-  
-  // get list of entity sets that are tagged with faceting tolerance 
+
+  // get list of entity sets that are tagged with faceting tolerance
   // (possibly empty set)
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &facetingTolTag,
                                             NULL, 1, tagged_sets );
@@ -227,7 +229,7 @@ ErrorCode DagMC::finish_loading()
     if (MB_SUCCESS == rval) root_tagged = true;
     else rval = MB_SUCCESS;
   }
-  
+
   if ( (root_tagged || other_set_tagged) && facet_tol_tagvalue > 0) {
     facetingTolerance = facet_tol_tagvalue;
   }
@@ -238,6 +240,7 @@ ErrorCode DagMC::finish_loading()
 
 }
 
+// setup the implicit compliment
 ErrorCode DagMC::setup_impl_compl()
 {
   // If it doesn't already exist, create implicit complement
@@ -250,20 +253,22 @@ ErrorCode DagMC::setup_impl_compl()
   return MB_SUCCESS;
 }
 
+// gets the entity sets tagged with geomtag 2 and 3
+// surfaces and volumes respectively
 ErrorCode DagMC::setup_geometry(Range &surfs, Range &vols)
 {
   ErrorCode rval;
 
   const int three = 3;
   const void* const three_val[] = {&three};
-  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, 
+  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag,
                                             three_val, 1, vols );
   if (MB_SUCCESS != rval)
     return rval;
 
   const int two = 2;
   const void* const two_val[] = {&two};
-  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, 
+  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag,
                                             two_val, 1, surfs );
   if (MB_SUCCESS != rval)
     return rval;
@@ -271,6 +276,7 @@ ErrorCode DagMC::setup_geometry(Range &surfs, Range &vols)
   return MB_SUCCESS;
 }
 
+// sets up the obb tree for the problem
 ErrorCode DagMC::setup_obbs()
 {
   ErrorCode rval;
@@ -281,7 +287,7 @@ ErrorCode DagMC::setup_obbs()
       std::cerr << "Failed to setup the geometry" << std::endl;
       return rval;
     }
-  
+
   // Build OBB trees for everything, but only if we only read geometry
   // Changed to build obb tree if tree does not already exist. -- JK
   if (!have_obb_tree()) {
@@ -294,24 +300,25 @@ ErrorCode DagMC::setup_obbs()
   return MB_SUCCESS;
 }
 
+// setups of the indices for the problem, builds a list of
 ErrorCode DagMC::setup_indices()
 {
   Range surfs, vols;
   ErrorCode rval = setup_geometry(surfs,vols);
-  
+
   // If we havent got the implicit compliment it would be silly to add it
   if(have_impl_compl())
     {
       // build_indices expects the implicit complement to be in vols.
       if( vols.find(impl_compl_handle) == vols.end() )
-	{
-	  vols.insert( vols.end(), impl_compl_handle );
-	}
+	     {
+	        vols.insert( vols.end(), impl_compl_handle );
+	     }
     }
 
   // build the various index vectors used for efficiency
   rval = build_indices(surfs, vols);
-  if (MB_SUCCESS != rval) 
+  if (MB_SUCCESS != rval)
     {
       std::cerr << "Failed to build surface/volume indices." << std::endl;
       return rval;
@@ -319,19 +326,29 @@ ErrorCode DagMC::setup_indices()
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::init_OBBTree() 
+// initialise the obb tree
+ErrorCode DagMC::init_OBBTree()
 {
   // implicit compliment
   if ( setup_impl_compl() != MB_SUCCESS )
-    return MB_FAILURE;
- 
+    {
+      std::cout << "Faiiled to setup the implicit compliment" << std::endl;
+      return MB_FAILURE;
+    }
+
   // build obbs
   if ( setup_obbs() != MB_SUCCESS )
-    return MB_FAILURE;
-  
+    {
+      std::cout << "Faiiled to setup the OBBs" << std::endl;
+      return MB_FAILURE;
+    }
+
   // setup indices
   if ( setup_indices() != MB_SUCCESS )
-    return MB_FAILURE;
+    {
+      std::cout << "Failed to setup problem indices" << std::endl;
+      return MB_FAILURE;
+    }
 
   return MB_SUCCESS;
 }
@@ -346,7 +363,7 @@ bool DagMC::have_obb_tree()
                                                            &obbTag, 0, 1,
                                                            entities );
   return MB_SUCCESS == rval && !entities.empty();
-}                                                    
+}
 
 bool DagMC::have_impl_compl()
 {
@@ -400,24 +417,24 @@ ErrorCode DagMC::get_impl_compl()
     impl_compl_handle = entities.front();
     return MB_SUCCESS;
   }
-  
-  
+
+
 }
 
-ErrorCode DagMC::build_obbs(Range &surfs, Range &vols) 
+ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
 {
   ErrorCode rval = MB_SUCCESS;
-  
+
   for (Range::iterator i = surfs.begin(); i != surfs.end(); ++i) {
     EntityHandle root;
     Range tris;
     rval = MBI->get_entities_by_dimension( *i, 2, tris );
-    if (MB_SUCCESS != rval) 
+    if (MB_SUCCESS != rval)
       return rval;
-    if (tris.empty()) 
+    if (tris.empty())
       std::cerr << "WARNING: Surface " << get_entity_id(*i) << " has no facets." << std::endl;
     rval = obbTree.build( tris, root );
-    if (MB_SUCCESS != rval) 
+    if (MB_SUCCESS != rval)
       return rval;
     rval = MBI->add_entities( root, &*i, 1 );
     if (MB_SUCCESS != rval)
@@ -426,14 +443,14 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
     if (MB_SUCCESS != rval)
       return rval;
   }
-  
+
   for (Range::iterator i = vols.begin(); i != vols.end(); ++i) {
       // get all surfaces in volume
     Range tmp_surfs;
     rval = MBI->get_child_meshsets( *i, tmp_surfs );
     if (MB_SUCCESS != rval)
       return rval;
-    
+
       // get OBB trees for each surface
     EntityHandle root;
     Range trees;
@@ -448,18 +465,18 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
       }
       if (!sense)
         continue;
-      
+
       rval = MBI->tag_get_data( obbTag, &*j, 1, &root );
-      if (MB_SUCCESS != rval || !root)  
+      if (MB_SUCCESS != rval || !root)
         return MB_FAILURE;
       trees.insert( root );
     }
-    
+
       // build OBB tree for volume
     rval = obbTree.join_trees( trees, root );
     if (MB_SUCCESS != rval)
       return rval;
-    
+
     rval = MBI->tag_set_data( obbTag, &*i, 1, &root );
     if (MB_SUCCESS != rval)
       return rval;
@@ -482,19 +499,19 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::build_obb_impl_compl(Range &surfs) 
+ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
 {
   EntityHandle comp_root, surf_obb_root;
   Range comp_tree;
   ErrorCode rval;
   std::vector<EntityHandle> parent_vols;
-  
+
   int impl_compl_surf_count = 0;
   double impl_compl_surf_area = 0.0;
 
-    // search through all surfaces  
+    // search through all surfaces
   for (Range::iterator surf_i = surfs.begin(); surf_i != surfs.end(); ++surf_i) {
-    
+
     parent_vols.clear();
       // get parents of each surface
     rval = MBI->get_parent_meshsets( *surf_i, parent_vols );
@@ -514,7 +531,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
         return rval;
       if (!surf_obb_root)
         return MB_FAILURE;
-      
+
         // add obb root to list of obb roots
       comp_tree.insert( surf_obb_root );
 
@@ -527,7 +544,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
       EntityHandle sense_data[2] = {0,0};
       rval = MBI->tag_get_data( sense_tag(), &(*surf_i), 1, sense_data );
       if (MB_SUCCESS != rval) return rval;
-      
+
       // set the surface sense wrt implicit complement volume
       if(0==sense_data[0] && 0==sense_data[1]) return MB_FAILURE;
       if(0==sense_data[0])
@@ -539,34 +556,34 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
       rval = MBI->tag_set_data( sense_tag(), &(*surf_i), 1, sense_data );
       if (MB_SUCCESS != rval)  return rval;
 
-    }  
+    }
   }
   // print info about the implicit complement if one was created
   if( impl_compl_surf_count ){
     bool one = (impl_compl_surf_count == 1);
     std::cout << "The implicit complement bounds " << impl_compl_surf_count
               << (one ? " surface" : " surfaces") << std::endl;
-    std::cout << "The implicit complement's total surface area = " 
+    std::cout << "The implicit complement's total surface area = "
               << impl_compl_surf_area << std::endl;
   }
-  
+
     // join surface trees to make OBB tree for implicit complement
   rval = obbTree.join_trees( comp_tree, comp_root );
   if (MB_SUCCESS != rval)
     return rval;
-  
+
     // tag the implicit complement handle with the handle for its own OBB tree
   rval = MBI->tag_set_data( obbTag, &impl_compl_handle, 1, &comp_root );
   if (MB_SUCCESS != rval)
     return rval;
-  
+
   // following ReadCGM, assign dimension and category tags
   int three = 3;
   rval = MBI->tag_set_data(geomTag, &impl_compl_handle, 1, &three );
   if (MB_SUCCESS != rval)
     return rval;
 
-  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE, 
+  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
                              MB_TAG_SPARSE, MB_TYPE_OPAQUE);
   static const char volume_category[CATEGORY_TAG_SIZE] = "Volume\0";
   rval = MBI->tag_set_data(category_tag, &impl_compl_handle, 1, volume_category );
@@ -578,7 +595,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
 }
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
-void DagMC::RayHistory::reset() { 
+void DagMC::RayHistory::reset() {
   prev_facets.clear();
 }
 
@@ -596,24 +613,24 @@ void DagMC::RayHistory::rollback_last_intersection() {
     prev_facets.pop_back();
 }
 
-ErrorCode DagMC::ray_fire(const EntityHandle vol, 
+ErrorCode DagMC::ray_fire(const EntityHandle vol,
                           const double point[3], const double dir[3],
                           EntityHandle& next_surf, double& next_surf_dist,
                           RayHistory* history, double user_dist_limit,
-			  int ray_orientation, 
-                          OrientedBoxTreeTool::TrvStats* stats ) { 
+			  int ray_orientation,
+                          OrientedBoxTreeTool::TrvStats* stats ) {
 
   // take some stats that are independent of nps
   if(counting) {
     ++n_ray_fire_calls;
     if(0==n_ray_fire_calls%10000000) {
-      std::cout << "n_ray_fires="   << n_ray_fire_calls 
+      std::cout << "n_ray_fires="   << n_ray_fire_calls
                 << " n_pt_in_vols=" << n_pt_in_vol_calls << std::endl;
     }
   }
 
   if (debug) {
-    std::cout << "ray_fire:" 
+    std::cout << "ray_fire:"
               << " xyz=" << point[0] << " " << point[1] << " " << point[2]
               << " uvw=" << dir[0] << " " << dir[1] << " " << dir[2]
               << " vol_id=" << id_by_index(3, index_by_handle(vol)) << std::endl;
@@ -627,15 +644,15 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   // don't recreate these every call
   std::vector<double>       &dists       = distList;
   std::vector<EntityHandle> &surfs       = surfList;
-  std::vector<EntityHandle> &facets      = facetList;  
+  std::vector<EntityHandle> &facets      = facetList;
   dists.clear();
   surfs.clear();
   facets.clear();
 
-  assert(vol - setOffset < rootSets.size());  
+  assert(vol - setOffset < rootSets.size());
   const EntityHandle root = rootSets[vol - setOffset];
   ErrorCode rval;
- 
+
   // check behind the ray origin for intersections
   double neg_ray_len;
   if(0 == overlapThickness) {
@@ -647,23 +664,23 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   // optionally, limit the nonneg_ray_len with the distance to next collision.
   double nonneg_ray_len = dist_limit;
 
-  // the nonneg_ray_len should not be less than -neg_ray_len, or an overlap 
+  // the nonneg_ray_len should not be less than -neg_ray_len, or an overlap
   // may be missed due to optimization within ray_intersect_sets
   if(nonneg_ray_len < -neg_ray_len) nonneg_ray_len = -neg_ray_len;
   assert(0 <= nonneg_ray_len);
   assert(0 >     neg_ray_len);
-  
+
   // min_tolerance_intersections is passed but not used in this call
   const int min_tolerance_intersections = 0;
 
   // numericalPrecision is used for box.intersect_ray and find triangles in the
   // neighborhood of edge/node intersections.
   rval = obbTree.ray_intersect_sets( dists, surfs, facets,
-                                     root, numericalPrecision, 
+                                     root, numericalPrecision,
                                      min_tolerance_intersections,
                                      point, dir, &nonneg_ray_len,
-                                     stats, &neg_ray_len, &vol, &senseTag, 
-                                     &ray_orientation, 
+                                     stats, &neg_ray_len, &vol, &senseTag,
+                                     &ray_orientation,
                                      history ? &(history->prev_facets) : NULL );
   assert( MB_SUCCESS == rval );
   if(MB_SUCCESS != rval) return rval;
@@ -673,21 +690,21 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
     rval = CAD_ray_intersect( point, dir, huge_val, dists, surfs, nonneg_ray_len );
     if (MB_SUCCESS != rval) return rval;
   }
-  
+
   // If no distances are returned, the particle is lost unless the physics limit
   // is being used. If the physics limit is being used, there is no way to tell
-  // if the particle is lost. To avoid ambiguity, DO NOT use the distance limit 
+  // if the particle is lost. To avoid ambiguity, DO NOT use the distance limit
   // unless you know lost particles do not occur.
   if( dists.empty() ) {
     next_surf = 0;
     if(debug) {
-      std::cout << "          next_surf=0 dist=(undef)" << std::endl; 
+      std::cout << "          next_surf=0 dist=(undef)" << std::endl;
     }
     return MB_SUCCESS;
   }
 
   // Assume that a (neg, nonneg) pair of RTIs could be returned,
-  // however, only one or the other may exist. dists[] may be populated, but 
+  // however, only one or the other may exist. dists[] may be populated, but
   // intersections are ONLY indicated by nonzero surfs[] and facets[].
   assert(2 == dists.size());
   assert(2 == facets.size());
@@ -700,7 +717,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
     assert(-dists[0] <= dists[1]);
   }
 
-  // If an RTI is found at negative distance, perform a PMT to see if the 
+  // If an RTI is found at negative distance, perform a PMT to see if the
   // particle is inside an overlap.
   int exit_idx = -1;
   if(0!=facets[0]) {
@@ -716,8 +733,8 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
       nx_vol = vols.front();
     }
     // Check to see if the point is actually in the next volume.
-    // The list of previous facets is used to topologically identify the 
-    // "on_boundary" result of the PMT. This avoids a test that uses proximity 
+    // The list of previous facets is used to topologically identify the
+    // "on_boundary" result of the PMT. This avoids a test that uses proximity
     // (a tolerance).
     int result;
     rval = point_in_volume( nx_vol, point, result, dir, history );
@@ -728,7 +745,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
 
   // if the negative distance is not the exit, try the nonnegative distance
   if(-1==exit_idx && 0!=facets[1]) exit_idx = 1;
-  
+
   // if the exit index is still unknown, the particle is lost
   if(-1 == exit_idx) {
     next_surf = 0;
@@ -750,7 +767,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
     if( 0 > dists[exit_idx] ){
       std::cout << "          OVERLAP track length=" << dists[exit_idx] << std::endl;
     }
-    std::cout << "          next_surf = " <<  id_by_index(2, index_by_handle(next_surf)) 
+    std::cout << "          next_surf = " <<  id_by_index(2, index_by_handle(next_surf))
               << ", dist = " << next_surf_dist << " new_pt=";
     for( int i = 0; i < 3; ++i ){
       std::cout << point[i]+dir[i]*next_surf_dist << " ";
@@ -761,7 +778,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::point_in_volume(const EntityHandle volume, 
+ErrorCode DagMC::point_in_volume(const EntityHandle volume,
                                  const double xyz[3],
                                  int& result,
                                  const double *uvw,
@@ -792,7 +809,7 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
   }
 
   if( u == 0 && v == 0 && w == 0 )
-  { 
+  {
     u = rand();
     v = rand();
     w = rand();
@@ -803,7 +820,7 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
   }
 
   const double ray_direction[] = { u, v, w };
-  
+
   // if overlaps, ray must be cast to infinity and all RTIs must be returned
   const double   large       = 1e15;
   const double   ray_length  = large;
@@ -819,14 +836,14 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
     min_tolerance_intersections = 1;
   }
 
-  // Get intersection(s) of forward and reverse orientation. Do not return 
+  // Get intersection(s) of forward and reverse orientation. Do not return
   // glancing intersections or previous facets.
   ErrorCode rval = obbTree.ray_intersect_sets( dists, surfs, facets, root,
-                                               numericalPrecision, 
+                                               numericalPrecision,
                                                min_tolerance_intersections,
                                                xyz, ray_direction,
                                                &ray_length, NULL, NULL, &volume,
-                                               &senseTag, NULL, 
+                                               &senseTag, NULL,
                                                history ? &(history->prev_facets) : NULL );
   if(MB_SUCCESS != rval) return rval;
 
@@ -869,8 +886,8 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
       if     ( 1==dirs[smallest] ) result = 0; // pt is outside
       else if( 0==dirs[smallest] ) result = 1; // pt is inside
       else if(-1==dirs[smallest] ) {
-        // Should not be here because Plucker ray-triangle test does not 
-        // return coplanar rays as intersections. 
+        // Should not be here because Plucker ray-triangle test does not
+        // return coplanar rays as intersections.
         std::cout << "direction==tangent" << std::endl;
         result = -1;
       } else {
@@ -884,7 +901,7 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
     std::cout << "pt_in_vol: result=" << result
               << " xyz=" << xyz[0] << " " << xyz[1] << " " << xyz[2] << " uvw=" << u << " " << v << " " << w
               << " vol_id=" << id_by_index(3, index_by_handle(volume)) << std::endl;
-  
+
   return MB_SUCCESS;
 }
 
@@ -906,7 +923,7 @@ ErrorCode DagMC::test_volume_boundary( const EntityHandle volume, const EntityHa
     // Get OBB Tree for surface
     assert(volume - setOffset < rootSets.size());
     EntityHandle root = rootSets[volume - setOffset];
-    
+
     // Get closest triangle on surface
     const CartVect point(xyz);
     CartVect nearest;
@@ -934,37 +951,37 @@ ErrorCode DagMC::point_in_volume_slow( EntityHandle volume, const double xyz[3],
   std::vector<int> senses;
   double sum = 0.0;
   const CartVect point(xyz);
-  
+
   rval = MBI->get_child_meshsets( volume, surfs );
   if (MB_SUCCESS != rval)
     return rval;
-  
+
   senses.resize( surfs.size() );
   rval = surface_sense( volume, surfs.size(), &surfs[0], &senses[0] );
   if (MB_SUCCESS != rval)
     return rval;
-  
+
   for (unsigned i = 0; i < surfs.size(); ++i) {
     if (!senses[i])  // skip non-manifold surfaces
       continue;
-     
+
     double surf_area = 0.0, face_area;
     faces.clear();
     rval = MBI->get_entities_by_dimension( surfs[i], 2, faces );
     if (MB_SUCCESS != rval)
       return rval;
-    
+
     for (Range::iterator j = faces.begin(); j != faces.end(); ++j) {
       rval = poly_solid_angle( *j, point, face_area );
       if (MB_SUCCESS != rval)
         return rval;
-      
+
       surf_area += face_area;
     }
-    
+
     sum += senses[i] * surf_area;
   }
-  
+
   result = fabs(sum) > 2.0*M_PI;
   return MB_SUCCESS;
 }
@@ -987,7 +1004,7 @@ ErrorCode DagMC::closest_to_location( EntityHandle volume, const double coords[3
 
   // calculate distance between point and nearest facet
   result = (point-nearest).length();
-  
+
   return MB_SUCCESS;
 
 }
@@ -998,7 +1015,7 @@ ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
   ErrorCode rval;
   std::vector<EntityHandle> surfaces, surf_volumes;
   result = 0.0;
-  
+
    // don't try to calculate volume of implicit complement
   if (volume == impl_compl_handle) {
     result = 1.0;
@@ -1008,7 +1025,7 @@ ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
     // get surfaces from volume
   rval = MBI->get_child_meshsets( volume, surfaces );
   if (MB_SUCCESS != rval) return rval;
-  
+
     // get surface senses
   std::vector<int> senses( surfaces.size() );
   rval = surface_sense( volume, surfaces.size(), &surfaces[0], &senses[0] );
@@ -1017,26 +1034,26 @@ ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
               << "Cannot calculate volume." << std::endl;
     return rval;
   }
-  
+
   for (unsigned i = 0; i < surfaces.size(); ++i) {
       // skip non-manifold surfaces
     if (!senses[i])
       continue;
-    
+
       // get triangles in surface
     Range triangles;
     rval = MBI->get_entities_by_dimension( surfaces[i], 2, triangles );
-    if (MB_SUCCESS != rval) 
+    if (MB_SUCCESS != rval)
       return rval;
     if (!triangles.all_of_type(MBTRI)) {
       std::cout << "WARNING: Surface " << get_entity_id(surfaces[i])
-                << " contains non-triangle elements. Volume calculation may be incorrect." 
+                << " contains non-triangle elements. Volume calculation may be incorrect."
                 << std::endl;
       triangles.clear();
       rval = MBI->get_entities_by_type( surfaces[i], MBTRI, triangles );
       if (MB_SUCCESS != rval) return rval;
     }
-    
+
       // calculate signed volume beneath surface (x 6.0)
     double surf_sum = 0.0;
     const EntityHandle *conn;
@@ -1048,14 +1065,14 @@ ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
       assert(3 == len);
       rval = MBI->get_coords( conn, 3, coords[0].array() );
       if (MB_SUCCESS != rval) return rval;
-    
+
       coords[1] -= coords[0];
       coords[2] -= coords[0];
       surf_sum += (coords[0] % (coords[1] * coords[2]));
     }
     result += senses[i] * surf_sum;
   }
-  
+
   result /= 6.0;
   return MB_SUCCESS;
 }
@@ -1066,11 +1083,11 @@ ErrorCode DagMC::measure_area( EntityHandle surface, double& result )
     // get triangles in surface
   Range triangles;
   ErrorCode rval = MBI->get_entities_by_dimension( surface, 2, triangles );
-  if (MB_SUCCESS != rval) 
+  if (MB_SUCCESS != rval)
     return rval;
   if (!triangles.all_of_type(MBTRI)) {
     std::cout << "WARNING: Surface " << get_entity_id(surface)
-              << " contains non-triangle elements. Area calculation may be incorrect." 
+              << " contains non-triangle elements. Area calculation may be incorrect."
               << std::endl;
     triangles.clear();
     rval = MBI->get_entities_by_type( surface, MBTRI, triangles );
@@ -1099,7 +1116,7 @@ ErrorCode DagMC::measure_area( EntityHandle surface, double& result )
 }
 
 // get sense of surface(s) wrt volume
-ErrorCode DagMC::surface_sense( EntityHandle volume, 
+ErrorCode DagMC::surface_sense( EntityHandle volume,
                            int num_surfaces,
                            const EntityHandle* surfaces,
                            int* senses_out )
@@ -1114,28 +1131,28 @@ ErrorCode DagMC::surface_sense( EntityHandle volume,
   std::vector<EntityHandle> surf_volumes( 2*num_surfaces );
   ErrorCode rval = MBI->tag_get_data( sense_tag(), surfaces, num_surfaces, &surf_volumes[0] );
   if (MB_SUCCESS != rval)  return rval;
-  
+
   const EntityHandle* end = surfaces + num_surfaces;
   std::vector<EntityHandle>::const_iterator surf_vols = surf_volumes.begin();
   while (surfaces != end) {
     EntityHandle forward = *surf_vols; ++surf_vols;
     EntityHandle reverse = *surf_vols; ++surf_vols;
-    if (volume == forward) 
+    if (volume == forward)
       *senses_out = (volume != reverse); // zero if both, otherwise 1
     else if (volume == reverse)
       *senses_out = -1;
-    else 
+    else
       return MB_ENTITY_NOT_FOUND;
-    
+
     ++surfaces;
     ++senses_out;
   }
-  
+
   return MB_SUCCESS;
 }
 
 // get sense of surface(s) wrt volume
-ErrorCode DagMC::surface_sense( EntityHandle volume, 
+ErrorCode DagMC::surface_sense( EntityHandle volume,
                                   EntityHandle surface,
                                   int& sense_out )
 {
@@ -1149,14 +1166,14 @@ ErrorCode DagMC::surface_sense( EntityHandle volume,
   EntityHandle surf_volumes[2];
   ErrorCode rval = MBI->tag_get_data( sense_tag(), &surface, 1, surf_volumes );
   if (MB_SUCCESS != rval)  return rval;
-  
+
   if (surf_volumes[0] == volume)
     sense_out = (surf_volumes[1] != volume); // zero if both, otherwise 1
-  else if (surf_volumes[1] == volume) 
+  else if (surf_volumes[1] == volume)
     sense_out = -1;
   else
     return MB_ENTITY_NOT_FOUND;
-  
+
   return MB_SUCCESS;
 }
 
@@ -1164,7 +1181,7 @@ ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3], double angl
 {
   EntityHandle root = rootSets[surf - setOffset];
   ErrorCode rval;
-  
+
   std::vector<EntityHandle> facets;
 
   // if no history or history empty, use nearby facets
@@ -1185,22 +1202,22 @@ ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3], double angl
     rval = mbImpl->get_connectivity( facets[i], conn, len );
     assert( MB_SUCCESS == rval );
     assert( 3 == len );
-  
+
     rval = mbImpl->get_coords( conn, 3, coords[0].array() );
     assert(MB_SUCCESS == rval);
-    
+
     coords[1] -= coords[0];
     coords[2] -= coords[0];
     normal += coords[1] * coords[2];
   }
-  
+
   normal.normalize();
   normal.get( angle );
 
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::next_vol( EntityHandle surface, EntityHandle old_volume, 
+ErrorCode DagMC::next_vol( EntityHandle surface, EntityHandle old_volume,
                            EntityHandle& new_volume )
 {
   std::vector<EntityHandle> parents;
@@ -1209,11 +1226,11 @@ ErrorCode DagMC::next_vol( EntityHandle surface, EntityHandle old_volume,
   if (MB_SUCCESS == rval) {
     if (parents.size() != 2)
       rval = MB_FAILURE;
-    else if (parents.front() == old_volume) 
+    else if (parents.front() == old_volume)
       new_volume = parents.back();
     else if( parents.back() == old_volume )
       new_volume = parents.front();
-    else 
+    else
       rval = MB_FAILURE;
   }
 
@@ -1229,21 +1246,21 @@ ErrorCode DagMC::next_vol( EntityHandle surface, EntityHandle old_volume,
 
 ErrorCode DagMC::CAD_ray_intersect(
 #if defined(CGM) && defined(HAVE_CGM_FIRE_RAY)
-    const double *point, 
-    const double *dir, 
+    const double *point,
+    const double *dir,
     const double huge_val,
     std::vector<double> &distances,
-    std::vector<EntityHandle> &surfaces, 
+    std::vector<EntityHandle> &surfaces,
     double &len
 #else
-    const double *, 
-    const double *, 
+    const double *,
+    const double *,
     const double ,
     std::vector<double> &,
-    std::vector<EntityHandle> &, 
+    std::vector<EntityHandle> &,
     double &
 #endif
-) 
+)
 {
 #ifdef CGM
 #ifndef HAVE_CGM_FIRE_RAY
@@ -1252,7 +1269,7 @@ ErrorCode DagMC::CAD_ray_intersect(
   std::vector<double>::iterator dit = distances.begin();
   std::vector<EntityHandle>::iterator sit = surfaces.begin();
   static DLIList<double> ray_params;
-  
+
   for (; dit != distances.end(); dit++, sit++) {
       // get the RefFace
     RefEntity *this_face = geomEntities[*sit - setOffset];
@@ -1269,7 +1286,7 @@ ErrorCode DagMC::CAD_ray_intersect(
     }
     else *dit = huge_val;
   }
-  
+
     // now bubble sort list
   bool done = false;
   while (!done) {
@@ -1290,7 +1307,7 @@ ErrorCode DagMC::CAD_ray_intersect(
   }
 
   if (!distances.empty()) len = distances[0];
-  
+
   return MB_SUCCESS;
 #endif
 #else
@@ -1298,12 +1315,12 @@ ErrorCode DagMC::CAD_ray_intersect(
 #endif
 }
 
-// If point is on boundary, then this function is called to 
+// If point is on boundary, then this function is called to
 // discriminate cases in which the ray is entering or leaving.
 // result= 1 -> inside volume or entering volume
 // result= 0 -> outside volume or leaving volume
 // result=-1 -> on boundary with null or tangent uvw
-ErrorCode DagMC::boundary_case( EntityHandle volume, int& result, 
+ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
                                 double u, double v, double w,
                                 EntityHandle facet,
                                 EntityHandle surface)
@@ -1317,16 +1334,16 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     CartVect coords[3], normal(0.0);
     const EntityHandle *conn;
     int len, sense_out;
-   
+
     rval = mbImpl->get_connectivity( facet, conn, len );
     assert( MB_SUCCESS == rval );
     if(MB_SUCCESS != rval) return rval;
     assert( 3 == len );
-  
+
     rval = mbImpl->get_coords( conn, 3, coords[0].array() );
     assert(MB_SUCCESS == rval);
     if(MB_SUCCESS != rval) return rval;
-   
+
     rval = surface_sense( volume, surface, sense_out );
     assert( MB_SUCCESS == rval);
     if(MB_SUCCESS != rval) return rval;
@@ -1347,36 +1364,36 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
       result = -1;    // failure
       return MB_FAILURE;
     }
-  
+
   // if uvw not provided, return on_boundary.
   } else {
     result = -1;      // on boundary
     return MB_SUCCESS;
-  
+
   }
 
   return MB_SUCCESS;
 }
 
 // point_in_volume_slow, including poly_solid_angle helper subroutine
-// are adapted from "Point in Polyhedron Testing Using Spherical Polygons", Paulo Cezar 
+// are adapted from "Point in Polyhedron Testing Using Spherical Polygons", Paulo Cezar
 // Pinto Carvalho and Paulo Roma Cavalcanti, _Graphics Gems V_, pg. 42.  Original algorithm
-// was described in "An Efficient Point In Polyhedron Algortihm", Jeff Lane, Bob Magedson, 
+// was described in "An Efficient Point In Polyhedron Algortihm", Jeff Lane, Bob Magedson,
 // and Mike Rarick, _Computer Visoin, Graphics, and Image Processing 26_, pg. 118-225, 1984.
 
-// helper function for point_in_volume_slow.  calculate area of a polygon 
+// helper function for point_in_volume_slow.  calculate area of a polygon
 // projected into a unit-sphere space
    ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, double& area )
 {
   ErrorCode rval;
-  
+
     // Get connectivity
   const EntityHandle* conn;
   int len;
   rval = MBI->get_connectivity( face, conn, len, true );
   if (MB_SUCCESS != rval)
     return rval;
-  
+
     // Allocate space to store vertices
   CartVect coords_static[4];
   std::vector<CartVect> coords_dynamic;
@@ -1385,12 +1402,12 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     coords_dynamic.resize(len);
     coords = &coords_dynamic[0];
   }
-  
+
     // get coordinates
   rval = MBI->get_coords( conn, len, coords->array() );
   if (MB_SUCCESS != rval)
     return rval;
-  
+
     // calculate normal
   CartVect norm(0.0), v1, v0 = coords[1] - coords[0];
   for (int i = 2; i < len; ++i) {
@@ -1398,7 +1415,7 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     norm += v0 * v1;
     v0 = v1;
   }
-  
+
     // calculate area
   double s, ang;
   area = 0.0;
@@ -1414,13 +1431,13 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     area += s > 0.0 ? M_PI - ang : M_PI + ang;
     a = -b;
   }
-  
+
   area -= M_PI * (len - 2);
   if ((norm % r) > 0)
     area = -area;
   return MB_SUCCESS;
 }
-  
+
 /* SECTION III */
 
 EntityHandle DagMC::entity_by_id( int dimension, int id )
@@ -1429,11 +1446,11 @@ EntityHandle DagMC::entity_by_id( int dimension, int id )
   const Tag tags[] = { idTag, geomTag };
   const void* const vals[] = { &id, &dimension };
   ErrorCode rval;
-  
+
   Range results;
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, tags, vals, 2, results );
 
-  if ( MB_SUCCESS != rval ) 
+  if ( MB_SUCCESS != rval )
       return 0;
 
   if ( results.empty() ){
@@ -1442,10 +1459,10 @@ EntityHandle DagMC::entity_by_id( int dimension, int id )
     // correctly, even on reloaded files from older versions.
     if( dimension == 3 && get_entity_id(impl_compl_handle) == id )
       return impl_compl_handle;
-    else 
-      return 0; 
+    else
+      return 0;
   }
-  
+
   return results.front();
 }
 
@@ -1454,19 +1471,19 @@ int DagMC::id_by_index( int dimension, int index )
   EntityHandle h = entity_by_index( dimension, index );
   if (!h)
     return 0;
-  
+
   int result = 0;
   MBI->tag_get_data( idTag, &h, 1, &result );
   return result;
 }
 
-int DagMC::get_entity_id(EntityHandle this_ent) 
+int DagMC::get_entity_id(EntityHandle this_ent)
 {
   int id = 0;
   ErrorCode result = MBI->tag_get_data(idTag, &this_ent, 1, &id);
   if (MB_TAG_NOT_FOUND == result)
     id = MBI->id_from_handle(this_ent);
-    
+
   return id;
 }
 
@@ -1493,7 +1510,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   int idx = 1;
   for (Range::iterator rit = surfs.begin(); rit != surfs.end(); rit++)
     entIndices[*rit-setOffset] = idx++;
-  
+
   vol_handles().resize( vols.size() + 1 );
   iter = vol_handles().begin();
   *(iter++) = 0;
@@ -1507,7 +1524,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     if( *rit != impl_compl_handle ){
       int result=0;
       MBI->tag_get_data( idTag, &*rit, 1, &result );
-      max_id = std::max( max_id, result ); 
+      max_id = std::max( max_id, result );
     }
   }
     // assign ID to implicit complement
@@ -1547,17 +1564,17 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
       geomEntities[*rit - setOffset] = this_vol;
     }
   }
-#endif  
+#endif
 
     // get group handles
-  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE, 
+  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
                                MB_TAG_SPARSE, MB_TYPE_OPAQUE);
   char group_category[CATEGORY_TAG_SIZE];
   std::fill(group_category, group_category+CATEGORY_TAG_SIZE, '\0');
   sprintf(group_category, "%s", "Group");
   const void* const group_val[] = {&group_category};
   Range groups;
-  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &category_tag, 
+  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &category_tag,
                                            group_val, 1, groups);
   if (MB_SUCCESS != rval)
     return rval;
@@ -1586,7 +1603,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
 
 
 
-/* SECTION IV */  
+/* SECTION IV */
 
 void DagMC::set_overlap_thickness( double new_thickness ){
 
@@ -1639,7 +1656,7 @@ ErrorCode DagMC::write_mesh(const char* ffile,
                             const int flen)
 {
   ErrorCode rval;
-  
+
     // write out a mesh file if requested
   if (ffile && 0 < flen) {
     rval = MBI->write_mesh(ffile);
@@ -1648,7 +1665,7 @@ ErrorCode DagMC::write_mesh(const char* ffile,
       return rval;
     }
   }
- 
+
   return MB_SUCCESS;
 }
 
@@ -1675,7 +1692,7 @@ ErrorCode DagMC::parse_group_name( EntityHandle group_set, prop_map& result, con
   std::vector< std::string > group_tokens;
   tokenize( group_name, group_tokens, delimiters );
 
-  // iterate over all the keyword positions 
+  // iterate over all the keyword positions
   // keywords are even indices, their values (optional) are odd indices
   for( unsigned int i = 0; i < group_tokens.size(); i += 2 ){
     std::string groupkey = group_tokens[i];
@@ -1725,7 +1742,7 @@ ErrorCode DagMC::append_packed_string( Tag tag, EntityHandle eh,
     return MBI->tag_clear_data( tag, &eh, 1, p, new_string.length()+1);
   }
   else if( rval != MB_SUCCESS ) return rval;
-  else{ 
+  else{
     str = static_cast<const char*>(p);
   }
 
@@ -1742,7 +1759,7 @@ ErrorCode DagMC::append_packed_string( Tag tag, EntityHandle eh,
   return rval;
 }
 
-ErrorCode DagMC::unpack_packed_string( Tag tag, EntityHandle eh, 
+ErrorCode DagMC::unpack_packed_string( Tag tag, EntityHandle eh,
                                        std::vector< std::string >& values )
 {
   ErrorCode rval;
@@ -1813,7 +1830,7 @@ ErrorCode DagMC::parse_properties( const std::vector<std::string>& keywords,
     if( MB_SUCCESS != rval ) return rval;
     if( grp_sets.size() == 0 ) continue;
 
-    for( prop_map::iterator i = properties.begin(); 
+    for( prop_map::iterator i = properties.begin();
          i != properties.end(); ++i )
     {
       std::string groupkey = (*i).first;
@@ -1841,7 +1858,7 @@ ErrorCode DagMC::prop_value( EntityHandle eh, const std::string& prop, std::stri
   }
 
   Tag proptag = (*it).second;
-  const void* data; 
+  const void* data;
   int ignored;
 
   rval = MBI->tag_get_by_ptr( proptag, &eh, 1, &data, &ignored );
@@ -1850,7 +1867,7 @@ ErrorCode DagMC::prop_value( EntityHandle eh, const std::string& prop, std::stri
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::prop_values( EntityHandle eh, const std::string& prop, 
+ErrorCode DagMC::prop_values( EntityHandle eh, const std::string& prop,
                               std::vector< std::string >& values )
 {
 
@@ -1874,7 +1891,7 @@ bool DagMC::has_prop( EntityHandle eh, const std::string& prop )
   }
 
   Tag proptag = (*it).second;
-  const void* data; 
+  const void* data;
   int ignored;
 
   rval = MBI->tag_get_by_ptr( proptag, &eh, 1, &data, &ignored );
@@ -1969,9 +1986,9 @@ void DagMC::tokenize( const std::string& str,
     }
 }
 
-Tag DagMC::get_tag( const char* name, int size, TagType store, 
+Tag DagMC::get_tag( const char* name, int size, TagType store,
                     DataType type, const void* def_value,
-                    bool create_if_missing) 
+                    bool create_if_missing)
 {
   Tag retval = 0;
   unsigned flags = store|MB_TAG_CREAT;
@@ -1979,12 +1996,12 @@ Tag DagMC::get_tag( const char* name, int size, TagType store,
   // the opposite meaning from what its name implies.  However, changing the
   // behavior causes tests to fail, so I'm leaving the existing behavior
   // in place.  -- j.kraftcheck.
-  if (!create_if_missing)  
+  if (!create_if_missing)
     flags |= MB_TAG_EXCL;
   ErrorCode result = MBI->tag_get_handle(name, size, type, retval, flags, def_value);
-  if (create_if_missing && MB_SUCCESS != result) 
+  if (create_if_missing && MB_SUCCESS != result)
     std::cerr << "Couldn't find nor create tag named " << name << std::endl;
-  
+
   return retval;
 }
 
@@ -1993,14 +2010,14 @@ ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
                           double maxPt[3])
 {
   double center[3], axis1[3], axis2[3], axis3[3];
- 
+
     // get center point and vectors to OBB faces
   ErrorCode rval = getobb(volume, center, axis1, axis2, axis3);
   if (MB_SUCCESS != rval)
     return rval;
-     
+
     // compute min and max verticies
-  for (int i=0; i<3; i++) 
+  for (int i=0; i<3; i++)
   {
     double sum = fabs(axis1[i]) + fabs(axis2[i]) + fabs(axis3[i]);
     minPt[i] = center[i] - sum;
@@ -2014,12 +2031,11 @@ ErrorCode DagMC::getobb(EntityHandle volume, double center[3], double axis1[3],
 {
     //find EntityHandle node_set for use in box
   EntityHandle root = rootSets[volume - setOffset];
-  
+
     // call box to get center and vectors to faces
   return obbTree.box(root, center, axis1, axis2, axis3);
-  
+
 }
 
 
 } // namespace moab
-
