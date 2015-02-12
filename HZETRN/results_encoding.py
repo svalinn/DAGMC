@@ -192,7 +192,6 @@ def parsing():
     if not args.run_dir:
         raise Exception('Run directory not specified. [-d] not set')
     
-    print "Saving processed data to file", args.data_file
     return args
 
 def main():
@@ -210,7 +209,7 @@ def main():
     # Original Working Directory - will be used for the results file
     owd = os.path.dirname(os.path.abspath(__file__)) + '/'
     outfile = owd + args.data_file
-    print 'writing to', outfile
+    print 'Writing to', outfile
 
     # Directory containing the ray subdirectories
     run_path = args.run_dir + '/data/'
@@ -227,8 +226,8 @@ def main():
     # flux_nums_for_all = np.array([])
     
     # Make a header array of words for the depth particles
-    dhl = depth_header_ary()
-    # dh = depth_header()
+    hdr_depth = depth_header_ary()
+    print 'hdr_depth', hdr_depth
     
     ray_subdirs = glob.glob('*')
     for r in ray_subdirs:
@@ -247,9 +246,7 @@ def main():
 
 	# String list: this is what we send to the data line
         ray = r.split('_') 
-	print ray
-
-	# ray_vec = np.array([float(x) for x in ray])
+	# print ray
 
 	# ToDo: perform this check earlier
 	if os.path.exists(dose_filepath) and os.path.exists(doseq_filepath) and \
@@ -258,6 +255,9 @@ def main():
 	   os.path.exists(flux_filepath) and os.path.exists(intflux_filepath) \
 	                                 and os.path.exists(neutron_flux_filepath):
 	   
+	    ray_vec = np.array([float(x) for x in ray])
+	    print ray_vec
+
             # Add dose and doseq at depth for all or 6 particles
 	    h_dose      = depth_data_reader.last_lines(dose_filepath)
 	    i_doseq     = depth_data_reader.last_lines(doseq_filepath)
@@ -279,7 +279,8 @@ def main():
 	    ronums = np.swapaxes(onums,0,1)
 	    rpnums = np.swapaxes(pnums,0,1)
 	    
-	    all_values_by_ray = np.hstack((ray, h_dose, i_doseq, j_dose_ple, k_doseq_ple))
+	    #all_values_by_ray = np.hstack((ray_vec, h_dose, i_doseq, j_dose_ple, k_doseq_ple))
+	    all_values_by_ray = np.hstack((h_dose, i_doseq, j_dose_ple, k_doseq_ple))
 	    all_values_by_ray = np.hstack((all_values_by_ray,l_dif_let.ravel(), m_int_let.ravel()))
 	    all_values_by_ray = np.hstack((all_values_by_ray, rnnums.ravel(), ronums.ravel(), rpnums.ravel()))
 
@@ -289,41 +290,58 @@ def main():
 	        let_hdr_nums = dif_int_block_reader.index_from(dif_filepath, 0)
 	        flux_depth_nums = flux_block_reader.index_from(flux_filepath, 0)
 		# 700 + 700 + 100
-		flux_nums_for_all = flux_depth_nums
-		for i in range(0,14):
-		    flux_nums_for_all = np.hstack((flux_nums_for_all, flux_depth_nums))
+		# flux_nums_for_all = flux_depth_nums
+		# for i in range(0,14):
+		#    flux_nums_for_all = np.hstack((flux_nums_for_all, flux_depth_nums))
 		# Create one very long line: first write, then append, no newlines
-		hdr_nums = np.hstack((let_hdr_nums, let_hdr_nums, flux_nums_for_all))
-		print 'hdr_nums shape', hdr_nums.shape
-		# print 'hdr_nums', np.swapaxes(hdr_nums,0,1)
+		#hdr_nums = np.hstack((let_hdr_nums, let_hdr_nums, flux_nums_for_all))
+		hdr_nums = np.hstack((let_hdr_nums, flux_depth_nums))
 
 		with open(outfile, 'w') as f:
-		    np.savetxt(f, dhl, fmt='%s')
+		    np.savetxt(f, hdr_depth, fmt='%s', newline='')
+		    print 'hdr_depth shape', hdr_depth.shape
 		    
 		with open(outfile, 'a') as f:
 		    np.savetxt(f, hdr_nums, fmt='%13.6E')
+		    print 'hdr_nums shape', hdr_nums.shape
 
 		all_values = all_values_by_ray
 
 	    else:
+		# May not use this
 	        all_values = np.vstack((all_values, all_values_by_ray))
 
-	    # Write one ray at a time; could also store in memory 
-	    # with open(args.data_file, 'a') as f:
-	    #   np.savetxt(f, all_values_by_ray, fmt=='%14.6E', newline='\n'))
-                # np.savetxt(args.data_file, all_depth, '%14.6E', delimiter=' ', newline='\n', header=depth_hdr, footer=footer) 
+            with open(outfile, 'a') as f:
+	       np.savetxt(f, ray_vec, fmt='%13.6f', newline='')
+	       np.savetxt(f, all_values_by_ray, fmt='%13.6E', newline='')
+	       f.write('\n')
 
     # NOTES
     # All data is stored in memory 	
-    print 'Saving all_value array, shaped', all_values.shape, 'to', args.data_file
-    # np.savetxt(f_handle, all_values, delimiter='', fmt='%s')
+    # All data files must be present
+    # print 'Saving ray_vec', ray_vec, 'and all_value array, shaped', all_values.shape
+    # with open(outfile, 'a') as f:
+    #	np.savetxt(f, ray_vec, newline='')
+    #	np.savetxt(f, all_values, fmt='%13.6E') 
     ###############################################################
-    print 'all_values shape', all_values.shape 
-    for_statistics = all_values[...,3:]
-    print 'for_statistics shape', for_statistics.shape
-    ave_all_values = np.average(for_statistics.shape,0)
+    print 'all_values, 1st col of non-dir values', all_values[...,0]
 
-    # f_handle.close()
+    # ray_filler = [[float('NaN'), float('NaN'), float('NaN')]]
+    # Averages
+    ave_all_values = np.average(all_values, axis=0)
+    with open(outfile, 'a') as f:
+        np.savetxt(f, ['Average', 'over', 'XYZ'], fmt='%13s', newline='')
+        np.savetxt(f, ave_all_values, fmt='%13.6E', newline='')
+	f.write('\n')
+
+    # Std. Dev.
+    std_all_values = np.std(all_values, axis=0)
+    with open(outfile, 'a') as f:
+        # np.savetxt(f, ray_filler, fmt='%13.6f', newline='')
+        np.savetxt(f, ['Std.Dev.', 'over', 'XYZ'], fmt='%13s', newline='')
+        np.savetxt(f, std_all_values, fmt='%13.6E', newline='')
+        f.write('\n')
+        
     ###############################################################
 
 if __name__ == '__main__':
