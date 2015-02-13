@@ -37,6 +37,7 @@ class Results:
     def last_lines(self, name, n):
 	filepath = self.directory + name
         return check_last_n_lines(filepath, n)
+
 class nx2(Results):
 
     def last_lines(self, name):
@@ -47,8 +48,8 @@ class nx2(Results):
 	return vals
 
 class nx7(Results):
-
     def last_lines(self, name):
+        "Read the last line containing 7 values."
         result_line = Results.last_lines(self, name, 1)
 	words = result_line[0].split()
 	# We are skipping the first value, which is the depth
@@ -56,17 +57,36 @@ class nx7(Results):
 	return nums
 
 class n700x2(Results):
-
-    def index_from(self, name, index):
-        return Results.index_from(self, name, index, 700)
+    # def index_from(self, name, index):
+    #    return Results.index_from(self, name, index, 700)
 
     def last_lines(self, name):
+        "Read the last block of 700 lines, containing 2 values"
         vals = self.index_from(name, 1)
 	return vals
+    
+    def index_and_lines(self, name):
 
+	lines = Results.last_lines(self, name, 700)
+
+        rows = np.array([])
+	# vals = np.empty((1,numlines), float)
+	# col = 0
+	for line in lines:
+	    words = line.split()
+	    # Turn the strings on the line into a float array
+	    row = [float(x) for x in words]
+	    if len(rows) == 0:
+	        rows = row
+	    else:
+	        rows = np.vstack((rows, row))
+	    #num = float(words[index])
+	    #vals[0,col] = num
+	    #col = col + 1
+        return rows
 
 class n100xm(Results):
-    "Read the last block of 100 lines of data, with m values per line"
+    "Read the last block of 100 lines of data, with m values per line."
 
     def index_from(self, name, index):
 	return Results.index_from(self, name, index,  100)
@@ -170,6 +190,45 @@ def depth_header_ary():
      
     return np.array(dh)
 
+def get_filepaths(r):
+    "Convenience function to make the main body cleaner."
+    global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
+    global diflet_filename, intlet_filename
+    global flux_filename, intflux_filename
+    global neutron_flux_filename 
+    
+    ret = {}
+    ret['dose'] = r + '/' + dose_filename 
+    if not os.path.exists(ret['dose']):
+        return {}
+    ret['doseq'] = r + '/' + doseq_filename
+    if not os.path.exists(ret['doseq']):
+        return {}
+    ret['dose_part'] = r + '/' + dose_ple_filename 
+    if not os.path.exists(ret['dose_part']):
+        return {}
+    ret['doseq_part'] = r + '/' + doseq_ple_filename
+    if not os.path.exists(ret['doseq_part']):
+        return {}
+
+    ret['dif_let'] = r + '/' + diflet_filename
+    if not os.path.exists(ret['dif_let']):
+        return {}
+    ret['int_let'] = r + '/' + intlet_filename
+    if not os.path.exists(ret['int_let']):
+        return {}
+
+    ret['flux'] = r + '/' + flux_filename
+    if not os.path.exists(ret['flux']):
+        return {}
+    ret['int_flux'] = r + '/' + intflux_filename
+    if not os.path.exists(ret['int_flux']):
+        return {}
+    ret['neutron'] = r + '/' + neutron_flux_filename
+    if not os.path.exists(ret['neutron']):
+        return {}
+    
+    return ret
 
 """
 Argument parsing
@@ -195,10 +254,6 @@ def parsing():
     return args
 
 def main():
-    global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
-    global diflet_filename, intlet_filename
-    global flux_filename, intflux_filename
-    global neutron_flux_filename 
 
     # Setup: parse the the command line parameters
     args = parsing()
@@ -231,45 +286,34 @@ def main():
     
     ray_subdirs = glob.glob('*')
     for r in ray_subdirs:
-	# Depth files
-	dose_filepath       = r + '/' + dose_filename 
-	doseq_filepath      = r + '/' + doseq_filename
-	dose_part_filepath  = r + '/' + dose_ple_filename 
-	doseq_part_filepath = r + '/' + doseq_ple_filename
-	# LET files
-	dif_filepath        = r + '/' + diflet_filename
-	int_filepath        = r + '/' + intlet_filename
-	# Flux files
-	flux_filepath       = r + '/' + flux_filename
-	intflux_filepath    = r + '/' + intflux_filename
-        neutron_flux_filepath = r + '/' + neutron_flux_filename
 
 	# String list: this is what we send to the data line
         ray = r.split('_') 
-	# print ray
+	# If any files are missing the dictionary will be empty
+        datapaths = get_filepaths(r)
 
-	# ToDo: perform this check earlier
-	if os.path.exists(dose_filepath) and os.path.exists(doseq_filepath) and \
-	   os.path.exists(dose_part_filepath) and os.path.exists(doseq_part_filepath) and \
-	   os.path.exists(dif_filepath) and os.path.exists(int_filepath) and \
-	   os.path.exists(flux_filepath) and os.path.exists(intflux_filepath) \
-	                                 and os.path.exists(neutron_flux_filepath):
-	   
+        if len(datapaths) != 0:
 	    ray_vec = np.array([float(x) for x in ray])
 	    print ray_vec
 
+	    #######################################################
+	    # Depth data
             # Add dose and doseq at depth for all or 6 particles
-	    h_dose      = depth_data_reader.last_lines(dose_filepath)
-	    i_doseq     = depth_data_reader.last_lines(doseq_filepath)
-	    j_dose_ple  = depth_particle_reader.last_lines(dose_part_filepath)
-	    k_doseq_ple = depth_particle_reader.last_lines(doseq_part_filepath)
+	    dose      = depth_data_reader.last_lines(datapaths['dose'])
+	    doseq     = depth_data_reader.last_lines(datapaths['doseq'])
+	    dose_ple  = depth_particle_reader.last_lines(datapaths['dose_part'])
+	    doseq_ple = depth_particle_reader.last_lines(datapaths['doseq_part'])
 	   
+	    all_values_by_ray = np.hstack((dose, doseq, dose_ple, doseq_ple))
 	    #######################################################
 	    # LET - 700 values per ray for dif and int each
-	    l_dif_let = dif_int_block_reader.last_lines(dif_filepath)
-	    m_int_let = dif_int_block_reader.last_lines(int_filepath)
+	    # col 0 is header, col 1 is data
+	    dif_let = dif_int_block_reader.index_and_lines(datapaths['dif_let'])
+	    int_let = dif_int_block_reader.index_and_lines(datapaths['int_let'])
+	    all_values_by_ray = np.hstack((all_values_by_ray, dif_let[...,1], int_let[...,1]))
 
 	    # 100 rows by 6 columns
+	    """
             nnums = flux_block_reader.last_lines(flux_filepath)
 	    onums = flux_block_reader.last_lines(intflux_filepath)
             pnums = flux_block_reader.last_lines(neutron_flux_filepath)
@@ -279,23 +323,24 @@ def main():
 	    ronums = np.swapaxes(onums,0,1)
 	    rpnums = np.swapaxes(pnums,0,1)
 	    
-	    #all_values_by_ray = np.hstack((ray_vec, h_dose, i_doseq, j_dose_ple, k_doseq_ple))
-	    all_values_by_ray = np.hstack((h_dose, i_doseq, j_dose_ple, k_doseq_ple))
-	    all_values_by_ray = np.hstack((all_values_by_ray,l_dif_let.ravel(), m_int_let.ravel()))
+	    # all_values_by_ray = np.hstack((all_values_by_ray,l_dif_let.ravel(), m_int_let.ravel()))
 	    all_values_by_ray = np.hstack((all_values_by_ray, rnnums.ravel(), ronums.ravel(), rpnums.ravel()))
-
+            """
 	    # The first time through write the header and start the overall data stack
             if all_values.size == 0:
 		# 700 numbers, from 1st column, append to header 2x, for dif and int
-	        let_hdr_nums = dif_int_block_reader.index_from(dif_filepath, 0)
-	        flux_depth_nums = flux_block_reader.index_from(flux_filepath, 0)
+	        # let_hdr_nums = dif_int_block_reader.index_from(dif_filepath, 0)
+		let_hdr_nums = np.hstack((dif_let[...,0],int_let[...,0]))
+	        # flux_depth_nums = flux_block_reader.index_from(flux_filepath, 0)
+
 		# 700 + 700 + 100
 		# flux_nums_for_all = flux_depth_nums
 		# for i in range(0,14):
 		#    flux_nums_for_all = np.hstack((flux_nums_for_all, flux_depth_nums))
 		# Create one very long line: first write, then append, no newlines
 		#hdr_nums = np.hstack((let_hdr_nums, let_hdr_nums, flux_nums_for_all))
-		hdr_nums = np.hstack((let_hdr_nums, flux_depth_nums))
+		# hdr_nums = np.hstack((let_hdr_nums, flux_depth_nums))
+		hdr_nums = let_hdr_nums
 
 		with open(outfile, 'w') as f:
 		    np.savetxt(f, hdr_depth, fmt='%s', newline='')
@@ -324,9 +369,8 @@ def main():
     #	np.savetxt(f, ray_vec, newline='')
     #	np.savetxt(f, all_values, fmt='%13.6E') 
     ###############################################################
-    print 'all_values, 1st col of non-dir values', all_values[...,0]
+    # print 'all_values, 1st col of non-dir values', all_values[...,0]
 
-    # ray_filler = [[float('NaN'), float('NaN'), float('NaN')]]
     # Averages
     ave_all_values = np.average(all_values, axis=0)
     with open(outfile, 'a') as f:
@@ -337,7 +381,6 @@ def main():
     # Std. Dev.
     std_all_values = np.std(all_values, axis=0)
     with open(outfile, 'a') as f:
-        # np.savetxt(f, ray_filler, fmt='%13.6f', newline='')
         np.savetxt(f, ['Std.Dev.', 'over', 'XYZ'], fmt='%13s', newline='')
         np.savetxt(f, std_all_values, fmt='%13.6E', newline='')
         f.write('\n')
