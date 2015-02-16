@@ -57,21 +57,12 @@ class nx7(Results):
 	return nums
 
 class n700x2(Results):
-    # def index_from(self, name, index):
-    #    return Results.index_from(self, name, index, 700)
 
-    def last_lines(self, name):
-        "Read the last block of 700 lines, containing 2 values"
-        vals = self.index_from(name, 1)
-	return vals
-    
     def index_and_lines(self, name):
 
 	lines = Results.last_lines(self, name, 700)
 
         rows = np.array([])
-	# vals = np.empty((1,numlines), float)
-	# col = 0
 	for line in lines:
 	    words = line.split()
 	    # Turn the strings on the line into a float array
@@ -80,31 +71,35 @@ class n700x2(Results):
 	        rows = row
 	    else:
 	        rows = np.vstack((rows, row))
-	    #num = float(words[index])
-	    #vals[0,col] = num
-	    #col = col + 1
         return rows
 
 class n100xm(Results):
     "Read the last block of 100 lines of data, with m values per line."
 
-    def index_from(self, name, index):
-	return Results.index_from(self, name, index,  100)
-
-    def last_lines(self, name):
+    def index_and_vals(self, name):
+	index = []
 	vals = np.array([])
-	nums = np.array([])
 	lines = Results.last_lines(self, name, 100)
 	for line in lines:
 	    words = line.split()
+	    # Grab the first column for the header
+	    index.append(float(words[0]))
 	    # We are skipping the first value, which is a flux bin
             # use list comprehension for generality and flexibility
 	    nums = np.array([float(x) for x in words[1:len(words)]])
+	    
 	    if vals.size == 0:
 	        vals = nums
 	    else:
 	        vals = np.vstack((vals, nums))
-	return vals
+
+	all_vals_as_row = np.swapaxes(vals,0,1).ravel()
+	full_index_hdr = index_hdr = np.array(index)
+        # Concatenate the first col to be repeated for other raveled cols.
+	for i in range(1,vals.shape[1]):
+	   full_index_hdr = np.hstack((full_index_hdr, index_hdr))
+
+	return (full_index_hdr, all_vals_as_row)
       
 def reversed_lines(file):
     "Generate the lines of file in reverse order."
@@ -170,28 +165,29 @@ def get_names(file):
 def depth_header_ary():
     "Return a header for the depth data as a 1 x 17 array"
     dh = []
-    dh = [ ['{0: >12}'.format('X'), 
-              '{0: >15}'.format('Y'),
-              '{0: >15}'.format('Z'),
-              '{0: >15}'.format('Dose_All'),
-              '{0: >15}'.format('Doseq_All'),
-              '{0: >15}'.format('dose-neutron'),
-              '{0: >15}'.format('dose-proton'),
-              '{0: >15}'.format('dose-deut.'),
-              '{0: >15}'.format('dose-trit.'),
-              '{0: >15}'.format('dose-He3'),
-              '{0: >15}'.format('dose-He4'),
-              '{0: >15}'.format('doseq-neutron'),
-              '{0: >15}'.format('doseq-proton'),
-              '{0: >15}'.format('doseq-deut.'),
-              '{0: >15}'.format('doseq-trit.'),
-              '{0: >15}'.format('doseq-He3'),
-              '{0: >15}'.format('doseq-He4')]]
+    dh = [ ['{0: >13}'.format('X'), 
+              '{0: >12}'.format('Y'),
+              '{0: >12}'.format('Z'),
+              '{0: >12}'.format('Dose_All'),
+              '{0: >12}'.format('Doseq_All'),
+              '{0: >12}'.format('dose-neutron'),
+              '{0: >12}'.format('dose-proton'),
+              '{0: >12}'.format('dose-deut.'),
+              '{0: >12}'.format('dose-trit.'),
+              '{0: >12}'.format('dose-He3'),
+              '{0: >12}'.format('dose-He4'),
+              '{0: >12}'.format('doseq-neut'),
+              '{0: >12}'.format('doseq-proton'),
+              '{0: >12}'.format('doseq-deut'),
+              '{0: >12}'.format('doseq-trit'),
+              '{0: >12}'.format('doseq-He3'),
+              '{0: >12}'.format('doseq-He4')]]
      
+    # return dh
     return np.array(dh)
 
 def get_filepaths(r):
-    "Convenience function to make the main body cleaner."
+    "Convenience function to construct filepaths and check for existence"
     global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
     global diflet_filename, intlet_filename
     global flux_filename, intflux_filename
@@ -278,11 +274,9 @@ def main():
     # Numpy Arrays
     all_values  = np.array([])
     full_header = np.array([])
-    # flux_nums_for_all = np.array([])
     
     # Make a header array of words for the depth particles
     hdr_depth = depth_header_ary()
-    print 'hdr_depth', hdr_depth
     
     ray_subdirs = glob.glob('*')
     for r in ray_subdirs:
@@ -310,50 +304,35 @@ def main():
 	    # col 0 is header, col 1 is data
 	    dif_let = dif_int_block_reader.index_and_lines(datapaths['dif_let'])
 	    int_let = dif_int_block_reader.index_and_lines(datapaths['int_let'])
+	    
 	    all_values_by_ray = np.hstack((all_values_by_ray, dif_let[...,1], int_let[...,1]))
 
-	    # 100 rows by 6 columns
-	    """
-            nnums = flux_block_reader.last_lines(flux_filepath)
-	    onums = flux_block_reader.last_lines(intflux_filepath)
-            pnums = flux_block_reader.last_lines(neutron_flux_filepath)
+	    # 100 rows by 7 or 4 columns
+	    flux_hdr, flux_nums         = flux_block_reader.index_and_vals(datapaths['flux'])
+	    intflux_hdr, intflux_nums   = flux_block_reader.index_and_vals(datapaths['int_flux'])
+	    neutflux_hdr, neutflux_nums = flux_block_reader.index_and_vals(datapaths['neutron'])
 
-	    # Flip the rows and columns: shape (100, n) -> (n, 100)
-	    rnnums = np.swapaxes(nnums,0,1)
-	    ronums = np.swapaxes(onums,0,1)
-	    rpnums = np.swapaxes(pnums,0,1)
-	    
-	    # all_values_by_ray = np.hstack((all_values_by_ray,l_dif_let.ravel(), m_int_let.ravel()))
-	    all_values_by_ray = np.hstack((all_values_by_ray, rnnums.ravel(), ronums.ravel(), rpnums.ravel()))
-            """
+	    all_values_by_ray = np.hstack((all_values_by_ray, flux_nums, intflux_nums, neutflux_nums))
+
 	    # The first time through write the header and start the overall data stack
             if all_values.size == 0:
 		# 700 numbers, from 1st column, append to header 2x, for dif and int
-	        # let_hdr_nums = dif_int_block_reader.index_from(dif_filepath, 0)
 		let_hdr_nums = np.hstack((dif_let[...,0],int_let[...,0]))
-	        # flux_depth_nums = flux_block_reader.index_from(flux_filepath, 0)
-
-		# 700 + 700 + 100
-		# flux_nums_for_all = flux_depth_nums
-		# for i in range(0,14):
-		#    flux_nums_for_all = np.hstack((flux_nums_for_all, flux_depth_nums))
-		# Create one very long line: first write, then append, no newlines
-		#hdr_nums = np.hstack((let_hdr_nums, let_hdr_nums, flux_nums_for_all))
-		# hdr_nums = np.hstack((let_hdr_nums, flux_depth_nums))
-		hdr_nums = let_hdr_nums
+		hdr_nums = np.hstack((let_hdr_nums, flux_hdr, intflux_hdr, neutflux_hdr))
 
 		with open(outfile, 'w') as f:
 		    np.savetxt(f, hdr_depth, fmt='%s', newline='')
 		    print 'hdr_depth shape', hdr_depth.shape
 		    
 		with open(outfile, 'a') as f:
-		    np.savetxt(f, hdr_nums, fmt='%13.6E')
+		    np.savetxt(f, hdr_nums, fmt='%13.6E', newline='')
+	            f.write('\n')
 		    print 'hdr_nums shape', hdr_nums.shape
 
-		all_values = all_values_by_ray
+	 	all_values = all_values_by_ray
 
 	    else:
-		# May not use this
+		# The pure-numeric array for statistics
 	        all_values = np.vstack((all_values, all_values_by_ray))
 
             with open(outfile, 'a') as f:
@@ -362,26 +341,21 @@ def main():
 	       f.write('\n')
 
     # NOTES
-    # All data is stored in memory 	
     # All data files must be present
     # print 'Saving ray_vec', ray_vec, 'and all_value array, shaped', all_values.shape
-    # with open(outfile, 'a') as f:
-    #	np.savetxt(f, ray_vec, newline='')
-    #	np.savetxt(f, all_values, fmt='%13.6E') 
     ###############################################################
-    # print 'all_values, 1st col of non-dir values', all_values[...,0]
 
     # Averages
     ave_all_values = np.average(all_values, axis=0)
     with open(outfile, 'a') as f:
-        np.savetxt(f, ['Average', 'over', 'XYZ'], fmt='%13s', newline='')
+        np.savetxt(f, ['Average', 'over', 'direction'], fmt='%13s', newline='')
         np.savetxt(f, ave_all_values, fmt='%13.6E', newline='')
 	f.write('\n')
 
     # Std. Dev.
     std_all_values = np.std(all_values, axis=0)
     with open(outfile, 'a') as f:
-        np.savetxt(f, ['Std.Dev.', 'over', 'XYZ'], fmt='%13s', newline='')
+        np.savetxt(f, ['Std.Dev.', 'over', 'direction'], fmt='%13s', newline='')
         np.savetxt(f, std_all_values, fmt='%13.6E', newline='')
         f.write('\n')
         
