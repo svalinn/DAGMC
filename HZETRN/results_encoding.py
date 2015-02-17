@@ -23,42 +23,26 @@ class Results:
     def __init__(self, dir):
         self.directory = dir
 
-    def index_from(self, name, index, numlines):
-	vals = np.empty((1,numlines), float)
-	lines = Results.last_lines(self, name, numlines)
-	col = 0
-	for line in lines:
-	    words = line.split()
-	    num = float(words[index])
-	    vals[0,col] = num
-	    col = col + 1
-	return vals
+    def words_last_line(self, name, n):
+        result_line = Results.last_lines(self, name, 1)
+	return result_line[0].split()
 
     def last_lines(self, name, n):
 	filepath = self.directory + name
         return check_last_n_lines(filepath, n)
 
-class nx2(Results):
+
+class nxm(Results):
 
     def last_lines(self, name):
-        result_line = Results.last_lines(self, name, 1)
-	words = result_line[0].split()
+        "Read all but the first value in the last line."
+	words = Results.words_last_line(self, name, 1)
 	# We are skipping the first value, which is the depth
-        vals = np.array(float(words[1]))
-	return vals
-
-class nx7(Results):
-    def last_lines(self, name):
-        "Read the last line containing 7 values."
-        result_line = Results.last_lines(self, name, 1)
-	words = result_line[0].split()
-	# We are skipping the first value, which is the depth
-	nums = np.array([float(x) for x in words[1:len(words)]])
-	return nums
+	return  np.array([float(x) for x in words[1:len(words)]])
 
 class n700x2(Results):
 
-    def index_and_lines(self, name):
+    def last_lines(self, name):
 
 	lines = Results.last_lines(self, name, 700)
 
@@ -183,7 +167,6 @@ def depth_header_ary():
               '{0: >12}'.format('doseq-He3'),
               '{0: >12}'.format('doseq-He4')]]
      
-    # return dh
     return np.array(dh)
 
 def get_filepaths(r):
@@ -251,10 +234,9 @@ def parsing():
 
 def main():
 
-    # Setup: parse the the command line parameters
     args = parsing()
 
-    # Set up the names of the data files without them being in this file
+    # Set up the names of the data files 
     get_names("names.txt")
     
     # Original Working Directory - will be used for the results file
@@ -266,8 +248,8 @@ def main():
     run_path = args.run_dir + '/data/'
 
     os.chdir(run_path)
-    depth_data_reader = nx2('')
-    depth_particle_reader = nx7('')
+    # depth_data_reader     = nxm('')
+    depth_particle_reader = nxm('')
     dif_int_block_reader  = n700x2('')
     flux_block_reader     = n100xm('')
 
@@ -293,8 +275,8 @@ def main():
 	    #######################################################
 	    # Depth data
             # Add dose and doseq at depth for all or 6 particles
-	    dose      = depth_data_reader.last_lines(datapaths['dose'])
-	    doseq     = depth_data_reader.last_lines(datapaths['doseq'])
+	    dose      = depth_particle_reader.last_lines(datapaths['dose'])
+	    doseq     = depth_particle_reader.last_lines(datapaths['doseq'])
 	    dose_ple  = depth_particle_reader.last_lines(datapaths['dose_part'])
 	    doseq_ple = depth_particle_reader.last_lines(datapaths['doseq_part'])
 	   
@@ -302,12 +284,13 @@ def main():
 	    #######################################################
 	    # LET - 700 values per ray for dif and int each
 	    # col 0 is header, col 1 is data
-	    dif_let = dif_int_block_reader.index_and_lines(datapaths['dif_let'])
-	    int_let = dif_int_block_reader.index_and_lines(datapaths['int_let'])
+	    dif_let = dif_int_block_reader.last_lines(datapaths['dif_let'])
+	    int_let = dif_int_block_reader.last_lines(datapaths['int_let'])
 	    
 	    all_values_by_ray = np.hstack((all_values_by_ray, dif_let[...,1], int_let[...,1]))
-
-	    # 100 rows by 7 or 4 columns
+	    #######################################################
+	    # FLUX - 100 rows by 7 or 4 columns
+	    # col 0, repeated, is header for other columns
 	    flux_hdr, flux_nums         = flux_block_reader.index_and_vals(datapaths['flux'])
 	    intflux_hdr, intflux_nums   = flux_block_reader.index_and_vals(datapaths['int_flux'])
 	    neutflux_hdr, neutflux_nums = flux_block_reader.index_and_vals(datapaths['neutron'])
@@ -316,7 +299,6 @@ def main():
 
 	    # The first time through write the header and start the overall data stack
             if all_values.size == 0:
-		# 700 numbers, from 1st column, append to header 2x, for dif and int
 		let_hdr_nums = np.hstack((dif_let[...,0],int_let[...,0]))
 		hdr_nums = np.hstack((let_hdr_nums, flux_hdr, intflux_hdr, neutflux_hdr))
 
@@ -342,23 +324,19 @@ def main():
 
     # NOTES
     # All data files must be present
-    # print 'Saving ray_vec', ray_vec, 'and all_value array, shaped', all_values.shape
+    # Header boundary values read from first of all files
     ###############################################################
 
-    # Averages
+    # Averages, Std. Dev.
     ave_all_values = np.average(all_values, axis=0)
-    with open(outfile, 'a') as f:
-        np.savetxt(f, ['Average', 'over', 'direction'], fmt='%13s', newline='')
-        np.savetxt(f, ave_all_values, fmt='%13.6E', newline='')
-	f.write('\n')
-
-    # Std. Dev.
     std_all_values = np.std(all_values, axis=0)
+
     with open(outfile, 'a') as f:
-        np.savetxt(f, ['Std.Dev.', 'over', 'direction'], fmt='%13s', newline='')
-        np.savetxt(f, std_all_values, fmt='%13.6E', newline='')
-        f.write('\n')
-        
+        np.savetxt(f, [['Average', 'over', 'direction']], fmt=['%13s', '%12s', '%12s'], newline=' ')
+        np.savetxt(f, [ave_all_values], fmt='%12.6E', newline='\n')
+        np.savetxt(f, [['Std.Dev.', 'over', 'direction']], fmt=['%13s', '%12s', '%12s'], newline=' ')
+        np.savetxt(f, [std_all_values], fmt='%12.6E', newline='\n')
+
     ###############################################################
 
 if __name__ == '__main__':
