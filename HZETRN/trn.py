@@ -20,12 +20,23 @@ from pyne import nucname
 import numpy as np
 import hzetrn as one_d_tool
 import tag_utils
+import logging
+
+"""
+To Run:
+
+python trn.py -f {4bricks.h5m, sphere_Wat_Al.h5m} [-r 10ThPhi.txt] [-e spe*/gcr] -d mdir
+# for n random directions
+python trn.py -f {4bricks.h5m, sphere_Wat_Al.h5m} -n 50 -d kdir
+
+"""
 
 class DagmcError(Exception):
     pass
 
 # 'spatial_dir' is a subdir for storing input files as they are created
 spatial_dir = 'spatial'
+config_log = 'config.log'
 
 def load_ray_start(filename):
     ray_start = []
@@ -204,6 +215,11 @@ def parsing():
 	help='The name of the holding directory for all hzetrn runs')
 
     parser.add_argument(
+        '-e', action='store', dest='rad_env',
+	help='Use spe or gcr radiation environment')
+    parser.set_defaults(rad_env='spe')
+
+    parser.add_argument(
         '-r', action='store', dest='ray_dir_file', 
 	help='The path to the file with ray direction tuples')
 
@@ -213,7 +229,7 @@ def parsing():
 
     parser.add_argument(
         '-p', action='store', dest='ray_start', 
-	help='Cartesion coordinate of starting point of all rays')
+	help='File containing Cartesion coordinate of starting point of all rays')
 
     parser.add_argument(
         '--ray_subset', dest='ray_subset', action='store_true',
@@ -237,6 +253,7 @@ def parsing():
 
 def main():
     global spatial_dir
+    global config_log
 
     # Setup: parse the the command line parameters
     args = parsing()
@@ -244,6 +261,19 @@ def main():
 
     curdir = os.path.dirname(os.path.abspath(__file__)) + '/'
     run_path = curdir + args.run_dir + '/'
+    config_path = run_path + config_log
+
+    logging.basicConfig(filename=config_path, level=logging.INFO, format='%(asctime)s %(message)s')
+    message = 'python trn.py -f ' + args.uwuw_file + ' -d ' + args.run_dir + ' -e ' + args.rad_env
+    message += ' -r ' + args.ray_dir_file 
+    logging.info(message)
+
+    # Transport results for each direction will be placed in this directory:
+    # Ensure it exists before proceding.
+    data_path = run_path + 'data/'
+    if not os.path.isdir(data_path):
+        print 'Creating data path', data_path
+	os.mkdir(data_path)
 
     spatial_path = curdir + spatial_dir + '/'
     if not os.path.isdir(spatial_path):
@@ -332,10 +362,10 @@ def main():
 	f.close()
 	# else:
 	if 0 != num_mats:
-            one_d_tool.transport_process(run_path, spatial_filepath)
+            one_d_tool.transport_process(run_path, spatial_filepath, args.rad_env)
             one_d_tool.response_process(run_path, args.target)
 
-	data_line = one_d_tool.collect_results_for_dir(run_path, dir_string, num_mats)
+	one_d_tool.collect_results_for_dir(run_path, data_path, dir_string, num_mats)
 
         print 'response_filepath:', response_filepath
         with open(response_filepath,'a') as f:
