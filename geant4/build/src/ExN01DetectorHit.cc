@@ -93,6 +93,8 @@ void ExN01DetectorHit::Print()
      << std::setw(7) << G4BestUnit( fKe,"Energy")
      << " Track Length: "
      << std::setw(7) << G4BestUnit( fTl, "Length")
+     << " Weight: "
+     << std::setw(7) << fWeight 
      << G4endl;
 }
 
