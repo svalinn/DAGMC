@@ -41,6 +41,7 @@ class ExN01DetectorHit : public G4VHit
     void SetPos      (G4ThreeVector xyz){ fPos = xyz; };
     void SetParticleEnergy       (G4double ke)      { fKe  = ke; };
     void SetTrackLength  (G4double tl)  { fTl = tl; };
+    void SetWeight  (G4double weight)  { fWeight = weight; };
 
     // Get methods
     G4int GetTrackID() const     { return fTrackID; };
@@ -49,6 +50,8 @@ class ExN01DetectorHit : public G4VHit
     G4ThreeVector GetPos() const { return fPos; };
     G4double GetKE() const       { return fKe; };
     G4double GetTrackLength() const { return fTl;};
+    G4double GetWeight()      const { return fWeight;};
+
 
   private:
 
@@ -58,6 +61,7 @@ class ExN01DetectorHit : public G4VHit
       G4ThreeVector fPos;
       G4double      fKe;
       G4double      fTl;
+      G4double      fWeight;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

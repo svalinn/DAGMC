@@ -21,6 +21,7 @@ ExN01RunAction::ExN01RunAction(UWUW data)
   //inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(true);
 
+
   // Create analysis manager
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   G4cout << "Using " << analysisManager->GetType() << G4endl;
@@ -47,7 +48,9 @@ ExN01RunAction::ExN01RunAction(UWUW data)
       std::string tally_name = ss.str()+"_"+(it->second).tally_type+"_"+(it->second).particle_name;
       std::cout << tally_name << std::endl;
       // create historgram
-      analysisManager->CreateH1(tally_name,(it->second).tally_name,100,0.,10.);
+      //analysisManager->CreateH1(tally_name,(it->second).tally_name,100,0.,10.);
+      analysisManager->CreateH2(tally_name,(it->second).tally_name,1000,0.,10.,
+                                1,1.e-308,1.e308);
       // create tuple
       analysisManager->CreateNtupleDColumn(tally_name);
     }
@@ -65,20 +68,20 @@ ExN01RunAction::~ExN01RunAction()
 
 void ExN01RunAction::BeginOfRunAction(const G4Run* /*run*/)
 {
-  // Get analysis manager
+    // Get analysis manager
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file  - DagGeant.root
   G4String fileName = "DagGeant";
   analysisManager->OpenFile(fileName);
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void ExN01RunAction::EndOfRunAction(const G4Run* /*run*/)
 {
-  // print histogram statistics
+    // print histogram statistics
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  /*
   if ( analysisManager->GetH1(1) ) {
     G4cout << "\n ----> print histograms statistic ";
     if(isMaster) {
@@ -110,6 +113,7 @@ void ExN01RunAction::EndOfRunAction(const G4Run* /*run*/)
 
     }
   }
+  */
   // save histograms & ntuple
   analysisManager->Write();
   analysisManager->CloseFile();
