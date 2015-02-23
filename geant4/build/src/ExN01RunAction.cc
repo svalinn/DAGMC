@@ -48,9 +48,9 @@ ExN01RunAction::ExN01RunAction(UWUW data)
       std::string tally_name = ss.str()+"_"+(it->second).tally_type+"_"+(it->second).particle_name;
       std::cout << tally_name << std::endl;
       // create historgram
-      //analysisManager->CreateH1(tally_name,(it->second).tally_name,100,0.,10.);
-      analysisManager->CreateH2(tally_name,(it->second).tally_name,1000,0.,10.,
-                                1,1.e-308,1.e308);
+      analysisManager->CreateH1(tally_name,(it->second).tally_name,1000,0.,10.);
+      //analysisManager->CreateH2(tally_name,(it->second).tally_name,1000,0.,10.,
+      //                          1000,1.e-9,1.e3);
       // create tuple
       analysisManager->CreateNtupleDColumn(tally_name);
     }
@@ -114,6 +114,10 @@ void ExN01RunAction::EndOfRunAction(const G4Run* /*run*/)
     }
   }
   */
+  // need to loop over the histograms and normalise!
+  //Double_t norm = hist->GetEntries();
+  //hist->Scale(1/norm);
+
   // save histograms & ntuple
   analysisManager->Write();
   analysisManager->CloseFile();
