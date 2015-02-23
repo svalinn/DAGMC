@@ -238,13 +238,14 @@ void ExN01DetectorConstruction::ConstructSDandField()
     }
   }
 
+  int sd_index = 0; // the number of sensitive detectors
   //  loop over the volume indices
   for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
     {
+      int volume_idx = (it->first);
       // turn the idx into string
-      std::cout << (it->first) << std::endl;
       std::stringstream int_to_string;
-      int_to_string << (it->first);
+      int_to_string << volume_idx;
       std::string idx_str = int_to_string.str();
 
       // get detector name
@@ -252,7 +253,8 @@ void ExN01DetectorConstruction::ConstructSDandField()
 
      // loop over the vector of particle types
      std::vector<std::string>::iterator str;
-     for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
+     std::vector<std::string> particle_types = (it->second);
+     for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
      {
         std::string particle_name = *str;
         // create particle filter
@@ -267,7 +269,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
         // create new detector
         G4VSensitiveDetector* detector = new
                    ExN01SensitiveDetector(detector_name+"/"+particle_name,
-                                     "flux");
+                                     "flux", ++sd_index);
         //sets the sensitivity
         detector->SetFilter(filter);
         G4SDManager::GetSDMpointer()->AddNewDetector(detector);

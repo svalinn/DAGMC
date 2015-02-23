@@ -39,12 +39,15 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ExN01SensitiveDetector::ExN01SensitiveDetector(const G4String& name,
-                                               const G4String& hit_coll_name)
+                                               const G4String& hit_coll_name,
+                                               const G4int     detector_index)
  : G4VSensitiveDetector(name),
-   collectionID(-1)
+   collectionID(-1),
+   DetectorIndex(-1)
 {
    DetectorName = name;
    collectionName.insert(hit_coll_name);
+   DetectorIndex = detector_index;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -105,7 +108,12 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
   for ( G4int i=0; i<nofHits; i++ )
   {
   //  (*fHitsCollection)[i]->Print();
-    analysisManager->FillH2(collectionID+1,
+    /*analysisManager->FillH2(DetectorIndex,
+                           (*fHitsCollection)[i]->GetKE(),
+                           (*fHitsCollection)[i]->GetWeight()*
+                           (*fHitsCollection)[i]->GetTrackLength());
+    */
+    analysisManager->FillH1(DetectorIndex,
                            (*fHitsCollection)[i]->GetKE(),
                            (*fHitsCollection)[i]->GetWeight()*
                            (*fHitsCollection)[i]->GetTrackLength());
