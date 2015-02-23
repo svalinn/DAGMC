@@ -28,12 +28,11 @@ class CS_CFG_Error(Exception):
 # 'cross_dir' is a subdirectory for storing named input files
 cross_dir   = 'cross'
 
-""" write_cs_input
-Create cross_section input files in the current directory with the
-modified default name cs_input_FLUKA_NAME.dat for each material
-
-"""
 def write_cs_input(header, mat_lib, path):
+    """ write_cs_input
+    Create cross_section input files in the current directory with the
+    modified default name cs_input_FLUKA_NAME.dat for each material
+    """
     cs_file_mats = {}
     num_materials = len(mat_lib.keys())
     for key in mat_lib:
@@ -48,7 +47,7 @@ def write_cs_input(header, mat_lib, path):
 	(fluka_name, xs_material_entry) = xs_create_entry(coll)
         xs_input_filename = 'cs_input_' + fluka_name + '.dat'
 	xs_input_path = path + xs_input_filename
-	# Create a dictionarey of mat_name/input filename pairs.
+	# Create a dictionary of mat_name/input filename pairs.
 	cs_file_mats[fluka_name] = xs_input_filename
         f = open(xs_input_path, 'w')
         f.write(header)
@@ -57,12 +56,12 @@ def write_cs_input(header, mat_lib, path):
     return cs_file_mats
 	
 
-""" xs_create_entries_from_lib
-From the MaterialLibrary taken from the geometry file extract all the
-information needed for the cross-section input file.
-ToDo:  formatting of species line members
-"""
 def xs_create_entry(coll):
+    """ xs_create_entries_from_lib
+    From the MaterialLibrary taken from the geometry file extract all the
+    information needed for the cross-section input file.
+    ToDo:  formatting of species line members
+    """
     print coll
     fluka_name = coll.metadata['fluka_name']
     density = coll.density
@@ -78,12 +77,12 @@ def xs_create_entry(coll):
         material_entry += str_comp_atomic_mass + '  ' + str_comp_charge + '  ' + str_comp_atoms_per_g + '\n'
     return fluka_name, material_entry
 
-"""
-Argument parsing
-returns : args: -f for the input geometry file, -r for the input ray tuple file
-ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
-"""
 def parsing():
+    """
+    Argument parsing
+    returns : args: -f for the input geometry file, -r for the input ray tuple file
+    ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -100,11 +99,16 @@ def parsing():
         raise Exception('h5m file path not specified. [-f] not set')
 
     if not args.run_dir:
-        raise Exception('Need a directory containing HZETRN executable structure')
+        raise Exception('Need a directory containing HZETRN executable structure.  [-d] not set.')
 
     return args
 
 def main():
+    """
+    For each material in the material library created from the uwuw geometry 
+    file create a separate input file to be used to calculate the required
+    cross-sections for said material
+    """
     global run_directory, cross_dir
 
     # Setup: parse the the command line parameters
@@ -121,16 +125,8 @@ def main():
     if not os.path.isdir(cross_path):
         print 'Creating path', cross_path
         os.mkdir(cross_path)
-
     for pathname in (run_path, cross_path):
-        assert os.path.isdir(pathname), "Path '{0}' not found.".format(dir)
-
-    if not os.path.isdir(cross_path):
-        print 'Creating path', cross_path
-        os.mkdir(cross_path)
-	
-    for pathname in (run_path, cross_path):
-	assert os.path.isdir(pathname), "Path '{0}' not found.".format(dir)
+        assert os.path.isdir(pathname), "Path '{0}' not found.".format(pathname)
 
     header = one_d_tool.xs_create_header()
 
