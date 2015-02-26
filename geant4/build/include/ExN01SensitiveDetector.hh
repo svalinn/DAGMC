@@ -53,7 +53,8 @@ class ExN01SensitiveDetector : public G4VSensitiveDetector
   public:
     ExN01SensitiveDetector(const G4String& name,
                            const G4String& collectionName,
-                           const G4int     detectorIndex);
+                           const G4int     detectorIndex,
+                           const G4double  detectorVolume);
     virtual ~ExN01SensitiveDetector();
 
     // methods from base class
@@ -66,6 +67,7 @@ class ExN01SensitiveDetector : public G4VSensitiveDetector
     G4int collectionID;
     G4String DetectorName;
     G4int DetectorIndex;
+    G4double DetectorVolume;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

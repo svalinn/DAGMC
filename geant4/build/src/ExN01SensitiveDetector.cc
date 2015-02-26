@@ -35,19 +35,23 @@
 #include "G4SDManager.hh"
 #include "ExN01Analysis.hh"
 #include "G4ios.hh"
+#include "G4SystemOfUnits.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ExN01SensitiveDetector::ExN01SensitiveDetector(const G4String& name,
                                                const G4String& hit_coll_name,
-                                               const G4int     detector_index)
+                                               const G4int     detector_index,
+                                               const G4double  detector_volume)
  : G4VSensitiveDetector(name),
    collectionID(-1),
-   DetectorIndex(-1)
+   DetectorIndex(-1),
+   DetectorVolume(-1.0)
 {
    DetectorName = name;
    collectionName.insert(hit_coll_name);
    DetectorIndex = detector_index;
+   DetectorVolume = detector_volume;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -105,6 +109,7 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
   G4cout << "\n-------->Hits Collection: in this event they are " << nofHits
          << G4endl;
          */
+  G4double score = 0.0;
   for ( G4int i=0; i<nofHits; i++ )
   {
   //  (*fHitsCollection)[i]->Print();
@@ -113,10 +118,14 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
                            (*fHitsCollection)[i]->GetWeight()*
                            (*fHitsCollection)[i]->GetTrackLength());
     */
+    /* weight * tracklength / volume */
+    score = (*fHitsCollection)[i]->GetWeight()*
+            (*fHitsCollection)[i]->GetTrackLength()
+            *cm/(DetectorVolume);
     analysisManager->FillH1(DetectorIndex,
                            (*fHitsCollection)[i]->GetKE(),
-                           (*fHitsCollection)[i]->GetWeight()*
-                           (*fHitsCollection)[i]->GetTrackLength());
+                           score);
+    //G4cout << DetectorIndex << " " << score << G4endl;
 
   }
 

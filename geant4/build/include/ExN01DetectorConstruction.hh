@@ -22,9 +22,11 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
     virtual void ConstructSDandField();
 
    std::map<std::string,pyne::Tally> tally_library;
+   // dag_volumes
+   std::map<int, G4LogicalVolume*> dag_logical_volumes;
 
   private:
-    
+
     // Logical volumes
     //
     std::string uwuw_filename;
@@ -41,4 +43,3 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
 };
 
 #endif
-
