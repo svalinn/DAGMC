@@ -77,7 +77,7 @@ void ExN01RunAction::BeginOfRunAction(const G4Run* /*run*/)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void ExN01RunAction::EndOfRunAction(const G4Run* /*run*/)
+void ExN01RunAction::EndOfRunAction(const G4Run* run)
 {
     // print histogram statistics
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
@@ -118,6 +118,19 @@ void ExN01RunAction::EndOfRunAction(const G4Run* /*run*/)
   //Double_t norm = hist->GetEntries();
   //hist->Scale(1/norm);
 
+  // number of primaries
+  //int num_of_event = G4RunManager::GetRunManager()->GetNumberOfEvent();
+  int num_of_event = run->GetNumberOfEvent();
+  // iterate over tallies
+  std::map<std::string,pyne::Tally>::iterator it;
+  // loop over histograms and get data
+  for ( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; ++it )
+  {
+    int index = 1 + std::distance(workflow_data.tally_library.begin(),it);
+    // loop over this histograms
+    G4cout << index << G4endl;
+    //analysisManager->ScaleH1(index,1./ double(num_of_event));
+  }
   // save histograms & ntuple
   analysisManager->Write();
   analysisManager->CloseFile();

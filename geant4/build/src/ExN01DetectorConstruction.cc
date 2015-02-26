@@ -40,10 +40,6 @@
 
 using namespace moab;
 
- // dag_volumes
-std::map<int, G4LogicalVolume*> dag_logical_volumes;
-
-
 DagMC* dagmc = DagMC::instance(); // create dag instance
 UWUW workflow_data;
 
@@ -242,14 +238,19 @@ void ExN01DetectorConstruction::ConstructSDandField()
   //  loop over the volume indices
   for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
     {
-      int volume_idx = (it->first);
+      MBEntityHandle vol = dagmc->entity_by_id(3,it->first); // convert id to eh
+      int vol_idx = dagmc->index_by_handle(vol); // get the volume index
+
       // turn the idx into string
       std::stringstream int_to_string;
-      int_to_string << volume_idx;
+      int_to_string << vol_idx;
       std::string idx_str = int_to_string.str();
 
       // get detector name
       std::string detector_name = "vol_"+idx_str+"_flux";
+
+      // get detector volume
+      double det_volume = dag_logical_volumes[vol_idx]->GetSolid()->GetCubicVolume();
 
      // loop over the vector of particle types
      std::vector<std::string>::iterator str;
@@ -269,13 +270,10 @@ void ExN01DetectorConstruction::ConstructSDandField()
         // create new detector
         G4VSensitiveDetector* detector = new
                    ExN01SensitiveDetector(detector_name+"/"+particle_name,
-                                     "flux", ++sd_index);
+                                     "flux", ++sd_index,det_volume*cm3);
         //sets the sensitivity
         detector->SetFilter(filter);
         G4SDManager::GetSDMpointer()->AddNewDetector(detector);
-
-        MBEntityHandle vol = dagmc->entity_by_id(3,it->first); // convert id to eh
-        int vol_idx = dagmc->index_by_handle(vol); // get the volume index
         dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
     }
   }
