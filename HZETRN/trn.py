@@ -208,24 +208,25 @@ def parsing():
 
     parser.add_argument(
         '-f', action='store', dest='uwuw_file', 
-	help='The relative path to the .h5m file')
+	help='The relative path to the .h5m geometry file')
 
     parser.add_argument(
         '-d', action='store', dest='run_dir',
 	help='The name of the holding directory for all hzetrn runs')
 
     parser.add_argument(
-        '-e', action='store', dest='rad_env',
-	help='Use spe or gcr radiation environment')
+        '-e', action='store', dest='rad_env', 
+	help='The radiation environment: spe (default) or gcr')
     parser.set_defaults(rad_env='spe')
 
     parser.add_argument(
         '-r', action='store', dest='ray_dir_file', 
 	help='The path to the file with ray direction tuples')
+    parser.set_defaults(ray_dir_file='')
 
     parser.add_argument(
         '-n', action='store', dest='rand_dirs', 
-	help='The number of randome ray directions to use', type=int)
+	help='The number of random ray directions to use', type=int)
 
     parser.add_argument(
         '-p', action='store', dest='ray_start', 
@@ -235,23 +236,37 @@ def parsing():
         '--ray_subset', dest='ray_subset', action='store_true',
         help='Use only rays within a small angle of the xy-plane')
     parser.add_argument(
-        '--no-ray_subset', dest='ray_subset', action='store_false',
-        help='Use all rays')
+        '--no_ray_subset', dest='ray_subset', action='store_false',
+        help='Use all rays (default)')
     parser.set_defaults(ray_subset=False)
 
     parser.add_argument(
         '-target', action='store', dest='target',
-        help='The target in which to calculate the response.  NB: the target material cross-section must exist'    )
+        help='The target material in which to calculate the response.  \
+	      NB: the target material cross-section must exist'    )
     parser.set_defaults(target='')
 
     args = parser.parse_args()
 
     if not args.uwuw_file:
         raise Exception('h5m file path not specified. [-f] not set')
-
+    
     return args
 
 def main():
+    """ 
+    - Log this call
+    - Ensure needed template files exist
+    - Create a data directory in the run path
+    - Create a temporary, named directory in the current directory
+           to hold a collection of in put files.
+    - Load the given geometry file and get all its FLUKA names
+    - Get all the ray directions we are going to use
+    - Get the reference point and determine the start volume
+    - For each ray direction, starting from the start vol
+      o get the list of materials and distances it passes through
+      o create the contents of the transport input file
+    """
     global spatial_dir
     global config_log
 
@@ -264,12 +279,18 @@ def main():
     config_path = run_path + config_log
 
     logging.basicConfig(filename=config_path, level=logging.INFO, format='%(asctime)s %(message)s')
-    message = 'python trn.py -f ' + args.uwuw_file + ' -d ' + args.run_dir + ' -e ' + args.rad_env
-    message += ' -r ' + args.ray_dir_file 
+    message = 'python trn.py -f ' + args.uwuw_file + \
+              ' -d ' + args.run_dir + \
+              ' -e ' + args.rad_env + \
+              ' -r ' + 'not given' if not args.ray_dir_file else args.ray_dir_file
+    print message
     logging.info(message)
 
+    # Ensure needed template files exist
+    one_d_tool.check_temp_files(run_path)
+
     # Transport results for each direction will be placed in this directory:
-    # Ensure it exists before proceding.
+    # Ensure it exists before proceeding.
     data_path = run_path + 'data/'
     if not os.path.isdir(data_path):
         print 'Creating data path', data_path
@@ -298,7 +319,7 @@ def main():
         ray_tuples = get_rand_dirs(args.rand_dirs)
  
     else:
-       ray_tuples = [(1.0, 0.0, 0.0),
+        ray_tuples = [(1.0, 0.0, 0.0),
                      (0.0, 1.0, 0.0),
 	   	     (0.0, 0.0, 1.0)]
 
@@ -307,11 +328,6 @@ def main():
     print 'ref_point', ref_point
     start_vol = find_ref_vol(ref_point)
     
-    response_filepath = run_path + 'collect_doseq_table.csv' 
-    with open(response_filepath,'a') as f:
-        f.write('\'' + path+'\'\n')
-       
-    # i=1
     for dir in ray_tuples:
 	slab_lengths, slab_mat_names = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
         #############################################
@@ -352,7 +368,6 @@ def main():
 	else:
 	    spatial_filename = 'spatial.dat'
 
-	# if i < 50:
 	# Write out the spatial file even for no materials traversed
 	# A local subdirectory is used.  This is currently 
 	# hardcoded to ./spatial, but a temporary directory could also be used.
@@ -360,30 +375,16 @@ def main():
 	f = open(spatial_filepath, 'w')
 	f.write("\n".join(transport_input))
 	f.close()
-	# else:
+
 	if 0 != num_mats:
             one_d_tool.transport_process(run_path, spatial_filepath, args.rad_env)
             one_d_tool.response_process(run_path, args.target)
 
 	one_d_tool.collect_results_for_dir(run_path, data_path, dir_string, num_mats)
 
-        print 'response_filepath:', response_filepath
-        with open(response_filepath,'a') as f:
-            f.write(data_line)
-
-    with open(response_filepath) as f:
-        f.close()
     return 
-	
-	    
-# 	i = i + 1
     ###################################### 
-    #
-    # Write out the file that will be the input for the transport step
-    # one_d_tool.write_spatial_transport_file(slab_length, slab_mat_name)
-    # append_csv_file(filename, outcome)
 
-    return
    
 if __name__ == '__main__':
     main()

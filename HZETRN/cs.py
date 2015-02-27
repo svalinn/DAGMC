@@ -140,12 +140,8 @@ def main():
     for fname, cs_input in cs_input_for_name.iteritems():
         one_d_tool.cross_section_process(cross_path + cs_input, run_path, fname)
 
-    # Run each input file
-    # for fname in cs_input_for_name:
-#	src_file = cross_path + cs_input_for_name[fname]
-#        one_d_tool.cross_section_process(src_file, run_path, fname, cs_outdir)
-    ##########################################################
     return
+    ##########################################################
    
 if __name__ == '__main__':
     main()
