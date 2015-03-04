@@ -596,6 +596,10 @@ main
 def main():
     # parse the script
     args = parsing()
+    # first add atomic mass to file                                                                                                    
+    launch_script = "nuc_data_make -m atomic_mass -o "+args.output
+    print launch_script
+    os.system(launch_script)
     # get list of tag values
     tag_values = get_tag_values(args.datafile, args.output)
     # load material library
