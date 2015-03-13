@@ -17,11 +17,12 @@ G4ThreadLocal G4Allocator<ExN01DetectorHit>* ExN01DetectorHitAllocator=0;
 ExN01DetectorHit::ExN01DetectorHit()
  : G4VHit(),
    fTrackID(-1),
-   fChamberNb(-1),
-   fEdep(0.),
-   fPos(G4ThreeVector()),
+   //fChamberNb(-1),
+   //fEdep(0.),
+   //fPos(G4ThreeVector()),
    fKe(0.),
    fTl(0.)
+   //fName("")
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -34,11 +35,12 @@ ExN01DetectorHit::ExN01DetectorHit(const ExN01DetectorHit& right)
   : G4VHit()
 {
   fTrackID   = right.fTrackID;
-  fChamberNb = right.fChamberNb;
-  fEdep      = right.fEdep;
-  fPos       = right.fPos;
+  //fChamberNb = right.fChamberNb;
+  //fEdep      = right.fEdep;
+  //fPos       = right.fPos;
   fKe        = right.fKe;
   fTl        = right.fTl;
+  //fName      = right.fName;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -46,11 +48,12 @@ ExN01DetectorHit::ExN01DetectorHit(const ExN01DetectorHit& right)
 const ExN01DetectorHit& ExN01DetectorHit::operator=(const ExN01DetectorHit& right)
 {
   fTrackID   = right.fTrackID;
-  fChamberNb = right.fChamberNb;
-  fEdep      = right.fEdep;
-  fPos       = right.fPos;
+  //fChamberNb = right.fChamberNb;
+  //fEdep      = right.fEdep;
+  //fPos       = right.fPos;
   fKe        = right.fKe;
   fTl        = right.fTl;
+  //fName      = right.fName;
 
   return *this;
 }
@@ -66,6 +69,7 @@ G4int ExN01DetectorHit::operator==(const ExN01DetectorHit& right) const
 
 void ExN01DetectorHit::Draw()
 {
+  /*
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if(pVVisManager)
   {
@@ -77,6 +81,7 @@ void ExN01DetectorHit::Draw()
     circle.SetVisAttributes(attribs);
     pVVisManager->Draw(circle);
   }
+  */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -84,17 +89,14 @@ void ExN01DetectorHit::Draw()
 void ExN01DetectorHit::Print()
 {
   G4cout
-     << "  trackID: " << fTrackID << " chamberNb: " << fChamberNb
-     << " Edep: "
-     << std::setw(7) << G4BestUnit(fEdep,"Energy")
-    //     << " Position: "
+     << "  trackID: " << fTrackID
     //     << std::setw(7) << G4BestUnit( fPos,"Length")
      << " Kinetic Energy: "
      << std::setw(7) << G4BestUnit( fKe,"Energy")
      << " Track Length: "
      << std::setw(7) << G4BestUnit( fTl, "Length")
      << " Weight: "
-     << std::setw(7) << fWeight 
+     << std::setw(7) << fWeight
      << G4endl;
 }
 

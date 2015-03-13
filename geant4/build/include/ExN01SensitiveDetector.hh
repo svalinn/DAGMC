@@ -28,6 +28,11 @@
 /// \file ExN01SensitiveDetector.hh
 /// \brief Definition of the ExN01SensitiveDetector class
 
+#ifndef HistogramManager_h
+#include "HistogramManager.hh"
+#define HistogramManager_h 1
+#endif
+
 #ifndef ExN01SensitiveDetector_h
 #define ExN01SensitiveDetector_h 1
 
@@ -54,7 +59,8 @@ class ExN01SensitiveDetector : public G4VSensitiveDetector
     ExN01SensitiveDetector(const G4String& name,
                            const G4String& collectionName,
                            const G4int     detectorIndex,
-                           const G4double  detectorVolume);
+                           const G4double  detectorVolume,
+                           HistogramManager* HM);
     virtual ~ExN01SensitiveDetector();
 
     // methods from base class
@@ -68,6 +74,10 @@ class ExN01SensitiveDetector : public G4VSensitiveDetector
     G4String DetectorName;
     G4int DetectorIndex;
     G4double DetectorVolume;
+    G4int* SensitiveParticles;
+    G4int  NumberOfParticles;
+    std::map<G4int,G4int> hist_part_map;
+    G4int hist_index;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
