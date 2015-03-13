@@ -5,6 +5,7 @@
 
 #include "ExN01DetectorConstruction.hh"
 #include "ExN01SensitiveDetector.hh"
+#include "ExN01Analysis.hh"
 
 #include "G4Material.hh"
 #include "G4Box.hh"
@@ -25,8 +26,7 @@
 #include "G4PSCellFlux.hh"
 
 #include "G4ParticleTable.hh"
-#include "G4SDParticleFilter.hh"
-//#include "G4VSDFilter.hh"
+//
 
 #include "DagSolid.hh"
 #include "MBInterface.hpp"
@@ -36,6 +36,7 @@
 #include "DagSolidTally.hh"
 
 #include "../pyne/pyne.h"
+
 //#include "pyne/particle.h"
 
 using namespace moab;
@@ -49,7 +50,15 @@ ExN01DetectorConstruction::ExN01DetectorConstruction(std::string uwuw_file)
 {
   uwuw_filename = uwuw_file;
 
-  // check for Materials first
+  /* Note! - Using this method if there are no materials in the h5m file, we
+    catch the exception here and continue, however the exception is still raised
+    MOAB finds that the exception is raised and the first thing we do following
+    this is dagmc->load_file() which raises a file doesnt exist error!
+
+    Similarly for tallies! DOh!
+   */
+  // check for Materials first\
+
   try
     {
       pyne::Material mat;
@@ -59,12 +68,10 @@ ExN01DetectorConstruction::ExN01DetectorConstruction(std::string uwuw_file)
     {
       std::cout << "No Materials found in the file, " << uwuw_filename << std::endl;
       std::cout << "Cannot continue without materials " << std::endl;
-
       exit(1);
     }
 
-  workflow_data = UWUW(uwuw_filename);
-
+workflow_data = UWUW(uwuw_filename);
   ;
 }
 
@@ -95,8 +102,19 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
 						      "world_vol",0,false,0);
 
-  G4cout << "Load sample file = "     << dagmc->load_file(uwuw_filename.c_str(),0) << G4endl;
-  G4cout << "Initialize OBB tree = "  << dagmc->init_OBBTree() << G4endl;
+  G4cout << uwuw_filename.c_str() << G4endl;
+  MBErrorCode rval = dagmc->load_file(uwuw_filename.c_str(),0);
+  if(rval != MB_SUCCESS)
+    {
+      G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
+      exit(1);
+    }
+ rval = dagmc->init_OBBTree();
+ if(rval != MB_SUCCESS)
+  {
+    G4cout << "ERROR: Failed to build the OBB Tree" << G4endl;
+    exit(1);
+  }
 
   G4int Num_of_survertices = dagmc->num_entities(2);
   G4int num_of_objects = dagmc->num_entities(3);
@@ -110,7 +128,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   std::map<std::string,std::string> synonymns;
   char *delimeters = ":/";
 
-  MBErrorCode rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
+  rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
 
   //Store a list of DagSolids, Logical Vols, and Physical Vols
   std::vector<DagSolid*> dag_volumes;
@@ -155,11 +173,9 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   return world_volume_phys;
 }
 
-
+// Constructs the tallies
 void ExN01DetectorConstruction::ConstructSDandField()
 {
-
-  //  std::string filename = "atic_uwuw_zip.h5m";
 
   G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
@@ -172,9 +188,12 @@ void ExN01DetectorConstruction::ConstructSDandField()
   catch (const std::exception &except) // catch the exception from from_hdf5
     {
       std::cout << "No Tallies found in the file, " << uwuw_filename << std::endl;
+      std::cout << "Tallies not found, transport will happen, but no scores" << std::endl;
       return;
     }
 
+  // create new histogram manager for tallies
+  HistogramManager* HM = new HistogramManager();
   // load
   std::map<std::string,pyne::Tally>::iterator t_it;
 
@@ -185,7 +204,6 @@ void ExN01DetectorConstruction::ConstructSDandField()
   //  std::vector<G4MultiFunctionalDetector*> detectors;
 
   // for regisistering particle tallies
-  std::map<std::string,G4SDParticleFilter*> particle_filters;
 
   /* notes for andy
      register logical volume as sensitive only once
@@ -211,6 +229,9 @@ void ExN01DetectorConstruction::ConstructSDandField()
 	  particles.push_back(scorer.particle_name);
 	  volume_part_map[vol_id] = particles;
 
+    // builds and keeps a store of particle filters
+    BuildParticleFilter(scorer.particle_name);
+
 	  // build the filters
 	  /*
 	  if( 0 < particle_filters.count(scorer.particle_name))
@@ -234,6 +255,12 @@ void ExN01DetectorConstruction::ConstructSDandField()
     }
   }
 
+  // build the filters
+
+  // setup the data for the detectors histograms
+  build_histogram();
+
+
   int sd_index = 0; // the number of sensitive detectors
   //  loop over the volume indices
   for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
@@ -249,32 +276,117 @@ void ExN01DetectorConstruction::ConstructSDandField()
       // get detector name
       std::string detector_name = "vol_"+idx_str+"_flux";
 
-      // get detector volume
-      double det_volume = dag_logical_volumes[vol_idx]->GetSolid()->GetCubicVolume();
+     // increment the detector counte
+     ++sd_index;
 
      // loop over the vector of particle types
      std::vector<std::string>::iterator str;
      std::vector<std::string> particle_types = (it->second);
      for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
      {
+        // particle name
         std::string particle_name = *str;
-        // create particle filter
-        G4SDParticleFilter *filter = new G4SDParticleFilter(particle_name);
-        if(!pyne::particle::is_heavy_ion(particle_name))
-           filter->add(pyne::particle::geant4(particle_name));
-        else
-           // add ion by getting z and a from pyne
-           filter->addIon(pyne::nucname::znum(particle_name),
-                          pyne::nucname::anum(particle_name));
 
         // create new detector
-        G4VSensitiveDetector* detector = new
-                   ExN01SensitiveDetector(detector_name+"/"+particle_name,
-                                     "flux", ++sd_index,det_volume*cm3);
-        //sets the sensitivity
-        detector->SetFilter(filter);
-        G4SDManager::GetSDMpointer()->AddNewDetector(detector);
-        dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
-    }
+        G4cout << detector_name+'_'+particle_name << G4endl;
+
+
+        int pdc = pyne::particle::id(particle_name);
+        // if pdc = 0, is heavy ion, set pdc as nucid
+        if ( pdc == 0 )
+            pdc = pyne::nucname::id(particle_name);
+
+        // create a histogram for each particle
+        add_histogram_description(detector_name+"_"+particle_name);
+        HM->add_histogram(sd_index,pdc);
+      }
+
+      // get detector volume
+      double det_volume = dag_logical_volumes[vol_idx]->GetSolid()->GetCubicVolume();
+
+      // create new detector
+      G4VSensitiveDetector* detector = new ExN01SensitiveDetector(detector_name,
+                                             "flux", sd_index,det_volume*cm3,
+                                              HM);
+
+      // May wish to filter particles here as well
+
+      //sets the sensitivity
+      // build the filters
+      for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
+        {
+          // particle name
+          std::string particle_name = *str;
+          detector->SetFilter(particle_filters[particle_name]);
+        }
+
+      // add the detector
+      G4SDManager::GetSDMpointer()->AddNewDetector(detector);
+      dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
   }
+  end_histogram();
+
+  HM->print_histogram_collection();
+  //exit(1);
+}
+
+/* initialise the histograms */
+void ExN01DetectorConstruction::build_histogram()
+{
+  // Create analysis manager
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << analysisManager->GetType() << G4endl;
+
+  analysisManager->SetVerboseLevel(1);
+  analysisManager->SetFirstHistoId(1);
+
+  // create base tuple
+  analysisManager->CreateNtuple("DagGeant","TrackL");
+  return;
+}
+
+/* add histogram for */
+void ExN01DetectorConstruction::add_histogram_description(std::string tally_name)
+{
+  // Create analysis manager
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  // add ebins for the given tally eventually
+
+  // create historgram
+  analysisManager->CreateH1(tally_name,tally_name,10000,1e-11,100.);
+  analysisManager->CreateNtupleDColumn(tally_name);
+  return;
+}
+
+/* end the histograms */
+void ExN01DetectorConstruction::end_histogram()
+{
+  // Create analysis manager
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  // finish tuple
+  analysisManager->FinishNtuple();
+
+  return;
+}
+
+// build the particle filters
+void ExN01DetectorConstruction::BuildParticleFilter(std::string particle_name)
+{
+  // build filter if it doesnt exist
+  if(particle_filters.count(particle_name) == 0 )
+  {
+   // create particle filter
+   G4SDParticleFilter *filter = new G4SDParticleFilter(particle_name);
+   if(!pyne::particle::is_heavy_ion(particle_name))
+     filter->add(pyne::particle::geant4(particle_name));
+   else
+     // add ion by getting z and a from pyne
+    filter->addIon(pyne::nucname::znum(particle_name),
+                  pyne::nucname::anum(particle_name));
+
+    particle_filters[particle_name]=filter;
+
+   }
 }

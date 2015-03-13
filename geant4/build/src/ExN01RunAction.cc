@@ -14,6 +14,7 @@ extern UWUW workflow_data;
 ExN01RunAction::ExN01RunAction(UWUW data)
  : G4UserRunAction()
 {
+  /*
   // get uwuw workflow data
   // set printing event number to print progess 20 times in the run
 
@@ -56,6 +57,7 @@ ExN01RunAction::ExN01RunAction(UWUW data)
     }
   // finish tuple
   analysisManager->FinishNtuple();
+  */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -117,7 +119,17 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run)
   // need to loop over the histograms and normalise!
   //Double_t norm = hist->GetEntries();
   //hist->Scale(1/norm);
-
+  /*
+  for ( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; ++it )
+  {
+    std::stringstream ss;
+    ss << (it->second).entity_id;
+    // get the tally name
+    std::string tally_name = ss.str()+"_"+(it->second).tally_type+"_"+(it->second).particle_name;
+    std::cout << tally_name << std::endl;
+    //  G4SDManager::GetSDMpointer()->
+  }
+  */
   // number of primaries
   //int num_of_event = G4RunManager::GetRunManager()->GetNumberOfEvent();
   int num_of_event = run->GetNumberOfEvent();
@@ -129,6 +141,7 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run)
     int index = 1 + std::distance(workflow_data.tally_library.begin(),it);
     // loop over this histograms
     G4cout << index << G4endl;
+    // scale the result by 1/volume and by (1/cm*cm)
     //analysisManager->ScaleH1(index,1./ double(num_of_event));
   }
   // save histograms & ntuple

@@ -1,11 +1,12 @@
 //
-// 
+//
 // --------------------------------------------------------------
 //      GEANT 4 - exampleN01
 // --------------------------------------------------------------
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
+#include "G4Timer.hh"
 
 #include "ExN01DetectorConstruction.hh"
 #include "ExN01PhysicsList.hh"
@@ -13,6 +14,7 @@
 #include "ExN01ActionInitialization.hh"
 
 #include "G4PhysListFactory.hh"
+#include "G4ScoringManager.hh"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -24,9 +26,14 @@
 
 int main(int argc, char* argv[])
 {
+   G4Timer Timer;
+   Timer.Start();
+
   // Construct the default run manager
-  //
   G4RunManager* runManager = new G4RunManager;
+
+  // Activate command-based scorer
+  G4ScoringManager::GetScoringManager();
 
   std::string uwuw_file(argv[1]); // file containing data & uwuw
 
@@ -36,10 +43,10 @@ int main(int argc, char* argv[])
   runManager->SetUserInitialization(new ExN01DetectorConstruction(uwuw_file));
   //  runManager->SetUserInitialization(detector);
 
-  G4PhysListFactory *physListFactory = new G4PhysListFactory(); 
-  G4VUserPhysicsList *physicsList = 
-    physListFactory->GetReferencePhysList("QGSP_BIC_HP"); 
-  runManager->SetUserInitialization(physicsList); 
+  G4PhysListFactory *physListFactory = new G4PhysListFactory();
+  G4VUserPhysicsList *physicsList =
+    physListFactory->GetReferencePhysList("QGSP_BIC_HP");
+  runManager->SetUserInitialization(physicsList);
 
 
   // set mandatory user action class
@@ -58,7 +65,7 @@ int main(int argc, char* argv[])
   //
   runManager->Initialize();
 
-  
+
   G4VisManager* visManager = new G4VisExecutive;
   visManager->Initialize();
 
@@ -71,13 +78,27 @@ int main(int argc, char* argv[])
   UI->SessionStart();
 
   delete UI;
+
+  Timer.Stop();
+  G4cout << G4endl;
+  G4cout << "******************************************";
+  G4cout << G4endl;
+  G4cout << "Total Real Elapsed Time is: "<< Timer.GetRealElapsed();
+  G4cout << G4endl;
+  G4cout << "Total System Elapsed Time: " << Timer.GetSystemElapsed();
+  G4cout << G4endl;
+  G4cout << "Total GetUserElapsed Time: " << Timer.GetUserElapsed();
+  G4cout << G4endl;
+  G4cout << "******************************************";
+  G4cout << G4endl;
+
   return 0;
 
- 
+
   UImanager->ApplyCommand("/run/verbose 1");
   UImanager->ApplyCommand("/event/verbose 1");
   UImanager->ApplyCommand("/tracking/verbose 1");
-  
+
 
 
   // Start a run
@@ -95,5 +116,3 @@ int main(int argc, char* argv[])
 
   return 0;
 }
-
-

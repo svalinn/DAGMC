@@ -6,6 +6,7 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 
 #include "G4VUserDetectorConstruction.hh"
+#include "G4SDParticleFilter.hh"
 #include "DagSolidTally.hh"
 #include <map>
 #include <string>
@@ -21,9 +22,17 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
     virtual G4VPhysicalVolume* Construct();
     virtual void ConstructSDandField();
 
+   // the tally library
    std::map<std::string,pyne::Tally> tally_library;
-   // dag_volumes
+   // dag_volumes collection mapped by id number
    std::map<int, G4LogicalVolume*> dag_logical_volumes;
+   // particle filters for tallies
+   std::map<std::string,G4SDParticleFilter*> particle_filters;
+
+  void BuildParticleFilter(std::string particle_name);
+  void build_histogram();
+  void add_histogram_description(std::string tally_name);
+  void end_histogram();
 
   private:
 
@@ -39,6 +48,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
     //
     G4VPhysicalVolume* world_volume_phys;
     // DAG Physical volumes
+
 
 };
 

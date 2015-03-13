@@ -36,32 +36,41 @@ class ExN01DetectorHit : public G4VHit
 
     // Set methods
     void SetTrackID  (G4int track)      { fTrackID = track; };
+    /*
     void SetChamberNb(G4int chamb)      { fChamberNb = chamb; };
     void SetEdep     (G4double de)      { fEdep = de; };
     void SetPos      (G4ThreeVector xyz){ fPos = xyz; };
+    */
     void SetParticleEnergy       (G4double ke)      { fKe  = ke; };
     void SetTrackLength  (G4double tl)  { fTl = tl; };
     void SetWeight  (G4double weight)  { fWeight = weight; };
+    void SetParticleName (G4String name) { fName = name; };
+    void SetParticlePDG (G4int PID)      { fPID = PID; };
 
     // Get methods
     G4int GetTrackID() const     { return fTrackID; };
+    /*
     G4int GetChamberNb() const   { return fChamberNb; };
     G4double GetEdep() const     { return fEdep; };
     G4ThreeVector GetPos() const { return fPos; };
+    */
     G4double GetKE() const       { return fKe; };
     G4double GetTrackLength() const { return fTl;};
     G4double GetWeight()      const { return fWeight;};
-
+    G4String GetParticleName() const { return fName;};
+    G4int GetParticlePDG() const { return fPID;};
 
   private:
 
       G4int         fTrackID;
-      G4int         fChamberNb;
-      G4double      fEdep;
-      G4ThreeVector fPos;
+//      G4int         fChamberNb;
+//      G4double      fEdep;
+//      G4ThreeVector fPos;
       G4double      fKe;
       G4double      fTl;
       G4double      fWeight;
+      G4String      fName;
+      G4int         fPID;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
