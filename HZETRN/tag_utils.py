@@ -1,4 +1,10 @@
-   
+import numpy as np
+
+try:
+    from scipy.spatial import ConvexHull
+except ImportError:
+    raise ImportError("scipy.spatial.ConvexHull could not be imported.")
+
 try:
     from itaps import iMesh, iBase
 
@@ -13,6 +19,50 @@ try:
 except:
     raise ImportError("The PyNE dependencies could not be imported.")    
 
+
+"""
+Produce a variable-length tuple randomly oriented on a sphere
+"""
+def get_rand_dirs(number, norm_fac):
+    rays = []
+    if number > 0:
+        for i in range(number):
+            # [0.0,1.0)
+            rnum = np.random.uniform()
+            # map rnum onto [0.0,1.0)
+            z = 2*rnum - 1
+            theta = 2*np.pi*rnum
+            norm_fac = np.sqrt(1 - z*z)
+            y = norm_fac*np.sin(theta)
+            x = norm_fac*np.cos(theta)
+	    rays.append([x, y, z])
+    return np.array(rays)
+
+def get_verts_on_sphere(numOfPts, scale):
+    xyz = get_rand_dirs(numOfPts, scale)
+    hull = ConvexHull(xyz)
+    # list of connectivity
+    indices = hull.simplices
+
+    vertices = xyz[indices]
+    return (indices, vertices)
+
+def create_meshed_sphere(vtxs):
+    msph = iMesh.Mesh()
+    numFacets = vtxs.shape[0]
+    for i in range(numFacets):
+        facet = vtxs[i,:,:]
+	# ToDo:  is it possible to createVtx with vtxs, i.e.
+	#        an array of facets?
+	verts = msph.createVtx(facet)
+	tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
+	
+    return msph
+
+def mesh_sphere(num,scale):
+    # vtxs = get_rand_dirs(num, scale)
+    ind, verts = get_verts_on_sphere(num, scale)
+    return create_meshed_sphere(verts)
 
 """
 function to transform the tags into strings
