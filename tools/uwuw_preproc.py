@@ -610,7 +610,7 @@ def main():
     # create material objects from library
     material_object_list = check_and_create_materials(mat_dens_list, mat_lib)
     # create materials that need composition (tagged on the geometry with 'comp:')
-    material_object_list = compose_materials(material_object_list, mat_lib, tag_values)
+    ##material_object_list = compose_materials(material_object_list, mat_lib, tag_values)
     # write materials to file
     write_mats_h5m(material_object_list, args.output)
 
