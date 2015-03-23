@@ -21,9 +21,9 @@ except:
 
 
 """
-Produce a variable-length tuple randomly oriented on a sphere
+Produce length-one tuples randomly oriented on a sphere
 """
-def get_rand_dirs(number, norm_fac):
+def get_rand_dirs(number):
     rays = []
     if number > 0:
         for i in range(number):
@@ -31,15 +31,17 @@ def get_rand_dirs(number, norm_fac):
             rnum = np.random.uniform()
             # map rnum onto [0.0,1.0)
             z = 2*rnum - 1
-            theta = 2*np.pi*rnum
+
+	    # Call a new randome number
+            theta = 2*np.pi*np.random.uniform()
             norm_fac = np.sqrt(1 - z*z)
             y = norm_fac*np.sin(theta)
             x = norm_fac*np.cos(theta)
 	    rays.append([x, y, z])
     return np.array(rays)
 
-def get_verts_on_sphere(numOfPts, scale):
-    xyz = get_rand_dirs(numOfPts, scale)
+def get_verts_on_sphere(numOfPts):
+    xyz = get_rand_dirs(numOfPts)
     hull = ConvexHull(xyz)
     # list of connectivity
     indices = hull.simplices
@@ -47,22 +49,26 @@ def get_verts_on_sphere(numOfPts, scale):
     vertices = xyz[indices]
     return (indices, vertices)
 
-def create_meshed_sphere(vtxs):
+def create_meshed_sphere(vtxs, scale):
     msph = iMesh.Mesh()
     numFacets = vtxs.shape[0]
     for i in range(numFacets):
         facet = vtxs[i,:,:]
 	# ToDo:  is it possible to createVtx with vtxs, i.e.
 	#        an array of facets?
-	verts = msph.createVtx(facet)
+	verts = msph.createVtx(facet*scale)
 	tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
 	
     return msph
 
-def mesh_sphere(num,scale):
-    # vtxs = get_rand_dirs(num, scale)
-    ind, verts = get_verts_on_sphere(num, scale)
-    return create_meshed_sphere(verts)
+def mesh_sphere(num, scale):
+    ind, verts = get_verts_on_sphere(num)
+    return create_meshed_sphere(verts, scale)
+
+def mesh_write(filename, num, scale):
+    mesh = mesh_sphere(num, scale)
+    mesh.save(filename)
+    return 
 
 """
 function to transform the tags into strings

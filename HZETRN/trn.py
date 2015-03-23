@@ -103,7 +103,30 @@ def subset_ray_tuples(filename):
     return ray_tuples
 
 """
-Produce a length-one tuple randomly oriented on a sphere
+Return an array of dir
+"""
+def get_directions(args)
+    # if a filename is given get the ray directions or a subset from it
+    if args.ray_dir_file:
+        if args.ray_subset:
+            # Get all the rays from a large ray file that are
+            # within a few degrees of the xy plane 
+            ray_tuples = np.array(subset_ray_tuples(args.ray_dir_file))
+	else:
+            ray_tuples = np.array(
+	                 load_ray_tuples(args.ray_dir_files, args.rand_dirs) 
+			 )
+
+    elif args.rand_dirs > 0:
+	print 'Getting ', args.rand_dirs, ' random directions'
+        ray_tuples = tag_utils.get_rand_dirs(args.rand_dirs)
+ 
+    else:
+        ray_tuples = np.array( [(1.0, 0.0, 0.0),
+                                (0.0, 1.0, 0.0),
+	   	                (0.0, 0.0, 1.0)]  )
+    return ray_tuples
+
 """
 def get_rand_dirs(number):
     rays = []
@@ -113,13 +136,13 @@ def get_rand_dirs(number):
             rnum = np.random.uniform()
             # map rnum onto [0.0,1.0)
             z = 2*rnum - 1
-            theta = 2*np.pi*rnum
+            theta = 2*np.pi*np.random.uniform()
             norm_fac = np.sqrt(1 - z*z)
             y = norm_fac*np.sin(theta)
             x = norm_fac*np.cos(theta)
 	    rays.append([x, y, z])
     return rays
-
+"""
 
 """ 
 Find the vol-id of the geometry that contains the ref_point
@@ -283,7 +306,6 @@ def main():
               ' -d ' + args.run_dir + \
               ' -e ' + args.rad_env + \
               ' -r ' + 'not given' if not args.ray_dir_file else args.ray_dir_file
-    print message
     logging.info(message)
 
     # Ensure needed template files exist
@@ -306,6 +328,8 @@ def main():
 
     vol_fname_dict = tag_utils.get_fnames_for_vol(path)
     print 'fnames_dict', vol_fname_dict
+    ray_tuples = get_directions(args)
+    """
     # if a filename is given get the ray directions or a subset from it
     if args.ray_dir_file:
         if args.ray_subset:
@@ -320,8 +344,9 @@ def main():
  
     else:
         ray_tuples = [(1.0, 0.0, 0.0),
-                     (0.0, 1.0, 0.0),
-	   	     (0.0, 0.0, 1.0)]
+                      (0.0, 1.0, 0.0),
+	   	      (0.0, 0.0, 1.0)]
+    """
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
