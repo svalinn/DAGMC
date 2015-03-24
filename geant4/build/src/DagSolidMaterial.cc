@@ -140,7 +140,7 @@ std::map<std::string,G4Material*> get_g4materials(std::map<int,G4Element*> eleme
   material_map["mat:Vacuum"]=Vacuum;
 
   
-  G4cout << *(G4Material::GetMaterialTable());
+  //  G4cout << *(G4Material::GetMaterialTable());
 
   return material_map;
 }
