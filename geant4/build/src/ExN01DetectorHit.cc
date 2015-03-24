@@ -97,6 +97,8 @@ void ExN01DetectorHit::Print()
      << std::setw(7) << G4BestUnit( fTl, "Length")
      << " Weight: "
      << std::setw(7) << fWeight
+     << " name:"
+     << std::setw(7) << fName 
      << G4endl;
 }
 

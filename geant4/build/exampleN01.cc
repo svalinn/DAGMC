@@ -13,6 +13,8 @@
 #include "ExN01PrimaryGeneratorAction.hh"
 #include "ExN01ActionInitialization.hh"
 
+#include "ExN01UserScoreWriter.hh"
+
 #include "G4PhysListFactory.hh"
 #include "G4ScoringManager.hh"
 
@@ -33,9 +35,12 @@ int main(int argc, char* argv[])
   G4RunManager* runManager = new G4RunManager;
 
   // Activate command-based scorer
-  G4ScoringManager::GetScoringManager();
+  G4ScoringManager * scManager = G4ScoringManager::GetScoringManager();
+  scManager->SetVerboseLevel(1);
+  scManager->SetScoreWriter(new ExN01UserScoreWriter());
 
   std::string uwuw_file(argv[1]); // file containing data & uwuw
+  // Activate UI-command base scorer                                                                                                 
 
   // set mandatory initialization classes
   //

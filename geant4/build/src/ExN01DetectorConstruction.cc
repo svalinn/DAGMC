@@ -25,6 +25,7 @@
 #include "G4PSTrackLength.hh"
 #include "G4PSCellFlux.hh"
 
+#include "G4GeometryManager.hh"
 #include "G4ParticleTable.hh"
 //
 
@@ -92,11 +93,10 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   // -- World Volume in which we place other volumes
 
 
-  G4double world_width  = 1020.0*cm;
-  G4double world_height = 1020.0*cm;
-  G4double world_depth  = 1020.0*cm;
+  G4double world_width  = 50000.0*cm;
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(2.*world_width);
 
-  G4Box* world_volume = new G4Box("world_volume_box",world_width,world_height,world_depth);
+  G4Box* world_volume = new G4Box("world_volume_box",world_width,world_width,world_width);
   world_volume_log = new G4LogicalVolume(world_volume,material_lib["mat:Vacuum"],"world_vol_log",0,0,0);
   world_volume_log->SetVisAttributes(invis);
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
@@ -159,8 +159,13 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 							"vol_"+idx_str+"_log",0,0,0);
 
       std::cout << "vol_" << idx_str << "  has prop " << material_lib["mat:"+dag_material_name] << std::endl;
-      //      dag_logical_volumes.push_back(dag_vol_log);
       dag_logical_volumes[dag_idx]=dag_vol_log;
+
+      /*
+      pyne::Material mat = material_lib["mat:"+dag_material_name];
+      if( dag_material_name.find("Vacuum") != std::string::npos )
+	dag_vol_log->SetVisAttributes(invis);
+      */
 
       // define physical volumes
       G4PVPlacement* dag_vol_phys = new G4PVPlacement(0,G4ThreeVector(0*cm,0*cm,0*cm),dag_vol_log,
@@ -313,13 +318,14 @@ void ExN01DetectorConstruction::ConstructSDandField()
 
       //sets the sensitivity
       // build the filters
+      /*
       for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
         {
           // particle name
           std::string particle_name = *str;
           detector->SetFilter(particle_filters[particle_name]);
         }
-
+       */
       // add the detector
       G4SDManager::GetSDMpointer()->AddNewDetector(detector);
       dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
