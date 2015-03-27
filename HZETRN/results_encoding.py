@@ -176,17 +176,17 @@ def depth_header_ary(species):
               '{0: >12}'.format('Doseq_All') ]
     if species == 6:
         header_list +=  ['{0: >12}'.format('dose-neutron'),
-              '{0: >12}'.format('dose-proton'),
-              '{0: >12}'.format('dose-deut.'),
-              '{0: >12}'.format('dose-trit.'),
-              '{0: >12}'.format('dose-He3'),
-              '{0: >12}'.format('dose-He4'),
-              '{0: >12}'.format('doseq-neut'),
-              '{0: >12}'.format('doseq-proton'),
-              '{0: >12}'.format('doseq-deut'),
-              '{0: >12}'.format('doseq-trit'),
-              '{0: >12}'.format('doseq-He3'),
-              '{0: >12}'.format('doseq-He4')]
+              '{0: >12}'.format('dose_proton'),
+              '{0: >12}'.format('dose_deut.'),
+              '{0: >12}'.format('dose_trit.'),
+              '{0: >12}'.format('dose_He3'),
+              '{0: >12}'.format('dose_He4'),
+              '{0: >12}'.format('doseq_neut'),
+              '{0: >12}'.format('doseq_proton'),
+              '{0: >12}'.format('doseq_deut'),
+              '{0: >12}'.format('doseq_trit'),
+              '{0: >12}'.format('doseq_He3'),
+              '{0: >12}'.format('doseq_He4')]
     elif species == 59:
         for i in range(1,60):
 	    id = "{0: >12}".format('dose_%s' % i)
@@ -311,10 +311,8 @@ def main():
 	    # col 0 is header, col 1 is data
 	    dif_let = dif_int_block_reader.last_lines(datapaths['dif_let'])
 	    int_let = dif_int_block_reader.last_lines(datapaths['int_let'])
-	    # print 'dif_let shape', dif_let.shape, 'dif_let data col array shape', np.array([dif_let[...,1]]).shape
 	    
 	    # Pick of col 
-	    # all_values_by_ray = np.hstack((all_values_by_ray, dif_let[...,1], int_let[...,1]))
 	    let_values = np.hstack((dif_let[...,1], int_let[...,1]))
 	    #######################################################
 	    # FLUX - 100 rows by 60(gcr)/7(spe) or 4 columns

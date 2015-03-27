@@ -44,6 +44,7 @@ def load_ray_start(filename):
         ray_start = [0.0, 0.0, 0.0]
     else:
         with open(filename) as f:
+	    # ToDo:  just do f.readline(), no for
 	    for line in f:
 	        ray_start = map(float, line.split())
     pprint.pprint(ray_start)
@@ -103,9 +104,9 @@ def subset_ray_tuples(filename):
     return ray_tuples
 
 """
-Return an array of dir
+Return an array of directions
 """
-def get_directions(args)
+def get_directions(args):
     # if a filename is given get the ray directions or a subset from it
     if args.ray_dir_file:
         if args.ray_subset:
@@ -113,9 +114,7 @@ def get_directions(args)
             # within a few degrees of the xy plane 
             ray_tuples = np.array(subset_ray_tuples(args.ray_dir_file))
 	else:
-            ray_tuples = np.array(
-	                 load_ray_tuples(args.ray_dir_files, args.rand_dirs) 
-			 )
+            ray_tuples = np.array(load_ray_tuples(args.ray_dir_file))
 
     elif args.rand_dirs > 0:
 	print 'Getting ', args.rand_dirs, ' random directions'
@@ -124,7 +123,7 @@ def get_directions(args)
     else:
         ray_tuples = np.array( [(1.0, 0.0, 0.0),
                                 (0.0, 1.0, 0.0),
-	   	                (0.0, 0.0, 1.0)]  )
+	   	                (0.0, 0.0, 1.0)] )
     return ray_tuples
 
 """
