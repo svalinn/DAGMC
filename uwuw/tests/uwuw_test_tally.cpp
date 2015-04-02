@@ -1,40 +1,32 @@
 //  DagSolid_test.cpp
 #include <gtest/gtest.h>
-#include <cmath>
-#include <cassert>
-
-#include <iostream>
-#include <unistd.h>
-#include <stdio.h>
-
 #include "uwuw.hpp"
 #include "../pyne/pyne.h"
 
-UWUW *workflow_data;
-
 #define TEST_FILE "mat_lib.h5"
+
+namespace {
+
 
 class UWUWTest : public ::testing::Test
 {
   protected:
 
+  UWUWTest() {}
+  virtual ~UWUWTest(){}
+
   virtual void SetUp()
   {
-    workflow_data = new UWUW(TEST_FILE);
+    workflow_data = new UWUW("mat_lib.h5");
   }
+  UWUW *workflow_data;
 };
-
-/*
- * Empty common setup function
- */
-TEST_F(UWUWTest,SetUp) {
-
-}
 
 /*
  * Test to make sure that the number of tallies is correct
  */
-TEST_F(UWUWTest,tally_library_1) {
+TEST_F(UWUWTest,tallylibrary1) {
   EXPECT_EQ(workflow_data->tally_library.size(),0);
   return;
 }
+} // namespace

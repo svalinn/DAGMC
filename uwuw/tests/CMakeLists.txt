@@ -25,10 +25,10 @@ set(uwuw_test_tally_source
 # set libraries needed to link to test cases
 SET(LIBS
   pthread
-  gtest
   dagmciface
-  pyne_dagmc
   ${DAGMC_LIBRARIES}
+  gtest
+  pyne_dagmc
   pthread
 )
 
