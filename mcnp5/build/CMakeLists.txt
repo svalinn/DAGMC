@@ -496,7 +496,7 @@ target_link_libraries(${mcnp_exec}
 			dagtally 
 			${DAGMC_LIBRARIES} 
 			${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY} 
-			pyne )
+			pyne_dagmc )
 if(MPI_BUILD)
   target_link_libraries(${mcnp_exec} ${MPI_LIBRARIES}) 
 endif(MPI_BUILD)

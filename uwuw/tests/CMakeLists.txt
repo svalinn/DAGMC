@@ -24,7 +24,7 @@ SET(LIBS
   pthread
   gtest
   dagmciface
-  pyne
+  pyne_dagmc
   ${DAGMC_LIBRARIES}
   pthread
 )

@@ -48,7 +48,7 @@ add_executable(DagGeant4 exampleN01.cc ${sources} ${headers})
 target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
                                 ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
 #                                ${PYNE_LIBS_DIR}/libpyne.so
-				pyne
+				pyne_dagmc
 			        ${DAGMC_LIBRARIES}
 				dagsolid
 				dagmciface)
