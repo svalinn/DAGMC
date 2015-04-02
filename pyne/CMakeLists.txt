@@ -7,12 +7,12 @@ SET ( CODE_PUB_HEADERS "pyne.h" )
 
 # make pyne library
 IF( STATIC_LIB )
-  add_library( pyne STATIC ${CODE_SRC_FILES})
+  add_library( pyne_dagmc STATIC ${CODE_SRC_FILES})
 ELSEIF( NOT STATIC_LIB )
-  add_library( pyne SHARED ${CODE_SRC_FILES})
+  add_library( pyne_dagmc SHARED ${CODE_SRC_FILES})
 ENDIF( STATIC_LIB )
  
-target_include_directories( pyne PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( pyne_dagmc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # if we want a static executable
 # IF(STATIC_LIB)
@@ -23,15 +23,15 @@ target_include_directories( pyne PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 #target_link_libraries(pyne ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY})
 
-SET_TARGET_PROPERTIES( pyne PROPERTIES PUBLIC_HEADER "${CODE_PUB_HEADERS}" )
+SET_TARGET_PROPERTIES( pyne_dagmc PROPERTIES PUBLIC_HEADER "${CODE_PUB_HEADERS}" )
 
-INSTALL( TARGETS       pyne
+INSTALL( TARGETS       pyne_dagmc
   LIBRARY        DESTINATION   "${INSTALL_LIB_DIR}"
   ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
   PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
   )
 
-target_link_libraries(pyne ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY})
+target_link_libraries(pyne_dagmc ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY})
 
 
 
