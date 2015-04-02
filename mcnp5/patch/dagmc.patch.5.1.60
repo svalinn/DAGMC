@@ -705,7 +705,7 @@ diff -rN '--unified=0' mcnp_vendor/Source/src/fmesh_mod.F90 mcnp_dagmc/Source/sr
 +
 +       ! DAGMC:
 +         if ( fm(i)%icrd==3 ) then 
-+            call dagmc_setup_mesh_tally( i )
++            if( .not. is_assoc ) call dagmc_setup_mesh_tally( i )
 +          ! Get pointer to mesh's working memory and fill it with runtpe data
 +            call dagmc_fmesh_get_tally_data( fm(i)%id, dagmc_runtpe_data )
 +            read(iu) dagmc_runtpe_data
