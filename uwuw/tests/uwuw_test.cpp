@@ -72,11 +72,5 @@ TEST_F(UWUWTest,material_library_2) {
   return;
 }
 
-/*
- * Test to make sure that the number of tallies is correct
- */
-TEST_F(UWUWTest,tally_library_1) {
-  EXPECT_EQ(workflow_data->tally_library.size(),4);
-  return;
-}
+
 
