@@ -20,6 +20,11 @@ ExN01UserScoreWriter::~ExN01UserScoreWriter()
 void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
 						   const G4String& option)
 {
+  std::string file_name(fileName);
+  // check to make sure the filename ends with .h5m
+  if( fileName.substr(fileName.length()-4) != ".h5m")
+    file_name += ".h5m";
+
   // get the mesh
   G4cout << "Dumping mesh " << fScoringMesh->GetWorldName() << " to file" << G4endl;
 
