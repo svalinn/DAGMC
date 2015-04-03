@@ -20,7 +20,7 @@ class UWUWTest : public ::testing::Test
 
   virtual void SetUp()
   {
-    workflow_data = new UWUW(TEST_FILE);
+    workflow_data = new UWUW(std::string(TEST_FILE));
   }
 };
 
