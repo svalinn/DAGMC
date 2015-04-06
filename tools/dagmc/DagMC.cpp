@@ -291,11 +291,7 @@ ErrorCode DagMC::setup_obbs()
   // Build OBB trees for everything, but only if we only read geometry
   // Changed to build obb tree if tree does not already exist. -- JK
   if (!have_obb_tree()) {
-    rval = build_obbs(surfs, vols);
-    if (MB_SUCCESS != rval) {
-      std::cerr << "Failed to build obb." << std::endl;
-      return rval;
-    }
+    rval = build_obbs(surfs, vols);MB_CHK_SET_ERR(rval, "Failed to build obb.");
   }
   return MB_SUCCESS;
 }
@@ -317,38 +313,22 @@ ErrorCode DagMC::setup_indices()
     }
 
   // build the various index vectors used for efficiency
-  rval = build_indices(surfs, vols);
-  if (MB_SUCCESS != rval)
-    {
-      std::cerr << "Failed to build surface/volume indices." << std::endl;
-      return rval;
-    }
+  rval = build_indices(surfs, vols);MB_CHK_SET_ERR(rval, "Failed to build surface/volume indices.");
   return MB_SUCCESS;
 }
 
 // initialise the obb tree
 ErrorCode DagMC::init_OBBTree()
 {
+  ErrorCode rval;
   // implicit compliment
-  if ( setup_impl_compl() != MB_SUCCESS )
-    {
-      std::cout << "Faiiled to setup the implicit compliment" << std::endl;
-      return MB_FAILURE;
-    }
+  rval = setup_impl_compl();MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
 
   // build obbs
-  if ( setup_obbs() != MB_SUCCESS )
-    {
-      std::cout << "Faiiled to setup the OBBs" << std::endl;
-      return MB_FAILURE;
-    }
+  rval = setup_obbs();MB_CHK_SET_ERR(rval, "Failed to setup the OBBs");
 
   // setup indices
-  if ( setup_indices() != MB_SUCCESS )
-    {
-      std::cout << "Failed to setup problem indices" << std::endl;
-      return MB_FAILURE;
-    }
+  rval = setup_indices();MB_CHK_SET_ERR(rval, "Failed to setup problem indices");
 
   return MB_SUCCESS;
 }
@@ -371,7 +351,7 @@ bool DagMC::have_impl_compl()
   const void* const tagdata[] = {implComplName};
   ErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
                                                            &nameTag, tagdata, 1,
-                                                           entities );
+                                                           entities );MB_CHK_ERR(rval);
   if (!entities.empty())
     return true;
   else
