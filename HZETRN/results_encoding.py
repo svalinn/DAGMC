@@ -69,7 +69,6 @@ class let700x2(Results):
     2 x first_col_of_last_block = 1400
 
     """
-
     def last_lines(self, name):
 
 	lines = Results.last_lines(self, name, 700)
@@ -283,18 +282,58 @@ def main():
     # Numpy Arrays
     all_values  = np.array([])
     full_header = np.array([])
+    empty_ray_vecs = np.array([])
     
-    ray_subdirs = glob.glob('*')
-    for r in ray_subdirs:
+    rad_env = ''
+    rad_env_file = owd + run_path + 'rad_env.txt'
+    with open(rad_env_file, 'r') as f:
+        rad_env = f.readline()
 
+    print rad_env
+    species = 0
+    zero_fields = np.array([])
+    if rad_env == 'spe':
+       print 'species is 6'
+       species = 6
+       zero_fields  = np.zeros(2914)
+    else:
+       print 'species is 59'
+       species = 59
+       zero_fields = np.zeros(13620)
+
+    # This picks up files that have at least one digit
+    ray_subdirs = glob.glob('*[0-9]*')
+    i = 0
+
+    for r in ray_subdirs:
 	# String list: this is what we send to the data line
         ray = r.split('_') 
+	ray_vec = np.array([float(x) for x in ray])
+
 	# If any files are missing the dictionary will be empty
         datapaths = get_filepaths(r)
 
-        if len(datapaths) != 0:
-	    ray_vec = np.array([float(x) for x in ray])
-	    print ray_vec
+        # Save 0-data if there isn't any
+        if len(datapaths) == 0:
+	    print i, ray_vec, "no data"
+	    # Data, including direction vector
+	    # Header has already been written
+	    if all_values.size != 0:
+                with open(dat_outfile, 'a') as f:
+	           np.savetxt(f, ray_vec, fmt='%12.6f', newline=' ')
+	           np.savetxt(f, zero_fields, fmt='%12.6E', newline=' ')
+	           f.write('\n')
+	    # Hold off til the header is written
+            else:
+		if empty_ray_vecs.size == 0:
+		    empty_ray_vecs = ray_vec
+		    print 'empty_ray_vecs size', empty_ray_vecs.size
+		else:
+	            empty_ray_vecs = np.vstack((empty_ray_vecs, ray_vec))
+		    print 'empty_ray_vecs size', empty_ray_vecs.size
+	# this ray direction has data  
+        else:
+	    print i, ray_vec
 
 	    #######################################################
 	    # Depth data
@@ -321,7 +360,7 @@ def main():
 	    intflux_hdr, intflux_nums   = flux_block_reader.index_and_vals(datapaths['int_flux'])
 	    neutflux_hdr, neutflux_nums = flux_block_reader.index_and_vals(datapaths['neutron'])
 
-	    species = flux_block_reader.num_species
+	    # species = flux_block_reader.num_species
 
 	    flux_values = np.hstack((flux_nums, intflux_nums, neutflux_nums))
 
@@ -330,6 +369,7 @@ def main():
 
 	    # For the the first valid direction write the header and start the overall data stack
             if all_values.size == 0:
+		
                 # Make a header array of words for the depth particles
 		# Must be done after number of species is known
                 hdr_depth = depth_header_ary(species)
@@ -346,8 +386,17 @@ def main():
 		with open(dat_outfile, 'a') as f:
 		    np.savetxt(f, hdr_nums, fmt='%12.6E', newline='')
 	            f.write('\n')
+		    # Write out any of the ray vectors with no data, 
+		    #    now that the header has been written
+	            if empty_ray_vecs.size != 0:
+		        for ray_vec in empty_ray_vecs:
+	                    np.savetxt(f, ray_vec, fmt='%12.6f', newline=' ')
+	                    np.savetxt(f, zero_fields, fmt='%12.6E', newline=' ')
+	                    f.write('\n')
+		        
 
 	 	all_values = all_values_by_ray
+            # end if all_values.size == 0:
 
 	    else:
 		# The pure-numeric array for statistics
@@ -359,8 +408,9 @@ def main():
 	       np.savetxt(f, all_values_by_ray, fmt='%12.6E', newline='')
 	       f.write('\n')
 
+        i = i + 1
+
     # NOTES
-    # All data files must be present
     # Header boundary values read from first of all files
     ###############################################################
 

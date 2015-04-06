@@ -81,6 +81,7 @@ def create_tagged_meshed(data, facets, scale):
 	tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
 	
     return msph
+
 def mesh_sphere(xyz, scale):
     """
     xyz	 set of points on a sphere: nx3x3
@@ -95,15 +96,7 @@ def mesh_write(filename, numOfPts):
     mesh.save(filename)
     return 
 
-"""
-    Read certain columns from the infile.
-    Using direction vectors on each line of the file, and data
-    from the given column, create a tagged iMesh.Mesh that can be
-    directly writen to a *.vtk file for viewing with VisIt.
-    The direction vectors are expected to be unit length and will
-    be scaled by scale.
-"""
-def tag_mesh(infile, data_column, scale):
+def get_cols_from_file(infile, data_column):
     "Create a scaled, tagged mesh from data in a file."
     # extract direction and one data column
     # us columns rather than fields to count.
@@ -112,13 +105,30 @@ def tag_mesh(infile, data_column, scale):
     col_end   = str(data_column*field_width)
     # Columns 1-39 contain the three direction values
     column_list = "1-39,{}-{}".format(col_start, col_end)
+    print "cut column values", column_list
     # Call a linux command to get desired columns; capture output
     args = ["cut", "-c", column_list, infile]
     p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = p.communicate()
     all_lines = output.splitlines()
+    for line in all_lines:
+        print line
     # Skip first (header) and last two (statistics) lines
     lines = all_lines[1:len(all_lines)-2]
+    return lines
+
+"""
+    Read certain columns from the infile.
+    Using direction vectors on each line of the file, and data
+    from dat_column, create a tagged iMesh.Mesh that can be
+    directly writen to a *.vtk file for viewing with VisIt.
+    The direction vectors are expected to be unit length and will
+    be scaled by scale.
+"""
+def tag_mesh(infile, data_column, scale):
+    "Create a scaled, tagged mesh from data in a file."
+
+    lines = get_cols_from_file(infile, data_column)
     vals = []
     for line in lines:
         vals.append(map(float, line.split()))

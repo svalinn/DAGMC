@@ -126,22 +126,6 @@ def get_directions(args):
 	   	                (0.0, 0.0, 1.0)] )
     return ray_tuples
 
-"""
-def get_rand_dirs(number):
-    rays = []
-    if number > 0:
-        for i in range(number):
-            # [0.0,1.0)
-            rnum = np.random.uniform()
-            # map rnum onto [0.0,1.0)
-            z = 2*rnum - 1
-            theta = 2*np.pi*np.random.uniform()
-            norm_fac = np.sqrt(1 - z*z)
-            y = norm_fac*np.sin(theta)
-            x = norm_fac*np.cos(theta)
-	    rays.append([x, y, z])
-    return rays
-"""
 
 """ 
 Find the vol-id of the geometry that contains the ref_point
@@ -294,7 +278,7 @@ def main():
 
     # Setup: parse the the command line parameters
     args = parsing()
-    path = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
+    uwuw_filepath = os.path.join(os.path.dirname('__file__'), args.uwuw_file)
 
     curdir = os.path.dirname(os.path.abspath(__file__)) + '/'
     run_path = curdir + args.run_dir + '/'
@@ -313,6 +297,10 @@ def main():
     # Transport results for each direction will be placed in this directory:
     # Ensure it exists before proceeding.
     data_path = run_path + 'data/'
+    rad_env_file = data_path + 'rad_env.txt'
+    with open(rad_env_file, 'w') as f:
+        f.write(args.rad_env)
+
     if not os.path.isdir(data_path):
         print 'Creating data path', data_path
 	os.mkdir(data_path)
@@ -323,9 +311,9 @@ def main():
 	os.mkdir(spatial_path)
 
     # Load the DAG object for this geometry
-    rtn = dagmc.load(path)
+    rtn = dagmc.load(uwuw_filepath)
 
-    vol_fname_dict = tag_utils.get_fnames_for_vol(path)
+    vol_fname_dict = tag_utils.get_fnames_for_vol(uwuw_filepath)
     print 'fnames_dict', vol_fname_dict
     ray_tuples = get_directions(args)
     """
