@@ -535,7 +535,7 @@ def write_mats_h5m(materials_list, filename):
     for material in materials_list:
         # using fluka name as index since this is unique
         new_matlib[material.metadata['fluka_name']] = material
-    new_matlib.write_hdf5(filename)
+    new_matlib.write_hdf5(filename, datapath='/materials', nucpath='/nucid')
 
 """
 Function that writes tally objects to hdf5 file
