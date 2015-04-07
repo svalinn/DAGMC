@@ -15,6 +15,9 @@ set(uwuw_test_source
   ${CMAKE_CURRENT_SOURCE_DIR}/uwuw_test.cpp
 )
 
+set(uwuw_test_tally_source
+  ${CMAKE_CURRENT_SOURCE_DIR}/uwuw_test_tally.cpp
+)
 # geant libs needed for test cases
 
 
@@ -22,10 +25,10 @@ set(uwuw_test_source
 # set libraries needed to link to test cases
 SET(LIBS
   pthread
-  gtest
   dagmciface
-  pyne_dagmc
   ${DAGMC_LIBRARIES}
+  gtest
+  pyne_dagmc
   pthread
 )
 
@@ -51,10 +54,17 @@ ADD_EXECUTABLE (uwuw_unit_tests
     	uwuw_unit_test_driver.cpp
 	${uwuw_test_source})
 
+ADD_EXECUTABLE (uwuw_unit_tests_tally  
+    	uwuw_unit_test_driver.cpp
+	${uwuw_test_tally_source})
+
 INSTALL(TARGETS uwuw_unit_tests DESTINATION tests)
+INSTALL(TARGETS uwuw_unit_tests_tally DESTINATION tests)
 INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_uwuw.h5m" DESTINATION tests)
+INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/mat_lib.h5" DESTINATION tests)
 
 TARGET_LINK_LIBRARIES (uwuw_unit_tests ${LIBS} )
+TARGET_LINK_LIBRARIES (uwuw_unit_tests_tally ${LIBS} )
 
 #
 RUN_TEST(uwuw_unit_tests)
