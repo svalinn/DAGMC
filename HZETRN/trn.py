@@ -288,7 +288,8 @@ def main():
     message = 'python trn.py -f ' + args.uwuw_file + \
               ' -d ' + args.run_dir + \
               ' -e ' + args.rad_env + \
-              ' -r ' + 'not given' if not args.ray_dir_file else args.ray_dir_file
+              ' -r ' + ('not given' if not args.ray_dir_file else args.ray_dir_file)
+    print "Logging:", message
     logging.info(message)
 
     # Ensure needed template files exist
@@ -297,13 +298,13 @@ def main():
     # Transport results for each direction will be placed in this directory:
     # Ensure it exists before proceeding.
     data_path = run_path + 'data/'
-    rad_env_file = data_path + 'rad_env.txt'
-    with open(rad_env_file, 'w') as f:
-        f.write(args.rad_env)
-
     if not os.path.isdir(data_path):
         print 'Creating data path', data_path
 	os.mkdir(data_path)
+
+    rad_env_file = data_path + 'rad_env.txt'
+    with open(rad_env_file, 'w') as f:
+        f.write(args.rad_env)
 
     spatial_path = curdir + spatial_dir + '/'
     if not os.path.isdir(spatial_path):
