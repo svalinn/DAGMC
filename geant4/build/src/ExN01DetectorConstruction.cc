@@ -75,23 +75,6 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   world_volume_log->SetVisAttributes(invis);
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
 						      "world_vol",0,false,0);
-<<<<<<< HEAD
-=======
-
-  G4cout << uwuw_filename.c_str() << G4endl;
-  MBErrorCode rval = dagmc->load_file(uwuw_filename.c_str(),0);
-  if(rval != MB_SUCCESS)
-    {
-      G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
-      exit(1);
-    }
- rval = dagmc->init_OBBTree();
- if(rval != MB_SUCCESS)
-  {
-    G4cout << "ERROR: Failed to build the OBB Tree" << G4endl;
-    exit(1);
-  }
->>>>>>> 125cb608b4fd82ec7afcbde81c4b06ebf82dab57
 
   MBErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str(),0);
   if(rval != MB_SUCCESS)
@@ -120,11 +103,6 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 
   rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
 
-<<<<<<< HEAD
-=======
-  rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
-
->>>>>>> 125cb608b4fd82ec7afcbde81c4b06ebf82dab57
   //Store a list of DagSolids, Logical Vols, and Physical Vols
   std::vector<DagSolid*> dag_volumes;
   std::vector<G4PVPlacement*> dag_physical_volumes;
@@ -179,17 +157,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
 
   G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
-<<<<<<< HEAD
   if ( workflow_data->tally_library.size() == 0 )
-=======
-  // check for tallies first
-  try
-    {
-      pyne::Tally tally;
-      tally.from_hdf5(uwuw_filename,"/tally");
-    }
-  catch (const std::exception &except) // catch the exception from from_hdf5
->>>>>>> 125cb608b4fd82ec7afcbde81c4b06ebf82dab57
     {
       std::cout << "No Tallies found in the file, " << uwuw_filename << std::endl;
       std::cout << "Tallies not found, transport will happen, but no scores" << std::endl;
@@ -202,11 +170,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
   std::map<std::string,pyne::Tally>::iterator t_it;
 
   //  load tallies from the h5m file
-<<<<<<< HEAD
   tally_library = workflow_data->tally_library;
-=======
-  tally_library = workflow_data.tally_library;
->>>>>>> 125cb608b4fd82ec7afcbde81c4b06ebf82dab57
 
   // TrackLength Scorer
   //  std::vector<G4MultiFunctionalDetector*> detectors;

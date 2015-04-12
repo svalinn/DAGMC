@@ -91,15 +91,9 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run)
   // iterate over tallies
   std::map<std::string,pyne::Tally>::iterator it;
   // loop over histograms and get data
-<<<<<<< HEAD
   for ( it = workflow_data->tally_library.begin() ; it != workflow_data->tally_library.end() ; ++it )
   {
     int index = 1 + std::distance(workflow_data->tally_library.begin(),it);
-=======
-  for ( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; ++it )
-  {
-    int index = 1 + std::distance(workflow_data.tally_library.begin(),it);
->>>>>>> 125cb608b4fd82ec7afcbde81c4b06ebf82dab57
     // loop over this histograms
     G4cout << index << G4endl;
     // scale the result by 1/volume and by (1/cm*cm)
