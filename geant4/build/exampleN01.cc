@@ -45,7 +45,8 @@ int main(int argc, char* argv[])
   scManager->SetScoreWriter(new ExN01UserScoreWriter());
 
   std::string uwuw_file(argv[1]); // file containing data & uwuw
-  // Activate UI-command base scorer                                                                                                 
+
+  // Activate UI-command base scorer                            
   // load the UWUW data
   UWUW *workflow_data = new UWUW(uwuw_file);
 
