@@ -26,6 +26,11 @@
 #include "G4UIExecutive.hh"
 #endif
 
+#ifndef uwuw_hpp
+#define uwuw_hpp 1
+#include "uwuw.hpp"
+#endif
+
 int main(int argc, char* argv[])
 {
    G4Timer Timer;
@@ -41,13 +46,12 @@ int main(int argc, char* argv[])
 
   std::string uwuw_file(argv[1]); // file containing data & uwuw
   // Activate UI-command base scorer                                                                                                 
+  // load the UWUW data
+  UWUW *workflow_data = new UWUW(uwuw_file);
 
-  // set mandatory initialization classes
-  //
-  //G4VUserDetectorConstruction* detector = new ExN01DetectorConstruction(uwuw_file);
-  runManager->SetUserInitialization(new ExN01DetectorConstruction(uwuw_file));
-  //  runManager->SetUserInitialization(detector);
-
+  // setup detectors and scores
+  runManager->SetUserInitialization(new ExN01DetectorConstruction(workflow_data));
+  
   G4PhysListFactory *physListFactory = new G4PhysListFactory();
   G4VUserPhysicsList *physicsList =
     physListFactory->GetReferencePhysList("QGSP_BIC_HP");
@@ -56,7 +60,7 @@ int main(int argc, char* argv[])
 
   // set mandatory user action class
   //
-  ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization(uwuw_file);
+  ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization(workflow_data);
   runManager->SetUserInitialization(actionInitialization);
 
   //  G4VUserPrimaryGeneratorAction* gen_action = new ExN01PrimaryGeneratorAction;

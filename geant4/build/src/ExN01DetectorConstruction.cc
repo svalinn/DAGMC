@@ -38,41 +38,14 @@
 
 #include "../pyne/pyne.h"
 
-//#include "pyne/particle.h"
-
 using namespace moab;
 
 DagMC* dagmc = DagMC::instance(); // create dag instance
-UWUW workflow_data;
 
-ExN01DetectorConstruction::ExN01DetectorConstruction(std::string uwuw_file)
+ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW *uwuw_workflow_data)
   :  world_volume_log(0)
-
 {
-  uwuw_filename = uwuw_file;
-
-  /* Note! - Using this method if there are no materials in the h5m file, we
-    catch the exception here and continue, however the exception is still raised
-    MOAB finds that the exception is raised and the first thing we do following
-    this is dagmc->load_file() which raises a file doesnt exist error!
-
-    Similarly for tallies! DOh!
-   */
-  // check for Materials first\
-
-  try
-    {
-      pyne::Material mat;
-      mat.from_hdf5(uwuw_filename,"/materials");
-    }
-  catch (const std::exception &except) // catch the exception from from_hdf5
-    {
-      std::cout << "No Materials found in the file, " << uwuw_filename << std::endl;
-      std::cout << "Cannot continue without materials " << std::endl;
-      exit(1);
-    }
-
-workflow_data = UWUW(uwuw_filename);
+  workflow_data = uwuw_workflow_data;
   ;
 }
 
@@ -102,20 +75,19 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
 						      "world_vol",0,false,0);
 
-  G4cout << uwuw_filename.c_str() << G4endl;
-  MBErrorCode rval = dagmc->load_file(uwuw_filename.c_str(),0);
+  MBErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str(),0);
   if(rval != MB_SUCCESS)
     {
       G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
       exit(1);
     }
- rval = dagmc->init_OBBTree();
- if(rval != MB_SUCCESS)
-  {
-    G4cout << "ERROR: Failed to build the OBB Tree" << G4endl;
-    exit(1);
-  }
-
+  rval = dagmc->init_OBBTree();
+  if(rval != MB_SUCCESS)
+    {
+      G4cout << "ERROR: Failed to build the OBB Tree" << G4endl;
+      exit(1);
+    }
+  
   G4int Num_of_survertices = dagmc->num_entities(2);
   G4int num_of_objects = dagmc->num_entities(3);
 
@@ -126,7 +98,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   dagsolid_keywords.push_back("mat");
   dagsolid_keywords.push_back("rho");
   std::map<std::string,std::string> synonymns;
-  char *delimeters = ":/";
+  char const *delimeters = ":/";
 
   rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
 
@@ -184,13 +156,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
 
   G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
-  // check for tallies first
-  try
-    {
-      pyne::Tally tally;
-      tally.from_hdf5(uwuw_filename,"/tally");
-    }
-  catch (const std::exception &except) // catch the exception from from_hdf5
+  if ( workflow_data->tally_library.size() == 0 )
     {
       std::cout << "No Tallies found in the file, " << uwuw_filename << std::endl;
       std::cout << "Tallies not found, transport will happen, but no scores" << std::endl;
@@ -203,7 +169,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
   std::map<std::string,pyne::Tally>::iterator t_it;
 
   //  load tallies from the h5m file
-  tally_library = workflow_data.tally_library;
+  tally_library = workflow_data->tally_library;
 
   // TrackLength Scorer
   //  std::vector<G4MultiFunctionalDetector*> detectors;

@@ -11,11 +11,16 @@ class G4VPhysicalVolume;
 #include <map>
 #include <string>
 
+#ifndef uwuw_hpp
+#define uwuw_hpp 1
+#include "uwuw.hpp"
+#endif
+
 class ExN01DetectorConstruction : public G4VUserDetectorConstruction
 {
   public:
 
-  ExN01DetectorConstruction(std::string uwuw_file);
+  ExN01DetectorConstruction(UWUW *uwuw_workflow_data);
   ~ExN01DetectorConstruction();
 
   public:
@@ -41,14 +46,16 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
     std::string uwuw_filename;
 
     G4LogicalVolume* world_volume_log;
+
+    UWUW *workflow_data;
+
     // DAG Logical volumes
-    G4LogicalVolume* dag_vol_log;
+    // G4LogicalVolume* dag_vol_log;
 
     // Physical volumes
     //
-    G4VPhysicalVolume* world_volume_phys;
+    // G4VPhysicalVolume* world_volume_phys;
     // DAG Physical volumes
-
 
 };
 

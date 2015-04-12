@@ -2,12 +2,16 @@
 #include "G4SystemOfUnits.hh"
 #include "G4Material.hh"
 #include "../pyne/pyne.h"
+
+#ifndef uwuw_hpp
+#define uwuw_hpp 1
 #include "uwuw.hpp"
+#endif
 
 /*
  * Load the full material collection from PyNE library, return G4Materials
  */
-std::map<std::string,G4Material*> load_uwuw_materials(UWUW filename);
+std::map<std::string,G4Material*> load_uwuw_materials(UWUW *filename);
 
 /*
  * Load the material library from the h5m file into a standard map of PyNE Materials

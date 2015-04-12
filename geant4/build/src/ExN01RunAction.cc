@@ -9,55 +9,10 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-extern UWUW workflow_data;
-
-ExN01RunAction::ExN01RunAction(UWUW data)
+ExN01RunAction::ExN01RunAction(UWUW *uwuw_workflow_data)
  : G4UserRunAction()
 {
-  /*
-  // get uwuw workflow data
-  // set printing event number to print progess 20 times in the run
-
-  // Create analysis manager
-  //inform the runManager to save random number seed
-  G4RunManager::GetRunManager()->SetRandomNumberStore(true);
-
-
-  // Create analysis manager
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-  G4cout << "Using " << analysisManager->GetType() << G4endl;
-
-  // Create directories
-  //analysisManager->SetHistoDirectoryName("histograms");
-  //analysisManager->SetNtupleDirectoryName("ntuple");
-  analysisManager->SetVerboseLevel(1);
-  analysisManager->SetFirstHistoId(1);
-
-  // iterate over tallies
-  std::map<std::string,pyne::Tally>::iterator it;
-
-  // create base tuple
-  analysisManager->CreateNtuple("DagGeant","TrackL");
-  // Creating histograms
-    for ( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; ++it )
-    {
-      // convert volid into string
-      std::stringstream ss;
-      ss << (it->second).entity_id;
-
-      // get the tally name
-      std::string tally_name = ss.str()+"_"+(it->second).tally_type+"_"+(it->second).particle_name;
-      std::cout << tally_name << std::endl;
-      // create historgram
-      analysisManager->CreateH1(tally_name,(it->second).tally_name,1000,0.,10.);
-      //analysisManager->CreateH2(tally_name,(it->second).tally_name,1000,0.,10.,
-      //                          1000,1.e-9,1.e3);
-      // create tuple
-      analysisManager->CreateNtupleDColumn(tally_name);
-    }
-  // finish tuple
-  analysisManager->FinishNtuple();
-  */
+  workflow_data = uwuw_workflow_data;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -136,9 +91,9 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run)
   // iterate over tallies
   std::map<std::string,pyne::Tally>::iterator it;
   // loop over histograms and get data
-  for ( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; ++it )
+  for ( it = workflow_data->tally_library.begin() ; it != workflow_data->tally_library.end() ; ++it )
   {
-    int index = 1 + std::distance(workflow_data.tally_library.begin(),it);
+    int index = 1 + std::distance(workflow_data->tally_library.begin(),it);
     // loop over this histograms
     G4cout << index << G4endl;
     // scale the result by 1/volume and by (1/cm*cm)

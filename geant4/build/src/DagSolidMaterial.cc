@@ -1,6 +1,6 @@
 #include "DagSolidMaterial.hh"
 
-std::map<std::string,G4Material*> load_uwuw_materials(UWUW workflow_data)
+std::map<std::string,G4Material*> load_uwuw_materials(UWUW *workflow_data)
 {
   //  std::string nuc_data = "/home/davisa/.local/lib/python2.7/site-packages/pyne/nuc_data.h5";
   //  std::string filename = "atic_uwuw_zip.h5m";
@@ -8,11 +8,11 @@ std::map<std::string,G4Material*> load_uwuw_materials(UWUW workflow_data)
   //  UWUW workflow_data = UWUW(filename);
 
   // load the pyne nuclear data
-  pyne::NUC_DATA_PATH = workflow_data.full_filepath;
+  pyne::NUC_DATA_PATH = workflow_data->full_filepath;
 
   // new material library
   std::map<std::string,pyne::Material> material_library;
-  material_library = workflow_data.material_library;
+  material_library = workflow_data->material_library;
 
   std::map<std::string,G4Material*> g4_mat_empty;
   if (material_library.size() == 0 )

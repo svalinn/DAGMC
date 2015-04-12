@@ -17,10 +17,7 @@
 #include "Randomize.hh"
 #include <iomanip>
 
-#include "uwuw.hpp"
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-extern UWUW workflow_data;
 
 // constructor for event action
 // should populate the ids of the sensitive detectors

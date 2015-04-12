@@ -9,13 +9,13 @@
 #include "ExN01RunAction.hh"
 #include "ExN01EventAction.hh"
 
-extern UWUW workflow_data;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ExN01ActionInitialization::ExN01ActionInitialization(std::string filename)
+ExN01ActionInitialization::ExN01ActionInitialization(UWUW *uwuw_workflow_data)
  : G4VUserActionInitialization()
 {
   //  workflow_data = UWUW(filename);
+  workflow_data = uwuw_workflow_data;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
