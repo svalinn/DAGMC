@@ -1,5 +1,6 @@
 #########################################################
 # btrn.py
+# Backscatter Transport and Respons
 #########################################################
 
 import subprocess
@@ -167,7 +168,7 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
     slab_mat_names = []
     vols_traversed = []
 
-    print 'start_vol is', start_vol
+    # print 'start_vol is', start_vol
     # Could be starting in the implicit_complement
     if start_vol in fname_for_vol:
         #  Done before we've started
@@ -293,7 +294,7 @@ def main():
     message = 'python btrn.py -f ' + args.uwuw_file + \
               ' -d ' + args.run_dir + \
               ' -e ' + args.rad_env + \
-              ' -r ' + 'not given' if not args.ray_dir_file else args.ray_dir_file
+              ' -r ' + ('not given' if not args.ray_dir_file else args.ray_dir_file)
     logging.info(message)
 
     # Ensure needed template files exist
@@ -321,24 +322,6 @@ def main():
     vol_fname_dict = tag_utils.get_fnames_for_vol(uwuw_file)
     print 'fnames_dict', vol_fname_dict
     ray_tuples = get_directions(args)
-    """
-    # if a filename is given get the ray directions or a subset from it
-    if args.ray_dir_file:
-        if args.ray_subset:
-            # Get all the rays from a large ray file that are
-            # within a few degrees of the xy plane 
-            ray_tuples = subset_ray_tuples(args.ray_dir_file)
-	else :
-            ray_tuples = load_ray_tuples(args.ray_dir_files, args.rand_dirs) 
-    elif args.rand_dirs > 0:
-	print 'Getting ', args.rand_dirs, ' random directions'
-        ray_tuples = get_rand_dirs(args.rand_dirs)
- 
-    else:
-        ray_tuples = [(1.0, 0.0, 0.0),
-                      (0.0, 1.0, 0.0),
-	   	      (0.0, 0.0, 1.0)]
-    """
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
@@ -346,34 +329,57 @@ def main():
     start_vol = find_ref_vol(ref_point)
     
     for dir in ray_tuples:
-	slab_lens_a, slab_mat_names_a = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
+	###################################
+	# For backscatter:  
+	# Create two lists 'a' and 'b'.  
+	#    'a' is the list of slab materials and lengths in the given direction.  
+	#    'b' is the list of same items going OPPOSITE (180 degrees)
+	slab_lens_a, slab_mat_names_a = slabs_for_ray(start_vol, ref_point,  dir, vol_fname_dict)
 	slab_lens_b, slab_mat_names_b = slabs_for_ray(start_vol, ref_point, -dir, vol_fname_dict)
 
-	num_mats_a = len(slab_mat_names_a)
-	num_mats_b = len(slab_mat_names_b)
-	# print 'num_mats_a', num_mats_a, 'num_mats_b', num_mats_b
-	num_mats = num_mats_a + num_mats_b
-
-
+	# reverse order and add backward dir
+        slab_lens = slab_lens_a[::-1] + slab_lens_b
+	slab_mat_names = slab_mat_names_a[::-1] + slab_mat_names_b
+	print 'slab_lens', slab_lens, slab_mat_names
+	num_mats = len(slab_mat_names)
         #############################################
 	# Create the transport geometry file contents
         # Need to have a non-zero number of mats
 	transport_input = []
-	transport_input.append(str(num_mats))
 	if 0 != num_mats:
-	    if 0 != num_mats_a:
-	        for n in range(num_mats_a):
-		    ind = num_mats_a - 1 - n
-	            transport_input.append(slab_mat_names_a[ind])
-	            transport_input.append('2')
-	            transport_input.append('0.0 ' + "{0:.1f}".format(slab_lens_a[ind]))
-	    if 0 != num_mats_b:
-	        for n in range(num_mats_b):
-	            transport_input.append(slab_mat_names_b[n])
-	            transport_input.append('2')
-	            transport_input.append('0.0 ' + "{0:.1f}".format(slab_lens_b[n]))
-	# No materials for this direction: make a bogus spatial file 
+	    effective_num_mats = num_mats
+	    last_mat_name = ''
+	    last_slab_points = []
+	    last_mat_name = slab_mat_names[0]
+	    last_slab_points = [0.0, slab_lens[0]]
+
+	    print 0, last_mat_name, slab_lens[0]
+	    for n in range(1,num_mats):
+                if slab_mat_names[n] == last_mat_name:
+	            print n, 'SAME\t', last_mat_name, slab_lens[n]
+		    last_slab_points.append(slab_lens[n])
+		    effective_num_mats = effective_num_mats - 1
+		else:
+		    print n, 'NEW\t', slab_mat_names[n], slab_lens[n]
+	            print '\tWriting\t', last_mat_name, last_slab_points
+	            transport_input.append(last_mat_name)
+	            transport_input.append(str(len(last_slab_points)))
+		    slab_points_list = ["{0:.1f}".format(x) for x in last_slab_points]
+		    transport_input.append(", ".join(slab_points_list))
+                    # Now re-initialize to the current mat/length
+		    last_mat_name = slab_mat_names[n]
+		    last_slab_points = [0.0, slab_lens[n]]
+	    # The last slab got set up but not written
+	    transport_input.append(last_mat_name)
+	    transport_input.append(str(len(last_slab_points)))
+	    slab_points_list = ["{0:.1f}".format(x) for x in last_slab_points]
+	    transport_input.append(", ".join(slab_points_list))
+	        
+	    transport_input.insert(0,(str(effective_num_mats)))
+
+	# No materials at all for this or the opposite direction: make a bogus spatial file 
 	else:
+	    transport_input.append('0')
 	    transport_input.append('No material traversed, either direction')
 	    transport_input.append('2')
 	    transport_input.append('0.0 0.0')
@@ -381,14 +387,14 @@ def main():
 	# Need a newline at end of file
 	transport_input.append('\n')
         print 'ray_tuple', dir, 'transport_input', transport_input
+
 	dir_string = "{0:.4f}".format(dir[0]) + '_' + \
 	             "{0:.4f}".format(dir[1]) + '_' + \
 		     "{0:.4f}".format(dir[2]) 
 
-
 	# ToDo: change the base name here and on the other side
 	if len(ray_tuples) < 20:
-	    spatial_filename = 'spatial_' + dir_string + '.dat'
+	    spatial_filename = 'spatial_b' + dir_string + '.dat'
 	    # sslab = []
             # for d in slab_lengths:
 	    #     sslab.append(format(d,'.6f'))

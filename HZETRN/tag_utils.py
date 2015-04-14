@@ -189,20 +189,20 @@ def _stringify(tag):
     return string
 
 """
-function that gets all the material tags on dagmc geometry
+function that gets all the material tags on a dagmc geometry
 ------------------------------
-path : the dagmc filename
+filename : the dagmc filename
 return vector of tag_values
 """
-def get_mat_tag_values(path):
+def get_mat_tag_values(filename):
     
     vol_mat_dict = {}
 
-    # create imesh instance  and load the file
+    # create imesh instance and load the file
     dag_geom = iMesh.Mesh()
-    dag_geom.load(path)
+    dag_geom.load(filename)
 
-    # create a  mesh set         
+    # get all mesh set from the given geometry        
     mesh_sets = dag_geom.getEntSets()
 
     cat_tag  = dag_geom.getTagHandle('CATEGORY')

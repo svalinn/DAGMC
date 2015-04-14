@@ -317,24 +317,6 @@ def main():
     vol_fname_dict = tag_utils.get_fnames_for_vol(uwuw_filepath)
     print 'fnames_dict', vol_fname_dict
     ray_tuples = get_directions(args)
-    """
-    # if a filename is given get the ray directions or a subset from it
-    if args.ray_dir_file:
-        if args.ray_subset:
-            # Get all the rays from a large ray file that are
-            # within a few degrees of the xy plane 
-            ray_tuples = subset_ray_tuples(args.ray_dir_file)
-	else :
-            ray_tuples = load_ray_tuples(args.ray_dir_files, args.rand_dirs) 
-    elif args.rand_dirs > 0:
-	print 'Getting ', args.rand_dirs, ' random directions'
-        ray_tuples = get_rand_dirs(args.rand_dirs)
- 
-    else:
-        ray_tuples = [(1.0, 0.0, 0.0),
-                      (0.0, 1.0, 0.0),
-	   	      (0.0, 0.0, 1.0)]
-    """
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
@@ -342,8 +324,8 @@ def main():
     start_vol = find_ref_vol(ref_point)
     
     for dir in ray_tuples:
-	slab_lengths, slab_mat_names = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
         #############################################
+	slab_lengths, slab_mat_names = slabs_for_ray(start_vol, ref_point, dir, vol_fname_dict)
 
 	num_mats = len(slab_mat_names)
 	print 'num_mats', num_mats
@@ -372,7 +354,7 @@ def main():
 
 
 	if len(ray_tuples) < 20:
-	    spatial_filename = 'spatial_' + dir_string + '.dat'
+	    spatial_filename = 'spatial_f' + dir_string + '.dat'
 	    sslab = []
             for d in slab_lengths:
 	        sslab.append(format(d,'.6f'))
@@ -389,11 +371,13 @@ def main():
 	f.write("\n".join(transport_input))
 	f.close()
 
+	"""
 	if 0 != num_mats:
             one_d_tool.transport_process(run_path, spatial_filepath, args.rad_env)
             one_d_tool.response_process(run_path, args.target)
 
 	one_d_tool.collect_results_for_dir(run_path, data_path, dir_string, num_mats)
+	"""
 
     return 
     ###################################### 
