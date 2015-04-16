@@ -83,18 +83,21 @@ int main(int argc, char* argv[])
     {
       G4String command = "/control/execute ";
       std::string filename(argv[2]);
-      G4cout << argv[0] << " " << argv[1] << " " << argv[2] << G4endl;
-      G4cout << "Running file " << command+filename << G4endl;
+      G4UIExecutive* ui = new G4UIExecutive(argc,argv, "tcsh" );
       UImanager->ApplyCommand(command+filename);
+      ui->SessionStart();
+      delete ui;
     } 
   else
     {
+      G4VisManager* visManager = new G4VisExecutive;
+      visManager->Initialize();
+
       G4UIExecutive* UI = new G4UIExecutive(argc, argv);
       UImanager->ApplyCommand("/control/execute vis.mac");
 
-      G4VisManager* visManager = new G4VisExecutive;
-      visManager->Initialize();
       UI->SessionStart();
+      delete visManager;
       delete UI;
     }
 
