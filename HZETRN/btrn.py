@@ -39,9 +39,11 @@ python btrn.py -f {4bricks.h5m, sphere_Wat_Al.h5m} -n 50 -d kdir
 class DagmcError(Exception):
     pass
 
+###############################
+# globals
+config_log  = 'config.log'
 # 'spatial_dir' is a subdir for storing input files as they are created
 spatial_dir = 'spatial'
-config_log  = 'config.log'
 
 def load_ray_start(filename):
     ray_start = []
@@ -52,7 +54,7 @@ def load_ray_start(filename):
 	    # ToDo:  just do f.readline(), no for
 	    for line in f:
 	        ray_start = map(float, line.split())
-    pprint.pprint(ray_start)
+    # pprint.pprint(ray_start)
     return ray_start
 
 """
@@ -74,8 +76,8 @@ def load_ray_tuples(filename):
 	    x = np.sin(nums[0])*np.cos(nums[1])
 	    y = np.sin(nums[0])*np.sin(nums[1])
 	    ray_tuples.append((x, y, z))
-    print(filename, 'ray_tuples  x             y                z')
-    pprint.pprint(ray_tuples)
+    # print(filename, 'ray_tuples  x             y                z')
+    # pprint.pprint(ray_tuples)
     return ray_tuples
 
 """
@@ -92,7 +94,7 @@ def subset_ray_tuples(filename):
 
     ray_tuples = []
 
-    print('The ray tuples file is', filename)
+    # print('The ray tuples file is', filename)
     with open(filename) as f:
         for line in f:
 	    # Get the list of numbers from the line
@@ -105,7 +107,7 @@ def subset_ray_tuples(filename):
 	        x = np.sin(nums[0])*np.cos(nums[1])
 	        y = np.sin(nums[0])*np.sin(nums[1])
 	        ray_tuples.append((x, y, z))
-        print ('num of rays within 1/', limitfac, 'of x-y plane', len(ray_tuples))
+        # print ('num of rays within 1/', limitfac, 'of x-y plane', len(ray_tuples))
     return ray_tuples
 
 """
@@ -122,7 +124,7 @@ def get_directions(args):
             ray_tuples = np.array(load_ray_tuples(args.ray_dir_file))
 
     elif args.rand_dirs > 0:
-	print 'Getting ', args.rand_dirs, ' random directions'
+	# print 'Getting ', args.rand_dirs, ' random directions'
         ray_tuples = tag_utils.get_rand_dirs(args.rand_dirs)
  
     else:
@@ -173,10 +175,10 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
     if start_vol in fname_for_vol:
         #  Done before we've started
         if fname_for_vol[start_vol] == 'graveyard':
-	    print 'Starting volume is graveyard'
+	    # print 'Starting volume is graveyard'
             return slab_length, slab_mat_name 
-    else:
-        print 'We are starting in the implicit complement'
+    # else:
+        # print 'We are starting in the implicit complement'
     is_graveyard = False    
     last_vol = start_vol
     
@@ -204,7 +206,7 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
 
     #########################################################################
     sdir = [format(dir[0],'.6f'),format(dir[1], '.6f'), format(dir[2], '.6f')]
-    print ('for dir', sdir, 'vols traversed', vols_traversed)
+    # print ('for dir', sdir, 'vols traversed', vols_traversed)
     #########################################################################
 
     return slab_lengths, slab_mat_names
@@ -304,7 +306,7 @@ def main():
     # Ensure it exists before proceeding.
     data_path = run_path + 'data/'
     if not os.path.isdir(data_path):
-        print 'Creating data path', data_path
+        # print 'Creating data path', data_path
 	os.mkdir(data_path)
 
     rad_env_file = data_path + 'rad_env.txt'
@@ -313,19 +315,19 @@ def main():
 
     spatial_path = cur_path + spatial_dir + '/'
     if not os.path.isdir(spatial_path):
-        print 'Creating path', spatial_path
+        # print 'Creating path', spatial_path
 	os.mkdir(spatial_path)
 
     # Load the DAG object for this geometry
     rtn = dagmc.load(uwuw_file)
 
     vol_fname_dict = tag_utils.get_fnames_for_vol(uwuw_file)
-    print 'fnames_dict', vol_fname_dict
+    # print 'fnames_dict', vol_fname_dict
     ray_tuples = get_directions(args)
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
-    print 'ref_point', ref_point
+    # print 'ref_point', ref_point
     start_vol = find_ref_vol(ref_point)
     
     for dir in ray_tuples:
@@ -338,9 +340,11 @@ def main():
 	slab_lens_b, slab_mat_names_b = slabs_for_ray(start_vol, ref_point, -dir, vol_fname_dict)
 
 	# reverse order and add backward dir
-        slab_lens = slab_lens_a[::-1] + slab_lens_b
-	slab_mat_names = slab_mat_names_a[::-1] + slab_mat_names_b
-	print 'slab_lens', slab_lens, slab_mat_names
+        # slab_lens = slab_lens_a[::-1] + slab_lens_b
+        slab_lens      = slab_lens_b[::-1]      + slab_lens_a
+	slab_mat_names = slab_mat_names_b[::-1] + slab_mat_names_a
+	num_slabs_to_ref = len(slab_lens_a)
+	# print 'slab_lens', slab_lens, 'names', slab_mat_names, 'num to ref', num_slabs_to_ref
 	num_mats = len(slab_mat_names)
         #############################################
 	# Create the transport geometry file contents
@@ -348,20 +352,21 @@ def main():
 	transport_input = []
 	if 0 != num_mats:
 	    effective_num_mats = num_mats
-	    last_mat_name = ''
-	    last_slab_points = []
+	    # last_mat_name = ''
+	    # last_slab_points = []
 	    last_mat_name = slab_mat_names[0]
 	    last_slab_points = [0.0, slab_lens[0]]
 
-	    print 0, last_mat_name, slab_lens[0]
+	    # print 0, last_mat_name, slab_lens[0]
 	    for n in range(1,num_mats):
                 if slab_mat_names[n] == last_mat_name:
-	            print n, 'SAME\t', last_mat_name, slab_lens[n]
-		    last_slab_points.append(slab_lens[n])
+	            # print n, 'SAME\t', last_mat_name, slab_lens[n]
+		    #  Need to ADD the two lenghs together: they are cumulative
+		    last_slab_points.append(slab_lens[n] + slab_lens[n-1])
 		    effective_num_mats = effective_num_mats - 1
 		else:
-		    print n, 'NEW\t', slab_mat_names[n], slab_lens[n]
-	            print '\tWriting\t', last_mat_name, last_slab_points
+		    # print n, 'NEW\t', slab_mat_names[n], slab_lens[n]
+	            # print '\tWriting\t', last_mat_name, last_slab_points
 	            transport_input.append(last_mat_name)
 	            transport_input.append(str(len(last_slab_points)))
 		    slab_points_list = ["{0:.1f}".format(x) for x in last_slab_points]
@@ -386,7 +391,7 @@ def main():
 
 	# Need a newline at end of file
 	transport_input.append('\n')
-        print 'ray_tuple', dir, 'transport_input', transport_input
+        # print 'ray_tuple', dir, 'transport_input', transport_input
 
 	dir_string = "{0:.4f}".format(dir[0]) + '_' + \
 	             "{0:.4f}".format(dir[1]) + '_' + \
@@ -415,7 +420,9 @@ def main():
             one_d_tool.transport_process(run_path, spatial_filepath, args.rad_env)
             one_d_tool.response_process(run_path, args.target)
 
-	one_d_tool.collect_results_for_dir(run_path, data_path, dir_string, num_mats)
+	one_d_tool.collect_results_for_dir(run_path, data_path, dir_string, num_mats, num_slabs_to_ref) 
+	# if num_slabs_to_ref == 1:
+	#     print "For direction", dir_string, ", one slab to graveyard"
     return 
     ###################################### 
 
