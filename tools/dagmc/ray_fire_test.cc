@@ -424,8 +424,11 @@ void get_time_mem(double &tot_time, double &user_time,
     int file_ptr = -1, file_len;
     file_ptr = open("/proc/self/stat", O_RDONLY);
     file_len = read(file_ptr, file_str, sizeof(file_str)-1);
-    if (file_len == 0) return;
-    
+    if (file_len == 0) {
+      close(file_ptr);
+      return;
+    }
+
     close(file_ptr);
     file_str[file_len] = '\0';
       // read the preceeding fields and the ones we really want...
