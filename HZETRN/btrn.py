@@ -266,8 +266,7 @@ def parsing():
     
     return args
 
-def main():
-    """ 
+""" 
     btrn.py
     - Log this call
     - Ensure needed template files exist
@@ -280,7 +279,8 @@ def main():
     - For each ray direction, starting from the start vol
       o get the list of materials and distances it passes through
       o create the contents of the transport input file
-    """
+"""
+def main():
     global spatial_dir
     global config_log
 

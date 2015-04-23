@@ -1,9 +1,11 @@
 import subprocess
 import argparse
 import os
+import sys
 import glob
 import numpy as np
 import read_utils as ru
+import logging
 
 # Global names to be read from a separate text file
 dose_filename  = ''
@@ -15,6 +17,11 @@ intlet_filename = ''
 flux_filename = ''
 intflux_filename = ''
 neutron_flux_filename = ''
+slabs_to_ref_filename = 'slabs_to_ref.txt'
+
+###############################
+# globals
+config_log  = 'config.log'
 
 class Results:
     """
@@ -38,7 +45,11 @@ class Results:
 
 class depth_by_m(Results):
     """
-    Reader for files with lines at depth; last depth is of interest.
+    Reader for files with lines at depth; 
+    Old version: last depth is of interest.
+    Backscatter: 
+        line of interest = HEADER_LINES + slabs_to_ref + 1
+	HEADER_LINES = 1
     Four files are read like this: dose and dose-equivalant, overall
         and per particle
     'm' varies based on per particle or not; if per particle file,
@@ -51,6 +62,24 @@ class depth_by_m(Results):
     - or - 
     1 + 1 + 59 + 59  = 120
     """
+    HEADER_LINES = 1
+    def line_at_n(self, name, n):
+        "Read the nth line as floating point values." 
+
+	# Because of the enumerate, deth_line is 0-based, so don't add 1
+	ref_line = self.HEADER_LINES + n
+	words = []
+        fp = open(name)
+	for i, line in enumerate(fp):
+	    if i == ref_line:
+	       words = line.split()
+	       break 
+	fp.close()     
+	row = np.array([float(x) for x in words])
+
+        # return the first value separately
+	return round(row[0],6), np.array([row[1:len(row)]])
+
     def last_lines(self, name):
         "Read all but the first value in the last line."
 	words = Results.words_last_line(self, name, 1)
@@ -61,14 +90,58 @@ class depth_by_m(Results):
 
 class let700x2(Results):
     """
+    let700x2
     Reader for files with blocks of 700 energy boundaries at depth, 
     first column is header, second column is data.  
     Contribution to header is NOT env-dependent.  Two files have 
-    this characteristic:
+    this characteristic, diflet and intlet:
 
     2 x first_col_of_last_block = 1400
 
+    Old version: read last block always
+    Backscatter: 
+        read nth block starting at ref_line, where n = slabs_to_ref:
+	HEADER_LINES + slabs_to_ref*(700+SEPARATOR_LINES) + 1
+
+	HEADER_LINES = 2
+	SEPARATOR_LINES = 1
+
     """
+    HEADER_LINES    = 2
+    BLOCK_SIZE      = 700
+    SEPARATOR_LINES = 1
+
+    def block_at_n(self, name, n):
+        "Read a block of 700x2 values."
+
+	ref_line = self.HEADER_LINES + n*(self.BLOCK_SIZE + self.SEPARATOR_LINES)  
+	words = []
+	rows = np.array([])
+	keyword = 'Depth'
+        fp = open(name)
+	for index, line in enumerate(fp):
+	    i = index + 1
+	    if i == ref_line:
+	        words = line.split()
+		if words[0] == keyword:
+		    depth = float(words[len(words) - 1])
+	        else:
+		    msg = "First word of {} at line {} of {} is not {}".format(line, i,name, keyword)
+		    print msg
+		    raise ValueError(msg)
+	    if i > ref_line and i <= ref_line + self.BLOCK_SIZE:
+	        words = line.split()
+		# print i, name, words
+	        # Convert the strings on the line into a float array
+	        row = [float(x) for x in words]
+	        if len(rows) == 0:
+	           rows = row
+	        else:
+	           rows = np.vstack((rows, row))
+	fp.close()     
+        return round(depth,6), np.array([rows])
+        
+	
     def last_lines(self, name):
 
 	lines = Results.last_lines(self, name, 700)
@@ -89,6 +162,7 @@ class let700x2(Results):
 
 class flux100xm(Results):
     """
+    flux100xm
     Reader for files with blocks of 100 flux values at depth, 
     first column is header, remaining columns are data.  
     Contribution to header IS env-dependent for two files and 
@@ -101,7 +175,72 @@ class flux100xm(Results):
     2 * 100 * 6 + 300 =  1500
     -or-
     2 * 100 * 59 + 300 = 12100
+
+    Backtrace Modifications
+    _______________________
+    Instead of the last block we must read the nth block, where
+    n = 1 + slabs-to-ref
+
+    and
+
+    slabs-to-ref is read out of the file slabs_to_ref.txt in each
+    directional subdirectory.
+
+        read block starting at 
+	HEADER_LINES + slabs_to_ref*(BLOCK_LINES + SEPARATOR_LINES) + 1
+
+	BLOCK_SIZE = 100
+	HEADER_LINES = 2
+	SEPARATOR_LINES = 1
+
     """
+    keyword         = 'Depth'
+    HEADER_LINES    = 2
+    BLOCK_SIZE      = 100
+    SEPARATOR_LINES = 1
+
+
+    """
+    def block_at_n(self, name, n, key):
+        self.keyword = key
+	return block_at_n(self, name, n)
+    """
+    def block_at_n(self, name, n, key):
+        "Read a block of 100xm values."
+
+	self.keyword = key
+	ref_line = self.HEADER_LINES + n*(self.BLOCK_SIZE + self.SEPARATOR_LINES)  
+	words = []
+	rows = np.array([])
+        fp = open(name)
+	for index, line in enumerate(fp):
+	    i = index + 1
+	    if i == ref_line:
+	        words = line.split()
+		if words[0] == self.keyword:
+		    depth = float(words[len(words) - 1])
+	        else:
+		    msg = "First word in {} at line {} is not {}".format(name, i,keyword)
+		    raise ValueError(msg)
+	    if i > ref_line and i <= ref_line + self.BLOCK_SIZE:
+	        words = line.split()
+	        # Convert the strings on the line into a float array
+	        row = [float(x) for x in words]
+	        if len(rows) == 0:
+	           rows = row
+	        else:
+	           rows = np.vstack((rows, row))
+	fp.close()     
+
+        index = rows[:,0]
+	num_reps = rows.shape[1] - 1
+	# Concatenate the indices once for each remaining column
+	full_index_header = np.array([list(index) * num_reps])
+
+	all_nums = np.array([np.swapaxes(rows,0,1).ravel()])
+	return (round(depth,6), full_index_header, all_nums)
+	
+        
     # Set once
     num_species=0
 
@@ -171,6 +310,7 @@ def depth_header_ary(species):
     header_list = ['{0: >12}'.format('X'), 
               '{0: >12}'.format('Y'),
               '{0: >12}'.format('Z'),
+	      #'{0: >12}'.format('Depth'),
               '{0: >12}'.format('Dose_All'),
               '{0: >12}'.format('Doseq_All') ]
     if species == 6:
@@ -202,6 +342,7 @@ def get_filepaths(r):
     global diflet_filename, intlet_filename
     global flux_filename, intflux_filename
     global neutron_flux_filename 
+    global slabs_to_ref_filename
     
     ret = {}
     ret['dose'] = r + '/' + dose_filename 
@@ -233,9 +374,29 @@ def get_filepaths(r):
     ret['neutron'] = r + '/' + neutron_flux_filename
     if not os.path.exists(ret['neutron']):
         return {}
+
+    ret['slabs_to_ref'] = r + '/' + slabs_to_ref_filename
+    if not os.path.exists(ret['slabs_to_ref']):
+        return {}
     
     return ret
 
+"""
+    slabs_to_ref = get_slabs_to_ref(datapaths['slabs_to_ref'])
+"""
+def get_slabs_to_ref(filename):
+    with open(filename) as f:
+        return int(f.readline())
+
+
+"""
+    Check that all elements are the same
+    Ref: 
+    http://stackoverflow.com/questions/3844801/check-if-all-elements-in-a-list-are-identical
+"""
+def checkEqual(lst):
+    return lst[1:] == lst[:-1]
+    
 """
 Argument parsing
 returns : args: -d for the run directory
@@ -257,9 +418,18 @@ def parsing():
     if not args.run_dir:
         raise Exception('Run directory not specified. [-d] not set')
     
+    if not args.data_file:
+        raise Exception('Data file (output) not specified. [-o] not set')
     return args
 
+"""
+    results_encoding.py
+    - Log this in the run_directory config.log
+"""
 def main():
+    # Encode the transport results into a single file by direction.
+
+    global config_log
 
     args = parsing()
 
@@ -271,6 +441,18 @@ def main():
     dat_outfile = owd + args.data_file
     print 'Writing to', dat_outfile
 
+    ################################
+    # Logging
+    cur_path = os.path.dirname(os.path.abspath(__file__)) + '/'
+    run_path = cur_path + args.run_dir + '/'
+    config_path = run_path + config_log
+    logging.basicConfig(filename=config_path, level=logging.INFO, format='%(asctime)s %(message)s')
+    message = 'python results_encoding.py -d ' + args.run_dir + \
+              ' -o ' + args.data_file 
+    logging.info(message)
+    ################################
+
+    # ToDo: it may or may not be ok to hardcode this
     # Directory containing the ray subdirectories
     run_path = args.run_dir + '/data/'
 
@@ -312,6 +494,7 @@ def main():
 
 	# If any files are missing the dictionary will be empty
         datapaths = get_filepaths(r)
+	print datapaths
 
         # Save 0-data if there isn't any
         if len(datapaths) == 0:
@@ -334,33 +517,57 @@ def main():
 	# this ray direction has data  
         else:
 	    print i, ray_vec
+	    slabs_to_ref = get_slabs_to_ref(datapaths['slabs_to_ref'])
+	    print 'slabs_to_ref for ', r, slabs_to_ref
 
 	    #######################################################
 	    # Depth data
             # Add dose and doseq at depth for environment-determined particle set
+	    """
 	    dose      = depth_particle_reader.last_lines(datapaths['dose'])
 	    doseq     = depth_particle_reader.last_lines(datapaths['doseq'])
 	    dose_ple  = depth_particle_reader.last_lines(datapaths['dose_part'])
 	    doseq_ple = depth_particle_reader.last_lines(datapaths['doseq_part'])
-	   
+	    """
+
+	    dose_depth, dose = depth_particle_reader.line_at_n(datapaths['dose'], slabs_to_ref)
+	    doseq_depth, doseq = depth_particle_reader.line_at_n(datapaths['doseq'], slabs_to_ref)
+	    dose_ple_depth, dose_ple = depth_particle_reader.line_at_n(datapaths['dose_part'], slabs_to_ref)
+	    doseq_ple_depth, doseq_ple = depth_particle_reader.line_at_n(datapaths['doseq_part'], slabs_to_ref)
+
+	    print 'Dose depth', dose_depth
+	    if not checkEqual([dose_depth, doseq_depth, dose_ple_depth, doseq_ple_depth]):
+		sys.exit("Problem with dose files for direction {}".format(r))
+	        
+	    # ray_vec.append(dose_depth)
 	    dose_values = np.hstack((dose, doseq, dose_ple, doseq_ple))
-	    # all_values_by_ray = np.hstack((dose, doseq, dose_ple, doseq_ple))
 	    #######################################################
 	    # LET - 700 values per ray for dif and int each
 	    # col 0 is header, col 1 is data
-	    dif_let = dif_int_block_reader.last_lines(datapaths['dif_let'])
-	    int_let = dif_int_block_reader.last_lines(datapaths['int_let'])
+	    # dif_let = dif_int_block_reader.last_lines(datapaths['dif_let'])
+	    # int_let = dif_int_block_reader.last_lines(datapaths['int_let'])
+
+	    depth_let, dif_let = dif_int_block_reader.block_at_n(datapaths['dif_let'], slabs_to_ref)
+	    depth_int, int_let = dif_int_block_reader.block_at_n(datapaths['int_let'], slabs_to_ref)
+
+	    print 'LET depth', depth_let
+	    if not checkEqual([dose_depth, depth_let, depth_int]):
+	        sys.exit("Problem with let files for direction {}".format(r))
 	    
 	    # Pick of col 
 	    let_values = np.hstack((dif_let[...,1], int_let[...,1]))
 	    #######################################################
 	    # FLUX - 100 rows by 60(gcr)/7(spe) or 4 columns
 	    # col 0, repeated, is header for other columns
-	    flux_hdr, flux_nums         = flux_block_reader.index_and_vals(datapaths['flux'])
-	    intflux_hdr, intflux_nums   = flux_block_reader.index_and_vals(datapaths['int_flux'])
-	    neutflux_hdr, neutflux_nums = flux_block_reader.index_and_vals(datapaths['neutron'])
+	    # flux_hdr, flux_nums         = flux_block_reader.index_and_vals(datapaths['flux'])
+	    # intflux_hdr, intflux_nums   = flux_block_reader.index_and_vals(datapaths['int_flux'])
+	    # neutflux_hdr, neutflux_nums = flux_block_reader.index_and_vals(datapaths['neutron'])
 
-	    # species = flux_block_reader.num_species
+	    depth_flux1, flux_hdr, flux_nums         = flux_block_reader.block_at_n(datapaths['flux'], slabs_to_ref, 'Slab')
+	    depth_flux2, intflux_hdr, intflux_nums   = flux_block_reader.block_at_n(datapaths['int_flux'], slabs_to_ref, 'Depth')
+	    depth_flux3, neutflux_hdr, neutflux_nums = flux_block_reader.block_at_n(datapaths['neutron'], slabs_to_ref, 'Slab')
+	    if not checkEqual([dose_depth, depth_flux1, depth_flux2, depth_flux3]):
+	        sys.exit("Problem with flux files for direction {}".format(r))
 
 	    flux_values = np.hstack((flux_nums, intflux_nums, neutflux_nums))
 
@@ -376,6 +583,8 @@ def main():
 
 		# Extract the let portion of the header
 		let_hdr_nums = np.hstack((dif_let[...,0],int_let[...,0]))
+
+		print let_hdr_nums.shape, flux_hdr.shape, intflux_hdr.shape, neutflux_hdr.shape
 		hdr_nums = np.hstack((let_hdr_nums, flux_hdr, intflux_hdr, neutflux_hdr))
 
 		# Header words, previously formatted
@@ -390,10 +599,9 @@ def main():
 		    #    now that the header has been written
 	            if empty_ray_vecs.size != 0:
 		        for ray_vec in empty_ray_vecs:
-	                    np.savetxt(f, ray_vec, fmt='%12.6f', newline=' ')
+	                    np.savetxt(f, ray_vec,     fmt='%12.6f', newline=' ')
 	                    np.savetxt(f, zero_fields, fmt='%12.6E', newline=' ')
 	                    f.write('\n')
-		        
 
 	 	all_values = all_values_by_ray
             # end if all_values.size == 0:
@@ -411,7 +619,7 @@ def main():
         i = i + 1
 
     # NOTES
-    # Header boundary values read from first of all files
+    # .....
     ###############################################################
 
     # Averages, Std. Dev.
