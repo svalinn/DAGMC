@@ -317,7 +317,7 @@ ErrorCode DagMC::setup_indices()
   Range surfs, vols;
   ErrorCode rval = setup_geometry(surfs,vols);
 
-  // If we havent got the implicit compliment it would be silly to add it
+  // If we haven't got the implicit compliment it would be silly to add it
   if(have_impl_compl())
     {
       // build_indices expects the implicit complement to be in vols.
@@ -1265,7 +1265,7 @@ ErrorCode DagMC::CAD_ray_intersect(
   std::vector<EntityHandle>::iterator sit = surfaces.begin();
   static DLIList<double> ray_params;
 
-  for (; dit != distances.end(); dit++, sit++) {
+  for (; dit != distances.end(); ++dit, ++sit) {
       // get the RefFace
     RefEntity *this_face = geomEntities[*sit - setOffset];
       // get the ray distance to this face
@@ -1288,7 +1288,7 @@ ErrorCode DagMC::CAD_ray_intersect(
     dit = distances.begin();
     sit = surfaces.begin();
     done = true;
-    for (; dit != distances.end(); dit++, sit++) {
+    for (; dit != distances.end(); ++dit, ++sit) {
       if (dit+1 != distances.end() && *dit > *(dit+1)) {
         double tmp_dist = *dit;
         *dit = *(dit+1);
@@ -1322,7 +1322,7 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
 {
   ErrorCode rval;
 
-  // test to see if uvx is provided
+  // test to see if uvw is provided
   if ( u <= 1.0 && v <= 1.0 && w <= 1.0 ) {
 
     const CartVect ray_vector(u, v, w);
@@ -1373,8 +1373,8 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
 // point_in_volume_slow, including poly_solid_angle helper subroutine
 // are adapted from "Point in Polyhedron Testing Using Spherical Polygons", Paulo Cezar
 // Pinto Carvalho and Paulo Roma Cavalcanti, _Graphics Gems V_, pg. 42.  Original algorithm
-// was described in "An Efficient Point In Polyhedron Algortihm", Jeff Lane, Bob Magedson,
-// and Mike Rarick, _Computer Visoin, Graphics, and Image Processing 26_, pg. 118-225, 1984.
+// was described in "An Efficient Point In Polyhedron Algorithm", Jeff Lane, Bob Magedson,
+// and Mike Rarick, _Computer Vision, Graphics, and Image Processing 26_, pg. 118-225, 1984.
 
 // helper function for point_in_volume_slow.  calculate area of a polygon
 // projected into a unit-sphere space
@@ -1503,7 +1503,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   *(iter++) = 0;
   std::copy( surfs.begin(), surfs.end(), iter );
   int idx = 1;
-  for (Range::iterator rit = surfs.begin(); rit != surfs.end(); rit++)
+  for (Range::iterator rit = surfs.begin(); rit != surfs.end(); ++rit)
     entIndices[*rit-setOffset] = idx++;
 
   vol_handles().resize( vols.size() + 1 );
@@ -1513,7 +1513,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
 
   idx = 1;
   int max_id = -1;
-  for (Range::iterator rit = vols.begin(); rit != vols.end(); rit++)    {
+  for (Range::iterator rit = vols.begin(); rit != vols.end(); ++rit)    {
     entIndices[*rit-setOffset] = idx++;
 
     if( *rit != impl_compl_handle ){
@@ -1530,7 +1530,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
 #ifdef MOAB_HAVE_CGM
   if ( have_cgm_geom ) {
     // TODO: this block should only execute if the user has explicitly requested useCAD for ray firing.
-    // however, this function curently executes before we know if useCAD will be specified, so do it every time.
+    // however, this function currently executes before we know if useCAD will be specified, so do it every time.
 
     geomEntities.resize(rootSets.size());
       // get geometry entities by id and cache in this vector
@@ -1540,7 +1540,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     if (MB_SUCCESS != rval) return MB_FAILURE;
     int i = 0;
     Range::iterator rit = surfs.begin();
-    for (; rit != surfs.end(); rit++, i++) {
+    for (; rit != surfs.end(); ++rit, i++) {
       RefEntity *this_surf = GeometryQueryTool::instance()->
         get_ref_face(ids[i]);
       assert(NULL != this_surf);
@@ -1551,7 +1551,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     if (MB_SUCCESS != rval) return MB_FAILURE;
     i = 0;
     rit = vols.begin();
-    for (; rit != vols.end(); rit++, i++) {
+    for (; rit != vols.end(); ++rit, i++) {
       if( is_implicit_complement( *rit ) ) continue;
       RefEntity *this_vol = GeometryQueryTool::instance()->
         get_ref_volume(ids[i]);
@@ -1584,13 +1584,13 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   if (MB_SUCCESS != rval) return MB_FAILURE;
   Range::iterator rit;
   int i;
-  for (i = 0, rit = surfs.begin(); rit != surfs.end(); rit++, i++)
+  for (i = 0, rit = surfs.begin(); rit != surfs.end(); ++rit, i++)
     rootSets[*rit-setOffset] = rsets[i];
 
   rsets.resize(vols.size());
   rval = MBI->tag_get_data(obb_tag(), vols, &rsets[0]);
   if (MB_SUCCESS != rval) return MB_FAILURE;
-  for (i = 0, rit = vols.begin(); rit != vols.end(); rit++, i++)
+  for (i = 0, rit = vols.begin(); rit != vols.end(); ++rit, i++)
     rootSets[*rit-setOffset] = rsets[i];
 
   return MB_SUCCESS;
@@ -1629,7 +1629,7 @@ void DagMC::set_use_CAD( bool use_cad ){
   useCAD = use_cad;
   if( useCAD ){
     if( !have_cgm_geom ){
-      std::cerr << "Warning: CAD-based ray tracing not avaiable, because CGM has no data." << std::endl;
+      std::cerr << "Warning: CAD-based ray tracing not available, because CGM has no data." << std::endl;
       std::cerr << "         your input file was probably not a CAD format." << std::endl;
       useCAD = false;
     }
@@ -1987,7 +1987,7 @@ Tag DagMC::get_tag( const char* name, int size, TagType store,
 {
   Tag retval = 0;
   unsigned flags = store|MB_TAG_CREAT;
-  // NOTE: this function seens to be broken in that create_if_missing has
+  // NOTE: this function seems to be broken in that create_if_missing has
   // the opposite meaning from what its name implies.  However, changing the
   // behavior causes tests to fail, so I'm leaving the existing behavior
   // in place.  -- j.kraftcheck.
@@ -2011,7 +2011,7 @@ ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
   if (MB_SUCCESS != rval)
     return rval;
 
-    // compute min and max verticies
+    // compute min and max vertices
   for (int i=0; i<3; i++)
   {
     double sum = fabs(axis1[i]) + fabs(axis2[i]) + fabs(axis3[i]);
