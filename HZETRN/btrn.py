@@ -54,7 +54,6 @@ def load_ray_start(filename):
 	    # ToDo:  just do f.readline(), no for
 	    for line in f:
 	        ray_start = map(float, line.split())
-    # pprint.pprint(ray_start)
     return ray_start
 
 """
@@ -76,8 +75,6 @@ def load_ray_tuples(filename):
 	    x = np.sin(nums[0])*np.cos(nums[1])
 	    y = np.sin(nums[0])*np.sin(nums[1])
 	    ray_tuples.append((x, y, z))
-    # print(filename, 'ray_tuples  x             y                z')
-    # pprint.pprint(ray_tuples)
     return ray_tuples
 
 """
@@ -94,7 +91,6 @@ def subset_ray_tuples(filename):
 
     ray_tuples = []
 
-    # print('The ray tuples file is', filename)
     with open(filename) as f:
         for line in f:
 	    # Get the list of numbers from the line
@@ -107,7 +103,6 @@ def subset_ray_tuples(filename):
 	        x = np.sin(nums[0])*np.cos(nums[1])
 	        y = np.sin(nums[0])*np.sin(nums[1])
 	        ray_tuples.append((x, y, z))
-        # print ('num of rays within 1/', limitfac, 'of x-y plane', len(ray_tuples))
     return ray_tuples
 
 """
@@ -315,19 +310,16 @@ def main():
 
     spatial_path = cur_path + spatial_dir + '/'
     if not os.path.isdir(spatial_path):
-        # print 'Creating path', spatial_path
 	os.mkdir(spatial_path)
 
     # Load the DAG object for this geometry
     rtn = dagmc.load(uwuw_file)
 
     vol_fname_dict = tag_utils.get_fnames_for_vol(uwuw_file)
-    # print 'fnames_dict', vol_fname_dict
     ray_tuples = get_directions(args)
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
-    # print 'ref_point', ref_point
     start_vol = find_ref_vol(ref_point)
     
     for dir in ray_tuples:
@@ -343,7 +335,7 @@ def main():
         # slab_lens = slab_lens_a[::-1] + slab_lens_b
         slab_lens      = slab_lens_b[::-1]      + slab_lens_a
 	slab_mat_names = slab_mat_names_b[::-1] + slab_mat_names_a
-	num_slabs_to_ref = len(slab_lens_a)
+	num_slabs_to_ref = len(slab_lens_b)
 	# print 'slab_lens', slab_lens, 'names', slab_mat_names, 'num to ref', num_slabs_to_ref
 	num_mats = len(slab_mat_names)
         #############################################

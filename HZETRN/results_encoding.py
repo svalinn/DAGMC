@@ -4,7 +4,6 @@ import os
 import sys
 import glob
 import numpy as np
-# import read_utils as ru
 import logging
 
 # Global names to be read from a separate text file
@@ -39,24 +38,25 @@ class Results:
 	ref_line = self.HEADER_LINES + n*(self.BLOCK_SIZE + self.SEPARATOR_LINES)  
 	words = []
 	rows = np.array([])
-        fp = open(name)
-	for index, line in enumerate(fp):
-	    i = index + 1
-	    if i == ref_line:
-	        words = line.split()
-		if words[0] == self.keyword:
-		    depth = float(words[len(words) - 1])
-	        else:
-		    msg = "First word of {} at line {} of {} is not {}".format(line, i,name, self.keyword)
-		    raise ValueError(msg)
-	    if i > ref_line and i <= ref_line + self.BLOCK_SIZE:
-	        words = line.split()
-	        # Convert the strings on the line into a float array
-	        row = [float(x) for x in words]
-	        if len(rows) == 0:
-	           rows = row
-	        else:
-	           rows = np.vstack((rows, row))
+        # fp = open(name)
+	with open(name,'r') as fp:
+	    for index, line in enumerate(fp):
+	        i = index + 1
+	        if i == ref_line:
+	            words = line.split()
+		    if words[0] == self.keyword:
+		        depth = float(words[len(words) - 1])
+	            else:
+		        msg = "First word of {} at line {} of {} is not {}".format(line, i,name, self.keyword)
+		        raise ValueError(msg)
+	        if i > ref_line and i <= ref_line + self.BLOCK_SIZE:
+	            words = line.split()
+	            # Convert the strings on the line into a float array
+	            row = [float(x) for x in words]
+	            if len(rows) == 0:
+	               rows = row
+	            else:
+	               rows = np.vstack((rows, row))
 	fp.close()     
 	return depth, rows
 
@@ -88,12 +88,13 @@ class depth_by_m(Results):
         # 1 based to match lines in file
 	ref_line = self.HEADER_LINES + n + 1
 	words = []
-        fp = open(name)
-	for index, line in enumerate(fp):
-	    i = index + 1
-	    if i == ref_line:
-	       words = line.split()
-	       break 
+        # fp = open(name)
+	with open(name) as fp:
+	    for index, line in enumerate(fp):
+	        i = index + 1
+	        if i == ref_line:
+	           words = line.split()
+	           break 
 	fp.close()     
 	row = np.array([float(x) for x in words])
 
@@ -180,10 +181,11 @@ def get_global_names(file):
     global neutron_flux_filename 
 
     lines = []
-    with open(file,'r') as f:
+    with open(file) as f:
 	# Get read of the newline
         for line in f:
             lines.append(line.split('\n')[0])
+    f.close
     dose_filename         = lines[0]
     doseq_filename        = lines[1]
     dose_ple_filename     = lines[2]
