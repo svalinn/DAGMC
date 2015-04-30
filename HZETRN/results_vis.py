@@ -158,6 +158,12 @@ def tag_mesh(header, data_rows, columns, scale):
     # Create the mesh, and a data tag on it
     msph = iMesh.Mesh()
 
+    tag_map = {}
+    """
+    for c in range(start, end): 
+        data_name = header[c]+"_{}".format(c)
+	tag_map[data_name] = msph.createTag(data_name, 1, float)
+    """
     for c in range(start, end): 
         # get the desired column of data
 	data = vtxd[:,c]
@@ -165,7 +171,8 @@ def tag_mesh(header, data_rows, columns, scale):
         di = data[indices]
         # creat a header-field-based name for the current column
         data_name = header[c]+"_{}".format(c)
-        point_data = msph.createTag(data_name, 1, float)
+
+        tag_map[data_name] = msph.createTag(data_name, 1, float)
 
         # Use indexing to get matching data at each vertex
         for i in range(num_facets):
@@ -175,9 +182,9 @@ def tag_mesh(header, data_rows, columns, scale):
 	    verts = msph.createVtx(facet*scale)
 	    # Tag each entity handle (lhs key) with 
 	    # corresponding data value (rhs)
-	    point_data[verts[0]] = data_at_vtcs[0]
-	    point_data[verts[1]] = data_at_vtcs[1]
-	    point_data[verts[2]] = data_at_vtcs[2]
+	    tag_map[data_name][verts[0]] = data_at_vtcs[0]
+	    tag_map[data_name][verts[1]] = data_at_vtcs[1]
+	    tag_map[data_name][verts[2]] = data_at_vtcs[2]
 
 	    # Tell the mesh about this triangular facet
 	    tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
@@ -211,7 +218,7 @@ def parsing():
 
     parser.add_argument(
         '-c', action='store', dest='data_column', 
-	help='The column, column range, or "a" for columsn to use.  Must be greater than 4')
+	help='The column, column range, or "a" for columns to use.  Must be greater than 4')
 
     parser.add_argument(
         '-s', action='store', dest='scale', 

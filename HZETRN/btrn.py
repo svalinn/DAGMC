@@ -1,6 +1,6 @@
 #########################################################
 # btrn.py
-# Backscatter Transport and Respons
+# Backscatter Transport and Response
 #########################################################
 
 import subprocess
@@ -301,7 +301,6 @@ def main():
     # Ensure it exists before proceeding.
     data_path = run_path + 'data/'
     if not os.path.isdir(data_path):
-        # print 'Creating data path', data_path
 	os.mkdir(data_path)
 
     rad_env_file = data_path + 'rad_env.txt'
@@ -336,7 +335,6 @@ def main():
         slab_lens      = slab_lens_b[::-1]      + slab_lens_a
 	slab_mat_names = slab_mat_names_b[::-1] + slab_mat_names_a
 	num_slabs_to_ref = len(slab_lens_b)
-	# print 'slab_lens', slab_lens, 'names', slab_mat_names, 'num to ref', num_slabs_to_ref
 	num_mats = len(slab_mat_names)
         #############################################
 	# Create the transport geometry file contents
@@ -344,21 +342,15 @@ def main():
 	transport_input = []
 	if 0 != num_mats:
 	    effective_num_mats = num_mats
-	    # last_mat_name = ''
-	    # last_slab_points = []
 	    last_mat_name = slab_mat_names[0]
 	    last_slab_points = [0.0, slab_lens[0]]
 
-	    # print 0, last_mat_name, slab_lens[0]
 	    for n in range(1,num_mats):
                 if slab_mat_names[n] == last_mat_name:
-	            # print n, 'SAME\t', last_mat_name, slab_lens[n]
 		    #  Need to ADD the two lenghs together: they are cumulative
 		    last_slab_points.append(slab_lens[n] + slab_lens[n-1])
 		    effective_num_mats = effective_num_mats - 1
 		else:
-		    # print n, 'NEW\t', slab_mat_names[n], slab_lens[n]
-	            # print '\tWriting\t', last_mat_name, last_slab_points
 	            transport_input.append(last_mat_name)
 	            transport_input.append(str(len(last_slab_points)))
 		    slab_points_list = ["{0:.1f}".format(x) for x in last_slab_points]

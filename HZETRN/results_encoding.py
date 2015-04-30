@@ -38,10 +38,11 @@ class Results:
 	ref_line = self.HEADER_LINES + n*(self.BLOCK_SIZE + self.SEPARATOR_LINES)  
 	words = []
 	rows = np.array([])
-        # fp = open(name)
 	with open(name,'r') as fp:
 	    for index, line in enumerate(fp):
 	        i = index + 1
+		# This line is the last Separator line before the block of interest
+		# The first word in this line is the depth we are at, which must be checked
 	        if i == ref_line:
 	            words = line.split()
 		    if words[0] == self.keyword:
