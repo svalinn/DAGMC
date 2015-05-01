@@ -27,17 +27,6 @@ import hzetrn as one_d_tool
 import tag_utils
 import logging
 
-"""
-To Run:
-
-python btrn.py -f {4bricks.h5m, sphere_Wat_Al.h5m} [-r 10ThPhi.txt] [-e spe*/gcr] -d mdir
-# for n random directions
-python btrn.py -f {4bricks.h5m, sphere_Wat_Al.h5m} -n 50 -d kdir
-
-"""
-
-class DagmcError(Exception):
-    pass
 
 ###############################
 # globals
@@ -45,24 +34,30 @@ config_log  = 'config.log'
 # 'spatial_dir' is a subdir for storing input files as they are created
 spatial_dir = 'spatial'
 
+"""
+    Read the coordinates of the Reference Point from a file.
+    filename = name of file containing triplet
+        If filename = '' the reference point is set
+        to the origin
+"""
 def load_ray_start(filename):
+    # Set the Reference Point.
     ray_start = []
     if not filename:
-        ray_start = [0.0, 0.0, 0.0]
+        return [0.0, 0.0, 0.0]
     else:
         with open(filename) as f:
-	    # ToDo:  just do f.readline(), no for
-	    for line in f:
-	        ray_start = map(float, line.split())
-    return ray_start
+	    return map(float, f.readline().split())
 
 """
 Load or create tuples representing dirs
 In file with 10,000 tuples, here are the ranges
 ('min_theta', 0.00117047, 'max_theta', 3.136877355, 'min_phi', -3.141219364, 'max_phi', 3.14087921)
 
-filename name of file with rays in it, checked to exist
-         before entering this function
+filename name of file with unit direction vectors 
+         Its existence is checked before entering this function.
+         The first member of each pair is the polar angle theta.
+	 The second member is the azimuthal angle phi.
 """
 def load_ray_tuples(filename):
 
@@ -78,72 +73,41 @@ def load_ray_tuples(filename):
     return ray_tuples
 
 """
-Load a subset of tuples representing directions
-This loads directions within a tolerance of the z-plane
-"""
-def subset_ray_tuples(filename):
-    side  = 10.0
-    xlate = 20.0
-    adj = xlate - side/2
-    opp   = side/2
-    limit = np.arctan(opp/adj)/2
-    limitfac = 32.0
-
-    ray_tuples = []
-
-    with open(filename) as f:
-        for line in f:
-	    # Get the list of numbers from the line
-            nums = map(float, line.split())
-	    theta = nums[0]
-	    phi   = nums[1]
-	    # limit limit by another factor of 2 to get a smaller subset
-	    if (np.pi/2 - limit/limitfac < theta) and (theta < np.pi/2 + limit/limitfac):
-	        z = np.cos(nums[0])
-	        x = np.sin(nums[0])*np.cos(nums[1])
-	        y = np.sin(nums[0])*np.sin(nums[1])
-	        ray_tuples.append((x, y, z))
-    return ray_tuples
-
-"""
 Return an array of directions
-"""
-def get_directions(args):
-    # if a filename is given get the ray directions or a subset from it
-    if args.ray_dir_file:
-        if args.ray_subset:
-            # Get all the rays from a large ray file that are
-            # within a few degrees of the xy plane 
-            ray_tuples = np.array(subset_ray_tuples(args.ray_dir_file))
-	else:
-            ray_tuples = np.array(load_ray_tuples(args.ray_dir_file))
+args =  parsed command line parameters
+        args.ray_dir_file, if not '', contains the directions
+	Otherwis, use random directons or Cartesian axes
 
-    elif args.rand_dirs > 0:
-	# print 'Getting ', args.rand_dirs, ' random directions'
-        ray_tuples = tag_utils.get_rand_dirs(args.rand_dirs)
+The set of directions is returned as a numpy row array
+"""
+def get_directions(ray_dir_file, num_rand_dirs):
+    # Return the ray directions 
+    if ray_dir_file:
+        ray_tuples = load_ray_tuples(ray_dir_file)
+
+    elif rand_dirs > 0:
+        ray_tuples = tag_utils.get_rand_dirs(num_rand_dirs)
  
     else:
-        ray_tuples = np.array( [(1.0, 0.0, 0.0),
-                                (0.0, 1.0, 0.0),
-	   	                (0.0, 0.0, 1.0)] )
-    return ray_tuples
+        ray_tuples = [(1.0, 0.0, 0.0),
+                      (0.0, 1.0, 0.0),
+	   	      (0.0, 0.0, 1.0)]
+    return np.array(ray_tuples)
 
 
 """ 
 Find the vol-id of the geometry that contains the ref_point
+Requires dagmc python library to be loaded
 """
 def find_ref_vol(ref_point):
     # code snippet from dagmc.pyx:find_graveyard_inner_box
     volumes = dagmc.get_volume_list() 
-    ref_vol = 0 
     for v in volumes:
         if dagmc.point_in_volume(v, ref_point):
-            ref_vol = v
-
-    return ref_vol
+            return v
 
 """
-Do all the work of finding the slab distances and material names
+Find the slab distances and material names
 start_vol  The volume containing the ref_point
 ref_point  the origin of the ray
 dir 	   the direction of the ray
@@ -165,15 +129,14 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
     slab_mat_names = []
     vols_traversed = []
 
-    # print 'start_vol is', start_vol
     # Could be starting in the implicit_complement
     if start_vol in fname_for_vol:
         #  Done before we've started
         if fname_for_vol[start_vol] == 'graveyard':
 	    # print 'Starting volume is graveyard'
             return slab_length, slab_mat_name 
-    # else:
-        # print 'We are starting in the implicit complement'
+    else:
+        print 'We are starting in the implicit complement'
     is_graveyard = False    
     last_vol = start_vol
     
@@ -192,7 +155,7 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
    	        if fname_for_vol[next_vol] == 'graveyard':
 	            is_graveyard = True
 
-            # If last_vol is the implicit complement, this is the only line executed
+            # If last_vol is the implicit compl., this is the only line executed
             last_vol = next_vol
 
 	# We hit the graveyard
@@ -200,8 +163,7 @@ def slabs_for_ray(start_vol, ref_point, dir, fname_for_vol):
 	    break
 
     #########################################################################
-    sdir = [format(dir[0],'.6f'),format(dir[1], '.6f'), format(dir[2], '.6f')]
-    # print ('for dir', sdir, 'vols traversed', vols_traversed)
+    # sdir = [format(dir[0],'.6f'),format(dir[1], '.6f'), format(dir[2], '.6f')]
     #########################################################################
 
     return slab_lengths, slab_mat_names
@@ -240,9 +202,6 @@ def parsing():
         '-p', action='store', dest='ray_start', 
 	help='File containing Cartesion coordinate of starting point of all rays')
 
-    parser.add_argument(
-        '--ray_subset', dest='ray_subset', action='store_true',
-        help='Use only rays within a small angle of the xy-plane')
     parser.add_argument(
         '--no_ray_subset', dest='ray_subset', action='store_false',
         help='Use all rays (default)')
@@ -315,7 +274,7 @@ def main():
     rtn = dagmc.load(uwuw_file)
 
     vol_fname_dict = tag_utils.get_fnames_for_vol(uwuw_file)
-    ray_tuples = get_directions(args)
+    ray_tuples = get_directions(args.ray_dir_file, args.rand_dirs)
 
     # The default starting point is 0,0,0
     ref_point = load_ray_start(args.ray_start)
@@ -327,6 +286,7 @@ def main():
 	# Create two lists 'a' and 'b'.  
 	#    'a' is the list of slab materials and lengths in the given direction.  
 	#    'b' is the list of same items going OPPOSITE (180 degrees)
+	print start_vol, ref_point, "dir", dir
 	slab_lens_a, slab_mat_names_a = slabs_for_ray(start_vol, ref_point,  dir, vol_fname_dict)
 	slab_lens_b, slab_mat_names_b = slabs_for_ray(start_vol, ref_point, -dir, vol_fname_dict)
 
@@ -347,7 +307,7 @@ def main():
 
 	    for n in range(1,num_mats):
                 if slab_mat_names[n] == last_mat_name:
-		    #  Need to ADD the two lenghs together: they are cumulative
+		    #  Need to ADD the two lengths together: they are cumulative
 		    last_slab_points.append(slab_lens[n] + slab_lens[n-1])
 		    effective_num_mats = effective_num_mats - 1
 		else:
@@ -366,7 +326,7 @@ def main():
 	        
 	    transport_input.insert(0,(str(effective_num_mats)))
 
-	# No materials at all for this or the opposite direction: make a bogus spatial file 
+	# No materials for this or the opposite direction: make bogus spatial file 
 	else:
 	    transport_input.append('0')
 	    transport_input.append('No material traversed, either direction')
@@ -375,7 +335,6 @@ def main():
 
 	# Need a newline at end of file
 	transport_input.append('\n')
-        # print 'ray_tuple', dir, 'transport_input', transport_input
 
 	dir_string = "{0:.4f}".format(dir[0]) + '_' + \
 	             "{0:.4f}".format(dir[1]) + '_' + \
@@ -383,7 +342,7 @@ def main():
 
 	# ToDo: change the base name here and on the other side
 	if len(ray_tuples) < 20:
-	    spatial_filename = 'spatial_b' + dir_string + '.dat'
+	    spatial_filename = 'spatial_ba' + dir_string + '.dat'
 	    # sslab = []
             # for d in slab_lengths:
 	    #     sslab.append(format(d,'.6f'))

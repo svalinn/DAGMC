@@ -211,7 +211,7 @@ def depth_header_ary(species):
               '{0: >12}'.format('Dose_All'),
               '{0: >12}'.format('Doseq_All') ]
     if species == 6:
-        header_list +=  ['{0: >12}'.format('dose-neutron'),
+        header_list +=  ['{0: >12}'.format('dose_neutron'),
               '{0: >12}'.format('dose_proton'),
               '{0: >12}'.format('dose_deut.'),
               '{0: >12}'.format('dose_trit.'),

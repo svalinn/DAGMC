@@ -1,6 +1,7 @@
 import argparse
 import logging
 import subprocess
+# Only used for get_rand_dirs
 import tag_utils as tu
 import numpy as np
 import tempfile
@@ -18,7 +19,7 @@ except ImportError:
     raise ImportError("Could not import iMesh and/or iBase.")
 
 
-min_data_column = 5
+num_non_data = 4
 config_log  = 'config.log'
 
 
@@ -69,41 +70,12 @@ def mesh_sphere(xyz, scale):
 
 
 """
-    This is being replaced
-def get_cols_from_file(infile, column):
-    global min_data_column
-
-    "Create a scaled, tagged mesh from data in a file."
-    # extract direction and one data column
-    # us columns rather than fields to count.
-    field_width = 13
-    if column == 'all':
-        data_column = min_data_colum
-    else:
-        data_column = column
-    col_start = str((data_column-1)*field_width)
-    col_end   = str(data_column*field_width)
-    # Columns 1-39 contain the three direction values
-    column_list = "1-39,{}-{}".format(col_start, col_end)
-    print "cut column values", column_list
-    # Call a linux command to get desired columns; capture output
-    args = ["cut", "-c", column_list, infile]
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, err = p.communicate()
-    # separate each line into a list
-    all_lines = output.splitlines()
-    for line in all_lines:
-        print line
-    # Skip first (header) and last two (statistics) lines
-    lines = all_lines[1:len(all_lines)-2]
-    return lines
-"""
-
-"""
     Read a databasefile and strip of the header and 
     statistics lines
 """
 def get_row_data(infile):
+    global num_non_data 
+
     rows = np.array([])
     with open(infile) as fp:
         for index, line in enumerate(fp):
@@ -120,7 +92,16 @@ def get_row_data(infile):
 	        except ValueError:
 	            print "Have reached an ascii line at i =", i
 
-    return header, rows
+    # Determine how many columns of the header are non-numeric
+    max_non_numeric_col = -1    
+    for field in header:
+        try:
+	    num = float(field)
+	    break
+	except ValueError:
+	    max_non_numeric_col = max_non_numeric_col + 1
+	    # print field, max_non_numeric_col	    
+    return header, max_non_numeric_col, rows
     
 """
     Read certain columns from the infile.
@@ -147,7 +128,6 @@ def tag_mesh(header, data_rows, columns, scale):
 	end = start + 1
     else:
         end = columns[1] + 1
-    # print range(start, end)
 
     # Triangulate 
     hull       = ConvexHull(vtcs)
@@ -159,19 +139,15 @@ def tag_mesh(header, data_rows, columns, scale):
     msph = iMesh.Mesh()
 
     tag_map = {}
-    """
-    for c in range(start, end): 
-        data_name = header[c]+"_{}".format(c)
-	tag_map[data_name] = msph.createTag(data_name, 1, float)
-    """
-    for c in range(start, end): 
+
+    for col in range(start, end): 
         # get the desired column of data
-	data = vtxd[:,c]
+	data = vtxd[:,col]
 	# Reorder the data column in terms of vertices
         di = data[indices]
         # creat a header-field-based name for the current column
-        data_name = header[c]+"_{}".format(c)
-
+        data_name = header[col]+"_{}".format(col)
+	# Associate the hashable Tag array object with the ascii data_name
         tag_map[data_name] = msph.createTag(data_name, 1, float)
 
         # Use indexing to get matching data at each vertex
@@ -208,8 +184,9 @@ returns : args: -d for the run directory
 ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
 """
 def parsing():
+    global num_non_data
     # Change this to 4 if depth column is removed
-    min_col = 5
+    min_col = num_non_data
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -218,13 +195,18 @@ def parsing():
 
     parser.add_argument(
         '-c', action='store', dest='data_column', 
-	help='The column, column range, or "a" for columns to use.  Must be greater than 4')
+	help='The column, column range, or "a" for columns to use.  Must be {} or greater'.format(num_non_data))
 
     parser.add_argument(
         '-s', action='store', dest='scale', 
 	help='Scale to use when creating the mesh.', type=float)
     parser.set_defaults(scale=1.0)
-    
+
+    parser.add_argument(
+        '-n', action='store', dest='num_species',
+	help='Number of species: 6 for spe, 59 for gcr')
+    parser.set_defaults(num_species=6)
+
     parser.add_argument(
         '-o', action='store', dest='outfile',
 	help='The name of the .vtk file, with extension.')
@@ -232,10 +214,12 @@ def parsing():
     args = parser.parse_args()
     if not args.infile:
         raise Exception('Input file not specified. [-f] not set.')
+    """
     if not args.data_column:
-        raise Exception('Data column not specified. [-c] not set.')
-    elif args.data_column < min_col:
-        raise Exception('Data column specified must be greater than {}.'.format(min_col - 1))
+        last_header_col = 2*args.num_species + num_non_data
+	columns = str(num_non_data) + "-{}".format(last_header_col)
+        parser.set_defaults(data_column=columns)
+    """    
     if not args.outfile:
         raise Exception('Output file not specified.  [-o] not set.')
     
@@ -243,31 +227,43 @@ def parsing():
 
 def main():
     global config_log
+    global num_non_data
 
     args = parsing()
 
-    logging.basicConfig(filename=config_log, level=logging.INFO, format='%(asctime)s %(message)s')
+    ########################
+    # logging
+    ########################
+    logging.basicConfig(filename=config_log, level=logging.INFO, \
+                        format='%(asctime)s %(message)s')
     message = 'python results_vis.py -f ' + args.infile + \
               ' -c ' + str(args.data_column) + \
-              ' -s ' + ('not given - default=1.0' if not args.scale else "{0:.2f}".format(args.scale)) + \
+              ' -s ' + "{0:.2f}".format(args.scale) + \
               ' -o ' + args.outfile
     logging.info(message)
     ########################
-    header, row_data = get_row_data(args.infile)
+    header, num_last_dose_col, row_data = get_row_data(args.infile)
 
     ########################
     # get columns
     ########################
-    if args.data_column == 'a' or args.data_column == 'all':
-        columns = [4, row_data.shape[1]]
+    if not args.data_column \
+        or args.data_column == 'h' \
+	or args.data_column == 'header':
+        columns = [num_non_data, num_last_dose_col]
+    elif args.data_column == 'a' or args.data_column == 'all':
+        columns = [num_non_data, row_data.shape[1]]
+    elif len(args.data_column.split(',')) > 1:
+        sys.exit("Please enter only one '-' separated field range")
     else:
-        column_range = args.data_column.split(',')
-        if len(column_range) > 1:
-            sys.exit( "Please enter only one field, one '-' separated field range, or 'a' for Columns")
-        columns = map(int, column_range[0].split('-'))
-    
+        columns = map(int, args.data_column.split('-'))
+	if len(columns) > 2:
+	    sys.exit("For a range of columns please enter two integers separated by a '-'.")
+        if min(columns) < num_non_data:
+	    sys.exit("The minimum column must be {} or greater".format(num_non_data))
+	if len(columns) == 2 and columns[1] < columns[0]:
+	    columns = columns[::-1]
     print "columns", columns
-
     mesh = tag_mesh(header, row_data, columns, args.scale)
     mesh.save(args.outfile)
 

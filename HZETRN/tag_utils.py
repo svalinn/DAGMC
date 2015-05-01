@@ -29,7 +29,7 @@ def get_rand_dirs(number):
             y = norm_fac*np.sin(theta)
             x = norm_fac*np.cos(theta)
 	    rays.append([x, y, z])
-    return np.array(rays)
+    return rays
 
 
 """
