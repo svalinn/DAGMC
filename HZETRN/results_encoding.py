@@ -16,11 +16,14 @@ intlet_filename = ''
 flux_filename = ''
 intflux_filename = ''
 neutron_flux_filename = ''
-slabs_to_ref_filename = 'slabs_to_ref.txt'
 
 ###############################
 # globals
 config_log  = 'config.log'
+slabs_to_ref_filename = 'slabs_to_ref.txt'
+name_filename = 'names.txt'
+data_filename = 'data'
+rad_env_filename = 'rad_env.txt'
 
 class Results:
     """
@@ -28,11 +31,7 @@ class Results:
     3 + depth_header(env) + let700_headers + flux100_headers(env) = {2917, 13623}
     """
 
-    directory = ''
     keyword   = 'Depth'
-
-    def __init__(self, dir):
-        self.directory = dir
 
     def block_at_n(self, name, n):
 	ref_line = self.HEADER_LINES + n*(self.BLOCK_SIZE + self.SEPARATOR_LINES)  
@@ -40,8 +39,9 @@ class Results:
 	rows = np.array([])
 	with open(name,'r') as fp:
 	    for index, line in enumerate(fp):
+		# index is 0-based, lines in file are not
 	        i = index + 1
-		# This line is the last Separator line before the block of interest
+		# This line is the last separator line before the block of interest
 		# The first word in this line is the depth we are at, which must be checked
 	        if i == ref_line:
 	            words = line.split()
@@ -65,7 +65,6 @@ class Results:
 class depth_by_m(Results):
     """
     Reader for files with lines at depth; 
-    Old version: last depth is of interest.
     Backscatter: 
         line of interest = HEADER_LINES + slabs_to_ref + 1
 	HEADER_LINES = 1
@@ -113,7 +112,6 @@ class let700x2(Results):
 
     2 x first_col_of_last_block = 1400
 
-    Old version: read last block always
     Backscatter: 
         read nth block starting at ref_line
 	HEADER_LINES + slabs_to_ref*(700+SEPARATOR_LINES) + 1
@@ -174,6 +172,9 @@ class flux100xm(Results):
 	all_nums = np.array([np.swapaxes(rows,0,1).ravel()])
 	return (depth, full_index_header, all_nums)
         
+"""
+    Convenience function to grab a set of filenames from a text file
+"""
 def get_global_names(file):
     "Fill in the global filenames from a text file."
     global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
@@ -199,6 +200,9 @@ def get_global_names(file):
 
     return 
 
+"""
+    Convenience function to create list of column header names
+"""
 def depth_header_ary(species):
     "Return a header for the depth data."
     header_list = ['{0: >12}'.format('X'), 
@@ -233,8 +237,11 @@ def depth_header_ary(species):
     header = np.array([header_list])
     return header
 
+"""
+    Convenience function
+"""
 def get_filepaths(r):
-    "Convenience function to construct filepaths and check for existence"
+    "Construct filepaths and check for existence."
     global dose_filename, doseq_filename, dose_ple_filename, doseq_ple_filename
     global diflet_filename, intlet_filename
     global flux_filename, intflux_filename
@@ -282,6 +289,7 @@ def get_filepaths(r):
     slabs_to_ref = get_slabs_to_ref(datapaths['slabs_to_ref'])
 """
 def get_slabs_to_ref(filename):
+    "Read an integer from a text file."
     with open(filename) as f:
         return int(f.readline())
 
@@ -327,11 +335,14 @@ def main():
     # Encode the transport results into a single file by direction.
 
     global config_log
+    global name_filename
+    global data_filename
+    global rad_env_filename
 
     args = parsing()
 
     # Set up the names of the data files 
-    get_global_names("names.txt")
+    get_global_names(name_filename)
     
     # Original Working Directory - will be used for the results file
     owd = os.path.dirname(os.path.abspath(__file__)) + '/'
@@ -351,21 +362,21 @@ def main():
 
     # ToDo: it may or may not be ok to hardcode this
     # Directory containing the ray subdirectories
-    run_path = args.run_dir + '/data/'
+    run_path = args.run_dir + '/' + data_filename + '/'
 
     os.chdir(run_path)
-    depth_particle_reader = depth_by_m('')
-    dif_int_block_reader  = let700x2('')
-    flux_block_reader     = flux100xm('')
+    depth_particle_reader = depth_by_m()
+    dif_int_block_reader  = let700x2()
+    flux_block_reader     = flux100xm()
 
     # Numpy Arrays
-    all_values  = np.array([])
-    full_header = np.array([])
+    all_values     = np.array([])
+    full_header    = np.array([])
     empty_ray_vecs = np.array([])
     
     rad_env = ''
-    rad_env_file = owd + run_path + 'rad_env.txt'
-    with open(rad_env_file, 'r') as f:
+    rad_env_filepath = owd + run_path + rad_env_filename
+    with open(rad_env_filepath, 'r') as f:
         rad_env = f.readline()
 
     species = 0
@@ -381,20 +392,21 @@ def main():
 
     # This picks up files that have at least one digit
     ray_subdirs = glob.glob('*[0-9]*')
-    i = 0
 
+    # Used only in print statements
+    item_count = 0
     for r in ray_subdirs:
+        item_count = item_count + 1
 	# String list: this is what we send to the data line
         ray = r.split('_') 
 	ray_vec = np.array([float(x) for x in ray])
 
 	# If any files are missing the dictionary will be empty
         datapaths = get_filepaths(r)
-	# print datapaths
 
         # Save 0-data if there isn't any
         if len(datapaths) == 0:
-	    print i, ray_vec, "no data"
+	    print item_count, ray_vec, "no data"
 	    # Data, including direction vector
 	    # Header has already been written
 	    if all_values.size != 0:
@@ -410,7 +422,7 @@ def main():
 	            empty_ray_vecs = np.vstack((empty_ray_vecs, ray_vec))
 	# this ray direction has data  
         else:
-	    print i, ray_vec
+	    print item_count, ray_vec
 	    slabs_to_ref = get_slabs_to_ref(datapaths['slabs_to_ref'])
 
 	    #######################################################
@@ -496,9 +508,7 @@ def main():
 	       np.savetxt(f, all_values_by_ray, fmt='%12.6E', newline='')
 	       f.write('\n')
 
-        i = i + 1
-
-    # NOTES
+    # End pass through ray subdirectories
     # .....
     ###############################################################
 
