@@ -85,7 +85,7 @@ def get_directions(ray_dir_file, num_rand_dirs):
     if ray_dir_file:
         ray_tuples = load_ray_tuples(ray_dir_file)
 
-    elif rand_dirs > 0:
+    elif num_rand_dirs > 0:
         ray_tuples = tag_utils.get_rand_dirs(num_rand_dirs)
  
     else:

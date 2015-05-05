@@ -19,10 +19,13 @@ except ImportError:
     raise ImportError("Could not import iMesh and/or iBase.")
 
 
+# Number of columns devoted to direction and depth
 num_non_data = 4
 config_log  = 'config.log'
 
 
+############################################################3
+# Functions used for testing and development
 """
 Order the set of points as a triangular mesh 
 xyz	 nx3 np array with points on sphere
@@ -34,7 +37,7 @@ def get_verts_on_sphere(xyz):
     return xyz[indices]
 
 """
-facets nx3x3 array of triangulated points on a sphere
+facets an nx3x3 array of triangulated points on a sphere
 """
 def create_meshed_sphere(facets, scale):
     msph = iMesh.Mesh()
@@ -45,11 +48,31 @@ def create_meshed_sphere(facets, scale):
 	
     return msph
 
-def create_tagged_meshed(data, facets, scale):
-    """
+"""
+    xyz	 set of points on a sphere: nx3x3
+"""
+def mesh_sphere(xyz, scale):
+    facets = get_verts_on_sphere(xyz)
+    return create_meshed_sphere(facets, scale)
+
+"""
+    Create and write out a mesh constructed from random points 
+    on a sphere
+"""
+def mesh_write_rand(filename, numOfPts):
+    xyz = tu.get_rand_dirs(numOfPts)
+    mesh = mesh_sphere(xyz, 1.0)
+    mesh.save(filename)
+    return 
+# end optional functions
+############################################################3
+
+"""
     data   data indexed the same as the facets
     facets nx3x3 array of triangulated points on a sphere
-    """
+"""
+"""
+def create_tagged_meshed(data, facets, scale):
     msph = iMesh.Mesh()
  
     for facet in facets:
@@ -60,18 +83,11 @@ def create_tagged_meshed(data, facets, scale):
 	tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
 	
     return msph
-
-def mesh_sphere(xyz, scale):
-    """
-    xyz	 set of points on a sphere: nx3x3
-    """
-    facets = get_verts_on_sphere(xyz)
-    return create_meshed_sphere(facets, scale)
-
+"""
 
 """
-    Read a databasefile and strip of the header and 
-    statistics lines
+    Read the lines of a  database file, stripping 
+    off the header and statistics lines
 """
 def get_row_data(infile):
     global num_non_data 
@@ -90,8 +106,8 @@ def get_row_data(infile):
 	            else:
 	                rows = np.vstack((rows, row))
 	        except ValueError:
-	            print "Have reached an ascii line at i =", i
-
+		    pass
+	           
     # Determine how many columns of the header are non-numeric
     max_non_numeric_col = -1    
     for field in header:
@@ -100,13 +116,12 @@ def get_row_data(infile):
 	    break
 	except ValueError:
 	    max_non_numeric_col = max_non_numeric_col + 1
-	    # print field, max_non_numeric_col	    
     return header, max_non_numeric_col, rows
     
 """
-    Read certain columns from the infile.
-    Using direction vectors on each line of the file, and data
-    from dat_column, create a tagged iMesh.Mesh that can be
+    Read the indicated columns from the infile.
+    Using the direction vectors on each line of the file, and data
+    from the selected columns, create a tagged iMesh.Mesh that can be
     directly writen to a *.vtk file for viewing with VisIt.
     The direction vectors are expected to be unit length and will
     be scaled by scale.
@@ -115,12 +130,9 @@ def tag_mesh(header, data_rows, columns, scale):
     "Create a scaled, tagged mesh from data in a file."
 
     vtxd = np.array(data_rows)
-    print "rows shape", vtxd.shape
-    print "rows", data_rows[0, 0:10]
    
     # Separate into vertexes (1st 3) and data
     vtcs = vtxd[:,:3]
-    print "vtcs, row 0", vtcs[0,:]
 
     start = columns[0]
     end = 0
@@ -166,17 +178,6 @@ def tag_mesh(header, data_rows, columns, scale):
 	    tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
 	
     return msph
-    
-def mesh_write_rand(filename, numOfPts):
-    xyz = tu.get_rand_dirs(numOfPts)
-    mesh = mesh_sphere(xyz, 1.0)
-    mesh.save(filename)
-    return 
-
-def dmesh_write_from_db(data_rows, data_column, scale, outfile):
-    mesh = tag_mesh(data_rows, data_column, scale)
-    mesh.save(outfile)
-    return
 
 """
 Argument parsing
@@ -185,7 +186,7 @@ ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
 """
 def parsing():
     global num_non_data
-    # Change this to 4 if depth column is removed
+    
     min_col = num_non_data
     parser = argparse.ArgumentParser()
 
@@ -195,17 +196,12 @@ def parsing():
 
     parser.add_argument(
         '-c', action='store', dest='data_column', 
-	help='The column, column range, or "a" for columns to use.  Must be {} or greater'.format(num_non_data))
+	help='The column, column range, or "a" for all columns.  Must be {} or greater'.format(num_non_data))
 
     parser.add_argument(
         '-s', action='store', dest='scale', 
 	help='Scale to use when creating the mesh.', type=float)
     parser.set_defaults(scale=1.0)
-
-    parser.add_argument(
-        '-n', action='store', dest='num_species',
-	help='Number of species: 6 for spe, 59 for gcr')
-    parser.set_defaults(num_species=6)
 
     parser.add_argument(
         '-o', action='store', dest='outfile',
@@ -214,12 +210,7 @@ def parsing():
     args = parser.parse_args()
     if not args.infile:
         raise Exception('Input file not specified. [-f] not set.')
-    """
-    if not args.data_column:
-        last_header_col = 2*args.num_species + num_non_data
-	columns = str(num_non_data) + "-{}".format(last_header_col)
-        parser.set_defaults(data_column=columns)
-    """    
+
     if not args.outfile:
         raise Exception('Output file not specified.  [-o] not set.')
     
@@ -230,29 +221,35 @@ def main():
     global num_non_data
 
     args = parsing()
+    if not args.data_column:
+        args.data_column = 'header'
 
     ########################
     # logging
     ########################
     logging.basicConfig(filename=config_log, level=logging.INFO, \
                         format='%(asctime)s %(message)s')
+
     message = 'python results_vis.py -f ' + args.infile + \
               ' -c ' + str(args.data_column) + \
               ' -s ' + "{0:.2f}".format(args.scale) + \
               ' -o ' + args.outfile
     logging.info(message)
+
     ########################
+    # Get the header, the highest-numbered column with a non-numeric
+    # header, and the floating point row data
     header, num_last_dose_col, row_data = get_row_data(args.infile)
 
     ########################
     # get columns
     ########################
-    if not args.data_column \
-        or args.data_column == 'h' \
-	or args.data_column == 'header':
+    if args.data_column == 'h' or args.data_column == 'header':
         columns = [num_non_data, num_last_dose_col]
+	print "Header columns being used:", columns
     elif args.data_column == 'a' or args.data_column == 'all':
         columns = [num_non_data, row_data.shape[1]]
+	print "All columns being used:", columns
     elif len(args.data_column.split(',')) > 1:
         sys.exit("Please enter only one '-' separated field range")
     else:
@@ -261,9 +258,11 @@ def main():
 	    sys.exit("For a range of columns please enter two integers separated by a '-'.")
         if min(columns) < num_non_data:
 	    sys.exit("The minimum column must be {} or greater".format(num_non_data))
+	# Reverse the order if needed
 	if len(columns) == 2 and columns[1] < columns[0]:
 	    columns = columns[::-1]
-    print "columns", columns
+        print "Column range:", columns
+
     mesh = tag_mesh(header, row_data, columns, args.scale)
     mesh.save(args.outfile)
 

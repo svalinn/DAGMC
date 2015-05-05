@@ -22,7 +22,7 @@ neutron_flux_filename = ''
 config_log  = 'config.log'
 slabs_to_ref_filename = 'slabs_to_ref.txt'
 name_filename = 'names.txt'
-data_filename = 'data'
+data_subdir_name = 'data/'
 rad_env_filename = 'rad_env.txt'
 
 class Results:
@@ -217,8 +217,8 @@ def depth_header_ary(species):
     if species == 6:
         header_list +=  ['{0: >12}'.format('dose_neutron'),
               '{0: >12}'.format('dose_proton'),
-              '{0: >12}'.format('dose_deut.'),
-              '{0: >12}'.format('dose_trit.'),
+              '{0: >12}'.format('dose_deut'),
+              '{0: >12}'.format('dose_trit'),
               '{0: >12}'.format('dose_He3'),
               '{0: >12}'.format('dose_He4'),
               '{0: >12}'.format('doseq_neut'),
@@ -308,11 +308,18 @@ returns : args: -d for the run directory
 ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
 """
 def parsing():
+    global data_subdir_name
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
         '-d', action='store', dest='run_dir',
 	help='The name of the holding directory for all hzetrn runs')
+
+    parser.add_argument(
+        '-s', action='store', dest='data_dir',
+	help='The name of the data subdirectory holding the direction subdirs')
+    parser.set_defaults(data_dir=data_subdir_name)
 
     parser.add_argument(
         '-o', action='store', dest='data_file', 
@@ -325,6 +332,10 @@ def parsing():
     
     if not args.data_file:
         raise Exception('Data file (output) not specified. [-o] not set')
+
+    if not args.data_dir.endswith('/'):
+       args.data_dir += '/'
+
     return args
 
 """
@@ -336,7 +347,6 @@ def main():
 
     global config_log
     global name_filename
-    global data_filename
     global rad_env_filename
 
     args = parsing()
@@ -356,13 +366,14 @@ def main():
     config_path = run_path + config_log
     logging.basicConfig(filename=config_path, level=logging.INFO, format='%(asctime)s %(message)s')
     message = 'python results_encoding.py -d ' + args.run_dir + \
+              ' -s ' + args.data_dir + \
               ' -o ' + args.data_file 
     logging.info(message)
     ################################
 
     # ToDo: it may or may not be ok to hardcode this
     # Directory containing the ray subdirectories
-    run_path = args.run_dir + '/' + data_filename + '/'
+    run_path = args.run_dir + '/' + args.data_dir
 
     os.chdir(run_path)
     depth_particle_reader = depth_by_m()
