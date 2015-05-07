@@ -202,16 +202,18 @@ def parsing():
         '-p', action='store', dest='ray_start', 
 	help='File containing Cartesion coordinate of starting point of all rays')
 
+    """
     parser.add_argument(
         '--no_ray_subset', dest='ray_subset', action='store_false',
         help='Use all rays (default)')
     parser.set_defaults(ray_subset=False)
+    """
 
     parser.add_argument(
         '-target', action='store', dest='target',
         help='The target material in which to calculate the response.  \
 	      NB: the target material cross-section must exist'    )
-    parser.set_defaults(target='')
+    parser.set_defaults(target='WATERLIQ')
 
     args = parser.parse_args()
 
