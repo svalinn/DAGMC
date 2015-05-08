@@ -144,8 +144,19 @@ ErrorCode DagMC::load_file(const char* cfile,
 
   sprintf(facetTolStr,"%g",facetingTolerance);
 
-  char options[120] = "CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=";
-  strcat(options,facetTolStr);
+  // load options 
+  char options[120];
+  char file_ext[4]; // file extension
+
+  // get the last 4 chars of file .i.e .h5m .sat etc
+  memcpy(file_ext, &cfile[strlen(cfile) - 4] ,4);
+  // these options only needed if faceting a sat file at DAG runtime
+  // not recommended as load_file overloads to ReadCGM load_file
+  if ( strstr(file_ext,".sat") != NULL )
+    {
+      strcat(options,"CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=");
+      strcat(options,facetTolStr);
+    }
 
   EntityHandle file_set;
   rval = MBI->create_meshset( MESHSET_SET, file_set );
