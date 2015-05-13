@@ -308,7 +308,7 @@ def parse_command_line_arguments():
     
     return args
 
-def generateTransportInfo(slab_lens, slab_mat_names)
+def generateTransportInfo(slab_lens, slab_mat_names):
         """Extract and refine information from two lists.
 
 	Parameters
@@ -344,7 +344,7 @@ def generateTransportInfo(slab_lens, slab_mat_names)
 	 
 	    yield last_mat_name, last_slab_points
 
-def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material_name_dict)
+def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material_name_dict):
     """ Create a dictionary containing material names and distances for use in 
         one-dimensional transport code.
 
@@ -365,18 +365,18 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material
     slab_mat_names = slab_mat_names_b[:-1] + slab_mat_names_a
 
     # If the ray does not go through any materials the yield is ('', [])
-    for (mat_name, slab_points) in generateTransportInfo(slab_lens, slab_mat_names)
+    for (mat_name, slab_points) in generateTransportInfo(slab_lens, slab_mat_names):
         trn_dict[mat_name] = slab_points
 
     return trn_dict, len(slab_lens_b)
 
-def call_transport_response(run_path, uvw, trn_dict, env='spe', response='WATERLIQ')
+def call_transport_response(run_path, uvw, trn_dict, env='spe', response='WATERLIQ'):
     """ Wrapper for call to one_d_tool module. 
     """
     one_d_tool.transport_response(run_path, uvw, trn_dict, env, response)
     return
 
-def call_collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, index=0 )
+def call_collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, index=0 ):
     one_d_tool.collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, index) 
     return
 
@@ -416,8 +416,7 @@ def main():
     data_path = run_path + 'data/'
     if not os.path.isdir(data_path):
 	os.mkdir(data_path)
-    elif:
-        os.listdir(data_path) != []
+    elif os.listdir(data_path) != []:
         raise Exception("Data directory {} is not empty! Please empty or delete it.".format(data_path))
         
     rad_env_file = data_path + 'rad_env.txt'
@@ -446,7 +445,7 @@ def main():
     index = 0
     for uvw in ray_tuples:
         index = index + 1
-	trn_dict, number_slabs_to_reference_point = 
+	trn_dict, number_slabs_to_reference_point =  \
 	             createTransportDictionary(uvw, graveyard_vol, start_vol, \
 		                               ref_point, material_name_dict)
 
