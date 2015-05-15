@@ -3,7 +3,7 @@
 # Backscatter Transport and Response
 #########################################################
 
-import subprocess
+# import subprocess
 import argparse
 import string
 import os
@@ -24,14 +24,11 @@ import hzetrn as one_d_tool
 import tag_utils
 
 
-###############################
-# globals
-# 'spatial_dir' is a subdir for storing input files as they are created
-spatial_dir = 'spatial'
-
 def load_ray_tuples(filename):
     """ Load float tuples representing uvw directions from a file.
     
+    Parameters
+    ----------
     filename : string
         filename of file containing pairs of angles (radians) representing polar and
 	azimuthal angles. 
@@ -106,7 +103,7 @@ def find_special_vols(ref_point, material_name_dict):
     and the vol-id whose name is 'graveyard'.  
 
     Requirements
-    --------
+    ------------
     - The DAGMC python library must be loaded
     - Graveyard exists in the geometry
 
@@ -308,8 +305,9 @@ def parse_command_line_arguments():
     
     return args
 
+"""
 def generateTransportInfo(slab_lens, slab_mat_names):
-        """Extract and refine information from two lists.
+        Extract and refine information from two lists.
 
 	Parameters
 	----------
@@ -325,8 +323,8 @@ def generateTransportInfo(slab_lens, slab_mat_names):
 	Requirements
 	------------
 	slab_lens is not empty
-	"""
 
+        num_slabs = len(slab_lens)
 	# Initialize list
 	last_mat_name    = slab_mat_names[0]
 	last_slab_points = [0.0, slab_lens[0]]
@@ -335,14 +333,21 @@ def generateTransportInfo(slab_lens, slab_mat_names):
             if slab_mat_names[n] == last_mat_name:
                 last_slab_points.append(slab_lens[n] + slab_lens[n-1])
 	    else:
-	        tmp_mat_name    = last_mat_name
-		tmp_slab_points = last_slab_points
+
+	        #tmp_mat_name    = last_mat_name
+		#tmp_slab_points = last_slab_points
+		# trn_dict[last_mat_name] = last_slab_points
+	        yield last_mat_name, last_slab_points
                 # update internal state before leaving
 		last_mat_name = slab_mat_names[n]
 		last_slab_points = [0.0, slab_lens[n]]
-		yield tmp_mat_name, tmp_slab_points
+	        # yield trn_dict
+		#yield tmp_mat_name, tmp_slab_points
 	 
 	    yield last_mat_name, last_slab_points
+	    # trn_dict[last_mat_name] = last_slab_points
+	    # yield trn_dict
+"""
 
 def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material_name_dict):
     """ Create a dictionary containing material names and distances for use in 
@@ -350,34 +355,65 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material
 
 	Note
 	----
-	This is the first place we can know if the rays did not go through a material.
+	This is the first place we can know if the rays did not go through a 
+	material.
     """
 
-    trn_dict = []
     # Rays fired here!
-    slab_lens_a, slab_mat_names_a = find_slabs_for_ray(graveyard_vol, start_vol, ref_point,  uvw, material_name_dict)
-    slab_lens_b, slab_mat_names_b = find_slabs_for_ray(graveyard_vol, start_vol, ref_point, -uvw, material_name_dict)
+    ###################################
+    # Create two lists 'a' and 'b'.  
+    #    'a' is the list of slab materials and lengths in the given direction.  
+    #    'b' is the list of same items going OPPOSITE (180 degrees)
+    slab_lens_a, slab_mat_names_a = find_slabs_for_ray(graveyard_vol, \
+                                                       start_vol,     \
+						       ref_point,     \
+						       uvw,           \
+						       material_name_dict)
 
+    slab_lens_b, slab_mat_names_b = find_slabs_for_ray(graveyard_vol, \
+                                                       start_vol,     \
+						       ref_point,     \
+						       -uvw,          \
+				                       material_name_dict)
+
+    spatial_dict = {}
+    # If the ray does not go through any materials the yield is ({}, -1)
     if len(slab_lens_b) + len(slab_lens_a) == 0:
-        return trn_dict, -1
+        return spatial_dict, -1
 
-    slab_lens      = slab_lens_b[:-1]      + slab_lens_a
-    slab_mat_names = slab_mat_names_b[:-1] + slab_mat_names_a
+    slab_lens      = slab_lens_b[::-1]      + slab_lens_a
+    slab_mat_names = slab_mat_names_b[::-1] + slab_mat_names_a
 
-    # If the ray does not go through any materials the yield is ('', [])
-    for (mat_name, slab_points) in generateTransportInfo(slab_lens, slab_mat_names):
-        trn_dict[mat_name] = slab_points
+    # Initialize the id-dictionary
+    num_slabs = len(slab_lens)
+    last_mat_name    = slab_mat_names[0]
+    last_slab_points = [0.0, slab_lens[0]]
 
-    return trn_dict, len(slab_lens_b)
+    for n in range(1,num_slabs):
+        if slab_mat_names[n] == last_mat_name:
+	    trn_dict = {}
+            trn_dict[last_mat_name] = last_slab_points
+	    spatial_dict[n-1] = trn_dict
+            # update internal state before leaving
+	    last_mat_name = slab_mat_names[n]
+	    last_slab_points = [0.0, slab_lens[n]]
+	 
+    trn_dict = {}
+    trn_dict[last_mat_name] = last_slab_points
+    spatial_dict[n] = trn_dict
 
-def call_transport_response(run_path, uvw, trn_dict, env='spe', response='WATERLIQ'):
+    return spatial_dict, len(slab_lens_b)
+
+def call_transport_response(run_path, trn_dict, env='spe', response='WATERLIQ'):
     """ Wrapper for call to one_d_tool module. 
     """
-    one_d_tool.transport_response(run_path, uvw, trn_dict, env, response)
+    one_d_tool.transport_response(run_path, trn_dict, env, response)
     return
 
-def call_collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, index=0 ):
-    one_d_tool.collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, index) 
+def call_collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, zero_vec, index=0 ):
+    """ Wrapper for call to one_d_tool module. 
+    """
+    one_d_tool.collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, zero_vec, index)
     return
 
 def main():
@@ -400,8 +436,7 @@ def main():
         which starts and ends at the graveyard
       o create the contents of the transport input file for this combined ray
     """
-
-    # Setup: parse the the command line parameters
+    
     args = parse_command_line_arguments()
     uwuw_file = os.path.join(os.getcwd(), args.uwuw_file)
 
@@ -412,20 +447,21 @@ def main():
     one_d_tool.check_template_files(run_path)
 
     # Transport results for each direction will be placed in this directory:
-    # Ensure it exists before proceeding.
+    # Ensure it exists before proceeding, and does not contain data 
+    # subdirectories from previous runs (files are ok)
     data_path = run_path + 'data/'
     if not os.path.isdir(data_path):
 	os.mkdir(data_path)
-    elif os.listdir(data_path) != []:
-        raise Exception("Data directory {} is not empty! Please empty or delete it.".format(data_path))
-        
+    else:
+	os.chdir(data_path)
+        for el in os.listdir(data_path):
+	    if os.path.isdir(el):
+                raise Exception("Data directory {} has subdirectories! Remove \
+		                 these and continue.".format(data_path))
+	
     rad_env_file = data_path + 'rad_env.txt'
     with open(rad_env_file, 'w') as f:
         f.write(args.environment)
-
-    # spatial_path = cur_path + spatial_dir + '/'
-    # if not os.path.isdir(spatial_path):
-    #	os.mkdir(spatial_path)
 
     # Load the DAG object for this geometry
     rtn = dagmc.load(uwuw_file)
@@ -443,100 +479,21 @@ def main():
     
     # Test function version
     index = 0
+    # ToDo: create with proper number of 0's
+    zero_vec = np.array([])
     for uvw in ray_tuples:
         index = index + 1
-	trn_dict, number_slabs_to_reference_point =  \
+	spatial_dict, number_slabs_to_reference_point =  \
 	             createTransportDictionary(uvw, graveyard_vol, start_vol, \
 		                               ref_point, material_name_dict)
 
-        call_transport_response(run_path, trn_dict, args.environment, args.response)
-        call_collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, index)
+        print 'uvw', uvw, 'slabs_to_ref', number_slabs_to_reference_point, 'spatial_dict', spatial_dict
+        call_transport_response(run_path, spatial_dict, args.environment, \
+	                        args.response)
+        call_collect_results_for_dir(run_path, data_path, uvw, \
+	                             number_slabs_to_reference_point, \
+				     zero_vec, index) 
 
-	
-    """
-    for uvw in ray_tuples:
-	###################################
-	# For backscatter:  
-	# Create two lists 'a' and 'b'.  
-	#    'a' is the list of slab materials and lengths in the given direction.  
-	#    'b' is the list of same items going OPPOSITE (180 degrees)
-	slab_lens_a, slab_mat_names_a = find_slabs_for_ray(graveyard_vol, start_vol, ref_point,  uvw, unique_material_name)
-	slab_lens_b, slab_mat_names_b = find_slabs_for_ray(graveyard_vol, start_vol, ref_point, -uvw, unique_material_name)
-
-        # slab_lens = slab_lens_a[::-1] + slab_lens_b
-        slab_lens      = slab_lens_b[:-1]      + slab_lens_a
-	slab_mat_names = slab_mat_names_b[:-1] + slab_mat_names_a
-	num_slabs_to_ref = len(slab_lens_b)
-	num_mats = len(slab_mat_names)
-        #############################################
-	# Create the transport geometry file contents
-        # Need to have a non-zero number of mats
-	transport_input = []
-	if 0 != num_mats:
-	    effective_num_mats = num_mats
-	    last_mat_name = slab_mat_names[0]
-	    last_slab_points = [0.0, slab_lens[0]]
-
-	    for n in range(1,num_mats):
-                if slab_mat_names[n] == last_mat_name:
-		    #  Need to ADD the two lengths together: they are cumulative
-		    last_slab_points.append(slab_lens[n] + slab_lens[n-1])
-		    effective_num_mats = effective_num_mats - 1
-		else:
-	            transport_input.append(last_mat_name)
-	            transport_input.append(str(len(last_slab_points)))
-		    slab_points_list = ["{0:.1f}".format(x) for x in last_slab_points]
-		    transport_input.append(", ".join(slab_points_list))
-                    # Now re-initialize to the current mat/length
-		    last_mat_name = slab_mat_names[n]
-		    last_slab_points = [0.0, slab_lens[n]]
-	    # The last slab got set up but not written
-	    transport_input.append(last_mat_name)
-	    transport_input.append(str(len(last_slab_points)))
-	    slab_points_list = ["{0:.1f}".format(x) for x in last_slab_points]
-	    transport_input.append(", ".join(slab_points_list))
-	        
-	    transport_input.insert(0,(str(effective_num_mats)))
-
-	# No materials for this or the opposite direction: make bogus spatial file 
-	else:
-	    transport_input.append('0')
-	    transport_input.append('No material traversed, either direction')
-	    transport_input.append('2')
-	    transport_input.append('0.0 0.0')
-
-	# Need a newline at end of file
-	transport_input.append('\n')
-
-	dir_string = "{0:.4f}".format(uvw[0]) + '_' + \
-	             "{0:.4f}".format(uvw[1]) + '_' + \
-		     "{0:.4f}".format(uvw[2]) 
-
-	# ToDo: change the base name here and on the other side
-	if len(ray_tuples) < 20:
-	    spatial_filename = 'spatial_ba' + dir_string + '.dat'
-	    # sslab = []
-            # for d in slab_lengths:
-	    #     sslab.append(format(d,'.6f'))
-	    # print ('dist, mats ', sslab, slab_mat_names)
-            #############################################
-	else:
-	    spatial_filename = 'spatial.dat'
-
-	# Write out the spatial file even for no materials traversed
-	# A local subdirectory is used.  This is currently 
-	# hardcoded to ./spatial, but a temporary directory could also be used.
-        spatial_filepath = spatial_path + spatial_filename
-	f = open(spatial_filepath, 'w')
-	f.write("\n".join(transport_input))
-	f.close()
-	if 0 != num_mats:
-            one_d_tool.transport_process(run_path, spatial_filepath, args.environment)
-            one_d_tool.response_process(run_path, args.response)
-
-	one_d_tool.collect_results_for_dir(run_path, data_path, dir_string, num_mats, num_slabs_to_ref) 
-        """
-    # end for uvw in ray_tuples: 
     return 
     ###################################### 
 
