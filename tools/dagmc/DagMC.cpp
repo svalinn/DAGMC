@@ -1008,7 +1008,7 @@ ErrorCode DagMC::closest_to_location( EntityHandle volume, const double coords[3
 ErrorCode DagMC::measure_volume( EntityHandle volume, double& result )
 {
   ErrorCode rval;
-  std::vector<EntityHandle> surfaces, surf_volumes;
+  std::vector<EntityHandle> surfaces;
   result = 0.0;
 
    // don't try to calculate volume of implicit complement
