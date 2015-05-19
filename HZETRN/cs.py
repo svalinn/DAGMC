@@ -138,7 +138,7 @@ def main():
     cs_input_for_name = write_cs_input(header, mat_lib, cross_path) 
 
     for fname, cs_input in cs_input_for_name.iteritems():
-        one_d_tool.cross_section_process(cross_path + cs_input, run_path, fname)
+        one_d_tool.process_cross_section(cross_path + cs_input, run_path, fname)
 
     return
     ##########################################################

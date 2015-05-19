@@ -20,7 +20,8 @@ except:
     raise ImportError("The DAGMC dependency could not be imported.")    
 
 import numpy as np
-import hzetrn as one_d_tool
+# import hzetrn as one_d_tool
+from hzetrn import one_d_tool
 import tag_utils
 
 
@@ -404,28 +405,14 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material
 
     return spatial_dict, len(slab_lens_b)
 
-def call_transport_response(run_path, trn_dict, env='spe', response='WATERLIQ'):
-    """ Wrapper for call to one_d_tool module. 
-    """
-    one_d_tool.transport_response(run_path, trn_dict, env, response)
-    return
-
-def call_collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, zero_vec, index=0 ):
-    """ Wrapper for call to one_d_tool module. 
-    """
-    one_d_tool.collect_results_for_dir(run_path, data_path, uvw, num_slabs_to_ref, zero_vec, index)
-    return
-
 def main():
     """Main routine for btrn.py
 
     Notes
     -----
     The sequence of actions:
-    - Ensure needed template files exist
+    - Parse the command line
     - Create a data directory in the run path
-    - Create a temporary, named directory in the current directory
-           to hold a collection of input files.
     - Load the given geometry file and get all its unique material (FLUKA) names
     - Get all the ray directions that are going to be used
     - Get the reference point and determine the reference volume
@@ -439,17 +426,12 @@ def main():
     
     args = parse_command_line_arguments()
     uwuw_file = os.path.join(os.getcwd(), args.uwuw_file)
-
-    cur_path = os.getcwd() + '/'
-    run_path = cur_path + args.rundir + '/'
-
-    # Ensure needed template files exist
-    one_d_tool.check_template_files(run_path)
+    run_path  = os.path.join(os.getcwd(), args.rundir)
 
     # Transport results for each direction will be placed in this directory:
     # Ensure it exists before proceeding, and does not contain data 
     # subdirectories from previous runs (files are ok)
-    data_path = run_path + 'data/'
+    data_path = os.path.join(run_path,'data')
     if not os.path.isdir(data_path):
 	os.mkdir(data_path)
     else:
@@ -459,9 +441,9 @@ def main():
                 raise Exception("Data directory {} has subdirectories! Remove \
 		                 these and continue.".format(data_path))
 	
-    rad_env_file = data_path + 'rad_env.txt'
-    with open(rad_env_file, 'w') as f:
-        f.write(args.environment)
+    # Initialize the transportresponse class
+    one_d_tool = transportresponse(run_path, data_path, \
+                                   args.environment, args.response)
 
     # Load the DAG object for this geometry
     rtn = dagmc.load(uwuw_file)
@@ -479,24 +461,14 @@ def main():
     
     # Test function version
     index = 0
-    # ToDo: create with proper number of 0's
-    zero_vec = np.array([])
     for uvw in ray_tuples:
         index = index + 1
 	spatial_dict, number_slabs_to_reference_point =  \
 	             createTransportDictionary(uvw, graveyard_vol, start_vol, \
 		                               ref_point, material_name_dict)
-
-        print 'uvw', uvw, 'slabs_to_ref', number_slabs_to_reference_point, 'spatial_dict', spatial_dict
-        call_transport_response(run_path, spatial_dict, args.environment, \
-	                        args.response)
-        call_collect_results_for_dir(run_path, data_path, uvw, \
-	                             number_slabs_to_reference_point, \
-				     zero_vec, index) 
-
+        one_d_tool.execute(spatial_dict)
+        one_d_tool.collect_results(data_path, uvw, number_slabs_to_reference_point, index) 
     return 
-    ###################################### 
-
    
 if __name__ == '__main__':
     main()
