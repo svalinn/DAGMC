@@ -417,7 +417,7 @@ def main():
         os.mkdir(data_path)
     else:
         for el in os.listdir(data_path):
-	    el_path = os.path.join(data_path, el)
+            el_path = os.path.join(data_path, el)
             if os.path.isdir(el_path):
                 raise Exception("Data directory {} has subdirectories! Remove \
                                  these and continue.".format(data_path))
@@ -427,7 +427,7 @@ def main():
                                    args.environment, args.response)
 
     # Load the DAG object for this geometry
-    rtn = dagmc.load(uwuw_file)
+    dagmc.load(uwuw_file)
 
     # ToDo:  Use a different function
     material_name_dict = tag_utils.get_fnames_for_vol(uwuw_file)
@@ -441,14 +441,14 @@ def main():
         msg = "Exiting program: The reference point is in the graveyard!"
         sys.exit(msg)
     
-    index = 0
+    index = 1
     for uvw in ray_tuples:
-        index = index + 1
         spatial_tuples, number_slabs_to_reference_point =  \
                  createTransportDictionary(uvw, graveyard_vol, start_vol, \
-                                       ref_point, material_name_dict)
+                                           ref_point, material_name_dict)
         one_d_tool.execute(spatial_tuples)
-        one_d_tool.collect_results(data_path, uvw, number_slabs_to_reference_point, index) 
+        one_d_tool.collect_results(index, uvw, number_slabs_to_reference_point) 
+        index = index + 1
     return 
    
 if __name__ == '__main__':
