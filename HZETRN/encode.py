@@ -1,15 +1,21 @@
 import argparse
 import os
-import sys
 import numpy as np
-import fileinput
 
-"""
-    Convenience function to create list of column header names
-"""
 def construct_depth_header(species):
-    # Number of values in the header that are not data results
-    "Return a header for the depth data."
+    """ Return a header for the depth data.  This portion of the
+    header is ascii titles.  The rest of the header is numeric.
+
+    Parameters
+    ----------
+    species : integer
+        Number of species.  Dependent on a command line argument.
+
+    Returns
+    -------
+    A numpy row array of ascii words, formatted to sent to the database
+    
+    """
     header_list = ['{0: >12}'.format('X'), 
               '{0: >12}'.format('Y'),
               '{0: >12}'.format('Z'),
@@ -44,17 +50,104 @@ def construct_depth_header(species):
 
 def get_slabs_to_ref(filename):
     """ Read an integer from a text file.
+    Parameters
+    ----------
+    filename : string
+
+    Returns
+    -------
+    An integer read from the file
     """
     with open(filename) as f:
         return int(f.readline())
 
-"""
-Argument parsing
-returns : args: -d for the run directory
-ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
-"""
+def write_header(data_path, out_path):
+    """ Construct a header for the data and write it to the database file (out_path)
+
+    Parameters
+    ----------
+    data_path : string
+        Path to the data directory
+
+    species : integer
+        The number of particles irradiating the geometry
+
+    out_path : string
+        Path to the file to write the header to.
+    """
+    rad_env = ''
+    rad_env_path = os.path.join(data_path, 'rad_env.txt')
+    with open(rad_env_path) as f:
+        rad_env = f.readline()
+    species = 0
+    if rad_env == 'spe':
+       species = 6
+    elif rad_env == 'gcr':
+       species = 59
+    else:
+        raise Exception('Unknown radiation environment {} in {}'.format(rad_env, rad_env_filepath))
+    depth_header = construct_depth_header(species)
+    index_path = os.path.join(data_path, 'index_header')
+    # No need to convert these formatted values to floats, they're just getting written to a file
+    with open(index_path) as f:
+        index_header_line = f.readline()
+    # The index header was already formatted so append it after a space
+    with open(out_path, 'w') as f:
+        np.savetxt(f, depth_header, fmt='%s', newline=' ' + index_header_line)
+    return
+
+def write_lines_to_db(data_path, out_path):
+    """ Collect all the row data previously stored and write it to a 
+    database file
+
+    Parameters
+    ----------
+    data_path : string
+        Path to the data directory
+
+    out_path : string
+        Path to the file to write the header to.
+    
+    Returns
+    -------
+    A two-dimensional numpy array of rows containing all the data (at the depth
+    of interest) for each direction.  This array is to be used for statistics,
+    so the meta data (direction and depth) is not included.
+    """
+    index = 1
+    row_path = os.path.join(data_path, str(index) + '/row')
+    all_values = np.array([])
+    with open(out_path, 'a') as fout:
+        while(os.path.isfile(row_path)):
+	    with open(row_path) as fin:
+	        line = fin.readline()
+	        fout.write(line)
+
+	        # Done writing, but will need the numbers for stats
+	        row = np.array([map(float, line.split())])
+		# Stack up the rows, but drop the first four columns
+                if all_values.size == 0:
+	            all_values = row[:,4:]
+	        else:
+	            all_values = np.vstack((all_values, row[:,4:]))
+		print index, row[0,0:4]
+	    index = index + 1
+            row_path = os.path.join(data_path, str(index) + '/row')
+    return all_values
+
 def parse_command_line_arguments():
-    global data_subdir_name
+    """Perform command line argument parsing
+    Notes
+    -----
+    - All arguments have a default
+    - A run directory must have been previously set up with 
+      HZETRN directories and whatever cross-sections are needed
+    - action = 'store' is default, so removed
+
+    Returns
+    -------
+    An object whose attributes are the parameter names
+    """
 
     parser = argparse.ArgumentParser()
 
@@ -77,62 +170,13 @@ def parse_command_line_arguments():
 
 def main():
     args = parse_command_line_arguments()
-
     run_path  = os.path.join(os.getcwd(), args.run_dir)
+
     data_path = os.path.join(run_path, args.data_dir)
     out_path  = os.path.join(os.getcwd(), args.out_file)
 
-    # Start header section; depends on species, data_path
-    rad_env = ''
-    rad_env_path = os.path.join(data_path, 'rad_env.txt')
-    with open(rad_env_path) as f:
-        rad_env = f.readline()
-    species = 0
-    if rad_env == 'spe':
-       species = 6
-    elif rad_env == 'gcr':
-       species = 59
-    else:
-        raise Exception('Unknown radiation environment {} in {}'.format(rad_env, rad_env_filepath))
-    depth_header = construct_depth_header(species)
-    index_path = os.path.join(data_path, 'index_header')
-    # No need to convert these formatted values to floats, they're just getting written to a file
-    with open(index_path) as f:
-        index_header_line = f.readline()
-    # The index header was already formatted so append it after a space
-    with open(out_path, 'w') as f:
-        np.savetxt(f, depth_header, fmt='%s', newline=' ' + index_header_line)
-    # End of header section: header has been written    
-    ###############################################
-
-    
-    # Start of data section
-    index = 1
-    row_path = os.path.join(data_path, str(index) + '/row')
-    all_values = np.array([])
-    with open(out_path, 'a') as fout:
-        while(os.path.isfile(row_path)):
-	    with open(row_path) as fin:
-	        line = fin.readline()
-	        fout.write(line)
-
-	        # Will need the numbers for stats
-	        row = np.array([map(float, line.split())])
-	        print 'np row shape', row.shape
-		# Stack up the rows, but drop the first four columns
-                if all_values.size == 0:
-	            all_values = row[:,4:]
-		    print 'all_values shape', all_values.shape
-	        else:
-	            all_values = np.vstack((all_values, row[:,4:]))
-		    print index, row[0,0:4]
-	    index = index + 1
-            row_path = os.path.join(data_path, str(index) + '/row')
-    # End of data section
-    #######################
-   
-    # Start of statistics section
-    print 'all_values shape', all_values.shape
+    write_header(data_path, out_path)
+    all_values = write_lines_to_db(data_path, out_path)
     
     # Averages, Std. Dev.
     ave_all_values = np.average(all_values, axis=0)
