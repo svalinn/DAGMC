@@ -6,7 +6,7 @@
 #include "moab/GeomUtil.hpp"
 #include "moab/FileOptions.hpp"
 
-#ifdef CGM
+#ifdef MOAB_HAVE_CGM
 #include "InitCGMA.hpp"
 #include "CGMApp.hpp"
 #include "CubitDefines.h"
@@ -130,7 +130,7 @@ ErrorCode DagMC::load_file(const char* cfile,
 
   std::cout << "Requested faceting tolerance: " << facet_tolerance << std::endl;
 
-#ifdef CGM
+#ifdef MOAB_HAVE_CGM
   // cgm must be initialized so we can check it for CAD data after the load
   InitCGMA::initialize_cgma();
 #endif
@@ -182,7 +182,7 @@ ErrorCode DagMC::load_file(const char* cfile,
     return rval;
   }
 
-#ifdef CGM
+#ifdef MOAB_HAVE_CGM
   // check to see if CGM has data; if so, assume it corresponds to the data we loaded in.
   if( GeometryQueryTool::instance()->num_ref_volumes() > 0 ){
     have_cgm_geom = true;
@@ -1253,7 +1253,7 @@ ErrorCode DagMC::CAD_ray_intersect(
 #endif
 )
 {
-#ifdef CGM
+#ifdef MOAB_HAVE_CGM
 #ifndef HAVE_CGM_FIRE_RAY
   return MB_NOT_IMPLEMENTED;
 #else
@@ -1523,7 +1523,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   max_id++;
   MBI->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
 
-#ifdef CGM
+#ifdef MOAB_HAVE_CGM
   if ( have_cgm_geom ) {
     // TODO: this block should only execute if the user has explicitly requested useCAD for ray firing.
     // however, this function curently executes before we know if useCAD will be specified, so do it every time.
