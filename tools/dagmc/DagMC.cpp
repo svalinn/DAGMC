@@ -149,7 +149,7 @@ ErrorCode DagMC::load_file(const char* cfile,
   sprintf(facetTolStr,"%g",facetingTolerance);
 
   // load options 
-  char options[120];
+  char options[120] = {0};
   char file_ext[4]; // file extension
 
   // get the last 4 chars of file .i.e .h5m .sat etc
