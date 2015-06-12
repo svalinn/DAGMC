@@ -51,6 +51,7 @@ target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
 				pyne_dagmc
 			        ${DAGMC_LIBRARIES}
 				dagsolid
+				iMesh
 				dagmciface)
 
 

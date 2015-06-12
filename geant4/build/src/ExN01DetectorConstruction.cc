@@ -4,6 +4,8 @@
 //
 
 #include "ExN01DetectorConstruction.hh"
+#include "ExN01SensitiveDetector.hh"
+#include "ExN01Analysis.hh"
 
 #include "G4Material.hh"
 #include "G4Box.hh"
@@ -23,9 +25,9 @@
 #include "G4PSTrackLength.hh"
 #include "G4PSCellFlux.hh"
 
+#include "G4GeometryManager.hh"
 #include "G4ParticleTable.hh"
-#include "G4SDParticleFilter.hh"
-//#include "G4VSDFilter.hh"
+//
 
 #include "DagSolid.hh"
 #include "MBInterface.hpp"
@@ -35,39 +37,16 @@
 #include "DagSolidTally.hh"
 
 #include "../pyne/pyne.h"
-//#include "pyne/particle.h"
 
+//#include "pyne/particle.h"
 using namespace moab;
 
- // dag_volumes
-std::map<int, G4LogicalVolume*> dag_logical_volumes;
-
-
 DagMC* dagmc = DagMC::instance(); // create dag instance
-UWUW workflow_data;
 
-ExN01DetectorConstruction::ExN01DetectorConstruction(std::string uwuw_file)
+ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW *uwuw_workflow_data)
   :  world_volume_log(0)
-
 {
-  uwuw_filename = uwuw_file;
-
-  // check for Materials first
-  try
-    {
-      pyne::Material mat;
-      mat.from_hdf5(uwuw_filename,"/materials");
-    }
-  catch (const std::exception &except) // catch the exception from from_hdf5                                                      
-    {
-      std::cout << "No Materials found in the file, " << uwuw_filename << std::endl;
-      std::cout << "Cannot continue without materials " << std::endl;
-
-      exit(1);
-    }
-  
-  workflow_data = UWUW(uwuw_filename);
-
+  workflow_data = uwuw_workflow_data;
   ;
 }
 
@@ -81,26 +60,35 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   // load the material from the UW^2 library
   std::map<std::string,G4Material*> material_lib;
   material_lib = load_uwuw_materials(workflow_data);
-    
+
   G4VisAttributes * invis = new G4VisAttributes(G4VisAttributes::Invisible);
 
   //------------------------------------------------------ volumes
   // -- World Volume in which we place other volumes
-  
-  
-  G4double world_width  = 1020.0*cm;
-  G4double world_height = 1020.0*cm;
-  G4double world_depth  = 1020.0*cm;
-  
-  G4Box* world_volume = new G4Box("world_volume_box",world_width,world_height,world_depth);
+
+
+  G4double world_width  = 50000.0*cm;
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(2.*world_width);
+
+  G4Box* world_volume = new G4Box("world_volume_box",world_width,world_width,world_width);
   world_volume_log = new G4LogicalVolume(world_volume,material_lib["mat:Vacuum"],"world_vol_log",0,0,0);
   world_volume_log->SetVisAttributes(invis);
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
-						      "world_vol",0,false,0); 
-   
-  G4cout << "Load sample file = "     << dagmc->load_file(uwuw_filename.c_str(),0) << G4endl;
-  G4cout << "Initialize OBB tree = "  << dagmc->init_OBBTree() << G4endl;
+						      "world_vol",0,false,0);
 
+  MBErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str(),0);
+  if(rval != MB_SUCCESS)
+    {
+      G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
+      exit(1);
+    }
+  rval = dagmc->init_OBBTree();
+  if(rval != MB_SUCCESS)
+    {
+      G4cout << "ERROR: Failed to build the OBB Tree" << G4endl;
+      exit(1);
+    }
+  
   G4int Num_of_survertices = dagmc->num_entities(2);
   G4int num_of_objects = dagmc->num_entities(3);
 
@@ -111,14 +99,14 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   dagsolid_keywords.push_back("mat");
   dagsolid_keywords.push_back("rho");
   std::map<std::string,std::string> synonymns;
-  char *delimeters = ":/";
+  char const *delimeters = ":/";
 
-  MBErrorCode rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
-  
+  rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
+
   //Store a list of DagSolids, Logical Vols, and Physical Vols
   std::vector<DagSolid*> dag_volumes;
   std::vector<G4PVPlacement*> dag_physical_volumes;
-  
+
   for ( int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++ )
     {
       // get the MBEntity handle for the volume
@@ -136,16 +124,21 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
       dag_volumes.push_back(dag_vol);
 
       // define logical volume
-      if( dag_material_name.find("Blackhole") != std::string::npos || 
+      if( dag_material_name.find("Blackhole") != std::string::npos ||
 	  dag_material_name.find("Graveyard") != std::string::npos )
 	dag_material_name = "Vacuum";
 
       G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol,material_lib["mat:"+dag_material_name],
-							"vol_"+idx_str+"_log",0,0,0);
-      
-      std::cout << "vol_" << idx_str << "  has prop " << material_lib["mat:"+dag_material_name] << std::endl;
-      //      dag_logical_volumes.push_back(dag_vol_log);
+							 "vol_"+idx_str+"_log",0,0,0);
+
+      //      std::cout << "vol_" << idx_str << "  has prop " << material_lib["mat:"+dag_material_name] << std::endl;
       dag_logical_volumes[dag_idx]=dag_vol_log;
+
+      /*
+      pyne::Material mat = material_lib["mat:"+dag_material_name];
+      if( dag_material_name.find("Vacuum") != std::string::npos )
+	dag_vol_log->SetVisAttributes(invis);
+      */
 
       // define physical volumes
       G4PVPlacement* dag_vol_phys = new G4PVPlacement(0,G4ThreeVector(0*cm,0*cm,0*cm),dag_vol_log,
@@ -153,44 +146,38 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 						      world_volume_log,false,0);
       dag_physical_volumes.push_back(dag_vol_phys);
     }
-  
+
 
   return world_volume_phys;
 }
 
-
+// Constructs the tallies
 void ExN01DetectorConstruction::ConstructSDandField()
 {
-  
-  //  std::string filename = "atic_uwuw_zip.h5m";
 
   G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
-  // check for tallies first
-  try
-    {
-      pyne::Tally tally;
-      tally.from_hdf5(uwuw_filename,"/tally");
-    }
-  catch (const std::exception &except) // catch the exception from from_hdf5                                                      
+  if ( workflow_data->tally_library.size() == 0 )
     {
       std::cout << "No Tallies found in the file, " << uwuw_filename << std::endl;
+      std::cout << "Tallies not found, transport will happen, but no scores" << std::endl;
       return;
     }
 
-  // load 
+  // create new histogram manager for tallies
+  HistogramManager* HM = new HistogramManager();
+  // load
   std::map<std::string,pyne::Tally>::iterator t_it;
 
   //  load tallies from the h5m file
-  tally_library = workflow_data.tally_library;
-  
-  // TrackLength Scorer   
+  tally_library = workflow_data->tally_library;
+
+  // TrackLength Scorer
   //  std::vector<G4MultiFunctionalDetector*> detectors;
 
   // for regisistering particle tallies
-  std::map<std::string,G4SDParticleFilter*> particle_filters;
 
-  /* notes for andy 
+  /* notes for andy
      register logical volume as sensitive only once
      then apply multiple primative sensitivities and registers
    */
@@ -199,20 +186,23 @@ void ExN01DetectorConstruction::ConstructSDandField()
   std::vector<std::string> particles;
 
   // build map of vectors of volumes vs particle names
-  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
+  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it )
     {
       pyne::Tally scorer = t_it -> second; // current tally
 
-      if( scorer.tally_type.find("Flux") != std::string::npos && 
+      if( scorer.tally_type.find("Flux") != std::string::npos &&
 	  scorer.entity_type.find("Volume") != std::string::npos )
 	{
 	  int vol_id = scorer.entity_id;
 	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
-	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
-	  
+	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index
+
 	  particles = volume_part_map[vol_id];
 	  particles.push_back(scorer.particle_name);
 	  volume_part_map[vol_id] = particles;
+
+    // builds and keeps a store of particle filters
+    BuildParticleFilter(scorer.particle_name);
 
 	  // build the filters
 	  /*
@@ -226,157 +216,258 @@ void ExN01DetectorConstruction::ConstructSDandField()
 	}
     }
 
-  // pritns the maps
+  // prints the maps
   std::map<int,std::vector<std::string> >::iterator it;
   for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
-    {
-      std::vector<std::string>::iterator str;
-      for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
-	{
-	  std::cout << (it->first) << " " << (*str) << std::endl;
-	}
+  {
+    std::vector<std::string>::iterator str;
+    for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
+	  {
+	    std::cout << (it->first) << " " << (*str) << std::endl;
     }
+  }
 
- 
-  //  loop over the volume indices 
+  // build the filters
+
+  // setup the data for the detectors histograms
+  build_histogram();
+
+
+  int sd_index = 0; // the number of sensitive detectors
+  //  loop over the volume indices
   for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
     {
+      MBEntityHandle vol = dagmc->entity_by_id(3,it->first); // convert id to eh
+      int vol_idx = dagmc->index_by_handle(vol); // get the volume index
+
       // turn the idx into string
-      std::cout << (it->first) << std::endl;
       std::stringstream int_to_string;
-      int_to_string << (it->first);
+      int_to_string << vol_idx;
       std::string idx_str = int_to_string.str();
 
+      // get detector name
+      std::string detector_name = "vol_"+idx_str+"_flux";
+
+     // increment the detector counte
+     ++sd_index;
+
+     // loop over the vector of particle types
+     std::vector<std::string>::iterator str;
+     std::vector<std::string> particle_types = (it->second);
+     for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
+     {
+        // particle name
+        std::string particle_name = *str;
+
+        // create new detector
+        G4cout << detector_name+'_'+particle_name << G4endl;
+
+
+        int pdc = pyne::particle::id(particle_name);
+        // if pdc = 0, is heavy ion, set pdc as nucid
+        if ( pdc == 0 )
+            pdc = pyne::nucname::id(particle_name);
+
+        // create a histogram for each particle
+        add_histogram_description(detector_name+"_"+particle_name);
+        HM->add_histogram(sd_index,pdc);
+      }
+
+      // get detector volume
+      double det_volume = dag_logical_volumes[vol_idx]->GetSolid()->GetCubicVolume();
+
       // create new detector
-      G4MultiFunctionalDetector *detector = new G4MultiFunctionalDetector("vol_"+idx_str+"_flux");
+      G4VSensitiveDetector* detector = new ExN01SensitiveDetector(detector_name,
+                                             "flux", sd_index,det_volume*cm3,
+                                              HM);
+
+      // May wish to filter particles here as well
+
+      //sets the sensitivity
+      // build the filters
+      /*
+      for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
+        {
+          // particle name
+          std::string particle_name = *str;
+          detector->SetFilter(particle_filters[particle_name]);
+        }
+       */
+      // add the detector
       G4SDManager::GetSDMpointer()->AddNewDetector(detector);
-      
-      MBEntityHandle vol = dagmc->entity_by_id(3,it->first); // convert id to eh
-      int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
       dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
+  }
+  end_histogram();
 
-      // loop over the vector of particle types 
-      std::vector<std::string>::iterator str;
-      for ( str = (it->second).begin() ; str != (it->second).end() ; ++str )
-	{
-	  std::cout << *str << std::endl;
-	  // set the sensitivity
-	  G4VPrimitiveScorer *particle_flux = new G4PSCellFlux(*str+"CellFlux");
-	  //	  particle_flux->SetFilter(particle_filters[*str]);
-
-
-	  G4SDParticleFilter *filter = new G4SDParticleFilter(*str);
-	  if(!pyne::particle::is_heavy_ion(*str))
-	    filter->add(pyne::particle::geant4(*str));
-	  else
-	    // add ion by getting z and a from pyne
-	    filter->addIon(pyne::nucname::znum(*str),pyne::nucname::anum(*str));
-	  particle_flux->SetFilter(filter);
-	 
-
-
-	  detector->RegisterPrimitive(particle_flux);
-	  // set the particle filter
-	  std::cout << (*str) << std::endl;
-	}
-
-    }
-  /*
-  // build map of vectors of volumes vs particle names
-  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
-    {
-      pyne::Tally scorer = t_it -> second; // current tally
-
-      if( scorer.tally_type.find("Flux") != std::string::npos && 
-	  scorer.entity_type.find("Volume") != std::string::npos )
-	{
-	  int vol_id = scorer.entity_id;
-	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
-	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
-	  
-	  particles = volume_part_map[vol_idx];
-	  particles.push_back(scorer.particle_name);
-	  volume_part_map[vol_idx] = particles;
-
-	}
-    }
-  
-
-  exit(1);
-  */
+  HM->print_histogram_collection();
+  //exit(1);
 }
 
-  //   G4VPrimitiveScorer* primitive; //set g4scorer
-  // set the sensitive detectors first
+/* initialise the histograms */
+void ExN01DetectorConstruction::build_histogram()
+{
+  // Create analysis manager
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << analysisManager->GetType() << G4endl;
+
+  analysisManager->SetVerboseLevel(1);
+  analysisManager->SetFirstHistoId(1);
+
+  // create base tuple
+  analysisManager->CreateNtuple("DagGeant","TrackL");
+  return;
+}
+
+/* add histogram for */
+void ExN01DetectorConstruction::add_histogram_description(std::string tally_name)
+{
+  // Create analysis manager
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   /*
-  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
-    {
-      pyne::Tally scorer = t_it -> second; // current tally
-
-      if( scorer.tally_type.find("Flux") != std::string::npos && 
-	  scorer.entity_type.find("Volume") != std::string::npos )
-	{
-	  int vol_id = scorer.entity_id;
-	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
-	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
-	  // recast tally id to index
-	  scorer.entity_id = vol_idx;
-
-	  
-	  // convert vol_idx to string
-	  std::stringstream int_to_string;
-	  int_to_string << vol_idx;
-	  std::string idx_str = int_to_string.str();
-
-
-	  // create G4Multi
-	  G4MultiFunctionalDetector* vol_det = new G4MultiFunctionalDetector("vol_"+idx_str+"_flux");
-       
-	  detectors[vol_idx]=vol_det;
-
-	  dag_logical_volumes[vol_idx]->SetSensitiveDetector(vol_det);
-
-	  primitive = new G4PSCellFlux("CellFlux");
-	  vol_det->RegisterPrimitive(primitive);
-	  G4SDManager::GetSDMpointer()->AddNewDetector(vol_det);
-	  
-	}
-    }
-
-  // loop over the tallies
-  for ( t_it = tally_library.begin() ; t_it != tally_library.end() ; ++t_it ) 
-    {
-      pyne::Tally scorer = t_it -> second; // current tally
-      if( scorer.tally_type.find("Flux") != std::string::npos && 
-	  scorer.entity_type.find("Volume") != std::string::npos )
-	{
-	  int vol_id = scorer.entity_id;
-	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
-	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index 
-
-
-	  std::cout << (t_it->first) << " " << (t_it->second).particle_name << " " <<  (t_it->second).entity_id << std::endl;
-	  
-	  //
-	    //SetSensitiveDetector("vol_"+idx_str+"_log",vol_det);
-	  
-	  // create filter
-	  // if filter for particle doesnt exist in map create it
-	  if( 0 < particle_filters.count(scorer.particle_name))
-	    {
-	      G4SDParticleFilter *filter = new G4SDParticleFilter(scorer.particle_name);
-	      filter->add(pyne::particle::geant4(scorer.particle_name));
-	      particle_filters[scorer.particle_name]=filter;
-	    }
-	  
-	  primative->SetFilter(particle_filters[scorer.particle_name]);
-	  detectors[vol_idx]->Register(primative);
-
-	  //
-      
-	  // store detectors
-	}
-    }
+  // add ebins for the given tally eventually
+  std::vector<G4double> bin_bounds={1.000000E-14,2.000000E-13,2.929734E-13,4.291671E-13,6.286727E-13,
+				    9.209218E-13,1.349028E-12,1.976147E-12,2.894792E-12,4.240485E-12,
+				    6.211746E-12,9.099382E-12,1.332938E-11,1.952578E-11,2.860266E-11,
+				    4.189910E-11,6.137660E-11,8.990856E-11,1.317041E-10,1.929290E-10,
+				    2.826153E-10,4.139938E-10,5.315785E-10,6.250621E-10,6.825603E-10,
+				    8.336811E-10,8.764248E-10,1.125352E-9,1.444980E-9,1.855391E-9,
+				    2.382370E-9,3.059023E-9,3.927864E-9,5.043477E-9,6.475952E-9,
+				    8.315287E-9,1.067704E-8,1.370959E-8,1.760346E-8,2.260329E-8,
+				    2.902320E-8,3.726653E-8,4.785117E-8,6.144212E-8,7.889325E-8,
+				    1.013009E-7,1.300730E-7,1.670170E-7,2.144541E-7,2.753645E-7,
+				    3.535750E-7,4.539993E-7,5.829466E-7,7.485183E-7,9.611165E-7,
+				    1.234098E-6,1.363889E-6,1.507331E-6,1.584613E-6,1.665858E-6,
+				    1.841058E-6,2.034684E-6,2.248673E-6,2.485168E-6,2.612586E-6,
+				    2.746536E-6,2.863488E-6,3.035391E-6,3.354626E-6,3.707435E-6,
+				    4.097350E-6,4.307425E-6,4.528272E-6,5.004514E-6,5.530844E-6,
+				    6.267267E-6,7.101744E-6,8.047330E-6,9.118820E-6,1.033298E-5,
+				    1.170880E-5,1.326780E-5,1.503439E-5,1.703620E-5,1.930454E-5,
+				    2.133482E-5,2.187491E-5,2.357862E-5,2.417552E-5,2.478752E-5,
+				    2.605841E-5,2.808794E-5,3.182781E-5,3.430669E-5,3.517517E-5,
+				    3.606563E-5,4.086771E-5,4.630919E-5,5.247518E-5,5.656217E-5,
+				    5.946217E-5,6.251086E-5,6.737947E-5,7.635094E-5,8.651695E-5,
+				    9.803655E-5,1.110900E-4,1.167857E-4,1.227734E-4,1.290681E-4,
+				    1.356856E-4,1.426423E-4,1.499558E-4,1.576442E-4,1.616349E-4,
+				    1.657268E-4,1.699221E-4,1.742237E-4,1.831564E-4,1.925470E-4,
+				    2.024191E-4,2.127974E-4,2.237077E-4,2.351775E-4,2.472353E-4,
+				    2.599113E-4,2.732372E-4,2.801543E-4,2.872464E-4,2.945181E-4,
+				    3.019738E-4,3.096183E-4,3.174564E-4,3.337327E-4,3.508435E-4,
+				    3.688317E-4,3.877421E-4,4.076220E-4,4.285213E-4,4.504920E-4,
+				    4.735892E-4,4.978707E-4,5.104743E-4,5.233971E-4,5.366469E-4,
+				    5.502322E-4,5.784432E-4,6.081006E-4,6.392786E-4,6.720551E-4,
+				    7.065121E-4,7.427358E-4,7.808167E-4,8.208500E-4,8.629359E-4,
+				    9.071795E-4,9.536916E-4,9.616402E-4,9.778344E-4,1.002588E-3,
+				    1.053992E-3,1.108032E-3,1.164842E-3,1.194330E-3,1.224564E-3,
+				    1.287349E-3,1.353353E-3,1.422741E-3,1.495686E-3,1.533550E-3,
+				    1.572372E-3,1.612176E-3,1.652989E-3,1.737739E-3,1.826835E-3,
+				    1.873082E-3,1.920499E-3,1.969117E-3,2.018965E-3,2.122480E-3,
+				    2.231302E-3,2.268877E-3,2.306855E-3,2.345703E-3,2.365253E-3,
+				    2.385205E-3,2.425130E-3,2.465970E-3,2.592403E-3,2.725318E-3,
+				    2.865048E-3,3.011942E-3,3.088190E-3,3.166368E-3,3.246525E-3,
+				    3.328711E-3,3.499377E-3,3.678794E-3,3.867410E-3,4.065697E-3,
+				    4.274149E-3,4.493290E-3,4.607038E-3,4.723666E-3,4.843246E-3,
+				    4.965853E-3,5.220458E-3,5.488116E-3,5.769498E-3,5.915554E-3,
+				    5.915554E-3,6.218851E-3,6.376282E-3,6.537698E-3,6.592384E-3,
+				    6.647595E-3,6.703200E-3,6.872893E-3,7.046881E-3,7.225274E-3,
+				    7.408182E-3,7.595721E-3,7.788008E-3,7.985162E-3,8.187308E-3,
+				    8.394570E-3,8.607080E-3,8.824969E-3,9.048374E-3,9.277435E-3,
+				    9.512294E-3,9.753099E-3,1.000000E-2,1.025315E-2,1.051271E-2,
+				    1.077884E-2,1.105171E-2,1.133148E-2,1.161834E-2,1.191246E-2,
+				    1.221403E-2,1.252323E-2,1.284025E-2,1.316531E-2,1.349859E-2,
+				    1.384031E-2,1.419068E-2,1.454991E-2,1.491825E-2,1.529590E-2,
+				    1.568312E-2,1.608014E-2,1.648721E-2,1.690459E-2,1.733253E-2,
+				    1.777131E-2,1.822119E-2,1.868246E-2,1.915541E-2,1.964033E-2,
+				    2.000000E-2};
   */
-//}
+  std::vector<G4double> bin_bounds={1.000000E-14*GeV,2.000000E-13*GeV,2.929734E-13*GeV,4.291671E-13*GeV,6.286727E-13*GeV,
+				    9.209218E-13*GeV,1.349028E-12*GeV,1.976147E-12*GeV,2.894792E-12*GeV,4.240485E-12*GeV,
+				    6.211746E-12*GeV,9.099382E-12*GeV,1.332938E-11*GeV,1.952578E-11*GeV,2.860266E-11*GeV,
+				    4.189910E-11*GeV,6.137660E-11*GeV,8.990856E-11*GeV,1.317041E-10*GeV,1.929290E-10*GeV,
+				    2.826153E-10*GeV,4.139938E-10*GeV,5.315785E-10*GeV,6.250621E-10*GeV,6.825603E-10*GeV,
+				    8.336811E-10*GeV,8.764248E-10*GeV,1.125352E-9*GeV,1.444980E-9*GeV,1.855391E-9*GeV,
+				    2.382370E-9*GeV,3.059023E-9*GeV,3.927864E-9*GeV,5.043477E-9*GeV,6.475952E-9*GeV,
+				    8.315287E-9*GeV,1.067704E-8*GeV,1.370959E-8*GeV,1.760346E-8*GeV,2.260329E-8*GeV,
+				    2.902320E-8*GeV,3.726653E-8*GeV,4.785117E-8*GeV,6.144212E-8*GeV,7.889325E-8*GeV,
+				    1.013009E-7*GeV,1.300730E-7*GeV,1.670170E-7*GeV,2.144541E-7*GeV,2.753645E-7*GeV,
+				    3.535750E-7*GeV,4.539993E-7*GeV,5.829466E-7*GeV,7.485183E-7*GeV,9.611165E-7*GeV,
+				    1.234098E-6*GeV,1.363889E-6*GeV,1.507331E-6*GeV,1.584613E-6*GeV,1.665858E-6*GeV,
+				    1.841058E-6*GeV,2.034684E-6*GeV,2.248673E-6*GeV,2.485168E-6*GeV,2.612586E-6*GeV,
+				    2.746536E-6*GeV,2.863488E-6*GeV,3.035391E-6*GeV,3.354626E-6*GeV,3.707435E-6*GeV,
+				    4.097350E-6*GeV,4.307425E-6*GeV,4.528272E-6*GeV,5.004514E-6*GeV,5.530844E-6*GeV,
+				    6.267267E-6*GeV,7.101744E-6*GeV,8.047330E-6*GeV,9.118820E-6*GeV,1.033298E-5*GeV,
+				    1.170880E-5*GeV,1.326780E-5*GeV,1.503439E-5*GeV,1.703620E-5*GeV,1.930454E-5*GeV,
+				    2.133482E-5*GeV,2.187491E-5*GeV,2.357862E-5*GeV,2.417552E-5*GeV,2.478752E-5*GeV,
+				    2.605841E-5*GeV,2.808794E-5*GeV,3.182781E-5*GeV,3.430669E-5*GeV,3.517517E-5*GeV,
+				    3.606563E-5*GeV,4.086771E-5*GeV,4.630919E-5*GeV,5.247518E-5*GeV,5.656217E-5*GeV,
+				    5.946217E-5*GeV,6.251086E-5*GeV,6.737947E-5*GeV,7.635094E-5*GeV,8.651695E-5*GeV,
+				    9.803655E-5*GeV,1.110900E-4*GeV,1.167857E-4*GeV,1.227734E-4*GeV,1.290681E-4*GeV,
+				    1.356856E-4*GeV,1.426423E-4*GeV,1.499558E-4*GeV,1.576442E-4*GeV,1.616349E-4*GeV,
+				    1.657268E-4*GeV,1.699221E-4*GeV,1.742237E-4*GeV,1.831564E-4*GeV,1.925470E-4*GeV,
+				    2.024191E-4*GeV,2.127974E-4*GeV,2.237077E-4*GeV,2.351775E-4*GeV,2.472353E-4*GeV,
+				    2.599113E-4*GeV,2.732372E-4*GeV,2.801543E-4*GeV,2.872464E-4*GeV,2.945181E-4*GeV,
+				    3.019738E-4*GeV,3.096183E-4*GeV,3.174564E-4*GeV,3.337327E-4*GeV,3.508435E-4*GeV,
+				    3.688317E-4*GeV,3.877421E-4*GeV,4.076220E-4*GeV,4.285213E-4*GeV,4.504920E-4*GeV,
+				    4.735892E-4*GeV,4.978707E-4*GeV,5.104743E-4*GeV,5.233971E-4*GeV,5.366469E-4*GeV,
+				    5.502322E-4*GeV,5.784432E-4*GeV,6.081006E-4*GeV,6.392786E-4*GeV,6.720551E-4*GeV,
+				    7.065121E-4*GeV,7.427358E-4*GeV,7.808167E-4*GeV,8.208500E-4*GeV,8.629359E-4*GeV,
+				    9.071795E-4*GeV,9.536916E-4*GeV,9.616402E-4*GeV,9.778344E-4*GeV,1.002588E-3*GeV,
+				    1.053992E-3*GeV,1.108032E-3*GeV,1.164842E-3*GeV,1.194330E-3*GeV,1.224564E-3*GeV,
+				    1.287349E-3*GeV,1.353353E-3*GeV,1.422741E-3*GeV,1.495686E-3*GeV,1.533550E-3*GeV,
+				    1.572372E-3*GeV,1.612176E-3*GeV,1.652989E-3*GeV,1.737739E-3*GeV,1.826835E-3*GeV,
+				    1.873082E-3*GeV,1.920499E-3*GeV,1.969117E-3*GeV,2.018965E-3*GeV,2.122480E-3*GeV,
+				    2.231302E-3*GeV,2.268877E-3*GeV,2.306855E-3*GeV,2.345703E-3*GeV,2.365253E-3*GeV,
+				    2.385205E-3*GeV,2.425130E-3*GeV,2.465970E-3*GeV,2.592403E-3*GeV,2.725318E-3*GeV,
+				    2.865048E-3*GeV,3.011942E-3*GeV,3.088190E-3*GeV,3.166368E-3*GeV,3.246525E-3*GeV,
+				    3.328711E-3*GeV,3.499377E-3*GeV,3.678794E-3*GeV,3.867410E-3*GeV,4.065697E-3*GeV,
+				    4.274149E-3*GeV,4.493290E-3*GeV,4.607038E-3*GeV,4.723666E-3*GeV,4.843246E-3*GeV,
+				    4.965853E-3*GeV,5.220458E-3*GeV,5.488116E-3*GeV,5.769498E-3*GeV,5.915554E-3*GeV,
+				    5.915554E-3*GeV,6.218851E-3*GeV,6.376282E-3*GeV,6.537698E-3*GeV,6.592384E-3*GeV,
+				    6.647595E-3*GeV,6.703200E-3*GeV,6.872893E-3*GeV,7.046881E-3*GeV,7.225274E-3*GeV,
+				    7.408182E-3*GeV,7.595721E-3*GeV,7.788008E-3*GeV,7.985162E-3*GeV,8.187308E-3*GeV,
+				    8.394570E-3*GeV,8.607080E-3*GeV,8.824969E-3*GeV,9.048374E-3*GeV,9.277435E-3*GeV,
+				    9.512294E-3*GeV,9.753099E-3*GeV,1.000000E-2*GeV,1.025315E-2*GeV,1.051271E-2*GeV,
+				    1.077884E-2*GeV,1.105171E-2*GeV,1.133148E-2*GeV,1.161834E-2*GeV,1.191246E-2*GeV,
+				    1.221403E-2*GeV,1.252323E-2*GeV,1.284025E-2*GeV,1.316531E-2*GeV,1.349859E-2*GeV,
+				    1.384031E-2*GeV,1.419068E-2*GeV,1.454991E-2*GeV,1.491825E-2*GeV,1.529590E-2*GeV,
+				    1.568312E-2*GeV,1.608014E-2*GeV,1.648721E-2*GeV,1.690459E-2*GeV,1.733253E-2*GeV,
+				    1.777131E-2*GeV,1.822119E-2*GeV,1.868246E-2*GeV,1.915541E-2*GeV,1.964033E-2*GeV,
+				    2.000000E-2*GeV};
+  // create historgram
+  //  analysisManager->CreateH1(tally_name,tally_name,10000,1e-11,100.);
+  analysisManager->CreateH1(tally_name,tally_name,10000,1e-11,100.);
+  analysisManager->CreateNtupleDColumn(tally_name);
+  return;
+}
+
+/* end the histograms */
+void ExN01DetectorConstruction::end_histogram()
+{
+  // Create analysis manager
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+
+  // finish tuple
+  analysisManager->FinishNtuple();
+
+  return;
+}
+
+// build the particle filters
+void ExN01DetectorConstruction::BuildParticleFilter(std::string particle_name)
+{
+  // build filter if it doesnt exist
+  if(particle_filters.count(particle_name) == 0 )
+  {
+   // create particle filter
+   G4SDParticleFilter *filter = new G4SDParticleFilter(particle_name);
+   if(!pyne::particle::is_heavy_ion(particle_name))
+     filter->add(pyne::particle::geant4(particle_name));
+   else
+     // add ion by getting z and a from pyne
+    filter->addIon(pyne::nucname::znum(particle_name),
+                  pyne::nucname::anum(particle_name));
+
+    particle_filters[particle_name]=filter;
+
+   }
+}

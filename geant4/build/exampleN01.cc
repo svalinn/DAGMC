@@ -1,18 +1,22 @@
 //
-// 
+//
 // --------------------------------------------------------------
 //      GEANT 4 - exampleN01
 // --------------------------------------------------------------
 
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
+#include "G4Timer.hh"
 
 #include "ExN01DetectorConstruction.hh"
 #include "ExN01PhysicsList.hh"
 #include "ExN01PrimaryGeneratorAction.hh"
 #include "ExN01ActionInitialization.hh"
 
+#include "ExN01UserScoreWriter.hh"
+
 #include "G4PhysListFactory.hh"
+#include "G4ScoringManager.hh"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -22,29 +26,42 @@
 #include "G4UIExecutive.hh"
 #endif
 
+#ifndef uwuw_hpp
+#define uwuw_hpp 1
+#include "uwuw.hpp"
+#endif
+
 int main(int argc, char* argv[])
 {
+   G4Timer Timer;
+   Timer.Start();
+
   // Construct the default run manager
-  //
   G4RunManager* runManager = new G4RunManager;
+
+  // Activate command-based scorer
+  G4ScoringManager * scManager = G4ScoringManager::GetScoringManager();
+  scManager->SetVerboseLevel(1);
+  scManager->SetScoreWriter(new ExN01UserScoreWriter());
 
   std::string uwuw_file(argv[1]); // file containing data & uwuw
 
-  // set mandatory initialization classes
-  //
-  //G4VUserDetectorConstruction* detector = new ExN01DetectorConstruction(uwuw_file);
-  runManager->SetUserInitialization(new ExN01DetectorConstruction(uwuw_file));
-  //  runManager->SetUserInitialization(detector);
+  // Activate UI-command base scorer                            
+  // load the UWUW data
+  UWUW *workflow_data = new UWUW(uwuw_file);
 
-  G4PhysListFactory *physListFactory = new G4PhysListFactory(); 
-  G4VUserPhysicsList *physicsList = 
-    physListFactory->GetReferencePhysList("QGSP_BIC_HP"); 
-  runManager->SetUserInitialization(physicsList); 
+  // setup detectors and scores
+  runManager->SetUserInitialization(new ExN01DetectorConstruction(workflow_data));
+  
+  G4PhysListFactory *physListFactory = new G4PhysListFactory();
+  G4VUserPhysicsList *physicsList =
+    physListFactory->GetReferencePhysList("QGSP_BIC_HP");
+  runManager->SetUserInitialization(physicsList);
 
 
   // set mandatory user action class
   //
-  ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization(uwuw_file);
+  ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization(workflow_data);
   runManager->SetUserInitialization(actionInitialization);
 
   //  G4VUserPrimaryGeneratorAction* gen_action = new ExN01PrimaryGeneratorAction;
@@ -58,42 +75,47 @@ int main(int argc, char* argv[])
   //
   runManager->Initialize();
 
-  
-  G4VisManager* visManager = new G4VisExecutive;
-  visManager->Initialize();
-
-
-  // Get the pointer to the UI manager and set verbosities
-  //
+  // Get the pointer to the UI manager and set verbosities      
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
-  G4UIExecutive* UI = new G4UIExecutive(argc, argv);
-  UImanager->ApplyCommand("/control/execute vis.mac");
-  UI->SessionStart();
 
-  delete UI;
-  return 0;
+  // batch mode
+  if( argc > 2 )
+    {
+      G4String command = "/control/execute ";
+      std::string filename(argv[2]);
+      G4UIExecutive* ui = new G4UIExecutive(argc,argv, "tcsh" );
+      UImanager->ApplyCommand(command+filename);
+      ui->SessionStart();
+      delete ui;
+    } 
+  else
+    {
+      G4VisManager* visManager = new G4VisExecutive;
+      visManager->Initialize();
 
- 
-  UImanager->ApplyCommand("/run/verbose 1");
-  UImanager->ApplyCommand("/event/verbose 1");
-  UImanager->ApplyCommand("/tracking/verbose 1");
-  
+      G4UIExecutive* UI = new G4UIExecutive(argc, argv);
+      UImanager->ApplyCommand("/control/execute vis.mac");
 
+      UI->SessionStart();
+      delete visManager;
+      delete UI;
+    }
 
-  // Start a run
-  //
-  G4int numberOfEvent = 1e6;
-  runManager->BeamOn(numberOfEvent);
+  // stop the timer
+  Timer.Stop();
+  G4cout << G4endl;
+  G4cout << "******************************************";
+  G4cout << G4endl;
+  G4cout << "Total Real Elapsed Time is: "<< Timer.GetRealElapsed();
+  G4cout << G4endl;
+  G4cout << "Total System Elapsed Time: " << Timer.GetSystemElapsed();
+  G4cout << G4endl;
+  G4cout << "Total GetUserElapsed Time: " << Timer.GetUserElapsed();
+  G4cout << G4endl;
+  G4cout << "******************************************";
+  G4cout << G4endl;
 
-  // Job termination
-  //
-  // Free the store: user actions, physics_list and detector_description are
-  //                 owned and deleted by the run manager, so they should not
-  //                 be deleted in the main() program !
-  //
   delete runManager;
 
   return 0;
 }
-
-

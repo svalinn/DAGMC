@@ -9,7 +9,10 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
+#ifndef uwuw_hpp
+#define uwuw_hpp 1
 #include "uwuw.hpp"
+#endif
 
 class G4Run;
 
@@ -29,11 +32,15 @@ class G4Run;
 class ExN01RunAction : public G4UserRunAction
 {
   public:
-    ExN01RunAction(UWUW workflow_data);
+    ExN01RunAction(UWUW *uwuw_workflow_data);
     virtual ~ExN01RunAction();
 
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
+
+  private:
+    UWUW *workflow_data;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
