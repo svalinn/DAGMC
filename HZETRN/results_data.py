@@ -215,6 +215,32 @@ def get_meta_from_file(infile):
     dm_header, group_header, row_data = get_data(infile)
     return get_meta_struct(row_data[:,:4])
 
+def get_dose_from_filedata(dm_header, row_data):
+    """ Get a structured array from data returned from file
+
+    Parameters
+    ----------
+    dm_header : array of ascii column descriptors
+        col 0-3 'u','v','w','depth'
+	col 4-N(radiation-environmnt-used) 
+	       dose, dose-equivalent for each species
+	       and dose, dose-equivalent for all
+	Total number of columns is 4 + 2(N) + 2
+
+    row_data : 2d numpy array of response data
+        Columns 0 to (2(N) + 5) are the data for the named header.
+	The rest of the columns are not used in this function
+
+    Notes
+    -----
+        Each row in the row_data Numpy array is the data for  
+	radiation in the direction indicated by the first three
+	columns
+    """
+    dose_header = dm_header[4:]
+    dose_data = row_data[:,4:len(dm_header)]
+    return get_dose_struct(dose_header, dose_data)
+
 def get_dose_from_file(infile):
     """ Get a structured array from data in a file.
 
@@ -233,6 +259,67 @@ def get_dose_from_file(infile):
     return get_dose_struct(dose_header, dose_data)
 
 
+def get_let_from_data(group_header, group_data):
+    """ Get the structures for 
+    a) let energy boundaries
+    b) dif let result sets (columns) for each energy group
+    c) int let result sets for each energy group
+
+    Parameters
+    ----------
+    group_header : 1-d float array
+       As read from the data file, truncated to start with the first
+       let energy group
+
+    Returns
+    -------
+    Numpy record arrays for the let energy boundaries and for the dif_let and
+    int_let results
+    """
+    nrows = group_data.shape[0]
+    dif_let_start = 0
+    let_size = 700
+    tr_let_group = get_group_struct(dif_let_start, \
+                                    let_size, group_header)
+
+    dif_let_end = dif_let_start + let_size + 1
+    tr_dif_let  = np.zeros(let_size, \
+        dtype=[('group_let_id', 'i4'), ('result', 'f4', nrows)])
+    for i in range(let_size):
+	# First member of tuple could be i
+        tr_dif_let[i] = (tr_let_group['id'][i], group_data[:,i])
+
+    int_let_start = dif_let_end
+    int_let_end   = int_let_start + let_size + 1
+    tr_int_let    = np.zeros(let_size, \
+        dtype=[('group_let_id', 'i4'), ('result', 'f4', nrows)])
+    for i in range(let_size):
+	# First member of tuple could be i
+        tr_int_let[i] = (tr_let_group['id'][i], \
+	                 group_data[:,int_let_start+i])
+
+    return tr_let_group, tr_dif_let, tr_int_let
+
+
+def get_let_from_file(infile):
+    """ Get structure arrays from a file  
+
+    Parameters
+    ----------
+    filename : file with a header, 2 statistics rows, and otherwise
+               row by column floats
+        File is the result of calling results_encoding on a HZETRN dataset
+
+    Returns
+    -------
+    Numpy record arrays for the let energy boundaries and for the dif_let and
+    int_let results
+    """
+    dm_header, group_header, row_data = get_data(infile)
+    group_data = row_data[:,len(dm_header):]
+    return get_let_from_data(group_header, group_data)
+
+# Todo: remove
 def get_groups_from_filedata(group_header):
     """ Get a structured array from the data returned by
     get_data.
@@ -250,6 +337,7 @@ def get_groups_from_filedata(group_header):
 
     return tr_let_group, tr_flux_group
 
+# Don't use
 def get_groups_from_file(infile):
     """ Get a structured array from the data file.
 
@@ -282,33 +370,11 @@ def main():
     dose_data = row_data[:,4:len(dm_header)]
     tr_dose = get_dose_struct(dose_header, dose_data)
     ##########################################################
-    dif_let_start = 0
-    let_size = 700
-    tr_let_group = get_group_struct(dif_let_start, let_size, group_header)
-
-    flux_start = dif_let_start + 700 + 700
-    flux_size = 100
-    tr_flux_group = get_group_struct(flux_start, flux_size, group_header)
+    # tr_let_group, tr_flux_group = get_groups_from_file_data(group_header)
     ##########################################################
-    # There are always 
-    """
-    dif_let_end = dif_let_start + let_size + 1
-    dif_let_data = row_data[:,dif_let_start:dif_let_end]
+    group_data = row_data[:,len(dm_header):]
+    tr_ get_let_from_data(group_header, group_data)
 
-    tr_dif_let = np.zeros(let_size, \
-              dtype=[('group_let_id', 'i4'), ('result', 'f4', nrows)])
-
-    for i in range(let_size):
-        # tr_let_group[tr_let_group['id'] == i]['energy'][0]
-        tr_cols[i] = (i, data[:,i])
-
-    int_let_start = dif_let_end
-    int_let_end = int_let_start + let_size
-    int_let_data = row_data[:,int_let_start:int_let_end]
-
-    tr_int_let = np.zeros(let_size, \
-                 dtype=[('group_let_id', 'i4'), ('result', 'f4', nrows)])
-    """
     ####################################################################3
     # Do all data cols at once
     tr_all_cols, tr_all_resp = get_data_struct(all_header[4:], 
