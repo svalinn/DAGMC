@@ -319,6 +319,14 @@ def get_let_from_file(infile):
     group_data = row_data[:,len(dm_header):]
     return get_let_from_data(group_header, group_data)
 
+def write_let_from_filedata(dm_header, group_header, row_data):
+    tr_let_group, tr_dif_let, tr_int_let = \
+        get_let_from_data(group_header, row_data[:,len(dm_header):])
+    with open('tmp1.dat', 'w') as f:
+        np.savetxt(f, zip(tr_let_group['id'],tr_let_group['energy']))
+    return
+
+
 # Todo: remove
 def get_groups_from_filedata(group_header):
     """ Get a structured array from the data returned by
@@ -373,7 +381,7 @@ def main():
     # tr_let_group, tr_flux_group = get_groups_from_file_data(group_header)
     ##########################################################
     group_data = row_data[:,len(dm_header):]
-    tr_ get_let_from_data(group_header, group_data)
+    tr_get_let_from_data(group_header, group_data)
 
     ####################################################################3
     # Do all data cols at once
