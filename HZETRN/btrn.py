@@ -89,6 +89,8 @@ def load_directions(ray_dir_file, num_ray_dirs):
         ray_tuples = load_ray_tuples(ray_dir_file)
         if num_ray_dirs > 0:
             ray_tuples = ray_tuples[:num_ray_dirs]
+        elif num_ray_dirs < 0:
+	    ray_tuples = ray_tuples[-num_ray_dirs:]
     elif num_ray_dirs > 0:
         ray_tuples = tag_utils.get_rand_dirs(num_ray_dirs)
     else:
@@ -413,14 +415,17 @@ def main():
     # Ensure it exists before proceeding, and does not contain data 
     # subdirectories from previous runs (files are ok)
     data_path = os.path.join(run_path,'data')
-    if not os.path.isdir(data_path):
-        os.mkdir(data_path)
-    else:
-        for el in os.listdir(data_path):
-            el_path = os.path.join(data_path, el)
-            if os.path.isdir(el_path):
-                raise Exception("Data directory {} has subdirectories! Remove \
-                                 these and continue.".format(data_path))
+    # If a negative number of ray_dirs is given we are in continuatio nmode
+    if 0 <= args.num_ray_dirs:
+        if not os.path.isdir(data_path):
+            os.mkdir(data_path)
+        else:
+            for el in os.listdir(data_path):
+                el_path = os.path.join(data_path, el)
+                if os.path.isdir(el_path):
+                    raise Exception("Data directory {} has subdirectories! \
+		                     Remove these and continue.". \
+				     format(data_path))
     
     # Initialize the transportresponse class
     one_d_tool = transportresponse(run_path, data_path, \
@@ -441,7 +446,11 @@ def main():
         msg = "Exiting program: The reference point is in the graveyard!"
         sys.exit(msg)
     
-    index = 1
+    if 0 <= args.num_ray_dirs:
+        index = 1
+    else:
+        index = -args.num_ray_dirs
+
     for uvw in ray_tuples:
         spatial_tuples, number_slabs_to_reference_point =  \
                  createTransportDictionary(uvw, graveyard_vol, start_vol, \
