@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 
 # Number of columns devoted to direction and depth
-num_non_data = 4
+num_meta = 4
 
 """
     Read the lines of a  database file, stripping 
@@ -42,6 +42,77 @@ def get_data(infile):
         raise Exception('The header did not split nicely into non-numeric and numeric sections')
     return dose_meta_header, group_header, rows
     
+def get_data_structs(dose_meta_header, group_header, rows):
+    
+    nrows = rows.shape[0]
+    # remove meta_columns from data array
+    data = rows[nrows,num_meta:]
+    ncols = data.shape[1]
+    # ToDo Check
+    # Likewise, remove meta columns from the dose_meta_header
+    dose_header = dose_meta_header[num_meta:]
+    num_dose_response = len(dose_header) 
+    # The dose header has two times the number of species, plus two total categories
+    num_species = int((len(dose_header) - 2) / 2)
+
+    # Construct the by-column record array
+    dtype= [('RESPONSE', 'a12'), ('PARTICLE', 'a12'), \
+	    ('GROUP', 'i4'), ('VALUES', 'f4', (nrows,1))])
+
+    tr_dose = np.zeros(ncols,  dtype=dtype)
+    tr_meta = get_meta_struct(data)
+    
+    for col in range(len(dose_header)):
+        if col == 0:
+            tr_all_cols[col] = ('Dose', 'All',  -1, data[:, col])
+	elif col == 1:
+            tr_all_cols[col] = ('Doseq', 'All', -1, data[:, col])
+	else if col < num_species - 2:
+            tr_all_cols[col] = ('Dose',  dose_header[col], -1, data[:, col])
+        else:
+            tr_all_cols[col] = ('Doseq', dose_header[col], -1, data[:, col])
+
+    num_let_groups = 700
+    tr_dif_let = np.zeros(num_let_groups, dtype=dtype)
+    tr_int_let = np.zeros(num_let_groups, dtype=dtype)
+    let_data = data[:,num_dose_response:]
+    for i in range(num_let_groups):
+       col = i
+       tr_dif_let = np.zeros('let', 'All', i, let_data[:,col])  
+    for i in range(num_let_groups):
+       col = i + num_let_groups
+       tr_int_let = np.zeros('let', 'All', i, let_data[:,col])  
+
+
+    particle_names = dose_header[2:2+num_species]
+    if 6 == num_species:
+       particle_names = [x.split('_')[1] for x in particle_names] 
+    else:
+       particle_names = ['particle_' + str(i) for i in range(num_species)]
+
+    num_flux_groups = 100
+    num_flux_cols = num_flux_groups*num_species
+    flux_data = let_data[:,num_let_groups*2:]
+    intflux_data = flux_data[:,num_flux_cols:]
+    # check data.shape[1] == 4 + len(dose_header) + 2*num_let_groups + 
+    # flux_data.shape[1] + intflux_data.shape[1] + neutflux_data.shape[1]
+    tr_flux = np.zeros(num_flux_cols, dtype)
+    tr_int_flux = np.zeros(num_flux_cols, dtype)
+    for ple_num in range(num_species):
+        for group in range(num_flux_groups):
+	    flux_col = group + num_flux_groups*ple_num
+	    tr_flux[flux_col]     = ('flux', particle_names[ple_num], group, flux_data[:,flux_col])
+	    tr_int_flux[flux_col] = ('int_flux', particle_names[ple_num], group, intflux_data[:,flux_col])
+    
+    tr_neut_flux = np.zeros(num_flux_cols, dtype)
+    neutflux_data = intflux_data[:,num_flux_cols:]
+    neutflux_names = ['forward', 'backward', 'total']
+    for neutflux_type in range(3):
+        for group in range(num_flux_groups):
+	    flux_col = group + num_flux_groups*neutflux_type
+            tr_neutflux[flux_col] = ('neut_flux', neutflux_names[neutflux_type], group, flux_data[:,flux_col])
+	    
+    return tr_all_data
 
 """
 Argument parsing
@@ -92,24 +163,32 @@ def get_meta_struct(data):
 
     """ 
     nrows = data.shape[0]
-    tr_rows = np.zeros(nrows, \
+    tr_meta = np.zeros(nrows, \
             dtype=[('id','i4'), ('u','f4'), ('v', 'f4'), \
 	           ('w', 'f4'), ('depth', 'f4')])
     for i in range(nrows):
-        tr_rows[i] = (i, data[i,0], data[i,1], data[i,2], data[i,3])
-    return tr_rows
+        tr_meta[i] = (i, data[i,0], data[i,1], data[i,2], data[i,3])
+    return tr_meta
 
+# ToDo: Remove
 def get_dose_struct(header, data):
     """  Get a structured array of the named dose columns.
     
     Parameters
     ----------
     header : array of ascii words
-        just the dose headers
+        just the dose headers are expected
 
     data : 2d array of floats
         the columns of the array should match the header
 
+    Returns
+    -------
+    A structured array with a tuple for each element in the header
+    
+
+    Notes
+    -----
     To get the result column for particle "dose_1" you would
     type
     tp[tp['particle'] == 'dose_1']['result']
@@ -117,17 +196,17 @@ def get_dose_struct(header, data):
     result_col -f inputfile -p particle_name -o outfile
     To get the ids of the particle result
     tp[tp['particle'] == 'dose_1']['id']
+
     """
-    # Note: the 'id' field is redundant and should be remvoed
     nrows = data.shape[0]
-    tr_cols = np.zeros(len(header), \
+    tr_dose = np.zeros(len(header), \
               dtype=[('id', 'i4', nrows), ('particle','a12'), \
 	             ('result', 'f4', nrows)])
 
     for i in range(len(header)):
         particle = header[i]
-        tr_cols[i] = (range(nrows), particle, data[0:nrows,i])
-    return tr_cols
+        tr_dose[i] = (range(nrows), particle,data[0:nrows,i])
+    return tr_dose
 
 def get_group_struct(start, group_size, header):
     """ Get a structured array for the energy groups. 
@@ -259,11 +338,11 @@ def get_dose_from_file(infile):
     return get_dose_struct(dose_header, dose_data)
 
 
-def get_let_from_data(group_header, group_data):
+def get_let_structs(group_header, group_data):
     """ Get the structures for 
     a) let energy boundaries
-    b) dif let result sets (columns) for each energy group
-    c) int let result sets for each energy group
+    b) dif let value sets (columns) for each energy group
+    c) int let value sets for each energy group
 
     Parameters
     ----------
@@ -284,7 +363,7 @@ def get_let_from_data(group_header, group_data):
 
     dif_let_end = dif_let_start + let_size + 1
     tr_dif_let  = np.zeros(let_size, \
-        dtype=[('group_let_id', 'i4'), ('result', 'f4', nrows)])
+        dtype=[('group_let_id', 'i4'), ('value', 'f4', nrows)])
     for i in range(let_size):
 	# First member of tuple could be i
         tr_dif_let[i] = (tr_let_group['id'][i], group_data[:,i])
@@ -292,7 +371,7 @@ def get_let_from_data(group_header, group_data):
     int_let_start = dif_let_end
     int_let_end   = int_let_start + let_size + 1
     tr_int_let    = np.zeros(let_size, \
-        dtype=[('group_let_id', 'i4'), ('result', 'f4', nrows)])
+        dtype=[('group_let_id', 'i4'), ('value', 'f4', nrows)])
     for i in range(let_size):
 	# First member of tuple could be i
         tr_int_let[i] = (tr_let_group['id'][i], \
@@ -317,12 +396,12 @@ def get_let_from_file(infile):
     """
     dm_header, group_header, row_data = get_data(infile)
     group_data = row_data[:,len(dm_header):]
-    return get_let_from_data(group_header, group_data)
+    return get_let_structs(group_header, group_data)
 
-def write_let_from_filedata(dm_header, group_header, row_data):
+def write_let_group(dm_header, group_header, row_data, outfile):
     tr_let_group, tr_dif_let, tr_int_let = \
-        get_let_from_data(group_header, row_data[:,len(dm_header):])
-    with open('tmp1.dat', 'w') as f:
+        get_let_structs(group_header, row_data[:,len(dm_header):])
+    with open(outfile, 'w') as f:
         np.savetxt(f, zip(tr_let_group['id'],tr_let_group['energy']))
     return
 
@@ -381,7 +460,7 @@ def main():
     # tr_let_group, tr_flux_group = get_groups_from_file_data(group_header)
     ##########################################################
     group_data = row_data[:,len(dm_header):]
-    tr_get_let_from_data(group_header, group_data)
+    # tr_get_let_structs(group_header, group_data)
 
     ####################################################################3
     # Do all data cols at once
