@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Mesh specific imports                                                                                                                                       
+# Mesh specific imports 
 try:
     from itaps import iMesh, iBase
 
@@ -9,7 +9,8 @@ except ImportError:
     HAVE_PYTAPS = False
 
 try:
-    from pyne.material import Material, MaterialLibrary
+    from pyne import material
+    from material import Material, MaterialLibrary
     HAVE_MATERIAL = True
 except ImportError:
     HAVE_MATERIAL = False
@@ -154,6 +155,98 @@ def get_tag_values(filename):
     """
 
     return tag_values
+
+def get_mat_tag_values(filename):
+    """ Map a name to every vol_id.  The name is the fluka_name from
+    the uwuw-tagged input file.  This is for hzetrn.
+
+    Parameter
+    ---------
+    filename : string
+        The tagged h5m file containing the geometry of interest
+
+    Returns
+    -------
+    A dictionary with volume id as the key and the fluka name as the value
+
+    Notes
+    -----
+    This is a simplifed and modified version of get_tag_values.
+    One simplification is that hzetrn is not interested in tallies
+    """
+    vol_mat_dict = {}
+
+    # create imesh instance and load the file
+    dagmesh = iMesh.Mesh()
+    dagmesh.load(filename)
+
+    # get all mesh set from the given geometry        
+    mesh_sets = dagmesh.getEntSets()
+
+    cat_tag  = dagmesh.getTagHandle('CATEGORY')
+    id_tag   = dagmesh.getTagHandle('GLOBAL_ID')
+    name_tag = dagmesh.getTagHandle('NAME')
+
+    # get the list we need    
+    for mesh_set in mesh_sets:
+        tags = dagmesh.getAllTags(mesh_set)
+	if name_tag in tags and \
+	   cat_tag in tags and \
+	   tag_to_script(cat_tag[mesh_set])=="Group":
+	   
+	    name = tag_to_script(name_tag[mesh_set])
+	    # Now get the volumes of this group
+	    child_sets = mesh_set.getEntSets()
+	    for child in child_sets:
+	        vol_id = id_tag[child]
+	        if 'mat:' in name:
+	            vol_mat_dict[vol_id] = name
+
+	# else this is a meshset that doesn't have volume
+
+    return vol_mat_dict
+
+def get_fnames_and_densities(path):
+    """ Return dictionaries that associate the volid and the
+    fname or density.
+
+    Parameters
+    ----------
+    path : string 
+        path to .h5m tagged file
+
+    Returns
+    -------
+    Dictionaries relating the volume id to the name and density.
+
+    Also a dictionary with a vol id and a density
+    """
+    vol_fname_dict = {}
+    vol_density_dict = {}
+    vol_fname_density = {}
+    vol_mat_dict = get_mat_tag_values(path)
+    # load the material library from the uwuw geometry file
+    mat_lib = material.MaterialLibrary()
+    mat_lib.from_hdf5(path)
+    
+    for key in mat_lib:
+        material_obj = mat_lib[key]
+
+	mat_name = material_obj.metadata['name']
+	for vol in vol_mat_dict:
+	    if mat_name == vol_mat_dict[vol]:
+		vol_fname_density[vol] = (material_obj.metadata['fluka_name'], material_obj.density)
+	        vol_fname_dict[vol] = material_obj.metadata['fluka_name']
+		vol_density_dict[vol] = material_obj.density
+
+    # Since 'graveyard' is not a 'fluka_name', add it specifically to the dictionary
+    for vol in vol_mat_dict:
+        if 'graveyard' in vol_mat_dict[vol].lower():
+           vol_fname_density[vol] = ('graveyard', 0)
+	   vol_fname_dict[vol] = 'graveyard' 
+	   vol_density_dict[vol] = 0
+
+    return vol_fname_dict, vol_density_dict, vol_fname_density
 
 """
 function to transform the tags into strings
