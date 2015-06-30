@@ -19,10 +19,39 @@ try:
 except:
     raise ImportError("The DAGMC dependency could not be imported.")    
 
+import uwuw_preproc
 import numpy as np
 from hzetrn import transportresponse
-import tag_utils
 
+
+def get_rand_dirs(number):
+    """ Produce length-one tuples randomly oriented on a sphere.
+
+    Parameter
+    ---------
+    number : int
+        The number of tuples to be returned.
+
+    Return
+    ------
+    A two-dimensional numpy array with rows consisting of the 
+    ray.
+    """
+    rays = []
+    if number > 0:
+        for i in range(number):
+            # [0.0,1.0)
+            rnum = np.random.uniform()
+            # map rnum onto [0.0,1.0)
+            z = 2*rnum - 1
+
+	    # Call a new randome number
+            theta = 2*np.pi*np.random.uniform()
+            norm_fac = np.sqrt(1 - z*z)
+            y = norm_fac*np.sin(theta)
+            x = norm_fac*np.cos(theta)
+	    rays.append([x, y, z])
+    return rays
 
 def load_ray_tuples(filename):
     """ Load float tuples representing uvw directions from a file.
@@ -158,7 +187,7 @@ def find_special_vols(ref_point, material_name_dict):
 
     return ref_vol, graveyard_vol
 
-def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_dict):
+def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_dict, density_dict):
     """ Find the material distances and names along a direction
     in a tagged geometry.
 
@@ -206,6 +235,7 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_d
 
     slab_lengths = []
     slab_mat_names = []
+    slab_areal_densities = []
 
     last_vol = start_vol
     for (next_vol, dist, surf, xyz) in dagmc.ray_iterator(last_vol, ref_point, uvw, yield_xyz=True):
@@ -213,6 +243,7 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_d
             slab_lengths.append(dist)
             # Get the unique name associated with volume
             slab_mat_names.append(material_name_dict[last_vol])
+	    slab_areal_densities.append(dist*density_dict[last_vol])
 
         if next_vol == graveyard_vol or dist >= huge or surf == 0:
             break;
@@ -220,9 +251,9 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_d
         # If last_vol is the implicit complement, this is the only line executed
         last_vol = next_vol        
 
-    return slab_lengths, slab_mat_names
+    return slab_mat_names, slab_areal_densities, slab_lengths
       
-def spatialTuples(slab_mat_names, slab_lens):
+def spatialTuples(slab_mat_names, slab_depthq):
     """ Implement an algorithm to create tuples from the material/distances
     lists that are in a convenient form for creating transport execution.
 
@@ -246,7 +277,8 @@ def spatialTuples(slab_mat_names, slab_lens):
     spatial = []
     last_mat_name = slab_mat_names[0]
     current_slab_pts = [0.0]
-    for mat_name, slab_thick in zip(slab_mat_names, slab_lens):
+    # for mat_name, slab_thick in zip(slab_mat_names, slab_lens):
+    for mat_name, slab_depthq in zip(slab_mat_names, slab_depthq):
         if mat_name != last_mat_name:
             # Every time we get a new mat, store the name/slab points tuple...
             spatial.append((last_mat_name, current_slab_pts))
@@ -254,14 +286,14 @@ def spatialTuples(slab_mat_names, slab_lens):
             last_mat_name = mat_name
             current_slab_pts = [0.0]
         # Do always; first time through, this is all that is done
-        current_slab_pts.append(current_slab_pts[-1] + slab_thick)
+        current_slab_pts.append(current_slab_pts[-1] + slab_depthq)
 
     # Once more for the trailing tuple 
     spatial.append((last_mat_name, current_slab_pts))
 
     return spatial
 
-def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material_name_dict):
+def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material_name_dict, density_dict):
     """ Create a dictionary containing material names and distances for use in 
     one-dimensional transport code.
 
@@ -305,26 +337,28 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material
     # Create two lists 'a' and 'b'.  
     #    'a' is the list of slab materials and lengths in the given direction.  
     #    'b' is the list of same items going OPPOSITE (180 degrees)
-    slab_lens_a, slab_mat_names_a = find_slabs_for_ray(graveyard_vol, \
+    slab_mat_names_a, areal_densities_a, slab_lens_a = find_slabs_for_ray(graveyard_vol, \
                                                        start_vol,     \
-                               ref_point,     \
-                               uvw,           \
-                               material_name_dict)
+                                                       ref_point,     \
+                                                       uvw,           \
+                                                       material_name_dict, density_dict)
 
-    slab_lens_b, slab_mat_names_b = find_slabs_for_ray(graveyard_vol, \
+    slab_mat_names_b, areal_densities_b, slab_lens_b = find_slabs_for_ray(graveyard_vol, \
                                                        start_vol,     \
-                               ref_point,     \
-                               -uvw,          \
-                                       material_name_dict)
+                                                       ref_point,     \
+                                                       -uvw,          \
+                                                       material_name_dict, density_dict)
 
     # The ray did not go through any material
     if len(slab_lens_b) + len(slab_lens_a) == 0:
         return [], -1
 
-    slab_lens      = slab_lens_b[::-1]      + slab_lens_a
-    slab_mat_names = slab_mat_names_b[::-1] + slab_mat_names_a
+    slab_lens       = slab_lens_b[::-1]      + slab_lens_a
+    slab_mat_names  = slab_mat_names_b[::-1] + slab_mat_names_a
+    areal_densities = areal_densities_b[::-1] + areal_densities_a
 
-    return spatialTuples(slab_mat_names, slab_lens), len(slab_lens_b)
+    # Not sure if slab_lens needed
+    return spatialTuples(slab_mat_names, areal_densities), len(slab_lens_b)
 
 def parse_command_line_arguments():
     """Perform command line argument parsing
@@ -435,7 +469,7 @@ def main():
     dagmc.load(uwuw_file)
 
     # ToDo:  Use a different function
-    material_name_dict = tag_utils.get_fnames_for_vol(uwuw_file)
+    material_name_dict, density_dict, tuple_dict = uwuw_preproc.get_fnames_and_densities(uwuw_file)
     rays_file  = os.path.join(os.getcwd(), args.ray_dir_file)
     ray_tuples = load_directions(rays_file, args.num_ray_dirs)
 
@@ -454,7 +488,7 @@ def main():
     for uvw in ray_tuples:
         spatial_tuples, number_slabs_to_reference_point =  \
                  createTransportDictionary(uvw, graveyard_vol, start_vol, \
-                                           ref_point, material_name_dict)
+                                           ref_point, material_name_dict, density_dict)
         one_d_tool.execute(spatial_tuples)
         one_d_tool.collect_results(index, uvw, number_slabs_to_reference_point) 
         index = index + 1
