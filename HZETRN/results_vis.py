@@ -20,8 +20,7 @@ except ImportError:
 
 
 # Number of columns devoted to direction and depth
-num_non_data = 4
-config_log  = 'config.log'
+num_meta = 4
 
 
 ############################################################3
@@ -90,7 +89,6 @@ def create_tagged_meshed(data, facets, scale):
     off the header and statistics lines
 """
 def get_row_data(infile):
-    global num_non_data 
 
     rows = np.array([])
     with open(infile) as fp:
@@ -185,9 +183,6 @@ returns : args: -d for the run directory
 ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
 """
 def parsing():
-    global num_non_data
-    
-    min_col = num_non_data
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -196,7 +191,7 @@ def parsing():
 
     parser.add_argument(
         '-c', action='store', dest='data_column', 
-	help='The column, column range, or "a" for all columns.  Must be {} or greater'.format(num_non_data))
+	help='The column, column range, or "a" for all columns.  Must be {} or greater'.format(num_meta))
 
     parser.add_argument(
         '-s', action='store', dest='scale', 
@@ -217,24 +212,10 @@ def parsing():
     return args
 
 def main():
-    global config_log
-    global num_non_data
 
     args = parsing()
     if not args.data_column:
         args.data_column = 'header'
-
-    ########################
-    # logging
-    ########################
-    logging.basicConfig(filename=config_log, level=logging.INFO, \
-                        format='%(asctime)s %(message)s')
-
-    message = 'python results_vis.py -f ' + args.infile + \
-              ' -c ' + str(args.data_column) + \
-              ' -s ' + "{0:.2f}".format(args.scale) + \
-              ' -o ' + args.outfile
-    logging.info(message)
 
     ########################
     # Get the header, the highest-numbered column with a non-numeric
@@ -245,10 +226,10 @@ def main():
     # get columns
     ########################
     if args.data_column == 'h' or args.data_column == 'header':
-        columns = [num_non_data, num_last_dose_col]
+        columns = [num_meta, num_last_dose_col]
 	print "Header columns being used:", columns
     elif args.data_column == 'a' or args.data_column == 'all':
-        columns = [num_non_data, row_data.shape[1]]
+        columns = [num_meta, row_data.shape[1]]
 	print "All columns being used:", columns
     elif len(args.data_column.split(',')) > 1:
         sys.exit("Please enter only one '-' separated field range")
@@ -256,8 +237,8 @@ def main():
         columns = map(int, args.data_column.split('-'))
 	if len(columns) > 2:
 	    sys.exit("For a range of columns please enter two integers separated by a '-'.")
-        if min(columns) < num_non_data:
-	    sys.exit("The minimum column must be {} or greater".format(num_non_data))
+        if min(columns) < num_meta:
+	    sys.exit("The minimum column must be {} or greater".format(num_meta))
 	# Reverse the order if needed
 	if len(columns) == 2 and columns[1] < columns[0]:
 	    columns = columns[::-1]
