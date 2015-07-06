@@ -1,10 +1,9 @@
 import argparse
-import logging
 import subprocess
 # Only used for get_rand_dirs
-import tag_utils as tu
+import btrn
 import numpy as np
-import tempfile
+# import tempfile
 import os
 import sys
 
@@ -20,7 +19,7 @@ except ImportError:
 
 
 # Number of columns devoted to direction and depth
-num_meta = 4
+num_meta = 6
 
 
 ############################################################3
@@ -59,7 +58,7 @@ def mesh_sphere(xyz, scale):
     on a sphere
 """
 def mesh_write_rand(filename, numOfPts):
-    xyz = tu.get_rand_dirs(numOfPts)
+    xyz = btrn.get_rand_dirs(numOfPts)
     mesh = mesh_sphere(xyz, 1.0)
     mesh.save(filename)
     return 
