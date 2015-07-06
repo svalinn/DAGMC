@@ -3,7 +3,6 @@
 # Backscatter Transport and Response
 #########################################################
 
-# import subprocess
 import argparse
 import string
 import os
@@ -121,7 +120,7 @@ def load_directions(ray_dir_file, num_ray_dirs):
         elif num_ray_dirs < 0:
 	    ray_tuples = ray_tuples[-num_ray_dirs:]
     elif num_ray_dirs > 0:
-        ray_tuples = tag_utils.get_rand_dirs(num_ray_dirs)
+        ray_tuples = get_rand_dirs(num_ray_dirs)
     else:
         ray_tuples = [(1.0, 0.0, 0.0),
                       (0.0, 1.0, 0.0),
@@ -129,14 +128,12 @@ def load_directions(ray_dir_file, num_ray_dirs):
     return np.array(ray_tuples)
 
 
-def find_special_vols(ref_point, material_name_dict):
-    """ Combine findng the vol-id of the geometry that contains the ref_point 
-    and the vol-id whose name is 'graveyard'.  
+def find_ref_vol(ref_point):
+    """ Find the vol-id of the geometry that contains the ref_point.
 
     Requirements
     ------------
     - The DAGMC python library must be loaded
-    - Graveyard exists in the geometry
 
     Parameters
     ----------
@@ -153,41 +150,25 @@ def find_special_vols(ref_point, material_name_dict):
     ref_vol : int
         The vol_id of the volume containing the ref_point.
 
-    graveyard_vol : int
-        The vol_id of the volume whose unique name is 'graveyard'.
-    
     Exceptions
     ----------
-        Raises exception if no volume is named 'graveyard'
     Raises exception if none of the volumes contain the reference point
-
-    Notes
-    -----
-    This function has the drawback of going through every volume.  
-    It could leave as soon as all (both) special volumes are found.
     """
 
     ref_vol = -1
-    graveyard_vol = -1
     # code snippet from dagmc.pyx:find_graveyard_inner_box
     volumes = dagmc.get_volume_list() 
     for v in volumes:
         if dagmc.point_in_volume(v, ref_point):
             ref_vol = v
-        # Must check for inclusion in case it's the implicit complement, which
-        # is not in the dict
-        elif v in material_name_dict and material_name_dict[v] == 'graveyard':
-            graveyard_vol = v
+	    break
 
     if ref_vol == -1:
         raise Exception("Reference volume not found!")
-    if graveyard_vol == -1:
-        raise Exception("Graveyard vol not found!  Please use a geometry file \
-                         tagged with a graveyard.")
 
-    return ref_vol, graveyard_vol
+    return ref_vol 
 
-def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_dict, density_dict):
+def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, vol_name_dens):
     """ Find the material distances and names along a direction
     in a tagged geometry.
 
@@ -221,7 +202,7 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_d
     
     slab_mat_names : list of strings
         Unique names of slabs in the same order as they are encountered,
-    meaning in the same order as the slab_lengths
+        meaning in the same order as the slab_lengths
 
     Notes
     -----
@@ -236,14 +217,20 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_d
     slab_lengths = []
     slab_mat_names = []
     slab_areal_densities = []
+    slab_ids = []
 
     last_vol = start_vol
     for (next_vol, dist, surf, xyz) in dagmc.ray_iterator(last_vol, ref_point, uvw, yield_xyz=True):
-        if last_vol in material_name_dict:
+        # if last_vol in material_name_dict:
+        if last_vol in vol_name_dens:
             slab_lengths.append(dist)
-            # Get the unique name associated with volume
-            slab_mat_names.append(material_name_dict[last_vol])
-	    slab_areal_densities.append(dist*density_dict[last_vol])
+	    name = vol_name_dens[last_vol][0]
+	    dens = vol_name_dens[last_vol][1]
+            slab_mat_names.append(name)
+	    slab_areal_densities.append(dist*dens)
+
+	    # Get the list of vol-id's in order. 
+	    slab_ids.append(last_vol)
 
         if next_vol == graveyard_vol or dist >= huge or surf == 0:
             break;
@@ -251,7 +238,8 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, material_name_d
         # If last_vol is the implicit complement, this is the only line executed
         last_vol = next_vol        
 
-    return slab_mat_names, slab_areal_densities, slab_lengths
+    return slab_mat_names, slab_areal_densities, slab_lengths, slab_ids
+    # End of find_slabs_for_ray
       
 def spatialTuples(slab_mat_names, slab_depthq):
     """ Implement an algorithm to create tuples from the material/distances
@@ -263,9 +251,9 @@ def spatialTuples(slab_mat_names, slab_depthq):
         Unique material names from the geometry, in the order they are 
     encountered for a particular ray.
     
-    slab_lens : list of floats
-        Distances traveled through each material by the ray, in the same
-    order as slab_mat_names
+    slab_depthq : list of floats
+        Areal density: Distances traveled through each material by the ray multiplied 
+    by the density of that material, in the same order as slab_mat_names
 
     Return
     ------
@@ -293,9 +281,9 @@ def spatialTuples(slab_mat_names, slab_depthq):
 
     return spatial
 
-def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material_name_dict, density_dict):
-    """ Create a dictionary containing material names and distances for use in 
-    one-dimensional transport code.
+def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, vol_name_dens, info_type):
+    """ Create a dictionary containing material names and equivalent 
+    distances (length times density) for use in one-dimensional transport code.
 
     Parameters
     ----------
@@ -312,9 +300,9 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material
     ref_point : list of 3 floats
         Triplet with the location of the point at which data is desired
 
-    material_name_dict : dictionary
-        Mapping from each volume in the geometry to a unique "fluka" name 
-        created by uwuw_preproc
+    vol_name_dens : dictionary
+        Mapping from each volume in the geometry to a tuple consisting
+	of (unique "fluka" name created by uwuw_preproc, density of that material)
        
     Return
     ------
@@ -323,8 +311,11 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material
     First element of list of floats is always zero
     List of floats is length 2 at a minimum
 
-    Float value of the distance from the start of the overall ray to the 
-        reference point
+    Number of slabs the ray goes through to get to the reference point.
+    
+    A structured array record giving the volume id, name, and density
+        at the reference point, plus the cumulative depth and areal
+	density to the reference point
 
     Note
     ----
@@ -337,28 +328,37 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, material
     # Create two lists 'a' and 'b'.  
     #    'a' is the list of slab materials and lengths in the given direction.  
     #    'b' is the list of same items going OPPOSITE (180 degrees)
-    slab_mat_names_a, areal_densities_a, slab_lens_a = find_slabs_for_ray(graveyard_vol, \
-                                                       start_vol,     \
-                                                       ref_point,     \
-                                                       uvw,           \
-                                                       material_name_dict, density_dict)
+    slab_mat_names_a, areal_densities_a, slab_lens_a, slab_ids_a = \
+        find_slabs_for_ray(graveyard_vol, start_vol,  ref_point,   \
+                           uvw, vol_name_dens)
 
-    slab_mat_names_b, areal_densities_b, slab_lens_b = find_slabs_for_ray(graveyard_vol, \
-                                                       start_vol,     \
-                                                       ref_point,     \
-                                                       -uvw,          \
-                                                       material_name_dict, density_dict)
+    slab_mat_names_b, areal_densities_b, slab_lens_b, slab_ids_b = \
+        find_slabs_for_ray(graveyard_vol, start_vol, ref_point,    \
+                          -uvw, vol_name_dens)
 
     # The ray did not go through any material
+    info_at_ref = np.zeros(1, dtype=info_type)
     if len(slab_lens_b) + len(slab_lens_a) == 0:
-        return [], -1
+        return [], -1, info_at_ref
 
-    slab_lens       = slab_lens_b[::-1]      + slab_lens_a
-    slab_mat_names  = slab_mat_names_b[::-1] + slab_mat_names_a
+    slab_lens       = slab_lens_b[::-1]       + slab_lens_a
+    slab_mat_names  = slab_mat_names_b[::-1]  + slab_mat_names_a
     areal_densities = areal_densities_b[::-1] + areal_densities_a
+    slab_ids        = slab_ids_b[::-1]        + slab_ids_a
+    
 
-    # Not sure if slab_lens needed
-    return spatialTuples(slab_mat_names, areal_densities), len(slab_lens_b)
+    ref_slab_depth = len(slab_lens_b)
+    ref_id      = slab_ids[ref_slab_depth]
+    ref_name    = slab_mat_names[ref_slab_depth]
+    ref_density = vol_name_dens[ref_id][1]
+    ref_depth   = np.sum(slab_lens[:ref_slab_depth])
+    print "slab_lens to ref", slab_lens[:ref_slab_depth], "sum", ref_depth
+    ref_depthq  = np.sum(np.around(areal_densities[:ref_slab_depth],1))
+    print "areal_densities to ref", areal_densities[:ref_slab_depth], "sum", ref_depthq
+    
+    info_at_ref[0] = (ref_id, ref_name, ref_density, ref_depth, ref_depthq)
+    return spatialTuples(slab_mat_names, areal_densities), ref_slab_depth,  info_at_ref
+    # End of createTransportDictionary
 
 def parse_command_line_arguments():
     """Perform command line argument parsing
@@ -465,17 +465,19 @@ def main():
     one_d_tool = transportresponse(run_path, data_path, \
                                    args.environment, args.response)
 
+    #  ToDo: create this in transportresponse
+    info_type = [('id','i4'),('name','a12'),('density', 'f4'), ('depth','f4'), ('depthq','f4')]
     # Load the DAG object for this geometry
     dagmc.load(uwuw_file)
 
-    # ToDo:  Use a different function
-    material_name_dict, density_dict, tuple_dict = uwuw_preproc.get_fnames_and_densities(uwuw_file)
+    name_density_dict, graveyard_vol = uwuw_preproc.get_fnames_and_densities(uwuw_file)
     rays_file  = os.path.join(os.getcwd(), args.ray_dir_file)
     ray_tuples = load_directions(rays_file, args.num_ray_dirs)
 
     # The default starting point is 0,0,0
     ref_point = args.ref_point
-    start_vol, graveyard_vol = find_special_vols(ref_point, material_name_dict)
+    start_vol = find_ref_vol(ref_point)
+
     if start_vol == graveyard_vol:
         msg = "Exiting program: The reference point is in the graveyard!"
         sys.exit(msg)
@@ -486,11 +488,14 @@ def main():
         index = -args.num_ray_dirs
 
     for uvw in ray_tuples:
-        spatial_tuples, number_slabs_to_reference_point =  \
+        spatial_tuples, number_slabs_to_reference_point, info_tuple =  \
                  createTransportDictionary(uvw, graveyard_vol, start_vol, \
-                                           ref_point, material_name_dict, density_dict)
+                                           ref_point, name_density_dict, info_type)
         one_d_tool.execute(spatial_tuples)
-        one_d_tool.collect_results(index, uvw, number_slabs_to_reference_point) 
+	
+	for key in name_density_dict:
+	    print "vol, name, density", key, name_density_dict[key][0], name_density_dict[key][1]
+        one_d_tool.collect_results(index, uvw, number_slabs_to_reference_point, info_tuple) 
         index = index + 1
     return 
    
