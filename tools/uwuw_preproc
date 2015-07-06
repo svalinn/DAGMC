@@ -217,9 +217,10 @@ def get_fnames_and_densities(path):
 
     Returns
     -------
-    Dictionaries relating the volume id to the name and density.
+    Dictionary relating the volume id to the name and density.  The
+    dictionary includes a graveyard vol id.
+    The vol-id of the graveyard is returned separately, as well.
 
-    Also a dictionary with a vol id and a density
     """
     vol_fname_dict = {}
     vol_density_dict = {}
@@ -240,13 +241,20 @@ def get_fnames_and_densities(path):
 		vol_density_dict[vol] = material_obj.density
 
     # Since 'graveyard' is not a 'fluka_name', add it specifically to the dictionary
+    graveyard_vol = -1
     for vol in vol_mat_dict:
         if 'graveyard' in vol_mat_dict[vol].lower():
-           vol_fname_density[vol] = ('graveyard', 0)
-	   vol_fname_dict[vol] = 'graveyard' 
-	   vol_density_dict[vol] = 0
+	   graveyard_vol = vol
+           vol_fname_density[graveyard_vol] = ('graveyard', 0)
+	   vol_fname_dict[graveyard_vol] = 'graveyard' 
+	   vol_density_dict[graveyard_vol] = 0
+	   break
 
-    return vol_fname_dict, vol_density_dict, vol_fname_density
+    if graveyard_vol == -1:
+        raise Exception("Graveyard vol not found!  Please use a geometry file \
+                         tagged with a graveyard.")
+
+    return vol_fname_density, graveyard_vol
 
 """
 function to transform the tags into strings
