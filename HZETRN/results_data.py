@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 
 # Number of columns devoted to direction and depth
-num_meta = 4
+num_meta = 6
 
 def get_data(infile):
     """ Read the lines of a  database file, stripping 
