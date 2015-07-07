@@ -140,11 +140,6 @@ def find_ref_vol(ref_point):
     ref_point : float triplet
         Coordinate of point of interest.
 
-    material_name_dict : dictionary, { string : int }
-        A mapping of vol id to material object
-    Key   = vol_id : int
-    Value = unique material name
-
     Returns
     -------
     ref_vol : int
@@ -190,19 +185,29 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, vol_name_dens):
     uvw : float triplet
          Unit direction vector in the direction of travel
 
-    material_name_dict : dictionary, { string : int }
-        A mapping of vol id to material object
+    vol_name_dens : dictionary, { int : (string , float) }
+        A mapping of vol id to material object name and density
     Key   = vol_id : int
-    Value = unique material name
+    Value = (unique_material_name, density)
 
     Returns
     -------
-    slab_lengths : list of floats
-        Distances traveled through materials ('slabs') encountered
-    
+    slab_ids : list of ints
+        vol_ids of the slabs traveled through
+
     slab_mat_names : list of strings
         Unique names of slabs in the same order as they are encountered,
         meaning in the same order as the slab_lengths
+
+    slab_lengths : list of floats
+        Distances traveled through materials ('slabs') encountered
+    
+    slab_densities : list of floats
+        Densities of the materials traveled through
+
+    slab_areal_densities : list of floats
+        Accumulated distance*density for each slab travelled through
+	
 
     Notes
     -----
@@ -214,23 +219,25 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, vol_name_dens):
     # This geometrical hugeness, not integer hugeness
     huge = 1000000000
 
-    slab_lengths = []
-    slab_mat_names = []
-    slab_areal_densities = []
     slab_ids = []
+    slab_mat_names = []
+    slab_lengths = []
+    slab_densities = []
+    slab_areal_densities = []
 
     last_vol = start_vol
     for (next_vol, dist, surf, xyz) in dagmc.ray_iterator(last_vol, ref_point, uvw, yield_xyz=True):
         # if last_vol in material_name_dict:
         if last_vol in vol_name_dens:
+	    # Get the list of vol-id's in order. 
+	    slab_ids.append(last_vol)
             slab_lengths.append(dist)
+
 	    name = vol_name_dens[last_vol][0]
 	    dens = vol_name_dens[last_vol][1]
             slab_mat_names.append(name)
+	    slab_densities.append(dens)
 	    slab_areal_densities.append(dist*dens)
-
-	    # Get the list of vol-id's in order. 
-	    slab_ids.append(last_vol)
 
         if next_vol == graveyard_vol or dist >= huge or surf == 0:
             break;
@@ -238,7 +245,7 @@ def find_slabs_for_ray(graveyard_vol, start_vol, ref_point, uvw, vol_name_dens):
         # If last_vol is the implicit complement, this is the only line executed
         last_vol = next_vol        
 
-    return slab_mat_names, slab_areal_densities, slab_lengths, slab_ids
+    return slab_ids, slab_mat_names, slab_lengths, slab_densities, slab_areal_densities
     # End of find_slabs_for_ray
       
 def spatialTuples(slab_mat_names, slab_depthq):
@@ -304,16 +311,23 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, vol_name
         Mapping from each volume in the geometry to a tuple consisting
 	of (unique "fluka" name created by uwuw_preproc, density of that material)
        
+    info_type : dtype for the returned info record array
+
     Return
     ------
     spatial : list of tuples
         Tuples are (string, list of floats)
-    First element of list of floats is always zero
-    List of floats is length 2 at a minimum
+        First element of list of floats is always zero
+        List of floats is length 2 at a minimum
+	The tuples are calculated by spatialTuples(..) using the unique material
+	    names and the areal densities *rounded to 1 digit after the decimal place*.
 
-    Number of slabs the ray goes through to get to the reference point.
+    ref_slab_depth : int
+        Number of slabs the ray goes through to get to the reference point.
     
-    A structured array record giving the volume id, name, and density
+    info_at_ref : structured array with dtype=info_type
+        A structured array record giving information useful when recording the 
+	transport-response data.  It includes the volume id, name, and density
         at the reference point, plus the cumulative depth and areal
 	density to the reference point
 
@@ -328,11 +342,11 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, vol_name
     # Create two lists 'a' and 'b'.  
     #    'a' is the list of slab materials and lengths in the given direction.  
     #    'b' is the list of same items going OPPOSITE (180 degrees)
-    slab_mat_names_a, areal_densities_a, slab_lens_a, slab_ids_a = \
+    slab_ids_a, slab_mat_names_a, slab_lens_a, slab_densities_a, areal_densities_a = \
         find_slabs_for_ray(graveyard_vol, start_vol,  ref_point,   \
                            uvw, vol_name_dens)
 
-    slab_mat_names_b, areal_densities_b, slab_lens_b, slab_ids_b = \
+    slab_ids_b, slab_mat_names_b, slab_lens_b, slab_densities_b, areal_densities_b = \
         find_slabs_for_ray(graveyard_vol, start_vol, ref_point,    \
                           -uvw, vol_name_dens)
 
@@ -341,23 +355,23 @@ def createTransportDictionary(uvw, graveyard_vol, start_vol, ref_point, vol_name
     if len(slab_lens_b) + len(slab_lens_a) == 0:
         return [], -1, info_at_ref
 
-    slab_lens       = slab_lens_b[::-1]       + slab_lens_a
-    slab_mat_names  = slab_mat_names_b[::-1]  + slab_mat_names_a
-    areal_densities = areal_densities_b[::-1] + areal_densities_a
     slab_ids        = slab_ids_b[::-1]        + slab_ids_a
+    slab_mat_names  = slab_mat_names_b[::-1]  + slab_mat_names_a
+    slab_lens       = slab_lens_b[::-1]       + slab_lens_a
+    slab_densities  = slab_densities_b[::-1]  + slab_densities_a
+    areal_densities = areal_densities_b[::-1] + areal_densities_a
     
-
     ref_slab_depth = len(slab_lens_b)
     ref_id      = slab_ids[ref_slab_depth]
     ref_name    = slab_mat_names[ref_slab_depth]
-    ref_density = vol_name_dens[ref_id][1]
+    ref_density = slab_densities[ref_slab_depth]
     ref_depth   = np.sum(slab_lens[:ref_slab_depth])
     print "slab_lens to ref", slab_lens[:ref_slab_depth], "sum", ref_depth
     ref_depthq  = np.sum(np.around(areal_densities[:ref_slab_depth],1))
     print "areal_densities to ref", areal_densities[:ref_slab_depth], "sum", ref_depthq
     
-    info_at_ref[0] = (ref_id, ref_name, ref_density, ref_depth, ref_depthq)
-    return spatialTuples(slab_mat_names, areal_densities), ref_slab_depth,  info_at_ref
+    info_at_ref[0] = (ref_id, ref_name, ref_slab_depth, ref_density, ref_depth, ref_depthq)
+    return spatialTuples(slab_mat_names, areal_densities), info_at_ref
     # End of createTransportDictionary
 
 def parse_command_line_arguments():
@@ -465,8 +479,10 @@ def main():
     one_d_tool = transportresponse(run_path, data_path, \
                                    args.environment, args.response)
 
-    #  ToDo: create this in transportresponse
-    info_type = [('id','i4'),('name','a12'),('density', 'f4'), ('depth','f4'), ('depthq','f4')]
+    # info_type = [('id','i4'),('name','a12'),('slabs_to_ref','f4'), \
+    #              ('density','f4'), ('depth', 'f4'), ('depthq','f4')]
+    info_type = one_d_tool.info_type
+
     # Load the DAG object for this geometry
     dagmc.load(uwuw_file)
 
@@ -488,14 +504,13 @@ def main():
         index = -args.num_ray_dirs
 
     for uvw in ray_tuples:
-        spatial_tuples, number_slabs_to_reference_point, info_tuple =  \
-                 createTransportDictionary(uvw, graveyard_vol, start_vol, \
-                                           ref_point, name_density_dict, info_type)
+        spatial_tuples, info_record =  createTransportDictionary(uvw, \
+	        graveyard_vol, start_vol, ref_point, name_density_dict, info_type)
         one_d_tool.execute(spatial_tuples)
 	
 	for key in name_density_dict:
-	    print "vol, name, density", key, name_density_dict[key][0], name_density_dict[key][1]
-        one_d_tool.collect_results(index, uvw, number_slabs_to_reference_point, info_tuple) 
+	    print "id, name, density", key, name_density_dict[key][0], name_density_dict[key][1]
+        one_d_tool.collect_results(index, uvw, info_record) 
         index = index + 1
     return 
    

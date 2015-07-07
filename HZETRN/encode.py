@@ -2,6 +2,9 @@ import argparse
 import os
 import numpy as np
 
+# Number of columns not containing results data
+meta = 6
+
 def construct_depth_header(species):
     """ Return a header for the depth data.  This portion of the
     header is ascii titles.  The rest of the header is numeric.
@@ -20,8 +23,10 @@ def construct_depth_header(species):
               '{0: >12}'.format('Y'),
               '{0: >12}'.format('Z'),
 	      ###########################
-	      # Add Depth Column
-	      '{0: >12}'.format('Depth'),
+	      # Add meta columns
+	      '{0: >12}'.format('Density'),
+	      '{0: >12}'.format('Tot Depth'),
+	      '{0: >12}'.format('Tot. g/cm^2'),
 	      ###########################
               '{0: >12}'.format('Dose_All'),
               '{0: >12}'.format('Doseq_All') ]
@@ -88,7 +93,7 @@ def write_header(data_path, out_path):
         raise Exception('Unknown radiation environment {} in {}'.format(rad_env, rad_env_filepath))
     depth_header = construct_depth_header(species)
     index_path = os.path.join(data_path, 'index_header')
-    # No need to convert these formatted values to floats, they're just getting written to a file
+    # No need to convert these formatted values to floats, since they are being written to a file
     with open(index_path) as f:
         index_header_line = f.readline()
     # The index header was already formatted so append it after a space
@@ -125,12 +130,12 @@ def write_lines_to_db(data_path, out_path):
 
 	        # Done writing, but will need the numbers for stats
 	        row = np.array([map(float, line.split())])
-		# Stack up the rows, but drop the first four columns
+		# Stack up the rows, but drop the meta columns
                 if all_values.size == 0:
-	            all_values = row[:,4:]
+	            all_values = row[:,meta:]
 	        else:
-	            all_values = np.vstack((all_values, row[:,4:]))
-		print index, row[0,0:4]
+	            all_values = np.vstack((all_values, row[:,meta:]))
+		print index, row[0,0:meta]
 	    index = index + 1
             row_path = os.path.join(data_path, str(index) + '/row')
     return all_values
@@ -182,10 +187,17 @@ def main():
     ave_all_values = np.average(all_values, axis=0)
     std_all_values = np.std(all_values, axis=0)
 
+    # stat_words = ['over', 'direction', 'at', 'Reference',  'Depth']
+    # stat_words_fmt = [['%12s']*meta]
+    all_stat_words = stat_words.insert(0,'Average')
     with open(out_path, 'a') as f:
-        np.savetxt(f, [['Average', 'over', 'direction', 'at_Depth']], fmt=['%12s', '%12s', '%12s', '%12s'], newline=' ')
+        np.savetxt(f, [['Average', 'over', 'direction', 'at', 'Reference', 'Depth']], \
+	               fmt=['%12s', '%12s', '%12s', '%12s', '%12s', '%12s'], newline=' ')
+        # np.savetxt(f, [['Average'] + stat_words], fmt=stat_words_fmt, newline=' ')
         np.savetxt(f, [ave_all_values], fmt='%12.6E', newline='\n')
-        np.savetxt(f, [['Std.Dev.', 'over', 'direction', 'at_Depth']], fmt=['%12s', '%12s', '%12s', '%12s'], newline=' ')
+        np.savetxt(f, [['Std.Dev.', 'over', 'direction', 'at', 'Reference', 'Depth']], \
+	               fmt=['%12s', '%12s', '%12s', '%12s', '%12s', '%12s'], newline=' ')
+        # np.savetxt(f, [['Std.Dev.'] + stat_words], fmt=stat_words_fmt, newline=' ')
         np.savetxt(f, [std_all_values], fmt='%12.6E', newline='\n')
       
 if __name__ == '__main__':

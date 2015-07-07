@@ -45,4 +45,3 @@ if [ ! -z "$d" ]; then
    echo "d on"
 fi
 echo "o = ${o}"
-	   
