@@ -193,12 +193,9 @@ def check_neutron_flux(tr_neut_flux):
     print max_resid
     return presid
 
-"""
-Argument parsing
-returns : args: -d for the run directory
-ref     : DAGMC/tools/parse_materials/dagmc_get_materials.py
-"""
-def parsing():
+def parse_arguments():
+    """ Argument parsing
+    """
     
     min_col = num_meta
     parser = argparse.ArgumentParser()
@@ -315,7 +312,7 @@ def write_dose(infile, name_list):
     dm_header, group_header, row_data = get_data(args.infile)
         
 def main():
-    args = parsing()
+    args = parse_arguments()
 
     ########################
     # Get the header with the meta-data and dose,
