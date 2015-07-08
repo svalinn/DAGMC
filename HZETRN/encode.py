@@ -25,8 +25,8 @@ def construct_depth_header(species):
 	      ###########################
 	      # Add meta columns
 	      '{0: >12}'.format('Density'),
-	      '{0: >12}'.format('Tot Depth'),
-	      '{0: >12}'.format('Tot. g/cm^2'),
+	      '{0: >12}'.format('Tot_Depth'),
+	      '{0: >12}'.format('Tot_g/cm^2'),
 	      ###########################
               '{0: >12}'.format('Dose_All'),
               '{0: >12}'.format('Doseq_All') ]
@@ -189,7 +189,7 @@ def main():
 
     # stat_words = ['over', 'direction', 'at', 'Reference',  'Depth']
     # stat_words_fmt = [['%12s']*meta]
-    all_stat_words = stat_words.insert(0,'Average')
+    # all_stat_words = stat_words.insert(0,'Average')
     with open(out_path, 'a') as f:
         np.savetxt(f, [['Average', 'over', 'direction', 'at', 'Reference', 'Depth']], \
 	               fmt=['%12s', '%12s', '%12s', '%12s', '%12s', '%12s'], newline=' ')
