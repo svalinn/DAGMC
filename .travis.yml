@@ -1,0 +1,62 @@
+language: c++
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y gfortran g++ build-essential cmake libblas-dev liblapack-dev
+install:
+  # build hdf5
+  - wget https://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
+  - tar -zxf hdf5-1.8.13.tar.gz
+  - mv hdf5-1.8.13 hdf5
+  - cd hdf5
+  - mkdir bld
+  - cd bld
+  - ../configure --enable-shared --disable-debug --enable-optimize --prefix=$HOME/hdf5
+  - make
+  - make install
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/hdf5/lib/"
+  - export PATH="$HOME/hdf5/bin:$PATH"
+  # build moab
+  - git clone https://bitbucket.org/fathomteam/moab
+  - git checkout master
+  - cd moab
+  - autoreconf -fi
+  - mkdir bld
+  - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$HOME/hdf5 --prefix=$HOME/moab
+  - make
+  - make install
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/moab/lib/"
+  - export PATH="$HOME/moab/bin:$PATH"
+  # build geant4
+  - wget http://geant4.cern.ch/support/source/geant4.10.00.p02.tar.gz
+  - tar -zxf geant4.10.00.p02.tar.gz
+  - cd $HOME/geant4.10.00.p02
+  - mkdir bld
+  - cmake ../. -DCMAKE_INSTALL_PREFIX=$OWD/geant4
+  - make 
+  - make install
+  # build dagmc
+  - cd DAGMC
+  - mkdir bld
+  - cd bld
+  - cmake ../. -DBUILD_GEANT4=ON -DGEANT4_DIR=$HOME/geant4 -DCMAKE_INSTALL_PREFIX=$HOME/DAGMC
+  - make
+  - make install
+
+script:
+  # move to test dir
+  - cd tests
+  # run each test
+  - ./dagsolid_unit_tests
+  - ./fludag_unit_tests
+  - ./test_CellTally
+  - ./test_KDEKernel
+  - ./test_KDEMeshTally
+  - ./test_KDENeighborhood
+  - ./test_PolynomialKernel
+  - ./test_Quadrature
+  - ./test_Tally
+  - ./test_TallyData
+  - ./test_TallyEvent
+  - ./test_TrackLengthMeshTally
+  - ./uwuw_unit_tests
+  - ./uwuw_unit_tests_tally
