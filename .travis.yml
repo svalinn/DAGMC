@@ -21,6 +21,7 @@ install:
   - git checkout master
   - autoreconf -fi
   - mkdir bld
+  - cd bld
   - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$HOME/hdf5 --prefix=$HOME/moab
   - make
   - make install
