@@ -45,7 +45,8 @@ before_install:
   - mkdir bld
   - cd bld
   - cmake ../. -DCMAKE_INSTALL_PREFIX=$HOME/geant4.10.00.p02
-  - make -j2 > log-file 2>&1
+  # geant4 compile takes 30 mins so need to use travis_wait
+  - travis_wait make -j2 > log-file 2>&1
   - make install
   - export PATH="$HOME/geant4.10.00.p02/bin:$PATH"
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/geant4.10.00.p02/lib/"
