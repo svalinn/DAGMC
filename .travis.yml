@@ -15,6 +15,8 @@ install:
   - make install
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/hdf5/lib/"
   - export PATH="$HOME/hdf5/bin:$PATH"
+  - cd ..
+  - cd ..
   # build moab
   - git clone https://bitbucket.org/fathomteam/moab
   - cd moab
@@ -27,14 +29,18 @@ install:
   - make install
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/moab/lib/"
   - export PATH="$HOME/moab/bin:$PATH"
+  - cd ..
+  - cd ..
   # build geant4
   - wget http://geant4.cern.ch/support/source/geant4.10.00.p02.tar.gz
   - tar -zxf geant4.10.00.p02.tar.gz
-  - cd $HOME/geant4.10.00.p02
+  - cd geant4.10.00.p02
   - mkdir bld
   - cmake ../. -DCMAKE_INSTALL_PREFIX=$OWD/geant4
   - make 
   - make install
+  - cd ..
+  - cd ..
   # build dagmc
   - cd DAGMC
   - mkdir bld
