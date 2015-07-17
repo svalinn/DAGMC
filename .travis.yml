@@ -17,8 +17,8 @@ install:
   - export PATH="$HOME/hdf5/bin:$PATH"
   # build moab
   - git clone https://bitbucket.org/fathomteam/moab
-  - git checkout master
   - cd moab
+  - git checkout master
   - autoreconf -fi
   - mkdir bld
   - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$HOME/hdf5 --prefix=$HOME/moab
