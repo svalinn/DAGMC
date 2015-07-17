@@ -9,7 +9,7 @@ addons:
     - cmake 
     - libblas-dev 
     - liblapack-dev
-install:
+before_install:
   # build hdf5
   - wget https://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
   - tar -zxf hdf5-1.8.13.tar.gz
@@ -44,11 +44,12 @@ install:
   - cd geant4.10.00.p02
   - mkdir bld
   - cd bld
-  - cmake ../. -DCMAKE_INSTALL_PREFIX=$OWD/geant4.10.00.p02
+  - cmake ../. -DCMAKE_INSTALL_PREFIX=$HOME/geant4.10.00.p02
   - make 
   - make install
   - cd ..
   - cd ..
+install:
   # build dagmc
   - cd DAGMC
   - mkdir bld
