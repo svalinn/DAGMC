@@ -18,7 +18,7 @@ before_install:
   - mkdir bld
   - cd bld
   - ../configure --enable-shared --disable-debug --enable-optimize --prefix=$HOME/hdf5
-  - make
+  - make -j2 > log-file 2>&1
   - make install
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/hdf5/lib/"
   - export PATH="$HOME/hdf5/bin:$PATH"
@@ -32,7 +32,7 @@ before_install:
   - mkdir bld
   - cd bld
   - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$HOME/hdf5 --prefix=$HOME/moab
-  - make
+  - make -j2 > log-file 2>&1
   - make install
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/moab/lib/"
   - export PATH="$HOME/moab/bin:$PATH"
@@ -45,17 +45,19 @@ before_install:
   - mkdir bld
   - cd bld
   - cmake ../. -DCMAKE_INSTALL_PREFIX=$HOME/geant4.10.00.p02
-  - make 
+  - make -j2 > log-file 2>&1
   - make install
+  - export PATH="$HOME/geant4.10.00.p02/bin:$PATH"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/geant4.10.00.p02/lib/"
   - cd ..
   - cd ..
 install:
   # build dagmc
-  - cd DAGMC
+  # - cd DAGMC
   - mkdir bld
   - cd bld
   - cmake ../. -DBUILD_GEANT4=ON -DGEANT4_DIR=$HOME/geant4 -DCMAKE_INSTALL_PREFIX=$HOME/DAGMC
-  - make -j2
+  - make 
   - make install
   - cd ..
 script:
