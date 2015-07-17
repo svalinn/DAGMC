@@ -1,7 +1,14 @@
 language: c++
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y gfortran g++ build-essential cmake libblas-dev liblapack-dev
+sudo: false
+addons:
+  apt:
+    packages:
+    - gfortran 
+    - g++ 
+    - build-essential 
+    - cmake 
+    - libblas-dev 
+    - liblapack-dev
 install:
   # build hdf5
   - wget https://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
@@ -47,7 +54,7 @@ install:
   - mkdir bld
   - cd bld
   - cmake ../. -DBUILD_GEANT4=ON -DGEANT4_DIR=$HOME/geant4 -DCMAKE_INSTALL_PREFIX=$HOME/DAGMC
-  - make
+  - make -j2
   - make install
   - cd ..
 script:
