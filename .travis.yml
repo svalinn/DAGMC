@@ -11,8 +11,8 @@ addons:
     - liblapack-dev
 before_install:
   # build cmake
-  - git clone git://cmake.org/cmake.git
-  - cd cmake
+  - git clone git://cmake.org/cmake.git custom_cmake
+  - cd custom_cmake
   - git checkout master
   - mkdir bld
   - cd bld
