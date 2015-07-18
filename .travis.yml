@@ -10,6 +10,18 @@ addons:
     - libblas-dev 
     - liblapack-dev
 before_install:
+  # build cmake
+  - git clone git://cmake.org/cmake.git
+  - cd cmake
+  - git checkout master
+  - mkdir bld
+  - cd bld
+  - cmake ../. -DCMAKE_INSTALL_PREFIX=$HOME/cmake
+  - make -j2 > log-file 2>&1
+  - make install
+  - export PATH="$HOME/cmake/bin:$PATH"
+  - cd ..
+  - cd .. 
   # build hdf5
   - wget https://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
   - tar -zxf hdf5-1.8.13.tar.gz
