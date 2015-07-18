@@ -69,7 +69,7 @@ install:
   # - cd DAGMC
   - mkdir bld
   - cd bld
-  - cmake ../. -DBUILD_GEANT4=ON -DGEANT4_DIR=$HOME/geant4 -DCMAKE_INSTALL_PREFIX=$HOME/DAGMC
+  - cmake ../. -DBUILD_GEANT4=ON -DGEANT4_DIR=$HOME/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$HOME/DAGMC
   - make 
   - make install
   - cd ..
