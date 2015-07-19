@@ -39,10 +39,10 @@ before_install:
   - cd ..
   - cd ..
   # build moab
-#  - git clone https://bitbucket.org/fathomteam/moab
-   - git clone https://bitbucket.org/makeclean/moab
+  # git clone https://bitbucket.org/fathomteam/moab
+  - git clone https://bitbucket.org/makeclean/moab
   - cd moab
-#  - git checkout master
+  # git checkout master
   - git checkout fix_curves
   - autoreconf -fi
   - mkdir bld
