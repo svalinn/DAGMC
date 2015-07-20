@@ -81,7 +81,8 @@ install:
   - cd ..
 script:
   # move to test dir
-  - cd tests
+  - pwd
+  - cd $START/DAGMC/tests
   # run each test
   - ./dagsolid_unit_tests
   - ./fludag_unit_tests
