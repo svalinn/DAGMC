@@ -380,7 +380,7 @@ void ExN01DetectorConstruction::add_histogram_description(std::string tally_name
 				    1.777131E-2,1.822119E-2,1.868246E-2,1.915541E-2,1.964033E-2,
 				    2.000000E-2};
   */
-  std::vector<G4double> bin_bounds={1.000000E-14*GeV,2.000000E-13*GeV,2.929734E-13*GeV,4.291671E-13*GeV,6.286727E-13*GeV,
+  G4double bin_bounds[261] =       {1.000000E-14*GeV,2.000000E-13*GeV,2.929734E-13*GeV,4.291671E-13*GeV,6.286727E-13*GeV,
 				    9.209218E-13*GeV,1.349028E-12*GeV,1.976147E-12*GeV,2.894792E-12*GeV,4.240485E-12*GeV,
 				    6.211746E-12*GeV,9.099382E-12*GeV,1.332938E-11*GeV,1.952578E-11*GeV,2.860266E-11*GeV,
 				    4.189910E-11*GeV,6.137660E-11*GeV,8.990856E-11*GeV,1.317041E-10*GeV,1.929290E-10*GeV,
@@ -433,9 +433,14 @@ void ExN01DetectorConstruction::add_histogram_description(std::string tally_name
 				    1.568312E-2*GeV,1.608014E-2*GeV,1.648721E-2*GeV,1.690459E-2*GeV,1.733253E-2*GeV,
 				    1.777131E-2*GeV,1.822119E-2*GeV,1.868246E-2*GeV,1.915541E-2*GeV,1.964033E-2*GeV,
 				    2.000000E-2*GeV};
+  // G4 expects a vector
+  // but CI doesnt like using the C++11 std
+  std::vector<G4double> bin_bounds_v;
+  // hence this
+  bin_bounds_v.assign(bin_bounds, bin_bounds + 261 );
   // create historgram
   //  analysisManager->CreateH1(tally_name,tally_name,10000,1e-11,100.);
-  analysisManager->CreateH1(tally_name,tally_name,10000,1e-11,100.);
+  analysisManager->CreateH1(tally_name,tally_name,bin_bounds_v);
   analysisManager->CreateNtupleDColumn(tally_name);
   return;
 }
