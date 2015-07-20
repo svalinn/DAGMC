@@ -75,9 +75,10 @@ install:
   - mkdir bld
   - cd bld
   - ls $START/geant4.10.00.p02 
-  - cmake ../. -DBUILD_GEANT4=ON -DGEANT4_DIR=$START/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$START/DAGMC
+  - cmake ../. -DBUILD_TALLY=ON -DBUILD_GEANT4=ON -DGEANT4_DIR=$START/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$START/DAGMC
   - make 
   - make install
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/DAGMC/lib"
   - cd ..
 script:
   # move to test dir
