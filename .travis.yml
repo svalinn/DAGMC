@@ -1,5 +1,13 @@
 language: c++
 sudo: false
+env: 
+  matrix:
+    - MOAB_VERSION="4.6.2"
+    - MOAB_VERSION="4.6.3"
+    - MOAB_VERSION="Version4.7.0"
+    - MOAB_VERSION="Version4.8.0"
+    - MOAB_VERSION="Version4.8.1"
+    - MOAB_VERSION="Version4.8.2"
 addons:
   apt:
     packages:
@@ -39,11 +47,11 @@ before_install:
   - cd ..
   - cd ..
   # build moab
-  # git clone https://bitbucket.org/fathomteam/moab
-  - git clone https://bitbucket.org/makeclean/moab
+  - git clone https://bitbucket.org/fathomteam/moab
+  # git clone https://bitbucket.org/makeclean/moab
   - cd moab
   # git checkout master
-  - git checkout fix_curves
+  - git checkout $MOAB_VERSION
   - autoreconf -fi
   - mkdir bld
   - cd bld

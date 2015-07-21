@@ -1,5 +1,4 @@
 #PROJECT(FluDAGUnitTests)
-
 # 
 SET (tgt "gtest")
 ADD_CUSTOM_COMMAND (TARGET ${tgt}
@@ -18,7 +17,7 @@ SET (fludag_test_source ${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp)
 SET(LIBS
     pthread
     dagmciface
-    ${DAGMC_LIBRARIES} 
+    ${DAG_LINK_LIBS} 
     gtest
     pthread
 )

@@ -494,7 +494,7 @@ ADD_EXECUTABLE(${mcnp_exec} ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)
 target_link_libraries(${mcnp_exec} 
  			dagmciface 
 			dagtally 
-			${DAGMC_LIBRARIES} 
+			${DAG_LINK_LIBS}
 			${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY} 
 			pyne_dagmc )
 if(MPI_BUILD)

@@ -17,7 +17,7 @@ ENDIF(STATIC_LIB)
 # set libraries
 SET(LIBRARIES
     pthread
-    ${DAGMC_LIBRARIES}
+    ${DAG_LINK_LIBS}
     dagtally
     gtest
     pthread
