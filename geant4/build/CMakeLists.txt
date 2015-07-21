@@ -52,7 +52,7 @@ target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
                                 ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
 #                                ${PYNE_LIBS_DIR}/libpyne.so
 				pyne_dagmc
-			        ${DAGMC_LIBRARIES}
+			        ${DAG_LINK_LIBS}
 				dagsolid
 				iMesh
 				dagmciface)

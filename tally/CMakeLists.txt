@@ -1,7 +1,6 @@
 # CMAKE build script for DAGMC Tally
 
 ENABLE_LANGUAGE(Fortran)
-MESSAGE(STATUS "Creating DAGTally Library WITH " ${DAGMC_LIBRARIES})
 SET ( DAG_TALLY_SRC_FILES
     Tally.cpp
     TallyData.cpp
@@ -51,7 +50,6 @@ INSTALL( TARGETS       dagtally
   PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
   )
 
-
-TARGET_LINK_LIBRARIES(dagtally lapack blas ${DAGMC_LIBRARIES} gfortran)
+TARGET_LINK_LIBRARIES(dagtally lapack blas ${DAG_LINK_LIBS} gfortran)
 
 ADD_SUBDIRECTORY(tests)

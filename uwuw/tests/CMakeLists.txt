@@ -20,13 +20,12 @@ set(uwuw_test_tally_source
 )
 # geant libs needed for test cases
 
-
 # two pthreads are needed for final linking, dont know why
 # set libraries needed to link to test cases
 SET(LIBS
   pthread
   dagmciface
-  ${DAGMC_LIBRARIES}
+  ${DAG_LINK_LIBS}
   gtest
   pyne_dagmc
   pthread
