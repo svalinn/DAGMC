@@ -27,7 +27,7 @@ SET(FLUDAG_LIBS
      dagmciface
      ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
      pyne_dagmc
-     ${DAGMC_LIBRARIES} 
+     ${DAG_LINK_LIBS} 
      gfortran
   )
 
