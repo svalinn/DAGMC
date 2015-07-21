@@ -30,7 +30,7 @@
 //
 
 #include "DagSolid.hh"
-#include "MBInterface.hpp"
+#include "moab/Interface.hpp"
 #include "DagMC.hpp"
 
 #include "DagSolidMaterial.hh"
@@ -76,14 +76,14 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
 						      "world_vol",0,false,0);
 
-  MBErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str(),0);
-  if(rval != MB_SUCCESS)
+  ErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str(),0);
+  if(rval != moab::MB_SUCCESS)
     {
       G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
       exit(1);
     }
   rval = dagmc->init_OBBTree();
-  if(rval != MB_SUCCESS)
+  if(rval != moab::MB_SUCCESS)
     {
       G4cout << "ERROR: Failed to build the OBB Tree" << G4endl;
       exit(1);
@@ -111,7 +111,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
     {
       // get the MBEntity handle for the volume
       int dag_id = dagmc->id_by_index(3,dag_idx);
-      MBEntityHandle volume = dagmc->entity_by_id(3,dag_id);
+      EntityHandle volume = dagmc->entity_by_id(3,dag_id);
       std::string dag_material_name;
       rval = dagmc->prop_value(volume,"mat",dag_material_name);
       std::cout << "id = " << dag_id << " mat = " << dag_material_name << std::endl;
@@ -194,7 +194,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
 	  scorer.entity_type.find("Volume") != std::string::npos )
 	{
 	  int vol_id = scorer.entity_id;
-	  MBEntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
+	  EntityHandle vol = dagmc->entity_by_id(3,vol_id); // convert id to eh
 	  int vol_idx = dagmc->index_by_handle(vol); // get the volume index
 
 	  particles = volume_part_map[vol_id];
@@ -237,7 +237,7 @@ void ExN01DetectorConstruction::ConstructSDandField()
   //  loop over the volume indices
   for ( it = volume_part_map.begin() ; it != volume_part_map.end() ; ++it )
     {
-      MBEntityHandle vol = dagmc->entity_by_id(3,it->first); // convert id to eh
+      EntityHandle vol = dagmc->entity_by_id(3,it->first); // convert id to eh
       int vol_idx = dagmc->index_by_handle(vol); // get the volume index
 
       // turn the idx into string
