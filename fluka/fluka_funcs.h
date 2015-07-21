@@ -9,8 +9,8 @@
 #include <utility>     // makepair
 
 #include "moab/Types.hpp"
-#include "MBInterface.hpp"
-#include "MBCartVect.hpp"
+#include "moab/Interface.hpp"
+#include "moab/CartVect.hpp"
 #include "DagMC.hpp"
 #include "../pyne/pyne.h"
 #include "../uwuw/uwuw.hpp"
@@ -75,9 +75,9 @@ struct particle_state {
   moab::DagMC::RayHistory history;
   bool on_boundary;
   double old_direction[3];
-  MBEntityHandle next_surf; // the next suface the ray will hit
-  MBEntityHandle prev_surf; // the last value of next surface
-  MBEntityHandle PrevRegion; // the integer region that the particle was in previously 
+  moab::EntityHandle next_surf; // the next suface the ray will hit
+  moab::EntityHandle prev_surf; // the last value of next surface
+  moab::EntityHandle PrevRegion; // the integer region that the particle was in previously 
   int stack_count;
 };
 
@@ -356,7 +356,7 @@ int normal (double& posx, double& posy, double& posz, double *norml, int& curReg
  * \param[in] uvw[3] the direction vector
  * \param[returns] either yes (1) or no (0) 
  **/
-int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3]);
+int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3]);
 
 /**
  * \brief turns an integer volume index into its string form with a period appended
@@ -440,7 +440,7 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tal
  * \param[in] delimiters the possible characters used as delimiters
  * \return map of vector of property values in an entity handlewise map
  */
-std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
+std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
 									    int dimension, std::string delimiters);
 
 /*** end of uwuw functions ***/
