@@ -1,0 +1,100 @@
+language: c++
+sudo: false
+addons:
+  apt:
+    packages:
+    - gfortran 
+    - g++ 
+    - build-essential 
+    - cmake 
+    - libblas-dev 
+    - liblapack-dev
+before_install:
+  # find the start dir
+  - export START="$PWD"
+  # build cmake
+  - git clone git://cmake.org/cmake.git custom_cmake
+  - cd custom_cmake
+  - git checkout master
+  - mkdir bld
+  - cd bld
+  - cmake ../. -DCMAKE_INSTALL_PREFIX=$START/cmake
+  - make -j2 > log-file 2>&1
+  - make install
+  - export PATH="$START/cmake/bin:$PATH"
+  - cd ..
+  - cd .. 
+  # build hdf5
+  - wget https://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
+  - tar -zxf hdf5-1.8.13.tar.gz
+  - mv hdf5-1.8.13 hdf5
+  - cd hdf5
+  - mkdir bld
+  - cd bld
+  - ../configure --enable-shared --disable-debug --enable-optimize --prefix=$START/hdf5
+  - make -j2 > log-file 2>&1
+  - make install
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/hdf5/lib/"
+  - export PATH="$START/hdf5/bin:$PATH"
+  - cd ..
+  - cd ..
+  # build moab
+  # git clone https://bitbucket.org/fathomteam/moab
+  - git clone https://bitbucket.org/makeclean/moab
+  - cd moab
+  # git checkout master
+  - git checkout fix_curves
+  - autoreconf -fi
+  - mkdir bld
+  - cd bld
+  - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$START/hdf5 --prefix=$START/moab
+  - make -j2 > log-file 2>&1
+  - make install
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/moab/lib/"
+  - export PATH="$START/moab/bin:$PATH"
+  - cd ..
+  - cd ..
+  # build geant4
+  - wget http://geant4.cern.ch/support/source/geant4.10.00.p02.tar.gz
+  - tar -zxf geant4.10.00.p02.tar.gz
+  - cd geant4.10.00.p02
+  - mkdir bld
+  - cd bld
+  - pwd
+  - cmake ../. -DCMAKE_INSTALL_PREFIX=$START/geant4.10.00.p02
+  # geant4 compile takes 30 mins so need to use travis_wait
+  - travis_wait make -j2
+  - make install
+  - export PATH="$START/geant4.10.00.p02/bin:$PATH"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/geant4.10.00.p02/lib/"
+  - cd ..
+  - cd ..
+install:
+  # build dagmc
+  # - cd DAGMC
+  - mkdir bld
+  - cd bld
+  - cmake ../. -DBUILD_TALLY=ON -DBUILD_GEANT4=ON -DGEANT4_DIR=$START/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$START/DAGMC
+  - make 
+  - make install
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/DAGMC/lib"
+  - cd ..
+script:
+  # move to test dir
+  - cd $START/DAGMC/tests
+  # run each test
+  - ./dagsolid_unit_tests
+  # no fludag yet
+  # ./fludag_unit_tests
+  - ./test_CellTally
+  - ./test_KDEKernel
+  - ./test_KDEMeshTally
+  - ./test_KDENeighborhood
+  - ./test_PolynomialKernel
+  - ./test_Quadrature
+  - ./test_Tally
+  - ./test_TallyData
+  - ./test_TallyEvent
+  - ./test_TrackLengthMeshTally
+  - ./uwuw_unit_tests
+  - ./uwuw_unit_tests_tally
