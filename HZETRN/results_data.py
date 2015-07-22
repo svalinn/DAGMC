@@ -1,78 +1,275 @@
 import argparse
 import numpy as np
 
-# Number of columns devoted to direction and other
-# non-response data
-num_meta = 6
-# Format for all response data
-# response_type = []
+class resultrec(object):
 
-# Format for meta data
-meta_type=[('u','f4'), ('v','f4'), ('w','f4'), 
-           ('density','f4'), ('depth','f4'), ('depthq','f4')]
+    # Number of columns devoted to direction and other
+    # non-response data
+    num_meta = 6
 
-def get_data(infile):
-    """ Read the lines of a database file, stripping 
-    off the header and statistics lines.
+    # Format for meta data
+    meta_type=[('u','f4'), ('v','f4'), ('w','f4'), 
+               ('density','f4'), ('depth','f4'), ('depthq','f4')]
 
-    Parameters
-    ----------
-    infile : file with a header, 2 statistics rows, and otherwise
-             row by column floats
-
-    Returns
-    -------
-    The data is broken up into three  sections
-    meta_dose_header -- list of meta-data, dose and doseq headers,
-                        all of which are ascii
-    group_header     -- list of header fields which are numeric,
-                        e.g. energy boundaries for let data
-			This list has many repeated sequences
-			Note that meta_dose_header + group_header 
-			a) is the entire header and
-			b) has a length related to the row data
-    allrows -- a 2D array of floats containing all the meta-data
-               AND responses.
-	       len(allrows) = len(meta_dose_header) + len(group_header)
-
-    Notes
-    -----
-    File is the result of calling encode.py on an HZETRN dataset
-
-    """ 
-    allrows = np.array([])
-    with open(infile) as fp:
-        for index, line in enumerate(fp):
-	    i = index + 1
-	    if i == 1:
-	        header = line.split()
-	    else:
-	        try: 
-	            row = map(float, line.split())
-	            if len(allrows) == 0:
-	                allrows = row
-	            else:
-	                allrows = np.vstack((allrows, row))
-	        except ValueError:
-		    pass
-	           
+    # Initialized by c'tor
+    nrows = -1
     dose_meta_header = []
-    group_header = []
-    # Provide a subset of the header that is just the ascii column headers.
-    # The rest of the headers can be converted to energy group floats
-    max_non_numeric_col = -1    
-    for field in header:
-        try:
-	    num = float(field)
-	# it doesn't convert, must be ascii
-	except ValueError:
-	    dose_meta_header.append(field)
-	else:
-	    group_header.append(num)
-    if len(dose_meta_header) + len(group_header) != allrows.shape[1]:
-        raise Exception('The header did not split nicely into non-numeric and numeric sections')
-    return dose_meta_header, group_header, allrows
+    group_header     = []
+    response_type    = []
+    response_data    = []
+    tr_all  = np.zeros([])
+    tr_meta = np.zeros([])
+
+    # set by get_particle_names()
+    num_species = 0
+
+    def __init__(self, infile):
+        # set dose_meta_header, group_header
+	row_data = self.get_data(infile)
+
+        self.nrows = row_data.shape[0]
+
+        self.get_alldata_struct(row_data)
+	self.get_meta_struct(row_data)
+        return
+	
+
+    def get_data(self, infile):
+        """ Read the lines of a database file, stripping 
+        off the header and statistics lines.
     
+        Parameters
+        ----------
+        infile : file with a header, 2 statistics rows, and otherwise
+                 row by column floats
+    
+        Returns
+        -------
+        allrows -- a 2D array of floats containing all the meta-data
+                   AND responses.
+    
+	Attributes
+	----------
+	self.meta_dose_header, self.group_header
+
+        meta_dose_header -- list of meta-data, dose and doseq headers,
+                            all of which are ascii
+        group_header     -- list of header fields which are numeric,
+                            e.g. energy boundaries for let data
+    			This list has many repeated sequences
+    			Note that meta_dose_header + group_header 
+    			a) is the entire header and
+    			b) has a length related to the row data
+        Notes
+        -----
+    	- len(allrows) = len(meta_dose_header) + len(group_header)
+
+        - File is the result of calling encode.py on an HZETRN dataset
+    
+        end of get_data(infile)
+        """ 
+        allrows = np.array([])
+        with open(infile) as fp:
+            for index, line in enumerate(fp):
+    	        i = index + 1
+    	        if i == 1:
+    	            header = line.split()
+    	        else:
+    	            try: 
+    	                row = map(float, line.split())
+    	                if len(allrows) == 0:
+    	                    allrows = row
+    	                else:
+    	                    allrows = np.vstack((allrows, row))
+    	            except ValueError:
+    		        pass
+    	           
+        # Provide a subset of the header that is just the ascii column headers.
+        # The rest of the headers can be converted to energy group floats
+        max_non_numeric_col = -1    
+        for field in header:
+            try:
+    	        num = float(field)
+    	    # it doesn't convert, must be ascii
+    	    except ValueError:
+    	        self.dose_meta_header.append(field)
+    	    else:
+    	        self.group_header.append(num)
+
+        if len(self.dose_meta_header) + len(self.group_header) != allrows.shape[1]:
+            raise Exception('The header did not split nicely into non-numeric and numeric sections')
+        
+	return allrows
+    
+    def get_alldata_struct(self, data):
+
+        self.response_type = [('RESPONSE', 'a12'), ('PARTICLE', 'a12'), \
+	                      ('GROUP', 'i4'), ('VALUES', 'f4', self.nrows)]
+
+        # remove meta_columns from arrays
+        self.response_data = data[:,self.num_meta:]
+	response_cols = self.response_data.shape[1]
+
+	# Create a record array for 
+	# a) all the incoming data cols PLUS
+	# b) the flux for each particle PLUS 
+	# c) the total neutron backward flux
+        total_cols = response_cols + num_species + 1
+        self.tr_all = np.zeros(response_cols, dtype=self.response_type)
+
+	# Make one record with placeholders
+        for col in range(response_cols):
+            self.tr_all[col] = ('',  'All', -1, self.response_data[:, col])
+
+        return
+
+    def get_meta_struct(self, data):
+        """ Get a structured array consisting of the first num_meta columns
+        of the passed in array.
+    
+        Parameters
+        ----------
+        data : numpy array with at least num_meta columns
+            a two-dimensional array of floats where the 
+    	columns are over direction and the rows are the (u,v,w,depth) tuples
+    	for each direction
+    
+        Attributes
+        -------
+	self.tr_meta
+        A structured array with the same number of tuples as the rows in the input
+        data array
+    
+        """ 
+        self.tr_meta = np.zeros(self.nrows, dtype=self.meta_type) 
+        for i in range(self.nrows):
+            self.tr_meta[i] = tuple(data[i,:self.num_meta])
+        return 
+    
+    def get_particle_names(self):
+        # The dose header has two times the number of species, plus two total categories
+        self.num_species = int((len(self.dose_header) - 2) / 2)
+        # To fill in the PARTICLE field, extract name list depending
+        # on the number of species, i.e. the radiation environment
+        if 6 == num_species:
+           particle_names = [x.split('_')[1] for x in dose_header[2:2+num_species]] 
+        else:
+           particle_names = ['particle_' + str(i) for i in range(num_species)]
+        return particle_names
+
+    def set_alldata_struct(self, data):
+        ple_names = self.get_particle_names(self.dose_header)
+        # Fill in the dose and doseq RESPONSE and PARTICLE headers
+	self.tr_all[0]['RESPONSE'] = 'Dose'
+	self.tr_all[1]['RESPONSE'] = 'Doseq'
+	start = 2
+        for pname, i in zip(range(self.num_species), range(start,start + self.num_species)):
+	    self.tr_all[i]['RESPONSE'] = 'Dose'
+	    self.tr_all[i]['PARTICLE'] = ple_names[pname]
+	start += self.num_species
+
+        for pname, i in zip(range(self.num_species), range(start,start + self.num_species)):
+	    self.tr_all[i]['RESPONSE'] = 'Doseq'
+	    self.tr_all[i]['PARTICLE'] = ple_names[pname]
+	start += self.num_species
+        ######################### LET  #################################
+        num_let_groups = 700
+	for group, i in zip(range(num_let_groups), range(start, start + num_let_groups)):
+	    self.tr_all[i]['RESPONSE'] = 'dif_let'
+	    self.tr_all[i]['PARTICLE'] = 'All'
+	    self.tr_all[i]['GROUP'] = group 
+        start += num_let_groups
+
+	for group, i in zip(range(num_let_groups), range(start, start + num_let_groups)):
+	    self.tr_all[i]['RESPONSE'] = 'int_let'
+	    self.tr_all[i]['PARTICLE'] = 'All'
+	    self.tr_all[i]['GROUP'] = group 
+        start += num_let_groups
+        ######################### Flux #################################
+	# reference for summing over groups
+	flux_start = start
+        num_flux_groups = 100
+	for p in range(num_species):
+	    particle = ple_names[p]
+	    for group, i in zip(range(num_flux_groups), range(start, start + num_flux_groups)):
+	        self.tr_all[i]['RESPONSE'] = 'flux'
+	        self.tr_all[i]['PARTICLE'] = particle
+	        self.tr_all[i]['GROUP'] = group 
+        start += num_species*num_flux_groups
+
+	for p in range(self.num_species):
+	    particle = ple_names[p]
+	    for group, i in zip(range(num_flux_groups), range(start, start + num_flux_groups)):
+	        self.tr_all[i]['RESPONSE'] = 'intflux'
+	        self.tr_all[i]['PARTICLE'] = particle
+	        self.tr_all[i]['GROUP'] = group 
+        start += self.num_species*num_flux_groups
+
+        neutflux_names = ['forward', 'backward', 'total']
+	for n in range(len(neutflux_names)):
+	    name = neutflux_names[n] 
+	        
+	    for group, i in zip(range(num_flux_groups), range(start, start + num_flux_groups)):
+	        self.tr_all[i]['RESPONSE'] = 'neutflux'
+	        self.tr_all[i]['PARTICLE'] = name
+	        self.tr_all[i]['GROUP'] = group 
+		# sum the total neutron columns over group
+	        if name == 'backward':
+		    total_backward_col += self.tr_all[i]['VALUES']
+        start += len(neutflux_names)*num_flux_groups
+
+        # end = start + num_species*num_flux_groups - 1
+	flux_p = flux_start
+	for p,i in (range(self.num_species), range(start, start + self.num_species)):
+	    particle = ple_names[p]
+	    self.tr_all[i]['RESPONSE'] = 'totalflux'
+	    self.tr_all[i]['PARTICLE'] = particle
+	    self.tr_all[i]['GROUP']    = -1 
+	    for flux_j in range(flux_p, flux_p + num_flux_groups):
+	        value_col += self.tr_all[flux_j]['VALUES']
+	    self.tr_all[i]['VALUES'] = value_col
+	    flux_p += num_flux_groups        
+        last = start + self.num_species
+        self.tr_all[last] = ('totalbackneut', 'neutron', -1, total_backward_col)
+    
+
+    def get_default_structs
+        """
+        HZETRN Default output on sphere and surface 
+        1 TotalDose, 
+        1 TotalDoseEq, 
+        N Dose(per particle), 
+        N DoseEq(per particle), 
+        N TotalFlux(per particle), 
+        1 TotalFluxBackNeutrons 
+        This is 2+N*3+1 plots.  For SPE N is 6 so we have 21, for GCR N is 59 so we have 180.
+        """
+        # Construct the by-column record array
+        ple_names = get_particle_names(dose_header)
+        self.num_species = len(ple_names)
+
+        ######################### Dose  #################################
+        dose_header = self.dose_meta_header[self.num_meta:]
+        num_dose_response = len(dose_header) 
+
+        # Construct the dose struct
+        self.tr_dose = np.zeros(num_dose_response, dtype=self.response_type)
+	i = 0
+	self.tr_all[i] = ('Dose', 'All', -1, self.tr_all[i]['VALUES'])
+	i = 1
+	self.tr_all[i] = ('Doseq', 'All', -1, self.tr_all[i]['VALUES'])
+	start = i+1
+        for i in range(start,start + self.num_species):
+	    self.tr_all[i] = ('Dose', ple_names[i-start], -1, self.tr_all[i]['VALUES'])
+	start = i+1
+        for i in range(start,start + self.num_species):
+	    self.tr_all[i] = ('Doseq', ple_names[i-start], -1, self.tr_all[i]['VALUES'])
+	# may not need
+        end_dose = i+1
+	for j in range(0,end_dose):
+            self.tr_dose[j] = self.tr_all[j]
+	return
+
 def get_data_structs(dose_meta_header, group_header, rows):
     """ Translate all the data into a set of record arrays.
 
@@ -90,22 +287,21 @@ def get_data_structs(dose_meta_header, group_header, rows):
 
     Returns
     -------
-    Six record arrays, all with the same dtype:
-    
-    [('RESPONSE', 'a12'), ('PARTICLE', 'a12'),  
-     ('GROUP', 'i4'), ('VALUES', 'f4', nrows)])
+    A set of record arrays, all with the same dtype:
+    [('RESPONSE', 'a12'), ('PARTICLE', 'a12'),  ('GROUP', 'i4'), ('VALUES', 'f4', nrows)])
+    return tr_dose, tr_let, tr_flux, tr_intflux, tr_neutflux, tr_flux_part, tr_neutflux_part
 
     Note that the values section of the dtype is an array (the column)
 
     These records contain all the response data:
-    tr_dose      RESPONSE in 'dose', 'doseq' PARTICLE in ['all',particle_names]         GROUP = -1
+    tr_dose*     RESPONSE in 'dose', 'doseq' PARTICLE in ['all',particle_names]         GROUP = -1
     tr_let       RESPONSE = 'let'  	     PARTICLE in 'int', 'dif'                   GROUP in 1-700
-    tr_flux      RESPONSE = 'flux','intflux' PARTICLE in particle_names                 GROUP in 1-100
-    tr_neutflux  RESPONSE = 'neutflux'       PARTICLE in 'forward', 'backward', 'total' GROUP in 1-100
-
-    Two more records are sums over flux groups
-    tr_flux_part RESPONSE = 'flux_part'      PARTICLE in particle_names                 GROUP = -1
-    tr_neutflux_part RESPONSE = 'neutflux_part'  PARTICLE in 'forward', 'backward', 'total' GROUP = -1
+    tr_flux*     RESPONSE = 'flux'           PARTICLE in particle_names                 GROUP in 1-100 foreach pname
+    tr_intflux   RESPONSE = 'intflux'        PARTICLE in particle_names                 GROUP in 1-100 foreach pname
+    tr_neutflux  RESPONSE = 'neutflux'       PARTICLE in 'forward', 'backward', 'total' GROUP in 1-100 foreach pname
+    Two more records are sums over flux groups:
+    tr_flux_part*      RESPONSE = 'flux_part'      PARTICLE in particle_names                 GROUP = -1
+    tr_neutflux_part*  RESPONSE = 'neutflux_part'  PARTICLE in 'forward', 'backward', 'total' GROUP = -1
 
     """ 
     global response_type
@@ -124,7 +320,7 @@ def get_data_structs(dose_meta_header, group_header, rows):
     num_dose_response = len(dose_header) 
 
     # Construct the dose struct
-    tr_dose = np.zeros(ncols, dtype=response_type)
+    tr_dose = np.zeros(num_dose_response, dtype=response_type)
     for col in range(len(dose_header)):
         if col == 0:
             tr_dose[col] = ('Dose',  'All', -1, data[:, col])
@@ -166,8 +362,8 @@ def get_data_structs(dose_meta_header, group_header, rows):
 	pname_j = ple_names[j]
         part_j_start = j*num_flux_groups
 
-	part_flux_col        = np.sum(flux_data[:,part_j_start:part_j_start + num_flux_groups])
-        tr_flux_part[j]  = ('flux_part', pname_j, -1, part_flux_col)
+	part_flux_col   = np.sum(flux_data[:,part_j_start:part_j_start + num_flux_groups])
+        tr_flux_part[j] = ('flux_part', pname_j, -1, part_flux_col)
 
 	if num_neutflux_ples > j:
             part_neutflux_col = np.sum(neutflux_data[:,part_j_start:part_j_start + num_flux_groups])
@@ -187,17 +383,6 @@ def get_data_structs(dose_meta_header, group_header, rows):
 	                                  group_i, neutflux_data[:,flux_col_k])
 	
     return tr_dose, tr_let, tr_flux, tr_intflux, tr_neutflux, tr_flux_part, tr_neutflux_part
-
-def get_particle_names(dose_header):
-    # The dose header has two times the number of species, plus two total categories
-    num_species = int((len(dose_header) - 2) / 2)
-    # To fill in the PARTICLE field, extract name list depending
-    # on the number of species, i.e. the radiation environment
-    if 6 == num_species:
-       particle_names = [x.split('_')[1] for x in dose_header[2:2+num_species]] 
-    else:
-       particle_names = ['particle_' + str(i) for i in range(num_species)]
-    return particle_names
 
 def check_neutron_flux(tr_neut_flux):
     forward  = tr_neut_flux['VALUES'][tr_neut_flux['PARTICLE'] == 'forward']
@@ -264,28 +449,6 @@ def parse_arguments():
     
     return args
 
-def get_meta_struct(data):
-    """ Get a structured array consisting of the first num_meta columns
-    of the passed in array.
-
-    Parameters
-    ----------
-    data : numpy array with at least num_meta columns
-        a two-dimensional array of floats where the 
-	columns are over direction and the rows are the (u,v,w,depth) tuples
-	for each direction
-
-    Returns
-    -------
-    A structured array with the same number of tuples as the rows in the input
-    data array
-
-    """ 
-    nrows = data.shape[0]
-    tr_meta = np.zeros(nrows, dtype=meta_type) 
-    for i in range(nrows):
-        tr_meta[i] = tuple(data[i,:num_meta])
-    return tr_meta
 
 def get_group_struct(start, group_size, header):
     """ Get a structured array for the energy groups. 
@@ -350,23 +513,20 @@ def data_structs_from_file(infile):
     tr_meta = get_meta_struct(row_data[:,:num_meta])
     return get_data_structs(dm_header, group_header, row_data)
 
-def set_response_type(nrows):
-    global response_type
-    response_type = [('RESPONSE', 'a12'), ('PARTICLE', 'a12'), \
-	             ('GROUP', 'i4'), ('VALUES', 'f4', nrows)]
-    return
 
 def main():
-    global response_type 
+    # global response_type 
     args = parse_arguments()
+
+    db = resultrec(args.infile)
 
     ########################
     # Get the header with the meta-data and dose,
     # the complete header, and the floating point row data
-    dm_header, group_header, row_data = get_data(args.infile)
-    nrows = row_data.shape[0]
+    # dm_header, group_header, row_data = get_data(args.infile)
+    # nrows = row_data.shape[0]
     # Format for all response data
-    set_response_type(nrows)
+    # set_response_type(nrows)
     ##########################################################
     ##########################################################
     tr_dose, tr_let, tr_flux, tr_intflux, tr_neut_flux, tr_flux_part, tr_neutflux_part \
