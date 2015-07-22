@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "DagMC.hpp"
-#include "MBInterface.hpp"
+#include "moab/Interface.hpp"
 #include "fluka_funcs.h"
 
 
@@ -47,11 +47,11 @@ class FluDAGTest : public ::testing::Test
        std::string infile = "slabs.h5m";
 
        rloadval = DAG->load_file(infile.c_str(), 0.0 ); 
-       assert(rloadval == MB_SUCCESS);
+       assert(rloadval == moab::MB_SUCCESS);
 
        // DAG call to initialize geometry
        rval = DAG->init_OBBTree();
-       assert (rval == MB_SUCCESS);
+       assert (rval == moab::MB_SUCCESS);
 
        // Initialize point and dir
        point[0] = 0.0;
@@ -73,8 +73,8 @@ class FluDAGTest : public ::testing::Test
 
   protected:
 
-    MBErrorCode rloadval;
-    MBErrorCode rval;
+    moab::ErrorCode rloadval;
+    moab::ErrorCode rval;
 
     // Position
     double point[3];
@@ -108,10 +108,10 @@ class FluDAGTest : public ::testing::Test
 // Test setup outcomes
 TEST_F(FluDAGTest, SetUp)
 {
-    EXPECT_EQ(MB_SUCCESS, rloadval);
+    EXPECT_EQ(moab::MB_SUCCESS, rloadval);
 
     // DAG call to initialize geometry
-    EXPECT_EQ(MB_SUCCESS, rval);
+    EXPECT_EQ(moab::MB_SUCCESS, rval);
 
     int num_vols = DAG->num_entities(3);
     std::cout << "Number of regions is " << num_vols << std::endl;
@@ -119,9 +119,9 @@ TEST_F(FluDAGTest, SetUp)
 
     std::vector< std::string > keywords;
     rval = DAG->detect_available_props( keywords );
-    EXPECT_EQ(MB_SUCCESS, rval);
+    EXPECT_EQ(moab::MB_SUCCESS, rval);
     rval = DAG->parse_properties( keywords );
-    EXPECT_EQ(MB_SUCCESS, rval);
+    EXPECT_EQ(moab::MB_SUCCESS, rval);
     
     int ret, volume;
     for (unsigned i=1; i<=num_slab_vols; i++)
@@ -131,7 +131,7 @@ TEST_F(FluDAGTest, SetUp)
 
       moab::EntityHandle eh = DAG->entity_by_index(3,i);
       rval = DAG->point_in_volume(eh, point, ret); 
-      EXPECT_EQ(MB_SUCCESS, rval);
+      EXPECT_EQ(moab::MB_SUCCESS, rval);
       if (ret == 1)
       {
          volume = i;

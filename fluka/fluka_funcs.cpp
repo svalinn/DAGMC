@@ -1,7 +1,7 @@
 #include "fluka_funcs.h"
 
-#include "MBInterface.hpp"
-#include "MBCartVect.hpp"
+#include "moab/Interface.hpp"
+#include "moab/CartVect.hpp"
 #include "DagMC.hpp"
 #include "moab/Types.hpp"
 
@@ -116,10 +116,10 @@ void g_step(double& pSx,
 void g_fire(int &oldRegion, double point[], double dir[], double &propStep, 
             double &retStep, double &safety,  int &newRegion)
 {
-  MBEntityHandle vol = DAG->entity_by_index(3,oldRegion); // get eh of current region
-  MBEntityHandle next_surf; // next surf we hit
+  moab::EntityHandle vol = DAG->entity_by_index(3,oldRegion); // get eh of current region
+  moab::EntityHandle next_surf; // next surf we hit
   double next_surf_dist;
-  MBEntityHandle newvol = 0;
+  moab::EntityHandle newvol = 0;
 
   //reset_state(state);
 
@@ -154,8 +154,8 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   
 
   // perform the actual ray fire
-  MBErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist, &state.history); // fire a ray 
-  if ( result != MB_SUCCESS )
+  moab::ErrorCode result = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist, &state.history); // fire a ray 
+  if ( result != moab::MB_SUCCESS )
     {
       std::cout << "DAG ray fire error" << std::endl;
       exit(0);
@@ -178,7 +178,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   retStep = next_surf_dist; // the returned step length is the distance to next surf
   if ( propStep >= retStep ) // will cross into next volume next step
     {
-      MBErrorCode rval = DAG->next_vol(next_surf,vol,newvol);
+      moab::ErrorCode rval = DAG->next_vol(next_surf,vol,newvol);
       newRegion = DAG->index_by_handle(newvol);
       //      retStep = retStep; // path limited by geometry
       state.next_surf = next_surf; // no operation - but for clarity
@@ -251,12 +251,12 @@ void f_normal(double& pSx, double& pSy, double& pSz,
       std::cout << "============ NRMLWR =============" << std::endl;
   }
 
-  MBEntityHandle OldReg = DAG -> entity_by_index(3,oldRegion); // entity handle
+  moab::EntityHandle OldReg = DAG -> entity_by_index(3,oldRegion); // entity handle
   double xyz[3] = {pSx,pSy,pSz}; //position vector
   double uvw[3] = {pVx,pVy,pVz}; //particl directoin
   int result; // particle is entering or leaving
 
-  MBErrorCode ErrorCode = DAG->test_volume_boundary( OldReg, state.next_surf, xyz, uvw 
+  moab::ErrorCode ErrorCode = DAG->test_volume_boundary( OldReg, state.next_surf, xyz, uvw 
 						     ,result, &state.history);  // see if we are on boundary
   ErrorCode = DAG->get_angle(state.next_surf,xyz,norml); 
   // result = 1 entering, 0 leaving
@@ -280,9 +280,9 @@ inline bool check_vol( double pos[3], double dir[3], int oldRegion)
 {
   int is_inside; // in volume or not
   // convert region id into entityhandle
-  MBEntityHandle volume = DAG->entity_by_index(3, oldRegion); // get the volume by index
-  MBErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir);
-  if ( code != MB_SUCCESS)
+  moab::EntityHandle volume = DAG->entity_by_index(3, oldRegion); // get the volume by index
+  moab::ErrorCode code = DAG->point_in_volume(volume, pos, is_inside,dir);
+  if ( code != moab::MB_SUCCESS)
     {
       std::cout << "Failed in DAG call to get point_in_volume" << std::endl;
     }
@@ -328,12 +328,12 @@ void f_look(double& pSx, double& pSy, double& pSz,
 
   for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
     {
-      MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+      moab::EntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
       // No ray history  - doesnt matter, only called for new source particles
-      MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside, dir, &state.history);
+      moab::ErrorCode code = DAG->point_in_volume(volume, xyz, is_inside, dir, &state.history);
 
       // check for non error
-      if(MB_SUCCESS != code) 
+      if(moab::MB_SUCCESS != code) 
 	{
 	  std::cout << "Error return from point_in_volume!" << std::endl;
 	  flagErr = -3;
@@ -368,10 +368,10 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
 }
 
 /* entering or leaving, if particle on boundary */
-int boundary_test(MBEntityHandle vol, double xyz[3], double uvw[3])
+int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3])
 {
   int result;
-  MBErrorCode ErrorCode = DAG->test_volume_boundary(vol,state.next_surf,
+  moab::ErrorCode ErrorCode = DAG->test_volume_boundary(vol,state.next_surf,
 						    xyz,uvw, result,&state.history);  // see if we are on boundary
   return result;
 }
@@ -387,12 +387,12 @@ void lkmgwr(double& pSx, double& pSy, double& pSz,
 
     for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
       {
-	MBEntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+	moab::EntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
 	// No ray history or ray direction.
-	MBErrorCode code = DAG->point_in_volume(volume, xyz, is_inside);
+	moab::ErrorCode code = DAG->point_in_volume(volume, xyz, is_inside);
 
 	// check for non error
-	if(MB_SUCCESS != code) 
+	if(moab::MB_SUCCESS != code) 
 	  {
 	    std::cout << "Error return from point_in_volume!" << std::endl;
 	    flagErr = 1;
@@ -638,8 +638,8 @@ void fludagwrite_assignma(std::ostringstream& ostr,
 			  std::map<int, std::string> map_name)         
 {
   // get the material and density props
-  std::map<MBEntityHandle,std::vector<std::string> > material_assignments = get_property_assignments("mat",3,":/");
-  std::map<MBEntityHandle,std::vector<std::string> > density_assignments = get_property_assignments("rho",3,":/");
+  std::map<moab::EntityHandle,std::vector<std::string> > material_assignments = get_property_assignments("mat",3,":/");
+  std::map<moab::EntityHandle,std::vector<std::string> > density_assignments = get_property_assignments("rho",3,":/");
 
   pyne::Material material;
 
@@ -649,7 +649,7 @@ void fludagwrite_assignma(std::ostringstream& ostr,
   for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++)
   {
     int cellid = DAG->id_by_index( 3, vol_i );
-    MBEntityHandle entity = DAG->entity_by_index( 3, vol_i );
+    moab::EntityHandle entity = DAG->entity_by_index( 3, vol_i );
 
     material_props = material_assignments[entity];
     density_props = density_assignments[entity];
@@ -739,12 +739,12 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tal
   for ( it = tally_map.begin() ; it != tally_map.end() ; ++it ) {
     pyne::Tally tally = (it->second);
     // pyne tallies are by id, FluDAG is by index, need to convert
-    MBEntityHandle vol_eh = DAG->entity_by_id(3,tally.entity_id);
+    moab::EntityHandle vol_eh = DAG->entity_by_id(3,tally.entity_id);
     // volume index
     int vol_idx = DAG->index_by_handle(vol_eh);
     // recast tally to index, use entity_name for setting volume
 
-    MBErrorCode rval = DAG->measure_volume(vol_eh,tally.entity_size);
+    moab::ErrorCode rval = DAG->measure_volume(vol_eh,tally.entity_size);
 
     std::stringstream ss;
     ss << vol_idx;
@@ -854,11 +854,11 @@ void region2name(int volindex, std::string &vname )  // file with cell/surface c
 }
 
 // get all property in all volumes
-std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
+std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
 									    int dimension, std::string delimiters)
 {
 
-  std::map<MBEntityHandle,std::vector<std::string> > prop_map;
+  std::map<moab::EntityHandle,std::vector<std::string> > prop_map;
 
   std::vector< std::string > mcnp5_keywords;
   std::map< std::string, std::string > mcnp5_keyword_synonyms;
@@ -872,9 +872,9 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
   int num_entities = DAG->num_entities( dimension );
 
   // parse data from geometry
-  MBErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
+  moab::ErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
 
-  if (MB_SUCCESS != rval) {
+  if (moab::MB_SUCCESS != rval) {
     std::cout << "DAGMC failed to parse metadata properties" <<  std::endl;
     exit(EXIT_FAILURE);
   }
@@ -883,7 +883,7 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
   // loop over all cells
   for( int i = 1; i <= num_entities; ++i ) {
     // get cellid
-    MBEntityHandle entity = DAG->entity_by_index( dimension, i );
+    moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
 
     std::vector<std::string> properties;
     std::vector<std::string> tmp_properties;

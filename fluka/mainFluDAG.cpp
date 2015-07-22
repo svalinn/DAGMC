@@ -14,10 +14,8 @@
 #include <fstream>
 #include <time.h>       // for timing the routine
 
-using namespace moab;
-
 #define flukam flukam_
-#define DAG DagMC::instance()
+#define DAG moab::DagMC::instance()
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +32,7 @@ extern "C" {
 int main(int argc, char* argv[]) 
 {
   bool flukarun = false; 
-  MBErrorCode error;
+  moab::ErrorCode error;
   time_t time_before,time_after;
 
   // Default h5m filename is for fluka runs
@@ -75,7 +73,7 @@ int main(int argc, char* argv[])
   // DAG call to load the file
   std::cout << "Loading the faceted geometry file " << infile << "..." << std::endl;
   error = DAG->load_file(infile.c_str(), 0.0 ); // load the dag file takeing the faceting from h5m
-  if ( error != MB_SUCCESS ) 
+  if ( error != moab::MB_SUCCESS ) 
     {
       std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
       exit(EXIT_FAILURE);
@@ -91,7 +89,7 @@ int main(int argc, char* argv[])
 
   // DAG call to initialize geometry
   error = DAG->init_OBBTree();
-  if ( error != MB_SUCCESS ) 
+  if ( error != moab::MB_SUCCESS ) 
     {
       std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
       exit(EXIT_FAILURE);

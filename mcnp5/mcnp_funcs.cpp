@@ -51,7 +51,7 @@ void dagmcinit_(char *cfile, int *clen,  // geom
                 double* dagmc_version, int* moab_version, int* max_pbl )
 {
  
-  MBErrorCode rval;
+  moab::ErrorCode rval;
 
 #ifdef ENABLE_RAYSTAT_DUMPS
   // the file to which ray statistics dumps will be written
@@ -72,7 +72,7 @@ void dagmcinit_(char *cfile, int *clen,  // geom
   
   // read geometry
   rval = DAG->load_file(cfile, arg_facet_tolerance );
-  if (MB_SUCCESS != rval) {
+  if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC failed to read input file: " << cfile << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -92,7 +92,7 @@ void dagmcinit_(char *cfile, int *clen,  // geom
  
   // initialize geometry
   rval = DAG->init_OBBTree();
-  if (MB_SUCCESS != rval) {
+  if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
     exit(EXIT_FAILURE);
   }
@@ -106,8 +106,8 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
     // terminate all filenames with null char
   ffile[*flen]  = '\0';
 
-  MBErrorCode rval = DAG->write_mesh(ffile,*flen);
-  if (MB_SUCCESS != rval) {
+  moab::ErrorCode rval = DAG->write_mesh(ffile,*flen);
+  if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC failed to write mesh file: " << ffile <<  std::endl;
     exit(EXIT_FAILURE);
   }
@@ -122,13 +122,13 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
  * in which case the result is unmodified.
  * If DagMC throws an error, calls exit().
  */
-static bool get_int_prop( MBEntityHandle vol, int cell_id, const std::string& property, int& result ){
+static bool get_int_prop( moab::EntityHandle vol, int cell_id, const std::string& property, int& result ){
 
-  MBErrorCode rval;
+  moab::ErrorCode rval;
   if( DAG->has_prop( vol, property ) ){
     std::string propval;
     rval = DAG->prop_value( vol, property, propval );
-    if( MB_SUCCESS != rval ){ 
+    if( moab::MB_SUCCESS != rval ){ 
       std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
       std::cerr << "Error code: " << rval << std::endl;
       exit( EXIT_FAILURE );
@@ -153,13 +153,13 @@ static bool get_int_prop( MBEntityHandle vol, int cell_id, const std::string& pr
  * in which case the result is unmodified.
  * If DagMC throws an error, calls exit().
  */
-static bool get_real_prop( MBEntityHandle vol, int cell_id, const std::string& property, double& result ){
+static bool get_real_prop( moab::EntityHandle vol, int cell_id, const std::string& property, double& result ){
 
-  MBErrorCode rval;
+  moab::ErrorCode rval;
   if( DAG->has_prop( vol, property ) ){
     std::string propval;
     rval = DAG->prop_value( vol, property, propval );
-    if( MB_SUCCESS != rval ){ 
+    if( moab::MB_SUCCESS != rval ){ 
       std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
       std::cerr << "Error code: " << rval << std::endl;
       exit( EXIT_FAILURE );
@@ -313,11 +313,11 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
     std::cout << "Warning No Tallies found in the file, " << workflow_data.full_filepath << std::endl;
   }
 
-  std::map<MBEntityHandle,std::vector<std::string> > material_assignments;
+  std::map<moab::EntityHandle,std::vector<std::string> > material_assignments;
   material_assignments = get_property_assignments("mat",3,":/");
-  std::map<MBEntityHandle,std::vector<std::string> > density_assignments;
+  std::map<moab::EntityHandle,std::vector<std::string> > density_assignments;
   density_assignments = get_property_assignments("rho",3,":");
-  std::map<MBEntityHandle,std::vector<std::string> > boundary_assignments;
+  std::map<moab::EntityHandle,std::vector<std::string> > boundary_assignments;
   boundary_assignments = get_property_assignments("boundary",2,":");
 
   int num_cells = DAG->num_entities( 3 );
@@ -337,7 +337,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
     material_number = 0;
 
     int cellid = DAG->id_by_index( 3, i );
-    MBEntityHandle entity = DAG->entity_by_index( 3, i );
+    moab::EntityHandle entity = DAG->entity_by_index( 3, i );
 
     material_props = material_assignments[entity];
     density_props = density_assignments[entity];
@@ -402,7 +402,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
   // loop over all surfaces
   for( int i = 1; i <= num_surfs; ++i ) {
     int surfid = DAG->id_by_index( 2, i );
-    MBEntityHandle entity = DAG->entity_by_index( 2, i );
+    moab::EntityHandle entity = DAG->entity_by_index( 2, i );
 
     boundary_assignment = boundary_assignments[entity];
     if (boundary_assignment.size() != 1 )
@@ -456,7 +456,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
 
 void write_lcad_old(std::ofstream &lcadfile) 
 {
-  MBErrorCode rval;
+  moab::ErrorCode rval;
 
   std::vector< std::string > mcnp5_keywords;
   std::map< std::string, std::string > mcnp5_keyword_synonyms;
@@ -477,7 +477,7 @@ void write_lcad_old(std::ofstream &lcadfile)
 
   // parse data from geometry
   rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms );
-  if (MB_SUCCESS != rval) {
+  if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
     exit(EXIT_FAILURE);
   }
@@ -491,7 +491,7 @@ void write_lcad_old(std::ofstream &lcadfile)
   // write the cell cards
   for( int i = 1; i <= num_cells; ++i ){
 
-    MBEntityHandle vol = DAG->entity_by_index( 3, i );
+    moab::EntityHandle vol = DAG->entity_by_index( 3, i );
     int cellid = DAG->id_by_index( 3, i );
     // set default importances for p and e to negative, indicating no card should be printed.
     double imp_n = 1, imp_p = -1, imp_e = -1;
@@ -552,7 +552,7 @@ void write_lcad_old(std::ofstream &lcadfile)
   
   // write the surface cards
   for( int i = 1; i <= num_surfs; ++i ){
-    MBEntityHandle surf = DAG->entity_by_index( 2, i );
+    moab::EntityHandle surf = DAG->entity_by_index( 2, i );
     int surfid = DAG->id_by_index( 2, i );
 
     if( DAG->has_prop( surf, "spec.reflect" ) ){
@@ -570,7 +570,7 @@ void write_lcad_old(std::ofstream &lcadfile)
   // write the tally cards
   std::vector<std::string> tally_specifiers;
   rval = DAG->get_all_prop_values( "tally", tally_specifiers );
-  if( rval != MB_SUCCESS ) exit(EXIT_FAILURE);
+  if( rval != moab::MB_SUCCESS ) exit(EXIT_FAILURE);
 
   for( std::vector<std::string>::iterator i = tally_specifiers.begin();
        i != tally_specifiers.end(); ++i )
@@ -585,12 +585,12 @@ void write_lcad_old(std::ofstream &lcadfile)
       std::stringstream tally_card;
 
       tally_card << card;
-      std::vector<MBEntityHandle> handles;
+      std::vector<moab::EntityHandle> handles;
       std::string s = *i;
       rval = DAG->entities_by_property( "tally", handles, dim, &s );
-      if( rval != MB_SUCCESS ) exit (EXIT_FAILURE);
+      if( rval != moab::MB_SUCCESS ) exit (EXIT_FAILURE);
 
-      for( std::vector<MBEntityHandle>::iterator j = handles.begin();
+      for( std::vector<moab::EntityHandle>::iterator j = handles.begin();
 	   j != handles.end(); ++j )
 	{
 	  tally_card << " " << DAG->get_entity_id(*j);
@@ -614,10 +614,10 @@ void write_lcad_old(std::ofstream &lcadfile)
 
 void dagmcangl_(int *jsu, double *xxx, double *yyy, double *zzz, double *ang)
 {
-  MBEntityHandle surf = DAG->entity_by_index( 2, *jsu );
+  moab::EntityHandle surf = DAG->entity_by_index( 2, *jsu );
   double xyz[3] = {*xxx, *yyy, *zzz};
-  MBErrorCode rval = DAG->get_angle(surf, xyz, ang, &history );
-  if (MB_SUCCESS != rval) {
+  moab::ErrorCode rval = DAG->get_angle(surf, xyz, ang, &history );
+  if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC: failed in calling get_angle" <<  std::endl;
     exit(EXIT_FAILURE);
   }
@@ -625,8 +625,8 @@ void dagmcangl_(int *jsu, double *xxx, double *yyy, double *zzz, double *ang)
 #ifdef TRACE_DAGMC_CALLS
   std::cout << "angl: " << *xxx << ", " << *yyy << ", " << *zzz << " --> " 
             << ang[0] <<", " << ang[1] << ", " << ang[2] << std::endl;
-  MBCartVect uvw(last_uvw);
-  MBCartVect norm(ang);
+  CartVect uvw(last_uvw);
+  CartVect norm(ang);
   double aa = angle(uvw,norm) * (180.0/M_PI);
   std::cout << "    : " << aa << " deg to uvw" << (aa>90.0? " (!)":"")  << std::endl;
 #endif
@@ -649,12 +649,12 @@ void dagmcchkcel_by_angle_( double *uuu, double *vvv, double *www,
   double xyz[3] = {*xxx, *yyy, *zzz};
   double uvw[3] = {*uuu, *vvv, *www};
 
-  MBEntityHandle surf = DAG->entity_by_index( 2, *jsu );
-  MBEntityHandle vol  = DAG->entity_by_index( 3, *i1 );
+  moab::EntityHandle surf = DAG->entity_by_index( 2, *jsu );
+  moab::EntityHandle vol  = DAG->entity_by_index( 3, *i1 );
 
   int result;
-  MBErrorCode rval = DAG->test_volume_boundary( vol, surf, xyz, uvw, result, &history );
-  if( MB_SUCCESS != rval ){
+  moab::ErrorCode rval = DAG->test_volume_boundary( vol, surf, xyz, uvw, result, &history );
+  if( moab::MB_SUCCESS != rval ){
     std::cerr << "DAGMC: failed calling test_volume_boundary" << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -691,17 +691,17 @@ void dagmcchkcel_(double *uuu,double *vvv,double *www,double *xxx,
 #endif
 
   int inside;
-  MBEntityHandle vol = DAG->entity_by_index( 3, *i1 );
+  moab::EntityHandle vol = DAG->entity_by_index( 3, *i1 );
   double xyz[3] = {*xxx, *yyy, *zzz};
   double uvw[3] = {*uuu, *vvv, *www};
-  MBErrorCode rval = DAG->point_in_volume( vol, xyz, inside, uvw );
+  moab::ErrorCode rval = DAG->point_in_volume( vol, xyz, inside, uvw );
 
-  if (MB_SUCCESS != rval) {
+  if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC: failed in point_in_volume" <<  std::endl;
     exit(EXIT_FAILURE);
   }
 
-  if (MB_SUCCESS != rval) *j = -2;
+  if (moab::MB_SUCCESS != rval) *j = -2;
   else
     switch (inside)
       {
@@ -731,13 +731,13 @@ void dagmcdbmin_( int *ih, double *xxx, double *yyy, double *zzz, double *huge, 
   double point[3] = {*xxx, *yyy, *zzz};
 
   // get handle for this volume (*ih)
-  MBEntityHandle vol  = DAG->entity_by_index( 3, *ih );
+  moab::EntityHandle vol  = DAG->entity_by_index( 3, *ih );
 
   // get distance to closest surface
-  MBErrorCode rval = DAG->closest_to_location(vol,point,*dbmin);
+  moab::ErrorCode rval = DAG->closest_to_location(vol,point,*dbmin);
 
   // if failed, return 'huge'
-  if (MB_SUCCESS != rval) {
+  if (moab::MB_SUCCESS != rval) {
     *dbmin = *huge;
     std::cerr << "DAGMC: error in closest_to_location, returning huge value from dbmin_" <<  std::endl;
   }
@@ -751,12 +751,12 @@ void dagmcdbmin_( int *ih, double *xxx, double *yyy, double *zzz, double *huge, 
 void dagmcnewcel_( int *jsu, int *icl, int *iap )
 {
 
-  MBEntityHandle surf = DAG->entity_by_index( 2, *jsu );
-  MBEntityHandle vol  = DAG->entity_by_index( 3, *icl );
-  MBEntityHandle newvol = 0;
+  moab::EntityHandle surf = DAG->entity_by_index( 2, *jsu );
+  moab::EntityHandle vol  = DAG->entity_by_index( 3, *icl );
+  moab::EntityHandle newvol = 0;
 
-  MBErrorCode rval = DAG->next_vol( surf, vol, newvol );
-  if( MB_SUCCESS != rval ){
+  moab::ErrorCode rval = DAG->next_vol( surf, vol, newvol );
+  if( moab::MB_SUCCESS != rval ){
     *iap = -1;
     std::cerr << "DAGMC: error calling next_vol, newcel_ returning -1" << std::endl;
   }
@@ -778,8 +778,8 @@ void dagmc_surf_reflection_( double *uuu, double *vvv, double *www, int* verify_
 
 #ifdef TRACE_DAGMC_CALLS
   // compute and report the angle between old and new
-  MBCartVect oldv(last_uvw);
-  MBCartVect newv( *uuu, *vvv, *www );
+  CartVect oldv(last_uvw);
+  CartVect newv( *uuu, *vvv, *www );
   
   std::cout << "surf_reflection: " << angle(oldv,newv)*(180.0/M_PI) << std::endl;;
 #endif
@@ -832,9 +832,9 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
                  int *nps )
 {
     // Get data from IDs
-  MBEntityHandle vol = DAG->entity_by_index( 3, *ih );
-  MBEntityHandle prev = DAG->entity_by_index( 2, *jsu );
-  MBEntityHandle next_surf = 0;
+  moab::EntityHandle vol = DAG->entity_by_index( 3, *ih );
+  moab::EntityHandle prev = DAG->entity_by_index( 2, *jsu );
+  moab::EntityHandle next_surf = 0;
   double next_surf_dist;
 
 #ifdef ENABLE_RAYSTAT_DUMPS
@@ -876,7 +876,7 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
 
   }
 
-  MBErrorCode result = DAG->ray_fire(vol, point, dir, 
+  moab::ErrorCode result = DAG->ray_fire(vol, point, dir, 
                                      next_surf, next_surf_dist, &history, 
                                      (use_dist_limit ? dist_limit : 0 )
 #ifdef ENABLE_RAYSTAT_DUMPS
@@ -885,7 +885,7 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
                                      );
 
   
-  if(MB_SUCCESS != result){
+  if(moab::MB_SUCCESS != result){
     std::cerr << "DAGMC: failed in ray_fire" << std::endl;
     exit( EXIT_FAILURE );
   }
@@ -1008,13 +1008,13 @@ void dagmc_getpar_( int* n )
 
 void dagmcvolume_(int* mxa, double* vols, int* mxj, double* aras)
 {
-  MBErrorCode rval;
+  moab::ErrorCode rval;
   
     // get size of each volume
   int num_vols = DAG->num_entities(3);
   for (int i = 0; i < num_vols; ++i) {
     rval = DAG->measure_volume( DAG->entity_by_index(3, i+1), vols[i*2] );
-    if( MB_SUCCESS != rval ){
+    if( moab::MB_SUCCESS != rval ){
       std::cerr << "DAGMC: could not measure volume " << i+1 << std::endl;
       exit( EXIT_FAILURE );
     }
@@ -1024,7 +1024,7 @@ void dagmcvolume_(int* mxa, double* vols, int* mxj, double* aras)
   int num_surfs = DAG->num_entities(2);
   for (int i = 0; i < num_surfs; ++i) {
     rval = DAG->measure_area( DAG->entity_by_index(2, i+1), aras[i*2] );
-    if( MB_SUCCESS != rval ){
+    if( moab::MB_SUCCESS != rval ){
       std::cerr << "DAGMC: could not measure surface " << i+1 << std::endl;
       exit( EXIT_FAILURE );
     }
@@ -1080,11 +1080,11 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 
 // given a property string, dimension and the delimeter of the string, return an entityhandle wise map of the
 // property value
-std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
+std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
 									    int dimension, std::string delimiters)
 {
 
-  std::map<MBEntityHandle,std::vector<std::string> > prop_map;
+  std::map<moab::EntityHandle,std::vector<std::string> > prop_map;
 
   std::vector< std::string > mcnp5_keywords;
   std::map< std::string, std::string > mcnp5_keyword_synonyms;
@@ -1099,9 +1099,9 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
   int num_entities = DAG->num_entities( dimension );
 
   // parse data from geometry
-  MBErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
+  moab::ErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
 
-  if (MB_SUCCESS != rval) {
+  if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
     exit(EXIT_FAILURE);
   }
@@ -1112,7 +1112,7 @@ std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std:
     std::vector<std::string> properties;
 
     // get cellid
-    MBEntityHandle entity = DAG->entity_by_index( dimension, i );
+    moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
 
     // get the group contents
     if( DAG->has_prop( entity, property ) )
