@@ -36,8 +36,8 @@ class resultrec(object):
 
 
     def __init__(self, infile):
-    """ Constructor for the resultrec class
-    """
+        """ Constructor for the resultrec class
+        """
 	row_data, meta_dose_header, group_header = self.get_data(infile)
         dose_header = meta_dose_header[self.num_meta:]
         self.process_dose_header(dose_header)
@@ -45,8 +45,8 @@ class resultrec(object):
         self.nrows = row_data.shape[0]
 	self.set_tr_meta(row_data)
 
-        self.tr_let  = set_group_struct(0, num_let_groups, group_header):
-	self.tr_flux = set_group_struct(0, num_flux_groups, group_header[:,2*num_let_groups:])
+        self.tr_let  = set_group_struct(0, num_let_groups, group_header)
+	self.tr_flux = set_group_struct(0, num_flux_groups, group_header[2*num_let_groups:])
 
 	# Set up for VTK file creation
 	# ToDo: this is embedded in tr_meta, it should be deleted
@@ -186,7 +186,7 @@ class resultrec(object):
     
     # ToDo - make this work fo r let and flux groups
     def set_group_struct(start, group_size, header):
-    """ Get a structured array for the energy groups. 
+        """ Get a structured array for the energy groups. 
 
         Parameters
         ----------
@@ -202,15 +202,15 @@ class resultrec(object):
         ----
         These were read in as ascii values from a file and have
         previously been converted to floats
-    """
-    end = start + group_size
-    group_header = header[start:end]
-    tr_group = np.zeros(group_size, \
+        """
+        end = start + group_size
+        group_header = header[start:end]
+        tr_group = np.zeros(group_size, \
                dtype = [('id', 'i4'), ('energy', 'f4')])
 
-    for i in range(group_size):
-        tr_group[i] = (i, group_header[i])
-    return tr_group
+        for i in range(group_size):
+            tr_group[i] = (i, group_header[i])
+        return tr_group
     
     def init_tr_all(self, response_data):
         """ Put just the response data into a recarray
@@ -422,13 +422,13 @@ class resultrec(object):
 
 
     def tag_mesh(mesh, num_facets, indices, tuple_set):
-    """ Create the writable VTK object from the tuple set and the directions
+        """ Create the writable VTK object from the tuple set and the directions
 
-    """
+        """
         tag_map = {}
 
 	# Redo for-loop from original tag_mesh for recarrays
-	for stuff in tuple_set
+	for stuff in tuple_set:
 	    data = stuff['VALUES']
 	    di = data[indices]
 	    data_name = stuff['PARTICLE'] + '_' + stuff['RESPONSE'] 
@@ -439,8 +439,8 @@ class resultrec(object):
 	        data_name += '_' + str(stuff['GROUP'])
 	    # Associate the hashable Tag array object with the ascii data_name
             tag_map[data_name] = mesh.createTag(data_name, 1, float)
-	"""
-        for col in range(start, end): 
+	    """
+            for col in range(start, end): 
             # get the desired column of data
 	    ######### GET FROM RECARRAY ###########
 	    data = vtxd[:,col]
@@ -450,7 +450,7 @@ class resultrec(object):
             data_name = header[col]+"_{}".format(col)
 	    # Associate the hashable Tag array object with the ascii data_name
             tag_map[data_name] = mesh.createTag(data_name, 1, float)
-        """
+            """
             # Use indexing to get matching data at each vertex
             for i in range(num_facets):
                 facet        = facets[i]
@@ -466,7 +466,7 @@ class resultrec(object):
     	        tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
 	
         # All that's left is to mesh.save(outfile)
-    return mesh
+        return mesh
 
     def get_default_tuples():
         """ Prepare default inputs for meshing, nameing and writing to VTK
@@ -487,8 +487,8 @@ class resultrec(object):
  
         default_tuples = []
 	for item in tr_all:
-	   if item['RESPONSE'] == 'Dose' || item['RESPONSE'] == 'Doseq' || \
-	      item['RESPONSE'] == 'totalflux' || item['RESPONSE'] == 'totalbackneut':
+	   if item['RESPONSE'] == 'Dose' or item['RESPONSE'] == 'Doseq' or \
+	      item['RESPONSE'] == 'totalflux' or item['RESPONSE'] == 'totalbackneut':
 	       default_tuples.append(item)
 	
 	return default_tuples
@@ -497,7 +497,7 @@ def parse_arguments():
     """ Argument parsing
     """
     
-    min_col = num_meta
+    min_col = self.num_meta
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
