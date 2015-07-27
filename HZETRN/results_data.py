@@ -56,8 +56,6 @@ class resultrec(object):
 	----------
 	self.meta_dose_header, self.group_header
 
-        meta_dose_header -- list of meta-data, dose and doseq headers,
-                            all of which are ascii
         group_header     -- list of header fields which are numeric,
                             e.g. energy boundaries for let data
     			This list has many repeated sequences
@@ -67,7 +65,7 @@ class resultrec(object):
 
 	Throws
 	______
-	Exception if sume of columns in the headers does not match the number
+	Exception if sum of columns in the headers does not match the number
 	of data columns.
 
         Returns
@@ -125,8 +123,8 @@ class resultrec(object):
 
         Attributes
         -------
-	self.num_species is gotten from the dose_header
-	self.particle names a list of names that matches the input data
+	self.num_species i--  gotten from the dose_header
+	self.particle_names -- list of names that matches the input data
 
 	Raises
 	------
@@ -201,27 +199,110 @@ class resultrec(object):
             self.tr_all[col] = ('',  'All', -1, self.response_data[:, col])
         return
 
-    def fill_dose_tuples(start, response_name):
-        for p, d in zip(range(self.num_species), range(start, start + self.num_species)):
-	    self.tr_all[d]['RESPONSE'] = response_name
-	    self.tr_all[d]['PARTICLE'] = self.particle_names[p]
-        return
+    def fill_dose_tuples(self, start, response_name):
+	""" Set the non-value portion of the tuples for dose and doseq
 
-    def fill_let_tuples(start, response_name):
+	Parameters
+	----------
+	start : integer
+	    The next column whose recarray tuple needs to be completed
+
+        response_name : string
+	    The type of response, dose or doseq
+
+	Returns
+	-------
+        The index after the last column whose tuple was set
+	"""
+        for particle, d in zip(self.particle_names, range(start, start + self.num_species)):
+	    self.tr_all[d]['RESPONSE'] = response_name
+	    self.tr_all[d]['PARTICLE'] = particle
+        return start + self.num_species
+
+    def fill_let_tuples(self, start, response_name):
+	""" Set the non-value portion of the tuples for let
+
+	Parameters
+	----------
+	start : integer
+	    The next column whose recarray tuple needs to be completed
+
+        response_name : string
+	    The type of response, dif_let or int_let
+
+	Returns
+	-------
+        The index after the last column whose tuple was set
+	"""
 	for group_number, g in zip(range(self.num_let_groups), range(start, start + self.num_let_groups)):
 	    self.tr_all[g]['RESPONSE'] = response_name
 	    self.tr_all[g]['PARTICLE'] = 'All'
 	    self.tr_all[g]['GROUP'] = group_number 
-	return
+	return start + num_let_groups
 
-    def fill_flux_tuples(start, response_name):
-	for p in range(self.num_species):
-	    particle = self.particle_names[p]
-	    for group_number, g in zip(range(self.num_flux_groups), range(start, start + self.num_flux_groups)):
+    def fill_flux_tuples(self, start, response_name):
+	""" Set the non-value portion of the tuples for flux
+
+	Parameters
+	----------
+	start : integer
+	    The next column whose recarray tuple needs to be completed
+
+        response_name : string
+	    The type of response, flux or intflux
+
+	Returns
+	-------
+        The index after the last column whose tuple was set
+	"""
+        n_start = start
+
+	for particle in self.particle_names:
+	    # DUP1 - almost identical to fill_let_tuples
+	    for group_number, g in zip(range(self.num_flux_groups), range(n_start, n_start + self.num_flux_groups)):
 	        self.tr_all[g]['RESPONSE'] = response_name
 	        self.tr_all[g]['PARTICLE'] = particle
 	        self.tr_all[g]['GROUP']    = group_number 
-	return
+	n_start += self.num_flux_groups
+	return start + self.num_species * self.num_flux_groups
+
+    def fill_neutflux_tuples(self, start):
+	""" Set the non-value portion of the tuples for neuflux
+
+	Parameters
+	----------
+	start : integer
+	    The next column whose recarray tuple needs to be completed
+
+	Returns
+	-------
+            The index after the last column whose tuple was set
+
+	Notes
+	-----
+	    This also sums all columns for backwards neutron flux and sets
+	    an additional record tuple with it
+	"""
+        total_backward_col = np.zeros([])
+	# Some convenience parameters; note len(neutflux_names) == 3
+        num_neutflux = len(self.neutflux_names)
+        n_start = start
+
+	for name in self.neutflux_names:
+	    print n_start
+	    # DUP2 - almost identical to fill_let_tuples
+	    for group_number, g in zip(range(self.num_flux_groups), range(n_start, n_start + self.num_flux_groups)):
+	        self.tr_all[g]['RESPONSE'] = 'neutflux'
+	        self.tr_all[g]['PARTICLE'] = name
+	        self.tr_all[g]['GROUP']    = group_number
+		# sum the total neutron columns over group
+	        if name == 'backward':
+		    total_backward_col += self.tr_all[g]['VALUES']
+	    n_start += self.num_flux_groups
+
+	last = start + num_neutflux_names*self.num_flux_groups + 1
+        self.tr_all[last] = ('totalbackneut', 'neutron', -1, total_backward_col)
+        return last + 1
 
     def set_tr_all(self, data):
         """ Set all the tuples in tr_all.  
@@ -242,57 +323,30 @@ class resultrec(object):
 	self.tr_all[0]['RESPONSE'] = 'Dose'
 	self.tr_all[1]['RESPONSE'] = 'Doseq'
 
-	start = 2
-	fill_dose_tuples(start, 'Dose')
-	start += self.num_species
-
-	fill_dose_tuples(start, 'Doseq')
-	start += self.num_species
+	start = self.fill_dose_tuples(2, 'Dose')
+	start = self.fill_dose_tuples(start, 'Doseq')
         ######################### LET  #################################
-	fill_let_tuples(start, 'dif_let')
-        start += self.num_let_groups
-
-	fill_let_tuples(start, 'int_let')
-        start += self.num_let_groups
-
+	start = self.fill_let_tuples(start, 'dif_let')
+	start = self.fill_let_tuples(start, 'int_let')
         ######################### Flux #################################
 	# reference for summing over groups
 	flux_start = start
-	flux_size  = self.num_species*self.num_flux_groups
+        start = self.fill_flux_tuples(start, 'flux')
+        start = self.fill_flux_tuples(start, 'intflux')
+	start = fill_neutflux_tuples(start) 
 
-        fill_flux_tuples(start, 'flux')
-        start += num_size
-
-        fill_flux_tuples(start, 'intflux')
-        start += num_size
-
-       #  total_backward_col = np.zeros([])
-	total_backward_col = fill_neutflux_tuples(start) 
-
-   
-	for n in range(len(neutflux_names)):
-	    name = neutflux_names[n] 
-	    for group_number, g in zip(range(self.num_flux_groups), range(start, start + self.num_flux_groups)):
-	        self.tr_all[g]['RESPONSE'] = 'neutflux'
-	        self.tr_all[g]['PARTICLE'] = name
-	        self.tr_all[g]['GROUP'] = group 
-		# sum the total neutron columns over group
-	        if name == 'backward':
-		    total_backward_col += self.tr_all[g]['VALUES']
-        start += len(neutflux_names)*num_flux_groups
-
+	# Add in the summed flux cols.  Need to go back to previous columns
 	flux_p = flux_start
-	for p,i in (range(self.num_species), range(start, start + self.num_species)):
-	    particle = ple_names[p]
+	for particle, i in (self.particle_names, range(start, start + self.num_species)):
 	    self.tr_all[i]['RESPONSE'] = 'totalflux'
 	    self.tr_all[i]['PARTICLE'] = particle
 	    self.tr_all[i]['GROUP']    = -1 
-	    for flux_j in range(flux_p, flux_p + num_flux_groups):
+	    for flux_j in range(flux_p, flux_p + self.num_flux_groups):
 	        value_col += self.tr_all[flux_j]['VALUES']
 	    self.tr_all[i]['VALUES'] = value_col
-	    flux_p += num_flux_groups        
+	    flux_p += self.num_flux_groups        
+
         last = start + self.num_species
-        self.tr_all[last] = ('totalbackneut', 'neutron', -1, total_backward_col)
     
 
     def get_default_structs
