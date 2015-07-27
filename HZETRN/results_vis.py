@@ -115,16 +115,17 @@ def get_row_data(infile):
 	    max_non_numeric_col = max_non_numeric_col + 1
     return header, max_non_numeric_col, rows
     
-"""
-    Read the indicated columns from the infile.
-    Using the direction vectors on each line of the file, and data
-    from the selected columns, create a tagged iMesh.Mesh that can be
-    directly writen to a *.vtk file for viewing with VisIt.
-    The direction vectors are expected to be unit length and will
-    be scaled by scale.
-"""
 def tag_mesh(header, data_rows, columns, scale):
-    "Create a scaled, tagged mesh from data in a file."
+    """ Create a scaled, tagged mesh from data in a file.
+
+    Notes
+    -----
+        Using the direction vectors on each line of the file, and data
+        from the selected columns, create a tagged iMesh.Mesh that can be
+        directly writen to a *.vtk file for viewing with VisIt.
+        The direction vectors are expected to be unit length 
+        
+    """
 
     vtxd = np.array(data_rows)
    
