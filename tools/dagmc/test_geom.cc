@@ -377,7 +377,9 @@ int main( int argc, char* argv[] )
   RUN_TEST( overlap_test_measure_area );
   RUN_TEST( overlap_test_surface_sense );
   RUN_TEST( overlap_test_tracking );
- 
+
+  DagMC::destroy();
+
 #ifdef MOAB_HAVE_MPI
   fail = MPI_Finalize();
   if (fail) return fail;
