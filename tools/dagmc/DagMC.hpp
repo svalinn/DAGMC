@@ -56,9 +56,10 @@ class DagMC
 {
 public:
   static DagMC *instance(Interface *mb_impl = NULL);
+  static void destroy();
 
 
-  ~DagMC();
+  ~DagMC() {}
 
   /** Return the version of this library */
   static float version(std::string *version_string = NULL);
@@ -573,6 +574,7 @@ private:
   /* PRIVATE MEMBER DATA */
 
   static DagMC *instance_;
+  static Interface *moab_instance_created;
   Interface *mbImpl;
 
   OrientedBoxTreeTool obbTree;
@@ -626,6 +628,19 @@ inline DagMC *DagMC::instance(Interface *mb_impl)
   if (NULL == instance_) create_instance(mb_impl);
 
   return instance_;
+}
+
+inline void DagMC::destroy()
+{
+  if (NULL != instance_) {
+    delete instance_;
+    instance_ = NULL;
+  }
+
+  if (NULL != moab_instance_created) {
+    delete moab_instance_created;
+    moab_instance_created = NULL;
+  }
 }
 
 inline EntityHandle DagMC::entity_by_index( int dimension, int index )

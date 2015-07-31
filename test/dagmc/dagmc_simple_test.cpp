@@ -136,5 +136,7 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_closest_to); // check the distance to surface nearest point
   result += RUN_TEST(dagmc_test_boundary); // check particle entering leaving
 
+  DagMC::destroy();
+
   return result;
 }

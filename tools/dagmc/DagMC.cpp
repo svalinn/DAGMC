@@ -74,13 +74,17 @@ namespace moab {
   const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 
 DagMC *DagMC::instance_ = NULL;
+Interface *DagMC::moab_instance_created = NULL;
 
 // Empty synonym map for DagMC::parse_metadata()
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 void DagMC::create_instance(Interface *mb_impl)
 {
-  if (NULL == mb_impl) mb_impl = new Core();
+  if (NULL == mb_impl) {
+    mb_impl = new Core();
+    moab_instance_created = mb_impl;
+  }
   instance_ = new DagMC(mb_impl);
 }
 
