@@ -5,6 +5,10 @@ try:
 except ImportError:
     raise ImportError("scipy.spatial.ConvexHull could not be imported.")
 
+try:
+    from itaps import iMesh, iBase
+except ImportError:
+    raise ImportError("Could not import iMesh and/or iBase.")
 
 class resultrec(object):
 
@@ -57,7 +61,6 @@ class resultrec(object):
         # remove meta_columns from alldata
         self.response_data = row_data[:,self.num_meta:]
 	self.response_cols = self.response_data.shape[1]
-	print "response_data shape", self.response_data.shape, "cols", self.response_cols
         self.set_tr_all()
         return
 	
@@ -175,11 +178,11 @@ class resultrec(object):
 
 	for particle in self.particle_names:
 	    # DUP1 - almost identical to fill_let_tuples
-	    for group_number, g in zip(range(self.num_flux_groups), range(n_start, n_start + self.num_flux_groups)):
+	    for g, group_number in zip(range(n_start, n_start + self.num_flux_groups), range(self.num_flux_groups)):
 	        self.tr_all[g]['RESPONSE'] = response_name
 	        self.tr_all[g]['PARTICLE'] = particle
 	        self.tr_all[g]['GROUP']    = group_number 
-	n_start += self.num_flux_groups
+	    n_start += self.num_flux_groups
 	return start + self.num_species * self.num_flux_groups
 
     def fill_neutflux_tuples(self, start):
@@ -199,13 +202,12 @@ class resultrec(object):
 	    This also sums all columns for backwards neutron flux and sets
 	    an additional record tuple with it
 	"""
-        total_backward_col = np.zeros(100)
+        total_backward_col = np.zeros(self.nrows)
 	# Some convenience parameters; note len(neutflux_names) == 3
         num_neutflux = len(self.neutflux_names)
         n_start = start
 
 	for name in self.neutflux_names:
-	    print 'n_start', n_start
 	    # DUP2 - almost identical to fill_let_tuples
 	    for group_number, g in zip(range(self.num_flux_groups), range(n_start, n_start + self.num_flux_groups)):
 	        self.tr_all[g]['RESPONSE'] = 'neutflux'
@@ -215,9 +217,7 @@ class resultrec(object):
 	        if name == 'backward':
 		    total_backward_col += self.tr_all[g]['VALUES']
 	    n_start += self.num_flux_groups
-        print 'last g', g
 	last = start + num_neutflux*self.num_flux_groups 
-	print 'after last g', last
         self.tr_all[last] = ('totbackneut', 'neutron', -1, total_backward_col)
         return last + 1
 
@@ -245,7 +245,6 @@ class resultrec(object):
 	# c) the total neutron backward flux
         total_cols = self.response_cols + self.num_species + 1
         self.tr_all = np.zeros(total_cols, dtype=self.response_type)
-	print self.response_cols, self.num_species, total_cols
 
 	# Make one record with placeholders
         for col in range(self.response_cols):
@@ -282,13 +281,11 @@ class resultrec(object):
         start = self.fill_flux_tuples(start, 'flux')
         start = self.fill_flux_tuples(start, 'intflux')
 	start = self.fill_neutflux_tuples(start) 
-	print "starting at ", start
 
 	# Add in the summed flux cols.  Need to go back to previous columns
 	flux_p = flux_start
 	value_col = np.zeros(self.response_cols)
 	for particle, i in zip(self.particle_names, range(start, start + self.num_species)):
-	    print i
 	    self.tr_all[i]['RESPONSE'] = 'totalflux'
 	    self.tr_all[i]['PARTICLE'] = particle
 	    self.tr_all[i]['GROUP']    = -1 
@@ -297,16 +294,13 @@ class resultrec(object):
 	    flux_p += self.num_flux_groups        
 
         last = start + self.num_species
-	print last
 	return
 
     def tag_mesh(self, tuple_set):
         """ Create the writable VTK object from the tuple set and the directions
 	"""
-	# ToDo - get the vertices from self.tr_meta
-	# Double check this is what is needed
-	# WAS self.vertices
-	vtcs = zip(self.tr_meta['u'], self.tr_meta['v'], self.tr_meta['w'])
+	# must be a 2d array
+	vtcs = np.array( zip(self.tr_meta['u'], self.tr_meta['v'], self.tr_meta['w']) )
         # Triangulate 
         hull       = ConvexHull(vtcs)
         indices    = hull.simplices
@@ -340,8 +334,8 @@ class resultrec(object):
     	        tag_map[data_name][verts[1]] = data_at_vtcs[1]
     	        tag_map[data_name][verts[2]] = data_at_vtcs[2]
     
-    	        # Tell the mesh about this triangular facet
-    	        tri, stat = msph.createEntArr(iMesh.Topology.triangle, verts)
+    	         # Tell the mesh about this triangular facet
+    	        tri, stat = mesh.createEntArr(iMesh.Topology.triangle, verts)
 	
         # All that's left is to mesh.save(outfile)
         return mesh
@@ -351,6 +345,11 @@ class resultrec(object):
 
 	Notes
 	-----
+	This method can be replaced with the single line:
+            self.tr_all[self.tr_all['GROUP'] == -1]
+        because the unique 'RESPONSE' values for this set are 
+	'Dose', 'Doseq', 'totalflux', and 'totbackneut'
+
         HZETRN Default output on sphere and surface 
         1 TotalDose, 
         1 TotalDoseEq, 
@@ -361,6 +360,12 @@ class resultrec(object):
         This is 2+N*3+1 plots.  For SPE N is 6 so we have 21, for GCR N is 59 so we have 180.
         """
  
+	"""
+        def_set = self.tr_all[self.tr_all['GROUP'] == -1]
+	response_set = np.unique(def_set['RESPONSE'])
+	print "Creating the default set for responses", response_set
+	return def_set
+	"""
 	dose_mask        = self.tr_all['RESPONSE'] == 'Dose'
 	doseq_mask       = self.tr_all['RESPONSE'] == 'Doseq'
 	tot_flux_mask    = self.tr_all['RESPONSE'] == 'totalflux'
@@ -407,7 +412,7 @@ def parse_arguments():
         raise Exception('Input file not specified. [-f] not set.')
 
     if not args.outfile:
-        args.outfile = 'out.dat'
+        args.outfile = 'out.vtk'
     
     return args
 
@@ -481,29 +486,14 @@ def get_data(infile):
         
     return allrows, meta_dose_header, group_header
   
-
-def list_particle_names(infile):
-    dm_header, group_header, row_data = get_data(infile)
-    return get_particle_names(dm_header[num_meta:])
-    
 def main():
     args = parse_arguments()
 
-    # allrows, meta_dose_header, group_header = get_data(args.infile)
-
-    # db = resultrec(allrows, meta_dose_header, group_header)
     db = resultrec(args.infile)
     def_set = db.get_default_tuples()
-    self.tagged_mesh = db.tag_mesh(def_set)
+    tagged_mesh = db.tag_mesh(def_set)
     tagged_mesh.save(args.outfile)
+    return
 
-    ####################################################################
-    """
-    with open('myfile.dat', 'w') as f:
-	for row in tr_meta:
-	    for el in row:
-	        f.write(str(el) + ' ')
-	    f.write('\n')
-    """
 if __name__ == '__main__':
     main()
