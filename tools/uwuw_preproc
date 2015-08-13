@@ -10,7 +10,7 @@ except ImportError:
 
 try:
     from pyne import material
-    from material import Material, MaterialLibrary
+    from pyne.material import Material, MaterialLibrary
     HAVE_MATERIAL = True
 except ImportError:
     HAVE_MATERIAL = False
