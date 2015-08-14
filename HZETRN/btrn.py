@@ -12,7 +12,6 @@ try:
    from pyne.material import Material, MaterialLibrary
 except:
     raise ImportError("The PyNE dependencies could not be imported.")    
-
 try:
     from pyne import dagmc, data, nucname
 except:
@@ -26,19 +25,19 @@ from hzetrn import transportresponse
 #                  Alltran
 ##############################################################################
 class alltran(object):
-
-    uwuw_file = ''
+    """ Class that manages the data and attributes for a geometry/ray-direction
+    problem
+    """
+    uwuw_filepath = ''
     runpath  =  ''
     datapath = '' 
 
     numdirs = -1
     # Default attributes help with testing
     environment = 'spe'
+    reference_point = np.array([0.0,0.0,0.0])
     response    = 'WATERLIQ'
 
-    # Triplet with the location of the point at which data is desired
-    # The default is 0,0,0
-    reference_point = np.array([])
     # int -- The vol_id of the volume containing the ref_point.
     reference_vol   = -1
     # Vol id of the graveyard, a convenience value
@@ -48,32 +47,29 @@ class alltran(object):
                        ('density', 'f4'), ('areal_density', 'f4')]
 
     # name_for_vol :  dictionary, { int : (string , float) }
-    #       A mapping of vol id to material object name and density
-    #   Key   = vol_id : int
-    #   Value = (unique_material_name, density)
-    #       Mapping from each volume in the geometry to a tuple consisting
-    #  	    of (unique "fluka" name created by uwuw_preproc, 
-    #	        density of that material)
+    # A mapping of vol id to  Value = (unique_material_name, density)
     name_for_vol = {}
     # dtype for the returned info record array
     info_type = []
 
-    def __init__(self, uwuw, rundir, n, reference_point):
+    def __init__(self, uwuw, rundir, n):
+        """
+        """
 
 	self.numdirs = n
-        self.set_paths(uwuw, rundir):
-
-        self.ref_point = reference_point
+        self.set_paths(uwuw, rundir)
 
 	return
 
     def set_paths(self, uwuw, rundir):
+        """ Create a data directory in the run path
+	"""
         run_path = os.path.join(os.getcwd(), rundir)
 
         # Transport results for each direction will be placed in this directory:
         # Ensure it exists before proceeding, and does not contain data 
         # subdirectories from previous runs (files are ok)
-        self.data_path = os.path.join(run_path,'data')
+        data_path = os.path.join(run_path,'data')
         # If a negative number of ray_dirs is given we are in continuatio nmode
         if 0 <= self.numdirs:
             if not os.path.isdir(data_path):
@@ -86,28 +82,28 @@ class alltran(object):
 		                         Remove these and continue.". \
 				         format(data_path))
 
-	self.uwuw_file = os.path.join(os.getcwd(), uwuw)
+	self.uwuw_filepath = os.path.join(os.getcwd(), uwuw)
 	self.runpath   = run_path
 	self.datapath  = data_path
         return 
 
-    def setup(self, ray_dir_file): 
+    def setup_rays(self, ray_dir_file): 
 
         rays_file  = os.path.join(os.getcwd(), ray_dir_file)
         ray_tuples = self.load_directions(rays_file, self.numdirs)
 
         # The default starting point is 0,0,0
-        find_reference_vol()
+        ref_vol = self.find_reference_vol()
 
-        if start_vol == at.graveyard_vol:
+        if ref_vol == self.graveyard_vol:
             msg = "Exiting program: The reference point is in the graveyard!"
             sys.exit(msg)
     
-        if 0 <= args.num_ray_dirs:
+        if 0 <= self.numdirs:
             index = 1
         else:
-            index = -args.num_ray_dirs
-        return index
+            index = -self.numdirs
+        return index, ray_tuples
 
     def get_rand_dirs(number):
         """ Produce length-one tuples randomly oriented on a sphere.
@@ -175,7 +171,7 @@ class alltran(object):
                 ray_tuples.append((u, v, w))
         return ray_tuples
 
-    def load_directions(ray_dir_file, num_ray_dirs):
+    def load_directions(self, ray_dir_file, num_ray_dirs):
         """ Load a numpy array with all the ray directions to be used.
     
         Parameters
@@ -217,7 +213,7 @@ class alltran(object):
                           (0.0, 0.0, 1.0)]
         return np.array(ray_tuples)
 
-    def find_reference_vol():
+    def find_reference_vol(self):
         """ Find which volume in the geometry contains the reference point.
 	
         Requirements
@@ -233,20 +229,21 @@ class alltran(object):
         Raises exception if none of the volumes contain the reference point
         """
 
-        ref_vol = -1
         # code snippet from dagmc.pyx:find_graveyard_inner_box
         volumes = dagmc.get_volume_list() 
         for v in volumes:
-            if dagmc.point_in_volume(v, ref_point):
+	    print "checking v", v, "has", self.reference_point
+            if dagmc.point_in_volume(v, self.reference_point):
+		print "it does!"
 		self.reference_vol = v
         	break
 
         if self.reference_vol == -1:
             raise Exception("Reference volume not found!")
 
-        return 
+        return self.reference_vol
 
-    def find_slabs_for_ray(uvw):
+    def find_slabs_for_ray(self, uvw):
         """ Find the material distances and names along a direction
         in a tagged geometry.
 
@@ -326,8 +323,8 @@ class alltran(object):
 	     len(ids) != len(slab_areal_densities) ):
 	    raise Exception("find_slabs_for_ray unequal list lengths")
 
-	info_length = len(ids)
-        slab_info = np.zeros(info_len, dtype=self.slab_info_type)
+	# info_len = len(ids)
+        slab_info = np.zeros(len(ids), dtype=self.slab_info_type)
 	print "ids", ids, "slab_mat_names", slab_mat_names, \
 	      "lengths", lengths, "densities", densities, \
 	      "slab_areal_densities", slab_areal_densities
@@ -340,51 +337,50 @@ class alltran(object):
 	return slab_info
         # End of find_slabs_for_ray
       
-###################
-def spatialTuples(slab_mat_names, slab_depthq):
-    """ Implement an algorithm to create tuples from the material/distances
-    lists that are in a convenient form for creating transport execution.
+    def spatialTuples(slab_mat_names, slab_depthq):
+        """ Implement an algorithm to create tuples from the material/distances
+        lists that are in a convenient form for creating transport execution.
 
-    Parameters
-    ----------
-    slab_mat_names : list of strings
-        Unique material names from the geometry, in the order they are 
-    encountered for a particular ray.
+        Parameters
+        ----------
+        slab_mat_names : list of strings
+            Unique material names from the geometry, in the order they are 
+            encountered for a particular ray.
     
-    slab_depthq : list of floats
-        Areal density: Distances traveled through each material by the 
-	ray multiplied by the density of that material, in the same order 
-	as slab_mat_names
+        slab_depthq : list of floats
+            Areal density: Distances traveled through each material by the 
+            ray multiplied by the density of that material, in the same order 
+            as slab_mat_names
 
-    Return
-    ------
-    spatial : list of tuples
-        Tuples are (string, list of floats)
-    First element of list of floats is always zero
-    List of floats is length 2 at a minimum
+        Return
+        ------
+        spatial : list of tuples
+           Tuples are (string, list of floats)
+        First element of list of floats is always zero
+        List of floats is length 2 at a minimum
 
-    Note
-    ----
-    This functions makes NO use of class attributes
-    """
-    spatial = []
-    last_mat_name = slab_mat_names[0]
-    current_slab_pts = [0.0]
-    # for mat_name, slab_thick in zip(slab_mat_names, slab_lens):
-    for mat_name, slab_depthq in zip(slab_mat_names, slab_depthq):
-        if mat_name != last_mat_name:
-            # Every time we get a new mat, store the name/slab points tuple...
-            spatial.append((last_mat_name, current_slab_pts))
-            # ... and re-initialize
-            last_mat_name = mat_name
-            current_slab_pts = [0.0]
-        # Do always; first time through, this is all that is done
-        current_slab_pts.append(current_slab_pts[-1] + slab_depthq)
+        Note
+        ----
+        This functions makes no use of class attributes
+        """
+        spatial = []
+        last_mat_name = slab_mat_names[0]
+        current_slab_pts = [0.0]
+        # for mat_name, slab_thick in zip(slab_mat_names, slab_lens):
+        for mat_name, slab_depthq in zip(slab_mat_names, slab_depthq):
+            if mat_name != last_mat_name:
+                # Foreach new mat, store the name/slab points tuple...
+                spatial.append((last_mat_name, current_slab_pts))
+                # ... and re-initialize
+                last_mat_name = mat_name
+                current_slab_pts = [0.0]
+            # Do always; first time through, this is all that is done
+            current_slab_pts.append(current_slab_pts[-1] + slab_depthq)
 
-    # Once more for the trailing tuple 
-    spatial.append((last_mat_name, current_slab_pts))
+        # Once more for the trailing tuple 
+        spatial.append((last_mat_name, current_slab_pts))
 
-    return spatial
+        return spatial
 
     def createTransportDictionary(self, uvw):
         """ Create a dictionary containing material names and areal density 
@@ -423,6 +419,15 @@ def spatialTuples(slab_mat_names, slab_depthq):
         ----
         This is the first place we can know if the rays did not go through a 
         material.
+    - For each ray direction, starting from the reference vol
+      o get the list of materials and distances it passes through in the 
+        given direction, up to the graveyard
+      o get the list of materials and distances it passes through in the 
+        opposite direction, up to the graveyard
+      o combine the materials and distances as if that of a ray passing 
+        through the reference point,
+        which starts and ends at the graveyard
+      o create the contents of the transport input file for this combined ray
         """
 
         # Rays fired here!
@@ -437,22 +442,22 @@ def spatialTuples(slab_mat_names, slab_depthq):
 	"""
         # slab_ids_a, slab_mat_names_a, slab_lens_a, slab_densities_a, areal_densities_a = \
 	print "Slab A"
-        slab_info_a = find_slabs_for_ray(uvw)
+        slab_info_a = self.find_slabs_for_ray(uvw)
 	num_a = len(slab_info_a['id'])
 
         # slab_ids_b, slab_mat_names_b, slab_lens_b, slab_densities_b, areal_densities_b = \
 	print "Slab B"
-        slab_info_b = find_slabs_for_ray(-uvw)
+        slab_info_b = self.find_slabs_for_ray(-uvw)
 	num_b = len(slab_info_b['id'])
 
         print "a id", slab_info_a['id'], "a name", slab_info_a['name'], \
-	      "a depth", slab_info_a['depth'], "a density", 
-	      slab_info_a['density'], "a areal_density",
+	      "a depth", slab_info_a['depth'], "a density", \
+	      slab_info_a['density'], "a areal_density", \
 	      slab_info_a['areal_density']
 
         print "b id", slab_info_b['id'], "b name", slab_info_b['name'], \
-	      "b depth", slab_info_b['depth'], "b density", 
-	      slab_info_b['density'], "b areal_density",
+	      "b depth", slab_info_b['depth'], "b density", \
+	      slab_info_b['density'], "b areal_density", \
 	      slab_info_b['areal_density']
 
         # The ray did not go through any material
@@ -461,31 +466,23 @@ def spatialTuples(slab_mat_names, slab_depthq):
             return [], -1, info_at_ref
 
         num_slabs_to_ref = num_b
-	# total_num_slabs  = n_a + n_b
 
-        # slab_ids        = slab_ids_b[::-1]        + slab_ids_a
-        # slab_mat_names  = slab_mat_names_b[::-1]  + slab_mat_names_a
-        slab_mat_names  = slab_info_b['name'][::-1] + \
-	                  slab_info_a['name']
-        # slab_lens       = slab_lens_b[::-1]       + slab_lens_a
-        # slab_densities  = slab_densities_b[::-1]  + slab_densities_a
-        # areal_densities = areal_densities_b[::-1] + areal_densities_a
-        areal_densities = slab_info_b['areal_density'][::-1] + \
-	                  slab_info_a['areal_density']
+        slab_mat_names  = np.concatenate((slab_info_b['name'][::-1], \
+	                  slab_info_a['name']))
+        areal_densities = np.concatenate((slab_info_b['areal_density'][::-1], \
+	                  slab_info_a['areal_density']))
         
-	# if slab_ids_a[0] == slab_ids_b[0]:
 	ref_id = slab_info_b['id'][0]
 	if slab_info_a['id'][0] != ref_id:
 	    raise Exception("Ids at reference point differ!")
 
-	# if slab_mat_names_a[0] == slab_mat_names_b[0]:
 	ref_name = slab_info_b['name'][0]
 	if slab_info_a['name'][0] != ref_name:
 	    raise Exception("Names at reference point differ!")
 
         # ref_density = slab_densities[slabs_to_ref]
 	ref_density = slab_info_b['density'][0]
-	if slab_info_a['density'][0] != ref_density
+	if slab_info_a['density'][0] != ref_density:
 	    raise Exception("Densitis at reference point differ!")
 
         # ref_depth   = np.sum(slab_lens[:slabs_to_ref])
@@ -498,7 +495,7 @@ def spatialTuples(slab_mat_names, slab_depthq):
     
         info_at_ref[0] = \
 	    (slabs_to_ref, ref_id, ref_name, ref_density, ref_depth, ref_depthq)
-        return spatialTuples(slab_mat_names, areal_densities), info_at_ref
+        return self.spatialTuples(slab_mat_names, areal_densities), info_at_ref
         # End of createTransportDictionary
 
 def parse_command_line_arguments():
@@ -558,10 +555,25 @@ def parse_command_line_arguments():
 
     # With no other parameters set byt the geometry file, a single randomly 
     # chosen direction will be run, using the defaults listed.
-    if not args.uwuw_file:
-        raise Exception('h5m file path not specified. [-f] not set')
+    if not args.uwuw_filename:
+        raise Exception('h5m filename not specified. [-f] not set')
     
     return args
+
+def test(uwuw, rundir):
+    at = alltran(uwuw, rundir, 0)
+    odt = transportresponse(at.runpath, at.datapath, \
+                            at.environment, at.response)
+    at.info_type = odt.info_type
+    dagmc.load(uwuw)
+
+    # Get name/vol_id information from the geometry file
+    at.name_for_vol, at.graveyard_vol = \
+        uwuw_preproc.get_fnames_and_densities(uwuw)
+
+    # index = at.setup(args.ray_dir_file)
+
+    return at
 
 def main():
     """Main routine for btrn.py
@@ -570,51 +582,44 @@ def main():
     -----
     The sequence of actions:
     - Parse the command line
-    - Call get_paths(..) to 
-        o Create a data directory in the run path
-        o Load the given geometry file and get all its unique 
-	  material (FLUKA) names
-    - Get all the ray directions that are going to be used
-    - Get the reference point and determine the reference volume
-    - For each ray direction, starting from the reference vol
-      o get the list of materials and distances it passes through in the 
-        given direction, up to the graveyard
-      o get the list of materials and distances it passes through in the 
-        opposite direction, up to the graveyard
-      o combine the materials and distances as if that of a ray passing 
-        through the reference point,
-        which starts and ends at the graveyard
-      o create the contents of the transport input file for this combined ray
+    - Initialize the alltran class with paths and number of directions
+      o Separately initialize attributes that have defaults
+    - Initialize the transportresponse class with paths and settings
+    - Load the geometry file and get all its unique material (FLUKA) names
+    - Determine/check the start index
+    - For each ray direction
+      o get geometry information necessary to create the input files
+      o execute the transport with the input file
+      o collect results
     """
     
     args = parse_command_line_arguments()
 
     # Initialize the local transport class
-    at = alltran(args.uwuw_file, args.rundir, \
-                 args.num_ray_dirs, \
-		 args.reference_point)
+    at = alltran(args.uwuw_filename, args.rundir, args.num_ray_dirs)
 
     # Don't set these with initializer since there are default values
-    self.environment = args.environment
-    self.response    = args.response
+    at.environment = args.environment
+    at.ref_point   = args.reference_point
+    at.response    = args.response
 
     # Initialize the transportresponse class
     one_d_tool = transportresponse(at.runpath, at.datapath, \
-                                   self.environment, self.response)
+                                   at.environment, at.response)
     # Ensure agreement on a record array dtype for information sharing
     at.info_type = one_d_tool.info_type
 
     # Load the DAG object for this geometry
-    dagmc.load(at.uwuw_file)
+    dagmc.load(at.uwuw_filepath)
 
     # Get name/vol_id information from the geometry file
     at.name_for_vol, at.graveyard_vol = \
-        uwuw_preproc.get_fnames_and_densities(at.uwuw_file)
+        uwuw_preproc.get_fnames_and_densities(at.uwuw_filepath)
 
-    index = at.setup(args.ray_dir_file)
+    index, ray_tuples = at.setup_rays(args.ray_dir_file)
 
     for uvw in ray_tuples:
-        spatial_tuples, info_record =  createTransportDictionary(uvw)
+        spatial_tuples, info_record =  at.createTransportDictionary(uvw)
         one_d_tool.execute(spatial_tuples)
 	
 	"""
@@ -628,4 +633,3 @@ def main():
    
 if __name__ == '__main__':
     main()
-
