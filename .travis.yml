@@ -1,6 +1,12 @@
 language: c++
 sudo: false
 env: 
+# defines the $FLUKA_USER env var
+  FLUKA_USER:
+  - secure: "TrH9jB6GqgiFSpRQg0MVnh+792SO3pLIF73rPvaJ/QSnFnDlwW2asF60CdNFQmw22L/7+OV5j/jKegvRUUSMiK32o/J8pcfLQrS2nDOrGXoLEFB1YolTJ/ZXHZSLg71jcwkY8Fr+ALgoL5fwITBAVOCpsZ7XssD9N4sgFQOJyIA="
+# defines the $FLUKA_PASS env var
+  FLUKA_PASS:
+  - secure: "h4LNv39qBd3g8ls+SvMy0Fkreuq4CV7lv2NDWr6pG79a5obHbjxme9xojcvL3kAm5t9fKEDU7t+S8UUhCmQVdaV2qLBUaFIvr3Na6m3odJiqy433NemXGR1SkB4G9BR1eJVxgYZNqcN00uiWg4XI2p7FtNsbMzNSCEjTR3qwVa4="
   matrix:
     - MOAB_VERSION="Version4.7.0"
     - MOAB_VERSION="Version4.8.0"
@@ -76,12 +82,21 @@ before_install:
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/geant4.10.00.p02/lib/"
   - cd ..
   - cd ..
+  # build fluka
+  - mkdir fluka2011
+  - cd fluka2011
+  - wget --tries 5 --auth-no-challenge --no-check-certificate --http-user $FLUKA_USER --http-password $FLUKA_PASS https://www.fluka.org/packages/fluka2011.2c-linux-gfor64bitAA.tar.gz
+  - export FLUFOR=gfortran
+  - tar -zxf fluka2011.2c-linux-gfor64bitAA.tar.gz
+  - make
+  - export FLUPRO=$PWD
+  - cd ..
 install:
   # build dagmc
   # - cd DAGMC
   - mkdir bld
   - cd bld
-  - cmake ../. -DBUILD_TALLY=ON -DBUILD_GEANT4=ON -DGEANT4_DIR=$START/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$START/DAGMC
+  - cmake ../. -DBUILD_TALLY=ON -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO -DBUILD_GEANT4=ON -DGEANT4_DIR=$START/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$START/DAGMC
   - make 
   - make install
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/DAGMC/lib"
@@ -92,7 +107,7 @@ script:
   # run each test
   - ./dagsolid_unit_tests
   # no fludag yet
-  # ./fludag_unit_tests
+  - ./fludag_unit_tests
   - ./test_CellTally
   - ./test_KDEKernel
   - ./test_KDEMeshTally
