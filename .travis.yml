@@ -83,7 +83,7 @@ before_install:
   # build fluka
   - mkdir fluka2011
   - cd fluka2011
-  - wget --no-check-certificate https://www.fluka.org/packages/fluka2011.2c-linux-gfor64bitAA.tar.gz --user $FLUKA_USER --password $FLUKA_PASS
+  - wget --tries 5 --auth-no-challenge --no-check-certificate --http-user $FLUKA_USER --http-password $FLUKA_PASS https://www.fluka.org/packages/fluka2011.2c-linux-gfor64bitAA.tar.gz
   - export FLUFOR=gfortran
   - tar -zxf fluka2011.2c-linux-gfor64bitAA.tar.gz
   - make
