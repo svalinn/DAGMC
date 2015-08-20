@@ -218,10 +218,6 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event)
   {
     // determine tracklength to return
           add_score_to_mesh_tally(tet, weight, event.track_length, ebin);
-          std::cout << event.position[0] << " ";
-          std::cout << event.position[1]<< " ";
-          std::cout << event.position[2]<< " ";
-          std::cout << event.track_length << std::endl;
     //    found_crossing = true;
     return;
   }
@@ -422,8 +418,8 @@ void TrackLengthMeshTally::set_tally_meshset()
     rval = mb->unite_meshset( tally_mesh_set, loaded_file_set );
     if(rval != MB_SUCCESS)
       {
-  std::cout << "Failed to unite meshset" << std::endl;
-  exit(1);
+        std::cout << "Failed to unite meshset" << std::endl;
+        exit(1);
       }
     assert (rval == MB_SUCCESS);
   }
@@ -439,7 +435,7 @@ ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets)
 
   if (num_tets != 0)
   {
-     tet_baryc_data.resize (num_tets);  
+    tet_baryc_data.resize (num_tets);  
   }
 
   for( Range::const_iterator i=all_tets.begin(); i!=all_tets.end(); ++i)
@@ -581,12 +577,12 @@ EntityHandle TrackLengthMeshTally::point_in_which_tet (const CartVect& point)
       rval = mb->get_entities_by_dimension( leaf, 3, candidate_tets, false );
       assert( rval == MB_SUCCESS );
       for( Range::const_iterator i = candidate_tets.begin(); i!=candidate_tets.end(); ++i)
-  {
-    if( point_in_tet( point,&(*i)) )
-      {
-        return *i;
-      }
-  }
+        {
+          if( point_in_tet( point,&(*i)) )
+            {
+              return *i;
+            }
+        }
     }
   return 0;
 }
@@ -687,11 +683,11 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
 
         // std::cout << tet << " " << track_length << " " << intersections[i] << std::endl;
         if (track_length < 0.0 )
-            {
+          {
             std::cout << "!!! Negative Track Length !!!" << std::endl;
             std::cout << track_length << " " << intersections[i] << " " << intersections[i-1] << std::endl;
             std::cout << tet << " " << next_tet << std::endl;
-            }
+          }
           // Note: track_length is for the current tet; it is not the event tracklength
           add_score_to_mesh_tally(tet, weight, track_length, ebin);
         }
@@ -721,7 +717,7 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
 
       // the track_length is -ve, very naughty
       if (track_length < 0.0 )
-      {
+        {
             std::cout << "Negative Track Length!!" << std::endl;
             std::cout << track_length << " " << intersections[intersections.size()-1] << " " <<  event.track_length << std::endl;
             std::cout << tet << " " << next_tet << std::endl;
