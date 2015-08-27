@@ -24,6 +24,7 @@ class resultrec(object):
                ('density','f4'), ('depth','f4'), ('depthq','f4')]
 
     group_type = [('id', 'i4'), ('energy', 'f4')]
+    # group_type = [('energy', 'f4')]
 
     # Initialized by c'tor
     nrows = -1
@@ -49,14 +50,18 @@ class resultrec(object):
         self.nrows = row_data.shape[0]
 	self.set_tr_meta(row_data)
 
+	# print "num_let_groups", self.num_let_groups
 	# ToDo - read in directly from a file in data/
         for i in range(self.num_let_groups):
+	    print i, ",", group_header[i]
             self.tr_let_group[i] = (i, group_header[i])
+            #self.tr_let_group[i] = group_header[i]
 
 	# ToDo - read in directly from a file in data/
         flux_group_header = group_header[2*self.num_let_groups:]
 	for i in range(self.num_flux_groups):
 	    self.tr_flux_group[i] = (i,flux_group_header[i])
+	    # self.tr_flux_group[i] = (flux_group_header[i])
 
         # remove meta_columns from alldata
         self.response_data = row_data[:,self.num_meta:]
@@ -80,7 +85,8 @@ class resultrec(object):
 
 	Raises
 	------
-	Exception if the calculated number of species does not equal the number of names
+	Exception if the calculated number of species does not equal the 
+	number of names
 	"""
         num = int((len(dose_header) - 2) / 2)
 
@@ -345,7 +351,7 @@ class resultrec(object):
 
 	Notes
 	-----
-	This method can be replaced with the single line:
+	This method shoule be replaceable with the single line:
             self.tr_all[self.tr_all['GROUP'] == -1]
         because the unique 'RESPONSE' values for this set are 
 	'Dose', 'Doseq', 'totalflux', and 'totbackneut'
@@ -379,7 +385,6 @@ def parse_arguments():
     """ Argument parsing
     """
     
-    # min_col = self.num_meta
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -387,6 +392,7 @@ def parse_arguments():
 	help='The name of the .dat file with one line per direction.')
 
 
+    """
     parser.add_argument(
         '-r', action='store', dest='response',
 	help='Response, from dose, doseq, let, flux, int_flux, or neutron_flux.')
@@ -398,11 +404,7 @@ def parse_arguments():
     parser.add_argument(
         '-g', action='store', dest='group',
 	help='Group: 1-700 (let); 1-100 (flux, int_flux, neutron_flux). Default = entire range. Not used for (dose, doseq).')
-
-    # parser.add_argument(
-    #     '-c', action='store', dest='data_column', 
-    #	help='The column, column range, or "a" for all columns.  Must be {} or greater'.format(num_non_data))
-
+    """
     parser.add_argument(
         '-o', action='store', dest='outfile',
 	help='The name of the .vtk file, with extension.')
@@ -490,8 +492,8 @@ def main():
     args = parse_arguments()
 
     db = resultrec(args.infile)
-    def_set = db.get_default_tuples()
-    tagged_mesh = db.tag_mesh(def_set)
+    default_set = db.get_default_tuples()
+    tagged_mesh = db.tag_mesh(default_set)
     tagged_mesh.save(args.outfile)
     return
 
