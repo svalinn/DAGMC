@@ -534,7 +534,7 @@ def parse_command_line_arguments():
 
     # With no other parameters set byt the geometry file, a single randomly 
     # chosen direction will be run, using the defaults listed.
-    if not args.uwuw_filenam:
+    if not args.uwuw_filename:
         raise Exception('h5m filename not specified. [-f] not set')
     
     return args
