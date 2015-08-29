@@ -111,7 +111,7 @@ def get_tag_values(filename):
 
     # now we have dag properties, create one with materials and one with tallies
     for tag in dag_properties:
-        if 'mat:' in tag:
+        if 'mat:' in tag or 'graveyard' in tag.lower():
             dag_material_tags.append(tag)
         if 'tally:' in tag:
             dag_tally_tags.append(tag)
@@ -230,7 +230,7 @@ def check_matname(tag_values):
                     matdensity_test = float(matdensity[1])
                 except:
                     raise Exception("Could not find density in appropriate format!; density is not a float in %s" % tag)
-                mat_list_density.append(matdensity[1])
+                splitted_group_name = mat_dens_split(tag)
             # otherwise we have only "mat:"
             elif ':' in tag:
                 splitted_group_name = mat_split(tag)
