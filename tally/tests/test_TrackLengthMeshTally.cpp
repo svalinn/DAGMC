@@ -1021,7 +1021,7 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY3Z3)
 }
 
 //---------------------------------------------------------------------------//
-TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracksBadTet)
+TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_1)
 {
   input.tally_type = "unstr_track";
   input.options.insert(std::make_pair("inp", "hashtag_mesh.h5m"));
@@ -1035,6 +1035,116 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracksBadTet)
   // 1st track -50 to -30 cm
   double direction[3]={1.0,0.0,0.0};
   double position[3]={-50.0,18.0,2.0};
+  mod_event_3d(event,position,direction,20.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 2nd track -30 to -20 cm
+  position[0]=-30.0;
+  mod_event_3d(event,position,direction,10.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 3rd track -20 to 20 cm
+  position[0]=-20.0;
+  mod_event_3d(event,position,direction,40.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 4th track 20 to 30 cm
+  position[0]=20.0;
+  mod_event_3d(event,position,direction,10.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 5th track 30 to 50 cm
+  position[0]=30.0;
+  mod_event_3d(event,position,direction,20.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // now figure out the track
+  TallyData data = mesh_tally->getTallyData();
+  int length;
+  double *track_data = data.TallyData::get_tally_data(length);
+
+  double total = 0.0;
+  for ( int i = 0 ; i < length ; i++ )
+    total += track_data[i];
+
+  EXPECT_DOUBLE_EQ(total, 20.0);
+}
+
+//---------------------------------------------------------------------------//
+TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_2)
+{
+  input.tally_type = "unstr_track";
+  input.options.insert(std::make_pair("inp", "hashtag_mesh.h5m"));
+  mesh_tally = Tally::create_tally(input);
+  EXPECT_TRUE(mesh_tally != NULL);
+  EXPECT_EQ("unstr_track", mesh_tally->get_tally_type());
+
+  TallyEvent event;
+  make_event(event);
+
+  // 1st track -50 to -30 cm
+  double direction[3]={1.0,0.0,0.0};
+  double position[3]={-50.0,-7.0,0.0};
+  mod_event_3d(event,position,direction,20.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 2nd track -30 to -20 cm
+  position[0]=-30.0;
+  mod_event_3d(event,position,direction,10.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 3rd track -20 to 20 cm
+  position[0]=-20.0;
+  mod_event_3d(event,position,direction,40.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 4th track 20 to 30 cm
+  position[0]=20.0;
+  mod_event_3d(event,position,direction,10.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // 5th track 30 to 50 cm
+  position[0]=30.0;
+  mod_event_3d(event,position,direction,20.0);
+  mesh_tally->compute_score(event);
+  mesh_tally->end_history();
+
+  // now figure out the track
+  TallyData data = mesh_tally->getTallyData();
+  int length;
+  double *track_data = data.TallyData::get_tally_data(length);
+
+  double total = 0.0;
+  for ( int i = 0 ; i < length ; i++ )
+    total += track_data[i];
+
+  EXPECT_DOUBLE_EQ(total, 20.0);
+}
+
+//---------------------------------------------------------------------------//
+TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_3)
+{
+  input.tally_type = "unstr_track";
+  input.options.insert(std::make_pair("inp", "hashtag_mesh.h5m"));
+  mesh_tally = Tally::create_tally(input);
+  EXPECT_TRUE(mesh_tally != NULL);
+  EXPECT_EQ("unstr_track", mesh_tally->get_tally_type());
+
+  TallyEvent event;
+  make_event(event);
+
+  // 1st track -50 to -30 cm
+  double direction[3]={1.0,0.0,0.0};
+  double position[3]={-50.0,11.0,3.0};
   mod_event_3d(event,position,direction,20.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
