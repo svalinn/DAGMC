@@ -1,42 +1,47 @@
 #!/usr/bin/python
 
+# Imports
 import os
 import string
 import argparse
-try:
-    from itaps import iMesh, iBase
-except:
-    raise ImportError(
-        "The PyTAPS dependency 'iMesh/iBase' could not be imported!")
 
-try:
-    from pyne import material
-    from pyne.material import Material, MaterialLibrary
-except:
-    raise ImportError(
-        "The PyNE dependency 'Material/MaterialLibrary' could not be imported!")
+# Dependencies
+from itaps import iMesh, iBase
+from pyne import material
+from pyne.material import Material, MaterialLibrary
+from pyne.tally import Tally
+from pyne.particle import is_valid, name
 
-try:
-    from pyne.tally import Tally
-except:
-    raise ImportError(
-        "The PyNE dependency 'tally module' could not be imported!")
-
-try:
-    from pyne.particle import is_valid, name
-except:
-    raise ImportError(
-        "The PyNE dependency 'particle module' could not be imported!")
 
 # list of fluka predefined materials:
-fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO", "ROENTGEN", "HYDROGEN", "PHOSPHO", "GERMANIU",
-             "GADOLINI", "GALLIUM", "HASSIUM", "ZINC", "HAFNIUM", "MERCURY", "HELIUM", "PRASEODY", "PLATINUM", "239-PU", "LEAD", "CARBON", "POTASSIU", "OXYGEN", "SULFUR", "TUNGSTEN", "EUROPIUM", "MAGNESIU", "MOLYBDEN", "MANGANES", "URANIUM", "IRON", "NICKEL", "NITROGEN",
-             "SODIUM", "NIOBIUM", "NEODYMIU", "NEON", "ZIRCONIU", "BORON", "COBALT", "FLUORINE", "CALCIUM", "CERIUM", "CADMIUM", "VANADIUM", "CESIUM",
-             "CHROMIUM", "COPPER", "STRONTIU", "KRYPTON", "SILICON", "TIN", "SAMARIUM", "SCANDIUM", "ANTIMONY", "LANTHANU", "CHLORINE", "LITHIUM",
-             "TITANIUM", "TERBIUM", "99-TC", "TANTALUM", "SILVER", "IODINE", "IRIDIUM", "241-AM", "ALUMINUM", "ARSENIC", "ARGON", "GOLD", "INDIUM",
-             "YTTRIUM", "XENON", "HYDROG-1", "DEUTERIU", "TRITIUM", "HELIUM-3", "HELIUM-4", "LITHIU-6", "LITHIU-7", "BORON-10", "BORON-11", "90-SR",
-             "129-I", "124-XE", "126-XE", "128-XE", "130-XE", "131-XE", "132-XE", "134-XE", "135-XE", "136-XE", "135-CS", "137-CS", "230-TH", "232-TH",
-             "233-U", "234-U", "235-U", "238-U"]
+fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO",
+"ROENTGEN", "HYDROGEN", "PHOSPHO", "GERMANIU","GADOLINI", "GALLIUM", "HASSIUM",
+"ZINC", "HAFNIUM", "MERCURY", "HELIUM", "PRASEODY", "PLATINUM","239-PU","LEAD",
+"CARBON", "POTASSIU", "OXYGEN", "SULFUR", "TUNGSTEN", "EUROPIUM", "MAGNESIU", 
+"MOLYBDEN","MANGANES","URANIUM","IRON","NICKEL","NITROGEN","SODIUM", "NIOBIUM",
+"NEODYMIU", "NEON", "ZIRCONIU","BORON","COBALT","FLUORINE","CALCIUM", "CERIUM",
+"CADMIUM", "VANADIUM", "CESIUM", "CHROMIUM", "COPPER", "STRONTIU", "KRYPTON", 
+"SILICON", "TIN", "SAMARIUM", "SCANDIUM", "ANTIMONY", "LANTHANU", "CHLORINE", 
+"LITHIUM","TITANIUM","TERBIUM","99-TC","TANTALUM","SILVER","IODINE", "IRIDIUM",
+"241-AM", "ALUMINUM", "ARSENIC", "ARGON", "GOLD", "INDIUM", "YTTRIUM", "XENON", 
+"HYDROG-1", "DEUTERIU", "TRITIUM", "HELIUM-3","HELIUM-4","LITHIU-6","LITHIU-7", 
+"BORON-10", "BORON-11", "90-SR","129-I", "124-XE", "126-XE","128-XE", "130-XE", 
+"131-XE", "132-XE", "134-XE", "135-XE", "136-XE", "135-CS", "137-CS", "230-TH", 
+"232-TH","233-U", "234-U", "235-U", "238-U"]
+
+
+"""
+function that loads PyNE material library
+filename : string of the name of the material library
+returns PyNE MaterialLibrary instance
+"""
+
+
+def load_mat_lib(filename):
+    mat_lib = material.MaterialLibrary()
+    mat_lib.from_hdf5(
+        filename, datapath='/material_library/materials', nucpath='/material_library/nucid')
+    return mat_lib
 
 """
 function that gets all tags on dagmc geometry
@@ -103,7 +108,7 @@ def get_tag_values(filename, output_filename):
     return tag_values
 
 """
-function to transform the tags into strings
+function to transform tags into strings
 tag : string of the tag to be added to tag_list
 returns tag
 """
@@ -120,19 +125,6 @@ def tag_to_string(tag):
             # join to end string
             tag = ''.join(a)
     return tag
-
-"""
-function that loads PyNE material library
-filename : string of the name of the material library
-returns PyNE MaterialLibrary instance
-"""
-
-
-def load_mat_lib(filename):
-    mat_lib = material.MaterialLibrary()
-    mat_lib.from_hdf5(
-        filename, datapath='/material_library/materials', nucpath='/material_library/nucid')
-    return mat_lib
 
 
 """
