@@ -4,13 +4,13 @@
 
 // constructor 
 uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std::string dagmc_filename, 
-				     std::string output_file, bool verbosity)
+				     std::string output_file,  bool verbosity)
 {
   // make new name concatenator class
   ncr = new name_concatenator();
   
   // load the materials
-  material_library = mat_lib.load_pyne_materials("test_lib.h5","/material_library/materials");
+  material_library = mat_lib.load_pyne_materials(material_library_filename,"/material_library/materials");
   
   // load the material objects
   // load the dag file
@@ -31,16 +31,15 @@ uwuw_preprocessor::~uwuw_preprocessor()
 {
 }
 
-// get the dagmc properties
+// get the dagmc properties from the geometry file
 std::map<moab::EntityHandle, std::vector<std::string> > get_property_assignments( std::string property,
 										 int dimension, 
 										 std::string delimiters)
 {
   std::map<moab::EntityHandle,std::vector<std::string> > prop_map; // to return
-
-  std::vector<std::string> test_keywords;
+  std::vector<std::string> test_keywords; // keywords we are going to test against
   test_keywords.push_back(property);
-  std::map<std::string, std::string> keyword_synonyms;
+  std::map<std::string, std::string> keyword_synonyms; // empty synonynms map
 
   // get initial sizes                               
   int num_entities = DAG->num_entities( dimension );
@@ -55,8 +54,7 @@ std::map<moab::EntityHandle, std::vector<std::string> > get_property_assignments
 
   // loop over all cells                              
   for( int i = 1; i <= num_entities; ++i ) {
-    //                                                
-    std::vector<std::string> properties;
+    std::vector<std::string> properties; //vector of properties coming back
 
     // get cellid                                     
     moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
@@ -132,27 +130,10 @@ pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, s
   pyne::Material new_mat; // to return
   pyne::comp_map comp = material.comp;
 
-  Json::Value metadata = Json::Value();
-  metadata["fluka_name"] = "test";
-
-  // make new material with the correct density
-  //  Json::Value metadata = "{\"name\":\"name\"}";
-    //{\"name\":\"name\"}
-    //                    ,{\"fluka_name\":\"name\"}];
-  // metadata["name"] = {"name":"name"};
-		       //	      "fluka_name": "name"}];
-    /*[
-	      {"firstName":"John", "lastName":"Doe"}, 
-	      {"firstName":"Anna", "lastName":"Smith"}, 
-	      {"firstName":"Peter","lastName":"Jones"}
-]
-    */
-    //  metadata["fluka_name"] = Json::Value((""))
-
-  new_mat = pyne::Material(comp,1.0,material.density, 0.0 ,metadata);
+  new_mat = pyne::Material(comp,1.0,material.density, 0.0);
   // use the name concatenator to make the fluka name
   std::string fluka_name = ncr->make_name_8bytes(material.metadata["name"].asString());
-  std::cout << fluka_name << " " << fluka_name.length() << std::endl;
+
   std::string material_name;
   // make a new name
   if ( density != "" ) {
@@ -171,7 +152,6 @@ pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, s
   new_mat.metadata["name"] = material_name;
   new_mat.metadata["fluka_name"] = fluka_name;
 
-  new_mat.dump_json();
   return new_mat;
 }
 
@@ -270,6 +250,8 @@ void uwuw_preprocessor::get_dagmc_properties()
   density_assignments = get_property_assignments("rho",3,":/");
   std::map<moab::EntityHandle,std::vector<std::string> > tally_assignments;
   tally_assignments = get_property_assignments("tally",3,":");
+  std::map<moab::EntityHandle,std::vector<std::string> > surface_tally_assignments;
+  surface_tally_assignments = get_property_assignments("tally",2,":");
 
   int num_cells = DAG->num_entities( 3 );
 
@@ -332,59 +314,33 @@ void uwuw_preprocessor::get_dagmc_properties()
     }
   }
 
-  /*
+  /// process the surface tally information
+
+  // loop over the surfaces
   int num_surfs = DAG->num_entities( 2 );
 
-  std::vector<std::string> boundary_assignment; // boundary conditions for the current entity 
-  // loop over all surfaces  
+  std::vector<std::string> surface_tally_props;
   for( int i = 1; i <= num_surfs; ++i ) {
     int surfid = DAG->id_by_index( 2, i );
     moab::EntityHandle entity = DAG->entity_by_index( 2, i );
+    
+    surface_tally_props = surface_tally_assignments[entity];
 
-    boundary_assignment = boundary_assignments[entity];
-    if (boundary_assignment.size() != 1 )
-      {
-        std::cout << "More than one boundary conditions specified for " << surfid <<std::endl;
-        std::cout << surfid << " has the following density assignments" << std::endl;
-        for ( int j = 0 ; j < boundary_assignment.size() ; j++ ) {
-          std::cout << boundary_assignment[j] << std::endl;
-        }
-        std::cout << "Please check your boundary condition assignments " << surfid << std::endl;
-
+    // if we have results back from parse props
+    if ( surface_tally_assignments.count(entity) != 0 ) {
+      // if they aren't blank
+      if(surface_tally_props[0] != "") {
+	// make the tally pair and 
+	std::vector<std::string> :: iterator iter;
+	for ( iter = surface_tally_props.begin() ; iter != surface_tally_props.end() ; ++iter) {
+	  std::string this_tally = *iter;
+	  tally_info tally_data = make_tally_groupname(this_tally,3,entity);
+	  tally_list.push_back(tally_data);   
+	}
       }
-    // 2d entities have been tagged with the boundary condition property 
-    // ie. both surfaces and its members triangles, 
-    if(boundary_assignment[0].find("Reflecting") != std::string::npos )
-      lcadfile << "*";
-    if (boundary_assignment[0].find("White") != std::string::npos )
-      lcadfile << "+";
-
-    lcadfile << surfid << std::endl;
-  }
-
-  // blankline 
-  lcadfile << std::endl;
-
-  // print materials
-  lcadfile << "C materials from library" << std::endl;
-  for(std::map<std::string,pyne::Material>::const_iterator it = material_library.begin() ;
-      it != material_library.end() ; ++it )
-    {
-      pyne::Material new_material = (it->second);
-      std::string material_card = new_material.mcnp();
-      lcadfile << material_card;
     }
-
-  // now do tallies 
-  // loop over all cells 
-  std::cout << "Tallies" << std::endl;
-  int count = 1;
-  for( std::map<std::string,pyne::Tally>::iterator it = tally_library.begin() ; it != tally_library.end() ; ++it ) {
-    std::string tally_card = (it->second).mcnp(count,"mcnp5");
-    lcadfile << tally_card;
-    count++;
   }
-  */
+  
   return;
 }
 
@@ -634,7 +590,7 @@ std::string name_concatenator::shift_and_increment(std::string name) {
 	name[i] = name[i+1];
       } 
       
-    count++;
+    count++; // increment counter
     char* int_as_string;
     if(count < 10) {
       int_as_string = new char[1];
@@ -657,7 +613,7 @@ std::string name_concatenator::shift_and_increment(std::string name) {
     }
     if(count == 1000) {
       std::cout << "Maximum limit of material increments reached" << std::endl;
-      exit(0);
+      exit(EXIT_FAILURE);
     }
   }
   return name;
