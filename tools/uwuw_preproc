@@ -15,19 +15,19 @@ from pyne.particle import is_valid, name
 
 # list of fluka predefined materials:
 fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO",
-"ROENTGEN", "HYDROGEN", "PHOSPHO", "GERMANIU","GADOLINI", "GALLIUM", "HASSIUM",
-"ZINC", "HAFNIUM", "MERCURY", "HELIUM", "PRASEODY", "PLATINUM","239-PU","LEAD",
-"CARBON", "POTASSIU", "OXYGEN", "SULFUR", "TUNGSTEN", "EUROPIUM", "MAGNESIU", 
-"MOLYBDEN","MANGANES","URANIUM","IRON","NICKEL","NITROGEN","SODIUM", "NIOBIUM",
-"NEODYMIU", "NEON", "ZIRCONIU","BORON","COBALT","FLUORINE","CALCIUM", "CERIUM",
-"CADMIUM", "VANADIUM", "CESIUM", "CHROMIUM", "COPPER", "STRONTIU", "KRYPTON", 
-"SILICON", "TIN", "SAMARIUM", "SCANDIUM", "ANTIMONY", "LANTHANU", "CHLORINE", 
-"LITHIUM","TITANIUM","TERBIUM","99-TC","TANTALUM","SILVER","IODINE", "IRIDIUM",
-"241-AM", "ALUMINUM", "ARSENIC", "ARGON", "GOLD", "INDIUM", "YTTRIUM", "XENON", 
-"HYDROG-1", "DEUTERIU", "TRITIUM", "HELIUM-3","HELIUM-4","LITHIU-6","LITHIU-7", 
-"BORON-10", "BORON-11", "90-SR","129-I", "124-XE", "126-XE","128-XE", "130-XE", 
-"131-XE", "132-XE", "134-XE", "135-XE", "136-XE", "135-CS", "137-CS", "230-TH", 
-"232-TH","233-U", "234-U", "235-U", "238-U"]
+             "ROENTGEN", "HYDROGEN", "PHOSPHO", "GERMANIU", "GADOLINI", "GALLIUM", "HASSIUM",
+             "ZINC", "HAFNIUM", "MERCURY", "HELIUM", "PRASEODY", "PLATINUM", "239-PU", "LEAD",
+             "CARBON", "POTASSIU", "OXYGEN", "SULFUR", "TUNGSTEN", "EUROPIUM", "MAGNESIU",
+             "MOLYBDEN", "MANGANES", "URANIUM", "IRON", "NICKEL", "NITROGEN", "SODIUM", "NIOBIUM",
+             "NEODYMIU", "NEON", "ZIRCONIU", "BORON", "COBALT", "FLUORINE", "CALCIUM", "CERIUM",
+             "CADMIUM", "VANADIUM", "CESIUM", "CHROMIUM", "COPPER", "STRONTIU", "KRYPTON",
+             "SILICON", "TIN", "SAMARIUM", "SCANDIUM", "ANTIMONY", "LANTHANU", "CHLORINE",
+             "LITHIUM", "TITANIUM", "TERBIUM", "99-TC", "TANTALUM", "SILVER", "IODINE", "IRIDIUM",
+             "241-AM", "ALUMINUM", "ARSENIC", "ARGON", "GOLD", "INDIUM", "YTTRIUM", "XENON",
+             "HYDROG-1", "DEUTERIU", "TRITIUM", "HELIUM-3", "HELIUM-4", "LITHIU-6", "LITHIU-7",
+             "BORON-10", "BORON-11", "90-SR", "129-I", "124-XE", "126-XE", "128-XE", "130-XE",
+             "131-XE", "132-XE", "134-XE", "135-XE", "136-XE", "135-CS", "137-CS", "230-TH",
+             "232-TH", "233-U", "234-U", "235-U", "238-U"]
 
 
 """
@@ -207,7 +207,7 @@ def particle_split(tally_group_name):
         raise Exception(
             "':' is missing in %s" % tally_group_name)
     if (tally_particle == ''):
-        raise Exception("Tally particle is missing in %s" % tally_group_name)    
+        raise Exception("Tally particle is missing in %s" % tally_group_name)
     # chack the validity of the particle name
     if (is_valid(tally_particle) == False):
         raise Exception(
@@ -240,7 +240,7 @@ def check_matname(tag_values):
             continue
         # look for mat, this id's material in group name
         if (tag[0:3] == 'mat'):
-            # split on the basis of "/" being delimiter and 
+            # split on the basis of "/" being delimiter and
             # split colons from name
             if ('/' in tag):
                 splitted_group_name = mat_dens_split(tag)
@@ -367,7 +367,7 @@ def check_and_create_materials(material_list, mat_lib):
         raise Exception("There are insuficient materials")
 
     # return the list of material objects to write to file
-    #print material_object_list
+    # print material_object_list
     return material_object_list
 
 """
@@ -522,7 +522,8 @@ defining
 
 def parsing():
     parser = argparse.ArgumentParser()
-    parser.add_argument(action='store', dest='datafile', help='The path to the input .h5m file')
+    parser.add_argument(
+        action='store', dest='datafile', help='The path to the input .h5m file')
     parser.add_argument('-d', action='store', dest='nuc_data',
                         help='The path to the materials library, nuc_data.h5 if using PyNE')
     parser.add_argument(
@@ -545,7 +546,7 @@ def main():
     # parse script
     args = parsing()
     # first add atomic mass to file
-    launch_script = "nuc_data_make -m atomic_mass -o "+ args.output
+    launch_script = "nuc_data_make -m atomic_mass -o " + args.output
     print launch_script
     os.system(launch_script)
     # load material library
