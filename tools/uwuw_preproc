@@ -30,29 +30,26 @@ fluka_lib = ["BERYLLIU", "BARIUM", "BISMUTH", "BROMINE", "RHENIUM", "RUTHERFO",
              "232-TH", "233-U", "234-U", "235-U", "238-U"]
 
 
-"""
-function that loads PyNE material library
-filename : string of the name of the material library
-returns PyNE MaterialLibrary instance
-"""
-
-
 def load_mat_lib(filename):
+    """
+    function that loads PyNE material library
+    filename : string of the name of the material library
+    returns PyNE MaterialLibrary instance
+    """
     mat_lib = material.MaterialLibrary()
     mat_lib.from_hdf5(
         filename, datapath='/material_library/materials', nucpath='/material_library/nucid')
     return mat_lib
 
-"""
-function that gets all tags on dagmc geometry
-------------------------------
-filename : the dagmc filename
-output_filename : output file name set using -o flag
-return vector of tag_values and writes tallies to ouptut .h5m file
-"""
-
 
 def get_tag_values(filename, output_filename):
+    """
+    function that gets all tags on dagmc geometry
+    ------------------------------
+    filename : the dagmc filename
+    output_filename : output file name set using -o flag
+    return vector of tag_values and writes tallies to ouptut .h5m file
+    """
     mesh = iMesh.Mesh()
     mesh.load(filename)
     # get all entities
@@ -108,14 +105,13 @@ def get_tag_values(filename, output_filename):
     print '----------'
     return tag_values
 
-"""
-function to transform tags into strings
-tag : string of the tag to be added to tag_list
-returns tag
-"""
-
 
 def tag_to_string(tag):
+    """
+    function to transform tags into strings
+    tag : string of the tag to be added to tag_list
+    returns tag
+    """
     a = []
     # since we have a byte type tag loop over the 32 elements
     for part in tag:
@@ -128,17 +124,15 @@ def tag_to_string(tag):
     return tag
 
 
-"""
-Function that checks the existence of tally groups
-mesh : entire mesh of the dagmc model
-s : set (group) tagged with tally group name  
-tally_type : type of tally (flux, current, etc.)
-tally_particle : name of particle (Neutron, Photon, etc.)
-object_ID : list of the geometry objects included in the tally; ['type:ID']
-"""
-
-
 def get_tally(mesh, s, group_name):
+    """
+    Function that checks the existence of tally groups
+    mesh : entire mesh of the dagmc model
+    s : set (group) tagged with tally group name  
+    tally_type : type of tally (flux, current, etc.)
+    tally_particle : name of particle (Neutron, Photon, etc.)
+    object_ID : list of the geometry objects included in the tally; ['type:ID']
+    """
     # objects included in the tally
     # get the geometry objects included; ID and type of each
     object_ID = get_entity(mesh, s)
@@ -149,14 +143,13 @@ def get_tally(mesh, s, group_name):
 
     return tally_type, tally_particle, object_ID
 
-"""
-Function that gets both the ID and type of entities included in the tally group
-ID_list : list of the form ['type:ID'] of geometry objects included
-returns ID_list
-"""
-
 
 def get_entity(mesh, mesh_set):
+    """
+    Function that gets both the ID and type of entities included in the tally group
+    ID_list : list of the form ['type:ID'] of geometry objects included
+    returns ID_list
+    """
     ID_list = []
     # loop over tags checking for name
     for k in mesh_set.getEntSets(hops=-1):
@@ -177,13 +170,12 @@ def get_entity(mesh, mesh_set):
         ID_list.append(object_type_id)
     return ID_list
 
-"""
-Function that splits group name on the basis of '/'
-returns tally type
-"""
-
 
 def type_split(tally_group_name):
+    """
+    Function that splits group name on the basis of '/'
+    returns tally type
+    """
     try:
         tally_type = tally_group_name.split('/')[1]
     except:
@@ -193,13 +185,12 @@ def type_split(tally_group_name):
         raise Exception("Tally type is missing in %s" % tally_group_name)
     return tally_type
 
-"""
-Function that splits group name on the basis of ':'
-returns tally particle
-"""
-
 
 def particle_split(tally_group_name):
+    """
+    Function that splits group name on the basis of ':'
+    returns tally particle
+    """
     try:
         group_name = tally_group_name.split('/')
         tally_particle = group_name[0].split(':')[1]
@@ -215,17 +206,15 @@ def particle_split(tally_group_name):
     return tally_particle
 
 
-"""
-function to check that material group names exist and creates
-a list of names and densities if provided
--------------------------------------------------
-tag_values : list of tags from dagmc file
-mat_lib : PyNE material library instance
-returns mat_dens_list, a zipped pair of density and material name
-"""
-
-
 def check_matname(tag_values):
+    """
+    function to check that material group names exist and creates
+    a list of names and densities if provided
+    -------------------------------------------------
+    tag_values : list of tags from dagmc file
+    mat_lib : PyNE material library instance
+    returns mat_dens_list, a zipped pair of density and material name
+    """
     # loop over tags to check the existence of a 'vacuum' group
     for tag in tag_values:
         if ('vacuum' in tag.lower()):
@@ -264,13 +253,11 @@ def check_matname(tag_values):
     return mat_dens_list
 
 
-"""
-function that splits group name on the basis of '/'
-group name containing both material name and density
-"""
-
-
 def mat_dens_split(tag):
+    """
+    function that splits group name on the basis of '/'
+    group name containing both material name and density
+    """
     splitted_group_name = {}
     mat_name = tag.split('/')
     if (':' not in mat_name[0]):
@@ -300,13 +287,12 @@ def mat_dens_split(tag):
     splitted_group_name['density'] = matdensity[1]
     return splitted_group_name
 
-"""
-function that splits group name on the basis of ':'
-group name containing only material name
-"""
-
 
 def mat_split(tag):
+    """
+    function that splits group name on the basis of ':'
+    group name containing only material name
+    """
     splitted_group_name = {}
     matname = tag.split(':')
     if (len(matname) > 2):
@@ -319,16 +305,15 @@ def mat_split(tag):
     splitted_group_name['density'] = ''
     return splitted_group_name
 
-"""
-function that checks the existence of material names on the material
-library and creates a list of materials with attributes/metadata set
--------------------------------------------------------------
-material_list : vector of material_name & density pairs
-mat_lib : Material library object
-"""
-
 
 def check_and_create_materials(material_list, mat_lib):
+    """
+    function that checks the existence of material names on the material
+    library and creates a list of materials with attributes/metadata set
+    -------------------------------------------------------------
+    material_list : vector of material_name & density pairs
+    mat_lib : Material library object
+    """
     flukamaterials_list = []
     material_object_list = []
     d = 0
@@ -370,15 +355,14 @@ def check_and_create_materials(material_list, mat_lib):
     # print material_object_list
     return material_object_list
 
-"""
-function to copy metadata of materials from the material library
--------------------------------------
-material : PyNE material object to copy data into 
-material_from_lib : material objec to copy data from
-"""
-
 
 def copy_metadata(material, material_from_lib):
+    """
+    function to copy metadata of materials from the material library
+    -------------------------------------
+    material : PyNE material object to copy data into 
+    material_from_lib : material objec to copy data from
+    """
     # copy metadata from lib to material
     for key in list(material_from_lib.metadata.keys()):
         material.metadata[key] = material_from_lib.metadata[key]
@@ -390,30 +374,26 @@ def copy_metadata(material, material_from_lib):
     return material
 
 
-"""
-function to set the metadata of materials:
-----------------------------------------
-mat : PyNE Material Object
-number : mcnp material number
-flukamat_list : list of materials  
-returns : PyNE Material Object
-"""
-
-
 def set_metadata(mat, number, flukamat_list):
+    """
+    function to set the metadata of materials:
+    ----------------------------------------
+    mat : PyNE Material Object
+    number : mcnp material number
+    flukamat_list : list of materials  
+    returns : PyNE Material Object
+    """
     mat.metadata['mat_number'] = str(number)
     mat.metadata['fluka_material_index'] = str(number + 25)
     fluka_material_naming(mat, flukamat_list)
     return mat
 
 
-"""
-Function to prepare fluka material names:
-flukamat_list : list of material names found in group tags on the model 
-"""
-
-
 def fluka_material_naming(material, flukamat_list):
+    """
+    Function to prepare fluka material names:
+    flukamat_list : list of material names found in group tags on the model 
+    """
     matf = material.metadata['name']
     matf = ''.join(c for c in matf if c.isalnum())
     L = len(matf)
@@ -456,13 +436,12 @@ def fluka_material_naming(material, flukamat_list):
     material.metadata['fluka_name'] = matf.upper()
     return material
 
-""" 
-function to print near matches to material name
-material_library : PyNE material library
-"""
-
 
 def print_near_match(material, material_library):
+    """ 
+    function to print near matches to material name
+    material_library : PyNE material library
+    """
     list_of_matches = []
     for item in material_library.iterkeys():
         if (material.lower() in item.lower()) or (material.upper() in item.upper()):
@@ -471,32 +450,28 @@ def print_near_match(material, material_library):
         list_of_matches.append(item)
     return list_of_matches
 
-"""
-Function that writes material objects to output .h5m file
--------
-material_list: list of materials found on tags of the model
-filename: filename to write the objects to
-"""
-
 
 def write_mats_h5m(materials_list, filename):
+    """
+    Function that writes material objects to output .h5m file
+    -------
+    material_list: list of materials found on tags of the model
+    filename: filename to write the objects to
+    """
     new_matlib = MaterialLibrary()
     for material in materials_list:
         # using fluka name as index since this is unique
         new_matlib[material.metadata['fluka_name']] = material
     new_matlib.write_hdf5(filename, datapath='/materials', nucpath='/nucid')
 
-"""
-Function that writes tally objects to ouptut .h5m file
--------
-tally_list: list of volume id tally pairs of PyNE Material Objects
-filename: filename to write the objects to
-"""
-
-''
-
 
 def write_tally_h5m(tally_list, filename):
+    """
+    Function that writes tally objects to ouptut .h5m file
+    -------
+    tally_list: list of volume id tally pairs of PyNE Material Objects
+    filename: filename to write the objects to
+    """
     # tally list contains elements of the form ('photon', ('current', ['Surface:4', 'Volume:1']))
     # loop over list
     for tally in tally_list:
@@ -511,16 +486,15 @@ def write_tally_h5m(tally_list, filename):
                               int(object_id), tally_object, str(object_id), tally_name, 0.0, 1.0)
             new_tally.write_hdf5(filename, "/tally")
 
-"""
-function to parse the script, adding options:
-defining 
--f  : the .h5m file path
--d  : material library path (nuc_data.h5 if using PyNE)
--o  : name of the output h5m file "NAME.h5m", if not set the input .h5m file will be used
-"""
-
 
 def parsing():
+    """
+    function to parse the script, adding options:
+    defining 
+    -f  : the .h5m file path
+    -d  : material library path (nuc_data.h5 if using PyNE)
+    -o  : name of the output h5m file "NAME.h5m", if not set the input .h5m file will be used
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         action='store', dest='datafile', help='The path to the input .h5m file')
@@ -537,12 +511,11 @@ def parsing():
         args.output = args.datafile
     return args
 
-"""
-main
-"""
-
 
 def main():
+    """
+    main
+    """
     # parse script
     args = parsing()
     # first add atomic mass to file
