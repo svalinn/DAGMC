@@ -157,7 +157,7 @@ returns ID_list
 
 def get_entity(mesh, mesh_set):
     ID_list = []
-    # loop over the tags checking for name
+    # loop over tags checking for name
     for k in mesh_set.getEntSets(hops=-1):
         tags = mesh.getAllTags(k)
         for t in tags:
@@ -489,7 +489,7 @@ def write_mats_h5m(materials_list, filename):
     new_matlib.write_hdf5(filename, datapath='/materials', nucpath='/nucid')
 
 """
-Function that writes tally objects to hdf5 file
+Function that writes tally objects to ouptut .h5m file
 -------
 tally_list: list of volume id tally pairs of PyNE Material Objects
 filename: filename to write the objects to
@@ -502,7 +502,7 @@ def write_tally_h5m(tally_list, filename):
     # tally list contains elements of the form ('photon', ('current', ['Surface:4', 'Volume:1']))
     # loop over list
     for tally in tally_list:
-        particle_name = tally[0][0].upper() + tally[0][1:len(tally[0])]
+        particle_name = tally[0].capitalize()
         tally_type = tally[1][0]
         for k in range(len(tally[1][1])):
             tally_object = tally[1][1][k].split(':')[0]
@@ -517,22 +517,21 @@ def write_tally_h5m(tally_list, filename):
 function to parse the script, adding options:
 defining 
 -f  : the .h5m file path
--d  : nuc_data.h5 'the PyNE material library' path
+-d  : material library path (nuc_data.h5 if using PyNE)
 -o  : name of the output h5m file "NAME.h5m", if not set the input .h5m file will be used
 """
 
 
 def parsing():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-f', action='store', dest='datafile', help='The path to the .h5m file')
+    parser.add_argument(action='store', dest='datafile', help='The path to the input .h5m file')
     parser.add_argument('-d', action='store', dest='nuc_data',
-                        help='The path to the PyNE materials library nuc_data.h5')
+                        help='The path to the materials library, nuc_data.h5 if using PyNE')
     parser.add_argument(
-        '-o', action='store', dest='output', help='The name of the output file ***.h5m')
+        '-o', action='store', dest='output', help='The name of the output file NAME.h5m')
     args = parser.parse_args()
     if not args.datafile:
-        raise Exception('h5m file path not specified!!. [-f] is not set')
+        raise Exception('input h5m file is not provided!!')
     if not args.nuc_data:
         raise Exception('nuc_data file path not specified!!. [-d] is not set')
     if not args.output:
@@ -545,16 +544,16 @@ main
 
 
 def main():
-    # parse the script
+    # parse script
     args = parsing()
-    # first add atomic mass to file                                                                                                    
+    # first add atomic mass to file
     launch_script = "nuc_data_make -m atomic_mass -o "+args.output
     print launch_script
     os.system(launch_script)
-    # get list of tag values
-    tag_values = get_tag_values(args.datafile, args.output)
     # load material library
     mat_lib = load_mat_lib(args.nuc_data)
+    # get list of tag values
+    tag_values = get_tag_values(args.datafile, args.output)
     # check that material tags exist in library # material_list is list of
     # pyne objects in problem
     mat_dens_list = check_matname(tag_values)
