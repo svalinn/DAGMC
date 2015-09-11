@@ -102,9 +102,10 @@ def get_tag_values(filename, output_filename):
     write_tally_h5m(tally_values, output_filename)
     print('The groups found in the h5m file are: ')
     print tag_values
+    print '----------'
     print('The tally groups found in the h5m file are: ')
     print tally_values
-    print '--------------------------------------------'
+    print '----------'
     return tag_values
 
 """
@@ -338,7 +339,7 @@ def check_and_create_materials(material_list, mat_lib):
         for key in mat_lib.iterkeys():
             if material == key:
                 d = d + 1
-                # get the material
+                # get material
                 new_mat = mat_lib.get(key)[:]
                 flukamaterials_list.append(material)
                 copy_metadata(new_mat, mat_lib.get(key))
@@ -358,25 +359,22 @@ def check_and_create_materials(material_list, mat_lib):
                 material_object_list.append(new_mat)
                 break
             if (mat_lib.keys().index(key) == len(mat_lib.keys()) - 1):
-                print(
-                    'Material {%s} doesn\'t exist in material library' % material)
-                print_near_match(material, mat_lib)
                 raise Exception(
                     'Couldn\'t find exact match in material library for : %s' % material)
-
+                print_near_match(material, mat_lib)
     # check that there are as many materials as there are groups
     if d != len(material_list):
         raise Exception("There are insuficient materials")
 
     # return the list of material objects to write to file
-    print material_object_list
+    #print material_object_list
     return material_object_list
 
 """
-function to copy the metadata of materials from the PyNE material library
+function to copy metadata of materials from the material library
 -------------------------------------
 material : PyNE material object to copy data into 
-material_from_lib : PyNE material objec to copy data from
+material_from_lib : material objec to copy data from
 """
 
 
@@ -559,8 +557,6 @@ def main():
     mat_dens_list = check_matname(tag_values)
     # create material objects from library
     material_object_list = check_and_create_materials(mat_dens_list, mat_lib)
-    # create materials that need composition (tagged on the geometry with 'comp:')
-    ##material_object_list = compose_materials(material_object_list, mat_lib, tag_values)
     # write materials to file
     write_mats_h5m(material_object_list, args.output)
 
