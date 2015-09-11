@@ -47,32 +47,8 @@ class OrientedBoxTreeTool;
  * "inp" key is REQUIRED for TrackLengthMeshTally objects, whereas the "out"
  * key is optional.  See MeshTally.hpp for more information.
  *
- * 2) "convex"="t/f", "convex"="true/false"
- * ----------------------------------------------
- * If the convex option is set to true, the user is asserting that the input
- * mesh has convex geometry.  Single particle tracks that leave a convex mesh
- * are no longer tracked as they cannot re-enter the mesh.  The default value
- * for this option is false.
  *
- * 3) "conformal"="values"
- * -----------------------
- * If the input mesh is exactly conformal to the geometry, then conformal
- * logic should be used for scoring particle tracks across mesh cells or
- * errors may occur. This option allows the user to identify what geometric
- * cells are conformal to the input mesh.  These values can be defined as a
- * list of cells separated by commas (i.e. 1, 2, 5), and/or a range of cells
- * (i.e. 2-5).  Like the convex case, particle tracks that leave a conformal
- * mesh are no longer tracked.
- *
- * 4) "conf_surf_src"="t/f", "conf_surf_src"="true/false"
- * ------------------------------------------------------
- * If the conformal surface source option is set to true, then the user is
- * asserting that a surface source has been defined that is conformal to a
- * geometric surface.  This means that new particles that are born from
- * this source will use conformal logic to determine the first mesh cell
- * that is crossed.  The default value for this option is false.
- *
- * 5) "tag"="name", "tagval"="value"
+ * 2) "tag"="name", "tagval"="value"
  * ---------------------------------
  * The "tag" and "tagval" options can be used to define a subset of the mesh
  * elements in the input file that will be tallied.  These tags are defined
@@ -193,13 +169,20 @@ class TrackLengthMeshTally : public MeshTally
     void build_trees (Range& all_tets);
 
     /**
-     * \brief returns all triangle intersections and their distances form the point position
+     * \brief returns all triangle intersections and their distances from the point position
      * \param[in] position cart vect of the origin
      * \param[in] direction cart vect unit vector of direction
      * \param[in] track_length distance to intersect upto 
      * \param[out] triangles returns the handles to the triangles we hit
      * \param[out] intersections returns the distances to the triangles we hit
      * \returns the error code should call the kdtree fail
+     * 
+     * Notes:
+     * Note, and Note well, the vector of intersections is a vector of the absolute
+     * hit distances from the reference point of the track, i.e. they are the 
+     * cumulatitive tracklength inside each tet a running total, to determine
+     * the track length in a given tet, subtract the i th element from the i+1 th
+     * element to determine the actual track length
      */
     ErrorCode get_all_intersections(const CartVect& position, const CartVect& direction, double track_length, 
 				    std::vector<EntityHandle> &triangles,std::vector<double> &intersections);

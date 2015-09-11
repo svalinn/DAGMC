@@ -587,15 +587,6 @@ EntityHandle TrackLengthMeshTally::point_in_which_tet (const CartVect& point)
   return 0;
 }
 
-/*
- * Returns the tet in which the remaining length to score ends in
- */
-EntityHandle TrackLengthMeshTally::remainder(const CartVect& start, const CartVect& dir, double distance, double left_over)
-{
-  CartVect pos_check = start+(dir*(distance+left_over));
-  return point_in_which_tet (pos_check);
-}
-
 /* 
  * wrapper function to return the triangles that belong to each tet
  * including no duplicate entities for shared triangles
@@ -665,23 +656,27 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
   // loop over all intersections
   for (unsigned int i = 0 ; i < intersections.size() ; i++) 
     {
-      // hit point
-      //      std::cout << "pos " << event.position << std::endl;
+      // make the hit point, this is absolute 3d coordinate of the hit
+      // on the face of a tet
       hit_p = (event.direction*intersections[i]) + event.position;
       hit_point.push_back(hit_p); // add to list of hit points
+
+      // calculate the average position for the point in tet check
       tet_centroid = ((hit_point[i+1]-hit_point[i])/2.0)+hit_point[i]; // centre of the tet
 
       // determine the tet that the point belongs to
       tet = point_in_which_tet(tet_centroid);
-      //      std::cout << tet << std::endl;
+
+      // if point in tet returns a valid entity handle
       if ( tet > 0 )
         {
-        if ( i != 0 ) // determine the track_length
+        if ( i != 0 ) // determine the track_length, the general case
             track_length = intersections[i]-intersections[i-1];
         else
+            // special case for the first intersection
             track_length = intersections[i];
 
-        // std::cout << tet << " " << track_length << " " << intersections[i] << std::endl;
+        // we don't want this to happen ever, just in case warn user
         if (track_length < 0.0 )
           {
             std::cout << "!!! Negative Track Length !!!" << std::endl;
@@ -695,6 +690,7 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
 
   // it is possible that there is some tracklength left to allocate at the end, where the ray ends in the middle of a tet
   // or the ray could end in free space
+  double last_intersection = intersections.back();
   if ( intersections[intersections.size()-1] < event.track_length )
     {
       
@@ -702,20 +698,26 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
       // we should therfore, calculate an average position between the end of track
       // and this hit position. This works since last intersection can only be either
       // insde a tet in which there were no more intersections, or the ray leaves
-      // a section of non re-entrant mesh and therefore is in reallity not in any mesh
+      // a section of non re-entrant mesh and therefore is in reality not in any mesh
       // element
-      track_length = event.track_length-intersections[intersections.size()-1];
-      // determine the average distance 
-      double average_distance = (track_length - intersections[intersections.size()-1])/2.0;
-      // calculate this average hit position
+      track_length = event.track_length-last_intersection;
+      
+      // determine the average distance, this is to ensure tha the point is well
+      // away from any 'near' intersections thus mitigating any floating point issues
+      double average_distance = track_length/2.0 + last_intersection;
+      
+      // calculate this average hit position, this point should therefore be
+      // on the opposite side of the last intersection on the mesh, this point
+      // could either be inside a tet, or beyond the last intersection of a 
+      // re-entrant mesh
       hit_p = (event.direction*average_distance) + event.position;
 
-      // determine the entity handle of the tet we are inside of
-      tet = remainder(hit_p,event.direction,
-          intersections[intersections.size()-1],
-                track_length);
+      // determine the entity handle of the tet we are inside of, we cannot
+      // assert that the tet is != 0 since we rely on the tet being 0 for points
+      // outside of a re-entrant mesh.
+      tet = point_in_which_tet(hit_p);
 
-      // the track_length is -ve, very naughty
+      // the track_length is negative, very naughty
       if (track_length < 0.0 )
         {
             std::cout << "Negative Track Length!!" << std::endl;
@@ -723,7 +725,7 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
             std::cout << tet << " " << next_tet << std::endl;
         }
       
-      // if the point belongs to a tet
+      // if the point belongs to a tet, then we need to add the score
       if ( tet > 0 ) 
         {
             add_score_to_mesh_tally(tet, weight, track_length, ebin);
