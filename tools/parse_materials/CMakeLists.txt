@@ -7,5 +7,5 @@
 ######################################################################
 
 # install necessary tools
-#install(FILES dagmc_get_materials.py DESTINATION bin)
+#install(FILES uwuw_preproc DESTINATION bin)
 
