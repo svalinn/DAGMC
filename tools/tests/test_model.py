@@ -6,7 +6,7 @@ import nose
 import uwuw_preproc as gtag
 
 
-filename = 'model.h5m'
+filename = './tests/model.h5m'
 
 
 def test_model_material():
