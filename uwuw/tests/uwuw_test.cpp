@@ -54,6 +54,43 @@ TEST_F(UWUWTest,filepath2) {
 }
 
 /*
+ * Test of absolute path
+ */
+TEST_F(UWUWTest,filepath3) {
+  // get the full current path
+  char current_path[FILENAME_MAX];
+  // get the cwd
+  getcwd(current_path,sizeof(current_path));
+  std::string filepath(current_path);
+  // full path to file
+  filepath += "/"+std::string(TEST_FILE);
+  // local uwuw class for this test only
+  UWUW* wfd = new UWUW(filepath);
+  EXPECT_EQ(wfd->full_filepath,filepath);
+  return;
+}
+
+/*
+ * Test of path with space in
+ */
+TEST_F(UWUWTest,filepath4) {
+  char current_path[FILENAME_MAX];
+  // get the cwd
+  getcwd(current_path,sizeof(current_path));
+  // convert to std::string
+  std::string filepath(current_path);
+  std::string test_string = filepath+"/"+std::string(TEST_FILE)+" ";
+  std::string correct_path = filepath+"/"+std::string(TEST_FILE);
+  // local uwuw class for this test only
+  UWUW* wfd = new UWUW(test_string);
+  // expect filepath with last space removed
+  EXPECT_EQ(wfd->full_filepath,correct_path);
+  return;
+}
+
+
+
+/*
  * Test to make sure that the number of materials is correct
  */
 TEST_F(UWUWTest,materiallibrary1) {
