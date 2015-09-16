@@ -384,6 +384,9 @@ def set_metadata(mat, number, flukamat_list):
     returns : PyNE Material Object
     """
     mat.metadata['mat_number'] = str(number)
+    # The first 25 indices are reserved for fluka
+    # built in materials, so we need to start
+    # indexing after 25
     mat.metadata['fluka_material_index'] = str(number + 25)
     fluka_material_naming(mat, flukamat_list)
     return mat
@@ -491,13 +494,13 @@ def parsing():
     """
     function to parse the script, adding options:
     defining 
-    -f  : the .h5m file path
+    the .h5m file path
     -d  : material library path (nuc_data.h5 if using PyNE)
     -o  : name of the output h5m file "NAME.h5m", if not set the input .h5m file will be used
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        action='store', dest='datafile', help='The path to the input .h5m file')
+         action='store', dest='datafile', help='The path to the input .h5m file')
     parser.add_argument('-d', action='store', dest='nuc_data',
                         help='The path to the materials library, nuc_data.h5 if using PyNE')
     parser.add_argument(
