@@ -7,6 +7,5 @@
 ######################################################################
 
 # Add subdir for scripts and sample files
-#add_subdirectory(parse_materials)
 add_subdirectory(dagmc_tag_eg)
 
