@@ -3,4 +3,10 @@
 # Extensions to ignore
 *.swp
 *~
-#*
+# Build-Install directories
+bld
+include
+bin
+lib
+tests
+>>>>>>> Rename main script to something more logical
