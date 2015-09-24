@@ -193,6 +193,10 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   state.old_direction[1]=dir[1];
   state.old_direction[2]=dir[2];
 
+  //  rollback the state
+  if(mulbou_.lsense == true) {
+    state.history.reset();
+  }
   return;
 }
 
@@ -229,8 +233,7 @@ int normal (double& posx, double& posy, double& posz, double *norml, int& curReg
 void f_normal(double& pSx, double& pSy, double& pSz,
               double& pVx, double& pVy, double& pVz,
               double* norml, const int& oldRegion,
-              const int& newReg, int& flagErr)
-{
+              const int& newReg, int& flagErr) {
   if(debug) {
     std::cout << "============ NRMLWR =============" << std::endl;
   }

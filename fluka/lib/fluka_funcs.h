@@ -12,8 +12,8 @@
 #include "moab/Interface.hpp"
 #include "moab/CartVect.hpp"
 #include "DagMC.hpp"
-#include "../pyne/pyne.h"
-#include "../uwuw/uwuw.hpp"
+#include "../../pyne/pyne.h"
+#include "../../uwuw/uwuw.hpp"
 
 // defines for the flkstk common block structure
 #define STACK_SIZE 40001 // because the fortran array goes from [0:40000]
@@ -68,6 +68,65 @@ extern "C" {
     int nstaol;
     int igroun;
   } flkstk_;
+}
+
+// needed for the lsense flag
+// mulbou common block
+extern "C" {
+  extern struct {
+    // all the doubles
+    double xold;
+    double yold;
+    double zold;
+    double xmiddl;
+    double ymiddl;
+    double zmiddl;
+    double umiddl;
+    double vmiddl;
+    double wmiddl;
+    double pstep1;
+    double pstep2;
+    double uold;
+    double vold;
+    double wold;
+    double umag;
+    double vmag;
+    double wmag;
+    double unorml;
+    double vnorml;
+    double wnorml;
+    double usense;
+    double vsense;
+    double wsense;
+    double xnorml;
+    double ynorml;
+    double znorml;
+    double tsense;
+    double ddsens;
+    double dsmall;
+    double tslttc[STACK_SIZE];
+    // integer vars
+    int multtc[STACK_SIZE];
+    int nssens;
+    int nulttc;
+    int iplgnl;
+    int nrgbef;
+    int nrgaft;
+    // logical vars
+    bool llda;
+    bool lagain;
+    bool lstnew;
+    bool lartef;
+    bool lnorml;
+    bool lsense;
+    bool lmgnor;
+    bool lsnsct;
+    bool lplgnl;
+    bool lnwghs;
+    bool lmagea;
+    bool lmgnmv;
+    bool lbndrx;
+  } mulbou_;
 }
 
 // struct to hold particle state
