@@ -6,6 +6,7 @@ env:
     - MOAB_VERSION="Version4.8.0"
     - MOAB_VERSION="Version4.8.1"
     - MOAB_VERSION="Version4.8.2"
+    - MOAB_VERSION="Version4.9.0"
     - MOAB_VERSION="master"
 addons:
   apt:
