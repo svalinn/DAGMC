@@ -20,6 +20,9 @@
 #define MKBMX1 11
 #define MKBMX2 11
 
+// 
+#define MULBOU_SIZE 2001 // because the fortran array goes from [0:2000]
+
 // flkstk common block
 extern "C" {
   extern struct {
@@ -104,28 +107,28 @@ extern "C" {
     double tsense;
     double ddsens;
     double dsmall;
-    double tslttc[STACK_SIZE];
+    double tslttc[MULBOU_SIZE];
     // integer vars
-    int multtc[STACK_SIZE];
+    int multtc[MULBOU_SIZE];
     int nssens;
     int nulttc;
     int iplgnl;
     int nrgbef;
     int nrgaft;
     // logical vars
-    bool llda;
-    bool lagain;
-    bool lstnew;
-    bool lartef;
-    bool lnorml;
-    bool lsense;
-    bool lmgnor;
-    bool lsnsct;
-    bool lplgnl;
-    bool lnwghs;
-    bool lmagea;
-    bool lmgnmv;
-    bool lbndrx;
+    int llda;
+    int lagain;
+    int lstnew;
+    int lartef;
+    int lnorml;
+    int lsense;
+    int lmgnor;
+    int lsnsct;
+    int lplgnl;
+    int lnwghs;
+    int lmagea;
+    int lmgnmv;
+    int lbndrx;
   } mulbou_;
 }
 
@@ -134,6 +137,7 @@ struct particle_state {
   moab::DagMC::RayHistory history;
   bool on_boundary;
   double old_direction[3];
+  double old_position[3];
   moab::EntityHandle next_surf; // the next suface the ray will hit
   moab::EntityHandle prev_surf; // the last value of next surface
   moab::EntityHandle PrevRegion; // the integer region that the particle was in previously
@@ -156,12 +160,15 @@ struct particle_state {
 #define rgrpwr rgrpwr_
 #define isvhwr isvhwr_
 #define rg2nwr rg2nwr_
+#define flabrt flabrt_
 
 /**** Start of directly called Fluka functions ****/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+void flabrt(const char* function, const char* message);
 
 /**
  * \brief does nothing
@@ -364,6 +371,20 @@ void rg2nwr(const int& mreg, char* Vname);
 /*** start of testable wrappers ***/
 
 // The testable interfaces to the direct Fluka interface calls
+
+/**
+ * \brief The testable interface to allow fludag to interface with the fluka
+ *        abort function. When called, passes the messages to flabrt_ which 
+ *        raises an error call, dumps simulation data and writes messages to file
+ *
+ * \param[in] function_name, char* denoting the name of the function that raised the error
+ * \param[in] message, char* denoting the error message you want to pass
+ * \param[in] error_code, int, the error code you are raising from DAGMC
+ */
+void fludag_abort(const char* function_name, const char* message, int error_code);
+
+
+double dot_product(moab::EntityHandle surface, double point[3], double direction[3]);
 
 /**
  * \brief The testable interface to f_look, the function which given a position
