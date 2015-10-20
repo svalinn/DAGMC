@@ -5,6 +5,19 @@ The DAGMC infrastructure has a number of tools that can help with issues that
 arise when using the toolkit. This document serves to better inform and 
 educate what those tools are and how to use them.
 
+mcnp2cad
+~~~~~~~~~~~~
+UW has a tool, `mcnp2cad <https://github.com/svalinn/mcnp2cad>`_, which can translate a MCNP model
+into ACIS format for use in future DAGMC simulations. The tool builds CAD solids from MCNP cell descriptions
+often turning infinite bodies and plans into finite versions. At the time of writing the number of unsupported
+MCNP surface descriptions is limited to GQ's and SQ's. To run mcnp2cad all that is needed is an MCNP input deck,
+::
+   prompt%> mcnp2cad test.inp
+
+Will result in a file called out.sat which will contain the CAD version of your MCNP input. Furthermore, mcnp2cad
+automatically transfers material and importance assignments into the CAD model and will be translated to the 
+DAGMC file when processed.
+
 dagmc_prepoc
 ~~~~~~~~~~~~
 Previously it was typical of DAGMC users to input the acis file directly into DAGMC, the file would

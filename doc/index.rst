@@ -46,6 +46,7 @@ the GUI tools available for manipulating workflows.
 
    usersguide/index
    CNERG Support for DAGMC
+   tools/index
    DagmcDevelopersGuide
    gallery/gallery
    DagmcPublications
