@@ -1,4 +1,4 @@
-DAGMC Toolkit
+Installing the DAGMC Toolkit
 ----------------------------------------
 DAGMC is a toolkit that provides direct geometry support to any Monte
 Carlo radiation transport code. These instructions describe the basic 
@@ -8,8 +8,8 @@ code-specific instructions will be give for each code.
 
 Toolkit Installation
 ++++++++++++++++++++++++++++
-This section details the installation and build steps for the prerequisite packages for the the DAGMC
-toolkit with specific physics codes.
+This section details the installation and build steps for the prerequisite 
+packages for the the DAGMC toolkit with specific physics codes.
 
 Requirements
 ~~~~~~~~~~~~~
@@ -24,7 +24,6 @@ In order to install you must have done the following:
    If you need to prepare meshed geometries the following are also required
    a) Install `CUBIT <http://cubit.sandia.gov>`_ v12.2 or v13.1
  * Installed Lapack.  __Note:__ the MCNP build automatically builds the dagtally library, which requires Lapack 
- * Installed `PyNE <http://pyne.io/>`_
  * Installed `FLUKA <http://www.fluka.org/fluka.php>`_ - and/or - 
  * Installed `Geant4 <http://geant4.cern.ch/>`_
 
@@ -155,16 +154,16 @@ In all MOAB cases:
 
 PyNE
 =====
-`PyNE <http://pyne.io>`_ is a Python-based nuclear materials data handling package.  
-Integration of the DAGMC Toolkit with any physics package, e.g.  FLUKA (FluDAG) or 
-Geant4 (DagSolid), now requires that this library be installed.  Directions for 
-installing PyNE are `here <http://pyne.io/install.html>`_.  We recommend building the 
-dependencies individually rather than using the Conda Build method.
+`PyNE <http://pyne.io>`_ is a Python-wrapped C++ library which contains many functions
+that are very useful to scientists and engineering performing radiation transport calculations.
+We now include an amalgamated build of the key C++ parts of PyNE to save building and downloading
+PyNE, whilst no longer a dependency it is highly recommended, installation instructions can be found
+`here <http://pyne.io/install/index.html>`_
 
 Post Install
 ~~~~~~~~~~~~~~
 
-Having installed all the prerequisite tools, namely Cubit, CGM, HDF5, MOAB and PyNE, the user
+Having installed all the prerequisite tools, namely Cubit, CGM, HDF5, and MOAB, the user
 must ensure that the system has access to the libraries and programs that have been built.
 Therefore modify the $PATH and $LD_LIBRARY_PATH environments accordingly:
 :: 
@@ -178,20 +177,17 @@ Therefore modify the $PATH and $LD_LIBRARY_PATH environments accordingly:
                                $HOME/.local/lib: \
                                $HOME/dagmc_bld/HDF5/lib: \
                                $HOME/dagmc_bld/MOAB/lib:/$HOME/dagmc_bld/CGM/lib
- 
+
+One should be able to sucessfully run the commands
+::
+   prompt%> which dagmc_preproc 
+   prompt%> which mbconvert
+   prompt%> which h5ls
+
+This is indicative of a succesful depdendency build.
 
 Toolkit Applications
 +++++++++++++++++++++++++++++++++++++++++++++
-
-Install DAGMC
-~~~~~~~~~~~~~
-
-Clone the DAGMC repository
-::
-    prompt%> cd $HOME/dagmc_bld
-    prompt%> git clone https://github.com/svalinn/DAGMC
-    prompt%> cd DAGMC
-    prompt%> git checkout develop
 
 Install FLUKA
 ~~~~~~~~~~~~~~
@@ -207,19 +203,24 @@ name is of the form *fluka20xx.xx-linux-gfor64bitAA.tar.gz*.  See the
 `site <http://www.fluka.org/fluka.php?id=ins_run&mm2=3>`_ for instructions.
 
 Follow the FLUKA site instructions to set the FLUPRO and FLUFOR environment 
-variables.  Lastly, you must patch FLUKA's run script, rfluka, to allow for some dagmc options.
+variables.  Currently, you must patch FLUKA's run script, rfluka, to allow for some DAGMC
+specific options.
 ::
     prompt%> cd $FLUPRO/flutil
     prompt%> cp rfluka rfluka.orig
     prompt%> patch rfluka $HOME/dagmc_bld/DAGMC/fluka/rfluka.patch
 
-Confirm that you have a working install of Fluka and proceed to the next steps.  
+Confirm that you have a working install of Fluka and proceed to the next steps.
 
 Install Geant4
 ~~~~~~~~~~~~~~~~
 `Geant4 <http://geant4.cern.ch>`_, a toolkit for the simulation of the passage of particles through matter, can be found 
-`here <http://geant4.cern.ch/support/gettingstarted.shtml>`_,  including a link to instructions for installation.
-
+`here <http://geant4.cern.ch/support/gettingstarted.shtml>`_,  including a link to instructions for installation. We recommend the following flags
+::
+   -DCMAKE_INSTALL_PREFIX=<path to install location>
+   -DGEANT4_INSTALL_DATA=ON
+   -DGEANT4_USE_QT=ON or -DGEANT4_USE_OPENGL_X11=ON
+   -DGEANT4_USE_SYSTEM_EXPAT=OFF
 
 Build DAGMC Interfaces
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -237,21 +238,29 @@ first copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the
 mcnp5/ directory in the DAGMC source tree
 ::
     prompt%> cd $HOME/dagmc_bld/DAGMC/mcnp5
-    prompt%> cp -r <path to cdrom/MCNP5/Source .
+    prompt%> cp -r <path to cdrom>/MCNP5/Source .
 
 Apply the patch from the patch folder
 ::
     prompt%> patch -p1 < patch/dagmc.patch.5.1.60
 
 
-Configure 
+Configure and build DAGMC
 ===================
+
+Clone the DAGMC repository
+::
+    prompt%> cd $HOME/dagmc_bld
+    prompt%> git clone https://github.com/svalinn/DAGMC
+    prompt%> cd DAGMC
+    prompt%> git checkout develop
 
 Assuming the patch was succesfully applied, i.e. there were no warnings or 
 errors, we can now configure the DAGMC cmake system for the desired build.  
 
 The CMake system can be used to configure a build of any or all of the 
-following, see `cmake options <cmake_options.html>`_ for a list of all possible options, which include
+following, see `cmake options <cmake_options.html>`_ for a list of all possible options, 
+which include
 
    * MCNP5 with or without MPI
    * GEANT4 (DagSolid)
@@ -277,7 +286,6 @@ other build products to be installed.  It is typically set to the DAGMC director
 ::
     prompt%> export INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 
-
 **Example 1:**  Build the DAGMC interfaces and DAG-MCNP5
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
@@ -287,8 +295,6 @@ other build products to be installed.  It is typically set to the DAGMC director
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-
-
 
 **Example 3:**  Build MCNP5 in parallel and build the dagmc-enabled FLUKA.
 Note that $FLUPRO should have been previously defined as part of the FLUKA install.
@@ -303,15 +309,12 @@ Note that $FLUPRO should have been previously defined as part of the FLUKA insta
     prompt%> cmake ../. -DBUILD_FLUKA=ON -DFLUKA_DIR=$FLUPRO \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
-
-
 **Example 5:**  Build MCNP, FluDAG and Geant4-enabled DAGMC.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON  -DMPI_BUILD=ON \
                         -DBUILD_FLUKA=ON  -DFLUKA_DIR=$FLUPRO \
 			-DBUILD_GEANT4=ON -DGEANT4_DIR=path/to/geant4 \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-
 
 **Example 6:**  Build MCNP, FluDAG, Geant4-enabled DAGMC and the Tally library and tests.
 ::
@@ -335,10 +338,12 @@ If there were no errors, install the DAGMC suite of libraries and tools by issui
 If everything was successful, you may have the mcnp5 and mainfludag executables in the $INSTALL_PATH/bin folder, 
 the libraries in $INSTALL_PATH/lib and the header files in the $INSTALL_PATH/include folder
 
-Test
+Testing
 ~~~~
 
-You may wish to run the tests in the $INSTALL_PATH/tests directory to verify correct installation.  To do this requires
+We regularly run the DAGMC test suite as part of our continuous integration system, for which we use 
+`Travis <https://travis-ci.org/svalinn/DAGMC>`_. You may however, wish to run the tests in the 
+$INSTALL_PATH/tests directory to verify correct installation.  To do this requires
 that $INSTALL_PATH/bin be in your PATH and $INSTALL_PATH/lib be in your LD_LIBRARY_PATH:
 ::
     prompt%> export PATH=$PATH:$INSTALL_PATH/bin
@@ -379,8 +384,7 @@ Again, with successful execution the last few lines of screen output are:
     [==========] 16 tests from 1 test case ran. (228 ms total)
     [  PASSED  ] 16 tests.
 
-With testing successfully completed you are now ready to run a 
-`problem <uw2.html>`_.
+With testing successfully completed you are now ready to run your first DAGMC `problem <uw2.html>`_.
 
 DAG-Tripoli4 Access
 ~~~~~~~~~~~~~~~~~~~

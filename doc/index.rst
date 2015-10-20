@@ -6,7 +6,7 @@
 What is DAGMC?
 ======
 
-The Direct Accelerated Geometry Monte Carlo [DAGMC] toolkit is a
+The Direct Accelerated Geometry Monte Carlo (DAGMC) 
 component of the Mesh-Oriented datABase [MOAB_] that provides
 fundamental functions for the ray-tracing and related geometry
 operations of Monte Carlo radiation transport directly on complex 3-D
@@ -23,7 +23,7 @@ DAGMC has been integrated into the following Monte Carlo physics packages
 
 We have prior experience integrating DAGMC with MCNPX, and planned
 efforts to integrate DAGMC with other Monte Carlo physics packages
-including: MCNP6, Serpent2, Phits, OpenMC and Frenzy.
+including: MCNP6, Serpent2, Phits, OpenMC and Frensie.
 
 While we don't have a complete GUI, we currently rely on the Cubit_
 software from Sandia.  It plays a role in our workflow that can
@@ -32,13 +32,13 @@ CATIA, etc.  A key technology for supporting different solid modeling
 formats is CGM_.  In addition to defining the geometry, we rely on
 Cubit for material assignment and can also support some other aspects
 of input definition that are tied to the geometry (tallies and
-variance reduction parameters, for example).  Some knowledge of MCNP
-input files is necessary for other parameters such as material
-definition, run control and source definition.
+variance reduction parameters, for example).  Some knowledge of the 
+specific Monte Carlo application is necessary for other 
+parameters such as material definition, run control and source definition.
 
 Both CGM_ and MOAB_ are developed by a team of collaborators at
-Argonne, who are also working on improving some of the GUI tools
-available for manipulating workflows like this.
+Argonne National Laboratory (ANL), who are also working on improving some of 
+the GUI tools available for manipulating workflows.
 
 
 .. toctree::
@@ -51,11 +51,12 @@ available for manipulating workflows like this.
    DagmcPublications
    upcoming
 
-.. _MOAB: http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
-.. _MCNP5: http://mcnp-green.lanl.gov/
+.. _MOAB: http://sigma.mcs.anl.gov/moab-library/
+.. _MCNP5: http://mcnp.lanl.gov/
 .. _Cubit: http://cubit.sandia.gov
-.. _CGM: http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM
+.. _CGM: http://sigma.mcs.anl.gov/cgm-library/
 .. _CNERG: http://cnerg.engr.wisc.edu
 .. _Fluka: http://www.fluka.org/fluka.php
 .. _Geant4: http://geant4.cern.ch/
 .. _Tripoli4: https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html
+.. _Shift: http://web.ornl.gov/sci/nsed/rnsd/rt/code.shtml
