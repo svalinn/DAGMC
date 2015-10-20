@@ -1,7 +1,7 @@
 Direct Accelerated Geometry Monte Carlo (DAGMC) Toolkit
 ==========================================================
 
-[![Build Status](https://travis-ci.org/svalinn/DAGMC.svg?branch=develop)](https://travis-ci.org/svalinn/DAGMC)
+[![Build Status](https://img.shields.io/travis/svalinn/DAGMC/develop.svg)](https://travis-ci.org/svalinn/DAGMC)
 
 The Direct Acclerated Geometry Monte Carlo (DAGMC) Toolkit is an
 interface (`DAGMC Source <https://bitbucket.org/fathomteam/moab/src/cba78ef585b471659f817076505f61117efeb0c7/tools/dagmc/?at=master>`_)
