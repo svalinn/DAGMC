@@ -13,21 +13,20 @@ most people. The general workflow to contribute to DAGMC and many other open sou
    :width:  600
    :alt:    Image showing the github workflow
 
-There are 5 main steps:
+There are 6 main steps:
 
   1) Forking
   2) Cloning
   3) Branching
   4) Pushing
   5) Pull Requesting
+  6) Refresh your branch
 
 These stages are outlined below.
 
 Forking
 --------
-To start the repository must be forked. The default branch that is `checked out` is the develop branch, 
-which contains all the most upto-date changes. If you wish to 
-develop you should make a fork of the DAGMC repository in your Github account. The easiest way to do this is to click on the 
+To start the repository must be forked. The easiest way to do this is to click on the 
 `fork` button from the `svalinn/dagmc` branch shown below.
 
 .. image:: workflow_fork.png
@@ -46,6 +45,9 @@ You should now clone your fork of this repository to your local machine
    prompt %> git clone https://github.com/githubusername/dagmc
    prompt %> cd dagmc
 
+It is prudent to also add the main svalinn repository as another remote source
+:: 
+   prompt %> git add remote upstream https://github.com/svalinn/dagmc
 
 Branching
 ---------
@@ -64,21 +66,40 @@ Pushing
 ---------------
 Now that your changes are commited, you push the changes to your remote branch in your clone of DAGMC
 ::
-   prompt %> git push myrepo my_feature_branch
+   prompt %> git push origin my_feature_branch
+
+Before pushing your local feature branch is the only place this changeset is stored, in order to let your
+remote repository know of these changes you have to push.
 
 Pull Requesting
 ----------------
-If you immediately go to your fork on Github you should then see a message like that shown below, if you click on the green button
-you will create a pull request against the develop branch of DAGMC. If you've waited a few tens of minutes between pushing and 
-going to Github you may have to manually create a pull request. Your pull request will launch our continous integration tests and
-at some point in the near future your changes will pass all the unit tests or indeed may break the tests.
+Having succesfully pushed your changes to your remote fork, and if you immediately go to your fork on Github you should then 
+see a message offering to create a pull request with that branch to `svalinn/dagmc:develop`, if you click this message you can
+edit and submit the pull request. If you've waited a few tens of minutes between pushing and 
+going to Github you may have to manually create a pull request. Your pull request will launch our continuous integration tests and
+at some point in the near future your changes will pass all the unit tests or indeed may break the tests. Testing in progress and
+testing complted are shown at the bottom of your pull request.
 
-Build System
-~~~~~~~~~~
-We exclusively use CMake as the build system for our tools, we have tried to adapt a fairly modular system where variables
-are locally scoped where possible, the extent to which you change the build system as a developer will depend on the extent of 
-your changes, for example adding new tests will require small changes but adding the support of another Monte Carlo code will
-be more complex. 
+.. image:: github_testing.png
+   :height: 400
+   :width:  600
+   :alt:    Image showing when testing is launched.
+
+When testing passes your changes will be merged into develop.
+
+Refreshing your branch
+--------------------
+It should be noted that having had your pull request successfully integrated into the DAGMC mainline develop branch, your 
+clone and your local repositories develop branch will reflect the pre-pull request state of DAGMC. In order for your personal
+clones and repositories to be updated you must first pull the develop changes into your local clone.
+::
+   prompt %> git checkout develop #remember to checkout the develop branch!
+   prompt %> git pull upstream develop
+
+Now your local clone of the repository has an upto-date develop branch, but you still need to refresh your Github branch, and now 
+you must push the develop changes upto it
+::
+   prompt %> git push origin develop
 
 Testing & Continuous Integration
 ~~~~~~~~~~
@@ -93,7 +114,7 @@ pulls your feature branch, the MOAB libraries, HDF5, etc as required and then la
 and failure is reported if any dependency fails to build or if any test fails, an example of a Travis report is shown below
 
 .. image:: travis_example.png
-   :height: 400
+   :height: 300
    :width:  600
    :alt:    Image showing the status of the an example Travis-CI run
 
@@ -112,6 +133,9 @@ is preferred over,
   using namepspace pyne;
   Material new_material; // this is a new material
 
+This is to save developers pouring over potentially 20 different header files trying to isolate exactly which type this should
+be.
+
 C++ Style
 ~~~~~~~~~~
 
@@ -120,4 +144,10 @@ have added all the features you want to add, the style guide formatter should be
 ::
    prompt %> astyle --style=linux --indent=spaces=2
 
-Then commit the changes.
+Then commit the changes, try to avoid commiting changes and then running the formatter and then committing those changes as this
+will make the pull requests very hard to review.
+
+Bug Reporting
+~~~~~~~~~~~
+If you find a bug, raise an issue on the main svalinn/dagmc Github site. If you think you can tackle the issue then please do, 
+then pull request your changes.
