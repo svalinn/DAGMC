@@ -17,16 +17,6 @@ ENDMACRO (DATETIME)
 MESSAGE(STATUS "Building MCNP")
 SET(MCNP_SRC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# if openmp wanted
-IF(OPENMP_BUILD)
- find_package(OpenMP)
- if (OPENMP_FOUND)
-     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_Flags} ${OpenMP_Fortran_FLAGS}")
- endif(OPENMP_FOUND)
-ENDIF(OPENMP_BUILD)
-
 # If mpi then need the dotcomm libs
 IF(MPI_BUILD)
   FIND_package(MPI)
@@ -95,7 +85,6 @@ IF(MPI_BUILD)
 ENDIF()
 
 # Standard MCNP source
-LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/mc.c)
 LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/acecas.F90)
 LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/acecol.F90)
 LIST(APPEND MCNP_SRC_FILES ${MCNP_SRC}/Source/src/acecos.F90)
@@ -441,26 +430,38 @@ IF(BUILD_MCNP5)
  LIST(APPEND MCNP_SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/meshtal_funcs.cpp)
 ENDIF()
 
-# standard macros
-if(MPI_BUILD)
-  add_definitions(-DKODE="mcnp5.mpi")
-  add_definitions(-DMPI=ON)
-else()
-  add_definitions(-DKODE="mcnp5")
-endif()
+# if openmp wanted
+IF(OPENMP_BUILD)
+ find_package(OpenMP)
+ if (OPENMP_FOUND)
+     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_Flags} ${OpenMP_Fortran_FLAGS}")
+ endif(OPENMP_FOUND)
+ENDIF(OPENMP_BUILD)
 
 add_definitions(-DVERS="5")
 # get the date
 DATETIME(DATE)
 # set the date
 add_definitions(-DLODDAT=${DATE})
-add_definitions(-DDPATH="/mnt/data/opt/xs_data/mcnp_data")
+if(MCNP5_DATAPATH)
+  add_definitions(-DDPATH=${MCNP5_DATAPATH})
+else(MCNP5_DATAPATH)
+  if(DEFINED ENV{DATAPATH})
+    add_definitions(-DDPATH="$ENV{DATAPATH}")
+  else(DEFINED ENV{DATAPATH})
+    message(FATAL_ERROR "No MCNP datapath set, please use either the DATAPATH environment variable or set -DMCNP5_DATAPATH to something")  
+  endif(DEFINED ENV{DATAPATH})
+endif(MCNP5_DATAPATH)
+
 add_definitions(-DTHREAD="MCNP5")
 add_definitions(-DTVERS="1.60")
 
 # compiler options
 add_definitions(-DGFORTRAN=ON)
 add_definitions(-DLINUX=ON)
+add_definitions(-DUNIX=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
 add_definitions(-DF90_INT_8BYTE=ON)
 
@@ -468,12 +469,19 @@ if(OPENMP_BUILD)
   add_definitions(-DOMP=ON)
 endif(OPENMP_BUILD)
 
+if(MCNP5_PLOT) 
+  add_definitions(-DXLIB=ON)
+  add_definitions(-DPLOT=ON)
+  add_definitions(-DMCPLOT=ON)
+endif(MCNP5_PLOT)
+
+# set_source_files_properties(mc.c PROPERTIES COMPILE_FLAGS -DLINUX)
 
 if(MPI_BUILD)
  add_definitions(-D_DOTCOMM_MPI=ON)
  add_definitions(-DDMMP_NAME="MCNP5")
  add_definitions(-DDOTCOMM_INTERNAL="mpi")
-endif()
+endif(MPI_BUILD)
 
 # Build the Executable
 if(MPI_BUILD)
@@ -483,20 +491,37 @@ else(MPI_BUILD)
 endif(MPI_BUILD)
 
 # if we want a static executable
-IF(STATIC_LIB)
-  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  SET(BUILD_SHARED_LIBRARIES OFF)
-  SET(CMAKE_EXE_LINKER_FLAGS "-static")
-ENDIF(STATIC_LIB)
+if(STATIC_LIB)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  set(BUILD_SHARED_LIBRARIES OFF)
+  set(CMAKE_EXE_LINKER_FLAGS "-static")
+  set(STATIC_LIB)
+endif(STATIC_LIB)
 
-ADD_EXECUTABLE(${mcnp_exec} ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90)
+#add_library(x11 SHARED IMPORTED)
+#set_property(TARGET x11 PROPERTY IMPORTED_LOCATION /usr/lib/x86_64-linux-gnu/libX11.so)
+
+# standard macros
+if(MPI_BUILD)
+  add_definitions(-DKODE="mcnp5.mpi")
+  add_definitions(-DMPI=ON)
+else(MPI_BUILD)
+  add_definitions(-DKODE="mcnp5")
+endif(MPI_BUILD)
+
+add_executable(${mcnp_exec} ${MCNP_SRC_FILES} ${MCNP_SRC}/Source/src/main.F90 ${MCNP_SRC}/Source/src/mc.c)
 
 target_link_libraries(${mcnp_exec} 
  			dagmciface 
 			dagtally 
 			${DAG_LINK_LIBS}
-			${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY} 
+			${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
 			pyne_dagmc )
+
+if(MCNP5_PLOT)
+  target_link_libraries(${mcnp_exec} X11)
+endif(MCNP5_PLOT)
+
 if(MPI_BUILD)
   target_link_libraries(${mcnp_exec} ${MPI_LIBRARIES}) 
 endif(MPI_BUILD)
