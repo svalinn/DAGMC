@@ -455,13 +455,20 @@ else(MCNP5_DATAPATH)
   endif(DEFINED ENV{DATAPATH})
 endif(MCNP5_DATAPATH)
 
+
+# compiler flags 
+set (CMAKE_Fortran_FLAGS_RELEASE " -mieee-fp -fdollar-ok -fno-sign-zero -fdefault-integer-8 -fdefault-real-8")
+set (CMAKE_Fortran_FLAGS_DEBUG   " -mieee-fp -fdollar-ok -fno-sign-zero -fdefault-integer-8 -fdefault-real-8")
+add_definitions("-m64")
+
+# compiler options
 add_definitions(-DTHREAD="MCNP5")
 add_definitions(-DTVERS="1.60")
 
 # compiler options
 add_definitions(-DGFORTRAN=ON)
-add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
+add_definitions(-DLINUX=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
 add_definitions(-DF90_INT_8BYTE=ON)
 
