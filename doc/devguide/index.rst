@@ -51,7 +51,7 @@ It is prudent to also add the main svalinn repository as another remote source
 
 Branching
 ---------
-The base level of the repository contains folders for each of the supported monte carlo codes, the tools directory, and our
+The base level of the repository contains folders for each of the supported Monte Carlo codes, the tools directory, and our
 amalgamated PyNE build. First, you need to checkout a new branch in which to keep your changes.
 ::
    prompt %> git checkout -b "my_feature_branch"
@@ -68,36 +68,37 @@ Now that your changes are commited, you push the changes to your remote branch i
 ::
    prompt %> git push origin my_feature_branch
 
-Before pushing your local feature branch is the only place this changeset is stored, in order to let your
+Before pushing your local feature branch is the only place this changeset is stored. In order to let your
 remote repository know of these changes you have to push.
 
 Pull Requesting
 ----------------
-Having succesfully pushed your changes to your remote fork, and if you immediately go to your fork on Github you should then 
-see a message offering to create a pull request with that branch to `svalinn/dagmc:develop`, if you click this message you can
-edit and submit the pull request. If you've waited a few tens of minutes between pushing and 
-going to Github you may have to manually create a pull request. Your pull request will launch our continuous integration tests and
-at some point in the near future your changes will pass all the unit tests or indeed may break the tests. Testing in progress and
-testing complted are shown at the bottom of your pull request.
+Having succesfully pushed your changes to your remote fork you can carry on and make more changes or create a pull request from
+the changes you have made. If you immediately go to your fork on Github you should see a message offering to create a pull 
+request with that branch to `svalinn/dagmc:develop`, if you click this message you can edit and submit the pull request. If 
+you've waited a few tens of minutes between pushing and going to Github you may have to manually create a pull request. Your 
+pull request will launch our continuous integration tests and at some point in the near future your changes will pass all 
+the unit tests or indeed may break the tests. Testing in progress and testing complted are shown at the bottom of your pull 
+request.
 
 .. image:: github_testing.png
    :height: 400
    :width:  600
    :alt:    Image showing when testing is launched.
 
-When testing passes your changes will be merged into develop.
+When testing passes and another developer has reviewed your pull request, then your changes will be merged into the develop branch.
 
 Refreshing your branch
 --------------------
 It should be noted that having had your pull request successfully integrated into the DAGMC mainline develop branch, your 
 clone and your local repositories develop branch will reflect the pre-pull request state of DAGMC. In order for your personal
-clones and repositories to be updated you must first pull the develop changes into your local clone.
+clones and repositories to be updated, you must first pull the develop changes into your local clone;
 ::
    prompt %> git checkout develop #remember to checkout the develop branch!
    prompt %> git pull upstream develop
 
-Now your local clone of the repository has an upto-date develop branch, but you still need to refresh your Github branch, and now 
-you must push the develop changes upto it
+Now your local clone of the repository has an up-to-date develop branch, but you still need to refresh your Github branch, and now 
+you must push the develop changes up to it
 ::
    prompt %> git push origin develop
 
@@ -118,7 +119,7 @@ and failure is reported if any dependency fails to build or if any test fails, a
    :width:  600
    :alt:    Image showing the status of the an example Travis-CI run
 
-Once the testing is complete and your changes have been verified not break any of the existing capabilities, a reviewer will check your pull request over and may suggest some modifications to meet the C++ style, good practice and then will approve or reject your
+Once the testing is complete and your changes have been verified to not break any of the existing capabilities, a reviewer will check your pull request over and may suggest some modifications to meet the C++ style, good practice and then will approve or reject your
 pull request. 
 
 General Style
@@ -139,15 +140,15 @@ be.
 C++ Style
 ~~~~~~~~~~
 
-We conform to the C++ style guide, we have included a C++ style guide formatter to make a developers life much easier. When you
-have added all the features you want to add, the style guide formatter should be run,
+We conform to the Google C++ style guide, we have included a C++ style guide formatter to make a developers life much easier, 
+when you have added all the features you want to add, the style guide formatter should be run;
 ::
    prompt %> astyle --style=linux --indent=spaces=2
 
-Then commit the changes, try to avoid commiting changes and then running the formatter and then committing those changes as this
-will make the pull requests very hard to review.
+Then commit the changes to your branch. Avoid commiting code only changes and then commiting C++ formatter changes, as the 
+changeset is very hard to review.
 
 Bug Reporting
 ~~~~~~~~~~~
-If you find a bug, raise an issue on the main svalinn/dagmc Github site. If you think you can tackle the issue then please do, 
-then pull request your changes.
+If you find a bug, raise an issue on the main `svalinn/dagmc <https://github.com/svalinn/DAGMC/issues>`_ Github site. If you 
+think you can tackle the issue then please do, then pull request your changes.

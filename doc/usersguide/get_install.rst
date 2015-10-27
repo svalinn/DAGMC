@@ -155,9 +155,9 @@ In all MOAB cases:
 PyNE
 =====
 `PyNE <http://pyne.io>`_ is a Python-wrapped C++ library which contains many functions
-that are very useful to scientists and engineering performing radiation transport calculations.
-We now include an amalgamated build of the key C++ parts of PyNE to save building and downloading
-PyNE, whilst no longer a dependency it is highly recommended, installation instructions can be found
+that are very useful to scientists and engineers performing radiation transport calculations.
+We now include an amalgamated build of the key C++ parts of PyNE to avoid building and downloading
+PyNE. Whilst no longer a dependency it is highly recommended, installation instructions can be found
 `here <http://pyne.io/install/index.html>`_
 
 Post Install

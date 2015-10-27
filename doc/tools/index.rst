@@ -1,16 +1,16 @@
 DAGMC Tools
 ======
 
-The DAGMC infrastructure has a number of tools that can help with issues that
-arise when using the toolkit. This document serves to better inform and 
+The DAGMC infrastructure has a number of tools that are used to process, fix, diagnose and repair
+processed models. This document serves to better inform and 
 educate what those tools are and how to use them.
 
 mcnp2cad
 ~~~~~~~~~~~~
 UW has a tool, `mcnp2cad <https://github.com/svalinn/mcnp2cad>`_, which can translate a MCNP model
 into ACIS format for use in future DAGMC simulations. The tool builds CAD solids from MCNP cell descriptions
-often turning infinite bodies and plans into finite versions. At the time of writing the number of unsupported
-MCNP surface descriptions is limited to GQ's and SQ's. To run mcnp2cad all that is needed is an MCNP input deck,
+often turning infinite bodies and planes into finite versions. At the time of writing, the only unsupported
+MCNP surface descriptions are limited to GQ's and SQ's. To run mcnp2cad all that is needed is an MCNP input deck,
 ::
    prompt%> mcnp2cad test.inp
 
@@ -20,12 +20,12 @@ DAGMC file when processed.
 
 dagmc_prepoc
 ~~~~~~~~~~~~
-Previously it was typical of DAGMC users to input the acis file directly into DAGMC, the file would
+Previously it was typical of DAGMC users to input the ACIS file directly into DAGMC, the file would
 be faceted and then immediately loaded into memory however, as models have grown in complexity, the time
 required to facet and build the OBB tree has grown immensely and it is now recommended that faceting is
 treated as a preprocess step.
 
-When MOAB is build with CGM support (see `build instructions <get_install.html>`_) the tool 
+When MOAB is built with CGM support (see `build instructions <get_install.html>`_) the tool 
 dagmc_preproc is automatically built. You can confirm that you have MOAB in your path and that
 the executable is built, by running
 ::
@@ -34,8 +34,8 @@ To which you should get a reply like
 ::
    prompt%> /data/opt/$USER/moab/bin/dagmc_preproc
 
-If you get a reply like above then you are able to use dagmc_preproc. If not, you need to recompile with
-moab support following the build instructions. Once the model is in the correct form as required
+If you get a reply like above then you are able to use dagmc_preproc. If not, and the MOAB `bin` directory is not in your `$PATH`
+, you need to recompile with MOAB support following the build instructions. Once the model is in the correct form as required
 by our `workflow <workflow.html>`_ dagmc_preproc may be used. The dagmc_prepoc tool is invoked by,
 ::
    prompt%> dagmc_preproc <filename.sat> -o <output_filename.h5m> [options]
@@ -81,7 +81,7 @@ To use mbconvert one must already have a DAGMC h5m file ready to use, the follow
 ::
    prompt%> mbconvert <dagmc.h5m> <dagmc.stl>
 
-It is often the case that DAGMC models to contain so many triangles that it is prohibitively slow to plot such a model even in 
+It is often the case that DAGMC models contain so many triangles that it is prohibitively slow to plot such a model even in 
 Visit or Paraview, in such a case it has proven useful to extract the faceted curves from the file and plot those. This can be 
 achieved with, 
 ::
@@ -91,6 +91,15 @@ achieved with,
 Note that in the above example that first we must extract the curve information write to a new h5m file, and then convert that
 file to a vtk file. When plotting the curves that define the boundary of each volume should be visible, an example of this is 
 shown below.
+
+.. image:: fng_curves.png
+   :height: 300
+   :width:  300
+   :alt:    Image showing the FNG curve information
+.. image:: fng_facets.png
+   :height: 300
+   :width:  300
+   :alt:    Image showing the FNG facet information
 
 make_watertight
 ~~~~~~~~~~~~~~~
@@ -108,5 +117,25 @@ of how sealed the mode is. The check_watertight tool is run by:
 ::
    prompt%> check_watertight <filename>
 
+mklostvis
+~~~~~~~~~~~
+Sometimes either poor quality CAD, incorrect imprinting & merging or overlapping volumes; particles are regarded as lost
+by the Monte Carlo code. It is therefore neccessary to be able to examine where the particles were lost and in which direction they
+were travelling in. The tool `mklostvis <https://github.com/svalinn/meshtools/tree/master/lostparticles>`_ is designed for this 
+purpose, reading the output of the MCNP lost particle information and producing a `Cubit <https://cubit.sandia.gov/>`_ journal 
+file which will draw the lost particles as vertices and their directions as curves. To run the script;
+::
+   prompt %> mklostvis.pl [mcnp output filename] [vector length] > [journal file name]
 
+The produced Cubit journal file can be 'played', and will plot these lost particles on top of whatever geometry is loaded into 
+your Cubit session, like that shown below. 
+
+.. image:: lost_p.png
+   :height: 300
+   :width:  300
+   :alt:    Image showing lost particle information
+.. image:: lost_p_zoom.png
+   :height: 300
+   :width:  300
+   :alt:    Image showing lost particle information zoomed in
    
