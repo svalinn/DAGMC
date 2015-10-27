@@ -457,9 +457,6 @@ endif(MCNP5_DATAPATH)
 
 
 # compiler flags 
-#set (CMAKE_Fortran_FLAGS_RELEASE " -mieee-fp -fdollar-ok -fno-sign-zero -fdefault-integer-8 -fdefault-real-8")
-#set (CMAKE_Fortran_FLAGS_DEBUG   " -mieee-fp -fdollar-ok -fno-sign-zero -fdefault-integer-8 -fdefault-real-8")
-#set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO   
 add_definitions("-mieee-fp -fdollar-ok -fno-sign-zero -fdefault-integer-8 -fdefault-real-8")
 add_definitions("-m64")
 
