@@ -194,10 +194,6 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
       state.on_boundary=false;     // cannot be on boundary
     }
 
-  // physics sometimes says step 0.0 cm 
-  if(propStep == 0.0 )
-    propStep = 1.e-12;
-
   state.PrevRegion = newRegion; // particle will be moving to PrevRegion upon next entry.
 
   if(debug)
