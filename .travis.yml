@@ -1,12 +1,6 @@
 language: c++
 sudo: false
 env: 
-# defines the $FLUKA_USER env var
-  FLUKA_USER:
-  - secure: "TrH9jB6GqgiFSpRQg0MVnh+792SO3pLIF73rPvaJ/QSnFnDlwW2asF60CdNFQmw22L/7+OV5j/jKegvRUUSMiK32o/J8pcfLQrS2nDOrGXoLEFB1YolTJ/ZXHZSLg71jcwkY8Fr+ALgoL5fwITBAVOCpsZ7XssD9N4sgFQOJyIA="
-# defines the $FLUKA_PASS env var
-  FLUKA_PASS:
-  - secure: "h4LNv39qBd3g8ls+SvMy0Fkreuq4CV7lv2NDWr6pG79a5obHbjxme9xojcvL3kAm5t9fKEDU7t+S8UUhCmQVdaV2qLBUaFIvr3Na6m3odJiqy433NemXGR1SkB4G9BR1eJVxgYZNqcN00uiWg4XI2p7FtNsbMzNSCEjTR3qwVa4="
   matrix:
     - MOAB_VERSION="Version4.7.0"
     - MOAB_VERSION="Version4.8.0"
