@@ -12,7 +12,7 @@
 # GEANT4_LIBRARIES - In case they are ever needed
 
 find_path( GEANT4_CMAKE_CONFIG NAMES Geant4Config.cmake
-  HINTS ${GEANT4_DIR}/bld ${GEANT4_DIR}
+  HINTS ${GEANT4_DIR}/lib/Geant4-10.1.2 ${GEANT4_DIR}
   PATHS ENV LD_LIBRARY_PATH
   PATH_SUFFIXES lib Lib
   NO_DEFAULT_PATH

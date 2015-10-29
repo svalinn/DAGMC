@@ -57,15 +57,17 @@ ExN01SensitiveDetector::ExN01SensitiveDetector(const G4String& name,
 
   G4cout << "Detector name = " << DetectorName << G4endl;
   G4cout << "Detector idx = " << DetectorIndex<< G4endl;
+  G4cout << "Detector vol = " << DetectorVolume<< G4endl;
 
   // get the particles that we are sensitive to
   std::vector<G4int> sensitive_particles = HM->get_senstitive_particles(DetectorIndex);
   G4int hist_idx; // histogram index
-  for ( G4int i = 0 ; i < sensitive_particles.size() ; i++)
-    {
-      hist_idx = HM->get_histogram_id(DetectorIndex,sensitive_particles[i]);
-      hist_part_map[sensitive_particles[i]] = hist_idx;
-    }
+  for ( G4int i = 0 ; i < sensitive_particles.size() ; i++) {
+    G4cout << i << G4endl;
+    hist_idx = HM->get_histogram_id(DetectorIndex,sensitive_particles[i]);
+    hist_part_map[sensitive_particles[i]] = hist_idx;
+    G4cout << sensitive_particles[i] << " " << hist_idx << G4endl;
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -129,38 +131,27 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
          */
   G4double score = 0.0;
 //  G4cout << DetectorName << " " << nofHits << G4endl;
-  for ( G4int i=0; i<nofHits; i++ )
-  {
+//  G4cout << nofHits << G4endl;
+  for ( G4int i=0; i<nofHits; i++ ) {
+    // filter on the particle type
+    int pdg = (*fHitsCollection)[i]->GetParticlePDG();
+    if( hist_part_map.count(pdg) > 0 ) {
+
+    // find which histogram to put this particle in
     hist_index = hist_part_map[(*fHitsCollection)[i]->GetParticlePDG()];
-    //(*fHitsCollection)[i]->Print();
-  //  (*fHitsCollection)[i]->Print();
-    /*analysisManager->FillH2(DetectorIndex,
-                           (*fHitsCollection)[i]->GetKE(),
-                           (*fHitsCollection)[i]->GetWeight()*
-                           (*fHitsCollection)[i]->GetTrackLength());
-    */
-    /* weight * tracklength / volume */
-    if (hist_index != 0 )
-      {
-        score = (*fHitsCollection)[i]->GetWeight()*
-                (*fHitsCollection)[i]->GetTrackLength()
-                *cm/(DetectorVolume);
-        analysisManager->FillH1(hist_index,
-                           (*fHitsCollection)[i]->GetKE(),
-                           score);
-      }
-    //G4cout << DetectorIndex << " " << score << G4endl;
+    //    G4cout << "hist index = " << hist_index << " number of hits = " << nofHits << " PDG = " << pdg << G4endl;
+    //    if (hist_index != 0 ) {
+    score = (*fHitsCollection)[i]->GetWeight()*
+      (*fHitsCollection)[i]->GetTrackLength()
+      *cm/(DetectorVolume);
+    G4double erg =  (*fHitsCollection)[i]->GetKE();
+    
+    analysisManager->FillH1(hist_index,erg,score);
 
+    //    G4cout << hist_index << " " << DetectorIndex << " " << score << "  " << erg << G4endl;
+    }
+    //G4cout << DetectorIndex << " " << score << G4endl; 
   }
-
-  /*
-    G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-
-     // fill the histograms with results
-     analysisManager->FillH1(*it+1,1.0);
-     analysisManager->FillNtupleDColumn(*it,1.0);
- }
- */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

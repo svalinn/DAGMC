@@ -254,32 +254,30 @@ void ExN01DetectorConstruction::ConstructSDandField()
      // loop over the vector of particle types
      std::vector<std::string>::iterator str;
      std::vector<std::string> particle_types = (it->second);
-     for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
-     {
-        // particle name
-        std::string particle_name = *str;
-
-        // create new detector
-        G4cout << detector_name+'_'+particle_name << G4endl;
-
-
-        int pdc = pyne::particle::id(particle_name);
-        // if pdc = 0, is heavy ion, set pdc as nucid
-        if ( pdc == 0 )
-            pdc = pyne::nucname::id(particle_name);
-
-        // create a histogram for each particle
+     for ( str = particle_types.begin() ; str != particle_types.end() ; ++str ) {
+       // particle name
+       std::string particle_name = *str;
+       
+       // create new detector
+       G4cout << detector_name+'_'+particle_name << G4endl;
+       
+       int pdc = pyne::particle::id(particle_name);
+       // if pdc = 0, is heavy ion, set pdc as nucid
+       if ( pdc == 0 )
+	 pdc = pyne::nucname::id(particle_name);
+       
+       // create a histogram for each particle
         add_histogram_description(detector_name+"_"+particle_name);
         HM->add_histogram(sd_index,pdc);
-      }
-
-      // get detector volume
-      double det_volume = dag_logical_volumes[vol_idx]->GetSolid()->GetCubicVolume();
-
-      // create new detector
-      G4VSensitiveDetector* detector = new ExN01SensitiveDetector(detector_name,
-                                             "flux", sd_index,det_volume*cm3,
-                                              HM);
+     }
+     
+     // get detector volume
+     double det_volume = dag_logical_volumes[vol_idx]->GetSolid()->GetCubicVolume();
+     
+     // create new detector
+     G4VSensitiveDetector* detector = new ExN01SensitiveDetector(detector_name,
+								 "flux", sd_index,det_volume*cm3,
+								 HM);
 
       // May wish to filter particles here as well
 
@@ -294,9 +292,9 @@ void ExN01DetectorConstruction::ConstructSDandField()
         }
        */
       // add the detector
-      G4SDManager::GetSDMpointer()->AddNewDetector(detector);
-      dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
-  }
+     G4SDManager::GetSDMpointer()->AddNewDetector(detector);
+     dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
+    }
   end_histogram();
 
   HM->print_histogram_collection();
@@ -422,7 +420,7 @@ void ExN01DetectorConstruction::add_histogram_description(std::string tally_name
 				    3.328711E-3*GeV,3.499377E-3*GeV,3.678794E-3*GeV,3.867410E-3*GeV,4.065697E-3*GeV,
 				    4.274149E-3*GeV,4.493290E-3*GeV,4.607038E-3*GeV,4.723666E-3*GeV,4.843246E-3*GeV,
 				    4.965853E-3*GeV,5.220458E-3*GeV,5.488116E-3*GeV,5.769498E-3*GeV,5.915554E-3*GeV,
-				    5.915554E-3*GeV,6.218851E-3*GeV,6.376282E-3*GeV,6.537698E-3*GeV,6.592384E-3*GeV,
+				    6.050000E-3*GeV,6.218851E-3*GeV,6.376282E-3*GeV,6.537698E-3*GeV,6.592384E-3*GeV,
 				    6.647595E-3*GeV,6.703200E-3*GeV,6.872893E-3*GeV,7.046881E-3*GeV,7.225274E-3*GeV,
 				    7.408182E-3*GeV,7.595721E-3*GeV,7.788008E-3*GeV,7.985162E-3*GeV,8.187308E-3*GeV,
 				    8.394570E-3*GeV,8.607080E-3*GeV,8.824969E-3*GeV,9.048374E-3*GeV,9.277435E-3*GeV,
@@ -448,11 +446,10 @@ void ExN01DetectorConstruction::add_histogram_description(std::string tally_name
 }
 
 /* end the histograms */
-void ExN01DetectorConstruction::end_histogram()
-{
+void ExN01DetectorConstruction::end_histogram() {
   // Create analysis manager
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-
+  
   // finish tuple
   analysisManager->FinishNtuple();
 
@@ -460,21 +457,18 @@ void ExN01DetectorConstruction::end_histogram()
 }
 
 // build the particle filters
-void ExN01DetectorConstruction::BuildParticleFilter(std::string particle_name)
-{
+void ExN01DetectorConstruction::BuildParticleFilter(std::string particle_name) {
   // build filter if it doesnt exist
-  if(particle_filters.count(particle_name) == 0 )
-  {
-   // create particle filter
-   G4SDParticleFilter *filter = new G4SDParticleFilter(particle_name);
-   if(!pyne::particle::is_heavy_ion(particle_name))
-     filter->add(pyne::particle::geant4(particle_name));
-   else
-     // add ion by getting z and a from pyne
-    filter->addIon(pyne::nucname::znum(particle_name),
-                  pyne::nucname::anum(particle_name));
-
-    particle_filters[particle_name]=filter;
-
-   }
+  if(particle_filters.count(particle_name) == 0 ) {
+    // create particle filter
+    G4SDParticleFilter *filter = new G4SDParticleFilter(particle_name);
+    if(!pyne::particle::is_heavy_ion(particle_name))
+      filter->add(pyne::particle::geant4(particle_name));
+    else
+      // add ion by getting z and a from pyne
+      filter->addIon(pyne::nucname::znum(particle_name),
+		     pyne::nucname::anum(particle_name));
+    
+    particle_filters[particle_name]=filter;   
+  }
 }
