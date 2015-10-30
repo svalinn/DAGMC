@@ -457,7 +457,7 @@ endif(MCNP5_DATAPATH)
 
 
 # compiler flags 
-add_definitions("-mieee-fp -fdollar-ok -fno-sign-zero -fdefault-integer-8 -fdefault-real-8")
+add_definitions("-mieee-fp -fdollar-ok -fno-sign-zero)
 add_definitions("-m64")
 
 # compiler options
