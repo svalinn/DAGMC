@@ -479,6 +479,7 @@ if(MCNP5_PLOT)
   add_definitions(-DXLIB=ON)
   add_definitions(-DPLOT=ON)
   add_definitions(-DMCPLOT=ON)
+  add_definitions("-fdefault-integer-8 -fdefault-real-8")
 endif(MCNP5_PLOT)
 
 # set_source_files_properties(mc.c PROPERTIES COMPILE_FLAGS -DLINUX)
