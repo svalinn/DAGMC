@@ -16,11 +16,6 @@ codes.
    faq
 
 Related Tools
---------
-
-* Automatic generation of graveyard
-* Command-line conversion from ACIS (*.sat) to MOAB (*.h5m)
-* Visualization of geometry in VisIt
-* Visualization of mesh tallies in VisIt
-* Converting MCNP geometry to CAD (mcnp2cad)
-* Automated CUBIT conversion script (AutomatedCubitConversion)
+~~~~~~~~~~~~~
+There are several DAGMC related tools and information regarding them can be found `here <../tools/index.html>`_.
+`
