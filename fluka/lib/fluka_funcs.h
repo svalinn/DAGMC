@@ -138,8 +138,8 @@ struct particle_state {
   bool on_boundary;
   double old_direction[3];
   double old_position[3];
-  moab::EntityHandle next_surf; // the next suface the ray will hit
-  moab::EntityHandle prev_surf; // the last value of next surface
+  moab::EntityHandle next_surface; // the next suface the ray will hit
+  moab::EntityHandle prev_surface; // the last value of next surface
   moab::EntityHandle PrevRegion; // the integer region that the particle was in previously
   int stack_count;
 };
@@ -168,7 +168,7 @@ struct particle_state {
 extern "C" {
 #endif
 
-void flabrt(const char* function, const char* message);
+void flabrt(const char* function, const char* message, int function_strlen, int message_strlen);
 
 /**
  * \brief does nothing
@@ -446,6 +446,8 @@ int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3]);
  */
 void region2name(int volindex, std::string &vname );
 
+void print_state(particle_state &state);
+
 /**
  * \brief resets the particle state associated with the particle.
  *
@@ -482,6 +484,8 @@ std::set<int> make_exception_set();
 /*** end of testable wrappers ***/
 
 /*** start of uwuw interface functions ***/
+
+void fludag_write_ididx(std::string ididx);
 
 /**
  * \brief Writes the material assignment for each volume to an output stream
