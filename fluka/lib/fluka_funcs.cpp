@@ -116,17 +116,34 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   double next_surf_dist;
   moab::EntityHandle newvol = 0;
 
-  // position may have changed since last time, may not be robust
-  if( point[0] == state.old_position[0] && point[1] == state.old_position[1] && point[2] == state.old_position[2] ) {
-  } else { 
-    state.history.reset();
-  }
+  if(debug) print_state(state);
 
   // direction changed reset history, may not be robust
+  if( dir[0] != state.old_direction[0] || dir[1] != state.old_direction[1] || dir[2] != state.old_direction[2] ) 
+    if( point[0] != state.old_position[0] || point[1] != state.old_position[1] || point[2] != state.old_position[2] ) {
+      // if point and direction has changed, we should reset everything
+      reset_state(state);
+    } else { 
+      // direction has changed reset ray history
+      state.history.reset();
+    }
+
+  /*
+  // direction changed reset history, may not be robust
   if( dir[0] == state.old_direction[0] && dir[1] == state.old_direction[1] && dir[2] == state.old_direction[2] )  {
+    // position may have changed since last time, may not be robust
+    if( point[0] == state.old_position[0] && point[1] == state.old_position[1] && point[2] == state.old_position[2] ) {
+    } else { 
+      // if point and direction has changed, we should reset everything
+      reset_state(state);
+    }
   } else {
+    // direction has changed reset ray history
     state.history.reset();
   }
+  */
+
+  if(debug) print_state(state);
 
   if(state.on_boundary)
     {
@@ -137,25 +154,30 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
       // the particle direction if less than 0.0 then we return a step of 0.0 and set newRegion to -3 
 
       // since the fluka normal points the other way
-      if(state.prev_surf == 0 ) {
-	if(dot_product(state.next_surf,point,dir) < 0.0 ) 
+      if(state.prev_surface == 0 && state.next_surface != 0) {
+	if(debug) std::cout << "Checking to see if we have changed direction using next surface" << std::endl;
+	if(dot_product(state.next_surface,point,dir) < 0.0 ) 
+	  {	  
+	    retStep = 0.0;
+	    newRegion = -3;
+	    return;
+	  }
+      } else if(state.prev_surface != 0 ) {
+	if(debug) std::cout << "Checking to see if we have changed direction using last surface" << std::endl;
+	if(dot_product(state.prev_surface,point,dir) < 0.0 ) 
 	  {	  
 	    retStep = 0.0;
 	    newRegion = -3;
 	    return;
 	  }
       } else {
-	if(dot_product(state.prev_surf,point,dir) < 0.0 ) 
-	  {	  
-	    retStep = 0.0;
-	    newRegion = -3;
-	    return;
-	  }
+	fludag_abort("g_fire","Failure from within FluDAG, next_surf & prev_surf are both 0",1);
       }
 
       // if we are not on the boundary but think we should be
       if(boundary_test(vol,point,dir) == 0) // if ray not on boundary of leaving vol
 	{
+	  if(debug) std::cout << " ray is on boundary" << std::endl;
       	  state.history.reset(); // reset history
 	  state.on_boundary = false; // reset on boundary
       	}
@@ -169,13 +191,15 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
 
   if ( next_surf == 0 ) // if next_surface is 0 then we are lost
     {
-      std::cout << "!!! Lost Particle !!! " << std::endl;
-      std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3,oldRegion) << std::endl;
-      std::cout.precision(25);
-      std::cout << std::scientific ;
-      std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
-      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
-      std::cout << "!!! Lost Particle !!!" << std::endl;
+      if(debug) {
+	std::cout << "!!! Lost Particle !!! " << std::endl;
+	std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3,oldRegion) << std::endl;
+	std::cout.precision(25);
+	std::cout << std::scientific ;
+	std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
+	std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
+	std::cout << "!!! Lost Particle !!!" << std::endl;
+      }
       newRegion = -33; // return error
       retStep = 0.0;
       return;
@@ -194,17 +218,17 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
 	
       newRegion = DAG->index_by_handle(newvol);
       //      retStep = retStep; // path limited by geometry
-      state.next_surf = next_surf; // no operation - but for clarity
-      state.on_boundary=true;
+      state.next_surface = next_surf; // no operation - but for clarity
+      state.on_boundary = true;
       // history is preserved
     }
   else  // step less than the distance to surface or false step
     {
       newRegion = oldRegion; // dont leave the current region
       retStep = proposed_step;    // physics limits step
-      state.next_surf = state.prev_surf; // still hit the previous surface
+      state.next_surface = state.prev_surface; // still hit the previous surface
       state.history.reset();       // reset the history
-      state.on_boundary=false;     // cannot be on boundary
+      state.on_boundary = false;     // cannot be on boundary
     }
 
   state.PrevRegion = newRegion; // particle will be moving to PrevRegion upon next entry.
@@ -279,15 +303,39 @@ double dot_product(moab::EntityHandle surface, double point[3], double direction
   return angle;
 }
 
+/* print state */
+void print_state(particle_state &state)
+{
+  std::cout << "-------print_state-------" << std::endl;
+  std::cout << "pos= " << state.old_position[0] << " " << state.old_position[1];
+  std::cout << " "     << state.old_position[2] << std::endl;
+  std::cout << "dir= " << state.old_direction[0] << " " << state.old_direction[1];
+  std::cout << " "     << state.old_direction[2] << std::endl;
+
+  std::cout << "next_surface: " << state.next_surface << " prev_surface: " << state.prev_surface << std::endl;
+  std::cout << "prevRegion: " << state.PrevRegion  << std::endl;
+  std::cout << "on_boundary: " << state.on_boundary << std::endl;
+  return;
+}
+
 /* resets state */
 void reset_state(particle_state &state)
 {
+  if(debug) {
+    std::cout << "-----reset_state----" << std::endl;
+    std::cout << "Resetting state....." << std::endl;
+  }
+
   state.old_direction[0] = 0.0;
   state.old_direction[1] = 0.0;
   state.old_direction[2] = 0.0;
 
-  state.next_surf = 0;
-  state.prev_surf = 0;
+  state.old_direction[0] = -1.0;
+  state.old_direction[1] = -1.0;
+  state.old_direction[2] = -1.0;
+
+  state.next_surface = 0;
+  state.prev_surface = 0;
   state.PrevRegion = 0;
 
   state.on_boundary = false;
@@ -322,11 +370,11 @@ void f_normal(double& pSx, double& pSy, double& pSz,
   double uvw[3] = {pVx,pVy,pVz}; //particl directoin
   int result; // particle is entering or leaving
 
-  moab::ErrorCode rval = DAG->test_volume_boundary( OldReg, state.next_surf, xyz, uvw
+  moab::ErrorCode rval = DAG->test_volume_boundary( OldReg, state.next_surface, xyz, uvw
 						    ,result, &state.history);  // see if we are on boundary
   if(moab::MB_SUCCESS != rval) fludag_abort("f_normal","DAGMC failed in test_volume_boundary",rval);
   
-  rval = DAG->get_angle(state.next_surf,xyz,norml);
+  rval = DAG->get_angle(state.next_surface,xyz,norml);
   if(moab::MB_SUCCESS != rval) fludag_abort("f_normal","DAGMC failed in get_angle",rval);
 
   // result = 1 entering, 0 leaving
@@ -377,9 +425,11 @@ void f_look(double& pSx, double& pSy, double& pSz,
             double* pV, const int& oldReg, const int& oldLttc,
             int& nextRegion, int& flagErr, int& newLttc)
 {
-  if(debug) {
-    std::cout << "======= LKWR =======" << std::endl;
-    std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl;
+  if(debug)
+  {
+      std::cout << "======= LKWR =======" << std::endl;
+      std::cout << " stack size is " << flkstk_.npflka << std::endl;
+      std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl;
   }
 
   reset_state(state);
@@ -406,6 +456,9 @@ void f_look(double& pSx, double& pSy, double& pSz,
 	  //WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
 	  nextRegion = i;
 	  flagErr = nextRegion;
+	  if(debug) {
+	    std::cout << "region is " << nextRegion << " aka " << volume << std::endl;
+	  }
 	  return;
 	}
       else if ( is_inside == -1 )
@@ -434,7 +487,7 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
 int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3])
 {
   int result;
-  moab::ErrorCode rval = DAG->test_volume_boundary(vol,state.next_surf,
+  moab::ErrorCode rval = DAG->test_volume_boundary(vol,state.next_surface,
 						    xyz,uvw, result,&state.history);  // see if we are on boundary
   // check for non error
   if(moab::MB_SUCCESS != rval) fludag_abort("boundary_test","DAGMC failed in test_volume_boundary",rval);
@@ -590,7 +643,7 @@ void fludag_abort(const char* function_name, const char* error_message, int erro
   ss << std::string(error_message) << " " << error_code;
   std::string message = ss.str();
   const char* error_message_and_error = message.c_str();
-  flabrt(function_name,error_message_and_error);
+  flabrt(function_name,error_message_and_error,strlen(function_name),strlen(error_message_and_error));
 }
 
 /**************************************************************************************************/
@@ -652,7 +705,21 @@ std::set<int> make_exception_set() {
 }
 
 // FluDAG Material Card  Functions
+void fludag_write_ididx(std::string ididx) {
+  int num_vols = DAG->num_entities(3);
+  std::ofstream file;
+  file.open(ididx.c_str());
+  for ( int i = 1 ; i <= num_vols ; i++ ) {
+    int cellid = DAG->id_by_index( 3, i );
+    moab::EntityHandle entity = DAG->entity_by_index( 3, i );
+    file << i << " " << cellid << " " << entity << std::endl;
+  }
+  file.close();
+}
+
+// FluDAG Material Card  Functions
 void fludag_write(std::string matfile, std::string lfname) {
+
 
   // Use DAG to read and count the volumes.
   std::map<int, std::string> map_name;

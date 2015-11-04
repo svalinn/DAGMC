@@ -94,11 +94,15 @@ int main(int argc, char* argv[])
   // if fluka preprocess run then create mat file to paste into input deck
   if (!flukarun) {
     std::string lcad = "mat.inp";
-    fludag_write(infile, lcad);
-
     std::cout << "Producing material snippets" << std::endl;
     std::cout << "please paste these into your input deck" << std::endl;
-  } else { // call fluka run
+    fludag_write(infile, lcad);
+    
+    std::string vol_id = "vol_id_idx.txt";
+    std::cout << "Producing volume index & id correspondences" << std::endl;
+    fludag_write_ididx(vol_id);
+  } else {
+    // call fluka run
     // flugg mode is flag = 1
     const int flag = 1;
     flukam(flag);
