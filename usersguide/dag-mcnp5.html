@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -109,7 +108,8 @@ mass densities in [g/cc].</p>
 density of 0.0223 and volumes 4 through 18 consist of this material.
 To assign materials to these volumes, the following command would be
 used:</p>
-<div class="highlight-python"><pre>group "mat_7_rho_0.0223" add vol 4 to 18</pre>
+<div class="highlight-python"><div class="highlight"><pre>group &quot;mat_7_rho_0.0223&quot; add vol 4 to 18
+</pre></div>
 </div>
 <p><em>Note: If a volume is not assigned to a specific group, when run in
 DAGMC it will be treated as a void; the material for that cell will
@@ -124,7 +124,8 @@ convenient to assign the graveyard volume (see below) to the implicit
 complement material group to minimize confusion.</em>) For example, if you
 would like the explicit complement to be modeled as material 9 with
 density 1 g/cc:</p>
-<div class="highlight-python"><pre>create group "mat_9_rho_-1_comp"</pre>
+<div class="highlight-python"><div class="highlight"><pre>create group &quot;mat_9_rho_-1_comp&quot;
+</pre></div>
 </div>
 </div>
 <div class="section" id="defining-boundary-conditions">
@@ -159,10 +160,11 @@ group name, one of the following keywords:</p>
 <p>Consider a geometry with 99 volumes that all fit within a cube
 centered at the origin with side-length 99 cm.  To create a graveyard
 for this problem in CUBIT, you could issue the following commands:</p>
-<div class="highlight-python"><pre>cubit_prompt&gt; create brick x 100
+<div class="highlight-python"><div class="highlight"><pre>cubit_prompt&gt; create brick x 100
 cubit_prompt&gt; create brick x 105
 cubit_prompt&gt; subtract vol 100 from vol 101
-cubit_prompt&gt; group "graveyard" add vol 102</pre>
+cubit_prompt&gt; group &quot;graveyard&quot; add vol 102
+</pre></div>
 </div>
 <p>When DAG-MCNP5 is run, the importance of volume 102 (or any other
 volumes included in the group) will be set to zero. (_Note: this
@@ -192,7 +194,8 @@ respectively:</p>
 <p>Suppose surfaces 10 and 11 are reflecting boundary conditions.  To
 specify these as reflecting surfaces, the following group would be
 created:</p>
-<div class="highlight-python"><pre>group "spec.reflect" add surf 10 11</pre>
+<div class="highlight-python"><div class="highlight"><pre>group &quot;spec.reflect&quot; add surf 10 11
+</pre></div>
 </div>
 </div>
 <div class="section" id="tally-assignments">
@@ -206,7 +209,8 @@ directly.  It is still possible to specify tallies in the MCNP input
 file, however, the user has to make sure that the tally indices are
 not duplicated lest a fatal error will occur.  Tallies are specified
 as group names in the following format:</p>
-<div class="highlight-python"><pre>tally_[CUBIT tally ID].[tally type keyword].[particles]</pre>
+<div class="highlight-python"><div class="highlight"><pre>tally_[CUBIT tally ID].[tally type keyword].[particles]
+</pre></div>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">[CUBIT</span> <span class="pre">tally</span> <span class="pre">ID]</span></tt> field is an integer from 0 to 99.  Different
 tally types may have the same CUBIT ID and are still consistent.  The
@@ -253,22 +257,24 @@ tallied.  To tally both photons and neutrons, set the tag to &#8220;np&#8221;.
 The default is neutrons only.  Should this be tag be omitted, only
 neutrons will be tallied.</p>
 <p>Some CUBIT commands to do tallies:</p>
-<div class="highlight-python"><pre>group "tally_0.surf.current" add surf 1 to 4
-group "tally_0.cell.flux.p" add vol 7
-group "tally_1.ecell.heating.np" add vol 2 6
-group "tally_6.cell.heating.n" add vol 2 6
-group "tally_7.cell.flux.p" add vol 1 to 3
-group "tally_12.pulse.height.p" add vol 10 to 14
-group "tally_14.qpulse.height.p" add vol 10 to 14</pre>
+<div class="highlight-python"><div class="highlight"><pre>group &quot;tally_0.surf.current&quot; add surf 1 to 4
+group &quot;tally_0.cell.flux.p&quot; add vol 7
+group &quot;tally_1.ecell.heating.np&quot; add vol 2 6
+group &quot;tally_6.cell.heating.n&quot; add vol 2 6
+group &quot;tally_7.cell.flux.p&quot; add vol 1 to 3
+group &quot;tally_12.pulse.height.p&quot; add vol 10 to 14
+group &quot;tally_14.qpulse.height.p&quot; add vol 10 to 14
+</pre></div>
 </div>
 <p>The above are equivalent to following MCNP definitions:</p>
-<div class="highlight-python"><pre>f1:n 1 2 3 4 T
+<div class="highlight-python"><div class="highlight"><pre>f1:n 1 2 3 4 T
 f4:p 7 T
 *f16:n,p 2 6 T
 f66:n 2 6 T
 f74:p 1 2 3 T
 f128:p 10 11 12 13 14 T
-+f148:p 10 11 12 13 14 T</pre>
++f148:p 10 11 12 13 14 T
+</pre></div>
 </div>
 <p><em>(Note: the current convention is to always add a tally bin for the
 total across all cells/volumes.)</em></p>
@@ -286,7 +292,7 @@ above.</p>
 <p>A new data card has been added to DAG-MCNP5 to define parameters for
 the DAGMC geometry capability.  These parameters are described in
 <a class="reference internal" href="workflow.html#additional-parameters"><em>Additional Input Parameters for DAGMC</em></a>.</p>
-<div class="highlight-python"><pre>Form: dagmc  keyword1=value   keyword2=value
+<div class="highlight-python"><div class="highlight"><pre>Form: dagmc  keyword1=value   keyword2=value
        check_src_cell: behavior of CEL variable in SDEF card
                        on  [default] standard interpretation for
                                      CEL variable: source rejection
@@ -301,7 +307,8 @@ the DAGMC geometry capability.  These parameters are described in
             distlimit: toggle usage of flight distance sampled from
                        physics to accelerate ray-tracing search
                        off [default] do not use physics flight distance
-                       on            do use physics flight distance</pre>
+                       on            do use physics flight distance
+</pre></div>
 </div>
 </div>
 <div class="section" id="running-dag-mcnp5">
@@ -381,13 +388,13 @@ to the DAG-MCNP5 implementation of DAGMC.</td>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2013, The UW CNERG Team.
+        &copy; Copyright 2012-2015, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 07, 2014.
+      Last updated on Nov 09, 2015.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
       </p>
     </div>
   </body>

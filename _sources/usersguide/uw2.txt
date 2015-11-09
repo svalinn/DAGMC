@@ -154,6 +154,13 @@ create 4 cubes of side 10 cm, shifting each in a different direction
    %>set attribute on
    %>export acis "example.sat" overwrite
 
+You will end up with something like that shown below.
+
+.. image:: uwuwexample.png
+   :height: 300
+   :width:  600
+   :alt: An example of the geometry you should get applying the above stages
+
 The file is now ready for preprocessing. First we must facet the file:
 ::
    %>dagmc_preproc example.sat -o example.h5m

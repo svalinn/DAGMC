@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +14,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -69,9 +68,7 @@
 <div id="sidebar">
  <div id="sidebar_section"></div>
  <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
-<li><a class="reference internal" href="#">What is DAGMC?</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#">What is DAGMC?</a></li>
 </ul>
  </div>
 </div> 
@@ -80,37 +77,39 @@
             
   <div class="section" id="what-is-dagmc">
 <h1>What is DAGMC?<a class="headerlink" href="#what-is-dagmc" title="Permalink to this headline">¶</a></h1>
-<p>The Direct Accelerated Geometry Monte Carlo [DAGMC] toolkit is a
-component of the Mesh-Oriented datABase [<a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB</a>] that provides
+<p>The Direct Accelerated Geometry Monte Carlo (DAGMC) library, a
+component of the Mesh-Oriented datABase [<a class="reference external" href="http://sigma.mcs.anl.gov/moab-library/">MOAB</a>], provides
 fundamental functions for the ray-tracing and related geometry
 operations of Monte Carlo radiation transport directly on complex 3-D
 geometries such as those created in modern solid modeling software.</p>
 <p>DAGMC is designed in a modular fashion with the expectation that it
 can be integrated into a variety of Monte Carlo radiation tools. The
 <a class="reference external" href="http://cnerg.engr.wisc.edu">CNERG</a> group at UW-Madison has historically focussed development on the
-<a class="reference external" href="http://mcnp-green.lanl.gov/">MCNP5</a> software developed at <a class="reference external" href="http://www.lanl.gov">Los Alamos National Laboratory</a> and distributed by the <a class="reference external" href="http://rsicc.ornl.gov">Radiation Safety
+<a class="reference external" href="http://mcnp.lanl.gov">MCNP5</a> software developed at <a class="reference external" href="http://www.lanl.gov">Los Alamos National Laboratory</a> and distributed by the <a class="reference external" href="http://rsicc.ornl.gov">Radiation Safety
 Information Computing Center</a>. However, recently
 DAGMC has been integrated into the following Monte Carlo physics packages
-: <a class="reference external" href="http://mcnp-green.lanl.gov/">MCNP5</a>, <a class="reference external" href="https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html">Tripoli4</a>, <a class="reference external" href="http://www.fluka.org/fluka.php">Fluka</a>, <a class="reference external" href="http://geant4.cern.ch/">Geant4</a>, and <a href="#id1"><span class="problematic" id="id2">Shift_</span></a>.</p>
-<p>We have prior experience integrating DAGMC with MCNPX, and planned
+: <a class="reference external" href="http://mcnp.lanl.gov">MCNP5</a>, <a class="reference external" href="https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html">Tripoli4</a>, <a class="reference external" href="http://www.fluka.org/fluka.php">Fluka</a>, <a class="reference external" href="http://geant4.cern.ch/">Geant4</a>, and <a class="reference external" href="http://web.ornl.gov/sci/nsed/rnsd/rt/code.shtml">Shift</a>.</p>
+<p>We have prior experience integrating DAGMC with MCNP/X, and planned
 efforts to integrate DAGMC with other Monte Carlo physics packages
-including: MCNP6, Serpent2, Phits, OpenMC and Frenzy.</p>
+including: <a class="reference external" href="http://mcnp.lanl.gov/">MCNP6</a>, <a class="reference external" href="http://montecarlo.vtt.fi/development.htm">Serpent2</a>, <a class="reference external" href="http://phits.jaea.go.jp/">Phits</a>, <a class="reference external" href="https://mit-crpg.github.io/openmc/">OpenMC</a> and Frensie.</p>
 <p>While we don&#8217;t have a complete GUI, we currently rely on the <a class="reference external" href="http://cubit.sandia.gov">Cubit</a>
 software from Sandia.  It plays a role in our workflow that can
 include importing CAD-files from other tools such as SolidWorks,
 CATIA, etc.  A key technology for supporting different solid modeling
-formats is <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a>.  In addition to defining the geometry, we rely on
+formats is <a class="reference external" href="http://sigma.mcs.anl.gov/cgm-library/">CGM</a>.  In addition to defining the geometry, we rely on
 Cubit for material assignment and can also support some other aspects
 of input definition that are tied to the geometry (tallies and
-variance reduction parameters, for example).  Some knowledge of MCNP
-input files is necessary for other parameters such as material
-definition, run control and source definition.</p>
-<p>Both <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM">CGM</a> and <a class="reference external" href="http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB">MOAB</a> are developed by a team of collaborators at
-Argonne, who are also working on improving some of the GUI tools
-available for manipulating workflows like this.</p>
+variance reduction parameters, for example).  Some knowledge of the
+specific Monte Carlo application is necessary for other
+parameters such as material definition, run control and source definition.</p>
+<p>Both <a class="reference external" href="http://sigma.mcs.anl.gov/cgm-library/">CGM</a> and <a class="reference external" href="http://sigma.mcs.anl.gov/moab-library/">MOAB</a> are developed by a team of collaborators at
+Argonne National Laboratory (ANL) and the University of Wisconsin-Madison (UW), who are also working on improving some of
+the GUI tools available for manipulating workflows.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="usersguide/index.html">DAGMC User&#8217;s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools/index.html">DAGMC Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devguide/index.html">DAGMC Developers Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gallery/gallery.html">Gallery of projects that use DAGMC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="upcoming.html">Upcoming Features</a></li>
 </ul>
@@ -125,13 +124,13 @@ available for manipulating workflows like this.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2013, The UW CNERG Team.
+        &copy; Copyright 2012-2015, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 07, 2014.
+      Last updated on Nov 09, 2015.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
       </p>
     </div>
   </body>

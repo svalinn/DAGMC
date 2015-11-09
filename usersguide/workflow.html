@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -28,7 +27,7 @@
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="DAGMC User’s Guide" href="index.html" />
     <link rel="next" title="The University of Wisconsin Unified Workflow" href="uw2.html" />
-    <link rel="prev" title="DAGMC Toolkit" href="get_install.html" /> 
+    <link rel="prev" title="Installing the DAGMC Toolkit" href="get_install.html" /> 
   </head>
   <body> 
 <div id="page-div" class="page">
@@ -58,7 +57,7 @@
       <ul id="menu-main" class="sf-menu">
         <li class="menu-item"><a href="../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="get_install.html" title="DAGMC Toolkit"
+          <a href="get_install.html" title="Installing the DAGMC Toolkit"
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
@@ -289,13 +288,15 @@ be imprinted and merged.  Imprinting creates a common surface
 interface between touching volumes.  Merging then takes the touching
 surfaces and makes them into one surface.</p>
 <p>To imprint, issue the following command:</p>
-<div class="highlight-python"><pre>imprint body all</pre>
+<div class="highlight-python"><div class="highlight"><pre>imprint body all
+</pre></div>
 </div>
 <p>Should the imprint be successful, then the next step is to merge the
 geometry. Sometimes it may be important to specify a merge tolerance.
 To set the tolerance and merge, issue the following commands:</p>
-<div class="highlight-python"><pre>merge tol 5e-7
-merge all</pre>
+<div class="highlight-python"><div class="highlight"><pre>merge tol 5e-7
+merge all
+</pre></div>
 </div>
 <p>This process can be very time consuming. For large models of several
 thousand volumes, the imprint and merge steps can take up to three
@@ -313,16 +314,19 @@ its material definition or boundary conditions.</p>
 of volumes or surfaces that share a common attribute; the practical
 usage of &#8220;grouping&#8221; will be explained in the next section.</p>
 <p>The general format for creating/adding volumes to a group is:</p>
-<div class="highlight-python"><pre>group "group.name" add vol/surf ...</pre>
+<div class="highlight-python"><div class="highlight"><pre>group &quot;group.name&quot; add vol/surf ...
+</pre></div>
 </div>
 <p>For example, to create a group called &#8220;moderator&#8221; containing volumes
 5, 6, 7, and 10, the following command would be used:</p>
-<div class="highlight-python"><pre>group "moderator" add vol 5 to 8 10</pre>
+<div class="highlight-python"><div class="highlight"><pre>group &quot;moderator&quot; add vol 5 to 8 10
+</pre></div>
 </div>
 <p>Another example, shows that groups don&#8217;t have to just contain
 volumes, but can contain surfaces too. Below the group
 &#8220;shield.boundary&#8221; is created with surfaces 16 and 37:</p>
-<div class="highlight-python"><pre>group "shield.boundary" add surf 16 37</pre>
+<div class="highlight-python"><div class="highlight"><pre>group &quot;shield.boundary&quot; add surf 16 37
+</pre></div>
 </div>
 <p>Due to the importance of using the <tt class="docutils literal"><span class="pre">group</span></tt> command reading the CUBIT
 manual section on its full usage is highly recommended.</p>
@@ -333,12 +337,14 @@ manual section on its full usage is highly recommended.</p>
 absolute volume and surface IDs as well as any group specifications.
 Failing to do this will result in fatal errors.  Make sure to type the
 following:</p>
-<div class="highlight-python"><pre>set attribute on</pre>
+<div class="highlight-python"><div class="highlight"><pre>set attribute on
+</pre></div>
 </div>
 <p>Finally, export the file as an ACIS file with a .sat extension.  If
 you are using a version of CUBIT newer that v12.x, be sure to set the
 ACIS geometry level back to version 19:</p>
-<div class="highlight-python"><pre>set geom version 1900</pre>
+<div class="highlight-python"><div class="highlight"><pre>set geom version 1900
+</pre></div>
 </div>
 <p>For the remainder of this documentation, the geometry file will be
 referred to as &#8220;geom.sat&#8221;. Also, as noted before, the CUBIT conversion
@@ -455,13 +461,13 @@ including bounding box tests in the OBB tree search.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2013, The UW CNERG Team.
+        &copy; Copyright 2012-2015, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 07, 2014.
+      Last updated on Nov 09, 2015.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
       </p>
     </div>
   </body>

@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -96,8 +95,9 @@ the Post Install <a class="reference external" href="get_install.html#post-insta
 </dl>
 <p>If you are installing on a Debian-type machine (e.g. Ubuntu), you may perform
 a system install of many of the PyNE prerequisites with the following commands:</p>
-<div class="highlight-python"><pre>prompt%&gt; sudo apt-get install python-numpy python-scipy
-prompt%&gt; sudo apt-get install python-tables python-nose cython</pre>
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; sudo apt-get install python-numpy python-scipy
+prompt%&gt; sudo apt-get install python-tables python-nose cython
+</pre></div>
 </div>
 <p>If you are on a system that does not permit you to do system installs, you will
 need to install PyNE dependencies per the instructions at the
@@ -106,37 +106,44 @@ need to install PyNE dependencies per the instructions at the
 <div class="section" id="pytaps">
 <h2>PyTAPS<a class="headerlink" href="#pytaps" title="Permalink to this headline">¶</a></h2>
 <p>Add the LD_LIBRARY_PATH to $LIBRARY_PATH and set up $CPLUS_INCLUDE_PATH and $C_INCLUDE_PATH</p>
-<div class="highlight-python"><pre>prompt%&gt; export LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBRARY_PATH
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; export LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBRARY_PATH
 prompt%&gt; export CPLUS_INCLUDE_PATH=$HOME/dagmc_bld/MOAB/include:$CPLUS_INCLUDE_PATH
-prompt%&gt; export C_INCLUDE_PATH=$HOME/dagmc_bld/MOAB/include:$C_INCLUDE_PATH</pre>
+prompt%&gt; export C_INCLUDE_PATH=$HOME/dagmc_bld/MOAB/include:$C_INCLUDE_PATH
+</pre></div>
 </div>
 <p>Download the PyTAPS tarball:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; cd $HOME/dagmc_bld
 prompt%&gt; wget https://pypi.python.org/packages/source/P/PyTAPS/PyTAPS-1.4.tar.gz
 prompt%&gt; tar zxvf PyTAPS-1.4.tar.gz
 prompt%&gt; cd PyTAPS
-prompt%&gt; python setup.py --iMesh-path=$HOME/dagmc_bld/MOAB install --user</pre>
+prompt%&gt; python setup.py --iMesh-path=$HOME/dagmc_bld/MOAB install --user
+</pre></div>
 </div>
 <p>(Note: you may get error messages)</p>
 </div>
 <div class="section" id="pyne">
 <h2>PyNE<a class="headerlink" href="#pyne" title="Permalink to this headline">¶</a></h2>
 <p>The following instructions assume you are in the dagmc_bld directory, i.e.</p>
-<div class="highlight-python"><pre>prompt%&gt; cd $HOME/dagmc_bld</pre>
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; cd $HOME/dagmc_bld
+</pre></div>
 </div>
 <p>Clone pyne from the pyne repository:</p>
-<div class="highlight-python"><pre>prompt%&gt; git clone git://github.com/pyne/pyne.git</pre>
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; git clone git://github.com/pyne/pyne.git
+</pre></div>
 </div>
 <p>Move to the new pyne repository and ensure you are on the &#8216;develop&#8217; branch:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd pyne
-prompt%&gt; git checkout develop</pre>
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; cd pyne
+prompt%&gt; git checkout develop
+</pre></div>
 </div>
 <p>Run the python command to build pyne:</p>
-<div class="highlight-python"><pre>prompt%&gt; python setup.py install --hdf5=path/to/hdf5 --user</pre>
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; python setup.py install --hdf5=path/to/hdf5 --user
+</pre></div>
 </div>
 <p>Create the database of nuclear materials:</p>
-<div class="highlight-python"><pre>prompt%&gt; cd scripts
-prompt%&gt; ./nuc_data_make</pre>
+<div class="highlight-python"><div class="highlight"><pre>prompt%&gt; cd scripts
+prompt%&gt; ./nuc_data_make
+</pre></div>
 </div>
 </div>
 </div>
@@ -149,13 +156,13 @@ prompt%&gt; ./nuc_data_make</pre>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2013, The UW CNERG Team.
+        &copy; Copyright 2012-2015, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 07, 2014.
+      Last updated on Nov 09, 2015.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
       </p>
     </div>
   </body>
