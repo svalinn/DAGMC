@@ -1,4 +1,5 @@
 #include "../pyne/pyne.h"
+#include <stdlib.h>
 #include <map>
 #include <string>
 
@@ -87,12 +88,23 @@ public:
    * This is needed to set the pyne::nucdata path
    */    
   std::string full_filepath;
+  /**
+   * \brief the number of members in the tally library
+   */
+  int num_tallies;
+  /**
+   * \brief the number of members in the material libary
+   */
+  int num_materials;
+  
   
 private:
   // turns the filename string into the full file path
   std::string get_full_filepath(char *filename);
   // turns the filename string into the full file path
   std::string get_full_filepath(std::string filename);
+  // make sure the file, filename exists
+  bool check_file_exists(std::string filename);
 
   /**                                                                                                                             
    * \brief loads the pyne materials in map of name vs Material
@@ -107,5 +119,21 @@ private:
    * \return std::map of tally name vs Tally object
    */
   std::map<std::string, pyne::Tally> load_pyne_tallies(std::string filename);
+
+  /**                                                                                                                             
+   * \brief determines in that datapath exists in the hdf5 file
+   * \param[in] filename of the h5m file                                                                                
+   * \param[in] the datapath of we would like to test
+   * \return true/false
+   */
+  bool hdf5_path_exists(std::string filename, std::string datapath);
+
+  /**                                                                                                                             
+   * \brief determines the length of an hdf5 data table
+   * \param[in] filename of the h5m file                                                                           
+   * \param[in] the datapath of we would like to read
+   * \return the number of elements to the array
+   */
+  int get_length_of_table(std::string filename, std::string datapath);
 
 };

@@ -4,8 +4,8 @@
 #include <map>
 #include <string>
 
-#include "MBInterface.hpp"
-#include "MBCartVect.hpp"
+#include "moab/Interface.hpp"
+#include "moab/CartVect.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -156,7 +156,7 @@ extern "C" {
    * \param[in] delimiters (string) the delimiter that breaks up the string
    * \return entity handle - string map of the property value, empty string in no property
    */
-  std::map<MBEntityHandle,std::vector<std::string> > get_property_assignments(std::string property, int dimension,
+  std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property, int dimension,
 									    std::string delimiters);
  
 

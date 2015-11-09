@@ -17,7 +17,7 @@ ENDIF(STATIC_LIB)
 # set libraries
 SET(LIBRARIES
     pthread
-    ${DAGMC_LIBRARIES}
+    ${DAG_LINK_LIBS}
     dagtally
     gtest
     pthread
@@ -79,7 +79,7 @@ INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/structured_mesh.h5m" DESTINATION test
 INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/unstructured_mesh.h5m" DESTINATION tests)
 INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/unstr_mesh_split.h5m" DESTINATION tests)
 INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/rune_mesh.h5m" DESTINATION tests)
-
+INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/hashtag_mesh.h5m" DESTINATION tests)
 
 
 # enable DAGMC Tally test cases

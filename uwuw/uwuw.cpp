@@ -1,17 +1,27 @@
 #include <unistd.h>
+#include <iostream>
 #include "uwuw.hpp"
 
 // Empty Constructor
 UWUW::UWUW()
 {
+  num_tallies = 0;
+  num_materials = 0;
 };
 
 // Default constructor
 UWUW::UWUW(char* file) 
 {
   std::string filename(file);
+
   // turn the filename into a full filepath
   full_filepath = get_full_filepath(filename);
+
+  if(!check_file_exists(full_filepath))
+    {
+      std::cerr << "The file " << full_filepath << " does not exist or is read protected" << std::endl;
+      exit(1);
+    }
 
   // load tallies
   tally_library = load_pyne_tallies(full_filepath);
@@ -26,11 +36,18 @@ UWUW::UWUW(std::string filename)
   // turn the filename into a full filepath
   full_filepath = get_full_filepath(filename);
 
-  // load materials
-  material_library = load_pyne_materials(full_filepath);
+  // check for file existence
+  if(!check_file_exists(full_filepath))
+    {
+      std::cerr << "The file " << full_filepath << " does not exist or is read protected" << std::endl;
+      exit(1);
+    }
+
   // load tallies
   tally_library = load_pyne_tallies(full_filepath);
-  
+
+  // load materials
+  material_library = load_pyne_materials(full_filepath);
 };
 
 // Destructor
@@ -48,17 +65,20 @@ std::string UWUW::get_full_filepath(char *filename)
 // convert convert a filename into path+filename (for pyne)
 std::string UWUW::get_full_filepath(std::string filename)
 {
-  char *current_dir = get_current_dir_name(); //current working dir needed for pyne load 
-                                        
-  std::string cwd(current_dir), file(filename);   // pyne needs absolute path
+  // remove all extra whitespace
+  filename.erase(std::remove(filename.begin(), filename.end(),' '), filename.end());
+  // use stdlib call
+  const char* full_filepath = realpath(filename.c_str(),NULL);
+  return std::string(full_filepath);
+}
 
-  std::string full_filepath = cwd + '/' + file;
-
-  // get rid of all trailing white space
-  full_filepath.erase(std::remove_if( full_filepath.begin(),
-				      full_filepath.end(), ::isspace),
-                                      full_filepath.end());    
-  return full_filepath;
+// see if file exists
+bool UWUW::check_file_exists(std::string filename)
+{
+  // from http://stackoverflow.com/questions/12774207/
+  // fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c
+  std::ifstream infile(filename.c_str());
+  return infile.good();
 }
 
 // loads all materials into map
@@ -66,47 +86,19 @@ std::map<std::string, pyne::Material> UWUW::load_pyne_materials(std::string file
 {
   std::map<std::string, pyne::Material> library; // material library
 
-  pyne::Material test_mat;
-  try
-    {
-      test_mat.from_hdf5(filename,"/materials");
-    }
-  catch (const std::exception &except) // catch the exception from from_hdf5
-    {
-      std::cout << "No Materials found in the file, " << filename << std::endl;
+  if(!hdf5_path_exists(filename,"/materials"))
       return library;
-    }
-  
-  bool end = false; // end of materials
-  int i = -1;
 
-  // neednt check for filename existance, since it is guarenteed to exist
-  while( !end )
+  num_materials = get_length_of_table(filename,"/materials");
+
+  for ( int i = 0 ; i < num_materials ; i++ )
     {
       pyne::Material mat; // from file
 
-      mat.from_hdf5(filename,"/materials",++i);
-      // if already in the map we have looped through the materials
-      // and need not continue
-      if ( library.count(mat.metadata["name"].asString()) )
-	{
-	  end = true;  
-	}
-      else
-	{
-	  // renumber material number by position in the library
-	  mat.metadata["mat_number"]=i+1;
-	  library[mat.metadata["name"].asString()]=mat;
-	}
-    }
-
-  // remove the first entry in the material library, its an artefact from the hdf5 import
-  library.erase(library.begin());
-  
-  std::cout << "Materials present in the h5m file" << std::endl;
-  for(std::map<std::string,pyne::Material>::const_iterator it = library.begin() ; it != library.end() ; ++it )
-    {
-      std::cout << it->first <<  std::endl;
+      mat.from_hdf5(filename,"/materials",i);
+      // renumber material number by position in the library
+      mat.metadata["mat_number"]=i+1;
+      library[mat.metadata["name"].asString()]=mat;
     }
   
   return library;
@@ -117,49 +109,67 @@ std::map<std::string, pyne::Tally> UWUW::load_pyne_tallies(std::string filename)
 {
   std::map<std::string, pyne::Tally> library; // material library
 
-  pyne::Tally test_tally;
+  if(!hdf5_path_exists(filename,"/tally"))
+    return library;
 
-  //  test_tally.from_hdf5("test1_rd.h5m","/tally");
+  num_tallies = get_length_of_table(filename,"/tally");
 
-  try
-    {
-      test_tally.from_hdf5(filename,"/tally");
-      std::cout << filename << std::endl;
-
-    }
-  catch (const std::exception &except) // catch the exception from from_hdf5
-    {
-      std::cout << "No Tallies found in the file, " << filename << std::endl;
-      return library;
-    }
-
-  
-  bool end = false; // end of materials
-  int i = -1;
-
-  // neednt check for filename existance, since it is guarenteed to exist
-  while( !end )
+  for ( int i = 0 ; i < num_tallies ; i++)
     {
       pyne::Tally tally; // from file
-
-      tally.from_hdf5(filename,"/tally",++i);
-      // if already in the map we have looped through the materials
-      // and need not continue
-      if ( library.count(tally.tally_name) )
-	{
-	  end = true;  
-	}
-
+      tally.from_hdf5(filename,"/tally",i);
       library[tally.tally_name]=tally;
-    }
-  
-  
-  std::cout << "Tallies present in the h5m file" << std::endl;
-  for(std::map<std::string,pyne::Tally>::const_iterator it = library.begin() ; it != library.end() ; ++it )
-    {
-      std::cout << it->first <<  std::endl;
-    }
-
+    }  
   return library;
 }
 
+// see if path exists before we go on
+bool UWUW::hdf5_path_exists(std::string filename, std::string datapath) 
+{
+  // Turn off annoying HDF5 errors 
+  herr_t status;
+  H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
+
+  //Set file access properties so it closes cleanly                                                                                
+  hid_t fapl = H5Pcreate(H5P_FILE_ACCESS);
+  H5Pset_fclose_degree(fapl,H5F_CLOSE_STRONG);
+
+  hid_t db = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, fapl);
+
+  bool datapath_exists = h5wrap::path_exists(db, datapath.c_str());
+
+  status = H5Eclear(H5E_DEFAULT);
+
+  // Close the database 
+  status = H5Fclose(db);   
+
+  return datapath_exists;
+}
+
+int UWUW::get_length_of_table(std::string filename, std::string datapath)
+{
+  // Turn off annoying HDF5 errors                                                                                                                                                                                
+  herr_t status;
+  H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
+
+  //Set file access properties so it closes cleanly                                                                                                                                                               
+  hid_t fapl = H5Pcreate(H5P_FILE_ACCESS);
+  H5Pset_fclose_degree(fapl,H5F_CLOSE_STRONG);
+
+  hid_t db = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, fapl);
+
+  hid_t ds = H5Dopen2(db, datapath.c_str(), H5P_DEFAULT);
+
+  // Initilize to dataspace, to find the indices we are looping over                                                                                        
+  hid_t arr_space = H5Dget_space(ds);
+
+  hsize_t arr_dims[1];
+  int arr_ndim = H5Sget_simple_extent_dims(arr_space, arr_dims, NULL);
+
+  status = H5Eclear(H5E_DEFAULT);
+
+  // Close the database                                                                                                                                                                                           
+  status = H5Fclose(db);
+
+  return arr_dims[0];
+}

@@ -5,6 +5,9 @@
 # cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 project(DagGeant4)
 
+# set the compiler flags
+SET(CMAKE_CXX_FLAGS "-std=c++11")
+
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
@@ -48,9 +51,10 @@ add_executable(DagGeant4 exampleN01.cc ${sources} ${headers})
 target_link_libraries(DagGeant4 ${Geant4_LIBRARIES}
                                 ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
 #                                ${PYNE_LIBS_DIR}/libpyne.so
-				pyne
-			        ${DAGMC_LIBRARIES}
+				pyne_dagmc
+			        ${DAG_LINK_LIBS}
 				dagsolid
+				iMesh
 				dagmciface)
 
 

@@ -20,7 +20,7 @@ class UWUWTest : public ::testing::Test
 
   virtual void SetUp()
   {
-    workflow_data = new UWUW(TEST_FILE);
+    workflow_data = new UWUW(std::string(TEST_FILE));
   }
 };
 
@@ -34,7 +34,7 @@ TEST_F(UWUWTest,SetUp) {
 /*
  * Test to make sure the total path is correct
  */
-TEST_F(UWUWTest,filepath_1) {
+TEST_F(UWUWTest,filepath1) {
   std::string filepath = "";
   EXPECT_NE(workflow_data->full_filepath,filepath);
   return;
@@ -43,7 +43,7 @@ TEST_F(UWUWTest,filepath_1) {
 /*
  * Test to make sure the total path is correct
  */
-TEST_F(UWUWTest,filepath_2) {
+TEST_F(UWUWTest,filepath2) {
   char current_path[FILENAME_MAX];
   getcwd(current_path,sizeof(current_path));
   std::string filepath(current_path);
@@ -54,9 +54,46 @@ TEST_F(UWUWTest,filepath_2) {
 }
 
 /*
+ * Test of absolute path
+ */
+TEST_F(UWUWTest,filepath3) {
+  // get the full current path
+  char current_path[FILENAME_MAX];
+  // get the cwd
+  getcwd(current_path,sizeof(current_path));
+  std::string filepath(current_path);
+  // full path to file
+  filepath += "/"+std::string(TEST_FILE);
+  // local uwuw class for this test only
+  UWUW* wfd = new UWUW(filepath);
+  EXPECT_EQ(wfd->full_filepath,filepath);
+  return;
+}
+
+/*
+ * Test of path with space in
+ */
+TEST_F(UWUWTest,filepath4) {
+  char current_path[FILENAME_MAX];
+  // get the cwd
+  getcwd(current_path,sizeof(current_path));
+  // convert to std::string
+  std::string filepath(current_path);
+  std::string test_string = filepath+"/"+std::string(TEST_FILE)+" ";
+  std::string correct_path = filepath+"/"+std::string(TEST_FILE);
+  // local uwuw class for this test only
+  UWUW* wfd = new UWUW(test_string);
+  // expect filepath with last space removed
+  EXPECT_EQ(wfd->full_filepath,correct_path);
+  return;
+}
+
+
+
+/*
  * Test to make sure that the number of materials is correct
  */
-TEST_F(UWUWTest,material_library_1) {
+TEST_F(UWUWTest,materiallibrary1) {
   EXPECT_EQ(workflow_data->material_library.size(),2);
   return;
 }
@@ -64,7 +101,7 @@ TEST_F(UWUWTest,material_library_1) {
 /*
  * Test to make sure that the materials were correctly loaded
  */
-TEST_F(UWUWTest,material_library_2) {
+TEST_F(UWUWTest,materiallibrary2) {
   // iterator for material library
   std::map<std::string,pyne::Material>::iterator it;
   it = workflow_data->material_library.begin();
@@ -72,11 +109,5 @@ TEST_F(UWUWTest,material_library_2) {
   return;
 }
 
-/*
- * Test to make sure that the number of tallies is correct
- */
-TEST_F(UWUWTest,tally_library_1) {
-  EXPECT_EQ(workflow_data->tally_library.size(),4);
-  return;
-}
+
 

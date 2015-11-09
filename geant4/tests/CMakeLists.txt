@@ -7,13 +7,12 @@ set(dagsolid_test_source
 
 # geant libs needed for test cases
 
-
 # two pthreads are needed for final linking, dont know why
 # set libraries needed to link to test cases
 SET(LIBS
   pthread
   ${Geant4_LIBRARIES}
-  ${DAGMC_LIBRARIES}
+  ${DAG_LINK_LIBS}
   gtest
   pthread
 )

@@ -207,19 +207,20 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event)
     // ray is so short it either does not intersect a triangular face, or it inside the mesh
     // but can't reach
     {
+       // tet = point_in_which_tet(event.position);
        tet = point_in_which_tet(event.position);
       // if tet value is greater than 0 then in a tet, otherwise not
       if( tet == 0 )
-	{
-	  return;
-	}
+  {
+    return;
+  }
       else
-	{
-	  // determine tracklength to return
+  {
+    // determine tracklength to return
           add_score_to_mesh_tally(tet, weight, event.track_length, ebin);
-	  //	  found_crossing = true;
-	  return;
-	}
+    //    found_crossing = true;
+    return;
+  }
     }
 
   // sort the intersection data
@@ -417,8 +418,8 @@ void TrackLengthMeshTally::set_tally_meshset()
     rval = mb->unite_meshset( tally_mesh_set, loaded_file_set );
     if(rval != MB_SUCCESS)
       {
-	std::cout << "Failed to unite meshset" << std::endl;
-	exit(1);
+        std::cout << "Failed to unite meshset" << std::endl;
+        exit(1);
       }
     assert (rval == MB_SUCCESS);
   }
@@ -434,7 +435,7 @@ ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets)
 
   if (num_tets != 0)
   {
-     tet_baryc_data.resize (num_tets);  
+    tet_baryc_data.resize (num_tets);  
   }
 
   for( Range::const_iterator i=all_tets.begin(); i!=all_tets.end(); ++i)
@@ -446,8 +447,8 @@ ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets)
     rval = mb->get_connectivity (tet, verts, num_verts);
     if(rval != MB_SUCCESS)
       {
-	std::cout << "Failed to get connectivity information" << std::endl;
-	exit(1);
+  std::cout << "Failed to get connectivity information" << std::endl;
+  exit(1);
       }
     assert( rval == MB_SUCCESS );
     
@@ -462,8 +463,8 @@ ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets)
     rval = mb->get_coords (verts, 4, p[0].array());
     if(rval != MB_SUCCESS)
       {
-	std::cout << "Failed to get coordinate data" << std::endl;
-	exit(1);
+  std::cout << "Failed to get coordinate data" << std::endl;
+  exit(1);
       }
     assert( rval == MB_SUCCESS );
 
@@ -539,15 +540,15 @@ bool TrackLengthMeshTally::point_in_tet(const CartVect& point,
  * return the list of intersections
  */
 ErrorCode TrackLengthMeshTally::get_all_intersections(const CartVect& position, const CartVect& direction, double track_length, 
-				std::vector<EntityHandle> &triangles,std::vector<double> &intersections)
+        std::vector<EntityHandle> &triangles,std::vector<double> &intersections)
   {
     
     ErrorCode result = kdtree->ray_intersect_triangles( kdtree_root, TRIANGLE_INTERSECTION_TOL, 
-					    direction.array(), position.array(), triangles,
-					    intersections, 0, track_length);    
+              direction.array(), position.array(), triangles,
+              intersections, 0, track_length);    
     if(result != MB_SUCCESS )
       {
-	std::cerr << "There is a problem!!" << std::endl;
+  std::cerr << "There is a problem!!" << std::endl;
       }
     
     return result;
@@ -576,23 +577,14 @@ EntityHandle TrackLengthMeshTally::point_in_which_tet (const CartVect& point)
       rval = mb->get_entities_by_dimension( leaf, 3, candidate_tets, false );
       assert( rval == MB_SUCCESS );
       for( Range::const_iterator i = candidate_tets.begin(); i!=candidate_tets.end(); ++i)
-	{
-	  if( point_in_tet( point,&(*i)) )
-	    {
-	      return *i;
-	    }
-	}
+        {
+          if( point_in_tet( point,&(*i)) )
+            {
+              return *i;
+            }
+        }
     }
   return 0;
-}
-
-/*
- * Returns the tet in which the remaining length to score ends in
- */
-EntityHandle TrackLengthMeshTally::remainder(const CartVect& start, const CartVect& dir, double distance, double left_over)
-{
-  CartVect pos_check = start+(dir*(distance+left_over));
-  return point_in_which_tet (pos_check);
 }
 
 /* 
@@ -611,7 +603,7 @@ Range TrackLengthMeshTally::get_adjacency_info(const Range& input_handles)
   
   // generate all edges for these tets
   rval = mb->get_adjacencies(input_handles, dimension-1, true, 
-			     adjacencies, Interface::UNION); 
+           adjacencies, Interface::UNION); 
   
   if( rval!=MB_SUCCESS )
     std::cout << "ERROR could not determine adjacancy data" << std::endl;
@@ -621,7 +613,7 @@ Range TrackLengthMeshTally::get_adjacency_info(const Range& input_handles)
 
 // function to sort the ray-mesh intersection data
 void TrackLengthMeshTally::sort_intersection_data(std::vector<double> &intersections,
-						  std::vector<EntityHandle> &triangles)
+              std::vector<EntityHandle> &triangles)
 {
   std::vector<ray_data> hit_information; // vector of reformated ray triangle intersections)
 
@@ -650,8 +642,8 @@ void TrackLengthMeshTally::sort_intersection_data(std::vector<double> &intersect
 // function to compute the track lengths
 void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event, 
                                                 unsigned int ebin, double weight,
-						const std::vector<double>& intersections,
-						const std::vector<EntityHandle>& triangles)
+            const std::vector<double>& intersections,
+            const std::vector<EntityHandle>& triangles)
 {
   double track_length; // track_length to add to the tet
   CartVect hit_p; //position on the triangular face of the hit
@@ -664,57 +656,81 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
   // loop over all intersections
   for (unsigned int i = 0 ; i < intersections.size() ; i++) 
     {
-      // hit point
-      //      std::cout << "pos " << event.position << std::endl;
+      // make the hit point, this is absolute 3d coordinate of the hit
+      // on the face of a tet
       hit_p = (event.direction*intersections[i]) + event.position;
       hit_point.push_back(hit_p); // add to list of hit points
+
+      // calculate the average position for the point in tet check
       tet_centroid = ((hit_point[i+1]-hit_point[i])/2.0)+hit_point[i]; // centre of the tet
-      //      std::cout << "centroid " << tet_centroid << std::endl;
 
       // determine the tet that the point belongs to
       tet = point_in_which_tet(tet_centroid);
-      //      std::cout << tet << std::endl;
+
+      // if point in tet returns a valid entity handle
       if ( tet > 0 )
-	{
-	  if ( i != 0 ) // determine the track_length
-	    track_length = intersections[i]-intersections[i-1];
-	  else
-	    track_length = intersections[i];
+        {
+        if ( i != 0 ) // determine the track_length, the general case
+            track_length = intersections[i]-intersections[i-1];
+        else
+            // special case for the first intersection
+            track_length = intersections[i];
 
-	  //  std::cout << tet << " " << track_length << " " << intersections[i] << std::endl;
-
-	  if (track_length < 0.0 )
-	    {
-	      std::cout << "!!! Negative Track Length !!!" << std::endl;
-	      std::cout << track_length << " " << intersections[i] << " " << intersections[i-1] << std::endl;
-	      std::cout << tet << " " << next_tet << std::endl;
-	    }
+        // we don't want this to happen ever, just in case warn user
+        if (track_length < 0.0 )
+          {
+            std::cout << "!!! Negative Track Length !!!" << std::endl;
+            std::cout << track_length << " " << intersections[i] << " " << intersections[i-1] << std::endl;
+            std::cout << tet << " " << next_tet << std::endl;
+          }
           // Note: track_length is for the current tet; it is not the event tracklength
           add_score_to_mesh_tally(tet, weight, track_length, ebin);
-	}
+        }
     }
 
   // it is possible that there is some tracklength left to allocate at the end, where the ray ends in the middle of a tet
   // or the ray could end in free space
+  double last_intersection = intersections.back();
   if ( intersections[intersections.size()-1] < event.track_length )
     {
-      track_length = event.track_length-intersections[intersections.size()-1];
-      tet = remainder(event.position,event.direction,
-		      intersections[intersections.size()-1],
-	              track_length);
-      if (track_length < 0.0 )
-	{
-	  std::cout << "Negative Track Length!!" << std::endl;
-	  std::cout << track_length << " " << intersections[intersections.size()-1] << " " <<  event.track_length << std::endl;
-	  std::cout << tet << " " << next_tet << std::endl;
-	}
       
-      if ( tet > 0 ) 
-	{
-          add_score_to_mesh_tally(tet, weight, track_length, ebin);
-	}
-    }
+      // the last intersection of the set, may have a hit distance of nearly 0.0
+      // we should therfore, calculate an average position between the end of track
+      // and this hit position. This works since last intersection can only be either
+      // insde a tet in which there were no more intersections, or the ray leaves
+      // a section of non re-entrant mesh and therefore is in reality not in any mesh
+      // element
+      track_length = event.track_length-last_intersection;
+      
+      // determine the average distance, this is to ensure tha the point is well
+      // away from any 'near' intersections thus mitigating any floating point issues
+      double average_distance = track_length/2.0 + last_intersection;
+      
+      // calculate this average hit position, this point should therefore be
+      // on the opposite side of the last intersection on the mesh, this point
+      // could either be inside a tet, or beyond the last intersection of a 
+      // re-entrant mesh
+      hit_p = (event.direction*average_distance) + event.position;
 
+      // determine the entity handle of the tet we are inside of, we cannot
+      // assert that the tet is != 0 since we rely on the tet being 0 for points
+      // outside of a re-entrant mesh.
+      tet = point_in_which_tet(hit_p);
+
+      // the track_length is negative, very naughty
+      if (track_length < 0.0 )
+        {
+            std::cout << "Negative Track Length!!" << std::endl;
+            std::cout << track_length << " " << intersections[intersections.size()-1] << " " <<  event.track_length << std::endl;
+            std::cout << tet << " " << next_tet << std::endl;
+        }
+      
+      // if the point belongs to a tet, then we need to add the score
+      if ( tet > 0 ) 
+        {
+            add_score_to_mesh_tally(tet, weight, track_length, ebin);
+        }   
+    }
 }
 
 //---------------------------------------------------------------------------//

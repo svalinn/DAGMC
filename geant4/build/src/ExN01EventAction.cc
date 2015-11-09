@@ -17,108 +17,53 @@
 #include "Randomize.hh"
 #include <iomanip>
 
-#include "uwuw.hpp"
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-extern UWUW workflow_data;
 
+// constructor for event action
+// should populate the ids of the sensitive detectors
 ExN01EventAction::ExN01EventAction()
   : G4UserEventAction()
-{
-  // build the tl_id vector
-  std::map<std::string,pyne::Tally>::iterator it;
-  for( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; it++ ) 
-    {
-      vol_tl_ids.push_back(-1);
-      tracklengths.push_back(0.0);
-    }
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-ExN01EventAction::~ExN01EventAction()
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// destructor, do nothing
+ExN01EventAction::~ExN01EventAction()
+{}
 
-G4THitsMap<G4double>* 
-ExN01EventAction::GetHitsCollection(G4int hcID,
-                                  const G4Event* event) const
+// gets the tally ids
+void ExN01EventAction::BeginOfEventAction(const G4Event *)
 {
-  G4THitsMap<G4double>* hitsCollection 
-    = static_cast<G4THitsMap<G4double>*>(
-        event->GetHCofThisEvent()->GetHC(hcID));
-  
-  if ( ! hitsCollection ) {
-    G4ExceptionDescription msg;
-    msg << "Cannot access hitsCollection ID " << hcID; 
-    G4Exception("ExN01EventAction::GetHitsCollection()",
-      "MyCode0003", FatalException, msg);
-  }         
+}
 
-  return hitsCollection;
-}    
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4double ExN01EventAction::GetSum(G4THitsMap<G4double>* hitsMap) const
+// collect up events and do work
+void ExN01EventAction::EndOfEventAction(const G4Event *event)
 {
-  G4double sumValue = 0;
-  std::map<G4int, G4double*>::iterator it;
-  for ( it = hitsMap->GetMap()->begin(); it != hitsMap->GetMap()->end(); it++) {
-    sumValue += *(it->second);
+  // get the stored trajectories
+  /*
+  G4TrajectoryContainer* trajectoryContainer = event->GetTrajectoryContainer();
+  G4int n_trajectories = 0;
+  if (trajectoryContainer) n_trajectories = trajectoryContainer->entries();
+  // periodic printing
+  G4int eventID = event->GetEventID();
+  if ( eventID < 100 || eventID % 100 == 0 ) {
+    G4cout << ">>> Event: " << eventID << G4endl;
+    if ( trajectoryContainer ) {
+      G4cout << "    " << n_trajectories
+             << " trajectories stored in this event" << G4endl;
+    }
+    G4VHitsCollection* hc = event->GetHCofThisEvent()->GetHC(0);
+    G4cout << "     "
+           << hc->GetSize() << " hits stored in this event" << G4endl;
   }
-  return sumValue;  
-}  
+  */
+ /* will need to setup histograms
+ // get the singleton instance of the analysis manager
+ G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void ExN01EventAction::BeginOfEventAction(const G4Event* /*event*/)
-{
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void ExN01EventAction::EndOfEventAction(const G4Event* event)
-{  
-  // get analysis manager                                                                                                          
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-
-
-  std::map<std::string,pyne::Tally>::iterator it;
-  if ( vol_tl_ids[0] == -1 )
-    {
-      for( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; ++it )
-	{
-	  // name has to match that in detector construction 
-          int idx = std::distance(workflow_data.tally_library.begin(),it);
-
-	  // convert int to string
-	  std::stringstream ss;
-	  ss <<(it->second).entity_id;
-
-	  std::string vol_id = ss.str();
-
-	  std::string detector_name;
-	  if ((it->second).entity_type.find("Volume") != std::string::npos && 
-	      (it->second).tally_type.find("Flux") != std::string::npos )
-	    detector_name = "vol_"+vol_id+"_flux/"+(it->second).particle_name+"CellFlux";
-
-	  vol_tl_ids[idx] = G4SDManager::GetSDMpointer()->GetCollectionID(detector_name);
-	}
-    }
-  
-  for( it = workflow_data.tally_library.begin() ; it != workflow_data.tally_library.end() ; ++it )
-    {	  
-      int idx = std::distance(workflow_data.tally_library.begin(),it);
-      tracklengths[idx] = GetSum(GetHitsCollection(vol_tl_ids[idx], event));
-      analysisManager->FillH1(idx+1, tracklengths[idx]);
-      analysisManager->FillNtupleDColumn(idx,tracklengths[idx]);
-    }
+      // fill the histograms with results
+      analysisManager->FillH1(*it+1,1.0);
+      analysisManager->FillNtupleDColumn(*it,1.0);
+  }
   analysisManager->AddNtupleRow();
+  */
 }
-  
-
