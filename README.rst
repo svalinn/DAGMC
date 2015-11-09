@@ -1,28 +1,21 @@
 Direct Accelerated Geometry Monte Carlo (DAGMC) Toolkit
 ==========================================================
 
+.. image:: https://travis-ci.org/svalinn/DAGMC.svg?branch=develop
+    :target: https://travis-ci.org/svalinn/DAGMC
+
 The Direct Acclerated Geometry Monte Carlo (DAGMC) Toolkit is an
-interface (`DAGMC Source
-<http://trac.mcs.anl.gov/projects/ITAPS/browser/MOAB/trunk/tools/dagmc>`_)
+interface (`DAGMC Source <https://bitbucket.org/fathomteam/moab/src/cba78ef585b471659f817076505f61117efeb0c7/tools/dagmc/?at=master>`_)
 to the `MOAB mesh database
-<http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_ that provides the
+<http://sigma.mcs.anl.gov/moab-library/>`_ that provides the
 methods necessary for ray tracing on a CAD-based geometric model.
 
 This repository provides implementations of that interface for various
 Monte Carlo radiation transport codes.  Depending on the distribution
 limitations and software design of each code, there are many modes by
-which we are delivering this capability.  There are 3 main
-characteristics of a Monte Carlo physics package which define our
-method of distribution.
-
-Efforts are underway to make DAGMC available in the following physics
-packages:
-   * MCNP5: complete and in production use
-   * Fluka: just beginning (12/2012)
-   * Serpent: underway (12/2012)
-   * OpenMC: planned for 2013
-   * GEANT4: planned for 2013
-   * MCNP6: planned for 2013
+which we are delivering this capability.  The method of distribution
+is dictated by the geometry interface and the type of development 
+integration available. 
 
 Geometry Interface
 -------------------
@@ -49,6 +42,22 @@ In cases where the primary authors prefer DAGMC to be distributed
 separately as an enhancement for their software (MCNP5), the
 distribution mechanism will be as a patch to their source code, since
 we generally are not authorized to redistribute their code.
+
+Development Status
+------------------
+
+Efforts are underway to make DAGMC available in the following physics
+packages:
+   * MCNP5: complete and in production use
+   * Fluka: almost complete (10/2015)
+   * GEANT4: almost complete (10/2015)
+   * Serpent: underway (10/2015)
+   * OpenMC: planned for 2015
+   * MCNP6: planned for 2016
+
+Installing
+----------
+For installation instructions see `<http://svalinn.github.io/DAGMC/usersguide/>`_.
 
 Building Documentation
 -------------------------
