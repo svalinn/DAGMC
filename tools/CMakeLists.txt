@@ -8,4 +8,5 @@
 
 # Add subdir for scripts and sample files
 add_subdirectory(dagmc_tag_eg)
+add_subdirectory(astyle)
 
