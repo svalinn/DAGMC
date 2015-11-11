@@ -45,100 +45,100 @@
  */
 class TallyData
 {
-   public: 
-    /**
-     * \brief Constructor
-     * \param[in] num_energy_bins number of energy groups to store
-     * \param[in] total_energy_bin if true, include a total energy bin
-     */
-    TallyData(unsigned int num_energy_bins, bool total_energy_bin);
+ public:
+  /**
+   * \brief Constructor
+   * \param[in] num_energy_bins number of energy groups to store
+   * \param[in] total_energy_bin if true, include a total energy bin
+   */
+  TallyData(unsigned int num_energy_bins, bool total_energy_bin);
 
-    // >>> PUBLIC INTERFACE
+  // >>> PUBLIC INTERFACE
 
-    /**
-     * \brief Gets tally and error values for a single tally point
-     * \param[in] tally_point_index the index representing the tally point
-     * \param[in] energy_bin the index representing the energy bin
-     * \return pair containing (tally, error) data for the tally point
-     */
-     std::pair <double,double> get_data(unsigned int tally_point_index,
-                                        unsigned int energy_bin) const;
+  /**
+   * \brief Gets tally and error values for a single tally point
+   * \param[in] tally_point_index the index representing the tally point
+   * \param[in] energy_bin the index representing the energy bin
+   * \return pair containing (tally, error) data for the tally point
+   */
+  std::pair <double,double> get_data(unsigned int tally_point_index,
+                                     unsigned int energy_bin) const;
 
-    /**
-     * \brief get_tally_data(), get_error_data(), get_scratch_data()
-     * \param[out] length the size of the data array
-     * \return pointer to the data array
-     *
-     * Provides direct access to the data arrays for all tally points.
-     */
-    double* get_tally_data(int& length);
-    double* get_error_data(int& length);
-    double* get_scratch_data(int& length);
+  /**
+   * \brief get_tally_data(), get_error_data(), get_scratch_data()
+   * \param[out] length the size of the data array
+   * \return pointer to the data array
+   *
+   * Provides direct access to the data arrays for all tally points.
+   */
+  double* get_tally_data(int& length);
+  double* get_error_data(int& length);
+  double* get_scratch_data(int& length);
 
-    /**
-     * \brief Resets all data arrays for this TallyData
-     */
-    void zero_tally_data();
+  /**
+   * \brief Resets all data arrays for this TallyData
+   */
+  void zero_tally_data();
 
-    /**
-     * \brief Resize arrays stored within this TallyData
-     * \param[in] num_tally_points number of tally points to store
-     *
-     * Arrays will be resized to the given number of tally points multiplied
-     * by the number of energy bins.
-     */
-    void resize_data_arrays(unsigned int num_tally_points);
+  /**
+   * \brief Resize arrays stored within this TallyData
+   * \param[in] num_tally_points number of tally points to store
+   *
+   * Arrays will be resized to the given number of tally points multiplied
+   * by the number of energy bins.
+   */
+  void resize_data_arrays(unsigned int num_tally_points);
 
-    /**
-     * \brief get_num_energy_bins()
-     * \return Number of energy bins stored in this TallyData
-     *
-     * This includes the total energy bin.
-     */
-    unsigned int get_num_energy_bins() const;
+  /**
+   * \brief get_num_energy_bins()
+   * \return Number of energy bins stored in this TallyData
+   *
+   * This includes the total energy bin.
+   */
+  unsigned int get_num_energy_bins() const;
 
-    /**
-     * \brief has_total_energy_bin()
-     * \return true if a total energy bin is included in this TallyData
-     */
-    bool has_total_energy_bin() const;
+  /**
+   * \brief has_total_energy_bin()
+   * \return true if a total energy bin is included in this TallyData
+   */
+  bool has_total_energy_bin() const;
 
-    // >>> TALLY ACTION METHODS
+  // >>> TALLY ACTION METHODS
 
-    /**
-     * \brief Process TallyData when a particle history is completed
-     */
-    void end_history();
+  /**
+   * \brief Process TallyData when a particle history is completed
+   */
+  void end_history();
 
-    /**
-     * \brief Add a score to this TallyData for the given tally point
-     * \param[in] tally_point_index the index representing the tally point
-     * \param[in] score the score to be added
-     * \param[in] ebin the energy bin to which score will be added
-     */
-    void add_score_to_tally(unsigned int tally_point_index, double score, unsigned int ebin);
+  /**
+   * \brief Add a score to this TallyData for the given tally point
+   * \param[in] tally_point_index the index representing the tally point
+   * \param[in] score the score to be added
+   * \param[in] ebin the energy bin to which score will be added
+   */
+  void add_score_to_tally(unsigned int tally_point_index, double score, unsigned int ebin);
 
-   private: 
-    // Data array for storing sum of scores for all particle histories
-    std::vector<double> tally_data;
+ private:
+  // Data array for storing sum of scores for all particle histories
+  std::vector<double> tally_data;
 
-    // Data array for determining error in tally results
-    std::vector<double> error_data;
+  // Data array for determining error in tally results
+  std::vector<double> error_data;
 
-    // Data array for storing sum of scores for a single history
-    std::vector<double> temp_tally_data;
+  // Data array for storing sum of scores for a single history
+  std::vector<double> temp_tally_data;
 
-    // tally points updated in current history; cleared by end_history()
-    std::set<unsigned int> visited_this_history;
+  // tally points updated in current history; cleared by end_history()
+  std::set<unsigned int> visited_this_history;
 
-    // Number of energy bins implemented in the data arrays
-    unsigned int num_energy_bins;
+  // Number of energy bins implemented in the data arrays
+  unsigned int num_energy_bins;
 
-    // Set to true by default; determines if total energy bin is included
-    bool total_energy_bin;
+  // Set to true by default; determines if total energy bin is included
+  bool total_energy_bin;
 
-    // Number of tally points = tally_data.size()/num_energy_bins
-    unsigned int num_tally_points;
+  // Number of tally points = tally_data.size()/num_energy_bins
+  unsigned int num_tally_points;
 };
 
 #endif // DAGMC_TALLY_DATA_HPP

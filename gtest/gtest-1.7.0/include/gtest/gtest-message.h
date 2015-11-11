@@ -54,7 +54,8 @@
 // See Message& operator<<(...) below for why.
 void operator<<(const testing::internal::Secret&, int);
 
-namespace testing {
+namespace testing
+{
 
 // The Message class works like an ostream repeater.
 //
@@ -82,7 +83,8 @@ namespace testing {
 // latter (it causes an access violation if you do).  The Message
 // class hides this difference by treating a NULL char pointer as
 // "(null)".
-class GTEST_API_ Message {
+class GTEST_API_ Message
+{
  private:
   // The type of basic IO manipulators (endl, ends, and flush) for
   // narrow streams.
@@ -229,18 +231,21 @@ class GTEST_API_ Message {
 };
 
 // Streams a Message to an ostream.
-inline std::ostream& operator <<(std::ostream& os, const Message& sb) {
+inline std::ostream& operator <<(std::ostream& os, const Message& sb)
+{
   return os << sb.GetString();
 }
 
-namespace internal {
+namespace internal
+{
 
 // Converts a streamable value to an std::string.  A NULL pointer is
 // converted to "(null)".  When the input value is a ::string,
 // ::std::string, ::wstring, or ::std::wstring object, each NUL
 // character in it is replaced with "\\0".
 template <typename T>
-std::string StreamableToString(const T& streamable) {
+std::string StreamableToString(const T& streamable)
+{
   return (Message() << streamable).GetString();
 }
 

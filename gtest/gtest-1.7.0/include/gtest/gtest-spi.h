@@ -37,7 +37,8 @@
 
 #include "gtest/gtest.h"
 
-namespace testing {
+namespace testing
+{
 
 // This helper class can be used to mock out Google Test failure reporting
 // so that we can test Google Test or code that builds on Google Test.
@@ -49,12 +50,13 @@ namespace testing {
 // all generated failures. The scope of this mock object can be controlled with
 // the second argument to the two arguments constructor.
 class GTEST_API_ ScopedFakeTestPartResultReporter
-    : public TestPartResultReporterInterface {
+: public TestPartResultReporterInterface
+{
  public:
   // The two possible mocking modes of this object.
   enum InterceptMode {
-    INTERCEPT_ONLY_CURRENT_THREAD,  // Intercepts only thread local failures.
-    INTERCEPT_ALL_THREADS           // Intercepts all failures.
+      INTERCEPT_ONLY_CURRENT_THREAD,  // Intercepts only thread local failures.
+      INTERCEPT_ALL_THREADS           // Intercepts all failures.
   };
 
   // The c'tor sets this object as the test part result reporter used
@@ -86,14 +88,16 @@ class GTEST_API_ ScopedFakeTestPartResultReporter
   GTEST_DISALLOW_COPY_AND_ASSIGN_(ScopedFakeTestPartResultReporter);
 };
 
-namespace internal {
+namespace internal
+{
 
 // A helper class for implementing EXPECT_FATAL_FAILURE() and
 // EXPECT_NONFATAL_FAILURE().  Its destructor verifies that the given
 // TestPartResultArray contains exactly one failure that has the given
 // type and contains the given substring.  If that's not the case, a
 // non-fatal failure will be generated.
-class GTEST_API_ SingleFailureChecker {
+class GTEST_API_ SingleFailureChecker
+{
  public:
   // The constructor remembers the arguments.
   SingleFailureChecker(const TestPartResultArray* results,

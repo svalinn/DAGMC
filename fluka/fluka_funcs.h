@@ -66,7 +66,7 @@ extern "C" {
     int nstmax;
     int npflka;
     int nstaol;
-    int igroun;  
+    int igroun;
   } flkstk_;
 }
 
@@ -77,7 +77,7 @@ struct particle_state {
   double old_direction[3];
   moab::EntityHandle next_surf; // the next suface the ray will hit
   moab::EntityHandle prev_surf; // the last value of next surface
-  moab::EntityHandle PrevRegion; // the integer region that the particle was in previously 
+  moab::EntityHandle PrevRegion; // the integer region that the particle was in previously
   int stack_count;
 };
 
@@ -104,197 +104,197 @@ struct particle_state {
 extern "C" {
 #endif
 
-/**
- * \brief does nothing
- *
- * \param[in/out] fklflg indicates something is on/off
- */
-void flgfwr(int& flkflg);
+  /**
+   * \brief does nothing
+   *
+   * \param[in/out] fklflg indicates something is on/off
+   */
+  void flgfwr(int& flkflg);
 
-/**
- * \brief Sets if we would like to use dnear, internally the
- *        safety variable, doesnt use the inputs to set dnear
- * 
- * \param[in] nreg the number of regions in the problem
- * \param[in] mlat the number oflattices in the problem
- */
-int f_idnr(const int & nreg, const int & mlat);
+  /**
+   * \brief Sets if we would like to use dnear, internally the
+   *        safety variable, doesnt use the inputs to set dnear
+   *
+   * \param[in] nreg the number of regions in the problem
+   * \param[in] mlat the number oflattices in the problem
+   */
+  int f_idnr(const int & nreg, const int & mlat);
 
-/**
- * \brief This is a the main Fluka tracking call made to FluDAG, 
- *        this gives access to the variables passed by argument
- *        this function is expected to return the approved particle step
- *        distance (either limited by proposed step or the geometry, and 
- *        the geometry ID number after the step
- *
- * \param[in] pSx the particle x coordinate (cm)
- * \param[in] pSy the particle y coordinate (cm)
- * \param[in] pSz the particle z coordinate (cm)
- * \param[in] *pV the particle direction vector (double[3])
- * \param[in] *oldReg the current region number of the particle
- * \param[in] oldLttc the integer ID of the lattice of the particle
- * \param[in] propStep, the proposed step length as dictated by the 
- *             physics of the current collision
- * \param[in] nascFlag (unknown)
- * \param[out] retStep, the approved step length either equal to propStep
- *             or limited by geometry
- * \param[out] newReg the region number after the particle step
- * \param[out] saf, the new approved safety (distance to the nearest surface) 
- * \param[out] newLttc, the new lattice ID (ignored)
- * \param[out] LttcFlag unknown (ignored)
- * \param[out] sLt, unknown (ignored)
- * \param[out] jrLt, unknown (ignored)
- */
-void  g_step(double& pSx, double& pSy, double& pSz, double* pV,
-	     int& oldReg, const int& oldLttc, double& propStep,
-	     int& nascFlag, double& retStep, int& newReg,
-	     double& saf, int& newLttc, int& LttcFlag,
-	     double* sLt, int* jrLt);
+  /**
+   * \brief This is a the main Fluka tracking call made to FluDAG,
+   *        this gives access to the variables passed by argument
+   *        this function is expected to return the approved particle step
+   *        distance (either limited by proposed step or the geometry, and
+   *        the geometry ID number after the step
+   *
+   * \param[in] pSx the particle x coordinate (cm)
+   * \param[in] pSy the particle y coordinate (cm)
+   * \param[in] pSz the particle z coordinate (cm)
+   * \param[in] *pV the particle direction vector (double[3])
+   * \param[in] *oldReg the current region number of the particle
+   * \param[in] oldLttc the integer ID of the lattice of the particle
+   * \param[in] propStep, the proposed step length as dictated by the
+   *             physics of the current collision
+   * \param[in] nascFlag (unknown)
+   * \param[out] retStep, the approved step length either equal to propStep
+   *             or limited by geometry
+   * \param[out] newReg the region number after the particle step
+   * \param[out] saf, the new approved safety (distance to the nearest surface)
+   * \param[out] newLttc, the new lattice ID (ignored)
+   * \param[out] LttcFlag unknown (ignored)
+   * \param[out] sLt, unknown (ignored)
+   * \param[out] jrLt, unknown (ignored)
+   */
+  void  g_step(double& pSx, double& pSy, double& pSz, double* pV,
+               int& oldReg, const int& oldLttc, double& propStep,
+               int& nascFlag, double& retStep, int& newReg,
+               double& saf, int& newLttc, int& LttcFlag,
+               double* sLt, int* jrLt);
 
-/**
- * \brief Called by Fluka directly, used to indicate when a history has been
- *         terminated. We use this to reset the accumulated particle state
- */
-void f_g1rt(void);
+  /**
+   * \brief Called by Fluka directly, used to indicate when a history has been
+   *         terminated. We use this to reset the accumulated particle state
+   */
+  void f_g1rt(void);
 
-/**
- * \brief Sets the number of volumes in the problem, this should include the 
- *         implicit compliment, the other arguments are unused
- *
- * \param[in] nge unknown (unused)
- * \param[in] lin logical input unit number for fortran
- * \param[in] lou logical output unit number for fortran
- * \param[out] flukaReg the number of regions in the problem
- */
-void jomiwr(int & nge, const int& lin, const int& lou,
-	    int& flukaReg);
+  /**
+   * \brief Sets the number of volumes in the problem, this should include the
+   *         implicit compliment, the other arguments are unused
+   *
+   * \param[in] nge unknown (unused)
+   * \param[in] lin logical input unit number for fortran
+   * \param[in] lou logical output unit number for fortran
+   * \param[out] flukaReg the number of regions in the problem
+   */
+  void jomiwr(int & nge, const int& lin, const int& lou,
+              int& flukaReg);
 
-/**
- * \brief In our case this functions sets newReg and newLttc to 0, and flagErr to -1
- *        
- * \param[in] pSx the particle x coordinate (cm)
- * \param[in] pSy the particle y coordinate (cm)
- * \param[in] pSz the particle z coordinate (cm)
- * \param[in] *pV the particle direction vector (double[3])
- * \param[in] oldReg the current region number of the particle
- * \param[in] oldLttc the integer ID of the lattice of the particle
- * \param[out] newReg the new region number
- * \param[out] flagErr used to indicate an error
- * \param[out] newLttc used to indicate the new lattice id number
- */
-void f_lookdb(double& pSx, double& pSy, double& pSz,
-	      double* pV, const int& oldReg, const int& oldLttc,
-	      int& newReg, int& flagErr, int& newLttc);
-/**
- * \brief Does nothing.
- *
- * \param[in] pSx the particle x coordinate (cm)
- * \param[in] pSy the particle y coordinate (cm)
- * \param[in] pSz the particle z coordinate (cm)
- * \param[in] *pV the particle direction vector (double[3])
- * \param[in] oldReg the current region number of the particle
- * \param[in] oldLttc the integer ID of the lattice of the particle
- * \param[out] newReg the new region number
- * \param[out] flagErr used to indicate an error
- * \param[out] newLttc used to indicate the new lattice id number
- */
-void lkfxwr(double& pSx, double& pSy, double& pSz,
-	    double* pV, const int& oldReg, const int& oldLttc,
-	    int& newReg, int& flagErr, int& newLttc);
-	    
-/**
- * \brief Determines what region number the current particle is 
- *        in, bears a strong similarity to lkwr, but this routine
- *        is only called when magnetic field tracking is on
- *
- * \param[in] pSx the particle x coordinate (cm)
- * \param[in] pSy the particle y coordinate (cm)
- * \param[in] pSz the particle z coordinate (cm)
- * \param[in] *pV the particle direction vector (double[3])
- * \param[in] oldReg the current region number of the particle
- * \param[in] oldLttc the integer ID of the lattice of the particle
- * \param[out] newReg the new region number
- * \param[out] flagErr used to indicate an error
- * \param[out] newLttc used to indicate the new lattice id number
- */
-void lkmgwr(double& pSx, double& pSy, double& pSz,
-	    double* pV, const int& oldReg, const int& oldLttc,
-	    int& flagErr, int& newReg, int& newLttc);
-	    
-/**
- * \brief Determines what region number the current particle is 
- *        in. Uses the global variable state to assist. Sets newReg
- *        to the integer ID of the region the particle is in
- *
- * \param[in] pSx the particle x coordinate (cm)
- * \param[in] pSy the particle y coordinate (cm)
- * \param[in] pSz the particle z coordinate (cm)
- * \param[in] *pV the particle direction vector (double[3])
- * \param[in] oldReg the current region number of the particle
- * \param[in] oldLttc the integer ID of the lattice of the particle
- * \param[out] newReg the new region number
- * \param[out] flagErr used to indicate an error
- * \param[out] newLttc used to indicate the new lattice id number
- */
-void f_look(double& pSx, double& pSy, double& pSz,
-	    double* pV, const int& oldReg, const int& oldLttc,
-	    int& newReg, int& flagErr, int& newLttc);
+  /**
+   * \brief In our case this functions sets newReg and newLttc to 0, and flagErr to -1
+   *
+   * \param[in] pSx the particle x coordinate (cm)
+   * \param[in] pSy the particle y coordinate (cm)
+   * \param[in] pSz the particle z coordinate (cm)
+   * \param[in] *pV the particle direction vector (double[3])
+   * \param[in] oldReg the current region number of the particle
+   * \param[in] oldLttc the integer ID of the lattice of the particle
+   * \param[out] newReg the new region number
+   * \param[out] flagErr used to indicate an error
+   * \param[out] newLttc used to indicate the new lattice id number
+   */
+  void f_lookdb(double& pSx, double& pSy, double& pSz,
+                double* pV, const int& oldReg, const int& oldLttc,
+                int& newReg, int& flagErr, int& newLttc);
+  /**
+   * \brief Does nothing.
+   *
+   * \param[in] pSx the particle x coordinate (cm)
+   * \param[in] pSy the particle y coordinate (cm)
+   * \param[in] pSz the particle z coordinate (cm)
+   * \param[in] *pV the particle direction vector (double[3])
+   * \param[in] oldReg the current region number of the particle
+   * \param[in] oldLttc the integer ID of the lattice of the particle
+   * \param[out] newReg the new region number
+   * \param[out] flagErr used to indicate an error
+   * \param[out] newLttc used to indicate the new lattice id number
+   */
+  void lkfxwr(double& pSx, double& pSy, double& pSz,
+              double* pV, const int& oldReg, const int& oldLttc,
+              int& newReg, int& flagErr, int& newLttc);
 
-/**
- * \brief For a given position, determines the magnetic field strength
- *        and direction.
- *
- * \param[in] pSx the particle x coordinate (cm)
- * \param[in] pSy the particle y coordinate (cm)
- * \param[in] pSz the particle z coordinate (cm)
- * \param[out] cosBx magnetic field cosine direction vector in x direction
- * \param[out] cosBy magnetic field cosine direction vector in y direction
- * \param[out] cosBz magnetic field cosine direction vector in z direction
- * \param[out] Bmag the magnetic field strength (tesla?)
- * \param[in] reg the region id number
- * \param[?] idiscflag (unknown)
- */
-void fldwr(const double& pX, const double& pY, const double& pZ,
-	   double& cosBx, double& cosBy, double& cosBz, 
-	   double& Bmag, int& reg, int& idiscflag);
-	    
-/**
- * \brief For a given position and particle direction, determines the normal 
- *        of the surface between newReg and oldReg
- *
- * \param[in] pSx the particle x coordinate (cm)
- * \param[in] pSy the particle y coordinate (cm)
- * \param[in] pSz the particle z coordinate (cm)
- * \param[in] pVx the particle direction vector in the x direction (cm)
- * \param[in] pVy the particle direction vector in the y direction (cm)
- * \param[in] pVz the particle direction vector in the x direction (cm)
- * \param[out] *norml the normal vector to the surface, normal should always point towards 
-              oldReg. i.e. the inward pointing normal
+  /**
+   * \brief Determines what region number the current particle is
+   *        in, bears a strong similarity to lkwr, but this routine
+   *        is only called when magnetic field tracking is on
+   *
+   * \param[in] pSx the particle x coordinate (cm)
+   * \param[in] pSy the particle y coordinate (cm)
+   * \param[in] pSz the particle z coordinate (cm)
+   * \param[in] *pV the particle direction vector (double[3])
+   * \param[in] oldReg the current region number of the particle
+   * \param[in] oldLttc the integer ID of the lattice of the particle
+   * \param[out] newReg the new region number
+   * \param[out] flagErr used to indicate an error
+   * \param[out] newLttc used to indicate the new lattice id number
+   */
+  void lkmgwr(double& pSx, double& pSy, double& pSz,
+              double* pV, const int& oldReg, const int& oldLttc,
+              int& flagErr, int& newReg, int& newLttc);
 
- * \param[in] oldReg the current region number
- * \param[in] newReg the region number the particle will step to next
- * \param[out] flagErr flag some error condition 
- */
-void f_normal(double& pSx, double& pSy, double& pSz,
-	      double& pVx, double& pVy, double& pVz,
-	      double* norml, const int& oldReg, 
-	      const int& newReg, int& flagErr);
+  /**
+   * \brief Determines what region number the current particle is
+   *        in. Uses the global variable state to assist. Sets newReg
+   *        to the integer ID of the region the particle is in
+   *
+   * \param[in] pSx the particle x coordinate (cm)
+   * \param[in] pSy the particle y coordinate (cm)
+   * \param[in] pSz the particle z coordinate (cm)
+   * \param[in] *pV the particle direction vector (double[3])
+   * \param[in] oldReg the current region number of the particle
+   * \param[in] oldLttc the integer ID of the lattice of the particle
+   * \param[out] newReg the new region number
+   * \param[out] flagErr used to indicate an error
+   * \param[out] newLttc used to indicate the new lattice id number
+   */
+  void f_look(double& pSx, double& pSy, double& pSz,
+              double* pV, const int& oldReg, const int& oldLttc,
+              int& newReg, int& flagErr, int& newLttc);
 
-/**
- * \brief Does nothing in FluDAG.
- *
- */
-void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg,
-	    int* indMother, int* repMother, int& depthFluka);
+  /**
+   * \brief For a given position, determines the magnetic field strength
+   *        and direction.
+   *
+   * \param[in] pSx the particle x coordinate (cm)
+   * \param[in] pSy the particle y coordinate (cm)
+   * \param[in] pSz the particle z coordinate (cm)
+   * \param[out] cosBx magnetic field cosine direction vector in x direction
+   * \param[out] cosBy magnetic field cosine direction vector in y direction
+   * \param[out] cosBz magnetic field cosine direction vector in z direction
+   * \param[out] Bmag the magnetic field strength (tesla?)
+   * \param[in] reg the region id number
+   * \param[?] idiscflag (unknown)
+   */
+  void fldwr(const double& pX, const double& pY, const double& pZ,
+             double& cosBx, double& cosBy, double& cosBz,
+             double& Bmag, int& reg, int& idiscflag);
 
-/**
- * \brief Used to translate fluka region number ino names, in FluDAG this function
- *        calls region2name, and takes the Fluka ID number and turns it into a string
- *         
- * \param[in] mreg the Fluka region id number
- * \param[out] Vname the name of the Fluka region with id mreg
- */
-void rg2nwr(const int& mreg, char* Vname);
+  /**
+   * \brief For a given position and particle direction, determines the normal
+   *        of the surface between newReg and oldReg
+   *
+   * \param[in] pSx the particle x coordinate (cm)
+   * \param[in] pSy the particle y coordinate (cm)
+   * \param[in] pSz the particle z coordinate (cm)
+   * \param[in] pVx the particle direction vector in the x direction (cm)
+   * \param[in] pVy the particle direction vector in the y direction (cm)
+   * \param[in] pVz the particle direction vector in the x direction (cm)
+   * \param[out] *norml the normal vector to the surface, normal should always point towards
+                oldReg. i.e. the inward pointing normal
+
+   * \param[in] oldReg the current region number
+   * \param[in] newReg the region number the particle will step to next
+   * \param[out] flagErr flag some error condition
+   */
+  void f_normal(double& pSx, double& pSy, double& pSz,
+                double& pVx, double& pVy, double& pVz,
+                double* norml, const int& oldReg,
+                const int& newReg, int& flagErr);
+
+  /**
+   * \brief Does nothing in FluDAG.
+   *
+   */
+  void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg,
+              int* indMother, int* repMother, int& depthFluka);
+
+  /**
+   * \brief Used to translate fluka region number ino names, in FluDAG this function
+   *        calls region2name, and takes the Fluka ID number and turns it into a string
+   *
+   * \param[in] mreg the Fluka region id number
+   * \param[out] Vname the name of the Fluka region with id mreg
+   */
+  void rg2nwr(const int& mreg, char* Vname);
 
 #ifdef __cplusplus
 } // extern "C"
@@ -311,10 +311,10 @@ void rg2nwr(const int& mreg, char* Vname);
  *       , direction determines the region number the position is in. Indicates
  *        an error when the particle is nowhere.
  *
- * \param[in] posx the x position of the ray 
+ * \param[in] posx the x position of the ray
  * \param[in] posy the y position of the ray
  * \param[in] posz the z position of the ray
- * \param[in] *dir the direction vector of the ray (double[3]) 
+ * \param[in] *dir the direction vector of the ray (double[3])
  * \param[out] the region index that the position belong to
  */
 int look( double& posx, double& posy, double& posz, double* dir, int& region);
@@ -323,20 +323,20 @@ int look( double& posx, double& posy, double& posz, double* dir, int& region);
  * \brief g_fire is called by g_step, which is the external interface to FLuka.
  *
  * \param[in] oldRegion region of start point
- * \param[in] point[3] start position 
+ * \param[in] point[3] start position
  * \param[in] dir[3] direction vector
  * \param[in] propStep physics proposed step length
  * \param[out] retStep actual returned distance, governed by geometry or physics
  * \param[out] newRegion region after step
  **/
-void g_fire(int& oldRegion, double point[], double dir[], 
-	    double &propStep, double& retStep, double &safety,
-	    int& newRegion);
+void g_fire(int& oldRegion, double point[], double dir[],
+            double &propStep, double& retStep, double &safety,
+            int& newRegion);
 
 /**
  * \brief normal is the testable wrapper to f_normal, the external interface to FLuka.
  *        it expects to be only called in certain circumstances, it expects to be only called
- *        when the position is on a boundary, and that boundary belongs to curRegion. 
+ *        when the position is on a boundary, and that boundary belongs to curRegion.
  *
  * \param[in] posx the x coordinate of the ray
  * \param[in] posy the y coordinate of the ray
@@ -354,7 +354,7 @@ int normal (double& posx, double& posy, double& posz, double *norml, int& curReg
  * \param[in] vol the volume to test
  * \param[in] xyz[3] the position to test
  * \param[in] uvw[3] the direction vector
- * \param[returns] either yes (1) or no (0) 
+ * \param[returns] either yes (1) or no (0)
  **/
 int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3]);
 
@@ -379,15 +379,15 @@ void reset_state(particle_state &state);
  *  Example usage:  mainFludag dagmc.html
  *  Outputs
  *           mat.inp  contains MATERIAL and ASSIGNMAt records for the input geometry.
- *                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.  
+ *                    The MATERIAL is gotten by parsing the Cubit volume name on underscores.
  *                    The string after "M_" is considered to be the material for that volume.
  *                    There are no MATERIAL cards for the materials in the FLUKA_mat_set list
  *                    For the remaining materials, there is one MATERIAL card apiece (no dups)
  *                    User-named (not predefined) materials are TRUNCATED to 8 chars.
  *                    User-named material id's start at 25 and increment by 1 for each MATERIAL card
  *           index-id.txt  Map of FluDAG volume index vs Cubit volume ids, for info only.
- *  Note that a preprocessing step to this call sets up the the DAG object that contains 
- *  all the geometry information contained in dagmc.html.  
+ *  Note that a preprocessing step to this call sets up the the DAG object that contains
+ *  all the geometry information contained in dagmc.html.
  *  the name of the (currently hardcoded) output file is "mat.inp"
  *  The graveyard is assumed to be the last region.
  *  Overall function call; calls other fludag functions
@@ -405,14 +405,14 @@ std::set<int> make_exception_set();
 
 /**
  * \brief Writes the material assignment for each volume to an output stream
- * 
+ *
  * \param[out] ostr the output stream of which the text is printed
  * \param[in] pyne_map the map of group name vs PyNE material object
  * \param[in] map_name ???
  */
-void fludagwrite_assignma(std::ostringstream& ostr, 
-			  std::map<std::string, pyne::Material> pyne_map, 
-			  std::map<int, std::string> map_name);
+void fludagwrite_assignma(std::ostringstream& ostr,
+                          std::map<std::string, pyne::Material> pyne_map,
+                          std::map<int, std::string> map_name);
 /**
  * \brief writes all the material compisitions from the map of materials to output stream
  *
@@ -420,15 +420,15 @@ void fludagwrite_assignma(std::ostringstream& ostr,
  * \param[in] pyne_map the map of all material objects
  *
  */
-void fludag_all_materials(std::ostringstream& mstr, 
-			  std::map<std::string, pyne::Material> pyne_list);
+void fludag_all_materials(std::ostringstream& mstr,
+                          std::map<std::string, pyne::Material> pyne_list);
 
 /**
  * \brief Writes all the PyNE tally objects out that are contained in the tally map
  *
  * \param[out] mstr the output stream to which the tallies are to be printed
  * \param[in] tally_map the map of all tallies in the problem indexed by the tally name
- */ 
+ */
 void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tally> tally_map);
 
 
@@ -440,8 +440,8 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tal
  * \param[in] delimiters the possible characters used as delimiters
  * \return map of vector of property values in an entity handlewise map
  */
-std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
-									    int dimension, std::string delimiters);
+std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property,
+    int dimension, std::string delimiters);
 
 /*** end of uwuw functions ***/
 

@@ -14,7 +14,7 @@ using moab::DagMC;
 #include <fenv.h>
 #endif
 
-  // globals
+// globals
 
 #define DAG DagMC::instance()
 
@@ -29,7 +29,7 @@ using moab::DagMC;
 
 static std::ostream* raystat_dump = NULL;
 
-#endif 
+#endif
 
 
 /* Static values used by dagmctrack_ */
@@ -50,26 +50,26 @@ void dagmcinit_(char *cfile, int *clen,  // geom
                 int *parallel_file_mode, // parallel read mode
                 double* dagmc_version, int* moab_version, int* max_pbl )
 {
- 
+
   moab::ErrorCode rval;
 
 #ifdef ENABLE_RAYSTAT_DUMPS
   // the file to which ray statistics dumps will be written
   raystat_dump = new std::ofstream("dagmc_raystat_dump.csv");
-#endif 
-  
+#endif
+
   *dagmc_version = DAG->version();
   *moab_version = DAG->interface_revision();
-  
-    // terminate all filenames with null char
+
+  // terminate all filenames with null char
   cfile[*clen] = ftol[*ftlen] = '\0';
 
-    // initialize this as -1 so that DAGMC internal defaults are preserved
-    // user doesn't set this
+  // initialize this as -1 so that DAGMC internal defaults are preserved
+  // user doesn't set this
   double arg_facet_tolerance = -1;
-                                                                        
+
   if ( *ftlen > 0 ) arg_facet_tolerance = atof(ftol);
-  
+
   // read geometry
   rval = DAG->load_file(cfile, arg_facet_tolerance );
   if (moab::MB_SUCCESS != rval) {
@@ -78,18 +78,18 @@ void dagmcinit_(char *cfile, int *clen,  // geom
   }
 
 #ifdef CUBIT_LIBS_PRESENT
-  // The Cubit 10.2 libraries enable floating point exceptions.  
+  // The Cubit 10.2 libraries enable floating point exceptions.
   // This is bad because MOAB may divide by zero and expect to continue executing.
   // See MOAB mailing list discussion on April 28 2010.
   // As a workaround, put a hold exceptions when Cubit is present.
 
   fenv_t old_fenv;
-  if ( feholdexcept( &old_fenv ) ){
+  if ( feholdexcept( &old_fenv ) ) {
     std::cerr << "Warning: could not hold floating-point exceptions!" << std::endl;
   }
 #endif
 
- 
+
   // initialize geometry
   rval = DAG->init_OBBTree();
   if (moab::MB_SUCCESS != rval) {
@@ -103,7 +103,7 @@ void dagmcinit_(char *cfile, int *clen,  // geom
 
 void dagmcwritefacets_(char *ffile, int *flen)  // facet file
 {
-    // terminate all filenames with null char
+  // terminate all filenames with null char
   ffile[*flen]  = '\0';
 
   moab::ErrorCode rval = DAG->write_mesh(ffile,*flen);
@@ -122,13 +122,14 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
  * in which case the result is unmodified.
  * If DagMC throws an error, calls exit().
  */
-static bool get_int_prop( moab::EntityHandle vol, int cell_id, const std::string& property, int& result ){
+static bool get_int_prop( moab::EntityHandle vol, int cell_id, const std::string& property, int& result )
+{
 
   moab::ErrorCode rval;
-  if( DAG->has_prop( vol, property ) ){
+  if( DAG->has_prop( vol, property ) ) {
     std::string propval;
     rval = DAG->prop_value( vol, property, propval );
-    if( moab::MB_SUCCESS != rval ){ 
+    if( moab::MB_SUCCESS != rval ) {
       std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
       std::cerr << "Error code: " << rval << std::endl;
       exit( EXIT_FAILURE );
@@ -136,14 +137,13 @@ static bool get_int_prop( moab::EntityHandle vol, int cell_id, const std::string
     const char* valst = propval.c_str();
     char* valend;
     result = strtol( valst, &valend, 10 );
-    if( valend[0] != '\0' ){
+    if( valend[0] != '\0' ) {
       // strtol did not consume whole string
       std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
       std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
     }
     return true;
-  }
-  else return false;
+  } else return false;
 
 }
 
@@ -153,13 +153,14 @@ static bool get_int_prop( moab::EntityHandle vol, int cell_id, const std::string
  * in which case the result is unmodified.
  * If DagMC throws an error, calls exit().
  */
-static bool get_real_prop( moab::EntityHandle vol, int cell_id, const std::string& property, double& result ){
+static bool get_real_prop( moab::EntityHandle vol, int cell_id, const std::string& property, double& result )
+{
 
   moab::ErrorCode rval;
-  if( DAG->has_prop( vol, property ) ){
+  if( DAG->has_prop( vol, property ) ) {
     std::string propval;
     rval = DAG->prop_value( vol, property, propval );
-    if( moab::MB_SUCCESS != rval ){ 
+    if( moab::MB_SUCCESS != rval ) {
       std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
       std::cerr << "Error code: " << rval << std::endl;
       exit( EXIT_FAILURE );
@@ -167,14 +168,13 @@ static bool get_real_prop( moab::EntityHandle vol, int cell_id, const std::strin
     const char* valst = propval.c_str();
     char* valend;
     result = strtod( valst, &valend );
-    if( valend[0] != '\0' ){
+    if( valend[0] != '\0' ) {
       // strtod did not consume whole string
       std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
       std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
     }
     return true;
-  }
-  else return false;
+  } else return false;
 
 }
 
@@ -183,7 +183,7 @@ static bool get_real_prop( moab::EntityHandle vol, int cell_id, const std::strin
 // and return the number.
 static int tallytype( std::string& str, const char* key, int ret )
 {
-  if( str.find(key) == 0 ){
+  if( str.find(key) == 0 ) {
     str.erase( 0, strlen(key) );
     return ret;
   }
@@ -192,7 +192,8 @@ static int tallytype( std::string& str, const char* key, int ret )
 
 // given a tally specifier like "1.surf.flux.n", return a printable card for the specifier
 // and set 'dim' to 2 or 3 depending on whether its a surf or volume tally
-static char* get_tallyspec( std::string spec, int& dim ){
+static char* get_tallyspec( std::string spec, int& dim )
+{
 
   if( spec.length() < 2 ) return NULL;
   const char* str = spec.c_str();
@@ -206,15 +207,14 @@ static char* get_tallyspec( std::string spec, int& dim ){
   if( strlen(str) < 1 ) return NULL;
 
   std::string tmod;
-  if( str[0] == 'q' ){
-    tmod = "+"; 
+  if( str[0] == 'q' ) {
+    tmod = "+";
     str++;
-  }
-  else if( str[0] == 'e' ){
+  } else if( str[0] == 'e' ) {
     tmod = "*";
     str++;
   }
-  
+
   std::string remainder(str);
   int type = 0;
   type = tallytype( remainder, "surf.current", 1 );
@@ -226,11 +226,11 @@ static char* get_tallyspec( std::string spec, int& dim ){
   if( type == 0 ) return NULL;
 
   std::string particle = "n";
-  if( remainder.length() >= 2 ){
+  if( remainder.length() >= 2 ) {
     if(remainder[0] != '.') return NULL;
     particle = remainder.substr(1);
   }
-  
+
   char* ret = new char[80];
   sprintf( ret, "%sf%d:%s", tmod.c_str(), (10*ID+type), particle.c_str() );
 
@@ -240,12 +240,12 @@ static char* get_tallyspec( std::string spec, int& dim ){
 
 }
 
-void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/surface cards                  
+void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/surface cards
 {
   bool old_method = false;
 
   pyne::Material test_mat;
-  
+
   UWUW workflow_data = UWUW(dagfile);
 
   std::string full_dagfilename = workflow_data.full_filepath;
@@ -256,13 +256,13 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   if ( !old_method ) {
     try
       {
-	test_mat.from_hdf5(full_dagfilename,"/materials");
+  test_mat.from_hdf5(full_dagfilename,"/materials");
       }
     catch (const std::exception &except) // catch the exception from from_hdf5
       {
-	std::cout << "No Materials found in the file, " << dagfile << std::endl;
-	std::cout << "Assuming that the groups are marked in old style" << std::endl;
-	old_method = true;
+  std::cout << "No Materials found in the file, " << dagfile << std::endl;
+  std::cout << "Assuming that the groups are marked in old style" << std::endl;
+  old_method = true;
       }
   }
   */
@@ -275,24 +275,24 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
 
   std::cerr << "Going to write an lcad file = " << lfname << std::endl;
   // Before opening file for writing, check for an existing file
-  if( lfname != "lcad" ){
+  if( lfname != "lcad" ) {
     // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"
-    if( access( lfname.c_str(), R_OK ) == 0 ){
+    if( access( lfname.c_str(), R_OK ) == 0 ) {
       std::cout << "DagMC: reading from existing lcad file " << lfname << std::endl;
-      return; 
+      return;
     }
   }
 
   // by default overwrites the existing file at lfname.c_str()
   std::ofstream lcadfile( lfname.c_str(), std::ios::out );
 
-  if ( old_method ) 
+  if ( old_method )
     write_lcad_old(lcadfile);
   else
     write_lcad_uwuw(lcadfile, workflow_data);
-  
+
   return;
-}    
+}
 
 void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
 {
@@ -302,7 +302,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
 
   material_library = workflow_data.material_library;
   tally_library = workflow_data.tally_library;
-  
+
   if ( material_library.size() == 0 ) {
     std::cout << "No Materials found in the file, " << workflow_data.full_filepath << std::endl;
     std::cout << "Have you used the preprocess script?" << std::endl;
@@ -324,7 +324,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
 
   std::vector<std::string> material_props;
   std::vector<std::string> density_props;
-  
+
   pyne::Material material;
 
   double density;
@@ -346,7 +346,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
       std::cout << "more than one material for volume with id " << cellid << std::endl;
       std::cout << cellid << " has the following material assignments" << std::endl;
       for ( int j = 0 ; j < material_props.size() ; j++ ) {
-	std::cout << material_props[j] << std::endl;
+        std::cout << material_props[j] << std::endl;
       }
       std::cout << "Please check your material assignments " << cellid << std::endl;
       exit(EXIT_FAILURE);
@@ -355,7 +355,7 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
       std::cout << "More than one density specified for " << cellid <<std::endl;
       std::cout << cellid << " has the following density assignments" << std::endl;
       for ( int j = 0 ; j < density_props.size() ; j++ ) {
-	std::cout << density_props[j] << std::endl;
+        std::cout << density_props[j] << std::endl;
       }
       std::cout << "Please check your density assignments " << cellid << std::endl;
       exit(EXIT_FAILURE);
@@ -368,34 +368,29 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
       grp_name = "mat:"+material_props[0];
 
     // not graveyard or vacuum or implicit compliment
-    if (grp_name.find("Graveyard") == std::string::npos && grp_name.find("Vacuum") == std::string::npos 
-	&& !(DAG->is_implicit_complement(entity)) ) 
-      {
-	material = material_library[grp_name];
-	material_number = material.metadata["mat_number"].asInt();
-	density = -1.0*material.density; // -ve for mass density
-	lcadfile << cellid << " " << material_number << " " << density << " imp:n=1" << std::endl;
-      }
+    if (grp_name.find("Graveyard") == std::string::npos && grp_name.find("Vacuum") == std::string::npos
+        && !(DAG->is_implicit_complement(entity)) ) {
+      material = material_library[grp_name];
+      material_number = material.metadata["mat_number"].asInt();
+      density = -1.0*material.density; // -ve for mass density
+      lcadfile << cellid << " " << material_number << " " << density << " imp:n=1" << std::endl;
+    }
     // found graveyard
-    else if (grp_name.find("Graveyard") != std::string::npos)  
-      {
-	lcadfile << cellid << " 0 imp:n=0" << std::endl;
-      }
+    else if (grp_name.find("Graveyard") != std::string::npos) {
+      lcadfile << cellid << " 0 imp:n=0" << std::endl;
+    }
     // vacuum
-    else if (grp_name.find("Vacuum") != std::string::npos)  
-      {
-	lcadfile << cellid << " 0 imp:n=1" << std::endl;
-      }
-    else if (  DAG->is_implicit_complement(entity) )
-      {
-	// need to figure out how we will assign props to implcitcomp
-	lcadfile << cellid << " 0 imp:n=1" << std::endl;
-      }
+    else if (grp_name.find("Vacuum") != std::string::npos) {
+      lcadfile << cellid << " 0 imp:n=1" << std::endl;
+    } else if (  DAG->is_implicit_complement(entity) ) {
+      // need to figure out how we will assign props to implcitcomp
+      lcadfile << cellid << " 0 imp:n=1" << std::endl;
+    }
   }
 
   // blankline
   lcadfile << std::endl;
-  
+
   int num_surfs = DAG->num_entities( 2 );
 
   std::vector<std::string> boundary_assignment; // boundary conditions for the current entity
@@ -405,20 +400,19 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
     moab::EntityHandle entity = DAG->entity_by_index( 2, i );
 
     boundary_assignment = boundary_assignments[entity];
-    if (boundary_assignment.size() != 1 )
-      {
-	std::cout << "More than one boundary conditions specified for " << surfid <<std::endl;
-	std::cout << surfid << " has the following density assignments" << std::endl;
-	for ( int j = 0 ; j < boundary_assignment.size() ; j++ ) {
-	  std::cout << boundary_assignment[j] << std::endl;
-	}
-	std::cout << "Please check your boundary condition assignments " << surfid << std::endl;
-	
+    if (boundary_assignment.size() != 1 ) {
+      std::cout << "More than one boundary conditions specified for " << surfid <<std::endl;
+      std::cout << surfid << " has the following density assignments" << std::endl;
+      for ( int j = 0 ; j < boundary_assignment.size() ; j++ ) {
+        std::cout << boundary_assignment[j] << std::endl;
       }
+      std::cout << "Please check your boundary condition assignments " << surfid << std::endl;
+
+    }
     // 2d entities have been tagged with the boundary condition property
-    // ie. both surfaces and its members triangles, 
-    
-    
+    // ie. both surfaces and its members triangles,
+
+
     if(boundary_assignment[0].find("Reflecting") != std::string::npos )
       lcadfile << "*";
     if (boundary_assignment[0].find("White") != std::string::npos )
@@ -432,14 +426,13 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
 
   // print materials
   lcadfile << "C materials from library" << std::endl;
-  for(std::map<std::string,pyne::Material>::const_iterator it = material_library.begin() ; 
-      it != material_library.end() ; ++it )
-    {
-      pyne::Material new_material = (it->second);
-      std::string material_card = new_material.mcnp();
-      lcadfile << material_card;
-    }
-  
+  for(std::map<std::string,pyne::Material>::const_iterator it = material_library.begin() ;
+      it != material_library.end() ; ++it ) {
+    pyne::Material new_material = (it->second);
+    std::string material_card = new_material.mcnp();
+    lcadfile << material_card;
+  }
+
   // now do tallies
   // loop over all cells
   std::cout << "Tallies" << std::endl;
@@ -449,12 +442,12 @@ void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
     lcadfile << tally_card;
     count++;
   }
-  
+
 }
 
 
 
-void write_lcad_old(std::ofstream &lcadfile) 
+void write_lcad_old(std::ofstream &lcadfile)
 {
   moab::ErrorCode rval;
 
@@ -471,7 +464,7 @@ void write_lcad_old(std::ofstream &lcadfile)
   mcnp5_keywords.push_back( "spec.reflect" );
   mcnp5_keywords.push_back( "white.reflect" );
   mcnp5_keywords.push_back( "graveyard" );
-  
+
   mcnp5_keyword_synonyms[ "rest.of.world" ] = "graveyard";
   mcnp5_keyword_synonyms[ "outside.world" ] = "graveyard";
 
@@ -489,22 +482,22 @@ void write_lcad_old(std::ofstream &lcadfile)
   double crho, cimp = 1.0;
 
   // write the cell cards
-  for( int i = 1; i <= num_cells; ++i ){
+  for( int i = 1; i <= num_cells; ++i ) {
 
     moab::EntityHandle vol = DAG->entity_by_index( 3, i );
     int cellid = DAG->id_by_index( 3, i );
     // set default importances for p and e to negative, indicating no card should be printed.
     double imp_n = 1, imp_p = -1, imp_e = -1;
 
-    if( DAG->has_prop( vol, "imp.n" )){
+    if( DAG->has_prop( vol, "imp.n" )) {
       get_real_prop( vol, cellid, "imp.n", imp_n );
     }
 
-    if( DAG->has_prop( vol, "imp.p" )){
+    if( DAG->has_prop( vol, "imp.p" )) {
       get_real_prop( vol, cellid, "imp.p", imp_p );
     }
 
-    if( DAG->has_prop( vol, "imp.e" )){
+    if( DAG->has_prop( vol, "imp.e" )) {
       get_real_prop( vol, cellid, "imp.e", imp_e );
     }
 
@@ -512,29 +505,26 @@ void write_lcad_old(std::ofstream &lcadfile)
 
     bool graveyard = DAG->has_prop( vol, "graveyard" );
 
-    if( graveyard ){
+    if( graveyard ) {
       lcadfile << " 0 imp:n=0";
-      if( DAG->has_prop(vol, "comp") ){
+      if( DAG->has_prop(vol, "comp") ) {
         // material for the implicit complement has been specified.
         get_int_prop( vol, cellid, "mat", cmat );
         get_real_prop( vol, cellid, "rho", crho );
-	std::cout << "Detected material and density specified for implicit complement: " << cmat <<", " << crho << std::endl;
+        std::cout << "Detected material and density specified for implicit complement: " << cmat <<", " << crho << std::endl;
         cimp = imp_n;
       }
-    }
-    else if( DAG->is_implicit_complement(vol) ){
+    } else if( DAG->is_implicit_complement(vol) ) {
       lcadfile << cmat;
       if( cmat != 0 ) lcadfile << " " << crho;
       lcadfile << " imp:n=" << cimp << " $ implicit complement";
-    }
-    else{
+    } else {
       int mat = 0;
       get_int_prop( vol, cellid, "mat", mat );
 
-      if( mat == 0 ){
+      if( mat == 0 ) {
         lcadfile << "0";
-      }
-      else{
+      } else {
         double rho = 1.0;
         get_real_prop( vol, cellid, "rho", rho );
         lcadfile << mat << " " << rho;
@@ -549,16 +539,15 @@ void write_lcad_old(std::ofstream &lcadfile)
 
   // cells finished, skip a line
   lcadfile << std::endl;
-  
+
   // write the surface cards
-  for( int i = 1; i <= num_surfs; ++i ){
+  for( int i = 1; i <= num_surfs; ++i ) {
     moab::EntityHandle surf = DAG->entity_by_index( 2, i );
     int surfid = DAG->id_by_index( 2, i );
 
-    if( DAG->has_prop( surf, "spec.reflect" ) ){
+    if( DAG->has_prop( surf, "spec.reflect" ) ) {
       lcadfile << "*";
-    }
-    else if ( DAG->has_prop( surf, "white.reflect" ) ){
+    } else if ( DAG->has_prop( surf, "white.reflect" ) ) {
       lcadfile << "+";
     }
     lcadfile << surfid << std::endl;
@@ -573,42 +562,40 @@ void write_lcad_old(std::ofstream &lcadfile)
   if( rval != moab::MB_SUCCESS ) exit(EXIT_FAILURE);
 
   for( std::vector<std::string>::iterator i = tally_specifiers.begin();
-       i != tally_specifiers.end(); ++i )
-    {
-      int dim = 0;
-      char* card = get_tallyspec( *i, dim );
-      if( card == NULL ){
-	std::cerr << "Invalid dag-mcnp tally specifier: " << *i << std::endl;
-	std::cerr << "This tally will not appear in the problem." << std::endl;
-	continue;
-      }
-      std::stringstream tally_card;
-
-      tally_card << card;
-      std::vector<moab::EntityHandle> handles;
-      std::string s = *i;
-      rval = DAG->entities_by_property( "tally", handles, dim, &s );
-      if( rval != moab::MB_SUCCESS ) exit (EXIT_FAILURE);
-
-      for( std::vector<moab::EntityHandle>::iterator j = handles.begin();
-	   j != handles.end(); ++j )
-	{
-	  tally_card << " " << DAG->get_entity_id(*j);
-	}
-
-      tally_card  << " T";
-      delete[] card;
-
-      // write the contents of the the tally_card without exceeding 80 chars
-      std::string cardstr = tally_card.str();
-      while( cardstr.length() > 72 ){
-        size_t pos = cardstr.rfind(' ',72);
-        lcadfile << cardstr.substr(0,pos) << " &" << std::endl;
-        lcadfile << "     ";
-        cardstr.erase(0,pos);
-      }
-      lcadfile << cardstr << std::endl;
+       i != tally_specifiers.end(); ++i ) {
+    int dim = 0;
+    char* card = get_tallyspec( *i, dim );
+    if( card == NULL ) {
+      std::cerr << "Invalid dag-mcnp tally specifier: " << *i << std::endl;
+      std::cerr << "This tally will not appear in the problem." << std::endl;
+      continue;
     }
+    std::stringstream tally_card;
+
+    tally_card << card;
+    std::vector<moab::EntityHandle> handles;
+    std::string s = *i;
+    rval = DAG->entities_by_property( "tally", handles, dim, &s );
+    if( rval != moab::MB_SUCCESS ) exit (EXIT_FAILURE);
+
+    for( std::vector<moab::EntityHandle>::iterator j = handles.begin();
+         j != handles.end(); ++j ) {
+      tally_card << " " << DAG->get_entity_id(*j);
+    }
+
+    tally_card  << " T";
+    delete[] card;
+
+    // write the contents of the the tally_card without exceeding 80 chars
+    std::string cardstr = tally_card.str();
+    while( cardstr.length() > 72 ) {
+      size_t pos = cardstr.rfind(' ',72);
+      lcadfile << cardstr.substr(0,pos) << " &" << std::endl;
+      lcadfile << "     ";
+      cardstr.erase(0,pos);
+    }
+    lcadfile << cardstr << std::endl;
+  }
 
 }
 
@@ -623,17 +610,17 @@ void dagmcangl_(int *jsu, double *xxx, double *yyy, double *zzz, double *ang)
   }
 
 #ifdef TRACE_DAGMC_CALLS
-  std::cout << "angl: " << *xxx << ", " << *yyy << ", " << *zzz << " --> " 
+  std::cout << "angl: " << *xxx << ", " << *yyy << ", " << *zzz << " --> "
             << ang[0] <<", " << ang[1] << ", " << ang[2] << std::endl;
   CartVect uvw(last_uvw);
   CartVect norm(ang);
   double aa = angle(uvw,norm) * (180.0/M_PI);
   std::cout << "    : " << aa << " deg to uvw" << (aa>90.0? " (!)":"")  << std::endl;
 #endif
-  
+
 }
 
-void dagmcchkcel_by_angle_( double *uuu, double *vvv, double *www, 
+void dagmcchkcel_by_angle_( double *uuu, double *vvv, double *www,
                             double *xxx, double *yyy, double *zzz,
                             int *jsu, int *i1, int *j)
 {
@@ -654,24 +641,23 @@ void dagmcchkcel_by_angle_( double *uuu, double *vvv, double *www,
 
   int result;
   moab::ErrorCode rval = DAG->test_volume_boundary( vol, surf, xyz, uvw, result, &history );
-  if( moab::MB_SUCCESS != rval ){
+  if( moab::MB_SUCCESS != rval ) {
     std::cerr << "DAGMC: failed calling test_volume_boundary" << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  switch (result)
-      {
-      case 1: 
-        *j = 0; // inside==  1 -> inside volume -> j=0
-        break;
-      case 0:
-        *j = 1; // outside== 0  -> outside volume -> j=1
-        break;
-      default:
-        std::cerr << "Impossible result in dagmcchkcel_by_angle" << std::endl;
-        exit(EXIT_FAILURE);
-      }
- 
+  switch (result) {
+  case 1:
+    *j = 0; // inside==  1 -> inside volume -> j=0
+    break;
+  case 0:
+    *j = 1; // outside== 0  -> outside volume -> j=1
+    break;
+  default:
+    std::cerr << "Impossible result in dagmcchkcel_by_angle" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
 #ifdef TRACE_DAGMC_CALLS
   std::cout<< "chkcel_by_angle: j=" << *j << std::endl;
 #endif
@@ -685,7 +671,7 @@ void dagmcchkcel_(double *uuu,double *vvv,double *www,double *xxx,
 
 #ifdef TRACE_DAGMC_CALLS
   std::cout<< " " << std::endl;
-  std::cout<< "chkcel: vol=" << DAG->id_by_index(3,*i1) << " xyz=" << *xxx 
+  std::cout<< "chkcel: vol=" << DAG->id_by_index(3,*i1) << " xyz=" << *xxx
            << " " << *yyy << " " << *zzz << std::endl;
   std::cout<< "      : uvw = " << *uuu << " " << *vvv << " " << *www << std::endl;
 #endif
@@ -703,22 +689,21 @@ void dagmcchkcel_(double *uuu,double *vvv,double *www,double *xxx,
 
   if (moab::MB_SUCCESS != rval) *j = -2;
   else
-    switch (inside)
-      {
-      case 1: 
-        *j = 0; // inside==  1 -> inside volume -> j=0
-        break;
-      case 0:
-        *j = 1; // outside== 0  -> outside volume -> j=1
-        break;
-      case -1:
-        *j = 1; // onboundary== -1 -> on boundary -> j=1 (assume leaving volume)
-        break;
-      default:
-        std::cerr << "Impossible result in dagmcchkcel" << std::endl;
-        exit(EXIT_FAILURE);
-      }
-  
+    switch (inside) {
+    case 1:
+      *j = 0; // inside==  1 -> inside volume -> j=0
+      break;
+    case 0:
+      *j = 1; // outside== 0  -> outside volume -> j=1
+      break;
+    case -1:
+      *j = 1; // onboundary== -1 -> on boundary -> j=1 (assume leaving volume)
+      break;
+    default:
+      std::cerr << "Impossible result in dagmcchkcel" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
 #ifdef TRACE_DAGMC_CALLS
   std::cout<< "chkcel: j=" << *j << std::endl;
 #endif
@@ -756,17 +741,17 @@ void dagmcnewcel_( int *jsu, int *icl, int *iap )
   moab::EntityHandle newvol = 0;
 
   moab::ErrorCode rval = DAG->next_vol( surf, vol, newvol );
-  if( moab::MB_SUCCESS != rval ){
+  if( moab::MB_SUCCESS != rval ) {
     *iap = -1;
     std::cerr << "DAGMC: error calling next_vol, newcel_ returning -1" << std::endl;
   }
-  
+
   *iap = DAG->index_by_handle( newvol );
 
   visited_surface = true;
-  
+
 #ifdef TRACE_DAGMC_CALLS
-  std::cout<< "newcel: prev_vol=" << DAG->id_by_index(3,*icl) << " surf= " 
+  std::cout<< "newcel: prev_vol=" << DAG->id_by_index(3,*icl) << " surf= "
            << DAG->id_by_index(2,*jsu) << " next_vol= " << DAG->id_by_index(3,*iap) <<std::endl;
 
 #endif
@@ -780,7 +765,7 @@ void dagmc_surf_reflection_( double *uuu, double *vvv, double *www, int* verify_
   // compute and report the angle between old and new
   CartVect oldv(last_uvw);
   CartVect newv( *uuu, *vvv, *www );
-  
+
   std::cout << "surf_reflection: " << angle(oldv,newv)*(180.0/M_PI) << std::endl;;
 #endif
 
@@ -788,26 +773,26 @@ void dagmc_surf_reflection_( double *uuu, double *vvv, double *www, int* verify_
   visited_surface = true;
 
   bool update = true;
-  if( *verify_dir_change ){
+  if( *verify_dir_change ) {
     if( last_uvw[0] == *uuu && last_uvw[1] == *vvv && last_uvw[2] == *www  )
       update = false;
   }
 
-  if( update ){
+  if( update ) {
     last_uvw[0] = *uuu;
     last_uvw[1] = *vvv;
     last_uvw[2] = *www;
-    history.reset_to_last_intersection();  
+    history.reset_to_last_intersection();
   }
 
 #ifdef TRACE_DAGMC_CALLS
-  else{
+  else {
     // mark it in the log if nothing happened
     std::cout << "(noop)";
   }
 
   std::cout << std::endl;
-#endif 
+#endif
 
 }
 
@@ -831,7 +816,7 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
                  double *yyy,double *zzz,double *huge,double *dls,int *jap,int *jsu,
                  int *nps )
 {
-    // Get data from IDs
+  // Get data from IDs
   moab::EntityHandle vol = DAG->entity_by_index( 3, *ih );
   moab::EntityHandle prev = DAG->entity_by_index( 2, *jsu );
   moab::EntityHandle next_surf = 0;
@@ -839,24 +824,23 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
 
 #ifdef ENABLE_RAYSTAT_DUMPS
   moab::OrientedBoxTreeTool::TrvStats trv;
-#endif 
+#endif
 
   double point[3] = {*xxx,*yyy,*zzz};
-  double dir[3]   = {*uuu,*vvv,*www};  
+  double dir[3]   = {*uuu,*vvv,*www};
 
   /* detect streaming or reflecting situations */
-  if( last_nps != *nps || prev == 0 ){
+  if( last_nps != *nps || prev == 0 ) {
     // not streaming or reflecting: reset history
-    history.reset(); 
+    history.reset();
 #ifdef TRACE_DAGMC_CALLS
     std::cout << "track: new history" << std::endl;
 #endif
 
-  }
-  else if( last_uvw[0] == *uuu && last_uvw[1] == *vvv && last_uvw[2] == *www ){
-    // streaming -- use history without change 
+  } else if( last_uvw[0] == *uuu && last_uvw[1] == *vvv && last_uvw[2] == *www ) {
+    // streaming -- use history without change
     // unless a surface was not visited
-    if( !visited_surface ){ 
+    if( !visited_surface ) {
       history.rollback_last_intersection();
 #ifdef TRACE_DAGMC_CALLS
       std::cout << "     : (rbl)" << std::endl;
@@ -865,8 +849,7 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
 #ifdef TRACE_DAGMC_CALLS
     std::cout << "track: streaming " << history.size() << std::endl;
 #endif
-  }
-  else{
+  } else {
     // not streaming or reflecting
     history.reset();
 
@@ -876,46 +859,46 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
 
   }
 
-  moab::ErrorCode result = DAG->ray_fire(vol, point, dir, 
-                                     next_surf, next_surf_dist, &history, 
-                                     (use_dist_limit ? dist_limit : 0 )
+  moab::ErrorCode result = DAG->ray_fire(vol, point, dir,
+                                         next_surf, next_surf_dist, &history,
+                                         (use_dist_limit ? dist_limit : 0 )
 #ifdef ENABLE_RAYSTAT_DUMPS
-                                     , raystat_dump ? &trv : NULL 
+                                         , raystat_dump ? &trv : NULL
 #endif
-                                     );
+                                        );
 
-  
-  if(moab::MB_SUCCESS != result){
+
+  if(moab::MB_SUCCESS != result) {
     std::cerr << "DAGMC: failed in ray_fire" << std::endl;
     exit( EXIT_FAILURE );
   }
 
-  
-  for( int i = 0; i < 3; ++i ){ last_uvw[i] = dir[i]; } 
+
+  for( int i = 0; i < 3; ++i ) {
+    last_uvw[i] = dir[i];
+  }
   last_nps = *nps;
 
   // Return results: if next_surf exists, then next_surf_dist will be nearer than dist_limit (if any)
-  if( next_surf != 0 ){
-    *jap = DAG->index_by_handle( next_surf ); 
-    *dls = next_surf_dist; 
-  }
-  else{
-    // no next surface 
+  if( next_surf != 0 ) {
+    *jap = DAG->index_by_handle( next_surf );
+    *dls = next_surf_dist;
+  } else {
+    // no next surface
     *jap = 0;
-    if( use_dist_limit ){
+    if( use_dist_limit ) {
       // Dist limit on: return a number bigger than dist_limit
       *dls = dist_limit * 2.0;
-    }
-    else{
+    } else {
       // Dist limit off: return huge value, triggering lost particle
       *dls = *huge;
     }
   }
 
   visited_surface = false;
-  
+
 #ifdef ENABLE_RAYSTAT_DUMPS
-  if( raystat_dump ){
+  if( raystat_dump ) {
 
     *raystat_dump << *ih << ",";
     *raystat_dump << trv.ray_tri_tests() << ",";
@@ -923,11 +906,11 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
     *raystat_dump << std::accumulate( trv.leaves_visited().begin(), trv.leaves_visited().end(), 0 ) << std::endl;
 
   }
-#endif 
+#endif
 
 #ifdef TRACE_DAGMC_CALLS
 
-  std::cout<< "track: vol=" << DAG->id_by_index(3,*ih) << " prev_surf=" << DAG->id_by_index(2,*jsu) 
+  std::cout<< "track: vol=" << DAG->id_by_index(3,*ih) << " prev_surf=" << DAG->id_by_index(2,*jsu)
            << " next_surf=" << DAG->id_by_index(2,*jap) << " nps=" << *nps <<std::endl;
   std::cout<< "     : xyz=" << *xxx << " " << *yyy << " "<< *zzz << " dist = " << *dls << std::flush;
   if( use_dist_limit && *jap == 0 ) std::cout << " > distlimit" << std::flush;
@@ -939,7 +922,7 @@ void dagmctrack_(int *ih, double *uuu,double *vvv,double *www,double *xxx,
 
 void dagmc_bank_push_( int* nbnk )
 {
-  if( ((unsigned)*nbnk) != history_bank.size() ){
+  if( ((unsigned)*nbnk) != history_bank.size() ) {
     std::cerr << "bank push size mismatch: F" << *nbnk << " C" << history_bank.size() << std::endl;
   }
   history_bank.push_back( history );
@@ -949,17 +932,16 @@ void dagmc_bank_push_( int* nbnk )
 #endif
 }
 
-void dagmc_bank_usetop_( ) 
+void dagmc_bank_usetop_( )
 {
 
 #ifdef TRACE_DAGMC_CALLS
   std::cout << "bank_usetop" << std::endl;
 #endif
 
-  if( history_bank.size() ){
+  if( history_bank.size() ) {
     history = history_bank.back();
-  }
-  else{
+  } else {
     std::cerr << "dagmc_bank_usetop_() called without bank history!" << std::endl;
   }
 }
@@ -967,12 +949,12 @@ void dagmc_bank_usetop_( )
 void dagmc_bank_pop_( int* nbnk )
 {
 
-  if( ((unsigned)*nbnk) != history_bank.size() ){
+  if( ((unsigned)*nbnk) != history_bank.size() ) {
     std::cerr << "bank pop size mismatch: F" << *nbnk << " C" << history_bank.size() << std::endl;
   }
 
-  if( history_bank.size() ){
-    history_bank.pop_back( ); 
+  if( history_bank.size() ) {
+    history_bank.pop_back( );
   }
 
 #ifdef TRACE_DAGMC_CALLS
@@ -1009,22 +991,22 @@ void dagmc_getpar_( int* n )
 void dagmcvolume_(int* mxa, double* vols, int* mxj, double* aras)
 {
   moab::ErrorCode rval;
-  
-    // get size of each volume
+
+  // get size of each volume
   int num_vols = DAG->num_entities(3);
   for (int i = 0; i < num_vols; ++i) {
     rval = DAG->measure_volume( DAG->entity_by_index(3, i+1), vols[i*2] );
-    if( moab::MB_SUCCESS != rval ){
+    if( moab::MB_SUCCESS != rval ) {
       std::cerr << "DAGMC: could not measure volume " << i+1 << std::endl;
       exit( EXIT_FAILURE );
     }
   }
-  
-    // get size of each surface
+
+  // get size of each surface
   int num_surfs = DAG->num_entities(2);
   for (int i = 0; i < num_surfs; ++i) {
     rval = DAG->measure_area( DAG->entity_by_index(2, i+1), aras[i*2] );
-    if( moab::MB_SUCCESS != rval ){
+    if( moab::MB_SUCCESS != rval ) {
       std::cerr << "DAGMC: could not measure surface " << i+1 << std::endl;
       exit( EXIT_FAILURE );
     }
@@ -1043,12 +1025,12 @@ void dagmc_setdis_(double *d)
 void dagmc_set_settings_(int* fort_use_dist_limit, int* use_cad, double* overlap_thickness, int* srccell_mode )
 {
 
-  if( *fort_use_dist_limit ){
+  if( *fort_use_dist_limit ) {
     std::cout << "DAGMC distance limit optimization is ENABLED" << std::endl;
     use_dist_limit = true;
   }
 
-  if( *srccell_mode ){
+  if( *srccell_mode ) {
     std::cout << "DAGMC source cell optimization is ENABLED (warning: experimental!)" << std::endl;
   }
 
@@ -1058,7 +1040,7 @@ void dagmc_set_settings_(int* fort_use_dist_limit, int* use_cad, double* overlap
 
 }
 
-void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,    
+void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
                           double* overlap_thickness, double* facet_tol, int* srccell_mode )
 {
 
@@ -1067,11 +1049,11 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
   *use_cad = DAG->use_CAD() ? 1 : 0;
 
   *overlap_thickness = DAG->overlap_thickness();
-  
+
   *facet_tol = DAG->faceting_tolerance();
 
 
-  if( *srccell_mode ){
+  if( *srccell_mode ) {
     std::cout << "DAGMC source cell optimization is ENABLED (warning: experimental!)" << std::endl;
   }
 
@@ -1080,8 +1062,8 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 
 // given a property string, dimension and the delimeter of the string, return an entityhandle wise map of the
 // property value
-std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property, 
-									    int dimension, std::string delimiters)
+std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property,
+    int dimension, std::string delimiters)
 {
 
   std::map<moab::EntityHandle,std::vector<std::string> > prop_map;
@@ -1122,10 +1104,10 @@ std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(
 
     // remove duplicates
     std::vector<std::string>::iterator it;
-    it = std::unique(properties.begin(),properties.end());   
+    it = std::unique(properties.begin(),properties.end());
     // resize vector to remove empty parts
     properties.resize(std::distance(properties.begin(),it));
-    
+
     // assign the map value
     prop_map[entity]=properties;
   }

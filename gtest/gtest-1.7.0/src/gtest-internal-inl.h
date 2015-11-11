@@ -70,7 +70,8 @@
 #include "gtest/gtest.h"  // NOLINT
 #include "gtest/gtest-spi.h"
 
-namespace testing {
+namespace testing
+{
 
 // Declares the flags.
 //
@@ -79,7 +80,8 @@ namespace testing {
 // declare it here as opposed to in gtest.h.
 GTEST_DECLARE_bool_(death_test_use_fork);
 
-namespace internal {
+namespace internal
+{
 
 // The value of GetTestTypeId() as seen from within the Google Test
 // library.  This is solely for testing GetTestTypeId().
@@ -132,10 +134,11 @@ GTEST_API_ bool ParseInt32Flag(
 
 // Returns a random seed in range [1, kMaxRandomSeed] based on the
 // given --gtest_random_seed flag value.
-inline int GetRandomSeedFromFlag(Int32 random_seed_flag) {
+inline int GetRandomSeedFromFlag(Int32 random_seed_flag)
+{
   const unsigned int raw_seed = (random_seed_flag == 0) ?
-      static_cast<unsigned int>(GetTimeInMillis()) :
-      static_cast<unsigned int>(random_seed_flag);
+                                static_cast<unsigned int>(GetTimeInMillis()) :
+                                static_cast<unsigned int>(random_seed_flag);
 
   // Normalizes the actual seed to range [1, kMaxRandomSeed] such that
   // it's easy to type.
@@ -148,7 +151,8 @@ inline int GetRandomSeedFromFlag(Int32 random_seed_flag) {
 // Returns the first valid random seed after 'seed'.  The behavior is
 // undefined if 'seed' is invalid.  The seed after kMaxRandomSeed is
 // considered to be 1.
-inline int GetNextRandomSeed(int seed) {
+inline int GetNextRandomSeed(int seed)
+{
   GTEST_CHECK_(1 <= seed && seed <= kMaxRandomSeed)
       << "Invalid random seed " << seed << " - must be in [1, "
       << kMaxRandomSeed << "].";
@@ -158,7 +162,8 @@ inline int GetNextRandomSeed(int seed) {
 
 // This class saves the values of all Google Test flags in its c'tor, and
 // restores them in its d'tor.
-class GTestFlagSaver {
+class GTestFlagSaver
+{
  public:
   // The c'tor.
   GTestFlagSaver() {
@@ -279,7 +284,8 @@ GTEST_API_ bool ShouldRunTestOnShard(
 // Returns the number of elements in the given container that satisfy
 // the given predicate.
 template <class Container, typename Predicate>
-inline int CountIf(const Container& c, Predicate predicate) {
+inline int CountIf(const Container& c, Predicate predicate)
+{
   // Implemented as an explicit loop since std::count_if() in libCstd on
   // Solaris has a non-standard signature.
   int count = 0;
@@ -292,14 +298,16 @@ inline int CountIf(const Container& c, Predicate predicate) {
 
 // Applies a function/functor to each element in the container.
 template <class Container, typename Functor>
-void ForEach(const Container& c, Functor functor) {
+void ForEach(const Container& c, Functor functor)
+{
   std::for_each(c.begin(), c.end(), functor);
 }
 
 // Returns the i-th element of the vector, or default_value if i is not
 // in range [0, v.size()).
 template <typename E>
-inline E GetElementOr(const std::vector<E>& v, int i, E default_value) {
+inline E GetElementOr(const std::vector<E>& v, int i, E default_value)
+{
   return (i < 0 || i >= static_cast<int>(v.size())) ? default_value : v[i];
 }
 
@@ -309,7 +317,8 @@ inline E GetElementOr(const std::vector<E>& v, int i, E default_value) {
 // shuffle to the end of the vector.
 template <typename E>
 void ShuffleRange(internal::Random* random, int begin, int end,
-                  std::vector<E>* v) {
+                  std::vector<E>* v)
+{
   const int size = static_cast<int>(v->size());
   GTEST_CHECK_(0 <= begin && begin <= size)
       << "Invalid shuffle range start " << begin << ": must be in range [0, "
@@ -329,21 +338,24 @@ void ShuffleRange(internal::Random* random, int begin, int end,
 
 // Performs an in-place shuffle of the vector's elements.
 template <typename E>
-inline void Shuffle(internal::Random* random, std::vector<E>* v) {
+inline void Shuffle(internal::Random* random, std::vector<E>* v)
+{
   ShuffleRange(random, 0, static_cast<int>(v->size()), v);
 }
 
 // A function for deleting an object.  Handy for being used as a
 // functor.
 template <typename T>
-static void Delete(T* x) {
+static void Delete(T* x)
+{
   delete x;
 }
 
 // A predicate that checks the key of a TestProperty against a known key.
 //
 // TestPropertyKeyIs is copyable.
-class TestPropertyKeyIs {
+class TestPropertyKeyIs
+{
  public:
   // Constructor.
   //
@@ -369,7 +381,8 @@ class TestPropertyKeyIs {
 // test filter using either GTEST_FILTER or --gtest_filter.  If both
 // the variable and the flag are present, the latter overrides the
 // former.
-class GTEST_API_ UnitTestOptions {
+class GTEST_API_ UnitTestOptions
+{
  public:
   // Functions for processing the gtest_output flag.
 
@@ -414,7 +427,8 @@ class GTEST_API_ UnitTestOptions {
 GTEST_API_ FilePath GetCurrentExecutableName();
 
 // The role interface for getting the OS stack trace as a string.
-class OsStackTraceGetterInterface {
+class OsStackTraceGetterInterface
+{
  public:
   OsStackTraceGetterInterface() {}
   virtual ~OsStackTraceGetterInterface() {}
@@ -437,12 +451,13 @@ class OsStackTraceGetterInterface {
 };
 
 // A working implementation of the OsStackTraceGetterInterface interface.
-class OsStackTraceGetter : public OsStackTraceGetterInterface {
+class OsStackTraceGetter : public OsStackTraceGetterInterface
+{
  public:
   OsStackTraceGetter() : caller_frame_(NULL) {}
 
   virtual string CurrentStackTrace(int max_depth, int skip_count)
-      GTEST_LOCK_EXCLUDED_(mutex_);
+  GTEST_LOCK_EXCLUDED_(mutex_);
 
   virtual void UponLeavingGTest() GTEST_LOCK_EXCLUDED_(mutex_);
 
@@ -472,7 +487,8 @@ struct TraceInfo {
 // This is the default global test part result reporter used in UnitTestImpl.
 // This class should only be used by UnitTestImpl.
 class DefaultGlobalTestPartResultReporter
-  : public TestPartResultReporterInterface {
+: public TestPartResultReporterInterface
+{
  public:
   explicit DefaultGlobalTestPartResultReporter(UnitTestImpl* unit_test);
   // Implements the TestPartResultReporterInterface. Reports the test part
@@ -488,7 +504,8 @@ class DefaultGlobalTestPartResultReporter
 // This is the default per thread test part result reporter used in
 // UnitTestImpl. This class should only be used by UnitTestImpl.
 class DefaultPerThreadTestPartResultReporter
-    : public TestPartResultReporterInterface {
+: public TestPartResultReporterInterface
+{
  public:
   explicit DefaultPerThreadTestPartResultReporter(UnitTestImpl* unit_test);
   // Implements the TestPartResultReporterInterface. The implementation just
@@ -505,7 +522,8 @@ class DefaultPerThreadTestPartResultReporter
 // the methods under a mutex, as this class is not accessible by a
 // user and the UnitTest class that delegates work to this class does
 // proper locking.
-class GTEST_API_ UnitTestImpl {
+class GTEST_API_ UnitTestImpl
+{
  public:
   explicit UnitTestImpl(UnitTest* parent);
   virtual ~UnitTestImpl();
@@ -567,13 +585,19 @@ class GTEST_API_ UnitTestImpl {
 
   // Gets the time of the test program start, in ms from the start of the
   // UNIX epoch.
-  TimeInMillis start_timestamp() const { return start_timestamp_; }
+  TimeInMillis start_timestamp() const {
+    return start_timestamp_;
+  }
 
   // Gets the elapsed time, in milliseconds.
-  TimeInMillis elapsed_time() const { return elapsed_time_; }
+  TimeInMillis elapsed_time() const {
+    return elapsed_time_;
+  }
 
   // Returns true iff the unit test passed (i.e. all test cases passed).
-  bool Passed() const { return !Failed(); }
+  bool Passed() const {
+    return !Failed();
+  }
 
   // Returns true iff the unit test failed (i.e. some test case failed
   // or something outside of all tests failed).
@@ -596,14 +620,18 @@ class GTEST_API_ UnitTestImpl {
   }
 
   // Provides access to the event listener list.
-  TestEventListeners* listeners() { return &listeners_; }
+  TestEventListeners* listeners() {
+    return &listeners_;
+  }
 
   // Returns the TestResult for the test that's currently running, or
   // the TestResult for the ad hoc test if no test is running.
   TestResult* current_test_result();
 
   // Returns the TestResult for the ad hoc test.
-  const TestResult* ad_hoc_test_result() const { return &ad_hoc_test_result_; }
+  const TestResult* ad_hoc_test_result() const {
+    return &ad_hoc_test_result_;
+  }
 
   // Sets the OS stack trace getter.
   //
@@ -724,8 +752,8 @@ class GTEST_API_ UnitTestImpl {
   void RecordProperty(const TestProperty& test_property);
 
   enum ReactionToSharding {
-    HONOR_SHARDING_PROTOCOL,
-    IGNORE_SHARDING_PROTOCOL
+      HONOR_SHARDING_PROTOCOL,
+      IGNORE_SHARDING_PROTOCOL
   };
 
   // Matches the full name of each test against the user-specified
@@ -739,13 +767,21 @@ class GTEST_API_ UnitTestImpl {
   // Prints the names of the tests matching the user-specified filter flag.
   void ListTestsMatchingFilter();
 
-  const TestCase* current_test_case() const { return current_test_case_; }
-  TestInfo* current_test_info() { return current_test_info_; }
-  const TestInfo* current_test_info() const { return current_test_info_; }
+  const TestCase* current_test_case() const {
+    return current_test_case_;
+  }
+  TestInfo* current_test_info() {
+    return current_test_info_;
+  }
+  const TestInfo* current_test_info() const {
+    return current_test_info_;
+  }
 
   // Returns the vector of environments that need to be set-up/torn-down
   // before/after the tests are run.
-  std::vector<Environment*>& environments() { return environments_; }
+  std::vector<Environment*>& environments() {
+    return environments_;
+  }
 
   // Getters for the per-thread Google Test trace stack.
   std::vector<TraceInfo>& gtest_trace_stack() {
@@ -795,10 +831,14 @@ class GTEST_API_ UnitTestImpl {
   void PostFlagParsingInit();
 
   // Gets the random seed used at the start of the current test iteration.
-  int random_seed() const { return random_seed_; }
+  int random_seed() const {
+    return random_seed_;
+  }
 
   // Gets the random number generator.
-  internal::Random* random() { return &random_; }
+  internal::Random* random() {
+    return &random_;
+  }
 
   // Shuffles all test cases, and the tests within each test case,
   // making sure that death tests are still run first.
@@ -809,14 +849,18 @@ class GTEST_API_ UnitTestImpl {
 
   // Returns the value of GTEST_FLAG(catch_exceptions) at the moment
   // UnitTest::Run() starts.
-  bool catch_exceptions() const { return catch_exceptions_; }
+  bool catch_exceptions() const {
+    return catch_exceptions_;
+  }
 
  private:
   friend class ::testing::UnitTest;
 
   // Used by UnitTest::Run() to capture the state of
   // GTEST_FLAG(catch_exceptions) at the moment it starts.
-  void set_catch_exceptions(bool value) { catch_exceptions_ = value; }
+  void set_catch_exceptions(bool value) {
+    catch_exceptions_ = value;
+  }
 
   // The UnitTest object that owns this implementation object.
   UnitTest* const parent_;
@@ -828,7 +872,7 @@ class GTEST_API_ UnitTestImpl {
   // The default test part result reporters.
   DefaultGlobalTestPartResultReporter default_global_test_part_result_reporter_;
   DefaultPerThreadTestPartResultReporter
-      default_per_thread_test_part_result_reporter_;
+  default_per_thread_test_part_result_reporter_;
 
   // Points to (but doesn't own) the global test part result reporter.
   TestPartResultReporterInterface* global_test_part_result_repoter_;
@@ -838,7 +882,7 @@ class GTEST_API_ UnitTestImpl {
 
   // Points to (but doesn't own) the per-thread test part result reporter.
   internal::ThreadLocal<TestPartResultReporterInterface*>
-      per_thread_test_part_result_reporter_;
+  per_thread_test_part_result_reporter_;
 
   // The vector of environments that need to be set-up/torn-down
   // before/after the tests are run.
@@ -933,7 +977,8 @@ class GTEST_API_ UnitTestImpl {
 
 // Convenience function for accessing the global UnitTest
 // implementation object.
-inline UnitTestImpl* GetUnitTestImpl() {
+inline UnitTestImpl* GetUnitTestImpl()
+{
   return UnitTest::GetInstance()->impl();
 }
 
@@ -970,15 +1015,22 @@ GTEST_API_ std::string GetLastErrnoDescription();
 
 # if GTEST_OS_WINDOWS
 // Provides leak-safe Windows kernel handle ownership.
-class AutoHandle {
+class AutoHandle
+{
  public:
   AutoHandle() : handle_(INVALID_HANDLE_VALUE) {}
   explicit AutoHandle(HANDLE handle) : handle_(handle) {}
 
-  ~AutoHandle() { Reset(); }
+  ~AutoHandle() {
+    Reset();
+  }
 
-  HANDLE Get() const { return handle_; }
-  void Reset() { Reset(INVALID_HANDLE_VALUE); }
+  HANDLE Get() const {
+    return handle_;
+  }
+  void Reset() {
+    Reset(INVALID_HANDLE_VALUE);
+  }
   void Reset(HANDLE handle) {
     if (handle != handle_) {
       if (handle_ != INVALID_HANDLE_VALUE)
@@ -999,7 +1051,8 @@ class AutoHandle {
 // GTEST_HAS_DEATH_TEST implies that we have ::std::string, so we can use
 // it here.
 template <typename Integer>
-bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
+bool ParseNaturalNumber(const ::std::string& str, Integer* number)
+{
   // Fail fast if the given string does not begin with a digit;
   // this bypasses strtoXXX's "optional leading whitespace and plus
   // or minus sign" semantics, which are undesirable here.
@@ -1046,7 +1099,8 @@ bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
 //
 // This class is supplied only for the purpose of testing Google Test's own
 // constructs. Do not use it in user tests, either directly or indirectly.
-class TestResultAccessor {
+class TestResultAccessor
+{
  public:
   static void RecordProperty(TestResult* test_result,
                              const std::string& xml_element,
@@ -1067,10 +1121,12 @@ class TestResultAccessor {
 #if GTEST_CAN_STREAM_RESULTS_
 
 // Streams test results to the given port on the given host machine.
-class StreamingListener : public EmptyTestEventListener {
+class StreamingListener : public EmptyTestEventListener
+{
  public:
   // Abstract base class for writing strings to a socket.
-  class AbstractSocketWriter {
+  class AbstractSocketWriter
+{
    public:
     virtual ~AbstractSocketWriter() {}
 
@@ -1087,10 +1143,11 @@ class StreamingListener : public EmptyTestEventListener {
   };
 
   // Concrete class for actually writing strings to a socket.
-  class SocketWriter : public AbstractSocketWriter {
+  class SocketWriter : public AbstractSocketWriter
+{
    public:
     SocketWriter(const string& host, const string& port)
-        : sockfd_(-1), host_name_(host), port_num_(port) {
+      : sockfd_(-1), host_name_(host), port_num_(port) {
       MakeConnection();
     }
 
@@ -1136,10 +1193,14 @@ class StreamingListener : public EmptyTestEventListener {
   static string UrlEncode(const char* str);
 
   StreamingListener(const string& host, const string& port)
-      : socket_writer_(new SocketWriter(host, port)) { Start(); }
+    : socket_writer_(new SocketWriter(host, port)) {
+    Start();
+  }
 
   explicit StreamingListener(AbstractSocketWriter* socket_writer)
-      : socket_writer_(socket_writer) { Start(); }
+    : socket_writer_(socket_writer) {
+    Start();
+  }
 
   void OnTestProgramStart(const UnitTest& /* unit_test */) {
     SendLn("event=TestProgramStart");
@@ -1197,13 +1258,19 @@ class StreamingListener : public EmptyTestEventListener {
 
  private:
   // Sends the given message and a newline to the socket.
-  void SendLn(const string& message) { socket_writer_->SendLn(message); }
+  void SendLn(const string& message) {
+    socket_writer_->SendLn(message);
+  }
 
   // Called at the start of streaming to notify the receiver what
   // protocol we are using.
-  void Start() { SendLn("gtest_streaming_protocol_version=1.0"); }
+  void Start() {
+    SendLn("gtest_streaming_protocol_version=1.0");
+  }
 
-  string FormatBool(bool value) { return value ? "1" : "0"; }
+  string FormatBool(bool value) {
+    return value ? "1" : "0";
+  }
 
   const scoped_ptr<AbstractSocketWriter> socket_writer_;
 
