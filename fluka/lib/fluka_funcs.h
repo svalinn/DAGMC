@@ -265,7 +265,7 @@ void f_lookdb(double& pSx, double& pSy, double& pSz,
  * \param[out] newLttc used to indicate the new lattice id number
  */
 void lkfxwr(double& pSx, double& pSy, double& pSz,
-	    double* pV, const int& oldReg, const int& oldLttc,
+	    double* pV, const int& oldReg, int& oldLttc,
 	    int& newReg, int& flagErr, int& newLttc);
 
 /**
