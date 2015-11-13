@@ -107,7 +107,7 @@ script:
   - ./uwuw_unit_tests
   - ./uwuw_unit_tests_tally
   # move to the base directory
-  - cd $START/DAGMC
+  - cd $START
   # run astyle to see if there are any differences
   - tools/astyle_google --style=linux --indent=spaces=2 -r *.cpp *.h *.hpp *.cc *.hh	
   # checks for C++ style guide adherence
