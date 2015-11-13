@@ -40,19 +40,19 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ExN01SensitiveDetector::ExN01SensitiveDetector(const G4String& name,
-                                               const G4String& hit_coll_name,
-                                               const G4int     detector_index,
-                                               const G4double  detector_volume,
-                                               HistogramManager* HM)
- : G4VSensitiveDetector(name),
-   collectionID(-1),
-   DetectorIndex(-1),
-   DetectorVolume(-1.0)
+    const G4String& hit_coll_name,
+    const G4int     detector_index,
+    const G4double  detector_volume,
+    HistogramManager* HM)
+  : G4VSensitiveDetector(name),
+  collectionID(-1),
+  DetectorIndex(-1),
+  DetectorVolume(-1.0)
 {
-   DetectorName = name;
-   collectionName.insert(hit_coll_name);
-   DetectorIndex = detector_index;
-   DetectorVolume = detector_volume;
+  DetectorName = name;
+  collectionName.insert(hit_coll_name);
+  DetectorIndex = detector_index;
+  DetectorVolume = detector_volume;
 
 
   G4cout << "Detector name = " << DetectorName << G4endl;
@@ -94,7 +94,7 @@ void ExN01SensitiveDetector::Initialize(G4HCofThisEvent* hce)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4bool ExN01SensitiveDetector::ProcessHits(G4Step* aStep,
-                                     G4TouchableHistory*)
+    G4TouchableHistory*)
 {
   // TrackLike Scoring
   // G4double edep = aStep->GetTotalEnergyDeposit();
@@ -137,20 +137,20 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*)
     int pdg = (*fHitsCollection)[i]->GetParticlePDG();
     if( hist_part_map.count(pdg) > 0 ) {
 
-    // find which histogram to put this particle in
-    hist_index = hist_part_map[(*fHitsCollection)[i]->GetParticlePDG()];
-    //    G4cout << "hist index = " << hist_index << " number of hits = " << nofHits << " PDG = " << pdg << G4endl;
-    //    if (hist_index != 0 ) {
-    score = (*fHitsCollection)[i]->GetWeight()*
-      (*fHitsCollection)[i]->GetTrackLength()
-      *cm/(DetectorVolume);
-    G4double erg =  (*fHitsCollection)[i]->GetKE();
-    
-    analysisManager->FillH1(hist_index,erg,score);
+      // find which histogram to put this particle in
+      hist_index = hist_part_map[(*fHitsCollection)[i]->GetParticlePDG()];
+      //    G4cout << "hist index = " << hist_index << " number of hits = " << nofHits << " PDG = " << pdg << G4endl;
+      //    if (hist_index != 0 ) {
+      score = (*fHitsCollection)[i]->GetWeight()*
+              (*fHitsCollection)[i]->GetTrackLength()
+              *cm/(DetectorVolume);
+      G4double erg =  (*fHitsCollection)[i]->GetKE();
 
-    //    G4cout << hist_index << " " << DetectorIndex << " " << score << "  " << erg << G4endl;
+      analysisManager->FillH1(hist_index,erg,score);
+
+      //    G4cout << hist_index << " " << DetectorIndex << " " << score << "  " << erg << G4endl;
     }
-    //G4cout << DetectorIndex << " " << score << G4endl; 
+    //G4cout << DetectorIndex << " " << score << G4endl;
   }
 }
 

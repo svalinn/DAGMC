@@ -9,16 +9,20 @@
 
 ExN01UserScoreWriter::ExN01UserScoreWriter()
   : G4VScoreWriter()
-{;}
+{
+  ;
+}
 
 ExN01UserScoreWriter::~ExN01UserScoreWriter()
-{;}
+{
+  ;
+}
 
 /* Takes the data contained within the mesh and dumps all scores into a
    file using the option provided, in this instance we always output as
    a MOAB mesh */
 void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
-						   const G4String& option)
+    const G4String& option)
 {
   std::string file_name(fileName);
   // check to make sure the filename ends with .h5m
@@ -35,7 +39,8 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
   int num_bins[3];
   fScoringMesh->GetNumberOfSegments(num_bins);
   int extents[6] = {0,0,0,
-		    num_bins[0],num_bins[1],num_bins[2]};
+                    num_bins[0],num_bins[1],num_bins[2]
+                   };
 
   G4ThreeVector size;
   size = fScoringMesh->GetSize();
@@ -65,8 +70,8 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
     // create a tag
     moab::Tag tag_handle;
     rval = MBI()->tag_get_handle(score_name.c_str(), 1,
-                                  moab::MB_TYPE_DOUBLE, tag_handle,
-                                  moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+                                 moab::MB_TYPE_DOUBLE, tag_handle,
+                                 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
 
     G4int idx; // mesh index
     double result = 0.0; // the result from the mesh
@@ -76,23 +81,23 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
       for(int y = 0; y < num_bins[1]; y++) {
         for(int z = 0; z < num_bins[2]; z++) {
 
-    	  idx = GetIndex(x,y,z);
-	      std::map<G4int, G4double*>::iterator value = score->find(idx);
+          idx = GetIndex(x,y,z);
+          std::map<G4int, G4double*>::iterator value = score->find(idx);
 
-	      if(value != score->end())
-          result = *(value->second);
-        else
-          result = 0.0;
+          if(value != score->end())
+            result = *(value->second);
+          else
+            result = 0.0;
 
-        // set the tag data
-        rval = MBI()->tag_set_data(tag_handle,&(mesh_elements[idx]), 1, &result);
-      } // z
-    } // y
-  } // x
-}
+          // set the tag data
+          rval = MBI()->tag_set_data(tag_handle,&(mesh_elements[idx]), 1, &result);
+        } // z
+      } // y
+    } // x
+  }
 
 // save the file
-rval = MBI()->write_mesh((fileName).c_str());
+  rval = MBI()->write_mesh((fileName).c_str());
 
   return;
 }
@@ -108,8 +113,7 @@ std::vector<double> ExN01UserScoreWriter::generate_bin_bounds(int num_bounds, do
 
   double boundary; // tmp calculated boundary
   // loop over the bins
-  for ( int i = 0 ; i < num_bounds ; i++ )
-  {
+  for ( int i = 0 ; i < num_bounds ; i++ ) {
     boundary = -1.0*end_coord + static_cast<double>(i)*bin_width;
     bin_bounds.push_back(boundary);
   }
@@ -121,9 +125,9 @@ std::vector<double> ExN01UserScoreWriter::generate_bin_bounds(int num_bounds, do
 
 // generates a structured moab mesh
 moab::ErrorCode ExN01UserScoreWriter::generate_moab_mesh(std::vector<double> x_bins,
-                                              std::vector<double> y_bins,
-                                              std::vector<double> z_bins,
-                                              std::vector<moab::EntityHandle> &mesh_elements)
+    std::vector<double> y_bins,
+    std::vector<double> z_bins,
+    std::vector<moab::EntityHandle> &mesh_elements)
 {
   moab::ErrorCode rval;
 
@@ -178,7 +182,7 @@ moab::ErrorCode ExN01UserScoreWriter::generate_moab_mesh(std::vector<double> x_b
       }
     }
   }
- rval = MBI()->write_mesh("halfway.h5m");
+  rval = MBI()->write_mesh("halfway.h5m");
 
   return rval;
 }
@@ -186,6 +190,6 @@ moab::ErrorCode ExN01UserScoreWriter::generate_moab_mesh(std::vector<double> x_b
 // MOAB interface
 moab::Interface *MBI()
 {
-    static moab::Core instance;
-    return &instance;
+  static moab::Core instance;
+  return &instance;
 }

@@ -33,8 +33,8 @@
 
 int main(int argc, char* argv[])
 {
-   G4Timer Timer;
-   Timer.Start();
+  G4Timer Timer;
+  Timer.Start();
 
   // Construct the default run manager
   G4RunManager* runManager = new G4RunManager;
@@ -46,16 +46,16 @@ int main(int argc, char* argv[])
 
   std::string uwuw_file(argv[1]); // file containing data & uwuw
 
-  // Activate UI-command base scorer                            
+  // Activate UI-command base scorer
   // load the UWUW data
   UWUW *workflow_data = new UWUW(uwuw_file);
 
   // setup detectors and scores
   runManager->SetUserInitialization(new ExN01DetectorConstruction(workflow_data));
-  
+
   G4PhysListFactory *physListFactory = new G4PhysListFactory();
   G4VUserPhysicsList *physicsList =
-    physListFactory->GetReferencePhysList("QGSP_BIC_HP");
+      physListFactory->GetReferencePhysList("QGSP_BIC_HP");
   runManager->SetUserInitialization(physicsList);
 
 
@@ -75,31 +75,28 @@ int main(int argc, char* argv[])
   //
   runManager->Initialize();
 
-  // Get the pointer to the UI manager and set verbosities      
+  // Get the pointer to the UI manager and set verbosities
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   // batch mode
-  if( argc > 2 )
-    {
-      G4String command = "/control/execute ";
-      std::string filename(argv[2]);
-      G4UIExecutive* ui = new G4UIExecutive(argc,argv, "tcsh" );
-      UImanager->ApplyCommand(command+filename);
-      ui->SessionStart();
-      delete ui;
-    } 
-  else
-    {
-      G4VisManager* visManager = new G4VisExecutive;
-      visManager->Initialize();
+  if( argc > 2 ) {
+    G4String command = "/control/execute ";
+    std::string filename(argv[2]);
+    G4UIExecutive* ui = new G4UIExecutive(argc,argv, "tcsh" );
+    UImanager->ApplyCommand(command+filename);
+    ui->SessionStart();
+    delete ui;
+  } else {
+    G4VisManager* visManager = new G4VisExecutive;
+    visManager->Initialize();
 
-      G4UIExecutive* UI = new G4UIExecutive(argc, argv);
-      UImanager->ApplyCommand("/control/execute vis.mac");
+    G4UIExecutive* UI = new G4UIExecutive(argc, argv);
+    UImanager->ApplyCommand("/control/execute vis.mac");
 
-      UI->SessionStart();
-      delete visManager;
-      delete UI;
-    }
+    UI->SessionStart();
+    delete visManager;
+    delete UI;
+  }
 
   // stop the timer
   Timer.Stop();
