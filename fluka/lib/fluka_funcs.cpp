@@ -326,13 +326,15 @@ void reset_state(particle_state &state)
     std::cout << "Resetting state....." << std::endl;
   }
 
-  state.old_direction[0] = 0.0;
-  state.old_direction[1] = 0.0;
-  state.old_direction[2] = 0.0;
+  // set position to some large value
+  state.old_position[0] = 9.e99;
+  state.old_position[1] = 9.e99;
+  state.old_position[2] = 9.e99;
 
-  state.old_direction[0] = -1.0;
-  state.old_direction[1] = -1.0;
-  state.old_direction[2] = -1.0;
+  // direction set out of range of acceptable direction vectors
+  state.old_direction[0] = -2.0;
+  state.old_direction[1] = -2.0;
+  state.old_direction[2] = -2.0;
 
   state.next_surface = 0;
   state.prev_surface = 0;
@@ -425,11 +427,10 @@ void f_look(double& pSx, double& pSy, double& pSz,
             double* pV, const int& oldReg, const int& oldLttc,
             int& nextRegion, int& flagErr, int& newLttc)
 {
-  if(debug)
-  {
-      std::cout << "======= LKWR =======" << std::endl;
-      std::cout << " stack size is " << flkstk_.npflka << std::endl;
-      std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl;
+  if(debug) {
+    std::cout << "-------f_look------" << std::endl;
+    std::cout << " stack size is " << flkstk_.npflka << std::endl;
+    std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl;
   }
 
   reset_state(state);
@@ -446,16 +447,42 @@ void f_look(double& pSx, double& pSy, double& pSz,
     {
       moab::EntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
       // No ray history  - doesnt matter, only called for new source particles
-      moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, is_inside, dir, &state.history);
-
+      moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, is_inside, dir);
       // check for non error
       if(moab::MB_SUCCESS != rval) fludag_abort("f_look","DAGMC failed in point_in_volume",rval);
 
+      // we think that we are inside , 
       if ( is_inside == 1 ) // we are inside the cell tested
 	{
+	  // test point in vol again, but reverse the direction
+	  double new_dir[3];
+	  new_dir[0] = -1.*dir[0];
+	  new_dir[1] = -1.*dir[1];
+	  new_dir[2] = -1.*dir[2];
+
+	  int second_test = 0 ;
+
+	  moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, second_test, new_dir);
+	  // check for non error
+	  if(moab::MB_SUCCESS != rval) fludag_abort("f_look","DAGMC failed in point_in_volume",rval);
+	  
+	  if(is_inside != second_test) {
+	    if(debug) {
+	      std::cout << "First test inconclusive, doing the slow test" << std::endl;
+	    }
+
+	    rval =  DAG->point_in_volume_slow(volume, xyz, second_test);
+	    if(moab::MB_SUCCESS != rval) fludag_abort("f_look","DAGMC failed in point_in_volume_slow",rval);    
+	    // firing rays in two opposing directions didnt work, the slow test didnt work
+	    if(second_test == 0 ) {
+	      continue;
+	    }
+	  } 
+
 	  //WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
 	  nextRegion = i;
 	  flagErr = nextRegion;
+
 	  if(debug) {
 	    std::cout << "region is " << nextRegion << " aka " << volume << std::endl;
 	  }
@@ -469,17 +496,95 @@ void f_look(double& pSx, double& pSy, double& pSz,
     }  // end loop over all volumes
 
   // if are here then no volume has been found
-  flagErr = -33; // return nextRegion
+  nextRegion = -33;
+  flagErr = nextRegion;
+
+  if(debug) 
+    std::cout <<  oldReg << " " <<  oldLttc << " " << nextRegion <<  " " << flagErr << " " << newLttc << std::endl;
 
   return;
 }
 
 /* If particle is lost calls this routine */
 void f_lostlook(double& pSx, double& pSy, double& pSz,
-                double* pV, const int& oldReg, const int& oldLttc,
-                int& nextRegion, int& flagErr, int& newLttc)
+          double* pV,  int& oldReg, int& oldLttc,
+          int& nextRegion, int& flagErr, int& newLttc)
 {
-  f_look(pSx,pSy,pSz,pV,oldReg,oldLttc,nextRegion,flagErr,newLttc);
+  if(debug) {
+    std::cout << "-------f_lostlook------" << std::endl;
+    std::cout << " stack size is " << flkstk_.npflka << std::endl;
+    std::cout << "position is " << pSx << " " << pSy << " " << pSz << std::endl;
+  }
+
+  reset_state(state);
+  // get the stack count
+  //  state.stack_count = flkstk_.npflka;
+
+  const double xyz[] = {pSx, pSy, pSz};       // location of the particle (xyz)
+  const double dir[] = {pV[0],pV[1],pV[2]};
+
+  int is_inside = 0;
+  int num_vols = DAG->num_entities(3);  // number of volumes
+
+  for (int i = 1 ; i <= num_vols ; i++) // loop over all volumes
+    {
+      moab::EntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+      // No ray history  - doesnt matter, only called for new source particles
+      moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, is_inside, dir);
+      // check for non error
+      if(moab::MB_SUCCESS != rval) fludag_abort("f_lostlook","DAGMC failed in point_in_volume",rval);
+
+      // we think that we are inside , 
+      if ( is_inside == 1 ) // we are inside the cell tested
+	{
+	  // test point in vol again, but reverse the direction
+	  double new_dir[3];
+	  new_dir[0] = -1.*dir[0];
+	  new_dir[1] = -1.*dir[1];
+	  new_dir[2] = -1.*dir[2];
+
+	  int second_test = 0 ;
+
+	  moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, second_test, new_dir);
+	  // check for non error
+	  if(moab::MB_SUCCESS != rval) fludag_abort("f_lostlook","DAGMC failed in point_in_volume",rval);
+	  
+	  if(is_inside != second_test) {
+	    if(debug) {
+	      std::cout << "First test inconclusive, doing the slow test" << std::endl;
+	    }
+
+	    rval =  DAG->point_in_volume_slow(volume, xyz, second_test);
+	    if(moab::MB_SUCCESS != rval) fludag_abort("f_lostlook","DAGMC failed in point_in_volume_slow",rval);    
+	    // firing rays in two opposing directions didnt work, the slow test didnt work
+	    if(second_test == 0 ) {
+	      continue;
+	    }
+	  } 
+
+	  //WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
+	  nextRegion = i;
+	  flagErr = nextRegion;
+
+	  if(debug) {
+	    std::cout << "region is " << nextRegion << " aka " << volume << std::endl;
+	  }
+	  return;
+	}
+      else if ( is_inside == -1 )
+	{
+	  std::cout << "We cannot be here" << std::endl;
+	  exit(0);
+	}
+    }  // end loop over all volumes
+
+  // if are here then no volume has been found
+  nextRegion = num_vols + 1; // return nextRegion
+  flagErr = nextRegion;
+
+  if(debug) 
+    std::cout <<  oldReg << " " <<  oldLttc << " " << nextRegion <<  " " << flagErr << " " << newLttc << std::endl;
+
   return;
 }
 
@@ -623,13 +728,15 @@ void flgfwr ( int& flkflg )
   return;
 }
 
-/* does nothing */
+/* when lost try to fine the particle */
 void lkfxwr(double& pSx, double& pSy, double& pSz,
-            double* pV, const int& oldReg, const int& oldLttc,
-            int& newReg, int& flagErr, int& newLttc)
+            double* pV,  int& oldReg, int &oldLttc,
+	    int& newReg, int& flagErr, int& newLttc)
 {
   if(debug)
     std::cout << "======= LKFXWR =======" << std::endl;
+  
+  f_lostlook(pSx,pSy,pSz,pV,oldReg,oldLttc,newReg,flagErr,newLttc);
   return;
 }
 
