@@ -57,7 +57,7 @@ before_install:
   - autoreconf -fi
   - mkdir bld
   - cd bld
-  - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$START/hdf5 --prefix=$START/moab
+  - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$ROOT_DIR/hdf5 --prefix=$ROOT_DIR/moab
   - make -j2 > log-file 2>&1
   - make install
   - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$ROOT_DIR/moab/lib/"
