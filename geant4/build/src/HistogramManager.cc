@@ -39,10 +39,9 @@ std::vector<int> HistogramManager::get_senstitive_particles(int volume_id)
   std::map<int,int> histogram_pdcnum_map = histogram_collection[volume_id];
   std::vector<int> pdcs;
   std::map<int,int>::iterator it;
-  for ( it = histogram_pdcnum_map.begin() ; it != histogram_pdcnum_map.end() ; ++it )
-    {
-        pdcs.push_back(it->first);
-    }
+  for ( it = histogram_pdcnum_map.begin() ; it != histogram_pdcnum_map.end() ; ++it ) {
+    pdcs.push_back(it->first);
+  }
   return pdcs;
 }
 
@@ -67,14 +66,12 @@ void HistogramManager::print_histogram_collection()
   // map of histrogram
   std::map<int,std::map<int,int> >::iterator it;
   for ( it = histogram_collection.begin() ; it != histogram_collection.end() ;
-      ++it )
-    {
-      std::cout << "Volume id " << it->first << " has tally collections " << std::endl;
-      std::map<int,int>::iterator iter;
-      for ( iter = it->second.begin() ; iter != it->second.end() ; ++iter)
-      {
-        std::cout << "  pdc number = " << iter->first << " histo idx  = ";
-        std::cout << iter->second << std::endl;
-      }
+        ++it ) {
+    std::cout << "Volume id " << it->first << " has tally collections " << std::endl;
+    std::map<int,int>::iterator iter;
+    for ( iter = it->second.begin() ; iter != it->second.end() ; ++iter) {
+      std::cout << "  pdc number = " << iter->first << " histo idx  = ";
+      std::cout << iter->second << std::endl;
     }
+  }
 }

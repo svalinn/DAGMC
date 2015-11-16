@@ -15,7 +15,8 @@
 #include "MeshTally.hpp"
 #include "TallyEvent.hpp"
 
-namespace moab{
+namespace moab
+{
 
 /* Forward Declarations */
 class AdaptiveKDTree;
@@ -58,144 +59,144 @@ class OrientedBoxTreeTool;
  */
 //===========================================================================//
 class TrackLengthMeshTally : public MeshTally
-{ 
-  public:
-    /**
-     * \brief Constructor
-     * \param[in] input user-defined input parameters for this TrackLengthMeshTally
-     */
-    explicit TrackLengthMeshTally(const TallyInput& input);
+{
+ public:
+  /**
+   * \brief Constructor
+   * \param[in] input user-defined input parameters for this TrackLengthMeshTally
+   */
+  explicit TrackLengthMeshTally(const TallyInput& input);
 
-    /**
-     * \brief Virtual destructor
-     */
-    virtual ~TrackLengthMeshTally();
+  /**
+   * \brief Virtual destructor
+   */
+  virtual ~TrackLengthMeshTally();
 
-    // >>> DERIVED PUBLIC INTERFACE from Tally.hpp
+  // >>> DERIVED PUBLIC INTERFACE from Tally.hpp
 
-    /**
-     * \brief Computes scores for this TrackLengthMeshTally based on the given TallyEvent
-     * \param[in] event the parameters needed to compute the scores
-     */
-    virtual void compute_score(const TallyEvent& event);
+  /**
+   * \brief Computes scores for this TrackLengthMeshTally based on the given TallyEvent
+   * \param[in] event the parameters needed to compute the scores
+   */
+  virtual void compute_score(const TallyEvent& event);
 
-    /**
-     * \brief Updates TrackLengthMeshTally when a particle history ends
-     *
-     * Calls MeshTally::end_history() and if input mesh is conformal sets the
-     * last_cell to -1 to indicate that a new particle will be born.
-     */
-    virtual void end_history();
+  /**
+   * \brief Updates TrackLengthMeshTally when a particle history ends
+   *
+   * Calls MeshTally::end_history() and if input mesh is conformal sets the
+   * last_cell to -1 to indicate that a new particle will be born.
+   */
+  virtual void end_history();
 
-    /**
-     * \brief Write results to the output file for this TrackLengthMeshTally
-     * \param[in] num_histories the number of particle histories tracked
-     *
-     * The write_data() method writes the current tally and relative standard
-     * error results for all of the mesh cells defined as tally points to the
-     * output_filename set for this TrackLengthMeshTally.  These values are
-     * normalized by both the number of particle histories that were tracked
-     * and the volume of the mesh cell for which the results were computed.
-     */
-    virtual void write_data(double num_histories);
+  /**
+   * \brief Write results to the output file for this TrackLengthMeshTally
+   * \param[in] num_histories the number of particle histories tracked
+   *
+   * The write_data() method writes the current tally and relative standard
+   * error results for all of the mesh cells defined as tally points to the
+   * output_filename set for this TrackLengthMeshTally.  These values are
+   * normalized by both the number of particle histories that were tracked
+   * and the volume of the mesh cell for which the results were computed.
+   */
+  virtual void write_data(double num_histories);
 
-  protected:
-    /// Copy constructor and operator= methods are not implemented
-    TrackLengthMeshTally(const TrackLengthMeshTally& obj);
-    TrackLengthMeshTally& operator=(const TrackLengthMeshTally& obj);
+ protected:
+  /// Copy constructor and operator= methods are not implemented
+  TrackLengthMeshTally(const TrackLengthMeshTally& obj);
+  TrackLengthMeshTally& operator=(const TrackLengthMeshTally& obj);
 
-  protected:
-    // MOAB instance that stores all of the mesh data
-    moab::Interface* mb;
+ protected:
+  // MOAB instance that stores all of the mesh data
+  moab::Interface* mb;
 
-    // KD-Tree used with unstructured meshes to get starting tetrahedron
-    moab::AdaptiveKDTree* kdtree;  
-    moab::EntityHandle kdtree_root;
+  // KD-Tree used with unstructured meshes to get starting tetrahedron
+  moab::AdaptiveKDTree* kdtree;
+  moab::EntityHandle kdtree_root;
 
-    // Oriented Box Tree variables
-    OrientedBoxTreeTool* obb_tool;
-    EntityHandle obbtree_root;
+  // Oriented Box Tree variables
+  OrientedBoxTreeTool* obb_tool;
+  EntityHandle obbtree_root;
 
-    // Variables needed to keep track of mesh cells visited
-    EntityHandle last_visited_tet;
-    int last_cell;
-    
-    // Optional convex mesh and conformal surface source flags
-    bool convex;
-    bool conformal_surface_source;
+  // Variables needed to keep track of mesh cells visited
+  EntityHandle last_visited_tet;
+  int last_cell;
 
-    // If not empty, user has asserted mesh tally geometry
-    // conforms to the cells identified in this set
-    std::set<int> conformality;
+  // Optional convex mesh and conformal surface source flags
+  bool convex;
+  bool conformal_surface_source;
 
-    // Stores barycentric data for tetrahedrons
-    std::vector<Matrix3> tet_baryc_data;
+  // If not empty, user has asserted mesh tally geometry
+  // conforms to the cells identified in this set
+  std::set<int> conformality;
 
-    // Stores tag name and values expected in input mesh
-    std::string tag_name; 
-    std::vector<std::string> tag_values;
+  // Stores barycentric data for tetrahedrons
+  std::vector<Matrix3> tet_baryc_data;
 
-    // >>> PROTECTED METHODS
+  // Stores tag name and values expected in input mesh
+  std::string tag_name;
+  std::vector<std::string> tag_values;
 
-    /**
-     * \brief Parse the TallyInput options for this TrackLengthMeshTally
-     */
-    void parse_tally_options();
+  // >>> PROTECTED METHODS
 
-    /**
-     * \brief Loads and sets the mesh data used by this TrackLengthMeshTally
-     *
-     * Mesh data is loaded from the input_filename provided in the TallyInput
-     * options.  If no tag name and values are found, the set of tally points
-     * will be all of the mesh cells defined in input_filename.  Otherwise,
-     * the set of tally points stored in MeshTally::tally_mesh_set will only
-     * contain the mesh cells that have the given tag name and tag values.
-     */
-    void set_tally_meshset();
+  /**
+   * \brief Parse the TallyInput options for this TrackLengthMeshTally
+   */
+  void parse_tally_options();
 
-    /**
-     * \brief Computes the barycentric matrices for all tetrahedrons
-     * \param[in] all_tets the set of tets extracted from the input mesh
-     * \return the MOAB ErrorCode value
-     */
-    ErrorCode compute_barycentric_data (const Range& all_tets);
+  /**
+   * \brief Loads and sets the mesh data used by this TrackLengthMeshTally
+   *
+   * Mesh data is loaded from the input_filename provided in the TallyInput
+   * options.  If no tag name and values are found, the set of tally points
+   * will be all of the mesh cells defined in input_filename.  Otherwise,
+   * the set of tally points stored in MeshTally::tally_mesh_set will only
+   * contain the mesh cells that have the given tag name and tag values.
+   */
+  void set_tally_meshset();
 
-    /**
-     * \brief Constructs the KD and OBB trees from the mesh data
-     * \param[in, out] all_tets the set of tets extracted from the input mesh
-     *
-     * Also adds the set of skin triangles to all_tets.
-     */
-    void build_trees (Range& all_tets);
+  /**
+   * \brief Computes the barycentric matrices for all tetrahedrons
+   * \param[in] all_tets the set of tets extracted from the input mesh
+   * \return the MOAB ErrorCode value
+   */
+  ErrorCode compute_barycentric_data (const Range& all_tets);
 
-    /**
-     * \brief returns all triangle intersections and their distances from the point position
-     * \param[in] position cart vect of the origin
-     * \param[in] direction cart vect unit vector of direction
-     * \param[in] track_length distance to intersect upto 
-     * \param[out] triangles returns the handles to the triangles we hit
-     * \param[out] intersections returns the distances to the triangles we hit
-     * \returns the error code should call the kdtree fail
-     * 
-     * Notes:
-     * Note, and Note well, the vector of intersections is a vector of the absolute
-     * hit distances from the reference point of the track, i.e. they are the 
-     * cumulatitive tracklength inside each tet a running total, to determine
-     * the track length in a given tet, subtract the i th element from the i+1 th
-     * element to determine the actual track length
-     */
-    ErrorCode get_all_intersections(const CartVect& position, const CartVect& direction, double track_length, 
-				    std::vector<EntityHandle> &triangles,std::vector<double> &intersections);
+  /**
+   * \brief Constructs the KD and OBB trees from the mesh data
+   * \param[in, out] all_tets the set of tets extracted from the input mesh
+   *
+   * Also adds the set of skin triangles to all_tets.
+   */
+  void build_trees (Range& all_tets);
 
-    /**
-     * \brief Checks if the given point is inside the given tet
-     * \param[in] point the coordinates of the point to test
-     * \param[in] tet the EntityHandle of the tet
-     * \return true if the point falls inside tet; false otherwise
-     *
-     * Assumes that tet is part of this TrackLengthMeshTally.
-     */                 
-    bool point_in_tet(const CartVect& point, const EntityHandle* tet);
+  /**
+   * \brief returns all triangle intersections and their distances from the point position
+   * \param[in] position cart vect of the origin
+   * \param[in] direction cart vect unit vector of direction
+   * \param[in] track_length distance to intersect upto
+   * \param[out] triangles returns the handles to the triangles we hit
+   * \param[out] intersections returns the distances to the triangles we hit
+   * \returns the error code should call the kdtree fail
+   *
+   * Notes:
+   * Note, and Note well, the vector of intersections is a vector of the absolute
+   * hit distances from the reference point of the track, i.e. they are the
+   * cumulatitive tracklength inside each tet a running total, to determine
+   * the track length in a given tet, subtract the i th element from the i+1 th
+   * element to determine the actual track length
+   */
+  ErrorCode get_all_intersections(const CartVect& position, const CartVect& direction, double track_length,
+                                  std::vector<EntityHandle> &triangles,std::vector<double> &intersections);
+
+  /**
+   * \brief Checks if the given point is inside the given tet
+   * \param[in] point the coordinates of the point to test
+   * \param[in] tet the EntityHandle of the tet
+   * \return true if the point falls inside tet; false otherwise
+   *
+   * Assumes that tet is part of this TrackLengthMeshTally.
+   */
+  bool point_in_tet(const CartVect& point, const EntityHandle* tet);
 
   /**
    * \brief loop through all tets to find which tet, the point belong to
@@ -214,14 +215,14 @@ class TrackLengthMeshTally : public MeshTally
    */
   EntityHandle remainder(const CartVect& start, const CartVect& dir, double distance, double left_over);
 
-  /** 
+  /**
    * \brief return the MBRange of triangles that belong in the tet mesh there are no repliacted surfaces in this list
    * \param[in] all_tets the MBRange of tets in the problem
    * \return range of triangles that make up faces in the mesh
    */
   Range get_adjacency_info(const Range& all_tets);
 
-  /** 
+  /**
    * \brief return the sorted (by distance) list of triangles and intersections
    * \param[in, out] vector<double> intersections list of all the intersections
    * \param[in, out] vector<EntityHandle> intersections list of the triangle entity handles that correspond to the intersections
@@ -229,7 +230,7 @@ class TrackLengthMeshTally : public MeshTally
    */
   void sort_intersection_data(std::vector<double> &intersections, std::vector<EntityHandle> &triangles);
 
-  /** 
+  /**
    * \brief return the tracklengths of the ray in each tet
    * \param[in] event the tally event, direction, position, track_length, etc
    * \param[in] ebin the energy bin index corresponding to the energy
@@ -238,10 +239,10 @@ class TrackLengthMeshTally : public MeshTally
    * \param[in] vector<EntityHandle> triangles list of the triangle entity handles that correspond to the intersections
    * \return void
    */
-  void compute_tracklengths(const TallyEvent& event, 
+  void compute_tracklengths(const TallyEvent& event,
                             unsigned int ebin, double weight,
-   			    const std::vector<double>& intersections,
-			    const std::vector<EntityHandle>& triangles);
+                            const std::vector<double>& intersections,
+                            const std::vector<EntityHandle>& triangles);
 
 };
 

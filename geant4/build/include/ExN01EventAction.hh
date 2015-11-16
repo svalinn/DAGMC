@@ -17,14 +17,14 @@
 
 class ExN01EventAction : public G4UserEventAction
 {
-public:
+ public:
   ExN01EventAction();
   virtual ~ExN01EventAction();
 
   virtual void  BeginOfEventAction(const G4Event* event);
   virtual void    EndOfEventAction(const G4Event* event);
 
-private:
+ private:
   // methods
   std::vector<int> GetTallyID(); // get all the tally ids
 

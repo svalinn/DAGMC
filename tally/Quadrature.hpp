@@ -16,18 +16,18 @@
 //===========================================================================//
 class Function
 {
-  public:
-    /**
-     * \brief Virtual destructor
-     */
-    virtual ~Function(){}
+ public:
+  /**
+   * \brief Virtual destructor
+   */
+  virtual ~Function() {}
 
-    /**
-     * \brief Evaluate this Function f
-     * \param[in] x the value at which f will be evaluated
-     * \return f(x)
-     */
-    virtual double evaluate(double x) const = 0;
+  /**
+   * \brief Evaluate this Function f
+   * \param[in] x the value at which f will be evaluated
+   * \return f(x)
+   */
+  virtual double evaluate(double x) const = 0;
 };
 
 //===========================================================================//
@@ -48,46 +48,46 @@ class Function
 //===========================================================================//
 class Quadrature
 {
-  public:
-    /**
-     * \brief Constructor
-     * \param[in] n the number of points to use with this Quadrature
-     */
-    explicit Quadrature(unsigned int n);
+ public:
+  /**
+   * \brief Constructor
+   * \param[in] n the number of points to use with this Quadrature
+   */
+  explicit Quadrature(unsigned int n);
 
-    // >>> PUBLIC INTERFACE
+  // >>> PUBLIC INTERFACE
 
-    /**
-     * \brief Changes the set of quadrature points for this Quadrature
-     * \param[in] new_n the new number of quadrature points
-     */
-    void change_quadrature_set(unsigned int new_n);
+  /**
+   * \brief Changes the set of quadrature points for this Quadrature
+   * \param[in] new_n the new number of quadrature points
+   */
+  void change_quadrature_set(unsigned int new_n);
 
-    /**
-     * \brief Computes the definite integral of a Function f
-     * \param[in] a, b the lower and upper integration limits
-     * \param[in] f the Function to be integrated
-     * \return definite integral of f(x) for [a, b]
-     */
-    double integrate(double a, double b, const Function& f) const;
+  /**
+   * \brief Computes the definite integral of a Function f
+   * \param[in] a, b the lower and upper integration limits
+   * \param[in] f the Function to be integrated
+   * \return definite integral of f(x) for [a, b]
+   */
+  double integrate(double a, double b, const Function& f) const;
 
-    /**
-     * \brief get_num_quad_points()
-     * \return the number of quadrature points used by this Quadrature
-     */
-    unsigned int get_num_quad_points() const;
+  /**
+   * \brief get_num_quad_points()
+   * \return the number of quadrature points used by this Quadrature
+   */
+  unsigned int get_num_quad_points() const;
 
-  private:
-    unsigned int num_quad_points;
-    std::vector<double> quad_points;
-    std::vector<double> quad_weights;
+ private:
+  unsigned int num_quad_points;
+  std::vector<double> quad_points;
+  std::vector<double> quad_weights;
 
-    // >>> PRIVATE METHODS
+  // >>> PRIVATE METHODS
 
-    /**
-     * \brief Set up the quadrature points and weights for this Quadrature
-     */
-    void set_up_quadrature();
+  /**
+   * \brief Set up the quadrature points and weights for this Quadrature
+   */
+  void set_up_quadrature();
 };
 
 #endif // DAGMC_QUADRATURE_HPP

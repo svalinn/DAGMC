@@ -83,199 +83,199 @@
 //===========================================================================//
 class TallyManager
 {
-  public:
-    /**
-     * \brief Constructor
-     */
-    TallyManager();
-    
-    // >>> PUBLIC INTERFACE
+ public:
+  /**
+   * \brief Constructor
+   */
+  TallyManager();
 
-    /**
-     * \brief Create a new DAGMC Tally and add it to the Observer list
-     * \param[in] tally_id the unique ID for this Tally
-     * \param[in] tally_type the type of Tally to create
-     * \param[in] particle the type of particle tallied by this Tally
-     * \param[in] energy_bin_bounds the boundaries of the energy bins
-     * \param[in] options the set of options requested for this Tally
-     *
-     * If an invalid tally_type is requested, then it will be ignored.
-     * Note that energy_bin_bounds must have at least two entries, so
-     * to define a single energy bin use [min_energy, max_energy]. The
-     * energy bin boundaries are always assumed to be sorted from
-     * min_energy to max_energy.
-     *
-     * Valid particle types include NEUTRON = 1, PHOTON = 2, ELECTRON = 3.  If
-     * an invalid type is requested, then the default is NEUTRON.
-     */
-    void addNewTally(unsigned int tally_id,
-                     std::string tally_type,
+  // >>> PUBLIC INTERFACE
+
+  /**
+   * \brief Create a new DAGMC Tally and add it to the Observer list
+   * \param[in] tally_id the unique ID for this Tally
+   * \param[in] tally_type the type of Tally to create
+   * \param[in] particle the type of particle tallied by this Tally
+   * \param[in] energy_bin_bounds the boundaries of the energy bins
+   * \param[in] options the set of options requested for this Tally
+   *
+   * If an invalid tally_type is requested, then it will be ignored.
+   * Note that energy_bin_bounds must have at least two entries, so
+   * to define a single energy bin use [min_energy, max_energy]. The
+   * energy bin boundaries are always assumed to be sorted from
+   * min_energy to max_energy.
+   *
+   * Valid particle types include NEUTRON = 1, PHOTON = 2, ELECTRON = 3.  If
+   * an invalid type is requested, then the default is NEUTRON.
+   */
+  void addNewTally(unsigned int tally_id,
+                   std::string tally_type,
+                   unsigned int particle,
+                   const std::vector<double>& energy_bin_bounds,
+                   const std::multimap<std::string, std::string>& options);
+
+  /**
+   * \brief Add a new tally multiplier
+   * \param[in] multiplier_id the unique ID for the multiplier
+   *
+   * All new multipliers that are added are set to a default value of 1.0.
+   * If the multiplier ID already exists, then nothing will happen.
+   */
+  void addNewMultiplier(unsigned int multiplier_id);
+
+  /**
+   * \brief Assign a multiplier to a Tally
+   * \param[in] multiplier_id the unique ID for the multiplier
+   * \param[in] tally_id the unique ID for the Tally
+   *
+   * Note that if a multiplier ID has already been set for the Tally, then it
+   * will be overwritten.  Currently only single multipliers are supported.
+   */
+  void addMultiplierToTally(unsigned int multiplier_id, unsigned int tally_id);
+
+  /**
+   * \brief Update the value associated with the multiplier ID
+   * \param[in] multiplier_id the unique ID for the multiplier
+   * \param[in] value the value of the multiplier
+   *
+   * If the multiplier_id is invalid, then nothing will happen.
+   */
+  void updateMultiplier(unsigned int multiplier_id, double value);
+
+  /**
+   * \brief numTallies()
+   * \return number of active Tally Observers
+   */
+  unsigned int numTallies();
+
+  /**
+   * \brief Remove a DAGMC Tally from the Observer list
+   * \param[in] tally_id the unique ID for the Tally to be removed
+   */
+  void removeTally(unsigned int tally_id);
+
+  /**
+   * \brief Set a collision event
+   * \param[in] particle the type of particle to be tallied
+   * \param[in] x, y, z coordinates of the collision point
+   * \param[in] particle_energy the energy of the particle prior to collision
+   * \param[in] particle_weight the weight of the particle prior to collision
+   * \param[in] total_cross_section the macroscopic cross section for current cell
+   * \param[in] cell_id the unique ID for the current cell
+   * \return true if a collision event was set; false otherwise
+   */
+  bool setCollisionEvent(unsigned int particle,
+                         double x, double y, double z,
+                         double particle_energy, double particle_weight,
+                         double total_cross_section, int cell_id);
+
+  /**
+   * \brief Set a track event
+   * \param[in] particle the type of particle to be tallied
+   * \param[in] x, y, z coordinates of the start of the track
+   * \param[in] u, v, w current direction of the particle
+   * \param[in] particle_energy the energy of the particle prior to event
+   * \param[in] particle_weight the weight of the particle prior to event
+   * \param[in] track_length the length of the track
+   * \return true if a track event was set; false otherwise
+   */
+  bool setTrackEvent(unsigned int particle,
+                     double x, double y, double z,
+                     double u, double v, double w,
+                     double particle_energy, double particle_weight,
+                     double track_length, int cell_id);
+
+  /**
+   *  \brief Reset a tally event
+   *
+   *  Sets event type to NONE and clears all event data.
+   */
+  void clearLastEvent();
+
+  /**
+   * \brief Call compute_score() for all active DAGMC tallies
+   *
+   * Resets the tally event once all scores are computed.
+   */
+  void updateTallies();
+
+  /**
+   * \brief Call end_history() for all active DAGMC tallies
+   */
+  void endHistory();
+
+  /**
+   * \brief Call write_data() for all active DAGMC tallies
+   * \param[in] num_histories the number of particle histories tracked
+   */
+  void writeData(double num_histories);
+
+  // >>> TALLY DATA ACCESS METHODS
+
+  /**
+   * \brief get_tally_data(), get_error_data(), get_scratch_data()
+   * \param[in] tally_id the unique ID of the Tally for which data is needed
+   * \param[out] length the size of the data array
+   * \return pointer to the data array
+   *
+   * In general, the data arrays stored in each Tally should not be accessed
+   * directly.  However, if direct access to these data arrays are needed for
+   * parallel or other implementations, then these methods can be used to get
+   * a pointer to the underlying data stored within each Tally.
+   */
+  double* getTallyData(int tally_id, int& length);
+  double* getErrorData(int tally_id, int& length);
+  double* getScratchData(int tally_id, int& length);
+
+  /**
+   * \brief Resets all data arrays for all active Tally Observers
+   */
+  void zeroAllTallyData();
+
+ private:
+  // Keep a record of the currently active Tally Observers
+  std::map<int, Tally*> observers;
+
+  // Store event data read by all active DAGMC tallies
+  TallyEvent event;
+
+  // >>> PRIVATE METHODS
+
+  /**
+   * \brief Create a new DAGMC Tally
+   * \param[in] tally_id the unique ID for this Tally
+   * \param[in] tally_type the type of Tally to create
+   * \param[in] particle the type of particle tallied by this Tally
+   * \param[in] energy_bin_bounds the boundaries of the energy bins
+   * \param[in] options the set of options requested for this Tally
+   *
+   * Sets up TallyInput and calls the Tally factory method.
+   */
+  Tally *createTally(unsigned int tally_id,
+                     std::string  tally_type,
                      unsigned int particle,
                      const std::vector<double>& energy_bin_bounds,
                      const std::multimap<std::string, std::string>& options);
 
-    /**
-     * \brief Add a new tally multiplier
-     * \param[in] multiplier_id the unique ID for the multiplier
-     *
-     * All new multipliers that are added are set to a default value of 1.0.
-     * If the multiplier ID already exists, then nothing will happen.
-     */
-    void addNewMultiplier(unsigned int multiplier_id);
-
-    /**
-     * \brief Assign a multiplier to a Tally
-     * \param[in] multiplier_id the unique ID for the multiplier
-     * \param[in] tally_id the unique ID for the Tally
-     *
-     * Note that if a multiplier ID has already been set for the Tally, then it
-     * will be overwritten.  Currently only single multipliers are supported.
-     */
-    void addMultiplierToTally(unsigned int multiplier_id, unsigned int tally_id);
-
-    /**
-     * \brief Update the value associated with the multiplier ID
-     * \param[in] multiplier_id the unique ID for the multiplier
-     * \param[in] value the value of the multiplier
-     *
-     * If the multiplier_id is invalid, then nothing will happen.
-     */
-    void updateMultiplier(unsigned int multiplier_id, double value);
-
-    /**
-     * \brief numTallies()
-     * \return number of active Tally Observers
-     */
-    unsigned int numTallies();
-
-    /**
-     * \brief Remove a DAGMC Tally from the Observer list
-     * \param[in] tally_id the unique ID for the Tally to be removed
-     */
-    void removeTally(unsigned int tally_id);
-
-    /**
-     * \brief Set a collision event
-     * \param[in] particle the type of particle to be tallied
-     * \param[in] x, y, z coordinates of the collision point
-     * \param[in] particle_energy the energy of the particle prior to collision
-     * \param[in] particle_weight the weight of the particle prior to collision
-     * \param[in] total_cross_section the macroscopic cross section for current cell
-     * \param[in] cell_id the unique ID for the current cell
-     * \return true if a collision event was set; false otherwise
-     */
-    bool setCollisionEvent(unsigned int particle,
-                           double x, double y, double z,
-                           double particle_energy, double particle_weight,
-                           double total_cross_section, int cell_id); 
-
-    /**
-     * \brief Set a track event
-     * \param[in] particle the type of particle to be tallied
-     * \param[in] x, y, z coordinates of the start of the track
-     * \param[in] u, v, w current direction of the particle
-     * \param[in] particle_energy the energy of the particle prior to event
-     * \param[in] particle_weight the weight of the particle prior to event
-     * \param[in] track_length the length of the track
-     * \return true if a track event was set; false otherwise
-     */
-    bool setTrackEvent(unsigned int particle,
-                       double x, double y, double z,
-                       double u, double v, double w,                           
-                       double particle_energy, double particle_weight,
-                       double track_length, int cell_id); 
-
-    /**
-     *  \brief Reset a tally event
-     *
-     *  Sets event type to NONE and clears all event data.
-     */
-    void clearLastEvent();
-
-    /**
-     * \brief Call compute_score() for all active DAGMC tallies
-     *
-     * Resets the tally event once all scores are computed.
-     */
-    void updateTallies();
-
-    /**
-     * \brief Call end_history() for all active DAGMC tallies
-     */
-    void endHistory();
-
-    /**
-     * \brief Call write_data() for all active DAGMC tallies
-     * \param[in] num_histories the number of particle histories tracked
-     */
-    void writeData(double num_histories);
-
-    // >>> TALLY DATA ACCESS METHODS
-
-    /**
-     * \brief get_tally_data(), get_error_data(), get_scratch_data()
-     * \param[in] tally_id the unique ID of the Tally for which data is needed
-     * \param[out] length the size of the data array
-     * \return pointer to the data array
-     *
-     * In general, the data arrays stored in each Tally should not be accessed
-     * directly.  However, if direct access to these data arrays are needed for
-     * parallel or other implementations, then these methods can be used to get
-     * a pointer to the underlying data stored within each Tally.
-     */
-    double* getTallyData(int tally_id, int& length);
-    double* getErrorData(int tally_id, int& length);
-    double* getScratchData(int tally_id, int& length);
-
-    /**
-     * \brief Resets all data arrays for all active Tally Observers
-     */
-    void zeroAllTallyData();
-
-  private:
-    // Keep a record of the currently active Tally Observers
-    std::map<int, Tally*> observers; 
-
-    // Store event data read by all active DAGMC tallies
-    TallyEvent event;
-
-    // >>> PRIVATE METHODS
-
-    /**
-     * \brief Create a new DAGMC Tally
-     * \param[in] tally_id the unique ID for this Tally
-     * \param[in] tally_type the type of Tally to create
-     * \param[in] particle the type of particle tallied by this Tally
-     * \param[in] energy_bin_bounds the boundaries of the energy bins
-     * \param[in] options the set of options requested for this Tally
-     *
-     * Sets up TallyInput and calls the Tally factory method.
-     */
-    Tally *createTally(unsigned int tally_id,
-                       std::string  tally_type,
-                       unsigned int particle,
-                       const std::vector<double>& energy_bin_bounds,
-                       const std::multimap<std::string, std::string>& options);
-
-    /**
-     * \brief Sets up TallyEvent
-     * \param[in] type the type of event to be tallied
-     * \param[in] particle the type of particle to be tallied
-     * \param[in] x, y, z the position of the particle
-     * \param[in] u, v, w current direction of the particle
-     * \param[in] particle_energy the energy of the particle prior to event
-     * \param[in] particle_weight the weight of the particle prior to event
-     * \param[in] track_length the length of the track
-     * \param[in] total_cross_section the macroscopic cross section for current cell
-     * \param[in] cell_id the unique ID for the current geometric cell
-     * \return true if an event was set; false otherwise
-     */
-    bool setEvent(TallyEvent::EventType type, unsigned int particle,
-                   double x, double y, double z,
-                   double u, double v, double w,                           
-                   double particle_energy, double particle_weight,
-                   double track_length, double total_cross_section,
-                   int cell_id); 
+  /**
+   * \brief Sets up TallyEvent
+   * \param[in] type the type of event to be tallied
+   * \param[in] particle the type of particle to be tallied
+   * \param[in] x, y, z the position of the particle
+   * \param[in] u, v, w current direction of the particle
+   * \param[in] particle_energy the energy of the particle prior to event
+   * \param[in] particle_weight the weight of the particle prior to event
+   * \param[in] track_length the length of the track
+   * \param[in] total_cross_section the macroscopic cross section for current cell
+   * \param[in] cell_id the unique ID for the current geometric cell
+   * \return true if an event was set; false otherwise
+   */
+  bool setEvent(TallyEvent::EventType type, unsigned int particle,
+                double x, double y, double z,
+                double u, double v, double w,
+                double particle_energy, double particle_weight,
+                double track_length, double total_cross_section,
+                int cell_id);
 };
 
 #endif // DAGMC_TALLY_MANAGER_HPP

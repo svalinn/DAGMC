@@ -8,21 +8,21 @@
 #define CHKERR(rval,msg)  if (MB_SUCCESS != rval) { std::cerr << msg << std::endl; return rval;}
 #define CHKERR1(rval,msg,data)  if (MB_SUCCESS != rval) { std::cerr << msg << data << std::endl; return rval;}
 
-MBInterface *MBI() 
+MBInterface *MBI()
 {
-    static MBCore instance;
-    return &instance;
+  static MBCore instance;
+  return &instance;
 }
 
 void help_msg()
 {
   std::cerr <<
-    "Usage: dagmc_add_density <in_filename> <volume_id> <density> <out_filename>" << std::endl << 
-    std::endl <<
-    "\tin_filename   is the H5M file to load" << std::endl <<
-    "\tvolume_id     is the volume for which the density will be set (integer)" << std::endl <<
-    "\tdensity       is the value of the density which will be set (double)" << std::endl <<
-    "\tout_filename  is the H5M file to write the modified geometry" << std::endl;
+            "Usage: dagmc_add_density <in_filename> <volume_id> <density> <out_filename>" << std::endl <<
+            std::endl <<
+            "\tin_filename   is the H5M file to load" << std::endl <<
+            "\tvolume_id     is the volume for which the density will be set (integer)" << std::endl <<
+            "\tdensity       is the value of the density which will be set (double)" << std::endl <<
+            "\tout_filename  is the H5M file to write the modified geometry" << std::endl;
 }
 
 // create a meshset of all volumes to narrow GLOBAL_ID search
@@ -40,13 +40,13 @@ MBErrorCode create_set_of_vols(MBEntityHandle& set_of_vols)
   MBRange vols;
   const void* const geom_dim_search[] = {&geom_dim};
   rval = MBI()->get_entities_by_type_and_tag(0, MBENTITYSET, &geom_tag,
-                                             geom_dim_search, 1, vols);
+         geom_dim_search, 1, vols);
   CHKERR1(rval,"Failed to find entity sets of dimension ",geom_dim);
-    
+
   // generate a new meshset
   rval = MBI()->create_meshset( MESHSET_SET, set_of_vols);
   CHKERR(rval,"Failed to create meshset.");
-  
+
   // insert volumes into this meshset
   rval = MBI()->add_entities(set_of_vols,vols);
   CHKERR(rval,"Failed to add volume entities to set of volumes.");
@@ -67,15 +67,14 @@ MBErrorCode find_vol_with_id(MBEntityHandle set_of_vols, int find_vol_id, MBEnti
   const void* const vol_id_search[] = {&find_vol_id};
   MBRange vols;
   rval = MBI()->get_entities_by_type_and_tag( set_of_vols, MBENTITYSET, &id_tag,
-                                              vol_id_search, 1, vols);
+         vol_id_search, 1, vols);
   CHKERR(rval,"Failed to get the requested volume");
 
   // there should only be one volume with a given ID
-  if (vols.size() > 1)
-    {
-      std::cout << "Found multiple volumes with ID: " << find_vol_id << std::endl
-                << "Using first volume." << std::endl;
-    }
+  if (vols.size() > 1) {
+    std::cout << "Found multiple volumes with ID: " << find_vol_id << std::endl
+              << "Using first volume." << std::endl;
+  }
 
   vol = *vols.begin();
 
@@ -83,15 +82,14 @@ MBErrorCode find_vol_with_id(MBEntityHandle set_of_vols, int find_vol_id, MBEnti
 
 }
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
   MBErrorCode rval;
-  
-  if (argc < 5)
-    {
-      help_msg();
-      return 1;
-    }
+
+  if (argc < 5) {
+    help_msg();
+    return 1;
+  }
 
   // Load a file specified on the command line
   char* in_filename = argv[1];
@@ -131,14 +129,14 @@ int main(int argc, char **argv)
   CHKERR(rval,"Failed to get the density.");
   std::cout << "Retrieved density on volume id " << find_vol_id << " = " << check_density << std::endl;
 
-<<<<<<< HEAD
-=======
-  // create new string tag
-  MBTag name_tag;
+  <<<<<<< HEAD
+  =======
+      // create new string tag
+      MBTag name_tag;
   char name_tag_name [OUR_NAME_TAG_SIZE] = "name\0";
 
   rval = MBI()->tag_get_handle( name_tag_name, OUR_NAME_TAG_SIZE, MB_TYPE_OPAQUE, name_tag,
-				moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT);
+                                moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT);
   CHKERR(rval,"Failed to create name tag");
 
   // set the value
@@ -153,12 +151,12 @@ int main(int argc, char **argv)
   std::cout << "Retrieved density on volume id " << find_vol_id << " = " << name_tag_return << std::endl;
 
 
->>>>>>> develop
+  >>>>>>> develop
   // save the mesh
   rval = MBI()->write_mesh(out_filename);
   CHKERR1(rval,"Failed to write file: ",out_filename);
 
-  return MB_SUCCESS;  
+  return MB_SUCCESS;
 }
 
 
