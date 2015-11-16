@@ -111,7 +111,7 @@ script:
   # move to the base directory
   - cd ..
   # remove the bld dir
-  rm -rf bld
+  - rm -rf bld
   # run astyle to see if there are any differences
   - tools/astyle_google --style=linux --indent=spaces=2 -r *.cpp *.h *.hpp *.cc *.hh	
   # checks for C++ style guide adherence
