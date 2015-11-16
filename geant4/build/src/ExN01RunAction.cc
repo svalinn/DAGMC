@@ -10,7 +10,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ExN01RunAction::ExN01RunAction(UWUW *uwuw_workflow_data)
- : G4UserRunAction()
+  : G4UserRunAction()
 {
   workflow_data = uwuw_workflow_data;
 }
@@ -25,7 +25,7 @@ ExN01RunAction::~ExN01RunAction()
 
 void ExN01RunAction::BeginOfRunAction(const G4Run* /*run*/)
 {
-    // Get analysis manager
+  // Get analysis manager
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file  - DagGeant.root
@@ -36,7 +36,7 @@ void ExN01RunAction::BeginOfRunAction(const G4Run* /*run*/)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void ExN01RunAction::EndOfRunAction(const G4Run* run)
 {
-    // print histogram statistics
+  // print histogram statistics
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   /*
   if ( analysisManager->GetH1(1) ) {
@@ -91,10 +91,9 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run)
   // iterate over tallies
   std::map<std::string,pyne::Tally>::iterator it;
   // loop over histograms and get data
-  for ( it = workflow_data->tally_library.begin() ; it != workflow_data->tally_library.end() ; ++it )
-  {
+  for ( it = workflow_data->tally_library.begin() ; it != workflow_data->tally_library.end() ; ++it ) {
     int index = 1 + std::distance(workflow_data->tally_library.begin(),it);
-    
+
     // loop over this histograms
     //    G4cout << index << G4endl;
     G4cout << index << " " << analysisManager->GetH1(index)->mean() << G4endl;

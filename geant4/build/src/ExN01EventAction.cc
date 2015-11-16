@@ -56,14 +56,14 @@ void ExN01EventAction::EndOfEventAction(const G4Event *event)
            << hc->GetSize() << " hits stored in this event" << G4endl;
   }
   */
- /* will need to setup histograms
- // get the singleton instance of the analysis manager
- G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  /* will need to setup histograms
+  // get the singleton instance of the analysis manager
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
-      // fill the histograms with results
-      analysisManager->FillH1(*it+1,1.0);
-      analysisManager->FillNtupleDColumn(*it,1.0);
-  }
-  analysisManager->AddNtupleRow();
-  */
+       // fill the histograms with results
+       analysisManager->FillH1(*it+1,1.0);
+       analysisManager->FillNtupleDColumn(*it,1.0);
+   }
+   analysisManager->AddNtupleRow();
+   */
 }

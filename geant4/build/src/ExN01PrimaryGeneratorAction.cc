@@ -42,7 +42,7 @@ void ExN01PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   fParticleGun->GeneratePrimaryVertex(anEvent) ;
 
-  
+
   //G4double y = 1.0*(G4UniformRand()-0.5);
   //  G4double z = 1.0*(G4UniformRand()-0.5);
   //  particleGun->SetParticlePosition(G4ThreeVector(1.24*cm,1.24*cm,100.0*cm));
@@ -60,7 +60,7 @@ void ExN01PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     uy = sinTheta*std::sin(phi),
     uz = cosTheta;
   //particleGun->SetParticleMomentumDirection(G4ThreeVector(ux,uy,uz));
-  */  
+  */
 
 }
 

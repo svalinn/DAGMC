@@ -51,11 +51,14 @@
 
 #include "gtest/internal/gtest-port.h"
 
-namespace testing {
-namespace internal {
+namespace testing
+{
+namespace internal
+{
 
 // String - an abstract class holding static string utilities.
-class GTEST_API_ String {
+class GTEST_API_ String
+{
  public:
   // Static utility methods
 
@@ -122,7 +125,7 @@ class GTEST_API_ String {
   // A NULL C string is considered different to any non-NULL C string,
   // including the empty string.
   static bool CaseInsensitiveCStringEquals(const char* lhs,
-                                           const char* rhs);
+      const char* rhs);
 
   // Compares two wide C strings, ignoring case.  Returns true iff they
   // have the same content.
@@ -137,7 +140,7 @@ class GTEST_API_ String {
   // On MacOS X, it uses towlower, which also uses LC_CTYPE category of the
   // current locale.
   static bool CaseInsensitiveWideCStringEquals(const wchar_t* lhs,
-                                               const wchar_t* rhs);
+      const wchar_t* rhs);
 
   // Returns true iff the given string ends with the given suffix, ignoring
   // case. Any string is considered to end with an empty suffix.

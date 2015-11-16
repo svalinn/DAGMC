@@ -42,8 +42,10 @@
 
 #include "gtest/internal/gtest-string.h"
 
-namespace testing {
-namespace internal {
+namespace testing
+{
+namespace internal
+{
 
 // FilePath - a class for file and directory pathname manipulation which
 // handles platform-specific conventions (like the pathname separator).
@@ -56,7 +58,8 @@ namespace internal {
 // Names are NOT checked for syntax correctness -- no checking for illegal
 // characters, malformed paths, etc.
 
-class GTEST_API_ FilePath {
+class GTEST_API_ FilePath
+{
  public:
   FilePath() : pathname_("") { }
   FilePath(const FilePath& rhs) : pathname_(rhs.pathname_) { }
@@ -74,8 +77,12 @@ class GTEST_API_ FilePath {
     pathname_ = rhs.pathname_;
   }
 
-  const std::string& string() const { return pathname_; }
-  const char* c_str() const { return pathname_.c_str(); }
+  const std::string& string() const {
+    return pathname_;
+  }
+  const char* c_str() const {
+    return pathname_.c_str();
+  }
 
   // Returns the current working directory, or "" if unsuccessful.
   static FilePath GetCurrentDir();
@@ -108,7 +115,9 @@ class GTEST_API_ FilePath {
                                          const char* extension);
 
   // Returns true iff the path is "".
-  bool IsEmpty() const { return pathname_.empty(); }
+  bool IsEmpty() const {
+    return pathname_.empty();
+  }
 
   // If input name has a trailing separator character, removes it and returns
   // the name, otherwise return the name string unmodified.

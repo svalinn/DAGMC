@@ -12,13 +12,14 @@
 #include "G4VScoreWriter.hh"
 #include <vector>
 
-class ExN01UserScoreWriter : public G4VScoreWriter {
+class ExN01UserScoreWriter : public G4VScoreWriter
+{
 
-public:
+ public:
   ExN01UserScoreWriter();
   virtual ~ExN01UserScoreWriter();
 
-public:
+ public:
   // generates numbers from -end_coord to end_coord with num_bounds bin
   std::vector<double> generate_bin_bounds(int num_bounds, double end_coord);
   moab::ErrorCode generate_moab_mesh(std::vector<double> x_bins,
@@ -26,9 +27,9 @@ public:
                                      std::vector<double> z_bins,
                                      std::vector<moab::EntityHandle> &mesh_elements);
 
-public:
+ public:
   virtual void DumpAllQuantitiesToFile(const G4String& fileName,
-				       const G4String& option);
+                                       const G4String& option);
 
 
 };

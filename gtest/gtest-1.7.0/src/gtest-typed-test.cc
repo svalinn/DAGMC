@@ -32,14 +32,17 @@
 #include "gtest/gtest-typed-test.h"
 #include "gtest/gtest.h"
 
-namespace testing {
-namespace internal {
+namespace testing
+{
+namespace internal
+{
 
 #if GTEST_HAS_TYPED_TEST_P
 
 // Skips to the first non-space char in str. Returns an empty string if str
 // contains only whitespace characters.
-static const char* SkipSpaces(const char* str) {
+static const char* SkipSpaces(const char* str)
+{
   while (IsSpace(*str))
     str++;
   return str;
@@ -49,7 +52,8 @@ static const char* SkipSpaces(const char* str) {
 // defined_test_names_; returns registered_tests if successful, or
 // aborts the program otherwise.
 const char* TypedTestCasePState::VerifyRegisteredTestNames(
-    const char* file, int line, const char* registered_tests) {
+    const char* file, int line, const char* registered_tests)
+{
   typedef ::std::set<const char*>::const_iterator DefinedTestIter;
   registered_ = true;
 

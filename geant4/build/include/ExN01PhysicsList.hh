@@ -2,7 +2,7 @@
 //
 // $Id$
 //
-// 
+//
 //
 // ExN01PhysicsList
 //  Construct/define particles and physics processes
@@ -22,15 +22,15 @@
 
 class ExN01PhysicsList: public G4VUserPhysicsList
 {
-  public:
-    ExN01PhysicsList();
-    ~ExN01PhysicsList();
+ public:
+  ExN01PhysicsList();
+  ~ExN01PhysicsList();
 
-  protected:
-    // Construct particle and physics process
-    void ConstructParticle();
-    void ConstructProcess();
-    void SetCuts();
+ protected:
+  // Construct particle and physics process
+  void ConstructParticle();
+  void ConstructProcess();
+  void SetCuts();
 
 };
 

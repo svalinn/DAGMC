@@ -55,29 +55,29 @@ class G4HCofThisEvent;
 
 class ExN01SensitiveDetector : public G4VSensitiveDetector
 {
-  public:
-    ExN01SensitiveDetector(const G4String& name,
-                           const G4String& collectionName,
-                           const G4int     detectorIndex,
-                           const G4double  detectorVolume,
-                           HistogramManager* HM);
-    virtual ~ExN01SensitiveDetector();
+ public:
+  ExN01SensitiveDetector(const G4String& name,
+                         const G4String& collectionName,
+                         const G4int     detectorIndex,
+                         const G4double  detectorVolume,
+                         HistogramManager* HM);
+  virtual ~ExN01SensitiveDetector();
 
-    // methods from base class
-    virtual void   Initialize(G4HCofThisEvent* hitCollection);
-    virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
-    virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
+  // methods from base class
+  virtual void   Initialize(G4HCofThisEvent* hitCollection);
+  virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history);
+  virtual void   EndOfEvent(G4HCofThisEvent* hitCollection);
 
-  private:
-    ExN01DetectorHitsCollection* fHitsCollection;
-    G4int collectionID;
-    G4String DetectorName;
-    G4int DetectorIndex;
-    G4double DetectorVolume;
-    G4int* SensitiveParticles;
-    G4int  NumberOfParticles;
-    std::map<G4int,G4int> hist_part_map;
-    G4int hist_index;
+ private:
+  ExN01DetectorHitsCollection* fHitsCollection;
+  G4int collectionID;
+  G4String DetectorName;
+  G4int DetectorIndex;
+  G4double DetectorVolume;
+  G4int* SensitiveParticles;
+  G4int  NumberOfParticles;
+  std::map<G4int,G4int> hist_part_map;
+  G4int hist_index;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

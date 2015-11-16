@@ -41,8 +41,10 @@
 
 #include <stdio.h>
 
-namespace testing {
-namespace internal {
+namespace testing
+{
+namespace internal
+{
 
 GTEST_DECLARE_string_(internal_run_death_test);
 
@@ -66,7 +68,8 @@ const char kInternalRunDeathTestFlag[] = "internal_run_death_test";
 //               by wait(2)
 // exit code:    The integer code passed to exit(3), _exit(2), or
 //               returned from main()
-class GTEST_API_ DeathTest {
+class GTEST_API_ DeathTest
+{
  public:
   // Create returns false if there was an error determining the
   // appropriate action to take for the current death test; for example,
@@ -82,10 +85,13 @@ class GTEST_API_ DeathTest {
   virtual ~DeathTest() { }
 
   // A helper class that aborts a death test when it's deleted.
-  class ReturnSentinel {
+  class ReturnSentinel
+{
    public:
     explicit ReturnSentinel(DeathTest* test) : test_(test) { }
-    ~ReturnSentinel() { test_->Abort(TEST_ENCOUNTERED_RETURN_STATEMENT); }
+    ~ReturnSentinel() {
+      test_->Abort(TEST_ENCOUNTERED_RETURN_STATEMENT);
+    }
    private:
     DeathTest* const test_;
     GTEST_DISALLOW_COPY_AND_ASSIGN_(ReturnSentinel);
@@ -100,9 +106,9 @@ class GTEST_API_ DeathTest {
 
   // An enumeration of the three reasons that a test might be aborted.
   enum AbortReason {
-    TEST_ENCOUNTERED_RETURN_STATEMENT,
-    TEST_THREW_EXCEPTION,
-    TEST_DID_NOT_DIE
+      TEST_ENCOUNTERED_RETURN_STATEMENT,
+      TEST_THREW_EXCEPTION,
+      TEST_DID_NOT_DIE
   };
 
   // Assumes one of the above roles.
@@ -137,7 +143,8 @@ class GTEST_API_ DeathTest {
 };
 
 // Factory interface for death tests.  May be mocked out for testing.
-class DeathTestFactory {
+class DeathTestFactory
+{
  public:
   virtual ~DeathTestFactory() { }
   virtual bool Create(const char* statement, const RE* regex,
@@ -145,7 +152,8 @@ class DeathTestFactory {
 };
 
 // A concrete DeathTestFactory implementation for normal use.
-class DefaultDeathTestFactory : public DeathTestFactory {
+class DefaultDeathTestFactory : public DeathTestFactory
+{
  public:
   virtual bool Create(const char* statement, const RE* regex,
                       const char* file, int line, DeathTest** test);
@@ -231,24 +239,33 @@ GTEST_API_ bool ExitedUnsuccessfully(int exit_status);
 // A class representing the parsed contents of the
 // --gtest_internal_run_death_test flag, as it existed when
 // RUN_ALL_TESTS was called.
-class InternalRunDeathTestFlag {
+class InternalRunDeathTestFlag
+{
  public:
   InternalRunDeathTestFlag(const std::string& a_file,
                            int a_line,
                            int an_index,
                            int a_write_fd)
-      : file_(a_file), line_(a_line), index_(an_index),
-        write_fd_(a_write_fd) {}
+    : file_(a_file), line_(a_line), index_(an_index),
+    write_fd_(a_write_fd) {}
 
   ~InternalRunDeathTestFlag() {
     if (write_fd_ >= 0)
       posix::Close(write_fd_);
   }
 
-  const std::string& file() const { return file_; }
-  int line() const { return line_; }
-  int index() const { return index_; }
-  int write_fd() const { return write_fd_; }
+  const std::string& file() const {
+    return file_;
+  }
+  int line() const {
+    return line_;
+  }
+  int index() const {
+    return index_;
+  }
+  int write_fd() const {
+    return write_fd_;
+  }
 
  private:
   std::string file_;

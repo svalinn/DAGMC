@@ -26,30 +26,29 @@ struct TallyEvent;
  * used with the Tally.
  */
 //===========================================================================//
-struct TallyInput
-{
-    /// Unique ID for a single Tally instance
-    unsigned int tally_id;
+struct TallyInput {
+  /// Unique ID for a single Tally instance
+  unsigned int tally_id;
 
-    /// Type of Tally to create as a concrete class
-    std::string tally_type;
+  /// Type of Tally to create as a concrete class
+  std::string tally_type;
 
-    /// Defines type of particle that is tallied by this Tally
-    enum ParticleType {NEUTRON = 1, PHOTON = 2, ELECTRON = 3};
-    ParticleType particle;
+  /// Defines type of particle that is tallied by this Tally
+  enum ParticleType {NEUTRON = 1, PHOTON = 2, ELECTRON = 3};
+  ParticleType particle;
 
-    /// Energy bin boundaries defined for all tally points
-    std::vector<double> energy_bin_bounds;
+  /// Energy bin boundaries defined for all tally points
+  std::vector<double> energy_bin_bounds;
 
-    /// Typedef for map that stores optional Tally input parameters
-    typedef std::multimap<std::string, std::string> TallyOptions;
+  /// Typedef for map that stores optional Tally input parameters
+  typedef std::multimap<std::string, std::string> TallyOptions;
 
-    /// Optional input parameters requested by user
-    TallyOptions options;
- 
-    /// Support a single multiplier for each tally; this id refers to an
-    /// index in the TallyEvent::multipliers vector
-    int multiplier_id;
+  /// Optional input parameters requested by user
+  TallyOptions options;
+
+  /// Support a single multiplier for each tally; this id refers to an
+  /// index in the TallyEvent::multipliers vector
+  int multiplier_id;
 };
 
 //===========================================================================//
@@ -76,93 +75,93 @@ struct TallyInput
 //===========================================================================//
 class Tally
 {
-  protected:
-    /**
-     * \brief Constructor
-     * \param[in] input user-defined input parameters for this Tally
-     */
-    explicit Tally(const TallyInput& input);
+ protected:
+  /**
+   * \brief Constructor
+   * \param[in] input user-defined input parameters for this Tally
+   */
+  explicit Tally(const TallyInput& input);
 
-  public:
-    /**
-     * \brief Virtual destructor
-     */
-    virtual ~Tally();
+ public:
+  /**
+   * \brief Virtual destructor
+   */
+  virtual ~Tally();
 
-    // >>> FACTORY METHOD
+  // >>> FACTORY METHOD
 
-    /**
-     * \brief Creates a Tally based on the given TallyInput
-     * \param[in] input user-defined input parameters for this Tally
-     * \return pointer to the new Tally that was created
-     *
-     * NOTE: if an invalid tally_type is requested, a NULL pointer is returned
-     */
-    static Tally *create_tally(const TallyInput& input);
+  /**
+   * \brief Creates a Tally based on the given TallyInput
+   * \param[in] input user-defined input parameters for this Tally
+   * \return pointer to the new Tally that was created
+   *
+   * NOTE: if an invalid tally_type is requested, a NULL pointer is returned
+   */
+  static Tally *create_tally(const TallyInput& input);
 
-    // >>> PUBLIC INTERFACE
+  // >>> PUBLIC INTERFACE
 
-    /**
-     * \brief Computes scores for this Tally based on the given TallyEvent
-     * \param[in] event the parameters needed to compute the scores
-     */
-    virtual void compute_score(const TallyEvent& event) = 0;
+  /**
+   * \brief Computes scores for this Tally based on the given TallyEvent
+   * \param[in] event the parameters needed to compute the scores
+   */
+  virtual void compute_score(const TallyEvent& event) = 0;
 
-    /**
-     * \brief Updates Tally when a particle history ends
-     */
-    virtual void end_history();
+  /**
+   * \brief Updates Tally when a particle history ends
+   */
+  virtual void end_history();
 
-    /**
-     * \brief Write results for this Tally
-     * \param[in] num_histories the number of particle histories tracked
-     *
-     * The write_data() method writes the current tally and relative standard
-     * error results to std::out or an output file for this Tally, typically
-     * normalized by the number of particle histories that were tracked during
-     * the Monte Carlo simulation.
-     */
-    virtual void write_data(double num_histories) = 0;
+  /**
+   * \brief Write results for this Tally
+   * \param[in] num_histories the number of particle histories tracked
+   *
+   * The write_data() method writes the current tally and relative standard
+   * error results to std::out or an output file for this Tally, typically
+   * normalized by the number of particle histories that were tracked during
+   * the Monte Carlo simulation.
+   */
+  virtual void write_data(double num_histories) = 0;
 
-    /**
-     * \brief Provide access to data for testing
-     *
-     * Provide read-only access to the protected TallyData *data
-     */
-    const TallyData& getTallyData();
+  /**
+   * \brief Provide access to data for testing
+   *
+   * Provide read-only access to the protected TallyData *data
+   */
+  const TallyData& getTallyData();
 
-    /**
-     * \brief Returns the Tally type.
-     */
-    virtual std::string get_tally_type();
+  /**
+   * \brief Returns the Tally type.
+   */
+  virtual std::string get_tally_type();
 
-  protected:
-    /// Input data defined by user for this tally
-    TallyInput input_data;
+ protected:
+  /// Input data defined by user for this tally
+  TallyInput input_data;
 
-    /// All of the tally data for this tally
-    TallyData *data;
+  /// All of the tally data for this tally
+  TallyData *data;
 
-    /**
-     * \brief Get the bin index for the current energy
-     * \param[in] energy the current particle energy
-     * \param[out] ebin the energy bin index corresponding to the energy
-     * \return true if energy bin is found; false otherwise
-     *
-     * Calls energy_in_bounds first to check if energy is valid for this Tally.
-     */
-    bool get_energy_bin(double energy, unsigned int& ebin);
+  /**
+   * \brief Get the bin index for the current energy
+   * \param[in] energy the current particle energy
+   * \param[out] ebin the energy bin index corresponding to the energy
+   * \return true if energy bin is found; false otherwise
+   *
+   * Calls energy_in_bounds first to check if energy is valid for this Tally.
+   */
+  bool get_energy_bin(double energy, unsigned int& ebin);
 
-    /// The purpose of this is to allow TallyManager to use the data
-    friend class TallyManager;
+  /// The purpose of this is to allow TallyManager to use the data
+  friend class TallyManager;
 
-  private:
-    /**
-     * \brief Check that the energy is not outside the allowed range
-     * \param[in] energy the current particle energy
-     * \return true if energy is within the allowed range; false otherwise
-     */
-    bool energy_in_bounds(double energy);
+ private:
+  /**
+   * \brief Check that the energy is not outside the allowed range
+   * \param[in] energy the current particle energy
+   * \return true if energy is within the allowed range; false otherwise
+   */
+  bool energy_in_bounds(double energy);
 };
 
 #endif // DAGMC_TALLY_HPP

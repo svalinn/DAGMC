@@ -45,58 +45,58 @@
 //===========================================================================//
 class CellTally : public Tally
 {
-  public:
-    /**
-     * \brief Constructor
-     * \param[in] input user-defined input parameters for this CellTally
-     * \param[in] eventType the type of event that is to be tallied
-     */
-    CellTally(const TallyInput& input, TallyEvent::EventType eventType);
+ public:
+  /**
+   * \brief Constructor
+   * \param[in] input user-defined input parameters for this CellTally
+   * \param[in] eventType the type of event that is to be tallied
+   */
+  CellTally(const TallyInput& input, TallyEvent::EventType eventType);
 
-    /**
-     * \brief Destructor
-     */
-    virtual ~CellTally(){}
+  /**
+   * \brief Destructor
+   */
+  virtual ~CellTally() {}
 
-    // >>> PUBLIC INTERFACE
+  // >>> PUBLIC INTERFACE
 
-    /**
-     * \brief Computes scores for this CellTally based on the given TallyEvent
-     * \param[in] event the parameters needed to compute the scores
-     */
-    virtual void compute_score(const TallyEvent& event);
+  /**
+   * \brief Computes scores for this CellTally based on the given TallyEvent
+   * \param[in] event the parameters needed to compute the scores
+   */
+  virtual void compute_score(const TallyEvent& event);
 
-    /**
-     * \brief Write results for this CellTally
-     * \param[in] num_histories the number of particle histories tracked
-     *
-     * The write_data() method writes the current tally and relative standard
-     * error results to std::out for this CellTally, normalized by both the
-     * number of particle histories that were tracked and the volume of the
-     * cell for which the results were computed.
-     */
-    virtual void write_data(double num_histories);
+  /**
+   * \brief Write results for this CellTally
+   * \param[in] num_histories the number of particle histories tracked
+   *
+   * The write_data() method writes the current tally and relative standard
+   * error results to std::out for this CellTally, normalized by both the
+   * number of particle histories that were tracked and the volume of the
+   * cell for which the results were computed.
+   */
+  virtual void write_data(double num_histories);
 
-    /**
-     * \brief get_cell_id() 
-     * 
-     */
-    int get_cell_id();
+  /**
+   * \brief get_cell_id()
+   *
+   */
+  int get_cell_id();
 
-  private:
-    // ID for the geometric cell to be tallied
-    int cell_id;
+ private:
+  // ID for the geometric cell to be tallied
+  int cell_id;
 
-    // Volume for the geometric cell to be tallied
-    double cell_volume;
+  // Volume for the geometric cell to be tallied
+  double cell_volume;
 
-    // Event type used by this CellTally(COLLISION or TRACK, not both)
-    TallyEvent::EventType expected_type;
+  // Event type used by this CellTally(COLLISION or TRACK, not both)
+  TallyEvent::EventType expected_type;
 
-    /**
-     * \brief Parse the TallyInput options for this CellTally
-     */
-    void parse_tally_options();
+  /**
+   * \brief Parse the TallyInput options for this CellTally
+   */
+  void parse_tally_options();
 };
 
 #endif // DAGMC_CELL_TALLY_HPP
