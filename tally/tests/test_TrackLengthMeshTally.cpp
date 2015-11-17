@@ -12,67 +12,62 @@
 //---------------------------------------------------------------------------//
 class TrackLengthMeshTallyTest : public ::testing::Test
 {
-  protected:
-    // initialize variables for each test
-    virtual void SetUp()
-    {
-      std::multimap<std::string, std::string> options;
-      // Minimum required member settings
-      input.energy_bin_bounds.push_back(0.0);
-      input.energy_bin_bounds.push_back(10.0);
-      input.tally_id = 4;
+ protected:
+  // initialize variables for each test
+  virtual void SetUp() {
+    std::multimap<std::string, std::string> options;
+    // Minimum required member settings
+    input.energy_bin_bounds.push_back(0.0);
+    input.energy_bin_bounds.push_back(10.0);
+    input.tally_id = 4;
 
-    }
+  }
 
-    // deallocate memory resources
-    virtual void TearDown()
-    {
-      delete mesh_tally;
-    }
+  // deallocate memory resources
+  virtual void TearDown() {
+    delete mesh_tally;
+  }
 
-    void make_event(TallyEvent &event)
-    {
-      event.type = TallyEvent::TRACK; // track length tally
-      event.particle = 1;
-      event.current_cell = 1;
-      event.track_length = 1.0;
-      event.position = {0.0,0.0,0.0};
-      event.direction = {1.0,0.0,0.0};
-      event.total_cross_section = 1.0;
-      event.particle_energy = 5.0;
-      event.particle_weight = 1.0;
-      event.multipliers.push_back(1.0);
-    }
+  void make_event(TallyEvent &event) {
+    event.type = TallyEvent::TRACK; // track length tally
+    event.particle = 1;
+    event.current_cell = 1;
+    event.track_length = 1.0;
+    event.position = {0.0,0.0,0.0};
+    event.direction = {1.0,0.0,0.0};
+    event.total_cross_section = 1.0;
+    event.particle_energy = 5.0;
+    event.particle_weight = 1.0;
+    event.multipliers.push_back(1.0);
+  }
 
-    void mod_event(TallyEvent &event, double x_coord, double x_dir,
-  		   double track_length)
-    {
+  void mod_event(TallyEvent &event, double x_coord, double x_dir,
+                 double track_length) {
 
-      event.position[0] = x_coord;
-      event.direction[0] = x_dir;
-      event.track_length = track_length;
-    }
+    event.position[0] = x_coord;
+    event.direction[0] = x_dir;
+    event.track_length = track_length;
+  }
 
-    void mod_event_3d(TallyEvent &event, double coord[3], double dir[3],
-  		   double track_length)
-    {
+  void mod_event_3d(TallyEvent &event, double coord[3], double dir[3],
+                    double track_length) {
 
-      event.position[0] = coord[0];
-      event.position[1] = coord[1];
-      event.position[2] = coord[2];
+    event.position[0] = coord[0];
+    event.position[1] = coord[1];
+    event.position[2] = coord[2];
 
-      event.direction[0] = dir[0];
-      event.direction[1] = dir[1];
-      event.direction[2] = dir[2];
+    event.direction[0] = dir[0];
+    event.direction[1] = dir[1];
+    event.direction[2] = dir[2];
 
-      event.track_length = track_length;
-    }
+    event.track_length = track_length;
+  }
 
 
-  protected:
-    // data needed for each test
-    Tally *mesh_tally;
-    TallyInput input;
+ protected:
+  // data needed for each test
+  Tally *mesh_tally;
+  TallyInput input;
 };
 
 // Tests Tally constructor for default number of energy bins
@@ -145,10 +140,9 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore1Ray)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_EQ(total, event.track_length);
 }
@@ -180,10 +174,9 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore2Ray)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 5.0);
 }
@@ -208,10 +201,9 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore1RaySplit)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -250,10 +242,9 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore4RaySplit)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 2.0);
 }
@@ -295,10 +286,9 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore5RaySplit)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -337,10 +327,9 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScorePointOnBoundary)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 2.0);
 }
@@ -378,10 +367,9 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScorePointOnAdjacentBoundary)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 2.0);
 }
@@ -398,8 +386,8 @@ TEST_F(TrackLengthMeshTallyTest, PointOutside5of5RayReEntrantMeshRayOffCenter)
   TallyEvent event;
   // first track 0-1 cm
   make_event(event);
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={-1.0,4.0,0.5};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {-1.0,4.0,0.5};
   mod_event_3d(event,position,direction,2.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -434,10 +422,9 @@ TEST_F(TrackLengthMeshTallyTest, PointOutside5of5RayReEntrantMeshRayOffCenter)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -456,8 +443,8 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenter)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,4.0,0.5};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,4.0,0.5};
   mod_event_3d(event,position,direction,1.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -492,10 +479,9 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenter)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -513,8 +499,8 @@ TEST_F(TrackLengthMeshTallyTest, 4of5RayReEntrantMeshRayOffCenter)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,4.0,0.5};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,4.0,0.5};
 
   // 2nd track 1-5 cm
   position[0]=1.0;
@@ -547,10 +533,9 @@ TEST_F(TrackLengthMeshTallyTest, 4of5RayReEntrantMeshRayOffCenter)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 2.0);
 }
@@ -568,8 +553,8 @@ TEST_F(TrackLengthMeshTallyTest, 3of5RayReEntrantMeshRayOffCenter)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,4.0,0.5};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,4.0,0.5};
 
   // 3th track 5-6 cm
   position[0]=5.0;
@@ -595,10 +580,9 @@ TEST_F(TrackLengthMeshTallyTest, 3of5RayReEntrantMeshRayOffCenter)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 2.0);
 }
@@ -614,8 +598,8 @@ TEST_F(TrackLengthMeshTallyTest, 2of5RayReEntrantMeshRayOffCenter)
 
   TallyEvent event;
   make_event(event);
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,4.0,0.5};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,4.0,0.5};
 
   // 4th track 6-10
   position[0]=6.0;
@@ -635,10 +619,9 @@ TEST_F(TrackLengthMeshTallyTest, 2of5RayReEntrantMeshRayOffCenter)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 1.0);
 }
@@ -656,8 +639,8 @@ TEST_F(TrackLengthMeshTallyTest, ReEntrantMeshRayOffCenter)
   make_event(event);
 
   // first track 0-11 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,4.0,0.5};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,4.0,0.5};
   mod_event_3d(event,position,direction,11.0);
 
   mesh_tally->compute_score(event);
@@ -670,10 +653,9 @@ TEST_F(TrackLengthMeshTallyTest, ReEntrantMeshRayOffCenter)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -691,8 +673,8 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOnCenter)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,0.0,0.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,0.0,0.0};
   mod_event_3d(event,position,direction,1.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -727,10 +709,9 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOnCenter)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 11.0);
 }
@@ -748,8 +729,8 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,0.5,0.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,0.5,0.0};
   mod_event_3d(event,position,direction,1.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -784,10 +765,9 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 11.0);
 }
@@ -805,8 +785,8 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,0.51,0.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,0.51,0.0};
   mod_event_3d(event,position,direction,1.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -841,10 +821,9 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -862,8 +841,8 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2Z)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,0.51,2.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,0.51,2.0};
   mod_event_3d(event,position,direction,1.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -898,10 +877,9 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2Z)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -919,8 +897,8 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2Z2)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,5.0,5.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,5.0,5.0};
   mod_event_3d(event,position,direction,1.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -955,10 +933,9 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2Z2)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
@@ -976,8 +953,8 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY3Z3)
   make_event(event);
 
   // first track 0-1 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={0.0,5.01,5.01};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {0.0,5.01,5.01};
   mod_event_3d(event,position,direction,1.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -1012,10 +989,9 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY3Z3)
   double *track_data = data.TallyData::get_tally_data(length); // << std::endl;
 
   double total = 0.0;
-  for ( int i = 0 ; i < length ; i++ )
-    {
-      total += track_data[i];
-    }
+  for ( int i = 0 ; i < length ; i++ ) {
+    total += track_data[i];
+  }
 
   EXPECT_DOUBLE_EQ(total, 0.0);
 }
@@ -1033,8 +1009,8 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_1)
   make_event(event);
 
   // 1st track -50 to -30 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={-50.0,18.0,2.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {-50.0,18.0,2.0};
   mod_event_3d(event,position,direction,20.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -1088,8 +1064,8 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_2)
   make_event(event);
 
   // 1st track -50 to -30 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={-50.0,-7.0,0.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {-50.0,-7.0,0.0};
   mod_event_3d(event,position,direction,20.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
@@ -1143,8 +1119,8 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_3)
   make_event(event);
 
   // 1st track -50 to -30 cm
-  double direction[3]={1.0,0.0,0.0};
-  double position[3]={-50.0,11.0,3.0};
+  double direction[3]= {1.0,0.0,0.0};
+  double position[3]= {-50.0,11.0,3.0};
   mod_event_3d(event,position,direction,20.0);
   mesh_tally->compute_score(event);
   mesh_tally->end_history();

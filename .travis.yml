@@ -18,18 +18,20 @@ addons:
     - libblas-dev 
     - liblapack-dev
 before_install:
-  # find the start dir
+  # find the start dir - note the start directory is inside the cloned repo
   - export START="$PWD"
+  - cd ..
+  - export ROOT_DIR="$PWD"
   # build cmake
   - git clone git://cmake.org/cmake.git custom_cmake
   - cd custom_cmake
   - git checkout master
   - mkdir bld
   - cd bld
-  - cmake ../. -DCMAKE_INSTALL_PREFIX=$START/cmake
+  - cmake ../. -DCMAKE_INSTALL_PREFIX=$ROOT_DIR/cmake
   - make -j2 > log-file 2>&1
   - make install
-  - export PATH="$START/cmake/bin:$PATH"
+  - export PATH="$ROOT_DIR/cmake/bin:$PATH"
   - cd ..
   - cd .. 
   # build hdf5
@@ -39,11 +41,11 @@ before_install:
   - cd hdf5
   - mkdir bld
   - cd bld
-  - ../configure --enable-shared --disable-debug --enable-optimize --prefix=$START/hdf5
+  - ../configure --enable-shared --disable-debug --enable-optimize --prefix=$ROOT_DIR/hdf5
   - make -j2 > log-file 2>&1
   - make install
-  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/hdf5/lib/"
-  - export PATH="$START/hdf5/bin:$PATH"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$ROOT_DIR/hdf5/lib/"
+  - export PATH="$ROOT_DIR/hdf5/bin:$PATH"
   - cd ..
   - cd ..
   # build moab
@@ -55,11 +57,11 @@ before_install:
   - autoreconf -fi
   - mkdir bld
   - cd bld
-  - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$START/hdf5 --prefix=$START/moab
+  - ../configure --enable-dagmc --enable-shared --disable-debug --enable-optimize --with-hdf5=$ROOT_DIR/hdf5 --prefix=$ROOT_DIR/moab
   - make -j2 > log-file 2>&1
   - make install
-  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/moab/lib/"
-  - export PATH="$START/moab/bin:$PATH"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$ROOT_DIR/moab/lib/"
+  - export PATH="$ROOT_DIR/moab/bin:$PATH"
   - cd ..
   - cd ..
   # build geant4
@@ -69,27 +71,27 @@ before_install:
   - mkdir bld
   - cd bld
   - pwd
-  - cmake ../. -DCMAKE_INSTALL_PREFIX=$START/geant4.10.00.p02
+  - cmake ../. -DCMAKE_INSTALL_PREFIX=$ROOT_DIR/geant4.10.00.p02
   # geant4 compile takes 30 mins so need to use travis_wait
   - travis_wait make -j2
   - make install
-  - export PATH="$START/geant4.10.00.p02/bin:$PATH"
-  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/geant4.10.00.p02/lib/"
+  - export PATH="$ROOT_DIR/geant4.10.00.p02/bin:$PATH"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$ROOT_DIR/geant4.10.00.p02/lib/"
   - cd ..
   - cd ..
 install:
   # build dagmc
-  # - cd DAGMC
+  - cd DAGMC
   - mkdir bld
   - cd bld
-  - cmake ../. -DBUILD_TALLY=ON -DBUILD_GEANT4=ON -DGEANT4_DIR=$START/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$START/DAGMC
+  - cmake ../. -DBUILD_TALLY=ON -DBUILD_GEANT4=ON -DGEANT4_DIR=$ROOT_DIR/geant4.10.00.p02 -DCMAKE_INSTALL_PREFIX=$ROOT_DIR/DAGMC
   - make 
   - make install
-  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$START/DAGMC/lib"
+  - export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$ROOT_DIR/DAGMC/lib"
   - cd ..
 script:
   # move to test dir
-  - cd $START/DAGMC/tests
+  - cd tests
   # run each test
   - ./dagsolid_unit_tests
   # no fludag yet
@@ -106,3 +108,11 @@ script:
   - ./test_TrackLengthMeshTally
   - ./uwuw_unit_tests
   - ./uwuw_unit_tests_tally
+  # move to the base directory
+  - cd ..
+  # remove the bld dir
+  - rm -rf bld
+  # run astyle to see if there are any differences
+  - travis_wait tools/astyle_google --style=linux --indent=spaces=2 --exclude=gtest -r *.cpp *.h *.hpp *.cc *.hh	
+  # checks for C++ style guide adherence
+  - git diff --exit-code

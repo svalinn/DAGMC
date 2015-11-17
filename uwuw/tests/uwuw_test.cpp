@@ -16,10 +16,9 @@ UWUW *workflow_data;
 
 class UWUWTest : public ::testing::Test
 {
-  protected:
+ protected:
 
-  virtual void SetUp()
-  {
+  virtual void SetUp() {
     workflow_data = new UWUW(std::string(TEST_FILE));
   }
 };
@@ -27,14 +26,16 @@ class UWUWTest : public ::testing::Test
 /*
  * Empty common setup function
  */
-TEST_F(UWUWTest,SetUp) {
+TEST_F(UWUWTest,SetUp)
+{
 
 }
 
 /*
  * Test to make sure the total path is correct
  */
-TEST_F(UWUWTest,filepath1) {
+TEST_F(UWUWTest,filepath1)
+{
   std::string filepath = "";
   EXPECT_NE(workflow_data->full_filepath,filepath);
   return;
@@ -43,7 +44,8 @@ TEST_F(UWUWTest,filepath1) {
 /*
  * Test to make sure the total path is correct
  */
-TEST_F(UWUWTest,filepath2) {
+TEST_F(UWUWTest,filepath2)
+{
   char current_path[FILENAME_MAX];
   getcwd(current_path,sizeof(current_path));
   std::string filepath(current_path);
@@ -56,7 +58,8 @@ TEST_F(UWUWTest,filepath2) {
 /*
  * Test of absolute path
  */
-TEST_F(UWUWTest,filepath3) {
+TEST_F(UWUWTest,filepath3)
+{
   // get the full current path
   char current_path[FILENAME_MAX];
   // get the cwd
@@ -73,7 +76,8 @@ TEST_F(UWUWTest,filepath3) {
 /*
  * Test of path with space in
  */
-TEST_F(UWUWTest,filepath4) {
+TEST_F(UWUWTest,filepath4)
+{
   char current_path[FILENAME_MAX];
   // get the cwd
   getcwd(current_path,sizeof(current_path));
@@ -93,7 +97,8 @@ TEST_F(UWUWTest,filepath4) {
 /*
  * Test to make sure that the number of materials is correct
  */
-TEST_F(UWUWTest,materiallibrary1) {
+TEST_F(UWUWTest,materiallibrary1)
+{
   EXPECT_EQ(workflow_data->material_library.size(),2);
   return;
 }
@@ -101,7 +106,8 @@ TEST_F(UWUWTest,materiallibrary1) {
 /*
  * Test to make sure that the materials were correctly loaded
  */
-TEST_F(UWUWTest,materiallibrary2) {
+TEST_F(UWUWTest,materiallibrary2)
+{
   // iterator for material library
   std::map<std::string,pyne::Material>::iterator it;
   it = workflow_data->material_library.begin();

@@ -32,7 +32,7 @@
 // MODULE:              DagSolid.hh
 //
 // Date:                20/12/2010
-// Author:              M. C. Han, C. H. Kim, J. H. Jeong, Y. S. Yeom, S. Kim, 
+// Author:              M. C. Han, C. H. Kim, J. H. Jeong, Y. S. Yeom, S. Kim,
 //                      Paul. P. H. Wilson, J. Apostolakis
 // Organisation:        Hanyang Univ., KR
 //
@@ -72,93 +72,93 @@ using namespace moab;
 
 class DagSolid : public G4TessellatedSolid
 {
-  public:  // with description
+ public:  // with description
 
-    DagSolid ();
-    DagSolid (const G4String &name, DagMC* dagmc, int volID);
-    virtual ~DagSolid ();
+  DagSolid ();
+  DagSolid (const G4String &name, DagMC* dagmc, int volID);
+  virtual ~DagSolid ();
 
 
-    // Mandatory Functions
-    
-    virtual EInside Inside (const G4ThreeVector &p) const;
+  // Mandatory Functions
 
-    virtual G4ThreeVector SurfaceNormal (const G4ThreeVector &p) const;
-    virtual G4double DistanceToIn(const G4ThreeVector &p,
-                                  const G4ThreeVector &v) const;
-    virtual G4double DistanceToIn(const G4ThreeVector &p) const;
-    virtual G4double DistanceToOut(const G4ThreeVector &p,
-                                   const G4ThreeVector &v,
-                                   const G4bool calcNorm=false,
-                                   G4bool *validNorm=0, G4ThreeVector *n=0) const;
-    virtual G4double DistanceToOut (const G4ThreeVector &p) const;
-    virtual G4GeometryType GetEntityType () const;
+  virtual EInside Inside (const G4ThreeVector &p) const;
 
-    virtual G4bool CalculateExtent(const EAxis pAxis,
-                                   const G4VoxelLimits& pVoxelLimit,
-                                   const G4AffineTransform& pTransform,
-                                         G4double& pMin, G4double& pMax) const;
-    virtual std::ostream &StreamInfo(std::ostream &os) const;
+  virtual G4ThreeVector SurfaceNormal (const G4ThreeVector &p) const;
+  virtual G4double DistanceToIn(const G4ThreeVector &p,
+                                const G4ThreeVector &v) const;
+  virtual G4double DistanceToIn(const G4ThreeVector &p) const;
+  virtual G4double DistanceToOut(const G4ThreeVector &p,
+                                 const G4ThreeVector &v,
+                                 const G4bool calcNorm=false,
+                                 G4bool *validNorm=0, G4ThreeVector *n=0) const;
+  virtual G4double DistanceToOut (const G4ThreeVector &p) const;
+  virtual G4GeometryType GetEntityType () const;
+
+  virtual G4bool CalculateExtent(const EAxis pAxis,
+                                 const G4VoxelLimits& pVoxelLimit,
+                                 const G4AffineTransform& pTransform,
+                                 G4double& pMin, G4double& pMax) const;
+  virtual std::ostream &StreamInfo(std::ostream &os) const;
 
 
 
 //    virtual void ComputeDimensions (G4VPVParameterisation* p, const G4int n,
 //                                  const G4VPhysicalVolume* pRep);
- 
 
-    virtual G4double GetCubicVolume ();
-    virtual G4double GetSurfaceArea ();
-    G4double      GetMinXExtent () const;
-    G4double      GetMaxXExtent () const;
-    G4double      GetMinYExtent () const;
-    G4double      GetMaxYExtent () const;
-    G4double      GetMinZExtent () const;
-    G4double      GetMaxZExtent () const;
+
+  virtual G4double GetCubicVolume ();
+  virtual G4double GetSurfaceArea ();
+  G4double      GetMinXExtent () const;
+  G4double      GetMaxXExtent () const;
+  G4double      GetMinYExtent () const;
+  G4double      GetMaxYExtent () const;
+  G4double      GetMinZExtent () const;
+  G4double      GetMaxZExtent () const;
   // Functions for visualization
- 
-    virtual void  DescribeYourselfTo (G4VGraphicsScene& scene) const;
+
+  virtual void  DescribeYourselfTo (G4VGraphicsScene& scene) const;
 
 
 
-  public:  // without description
+ public:  // without description
 
-    DagSolid(__void__&);
-      // Fake default constructor for usage restricted to direct object
-      // persistency for clients requiring preallocation of memory for
-      // persistifiable objects.
-
-
-
-  protected:  // with description
- 
-    void DeleteObjects ();
-    void CopyObjects (const DagSolid &s);
+  DagSolid(__void__&);
+  // Fake default constructor for usage restricted to direct object
+  // persistency for clients requiring preallocation of memory for
+  // persistifiable objects.
 
 
-  private:
+
+ protected:  // with description
+
+  void DeleteObjects ();
+  void CopyObjects (const DagSolid &s);
 
 
-    G4GeometryType           geometryType;
-    G4double                 cubicVolume;
-    G4double                 surfaceArea;
-    G4double                 xMinExtent;
-    G4double                 xMaxExtent;
-    G4double                 yMinExtent;
-    G4double                 yMaxExtent;
-    G4double                 zMinExtent;
-    G4double                 zMaxExtent;
-  
+ private:
 
-    G4String Myname;
-     
-    DagMC* fdagmc;
-    G4int fvolID;
-    EntityHandle fvolEntity;
 
-    mutable EntityHandle Last_sulf_hit;
-    mutable G4int nVertices;
-    EntityHandle My_sulf_hit;    
-    
+  G4GeometryType           geometryType;
+  G4double                 cubicVolume;
+  G4double                 surfaceArea;
+  G4double                 xMinExtent;
+  G4double                 xMaxExtent;
+  G4double                 yMinExtent;
+  G4double                 yMaxExtent;
+  G4double                 zMinExtent;
+  G4double                 zMaxExtent;
+
+
+  G4String Myname;
+
+  DagMC* fdagmc;
+  G4int fvolID;
+  EntityHandle fvolEntity;
+
+  mutable EntityHandle Last_sulf_hit;
+  mutable G4int nVertices;
+  EntityHandle My_sulf_hit;
+
 };
 
 #endif

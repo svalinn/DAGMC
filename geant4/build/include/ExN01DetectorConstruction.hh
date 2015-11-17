@@ -18,44 +18,44 @@ class G4VPhysicalVolume;
 
 class ExN01DetectorConstruction : public G4VUserDetectorConstruction
 {
-  public:
+ public:
 
   ExN01DetectorConstruction(UWUW *uwuw_workflow_data);
   ~ExN01DetectorConstruction();
 
-  public:
-    virtual G4VPhysicalVolume* Construct();
-    virtual void ConstructSDandField();
+ public:
+  virtual G4VPhysicalVolume* Construct();
+  virtual void ConstructSDandField();
 
-   // the tally library
-   std::map<std::string,pyne::Tally> tally_library;
-   // dag_volumes collection mapped by id number
-   std::map<int, G4LogicalVolume*> dag_logical_volumes;
-   // particle filters for tallies
-   std::map<std::string,G4SDParticleFilter*> particle_filters;
+  // the tally library
+  std::map<std::string,pyne::Tally> tally_library;
+  // dag_volumes collection mapped by id number
+  std::map<int, G4LogicalVolume*> dag_logical_volumes;
+  // particle filters for tallies
+  std::map<std::string,G4SDParticleFilter*> particle_filters;
 
   void BuildParticleFilter(std::string particle_name);
   void build_histogram();
   void add_histogram_description(std::string tally_name);
   void end_histogram();
 
-  private:
+ private:
 
-    // Logical volumes
-    //
-    std::string uwuw_filename;
+  // Logical volumes
+  //
+  std::string uwuw_filename;
 
-    G4LogicalVolume* world_volume_log;
+  G4LogicalVolume* world_volume_log;
 
-    UWUW *workflow_data;
+  UWUW *workflow_data;
 
-    // DAG Logical volumes
-    // G4LogicalVolume* dag_vol_log;
+  // DAG Logical volumes
+  // G4LogicalVolume* dag_vol_log;
 
-    // Physical volumes
-    //
-    // G4VPhysicalVolume* world_volume_phys;
-    // DAG Physical volumes
+  // Physical volumes
+  //
+  // G4VPhysicalVolume* world_volume_phys;
+  // DAG Physical volumes
 
 
 };

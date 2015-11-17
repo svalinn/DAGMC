@@ -32,4 +32,4 @@ std::map<int,G4Element*> get_g4elements(std::map<int,G4Isotope*> isotope_map);
  * Using the MaterialLiibrary and the element map, make the G4 Materials
  */
 std::map<std::string,G4Material*> get_g4materials(std::map<int,G4Element*> element_map,
-						  std::map<std::string, pyne::Material> material_library);
+    std::map<std::string, pyne::Material> material_library);

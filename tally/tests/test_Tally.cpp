@@ -12,61 +12,57 @@
 //---------------------------------------------------------------------------//
 class TallyFactoryTest : public ::testing::Test
 {
-  protected:
-    // initialize variables for each test
-    virtual void SetUp()
-    {
-	// Minimum required member settings
-        input.energy_bin_bounds.push_back(0.0);
-        input.energy_bin_bounds.push_back(10.0);
-	input.tally_id = 1;
-    }
+ protected:
+  // initialize variables for each test
+  virtual void SetUp() {
+    // Minimum required member settings
+    input.energy_bin_bounds.push_back(0.0);
+    input.energy_bin_bounds.push_back(10.0);
+    input.tally_id = 1;
+  }
 
-    // deallocate memory resources
-    virtual void TearDown()
-    {
-        delete tally;
-    }
+  // deallocate memory resources
+  virtual void TearDown() {
+    delete tally;
+  }
 
-  protected:
-    // data needed for each test
-    Tally* tally;
-    TallyInput input;
+ protected:
+  // data needed for each test
+  Tally* tally;
+  TallyInput input;
 };
 //---------------------------------------------------------------------------//
 class TallyEnergyBinTest : public ::testing::Test
 {
-  protected:
-    // initialize variables for each test
-    virtual void SetUp()
-    {
-        input.tally_id = 1;
-        input.tally_type = "cell_track";
+ protected:
+  // initialize variables for each test
+  virtual void SetUp() {
+    input.tally_id = 1;
+    input.tally_type = "cell_track";
 
-	// Set a default energy bin case
-        input.energy_bin_bounds.push_back(0.0);
-        input.energy_bin_bounds.push_back(10.0);
-        input.energy_bin_bounds.push_back(20.3);
-        input.energy_bin_bounds.push_back(34.5);
-        input.energy_bin_bounds.push_back(67.9);
+    // Set a default energy bin case
+    input.energy_bin_bounds.push_back(0.0);
+    input.energy_bin_bounds.push_back(10.0);
+    input.energy_bin_bounds.push_back(20.3);
+    input.energy_bin_bounds.push_back(34.5);
+    input.energy_bin_bounds.push_back(67.9);
 
-	event.type = TallyEvent::TRACK;
-	event.current_cell = 1;
-	event.track_length = 9.0;
-	event.particle_weight = 1.0;
-    }
+    event.type = TallyEvent::TRACK;
+    event.current_cell = 1;
+    event.track_length = 9.0;
+    event.particle_weight = 1.0;
+  }
 
-    // deallocate memory resources
-    virtual void TearDown()
-    {
-        delete tally;
-    }
+  // deallocate memory resources
+  virtual void TearDown() {
+    delete tally;
+  }
 
-  protected:
-    // data needed for each test
-    Tally* tally;
-    TallyInput input;
-    TallyEvent event;
+ protected:
+  // data needed for each test
+  Tally* tally;
+  TallyInput input;
+  TallyEvent event;
 };
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: TallyFactoryTest
@@ -166,21 +162,19 @@ TEST_F(TallyEnergyBinTest, EnergyNotInBounds)
   tally->end_history();
 
   const TallyData& data = tally->getTallyData();
-  for (int i=0; i<5; ++i)
-  {
-     std::pair<double, double> result = data.get_data(0,i);
-     EXPECT_DOUBLE_EQ(0.0, result.first);
-     EXPECT_DOUBLE_EQ(0.0, result.second);
+  for (int i=0; i<5; ++i) {
+    std::pair<double, double> result = data.get_data(0,i);
+    EXPECT_DOUBLE_EQ(0.0, result.first);
+    EXPECT_DOUBLE_EQ(0.0, result.second);
   }
 
   event.particle_energy = 69.9;
   tally->compute_score(event);
   tally->end_history();
-  for (int i=0; i<5; ++i)
-  {
-     std::pair<double, double> result = data.get_data(0,i);
-     EXPECT_DOUBLE_EQ(0.0, result.first);
-     EXPECT_DOUBLE_EQ(0.0, result.second);
+  for (int i=0; i<5; ++i) {
+    std::pair<double, double> result = data.get_data(0,i);
+    EXPECT_DOUBLE_EQ(0.0, result.first);
+    EXPECT_DOUBLE_EQ(0.0, result.second);
   }
 }
 //---------------------------------------------------------------------------//

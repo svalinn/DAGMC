@@ -25,63 +25,60 @@
  * multiplier and the particle_weight.
  */
 //===========================================================================//
-struct TallyEvent
-{
-    /**
-     * \brief Defines type of tally event
-     *
-     *     0) NONE indicates no event has been set yet
-     *     1) COLLISION indicates a collision event has been set
-     *     2) TRACK indicates a track-based event has been set
-     */
-    enum EventType {NONE = 0, COLLISION = 1, TRACK = 2};
+struct TallyEvent {
+  /**
+   * \brief Defines type of tally event
+   *
+   *     0) NONE indicates no event has been set yet
+   *     1) COLLISION indicates a collision event has been set
+   *     2) TRACK indicates a track-based event has been set
+   */
+  enum EventType {NONE = 0, COLLISION = 1, TRACK = 2};
 
-    EventType type;
- 
-    /// Type of particle being tallied: NEUTRON = 1, PHOTON = 2, ELECTRON = 3.
-    unsigned int particle;
-    
-    /// Geometric cell in which the event occurred
-    int current_cell;
+  EventType type;
 
-    /// Total length of track segment
-    double track_length;
+  /// Type of particle being tallied: NEUTRON = 1, PHOTON = 2, ELECTRON = 3.
+  unsigned int particle;
 
-    /// Position of particle (x, y, z)
-    moab::CartVect position;
+  /// Geometric cell in which the event occurred
+  int current_cell;
 
-    /// Direction in which particle is traveling (u, v, w)
-    moab::CartVect direction;
+  /// Total length of track segment
+  double track_length;
 
-    /// Total macroscopic cross section for cell in which collision occurred
-    double total_cross_section;
+  /// Position of particle (x, y, z)
+  moab::CartVect position;
 
-    /// Energy and weight of particle when event occurred
-    double particle_energy;
-    double particle_weight;
+  /// Direction in which particle is traveling (u, v, w)
+  moab::CartVect direction;
 
-    /// Energy-dependent tally multipliers: variable with each event
-    std::vector<double> multipliers; 
+  /// Total macroscopic cross section for cell in which collision occurred
+  double total_cross_section;
 
-    /**
-     * \brief returns multiplier * particle_weight for the current tally event
-     * \param[in] multiplier_index the index of the multipliers vector to access
-     * \return the score multiplier
-     *
-     * Note that if the multiplier_index is invalid or the tally does not use
-     * multipliers, then only the particle weight will be returned.
-     */
-    double get_score_multiplier(int multiplier_index) const
-    {
-        int size = multipliers.size();
+  /// Energy and weight of particle when event occurred
+  double particle_energy;
+  double particle_weight;
 
-        if (multiplier_index <= -1 || multiplier_index >= size)
-        {
-            return particle_weight;
-        }
+  /// Energy-dependent tally multipliers: variable with each event
+  std::vector<double> multipliers;
 
-        return multipliers.at(multiplier_index) * particle_weight; 
+  /**
+   * \brief returns multiplier * particle_weight for the current tally event
+   * \param[in] multiplier_index the index of the multipliers vector to access
+   * \return the score multiplier
+   *
+   * Note that if the multiplier_index is invalid or the tally does not use
+   * multipliers, then only the particle weight will be returned.
+   */
+  double get_score_multiplier(int multiplier_index) const {
+    int size = multipliers.size();
+
+    if (multiplier_index <= -1 || multiplier_index >= size) {
+      return particle_weight;
     }
+
+    return multipliers.at(multiplier_index) * particle_weight;
+  }
 };
 
 #endif // DAGMC_TALLY_EVENT_HPP

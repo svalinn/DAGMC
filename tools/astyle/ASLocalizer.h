@@ -42,26 +42,26 @@ class Translation;
 
 class ASLocalizer
 {
-	public:		// functions
-		ASLocalizer();
-		virtual ~ASLocalizer();
-		string getLanguageID() const;
-		const Translation* getTranslationClass() const;
+ public:		// functions
+  ASLocalizer();
+  virtual ~ASLocalizer();
+  string getLanguageID() const;
+  const Translation* getTranslationClass() const;
 #ifdef _WIN32
-		void setLanguageFromLCID(size_t lcid);
+  void setLanguageFromLCID(size_t lcid);
 #endif
-		void setLanguageFromName(const char* langID);
-		const char* settext(const char* textIn) const;
+  void setLanguageFromName(const char* langID);
+  const char* settext(const char* textIn) const;
 
-	private:	// functions
-		void setTranslationClass();
+ private:	// functions
+  void setTranslationClass();
 
-	private:	// variables
-		Translation* m_translation;		// pointer to a polymorphic Translation class
-		string m_langID;				// language identifier from the locale
-		string m_subLangID;				// sub language identifier, if needed
-		string m_localeName;			// name of the current locale (Linux only)
-		size_t m_lcid;					// LCID of the user locale (Windows only)
+ private:	// variables
+  Translation* m_translation;		// pointer to a polymorphic Translation class
+  string m_langID;				// language identifier from the locale
+  string m_subLangID;				// sub language identifier, if needed
+  string m_localeName;			// name of the current locale (Linux only)
+  size_t m_lcid;					// LCID of the user locale (Windows only)
 };
 
 //----------------------------------------------------------------------------
@@ -75,21 +75,21 @@ class Translation
 // The language vector is built by the language sub classes.
 // NOTE: this class must have virtual methods for typeid() to work.
 {
-	public:
-		Translation() {};
-		string convertToMultiByte(const wstring& wideStr) const;
-		size_t getTranslationVectorSize() const;
-		bool getWideTranslation(const string& stringIn, wstring& wideOut) const;
-		string& translate(const string& stringIn) const;
+ public:
+  Translation() {};
+  string convertToMultiByte(const wstring& wideStr) const;
+  size_t getTranslationVectorSize() const;
+  bool getWideTranslation(const string& stringIn, wstring& wideOut) const;
+  string& translate(const string& stringIn) const;
 
-	protected:
-		void addPair(const string& english, const wstring& translated);
-		// variables
-		vector<pair<string, wstring> > m_translation;		// translation vector
+ protected:
+  void addPair(const string& english, const wstring& translated);
+  // variables
+  vector<pair<string, wstring> > m_translation;		// translation vector
 
-	private:
-		// unused method so the class will be identified as polymorphic
-		virtual void virtualClass() {}
+ private:
+  // unused method so the class will be identified as polymorphic
+  virtual void virtualClass() {}
 };
 
 //----------------------------------------------------------------------------
@@ -100,44 +100,44 @@ class Translation
 
 class ChineseSimplified : public Translation
 {
-	public:
-		ChineseSimplified();
+ public:
+  ChineseSimplified();
 };
 
 class ChineseTraditional : public Translation
 {
-	public:
-		ChineseTraditional();
+ public:
+  ChineseTraditional();
 };
 
 class English : public Translation
 {
-	public:
-		English();
+ public:
+  English();
 };
 
 class French : public Translation
 {
-	public:
-		French();
+ public:
+  French();
 };
 
 class German : public Translation
 {
-	public:
-		German();
+ public:
+  German();
 };
 
 class Hindi : public Translation
 {
-	public:
-		Hindi();
+ public:
+  Hindi();
 };
 
 class Spanish : public Translation
 {
-	public:
-		Spanish();
+ public:
+  Spanish();
 };
 
 #endif	//  ASTYLE_LIB
