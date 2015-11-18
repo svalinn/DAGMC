@@ -79,7 +79,7 @@ material library, e.g. my_nuc_library.h5, and extract the materials requested,
 placing them into the geometry file. Having already marked up your geometry 
 using the methods mentioned in previous sections, we can run the preprocess script,
 ::
-   %> uwuw_preproc -f <dagmc h5m filename> -d <path to nuclear data library> \
+   %> uwuw_preproc <dagmc h5m filename> -d <path to nuclear data library> \
                    -o <output h5m filename>
 
 Be sure to examine the output of this script which will inform you of the 
@@ -328,7 +328,7 @@ The lines above must be pasted into the Fluka input and then run as you would
 any Fluka, with the exception that we give the rfluka script an executable 
 argument and a new "-d" argument, which specifies the geometry filename:
 ::
-   %> $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
+   %> $FLUPRO/flutil/rfluka -N0 -M1 -e /path/to/mainfludag -d example.h5m fluka.inp
 
 The code should run and successfully produce screen output similar to the 
 following (the filepaths will change according to your system, as will the 
