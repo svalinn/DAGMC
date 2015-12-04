@@ -338,7 +338,7 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     moab::AdaptiveKDTree kdtree(MBI()); //, true, 0, moab::MESHSET_TRACK_OWNER);
     // initialize the KD Tree
     moab::EntityHandle root;
-    const char settings[]="MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;PLANE_SET=2;moab::MESHSET_FLAGS=0x1;TAG_NAME=0";
+    const char settings[]="MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;PLANE_SET=2;MESHSET_FLAGS=0x1;TAG_NAME=0";
     moab::FileOptions fileopts(settings);
 
 
