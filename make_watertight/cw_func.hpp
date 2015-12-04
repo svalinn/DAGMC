@@ -9,18 +9,18 @@
 #include <time.h>
 #include <vector>
 #include <algorithm>
-#include "MBCore.hpp"
-#include "MBRange.hpp"
-#include "MBAdaptiveKDTree.hpp" // for merging verts
-#include "MBCartVect.hpp"
+#include "moab/Core.hpp"
+#include "moab/Range.hpp"
+#include "moab/AdaptiveKDTree.hpp" // for merging verts
+#include "moab/CartVect.hpp"
 
 
-MBInterface *MBI();
+moab::Interface *MBI();
 namespace cw_func {
 /// checks the input mesh for watertightness. If check_topology=true, then the mesh will be checked topologically only, no tolerances allowed.
 /// If check_topology = false, then the model will be checked for watertightness by proximity.
 /// (i.e. so long as paired vertices are within tol of each other, the mesh will be considered watertight)
- MBErrorCode check_mesh_for_watertightness( MBEntityHandle input_set, double tol, bool &sealed, bool test = false,  bool verbose = false , bool check_topology = false );
+ moab::ErrorCode check_mesh_for_watertightness( moab::EntityHandle input_set, double tol, bool &sealed, bool test = false,  bool verbose = false , bool check_topology = false );
 
  int compare_by_coords(const void *a, const void *b);
  
@@ -35,8 +35,8 @@ namespace cw_func {
   double z2;
   int  surf_id;
   bool matched;
-  MBEntityHandle vert1;
-  MBEntityHandle vert2;
+  moab::EntityHandle vert1;
+  moab::EntityHandle vert2;
 };
 
 }
