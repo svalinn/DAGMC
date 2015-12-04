@@ -2,59 +2,59 @@
 #define ARC_HPP
 
 #include <vector>
-#include "MBCore.hpp"
+#include "moab/Core.hpp"
 #include "gen.hpp"
-#include "MBSkinner.hpp"
+#include "moab/Skinner.hpp"
 #include "MBTagConventions.hpp"
 
-MBInterface *MBI(); 
+moab::Interface *MBI(); 
 namespace arc {
 
 /// check that edge is going in the same direction as one of the edges on tri.
 /// If this is not the case, the edge is reversed.
-  MBErrorCode orient_edge_with_tri( const MBEntityHandle edge, 
-                                    const MBEntityHandle tri );
-// checks for degeneracy of edges in the MBRange edges and deletes degenerates if found
-  MBErrorCode remove_degenerate_edges( MBRange &edges, const bool debug );
+  moab::ErrorCode orient_edge_with_tri( const moab::EntityHandle edge, 
+                                    const moab::EntityHandle tri );
+// checks for degeneracy of edges in the moab::Range edges and deletes degenerates if found
+  moab::ErrorCode remove_degenerate_edges( moab::Range &edges, const bool debug );
 
-/// deletes any duplicate edges in MBRange edges for which one goes from vertex a to 
+/// deletes any duplicate edges in moab::Range edges for which one goes from vertex a to 
 /// vertex b and the other from b to a
-  MBErrorCode remove_opposite_pairs_of_edges( MBRange &edges, const bool debug );
-  MBErrorCode remove_opposite_pairs_of_edges_fast( MBRange &edges, const bool debug );
+  moab::ErrorCode remove_opposite_pairs_of_edges( moab::Range &edges, const bool debug );
+  moab::ErrorCode remove_opposite_pairs_of_edges_fast( moab::Range &edges, const bool debug );
 
-  MBErrorCode get_next_oriented_edge( const MBRange edges, 
-                                      const MBEntityHandle edge,
-				      MBEntityHandle &next_edge );
+  moab::ErrorCode get_next_oriented_edge( const moab::Range edges, 
+                                      const moab::EntityHandle edge,
+				      moab::EntityHandle &next_edge );
 
   // Given a range of edges and a vertex, find the edge the contains the
   // endpoint. Also return the opposite endpoint of the edge. This checks
   // to ensure that only one edge is found.
-  MBErrorCode get_next_edge_and_vert_by_edge( const MBRange edges_in,
-					      const MBEntityHandle edge_in,
-					      const MBEntityHandle vertex_in,
-					      MBEntityHandle &edge_out,
-					      MBEntityHandle &vertex_out       );
+  moab::ErrorCode get_next_edge_and_vert_by_edge( const moab::Range edges_in,
+					      const moab::EntityHandle edge_in,
+					      const moab::EntityHandle vertex_in,
+					      moab::EntityHandle &edge_out,
+					      moab::EntityHandle &vertex_out       );
 
-  MBErrorCode create_loops_from_oriented_edges_fast( MBRange edges,
-						std::vector< std::vector<MBEntityHandle> > &loops_of_edges,
+  moab::ErrorCode create_loops_from_oriented_edges_fast( moab::Range edges,
+						std::vector< std::vector<moab::EntityHandle> > &loops_of_edges,
                                                 const bool debug );
-  MBErrorCode create_loops_from_oriented_edges( MBRange edges,
-						std::vector< std::vector<MBEntityHandle> > &loops_of_edges,
+  moab::ErrorCode create_loops_from_oriented_edges( moab::Range edges,
+						std::vector< std::vector<moab::EntityHandle> > &loops_of_edges,
                                                 const bool debug );
 
-  MBErrorCode order_verts_by_edge( MBRange unordered_edges, std::vector<MBEntityHandle> &ordered_verts );
+  moab::ErrorCode order_verts_by_edge( moab::Range unordered_edges, std::vector<moab::EntityHandle> &ordered_verts );
 
 /// gets the moab entities in the meshset, set, and returns them to vec
-  MBErrorCode get_meshset( const MBEntityHandle set, std::vector<MBEntityHandle> &vec);
+  moab::ErrorCode get_meshset( const moab::EntityHandle set, std::vector<moab::EntityHandle> &vec);
 
 /// clears the given meshset set and then adds the entities desired to the meshset
 /// (apparently child_parent_relations are taken care of here? Edges are created how?)
-  MBErrorCode set_meshset( const MBEntityHandle set, const std::vector<MBEntityHandle> vec );
+  moab::ErrorCode set_meshset( const moab::EntityHandle set, const std::vector<moab::EntityHandle> vec );
 
 /// goes through curve_sets and finds any curves with coincident ( dist. apart <= FACET_TOL) front and back points.
 /// it then merges the curves topologically. Any merged curves aren't deleted until prepare surfaces. 
-  MBErrorCode merge_curves(MBRange curve_sets, const double FACET_TOL,
-                           MBTag idTag, MBTag merge_tag, const bool debug );
+  moab::ErrorCode merge_curves(moab::Range curve_sets, const double FACET_TOL,
+                           moab::Tag idTag, moab::Tag merge_tag, const bool debug );
 }
 
 #endif
