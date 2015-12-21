@@ -14,9 +14,6 @@
 // input:  h5m filename, tolerance
 // output: watertight h5m
 
-// make CXXFLAGS=-g for debug
-// make CXXFLAGS=-pg for profiling
-
 #include <iostream>
 #include <sstream>
 #include <iomanip> // for setprecision
@@ -120,19 +117,11 @@ moab::ErrorCode get_geom_size_before_sealing( const moab::Range geom_sets[],
     std::cout << "dim = " << dim << std::endl;
     for(moab::Range::iterator i=geom_sets[dim].begin(); i!=geom_sets[dim].end(); i++) {
       double size = 0;
-	//std::cout << "*i =" << *i << std::endl;
-	//std::cout << "geom_tag =" << geom_tag << std::endl;
-	//std::cout << "size =" << size << std::endl;
-
 
       rval = gen::measure( *i, geom_tag, size, false, verbose );
       if(gen::error(moab::MB_SUCCESS!=rval,"could not measure")) return rval;
       rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
       if(gen::error(moab::MB_SUCCESS!=rval,"could not set size tag")) return rval;
-
-	//std::cout << "*i =" << *i << std::endl;
-	//std::cout << "geom_tag =" << geom_tag << std::endl;
-	//std::cout << "size =" << size << std::endl;
 
     }
   }
@@ -142,9 +131,6 @@ moab::ErrorCode get_geom_size_before_sealing( const moab::Range geom_sets[],
 moab::ErrorCode get_senses(moab::EntityHandle entity,
     std::vector<moab::EntityHandle> &wrt_entities, std::vector<int> &senses)
 {
-  //
-  // the question here is: the wrt_entities is supplied or not?
-  // I assume not, we will obtain it !!
   int edim = 1;
 
   if (-1 == edim)
@@ -179,54 +165,8 @@ moab::ErrorCode get_senses(moab::EntityHandle entity,
     const int *senses_data = static_cast<const int*> (dum_ptr);
     std::copy(senses_data, senses_data + num_ents, std::back_inserter(senses));
 
-  }/* else // face in volume, edim == 2
-  {
-    
-    moab::EntityHandle sense_data[2] = { 0, 0 };
-    rval = MBI()->tag_get_data(GEOM_SENSE_2_TAG_NAME, &entity, 1, sense_data);
-    if (moab::MB_SUCCESS != rval)
-      return rval;
-    if (sense_data[0] != 0 && sense_data[1] == sense_data[0]) {
-      wrt_entities.push_back(sense_data[0]);
-      senses.push_back(0);// both
-    } else {
-      if (sense_data[0] != 0) {
-        wrt_entities.push_back(sense_data[0]);
-        senses.push_back(1);
-      }
-      if (sense_data[1] != 0) {
-        wrt_entities.push_back(sense_data[1]);
-        senses.push_back(-1);
-      }
-
-    }
-
   }
-  */
-  // filter the results with the sets that are in the model at this time
-  // this was introduced because extracting some sets (e.g. neumann set, with mbconvert)
-  //   from a model would leave some sense tags not defined correctly
-  // also, the geom ent set really needs to be part of the current model set
- /*
-  unsigned int currentSize =0;
 
-  for (unsigned int index=0; index<wrt_entities.size(); index++)
-  {
-    moab::EntityHandle wrt_ent=wrt_entities[index];
-    if (wrt_ent )
-    {
-      if (MBI()->contains_entities(modelSet, &wrt_ent, 1))
-      {
-        wrt_entities[currentSize] = wrt_entities[index];
-        senses[currentSize] = senses[index];
-        currentSize++;
-      }
-    }
-  }
-  wrt_entities.resize(currentSize);
-  senses.resize(currentSize);
-  //
-  */
   return moab::MB_SUCCESS;
 }
   int main(int argc, char **argv) {
@@ -286,48 +226,7 @@ moab::ErrorCode get_senses(moab::EntityHandle entity,
 	
 	is_acis = false;
 
-    // If reading a sat file, the facet toleance will default to 1e-3 if it is
-    // not specified. If the user does not specify a facet_tol, default to 1e-3.
-    // This is the same as what ReadCGM uses.
       } 
-
-    /*
-     // recreate to only perform these operations on h5m meshes  
-    else if(std::string::npos!=input_name.find("sat") && 
-	      ((2==argc) || (3==argc)) ) 
-      {
-	double facet_tol;
-	if(3 == argc) 
-	  {
-	    facet_tol = atof(argv[2]);
-	  }
-	else 
-	  {
-	    facet_tol = 1e-3;
-	  }
-
-	std::string options;
-	options += "FACET_DISTANCE_TOLERANCE=";
-	std::stringstream facet_tol_ss;
-	facet_tol_ss << facet_tol; 
-	options += facet_tol_ss.str();
-	if(debug) std::cout << "  options=" << options << std::endl;
-	rval = MBI()->load_file( input_name.c_str(), &input_set, options.c_str() );
-	if(gen::error(moab::MB_SUCCESS!=rval,"failed to load_file 1")) return rval;      
-
-      // write an HDF5 file of facets with known tolerance   
-	std::string facet_tol_filename = root_name + "_" + facet_tol_ss.str() + ".h5m";
-	rval = MBI()->write_mesh( facet_tol_filename.c_str() );
-	if(gen::error(moab::MB_SUCCESS!=rval,"failed to write_mesh 0")) return rval;      
-	is_acis = true;
-      } 
-    else 
-      {
-	std::cout << "incorrect input arguments" << std::endl;
-	return moab::MB_FAILURE;
-      }
-     //not required if  only doing this with h5m files
-     */
 
     // create tags
     clock_t load_time = clock();    
@@ -429,8 +328,6 @@ moab::ErrorCode get_senses(moab::EntityHandle entity,
     std::cout << "  faceting tolerance=" << facet_tol << " cm" << std::endl;
     std::cout << "  absolute tolerance=" << sme_resabs_tol << " cm" << std::endl;
     
-   // get all geometry sets
- 
     
     // get all geometry sets
     moab::Range geom_sets[4];
@@ -444,7 +341,6 @@ moab::ErrorCode get_senses(moab::EntityHandle entity,
 	assert(moab::MB_SUCCESS == result);
 
 	// make sure that sets TRACK membership and curves are ordered
-	// moab::MESHSET_TRACK_OWNER=0x1, moab::MESHSET_SET=0x2, moab::MESHSET_ORDERED=0x4
 	for(moab::Range::iterator i=geom_sets[dim].begin(); i!=geom_sets[dim].end(); i++) 
 	  {
 	    unsigned int options;
@@ -475,7 +371,6 @@ moab::ErrorCode get_senses(moab::EntityHandle entity,
 
     // this could be related to when there are sat files rather than mesh?
     // If desired, find each entity's size before sealing.
-    ///*
     if(check_geom_size) 
       {
 	std::cout << "I am checking the geometry size" << std::endl;
@@ -485,9 +380,6 @@ moab::ErrorCode get_senses(moab::EntityHandle entity,
 	    return result;
 	  }
       }
-    
-    //*/
-
     std::cout << "Get entity count before sealing" << std::endl;
     // Get entity count before sealing.
     int orig_n_tris;
@@ -506,31 +398,6 @@ moab::ErrorCode get_senses(moab::EntityHandle entity,
               << geom_sets[0].size() << " vertices" << std::endl;  
 
     std::cout << "==================================" << std::endl;
-
-
-/*
-    //Print all geometry entities
-    std::cout << "Surfaces" << std::endl;
-    for (unsigned int index=0; index < geom_sets[2].size(); index++)
-    {
-      std::cout << "surface handle = " << geom_sets[2][index] << std::endl;
-      std::cout << "surface id = " << gen::geom_id_by_handle(geom_sets[2][index]) << std::endl;
-    }
-    
-    std::cout << "Curves" << std::endl;
-    for (unsigned int index=0; index < geom_sets[1].size(); index++)
-    {
-      std::cout << "curve handle = " << geom_sets[1][index] << std::endl;
-      std::cout << "curve id = " << gen::geom_id_by_handle(geom_sets[1][index]) << std::endl;
-    }
-    
-    std::cout << "Volumes" << std::endl;
-    for (unsigned int index=0; index < geom_sets[3].size(); index++)
-    {
-      std::cout << "volume handle = " << geom_sets[3][index] << std::endl;
-      std::cout << "volume id = " << gen::geom_id_by_handle(geom_sets[3][index]) << std::endl;
-    }
-*/
     
 
 // Get all curve senses
