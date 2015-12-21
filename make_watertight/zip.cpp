@@ -30,8 +30,6 @@ namespace zip {
     moab::Range tris;
     result = MBI()->get_adjacencies( endpts, 2, 2, true, tris );
     assert(moab::MB_SUCCESS == result);
-    //std::cout << "t_joint: tris.size()=" << tris.size() << std::endl;
-    //MBI()->list_entities( tris );
 
     triangles joints[tris.size()];
     for(unsigned int i=0; i<tris.size(); i++) {
@@ -41,20 +39,14 @@ namespace zip {
       moab::Range surf_sets;
       result = MBI()->get_adjacencies( &joints[i].before_tri, 1, 4, false, surf_sets);
       assert(moab::MB_SUCCESS == result);
-      //std::cout << "t_joint: " << surf_sets.size() << " surface sets found for triangle" 
-      //        << std::endl;
   
       // Check to make sure we found a set     
       if(1 != surf_sets.size()) {
 	if(debug) std::cout << "    t_joint: " << surf_sets.size() << " surface sets found for triangle " 
                   << joints[i].before_tri << std::endl;
         assert(1 == surf_sets.size());
-	//if(1!=surf_sets.size()) return moab::MB_FAILURE;
       }
       joints[i].surf_set = surf_sets.front();
-      //std::cout << "t_joint: surf id=" << gen::geom_id_by_handle( joints[i].surf_set )
-      //        << std::endl;  
-      //gen::print_triangle( joints[i].before_tri, false );
 
       // get old  connectivity
       int n_verts;
@@ -65,7 +57,6 @@ namespace zip {
       assert(3 == n_verts);
    
       // test to make sure not degenerate
-      //if(conn[0]==conn[1] || conn[1]==conn[2] || conn[2]==conn[0]) {
       if( gen::triangle_degenerate( joints[i].before_tri ) && debug ) {
         std::cout << "    t_joint: degenerate input triangle" << std::endl;
         gen::print_triangle( joints[i].before_tri, false);
@@ -79,21 +70,16 @@ namespace zip {
       }
 
       // test to make sure not degenerate
-      //if(conn0[0]==conn0[1] || conn0[1]==conn0[2] || conn0[2]==conn0[0]) {
       if(gen::triangle_degenerate( joints[i].after0[0], joints[i].after0[1], 
                                                         joints[i].after0[2]) && debug ) {
 	std::cout << "    t_joint: degenerate output triangle 1" << std::endl;	
         gen::print_triangle( joints[i].before_tri, false );
-	//	return moab::MB_FAILURE;
       }
       // test to make sure not degenerate
-      //if(conn1[0]==conn1[1] || conn1[1]==conn1[2] || conn1[2]==conn1[0]) {
       if(gen::triangle_degenerate( joints[i].after1[0], joints[i].after1[1], 
                                                         joints[i].after1[2]) && debug) {
 	std::cout << "    t_joint: degenerate output triangle 2" << std::endl;
         gen::print_triangle( joints[i].before_tri, false );
-	//gen::print_triangle( *i, true );
-	//return moab::MB_FAILURE;
       }
 
       // set the new connectivity on the original triangle
@@ -120,9 +106,6 @@ namespace zip {
       if(gen::error(moab::MB_SUCCESS!=result,"could not delete degenerate tri")) return result;
       result = zip::delete_degenerate_tris( new_tri );
       if(gen::error(moab::MB_SUCCESS!=result,"could not delete degenerate tri")) return result;
-
-      //gen::print_triangle( tri, false );
-      //gen::print_triangle( new_tri, false );
     }
     return moab::MB_SUCCESS;
   }
@@ -136,7 +119,6 @@ namespace zip {
     assert(moab::MB_SUCCESS == result);
     assert(3 == n_verts);
     if(con[0]==con[1] || con[1]==con[2] || con[2]==con[0]) {
-      //std::cout << "delete_degenerate_tris: degenerate triangle=" << tri << " deleted" << std::endl;
       result = MBI()->delete_entities( &tri, 1 );
       assert(moab::MB_SUCCESS == result);
     }
@@ -180,50 +162,19 @@ namespace zip {
       if(delete_vert == *i) *i = keep_vert;
     }
 
-    // UPDATE: This is slower than using the O(n) linear search above.
-    // Let moab update adjacencies. Unless moab stores data is must be 
-    // merge-updated manually to prevent stale handles.
-    /*    moab::EntityHandle arc0_set, arc1_set;
-    rval = MBI()->create_meshset( MESHSET_TRACK_OWNER|MESHSET_ORDERED, arc0_set );
-    if(gen::error(moab::MB_SUCCESS!=rval,"creating arc0_set failed")) return rval;
-    rval = MBI()->create_meshset( MESHSET_TRACK_OWNER|MESHSET_ORDERED, arc1_set );
-    if(gen::error(moab::MB_SUCCESS!=rval,"creating arc1_set failed")) return rval;
-    rval = arc::set_meshset( arc0_set, arc0 );                                          
-    if(gen::error(moab::MB_SUCCESS!=rval,"setting arc0_set failed")) return rval; 
-    rval = arc::set_meshset( arc1_set, arc1 );                                          
-    if(gen::error(moab::MB_SUCCESS!=rval,"setting arc1_set failed")) return rval; 
-    */
-
     // get adjacent tris
     moab::Range tris;
     moab::EntityHandle verts[2]={keep_vert, delete_vert};
     rval = MBI()->get_adjacencies( verts, 2, 2, false, tris, moab::Interface::UNION );
     if(gen::error(moab::MB_SUCCESS!=rval,"getting adjacent tris failed")) return rval;
-    //if(0 == tris.size()) {
-    //  std::cout << "merge_verts: cannot find any triangles adjacent to vertices" << std::endl;
-    //  return MB_ENTITY_NOT_FOUND;
-    //}
-    //gen::print_triangles( tris );
 
     // actually do the merge
     rval = MBI()->merge_entities( keep_vert, delete_vert, false, true );
     if(gen::error(moab::MB_SUCCESS!=rval,"merge entities failed")) return rval;
-    //std::cout << "  tris.size()=" << tris.size() << std::endl;
 
     // delete degenerate tris
     rval = delete_degenerate_tris( tris );
     if(gen::error(moab::MB_SUCCESS!=rval,"deleting degenerate tris failed")) return rval;
-
-    // Get the merge-updated arcs back.
-    /*    rval = arc::get_meshset( arc0_set, arc0 ); 
-    if(gen::error(moab::MB_SUCCESS!=rval,"getting arc0 set failed")) return rval;
-    rval = arc::get_meshset( arc1_set, arc1 ); 
-    if(gen::error(moab::MB_SUCCESS!=rval,"getting arc1 set failed")) return rval;
-    rval = MBI()->delete_entities( &arc0_set, 1 );                   
-    if(gen::error(moab::MB_SUCCESS!=rval,"deleting arc0_set failed")) return rval;
-    rval = MBI()->delete_entities( &arc1_set, 1 );                   
-    if(gen::error(moab::MB_SUCCESS!=rval,"deleting arc1_set failed")) return rval;
-    */
 
     return moab::MB_SUCCESS;
   }                           
@@ -236,7 +187,6 @@ namespace zip {
     for(unsigned int i=0; i<norms0.size(); i++) {
       moab::ErrorCode result = test_normals( norms0[i], norms1[i]);
       if(moab::MB_SUCCESS != result) {
-        //std::cout << "test_normals: failed on i=" << i << std::endl;
         inverted_tri_indices.push_back(i);
       }
     }
@@ -244,8 +194,6 @@ namespace zip {
   }
   moab::ErrorCode test_normals( const moab::CartVect norm0, const moab::CartVect norm1 ) {
     if(0 > norm0 % norm1) {
-      //std::cout << "test_normals: tri is inverted, dot product=" 
-      //          << norm0 % norm1 << std::endl;
       return moab::MB_FAILURE;
     } else {
       return moab::MB_SUCCESS;
@@ -349,12 +297,9 @@ namespace zip {
         result = MBI()->delete_entities( tri_edges );
         assert(moab::MB_SUCCESS == result);
 	tris_to_refacet = intersect( surf_tris, adj_tris );
-        if(tris_to_refacet.empty()) continue;
-	//gen::print_triangles( tris_to_refacet );    
-	
+        if(tris_to_refacet.empty()) continue;	
 	// get an area-weighted normal of the adj_tris
 	moab::CartVect plane_normal(0,0,0);
-	//for(unsigned int i=0; i<tris_to_refacet.size(); i++) {
 	for(moab::Range::iterator i=tris_to_refacet.begin(); i!=tris_to_refacet.end(); i++) {
 	  moab::CartVect norm;
 	  result = MBI()->tag_get_data( normal_tag, &(*i), 1, &norm);
@@ -363,7 +308,6 @@ namespace zip {
           result = gen::triangle_area( *i, area );
           assert(moab::MB_SUCCESS == result);
 	  if(debug) std::cout << "norm=" << norm << " area=" << area << std::endl;
-	  //plane_normal += norm*area;
 	  plane_normal += norm;
 	}
 	plane_normal.normalize();
@@ -377,8 +321,6 @@ namespace zip {
  
 	// skin the tris
 	moab::Range unordered_edges;
-	//MBSkinner tool(MBI());
-	//result = tool.find_skin( tris_to_refacet, 1, unordered_edges, false );
 	result = gen::find_skin( tris_to_refacet, 1, unordered_edges, false );
 	assert(moab::MB_SUCCESS == result);
         if(unordered_edges.empty()) {
@@ -391,16 +333,10 @@ namespace zip {
           continue;
         }
 
-	//std::cout << "remove_inverted_tris: surf_id=" 
-	//  << gen::geom_id_by_handle(surf_set.front()) << std::endl;
-	//result = MBI()->list_entities( tris_to_refacet );
-	//assert(moab::MB_SUCCESS == result);
-
 	// assemble into a polygon
 	std::vector<moab::EntityHandle> polygon_of_verts;
 	result = arc::order_verts_by_edge( unordered_edges, polygon_of_verts );
 	if(debug) gen::print_loop( polygon_of_verts ); 
-	//assert(moab::MB_SUCCESS == result);
 	if(moab::MB_SUCCESS != result) {
 	  if(debug) std::cout << "remove_inverted_tris: couldn't order polygon by edge" << std::endl;
 	  return moab::MB_FAILURE;
@@ -559,13 +495,9 @@ namespace zip {
 	  // Sometimes degenerate tris are created due to merging curve endpts.
 	  // here we do not remove tri from the surf meshset, but we should
 	  if( gen::triangle_degenerate(*k) ) {
-	    //result = MBI()->delete_entities( &(*k), 1);
-	    //assert(moab::MB_SUCCESS == result);
 	    std::cout << "  arc=" << 0 << " pos=" << i << " vert=" << arcs[0][i] 
 		      << " degenerate triangle" << std::endl;
 	    gen::print_triangle(*k, false);
-	    //print_edge( edge );
-	    //continue;
 	    return moab::MB_FAILURE;
 	  }
 
@@ -578,9 +510,7 @@ namespace zip {
 	    std::cout << "    arc=" << 0 << " pos=" << i << " vert=" << arcs[0][i]
 		      << " small triangle " << std::endl;
 	    gen::print_triangle(*k, false);            
-	    //print_edge( edge );
   	    gen::print_arcs( arcs );
-	    //if(0.0 >= area) return moab::MB_FAILURE;
 	  } 
 	}
       }
