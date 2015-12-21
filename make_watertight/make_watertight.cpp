@@ -147,9 +147,6 @@ moab::ErrorCode write_sealed_file( std::string root_filename, double facet_tol, 
     } else {
       output_filename = root_filename + "_zip.h5m";
     }
-    // PROBLEM: If I write the input meshset the writer returns moab::MB_FAILURE.
-    // This happens only if I delete vertices when merging.
-    // result = MBI()->write_mesh( filename_new.c_str(), &input_meshset, 1);
     result = MBI()->write_mesh( output_filename.c_str() );
     if (moab::MB_SUCCESS != result) std::cout << "result= " << result << std::endl;
     assert(moab::MB_SUCCESS == result);  
