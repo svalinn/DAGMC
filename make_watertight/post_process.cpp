@@ -36,9 +36,6 @@
 #include "zip.hpp"
 #include "cleanup.hpp"
 
-
-
-
 moab::Interface *MBI();
 
 moab::ErrorCode delete_all_edges() {
@@ -217,8 +214,6 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
 	std::vector<moab::EntityHandle>::iterator k=find(unmerged_curve_sets.begin(), 
 	  unmerged_curve_sets.end(), curve);
         if(unmerged_curve_sets.end() == k) {
-  	  //std::cout << "  curve " << gen::geom_id_by_handle(*k) 
-          //          << " is entity_to_keep" << std::endl;
           unmerged_curve_sets.push_back(curve);
         } else {
           unmerged_curve_sets.erase(k);
@@ -292,15 +287,9 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
 
       /* Get the curves that are part of the surface. Use vectors to store all curve
 	 stuff so that we can remove curves from the set as they are zipped. */
-      //curve_sets.clear();
-
-      //result = MBI()->get_child_meshsets( *i, curve_sets );
-      //assert(moab::MB_SUCCESS==result);
       std::vector<int> curve_ids;
       int curve_id;
       std::vector<std::vector<moab::EntityHandle> > curves;
-      //for(moab::Range::iterator j=curve_sets.begin(); j!=curve_sets.end(); j++) {
-      //for(unsigned int j=0; j<curve_sets.size(); j++) {
       for(std::vector<moab::EntityHandle>::iterator j=curve_sets.begin(); 
         j!=curve_sets.end(); j++) {
 
@@ -308,13 +297,11 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
         // for duplicates because we are using vectors instead of ranges. Note that
         // parent-child links also cannot store duplicate handles.
         moab::EntityHandle merged_curve;
-	//moab::EntityHandle temp = curve_sets[j];
         result = MBI()->tag_get_data( merge_tag, &(*j), 1, &merged_curve );     
         assert(moab::MB_TAG_NOT_FOUND==result || moab::MB_SUCCESS==result);
         if(moab::MB_SUCCESS == result) *j = merged_curve;
 
 	// do not add a curve if it contains nothing
-	//temp = curve_sets[j];
 	result = MBI()->tag_get_data( id_tag, &(*j), 1, &curve_id );
 	assert(moab::MB_SUCCESS == result);
 	std::cout << "  curve_id=" << curve_id << " handle=" << *j << std::endl;
@@ -328,15 +315,10 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
       // Keep zipping loops until each is either zipped or failed. This function
       // returns only after all loops are zipped or a failure occurs.
       while(!skin.empty()) {
-        //result = zip_loop( normal_tag, FACET_TOL, MERGE_TOL, 
-	//                 curves, skin, curve_ids, *i, curve_sets );
         if(moab::MB_SUCCESS != result) {
 	  std::cout << "SURFACE_ZIPPING_FAILURE: could not zip surf_id=" << surf_id << std::endl;
         }
       }
-
-      // mod13surf2996, 3028 and 2997 are adjacent to the same bad geometry (figure 8 loop)
-      //assert(moab::MB_SUCCESS==result || 2996==surf_id || 2997==surf_id || 3028==surf_id);
     }
     return moab::MB_SUCCESS;
   }
@@ -409,8 +391,6 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
       result = MBI()->get_entities_by_type_and_tag( 0, moab::MBENTITYSET, &geom_tag,
 	  					    val, 1, geom_sets[dim] );
       assert(moab::MB_SUCCESS == result);
-      // make sure that sets TRACK membership and curves are ordered
-      // moab::MESHSET_TRACK_OWNER=0x1, moab::MESHSET_SET=0x2, moab::MESHSET_ORDERED=0x4
       for(moab::Range::iterator i=geom_sets[dim].begin(); i!=geom_sets[dim].end(); i++) {
         unsigned int options;
         result = MBI()->get_meshset_options(*i, options );
@@ -438,9 +418,6 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     assert(moab::MB_SUCCESS == result);
   
     std::string output_filename = root_name + "_tri.h5m";
-    // PROBLEM: If I write the input meshset the writer returns moab::MB_FAILURE.
-    // This happens only if I delete vertices when merging.
-    // result = MBI()->write_mesh( filename_new.c_str(), &input_meshset, 1);
     result = MBI()->write_mesh( output_filename.c_str() );
     if (moab::MB_SUCCESS != result) std::cout << "result= " << result << std::endl;
     assert(moab::MB_SUCCESS == result);
