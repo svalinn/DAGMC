@@ -59,26 +59,19 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
                                  const std::vector<moab::EntityHandle> loop_of_verts,
                                  std::vector<unsigned> &positions, 
                                  std::vector<double>   &dists);
-  /*  moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
-                                  const std::vector<std::vector<moab::EntityHandle> > loops_of_verts,
-                                  unsigned int &loop, unsigned int &position, 
-                                  double &min_dist);
-  */
-  // Merge the range of vertices. We do not merge by edges (more
-  // stringent) because we do not want to miss corner vertices.
 
+// Merge the range of vertices. We do not merge by edges (more
+// stringent) because we do not want to miss corner vertices.
 /// finds any vertices within the moab::Range vertices that are with in tol of 
 /// each other and merges them
   moab::ErrorCode merge_vertices( moab::Range vertices /* in */, 
 			      const  double tol       /* in */);
-			      //bool &merge_vertices_again /* out */);
 
 /// returns the square of the distance between v0 and v1
   moab::ErrorCode squared_dist_between_verts( const moab::EntityHandle v0, 
                                           const moab::EntityHandle v1, 
                                           double &d);
 /// returns the distance between v0 and v1
-
   double dist_between_verts( const moab::CartVect v0, const moab::CartVect v1 );
   moab::ErrorCode dist_between_verts( const moab::EntityHandle v0, const moab::EntityHandle v1,
                                   double &d );
@@ -95,7 +88,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
   bool edges_adjacent( moab::EntityHandle edge0, moab::EntityHandle edge1 );
 
 // get the direction unit vector from one vertex to another vertex
-  //moab::ErrorCode get_direction( moab::EntityHandle from_vert, moab::EntityHandle to_vert, double dir[] );
   moab::ErrorCode get_direction( const moab::EntityHandle from_vert, const moab::EntityHandle to_vert,
                            moab::CartVect &dir ); 
 
@@ -181,14 +173,12 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
   };
   int compare_edge(const void *a, const void *b);
   moab::ErrorCode find_skin( moab::Range tris, const int dim,                     
-			 // std::vector<std::vector<moab::EntityHandle> > &skin_edges,    
 			 moab::Range &skin_edges,                         
                          const bool );
-  //moab::ErrorCode find_skin( const moab::Range tris, const int dim, moab::Range &skin_edges, const bool );
+
   moab::ErrorCode measure( const moab::EntityHandle set, const moab::Tag geom_tag, double &size, bool debug, bool verbose );
 
   // Given a curve and surface set, get the relative sense.
-  // From CGMA/builds/dbg/include/CubitDefines, CUBIT_UNKNOWN=-1, CUBIT_FORWARD=0, CUBIT_REVERSED=1
   moab::ErrorCode get_curve_surf_sense( const moab::EntityHandle surf_set, const moab::EntityHandle curve_set,
                                     int &sense, bool debug = false );
 
