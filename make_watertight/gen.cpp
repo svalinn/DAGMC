@@ -144,12 +144,9 @@ void moab_printer(moab::ErrorCode error_code)
       result = MBI()->get_adjacencies( &tri, 1, 1, true, edges );
       if(moab::MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
       assert(moab::MB_SUCCESS == result);
-      //std::cout << "      edges: ";
       for(moab::Range::iterator i=edges.begin(); i!=edges.end(); i++) {
-        //std::cout << *i << " ";
         print_edge( *i );
       }
-      //std::cout << std::endl;
     }
   }
 
@@ -230,8 +227,6 @@ void moab_printer(moab::ErrorCode error_code)
    
     std::cout << "  size=" << loop_of_verts.size() << std::endl;
     double dist = 0;
-    //std::vector<moab::EntityHandle>::iterator i;
-    //for( i=loop_of_verts.begin(); i!=loop_of_verts.end(); i++ ) {
     for(unsigned int i=0; i<loop_of_verts.size(); i++) {
       print_vertex_coords( loop_of_verts[i] );
       if(i != loop_of_verts.size()-1) {
@@ -340,33 +335,14 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     moab::EntityHandle root;
     const char settings[]="MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;PLANE_SET=2;MESHSET_FLAGS=0x1;TAG_NAME=0";
     moab::FileOptions fileopts(settings);
-
-
-    /* Old KDTree settings
-    moab::AdaptiveKDTree::Settings settings;
-   
-    // tells the tree to split leaves with more than 6 entities
-    settings.maxEntPerLeaf = 6;
-    // tells the tree a maximum depth limit
-    settings.maxTreeDepth  = 50;
-    // tells the tree how many candidate split planed to consider in each dimension
-    settings.candidateSplitsPerDir = 1;
-    // tells the tree to use the median vertex coordinate values to set planes
-    settings.candidatePlaneSet = moab::AdaptiveKDTree::VERTEX_MEDIAN;
-   
-    */
-
     // builds the KD Tree, making the moab::EntityHandle root the root of the tree
     result = kdtree.build_tree( verts, &root, &fileopts);
     assert(moab::MB_SUCCESS == result);
     // create tree iterator to loop over all verts in the tree
     moab::AdaptiveKDTreeIter tree_iter;
     kdtree.get_tree_iterator( root, tree_iter );
- 
-    //for(unsigned int i=0; i<verts.size(); i++) {
     for(moab::Range::iterator i=verts.begin(); i!=verts.end(); ++i) {
       double from_point[3];
-      //moab::EntityHandle vert = *i;
       result = MBI()->get_coords( &(*i), 1, from_point);
       assert(moab::MB_SUCCESS == result);
       std::vector<moab::EntityHandle> leaves_out;
@@ -384,9 +360,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
 	  assert(moab::MB_SUCCESS == result);
 
 	  if(SQR_TOL >= sqr_dist) {
-            //  std::cout << "merge_vertices: vert " << leaf_verts[k] << " merged to vert "
-            //            << verts[i] << " dist=" << dist << " leaf=" << std::endl;
-
             // The delete_vert is automatically remove from the tree because it
             // uses tracking meshsets. merge_verts checks for degenerate tris.
             // Update the list of leaf verts to prevent stale handles.
@@ -502,7 +475,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
 	assert( 2 == n_verts );
         if(conn[0] == conn[1]) continue;
 	dist += dist_between_verts( conn[0], conn[1] );
-	//std::cout << "length: " << dist << std::endl;
       }
     } else if (moab::MBVERTEX == type) {
       if(2 > edges.size()) return 0.0;
@@ -522,7 +494,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     moab::Range adj_edges;
     result = MBI()->get_adjacencies( &vert, 1, 1, false, adj_edges );
     assert(moab::MB_SUCCESS == result);
-    //adj_edges = adj_edges.intersect(edges);
     adj_edges = intersect( adj_edges, edges );
     return adj_edges.size();
   }
@@ -581,20 +552,13 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
  
     // test endpoint1
     if (ab%bc > 0) {
-      //std::cout << "edge_point_dist=" << dist_between_verts(b,c) 
-      //<< " at endpt1" << std::endl;
       return dist_between_verts(b,c);
     }
 
     // test endpoint0
     if (ba%ac > 0) {
-      //std::cout << "edge_point_dist=" << dist_between_verts(a,c) 
-      //<< " at endpt0" << std::endl;
       return dist_between_verts(a,c);
     }
- 
-    //std::cout << "edge_point_dist=" << fabs(dist) << " at middle" 
-    //<< std::endl;      
     return fabs(dist);
   }
   double edge_point_dist( const moab::EntityHandle endpt0, const moab::EntityHandle endpt1, 
@@ -618,58 +582,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     assert( 2 == n_verts );
     return edge_point_dist( conn[0], conn[1], pt );
   }
-  /*
-  moab::ErrorCode  point_curve_min_dist( const std::vector<moab::EntityHandle> curve, // of verts 
-				     const moab::EntityHandle pt,
-				     double &min_dist,
-                                     const double max_dist_along_curve ) { 
-  
-    min_dist = std::numeric_limits<double>::max();
-    double cumulative_dist = 0;
-    bool last_edge = false;
-  
-    // it is a curve of verts or a curve of edges?
-    moab::EntityType type = MBI()->type_from_handle( curve.front() );
-    std::vector<moab::EntityHandle>::const_iterator i;
-    if(moab::MBVERTEX == type) {
-      moab::EntityHandle front_vert = curve.front();
-      for( i=curve.begin()+1; i!=curve.end(); i++) {
-	// if we are using verts, do not explicitly create the edge in MOAB
-        cumulative_dist += gen::dist_between_verts( front_vert, *i );
-	//std::cout << "  point_curve_min_dist: cumulative_dist="
-	//        << cumulative_dist << std::endl;
-	double d = edge_point_dist( front_vert, *i, pt );
-	//std::cout << "  point_curve_min_dist: d=" << d << std::endl;        
-	if(d < min_dist) {
-	  min_dist = d;
-	  //std::cout << "min_dist=" << min_dist << std::endl;
-	  //print_vertex_coords( front_vert );
-	  //print_vertex_coords( *i );
-	}
-        // check one edge past the point after max_dist_along_curve
-        if(last_edge) return moab::MB_SUCCESS;
-        if(max_dist_along_curve<cumulative_dist) last_edge = true;
-      
-	front_vert = *i;
-      }
-    } //else if(moab::MBEDGE == type) {        
-      //for( i=curve.begin(); i!=curve.end(); i++) {
-//	double d = edge_point_dist( *i, pt );
-	//if(d < min_dist) min_dist = d;
-      //}
-     // } 
-       else return moab::MB_FAILURE;
-    //std::cout << "point_curve_min_dist=" << min_dist << " curve.size()=" << curve.size() << std::endl;    
-    return moab::MB_SUCCESS;
-  }
-
-  moab::ErrorCode  point_curve_min_dist( const std::vector<moab::EntityHandle> curve, // of verts 
-				     const moab::EntityHandle pt,
-				     double &min_dist ) { 
-    const double max_dist_along_curve = std::numeric_limits<double>::max();
-    return point_curve_min_dist( curve, pt, min_dist, max_dist_along_curve ); 
-  }
-*/
   double triangle_area( const moab::CartVect a, const moab::CartVect b, 
                         const moab::CartVect c) {
     moab::CartVect d = c - a;
@@ -786,7 +698,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     if(0 == normal.length()) return moab::MB_SUCCESS;
 
     normal.normalize();
-    //if(debug) std::cout << "  normal=" << normal << std::endl;
     return moab::MB_SUCCESS;
   }
     
@@ -873,7 +784,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
 
   double area2( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
                 const moab::EntityHandle pt_c, const moab::CartVect plane_normal ) {
-    //std::cout << "area2: a=" << pt_a << " b=" << pt_b << " c=" << pt_c << std::endl;
     moab::ErrorCode result;
     moab::CartVect a, b, c;
     result = MBI()->get_coords( &pt_a, 1, a.array() );
@@ -892,8 +802,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
   bool left( const moab::EntityHandle a, const moab::EntityHandle b,
 	     const moab::EntityHandle c, const moab::CartVect n ) {
     double area_2 = area2(a,b,c,n);
-    //std::cout << "left: a=" << a << " b=" << b << " c=" << c
-    //          << " area2=" << area_2 << std::endl;
     if(area_2 > 0) return true;
     else return false;
   } 
@@ -902,8 +810,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
   bool left_on( const moab::EntityHandle a, const moab::EntityHandle b,
 		const moab::EntityHandle c, const moab::CartVect n ) {
     double area_2 = area2(a,b,c,n);
-    //std::cout << "left_on: a=" << a << " b=" << b << " c=" << c
-    //          << " area2=" << area_2 << std::endl;
     if(area_2 >= 0) return true;
     else return false;
   } 
@@ -912,8 +818,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
   bool collinear( const moab::EntityHandle a, const moab::EntityHandle b,
 		  const moab::EntityHandle c, const moab::CartVect n ) {
     double area_2 = area2(a,b,c,n);
-    //std::cout << "collinear: a=" << a << " b=" << b << " c=" << c
-    //          << " area2=" << area_2 << std::endl;
     if( area_2 ==0) return true;
     else return false;
   } 
@@ -984,14 +888,9 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
       if( (c != a) && (c1 != a) &&
           (c != b) && (c1 != b) &&
           intersect( a, b, c, c1, n ) ) {
-        //std::cout << "diagonalie a=" << a << " b=" << b << " c="
-	//	  << c << " c1=" << c1 << " result=";
-	//std::cout << "false" << std::endl;
         return false;
       }
     }
-    //std::cout << "diagonalie a=" << a << " b=" << b << " result=";
-    //std::cout << "true" << std::endl;
     return true;
   }
 
@@ -1009,8 +908,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     if(verts.end()-1 == a_iter) a1 = verts[0];
     else a1 = *(a_iter+1);
 
-    //std::cout << "in_cone: a=" << a << " b=" << b << " a0="
-    //	      << a0 << " a1=" << a1 << std::endl;
     // if a is a convex vertex
     if(left_on(a,a1,a0,n)) return left(a,b,a0,n) && left(b,a,a1,n);
 
@@ -1022,8 +919,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
                  const moab::CartVect n,
                  const std::vector<moab::EntityHandle> verts ) {
     bool result = in_cone(a,b,n,verts) && in_cone(b,a,n,verts) && diagonalie(a,b,n,verts);
-    //std::cout << "diagonal a=" << a << " b=" << b << " result="
-    //          << result << std::endl;
     return result;
   }
 
@@ -1040,7 +935,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
       if(verts.size()-1 == i) next = verts[0];
       else next = verts[i+1];
       is_ear[i] = diagonal(prev,next,n,verts);
-      //std::cout << "is_ear[" << i << "]=" << is_ear[i] << std::endl;
     }
     return moab::MB_SUCCESS;
   }
@@ -1053,13 +947,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
                                 moab::CartVect n, 
 				moab::Range &new_tris ) {
 
-    // initialize the status of ears
-    //std::cout << "begin ear clipping----------------------" << std::endl;
-    //for(unsigned int i=0; i<verts.size(); i++) {
-    //  print_vertex_cubit( verts[i] );
-    //}
-
-    //print_loop( verts );
     moab::ErrorCode result;
     std::vector<bool> is_ear( verts.size() );
     result = ear_init( verts, n, is_ear );
@@ -1085,10 +972,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
           else if (verts.size()-1 == i) v4 = verts[1];
           else                          v4 = verts[i+2];
 
-	  //std::cout << "ear_clip_polygon: triangle=" << std::endl;
-          //print_vertex_coords( v1 ); 
-          //print_vertex_coords( v2 ); 
-          //print_vertex_coords( v3 );
           moab::EntityHandle new_tri; 
           moab::EntityHandle conn[3] = {v1,v2,v3};
           result = MBI()->create_element( moab::MBTRI, conn, 3, new_tri );
@@ -1104,16 +987,13 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
           // cut off the ear at i
           verts.erase( verts.begin()+i );
           is_ear.erase( is_ear.begin()+i );
-          //i--;
           break;
         }
       }
 
       // If the polygon has intersecting edges this loop will continue until it
       // hits this return.
-      //std::cout << "counter=" << counter << " verts.size()=" << verts.size() << std::endl;
       if(counter > n_initial_verts) {
-	//std::cout << "ear_clip_polygon: no ears found" << std::endl;
         result = MBI()->delete_entities( new_tris );
         assert(moab::MB_SUCCESS == result);
         new_tris.clear();
@@ -1121,10 +1001,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
       }
       counter++;
     } 
-    //std::cout << "ear_clip_polygon: triangle=" << std::endl;
-    //print_vertex_coords( verts[0] ); 
-    //print_vertex_coords( verts[1] ); 
-    //print_vertex_coords( verts[2] );
     moab::EntityHandle new_tri; 
     moab::EntityHandle conn[3] = {verts[0],verts[1],verts[2]};
     result = MBI()->create_element( moab::MBTRI, conn, 3, new_tri );
@@ -1137,13 +1013,10 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
   int geom_id_by_handle( const moab::EntityHandle set ) {
     moab::ErrorCode result;
     moab::Tag id_tag;
-    //result = MBI()->tag_create( GLOBAL_ID_TAG_NAME, sizeof(int), moab::MB_TAG_DENSE,
-    //                                moab::MB_TYPE_INTEGER, id_tag, 0, true );           
     result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1, moab::MB_TYPE_INTEGER,id_tag,moab::MB_TAG_DENSE);
     assert(moab::MB_SUCCESS==result || moab::MB_ALREADY_ALLOCATED==result);                       
     int id;
     result = MBI()->tag_get_data( id_tag, &set, 1, &id );                  
-    //assert(moab::MB_SUCCESS == result);                           
     return id;
   }
   
@@ -1175,8 +1048,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     assert(2 == adj_tri.size());
     adj_tri.erase( tri );
     print_triangle( adj_tri.front(), false );
-    //result = MBI()->list_entity( adj_tri.front() );
-    //assert(moab::MB_SUCCESS == result);
 
     // get the remaining tri vert
     moab::Range tri_verts;
@@ -1197,9 +1068,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     adj_tri_verts.erase(vert2);
     assert(1 == adj_tri_verts.size());
     moab::EntityHandle vert3 = adj_tri_verts.front();
-
-    // original tri_conn    = {vert0, vert1, vert2}
-    // original adj_tri_conn= {vert2, vert3, vert0}
  
     // set the new connectivity
     moab::EntityHandle tri_conn[3] = {vert0, vert1, vert3};
@@ -1253,9 +1121,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
       std::cout << "arc has no vertices" << std::endl;
       return moab::MB_FAILURE;
     }
-
-    //print_loop(arc0);
-    //print_loop(arc1);
 
     // for simplicity, put arcs into the same structure
     std::vector<moab::EntityHandle> arcs[2] = {arc0, arc1};
@@ -1331,7 +1196,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
       }
       for(unsigned int j=0; j<coords[i].size(); j++) {
         params[i][j] /= arc_len[i];
-	//std::cout << "params[" << i << "][" << j << "]=" << params[i][j] << std::endl;
       }
     }
 
@@ -1354,7 +1218,7 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     }
 
     for(unsigned int i=0; i<mgd_params.size(); i++) {
-      //std::cout << "mgd_params[" << i << "]=" << mgd_params[i] << std::endl;
+
     }
 
     // Insert new points to match the other arcs points, by parameter.
@@ -1387,14 +1251,11 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     double area = 0;
     for(unsigned int i=0; i<coords[0].size()-1; i++) {
       area += fabs(triangle_area( coords[0][i], coords[0][i+1], coords[1][i+1] ));
-      //std::cout << "area0=" << area << std::endl;
       area += fabs(triangle_area( coords[0][i], coords[1][i+1], coords[1][i] ));
-      //std::cout << "area1=" << area << std::endl;
     }
 
     // Divide the area by the average length to get the average distance between arcs.
     dist = fabs(2*area / (arc_len[0] + arc_len[1] ));
-    //std::cout << "dist_between_arcs=" << dist << std::endl;
     return moab::MB_SUCCESS;
   }
 
@@ -1419,15 +1280,10 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
   // creating a new one if very slow. This is partly the reason that MBSkinner is
   // very slow.
   moab::ErrorCode find_skin( moab::Range tris, const int dim, 
- //                         std::vector<std::vector<moab::EntityHandle> > &skin_edges, 
                          moab::Range &skin_edges,                         
                          const bool temp_bool ) {    
 
     const bool local_debug = false;
-    //MBSkinner tool(MBI());
-    //moab::Range skin_verts;
-    //return tool.find_skin( tris, dim, skin_edges, temp_bool );
-    //return tool.find_skin_vertices( tris, skin_verts, &skin_edges, true );
   
     if(1 != dim) return moab::MB_NOT_IMPLEMENTED;
     if(moab::MBTRI != MBI()->type_from_handle(tris.front())) return moab::MB_NOT_IMPLEMENTED;
@@ -1522,20 +1378,6 @@ moab::ErrorCode find_closest_vert( const moab::EntityHandle reference_vert,
     delete[] edges;
     return moab::MB_SUCCESS;
   }
-  /*  moab::ErrorCode find_skin( moab::Range tris, const int dim, moab::Range &skin_edges, const bool temp ) {
-    std::vector<std::vector<moab::EntityHandle> > skin_edges_vctr;
-    moab::ErrorCode result = find_skin( tris, dim, skin_edges_vctr, temp );
-    assert(moab::MB_SUCCESS == result);
-    for(std::vector<std::vector<moab::EntityHandle> >::const_iterator i=skin_edges_vctr.begin(); 
-        i!=skin_edges_vctr.end(); i++) {
-      moab::EntityHandle edge;
-      result = MBI()->create_element( moab::MBEDGE, &(*i)[0], 2, edge );
-      if(moab::MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
-      assert(moab::MB_SUCCESS == result);
-      skin_edges.insert( edge );
-    }
-    return moab::MB_SUCCESS;
-    }*/
 
 // calculate volume of polyhedron
 // Copied from DagMC, without index_by_handle. The dagmc function will

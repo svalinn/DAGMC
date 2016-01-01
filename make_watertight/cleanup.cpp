@@ -1,6 +1,5 @@
 #include <iostream>
 #include "cleanup.hpp"
-//#include "MBAdaptiveKDTree.hpp"
 #include "moab/OrientedBoxTreeTool.hpp"
 
 namespace cleanup {
@@ -31,8 +30,6 @@ namespace cleanup {
 						    &obbTag, 0, 1, obb_entities );
     assert(moab::MB_SUCCESS == result);
     std::cout << "  found " << obb_entities.size() << " OBB entities" << std::endl;
-    //gen::print_range( obb_entities );
-    //result = MBI()->delete_entities( obb_entities );
  
     // find tree roots
     moab::Range trees;
@@ -42,7 +39,6 @@ namespace cleanup {
       moab::EntityHandle root;
       result = MBI()->tag_get_data( obbTag, &(*i), 1, &root );
       if(gen::error(moab::MB_SUCCESS!=result, "coule not get OBB tree data")) return result;
-      //assert(moab::MB_SUCCESS == result);
       tool.delete_tree( root );
     }
     result = MBI()->tag_delete( obbTag ); // use this for DENSE tags
@@ -52,21 +48,6 @@ namespace cleanup {
     result = MBI()->tag_get_handle ( "OBB", sizeof(double), 
      				  moab::MB_TYPE_DOUBLE, rootTag, moab::MB_TAG_SPARSE, 0, false);
     assert(moab::MB_SUCCESS==result || moab::MB_ALREADY_ALLOCATED==result);
-    /*    result = MBI()->get_entities_by_type_and_tag( 0, moab::MBENTITYSET, &rootTag, 
-                                                   NULL, 1, trees );
-    if(moab::MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
-    assert(moab::MB_SUCCESS == result);
-    //tool.find_all_trees( trees );
-    std::cout << trees.size() << " tree(s) contained in file" << std::endl;
-    //gen::print_range( trees );
-  
-    // delete the trees
-    for (moab::Range::iterator i = trees.begin(); i != trees.end(); ++i) {
-      result = tool.delete_tree( *i );
-      //if(moab::MB_SUCCESS != result) std::cout << "result=" << result << std::endl;
-      //assert(moab::MB_SUCCESS == result);
-    }
-    */ 
     // Were all of the trees deleted? Perhaps some of the roots we found were
     // child roots that got deleted with their parents.
     trees.clear();
@@ -189,7 +170,6 @@ namespace cleanup {
 	    std::cout << "adj_edges0.size()=" << adj_edges0.size() 
 		      << " epts[0]=" << epts[0] << std::endl;
 	    MBI()->list_entity( epts[0] );
-	    //MBI()->write_mesh( "test_output.h5m" );
 	    assert(moab::MB_SUCCESS == result);
 	  }
 	  assert(3 <= adj_edges0.size());
@@ -205,7 +185,6 @@ namespace cleanup {
 	    std::cout << "adj_edges1.size()=" << adj_edges1.size() 
 		      << " epts[1]=" << epts[1] << std::endl;
 	    MBI()->list_entity( epts[1] );
-	    //MBI()->write_mesh( "test_output.h5m" );
 	    assert(moab::MB_SUCCESS == result);
 	  }
 	  assert(3 <= adj_edges1.size());
@@ -221,7 +200,6 @@ namespace cleanup {
           std::cout << "adj_edges0.size()=" << adj_edges0.size() 
                     << " endpts[0]=" << endpts[0] << std::endl;
           MBI()->list_entity( endpts[0] );
-          //MBI()->write_mesh( "test_output.h5m" );
           assert(moab::MB_SUCCESS == result);
         }
         assert(3 <= adj_edges0.size());
@@ -237,7 +215,6 @@ namespace cleanup {
           std::cout << "adj_edges1.size()=" << adj_edges1.size() 
                     << " endpts[1]=" << endpts[1] << std::endl;
           MBI()->list_entity( endpts[1] );
-          //MBI()->write_mesh( "test_output.h5m" );
           assert(moab::MB_SUCCESS == result);
         }
         assert(3 <= adj_edges1.size());
@@ -289,44 +266,6 @@ namespace cleanup {
         assert(moab::MB_SUCCESS == result);
         assert(1 == tri1_delete_edge.size());      
 
-        // When an edge is merged, it will be deleted and its to adjacent tris
-        // will be deleted because they are degenerate. We cannot alter the skin.
-        // How many skin edges does tri0 have?
-	/*        moab::Range tri_edges;
-        result = MBI()->get_adjacencies( &adj_tris[0], 1, 1, false, tri_edges );
-        assert(moab::MB_SUCCESS == result);
-        assert(3 == tri_edges.size());
-        moab::Range tri0_internal_edges = intersect(tri_edges, internal_edges);
-
-        // Cannot merge the edge away if the tri has more than one skin edge.
-        // Otherwise we would delete a skin edge. We already know the edges in 
-        // edge_set are not on the skin.
-        if(2 > tri0_internal_edges.size()) continue;
-
-        // check the other tri
-        tri_edges.clear();
-        result = MBI()->get_adjacencies( &adj_tris[1], 1, 1, false, tri_edges );
-        assert(moab::MB_SUCCESS == result);
-        assert(3 == tri_edges.size());
-        moab::Range tri1_internal_edges = intersect(tri_edges, internal_edges);
-        if(2 > tri1_internal_edges.size()) continue;
-
-        // Check to make sure that the internal edges are not on the skin
-        moab::Range temp;
-        temp = intersect( tri0_internal_edges, skin_edges );
-        assert(temp.empty());
-        temp = intersect( tri1_internal_edges, skin_edges );
-        assert(temp.empty());
-
-        // We know that the edge will be merged away. Find the keep_vert and
-        // delete_vert. The delete_vert should never be a skin vertex because the
-        // skin must not move.
-        moab::Range delete_vert;
-        result = MBI()->get_adjacencies( tri0_internal_edges, 0, false, delete_vert);
-        assert(moab::MB_SUCCESS == result);
-        assert(1 == delete_vert.size());        
-	*/
-
         // *********************************************************************
         // Test to see if the merge would create inverted tris. Several special
         // cases to avoid all result in inverted tris.
@@ -362,8 +301,6 @@ namespace cleanup {
 	std::cout << "A merge will occur" << std::endl;
       	gen::print_triangle( adj_tris[0], true );
 	gen::print_triangle( adj_tris[1], true );
-        //tri0_internal_edges.erase( *j );
-        //tri1_internal_edges.erase( *j );
         internal_edges.erase( tri0_delete_edge.front() );
         internal_edges.erase( tri1_delete_edge.front() );
 	std::cout << "merged verts=" << keep_endpt << " " << delete_endpt << std::endl;
@@ -433,13 +370,10 @@ namespace cleanup {
     assert(moab::MB_SUCCESS == result);
 
     // delete the edges that are not in curves.
-    //moab::Range edges_to_delete = all_edges.subtract( edges_to_keep );
     moab::Range edges_to_delete = subtract( all_edges, edges_to_keep );
     std::cout << "deleting " << edges_to_delete.size() << " unused edges" << std::endl;
     result = MBI()->delete_entities( edges_to_delete );
     assert(moab::MB_SUCCESS == result);
     return moab::MB_SUCCESS;
-  }
- 
-  
+  }  
 }

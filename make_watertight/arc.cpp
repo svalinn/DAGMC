@@ -87,7 +87,6 @@ namespace arc {
 
     // do this in O(n) by using adjacencies instead of O(n^2)
     moab::ErrorCode result;
-    //for(moab::Range::iterator i=edges.begin(); i!=edges.end(); i++ ) {
     for(unsigned int i=0; i<edges.size(); i++) {
       moab::EntityHandle the_edge = edges[i];
 
@@ -103,8 +102,6 @@ namespace arc {
       moab::Range adj_edges;
       result = MBI()->get_adjacencies( two_verts, 1, false, adj_edges, moab::Interface::INTERSECT);
       assert(moab::MB_SUCCESS == result);
-      // remove the original edge
-      //adj_edges.erase( *i );
 
       // if any other edges exist, they are opposite the original edge and should be
       // removed from the skin
@@ -114,10 +111,6 @@ namespace arc {
                     << " opposite edges will be removed from the surface skin " 
                     << adj_edges[0] << " " << adj_edges[1] << std::endl;
 	}
-	//gen::print_range_of_edges( adj_edges );
-	//gen::print_range_of_edges( edges );
-	//edges = edges.subtract( adj_edges );
-        //edges.erase( *i );
         edges = subtract( edges, adj_edges );
         result = MBI()->delete_entities( adj_edges );
         assert(moab::MB_SUCCESS == result);
@@ -299,7 +292,6 @@ namespace arc {
     moab::ErrorCode result;
     unsigned int n_edges_in  = edges.size();
     unsigned int n_edges_out = 0;
-    //gen::print_range_of_edges( edges );
     // there could be several arcs for each surface
     while ( 0!= edges.size() ) {
       std::vector<moab::EntityHandle> loop_of_edges;
@@ -331,7 +323,6 @@ namespace arc {
 	  std::cout << "  create_loops: pinch point exists" << std::endl;
           result = MBI()->list_entity( end_verts[0] );
           assert(moab::MB_SUCCESS == result);
-          //return moab::MB_MULTIPLE_ENTITIES_FOUND;
         }
       }
 
@@ -353,7 +344,6 @@ namespace arc {
           gen::print_arc_of_edges( loop_of_edges );
           return result;
         }
-	//assert( moab::MB_SUCCESS == result );
 
 	// if the next edge was found
 	if ( 0!=next_edge ) {
@@ -366,7 +356,6 @@ namespace arc {
 	  edges.erase( next_edge );
 
 	  // set the new reference vertex
-	  //vert = next_vert;
 	  edge = next_edge;
 
 	  // if another edge was not found
@@ -434,7 +423,6 @@ namespace arc {
       result = MBI()->get_adjacencies( &vert, 1, 1, false, adj_edges );
       assert(moab::MB_SUCCESS == result);
       adj_edges = intersect( adj_edges, unordered_edges );
-      //assert(!adj_edges.empty());
       if(adj_edges.empty()) {
 	std::cout << "    order_verts_by_edgs: adj_edges is empty" << std::endl;
         return moab::MB_FAILURE;
@@ -484,7 +472,6 @@ namespace arc {
       std::vector<moab::EntityHandle> curve;
       result = get_meshset( *i, curve );
       assert(moab::MB_SUCCESS == result);
-      //if(2 > curve.size()) continue;
       assert(1 < curve.size());
       moab::EntityHandle front_endpt = curve[0];
       moab::EntityHandle back_endpt  = curve[curve.size()-1];
@@ -508,21 +495,7 @@ namespace arc {
     //set tree options
     const char settings[]="MAX_PER_LEAF=1;SPLITS_PER_DIR=1;PLANE_SET=0;MESHSET_FLAGS=0x1;TAG_NAME=0";
     moab::FileOptions fileopts(settings);
-
-    /* Old settings for the KD Tree                                            
-    // initialize settings of the KD Tree
-    moab::AdaptiveKDTree::Settings settings;
-    // sets the tree to split any leaves with more than 1 entity                
-    settings.maxEntPerLeaf = 1;                                 
-    // tells the tree how many candidate planes to consider for each dim of the tree                    
-    settings.candidateSplitsPerDir = 1;                           
-    // planes are set to be at evenly spaced intervals
-    settings.candidatePlaneSet = moab::AdaptiveKDTree::SUBDIVISION; 
-    */
     
-
-
-
     // initialize the tree and pass the root entity handle back into root
     result = kdtree.build_tree( endpoints, &root, &fileopts);            
     assert(moab::MB_SUCCESS == result);      
@@ -536,11 +509,9 @@ namespace arc {
       result = get_meshset( *i, curve_i_verts );
       assert(moab::MB_SUCCESS == result);
       double curve_length = gen::length( curve_i_verts );
-      //if(2 > curve.size()) continue; // HANDLE SPECIAL CASES (add logic)     
       if(curve_i_verts.empty()) continue;
       moab::EntityHandle endpts[2] = { curve_i_verts.front(), curve_i_verts.back() };
       moab::CartVect endpt_coords;
-      //if( endpts[0] == endpts[1]) continue; // special case of point curve or circle
       std::vector<moab::EntityHandle> leaves;
 
       // initialize an array which will contain matched of front points in [0] and 
@@ -695,7 +666,4 @@ namespace arc {
     }
     return moab::MB_SUCCESS;
   }
-
-
-
 }
