@@ -182,8 +182,6 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
 	  state.on_boundary = false; // reset on boundary
       	}
     }
-  }
-
 
   // perform the actual ray fire
   moab::ErrorCode rval = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist, &state.history); // fire a ray
