@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     std::cout << "Producing material snippets" << std::endl;
     std::cout << "please paste these into your input deck" << std::endl;
     fludag_write(infile, lcad);
-    
+
     std::string vol_id = "vol_id_idx.txt";
     std::cout << "Producing volume index & id correspondences" << std::endl;
     fludag_write_ididx(vol_id);
