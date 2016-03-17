@@ -1,4 +1,4 @@
-message(STATUS "Building DAG-MCNP5")
+project(DAGMC)
 
 enable_language(Fortran)
 
@@ -8,6 +8,11 @@ macro (DATETIME RESULT)
   string(REGEX REPLACE "(..)/(..)/..(..).*" "\"\\2/\\1/\\3\"" ${RESULT} ${${RESULT}})
 endmacro (DATETIME)
 DATETIME(DATE)
+
+# Build type
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release")
+endif (NOT CMAKE_BUILD_TYPE)
 
 # Fortran compiler flags
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -m64")
@@ -72,7 +77,7 @@ endif (MPI_BUILD)
 
 # DAGMC
 if (DAGMC_BUILD)
-  include_directories(${PROJECT_SOURCE_DIR}/tally)
+  include_directories(${CMAKE_CURRENT_LIST_DIR}/../../tally)
 endif (DAGMC_BUILD)
 
 # Source files
@@ -81,8 +86,8 @@ if (MPI_BUILD)
   include(${CMAKE_CURRENT_LIST_DIR}/dotcomm/CMakeLists.txt)
 endif (MPI_BUILD)
 if (DAGMC_BUILD)
-  list(APPEND DAGMC_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/mcnp_funcs.cpp)
-  list(APPEND DAGMC_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/meshtal_funcs.cpp)
+  list(APPEND DAGMC_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/../mcnp_funcs.cpp)
+  list(APPEND DAGMC_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/../meshtal_funcs.cpp)
   list(APPEND SRC_FILES ${DAGMC_SRC_FILES})
 endif (DAGMC_BUILD)
 
@@ -92,7 +97,7 @@ if (MPI_BUILD)
 else ()
   set(MCNP_EXEC "mcnp5")
 endif (MPI_BUILD)
-add_executable(${MCNP_EXEC} "${SRC_FILES}")
+add_executable(${MCNP_EXEC} ${SRC_FILES})
 
 # Make sure the executable is compiled as Fortran
 set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)

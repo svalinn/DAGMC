@@ -1,15 +1,11 @@
-project(MCNP5)
+message(STATUS "Including MCNP5 in dagmciface library")
 
-cmake_minimum_required(VERSION 2.8)
+set(CODE_SRC_DIR     "mcnp5")
+set(CODE_SRC_FILES   "mcnp_funcs.cpp")
+set(CODE_PUB_HEADERS "mcnp_funcs.h")
 
-set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+set(DI_PUB_HEADERS ${DI_PUB_HEADERS} "${CMAKE_CURRENT_LIST_DIR}/${CODE_PUB_HEADERS}" PARENT_SCOPE)
+set(DI_SRC_FILES   ${DI_SRC_FILES}   "${CMAKE_CURRENT_LIST_DIR}/${CODE_SRC_FILES}"   PARENT_SCOPE)
 
-set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
-set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
-
-set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Source)
-set(UTIL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Utilities)
-
-include(${SRC_DIR}/CMakeLists.txt)
-include(${UTIL_DIR}/CMakeLists.txt)
+add_subdirectory(Source)
+add_subdirectory(Utilities)

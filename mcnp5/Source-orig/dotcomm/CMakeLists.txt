@@ -1,3 +1,5 @@
+project(DAGMC)
+
 list(APPEND DOTCOMM_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/src/dotcomm_abort.F90)
 list(APPEND DOTCOMM_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/src/dotcomm_allreduce.F90)
 list(APPEND DOTCOMM_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/src/dotcomm_barrier.F90)

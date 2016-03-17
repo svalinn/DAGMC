@@ -1,38 +1,24 @@
-# CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-MESSAGE ( STATUS "Including Amalgamated PyNE")
+message(STATUS "Building pyne_dagmc library")
 
-SET ( CODE_SRCDIR      "pyne" )
-SET ( CODE_SRC_FILES   "pyne.cpp"  )
-SET ( CODE_PUB_HEADERS "pyne.h" )
+set(CODE_SRC_DIR     "pyne")
+set(CODE_SRC_FILES   "pyne.cpp")
+set(CODE_PUB_HEADERS "pyne.h")
 
-# make pyne library
-IF( STATIC_LIB )
-  add_library( pyne_dagmc STATIC ${CODE_SRC_FILES})
-ELSEIF( NOT STATIC_LIB )
-  add_library( pyne_dagmc SHARED ${CODE_SRC_FILES})
-ENDIF( STATIC_LIB )
- 
-target_include_directories( pyne_dagmc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+# Includes
+include_directories(.)
 
-# if we want a static executable
-# IF(STATIC_LIB)
-#  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-#  SET(BUILD_SHARED_LIBRARIES OFF)
-#  SET(CMAKE_EXE_LINKER_FLAGS "-static")
-# ENDIF(STATIC_LIB)
+# Build static library
+#if (STATIC_LIB)
+# set(BUILD_SHARED_LIBRARIES OFF)
+# set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+# set(CMAKE_EXE_LINKER_FLAGS "-static")
+#endif (STATIC_LIB)
 
-#target_link_libraries(pyne ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY})
-
-SET_TARGET_PROPERTIES( pyne_dagmc PROPERTIES PUBLIC_HEADER "${CODE_PUB_HEADERS}" )
-
-INSTALL( TARGETS       pyne_dagmc
-  LIBRARY        DESTINATION   "${INSTALL_LIB_DIR}"
-  ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
-  PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
-  )
-
-target_link_libraries(pyne_dagmc ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY})
-
-
-
-
+# Build pyne_dagmc library
+add_library(pyne_dagmc ${LIB_TYPE} "${CODE_SRC_FILES}")
+set_target_properties(pyne_dagmc PROPERTIES PUBLIC_HEADER "${CODE_PUB_HEADERS}")
+target_link_libraries(pyne_dagmc ${HDF5_hdf5_hl_LIBRARY})
+target_link_libraries(pyne_dagmc ${HDF5_hdf5_LIBRARY})
+install(TARGETS pyne_dagmc LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
+                           ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
+                           PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})

@@ -1,55 +1,57 @@
-# CMAKE build script for DAGMC Tally
+message(STATUS "Building dagtally library")
 
-ENABLE_LANGUAGE(Fortran)
-SET ( DAG_TALLY_SRC_FILES
-    Tally.cpp
-    TallyData.cpp
-    TallyManager.cpp
-    MeshTally.cpp
-    TrackLengthMeshTally.cpp
-    KDEMeshTally.cpp
-    CellTally.cpp
-    KDEKernel.cpp
-    KDENeighborhood.cpp
-    PolynomialKernel.cpp
-    Quadrature.cpp
-)
+enable_language(Fortran)
 
-LIST( APPEND CODE_PUB_HEADERS "CellTally.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "KDEKernel.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "KDEMeshTally.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "KDENeighborhood.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "Matrix3.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "MeshTally.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "PolynomialKernel.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "Quadrature.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "TallyData.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "TallyEvent.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "Tally.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "TallyManager.hpp" )
-LIST( APPEND CODE_PUB_HEADERS "TrackLengthMeshTally.hpp" )
+set(CODE_SRC_DIR "tally")
 
+# Source files
+list(APPEND CODE_SRC_FILES "CellTally.cpp")
+list(APPEND CODE_SRC_FILES "KDEKernel.cpp")
+list(APPEND CODE_SRC_FILES "KDEMeshTally.cpp")
+list(APPEND CODE_SRC_FILES "KDENeighborhood.cpp")
+list(APPEND CODE_SRC_FILES "MeshTally.cpp")
+list(APPEND CODE_SRC_FILES "PolynomialKernel.cpp")
+list(APPEND CODE_SRC_FILES "Quadrature.cpp")
+list(APPEND CODE_SRC_FILES "Tally.cpp")
+list(APPEND CODE_SRC_FILES "TallyData.cpp")
+list(APPEND CODE_SRC_FILES "TallyManager.cpp")
+list(APPEND CODE_SRC_FILES "TrackLengthMeshTally.cpp")
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tally)
-#${PROJECT_SOURCE_DIR}/tally/mcnp5)
+# Headers
+list(APPEND CODE_PUB_HEADERS "CellTally.hpp")
+list(APPEND CODE_PUB_HEADERS "KDEKernel.hpp")
+list(APPEND CODE_PUB_HEADERS "KDEMeshTally.hpp")
+list(APPEND CODE_PUB_HEADERS "KDENeighborhood.hpp")
+list(APPEND CODE_PUB_HEADERS "Matrix3.hpp")
+list(APPEND CODE_PUB_HEADERS "MeshTally.hpp")
+list(APPEND CODE_PUB_HEADERS "PolynomialKernel.hpp")
+list(APPEND CODE_PUB_HEADERS "Quadrature.hpp")
+list(APPEND CODE_PUB_HEADERS "TallyData.hpp")
+list(APPEND CODE_PUB_HEADERS "TallyEvent.hpp")
+list(APPEND CODE_PUB_HEADERS "Tally.hpp")
+list(APPEND CODE_PUB_HEADERS "TallyManager.hpp")
+list(APPEND CODE_PUB_HEADERS "TrackLengthMeshTally.hpp")
 
+# Includes
+include_directories(.)
 
-# Create DAGMC Tally library
-IF ( STATIC_LIB )
-  ADD_LIBRARY( dagtally STATIC ${DAG_TALLY_SRC_FILES} ${CODE_SRC_FILES} )
-ELSE( STATIC_LIB )
-  ADD_LIBRARY( dagtally SHARED ${DAG_TALLY_SRC_FILES} ${CODE_SRC_FILES} )
-ENDIF( STATIC_LIB )
+# Build static library
+#if (STATIC_LIB)
+# set(BUILD_SHARED_LIBRARIES OFF)
+# set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+# set(CMAKE_EXE_LINKER_FLAGS "-static")
+#endif (STATIC_LIB)
 
+# Build dagtally library
+add_library(dagtally ${LIB_TYPE} "${CODE_SRC_FILES}")
+set_target_properties(dagtally PROPERTIES PUBLIC_HEADER "${CODE_PUB_HEADERS}")
+target_link_libraries(dagtally gfortran)
+target_link_libraries(dagtally lapack)
+target_link_libraries(dagtally blas)
+target_link_libraries(dagtally ${DAG_LINK_LIBS})
+install(TARGETS dagtally LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
+                         ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
+                         PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
 
-SET_TARGET_PROPERTIES( dagtally PROPERTIES PUBLIC_HEADER "${CODE_PUB_HEADERS}" )
-
-INSTALL( TARGETS       dagtally 
-  LIBRARY        DESTINATION   "${INSTALL_LIB_DIR}"
-  ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
-  PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
-  )
-
-TARGET_LINK_LIBRARIES(dagtally lapack blas ${DAG_LINK_LIBS} gfortran)
-
-ADD_SUBDIRECTORY(tests)
+# Build dagtally tests
+add_subdirectory(tests)
