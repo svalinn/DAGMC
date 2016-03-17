@@ -76,14 +76,14 @@ if (DAGMC_BUILD)
 endif (DAGMC_BUILD)
 
 # Source files
+set(MCNP_SRC_FILES)
 include(${CMAKE_CURRENT_LIST_DIR}/src/CMakeLists.txt)
 if (MPI_BUILD)
   include(${CMAKE_CURRENT_LIST_DIR}/dotcomm/CMakeLists.txt)
 endif (MPI_BUILD)
 if (DAGMC_BUILD)
-  list(APPEND DAGMC_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/mcnp_funcs.cpp)
-  list(APPEND DAGMC_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/meshtal_funcs.cpp)
-  list(APPEND SRC_FILES ${DAGMC_SRC_FILES})
+  list(APPEND MCNP_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/mcnp_funcs.cpp)
+  list(APPEND MCNP_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/meshtal_funcs.cpp)
 endif (DAGMC_BUILD)
 
 # Add the executable
@@ -92,7 +92,7 @@ if (MPI_BUILD)
 else ()
   set(MCNP_EXEC "mcnp5")
 endif (MPI_BUILD)
-add_executable(${MCNP_EXEC} "${SRC_FILES}")
+add_executable(${MCNP_EXEC} ${MCNP_SRC_FILES})
 
 # Make sure the executable is compiled as Fortran
 set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)
@@ -113,5 +113,6 @@ if (DAGMC_BUILD)
   target_link_libraries(${MCNP_EXEC} pyne_dagmc)
 endif (DAGMC_BUILD)
 
-# Install the targets
-install(TARGETS ${MCNP_EXEC} RUNTIME DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS ${PERMS})
+# Install DAG-MCNP5
+install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR}
+                             PERMISSIONS ${PERMS})

@@ -8,10 +8,28 @@ endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 
 set(DAGMC_BUILD ON)
 
+# Setup test macro
+macro (setup_test test_name ext driver libs)
+  add_executable(${test_name} ${test_name}.${ext} ${driver})
+  target_link_libraries(${test_name} ${libs})
+  install(TARGETS ${test_name} DESTINATION ${INSTALL_SHARE_DIR}/tests
+                               PERMISSIONS ${PERMS})
+  add_test(${test_name} ${test_name})
+endmacro (setup_test)
+
+# Run test macro
+macro(run_test test_target)
+  add_custom_target(${test_target}_runtest COMMAND ${test_target}
+                                           DEPENDS ${test_target}
+                                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_dependencies(${test_target}_runtest gtest)
+endmacro (run_test)
+
 # Installation directories
-set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
+set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
 
 # Permissions of compiled binaries and libraries
 set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
@@ -24,6 +42,9 @@ endif (NOT CMAKE_BUILD_TYPE)
 # Determine if we're building static libraries
 if (STATIC_LIB)
   set(LIB_TYPE "STATIC")
+  #set(BUILD_SHARED_LIBRARIES OFF)
+  #set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 else ()
   set(LIB_TYPE "SHARED")
 endif (STATIC_LIB)
@@ -34,7 +55,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 # Make sure we have HDF5 and MOAB
 find_package(HDF5 REQUIRED)
 find_package(MOAB REQUIRED)
-include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${HDF5_INCLUDE_DIRS})  # maybe put these where we actually need them instead of here
 include_directories(${MOAB_INCLUDE_DIRS})
 
 # DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
@@ -96,4 +117,4 @@ if (DI_SRC_FILES)
 endif (DI_SRC_FILES)
 
 # Build tools
-#add_subdirectory(tools)
+add_subdirectory(tools)
