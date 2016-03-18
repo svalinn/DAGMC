@@ -9,6 +9,11 @@ macro (DATETIME RESULT)
 endmacro (DATETIME)
 DATETIME(DATE)
 
+# MCNP version
+if (NOT MCNP_VERSION)
+  set(MCNP_VERSION 1.60)
+endif (NOT MCNP_VERSION)
+
 # Fortran compiler flags
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -m64")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mieee-fp")
@@ -20,7 +25,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-double-8")
 # Preprocessor directives
 add_definitions(-DKODE="mcnp")
 add_definitions(-DTHREAD="MCNP5")
-add_definitions(-DTVERS="1.60")
+add_definitions(-DTVERS="${MCNP_VERSION}")
 add_definitions(-DLODDAT=${DATE})
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
