@@ -8,4 +8,3 @@ set(DI_PUB_HEADERS ${DI_PUB_HEADERS} "${CMAKE_CURRENT_LIST_DIR}/${CODE_PUB_HEADE
 set(DI_SRC_FILES   ${DI_SRC_FILES}   "${CMAKE_CURRENT_LIST_DIR}/${CODE_SRC_FILES}"   PARENT_SCOPE)
 
 add_subdirectory(Source)
-add_subdirectory(Utilities)
