@@ -3,49 +3,55 @@ message(STATUS "Building dagtally library")
 enable_language(Fortran)
 
 # Source files
-set(CODE_SRC_FILES)
-list(APPEND CODE_SRC_FILES "CellTally.cpp")
-list(APPEND CODE_SRC_FILES "KDEKernel.cpp")
-list(APPEND CODE_SRC_FILES "KDEMeshTally.cpp")
-list(APPEND CODE_SRC_FILES "KDENeighborhood.cpp")
-list(APPEND CODE_SRC_FILES "MeshTally.cpp")
-list(APPEND CODE_SRC_FILES "PolynomialKernel.cpp")
-list(APPEND CODE_SRC_FILES "Quadrature.cpp")
-list(APPEND CODE_SRC_FILES "Tally.cpp")
-list(APPEND CODE_SRC_FILES "TallyData.cpp")
-list(APPEND CODE_SRC_FILES "TallyManager.cpp")
-list(APPEND CODE_SRC_FILES "TrackLengthMeshTally.cpp")
+set(SRC_FILES CellTally.cpp
+              KDEKernel.cpp
+              KDEMeshTally.cpp
+              KDENeighborhood.cpp
+              MeshTally.cpp
+              PolynomialKernel.cpp
+              Quadrature.cpp
+              Tally.cpp
+              TallyData.cpp
+              TallyManager.cpp
+              TrackLengthMeshTally.cpp
+)
 
-# Headers
-set(CODE_PUB_HEADERS)
-list(APPEND CODE_PUB_HEADERS "CellTally.hpp")
-list(APPEND CODE_PUB_HEADERS "KDEKernel.hpp")
-list(APPEND CODE_PUB_HEADERS "KDEMeshTally.hpp")
-list(APPEND CODE_PUB_HEADERS "KDENeighborhood.hpp")
-list(APPEND CODE_PUB_HEADERS "Matrix3.hpp")
-list(APPEND CODE_PUB_HEADERS "MeshTally.hpp")
-list(APPEND CODE_PUB_HEADERS "PolynomialKernel.hpp")
-list(APPEND CODE_PUB_HEADERS "Quadrature.hpp")
-list(APPEND CODE_PUB_HEADERS "TallyData.hpp")
-list(APPEND CODE_PUB_HEADERS "TallyEvent.hpp")
-list(APPEND CODE_PUB_HEADERS "Tally.hpp")
-list(APPEND CODE_PUB_HEADERS "TallyManager.hpp")
-list(APPEND CODE_PUB_HEADERS "TrackLengthMeshTally.hpp")
+# Public headers
+set(PUB_HEADERS CellTally.hpp
+                KDEKernel.hpp
+                KDEMeshTally.hpp
+                KDENeighborhood.hpp
+                Matrix3.hpp
+                MeshTally.hpp
+                PolynomialKernel.hpp
+                Quadrature.hpp
+                TallyData.hpp
+                TallyEvent.hpp
+                Tally.hpp
+                TallyManager.hpp
+                TrackLengthMeshTally.hpp
+)
+
+# Libraries
+set(LINK_LIBS gfortran
+              blas
+              lapack
+              ${DAG_LINK_LIBS}
+)
 
 # Includes
 include_directories(.)
+include_directories(${MOAB_INCLUDE_DIRS})
 
 # Build dagtally library
-add_library(dagtally ${LIB_TYPE} ${CODE_SRC_FILES})
-set_target_properties(dagtally PROPERTIES PUBLIC_HEADER "${CODE_PUB_HEADERS}")
-target_link_libraries(dagtally gfortran)
-target_link_libraries(dagtally lapack)
-target_link_libraries(dagtally blas)
-target_link_libraries(dagtally ${DAG_LINK_LIBS})
+add_library(dagtally ${LIB_TYPE} ${SRC_FILES})
+set_target_properties(dagtally PROPERTIES PUBLIC_HEADER ${PUB_HEADERS})
+target_link_libraries(dagtally ${LINK_LIBS})
 install(TARGETS dagtally LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                          ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
                          PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                         LIBRARY       PERMISSIONS ${PERMS})
+                         LIBRARY       PERMISSIONS ${PERMS}
+)
 
 # Build dagtally tests
 add_subdirectory(tests)

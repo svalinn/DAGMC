@@ -2,6 +2,7 @@ message(STATUS "Building DAG-MCNP5")
 
 enable_language(Fortran)
 
+# Get date and time
 # modifed from http://www.cmake.org/pipermail/cmake/2010-November/041034.html
 macro (DATETIME RESULT)
   execute_process(COMMAND "date" "+%d/%m/%Y" OUTPUT_VARIABLE ${RESULT})
@@ -45,21 +46,21 @@ else ()
 endif (MCNP5_DATAPATH)
 
 # MCNP Plotter
-if (MCNP_PLOT)
+if (MCNP5_PLOT)
   find_package(X11 REQUIRED)
   add_definitions(-DPLOT=ON)
   add_definitions(-DMCPLOT=ON)
   add_definitions(-DXLIB=ON)
-endif (MCNP_PLOT)
+endif (MCNP5_PLOT)
 
 # OpenMP
-if (OMP_BUILD)
+if (OPENMP_BUILD)
   find_package(OpenMP REQUIRED)
   add_definitions(-DOMP=ON)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_C_FLAGS}")  # OpenMP_Fortran_FLAGS is undefined
-endif (OMP_BUILD)
+endif (OPENMP_BUILD)
 
 # MPI
 if (MPI_BUILD)
@@ -76,9 +77,9 @@ else ()
 endif (MPI_BUILD)
 
 # DAGMC
-if (DAGMC_BUILD)
-  include_directories(${PROJECT_SOURCE_DIR}/tally)
-endif (DAGMC_BUILD)
+include_directories(${PROJECT_SOURCE_DIR}/tally)
+include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${MOAB_INCLUDE_DIRS})
 
 # Source files
 set(MCNP_SRC_FILES)
@@ -86,10 +87,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/src/CMakeLists.txt)
 if (MPI_BUILD)
   include(${CMAKE_CURRENT_LIST_DIR}/dotcomm/CMakeLists.txt)
 endif (MPI_BUILD)
-if (DAGMC_BUILD)
-  list(APPEND MCNP_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/mcnp_funcs.cpp)
-  list(APPEND MCNP_SRC_FILES ${PROJECT_SOURCE_DIR}/mcnp5/meshtal_funcs.cpp)
-endif (DAGMC_BUILD)
+list(APPEND MCNP_SRC_FILES ../mcnp_funcs.cpp)
+list(APPEND MCNP_SRC_FILES ../meshtal_funcs.cpp)
 
 # Add the executable
 if (MPI_BUILD)
@@ -103,21 +102,21 @@ add_executable(${MCNP_EXEC} ${MCNP_SRC_FILES})
 set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)
 
 # Link appropriate libraries
-if (MCNP_PLOT)
+if (MCNP5_PLOT)
   target_link_libraries(${MCNP_EXEC} ${X11_LIBRARIES})
-endif (MCNP_PLOT)
+endif (MCNP5_PLOT)
 if (MPI_BUILD)
   target_link_libraries(${MCNP_EXEC} ${MPI_LIBRARIES})
 endif (MPI_BUILD)
-if (DAGMC_BUILD)
-  target_link_libraries(${MCNP_EXEC} ${HDF5_hdf5_hl_LIBRARY})
-  target_link_libraries(${MCNP_EXEC} ${HDF5_hdf5_LIBRARY})
-  target_link_libraries(${MCNP_EXEC} ${DAG_LINK_LIBS})
-  target_link_libraries(${MCNP_EXEC} dagmciface)
-  target_link_libraries(${MCNP_EXEC} dagtally)
-  target_link_libraries(${MCNP_EXEC} pyne_dagmc)
-endif (DAGMC_BUILD)
+target_link_libraries(${MCNP_EXEC} ${HDF5_hdf5_hl_LIBRARY}
+                                   ${HDF5_hdf5_LIBRARY}
+                                   ${DAG_LINK_LIBS}
+                                   dagmciface
+                                   dagtally
+                                   pyne_dagmc
+)
 
 # Install DAG-MCNP5
 install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR}
-                             PERMISSIONS ${PERMS})
+                             PERMISSIONS ${PERMS}
+)

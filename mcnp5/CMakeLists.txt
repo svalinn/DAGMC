@@ -1,10 +1,10 @@
 message(STATUS "Including MCNP5 in dagmciface library")
 
-set(CODE_SRC_DIR     "mcnp5")
-set(CODE_SRC_FILES   "mcnp_funcs.cpp")
-set(CODE_PUB_HEADERS "mcnp_funcs.h")
+# dagmciface source files
+set(DI_SRC_FILES ${DI_SRC_FILES} ${CMAKE_CURRENT_LIST_DIR}/mcnp_funcs.cpp PARENT_SCOPE)
 
-set(DI_PUB_HEADERS ${DI_PUB_HEADERS} "${CMAKE_CURRENT_LIST_DIR}/${CODE_PUB_HEADERS}" PARENT_SCOPE)
-set(DI_SRC_FILES   ${DI_SRC_FILES}   "${CMAKE_CURRENT_LIST_DIR}/${CODE_SRC_FILES}"   PARENT_SCOPE)
+# dagmciface public headers
+set(DI_PUB_HEADERS ${DI_PUB_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/mcnp_funcs.h PARENT_SCOPE)
 
+# Build DAG-MCNP5
 add_subdirectory(Source)

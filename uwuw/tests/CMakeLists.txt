@@ -2,19 +2,20 @@ message(STATUS "Building UWUW unit tests")
 
 # Includes
 include_directories(..)
+include_directories(${HDF5_INCLUDE_DIRS})
 
 # Libraries
-set(UWUW_TEST_LIBS)
-list(APPEND UWUW_TEST_LIBS gtest)
-list(APPEND UWUW_TEST_LIBS dagmciface)
-list(APPEND UWUW_TEST_LIBS pyne_dagmc)
-list(APPEND UWUW_TEST_LIBS pthread)
-list(APPEND UWUW_TEST_LIBS ${DAG_LINK_LIBS})
+set(LINK_LIBS gtest
+              dagmciface
+              pyne_dagmc
+              pthread
+              ${DAG_LINK_LIBS}
+)
 
 # Setup unit tests
 set(DRIVER uwuw_unit_test_driver.cpp)
-setup_test(uwuw_unit_tests       cpp ${DRIVER} "${UWUW_TEST_LIBS}")
-setup_test(uwuw_unit_tests_tally cpp ${DRIVER} "${UWUW_TEST_LIBS}")
+setup_test(uwuw_unit_tests       cpp ${DRIVER} "${LINK_LIBS}")
+setup_test(uwuw_unit_tests_tally cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
 install(FILES test_uwuw.h5m DESTINATION ${INSTALL_SHARE_DIR}/tests)

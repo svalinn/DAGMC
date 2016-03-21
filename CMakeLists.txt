@@ -6,8 +6,6 @@ if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
   cmake_policy(SET CMP0040 OLD)
 endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 
-set(DAGMC_BUILD ON)
-
 # Setup test macro
 macro (setup_test test_name ext driver libs)
   add_executable(${test_name} ${test_name}.${ext} ${driver})
@@ -55,8 +53,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 # Make sure we have HDF5 and MOAB
 find_package(HDF5 REQUIRED)
 find_package(MOAB REQUIRED)
-include_directories(${HDF5_INCLUDE_DIRS})  # maybe put these where we actually need them instead of here
-include_directories(${MOAB_INCLUDE_DIRS})
 
 # DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
 if (DAGMC_LIBRARIES)
@@ -76,14 +72,21 @@ if (BUILD_ALL)
   set(BUILD_GEANT4 ON)
   set(BUILD_FLUKA ON)
 endif (BUILD_ALL)
+if (BUILD_MCNP5)
+  set(BUILD_TALLY ON)
+endif (BUILD_MCNP5)
 
 # Build pyne_dagmc library
 add_subdirectory(pyne)
 
+# Build dagtally library
+if (BUILD_TALLY)
+  add_subdirectory(tally)
+endif (BUILD_TALLY)
+
 # Build MCNP5
 if (BUILD_MCNP5)
   set(BUILD_ANY ON)
-  set(BUILD_TALLY ON)
   add_subdirectory(mcnp5)
 endif (BUILD_MCNP5)
 
@@ -99,11 +102,6 @@ if (BUILD_FLUKA)
   add_subdirectory(fluka)
 endif (BUILD_FLUKA)
 
-# Build dagtally library
-if (BUILD_TALLY)
-  add_subdirectory(tally)
-endif (BUILD_TALLY)
-
 # Include UWUW in dagmciface library
 if (BUILD_ANY)
   add_subdirectory(uwuw)
@@ -111,8 +109,6 @@ endif (BUILD_ANY)
 
 # Build dagmciface library
 if (DI_SRC_FILES)
-  set(DI_PUB_HEADERS ${DI_PUB_HEADERS})
-  set(DI_SRC_FILES ${DI_SRC_FILES})
   add_subdirectory(common)
 endif (DI_SRC_FILES)
 

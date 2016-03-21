@@ -1,10 +1,10 @@
 message(STATUS "Including UWUW in dagmciface library")
 
-set(CODE_SRC_DIR     "uwuw")
-set(CODE_SRC_FILES   "uwuw.cpp")
-set(CODE_PUB_HEADERS "uwuw.hpp")
+# dagmciface source files
+set(DI_SRC_FILES ${DI_SRC_FILES} ${CMAKE_CURRENT_LIST_DIR}/uwuw.cpp PARENT_SCOPE)
 
-set(DI_PUB_HEADERS ${DI_PUB_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/${CODE_PUB_HEADERS} PARENT_SCOPE)
-set(DI_SRC_FILES   ${DI_SRC_FILES}   ${CMAKE_CURRENT_LIST_DIR}/${CODE_SRC_FILES}   PARENT_SCOPE)
+# dagmciface public headers
+set(DI_PUB_HEADERS ${DI_PUB_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/uwuw.hpp PARENT_SCOPE)
 
+# Build UWUW tests
 add_subdirectory(tests)
