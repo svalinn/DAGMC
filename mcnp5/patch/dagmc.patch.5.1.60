@@ -1,6 +1,6 @@
-diff -rupN Source-orig/src/angl.F90 Source/src/angl.F90
---- Source-orig/src/angl.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/angl.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/angl.F90 Source-1.60_dagmc/src/angl.F90
+--- Source-1.60/src/angl.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/angl.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -9,11 +9,19 @@ function angl()
    ! Modules used:
    use mcnp_global
@@ -21,9 +21,9 @@ diff -rupN Source-orig/src/angl.F90 Source/src/angl.F90
    ! initialize angl so that angl doesn't get underflow or overflow
    angl = zero
  
-diff -rupN Source-orig/src/bankit.F90 Source/src/bankit.F90
---- Source-orig/src/bankit.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/bankit.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/bankit.F90 Source-1.60_dagmc/src/bankit.F90
+--- Source-1.60/src/bankit.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/bankit.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -10,6 +10,7 @@ subroutine bankit(m)
    use mcnp_debug
    use phtvr_mod, only : phtvr_bankit_flag
@@ -68,9 +68,9 @@ diff -rupN Source-orig/src/bankit.F90 Source/src/bankit.F90
        nbnk = nbnk-1
        jbnk = jbnk-1
        mbb = mb
-diff -rupN Source-orig/src/celsrf.F90 Source/src/celsrf.F90
---- Source-orig/src/celsrf.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/celsrf.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/celsrf.F90 Source-1.60_dagmc/src/celsrf.F90
+--- Source-1.60/src/celsrf.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/celsrf.F90	2016-03-21 17:58:12.452811155 -0500
 @@ -10,6 +10,7 @@ subroutine celsrf
    use mcnp_debug
    use mcnp_input
@@ -83,16 +83,16 @@ diff -rupN Source-orig/src/celsrf.F90 Source/src/celsrf.F90
  470 continue
    jp = 0
    DO_500: do j=1,mxj
-+     
-+    ! DAGMC: Skip tihs loop if in CAD mode
-+     if (isdgmc == 1) exit
++
++    ! DAGMC: Skip this loop if in CAD mode
++    if (isdgmc == 1) exit
 +
      if( idns(j)/=0 )  cycle DO_500
      if( ksm(j)/=0  )  cycle DO_500
      if( ksu(j)>0   )  jp=1
-diff -rupN Source-orig/src/chekit.F90 Source/src/chekit.F90
---- Source-orig/src/chekit.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/chekit.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/chekit.F90 Source-1.60_dagmc/src/chekit.F90
+--- Source-1.60/src/chekit.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/chekit.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -1083,6 +1083,7 @@ subroutine chekit
          endif
        enddo
@@ -101,9 +101,9 @@ diff -rupN Source-orig/src/chekit.F90 Source/src/chekit.F90
          & .and.hitm(1:3)/='rzt' .and. hitm(1:3)/='cyl'  &
          & .and.hitm(1:3)/='col' .and. hitm(1:3)/='ij '  &
          & .and.hitm(1:3)/='ik ' .and. hitm(1:3)/='jk'   &
-diff -rupN Source-orig/src/chkcel.F90 Source/src/chkcel.F90
---- Source-orig/src/chkcel.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/chkcel.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/chkcel.F90 Source-1.60_dagmc/src/chkcel.F90
+--- Source-1.60/src/chkcel.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/chkcel.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -20,11 +20,18 @@ subroutine chkcel(i1,m,j)
    ! Modules used:
    use mcnp_global
@@ -123,9 +123,9 @@ diff -rupN Source-orig/src/chkcel.F90 Source/src/chkcel.F90
    ! Do all surfaces of cell i1 or until mm is matched.
    j2 = abs(lca(i1))
    j3 = abs(lca(i1+1)) - 1
-diff -rupN Source-orig/src/dagmc_mod.F90 Source/src/dagmc_mod.F90
---- Source-orig/src/dagmc_mod.F90	1969-12-31 18:00:00.000000000 -0600
-+++ Source/src/dagmc_mod.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/dagmc_mod.F90 Source-1.60_dagmc/src/dagmc_mod.F90
+--- Source-1.60/src/dagmc_mod.F90	1969-12-31 18:00:00.000000000 -0600
++++ Source-1.60_dagmc/src/dagmc_mod.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -0,0 +1,254 @@
 +module dagmc_mod
 +
@@ -381,9 +381,9 @@ diff -rupN Source-orig/src/dagmc_mod.F90 Source/src/dagmc_mod.F90
 +  end subroutine dagmc_version_heading
 +
 +end module dagmc_mod
-diff -rupN Source-orig/src/dbmin.F90 Source/src/dbmin.F90
---- Source-orig/src/dbmin.F90	2016-03-18 16:24:15.868705677 -0500
-+++ Source/src/dbmin.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/dbmin.F90 Source-1.60_dagmc/src/dbmin.F90
+--- Source-1.60/src/dbmin.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/dbmin.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -9,9 +9,21 @@ function dbmin()
  
    use mcnp_global
@@ -406,9 +406,9 @@ diff -rupN Source-orig/src/dbmin.F90 Source/src/dbmin.F90
    dbmin = huge_float
    ic = icl
    x0 = xxx
-diff -rupN Source-orig/src/echkcl.F90 Source/src/echkcl.F90
---- Source-orig/src/echkcl.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/echkcl.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/echkcl.F90 Source-1.60_dagmc/src/echkcl.F90
+--- Source-1.60/src/echkcl.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/echkcl.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -9,13 +9,23 @@ subroutine echkcl(j)
    ! at the level (levp) of the shortest distance to boundary.
    use mcnp_global
@@ -434,9 +434,9 @@ diff -rupN Source-orig/src/echkcl.F90 Source/src/echkcl.F90
      return
    endif
     
-diff -rupN Source-orig/src/electr.F90 Source/src/electr.F90
---- Source-orig/src/electr.F90	2016-03-18 16:24:15.868705677 -0500
-+++ Source/src/electr.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/electr.F90 Source-1.60_dagmc/src/electr.F90
+--- Source-1.60/src/electr.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/electr.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -10,6 +10,7 @@ subroutine electron_history_4c3
    use mcnp_landau, only: esloss
    use fmesh_mod, only:  mesh_score, nmesh
@@ -459,9 +459,9 @@ diff -rupN Source-orig/src/electr.F90 Source/src/electr.F90
  
          call track(icl)
          if( kdb/=0 )  go to 999 ! Return
-diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
---- Source-orig/src/fmesh_mod.F90	2016-03-18 16:24:15.876705604 -0500
-+++ Source/src/fmesh_mod.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/fmesh_mod.F90 Source-1.60_dagmc/src/fmesh_mod.F90
+--- Source-1.60/src/fmesh_mod.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/fmesh_mod.F90	2016-03-21 19:47:41.118900573 -0500
 @@ -10,6 +10,8 @@ module fmesh_mod
    use mcnp_iofiles
    use mcnp_params, only: dknd
@@ -482,7 +482,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
    integer, parameter :: nfmsh = 15      != Number of keywords on the  FMESH card
  
    integer :: &
-@@ -124,10 +130,100 @@ module fmesh_mod
+@@ -124,10 +130,97 @@ module fmesh_mod
  
    private ::  dosef_fmesh, wtmult_fmesh
  
@@ -490,29 +490,28 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
 +  ! DAGMC: These helper functions must be called with non-dereferenced Fortran pointers.
 +  ! This interface specification ensures that the calls to these functions
 +  ! (which are implemented in C) are made with the correct types
-+    interface
-+     subroutine dagmc_fmesh_get_tally_data( fm_id, fref )
-+       implicit none
-+       integer :: fm_id
-+       ! The dknd parameter is unavailable in this scope for some reason,
-+       ! so I have copied the definition of dknd from mcnp_params
-+       real(selected_real_kind(15,307)) , dimension(:), pointer :: fref 
-+     end subroutine dagmc_fmesh_get_tally_data
++  interface
++    subroutine dagmc_fmesh_get_tally_data( fm_id, fref )
++      implicit none
++      integer :: fm_id
++      ! The dknd parameter is unavailable in this scope for some reason,
++      ! so I have copied the definition of dknd from mcnp_params
++      real(selected_real_kind(15,307)) , dimension(:), pointer :: fref
++    end subroutine dagmc_fmesh_get_tally_data
 +
-+     subroutine dagmc_fmesh_get_error_data( fm_id, fref )
-+       implicit none
-+       integer :: fm_id
-+       real(selected_real_kind(15,307)) , dimension(:), pointer :: fref
-+     end subroutine dagmc_fmesh_get_error_data
++    subroutine dagmc_fmesh_get_error_data( fm_id, fref )
++      implicit none
++      integer :: fm_id
++      real(selected_real_kind(15,307)) , dimension(:), pointer :: fref
++    end subroutine dagmc_fmesh_get_error_data
 +
-+     subroutine dagmc_fmesh_get_scratch_data( fm_id, fref )
-+       implicit none
-+       integer :: fm_id
-+       real(selected_real_kind(15,307)), dimension(:), pointer:: fref 
-+     end subroutine dagmc_fmesh_get_scratch_data
++    subroutine dagmc_fmesh_get_scratch_data( fm_id, fref )
++      implicit none
++      integer :: fm_id
++      real(selected_real_kind(15,307)), dimension(:), pointer:: fref
++    end subroutine dagmc_fmesh_get_scratch_data
 +
-+    end interface
-+
++  end interface
 +
  CONTAINS
  
@@ -538,52 +537,50 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
 +
 +    print *, shape(fm(idx)%fmarry)
 +
-+    ! Determine if DAGMC tally uses a multiplier
-+    ! Default value of -1 indicates no multipliers are present
++    ! Determine if DAGMC tally uses a multiplier                      
++    ! Default value of -1 indicates no multipliers are present        
 +    fmesh_idx = -1
 +
-+    ! Check for energy-dependent multipliers
++    ! Check for energy-dependent multipliers                                     
 +    if(fm(idx)%ifm_card/=0 .or. fm(idx)%icx == 1 .or. fm(idx)%intrpol /= 0) then
 +      fmesh_idx = idx
 +    elseif (fm(idx)%fmult > 0. .and. fm(idx)%fmult /= 1.) then
-+      ! Constant multiplier only, not energy-dependent
++      ! Constant multiplier only, not energy-dependent                                        
 +      fmesh_idx = idx
 +    endif
 +
-+    ! Setup dagmc mesh; parameters will be read in from FC card
-+    if( fm(idx)%n_comment_lines > 0 ) then 
++    ! Setup dagmc mesh; parameters will be read in from FC card                               
++    if( fm(idx)%n_comment_lines > 0 ) then
 +       call dagmc_fmesh_setup_mesh( fm(idx)%ipt, fm(idx)%id, fmesh_idx, &
 +                                    fm(idx)%enbin, fm(idx)%nenb, fm(idx)%tot_energy_bin, &
 +                                    fm(idx)%comment, fm(idx)%n_comment_lines, dagmc_iscol )
 +    else
-+       ! No FC card; avoid passing uninitialized pointer to C
-+       ! The following call will halt mcnp with an error because of the missing card.
-+       ! We could also signal an error and halt here instead.
-+       call dagmc_fmesh_setup_mesh( fm(idx)%ipt, fm(idx)%id, fmesh_idx, &
-+                                    fm(idx)%enbin, fm(idx)%nenb, fm(idx)%tot_energy_bin, &
-+                                    0, 0, dagmc_iscol )
++      ! No FC card; avoid passing uninitialized pointer to C                                 
++      ! The following call will halt mcnp with an error because of the missing card.   
++      ! We could also signal an error and halt here instead.                                 
++      call dagmc_fmesh_setup_mesh( fm(idx)%ipt, fm(idx)%id, fmesh_idx, &
++                                   fm(idx)%enbin, fm(idx)%nenb, fm(idx)%tot_energy_bin, &
++                                   0, 0, dagmc_iscol )
 +    endif
 +
-+    if( dagmc_iscol == 1 ) then 
-+       enable_dag_collision_tallies = .true. 
++    if( dagmc_iscol == 1 ) then
++      enable_dag_collision_tallies = .true.
 +    else
-+       enable_dag_track_tallies = .true.
++      enable_dag_track_tallies = .true.
 +    endif
-+   
 +
 +    if ( fm(idx)%icrd==3 .and. enable_dag_tallies .eqv. .false.) then
-+       enable_dag_tallies = .true.
++      enable_dag_tallies = .true.
 +    endif
-+   
++
 +  end subroutine dagmc_setup_mesh_tally
-+    
 +    
 +  !-----------------------------------------------------------------------------------------
 +
    subroutine fmesh_runtpw(iu)
      !  subroutine to write mesh tallies to the RUNTPE
  
-@@ -135,7 +231,11 @@ CONTAINS
+@@ -135,7 +228,11 @@ CONTAINS
  
      integer, intent(in) :: iu          !Unit number
      integer            :: i,ix,iy,iz,ie
@@ -595,23 +592,22 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      !  first write the number of meshes
      write(iu) nmesh
      if( nmesh==0 ) return
-@@ -180,6 +280,15 @@ CONTAINS
+@@ -180,6 +277,14 @@ CONTAINS
      do i = 1,nmesh
           write(iu) fm(i)%fmarry(:,:,:,:,1), & 
        &          fm(i)%fmerr( :,:,:,:,1)
-+
-+       ! DAGMC: 
-+         if ( fm(i)%icrd==3 ) then          
-+          ! Get pointer to mesh's working data and fill runtpe with those contents
-+            call dagmc_fmesh_get_tally_data( fm(i)%id, dagmc_runtpe_data )
-+            write(iu) dagmc_runtpe_data
-+            call dagmc_fmesh_get_error_data( fm(i)%id, dagmc_runtpe_data )
-+            write(iu) dagmc_runtpe_data
++         ! DAGMC:
++         if ( fm(i)%icrd==3 ) then
++           ! Get pointer to mesh's working data and fill runtpe with those contents
++           call dagmc_fmesh_get_tally_data( fm(i)%id, dagmc_runtpe_data )
++           write(iu) dagmc_runtpe_data
++           call dagmc_fmesh_get_error_data( fm(i)%id, dagmc_runtpe_data )
++           write(iu) dagmc_runtpe_data
 +         endif
      enddo
  
      return
-@@ -190,7 +299,7 @@ CONTAINS
+@@ -190,7 +295,7 @@ CONTAINS
    subroutine fmesh_runtpr(iu)
      !  subroutine to read mesh tallies from the RUNTPE
  
@@ -620,7 +616,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      use mcnp_data, only: thrd_runtpe
  
      integer, intent(in) :: iu          !Unit number
-@@ -201,6 +310,11 @@ CONTAINS
+@@ -201,6 +306,11 @@ CONTAINS
      logical    :: is_assoc            ! flag to test pointer association 
  #endif
  
@@ -632,7 +628,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      ! If called from mcplot, deallocate the arrays if allocated
  
      if ( nmesh > 0 .and. iovr == 5 ) then
-@@ -252,6 +366,8 @@ CONTAINS
+@@ -252,6 +362,8 @@ CONTAINS
      ! Next read in the scalar and non-allocatable arrays  of derived type fm
      do i = 1,nmesh
         if ( thrd_runtpe == 'unknown' ) then
@@ -641,25 +637,27 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
           read(iu)  fm(i)%id,fm(i)%ipt,fm(i)%icrd,fm(i)%itr,fm(i)%icx,fm(i)%intrpol, &
              &  fm(i)%nxrb,fm(i)%nyzb,fm(i)%nztb,fm(i)%nenb,fm(i)%ndfb,fm(i)%ifm_card,   &
              &  fm(i)%nreact,fm(i)%nireact,fm(i)%mat,fm(i)%outf,fm(i)%fact,fm(i)%fmult,&
-@@ -348,6 +464,17 @@ CONTAINS
+@@ -348,7 +460,18 @@ CONTAINS
            fm(i)%fmerr(:,:,:,:,j) = 0
         enddo
         fmtal(i)%tally = 0
+-     enddo
 +
-+       ! DAGMC:
-+         if ( fm(i)%icrd==3 ) then 
-+            if( .not. is_assoc ) call dagmc_setup_mesh_tally( i )
-+          ! Get pointer to mesh's working memory and fill it with runtpe data
-+            call dagmc_fmesh_get_tally_data( fm(i)%id, dagmc_runtpe_data )
-+            read(iu) dagmc_runtpe_data
-+            call dagmc_fmesh_get_error_data( fm(i)%id, dagmc_runtpe_data )
-+            read(iu) dagmc_runtpe_data
-+         endif
++      ! DAGMC:
++      if ( fm(i)%icrd==3 ) then 
++        if( .not. is_assoc ) call dagmc_setup_mesh_tally( i )
++        ! Get pointer to mesh's working memory and fill it with runtpe data
++        call dagmc_fmesh_get_tally_data( fm(i)%id, dagmc_runtpe_data )
++        read(iu) dagmc_runtpe_data
++        call dagmc_fmesh_get_error_data( fm(i)%id, dagmc_runtpe_data )
++        read(iu) dagmc_runtpe_data
++      endif
 +
-      enddo
++    enddo
  
      ! Allocate scratch arrays
-@@ -385,6 +512,9 @@ CONTAINS
+ 
+@@ -385,6 +508,9 @@ CONTAINS
      character(6)  :: intpol_mode  ! Dose response function interpolation mod
      character(13) :: ht(18)       ! FM card reaction list/attenuation set
  
@@ -669,7 +667,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      do i = 1,nmesh
  
         ! print tally id, and type
-@@ -515,6 +645,9 @@ CONTAINS
+@@ -515,6 +641,9 @@ CONTAINS
  
      integer :: i, is
  
@@ -679,7 +677,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      if( .not. allocated(fm) ) then
  
        allocate( fm(nmesh),  fmtal(nmesh), meshid(nmesh+10), intrpol(nmesh+10),  &
-@@ -589,6 +722,9 @@ CONTAINS
+@@ -589,6 +718,9 @@ CONTAINS
      real(dknd), intent(inout) :: t    ! particle weight
      integer   , intent(in)    :: kk   ! Mesh tally number
  
@@ -689,7 +687,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      jf = 0
      id = 0
      if( fm(kk)%ifm_card<0  )  go to 280
-@@ -799,7 +935,10 @@ CONTAINS
+@@ -799,7 +931,10 @@ CONTAINS
  
      use messages
  
@@ -701,7 +699,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
  
      call msg_put(nmesh)
  
-@@ -847,6 +986,15 @@ CONTAINS
+@@ -847,6 +982,15 @@ CONTAINS
            call msg_put (fm(i)%df, 1, fm(i)%ndfb)
         endif
  
@@ -717,7 +715,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      enddo Loop1
  
      return
-@@ -860,9 +1008,13 @@ CONTAINS
+@@ -860,9 +1004,13 @@ CONTAINS
      ! called from msgtsk
  
      use messages
@@ -732,41 +730,41 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
  
      call msg_get(nmesh)
  
-@@ -941,6 +1093,19 @@ CONTAINS
+@@ -941,6 +1089,19 @@ CONTAINS
            call msg_get (fm(i)%df, 1, fm(i)%ndfb)
         endif
  
 +       ! DAGMC: receive comment contents if this is a dagmc mesh
 +       if( fm(i)%icrd == 3 ) then
-+        call msg_get( fm(i)%n_comment_lines )
++         call msg_get( fm(i)%n_comment_lines )
 +
-+        allocate( fm(i)%comment( fm(i)%n_comment_lines ), stat=is )
-+        if(is/=0) call erprnt(1,1,0,0,0,0,0,1,' "mesh tally memory allocation failure"')
++         allocate( fm(i)%comment( fm(i)%n_comment_lines ), stat=is )
++         if(is/=0) call erprnt(1,1,0,0,0,0,0,1,' "mesh tally memory allocation failure"')
 +
-+        do j=1,fm(i)%n_comment_lines 
-+           call msg_get( fm(i)%comment(j) )
-+        enddo
++         do j=1,fm(i)%n_comment_lines 
++            call msg_get( fm(i)%comment(j) )
++         enddo
 +
 +       endif
 +
         ! allocate mesh tally arrays
  
         ix = fm(i)%nxrb-1
-@@ -981,6 +1146,13 @@ CONTAINS
+@@ -981,6 +1142,13 @@ CONTAINS
      if(is/=0) call erprnt(1,1,0,0,0,0,0,1,' "mesh tally memory allocation failure"')
      num_bins=0
  
-+    ! DAGMC: 
++    ! DAGMC:
 +    do i = 1,nmesh
-+     if( fm(i)%icrd == 3 ) then
-+        call dagmc_setup_mesh_tally( i )
-+     endif
++       if( fm(i)%icrd == 3 ) then
++          call dagmc_setup_mesh_tally( i )
++       endif
 +    enddo
 +
      return
    end subroutine fmesh_msgget
  
-@@ -993,6 +1165,10 @@ CONTAINS
+@@ -993,6 +1161,10 @@ CONTAINS
      use messages
  
      integer :: i,ix,iy,iz,ie,isize
@@ -777,35 +775,32 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
  
      do i = 1,nmesh
         ix = fm(i)%nxrb-1
-@@ -1002,8 +1178,9 @@ CONTAINS
-          ie = fm(i)%nenb
-        else
+@@ -1004,6 +1176,7 @@ CONTAINS
           ie = fm(i)%nenb-1
--       endif
-+       endif 
+        endif
  
 +       if( fm(i)%icrd /= 3 ) then 
         isize = ix*iy*iz*ie
  
         call msg_get(fmtal(i)%tally, 1, isize)
-@@ -1013,6 +1190,16 @@ CONTAINS
+@@ -1013,6 +1186,16 @@ CONTAINS
         call msg_get(fmtal(i)%tally, 1, isize)
         fm(i)%fmerr(:,:,:,:,1) = fm(i)%fmerr(:,:,:,:,1)+  &
              &   fmtal(i)%tally(:,:,:,:,1)
 +       
 +       else
 +          ! DAGMC
-+            call dagmc_fmesh_get_scratch_data( fm(i)%id, dagmc_mpi_data )
-+            call msg_get( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
-+            call dagmc_fmesh_add_scratch_to_tally( fm(i)%id )
-+            call msg_get( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
-+            call dagmc_fmesh_add_scratch_to_error( fm(i)%id )
++          call dagmc_fmesh_get_scratch_data( fm(i)%id, dagmc_mpi_data )
++          call msg_get( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
++          call dagmc_fmesh_add_scratch_to_tally( fm(i)%id )
++          call msg_get( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
++          call dagmc_fmesh_add_scratch_to_error( fm(i)%id )
 +       endif
 +
      enddo
  
      return
-@@ -1028,6 +1215,10 @@ CONTAINS
+@@ -1028,26 +1211,44 @@ CONTAINS
  
      integer :: i
      integer :: ix,iy,iz,ie,isize
@@ -816,57 +811,61 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
  
      do i = 1,nmesh
         ix = fm(i)%nxrb-1
-@@ -1039,14 +1230,31 @@ CONTAINS
-          ie = fm(i)%nenb-1
+        iy = fm(i)%nyzb-1
+        iz = fm(i)%nztb-1
+        if ( fm(i)%tot_energy_bin == 1 ) then
+-         ie = fm(i)%nenb
++          ie = fm(i)%nenb
+        else
+-         ie = fm(i)%nenb-1
++          ie = fm(i)%nenb-1
         endif
  
 -       isize = ix*iy*iz*ie
 -       call msg_put(fm(i)%fmarry, 1, isize)
 -       call msg_put(fm(i)%fmerr, 1, isize)
 +       if( fm(i)%icrd /= 3 ) then
++          isize = ix*iy*iz*ie
++          call msg_put(fm(i)%fmarry, 1, isize)
++          call msg_put(fm(i)%fmerr, 1, isize)
 +
-+         isize = ix*iy*iz*ie
-+         call msg_put(fm(i)%fmarry, 1, isize)
-+         call msg_put(fm(i)%fmerr, 1, isize)
-+
-+         ! zero arrays
-+         fm(i)%fmarry(:,:,:,:,1) = 0
-+         fm(i)%fmerr(:,:,:,:,1) = 0
-+       
++          ! zero arrays
++          fm(i)%fmarry(:,:,:,:,1) = 0
++          fm(i)%fmerr(:,:,:,:,1) = 0
 +       else
 +          ! DAGMC
-+            call dagmc_fmesh_get_tally_data( fm(i)%id, dagmc_mpi_data )
-+            call msg_put( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
-+            call dagmc_fmesh_get_error_data( fm(i)%id, dagmc_mpi_data )
-+            call msg_put( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
-+
++          call dagmc_fmesh_get_tally_data( fm(i)%id, dagmc_mpi_data )
++          call msg_put( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
++          call dagmc_fmesh_get_error_data( fm(i)%id, dagmc_mpi_data )
++          call msg_put( dagmc_mpi_data, 1, size(dagmc_mpi_data) )
 +       endif
  
 -       ! zero arrays
 -       fm(i)%fmarry(:,:,:,:,1) = 0
 -       fm(i)%fmerr(:,:,:,:,1) = 0
      enddo
-+    
-+    if( enable_dag_tallies ) then
-+      ! DAGMC
-+      call dagmc_fmesh_clear_data()
-+    endif
  
++    if( enable_dag_tallies ) then
++       ! DAGMC
++       call dagmc_fmesh_clear_data()
++    endif
++
      return
    end subroutine fmesh_msgtsk
-@@ -1062,6 +1270,11 @@ CONTAINS
+ 
+@@ -1062,6 +1263,11 @@ CONTAINS
  
      integer :: i,kt,kt1
  
 +    ! DAGMC: perform end of history tasks for all dagmc mesh tallies
 +    if (enable_dag_tallies) then
-+       call dagmc_fmesh_end_history()
++      call dagmc_fmesh_end_history()
 +    endif
 +
      kt = ktask+2
      kt1= ktask+1
      if(num_bins(kt1) < i_size_bins) then
-@@ -1110,6 +1323,32 @@ CONTAINS
+@@ -1110,6 +1316,32 @@ CONTAINS
    end subroutine mesh_end_history
  
    !-----------------------------------------------------------------------------------------
@@ -883,7 +882,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
 +
 +    t = 1._dknd
 +    if( fm(i)%ifm_card/=0 ) then
-+       call wtmult_fmesh(t,i)
++      call wtmult_fmesh(t,i)
 +    endif
 +    t = t*fm(i)%fmult
 +    if( fm(i)%fmult < 0 ) t = -t*rho(icl)
@@ -894,12 +893,12 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
 +
 +    return
 +  end subroutine dagmc_get_multiplier
-+          
++
 +  !-----------------------------------------------------------------------------------------
  
    subroutine mesh_score(ipt,x,y,z,u,v,w,erg,wgt,d)
  
-@@ -1126,7 +1365,7 @@ CONTAINS
+@@ -1126,7 +1358,7 @@ CONTAINS
      real(dknd) :: r(3)         ! particle position in Cartesian  coordinates
      real(dknd) :: dircos(3)    ! particle direction cosines
      real(dknd) :: dr(3)        ! distances to the next x,y,and z mesh bin
@@ -908,18 +907,18 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
  
      real(dknd) :: dstnce_to_travel  ! Distance remaining for the particle to travel
      real(dknd) :: dstnce_to_bin     ! Distance to the next mesh bin boundary
-@@ -1140,12 +1379,30 @@ CONTAINS
+@@ -1140,12 +1372,30 @@ CONTAINS
      kt = ktask+2
      kt1= ktask+1
  
 +    ! DAGMC: update multipliers if any dagmc mesh tallies exist
 +    if (enable_dag_tallies) then
-+        do i=1, nmesh
-+            call dagmc_get_multiplier(i,erg, dagmc_multiplier) 
-+            call dagmc_update_multiplier(i, dagmc_multiplier)
-+	enddo
++       do i=1, nmesh
++          call dagmc_get_multiplier(i,erg, dagmc_multiplier) 
++          call dagmc_update_multiplier(i, dagmc_multiplier)
++       enddo
 +    endif
-+ 
++
 +    ! DAGMC: compute scores for all dagmc mesh tallies
 +    if (enable_dag_track_tallies) then
 +       call dagmc_fmesh_score(ipt,x,y,z,u,v,w,erg,wgt,d,icl)
@@ -939,7 +938,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
         ! select coordinate system
  
         if( fm(i)%icrd==2 ) then
-@@ -1337,7 +1594,7 @@ CONTAINS
+@@ -1337,7 +1587,7 @@ CONTAINS
               endif
  
              ! Score the track length
@@ -948,19 +947,15 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
              t = 1._dknd
              if( fm(i)%ifm_card/=0 ) then
                 call wtmult_fmesh(t,i)
-@@ -1352,9 +1609,10 @@ CONTAINS
+@@ -1352,6 +1602,7 @@ CONTAINS
                if ( fm(i)%icx == 1 ) score = score*erg
                if ( fm(i)%intrpol /= 0 ) score = score*dosef_fmesh(erg,i)
              endif
-+            ! DAGMC: end modified source 
++            ! DAGMC: end modified source
  
              fmtal(i)%tally(ixr,iyz,izt,ien,kt)=  fmtal(i)%tally(ixr,iyz,izt,ien,kt)+score
--            fm(i)%fmarry(ixr,iyz,izt,ien,kt)  =    fm(i)%fmarry(ixr,iyz,izt,ien,kt)+score
-+            fm(i)%fmarry(ixr,iyz,izt,ien,kt)  =  fm(i)%fmarry(ixr,iyz,izt,ien,kt)+score
- 
-             if ( fm(i)%tot_energy_bin == 1 ) then
-               fm(i)%fmarry(ixr,iyz,izt,fm(i)%nenb,kt)   =      &
-@@ -1420,6 +1678,9 @@ CONTAINS
+             fm(i)%fmarry(ixr,iyz,izt,ien,kt)  =    fm(i)%fmarry(ixr,iyz,izt,ien,kt)+score
+@@ -1420,6 +1671,9 @@ CONTAINS
      integer    :: nextbin(3)        ! Next bin indicator
      integer    :: j,k,il,iu,im,ien,ixr,iyz,izt,kt,kt1
  
@@ -970,7 +965,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      kt = ktask+2
      kt1= ktask+1
  
-@@ -1728,26 +1989,43 @@ CONTAINS
+@@ -1728,26 +1982,43 @@ CONTAINS
      implicit real(dknd) (a-h,o-z)
      integer i,j,iibin,ix,iy,iz,ie,is
  
@@ -1026,7 +1021,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      allocate (fm(nmesh)%ztbin(fm(nmesh)%nztb),stat = is)
      if(is/=0) call erprnt(1,1,0,0,0,0,0,1,' "mesh tally memory allocation failure"')
  
-@@ -1872,6 +2150,9 @@ CONTAINS
+@@ -1872,6 +2143,9 @@ CONTAINS
      real(dknd), intent(in) :: erg
      real(dknd)             :: dosef_fmesh
  
@@ -1036,7 +1031,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      ! use extreme value if energy is off either end of the table.
      if( erg>=fm(im)%de(fm(im)%ndfb) ) then
         dosef_fmesh = fm(im)%df(fm(im)%ndfb)
-@@ -1932,6 +2213,9 @@ CONTAINS
+@@ -1932,6 +2206,9 @@ CONTAINS
      real(dknd) sp_norm
      character(len=1024) :: bigstring
  
@@ -1046,7 +1041,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      ! Get  the source particle normalization.
      sp_norm = 1./fpi
  
-@@ -1969,8 +2253,18 @@ CONTAINS
+@@ -1969,8 +2246,18 @@ CONTAINS
         write(iumt,'(1x,"Number of histories used for normalizing tallies = ",    &
              &  f16.2)') sp_norm
  
@@ -1065,7 +1060,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
         !  convert theta bins from radians to revolutions
  
         if( fm(j)%icrd==2) fm(j)%ztbin = fm(j)%ztbin/(2_dknd*pie)
-@@ -2437,6 +2731,9 @@ CONTAINS
+@@ -2437,6 +2724,9 @@ CONTAINS
     
      logical ::  found_tally
  
@@ -1075,7 +1070,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      !  cycle through the id numbers
      Loop1: do i = 1,ndf
  
-@@ -2747,6 +3044,13 @@ CONTAINS
+@@ -2747,6 +3037,13 @@ CONTAINS
         call ifmesh_print
      endif
  
@@ -1089,7 +1084,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      return
  
    end subroutine fmesh_initialize
-@@ -2762,6 +3066,9 @@ CONTAINS
+@@ -2762,6 +3059,9 @@ CONTAINS
      integer, intent(in) :: ktask
      integer  :: i,kt
   
@@ -1099,7 +1094,7 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
      kt = ktask+2
      do i=1,nmesh
        fm(i)%fmarry(:,:,:,:,1) = fm(i)%fmarry(:,:,:,:,1)+fm(i)%fmarry(:,:,:,:,kt) 
-@@ -2854,6 +3161,9 @@ CONTAINS
+@@ -2854,6 +3154,9 @@ CONTAINS
  
    ! performs binary search to find which mesh cell rc is in
  
@@ -1109,9 +1104,9 @@ diff -rupN Source-orig/src/fmesh_mod.F90 Source/src/fmesh_mod.F90
    real(dknd),intent(in)  ::  rc, bins(*)
    integer   ,intent(in)  ::  num_bins
    integer                ::  il,iu,im,ibin_search
-diff -rupN Source-orig/src/getpar.F90 Source/src/getpar.F90
---- Source-orig/src/getpar.F90	2016-03-18 16:24:15.868705677 -0500
-+++ Source/src/getpar.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/getpar.F90 Source-1.60_dagmc/src/getpar.F90
+--- Source-1.60/src/getpar.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/getpar.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -9,12 +9,19 @@ subroutine getpar(k1,k2)
    !       = 0 to not save repeated structures data.
    use mcnp_global
@@ -1132,9 +1127,9 @@ diff -rupN Source-orig/src/getpar.F90 Source/src/getpar.F90
    !
    ! retrieve the integer particle attributes.
    do i = 1,lpblcm
-diff -rupN Source-orig/src/hstory.F90 Source/src/hstory.F90
---- Source-orig/src/hstory.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/hstory.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/hstory.F90 Source-1.60_dagmc/src/hstory.F90
+--- Source-1.60/src/hstory.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/hstory.F90	2016-03-21 19:07:21.440062406 -0500
 @@ -16,9 +16,10 @@ subroutine hstory
     &                   pair_production, incoher_dxtran_node, &
     &                   increase_phtvr_memory, master_phtvr_locked,  &
@@ -1206,9 +1201,9 @@ diff -rupN Source-orig/src/hstory.F90 Source/src/hstory.F90
      endif
    endif
 +
-+  ! DAGMC: Collision Tally  
++  ! DAGMC: Collision Tally
 +  if ( enable_dag_collision_tallies ) then
-+     call dagmc_collision_score( ipt, xxx, yyy, zzz, erg, wgt, ple, icl )
++    call dagmc_collision_score( ipt, xxx, yyy, zzz, erg, wgt, ple, icl )
 +  endif
 +
    if(     ipt==1 ) then
@@ -1223,9 +1218,9 @@ diff -rupN Source-orig/src/hstory.F90 Source/src/hstory.F90
    if ( phtvr_flag == 1 ) then
      !  termination node for track
      !  no termination node for pair production if positrons
-diff -rupN Source-orig/src/igeom.F90 Source/src/igeom.F90
---- Source-orig/src/igeom.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/igeom.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/igeom.F90 Source-1.60_dagmc/src/igeom.F90
+--- Source-1.60/src/igeom.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/igeom.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -8,6 +8,7 @@ subroutine igeom
    use mcnp_input
    use dynamic_arrays
@@ -1244,9 +1239,9 @@ diff -rupN Source-orig/src/igeom.F90 Source/src/igeom.F90
  
    ! calculate the constants of any lattices in the geometry.
    if( nlat/=0 ) then
-diff -rupN Source-orig/src/imcn.F90 Source/src/imcn.F90
---- Source-orig/src/imcn.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/imcn.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/imcn.F90 Source-1.60_dagmc/src/imcn.F90
+--- Source-1.60/src/imcn.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/imcn.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -15,6 +15,7 @@ subroutine imcn
    use phtvr_mod,    only : forced_collision_flag, phtvr_flag
    use uran_mod,     only : uran_allocate, uran_n, uran_univ, uran_xyz
@@ -1268,9 +1263,9 @@ diff -rupN Source-orig/src/imcn.F90 Source/src/imcn.F90
      if( uran_n>0 ) then
        write(jtty,17) (uran_univ(j),(uran_xyz(i,j),i=1,3),j=1,uran_n)
  17    format(1x,/, &
-diff -rupN Source-orig/src/itally.F90 Source/src/itally.F90
---- Source-orig/src/itally.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/itally.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/itally.F90 Source-1.60_dagmc/src/itally.F90
+--- Source-1.60/src/itally.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/itally.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -19,6 +19,7 @@ subroutine itally
    use phtvr_mod, only: initialize_phtvr
    use dynamic_arrays, only : get_mem
@@ -1293,19 +1288,18 @@ diff -rupN Source-orig/src/itally.F90 Source/src/itally.F90
          ! if macrobody identical surface, use master surface number.
          if( m==2 ) then
            ! check if a bounding surface, include facet if macrobody.
-diff -rupN Source-orig/src/main.F90 Source/src/main.F90
---- Source-orig/src/main.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/main.F90	2016-03-18 16:24:20.584663067 -0500
-@@ -53,7 +53,7 @@ program main
+diff -rupN Source-1.60/src/main.F90 Source-1.60_dagmc/src/main.F90
+--- Source-1.60/src/main.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/main.F90	2016-03-21 19:12:55.100992862 -0500
+@@ -53,6 +53,7 @@ program main
    use crit2_mod
    use ra1_mod
    use ra2_mod
--
 +  use dagmc_mod
  
-   implicit real(dknd) (a-h,o-z)
  
-@@ -140,6 +140,32 @@ program main
+   implicit real(dknd) (a-h,o-z)
+@@ -140,6 +141,32 @@ program main
    endif
  
    call exemes
@@ -1338,7 +1332,7 @@ diff -rupN Source-orig/src/main.F90 Source/src/main.F90
    if( konrun==0 )  probid = idtm
  
    ! Alternate method for setting ltasks for MPI-based versions.
-@@ -178,6 +204,10 @@ program main
+@@ -178,6 +205,10 @@ program main
    enddo
    call set_filenames
  
@@ -1349,7 +1343,7 @@ diff -rupN Source-orig/src/main.F90 Source/src/main.F90
    ! Create the output print file and write heading on it.
    call unique(outp,jtty)
    open(iuo,file=outp,status='new')
-@@ -189,6 +219,7 @@ program main
+@@ -189,6 +220,7 @@ program main
  170 format( "1",a8, " version ",a5, " ld=",a8,8x,a10,2x,a19/&
      & ,1x,73( "*"),:17x, "probid = ",a19)
    write(iuo,'(1x,a80/)') exms
@@ -1357,9 +1351,9 @@ diff -rupN Source-orig/src/main.F90 Source/src/main.F90
  
    call ttyint
  
-diff -rupN Source-orig/src/mcnp_input.F90 Source/src/mcnp_input.F90
---- Source-orig/src/mcnp_input.F90	2016-03-18 16:24:15.876705604 -0500
-+++ Source/src/mcnp_input.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/mcnp_input.F90 Source-1.60_dagmc/src/mcnp_input.F90
+--- Source-1.60/src/mcnp_input.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/mcnp_input.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -8,7 +8,7 @@ module mcnp_input
    integer,private :: i                  ! Local loop variable.
  
@@ -1388,9 +1382,9 @@ diff -rupN Source-orig/src/mcnp_input.F90 Source/src/mcnp_input.F90
    data cnm(106),(krq(i,106),i=1,7)/ 'kopts',0,0, 0,0, 0,   0,0 /
 +  data cnm(107),(krq(i,107),i=1,7)/ 'dagmc',0,0, 0,0, 0,  12,0 / 
  end module mcnp_input
-diff -rupN Source-orig/src/mcnp_iofiles.F90 Source/src/mcnp_iofiles.F90
---- Source-orig/src/mcnp_iofiles.F90	2016-03-18 16:24:15.868705677 -0500
-+++ Source/src/mcnp_iofiles.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/mcnp_iofiles.F90 Source-1.60_dagmc/src/mcnp_iofiles.F90
+--- Source-1.60/src/mcnp_iofiles.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/mcnp_iofiles.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -34,7 +34,11 @@ module mcnp_iofiles
      &  wwinp   , &  != weight windows input name.
      &  meshtal , &  != meshtally output file
@@ -1437,9 +1431,9 @@ diff -rupN Source-orig/src/mcnp_iofiles.F90 Source/src/mcnp_iofiles.F90
  
    end subroutine init_filenames
  
-diff -rupN Source-orig/src/mcnp_params.F90 Source/src/mcnp_params.F90
---- Source-orig/src/mcnp_params.F90	2016-03-18 16:24:15.876705604 -0500
-+++ Source/src/mcnp_params.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/mcnp_params.F90 Source-1.60_dagmc/src/mcnp_params.F90
+--- Source-1.60/src/mcnp_params.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/mcnp_params.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -120,6 +120,7 @@ module mcnp_params
    integer,parameter :: iumt = 54        != I/O unit for the mesh tally output file
    integer,parameter :: iuwe = 55        != I/O unit for output WWOUT file.
@@ -1448,9 +1442,9 @@ diff -rupN Source-orig/src/mcnp_params.F90 Source/src/mcnp_params.F90
    integer,parameter :: iub  = 60        != I/O unit for bank backup file.
  
    ! General real constants:
-diff -rupN Source-orig/src/msgcon.F90 Source/src/msgcon.F90
---- Source-orig/src/msgcon.F90	2016-03-18 16:24:15.868705677 -0500
-+++ Source/src/msgcon.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/msgcon.F90 Source-1.60_dagmc/src/msgcon.F90
+--- Source-1.60/src/msgcon.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/msgcon.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -20,6 +20,7 @@ subroutine msgcon( msgcon_action )
    use kadjoint_mod, only : do_any_kadjoint, kadjoint_msgput, kadjoint_msgcon, kadjoint_msgcon_new
    use qttyin_mod, only: qttyin
@@ -1471,9 +1465,9 @@ diff -rupN Source-orig/src/msgcon.F90 Source/src/msgcon.F90
    ! Send cross section data.
    if( lxs>0 ) then
      write(jtty,*) "master sending cross section data..."
-diff -rupN Source-orig/src/msgtsk.F90 Source/src/msgtsk.F90
---- Source-orig/src/msgtsk.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/msgtsk.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/msgtsk.F90 Source-1.60_dagmc/src/msgtsk.F90
+--- Source-1.60/src/msgtsk.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/msgtsk.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -20,6 +20,7 @@ subroutine msgtsk
    use phtvr_mod, only :  phtvr_msgget
    use uran_mod,  only :  uran_msgget 
@@ -1492,9 +1486,9 @@ diff -rupN Source-orig/src/msgtsk.F90 Source/src/msgtsk.F90
    ! Receive cross section data.
    if( lxs>0 ) then
      is_assoc = associated(xss)
-diff -rupN Source-orig/src/namchg.F90 Source/src/namchg.F90
---- Source-orig/src/namchg.F90	2016-03-18 16:24:15.876705604 -0500
-+++ Source/src/namchg.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/namchg.F90 Source-1.60_dagmc/src/namchg.F90
+--- Source-1.60/src/namchg.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/namchg.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -6,15 +6,19 @@ function namchg(mm,ji)
  
    use mcnp_global
@@ -1517,9 +1511,9 @@ diff -rupN Source-orig/src/namchg.F90 Source/src/namchg.F90
      !  >>>>>  mm=3 -- bounding surface
      do kk=1,nlja
        namchg = abs(lja(kk))
-diff -rupN Source-orig/src/newcel.F90 Source/src/newcel.F90
---- Source-orig/src/newcel.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/newcel.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/newcel.F90 Source-1.60_dagmc/src/newcel.F90
+--- Source-1.60/src/newcel.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/newcel.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -8,8 +8,17 @@ subroutine newcel(cs)
    use mcnp_global
    use mcnp_debug
@@ -1550,9 +1544,9 @@ diff -rupN Source-orig/src/newcel.F90 Source/src/newcel.F90
    endif
    return
  
-diff -rupN Source-orig/src/nextit.F90 Source/src/nextit.F90
---- Source-orig/src/nextit.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/nextit.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/nextit.F90 Source-1.60_dagmc/src/nextit.F90
+--- Source-1.60/src/nextit.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/nextit.F90	2016-03-21 19:38:46.607671203 -0500
 @@ -13,6 +13,7 @@ subroutine nextit
    use phtvr_mod,    only : phtvr_flag, Russian_Roulette
    use uran_mod,     only : uran_univ, uran_xyz
@@ -1569,11 +1563,10 @@ diff -rupN Source-orig/src/nextit.F90 Source/src/nextit.F90
          return
        endif
        if( hfmsh(m1c)=='out    ' .and. ifmsh(m1c)==0 ) then
-@@ -1675,6 +1677,29 @@ subroutine nextit
+@@ -1675,6 +1677,28 @@ subroutine nextit
  
     endif
  
-+
 +  case( 107 )
 +    !  >>>>>  DAGMC parameters                                          dagmc
 +    !  Modeled after RAND (99)
@@ -1599,9 +1592,9 @@ diff -rupN Source-orig/src/nextit.F90 Source/src/nextit.F90
    end select
  
  
-diff -rupN Source-orig/src/oldcrd.F90 Source/src/oldcrd.F90
---- Source-orig/src/oldcrd.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/oldcrd.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/oldcrd.F90 Source-1.60_dagmc/src/oldcrd.F90
+--- Source-1.60/src/oldcrd.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/oldcrd.F90	2016-03-21 19:41:26.006252350 -0500
 @@ -9,6 +9,7 @@ subroutine oldcrd
    use mcnp_input
    use fmesh_mod
@@ -1635,7 +1628,7 @@ diff -rupN Source-orig/src/oldcrd.F90 Source/src/oldcrd.F90
  
    case( 98 )
      !  >>>>>  track-length mesh tallies                                 fmesh
-+     ! DAGMC: skip handling imesh/jmesh/kmesh/orig when geom=DAG; check emesh before jump
++    ! DAGMC: skip handling imesh/jmesh/kmesh/orig when geom=DAG; check emesh before jump
 +    if( ifmsh(13)==0 ) ientmp(1:ifmsh(12)) = 1
 +    if( fm(nmesh)%icrd==3 ) goto 4900
      if( ifmsh(7)==0 )  ixrtmp(1:ifmsh(6)) = 1
@@ -1649,9 +1642,9 @@ diff -rupN Source-orig/src/oldcrd.F90 Source/src/oldcrd.F90
       if( ifmsh(14)==0) fm(nmesh)%fact = 1.0
  
       call fmsh_setup
-diff -rupN Source-orig/src/pass1.F90 Source/src/pass1.F90
---- Source-orig/src/pass1.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/pass1.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/pass1.F90 Source-1.60_dagmc/src/pass1.F90
+--- Source-1.60/src/pass1.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/pass1.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -11,9 +11,13 @@ subroutine pass1
    use mcnp_debug
    use mcnp_input
@@ -1666,9 +1659,9 @@ diff -rupN Source-orig/src/pass1.F90 Source/src/pass1.F90
    ! Process 3 data blocks, which are separated by blank lines.
    rewind iu1
    DO_50: do ib=1,3
-diff -rupN Source-orig/src/reflec.F90 Source/src/reflec.F90
---- Source-orig/src/reflec.F90	2016-03-18 16:24:15.876705604 -0500
-+++ Source/src/reflec.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/reflec.F90 Source-1.60_dagmc/src/reflec.F90
+--- Source-1.60/src/reflec.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/reflec.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -8,6 +8,7 @@ subroutine reflec
  
    use mcnp_global
@@ -1684,9 +1677,9 @@ diff -rupN Source-orig/src/reflec.F90 Source/src/reflec.F90
 +  if( isdgmc == 1 ) call dagmc_surf_reflection( uuu, vvv, www, 0 )
    return
  end subroutine reflec
-diff -rupN Source-orig/src/savpar.F90 Source/src/savpar.F90
---- Source-orig/src/savpar.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/savpar.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/savpar.F90 Source-1.60_dagmc/src/savpar.F90
+--- Source-1.60/src/savpar.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/savpar.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -9,6 +9,7 @@ subroutine savpar(k1,k2)
    !       = 0 to not save repeated structures data.
    use mcnp_global
@@ -1708,9 +1701,9 @@ diff -rupN Source-orig/src/savpar.F90 Source/src/savpar.F90
    !
    ! save the real particle attributes.
    do i = 1,npblcm
-diff -rupN Source-orig/src/sourcb.F90 Source/src/sourcb.F90
---- Source-orig/src/sourcb.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/sourcb.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/sourcb.F90 Source-1.60_dagmc/src/sourcb.F90
+--- Source-1.60/src/sourcb.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/sourcb.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -6,7 +6,8 @@ subroutine sourcb
   
    use mcnp_global
@@ -1735,9 +1728,9 @@ diff -rupN Source-orig/src/sourcb.F90 Source/src/sourcb.F90
        isef(kise+1,ji) = isef(kise+1,ji)+1_i8knd
        if( j/=0 )  go to 425
      elseif( icl<0 ) then
-diff -rupN Source-orig/src/startp.F90 Source/src/startp.F90
---- Source-orig/src/startp.F90	2016-03-18 16:24:15.876705604 -0500
-+++ Source/src/startp.F90	2016-03-18 16:24:20.584663067 -0500
+diff -rupN Source-1.60/src/startp.F90 Source-1.60_dagmc/src/startp.F90
+--- Source-1.60/src/startp.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/startp.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -13,6 +13,7 @@ subroutine startp
    use rmc_mod
    use event_log_mod, only : eventp, EVENTP_SOURCE
@@ -1757,9 +1750,9 @@ diff -rupN Source-orig/src/startp.F90 Source/src/startp.F90
    kqss = 0
    mbb  = 0
    lev  = 0
-diff -rupN Source-orig/src/tally.F90 Source/src/tally.F90
---- Source-orig/src/tally.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/tally.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/tally.F90 Source-1.60_dagmc/src/tally.F90
+--- Source-1.60/src/tally.F90	2016-03-21 17:56:27.425857586 -0500
++++ Source-1.60_dagmc/src/tally.F90	2016-03-21 17:56:27.433857507 -0500
 @@ -8,6 +8,7 @@ subroutine tally( lo, dr )
  
    use mcnp_global
@@ -1779,9 +1772,9 @@ diff -rupN Source-orig/src/tally.F90 Source/src/tally.F90
      call track(ig)
      if( kdb/=0 )  go to 999 ! Return
      n = iptal(4,4,ital)-2
-diff -rupN Source-orig/src/track.F90 Source/src/track.F90
---- Source-orig/src/track.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/track.F90	2016-03-18 16:24:20.588663031 -0500
+diff -rupN Source-1.60/src/track.F90 Source-1.60_dagmc/src/track.F90
+--- Source-1.60/src/track.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/track.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -12,6 +12,7 @@ subroutine track(ih)
    use mcnp_global
    use mcnp_debug
@@ -1806,9 +1799,9 @@ diff -rupN Source-orig/src/track.F90 Source/src/track.F90
    ll = lev
    ic = ih
  
-diff -rupN Source-orig/src/transm.F90 Source/src/transm.F90
---- Source-orig/src/transm.F90	2016-03-18 16:24:15.872705640 -0500
-+++ Source/src/transm.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/transm.F90 Source-1.60_dagmc/src/transm.F90
+--- Source-1.60/src/transm.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/transm.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -8,6 +8,8 @@ subroutine transm(dd,st,iz)
  
    use mcnp_global
@@ -1827,9 +1820,9 @@ diff -rupN Source-orig/src/transm.F90 Source/src/transm.F90
      call track(icl)
      if( kdb/=0 ) go to 90
      totm = 0.
-diff -rupN Source-orig/src/volume.F90 Source/src/volume.F90
---- Source-orig/src/volume.F90	2016-03-18 16:24:15.868705677 -0500
-+++ Source/src/volume.F90	2016-03-18 16:24:20.580663103 -0500
+diff -rupN Source-1.60/src/volume.F90 Source-1.60_dagmc/src/volume.F90
+--- Source-1.60/src/volume.F90	2016-03-21 17:56:27.421857627 -0500
++++ Source-1.60_dagmc/src/volume.F90	2016-03-21 17:56:27.429857547 -0500
 @@ -9,10 +9,17 @@ subroutine volume
    use mcnp_input
    use qttyin_mod, only: qttyin
