@@ -10,11 +10,6 @@ macro (DATETIME RESULT)
 endmacro (DATETIME)
 DATETIME(DATE)
 
-# MCNP version
-if (NOT MCNP_VERSION)
-  set(MCNP_VERSION 1.60)
-endif (NOT MCNP_VERSION)
-
 # Fortran compiler flags
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -m64")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mieee-fp")
@@ -26,7 +21,6 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-double-8")
 # Preprocessor directives
 add_definitions(-DKODE="mcnp")
 add_definitions(-DTHREAD="MCNP5")
-add_definitions(-DTVERS="${MCNP_VERSION}")
 add_definitions(-DLODDAT=${DATE})
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
@@ -42,8 +36,8 @@ else ()
     add_definitions(-DDPATH="$ENV{DATAPATH}")
   else ()
     message(FATAL_ERROR "MCNP DATAPATH not set. Either the environment variable DATAPATH or the CMake variable DMCNP5_DATAPATH must be set.")
-  endif(DEFINED ENV{DATAPATH})
-endif (MCNP5_DATAPATH)
+  endif()
+endif ()
 
 # MCNP Plotter
 if (MCNP5_PLOT)
@@ -51,7 +45,7 @@ if (MCNP5_PLOT)
   add_definitions(-DPLOT=ON)
   add_definitions(-DMCPLOT=ON)
   add_definitions(-DXLIB=ON)
-endif (MCNP5_PLOT)
+endif ()
 
 # OpenMP
 if (OPENMP_BUILD)
@@ -60,7 +54,7 @@ if (OPENMP_BUILD)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_C_FLAGS}")  # OpenMP_Fortran_FLAGS is undefined
-endif (OPENMP_BUILD)
+endif ()
 
 # MPI
 if (MPI_BUILD)
@@ -69,33 +63,61 @@ if (MPI_BUILD)
   add_definitions(-DMPI=ON)
   add_definitions(-DDMMP_NAME="mcnp5.mpi")
   add_definitions(-D_DOTCOMM_MPI=ON)
-  include_directories(${MPI_INCLUDE_PATH})
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/dotcomm/include)
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/dotcomm/src/internals/mpi)
+  include_directories(${MPI_INCLUDE_PATH}
+                      ${CMAKE_CURRENT_LIST_DIR}/dotcomm/include
+                      ${CMAKE_CURRENT_LIST_DIR}/dotcomm/src/internals/mpi
+  )
 else ()
   add_definitions(-DVERS="5")
-endif (MPI_BUILD)
+endif ()
 
 # DAGMC
-include_directories(${PROJECT_SOURCE_DIR}/tally)
-include_directories(${HDF5_INCLUDE_DIRS})
-include_directories(${MOAB_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/tally
+                    ${HDF5_INCLUDE_DIRS}
+                    ${MOAB_INCLUDE_DIRS}
+)
 
 # Source files
 set(MCNP_SRC_FILES)
-include(${CMAKE_CURRENT_LIST_DIR}/src/CMakeLists.txt)
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "src/*.F90"
+                                           "src/*.c"
+                                           "../*.cpp"
+)
 if (MPI_BUILD)
-  include(${CMAKE_CURRENT_LIST_DIR}/dotcomm/CMakeLists.txt)
-endif (MPI_BUILD)
-list(APPEND MCNP_SRC_FILES ../mcnp_funcs.cpp)
-list(APPEND MCNP_SRC_FILES ../meshtal_funcs.cpp)
+  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "dotcomm/src/*.F90"
+                                             "dotcomm/src/internals/mpi/*.c"
+  )
+endif ()
+
+# Figure out which version of MCNP we're compiling
+if ("/${MCNP_SRC_FILES};" MATCHES "/ckchar.F90;")
+  set(MCNP_VERSION 1.40)
+endif()
+if ("/${MCNP_SRC_FILES};" MATCHES "/annihilation_gammas.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/phtvr_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/read_line.F90;")
+  set(MCNP_VERSION 1.51)
+endif()
+if ("/${MCNP_SRC_FILES};" MATCHES "/isotopic_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/kadjoint_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/kinetics_mod.F90;")
+  set(MCNP_VERSION 1.60)
+endif()
+if (NOT ${MCNP_VERSION})
+  message(FATAL_ERROR "MCNP5 source files not found in mcnp5/Source/src")
+endif ()
+if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
+  message(FATAL_ERROR "MCNP5 source version ${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
+endif ()
+message(STATUS "MCNP5 version ${MCNP_VERSION} source files found")
+add_definitions(-DTVERS="${MCNP_VERSION}")
 
 # Add the executable
 if (MPI_BUILD)
   set(MCNP_EXEC "mcnp5.mpi")
 else ()
   set(MCNP_EXEC "mcnp5")
-endif (MPI_BUILD)
+endif ()
 add_executable(${MCNP_EXEC} ${MCNP_SRC_FILES})
 
 # Make sure the executable is compiled as Fortran
@@ -104,10 +126,10 @@ set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)
 # Link appropriate libraries
 if (MCNP5_PLOT)
   target_link_libraries(${MCNP_EXEC} ${X11_LIBRARIES})
-endif (MCNP5_PLOT)
+endif ()
 if (MPI_BUILD)
   target_link_libraries(${MCNP_EXEC} ${MPI_LIBRARIES})
-endif (MPI_BUILD)
+endif ()
 target_link_libraries(${MCNP_EXEC} ${HDF5_hdf5_hl_LIBRARY}
                                    ${HDF5_hdf5_LIBRARY}
                                    ${DAG_LINK_LIBS}
