@@ -7,9 +7,9 @@ set(SRC_FILES pyne.cpp)
 set(PUB_HEADERS pyne.h)
 
 # Linked libraries
-set(LINK_LIBS ${HDF5_hdf5_hl_LIBRARY}
-              ${HDF5_hdf5_LIBRARY}
-)
+set(LINK_LIBS)
+list(APPEND LINK_LIBS ${HDF5_hdf5_hl_LIBRARY})
+list(APPEND LINK_LIBS ${HDF5_hdf5_LIBRARY})
 
 # Includes
 include_directories(.)
@@ -22,5 +22,4 @@ target_link_libraries(pyne_dagmc ${LINK_LIBS})
 install(TARGETS pyne_dagmc LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                            ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
                            PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                           LIBRARY       PERMISSIONS ${PERMS}
-)
+                           LIBRARY       PERMISSIONS ${PERMS})

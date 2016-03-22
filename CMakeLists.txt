@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0004 OLD)
 if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
   cmake_policy(SET CMP0040 OLD)
-endif ()
+endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 
 # Setup test macro
 macro (setup_test test_name ext driver libs)
@@ -35,7 +35,7 @@ set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 # Build type
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
-endif ()
+endif (NOT CMAKE_BUILD_TYPE)
 
 # Determine if we're building static libraries
 if (STATIC_LIB)
@@ -45,7 +45,7 @@ if (STATIC_LIB)
   #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 else ()
   set(LIB_TYPE "SHARED")
-endif ()
+endif (STATIC_LIB)
 
 # Allow use of find_package(HDF5), find_package(MOAB), etc.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
@@ -59,7 +59,7 @@ if (DAGMC_LIBRARIES)
   set(DAG_LINK_LIBS "${DAGMC_LIBRARIES}")
 else ()
   set(DAG_LINK_LIBS "dagmc ${MOAB_LIBRARIES}")
-endif ()
+endif (DAGMC_LIBRARIES)
 
 # Gtest
 set(GTEST_INC_DIR "")
@@ -71,10 +71,10 @@ if (BUILD_ALL)
   set(BUILD_MCNP5 ON)
   set(BUILD_GEANT4 ON)
   set(BUILD_FLUKA ON)
-endif ()
+endif (BUILD_ALL)
 if (BUILD_MCNP5)
   set(BUILD_TALLY ON)
-endif ()
+endif (BUILD_MCNP5)
 
 # Build pyne_dagmc library
 add_subdirectory(pyne)
@@ -82,35 +82,35 @@ add_subdirectory(pyne)
 # Build dagtally library
 if (BUILD_TALLY)
   add_subdirectory(tally)
-endif ()
+endif (BUILD_TALLY)
 
 # Build MCNP5
 if (BUILD_MCNP5)
   set(BUILD_ANY ON)
   add_subdirectory(mcnp5)
-endif ()
+endif (BUILD_MCNP5)
 
 # Build Geant4
 if (BUILD_GEANT4)
   set(BUILD_ANY ON)
   add_subdirectory(geant4)
-endif ()
+endif (BUILD_GEANT4)
 
 # Build FLUKA
 if (BUILD_FLUKA)
   set(BUILD_ANY ON)
   add_subdirectory(fluka)
-endif ()
+endif (BUILD_FLUKA)
 
 # Include UWUW in dagmciface library
 if (BUILD_ANY)
   add_subdirectory(uwuw)
-endif ()
+endif (BUILD_ANY)
 
 # Build dagmciface library
 if (DI_SRC_FILES)
   add_subdirectory(common)
-endif ()
+endif (DI_SRC_FILES)
 
 # Build tools
 add_subdirectory(tools)

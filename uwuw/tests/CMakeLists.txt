@@ -5,12 +5,12 @@ include_directories(..)
 include_directories(${HDF5_INCLUDE_DIRS})
 
 # Libraries
-set(LINK_LIBS gtest
-              dagmciface
-              pyne_dagmc
-              pthread
-              ${DAG_LINK_LIBS}
-)
+set(LINK_LIBS)
+list(APPEND LINK_LIBS gtest)
+list(APPEND LINK_LIBS dagmciface)
+list(APPEND LINK_LIBS pyne_dagmc)
+list(APPEND LINK_LIBS pthread)
+list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Setup unit tests
 set(DRIVER uwuw_unit_test_driver.cpp)
