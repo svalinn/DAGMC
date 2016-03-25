@@ -1,14 +1,14 @@
 message(STATUS "Building dagtally unit tests")
 
-# Includes
-include_directories(..)
-
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS gtest)
-list(APPEND LINK_LIBS dagtally)
 list(APPEND LINK_LIBS pthread)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS dagtally)
+
+# Include directories
+include_directories(..)
 
 # Setup unit tests
 set(DRIVER tally_unit_test_driver.cc)

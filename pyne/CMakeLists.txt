@@ -11,7 +11,7 @@ set(LINK_LIBS)
 list(APPEND LINK_LIBS ${HDF5_hdf5_hl_LIBRARY})
 list(APPEND LINK_LIBS ${HDF5_hdf5_LIBRARY})
 
-# Includes
+# Include directories
 include_directories(.)
 include_directories(${HDF5_INCLUDE_DIRS})
 

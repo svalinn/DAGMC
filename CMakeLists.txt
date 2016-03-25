@@ -61,7 +61,7 @@ else ()
   set(DAG_LINK_LIBS "dagmc ${MOAB_LIBRARIES}")
 endif (DAGMC_LIBRARIES)
 
-# Gtest
+# Build Gtest
 set(GTEST_INC_DIR "")
 add_subdirectory(gtest EXCLUDE_FROM_ALL)
 include_directories(${GTEST_INC_DIR})

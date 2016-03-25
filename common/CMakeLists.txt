@@ -6,7 +6,7 @@ set(DI_SRC_FILES ${DI_SRC_FILES} dagmciface.cpp PARENT_SCOPE)
 # Public headers
 set(DI_PUB_HEADERS ${DI_PUB_HEADERS} dagmciface.h PARENT_SCOPE)
 
-# Includes
+# Include directories
 include_directories(.)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})

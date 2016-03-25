@@ -15,7 +15,7 @@ list(APPEND PUB_HEADERS ASLocalizer.h)
 list(APPEND PUB_HEADERS astyle.h)
 list(APPEND PUB_HEADERS astyle_main.h)
 
-# Includes
+# Include directories
 include_directories(.)
 
 # Build astyle_google

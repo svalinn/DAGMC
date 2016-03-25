@@ -1,39 +1,41 @@
-######################################################################
-#
-# CMakeLists.txt for dagmc Geant4
-#
-######################################################################
-PROJECT( DAGSOLID )
+message(STATUS "Building the DagSolid Library for Geant4")
 
-MESSAGE ( STATUS "Building the DagSolid Library for  GEANT4." )
-SET ( DAGSOLID_SRC  "DagSolid.cc" )
-SET ( DAGSOLID_HEADERS "DagSolid.hh" )
+# Find Geant4 package, activating all available UI and Vis drivers by default
+# You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
+# to build a batch mode only executable
+option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
+if(WITH_GEANT4_UIVIS)
+  find_package(Geant4 REQUIRED ui_all vis_all)
+else()
+  find_package(Geant4 REQUIRED)
+endif()
 
-find_package(Geant4 REQUIRED)
-# Geant4 include dirs
+# Setup Geant4 include directories and compile definitions
 include(${Geant4_USE_FILE})
 
-INCLUDE_DIRECTORIES( ${INCLUDE_DIRECTORIES} ${GEANT4_DIR}/include/Geant4  ${CMAKE_CURRENT_SOURCE_DIR})
+# Source files
+set(SRC_FILES DagSolid.cc)
 
-# Create DagSolid library
-IF ( STATIC_LIB )
-  ADD_LIBRARY( dagsolid STATIC ${DAGSOLID_SRC} )
-ELSE ( STATIC_LIB )
-  ADD_LIBRARY( dagsolid SHARED ${DAGSOLID_SRC} )
-ENDIF ( STATIC_LIB )
+# Public headers
+set(PUB_HEADERS DagSolid.hh)
 
-# set the headers to install
-SET_TARGET_PROPERTIES( dagsolid PROPERTIES PUBLIC_HEADER "${DAGSOLID_HEADERS}" )
+# Include directories
+include_directories(.)
+include_directories(./build/include)
+include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${MOAB_INCLUDE_DIRS})
+include_directories(${GEANT4_DIR}/include/Geant4)
 
-# Put the library in Lib
-INSTALL ( TARGETS dagsolid 
-  LIBRARY DESTINATION "${INSTALL_LIB_DIR}"
-  ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-  PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}" )
+# Build DagSolid library
+add_library(dagsolid ${LIB_TYPE} ${SRC_FILES})
+set_target_properties(dagsolid PROPERTIES PUBLIC_HEADER ${PUB_HEADERS})
+install(TARGETS dagsolid LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
+                         ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
+                         PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
+                         LIBRARY       PERMISSIONS ${PERMS})
 
-# make the library
-TARGET_LINK_LIBRARIES( dagsolid ${Geant4_LIBRARIES})
+# Build DAG-Geant4
+add_subdirectory(build)
 
-# build the DAGGeant4 executable
-ADD_SUBDIRECTORY( build )
-ADD_SUBDIRECTORY( tests )
+# Build the DAG-Geant4 tests
+add_subdirectory(tests)

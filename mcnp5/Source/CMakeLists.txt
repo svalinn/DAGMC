@@ -36,7 +36,7 @@ else ()
     add_definitions(-DDPATH="$ENV{DATAPATH}")
   else ()
     message(FATAL_ERROR "MCNP DATAPATH not set. Either the environment variable DATAPATH or the CMake variable DMCNP5_DATAPATH must be set.")
-  endif(DEFINED ENV{DATAPATH})
+  endif (DEFINED ENV{DATAPATH})
 endif (MCNP5_DATAPATH)
 
 # MCNP Plotter

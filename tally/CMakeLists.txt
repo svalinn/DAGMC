@@ -39,7 +39,7 @@ list(APPEND LINK_LIBS blas)
 list(APPEND LINK_LIBS lapack)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
-# Includes
+# Include directories
 include_directories(.)
 include_directories(${MOAB_INCLUDE_DIRS})
 
