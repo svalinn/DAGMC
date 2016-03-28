@@ -16,12 +16,19 @@ int main(int argc, char* argv[]) {
   po.addOpt<std::string>("output,o", "Specify the output filename (default "")", &out_file);
 
   po.addOptionHelpHeading("Options for loading files");
-  
+ 
   po.parseCommandLine(argc, argv);
+
+  if(lib_file=="") {
+    std::cout << "need to set the library" << std::endl;
+    exit(1);
+  }
+    
 
   if(out_file== "" )
     out_file = dag_file;
 
+  std::cout << lib_file << std::endl;
   uwuw_preprocessor *uwuw_preproc = new uwuw_preprocessor(lib_file,dag_file,out_file,verbose);
 
   // load the materials only

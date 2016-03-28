@@ -29,3 +29,5 @@ target_link_libraries(uwuw_preprocessor dagmciface
 # Build UWUW tests
 add_subdirectory(tests)
 
+install(TARGETS uwuw_preproc DESTINATION bin)
+

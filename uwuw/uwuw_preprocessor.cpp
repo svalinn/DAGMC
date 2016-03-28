@@ -17,7 +17,8 @@ uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std:
   moab::ErrorCode rval = DAG->load_file(dagmc_filename.c_str());
 
   // do the minimal DAGMC initialisation
-  rval = DAG->init_OBBTree();
+  rval = DAG->setup_impl_compl();
+  rval = DAG->setup_indices();
 
   // set the output filename
   output_filename = output_file;
@@ -73,6 +74,7 @@ std::map<moab::EntityHandle, std::vector<std::string> > get_property_assignments
 
     // assign the map value
     prop_map[entity]=properties;
+
   }
 
   return prop_map;
@@ -353,7 +355,7 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
     std::cout << "Please check your material assignments " << cellid << std::endl;
     exit(EXIT_FAILURE);
   }
-  
+ 
   // check the that each cell's material assignment is unique
   if( material_props.size() > 1 ) {
     std::cout << "more than one material for volume with id " << cellid << std::endl;
@@ -364,6 +366,14 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
     std::cout << "Please check your material assignments " << cellid << std::endl;
     exit(EXIT_FAILURE);
   }
+
+  // check that there actually is an assignment
+  if( material_props[0] ==  "" ) {
+    std::cout << "Volume " << cellid << " has no 'mat:' property " << std::endl;
+    std::cout << "Please check your material assignments " << cellid << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
   // check the that each cell's density assignment is unique
   if(density_props.size() > 1) {
     std::cout << "More than one density specified for " << cellid <<std::endl;
