@@ -22,4 +22,5 @@ target_link_libraries(pyne_dagmc ${LINK_LIBS})
 install(TARGETS pyne_dagmc LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                            ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
                            PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                           LIBRARY       PERMISSIONS ${PERMS})
+                           LIBRARY       PERMISSIONS ${PERMS}
+                           ARCHIVE       PERMISSIONS ${PERMS})

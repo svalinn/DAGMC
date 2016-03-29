@@ -32,7 +32,8 @@ set_target_properties(dagsolid PROPERTIES PUBLIC_HEADER ${PUB_HEADERS})
 install(TARGETS dagsolid LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                          ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
                          PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                         LIBRARY       PERMISSIONS ${PERMS})
+                         LIBRARY       PERMISSIONS ${PERMS}
+                         ARCHIVE       PERMISSIONS ${PERMS})
 
 # Build DAG-Geant4
 add_subdirectory(build)

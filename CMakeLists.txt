@@ -62,9 +62,7 @@ else ()
 endif (DAGMC_LIBRARIES)
 
 # Build Gtest
-set(GTEST_INC_DIR "")
-add_subdirectory(gtest EXCLUDE_FROM_ALL)
-include_directories(${GTEST_INC_DIR})
+add_subdirectory(gtest)
 
 # Figure out which physics codes to build
 if (BUILD_ALL)

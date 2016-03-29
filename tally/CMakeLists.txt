@@ -50,7 +50,8 @@ target_link_libraries(dagtally ${LINK_LIBS})
 install(TARGETS dagtally LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                          ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
                          PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                         LIBRARY       PERMISSIONS ${PERMS})
+                         LIBRARY       PERMISSIONS ${PERMS}
+                         ARCHIVE       PERMISSIONS ${PERMS})
 
 # Build dagtally tests
 add_subdirectory(tests)
