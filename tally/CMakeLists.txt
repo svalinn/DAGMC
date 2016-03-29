@@ -34,9 +34,10 @@ list(APPEND PUB_HEADERS TrackLengthMeshTally.hpp)
 
 # Libraries
 set(LINK_LIBS)
-list(APPEND LINK_LIBS gfortran)
-list(APPEND LINK_LIBS blas)
 list(APPEND LINK_LIBS lapack)
+list(APPEND LINK_LIBS blas)
+list(APPEND LINK_LIBS gfortran)
+list(APPEND LINK_LIBS quadmath)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
