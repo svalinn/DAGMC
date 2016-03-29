@@ -4,11 +4,10 @@ message(STATUS "Building KDE boundary correction tool")
 set(SRC_FILES boundary.cpp)
 
 # Libraries
-set(LINK_LIBS ${MOAB_DIR}/lib/libMOAB.so)
-set(LINK_LIBS ${MOAB_DIR}/lib/libdagmc.so)
+set(LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
-include_directories(${MOAB_DIR}/include)
+include_directories(${MOAB_INCLUDE_DIRS})
 
 # Build boundary correction tool
 add_executable(boundary.exe ${SRC_FILES})
