@@ -14,6 +14,7 @@ list(APPEND LINK_LIBS gfortran)
 
 # Include directories
 include_directories(..)
+include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests
 set(DRIVER fludag_unit_test_driver.cc)

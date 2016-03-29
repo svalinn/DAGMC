@@ -10,6 +10,7 @@ list(APPEND LINK_LIBS dagsolid)
 
 # Include directories
 include_directories(..)
+include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests
 set(DRIVER dagsolid_unit_test_driver.cpp)

@@ -9,6 +9,7 @@ list(APPEND LINK_LIBS dagtally)
 
 # Include directories
 include_directories(..)
+include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests
 set(DRIVER tally_unit_test_driver.cc)

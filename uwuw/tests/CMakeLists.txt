@@ -11,6 +11,7 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 # Include directories
 include_directories(..)
 include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests
 set(DRIVER uwuw_unit_test_driver.cpp)
@@ -21,5 +22,5 @@ setup_test(uwuw_unit_tests_tally cpp ${DRIVER} "${LINK_LIBS}")
 install(FILES test_uwuw.h5m DESTINATION ${INSTALL_SHARE_DIR}/tests)
 install(FILES mat_lib.h5    DESTINATION ${INSTALL_SHARE_DIR}/tests)
 
-# enable unit tests
+# Enable unit tests
 enable_testing()
