@@ -105,7 +105,7 @@ endif (NOT ${MCNP_VERSION})
 if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
   message(FATAL_ERROR "MCNP5 source version ${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
 endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
-message(STATUS "MCNP5 version ${MCNP_VERSION} source files found")
+message(STATUS "DAG-MCNP5 version ${MCNP_VERSION} source files found")
 add_definitions(-DTVERS="${MCNP_VERSION}")
 
 # Add the executable
