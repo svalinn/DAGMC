@@ -11,6 +11,11 @@ list(APPEND LINK_LIBS dagtally)
 include_directories(..)
 include_directories(${GTEST_INCLUDE_DIR})
 
+# CXX compiler flags
+if (LIB_TYPE STREQUAL STATIC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
+endif (LIB_TYPE STREQUAL STATIC)
+
 # Setup unit tests
 set(DRIVER tally_unit_test_driver.cc)
 setup_test(test_KDEKernel            cpp ${DRIVER} "${LINK_LIBS}")
