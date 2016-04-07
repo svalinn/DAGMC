@@ -36,4 +36,4 @@ install(TARGETS dagsolid LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
 add_subdirectory(build)
 
 # Build the DAG-Geant4 tests
-#add_subdirectory(tests)
+add_subdirectory(tests)
