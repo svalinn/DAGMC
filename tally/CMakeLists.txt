@@ -46,7 +46,7 @@ include_directories(${MOAB_INCLUDE_DIRS})
 
 # Build dagtally library
 add_library(dagtally ${LIB_TYPE} ${SRC_FILES})
-set_target_properties(dagtally PROPERTIES PUBLIC_HEADER ${PUB_HEADERS})
+set_target_properties(dagtally PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 target_link_libraries(dagtally ${LINK_LIBS})
 install(TARGETS dagtally LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                          ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}

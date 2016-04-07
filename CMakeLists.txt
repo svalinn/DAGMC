@@ -32,10 +32,15 @@ set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other fil
 # Permissions of compiled binaries and libraries
 set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-# Build type
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
-endif (NOT CMAKE_BUILD_TYPE)
+# Optimized build
+if (CMAKE_BUILD_TYPE)
+  string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
+endif (CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE STREQUAL DEBUG)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3")
+endif (NOT CMAKE_BUILD_TYPE STREQUAL DEBUG)
 
 # Determine if we're building static libraries
 if (STATIC_LIB)
