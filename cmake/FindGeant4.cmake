@@ -7,7 +7,7 @@
 #  Geant4_LIBRARIES - In case they are ever needed
 
 # Try to find Geant4Config.cmake
-execute_process(COMMAND find ${GEANT4_DIR}/lib ${GEANT4_DIR}/lib?? -type d OUTPUT_VARIABLE SEARCH_DIRS)
+file(GLOB SEARCH_DIRS "${GEANT4_DIR}/lib*/Geant4-*")
 string(REPLACE "\n" ";" SEARCH_DIRS ${SEARCH_DIRS})
 find_path(GEANT4_CMAKE_CONFIG
           NAMES Geant4Config.cmake
