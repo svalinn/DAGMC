@@ -10,11 +10,48 @@ macro (DATETIME RESULT)
 endmacro (DATETIME)
 DATETIME(DATE)
 
+# Source files
+set(MCNP_SRC_FILES)
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "src/*.F90")
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "src/*.c")
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../*.cpp")
+if (MPI_BUILD)
+  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "dotcomm/src/*.F90")
+  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "dotcomm/src/internals/mpi/*.c")
+endif (MPI_BUILD)
+
+# Figure out which version of MCNP we're compiling based on which source files are present
+set(MCNP_VERSION Unknown)
+if ("/${MCNP_SRC_FILES};" MATCHES "/ckchar.F90;")
+  set(MCNP_VERSION 1.40)
+endif ()
+if ("/${MCNP_SRC_FILES};" MATCHES "/annihilation_gammas.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/phtvr_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/read_line.F90;")
+  set(MCNP_VERSION 1.51)
+endif ()
+if ("/${MCNP_SRC_FILES};" MATCHES "/isotopic_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/kadjoint_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/kinetics_mod.F90;")
+  set(MCNP_VERSION 1.60)
+endif ()
+if (${MCNP_VERSION} STREQUAL Unknown)
+  message(FATAL_ERROR "MCNP5 source files not found in mcnp5/Source/src")
+endif (${MCNP_VERSION} STREQUAL Unknown)
+if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
+  message(FATAL_ERROR "MCNP5 source version ${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
+endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
+message(STATUS "DAG-MCNP5 version ${MCNP_VERSION} source files found")
+
+# C compiler flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+
 # Fortran compiler flags
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -m64")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mieee-fp")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdollar-ok")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-sign-zero")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-integer-8")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-real-8")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-double-8")
 if (LIB_TYPE STREQUAL STATIC)
@@ -23,12 +60,22 @@ endif (LIB_TYPE STREQUAL STATIC)
 
 # Preprocessor directives
 add_definitions(-DKODE="mcnp")
-add_definitions(-DTHREAD="MCNP5")
+if (MPI_BUILD)
+  add_definitions(-DVERS="5.mpi")
+else ()
+  add_definitions(-DVERS="5")
+endif (MPI_BUILD)
+if (${MCNP_VERSION} STREQUAL 1.60)
+  add_definitions(-DTHREAD="MCNP5")
+else ()
+  add_definitions(-DTHREAD="MCNP5_RSICC")
+endif (${MCNP_VERSION} STREQUAL 1.60)
+add_definitions(-DTVERS="${MCNP_VERSION}")
 add_definitions(-DLODDAT=${DATE})
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
 add_definitions(-DGFORTRAN=ON)
-add_definitions(-DF90_INT_4BYTE=ON)
+add_definitions(-DF90_INT_8BYTE=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
 
 # Make sure DATAPATH is set
@@ -62,55 +109,19 @@ endif (OPENMP_BUILD)
 # MPI
 if (MPI_BUILD)
   find_package(MPI REQUIRED)
-  add_definitions(-DVERS="5.mpi")
+  add_definitions(-DMULTP=ON)
   add_definitions(-DMPI=ON)
   add_definitions(-DDMMP_NAME="mcnp5.mpi")
   add_definitions(-D_DOTCOMM_MPI=ON)
   include_directories(${MPI_INCLUDE_PATH})
   include_directories(${CMAKE_CURRENT_LIST_DIR}/dotcomm/include)
   include_directories(${CMAKE_CURRENT_LIST_DIR}/dotcomm/src/internals/mpi)
-else ()
-  add_definitions(-DVERS="5")
 endif (MPI_BUILD)
 
 # DAGMC
 include_directories(${PROJECT_SOURCE_DIR}/tally)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
-
-# Source files
-set(MCNP_SRC_FILES)
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "src/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "src/*.c")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../*.cpp")
-if (MPI_BUILD)
-  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "dotcomm/src/*.F90")
-  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "dotcomm/src/internals/mpi/*.c")
-endif (MPI_BUILD)
-
-# Figure out which version of MCNP we're compiling
-set(MCNP_VERSION Unknown)
-if ("/${MCNP_SRC_FILES};" MATCHES "/ckchar.F90;")
-  set(MCNP_VERSION 1.40)
-endif ()
-if ("/${MCNP_SRC_FILES};" MATCHES "/annihilation_gammas.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/phtvr_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/read_line.F90;")
-  set(MCNP_VERSION 1.51)
-endif ()
-if ("/${MCNP_SRC_FILES};" MATCHES "/isotopic_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/kadjoint_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/kinetics_mod.F90;")
-  set(MCNP_VERSION 1.60)
-endif ()
-if (${MCNP_VERSION} STREQUAL Unknown)
-  message(FATAL_ERROR "MCNP5 source files not found in mcnp5/Source/src")
-endif (${MCNP_VERSION} STREQUAL Unknown)
-if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
-  message(FATAL_ERROR "MCNP5 source version ${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
-endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
-message(STATUS "DAG-MCNP5 version ${MCNP_VERSION} source files found")
-add_definitions(-DTVERS="${MCNP_VERSION}")
 
 # Add the executable
 if (MPI_BUILD)
