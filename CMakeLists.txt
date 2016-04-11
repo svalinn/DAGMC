@@ -39,7 +39,7 @@ endif (CMAKE_BUILD_TYPE)
 if (NOT CMAKE_BUILD_TYPE STREQUAL DEBUG)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O3")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O0")
 endif (NOT CMAKE_BUILD_TYPE STREQUAL DEBUG)
 
 # Determine if we're building static libraries

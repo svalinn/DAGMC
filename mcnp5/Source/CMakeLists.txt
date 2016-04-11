@@ -76,7 +76,7 @@ add_definitions(-DLODDAT=${DATE})
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
 add_definitions(-DGFORTRAN=ON)
-add_definitions(-DF90_INT_8BYTE=ON)
+add_definitions(-DF90_INT_4BYTE=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
 
 # Make sure DATAPATH is set
