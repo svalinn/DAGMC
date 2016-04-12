@@ -12,12 +12,12 @@ DATETIME(DATE)
 
 # Source files
 set(MCNP_SRC_FILES)
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "src/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "src/*.c")
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../Source/src/*.F90")
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../Source/src/*.c")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../*.cpp")
 if (MPI_BUILD)
-  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "dotcomm/src/*.F90")
-  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "dotcomm/src/internals/mpi/*.c")
+  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../Source/dotcomm/src/*.F90")
+  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../Source/dotcomm/src/internals/mpi/*.c")
 endif (MPI_BUILD)
 
 # Figure out which version of MCNP we're compiling based on which source files are present
@@ -114,8 +114,8 @@ if (MPI_BUILD)
   add_definitions(-DDMMP_NAME="mcnp5.mpi")
   add_definitions(-D_DOTCOMM_MPI=ON)
   include_directories(${MPI_INCLUDE_PATH})
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/dotcomm/include)
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/dotcomm/src/internals/mpi)
+  include_directories(${CMAKE_CURRENT_LIST_DIR}/../Source/dotcomm/include)
+  include_directories(${CMAKE_CURRENT_LIST_DIR}/../Source/dotcomm/src/internals/mpi)
 endif (MPI_BUILD)
 
 # DAGMC

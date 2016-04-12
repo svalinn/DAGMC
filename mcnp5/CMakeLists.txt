@@ -7,4 +7,4 @@ set(DI_SRC_FILES ${DI_SRC_FILES} ${CMAKE_CURRENT_LIST_DIR}/mcnp_funcs.cpp PARENT
 set(DI_PUB_HEADERS ${DI_PUB_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/mcnp_funcs.h PARENT_SCOPE)
 
 # Build DAG-MCNP5
-add_subdirectory(Source)
+add_subdirectory(build)
