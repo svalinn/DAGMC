@@ -242,7 +242,7 @@ mcnp5/ directory in the DAGMC source tree
 
 Apply the patch from the patch folder
 ::
-    prompt%> patch -p1 < patch/dagmc.patch.5.1.60
+    prompt%> patch -p0 < patch/dagmc.patch.5.1.60
 
 
 Configure and build DAGMC
