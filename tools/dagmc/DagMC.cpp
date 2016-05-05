@@ -107,7 +107,9 @@ unsigned int DagMC::interface_revision()
 }
 
 DagMC::DagMC(Interface *mb_impl)
-  : mbImpl(mb_impl), obbTree(mb_impl), have_cgm_geom(false),
+  : mbImpl(mb_impl), obbTree(mb_impl), impl_compl_handle(0),
+    obbTag(0), geomTag(0), idTag(0), nameTag(0), senseTag(0), facetingTolTag(0),
+    setOffset(0), facetingTolerance(0.0), have_cgm_geom(false),
     n_pt_in_vol_calls(0), n_ray_fire_calls(0)
 {
     // This is the correct place to uniquely define default values for the dagmc settings
