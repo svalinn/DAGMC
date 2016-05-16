@@ -479,26 +479,44 @@ void write_lcad_old(std::ofstream &lcadfile)
   int num_surfs = DAG->num_entities( 2 );
 
   int cmat = 0;
-  double crho, cimp = 1.0;
+  double crho;
+
+  // Detect which importances are used so all cells, including implicit
+  // complement and graveyard, have these importances
+  bool imp_n_needed = false;
+  bool imp_p_needed = false;
+  bool imp_e_needed = false;
+  for( int i = 1; i <= num_cells; ++i ) {
+    moab::EntityHandle vol = DAG->entity_by_index( 3, i );
+    if( DAG->has_prop( vol, "imp.n" )) imp_n_needed = true;
+    if( DAG->has_prop( vol, "imp.p" )) imp_p_needed = true;
+    if( DAG->has_prop( vol, "imp.e" )) imp_e_needed = true;
+  }
 
   // write the cell cards
   for( int i = 1; i <= num_cells; ++i ) {
 
     moab::EntityHandle vol = DAG->entity_by_index( 3, i );
     int cellid = DAG->id_by_index( 3, i );
-    // set default importances for p and e to negative, indicating no card should be printed.
-    double imp_n = 1, imp_p = -1, imp_e = -1;
+    // set default importances to negative, indicating no card should be printed.
+    double imp_n = -1, imp_p = -1, imp_e = -1;
 
     if( DAG->has_prop( vol, "imp.n" )) {
       get_real_prop( vol, cellid, "imp.n", imp_n );
+    } else if( imp_n_needed ) {
+      imp_n = 0;
     }
 
     if( DAG->has_prop( vol, "imp.p" )) {
       get_real_prop( vol, cellid, "imp.p", imp_p );
+    } else if( imp_p_needed ) {
+      imp_p = 0;
     }
 
     if( DAG->has_prop( vol, "imp.e" )) {
       get_real_prop( vol, cellid, "imp.e", imp_e );
+    } else if( imp_e_needed ) {
+      imp_e = 0;
     }
 
     lcadfile << cellid << " ";
@@ -506,18 +524,23 @@ void write_lcad_old(std::ofstream &lcadfile)
     bool graveyard = DAG->has_prop( vol, "graveyard" );
 
     if( graveyard ) {
-      lcadfile << " 0 imp:n=0";
+      lcadfile << " 0";
+      if( imp_n_needed ) lcadfile << " imp:n=0";
+      if( imp_p_needed ) lcadfile << " imp:p=0";
+      if( imp_e_needed ) lcadfile << " imp:e=0";
       if( DAG->has_prop(vol, "comp") ) {
         // material for the implicit complement has been specified.
         get_int_prop( vol, cellid, "mat", cmat );
         get_real_prop( vol, cellid, "rho", crho );
-        std::cout << "Detected material and density specified for implicit complement: " << cmat <<", " << crho << std::endl;
-        cimp = imp_n;
+        std::cout << "Detected material and density specified for implicit complement: " << cmat << ", " << crho << std::endl;
       }
     } else if( DAG->is_implicit_complement(vol) ) {
       lcadfile << cmat;
       if( cmat != 0 ) lcadfile << " " << crho;
-      lcadfile << " imp:n=" << cimp << " $ implicit complement";
+      if( imp_n_needed ) lcadfile << " imp:n=1";
+      if( imp_p_needed ) lcadfile << " imp:p=1";
+      if( imp_e_needed ) lcadfile << " imp:e=1";
+      lcadfile << " $ implicit complement";
     } else {
       int mat = 0;
       get_int_prop( vol, cellid, "mat", mat );
@@ -529,9 +552,9 @@ void write_lcad_old(std::ofstream &lcadfile)
         get_real_prop( vol, cellid, "rho", rho );
         lcadfile << mat << " " << rho;
       }
-      lcadfile << " imp:n=" << imp_n;
-      if( imp_p > 0 ) lcadfile << " imp:p=" << imp_p;
-      if( imp_e > 0 ) lcadfile << " imp:e=" << imp_e;
+      if( imp_n_needed ) lcadfile << " imp:n=" << imp_n;
+      if( imp_p_needed ) lcadfile << " imp:p=" << imp_p;
+      if( imp_e_needed ) lcadfile << " imp:e=" << imp_e;
     }
 
     lcadfile << std::endl;
