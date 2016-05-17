@@ -12,13 +12,16 @@
 #include "moab/Interface.hpp"
 #include "moab/CartVect.hpp"
 #include "DagMC.hpp"
-#include "../pyne/pyne.h"
-#include "../uwuw/uwuw.hpp"
+#include "../../pyne/pyne.h"
+#include "../../uwuw/uwuw.hpp"
 
 // defines for the flkstk common block structure
 #define STACK_SIZE 40001 // because the fortran array goes from [0:40000]
 #define MKBMX1 11
 #define MKBMX2 11
+
+//
+#define MULBOU_SIZE 2001 // because the fortran array goes from [0:2000]
 
 // flkstk common block
 extern "C" {
@@ -70,13 +73,73 @@ extern "C" {
   } flkstk_;
 }
 
+// needed for the lsense flag
+// mulbou common block
+extern "C" {
+  extern struct {
+    // all the doubles
+    double xold;
+    double yold;
+    double zold;
+    double xmiddl;
+    double ymiddl;
+    double zmiddl;
+    double umiddl;
+    double vmiddl;
+    double wmiddl;
+    double pstep1;
+    double pstep2;
+    double uold;
+    double vold;
+    double wold;
+    double umag;
+    double vmag;
+    double wmag;
+    double unorml;
+    double vnorml;
+    double wnorml;
+    double usense;
+    double vsense;
+    double wsense;
+    double xnorml;
+    double ynorml;
+    double znorml;
+    double tsense;
+    double ddsens;
+    double dsmall;
+    double tslttc[MULBOU_SIZE];
+    // integer vars
+    int multtc[MULBOU_SIZE];
+    int nssens;
+    int nulttc;
+    int iplgnl;
+    int nrgbef;
+    int nrgaft;
+    // logical vars
+    int llda;
+    int lagain;
+    int lstnew;
+    int lartef;
+    int lnorml;
+    int lsense;
+    int lmgnor;
+    int lsnsct;
+    int lplgnl;
+    int lnwghs;
+    int lmagea;
+    int lmgnmv;
+    int lbndrx;
+  } mulbou_;
+}
+
 // struct to hold particle state
 struct particle_state {
   moab::DagMC::RayHistory history;
   bool on_boundary;
   double old_direction[3];
-  moab::EntityHandle next_surf; // the next suface the ray will hit
-  moab::EntityHandle prev_surf; // the last value of next surface
+  double old_position[3];
+  moab::EntityHandle next_surface; // the next suface the ray will hit
+  moab::EntityHandle prev_surface; // the last value of next surface
   moab::EntityHandle PrevRegion; // the integer region that the particle was in previously
   int stack_count;
 };
@@ -97,12 +160,15 @@ struct particle_state {
 #define rgrpwr rgrpwr_
 #define isvhwr isvhwr_
 #define rg2nwr rg2nwr_
+#define flabrt flabrt_
 
 /**** Start of directly called Fluka functions ****/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+  void flabrt(const char* function, const char* message, int function_strlen, int message_strlen);
 
   /**
    * \brief does nothing
@@ -199,7 +265,7 @@ extern "C" {
    * \param[out] newLttc used to indicate the new lattice id number
    */
   void lkfxwr(double& pSx, double& pSy, double& pSz,
-              double* pV, const int& oldReg, const int& oldLttc,
+              double* pV, const int& oldReg, int& oldLttc,
               int& newReg, int& flagErr, int& newLttc);
 
   /**
@@ -307,6 +373,20 @@ extern "C" {
 // The testable interfaces to the direct Fluka interface calls
 
 /**
+ * \brief The testable interface to allow fludag to interface with the fluka
+ *        abort function. When called, passes the messages to flabrt_ which
+ *        raises an error call, dumps simulation data and writes messages to file
+ *
+ * \param[in] function_name, char* denoting the name of the function that raised the error
+ * \param[in] message, char* denoting the error message you want to pass
+ * \param[in] error_code, int, the error code you are raising from DAGMC
+ */
+void fludag_abort(const char* function_name, const char* message, int error_code);
+
+
+double dot_product(moab::EntityHandle surface, double point[3], double direction[3]);
+
+/**
  * \brief The testable interface to f_look, the function which given a position
  *       , direction determines the region number the position is in. Indicates
  *        an error when the particle is nowhere.
@@ -366,6 +446,8 @@ int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3]);
  */
 void region2name(int volindex, std::string &vname );
 
+void print_state(particle_state &state);
+
 /**
  * \brief resets the particle state associated with the particle.
  *
@@ -402,6 +484,8 @@ std::set<int> make_exception_set();
 /*** end of testable wrappers ***/
 
 /*** start of uwuw interface functions ***/
+
+void fludag_write_ididx(std::string ididx);
 
 /**
  * \brief Writes the material assignment for each volume to an output stream
