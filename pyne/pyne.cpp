@@ -6651,7 +6651,6 @@ int pyne::rxname::parent(std::string nuc, std::string rx, std::string z) {
 //
 // start of src/particle.cpp
 //
-#include "particle.h"
 
 std::string pyne::particle::_names[NUM_PARTICLES] = {
   // leptons
