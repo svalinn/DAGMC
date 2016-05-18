@@ -9,17 +9,17 @@
 
 #include "uwuw_preprocessor.hpp"
 
-namespace {
+namespace
+{
 
 class UWUWTest : public ::testing::Test
 {
-  protected:
+ protected:
 
   UWUWTest() {}
-  virtual ~UWUWTest(){}
+  virtual ~UWUWTest() {}
 
-  virtual void SetUp()
-  {
+  virtual void SetUp() {
   }
 
 };
@@ -28,13 +28,15 @@ class UWUWTest : public ::testing::Test
 /*
  * Empty common setup function
  */
-TEST_F(UWUWTest,SetUp) {
+TEST_F(UWUWTest,SetUp)
+{
 }
 
 /*
  * Test to make sure the name is only uppercased
  */
-TEST_F(UWUWTest,name8) {
+TEST_F(UWUWTest,name8)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 
@@ -44,7 +46,8 @@ TEST_F(UWUWTest,name8) {
 }
 
 // test to make sure the space is removed
-TEST_F(UWUWTest,name8RemoveSpace) {
+TEST_F(UWUWTest,name8RemoveSpace)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 
@@ -54,7 +57,8 @@ TEST_F(UWUWTest,name8RemoveSpace) {
 }
 
 // test to make sure the , is removed
-TEST_F(UWUWTest,name8RemoveCommaAndSpace) {
+TEST_F(UWUWTest,name8RemoveCommaAndSpace)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 
@@ -64,7 +68,8 @@ TEST_F(UWUWTest,name8RemoveCommaAndSpace) {
 }
 
 // test to make sure the number is incremented
-TEST_F(UWUWTest,name8IncrementID) {
+TEST_F(UWUWTest,name8IncrementID)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 
@@ -75,7 +80,8 @@ TEST_F(UWUWTest,name8IncrementID) {
 }
 
 // test to make sure the number is incremented
-TEST_F(UWUWTest,name8lessthan8) {
+TEST_F(UWUWTest,name8lessthan8)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 
@@ -86,7 +92,8 @@ TEST_F(UWUWTest,name8lessthan8) {
 
 // test to make sure the number is incremented but that
 // we preserve whitespace
-TEST_F(UWUWTest,name8lessthan8preserve) {
+TEST_F(UWUWTest,name8lessthan8preserve)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 
@@ -99,7 +106,8 @@ TEST_F(UWUWTest,name8lessthan8preserve) {
 
 // test to make sure the number is incremented but that
 // we preserve whitespace and the number is good
-TEST_F(UWUWTest,name8lessthan8preserve100) {
+TEST_F(UWUWTest,name8lessthan8preserve100)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 
@@ -136,7 +144,8 @@ TEST_F(UWUWTest,name8lessthan8preserve100) {
 
 // test to make sure the number is incremented but that
 // we preserve whitespace and the number is good
-TEST_F(UWUWTest,name8lessthan8preserve100Steel) {
+TEST_F(UWUWTest,name8lessthan8preserve100Steel)
+{
   // make new class
   name_concatenator *ncr = new name_concatenator();
 

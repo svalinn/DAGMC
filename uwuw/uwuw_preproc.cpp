@@ -1,7 +1,8 @@
 #include "uwuw_preprocessor.hpp"
 #include "moab/ProgOptions.hpp"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 
   ProgOptions po("uwuw_preproc: a tool for preprocessing DAGMC files to incorporate UWUW workflow information");
 
@@ -16,14 +17,14 @@ int main(int argc, char* argv[]) {
   po.addOpt<std::string>("output,o", "Specify the output filename (default "")", &out_file);
 
   po.addOptionHelpHeading("Options for loading files");
- 
+
   po.parseCommandLine(argc, argv);
 
   if(lib_file=="") {
     std::cout << "need to set the library" << std::endl;
     exit(1);
   }
-    
+
 
   if(out_file== "" )
     out_file = dag_file;
