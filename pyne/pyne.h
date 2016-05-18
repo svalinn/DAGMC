@@ -16,8 +16,8 @@
 //   src/enrichment.h
 //   src/enrichment_symbolic.h
 //   src/tally.h
-//   src/_decay.h
-//   src/_atomic_data.h
+//   src/decay.h
+//   src/atomic_data.h
 
 // PyNE amalgated header http://pyne.io/
 #ifndef PYNE_52BMSKGZ3FHG3NQI566D4I2ZLY
@@ -96,14 +96,12 @@
 #include <vector>
 #include <algorithm>
 
-#if defined __APPLE__ || defined __WIN_GNUC__
 #if (__GNUC__ >= 4)
   #include <cmath>
   #define isnan(x) std::isnan(x)
 #else
   #include <math.h>
   #define isnan(x) __isnand((double)x)
-#endif
 #endif
 
 #ifdef __WIN_MSVC__
@@ -5718,9 +5716,9 @@ namespace pyne
 
 
 //
-// start of src/_decay.h
+// start of src/decay.h
 //
-#ifdef PYNE_DECAY_IS_DUMMY
+#ifndef PYNE_DECAY_IS_DUMMY
 #ifndef PYNE_GEUP5PGEJBFGNHGI36TRBB4WGM
 #define PYNE_GEUP5PGEJBFGNHGI36TRBB4WGM
 
@@ -5744,7 +5742,7 @@ namespace pyne
 namespace pyne {
 namespace decayers {
 
-extern const int all_nucs[4];
+extern const int all_nucs[3979];
 
 std::map<int, double> decay(std::map<int, double> comp, double t);
 
@@ -5753,22 +5751,22 @@ std::map<int, double> decay(std::map<int, double> comp, double t);
 
 #endif  // PYNE_GEUP5PGEJBFGNHGI36TRBB4WGM
 #endif  // PYNE_DECAY_IS_DUMMY//
-// end of src/_decay.h
+// end of src/decay.h
 //
 
 
 //
-// start of src/_atomic_data.h
+// start of src/atomic_data.h
 //
 /// \/file atomic_nuclear_data.h
 /// \/author Andrew Davis (andrew.davis@wisc.edu)
 ///
-/// \/brief Impliments all the fundamental atomic & nuclear data data
+/// \/brief Implements all the fundamental atomic & nuclear data data
 #include <map>
 
 namespace pyne
 {
-  /// main function to be called when you whish to load the nuclide data 
+  /// main function to be called when you wish to load the nuclide data 
   /// into memory 
   void _load_atomic_mass_map_memory();
   /// function to create mapping from nuclides in id form
@@ -5791,7 +5789,7 @@ namespace pyne
   extern std::map<int,double> atomic_mass_error_map;
 } // namespace pyne
 //
-// end of src/_atomic_data.h
+// end of src/atomic_data.h
 //
 
 
