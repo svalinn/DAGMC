@@ -518,6 +518,11 @@ void write_lcad_old(std::ofstream &lcadfile)
       imp_e = 1;
     }
 
+    // If no importances specified, default to neutron mode
+    if ( ! imp_n_needed && ! imp_p_needed && ! imp_e_needed ) {
+      imp_n_needed = true;
+    }
+
     lcadfile << cellid << " ";
 
     bool graveyard = DAG->has_prop( vol, "graveyard" );
