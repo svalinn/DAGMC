@@ -487,9 +487,18 @@ void write_lcad_old(std::ofstream &lcadfile)
   bool imp_n_needed = false, imp_p_needed = false, imp_e_needed = false;
   for( int i = 1; i <= num_cells; ++i ) {
     moab::EntityHandle vol = DAG->entity_by_index( 3, i );
-    if( DAG->has_prop( vol, "imp.n" )) imp_n_needed = true;
-    if( DAG->has_prop( vol, "imp.p" )) imp_p_needed = true;
-    if( DAG->has_prop( vol, "imp.e" )) imp_e_needed = true;
+    if( DAG->has_prop( vol, "imp.n" )) {
+      imp_n_needed = true;
+      cimp_n = 1;
+    }
+    if( DAG->has_prop( vol, "imp.p" )) {
+      imp_p_needed = true;
+      cimp_p = 1;
+    }
+    if( DAG->has_prop( vol, "imp.e" )) {
+      imp_e_needed = true;
+      cimp_e = 1;
+    }
   }
 
   // write the cell cards
@@ -497,33 +506,31 @@ void write_lcad_old(std::ofstream &lcadfile)
 
     moab::EntityHandle vol = DAG->entity_by_index( 3, i );
     int cellid = DAG->id_by_index( 3, i );
-    // set default importances to zero
-    double imp_n = 0, imp_p = 0, imp_e = 0;
 
+    // Set default importances
+    double imp_n = cimp_n, imp_p = cimp_p, imp_e = cimp_e;
+
+    // Get importances from DAGMC
     if( DAG->has_prop( vol, "imp.n" )) {
       get_real_prop( vol, cellid, "imp.n", imp_n );
-    } else if( imp_n_needed ) {
-      imp_n = 1;
     }
 
     if( DAG->has_prop( vol, "imp.p" )) {
       get_real_prop( vol, cellid, "imp.p", imp_p );
-    } else if( imp_p_needed ) {
-      imp_p = 1;
     }
 
     if( DAG->has_prop( vol, "imp.e" )) {
       get_real_prop( vol, cellid, "imp.e", imp_e );
-    } else if( imp_e_needed ) {
-      imp_e = 1;
     }
 
     // If no importances specified, default to neutron mode
     if ( ! imp_n_needed && ! imp_p_needed && ! imp_e_needed ) {
       imp_n_needed = true;
+      cimp_n = 1;
+      imp_n = 1;
     }
 
-    lcadfile << cellid << " ";
+    lcadfile << cellid;
 
     bool graveyard = DAG->has_prop( vol, "graveyard" );
 
@@ -543,7 +550,7 @@ void write_lcad_old(std::ofstream &lcadfile)
         if( imp_e_needed ) cimp_e = imp_e;
       }
     } else if( DAG->is_implicit_complement(vol) ) {
-      lcadfile << cmat;
+      lcadfile << " " << cmat;
       if( cmat != 0 ) lcadfile << " " << crho;
       if( imp_n_needed ) lcadfile << " imp:n=" << cimp_n;
       if( imp_p_needed ) lcadfile << " imp:p=" << cimp_p;
@@ -554,11 +561,11 @@ void write_lcad_old(std::ofstream &lcadfile)
       get_int_prop( vol, cellid, "mat", mat );
 
       if( mat == 0 ) {
-        lcadfile << "0";
+        lcadfile << " 0";
       } else {
         double rho = 1.0;
         get_real_prop( vol, cellid, "rho", rho );
-        lcadfile << mat << " " << rho;
+        lcadfile << " " << mat << " " << rho;
       }
       if( imp_n_needed ) lcadfile << " imp:n=" << imp_n;
       if( imp_p_needed ) lcadfile << " imp:p=" << imp_p;
