@@ -498,25 +498,25 @@ void write_lcad_old(std::ofstream &lcadfile)
 
     moab::EntityHandle vol = DAG->entity_by_index( 3, i );
     int cellid = DAG->id_by_index( 3, i );
-    // set default importances to negative, indicating no card should be printed.
-    double imp_n = -1, imp_p = -1, imp_e = -1;
+    // set default importances to zero
+    double imp_n = 0, imp_p = 0, imp_e = 0;
 
     if( DAG->has_prop( vol, "imp.n" )) {
       get_real_prop( vol, cellid, "imp.n", imp_n );
     } else if( imp_n_needed ) {
-      imp_n = 0;
+      imp_n = 1;
     }
 
     if( DAG->has_prop( vol, "imp.p" )) {
       get_real_prop( vol, cellid, "imp.p", imp_p );
     } else if( imp_p_needed ) {
-      imp_p = 0;
+      imp_p = 1;
     }
 
     if( DAG->has_prop( vol, "imp.e" )) {
       get_real_prop( vol, cellid, "imp.e", imp_e );
     } else if( imp_e_needed ) {
-      imp_e = 0;
+      imp_e = 1;
     }
 
     lcadfile << cellid << " ";
