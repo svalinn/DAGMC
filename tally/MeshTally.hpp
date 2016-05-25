@@ -44,7 +44,7 @@ class Interface;
  * needed to compute the mesh tally scores.  It must be created in a file format
  * that is supported by the Mesh-Oriented Database (MOAB), which includes both
  * H5M and VTK options.  Source code and more information on MOAB can be found
- * at https://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
+ * at http://sigma.mcs.anl.gov/moab-library/
  *
  * In addition to the "inp" key, all MeshTally objects can also include an
  * optional "out"="output_filename" key-value pair.  If the "out" key is not

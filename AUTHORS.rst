@@ -20,5 +20,5 @@ included contributions from the following:
 
 The DAGMC project also relies heavily on the MOAB_ and CGM_ projects.
 
-.. _MOAB: http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
-.. _CGM: http://trac.mcs.anl.gov/projects/ITAPS/wiki/CGM
+.. _MOAB: http://sigma.mcs.anl.gov/moab-library/
+.. _CGM: http://sigma.mcs.anl.gov/cgm-library/
