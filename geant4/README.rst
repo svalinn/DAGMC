@@ -3,9 +3,9 @@ DagSolid Geant4 Geometry Class
 
 The Direct Acclerated Geometry Monte Carlo (DAGMC) Toolkit is an
 interface (`DAGMC Source
-<http://trac.mcs.anl.gov/projects/ITAPS/browser/MOAB/trunk/tools/dagmc>`_)
+<https://github.com/svalinn/dagmc>`_)
 to the `MOAB mesh database
-<http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_ that provides the
+<http://sigma.mcs.anl.gov/moab-library/>`_ that provides the
 methods necessary for ray tracing on a CAD-based geometric model.
 
 This repository provides a DAG implimentation for Geant4 (`Geant4 source

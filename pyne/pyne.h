@@ -61,7 +61,7 @@
 // DE-AC04-94AL85000 with Sandia Coroporation, the U.S. Government
 // retains certain rights in this software.
 //
-// http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
+// http://sigma.mcs.anl.gov/moab-library/
 // //
 // end of license.txt
 //
