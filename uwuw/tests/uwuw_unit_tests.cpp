@@ -127,17 +127,18 @@ TEST_F(UWUWTest, material_datapath)
   nucvec[pyne::nucname::id("Fe")] = 1.0;
   pyne::Material mat = pyne::Material(nucvec);
   mat.metadata["name"] = "Wet Steel";
-  mat.write_hdf5("new_mat_test.h5","/material_test/materials"
-		 ,"/material_test/nucids");
+  mat.write_hdf5("new_mat_test.h5","/materials"
+		 ,"/nucid");
 
   pyne::Material mat2 = pyne::Material(nucvec);
   mat2.metadata["name"] = "Wet Steel 2";
-  mat2.write_hdf5("new_mat_test.h5","/material_test/materials"
-		 ,"/material_test/nucids");
+  mat2.write_hdf5("new_mat_test.h5","/materials"
+		 ,"/nucid");
 
-  //  delete [] workflow_data;
+
+  workflow_data->~UWUW();
   
-  //  workflow_data = new UWUW(std::string("new_mat_test.h5"));
+  workflow_data = new UWUW(std::string("new_mat_test.h5"));
 
   // there should be 2 materials
   EXPECT_EQ(workflow_data->material_library.size(),2);  
