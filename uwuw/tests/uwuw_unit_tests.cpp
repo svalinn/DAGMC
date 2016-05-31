@@ -116,7 +116,7 @@ TEST_F(UWUWTest,materiallibrary2)
 }
 
 /*
- *  Test to make sure the the material can be read from any 
+ *  Test to make sure the the material can be read from any
  *  datapath in the file
  */
 TEST_F(UWUWTest, material_datapath)
@@ -128,20 +128,20 @@ TEST_F(UWUWTest, material_datapath)
   pyne::Material mat = pyne::Material(nucvec);
   mat.metadata["name"] = "Wet Steel";
   mat.write_hdf5("new_mat_test.h5","/materials"
-		 ,"/nucid");
+                 ,"/nucid");
 
   pyne::Material mat2 = pyne::Material(nucvec);
   mat2.metadata["name"] = "Wet Steel 2";
   mat2.write_hdf5("new_mat_test.h5","/materials"
-		 ,"/nucid");
+                  ,"/nucid");
 
 
   workflow_data->~UWUW();
-  
+
   workflow_data = new UWUW(std::string("new_mat_test.h5"));
 
   // there should be 2 materials
-  EXPECT_EQ(workflow_data->material_library.size(),2);  
+  EXPECT_EQ(workflow_data->material_library.size(),2);
   return;
 }
 

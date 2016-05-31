@@ -265,7 +265,7 @@ void uwuw_preprocessor::get_dagmc_properties()
 
   // loop over all cells
   for( int i = 1; i <= num_cells; ++i ) {
-    
+
     density = 0.0;
     material_number = 0;
 
@@ -276,7 +276,7 @@ void uwuw_preprocessor::get_dagmc_properties()
     if (DAG->is_implicit_complement(entity))
       break;
 
-    
+
     material_props = material_assignments[entity];
     density_props = density_assignments[entity];
 
