@@ -67,6 +67,7 @@ if (BUILD_ALL)
 endif (BUILD_ALL)
 if (BUILD_MCNP5)
   set(BUILD_TALLY ON)
+  add_subdirectory(mcnp)
 endif (BUILD_MCNP5)
 
 # Build pyne_dagmc library
