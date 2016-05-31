@@ -4,8 +4,8 @@ message(STATUS "Building dagtally unit tests")
 set(LINK_LIBS)
 list(APPEND LINK_LIBS gtest)
 list(APPEND LINK_LIBS pthread)
-list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 list(APPEND LINK_LIBS dagtally)
+list(APPEND LINK_LIBS lapack)
 
 # Include directories
 include_directories(..)

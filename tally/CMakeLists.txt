@@ -34,11 +34,9 @@ list(APPEND PUB_HEADERS TrackLengthMeshTally.hpp)
 
 # Libraries
 set(LINK_LIBS)
-list(APPEND LINK_LIBS lapack)
-list(APPEND LINK_LIBS blas)
-list(APPEND LINK_LIBS gfortran)
-list(APPEND LINK_LIBS quadmath)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS gfortran)
+list(APPEND LINK_LIBS lapack)
 
 # Include directories
 include_directories(.)
@@ -53,6 +51,5 @@ install(TARGETS dagtally LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                          PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
                          LIBRARY       PERMISSIONS ${PERMS}
                          ARCHIVE       PERMISSIONS ${PERMS})
-
 # Build dagtally tests
 add_subdirectory(tests)

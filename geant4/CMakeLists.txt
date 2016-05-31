@@ -18,7 +18,7 @@ set(PUB_HEADERS DagSolid.hh)
 
 # Include directories
 include_directories(.)
-include_directories(./build/include)
+include_directories(build/include)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 include_directories(${GEANT4_DIR}/include/Geant4)

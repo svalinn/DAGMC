@@ -13,14 +13,13 @@ file(GLOB SRC_FILES ${SRC_FILES} "src/*.cc")
 
 # Libraries
 set(LINK_LIBS)
+list(APPEND LINK_LIBS ${Geant4_LIBRARIES})
 list(APPEND LINK_LIBS ${HDF5_hdf5_hl_LIBRARY}) 
 list(APPEND LINK_LIBS ${HDF5_hdf5_LIBRARY})
-list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
-list(APPEND LINK_LIBS ${Geant4_LIBRARIES})
-list(APPEND LINK_LIBS iMesh)
-list(APPEND LINK_LIBS pyne_dagmc)
-list(APPEND LINK_LIBS dagsolid)
 list(APPEND LINK_LIBS dagmciface)
+list(APPEND LINK_LIBS dagsolid)
+list(APPEND LINK_LIBS pyne_dagmc)
+list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)

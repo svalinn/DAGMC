@@ -1,4 +1,4 @@
-message(STATUS "Building FluDAG library")
+message(STATUS "Building fludag library")
 
 enable_language(Fortran)
 
