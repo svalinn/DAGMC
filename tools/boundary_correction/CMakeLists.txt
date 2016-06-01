@@ -12,5 +12,5 @@ include_directories(${MOAB_INCLUDE_DIRS})
 # Build boundary correction tool
 add_executable(boundary.exe ${SRC_FILES})
 target_link_libraries(boundary.exe ${LINK_LIBS})
-install(TARGETS boundary.exe DESTINATION ${INSTALL_SHARE_DIR}/tools
+install(TARGETS boundary.exe DESTINATION tools
                              PERMISSIONS ${PERMS})

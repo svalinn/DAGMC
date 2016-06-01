@@ -19,8 +19,8 @@ setup_test(uwuw_unit_tests       cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(uwuw_unit_tests_tally cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
-install(FILES test_uwuw.h5m DESTINATION ${INSTALL_SHARE_DIR}/tests)
-install(FILES mat_lib.h5    DESTINATION ${INSTALL_SHARE_DIR}/tests)
+install(FILES test_uwuw.h5m DESTINATION tests)
+install(FILES mat_lib.h5    DESTINATION tests)
 
 # Enable unit tests
 enable_testing()

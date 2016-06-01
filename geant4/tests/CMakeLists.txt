@@ -17,7 +17,7 @@ set(DRIVER dagsolid_unit_test_driver.cpp)
 setup_test(dagsolid_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
-install(FILES test_geom.h5m DESTINATION ${INSTALL_SHARE_DIR}/tests)
+install(FILES test_geom.h5m DESTINATION tests)
 
 # Enable unit tests
 enable_testing()

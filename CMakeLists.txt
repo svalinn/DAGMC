@@ -10,7 +10,7 @@ endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 macro (setup_test test_name ext driver libs)
   add_executable(${test_name} ${test_name}.${ext} ${driver})
   target_link_libraries(${test_name} ${libs})
-  install(TARGETS ${test_name} DESTINATION ${INSTALL_SHARE_DIR}/tests
+  install(TARGETS ${test_name} DESTINATION tests
                                PERMISSIONS ${PERMS})
   add_test(${test_name} ${test_name})
 endmacro (setup_test)

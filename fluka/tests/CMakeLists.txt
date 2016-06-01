@@ -16,7 +16,7 @@ set(DRIVER fludag_unit_test_driver.cc)
 setup_test(fludag_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
-install(FILES slabs.h5m DESTINATION ${INSTALL_SHARE_DIR}/tests)
+install(FILES slabs.h5m DESTINATION tests)
 
 # Enable unit tests
 enable_testing()

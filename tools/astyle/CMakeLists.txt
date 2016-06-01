@@ -14,5 +14,5 @@ include_directories(.)
 
 # Build astyle_google
 add_executable(astyle_google ${SRC_FILES})
-install(TARGETS astyle_google DESTINATION ${INSTALL_SHARE_DIR}/tools
+install(TARGETS astyle_google DESTINATION tools
                               PERMISSIONS ${PERMS})

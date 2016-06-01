@@ -29,11 +29,11 @@ setup_test(test_Tally                cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(test_TrackLengthMeshTally cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
-install(FILES hashtag_mesh.h5m      DESTINATION ${INSTALL_SHARE_DIR}/tests)
-install(FILES rune_mesh.h5m         DESTINATION ${INSTALL_SHARE_DIR}/tests)
-install(FILES structured_mesh.h5m   DESTINATION ${INSTALL_SHARE_DIR}/tests)
-install(FILES unstr_mesh_split.h5m  DESTINATION ${INSTALL_SHARE_DIR}/tests)
-install(FILES unstructured_mesh.h5m DESTINATION ${INSTALL_SHARE_DIR}/tests)
+install(FILES hashtag_mesh.h5m      DESTINATION tests)
+install(FILES rune_mesh.h5m         DESTINATION tests)
+install(FILES structured_mesh.h5m   DESTINATION tests)
+install(FILES unstr_mesh_split.h5m  DESTINATION tests)
+install(FILES unstructured_mesh.h5m DESTINATION tests)
 
 # Enable unit tests
 enable_testing()
