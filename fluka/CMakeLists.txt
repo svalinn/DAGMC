@@ -1,40 +1,39 @@
-# Source file to build fluka lib and mainfludag
-SET ( FLUKA_SRCDIR      ${CMAKE_CURRENT_SOURCE_DIR} )
+message(STATUS "Building fludag library")
 
-# build the static lib
-ADD_SUBDIRECTORY(lib)
+enable_language(Fortran)
 
-# set the incs
-INCLUDE_DIRECTORIES( ${HDF5_INCLUDE_DIRS} )
-INCLUDE_DIRECTORIES( ${CODE_SRC_DIR} )
+# Source files
+set(SRC_FILES fluka_funcs.cpp)
 
-#enable fortran
-ENABLE_LANGUAGE( Fortran )
+# Public headers
+set(PUB_HEADERS fluka_funcs.h)
 
-# set the libraries
-SET(FLUDAG_LIBS
-     fludag
-     dagmciface
-     ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
-     pyne_dagmc
-     ${DAG_LINK_LIBS} 
-     gfortran
-  )
+# Libraries
+set(LINK_LIBS)
+list(APPEND LINK_LIBS ${FLUKA_DIR}/libflukahp.a)
+list(APPEND LINK_LIBS pyne_dagmc)
+list(APPEND LINK_LIBS dagmciface)
+list(APPEND LINK_LIBS lapack)
+list(APPEND LINK_LIBS blas)
+list(APPEND LINK_LIBS gfortran)
+list(APPEND LINK_LIBS quadmath)
 
-# If we have chosen to have a static exectuable
-IF(STATIC_LIB)
-  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  SET(BUILD_SHARED_LIBRARIES OFF)
-  SET(CMAKE_EXE_LINKER_FLAGS "-static")
-ENDIF(STATIC_LIB)
+# Include directories
+include_directories(.)
+include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${MOAB_INCLUDE_DIRS})
 
-INCLUDE_DIRECTORIES(mainfludag PUBLIC lib)
+# Build FluDAG library
+add_library(fludag STATIC ${SRC_FILES})
+set_target_properties(fludag PROPERTIES PUBLIC_HEADER ${PUB_HEADERS})
+target_link_libraries(fludag ${LINK_LIBS})
+install(TARGETS fludag LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
+                       ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
+                       PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
+                       LIBRARY       PERMISSIONS ${PERMS})
 
-# the main exec
-ADD_EXECUTABLE ( mainfludag mainFluDAG.cpp )
-INSTALL( TARGETS mainfludag RUNTIME DESTINATION ${INSTALL_BIN_DIR} )
-# Order very important!
-TARGET_LINK_LIBRARIES ( mainfludag ${FLUDAG_LIBS} ${FLUKA_DIR}/libflukahp.a gfortran)
+# Build FluDAG
+add_subdirectory(build)
 
-ADD_SUBDIRECTORY(tests)
-
+# Build the FluDAG tests
+add_subdirectory(tests)
