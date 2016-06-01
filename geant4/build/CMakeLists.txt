@@ -5,6 +5,9 @@ include(${Geant4_USE_FILE})
 
 # CXX compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Geant4_CXX_FLAGS}")
+if (LIB_TYPE STREQUAL STATIC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
+endif (LIB_TYPE STREQUAL STATIC)
 
 # Source files
 set(SRC_FILES)
