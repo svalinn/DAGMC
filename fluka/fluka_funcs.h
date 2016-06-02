@@ -12,8 +12,8 @@
 #include "moab/Interface.hpp"
 #include "moab/CartVect.hpp"
 #include "DagMC.hpp"
-#include "../../pyne/pyne.h"
-#include "../../uwuw/uwuw.hpp"
+#include "../pyne/pyne.h"
+#include "../uwuw/uwuw.hpp"
 
 // defines for the flkstk common block structure
 #define STACK_SIZE 40001 // because the fortran array goes from [0:40000]

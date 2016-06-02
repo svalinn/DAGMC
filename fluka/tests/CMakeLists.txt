@@ -1,56 +1,22 @@
-#PROJECT(FluDAGUnitTests)
-# 
-SET (tgt "gtest")
-ADD_CUSTOM_COMMAND (TARGET ${tgt}
-	COMMAND ln "-sf"
-		"${CMAKE_CURRENT_SOURCE_DIR}/test_geom.h5m"
-		"${CMAKE_CURRENT_BINARY_DIR}/test_geom.h5m"
-		COMMENT "...linking test file in ${CMAKE_CURRENT_SOURCE_DIR} to ${CMAKE_CURRENT_BINARY_DIR}/slabs.h5m"
-	DEPENDS
-	VERBATIM
- 	)
+message(STATUS "Building FluDAG unit tests")
 
-# fluka test source
-SET (fludag_test_source ${CMAKE_CURRENT_SOURCE_DIR}/test_FlukaFuncs.cpp)
+# Libraries
+set(LINK_LIBS)
+list(APPEND LINK_LIBS gtest)
+list(APPEND LINK_LIBS pthread)
+list(APPEND LINK_LIBS fludag)
+list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
-# set libraries needed to link to test cases
-SET(LIBS
-    pthread
-    dagmciface
-    ${DAG_LINK_LIBS} 
-    gtest
-    pthread
-)
+# Include directories
+include_directories(..)
+include_directories(${GTEST_INCLUDE_DIR})
 
-#includes
+# Setup unit tests
+set(DRIVER fludag_unit_test_driver.cc)
+setup_test(fludag_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
 
-INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/fluka )
-#MESSAGE ( STATUS "Not building dagmciface physics interface library" ${DI_PUB_HEADERS} )
+# Install h5m files
+install(FILES slabs.h5m DESTINATION tests)
 
-#add_custom_target(check)
-macro(run_test test_target)
-  add_custom_target(${test_target}_runtest
-      COMMAND ${test_target} #cmake 2.6 required
-      DEPENDS ${test_target}
-      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-  add_dependencies(${test_target}_runtest gtest)
-endmacro()
-
-ADD_EXECUTABLE (fludag_unit_tests 
-        fludag_unit_test_driver.cc
-	${fludag_test_source}
-    )
-# install into tests dir
-INSTALL(TARGETS fludag_unit_tests DESTINATION tests)
-INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/slabs.h5m" DESTINATION tests)
-
-TARGET_LINK_LIBRARIES (fludag_unit_tests 
-	${FLUDAG_LIBS} 
-        gtest
-	${FLUKA_DIR}/libflukahp.a
-	gfortran
-        pthread )
-
-RUN_TEST(fludag_unit_tests)
-
-	
+# Enable unit tests
+enable_testing()

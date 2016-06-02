@@ -1,12 +1,5 @@
-######################################################################
-#
-# CMakeLists.txt for dagmc tools
-#
-# $Id: CMakeLists.txt 6346 2014-01-27 03:33:21Z cary $
-#
-######################################################################
-
-# Add subdir for scripts and sample files
-add_subdirectory(dagmc_tag_eg)
 add_subdirectory(astyle)
+add_subdirectory(dagmc_tag_eg)
 
+# This no longer works with more recent versions of MOAB
+#add_subdirectory(boundary_correction)
