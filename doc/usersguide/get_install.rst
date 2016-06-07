@@ -235,9 +235,9 @@ Populate and Patch
 ============================================
 In order to populate and patch the MCNP5 source in the DAGMC subdirectory 
 first copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the 
-mcnp5/ directory in the DAGMC source tree
+mcnp/mcnp5/ directory in the DAGMC source tree
 ::
-    prompt%> cd $HOME/dagmc_bld/DAGMC/mcnp5
+    prompt%> cd $HOME/dagmc_bld/DAGMC/mcnp/mcnp5
     prompt%> cp -r <path to cdrom>/MCNP5/Source .
 
 Apply the patch from the patch folder

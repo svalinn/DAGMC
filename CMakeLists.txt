@@ -67,7 +67,6 @@ if (BUILD_ALL)
 endif (BUILD_ALL)
 if (BUILD_MCNP5)
   set(BUILD_TALLY ON)
-  add_subdirectory(mcnp)
 endif (BUILD_MCNP5)
 
 # Build pyne_dagmc library
@@ -81,7 +80,7 @@ endif (BUILD_TALLY)
 # Build MCNP5
 if (BUILD_MCNP5)
   set(BUILD_ANY ON)
-  add_subdirectory(mcnp5)
+  add_subdirectory(mcnp)
 endif (BUILD_MCNP5)
 
 # Build Geant4
