@@ -1,17 +1,16 @@
-# CMAKE build script for KDE boundary correction tool
+message(STATUS "Building KDE boundary correction tool")
 
-PROJECT(KDEBoundaryCorrection)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+# Source files
+set(SRC_FILES boundary.cpp)
 
-# Add MOAB_DIR to list of include directories
-INCLUDE_DIRECTORIES("${MOAB_DIR}/include")
+# Libraries
+set(LINK_LIBS ${DAG_LINK_LIBS})
 
-# Define the MOAB libraries that are needed for this project
-SET(MOAB_LIBRARIES
-    ${MOAB_DIR}/lib/libMOAB.so 
-    ${MOAB_DIR}/lib/libdagmc.so
-)
+# Include directories
+include_directories(${MOAB_INCLUDE_DIRS})
 
-# Compile boundary correction script executable
-ADD_EXECUTABLE(boundary.exe ../boundary.cpp)
-TARGET_LINK_LIBRARIES(boundary.exe ${MOAB_LIBRARIES})
+# Build boundary correction tool
+add_executable(boundary.exe ${SRC_FILES})
+target_link_libraries(boundary.exe ${LINK_LIBS})
+install(TARGETS boundary.exe DESTINATION tools
+                             PERMISSIONS ${PERMS})

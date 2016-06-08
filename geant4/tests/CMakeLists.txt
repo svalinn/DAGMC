@@ -1,41 +1,23 @@
-# PROJECT(DagSolidUnitTests)
+message(STATUS "Building DagSolid unit tests")
 
-# dagsolid tests
-set(dagsolid_test_source
-  ${CMAKE_CURRENT_SOURCE_DIR}/DagSolid_test.cpp
-)
+# Libraries
+set(LINK_LIBS)
+list(APPEND LINK_LIBS gtest)
+list(APPEND LINK_LIBS pthread)
+list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS dagsolid)
+list(APPEND LINK_LIBS ${Geant4_LIBRARIES})
 
-# geant libs needed for test cases
+# Include directories
+include_directories(..)
+include_directories(${GTEST_INCLUDE_DIR})
 
-# two pthreads are needed for final linking, dont know why
-# set libraries needed to link to test cases
-SET(LIBS
-  pthread
-  ${Geant4_LIBRARIES}
-  ${DAG_LINK_LIBS}
-  gtest
-  pthread
-)
+# Setup unit tests
+set(DRIVER dagsolid_unit_test_driver.cpp)
+setup_test(dagsolid_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
 
-macro(run_test test_target)
-  add_custom_target(${test_target}_runtest
-      COMMAND ${test_target} #cmake 2.6 required
-      DEPENDS ${test_target}
-      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
-  add_dependencies(${test_target}_runtest gtest)
-endmacro()
+# Install h5m files
+install(FILES test_geom.h5m DESTINATION tests)
 
-# for the DagSolid includes
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}/../")
-
-ADD_EXECUTABLE (dagsolid_unit_tests  
-    	dagsolid_unit_test_driver.cpp
-	${dagsolid_test_source})
-
-INSTALL(TARGETS dagsolid_unit_tests DESTINATION tests)
-INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/test_geom.h5m" DESTINATION tests)
-
-TARGET_LINK_LIBRARIES (dagsolid_unit_tests ${LIBS} dagsolid )
-
-#
-RUN_TEST(dagsolid_unit_tests)
+# Enable unit tests
+enable_testing()

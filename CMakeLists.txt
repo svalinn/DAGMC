@@ -1,171 +1,109 @@
-####################################################
-#
-# CMakeLists.txt for top-level DAGMC repository
-#
-#####################################################
+project(DAGMC)
 
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
-CMAKE_POLICY(SET CMP0004 OLD)
+cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0004 OLD)
+if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
+  cmake_policy(SET CMP0040 OLD)
+endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 
-IF(CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
-  CMAKE_POLICY(SET CMP0040 OLD)
-ENDIF(CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
+# Setup test macro
+macro (setup_test test_name ext driver libs)
+  add_executable(${test_name} ${test_name}.${ext} ${driver})
+  target_link_libraries(${test_name} ${libs})
+  install(TARGETS ${test_name} DESTINATION tests
+                               PERMISSIONS ${PERMS})
+  add_test(${test_name} ${test_name})
+endmacro (setup_test)
 
-PROJECT ( DAGMC )
-SET ( DAGMC_VERSION_MAJOR 1 )
-SET ( DAGMC_VERSION_MINOR 0 )
+# Run test macro
+macro(run_test test_target)
+  add_custom_target(${test_target}_runtest COMMAND ${test_target}
+                                           DEPENDS ${test_target}
+                                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_dependencies(${test_target}_runtest gtest)
+endmacro (run_test)
 
-###########################
-#
-# FIND DEPENDENCIES
-#
-##########################
-# Needed for FindPyne.cmake
-SET ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
+# Installation directories
+set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
+set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
 
-FIND_PACKAGE ( MOAB REQUIRED ) 
-MESSAGE ( STATUS "Found MOAB" )
-INCLUDE_DIRECTORIES( ${MOAB_INCLUDE_DIRS} )
+# Permissions of compiled binaries and libraries
+set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
-# since moab 4.7.0 > DAGMC_LIBRARIES instead of MOAB_LIBRARIES
-if( DEFINED DAGMC_LIBRARIES )
-  SET(DAG_LINK_LIBS ${DAGMC_LIBRARIES})
-else ( DEFINED DAGMC_LIBRARIES )
-  SET(DAG_LINK_LIBS  dagmc ${MOAB_LIBRARIES})
-endif( DEFINED DAGMC_LIBRARIES ) 	  	
+# Determine if we're building static libraries
+if (STATIC_LIB)
+  set(LIB_TYPE "STATIC")
+  set(BUILD_SHARED_LIBRARIES OFF)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+else ()
+  set(LIB_TYPE "SHARED")
+endif (STATIC_LIB)
 
-MESSAGE ( STATUS "Linking DAGMC with " ${DAG_LINK_LIBS})
+# Allow use of find_package(HDF5), find_package(MOAB), etc.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
+# Make sure we have HDF5 and MOAB
+find_package(HDF5 REQUIRED)
+find_package(MOAB REQUIRED)
 
-SET ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
+# DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
+if (DAGMC_LIBRARIES)
+  set(DAG_LINK_LIBS "${DAGMC_LIBRARIES}")
+else ()
+  set(DAG_LINK_LIBS "dagmc ${MOAB_LIBRARIES}")
+endif (DAGMC_LIBRARIES)
 
-IF( STATIC_LIB ) 
-  SET(HDF5_USE_STATIC_LIBRARIES ON)
-ENDIF( STATIC_LIB )
+# Build Gtest
+add_subdirectory(gtest)
 
-FIND_PACKAGE ( HDF5 REQUIRED )
-INCLUDE_DIRECTORIES( ${HDF5_INCLUDE_DIRS} )
+# Figure out which physics codes to build
+if (BUILD_ALL)
+  set(BUILD_MCNP5 ON)
+  set(BUILD_GEANT4 ON)
+  set(BUILD_FLUKA ON)
+endif (BUILD_ALL)
+if (BUILD_MCNP5)
+  set(BUILD_TALLY ON)
+endif (BUILD_MCNP5)
 
-# INCLUDE_DIRECTORIES(${HDF5_DIR}/include)
-###################################
-#
-# SETUP GTEST DEPENDENCY
-# - only build during make check
-#
-###################################
+# Build pyne_dagmc library
+add_subdirectory(pyne)
 
-SET ( GTEST_INC_DIR "" )
-ADD_SUBDIRECTORY( gtest EXCLUDE_FROM_ALL )
-INCLUDE_DIRECTORIES( ${GTEST_INC_DIR} )
+# Build dagtally library
+if (BUILD_TALLY)
+  add_subdirectory(tally)
+endif (BUILD_TALLY)
 
-###################################
-#
-# Install dirs 
-#
-###################################
+# Build MCNP5
+if (BUILD_MCNP5)
+  set(BUILD_ANY ON)
+  add_subdirectory(mcnp)
+endif (BUILD_MCNP5)
 
-SET( INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries" )
-SET( INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header" )
-SET( INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables" )
+# Build Geant4
+if (BUILD_GEANT4)
+  set(BUILD_ANY ON)
+  add_subdirectory(geant4)
+endif (BUILD_GEANT4)
 
+# Build FLUKA
+if (BUILD_FLUKA)
+  set(BUILD_ANY ON)
+  add_subdirectory(fluka)
+endif (BUILD_FLUKA)
 
-###################################
-#
-# SET THE AMALGAMTED PYNE
-#
-###################################
-# we now have PyNE Integrated
-ADD_SUBDIRECTORY(pyne)
+# Include UWUW in dagmciface library
+if (BUILD_ANY)
+  add_subdirectory(uwuw)
+endif (BUILD_ANY)
 
-###################################
-#
-# DAGMC TALLY LIBRARY
-#
-###################################
+# Build dagmciface library
+if (DI_SRC_FILES)
+  add_subdirectory(common)
+endif (DI_SRC_FILES)
 
-IF ( BUILD_TALLY )
-  ADD_SUBDIRECTORY( tally )
-ELSEIF( BUILD_TALLY )
-  MESSAGE ( STATUS "Not building tagtally interface library")
-ENDIF ( BUILD_TALLY )
-
-###################################
-#
-# DAGMC PHYSICS INTERFACE LIBRARY
-#
-###################################
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# MCNP5
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-IF ( BUILD_MCNP5 OR BUILD_ALL )
-  ADD_SUBDIRECTORY( mcnp5 )
-  ADD_SUBDIRECTORY( tally )
-ENDIF ( BUILD_MCNP5 OR BUILD_ALL )
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# FLUKA
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-IF ( BUILD_FLUKA OR BUILD_ALL )
-  ADD_SUBDIRECTORY(fluka)
-ENDIF ( BUILD_FLUKA OR BUILD_ALL )
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# GEANT4
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-IF ( BUILD_GEANT4 OR BUILD_ALL )
-  ADD_SUBDIRECTORY(geant4)
-ENDIF ( BUILD_GEANT4 OR BUILD_ALL )
-
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#
-# Build the dagmciface lib
-#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-IF ( BUILD_GEANT4 OR BUILD_MCNP5 OR BUILD_FLUKA OR BUILD_ALL )
-  ADD_SUBDIRECTORY( uwuw )
-ENDIF ( BUILD_GEANT4 OR BUILD_MCNP5 OR BUILD_FLUKA OR BUILD_ALL )
-
-# if we want static libs & executables
-IF(STATIC_LIB)
-  SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  SET(BUILD_SHARED_LIBRARIES OFF)
-  SET(CMAKE_EXE_LINKER_FLAGS "-static")
-ENDIF(STATIC_LIB)
-
-
-IF ( DI_SRC_FILES )
-  ADD_SUBDIRECTORY(common)
-
-  IF( STATIC_LIB )
-    ADD_LIBRARY(dagmciface STATIC ${DI_SRC_FILES} )
-  ELSEIF( NOT STATIC_LIB )
-    ADD_LIBRARY(dagmciface SHARED ${DI_SRC_FILES} )
-  ENDIF( STATIC_LIB )
-
-
-  SET_TARGET_PROPERTIES( dagmciface        PROPERTIES   
-                         PUBLIC_HEADER     "${DI_PUB_HEADERS}" 
-                         )
-                          
-  INSTALL( TARGETS       dagmciface 
-           LIBRARY        DESTINATION   "${INSTALL_LIB_DIR}"
-           ARCHIVE        DESTINATION   "${INSTALL_LIB_DIR}"
-           PUBLIC_HEADER  DESTINATION   "${INSTALL_INCLUDE_DIR}"
-         )
-  ELSE ( DI_SRC_FILES )
-    MESSAGE ( STATUS "Not building dagmciface physics interface library")
-  ENDIF ( DI_SRC_FILES )
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#
-# Add the tools subdirectory
-#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ADD_SUBDIRECTORY(tools)
-
-
+# Build tools
+add_subdirectory(tools)
