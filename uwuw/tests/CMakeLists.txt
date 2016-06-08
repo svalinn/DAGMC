@@ -19,7 +19,7 @@ setup_test(uwuw_unit_tests       cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(uwuw_unit_tests_tally cpp ${DRIVER} "${LINK_LIBS}")
 # uwuw_preprocessor tally test source
 list(APPEND LINK_LIBS uwuw_preprocessor)
-setup_test(uwuw_test_preprocessor cpp ${DRIVER} "${LINK_LIBS}" )
+setup_test(uwuw_unit_tests_preprocessor cpp ${DRIVER} "${LINK_LIBS}" )
 
 # Install h5m files
 install(FILES test_uwuw.h5m DESTINATION tests)
