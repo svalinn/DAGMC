@@ -76,7 +76,7 @@ int main( int argc, char* argv[] )
 	    << " of geometry " << filename << std::endl;
 
   
-  DagMC& dagmc = *DagMC::instance();
+  DagMC dagmc = DagMC();
   rval = dagmc.load_file( filename, 0 );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file." << std::endl;

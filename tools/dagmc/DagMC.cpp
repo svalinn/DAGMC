@@ -5,6 +5,7 @@
 #include "moab/Core.hpp"
 #include "moab/GeomUtil.hpp"
 #include "moab/FileOptions.hpp"
+#include "Internals.hpp"
 
 #ifdef MOAB_HAVE_CGM
 #include "InitCGMA.hpp"
@@ -36,8 +37,6 @@
 
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
-
-#define MBI moab_instance()
 
 namespace moab {
 
@@ -73,30 +72,57 @@ namespace moab {
   const bool debug    = false; /* controls print statements */
   const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 
-DagMC *DagMC::instance_ = NULL;
-Interface *DagMC::moab_instance_created = NULL;
-
 // Empty synonym map for DagMC::parse_metadata()
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
-void DagMC::create_instance(Interface *mb_impl)
-{
+DagMC::DagMC(Interface *mb_impl) {
+  moab_instance_created = false;
+  // if we arent handed a moab instance create one
   if (NULL == mb_impl) {
-    mb_impl = new Core();
-    moab_instance_created = mb_impl;
+    mb_impl = new moab::Core();
+    moab_instance_created = true;
   }
-  instance_ = new DagMC(mb_impl);
+  if(moab_instance_created){
+    std::cout << "Making new moab instance" << std::endl;
+  } else {
+    std::cout << "Using old moab instance" << std::endl;
+  }
+
+  // other wise take the existing one
+  MBI = mb_impl;
+
+  // make new obbtree
+  obbTree = new moab::OrientedBoxTreeTool(MBI,MB_OBB_TREE_TAG_NAME,true);
+
+  // This is the correct place to uniquely define default values for the dagmc settings
+  overlapThickness = 0; // must be nonnegative
+  defaultFacetingTolerance = .001;
+  numericalPrecision = .001;
+  useCAD = false;
+
+  memset( implComplName, 0, NAME_TAG_SIZE );
+  strcpy( implComplName , "impl_complement" );
 }
 
-float DagMC::version(std::string *version_string)
-{
+// Destructor
+DagMC::~DagMC(){
+  // delete the obb tree
+  obbTree->~OrientedBoxTreeTool();
+  // if we created the moab instance
+  // clear it
+  if(moab_instance_created) {
+    MBI->delete_mesh();
+    MBI->~Interface();
+ }
+}
+
+float DagMC::version(std::string *version_string) {
   if (NULL != version_string)
     *version_string = std::string("DagMC version ") + std::string(DAGMC_VERSION_STRING);
   return DAGMC_VERSION;
 }
 
-unsigned int DagMC::interface_revision()
-{
+unsigned int DagMC::interface_revision() {
   unsigned int result = 0;
   const char* interface_string = DAGMC_INTERFACE_REVISION;
   if( strlen(interface_string) >= 5 ){
@@ -123,19 +149,15 @@ DagMC::DagMC(Interface *mb_impl)
 
 }
 
-
-
-
 /* SECTION I: Geometry Initialization and problem setup */
 
 // the standard DAGMC load file method
 ErrorCode DagMC::load_file(const char* cfile,
-                           const double facet_tolerance)
-{
+                           const double facet_tolerance) {
   ErrorCode rval;
-
+  
   std::cout << "Requested faceting tolerance: " << facet_tolerance << std::endl;
-
+  
 #ifdef MOAB_HAVE_CGM
   // cgm must be initialized so we can check it for CAD data after the load
   InitCGMA::initialize_cgma();
@@ -152,7 +174,7 @@ ErrorCode DagMC::load_file(const char* cfile,
 
   // load options 
   char options[120] = {0};
-  char file_ext[4]; // file extension
+  char file_ext[4] = "" ; // file extension
 
   // get the last 4 chars of file .i.e .h5m .sat etc
   memcpy(file_ext, &cfile[strlen(cfile) - 4] ,4);
@@ -356,7 +378,7 @@ ErrorCode DagMC::init_OBBTree()
 bool DagMC::have_obb_tree()
 {
   Range entities;
-  ErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+  ErrorCode rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET,
                                                            &obbTag, 0, 1,
                                                            entities );
   return MB_SUCCESS == rval && !entities.empty();
@@ -366,7 +388,7 @@ bool DagMC::have_impl_compl()
 {
   Range entities;
   const void* const tagdata[] = {implComplName};
-  ErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+  ErrorCode rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET,
                                                            &nameTag, tagdata, 1,
                                                            entities );MB_CHK_ERR(rval);
   if (!entities.empty())
@@ -379,7 +401,7 @@ ErrorCode DagMC::get_impl_compl()
 {
   Range entities;
   const void* const tagdata[] = {implComplName};
-  ErrorCode rval = mbImpl->get_entities_by_type_and_tag( 0, MBENTITYSET,
+  ErrorCode rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET,
                                                            &nameTag, tagdata, 1,
                                                            entities );
   // query error
@@ -430,7 +452,7 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
       return rval;
     if (tris.empty())
       std::cerr << "WARNING: Surface " << get_entity_id(*i) << " has no facets." << std::endl;
-    rval = obbTree.build( tris, root );
+    rval = obbTree->build( tris, root );
     if (MB_SUCCESS != rval)
       return rval;
     rval = MBI->add_entities( root, &*i, 1 );
@@ -443,40 +465,58 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
 
   for (Range::iterator i = vols.begin(); i != vols.end(); ++i) {
       // get all surfaces in volume
-    Range tmp_surfs;
+    moab::Range tmp_surfs;
     rval = MBI->get_child_meshsets( *i, tmp_surfs );
     if (MB_SUCCESS != rval)
       return rval;
 
       // get OBB trees for each surface
-    EntityHandle root;
-    Range trees;
+    moab::EntityHandle root;
+    moab::Range trees;
+    trees.clear();
+    std::cout << trees[0] << " a " << trees.size() << std::endl;
+    //std::vector<moab::EntityHandle> trees_v;
     for (Range::iterator j = tmp_surfs.begin();  j != tmp_surfs.end(); ++j) {
-        // skip any surfaces that are non-manifold in the volume
-        // because point containment code will get confused by them
-      int sense;
+      // skip any surfaces that are non-manifold in the volume
+      // because point containment code will get confused by them
+      std::cout << TYPE_FROM_HANDLE(*j) << std::endl;
+      std::cout << trees[0] << " b " << trees.size() << std::endl;
+      int sense = 0;
+      std::cout << trees[0] << " c " << trees.size() << std::endl;
       rval = surface_sense( *i, *j, sense );
+      std::cout << trees[0] << " d " << trees.size() << std::endl;
       if (MB_SUCCESS != rval) {
         std::cerr << "Surface/Volume sense data missing." << std::endl;
         return rval;
       }
+      std::cout << trees[0] << " e " << trees.size() << std::endl;
       if (!sense)
         continue;
-
+      std::cout << trees[0] << " f " << trees.size() << std::endl;
       rval = MBI->tag_get_data( obbTag, &*j, 1, &root );
-      if (MB_SUCCESS != rval || !root)
-        return MB_FAILURE;
+      std::cout << trees[0] << " g " << trees.size() << std::endl;
+      if (MB_SUCCESS != rval || !root) return MB_FAILURE;
+      //if(!root) return moab::MB_FAILURE;
+      std::cout << trees[0] << " h  " << trees.size() << std::endl;
+      //      trees_v.push_back(root);
       trees.insert( root );
+      std::cout << trees[0] << " i " << trees.size() << std::endl;
     }
-
-      // build OBB tree for volume
-    rval = obbTree.join_trees( trees, root );
-    if (MB_SUCCESS != rval)
-      return rval;
+    for ( moab::Range::iterator it = trees.begin() ; it != trees.end() ; ++it ) {
+      std::cout << *it << " " << TYPE_FROM_HANDLE(*it) << std::endl;
+    }
+    //for ( int j = 0 ; j < trees_v.size() ; j++ ) {
+      // trees.insert(trees_v[j]);
+      //    }
+    
+    // build OBB tree for volume
+    rval = obbTree->join_trees( trees, root );
+    std::cout << "rval join " << rval << std::endl;
+    if (MB_SUCCESS != rval) return rval;
 
     rval = MBI->tag_set_data( obbTag, &*i, 1, &root );
-    if (MB_SUCCESS != rval)
-      return rval;
+    std::cout << "rval set " << rval << std::endl;
+    if (MB_SUCCESS != rval) return rval;
 
   }
 
@@ -565,7 +605,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
   }
 
     // join surface trees to make OBB tree for implicit complement
-  rval = obbTree.join_trees( comp_tree, comp_root );
+  rval = obbTree->join_trees( comp_tree, comp_root );
   if (MB_SUCCESS != rval)
     return rval;
 
@@ -672,7 +712,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
 
   // numericalPrecision is used for box.intersect_ray and find triangles in the
   // neighborhood of edge/node intersections.
-  rval = obbTree.ray_intersect_sets( dists, surfs, facets,
+  rval = obbTree->ray_intersect_sets( dists, surfs, facets,
                                      root, numericalPrecision,
                                      min_tolerance_intersections,
                                      point, dir, &nonneg_ray_len,
@@ -835,7 +875,7 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume,
 
   // Get intersection(s) of forward and reverse orientation. Do not return
   // glancing intersections or previous facets.
-  ErrorCode rval = obbTree.ray_intersect_sets( dists, surfs, facets, root,
+  ErrorCode rval = obbTree->ray_intersect_sets( dists, surfs, facets, root,
                                                numericalPrecision,
                                                min_tolerance_intersections,
                                                xyz, ray_direction,
@@ -925,7 +965,7 @@ ErrorCode DagMC::test_volume_boundary( const EntityHandle volume, const EntityHa
     const CartVect point(xyz);
     CartVect nearest;
     EntityHandle facet_out;
-    rval = obbTree.closest_to_location( point.array(), root, nearest.array(), facet_out );
+    rval = obbTree->closest_to_location( point.array(), root, nearest.array(), facet_out );
     if (MB_SUCCESS != rval) return rval;
 
     rval = boundary_case( volume, dir, uvw[0], uvw[1], uvw[2], facet_out, surface );
@@ -996,7 +1036,7 @@ ErrorCode DagMC::closest_to_location( EntityHandle volume, const double coords[3
   const CartVect point(coords);
   CartVect nearest;
   EntityHandle facet_out;
-  ErrorCode rval = obbTree.closest_to_location( point.array(), root, nearest.array(), facet_out );
+  ErrorCode rval = obbTree->closest_to_location( point.array(), root, nearest.array(), facet_out );
   if (MB_SUCCESS != rval) return rval;
 
   // calculate distance between point and nearest facet
@@ -1183,7 +1223,7 @@ ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3], double angl
 
   // if no history or history empty, use nearby facets
   if( !history || (history->prev_facets.size() == 0) ){
-    rval = obbTree.closest_to_location( in_pt, root, numericalPrecision, facets );
+    rval = obbTree->closest_to_location( in_pt, root, numericalPrecision, facets );
     assert(MB_SUCCESS == rval);
     if (MB_SUCCESS != rval) return rval;
   }
@@ -1196,11 +1236,11 @@ ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3], double angl
   const EntityHandle *conn;
   int len;
   for (unsigned i = 0; i < facets.size(); ++i) {
-    rval = mbImpl->get_connectivity( facets[i], conn, len );
+    rval = MBI->get_connectivity( facets[i], conn, len );
     assert( MB_SUCCESS == rval );
     assert( 3 == len );
 
-    rval = mbImpl->get_coords( conn, 3, coords[0].array() );
+    rval = MBI->get_coords( conn, 3, coords[0].array() );
     assert(MB_SUCCESS == rval);
 
     coords[1] -= coords[0];
@@ -1332,12 +1372,12 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     const EntityHandle *conn;
     int len, sense_out;
 
-    rval = mbImpl->get_connectivity( facet, conn, len );
+    rval = MBI->get_connectivity( facet, conn, len );
     assert( MB_SUCCESS == rval );
     if(MB_SUCCESS != rval) return rval;
     assert( 3 == len );
 
-    rval = mbImpl->get_coords( conn, 3, coords[0].array() );
+    rval = MBI->get_coords( conn, 3, coords[0].array() );
     assert(MB_SUCCESS == rval);
     if(MB_SUCCESS != rval) return rval;
 
@@ -2030,7 +2070,7 @@ ErrorCode DagMC::getobb(EntityHandle volume, double center[3], double axis1[3],
   EntityHandle root = rootSets[volume - setOffset];
 
     // call box to get center and vectors to faces
-  return obbTree.box(root, center, axis1, axis2, axis3);
+  return obbTree->box(root, center, axis1, axis2, axis3);
 
 }
 

@@ -24,8 +24,8 @@ namespace moab {
 
 class CartVect;
 
-#define DAGMC_VERSION 1.0
-#define DAGMC_VERSION_STRING "1.0"
+#define DAGMC_VERSION 2.0
+#define DAGMC_VERSION_STRING "2.0"
 #define DAGMC_INTERFACE_REVISION "$Rev$"
 
 /**\brief
@@ -55,11 +55,8 @@ class CartVect;
 class DagMC
 {
 public:
-  static DagMC *instance(Interface *mb_impl = NULL);
-  static void destroy();
-
-
-  ~DagMC() {}
+   DagMC(Interface *mb_impl = NULL);
+  ~DagMC();
 
   /** Return the version of this library */
   static float version(std::string *version_string = NULL);
@@ -546,7 +543,7 @@ private:
 
   /* SECTION VI: Other */
 public:
-  OrientedBoxTreeTool *obb_tree() {return &obbTree;}
+  OrientedBoxTreeTool *obb_tree() {return obbTree;}
 
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
@@ -561,26 +558,22 @@ public:
     // get the root of the obbtree for a given entity
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle &root);
 
-    // Get the instance of MOAB used by functions in this file.
-  Interface* moab_instance() {return mbImpl;}
+  // Get the instance of MOAB used by functions in this file.
+  Interface* moab_instance() {return MBI;}
 
 
 private:
 
-  DagMC(Interface *mb_impl);
-
-  static void create_instance(Interface *mb_impl = NULL);
-
   /* PRIVATE MEMBER DATA */
 
-  static DagMC *instance_;
-  static Interface *moab_instance_created;
-  Interface *mbImpl;
+  Interface *MBI;
+  bool moab_instance_created;
+  OrientedBoxTreeTool *obbTree;
 
-  OrientedBoxTreeTool obbTree;
   EntityHandle impl_compl_handle;
+public:
   Tag obbTag, geomTag, idTag, nameTag, senseTag, facetingTolTag;
-
+private:
   std::vector<EntityHandle> entHandles[5];
     // store some lists indexed by handle
     // this is the lowest-valued handle among entity sets representing
@@ -623,25 +616,6 @@ private:
 
 };
 
-inline DagMC *DagMC::instance(Interface *mb_impl)
-{
-  if (NULL == instance_) create_instance(mb_impl);
-
-  return instance_;
-}
-
-inline void DagMC::destroy()
-{
-  if (NULL != instance_) {
-    delete instance_;
-    instance_ = NULL;
-  }
-
-  if (NULL != moab_instance_created) {
-    delete moab_instance_created;
-    moab_instance_created = NULL;
-  }
-}
 
 inline EntityHandle DagMC::entity_by_index( int dimension, int index )
 {

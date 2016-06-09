@@ -250,7 +250,7 @@ int main( int argc, char* argv[] )
 
   /* Initialize DAGMC and find the appropriate volume */
   std::cout << "Initializing DagMC, facet_tol = " << facet_tol << std::endl;
-  DagMC& dagmc = *DagMC::instance();
+  DagMC dagmc = DagMC();
   rval = dagmc.load_file( filename, facet_tol );
   if(MB_SUCCESS != rval) {
     std::cerr << "Failed to load file '" << filename << "'" << std::endl;
