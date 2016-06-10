@@ -92,7 +92,8 @@ DagMC::DagMC(Interface *mb_impl) {
   MBI = mb_impl;
 
   // make new obbtree
-  obbTree = new moab::OrientedBoxTreeTool(MBI,MB_OBB_TREE_TAG_NAME,true);
+  // obbTree = new moab::OrientedBoxTreeTool(MBI,MB_OBB_TREE_TAG_NAME,true);
+  obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
 
   // This is the correct place to uniquely define default values for the dagmc settings
   overlapThickness = 0; // must be nonnegative
@@ -243,7 +244,7 @@ ErrorCode DagMC::finish_loading()
 
   facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
 
-    // get sense of surfaces wrt volumes
+  // get sense of surfaces wrt volumes
   senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
   // search for a tag that has the faceting tolerance
@@ -473,41 +474,21 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
       // get OBB trees for each surface
     moab::EntityHandle root;
     moab::Range trees;
-    trees.clear();
-    std::cout << trees[0] << " a " << trees.size() << std::endl;
-    //std::vector<moab::EntityHandle> trees_v;
     for (Range::iterator j = tmp_surfs.begin();  j != tmp_surfs.end(); ++j) {
       // skip any surfaces that are non-manifold in the volume
       // because point containment code will get confused by them
-      std::cout << TYPE_FROM_HANDLE(*j) << std::endl;
-      std::cout << trees[0] << " b " << trees.size() << std::endl;
       int sense = 0;
-      std::cout << trees[0] << " c " << trees.size() << std::endl;
       rval = surface_sense( *i, *j, sense );
-      std::cout << trees[0] << " d " << trees.size() << std::endl;
       if (MB_SUCCESS != rval) {
         std::cerr << "Surface/Volume sense data missing." << std::endl;
         return rval;
       }
-      std::cout << trees[0] << " e " << trees.size() << std::endl;
       if (!sense)
         continue;
-      std::cout << trees[0] << " f " << trees.size() << std::endl;
       rval = MBI->tag_get_data( obbTag, &*j, 1, &root );
-      std::cout << trees[0] << " g " << trees.size() << std::endl;
       if (MB_SUCCESS != rval || !root) return MB_FAILURE;
-      //if(!root) return moab::MB_FAILURE;
-      std::cout << trees[0] << " h  " << trees.size() << std::endl;
-      //      trees_v.push_back(root);
       trees.insert( root );
-      std::cout << trees[0] << " i " << trees.size() << std::endl;
     }
-    for ( moab::Range::iterator it = trees.begin() ; it != trees.end() ; ++it ) {
-      std::cout << *it << " " << TYPE_FROM_HANDLE(*it) << std::endl;
-    }
-    //for ( int j = 0 ; j < trees_v.size() ; j++ ) {
-      // trees.insert(trees_v[j]);
-      //    }
     
     // build OBB tree for volume
     rval = obbTree->join_trees( trees, root );
