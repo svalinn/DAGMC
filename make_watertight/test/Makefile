@@ -30,8 +30,11 @@ cw_func.o: ../cw_func.cpp ../cw_func.hpp
 mw_func.o: ../mw_func.cpp ../mw_func.hpp
 	$(CC) $(CXXFLAGS) ${MOAB_INCLUDES} -c ../mw_func.cpp
 
-test_cyl: test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
-	$(CC) $(LD_FLAGS) -o test_cyl test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o  \
+test_funcs.o: gen.o
+	$(CC) $(CXXFLAGS) $(MOAB_INCLUDES) -c test_funcs.cpp
+
+test_cyl: test_cyl.o test_funcs.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
+	$(CC) $(LD_FLAGS) -o test_cyl test_funcs.o test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o  \
 	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
 check: test_cyl
 	./cone_tests && echo && ./test_cyl
