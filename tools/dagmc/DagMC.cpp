@@ -75,7 +75,7 @@ namespace moab {
 // Empty synonym map for DagMC::parse_metadata()
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
-DagMC::DagMC(Interface *mb_impl) {
+DagMC::DagMC(Interface *mb_impl, double overlap_thickness, double numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
   if (NULL == mb_impl) {
@@ -96,9 +96,9 @@ DagMC::DagMC(Interface *mb_impl) {
   obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
 
   // This is the correct place to uniquely define default values for the dagmc settings
-  overlapThickness = 0; // must be nonnegative
+  overlapThickness = overlap_thickness; // must be nonnegative
   defaultFacetingTolerance = .001;
-  numericalPrecision = .001;
+  numericalPrecision = numerical_precision;
   useCAD = false;
 
   memset( implComplName, 0, NAME_TAG_SIZE );
