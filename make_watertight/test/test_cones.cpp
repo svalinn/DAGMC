@@ -37,6 +37,11 @@ moab::Interface *MBI();
 //for unit testing purposes, we don't care about the output. Just PASS or FAIL. 
 bool verbose=false;
 
+ std::cout << "===================================" << std::endl;
+ std::cout << "            CONE TESTS             " << std::endl;
+ std::cout << "===================================" << std::endl; 
+
+ 
 // ******************************************************************
   // Load the h5m file and create tags.
   // ******************************************************************
@@ -44,14 +49,14 @@ bool verbose=false;
   clock_t start_time;
   start_time = clock();
   //save the mesh to a new filename
-  std::string input_name="cyl.h5m";
-  std::string root_name="cyl.h5m";
+  std::string input_name="cones.h5m";
+  std::string root_name="cones.h5m";
   int len = root_name.length();
   root_name.erase(len-4);
 
   // load file and get tolerance from input argument
   moab::ErrorCode result;
-  std::string filename = "cyl.h5m"; //set filename
+  std::string filename = "cones.h5m"; //set filename
   moab::EntityHandle input_set;
   result = MBI()->create_meshset( moab::MESHSET_SET, input_set ); //create handle to meshset
   if(moab::MB_SUCCESS != result) 
@@ -139,9 +144,11 @@ if(verbose)
   
 // initialize boolean for each set of tests
   bool test_set_result=true;
-
+  std::string test_set_title;
 ///////////Single Verticie Movement Tests////////////////////
-  std::cout << "SINGLE VERTEXT MOVEMENT TESTS" << std::endl;
+
+  test_set_title = "SINGLE VERTEXT MOVEMENT TESTS";
+  std::cout << test_set_title << std::endl;
 
 ///////////////BEGIN 1st TEST////////////////////////
 
@@ -158,16 +165,10 @@ if(verbose)
   // Lastly Check to see if make_watertight fixed the model
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
+
 
 ///////////////BEGIN 2ND TEST////////////////////////
 
@@ -193,16 +194,8 @@ if(verbose)
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 
 ///////////////BEGIN 3RD TEST////////////////////////
@@ -229,16 +222,8 @@ if(verbose)
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 4TH TEST////////////////////////
 
@@ -265,32 +250,17 @@ if(verbose)
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-
-  if(sealed)
-  {
-   std::cout << "PASS" << std::endl << std::endl ;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl << std::endl ;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 //////////END SINGLE VERTEX MOVEMENT TESTS///////////
 
-  if(test_set_result)
-  {
-   std::cout << "SINGLE VERTEX MOVEMENT TESTS PASSED" << std::endl << std::endl;
-  }
-  else
-  {
-   std::cout << "SINGLE VERTEX MOVEMENT TESTS FAILED" << std::endl << std::endl;
-   exit(0);
-  }
+  test_set_output( test_set_title, test_set_result );
 
 //////////LOCKED VERTEX PAIR MOVEMENT TESTS/////////////////
 
-std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS" << std::endl;
+  test_set_title = "LOCKED VERTEX PAIR MOVEMENT TESTS";
+  std::cout << test_set_title << std::endl;
 
 ///////////////BEGIN 1ST TEST////////////////////////
 
@@ -318,15 +288,8 @@ std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 2ND TEST////////////////////////
 
@@ -354,16 +317,8 @@ std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
-
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 3RD TEST////////////////////////
 
@@ -391,15 +346,8 @@ std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 4TH TEST////////////////////////
 
@@ -429,34 +377,18 @@ std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-
-  if(sealed)
-  {
-   std::cout << "PASS" << std::endl << std::endl ;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl << std::endl ;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 
 //////////END LOCKED VERTEX PAIR MOVEMENT TESTS///////////
 
-  if(test_set_result)
-  {
-   std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
-  }
-  else
-  {
-   std::cout << "LOCKED VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
-   exit(0);
-  }
-
+  test_set_output( test_set_title, test_set_result );
 
 ////////////RAND PAIR MOVEMENT TESTS//////////////////
 
-std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
+  test_set_title = "RAND PAIR MOVEMENT TESTS";
+  std::cout << test_set_title << std::endl;
 
 ///////////////BEGIN 1ST TEST////////////////////////
 
@@ -482,15 +414,8 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 2ND TEST////////////////////////
 
@@ -516,16 +441,9 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   // Lastly Check to see if make_watertight fixed the model
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 3RD TEST////////////////////////
 
@@ -551,15 +469,8 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 
 ///////////////BEGIN 4TH TEST////////////////////////
@@ -586,33 +497,18 @@ std::cout << "RAND PAIR MOVEMENT TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl << std::endl ;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl << std::endl ;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 
 //////////END RAND LOCKED VERTEX PAIR MOVEMENT TESTS///////////
 
-  if(test_set_result)
-  {
-   std::cout << "RANDOM LOCKED VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
-  }
-  else
-  {
-   std::cout << "RANDOM LOCKED VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
-   exit(0);
-  }
-
+  test_set_output( test_set_title, test_set_result );
 
 /////////////ADJACENT PLUS ONE TESTS//////////////////
 
-std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
+  test_set_title = "ADJACENT PLUS ONE TESTS";
+  std::cout << test_set_title << std::endl;
 
 ///////////////BEGIN 1ST TEST////////////////////////
 
@@ -638,15 +534,8 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 2ND TEST////////////////////////
 
@@ -672,15 +561,8 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 3RD TEST////////////////////////
 
@@ -706,15 +588,8 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 
 ///////////////BEGIN 4TH TEST////////////////////////
@@ -741,33 +616,17 @@ std::cout << "ADJACENT PLUS ONE TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl << std::endl ;
-  }
-  else
-   
-  {
-   std::cout << "FAIL" << std::endl << std::endl ;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 //////////END ADJACENT + 1 VERTEX MOVEMENT TESTS///////////
 
-  if(test_set_result)
-  {
-   std::cout << "ADJACENT PLUS ONE VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
-  }
-  else
-  {
-   std::cout << "ADJACENT PLUS ONE VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
-   exit(0);
-  }
-
+  test_set_output( test_set_title, test_set_result );
 
 //////////NON-ADJACENT LOCKED PAIR TESTS//////////////
 
-std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
+  test_set_title = "NON-ADJACENT LOCKED PAIR TESTS";
+  std::cout << test_set_title << std::endl;
 
 ///////////////BEGIN 1ST TEST////////////////////////
 
@@ -793,15 +652,8 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 2ND TEST////////////////////////
 
@@ -827,15 +679,8 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 
 ///////////////BEGIN 3RD TEST////////////////////////
@@ -862,15 +707,8 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 ///////////////BEGIN 4TH TEST////////////////////////
 
@@ -896,29 +734,13 @@ std::cout << "NON-ADJACENT LOCKED PAIR TESTS" << std::endl;
   result=cw_func::check_mesh_for_watertightness( input_set, facet_tolerance, sealed, test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
   
-    if(sealed)
-  {
-   std::cout << "PASS" << std::endl << std::endl ;
-  }
-  else
-  {
-   std::cout << "FAIL" << std::endl << std::endl ;
-   test_set_result=false;
-  }
+  single_test_output( sealed );
+  if (!sealed) test_set_result=false;
 
 
 //////////END NON-ADJACNET LOCKED VERTEX PAIR MOVEMENT TESTS///////////
 
-  if(test_set_result)
-  {
-   std::cout << "NON-ADJACENT LOCKED VERTEX PAIR MOVEMENT TESTS PASSED" << std::endl << std::endl;
-  }
-  else
-  {
-   std::cout << "NON-ADJACENT LOCKED VERTEX PAIR MOVEMENT TESTS FAILED" << std::endl << std::endl;
-   exit(0);
-  }
-
+  test_set_output( test_set_title, test_set_result );
 
 }
 

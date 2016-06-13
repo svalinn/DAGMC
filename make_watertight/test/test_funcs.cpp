@@ -316,3 +316,27 @@ moab::ErrorCode reload_mesh(const char* filename,  moab::EntityHandle &meshset, 
 
   return result;
 }
+
+// prints the result of a single test
+void single_test_output( bool test_result ) {
+  if (test_result) {
+    std::cout << " PASS" << std::endl;
+  }
+  else {
+    std::cout << " FAIL" << std::endl;
+  }
+}
+
+// prints the name of the test set and the result
+void test_set_output( std::string& set_title, bool set_result ) {
+  std::cout << set_title;
+  if (set_result) {
+    std::cout << " PASSED" << std::endl;
+  }
+  else {
+    std::cout << " FAILED" << std::endl;
+    exit(0);
+  }
+  std::cout << std::endl; //extra line to separate test set output
+}
+

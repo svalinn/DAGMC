@@ -70,3 +70,7 @@ moab::ErrorCode write_mod_file( std::string filename );
 
 // used to clear all mesh data and reload the file as original
 moab::ErrorCode reload_mesh(const char* filename,  moab::EntityHandle &meshset, bool debug = false);
+
+void single_test_output( bool test_result );
+
+void test_set_output( std::string& set_title, bool set_result );
