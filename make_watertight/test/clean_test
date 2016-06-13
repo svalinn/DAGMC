@@ -1,6 +1,0 @@
-#! /bin/bash
-
-rm *_mod* *.o test_cyl
-
-exit 0
-

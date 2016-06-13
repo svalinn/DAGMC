@@ -36,8 +36,13 @@ test_funcs.o: gen.o
 test_cyl: test_cyl.o test_funcs.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
 	$(CC) $(LD_FLAGS) -o test_cyl test_funcs.o test_cyl.o gen.o arc.o zip.o cleanup.o cw_func.o  \
 	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
-check: test_cyl
-	./cone_tests && echo && ./test_cyl
+
+test_cones: test_cones.o test_funcs.o gen.o arc.o zip.o cleanup.o cw_func.o mw_func.o
+	$(CC) $(LD_FLAGS) -o test_cones test_funcs.o test_cones.o gen.o arc.o zip.o cleanup.o cw_func.o  \
+	mw_func.o ${MOAB_LIBS_LINK} -ldagmc
+
+check: test_cyl test_cones
+	./test_cyl && ./test_cones
 
 clean:
-	rm -f test_cyl *.o *_mod*
+	rm -f test_cyl test_cones *.o *_mod* *_zip* *~ -
