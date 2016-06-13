@@ -13,7 +13,7 @@ using namespace moab;
 
 using moab::DagMC;
 
-#define DAG DagMC::instance()
+DagMC *DAG;
 
 #define CHKERR(A) do { if (MB_SUCCESS != (A)) { \
   std::cerr << "Failure (error code " << (A) << ") at " __FILE__ ":" \
@@ -254,6 +254,9 @@ void dagmc_point_on_corner_8()
 int main(int /* argc */, char** /* argv */)
 {
   int result = 0;
+
+  DAG = new DagMC();
+  
   result += RUN_TEST(dagmc_setup_test); // setup problem
   result += RUN_TEST(dagmc_point_in); // point in centre
   // rays fired along cardinal directions 
@@ -276,7 +279,7 @@ int main(int /* argc */, char** /* argv */)
 	//result += RUN_TEST(dagmc_point_in({5.0, 0.0, 0.0}); // point in centre
 	//result += RUN_TEST(dagmc_point_in({-5.0, 0.0, 0.0}); // point in centre
 
-  DagMC::destroy();
+  DAG->~DagMC();
 
   return result;
 }

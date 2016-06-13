@@ -13,7 +13,7 @@ using namespace moab;
 
 using moab::DagMC;
 
-#define DAG DagMC::instance()
+DagMC *DAG;
 
 #define CHKERR(A) do { if (MB_SUCCESS != (A)) { \
   std::cerr << "Failure (error code " << (A) << ") at " __FILE__ ":" \
@@ -165,6 +165,9 @@ void dagmc_outside_face_rayfire_history()
 int main(int /* argc */, char** /* argv */)
 {
   int result = 0;
+
+  DAG = new DagMC();
+
   result += RUN_TEST(dagmc_setup_test); // setup problem
   // rays fired along cardinal directions 
   result += RUN_TEST(dagmc_origin_face_rayfire); // point in centre
@@ -174,7 +177,7 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_outside_face_rayfire_history_fail); // fire ray from point outside geometry using ray history
   result += RUN_TEST(dagmc_outside_face_rayfire_history); // fire ray from point outside geometry using ray history
 
-  DagMC::destroy();
+  DAG->~DagMC();
 
   return result;
 }

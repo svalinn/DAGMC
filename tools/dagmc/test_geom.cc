@@ -357,7 +357,8 @@ int main( int argc, char* argv[] )
   
   dagmc->~DagMC();
   dagmc = new DagMC();
-  rval = dagmc->moab_instance()->load_file( filename );
+  //  rval = dagmc->moab_instance()->load_file( filename );
+  rval = dagmc->load_file( filename, 0);
   remove( filename );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file with overlaps." << std::endl;
@@ -918,6 +919,7 @@ ErrorCode test_point_in_volume( DagMC * dagmc )
   Interface *moab = dagmc->moab_instance();
 
   Tag dim_tag = dagmc->geom_tag();
+
   Range vols;
   const int three = 3;
   const void* ptr = &three;

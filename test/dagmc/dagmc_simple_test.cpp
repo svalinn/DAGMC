@@ -13,7 +13,7 @@ using namespace moab;
 
 using moab::DagMC;
 
-#define DAG DagMC::instance()
+DagMC *DAG; 
 
 #define CHKERR(A) do { if (MB_SUCCESS != (A)) { \
   std::cerr << "Failure (error code " << (A) << ") at " __FILE__ ":" \
@@ -127,6 +127,9 @@ void dagmc_test_boundary()
 int main(int /* argc */, char** /* argv */)
 {
   int result = 0;
+
+  DAG = new moab::DagMC();
+  
   result += RUN_TEST(dagmc_load_file); // test ray fire
   result += RUN_TEST(dagmc_build_obb); // build the obb
   result += RUN_TEST(dagmc_num_vols); // make sure the num of vols correct
@@ -136,7 +139,7 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_closest_to); // check the distance to surface nearest point
   result += RUN_TEST(dagmc_test_boundary); // check particle entering leaving
 
-  DagMC::destroy();
+  DAG->~DagMC();
 
   return result;
 }
