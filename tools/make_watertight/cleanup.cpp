@@ -44,9 +44,9 @@ namespace cleanup {
     result = MBI()->tag_delete( obbTag ); // use this for DENSE tags
     assert(moab::MB_SUCCESS == result);
 
-
+    bool created;
     result = MBI()->tag_get_handle ( "OBB", sizeof(double), 
-     				  moab::MB_TYPE_DOUBLE, rootTag, moab::MB_TAG_SPARSE, 0, false);
+     				  moab::MB_TYPE_DOUBLE, rootTag, moab::MB_TAG_SPARSE, 0, &created);
     assert(moab::MB_SUCCESS==result || moab::MB_ALREADY_ALLOCATED==result);
     // Were all of the trees deleted? Perhaps some of the roots we found were
     // child roots that got deleted with their parents.
