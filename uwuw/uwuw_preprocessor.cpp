@@ -4,7 +4,7 @@
 
 // constructor
 uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std::string dagmc_filename,
-                                     std::string output_file,  bool verbosity)
+                                     std::string output_file,  bool verbosity, bool fatal_errors)
 {
   // make new name concatenator class
   ncr = new name_concatenator();
@@ -25,6 +25,7 @@ uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std:
 
   // set the verbosity
   verbose = verbosity;
+  fatal = fatal_errors;
 }
 
 // destructor
@@ -351,44 +352,94 @@ void uwuw_preprocessor::get_dagmc_properties()
 }
 
 void uwuw_preprocessor::check_material_props(std::vector<std::string> material_props,
-    std::vector<std::string> density_props,
-    int cellid)
+    std::vector<std::string> density_props, int cellid)
 {
 
   if(material_props.size() == 0 ) {
-    std::cout << "Volume " << cellid << " has no 'mat:' property " << std::endl;
-    std::cout << "Please check your material assignments " << cellid << std::endl;
-    exit(EXIT_FAILURE);
+    if( verbose || fatal) {
+      std::cout << "Volume " << cellid << " has no 'mat:' property " << std::endl;
+      std::cout << "Please check your material assignments " << cellid << std::endl;
+    }
+    if(fatal) exit(EXIT_FAILURE);
+    no_props.push_back(cellid);
   }
 
   // check the that each cell's material assignment is unique
   if( material_props.size() > 1 ) {
-    std::cout << "more than one material for volume with id " << cellid << std::endl;
-    std::cout << cellid << " has the following material assignments" << std::endl;
-    for ( int j = 0 ; j < material_props.size() ; j++ ) {
-      std::cout << material_props[j] << std::endl;
+    if( verbose || fatal ) {
+      std::cout << "More than one material for volume with id " << cellid << std::endl;
+      std::cout << cellid << " has the following material assignments" << std::endl;
+      for ( int j = 0 ; j < material_props.size() ; j++ ) {
+	std::cout << material_props[j] << std::endl;
+      }
+      std::cout << "Please check your material assignments " << cellid << std::endl;
     }
-    std::cout << "Please check your material assignments " << cellid << std::endl;
-    exit(EXIT_FAILURE);
+    if(fatal) exit(EXIT_FAILURE);
+    multiple_props.push_back(cellid);
   }
 
   // check that there actually is an assignment
   if( material_props[0] ==  "" ) {
-    std::cout << "Volume " << cellid << " has no 'mat:' property " << std::endl;
-    std::cout << "Please check your material assignments " << cellid << std::endl;
-    exit(EXIT_FAILURE);
+    if( verbose || fatal ) {
+      std::cout << "Volume " << cellid << " has no 'mat:' property " << std::endl;
+      std::cout << "Please check your material assignments " << cellid << std::endl;
+    }
+    if(fatal) exit(EXIT_FAILURE);
+    blank_props.push_back(cellid);
   }
 
   // check the that each cell's density assignment is unique
   if(density_props.size() > 1) {
-    std::cout << "More than one density specified for " << cellid <<std::endl;
-    std::cout << cellid << " has the following density assignments" << std::endl;
-    for ( int j = 0 ; j < density_props.size() ; j++ ) {
-      std::cout << density_props[j] << std::endl;
+    if( verbose || fatal ) {
+      std::cout << "More than one density specified for " << cellid <<std::endl;
+      std::cout << cellid << " has the following density assignments" << std::endl;
+      for ( int j = 0 ; j < density_props.size() ; j++ ) {
+	std::cout << density_props[j] << std::endl;
+      }
+      std::cout << "Please check your density assignments " << cellid << std::endl;
     }
-    std::cout << "Please check your density assignments " << cellid << std::endl;
-    exit(EXIT_FAILURE);
+    if(fatal) exit(EXIT_FAILURE); 
+    multiple_densities.push_back(cellid);
   }
+}
+
+void uwuw_preprocessor::print_summary() {
+
+  std::cout << "+----------------------------------------------------" << std::endl;
+  std::cout << "|      UWUW Summary                                  " << std::endl;
+  std::cout << "+----------------------------------------------------" << std::endl;
+  std::cout << "| Volumes with no property " << no_props.size() << std::endl;
+  property_vector(no_props);
+  std::cout << "+----------------------------------------------------" << std::endl;
+  std::cout << "| Volumes with multiple properties " << multiple_props.size() << std::endl;
+  property_vector(multiple_props);
+  std::cout << "+----------------------------------------------------" << std::endl;
+  std::cout << "| Volumes with blank properties " << blank_props.size() << std::endl;
+  property_vector(blank_props);
+  std::cout << "+----------------------------------------------------" << std::endl;
+  std::cout << "| Volumes with multiple densities " << multiple_densities.size() << std::endl;
+  property_vector(multiple_densities);
+  std::cout << "+----------------------------------------------------" << std::endl;
+
+
+  return;
+}
+
+void uwuw_preprocessor::property_vector(std::vector<int> props) {
+  if(props.size() == 0) return;
+  for ( int i = 0 ; i < props.size() ; i++ ) {
+    if ( i == 0 ) {
+      std::cout << "| " << props[i] << " ";
+      continue;
+    }
+    if(i % 10 == 0 ) {
+      std::cout  <<  props[i] << " " << std::endl << "| ";
+    }
+    else
+      std::cout << props[i] << " ";
+  }
+  std::cout << std::endl;
+  return;
 }
 
 void uwuw_preprocessor::make_material_groupname(std::vector<std::string> material_props,
@@ -612,25 +663,17 @@ std::string name_concatenator::shift_and_increment(std::string name)
       }
 
     count++; // increment counter
-    char* int_as_string;
+    std::string int_as_string;
+    int_to_string(count,int_as_string);
     if(count < 10) {
-      int_as_string = new char[1];
-      sprintf(int_as_string,"%d",count);
       name[7] = int_as_string[0];
-      delete[] int_as_string;
     } else if(count >= 10 && count < 100 ) {
-      int_as_string = new char[2];
-      sprintf(int_as_string,"%d",count);
       name[6] = int_as_string[0];
       name[7] = int_as_string[1];
-      delete[] int_as_string;
     }  else if(count >= 100 && count < 1000 ) {
-      int_as_string = new char[3];
-      sprintf(int_as_string,"%d",count);
-      name[5] = int_as_string[0];
-      name[6] = int_as_string[1];
-      name[7] = int_as_string[2];
-      delete[] int_as_string;
+      name[6] = int_as_string[0];
+      name[7] = int_as_string[1];
+      name[8] = int_as_string[2];
     }
     if(count == 1000) {
       std::cout << "Maximum limit of material increments reached" << std::endl;
@@ -640,3 +683,9 @@ std::string name_concatenator::shift_and_increment(std::string name)
   return name;
 }
 
+void name_concatenator::int_to_string(int convert, std::string &string){
+  std::stringstream ss;
+  ss << convert;
+  string = ss.str();
+  return;
+}

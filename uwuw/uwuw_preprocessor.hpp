@@ -73,10 +73,13 @@ class uwuw_preprocessor
    * \param[in]  output_filename, a string defining the full path of the output file.
    * \param[in]  verbosity, a boolean value representing if vebrose (true) or non verbose(false) ouput
    *             is required.
+   * \param[in]  fatal, a boolean value representing if fatal (true) then we exit on fatal errors, not fatal (false)
+   *             we continue.
    */
   uwuw_preprocessor(std::string material_library_filename,
                     std::string dagmc_filename,
-                    std::string output_file, bool verbose = false); // constructor
+                    std::string output_file, bool verbose = false,
+		    bool fatal = true); // constructor
 
   /**
    * \brief standard destructor
@@ -120,6 +123,13 @@ class uwuw_preprocessor
    * the output file output_file as specified by the constructor.
    */
   void write_uwuw_tallies();
+
+  /**
+   * \brief Print the summary of uwuw information 
+   *
+   * \return void
+   */
+  void print_summary();
 
   // private class functions
  private:
@@ -194,9 +204,12 @@ class uwuw_preprocessor
    */
   pyne::Material create_new_material(pyne::Material material, std::string density);
 
+  void property_vector(std::vector<int> props);
+
   // public class members
  public:
   bool verbose; ///< controls the verbosity of the class output
+  bool fatal; ///< controls fatal error behavior
 
   // private class members
  private:
@@ -210,4 +223,10 @@ class uwuw_preprocessor
   std::map<std::string, pyne::Material> uwuw_material_library; ///< material library to write out to DAGMC file
   name_concatenator *ncr; ///< unique naming class pointer
   UWUW mat_lib; ///< static UWUW class for reading the material library
+
+  std::vector<int> no_props; ///< list of cells with no properties
+  std::vector<int> multiple_props; ///< list of cells with multiple properties
+  std::vector<int> blank_props; ///< list of cells with blank properties
+  std::vector<int> multiple_densities; ///< list of cells with multiple densities
+
 };

@@ -38,9 +38,11 @@ class name_concatenator
    * \return the string containing only alpha numerics
    */
   std::string extract_alpha_num(std::string name); ///< extracts the chars [A-Z] and numbers [0-9] only
+
+  void int_to_string(int convert, std::string &string);
+
   /// Private variables
  private:
   std::set<std::string> used_b8_names; ///< the collection of names used so far
-
 };
 
