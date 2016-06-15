@@ -79,7 +79,7 @@ class uwuw_preprocessor
   uwuw_preprocessor(std::string material_library_filename,
                     std::string dagmc_filename,
                     std::string output_file, bool verbose = false,
-		    bool fatal = true); // constructor
+                    bool fatal = true); // constructor
 
   /**
    * \brief standard destructor
@@ -125,7 +125,7 @@ class uwuw_preprocessor
   void write_uwuw_tallies();
 
   /**
-   * \brief Print the summary of uwuw information 
+   * \brief Print the summary of uwuw information
    *
    * \return void
    */

@@ -370,7 +370,7 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
       std::cout << "More than one material for volume with id " << cellid << std::endl;
       std::cout << cellid << " has the following material assignments" << std::endl;
       for ( int j = 0 ; j < material_props.size() ; j++ ) {
-	std::cout << material_props[j] << std::endl;
+        std::cout << material_props[j] << std::endl;
       }
       std::cout << "Please check your material assignments " << cellid << std::endl;
     }
@@ -394,16 +394,17 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
       std::cout << "More than one density specified for " << cellid <<std::endl;
       std::cout << cellid << " has the following density assignments" << std::endl;
       for ( int j = 0 ; j < density_props.size() ; j++ ) {
-	std::cout << density_props[j] << std::endl;
+        std::cout << density_props[j] << std::endl;
       }
       std::cout << "Please check your density assignments " << cellid << std::endl;
     }
-    if(fatal) exit(EXIT_FAILURE); 
+    if(fatal) exit(EXIT_FAILURE);
     multiple_densities.push_back(cellid);
   }
 }
 
-void uwuw_preprocessor::print_summary() {
+void uwuw_preprocessor::print_summary()
+{
 
   std::cout << "+----------------------------------------------------" << std::endl;
   std::cout << "|      UWUW Summary                                  " << std::endl;
@@ -425,7 +426,8 @@ void uwuw_preprocessor::print_summary() {
   return;
 }
 
-void uwuw_preprocessor::property_vector(std::vector<int> props) {
+void uwuw_preprocessor::property_vector(std::vector<int> props)
+{
   if(props.size() == 0) return;
   for ( int i = 0 ; i < props.size() ; i++ ) {
     if ( i == 0 ) {
@@ -434,8 +436,7 @@ void uwuw_preprocessor::property_vector(std::vector<int> props) {
     }
     if(i % 10 == 0 ) {
       std::cout  <<  props[i] << " " << std::endl << "| ";
-    }
-    else
+    } else
       std::cout << props[i] << " ";
   }
   std::cout << std::endl;
@@ -683,7 +684,8 @@ std::string name_concatenator::shift_and_increment(std::string name)
   return name;
 }
 
-void name_concatenator::int_to_string(int convert, std::string &string){
+void name_concatenator::int_to_string(int convert, std::string &string)
+{
   std::stringstream ss;
   ss << convert;
   string = ss.str();
