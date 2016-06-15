@@ -62,12 +62,13 @@ add_subdirectory(gtest)
 # Figure out which physics codes to build
 if (BUILD_ALL)
   set(BUILD_MCNP5 ON)
+  set(BUILD_MCNP6 ON)
   set(BUILD_GEANT4 ON)
   set(BUILD_FLUKA ON)
 endif (BUILD_ALL)
-if (BUILD_MCNP5)
+if (BUILD_MCNP5 OR BUILD_MCNP6)
   set(BUILD_TALLY ON)
-endif (BUILD_MCNP5)
+endif (BUILD_MCNP5 OR BUILD_MCNP6)
 
 # Build pyne_dagmc library
 add_subdirectory(pyne)
@@ -77,11 +78,11 @@ if (BUILD_TALLY)
   add_subdirectory(tally)
 endif (BUILD_TALLY)
 
-# Build MCNP5
-if (BUILD_MCNP5)
+# Build MCNP
+if (BUILD_MCNP5 OR BUILD_MCNP6)
   set(BUILD_ANY ON)
   add_subdirectory(mcnp)
-endif (BUILD_MCNP5)
+endif (BUILD_MCNP5 OR BUILD_MCNP6)
 
 # Build Geant4
 if (BUILD_GEANT4)
