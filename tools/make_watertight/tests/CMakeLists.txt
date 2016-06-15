@@ -8,7 +8,7 @@ list(APPEND SRC_FILES ../zip.cpp)
 list(APPEND SRC_FILES ../cleanup.cpp)
 list(APPEND SRC_FILES ../mw_func.cpp)
 list(APPEND SRC_FILES ../cw_func.cpp)
-list(APPEND SRC_FILES test_funcs.cpp)
+list(APPEND SRC_FILES test_classes.cpp)
 
 # Public headers
 set(PUB_HEADERS)
@@ -18,7 +18,7 @@ list(APPEND PUB_HEADERS ../zip.hpp)
 list(APPEND PUB_HEADERS ../cleanup.hpp)
 list(APPEND PUB_HEADERS ../cw_func.hpp)
 list(APPEND PUB_HEADERS ../mw_func.hpp)
-list(APPEND PUB_HEADERS test_funcs.hpp)
+list(APPEND PUB_HEADERS test_classes.hpp)
 
 # Libraries
 set(LINK_LIBS)
