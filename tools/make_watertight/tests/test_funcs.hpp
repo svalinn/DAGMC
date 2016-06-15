@@ -11,7 +11,11 @@
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
 
+#include "mw_func.hpp"
+#include "cw_func.hpp"
 #include "gen.hpp"
+#include "arc.hpp"
+#include "zip.hpp"
 
 moab::Interface *MBI();
 
@@ -39,31 +43,31 @@ moab::ErrorCode rand_vert_move(moab::EntityHandle vertex, double tol, bool verbo
 moab::ErrorCode single_vert_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose = false);
 
 /// bumps the last vertex in the cylinder model in the R direction
-moab::ErrorCode locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose = false);
+moab::ErrorCode locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose = false);
 
 /// moves the last two verticies in the model in the same direction some distance less than the faceting tolerance
-moab::ErrorCode locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false);
+moab::ErrorCode locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose = false);
 
 /// selects a random pair of adjacent verticies and bumps them in x, y, and z 
-moab::ErrorCode rand_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose = false);
+moab::ErrorCode rand_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose = false);
 
 /// selects a random pair of verticies from verts and moves them in random directions some distance less than the faceting tolerance
-moab::ErrorCode rand_locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false);
+moab::ErrorCode rand_locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose = false);
 
 /// moves the last vertex in the model in a random direction by a distance less than the faceting tolerance
-moab::ErrorCode rand_vert_bump(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false);
+moab::ErrorCode rand_vert_bump(moab::Range verts, double facet_tol, bool verbose = false);
 
 /// moves the third to last and the last vertices in the model the same distance in x, y, and z
-moab::ErrorCode adjplone_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose = false);
+moab::ErrorCode adjplone_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose = false);
 
 /// moves the third to last and the last verticies in the model in rand directions some distance less than the facet_tolerance
-moab::ErrorCode adjplone_locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false);
+moab::ErrorCode adjplone_locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose = false);
 
 /// selects a random pair of adjacent verticies and bumps them the same distance in x, y, and z
-moab::ErrorCode nonadj_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose = false);
+moab::ErrorCode nonadj_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose = false);
 
 /// selects a random pair of adjacent verticies and bumps them along the theta direction a distance equal to the faceting tolerance
-moab::ErrorCode nonadj_locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false);
+moab::ErrorCode nonadj_locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose = false);
 
 /// appends "_mod" to the original file name and writes to a new .h5m 
 moab::ErrorCode write_mod_file(std::string filename);
@@ -71,8 +75,5 @@ moab::ErrorCode write_mod_file(std::string filename);
 /// used to clear all mesh data and reload the file as original
 moab::ErrorCode reload_mesh(const char* filename,  moab::EntityHandle &meshset, bool debug = false);
 
-/// prints the result of a single test
-void single_test_output(bool test_result);
-
-/// prints the name of the test set and the result
-void test_set_output(std::string& set_title, bool set_result);
+/// runs the make_watertight algorithm and checks the watertightness of the model
+bool seal_and_check(moab::EntityHandle input_set, double facet_tolerance, bool verbose = false);

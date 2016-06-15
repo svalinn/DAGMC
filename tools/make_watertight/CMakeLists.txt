@@ -37,4 +37,5 @@ target_link_libraries(check_watertight ${LINK_LIBS})
 # Install
 install(TARGETS check_watertight make_watertight DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS ${PERMS})
 
+# build tests
 add_subdirectory(tests)

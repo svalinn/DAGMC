@@ -19,22 +19,13 @@
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
 
+#include "gtest/gtest.h"
 #include "test_funcs.hpp"
 
-#include "mw_func.hpp"
-#include "cw_func.hpp"
-#include "gen.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
-
-// moves a vertex along the theta direction of the cylinder
-moab::ErrorCode move_vert_theta(moab::EntityHandle vertex, double tolerance, bool verbose = false);
-// moves a vertex outward from the center of the cylinter
-moab::ErrorCode move_vert_R (moab::EntityHandle vertex, double tol, bool verbose = false);
 /// moves a vertex along the rim of the cylinder in the theta direction a distance equal to the faceting_tolerance
-moab::ErrorCode move_vert_theta(moab::EntityHandle vertex, double tolerance, bool verbose) {
+moab::ErrorCode move_vert_theta(moab::EntityHandle vertex, double tolerance, bool verbose = false) {
 
- moab::ErrorCode result; 
+  moab::ErrorCode result; 
   
   //get vertex coordinates
   double coords[3];
@@ -47,28 +38,27 @@ moab::ErrorCode move_vert_theta(moab::EntityHandle vertex, double tolerance, boo
   // need both because of the oddness/evenness of the inverse functions
   double theta_x = acos(coords[0]/radius);
   double theta_y = asin(coords[1]/radius);
-
   
   // set the vertex bump distance
   double dtheta = tolerance/(radius);
 
   if(verbose) {
-  //original coordinates
-  std::cout << std::endl << "Original Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
+    //original coordinates
+    std::cout << std::endl << "Original Coordinates" << std::endl;
+    std::cout << "x = " << coords[0] << std::endl;
+    std::cout << "y = " << coords[1] << std::endl;
+    std::cout << "z = " << coords[2] << std::endl;
   }
   // create new x and y values
-  coords[0]=radius*cos(theta_x+dtheta); 
-  coords[1]=radius*sin(theta_y+dtheta);
+  coords[0] = radius*cos(theta_x+dtheta); 
+  coords[1] = radius*sin(theta_y+dtheta);
 
   if(verbose) {
-  //altered coordinates
-  std::cout << std::endl << "Modified Coordinates" << std::endl;
-  std::cout << "x = " << coords[0] << std::endl;
-  std::cout << "y = " << coords[1] << std::endl;
-  std::cout << "z = " << coords[2] << std::endl;
+    //altered coordinates
+    std::cout << std::endl << "Modified Coordinates" << std::endl;
+    std::cout << "x = " << coords[0] << std::endl;
+    std::cout << "y = " << coords[1] << std::endl;
+    std::cout << "z = " << coords[2] << std::endl;
   }
   //set new vertex coordinates  
   result = MBI()->set_coords(&vertex, 1, coords);
@@ -78,7 +68,7 @@ moab::ErrorCode move_vert_theta(moab::EntityHandle vertex, double tolerance, boo
 }
 
 /// moves the vertex in R some distance less than tol
-moab::ErrorCode move_vert_R(moab::EntityHandle vertex, double tol, bool verbose) {
+moab::ErrorCode move_vert_R(moab::EntityHandle vertex, double tol, bool verbose = false) {
 
   moab::ErrorCode result; 
   
@@ -133,7 +123,7 @@ moab::ErrorCode single_vert_bump_R(moab::Range verts, double facet_tol, bool ver
 
 
 /// selects a random pair of verticies and moves them along theta a distance less than the faceting tolerance
-moab::ErrorCode rand_locked_pair_bump_theta(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false) {
+moab::ErrorCode rand_locked_pair_bump_theta(moab::Range verts, double facet_tol, bool verbose = false) {
  
   moab::ErrorCode result; 
 
@@ -157,7 +147,7 @@ moab::ErrorCode rand_locked_pair_bump_theta(moab::Range verts, double facet_tol,
 
 // FOR CYLINDER TESTING ONLY 
 /// moves the last vertex in the model along the curve of the cylinder some distance bump distance theta
-moab::ErrorCode theta_vert_bump(moab::Range verts, double bump_dist_theta, double tolerance, std::string root_name, bool verbose = false) {
+moab::ErrorCode theta_vert_bump(moab::Range verts, double bump_dist_theta, bool verbose = false) {
  
   moab::ErrorCode result; 
   
@@ -173,12 +163,11 @@ moab::ErrorCode theta_vert_bump(moab::Range verts, double bump_dist_theta, doubl
   double theta = asin(coords[1]/radius);
   
   // set the vertex bump distance
-  double dtheta = 0.5*tolerance/(radius);
-
+  double dtheta = 0.5*bump_dist_theta/(radius);
  
   if(verbose) {
     //original coordinates
-    std::cout << std::endl << "Original Coordinates" << std::endl;
+    std::cout << std::endl << "Original Coordinates HEre I am" << std::endl;
     std::cout << "x = " << coords[0] << std::endl;
     std::cout << "y = " << coords[1] << std::endl;
     std::cout << "z = " << coords[2] << std::endl;
@@ -203,7 +192,7 @@ moab::ErrorCode theta_vert_bump(moab::Range verts, double bump_dist_theta, doubl
 }
 
 /// moves two adjacent vertices along theta a distance equal to the faceting tolerance
-moab::ErrorCode locked_pair_move_theta(moab::Range verts, double tolerance, std::string root_name, bool verbose = false) {
+moab::ErrorCode locked_pair_bump_theta(moab::Range verts, double tolerance, bool verbose = false) {
 
   moab::ErrorCode result;
 
@@ -221,11 +210,11 @@ moab::ErrorCode locked_pair_move_theta(moab::Range verts, double tolerance, std:
 
 
 /// moves the third to last and the last verticies in the model in theta the same distance along theta equal to the faceting tolerance
-moab::ErrorCode adjplone_locked_pair_bump_theta(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false) {
+moab::ErrorCode adjplone_locked_pair_bump_theta(moab::Range verts, double facet_tol, bool verbose = false) {
  
   moab::ErrorCode result; 
-  moab::EntityHandle vertex1=verts.back();
-  moab::EntityHandle vertex2=(verts.back()-2);
+  moab::EntityHandle vertex1 = verts.back();
+  moab::EntityHandle vertex2 = (verts.back()-2);
  
   //move the desired verticies by the allotted distance(s)
   result = move_vert_theta(vertex1, facet_tol, verbose);
@@ -236,7 +225,7 @@ moab::ErrorCode adjplone_locked_pair_bump_theta(moab::Range verts, double facet_
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode locked_pair_bump_R(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false) {
+moab::ErrorCode locked_pair_bump_R(moab::Range verts, double facet_tol, bool verbose = false) {
  
   moab::ErrorCode result; 
   moab::EntityHandle vertex1 = verts.back();
@@ -252,7 +241,7 @@ moab::ErrorCode locked_pair_bump_R(moab::Range verts, double facet_tol, std::str
 }
 
 /// selects random verticies from verts and moves them in R a distance equal to the faceting tolerance
-moab::ErrorCode rand_locked_pair_bump_R(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false) {
+moab::ErrorCode rand_locked_pair_bump_R(moab::Range verts, double facet_tol, bool verbose = false) {
  
   moab::ErrorCode result; 
   //select random verticies from verts
@@ -273,7 +262,7 @@ moab::ErrorCode rand_locked_pair_bump_R(moab::Range verts, double facet_tol, std
 }
 
 /// selects a the last vertex and third to last vertex in the model and moves them in R a distance equal to the faceting tolerance
-moab::ErrorCode adjplone_locked_pair_bump_R(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false) {
+moab::ErrorCode adjplone_locked_pair_bump_R(moab::Range verts, double facet_tol, bool verbose = false) {
  
   moab::ErrorCode result; 
   moab::EntityHandle vertex1 = verts.back();
@@ -289,7 +278,7 @@ moab::ErrorCode adjplone_locked_pair_bump_R(moab::Range verts, double facet_tol,
 }
 
 /// moves the last vertex in the model and a randomly selected, non-adjacent vertex and moves them both in R a distance equal to the faceting tolerance
-moab::ErrorCode nonadj_locked_pair_bump_R(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false) {
+moab::ErrorCode nonadj_locked_pair_bump_R(moab::Range verts, double facet_tol, bool verbose = false) {
  
   moab::ErrorCode result; 
   //select random verticies from verts
@@ -309,7 +298,7 @@ moab::ErrorCode nonadj_locked_pair_bump_R(moab::Range verts, double facet_tol, s
 }
 
 /// selects a random pair of adjacent verticies and bumps them along the theta direction a distance equal to the faceting tolerance
-moab::ErrorCode nonadj_locked_pair_bump_theta(moab::Range verts, double facet_tol, std::string root_name, bool verbose = false) {
+moab::ErrorCode nonadj_locked_pair_bump_theta(moab::Range verts, double facet_tol, bool verbose = false) {
  
   moab::ErrorCode result; 
   //select random verticies from verts
@@ -329,980 +318,236 @@ moab::ErrorCode nonadj_locked_pair_bump_theta(moab::Range verts, double facet_to
   return moab::MB_SUCCESS;
 }
 
-int main(int argc, char **argv)
+
+//---------------------------------------------------------------------------//
+// TEST FIXTURES
+//---------------------------------------------------------------------------//
+class MakeWatertightCylinderTest : public ::testing::Test
 {
-
-  //open moab instance
-  moab::Interface *MBI();
-  
-  //for unit testing purposes, we don't care about the output. Just PASS or FAIL. 
-  bool verbose= false;
-
-  std::cout << "===================================" << std::endl;
-  std::cout << "          CYLINDER TESTS           " << std::endl;
-  std::cout << "===================================" << std::endl; 
-  // ******************************************************************
-  // Load the h5m file and create tags.
-  // ******************************************************************
-
-  clock_t start_time;
-  start_time = clock();
-  //save the mesh to a new filename
-  std::string input_name = "cyl.h5m";
-  std::string root_name = "cyl.h5m";
-  int len = root_name.length();
-  root_name.erase(len-4);
-
-  // load file and get tolerance from input argument
-  moab::ErrorCode result;
-  std::string filename = "cyl.h5m"; //set filename
-  moab::EntityHandle input_set;
-  result = MBI()->create_meshset(moab::MESHSET_SET, input_set); //create handle to meshset
-  if(moab::MB_SUCCESS != result) 
-    {
-      return result;
-    }
-
-  result = MBI()->load_file(filename.c_str(), &input_set); //load the file into the meshset
-  if(moab::MB_SUCCESS != result) 
-    {
-      // failed to load the file
-      std::cout << "could not load file" << std::endl;
-      return result;
-    }
-
-  //// get faceting tolerance ////
-  double facet_tolerance;
-
-  moab::Tag faceting_tol_tag;
-  //get faceting tolerance handle from file
-  result = MBI()->tag_get_handle("FACETING_TOL", 1, moab::MB_TYPE_DOUBLE,
-				 faceting_tol_tag, moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not get the faceting tag handle")) return result;
-  
-  //get the faceting tolerance of any entity
-  moab::Range file_set;
-  result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, 
-					       &faceting_tol_tag, NULL, 1, file_set);
-
-  //get facetint tolerance value
-  result = MBI()->tag_get_data(faceting_tol_tag, &file_set.front(), 1, &facet_tolerance);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not get the faceting tolerance")) return result; 
-
-  // create tags on geometry
-  moab::Tag geom_tag, id_tag;
-  result = MBI()->tag_get_handle(GEOM_DIMENSION_TAG_NAME, 1, 
-				 moab::MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
-  if(gen::error(moab::MB_SUCCESS != result, "could not get GEOM_DIMENSION_TAG_NAME handle")) return result; 
-  result = MBI()->tag_get_handle(GLOBAL_ID_TAG_NAME, 1, 
-				 moab::MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
-  if(gen::error(moab::MB_SUCCESS != result, "could not get GLOBAL_ID_TAG_NAME handle")) return result;
-  
-  // get surface and volume sets
-  moab::Range surf_sets, vol_sets; // moab::Range of set of surfaces and volumes
-  // surface sets
-  int dim = 2;
-  void* input_dim[] = {&dim};
-  result = MBI()->get_entities_by_type_and_tag(input_set, moab::MBENTITYSET, &geom_tag, 
-					       input_dim, 1, surf_sets);
-  if(moab::MB_SUCCESS != result) 
-    {
-      return result;
-    }
-
-  // volume sets
-  dim = 3;
-  result = MBI()->get_entities_by_type_and_tag(input_set, moab::MBENTITYSET, &geom_tag, 
-					       input_dim, 1, vol_sets);
-  if(moab::MB_SUCCESS != result)
-    {
-      return result;
-    }
-    
-  //vertex sets
-  dim = 0;
-  moab::Range verts;
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  if(gen::error(moab::MB_SUCCESS!=result, "could not get vertex coordinates")) return result; 
-  
-  if(verbose)
-    {
-      std::cout<< "number of verticies= " << verts.size() << std::endl;  
-      std::cout<< "number of surfaces= " << surf_sets.size() << std::endl;
-      std::cout<< "number of volumes= "  << vol_sets.size() << std::endl;
-    }
-
-  //initialize booleans to pass to make_mesh_watertight
-  
-  bool check_topology, test, sealed;
-  check_topology = false;
-  test = true;
-  
-  // initialize boolean for each set of tests
-  bool test_set_result = true;
-  std::string test_set_title;
-  
-///////////Single Verticie Movement Tests////////////////////
-  test_set_title = "SINGLE VERTEXT MOVEMENT TESTS";
-  std::cout << test_set_title << std::endl;
-///////////////BEGIN 1st TEST////////////////////////
-
-  std::cout << "Test 1: vertex bump in x direction:";
-
-  //perform single vertex bump and test
-  result = single_vert_bump(verts, 0.9*facet_tolerance, 0, 0); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
-  
-  // seal the model using make_watertight 
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-  
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 2ND TEST////////////////////////
-
-  std::cout << "Test 2: vertex bump in y direction:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  // "Break" the geometry
-  result = single_vert_bump(verts, 0, 0.9*facet_tolerance, 0); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
-  
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-
-///////////////BEGIN 3RD TEST////////////////////////
-
-  std::cout << "Test 3: vertex bump in z direction:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  // "Break" the geometry
-  result = single_vert_bump(verts, 0, 0, 0.9*facet_tolerance); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
-  
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-
-///////////////BEGIN 4th TEST ////////////////////////
-
-  std::cout << "Test 4: vertex bump in R direction:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-    // "Break" the geometry
-  result = single_vert_bump_R(verts, facet_tolerance); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
-  
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-    
-///////////////BEGIN 5TH TEST////////////////////////
-
-  std::cout << "Test 5: vertex bump in theta direction:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  
-  // "Break" the geometry
-  result = theta_vert_bump(verts, 0, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
-  
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 6TH TEST////////////////////////
-
-  std::cout << "Test 6: vertex bump in rand direction:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  
-  // "Break" the geometry
-  result = rand_vert_bump(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create single vertex bump test")) return result;
-  
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-//////////END SINGLE VERTEX MOVEMENT TESTS///////////
-
-  test_set_output(test_set_title, test_set_result);
-
-//////////LOCKED VERTEX PAIR MOVEMENT TESTS/////////////////
-
-  test_set_title = "LOCKED VERTEX PAIR MOVEMENT TESTS";
-  std::cout << test_set_title << std::endl;
-
-///////////////BEGIN 1ST TEST////////////////////////
-
-  std::cout << "Test 1: locked pair of verticies move in x:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result =locked_pair_bump(verts, 0.9*facet_tolerance, 0, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-   // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 2ND TEST////////////////////////
-
-  std::cout << "Test 2: locked pair of verticies move in y:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = locked_pair_bump(verts, 0, 0.9*facet_tolerance, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-   // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 3RD TEST////////////////////////
-
-  std::cout << "Test 3: locked pair of verticies move in z:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = locked_pair_bump(verts, 0, 0, 0.9*facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-   // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 4TH TEST////////////////////////
-
-  std::cout << "Test 4: locked pair of verticies move in R:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = locked_pair_bump_R(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-  
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 5TH TEST////////////////////////
-
-  std::cout << "Test 5: locked pair of verticies move in theta:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = locked_pair_move_theta(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-   // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 6TH TEST////////////////////////
-
-  std::cout << "Test 6: adj. pair of verticies random move:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = locked_pair_bump_rand(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-   // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-//////////END LOCKED VERTEX PAIR MOVEMENT TESTS///////////
-
-  test_set_output(test_set_title, test_set_result);
-
-////////////RAND PAIR MOVEMENT TESTS//////////////////
-
-  test_set_title = "RAND PAIR MOVEMENT TESTS";
-  std::cout << test_set_title << std::endl;
-
-///////////////BEGIN 1ST TEST////////////////////////
-
-  std::cout << "Test 1: random locked pair of verticies move in x:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = rand_locked_pair_bump(verts, 0.9*facet_tolerance, 0, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 2ND TEST////////////////////////
-
-  std::cout << "Test 2: random locked pair of verticies move in y:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = rand_locked_pair_bump(verts, 0, 0.9*facet_tolerance, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 3RD TEST////////////////////////
-
-  std::cout << "Test 3: random locked pair of verticies move in z:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-  
-  // "Break" the geometry
-  result = rand_locked_pair_bump(verts, 0, 0, 0.9*facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 4TH TEST////////////////////////
-
-  std::cout << "Test 4: random locked pair of verticies move in R:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  // "Break" the geometry
-  result = rand_locked_pair_bump_R(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 5TH TEST////////////////////////
-
-  std::cout << "Test 5: random locked pair of verticies move in theta:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  // "Break" the geometry
-  result = rand_locked_pair_bump_theta(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 6TH TEST////////////////////////
-
-  std::cout << "Test 6: random pair of verticies move in random dir:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  // "Break" the geometry
-  result = rand_locked_pair_bump_rand(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-//////////END RAND LOCKED VERTEX PAIR MOVEMENT TESTS///////////
-
-  test_set_output(test_set_title, test_set_result);
-
-/////////////ADJACENT PLUS ONE TESTS//////////////////
-
-  test_set_title = "ADJACENT PLUS ONE TESTS";
-  std::cout << test_set_title << std::endl;
-
-///////////////BEGIN 1ST TEST////////////////////////
-
-  std::cout << "Test 1: locked pair of verticies (adj+1) move in x:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = adjplone_locked_pair_bump(verts, 0.9*facet_tolerance, 0, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 2ND TEST////////////////////////
-
-  std::cout << "Test 2: locked pair of verticies (adj+1) move in y:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = adjplone_locked_pair_bump(verts, 0, 0.9*facet_tolerance, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 3RD TEST////////////////////////
-
-  std::cout << "Test 3: locked pair of verticies (adj+1) move in z:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = adjplone_locked_pair_bump(verts, 0, 0, 0.9*facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 4TH TEST////////////////////////
-
-  std::cout << "Test 4: locked pair of verticies (adj+1) move in R:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = adjplone_locked_pair_bump_R(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
+protected:
+  virtual void SetUp() {
+    filename = "cyl.h5m";
+    reload_mesh();
+  };
+
+  void reload_mesh() {
+    // delete meshset
+    result = MBI()->delete_mesh();
+    EXPECT_EQ(result,moab::MB_SUCCESS);
+
+    // re-initialize meshset
+    result = MBI()->create_meshset(moab::MESHSET_SET, input_fileset);
+    EXPECT_EQ(result,moab::MB_SUCCESS);
  
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
+    //reload the file
+    result = MBI()->load_file(filename.c_str(), &input_fileset);
+    EXPECT_EQ(result,moab::MB_SUCCESS);
 
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+    //// get faceting tolerance //// 
+    moab::Tag faceting_tol_tag;
+    //get faceting tolerance handle from file
+    result = MBI()->tag_get_handle("FACETING_TOL", 1, moab::MB_TYPE_DOUBLE,
+				   faceting_tol_tag , moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT);
+    EXPECT_EQ(result,moab::MB_SUCCESS);
   
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-    
-///////////////BEGIN 5TH TEST////////////////////////
+    //get the faceting tolerance of any entity
+    moab::Range file_set;
+    result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, 
+						 &faceting_tol_tag, NULL, 1, file_set);
 
-  std::cout << "Test 5: locked pair of verticies (adj+1) move in theta:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = adjplone_locked_pair_bump_theta(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+    //get facetint tolerance value
+    result = MBI()->tag_get_data(faceting_tol_tag, &file_set.front(), 1, &facet_tol);
+    EXPECT_EQ(result,moab::MB_SUCCESS);
   
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
+    //check that something was loaded into the meshset
+    int num_meshsets;   
+    result = MBI()->num_contained_meshsets (input_fileset, &num_meshsets);
+    EXPECT_EQ(result,moab::MB_SUCCESS);  
+    if(num_meshsets == 0) MB_CHK_ERR_CONT(moab::MB_FAILURE);
 
-///////////////BEGIN 6TH TEST////////////////////////
-
-  std::cout << "Test 6: pair of verticies (adj+1) move in random dir:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = adjplone_locked_pair_bump_rand(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+    //retrieve the verticies again so the model can be broken
+    int dim = 0;
+    result = MBI()->get_entities_by_dimension(input_fileset, dim, verts, false);
+    EXPECT_EQ(result,moab::MB_SUCCESS);
+  };
   
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-   
-//////////END ADJACENT + 1 VERTEX MOVEMENT TESTS///////////
+  virtual void TearDown() {
+    result = MBI()->delete_mesh();
+    EXPECT_EQ(result,moab::MB_SUCCESS);
+  };
 
-  test_set_output(test_set_title, test_set_result);
+protected:
+  std::string filename;
+  moab::ErrorCode result;
+  moab::EntityHandle input_fileset;
+  moab::Range verts;
+  double facet_tol;
+};
 
-//////////NON-ADJACENT LOCKED PAIR TESTS//////////////
-
-  test_set_title = "NON-ADJACENT LOCKED PAIR TESTS";
-  std::cout << test_set_title << std::endl;
-
-///////////////BEGIN 1ST TEST////////////////////////
-
-  std::cout << "Test 1: non-adjacent locked pair of verticies move in x:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = nonadj_locked_pair_bump(verts,  0.9*facet_tolerance, 0, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 2ND TEST////////////////////////
-
-  std::cout << "Test 2: non-adjacent locked pair of verticies move in y:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = nonadj_locked_pair_bump(verts, 0,  0.9*facet_tolerance, 0, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 3RD TEST////////////////////////
-
-  std::cout << "Test 3: non-adjacent locked pair of verticies move in z:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = nonadj_locked_pair_bump(verts, 0, 0,  0.9*facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 4TH TEST////////////////////////
-
-  std::cout << "Test 4: non-adjacent locked pair of verticies move in R:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = nonadj_locked_pair_bump_R(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // write a new file for checking broken geometry
-  result = write_mod_file(root_name);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not write new file")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 5TH TEST////////////////////////
-
-  std::cout << "Test 5: non-adjacent locked pair of verticies move in theta:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = nonadj_locked_pair_bump_theta(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-///////////////BEGIN 6TH TEST////////////////////////
-
-  std::cout << "Test 6: non-adjacent pair of verticies move in random dir:";
-
-  // Clear the mesh and reload original geometry for the next test
-  result = reload_mesh(filename.c_str(), input_set);
-  if (gen::error(moab::MB_SUCCESS!=result, "could not reload the mesh")) return result; 
-
-  // retrieve the verticies again so the model can be broken
-  result = MBI()->get_entities_by_dimension(input_set, dim, verts, false);
-  if(gen::error(moab::MB_SUCCESS!=result, " could not get vertices from the mesh")) return result;
-
-  //"Break" the geometry
-  result = nonadj_locked_pair_bump_rand(verts, facet_tolerance, root_name); 
-  if(gen::error(moab::MB_SUCCESS!=result, "could not create locked pair vertex bump test")) return result;
-
-  // Seal the mesh
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return result;
-
-  // Lastly Check to see if make_watertight fixed the model
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
-  
-  single_test_output(sealed);
-  if (!sealed) test_set_result = false;
-
-//////////END NON-ADJACNET LOCKED VERTEX PAIR MOVEMENT TESTS///////////
-
-  test_set_output(test_set_title, test_set_result);
-
+TEST_F(MakeWatertightCylinderTest, SingleVertexMoveTests)
+{
+  //bump vert in x direction
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump vert in y direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump vert in z direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump vert away from the center of the cylinder
+  reload_mesh();
+  EXPECT_NO_THROW(result = single_vert_bump_R(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump vert along theta of the cylinder
+  reload_mesh();
+  EXPECT_NO_THROW(result = theta_vert_bump(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump vert in a random direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = rand_vert_bump(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 
 
+TEST_F(MakeWatertightCylinderTest, LockedVertexPairMoveTests)
+{
+  //bump a pair of verts in the same amount in the x direction
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a pair of verts in the same amount in the y direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a pair of verts in the same amount in the z direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a pair of verts in the same amount in the radial direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = locked_pair_bump_R(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a pair of verts in the same amount in the theta direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = locked_pair_bump_theta(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a pair of verts in the same amount in a random direction  
+  reload_mesh();
+  EXPECT_NO_THROW(result = locked_pair_bump_rand(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+
+}
+
+TEST_F(MakeWatertightCylinderTest, RandomVertexPairMoveTests)
+{
+  //move a randomly selected locked pair of vertices in the x direction
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move a randomly selected locked pair of vertices in the y direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move a randomly selected locked pair of vertices in the z direction  
+  reload_mesh();
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move a randomly selected locked pair of vertices in the radial direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = rand_locked_pair_bump_R(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));  
+  //move a randomly selected locked pair of vertices along the theta direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = rand_locked_pair_bump_theta(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));  
+  //move a randomly selected locked pair of vertices in a random direction  
+  reload_mesh();
+  EXPECT_NO_THROW(result = rand_locked_pair_bump_rand(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  
+}
+
+TEST_F(MakeWatertightCylinderTest, AdjacentPlusOneVertexPairTests)
+{
+  //bump a vertex pair with a single, stationary vertex between them in the x direction 
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a vertex pair with a single, stationary vertex between them in the y direction 
+  reload_mesh();
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a vertex pair with a single, stationary vertex between them in the z direction 
+  reload_mesh();
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //bump a vertex pair with a single, stationary vertex between them in the radial direction 
+  reload_mesh();
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump_R(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));  
+  //bump a vertex pair with a single, stationary vertex between them along the theta direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump_theta(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));    
+  //bump a vertex pair with a single, stationary vertex between them in a random direction  
+  reload_mesh();
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump_rand(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+}
+
+TEST_F(MakeWatertightCylinderTest, NonAdjacentVertexPairTests)
+{
+  //move two randomly selected, non-adjacent vertices in the x direction
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move two randomly selected, non-adjacent vertices in the y direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move two randomly selected, non-adjacent vertices in the z direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move two randomly selected, non-adjacent vertices in the radial direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump_R(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move two randomly selected, non-adjacent vertices along the theta direction
+  reload_mesh();
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump_theta(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+  //move two randomly selected, non-adjacent vertices in a random direction  
+  reload_mesh();
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump_rand(verts, facet_tol));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
+  EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+}

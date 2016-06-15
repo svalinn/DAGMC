@@ -6,6 +6,7 @@ moab::Interface* MBI() {
  return &instance;
 }
 
+
 moab::ErrorCode move_vert(moab::EntityHandle vertex, double dx, double dy, double dz, bool verbose) {
 
  moab::ErrorCode result;
@@ -101,7 +102,7 @@ moab::ErrorCode single_vert_bump(moab::Range verts, double bump_dist_x, double b
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose) {
+moab::ErrorCode locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose) {
   
   moab::ErrorCode result; 
   moab::EntityHandle vertex1 = verts.back();
@@ -116,7 +117,7 @@ moab::ErrorCode locked_pair_bump(moab::Range verts, double bump_dist_x, double b
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose) {
+moab::ErrorCode locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose) {
  
   moab::ErrorCode result; 
   moab::EntityHandle vertex1 = verts.back();
@@ -131,7 +132,7 @@ moab::ErrorCode locked_pair_bump_rand(moab::Range verts, double facet_tol, std::
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode rand_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose) {
+moab::ErrorCode rand_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose) {
  
   moab::ErrorCode result; 
 
@@ -153,7 +154,7 @@ moab::ErrorCode rand_locked_pair_bump(moab::Range verts, double bump_dist_x, dou
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode rand_locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose) {
+moab::ErrorCode rand_locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose) {
  
   moab::ErrorCode result; 
 
@@ -175,7 +176,7 @@ moab::ErrorCode rand_locked_pair_bump_rand(moab::Range verts, double facet_tol, 
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode rand_vert_bump(moab::Range verts, double facet_tol, std::string root_name, bool verbose) {
+moab::ErrorCode rand_vert_bump(moab::Range verts, double facet_tol, bool verbose) {
  
   moab::ErrorCode result; 
   moab::EntityHandle vertex = verts.back();
@@ -187,7 +188,7 @@ moab::ErrorCode rand_vert_bump(moab::Range verts, double facet_tol, std::string 
 }
 
 /// moves the third to last and the last vertices in the model the same distance in x, y, and z
-moab::ErrorCode adjplone_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose) {
+moab::ErrorCode adjplone_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose) {
  
   moab::ErrorCode result; 
   moab::EntityHandle vertex1 = verts.back();
@@ -202,7 +203,7 @@ moab::ErrorCode adjplone_locked_pair_bump(moab::Range verts, double bump_dist_x,
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode adjplone_locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose) {
+moab::ErrorCode adjplone_locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose) {
  
   moab::ErrorCode result; 
   moab::EntityHandle vertex1 = verts.back();
@@ -217,7 +218,7 @@ moab::ErrorCode adjplone_locked_pair_bump_rand(moab::Range verts, double facet_t
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode nonadj_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, std::string root_name, bool verbose) {
+moab::ErrorCode nonadj_locked_pair_bump(moab::Range verts, double bump_dist_x, double bump_dist_y, double bump_dist_z, bool verbose) {
  
   moab::ErrorCode result; 
 
@@ -238,7 +239,7 @@ moab::ErrorCode nonadj_locked_pair_bump(moab::Range verts, double bump_dist_x, d
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode nonadj_locked_pair_bump_rand(moab::Range verts, double facet_tol, std::string root_name, bool verbose) {
+moab::ErrorCode nonadj_locked_pair_bump_rand(moab::Range verts, double facet_tol, bool verbose) {
  
   moab::ErrorCode result; 
 
@@ -297,24 +298,22 @@ moab::ErrorCode reload_mesh(const char* filename,  moab::EntityHandle &meshset, 
   return result;
 }
 
-void single_test_output(bool test_result) {
-  if (test_result) {
-    std::cout << " PASS" << std::endl;
-  }
-  else {
-    std::cout << " FAIL" << std::endl;
-  }
-}
+bool seal_and_check(moab::EntityHandle input_set, double facet_tolerance, bool verbose) {  
+  // seal the model using make_watertight 
+  moab::ErrorCode result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return false;
+  
+  // Check to see if make_watertight fixed the model by topology
+  bool sealed, test = true, topo_test = true;
+  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test, verbose, topo_test);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return false;
+  if(!sealed) return sealed;
 
-void test_set_output(std::string& set_title, bool set_result) {
-  std::cout << set_title;
-  if (set_result) {
-    std::cout << " PASSED" << std::endl;
-  }
-  else {
-    std::cout << " FAILED" << std::endl;
-    exit(0);
-  }
-  std::cout << std::endl; //extra line to separate test set output
+  // Check to see if make_watertight fixed the model via proximity tolerance
+  topo_test = false;
+  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test, verbose, topo_test);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return false;
+  
+  return sealed;
 }
 
