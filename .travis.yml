@@ -1,5 +1,11 @@
 language: c++
 sudo: false
+cache: ccache
+ - directories: 
+  - geant4.10.00.p02
+  - cmake
+  - hdf5
+  - moab
 env: 
   matrix:
     - MOAB_VERSION="Version4.7.0"
@@ -51,9 +57,7 @@ before_install:
   - cd ..
   # build moab
   - git clone https://bitbucket.org/fathomteam/moab
-  # git clone https://bitbucket.org/makeclean/moab
   - cd moab
-  # git checkout master
   - git checkout $MOAB_VERSION
   - autoreconf -fi
   - mkdir bld
