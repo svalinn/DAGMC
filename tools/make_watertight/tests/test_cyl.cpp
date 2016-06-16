@@ -7,20 +7,9 @@
 // input: cyl.h5m file (found in ../make_watertight/test/)
 // output: pass/fail for each of the tests
 
-#include <iostream>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <vector>
-#include <set>
-#include <algorithm>
-#include "moab/Core.hpp"
-#include "MBTagConventions.hpp"
-#include "moab/Range.hpp"
-#include "moab/Skinner.hpp"
-
-#include "gtest/gtest.h"
 #include "test_classes.hpp"
+#include "gtest/gtest.h"
+
 
 //Single Vertex Tests
 TEST_F(MakeWatertightCylinderTest, SingleVertexMoveInXTest)

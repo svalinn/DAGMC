@@ -7,25 +7,7 @@
 // input: cones.h5m
 // output: pass/fail for each of the tests
 
-
-#include <iostream>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <vector>
-#include <set>
-#include <algorithm>
-#include "moab/Core.hpp"
-#include "MBTagConventions.hpp"
-#include "moab/Range.hpp"
-#include "moab/Skinner.hpp"
-
 #include "test_classes.hpp"
-
-#include "gen.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
-
 #include "gtest/gtest.h"
 
 //Single Vertex Tests

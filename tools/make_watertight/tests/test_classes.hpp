@@ -10,6 +10,7 @@
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
+#include "moab/Types.hpp"
 
 #include "gtest/gtest.h"
 #include "mw_func.hpp"
