@@ -16,17 +16,18 @@
 
 
 moab::Interface *MBI();
-namespace cw_func {
+namespace cw_func
+{
 /// checks the input mesh for watertightness. If check_topology=true, then the mesh will be checked topologically only, no tolerances allowed.
 /// If check_topology = false, then the model will be checked for watertightness by proximity.
 /// (i.e. so long as paired vertices are within tol of each other, the mesh will be considered watertight)
- moab::ErrorCode check_mesh_for_watertightness( moab::EntityHandle input_set, double tol, bool &sealed, bool test = false,  bool verbose = false , bool check_topology = false );
+moab::ErrorCode check_mesh_for_watertightness( moab::EntityHandle input_set, double tol, bool &sealed, bool test = false,  bool verbose = false , bool check_topology = false );
 
- int compare_by_coords(const void *a, const void *b);
- 
- int compare_by_handle(const void *a, const void *b);
- 
- struct coords_and_id {
+int compare_by_coords(const void *a, const void *b);
+
+int compare_by_handle(const void *a, const void *b);
+
+struct coords_and_id {
   double x1;
   double y1;
   double z1;

@@ -3,8 +3,8 @@
 // August 2009
 
 // This is a function to test DagMC-style mesh for watertightness. For
-// now this will be a stand-alone code that uses MOAB. For volumes to 
-// be watertight, the facet edges of each surface must be matched 
+// now this will be a stand-alone code that uses MOAB. For volumes to
+// be watertight, the facet edges of each surface must be matched
 // one-to-one. By default this checks for topological watertightness.
 // To instead use a geometrical tolerance between two vertices that are
 // considered the same, pass in a tolerance.
@@ -23,9 +23,9 @@
      }
      match edges
    }
-   Each surface is skinned twice, but the logic is simple and the memory handling 
+   Each surface is skinned twice, but the logic is simple and the memory handling
    is easy.
-*/   
+*/
 
 #include <iostream>
 #include <cmath>
@@ -65,18 +65,15 @@ int compare_by_handle(const void *a, const void *b)
 {
   struct coords_and_id *ia = (struct coords_and_id *)a;
   struct coords_and_id *ib = (struct coords_and_id *)b;
-  if(ia->vert1 == ib->vert1) 
-  {
+  if(ia->vert1 == ib->vert1) {
     return (int)(ia->vert2 - ib->vert2);
-  } 
-  else 
-  {
+  } else {
     return (int)(ia->vert1 - ib->vert1);
   }
-  /* float comparison: returns negative if b > a 
+  /* float comparison: returns negative if b > a
      and positive if a > b. We multiplied result by 100.0
      to preserve decimal fraction */
-} 
+}
 
 /* qsort struct comparision function */
 // This is tricky because doubles always get rounded down to ints.
@@ -109,12 +106,12 @@ int compare_by_coords(const void *a, const void *b)
   } else {
     return (ia->x1 > ib->x1) - (ia->x1 < ib->x1);
   }
-  /* float comparison: returns negative if b > a 
+  /* float comparison: returns negative if b > a
      and positive if a > b. We multiplied result by 100.0
      to preserve decimal fraction */
-} 
- 
-int main(int argc, char **argv) 
+}
+
+int main(int argc, char **argv)
 {
 
   // ******************************************************************
@@ -124,61 +121,53 @@ int main(int argc, char **argv)
   clock_t start_time;
   start_time = clock();
   // check input args
-  
-  if( argc < 2 || argc > 5) 
-    {
+
+  if( argc < 2 || argc > 5) {
     std::cout << "To check using topology of facet points:              " << std::endl;
     std::cout << "./check_watertight <filename> <verbose(true or false)>" << std::endl;
     std::cout << "To check using geometry tolerance of facet points:    " << std::endl;
     std::cout << "./check_watertight <filename> <verbose(true or false)> <tolerance>" << std::endl;
     return 1;
-    }
+  }
 
   // load file and get tolerance from input argument
   moab::ErrorCode result;
   std::string filename = argv[1]; //set filename
   moab::EntityHandle input_set;
   result = MBI()->create_meshset( moab::MESHSET_SET, input_set ); //create handle to meshset
-  if(moab::MB_SUCCESS != result) 
-    {
-      return result;
-    }
+  if(moab::MB_SUCCESS != result) {
+    return result;
+  }
 
   result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into the meshset
-  if(moab::MB_SUCCESS != result) 
-    {
-      // failed to load the file
-      std::cout << "could not load file" << std::endl;
-      return result;
-    }
+  if(moab::MB_SUCCESS != result) {
+    // failed to load the file
+    std::cout << "could not load file" << std::endl;
+    return result;
+  }
 
   double tol; // tolerance for two verts to be considered the same
   bool check_topology, verbose;
 
-  if(2 == argc) // set topological check
-    {
-      std::cout << "topology check" << std::endl;
-      check_topology = true;
-      verbose = false;
-    } 
-  else if (3 == argc)  // set topological check with different tolerance
-    {
-      std::cout << "topology check" << std::endl;
-      check_topology = true;
-      const std::string verbose_string = argv[2];
-      verbose = ( 0==verbose_string.compare("true") );
-    } 
-  else // otherwise do geometry check
-    {
-      std::cout << "geometry check";
-      check_topology = false;
-      tol = atof( argv[3] );
-      std::cout<< " tolerance=" << tol << std::endl;
-      const std::string verbose_string = argv[2];
-      verbose = ( 0==verbose_string.compare("true") );
-    }
+  if(2 == argc) { // set topological check
+    std::cout << "topology check" << std::endl;
+    check_topology = true;
+    verbose = false;
+  } else if (3 == argc) { // set topological check with different tolerance
+    std::cout << "topology check" << std::endl;
+    check_topology = true;
+    const std::string verbose_string = argv[2];
+    verbose = ( 0==verbose_string.compare("true") );
+  } else { // otherwise do geometry check
+    std::cout << "geometry check";
+    check_topology = false;
+    tol = atof( argv[3] );
+    std::cout<< " tolerance=" << tol << std::endl;
+    const std::string verbose_string = argv[2];
+    verbose = ( 0==verbose_string.compare("true") );
+  }
 
-  // replaced much of this code with a more modular version in check_watertight_func for testing purposes 
+  // replaced much of this code with a more modular version in check_watertight_func for testing purposes
   std::set<int> leaky_surfs, leaky_vols;
   bool sealed, test;
   test=false;
@@ -189,11 +178,12 @@ int main(int argc, char **argv)
 
   clock_t end_time = clock();
   std::cout << (double) (end_time-start_time)/CLOCKS_PER_SEC << " seconds" << std::endl;
- 
+
 }
 
 
-moab::Interface* MBI() {
+moab::Interface* MBI()
+{
   static moab::Core instance;
   return &instance;
 }
