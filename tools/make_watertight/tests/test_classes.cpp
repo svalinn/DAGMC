@@ -43,7 +43,7 @@ void MakeWatertightTest::SetUp()
   int num_meshsets;
   result = MBI()->num_contained_meshsets (input_fileset, &num_meshsets);
   EXPECT_EQ(result,moab::MB_SUCCESS);
-  if(num_meshsets == 0) MB_CHK_ERR_CONT(moab::MB_FAILURE);
+  EXPECT_NE(0, num_meshsets);
 
   //retrieve the verticies again so the model can be broken
   int dim = 0;
