@@ -3,7 +3,7 @@ LICENSE
 *******
 ::
 
-    Copyright (c) 2010-2013, University of Wisconsin Computational Nuclear Engineering Research Group
+    Copyright (c) 2010-2016, University of Wisconsin Computational Nuclear Engineering Research Group
      All rights reserved.
     
     Redistribution and use in source and binary forms, with or without
