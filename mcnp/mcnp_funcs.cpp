@@ -507,6 +507,15 @@ void dagmc_particle_terminate_( )
 #endif
 }
 
+//void dagmc_rollback_history_( )
+//{
+//  history.reset_to_last_intersection();
+//
+//#ifdef TRACE_DAGMC_CALLS
+//  std::cout << "particle_reset_to_last_intersection:" << std::endl;
+//#endif
+//}
+
 // *ih              - volue index
 // *uuu, *vvv, *www - ray direction
 // *xxx, *yyy, *zzz - ray point
