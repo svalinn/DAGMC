@@ -1,1 +1,2 @@
 add_subdirectory(astyle)
+add_subdirectory(make_watertight)
