@@ -17,7 +17,7 @@ before_install:
   - sudo docker run makeclean/dagmc-ci /bin/sh -c "cd /root"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   # copy the repo in the docker instance
-  - sudo docker cp ../dagmc $commit_id:/root/dagmc
+  - sudo docker cp ../DAGMC $commit_id:/root/dagmc
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id makeclean/dagmc-ci
   # build moab
