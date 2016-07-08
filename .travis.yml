@@ -24,6 +24,12 @@ before_install:
   - sudo docker run makeclean/dagmc-ci /bin/sh -c "cd /root/dagmc/"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id makeclean/dagmc-ci
+  - sudo docker run makeclean/dagmc-ci /bin/sh -c "pwd"
+  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  - sudo docker commit $commit_id makeclean/dagmc-ci
+  - sudo docker run makeclean/dagmc-ci /bin/sh -c "ls -al"
+  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  - sudo docker commit $commit_id makeclean/dagmc-ci
   - sudo docker run makeclean/dagmc-ci /bin/sh -c "./build_moab $MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id makeclean/dagmc-ci
