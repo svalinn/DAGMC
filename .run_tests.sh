@@ -1,5 +1,9 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/root/geant4.10.00.p02/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/moab/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/dagmc/lib
+
 # move to test dir
 cd tests
 # run each test
