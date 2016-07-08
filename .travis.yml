@@ -109,6 +109,8 @@ script:
   - ./test_TrackLengthMeshTally
   - ./uwuw_unit_tests
   - ./uwuw_unit_tests_tally
+  - ./make_watertight_cylinder_tests
+  - ./make_watertight_cone_tests
   # move to the base directory
   - cd ..
   # remove the bld dir
