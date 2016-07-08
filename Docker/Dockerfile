@@ -15,7 +15,7 @@ RUN \
     apt-get install -y software-properties-common && \
     apt-get install -y cmake curl git htop man unzip vim wget && \
     apt-get install -y libhdf5-dev gfortran g++ libblas-dev liblapack-dev && \
-    apt-get install -y expat libexpat1-dev
+    apt-get install -y expat libexpat1-dev libtool autoconf
 # install geant4
 RUN \ 
     wget http://geant4.cern.ch/support/source/geant4.10.00.p02.tar.gz && \
