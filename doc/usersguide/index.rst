@@ -11,8 +11,6 @@ codes.
    quick_start
    get_install
    workflow
-   uw2
-   dag-tripoli4
    faq
 
 Related Tools
