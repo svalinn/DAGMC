@@ -59,6 +59,13 @@ Installing
 ----------
 For installation instructions see `<http://svalinn.github.io/DAGMC/usersguide/>`_.
 
+Testing
+------------
+DAGMC now uses Docker to host most of the heavy dependencies for testing such as Geant4. 
+Adding Tests
+++++++++++++
+To add test a test
+
 Building Documentation
 -------------------------
 
