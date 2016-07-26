@@ -18,47 +18,6 @@ Will result in a file called out.sat which will contain the CAD version of your 
 automatically transfers material and importance assignments into the CAD model and will be translated to the 
 DAGMC file when processed.
 
-dagmc_prepoc
-~~~~~~~~~~~~
-Previously it was typical of DAGMC users to input the ACIS file directly into DAGMC, the file would
-be faceted and then immediately loaded into memory however, as models have grown in complexity, the time
-required to facet and build the OBB tree has grown immensely and it is now recommended that faceting is
-treated as a preprocess step.
-
-When MOAB is built with CGM support (see `build instructions <get_install.html>`_) the tool 
-dagmc_preproc is automatically built. You can confirm that you have MOAB in your path and that
-the executable is built, by running
-::
-   prompt%> which dagmc_preproc
-To which you should get a reply like
-::
-   prompt%> /data/opt/$USER/moab/bin/dagmc_preproc
-
-If you get a reply like above then you are able to use dagmc_preproc. If not, and the MOAB `bin` directory is not in your `$PATH`
-, you need to recompile with MOAB support following the build instructions. Once the model is in the correct form as required
-by our `workflow <workflow.html>`_ dagmc_preproc may be used. The dagmc_prepoc tool is invoked by,
-::
-   prompt%> dagmc_preproc <filename.sat> -o <output_filename.h5m> [options]
-There are several options that are commonly used by dagmc_preproc to control the state of the output file.
-::
-   -f <float> - the facet distance tolerance to be used, 
-                i.e. the maximum distance (cm) the facet 
-                may lie from the curve 
-   -l <float> - the facet length tolerance to be used, 
-                i.e. the maximum length of the side of 
-                the facet (cm)
-   -a <int> - the angle tolerance to be used, i.e. 
-               the maximum angle that the facet can 
-                deviate from the surface normal
-   -o <char> - the name of the output facet file to create
-   --fatal_curves - fatal error when finding curves that cannot be faceted 
-   -h - print help
-For example, to facet a file called geom.sat into a file called facet_file.h5m with a facet tolerance of 1e-4 cm:
-::
-   prompt%> dagmc_preproc geom.sat -f 1.0e-4 -o facet_file.h5m
-
-This file can then be used by DAGMC, MOAB and other down stream tools.
-
 mbconvert
 ~~~~~~~~~
 The mbconvert tool from the MOAB tool is used to translate MOAB meshes into some text based format. It is useful for converting
@@ -117,13 +76,16 @@ of how sealed the mode is. The check_watertight tool is run by:
 ::
    prompt%> check_watertight <filename>
 
+The make_watertight tool is built as part of the DAGMC build process.
+
 mklostvis
 ~~~~~~~~~~~
 Sometimes either poor quality CAD, incorrect imprinting & merging or overlapping volumes; particles are regarded as lost
 by the Monte Carlo code. It is therefore neccessary to be able to examine where the particles were lost and in which direction they
 were travelling in. The tool `mklostvis <https://github.com/svalinn/meshtools/tree/master/lostparticles>`_ is designed for this 
-purpose, reading the output of the MCNP lost particle information and producing a `Cubit <https://cubit.sandia.gov/>`_ journal 
-file which will draw the lost particles as vertices and their directions as curves. To run the script;
+purpose, reading the output of the MCNP lost particle information and producing a `Cubit <https://cubit.sandia.gov/>`_ or 
+`Trelis <http://www.csimsoft.com/trelis.jsp>`_ journal file which will draw the lost particles as vertices and their directions as curves. 
+To run the script;
 ::
    prompt %> mklostvis.pl [mcnp output filename] [vector length] > [journal file name]
 

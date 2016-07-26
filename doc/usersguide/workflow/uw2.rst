@@ -71,62 +71,50 @@ or if you prefer, Lambert (white reflection)
 ::
      %> group "boundary:White"
 
+Particle Importances 
+++++++++++++++++++++
+Particle importances are in important aspect of Monte Carlo simulations and 
+are used to help particles to penetrate to ``important'' regions of the geometry.
+There are several automatic methods to generate mesh based importances or weights, 
+but if your importances are tried to the geometry, then this can be tagged onto 
+the geometry.
+
+
+The |UW2| workflow has a code agnostic way of defining importances.
+::
+   %> group "importance:Neutron/1.0" 
+
+This is translated to the code specific version at runtime. *note* Fluka's importance
+range runs from 1e-5 to 1e5, when written to file, the range is rescaled and any out of
+range values are truncated to 1e-5 and 1e5.
+
 |UW2| Data
 +++++++++
 The |UW2| data is incorporated into the geometry file (\*.h5m) file using a 
-Python script, uwuw_preproc, the purpose of which is to take the user's 
+C++ program, uwuw_preproc, the purpose of which is to take the user's 
 material library, e.g. my_nuc_library.h5, and extract the materials requested, 
 placing them into the geometry file. Having already marked up your geometry 
-using the methods mentioned in previous sections, we can run the preprocess script,
+using the methods mentioned in previous sections, we can run the preprocessor
 ::
-   %> uwuw_preproc -f <dagmc h5m filename> -d <path to nuclear data library> \
-                   -o <output h5m filename>
-
+   %> uwuw_preproc <dagmc h5m filename> -v -l <path to nuclear data library>
+                  
 Be sure to examine the output of this script which will inform you of the 
 materials and densities requested and also the list of tallies that were 
 produced. A sample output is shown below
 ::
-   %> uwuw_preproc -f test_geom.h5m -d $HOME/.local/lib/python2.7/site-packages\
-                     /pyne/nuc_data.h5 -o output.h5m
+   %> uwuw_preproc test_geom.h5m -l $HOME/.local/lib/python2.7/site-packages\
+                   /pyne/nuc_data.h5 
 
-Also, the script will produce a fatal error if the material is not found in 
-the material library
-::
-   %>uwuw_preproc -f test_geom.h5m -d $HOME/.local/lib/python2.7/site-packages \
-                     /pyne/nuc_data.h5 -o output.h5m
-   ...
-   mat:Lead
-   mat:Lead/rho:12.8
-   mat:Beryllium
-   mat:Tungsten
-   mat:Graveyard
-   mat:StainlessSteel
-   Material {StainlessSteel} doesn't exist in pyne material lib
-
-Gotchas
-=======
-When using the "-o" option with a filename that does not match the "-f" filename 
-option, `uwuw_preproc` will produce a new file with all the material and tally 
-data, but absent the original geometry data. This feature allows the user to 
-ensure that the `uwuw_preproc` script runs to successful completion before being 
-used on the original file. Once you have ensured a sucessful run it is 
-recommended that you run once more with the "-o" option set to the original 
-filename, i.e.
-::
-   %>uwuw_preproc -f test_geom.h5m -d $HOME/.local/lib/python2.7/site-packages \
-                    /pyne/nuc_data.h5 -o output.h5m
-   Success!!
-   %>uwuw_preproc -f test_geom.h5m -d $HOME/.local/lib/python2.7/site-packages \
-                    /pyne/nuc_data.h5 -o test_geom.h5m
-  
-The reason for this behaviour is that it can take some time to produce a 
-workflow-ready facet file, having done dagmc_preproc and then make_watertight
-and so on.
+Also, the program will produce a fatal error if the material is not found in 
+the material library. There is a simulate mode (flag -s) to perform all operations
+that would be performed on a normal operation, with the exception that no data
+is actually written, this can be done to test your file to make sure all the expected
+materials are present in the file. 
 
 Worked Example
 +++++++++++++++
 
-Open Cubit, and let's place some volumes to create our first problem.  We will 
+Open Trelis/Cubit, and let's place some volumes to create our first problem.  We will 
 create 4 cubes of side 10 cm, shifting each in a different direction
 ::
    %>brick x 10
@@ -167,22 +155,25 @@ The file is now ready for preprocessing. First we must facet the file:
 
 Now we can insert all the material data we need:
 ::
-   %>uwuw_preproc -f example.h5m -d $HOME/.local/lib/python2.7/site-packages\
-                     /pyne/nuc_data.h5 -o example.h5m
+   %>uwuw_preproc example.h5m -l $HOME/.local/lib/python2.7/site-packages\
+                     /pyne/nuc_data.h5 
 
 Your output from this step should look exactly the same as below
 ::
-   Making nuc_data at example.h5m
-   skipping atomic mass data table creation; already exists.
-   Materials Requested....
-   mat:Graveyard
-   mat:Lead
-   mat:Lead/rho:12.3
-   Tallies Requested....
-   Photon Flux PHFLUX1
-   Photon Flux PHFLUX2
-   Photon Flux PHFLUX3
-   Photon Flux PHFLUX4
+   Making new material with name      : mat:Lead
+                    with fluka_name:     LEAD
+   Making new material with name      : mat:Lead/rho:12.3
+                    with fluka_name:    LEAD1
+   Photon PHFL1 3
+   Photon PHFL2 3
+   Photon PHFL3 3
+   Photon PHFL4 3
+   writing material, mat:Leadwriting material,     LEAD to file example.h5m
+   writing material, mat:Lead/rho:12.3writing material,    LEAD1 to file example.h5m
+   Writing tally PHFL1 to file example.h5m
+   Writing tally PHFL2 to file example.h5m
+   Writing tally PHFL3 to file example.h5m
+   Writing tally PHFL4 to file example.h5m
 
 So we see echoed back to us that we requested a Graveyard and two different 
 material assignments: one for Lead, as defined in the material library, and 
