@@ -55,7 +55,7 @@ the GUI tools available for manipulating workflows.
 .. _MCNP5: http://mcnp.lanl.gov
 .. _MCNP6: http://mcnp.lanl.gov/
 .. _Cubit: http://cubit.sandia.gov
-.. _Trelis: https://http://www.csimsoft.com/trelis.jsp
+.. _Trelis: http://www.csimsoft.com/trelis.jsp
 .. _CNERG: http://cnerg.engr.wisc.edu
 .. _Fluka: http://www.fluka.org/fluka.php
 .. _Geant4: http://geant4.cern.ch/
