@@ -10,6 +10,7 @@ codes.
 
    quick_start
    get_install
+   cubit_trelis_plugin
    workflow
    faq
 
