@@ -75,6 +75,7 @@ namespace moab {
 // Empty synonym map for DagMC::parse_metadata()
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
+// DagMC Constructor
 DagMC::DagMC(Interface *mb_impl, double overlap_thickness, double numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
@@ -82,17 +83,11 @@ DagMC::DagMC(Interface *mb_impl, double overlap_thickness, double numerical_prec
     mb_impl = new moab::Core();
     moab_instance_created = true;
   }
-  if(moab_instance_created){
-    std::cout << "Making new moab instance" << std::endl;
-  } else {
-    std::cout << "Using old moab instance" << std::endl;
-  }
 
-  // other wise take the existing one
+  // set the internal moab pointer
   MBI = mb_impl;
 
   // make new obbtree
-  // obbTree = new moab::OrientedBoxTreeTool(MBI,MB_OBB_TREE_TAG_NAME,true);
   obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
 
   // This is the correct place to uniquely define default values for the dagmc settings
@@ -108,15 +103,16 @@ DagMC::DagMC(Interface *mb_impl, double overlap_thickness, double numerical_prec
 // Destructor
 DagMC::~DagMC(){
   // delete the obb tree
-  obbTree->~OrientedBoxTreeTool();
+  delete obbTree;
   // if we created the moab instance
   // clear it
   if(moab_instance_created) {
     MBI->delete_mesh();
-    MBI->~Interface();
- }
+    delete MBI;
+  }
 }
 
+// get the float verision of dagmc version string
 float DagMC::version(std::string *version_string) {
   if (NULL != version_string)
     *version_string = std::string("DagMC version ") + std::string(DAGMC_VERSION_STRING);
@@ -213,25 +209,21 @@ ErrorCode DagMC::load_file(const char* cfile,
 
 #ifdef MOAB_HAVE_CGM
   // check to see if CGM has data; if so, assume it corresponds to the data we loaded in.
-  if( GeometryQueryTool::instance()->num_ref_volumes() > 0 ){
+  if( GeometryQueryTool::instance()->num_ref_volumes() > 0 ) {
     have_cgm_geom = true;
   }
 #endif
 
   return finish_loading();
-
 }
 
 // helper function to load the existing contents of a MOAB instance into DAGMC
-ErrorCode DagMC::load_existing_contents( ){
-
+ErrorCode DagMC::load_existing_contents( ) {
   return finish_loading();
 }
 
 // helper function to finish setting up required tags.
-ErrorCode DagMC::finish_loading()
-{
-
+ErrorCode DagMC::finish_loading() {
   ErrorCode rval;
 
   nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
@@ -277,7 +269,6 @@ ErrorCode DagMC::finish_loading()
   std::cout << "Using faceting tolerance: " << facetingTolerance << std::endl;
 
   return MB_SUCCESS;
-
 }
 
 // setup the implicit compliment
@@ -322,16 +313,15 @@ ErrorCode DagMC::setup_obbs()
   ErrorCode rval;
   Range surfs,vols;
   rval = setup_geometry(surfs,vols);
-  if(MB_SUCCESS != rval)
-    {
-      std::cerr << "Failed to setup the geometry" << std::endl;
-      return rval;
-    }
+  if(MB_SUCCESS != rval) {
+    std::cerr << "Failed to setup the geometry" << std::endl;
+    return rval;
+  }
 
-  // Build OBB trees for everything, but only if we only read geometry
-  // Changed to build obb tree if tree does not already exist. -- JK
+  // If we havent got an OBB Tree, build one.
   if (!have_obb_tree()) {
-    rval = build_obbs(surfs, vols);MB_CHK_SET_ERR(rval, "Failed to build obb.");
+    rval = build_obbs(surfs, vols);
+    MB_CHK_SET_ERR(rval, "Failed to build obb.");
   }
   return MB_SUCCESS;
 }
@@ -353,7 +343,8 @@ ErrorCode DagMC::setup_indices()
     }
 
   // build the various index vectors used for efficiency
-  rval = build_indices(surfs, vols);MB_CHK_SET_ERR(rval, "Failed to build surface/volume indices.");
+  rval = build_indices(surfs, vols);
+  MB_CHK_SET_ERR(rval, "Failed to build surface/volume indices.");
   return MB_SUCCESS;
 }
 
@@ -362,13 +353,16 @@ ErrorCode DagMC::init_OBBTree()
 {
   ErrorCode rval;
   // implicit compliment
-  rval = setup_impl_compl();MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
+  rval = setup_impl_compl();
+  MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
 
   // build obbs
-  rval = setup_obbs();MB_CHK_SET_ERR(rval, "Failed to setup the OBBs");
+  rval = setup_obbs();
+  MB_CHK_SET_ERR(rval, "Failed to setup the OBBs");
 
   // setup indices
-  rval = setup_indices();MB_CHK_SET_ERR(rval, "Failed to setup problem indices");
+  rval = setup_indices();
+  MB_CHK_SET_ERR(rval, "Failed to setup problem indices");
 
   return MB_SUCCESS;
 }

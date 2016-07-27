@@ -55,14 +55,15 @@ class CartVect;
 class DagMC
 {
 public:
+  // Constructor
   DagMC(Interface *mb_impl = NULL, overlap_tolerance = 0., numerical_precision = .001;);
+  // Destructor
   ~DagMC();
 
   /** Return the version of this library */
   static float version(std::string *version_string = NULL);
   /** Get subversion revision of this file (DagMC.hpp) */
   static unsigned int interface_revision();
-
 
   /* SECTION I: Geometry Initialization */
 
