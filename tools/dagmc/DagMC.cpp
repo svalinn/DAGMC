@@ -5,7 +5,6 @@
 #include "moab/Core.hpp"
 #include "moab/GeomUtil.hpp"
 #include "moab/FileOptions.hpp"
-#include "Internals.hpp"
 
 #ifdef MOAB_HAVE_CGM
 #include "InitCGMA.hpp"
@@ -76,7 +75,7 @@ namespace moab {
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
-DagMC::DagMC(Interface *mb_impl, double overlap_thickness, double numerical_precision) {
+DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
   if (NULL == mb_impl) {
@@ -91,7 +90,7 @@ DagMC::DagMC(Interface *mb_impl, double overlap_thickness, double numerical_prec
   obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
 
   // This is the correct place to uniquely define default values for the dagmc settings
-  overlapThickness = overlap_thickness; // must be nonnegative
+  overlapThickness = overlap_tolerance; // must be nonnegative
   defaultFacetingTolerance = .001;
   numericalPrecision = numerical_precision;
   useCAD = false;

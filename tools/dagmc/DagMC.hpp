@@ -56,7 +56,7 @@ class DagMC
 {
 public:
   // Constructor
-  DagMC(Interface *mb_impl = NULL, overlap_tolerance = 0., numerical_precision = .001;);
+  DagMC(Interface *mb_impl = NULL, double overlap_tolerance = 0., double xnumerical_precision = .001);
   // Destructor
   ~DagMC();
 
