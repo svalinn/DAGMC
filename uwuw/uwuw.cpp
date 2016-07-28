@@ -22,11 +22,11 @@ UWUW::UWUW(char* file)
     exit(1);
   }
 
-  // load tallies
-  tally_library = load_pyne_tallies(full_filepath);
-
   // load materials
   material_library = load_pyne_materials(full_filepath);
+
+  // load tallies
+  tally_library = load_pyne_tallies(full_filepath);
 };
 
 // Default constructor
@@ -41,11 +41,11 @@ UWUW::UWUW(std::string filename)
     exit(1);
   }
 
-  // load tallies
-  tally_library = load_pyne_tallies(full_filepath);
-
   // load materials
   material_library = load_pyne_materials(full_filepath);
+
+  // load tallies
+  tally_library = load_pyne_tallies(full_filepath);
 };
 
 // Destructor
@@ -80,19 +80,21 @@ bool UWUW::check_file_exists(std::string filename)
 }
 
 // loads all materials into map
-std::map<std::string, pyne::Material> UWUW::load_pyne_materials(std::string filename)
+
+std::map<std::string, pyne::Material> UWUW::load_pyne_materials(std::string filename, std::string datapath)
 {
   std::map<std::string, pyne::Material> library; // material library
 
-  if(!hdf5_path_exists(filename,"/materials"))
+  const char* data_path = datapath.c_str();
+
+  if(!hdf5_path_exists(filename,data_path))
     return library;
 
-  num_materials = get_length_of_table(filename,"/materials");
+  num_materials = get_length_of_table(filename,datapath);
 
   for ( int i = 0 ; i < num_materials ; i++ ) {
     pyne::Material mat; // from file
-
-    mat.from_hdf5(filename,"/materials",i);
+    mat.from_hdf5(filename,datapath,i);
     // renumber material number by position in the library
     mat.metadata["mat_number"]=i+1;
     library[mat.metadata["name"].asString()]=mat;
@@ -102,18 +104,18 @@ std::map<std::string, pyne::Material> UWUW::load_pyne_materials(std::string file
 }
 
 // loads all tallies into map
-std::map<std::string, pyne::Tally> UWUW::load_pyne_tallies(std::string filename)
+std::map<std::string, pyne::Tally> UWUW::load_pyne_tallies(std::string filename, std::string datapath)
 {
   std::map<std::string, pyne::Tally> library; // material library
 
-  if(!hdf5_path_exists(filename,"/tally"))
+  if(!hdf5_path_exists(filename,datapath))
     return library;
 
-  num_tallies = get_length_of_table(filename,"/tally");
+  num_tallies = get_length_of_table(filename,datapath);
 
   for ( int i = 0 ; i < num_tallies ; i++) {
     pyne::Tally tally; // from file
-    tally.from_hdf5(filename,"/tally",i);
+    tally.from_hdf5(filename,datapath,i);
     library[tally.tally_name]=tally;
   }
   return library;
