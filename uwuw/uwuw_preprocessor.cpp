@@ -10,7 +10,7 @@ uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std:
   ncr = new name_concatenator();
 
   // load the materials
-  material_library = mat_lib.load_pyne_materials(material_library_filename,"/material_library/materials");
+  material_library = mat_lib.load_pyne_materials(material_library_filename,"/materials");
 
   // load the material objects
   // load the dag file
@@ -35,8 +35,8 @@ uwuw_preprocessor::~uwuw_preprocessor()
 
 // get the dagmc properties from the geometry file
 std::map<moab::EntityHandle, std::vector<std::string> > get_property_assignments( std::string property,
-    int dimension,
-    std::string delimiters)
+										  int dimension,
+										  std::string delimiters)
 {
   std::map<moab::EntityHandle,std::vector<std::string> > prop_map; // to return
   std::vector<std::string> test_keywords; // keywords we are going to test against
@@ -97,6 +97,7 @@ void uwuw_preprocessor::write_uwuw_materials()
       std::cout << " to file " << output_filename << std::endl;
     }
 
+    // write the uwuw materials to the geometry
     mat.write_hdf5(output_filename,"/materials");
   }
 

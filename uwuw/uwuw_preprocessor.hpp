@@ -27,7 +27,7 @@ struct tally_info {
  * \brief Defines the uwuw_preprocessor interface
  *
  * uwuw_preprocessor is a class which allows the C++ version of the uwuw preprocessor
- * program to be built. The class expects to be instanciated with 2 needed arguments
+ * program to be built. The class expects to be instantiated with 2 needed arguments
  * and 2 default arguments. The first argument defines the DAGMC file marked up with
  * appropriate instructions. The second argument defines the PyNE material library file,
  * which should contain at least the materials you specified in the DAGMC file, but can
@@ -162,7 +162,7 @@ class uwuw_preprocessor
   /**
    * \brief Given the vectors of strings of material & density properties and the current entity
    * makes the unique groupname by taking the first element of the material_props and density_props
-   * vector and combines them to make a unqiue string in thef form mat:<material_prop>/rho:<density_prop>
+   * vector and combines them to make a unqiue string in the form mat:<material_prop>/rho:<density_prop>
    * or mat:<material_prop> if no density prop has been set for the entity. Also, for convenience we
    * also return the pair of strings that makes up the material and density props.
    *
