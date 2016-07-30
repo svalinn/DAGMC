@@ -27,10 +27,6 @@ using namespace moab;
 // (center of face at origin).
 ErrorCode write_geometry( const char* output_file_name );
 
-ErrorCode test_setup( DagMC * );
-
-ErrorCode test_obb_retreval( DagMC * );
-
 ErrorCode test_ray_fire( DagMC * );
 
 ErrorCode test_point_in_volume( DagMC * );
@@ -320,10 +316,6 @@ int main( int argc, char* argv[] )
   DagMC *dagmc = new DagMC();
 
   int errors = 0;
-  
-  RUN_TEST( test_setup); // run the setup tests
-  RUN_TEST( test_obb_retreval); // run the obb tests
-
   //rval = dagmc.moab_instance()->load_file( filename );
   rval = dagmc->load_file( filename, 0 );
   remove( filename );
@@ -394,87 +386,6 @@ int main( int argc, char* argv[] )
 #endif
 
   return errors;
-}
-
-/* this test verifies that a geometry instanciated in 
- *  different ways is all valid and ready to be used 
- */
-ErrorCode test_setup( DagMC * DAGMC ) {
-  // we dont use the DAGMC pointer
-  
-  /* 1 - Test with external moab, load file in DAGMC*/
-  // make new moab core
-  Core *mbi = new moab::Core();
-  // make new dagmc into that moab
-  DagMC *dagmc = new moab::DagMC(mbi);
-
-  ErrorCode rval;
-  // load a file
-  rval = dagmc->load_file("test_geom.h5m",0);
-  CHKERR;
-  rval = dagmc->init_OBBTree();
-  CHKERR;
-  
-  // delete dagmc
-  delete dagmc;
-  /* 2 - Test with external moab, load file in MOAB*/
-
-  // load the file into moab rather than dagmc
-  rval = mbi->load_file("test_geom.h5m",0);
-  CHKERR;
-  dagmc = new moab::DagMC(mbi);
-  rval = dagmc->load_existing_contents();
-  CHKERR;
-  rval = dagmc->init_OBBTree();
-  CHKERR;
-  
-  // delete dagmc;
-  delete dagmc;
-
-  /* 3 - Test with internal moab, load file in DAG*/
-  // make new dagmc into that moab
-  dagmc = new moab::DagMC();
-  // load a file
-  rval = dagmc->load_file("test_geom.h5m",0);
-  CHKERR;
-  rval = dagmc->init_OBBTree();
-  CHKERR;
-  
-  return MB_SUCCESS;
-}
-
-/* this test verifies that we can always reload the 
- * obbs from the file
- */
-ErrorCode test_obb_retreval( DagMC * DAGMC ) {
-  // we dont use the DAGMC pointer
-  
-  // make new dagmc
-  DagMC *dagmc = new moab::DagMC();
-
-  ErrorCode rval;
-  // load a file
-  rval = dagmc->load_file("test_geom.h5m",0);
-  CHKERR;
-  rval = dagmc->init_OBBTree();
-  CHKERR;
-
-  // write the file
-  rval = dagmc->write_mesh("fcad",4);
-
-  // now remove the dagmc instance a
-  delete dagmc;
-
-  dagmc = new moab::DagMC();
-  rval = dagmc->load_file("fcad",0);
-  CHKERR;
-  rval = dagmc->init_OBBTree();
-  CHKERR;
-
-  // delete the fcad file
-  remove("fcad");
-
-  return MB_SUCCESS;
 }
 
 ErrorCode test_surface_sense( DagMC * dagmc )

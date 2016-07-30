@@ -32,6 +32,132 @@ void dagmc_load_file()
   CHECK_ERR(rval);
 }
 
+void dagmc_load_file_dagmc() 
+{
+  /* 1 - Test with external moab, load file in DAGMC*/
+  // make new moab core
+  Core *mbi = new moab::Core();
+  // make new dagmc into that moab
+  DagMC *dagmc = new moab::DagMC(mbi);
+
+  ErrorCode rval;
+  // load a file
+  rval = dagmc->load_file(input_file,0);
+  CHECK_ERR(rval);
+  
+  // delete dagmc
+  delete dagmc;
+  delete mbi;
+}
+
+void dagmc_load_file_dagmc_via_moab() {
+  /* 2 - Test with external moab, load file in MOAB*/
+  // load the file into moab rather than dagmc
+  ErrorCode rval;
+
+  moab::Core *mbi = new moab::Core();
+  rval = mbi->load_file(input_file,0);
+  CHECK_ERR(rval);
+  moab::DagMC *dagmc = new moab::DagMC(mbi);
+  rval = dagmc->load_existing_contents();
+  CHECK_ERR(rval);
+  
+  // delete dagmc;
+  delete dagmc;
+  delete mbi;
+}
+
+void dagmc_load_file_dagmc_internal() {
+  /* 3 - Test with internal moab, load file in DAG*/
+  // make new dagmc into that moab
+  ErrorCode rval;
+
+  moab::DagMC *dagmc = new moab::DagMC();
+  // load a file
+  rval = dagmc->load_file(input_file,0);
+  CHECK_ERR(rval);
+}
+
+void dagmc_load_file_dagmc_build_obb() 
+{
+  /* 1 - Test with external moab, load file in DAGMC*/
+  // make new moab core
+  ErrorCode rval;
+    
+  moab::Core *mbi = new moab::Core();
+  // make new dagmc into that moab
+  DagMC *dagmc = new moab::DagMC(mbi);
+
+  // load a file
+  rval = dagmc->load_file(input_file,0);
+  CHECK_ERR(rval);
+  rval = dagmc->init_OBBTree();
+  CHECK_ERR(rval);
+  // delete dagmc
+  delete dagmc;
+  delete mbi;
+}
+
+void dagmc_load_file_dagmc_via_moab_build_obb() {
+  /* 2 - Test with external moab, load file in MOAB*/
+  // load the file into moab rather than dagmc
+  ErrorCode rval;
+
+  moab::Core *mbi = new moab::Core();
+  rval = mbi->load_file(input_file,0);
+  CHECK_ERR(rval);
+  moab::DagMC *dagmc = new moab::DagMC(mbi);
+  rval = dagmc->load_existing_contents();
+  CHECK_ERR(rval);
+  rval = dagmc->init_OBBTree();
+  CHECK_ERR(rval);
+  
+  // delete dagmc;
+  delete dagmc;
+  delete mbi;
+}
+
+void dagmc_load_file_dagmc_internal_build_obb() {
+  /* 3 - Test with internal moab, load file in DAG*/
+  // make new dagmc into that moab
+  ErrorCode rval;
+
+  moab::DagMC *dagmc = new moab::DagMC();
+  // load a file
+  rval = dagmc->load_file(input_file,0);
+  CHECK_ERR(rval);
+  rval = dagmc->init_OBBTree();
+  CHECK_ERR(rval);
+}
+
+void dagmc_test_obb_retreval() {
+    // make new dagmc
+  DagMC *dagmc = new moab::DagMC();
+
+  ErrorCode rval;
+  // load a file
+  rval = dagmc->load_file(input_file,0);
+  CHECK_ERR(rval);
+  rval = dagmc->init_OBBTree();
+  CHECK_ERR(rval);
+
+  // write the file
+  rval = dagmc->write_mesh("fcad",4);
+
+  // now remove the dagmc instance a
+  delete dagmc;
+
+  dagmc = new moab::DagMC();
+  rval = dagmc->load_file("fcad",0);
+  CHECK_ERR(rval);
+  rval = dagmc->init_OBBTree();
+  CHECK_ERR(rval);
+
+  // delete the fcad file
+  remove("fcad");
+}
+
+
 void dagmc_build_obb() 
 {
   ErrorCode rval = DAG->init_OBBTree();
@@ -133,7 +259,12 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_load_file); // test ray fire
   result += RUN_TEST(dagmc_build_obb); // build the obb
   result += RUN_TEST(dagmc_num_vols); // make sure the num of vols correct
-  // result += RUN_TEST(dagmc_entity_handle); // check the entity handle correct
+  result += RUN_TEST(dagmc_load_file_dagmc); //
+  result += RUN_TEST(dagmc_load_file_dagmc_via_moab); //
+  result += RUN_TEST(dagmc_load_file_dagmc_internal); //
+  result += RUN_TEST(dagmc_load_file_dagmc_build_obb); //
+  result += RUN_TEST(dagmc_load_file_dagmc_via_moab_build_obb); //
+  result += RUN_TEST(dagmc_load_file_dagmc_internal_build_obb); //  
   result += RUN_TEST(dagmc_point_in); // check entity by point
   result += RUN_TEST(dagmc_rayfire); // ensure ray fire distance is correct
   result += RUN_TEST(dagmc_closest_to); // check the distance to surface nearest point

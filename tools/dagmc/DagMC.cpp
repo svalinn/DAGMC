@@ -485,27 +485,21 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
     
     // build OBB tree for volume
     rval = obbTree->join_trees( trees, root );
-    std::cout << "rval join " << rval << std::endl;
     if (MB_SUCCESS != rval) return rval;
 
     rval = MBI->tag_set_data( obbTag, &*i, 1, &root );
-    std::cout << "rval set " << rval << std::endl;
     if (MB_SUCCESS != rval) return rval;
-
   }
 
-  if ( !(have_impl_compl()) )
-    {
-      std::cerr << "Warning, there is no implicit compliment" << std::endl;
+  if ( !(have_impl_compl()) ) {
+    std::cerr << "Warning, there is no implicit compliment" << std::endl;
+  } else {
+    rval = build_obb_impl_compl(surfs);
+    if (MB_SUCCESS != rval) {
+      std::cerr << "Unable to build OBB tree for implicit complement." << std::endl;
+      return rval;
     }
-  else
-    {
-      rval = build_obb_impl_compl(surfs);
-      if (MB_SUCCESS != rval) {
-	std::cerr << "Unable to build OBB tree for implicit complement." << std::endl;
-	return rval;
-      }
-    }
+  }
 
   return MB_SUCCESS;
 }
@@ -1298,7 +1292,7 @@ ErrorCode DagMC::CAD_ray_intersect(
     else *dit = huge_val;
   }
 
-    // now bubble sort list
+  // now bubble sort list
   bool done = false;
   while (!done) {
     dit = distances.begin();
@@ -1394,7 +1388,7 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
 
 // helper function for point_in_volume_slow.  calculate area of a polygon
 // projected into a unit-sphere space
-   ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, double& area )
+ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, double& area )
 {
   ErrorCode rval;
 
@@ -1405,7 +1399,7 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
   if (MB_SUCCESS != rval)
     return rval;
 
-    // Allocate space to store vertices
+  // Allocate space to store vertices
   CartVect coords_static[4];
   std::vector<CartVect> coords_dynamic;
   CartVect* coords = coords_static;
@@ -1414,12 +1408,12 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     coords = &coords_dynamic[0];
   }
 
-    // get coordinates
+  // get coordinates
   rval = MBI->get_coords( conn, len, coords->array() );
   if (MB_SUCCESS != rval)
     return rval;
 
-    // calculate normal
+  // calculate normal
   CartVect norm(0.0), v1, v0 = coords[1] - coords[0];
   for (int i = 2; i < len; ++i) {
     v1 = coords[i] - coords[0];
@@ -1427,7 +1421,7 @@ ErrorCode DagMC::boundary_case( EntityHandle volume, int& result,
     v0 = v1;
   }
 
-    // calculate area
+  // calculate area
   double s, ang;
   area = 0.0;
   CartVect r, n1, n2, b, a = coords[len-1] - coords[0];
