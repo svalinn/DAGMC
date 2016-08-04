@@ -1,0 +1,61 @@
+TITLE
+
+* Set the defaults for precision simulations
+DEFAULTS                                                              PRECISIO
+* Define the beam characteristics
+BEAM          -0.014       0.0       0.0      10.0      10.0          NEUTRON
+* Define the beam position
+BEAMPOS          0.0       0.0    1.0E-9
+GEOBEGIN         0.0                                                  FLUGG
+GEOEND
+* ..+....1....+....2....+....3....+....4....+....5....+....6....+....7..
+ASSIGNMA    BLCKHOLE       1.0
+ASSIGNMA        IRON       2.0
+ASSIGNMA      VACUUM       3.0
+ASSIGNMA        IRON       4.0
+ASSIGNMA      VACUUM       5.0
+ASSIGNMA        IRON       6.0
+ASSIGNMA      VACUUM       7.0
+ASSIGNMA        IRON       8.0
+ASSIGNMA      VACUUM       9.0
+ASSIGNMA        IRON       10.
+ASSIGNMA      VACUUM       11.
+ASSIGNMA      VACUUM       12.
+* ..+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+*ASSIGNMA    BLCKHOLE        C0
+*ASSIGNMA      VACUUM        C1
+*ASSIGNMA      VACUUM        C2
+*ASSIGNMA      VACUUM        C3
+*ASSIGNMA      VACUUM        C4
+*ASSIGNMA      VACUUM        C5
+*ASSIGNMA      VACUUM        C6
+*ASSIGNMA      VACUUM        C7
+* *ASSIGNMA      VACUUM        C8
+*ASSIGNMA      VACUUM        C9
+*ASSIGNMA      VACUUM       C10
+LOW-NEUT        260.                           0.0                -11.
+USRTRACK         -1.   NEUTRON      -21.       2.0       1.0       1.0NFLUX1
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       3.0       1.0       1.0NFLUX2
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       4.0       1.0       1.0NFLUX3
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       5.0       1.0       1.0NFLUX4
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       6.0       1.0       1.0NFLUX5
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       7.0       1.0       1.0NFLUX6
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       8.0       1.0       1.0NFLUX7
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.       9.0       1.0       1.0NFLUX8
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.      10.0       1.0       1.0NFLUX9
+USRTRACK        0.02   1.0E-14                                         &
+USRTRACK         -1.   NEUTRON      -21.      11.0       1.0       1.0NFLUX10
+USRTRACK        0.02   1.0E-14                                         &
+* Set the random number seed
+RANDOMIZ         1.0
+* Set the number of primary histories to be simulated in the run
+START      1000000.0                            1.
+STOP
