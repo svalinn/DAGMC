@@ -226,12 +226,11 @@ other build products to be installed.  It is typically set to the DAGMC director
 ::
     prompt%> export INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 
-**Example 1:**  Build the DAGMC interfaces and DAG-MCNP5, assuming that the DATAPATH environment
-                variable is undefined.
+**Example 1:**  Build the DAGMC interfaces and DAG-MCNP5, assuming that 
+the DATAPATH environment variable is undefined.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMCNP5_DATAPATH=<path to MCNP data> \
                         -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-
 **Example 2:**  Build MCNP5 in parallel.
 ::
     prompt%> cmake ../. -DBUILD_MCNP5=ON -DMPI_BUILD=ON \

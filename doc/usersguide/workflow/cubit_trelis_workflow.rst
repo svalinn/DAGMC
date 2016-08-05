@@ -171,14 +171,28 @@ Imprint and Merge
 For a DAGMC based analysis to work optimally, all of the surfaces must
 be imprinted and merged. Imprinting creates a common surface
 interface between touching volumes.  Merging then takes the touching
-surfaces and makes them into one surface.
+surfaces and makes them into one surface. The imprint operation is shown
+below
+
+.. image:: imprint_operation.png
+   :height: 200
+   :width:  600
+   :alt: Imprint operations, results in the creation of additional surfaces.
 
 To imprint, issue the following command:
 ::
      imprint body all
 
 Should the imprint be successful, then the next step is to merge the
-geometry. Sometimes it may be important to specify a merge tolerance.
+geometry. A schematic of what the merge operation achieves is shown
+below,
+
+.. image:: merge_operation.png
+   :height: 250
+   :width:  600
+   :alt: Merge operations, results in the removal of identical surfaces.
+
+Sometimes it may be important to specify a merge tolerance.
 To set the tolerance and merge, issue the following commands:
 :: 
     merge tol 5e-7
