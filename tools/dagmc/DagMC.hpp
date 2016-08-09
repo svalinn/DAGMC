@@ -56,7 +56,7 @@ class DagMC
 {
 public:
   // Constructor
-  DagMC(Interface *mb_impl = NULL, double overlap_tolerance = 0., double xnumerical_precision = .001);
+  DagMC(Interface *mb_impl = NULL, double overlap_tolerance = 0., double numerical_precision = .001);
   // Destructor
   ~DagMC();
 
@@ -76,6 +76,14 @@ public:
    *\param facet_tolerance the faceting tolerance guidance for the faceting engine
    *\return - MB_SUCCESS if file loads correctly
    *        - other MB ErrorCodes returned from MOAB
+   * 
+   * Note: When loading a prexisting file with an OBB_TREE tag, a number of unspoken
+   * things happen that one should be aware of.
+   *
+   * 1) The file is loaded and when we query the meshset, we find entities with the OBB_TREE tag
+   * 2) The OBBTreeTool assumes that any children of the entity being queried in a ray intersect sets
+   *     operation are fair game, the surface meshesets have triangles as members, but OBB's as children
+   *     but no querying is done, just assumtions that the tags exist.
    */
   ErrorCode load_file(const char* cfile,
                       const double facet_tolerance = 0);

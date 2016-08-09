@@ -319,6 +319,7 @@ ErrorCode DagMC::setup_obbs()
 
   // If we havent got an OBB Tree, build one.
   if (!have_obb_tree()) {
+    std::cout << "Building OBB Tree..." << std::endl;
     rval = build_obbs(surfs, vols);
     MB_CHK_SET_ERR(rval, "Failed to build obb.");
   }
