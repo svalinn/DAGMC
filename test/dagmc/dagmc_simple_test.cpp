@@ -132,6 +132,8 @@ void dagmc_load_file_dagmc_internal_build_obb() {
 
 void dagmc_test_obb_retreval() {
     // make new dagmc
+  std::cout << "test_obb_retreval" << std::endl;
+  
   DagMC *dagmc = new moab::DagMC();
 
   ErrorCode rval;
@@ -193,6 +195,53 @@ void dagmc_point_in()
   ErrorCode rval = DAG->point_in_volume(vol_h, xyz, result);
   CHECK_ERR(rval);
   CHECK_EQUAL(expect_result, result);
+}
+
+void dagmc_test_obb_retreval_rayfire() {
+  // make new dagmc
+  std::cout << "test_obb_retreval and ray_fire" << std::endl;
+  
+  DagMC *dagmc = new moab::DagMC();
+
+  ErrorCode rval;
+  // load a file
+  rval = dagmc->load_file(input_file,0);
+  CHECK_ERR(rval);
+  rval = dagmc->init_OBBTree();
+  CHECK_ERR(rval);
+
+  // write the file
+  rval = dagmc->write_mesh("fcad",4);
+
+  // now remove the dagmc instance a
+  delete dagmc;
+
+  // now create new DAGMC
+  dagmc = new moab::DagMC();
+  rval = dagmc->load_file("fcad",0);
+  CHECK_ERR(rval);
+  rval = dagmc->init_OBBTree();
+  CHECK_ERR(rval);
+
+  // delete the fcad file
+  remove("fcad");
+
+  // now perform full ray fire
+  double eps = 1.e-6;
+  int vol_idx = 1;
+  // note model is cube of side 10, centred at 0,0,0, so ray fire along
+  // any unit direction should be exactly 5.0
+  double xyz[3] = {0.0, 0.0, 0.0};
+  double dir[3] = {0.0, 0.0, 1.0};
+  EntityHandle next_surf;
+  double next_surf_dist;
+  double expect_next_surf_dist = 5.0;
+  EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
+
+  rval = DAG->ray_fire(vol_h, xyz, dir, next_surf, next_surf_dist);
+  CHECK_ERR(rval);
+  CHECK_REAL_EQUAL(expect_next_surf_dist, next_surf_dist, eps);
+
 }
 
 void dagmc_rayfire()
@@ -264,7 +313,9 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_load_file_dagmc_internal); //
   result += RUN_TEST(dagmc_load_file_dagmc_build_obb); //
   result += RUN_TEST(dagmc_load_file_dagmc_via_moab_build_obb); //
-  result += RUN_TEST(dagmc_load_file_dagmc_internal_build_obb); //  
+  result += RUN_TEST(dagmc_load_file_dagmc_internal_build_obb); // 
+  result += RUN_TEST(dagmc_test_obb_retreval); // check that we are retreving loaded obbs
+  result += RUN_TEST(dagmc_test_obb_retreval_rayfire); // check that we can ray fire on loaded obbs
   result += RUN_TEST(dagmc_point_in); // check entity by point
   result += RUN_TEST(dagmc_rayfire); // ensure ray fire distance is correct
   result += RUN_TEST(dagmc_closest_to); // check the distance to surface nearest point
