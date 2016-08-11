@@ -128,23 +128,6 @@ unsigned int DagMC::interface_revision() {
   return result;
 }
 
-DagMC::DagMC(Interface *mb_impl)
-  : mbImpl(mb_impl), obbTree(mb_impl), impl_compl_handle(0),
-    obbTag(0), geomTag(0), idTag(0), nameTag(0), senseTag(0), facetingTolTag(0),
-    setOffset(0), facetingTolerance(0.0), have_cgm_geom(false),
-    n_pt_in_vol_calls(0), n_ray_fire_calls(0)
-{
-    // This is the correct place to uniquely define default values for the dagmc settings
-  overlapThickness = 0; // must be nonnegative
-  defaultFacetingTolerance = .001;
-  numericalPrecision = .001;
-  useCAD = false;
-
-  memset( implComplName, 0, NAME_TAG_SIZE );
-  strcpy( implComplName , "impl_complement" );
-
-}
-
 /* SECTION I: Geometry Initialization and problem setup */
 
 // the standard DAGMC load file method
