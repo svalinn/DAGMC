@@ -149,7 +149,7 @@ ErrorCode write_geometry( const char* output_file_name )
   
   rval = moab->write_mesh( output_file_name );
   CHKERR;
-  
+  delete moab;
   return MB_SUCCESS;
 }
 
@@ -273,7 +273,7 @@ ErrorCode overlap_write_geometry( const char* output_file_name )
   
   rval = moab->write_mesh( output_file_name );
   CHKERR;
-  
+  delete moab;
   return MB_SUCCESS;
 }
 
@@ -357,6 +357,7 @@ int main( int argc, char* argv[] )
   }
   
   delete dagmc;
+  
   dagmc = new DagMC();
   //  rval = dagmc->moab_instance()->load_file( filename );
   rval = dagmc->load_file( filename, 0);
@@ -385,6 +386,8 @@ int main( int argc, char* argv[] )
   if (fail) return fail;
 #endif
 
+  delete dagmc;
+  
   return errors;
 }
 
