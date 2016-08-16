@@ -177,7 +177,7 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_outside_face_rayfire_history_fail); // fire ray from point outside geometry using ray history
   result += RUN_TEST(dagmc_outside_face_rayfire_history); // fire ray from point outside geometry using ray history
 
-  DAG->~DagMC();
+  delete DAG;
 
   return result;
 }

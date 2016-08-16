@@ -356,7 +356,7 @@ int main( int argc, char* argv[] )
     return 1;
   }
   
-  dagmc->~DagMC();
+  delete dagmc;
   dagmc = new DagMC();
   //  rval = dagmc->moab_instance()->load_file( filename );
   rval = dagmc->load_file( filename, 0);

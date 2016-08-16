@@ -76,6 +76,7 @@ void dagmc_load_file_dagmc_internal() {
   // load a file
   rval = dagmc->load_file(input_file,0);
   CHECK_ERR(rval);
+  delete dagmc;
 }
 
 void dagmc_load_file_dagmc_build_obb() 
@@ -124,21 +125,22 @@ void dagmc_load_file_dagmc_internal_build_obb() {
 
   moab::DagMC *dagmc = new moab::DagMC();
   // load a file
-  rval = dagmc->load_file(input_file,0);
+  rval = dagmc->load_file(input_file,0.);
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
+  delete dagmc;
 }
 
 void dagmc_test_obb_retreval() {
     // make new dagmc
   std::cout << "test_obb_retreval" << std::endl;
-  
+
   DagMC *dagmc = new moab::DagMC();
 
   ErrorCode rval;
   // load a file
-  rval = dagmc->load_file(input_file,0);
+  rval = dagmc->load_file(input_file,0.);
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
@@ -157,6 +159,7 @@ void dagmc_test_obb_retreval() {
 
   // delete the fcad file
   remove("fcad");
+  delete dagmc;
 }
 
 
@@ -241,7 +244,7 @@ void dagmc_test_obb_retreval_rayfire() {
   rval = DAG->ray_fire(vol_h, xyz, dir, next_surf, next_surf_dist);
   CHECK_ERR(rval);
   CHECK_REAL_EQUAL(expect_next_surf_dist, next_surf_dist, eps);
-
+  delete dagmc;
 }
 
 void dagmc_rayfire()
@@ -321,7 +324,7 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_closest_to); // check the distance to surface nearest point
   result += RUN_TEST(dagmc_test_boundary); // check particle entering leaving
 
-  DAG->~DagMC();
+  delete DAG;
 
   return result;
 }

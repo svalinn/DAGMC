@@ -279,7 +279,7 @@ int main(int /* argc */, char** /* argv */)
 	//result += RUN_TEST(dagmc_point_in({5.0, 0.0, 0.0}); // point in centre
 	//result += RUN_TEST(dagmc_point_in({-5.0, 0.0, 0.0}); // point in centre
 
-  DAG->~DagMC();
-
+  delete DAG;
+  
   return result;
 }
