@@ -85,8 +85,7 @@ public:
    *     operation are fair game, the surface meshesets have triangles as members, but OBB's as children
    *     but no querying is done, just assumtions that the tags exist.
    */
-  ErrorCode load_file(const char* cfile,
-                      const double facet_tolerance = 0);
+  ErrorCode load_file(const char* cfile);
 
   /*\brief Use pre-loaded geometry set
    *

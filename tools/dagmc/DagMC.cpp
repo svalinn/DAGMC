@@ -120,22 +120,9 @@ unsigned int DagMC::interface_revision() {
 /* SECTION I: Geometry Initialization and problem setup */
 
 // the standard DAGMC load file method
-ErrorCode DagMC::load_file(const char* cfile,
-                           const double facet_tolerance) {
+ErrorCode DagMC::load_file(const char* cfile) {
   ErrorCode rval;
-  
-  std::cout << "Requested faceting tolerance: " << facet_tolerance << std::endl;
-  
-
-  facetingTolerance = defaultFacetingTolerance;
-    // override default value of facetingTolerance with passed value
-  if (facet_tolerance > 0 )
-    facetingTolerance = facet_tolerance;
-
-  char facetTolStr[16];
-
-  sprintf(facetTolStr,"%g",facetingTolerance);
-
+  std::cout << "Loading file " << cfile << std::endl;
   // load options 
   char options[120] = {0};
   char file_ext[4] = "" ; // file extension

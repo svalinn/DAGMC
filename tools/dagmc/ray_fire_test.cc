@@ -58,7 +58,6 @@ std::vector< ray_t > rays; // list of user-specified rays (given with -f flag)
 
 static CartVect ray_source(0,0,0);
 
-static double facet_tol = 1e-4;
 static double source_rad = 0;
 static int vol_index = 1;
 static int num_random_rays = 1000;
@@ -94,7 +93,6 @@ static void usage( const char* error, const char* opt, const char* name = "ray_f
     str << "-s  print OBB tree structural statistics" << std::endl;
     str << "-S  track and print OBB tree traversal statistics" << std::endl;
     str << "-i <int>   specify volume to upon which to test ray intersections (default 1)" << std::endl;
-    str << "-t <real>  specify faceting tolerance (default 1e-4)" << std::endl;
     str << "-n <int>   specify number of random rays to fire (default 1000)" << std::endl;
     str << "-c <x> <y> <z>  Specify center of of random ray generation (default origin)." << std::endl;
     str << "-r <real>  random ray radius.  Random rays begin at this distance from the center." << std::endl;
@@ -198,9 +196,6 @@ int main( int argc, char* argv[] )
         case 'i': 
           vol_index = get_int_option( i, argc, argv );
           break;
-        case 't': 
-	  facet_tol = get_double_option( i, argc, argv );
-	  break;
         case 'n':
 	  num_random_rays = get_int_option( i, argc, argv );
 	  break;
@@ -248,10 +243,8 @@ int main( int argc, char* argv[] )
   OrientedBoxTreeTool::TrvStats* trv_stats = NULL;
   if( do_trv_stats ){ trv_stats = new OrientedBoxTreeTool::TrvStats; }
 
-  /* Initialize DAGMC and find the appropriate volume */
-  std::cout << "Initializing DagMC, facet_tol = " << facet_tol << std::endl;
   DagMC dagmc = DagMC();
-  rval = dagmc.load_file( filename, facet_tol );
+  rval = dagmc.load_file( filename );
   if(MB_SUCCESS != rval) {
     std::cerr << "Failed to load file '" << filename << "'" << std::endl;
     return 2;
@@ -533,7 +526,6 @@ void dump_pyfile( char* filename, double timewith, double timewithout, double tm
   finish_time.resize( finish_time.length()-1 );
   DICT_VAL_STR(finish_time);
   DICT_VAL_STR(filename);
-  DICT_VAL(facet_tol);
   out << "'ray_source':[" << ray_source[0] << "," << ray_source[1] << "," << ray_source[2] << "]," << std::endl;
   DICT_VAL(source_rad);
   unsigned num_user_rays = rays.size();

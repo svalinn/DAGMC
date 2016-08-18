@@ -42,7 +42,7 @@ void dagmc_load_file_dagmc()
 
   ErrorCode rval;
   // load a file
-  rval = dagmc->load_file(input_file,0);
+  rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
   
   // delete dagmc
@@ -56,7 +56,7 @@ void dagmc_load_file_dagmc_via_moab() {
   ErrorCode rval;
 
   moab::Core *mbi = new moab::Core();
-  rval = mbi->load_file(input_file,0);
+  rval = mbi->load_file(input_file);
   CHECK_ERR(rval);
   moab::DagMC *dagmc = new moab::DagMC(mbi);
   rval = dagmc->load_existing_contents();
@@ -74,7 +74,7 @@ void dagmc_load_file_dagmc_internal() {
 
   moab::DagMC *dagmc = new moab::DagMC();
   // load a file
-  rval = dagmc->load_file(input_file,0);
+  rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
   delete dagmc;
 }
@@ -90,7 +90,7 @@ void dagmc_load_file_dagmc_build_obb()
   DagMC *dagmc = new moab::DagMC(mbi);
 
   // load a file
-  rval = dagmc->load_file(input_file,0);
+  rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
@@ -105,7 +105,7 @@ void dagmc_load_file_dagmc_via_moab_build_obb() {
   ErrorCode rval;
 
   moab::Core *mbi = new moab::Core();
-  rval = mbi->load_file(input_file,0);
+  rval = mbi->load_file(input_file);
   CHECK_ERR(rval);
   moab::DagMC *dagmc = new moab::DagMC(mbi);
   rval = dagmc->load_existing_contents();
@@ -125,7 +125,7 @@ void dagmc_load_file_dagmc_internal_build_obb() {
 
   moab::DagMC *dagmc = new moab::DagMC();
   // load a file
-  rval = dagmc->load_file(input_file,0.);
+  rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
@@ -140,7 +140,7 @@ void dagmc_test_obb_retreval() {
 
   ErrorCode rval;
   // load a file
-  rval = dagmc->load_file(input_file,0.);
+  rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
@@ -152,7 +152,7 @@ void dagmc_test_obb_retreval() {
   delete dagmc;
 
   dagmc = new moab::DagMC();
-  rval = dagmc->load_file("fcad",0);
+  rval = dagmc->load_file("fcad");
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
@@ -208,7 +208,7 @@ void dagmc_test_obb_retreval_rayfire() {
 
   ErrorCode rval;
   // load a file
-  rval = dagmc->load_file(input_file,0);
+  rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
@@ -221,7 +221,7 @@ void dagmc_test_obb_retreval_rayfire() {
 
   // now create new DAGMC
   dagmc = new moab::DagMC();
-  rval = dagmc->load_file("fcad",0);
+  rval = dagmc->load_file("fcad");
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);

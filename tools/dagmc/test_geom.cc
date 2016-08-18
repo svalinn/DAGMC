@@ -317,7 +317,7 @@ int main( int argc, char* argv[] )
 
   int errors = 0;
   //rval = dagmc.moab_instance()->load_file( filename );
-  rval = dagmc->load_file( filename, 0 );
+  rval = dagmc->load_file( filename );
   remove( filename );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file." << std::endl;
@@ -360,7 +360,7 @@ int main( int argc, char* argv[] )
   
   dagmc = new DagMC();
   //  rval = dagmc->moab_instance()->load_file( filename );
-  rval = dagmc->load_file( filename, 0);
+  rval = dagmc->load_file( filename );
   remove( filename );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file with overlaps." << std::endl;
