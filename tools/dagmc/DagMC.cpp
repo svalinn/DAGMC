@@ -6,16 +6,6 @@
 #include "moab/GeomUtil.hpp"
 #include "moab/FileOptions.hpp"
 
-#ifdef MOAB_HAVE_CGM
-#include "InitCGMA.hpp"
-#include "CGMApp.hpp"
-#include "CubitDefines.h"
-#include "GeometryQueryTool.hpp"
-#include "CubitVector.hpp"
-#include "RefFace.hpp"
-#include "RefVolume.hpp"
-#endif
-
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -93,7 +83,6 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double numerical_prec
   overlapThickness = overlap_tolerance; // must be nonnegative
   defaultFacetingTolerance = .001;
   numericalPrecision = numerical_precision;
-  useCAD = false;
 
   memset( implComplName, 0, NAME_TAG_SIZE );
   strcpy( implComplName , "impl_complement" );
@@ -137,10 +126,6 @@ ErrorCode DagMC::load_file(const char* cfile,
   
   std::cout << "Requested faceting tolerance: " << facet_tolerance << std::endl;
   
-#ifdef MOAB_HAVE_CGM
-  // cgm must be initialized so we can check it for CAD data after the load
-  InitCGMA::initialize_cgma();
-#endif
 
   facetingTolerance = defaultFacetingTolerance;
     // override default value of facetingTolerance with passed value
@@ -157,13 +142,6 @@ ErrorCode DagMC::load_file(const char* cfile,
 
   // get the last 4 chars of file .i.e .h5m .sat etc
   memcpy(file_ext, &cfile[strlen(cfile) - 4] ,4);
-  // these options only needed if faceting a sat file at DAG runtime
-  // not recommended as load_file overloads to ReadCGM load_file
-  if ( strstr(file_ext,".sat") != NULL )
-    {
-      strcat(options,"CGM_ATTRIBS=yes;FACET_DISTANCE_TOLERANCE=");
-      strcat(options,facetTolStr);
-    }
 
   EntityHandle file_set;
   rval = MBI->create_meshset( MESHSET_SET, file_set );
@@ -188,13 +166,6 @@ ErrorCode DagMC::load_file(const char* cfile,
 
     return rval;
   }
-
-#ifdef MOAB_HAVE_CGM
-  // check to see if CGM has data; if so, assume it corresponds to the data we loaded in.
-  if( GeometryQueryTool::instance()->num_ref_volumes() > 0 ) {
-    have_cgm_geom = true;
-  }
-#endif
 
   return finish_loading();
 }
@@ -673,12 +644,6 @@ ErrorCode DagMC::ray_fire(const EntityHandle vol,
                                      history ? &(history->prev_facets) : NULL );
   assert( MB_SUCCESS == rval );
   if(MB_SUCCESS != rval) return rval;
-
-  // if useCAD is true at this point, then we know we can call CGM's ray casting function.
-  if (useCAD) {
-    rval = CAD_ray_intersect( point, dir, huge_val, dists, surfs, nonneg_ray_len );
-    if (MB_SUCCESS != rval) return rval;
-  }
 
   // If no distances are returned, the particle is lost unless the physics limit
   // is being used. If the physics limit is being used, there is no way to tell
@@ -1233,77 +1198,6 @@ ErrorCode DagMC::next_vol( EntityHandle surface, EntityHandle old_volume,
 
 /* SECTION II (private) */
 
-ErrorCode DagMC::CAD_ray_intersect(
-#if defined(CGM) && defined(HAVE_CGM_FIRE_RAY)
-    const double *point,
-    const double *dir,
-    const double huge_val,
-    std::vector<double> &distances,
-    std::vector<EntityHandle> &surfaces,
-    double &len
-#else
-    const double *,
-    const double *,
-    const double ,
-    std::vector<double> &,
-    std::vector<EntityHandle> &,
-    double &
-#endif
-)
-{
-#ifdef MOAB_HAVE_CGM
-#ifndef HAVE_CGM_FIRE_RAY
-  return MB_NOT_IMPLEMENTED;
-#else
-  std::vector<double>::iterator dit = distances.begin();
-  std::vector<EntityHandle>::iterator sit = surfaces.begin();
-  static DLIList<double> ray_params;
-
-  for (; dit != distances.end(); ++dit, ++sit) {
-      // get the RefFace
-    RefEntity *this_face = geomEntities[*sit - setOffset];
-      // get the ray distance to this face
-    ray_params.clean_out();
-    int result = GeometryQueryTool::instance()->
-      fire_ray(dynamic_cast<RefFace*>(this_face), CubitVector(point),
-               CubitVector(dir), ray_params);
-    assert(CUBIT_SUCCESS == result);
-    if(CUBIT_SUCCESS != result) return MB_FAILURE;
-    if (ray_params.size() != 0) {
-      ray_params.reset();
-      *dit = ray_params.get();
-    }
-    else *dit = huge_val;
-  }
-
-  // now bubble sort list
-  bool done = false;
-  while (!done) {
-    dit = distances.begin();
-    sit = surfaces.begin();
-    done = true;
-    for (; dit != distances.end(); ++dit, ++sit) {
-      if (dit+1 != distances.end() && *dit > *(dit+1)) {
-        double tmp_dist = *dit;
-        *dit = *(dit+1);
-        *(dit+1) = tmp_dist;
-        EntityHandle tmp_hand = *sit;
-        *sit = *(sit+1);
-        *(sit+1) = tmp_hand;
-        done = false;
-      }
-    }
-  }
-
-  if (!distances.empty()) len = distances[0];
-
-  return MB_SUCCESS;
-#endif
-#else
-  return MB_FAILURE;
-#endif
-}
-
 // If point is on boundary, then this function is called to
 // discriminate cases in which the ray is entering or leaving.
 // result= 1 -> inside volume or entering volume
@@ -1521,41 +1415,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   max_id++;
   MBI->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
 
-#ifdef MOAB_HAVE_CGM
-  if ( have_cgm_geom ) {
-    // TODO: this block should only execute if the user has explicitly requested useCAD for ray firing.
-    // however, this function currently executes before we know if useCAD will be specified, so do it every time.
-
-    geomEntities.resize(rootSets.size());
-      // get geometry entities by id and cache in this vector
-    std::vector<int> ids;
-    ids.resize(surfs.size());
-    rval = MBI->tag_get_data(id_tag(), surfs, &ids[0]);
-    if (MB_SUCCESS != rval) return MB_FAILURE;
-    int i = 0;
-    Range::iterator rit = surfs.begin();
-    for (; rit != surfs.end(); ++rit, i++) {
-      RefEntity *this_surf = GeometryQueryTool::instance()->
-        get_ref_face(ids[i]);
-      assert(NULL != this_surf);
-      geomEntities[*rit - setOffset] = this_surf;
-    }
-    ids.resize(vols.size());
-    rval = MBI->tag_get_data(id_tag(), vols, &ids[0]);
-    if (MB_SUCCESS != rval) return MB_FAILURE;
-    i = 0;
-    rit = vols.begin();
-    for (; rit != vols.end(); ++rit, i++) {
-      if( is_implicit_complement( *rit ) ) continue;
-      RefEntity *this_vol = GeometryQueryTool::instance()->
-        get_ref_volume(ids[i]);
-      assert(NULL != this_vol);
-      geomEntities[*rit - setOffset] = this_vol;
-    }
-  }
-#endif
-
-    // get group handles
+  // get group handles
   Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
                                MB_TAG_SPARSE, MB_TYPE_OPAQUE);
   char group_category[CATEGORY_TAG_SIZE];
@@ -1616,28 +1476,6 @@ void DagMC::set_numerical_precision( double new_precision ){
   }
 
   std::cout << "Set numerical precision = " << numericalPrecision << std::endl;
-
-}
-
-void DagMC::set_use_CAD( bool use_cad ){
-  useCAD = use_cad;
-  if( useCAD ){
-    if( !have_cgm_geom ){
-      std::cerr << "Warning: CAD-based ray tracing not available, because CGM has no data." << std::endl;
-      std::cerr << "         your input file was probably not a CAD format." << std::endl;
-      useCAD = false;
-    }
-
-#ifndef HAVE_CGM_FIRE_RAY
-    {
-      std::cerr << "Warning: use_cad = 1 not supported with this build of CGM/DagMC." << std:: endl;
-      std::cerr << "         Required ray-fire query not available. (Cubit-based CGM?)" <<  std::endl;
-      useCAD = false;
-    }
-#endif
-  }
-
-  std::cout << "Turned " << (useCAD?"ON":"OFF") << " ray firing on full CAD model." << std::endl;
 
 }
 

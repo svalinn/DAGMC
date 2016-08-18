@@ -348,18 +348,6 @@ public:
                       EntityHandle& new_volume );
 
 private:
-  /**\brief pass the ray_intersection test to the solid modeling engine
-   *
-   * The user has the options to specify that ray tracing should ultimately occur on the
-   * true CAD model rather than just on the faceted representation.  This is called from
-   * within ray_fire if the user has selected that option
-   */
-  ErrorCode CAD_ray_intersect(const double *point,
-                                const double *dir,
-                                const double huge_val,
-                                std::vector<double> &distances,
-                                std::vector<EntityHandle> &surfaces,
-                                double &len);
 
   /**\brief determine the point membership when the point is effectively on the boundary
    *
@@ -419,8 +407,6 @@ public:
   double numerical_precision() {return numericalPrecision;}
   /** retrieve faceting tolerance */
   double faceting_tolerance() {return facetingTolerance;}
-  /** retrieve use CAD toggle */
-  bool use_CAD() {return useCAD;}
 
   /** Attempt to set a new overlap thickness tolerance, first checking for sanity */
   void set_overlap_thickness( double new_overlap_thickness );
@@ -430,8 +416,6 @@ public:
    */
   void set_numerical_precision( double new_precision );
 
-  /** attempt to set useCAD, first checking for availability */
-  void set_use_CAD( bool use_cad );
 
   /* SECTION V: Metadata handling */
   /** Detect all the property keywords that appear in the loaded geometry
@@ -608,8 +592,6 @@ private:
   double overlapThickness;
   double numericalPrecision;
   double facetingTolerance, defaultFacetingTolerance;
-  bool useCAD;         /// true if user requested CAD-based ray firing
-  bool have_cgm_geom;  /// true if CGM contains problem geometry; required for CAD-based ray firing.
 
   // temporary storage so functions don't have to reallocate vectors
   // for ray_fire:
