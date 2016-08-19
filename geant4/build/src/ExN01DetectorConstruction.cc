@@ -41,7 +41,7 @@
 //#include "pyne/particle.h"
 using namespace moab;
 
-DagMC* dagmc = DagMC::instance(); // create dag instance
+moab::DagMC* dagmc = new DagMC(); // create dag instance
 
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW *uwuw_workflow_data)
   :  world_volume_log(0)

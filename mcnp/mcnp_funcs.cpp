@@ -16,7 +16,7 @@ using moab::DagMC;
 
 // globals
 
-#define DAG DagMC::instance()
+moab::DagMC *DAG;
 
 #define DGFM_SEQ   0
 #define DGFM_READ  1
@@ -52,6 +52,9 @@ void dagmcinit_(char *cfile, int *clen,  // geom
 {
 
   moab::ErrorCode rval;
+  
+  // make new DagMC
+  DAG = new moab::DagMC();
 
 #ifdef ENABLE_RAYSTAT_DUMPS
   // the file to which ray statistics dumps will be written

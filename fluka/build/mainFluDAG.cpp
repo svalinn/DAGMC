@@ -8,6 +8,7 @@
  */
 //---------------------------------------------------------------------------//
 #include "fluka_funcs.h"
+
 #include "DagMC.hpp"
 
 #include <cstring>
@@ -15,7 +16,9 @@
 #include <time.h>       // for timing the routine
 
 #define flukam flukam_
-#define DAG moab::DagMC::instance()
+
+moab::DagMC *DAG;
+DAG = new moab::DagMC();
 
 #ifdef __cplusplus
 extern "C" {

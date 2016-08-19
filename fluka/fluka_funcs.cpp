@@ -21,8 +21,7 @@ using moab::DagMC;
 #endif
 
 // globals
-
-#define DAG DagMC::instance()
+extern moab::DagMC *DAG;
 
 #include <fstream>
 #include <numeric>
