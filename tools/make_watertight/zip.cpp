@@ -4,22 +4,24 @@
 
 namespace zip
 {
+
+struct triangles {
+  moab::EntityHandle before_tri;
+  const moab::EntityHandle *before;
+  moab::CartVect     before_norm;
+  moab::EntityHandle after0[3];
+  moab::EntityHandle after1[3];
+  moab::CartVect     after0_norm;
+  moab::CartVect     after1_norm;
+  moab::EntityHandle surf_set;
+};
+
 moab::ErrorCode t_joint( moab::Tag normal_tag,
                          const moab::EntityHandle vert0,
                          const moab::EntityHandle vert1,
                          const moab::EntityHandle vert2,
                          bool debug )
 {
-  struct triangles {
-    moab::EntityHandle before_tri;
-    const moab::EntityHandle *before;
-    moab::CartVect     before_norm;
-    moab::EntityHandle after0[3];
-    moab::EntityHandle after1[3];
-    moab::CartVect     after0_norm;
-    moab::CartVect     after1_norm;
-    moab::EntityHandle surf_set;
-  };
 
   // Get all of the old information before changing anything.
   // This is important because once the
@@ -33,7 +35,7 @@ moab::ErrorCode t_joint( moab::Tag normal_tag,
   result = MBI()->get_adjacencies( endpts, 2, 2, true, tris );
   assert(moab::MB_SUCCESS == result);
 
-  triangles joints[tris.size()];
+  std::vector<triangles> joints(tris.size());
   for(unsigned int i=0; i<tris.size(); i++) {
     joints[i].before_tri = tris[i];
 
