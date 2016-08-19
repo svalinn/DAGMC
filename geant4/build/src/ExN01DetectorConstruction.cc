@@ -41,7 +41,7 @@
 //#include "pyne/particle.h"
 using namespace moab;
 
-moab::DagMC* dagmc = new DagMC(); // create dag instance
+moab::DagMC* dagmc = new moab::DagMC(); // create dag instance
 
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW *uwuw_workflow_data)
   :  world_volume_log(0)
@@ -76,7 +76,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
       "world_vol",0,false,0);
 
-  ErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str(),0);
+  ErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str());
   if(rval != moab::MB_SUCCESS) {
     G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
     exit(1);
