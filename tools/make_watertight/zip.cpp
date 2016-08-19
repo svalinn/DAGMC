@@ -33,7 +33,7 @@ moab::ErrorCode t_joint( moab::Tag normal_tag,
   result = MBI()->get_adjacencies( endpts, 2, 2, true, tris );
   assert(moab::MB_SUCCESS == result);
 
-  triangles joints[tris.size()];
+  std::vector<triangles> joints(tris.size());
   for(unsigned int i=0; i<tris.size(); i++) {
     joints[i].before_tri = tris[i];
 
