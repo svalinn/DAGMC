@@ -11,7 +11,7 @@
 #include "moab/CartVect.hpp"
 #include "moab/Range.hpp"
 
-#include "Matrix3.hpp"
+#include "moab/Matrix3.hpp"
 #include "MeshTally.hpp"
 #include "TallyEvent.hpp"
 

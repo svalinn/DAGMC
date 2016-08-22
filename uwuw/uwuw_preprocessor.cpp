@@ -35,8 +35,8 @@ uwuw_preprocessor::~uwuw_preprocessor()
 
 // get the dagmc properties from the geometry file
 std::map<moab::EntityHandle, std::vector<std::string> > get_property_assignments( std::string property,
-										  int dimension,
-										  std::string delimiters)
+    int dimension,
+    std::string delimiters)
 {
   std::map<moab::EntityHandle,std::vector<std::string> > prop_map; // to return
   std::vector<std::string> test_keywords; // keywords we are going to test against
