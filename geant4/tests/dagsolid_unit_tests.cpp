@@ -22,11 +22,11 @@ class DagSolidTest : public ::testing::Test
     // new volume
     vol_1 = new DagSolid("vol_1",dagmc,1);
   }
-  
+
  protected:
 
   DagSolid* vol_1;
-  
+
 };
 
 /*

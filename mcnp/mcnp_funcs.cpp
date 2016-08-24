@@ -52,7 +52,7 @@ void dagmcinit_(char *cfile, int *clen,  // geom
 {
 
   moab::ErrorCode rval;
-  
+
   // make new DagMC
   DAG = new moab::DagMC();
 
