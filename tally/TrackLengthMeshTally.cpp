@@ -12,7 +12,7 @@
 #include "moab/OrientedBoxTreeTool.hpp"
 #include "moab/Skinner.hpp"
 #include "moab/CN.hpp"
-#include "moab/Version.h"
+#include "moab/MOABConfig.h"
 
 /* Two macros are available:
  * MESHTAL_DEBUG: produce much debugging output, with histories of particular particle tracks.
