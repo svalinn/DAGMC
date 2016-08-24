@@ -7,10 +7,7 @@ notifications:
   slack: cnerg:d48My26ZXfvHlg0On2WwNQFi
 env: 
   matrix:
-    - MOAB_VERSION="Version4.8.1"
-    - MOAB_VERSION="Version4.8.2"
-    - MOAB_VERSION="Version4.9.0"
-    - MOAB_VERSION="Version4.9.1"
+    - MOAB_VERSION="Version4.9.2"
     - MOAB_VERSION="master"
 services:
     - docker
