@@ -828,9 +828,6 @@ void fludag_write(std::string matfile, std::string lfname)
   std::ostringstream astr;
   fludagwrite_assignma(astr, pyne_map, map_name);
 
-  // MATERIAL Cards
-  pyne::NUC_DATA_PATH = workflow_data.full_filepath; // for atomic data
-
   // write COMPOUND CARDS
   std::ostringstream mstr;
   fludag_all_materials(mstr, pyne_map);

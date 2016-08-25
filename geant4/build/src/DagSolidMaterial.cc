@@ -7,9 +7,6 @@ std::map<std::string,G4Material*> load_uwuw_materials(UWUW *workflow_data)
 
   //  UWUW workflow_data = UWUW(filename);
 
-  // load the pyne nuclear data
-  pyne::NUC_DATA_PATH = workflow_data->full_filepath;
-
   // new material library
   std::map<std::string,pyne::Material> material_library;
   material_library = workflow_data->material_library;
