@@ -11,5 +11,5 @@ for more details on each step):
 * `MCNP5 Simplified Workflow <workflow/dag-mcnp5.html>`_
 * `Fluka Simplified Workflow <workflow/dag-fluka.html>`_
 * `Tripoli4 Simplified Workflow <workflow/dag-tripoli4.html>`_
-
+* `DAGMC Mesh Tallies <workflow/tally.html>`_
 
