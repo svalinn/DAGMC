@@ -7,6 +7,7 @@ for your particular system.
 The options follow.  Note that, unless set, boolean options default to ```OFF```:
 
  * ```-DBUILD_MCNP5``` controls whether to build the DAG-MCNP5 executable:  allowed options are ```ON``` and ```OFF```.
+ * ```-DMCNP5_DATAPATH``` controls the datapath where the DAG-MCNP5 executable will look for cross section data.
  * ```-DMPI_BUILD``` controls whether to build the DAG-MCNP5 executable for parallel execution:  allowed options are ```ON``` and ```OFF```.
  * ```-DBUILD_FLUKA``` controls whether to build the FluDAG exectuable:  allowed
    options are ```ON``` and ```OFF```.  If you would like to build the FluDAG interface, 

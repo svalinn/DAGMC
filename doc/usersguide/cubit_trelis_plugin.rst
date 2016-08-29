@@ -3,7 +3,7 @@ Installing the Cubit/Trelis Plugin
 
 Linux Install Instructions
 --------------------------
-Obtain the `DAGMC Plug-in <>`_
+Obtain the `DAGMC Plug-in <http://go.wisc.edu/dagmc-trelis>`_
 
    1.  unpack this tar file in the plugin directory of Trelis, e.g. /opt/Trelis-16.0/bin/plugins/
    2.  make a symbolic link in the plugin directory to the dagmc plugin itself. e.g. 
@@ -11,20 +11,18 @@ Obtain the `DAGMC Plug-in <>`_
 
 OS/X Install Instructions
 -------------------------
-Obtain the `DAGMC Plug-in <>`_
+Obtain the `DAGMC Plug-in <https://drive.google.com/open?id=0B_tNonFwhOqQQkdhYWxWN1drVGM>`_
 
-   1.  unpack this tar file in the plugin directory of Trelis, e.g. /opt/Trelis-16.0/bin/plugins/
-   2.  make a symbolic link in the plugin directory to the dagmc plugin itself. e.g. 
-       ln -s dagmc/libdagmc_export_plugin.so .
+   1.  unpack this tar file in the plugin directory of Trelis, e.g. /Applications/Trelis/Contents/MacOS/plugins/
 
 Windows Install Instructions
 --------------------------
-Obtain the `DAGMC Plug-in <>`_
+A plugin for Windows is currently being developed.
 
 Using the Plug-in
 --------------------
-Load your geometry into Cubit/Trelis following the instructions in `geometry preparation<>`_, markup your 
-geometry according to the workflow of your choice, for example `UWUW workflow <>`_, and Imprint and Merge. 
+Load your geometry into Cubit/Trelis following the instructions in `geometry preparation <workflow/cubit_trelis_workflow.html>`_, markup your 
+geometry according to the workflow of your choice, for example `UWUW  <workflow/uw2.html>`_, and Imprint and Merge. 
 You can now export the geometry, ready for use in simulations using
 ::
    %> export dagmc <filename> [faceting_tolerance <faceting tolerance>] 

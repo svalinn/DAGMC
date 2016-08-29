@@ -18,8 +18,8 @@ In order to install you must have done the following:
 
  * Cloned the `DAGMC <http://github.com/svalinn/DAGMC>`_ repository
  * Installed `HDF5 <http://www.hdfgroup.org/HDF5/>`_
- * Installed `MOAB <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_,
-   using options --with-hdf5 --with-dagmc 
+ * Installed `MOAB <http://sigma.mcs.anl.gov/moab-library/>`_,
+   using options --with-hdf5 --enable-dagmc 
  * Installed Lapack.  __Note:__ the MCNP build automatically builds the dagtally library, which requires Lapack 
  * Installed `FLUKA <http://www.fluka.org/fluka.php>`_ - and/or - 
  * Installed `Geant4 <http://geant4.cern.ch/>`_
@@ -43,16 +43,15 @@ If these do not apply to you, please modify your steps accordingly.
 
 HDF5
 ======
-
-Debian users may conveniently install the latest HDF5 release with the command:
+Debian linux users may conveniently install the latest HDF5 release with the command:
 ::
     prompt%> sudo apt-get install hdf5-dev
 
-Fedora users can do likewise with this command:
+Redhat linux users can do likewise with this command:
 ::
     prompt%> sudo yum install hdf5-dev
 
-The HDF5 tarball can also be downloaded from the HDF5 `website <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_.  On a Linux machine the wget command may be used to get the most recent release, which is currently hdf5-1.8.13:
+Otherwise, the HDF5 tarball can also be downloaded from the HDF5 `website <http://www.hdfgroup.org/HDF5/release/obtain5.html>`_.  
 ::
     prompt%> wget \
     http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
@@ -74,13 +73,13 @@ In the case of a tarball, create a directory and install HDF5:
 MOAB
 ======
 
-The master branch of MOAB is currently at version 4.9.2, which is the earliest version that may be used.
+The master branch of MOAB is currently at version 4.9.2, which is the earliest version that may be used. We have
+recently updated the DAGMC interface which is now on Version 2.0
 
 Create a MOAB directory to install in
 ::
     prompt%> mkdir -p $HOME/dagmc_bld/MOAB/bld
     prompt%> cd $HOME/dagmc_bld/MOAB
-
 
 If installing MOAB from the git repository:
 ::
@@ -90,8 +89,8 @@ If installing MOAB from the git repository:
     prompt%> autoreconf -fi
     prompt%> cd ..
     prompt%> ln -s moab src
-The command to "git checkout master" is, in general, redundant but is included here for completeness.
 
+The command to "git checkout master" is, in general, redundant but is included here for completeness.
 
 In all MOAB cases:
 ::
@@ -99,7 +98,7 @@ In all MOAB cases:
     prompt%> ../src/configure --enable-optimize \
               --enable-shared --disable-debug \
               --with-hdf5=$HOME/dagmc_bld/HDF5 \
-	      --enable-dagmc \
+              --enable-dagmc \
               --prefix=$HOME/dagmc_bld/MOAB
     prompt%> make
     prompt%> make install
@@ -108,7 +107,7 @@ In all MOAB cases:
 Post Install
 ~~~~~~~~~~~~~~
 
-Having installed all the prerequisite tools, namely Cubit, CGM, HDF5, and MOAB, the user
+Having installed all the prerequisite tools, HDF5, and MOAB, the user
 must ensure that the system has access to the libraries and programs that have been built.
 Therefore modify the $PATH and $LD_LIBRARY_PATH environments accordingly:
 :: 
@@ -164,30 +163,16 @@ Install Geant4
    -DGEANT4_USE_QT=ON or -DGEANT4_USE_OPENGL_X11=ON
    -DGEANT4_USE_SYSTEM_EXPAT=OFF
 
+
 Build DAGMC Interfaces
 ~~~~~~~~~~~~~~~~~~~~~~
-
 The DAGMC toolkit now has a full CMake install and build method for all codes used downstream.  It even
 replaces the MCNP build method with a CMake file. Note that in addition to the detailed instructions above 
 for building the MOAB stack, you may also need to install Lapack using, for example, "sudo apt-get install 
 liblapack-dev libblas-dev".
 
-Populate and Patch 
-============================================
-In order to populate and patch the MCNP5 source in the DAGMC subdirectory 
-first copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the 
-mcnp5/ directory in the DAGMC source tree
-::
-    prompt%> cd $HOME/dagmc_bld/DAGMC/mcnp/mcnp5
-    prompt%> cp -r <path to cdrom>/MCNP5/Source .
-
-Apply the patch from the mcnp5 folder
-::
-    prompt%> patch -p0 < patch/dagmc.patch.5.1.60
-
-Configure and build DAGMC
-===================
-
+DAGMC Build Procedure
+~~~~~~~~~~~~~~~~~~~~~
 Clone the DAGMC repository
 ::
     prompt%> cd $HOME/dagmc_bld
@@ -195,9 +180,21 @@ Clone the DAGMC repository
     prompt%> cd DAGMC
     prompt%> git checkout develop
 
+If building MCNP5 one must populate and patch the MCNP5 source in the DAGMC subdirectory 
+first. Copy the "Source" directory for MCNP5v16 from the LANL/RSICC CD to the 
+mcnp/mcnp5 directory in the DAGMC source tree
+::
+    prompt%> cd $HOME/dagmc_bld/DAGMC/mcnp/mcnp5
+    prompt%> cp -r <path to cdrom>/MCNP5/Source .
+
+Apply the patch from the mcnp5 folder of the DAGMC source tree, i.e. dagmc/mcnp/mcnp5
+::
+    prompt%> patch -p0 < patch/dagmc.patch.5.1.60
+
 Assuming the patch was succesfully applied, i.e. there were no warnings or 
 errors, we can now configure the DAGMC cmake system for the desired build.  
-
+Configuration
+~~~~~~~~~~~~~~~~
 The CMake system can be used to configure a build of any or all of the 
 following, see `cmake options <cmake_options.html>`_ for a list of all possible options, 
 which include
@@ -275,10 +272,16 @@ If there were no errors, install the DAGMC suite of libraries and tools by issui
     prompt%> make install
 
 If everything was successful, you may have the mcnp5 and mainfludag executables in the $INSTALL_PATH/bin folder, 
-the libraries in $INSTALL_PATH/lib and the header files in the $INSTALL_PATH/include folder
+the libraries in $INSTALL_PATH/lib and the header files in the $INSTALL_PATH/include folder.
+
+Post Install
+~~~~~~~~~~~~
+If your build was successful, you must add the dagmc_bld/lib folder to your LD_LIBRARY_PATH
+::
+    prompt%> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 
 Testing
-~~~~
+~~~~~~~~~~~
 
 We regularly run the DAGMC test suite as part of our continuous integration system, for which we use 
 `Travis <https://travis-ci.org/svalinn/DAGMC>`_. You may however, wish to run the tests in the 
@@ -323,7 +326,7 @@ Again, with successful execution the last few lines of screen output are:
     [==========] 16 tests from 1 test case ran. (228 ms total)
     [  PASSED  ] 16 tests.
 
-With testing successfully completed you are now ready to run your first DAGMC `problem <uw2.html>`_.
+With testing successfully completed you are now ready to run your first DAGMC `problem <workflow/uw2.html>`_.
 
 DAG-Tripoli4 Access
 ~~~~~~~~~~~~~~~~~~~
