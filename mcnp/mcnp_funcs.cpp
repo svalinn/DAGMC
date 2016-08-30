@@ -507,15 +507,6 @@ void dagmc_particle_terminate_( )
 #endif
 }
 
-//void dagmc_rollback_history_( )
-//{
-//  history.reset_to_last_intersection();
-//
-//#ifdef TRACE_DAGMC_CALLS
-//  std::cout << "particle_reset_to_last_intersection:" << std::endl;
-//#endif
-//}
-
 // *ih              - volue index
 // *uuu, *vvv, *www - ray direction
 // *xxx, *yyy, *zzz - ray point
@@ -772,7 +763,6 @@ void dagmc_teardown_()
   delete DAG;
 }
 
-<<<<<<< ed2570bee8d97273d1eff3ecea6bc0fd0b2fa88e
 // these functions should be replaced when we adopt C++11
 // int to string
 std::string _to_string(int var)
@@ -781,55 +771,6 @@ std::string _to_string(int var)
   outstr << var;
   std::string ret_string = outstr.str();
   return ret_string;
-=======
-  std::map<moab::EntityHandle,std::vector<std::string> > prop_map;
-
-  std::vector< std::string > mcnp_keywords;
-  std::map< std::string, std::string > mcnp_keyword_synonyms;
-
-  // populate keywords
-  mcnp_keywords.push_back( "mat" );
-  mcnp_keywords.push_back( "rho" );
-  mcnp_keywords.push_back( "tally" );
-  mcnp_keywords.push_back( "boundary" );
-
-  // get initial sizes
-  int num_entities = DAG->num_entities( dimension );
-
-  // parse data from geometry
-  moab::ErrorCode rval = DAG->parse_properties( mcnp_keywords, mcnp_keyword_synonyms,delimiters.c_str());
-
-  if (moab::MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  // loop over all cells
-  for( int i = 1; i <= num_entities; ++i ) {
-    //
-    std::vector<std::string> properties;
-
-    // get cellid
-    moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
-
-    // get the group contents
-    if( DAG->has_prop( entity, property ) )
-      rval = DAG->prop_values(entity,property,properties);
-    else
-      properties.push_back("");
-
-    // remove duplicates
-    std::vector<std::string>::iterator it;
-    it = std::unique(properties.begin(),properties.end());
-    // resize vector to remove empty parts
-    properties.resize(std::distance(properties.begin(),it));
-
-    // assign the map value
-    prop_map[entity]=properties;
-  }
-
-  return prop_map;
->>>>>>> Rename variables to contain mcnp instead of mcnp5
 }
 
 // double to string
