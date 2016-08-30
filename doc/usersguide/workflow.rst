@@ -6,6 +6,7 @@ DAGMC versions of Monte Carlo radiation transport codes. (see below
 for more details on each step):
 
 * `Geometry Preparation <workflow/cubit_trelis_workflow.html>`_
+* `Geometry Waterttightness <workflow/watertightness.html>`_
 * `DAGMC Specific Options <workflow/dagmc_specific_options.html>`_
 * `Unified Workflow <workflow/uw2.html>`_
 * `MCNP5 Simplified Workflow <workflow/dag-mcnp5.html>`_

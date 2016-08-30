@@ -1,6 +1,52 @@
 Using Trelis/Cubit for the DAGMC Workflow
 -----------------------
 
+The general workflow for the production of models for analysis using DAGMC
+looks like that show in the Figure below.
+
+.. image:: general_workflow.png
+   :height: 700
+   :width:  600
+   :alt: The general workflow for producing quality CAD for DAGMC models.
+
+The general workflow for the production of DAGMC models is the following:
+
+1. Ensure that units/sizes for DAGMC models are "cm"
+2. Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)
+3. Inspect and resolve overlapping volumes
+     - may need to scale model up to detect these
+     In Cubit:
+         **validate vol all**
+         **autoheal problem vols**
+     - regularize may be needed (simplifies by removing splines, byproduct is reverses imprint)
+
+     Check and possibly remove small features (curves, surfaces, vols)
+        - small areas (check "hydraulic" length and "regular" length)
+         **group "smallsurfaces" add surface with area < 1.e-3**
+        - small curves (check "hydraulic" length and "regular" length)
+         **group "smallcurves" add curve with length <1.e-4**
+        - small volumes
+         volofvolcubit.py-examine small volumes (vol<=0.0000 might need to autoheal)
+4. create pre-imprint/merge table of volume of volumes (use volofvolcubit.py)
+   Imprint model **imprint body all**
+5. Merge model
+6. Validate model, in Cubit **validate vol all**
+    - re-check for overlapping volumes and now also check for overlapping surfaces
+    - create post imprint/merge table of volume of volumes (use volofvolcubit.py)
+    - compare pre and post-imprint/merge model volume of volumes
+    - inspect volumes in pre-imprint model with significant change in volume
+    - re-check for small areas, curves, volumes
+    - any problems in these steps repair volumes in pre-imprint model and go back to step 2
+7. Facet model
+    - **export dagmc "geom.h5m" faceting_tolerance 1.0e-4**
+8. Seal model if possible (use make_watertight, does not always work)
+9. Flood and/or transport particles in model
+    - examine lost locations (use mklostvis.pl)
+    - examine "leaks"/tunneling (can use a mesh tally to locate)
+10. if lost particles or leaky repair the pre-imprint/merge model and go to step 2
+11. if no lost or leaks, then transport is ok
+
+
 Preparing Solid Models
 ++++++++++++++++++++++
 
@@ -247,6 +293,10 @@ following:
 For the remainder of this documentation, the geometry file will be
 referred to as "geom.sat". Also, as noted before, the CUBIT conversion
 process can be automated as described on the following webpage:
+
+One should also use the `make_watertight <watertightness.html>`_ tool to 
+completely seal your geometry, this should help prevent tolerance issues
+due to faceting.
 
 .. _additional_parameters:
 
