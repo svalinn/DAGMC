@@ -12,11 +12,11 @@ class DagSolidTest : public ::testing::Test
  protected:
 
   virtual void SetUp() {
-    DagMC* dagmc = DagMC::instance(); // create dag instance
+    DagMC* dagmc = new moab::DagMC(); // create dag instance
 
     // dag_volumes
     const char* h5mfilename = "test_geom.h5m";
-    dagmc->load_file(h5mfilename,0);
+    dagmc->load_file(h5mfilename);
     dagmc->init_OBBTree();
 
     // new volume

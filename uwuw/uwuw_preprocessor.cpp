@@ -1,6 +1,6 @@
 #include "uwuw_preprocessor.hpp"
 
-#define DAG moab::DagMC::instance()
+moab::DagMC *DAG;
 
 // constructor
 uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std::string dagmc_filename,
@@ -8,6 +8,9 @@ uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std:
 {
   // make new name concatenator class
   ncr = new name_concatenator();
+
+  // make new DAGMC instance
+  DAG = new moab::DagMC();
 
   // load the materials
   material_library = mat_lib.load_pyne_materials(material_library_filename,"/materials");

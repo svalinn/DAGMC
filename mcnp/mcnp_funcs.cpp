@@ -16,7 +16,7 @@ using moab::DagMC;
 
 // globals
 
-#define DAG DagMC::instance()
+moab::DagMC *DAG;
 
 #define DGFM_SEQ   0
 #define DGFM_READ  1
@@ -53,6 +53,9 @@ void dagmcinit_(char *cfile, int *clen,  // geom
 
   moab::ErrorCode rval;
 
+  // make new DagMC
+  DAG = new moab::DagMC();
+
 #ifdef ENABLE_RAYSTAT_DUMPS
   // the file to which ray statistics dumps will be written
   raystat_dump = new std::ofstream("dagmc_raystat_dump.csv");
@@ -64,14 +67,8 @@ void dagmcinit_(char *cfile, int *clen,  // geom
   // terminate all filenames with null char
   cfile[*clen] = ftol[*ftlen] = '\0';
 
-  // initialize this as -1 so that DAGMC internal defaults are preserved
-  // user doesn't set this
-  double arg_facet_tolerance = -1;
-
-  if ( *ftlen > 0 ) arg_facet_tolerance = atof(ftol);
-
   // read geometry
-  rval = DAG->load_file(cfile, arg_facet_tolerance );
+  rval = DAG->load_file(cfile);
   if (moab::MB_SUCCESS != rval) {
     std::cerr << "DAGMC failed to read input file: " << cfile << std::endl;
     exit(EXIT_FAILURE);
@@ -1034,8 +1031,6 @@ void dagmc_set_settings_(int* fort_use_dist_limit, int* use_cad, double* overlap
     std::cout << "DAGMC source cell optimization is ENABLED (warning: experimental!)" << std::endl;
   }
 
-  DAG->set_use_CAD( *use_cad );
-
   DAG->set_overlap_thickness( *overlap_thickness );
 
 }
@@ -1045,8 +1040,6 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 {
 
   *fort_use_dist_limit = use_dist_limit ? 1 : 0;
-
-  *use_cad = DAG->use_CAD() ? 1 : 0;
 
   *overlap_thickness = DAG->overlap_thickness();
 

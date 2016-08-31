@@ -10,8 +10,7 @@
 #include <cmath>
 #include <cassert>
 
-
-#define DAG moab::DagMC::instance()
+moab::DagMC *DAG = new moab::DagMC();
 
 int num_slab_vols = 12;
 
@@ -45,7 +44,7 @@ class FluDAGTest : public ::testing::Test
     // Default h5m file for testing
     std::string infile = "slabs.h5m";
 
-    rloadval = DAG->load_file(infile.c_str(), 0.0 );
+    rloadval = DAG->load_file(infile.c_str());
     assert(rloadval == moab::MB_SUCCESS);
 
     // DAG call to initialize geometry

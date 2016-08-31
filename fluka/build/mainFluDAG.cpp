@@ -8,6 +8,7 @@
  */
 //---------------------------------------------------------------------------//
 #include "fluka_funcs.h"
+
 #include "DagMC.hpp"
 
 #include <cstring>
@@ -15,7 +16,8 @@
 #include <time.h>       // for timing the routine
 
 #define flukam flukam_
-#define DAG moab::DagMC::instance()
+
+moab::DagMC *DAG = new moab::DagMC();
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,7 +68,7 @@ int main(int argc, char* argv[])
 
   // DAG call to load the file
   std::cout << "Loading the faceted geometry file " << infile << "..." << std::endl;
-  error = DAG->load_file(infile.c_str(), 0.0 ); // load the dag file takeing the faceting from h5m
+  error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
   if ( error != moab::MB_SUCCESS ) {
     std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
     exit(EXIT_FAILURE);

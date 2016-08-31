@@ -10,7 +10,7 @@
 #include "moab/AdaptiveKDTree.hpp"
 #include "moab/CartVect.hpp"
 #include "moab/Range.hpp"
-#include "moab/Version.h"
+#include "moab/MOABConfig.h"
 
 #include "KDENeighborhood.hpp"
 
