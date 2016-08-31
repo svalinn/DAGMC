@@ -52,7 +52,7 @@ extern "C" {
   /* parse metadata and write applications specific data for: MCNP5
    * includes the UWUW step
    */
-  void dagmcwritemcnp_(char *dagmc_file, char *lfile, int *llen);
+  void dagmcwritemcnp_(char *dagmc_file, char *lfile, int *llen, char *mcver);
 
   /* Get normal of surface with id *jsu at location (*xxx,*yyy,*zzz) and store
      in three doubles at ang (an arry of length 3) */

@@ -59,10 +59,11 @@ diff -rN '--unified=0' Source/src/chkcel.F90 Source_dagmc/src/chkcel.F90
 diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 --- Source/src/dagmc_mod.F90
 +++ Source_dagmc/src/dagmc_mod.F90
-@@ -0,0 +1,227 @@
+@@ -0,0 +1,228 @@
 +module dagmc_mod
 +
 +  use mcnp_params
++  use mcnp_env
 +
 +  integer, parameter, public :: &  ! named constant for file distribution mode
 +    & DGFM_SEQ   = 0, &
@@ -263,7 +264,7 @@ diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 +    endif
 +
 +    ! Parse metadata and write input cards
-+    call dagmcwritemcnp(gcad//char(0), lcad//char(0), len_trim(lcad))
++    call dagmcwritemcnp(gcad//char(0), lcad//char(0), len_trim(lcad), ver(1:1)//char(0))
 +
 +    ! Check to ensure that the log file is written
 +    inquire( file = lcad, exist = file_exists)
