@@ -1038,29 +1038,29 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
       bool keep_vol = false;
       std::vector<moab::EntityHandle>::iterator j;
       for( j = parent_volumes.begin(); j != parent_volumes.end(); j++) {
-	moab::EntityHandle parent_vol = *j;
-	std::vector<moab::EntityHandle> child_surfs;
-	result = MBI()->get_child_meshsets(parent_vol, child_surfs);
-	if(gen::error(moab::MB_SUCCESS!=result, "could not get the child surfaces of the volume")) return result;
+        moab::EntityHandle parent_vol = *j;
+        std::vector<moab::EntityHandle> child_surfs;
+        result = MBI()->get_child_meshsets(parent_vol, child_surfs);
+        if(gen::error(moab::MB_SUCCESS!=result, "could not get the child surfaces of the volume")) return result;
 
-	// check if surface is only child
-	if( child_surfs.size() == 1 && child_surfs[0] == *i ) {
-	  moab::Range skin_edges;
-	  //verify that the surface is closed
-	  result = gen::find_skin( tris, 1, skin_edges, false);
-	  if(gen::error(moab::MB_SUCCESS!=result, "could not skin the triangles")) return result;
-	  // if the surface is closed, change this indicator
-	  if( skin_edges.size() == 0 ){
-	    keep_vol = true;
-	  }
-	}
+        // check if surface is only child
+        if( child_surfs.size() == 1 && child_surfs[0] == *i ) {
+          moab::Range skin_edges;
+          //verify that the surface is closed
+          result = gen::find_skin( tris, 1, skin_edges, false);
+          if(gen::error(moab::MB_SUCCESS!=result, "could not skin the triangles")) return result;
+          // if the surface is closed, change this indicator
+          if( skin_edges.size() == 0 ) {
+            keep_vol = true;
+          }
+        }
       }
 
       // if we've decided to keep this volume, then move on
       if(keep_vol) {
-	continue;
+        continue;
       }
-      
+
       result = gen::delete_surface( *i , geom_tag, tris, surf_id, debug, verbose);
       if( gen::error(moab::MB_SUCCESS!=result, "could not delete surface" )) return result;
       // adjust iterator so *i is still the same surface
@@ -1856,7 +1856,7 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   }
   result=gen::get_geometry_meshsets( geom_sets, geom_tag, verbose);
   if(gen::error(moab::MB_SUCCESS!=result, "could not get the geometry meshsets")) return result;
-  
+
   // As sanity check, did zipping drastically change the entity's size?
   if(check_geom_size && verbose) {
     std::cout << "Checking size change of zipped entities..." << std::endl;
