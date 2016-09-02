@@ -1765,8 +1765,6 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
     if(gen::error(moab::MB_SUCCESS!=result,"measuring geom size failed")) return result;
   }
 
-
-
   if (verbose) std::cout << "Getting entity count before sealing..." << std::endl;
   // Get entity count before sealing.
   int orig_n_tris;
@@ -1817,7 +1815,13 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   result = fix_normals(geom_sets[2], id_tag, normal_tag, debug, verbose);
   assert(moab::MB_SUCCESS == result);
 
-
+  //clear out old geometry sets and repopulate (some may have been deleted)
+  for(unsigned int i = 0; i < 4; i++) {
+    geom_sets[i].clear();
+  }
+  result=gen::get_geometry_meshsets( geom_sets, geom_tag, verbose);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not get the geometry meshsets")) return result;
+  
   // As sanity check, did zipping drastically change the entity's size?
   if(check_geom_size && verbose) {
     std::cout << "Checking size change of zipped entities..." << std::endl;
