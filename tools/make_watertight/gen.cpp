@@ -2071,9 +2071,9 @@ moab::ErrorCode delete_vol(moab::EntityHandle volume)
 {
   // Remove the volume set. This also removes parent-child relationships.
   moab::ErrorCode result;
+  std::cout << "  deleting volume " << gen::geom_id_by_handle(volume)  << std::endl;
   result = MBI()->delete_entities(&volume, 1);
   assert(moab::MB_SUCCESS == result);
-  std::cout << "  deleted volume " << gen::geom_id_by_handle(volume)  << std::endl;
   return result;
 }
 
