@@ -1751,13 +1751,13 @@ moab::ErrorCode delete_surface( moab::EntityHandle surf, moab::Tag geom_tag, moa
       if(gen::error(moab::MB_SUCCESS!=result, "could not delet the parent volume")) return result;
     }
   }
-  
+
   //remove the surface set itself
   result = MBI()->delete_entities( &(surf), 1);
   if(gen::error(moab::MB_SUCCESS!=result,"could not delete surface set")) return result;
   assert(moab::MB_SUCCESS == result);
 
-  
+
   return moab::MB_SUCCESS;
 }
 
@@ -2070,12 +2070,12 @@ moab::ErrorCode check_for_geometry_sets(moab::Tag geom_tag, bool verbose)
 moab::ErrorCode delete_vol(moab::EntityHandle volume)
 {
   // Remove the volume set. This also removes parent-child relationships.
-  moab::ErrorCode result; 
+  moab::ErrorCode result;
   result = MBI()->delete_entities(&volume, 1);
   assert(moab::MB_SUCCESS == result);
-  std::cout << "  deleted volume " << gen::geom_id_by_handle(volume)  << std::endl;  
+  std::cout << "  deleted volume " << gen::geom_id_by_handle(volume)  << std::endl;
   return result;
-}  
-    
+}
+
 
 } //EOL

@@ -214,7 +214,7 @@ moab::ErrorCode get_geometry_meshsets( moab::Range geometry_sets[], moab::Tag ge
 moab::ErrorCode check_for_geometry_sets(moab::Tag geom_tag, bool verbose);
 
 /// deletes volume from instance
-  moab::ErrorCode delete_vol(moab::EntityHandle volume);
+moab::ErrorCode delete_vol(moab::EntityHandle volume);
 
 }
 
