@@ -2,7 +2,7 @@ Using Trelis/Cubit for the DAGMC Workflow
 -----------------------
 
 The general workflow for the production of models for analysis using DAGMC
-looks like that show in the Figure below.
+looks like that shown in the Figure below.
 
 .. image:: general_workflow.png
    :height: 700
@@ -29,7 +29,8 @@ The general workflow for the production of DAGMC models is the following:
          volofvolcubit.py-examine small volumes (vol<=0.0000 might need to autoheal)
 4. create pre-imprint/merge table of volume of volumes (use volofvolcubit.py)
    Imprint model **imprint body all**
-5. Merge model
+5. Merge model **merge all**
+   - you may wish to add a merge tolerance, **merge tol 1e-6**
 6. Validate model, in Cubit **validate vol all**
     - re-check for overlapping volumes and now also check for overlapping surfaces
     - create post imprint/merge table of volume of volumes (use volofvolcubit.py)

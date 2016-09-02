@@ -16,16 +16,16 @@ The general workflow is as follows;
 
   1. Import your model into Trelis/Cubit, assigning volumes to groups of the same material, e.g. 
      adding all volumes that are to be steel to one group and so on
-  2. Simplify and defeature your CAD as your see fit
+  2. Simplify and defeature your CAD as you see fit
   3. Imprint and merge the model
   4. Export your model to DAGMC
-  5. Use make_watertight, a tool that is build alongside DAGMC, to seal your geometry
+  5. Use make_watertight, a tool that is built alongside DAGMC, to seal your geometry
   6. If you are using the UWUW workflow, use uwuw_preproc from the DAGMC/bin directory to mark up your model
-  7. Write the input deck for the code you want to run (you should've done this whilst you were faceting and sealing)
+  7. Write the input deck for the code you want to run (Ideally you should've done this whilst you were faceting and sealing)
   8. Run the problem as you see fit
 
 Many models fail at the "Export to DAGMC" stage due to problems with the CAD, such as overlapping volumes and surfaces.  
-You must rectify these issues before continuing. Many downstream issues can be caused by lack of attention to detail 
+You must rectify these issues before continuing, see `Using Trelis/Cubit for the DAGMC Workflow <workflow/cubit_trelis_workflow.html>`_ for guidance. Many downstream issues can be caused by lack of attention to detail 
 at this stage. Lost particle problems can sometimes be fixed with make_watertight; we fully endorse the use of this tool 
 , it is installed as part of the standard DAGMC tools.
 
