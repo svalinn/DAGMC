@@ -213,6 +213,9 @@ moab::ErrorCode get_geometry_meshsets( moab::Range geometry_sets[], moab::Tag ge
 /// returns MB_FAILURE if there are no geometry sets of any dimension in the model
 moab::ErrorCode check_for_geometry_sets(moab::Tag geom_tag, bool verbose);
 
+/// deletes volume from instance
+moab::ErrorCode delete_vol{moab::EntityHandle volume);
+
 }
 
 #endif

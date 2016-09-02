@@ -1837,12 +1837,12 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   if (verbose) std::cout << "Removing small volumes if all surfaces have been removed..." << std::endl;
   for(moab::Range::iterator i=geom_sets[3].begin(); i!=geom_sets[3].end(); ++i) {
     int n_surfs;
-    result = MBI()->num_child_meshsets( *i, &n_surfs );
+    moab::EntityHandle vol = *i;
+    result = MBI()->num_child_meshsets( vol, &n_surfs );
     assert(moab::MB_SUCCESS == result);
     if(0 == n_surfs) {
       // Remove the volume set. This also removes parent-child relationships.
-      std::cout << "  deleted volume " << gen::geom_id_by_handle(*i)  << std::endl;
-      result = MBI()->delete_entities( &(*i), 1);
+      result = gen::delete_vol(vol);
       assert(moab::MB_SUCCESS == result);
       i = geom_sets[3].erase(i) - 1;
     }
