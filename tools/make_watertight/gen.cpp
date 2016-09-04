@@ -2058,7 +2058,7 @@ moab::ErrorCode check_for_geometry_sets(moab::Tag geom_tag, bool verbose)
   if(gen::error(moab::MB_SUCCESS!=result,"could not get the geometry meshsets")) return result;
 
   //make sure they're there
-  for(unsigned dim=0; dim<4; dim++) {
+  for(unsigned dim=2; dim<4; dim++) {
 
     if(geometry_sets[dim].size() == 0) return moab::MB_FAILURE;
 

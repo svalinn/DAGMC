@@ -28,6 +28,7 @@ list(APPEND LINK_LIBS gtest)
 # Define executables
 add_executable(make_watertight_cylinder_tests mw_unit_test_driver.cc test_cyl.cpp ${SRC_FILES})
 add_executable(make_watertight_cone_tests mw_unit_test_driver.cc test_cones.cpp ${SRC_FILES})
+add_executable(make_watertight_trelis_sphere_tests mw_unit_test_driver.cc test_trelis_sphere.cpp ${SRC_FILES})
 
 # Includes
 include_directories(..)
@@ -37,13 +38,14 @@ include_directories(${MOAB_INCLUDE_DIRS})
 # Link to libraries
 target_link_libraries(make_watertight_cylinder_tests ${LINK_LIBS})
 target_link_libraries(make_watertight_cone_tests ${LINK_LIBS})
+target_link_libraries(make_watertight_trelis_sphere_tests ${LINK_LIBS})
 
 # Install tests and test models
-install(TARGETS make_watertight_cylinder_tests make_watertight_cone_tests DESTINATION tests PERMISSIONS ${PERMS})
-install(FILES cones.h5m cyl.h5m DESTINATION tests)
+install(TARGETS make_watertight_cylinder_tests make_watertight_cone_tests make_watertight_trelis_sphere_tests DESTINATION tests PERMISSIONS ${PERMS})
+install(FILES cones.h5m cyl.h5m trelis_sphere.h5m DESTINATION tests)
 
 # Add to unit test framework
-add_test(make_watertight_cylinder_tests make_watertight_cylinder_tests)
+add_test(make_watertight_cylinder_tests make_watertight_cylinder_tests make_watertight_trelis_sphere_tests)
 add_test(make_watertight_cone_tests make_watertight_cone_tests)
 
 # enable tests

@@ -1022,6 +1022,11 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     result = get_unmerged_curves( *i , curve_sets, unmerged_curve_sets, merge_tag, verbose, debug);
     if(gen::error(moab::MB_SUCCESS!=result, " could not get the curves and unmerged curves" )) return result;
 
+    // Save the normals of the facets. These will later be used to determine if
+    // the tri became inverted.
+    result = gen::save_normals( tris, normal_tag );
+    if(gen::error(moab::MB_SUCCESS!=result,"could not save_normals")) return result;
+    assert(moab::MB_SUCCESS == result);
 
     // If all of the curves are merged, remove the surfaces facets.
     if(unmerged_curve_sets.empty()) {
@@ -1073,11 +1078,6 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     if(gen::error(moab::MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
 
 
-    // Save the normals of the facets. These will later be used to determine if
-    // the tri became inverted.
-    result = gen::save_normals( tris, normal_tag );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not save_normals")) return result;
-    assert(moab::MB_SUCCESS == result);
 
     // Check if edges exist
     int n_edges;

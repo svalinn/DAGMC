@@ -45,6 +45,10 @@ class MakeWatertightTest : public ::testing::Test
   void reload_mesh();
   virtual void TearDown();
   virtual void setFilename() {};
+
+  // make sure the expected number of entities with dimension are present
+  moab::ErrorCode check_num_ents(int ent_dimension, int expected_num);
+
   // moves the vertex by dx, dy, dz
   moab::ErrorCode move_vert(moab::EntityHandle vertex, double dx, double dy, double dz, bool verbose = false);
 
@@ -154,3 +158,17 @@ class MakeWatertightCylinderTest : public MakeWatertightTest
   moab::ErrorCode nonadj_locked_pair_bump_theta(moab::Range verts, double facet_tol, bool verbose = false);
 
 };
+
+// Rename of the general test class
+class MakeWatertightTrelisSphereTest : public MakeWatertightTest
+{
+ protected:
+  // set test file name
+  virtual void setFilename() {
+    filename = "trelis_sphere.h5m";
+  };
+
+  moab::ErrorCode sphere_deletion_test(moab::EntityHandle input_set, double facet_tolerance, bool verbose = false);
+};
+
+

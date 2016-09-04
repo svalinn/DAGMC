@@ -57,6 +57,23 @@ void MakeWatertightTest::TearDown()
   EXPECT_EQ(result,moab::MB_SUCCESS);
 };
 
+moab::ErrorCode MakeWatertightTest::check_num_ents(int ent_dimension, int expected_num) {
+  moab::ErrorCode result;
+  moab::Range entities;
+  moab::Tag geom_tag;
+  result = MBI()->tag_get_handle( "GEOM_DIMENSION", geom_tag);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not get the geometry dimension tag")) return result;
+  EXPECT_EQ(result, moab::MB_SUCCESS);
+  void *tag_ptr = &geom_tag;
+  const void *val_ptr = &ent_dimension;
+  result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, &geom_tag, &val_ptr, 1, entities, moab::Interface::INTERSECT, true);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not get the number of entities by dimension")) return result;
+  EXPECT_EQ(result, moab::MB_SUCCESS);
+
+  EXPECT_EQ(expected_num, entities.size());
+
+  return result;
+}
 
 moab::ErrorCode MakeWatertightTest::move_vert(moab::EntityHandle vertex, double dx, double dy, double dz, bool verbose)
 {
@@ -639,4 +656,19 @@ moab::ErrorCode MakeWatertightCylinderTest::nonadj_locked_pair_bump_theta(moab::
   if(gen::error(moab::MB_SUCCESS!=result, "could not move vertex2")) return result;
 
   return moab::MB_SUCCESS;
+}
+
+moab::ErrorCode MakeWatertightTrelisSphereTest::sphere_deletion_test(moab::EntityHandle input_set, double facet_tolerance, bool verbose) {
+  moab::ErrorCode result;
+  //seal the model
+  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not make mesh watertight")) return result;
+  
+  //make sure the sphere wasn't deleted
+  int entity_dimension = 3;
+  int num_ents_expected = 1;
+  result = check_num_ents(entity_dimension, num_ents_expected);
+  if(gen::error(moab::MB_SUCCESS!=result, "incorrect number of entities found.")) return result;
+
+  return result;
 }
