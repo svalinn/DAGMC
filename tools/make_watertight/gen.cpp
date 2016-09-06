@@ -1748,7 +1748,7 @@ moab::ErrorCode delete_surface( moab::EntityHandle surf, moab::Tag geom_tag, moa
     // delete volume if it only has this surface as its child
     if( child_surfs.size() == 1 && child_surfs[0] == surf ) {
       result = gen::delete_vol(parent_vol);
-      if(gen::error(moab::MB_SUCCESS!=result, "could not delet the parent volume")) return result;
+      if(gen::error(moab::MB_SUCCESS!=result, "could not delete the parent volume")) return result;
     }
   }
 
