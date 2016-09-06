@@ -1730,6 +1730,28 @@ moab::ErrorCode delete_surface( moab::EntityHandle surf, moab::Tag geom_tag, moa
   result = remove_surf_sense_data( surf, debug);
   if(gen::error(moab::MB_SUCCESS!=result, "could not remove surface's sense data")) return result;
 
+  //if this was the last surface in a volume, then delete the volume
+  std::vector<moab::EntityHandle> parent_volumes;
+  result = MBI()->get_parent_meshsets( surf, parent_volumes);
+  if(gen::error(moab::MB_SUCCESS!=result,"could not get the surface's parent meshsets")) return result;
+  assert(moab::MB_SUCCESS == result);
+
+  //check each parent volume
+  std::vector<moab::EntityHandle>::iterator i;
+  for( i=parent_volumes.begin(); i != parent_volumes.end(); i++) {
+    moab::EntityHandle parent_vol = *i;
+    std::vector<moab::EntityHandle> child_surfs;
+    result = MBI()->get_child_meshsets(parent_vol, child_surfs);
+    if(gen::error(moab::MB_SUCCESS!=result, "could not get the child surfaces of the volume")) return result;
+    assert(moab::MB_SUCCESS == result);
+
+    // delete volume if it only has this surface as its child
+    if( child_surfs.size() == 1 && child_surfs[0] == surf ) {
+      result = gen::delete_vol(parent_vol);
+      if(gen::error(moab::MB_SUCCESS!=result, "could not delete the parent volume")) return result;
+    }
+  }
+
   //remove the surface set itself
   result = MBI()->delete_entities( &(surf), 1);
   if(gen::error(moab::MB_SUCCESS!=result,"could not delete surface set")) return result;
@@ -2036,13 +2058,23 @@ moab::ErrorCode check_for_geometry_sets(moab::Tag geom_tag, bool verbose)
   if(gen::error(moab::MB_SUCCESS!=result,"could not get the geometry meshsets")) return result;
 
   //make sure they're there
-  for(unsigned dim=0; dim<4; dim++) {
+  for(unsigned dim=2; dim<4; dim++) {
 
     if(geometry_sets[dim].size() == 0) return moab::MB_FAILURE;
 
   }
 
   return moab::MB_SUCCESS;
+}
+
+moab::ErrorCode delete_vol(moab::EntityHandle volume)
+{
+  // Remove the volume set. This also removes parent-child relationships.
+  moab::ErrorCode result;
+  std::cout << "  deleting volume " << gen::geom_id_by_handle(volume)  << std::endl;
+  result = MBI()->delete_entities(&volume, 1);
+  assert(moab::MB_SUCCESS == result);
+  return result;
 }
 
 

@@ -57,6 +57,24 @@ void MakeWatertightTest::TearDown()
   EXPECT_EQ(result,moab::MB_SUCCESS);
 };
 
+moab::ErrorCode MakeWatertightTest::check_num_ents(int ent_dimension, int expected_num)
+{
+  moab::ErrorCode result;
+  moab::Range entities;
+  moab::Tag geom_tag;
+  result = MBI()->tag_get_handle( "GEOM_DIMENSION", geom_tag);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not get the geometry dimension tag")) return result;
+  EXPECT_EQ(result, moab::MB_SUCCESS);
+  void *tag_ptr = &geom_tag;
+  const void *val_ptr = &ent_dimension;
+  result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, &geom_tag, &val_ptr, 1, entities, moab::Interface::INTERSECT, true);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not get the number of entities by dimension")) return result;
+  EXPECT_EQ(result, moab::MB_SUCCESS);
+
+  EXPECT_EQ(expected_num, entities.size());
+
+  return result;
+}
 
 moab::ErrorCode MakeWatertightTest::move_vert(moab::EntityHandle vertex, double dx, double dy, double dz, bool verbose)
 {

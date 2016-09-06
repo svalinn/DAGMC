@@ -1022,9 +1022,49 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     result = get_unmerged_curves( *i , curve_sets, unmerged_curve_sets, merge_tag, verbose, debug);
     if(gen::error(moab::MB_SUCCESS!=result, " could not get the curves and unmerged curves" )) return result;
 
+    // Save the normals of the facets. These will later be used to determine if
+    // the tri became inverted.
+    result = gen::save_normals( tris, normal_tag );
+    if(gen::error(moab::MB_SUCCESS!=result,"could not save_normals")) return result;
+    assert(moab::MB_SUCCESS == result);
 
     // If all of the curves are merged, remove the surfaces facets.
     if(unmerged_curve_sets.empty()) {
+
+      // if this surface is the sole child of one of its parent volumes, it is closed, and contains triangles
+      // then we will leave it alone but continue as we normally would
+
+      //retrieve parent volumes
+      std::vector<moab::EntityHandle> parent_volumes;
+      result = MBI()->get_parent_meshsets( *i, parent_volumes);
+      if(gen::error(moab::MB_SUCCESS!=result,"could not get the surface's parent meshsets")) return result;
+
+      //check each parent volume
+      bool keep_vol = false;
+      std::vector<moab::EntityHandle>::iterator j;
+      for( j = parent_volumes.begin(); j != parent_volumes.end(); j++) {
+        moab::EntityHandle parent_vol = *j;
+        std::vector<moab::EntityHandle> child_surfs;
+        result = MBI()->get_child_meshsets(parent_vol, child_surfs);
+        if(gen::error(moab::MB_SUCCESS!=result, "could not get the child surfaces of the volume")) return result;
+
+        // check if surface is only child
+        if( child_surfs.size() == 1 && child_surfs[0] == *i ) {
+          moab::Range skin_edges;
+          //verify that the surface is closed
+          result = gen::find_skin( tris, 1, skin_edges, false);
+          if(gen::error(moab::MB_SUCCESS!=result, "could not skin the triangles")) return result;
+          // if the surface is closed, change this indicator
+          if( skin_edges.size() == 0 ) {
+            keep_vol = true;
+          }
+        }
+      }
+
+      // if we've decided to keep this volume, then move on
+      if(keep_vol) {
+        continue;
+      }
 
       result = gen::delete_surface( *i , geom_tag, tris, surf_id, debug, verbose);
       if( gen::error(moab::MB_SUCCESS!=result, "could not delete surface" )) return result;
@@ -1038,11 +1078,6 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     if(gen::error(moab::MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
 
 
-    // Save the normals of the facets. These will later be used to determine if
-    // the tri became inverted.
-    result = gen::save_normals( tris, normal_tag );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not save_normals")) return result;
-    assert(moab::MB_SUCCESS == result);
 
     // Check if edges exist
     int n_edges;
@@ -1765,8 +1800,6 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
     if(gen::error(moab::MB_SUCCESS!=result,"measuring geom size failed")) return result;
   }
 
-
-
   if (verbose) std::cout << "Getting entity count before sealing..." << std::endl;
   // Get entity count before sealing.
   int orig_n_tris;
@@ -1817,6 +1850,12 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   result = fix_normals(geom_sets[2], id_tag, normal_tag, debug, verbose);
   assert(moab::MB_SUCCESS == result);
 
+  //clear out old geometry sets and repopulate (some may have been deleted)
+  for(unsigned int i = 0; i < 4; i++) {
+    geom_sets[i].clear();
+  }
+  result=gen::get_geometry_meshsets( geom_sets, geom_tag, verbose);
+  if(gen::error(moab::MB_SUCCESS!=result, "could not get the geometry meshsets")) return result;
 
   // As sanity check, did zipping drastically change the entity's size?
   if(check_geom_size && verbose) {
@@ -1837,12 +1876,12 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   if (verbose) std::cout << "Removing small volumes if all surfaces have been removed..." << std::endl;
   for(moab::Range::iterator i=geom_sets[3].begin(); i!=geom_sets[3].end(); ++i) {
     int n_surfs;
-    result = MBI()->num_child_meshsets( *i, &n_surfs );
+    moab::EntityHandle vol = *i;
+    result = MBI()->num_child_meshsets( vol, &n_surfs );
     assert(moab::MB_SUCCESS == result);
     if(0 == n_surfs) {
       // Remove the volume set. This also removes parent-child relationships.
-      std::cout << "  deleted volume " << gen::geom_id_by_handle(*i)  << std::endl;
-      result = MBI()->delete_entities( &(*i), 1);
+      result = gen::delete_vol(vol);
       assert(moab::MB_SUCCESS == result);
       i = geom_sets[3].erase(i) - 1;
     }
