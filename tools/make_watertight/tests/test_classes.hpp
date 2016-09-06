@@ -160,12 +160,12 @@ class MakeWatertightCylinderTest : public MakeWatertightTest
 };
 
 // Rename of the general test class
-class MakeWatertightTrelisSphereTest : public MakeWatertightTest
+class MakeWatertightNoCurveSphereTest : public MakeWatertightTest
 {
  protected:
   // set test file name
   virtual void setFilename() {
-    filename = "trelis_sphere.h5m";
+    filename = "no_curve_sphere.h5m";
   };
 
   moab::ErrorCode sphere_deletion_test(moab::EntityHandle input_set, double facet_tolerance, bool verbose = false);

@@ -12,13 +12,13 @@
 
 
 //Make sure the sphere is not deleted when sealing
-TEST_F(MakeWatertightTrelisSphereTest, TelisSphereDeletionCheck)
-{
-  EXPECT_NO_THROW(result = sphere_deletion_test(input_fileset, facet_tol));
-  EXPECT_TRUE(result == moab::MB_SUCCESS);
-}
-
-TEST_F(MakeWatertightTrelisSphereTest, TrelisSphereSealingCheck)
+TEST_F(MakeWatertightNoCurveSphereTest, NoCurveSphereDeletionCheck)
 {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
+
+  //make sure the sphere wasn't deleted
+  int entity_dimension = 3;
+  int num_ents_expected = 1;
+  EXPECT_NO_THROW(result = check_num_ents(entity_dimension, num_ents_expected));
+  EXPECT_TRUE(result == moab::MB_SUCCESS);
 }
