@@ -2,6 +2,14 @@ message(STATUS "Building DAG-MCNP6")
 
 enable_language(Fortran)
 
+# Get date and time
+# modifed from http://www.cmake.org/pipermail/cmake/2010-November/041034.html
+macro (DATETIME RESULT)
+  execute_process(COMMAND "date" "+%d/%m/%Y" OUTPUT_VARIABLE ${RESULT})
+  string(REGEX REPLACE "(..)/(..)/..(..).*" "\"\\2/\\1/\\3\"" ${RESULT} ${${RESULT}})
+endmacro (DATETIME)
+DATETIME(DATE)
+
 # Source files
 set(MCNP_SRC_FILES)
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/dedx/*.F90")
@@ -39,6 +47,15 @@ include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 
 # Preprocessor directives
+add_definitions(-DKODE="mcnp")
+if (MPI_BUILD)
+  add_definitions(-DVERS="6.mpi")
+else ()
+  add_definitions(-DVERS="6")
+endif (MPI_BUILD)
+add_definitions(-DTHREAD="MCNP6")
+add_definitions(-DTVERS="1.0")
+add_definitions(-DLODDAT=${DATE})
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
 add_definitions(-DGFORTRAN=ON)
@@ -55,11 +72,11 @@ add_definitions(-DUOD=ON)
 if (MCNP6_DATAPATH)
   add_definitions(-DDPATH="${MCNP6_DATAPATH}")
 else (MCNP6_DATAPATH)
-  if(DEFINED ENV{DATAPATH})
+  if (DEFINED ENV{DATAPATH})
     add_definitions(-DDPATH="$ENV{DATAPATH}")
-  else(DEFINED ENV{DATAPATH})
+  else (DEFINED ENV{DATAPATH})
     message(FATAL_ERROR "MCNP DATAPATH not set. Either the environment variable DATAPATH or the CMake variable DMCNP6_DATAPATH must be set.")
-  endif(DEFINED ENV{DATAPATH})
+  endif (DEFINED ENV{DATAPATH})
 endif (MCNP6_DATAPATH)
 
 # MCNP Plotter
