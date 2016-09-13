@@ -14,6 +14,7 @@ void MakeWatertightTest::SetUp()
 
   // setup the MakeWatertight class
   mw = new MakeWatertight(MBI());
+  cw = new CheckWatertight(MBI());
   
   // delete meshset
   result = MBI()->delete_mesh();
@@ -350,13 +351,13 @@ bool MakeWatertightTest::seal_and_check(moab::EntityHandle input_set, double fac
 
   // Check to see if make_watertight fixed the model by topology
   bool sealed, test = true, topo_test = true;
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test, verbose, topo_test);
+  result = cw->check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test, verbose, topo_test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return false;
   if(!sealed) return sealed;
 
   // Check to see if make_watertight fixed the model via proximity tolerance
   topo_test = false;
-  result = cw_func::check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test, verbose, topo_test);
+  result = cw->check_mesh_for_watertightness(input_set, facet_tolerance, sealed, test, verbose, topo_test);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return false;
 
   return sealed;

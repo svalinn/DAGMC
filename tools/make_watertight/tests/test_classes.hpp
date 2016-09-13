@@ -21,20 +21,6 @@
 
 moab::Interface *MBI();
 
-/// struct to hold coordinates of skin edge, it's surface id, and a matched flag
-struct coords_and_id {
-  double x1;
-  double y1;
-  double z1;
-  double x2;
-  double y2;
-  double z2;
-  int  surf_id;
-  bool matched;
-  moab::EntityHandle vert1;
-  moab::EntityHandle vert2;
-};
-
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
@@ -94,6 +80,7 @@ class MakeWatertightTest : public ::testing::Test
  protected:
   std::string filename;
   MakeWatertight* mw;
+  CheckWatertight* cw;
   moab::ErrorCode result;
   moab::EntityHandle input_fileset;
   moab::Range verts;

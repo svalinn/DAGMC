@@ -46,70 +46,6 @@
 
 moab::Interface *MBI();
 
-// struct to hold coordinates of skin edge, it's surface id, and a matched flag
-struct coords_and_id {
-  double x1;
-  double y1;
-  double z1;
-  double x2;
-  double y2;
-  double z2;
-  int  surf_id;
-  bool matched;
-  moab::EntityHandle vert1;
-  moab::EntityHandle vert2;
-};
-
-/* qsort struct comparision function */
-int compare_by_handle(const void *a, const void *b)
-{
-  struct coords_and_id *ia = (struct coords_and_id *)a;
-  struct coords_and_id *ib = (struct coords_and_id *)b;
-  if(ia->vert1 == ib->vert1) {
-    return (int)(ia->vert2 - ib->vert2);
-  } else {
-    return (int)(ia->vert1 - ib->vert1);
-  }
-  /* float comparison: returns negative if b > a
-     and positive if a > b. We multiplied result by 100.0
-     to preserve decimal fraction */
-}
-
-/* qsort struct comparision function */
-// This is tricky because doubles always get rounded down to ints.
-int compare_by_coords(const void *a, const void *b)
-{
-  struct coords_and_id *ia = (struct coords_and_id *)a;
-  struct coords_and_id *ib = (struct coords_and_id *)b;
-  if(ia->x1 == ib->x1) {
-    if(ia->y1 == ib->y1) {
-      if(ia->z1 == ib->z1) {
-        if(ia->x2 == ib->x2) {
-          if(ia->y2 == ib->y2) {
-            if(ia->z2 == ib->z2) {
-              return ia->surf_id - ib->surf_id;
-            } else {
-              return (ia->z2 > ib->z2) - (ia->z2 < ib->z2);
-            }
-          } else {
-            return (ia->y2 > ib->y2) - (ia->y2 < ib->y2);
-          }
-        } else {
-          return (ia->x2 > ib->x2) - (ia->x2 < ib->x2);
-        }
-      } else {
-        return (ia->z1 > ib->z1) - (ia->z1 < ib->z1);
-      }
-    } else {
-      return (ia->y1 > ib->y1) - (ia->y1 < ib->y1);;
-    }
-  } else {
-    return (ia->x1 > ib->x1) - (ia->x1 < ib->x1);
-  }
-  /* float comparison: returns negative if b > a
-     and positive if a > b. We multiplied result by 100.0
-     to preserve decimal fraction */
-}
 
 int main(int argc, char **argv)
 {
@@ -173,7 +109,8 @@ int main(int argc, char **argv)
   test=false;
   // is the order of the optional variables going to be a problem?
   // (i.e. we 'skipped' the variable test)
-  result=cw_func::check_mesh_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
+  CheckWatertight cw = CheckWatertight(MBI());
+  result= cw.check_mesh_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
   if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
 
   clock_t end_time = clock();
