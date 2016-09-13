@@ -35,7 +35,7 @@ target_link_libraries(make_watertight ${LINK_LIBS})
 target_link_libraries(check_watertight ${LINK_LIBS})
 
 #Create library with make_watertight functionality
-add_library(makeWatertight ${LIB_TYPE} arc.cpp cleanup.cpp gen.cpp cw_func.cpp mw_func.cpp)
+add_library(makeWatertight ${LIB_TYPE} zip.cpp arc.cpp cleanup.cpp gen.cpp cw_func.cpp mw_func.cpp)
 set_target_properties(makeWatertight PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 
 # Install
