@@ -34,8 +34,12 @@ include_directories(${MOAB_INCLUDE_DIRS})
 target_link_libraries(make_watertight ${LINK_LIBS})
 target_link_libraries(check_watertight ${LINK_LIBS})
 
+#Create library with make_watertight functionality
+add_library(makeWatertight ${LIB_TYPE} arc.cpp cleanup.cpp gen.cpp cw_func.cpp mw_func.cpp)
+
 # Install
 install(TARGETS check_watertight make_watertight DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS ${PERMS})
+install(TARGETS makeWatertight DESTINATION ${INSTALL_LIB_DIR} PERMISSIONS ${PERMS})
 
 # build tests
 add_subdirectory(tests)
