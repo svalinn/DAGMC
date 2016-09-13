@@ -16,6 +16,7 @@
 #include "arc.hpp"
 #include "zip.hpp"
 #include "cleanup.hpp"
+#include "gen.hpp"
 
 class MakeWatertight
 {
@@ -23,11 +24,18 @@ class MakeWatertight
   
 public:
 
-  MakeWatertight(moab::Interface* mbInterface): mbi(mbInterface) {};
+  MakeWatertight(moab::Interface* mbInterface): mbi(mbInterface) {
+    gen = new Gen(mbInterface);
+    arc = new Arc(mbInterface);
+    zip = new Zip(mbInterface);
+    
+  };
   ~MakeWatertight() {};
   
   void moab_printer(moab::ErrorCode error_code);
-
+  Gen* gen;
+  Arc* arc;  
+  Zip* zip;
   moab::Interface* mbi;
   moab::Interface* MBI() {return mbi;}
 

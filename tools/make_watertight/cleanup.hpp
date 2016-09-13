@@ -6,9 +6,18 @@
 #include "arc.hpp"
 #include "zip.hpp"
 
-moab::Interface *MBI();
-namespace cleanup
+
+class Cleanup
 {
+public:
+  Cleanup(moab::Interface *mbInterface) : mbi(mbInterface) {
+    gen = new Gen(mbInterface);
+  };
+  ~Cleanup() {};
+  
+  Gen* gen;
+  moab::Interface* mbi;
+  moab::Interface* MBI() { return mbi; };
 
 /// The obbtrees are no longer valid because the triangles have been altered.
 ///  -Surface and volume sets are tagged with tags holding the obb tree
@@ -26,6 +35,6 @@ moab::ErrorCode delete_small_edges( const moab::Range &surfaces, const double ME
 /// Delete edges that are not in curves. These should be the only edges
 /// that remain. This incredibly speeds up the watertight_check tool (100x?).
 moab::ErrorCode cleanup_edges( moab::Range curve_meshsets );
-}
+};
 
 #endif
