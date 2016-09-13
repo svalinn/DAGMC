@@ -37,13 +37,7 @@
 #include "moab/GeomTopoTool.hpp"
 
 #include "mw_func.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
-#include "cleanup.hpp"
 
-
-
-moab::Interface *MOAB();
 moab::ErrorCode write_sealed_file( moab::Interface* mbi, std::string root_filename, double facet_tol, bool is_acis);
 
 
@@ -57,7 +51,8 @@ int main(int argc, char **argv)
 
   clock_t start_time = clock();
 
-  moab::Interface* mbi = new moab::Core();
+  static moab::Core instance;
+  moab::Interface* mbi = &instance;
   
   // check input args
   if( 2 > argc || 3 < argc ) {

@@ -41,10 +41,6 @@
 
 #include "cw_func.hpp"
 
-
-moab::Interface *MBI();
-
-
 int main(int argc, char **argv)
 {
 
@@ -52,6 +48,9 @@ int main(int argc, char **argv)
   // Load the h5m file and create tags.
   // ******************************************************************
 
+  static moab::Core instance;
+  moab::Interface* mbi = &instance;
+  
   clock_t start_time;
   start_time = clock();
   // check input args
@@ -68,12 +67,12 @@ int main(int argc, char **argv)
   moab::ErrorCode result;
   std::string filename = argv[1]; //set filename
   moab::EntityHandle input_set;
-  result = MBI()->create_meshset( moab::MESHSET_SET, input_set ); //create handle to meshset
+  result = mbi->create_meshset( moab::MESHSET_SET, input_set ); //create handle to meshset
   if(moab::MB_SUCCESS != result) {
     return result;
   }
 
-  result = MBI()->load_file( filename.c_str(), &input_set ); //load the file into the meshset
+  result = mbi->load_file( filename.c_str(), &input_set ); //load the file into the meshset
   if(moab::MB_SUCCESS != result) {
     // failed to load the file
     std::cout << "could not load file" << std::endl;
@@ -107,7 +106,7 @@ int main(int argc, char **argv)
   test=false;
   // is the order of the optional variables going to be a problem?
   // (i.e. we 'skipped' the variable test)
-  CheckWatertight cw = CheckWatertight(MBI());
+  CheckWatertight cw = CheckWatertight(mbi);
   result= cw.check_mesh_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
   MB_CHK_SET_ERR(result, "could not check model for watertightness");
 
@@ -117,8 +116,3 @@ int main(int argc, char **argv)
 }
 
 
-moab::Interface* MBI()
-{
-  static moab::Core instance;
-  return &instance;
-}
