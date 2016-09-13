@@ -24,7 +24,6 @@
 
 #include "moab/GeomTopoTool.hpp"
 #include "cw_func.hpp"
-#include "gen.hpp"
 #include "zip.hpp"
 #include "moab/Skinner.hpp"
 
@@ -38,11 +37,12 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness( moab::EntityHand
   moab::Tag geom_tag, id_tag;
   result = MBI()->tag_get_handle( GEOM_DIMENSION_TAG_NAME, 1,
                                   moab::MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
-  if(gen::error(moab::MB_SUCCESS != result, "could not get GEOM_DIMENSION_TAG_NAME handle")) return result;
+  MB_CHK_SET_ERR(result,"could not get GEOM_DIMENSION_TAG_NAME handle");
 
   result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1,
                                   moab::MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
-  if(gen::error(moab::MB_SUCCESS != result, "could not get GLOBAL_ID_TAG_NAME handle")) return result;
+  
+  MB_CHK_SET_ERR(result, "could not get GLOBAL_ID_TAG_NAME handle");
 
 
   // get surface and volume sets
@@ -383,20 +383,20 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness( moab::EntityHand
   return moab::MB_SUCCESS;
 }
 
-// /* qsort struct comparision function */
-// int CheckWatertight::compare_by_handle(const void *a, const void *b)
-// {
-//   struct coords_and_id *ia = (struct coords_and_id *)a;
-//   struct coords_and_id *ib = (struct coords_and_id *)b;
-//   if(ia->vert1 == ib->vert1) {
-//     return (int)(ia->vert2 - ib->vert2);
-//   } else {
-//     return (int)(ia->vert1 - ib->vert1);
-//   }
-//   /* float comparison: returns negative if b > a
-//      and positive if a > b. We multiplied result by 100.0
-//      to preserve decimal fraction */
-// }
+/* qsort struct comparision function */
+int CheckWatertight::compare_by_handle(const void *a, const void *b)
+{
+  struct coords_and_id *ia = (struct coords_and_id *)a;
+  struct coords_and_id *ib = (struct coords_and_id *)b;
+  if(ia->vert1 == ib->vert1) {
+    return (int)(ia->vert2 - ib->vert2);
+  } else {
+    return (int)(ia->vert1 - ib->vert1);
+  }
+  /* float comparison: returns negative if b > a
+     and positive if a > b. We multiplied result by 100.0
+     to preserve decimal fraction */
+}
 
 // /* qsort struct comparision function */
 // // This is tricky because doubles always get rounded down to ints.

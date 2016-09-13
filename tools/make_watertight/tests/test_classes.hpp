@@ -15,9 +15,6 @@
 #include "gtest/gtest.h"
 #include "mw_func.hpp"
 #include "cw_func.hpp"
-#include "gen.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
 
 moab::Interface *MBI();
 

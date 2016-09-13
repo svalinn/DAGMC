@@ -40,7 +40,6 @@
 #include "moab/Skinner.hpp"
 
 #include "cw_func.hpp"
-#include "gen.hpp"
 #include "arc.hpp"
 #include "zip.hpp"
 
@@ -111,7 +110,7 @@ int main(int argc, char **argv)
   // (i.e. we 'skipped' the variable test)
   CheckWatertight cw = CheckWatertight(MBI());
   result= cw.check_mesh_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not check model for watertightness")) return result;
+  MB_CHK_SET_ERR(result, "could not check model for watertightness");
 
   clock_t end_time = clock();
   std::cout << (double) (end_time-start_time)/CLOCKS_PER_SEC << " seconds" << std::endl;

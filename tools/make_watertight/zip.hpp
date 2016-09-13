@@ -2,7 +2,6 @@
 #define ZIP_HPP
 
 #include "moab/Core.hpp"
-#include "gen.hpp"
 #include "arc.hpp"
 
 moab::Interface *MBI();

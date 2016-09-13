@@ -3,13 +3,23 @@
 
 #include <vector>
 #include "moab/Core.hpp"
-#include "gen.hpp"
 #include "moab/Skinner.hpp"
 #include "MBTagConventions.hpp"
+#include "gen.hpp"
 
-moab::Interface *MBI();
-namespace arc
+class Arc
 {
+  friend class Gen;
+  
+  public:
+  Arc(moab::Interface *mbInterface) : mbi(mbInterface) {
+    gen = new Gen(mbInterface);
+  };
+  ~Arc() {};
+
+  Gen* gen;
+  moab::Interface* mbi;
+  moab::Interface* MBI() { return mbi; };
 
 /// check that edge is going in the same direction as one of the edges on tri.
 /// If this is not the case, the edge is reversed.
@@ -56,6 +66,6 @@ moab::ErrorCode set_meshset( const moab::EntityHandle set, const std::vector<moa
 /// it then merges the curves topologically. Any merged curves aren't deleted until prepare surfaces.
 moab::ErrorCode merge_curves(moab::Range curve_sets, const double FACET_TOL,
                              moab::Tag idTag, moab::Tag merge_tag, const bool debug );
-}
+};
 
 #endif

@@ -13,7 +13,6 @@
 #include "moab/Skinner.hpp"
 #include "moab/GeomTopoTool.hpp"
 
-#include "gen.hpp"
 #include "arc.hpp"
 #include "zip.hpp"
 #include "cleanup.hpp"
@@ -25,7 +24,7 @@ class MakeWatertight
 public:
 
   MakeWatertight(moab::Interface* mbInterface): mbi(mbInterface) {};
-  ~MakeWatertight();
+  ~MakeWatertight() {};
   
   void moab_printer(moab::ErrorCode error_code);
 

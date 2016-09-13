@@ -13,13 +13,18 @@
 #include "moab/Range.hpp"
 #include "moab/AdaptiveKDTree.hpp" // for merging verts
 #include "moab/CartVect.hpp"
+#include "arc.hpp"
 
 class CheckWatertight
 {
 
 public:  
-  CheckWatertight( moab::Interface* mbInterface) : mbi(mbInterface) {};
+  CheckWatertight( moab::Interface* mbInterface) : mbi(mbInterface) {
+    gen = new Arc(mbInterface);
+  };
+  
   ~CheckWatertight() {};
+  Arc* gen;
   moab::Interface* mbi;
   moab::Interface* MBI() { return mbi; };
   /// checks the input mesh for watertightness. If check_topology=true, then the mesh will be checked topologically only, no tolerances allowed.
