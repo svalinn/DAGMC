@@ -23,6 +23,7 @@ cd tests
 ./uwuw_unit_tests
 ./uwuw_unit_tests_tally
 ./uwuw_unit_tests_preprocessor
+./make_watertight_no_curve_sphere_tests
 ./make_watertight_cylinder_tests
 ./make_watertight_cone_tests
 # move to the base directory
