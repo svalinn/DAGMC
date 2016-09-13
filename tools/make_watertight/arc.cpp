@@ -687,14 +687,14 @@ moab::ErrorCode Arc::merge_curves( moab::Range curve_sets, const double facet_to
         if(error(moab::MB_SUCCESS!=result,"failed to get senses")) return result;
         for(unsigned k=0; k<surfs.size(); ++k) {
           //forward to reverse
-          if(SENSE_FORWARD==senses[k])
-            senses[k] = SENSE_REVERSE;
+          if(moab::SENSE_FORWARD==senses[k])
+            senses[k] = moab::SENSE_REVERSE;
           //reverse to forward
-          else if(SENSE_REVERSE==senses[k])
-            senses[k] = SENSE_FORWARD;
+          else if(moab::SENSE_REVERSE==senses[k])
+            senses[k] = moab::SENSE_FORWARD;
           //unknown to unknown
-          else if(SENSE_UNKNOWN==senses[k])
-            senses[k] = SENSE_UNKNOWN;
+	  else if(moab::SENSE_BOTH==senses[k])
+            senses[k] = moab::SENSE_BOTH;
           else if(error(true,"unrecognized sense")) return moab::MB_FAILURE;
         }
         result = gt.set_senses( *j, surfs, senses );

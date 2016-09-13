@@ -287,7 +287,7 @@ moab::ErrorCode MakeWatertight::create_arc_pair(  const double FACET_TOL,
 
     // is it forward oriented? To allow for ambiguous cases, instead of accepting
     // only forward-oriented curves, only reject reverse-oriented curves.
-    if(front_endpt==temp_curve.front() && SENSE_REVERSE!=sense) {
+    if(front_endpt==temp_curve.front() && moab::SENSE_REVERSE!=sense) {
       // find the closest skin pt to the curve endpt
       unsigned pos;
       // if only one curve is left, take the entire skin. Otherwise, due to
@@ -321,7 +321,7 @@ moab::ErrorCode MakeWatertight::create_arc_pair(  const double FACET_TOL,
       }
     }
     // is it reverse oriented?
-    if(front_endpt==temp_curve.back() && SENSE_FORWARD!=sense) {
+    if(front_endpt==temp_curve.back() && moab::SENSE_FORWARD!=sense) {
       reverse( temp_curve.begin(), temp_curve.end() );
       // find the closest skin pt to the curve endpt
       unsigned pos;
@@ -816,7 +816,7 @@ moab::ErrorCode MakeWatertight::seal_loop( bool debug,
     rval = gen->get_curve_surf_sense( surf_set, curve_sets[i], sense );
     if(error(moab::MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
     // select the front wrt the skin.
-    moab::EntityHandle curve_endpt = (SENSE_FORWARD==sense) ? curve.front() : curve.back();
+    moab::EntityHandle curve_endpt = (moab::SENSE_FORWARD==sense) ? curve.front() : curve.back();
 
     // find closest skin vert to front of curve
     std::vector<double> d;

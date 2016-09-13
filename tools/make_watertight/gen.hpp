@@ -15,10 +15,6 @@
 #include "moab/AdaptiveKDTree.hpp" // for merging verts
 #include "moab/CartVect.hpp"
 
-// SENSE CONVENTIONS
-#define SENSE_FORWARD 1
-#define SENSE_REVERSE -1
-#define SENSE_UNKNOWN 0
 
 bool error( const bool error_has_occured, const std::string message="" );
 

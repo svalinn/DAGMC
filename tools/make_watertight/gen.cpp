@@ -1618,7 +1618,7 @@ moab::ErrorCode Gen::get_curve_surf_sense( const moab::EntityHandle surf_set, co
 
 
   // special case: ambiguous
-  if(1<counter) sense = SENSE_UNKNOWN;
+  if(1<counter) sense = moab::SENSE_BOTH;
   return moab::MB_SUCCESS;
 }
 
@@ -1644,7 +1644,7 @@ moab::ErrorCode Gen::surface_sense( moab::EntityHandle volume,
     if (volume == forward) {
       *senses_out = (volume != reverse); // zero if both, otherwise 1
     } else if (volume == reverse) {
-      *senses_out = SENSE_UNKNOWN;
+      *senses_out = moab::SENSE_BOTH;
     } else {
       return moab::MB_ENTITY_NOT_FOUND;
     }
@@ -1672,7 +1672,7 @@ moab::ErrorCode Gen::surface_sense( moab::EntityHandle volume,
   if (surf_volumes[0] == volume) {
     sense_out = (surf_volumes[1] != volume); // zero if both, otherwise 1
   } else if (surf_volumes[1] == volume) {
-    sense_out = SENSE_UNKNOWN;
+    sense_out = moab::SENSE_BOTH;
   } else {
     return moab::MB_ENTITY_NOT_FOUND;
   }
