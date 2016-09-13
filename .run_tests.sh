@@ -6,8 +6,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/dagmc/lib
 
 # move to test dir
 cd tests
-wget https://uwmadison.box.com/shared/static/jns2dfu47euucwexe74l4qroxneelp9u.gz -O mw_reg_test_files.tar.gz
-tar xzvf mw_reg_test_files.tar.gz
 # run each test
 ./dagsolid_unit_tests
 # no fludag yet
