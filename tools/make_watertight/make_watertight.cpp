@@ -106,7 +106,8 @@ int main(int argc, char **argv)
   clock_t load_time = clock();
   //seal the input mesh set
   double facet_tol;
-  result= mw_func::make_mesh_watertight(input_set, facet_tol);
+  MakeWatertight mw(MBI());
+  result= mw.make_mesh_watertight(input_set, facet_tol);
   if(gen::error(moab::MB_SUCCESS!=result, "could not make model watertight")) return result;
 
 

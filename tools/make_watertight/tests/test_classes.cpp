@@ -11,6 +11,10 @@ void MakeWatertightTest::SetUp()
 {
   // set this classes test filename
   setFilename();
+
+  // setup the MakeWatertight class
+  mw = new MakeWatertight(MBI());
+  
   // delete meshset
   result = MBI()->delete_mesh();
   EXPECT_EQ(result,moab::MB_SUCCESS);
@@ -341,7 +345,7 @@ moab::ErrorCode MakeWatertightTest::write_mod_file(std::string filename)
 bool MakeWatertightTest::seal_and_check(moab::EntityHandle input_set, double facet_tolerance, bool verbose)
 {
   // seal the model using make_watertight
-  result = mw_func::make_mesh_watertight(input_set, facet_tolerance, verbose);
+  result = mw->make_mesh_watertight(input_set, facet_tolerance, verbose);
   if(gen::error(moab::MB_SUCCESS!=result, "could not make the mesh watertight")) return false;
 
   // Check to see if make_watertight fixed the model by topology

@@ -93,6 +93,7 @@ class MakeWatertightTest : public ::testing::Test
 
  protected:
   std::string filename;
+  MakeWatertight* mw;
   moab::ErrorCode result;
   moab::EntityHandle input_fileset;
   moab::Range verts;
