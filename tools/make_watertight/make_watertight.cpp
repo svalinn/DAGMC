@@ -44,7 +44,7 @@
 
 
 moab::Interface *MOAB();
-moab::ErrorCode write_sealed_file( std::string root_filename, double facet_tol, bool is_acis);
+moab::ErrorCode write_sealed_file( moab::Interface* mbi, std::string root_filename, double facet_tol, bool is_acis);
 
 
 
@@ -57,7 +57,8 @@ int main(int argc, char **argv)
 
   clock_t start_time = clock();
 
-
+  moab::Interface* mbi = new moab::Core();
+  
   // check input args
   if( 2 > argc || 3 < argc ) {
     std::cout << "To zip a faceted h5m file:" << std::endl;
@@ -80,9 +81,9 @@ int main(int argc, char **argv)
   moab::ErrorCode result, rval;
   moab::EntityHandle input_set;
 
-  rval = MBI()->create_meshset( moab::MESHSET_SET, input_set );
+  rval = mbi->create_meshset( moab::MESHSET_SET, input_set );
 
-  if(gen::error(moab::MB_SUCCESS!=rval,"failed to create_meshset")) {
+  if(error(moab::MB_SUCCESS!=rval,"failed to create_meshset")) {
     return rval;
   }
 
@@ -93,8 +94,8 @@ int main(int argc, char **argv)
   // argument.
 
   if(std::string::npos!=input_name.find("h5m") && (2==argc)) {
-    rval = MBI()->load_file( input_name.c_str(), &input_set );
-    if(gen::error(moab::MB_SUCCESS!=rval,"failed to load_file 0")) {
+    rval = mbi->load_file( input_name.c_str(), &input_set );
+    if(error(moab::MB_SUCCESS!=rval,"failed to load_file 0")) {
       return rval;
     }
 
@@ -105,16 +106,16 @@ int main(int argc, char **argv)
   clock_t load_time = clock();
   //seal the input mesh set
   double facet_tol;
-  MakeWatertight mw(MBI());
+  MakeWatertight mw(mbi);
   result= mw.make_mesh_watertight(input_set, facet_tol);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make model watertight")) return result;
+  if(error(moab::MB_SUCCESS!=result, "could not make model watertight")) return result;
 
 
   //write file
   clock_t zip_time = clock();
   std::cout << "Writing zipped file..." << std::endl;
-  write_sealed_file( root_name, facet_tol, is_acis);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not write the sealed mesh to a new file"))
+  write_sealed_file( mbi, root_name, facet_tol, is_acis);
+  if(error(moab::MB_SUCCESS!=result, "could not write the sealed mesh to a new file"))
     return result;
 
   clock_t write_time = clock();
@@ -126,13 +127,7 @@ int main(int argc, char **argv)
   return 0;
 }
 
-moab::Interface *MBI()
-{
-  static moab::Core instance;
-  return &instance;
-}
-
-moab::ErrorCode write_sealed_file( std::string root_filename, double facet_tol, bool is_acis)
+moab::ErrorCode write_sealed_file( moab::Interface* mbi, std::string root_filename, double facet_tol, bool is_acis)
 {
 
   moab::ErrorCode result;
@@ -144,7 +139,7 @@ moab::ErrorCode write_sealed_file( std::string root_filename, double facet_tol, 
   } else {
     output_filename = root_filename + "_zip.h5m";
   }
-  result = MBI()->write_mesh( output_filename.c_str() );
+  result = mbi->write_mesh( output_filename.c_str() );
   if (moab::MB_SUCCESS != result) std::cout << "result= " << result << std::endl;
   assert(moab::MB_SUCCESS == result);
 

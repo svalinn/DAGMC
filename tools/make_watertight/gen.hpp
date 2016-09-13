@@ -26,8 +26,10 @@ class Gen
 {
 public:
   Gen(moab::Interface *mbInterface) : mbi(mbInterface) {};
-  ~Gen() {};
   
+  
+  ~Gen() {};
+
   moab::Interface* mbi;
   moab::Interface* MBI() { return mbi; };
   
@@ -248,8 +250,6 @@ public:
                 const moab::EntityHandle c, const moab::EntityHandle d,
 		  const moab::CartVect n );
 
-  moab::Range& intersect(const moab::Range&, const moab::Range&);
-
 bool diagonalie( const moab::EntityHandle a, const moab::EntityHandle b,
                  const moab::CartVect n,
                  const std::vector<moab::EntityHandle> verts );
@@ -265,7 +265,9 @@ bool diagonalie( const moab::EntityHandle a, const moab::EntityHandle b,
                           const moab::CartVect n, // plane normal vector
 			    std::vector<bool> &is_ear );
 
+  moab::ErrorCode delete_degenerate_tris( moab::Range tris );
 
+  moab::ErrorCode delete_degenerate_tris( moab::EntityHandle tri );
 
 
 

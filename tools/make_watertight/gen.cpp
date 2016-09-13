@@ -11,6 +11,7 @@
 
 #include "gen.hpp"
 #include "moab/Skinner.hpp"
+#include "moab/Range.hpp"
 
 
 const char GEOM_SENSE_2_TAG_NAME[] = "GEOM_SENSE_2";
@@ -500,7 +501,7 @@ unsigned int Gen::n_adj_edges( moab::EntityHandle vert, moab::Range edges )
   moab::Range adj_edges;
   result = MBI()->get_adjacencies( &vert, 1, 1, false, adj_edges );
   assert(moab::MB_SUCCESS == result);
-  adj_edges = intersect( adj_edges, edges );
+  adj_edges = moab::intersect( adj_edges, edges );
   return adj_edges.size();
 }
 
@@ -1085,7 +1086,7 @@ moab::ErrorCode Gen::flip(const moab::EntityHandle tri, const moab::EntityHandle
   moab::EntityHandle edge[2] = {vert0, vert2};
   result = MBI()->get_adjacencies( edge, 2, 2, false, adj_tri );
   assert(moab::MB_SUCCESS == result);
-  adj_tri = intersect(adj_tri, surf_tris);
+  adj_tri = moab::intersect(adj_tri, surf_tris);
   assert(2 == adj_tri.size());
   adj_tri.erase( tri );
   print_triangle( adj_tri.front(), false );
@@ -2080,5 +2081,63 @@ moab::ErrorCode Gen::get_meshset( const moab::EntityHandle set, std::vector<moab
   vec.clear();
   result = MBI()->get_entities_by_handle( set, vec );
   assert(moab::MB_SUCCESS == result);
+  return moab::MB_SUCCESS;
+}
+
+moab::ErrorCode Gen::merge_verts( const moab::EntityHandle keep_vert,
+                             const moab::EntityHandle delete_vert,
+                             std::vector<moab::EntityHandle> &arc0,
+                             std::vector<moab::EntityHandle> &arc1 )
+{
+
+  moab::ErrorCode rval;
+  // first update the arcs with the keep_vert
+  for(std::vector<moab::EntityHandle>::iterator i=arc0.begin(); i!=arc0.end(); ++i) {
+    if(delete_vert == *i) *i = keep_vert;
+  }
+  for(std::vector<moab::EntityHandle>::iterator i=arc1.begin(); i!=arc1.end(); ++i) {
+    if(delete_vert == *i) *i = keep_vert;
+  }
+
+  // get adjacent tris
+  moab::Range tris;
+  moab::EntityHandle verts[2]= {keep_vert, delete_vert};
+  rval = MBI()->get_adjacencies( verts, 2, 2, false, tris, moab::Interface::UNION );
+  if(error(moab::MB_SUCCESS!=rval,"getting adjacent tris failed")) return rval;
+
+  // actually do the merge
+  rval = MBI()->merge_entities( keep_vert, delete_vert, false, true );
+  if(error(moab::MB_SUCCESS!=rval,"merge entities failed")) return rval;
+
+  // delete degenerate tris
+  rval = delete_degenerate_tris( tris );
+  if(error(moab::MB_SUCCESS!=rval,"deleting degenerate tris failed")) return rval;
+
+  return moab::MB_SUCCESS;
+}
+
+moab::ErrorCode Gen::delete_degenerate_tris( moab::Range tris )
+{
+  moab::ErrorCode result;
+  for(moab::Range::iterator i=tris.begin(); i!=tris.end(); i++) {
+    result = delete_degenerate_tris( *i );
+    assert(moab::MB_SUCCESS == result);
+  }
+  return moab::MB_SUCCESS;
+}
+
+// Delete degenerate triangles in the range.
+moab::ErrorCode Gen::delete_degenerate_tris( moab::EntityHandle tri )
+{
+  moab::ErrorCode result;
+  const moab::EntityHandle *con;
+  int n_verts;
+  result = MBI()->get_connectivity( tri, con, n_verts);
+  assert(moab::MB_SUCCESS == result);
+  assert(3 == n_verts);
+  if(con[0]==con[1] || con[1]==con[2] || con[2]==con[0]) {
+    result = MBI()->delete_entities( &tri, 1 );
+    assert(moab::MB_SUCCESS == result);
+  }
   return moab::MB_SUCCESS;
 }
