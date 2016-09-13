@@ -6,33 +6,33 @@
 class ITERMakeWatertightRegressionTest : public MakeWatertightTest
 {
 
-protected:
+ protected:
   virtual void setFilename() {
     filename = "iter_imprinted.h5m";
   };
-  
+
 };
 
 class FNSFMakeWatertightRegressionTest : public MakeWatertightTest
 {
 
-protected:
+ protected:
   virtual void setFilename() {
     filename = "model1_360_1.h5m";
   };
-  
+
 };
 
 class BLiteMakeWatertightRegressionTest : public MakeWatertightTest
 {
 
-protected:
+ protected:
   virtual void setFilename() {
     filename = "bllite30matls.h5m";
   };
-  
+
 };
-  
+
 TEST_F(ITERMakeWatertightRegressionTest, ITERRegressionTest )
 {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));

@@ -26,6 +26,12 @@ cd tests
 ./make_watertight_no_curve_sphere_tests
 ./make_watertight_cylinder_tests
 ./make_watertight_cone_tests
+# if this is not a pull request, run regression tests
+if [ ! TRAVIS_PULL_REQUEST ] ; then
+wget $MW_REG_TEST_MODELS_URL -O mw_reg_test_files.tar.gz -o wget.out
+tar xzvf mw_reg_test_files.tar.gz
+./make_watertight_regression_tests
+fi
 # move to the base directory
 cd ..
 # remove the bld dir
