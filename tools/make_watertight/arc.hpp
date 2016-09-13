@@ -6,6 +6,7 @@
 #include "moab/Skinner.hpp"
 #include "MBTagConventions.hpp"
 #include "gen.hpp"
+#include "zip.hpp"
 
 class Arc
 {
@@ -14,9 +15,11 @@ class Arc
   public:
   Arc(moab::Interface *mbInterface) : mbi(mbInterface) {
     gen = new Gen(mbInterface);
+    zip = new Zip(mbInterface);
   };
   ~Arc() {};
 
+  Zip* zip;
   Gen* gen;
   moab::Interface* mbi;
   moab::Interface* MBI() { return mbi; };
@@ -61,6 +64,11 @@ moab::ErrorCode get_meshset( const moab::EntityHandle set, std::vector<moab::Ent
 /// clears the given meshset set and then adds the entities desired to the meshset
 /// (apparently child_parent_relations are taken care of here? Edges are created how?)
 moab::ErrorCode set_meshset( const moab::EntityHandle set, const std::vector<moab::EntityHandle> vec );
+
+  moab::ErrorCode merge_verts( const moab::EntityHandle keep_vert,
+                             const moab::EntityHandle delete_vert,
+                             std::vector<moab::EntityHandle> &arc0,
+				    std::vector<moab::EntityHandle> &arc1 );
 
 /// goes through curve_sets and finds any curves with coincident ( dist. apart <= FACET_TOL) front and back points.
 /// it then merges the curves topologically. Any merged curves aren't deleted until prepare surfaces.

@@ -10,7 +10,6 @@
 #include "moab/FileOptions.hpp"
 
 #include "gen.hpp"
-#include "zip.hpp"
 #include "moab/Skinner.hpp"
 
 
@@ -366,7 +365,7 @@ moab::ErrorCode Gen::merge_vertices( moab::Range verts /* in */, const double to
           std::vector<moab::EntityHandle> temp_arc;
           moab::EntityHandle keep_vert   = *i;
           moab::EntityHandle delete_vert = leaf_verts[k];
-          result = zip::merge_verts( keep_vert, delete_vert, leaf_verts, temp_arc );
+          result = merge_verts( keep_vert, delete_vert, leaf_verts, temp_arc );
           assert(moab::MB_SUCCESS == result);
           // Erase delete_vert from verts
           // Iterator should remain valid because delete_vert > keep_vert handle.
@@ -808,7 +807,7 @@ moab::ErrorCode Gen::point_line_projection( const moab::EntityHandle line_pt1,
 }
 
 
-double area2( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
+double Gen::area2( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
               const moab::EntityHandle pt_c, const moab::CartVect plane_normal )
 {
   moab::ErrorCode result;
@@ -826,7 +825,7 @@ double area2( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
 }
 
 // Is point c to the left of line ab?
-bool left( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::left( const moab::EntityHandle a, const moab::EntityHandle b,
            const moab::EntityHandle c, const moab::CartVect n )
 {
   double area_2 = area2(a,b,c,n);
@@ -835,7 +834,7 @@ bool left( const moab::EntityHandle a, const moab::EntityHandle b,
 }
 
 // Is point c to the left of line ab or collinear?
-bool left_on( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::left_on( const moab::EntityHandle a, const moab::EntityHandle b,
               const moab::EntityHandle c, const moab::CartVect n )
 {
   double area_2 = area2(a,b,c,n);
@@ -844,7 +843,7 @@ bool left_on( const moab::EntityHandle a, const moab::EntityHandle b,
 }
 
 // Are pts a,b,c collinear?
-bool collinear( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::collinear( const moab::EntityHandle a, const moab::EntityHandle b,
                 const moab::EntityHandle c, const moab::CartVect n )
 {
   double area_2 = area2(a,b,c,n);
@@ -858,7 +857,7 @@ bool logical_xor( const bool x, const bool y )
   return (x || y) && !(x && y);
 }
 
-bool intersect_prop( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::intersect_prop( const moab::EntityHandle a, const moab::EntityHandle b,
                      const moab::EntityHandle c, const moab::EntityHandle d,
                      const moab::CartVect n )
 {
@@ -873,7 +872,7 @@ bool intersect_prop( const moab::EntityHandle a, const moab::EntityHandle b,
   }
 }
 
-bool between( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
+bool Gen::between( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
               const moab::EntityHandle pt_c, const moab::CartVect n)
 {
   if( !collinear(pt_a,pt_b,pt_c,n) ) return false;
@@ -897,7 +896,7 @@ bool between( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
   }
 }
 
-bool intersect( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::intersect( const moab::EntityHandle a, const moab::EntityHandle b,
                 const moab::EntityHandle c, const moab::EntityHandle d,
                 const moab::CartVect n )
 {
@@ -910,7 +909,7 @@ bool intersect( const moab::EntityHandle a, const moab::EntityHandle b,
 }
 
 // verts is an ordered polygon of verts
-bool diagonalie( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::diagonalie( const moab::EntityHandle a, const moab::EntityHandle b,
                  const moab::CartVect n,
                  const std::vector<moab::EntityHandle> verts )
 {
@@ -930,7 +929,7 @@ bool diagonalie( const moab::EntityHandle a, const moab::EntityHandle b,
 }
 
 // verts is an ordered polygon of verts
-bool in_cone( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::in_cone( const moab::EntityHandle a, const moab::EntityHandle b,
               const moab::CartVect n,
               const std::vector<moab::EntityHandle> verts )
 {
@@ -951,7 +950,7 @@ bool in_cone( const moab::EntityHandle a, const moab::EntityHandle b,
   else return !(left_on(a,b,a1,n) && left_on(b,a,a0,n));
 }
 
-bool diagonal( const moab::EntityHandle a, const moab::EntityHandle b,
+bool Gen::diagonal( const moab::EntityHandle a, const moab::EntityHandle b,
                const moab::CartVect n,
                const std::vector<moab::EntityHandle> verts )
 {
@@ -961,7 +960,7 @@ bool diagonal( const moab::EntityHandle a, const moab::EntityHandle b,
 
 
 // Determine if each vertex is an ear. Input an ordered polygon of verts.
-moab::ErrorCode ear_init( const std::vector<moab::EntityHandle> verts,
+moab::ErrorCode Gen::ear_init( const std::vector<moab::EntityHandle> verts,
                           const moab::CartVect n, // plane normal vector
                           std::vector<bool> &is_ear )
 {
@@ -2073,6 +2072,7 @@ moab::ErrorCode Gen::delete_vol(moab::EntityHandle volume)
   assert(moab::MB_SUCCESS == result);
   return result;
 }
+
 
 moab::ErrorCode Gen::get_meshset( const moab::EntityHandle set, std::vector<moab::EntityHandle> &vec)
 {

@@ -6,7 +6,7 @@
 #include "moab/Range.hpp"
 #include "moab/AdaptiveKDTree.hpp"
 #include "arc.hpp"
-#include "zip.hpp"
+
 
 
 #include "moab/GeomTopoTool.hpp"
@@ -67,7 +67,7 @@ moab::ErrorCode Arc::remove_degenerate_edges( moab::Range &edges, const bool deb
         std::cout << "remove_degenerate_edges: deleting degenerate edge and tris "
                   << std::endl;
       }
-      rval = zip::delete_adj_degenerate_tris( endpts[0] );
+      rval = zip->delete_adj_degenerate_tris( endpts[0] );
       if(error(moab::MB_SUCCESS!=rval,"could not delete degenerate tris")) return rval;
       rval = MBI()->delete_entities( &(*i), 1 );
       if(error(moab::MB_SUCCESS!=rval,"could not delete degenerate edge")) return rval;
@@ -470,6 +470,38 @@ moab::ErrorCode Arc::set_meshset( const moab::EntityHandle set, const std::vecto
   return moab::MB_SUCCESS;
 }
 
+moab::ErrorCode Arc::merge_verts( const moab::EntityHandle keep_vert,
+                             const moab::EntityHandle delete_vert,
+                             std::vector<moab::EntityHandle> &arc0,
+                             std::vector<moab::EntityHandle> &arc1 )
+{
+
+  moab::ErrorCode rval;
+  // first update the arcs with the keep_vert
+  for(std::vector<moab::EntityHandle>::iterator i=arc0.begin(); i!=arc0.end(); ++i) {
+    if(delete_vert == *i) *i = keep_vert;
+  }
+  for(std::vector<moab::EntityHandle>::iterator i=arc1.begin(); i!=arc1.end(); ++i) {
+    if(delete_vert == *i) *i = keep_vert;
+  }
+
+  // get adjacent tris
+  moab::Range tris;
+  moab::EntityHandle verts[2]= {keep_vert, delete_vert};
+  rval = MBI()->get_adjacencies( verts, 2, 2, false, tris, moab::Interface::UNION );
+  if(error(moab::MB_SUCCESS!=rval,"getting adjacent tris failed")) return rval;
+
+  // actually do the merge
+  rval = MBI()->merge_entities( keep_vert, delete_vert, false, true );
+  if(error(moab::MB_SUCCESS!=rval,"merge entities failed")) return rval;
+
+  // delete degenerate tris
+  rval = zip->delete_degenerate_tris( tris );
+  if(error(moab::MB_SUCCESS!=rval,"deleting degenerate tris failed")) return rval;
+
+  return moab::MB_SUCCESS;
+}
+
 moab::ErrorCode Arc::merge_curves( moab::Range curve_sets, const double facet_tol,
                               moab::Tag id_tag, moab::Tag merge_tag, const bool debug )
 {
@@ -621,13 +653,13 @@ moab::ErrorCode Arc::merge_curves( moab::Range curve_sets, const double facet_to
       // curve cannot be selected again. Update the curves when merging to avoid
       // stale info.
       if(curve_i_verts.front() != curve_j_verts.front()) {
-        result = zip::merge_verts( curve_i_verts.front(), curve_j_verts.front(),
+        result = zip->merge_verts( curve_i_verts.front(), curve_j_verts.front(),
                                    curve_i_verts, curve_j_verts );
         if(moab::MB_SUCCESS != result) std::cout << result << std::endl;
         assert(moab::MB_SUCCESS == result);
       }
       if(curve_i_verts.back() != curve_j_verts.back()) {
-        result = zip::merge_verts( curve_i_verts.back(), curve_j_verts.back(),
+        result = zip->merge_verts( curve_i_verts.back(), curve_j_verts.back(),
                                    curve_i_verts, curve_j_verts );
         if(moab::MB_SUCCESS != result) std::cout << result << std::endl;
         assert(moab::MB_SUCCESS == result);

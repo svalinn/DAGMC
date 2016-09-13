@@ -10,6 +10,7 @@
 #include <vector>
 #include <algorithm>
 #include "moab/Core.hpp"
+#include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
 #include "moab/AdaptiveKDTree.hpp" // for merging verts
 #include "moab/CartVect.hpp"
@@ -222,7 +223,53 @@ public:
 
   moab::ErrorCode get_signed_volume( const moab::EntityHandle surf_set, double &signed_volume);
 
+  moab::ErrorCode merge_verts( const moab::EntityHandle keep_vert,
+                             const moab::EntityHandle delete_vert,
+                             std::vector<moab::EntityHandle> &arc0,
+			       std::vector<moab::EntityHandle> &arc1 );
+
   moab::ErrorCode get_meshset( const moab::EntityHandle set, std::vector<moab::EntityHandle> &vec);
+
+  double area2( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
+		const moab::EntityHandle pt_c, const moab::CartVect plane_normal );
+  bool between( const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
+		const moab::EntityHandle pt_c, const moab::CartVect n);
+
+  bool left( const moab::EntityHandle a, const moab::EntityHandle b,
+	     const moab::EntityHandle c, const moab::CartVect n );
+  bool left_on( const moab::EntityHandle a, const moab::EntityHandle b,
+		const moab::EntityHandle c, const moab::CartVect n );
+  bool collinear( const moab::EntityHandle a, const moab::EntityHandle b,
+		  const moab::EntityHandle c, const moab::CartVect n );
+  bool intersect_prop( const moab::EntityHandle a, const moab::EntityHandle b,
+                     const moab::EntityHandle c, const moab::EntityHandle d,
+		       const moab::CartVect n );
+  bool intersect( const moab::EntityHandle a, const moab::EntityHandle b,
+                const moab::EntityHandle c, const moab::EntityHandle d,
+		  const moab::CartVect n );
+
+  moab::Range& intersect(const moab::Range&, const moab::Range&);
+
+bool diagonalie( const moab::EntityHandle a, const moab::EntityHandle b,
+                 const moab::CartVect n,
+                 const std::vector<moab::EntityHandle> verts );
+  bool diagonal( const moab::EntityHandle a, const moab::EntityHandle b,
+               const moab::CartVect n,
+		 const std::vector<moab::EntityHandle> verts );
+
+  bool in_cone( const moab::EntityHandle a, const moab::EntityHandle b,
+              const moab::CartVect n,
+		const std::vector<moab::EntityHandle> verts );
+
+  moab::ErrorCode ear_init( const std::vector<moab::EntityHandle> verts,
+                          const moab::CartVect n, // plane normal vector
+			    std::vector<bool> &is_ear );
+
+
+
+
+
+
 
 
 };

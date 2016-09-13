@@ -2,13 +2,24 @@
 #define ZIP_HPP
 
 #include "moab/Core.hpp"
-#include "arc.hpp"
+#include "gen.hpp"
 
-moab::Interface *MBI();
-namespace zip
+class Zip
 {
-moab::ErrorCode t_joint( moab::Tag normal_tag,
-                         const moab::EntityHandle vert0,
+public:
+  Zip(moab::Interface *mbInterface) : mbi(mbInterface) {
+    gen = new Gen(mbInterface);
+  };
+  ~Zip() {};
+  
+  Gen* gen;
+  moab::Interface* mbi;
+  moab::Interface* MBI() { return mbi; };
+   
+moab::ErrorCode order_verts_by_edge( moab::Range unordered_edges, std::vector<moab::EntityHandle> &ordered_verts );
+ 
+  moab::ErrorCode t_joint( moab::Tag normal_tag,
+			   const moab::EntityHandle vert0,
                          const moab::EntityHandle vert1,
                          const moab::EntityHandle vert2,
                          bool debug );
@@ -43,6 +54,19 @@ moab::ErrorCode remove_inverted_tris(moab::Tag normal_tag, moab::Range tris, con
 moab::ErrorCode test_zipping( const double FACET_TOL,
                               const std::vector< std::vector<moab::EntityHandle> > arcs );
 
-}
+};
+
+
+struct triangles {
+  moab::EntityHandle before_tri;
+  const moab::EntityHandle *before;
+  moab::CartVect     before_norm;
+  moab::EntityHandle after0[3];
+  moab::EntityHandle after1[3];
+  moab::CartVect     after0_norm;
+  moab::CartVect     after1_norm;
+  moab::EntityHandle surf_set;
+};
 
 #endif
+
