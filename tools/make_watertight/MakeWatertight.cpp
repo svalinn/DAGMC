@@ -8,18 +8,16 @@
 // make CXXFLAGS=-g for debug
 // make CXXFLAGS=-pg for profiling
 
-
-
-
 #include <iostream>
 #include <sstream>
-#include <iomanip> // for setprecision
-#include <limits> // for min/max values
+#include <iomanip>
+#include <limits>
 #include <assert.h>
 #include <math.h>
 #include <time.h>
 #include <vector>
 
+// moab includes
 #include "moab/Core.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
@@ -31,11 +29,6 @@
 #include "Zip.hpp"
 #include "Cleanup.hpp"
 
-
-
-
-
-moab::Interface *MOAB();
 
 moab::ErrorCode MakeWatertight::delete_all_edges()
 {
@@ -79,8 +72,8 @@ moab::ErrorCode MakeWatertight::find_degenerate_tris()
 //        vertices.
 // Output: Ordered sets of verts that do track ownership. All edges are deleted.
 moab::ErrorCode MakeWatertight::prepare_curves(moab::Range &curve_sets,
-                               moab::Tag geom_tag, moab::Tag id_tag, moab::Tag merge_tag,
-                               const double FACET_TOL, const bool debug, bool verbose )
+    moab::Tag geom_tag, moab::Tag id_tag, moab::Tag merge_tag,
+    const double FACET_TOL, const bool debug, bool verbose )
 {
   moab::ErrorCode result;
   if (verbose) std::cout << "Modifying faceted curve representation and removing small curves..."
@@ -205,15 +198,15 @@ moab::ErrorCode MakeWatertight::prepare_curves(moab::Range &curve_sets,
 /// is the curve has ben reversed. The returned skin has the arc cut away. The
 /// returned vector of curve sets has the curve removed.
 moab::ErrorCode MakeWatertight::create_arc_pair(  const double FACET_TOL,
-                                  const moab::EntityHandle surf_set,
-                                  std::vector<moab::EntityHandle> &skin_loop,
-                                  std::vector<moab::EntityHandle> &curve_sets,
-                                  const moab::EntityHandle front_endpt,
-                                  const bool debug,
-                                  moab::EntityHandle &curve_set,
-                                  bool &curve_is_reversed,
-                                  std::vector<moab::EntityHandle> &curve,
-                                  std::vector<moab::EntityHandle> &skin_arc )
+    const moab::EntityHandle surf_set,
+    std::vector<moab::EntityHandle> &skin_loop,
+    std::vector<moab::EntityHandle> &curve_sets,
+    const moab::EntityHandle front_endpt,
+    const bool debug,
+    moab::EntityHandle &curve_set,
+    bool &curve_is_reversed,
+    std::vector<moab::EntityHandle> &curve,
+    std::vector<moab::EntityHandle> &skin_arc )
 {
 
   /* Now we have a topological connection between the curve and skin. Find other
@@ -242,7 +235,7 @@ moab::ErrorCode MakeWatertight::create_arc_pair(  const double FACET_TOL,
     rval = MBI()->get_child_meshsets(curve_sets[i], endpt_sets );
     if(error(moab::MB_SUCCESS!=rval,"could not get endpt_sets")) return rval;
     if(error(endpt_sets.empty() || 2<endpt_sets.size(),
-                  "too many endpt_sets")) return moab::MB_FAILURE;
+             "too many endpt_sets")) return moab::MB_FAILURE;
     // get the vertex handles
     std::vector<moab::EntityHandle> endpts;
     for(unsigned j=0; j<endpt_sets.size(); ++j) {
@@ -400,11 +393,11 @@ moab::ErrorCode MakeWatertight::create_arc_pair(  const double FACET_TOL,
 // sealed curve in a new vector, using only push_back. This
 // would avoid all of the really slow inserts and erases in the curve and skin vectors.
 moab::ErrorCode MakeWatertight::seal_arc_pair( const bool debug,
-                               const double FACET_TOL,
-                               const moab::Tag normal_tag,
-                               std::vector<moab::EntityHandle> &edge, /* in */
-                               std::vector<moab::EntityHandle> &skin /* in/out */,
-                               const int surf_id )
+    const double FACET_TOL,
+    const moab::Tag normal_tag,
+    std::vector<moab::EntityHandle> &edge, /* in */
+    std::vector<moab::EntityHandle> &skin /* in/out */,
+    const int surf_id )
 {
   if(debug) {
     std::cout << "edge before sealing:" << std::endl;
@@ -722,13 +715,13 @@ moab::ErrorCode MakeWatertight::seal_arc_pair( const bool debug,
 
 /// seals the skin_loop to the closest curves in curve sets in a watertight fashion
 moab::ErrorCode MakeWatertight::seal_loop( bool debug,
-                           const double FACET_TOL,
-                           const moab::Tag normal_tag,
-                           const moab::Tag orig_curve_tag,
-                           const moab::EntityHandle surf_set,
-                           std::vector<moab::EntityHandle> &curve_sets,
-                           std::vector<moab::EntityHandle> &skin_loop,
-                           bool verbose)
+    const double FACET_TOL,
+    const moab::Tag normal_tag,
+    const moab::Tag orig_curve_tag,
+    const moab::EntityHandle surf_set,
+    std::vector<moab::EntityHandle> &curve_sets,
+    std::vector<moab::EntityHandle> &skin_loop,
+    bool verbose)
 {
   moab::ErrorCode rval;
   debug = false;
@@ -771,7 +764,7 @@ moab::ErrorCode MakeWatertight::seal_loop( bool debug,
     rval = MBI()->get_child_meshsets(curve_sets[i], endpt_sets );
     if(error(moab::MB_SUCCESS!=rval,"could not get endpt_sets")) return rval;
     if(error(endpt_sets.empty() || 2<endpt_sets.size(),
-                  "too many endpt_sets")) return moab::MB_FAILURE;
+             "too many endpt_sets")) return moab::MB_FAILURE;
 
     std::vector<moab::EntityHandle> endpts;
     for(unsigned j=0; j<endpt_sets.size(); ++j) {
@@ -797,14 +790,14 @@ moab::ErrorCode MakeWatertight::seal_loop( bool debug,
     if(1==endpt_sets.size()) {
       if(error(curve.front()!=curve.back(),"endpt discrepancy")) return moab::MB_FAILURE;
       if(error(curve.front()!=endpts.front(),
-                    "geometric verts inconsistent with curve")) return moab::MB_FAILURE;
+               "geometric verts inconsistent with curve")) return moab::MB_FAILURE;
     } else {
       if(curve.front()==curve.back())
         if(debug) std::cout << "  warning10: degenerate curve endpts" << std::endl;
       if(error(curve.front()!=endpts.front() && curve.front()!=endpts.back(),
-                    "endpts not consistent")) return moab::MB_FAILURE;
+               "endpts not consistent")) return moab::MB_FAILURE;
       if(error(curve.back()!=endpts.front() && curve.back()!=endpts.back(),
-                    "endpts not consistent")) return moab::MB_FAILURE;
+               "endpts not consistent")) return moab::MB_FAILURE;
     }
 
     // determine the orientation of the curve wrt the surf.
@@ -874,7 +867,7 @@ moab::ErrorCode MakeWatertight::seal_loop( bool debug,
   if(error(temp_loop.size()!=skin_loop.size(),"loop size not conserved")) return moab::MB_FAILURE;
   assert(temp_loop.size() == skin_loop.size()); // same size
   if(error(temp_loop[0]!=temp_loop[temp_loop.size()-1],
-                "loop endpts not continuous")) return moab::MB_FAILURE;
+           "loop endpts not continuous")) return moab::MB_FAILURE;
   assert(temp_loop[0] == temp_loop[temp_loop.size()-1]); // same endpoint
   skin_loop = temp_loop;
   if(debug) {
@@ -969,10 +962,10 @@ moab::ErrorCode MakeWatertight::seal_loop( bool debug,
 // input: surface sets, ordered curve sets,
 // output: skin arcs corresponding to curves are added to parent surface sets
 moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
-                                 moab::Tag geom_tag, moab::Tag id_tag, moab::Tag normal_tag, moab::Tag merge_tag,
-                                 moab::Tag orig_curve_tag,
-                                 const double SME_RESABS_TOL, const double FACET_TOL,
-                                 const bool debug, bool verbose)
+    moab::Tag geom_tag, moab::Tag id_tag, moab::Tag normal_tag, moab::Tag merge_tag,
+    moab::Tag orig_curve_tag,
+    const double SME_RESABS_TOL, const double FACET_TOL,
+    const bool debug, bool verbose)
 {
 
   moab::ErrorCode result;
@@ -1132,8 +1125,11 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
   return moab::MB_SUCCESS;
 }
 
-
-moab::ErrorCode MakeWatertight::fix_normals(moab::Range surface_sets, moab::Tag id_tag, moab::Tag normal_tag, const bool debug, const bool verbose)
+moab::ErrorCode MakeWatertight::fix_normals(moab::Range surface_sets,
+    moab::Tag id_tag,
+    moab::Tag normal_tag,
+    const bool debug,
+    const bool verbose)
 {
   moab::ErrorCode result;
   if(debug) std::cout<< "number of surfaces=" << surface_sets.size() << std::endl;
@@ -1464,7 +1460,9 @@ moab::ErrorCode MakeWatertight::get_geom_size_after_sealing( const moab::Range g
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode MakeWatertight::delete_merged_curves( moab::Range &existing_curve_sets, moab::Tag merge_tag, bool debug)
+moab::ErrorCode MakeWatertight::delete_merged_curves( moab::Range &existing_curve_sets,
+    moab::Tag merge_tag,
+    bool debug)
 {
 
   moab::ErrorCode result;
@@ -1504,7 +1502,10 @@ moab::ErrorCode MakeWatertight::delete_merged_curves( moab::Range &existing_curv
 
 }
 
-moab::ErrorCode MakeWatertight::delete_sealing_tags( moab::Tag normal_tag, moab::Tag merge_tag, moab::Tag size_tag, moab::Tag orig_curve_tag)
+moab::ErrorCode MakeWatertight::delete_sealing_tags( moab::Tag normal_tag,
+    moab::Tag merge_tag,
+    moab::Tag size_tag,
+    moab::Tag orig_curve_tag)
 {
 
   moab::ErrorCode result;
@@ -1522,10 +1523,10 @@ moab::ErrorCode MakeWatertight::delete_sealing_tags( moab::Tag normal_tag, moab:
 }
 
 moab::ErrorCode MakeWatertight::get_unmerged_curves( moab::EntityHandle surface, std::vector<moab::EntityHandle> &curves,
-                                     std::vector<moab::EntityHandle> &unmerged_curves,
-                                     moab::Tag merge_tag,
-                                     bool verbose,
-                                     bool debug)
+    std::vector<moab::EntityHandle> &unmerged_curves,
+    moab::Tag merge_tag,
+    bool verbose,
+    bool debug)
 {
 
   moab::ErrorCode result;
@@ -1577,7 +1578,12 @@ moab::ErrorCode MakeWatertight::get_unmerged_curves( moab::EntityHandle surface,
 }
 
 
-moab::ErrorCode MakeWatertight::create_skin_vert_loops( moab::Range &skin_edges, moab::Range tris, std::vector < std::vector <moab::EntityHandle> > &skin , int surf_id, bool &cont, bool debug)
+moab::ErrorCode MakeWatertight::create_skin_vert_loops( moab::Range &skin_edges,
+    moab::Range tris,
+    std::vector < std::vector <moab::EntityHandle> > &skin ,
+    int surf_id,
+    bool &cont,
+    bool debug)
 {
 
   moab::ErrorCode result;
@@ -1665,7 +1671,12 @@ moab::ErrorCode MakeWatertight::create_skin_vert_loops( moab::Range &skin_edges,
 
 }
 
-moab::ErrorCode MakeWatertight::merge_skin_verts ( moab::Range &skin_verts, moab::Range &skin_edges, double SME_RESABS_TOL, int surf_id, bool cont, bool debug)
+moab::ErrorCode MakeWatertight::merge_skin_verts ( moab::Range &skin_verts,
+    moab::Range &skin_edges,
+    double SME_RESABS_TOL,
+    int surf_id,
+    bool cont,
+    bool debug)
 {
 
   moab::ErrorCode result;
@@ -1701,8 +1712,15 @@ moab::ErrorCode MakeWatertight::merge_skin_verts ( moab::Range &skin_verts, moab
   return moab::MB_SUCCESS;
 }
 
-
-moab::ErrorCode MakeWatertight::seal_surface_loops ( moab::EntityHandle surf, moab::EntityHandle skin_loops[] , std::vector < std::vector<moab::EntityHandle> > skin, std::vector<moab::EntityHandle> curves,  moab::Tag normal_tag, moab::Tag orig_curve_tag, double FACET_TOL, int surf_id, bool debug)
+moab::ErrorCode MakeWatertight::seal_surface_loops ( moab::EntityHandle surf,
+    moab::EntityHandle skin_loops[] ,
+    std::vector < std::vector<moab::EntityHandle> > skin,
+    std::vector<moab::EntityHandle> curves,
+    moab::Tag normal_tag,
+    moab::Tag orig_curve_tag,
+    double FACET_TOL,
+    int surf_id,
+    bool debug)
 {
 
 
@@ -1744,8 +1762,6 @@ moab::ErrorCode MakeWatertight::seal_surface_loops ( moab::EntityHandle surf, mo
   return moab::MB_SUCCESS;
 
 }
-
-
 
 moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_set, double &facet_tol, bool verbose)
 {

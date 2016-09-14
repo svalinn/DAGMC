@@ -17,16 +17,15 @@
 #include <ctime>
 #include <set>
 #include <algorithm>
+
+// moab includes
 #include "moab/Core.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
-
 #include "moab/GeomTopoTool.hpp"
-#include "CheckWatertight.hpp"
-#include "Zip.hpp"
-#include "moab/Skinner.hpp"
 
+#include "CheckWatertight.hpp"
 
 moab::ErrorCode CheckWatertight::check_mesh_for_watertightness( moab::EntityHandle input_set, double tol, bool &sealed, bool test, bool verbose, bool check_topology )
 {
@@ -41,7 +40,7 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness( moab::EntityHand
 
   result = MBI()->tag_get_handle( GLOBAL_ID_TAG_NAME, 1,
                                   moab::MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE|moab::MB_TAG_CREAT );
-  
+
   MB_CHK_SET_ERR(result, "could not get GLOBAL_ID_TAG_NAME handle");
 
 

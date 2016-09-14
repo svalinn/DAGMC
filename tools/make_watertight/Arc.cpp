@@ -3,17 +3,14 @@
 #include <limits>  // for double min/max
 #include <assert.h>
 #include <vector>
+
+// moab includes
 #include "moab/Range.hpp"
 #include "moab/AdaptiveKDTree.hpp"
-#include "Arc.hpp"
-
-
-
 #include "moab/GeomTopoTool.hpp"
 #include "moab/FileOptions.hpp"
 
-
-
+#include "Arc.hpp"
 
 moab::ErrorCode Arc::orient_edge_with_tri( const moab::EntityHandle edge, const moab::EntityHandle tri )
 {
@@ -193,8 +190,9 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast( moab::Range &edges, co
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Arc::get_next_oriented_edge( const moab::Range edges, const moab::EntityHandle edge,
-                                        moab::EntityHandle &next_edge )
+moab::ErrorCode Arc::get_next_oriented_edge( const moab::Range edges,
+    const moab::EntityHandle edge,
+    moab::EntityHandle &next_edge )
 {
 
   // get the back vertex
@@ -394,7 +392,7 @@ moab::ErrorCode Arc::create_loops_from_oriented_edges( moab::Range edges,
 
 // return a set of ordered_verts and remaining unordered_edges
 moab::ErrorCode Arc::order_verts_by_edge( moab::Range unordered_edges,
-                                     std::vector<moab::EntityHandle> &ordered_verts )
+    std::vector<moab::EntityHandle> &ordered_verts )
 {
   if(unordered_edges.empty()) return moab::MB_SUCCESS;
 
@@ -471,9 +469,9 @@ moab::ErrorCode Arc::set_meshset( const moab::EntityHandle set, const std::vecto
 }
 
 moab::ErrorCode Arc::merge_verts( const moab::EntityHandle keep_vert,
-                             const moab::EntityHandle delete_vert,
-                             std::vector<moab::EntityHandle> &arc0,
-                             std::vector<moab::EntityHandle> &arc1 )
+                                  const moab::EntityHandle delete_vert,
+                                  std::vector<moab::EntityHandle> &arc0,
+                                  std::vector<moab::EntityHandle> &arc1 )
 {
 
   moab::ErrorCode rval;
@@ -503,7 +501,7 @@ moab::ErrorCode Arc::merge_verts( const moab::EntityHandle keep_vert,
 }
 
 moab::ErrorCode Arc::merge_curves( moab::Range curve_sets, const double facet_tol,
-                              moab::Tag id_tag, moab::Tag merge_tag, const bool debug )
+                                   moab::Tag id_tag, moab::Tag merge_tag, const bool debug )
 {
   // find curve endpoints to add to kd tree
   moab::ErrorCode result;
@@ -693,7 +691,7 @@ moab::ErrorCode Arc::merge_curves( moab::Range curve_sets, const double facet_to
           else if(moab::SENSE_REVERSE==senses[k])
             senses[k] = moab::SENSE_FORWARD;
           //unknown to unknown
-	  else if(moab::SENSE_BOTH==senses[k])
+          else if(moab::SENSE_BOTH==senses[k])
             senses[k] = moab::SENSE_BOTH;
           else if(error(true,"unrecognized sense")) return moab::MB_FAILURE;
         }

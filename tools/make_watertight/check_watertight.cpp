@@ -34,6 +34,8 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+
+// moab includes
 #include "moab/Core.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
@@ -50,7 +52,7 @@ int main(int argc, char **argv)
 
   static moab::Core instance;
   moab::Interface* mbi = &instance;
-  
+
   clock_t start_time;
   start_time = clock();
   // check input args

@@ -15,7 +15,7 @@ void MakeWatertightTest::SetUp()
   // setup the MakeWatertight class
   mw = new MakeWatertight(MBI());
   cw = new CheckWatertight(MBI());
-  
+
   // delete meshset
   result = MBI()->delete_mesh();
   EXPECT_EQ(result,moab::MB_SUCCESS);

@@ -4,10 +4,10 @@
 #include "moab/Skinner.hpp"
 
 moab::ErrorCode Zip::t_joint( moab::Tag normal_tag,
-                         const moab::EntityHandle vert0,
-                         const moab::EntityHandle vert1,
-                         const moab::EntityHandle vert2,
-                         bool debug )
+                              const moab::EntityHandle vert0,
+                              const moab::EntityHandle vert1,
+                              const moab::EntityHandle vert2,
+                              bool debug )
 {
 
   // Get all of the old information before changing anything.
@@ -116,6 +116,7 @@ moab::ErrorCode Zip::delete_degenerate_tris( moab::EntityHandle tri )
   }
   return moab::MB_SUCCESS;
 }
+
 moab::ErrorCode Zip::delete_degenerate_tris( moab::Range tris )
 {
   moab::ErrorCode result;
@@ -145,8 +146,8 @@ moab::ErrorCode Zip::delete_adj_degenerate_tris( const moab::EntityHandle adj_ve
 
 // Test to make sure the triangle normal vectors have not been inverted.
 moab::ErrorCode Zip::test_normals( const std::vector<moab::CartVect> norms0,
-                              const std::vector<moab::CartVect> norms1,
-                              std::vector<int> &inverted_tri_indices )
+                                   const std::vector<moab::CartVect> norms1,
+                                   std::vector<int> &inverted_tri_indices )
 {
   assert(norms0.size() == norms1.size());
   for(unsigned int i=0; i<norms0.size(); i++) {
@@ -157,6 +158,7 @@ moab::ErrorCode Zip::test_normals( const std::vector<moab::CartVect> norms0,
   }
   return moab::MB_SUCCESS;
 }
+
 moab::ErrorCode Zip::test_normals( const moab::CartVect norm0, const moab::CartVect norm1 )
 {
   if(0 > norm0 % norm1) {
@@ -410,10 +412,9 @@ moab::ErrorCode Zip::remove_inverted_tris(moab::Tag normal_tag, moab::Range tris
   }
 }
 
-
 // we do not merge edges, just vert. check the verts
 moab::ErrorCode Zip::test_zipping(const double FACET_TOL,
-                             const std::vector< std::vector<moab::EntityHandle> > arcs )
+                                  const std::vector< std::vector<moab::EntityHandle> > arcs )
 {
   moab::ErrorCode result;
 
@@ -485,9 +486,8 @@ moab::ErrorCode Zip::test_zipping(const double FACET_TOL,
   return moab::MB_SUCCESS;
 }
 
-
 moab::ErrorCode Zip::order_verts_by_edge( moab::Range unordered_edges,
-                                     std::vector<moab::EntityHandle> &ordered_verts )
+    std::vector<moab::EntityHandle> &ordered_verts )
 {
   if(unordered_edges.empty()) return moab::MB_SUCCESS;
 
@@ -545,9 +545,9 @@ moab::ErrorCode Zip::order_verts_by_edge( moab::Range unordered_edges,
 }
 
 moab::ErrorCode Zip::merge_verts( const moab::EntityHandle keep_vert,
-                             const moab::EntityHandle delete_vert,
-                             std::vector<moab::EntityHandle> &arc0,
-                             std::vector<moab::EntityHandle> &arc1 )
+                                  const moab::EntityHandle delete_vert,
+                                  std::vector<moab::EntityHandle> &arc0,
+                                  std::vector<moab::EntityHandle> &arc1 )
 {
 
   moab::ErrorCode rval;

@@ -2,34 +2,22 @@
 // Brandon Smith
 // August, 2009
 
-/* _curve_to_be_tested_for_watertightness_
-      vert1 X X vert1
-            | |
-      vert2 X |
-  surf1     | |    surf2
-            | |
-      vert3 X X vert2
-            | |
-      vert4 X X vert3                   */
-
 // input:  h5m filename, tolerance
 // output: watertight h5m
 
 // make CXXFLAGS=-g for debug
 // make CXXFLAGS=-pg for profiling
 
-// modified by Andrew Davis 2012
-// Updated deprecated MOAB calls
-
 #include <iostream>
 #include <sstream>
-#include <iomanip> // for setprecision
-#include <limits> // for min/max values
+#include <iomanip>
+#include <limits>
 #include <assert.h>
 #include <math.h>
 #include <time.h>
 #include <vector>
 
+// moab includes
 #include "moab/Core.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
@@ -39,8 +27,6 @@
 #include "MakeWatertight.hpp"
 
 moab::ErrorCode write_sealed_file( moab::Interface* mbi, std::string root_filename, double facet_tol, bool is_acis);
-
-
 
 int main(int argc, char **argv)
 {
@@ -53,7 +39,7 @@ int main(int argc, char **argv)
 
   static moab::Core instance;
   moab::Interface* mbi = &instance;
-  
+
   // check input args
   if( 2 > argc || 3 < argc ) {
     std::cout << "To zip a faceted h5m file:" << std::endl;

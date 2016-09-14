@@ -1,7 +1,9 @@
 #include <iostream>
-#include "Cleanup.hpp"
+
+// moab includes
 #include "moab/OrientedBoxTreeTool.hpp"
 
+#include "Cleanup.hpp"
 
 // The obbtrees are no longer valid because the triangles have been altered.
 //  -Surface and volume sets are tagged with tags holding the obb tree
