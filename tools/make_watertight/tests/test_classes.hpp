@@ -13,8 +13,8 @@
 #include "moab/Types.hpp"
 
 #include "gtest/gtest.h"
-#include "mw_func.hpp"
-#include "cw_func.hpp"
+#include "MakeWatertight.hpp"
+#include "CheckWatertight.hpp"
 
 moab::Interface *MBI();
 

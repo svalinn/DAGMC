@@ -5,8 +5,8 @@
 #include "moab/Core.hpp"
 #include "moab/Skinner.hpp"
 #include "MBTagConventions.hpp"
-#include "gen.hpp"
-#include "zip.hpp"
+#include "Gen.hpp"
+#include "Zip.hpp"
 
 class Arc
 {

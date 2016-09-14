@@ -13,7 +13,7 @@
 #include "moab/Range.hpp"
 #include "moab/AdaptiveKDTree.hpp" // for merging verts
 #include "moab/CartVect.hpp"
-#include "arc.hpp"
+#include "Arc.hpp"
 
 class CheckWatertight
 {

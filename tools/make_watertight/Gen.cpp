@@ -9,7 +9,7 @@
 #include "moab/GeomTopoTool.hpp"
 #include "moab/FileOptions.hpp"
 
-#include "gen.hpp"
+#include "Gen.hpp"
 #include "moab/Skinner.hpp"
 #include "moab/Range.hpp"
 

@@ -36,7 +36,7 @@
 #include "moab/Skinner.hpp"
 #include "moab/GeomTopoTool.hpp"
 
-#include "mw_func.hpp"
+#include "MakeWatertight.hpp"
 
 moab::ErrorCode write_sealed_file( moab::Interface* mbi, std::string root_filename, double facet_tol, bool is_acis);
 

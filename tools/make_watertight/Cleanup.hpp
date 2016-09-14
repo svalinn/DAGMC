@@ -2,9 +2,9 @@
 #define CLEANUP_HPP
 
 #include "moab/Core.hpp"
-#include "gen.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
+#include "Gen.hpp"
+#include "Arc.hpp"
+#include "Zip.hpp"
 
 
 class Cleanup

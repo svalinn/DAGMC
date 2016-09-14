@@ -13,10 +13,10 @@
 #include "moab/Skinner.hpp"
 #include "moab/GeomTopoTool.hpp"
 
-#include "arc.hpp"
-#include "zip.hpp"
-#include "cleanup.hpp"
-#include "gen.hpp"
+#include "Arc.hpp"
+#include "Zip.hpp"
+#include "Cleanup.hpp"
+#include "Gen.hpp"
 
 class MakeWatertight
 {

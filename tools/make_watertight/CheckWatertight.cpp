@@ -23,8 +23,8 @@
 #include "moab/Skinner.hpp"
 
 #include "moab/GeomTopoTool.hpp"
-#include "cw_func.hpp"
-#include "zip.hpp"
+#include "CheckWatertight.hpp"
+#include "Zip.hpp"
 #include "moab/Skinner.hpp"
 
 

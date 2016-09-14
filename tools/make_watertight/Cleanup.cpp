@@ -1,5 +1,5 @@
 #include <iostream>
-#include "cleanup.hpp"
+#include "Cleanup.hpp"
 #include "moab/OrientedBoxTreeTool.hpp"
 
 

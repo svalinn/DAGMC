@@ -39,7 +39,7 @@
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
 
-#include "cw_func.hpp"
+#include "CheckWatertight.hpp"
 
 int main(int argc, char **argv)
 {

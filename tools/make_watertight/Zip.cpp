@@ -1,5 +1,5 @@
 #include <iostream>
-#include "zip.hpp"
+#include "Zip.hpp"
 #include "moab/OrientedBoxTreeTool.hpp"
 #include "moab/Skinner.hpp"
 

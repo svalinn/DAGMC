@@ -2,7 +2,7 @@
 #define ZIP_HPP
 
 #include "moab/Core.hpp"
-#include "gen.hpp"
+#include "Gen.hpp"
 
 class Zip
 {

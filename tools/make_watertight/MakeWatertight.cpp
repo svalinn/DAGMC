@@ -26,10 +26,10 @@
 #include "moab/Skinner.hpp"
 #include "moab/GeomTopoTool.hpp"
 
-#include "mw_func.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
-#include "cleanup.hpp"
+#include "MakeWatertight.hpp"
+#include "Arc.hpp"
+#include "Zip.hpp"
+#include "Cleanup.hpp"
 
 
 
