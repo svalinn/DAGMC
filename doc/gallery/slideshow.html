@@ -139,14 +139,24 @@
 <!-- JAVASCRIPT FUNCTIONS FOR INTERACTIVITY -->
 <script>
 var slideIndex = 1;
+var queue_next = true;
+var timeoutID = 0;
 showSlides(slideIndex);
 
-function plusSlides(n) {
-  showSlides(slideIndex += n);
+function nextSlide(n = 1) {
+      showSlides(slideIndex += n);
+}
+
+function plusSlides(n = 1) {
+      queue_next = false;
+      clearTimeout(timeoutID);
+      showSlides(slideIndex += n);
 }
 
 function currentSlide(n) {
-  showSlides(slideIndex = n);
+      queue_next = false;
+      clearTimeout(timeoutID);
+      showSlides(slideIndex = n);
 }
 
 
@@ -164,17 +174,26 @@ function showSlides(n) {
   }
   slides[slideIndex-1].style.display = "block"; 
   dots[slideIndex-1].className += " active";
-}
+
+  if (queue_next) {timeoutID = setTimeout(nextSlide,3000);}
+		  
+  }
 
 $(document).keydown(function(evt) {
   evt = evt || window.event;
   switch (evt.keyCode) {
-    case 37:
+  case 37:
+      queue_next = false;
+      clearTimeout(timeoutID);
       plusSlides(-1);
       break;
-    case 39:
+  case 39:
+      queue_next = false;
+      clearTimeout(timeoutID);
       plusSlides(1);
-      break;}
+      break;
+  }
+		  
 });
 </script>
 
