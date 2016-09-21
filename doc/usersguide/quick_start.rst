@@ -1,5 +1,5 @@
-DAGMC Quick Start Guide
-------
+Quick Start Guide
+=================
 
 This quick start guide is intended to give a very brief concise flavor as to how to proceed running 
 DAGMC problems.  It is assumed that you:

@@ -1,17 +1,5 @@
-.. _gallery:
-
 Gallery of projects that use DAGMC
-=============
-.. toctree::
-   :hidden:
-    
-   |fnsf/gallery|
-..    fnsf/gallery
-..    nasa/gallery
-..    iter/gallery
-..    inl/gallery
-..   nasa/gallery
-.. gallery.rst
+==================================
 
 ..  image:: hab1_thumbnail.png
    :target: nasa/gallery.html
@@ -24,3 +12,11 @@ Gallery of projects that use DAGMC
 
 ..  image:: fnsf_thumbnail.png
    :target: fnsf/gallery.html
+
+.. toctree::
+   :hidden:
+    
+   fnsf/gallery
+   inl/gallery
+   iter/gallery
+   nasa/gallery

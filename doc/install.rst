@@ -9,6 +9,7 @@ Before you begin
 This guide assumes that you are building DAGMC in the subdirectory ``dagmc_bld``
 of your home directory; i.e.
 ::
+
     $ cd $HOME
     $ mkdir dagmc_bld
     $ cd dagmc_bld
@@ -25,10 +26,12 @@ LAPACK
 
 Debian linux users can install LAPACK with:
 ::
+
     $ sudo apt-get install libblas-dev liblapack-dev
 
 Redhat linux users can do likewise with:
 ::
+
     $ sudo yum install libblas-dev liblapack-dev
 
 Refer to the `LAPACK website <http://www.netlib.org/lapack>`_ if you need to
@@ -39,10 +42,12 @@ HDF5
 
 Debian linux users can install the latest HDF5 release with:
 ::
+
     $ sudo apt-get install hdf5-dev
 
 Redhat linux users can do likewise with:
 ::
+
     $ sudo yum install hdf5-dev
 
 You can also elect to install HDF5 from source. The tarball containing the HDF5
@@ -52,6 +57,7 @@ Note that if you choose this option, we recommend you obtain HDF5 version 1.8.13
 instead of the newest version. The following commands can be used to install
 HDF5 from source.
 ::
+
     $ cd $HOME/dagmc_bld
     $ mkdir -p HDF5/bld
     $ cd HDF5
@@ -71,6 +77,7 @@ As of DAGMC version 2.0, MOAB version 4.9.2 or higher is required. The following
 commands can be used to download MOAB from its `source repository
 <https://bitbucket.org/fathomteam/moab>`_ and set it up for building.
 ::
+
     $ cd $HOME/dagmc_bld
     $ mkdir -p MOAB/bld
     $ cd MOAB
@@ -88,6 +95,7 @@ master branch, e.g. version 4.9.2, use ``git checkout Version4.9.2`` instead.
 The following commands should be used to build MOAB.
 Note that the ``--enable-dagmc`` configure option is required.
 ::
+
     $ cd bld
     $ ../src/configure --enable-dagmc \
                        --enable-optimize \
@@ -121,6 +129,7 @@ Refer to the
 information about downloading and installing Geant4. The following commands can
 be used to download the Geant4 source code and set it up for building:
 ::
+
     $ cd $HOME/dagmc_bld
     $ mkdir -p Geant4/bld
     $ cd Geant4
@@ -131,6 +140,7 @@ be used to download the Geant4 source code and set it up for building:
 Geant4 uses a CMake build, and we recommend using the following flags when
 installing it with the purpose of coupling with DAGMC:
 ::
+
     $ cd bld
     $ cmake ../src -DGEANT4_INSTALL_DATA=ON \
                    -DGEANT4_USE_QT=ON \  # or -DGEANT4_USE_OPENGL_X11=ON
@@ -169,6 +179,7 @@ After installing HDF5 and MOAB, you need to make sure the system can find them
 when it comes time to build DAGMC. This is done by adding some directories to
 your ``$PATH`` and ``$LD_LIBRARY_PATH``.
 ::
+
     $ export PATH=$PATH:$HOME/.local/bin: \
                         $HOME/dagmc_bld/HDF5/bin: \
                         $HOME/dagmc_bld/MOAB/bin
@@ -179,12 +190,14 @@ your ``$PATH`` and ``$LD_LIBRARY_PATH``.
 You can use the following commands to test whether HDF5 and MOAB were built
 successfully.
 ::
+
     $ which h5ls
     $ which mbconvert
 
 If you installed Geant4, you will also need to add the Geant4 directories to
 your ``$PATH`` and ``$LD_LIBRARY_PATH``.
 ::
+
     $ export PATH=$PATH:$HOME/dagmc_bld/Geant4/bin
     $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/Geant4/lib
 
@@ -197,6 +210,7 @@ Get DAGMC
 The first step is to clone the `DAGMC repository
 <https://github.com/svalinn/DAGMC>`_.
 ::
+
     $ cd $HOME/dagmc_bld
     $ mkdir DAGMC
     $ cd DAGMC
@@ -207,6 +221,7 @@ The first step is to clone the `DAGMC repository
 If you are building DAG-MCNP5, you need to copy the MCNP5 source code from the
 DVD into the DAGMC repository and patch it so it can be used with DAGMC.
 ::
+
     $ cd mcnp/mcnp5
     $ cp -r <path_to_dvd>/MCNP5/Source .
     $ patch -p0 < patch/dagmc.patch.5.1.60
@@ -214,6 +229,7 @@ DVD into the DAGMC repository and patch it so it can be used with DAGMC.
 If you are building FluDAG, you will need to patch FLUKA's run script ``rfluka``
 in order to allow for some DAGMC-specific options.
 ::
+
     $ cd $FLUPRO/flutil
     $ patch -Nb rfluka $HOME/dagmc_bld/DAGMC/fluka/rfluka.patch
 
@@ -221,14 +237,15 @@ Assuming the patch was succesfully applied, i.e. there were no warnings or
 errors, you can now configure DAGMC to produce the desired build.
 
 Configure DAGMC
--------------
+---------------
 
 CMake variables are used to configure DAGMC with your desired build options. A
 few examples will be shown here, but you can see a list of all possible options
-`here <cmake_options.html>`_.
+`here <usersguide/cmake_options.html>`_.
 
 First, create and enter the build directory.
 ::
+
     $ cd $HOME/dagmc_bld/DAGMC
     $ mkdir bld
     $ cd bld
@@ -237,23 +254,27 @@ Then, choose where you want to install DAGMC. This is where the binaries,
 libraries, header files, etc. will be placed. This guide uses ``$INSTALL_PATH``
 to represent this location.
 ::
+
     $ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 
 **Example 1:** Build the DAGMC interfaces and DAG-MCNP5, using the
 ``$DATAPATH`` environment variable to specify the location of the MCNP data.
 ::
+
     $ cmake ../src -DBUILD_MCNP5=ON \
                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 **Example 2:** Build the DAGMC interfaces and DAG-MCNP5, assuming that the
 ``$DATAPATH`` environment variable is undefined.
 ::
+
     $ cmake ../src -DBUILD_MCNP5=ON \
                    -DMCNP5_DATAPATH=<path to MCNP data> \
                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 **Example 3:** Build an MPI version of DAG-MCNP5.
 ::
+
     $ cmake ../src -DBUILD_MCNP5=ON \
                    -DMPI_BUILD=ON \
                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
@@ -261,6 +282,7 @@ to represent this location.
 **Example 4:** Build DAG-Geant4 (assuming you built Geant4 as specified in the
 Geant4 build instructions above).
 ::
+
     $ cmake ../src -DBUILD_GEANT4=ON \
                    -DGEANT4_DIR=$HOME/dagmc_bld/Geant4 \
                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
@@ -268,6 +290,7 @@ Geant4 build instructions above).
 **Example 5:** Build FluDAG. Note that ``$FLUPRO`` should have previously been
 defined as part of the FLUKA install.
 ::
+
     $ cmake ../src -DBUILD_FLUKA=ON \
                    -DFLUKA_DIR=$FLUPRO \
                    -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
@@ -275,6 +298,7 @@ defined as part of the FLUKA install.
 **Example 6:** Build an MPI version of DAG-MCNP5 as well as DAG-Geant4 and
 FluDAG.
 ::
+
     $ cmake ../src -DBUILD_MCNP5=ON \
                    -DMPI_BUILD=ON \
                    -DBUILD_GEANT4=ON \
@@ -286,10 +310,11 @@ FluDAG.
 If the CMake configuration proceeded successfully, you can now install DAGMC.
 
 Install DAGMC
-------------
+-------------
 
 Use Make to install DAGMC.
 ::
+
     $ make
     $ make install
 
@@ -299,6 +324,7 @@ subdirectories of ``$INSTALL_PATH`` respectively.
 
 In order to use DAGMC, make these additions to your paths:
 ::
+
     $ export PATH=$PATH:$INSTALL_PATH/bin
     $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 
@@ -312,12 +338,14 @@ verify you have installed DAGMC correctly.
 
 To run the FluDAG unit tests, use
 ::
+
     $ cd $INSTALL_PATH/tests
     $ ./fludag_unit_tests
 
 If the tests ran successfully, the last few lines of the screen output will look
 like this:
 ::
+
     [       OK ] FluDAGTest.GFireGoodPropStep (5 ms)
     [----------] 3 tests from FluDAGTest (108 ms total)
 
@@ -329,12 +357,14 @@ To run the DagSolid unit tests use the following command. Make sure that the
 Geant4 directories are in your ``$PATH`` and ``$LD_LIBRARY_PATH`` as specified
 in the `Environment variables`_ section.
 ::
+
     $ cd $INSTALL_PATH/tests
     $ ./dagsolid_unit_tests
 
 Again, with successful execution the last few lines of the screen output will
 look like this:
 ::
+
     [       OK ] DagSolidTest.surface_area_test (5 ms)
     [----------] 16 tests from DagSolidTest (228 ms total)
 
@@ -349,4 +379,4 @@ information.
 .. toctree::
    :maxdepth: 1
 
-   cmake_options
+   usersguide/cmake_options

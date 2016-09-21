@@ -7,9 +7,9 @@ instructions for installation and use with a variety of Monte Carlo codes.
 .. toctree::
    :maxdepth: 1
 
-   quick_start
-   get_install
+   ../install
    cubit_trelis_plugin
-   workflow
-   faq
+   quick_start
+   workflow/index
    tools/index
+   faq

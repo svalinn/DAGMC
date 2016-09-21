@@ -31,6 +31,7 @@ source definition and run control.
 .. toctree::
    :maxdepth: 1
 
+   install
    usersguide/index
    devguide/index
    gallery/index
