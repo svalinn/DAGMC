@@ -3,65 +3,49 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-What is DAGMC?
-======
+DAGMC: Direct Accelerated Geometry Monte Carlo
+==============================================
 
-The Direct Accelerated Geometry Monte Carlo (DAGMC) library, a 
-component of the Mesh-Oriented datABase [MOAB_], provides
-fundamental functions for the ray-tracing and related geometry
-operations of Monte Carlo radiation transport directly on complex 3-D
-geometries such as those created in modern solid modeling software.
+The Direct Accelerated Geometry Monte Carlo (DAGMC) software package allows
+users to perform Monte Carlo radiation transport directly on CAD models. The
+DAGMC library, which contains the underlying ray tracing and geometry
+operations, is a part of the Mesh-Oriented datABase (MOAB_) library. The main
+DAGMC toolkit contains the functionality for coupling with physics codes as well
+as other related tools.
 
-DAGMC is designed in a modular fashion with the expectation that it
-can be integrated into a variety of Monte Carlo radiation tools. The
-CNERG_ group at UW-Madison has historically focussed development on the
-MCNP5_ software developed at `Los Alamos National Laboratory
-<http://www.lanl.gov>`_ and distributed by the `Radiation Safety
-Information Computing Center <http://rsicc.ornl.gov>`_. However, recently
-DAGMC has been integrated into the following Monte Carlo physics packages
-: MCNP5_, Tripoli4_, Fluka_, Geant4_, and Shift_.
+DAGMC is designed in a modular fashion so that it can be integrated into a
+variety of Monte Carlo radiation codes. The CNERG_ research group at the
+University of Wisconsin--Madison (UW) has historically focused on integration
+with MCNP5_, but DAGMC has also been integrated into Geant4_, Fluka_, Tripoli4_,
+and Shift_. There are also planned efforts to integrate DAGMC into other
+packages such as MCNP6_, Serpent2_, OpenMC_, Phits_, and Frensie.
 
-We have prior experience integrating DAGMC with MCNP/X, and planned
-efforts to integrate DAGMC with other Monte Carlo physics packages
-including: MCNP6_, Serpent2_, Phits_, OpenMC_ and Frensie.
-
-While we don't have a complete GUI, we currently rely on the Trelis_ software
-from Csimsoft or the Cubit_ software from Sandia.  It plays a role in our workflow 
-that can include importing CAD-files from other tools such as SolidWorks,
-CATIA, etc.  In addition to defining the geometry, we rely on
-Cubit for material assignment and can also support some other aspects
-of input definition that are tied to the geometry (tallies and
-variance reduction parameters, for example).  Some knowledge of the 
-specific Monte Carlo application is necessary for other 
-parameters such as material definition, run control and source definition.
-
-MOAB_ is developed by a team of collaborators at Argonne National Laboratory (ANL) and the 
-University of Wisconsin-Madison (UW), who are also working on improving some of 
-the GUI tools available for manipulating workflows.
-
+DAGMC currently relies on using the solid modeling software Trelis_ or Cubit_ to
+prepare solid models. These packages can be used to import CAD models from other
+tools such as SolidWorks, CATIA, etc., or to create geometry from scratch. DAGMC
+also relies on Trelis/Cubit to assign materials and other geometry-related
+information such as tallies and variance reduction parameters. Some knowledge of
+the specific Monte Carlo application is necessary for other parameters such as
+source definition and run control.
 
 .. toctree::
    :maxdepth: 1
 
    usersguide/index
-   CNERG Support for DAGMC
-   usersguide/workflow
-   tools/index
    devguide/index
-   gallery/gallery
-   DagmcPublications
+   gallery/index
    upcoming
 
-.. _MOAB: http://sigma.mcs.anl.gov/moab-library/
-.. _MCNP5: http://mcnp.lanl.gov
-.. _MCNP6: http://mcnp.lanl.gov/
-.. _Cubit: http://cubit.sandia.gov
-.. _Trelis: http://www.csimsoft.com/trelis.jsp
-.. _CNERG: http://cnerg.engr.wisc.edu
+.. _CNERG: http://cnerg.github.io
+.. _MOAB: http://press3.mcs.anl.gov/sigma/moab-library
+.. _Cubit: https://cubit.sandia.gov
+.. _Trelis: http://www.csimsoft.com/trelis
+.. _MCNP5: https://mcnp.lanl.gov
+.. _MCNP6: https://mcnp.lanl.gov
+.. _Geant4: http://geant4.cern.ch
 .. _Fluka: http://www.fluka.org/fluka.php
-.. _Geant4: http://geant4.cern.ch/
 .. _Tripoli4: https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html
-.. _Shift: http://web.ornl.gov/sci/nsed/rnsd/rt/code.shtml
-.. _Serpent2: http://montecarlo.vtt.fi/development.htm
-.. _OpenMC: https://mit-crpg.github.io/openmc/
-.. _Phits: http://phits.jaea.go.jp/
+.. _Shift: http://web.ornl.gov/sci/nsed/rnsd/rt
+.. _Serpent2: http://montecarlo.vtt.fi
+.. _OpenMC: https://mit-crpg.github.io/openmc
+.. _Phits: http://phits.jaea.go.jp
