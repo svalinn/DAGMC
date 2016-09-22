@@ -1,5 +1,5 @@
 Monte Carlo Code-Specific Steps for DAG-Tripoli4
-+++++++++++++++++++++++++++++++
+================================================
 
 There are three varieties of code-specific steps:
 
@@ -7,15 +7,14 @@ There are three varieties of code-specific steps:
 2. defining DAGMC runtime parameters using input file syntax
 3. changes to the command-line
 
-
 Geometry Metadata
---------
+~~~~~~~~~~~~~~~~~
 
 The current version of DAG-Tripoli4 allows the definition of material
 compositions and boundary conditions in the geometry.
 
 Assigning Materials & Densities
-'''''''''''''''''''''''''''''''''
+-------------------------------
 
 The generic workflow description includes details on
 :ref:`grouping-basics`, but a specific naming convention is required
@@ -23,7 +22,8 @@ for DAG-Tripoli4. To define materials, the Tripoli composition name
 must be provided in the group name. The format for the group name is
 as follows:
 ::
-     comp_[compname]
+
+    comp_[compname]
 
 ``[compname]`` is replaced by the composition name that will be
 specified in the Tripoli4 input file.  ``[density]`` is replaced by
@@ -35,7 +35,8 @@ For example, suppose UO2 is composition ``Uoxide`` in the problem and
 volumes 4 through 18 consist of this material.  To assign materials to
 these volumes, the following command would be used:
 ::
-     group "comp_Uoxide" add vol 4 to 18
+
+    CUBIT> group "comp_Uoxide" add vol 4 to 18
 
 *Note: If a volume is not assigned to a specific group, when run in
 DAGMC it will be treated as a void; the material for that cell will be
@@ -52,10 +53,11 @@ complement material group to minimize confusion._) For example, if you
 would like the explicit complement to be modeled with the composition
 named "air":
 ::
-     create group "comp_air_comp"
+
+    CUBIT> create group "comp_air_comp"
 
 Defining Boundary Conditions
-'''''''''''''''''''''''''''''''
+----------------------------
 
 There are two general classes of boundary condition supported by
 DAG-Tripoli4. a vacuum boundary and reflecting surfaces, and they are
@@ -84,6 +86,7 @@ Like the material definitions and boundary conditions discussed in the
 previous section. The graveyard is defined by assigning it a specific
 group name, one of the following keywords:
 ::
+
     graveyard
     outside.world
     rest.of.world
@@ -92,10 +95,11 @@ Consider a geometry with 99 volumes that all fit within a cube
 centered at the origin with side-length 99 cm.  To create a graveyard
 for this problem in CUBIT, you could issue the following commands:
 ::
-    cubit_prompt> create brick x 100
-    cubit_prompt> create brick x 105
-    cubit_prompt> subtract vol 100 from vol 101
-    cubit_prompt> group "graveyard" add vol 102
+
+    CUBIT> create brick x 100
+    CUBIT> create brick x 105
+    CUBIT> subtract vol 100 from vol 101
+    CUBIT> group "graveyard" add vol 102
 
 When DAG-Tripoli4 is run, the surfaces of volume 102 (or any other
 volumes included in the group) will be defined as having only one
@@ -122,6 +126,7 @@ Specifying reflecting and white boundary conditions are fairly
 straightforward.  The group names for reflecting and white are
 respectively:
 ::
+
     spec.reflect
     white.reflect
 
@@ -129,10 +134,11 @@ Suppose surfaces 10 and 11 are reflecting boundary conditions.  To
 specify these as reflecting surfaces, the following group would be
 created:
 ::
-    group "spec.reflect" add surf 10 11
+
+    CUBIT> group "spec.reflect" add surf 10 11
 
 DAGMC Runtime Parameters
-'''''''''''''''''''''''''''
+------------------------
 
 The DAGMC-Tripoli input file is formatted just like any other Tripoli
 input file but using the ``DAGMC_GEOMETRY`` block to indicate the
@@ -154,14 +160,11 @@ geometry.  This block has the following parameters:
 |tolerance <double ray firing tolerance>| (optional: default=1e-8)         |
 +---------------------------------------+----------------------------------+
 
-
-These parameters are described in :ref:`the workflow description
-<additional_parameters>`.  In addition to many other Tripoli input
-blocks, it is important to define the material compositions that have
-been assigned in the previous step.
+These parameters are described in the section on :ref:`additional_parameters`.
+In addition to many other Tripoli input blocks, it is important to define the
+material compositions that have been assigned in the previous step.
 
 Running DAGMC-Tripoli
-'''''''''''''''''''''''
+---------------------
 
 Running DAGMC-Tripoli is identical to running the standard Tripoli.
-

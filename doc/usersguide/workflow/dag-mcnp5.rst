@@ -1,5 +1,5 @@
 Monte Carlo Code-Specific Steps for DAG-MCNP5
-+++++++++++++++++++++++++++++++++++++++++++++
+=============================================
 
 There are three varieties of code-specific steps:
 
@@ -7,15 +7,14 @@ There are three varieties of code-specific steps:
 2. defining DAGMC runtime parameters using input file syntax
 3. changes to the command-line
 
-
 Geometry Metadata
-''''''''''''''''''
+~~~~~~~~~~~~~~~~~
 
 In DAG-MCNP5, the geometry file can be used to define material and
 density assignments, boundary conditions, and tally locations.
 
 Assigning Materials & Densities
-..................................
+-------------------------------
 
 The generic workflow description includes details on
 :ref:`grouping-basics` , but a specific naming convention is required
@@ -34,7 +33,8 @@ density of 0.0223 and volumes 4 through 18 consist of this material.
 To assign materials to these volumes, the following command would be
 used:
 ::
-     group "mat_7_rho_0.0223" add vol 4 to 18
+
+    CUBIT> group "mat_7_rho_0.0223" add vol 4 to 18
 
 *Note: If a volume is not assigned to a specific group, when run in
 DAGMC it will be treated as a void; the material for that cell will
@@ -51,10 +51,11 @@ complement material group to minimize confusion.*) For example, if you
 would like the explicit complement to be modeled as material 9 with
 density 1 g/cc:
 ::
-     create group "mat_9_rho_-1_comp"
+
+    CUBIT> create group "mat_9_rho_-1_comp"
 
 Defining Boundary Conditions
-..............................
+----------------------------
 
 There are two general classes of boundary condition supported by
 DAG-MCNP5. a vacuum boundary and reflecting surfaces, and they are
@@ -81,6 +82,7 @@ Like the material definitions and boundary conditions discussed in the
 previous section. The graveyard is defined by assigning it a specific
 group name, one of the following keywords:
 ::
+
     graveyard
     outside.world
     rest.of.world
@@ -89,11 +91,11 @@ Consider a geometry with 99 volumes that all fit within a cube
 centered at the origin with side-length 99 cm.  To create a graveyard
 for this problem in CUBIT, you could issue the following commands:
 ::
-    cubit_prompt> create brick x 100
-    cubit_prompt> create brick x 105
-    cubit_prompt> subtract vol 100 from vol 101
-    cubit_prompt> group "graveyard" add vol 102
 
+    CUBIT> create brick x 100
+    CUBIT> create brick x 105
+    CUBIT> subtract vol 100 from vol 101
+    CUBIT> group "graveyard" add vol 102
 
 When DAG-MCNP5 is run, the importance of volume 102 (or any other
 volumes included in the group) will be set to zero. (_Note: this
@@ -119,17 +121,19 @@ Specifying reflecting and white boundary conditions are fairly
 straightforward.  The group names for reflecting and white are
 respectively:
 ::
-     spec.reflect
-     white.reflect
+
+    spec.reflect
+    white.reflect
 
 Suppose surfaces 10 and 11 are reflecting boundary conditions.  To
 specify these as reflecting surfaces, the following group would be
 created:
 ::
-     group "spec.reflect" add surf 10 11
+
+    CUBIT> group "spec.reflect" add surf 10 11
 
 Tally Assignments
-..................
+-----------------
 
 It is also possible, although not required, to specify tallies in the
 geometry.  The general form for adding this meta-data is to create a
@@ -142,7 +146,8 @@ file, however, the user has to make sure that the tally indices are
 not duplicated lest a fatal error will occur.  Tallies are specified
 as group names in the following format:
 ::
-      tally_[CUBIT tally ID].[tally type keyword].[particles]
+
+    tally_[CUBIT tally ID].[tally type keyword].[particles]
 
 The ``[CUBIT tally ID]`` field is an integer from 0 to 99.  Different
 tally types may have the same CUBIT ID and are still consistent.  The
@@ -181,16 +186,18 @@ neutrons will be tallied.
 
 Some CUBIT commands to do tallies:
 ::
-    group "tally_0.surf.current" add surf 1 to 4
-    group "tally_0.cell.flux.p" add vol 7
-    group "tally_1.ecell.heating.np" add vol 2 6
-    group "tally_6.cell.heating.n" add vol 2 6
-    group "tally_7.cell.flux.p" add vol 1 to 3
-    group "tally_12.pulse.height.p" add vol 10 to 14
-    group "tally_14.qpulse.height.p" add vol 10 to 14
+
+    CUBIT> group "tally_0.surf.current" add surf 1 to 4
+    CUBIT> group "tally_0.cell.flux.p" add vol 7
+    CUBIT> group "tally_1.ecell.heating.np" add vol 2 6
+    CUBIT> group "tally_6.cell.heating.n" add vol 2 6
+    CUBIT> group "tally_7.cell.flux.p" add vol 1 to 3
+    CUBIT> group "tally_12.pulse.height.p" add vol 10 to 14
+    CUBIT> group "tally_14.qpulse.height.p" add vol 10 to 14
 
 The above are equivalent to following MCNP definitions:
 ::
+
     f1:n 1 2 3 4 T
     f4:p 7 T
     *f16:n,p 2 6 T
@@ -202,8 +209,10 @@ The above are equivalent to following MCNP definitions:
 *(Note: the current convention is to always add a tally bin for the
 total across all cells/volumes.)*
 
+.. _additional_parameters:
+
 Preparing the DAG-MCNP5 Input File
-''''''''''''''''''''''''''''''''''''
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The DAG-MCNP5 input file contains only the data cards section of a
 standard MCNP5 input file.  There are no cell or surface cards
@@ -214,30 +223,29 @@ the materials that have been assigned in step 2.D.i.a above and any
 tally modifiers, as desired, for the tallies defined in step 2.D.i.a
 above.
 
-A new data card has been added to DAG-MCNP5 to define parameters for
-the DAGMC geometry capability.  These parameters are described in
-:ref:`additional_parameters`.
+A new data card ``dagmc`` has been added to DAG-MCNP5 to define parameters for
+the DAGMC geometry capability.
 ::
+
     Form: dagmc  keyword1=value   keyword2=value
            check_src_cell: behavior of CEL variable in SDEF card
-                           on  [default] standard interpretation for 
+                           on  [default] standard interpretation for
                                          CEL variable: source rejection
-                           off           no cell rejection - assume that 
+                           off           no cell rejection - assume that
                                          sampled position is in cell CEL
         overlap_thickness: allows particle tracking through small overlaps
                            {real} [default=0.0]
                    usecad: toggle usage of solid model geometry
                            off [default] ray-tracing limited to facets
-                           on            ray-tracing performed on solid model 
+                           on            ray-tracing performed on solid model
                                          geometry surfaces
-                distlimit: toggle usage of flight distance sampled from 
+                distlimit: toggle usage of flight distance sampled from
                            physics to accelerate ray-tracing search
                            off [default] do not use physics flight distance
                            on            do use physics flight distance
 
-
 Running DAG-MCNP5
-'''''''''''''''''''
+~~~~~~~~~~~~~~~~~
 
 Running DAG-MCNP5 is identical to running the standard MCNP5, but a
 few new keywords have been added to the command-line to specify the
@@ -263,7 +271,7 @@ necessary files.
                                ignored.  This runtime parameter is
                                described in more detail above.
 
-:``fcad=<facet_file>: (optional) The ``facet_file`` is written by
+:``fcad=<facet_file>``: (optional) The ``facet_file`` is written by
                            DAG-MCNP5 in the MOAB (\*.h5m) format.  When
                            an ACIS file is read by DAG-MCNP5, a number
                            of pre-processing and initialization steps
@@ -274,7 +282,6 @@ necessary files.
                            ``facet_file`` with the ``gcad`` keyword in
                            subsequent uses.  This runtime parameter is
                            described in more detail above.
-
 
 :``lcad=<log_file>``: (optional) The ``log_file`` is a skeleton of an
                            MCNP file for the cells and surfaces in

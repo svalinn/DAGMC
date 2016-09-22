@@ -1,37 +1,42 @@
 Installing the Cubit/Trelis Plugin
-++++++++++++++++++++++++++++++++++
+==================================
 
 Linux Install Instructions
---------------------------
-Obtain the `DAGMC Plug-in <http://go.wisc.edu/dagmc-trelis>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   1.  unpack this tar file in the plugin directory of Trelis, e.g. /opt/Trelis-16.0/bin/plugins/
-   2.  make a symbolic link in the plugin directory to the dagmc plugin itself. e.g. 
-       ln -s dagmc/libdagmc_export_plugin.so .
+Obtain the `DAGMC Plugin for Linux <http://go.wisc.edu/dagmc-trelis>`_
+
+   1. unpack this tar file in the plugin directory of Trelis, e.g. /opt/Trelis-16.0/bin/plugins/
+   2. make a symbolic link in the plugin directory to the dagmc plugin itself. e.g.
+      ln -s dagmc/libdagmc_export_plugin.so .
 
 OS/X Install Instructions
--------------------------
-Obtain the `DAGMC Plug-in <https://drive.google.com/open?id=0B_tNonFwhOqQQkdhYWxWN1drVGM>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Obtain the `DAGMC Plugin for OS/X <https://drive.google.com/open?id=0B_tNonFwhOqQQkdhYWxWN1drVGM>`_
 
    1.  unpack this tar file in the plugin directory of Trelis, e.g. /Applications/Trelis/Contents/MacOS/plugins/
 
 Windows Install Instructions
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 A plugin for Windows is currently being developed.
 
-Using the Plug-in
---------------------
-Load your geometry into Cubit/Trelis following the instructions in `geometry preparation <workflow/cubit_trelis_workflow.html>`_, markup your 
-geometry according to the workflow of your choice, for example `UWUW  <workflow/uw2.html>`_, and Imprint and Merge. 
+Using the Plugin
+~~~~~~~~~~~~~~~~
+
+Load your geometry into Cubit/Trelis following the instructions in `geometry preparation <workflow/cubit_trelis_workflow.html>`_, markup your
+geometry according to the workflow of your choice, for example `UWUW  <workflow/uw2.html>`_, and Imprint and Merge.
 You can now export the geometry, ready for use in simulations using
 ::
-   %> export dagmc <filename> [faceting_tolerance <faceting tolerance>] 
-                              [length_tolerance <length tolerance>]
-                              [normal_tolerance <normal tolerance>] 
-			      [verbose] [fatal_on_curves]
+
+   CUBIT> export dagmc <filename> [faceting_tolerance <faceting tolerance>]
+                                  [length_tolerance <length tolerance>]
+                                  [normal_tolerance <normal tolerance>]
+                                  [verbose] [fatal_on_curves]
 
 Where faceting_tolerance, normal_tolerance, and length tolerance are optional arguments. For example, export
-the currently loaded file to a file called "large_facets.h5m" with a faceting tolerance of 1.e-5 
+the currently loaded file to a file called "large_facets.h5m" with a faceting tolerance of 1.e-5
 ::
-   %> export dagmc "large_facets.h5m" faceting_tolerance 1.e-5 
 
+   CUBIT> export dagmc "large_facets.h5m" faceting_tolerance 1.e-5
