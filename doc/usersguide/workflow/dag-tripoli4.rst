@@ -1,5 +1,5 @@
-Monte Carlo Code-Specific Steps for DAG-Tripoli4
-================================================
+Code-Specific Steps for DAG-Tripoli4
+====================================
 
 There are three varieties of code-specific steps:
 

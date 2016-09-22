@@ -375,3 +375,8 @@ look like this:
 If the tests have completed successfully, you are now ready to run your first
 DAGMC problem. See the `DAGMC workflow guides <usersguide/workflow/index.html>`_ for more
 information.
+
+.. toctree::
+   :maxdepth: 1
+
+   usersguide/cmake_options

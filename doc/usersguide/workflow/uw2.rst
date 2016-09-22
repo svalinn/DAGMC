@@ -1,5 +1,5 @@
-The University of Wisconsin Unified Workflow
-============================================
+University of Wisconsin Unified Workflow (UWUW)
+===============================================
 
 .. |UW2| replace:: UW\ :sup:`2`
 

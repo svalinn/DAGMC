@@ -13,3 +13,10 @@ instructions for installation and use with a variety of Monte Carlo codes.
    workflow/index
    tools/index
    faq
+
+.. toctree::
+   :hidden:
+
+   dag-mcnp5
+   install_pyne
+   UnderstandingRayHistoryState

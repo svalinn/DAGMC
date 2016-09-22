@@ -1,5 +1,5 @@
-Monte Carlo Code-Specific Steps for FluDAG
-==========================================
+Code-Specific Steps for FluDAG
+==============================
 
 There are several varieties of code-specific steps:
 
