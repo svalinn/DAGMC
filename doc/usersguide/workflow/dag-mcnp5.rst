@@ -226,15 +226,10 @@ Running DAG-MCNP5 is identical to running the standard MCNP5, but a few new
 keywords have been added to the command line to specify the necessary files.
 
 :``gcad=<geom_file>`` (required): Specify the filename of the input geometry
-    file. It can be in one of three formats: the ACIS (\*.sat) format, the MOAB
-    (\*.h5m) format, or a facet file produced by DAGMC. If this entry is not
-    present, DAG-MCNP5 will assume that it is running in standard MCNP5 mode.
-
-:``ftol=<faceting_tolerance>`` (optional): [default: 1e-3] This is a real number
-    that provides guidance to the faceting engine regarding the maximum
-    allowable distance between a facet and the surface it is representing. It is
-    only used when reading an ACIS (\*.sat) ``geom_file`` as when reading a MOAB
-    (\*.h5m) file, the facets have already been generated.
+    file. It can be in one of two formats: the MOAB (\*.h5m) format (this is the
+    format produced by ``export_dagmc`` in Trelis/Cubit), or a facet file
+    produced by DAGMC. If this entry is not present, DAG-MCNP5 will assume that
+    it is running in standard MCNP5 mode.
 
 :``fcad=<facet_file>`` (optional): [default: fcad] Specify the filename of the
     output facet file. This is the file produced by DAGMC that contains the
