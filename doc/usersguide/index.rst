@@ -17,6 +17,5 @@ instructions for installation and use with a variety of Monte Carlo codes.
 .. toctree::
    :hidden:
 
-   dag-mcnp5
    install_pyne
    UnderstandingRayHistoryState
