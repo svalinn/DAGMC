@@ -1,5 +1,6 @@
 ITER
-=========
+======
+
 The ITER fusion device
 
 .. image:: main.png
