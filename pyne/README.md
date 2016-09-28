@@ -25,7 +25,7 @@ The above represents the smallest build that is trivially compilable without
 errors.
 
 At the time of writing, the produced file ``pyne.cpp`` will need to be edited
-slightly in order to make DAMGC compilable. You must comment out the line in
+slightly in order to make DAGMC compilable. You must comment out the line in
 ``pyne.cpp`` that says
 
     #include "particle.h"
