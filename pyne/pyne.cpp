@@ -6647,7 +6647,7 @@ int pyne::rxname::parent(std::string nuc, std::string rx, std::string z) {
 //
 // start of src/particle.cpp
 //
-#include "particle.h"
+// #include "particle.h"
 
 std::string pyne::particle::_names[NUM_PARTICLES] = {
   // leptons
@@ -15447,9 +15447,10 @@ std::vector<std::pair<double, double> > unnormed) {
 
 pyne::Material pyne::Material::decay(double t) {
   Material rtn;
-  comp_map out = pyne::decayers::decay(to_atom_frac(), t);
-  rtn.from_atom_frac(out);
-  rtn.mass = mass * rtn.molecular_mass() / molecular_mass();
+  std::cout << "--Warning--Warning--Warning--Warning--Warning--Warning--" << std::endl;
+  std::cout << "  There is no decay function in the material object within" << std::endl;
+  std::cout << "  this amalgamated pyne build" << std::endl;
+  std::cout << "--Warning--Warning--Warning--Warning--Warning--Warning--" << std::endl;
   return rtn;
 }
 
