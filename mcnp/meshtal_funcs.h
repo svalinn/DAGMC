@@ -23,11 +23,15 @@ extern "C" {
    */
 #ifndef FORT_FUNC
 
-  /* gcc/gfortran 4.3 and above: name mangling is '__module_MOD_function' */
-#if __GNUC__ > 4 || ( __GNUC__ == 4  && __GNUC_MINOR__ >= 3 )
+  /* intel fortran: name mangling is '<module>_mp_<function>_' */
+#ifdef __INTEL_COMPILER
+#define FORT_FUNC( mod, func ) mod##_mp_##func##_
+
+  /* gcc/gfortran 4.3 and above: name mangling is '__<module>_MOD_<function>' */
+#elif __GNUC__ > 4 || ( __GNUC__ == 4  && __GNUC_MINOR__ >= 3 )
 #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
 
-  /* gcc/gfortran < 4.3: name mangling is '__module__function' */
+  /* gcc/gfortran < 4.3: name mangling is '__<module>__<function>' */
 #elif __GNUC__ == 4
 #define FORT_FUNC( mod, func ) __##mod##__##func
 
