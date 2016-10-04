@@ -52,10 +52,16 @@ Preparing Solid Models
 In theory, solid models can be prepared in any modeling software
 system (e.g. SolidWorks, Pro/E, Catia, etc).  What is most important
 about the choice of solid modeling system is the ability to export to
-a format that can be imported by CUBIT, in particular:
+a format that can be imported by Trelis or Cubit, in particular:
 
     * ACIS (\*.sat)
     * STEP (\*.stp, \*.step, etc)
+
+We have a strong preference towards ACIS due to its ability to retain 'imprint and
+merge' information, and we have anecdotal evidence that ACIS files 
+lead to a more successful model pipeline. Indeed we rely on Ansys Spaceclaim
+to perform model cleaning and defeaturing, which can import many of the common
+CAD formats and exports to ACIS.
 
 There are a number of concepts to consider while preparing a solid
 model; however, the most important considerations are small gaps and
@@ -177,7 +183,7 @@ DAGMC project is to guarantee that there will never be lost particles,
 they can occur even on robust geometries.  It is up to the
 user/analyst to determine what lost particle rate they consider
 acceptable.  The UW-Madison group usually considers lost particle
-rates that are less than 1/50,000 to be a threshold for most problems.
+rates that are less than 1/5,000,000 to be a threshold for most problems.
 It is important to understand whether particles are being lost from an
 important region of your phase space.
 
@@ -288,21 +294,32 @@ volumes, but can contain surfaces too. Below the group
 Due to the importance of using the ``group`` command reading the CUBIT
 manual section on its full usage is highly recommended.
 
+Production of the DAGMC Geometry
+----------------------------
+
+Now that the geometry is ready for DAGMC we must export it. Using the
+Cubit/Trelis plugin make this very straightforward, assuming that the
+user has proceeded through the previous steps then all one must do is
+use the export command, for example to produce a file called, geometry.h5m
+with faceting tolerances and length tolerances of 1.0e-4 cm and 5.0 cm respectively
+::
+    CUBIT> export dagmc geometry.h5m faceting_tolerance 1.e-4 length_tolerance 5.0
+
+The time taken to perform this step depends upon the complexity of the model, it could 
+take seconds for very simple models to hours for very complex models. It is also possible
+that faceting artifacts or failures could occur at this point, so monitor the output
+of this command in the Cubit/Trelis command line. If issues due occurs, these should be addressed 
+following the workflow listed above.
+
 Finishing Up and Final Notes
 ----------------------------
 
-Before exporting, it is vital to set attributes on.  This saves the
-absolute volume and surface IDs as well as any group specifications.
-Failing to do this will result in fatal errors.  Make sure to type the
-following:
-::
+Having prepared your model to completion with the appropriate groups created
+, you can choose to save your model in various formats. Previously 
+we recommended ACIS *.sat files, but any format that reliably retains
+imprortant metadata.  Recommended storage formats are ACIS, *.Trelis or 
+*.cub files.
 
-    CUBIT> set attribute on
-
-For the remainder of this documentation, the geometry file will be
-referred to as "geom.sat". Also, as noted before, the CUBIT conversion
-process can be automated as described on the following webpage:
-
-One should also use the `make_watertight <watertightness.html>`_ tool to
-completely seal your geometry, this should help prevent tolerance issues
-due to faceting.
+One should also use the `make_watertight <watertightness.html>`_ tool on the 
+produced DAGMC *.h5m file in order to completely seal your geometry, this 
+should help prevent tolerance issues due to faceting.

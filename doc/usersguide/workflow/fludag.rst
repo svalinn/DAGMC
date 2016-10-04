@@ -64,7 +64,7 @@ characters.*
 Be aware that there are several predefined material names in FLUKA, and they
 are appropriately treated by FluDAG.
 
-*Note: All volumes must belong to a group, if they do not have any information
+* Note: All volumes must belong to a group, if they do not have any information
 FluDAG will not assign material information.*
 
 The implicit complement is automatically assigned the value 1 + the id of the
@@ -146,16 +146,10 @@ Running FluDAG
 
 Running FluDAG bears some similarity to running FLUGG: the first step is to create the CAD
 geometry of the problem you wish to run. In order to produce the material assignment
-data from the CAD geometry we must first facet the file:
-::
+data from the CAD geometry we must first facet the file using the Cubit/Trelis plugin. Using
+the subsequently defined geometry file, the user must produce the mat.inp file
 
-     $ dagmc_preproc -f <facet_tol> <cad_file.sat> -o <name.h5m>
-
-This will facet the geometry file to a tolerance of <facet_tol> and produce a faceted file
-called <name.h5m>. From that facet file we can produce the material "snippet" file
-::
-
-    $ /path/to/fludag/executable/mainfludag <name.h5m>
+    $ /path/to/fludag/executable/mainfludag geom.h5m
 
 Will load the named h5m file and produce the material assignments information.
 This information should then be pasted into the FLUKA input file and any adjustments
@@ -165,9 +159,12 @@ include the additional material and compound information themselves and take
 responsibility to ensure that the FLUKA material index number does not overlap with one
 produced by FluDAG.**
 
-The FluDAG calculation is now ok to run,
+The FluDAG calculation is now ok to run, first make a symbolic link from the geometry file
+to a fixed file called dagmc.h5m
 ::
+     $ ln -s geom.h5m dagmc.h5m
 
+The user can then run the problem
+::
      $ $FLUPRO/flutil/rfluka -e <path/to/fludag/executable/mainfludag> \
-         -d <path/to/h5m/file/name.h5m> \
          ++{standard fluka options}++ <fludag_input_file>

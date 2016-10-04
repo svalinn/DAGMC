@@ -46,7 +46,7 @@ Other standard MCNP options can also be used, such as energy bins:
              emesh=1.0 2.0 15.0
     fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
 
-Or tally mulipliers:
+Or tally multipliers:
 ::
 
     fmesh4:p geom=dag type=unstr_track
