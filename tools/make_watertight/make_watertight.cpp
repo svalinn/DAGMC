@@ -64,9 +64,7 @@ int main(int argc, char **argv)
 
   rval = mbi->create_meshset( moab::MESHSET_SET, input_set );
 
-  if(error(moab::MB_SUCCESS!=rval,"failed to create_meshset")) {
-    return rval;
-  }
+  MB_CHK_SET_ERR(rval,"failed to create_meshset");
 
   std::cout << "Loading input file..." << std::endl;
 
@@ -76,12 +74,8 @@ int main(int argc, char **argv)
 
   if(std::string::npos!=input_name.find("h5m") && (2==argc)) {
     rval = mbi->load_file( input_name.c_str(), &input_set );
-    if(error(moab::MB_SUCCESS!=rval,"failed to load_file 0")) {
-      return rval;
-    }
-
+    MB_CHK_SET_ERR(rval,"failed to load_file 0");
     is_acis = false;
-
   }
   //loading completed at this point
   clock_t load_time = clock();
@@ -89,15 +83,15 @@ int main(int argc, char **argv)
   double facet_tol;
   MakeWatertight mw(mbi);
   result= mw.make_mesh_watertight(input_set, facet_tol);
-  if(error(moab::MB_SUCCESS!=result, "could not make model watertight")) return result;
+  MB_CHK_SET_ERR(result, "could not make model watertight"); 
 
 
   //write file
   clock_t zip_time = clock();
   std::cout << "Writing zipped file..." << std::endl;
   write_sealed_file( mbi, root_name, facet_tol, is_acis);
-  if(error(moab::MB_SUCCESS!=result, "could not write the sealed mesh to a new file"))
-    return result;
+  MB_CHK_SET_ERR(result, "could not write the sealed mesh to a new file");
+  
 
   clock_t write_time = clock();
   std::cout << "Timing(seconds): loading="
