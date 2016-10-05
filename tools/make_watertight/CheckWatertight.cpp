@@ -235,7 +235,7 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness( moab::EntityHand
       //int n_edges;
       //result = MBI()->get_number_entities_by_type(0, moab::MBEDGE, n_edges );
       //if(moab::MB_SUCCESS != result) return result;
-      //if(gen::error(0 != n_edges, "n_edges not equal to zero")) return moab::MB_MULTIPLE_ENTITIES_FOUND;
+      //if(0 != n_edges) MB_CHK_SET_ERR(moab::MB_MULTIPLE_ENTITIES_FOUND,"n_edges not equal to zero");
     }
 
     // sort the edges by the first vert. The first vert has a lower handle than the second.
