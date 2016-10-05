@@ -137,7 +137,7 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast( moab::Range &edges, co
     int n_verts;
     rval = MBI()->get_connectivity( *i, endpts, n_verts );
     if(moab::MB_SUCCESS!=rval || 2!=n_verts) {
-      MB_CHK_SET_ERR(moab::MB_FAILURE,"could not get connectivity")
+      MB_CHK_SET_ERR(moab::MB_FAILURE,"could not get connectivity");
     }
 
     // store the edges
