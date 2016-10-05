@@ -15,9 +15,6 @@
 #include "moab/AdaptiveKDTree.hpp" // for merging verts
 #include "moab/CartVect.hpp"
 
-
-bool error( const bool error_has_occured, const std::string message="" );
-
 class Gen
 {
  public:

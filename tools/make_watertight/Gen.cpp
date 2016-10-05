@@ -18,21 +18,6 @@ const char GEOM_SENSE_2_TAG_NAME[] = "GEOM_SENSE_2";
 const char GEOM_SENSE_N_ENTS_TAG_NAME[] = "GEOM_SENSE_N_ENTS";
 const char GEOM_SENSE_N_SENSES_TAG_NAME[] = "GEOM_SENSE_N_SENSES";
 
-bool error( const bool error_has_occured, const std::string message )
-{
-  if(error_has_occured) {
-    if("" == message) {
-      std::cout << "Error at " << __FILE__ << ":" << __LINE__
-                << std::endl;
-    } else {
-      std::cout << message << std::endl;
-    }
-    return true;
-  } else {
-    return false;
-  }
-}
-
 void Gen::moab_printer(moab::ErrorCode error_code)
 {
   if ( error_code == moab::MB_INDEX_OUT_OF_RANGE ) {
