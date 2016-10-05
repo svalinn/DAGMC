@@ -86,10 +86,10 @@ breaklineplus1=$(($breakline+1))
 filelength=`wc -l ../slideshow_empty.html | awk '{print $1}'`
 
 # first print out the file upto the break point
-sed -n 1,"$breakline"p ../slideshow_empty.html > slideshow.html
+sed -n 1,"$breakline"p ../slideshow_empty.html > ../slideshow.html
 # dump the contents of the autogen file into the slideshow
-cat $out_file >> slideshow.html
+cat $out_file >> ../slideshow.html
 # now print out the rest of the slideshow
-sed -n "$breaklineplus1","$filelength"p ../slideshow_empty.html >> slideshow.html 
+sed -n "$breaklineplus1","$filelength"p ../slideshow_empty.html >> ../slideshow.html 
 
 # all done :) 
