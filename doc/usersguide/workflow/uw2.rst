@@ -15,7 +15,7 @@ levereage the existing infrastructure in PyNE to allow a consistent transport pr
 defined across all MC codes.
 
 Materials
-~~~~~~~~~
+~~~~~~~~~~~~~
 
 Materials are the most painful and error prone items to transfer from code to code, since each MC code
 specifies materials in a different way. Instead, we tag groups of volumes
@@ -113,7 +113,7 @@ materials and densities requested and also the list of tallies that were
 produced. A sample output is shown below
 ::
 
-    $ uwuw_preproc test_geom.h5m -l \
+   $ uwuw_preproc test_geom.h5m -l \
           $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 
 Also, the program will produce a fatal error if the material is not found in
@@ -123,46 +123,51 @@ is actually written, this can be done to test your file to make sure all the exp
 materials are present in the file.
 
 MCNP Specific Steps
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 To run a MCNP based UWUW problem, the user must make the minimum input deck that defines 
 the particle source definition, runtime parameters, and physics cutoffs. You then run MCNP like
 the non-UWUW workflow;
 ::
-     $ mcnp5 i=input g=geom.h5m
+
+   $ mcnp5 i=input g=geom.h5m
 
 It may be the case that some nuclides are not found, an lcad file will have been produced in the previous step
 which the user can modify to remove extraneous nuclides and re-run with;
 ::
-     $ mcnp5 i=input g=geom.h5m l=lcad_modified
+
+   $ mcnp5 i=input g=geom.h5m l=lcad_modified
 
 FluDAG Specific Steps
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 To run a FluDAG based UWUW problem, like the above MCNP example, the user must make a minmal Fluka input deck
 defining runtime parameters, source definition, remembering to include the GEOBEGIN keyword set to FLUGG. 
 Once this is done run the mainfludag executable to produce the mat.inp which contains all the detailed 
 material assignments and compound descriptions;
 ::
-      $ mainfludag geom.h5m
+
+   $ mainfludag geom.h5m
 
 The user then should paste the contents of the mat.inp into the main Fluka input deck. Now the user must make
 a symbolic link to the geometry file named dagmc.h5m
 ::
-      $ ln -s geom.h5m dagmc.h5m
+
+   $ ln -s geom.h5m dagmc.h5m
 
 The mainfludag executable always looks for the dagmc.h5m file. You can now run as if it were a standard
 Fluka problem
 ::
-      $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
+
+   $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 
 Geant4 Specific Steps
-~~~~~~~~~~~~~~
-
+~~~~~~~~~~~~~~~~~~~~~
 To run a Geant4 problem, like those shown above, the user must write a Geant4 macro file that contains at
 minimum, only the source description (GPS) and the number of particles to simulate. The problem is then run with
 ::
-      $ DagGeant geom.h5m input.mac
+
+    $ DagGeant geom.h5m input.mac
 
 Worked Example
 ~~~~~~~~~~~~~~
@@ -410,7 +415,7 @@ numerical part of "fluka_26362"):
     End of FLUKA run
 
 DagGeant4 Run
-~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 DagGeant4 is probably the most trivial of all the |UW2| enabled codes to run.
 Copy the vis.mac file from DAGMC/geant4/build/vis.mac

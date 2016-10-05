@@ -9,7 +9,6 @@ instructions for installation and use with a variety of Monte Carlo codes.
 
    ../install
    cubit_trelis_plugin
-   quick_start
    workflow/index
    tools/index
    faq

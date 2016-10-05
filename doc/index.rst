@@ -55,7 +55,6 @@ source definition and run control.
    install
    usersguide/index
    devguide/index
-   gallery/index
    upcoming
 
 .. _CNERG: http://cnerg.github.io

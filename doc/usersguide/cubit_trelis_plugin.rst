@@ -1,33 +1,46 @@
 Installing the Cubit/Trelis Plugin
 ==================================
 
+There is a common location that store all the plugins that are available for use. Go 
+to `DAGMC Plugins <http://go.wisc.edu/dagmc-trelis>`_ page and download the plugin appropriate
+for your operating system.
+
 Linux Install Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Obtain the `DAGMC Plugin for Linux <http://go.wisc.edu/dagmc-trelis>`_
+Obtain the Linux pluging from the link above, the following operations should be 
+performed as the root user (sudo).
 
-   1. unpack this tar file in the plugin directory of Trelis, e.g. /opt/Trelis-16.0/bin/plugins/
-   2. make a symbolic link in the plugin directory to the dagmc plugin itself. e.g.
-      ln -s dagmc/libdagmc_export_plugin.so .
+1. unpack tar ball in /opt/Trelis-16.0/bin/plugins
+2. change directory to /opt/Trelis-16.0/bin/plugins/dagmc
+3. Run the install.sh script: ./install.sh
 
 OS/X Install Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Obtain the `DAGMC Plugin for OS/X <https://drive.google.com/open?id=0B_tNonFwhOqQQkdhYWxWN1drVGM>`_
+Obtain the OS/X plugin from the link above, the following operations should be 
+performed as the root user (sudo).
 
-   1.  unpack this tar file in the plugin directory of Trelis, e.g. /Applications/Trelis/Contents/MacOS/plugins/
+1. If it does not already exist, create a folder called "plugins" in
+   /Applications/Trelis-16.0/Contents/MacOS/
+2. unpack tar ball in /Applications/Trelis-16.0/Contents/MacOS/plugins
+3. change directory to /Applications/Trelis-16.0/Contents/MacOS/plugins/dagmc
+4. Run the install.sh script: ./install.sh
 
 Windows Install Instructions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A plugin for Windows is currently being developed.
+A plugin for Windows is currently being developed, it will be posted to the 
+above link when complete.
 
 Using the Plugin
 ~~~~~~~~~~~~~~~~
 
-Load your geometry into Cubit/Trelis following the instructions in `geometry preparation <workflow/cubit_trelis_workflow.html>`_, markup your
-geometry according to the workflow of your choice, for example `UWUW  <workflow/uw2.html>`_, and Imprint and Merge.
-You can now export the geometry, ready for use in simulations using
+Load your geometry into Cubit/Trelis following the instructions in 
+`geometry preparation <workflow/cubit_trelis_workflow.html>`_, markup your
+geometry according to the workflow of your choice, for example 
+`UWUW  <workflow/uw2.html>`_, and Imprint and Merge. You can now export the 
+geometry, ready for use in simulations using
 ::
 
    CUBIT> export dagmc <filename> [faceting_tolerance <faceting tolerance>]
@@ -40,3 +53,4 @@ the currently loaded file to a file called "large_facets.h5m" with a faceting to
 ::
 
    CUBIT> export dagmc "large_facets.h5m" faceting_tolerance 1.e-5
+

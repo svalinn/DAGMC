@@ -295,7 +295,7 @@ Due to the importance of using the ``group`` command reading the CUBIT
 manual section on its full usage is highly recommended.
 
 Production of the DAGMC Geometry
-----------------------------
+--------------------------------
 
 Now that the geometry is ready for DAGMC we must export it. Using the
 Cubit/Trelis plugin make this very straightforward, assuming that the
@@ -303,6 +303,7 @@ user has proceeded through the previous steps then all one must do is
 use the export command, for example to produce a file called, geometry.h5m
 with faceting tolerances and length tolerances of 1.0e-4 cm and 5.0 cm respectively
 ::
+
     CUBIT> export dagmc geometry.h5m faceting_tolerance 1.e-4 length_tolerance 5.0
 
 The time taken to perform this step depends upon the complexity of the model, it could 
@@ -313,13 +314,12 @@ following the workflow listed above.
 
 Finishing Up and Final Notes
 ----------------------------
-
 Having prepared your model to completion with the appropriate groups created
 , you can choose to save your model in various formats. Previously 
-we recommended ACIS *.sat files, but any format that reliably retains
-imprortant metadata.  Recommended storage formats are ACIS, *.Trelis or 
-*.cub files.
+we recommended ACIS \*.sat files, but any format that reliably retains
+imprortant metadata.  Recommended storage formats are ACIS, \*.Trelis or 
+\*.cub files.
 
 One should also use the `make_watertight <watertightness.html>`_ tool on the 
-produced DAGMC *.h5m file in order to completely seal your geometry, this 
+produced DAGMC \*.h5m file in order to completely seal your geometry, this 
 should help prevent tolerance issues due to faceting.

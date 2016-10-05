@@ -64,7 +64,7 @@ characters.*
 Be aware that there are several predefined material names in FLUKA, and they
 are appropriately treated by FluDAG.
 
-* Note: All volumes must belong to a group, if they do not have any information
+*Note: All volumes must belong to a group, if they do not have any information
 FluDAG will not assign material information.*
 
 The implicit complement is automatically assigned the value 1 + the id of the
@@ -148,6 +148,7 @@ Running FluDAG bears some similarity to running FLUGG: the first step is to crea
 geometry of the problem you wish to run. In order to produce the material assignment
 data from the CAD geometry we must first facet the file using the Cubit/Trelis plugin. Using
 the subsequently defined geometry file, the user must produce the mat.inp file
+::
 
     $ /path/to/fludag/executable/mainfludag geom.h5m
 
@@ -162,9 +163,11 @@ produced by FluDAG.**
 The FluDAG calculation is now ok to run, first make a symbolic link from the geometry file
 to a fixed file called dagmc.h5m
 ::
+
      $ ln -s geom.h5m dagmc.h5m
 
 The user can then run the problem
 ::
+
      $ $FLUPRO/flutil/rfluka -e <path/to/fludag/executable/mainfludag> \
          ++{standard fluka options}++ <fludag_input_file>
