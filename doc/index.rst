@@ -19,19 +19,19 @@ as other related tools.
    :file: slideshow.html
 
 ..  image:: gallery/hab1_thumbnail.png
-   :target: nasa/gallery.html
+   :target: gallery.html
    :hidden:
 
 ..  image:: gallery/iter_thumbnail.png
-   :target: iter/gallery.html
+   :target: gallery.html
    :hidden:
 
 ..  image:: gallery/atr_thumbnail.png
-   :target: inl/gallery.html
+   :target: gallery.html
    :hidden:
 
 ..  image:: gallery/fnsf_thumbnail.png
-   :target: fnsf/gallery.html
+   :target: gallery.html
    :hidden:
 
 DAGMC is designed in a modular fashion so that it can be integrated into a
