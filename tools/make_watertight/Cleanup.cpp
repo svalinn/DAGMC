@@ -19,9 +19,9 @@ moab::ErrorCode Cleanup::remove_obb_tree(bool verbose)
   result = MBI()->tag_get_handle( "OBB_TREE", sizeof(moab::EntityHandle),
                                   moab::MB_TYPE_HANDLE, obbTag, moab::MB_TAG_DENSE, NULL, 0 );
   if(verbose) {
-    MB_CHK_SET_ERR(result,"could not get OBB tree handle"); 
+    MB_CHK_SET_ERR(result,"could not get OBB tree handle");
   } else {
-    MB_CHK_SET_ERR(result,""); 
+    MB_CHK_SET_ERR(result,"");
   }
   // This gets the surface/volume sets. I don't want to delete the sets.
   // I want to remove the obbTag that contains the tree root handle and
@@ -38,7 +38,7 @@ moab::ErrorCode Cleanup::remove_obb_tree(bool verbose)
   for(moab::Range::iterator i=obb_entities.begin(); i!=obb_entities.end(); i++) {
     moab::EntityHandle root;
     result = MBI()->tag_get_data( obbTag, &(*i), 1, &root );
-    MB_CHK_SET_ERR(result, "coule not get OBB tree data"); 
+    MB_CHK_SET_ERR(result, "coule not get OBB tree data");
     tool.delete_tree( root );
   }
   result = MBI()->tag_delete( obbTag ); // use this for DENSE tags

@@ -94,9 +94,9 @@ moab::ErrorCode Zip::t_joint( moab::Tag normal_tag,
 
     // catch-all to remove degenerate tris
     result = delete_degenerate_tris( joints[i].before_tri );
-    MB_CHK_SET_ERR(result,"could not delete degenerate tri"); 
+    MB_CHK_SET_ERR(result,"could not delete degenerate tri");
     result = delete_degenerate_tris( new_tri );
-    MB_CHK_SET_ERR(result,"could not delete degenerate tri"); 
+    MB_CHK_SET_ERR(result,"could not delete degenerate tri");
   }
   return moab::MB_SUCCESS;
 }
@@ -563,15 +563,15 @@ moab::ErrorCode Zip::merge_verts( const moab::EntityHandle keep_vert,
   moab::Range tris;
   moab::EntityHandle verts[2]= {keep_vert, delete_vert};
   rval = MBI()->get_adjacencies( verts, 2, 2, false, tris, moab::Interface::UNION );
-  MB_CHK_SET_ERR(rval,"getting adjacent tris failed"); 
+  MB_CHK_SET_ERR(rval,"getting adjacent tris failed");
 
   // actually do the merge
   rval = MBI()->merge_entities( keep_vert, delete_vert, false, true );
-  MB_CHK_SET_ERR(rval,"merge entities failed"); 
+  MB_CHK_SET_ERR(rval,"merge entities failed");
 
   // delete degenerate tris
   rval = delete_degenerate_tris( tris );
-  MB_CHK_SET_ERR(rval,"deleting degenerate tris failed"); 
+  MB_CHK_SET_ERR(rval,"deleting degenerate tris failed");
 
   return moab::MB_SUCCESS;
 }

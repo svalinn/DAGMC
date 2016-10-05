@@ -83,7 +83,7 @@ int main(int argc, char **argv)
   double facet_tol;
   MakeWatertight mw(mbi);
   result= mw.make_mesh_watertight(input_set, facet_tol);
-  MB_CHK_SET_ERR(result, "could not make model watertight"); 
+  MB_CHK_SET_ERR(result, "could not make model watertight");
 
 
   //write file
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
   std::cout << "Writing zipped file..." << std::endl;
   write_sealed_file( mbi, root_name, facet_tol, is_acis);
   MB_CHK_SET_ERR(result, "could not write the sealed mesh to a new file");
-  
+
 
   clock_t write_time = clock();
   std::cout << "Timing(seconds): loading="

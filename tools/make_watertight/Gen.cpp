@@ -232,14 +232,14 @@ moab::ErrorCode Gen::find_closest_vert( const moab::EntityHandle reference_vert,
   double min_dist_sqr = std::numeric_limits<double>::max();
   moab::CartVect ref_coords;
   rval = MBI()->get_coords( &reference_vert, 1, ref_coords.array() );
-  MB_CHK_SET_ERR(rval,"failed to get ref coords"); 
+  MB_CHK_SET_ERR(rval,"failed to get ref coords");
   double length = 0;
   moab::CartVect prev_coords;
 
   for(unsigned i=0; i<arc_of_verts.size(); ++i) {
     moab::CartVect coords;
     rval = MBI()->get_coords( &arc_of_verts[i], 1, coords.array() );
-    MB_CHK_SET_ERR(rval,"failed to get coords"); 
+    MB_CHK_SET_ERR(rval,"failed to get coords");
 
     // use dist_limit to exit early; avoid checking the entire arc
     if(0!=i) {
@@ -286,7 +286,7 @@ moab::ErrorCode Gen::find_closest_vert( const double tol,
   for(unsigned int i=0; i<loop_of_verts.size(); i++) {
     double sqr_dist = std::numeric_limits<double>::max();
     rval = squared_dist_between_verts(reference_vert, loop_of_verts[i], sqr_dist);
-    MB_CHK_SET_ERR(rval,"could not get dist"); 
+    MB_CHK_SET_ERR(rval,"could not get dist");
     if(sqr_dist < sqr_min_dist) {
       if(sqr_dist >= TOL_SQR) {
         sqr_min_dist = sqr_dist;
@@ -1400,7 +1400,7 @@ moab::ErrorCode Gen::find_skin( moab::Range tris, const int dim,
       const moab::EntityHandle conn[2] = {edges[i].v0, edges[i].v1};
       moab::EntityHandle edge;
       result = MBI()->create_element( moab::MBEDGE, conn, 2, edge );
-      MB_CHK_SET_ERR(result, "could not create edge element"); 
+      MB_CHK_SET_ERR(result, "could not create edge element");
       skin_edges.insert( edge );
     }
   }
@@ -1571,7 +1571,7 @@ moab::ErrorCode Gen::get_curve_surf_sense( const moab::EntityHandle surf_set, co
   moab::ErrorCode rval;
   moab::GeomTopoTool gt( MBI(), false);
   rval = gt.get_senses( curve_set, surfs, senses );
-  MB_CHK_SET_ERR(rval,"failed to get_senses"); 
+  MB_CHK_SET_ERR(rval,"failed to get_senses");
 
   unsigned counter = 0;
   int edim;
@@ -1687,12 +1687,12 @@ moab::ErrorCode Gen::delete_surface( moab::EntityHandle surf, moab::Tag geom_tag
   //measure area of the surface
   double area;
   result = measure( surf, geom_tag, area, debug, verbose );
-  MB_CHK_SET_ERR(result,"could not measure area"); 
+  MB_CHK_SET_ERR(result,"could not measure area");
   assert(moab::MB_SUCCESS == result);
 
   //remove triagngles from the surface
   result = MBI()->remove_entities( surf, tris);
-  MB_CHK_SET_ERR(result,"could not remove tris"); 
+  MB_CHK_SET_ERR(result,"could not remove tris");
   assert(moab::MB_SUCCESS == result);
   //print information about the deleted surface if requested by the user
   if(debug) std::cout << "  deleted surface " << id
@@ -1700,17 +1700,17 @@ moab::ErrorCode Gen::delete_surface( moab::EntityHandle surf, moab::Tag geom_tag
 
   // delete triangles from mesh data
   result = MBI()->delete_entities( tris );
-  MB_CHK_SET_ERR(result,"could not delete tris"); 
+  MB_CHK_SET_ERR(result,"could not delete tris");
   assert(moab::MB_SUCCESS == result);
 
   //remove the sense data for the surface from its child curves
   result = remove_surf_sense_data( surf, debug);
-  MB_CHK_SET_ERR(result, "could not remove surface's sense data"); 
+  MB_CHK_SET_ERR(result, "could not remove surface's sense data");
 
   //if this was the last surface in a volume, then delete the volume
   std::vector<moab::EntityHandle> parent_volumes;
   result = MBI()->get_parent_meshsets( surf, parent_volumes);
-  MB_CHK_SET_ERR(result,"could not get the surface's parent meshsets"); 
+  MB_CHK_SET_ERR(result,"could not get the surface's parent meshsets");
   assert(moab::MB_SUCCESS == result);
 
   //check each parent volume
@@ -1719,19 +1719,19 @@ moab::ErrorCode Gen::delete_surface( moab::EntityHandle surf, moab::Tag geom_tag
     moab::EntityHandle parent_vol = *i;
     std::vector<moab::EntityHandle> child_surfs;
     result = MBI()->get_child_meshsets(parent_vol, child_surfs);
-    MB_CHK_SET_ERR(result, "could not get the child surfaces of the volume"); 
+    MB_CHK_SET_ERR(result, "could not get the child surfaces of the volume");
     assert(moab::MB_SUCCESS == result);
 
     // delete volume if it only has this surface as its child
     if( child_surfs.size() == 1 && child_surfs[0] == surf ) {
       result = delete_vol(parent_vol);
-      MB_CHK_SET_ERR(result, "could not delete the parent volume"); 
+      MB_CHK_SET_ERR(result, "could not delete the parent volume");
     }
   }
 
   //remove the surface set itself
   result = MBI()->delete_entities( &(surf), 1);
-  MB_CHK_SET_ERR(result,"could not delete surface set"); 
+  MB_CHK_SET_ERR(result,"could not delete surface set");
   assert(moab::MB_SUCCESS == result);
 
 
@@ -1753,7 +1753,7 @@ moab::ErrorCode Gen::remove_surf_sense_data(moab::EntityHandle del_surf, bool de
 // get the curves of the surface
   moab::Range del_surf_curves;
   result = MBI() -> get_child_meshsets( del_surf, del_surf_curves);
-  MB_CHK_SET_ERR(result,"could not get the curves of the surface to delete"); 
+  MB_CHK_SET_ERR(result,"could not get the curves of the surface to delete");
   if (debug) std::cout << "got the curves" << std::endl;
 
   if (debug) {
@@ -1770,11 +1770,11 @@ moab::ErrorCode Gen::remove_surf_sense_data(moab::EntityHandle del_surf, bool de
 
   //get tag for the entities with sense data associated with a given moab entity
   result = MBI()-> tag_get_handle(GEOM_SENSE_N_ENTS_TAG_NAME, 0, moab::MB_TYPE_HANDLE, senseEnts, flags);
-  MB_CHK_SET_ERR(result, "could not get senseEnts tag"); 
+  MB_CHK_SET_ERR(result, "could not get senseEnts tag");
 
   //get tag for the sense data associated with the senseEnts entities for a given moab entity
   result = MBI()-> tag_get_handle(GEOM_SENSE_N_SENSES_TAG_NAME, 0, moab::MB_TYPE_INTEGER, senseSenses, flags);
-  MB_CHK_SET_ERR(result,"could not get senseSenses tag"); 
+  MB_CHK_SET_ERR(result,"could not get senseSenses tag");
 
   //initialize vectors for entities and sense data
   std::vector<moab::EntityHandle> surfaces;
@@ -1782,7 +1782,7 @@ moab::ErrorCode Gen::remove_surf_sense_data(moab::EntityHandle del_surf, bool de
   for(moab::Range::iterator i=del_surf_curves.begin(); i!=del_surf_curves.end(); i++ ) {
 
     result = gt.get_senses(*i, surfaces, senses);
-    MB_CHK_SET_ERR(result, "could not get the senses for the del_surf_curve"); 
+    MB_CHK_SET_ERR(result, "could not get the senses for the del_surf_curve");
     // if the surface to be deleted (del_surf) exists in the sense data (which it should), then remove it
     for(unsigned int index = 0; index < senses.size() ; index++) {
       if(surfaces[index]==del_surf) {
@@ -1793,15 +1793,15 @@ moab::ErrorCode Gen::remove_surf_sense_data(moab::EntityHandle del_surf, bool de
     }
     //remove existing sense entity data for the curve
     result= MBI()-> tag_delete_data( senseEnts, &*i, 1);
-    MB_CHK_SET_ERR(result, "could not delete sense entity data"); 
+    MB_CHK_SET_ERR(result, "could not delete sense entity data");
 
     //remove existing sense data for the curve
     result = MBI()-> tag_delete_data(senseSenses, &*i, 1);
-    MB_CHK_SET_ERR(result, "could not delete sense data"); 
+    MB_CHK_SET_ERR(result, "could not delete sense data");
 
     //reset the sense data for each curve
     result = gt.set_senses( *i, surfaces, senses);
-    MB_CHK_SET_ERR(result, "could not update sense data for surface deletion"); 
+    MB_CHK_SET_ERR(result, "could not update sense data for surface deletion");
 
   }
 
@@ -1832,10 +1832,10 @@ moab::ErrorCode Gen::combine_merged_curve_senses( std::vector<moab::EntityHandle
       moab::GeomTopoTool gt(MBI(), false);
       // get senses of the iterator curve and place them in the curve_to_delete vectors
       result = gt.get_senses( *j, curve_to_delete_surfs, curve_to_delete_senses);
-      MB_CHK_SET_ERR(result, "could not get the surfs/senses of the curve to delete"); 
+      MB_CHK_SET_ERR(result, "could not get the surfs/senses of the curve to delete");
       // get surfaces/senses of the merged_curve and place them in the curve_to_keep vectors
       result = gt.get_senses( merged_curve, curve_to_keep_surfs, curve_to_keep_senses);
-      MB_CHK_SET_ERR(result, "could not get the surfs/senses of the curve to delete"); 
+      MB_CHK_SET_ERR(result, "could not get the surfs/senses of the curve to delete");
 
       if(debug) {
         std::cout << "curve to keep id = " << geom_id_by_handle(merged_curve) << std::endl;
@@ -1875,7 +1875,7 @@ moab::ErrorCode Gen::combine_merged_curve_senses( std::vector<moab::EntityHandle
 
       result = gt.set_senses(merged_curve, combined_surfs, combined_senses);
       if(moab::MB_SUCCESS!=result && moab::MB_MULTIPLE_ENTITIES_FOUND!=result) {
-	MB_CHK_SET_ERR(moab::MB_FAILURE,"failed to set senses: ");
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"failed to set senses: ");
       }
 
 
@@ -2027,7 +2027,7 @@ moab::ErrorCode Gen::check_for_geometry_sets(moab::Tag geom_tag, bool verbose)
   // go get all geometry sets
   moab::Range geometry_sets[4];
   result = get_geometry_meshsets( geometry_sets, geom_tag, false);
-  MB_CHK_SET_ERR(result,"could not get the geometry meshsets"); 
+  MB_CHK_SET_ERR(result,"could not get the geometry meshsets");
 
   //make sure they're there
   for(unsigned dim=2; dim<4; dim++) {
@@ -2078,15 +2078,15 @@ moab::ErrorCode Gen::merge_verts( const moab::EntityHandle keep_vert,
   moab::Range tris;
   moab::EntityHandle verts[2]= {keep_vert, delete_vert};
   rval = MBI()->get_adjacencies( verts, 2, 2, false, tris, moab::Interface::UNION );
-  MB_CHK_SET_ERR(rval,"getting adjacent tris failed"); 
+  MB_CHK_SET_ERR(rval,"getting adjacent tris failed");
 
   // actually do the merge
   rval = MBI()->merge_entities( keep_vert, delete_vert, false, true );
-  MB_CHK_SET_ERR(rval,"merge entities failed"); 
+  MB_CHK_SET_ERR(rval,"merge entities failed");
 
   // delete degenerate tris
   rval = delete_degenerate_tris( tris );
-  MB_CHK_SET_ERR(rval,"deleting degenerate tris failed"); 
+  MB_CHK_SET_ERR(rval,"deleting degenerate tris failed");
 
   return moab::MB_SUCCESS;
 }

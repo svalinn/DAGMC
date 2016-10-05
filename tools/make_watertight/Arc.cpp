@@ -53,7 +53,7 @@ moab::ErrorCode Arc::remove_degenerate_edges( moab::Range &edges, const bool deb
     int n_verts;
     rval = MBI()->get_connectivity( *i, endpts, n_verts );
     MB_CHK_SET_ERR(rval,"could not get connectivity");
-    
+
 
     // remove the edge if degenerate
     if(2==n_verts && endpts[0]!=endpts[1]) {
@@ -65,9 +65,9 @@ moab::ErrorCode Arc::remove_degenerate_edges( moab::Range &edges, const bool deb
                   << std::endl;
       }
       rval = zip->delete_adj_degenerate_tris( endpts[0] );
-      MB_CHK_SET_ERR(rval,"could not delete degenerate tris"); 
+      MB_CHK_SET_ERR(rval,"could not delete degenerate tris");
       rval = MBI()->delete_entities( &(*i), 1 );
-      MB_CHK_SET_ERR(rval,"could not delete degenerate edge"); 
+      MB_CHK_SET_ERR(rval,"could not delete degenerate edge");
       i = edges.erase(i);
     } else {
       std::cout << "remove_degenerate_edge: wrong edge connectivity size" << std::endl;
@@ -176,7 +176,7 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast( moab::Range &edges, co
       rval = MBI()->delete_entities( duplicate_edges );
       if(moab::MB_SUCCESS!=rval) {
         delete[] my_edges;
-	MB_CHK_SET_ERR(moab::MB_FAILURE,"cannot delete edge");
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"cannot delete edge");
       }
       if(debug) {
         std::cout << "remove_opposite_edges: deleting " << duplicate_edges.size()
@@ -490,15 +490,15 @@ moab::ErrorCode Arc::merge_verts( const moab::EntityHandle keep_vert,
   moab::Range tris;
   moab::EntityHandle verts[2]= {keep_vert, delete_vert};
   rval = MBI()->get_adjacencies( verts, 2, 2, false, tris, moab::Interface::UNION );
-  MB_CHK_SET_ERR(rval,"getting adjacent tris failed"); 
+  MB_CHK_SET_ERR(rval,"getting adjacent tris failed");
 
   // actually do the merge
   rval = MBI()->merge_entities( keep_vert, delete_vert, false, true );
-  MB_CHK_SET_ERR(rval,"merge entities failed"); 
+  MB_CHK_SET_ERR(rval,"merge entities failed");
 
   // delete degenerate tris
   rval = zip->delete_degenerate_tris( tris );
-  MB_CHK_SET_ERR(rval,"deleting degenerate tris failed"); 
+  MB_CHK_SET_ERR(rval,"deleting degenerate tris failed");
 
   return moab::MB_SUCCESS;
 }
@@ -685,7 +685,7 @@ moab::ErrorCode Arc::merge_curves( moab::Range curve_sets, const double facet_to
         std::vector<int> senses;
         moab::GeomTopoTool gt(MBI(), false);
         result = gt.get_senses( *j, surfs, senses );
-	MB_CHK_SET_ERR(result,"failed to get senses"); 
+        MB_CHK_SET_ERR(result,"failed to get senses");
         for(unsigned k=0; k<surfs.size(); ++k) {
           //forward to reverse
           if(moab::SENSE_FORWARD==senses[k])
@@ -697,11 +697,11 @@ moab::ErrorCode Arc::merge_curves( moab::Range curve_sets, const double facet_to
           else if(moab::SENSE_BOTH==senses[k])
             senses[k] = moab::SENSE_BOTH;
           else {
-	    MB_CHK_SET_ERR(moab::MB_FAILURE,"unrecognized sense");
-	  }
+            MB_CHK_SET_ERR(moab::MB_FAILURE,"unrecognized sense");
+          }
         }
         result = gt.set_senses( *j, surfs, senses );
-	MB_CHK_SET_ERR(result,"failed to set senses"); 
+        MB_CHK_SET_ERR(result,"failed to set senses");
       }
 
     }
