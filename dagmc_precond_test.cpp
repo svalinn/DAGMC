@@ -1,8 +1,6 @@
 // std includes
 #include <iostream>
 #include <string>
-//test includes
-#include "TestUtil.hpp"
 // moab includes
 #include "moab/ProgOptions.hpp"
 #include "moab/ScdInterface.hpp"
@@ -82,14 +80,16 @@ CartVect nearest_on_cylinder(CartVect point, double height, double radius) {
     nearest_to_lids = CartVect(point[0],point[1],-height/2);
   }
 
+  //  std::cout << nearest_to_lids << std::endl;
+  
   // find nearest point on an infinite barrel
   CartVect nearest_to_inf_barrel = CartVect(point[0],point[1],0);
   nearest_to_inf_barrel.normalize();
   nearest_to_inf_barrel*=5;
   nearest_to_inf_barrel[2] = point[2];
-  
+  //  std::cout << nearest_to_inf_barrel << std::endl;
   // check if point is inside or outside the barrel
-  if(sqrt(pow(point[0],2)+pow(point[1],2)) < radius) {
+  if(CartVect(point[0],point[1],0).length() < radius) {
     // point is inside the barrel, then check for the minimum between the barrel and lids
     if((nearest_to_inf_barrel-point).length() < (nearest_to_lids-point).length()) {
       nearest_location = nearest_to_inf_barrel;
@@ -131,9 +131,9 @@ ErrorCode test_sphere(){
 	MB_CHK_SET_ERR(rval,"Could not get SCD vertex coords");
 
 	//get the distance to the nearest point on the sphere
-	double cylinder_radius = 5, cylinder_height = 5;
-	CartVect expected_location = nearest_on_cylinder(vert_coords, cylinder_radius, cylinder_radius);
-	double expected_distance = fabs((vert_coords-expected_location).length());
+	double sphere_radius = 5;
+	CartVect expected_location = nearest_on_sphere(vert_coords, sphere_radius);
+	double expected_distance = fabs((vert_coords-expected_location).length());	
 	
 	//retrieve the stored distance value of this vertex
 	double distance;
@@ -146,7 +146,10 @@ ErrorCode test_sphere(){
 	double facet_tol = dagmc->faceting_tolerance();
 	//compare the values - they should be off by no more than the faceting tolerance
 	if(fabs(expected_distance-distance) > facet_tol) {
-	  MB_CHK_SET_ERR(MB_FAILURE,"Distance value incorrect");
+	  MB_CHK_SET_ERR(MB_FAILURE, "Incorrect distance value found");
+	  std::cout << vert_coords << std::endl;
+	  std::cout << expected_distance << std::endl;
+	  std::cout << distance << std::endl;
 	}
 	
       }
@@ -180,8 +183,8 @@ ErrorCode test_cylinder(){
 	MB_CHK_SET_ERR(rval,"Could not get SCD vertex coords");
 
 	//get the distance to the nearest point on the sphere
-	double sphere_radius = 5;
-	CartVect expected_location = nearest_on_sphere(vert_coords, sphere_radius);
+	double cylinder_radius = 5, cylinder_height = 5;
+	CartVect expected_location = nearest_on_cylinder(vert_coords, cylinder_radius, cylinder_radius);
 	double expected_distance = fabs((vert_coords-expected_location).length());
 	
 	//retrieve the stored distance value of this vertex
@@ -195,7 +198,10 @@ ErrorCode test_cylinder(){
 	double facet_tol = dagmc->faceting_tolerance();
 	//compare the values - they should be off by no more than the faceting tolerance
 	if(fabs(expected_distance-distance) > facet_tol) {
-	  MB_CHK_SET_ERR(MB_FAILURE,"Distance value incorrect");
+	  MB_CHK_SET_ERR(MB_FAILURE, "Incorrect distance value found");
+	  std::cout << vert_coords << std::endl;
+	  std::cout << expected_distance << std::endl;
+	  std::cout << distance << std::endl;
 	}
 	
       }
