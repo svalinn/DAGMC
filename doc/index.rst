@@ -13,26 +13,8 @@ operations, is a part of the Mesh-Oriented datABase (MOAB_) library. The main
 DAGMC toolkit contains the functionality for coupling with physics codes as well
 as other related tools.
 
-
-
 .. raw:: html
    :file: slideshow.html
-
-..  image:: gallery/hab1_thumbnail.png
-   :target: gallery.html
-   :hidden:
-
-..  image:: gallery/iter_thumbnail.png
-   :target: gallery.html
-   :hidden:
-
-..  image:: gallery/atr_thumbnail.png
-   :target: gallery.html
-   :hidden:
-
-..  image:: gallery/fnsf_thumbnail.png
-   :target: gallery.html
-   :hidden:
 
 DAGMC is designed in a modular fashion so that it can be integrated into a
 variety of Monte Carlo radiation codes. The CNERG_ research group at the
@@ -56,6 +38,11 @@ source definition and run control.
    usersguide/index
    devguide/index
    upcoming
+
+.. toctree::
+   :hidden:
+
+   gallery/gallery
 
 .. _CNERG: http://cnerg.github.io
 .. _MOAB: http://press3.mcs.anl.gov/sigma/moab-library
