@@ -73,7 +73,7 @@ CartVect nearest_on_cylinder(CartVect point, double height, double radius) {
 
   // find point on nearest lid plane
   CartVect nearest_to_lids;
-  if(point[2] > height/2) {
+  if(point[2] >= 0) {
     nearest_to_lids = CartVect(point[0],point[1],height/2);
   }
   else {
@@ -83,13 +83,13 @@ CartVect nearest_on_cylinder(CartVect point, double height, double radius) {
   //  std::cout << nearest_to_lids << std::endl;
   
   // find nearest point on an infinite barrel
-  CartVect nearest_to_inf_barrel = CartVect(point[0],point[1],0);
+  CartVect nearest_to_inf_barrel = (point[0] == 0 && point[1] == 0) ? CartVect(1,1,0) : CartVect(point[0],point[1],0);
   nearest_to_inf_barrel.normalize();
   nearest_to_inf_barrel*=5;
   nearest_to_inf_barrel[2] = point[2];
   //  std::cout << nearest_to_inf_barrel << std::endl;
   // check if point is inside or outside the barrel
-  if(CartVect(point[0],point[1],0).length() < radius) {
+  if(CartVect(point[0],point[1],0).length() <= radius) {
     // point is inside the barrel, then check for the minimum between the barrel and lids
     if((nearest_to_inf_barrel-point).length() < (nearest_to_lids-point).length()) {
       nearest_location = nearest_to_inf_barrel;
