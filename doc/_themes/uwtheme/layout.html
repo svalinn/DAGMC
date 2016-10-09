@@ -14,8 +14,8 @@
     <div id="nav" class="main-menu-container">
       <ul id="menu-main" class="sf-menu">
         {%- block rootrellink %}
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></li>
-        <li class="menu-item"><a href="DAGMC">DAGMC</a></li>
         {%- endblock %}
         {%- for rellink in rellinks|reverse %}
         <li class="menu-item" {% if loop.first %}style="margin-right: 10px"{% endif %}>
