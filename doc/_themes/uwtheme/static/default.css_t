@@ -41,7 +41,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 /*  line-height: 1em;*/
   font-family: inherit;
   text-align: left;
-  vertical-align: baseline;
+  vertical-align: middle;
   background: transparent;
 }
 
