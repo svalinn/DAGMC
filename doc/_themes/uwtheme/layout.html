@@ -15,6 +15,7 @@
       <ul id="menu-main" class="sf-menu">
         {%- block rootrellink %}
         <li class="menu-item"><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></li>
+        <li class="menu-item"><a href="DAGMC">DAGMC</a></li>
         {%- endblock %}
         {%- for rellink in rellinks|reverse %}
         <li class="menu-item" {% if loop.first %}style="margin-right: 10px"{% endif %}>
@@ -33,7 +34,7 @@
 {%- macro uwsidebar() %}
 <div id="sidebar">
  <div id="sidebar_section"></div>
- <div id="sidebar_section"><strong>Table of Contents</strong><br>{{ toc }} </div>
+ <div id="sidebar_section">{{ toc }} </div>
 </div>
 {%- endmacro %}
 
