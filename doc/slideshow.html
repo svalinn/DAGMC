@@ -8,8 +8,9 @@
 
 /* Slideshow container */
  .slideshow-container {
-     max-width: 1000px;
-     max-height: 1000px;
+     max-width: 800px;
+     max-height: 800px;
+     height:550px;
      position: relative;
      margin: auto;
 }
@@ -22,7 +23,7 @@
   width: auto;
   margin-top: -22px;
   padding: 16px;
-  color: white;
+  color: grey;
   font-weight: bold;
   font-size: 18px;
   transition: 0.6s ease;
@@ -43,10 +44,10 @@
 /* Caption text */
 .text {
   color: #000;
-  font-size: 20px;
+  font-size: 15px;
   padding: 8px 12px;
   position: absolute;
-  top: -40px;
+  bottom: -10px;
   width: 100%;
   text-align: center;
 }
@@ -71,6 +72,13 @@
   border-radius: 50%;
   display: inline-block;
   transition: background-color 0.6s ease;
+}
+
+img {
+max-height: 500px;
+width:100%;
+vertical-align: bottom;
+position: absolute;
 }
 
 .active, .dot:hover {
@@ -103,61 +111,61 @@
 <div class="slideshow-container">
   <div class="mySlides fade">
     <div class="numbertext">1 / 10</div>
-    <img src="_images/hab1.png" style="width:100%">
+    <img src="_images/hab1.png" >
     <div class="text"> FluDAG Calculation of NASA Habitat Module, Irradiation of 1 GeV Protons</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">2 / 10</div>
-    <img src="_images/pppl_fnsf.png" style="width:100%">
+    <img src="_images/pppl_fnsf.png" >
     <div class="text"> PPPL FNSF</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">3 / 10</div>
-    <img src="_images/atr.png" style="width:100%">
+    <img src="_images/atr.png" >
     <div class="text"> ATR Cross Section</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">4 / 10</div>
-    <img src="_images/bsm_work.png" style="width:100%">
+    <img src="_images/bsm_work.png" style="margin-top:125px">
     <div class="text"> Blanket Shield Module</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">5 / 10</div>
-    <img src="_images/fng_sdr_fluka.png" style="width:100%">
+    <img src="_images/fng_sdr_fluka.png" >
     <div class="text"> Example of the FNG-SDR Geometry in FluDAG</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">6 / 10</div>
-    <img src="_images/fludag_ni_proton_mag.png" style="width:100%">
+    <img src="_images/fludag_ni_proton_mag.png" >
     <div class="text"> Protons being deflected by B Field, interacting on nickel block, FluDAG</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">7 / 10</div>
-    <img src="_images/hab_module_proton_daggeant4.png" style="width:100%">
+    <img src="_images/hab_module_proton_daggeant4.png" >
     <div class="text"> NASA Habitat module irradiated by protons, DagGeant4</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">8 / 10</div>
-    <img src="_images/iter_elm_coils_heating.png" style="width:100%">
+    <img src="_images/iter_elm_coils_heating.png" >
     <div class="text"> Nuclear heating behind the ITER blanket modules, including the presence of ELM coils, DAG-MCNP5</div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">9 / 10</div>
-    <img src="_images/pppl_fnsf_tritium.png" style="width:100%">
+    <img src="_images/pppl_fnsf_tritium.png" >
     <div class="text"> Tritium reaction rate in PPPL ST-FSNF plotted on mesh tally, DAG-MCNP5 </div>
   </div>
 
   <div class="mySlides fade">
     <div class="numbertext">10 / 10</div>
-    <img src="_images/fng_neutron_tetmesh_mcnp5.png" style="width:100%">
+    <img src="_images/fng_neutron_tetmesh_mcnp5.png" >
     <div class="text"> Neutron flux map in a DAG-MCNP5 Advanced Tetmesh tally on the FNG SDR geometry</div>
   </div>
 
