@@ -69,7 +69,9 @@ endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
 # Include directories
 include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import)
-include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import/cgm)
+if (${MCNP_VERSION} STREQUAL 6.1.1)
+  include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import/cgm)
+endif (${MCNP_VERSION} STREQUAL 6.1.1)
 include_directories(${PROJECT_SOURCE_DIR}/tally)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})

@@ -1,3 +1,15 @@
+diff -rN '--unified=0' Source/import/frgcpa_.inc Source_dagmc/import/frgcpa_.inc
+--- Source/import/frgcpa_.inc	2016-10-06 14:11:22.090396358 -0500
++++ Source_dagmc/import/frgcpa_.inc	2016-10-10 17:56:43.525561583 -0500
+@@ -3 +3 @@
+-!$OMP THREADPRIVATE (/FRGCPA_/)
++! !$OMP THREADPRIVATE (/FRGCPA_/)
+diff -rN '--unified=0' Source/import/frgspa_.inc Source_dagmc/import/frgspa_.inc
+--- Source/import/frgspa_.inc	2016-10-06 14:11:22.090396358 -0500
++++ Source_dagmc/import/frgspa_.inc	2016-10-10 17:56:46.317527989 -0500
+@@ -3 +3 @@
+-!$OMP THREADPRIVATE (/FRGSPA_/)
++! !$OMP THREADPRIVATE (/FRGSPA_/)
 diff -rN '--unified=0' Source/src/angl.F90 Source_dagmc/src/angl.F90
 --- Source/src/angl.F90
 +++ Source_dagmc/src/angl.F90
@@ -1143,16 +1155,9 @@ diff -rN '--unified=0' Source/src/transm.F90 Source_dagmc/src/transm.F90
 diff -rN '--unified=0' Source/src/trfsrf.F90 Source_dagmc/src/trfsrf.F90
 --- Source/src/trfsrf.F90
 +++ Source_dagmc/src/trfsrf.F90
-@@ -200,2 +200,7 @@
+@@ -200 +200 @@
 -  scf(l+1:l+3) = scf(l+1:l+3) - trf(2:3,jt)
--  ! eliminated call to matmpy for this transformation
-+  ! GFortran compiler fix
-+  ! scf(l+1:l+3) = scf(l+1:l+3) - trf(2:4,jt)
-+  ! ! eliminated call to matmpy for this transformation
-+  tpp(1) = scf(l+1)-trf(2,jt)
-+  tpp(2) = scf(l+2)-trf(3,jt)
-+  tpp(3) = scf(l+3)-trf(4,jt)
-+  call matmpy(3,3,1,trf(5,jt),3,tpp,1,scf(l+1),1,4)
++  scf(l+1:l+3) = scf(l+1:l+3) - trf(2:4,jt)
 diff -rN '--unified=0' Source/src/volume.F90 Source_dagmc/src/volume.F90
 --- Source/src/volume.F90
 +++ Source_dagmc/src/volume.F90
