@@ -1,5 +1,5 @@
-Using Trelis/Cubit for the DAGMC Workflow
-=========================================
+Using Cubit/Trelis with DAGMC
+=============================
 
 The general workflow for the production of models for analysis using DAGMC
 looks like that shown in the Figure below.
@@ -46,7 +46,7 @@ The general workflow for the production of DAGMC models is the following:
 10. if lost particles or leaky repair the pre-imprint/merge model and go to step 2
 11. if no lost or leaks, then transport is ok
 
-Preparing Solid Models
+Preparing solid models
 ~~~~~~~~~~~~~~~~~~~~~~
 
 In theory, solid models can be prepared in any modeling software
@@ -194,7 +194,7 @@ tokamak which is occupied by air or vacuum, or the water volume in a reactor. Th
 power of the implicit compliment lies in the fact that it is not a true CAD body
 since it was never defined, but automatically defines all undefined space in the model.
 
-Pre-processing Solid Models using Cubit/Trelis
+Pre-processing solid models using Cubit/Trelis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *Note: For large models, the steps described below can be very tedious
@@ -209,7 +209,7 @@ for analysis. Additional steps for `DAG-MCNP5 <uw2.html>`_ and
 `DAG-Tripoli4 <dag-tripoli4.html>`_ may be based on the instructions given here,
 but are provided in the respective document links.
 
-Importing the Solid Model
+Importing the solid model
 -------------------------
 
 The first step in Cubit/Trelis is to import the generated solid
@@ -218,7 +218,7 @@ several seconds up to a half an hour. As an initial user, it is
 recommend to start with simple models and geometries to obtain a
 better understanding of Cubit/Trelis.
 
-Imprint and Merge
+Imprint and merge
 -----------------
 
 For a DAGMC based analysis to work optimally, all of the surfaces must
@@ -260,7 +260,7 @@ process is rather quick.
 
 .. _grouping-basics:
 
-Grouping Volumes and Surfaces
+Grouping volumes and surfaces
 -----------------------------
 
 A DAGMC-based analysis allows a number of attributes of the geometry
@@ -294,7 +294,7 @@ volumes, but can contain surfaces too. Below the group
 Due to the importance of using the ``group`` command reading the CUBIT
 manual section on its full usage is highly recommended.
 
-Production of the DAGMC Geometry
+Production of the DAGMC geometry
 --------------------------------
 
 Now that the geometry is ready for DAGMC we must export it. Using the
@@ -312,7 +312,7 @@ that faceting artifacts or failures could occur at this point, so monitor the ou
 of this command in the Cubit/Trelis command line. If issues due occurs, these should be addressed 
 following the workflow listed above.
 
-Finishing Up and Final Notes
+Finishing up and final notes
 ----------------------------
 Having prepared your model to completion with the appropriate groups created
 , you can choose to save your model in various formats. Previously 

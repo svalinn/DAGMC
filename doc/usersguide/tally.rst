@@ -1,11 +1,11 @@
-DAGMC Mesh Tallies
-==================
+Unstructured mesh tallies
+=========================
 
 DAGMC supports several advanced mesh tally options including tetrahedral mesh
 tallies (tetmeshes) and kernel density estimator tallies. Both options require
 an unstructured mesh.
 
-Mesh Production Workflow
+Mesh production workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Trelis/Cubit can be used to generate the unstructured meshes needed for tallies.
@@ -22,7 +22,7 @@ Here is an example of how to use ``mbconvert``:
 
     $ mbconvert mesh.cub mesh.h5m
 
-Tetrahedral Mesh Tallies
+Tetrahedral mesh tallies
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Currently the tetmesh tally option is only available in DAG-MCNP5, but there are
@@ -59,7 +59,7 @@ viewing or post-processing with VisIt or other plotting tools.
 
     $ mbconvert mesh_out.h5m mesh_out.vtk
 
-Kernel Density Estimator Tallies
+Kernel density estimator tallies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The kernel density estimator tallies are a suite of tallies that allow scoring

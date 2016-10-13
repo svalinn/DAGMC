@@ -1,4 +1,4 @@
-Installing the Cubit/Trelis Plugin
+Installing the Cubit/Trelis plugin
 ==================================
 
 There is a common location that stores all the plugins that are available for use. Go

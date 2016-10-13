@@ -15,7 +15,7 @@ levereage the existing infrastructure in PyNE to allow a consistent transport pr
 defined across all MC codes.
 
 Materials
-~~~~~~~~~~~~~
+~~~~~~~~~
 
 Materials are the most painful and error prone items to transfer from code to code, since each MC code
 specifies materials in a different way. Instead, we tag groups of volumes
@@ -58,7 +58,7 @@ tally specification snippet; this allows the number of codes the DAGMC
 supports to grow organically with those that PyNE supports. When PYNE cannot
 fulfill your tally request it will warn you.
 
-Boundary Conditions
+Boundary conditions
 ~~~~~~~~~~~~~~~~~~~
 
 All MC codes have an understanding of boundary conditions, and all at least
@@ -78,7 +78,7 @@ or if you prefer, Lambert (white reflection)
 
     CUBIT> group "boundary:White"
 
-Particle Importances
+Particle importances
 ~~~~~~~~~~~~~~~~~~~~
 
 Particle importances are in important aspect of Monte Carlo simulations and
@@ -96,7 +96,7 @@ This is translated to the code specific version at runtime. *note* Fluka's impor
 range runs from 1e-5 to 1e5, when written to file, the range is rescaled and any out of
 range values are truncated to 1e-5 and 1e5.
 
-|UW2| Data
+|UW2| data
 ~~~~~~~~~~
 
 The |UW2| data is incorporated into the geometry file (\*.h5m) file using a
@@ -122,7 +122,7 @@ that would be performed on a normal operation, with the exception that no data
 is actually written, this can be done to test your file to make sure all the expected
 materials are present in the file.
 
-MCNP Specific Steps
+MCNP-specific steps
 ~~~~~~~~~~~~~~~~~~~
 
 To run a MCNP based UWUW problem, the user must make the minimum input deck that defines 
@@ -138,7 +138,7 @@ which the user can modify to remove extraneous nuclides and re-run with;
 
    $ mcnp5 i=input g=geom.h5m l=lcad_modified
 
-FluDAG Specific Steps
+FluDAG-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 
 To run a FluDAG based UWUW problem, like the above MCNP example, the user must make a minmal Fluka input deck
@@ -161,7 +161,7 @@ Fluka problem
 
    $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 
-Geant4 Specific Steps
+Geant4-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 To run a Geant4 problem, like those shown above, the user must write a Geant4 macro file that contains at
 minimum, only the source description (GPS) and the number of particles to simulate. The problem is then run with
@@ -169,7 +169,7 @@ minimum, only the source description (GPS) and the number of particles to simula
 
     $ DagGeant geom.h5m input.mac
 
-Worked Example
+Worked example
 ~~~~~~~~~~~~~~
 
 Open Trelis/Cubit, and let's place some volumes to create our first problem.  We will
@@ -242,7 +242,7 @@ material assignments: one for Lead, as defined in the material library, and
 another kind of Lead at a different density than the library version. We
 also see that 4 tallies were requested: the photon flux in each volume.
 
-Example Input
+Example input
 ~~~~~~~~~~~~~
 
 We are now ready to run, once we have made the input deck for each Monte Carlo
@@ -286,7 +286,7 @@ Fluka example: let us called this fluka.inp
     START           1.E5
     STOP
 
-MCNP Run
+MCNP run
 ~~~~~~~~
 
 Now we are ready to run the first DAG-MCNP5 example:
@@ -341,7 +341,7 @@ You should see the following on screen
 Feel free to examine the output of the run, but this provides a simple example on what to
 expect.
 
-FluDAG Run
+FluDAG run
 ~~~~~~~~~~
 
 For FluDAG, first we produce the mat.inp snippet file: this must then be pasted into
@@ -414,8 +414,8 @@ numerical part of "fluka_26362"):
     Moving fort.21 to /mnt/data/prod/uwuw_example/web_example/fluka001_fort.21
     End of FLUKA run
 
-DagGeant4 Run
-~~~~~~~~~~~~~~~~~
+Dag-Geant4 run
+~~~~~~~~~~~~~~
 
 DagGeant4 is probably the most trivial of all the |UW2| enabled codes to run.
 Copy the vis.mac file from DAGMC/geant4/build/vis.mac

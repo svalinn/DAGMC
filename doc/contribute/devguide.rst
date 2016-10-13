@@ -1,4 +1,4 @@
-Developer's Guide
+Developer's guide
 =================
 
 DAGMC is an open source project that facilitates the running of CAD based particle transport problems.

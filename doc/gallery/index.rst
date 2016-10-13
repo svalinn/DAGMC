@@ -1,3 +1,6 @@
+Gallery of projects that use DAGMC
+==================================
+
 .. image:: hab1.png
    :alt:   FluDAG Calculation of NASA Habitat Module, Irradiation of 1 GeV Protons
 

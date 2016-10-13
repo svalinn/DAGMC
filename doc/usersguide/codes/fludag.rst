@@ -1,4 +1,4 @@
-Code-Specific Steps for FluDAG
+Code-specific steps for FluDAG
 ==============================
 
 There are several varieties of code-specific steps:
@@ -8,14 +8,14 @@ There are several varieties of code-specific steps:
 3. preparing the FLUKA input file for running with DAGMC
 4. inserting the material assignments into the FLUKA input deck
 
-Geometry Metadata
+Geometry metadata
 ~~~~~~~~~~~~~~~~~
 
 In FluDAG, the geometry file can be used to define material
 assignments, and eventually we would like to add the capability to
 define boundary conditions and tally locations.
 
-Assigning Materials & Densities
+Assigning materials & densities
 -------------------------------
 
 The generic workflow description includes details on
@@ -72,7 +72,7 @@ highest numberd volume. You can easily modify what material property that you
 would like the implicit compliment (or any other volume for that matter) to have
 by changing the material on the ASSIGNMAT card.
 
-Defining the Graveyard
+Defining the graveyard
 ----------------------
 
 A typical usage of Monte Carlo codes include a volume that extends
@@ -110,13 +110,13 @@ When FLuDAG is run all the particles that enter volumes in group "M_BLCKHOLE"
 will be killed.  This is effectively the same as the concept of importance
 in MCNP.
 
-Scoring Assignments
+Scoring assignments
 -------------------
 
 We do not currently support scoring assignments through group names. The user must manually
 add these to the FLUKA input deck.
 
-Preparing the FluDAG Input File
+Preparing the FluDAG input file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The FluDAG (FLUKA) input file will look almost identical to the originating

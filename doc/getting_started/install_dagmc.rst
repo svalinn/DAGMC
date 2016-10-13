@@ -1,5 +1,5 @@
-Install Guide
-=============
+Installing DAGMC
+================
 
 These instructions explain how to install DAGMC and its dependencies.
 
@@ -241,7 +241,7 @@ Configure DAGMC
 
 CMake variables are used to configure DAGMC with your desired build options. A
 few examples will be shown here, but you can see a list of all possible options
-`here <usersguide/cmake_options.html>`_.
+`here <cmake_options.html>`_.
 
 First, create and enter the build directory.
 ::
@@ -377,6 +377,6 @@ DAGMC problem. See the `DAGMC workflow guides <usersguide/workflow/index.html>`_
 information.
 
 .. toctree::
-   :maxdepth: 1
+   :hidden:
 
-   usersguide/cmake_options
+   cmake_options

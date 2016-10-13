@@ -1,4 +1,4 @@
-Code-Specific Steps for DAG-MCNP5
+Code-specific steps for DAG-MCNP5
 =================================
 
 There are three varieties of code-specific steps for DAG-MCNP5:
@@ -7,13 +7,13 @@ There are three varieties of code-specific steps for DAG-MCNP5:
 2. Defining DAGMC runtime parameters using the DAGMC input file
 3. Specifyinng additional parameters on the command line
 
-Geometry Metadata
+Geometry metadata
 ~~~~~~~~~~~~~~~~~
 
 In DAG-MCNP5, the geometry file can be used to define material and density
 assignments, boundary conditions, and tallies.
 
-Materials and Densities
+Materials and densities
 -----------------------
 
 The generic workflow description includes details on :ref:`grouping-basics`, but
@@ -53,7 +53,7 @@ DAGMC will recognize that volume 102 is the graveyard, and the ``_comp`` keyword
 will trigger it to assign the specified material and density to the implicit
 complement rather than the graveyard.
 
-Boundary Conditions
+Boundary conditions
 -------------------
 
 There are two general classes of boundary condition supported by DAG-MCNP5:
@@ -183,7 +183,7 @@ Note that a total tally bin is always added.
 
 .. _additional_parameters:
 
-The DAG-MCNP5 Input File
+The DAG-MCNP5 input file
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 DAG-MCNP5 input files should only contain the data card block of a standard

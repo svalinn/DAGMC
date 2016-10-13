@@ -1,4 +1,4 @@
-DAGMC Tools
+DAGMC tools
 ===========
 
 The DAGMC infrastructure has a number of tools that are used to process, fix, diagnose and repair

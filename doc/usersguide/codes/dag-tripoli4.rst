@@ -1,4 +1,4 @@
-Code-Specific Steps for DAG-Tripoli4
+Code-specific steps for DAG-Tripoli4
 ====================================
 
 There are three varieties of code-specific steps:
@@ -7,13 +7,13 @@ There are three varieties of code-specific steps:
 2. defining DAGMC runtime parameters using input file syntax
 3. changes to the command-line
 
-Geometry Metadata
+Geometry metadata
 ~~~~~~~~~~~~~~~~~
 
 The current version of DAG-Tripoli4 allows the definition of material
 compositions and boundary conditions in the geometry.
 
-Assigning Materials & Densities
+Assigning materials & densities
 -------------------------------
 
 The generic workflow description includes details on
@@ -56,7 +56,7 @@ named "air":
 
     CUBIT> create group "comp_air_comp"
 
-Defining Boundary Conditions
+Defining boundary conditions
 ----------------------------
 
 There are two general classes of boundary condition supported by
@@ -137,7 +137,7 @@ created:
 
     CUBIT> group "spec.reflect" add surf 10 11
 
-DAGMC Runtime Parameters
+DAGMC runtime parameters
 ------------------------
 
 The DAGMC-Tripoli input file is formatted just like any other Tripoli
@@ -164,7 +164,7 @@ These parameters are described in the section on :ref:`additional_parameters`.
 In addition to many other Tripoli input blocks, it is important to define the
 material compositions that have been assigned in the previous step.
 
-Running DAGMC-Tripoli
----------------------
+Running DAG-Tripoli4
+--------------------
 
 Running DAGMC-Tripoli is identical to running the standard Tripoli.
