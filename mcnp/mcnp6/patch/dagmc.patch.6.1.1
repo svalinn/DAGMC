@@ -59,11 +59,13 @@ diff -rN '--unified=0' Source/src/celsrf.F90 Source_dagmc/src/celsrf.F90
 diff -rN '--unified=0' Source/src/cgm_interface.F90 Source_dagmc/src/cgm_interface.F90
 --- Source/src/cgm_interface.F90
 +++ Source_dagmc/src/cgm_interface.F90
-@@ -29,2 +29,2 @@
--      import :: c_double
--      real (kind=c_double), external, bind(c) :: rngfunc
+@@ -28,0 +29,4 @@
++#if __INTEL_COMPILER >= 1600
 +      import :: c_funptr
 +      type(c_funptr), value :: rngfunc
++#else
+@@ -30,0 +35 @@
++#endif
 diff -rN '--unified=0' Source/src/chkcel.F90 Source_dagmc/src/chkcel.F90
 --- Source/src/chkcel.F90
 +++ Source_dagmc/src/chkcel.F90
@@ -803,20 +805,30 @@ diff -rN '--unified=0' Source/src/imcn.F90 Source_dagmc/src/imcn.F90
 +++ Source_dagmc/src/imcn.F90
 @@ -29,0 +30 @@
 +  use dagmc_mod
-@@ -36,0 +38 @@
+@@ -36,0 +38,3 @@
++#if __INTEL_COMPILER >= 1600
 +  use, intrinsic :: iso_c_binding
-@@ -1823,0 +1826,5 @@
++#endif
+@@ -1823,0 +1828,5 @@
 +    ! Initialize DAGMC
 +    if ( isdgmc == 1 ) then  ! set DAGMC parameters from idum & rdum
 +      call dagmc_set_settings(dagmc_distlimit, dagmc_usecad, dagmc_overlap_thickness, dagmc_srcmode)
 +    endif
 +
-@@ -2033 +2040 @@
+@@ -2033 +2042,5 @@
 -      call setrngcgm(rang)          
++#if __INTEL_COMPILER >= 1600
 +      call setrngcgm(c_funloc(rang))
-@@ -2299 +2306 @@
++#else
++      call setrngcgm(rang)
++#endif
+@@ -2299 +2312,5 @@
 -      call setrngcgm(rang)          
++#if __INTEL_COMPILER >= 1600
 +      call setrngcgm(c_funloc(rang))
++#else
++      call setrngcgm(rang)
++#endif
 diff -rN '--unified=0' Source/src/itally.F90 Source_dagmc/src/itally.F90
 --- Source/src/itally.F90
 +++ Source_dagmc/src/itally.F90
@@ -984,15 +996,21 @@ diff -rN '--unified=0' Source/src/msgtsk.F90 Source_dagmc/src/msgtsk.F90
 +++ Source_dagmc/src/msgtsk.F90
 @@ -77,0 +78 @@
 +  use dagmc_mod
-@@ -80,0 +82 @@
+@@ -80,0 +82,3 @@
++#if __INTEL_COMPILER >= 1600
 +  use, intrinsic :: iso_c_binding
-@@ -231,0 +234,3 @@
++#endif
+@@ -231,0 +236,3 @@
 +  ! DAGMC
 +  call dagmc_msgbcast
 +
-@@ -308 +313 @@
+@@ -308 +315,5 @@
 -    call setrngcgm(rang) 
++#if __INTEL_COMPILER >= 1600
 +    call setrngcgm(c_funloc(rang))
++#else
++    call setrngcgm(rang)
++#endif
 diff -rN '--unified=0' Source/src/namchg.F90 Source_dagmc/src/namchg.F90
 --- Source/src/namchg.F90
 +++ Source_dagmc/src/namchg.F90
@@ -1109,17 +1127,28 @@ diff -rN '--unified=0' Source/src/pass0.F90 Source_dagmc/src/pass0.F90
 diff -rN '--unified=0' Source/src/pblcom.F90 Source_dagmc/src/pblcom.F90
 --- Source/src/pblcom.F90
 +++ Source_dagmc/src/pblcom.F90
-@@ -315,0 +316 @@
+@@ -178,4 +178,6 @@
+-  common /pblcom_thread/ pbl, pbl_src, pbl_stack
+-  common /pblcom_thread/ udt, udt_stack
+-  common /pblcom_thread/ pbl_in_use, udt_in_use, is_uncollided_part
+-  !$OMP THREADPRIVATE( /pblcom_thread/ )
++  common /pblcom_thread1/ pbl, pbl_src, pbl_stack
++  common /pblcom_thread2/ udt, udt_stack
++  common /pblcom_thread3/ pbl_in_use, udt_in_use, is_uncollided_part
++  !$OMP THREADPRIVATE( /pblcom_thread1/ )
++  !$OMP THREADPRIVATE( /pblcom_thread2/ )
++  !$OMP THREADPRIVATE( /pblcom_thread3/ )
+@@ -315,0 +318 @@
 +    use dagmc_mod
-@@ -340,0 +342,5 @@
+@@ -340,0 +344,5 @@
 +    ! DAGMC: save this particle's ray history
 +    if (isdgmc == 1) then
 +      call dagmc_savpar(n)
 +    endif
 +
-@@ -508,0 +515 @@
+@@ -508,0 +517 @@
 +    use dagmc_mod
-@@ -524,0 +532,5 @@
+@@ -524,0 +534,5 @@
 +
 +    ! DAGMC: Restore the ray history associated with this particle
 +    if ( isdgmc == 1 ) then
