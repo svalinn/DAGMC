@@ -65,7 +65,7 @@ namespace moab {
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
-DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double numerical_precision) {
+DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
   if (NULL == mb_impl) {
@@ -82,7 +82,7 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double numerical_prec
   // This is the correct place to uniquely define default values for the dagmc settings
   overlapThickness = overlap_tolerance; // must be nonnegative
   defaultFacetingTolerance = .001;
-  numericalPrecision = numerical_precision;
+  numericalPrecision = p_numerical_precision;
 
   memset( implComplName, 0, NAME_TAG_SIZE );
   strcpy( implComplName , "impl_complement" );
