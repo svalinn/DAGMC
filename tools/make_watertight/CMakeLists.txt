@@ -10,13 +10,13 @@ list(APPEND SRC_FILES MakeWatertight.cpp)
 list(APPEND SRC_FILES CheckWatertight.cpp)
 
 # Public headers
-set(PUB_HEADERS)
-list(APPEND PUB_HEADERS Gen.hpp)
-list(APPEND PUB_HEADERS Arc.hpp)
-list(APPEND PUB_HEADERS Zip.hpp)
-list(APPEND PUB_HEADERS Cleanup.hpp)
-list(APPEND PUB_HEADERS CheckWatertight.hpp)
-list(APPEND PUB_HEADERS MakeWatertight.hpp)
+set(MW_HEADERS)
+list(APPEND MW_HEADERS Gen.hpp)
+list(APPEND MW_HEADERS Arc.hpp)
+list(APPEND MW_HEADERS Zip.hpp)
+list(APPEND MW_HEADERS Cleanup.hpp)
+list(APPEND MW_HEADERS CheckWatertight.hpp)
+list(APPEND MW_HEADERS MakeWatertight.hpp)
 
 # Libraries
 set(LINK_LIBS)
@@ -36,13 +36,13 @@ target_link_libraries(check_watertight ${LINK_LIBS})
 
 #Create library with make_watertight functionality
 add_library(makeWatertight ${LIB_TYPE} Zip.cpp Arc.cpp Cleanup.cpp Gen.cpp CheckWatertight.cpp MakeWatertight.cpp)
-set_target_properties(makeWatertight PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
+set_target_properties(makeWatertight PROPERTIES PUBLIC_HEADER "${MW_HEADERS}")
 
 # Install
 install(TARGETS check_watertight make_watertight DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS ${PERMS})
 install(TARGETS makeWatertight LIBRARY 	     DESTINATION ${INSTALL_LIB_DIR}
 			       ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
-			       PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
+			       PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}/make_watertight
 			       LIBRARY       PERMISSIONS ${PERMS}
 			       ARCHIVE 	     PERMISSIONS ${PERMS})
 
