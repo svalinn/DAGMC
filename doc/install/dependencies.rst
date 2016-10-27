@@ -5,9 +5,9 @@ This document describes how to install the dependencies of DAGMC.
 
 The following dependencies are required:
 
- * `LAPACK <http://www.netlib.org/lapack>`_
- * `HDF5 <http://www.hdfgroup.org/HDF5>`_
- * `MOAB <http://sigma.mcs.anl.gov/moab-library>`_
+    * `LAPACK <http://www.netlib.org/lapack>`_
+    * `HDF5 <http://www.hdfgroup.org/HDF5>`_
+    * `MOAB <http://sigma.mcs.anl.gov/moab-library>`_
 
 This guide assumes that you are building DAGMC in the subdirectory ``dagmc_bld``
 of your home directory; i.e.

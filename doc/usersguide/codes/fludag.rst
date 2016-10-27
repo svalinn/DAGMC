@@ -3,10 +3,11 @@ Code-specific steps for FluDAG
 
 There are several varieties of code-specific steps:
 
-1. defining attributes of the geometry using groups in CUBIT
-2. producing material assignments in FLUKA input format from the h5m file, with the help of FluDAG
-3. preparing the FLUKA input file for running with DAGMC
-4. inserting the material assignments into the FLUKA input deck
+1.  defining attributes of the geometry using groups in CUBIT
+2.  producing material assignments in FLUKA input format from the h5m file, with
+    the help of FluDAG
+3.  preparing the FLUKA input file for running with DAGMC
+4.  inserting the material assignments into the FLUKA input deck
 
 Geometry metadata
 ~~~~~~~~~~~~~~~~~
@@ -127,19 +128,19 @@ on the line of GEOBEGIN should be FLUGG.
 For example the most simple valid FLUKA geometry is as follows,
 ::
 
-     GEOBEGIN                                                              COMBNAME
-         0    0
-     SPH S1         0.0 0.0 0.0 50.0
-     CELL1        5 +S1
-     CELL2        5 -S1
-     GEOEND
+    GEOBEGIN                                                              COMBNAME
+        0    0
+    SPH S1         0.0 0.0 0.0 50.0
+    CELL1        5 +S1
+    CELL2        5 -S1
+    GEOEND
 
 To run this geometry with FluDAG, remove all data between GEOBEGIN and GEOEND, and
 switch the last entry to FLUGG,
 ::
 
-     GEOBEGIN                                                              FLUGG
-     GEOEND
+    GEOBEGIN                                                              FLUGG
+    GEOEND
 
 Running FluDAG
 ~~~~~~~~~~~~~~
@@ -164,10 +165,10 @@ The FluDAG calculation is now ok to run, first make a symbolic link from the geo
 to a fixed file called dagmc.h5m
 ::
 
-     $ ln -s geom.h5m dagmc.h5m
+    $ ln -s geom.h5m dagmc.h5m
 
 The user can then run the problem
 ::
 
-     $ $FLUPRO/flutil/rfluka -e <path/to/fludag/executable/mainfludag> \
-         ++{standard fluka options}++ <fludag_input_file>
+    $ $FLUPRO/flutil/rfluka -e <path/to/fludag/executable/mainfludag> \
+          ++{standard fluka options}++ <fludag_input_file>

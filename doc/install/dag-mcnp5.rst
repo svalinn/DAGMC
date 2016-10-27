@@ -1,10 +1,10 @@
-.. |DAG-Code| replace:: DAG-MCNP5
+..  |DAG-Code| replace:: DAG-MCNP5
 
-.. include:: header.txt
+..  include:: header.txt
 
-.. include:: get_dagmc.txt
+..  include:: get_dagmc.txt
 
-.. _mcnp5_patch:
+..  _mcnp5_patch:
 
 Apply the MCNP5 source code patch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -24,7 +24,7 @@ DVD into the DAGMC repository and patch it so it can be used with DAGMC.
 Assuming the patch was succesfully applied, i.e. there were no warnings or
 errors, you are now ready to configure DAGMC to produce the desired build.
 
-.. include:: configure_dag-code_header.txt
+..  include:: configure_dag-code_header.txt
 
 **Example 1:** Build the DAGMC interfaces and DAG-MCNP5, using the
 ``$DATAPATH`` environment variable to specify the location of the MCNP data.
@@ -51,6 +51,6 @@ errors, you are now ready to configure DAGMC to produce the desired build.
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.
 
-.. include:: build_dagmc.txt
+..  include:: build_dagmc.txt
 
-.. include:: test_dagmc.txt
+..  include:: test_dagmc.txt

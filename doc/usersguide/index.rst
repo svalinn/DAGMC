@@ -8,21 +8,18 @@ instructions for use with a variety of Monte Carlo codes.
 | TODO: | Put | feature | table | here |
 +-------+-----+---------+-------+------+
 
-TODO: Describe what is in each of these documents.
+..  toctree::
+    :maxdepth: 1
 
-.. toctree::
-   :maxdepth: 1
+    trelis_basics
+    codes/index
+    uw2
+    trelis_workflow
+    tally
+    tools
+    postprocessing
 
-   trelis_plugin
-   codes/index
-   uw2
-   trelis_workflow
-   tally
-   watertightness
-   postprocessing
-   tools
+..  toctree::
+    :hidden:
 
-.. toctree::
-   :hidden:
-
-   mcnp2cad
+    mcnp2cad

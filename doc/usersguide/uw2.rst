@@ -1,7 +1,7 @@
 University of Wisconsin Unified Workflow (UWUW)
 ===============================================
 
-.. |UW2| replace:: UW\ :sup:`2`
+..  |UW2| replace:: UW\ :sup:`2`
 
 The University of Wisconsin Unified Workflow (|UW2|) aims to solve the
 issue of running the same Monte Carlo problem using mutiple physics codes. Currently,
@@ -113,7 +113,7 @@ materials and densities requested and also the list of tallies that were
 produced. A sample output is shown below
 ::
 
-   $ uwuw_preproc test_geom.h5m -l \
+    $ uwuw_preproc test_geom.h5m -l \
           $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 
 Also, the program will produce a fatal error if the material is not found in
@@ -130,13 +130,13 @@ the particle source definition, runtime parameters, and physics cutoffs. You the
 the non-UWUW workflow;
 ::
 
-   $ mcnp5 i=input g=geom.h5m
+    $ mcnp5 i=input g=geom.h5m
 
 It may be the case that some nuclides are not found, an lcad file will have been produced in the previous step
 which the user can modify to remove extraneous nuclides and re-run with;
 ::
 
-   $ mcnp5 i=input g=geom.h5m l=lcad_modified
+    $ mcnp5 i=input g=geom.h5m l=lcad_modified
 
 FluDAG-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
@@ -147,19 +147,19 @@ Once this is done run the mainfludag executable to produce the mat.inp which con
 material assignments and compound descriptions;
 ::
 
-   $ mainfludag geom.h5m
+    $ mainfludag geom.h5m
 
 The user then should paste the contents of the mat.inp into the main Fluka input deck. Now the user must make
 a symbolic link to the geometry file named dagmc.h5m
 ::
 
-   $ ln -s geom.h5m dagmc.h5m
+    $ ln -s geom.h5m dagmc.h5m
 
 The mainfludag executable always looks for the dagmc.h5m file. You can now run as if it were a standard
 Fluka problem
 ::
 
-   $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
+    $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 
 Geant4-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
@@ -203,10 +203,10 @@ create 4 cubes of side 10 cm, shifting each in a different direction
 
 You will end up with something like that shown below.
 
-.. image:: uwuwexample.png
-   :height: 300
-   :width:  600
-   :alt: An example of the geometry you should get applying the above stages
+..  image:: uwuwexample.png
+    :height: 300
+    :width:  600
+    :alt: An example of the geometry you should get applying the above stages
 
 The file is now ready for preprocessing. First we must facet the file:
 ::

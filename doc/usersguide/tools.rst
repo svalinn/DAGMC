@@ -1,21 +1,58 @@
 DAGMC tools
 ===========
 
-The DAGMC infrastructure has a number of tools that are used to process, fix, diagnose and repair
-processed models. This document serves to better inform and
+The DAGMC infrastructure has a number of tools that are used to process, fix,
+diagnose and repair processed models. This document serves to better inform and
 educate what those tools are and how to use them.
+
+..  _make_watertight:
 
 make_watertight
 ~~~~~~~~~~~~~~~
 
-The ``make_watertight`` tool has `its own page <watertightness>`_.
+A model is considered watertight if the faceting of all topologically linked
+surfaces are coincident. Models produced by Cubit/Trelis are not guarenteed to
+be watertight, and as a general rule, the more complicated the model, the less
+likely it is to be completely watertight.
+
+The ``make_watertight`` tool aims to fix any watertightness issues in a model by
+using faceted curve information to seal triangle facets that meet on the same
+curve. An example of its use is shown here: the red lines show the geometry
+before ``make_watertight`` and the black lines show the geometry after its use.
+
+..  image:: watertight.png
+    :height: 500
+    :width:  600
+    :alt: An example of the use of make_wateright: the red lines show the
+          geometry before ``make_watertight`` and the black lines show the
+          geometry after its use.
+
+``make_watertight`` can be run simply with
+
+    $ make_wateright <filename>
+
+check_watertight
+~~~~~~~~~~~~~~~~
+
+The ``check_watertight`` tool can be used to find out how watertight (or not) a
+given model is. It should be used as a post-processing step after
+``make_watertight`` to verify that the model has been made more watertight.
+
+``check_watertight`` can be run simply with
+
+    $ check_wateright <filename>
+
+Both ``make_watertight``and ``check_watertight`` are built during the main DAGMC
+build procedure.
 
 mbconvert
 ~~~~~~~~~
 
-The mbconvert tool from the MOAB tool is used to translate MOAB meshes into some text based format. It is useful for converting
-DAGMC models into some other visualization form for result post processing, such as stl files for viewing in Visit or Paraview. To
-run mbconvert input option, input filename and output filename are specificed:
+The mbconvert tool from the MOAB tool is used to translate MOAB meshes into some
+text based format. It is useful for converting DAGMC models into some other
+visualization form for result post processing, such as stl files for viewing in
+Visit or Paraview. To run mbconvert input option, input filename and output
+filename are specificed:
 ::
 
     $ mbconvert <input_filename> <output_filename> [options]
@@ -31,53 +68,31 @@ The options which control mbconvert are:
     -3  - extract three dimensional entities only, e.g. tet, hex, etc.
     -h  - print help
 
-To use mbconvert one must already have a DAGMC h5m file ready to use, the following command will convert the file to an stl file
-::
-
-    $ mbconvert <dagmc.h5m> <dagmc.stl>
-
-It is often the case that DAGMC models contain so many triangles that it is prohibitively slow to plot such a model even in
-Visit or Paraview, in such a case it has proven useful to extract the faceted curves from the file and plot those. This can be
-achieved with,
-::
-
-    $ mbconvert -1 dagmc.h5m curves.h5m
-    $ mbconvert curves.h5m curves.vtk
-
-Note that in the above example that first we must extract the curve information write to a new h5m file, and then convert that
-file to a vtk file. When plotting the curves that define the boundary of each volume should be visible, an example of this is
-shown below.
-
-.. image:: fng_curves.png
-   :height: 300
-   :width:  300
-   :alt:    Image showing the FNG curve information
-.. image:: fng_facets.png
-   :height: 300
-   :width:  300
-   :alt:    Image showing the FNG facet information
-
 mklostvis
 ~~~~~~~~~
 
-Sometimes either poor quality CAD, incorrect imprinting & merging or overlapping volumes; particles are regarded as lost
-by the Monte Carlo code. It is therefore neccessary to be able to examine where the particles were lost and in which direction they
-were travelling in. The tool `mklostvis <https://github.com/svalinn/meshtools/tree/master/lostparticles>`_ is designed for this
-purpose, reading the output of the MCNP lost particle information and producing a `Cubit <https://cubit.sandia.gov/>`_ or
-`Trelis <http://www.csimsoft.com/trelis.jsp>`_ journal file which will draw the lost particles as vertices and their directions as curves.
-To run the script;
+Sometimes either poor quality CAD, incorrect imprinting & merging or overlapping
+volumes; particles are regarded as lost by the Monte Carlo code. It is therefore
+neccessary to be able to examine where the particles were lost and in which
+direction they were travelling in. The tool
+`mklostvis <https://github.com/svalinn/meshtools/tree/master/lostparticles>`_ is
+designed for this purpose, reading the output of the MCNP lost particle
+information and producing a `Cubit <https://cubit.sandia.gov/>`_ or
+`Trelis <http://www.csimsoft.com/trelis.jsp>`_ journal file which will draw the
+lost particles as vertices and their directions as curves. To run the script;
 ::
 
     $ mklostvis.pl [mcnp output filename] [vector length] > [journal file name]
 
-The produced Cubit journal file can be 'played', and will plot these lost particles on top of whatever geometry is loaded into
-your Cubit session, like that shown below.
+The produced Cubit journal file can be 'played', and will plot these lost
+particles on top of whatever geometry is loaded into your Cubit session, like
+that shown below.
 
-.. image:: lost_p.png
-   :height: 300
-   :width:  300
-   :alt:    Image showing lost particle information
-.. image:: lost_p_zoom.png
-   :height: 300
-   :width:  300
-   :alt:    Image showing lost particle information zoomed in
+..  image:: lost_p.png
+    :height: 300
+    :width:  300
+    :alt:    Image showing lost particle information
+..  image:: lost_p_zoom.png
+    :height: 300
+    :width:  300
+    :alt:    Image showing lost particle information zoomed in

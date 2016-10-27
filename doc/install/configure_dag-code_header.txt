@@ -18,4 +18,3 @@ to represent this location.
 CMake variables are used to configure DAGMC with your desired build options. A
 few examples will be shown here, but you can see a list of all possible options
 `here <cmake_options.html>`_.
-

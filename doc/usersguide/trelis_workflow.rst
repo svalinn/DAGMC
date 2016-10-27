@@ -4,42 +4,69 @@ Producing solid models for DAGMC using Cubit/Trelis
 The general workflow for the production of models for analysis using DAGMC
 looks like that shown in the Figure below.
 
-.. image:: general_workflow.png
-   :height: 400
-   :alt: The general workflow for producing quality CAD for DAGMC models.
+..  image:: general_workflow.png
+    :height: 400
+    :alt: The general workflow for producing quality CAD for DAGMC models.
 
 The general workflow for the production of DAGMC models is the following:
 
-1. Ensure that units/sizes for DAGMC models are "cm"
-2. Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)
-3. Inspect and resolve overlapping volumes
-    - may need to scale model up to detect these
-    - In Cubit:
-        **validate vol all**
-        **autoheal problem vols**
-    - regularize may be needed (simplifies by removing splines, byproduct is reverses imprint)
-    - Check and possibly remove small features (curves, surfaces, vols)
-        - small areas (check "hydraulic" length and "regular" length)
-            **group "smallsurfaces" add surface with area < 1.e-3**
-        - small curves (check "hydraulic" length and "regular" length)
-            **group "smallcurves" add curve with length <1.e-4**
-        - small volumes
-            volofvolcubit.py -- examine small volumes (vol<=0.0000 might need to autoheal)
-4. Create pre-imprint/merge table of volume of volumes (use volofvolcubit.py)
-    - Imprint model, **imprint body all**
-5. Merge model, in Cubit **merge all**
-    - you may wish to add a merge tolerance, **merge tol 1e-6**
-6. Validate model, in Cubit **validate vol all**
+1.  Ensure that units/sizes for DAGMC models are "cm"
+2.  Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)
+3.  Inspect and resolve overlapping volumes, you may need to scale model up 
+    to detect these
+    ::
+
+        CUBIT> validate vol all
+        CUBIT> autoheal problem vols
+
+    Regularize may be needed (simplifies by removing splines, byproduct is 
+    reverses imprint. Check and possibly remove small features 
+    (curves, surfaces, vols). We need to check small areas 
+    (check "hydraulic" length and "regular" length)
+    ::
+
+        CUBIT> group "smallsurfaces" add surface with area < 1.e-3
+
+    We need to check small curves (check "hydraulic" length and "regular" length)
+    ::
+
+        CUBIT> group "smallcurves" add curve with length < 1.e-4
+
+    We need to check small volumes, examine small volumes (vol <= 0.0000 
+    might need to autoheal)
+4.  Create pre-imprint/merge table of volume of volumes, and then imprint
+    ::
+
+        CUBIT> imprint body all
+
+5.  Merge model, in Cubit
+    ::
+
+        CUBIT> merge all
+
+    You may also wish to add a merge tolerance (this must be done before merging)
+    ::
+
+        CUBIT> merge tol 1e-6
+
+6.  Validate model, in Cubit 
+    ::
+
+        CUBIT> validate vol all
+
     - re-check for overlapping volumes and now also check for overlapping surfaces
     - create post imprint/merge table of volume of volumes (use volofvolcubit.py)
     - compare pre and post-imprint/merge model volume of volumes
     - inspect volumes in pre-imprint model with significant change in volume
     - re-check for small areas, curves, volumes
-    - any problems in these steps repair volumes in pre-imprint model and go back to step 2
-7. Facet model
-    - **export dagmc "geom.h5m" faceting_tolerance 1.0e-4**
-8. Seal model if possible (use make_watertight, does not always work)
-9. Flood and/or transport particles in model
+    - any problems in these steps repair volumes in pre-imprint model and go back to step 3
+7.  Facet model
+    ::
+
+        CUBIT> export dagmc "geom.h5m" faceting_tolerance 1.0e-4
+
+8.  Seal model if possible (use make_watertight)
+9.  Flood and/or transport particles in model
     - examine lost locations (use mklostvis.pl)
     - examine "leaks"/tunneling (can use a mesh tally to locate)
 10. If lost particles or leaky repair the pre-imprint/merge model and go to step 2
@@ -193,124 +220,6 @@ tokamak which is occupied by air or vacuum, or the water volume in a reactor. Th
 power of the implicit compliment lies in the fact that it is not a true CAD body
 since it was never defined, but automatically defines all undefined space in the model.
 
-Pre-processing solid models using Cubit/Trelis
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*Note: For large models, the steps described below can be very tedious
-and time consuming.  To accelerate the process, an automated approach
-is available for models that have been properly prepared in the native
-solid modeling software.  This AutomatedCubitConversion process is
-described elsewhere, but reading the information below will provided
-the knowledge-base needed to understand the automation process.*
-
-This section focuses on steps that are independent of the MC code used
-for analysis. Additional steps for `DAG-MCNP5 <uw2.html>`_ and
-`DAG-Tripoli4 <dag-tripoli4.html>`_ may be based on the instructions given here,
-but are provided in the respective document links.
-
-Importing the solid model
--------------------------
-
-The first step in Cubit/Trelis is to import the generated solid
-model. Depending on the complexity of the model, this step can take
-several seconds up to a half an hour. As an initial user, it is
-recommend to start with simple models and geometries to obtain a
-better understanding of Cubit/Trelis.
-
-Imprint and merge
------------------
-
-For a DAGMC based analysis to work optimally, all of the surfaces must
-be imprinted and merged. Imprinting creates a common surface
-interface between touching volumes.  Merging then takes the touching
-surfaces and makes them into one surface. The imprint operation is shown
-below
-
-.. image:: imprint_operation.png
-   :height: 200
-   :width:  600
-   :alt: Imprint operations, results in the creation of additional surfaces.
-
-To imprint, issue the following command:
-::
-
-    CUBIT> imprint body all
-
-Should the imprint be successful, then the next step is to merge the
-geometry. A schematic of what the merge operation achieves is shown
-below,
-
-.. image:: merge_operation.png
-   :height: 250
-   :width:  600
-   :alt: Merge operations, results in the removal of identical surfaces.
-
-Sometimes it may be important to specify a merge tolerance.
-To set the tolerance and merge, issue the following commands:
-::
-
-    CUBIT> merge tol 5e-7
-    CUBIT> merge all
-
-This process can be very time consuming. For large models of several
-thousand volumes, the imprint and merge steps can take several hours.
-However, for small geometries (on the order of 100 volumes) the
-process is rather quick.
-
-.. _grouping-basics:
-
-Grouping volumes and surfaces
------------------------------
-
-A DAGMC-based analysis allows a number of attributes of the geometry
-to be defined within the geometry file. These characteristics
-generally relate to the physical behavior of the volume, for example
-its material definition or boundary conditions.
-
-Before the discussion of specific attributes, the practice of
-"grouping" needs to be explained. A group is essentially a collection
-of volumes or surfaces that share a common attribute; the practical
-usage of "grouping" will be explained in the next section.
-
-The general format for creating/adding volumes to a group is:
-::
-
-    CUBIT> group "group.name" add vol/surf ...
-
-For example, to create a group called "moderator" containing volumes
-5, 6, 7, and 10, the following command would be used:
-::
-
-    CUBIT> group "moderator" add vol 5 to 8 10
-
-Another example, shows that groups don't have to just contain
-volumes, but can contain surfaces too. Below the group
-"shield.boundary" is created with surfaces 16 and 37:
-::
-
-    CUBIT> group "shield.boundary" add surf 16 37
-
-Due to the importance of using the ``group`` command reading the CUBIT
-manual section on its full usage is highly recommended.
-
-Production of the DAGMC geometry
---------------------------------
-
-Now that the geometry is ready for DAGMC we must export it. Using the
-Cubit/Trelis plugin make this very straightforward, assuming that the
-user has proceeded through the previous steps then all one must do is
-use the export command, for example to produce a file called, geometry.h5m
-with faceting tolerances and length tolerances of 1.0e-4 cm and 5.0 cm respectively
-::
-
-    CUBIT> export dagmc geometry.h5m faceting_tolerance 1.e-4 length_tolerance 5.0
-
-The time taken to perform this step depends upon the complexity of the model, it could 
-take seconds for very simple models to hours for very complex models. It is also possible
-that faceting artifacts or failures could occur at this point, so monitor the output
-of this command in the Cubit/Trelis command line. If issues due occurs, these should be addressed 
-following the workflow listed above.
-
 Finishing up and final notes
 ----------------------------
 Having prepared your model to completion with the appropriate groups created
@@ -319,6 +228,6 @@ we recommended ACIS \*.sat files, but any format that reliably retains
 imprortant metadata.  Recommended storage formats are ACIS, \*.Trelis or 
 \*.cub files.
 
-One should also use the `make_watertight <watertightness.html>`_ tool on the 
+One should also use the :ref:`make_watertight`. tool on the 
 produced DAGMC \*.h5m file in order to completely seal your geometry, this 
 should help prevent tolerance issues due to faceting.

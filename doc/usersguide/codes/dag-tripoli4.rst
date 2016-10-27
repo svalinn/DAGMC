@@ -3,9 +3,9 @@ Code-specific steps for DAG-Tripoli4
 
 There are three varieties of code-specific steps:
 
-1. defining attributes of the geometry using groups in CUBIT
-2. defining DAGMC runtime parameters using input file syntax
-3. changes to the command-line
+1.  defining attributes of the geometry using groups in CUBIT
+2.  defining DAGMC runtime parameters using input file syntax
+3.  changes to the command-line
 
 Geometry metadata
 ~~~~~~~~~~~~~~~~~
@@ -63,7 +63,7 @@ There are two general classes of boundary condition supported by
 DAG-Tripoli4. a vacuum boundary and reflecting surfaces, and they are
 implemented in different ways.
 
-* **Defining the "graveyard": vacuum boundaries**
+**Defining the "graveyard": vacuum boundaries**
 
 A vacuum boundary condition is typically defined in Tripoli4 by simply
 having a surface with not defined volume on its other side.  Since
@@ -114,7 +114,7 @@ not incorrect to do so.  Only areas where particles should escape need
 to be enclosed.  However, it is often easiest to simply create a
 single graveyard that covers all directions and volumes of the system.
 
-* **Surface boundary conditions: reflection**
+**Surface boundary conditions: reflection**
 
 Surface boundary conditions are similarly enforced by specifying a
 group name. This type of attribute (surface boundary condition) is

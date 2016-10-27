@@ -1,10 +1,10 @@
-.. |DAG-Code| replace:: FluDAG
+..  |DAG-Code| replace:: FluDAG
 
-.. include:: header.txt
+..  include:: header.txt
 
-.. include:: get_dagmc.txt
+..  include:: get_dagmc.txt
 
-.. _install_fluka:
+..  _install_fluka:
 
 Install FLUKA
 ~~~~~~~~~~~~~
@@ -23,7 +23,7 @@ when building FLUKA.
 Take care to follow the FLUKA site instructions when setting the
 ``$FLUPRO`` and ``$FLUFOR`` environment variables.
 
-.. _fluka_patch:
+..  _fluka_patch:
 
 Apply the |DAG-Code| run script patch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +38,7 @@ in order to allow for some DAGMC-specific options.
 Assuming the patch was succesfully applied, i.e. there were no warnings or
 errors, you are now ready do configure DAGMC to produce the desired build.
 
-.. include:: configure_dag-code_header.txt
+..  include:: configure_dag-code_header.txt
 
 The following CMake command will build FluDAG. Note that ``$FLUPRO`` should have
 previously been defined as part of the FLUKA install.
@@ -51,7 +51,7 @@ previously been defined as part of the FLUKA install.
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.
 
-.. include:: build_dagmc.txt
+..  include:: build_dagmc.txt
 
 Test |DAG-Code|
 ~~~~~~~~~~~~~~~
@@ -73,4 +73,4 @@ like this:
     [==========] 3 tests from 1 test case ran. (108 ms total)
     [  PASSED  ] 3 tests.
 
-.. include:: test_dagmc.txt
+..  include:: test_dagmc.txt

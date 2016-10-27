@@ -10,19 +10,19 @@ Contributing to the DAGMC project is very straightforward, DAGMC is hosted on Gi
 discussed and merged. We use the git version control system which could be the most unfamiliar aspect of contributing for
 most people. The general workflow to contribute to DAGMC and many other open source projects involves steps like below.
 
-.. image:: workflow.png
-   :height: 300
-   :width:  600
-   :alt:    Image showing the github workflow
+..  image:: workflow.png
+    :height: 300
+    :width:  600
+    :alt:    Image showing the github workflow
 
 There are 6 main steps:
 
-  1) Forking
-  2) Cloning
-  3) Branching
-  4) Pushing
-  5) Pull Requesting
-  6) Refresh your branch
+    1. Forking
+    2. Cloning
+    3. Branching
+    4. Pushing
+    5. Pull Requesting
+    6. Refresh your branch
 
 These stages are outlined below.
 
@@ -32,10 +32,10 @@ Forking
 To start the repository must be forked. The easiest way to do this is to click on the
 `fork` button from the `svalinn/dagmc` branch shown below.
 
-.. image:: workflow_fork.png
-   :height: 150
-   :width:  600
-   :alt:    Image showing how to fork a repo
+..  image:: workflow_fork.png
+    :height: 150
+    :width:  600
+    :alt:    Image showing how to fork a repo
 
 This fork will be an exact snapshot of the `svalinn/dagmc` repository at the time you clicked `fork`. Any new features
 that you wish to develop should be based from the develop branch of this repository, unless you know exactly what you're
@@ -93,10 +93,10 @@ pull request will launch our continuous integration tests and at some point in t
 the unit tests or indeed may break the tests. Testing in progress and testing complted are shown at the bottom of your pull
 request.
 
-.. image:: github_testing.png
-   :height: 400
-   :width:  600
-   :alt:    Image showing when testing is launched.
+..  image:: github_testing.png
+    :height: 400
+    :width:  600
+    :alt:    Image showing when testing is launched.
 
 When testing passes and another developer has reviewed your pull request, then your changes will be merged into the develop branch.
 
@@ -129,12 +129,13 @@ makes a pull request on GitHub, Travis detects this change and launches the buil
 pulls your feature branch, the MOAB libraries, HDF5, etc as required and then launches the tests. Each test is run in succession
 and failure is reported if any dependency fails to build or if any test fails, an example of a Travis report is shown below
 
-.. image:: travis_example.png
-   :height: 300
-   :width:  600
-   :alt:    Image showing the status of the an example Travis-CI run
+..  image:: travis_example.png
+    :height: 300
+    :width:  600
+    :alt:    Image showing the status of the an example Travis-CI run
 
-Once the testing is complete and your changes have been verified to not break any of the existing capabilities, a reviewer will check your pull request over and may suggest some modifications to meet the C++ style, good practice and then will approve or reject your
+Once the testing is complete and your changes have been verified to not break any of the existing capabilities, a reviewer will check
+your pull request over and may suggest some modifications to meet the C++ style, good practice and then will approve or reject your
 pull request.
 
 General Style

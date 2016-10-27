@@ -1,10 +1,10 @@
-.. |DAG-Code| replace:: DAG-Geant4
+..  |DAG-Code| replace:: DAG-Geant4
 
-.. include:: header.txt
+..  include:: header.txt
 
-.. include:: get_dagmc.txt
+..  include:: get_dagmc.txt
 
-.. _install_geant4:
+..  _install_geant4:
 
 Install Geant4
 ~~~~~~~~~~~~~~
@@ -43,7 +43,7 @@ your ``$PATH`` and ``$LD_LIBRARY_PATH``.
     $ export PATH=$PATH:$HOME/dagmc_bld/Geant4/bin
     $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/Geant4/lib
 
-.. include:: configure_dag-code_header.txt
+..  include:: configure_dag-code_header.txt
 
 The following CMake command will build DAG-Geant4, assuming you built Geant4 as
 specified in the Geant4 build instructions above.
@@ -56,7 +56,7 @@ specified in the Geant4 build instructions above.
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.
 
-.. include:: build_dagmc.txt
+..  include:: build_dagmc.txt
 
 Test |DAG-Code|
 ~~~~~~~~~~~~~~~
@@ -80,4 +80,4 @@ like this:
     [==========] 16 tests from 1 test case ran. (228 ms total)
     [  PASSED  ] 16 tests.
 
-.. include:: test_dagmc.txt
+..  include:: test_dagmc.txt

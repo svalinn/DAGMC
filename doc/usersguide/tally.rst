@@ -11,11 +11,11 @@ Mesh production workflow
 Cubit/Trelis can be used to generate the unstructured meshes needed for tallies.
 To do so, use the following steps.
 
-1. Load the geometry you wish to mesh into Cubit/Trelis.
-2. Use the mesh tools to produce the meshes you want.
-3. Save the file as a .trelis or .cub file.
-4. Use MOAB's ``mbconvert`` executable to convert from the Cubit/Trelis format
-   to a faceted .h5m file that DAGMC can use.
+1.  Load the geometry you wish to mesh into Cubit/Trelis.
+2.  Use the mesh tools to produce the meshes you want.
+3.  Save the file as a .trelis or .cub file.
+4.  Use MOAB's ``mbconvert`` executable to convert from the Cubit/Trelis format
+    to a faceted .h5m file that DAGMC can use.
 
 Here is an example of how to use ``mbconvert``:
 ::

@@ -3,9 +3,9 @@ Code-specific steps for DAG-MCNP5
 
 There are three varieties of code-specific steps for DAG-MCNP5:
 
-1. Defining attributes of the geometry using Cubit groups
-2. Defining DAGMC runtime parameters using the DAGMC input file
-3. Specifying additional parameters on the command line
+1.  Defining attributes of the geometry using Cubit groups
+2.  Defining DAGMC runtime parameters using the DAGMC input file
+3.  Specifying additional parameters on the command line
 
 Geometry metadata
 ~~~~~~~~~~~~~~~~~
@@ -179,7 +179,7 @@ keywords have been added to the command line to specify the necessary files.
     and log file being used correspond to each other. This runtime parameter is
     unique to DAG-MCNP5.
 
-.. toctree::
-   :hidden:
+..  toctree::
+    :hidden:
 
-   dag-mcnp5_deprecated
+    dag-mcnp5_deprecated

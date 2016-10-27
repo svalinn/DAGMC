@@ -1,8 +1,8 @@
-.. |DAG-Code| replace:: DAGMC with multiple physics codes
+..  |DAG-Code| replace:: DAGMC with multiple physics codes
 
-.. include:: header.txt
+..  include:: header.txt
 
-.. include:: get_dagmc.txt
+..  include:: get_dagmc.txt
 
 Before configuring DAGMC
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -18,7 +18,7 @@ For FluDAG, you will need to :ref:`install FLUKA <install_fluka>` and
 
 For DAG-Geant4, you will need to :ref:`install Geant4 <install_geant4>`.
 
-.. include:: configure_dag-code_header.txt
+..  include:: configure_dag-code_header.txt
 
 The following CMake command will build an MPI version of DAG-MCNP5 as well as
 DAG-Geant4 and FluDAG.
@@ -35,6 +35,6 @@ DAG-Geant4 and FluDAG.
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.
 
-.. include:: build_dagmc.txt
+..  include:: build_dagmc.txt
 
-.. include:: test_dagmc.txt
+..  include:: test_dagmc.txt

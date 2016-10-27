@@ -1,3 +1,3 @@
-.. |DAG-Code| replace:: DAG-Shift
+..  |DAG-Code| replace:: DAG-Shift
 
-.. include:: header.txt
+..  include:: header.txt
