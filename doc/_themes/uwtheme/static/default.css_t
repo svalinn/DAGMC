@@ -41,7 +41,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 /*  line-height: 1em;*/
   font-family: inherit;
   text-align: left;
-  vertical-align: baseline;
+  vertical-align: middle;
   background: transparent;
 }
 
@@ -88,6 +88,9 @@ strong { font-weight: bold; }
 em { font-style: italic; }
 li h3, li p, li a { font-size: 1em; }
 
+.headerlink { color: #ffffff; }
+.headerlink:hover { color: #b70101; }
+
 html {
   color: #000;
   background: #FFFFFF url(../_static/images/background.jpg) repeat-x top;
@@ -95,7 +98,7 @@ html {
 
 body {
   margin: 40px auto 0;
-  width: 960px;
+  width: 1260px;
   color: #8E8979;
   background-color: transparent;
   font: normal 100%/1.5 Verdana, sans-serif;
@@ -145,10 +148,10 @@ body {
   font-family:georgia,Times New Roman,serif;
   font-size: 2em;
   position: absolute;
-  top: 26px;
+  top: 16px;
   left: 87px;
-  width: 343px;
-  height: 34px;
+  width: 500px;
+  height: 72px;
   overflow: hidden;
 }
 .home #siteTitle {
@@ -315,7 +318,7 @@ body {
 /*layout*/
 
 #c_container {
-  width: 958px;
+  width: 1258px;
   border-right: 1px solid #666666;
   border-left: 1px solid #666666;
   border-bottom: 2px solid #666666;
@@ -683,7 +686,7 @@ body {
 }
 .page #content {
   margin: 0 7px 0 0;
-  width: 640px;
+  width: 940px;
   padding-top: 40px;
 }
 .page #sidebar {
@@ -697,6 +700,11 @@ body {
   width: 250px;
 }
 
+.align-right {
+  float: right;
+  padding-left: 10px;
+}
+
 #sidebar_section {
   margin: 0 0 0 10px;
   position: fixed;
@@ -705,7 +713,8 @@ body {
 
 #sidebar ul, ol { list-style: none; }
 
-#sidebar ul ul { margin: 0 0 0 1em;}
+#sidebar ul ul { margin: 0 0 0 1em; list-style-type: circle; }
+#sidebar ul ul ul { margin: 0 0 0 1em; list-style-type: square; }
 
 ol { list-style-type: decimal; margin: 0 0 0 3em;}
 
@@ -734,8 +743,8 @@ h2 {margin-top: 1em;}
 
 h4 {font-weight: bold; margin-top: 1em;}
 
-pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa; margin: 1em; font-size: 0.75em;}
-.pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa; font-size: 0.75em;}
+pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa; margin: 1em;}
+.pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa;}
 
 dl.docutils dt {
    margin: 1em 0 0 0;
@@ -766,9 +775,10 @@ table {
 margin-top: 16px;
 margin-bottom: 2em;
 text-align: left;
-border: 1px solid #666;
+border: 0px solid #666;
 border-collapse: collapse;
 font-size: .9em;
+width: 100%;
 }
 caption {
 text-align: left;

@@ -14,6 +14,7 @@
     <div id="nav" class="main-menu-container">
       <ul id="menu-main" class="sf-menu">
         {%- block rootrellink %}
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></li>
         {%- endblock %}
         {%- for rellink in rellinks|reverse %}
@@ -32,15 +33,16 @@
 
 {%- macro uwsidebar() %}
 <div id="sidebar">
- <div id="sidebar_section"></div>
- <div id="sidebar_section"><strong>Table of Contents</strong><br>{{ toc }} </div>
+ <div id="sidebar_section">{{ toc }} </div>
 </div>
 {%- endmacro %}
 
 {%- block header %} 
 <div id="page-div" class="page">
-<div id="header"><a id="uwhome" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> <a id="crest" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/crest.png" alt="" width="70" height="106" /></a>
-    <h1 id="siteTitle"><a href="/"><span>{{ theme_site_title }}</span></a></h1>
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="{{ pathto("_static/images/wordmark.gif",1) }}" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="{{ pathto("_static/images/crest.png",1) }}" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="{{ pathto(master_doc) }}"><img src="{{ pathto("_static/images/logo.png",1) }}" alt="" height="50x" /><span>{{ theme_site_title }}</span></a></h1>
     <div id="tagline"><span>{{ theme_tagline }}</span></div>
     <ul id="globalnav">
       <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
