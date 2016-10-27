@@ -707,7 +707,7 @@ body {
 
 #sidebar ul ul { margin: 0 0 0 1em;}
 
-ol { list-style-type: lower-alpha; margin: 0 0 0 3em;}
+ol { list-style-type: decimal; margin: 0 0 0 3em;}
 
 .page #sidebar .related_posts {
   margin: 16px 16px 32px;
@@ -730,7 +730,7 @@ ol { list-style-type: lower-alpha; margin: 0 0 0 3em;}
 
 h1, h2, h3 {margin-top: 0em; color:rgba(50, 04, 3e, 1); font-family:"Myriad Pro",Trebuchet,Arial,sans-serif;}
 
-h2 {font-style: italic; text-decoration: underline; margin-top: 1em;}
+h2 {margin-top: 1em;}
 
 h4 {font-weight: bold; margin-top: 1em;}
 
@@ -738,7 +738,6 @@ pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa; margin
 .pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa; font-size: 0.75em;}
 
 dl.docutils dt {
-   text-decoration: underline;
    margin: 1em 0 0 0;
 }
 dl.docutils dd {
@@ -797,7 +796,7 @@ thead th.ab-email {width: 40%;}
 
 /*Posts*/
 .post {margin-bottom: 20px; clear: left;}
-.post h2 {font-size: 1.5em; text-decoration: underline; line-height: 1.6em;}
+.post h2 {font-size: 1.5em; font-weight: bold; line-height: 1.6em;}
 .post .entry-content h2:first-child {margin-top: 0;}
 .post h3 {font-size: 1.25em; font-weight: bold; line-height: 1.2; margin: 1em 0 .25em 0;}
 .post h4 {font-weight: bold; font-style: italic; line-height: 1.2; margin: 1em 0 .25em 0;}
@@ -836,7 +835,7 @@ div.wp-caption img, img.size-full {border: 1px solid #999;}
 /*pages*/
 
 .page #content h1, .single #content .post.category-innovations h2 {
-  font-size: 1.4em;
+  font-size: 1.6em;
   font-weight: bold;
   line-height: 1.1;
   margin-bottom: 25px;
