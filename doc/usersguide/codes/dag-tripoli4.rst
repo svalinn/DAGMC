@@ -160,7 +160,7 @@ geometry.  This block has the following parameters:
 |tolerance <double ray firing tolerance>| (optional: default=1e-8)         |
 +---------------------------------------+----------------------------------+
 
-These parameters are described in the section on :ref:`additional_parameters`.
+These parameters are described in the section on additional_parameters.
 In addition to many other Tripoli input blocks, it is important to define the
 material compositions that have been assigned in the previous step.
 

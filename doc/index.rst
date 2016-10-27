@@ -36,7 +36,7 @@ information.
 .. toctree::
    :maxdepth: 2
 
-   getting_started/index
+   install/index
    usersguide/index
    contribute/index
 

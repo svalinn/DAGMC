@@ -1,12 +1,11 @@
-Using Cubit/Trelis with DAGMC
-=============================
+Producing solid models for DAGMC using Cubit/Trelis
+===================================================
 
 The general workflow for the production of models for analysis using DAGMC
 looks like that shown in the Figure below.
 
 .. image:: general_workflow.png
-   :height: 700
-   :width:  600
+   :height: 400
    :alt: The general workflow for producing quality CAD for DAGMC models.
 
 The general workflow for the production of DAGMC models is the following:
@@ -26,7 +25,7 @@ The general workflow for the production of DAGMC models is the following:
             **group "smallcurves" add curve with length <1.e-4**
         - small volumes
             volofvolcubit.py -- examine small volumes (vol<=0.0000 might need to autoheal)
-4. create pre-imprint/merge table of volume of volumes (use volofvolcubit.py)
+4. Create pre-imprint/merge table of volume of volumes (use volofvolcubit.py)
     - Imprint model, **imprint body all**
 5. Merge model, in Cubit **merge all**
     - you may wish to add a merge tolerance, **merge tol 1e-6**
@@ -43,8 +42,8 @@ The general workflow for the production of DAGMC models is the following:
 9. Flood and/or transport particles in model
     - examine lost locations (use mklostvis.pl)
     - examine "leaks"/tunneling (can use a mesh tally to locate)
-10. if lost particles or leaky repair the pre-imprint/merge model and go to step 2
-11. if no lost or leaks, then transport is ok
+10. If lost particles or leaky repair the pre-imprint/merge model and go to step 2
+11. If no lost or leaks, then transport is ok
 
 Preparing solid models
 ~~~~~~~~~~~~~~~~~~~~~~

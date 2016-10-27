@@ -156,7 +156,7 @@ This is to save developers pouring over potentially 20 different header files tr
 be.
 
 C++ Style
-~~~~~~~~~~
+~~~~~~~~~
 
 We conform to the Google C++ style guide, we have included a C++ style guide formatter to make a developers life much easier,
 when you have added all the features you want to add, the style guide formatter should be run;

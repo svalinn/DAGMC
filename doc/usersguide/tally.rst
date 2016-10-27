@@ -1,5 +1,5 @@
-Unstructured mesh tallies
-=========================
+DAGMC unstructured mesh tallies
+===============================
 
 DAGMC supports several advanced mesh tally options including tetrahedral mesh
 tallies (tetmeshes) and kernel density estimator tallies. Both options require
@@ -8,13 +8,13 @@ an unstructured mesh.
 Mesh production workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Trelis/Cubit can be used to generate the unstructured meshes needed for tallies.
+Cubit/Trelis can be used to generate the unstructured meshes needed for tallies.
 To do so, use the following steps.
 
-1. Load the geometry you wish to mesh into Trelis/Cubit.
+1. Load the geometry you wish to mesh into Cubit/Trelis.
 2. Use the mesh tools to produce the meshes you want.
 3. Save the file as a .trelis or .cub file.
-4. Use MOAB's ``mbconvert`` executable to convert from the Trelis/Cubit format
+4. Use MOAB's ``mbconvert`` executable to convert from the Cubit/Trelis format
    to a faceted .h5m file that DAGMC can use.
 
 Here is an example of how to use ``mbconvert``:

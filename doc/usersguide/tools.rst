@@ -5,20 +5,10 @@ The DAGMC infrastructure has a number of tools that are used to process, fix, di
 processed models. This document serves to better inform and
 educate what those tools are and how to use them.
 
-mcnp2cad
-~~~~~~~~
+make_watertight
+~~~~~~~~~~~~~~~
 
-UW has a tool, `mcnp2cad <https://github.com/svalinn/mcnp2cad>`_, which can translate a MCNP model
-into ACIS format for use in future DAGMC simulations. The tool builds CAD solids from MCNP cell descriptions
-often turning infinite bodies and planes into finite versions. At the time of writing, the only unsupported
-MCNP surface descriptions are limited to GQ's and SQ's. To run mcnp2cad all that is needed is an MCNP input deck,
-::
-
-    $ mcnp2cad test.inp
-
-Will result in a file called out.sat which will contain the CAD version of your MCNP input. Furthermore, mcnp2cad
-automatically transfers material and importance assignments into the CAD model and will be translated to the
-DAGMC file when processed.
+The ``make_watertight`` tool has `its own page <watertightness>`_.
 
 mbconvert
 ~~~~~~~~~
@@ -66,27 +56,6 @@ shown below.
    :height: 300
    :width:  300
    :alt:    Image showing the FNG facet information
-
-make_watertight
-~~~~~~~~~~~~~~~
-
-When models are faceted by dagmc_preproc, facets are not guarenteed to be water tight, by which it is meant that
-the edge of facets of one surface do not exactly align with those of another surface, such discrepancies can lead to numerical
-gaps through which particles can leak. The make_watertight tool alleviates this problem by using the underlying faceted curve
-representation to force triangle edges to be coincident along curves, this action closes any gaps and if succesful the model is
-guarenteed to be water tight. The tool is run in the following way,
-::
-
-    $ make_wateright <filename>
-
-The result of this step is a new file with the name, <filename>_zip.h5m, which can then be run with the rest of the workflow. The
-degree of water tightness can be checked with the partner tool to make_wateright, check_wateright. When run it will give a summary
-of how sealed the mode is. The check_watertight tool is run by:
-::
-
-    $ check_watertight <filename>
-
-The make_watertight tool is built as part of the DAGMC build process.
 
 mklostvis
 ~~~~~~~~~

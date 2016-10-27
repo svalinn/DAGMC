@@ -1,8 +1,8 @@
-CMake install options
+DAGMC CMake variables
 =====================
 
-This page describes the CMake options that affect the DAGMC build. Note that
-unless set, boolean options default to ``OFF``.
+This page describes the specific CMake variables that affect the DAGMC build.
+Note that unless set, all boolean options default to ``OFF``.
 
  * ``-DBUILD_MCNP5=ON`` Build DAG-MCNP5.
 
