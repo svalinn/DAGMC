@@ -17,7 +17,7 @@ Package Manager Route
 ~~~~~~~~~~~~~~~~~~~~~
 
 LAPACK
-======
+------
 Ubuntu/Debian linux users can install LAPACK with:
 ::
 
@@ -29,7 +29,7 @@ Redhat linux users can do likewise with:
     $ sudo yum install libblas-dev liblapack-dev
 
 HDF5
-====
+----
 
 Debian linux users can install the latest HDF5 release with:
 ::
@@ -53,14 +53,14 @@ of your home directory; i.e.
     $ cd dagmc_bld
 
 LAPACK
-======
+------
 
 If you don't have administrator privileges, refer to the
 `LAPACK website <http://www.netlib.org/lapack>`_ for information on how to build
 LAPACK from source.
 
 HDF5
-====
+----
 If electing to install HDF5 from source. The tarball containing the HDF5
 source code can also be downloaded from the `HDF5 website <https://support.hdfgroup.org/HDF5/>`_.
 Note that if you choose this option, we recommend you obtain HDF5 version 1.8.13
