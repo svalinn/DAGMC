@@ -1,11 +1,15 @@
 Post-processing
 ===============
+One of the most	important aspects of a completed calculation is	being
+to view	any mesh based output alongside	geometry so as to best determine
+important features in results.	 
 
 Visualizing DAGMC geometry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To use mbconvert one must already have a DAGMC h5m file ready to use, the
-following command will convert the file to an stl file
+In the near future there will be support for reading native MOAB produced h5m 
+files in Visit, however for now users must follow this guide for viewing DAGMC 
+geometry. One must use mbconvert to produce files for visualizationa, the
+following command will convert the DAGMC geometry to an stl file
 ::
 
     $ mbconvert <dagmc.h5m> <dagmc.stl>
@@ -22,7 +26,7 @@ those. This can be achieved with,
 Note that in the above example that first we must extract the curve information
 write to a new h5m file, and then convert that file to a vtk file. When plotting
 the curves that define the boundary of each volume should be visible, an example
-of this is shown below.
+of this is shown below, curves are shown on the left and facets on the right.
 
 ..  image:: fng_curves.png
     :height: 300
@@ -33,11 +37,27 @@ of this is shown below.
     :width:  300
     :alt:    Image showing the FNG facet information
 
+The curve vtk is useful if you wish to examine the final model in a convenient 
+and graphically responsive method, however one cannot perform slice operations
+on the curve file. When plotting alongside mesh files, the stl file should be 
+used as this can be conviently sliced.
+
 Visualizing DAGMC mesh tally output
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``mbconvert`` can be used to convert the output mesh file to a .vtk file for
-viewing or post-processing with VisIt or other plotting tools.
+There are number of ways that conventional MCNP cartesian meshtal files
+can be viewed in Visit or Paraview. Users can download and install
+the `PyNE toolkit <http://pyne.io>`_ and use the ``meshtal_to_mesh`` tool or
+``mbconvert`` can be used to convert meshtal files to h5m. Advanced DAGMC
+mesh tallies (tetrahedral mesh tallies) are natively produced in h5m file
+format. In either case, the resultant cartesian or tetrahedral mesh tally
+must be converted from h5m to vtk format, ``mbconvert`` can be used to 
+convert the output mesh file to a vtk file for viewing or post-processing
+with VisIt or other plotting tools.
 ::
 
     $ mbconvert mesh_out.h5m mesh_out.vtk
+
+Having produced stl files for slicing and vtk files for mesh tallies, 
+we can load these files into Visit or Paraview, or any other tool that can read
+stl and vtk files.

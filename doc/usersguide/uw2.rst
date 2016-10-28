@@ -43,15 +43,20 @@ Scoring
 
 Each MC code implements tallies, or scores, in very specific ways such that there
 is sometimes no equivalent to a tally you may be familiar with, code to code. However,
-there is a Cubit syntax to allow you to request scores on geomemtric elments, for example,
+there is a Cubit syntax to allow you to request scores on geomemtric elments, the generic form is,
 ::
 
-    CUBIT> group "tally:Flux/Neutron"
+    CUBIT> group "tally:ParticleName/ScoreType" add vol x
 
-or,
+A specific example, scoring the neutron flux in vol 2,
 ::
 
-    CUBIT> group "tally:Photon/Current"
+    CUBIT> group "tally:Neutron/Flux" add vol 2
+
+or the photon current crossing surface 3,
+::
+
+    CUBIT> group "tally:Photon/Current" add surface 3
 
 Using the underlying PyNE libraries we can write out the appropriate MC code
 tally specification snippet; this allows the number of codes the DAGMC
@@ -125,18 +130,7 @@ materials are present in the file.
 MCNP-specific steps
 ~~~~~~~~~~~~~~~~~~~
 
-To run a MCNP based UWUW problem, the user must make the minimum input deck that defines 
-the particle source definition, runtime parameters, and physics cutoffs. You then run MCNP like
-the non-UWUW workflow;
-::
-
-    $ mcnp5 i=input g=geom.h5m
-
-It may be the case that some nuclides are not found, an lcad file will have been produced in the previous step
-which the user can modify to remove extraneous nuclides and re-run with;
-::
-
-    $ mcnp5 i=input g=geom.h5m l=lcad_modified
+..  include:: codes/dag-mcnp5_specific.txt
 
 FluDAG-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
