@@ -27,9 +27,12 @@ before ``make_watertight`` and the black lines show the geometry after its use.
           geometry before ``make_watertight`` and the black lines show the
           geometry after its use.
 
-``make_watertight`` can be run simply with
-
+``make_watertight`` can be run with:
+::
     $ make_wateright <filename>
+
+The product will be a file named, `filename_zip.h5m`, and a summary is provided
+of what operations were done to seal the model. 
 
 check_watertight
 ~~~~~~~~~~~~~~~~
@@ -38,8 +41,8 @@ The ``check_watertight`` tool can be used to find out how watertight (or not) a
 given model is. It should be used as a post-processing step after
 ``make_watertight`` to verify that the model has been made more watertight.
 
-``check_watertight`` can be run simply with
-
+``check_watertight`` can be run  with:
+::
     $ check_wateright <filename>
 
 Both ``make_watertight``and ``check_watertight`` are built during the main DAGMC

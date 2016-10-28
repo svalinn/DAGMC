@@ -11,7 +11,7 @@ Geometry metadata
 ~~~~~~~~~~~~~~~~~
 
 In DAG-MCNP5, the geometry file can be used to define material and density
-assignments, boundary conditions, and tallies.
+assignments, and boundary conditions.
 
 Materials and densities
 -----------------------
@@ -112,72 +112,8 @@ reflecting surfaces. This command would achieve that:
 
     CUBIT> group "spec.reflect" add surf 10 11
 
-The DAG-MCNP5 input file
-~~~~~~~~~~~~~~~~~~~~~~~~
+..  include:: dag-mcnp5_specific.txt
 
-DAG-MCNP5 input files should only contain the data card block of a standard
-MCNP5 input file. There should be no cell or surface cards.
-
-If you assigned materials to volumes using Cubit groups, you will need to define
-these materials in the data cards. You will not need to do this if you are using
-a UWUW material library.
-
-If you did not assign tallies using Cubit groups, you will need to define them
-in the data cards. If you did assign them using groups, you do not need to
-define them in the data cards, although you can include tally modifiers here if
-needed.
-
-A new data card ``dagmc`` has been added to DAG-MCNP5 to define parameters for
-the DAGMC geometry capability.
-::
-
-    Form: dagmc  keyword1=value   keyword2=value
-           check_src_cell: behavior of CEL variable in SDEF card
-                           on  [default] standard interpretation for
-                                         CEL variable: source rejection
-                           off           no cell rejection - assume that
-                                         sampled position is in cell CEL
-        overlap_thickness: allows particle tracking through small overlaps
-                           {real} [default=0.0]
-                   usecad: toggle usage of solid model geometry
-                           off [default] ray-tracing limited to facets
-                           on            ray-tracing performed on solid model
-                                         geometry surfaces
-                distlimit: toggle usage of flight distance sampled from
-                           physics to accelerate ray-tracing search
-                           off [default] do not use physics flight distance
-                           on            do use physics flight distance
-
-Running DAG-MCNP5
-~~~~~~~~~~~~~~~~~
-
-Running DAG-MCNP5 is identical to running the standard MCNP5, but a few new
-keywords have been added to the command line to specify the necessary files.
-
-:``gcad=<geom_file>`` (required): Specify the filename of the input geometry
-    file. It can be in one of two formats: the MOAB (\*.h5m) format (this is the
-    format produced by ``export_dagmc`` in Trelis/Cubit), or a facet file
-    produced by DAGMC. If this entry is not present, DAG-MCNP5 will assume that
-    it is running in standard MCNP5 mode.
-
-:``fcad=<facet_file>`` (optional): [default: fcad] Specify the filename of the
-    output facet file. This is the file produced by DAGMC that contains the
-    geometry as well as the products of a number of preprocessing steps, which
-    can be quite time-consuming. This file can be used as input with the
-    ``gcad=`` keyword in subsequent runs to avoid spending time redoing the
-    preprocessing steps.
-
-:``lcad=<log_file>`` (optional): [default: lcad] Specify the filename of the
-    output log file. This is a skeleton of an MCNP file which contains
-    information about the volumes, surfaces, materials and material assignments,
-    boundary conditions, and tallies defined in the geometry. If you specify a
-    name other than the default for this file on the command-line, that file
-    will be used instead of the one generated automatically by DAG-MCNP5. This
-    can be useful if you want to make small changes to your material
-    assignments, importances, etc., but it cannot be used to change anything
-    about the geometry. It is up to the user to ensure that the geometry file
-    and log file being used correspond to each other. This runtime parameter is
-    unique to DAG-MCNP5.
 
 ..  toctree::
     :hidden:

@@ -13,7 +13,7 @@ To do so, use the following steps.
 
 1.  Load the geometry you wish to mesh into Cubit/Trelis.
 2.  Use the mesh tools to produce the meshes you want.
-3.  Save the file as a .trelis or .cub file.
+3.  Save the file as a .trelis or .cub file. Remember to check the "Use Legacy .cub file Format" option in Trelis or Cubit.
 4.  Use MOAB's ``mbconvert`` executable to convert from the Cubit/Trelis format
     to a faceted .h5m file that DAGMC can use.
 
@@ -21,6 +21,10 @@ Here is an example of how to use ``mbconvert``:
 ::
 
     $ mbconvert mesh.cub mesh.h5m
+
+One can immediately view this mesh, by using ``mbconvert`` to convert to vtk:
+::
+    $ mbconvert mesh.h5m mesh.vtk
 
 Tetrahedral mesh tallies
 ~~~~~~~~~~~~~~~~~~~~~~~~
