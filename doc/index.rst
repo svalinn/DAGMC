@@ -43,7 +43,7 @@ information.
 ..  toctree::
     :hidden:
 
-    gallery/index
+    gallery/gallery
     usersguide/UnderstandingRayHistoryState
 
 ..  _CNERG: http://cnerg.github.io

@@ -23,7 +23,7 @@ function html_slide_entry()
 }
 
 # writes the forward and backward buttons
-function html_write_buttons 
+function html_write_buttons
 {
     outfile=$1
     echo '  <a class="prev" onclick="plusSlides(-1)">&#10094;</a>' >> $outfile
@@ -31,14 +31,14 @@ function html_write_buttons
 }
 
 # writes the dots for the images
-function html_write_dots 
+function html_write_dots
 {
     dot_type="$1"
     num_dots="$2"
     outfile="$3"
     echo '<div style="text-align:center">' >> $outfile
     for (( i = 1 ; i <= $num_dots ; i++ )) ; do
-	echo '  <span class="'$dot_type'" onclick="currentSlide('$i')"></span>' >> $outfile
+      echo '  <span class="'$dot_type'" onclick="currentSlide('$i')"></span>' >> $outfile
     done
     echo '</div>' >> $outfile
     echo '' >> $outfile
@@ -74,7 +74,7 @@ html_write_buttons $out_file
 echo '</div>' >> $out_file
 echo '<br>' >> $out_file
 
-# write the dots 
+# write the dots
 html_write_dots "dot" $num_images $out_file
 
 echo '<!-- END OF SCRIPTED CONTENT -->' >> $out_file
@@ -90,6 +90,6 @@ sed -n 1,"$breakline"p ../slideshow_empty.html > ../slideshow.html
 # dump the contents of the autogen file into the slideshow
 cat $out_file >> ../slideshow.html
 # now print out the rest of the slideshow
-sed -n "$breaklineplus1","$filelength"p ../slideshow_empty.html >> ../slideshow.html 
+sed -n "$breaklineplus1","$filelength"p ../slideshow_empty.html >> ../slideshow.html
 
-# all done :) 
+# all done :)

@@ -1,17 +1,16 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-<!-- SLIDESHOW STYLE -->    
+
+<!-- SLIDESHOW STYLE -->
 <style>
 * {box-sizing:border-box}
 
-
 /* Slideshow container */
- .slideshow-container {
-     max-width: 1000px;
-     max-height: 1000px;
-     position: relative;
-     margin: auto;
+.slideshow-container {
+  width: 800px;
+  height: 450px;
+  position: relative;
+  margin: auto;
 }
 
 /* Next & previous buttons */
@@ -22,7 +21,7 @@
   width: auto;
   margin-top: -22px;
   padding: 16px;
-  color: white;
+  color: grey;
   font-weight: bold;
   font-size: 18px;
   transition: 0.6s ease;
@@ -43,10 +42,10 @@
 /* Caption text */
 .text {
   color: #000;
-  font-size: 20px;
+  font-size: 15px;
   padding: 8px 12px;
   position: absolute;
-  top: -40px;
+  bottom: -10px;
   width: 100%;
   text-align: center;
 }
@@ -73,6 +72,14 @@
   transition: background-color 0.6s ease;
 }
 
+.mySlides img {
+  max-width: 800px;
+  max-height: 400px;
+  object-fit: contain;
+  position: absolute;
+  bottom: 50px;
+}
+
 .active, .dot:hover {
   background-color: #717171;
 }
@@ -86,12 +93,12 @@
 }
 
 @-webkit-keyframes fade {
-  from {opacity: .4} 
+  from {opacity: .4}
   to {opacity: 1}
 }
 
 @keyframes fade {
-  from {opacity: .4} 
+  from {opacity: .4}
   to {opacity: 1}
 }
 </style>
@@ -105,57 +112,52 @@ var timeoutID = 0;
 showSlides(slideIndex);
 
 function nextSlide(n = 1) {
-      showSlides(slideIndex += n);
+  showSlides(slideIndex += n);
 }
 
 function plusSlides(n = 1) {
-      queue_next = false;
-      clearTimeout(timeoutID);
-      showSlides(slideIndex += n);
+  queue_next = false;
+  clearTimeout(timeoutID);
+  showSlides(slideIndex += n);
 }
 
 function currentSlide(n) {
-      queue_next = false;
-      clearTimeout(timeoutID);
-      showSlides(slideIndex = n);
+  queue_next = false;
+  clearTimeout(timeoutID);
+  showSlides(slideIndex = n);
 }
-
 
 function showSlides(n) {
   var i;
   var slides = document.getElementsByClassName("mySlides");
   var dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1} 
+  if (n > slides.length) {slideIndex = 1}
   if (n < 1) {slideIndex = slides.length}
   for (i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none"; 
+    slides[i].style.display = "none";
   }
   for (i = 0; i < dots.length; i++) {
-      dots[i].className = dots[i].className.replace(" active", "");
+    dots[i].className = dots[i].className.replace(" active", "");
   }
-  slides[slideIndex-1].style.display = "block"; 
+  slides[slideIndex-1].style.display = "block";
   dots[slideIndex-1].className += " active";
 
   if (queue_next) {timeoutID = setTimeout(nextSlide,3000);}
-		  
-  }
+}
 
 $(document).keydown(function(evt) {
   evt = evt || window.event;
   switch (evt.keyCode) {
   case 37:
-      queue_next = false;
-      clearTimeout(timeoutID);
-      plusSlides(-1);
-      break;
+    queue_next = false;
+    clearTimeout(timeoutID);
+    plusSlides(-1);
+    break;
   case 39:
-      queue_next = false;
-      clearTimeout(timeoutID);
-      plusSlides(1);
-      break;
+    queue_next = false;
+    clearTimeout(timeoutID);
+    plusSlides(1);
+    break;
   }
-		  
 });
 </script>
-
-
