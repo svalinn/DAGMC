@@ -6,9 +6,9 @@ should know that the following will be required:
 
 1.  A basic understanding of Unix/Linux shell commands and how to navigate 
     the shell, for installing dependencies and DAGMC enabled codes
-2.  MCNP5 source code, if you intend to install DAG-MCNP5
-3.  FLUKA, if you intend to install FluDAG
-4.  Cubit or Trelis, for the creation of geometry 
+2.  MCNP5_ source code, if you intend to install DAG-MCNP5
+3.  Fluka_, if you intend to install FluDAG
+4.  Cubit_ or Trelis_, for the creation of geometry 
 
 Once you have the basic pre-requisite peices in place you can proceed to the 
 DAGMC installation. There are three main parts in the DAGMC installation:
@@ -30,3 +30,9 @@ available to you.
     dependencies
     dagmc
     plugin
+
+..  _MCNP5: https://mcnp.lanl.gov
+..  _MCNP6: https://mcnp.lanl.gov
+..  _Fluka: http://www.fluka.org/fluka.php
+..  _Cubit: https://cubit.sandia.gov
+..  _Trelis: http://www.csimsoft.com/trelis

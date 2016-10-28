@@ -29,6 +29,7 @@ before ``make_watertight`` and the black lines show the geometry after its use.
 
 ``make_watertight`` can be run with:
 ::
+
     $ make_wateright <filename>
 
 The product will be a file named, `filename_zip.h5m`, and a summary is provided
@@ -43,6 +44,7 @@ given model is. It should be used as a post-processing step after
 
 ``check_watertight`` can be run  with:
 ::
+
     $ check_wateright <filename>
 
 Both ``make_watertight``and ``check_watertight`` are built during the main DAGMC

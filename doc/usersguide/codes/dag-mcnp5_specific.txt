@@ -8,8 +8,9 @@ included in the input file.
 A new data card has been added to DAG-MCNP5 to define parameters for
 the DAGMC geometry capability.  
 ::
-   Form: dagmc  keyword1=value   keyword2=value
-          check_src_cell: behavior of CEL variable in SDEF card
+
+  Form: dagmc  keyword1=value   keyword2=value
+       check_src_cell: behavior of CEL variable in SDEF card
                           on  [default] standard interpretation for 
                                         CEL variable: source rejection
                           off           no cell rejection - assume that 

@@ -24,6 +24,7 @@ Here is an example of how to use ``mbconvert``:
 
 One can immediately view this mesh, by using ``mbconvert`` to convert to vtk:
 ::
+
     $ mbconvert mesh.h5m mesh.vtk
 
 Tetrahedral mesh tallies
