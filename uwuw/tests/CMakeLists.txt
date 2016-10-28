@@ -11,6 +11,7 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 # Include directories
 include_directories(..)
 include_directories(${GTEST_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/pyne)
 include_directories(${HDF5_INCLUDE_DIRS})
 
 # Setup unit tests
@@ -24,6 +25,7 @@ setup_test(uwuw_unit_tests_preprocessor cpp ${DRIVER} "${LINK_LIBS}" )
 # Install h5m files
 install(FILES test_uwuw.h5m DESTINATION tests)
 install(FILES mat_lib.h5    DESTINATION tests)
+install(FILES dag_file.h5m    DESTINATION tests)
 
 # Enable unit tests
 enable_testing()
