@@ -62,7 +62,7 @@ echo '<div class="slideshow-container">' >> $out_file
 
 # loop over the number of slides
 for (( i = 1 ; i <= $num_images ; i++ )) ; do
-    alttext=`grep ":alt:" $gallery_file | sed -n "$i"p | cut -d ' ' -f5-`
+    alttext=`grep ":alt:" $gallery_file | sed -n "$i"p | cut -d ' ' -f6-`
     img_file=`grep "image::" $gallery_file | sed -n "$i"p | awk '{print $3}'`
     echo $alttext $img_file
     html_slide_entry $i $num_images $img_file "$alttext" $out_file
