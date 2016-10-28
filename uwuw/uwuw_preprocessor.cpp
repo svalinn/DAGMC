@@ -667,7 +667,7 @@ std::string name_concatenator::shift_and_increment(std::string name)
       for ( int i = 0 ; i < 7 ; i++ ) {
         name[i] = name[i+1];
       }
-    
+
     count++; // increment counter
     std::string int_as_string;
     int_to_string(count,int_as_string);

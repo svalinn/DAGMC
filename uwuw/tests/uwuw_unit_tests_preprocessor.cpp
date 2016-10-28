@@ -193,14 +193,14 @@ TEST_F(UWUWTest,materialMetadata)
   bool fatal_errors = false;
   // make new preprocessor
   uwuw_preprocessor *uwuw_preproc = new uwuw_preprocessor(lib_file,dag_file,
-							  out_file,verbose,fatal_errors);
+      out_file,verbose,fatal_errors);
   // load the geometry
   uwuw_preproc->get_dagmc_properties();
   // process materials
   uwuw_preproc->process_materials();
   // write the new material library
   uwuw_preproc->write_uwuw_materials();
-  
+
   // now read in the material library
   UWUW *uwuw = new UWUW(out_file);
   std::map<std::string,pyne::Material> mat_lib = uwuw->material_library;
@@ -212,7 +212,7 @@ TEST_F(UWUWTest,materialMetadata)
   EXPECT_EQ(mat.metadata["fluka_name"].asString(),"CENTREST");
   EXPECT_EQ(mat.metadata["mat_number"].asInt(),1);
   EXPECT_EQ(mat.metadata["special_tag"].asString(),"this is a test tag");
- 
+
   delete uwuw;
   delete uwuw_preproc;
 }
