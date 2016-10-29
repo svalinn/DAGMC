@@ -127,4 +127,18 @@ arguments. For example, to export the currently loaded file to a file called
 Roadmap for the future
 ~~~~~~~~~~~~~~~~~~~~~~
 
-TODO: this
+Currently we have a number of standalone command line tools that are run sequentially 
+on a model following faceting using Cubit/Trelis. We run `make_watertight` to seal
+models to ensure no topological weaknesses exist and we run `uwuw_preproc` to add
+materials into analysis geometries. It is envisioned that at some point in the 
+near future that we will integrate these as options within the Cubit/Trelis plugin.
+
+..  image:: plugin_infrastructure.png
+    :height: 350
+    :width:  800
+    :alt: The future infrastructure for the Cubit/Trelis plugin
+
+Such that following faceting you give the option if you want the model to be made
+watertight and if you want to add materials to the resultant geometry. There will
+always be power users that prefer the command line tools and we will still support them
+with indentical infrastructure.
