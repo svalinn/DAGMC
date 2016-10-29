@@ -30,23 +30,23 @@ errors, you are now ready to configure DAGMC to produce the desired build.
 ``$DATAPATH`` environment variable to specify the location of the MCNP data.
 ::
 
-    $ cmake ../src -DBUILD_MCNP5=ON \
-                   -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+    $ cmake .. -DBUILD_MCNP5=ON \
+               -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 **Example 2:** Build the DAGMC interfaces and DAG-MCNP5, assuming that the
 ``$DATAPATH`` environment variable is undefined.
 ::
 
-    $ cmake ../src -DBUILD_MCNP5=ON \
-                   -DMCNP5_DATAPATH=<path to MCNP data> \
-                   -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+    $ cmake .. -DBUILD_MCNP5=ON \
+               -DMCNP5_DATAPATH=<path to MCNP data> \
+               -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 **Example 3:** Build an MPI version of DAG-MCNP5.
 ::
 
-    $ cmake ../src -DBUILD_MCNP5=ON \
-                   -DMPI_BUILD=ON \
-                   -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+    $ cmake .. -DBUILD_MCNP5=ON \
+               -DMPI_BUILD=ON \
+               -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.

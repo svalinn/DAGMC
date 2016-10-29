@@ -49,9 +49,9 @@ The following CMake command will build DAG-Geant4, assuming you built Geant4 as
 specified in the Geant4 build instructions above.
 ::
 
-    $ cmake ../src -DBUILD_GEANT4=ON \
-                   -DGEANT4_DIR=$HOME/dagmc_bld/Geant4 \
-                   -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+    $ cmake .. -DBUILD_GEANT4=ON \
+               -DGEANT4_DIR=$HOME/dagmc_bld/Geant4 \
+               -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.

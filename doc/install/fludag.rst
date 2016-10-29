@@ -23,30 +23,15 @@ when building FLUKA.
 Take care to follow the FLUKA site instructions when setting the
 ``$FLUPRO`` and ``$FLUFOR`` environment variables.
 
-..  _fluka_patch:
-
-Apply the |DAG-Code| run script patch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you are building FluDAG, you will need to patch FLUKA's run script ``rfluka``
-in order to allow for some DAGMC-specific options.
-::
-
-    $ cd $FLUPRO/flutil
-    $ patch -Nb rfluka $HOME/dagmc_bld/DAGMC/fluka/rfluka.patch
-
-Assuming the patch was succesfully applied, i.e. there were no warnings or
-errors, you are now ready do configure DAGMC to produce the desired build.
-
 ..  include:: configure_dag-code_header.txt
 
 The following CMake command will build FluDAG. Note that ``$FLUPRO`` should have
 previously been defined as part of the FLUKA install.
 ::
 
-    $ cmake ../src -DBUILD_FLUKA=ON \
-                   -DFLUKA_DIR=$FLUPRO \
-                   -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+    $ cmake .. -DBUILD_FLUKA=ON \
+               -DFLUKA_DIR=$FLUPRO \
+               -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.
