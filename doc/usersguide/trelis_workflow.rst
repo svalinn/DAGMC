@@ -12,28 +12,24 @@ The general workflow for the production of DAGMC models is the following:
 
 1.  Ensure that units/sizes for DAGMC models are "cm"
 2.  Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)
-3.  Inspect and resolve overlapping volumes, you may need to scale model up 
+3.  Inspect and resolve overlapping volumes, you may need to scale the model up 
     to detect these
     ::
 
         CUBIT> validate vol all
         CUBIT> autoheal problem vols
 
-    Regularize may be needed (simplifies by removing splines, byproduct is 
-    reverses imprint. Check and possibly remove small features 
-    (curves, surfaces, vols). We need to check small areas 
-    (check "hydraulic" length and "regular" length)
+**Other tools:**
+
+- Regularize may be needed (simplifies by removing splines, but will reverse imprint operation)
+ 
+- Check and possibly remove negligibly small curves, surfaces, and volumes. (check "hydraulic" length and "regular" length)
     ::
 
         CUBIT> group "smallsurfaces" add surface with area < 1.e-3
-
-    We need to check small curves (check "hydraulic" length and "regular" length)
-    ::
-
         CUBIT> group "smallcurves" add curve with length < 1.e-4
-
-    We need to check small volumes, examine small volumes (vol <= 0.0000 
-    might need to autoheal)
+        CUBIT> group "smallvols" add volume with volume < 1.e-5
+       
 4.  Create pre-imprint/merge table of volume of volumes, and then imprint
     ::
 
@@ -65,12 +61,14 @@ The general workflow for the production of DAGMC models is the following:
 
         CUBIT> export dagmc "geom.h5m" faceting_tolerance 1.0e-4
 
-8.  Seal model if possible (use make_watertight)
+8.  Seal model if possible (use `make_watertight <tools.html#make-watertight>`_)
 9.  Flood and/or transport particles in model
-    - examine lost locations (use mklostvis.pl)
+10. If lost particles or leaky:
+    
+    - examine lost locations (use `mklostvis.pl <tools.html#mklostvis>`_)
     - examine "leaks"/tunneling (can use a mesh tally to locate)
-10. If lost particles or leaky repair the pre-imprint/merge model and go to step 2
-11. If no lost or leaks, then transport is ok
+    - repair the pre-imprint/merge model (go to step 2)
+11. If no lost particles or leaks, then the model is ready for transport
 
 Preparing solid models
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -83,9 +81,9 @@ a format that can be imported by Trelis or Cubit, in particular:
     * ACIS (\*.sat)
     * STEP (\*.stp, \*.step, etc)
 
-We have a strong preference towards ACIS due to its ability to retain 'imprint and
-merge' information, and we have anecdotal evidence that ACIS files 
-lead to a more successful model pipeline. Indeed we rely on Ansys Spaceclaim
+The ACIS format is strongly recommended due to its ability to retain imprint and
+merge information, and there is anecdotal evidence that ACIS files 
+lead to a more successful model pipeline. Ansys Spaceclaim is often used at UW - Madison
 to perform model cleaning and defeaturing, which can import many of the common
 CAD formats and exports to ACIS.
 
@@ -96,7 +94,7 @@ lead to rapid failure when running a DAGMC-based analysis. The
 following steps are provided to help make a more robust model *before*
 running your DAGMC-based analysis.
 
-Be aware: obtaining a robust model may be an iterative and time
+Beware: obtaining a robust model may be an iterative and time
 consuming process. In some cases, the validity of the model will
 require running a DAGMC-based analysis and assessing whether or not
 the model yielded expected results or a small enough number of lost
@@ -147,14 +145,14 @@ occurs, the particle may become lost.
 Identifying gaps and overlaps may be difficult and time consuming;
 however, some 3D modeling programs like SolidWorks have built in tools
 to identify these occurrences. Rely on the modeling program to
-identify these errors (the gaps and overlaps) and use the steps in the
+identify these problematic features and use the steps in the
 next section to change, reduce and remove their effect on the model.
 
 Modifying your model
 --------------------
 
 Once the gaps and overlaps in the model have been identified, the
-three following methods may be used to change, reduce and remove their
+three following methods may be used to change, reduce, and remove their
 effect on the model.
 
 * Create "voided" geometries
@@ -163,7 +161,7 @@ effect on the model.
 
 Each method is discussed in detail below:
 
-As with the fuel rod example mentioned above, some geometries that are
+As with the fuel rod example mentioned above, some regions that are
 'gaps' are also important. Instead of removing the gap entirely (by
 changing the dimensions of the cladding or the fuel to force
 coincidence), a new volume/part could be modeled that coincided with
@@ -180,8 +178,8 @@ this method could compromise the physics of the solution and is then
 undesirable. However, in other instances, this solution is very
 logical. One particularly significant example is if different volumes
 were modeled with different unit systems. For example, one volume/part
-might have been model in [in] while its neighbor was modeled in [cm];
-while the surfaces may be nearly coincidence, rounding errors might
+might have been model in [in] while its neighbor was modeled in [cm].
+While surfaces may be nearly coincident, rounding errors might
 prevent coincidence from occurring. A simple change to one dimension
 may hardly change the volume/part's characteristics yet result in
 coincidence.
@@ -218,14 +216,14 @@ it is composed of all the space that is not defined by the CAD geometry. It is o
 convenient to not define all space in a given model, for example the space inside a
 tokamak which is occupied by air or vacuum, or the water volume in a reactor. The
 power of the implicit compliment lies in the fact that it is not a true CAD body
-since it was never defined, but automatically defines all undefined space in the model.
+since it was never defined, but it automatically defines all undefined space in the model.
 
 Finishing up and final notes
 ----------------------------
 Having prepared your model to completion with the appropriate groups created
 , you can choose to save your model in various formats. Previously 
 we recommended ACIS \*.sat files, but any format that reliably retains
-imprortant metadata.  Recommended storage formats are ACIS, \*.Trelis or 
+imprortant metadata will suffice.  Recommended storage formats are ACIS, \*.Trelis or 
 \*.cub files.
 
 One should also use the :ref:`make_watertight`. tool on the 
