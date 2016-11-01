@@ -59,7 +59,7 @@ Or tally multipliers:
     fm4 -1 0 -5 -6
 
 ``mbconvert`` can be used to convert the output mesh file to a .vtk file for
-viewing or post-processing with VisIt or other plotting tools.
+viewing or post-processing with VisIt_ or other plotting tools.
 ::
 
     $ mbconvert mesh_out.h5m mesh_out.vtk
@@ -95,3 +95,5 @@ To call a KDE subtrack tally, use:
         hx=0.1042 hy=0.0833 hz=0.0833
         hx=0.1042 hy=0.0833 hz=0.0833
         subtracks=3 seed=11699913
+
+.. _VisIt: https://wci.llnl.gov/simulation/computer-codes/visit
