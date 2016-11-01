@@ -10,7 +10,7 @@ input deck for each code, or maybe write a full syntax translator. |UW2| allows 
 to tag or associate groups of volumes or surfaces with a simple human readable syntax
 that is translated and stored in the geometry file of a DAGMC problem.
 
-The workflow uses the Python for Nuclear Engineering toolkit `PyNE <http://pyne.io>`_. We
+The workflow uses the Python for Nuclear Engineering toolkit, `PyNE <http://pyne.io>`_. We
 levereage the existing infrastructure in PyNE to allow a consistent transport problem to be
 defined across all MC codes.
 
@@ -22,7 +22,7 @@ specifies materials in a different way. Instead, we tag groups of volumes
 with a name and syntax that corresponds to material compositions in a predefined
 material library.
 
-The Cubit syntax for describing materials is:
+The group naming syntax for describing materials in Cubit/Trelis is:
 ::
 
     CUBIT> group "mat:<Name of Material>"
@@ -60,7 +60,7 @@ or the photon current crossing surface 3,
 
 Using the underlying PyNE libraries we can write out the appropriate MC code
 tally specification snippet; this allows the number of codes the DAGMC
-supports to grow organically with those that PyNE supports. When PYNE cannot
+supports to grow organically with those that PyNE supports. When PyNE cannot
 fulfill your tally request it will warn you.
 
 Boundary conditions
@@ -97,9 +97,9 @@ The |UW2| workflow has a code agnostic way of defining importances.
 
     CUBIT> group "importance:Neutron/1.0"
 
-This is translated to the code specific version at runtime. *note* Fluka's importance
+This is translated to the code specific version at runtime. *Note: Fluka's importance
 range runs from 1e-5 to 1e5, when written to file, the range is rescaled and any out of
-range values are truncated to 1e-5 and 1e5.
+range values are truncated to 1e-5 and 1e5.*
 
 |UW2| data
 ~~~~~~~~~~
@@ -372,9 +372,9 @@ The mat.inp file should look like
     USRTRACK         1.0    PHOTON       -21        4.1.0000e+03     1000.PHFLUX4
     USRTRACK       10.E1     1.E-3                                               &
 
-As of the current time you will need to add two lines manually: this is because
-the component of the code which identifies neutron cross section data is not yet
-complete.
+At this point you will need to add two lines to the input file manually. This is
+because the component of the code which identifies neutron cross section data is
+not yet complete.
 ::
 
     *...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....
