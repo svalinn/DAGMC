@@ -5,9 +5,10 @@ User's guide
 
 This document is intended for users of the DAGMC toolkit who want
 to better understand all the potential workflows for each Monte Carlo
-code. UW Madison have developed several workflows and exactly which 
-workflow suits your needs depends on which codes you expect to use
-and how much manual data transfer you wish to do.
+code. UW - Madison has developed several workflows for the Monte Carlo
+codes it supports. Exactly which workflow suits your needs depends on
+which codes you expect to use and how much manual data transfer you
+wish to do.
 
 +---------------------+----------------+----------------+
 | Feature             | Basic Workflow | UW2 Workflow   | 
@@ -34,7 +35,7 @@ packages with minimal effort, the UW2 workflow is your best option
 as it does the most work for you, however if you are interested
 in only a specific physics engine one of the basic workflows may
 interest you more. We still would recommend the UW2 workflow as it 
-offers robust and tested way of material creation.
+offers robust and tested methods for material creation.
 
 ..  toctree::
     :maxdepth: 1
