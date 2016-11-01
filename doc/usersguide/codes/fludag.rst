@@ -3,7 +3,7 @@ Code-specific steps for FluDAG
 
 There are several varieties of code-specific steps:
 
-1.  defining attributes of the geometry using groups in CUBIT
+1.  defining attributes of the geometry using groups in Cubit/Trelis
 2.  producing material assignments in FLUKA input format from the h5m file, with
     the help of FluDAG
 3.  preparing the FLUKA input file for running with DAGMC
@@ -147,13 +147,14 @@ Running FluDAG
 
 Running FluDAG bears some similarity to running FLUGG: the first step is to create the CAD
 geometry of the problem you wish to run. In order to produce the material assignment
-data from the CAD geometry we must first facet the file using the Cubit/Trelis plugin. Using
-the subsequently defined geometry file, the user must produce the mat.inp file
+data from the CAD geometry we must first `facet the file <../trelis_basics.html#production-of-the-dagmc-geometry>`_
+using the Cubit/Trelis plugin. Using the subsequently defined geometry file, the user must
+produce the mat.inp file
 ::
 
     $ /path/to/fludag/executable/mainfludag geom.h5m
 
-Will load the named h5m file and produce the material assignments information.
+will load the named h5m file and produce the material assignments information.
 This information should then be pasted into the FLUKA input file and any adjustments
 that need to be made should be made, for example adding the density of non standard
 materials, or adding your scoring information. **Please note that the user must always
