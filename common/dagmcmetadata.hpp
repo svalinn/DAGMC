@@ -1,4 +1,5 @@
-
+#include <set>
+#include <iostream>
 
 class dagmcMetaData {
   public:
@@ -16,6 +17,8 @@ class dagmcMetaData {
    std::string get_surface_property(std::string property, moab::EntityHandle surface);
    std::string get_surface_property(std::string property, int surface, bool idx = true);
 
+   std::vector<std::string> unpack_string(std::string to_unpack, std::string delimiters="|");
+  
   // private member functions
   private:
    // parse the material data
@@ -34,6 +37,9 @@ class dagmcMetaData {
 										   std::string delimiters );
 
   std::vector<std::string> remove_duplicate_properties(std::vector<std::string> properties);
+
+  std::set<std::string> set_remove_rich(std::set<std::string> properties_set);
+
 
   // public member variables
   public:

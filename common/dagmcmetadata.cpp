@@ -62,7 +62,7 @@ std::string dagmcMetaData::get_volume_property(std::string property, int vol, bo
 // Get a given property on a surface
 std::string dagmcMetaData::get_surface_property(std::string property, moab::EntityHandle eh) {
   std::string value = "";
-  if (property == "material_density" ) {
+  if (property == "boundary" ) {
     value = surface_boundary_data_eh[eh];
   } else {
     std::cout << "Not a valid property for surfaces" << std::endl;
@@ -81,7 +81,6 @@ std::string dagmcMetaData::get_surface_property(std::string property, int vol, b
   }
   return get_surface_property(property,eh);
 }
-
 
 // parse the material data
 void dagmcMetaData::parse_material_data() {
@@ -175,7 +174,6 @@ void dagmcMetaData::parse_importance_data() {
     std::string importances = "|"; 
     for ( int j = 0 ; j < importance_assignment.size() ; j++ ) {
         // delimit each particle/value pair with a pipe symbol
-        std::cout << importance_assignment[j] << std::endl;
         importances += importance_assignment[j]+"|";
      }
      volume_importance_data_eh[eh] = importances;
@@ -240,20 +238,15 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
     // get id
     moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
 
-    std::cout << "here" << std::endl;
-
     // get the group contents
     if( DAG->has_prop( entity, property ) )
       rval = DAG->prop_values(entity,property,properties);
     else
       properties.push_back("");
 
-    if (properties.size() > 1 ) {
+    if (properties.size() > 1 )
       properties = remove_duplicate_properties(properties);
-      for ( int j = 0 ; j < properties.size() ; j++ ) {
-	std::cout << entity << " " << j << " " << properties.size() << " " << property << " " << properties[j] << std::endl;
-      }
-    }
+    
     // assign the map value
     prop_map[entity]=properties;
   }
@@ -275,24 +268,8 @@ std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<
   // so we need to search each item for its more information rich partner and remove the 
   // degenerate item
 
-  std::vector<std::set<std::string>::const_iterator> matches;
-  std::set<std::string>::iterator set_it,toofar;
-  // loop over all elements in the set 
-  for ( set_it = properties_set.begin(), toofar = properties_set.end(); set_it != toofar; ++set_it)
-    if ((*set_it).find(*properties_set.begin()) != std::string::npos) {
-	matches.push_back(set_it);
-    }
-  // if there were more than 2 matches
-  if( matches.size() > 1 ) {
-    int biggest = 0;
-    int len = 0;
-    for ( int i = 0 ; i < matches.size() ; i++ ) {
-      if( *(matches[i]).length() > len )
-	biggest = i;
-    }
-    // take the longest 
-  }
-      
+  properties_set = set_remove_rich(properties_set);
+
   std::vector<std::string> new_properties;
    // resize the array
   new_properties.resize(properties_set.size());
@@ -301,5 +278,66 @@ std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<
   std::copy(properties_set.begin(),properties_set.end(),new_properties.begin());
 
   return new_properties;
+}
 
+// from a given set remove any matches if they are found to keep the 
+std::set<std::string> dagmcMetaData::set_remove_rich(std::set<std::string> properties_set) {
+
+  std::set<std::string> new_set = properties_set;
+
+  std::vector<std::set<std::string>::const_iterator> matches;
+  std::set<std::string>::iterator set_it,toofar,it;
+  
+  std::set<std::string> to_delete;
+  // loop over all elements in the set 
+  it = new_set.begin();
+  while (it != new_set.end()) {
+    for ( set_it = new_set.begin(), toofar = new_set.end(); set_it != toofar; ++set_it)
+      if ((*set_it).find(*it) != std::string::npos) {
+	matches.push_back(set_it);
+      }
+    // if there were more than 2 matches
+    if( matches.size() > 1 ) {
+      int smallest = 0;
+      int len = 1e7;
+      for ( int i = 0 ; i < matches.size() ; i++ ) {
+	if( (*matches[i]).length() < len ) {
+	  smallest = i;
+	  len = (*matches[i]).length();
+	}
+      }
+      
+      // take the longest 
+      to_delete.insert(*matches[smallest]);
+    }
+    ++it;
+  }
+
+  // loop over the names to remove
+  for ( it = to_delete.begin() ; it != to_delete.end() ; ++it ) {
+    new_set.erase(new_set.find(*it));
+  }
+
+  return new_set;
+}
+
+// 
+std::vector<std::string> dagmcMetaData::unpack_string(std::string to_unpack, std::string delimiters) {
+  // loop through the string to unpack and return a vector of unpacked strings
+  std::vector<size_t> locations;
+  size_t npos = to_unpack.find(delimiters,0);
+  locations.push_back(npos);
+  while ( npos != std::string::npos) {
+    npos = to_unpack.find(delimiters,npos+1);
+    locations.push_back(npos);
+  }
+
+  std::vector<std::string> unpacked_string;
+
+  for ( int i = 0 ; i < locations.size() - 1 ; i++ ) {
+    std::string extract = to_unpack.substr(locations[i]+1,locations[i+1]-1);
+    unpacked_string.push_back(extract);
+  }
+  
+  return unpacked_string;
 }

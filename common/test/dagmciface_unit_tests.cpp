@@ -182,29 +182,43 @@ TEST_F(DagmcMetadataTest,TestImportanceAssigns)
   int num_vols = DAG->num_entities(3);
   for ( int i = 1 ; i <= num_vols ; i++ ) {
     moab::EntityHandle eh = DAG->entity_by_index(3,i);
-    std::string mat_prop = dgm->get_volume_property("importance",eh);
 
+    std::string  mat_prop = dgm->get_volume_property("importance",i,true);
+    std::vector<std::string> imps = dgm->unpack_string(mat_prop,"|");
     if (!DAG->is_implicit_complement(eh))
-      EXPECT_EQ(mat_prop,base_property);
+      EXPECT_EQ(imps[0],base_property);
     else
-      EXPECT_EQ(mat_prop,impl_comp_prop);
-
-    mat_prop = dgm->get_volume_property("importance",i,true);
-
-    if (!DAG->is_implicit_complement(eh))
-      EXPECT_EQ(mat_prop,base_property);
-    else
-      EXPECT_EQ(mat_prop,impl_comp_prop);
-
-    int cellid = DAG->id_by_index( 3, i );
-    mat_prop = dgm->get_volume_property("importance",i,true);
-
-    if (!DAG->is_implicit_complement(eh))
-      EXPECT_EQ(mat_prop,base_property);
-    else
-      EXPECT_EQ(mat_prop,impl_comp_prop);
+      EXPECT_EQ(imps[0],impl_comp_prop);
   }
 }
+//---------------------------------------------------------------------------//
+// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully 
+// been assigned and succesfully retreved from the dataset, specifically querying
+// the boundary condition case
+//---------------------------------------------------------------------------//
+TEST_F(DagmcMetadataTest,TestBoundaryAssigns)
+{
+  // new metadata instance
+  dgm = new dagmcMetaData(DAG);
+  
+  // process 
+  dgm->load_property_data();
+  
+  std::string base_property = "Reflecting";
+  std::string impl_comp_prop = "";
+  
+  int num_surfs = DAG->num_entities(2);
+  int tmp[] = {1,2,3,5,6,7,8,9,11,13,14,15,16,17};
+  std::vector<int> surf_ids( tmp, tmp+14 );
+  for ( int i = 0 ; i < surf_ids.size(); i++ ) {
+    int id = surf_ids[i];
+    std::string bound_prop = dgm->get_surface_property("boundary",id,false);
+    moab::EntityHandle eh = DAG->entity_by_id(2,id);
+    std::string bound_prop2 = dgm->get_surface_property("boundary",eh);
 
+    EXPECT_EQ(bound_prop,base_property);
+    EXPECT_EQ(bound_prop2,base_property);
 
+  }
+}
 // assert some behaviors
