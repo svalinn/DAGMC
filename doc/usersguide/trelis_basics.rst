@@ -5,7 +5,7 @@ Pre-processing solid models using Cubit/Trelis
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section focuses on steps that are independent of the Monte Carlo code used
-for analysis. Additional steps for `the unified workflow <uw2.html>`_ or
+for analysis. Additional steps for the unified workflow, `UW2 <uw2.html>`_, or
 `Monte Carlo code-specific workflows <codes/index.html>`_ may be followed as
 needed.
 
@@ -87,7 +87,8 @@ contain surfaces too. Below the group "shield.boundary" is created with surfaces
 
     CUBIT> group "shield.boundary" add surf 16 37
 
-Due to the importance of using the ``group`` command reading the CUBIT manual
+Due to the importance of using the ``group`` command reading the
+`CUBIT manual <https://cubit.sandia.gov/public/15.2/help_manual/WebHelp/cubithelp.htm>`_
 section on its full usage is highly recommended.
 
 Production of the DAGMC geometry
@@ -104,6 +105,20 @@ dagmc command.
                                    [normal_tolerance <normal tolerance>]
                                    [verbose] [fatal_on_curves]
 
+The meaning of these different options are described below
+
+
+**Faceting Tolerance** -  Specifies how far a facet is allowed
+                          to be from the CAD representation of
+			  a surface in the faceting algorithm.
+
+**Lenth Tolerance** -     Specifies the maximum allowed length
+                          of a facet edge.
+
+**Normal Tolerance** -    Specifies the maximum allowed change
+                          in angle between then normal vector
+			  of two adjacent facets.
+
 For example to produce a file called, geometry.h5m with faceting tolerances and
 length tolerances of 1.0e-4 cm and 5.0 cm respectively
 ::
@@ -116,6 +131,7 @@ is also possible that faceting artifacts or failures could occur at this point,
 so monitor the output of this command in the Cubit/Trelis command line. If
 issues due occurs, these should be addressed following the workflow listed
 above.
+
 
 Where faceting_tolerance, normal_tolerance, and length tolerance are optional
 arguments. For example, to export the currently loaded file to a file called
@@ -138,7 +154,7 @@ near future that we will integrate these as options within the Cubit/Trelis plug
     :width:  800
     :alt: The future infrastructure for the Cubit/Trelis plugin
 
-Such that following faceting you give the option if you want the model to be made
-watertight and if you want to add materials to the resultant geometry. There will
-always be power users that prefer the command line tools and we will still support them
-with indentical infrastructure.
+This will allow you to add additional options if you want the model to be made
+watertight and/or if you want to add materials to the resultant geometry. There will
+always be power users that prefer the command line tools. These tools will continue
+to be supported with identical infrastructure.
