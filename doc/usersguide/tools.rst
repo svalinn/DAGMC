@@ -33,7 +33,7 @@ before ``make_watertight`` and the black lines show the geometry after its use.
     $ make_wateright <filename>
 
 The product will be a file named, `filename_zip.h5m`, and a summary is provided
-of what operations were done to seal the model. 
+of what operations were done to seal the model.
 
 check_watertight
 ~~~~~~~~~~~~~~~~
@@ -80,17 +80,15 @@ mklostvis
 Sometimes either poor quality CAD, incorrect imprinting & merging or overlapping
 volumes; particles are regarded as lost by the Monte Carlo code. It is therefore
 neccessary to be able to examine where the particles were lost and in which
-direction they were travelling in. The tool
-`mklostvis <https://github.com/svalinn/meshtools/tree/master/lostparticles>`_ is
-designed for this purpose, reading the output of the MCNP lost particle
-information and producing a `Cubit <https://cubit.sandia.gov/>`_ or
-`Trelis <http://www.csimsoft.com/trelis.jsp>`_ journal file which will draw the
-lost particles as vertices and their directions as curves. To run the script;
+direction they were travelling in. The tool mklostvis_ is designed for this
+purpose, reading the output of the MCNP lost particle information and producing
+a Cubit or journal file which will draw the lost particles as vertices and their
+directions as curves. The script can be run with:
 ::
 
     $ mklostvis.pl [mcnp output filename] [vector length] > [journal file name]
 
-The produced Cubit journal file can be 'played', and will plot these lost
+The produced Cubit journal file can be "played", and will plot these lost
 particles on top of whatever geometry is loaded into your Cubit session, like
 that shown below.
 
@@ -102,3 +100,5 @@ that shown below.
     :height: 300
     :width:  300
     :alt:    Image showing lost particle information zoomed in
+
+..  _mklostvis: https://github.com/svalinn/meshtools/tree/master/lostparticles

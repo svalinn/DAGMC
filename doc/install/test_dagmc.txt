@@ -1,11 +1,12 @@
 Test DAGMC
 ~~~~~~~~~~
 
-We regularly run the DAGMC test suite on
-`Travis <https://travis-ci.org/svalinn/DAGMC>`_ as part of our continuous
+We regularly run the DAGMC test suite on Travis_ as part of our continuous
 integration system. You may however wish to run the tests yourself in order to
 verify you have installed DAGMC correctly.
 
 If the tests have completed successfully, you are now ready to run your first
 DAGMC problem. See the `DAGMC user's guide <../usersguide/index.html>`_
 for more information.
+
+..  _Travis: https://travis-ci.org/svalinn/DAGMC

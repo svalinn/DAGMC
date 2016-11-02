@@ -3,32 +3,33 @@ University of Wisconsin Unified Workflow (UWUW)
 
 ..  |UW2| replace:: UW\ :sup:`2`
 
-The University of Wisconsin Unified Workflow (|UW2|) aims to solve the
-issue of running the same Monte Carlo problem using mutiple physics codes. Currently,
-if you wish to run the same problem in multiple codes you must fully recreate the
-input deck for each code, or maybe write a full syntax translator. |UW2| allows users
-to tag or associate groups of volumes or surfaces with a simple human readable syntax
-that is translated and stored in the geometry file of a DAGMC problem.
+The University of Wisconsin Unified Workflow (|UW2|) aims to solve the issue of
+running the same Monte Carlo problem using mutiple physics codes. Currently, if
+you wish to run the same problem in multiple codes you must fully recreate the
+input file for each code, or maybe write a full syntax translator. |UW2| allows
+users to tag or associate groups of volumes or surfaces with a simple human
+readable syntax that is translated and stored in the geometry file of a DAGMC
+problem.
 
-The workflow uses the Python for Nuclear Engineering toolkit, `PyNE <http://pyne.io>`_. We
-levereage the existing infrastructure in PyNE to allow a consistent transport problem to be
-defined across all MC codes.
+The workflow uses the Python for Nuclear Engineering toolkit, PyNE_. We
+leverage the existing infrastructure in PyNE to allow a consistent transport
+problem to be defined across all MC codes.
 
 Materials
 ~~~~~~~~~
 
-Materials are the most painful and error prone items to transfer from code to code, since each MC code
-specifies materials in a different way. Instead, we tag groups of volumes
-with a name and syntax that corresponds to material compositions in a predefined
-material library.
+Materials are the most painful and error-prone items to transfer from code to
+code, since each MC code specifies materials in a different way. Instead, we tag
+groups of volumes with a name and syntax that corresponds to material
+compositions in a predefined material library.
 
 The group naming syntax for describing materials in Cubit/Trelis is:
 ::
 
     CUBIT> group "mat:<Name of Material>"
 
-If you wish to specify a material that is present in the library with a different
-density, then
+If you wish to specify a material that is present in the library with a
+different density, then
 ::
 
     CUBIT> group "mat:<Name of Material>/rho:<density>"
@@ -41,9 +42,10 @@ So for example, to specify a Stainless Steel at a density of 12.0 g/cc,
 Scoring
 ~~~~~~~
 
-Each MC code implements tallies, or scores, in very specific ways such that there
-is sometimes no equivalent to a tally you may be familiar with, code to code. However,
-there is a Cubit syntax to allow you to request scores on geomemtric elments, the generic form is,
+Each MC code implements tallies, or scores, in very specific ways such that
+there is sometimes no equivalent to a tally you may be familiar with, code to
+code. However, there is a Cubit syntax to allow you to request scores on
+geomemtric elments. The generic form is
 ::
 
     CUBIT> group "tally:ParticleName/ScoreType" add vol x
@@ -58,19 +60,19 @@ or the photon current crossing surface 3,
 
     CUBIT> group "tally:Photon/Current" add surface 3
 
-Using the underlying PyNE libraries we can write out the appropriate MC code
-tally specification snippet; this allows the number of codes the DAGMC
-supports to grow organically with those that PyNE supports. When PyNE cannot
-fulfill your tally request it will warn you.
+Using the underlying PyNE libraries, we can write out the appropriate MC code
+tally specification snippet; this allows the number of codes that DAGMC supports
+to grow organically with those that PyNE supports. When PyNE cannot fulfill your
+tally request it will warn you.
 
 Boundary conditions
 ~~~~~~~~~~~~~~~~~~~
 
 All MC codes have an understanding of boundary conditions, and all at least
-implement some form of Graveyard, Blackhole or some region where particles are
-'killed'. Some MC codes go further and define reflecting or other boundary
-conditions; furthermore some apply these boundary conditions to entire Volumes
-as opposed to Surfaces.  Currently we support only reflecting surface
+implement some form of graveyard, black hole or region where particles are
+"killed". Some MC codes go further and define reflecting or other boundary
+conditions. Furthermore, some apply these boundary conditions to entire volumes
+as opposed to surfaces. Currently we support only reflecting surface
 definitions, but in the near term we hope to support full volume reflecting
 boundaries. One can implement reflecting surfaces in |UW2| by adding surfaces
 to the following Cubit group defintion
@@ -86,79 +88,84 @@ or if you prefer, Lambert (white reflection)
 Particle importances
 ~~~~~~~~~~~~~~~~~~~~
 
-Particle importances are in important aspect of Monte Carlo simulations and
-are used to help particles to penetrate to "important" regions of the geometry.
-There are several automatic methods to generate mesh based importances or weights,
-but if your importances are tried to the geometry, then this can be tagged onto
-the geometry.
+Particle importances are in important aspect of Monte Carlo simulations and are
+used to help particles to penetrate to "important" regions of the geometry.
+There are several automatic methods to generate mesh based importances or
+weights, but if your importances are tried to the geometry, then they can be
+tagged onto the geometry.
 
 The |UW2| workflow has a code agnostic way of defining importances.
 ::
 
     CUBIT> group "importance:Neutron/1.0"
 
-This is translated to the code specific version at runtime. *Note: Fluka's importance
-range runs from 1e-5 to 1e5, when written to file, the range is rescaled and any out of
-range values are truncated to 1e-5 and 1e5.*
+This is translated to the code specific version at runtime. *Note: Fluka's
+importance range runs from 1e-5 to 1e5, when written to file. The range is
+rescaled and any out-of-range values are truncated to 1e-5 or 1e5.*
 
 |UW2| data
 ~~~~~~~~~~
 
-The |UW2| data is incorporated into the geometry file (\*.h5m) file using a
-C++ program, uwuw_preproc, the purpose of which is to take the user's
-material library, e.g. my_nuc_library.h5, and extract the materials requested,
-placing them into the geometry file. Having already marked up your geometry
-using the methods mentioned in previous sections, we can run the preprocessor
+The |UW2| data is incorporated into the geometry file (\*.h5m) file using the
+C++ program ``uwuw_preproc``, the purpose of which is to take the user's
+material library, e.g. ``my_nuc_library.h5``, and extract the materials
+requested, placing them into the geometry file. If you have already marked up
+your geometry using the methods mentioned in previous sections, you can run the
+preprocessor.
 ::
 
     $ uwuw_preproc <dagmc h5m filename> -v -l <path to nuclear data library>
 
 Be sure to examine the output of this script which will inform you of the
 materials and densities requested and also the list of tallies that were
-produced. A sample output is shown below
+produced. A sample output is shown below.
 ::
 
     $ uwuw_preproc test_geom.h5m -l \
           $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 
-Also, the program will produce a fatal error if the material is not found in
-the material library. There is a simulate mode (flag -s) to perform all operations
-that would be performed on a normal operation, with the exception that no data
-is actually written, this can be done to test your file to make sure all the expected
+Also, the program will produce a fatal error if the material is not found in the
+material library. There is a simulate mode (flag -s) to perform all operations
+that would be performed on a normal operation, except that no data is actually
+written. This can be done to test your file to make sure all the expected
 materials are present in the file.
 
-MCNP-specific steps
-~~~~~~~~~~~~~~~~~~~
+MCNP5-specific steps
+~~~~~~~~~~~~~~~~~~~~
 
 ..  include:: codes/dag-mcnp5_specific.txt
 
 FluDAG-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 
-To run a FluDAG based UWUW problem, like the above MCNP example, the user must make a minmal Fluka input deck
-defining runtime parameters, source definition, remembering to include the GEOBEGIN keyword set to FLUGG. 
-Once this is done run the mainfludag executable to produce the mat.inp which contains all the detailed 
-material assignments and compound descriptions;
+To run a FluDAG-based UWUW problem, like the above MCNP5 example, the user must
+make a minmal Fluka input deck defining runtime parameters and source
+definition, remembering to set the ``GEOBEGIN`` to ``FLUGG``. Once this is done,
+run the ``mainfludag`` executable to produce the ``mat.inp`` file which contains
+all the detailed material assignments and compound descriptions.
 ::
 
     $ mainfludag geom.h5m
 
-The user then should paste the contents of the mat.inp into the main Fluka input deck. Now the user must make
-a symbolic link to the geometry file named dagmc.h5m
+The user should then paste the contents of ``mat.inp`` into the main FLUKA input
+deck. Now the user must make a symbolic link to the geometry file named
+``dagmc.h5m``.
 ::
 
     $ ln -s geom.h5m dagmc.h5m
 
-The mainfludag executable always looks for the dagmc.h5m file. You can now run as if it were a standard
-Fluka problem
+The ``mainfludag`` executable always looks for the ``dagmc.h5m`` file. You can
+now run as if it were a standard FLUKA problem
 ::
 
     $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 
 Geant4-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
-To run a Geant4 problem, like those shown above, the user must write a Geant4 macro file that contains at
-minimum, only the source description (GPS) and the number of particles to simulate. The problem is then run with
+
+To run a DAG-Geant4-based UWUW problem, like those shown above, the user must
+write a Geant4 macro file that contains at minimum the source description (GPS)
+and the number of particles to simulate. The problem is then run with
 ::
 
     $ DagGeant geom.h5m input.mac
@@ -166,8 +173,8 @@ minimum, only the source description (GPS) and the number of particles to simula
 Worked example
 ~~~~~~~~~~~~~~
 
-Open Trelis/Cubit, and let's place some volumes to create our first problem.  We will
-create 4 cubes of side 10 cm, shifting each in a different direction
+Open Cubit/Trelis, and let's place some volumes to create our first problem. We
+will create 4 cubes of side 10 cm, shifting each in a different direction.
 ::
 
     CUBIT> brick x 10
@@ -195,7 +202,7 @@ create 4 cubes of side 10 cm, shifting each in a different direction
     CUBIT> set attribute on
     CUBIT> export acis "example.sat" overwrite
 
-You will end up with something like that shown below.
+You will end up with something like this.
 
 ..  image:: uwuwexample.png
     :height: 300
@@ -213,7 +220,7 @@ Now we can insert all the material data we need:
     $ uwuw_preproc example.h5m -l \
           $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 
-Your output from this step should look exactly the same as below
+Your output from this step should look exactly the same as this:
 ::
 
     Making new material with name      : mat:Lead
@@ -231,20 +238,20 @@ Your output from this step should look exactly the same as below
     Writing tally PHFL3 to file example.h5m
     Writing tally PHFL4 to file example.h5m
 
-So we see echoed back to us that we requested a Graveyard and two different
-material assignments: one for Lead, as defined in the material library, and
-another kind of Lead at a different density than the library version. We
-also see that 4 tallies were requested: the photon flux in each volume.
+So we see echoed back to us that we requested a graveyard and two different
+material assignments: one for lead, as defined in the material library, and
+another kind of lead at a different density than the library version. We also
+see that 4 tallies were requested: the photon flux in each volume.
 
 Example input
 ~~~~~~~~~~~~~
 
-We are now ready to run, once we have made the input deck for each Monte Carlo
-code. We wish to launch 10^5 particles from a point source located at 0 0 0,
-with isotropic angular behaviour for photons of 1 MeV. The input for MCNP and
-FLUKA are shown below.
+We are now ready to run DAGMC, once we have made the input deck for each Monte
+Carlo code. We wish to simulate 10^5 photons with energy 1 MeV emitted
+isotropically from the point (0,0,0). The inputs for MCNP5 and FLUKA are shown
+below.
 
-MCNP example: let us call this mcnp.inp
+MCNP5 example: let us call this ``mcnp.inp``.
 ::
 
     example of UWUW
@@ -258,7 +265,7 @@ MCNP example: let us call this mcnp.inp
     nps 1e5
     print
 
-Fluka example: let us called this fluka.inp
+FLUKA example: let us called this ``fluka.inp``.
 ::
 
     TITLE
@@ -280,15 +287,15 @@ Fluka example: let us called this fluka.inp
     START           1.E5
     STOP
 
-MCNP run
-~~~~~~~~
+DAG-MCNP5 run
+~~~~~~~~~~~~~
 
-Now we are ready to run the first DAG-MCNP5 example:
+Now we are ready to run the first DAG-MCNP5 example.
 ::
 
     $ mcnp5 i=mcnp.inp g=example.h5m
 
-You should see the following on screen
+You should see something like this on screen.
 ::
 
     The implicit complement's total surface area = 128550
@@ -332,19 +339,19 @@ You should see the following on screen
     dump    2 on file runtpe   nps =      100000   coll =            56221
     mcrun  is done
 
-Feel free to examine the output of the run, but this provides a simple example on what to
-expect.
+Feel free to examine the output of the run, but this is only a simple example of
+what to expect.
 
 FluDAG run
 ~~~~~~~~~~
 
-For FluDAG, first we produce the mat.inp snippet file: this must then be pasted into
-the full Fluka input deck
+For FluDAG, first we produce the ``mat.inp`` snippet file. This must then be
+pasted into the full FLUKA input deck.
 ::
 
     $ mainfludag example.h5m
 
-The mat.inp file should look like
+The ``mat.inp`` file should look like
 ::
 
     *...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
@@ -381,9 +388,10 @@ not yet complete.
     LOW-MAT        LEAD1       82.       -2.      296.                    LEAD
     LOW-MAT        LEAD2       82.       -2.      296.                    LEAD
 
-The lines above must be pasted into the Fluka input and then run as you would
-any Fluka, with the exception that we give the rfluka script an executable
-argument and a new "-d" argument, which specifies the geometry filename:
+The lines above must be pasted into the FLUKA input and then run as you would
+a native FLUKA problem, with the exception that we give the ``rfluka`` script an
+executable argument and a new ``-d`` argument, which specifies the geometry
+filename.
 ::
 <<<<<<< HEAD
    %> $FLUPRO/flutil/rfluka -N0 -M1 -e /path/to/mainfludag -d example.h5m fluka.inp
@@ -393,8 +401,8 @@ argument and a new "-d" argument, which specifies the geometry filename:
     $ $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
 
 The code should run and successfully produce screen output similar to the
-following (the filepaths will change according to your system, as will the
-numerical part of "fluka_26362"):
+following. (The filepaths will change according to your system, as will the
+numerical part of "fluka_26362".)
 ::
 
     $TARGET_MACHINE = Linux
@@ -415,22 +423,24 @@ numerical part of "fluka_26362"):
 Dag-Geant4 run
 ~~~~~~~~~~~~~~
 
-DagGeant4 is probably the most trivial of all the |UW2| enabled codes to run.
-Copy the vis.mac file from DAGMC/geant4/build/vis.mac
+Dag-Geant4 is probably the most trivial of all the |UW2|-enabled codes to run.
+Copy the ``vis.mac`` file from ``DAGMC/geant4/build/vis.mac``.
 ::
 
     $ DagGeant4 example.h5m
 
-After some loading you should see a GUI window open (if you build geant4 with
-visualisation on).  We can then use the Geant4 general particle
-source to emulate the behaviour of the previous two codes:
+After some loading you should see a GUI window open (if you built Geant4 with
+visualization enabled).  You can then use the Geant4 general particle source to
+emulate the behaviour of the previous two codes.
 ::
 
     Idle> /gps/particle gamma
     Idle> /gps/ang/type iso
     Idle> /gps/energy 1.0 MeV
 
-Now we are ready to run:
+Now we are ready to run.
 ::
 
     Idle> /run/beamOn 1000000
+
+..  _PyNE: http://pyne.io

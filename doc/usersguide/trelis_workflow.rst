@@ -12,7 +12,7 @@ The general workflow for the production of DAGMC models is the following:
 
 1.  Ensure that units/sizes for DAGMC models are "cm"
 2.  Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)
-3.  Inspect and resolve overlapping volumes, you may need to scale the model up 
+3.  Inspect and resolve overlapping volumes, you may need to scale the model up
     to detect these
     ::
 
@@ -22,14 +22,14 @@ The general workflow for the production of DAGMC models is the following:
 **Other tools:**
 
 - Regularize may be needed (simplifies by removing splines, but will reverse imprint operation)
- 
+
 - Check and possibly remove negligibly small curves, surfaces, and volumes. (check "hydraulic" length and "regular" length)
     ::
 
         CUBIT> group "smallsurfaces" add surface with area < 1.e-3
         CUBIT> group "smallcurves" add curve with length < 1.e-4
         CUBIT> group "smallvols" add volume with volume < 1.e-5
-       
+
 4.  Create pre-imprint/merge table of volume of volumes, and then imprint
     ::
 
@@ -45,7 +45,7 @@ The general workflow for the production of DAGMC models is the following:
 
         CUBIT> merge tol 1e-6
 
-6.  Validate model, in Cubit 
+6.  Validate model, in Cubit
     ::
 
         CUBIT> validate vol all
@@ -64,7 +64,7 @@ The general workflow for the production of DAGMC models is the following:
 8.  Seal model if possible (use `make_watertight <tools.html#make-watertight>`_)
 9.  Flood and/or transport particles in model
 10. If lost particles or leaky:
-    
+
     - examine lost locations (use `mklostvis.pl <tools.html#mklostvis>`_)
     - examine "leaks"/tunneling (can use a mesh tally to locate)
     - repair the pre-imprint/merge model (go to step 2)
@@ -82,7 +82,7 @@ a format that can be imported by Trelis or Cubit, in particular:
     * STEP (\*.stp, \*.step, etc)
 
 The ACIS format is strongly recommended due to its ability to retain imprint and
-merge information, and there is anecdotal evidence that ACIS files 
+merge information, and there is anecdotal evidence that ACIS files
 lead to a more successful model pipeline. Ansys Spaceclaim is often used at UW - Madison
 to perform model cleaning and defeaturing, which can import many of the common
 CAD formats and exports to ACIS.
@@ -220,12 +220,13 @@ since it was never defined, but it automatically defines all undefined space in 
 
 Finishing up and final notes
 ----------------------------
+
 Having prepared your model to completion with the appropriate groups created
-, you can choose to save your model in various formats. Previously 
+, you can choose to save your model in various formats. Previously
 we recommended ACIS \*.sat files, but any format that reliably retains
-imprortant metadata will suffice.  Recommended storage formats are ACIS, \*.Trelis or 
+imprortant metadata will suffice.  Recommended storage formats are ACIS, \*.Trelis or
 \*.cub files.
 
-One should also use the :ref:`make_watertight`. tool on the 
-produced DAGMC \*.h5m file in order to completely seal your geometry, this 
+One should also use the :ref:`make_watertight`. tool on the
+produced DAGMC \*.h5m file in order to completely seal your geometry, this
 should help prevent tolerance issues due to faceting.

@@ -9,12 +9,12 @@ using a package manager.
 
 The following dependencies are required:
 
-    * `LAPACK <http://www.netlib.org/lapack>`_
-    * `HDF5 <http://www.hdfgroup.org/HDF5>`_
-    * `MOAB <http://sigma.mcs.anl.gov/moab-library>`_
+    * LAPACK_
+    * HDF5_
+    * MOAB_
 
-For users following the source install route, we assume that you are building DAGMC in the
-subdirectory ``dagmc_bld``of your home directory; i.e.
+For users following the source install route, we assume that you are building
+DAGMC in the subdirectory ``dagmc_bld`` of your home directory; i.e.
 ::
 
     $ cd $HOME
@@ -22,15 +22,18 @@ subdirectory ``dagmc_bld``of your home directory; i.e.
     $ cd dagmc_bld
 
 LAPACK
-------
-Source Install
-~~~~~~~~~~~~~~
+~~~~~~
+
+Source installation
+-------------------
+
 If you don't have administrator privileges, refer to the
-`LAPACK website <http://www.netlib.org/lapack>`_ for information on how to build
+`LAPACK website <LAPACK_>`_ for information on how to build
 LAPACK from source.
 
-Package Manager Install
-~~~~~~~~~~~~~~~~~~~~~~~
+Package manager installation
+----------------------------
+
 Ubuntu/Debian linux users can install LAPACK with:
 ::
 
@@ -42,11 +45,13 @@ Redhat linux users can do likewise with:
     $ sudo yum install libblas-dev liblapack-dev
 
 HDF5
-----
-Source Install
-~~~~~~~~~~~~~~
+~~~~~~
+
+Source installation
+-------------------
+
 If electing to install HDF5 from source. The tarball containing the HDF5
-source code can also be downloaded from the `HDF5 website <https://support.hdfgroup.org/HDF5>`_.
+source code can also be downloaded from the `HDF5 website <HDF5_>`_.
 Note that if you choose this option, we recommend you obtain HDF5 version 1.8.13
 instead of the newest version. The following commands can be used to install
 HDF5 from source.
@@ -64,8 +69,9 @@ HDF5 from source.
     $ make check
     $ make install
 
-Package Manager Install
-~~~~~~~~~~~~~~~~~~~~~~~
+Package manager installation
+----------------------------
+
 Debian linux users can install the latest HDF5 release with:
 ::
 
@@ -77,10 +83,11 @@ Redhat linux users can do likewise with:
     $ sudo yum install hdf5-dev
 
 MOAB installation
------------------
+~~~~~~~~~~~~~~~~~
+
 As of DAGMC version 2.0, MOAB version 4.9.2 or higher is required. The following
 commands can be used to download MOAB from its `source repository
-<https://bitbucket.org/fathomteam/moab>`_ and set it up for building.
+<MOAB_>`_ and set it up for building.
 ::
 
     $ cd $HOME/dagmc_bld
@@ -97,8 +104,8 @@ The command ``git checkout master`` is redundant but is included here for
 completeness. If you would prefer to use a specific version instead of the
 master branch, e.g. version 4.9.2, use ``git checkout Version4.9.2`` instead.
 
-If you have followed the source install route, then the following commands 
-should be used to build MOAB. Note that the ``--enable-dagmc`` configure option 
+If you have followed the source install route, then the following commands
+should be used to build MOAB. Note that the ``--enable-dagmc`` configure option
 is required.
 ::
 
@@ -113,9 +120,9 @@ is required.
     $ make check
     $ make install
 
-If you have followed the package manager install route, then the following commands 
-should be used to build MOAB. Note that the ``--enable-dagmc`` configure option 
-is required.
+If you have followed the package manager install route, then the following
+commands should be used to build MOAB. Note that the ``--enable-dagmc``
+configure option is required.
 ::
 
     $ cd bld
@@ -131,7 +138,8 @@ is required.
 
 
 Making sure the dependencies were installed correctly
------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If you installed HDF5 from source, you will need to make sure the system can
 find it when it comes time to build DAGMC. This is done by adding some
 directories to your ``$PATH`` and ``$LD_LIBRARY_PATH``. (This is not required if
@@ -158,5 +166,9 @@ Note that your ``$PATH`` and ``$LD_LIBRARY_PATH`` will revert to their original
 state when you open a new terminal, so it may be a good idea to add these
 ``export`` commands to your ``.bashrc`` file.
 
-If everything is succesful with your dependencies install, you should now proceed
-to `installing DAGMC <dagmc.html>`_
+If you have installed the dependencies corretly, you are now ready to
+`install DAGMC <dagmc.html>`_.
+
+..  _LAPACK: http://www.netlib.org/lapack
+..  _HDF5: http://www.hdfgroup.org/HDF5
+..  _MOAB: http://press3.mcs.anl.gov/sigma/moab-library

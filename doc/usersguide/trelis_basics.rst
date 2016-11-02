@@ -88,8 +88,10 @@ contain surfaces too. Below the group "shield.boundary" is created with surfaces
     CUBIT> group "shield.boundary" add surf 16 37
 
 Due to the importance of using the ``group`` command reading the
-`CUBIT manual <https://cubit.sandia.gov/public/15.2/help_manual/WebHelp/cubithelp.htm>`_
+`CUBIT manual <CUBIT_manual_>`_
 section on its full usage is highly recommended.
+
+.. _geom_production:
 
 Production of the DAGMC geometry
 --------------------------------
@@ -110,14 +112,14 @@ The meaning of these different options are described below
 
 **Faceting Tolerance** -  Specifies how far a facet is allowed
                           to be from the CAD representation of
-			  a surface in the faceting algorithm.
+                          a surface in the faceting algorithm.
 
 **Lenth Tolerance** -     Specifies the maximum allowed length
                           of a facet edge.
 
 **Normal Tolerance** -    Specifies the maximum allowed change
                           in angle between then normal vector
-			  of two adjacent facets.
+                          of two adjacent facets.
 
 For example to produce a file called, geometry.h5m with faceting tolerances and
 length tolerances of 1.0e-4 cm and 5.0 cm respectively
@@ -143,10 +145,10 @@ arguments. For example, to export the currently loaded file to a file called
 Roadmap for the future
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Currently we have a number of standalone command line tools that are run sequentially 
+Currently we have a number of standalone command line tools that are run sequentially
 on a model following faceting using Cubit/Trelis. We run `make_watertight` to seal
 models to ensure no topological weaknesses exist and we run `uwuw_preproc` to add
-materials into analysis geometries. It is envisioned that at some point in the 
+materials into analysis geometries. It is envisioned that at some point in the
 near future that we will integrate these as options within the Cubit/Trelis plugin.
 
 ..  image:: plugin_infrastructure.png
@@ -158,3 +160,5 @@ This will allow you to add additional options if you want the model to be made
 watertight and/or if you want to add materials to the resultant geometry. There will
 always be power users that prefer the command line tools. These tools will continue
 to be supported with identical infrastructure.
+
+..  _CUBIT_manual: https://cubit.sandia.gov/public/15.2/help_manual/WebHelp/cubithelp.htm

@@ -9,9 +9,8 @@
 Apply the MCNP5 source code patch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-DAG-MCNP5 uses `MCNP5 <https://mcnp.lanl.gov>`_ from LANL. It is
-export-controlled software so you will need to request it from
-`RSICC <https://rsicc.ornl.gov>`_.
+DAG-MCNP5 uses MCNP5_ from Los Alamos National Laboratory. It is
+export-controlled software so you will need to request it from RSICC_.
 
 If you are building DAG-MCNP5, you need to copy the MCNP5 source code from the
 DVD into the DAGMC repository and patch it so it can be used with DAGMC.
@@ -54,3 +53,6 @@ DAGMC.
 ..  include:: build_dagmc.txt
 
 ..  include:: test_dagmc.txt
+
+..  _MCNP5: https://mcnp.lanl.gov
+..  _RSICC: https://rsicc.ornl.gov

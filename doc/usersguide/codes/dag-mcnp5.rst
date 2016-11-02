@@ -44,8 +44,8 @@ If you would like to assign a material to the implicit complement, a special
 procedure is needed. Since the implicit complement doesn't exist before running
 DAGMC, and DAGMC can only recognize groups that contain an entity, the material
 for the implicit complement must be specified as if it were being specified for
-the graveyard volume. For example, if you would like the implicit complement to be
-modeled as material 9 with a density of 1 g/cc, and the graveyard volume is
+the graveyard volume. For example, if you would like the implicit complement to
+be modeled as material 9 with a density of 1 g/cc, and the graveyard volume is
 volume 102, the following command should be used:
 ::
 
@@ -77,11 +77,11 @@ and same center with one slightly larger than the other, making sure that both
 bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The remaining volume is the graveyard.
 
-To indicate to MCNP that a given volume is the graveyard volume, you must assign
-it to a group with one of these names:
+To indicate to MCNP5 that a given volume is the graveyard volume, you must
+assign it to a group with:
 ::
 
-    mat:Graveyard
+    CUBIT> group "mat:Graveyard" add volume X
 
 For example, consider a geometry containing 99 volumes, all of which fit inside
 a cube of side length 99 cm centered at the origin. The following commands would
@@ -93,7 +93,8 @@ create a valid graveyard for this problem:
     CUBIT> subtract vol 100 from vol 101  # This will produce volume 102
     CUBIT> group "mat:Graveyard" add vol 102
 
-When DAG-MCNP5 is run, the importance any graveyard volumes will be set to zero.
+When DAG-MCNP5 is run, the importance of any graveyard volumes will be set to
+zero.
 
 It is still recommended that you create a graveyard volume even if your problem
 has reflecting boundary conditions on all sides, although it is not strictly
@@ -103,8 +104,8 @@ necessary.
 
 Surface boundary conditions can be specified for a given surface by adding the
 surface to a group. The group names for reflecting and white boundary conditions
-are ``boundary:Reflecting`` and ``boundary:White``, respectively. Note that periodic
-boundary conditions are not currently supported.
+are ``boundary:Reflecting`` and ``boundary:White``, respectively. Note that
+periodic boundary conditions are not currently supported.
 
 For example, suppose you want to specify that surfaces 10 and 11 should be
 reflecting surfaces. This command would achieve that:
@@ -113,7 +114,6 @@ reflecting surfaces. This command would achieve that:
     CUBIT> group "boundary:Reflecting" add surf 10 11
 
 ..  include:: dag-mcnp5_specific.txt
-
 
 ..  toctree::
     :hidden:
