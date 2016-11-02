@@ -19,7 +19,7 @@ Materials and densities
 The generic workflow description includes details on :ref:`grouping-basics`, but
 a specific naming convention is required for DAG-MCNP5. To define materials,
 both the MCNP material ID and density must be provided in the group name. The
-format for the group name is as follows: ``mat_[matid]_rho_[density]``.
+format for the group name is as follows: ``mat:[matid]/rho:[density]``.
 
 ``[matid]`` should be replaced by the material ID that will be specified in the
 MCNP input file. ``[density]`` should replaced by either the atomic density or
@@ -32,11 +32,13 @@ should be assigned to volumes 4 through 18. The following command should be used
 to specify that information:
 ::
 
-    CUBIT> group "mat_7_rho_0.0223" add vol 4 to 18
+    CUBIT> group "mat:7/rho:0.0223" add vol 4 to 18
 
-If a volume is not assigned to a material group, it will be treated as void by
-DAGMC. This can be a fairly useful debugging tool when trying to identify
-volumes that were not assigned to their appropriate group.
+All volumes must belong to a group, if you want volumes to be filled with vacuum
+then add them to a group called, "mat:Vacuum":
+::
+
+    CUBIT> group "mat:Vacuum" add vol 4 to 18
 
 If you would like to assign a material to the implicit complement, a special
 procedure is needed. Since the implicit complement doesn't exist before running
@@ -47,7 +49,7 @@ modeled as material 9 with a density of 1 g/cc, and the graveyard volume is
 volume 102, the following command should be used:
 ::
 
-    CUBIT> group "mat_9_rho_-1_comp" add vol 102
+    CUBIT> group "mat:9_comp/rho:-1_comp" add vol 102
 
 DAGMC will recognize that volume 102 is the graveyard, and the ``_comp`` keyword
 will trigger it to assign the specified material and density to the implicit
@@ -79,9 +81,7 @@ To indicate to MCNP that a given volume is the graveyard volume, you must assign
 it to a group with one of these names:
 ::
 
-    graveyard
-    outside.world
-    rest.of.world
+    mat:Graveyard
 
 For example, consider a geometry containing 99 volumes, all of which fit inside
 a cube of side length 99 cm centered at the origin. The following commands would
@@ -91,7 +91,7 @@ create a valid graveyard for this problem:
     CUBIT> create brick x 100             # This will be volume 100
     CUBIT> create brick x 105             # This will be volume 101
     CUBIT> subtract vol 100 from vol 101  # This will produce volume 102
-    CUBIT> group "graveyard" add vol 102
+    CUBIT> group "mat:Graveyard" add vol 102
 
 When DAG-MCNP5 is run, the importance any graveyard volumes will be set to zero.
 
@@ -103,14 +103,14 @@ necessary.
 
 Surface boundary conditions can be specified for a given surface by adding the
 surface to a group. The group names for reflecting and white boundary conditions
-are ``spec.reflect`` and ``white.reflect``, respectively. Note that periodic
+are ``boundary:Reflecting`` and ``boundary:White``, respectively. Note that periodic
 boundary conditions are not currently supported.
 
 For example, suppose you want to specify that surfaces 10 and 11 should be
 reflecting surfaces. This command would achieve that:
 ::
 
-    CUBIT> group "spec.reflect" add surf 10 11
+    CUBIT> group "boundary:Reflecting" add surf 10 11
 
 ..  include:: dag-mcnp5_specific.txt
 
