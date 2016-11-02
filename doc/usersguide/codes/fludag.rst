@@ -28,14 +28,14 @@ note you are limited to 8 characters, as in FLUKA. The format for the group name
 is as follows:
 ::
 
-    M_[material_name]
+    mat:[material_name]
 
 For example, suppose we wish to add volumes 1 through 5 to a group
 that defines the material to be iron.  The following command
 would be used.
 ::
 
-    CUBIT> group "M_IRON" add volume 1 to 5
+    CUBIT> group "mat:IRON" add volume 1 to 5
 
 This will produce in the input file,
 ::
@@ -50,7 +50,7 @@ Compounds are also supported by FluDAG, for example, if we wish to have volume 6
 belong to a group whose material name is STAINLESS then we can can use
 ::
 
-    CUBIT> group "M_STAINLESS" add volume 6
+    CUBIT> group "mat:STAINLESS" add volume 6
 
 This will produce in the input file:
 ::
@@ -95,7 +95,7 @@ graveyard is defined by assigning the volume a keyword
 group name,
 ::
 
-    CUBIT> group "M_BLCKHOLE" add volume X
+    CUBIT> group "mat:BLCKHOLE" add volume X
 
 Consider a geometry with 99 volumes that all fit within a cube
 centered at the origin with side-length 99 cm.  To create a graveyard
@@ -105,9 +105,9 @@ for this problem in CUBIT, you could issue the following commands:
     CUBIT> create brick x 100
     CUBIT> create brick x 105
     CUBIT> subtract vol 100 from vol 101
-    CUBIT> group "M_BLCKHOLE" add vol 102
+    CUBIT> group "mat:BLCKHOLE" add vol 102
 
-When FLuDAG is run all the particles that enter volumes in group "M_BLCKHOLE"
+When FLuDAG is run all the particles that enter volumes in group "mat:BLCKHOLE"
 will be killed.  This is effectively the same as the concept of importance
 in MCNP.
 
