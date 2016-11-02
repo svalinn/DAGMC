@@ -1,7 +1,7 @@
 University of Wisconsin Unified Workflow (UWUW)
 ===============================================
 
-.. |UW2| replace:: UW\ :sup:`2`
+..  |UW2| replace:: UW\ :sup:`2`
 
 The University of Wisconsin Unified Workflow (|UW2|) aims to solve the
 issue of running the same Monte Carlo problem using mutiple physics codes. Currently,
@@ -10,19 +10,19 @@ input deck for each code, or maybe write a full syntax translator. |UW2| allows 
 to tag or associate groups of volumes or surfaces with a simple human readable syntax
 that is translated and stored in the geometry file of a DAGMC problem.
 
-The workflow uses the Python for Nuclear Engineering toolkit `PyNE <http://pyne.io>`_. We
+The workflow uses the Python for Nuclear Engineering toolkit, `PyNE <http://pyne.io>`_. We
 levereage the existing infrastructure in PyNE to allow a consistent transport problem to be
 defined across all MC codes.
 
 Materials
-~~~~~~~~~~~~~
+~~~~~~~~~
 
 Materials are the most painful and error prone items to transfer from code to code, since each MC code
 specifies materials in a different way. Instead, we tag groups of volumes
 with a name and syntax that corresponds to material compositions in a predefined
 material library.
 
-The Cubit syntax for describing materials is:
+The group naming syntax for describing materials in Cubit/Trelis is:
 ::
 
     CUBIT> group "mat:<Name of Material>"
@@ -43,22 +43,27 @@ Scoring
 
 Each MC code implements tallies, or scores, in very specific ways such that there
 is sometimes no equivalent to a tally you may be familiar with, code to code. However,
-there is a Cubit syntax to allow you to request scores on geomemtric elments, for example,
+there is a Cubit syntax to allow you to request scores on geomemtric elments, the generic form is,
 ::
 
-    CUBIT> group "tally:Flux/Neutron"
+    CUBIT> group "tally:ParticleName/ScoreType" add vol x
 
-or,
+A specific example, scoring the neutron flux in vol 2,
 ::
 
-    CUBIT> group "tally:Photon/Current"
+    CUBIT> group "tally:Neutron/Flux" add vol 2
+
+or the photon current crossing surface 3,
+::
+
+    CUBIT> group "tally:Photon/Current" add surface 3
 
 Using the underlying PyNE libraries we can write out the appropriate MC code
 tally specification snippet; this allows the number of codes the DAGMC
-supports to grow organically with those that PyNE supports. When PYNE cannot
+supports to grow organically with those that PyNE supports. When PyNE cannot
 fulfill your tally request it will warn you.
 
-Boundary Conditions
+Boundary conditions
 ~~~~~~~~~~~~~~~~~~~
 
 All MC codes have an understanding of boundary conditions, and all at least
@@ -78,7 +83,7 @@ or if you prefer, Lambert (white reflection)
 
     CUBIT> group "boundary:White"
 
-Particle Importances
+Particle importances
 ~~~~~~~~~~~~~~~~~~~~
 
 Particle importances are in important aspect of Monte Carlo simulations and
@@ -92,11 +97,11 @@ The |UW2| workflow has a code agnostic way of defining importances.
 
     CUBIT> group "importance:Neutron/1.0"
 
-This is translated to the code specific version at runtime. *note* Fluka's importance
+This is translated to the code specific version at runtime. *Note: Fluka's importance
 range runs from 1e-5 to 1e5, when written to file, the range is rescaled and any out of
-range values are truncated to 1e-5 and 1e5.
+range values are truncated to 1e-5 and 1e5.*
 
-|UW2| Data
+|UW2| data
 ~~~~~~~~~~
 
 The |UW2| data is incorporated into the geometry file (\*.h5m) file using a
@@ -113,7 +118,7 @@ materials and densities requested and also the list of tallies that were
 produced. A sample output is shown below
 ::
 
-   $ uwuw_preproc test_geom.h5m -l \
+    $ uwuw_preproc test_geom.h5m -l \
           $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 
 Also, the program will produce a fatal error if the material is not found in
@@ -122,23 +127,12 @@ that would be performed on a normal operation, with the exception that no data
 is actually written, this can be done to test your file to make sure all the expected
 materials are present in the file.
 
-MCNP Specific Steps
+MCNP-specific steps
 ~~~~~~~~~~~~~~~~~~~
 
-To run a MCNP based UWUW problem, the user must make the minimum input deck that defines 
-the particle source definition, runtime parameters, and physics cutoffs. You then run MCNP like
-the non-UWUW workflow;
-::
+..  include:: codes/dag-mcnp5_specific.txt
 
-   $ mcnp5 i=input g=geom.h5m
-
-It may be the case that some nuclides are not found, an lcad file will have been produced in the previous step
-which the user can modify to remove extraneous nuclides and re-run with;
-::
-
-   $ mcnp5 i=input g=geom.h5m l=lcad_modified
-
-FluDAG Specific Steps
+FluDAG-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 
 To run a FluDAG based UWUW problem, like the above MCNP example, the user must make a minmal Fluka input deck
@@ -147,21 +141,21 @@ Once this is done run the mainfludag executable to produce the mat.inp which con
 material assignments and compound descriptions;
 ::
 
-   $ mainfludag geom.h5m
+    $ mainfludag geom.h5m
 
 The user then should paste the contents of the mat.inp into the main Fluka input deck. Now the user must make
 a symbolic link to the geometry file named dagmc.h5m
 ::
 
-   $ ln -s geom.h5m dagmc.h5m
+    $ ln -s geom.h5m dagmc.h5m
 
 The mainfludag executable always looks for the dagmc.h5m file. You can now run as if it were a standard
 Fluka problem
 ::
 
-   $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
+    $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 
-Geant4 Specific Steps
+Geant4-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 To run a Geant4 problem, like those shown above, the user must write a Geant4 macro file that contains at
 minimum, only the source description (GPS) and the number of particles to simulate. The problem is then run with
@@ -169,7 +163,7 @@ minimum, only the source description (GPS) and the number of particles to simula
 
     $ DagGeant geom.h5m input.mac
 
-Worked Example
+Worked example
 ~~~~~~~~~~~~~~
 
 Open Trelis/Cubit, and let's place some volumes to create our first problem.  We will
@@ -203,10 +197,10 @@ create 4 cubes of side 10 cm, shifting each in a different direction
 
 You will end up with something like that shown below.
 
-.. image:: uwuwexample.png
-   :height: 300
-   :width:  600
-   :alt: An example of the geometry you should get applying the above stages
+..  image:: uwuwexample.png
+    :height: 300
+    :width:  600
+    :alt: An example of the geometry you should get applying the above stages
 
 The file is now ready for preprocessing. First we must facet the file:
 ::
@@ -242,7 +236,7 @@ material assignments: one for Lead, as defined in the material library, and
 another kind of Lead at a different density than the library version. We
 also see that 4 tallies were requested: the photon flux in each volume.
 
-Example Input
+Example input
 ~~~~~~~~~~~~~
 
 We are now ready to run, once we have made the input deck for each Monte Carlo
@@ -286,7 +280,7 @@ Fluka example: let us called this fluka.inp
     START           1.E5
     STOP
 
-MCNP Run
+MCNP run
 ~~~~~~~~
 
 Now we are ready to run the first DAG-MCNP5 example:
@@ -341,7 +335,7 @@ You should see the following on screen
 Feel free to examine the output of the run, but this provides a simple example on what to
 expect.
 
-FluDAG Run
+FluDAG run
 ~~~~~~~~~~
 
 For FluDAG, first we produce the mat.inp snippet file: this must then be pasted into
@@ -378,9 +372,9 @@ The mat.inp file should look like
     USRTRACK         1.0    PHOTON       -21        4.1.0000e+03     1000.PHFLUX4
     USRTRACK       10.E1     1.E-3                                               &
 
-As of the current time you will need to add two lines manually: this is because
-the component of the code which identifies neutron cross section data is not yet
-complete.
+At this point you will need to add two lines to the input file manually. This is
+because the component of the code which identifies neutron cross section data is
+not yet complete.
 ::
 
     *...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....
@@ -414,8 +408,8 @@ numerical part of "fluka_26362"):
     Moving fort.21 to /mnt/data/prod/uwuw_example/web_example/fluka001_fort.21
     End of FLUKA run
 
-DagGeant4 Run
-~~~~~~~~~~~~~~~~~
+Dag-Geant4 run
+~~~~~~~~~~~~~~
 
 DagGeant4 is probably the most trivial of all the |UW2| enabled codes to run.
 Copy the vis.mac file from DAGMC/geant4/build/vis.mac

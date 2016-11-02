@@ -1,21 +1,22 @@
-Code-Specific Steps for FluDAG
+Code-specific steps for FluDAG
 ==============================
 
 There are several varieties of code-specific steps:
 
-1. defining attributes of the geometry using groups in CUBIT
-2. producing material assignments in FLUKA input format from the h5m file, with the help of FluDAG
-3. preparing the FLUKA input file for running with DAGMC
-4. inserting the material assignments into the FLUKA input deck
+1.  defining attributes of the geometry using groups in Cubit/Trelis
+2.  producing material assignments in FLUKA input format from the h5m file, with
+    the help of FluDAG
+3.  preparing the FLUKA input file for running with DAGMC
+4.  inserting the material assignments into the FLUKA input deck
 
-Geometry Metadata
+Geometry metadata
 ~~~~~~~~~~~~~~~~~
 
 In FluDAG, the geometry file can be used to define material
 assignments, and eventually we would like to add the capability to
 define boundary conditions and tally locations.
 
-Assigning Materials & Densities
+Assigning materials & densities
 -------------------------------
 
 The generic workflow description includes details on
@@ -27,14 +28,14 @@ note you are limited to 8 characters, as in FLUKA. The format for the group name
 is as follows:
 ::
 
-    M_[material_name]
+    mat:[material_name]
 
 For example, suppose we wish to add volumes 1 through 5 to a group
 that defines the material to be iron.  The following command
 would be used.
 ::
 
-    CUBIT> group "M_IRON" add volume 1 to 5
+    CUBIT> group "mat:IRON" add volume 1 to 5
 
 This will produce in the input file,
 ::
@@ -49,7 +50,7 @@ Compounds are also supported by FluDAG, for example, if we wish to have volume 6
 belong to a group whose material name is STAINLESS then we can can use
 ::
 
-    CUBIT> group "M_STAINLESS" add volume 6
+    CUBIT> group "mat:STAINLESS" add volume 6
 
 This will produce in the input file:
 ::
@@ -72,7 +73,7 @@ highest numberd volume. You can easily modify what material property that you
 would like the implicit compliment (or any other volume for that matter) to have
 by changing the material on the ASSIGNMAT card.
 
-Defining the Graveyard
+Defining the graveyard
 ----------------------
 
 A typical usage of Monte Carlo codes include a volume that extends
@@ -94,7 +95,7 @@ graveyard is defined by assigning the volume a keyword
 group name,
 ::
 
-    CUBIT> group "M_BLCKHOLE" add volume X
+    CUBIT> group "mat:BLCKHOLE" add volume X
 
 Consider a geometry with 99 volumes that all fit within a cube
 centered at the origin with side-length 99 cm.  To create a graveyard
@@ -104,19 +105,19 @@ for this problem in CUBIT, you could issue the following commands:
     CUBIT> create brick x 100
     CUBIT> create brick x 105
     CUBIT> subtract vol 100 from vol 101
-    CUBIT> group "M_BLCKHOLE" add vol 102
+    CUBIT> group "mat:BLCKHOLE" add vol 102
 
-When FLuDAG is run all the particles that enter volumes in group "M_BLCKHOLE"
+When FLuDAG is run all the particles that enter volumes in group "mat:BLCKHOLE"
 will be killed.  This is effectively the same as the concept of importance
 in MCNP.
 
-Scoring Assignments
+Scoring assignments
 -------------------
 
 We do not currently support scoring assignments through group names. The user must manually
 add these to the FLUKA input deck.
 
-Preparing the FluDAG Input File
+Preparing the FluDAG input file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The FluDAG (FLUKA) input file will look almost identical to the originating
@@ -127,32 +128,33 @@ on the line of GEOBEGIN should be FLUGG.
 For example the most simple valid FLUKA geometry is as follows,
 ::
 
-     GEOBEGIN                                                              COMBNAME
-         0    0
-     SPH S1         0.0 0.0 0.0 50.0
-     CELL1        5 +S1
-     CELL2        5 -S1
-     GEOEND
+    GEOBEGIN                                                              COMBNAME
+        0    0
+    SPH S1         0.0 0.0 0.0 50.0
+    CELL1        5 +S1
+    CELL2        5 -S1
+    GEOEND
 
 To run this geometry with FluDAG, remove all data between GEOBEGIN and GEOEND, and
 switch the last entry to FLUGG,
 ::
 
-     GEOBEGIN                                                              FLUGG
-     GEOEND
+    GEOBEGIN                                                              FLUGG
+    GEOEND
 
 Running FluDAG
 ~~~~~~~~~~~~~~
 
 Running FluDAG bears some similarity to running FLUGG: the first step is to create the CAD
 geometry of the problem you wish to run. In order to produce the material assignment
-data from the CAD geometry we must first facet the file using the Cubit/Trelis plugin. Using
-the subsequently defined geometry file, the user must produce the mat.inp file
+data from the CAD geometry we must first `facet the file <../trelis_basics.html#production-of-the-dagmc-geometry>`_
+using the Cubit/Trelis plugin. Using the subsequently defined geometry file, the user must
+produce the mat.inp file
 ::
 
     $ /path/to/fludag/executable/mainfludag geom.h5m
 
-Will load the named h5m file and produce the material assignments information.
+will load the named h5m file and produce the material assignments information.
 This information should then be pasted into the FLUKA input file and any adjustments
 that need to be made should be made, for example adding the density of non standard
 materials, or adding your scoring information. **Please note that the user must always
@@ -164,10 +166,10 @@ The FluDAG calculation is now ok to run, first make a symbolic link from the geo
 to a fixed file called dagmc.h5m
 ::
 
-     $ ln -s geom.h5m dagmc.h5m
+    $ ln -s geom.h5m dagmc.h5m
 
 The user can then run the problem
 ::
 
-     $ $FLUPRO/flutil/rfluka -e <path/to/fludag/executable/mainfludag> \
-         ++{standard fluka options}++ <fludag_input_file>
+    $ $FLUPRO/flutil/rfluka -e <path/to/fludag/executable/mainfludag> \
+          ++{standard fluka options}++ <fludag_input_file>

@@ -1,19 +1,19 @@
-Code-Specific Steps for DAG-Tripoli4
+Code-specific steps for DAG-Tripoli4
 ====================================
 
 There are three varieties of code-specific steps:
 
-1. defining attributes of the geometry using groups in CUBIT
-2. defining DAGMC runtime parameters using input file syntax
-3. changes to the command-line
+1.  defining attributes of the geometry using groups in Cubit/Trelis
+2.  defining DAGMC runtime parameters using input file syntax
+3.  changes to the command-line
 
-Geometry Metadata
+Geometry metadata
 ~~~~~~~~~~~~~~~~~
 
 The current version of DAG-Tripoli4 allows the definition of material
 compositions and boundary conditions in the geometry.
 
-Assigning Materials & Densities
+Assigning materials & densities
 -------------------------------
 
 The generic workflow description includes details on
@@ -31,9 +31,10 @@ either the atomic density or the mass density.  Like the MCNP cell
 cards, positive values are atomic densities in [atoms/barn-cm] and
 negative values are mass densities in [g/cc].
 
-For example, suppose UO2 is composition ``Uoxide`` in the problem and
-volumes 4 through 18 consist of this material.  To assign materials to
-these volumes, the following command would be used:
+For example, suppose UO2 is composition ``Uoxide`` and
+volumes 4 through 18 consist of this material in the problem. To
+assign materials to these volumes, the following command would be
+used:
 ::
 
     CUBIT> group "comp_Uoxide" add vol 4 to 18
@@ -43,7 +44,7 @@ DAGMC it will be treated as a void; the material for that cell will be
 zero. This can actually become a fairly useful debugging tool to
 identify volumes that were not assigned to their appropriate group.*
 
-If you would like to assign a material to the explicit complement, you
+If you would like to assign a material to the implicit complement, you
 can use the same mechanism, but add the string ``_comp`` to the end of
 the group name.  Since DAGMC only recognizes those groups that contain
 an entity, it is necessary to add a volume to this group, recognizing
@@ -56,17 +57,17 @@ named "air":
 
     CUBIT> create group "comp_air_comp"
 
-Defining Boundary Conditions
+Defining boundary conditions
 ----------------------------
 
 There are two general classes of boundary condition supported by
 DAG-Tripoli4. a vacuum boundary and reflecting surfaces, and they are
 implemented in different ways.
 
-* **Defining the "graveyard": vacuum boundaries**
+**Defining the "graveyard": vacuum boundaries**
 
 A vacuum boundary condition is typically defined in Tripoli4 by simply
-having a surface with not defined volume on its other side.  Since
+having a surface with no defined volume on its other side.  Since
 DAGMC's implicit complement is also defined this way, it is not
 possible to use this convention in DAG-Tripoli4.  Instead, volumes are
 created on the vacuum side of those same surfaces, but those volumes
@@ -103,18 +104,19 @@ for this problem in CUBIT, you could issue the following commands:
 
 When DAG-Tripoli4 is run, the surfaces of volume 102 (or any other
 volumes included in the group) will be defined as having only one
-volume - the one on the OTHER SIDE relative to voluem 102. (_Note:
-this assumes that the two ``create brick`` commands generate volumes
+volume - the one on the OTHER SIDE relative to volume 102. *Note:
+this assumes that the two* ``create brick`` *commands generate volumes
 numbered 100 and 101, respectively, and that the Boolean subtraction
-results in a new volume number 102.
+results in a new volume number 102.*
 
 If you have boundary conditions (reflecting, white, or periodic) it is
 not required that you surround them with the bounding volume, but is
 not incorrect to do so.  Only areas where particles should escape need
 to be enclosed.  However, it is often easiest to simply create a
-single graveyard that covers all directions and volumes of the system.
+single graveyard that covers all directions and volumes of the entire
+system.
 
-* **Surface boundary conditions: reflection**
+**Surface boundary conditions: reflection**
 
 Surface boundary conditions are similarly enforced by specifying a
 group name. This type of attribute (surface boundary condition) is
@@ -137,7 +139,7 @@ created:
 
     CUBIT> group "spec.reflect" add surf 10 11
 
-DAGMC Runtime Parameters
+DAGMC runtime parameters
 ------------------------
 
 The DAGMC-Tripoli input file is formatted just like any other Tripoli
@@ -160,11 +162,11 @@ geometry.  This block has the following parameters:
 |tolerance <double ray firing tolerance>| (optional: default=1e-8)         |
 +---------------------------------------+----------------------------------+
 
-These parameters are described in the section on :ref:`additional_parameters`.
+These parameters are described in the section on additional_parameters.
 In addition to many other Tripoli input blocks, it is important to define the
 material compositions that have been assigned in the previous step.
 
-Running DAGMC-Tripoli
----------------------
+Running DAG-Tripoli4
+--------------------
 
 Running DAGMC-Tripoli is identical to running the standard Tripoli.

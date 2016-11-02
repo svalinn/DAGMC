@@ -1,7 +1,7 @@
-Understanding Ray History State in DAG-MCNP5
+Understanding ray history state in DAG-MCNP5
 ============================================
 
-Documenting Calls to the track() Method in MCNP5
+Documenting calls to the track() method in MCNP5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The method used in MCNP5 to find the distance to the next boundary is
@@ -19,7 +19,7 @@ cases for MCNP5.
 4. (transm.F90): optical thickness of material for point detector/dxtran
 5. (electr.F90): electron substep transport  (also in the updated electron_history.F90)
 
-Mapping the possible Ray History States
+Mapping the possible ray history states
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For each new particle history, the ray history is reset to be empty.
@@ -42,7 +42,7 @@ erasing the tail except for the last facet.
 
 It is also possible to rollback the history removing the most recent interaction.
 
-Other History State Variables
+Other history state variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * visited_surface (bool)
