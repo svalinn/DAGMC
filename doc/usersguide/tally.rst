@@ -13,7 +13,8 @@ To do so, use the following steps.
 
 1.  Load the geometry you wish to mesh into Cubit/Trelis.
 2.  Use the mesh tools to produce the meshes you want.
-3.  Save the file as a .trelis or .cub file. Remember to check the "Use Legacy .cub file Format" option in Trelis or Cubit.
+3.  Save the file as a .trelis or .cub file. Remember to check the "Use Legacy
+    .cub file Format" option in Trelis or Cubit.
 4.  Use MOAB's ``mbconvert`` executable to convert from the Cubit/Trelis format
     to a faceted .h5m file that DAGMC can use.
 
@@ -59,7 +60,7 @@ Or tally multipliers:
     fm4 -1 0 -5 -6
 
 ``mbconvert`` can be used to convert the output mesh file to a .vtk file for
-viewing or post-processing with VisIt_ or other plotting tools.
+viewing or post-processing with VisIt_ or ParaView_ or other plotting tools.
 ::
 
     $ mbconvert mesh_out.h5m mesh_out.vtk
@@ -70,8 +71,7 @@ Kernel density estimator tallies
 The kernel density estimator tallies are a suite of tallies that allow scoring
 to be done using the vertices of a tetmesh or add additional mesh-based scoring
 such as collision estimator tallies. The theoretical details behind KDE tallies
-can be found in `Kerry Dunn's Ph.D. thesis
-<http://digital.library.wisc.edu/1711.dl/OXDMBPODZJERF8A>`_.
+can be found in `Kerry Dunn's Ph.D. thesis <KD_thesis_>`_.
 
 To call a KDE collision tally, use:
 ::
@@ -97,3 +97,5 @@ To call a KDE subtrack tally, use:
         subtracks=3 seed=11699913
 
 .. _VisIt: https://wci.llnl.gov/simulation/computer-codes/visit
+.. _ParaView: http://www.paraview.org
+.. _KD_thesis: http://digital.library.wisc.edu/1711.dl/OXDMBPODZJERF8A
