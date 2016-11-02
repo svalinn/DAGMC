@@ -9,19 +9,17 @@
 Install FLUKA
 ~~~~~~~~~~~~~
 
-FluDAG uses `FLUKA <http://www.fluka.org/fluka.php>`_ from CERN/INFN. In order
-to download FLUKA you need to become a registered user, which you can do at the
-`FLUKA register <https://www.fluka.org/fluka.php?id=secured_intro>`_ page.
+FluDAG uses FLUKA_ from CERN/INFN. In order to download FLUKA you need to become
+a registered user, which you can do at the `FLUKA registration
+<FLUKA_register_>`_ page.
 
 Save your user ID and password for future FLUKA updates. We recommend an x64
 worfklow and thus you should download the 64-bit executable. The name of the
 downloaded tarball is of the form ``fluka20xx.xx-linux-gfor64bitAA.tar.gz``.
-Refer to the
-`installation instructions <http://www.fluka.org/fluka.php?id=ins_run&mm2=3>`_
-when building FLUKA.
+Refer to the `installation instructions <FLUKA_install_>`_ when building FLUKA.
 
-Take care to follow the FLUKA site instructions when setting the
-``$FLUPRO`` and ``$FLUFOR`` environment variables.
+Take care to follow the FLUKA site instructions when setting the ``$FLUPRO`` and
+``$FLUFOR`` environment variables.
 
 ..  include:: configure_dag-code_header.txt
 
@@ -59,3 +57,7 @@ like this:
     [  PASSED  ] 3 tests.
 
 ..  include:: test_dagmc.txt
+
+..  _FLUKA: http://www.fluka.org/fluka.php
+..  _FLUKA_register: https://www.fluka.org/fluka.php?id=secured_intro
+..  _FLUKA_install: http://www.fluka.org/fluka.php?id=ins_run

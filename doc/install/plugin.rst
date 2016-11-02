@@ -2,33 +2,42 @@ Installing the Cubit/Trelis plugin
 ==================================
 
 There is a common location that stores all the plugins that are available for
-use. Go to the `DAGMC Plugins <http://go.wisc.edu/dagmc-trelis>`_ page and
-download the plugin appropriate for your operating system.
+use. Go to the `DAGMC Plugins <DAGMC_plugins_>`_ page and download the plugin
+appropriate for your operating system.
 
-Linux Install Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Linux install
+~~~~~~~~~~~~~
 
-Obtain the Linux plugin from the link above. The following operations should be
-performed as the root user (sudo).
+Obtain the Linux plugin from the link above. These instructions assume that you
+have installed Trelis in ``/opt/Trelis-16.0``. If you installed it somewhere
+else, modify these instructions appropriately.
 
-1.  Unpack tar ball in /opt/Trelis-16.0/bin/plugins
-2.  Change directory to /opt/Trelis-16.0/bin/plugins/dagmc
-3.  Run the install.sh script: ./install.sh
+These operations may need to be performed as the root user (sudo).
 
-OS/X Install Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~
+1.  Unpack the tarball in ``/opt/Trelis-16.0/bin/plugins``.
+2.  Change directory to ``/opt/Trelis-16.0/bin/plugins/dagmc``.
+3.  Run the install script: ``./install.sh``.
 
-Obtain the OS/X plugin from the link above. The following operations should be
-performed as the root user (sudo).
+OS/X install
+~~~~~~~~~~~~
 
-1.  If it does not already exist, create a folder called "plugins" in
-    /Applications/Trelis-16.0/Contents/MacOS/
-2.  Unpack tar ball in /Applications/Trelis-16.0/Contents/MacOS/plugins
-3.  Change directory to /Applications/Trelis-16.0/Contents/MacOS/plugins/dagmc
-4.  Run the install.sh script: ./install.sh
+Obtain the OS/X plugin from the link above. These instructions assume that you
+have installed Trelis in ``/Applications/Trelis-16.0``. If you installed it
+somewhere else, modify these instructions appropriately.
 
-Windows Install Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These operations may need to be performed as the root user (sudo).
+
+1.  If it does not already exist, create a folder called ``plugins`` in
+    ``/Applications/Trelis-16.0/Contents/MacOS``.
+2.  Unpack the tarball in ``/Applications/Trelis-16.0/Contents/MacOS/plugins``.
+3.  Change directory to
+    ``/Applications/Trelis-16.0/Contents/MacOS/plugins/dagmc``.
+4.  Run the install script: ``./install.sh``.
+
+Windows install
+~~~~~~~~~~~~~~~
 
 A plugin for Windows is currently being developed; it will be posted to the
-above link when complete.
+DAGMC plugins page when it is ready.
+
+..  _DAGMC_plugins: http://go.wisc.edu/dagmc-trelis
