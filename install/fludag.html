@@ -1,0 +1,220 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Install FluDAG &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../index.html" />
+    <link rel="up" title="Installing DAGMC" href="dagmc.html" />
+    <link rel="next" title="Install DAG-Geant4" href="dag-geant4.html" />
+    <link rel="prev" title="Install DAG-MCNP5" href="dag-mcnp5.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="dag-mcnp5.html" title="Install DAG-MCNP5"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="dag-geant4.html" title="Install DAG-Geant4"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" >DAGMC installation overview</a></li>
+          <li class="menu-item"><a href="dagmc.html" accesskey="U">Installing DAGMC</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Install FluDAG</a><ul>
+<li><a class="reference internal" href="#get-dagmc">Get DAGMC</a></li>
+<li><a class="reference internal" href="#install-fluka">Install FLUKA</a></li>
+<li><a class="reference internal" href="#configure-dag-code">Configure FluDAG</a></li>
+<li><a class="reference internal" href="#build-dag-code">Build FluDAG</a></li>
+<li><a class="reference internal" href="#test-dag-code">Test FluDAG</a></li>
+<li><a class="reference internal" href="#test-dagmc">Test DAGMC</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="install-dag-code">
+<h1>Install FluDAG<a class="headerlink" href="#install-dag-code" title="Permalink to this headline">¶</a></h1>
+<p>This document explains how to install FluDAG, assuming you have already
+installed the required <a class="reference external" href="dependencies.html">dependencies</a>.</p>
+<div class="section" id="get-dagmc">
+<h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this headline">¶</a></h2>
+<p>As before, this guide assumes that you are building DAGMC in the subdirectory
+<tt class="docutils literal"><span class="pre">dagmc_bld</span></tt> of your home directory.</p>
+<p>The first step is to clone the <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC repository</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cd $HOME/dagmc_bld
+$ mkdir DAGMC
+$ cd DAGMC
+$ git clone https://github.com/svalinn/DAGMC
+$ cd DAGMC
+$ git checkout develop
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-fluka">
+<span id="id1"></span><h2>Install FLUKA<a class="headerlink" href="#install-fluka" title="Permalink to this headline">¶</a></h2>
+<p>FluDAG uses <a class="reference external" href="http://www.fluka.org/fluka.php">FLUKA</a> from CERN/INFN. In order
+to download FLUKA you need to become a registered user, which you can do at the
+<a class="reference external" href="https://www.fluka.org/fluka.php?id=secured_intro">FLUKA register</a> page.</p>
+<p>Save your user ID and password for future FLUKA updates. We recommend an x64
+worfklow and thus you should download the 64-bit executable. The name of the
+downloaded tarball is of the form <tt class="docutils literal"><span class="pre">fluka20xx.xx-linux-gfor64bitAA.tar.gz</span></tt>.
+Refer to the
+<a class="reference external" href="http://www.fluka.org/fluka.php?id=ins_run&amp;mm2=3">installation instructions</a>
+when building FLUKA.</p>
+<p>Take care to follow the FLUKA site instructions when setting the
+<tt class="docutils literal"><span class="pre">$FLUPRO</span></tt> and <tt class="docutils literal"><span class="pre">$FLUFOR</span></tt> environment variables.</p>
+</div>
+<div class="section" id="configure-dag-code">
+<h2>Configure FluDAG<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
+<p>First, create and enter the build directory.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cd $HOME/dagmc_bld/DAGMC
+$ mkdir bld
+$ cd bld
+</pre></div>
+</div>
+<p>Then, choose where you want to install DAGMC. This is where the binaries,
+libraries, header files, etc. will be placed. This guide uses <tt class="docutils literal"><span class="pre">$INSTALL_PATH</span></tt>
+to represent this location.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
+</pre></div>
+</div>
+<p>CMake variables are used to configure DAGMC with your desired build options. A
+few examples will be shown here, but you can see a list of all possible options
+<a class="reference external" href="cmake_options.html">here</a>.</p>
+<p>The following CMake command will build FluDAG. Note that <tt class="docutils literal"><span class="pre">$FLUPRO</span></tt> should have
+previously been defined as part of the FLUKA install.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cmake .. -DBUILD_FLUKA=ON \
+           -DFLUKA_DIR=$FLUPRO \
+           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+</pre></div>
+</div>
+<p>If the CMake configuration proceeded successfully, you are now ready to install
+DAGMC.</p>
+</div>
+<div class="section" id="build-dag-code">
+<h2>Build FluDAG<a class="headerlink" href="#build-dag-code" title="Permalink to this headline">¶</a></h2>
+<p>Use Make to install FluDAG.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make
+$ make install
+</pre></div>
+</div>
+<p>If the build was successful, the binaries, libraries, header files, and tests
+will be installed to the <tt class="docutils literal"><span class="pre">bin</span></tt>, <tt class="docutils literal"><span class="pre">lib</span></tt>, <tt class="docutils literal"><span class="pre">include</span></tt>, and <tt class="docutils literal"><span class="pre">tests</span></tt>
+subdirectories of <tt class="docutils literal"><span class="pre">$INSTALL_PATH</span></tt> respectively.</p>
+<p>In order to use DAGMC, make these additions to your paths:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ export PATH=$PATH:$INSTALL_PATH/bin
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
+</pre></div>
+</div>
+<p>Again, it may be wise to add these commands to your <tt class="docutils literal"><span class="pre">.bashrc</span></tt> file.</p>
+</div>
+<div class="section" id="test-dag-code">
+<h2>Test FluDAG<a class="headerlink" href="#test-dag-code" title="Permalink to this headline">¶</a></h2>
+<p>To run the FluDAG unit tests, use</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cd $INSTALL_PATH/tests
+$ ./fludag_unit_tests
+</pre></div>
+</div>
+<p>If the tests ran successfully, the last few lines of the screen output will look
+like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>[       OK ] FluDAGTest.GFireGoodPropStep (5 ms)
+[----------] 3 tests from FluDAGTest (108 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test case ran. (108 ms total)
+[  PASSED  ] 3 tests.
+</pre></div>
+</div>
+</div>
+<div class="section" id="test-dagmc">
+<h2>Test DAGMC<a class="headerlink" href="#test-dagmc" title="Permalink to this headline">¶</a></h2>
+<p>We regularly run the DAGMC test suite on
+<a class="reference external" href="https://travis-ci.org/svalinn/DAGMC">Travis</a> as part of our continuous
+integration system. You may however wish to run the tests yourself in order to
+verify you have installed DAGMC correctly.</p>
+<p>If the tests have completed successfully, you are now ready to run your first
+DAGMC problem. See the <a class="reference external" href="../usersguide/index.html">DAGMC user&#8217;s guide</a>
+for more information.</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2016, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Nov 02, 2016.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      </p>
+    </div>
+  </body>
+</html>

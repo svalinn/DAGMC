@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>What is DAGMC? &mdash; DAGMC</title>
+    <title>DAGMC: Direct Accelerated Geometry Monte Carlo &mdash; DAGMC</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -25,12 +25,14 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="DAGMC" href="#" />
-    <link rel="next" title="DAGMC User’s Guide" href="usersguide/index.html" /> 
+    <link rel="next" title="DAGMC installation overview" href="install/index.html" /> 
   </head>
   <body> 
 <div id="page-div" class="page">
-<div id="header"><a id="uwhome" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> <a id="crest" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/crest.png" alt="" width="70" height="106" /></a>
-    <h1 id="siteTitle"><a href="/"><span>DAGMC</span></a></h1>
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="#"><img src="_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
     <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
     <ul id="globalnav">
       <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
@@ -53,9 +55,10 @@
 
     <div id="nav" class="main-menu-container">
       <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="#">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="usersguide/index.html" title="DAGMC User’s Guide"
+          <a href="install/index.html" title="DAGMC installation overview"
              accesskey="N">next</a>
           </li>
         <li class="menu-item" >
@@ -66,53 +69,309 @@
     </div>
   <div id="c_container"> 
 <div id="sidebar">
- <div id="sidebar_section"></div>
- <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
-<li><a class="reference internal" href="#">What is DAGMC?</a></li>
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">DAGMC: Direct Accelerated Geometry Monte Carlo</a><ul>
+</ul>
+</li>
 </ul>
  </div>
 </div> 
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="what-is-dagmc">
-<h1>What is DAGMC?<a class="headerlink" href="#what-is-dagmc" title="Permalink to this headline">¶</a></h1>
-<p>The Direct Accelerated Geometry Monte Carlo (DAGMC) library, a
-component of the Mesh-Oriented datABase [<a class="reference external" href="http://sigma.mcs.anl.gov/moab-library/">MOAB</a>], provides
-fundamental functions for the ray-tracing and related geometry
-operations of Monte Carlo radiation transport directly on complex 3-D
-geometries such as those created in modern solid modeling software.</p>
-<p>DAGMC is designed in a modular fashion with the expectation that it
-can be integrated into a variety of Monte Carlo radiation tools. The
-<a class="reference external" href="http://cnerg.engr.wisc.edu">CNERG</a> group at UW-Madison has historically focussed development on the
-<a class="reference external" href="http://mcnp.lanl.gov">MCNP5</a> software developed at <a class="reference external" href="http://www.lanl.gov">Los Alamos National Laboratory</a> and distributed by the <a class="reference external" href="http://rsicc.ornl.gov">Radiation Safety
-Information Computing Center</a>. However, recently
-DAGMC has been integrated into the following Monte Carlo physics packages
-: <a class="reference external" href="http://mcnp.lanl.gov">MCNP5</a>, <a class="reference external" href="https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html">Tripoli4</a>, <a class="reference external" href="http://www.fluka.org/fluka.php">Fluka</a>, <a class="reference external" href="http://geant4.cern.ch/">Geant4</a>, and <a class="reference external" href="http://web.ornl.gov/sci/nsed/rnsd/rt/code.shtml">Shift</a>.</p>
-<p>We have prior experience integrating DAGMC with MCNP/X, and planned
-efforts to integrate DAGMC with other Monte Carlo physics packages
-including: <a class="reference external" href="http://mcnp.lanl.gov/">MCNP6</a>, <a class="reference external" href="http://montecarlo.vtt.fi/development.htm">Serpent2</a>, <a class="reference external" href="http://phits.jaea.go.jp/">Phits</a>, <a class="reference external" href="https://mit-crpg.github.io/openmc/">OpenMC</a> and Frensie.</p>
-<p>While we don&#8217;t have a complete GUI, we currently rely on the <a class="reference external" href="http://cubit.sandia.gov">Cubit</a>
-software from Sandia.  It plays a role in our workflow that can
-include importing CAD-files from other tools such as SolidWorks,
-CATIA, etc.  A key technology for supporting different solid modeling
-formats is <a class="reference external" href="http://sigma.mcs.anl.gov/cgm-library/">CGM</a>.  In addition to defining the geometry, we rely on
-Cubit for material assignment and can also support some other aspects
-of input definition that are tied to the geometry (tallies and
-variance reduction parameters, for example).  Some knowledge of the
-specific Monte Carlo application is necessary for other
-parameters such as material definition, run control and source definition.</p>
-<p>Both <a class="reference external" href="http://sigma.mcs.anl.gov/cgm-library/">CGM</a> and <a class="reference external" href="http://sigma.mcs.anl.gov/moab-library/">MOAB</a> are developed by a team of collaborators at
-Argonne National Laboratory (ANL) and the University of Wisconsin-Madison (UW), who are also working on improving some of
-the GUI tools available for manipulating workflows.</p>
+  <div class="section" id="dagmc-direct-accelerated-geometry-monte-carlo">
+<h1>DAGMC: Direct Accelerated Geometry Monte Carlo<a class="headerlink" href="#dagmc-direct-accelerated-geometry-monte-carlo" title="Permalink to this headline">¶</a></h1>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- SLIDESHOW STYLE -->
+<style>
+* {box-sizing:border-box}
+
+/* Slideshow container */
+.slideshow-container {
+  width: 800px;
+  height: 450px;
+  position: relative;
+  margin: auto;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  margin-top: -22px;
+  padding: 16px;
+  color: grey;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+}
+
+/* Position the "next button" to the right */
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover, .next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+/* Caption text */
+.text {
+  color: #000;
+  font-size: 15px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: -10px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Number text (1/3 etc) */
+.numbertext {
+  color: #000;
+  font-size: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: -40px;
+  right: 0px;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+  cursor:pointer;
+  height: 13px;
+  width: 13px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.mySlides img {
+  max-width: 800px;
+  max-height: 400px;
+  object-fit: contain;
+  position: absolute;
+  bottom: 50px;
+}
+
+.active, .dot:hover {
+  background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 1.5s;
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+</style>
+
+<!-- WE WILL INSERT AUTO GEN CONENT HERE -->
+<!-- SLIDESHOW CONTENT -->
+<!-- START OF SCRIPTED CONTENT -->
+<br>
+<div class="slideshow-container">
+  <div class="mySlides fade">
+    <div class="numbertext">1 / 10</div>
+    <img src="_images/hab1.png" style="width:100%">
+    <div class="text"> FluDAG Calculation of NASA Habitat Module, Irradiation of 1 GeV Protons</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">2 / 10</div>
+    <img src="_images/pppl_fnsf.png" style="width:100%">
+    <div class="text"> PPPL FNSF</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">3 / 10</div>
+    <img src="_images/atr.png" style="width:100%">
+    <div class="text"> ATR Cross Section</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">4 / 10</div>
+    <img src="_images/bsm_work.png" style="width:100%">
+    <div class="text"> Blanket Shield Module</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">5 / 10</div>
+    <img src="_images/fng_sdr_fluka.png" style="width:100%">
+    <div class="text"> Example of the FNG-SDR Geometry in FluDAG</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">6 / 10</div>
+    <img src="_images/fludag_ni_proton_mag.png" style="width:100%">
+    <div class="text"> Protons being deflected by B Field, interacting on nickel block, FluDAG</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">7 / 10</div>
+    <img src="_images/hab_module_proton_daggeant4.png" style="width:100%">
+    <div class="text"> NASA Habitat module irradiated by protons, DagGeant4</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">8 / 10</div>
+    <img src="_images/iter_elm_coils_heating.png" style="width:100%">
+    <div class="text"> Nuclear heating behind the ITER blanket modules, including the presence of ELM coils, DAG-MCNP5</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">9 / 10</div>
+    <img src="_images/pppl_fnsf_tritium.png" style="width:100%">
+    <div class="text"> Tritium reaction rate in PPPL ST-FSNF plotted on mesh tally, DAG-MCNP5</div>
+  </div>
+
+  <div class="mySlides fade">
+    <div class="numbertext">10 / 10</div>
+    <img src="_images/fng_neutron_tetmesh_mcnp5.png" style="width:100%">
+    <div class="text"> Neutron flux map in a DAG-MCNP5 Advanced Tetmesh tally on the FNG SDR geometry</div>
+  </div>
+
+  <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+  <a class="next" onclick="plusSlides(1)">&#10095;</a>
+</div>
+<br>
+<div style="text-align:center">
+  <span class="dot" onclick="currentSlide(1)"></span>
+  <span class="dot" onclick="currentSlide(2)"></span>
+  <span class="dot" onclick="currentSlide(3)"></span>
+  <span class="dot" onclick="currentSlide(4)"></span>
+  <span class="dot" onclick="currentSlide(5)"></span>
+  <span class="dot" onclick="currentSlide(6)"></span>
+  <span class="dot" onclick="currentSlide(7)"></span>
+  <span class="dot" onclick="currentSlide(8)"></span>
+  <span class="dot" onclick="currentSlide(9)"></span>
+  <span class="dot" onclick="currentSlide(10)"></span>
+</div>
+
+<!-- END OF SCRIPTED CONTENT -->
+
+<script>
+var slideIndex = 1;
+var queue_next = true;
+var timeoutID = 0;
+showSlides(slideIndex);
+
+function nextSlide(n = 1) {
+  showSlides(slideIndex += n);
+}
+
+function plusSlides(n = 1) {
+  queue_next = false;
+  clearTimeout(timeoutID);
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  queue_next = false;
+  clearTimeout(timeoutID);
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
+
+  if (queue_next) {timeoutID = setTimeout(nextSlide,3000);}
+}
+
+$(document).keydown(function(evt) {
+  evt = evt || window.event;
+  switch (evt.keyCode) {
+  case 37:
+    queue_next = false;
+    clearTimeout(timeoutID);
+    plusSlides(-1);
+    break;
+  case 39:
+    queue_next = false;
+    clearTimeout(timeoutID);
+    plusSlides(1);
+    break;
+  }
+});
+</script>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<a class="reference external image-reference" href="https://travis-ci.org/svalinn/DAGMC"><img alt="https://travis-ci.org/svalinn/DAGMC.svg?branch=develop" class="align-left" src="https://travis-ci.org/svalinn/DAGMC.svg?branch=develop" style="width: 90px; height: 20px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Direct Accelerated Geometry Monte Carlo (DAGMC) is a software package that
+allows users to perform Monte Carlo radiation transport directly on CAD models.</p>
+<p>DAGMC has been integrated into a variety of Monte Carlo radiation codes
+including <a class="reference external" href="https://mcnp.lanl.gov">MCNP5</a>, <a class="reference external" href="http://geant4.cern.ch">Geant4</a>, <a class="reference external" href="http://www.fluka.org/fluka.php">Fluka</a>, <a class="reference external" href="https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html">Tripoli4</a>, and <a class="reference external" href="http://web.ornl.gov/sci/nsed/rnsd/rt">Shift</a>. There are also efforts
+planned to integrate DAGMC into other codes such as <a class="reference external" href="https://mcnp.lanl.gov">MCNP6</a>, <a class="reference external" href="http://montecarlo.vtt.fi">Serpent2</a>,
+<a class="reference external" href="https://mit-crpg.github.io/openmc">OpenMC</a>, <a class="reference external" href="http://phits.jaea.go.jp">Phits</a>, and Frensie.</p>
+<p>DAGMC currently relies on using the solid modeling software <a class="reference external" href="https://cubit.sandia.gov">Cubit</a> or its
+commercial counterpart, <a class="reference external" href="http://www.csimsoft.com/trelis">Trelis</a>, to prepare solid models. These packages can be
+used to import CAD models from other tools such as SolidWorks, CATIA, etc., or
+to create geometry from scratch. DAGMC also relies on Trelis/Cubit to assign
+materials and other geometry-related information.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="usersguide/index.html">DAGMC User&#8217;s Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools/index.html">DAGMC Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="devguide/index.html">DAGMC Developers Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gallery/gallery.html">Gallery of projects that use DAGMC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="upcoming.html">Upcoming Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">DAGMC installation overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install/dependencies.html">Installing dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install/dagmc.html">Installing DAGMC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install/plugin.html">Installing the Cubit/Trelis plugin</a></li>
 </ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usersguide/index.html">User&#8217;s guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/trelis_basics.html">Cubit/Trelis basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/uw2.html">University of Wisconsin Unified Workflow (UWUW)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/codes/index.html">Monte Carlo code-specific steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/trelis_workflow.html">Producing solid models for DAGMC using Cubit/Trelis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/tally.html">DAGMC unstructured mesh tallies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/tools.html">DAGMC tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/postprocessing.html">Post-processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contribute/index.html">Contribute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contribute/contributeguide.html">Contributors guide</a></li>
+<li class="toctree-l2"><a class="reference external" href="https://groups.google.com/forum/#!forum/dagmc-users">Join the DAGMC mailing list</a></li>
+<li class="toctree-l2"><a class="reference external" href="https://github.com/svalinn/DAGMC">Source code</a></li>
+<li class="toctree-l2"><a class="reference external" href="https://github.com/svalinn/DAGMC/issues">Report an issue</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
 </div>
 </div>
 
@@ -124,10 +383,10 @@ the GUI tools available for manipulating workflows.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2015, The UW CNERG Team.
+        &copy; Copyright 2012-2016, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 09, 2015.
+      Last updated on Nov 02, 2016.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.

@@ -1,0 +1,259 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Contributors guide &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../index.html" />
+    <link rel="up" title="Contribute" href="index.html" />
+    <link rel="next" title="Gallery of projects that use DAGMC" href="../gallery/gallery.html" />
+    <link rel="prev" title="Contribute" href="index.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="index.html" title="Contribute"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../gallery/gallery.html" title="Gallery of projects that use DAGMC"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">Contribute</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Contributors guide</a><ul>
+<li><a class="reference internal" href="#contributing">Contributing</a><ul>
+<li><a class="reference internal" href="#forking">Forking</a></li>
+<li><a class="reference internal" href="#cloning">Cloning</a></li>
+<li><a class="reference internal" href="#branching">Branching</a></li>
+<li><a class="reference internal" href="#pushing">Pushing</a></li>
+<li><a class="reference internal" href="#pull-requesting">Pull Requesting</a></li>
+<li><a class="reference internal" href="#refreshing-your-branch">Refreshing your branch</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-continuous-integration">Testing &amp; Continuous Integration</a></li>
+<li><a class="reference internal" href="#general-style">General Style</a></li>
+<li><a class="reference internal" href="#c-style">C++ Style</a></li>
+<li><a class="reference internal" href="#bug-reporting">Bug Reporting</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="contributors-guide">
+<h1>Contributors guide<a class="headerlink" href="#contributors-guide" title="Permalink to this headline">¶</a></h1>
+<p>DAGMC is an open source project that facilitates the running of CAD based particle transport problems.</p>
+<div class="section" id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<p>Contributing to the DAGMC project is very straightforward, DAGMC is hosted on Github where issues and pull requests are
+discussed and merged. We use the git version control system which could be the most unfamiliar aspect of contributing for
+most people. The general workflow to contribute to DAGMC and many other open source projects involves steps like below.</p>
+<a class="reference internal image-reference" href="../_images/workflow.png"><img alt="Image showing the github workflow" src="../_images/workflow.png" style="width: 600px; height: 300px;" /></a>
+<p>There are 6 main steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Forking</li>
+<li>Cloning</li>
+<li>Branching</li>
+<li>Pushing</li>
+<li>Pull Requesting</li>
+<li>Refresh your branch</li>
+</ol>
+</div></blockquote>
+<p>These stages are outlined below.</p>
+<div class="section" id="forking">
+<h3>Forking<a class="headerlink" href="#forking" title="Permalink to this headline">¶</a></h3>
+<p>To start the repository must be forked. The easiest way to do this is to click on the
+<cite>fork</cite> button from the <cite>svalinn/dagmc</cite> branch shown below.</p>
+<a class="reference internal image-reference" href="../_images/workflow_fork.png"><img alt="Image showing how to fork a repo" src="../_images/workflow_fork.png" style="width: 600px; height: 150px;" /></a>
+<p>This fork will be an exact snapshot of the <cite>svalinn/dagmc</cite> repository at the time you clicked <cite>fork</cite>. Any new features
+that you wish to develop should be based from the develop branch of this repository, unless you know exactly what you&#8217;re
+doing.</p>
+</div>
+<div class="section" id="cloning">
+<h3>Cloning<a class="headerlink" href="#cloning" title="Permalink to this headline">¶</a></h3>
+<p>You should now clone your fork of this repository to your local machine</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git clone https://github.com/githubusername/dagmc
+$ cd dagmc
+</pre></div>
+</div>
+<p>It is prudent to also add the main svalinn repository as another remote source</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git add remote upstream https://github.com/svalinn/dagmc
+</pre></div>
+</div>
+</div>
+<div class="section" id="branching">
+<h3>Branching<a class="headerlink" href="#branching" title="Permalink to this headline">¶</a></h3>
+<p>The base level of the repository contains folders for each of the supported Monte Carlo codes, the tools directory, and our
+amalgamated PyNE build. First, you need to checkout a new branch in which to keep your changes.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git checkout -b &quot;my_feature_branch&quot;
+</pre></div>
+</div>
+<p>To insert a new feature edit an existing file or add new ones as required, remember to update the
+CMakeList.txt files as required. Your new changes need to be added, commited and pushed.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git add &lt;files needed to add&gt;
+$ git commit -m &quot;This is a message that describes why we need these changes&quot;
+</pre></div>
+</div>
+</div>
+<div class="section" id="pushing">
+<h3>Pushing<a class="headerlink" href="#pushing" title="Permalink to this headline">¶</a></h3>
+<p>Now that your changes are commited, you push the changes to your remote branch in your clone of DAGMC</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git push origin my_feature_branch
+</pre></div>
+</div>
+<p>Before pushing your local feature branch is the only place this changeset is stored. In order to let your
+remote repository know of these changes you have to push.</p>
+</div>
+<div class="section" id="pull-requesting">
+<h3>Pull Requesting<a class="headerlink" href="#pull-requesting" title="Permalink to this headline">¶</a></h3>
+<p>Having succesfully pushed your changes to your remote fork you can carry on and make more changes or create a pull request from
+the changes you have made. If you immediately go to your fork on Github you should see a message offering to create a pull
+request with that branch to <cite>svalinn/dagmc:develop</cite>, if you click this message you can edit and submit the pull request. If
+you&#8217;ve waited a few tens of minutes between pushing and going to Github you may have to manually create a pull request. Your
+pull request will launch our continuous integration tests and at some point in the near future your changes will pass all
+the unit tests or indeed may break the tests. Testing in progress and testing complted are shown at the bottom of your pull
+request.</p>
+<a class="reference internal image-reference" href="../_images/github_testing.png"><img alt="Image showing when testing is launched." src="../_images/github_testing.png" style="width: 600px; height: 400px;" /></a>
+<p>When testing passes and another developer has reviewed your pull request, then your changes will be merged into the develop branch.</p>
+</div>
+<div class="section" id="refreshing-your-branch">
+<h3>Refreshing your branch<a class="headerlink" href="#refreshing-your-branch" title="Permalink to this headline">¶</a></h3>
+<p>It should be noted that having had your pull request successfully integrated into the DAGMC mainline develop branch, your
+clone and your local repositories develop branch will reflect the pre-pull request state of DAGMC. In order for your personal
+clones and repositories to be updated, you must first pull the develop changes into your local clone;</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git checkout develop #remember to checkout the develop branch!
+$ git pull upstream develop
+</pre></div>
+</div>
+<p>Now your local clone of the repository has an up-to-date develop branch, but you still need to refresh your Github branch, and now
+you must push the develop changes up to it</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git push origin develop
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="testing-continuous-integration">
+<h2>Testing &amp; Continuous Integration<a class="headerlink" href="#testing-continuous-integration" title="Permalink to this headline">¶</a></h2>
+<p>We use the <a class="reference external" href="https://code.google.com/p/googletest/">Google Test</a> gtest libraries to control testing of our code and we
+use the <a class="reference external" href="https://travis-ci.org/">Travis</a> continuous integration system to test all changes to the code. When you add
+features to the codebase, tests should always be added which prove the capabilities that have been added.</p>
+<p>When a developer
+makes a pull request on GitHub, Travis detects this change and launches the build as specified in the .travis.yml file. Travis
+pulls your feature branch, the MOAB libraries, HDF5, etc as required and then launches the tests. Each test is run in succession
+and failure is reported if any dependency fails to build or if any test fails, an example of a Travis report is shown below</p>
+<a class="reference internal image-reference" href="../_images/travis_example.png"><img alt="Image showing the status of the an example Travis-CI run" src="../_images/travis_example.png" style="width: 600px; height: 300px;" /></a>
+<p>Once the testing is complete and your changes have been verified to not break any of the existing capabilities, a reviewer will check
+your pull request over and may suggest some modifications to meet the C++ style, good practice and then will approve or reject your
+pull request.</p>
+</div>
+<div class="section" id="general-style">
+<h2>General Style<a class="headerlink" href="#general-style" title="Permalink to this headline">¶</a></h2>
+<p>Explicit namespacing is preferred, so rather than using the <cite>using namespace xxx</cite> command, you should prefix the variable with the
+class name, i.e.</p>
+<div class="highlight-python"><div class="highlight"><pre>pyne::Material new_material; // this is a new material
+</pre></div>
+</div>
+<p>is preferred over,</p>
+<div class="highlight-python"><div class="highlight"><pre>using namepspace pyne;
+Material new_material; // this is a new material
+</pre></div>
+</div>
+<p>This is to save developers pouring over potentially 20 different header files trying to isolate exactly which type this should
+be.</p>
+</div>
+<div class="section" id="c-style">
+<h2>C++ Style<a class="headerlink" href="#c-style" title="Permalink to this headline">¶</a></h2>
+<p>We conform to the Google C++ style guide, we have included a C++ style guide formatter to make a developers life much easier,
+when you have added all the features you want to add, the style guide formatter should be run;</p>
+<div class="highlight-python"><div class="highlight"><pre>$ astyle --style=linux --indent=spaces=2
+</pre></div>
+</div>
+<p>Then commit the changes to your branch. Avoid commiting code only changes and then commiting C++ formatter changes, as the
+changeset is very hard to review.</p>
+</div>
+<div class="section" id="bug-reporting">
+<h2>Bug Reporting<a class="headerlink" href="#bug-reporting" title="Permalink to this headline">¶</a></h2>
+<p>If you find a bug, raise an issue on the main <a class="reference external" href="https://github.com/svalinn/DAGMC/issues">svalinn/dagmc</a> Github site. If you
+think you can tackle the issue then please do, then pull request your changes.</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2016, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Nov 02, 2016.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      </p>
+    </div>
+  </body>
+</html>

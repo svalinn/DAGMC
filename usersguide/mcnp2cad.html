@@ -1,0 +1,122 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mcnp2cad &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../index.html" />
+    <link rel="up" title="User’s guide" href="index.html" />
+    <link rel="next" title="Contribute" href="../contribute/index.html" />
+    <link rel="prev" title="Post-processing" href="postprocessing.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="postprocessing.html" title="Post-processing"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../contribute/index.html" title="Contribute"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">User&#8217;s guide</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">mcnp2cad</a></li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="mcnp2cad">
+<h1>mcnp2cad<a class="headerlink" href="#mcnp2cad" title="Permalink to this headline">¶</a></h1>
+<p>UW has a tool, <a class="reference external" href="https://github.com/svalinn/mcnp2cad">mcnp2cad</a>, which can
+translate a MCNP model into ACIS format for use in future DAGMC simulations. The
+tool builds CAD solids from MCNP cell descriptions often turning infinite bodies
+and planes into finite versions. At the time of writing, the only unsupported
+MCNP surface descriptions are limited to GQ&#8217;s and SQ&#8217;s. To run mcnp2cad all that
+is needed is an MCNP input deck,</p>
+<div class="highlight-python"><div class="highlight"><pre>$ mcnp2cad test.inp
+</pre></div>
+</div>
+<p>Will result in a file called out.sat which will contain the CAD version of your
+MCNP input. Furthermore, mcnp2cad automatically transfers material and
+importance assignments into the CAD model and will be translated to the DAGMC
+file when processed.</p>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2016, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Nov 02, 2016.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      </p>
+    </div>
+  </body>
+</html>

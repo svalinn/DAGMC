@@ -1,0 +1,134 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DAGMC CMake variables &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../index.html" />
+    <link rel="up" title="Installing DAGMC" href="dagmc.html" />
+    <link rel="next" title="Installing the Cubit/Trelis plugin" href="plugin.html" />
+    <link rel="prev" title="Install DAGMC with multiple physics codes" href="dag_multiple.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="dag_multiple.html" title="Install DAGMC with multiple physics codes"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="plugin.html" title="Installing the Cubit/Trelis plugin"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="index.html" >DAGMC installation overview</a></li>
+          <li class="menu-item"><a href="dagmc.html" accesskey="U">Installing DAGMC</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">DAGMC CMake variables</a></li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="dagmc-cmake-variables">
+<h1>DAGMC CMake variables<a class="headerlink" href="#dagmc-cmake-variables" title="Permalink to this headline">¶</a></h1>
+<p>This page describes the specific CMake variables that affect the DAGMC build.
+Note that unless set, all boolean options default to <tt class="docutils literal"><span class="pre">OFF</span></tt>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">-DBUILD_MCNP5=ON</span></tt> Build DAG-MCNP5.</li>
+<li><tt class="docutils literal"><span class="pre">-DMCNP5_DATAPATH=/path/to/mcnp/data</span></tt> Set the path where the DAG-MCNP5
+executable will look for nuclear data. If this variable is not set, it
+will look for the data in the location specified by the <tt class="docutils literal"><span class="pre">$DATAPATH</span></tt>
+environment variable instead.</li>
+<li><tt class="docutils literal"><span class="pre">-DMPI_BUILD=ON</span></tt> If building DAG-MCNP5, build an MPI version.</li>
+<li><tt class="docutils literal"><span class="pre">-DBUILD_FLUKA=ON</span></tt> Build FluDAG. If this option is turned on,
+<tt class="docutils literal"><span class="pre">-DFLUKA_DIR</span></tt> must also be specified.</li>
+<li><tt class="docutils literal"><span class="pre">-DFLUKA_DIR=/path/to/fluka</span></tt> Set the path to Fluka. It should typically
+be set to the <tt class="docutils literal"><span class="pre">$FLUPRO</span></tt> environment variable.</li>
+<li><tt class="docutils literal"><span class="pre">-DBUILD_GEANT4=ON</span></tt> Build DAG-Geant4 and the DagSolid library. If this
+option is turned on, <tt class="docutils literal"><span class="pre">-DGEANT4_DIR</span></tt> may need to be specified if the
+CMake files can&#8217;t find Geant4 by themselves.</li>
+<li><tt class="docutils literal"><span class="pre">-DGEANT4_DIR=/path/to/geant4</span></tt> Set the path to Geant4.</li>
+<li><tt class="docutils literal"><span class="pre">-DBUILD_TALLY=ON</span></tt> Build the DagTally interface. Note that if you have
+<tt class="docutils literal"><span class="pre">-DBUILD_MCNP5=ON</span></tt> then this is automatically set to ON.</li>
+<li><tt class="docutils literal"><span class="pre">-DBUILD_ALL=ON</span></tt> Build DAG-MCNP5, DAG-Geant4, and FluDAG.</li>
+<li><tt class="docutils literal"><span class="pre">-DSTATIC_LIB=ON</span></tt> Build static libraries and executables.</li>
+</ul>
+</div></blockquote>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2016, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Nov 02, 2016.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      </p>
+    </div>
+  </body>
+</html>

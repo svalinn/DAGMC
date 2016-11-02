@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>DAGMC User’s Guide &mdash; DAGMC</title>
+    <title>User’s guide &mdash; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -25,13 +25,15 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="DAGMC" href="../index.html" />
-    <link rel="next" title="DAGMC Quick Start Guide" href="quick_start.html" />
-    <link rel="prev" title="What is DAGMC?" href="../index.html" /> 
+    <link rel="next" title="Cubit/Trelis basics" href="trelis_basics.html" />
+    <link rel="prev" title="Installing the Cubit/Trelis plugin" href="../install/plugin.html" /> 
   </head>
   <body> 
 <div id="page-div" class="page">
-<div id="header"><a id="uwhome" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> <a id="crest" href="http://www.wisc.edu"><img src="/DAGMC/_static/images/crest.png" alt="" width="70" height="106" /></a>
-    <h1 id="siteTitle"><a href="/"><span>DAGMC</span></a></h1>
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../index.html"><img src="../_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
     <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
     <ul id="globalnav">
       <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
@@ -54,13 +56,14 @@
 
     <div id="nav" class="main-menu-container">
       <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="../index.html" title="What is DAGMC?"
+          <a href="../install/plugin.html" title="Installing the Cubit/Trelis plugin"
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
-          <a href="quick_start.html" title="DAGMC Quick Start Guide"
+          <a href="trelis_basics.html" title="Cubit/Trelis basics"
              accesskey="N">next</a>
           </li>
         <li class="menu-item" >
@@ -71,10 +74,8 @@
     </div>
   <div id="c_container"> 
 <div id="sidebar">
- <div id="sidebar_section"></div>
- <div id="sidebar_section"><strong>Table of Contents</strong><br><ul>
-<li><a class="reference internal" href="#">DAGMC User&#8217;s Guide</a><ul>
-<li><a class="reference internal" href="#related-tools">Related Tools</a></li>
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">User&#8217;s guide</a><ul>
 </ul>
 </li>
 </ul>
@@ -83,25 +84,82 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="dagmc-user-s-guide">
-<h1>DAGMC User&#8217;s Guide<a class="headerlink" href="#dagmc-user-s-guide" title="Permalink to this headline">¶</a></h1>
-<p>This document is intended for users of the DAGMC toolkit and includes
-instructions for installation and use with a variety of Monte Carlo
-codes.</p>
+  <div class="section" id="user-s-guide">
+<h1>User&#8217;s guide<a class="headerlink" href="#user-s-guide" title="Permalink to this headline">¶</a></h1>
+<p>This document is intended for users of the DAGMC toolkit who want
+to better understand all the potential workflows for each Monte Carlo
+code. UW - Madison has developed several workflows for the Monte Carlo
+codes it supports. Exactly which workflow suits your needs depends on
+which codes you expect to use and how much manual data transfer you
+wish to do.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="44%" />
+<col width="28%" />
+<col width="28%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Feature</td>
+<td>UW2 Workflow</td>
+<td>Basic Workflow</td>
+</tr>
+<tr class="row-even"><td>Assignment of Metadata</td>
+<td>M</td>
+<td>M</td>
+</tr>
+<tr class="row-odd"><td>MCNP5 Tallies</td>
+<td>A</td>
+<td>M</td>
+</tr>
+<tr class="row-even"><td>MCNP5 Materials</td>
+<td>A</td>
+<td>M</td>
+</tr>
+<tr class="row-odd"><td>Fluka Tallies</td>
+<td>A</td>
+<td>M</td>
+</tr>
+<tr class="row-even"><td>Fluka Materials</td>
+<td>A</td>
+<td>M</td>
+</tr>
+<tr class="row-odd"><td>Geant4 Tallies</td>
+<td>A</td>
+<td>M</td>
+</tr>
+<tr class="row-even"><td>Geant4 Materials</td>
+<td>A</td>
+<td>M</td>
+</tr>
+<tr class="row-odd"><td>Tripoli4 Tallies</td>
+<td>N</td>
+<td>None</td>
+</tr>
+<tr class="row-even"><td>Tripoli4 Materials</td>
+<td>N</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>N</strong> not supported, <strong>A</strong> automatic production at run time, <strong>M</strong> manually performed</p>
+<p>So, if you are interested in running your geometry in multiple physics
+packages with minimal effort, the UW2 workflow is your best option
+as it does the most work for you, however if you are interested
+in only a specific physics engine one of the basic workflows may
+interest you more. We still would recommend the UW2 workflow as it
+offers robust and tested methods for material creation.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">DAGMC Quick Start Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="get_install.html">Installing the DAGMC Toolkit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflow.html">Using DAGMC - The DAGMC Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="uw2.html">The University of Wisconsin Unified Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dag-tripoli4.html">Monte Carlo Code-Specific Steps for DAG-Tripoli4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trelis_basics.html">Cubit/Trelis basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uw2.html">University of Wisconsin Unified Workflow (UWUW)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codes/index.html">Monte Carlo code-specific steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trelis_workflow.html">Producing solid models for DAGMC using Cubit/Trelis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tally.html">DAGMC unstructured mesh tallies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">DAGMC tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="postprocessing.html">Post-processing</a></li>
 </ul>
 </div>
-<div class="section" id="related-tools">
-<h2>Related Tools<a class="headerlink" href="#related-tools" title="Permalink to this headline">¶</a></h2>
-<p>There are several DAGMC related tools and information regarding them can be found <a class="reference external" href="../tools/index.html">here</a>.
-`</p>
+<div class="toctree-wrapper compound">
 </div>
 </div>
 
@@ -113,10 +171,10 @@ codes.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2015, The UW CNERG Team.
+        &copy; Copyright 2012-2016, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 09, 2015.
+      Last updated on Nov 02, 2016.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.

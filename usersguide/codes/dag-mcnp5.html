@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Code-specific steps for DAG-MCNP5 &mdash; DAGMC</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="DAGMC" href="../../index.html" />
+    <link rel="up" title="Monte Carlo code-specific steps" href="index.html" />
+    <link rel="next" title="Tallies" href="dag-mcnp5_deprecated.html" />
+    <link rel="prev" title="Monte Carlo code-specific steps" href="index.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../../index.html"><img src="../../_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="index.html" title="Monte Carlo code-specific steps"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="dag-mcnp5_deprecated.html" title="Tallies"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="../index.html" >User&#8217;s guide</a></li>
+          <li class="menu-item"><a href="index.html" accesskey="U">Monte Carlo code-specific steps</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Code-specific steps for DAG-MCNP5</a><ul>
+<li><a class="reference internal" href="#geometry-metadata">Geometry metadata</a><ul>
+<li><a class="reference internal" href="#materials-and-densities">Materials and densities</a></li>
+<li><a class="reference internal" href="#boundary-conditions">Boundary conditions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-dag-mcnp5-input-file">The DAG-MCNP5 input file</a></li>
+<li><a class="reference internal" href="#running-dag-mcnp5">Running DAG-MCNP5</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="code-specific-steps-for-dag-mcnp5">
+<h1>Code-specific steps for DAG-MCNP5<a class="headerlink" href="#code-specific-steps-for-dag-mcnp5" title="Permalink to this headline">¶</a></h1>
+<p>There are three varieties of code-specific steps for DAG-MCNP5:</p>
+<ol class="arabic simple">
+<li>Defining attributes of the geometry using Cubit/Trelis groups</li>
+<li>Defining DAGMC runtime parameters using the DAGMC input file</li>
+<li>Specifying additional parameters on the command line</li>
+</ol>
+<div class="section" id="geometry-metadata">
+<h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
+<p>In DAG-MCNP5, the geometry file can be used to define material and density
+assignments, and boundary conditions.</p>
+<div class="section" id="materials-and-densities">
+<h3>Materials and densities<a class="headerlink" href="#materials-and-densities" title="Permalink to this headline">¶</a></h3>
+<p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><em>Grouping volumes and surfaces</em></a>, but
+a specific naming convention is required for DAG-MCNP5. To define materials,
+both the MCNP material ID and density must be provided in the group name. The
+format for the group name is as follows: <tt class="docutils literal"><span class="pre">mat:[matid]/rho:[density]</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">[matid]</span></tt> should be replaced by the material ID that will be specified in the
+MCNP input file. <tt class="docutils literal"><span class="pre">[density]</span></tt> should replaced by either the atomic density or
+the mass density. As in the MCNP cell cards, positive values represent atomic
+densities in [atoms/barn-cm] and negative values represent mass densities in
+[g/cc].</p>
+<p>For example, consider a problem where material 7 and an atomic density of 0.0223
+should be assigned to volumes 4 through 18. The following command should be used
+to specify that information:</p>
+<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:7/rho:0.0223&quot; add vol 4 to 18
+</pre></div>
+</div>
+<p>All volumes must belong to a group, if you want volumes to be filled with vacuum
+then add them to a group called, &#8220;mat:Vacuum&#8221;:</p>
+<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:Vacuum&quot; add vol 4 to 18
+</pre></div>
+</div>
+<p>If you would like to assign a material to the implicit complement, a special
+procedure is needed. Since the implicit complement doesn&#8217;t exist before running
+DAGMC, and DAGMC can only recognize groups that contain an entity, the material
+for the implicit complement must be specified as if it were being specified for
+the graveyard volume. For example, if you would like the implicit complement to be
+modeled as material 9 with a density of 1 g/cc, and the graveyard volume is
+volume 102, the following command should be used:</p>
+<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:9_comp/rho:-1_comp&quot; add vol 102
+</pre></div>
+</div>
+<p>DAGMC will recognize that volume 102 is the graveyard, and the <tt class="docutils literal"><span class="pre">_comp</span></tt> keyword
+will trigger it to assign the specified material and density to the implicit
+complement rather than the graveyard.</p>
+</div>
+<div class="section" id="boundary-conditions">
+<h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h3>
+<p>There are two general classes of boundary condition supported by DAG-MCNP5:
+vacuum boundaries and surface boundary conditions.</p>
+<p><strong>Vacuum boundaries: defining the &#8220;graveyard&#8221;</strong></p>
+<p>Typical MCNP5 models contain a zero-importance volume that bounds the volumes of
+interest and extends to infinity. Since solid models cannot include infinite
+volumes, it is necessary to define a finite zero-importance volume around your
+model to define the problem boundary. This is done by surrounding the entire
+geometry with a shell of finite thickness; this is known as the &#8220;graveyard.&#8221; Any
+geometric shape can be used for this, but a cubic shell is preferred. The
+graveyard represents the outside world, and any particle that enters it will be
+terminated.</p>
+<p>To create a graveyard volume, create two volumes in Cubit with the same shape
+and same center with one slightly larger than the other, making sure that both
+bound the entire problem geometry. Then, subtract the smaller one from the
+larger one. The remaining volume is the graveyard.</p>
+<p>To indicate to MCNP that a given volume is the graveyard volume, you must assign
+it to a group with one of these names:</p>
+<div class="highlight-python"><div class="highlight"><pre>mat:Graveyard
+</pre></div>
+</div>
+<p>For example, consider a geometry containing 99 volumes, all of which fit inside
+a cube of side length 99 cm centered at the origin. The following commands would
+create a valid graveyard for this problem:</p>
+<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; create brick x 100             # This will be volume 100
+CUBIT&gt; create brick x 105             # This will be volume 101
+CUBIT&gt; subtract vol 100 from vol 101  # This will produce volume 102
+CUBIT&gt; group &quot;mat:Graveyard&quot; add vol 102
+</pre></div>
+</div>
+<p>When DAG-MCNP5 is run, the importance any graveyard volumes will be set to zero.</p>
+<p>It is still recommended that you create a graveyard volume even if your problem
+has reflecting boundary conditions on all sides, although it is not strictly
+necessary.</p>
+<p><strong>Surface boundary conditions</strong></p>
+<p>Surface boundary conditions can be specified for a given surface by adding the
+surface to a group. The group names for reflecting and white boundary conditions
+are <tt class="docutils literal"><span class="pre">boundary:Reflecting</span></tt> and <tt class="docutils literal"><span class="pre">boundary:White</span></tt>, respectively. Note that periodic
+boundary conditions are not currently supported.</p>
+<p>For example, suppose you want to specify that surfaces 10 and 11 should be
+reflecting surfaces. This command would achieve that:</p>
+<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;boundary:Reflecting&quot; add surf 10 11
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="the-dag-mcnp5-input-file">
+<h2>The DAG-MCNP5 input file<a class="headerlink" href="#the-dag-mcnp5-input-file" title="Permalink to this headline">¶</a></h2>
+<p>The DAG-MCNP5 input file contains only the data cards section of a
+standard MCNP5 input file.  There are no cell or surface cards
+included in the input file.</p>
+<p>A new data card has been added to DAG-MCNP5 to define parameters for
+the DAGMC geometry capability.</p>
+<div class="highlight-python"><div class="highlight"><pre>Form: dagmc  keyword1=value   keyword2=value
+     check_src_cell: behavior of CEL variable in SDEF card
+                        on  [default] standard interpretation for
+                                      CEL variable: source rejection
+                        off           no cell rejection - assume that
+                                      sampled position is in cell CEL
+     overlap_thickness: allows particle tracking through small overlaps
+                        {real} [default=0.0]
+             distlimit: toggle usage of flight distance sampled from
+                        physics to accelerate ray-tracing search
+                        off [default] do not use physics flight distance
+                        on            do use physics flight distance
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-dag-mcnp5">
+<h2>Running DAG-MCNP5<a class="headerlink" href="#running-dag-mcnp5" title="Permalink to this headline">¶</a></h2>
+<p>Running DAG-MCNP5 is identical to running the standard MCNP5, but a few new
+keywords have been added to the command line to specify the necessary files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">gcad=&lt;geom_file&gt;</span></tt> (required):</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Specify the filename of the input geometry
+file. It can be in one of two formats: the MOAB (*.h5m) format (this is the
+format produced by <tt class="docutils literal"><span class="pre">export</span> <span class="pre">dagmc</span></tt> in Trelis/Cubit), or a facet file
+produced by DAGMC. If this entry is not present, DAG-MCNP5 will assume that
+it is running in standard MCNP5 mode.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">fcad=&lt;facet_file&gt;</span></tt> (optional):</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">[default: fcad] Specify the filename of the
+output facet file. This is the file produced by DAGMC that contains the
+geometry as well as the products of a number of preprocessing steps, which
+can be quite time-consuming. This file can be used as input with the
+<tt class="docutils literal"><span class="pre">gcad=</span></tt> keyword in subsequent runs to avoid spending time redoing the
+preprocessing steps.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">lcad=&lt;log_file&gt;</span></tt> (optional):</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">[default: lcad] Specify the filename of the
+output log file. This is a skeleton of an MCNP file which contains
+information about the volumes, surfaces, materials and material assignments,
+boundary conditions, and tallies defined in the geometry. If you specify a
+name other than the default for this file on the command-line, that file
+will be used instead of the one generated automatically by DAG-MCNP5. This
+can be useful if you want to make small changes to your material
+assignments, importances, etc., but it cannot be used to change anything
+about the geometry. It is up to the user to ensure that the geometry file
+and log file being used correspond to each other. This runtime parameter is
+unique to DAG-MCNP5.</td>
+</tr>
+</tbody>
+</table>
+<p>To run a MCNP based DAG problem, the user must make the minimum input deck
+that defines the particle source definition, runtime parameters, and physics
+cutoffs. You then run MCNP;</p>
+<div class="highlight-python"><div class="highlight"><pre>$ mcnp5 i=input g=geom.h5m
+</pre></div>
+</div>
+<p>It may be the case that some nuclides are not found, an lcad file will have been produced in the previous step
+which the user can modify to remove extraneous nuclides and re-run with;</p>
+<div class="highlight-python"><div class="highlight"><pre>$ mcnp5 i=input g=geom.h5m l=lcad_modified
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2016, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Nov 02, 2016.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      </p>
+    </div>
+  </body>
+</html>
