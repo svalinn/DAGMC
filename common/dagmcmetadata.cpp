@@ -26,7 +26,8 @@ void dagmcMetaData::load_property_data(){
   parse_material_data();
   parse_importance_data();
   parse_boundary_data();
-  //  parse_tally_data();
+  parse_tally_volume_data();
+  parse_tally_surface_data();
   // finalise_counters();
 }
 
@@ -41,6 +42,8 @@ std::string dagmcMetaData::get_volume_property(std::string property, moab::Entit
     value = volume_density_data_eh[eh];
   } else if ( property == "importance" ) {
     value = volume_importance_data_eh[eh];
+  } else if ( property == "tally" ) {
+    value = tally_data_eh[eh];
   } else {
     std::cout << "Not a valid property for volumes" << std::endl;
   }
@@ -64,6 +67,8 @@ std::string dagmcMetaData::get_surface_property(std::string property, moab::Enti
   std::string value = "";
   if (property == "boundary" ) {
     value = surface_boundary_data_eh[eh];
+  } else if (property == "tally") {
+    value = tally_data_eh[eh];
   } else {
     std::cout << "Not a valid property for surfaces" << std::endl;
   }
@@ -85,14 +90,17 @@ std::string dagmcMetaData::get_surface_property(std::string property, int vol, b
 // parse the material data
 void dagmcMetaData::parse_material_data() {
   std::map<moab::EntityHandle,std::vector<std::string> > material_assignments;
-  material_assignments = get_property_assignments("mat",3,":/");
+  material_assignments = get_property_assignments("mat",3,":/",false);
   std::map<moab::EntityHandle,std::vector<std::string> > density_assignments;
-  density_assignments = get_property_assignments("rho",3,":");
+  density_assignments = get_property_assignments("rho",3,":",false);
 
   int num_cells = DAG->num_entities( 3 );
 
   std::vector<std::string> material_props;
   std::vector<std::string> density_props;
+
+  std::string implicit_complement_material = "";
+  std::string implicit_complement_density = "";
 
   // loop over all cells
   for( int i = 1; i <= num_cells; ++i ) {
@@ -103,23 +111,61 @@ void dagmcMetaData::parse_material_data() {
     material_props = material_assignments[eh];
     density_props = density_assignments[eh];
 
+    // this is actually ok for a single volume, one that has the _comp tag at the end of it
     if( material_props.size() > 1 ) {
-      std::cout << "more than one material for volume with id " << cellid << std::endl;
-      std::cout << cellid << " has the following material assignments" << std::endl;
+      // search the props for _comp
+      std::size_t comp_found;
+      int position;
       for ( int j = 0 ; j < material_props.size() ; j++ ) {
-        std::cout << material_props[j] << std::endl;
+	comp_found = material_props[j].find("_comp");
+	if ( comp_found != std::string::npos) {
+	  position = j;
+	  break;
+	}
+      } 
+      if ( comp_found != std::string::npos ) {
+	// success found the _comp tag for the impl_compl material
+	// set the impl_comp material for use later
+	implicit_complement_material = material_props[position].substr(0,material_props[position].size()-5);
+	material_props.erase(material_props.begin()+position);	
+      } else {
+	// failure a volume can only have a single material associated with it
+	std::cout << "more than one material for volume with id " << cellid << std::endl;
+	std::cout << "that does not the the _comp tag associated with it" << std::endl;
+	std::cout << cellid << " has the following material assignments" << std::endl;
+	for ( int j = 0 ; j < material_props.size() ; j++ ) {
+	  std::cout << material_props[j] << std::endl;
+	}
+	std::cout << "Please check your material assignments " << cellid << std::endl;
+	exit(EXIT_FAILURE);
       }
-      std::cout << "Please check your material assignments " << cellid << std::endl;
-      exit(EXIT_FAILURE);
     }
+    // this is actually ok for a single volume, one that has the _comp tag at the end of it
     if(density_props.size() > 1) {
-      std::cout << "More than one density specified for " << cellid <<std::endl;
-      std::cout << cellid << " has the following density assignments" << std::endl;
+      // search the props for _comp
+      std::size_t comp_found;
+      int position;
       for ( int j = 0 ; j < density_props.size() ; j++ ) {
-        std::cout << density_props[j] << std::endl;
+	comp_found = density_props[j].find("_comp");
+	if ( comp_found != std::string::npos) {
+	  position = j;
+	  break;
+	}
+      } 
+      if ( comp_found != std::string::npos ) {
+	// success found the _comp tag for the impl_compl material
+	// set the impl_comp material for use later
+	implicit_complement_density = density_props[position].substr(0,density_props[position].size()-5);
+	density_props.erase(density_props.begin()+position);
+      } else {
+	std::cout << "More than one density specified for " << cellid <<std::endl;
+	std::cout << cellid << " has the following density assignments" << std::endl;
+	for ( int j = 0 ; j < density_props.size() ; j++ ) {
+	  std::cout << density_props[j] << std::endl;
+	}
+	std::cout << "Please check your density assignments " << cellid << std::endl;
+	exit(EXIT_FAILURE);
       }
-      std::cout << "Please check your density assignments " << cellid << std::endl;
-      exit(EXIT_FAILURE);
     }
 
     std::string grp_name = "";
@@ -148,10 +194,23 @@ void dagmcMetaData::parse_material_data() {
       volume_material_data_eh[eh] = "Graveyard";
     }
     // vacuum
-    else if (grp_name.find("Vacuum") != std::string::npos || (DAG->is_implicit_complement(eh)) ) {
+    else if (grp_name.find("Vacuum") != std::string::npos) {
       volume_material_property_data_eh[eh] = "mat:Vacuum";
       volume_material_data_eh[eh] = "Vacuum";
     } 
+    // implicit complement
+    else if (DAG->is_implicit_complement(eh)) {
+      if(implicit_complement_material == "" ) {
+	std::cout << "Implicit Complement assumed to be Vacuum" << std::endl;
+	volume_material_property_data_eh[eh] = "mat:Vacuum";
+	volume_material_data_eh[eh] = "Vacuum";
+      } else {
+	volume_material_property_data_eh[eh] = "mat:"+implicit_complement_material;
+	if(implicit_complement_density != "") volume_material_property_data_eh[eh] += "/rho"+implicit_complement_density;
+	volume_material_data_eh[eh] = implicit_complement_material;
+	volume_density_data_eh[eh] = implicit_complement_density;
+      }	
+    }
   } 
 }
 
@@ -177,6 +236,31 @@ void dagmcMetaData::parse_importance_data() {
         importances += importance_assignment[j]+"|";
      }
      volume_importance_data_eh[eh] = importances;
+  }
+}
+
+// parse the importance data from the file
+void dagmcMetaData::parse_tally_volume_data() {
+  std::map<moab::EntityHandle,std::vector<std::string> > tally_assignments;
+  tally_assignments = get_property_assignments("tally",3,":");
+
+  int num_vols = DAG->num_entities( 3 );
+
+  std::vector<std::string> tally_assignment; // boundary conditions for the current entity
+  // loop over all volumes
+  for( int i = 1; i <= num_vols; ++i ) {
+    int volid = DAG->id_by_index( 3, i );
+    moab::EntityHandle eh = DAG->entity_by_index( 3, i );
+
+    // vector of tally values
+    tally_assignment = tally_assignments[eh];
+    // set the value of each string for
+    std::string tally = "|"; 
+    for ( int j = 0 ; j < tally_assignment.size() ; j++ ) {
+        // delimit each particle/value pair with a pipe symbol
+        tally += tally_assignment[j]+"|";
+     }
+     tally_data_eh[eh] = tally;
   }
 }
 
@@ -213,9 +297,37 @@ void dagmcMetaData::parse_boundary_data() {
   }
 }
 
+// parse the importance data from the file
+void dagmcMetaData::parse_tally_surface_data() {
+  std::map<moab::EntityHandle,std::vector<std::string> > tally_assignments;
+  tally_assignments = get_property_assignments("tally",2,":");
+
+  int num_surfaces = DAG->num_entities( 2 );
+
+  std::vector<std::string> tally_assignment; // boundary conditions for the current entity
+  // loop over all volumes
+  for( int i = 1; i <= num_surfaces; ++i ) {
+    int surfid = DAG->id_by_index( 2, i );
+    moab::EntityHandle eh = DAG->entity_by_index( 2, i );
+
+    // vector of tally values
+    tally_assignment = tally_assignments[eh];
+    // set the value of each string for
+    std::string tally = "|"; 
+    for ( int j = 0 ; j < tally_assignment.size() ; j++ ) {
+        // delimit each particle/value pair with a pipe symbol
+        tally += tally_assignment[j]+"|";
+     }
+     tally_data_eh[eh] = tally;
+  }
+}
+
+
 // for a given property with a range of delimiters, and dimensionality 
 std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_property_assignments(std::string property,
-    int dimension, std::string delimiters )
+											       int dimension, 
+											       std::string delimiters,
+											       bool remove_duplicates)
 {
   std::map<moab::EntityHandle,std::vector<std::string> > prop_map; // to return properties
 
@@ -245,8 +357,8 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
       properties.push_back("");
 
     if (properties.size() > 1 )
-      properties = remove_duplicate_properties(properties);
-    
+      if (remove_duplicates)
+	properties = remove_duplicate_properties(properties);
     // assign the map value
     prop_map[entity]=properties;
   }
@@ -254,6 +366,7 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
   return prop_map;
 }
 
+// remove duplicate properties from the vector of properties
 std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<std::string> properties){
   // remove duplicates
   std::set<std::string> properties_set; // set of properties (unique)
@@ -263,10 +376,11 @@ std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<
   for ( it = properties.begin() ; it != properties.end() ; ++it) {
     properties_set.insert(*it);
   }
+
   // due to dagmc parse group names, the property, and value are two seperate
   // entries in array, i.e a tag like bob:charlie/bob, will return as charlie and charlie/bob
   // so we need to search each item for its more information rich partner and remove the 
-  // degenerate item
+  // degenerate item(s) - should probably be fixed upstream eventually
 
   properties_set = set_remove_rich(properties_set);
 
@@ -305,8 +419,7 @@ std::set<std::string> dagmcMetaData::set_remove_rich(std::set<std::string> prope
 	  smallest = i;
 	  len = (*matches[i]).length();
 	}
-      }
-      
+      }      
       // take the longest 
       to_delete.insert(*matches[smallest]);
     }
@@ -318,10 +431,12 @@ std::set<std::string> dagmcMetaData::set_remove_rich(std::set<std::string> prope
     new_set.erase(new_set.find(*it));
   }
 
+  // return the new set
   return new_set;
 }
 
-// 
+// unpack the packed string of the form delimeter<data>delimiter<data>delimiter into 
+// a vector of the form data[0],data[1] etc
 std::vector<std::string> dagmcMetaData::unpack_string(std::string to_unpack, std::string delimiters) {
   // loop through the string to unpack and return a vector of unpacked strings
   std::vector<size_t> locations;
@@ -339,5 +454,6 @@ std::vector<std::string> dagmcMetaData::unpack_string(std::string to_unpack, std
     unpacked_string.push_back(extract);
   }
   
+  // return the vector of strings
   return unpacked_string;
 }

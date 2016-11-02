@@ -28,13 +28,16 @@ class dagmcMetaData {
    // parse the boundary data
    void parse_boundary_data();
    // parse the tally data
-   void parse_tally_data();
+   void parse_tally_surface_data();
+   // parse the tally data
+   void parse_tally_volume_data();
    // finalise the count data
    void finalise_counters();
 
    std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property,
 										   int dimension, 
-										   std::string delimiters );
+										   std::string delimiters,
+										   bool remove_duplicates = true);
 
   std::vector<std::string> remove_duplicate_properties(std::vector<std::string> properties);
 
@@ -57,6 +60,11 @@ class dagmcMetaData {
 
    // surface boundary data, rho: value
    std::map<moab::EntityHandle,std::string> surface_boundary_data_eh;
+
+   // tally map
+   std::map<moab::EntityHandle, std::string> tally_data_eh;
+
+
 
   private:
   moab::DagMC *DAG; // Pointer to DAGMC instance

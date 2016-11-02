@@ -23,6 +23,7 @@ list(APPEND LINK_LIBS pyne_dagmc)
 target_link_libraries(dagmciface_unit_tests ${LINK_LIBS})
 # Install h5m files                                                                                                                     
 install(FILES test_dagmciface.h5m DESTINATION tests)
+install(FILES test_dagmciface_impl.h5m DESTINATION tests)
 
 # Enable unit tests                                                                                                                     
 enable_testing()
