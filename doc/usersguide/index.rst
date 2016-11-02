@@ -10,25 +10,28 @@ codes it supports. Exactly which workflow suits your needs depends on
 which codes you expect to use and how much manual data transfer you
 wish to do.
 
-+---------------------+----------------+----------------+
-| Feature             | Basic Workflow | UW2 Workflow   | 
-+---------------------+----------------+----------------+
-|  MCNP5 Tallies      | Manual         |  Automated     |
-+---------------------+----------------+----------------+
-|  MCNP5 Materials    | Manual         |  Automated     |
-+---------------------+----------------+----------------+
-|  Fluka Tallies      | Manual         |  Automated     |
-+---------------------+----------------+----------------+
-|  Fluka Materials    | Manual         |  Automated     |
-+---------------------+----------------+----------------+
-|  Geant4 Tallies     | None           |  Automated     |
-+---------------------+----------------+----------------+
-|  Geant4 Materials   | None           |  Automated     |
-+---------------------+----------------+----------------+
-|  Tripoli4 Tallies   | Manual         |  None          |
-+---------------------+----------------+----------------+
-|  Tripoli4 Materials | Manual         |  None          |
-+---------------------+----------------+----------------+
++-------------------------+----------------+----------------+
+| Feature                 | UW2 Workflow   | Basic Workflow | 
++-------------------------+----------------+----------------+
+|  Assignment of Metadata | M              |  M             |
++-------------------------+----------------+----------------+
+|  MCNP5 Tallies          | A              |  M             |
++-------------------------+----------------+----------------+
+|  MCNP5 Materials        | A              |  M             |
++-------------------------+----------------+----------------+
+|  Fluka Tallies          | A              |  M             |
++-------------------------+----------------+----------------+
+|  Fluka Materials        | A              |  M             |
++-------------------------+----------------+----------------+
+|  Geant4 Tallies         | A              |  M             |
++-------------------------+----------------+----------------+
+|  Geant4 Materials       | A              |  M             |
++-------------------------+----------------+----------------+
+|  Tripoli4 Tallies       | N              |  None          |
++-------------------------+----------------+----------------+
+|  Tripoli4 Materials     | N              |  None          |
++-------------------------+----------------+----------------+
+N not supported, A automatic production at run time, M manually performed
 
 So, if you are interested in running your geometry in multiple physics 
 packages with minimal effort, the UW2 workflow is your best option
