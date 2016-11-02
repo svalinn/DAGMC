@@ -1,0 +1,20 @@
+Build |DAG-Code|
+~~~~~~~~~~~~~~~~
+
+Use Make to install |DAG-Code|.
+::
+
+    $ make
+    $ make install
+
+If the build was successful, the binaries, libraries, header files, and tests
+will be installed to the ``bin``, ``lib``, ``include``, and ``tests``
+subdirectories of ``$INSTALL_PATH`` respectively.
+
+In order to use DAGMC, make these additions to your paths:
+::
+
+    $ export PATH=$PATH:$INSTALL_PATH/bin
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
+
+Again, it may be wise to add these commands to your ``.bashrc`` file.
