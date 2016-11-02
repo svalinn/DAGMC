@@ -11,7 +11,7 @@ should know that the following will be required:
 4.  Cubit_ or Trelis_, for the creation of geometry
 
 Once you have the basic pre-requisite peices in place you can proceed to the
-DAGMC installation. There are three main parts in the DAGMC installation:
+DAGMC installation. There are three main steps in the DAGMC installation:
 
 ..  toctree::
     :maxdepth: 1
@@ -21,7 +21,7 @@ DAGMC installation. There are three main parts in the DAGMC installation:
     plugin
 
 Having completed the 3 stages of DAGMC installation, you will be ready to run
-DAGMC based radiation transport calculations. The
+DAGMC-based radiation transport calculations. The
 `User's Guide <../usersguide/index.html>`_ will guide you through the workflow
 options available to you.
 

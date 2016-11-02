@@ -38,7 +38,7 @@ of what operations were done to seal the model.
 check_watertight
 ~~~~~~~~~~~~~~~~
 
-The ``check_watertight`` tool can be used to find out how watertight (or not) a
+The ``check_watertight`` tool can be used to find out how watertight a
 given model is. It should be used as a post-processing step after
 ``make_watertight`` to verify that the model has been made more watertight.
 
@@ -48,12 +48,12 @@ given model is. It should be used as a post-processing step after
     $ check_wateright <filename>
 
 Both ``make_watertight``and ``check_watertight`` are built during the main DAGMC
-build procedure.
+build procedure and can be found in DAGMC's `bin` directory.
 
 mbconvert
 ~~~~~~~~~
 
-The mbconvert tool from the MOAB tool is used to translate MOAB meshes into some
+The mbconvert tool is a MOAB tool used to translate MOAB meshes into some
 text based format. It is useful for converting DAGMC models into some other
 visualization form for result post processing, such as stl files for viewing in
 Visit or Paraview. To run mbconvert input option, input filename and output
@@ -72,6 +72,7 @@ The options which control mbconvert are:
     -2  - extract two dimensional entites only e.g. Tri, Quad, etc.
     -3  - extract three dimensional entities only, e.g. tet, hex, etc.
     -h  - print help
+    -f  - list available read/write formats
 
 mklostvis
 ~~~~~~~~~

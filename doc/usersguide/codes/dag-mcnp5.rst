@@ -3,7 +3,7 @@ Code-specific steps for DAG-MCNP5
 
 There are three varieties of code-specific steps for DAG-MCNP5:
 
-1.  Defining attributes of the geometry using Cubit groups
+1.  Defining attributes of the geometry using Cubit/Trelis groups
 2.  Defining DAGMC runtime parameters using the DAGMC input file
 3.  Specifying additional parameters on the command line
 
@@ -42,7 +42,7 @@ If you would like to assign a material to the implicit complement, a special
 procedure is needed. Since the implicit complement doesn't exist before running
 DAGMC, and DAGMC can only recognize groups that contain an entity, the material
 for the implicit complement must be specified as if it were being specified for
-the graveyard volume. For example, if you like the implicit complement to be
+the graveyard volume. For example, if you would like the implicit complement to be
 modeled as material 9 with a density of 1 g/cc, and the graveyard volume is
 volume 102, the following command should be used:
 ::
