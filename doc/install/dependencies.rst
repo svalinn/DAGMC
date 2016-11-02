@@ -13,12 +13,24 @@ The following dependencies are required:
     * `HDF5 <http://www.hdfgroup.org/HDF5>`_
     * `MOAB <http://sigma.mcs.anl.gov/moab-library>`_
 
-Package manager route
-~~~~~~~~~~~~~~~~~~~~~
+For users following the source install route, we assume that you are building DAGMC in the
+subdirectory ``dagmc_bld``of your home directory; i.e.
+::
+
+    $ cd $HOME
+    $ mkdir dagmc_bld
+    $ cd dagmc_bld
 
 LAPACK
 ------
+Source Install
+~~~~~~~~~~~~~~
+If you don't have administrator privileges, refer to the
+`LAPACK website <http://www.netlib.org/lapack>`_ for information on how to build
+LAPACK from source.
 
+Package Manager Install
+~~~~~~~~~~~~~~~~~~~~~~~
 Ubuntu/Debian linux users can install LAPACK with:
 ::
 
@@ -31,38 +43,8 @@ Redhat linux users can do likewise with:
 
 HDF5
 ----
-
-Debian linux users can install the latest HDF5 release with:
-::
-
-    $ sudo apt-get install hdf5-dev
-
-Redhat linux users can do likewise with:
-::
-
-    $ sudo yum install hdf5-dev
-
-Source install route
-~~~~~~~~~~~~~~~~~~~~
-
-This guide assumes that you are building DAGMC in the subdirectory ``dagmc_bld``
-of your home directory; i.e.
-::
-
-    $ cd $HOME
-    $ mkdir dagmc_bld
-    $ cd dagmc_bld
-
-LAPACK
-------
-
-If you don't have administrator privileges, refer to the
-`LAPACK website <http://www.netlib.org/lapack>`_ for information on how to build
-LAPACK from source.
-
-HDF5
-----
-
+Source Install
+~~~~~~~~~~~~~~
 If electing to install HDF5 from source. The tarball containing the HDF5
 source code can also be downloaded from the `HDF5 website <https://support.hdfgroup.org/HDF5>`_.
 Note that if you choose this option, we recommend you obtain HDF5 version 1.8.13
@@ -82,10 +64,20 @@ HDF5 from source.
     $ make check
     $ make install
 
+Package Manager Install
+~~~~~~~~~~~~~~~~~~~~~~~
+Debian linux users can install the latest HDF5 release with:
+::
+
+    $ sudo apt-get install hdf5-dev
+
+Redhat linux users can do likewise with:
+::
+
+    $ sudo yum install hdf5-dev
 
 MOAB installation
-~~~~~~~~~~~~~~~~~
-
+-----------------
 As of DAGMC version 2.0, MOAB version 4.9.2 or higher is required. The following
 commands can be used to download MOAB from its `source repository
 <https://bitbucket.org/fathomteam/moab>`_ and set it up for building.
@@ -105,9 +97,9 @@ The command ``git checkout master`` is redundant but is included here for
 completeness. If you would prefer to use a specific version instead of the
 master branch, e.g. version 4.9.2, use ``git checkout Version4.9.2`` instead.
 
-
-The following commands should be used to build MOAB.
-Note that the ``--enable-dagmc`` configure option is required.
+If you have followed the source install route, then the following commands 
+should be used to build MOAB. Note that the ``--enable-dagmc`` configure option 
+is required.
 ::
 
     $ cd bld
@@ -121,9 +113,25 @@ Note that the ``--enable-dagmc`` configure option is required.
     $ make check
     $ make install
 
-Making sure the dependencies were installed correctly
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you have followed the package manager install route, then the following commands 
+should be used to build MOAB. Note that the ``--enable-dagmc`` configure option 
+is required.
+::
 
+    $ cd bld
+    $ ../src/configure --enable-dagmc \
+                       --enable-optimize \
+                       --enable-shared \
+                       --disable-debug \
+                       --with-hdf5 \
+                       --prefix=$HOME/dagmc_bld/MOAB
+    $ make
+    $ make check
+    $ make install
+
+
+Making sure the dependencies were installed correctly
+-----------------------------------------------------
 If you installed HDF5 from source, you will need to make sure the system can
 find it when it comes time to build DAGMC. This is done by adding some
 directories to your ``$PATH`` and ``$LD_LIBRARY_PATH``. (This is not required if

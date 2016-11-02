@@ -31,7 +31,8 @@ wish to do.
 +-------------------------+----------------+----------------+
 |  Tripoli4 Materials     | N              |  None          |
 +-------------------------+----------------+----------------+
-N not supported, A automatic production at run time, M manually performed
+
+**N** not supported, **A** automatic production at run time, **M** manually performed
 
 So, if you are interested in running your geometry in multiple physics 
 packages with minimal effort, the UW2 workflow is your best option
