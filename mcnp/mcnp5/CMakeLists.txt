@@ -44,10 +44,19 @@ endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 message(STATUS "DAG-MCNP5 version ${MCNP_VERSION} source files found")
 
 # C compiler flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+if (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
+  #set(CMAKE_C_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=medium")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pc64")
+else ()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+endif (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
 
 # Fortran compiler flags
 if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -no-vec")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -heap-arrays 1024")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -traceback")
+  #set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=medium")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -pc64")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -r8")
 else()
@@ -61,6 +70,11 @@ else()
   if (LIB_TYPE STREQUAL STATIC)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wl,--allow-multiple-definition")
   endif (LIB_TYPE STREQUAL STATIC)
+endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+
+# Linker flags
+if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel")
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
 # Preprocessor directives
@@ -157,6 +171,11 @@ target_link_libraries(${MCNP_EXEC} ${DAG_LINK_LIBS})
 target_link_libraries(${MCNP_EXEC} dagmciface)
 target_link_libraries(${MCNP_EXEC} dagtally)
 target_link_libraries(${MCNP_EXEC} pyne_dagmc)
+if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+  set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "stdc++")
+  set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "stdc++")
+  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
+endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
 # Install DAG-MCNP5
 install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR}
