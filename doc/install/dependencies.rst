@@ -95,14 +95,10 @@ commands can be used to download MOAB from its `source repository
     $ cd MOAB
     $ git clone https://bitbucket.org/fathomteam/moab
     $ cd moab
-    $ git checkout master
+    $ git checkout Version4.9.2
     $ autoreconf -fi
     $ cd ..
     $ ln -s moab src
-
-The command ``git checkout master`` is redundant but is included here for
-completeness. If you would prefer to use a specific version instead of the
-master branch, e.g. version 4.9.2, use ``git checkout Version4.9.2`` instead.
 
 If you have followed the source install route, then the following commands
 should be used to build MOAB. Note that the ``--enable-dagmc`` configure option
