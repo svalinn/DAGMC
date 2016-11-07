@@ -1038,39 +1038,15 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
     // If all of the curves are merged, remove the surfaces facets.
     if(unmerged_curve_sets.empty()) {
 
-      // if this surface is the sole child of one of its parent volumes, it is closed, and contains triangles
+      // if this surface is closed and contains triangles
       // then we will leave it alone but continue as we normally would
-
-      //retrieve parent volumes
-      std::vector<moab::EntityHandle> parent_volumes;
-      result = MBI()->get_parent_meshsets( *i, parent_volumes);
-      MB_CHK_SET_ERR(result,"could not get the surface's parent meshsets");
-
-      //check each parent volume
-      bool keep_vol = false;
-      std::vector<moab::EntityHandle>::iterator j;
-      for( j = parent_volumes.begin(); j != parent_volumes.end(); j++) {
-        moab::EntityHandle parent_vol = *j;
-        std::vector<moab::EntityHandle> child_surfs;
-        result = MBI()->get_child_meshsets(parent_vol, child_surfs);
-        MB_CHK_SET_ERR(result, "could not get the child surfaces of the volume");
-
-        // check if surface is only child
-        if( child_surfs.size() == 1 && child_surfs[0] == *i ) {
-          moab::Range skin_edges;
-          //verify that the surface is closed
-          result = gen->find_skin( tris, 1, skin_edges, false);
-          MB_CHK_SET_ERR(result, "could not skin the triangles");
-          // if the surface is closed, change this indicator
-          if( skin_edges.size() == 0 ) {
-            keep_vol = true;
-          }
-        }
-      }
-
-      // if we've decided to keep this volume, then move on
-      if(keep_vol) {
-        continue;
+      //verify that the surface is closed
+      moab::Range skin_edges;
+      result = gen->find_skin( tris, 1, skin_edges, false);
+      MB_CHK_SET_ERR(result, "could not skin the triangles");
+      // if the surface is closed, continue to next surface
+      if(tris.size() != 4 && skin_edges.size() == 0 && curve_sets.empty()) {
+	continue;
       }
 
       result = gen->delete_surface( *i , geom_tag, tris, surf_id, debug, verbose);
