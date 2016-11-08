@@ -1046,7 +1046,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
       MB_CHK_SET_ERR(result, "could not skin the triangles");
       // if the surface is closed, continue to next surface
       if(tris.size() != 4 && skin_edges.size() == 0 && curve_sets.empty()) {
-	continue;
+        continue;
       }
 
       result = gen->delete_surface( *i , geom_tag, tris, surf_id, debug, verbose);
