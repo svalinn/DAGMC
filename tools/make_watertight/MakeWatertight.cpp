@@ -989,6 +989,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
 {
 
   moab::ErrorCode result;
+  moab::Skinner tool(MBI());
   // loop over each surface meshset
   for(moab::Range::iterator i=surface_sets.begin(); i!=surface_sets.end(); i++ ) {
 
@@ -1041,12 +1042,14 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
       // if this surface is closed and contains triangles
       // then we will leave it alone but continue as we normally would
       //verify that the surface is closed
-      moab::Range skin_edges;
-      result = gen->find_skin( tris, 1, skin_edges, false);
-      MB_CHK_SET_ERR(result, "could not skin the triangles");
-      // if the surface is closed, continue to next surface
-      if(tris.size() != 4 && skin_edges.size() == 0 && curve_sets.empty()) {
-        continue;
+      moab::Range temp_skin_edges;
+      if( tris.size() >= 4 && curve_sets.empty() ) {
+        result = tool.find_skin(0, tris, 1, temp_skin_edges, false);
+        MB_CHK_SET_ERR(result, "could not skin the triangles");
+        // if the surface is closed, continue to next surface
+        if(temp_skin_edges.empty()) {
+          continue;
+        }
       }
 
       result = gen->delete_surface( *i , geom_tag, tris, surf_id, debug, verbose);
@@ -1073,7 +1076,6 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
     assert(0 == n_edges); //*** Why can't we have edges? (Also, this assertion is never used)
 
     // get the range of skin edges from the range of facets
-    moab::Skinner tool(MBI());
     moab::Range skin_edges, skin_edges2;
     if(tris.empty()) continue; // nothing to zip
     // The MOAB skinner is not used here currently as it doesn't allow
