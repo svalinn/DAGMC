@@ -2,52 +2,31 @@
 // Brandon Smith
 // August, 2009
 
-/* _curve_to_be_tested_for_watertightness_
-      vert1 X X vert1
-            | |
-      vert2 X |
-  surf1     | |    surf2
-            | |
-      vert3 X X vert2
-            | |
-      vert4 X X vert3                   */
-
 // input:  h5m filename, tolerance
 // output: watertight h5m
 
 // make CXXFLAGS=-g for debug
 // make CXXFLAGS=-pg for profiling
 
-// modified by Andrew Davis 2012
-// Updated deprecated MOAB calls
-
 #include <iostream>
 #include <sstream>
-#include <iomanip> // for setprecision
-#include <limits> // for min/max values
+#include <iomanip>
+#include <limits>
 #include <assert.h>
 #include <math.h>
 #include <time.h>
 #include <vector>
 
+// moab includes
 #include "moab/Core.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
 #include "moab/GeomTopoTool.hpp"
 
-#include "mw_func.hpp"
-#include "gen.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
-#include "cleanup.hpp"
+#include "MakeWatertight.hpp"
 
-
-
-moab::Interface *MOAB();
-moab::ErrorCode write_sealed_file( std::string root_filename, double facet_tol, bool is_acis);
-
-
+moab::ErrorCode write_sealed_file( moab::Interface* mbi, std::string root_filename, double facet_tol, bool is_acis);
 
 int main(int argc, char **argv)
 {
@@ -58,6 +37,8 @@ int main(int argc, char **argv)
 
   clock_t start_time = clock();
 
+  static moab::Core instance;
+  moab::Interface* mbi = &instance;
 
   // check input args
   if( 2 > argc || 3 < argc ) {
@@ -81,11 +62,9 @@ int main(int argc, char **argv)
   moab::ErrorCode result, rval;
   moab::EntityHandle input_set;
 
-  rval = MBI()->create_meshset( moab::MESHSET_SET, input_set );
+  rval = mbi->create_meshset( moab::MESHSET_SET, input_set );
 
-  if(gen::error(moab::MB_SUCCESS!=rval,"failed to create_meshset")) {
-    return rval;
-  }
+  MB_CHK_SET_ERR(rval,"failed to create_meshset");
 
   std::cout << "Loading input file..." << std::endl;
 
@@ -94,28 +73,25 @@ int main(int argc, char **argv)
   // argument.
 
   if(std::string::npos!=input_name.find("h5m") && (2==argc)) {
-    rval = MBI()->load_file( input_name.c_str(), &input_set );
-    if(gen::error(moab::MB_SUCCESS!=rval,"failed to load_file 0")) {
-      return rval;
-    }
-
+    rval = mbi->load_file( input_name.c_str(), &input_set );
+    MB_CHK_SET_ERR(rval,"failed to load_file 0");
     is_acis = false;
-
   }
   //loading completed at this point
   clock_t load_time = clock();
   //seal the input mesh set
   double facet_tol;
-  result= mw_func::make_mesh_watertight(input_set, facet_tol);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not make model watertight")) return result;
+  MakeWatertight mw(mbi);
+  result= mw.make_mesh_watertight(input_set, facet_tol);
+  MB_CHK_SET_ERR(result, "could not make model watertight");
 
 
   //write file
   clock_t zip_time = clock();
   std::cout << "Writing zipped file..." << std::endl;
-  write_sealed_file( root_name, facet_tol, is_acis);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not write the sealed mesh to a new file"))
-    return result;
+  write_sealed_file( mbi, root_name, facet_tol, is_acis);
+  MB_CHK_SET_ERR(result, "could not write the sealed mesh to a new file");
+
 
   clock_t write_time = clock();
   std::cout << "Timing(seconds): loading="
@@ -126,13 +102,7 @@ int main(int argc, char **argv)
   return 0;
 }
 
-moab::Interface *MBI()
-{
-  static moab::Core instance;
-  return &instance;
-}
-
-moab::ErrorCode write_sealed_file( std::string root_filename, double facet_tol, bool is_acis)
+moab::ErrorCode write_sealed_file( moab::Interface* mbi, std::string root_filename, double facet_tol, bool is_acis)
 {
 
   moab::ErrorCode result;
@@ -144,7 +114,7 @@ moab::ErrorCode write_sealed_file( std::string root_filename, double facet_tol, 
   } else {
     output_filename = root_filename + "_zip.h5m";
   }
-  result = MBI()->write_mesh( output_filename.c_str() );
+  result = mbi->write_mesh( output_filename.c_str() );
   if (moab::MB_SUCCESS != result) std::cout << "result= " << result << std::endl;
   assert(moab::MB_SUCCESS == result);
 

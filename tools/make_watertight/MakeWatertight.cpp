@@ -8,68 +8,55 @@
 // make CXXFLAGS=-g for debug
 // make CXXFLAGS=-pg for profiling
 
-
-
-
 #include <iostream>
 #include <sstream>
-#include <iomanip> // for setprecision
-#include <limits> // for min/max values
+#include <iomanip>
+#include <limits>
 #include <assert.h>
 #include <math.h>
 #include <time.h>
 #include <vector>
 
+// moab includes
 #include "moab/Core.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
 #include "moab/GeomTopoTool.hpp"
 
-#include "mw_func.hpp"
-#include "gen.hpp"
-#include "arc.hpp"
-#include "zip.hpp"
-#include "cleanup.hpp"
+#include "MakeWatertight.hpp"
+#include "Arc.hpp"
+#include "Zip.hpp"
+#include "Cleanup.hpp"
 
 
-
-
-
-moab::Interface *MOAB();
-
-namespace mw_func
-{
-
-
-
-moab::ErrorCode delete_all_edges()
+moab::ErrorCode MakeWatertight::delete_all_edges()
 {
   // delete all of the edges. Never keep edges. They are too hard to track and use
   // due to orientation and multiple entities errors when merging.
   moab::ErrorCode result;
   moab::Range edges;
   result = MBI()->get_entities_by_type( 0, moab::MBEDGE, edges );
-  if(gen::error(moab::MB_SUCCESS!=result,"could not get edges")) return result;
+  MB_CHK_SET_ERR(result,"could not get edges");
   assert(moab::MB_SUCCESS == result);
   result = MBI()->delete_entities( edges );
-  if(gen::error(moab::MB_SUCCESS!=result,"could not delete edges")) return result;
+  MB_CHK_SET_ERR(result,"could not delete edges");
   assert(moab::MB_SUCCESS == result);
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode find_degenerate_tris()
+moab::ErrorCode MakeWatertight::find_degenerate_tris()
 {
   moab::ErrorCode result;
   moab::Range tris;
   result = MBI()->get_entities_by_type( 0, moab::MBTRI, tris );
-  if(gen::error(moab::MB_SUCCESS!=result,"could not get tris")) return result;
+  MB_CHK_SET_ERR(result,"could not get tris");
   assert(moab::MB_SUCCESS == result);
   int counter = 0;
   for(moab::Range::const_iterator i=tris.begin(); i!=tris.end(); ++i) {
-    if( gen::triangle_degenerate(*i) ) {
+    if( gen->triangle_degenerate(*i) ) {
       result = MBI()->list_entity(*i);
-      if(gen::error(moab::MB_SUCCESS!=result,"found degenerate tri")) return result;
+      MB_CHK_SET_ERR(result,"found degenerate tri");
       assert(moab::MB_SUCCESS == result);
       ++counter;
     }
@@ -84,9 +71,9 @@ moab::ErrorCode find_degenerate_tris()
 //        edges and vertices. Parents sets are surfaces. Child sets are endpoint
 //        vertices.
 // Output: Ordered sets of verts that do track ownership. All edges are deleted.
-moab::ErrorCode prepare_curves(moab::Range &curve_sets,
-                               moab::Tag geom_tag, moab::Tag id_tag, moab::Tag merge_tag,
-                               const double FACET_TOL, const bool debug, bool verbose )
+moab::ErrorCode MakeWatertight::prepare_curves(moab::Range &curve_sets,
+    moab::Tag geom_tag, moab::Tag id_tag, moab::Tag merge_tag,
+    const double FACET_TOL, const bool debug, bool verbose )
 {
   moab::ErrorCode result;
   if (verbose) std::cout << "Modifying faceted curve representation and removing small curves..."
@@ -97,72 +84,76 @@ moab::ErrorCode prepare_curves(moab::Range &curve_sets,
     // get the curve id of the curve meshset
     int id;
     result = MBI()->tag_get_data( id_tag, &(*i), 1, &id );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not get id tag")) return result;
+    MB_CHK_SET_ERR(result,"could not get id tag");
     if(debug) std::cout << "curve " << id << std::endl;
 
     // get the range of edges of the curve meshset
     std::vector<moab::EntityHandle> curve_edges;
     result = MBI()->get_entities_by_type( *i, moab::MBEDGE, curve_edges );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not get curve_edges")) return result;
+    MB_CHK_SET_ERR(result,"could not get curve_edges");
 
     /* Merge the endpoints of the curve and remove its edges if it is too small.
     Use the MERGE_TOL because these edges will be merged with the MERGE_TOL
     during zipping anyhow. Doing this now removes small curves from zipping and
     reduces ambiguity. */
-    if(FACET_TOL > gen::length(curve_edges)) {
+    if(FACET_TOL > gen->length(curve_edges)) {
       if (debug) {
-        std::cout << "  deleted curve " << id << ", length=" << gen::length(curve_edges)
+        std::cout << "  deleted curve " << id << ", length=" << gen->length(curve_edges)
                   << " cm, n_verts=" << curve_edges.size()+1 << std::endl;
       }
       // get the endpoints of the curve
       moab::Range endpt_sets;
       result = MBI()->get_child_meshsets( *i, endpt_sets );
-      if(gen::error(moab::MB_SUCCESS!=result,"could not get curve child sets")) return result;
+      MB_CHK_SET_ERR(result,"could not get curve child sets");
 
       if(endpt_sets.empty()) {
-        if(gen::error(true,"curve has no child sets")) return result;
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"curve has no child sets");
       } else if(1 == endpt_sets.size()) {
         // The edges are no longer needed. Remove them before altering the range
         // by deleting degenerate edges below.
         result = MBI()->delete_entities( &curve_edges[0], curve_edges.size() );
-        if(gen::error(moab::MB_SUCCESS!=result,"could not delete edges")) return result;
+        MB_CHK_SET_ERR(result,"could not delete edges");
 
       } else if(2 == endpt_sets.size()) {
         // The edges are no longer needed. Remove them before altering the range
         // by deleting degenerate edges below.
         result = MBI()->delete_entities( &curve_edges[0], curve_edges.size() );
-        if(gen::error(moab::MB_SUCCESS!=result,"could not delete edges")) return result;
+        MB_CHK_SET_ERR(result,"could not delete edges");
 
         moab::Range front_endpt, back_endpt;
         result = MBI()->get_entities_by_type( endpt_sets.front(), moab::MBVERTEX, front_endpt);
-        if(gen::error(moab::MB_SUCCESS!=result,"could not get vert from front endpt set")) return result;
-        if(gen::error(1!=front_endpt.size(),"front endpt set does not have 1 vert")) return result;
+        MB_CHK_SET_ERR(result,"could not get vert from front endpt set");
+        if(1!=front_endpt.size()) {
+          MB_CHK_SET_ERR(moab::MB_FAILURE,"front endpt set does not have 1 vert");
+        }
 
         result = MBI()->get_entities_by_type( endpt_sets.back(), moab::MBVERTEX, back_endpt);
-        if(gen::error(moab::MB_SUCCESS!=result,"could not get vert from back endpt set")) return result;
-        if(gen::error(1!=back_endpt.size(),"back endpt set does not have 1 vert")) return result;
+        MB_CHK_SET_ERR(result,"could not get vert from back endpt set");
+        if(1!=back_endpt.size()) {
+          MB_CHK_SET_ERR(moab::MB_FAILURE,"back endpt set does not have 1 vert");
+        }
 
         // merge the endpoints-ALWAYS CHECK TO AVOID MERGING THE SAME ENTITY!!!
         if(front_endpt[0] != back_endpt[0]) {
           std::vector<moab::EntityHandle> temp;
-          result = zip::merge_verts( front_endpt.front(), back_endpt.front(), temp, temp );
-          if(gen::error(moab::MB_SUCCESS!=result,"could not merge verts")) return result;
+          result = zip->merge_verts( front_endpt.front(), back_endpt.front(), temp, temp );
+          MB_CHK_SET_ERR(result,"could not merge verts");
 
           // check for and remove degenerate edges caused by the merge
           moab::Range edges;
           moab::EntityHandle temp_pt = front_endpt[0];
           result = MBI()->get_adjacencies( &temp_pt, 1, 1, false, edges);
-          if(gen::error(moab::MB_SUCCESS!=result,"could not get adj edges")) return result;
+          MB_CHK_SET_ERR(result,"could not get adj edges");
 
           for(moab::Range::iterator j=edges.begin(); j!=edges.end(); j++) {
             const moab::EntityHandle *conn;
             int n_verts;
             result = MBI()->get_connectivity( *j, conn, n_verts);
-            if(gen::error(moab::MB_SUCCESS!=result,"could not get edge conn")) return result;
+            MB_CHK_SET_ERR(result,"could not get edge conn");
 
             if(conn[0] == conn[1]) {
               result = MBI()->delete_entities( &(*j), 1 );
-              if(gen::error(moab::MB_SUCCESS!=result,"could not delete degenerate edge")) return result;
+              MB_CHK_SET_ERR(result,"could not delete degenerate edge");
             }
           }
         }
@@ -174,29 +165,29 @@ moab::ErrorCode prepare_curves(moab::Range &curve_sets,
 
       // Remove the curve set. This also removes parent-child relationships.
       result = MBI()->delete_entities( &(*i), 1);
-      if(gen::error(moab::MB_SUCCESS!=result,"could not delete curve set")) return result;
+      MB_CHK_SET_ERR(result,"could not delete curve set");
       i = curve_sets.erase(i) - 1;
     } else {
 
       // convert the curve of edges into a curve of verts
       std::vector<moab::EntityHandle> ordered_verts;
-      result = gen::ordered_verts_from_ordered_edges( curve_edges, ordered_verts);
-      if(gen::error(moab::MB_SUCCESS!=result,"could not order_verts_by_edge")) return result;
+      result = gen->ordered_verts_from_ordered_edges( curve_edges, ordered_verts);
+      MB_CHK_SET_ERR(result,"could not order_verts_by_edge");
 
       // replace the unordered edges with the ordered verts
-      result = arc::set_meshset( *i, ordered_verts );
-      if(gen::error(moab::MB_SUCCESS!=result,"could not set_meshset")) return result;
+      result = arc->set_meshset( *i, ordered_verts );
+      MB_CHK_SET_ERR(result,"could not set_meshset");
 
       // The edges are no longer needed.
       result = MBI()->delete_entities( &curve_edges[0], curve_edges.size() );
-      if(gen::error(moab::MB_SUCCESS!=result,"could not delete edges")) return result;
+      MB_CHK_SET_ERR(result,"could not delete edges");
     }
   }
 
   // merge curves that are the same within facet_tol
   if (verbose) std::cout << "Identifying coincident curves to be merged..." << std::endl;
-  result = arc::merge_curves(curve_sets, FACET_TOL, id_tag, merge_tag, debug );
-  if(gen::error(moab::MB_SUCCESS!=result,"could not merge_curves")) return result;
+  result = arc->merge_curves(curve_sets, FACET_TOL, id_tag, merge_tag, debug );
+  MB_CHK_SET_ERR(result,"could not merge_curves");
 
   return moab::MB_SUCCESS;
 }
@@ -210,16 +201,16 @@ moab::ErrorCode prepare_curves(moab::Range &curve_sets,
 /// Cut an arc out of the skin. Return a corresponding curve, the curve's set, and
 /// is the curve has ben reversed. The returned skin has the arc cut away. The
 /// returned vector of curve sets has the curve removed.
-moab::ErrorCode create_arc_pair(  const double FACET_TOL,
-                                  const moab::EntityHandle surf_set,
-                                  std::vector<moab::EntityHandle> &skin_loop,
-                                  std::vector<moab::EntityHandle> &curve_sets,
-                                  const moab::EntityHandle front_endpt,
-                                  const bool debug,
-                                  moab::EntityHandle &curve_set,
-                                  bool &curve_is_reversed,
-                                  std::vector<moab::EntityHandle> &curve,
-                                  std::vector<moab::EntityHandle> &skin_arc )
+moab::ErrorCode MakeWatertight::create_arc_pair(  const double FACET_TOL,
+    const moab::EntityHandle surf_set,
+    std::vector<moab::EntityHandle> &skin_loop,
+    std::vector<moab::EntityHandle> &curve_sets,
+    const moab::EntityHandle front_endpt,
+    const bool debug,
+    moab::EntityHandle &curve_set,
+    bool &curve_is_reversed,
+    std::vector<moab::EntityHandle> &curve,
+    std::vector<moab::EntityHandle> &skin_arc )
 {
 
   /* Now we have a topological connection between the curve and skin. Find other
@@ -246,18 +237,21 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
     // get geometric vertex sets
     moab::Range endpt_sets;
     rval = MBI()->get_child_meshsets(curve_sets[i], endpt_sets );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get endpt_sets")) return rval;
-    if(gen::error(endpt_sets.empty() || 2<endpt_sets.size(),
-                  "too many endpt_sets")) return moab::MB_FAILURE;
+    MB_CHK_SET_ERR(rval,"could not get endpt_sets");
+    if(endpt_sets.empty() || 2<endpt_sets.size()) {
+      MB_CHK_SET_ERR(moab::MB_FAILURE,"too many endpt_sets");
+    }
     // get the vertex handles
     std::vector<moab::EntityHandle> endpts;
     for(unsigned j=0; j<endpt_sets.size(); ++j) {
       moab::Range endpt;
       rval = MBI()->get_entities_by_type( endpt_sets[j], moab::MBVERTEX, endpt );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get endpt")) return rval;
-      if(gen::error(1!=endpt.size(),"not one endpt")) return moab::MB_FAILURE;
+      MB_CHK_SET_ERR(rval,"could not get endpt");
+      if(1!=endpt.size()) {
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"not one endpt");
+      }
       endpts.push_back( endpt.front() );
-      if(debug) std::cout << "curve " << gen::geom_id_by_handle(curve_sets[i])
+      if(debug) std::cout << "curve " << gen->geom_id_by_handle(curve_sets[i])
                             << " endpt=" << endpt.front() << std::endl;
     }
 
@@ -266,34 +260,33 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
 
     // get the point representation
     std::vector<moab::EntityHandle> temp_curve;
-    rval = arc::get_meshset( curve_sets[i], temp_curve );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get curve set")) return rval;
-    //if(gen::error(2>temp_curve.size(),"curve is degenerate")) return moab::MB_FAILURE;
+    rval = arc->get_meshset( curve_sets[i], temp_curve );
+    MB_CHK_SET_ERR(rval,"could not get curve set");
     if(2>temp_curve.size()) std::cout << "warning11: curve is degenerate" << std::endl;
     if(debug) {
-      std::cout << "  adj curve " << gen::geom_id_by_handle(curve_sets[i]) << ":" << std::endl;
-      //gen::print_loop( temp_curve );
+      std::cout << "  adj curve " << gen->geom_id_by_handle(curve_sets[i]) << ":" << std::endl;
+      //gen->print_loop( temp_curve );
     }
 
     // Get the curve-surface relative sense. From CGMA/builds/dbg/include/CubitDefines,
 
     int sense;
     if(debug) {
-      std::cout << "surf_set = " << gen::geom_id_by_handle(surf_set) << std::endl;
-      std::cout << "curve_set = " << gen::geom_id_by_handle(curve_sets[i]) << std::endl;
+      std::cout << "surf_set = " << gen->geom_id_by_handle(surf_set) << std::endl;
+      std::cout << "curve_set = " << gen->geom_id_by_handle(curve_sets[i]) << std::endl;
     }
-    rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
+    rval = gen->get_curve_surf_sense( surf_set, curve_sets[i], sense );
+    MB_CHK_SET_ERR(rval,"could not get_curve_surf_sense");
 
     // get the curve length, for efficient find_closest_vert, plus a tolerance.
     // This also helps to find the correct skin arc in special (~1D surfs) cases
     // where the closest skin pt is not the correct skin.
-    const double temp_curve_len = gen::length(temp_curve);
+    const double temp_curve_len = gen->length(temp_curve);
     const double extra = 1.0;
 
     // is it forward oriented? To allow for ambiguous cases, instead of accepting
     // only forward-oriented curves, only reject reverse-oriented curves.
-    if(front_endpt==temp_curve.front() && SENSE_REVERSE!=sense) {
+    if(front_endpt==temp_curve.front() && moab::SENSE_REVERSE!=sense) {
       // find the closest skin pt to the curve endpt
       unsigned pos;
       // if only one curve is left, take the entire skin. Otherwise, due to
@@ -301,8 +294,8 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
       if(1==curve_sets.size()) {
         pos = skin_loop.size()-1;
       } else {
-        rval = gen::find_closest_vert( temp_curve.back(), skin_loop, pos, temp_curve_len+extra );
-        if(gen::error(moab::MB_SUCCESS!=rval,"could not find_closest_vert")) return rval;
+        rval = gen->find_closest_vert( temp_curve.back(), skin_loop, pos, temp_curve_len+extra );
+        MB_CHK_SET_ERR(rval,"could not find_closest_vert");
       }
       if(debug) std::cout << "  end of skin arc=" << skin_loop[pos] << std::endl;
       // SPECIAL CASE: If the skin is a circle, create an arc out of the circle
@@ -311,8 +304,8 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
       // create a skin arc to test against the curve
       std::vector<moab::EntityHandle> temp_skin(skin_loop.begin(), skin_loop.begin()+pos+1);
       double d;
-      rval = gen::dist_between_arcs( debug, temp_skin, temp_curve, d );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get dist_between_arcs")) return rval;
+      rval = gen->dist_between_arcs( debug, temp_skin, temp_curve, d );
+      MB_CHK_SET_ERR(rval,"could not get dist_between_arcs");
       if(debug) std::cout << " curve-skin dist=" << d << std::endl;
 
       // if less than the min_dist, this curve is the best (thus far)
@@ -327,7 +320,7 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
       }
     }
     // is it reverse oriented?
-    if(front_endpt==temp_curve.back() && SENSE_FORWARD!=sense) {
+    if(front_endpt==temp_curve.back() && moab::SENSE_FORWARD!=sense) {
       reverse( temp_curve.begin(), temp_curve.end() );
       // find the closest skin pt to the curve endpt
       unsigned pos;
@@ -336,8 +329,8 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
       if(1==curve_sets.size()) {
         pos = skin_loop.size()-1;
       } else {
-        rval = gen::find_closest_vert( temp_curve.back(), skin_loop, pos, temp_curve_len+extra );
-        if(gen::error(moab::MB_SUCCESS!=rval,"could not find_closest_vert")) return rval;
+        rval = gen->find_closest_vert( temp_curve.back(), skin_loop, pos, temp_curve_len+extra );
+        MB_CHK_SET_ERR(rval,"could not find_closest_vert");
       }
       if(debug) std::cout << "  end of skin arc=" << skin_loop[pos] << std::endl;
       // SPECIAL CASE: If the skin is a circle, create an arc out of the circle
@@ -346,8 +339,8 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
       // create a skin arc to test against the curve
       std::vector<moab::EntityHandle> temp_skin(skin_loop.begin(), skin_loop.begin()+pos+1);
       double d;
-      rval = gen::dist_between_arcs( debug, temp_skin, temp_curve, d );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get dist_between_arcs")) return rval;
+      rval = gen->dist_between_arcs( debug, temp_skin, temp_curve, d );
+      MB_CHK_SET_ERR(rval,"could not get dist_between_arcs");
       if(debug) std::cout << " curve-skin dist=" << d << std::endl;
 
       // if less than the min_dist, this curve is the best (thus far)
@@ -367,7 +360,7 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
   if(0==curve_set) {
     std::cout << "      no adjacent curve found" << std::endl;
     for(unsigned i=0; i<curve_sets.size(); ++i) {
-      std::cout << "  curve " << gen::geom_id_by_handle(curve_sets[i])
+      std::cout << "  curve " << gen->geom_id_by_handle(curve_sets[i])
                 << " is unsealed" << std::endl;
     }
     return moab::MB_FAILURE;
@@ -391,7 +384,7 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
   // of the remaining skin_loop. If a single point remains, remove it.
   if(1==skin_loop.size()) skin_loop.clear();
 
-  if(debug) std::cout << "  curve " << gen::geom_id_by_handle(curve_set)
+  if(debug) std::cout << "  curve " << gen->geom_id_by_handle(curve_set)
                         << " paired with skin, min_dist =" << min_dist << std::endl;
   return moab::MB_SUCCESS;
 }
@@ -405,25 +398,25 @@ moab::ErrorCode create_arc_pair(  const double FACET_TOL,
 //  -Instead of altering the skin and curve vectors, make them const. Put the
 // sealed curve in a new vector, using only push_back. This
 // would avoid all of the really slow inserts and erases in the curve and skin vectors.
-moab::ErrorCode seal_arc_pair( const bool debug,
-                               const double FACET_TOL,
-                               const moab::Tag normal_tag,
-                               std::vector<moab::EntityHandle> &edge, /* in */
-                               std::vector<moab::EntityHandle> &skin /* in/out */,
-                               const int surf_id )
+moab::ErrorCode MakeWatertight::seal_arc_pair( const bool debug,
+    const double FACET_TOL,
+    const moab::Tag normal_tag,
+    std::vector<moab::EntityHandle> &edge, /* in */
+    std::vector<moab::EntityHandle> &skin /* in/out */,
+    const int surf_id )
 {
   if(debug) {
     std::cout << "edge before sealing:" << std::endl;
-    gen::print_loop(edge);
+    gen->print_loop(edge);
     std::cout << "skin before sealing:" << std::endl;
-    gen::print_loop(skin);
+    gen->print_loop(skin);
   }
 
   moab::ErrorCode rval;
   const double TOL_SQR = FACET_TOL*FACET_TOL;
-  if(gen::error(edge.empty() || skin.empty(),"edge or skin has no verts"))
-    return moab::MB_FAILURE;
-
+  if(edge.empty() || skin.empty()) {
+    MB_CHK_SET_ERR(moab::MB_FAILURE,"edge or skin has no verts");
+  }
 
   //**************************************************************************
   // Merge the front of the skin to the front of the curve
@@ -433,8 +426,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
     moab::EntityHandle delete_vert = skin.front();
     if(keep_vert != delete_vert) {
       double merge_dist;
-      rval = gen::dist_between_verts( keep_vert, delete_vert, merge_dist );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get merge_dist g")) return rval;
+      rval = gen->dist_between_verts( keep_vert, delete_vert, merge_dist );
+      MB_CHK_SET_ERR(rval,"could not get merge_dist g");
       if(debug) {
         std::cout << "  merged skin_vert=" << delete_vert << " to edge_vert=" << keep_vert
                   << " merge_dist=" << merge_dist << std::endl;
@@ -442,8 +435,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
       if(FACET_TOL < merge_dist) {
         std::cout << "  warning0: front pt merge_dist=" << merge_dist << std::endl;
       }
-      rval = zip::merge_verts( keep_vert, delete_vert, skin, edge );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not merge verts g")) return rval;
+      rval = zip->merge_verts( keep_vert, delete_vert, skin, edge );
+      MB_CHK_SET_ERR(rval,"could not merge verts g");
     }
   }
 
@@ -455,8 +448,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
     moab::EntityHandle delete_vert = skin.back();
     if(keep_vert != delete_vert) {
       double merge_dist;
-      rval = gen::dist_between_verts( keep_vert, delete_vert, merge_dist );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get merge_dist h")) return rval;
+      rval = gen->dist_between_verts( keep_vert, delete_vert, merge_dist );
+      MB_CHK_SET_ERR(rval,"could not get merge_dist h");
       if(debug) {
         std::cout << "  merged skin_vert=" << delete_vert << " to edge_vert=" << keep_vert
                   << " merge_dist=" << merge_dist << std::endl;
@@ -466,8 +459,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
                   << merge_dist << std::endl;
         if(1000*FACET_TOL < merge_dist) return moab::MB_FAILURE;
       }
-      rval = zip::merge_verts( keep_vert, delete_vert, skin, edge );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not merge verts g")) return rval;
+      rval = zip->merge_verts( keep_vert, delete_vert, skin, edge );
+      MB_CHK_SET_ERR(rval,"could not merge verts g");
     }
   }
 
@@ -483,10 +476,10 @@ moab::ErrorCode seal_arc_pair( const bool debug,
     // Special Case: Through merging, a curve may have only a single vertex
     if(e_pos==edge.size() || s_pos==skin.size()) break;
 
-    rval = gen::squared_dist_between_verts( edge[e_pos-1], edge[e_pos], e_dist );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get e_dist")) return rval;
-    rval = gen::squared_dist_between_verts( edge[e_pos-1], skin[s_pos], s_dist );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get s_dist")) return rval;
+    rval = gen->squared_dist_between_verts( edge[e_pos-1], edge[e_pos], e_dist );
+    MB_CHK_SET_ERR(rval,"could not get e_dist");
+    rval = gen->squared_dist_between_verts( edge[e_pos-1], skin[s_pos], s_dist );
+    MB_CHK_SET_ERR(rval,"could not get s_dist");
     if(debug) {
       std::cout << " e_pos=" << e_pos << " e_dist="
                 << e_dist << " vert=" << edge[e_pos] << " size="
@@ -501,16 +494,16 @@ moab::ErrorCode seal_arc_pair( const bool debug,
     if(e_dist > s_dist) {
       edge_is_next = false;
       double move_dist;
-      rval = gen::line_point_dist( edge[e_pos-1], edge[e_pos], skin[s_pos], move_dist );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get line_point_dist")) return rval;
+      rval = gen->line_point_dist( edge[e_pos-1], edge[e_pos], skin[s_pos], move_dist );
+      MB_CHK_SET_ERR(rval,"could not get line_point_dist");
       if(10*FACET_TOL < move_dist) {
         std::cout << "  warning5: surf " << surf_id << " vertex move_dist="
                   << move_dist << std::endl;
       }
-      rval = gen::point_line_projection( edge[e_pos-1], edge[e_pos], skin[s_pos]);
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get point_line_projection")) return rval;
-      rval = gen::squared_dist_between_verts( edge[e_pos-1], skin[s_pos], s_dist );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get s_dist b")) return rval;
+      rval = gen->point_line_projection( edge[e_pos-1], edge[e_pos], skin[s_pos]);
+      MB_CHK_SET_ERR(rval,"could not get point_line_projection");
+      rval = gen->squared_dist_between_verts( edge[e_pos-1], skin[s_pos], s_dist );
+      MB_CHK_SET_ERR(rval,"could not get s_dist b");
       dist = s_dist;
       if(debug) std::cout << "skin is next, projected dist=" << dist << std::endl;
     } else {
@@ -520,8 +513,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
     }
 
     // find the cs_dist after moving the skin to the curve (if skin_is_next)
-    rval = gen::squared_dist_between_verts( edge[e_pos], skin[s_pos], es_dist );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get es_dist")) return rval;
+    rval = gen->squared_dist_between_verts( edge[e_pos], skin[s_pos], es_dist );
+    MB_CHK_SET_ERR(rval,"could not get es_dist");
 
     // **************************************************************************
     // Merge with previous vert if it is too close
@@ -533,13 +526,13 @@ moab::ErrorCode seal_arc_pair( const bool debug,
         if(keep_vert != delete_vert) { // cannot merge the same vert
           if(debug) {
             double merge_dist;
-            rval = gen::dist_between_verts( keep_vert, delete_vert, merge_dist );
-            if(gen::error(moab::MB_SUCCESS!=rval,"could not get merge_dist")) return rval;
+            rval = gen->dist_between_verts( keep_vert, delete_vert, merge_dist );
+            MB_CHK_SET_ERR(rval,"could not get merge_dist");
             std::cout << "  merged edge_vert=" << delete_vert << " to edge_vert="
                       << keep_vert << " merge_dist=" << merge_dist <<std::endl;
           }
-          rval = zip::merge_verts( keep_vert, delete_vert, skin, edge );
-          if(gen::error(moab::MB_SUCCESS!=rval,"could not merge_verts a")) return rval;
+          rval = zip->merge_verts( keep_vert, delete_vert, skin, edge );
+          MB_CHK_SET_ERR(rval,"could not merge_verts a");
         }
         if(edge.size() < e_pos+1) {
           std::cout << "edge.size()=" << edge.size() << " e_pos=" << e_pos << std::endl;
@@ -550,13 +543,13 @@ moab::ErrorCode seal_arc_pair( const bool debug,
         if(keep_vert != delete_vert) {
           if(debug) {
             double merge_dist;
-            rval  = gen::dist_between_verts( keep_vert, delete_vert, merge_dist );
-            if(gen::error(moab::MB_SUCCESS!=rval,"could not get merge_dist b")) return rval;
+            rval  = gen->dist_between_verts( keep_vert, delete_vert, merge_dist );
+            MB_CHK_SET_ERR(rval,"could not get merge_dist b");
             std::cout << "  merged skin_vert=" << delete_vert << " to edge_vert="
                       << keep_vert << " merge_dist=" << merge_dist << std::endl;
           }
-          rval = zip::merge_verts( keep_vert, delete_vert, skin, edge );
-          if(gen::error(moab::MB_SUCCESS!=rval,"could not merge_verts b")) return rval;
+          rval = zip->merge_verts( keep_vert, delete_vert, skin, edge );
+          MB_CHK_SET_ERR(rval,"could not merge_verts b");
         }
         if(skin.size() < s_pos+1) {
           std::cout << "skin.size()=" << skin.size() << " s_pos=" << s_pos << std::endl;
@@ -578,13 +571,13 @@ moab::ErrorCode seal_arc_pair( const bool debug,
         moab::EntityHandle delete_vert= skin[s_pos];
         if(debug) {
           double merge_dist;
-          rval  = gen::dist_between_verts( keep_vert, delete_vert, merge_dist );
-          if(gen::error(moab::MB_SUCCESS!=rval,"could not get merge_dist c")) return rval;
+          rval  = gen->dist_between_verts( keep_vert, delete_vert, merge_dist );
+          MB_CHK_SET_ERR(rval,"could not get merge_dist c");
           std::cout << "  merged skin_vert=" << delete_vert << " to edge_vert="
                     << keep_vert << " merge_dist=" << merge_dist << std::endl;
         }
-        rval = zip::merge_verts( keep_vert, delete_vert, skin, edge );
-        if(gen::error(moab::MB_SUCCESS!=rval,"could not merge_verts b")) return rval;
+        rval = zip->merge_verts( keep_vert, delete_vert, skin, edge );
+        MB_CHK_SET_ERR(rval,"could not merge_verts b");
       }
       s_pos++;
       e_pos++;
@@ -595,8 +588,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
         // check if the distance is less than merge tol
         moab::EntityHandle delete_vert= skin[s_pos];
         double merge_dist;
-        rval = gen::dist_between_verts( keep_vert, delete_vert, merge_dist);
-        if(gen::error(moab::MB_SUCCESS!=rval,"could not get merge_dist d")) return rval;
+        rval = gen->dist_between_verts( keep_vert, delete_vert, merge_dist);
+        MB_CHK_SET_ERR(rval,"could not get merge_dist d");
         if(FACET_TOL < merge_dist) break;
         // merge the verts if they are not the same
         if(keep_vert != delete_vert) {
@@ -604,8 +597,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
             std::cout << "  merged skin_vert=" << delete_vert << " to edge_vert="
                       << keep_vert << " merge_dist=" << merge_dist << std::endl;
           }
-          rval = zip::merge_verts( keep_vert, delete_vert, skin, edge );
-          if(gen::error(moab::MB_SUCCESS!=rval,"could not merge_verts d")) return rval;
+          rval = zip->merge_verts( keep_vert, delete_vert, skin, edge );
+          MB_CHK_SET_ERR(rval,"could not merge_verts d");
         }
         skin.erase( skin.begin() + s_pos );
       }
@@ -616,8 +609,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
         // check if the distance is less than merge tol
         moab::EntityHandle delete_vert= edge[e_pos];
         double merge_dist;
-        rval = gen::dist_between_verts( keep_vert, delete_vert, merge_dist );
-        if(gen::error(moab::MB_SUCCESS!=rval,"could not get merge_dist e")) return rval;
+        rval = gen->dist_between_verts( keep_vert, delete_vert, merge_dist );
+        MB_CHK_SET_ERR(rval,"could not get merge_dist e");
         if(FACET_TOL < merge_dist) break;
         // merge the verts if they are not the same
         if(keep_vert != delete_vert) {
@@ -625,8 +618,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
             std::cout << "  merged edge_vert=" << delete_vert << " to edge_vert="
                       << keep_vert << " merge_dist=" << merge_dist << std::endl;
           }
-          rval = zip::merge_verts( keep_vert, delete_vert, skin, edge );
-          if(gen::error(moab::MB_SUCCESS!=rval,"could not merge_verts e")) return rval;
+          rval = zip->merge_verts( keep_vert, delete_vert, skin, edge );
+          MB_CHK_SET_ERR(rval,"could not merge_verts e");
         }
         edge.erase( edge.begin() + e_pos );
       }
@@ -642,14 +635,14 @@ moab::ErrorCode seal_arc_pair( const bool debug,
                     << " and skin vert " << skin[s_pos] << std::endl;
         }
         double move_dist;
-        rval = gen::line_point_dist( edge[e_pos-1], skin[s_pos], edge[e_pos], move_dist );
-        if(gen::error(moab::MB_SUCCESS!=rval,"could not get line_point_dist")) return rval;
+        rval = gen->line_point_dist( edge[e_pos-1], skin[s_pos], edge[e_pos], move_dist );
+        MB_CHK_SET_ERR(rval,"could not get line_point_dist");
         if(10*FACET_TOL < move_dist) {
           std::cout << "  warning6: surf " << surf_id << " vertex move_dist="
                     << move_dist << std::endl;
         }
-        rval = zip::t_joint( normal_tag, edge[e_pos-1], edge[e_pos], skin[s_pos], debug );
-        if(gen::error(moab::MB_SUCCESS!=rval,"tjoint failed a")) return rval;
+        rval = zip->t_joint( normal_tag, edge[e_pos-1], edge[e_pos], skin[s_pos], debug );
+        MB_CHK_SET_ERR(rval,"tjoint failed a");
         skin.insert( skin.begin()+s_pos, edge[e_pos] );
         e_pos++;
         s_pos++;
@@ -660,14 +653,14 @@ moab::ErrorCode seal_arc_pair( const bool debug,
                     << edge[e_pos-1] << " and " << edge[e_pos] << std::endl;
         }
         double move_dist;
-        rval = gen::line_point_dist( edge[e_pos-1], edge[e_pos], skin[s_pos], move_dist );
-        if(gen::error(moab::MB_SUCCESS!=rval,"could not get line_point_dist")) return rval;
+        rval = gen->line_point_dist( edge[e_pos-1], edge[e_pos], skin[s_pos], move_dist );
+        MB_CHK_SET_ERR(rval,"could not get line_point_dist");
         if(10*FACET_TOL < move_dist) {
           std::cout << "  warning6: surf " << surf_id << " vertex move_dist="
                     << move_dist << std::endl;
         }
-        rval = zip::t_joint( normal_tag, edge[e_pos-1], skin[s_pos], edge[e_pos], debug );
-        if(gen::error(moab::MB_SUCCESS!=rval,"tjoint failed b")) return rval;
+        rval = zip->t_joint( normal_tag, edge[e_pos-1], skin[s_pos], edge[e_pos], debug );
+        MB_CHK_SET_ERR(rval,"tjoint failed b");
         edge.insert( edge.begin() + e_pos, skin[s_pos] );
         e_pos++;
         s_pos++;
@@ -681,24 +674,27 @@ moab::ErrorCode seal_arc_pair( const bool debug,
     // The smallest edge length should be no less than MERGE_TOL.
     if(2 <= e_pos) {
       double d;
-      rval = gen::squared_dist_between_verts( edge[e_pos-1], edge[e_pos-2], d );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get dist")) return rval;
+      rval = gen->squared_dist_between_verts( edge[e_pos-1], edge[e_pos-2], d );
+      MB_CHK_SET_ERR(rval,"could not get dist");
       if(TOL_SQR > d) {
         std::cout << "zip_loop: d=" << d << std::endl;
-        gen::print_vertex_coords(edge[e_pos-1]);
-        gen::print_vertex_coords(edge[e_pos-2]);
+        gen->print_vertex_coords(edge[e_pos-1]);
+        gen->print_vertex_coords(edge[e_pos-2]);
         std::cout << "warning7: surf " << surf_id
                   << " adjacent edge points are closer than FACET_TOL" << std::endl;
       }
     }
     // The position should be the same. Do not exceed array bounds when checking.
-    if(gen::error(e_pos!=s_pos,"skin and edge positions do not match")) return rval;
+    if(e_pos!=s_pos) {
+      MB_CHK_SET_ERR(moab::MB_FAILURE,"skin and edge positions do not match");
+    }
     if(edge[e_pos-1] != skin[s_pos-1]) {
       std::cout << "edge[" << e_pos-1 << "]=" << edge[e_pos-1]
                 << " skin[" << s_pos-1 << "]=" << skin[s_pos-1] << std::endl;
     }
-    if(gen::error(edge[e_pos-1]!=skin[s_pos-1],"skin and edge vert does not match"))
-      return rval;
+    if(edge[e_pos-1]!=skin[s_pos-1]) {
+      MB_CHK_SET_ERR(moab::MB_FAILURE,"skin and edge vert does not match");
+    }
   }
 
   // The skin and curve should be the same size
@@ -707,9 +703,9 @@ moab::ErrorCode seal_arc_pair( const bool debug,
               << " sealed skin and curve are not the same size" << std::endl;
     if(debug) {
       std::cout << "edge:" << std::endl;
-      gen::print_loop(edge);
+      gen->print_loop(edge);
       std::cout << "skin:" << std::endl;
-      gen::print_loop(skin);
+      gen->print_loop(skin);
     }
     //return moab::MB_FAILURE;
   }
@@ -718,8 +714,8 @@ moab::ErrorCode seal_arc_pair( const bool debug,
     std::vector< std::vector<moab::EntityHandle> > temp;
     temp.push_back(edge);
     temp.push_back(skin);
-    rval = zip::test_zipping(FACET_TOL, temp);
-    if(gen::error(moab::MB_SUCCESS!=rval,"sealing test failed")) return rval;
+    rval = zip->test_zipping(FACET_TOL, temp);
+    MB_CHK_SET_ERR(rval,"sealing test failed");
   }
 
   return moab::MB_SUCCESS;
@@ -727,14 +723,14 @@ moab::ErrorCode seal_arc_pair( const bool debug,
 }
 
 /// seals the skin_loop to the closest curves in curve sets in a watertight fashion
-moab::ErrorCode seal_loop( bool debug,
-                           const double FACET_TOL,
-                           const moab::Tag normal_tag,
-                           const moab::Tag orig_curve_tag,
-                           const moab::EntityHandle surf_set,
-                           std::vector<moab::EntityHandle> &curve_sets,
-                           std::vector<moab::EntityHandle> &skin_loop,
-                           bool verbose)
+moab::ErrorCode MakeWatertight::seal_loop( bool debug,
+    const double FACET_TOL,
+    const moab::Tag normal_tag,
+    const moab::Tag orig_curve_tag,
+    const moab::EntityHandle surf_set,
+    std::vector<moab::EntityHandle> &curve_sets,
+    std::vector<moab::EntityHandle> &skin_loop,
+    bool verbose)
 {
   moab::ErrorCode rval;
   debug = false;
@@ -750,7 +746,7 @@ moab::ErrorCode seal_loop( bool debug,
   // If skin remains but all the curves are zipped an error has occured.
   if( curve_sets.empty() ) {
     std::cout << "seal_loop: no curves are left, but skin remains" << std::endl;
-    gen::print_loop(skin_loop);
+    gen->print_loop(skin_loop);
     skin_loop.clear();
     return moab::MB_FAILURE;
   }
@@ -775,16 +771,19 @@ moab::ErrorCode seal_loop( bool debug,
     // get geometric vertices
     moab::Range endpt_sets;
     rval = MBI()->get_child_meshsets(curve_sets[i], endpt_sets );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get endpt_sets")) return rval;
-    if(gen::error(endpt_sets.empty() || 2<endpt_sets.size(),
-                  "too many endpt_sets")) return moab::MB_FAILURE;
+    MB_CHK_SET_ERR(rval,"could not get endpt_sets");
+    if(endpt_sets.empty() || 2<endpt_sets.size()) {
+      MB_CHK_SET_ERR(moab::MB_FAILURE,"too many endpt_sets");
+    }
 
     std::vector<moab::EntityHandle> endpts;
     for(unsigned j=0; j<endpt_sets.size(); ++j) {
       moab::Range endpt;
       rval = MBI()->get_entities_by_type( endpt_sets[j], moab::MBVERTEX, endpt );
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not get endpt")) return rval;
-      if(gen::error(1!=endpt.size(),"not one endpt")) return moab::MB_FAILURE;
+      MB_CHK_SET_ERR(rval,"could not get endpt");
+      if(1!=endpt.size()) {
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"not one endpt");
+      }
       endpts.push_back( endpt.front() );
     }
 
@@ -792,46 +791,51 @@ moab::ErrorCode seal_loop( bool debug,
 
     if(2==endpt_sets.size() && endpts.front()==endpts.back() && debug ) {
 
-      std::cout << "  warning9: curve " << gen::geom_id_by_handle(curve_sets[i])
+      std::cout << "  warning9: curve " << gen->geom_id_by_handle(curve_sets[i])
                 << " geometric endpoints degenerate" << std::endl;
     }
 
     // check to ensure that geometric verts are the curve endpts
     std::vector<moab::EntityHandle> curve;
-    rval = arc::get_meshset( curve_sets[i], curve );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get_meshset")) return rval;
+    rval = arc->get_meshset( curve_sets[i], curve );
+    MB_CHK_SET_ERR(rval,"could not get_meshset");
     if(1==endpt_sets.size()) {
-      if(gen::error(curve.front()!=curve.back(),"endpt discrepancy")) return moab::MB_FAILURE;
-      if(gen::error(curve.front()!=endpts.front(),
-                    "geometric verts inconsistent with curve")) return moab::MB_FAILURE;
+      if(curve.front()!=curve.back()) {
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"endpt discrepancy");
+      }
+      if(curve.front()!=endpts.front()) {
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"geometric verts inconsistent with curve");
+      }
     } else {
       if(curve.front()==curve.back())
         if(debug) std::cout << "  warning10: degenerate curve endpts" << std::endl;
-      if(gen::error(curve.front()!=endpts.front() && curve.front()!=endpts.back(),
-                    "endpts not consistent")) return moab::MB_FAILURE;
-      if(gen::error(curve.back()!=endpts.front() && curve.back()!=endpts.back(),
-                    "endpts not consistent")) return moab::MB_FAILURE;
+      if(curve.front()!=endpts.front() && curve.front()!=endpts.back()) {
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"endpts not consistent");
+      }
+      if(curve.back()!=endpts.front() && curve.back()!=endpts.back()) {
+        MB_CHK_SET_ERR(moab::MB_FAILURE,"endpts not consistent");
+      }
     }
 
     // determine the orientation of the curve wrt the surf.
     int sense;
     if(debug) {
-      std::cout << "surf_set = " << gen::geom_id_by_handle(surf_set) << std::endl;
-      std::cout << "curve_set = " << gen::geom_id_by_handle(curve_sets[i]) << std::endl;
+      std::cout << "surf_set = " << gen->geom_id_by_handle(surf_set) << std::endl;
+      std::cout << "curve_set = " << gen->geom_id_by_handle(curve_sets[i]) << std::endl;
     }
-    rval = gen::get_curve_surf_sense( surf_set, curve_sets[i], sense );
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not get_curve_surf_sense")) return rval;
+    rval = gen->get_curve_surf_sense( surf_set, curve_sets[i], sense );
+    MB_CHK_SET_ERR(rval,"could not get_curve_surf_sense");
     // select the front wrt the skin.
-    moab::EntityHandle curve_endpt = (SENSE_FORWARD==sense) ? curve.front() : curve.back();
+    moab::EntityHandle curve_endpt = (moab::SENSE_FORWARD==sense) ? curve.front() : curve.back();
 
     // find closest skin vert to front of curve
     std::vector<double> d;
     std::vector<unsigned> p;
-    rval = gen::find_closest_vert( 0, curve_endpt, skin_loop, p, d);
-    if(gen::error(moab::MB_SUCCESS!=rval,"could not find_closest_vert")) return rval;
+    rval = gen->find_closest_vert( 0, curve_endpt, skin_loop, p, d);
+    MB_CHK_SET_ERR(rval,"could not find_closest_vert");
     if(debug) std::cout << "zip_loop: loop-curve endpt dist=" << d.front() << " skin_vert="
                           << skin_loop[p.front()] << " curve="
-                          << gen::geom_id_by_handle(curve_sets[i]) << " front_endpt="
+                          << gen->geom_id_by_handle(curve_sets[i]) << " front_endpt="
                           << curve_endpt << std::endl;
     if(d.front() < min_dist) {
       min_dist = d.front();
@@ -851,10 +855,10 @@ moab::ErrorCode seal_loop( bool debug,
     if(true) {
       std::cout << "  skin pt:" << std::endl;
       rval = MBI()->list_entity(closest_skin_pt);
-      if(gen::error(moab::MB_SUCCESS!=rval,"error listing skin pt")) return rval;
+      MB_CHK_SET_ERR(rval,"error listing skin pt");
       std::cout << "  curve vert:" << std::endl;
       rval = MBI()->list_entity(front_endpt);
-      if(gen::error(moab::MB_SUCCESS!=rval,"error listing curve_vert")) return rval;
+      MB_CHK_SET_ERR(rval,"error listing curve_vert");
     }
     return rval;
   }
@@ -862,7 +866,7 @@ moab::ErrorCode seal_loop( bool debug,
   if(debug) {
     std::cout << "closest skin vert=" << skin_loop[pos] << " pos=" << pos
               << " min_dist=" << min_dist << " curve="
-              << gen::geom_id_by_handle(curve_sets[curve_idx])
+              << gen->geom_id_by_handle(curve_sets[curve_idx])
               << " front_endpt=" << closest_front_curve_endpt << std::endl;
   }
 
@@ -877,10 +881,13 @@ moab::ErrorCode seal_loop( bool debug,
   j = temp_loop.begin(); // j became invalid because temp_loop resized
   j += skin_loop.size() - pos - 1;
   temp_loop.insert( j, k, k+pos+1 );
-  if(gen::error(temp_loop.size()!=skin_loop.size(),"loop size not conserved")) return moab::MB_FAILURE;
+  if(temp_loop.size()!=skin_loop.size()) {
+    MB_CHK_SET_ERR(moab::MB_FAILURE,"loop size not conserved");
+  }
   assert(temp_loop.size() == skin_loop.size()); // same size
-  if(gen::error(temp_loop[0]!=temp_loop[temp_loop.size()-1],
-                "loop endpts not continuous")) return moab::MB_FAILURE;
+  if(temp_loop[0]!=temp_loop[temp_loop.size()-1]) {
+    MB_CHK_SET_ERR(moab::MB_FAILURE,"loop endpts not continuous");
+  }
   assert(temp_loop[0] == temp_loop[temp_loop.size()-1]); // same endpoint
   skin_loop = temp_loop;
   if(debug) {
@@ -892,7 +899,7 @@ moab::ErrorCode seal_loop( bool debug,
   // the skin loop if manually updating the skin_loop vector.
   moab::EntityHandle skin_loop_set;
   rval = MBI()->create_meshset( moab::MESHSET_TRACK_OWNER|moab::MESHSET_ORDERED, skin_loop_set );
-  if(gen::error(moab::MB_SUCCESS!=rval,"creating skin_loop_set failed")) return rval;
+  MB_CHK_SET_ERR(rval,"creating skin_loop_set failed");
 
   while(!skin_loop.empty()) {
     //**************************************************************************
@@ -906,46 +913,46 @@ moab::ErrorCode seal_loop( bool debug,
     std::vector<moab::EntityHandle> curve, skin_arc;
     rval = create_arc_pair( FACET_TOL, surf_set, skin_loop, curve_sets, front_endpt,
                             debug, curve_set, curve_is_reversed, curve, skin_arc );
-    if(gen::error(moab::MB_SUCCESS!=rval,"  pair creation failed")) return rval;
+    MB_CHK_SET_ERR(rval,"  pair creation failed");
 
     // Let moab store skin loop to avoid stale vert handles from merging.
-    rval = arc::set_meshset( skin_loop_set, skin_loop );
-    if(gen::error(moab::MB_SUCCESS!=rval,"setting skin_loop_set failed")) return rval;
+    rval = arc->set_meshset( skin_loop_set, skin_loop );
+    MB_CHK_SET_ERR(rval,"setting skin_loop_set failed");
 
     // The original faceted curves are never used. Instead they are replaced by
     // skin. This reduces the number of new triangles created.
     int orig_curve;
     rval = MBI()->tag_get_data( orig_curve_tag, &curve_set, 1, &orig_curve );
-    if(gen::error(moab::MB_SUCCESS!=rval,"can't get tag")) return rval;
+    MB_CHK_SET_ERR(rval,"can't get tag");
 
     // If the tag is non-zero, the facet edge has already been replaced.
     if(orig_curve) {
       // this tag is used to mark the edge as updated
       int false_int = 0;
       rval = MBI()->tag_set_data( orig_curve_tag, &curve_set, 1, &false_int );
-      if(gen::error(moab::MB_SUCCESS!=rval,"can't set tag")) return rval;
+      MB_CHK_SET_ERR(rval,"can't set tag");
 
       // merge new endpoints to old endpoints
       if(curve.front()!=skin_arc.front()) {
-        rval = zip::merge_verts( curve.front(), skin_arc.front(), curve, skin_arc );
-        if(gen::error(moab::MB_SUCCESS!=rval,"merge verts failed")) return rval;
+        rval = zip->merge_verts( curve.front(), skin_arc.front(), curve, skin_arc );
+        MB_CHK_SET_ERR(rval,"merge verts failed");
       }
       if(curve.back()!=skin_arc.back()) {
-        rval = zip::merge_verts( curve.back(), skin_arc.back(), curve, skin_arc );
-        if(gen::error(moab::MB_SUCCESS!=rval,"merge verts failed")) return rval;
+        rval = zip->merge_verts( curve.back(), skin_arc.back(), curve, skin_arc );
+        MB_CHK_SET_ERR(rval,"merge verts failed");
       }
 
       // replace the faceted edge with a skin arc
       curve = skin_arc;
-      if(debug) std::cout << "  curve " << gen::geom_id_by_handle(curve_set)
+      if(debug) std::cout << "  curve " << gen->geom_id_by_handle(curve_set)
                             << " has been replaced by skin:" << std::endl;
 
     } else {
       // seal the pair together
       std::vector<moab::EntityHandle> sealed_curve;
       rval = seal_arc_pair( debug, FACET_TOL, normal_tag, curve, skin_arc,
-                            gen::geom_id_by_handle(surf_set) );
-      if(gen::error(moab::MB_SUCCESS!=rval, "    can't seal pair")) return rval;
+                            gen->geom_id_by_handle(surf_set) );
+      MB_CHK_SET_ERR(rval,"can't seal pair");
     }
 
     // get new front_endpt to guide selection of next curve
@@ -955,30 +962,30 @@ moab::ErrorCode seal_loop( bool debug,
     if(curve_is_reversed) reverse( curve.begin(), curve.end() );
 
     // set the sealed edge
-    rval = arc::set_meshset( curve_set, curve );
-    if(gen::error(moab::MB_SUCCESS!=rval,"setting curve set failed")) return rval;
+    rval = arc->set_meshset( curve_set, curve );
+    MB_CHK_SET_ERR(rval,"setting curve set failed");
 
     // Get skin_loop to cut an arc from it
-    rval = arc::get_meshset( skin_loop_set, skin_loop );
-    if(gen::error(moab::MB_SUCCESS!=rval,"getting skin_loop set failed")) return rval;
+    rval = arc->get_meshset( skin_loop_set, skin_loop );
+    MB_CHK_SET_ERR(rval,"getting skin_loop set failed");
 
 
   }
 
   // The skin_loop_set is no longer needed.
   rval = MBI()->delete_entities( &skin_loop_set, 1 );
-  if(gen::error(moab::MB_SUCCESS!=rval,"deleting skin_loop_set failed")) return rval;
+  MB_CHK_SET_ERR(rval,"deleting skin_loop_set failed");
 
   return moab::MB_SUCCESS;
 }
 
 // input: surface sets, ordered curve sets,
 // output: skin arcs corresponding to curves are added to parent surface sets
-moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
-                                 moab::Tag geom_tag, moab::Tag id_tag, moab::Tag normal_tag, moab::Tag merge_tag,
-                                 moab::Tag orig_curve_tag,
-                                 const double SME_RESABS_TOL, const double FACET_TOL,
-                                 const bool debug, bool verbose)
+moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range &surface_sets,
+    moab::Tag geom_tag, moab::Tag id_tag, moab::Tag normal_tag, moab::Tag merge_tag,
+    moab::Tag orig_curve_tag,
+    const double SME_RESABS_TOL, const double FACET_TOL,
+    const bool debug, bool verbose)
 {
 
   moab::ErrorCode result;
@@ -988,20 +995,20 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     // get the surf id of the surface meshset
     int surf_id;
     result = MBI()->tag_get_data( id_tag, &(*i), 1, &surf_id );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not get id tag")) return result;
+    MB_CHK_SET_ERR(result,"could not get id tag");
     assert(moab::MB_SUCCESS == result);
     if(debug) std::cout << "  surf id= " << surf_id << std::endl;
 
     // get the 2D entities in the surface set
     moab::Range dim2_ents;
     result = MBI()->get_entities_by_dimension( *i, 2, dim2_ents );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not get 3D entities")) return result;
+    MB_CHK_SET_ERR(result,"could not get 3D entities");
     assert(moab::MB_SUCCESS == result);
 
     // get facets of the surface meshset
     moab::Range tris;
     result = MBI()->get_entities_by_type( *i, moab::MBTRI, tris );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not get tris")) return result;
+    MB_CHK_SET_ERR(result,"could not get tris");
     assert(moab::MB_SUCCESS == result);
 
     // Remove any 2D entities that are not triangles. This is needed because
@@ -1010,7 +1017,7 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     moab::Range not_tris = subtract( dim2_ents, tris );
     if(!not_tris.empty()) {
       result = MBI()->delete_entities( not_tris );
-      if(gen::error(moab::MB_SUCCESS!=result,"could not delete not_tris")) return result;
+      MB_CHK_SET_ERR(result,"could not delete not_tris");
       assert(moab::MB_SUCCESS == result);
       std::cout << "  removed " << not_tris.size()
                 << " 2D elements that were not triangles from surface "
@@ -1020,12 +1027,12 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     // Get the curves and determine the number of unmerged curves
     std::vector<moab::EntityHandle> curve_sets, unmerged_curve_sets;
     result = get_unmerged_curves( *i , curve_sets, unmerged_curve_sets, merge_tag, verbose, debug);
-    if(gen::error(moab::MB_SUCCESS!=result, " could not get the curves and unmerged curves" )) return result;
+    MB_CHK_SET_ERR(result, "could not get the curves and unmerged curves");
 
     // Save the normals of the facets. These will later be used to determine if
     // the tri became inverted.
-    result = gen::save_normals( tris, normal_tag );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not save_normals")) return result;
+    result = gen->save_normals( tris, normal_tag );
+    MB_CHK_SET_ERR(result,"could not save_normals");
     assert(moab::MB_SUCCESS == result);
 
     // If all of the curves are merged, remove the surfaces facets.
@@ -1037,7 +1044,7 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
       //retrieve parent volumes
       std::vector<moab::EntityHandle> parent_volumes;
       result = MBI()->get_parent_meshsets( *i, parent_volumes);
-      if(gen::error(moab::MB_SUCCESS!=result,"could not get the surface's parent meshsets")) return result;
+      MB_CHK_SET_ERR(result,"could not get the surface's parent meshsets");
 
       //check each parent volume
       bool keep_vol = false;
@@ -1046,14 +1053,14 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
         moab::EntityHandle parent_vol = *j;
         std::vector<moab::EntityHandle> child_surfs;
         result = MBI()->get_child_meshsets(parent_vol, child_surfs);
-        if(gen::error(moab::MB_SUCCESS!=result, "could not get the child surfaces of the volume")) return result;
+        MB_CHK_SET_ERR(result, "could not get the child surfaces of the volume");
 
         // check if surface is only child
         if( child_surfs.size() == 1 && child_surfs[0] == *i ) {
           moab::Range skin_edges;
           //verify that the surface is closed
-          result = gen::find_skin( tris, 1, skin_edges, false);
-          if(gen::error(moab::MB_SUCCESS!=result, "could not skin the triangles")) return result;
+          result = gen->find_skin( tris, 1, skin_edges, false);
+          MB_CHK_SET_ERR(result, "could not skin the triangles");
           // if the surface is closed, change this indicator
           if( skin_edges.size() == 0 ) {
             keep_vol = true;
@@ -1066,25 +1073,27 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
         continue;
       }
 
-      result = gen::delete_surface( *i , geom_tag, tris, surf_id, debug, verbose);
-      if( gen::error(moab::MB_SUCCESS!=result, "could not delete surface" )) return result;
+      result = gen->delete_surface( *i , geom_tag, tris, surf_id, debug, verbose);
+      MB_CHK_SET_ERR(result, "could not delete surface");
       // adjust iterator so *i is still the same surface
       i = surface_sets.erase(i) - 1;
       continue;
     }
 
     // combine merged curve's surface senses
-    result = gen::combine_merged_curve_senses( curve_sets, merge_tag, debug );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not combine the merged curve sets")) return result;
+    result = gen->combine_merged_curve_senses( curve_sets, merge_tag, debug );
+    MB_CHK_SET_ERR(result,"could not combine the merged curve sets");
 
 
 
     // Check if edges exist
     int n_edges;
     result = MBI()->get_number_entities_by_type(0, moab::MBEDGE, n_edges );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not get number of edges")) return result;
+    MB_CHK_SET_ERR(result,"could not get number of edges");
     assert(moab::MB_SUCCESS == result);
-    if(gen::error(0!=n_edges,"edges exist")) return result;
+    if(0!=n_edges) {
+      MB_CHK_SET_ERR(moab::MB_FAILURE,"edges exist");
+    }
     assert(0 == n_edges); //*** Why can't we have edges? (Also, this assertion is never used)
 
     // get the range of skin edges from the range of facets
@@ -1096,7 +1105,7 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     // This should be ok as the local find_skin fundtion should only be avoided when checking meshes for watertightness
     // to keep from altering the data set when checking.
     result = tool.find_skin( 0, tris, 1, skin_edges, false);
-    if(gen::error(moab::MB_SUCCESS!=result,"could not find_skin")) return result;
+    MB_CHK_SET_ERR(result,"could not find_skin");
     assert(moab::MB_SUCCESS == result);
 
 
@@ -1107,7 +1116,7 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     moab::Range skin_verts;
     bool cont = false;
     result = merge_skin_verts( skin_verts, skin_edges, SME_RESABS_TOL, surf_id, cont, debug);
-    if(gen::error(moab::MB_SUCCESS!=result,"could not merge the skin verts")) return result;
+    MB_CHK_SET_ERR(result,"could not merge the skin verts");
     if(cont) continue;
 
 
@@ -1115,7 +1124,7 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
     std::vector < std::vector <moab::EntityHandle> > skin;
     cont = false;
     result = create_skin_vert_loops ( skin_edges, tris, skin , surf_id, cont, debug);
-    if(gen::error(moab::MB_SUCCESS!=result, " could not create skin loops of vertices")) return result;
+    MB_CHK_SET_ERR(result, " could not create skin loops of vertices");
     if(cont) continue;
 
 
@@ -1126,20 +1135,23 @@ moab::ErrorCode prepare_surfaces(moab::Range &surface_sets,
 
     moab::EntityHandle skin_loop_sets[skin.size()];
     result = seal_surface_loops ( *i , skin_loop_sets , skin,  curve_sets, normal_tag, orig_curve_tag, FACET_TOL, surf_id, debug);
-    if(gen::error(moab::MB_SUCCESS!=result,"could not seal the surface loops")) return result;
+    MB_CHK_SET_ERR(result,"could not seal the surface loops");
 
 
     // Remove the sets of skin loops
     result = MBI()->delete_entities( &skin_loop_sets[0], skin.size() );
-    if(gen::error(moab::MB_SUCCESS!=result,"failed to zip: deleting skin_loop_sets failed"))
-      return result;
+    MB_CHK_SET_ERR(result,"failed to zip: deleting skin_loop_sets failed");
+
 
   } // loop over each surface
   return moab::MB_SUCCESS;
 }
 
-
-moab::ErrorCode fix_normals(moab::Range surface_sets, moab::Tag id_tag, moab::Tag normal_tag, const bool debug, const bool verbose)
+moab::ErrorCode MakeWatertight::fix_normals(moab::Range surface_sets,
+    moab::Tag id_tag,
+    moab::Tag normal_tag,
+    const bool debug,
+    const bool verbose)
 {
   moab::ErrorCode result;
   if(debug) std::cout<< "number of surfaces=" << surface_sets.size() << std::endl;
@@ -1165,19 +1177,19 @@ moab::ErrorCode fix_normals(moab::Range surface_sets, moab::Tag id_tag, moab::Ta
     assert(moab::MB_SUCCESS == result);
 
     // get the normals, post zipping
-    result = gen::triangle_normals( tris, new_normals );
+    result = gen->triangle_normals( tris, new_normals );
     assert(moab::MB_SUCCESS == result);
 
     // test the normals, finding the inverted tris
     std::vector<int> inverted_tri_indices;
-    result = zip::test_normals( old_normals, new_normals, inverted_tri_indices);
+    result = zip->test_normals( old_normals, new_normals, inverted_tri_indices);
     assert(moab::MB_SUCCESS == result);
 
     // insert the inverted tris into a range
     moab::Range inverted_tris;
     for(unsigned int j=0; j<inverted_tri_indices.size(); j++) {
       inverted_tris.insert( tris[inverted_tri_indices[j]] );
-      if(debug) gen::print_triangle( tris[inverted_tri_indices[j]], false );
+      if(debug) gen->print_triangle( tris[inverted_tri_indices[j]], false );
     }
 
     // do edges exist?
@@ -1188,7 +1200,7 @@ moab::ErrorCode fix_normals(moab::Range surface_sets, moab::Tag id_tag, moab::Ta
 
     // fix the inverted tris
     inverted_tri_counter += inverted_tris.size();
-    result = zip::remove_inverted_tris(normal_tag, inverted_tris, debug );
+    result = zip->remove_inverted_tris(normal_tag, inverted_tris, debug );
     if(moab::MB_SUCCESS != result)
       std::cout << "  failed to fix inverted triangles in surface " << surf_id << std::endl;
 
@@ -1203,13 +1215,13 @@ moab::ErrorCode fix_normals(moab::Range surface_sets, moab::Tag id_tag, moab::Ta
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode restore_moab_curve_representation( const moab::Range curve_sets )
+moab::ErrorCode MakeWatertight::restore_moab_curve_representation( const moab::Range curve_sets )
 {
   moab::ErrorCode result;
   for(moab::Range::const_iterator i=curve_sets.begin(); i!=curve_sets.end(); ++i) {
     // get the ordered verts
     std::vector<moab::EntityHandle> ordered_verts;
-    result = arc::get_meshset( *i, ordered_verts );
+    result = arc->get_meshset( *i, ordered_verts );
     assert(moab::MB_SUCCESS==result);
     if(moab::MB_SUCCESS != result) return result;
 
@@ -1221,7 +1233,7 @@ moab::ErrorCode restore_moab_curve_representation( const moab::Range curve_sets 
           j!=ordered_verts.end(); ++j) {
         if( *j == *(j-1) ) {
           std::cout << "duplicate vertex found in curve "
-                    << gen::geom_id_by_handle(*i) << std::endl;
+                    << gen->geom_id_by_handle(*i) << std::endl;
           j = ordered_verts.erase(j) - 1;
         }
       }
@@ -1232,7 +1244,7 @@ moab::ErrorCode restore_moab_curve_representation( const moab::Range curve_sets 
     // a degenerate loop of two edges (should never happen)
     if( 4>ordered_verts.size() &&
         ordered_verts.front()==ordered_verts.back() ) {
-      std::cout << "warning: curve " << gen::geom_id_by_handle(*i)
+      std::cout << "warning: curve " << gen->geom_id_by_handle(*i)
                 << " is one degenerate edge" << std::endl;
       //return moab::MB_FAILURE; **** when this is uncommented, problems occur
     }
@@ -1251,7 +1263,7 @@ moab::ErrorCode restore_moab_curve_representation( const moab::Range curve_sets 
     // do the correct number of endpt sets exist?
     const unsigned int n_endpts = (is_loop) ? 1 : 2;
     if(n_endpts != endpt_sets.size()) {
-      std::cout << "curve " << gen::geom_id_by_handle(*i) << " has " << n_endpts
+      std::cout << "curve " << gen->geom_id_by_handle(*i) << " has " << n_endpts
                 << " endpoints, but " << endpt_sets.size()
                 << " endpoint sets exist" << std::endl;
     }
@@ -1263,14 +1275,14 @@ moab::ErrorCode restore_moab_curve_representation( const moab::Range curve_sets 
       if(moab::MB_SUCCESS != result) return result;
       assert(moab::MB_SUCCESS==result);
       if(1 != endpt_vert.size()) {
-        std::cout << "curve " << gen::geom_id_by_handle(*i)
+        std::cout << "curve " << gen->geom_id_by_handle(*i)
                   << " has" << endpt_vert.size()
                   << " endpoint vertices in the geometric vertex set" << std::endl;
         return moab::MB_INVALID_SIZE;
       }
       if(endpt_vert.front()!=ordered_verts.front() &&
          endpt_vert.front()!=ordered_verts.back() ) {
-        std::cout << "curve " << gen::geom_id_by_handle(*i)
+        std::cout << "curve " << gen->geom_id_by_handle(*i)
                   << " endpt sets do not match" << std::endl;
       }
     }
@@ -1304,7 +1316,7 @@ moab::ErrorCode restore_moab_curve_representation( const moab::Range curve_sets 
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode get_geom_size_before_sealing( const moab::Range geom_sets[],
+moab::ErrorCode MakeWatertight::get_geom_size_before_sealing( const moab::Range geom_sets[],
     const moab::Tag geom_tag,
     const moab::Tag size_tag,
     bool debug,
@@ -1315,18 +1327,13 @@ moab::ErrorCode get_geom_size_before_sealing( const moab::Range geom_sets[],
     for(moab::Range::iterator i=geom_sets[dim].begin() ; i != geom_sets[dim].end() ; i++) {
       double size;
       //std::cout << "dim = " << dim << " *i =" << *i << std::endl;
-      rval = gen::measure( *i, geom_tag, size, debug, verbose );
+      rval = gen->measure( *i, geom_tag, size, debug, verbose );
       //std::cout << " here in gen mesaure" << std::endl;
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not measure")) {
-        return rval;
-      }
-
+      MB_CHK_SET_ERR(rval,"could not measure");
 
       rval = MBI()->tag_set_data( size_tag, &(*i), 1, &size );
       //std::cout << " here in set tag data" << std::endl;
-      if(gen::error(moab::MB_SUCCESS!=rval,"could not set size tag")) {
-        return rval;
-      }
+      MB_CHK_SET_ERR(rval,"could not set size tag");
     }
   }
   if (verbose) {
@@ -1335,7 +1342,7 @@ moab::ErrorCode get_geom_size_before_sealing( const moab::Range geom_sets[],
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode get_geom_size_after_sealing( const moab::Range geom_sets[],
+moab::ErrorCode MakeWatertight::get_geom_size_after_sealing( const moab::Range geom_sets[],
     const moab::Tag geom_tag,
     const moab::Tag size_tag,
     const double FACET_TOL,
@@ -1361,10 +1368,10 @@ moab::ErrorCode get_geom_size_after_sealing( const moab::Range geom_sets[],
       double orig_size = 0, new_size = 0;
       rval = MBI()->tag_get_data( size_tag, &(*i), 1, &orig_size );
       if(moab::MB_SUCCESS != rval) {
-        std::cout << "rval=" << rval << " id=" << gen::geom_id_by_handle(*i) << std::endl;
+        std::cout << "rval=" << rval << " id=" << gen->geom_id_by_handle(*i) << std::endl;
       }
       assert(moab::MB_SUCCESS == rval);
-      rval = gen::measure( *i, geom_tag, new_size, debug, verbose );
+      rval = gen->measure( *i, geom_tag, new_size, debug, verbose );
       assert(moab::MB_SUCCESS == rval);
 
       // Remember the largest difference and associated percent difference
@@ -1375,21 +1382,21 @@ moab::ErrorCode get_geom_size_after_sealing( const moab::Range geom_sets[],
         largest_diff[dim-1].new_size  = new_size;
         largest_diff[dim-1].diff    = diff;
         largest_diff[dim-1].percent = percent_diff;
-        largest_diff[dim-1].id      = gen::geom_id_by_handle(*i);
+        largest_diff[dim-1].id      = gen->geom_id_by_handle(*i);
       }
       if(orig_size < smallest_size[dim-1].orig_size) {
         smallest_size[dim-1].orig_size = orig_size;
         smallest_size[dim-1].new_size  = new_size;
         smallest_size[dim-1].diff      = diff;
         smallest_size[dim-1].percent   = percent_diff;
-        smallest_size[dim-1].id        = gen::geom_id_by_handle(*i);
+        smallest_size[dim-1].id        = gen->geom_id_by_handle(*i);
       }
       if(percent_diff > largest_percent[dim-1].percent) {
         largest_percent[dim-1].orig_size = orig_size;
         largest_percent[dim-1].new_size  = new_size;
         largest_percent[dim-1].diff      = diff;
         largest_percent[dim-1].percent   = percent_diff;
-        largest_percent[dim-1].id        = gen::geom_id_by_handle(*i);
+        largest_percent[dim-1].id        = gen->geom_id_by_handle(*i);
       }
 
       bool print_warning = false;
@@ -1432,7 +1439,7 @@ moab::ErrorCode get_geom_size_after_sealing( const moab::Range geom_sets[],
         return moab::MB_FAILURE;
       }
       if(print_warning && debug) {
-        std::cout << "  dim=" << dim << " id=" << gen::geom_id_by_handle(*i)
+        std::cout << "  dim=" << dim << " id=" << gen->geom_id_by_handle(*i)
                   << " orig_size=" << orig_size << " new_size=" << new_size << std::endl;
       }
     }
@@ -1470,7 +1477,9 @@ moab::ErrorCode get_geom_size_after_sealing( const moab::Range geom_sets[],
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode delete_merged_curves( moab::Range &existing_curve_sets, moab::Tag merge_tag, bool debug)
+moab::ErrorCode MakeWatertight::delete_merged_curves( moab::Range &existing_curve_sets,
+    moab::Tag merge_tag,
+    bool debug)
 {
 
   moab::ErrorCode result;
@@ -1510,7 +1519,10 @@ moab::ErrorCode delete_merged_curves( moab::Range &existing_curve_sets, moab::Ta
 
 }
 
-moab::ErrorCode delete_sealing_tags( moab::Tag normal_tag, moab::Tag merge_tag, moab::Tag size_tag, moab::Tag orig_curve_tag)
+moab::ErrorCode MakeWatertight::delete_sealing_tags( moab::Tag normal_tag,
+    moab::Tag merge_tag,
+    moab::Tag size_tag,
+    moab::Tag orig_curve_tag)
 {
 
   moab::ErrorCode result;
@@ -1527,17 +1539,17 @@ moab::ErrorCode delete_sealing_tags( moab::Tag normal_tag, moab::Tag merge_tag, 
   return result;
 }
 
-moab::ErrorCode get_unmerged_curves( moab::EntityHandle surface, std::vector<moab::EntityHandle> &curves,
-                                     std::vector<moab::EntityHandle> &unmerged_curves,
-                                     moab::Tag merge_tag,
-                                     bool verbose,
-                                     bool debug)
+moab::ErrorCode MakeWatertight::get_unmerged_curves( moab::EntityHandle surface, std::vector<moab::EntityHandle> &curves,
+    std::vector<moab::EntityHandle> &unmerged_curves,
+    moab::Tag merge_tag,
+    bool verbose,
+    bool debug)
 {
 
   moab::ErrorCode result;
 
   result = MBI()->get_child_meshsets( surface, curves );
-  if(gen::error(moab::MB_SUCCESS!=result,"could not get child sets")) return result;
+  MB_CHK_SET_ERR(result,"could not get child sets");
   assert(moab::MB_SUCCESS==result);
 
   // Update the curve_sets with that contain entity_to_delete curves with their
@@ -1552,7 +1564,7 @@ moab::ErrorCode get_unmerged_curves( moab::EntityHandle surface, std::vector<moa
       curve = *j;
     } else if(moab::MB_SUCCESS == result) {
       if(debug) {
-        std::cout << "  curve_id=" << gen::geom_id_by_handle(*j)
+        std::cout << "  curve_id=" << gen->geom_id_by_handle(*j)
                   << " is entity_to_delete" << std::endl;
       }
       curve = merged_curve;
@@ -1583,7 +1595,12 @@ moab::ErrorCode get_unmerged_curves( moab::EntityHandle surface, std::vector<moa
 }
 
 
-moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tris, std::vector < std::vector <moab::EntityHandle> > &skin , int surf_id, bool &cont, bool debug)
+moab::ErrorCode MakeWatertight::create_skin_vert_loops( moab::Range &skin_edges,
+    moab::Range tris,
+    std::vector < std::vector <moab::EntityHandle> > &skin ,
+    int surf_id,
+    bool &cont,
+    bool debug)
 {
 
   moab::ErrorCode result;
@@ -1591,12 +1608,12 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
   /* Remove pairs of edges that are geometrically the same but in opposite
      order due to a faceting error ACIS. In other words, merge (a,b) and (b,a).
      Examples are mod13surf280 and tbm_surf1605. */
-  result = arc::remove_opposite_pairs_of_edges_fast( skin_edges, debug );
+  result = arc->remove_opposite_pairs_of_edges_fast( skin_edges, debug );
   if (moab::MB_SUCCESS != result) {
     std::cout << "  surface " << surf_id << " failed to zip: could not remove opposite edges"
               << surf_id << std::endl;
     result = MBI()->delete_entities(skin_edges);
-    if(gen::error(moab::MB_SUCCESS!=result,"could not delete skin edges")) return result;
+    MB_CHK_SET_ERR(result,"could not delete skin edges");
     assert(moab::MB_SUCCESS == result);
     cont = true;
     return result;
@@ -1611,7 +1628,7 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
   for(moab::Range::iterator j=skin_edges.begin(); j!=skin_edges.end(); j++) {
     moab::Range adj_tris;
     result = MBI()->get_adjacencies( &(*j), 1, 2, false, adj_tris );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not get adj tris")) return result;
+    MB_CHK_SET_ERR(result,"could not get adj tris");
     assert(moab::MB_SUCCESS == result);
     moab::Range skin_tri = intersect( adj_tris, tris );
     if(1 != skin_tri.size()) {
@@ -1619,8 +1636,8 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
       catch_error = true;
       break;
     }
-    result = arc::orient_edge_with_tri( *j, skin_tri.front() );
-    if(gen::error(moab::MB_SUCCESS!=result,"could not orient_edge_with_tri")) return result;
+    result = arc->orient_edge_with_tri( *j, skin_tri.front() );
+    MB_CHK_SET_ERR(result,"could not orient_edge_with_tri");
     assert(moab::MB_SUCCESS == result);
   }
   // I NEED TO ADD BETTER CLEANUP AFTER THESE FAILURE CONDITIONS
@@ -1628,7 +1645,7 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
     std::cout << "  surface " << surf_id << " failed to zip: could not orient edge"
               << std::endl;
     result = MBI()->delete_entities(skin_edges);
-    if(gen::error(moab::MB_SUCCESS!=result,"could not delete skin edges")) return result;
+    MB_CHK_SET_ERR(result,"could not delete skin edges");
     assert(moab::MB_SUCCESS == result);
     cont = true;
     return result;
@@ -1638,7 +1655,7 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
 
   // Create loops with the skin edges.
   std::vector< std::vector<moab::EntityHandle> > skin_loops_of_edges;
-  result = arc::create_loops_from_oriented_edges( skin_edges, skin_loops_of_edges, debug );
+  result = arc->create_loops_from_oriented_edges( skin_edges, skin_loops_of_edges, debug );
   if(moab::MB_SUCCESS != result) {
     std::cout << "  surface " << surf_id << " failed to zip: could not create loops"
               << std::endl;
@@ -1652,7 +1669,7 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
   // Convert the loops of skin edges to loops of skin verts.
   std::vector< std::vector<moab::EntityHandle> > skin_temp(skin_loops_of_edges.size());
   for(unsigned int j=0; j<skin_loops_of_edges.size(); j++) {
-    result = gen::ordered_verts_from_ordered_edges( skin_loops_of_edges[j], skin_temp[j] );
+    result = gen->ordered_verts_from_ordered_edges( skin_loops_of_edges[j], skin_temp[j] );
     assert(moab::MB_SUCCESS == result);
     // check to make sure that the loop is closed
     assert(skin_temp[j].front() == skin_temp[j].back());
@@ -1662,7 +1679,7 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
 
   // edges are no longer needed
   result = MBI()->delete_entities(skin_edges);
-  if(gen::error(moab::MB_SUCCESS!=result,"could not delete skin_edges")) return result;
+  MB_CHK_SET_ERR(result,"could not delete skin_edges");
   assert(moab::MB_SUCCESS == result);
 
 
@@ -1671,16 +1688,21 @@ moab::ErrorCode create_skin_vert_loops( moab::Range &skin_edges, moab::Range tri
 
 }
 
-moab::ErrorCode merge_skin_verts ( moab::Range &skin_verts, moab::Range &skin_edges, double SME_RESABS_TOL, int surf_id, bool cont, bool debug)
+moab::ErrorCode MakeWatertight::merge_skin_verts ( moab::Range &skin_verts,
+    moab::Range &skin_edges,
+    double SME_RESABS_TOL,
+    int surf_id,
+    bool cont,
+    bool debug)
 {
 
   moab::ErrorCode result;
 
   result = MBI()->get_adjacencies( skin_edges, 0, false, skin_verts,
                                    moab::Interface::UNION );
-  if(gen::error(moab::MB_SUCCESS!=result,"could not get adj verts")) return result;
+  MB_CHK_SET_ERR(result,"could not get adj verts");
   assert(moab::MB_SUCCESS == result);
-  result = gen::merge_vertices( skin_verts, SME_RESABS_TOL );
+  result = gen->merge_vertices( skin_verts, SME_RESABS_TOL );
   if (moab::MB_SUCCESS != result) {
     if(debug) std::cout << "result= " << result << std::endl;
     std::cout << "  surface " << surf_id << " failed to zip: could not merge vertices"
@@ -1692,12 +1714,12 @@ moab::ErrorCode merge_skin_verts ( moab::Range &skin_verts, moab::Range &skin_ed
   }
 
   // Merging vertices create degenerate edges.
-  result = arc::remove_degenerate_edges( skin_edges, debug );
+  result = arc->remove_degenerate_edges( skin_edges, debug );
   if(moab::MB_SUCCESS!=result) {
     std::cout << "  surface " << surf_id
               << " failed to zip: could not remove degenerate edges" << std::endl;
     result = MBI()->delete_entities(skin_edges);
-    if(gen::error(moab::MB_SUCCESS!=result,"could not delete skin edges")) return result;
+    MB_CHK_SET_ERR(result,"could not delete skin edges");
     assert(moab::MB_SUCCESS == result);
     cont = true;
     return result;
@@ -1707,8 +1729,15 @@ moab::ErrorCode merge_skin_verts ( moab::Range &skin_verts, moab::Range &skin_ed
   return moab::MB_SUCCESS;
 }
 
-
-moab::ErrorCode seal_surface_loops ( moab::EntityHandle surf, moab::EntityHandle skin_loops[] , std::vector < std::vector<moab::EntityHandle> > skin, std::vector<moab::EntityHandle> curves,  moab::Tag normal_tag, moab::Tag orig_curve_tag, double FACET_TOL, int surf_id, bool debug)
+moab::ErrorCode MakeWatertight::seal_surface_loops ( moab::EntityHandle surf,
+    moab::EntityHandle skin_loops[] ,
+    std::vector < std::vector<moab::EntityHandle> > skin,
+    std::vector<moab::EntityHandle> curves,
+    moab::Tag normal_tag,
+    moab::Tag orig_curve_tag,
+    double FACET_TOL,
+    int surf_id,
+    bool debug)
 {
 
 
@@ -1723,21 +1752,20 @@ moab::ErrorCode seal_surface_loops ( moab::EntityHandle surf, moab::EntityHandle
   moab::ErrorCode rval;
   for(unsigned j=0; j<skin.size(); ++j) {
     rval = MBI()->create_meshset( moab::MESHSET_TRACK_OWNER|moab::MESHSET_ORDERED, skin_loops[j] );
-    if(gen::error(moab::MB_SUCCESS!=rval,"failed to zip: creating skin_loop_set failed"))
-      return rval;
+    MB_CHK_SET_ERR(rval,"failed to zip: creating skin_loop_set failed");
 
-    rval = arc::set_meshset( skin_loops[j], skin[j] );
-    if(gen::error(moab::MB_SUCCESS!=rval,"failed ot zip: setting skin_loop_set failed"))
-      return rval;
+
+    rval = arc->set_meshset( skin_loops[j], skin[j] );
+    MB_CHK_SET_ERR(rval,"failed ot zip: setting skin_loop_set failed");
+
   }
 
   // Keep zipping loops until each is either zipped or failed. This function
   // returns only after all loops are zipped or a failure occurs.
   for(unsigned j=0; j<skin.size(); ++j) {
     std::vector<moab::EntityHandle> skin_loop;
-    rval = arc::get_meshset( skin_loops[j], skin_loop );
-    if(gen::error(moab::MB_SUCCESS!=rval,"failed to zip: setting skin_loop_set failed"))
-      return rval;
+    rval = arc->get_meshset( skin_loops[j], skin_loop );
+    MB_CHK_SET_ERR(rval,"failed to zip: setting skin_loop_set failed");
 
     rval = seal_loop( debug, FACET_TOL, normal_tag, orig_curve_tag, surf,
                       curves, skin_loop );
@@ -1751,9 +1779,7 @@ moab::ErrorCode seal_surface_loops ( moab::EntityHandle surf, moab::EntityHandle
 
 }
 
-
-
-moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet_tol, bool verbose)
+moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_set, double &facet_tol, bool verbose)
 {
 
 
@@ -1772,9 +1798,9 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   double sme_resabs_tol=1e-6;
 
   // retrieve mesh tags necessary for sealing the mesh
-  result = gen::get_sealing_mesh_tags( facet_tol, sme_resabs_tol, geom_tag, id_tag, normal_tag, merge_tag, faceting_tol_tag,
+  result = gen->get_sealing_mesh_tags( facet_tol, sme_resabs_tol, geom_tag, id_tag, normal_tag, merge_tag, faceting_tol_tag,
                                        geometry_resabs_tag, size_tag, orig_curve_tag);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not get the mesh tags")) return result;
+  MB_CHK_SET_ERR(result, "could not get the mesh tags");
 
 
   // In practice, use 2*facet_tol because we are always comparing 2 faceted
@@ -1791,13 +1817,13 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
 
   // get all geometry sets and set tracking ordering options appropriately
   moab::Range geom_sets[4];
-  result=gen::get_geometry_meshsets( geom_sets, geom_tag, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not get the geometry meshsets")) return result;
+  result=gen->get_geometry_meshsets( geom_sets, geom_tag, verbose);
+  MB_CHK_SET_ERR(result, "could not get the geometry meshsets");
 
   // If desired, find each entity's size before sealing.
   if(check_geom_size) {
     result = get_geom_size_before_sealing( geom_sets, geom_tag, size_tag, debug, verbose );
-    if(gen::error(moab::MB_SUCCESS!=result,"measuring geom size failed")) return result;
+    MB_CHK_SET_ERR(result,"measuring geom size failed");
   }
 
   if (verbose) std::cout << "Getting entity count before sealing..." << std::endl;
@@ -1814,14 +1840,14 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
 
   if(verbose) std::cout << "Finding degenerate triangles... " << std::endl;
   result = find_degenerate_tris();
-  if(gen::error(result!=moab::MB_SUCCESS,"could not determine if triangles were degenerate or not")) return result;
+  MB_CHK_SET_ERR(moab::MB_SUCCESS,"could not determine if triangles were degenerate or not");
 
 
   result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug, verbose);
-  if(gen::error(result!=moab::MB_SUCCESS,"could not prepare the curves")) return(result);
+  MB_CHK_SET_ERR(moab::MB_SUCCESS,"could not prepare the curves");
 
-  result = gen::check_for_geometry_sets(geom_tag, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result,"no geometry sets exist in the model. Please check curve faceting.")) return result;
+  result = gen->check_for_geometry_sets(geom_tag, verbose);
+  MB_CHK_SET_ERR(result,"no geometry sets exist in the model. Please check curve faceting.");
 
 
   if (verbose) {
@@ -1830,7 +1856,7 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   }
   result = prepare_surfaces(geom_sets[2], geom_tag, id_tag, normal_tag, merge_tag,
                             orig_curve_tag,SME_RESABS_TOL, FACET_TOL, debug);
-  if ( gen::error(result != moab::MB_SUCCESS, "I have failed to zip")) return result;
+  MB_CHK_SET_ERR( moab::MB_SUCCESS, "I have failed to zip");
 
 
   // After zipping surfaces, merged curve entity_to_deletes are no longer needed.
@@ -1838,7 +1864,7 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   // ARE THEIR ORPHANED CHILD VERTEX SETS STILL AROUND?
   if(verbose) std::cout << "Adjusting parent-child links then removing merged curves..." << std::endl;
   result = delete_merged_curves( geom_sets[1], merge_tag, debug);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not delete the merged curves")) return result;
+  MB_CHK_SET_ERR(result, "could not delete the merged curves");
 
 
   // SHOULD COINCIDENT SURFACES ALSO BE MERGED?
@@ -1854,14 +1880,14 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   for(unsigned int i = 0; i < 4; i++) {
     geom_sets[i].clear();
   }
-  result=gen::get_geometry_meshsets( geom_sets, geom_tag, verbose);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not get the geometry meshsets")) return result;
+  result=gen->get_geometry_meshsets( geom_sets, geom_tag, verbose);
+  MB_CHK_SET_ERR(result, "could not get the geometry meshsets");
 
   // As sanity check, did zipping drastically change the entity's size?
   if(check_geom_size && verbose) {
     std::cout << "Checking size change of zipped entities..." << std::endl;
     result = get_geom_size_after_sealing( geom_sets, geom_tag, size_tag, FACET_TOL, debug, verbose );
-    if(gen::error(moab::MB_SUCCESS!=result,"measuring geom size failed")) return result;
+    MB_CHK_SET_ERR(result,"measuring geom size failed");
   }
 
 
@@ -1871,7 +1897,7 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   // representation.
   if (verbose) std::cout << "Restoring faceted curve representation..." << std::endl;
   result = restore_moab_curve_representation( geom_sets[1] );
-  if(gen::error(moab::MB_SUCCESS!=result,"restore_moab_curve_representation failed")) return result;
+  MB_CHK_SET_ERR(result,"restore_moab_curve_representation failed");
   // If all of a volume's surfaces have been deleted, delete the volume.
   if (verbose) std::cout << "Removing small volumes if all surfaces have been removed..." << std::endl;
   for(moab::Range::iterator i=geom_sets[3].begin(); i!=geom_sets[3].end(); ++i) {
@@ -1881,7 +1907,7 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
     assert(moab::MB_SUCCESS == result);
     if(0 == n_surfs) {
       // Remove the volume set. This also removes parent-child relationships.
-      result = gen::delete_vol(vol);
+      result = gen->delete_vol(vol);
       assert(moab::MB_SUCCESS == result);
       i = geom_sets[3].erase(i) - 1;
     }
@@ -1913,7 +1939,7 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   // Tags for merging curves and checking the change in geometry size were added.
   // Delete these because they are no longer needed.
   result = delete_sealing_tags( normal_tag, merge_tag, size_tag, orig_curve_tag);
-  if(gen::error(moab::MB_SUCCESS!=result, "could not delete sealing tags")) return result;
+  MB_CHK_SET_ERR(result, "could not delete sealing tags");
 
   // Print new size of the file to the user
   int sealed_n_tris;
@@ -1929,5 +1955,5 @@ moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set, double &facet
   return moab::MB_SUCCESS;
 }
 
-}
+
 
