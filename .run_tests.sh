@@ -26,6 +26,7 @@ cd tests
 ./uwuw_unit_tests_tally
 ./uwuw_unit_tests_preprocessor
 ./make_watertight_no_curve_sphere_tests
+./make_watertight_sphere_n_box_test
 ./make_watertight_cylinder_tests
 ./make_watertight_cone_tests
 # if this is not a pull request, run regression tests
