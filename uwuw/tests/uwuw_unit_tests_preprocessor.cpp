@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "uwuw_preprocessor.hpp"
+#include "pyne.h"
 
 namespace
 {
@@ -180,5 +181,40 @@ TEST_F(UWUWTest,name8lessthan8preserve100Steel)
   return;
 }
 
+// test to ensure that when a material is taken
+// from the library file and inserted into uwuw material
+// we bring all the metadat with us
+TEST_F(UWUWTest,materialMetadata)
+{
+  std::string lib_file = "mat_lib.h5";
+  std::string dag_file = "dag_file.h5m";
+  std::string out_file = "intermediate.h5";
+  bool verbose = false;
+  bool fatal_errors = false;
+  // make new preprocessor
+  uwuw_preprocessor *uwuw_preproc = new uwuw_preprocessor(lib_file,dag_file,
+      out_file,verbose,fatal_errors);
+  // load the geometry
+  uwuw_preproc->get_dagmc_properties();
+  // process materials
+  uwuw_preproc->process_materials();
+  // write the new material library
+  uwuw_preproc->write_uwuw_materials();
+
+  // now read in the material library
+  UWUW *uwuw = new UWUW(out_file);
+  std::map<std::string,pyne::Material> mat_lib = uwuw->material_library;
+
+  // pull out the only material
+  pyne::Material mat = mat_lib["mat:CentreStack"];
+
+  EXPECT_EQ(mat.metadata["name"].asString(),"mat:CentreStack");
+  EXPECT_EQ(mat.metadata["fluka_name"].asString(),"CENTREST");
+  EXPECT_EQ(mat.metadata["mat_number"].asInt(),1);
+  EXPECT_EQ(mat.metadata["special_tag"].asString(),"this is a test tag");
+
+  delete uwuw;
+  delete uwuw_preproc;
+}
 
 };
