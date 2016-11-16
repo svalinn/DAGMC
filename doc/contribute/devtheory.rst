@@ -42,7 +42,7 @@ Each surface is tagged with the two volume handles of the adjacent volumes.
 The first of the two surfaces is designated as the forward direction and the
 second is designated with the reverse direction. It is important to note that
 these surfaces senses may not be consistent with how an MC code determines
-the surfaces sense.
+the surface sense.
 
 Indices
 ~~~~~~~
@@ -60,7 +60,7 @@ is to identify by the entity handle of the entity set. The entity handle is
 assigned by MOAB and is not necessarily contiguous.
 
 Cross Referencing
-----------------
+-----------------
 
 If one type of indice is known, then either of the other two can be determined.
 By using the functions below or a combination of the functions, either ID,
