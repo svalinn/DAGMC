@@ -38,7 +38,11 @@ relationship), the volume does not contain an entity set.
 Sense Tags
 ----------
 
-TBD
+Each surface is tagged with the two volume handles of the adjacent volumes.
+The first of the two surfaces is designated as the forward direction and the
+second is designated with the reverse direction. It is important to note that
+these surfaces senses may not be consistent with how an MC code determines
+the surfaces sense.
 
 Indices
 ~~~~~~~
