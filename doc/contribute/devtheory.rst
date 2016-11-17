@@ -146,7 +146,12 @@ complement volume.
 Ray History
 ~~~~~~~~~~~
 
-TBD
+A particle can be either streaming or reflecting. If streaming, the particle
+may only cross a particular surface once. To ensure this a list (or history)
+of the surfaces that particle has crossed is maintained. If a surface encountered
+is reflecting, the particle does not cross that surface and is therefore not
+added to the history. If a particle is or becomes a reflecting particle, the
+history of crossed surfaces is cleared.
 
 Point in Volume
 ~~~~~~~~~~~~~~~
