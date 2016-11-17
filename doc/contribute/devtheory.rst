@@ -2,7 +2,7 @@ Developer's Theory Guide
 ========================
 
 This guide is meant to give developers a comprehensive understanding of how
-DAGMC as it exists in MOAB works and the key components one may use during
+DAGMC works as it exists in MOAB and the key components one may use during
 development.
 
 Contructor
@@ -89,25 +89,34 @@ possible. An example is the facet outlined in red below and it’s corresponding
 OBB. For the the rest of this section, facets will be represented by a line with
 a 2D OBB.
 
-IMAGE NEEDED HERE
+..  image:: 3d-obb.svg
+    :height: 300
+    :width:  600
+    :alt:    Image of a 3-D Oriented Bounding Box (OBB) around a facet
 
 OBB Tree Construction
 ---------------------
 
 First, the OBB tree for each surface is built. This is built top down where the
-top level is an OBB that contains all surface’s facets. Then the set of facets
+top level is an OBB that contains all the surface’s facets. Then the set of facets
 is split roughly in half and two new OBBs form around each of the new sets.
 This continues until each of the OBBs the level contains a single facet. A 2D
 example is given below where a single surface has been faceted and the
 orresponding OBB tree is created.
 
-IMAGE NEEDED HERE
+..  image:: red-tree.svg
+    :height: 300
+    :width:  600
+    :alt:    Image of OBB tree structure for a surface
 
 After OBB trees have been created for each surface in a geometry, they are
 joined together to create a complete OBB tree for a volume. See the example
 below where the green, red, and blue surfaces make up a volume.
 
-IMAGE NEEDED HERE
+..  image:: vol-obb-tree.svg
+    :height: 400
+    :width:  600
+    :alt:    Image of OBB tree structure for a volume
 
 Implicit Complement
 ~~~~~~~~~~~~~~~~~~~
