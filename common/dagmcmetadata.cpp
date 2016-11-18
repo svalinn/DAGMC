@@ -174,9 +174,11 @@ void dagmcMetaData::parse_material_data() {
     if (!density_props[0].empty()) {
       grp_name = "mat:"+material_props[0]+"/rho:"+density_props[0];
       volume_density_data_eh[eh] = density_props[0]; 
+      //material_density_pairs[material_props[0]].insert(density_props[0]);
     } else {
       grp_name = "mat:"+material_props[0];
       volume_density_data_eh[eh] = "";
+      //material_density_pairs[material_props[0]].insert("");
     }
 
     // set the material value
@@ -358,7 +360,7 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
 
     if (properties.size() > 1 )
       if (remove_duplicates)
-	properties = remove_duplicate_properties(properties);
+       	properties = remove_duplicate_properties(properties);
     // assign the map value
     prop_map[entity]=properties;
   }
@@ -441,19 +443,55 @@ std::vector<std::string> dagmcMetaData::unpack_string(std::string to_unpack, std
   // loop through the string to unpack and return a vector of unpacked strings
   std::vector<size_t> locations;
   size_t npos = to_unpack.find(delimiters,0);
+  // push back the first match
   locations.push_back(npos);
   while ( npos != std::string::npos) {
     npos = to_unpack.find(delimiters,npos+1);
     locations.push_back(npos);
+    if(npos+1 == to_unpack.length()) break;
   }
+  
 
   std::vector<std::string> unpacked_string;
 
-  for ( int i = 0 ; i < locations.size() - 1 ; i++ ) {
-    std::string extract = to_unpack.substr(locations[i]+1,locations[i+1]-1);
+  for ( int i = 0 ; i < locations.size() - 1  ; i++ ) {
+    int length = locations[i+1]-1 - locations[i];
+    std::string extract = to_unpack.substr(locations[i]+1,length);
     unpacked_string.push_back(extract);
   }
   
   // return the vector of strings
   return unpacked_string;
+}
+ 
+// from a string of the form key:property/key:property 
+// return the value of a desired key
+std::string dagmcMetaData::return_property(std::string property_string, std::string property, std::string delimiter, bool chopped) {
+  std::string value =""; //value to return
+  // first see if property exists
+  std::size_t found_property = property_string.find(property); 
+  if( found_property != std::string::npos ) {
+    // property found now pull out the data upto from found_property to / or to end of string
+    // find the /
+    std::size_t found_delimiter = property_string.find("/");
+    // if we found delimiter
+    if ( found_delimiter != std::string::npos) {
+      // return string from found property to delimiter
+      int str_length = found_delimiter - found_property;
+      value = property_string.substr(found_property,str_length);
+    } else {
+      // return full property
+      value = property_string.substr(found_property);
+    }
+
+    // if chopped, find "delimiter" and return the string after it
+    if(chopped) {
+      std::size_t found = value.find(delimiter);
+      if(found != std::string::npos)
+        value = value.substr(found+1);
+      else
+        value = "";
+    }
+  }
+  return value;
 }

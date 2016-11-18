@@ -19,6 +19,8 @@ class dagmcMetaData {
 
    std::vector<std::string> unpack_string(std::string to_unpack, std::string delimiters="|");
   
+   std::string return_property(std::string property_string, std::string property, std::string delimiter = ":", bool chopped = true);
+
   // private member functions
   private:
    // parse the material data
@@ -64,7 +66,8 @@ class dagmcMetaData {
    // tally map
    std::map<moab::EntityHandle, std::string> tally_data_eh;
 
-
+   // material density pairs
+   // std::map<std::string, std::set<std::string> > material_density_pairs; 
 
   private:
   moab::DagMC *DAG; // Pointer to DAGMC instance

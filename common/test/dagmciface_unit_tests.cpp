@@ -10,7 +10,7 @@
 #include <cassert>
 
 // dagmc instance
-moab::DagMC *DAG = new moab::DagMC();
+moab::DagMC *DAG;
 
 // metadata instance
 dagmcMetaData *dgm;
@@ -27,12 +27,19 @@ class DagmcMetadataTest : public ::testing::Test
     // Default h5m file for testing
     std::string infile = "test_dagmciface.h5m";
 
+    DAG = new moab::DagMC();
+
     rloadval = DAG->load_file(infile.c_str());
     assert(rloadval == moab::MB_SUCCESS);
 
     // DAG call to initialize geometry
     rval = DAG->init_OBBTree();
     assert (rval == moab::MB_SUCCESS);
+  }
+
+  virtual void TearDown() {
+    delete DAG;
+    delete dgm;
   }
 
  protected:
@@ -163,6 +170,28 @@ TEST_F(DagmcMetadataTest,TestMatDensityAssigns)
       EXPECT_EQ(mat_prop,impl_comp_prop);
   }
 }
+
+TEST_F(DagmcMetadataTest,TestUnpackString)
+{
+  // new metadata instance
+  dgm = new dagmcMetaData(DAG);
+  
+  // process 
+  dgm->load_property_data();
+  
+  std::string neutron_property = "Neutron/1.0";
+  std::string photon_property = "Photon/1.0";
+  
+  std::string  mat_prop = dgm->get_volume_property("importance",1,true);
+  std::vector<std::string> imps = dgm->unpack_string(mat_prop,"|");
+  std::cout << imps[0] << std::endl;
+  std::cout << imps[1] << std::endl;
+  EXPECT_EQ(imps.size(),2);
+  EXPECT_EQ(imps[0],neutron_property);
+  EXPECT_EQ(imps[1],photon_property);
+
+}
+
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully 
 // been assigned and succesfully retreved from the metadata class - this test
@@ -221,4 +250,133 @@ TEST_F(DagmcMetadataTest,TestBoundaryAssigns)
 
   }
 }
+//---------------------------------------------------------------------------//
+// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully 
+// been assigned and succesfully retreved from the dataset, specifically querying
+// the boundary condition case
+//---------------------------------------------------------------------------//
+TEST_F(DagmcMetadataTest,TestTallyAssigns)
+{
+  // new metadata instance
+  dgm = new dagmcMetaData(DAG);
+  
+  // process 
+  dgm->load_property_data();
+  
+  std::string base_property = "Neutron/Flux";
+  
+  int num_vols = DAG->num_entities(3);
+  int tmp[] = {1,2,3};
+  std::vector<int> vol_ids( tmp, tmp+3 );
+  for ( int i = 0 ; i < vol_ids.size(); i++ ) {
+    int id = vol_ids[i];
+    std::string vol_prop = dgm->get_volume_property("tally",id,false);
+    std::vector<std::string> tally_props = dgm->unpack_string(vol_prop);
+    moab::EntityHandle eh = DAG->entity_by_id(3,id);
+    std::string vol_prop2 = dgm->get_surface_property("tally",eh);
+    std::vector<std::string> tally_props2 = dgm->unpack_string(vol_prop2);
+
+    EXPECT_EQ(tally_props[0],base_property);
+    EXPECT_EQ(tally_props2[0],base_property);
+  }
+}
+
+//---------------------------------------------------------------------------//
+// FIXTURE-BASED TESTS: Tests to make sure that the return_property function
+// behaves as it is intended
+//---------------------------------------------------------------------------//
+TEST_F(DagmcMetadataTest,TestReturnProperty)
+{
+  // new metadata instance
+  dgm = new dagmcMetaData(DAG);
+  
+  std::string return_string = "";
+  return_string = dgm->return_property("mat:Steel","mat",":",false);
+  EXPECT_EQ(return_string,"mat:Steel");
+  return_string = dgm->return_property("mat:Steel","rho",":",false);
+  EXPECT_EQ(return_string,"");
+  return_string = dgm->return_property("mat:Steel/rho:1.8","mat",":",false);
+  EXPECT_EQ(return_string,"mat:Steel");
+  return_string = dgm->return_property("mat:Steel/rho:1.8","rho",":",false);
+  EXPECT_EQ(return_string,"rho:1.8");
+
+  return_string = dgm->return_property("mat:Steel","mat",":",true);
+  EXPECT_EQ(return_string,"Steel");
+  return_string = dgm->return_property("mat:Steel","rho",":",true);
+  EXPECT_EQ(return_string,"");
+  return_string = dgm->return_property("mat:Steel/rho:1.8","mat",":",true);
+  EXPECT_EQ(return_string,"Steel");
+  return_string = dgm->return_property("mat:Steel/rho:1.8","rho",":",true);
+  EXPECT_EQ(return_string,"1.8");
+
+  return_string = dgm->return_property("mat:Steel","mat");
+  EXPECT_EQ(return_string,"Steel");
+  return_string = dgm->return_property("mat:Steel","rho");
+  EXPECT_EQ(return_string,"");
+  return_string = dgm->return_property("mat:Steel/rho:1.8","mat");
+  EXPECT_EQ(return_string,"Steel");
+  return_string = dgm->return_property("mat:Steel/rho:1.8","rho");
+  EXPECT_EQ(return_string,"1.8");
+}
+
 // assert some behaviors
+
+class DagmcMetadataTestImplCompMat : public ::testing::Test
+{
+ protected:
+
+  // initalize variables for each test
+  virtual void SetUp() {
+    // Default h5m file for testing
+    std::string infile = "test_dagmciface_impl.h5m";
+
+    DAG = new moab::DagMC();
+
+    rloadval = DAG->load_file(infile.c_str());
+    assert(rloadval == moab::MB_SUCCESS);
+
+    // DAG call to initialize geometry
+    rval = DAG->init_OBBTree();
+    assert (rval == moab::MB_SUCCESS);
+  }
+  
+  virtual void TearDown() {
+    //    delete dgm;
+    delete DAG;
+  }
+
+ protected:
+
+  moab::ErrorCode rloadval;
+  moab::ErrorCode rval;
+};
+
+//---------------------------------------------------------------------------//
+// Test setup outcomes
+TEST_F(DagmcMetadataTestImplCompMat, SetUp)
+{
+  EXPECT_EQ(moab::MB_SUCCESS, rloadval);
+  // DAG call to initialize geometry
+  EXPECT_EQ(moab::MB_SUCCESS, rval);
+}
+
+// make sure the the implicit complement material
+// is set
+TEST_F(DagmcMetadataTestImplCompMat, ImplCompMat)
+{
+  // new metadata instance
+  dgm = new dagmcMetaData(DAG);
+  // process 
+  dgm->load_property_data();
+  // loop over the volumes
+  int num_vols = DAG->num_entities(3);
+
+  std::string mat1 = "Steel";
+  std::string mat_impl = "Steel";
+
+  std::string mat_prop = dgm->get_volume_property("material",1,true);
+  EXPECT_EQ(mat1,mat_prop);
+
+  std::string mat_prop2 = dgm->get_volume_property("material",2,true);
+  EXPECT_EQ(mat_impl,mat_prop2);  
+}

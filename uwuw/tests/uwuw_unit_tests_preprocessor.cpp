@@ -145,7 +145,7 @@ TEST_F(UWUWTest,name8lessthan8preserve100)
 
 // test to make sure the number is incremented but that
 // we preserve whitespace and the number is good
-TEST_F(UWUWTest,name8lessthan8preserve100Steel)
+TEST_F(UWUWTest,name8lessthan8preserve1000Steel)
 {
   // make new class
   name_concatenator *ncr = new name_concatenator();
@@ -217,4 +217,62 @@ TEST_F(UWUWTest,materialMetadata)
   delete uwuw_preproc;
 }
 
+};
+
+
+namespace
+{
+
+class UWUWPreprocTest : public ::testing::Test
+{
+ protected:
+ uwuw_preprocessor *uwuw_preproc;
+
+  UWUWPreprocTest() {}
+  virtual ~UWUWPreprocTest() {}
+
+  virtual void SetUp() {
+    // make new preprocessor
+    uwuw_preproc = new uwuw_preprocessor("material_library_test_file.h5",
+                                         "dagmc_geometry_test_file.h5m",
+                                         "output_test_file.h5",
+                                         true,
+                                         false);
+
+    // process the materials
+    uwuw_preproc->process_materials();
+
+    // process the tallies
+    uwuw_preproc->process_tallies();
+
+  }
+
+  virtual void TearDown() {
+    delete uwuw_preproc;
+  }
+};
+
+/*
+ * Test to make sure the name is only uppercased
+ */
+TEST_F(UWUWPreprocTest,testMaterials)
+{
+  // write the material data
+    uwuw_preproc->write_uwuw_materials();
+
+    // write the tally data
+    uwuw_preproc->write_uwuw_tallies();
+}
+
+/*
+ * Test to make sure the name is only uppercased
+ */
+TEST_F(UWUWPreprocTest,testTallies)
+{
+  // write the material data
+    uwuw_preproc->write_uwuw_materials();
+
+    // write the tally data
+    uwuw_preproc->write_uwuw_tallies();
+}
 };

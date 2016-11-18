@@ -8,6 +8,8 @@
 #include "DagMC.hpp"
 #include "name_concatenator.hpp"
 
+#include "dagmcmetadata.hpp"
+
 /// convenience struct for the tally information
 struct tally_info {
   std::string particle_name;
@@ -222,6 +224,8 @@ class uwuw_preprocessor
   std::map<std::string, pyne::Material> material_library; ///< material_library input by reading from library file
   std::map<std::string, pyne::Material> uwuw_material_library; ///< material library to write out to DAGMC file
   name_concatenator *ncr; ///< unique naming class pointer
+  moab::DagMC *DAG; ///< DAGMC pointer
+  dagmcMetaData *dmd; ///< DAGMC metadata pointer
   UWUW mat_lib; ///< static UWUW class for reading the material library
 
   std::vector<int> no_props; ///< list of cells with no properties
