@@ -64,35 +64,34 @@ diff -rN '--unified=0' Source/src/chkcel.F90 Source_dagmc/src/chkcel.F90
 diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 --- Source/src/dagmc_mod.F90
 +++ Source_dagmc/src/dagmc_mod.F90
-@@ -0,0 +1,254 @@
+@@ -0,0 +1,248 @@
 +module dagmc_mod
 +
-+  use mcnp_params
-+  use pblcom, only: mpb
++  use mcnp_params, only : dknd
 +
-+  integer, parameter, public :: & ! named constant for file distribution mode
-+     & DGFM_SEQ   = 0, &
-+     & DGFM_READ  = 1, & 
-+     & DGFM_BCAST = 2 
++  integer, parameter, public :: &  ! named constant for file distribution mode
++    & DGFM_SEQ   = 0, &
++    & DGFM_READ  = 1, &
++    & DGFM_BCAST = 2
 +
-+  integer, save :: isdgmc 
++  integer, save :: isdgmc
 +
 +  integer, save :: dagmc_geom_file_mode = DGFM_SEQ  ! default to a distributed read
 +
 +  integer, save :: dagmc_srcmode = 0
 +  integer, save :: dagmc_usecad  = 0
 +  integer, save :: dagmc_distlimit = 0
-+  
++
 +  real(dknd), save :: dagmc_facet_tol
 +  real(dknd), save :: dagmc_overlap_thickness
 +  real(dknd), save :: dagmc_version
-+  
++
 +  integer, save :: dagmc_subversion
 +
 +  public :: &
 +    &   lcadrd, &        ! read log file information
 +    &   dagmc_msgput, &  ! share dagmc settings to slave tasks
-+    &   dagmc_msgget    ! receive dagmc settings from master task
++    &   dagmc_msgget     ! receive dagmc settings from master task
 +
 +contains
 +
@@ -100,221 +99,216 @@ diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 +    ! Description:
 +    ! Reads in the CAD log file and "inserts" it at the header
 +    ! of the input file.
-+    
++
 +    ! >>>>> Modules used
-+    use mcnp_global
-+    use mcnp_params
-+    use mcnp_iofiles
-+    
++    use mcnp_iofiles, only : inp, lcad
++
 +    ! >>>>> Implict declaration of real variables as doubles
 +    implicit real(dknd) (a-h,o-z)
-+    
++
 +    ! >>>>> Other variables
 +    character(len=80)  :: hk          ! Character for line of file being read
 +    integer, parameter :: ie = 70     ! I/O index of a scratch file
 +    integer            :: it, iu = 0  ! Indices for nxtsym function
 +    integer            :: ios = 0     ! IOSTAT for file reading
-+    
++
 +    ! >>>>> Initialize the scratch file and get to beginning of input file
-+    open(ie,status='scratch')
++    open(ie, status='scratch')
 +    rewind iui
-+    
++
 +    ! >>>>> Check if first line is message block, otherwise assume a title card
-+    read(iui,'(a80)',end=1000) hk
-+    call nxtsym(hk,' ',1,it,iu,1)
-+    
-+    if (hk(it:iu) == 'message:') then
-+       ! Message block exists, read until blank line found
-+       do
-+          read(iui,'(a80)',end=1000) hk   ! Read in string: exception for eof
-+          if (hk == ' ') exit             ! Terminate loop once blank line found 
-+       enddo
-+       ! Read in title card, for message block case
-+       read(iui,'(a80)',end=1000) hk
++    read(iui, '(a80)', end=1000) hk
++    call nxtsym(hk, ' ', 1, it, iu, 1)
++
++    if ( hk(it:iu) == 'message:' ) then
++      ! Message block exists, read until blank line found
++      do
++        read(iui, '(a80)', end=1000) hk  ! Read in string: exception for eof
++        if ( hk == ' ' ) exit            ! Terminate loop once blank line found
++      enddo
++      ! Read in title card, for message block case
++      read(iui, '(a80)', end=1000) hk
 +    endif
-+    
++
 +    ! Write title card to scratch file
-+    write(ie,'(a80)') hk
-+    
++    write(ie, '(a80)') hk
++
 +    ! >>>>> Read in cell/surface cards from log
 +    rewind iulc
 +    do
-+       read(iulc, '(a80)', iostat=ios) hk
-+       
-+       ! Check for end of file or errors
-+       if (ios == 0) then
-+          write(ie,'(a80)') hk     ! Write the line normally
-+       elseif (ios < 0) then
-+          exit                     ! Break loop at EOF
-+       else
-+          goto 2000                ! Exception for severe I/O error
-+       endif
++      read(iulc, '(a80)', iostat=ios) hk
++
++      ! Check for end of file or errors
++      if ( ios == 0 ) then
++        write(ie, '(a80)') hk  ! Write the line normally
++      elseif ( ios < 0 ) then
++        exit                   ! Break loop at EOF
++      else
++        goto 2000              ! Exception for severe I/O error
++      endif
 +    enddo
-+    
++
 +    ! >>>> Read in rest of input file
 +    ios = 0
 +    do
-+       read(iui, '(a80)', iostat = ios) hk
-+       
-+       ! Check for end of file or errors
-+       if (ios == 0) then
-+          write(ie,'(a80)') hk     ! Write the line to scratch file
-+       elseif (ios < 0) then
-+          exit                     ! Break loop at EOF
-+       else
-+          goto 3000                ! Exception for severe I/O error
-+       endif
++      read(iui, '(a80)', iostat = ios) hk
++
++      ! Check for end of file or errors
++      if ( ios == 0 ) then
++        write(ie, '(a80)') hk  ! Write the line to scratch file
++      elseif ( ios < 0 ) then
++        exit                   ! Break loop at EOF
++      else
++        goto 3000              ! Exception for severe I/O error
++      endif
 +    enddo
-+    
++
 +    ! >>>>> Echo back to new scratch input file
 +    close(iui)
 +    rewind ie
-+    open(iui,status='scratch')
++    open(iui, status='scratch')
 +    ios = 0
-+    do      
-+       read(ie, '(a80)', iostat = ios) hk
-+       
-+       ! Check for end of file or errors
-+       if (ios == 0) then
-+          write(iui,'(a80)') hk    ! Write the line in the scratch input file
-+       elseif (ios < 0) then
-+          exit                     ! Break loop at EOF
-+       else
-+          goto 4000                ! Exception for severe I/O error
-+       endif
-+       
++    do
++      read(ie, '(a80)', iostat=ios) hk
++
++      ! Check for end of file or errors
++      if ( ios == 0 ) then
++        write(iui, '(a80)') hk  ! Write the line in the scratch input file
++      elseif ( ios < 0 ) then
++        exit                    ! Break loop at EOF
++      else
++        goto 4000               ! Exception for severe I/O error
++      endif
 +    enddo
-+    
++
 +    ! >>>>> Finish up
 +    rewind iui
-+    ! pass1 expects iui to be advanced beyond the title card, 
++    ! pass1 expects iui to be advanced beyond the title card,
 +    ! so read past the first line now
 +    read(iui, '(a)')
 +
 +    close(ie)
 +    return
-+    
++
 +    ! >>>>> Exceptions
 +    ! End of File at header of input file
-+1000 call expire(0,'lcadrd','unexpected eof in file '//inp)
++1000 call expire(0, 'lcadrd', 'unexpected eof in file '//inp)
 +    return
 +    ! Severe I/O error during reading of CAD log
-+2000 call expire(0,'lcadrd','error during read of file '//lcad)
++2000 call expire(0, 'lcadrd', 'error during read of file '//lcad)
 +    return
 +    ! Severe I/O error during reading of CAD log
-+3000 call expire(0,'lcadrd','error during read of file '//inp)
++3000 call expire(0, 'lcadrd', 'error during read of file '//inp)
 +    return
 +    ! Severe I/O error during echo of scratch file to new input file
-+4000 call expire(0,'lcadrd','error stitching input and CAD log')
++4000 call expire(0, 'lcadrd', 'error stitching input and CAD log')
 +    return
-+    
++
 +  end subroutine lcadrd
 +
 +  subroutine dagmc_msgput
 +
-+    use messages, only : msg_put
-+    use mcnp_iofiles, only: gcad, ftol
-+    use fixcom, only : ntal
++    use messages,     only : msg_put
++    use mcnp_iofiles, only : gcad, ftol
 +    use mcnp_debug
 +
-+    call msg_put (isdgmc)
-+    call msg_put (dagmc_geom_file_mode)
-+    call msg_put (gcad)
-+    call msg_put (ftol)
-+    call msg_put (dagmc_srcmode)
-+    call msg_put (dagmc_usecad)
-+    call msg_put (dagmc_distlimit)
-+    call msg_put (dagmc_overlap_thickness)
-+    call msg_put (dagmc_facet_tol)
-+    call msg_put (dagmc_version)
++    call msg_put(isdgmc)
++    call msg_put(dagmc_geom_file_mode)
++    call msg_put(gcad)
++    call msg_put(ftol)
++    call msg_put(dagmc_srcmode)
++    call msg_put(dagmc_usecad)
++    call msg_put(dagmc_distlimit)
++    call msg_put(dagmc_overlap_thickness)
++    call msg_put(dagmc_facet_tol)
++    call msg_put(dagmc_version)
 +
 +  end subroutine dagmc_msgput
 +
 +  subroutine dagmc_msgget
-+   
-+    use messages, only : msg_get
-+    use mcnp_iofiles, only: gcad, ftol
-+    use fixcom, only : ntal
++
++    use messages,     only : msg_get
++    use mcnp_iofiles, only : gcad, ftol
++    use pblcom,       only : mpb
 +    use mcnp_debug
 +
 +    implicit none
 +
 +    real(dknd) :: master_dagmc_version
 +
-+    call msg_get (isdgmc)
-+    call msg_get (dagmc_geom_file_mode)
-+    call msg_get (gcad)
-+    call msg_get (ftol)
-+    call msg_get (dagmc_srcmode)
-+    call msg_get (dagmc_usecad)
-+    call msg_get (dagmc_distlimit)
-+    call msg_get (dagmc_overlap_thickness)
-+    call msg_get (dagmc_facet_tol)
-+    call msg_get (master_dagmc_version)
++    call msg_get(isdgmc)
++    call msg_get(dagmc_geom_file_mode)
++    call msg_get(gcad)
++    call msg_get(ftol)
++    call msg_get(dagmc_srcmode)
++    call msg_get(dagmc_usecad)
++    call msg_get(dagmc_distlimit)
++    call msg_get(dagmc_overlap_thickness)
++    call msg_get(dagmc_facet_tol)
++    call msg_get(master_dagmc_version)
 +
 +    if ( isdgmc == 1 ) then
-+       call dagmcinit(gcad//char(0),len_trim(gcad),      &
-+          &           ftol//char(0),len_trim(ftol),      &
-+          &           dagmc_geom_file_mode, dagmc_version, dagmc_subversion, mpb )
-+       if (dagmc_version /= master_dagmc_version) then
-+          ! errprt and fail!
-+       end if
-+       call dagmc_set_settings(dagmc_distlimit, dagmc_usecad, dagmc_overlap_thickness, dagmc_srcmode )
++      call dagmcinit(gcad//char(0), len_trim(gcad), ftol//char(0), len_trim(ftol), &
++        &            dagmc_geom_file_mode, dagmc_version, dagmc_subversion, mpb)
++      if ( dagmc_version /= master_dagmc_version ) then
++        ! errprt and fail!
++      end if
++      call dagmc_set_settings(dagmc_distlimit, dagmc_usecad, &
++        &                     dagmc_overlap_thickness, dagmc_srcmode)
 +    end if
 +
 +  end subroutine dagmc_msgget
-+  
++
 +  subroutine init_dagmc
 +
-+     use mcnp_iofiles
++    use mcnp_iofiles, only : gcad, lcad, fcad, ftol, file_exists
++    use mcnp_params,  only : ver
++    use pblcom,       only : mpb
 +
-+     ! Check to see if the CAD file exists, if not, abort
-+     inquire( file = gcad, exist = file_exists)
-+     if (.not.file_exists) then
-+        call expire(0,'main','CAD geometry file '//gcad// &
-+             &            ' does not exist.')
-+     endif
-+     
-+     ! initialize DAGMC, read geometry and initialize OBBTree
-+     call dagmcinit(gcad//char(0),len_trim(gcad),      &
-+          &         ftol//char(0),len_trim(ftol),      &
-+          &         dagmc_geom_file_mode,dagmc_version, dagmc_subversion, mpb )
++    ! Check to see if the CAD file exists, if not, abort
++    inquire( file = gcad, exist = file_exists)
++    if (.not.file_exists) then
++      call expire(0,'main','CAD geometry file '//gcad//' does not exist.')
++    endif
 +
++    ! Initialize DAGMC, read geometry and initialize OBBTree
++    call dagmcinit(gcad//char(0), len_trim(gcad), &
++      &            ftol//char(0), len_trim(ftol), &
++      &            dagmc_geom_file_mode,dagmc_version, dagmc_subversion, mpb)
 +
-+     call dagmc_init_settings(dagmc_distlimit, dagmc_usecad, &
-+                              dagmc_overlap_thickness, dagmc_facet_tol, dagmc_srcmode)
++    call dagmc_init_settings(dagmc_distlimit, dagmc_usecad, &
++      &                      dagmc_overlap_thickness, dagmc_facet_tol, &
++      &                      dagmc_srcmode)
 +
-+     ! print version number message to terminal
-+     call dagmc_version_heading(jtty)
++    ! Print version number message to terminal
++    call dagmc_version_heading(jtty)
 +
-+     ! write mesh file if requested
-+     if ( len_trim(fcad) .gt. 0) then
-+        call dagmcwritefacets(fcad//char(0),len_trim(fcad))     
-+     endif
++    ! Write mesh file if requested
++    if ( len_trim(fcad) .gt. 0) then
++      call dagmcwritefacets(fcad//char(0), len_trim(fcad))
++    endif
 +
++    ! Parse metadata and write input cards
++    call dagmcwritemcnp(gcad//char(0), lcad//char(0), len_trim(lcad), ver(1:1)//char(0))
 +
-+     ! parse metadata and write input cards
-+     call dagmcwritemcnp(gcad//char(0),lcad//char(0), len_trim(lcad), ver(1:1)//char(0))
-+     
-+     ! Check to ensure that the log file is written
-+     inquire( file = lcad, exist = file_exists)
-+     if (.not.file_exists) then
-+        call expire(0,'main','CAD list file '//lcad// &
-+             &             ' not written by DAGMC.')
-+     endif
-+     
-+     ! Open the cad log file on the MCNP side
-+     open( unit=iulc, file=lcad, status='old' )
++    ! Check to ensure that the log file is written
++    inquire(file=lcad, exist=file_exists)
++    if ( .not.file_exists ) then
++      call expire(0,'main','CAD list file '//lcad//' not written by DAGMC.')
++    endif
++
++    ! Open the cad log file on the MCNP side
++    open(unit=iulc, file=lcad, status='old')
 +
 +  end subroutine init_dagmc
 +
 +  ! write DagMC version number message to given file
 +  subroutine dagmc_version_heading(o)
-+    
-+    integer :: o 
 +
-+     write(o,150) dagmc_version, dagmc_subversion
-+150  format(1x,'This problem is using DAGMC version ',f8.3,' w/ DagMC r', i4)
++    integer :: o
++
++    write(o,150) dagmc_version, dagmc_subversion
++150 format(1x,'This problem is using DAGMC version ',f8.3,' w/ DagMC r', i4)
 +
 +  end subroutine dagmc_version_heading
 +
