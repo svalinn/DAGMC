@@ -1,23 +1,23 @@
 The DAG-MCNP5 input file
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DAG-MCNP5 input file contains only the data cards section of a
-standard MCNP5 input file.  There are no cell or surface cards
-included in the input file.
+The DAG-MCNP5 input file contains only the data cards section of a standard
+MCNP5 input file.  There are no cell or surface cards included in the input
+file.
 
-A new data card has been added to DAG-MCNP5 to define parameters for
-the DAGMC geometry capability.  
+A new data card has been added to DAG-MCNP5 to define parameters for the DAGMC
+geometry capability.
 ::
 
   Form: dagmc  keyword1=value   keyword2=value
        check_src_cell: behavior of CEL variable in SDEF card
-                          on  [default] standard interpretation for 
+                          on  [default] standard interpretation for
                                         CEL variable: source rejection
-                          off           no cell rejection - assume that 
+                          off           no cell rejection - assume that
                                         sampled position is in cell CEL
        overlap_thickness: allows particle tracking through small overlaps
                           {real} [default=0.0]
-               distlimit: toggle usage of flight distance sampled from 
+               distlimit: toggle usage of flight distance sampled from
                           physics to accelerate ray-tracing search
                           off [default] do not use physics flight distance
                           on            do use physics flight distance
@@ -52,15 +52,15 @@ keywords have been added to the command line to specify the necessary files.
     and log file being used correspond to each other. This runtime parameter is
     unique to DAG-MCNP5.
 
-To run a MCNP based DAG problem, the user must make the minimum input deck 
-that defines the particle source definition, runtime parameters, and physics 
-cutoffs. You then run MCNP;
+To run DAG-MCNP5, you must make the minimum input deck that defines the particle
+source definition, runtime parameters, and physics cutoffs. You then run MCNP5
+with
 ::
 
     $ mcnp5 i=input g=geom.h5m
 
-It may be the case that some nuclides are not found, an lcad file will have been produced in the previous step
-which the user can modify to remove extraneous nuclides and re-run with;
+If MCNP5 is unable to find some nuclides, you can modify the lcad file that was
+produced in the previous step to remove extraneous nuclides, and re-run with
 ::
 
     $ mcnp5 i=input g=geom.h5m l=lcad_modified

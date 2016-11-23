@@ -13,7 +13,7 @@ guides for the individual codes with which you want to install DAGMC.
 For DAG-MCNP5, you will need to
 :ref:`apply the source code patch <mcnp5_patch>`.
 
-For FluDAG, you will need to :ref:`install FLUKA <install_fluka>` 
+For FluDAG, you will need to :ref:`install FLUKA <install_fluka>`.
 
 For DAG-Geant4, you will need to :ref:`install Geant4 <install_geant4>`.
 

@@ -4,8 +4,7 @@ Get DAGMC
 As before, this guide assumes that you are building DAGMC in the subdirectory
 ``dagmc_bld`` of your home directory.
 
-The first step is to clone the `DAGMC repository
-<https://github.com/svalinn/DAGMC>`_.
+The first step is to clone the `DAGMC repository <DAGMC_repo_>`_.
 ::
 
     $ cd $HOME/dagmc_bld
@@ -14,3 +13,5 @@ The first step is to clone the `DAGMC repository
     $ git clone https://github.com/svalinn/DAGMC
     $ cd DAGMC
     $ git checkout develop
+
+..  _DAGMC_repo: https://github.com/svalinn/DAGMC
