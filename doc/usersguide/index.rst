@@ -9,27 +9,30 @@ has developed several workflows for the Monte Carlo codes it supports. Exactly
 which workflow suits your needs depends on which codes you expect to use and how
 much manual data transfer you wish to do.
 
-+------------------------+---------------------+--------------------+
-| **Feature**            | **|UW2| workflow**  | **Basic workflow** |
-+------------------------+---------------------+--------------------+
-| Assignment of metadata | Manual              |  Manual            |
-+------------------------+---------------------+--------------------+
-| MCNP5 tallies          | Automatic           |  Manual            |
-+------------------------+---------------------+--------------------+
-| MCNP5 materials        | Automatic           |  Manual            |
-+------------------------+---------------------+--------------------+
-| Fluka tallies          | Automatic           |  Manual            |
-+------------------------+---------------------+--------------------+
-| Fluka materials        | Automatic           |  Manual            |
-+------------------------+---------------------+--------------------+
-| Geant4 tallies         | Automatic           |  Manual            |
-+------------------------+---------------------+--------------------+
-| Geant4 materials       | Automatic           |  Manual            |
-+------------------------+---------------------+--------------------+
-| Tripoli4 tallies       | Not supported       |  None              |
-+------------------------+---------------------+--------------------+
-| Tripoli4 materials     | Not supported       |  None              |
-+------------------------+---------------------+--------------------+
++-------------------------+----------------+----------------+
+| Feature                 | UW2 Workflow   | Basic Workflow | 
++-------------------------+----------------+----------------+
+|  Assignment of Metadata | M              |  M             |
++-------------------------+----------------+----------------+
+|  MCNP5 Tallies          | A              |  M             |
++-------------------------+----------------+----------------+
+|  MCNP5 Materials        | A              |  M             |
++-------------------------+----------------+----------------+
+|  Fluka Tallies          | A              |  M             |
++-------------------------+----------------+----------------+
+|  Fluka Materials        | A              |  M             |
++-------------------------+----------------+----------------+
+|  Geant4 Tallies         | A              |  M             |
++-------------------------+----------------+----------------+
+|  Geant4 Materials       | A              |  M             |
++-------------------------+----------------+----------------+
+|  Tripoli4 Tallies       | N              |  None          |
++-------------------------+----------------+----------------+
+|  Tripoli4 Materials     | N              |  None          |
++-------------------------+----------------+----------------+
+
+**N** not supported, **A** automatic production at run time, **M** manually
+performed
 
 If you are interested in running your geometry in multiple physics packages with
 minimal effort, the |UW2| workflow will be the best option as it will automate
