@@ -39,7 +39,7 @@ of this is shown below; curves are shown on the left and facets on the right.
     :alt:    Image showing the FNG facet information
 
 The .vtk file containing the curves is useful if you wish to examine the final
-model in a convenient and graphically responsive method; however, one cannot
+model in a convenient and graphically responsive way; however, one cannot
 perform slice operations on the curve file. When plotting alongside mesh files,
 the .stl file should be used as it can be sliced conviently. If the .stl file is
 still prohibitively large, it is sometimes useful to generate a facet file with
