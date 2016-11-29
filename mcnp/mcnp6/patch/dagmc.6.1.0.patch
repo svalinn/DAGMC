@@ -1,12 +1,12 @@
 diff -rN '--unified=0' Source/import/frgcpa_.inc Source_dagmc/import/frgcpa_.inc
---- Source/import/frgcpa_.inc	2016-10-06 14:11:22.090396358 -0500
-+++ Source_dagmc/import/frgcpa_.inc	2016-10-10 17:56:43.525561583 -0500
+--- Source/import/frgcpa_.inc	2016-11-28 16:43:39.756721066 -0600
++++ Source_dagmc/import/frgcpa_.inc	2016-11-28 16:43:39.688694655 -0600
 @@ -3 +3 @@
 -!$OMP THREADPRIVATE (/FRGCPA_/)
 +! !$OMP THREADPRIVATE (/FRGCPA_/)
 diff -rN '--unified=0' Source/import/frgspa_.inc Source_dagmc/import/frgspa_.inc
---- Source/import/frgspa_.inc	2016-10-06 14:11:22.090396358 -0500
-+++ Source_dagmc/import/frgspa_.inc	2016-10-10 17:56:46.317527989 -0500
+--- Source/import/frgspa_.inc	2016-11-28 16:43:39.756721066 -0600
++++ Source_dagmc/import/frgspa_.inc	2016-11-28 16:43:39.688694655 -0600
 @@ -3 +3 @@
 -!$OMP THREADPRIVATE (/FRGSPA_/)
 +! !$OMP THREADPRIVATE (/FRGSPA_/)
@@ -56,6 +56,12 @@ diff -rN '--unified=0' Source/src/celsrf.F90 Source_dagmc/src/celsrf.F90
 +    ! DAGMC: Skip this loop if in CAD mode
 +    if (isdgmc == 1) exit
 +
+diff -rN '--unified=0' Source/src/check_binary_expire.F90 Source_dagmc/src/check_binary_expire.F90
+--- Source/src/check_binary_expire.F90
++++ Source_dagmc/src/check_binary_expire.F90
+@@ -19 +19 @@
+-   use mcnp_env, only : LODDAT
++   use mcnp_env, only : loddat
 diff -rN '--unified=0' Source/src/chkcel.F90 Source_dagmc/src/chkcel.F90
 --- Source/src/chkcel.F90
 +++ Source_dagmc/src/chkcel.F90
@@ -74,7 +80,7 @@ diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 @@ -0,0 +1,224 @@
 +module dagmc_mod
 +
-+  use mcnp_params, only : dknd
++  use mcnp_params
 +
 +  integer, parameter, public :: &  ! named constant for file distribution mode
 +    & DGFM_SEQ   = 0, &
@@ -159,7 +165,7 @@ diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 +    ! >>>> Read in rest of input file
 +    ios = 0
 +    do
-+      read(iui, '(a80)', iostat = ios) hk
++      read(iui, '(a80)', iostat=ios) hk
 +
 +      ! Check for end of file or errors
 +      if ( ios == 0 ) then
@@ -249,7 +255,7 @@ diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 +    use mcnp_env,     only : ver
 +
 +    ! Check to see if the CAD file exists, if not, abort
-+    inquire( file = gcad, exist = file_exists)
++    inquire(file=gcad, exist=file_exists)
 +    if (.not.file_exists) then
 +      call expire(0,'main','CAD geometry file '//gcad//' does not exist.')
 +    endif
@@ -451,14 +457,11 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +
 +  !-----------------------------------------------------------------------------------------
 +
-@@ -218,0 +313,6 @@
+@@ -218,0 +313,3 @@
 +    ! DAGMC
 +    real(dknd), dimension(:), pointer :: dagmc_runtpe_data
 +
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_runtpw'
-+
-@@ -270,0 +371,8 @@
+@@ -270,0 +368,8 @@
 +      ! DAGMC:
 +      if ( fm(i)%icrd == 3 ) then
 +        ! Get pointer to mesh's working data and fill runtpe with those contents
@@ -467,15 +470,11 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +        call dagmc_fmesh_get_error_data( fm(i)%id, dagmc_runtpe_data )
 +        write(iu) dagmc_runtpe_data
 +      endif
-@@ -299,0 +408,3 @@
+@@ -299,0 +405,3 @@
 +    ! DAGMC
 +    real(dknd), dimension(:), pointer :: dagmc_runtpe_data
 +
-@@ -302,0 +414,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_runtpr'
-+
-@@ -474,0 +589,11 @@
+@@ -474,0 +583,11 @@
 +
 +      ! DAGMC:
 +      if ( fm(i)%icrd == 3 ) then
@@ -487,27 +486,11 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +        read(iu) dagmc_runtpe_data
 +      endif
 +
-@@ -526,0 +652,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: ifmesh_print'
-+
-@@ -706,0 +835,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_allocate'
-+
-@@ -809,0 +941,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: wtmult_fmesh'
-+
-@@ -1043 +1177,2 @@
+@@ -1043 +1162,2 @@
 -    integer   :: i, ix, iy, iz, it, ie, is
 +    integer   :: i, ix, iy, iz, it, ie, is, j
 +
-@@ -1045,0 +1181,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_msgbcast'
-+
-@@ -1150,0 +1289,16 @@
+@@ -1150,0 +1271,16 @@
 +      ! DAGMC: broadcast comment contents if this is a dagmc mesh
 +      if ( fm(i)%icrd == 3 ) then
 +        call msg_bcast(mynum, fm(i)%n_comment_lines)
@@ -524,7 +507,7 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +        enddo
 +      endif
 +
-@@ -1198,0 +1353,7 @@
+@@ -1198,0 +1335,7 @@
 +
 +      ! DAGMC:
 +      do i = 1, nmesh
@@ -532,18 +515,15 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +          call dagmc_setup_mesh_tally(i)
 +        endif
 +      enddo
-@@ -1218,0 +1380,6 @@
+@@ -1218,0 +1362,3 @@
 +    ! DAGMC
 +    real(dknd), dimension(:), pointer :: dagmc_mpi_data
 +
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_msgcon'
-+
-@@ -1243 +1410,2 @@
+@@ -1243 +1389,2 @@
 -      isize = ix*iy*iz*it*ie
 +      if( fm(i)%icrd /= 3 ) then
 +        isize = ix*iy*iz*it*ie
-@@ -1245,7 +1413,15 @@
+@@ -1245,7 +1392,15 @@
 -      ! use matching tag=555 in fmesh_msgtsk
 -      call msg_recv( islave,555, fmtal(i)%tally(:,1,1,1,1,1), isize )
 -      fm(i)%fmarry(:,:,:,:,:,1) = fm(i)%fmarry(:,:,:,:,:,1) + fmtal(i)%tally(:,:,:,:,:,1)
@@ -566,18 +546,15 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +        call msg_recv(islave, 558, dagmc_mpi_data, size(dagmc_mpi_data))
 +        call dagmc_fmesh_add_scratch_to_error(fm(i)%id)
 +      endif
-@@ -1269,0 +1446,6 @@
+@@ -1269,0 +1425,3 @@
 +    ! DAGMC
 +    real(dknd), dimension(:), pointer :: dagmc_mpi_data
 +
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_msgtsk'
-+
-@@ -1285 +1467,2 @@
+@@ -1285 +1443,2 @@
 -      isize = ix*iy*iz*it*ie
 +      if( fm(i)%icrd /= 3 ) then
 +        isize = ix*iy*iz*it*ie
-@@ -1287,7 +1470,14 @@
+@@ -1287,7 +1446,14 @@
 -      ! use matching tag=555 & tag=556 in fmesh_msgcon
 -      call msg_send( 0,555, fm(i)%fmarry(:,1,1,1,1,1), isize )
 -      call msg_send( 0,556, fm(i)%fmerr( :,1,1,1,1,1), isize )
@@ -599,16 +576,13 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +        call dagmc_fmesh_get_error_data(fm(i)%id, dagmc_mpi_data)
 +        call msg_send(0, 558, dagmc_mpi_data, size(dagmc_mpi_data))
 +      endif
-@@ -1313,0 +1504,8 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: mesh_end_history'
-+
+@@ -1313,0 +1480,5 @@
 +    ! DAGMC: perform end of history tasks for all dagmc mesh tallies
 +    if ( enable_dag_tallies ) then
 +      call dagmc_fmesh_end_history()
 +    endif
 +
-@@ -1390,0 +1589,30 @@
+@@ -1390,0 +1562,27 @@
 +  subroutine dagmc_get_multiplier( i, erg, multiplier )
 +
 +    use mcnp_params, only : dknd
@@ -619,9 +593,6 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +    real(dknd), intent(in) :: erg
 +    real(dknd), intent(out) :: multiplier
 +    real(dknd) :: t
-+
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: dagmc_get_multiplier'
 +
 +    t = 1._dknd
 +    if( fm(i)%ifm_card/=0 ) then
@@ -639,16 +610,12 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +
 +  !-----------------------------------------------------------------------------------------
 +
-@@ -1422,0 +1651,4 @@
+@@ -1422,0 +1621,4 @@
 +
 +    ! DAGMC
 +    real(dknd) :: dagmc_multiplier
 +
-@@ -1425,0 +1658,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: mesh_score'
-+
-@@ -1435,0 +1671,13 @@
+@@ -1435,0 +1638,13 @@
 +    ! DAGMC: update multipliers if any dagmc mesh tallies exist
 +    if ( enable_dag_tallies ) then
 +      do i = 1, nmesh
@@ -662,71 +629,32 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +       call dagmc_fmesh_score(ipt, x, y, z, u, v, w, erg, wgt, d, pbl%i%icl)
 +    endif
 +
-@@ -1444,0 +1693,5 @@
+@@ -1444,0 +1660,5 @@
 +      ! DAGMC: skip iteration if dagmc mesh tally
 +      if ( fm(i)%icrd == 3 ) then
 +        cycle
 +      endif
 +
-@@ -1927,0 +2181,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: mesh_score_cyl'
-+
-@@ -2371,0 +2628,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: mesh_score_source'
-+
-@@ -2437,0 +2697,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmsh_setup'
-+
-@@ -2669,0 +2932,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: dosef_fmesh'
-+
-@@ -2743,0 +3009,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_print'
-+
-@@ -2792,0 +3061,5 @@
+@@ -2792,0 +3013,5 @@
 +    ! DAGMC: write data to file for all dagmc mesh tallies
 +    if ( enable_dag_tallies ) then
 +      call dagmc_fmesh_print(sp_norm)
 +    endif
 +
-@@ -2794,0 +3068,5 @@
+@@ -2794,0 +3020,5 @@
 +      ! DAGMC: skip iteration if dagmc mesh tally
 +      if( fm(j)%icrd == 3 ) then
 +        cycle
 +      endif
 +
-@@ -3618,0 +3897,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_initialize'
+@@ -4000,0 +4231,7 @@
 +
-@@ -4001,0 +4283,7 @@
 +    ! DAGMC: setup up dagmc mesh tallies based on fmesh index i
 +    do i = 1,nmesh
 +      if( fm(i)%icrd == 3 ) then
 +        call dagmc_setup_mesh_tally(i)
 +      endif
 +    enddo
-+
-@@ -4023,0 +4312,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_vtask'
-+
-@@ -4046,0 +4338,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: fmesh_start_cycle'
-+
-@@ -4092,0 +4387,3 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: setup_fmesh_atom_fractions'
-+
-@@ -4164,0 +4462,2 @@
-+    ! DAGMC DEBUGGING
-+    ! print '(a80)', 'DAGMC MESHTAL: ibin_search'
 diff -rN '--unified=0' Source/src/hstory.F90 Source_dagmc/src/hstory.F90
 --- Source/src/hstory.F90
 +++ Source_dagmc/src/hstory.F90
@@ -818,12 +746,9 @@ diff -rN '--unified=0' Source/src/main.F90 Source_dagmc/src/main.F90
 +  use mcnp_env, only : hdpth0, kod, loddat, ver
 @@ -78,0 +80 @@
 +  use dagmc_mod,           only: init_dagmc, dagmc_version_heading
-@@ -98,0 +101,4 @@
+@@ -98,0 +101 @@
 +
-+  ! .. DAGMC
-+  use dagmc_mod
-+
-@@ -196,0 +203,18 @@
+@@ -196,0 +200,18 @@
 +
 +  ! DAGMC: initialize a DAGMC run if specified
 +  if ( gcad /= ' ' ) then
@@ -842,13 +767,13 @@ diff -rN '--unified=0' Source/src/main.F90 Source_dagmc/src/main.F90
 +    endif
 +  endif
 +
-@@ -246,0 +271,5 @@
+@@ -246,0 +268,5 @@
 +  ! DAGMC
 +  if ( isdgmc == 1 ) then
 +    call init_dagmc
 +  endif
 +
-@@ -262,0 +292,3 @@
+@@ -262,0 +289,3 @@
 +
 +  ! DAGMC
 +  if (isdgmc == 1) call dagmc_version_heading( iuo )
@@ -928,7 +853,7 @@ diff -rN '--unified=0' Source/src/msgcon.F90 Source_dagmc/src/msgcon.F90
 diff -rN '--unified=0' Source/src/msgtsk.F90 Source_dagmc/src/msgtsk.F90
 --- Source/src/msgtsk.F90
 +++ Source_dagmc/src/msgtsk.F90
-@@ -75,0 +76 @@
+@@ -72,0 +73 @@
 +  use dagmc_mod,         only: dagmc_msgbcast
 @@ -222,0 +224,3 @@
 +
@@ -1074,9 +999,6 @@ diff -rN '--unified=0' Source/src/sourcb.F90 Source_dagmc/src/sourcb.F90
 +++ Source_dagmc/src/sourcb.F90
 @@ -21,0 +22 @@
 +  use dagmc_mod, only : isdgmc, dagmc_srcmode
-@@ -744 +745 @@
--  
-+
 @@ -746 +747,8 @@
 -          call chkcel(ji,0,j)
 +
@@ -1145,7 +1067,7 @@ diff -rN '--unified=0' Source/src/volume.F90 Source_dagmc/src/volume.F90
 @@ -9 +9 @@
 -  use fixcom, only : ink, msd, mxa, ntal, mipt_mode, mipt_locct
 +  use fixcom, only : ink, msd, mxa, ntal, mipt_mode, mipt_locct, mxj
-@@ -26,0 +27 @@
+@@ -25,0 +26 @@
 +  use dagmc_mod, only : isdgmc
 @@ -37,0 +39,6 @@
 +

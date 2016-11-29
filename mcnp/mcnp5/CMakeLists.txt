@@ -22,14 +22,16 @@ endif (MPI_BUILD)
 
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
-if ("/${MCNP_SRC_FILES};" MATCHES "/ckchar.F90;")
+if ("/${MCNP_SRC_FILES};" MATCHES "/main.F90;")
   set(MCNP_VERSION 1.40)
 endif ()
+# These files are present in 1.51 but not in 1.40
 if ("/${MCNP_SRC_FILES};" MATCHES "/annihilation_gammas.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/phtvr_mod.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/read_line.F90;")
   set(MCNP_VERSION 1.51)
 endif ()
+# These files are present in 1.60 but not in 1.51
 if ("/${MCNP_SRC_FILES};" MATCHES "/isotopic_mod.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/kadjoint_mod.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/kinetics_mod.F90;")

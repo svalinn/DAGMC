@@ -13,6 +13,7 @@ DATETIME(DATE)
 # Source files
 set(MCNP_SRC_FILES)
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/dedx/*.F90")
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/fluka89/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/hexs/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/*.cpp")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/*.f")
@@ -30,12 +31,31 @@ file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/partisn/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.c")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../*.cpp")
+if (MPI_BUILD)
+  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/dotcomm/*.c")
+endif (MPI_BUILD)
 
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
 if ("/${MCNP_SRC_FILES};" MATCHES "/main.F90;")
+  set(MCNP_VERSION 6beta2)
+endif ()
+# These files are present in 6.1 but not in 6beta2
+if ("/${MCNP_SRC_FILES};" MATCHES "/cosmic_src.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/cosmic_uod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/inelastic_xs_grid_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/italft.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/kadjoint_data_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/ksen_interface_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/ksen_xs_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/limited_interaction.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/model_cross_sections.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/otf_mod.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/read_background.F90;" AND
+    "/${MCNP_SRC_FILES};" MATCHES "/talfft.F90;")
   set(MCNP_VERSION 6.1)
 endif ()
+# These files are present in 6.1.1 but not in 6.1
 if ("/${MCNP_SRC_FILES};" MATCHES "/cerenkov_mod.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/cgm_interface.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/parse_ichoic.F90;" AND
@@ -86,25 +106,31 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import)
 if (${MCNP_VERSION} STREQUAL 6.1.1)
   include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import/cgm)
 endif (${MCNP_VERSION} STREQUAL 6.1.1)
-include_directories(${PROJECT_SOURCE_DIR}/tally)
-include_directories(${HDF5_INCLUDE_DIRS})
-include_directories(${MOAB_INCLUDE_DIRS})
 
-# Preprocessor directives
+# Variables in mcnp_env.F90
 add_definitions(-DKODE="mcnp")
 if (MPI_BUILD)
   add_definitions(-DVERS="6.mpi")
 else ()
   add_definitions(-DVERS="6")
 endif (MPI_BUILD)
-if (${MCNP_VERSION} STREQUAL 6.1)
+if (${MCNP_VERSION} STREQUAL 6beta2)
+  add_definitions(-DTHREAD="MCNP6")
+  add_definitions(-DTVERS="BETA2")
+elseif (${MCNP_VERSION} STREQUAL 6.1)
   add_definitions(-DTHREAD="MCNP6")
   add_definitions(-DTVERS="1.0")
 elseif (${MCNP_VERSION} STREQUAL 6.1.1)
   add_definitions(-DTHREAD="MCNP")
   add_definitions(-DTVERS="6.1.1b")
-endif (${MCNP_VERSION} STREQUAL 6.1)
+endif (${MCNP_VERSION} STREQUAL 6beta2)
 add_definitions(-DLODDAT=${DATE})
+
+# Preprocessor directives
+if (${MCNP_VERSION} STREQUAL 6beta2)
+  add_definitions(-DALPHA_VERSION=ON)
+  add_definitions(-DLANL=ON)
+endif (${MCNP_VERSION} STREQUAL 6beta2)
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
 if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
@@ -123,7 +149,9 @@ add_definitions(-DCEM=ON)
 add_definitions(-DCEM_M6=ON)
 add_definitions(-DCINDER=ON)
 add_definitions(-DLAQGSM=ON)
-add_definitions(-DUOD=ON)
+if (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1)
+  add_definitions(-DUOD=ON)
+endif (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1)
 
 # Make sure DATAPATH is set
 if (MCNP6_DATAPATH)
@@ -140,6 +168,9 @@ endif (MCNP6_DATAPATH)
 if (MCNP6_PLOT)
   find_package(X11 REQUIRED)
   add_definitions(-DPLOT=ON)
+  if (${MCNP_VERSION} STREQUAL 6beta2)
+    add_definitions(-DMCPLOT=ON)
+  endif (${MCNP_VERSION} STREQUAL 6beta2)
   add_definitions(-DXLIB=ON)
 endif (MCNP6_PLOT)
 
@@ -156,13 +187,22 @@ endif (OPENMP_BUILD)
 if (MPI_BUILD)
   find_package(MPI REQUIRED)
   add_definitions(-DMPI=ON)
+  add_definitions(-D_DOTCOMM_MPI=ON)
   include_directories(${MPI_INCLUDE_PATH})
+  if (${MCNP_VERSION} STREQUAL 6beta2)
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/dotcomm)
+  endif (${MCNP_VERSION} STREQUAL 6beta2)
 endif (MPI_BUILD)
+
+# DAGMC
+include_directories(${PROJECT_SOURCE_DIR}/tally)
+include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${MOAB_INCLUDE_DIRS})
 
 # Add the executable
 if (MPI_BUILD)
   set(MCNP_EXEC "mcnp6.mpi")
-else (MPI_BUILD)
+else ()
   set(MCNP_EXEC "mcnp6")
 endif (MPI_BUILD)
 add_executable(${MCNP_EXEC} ${MCNP_SRC_FILES})
@@ -189,6 +229,6 @@ if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
-# Install MCNP6
+# Install DAG-MCNP6
 install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR}
                              PERMISSIONS ${PERMS})
