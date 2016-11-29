@@ -38,9 +38,9 @@ endif (MPI_BUILD)
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
 if ("/${MCNP_SRC_FILES};" MATCHES "/main.F90;")
-  set(MCNP_VERSION 6beta2)
+  set(MCNP_VERSION 6_beta2)
 endif ()
-# These files are present in 6.1 but not in 6beta2
+# These files are present in 6.1 but not in 6_beta2
 if ("/${MCNP_SRC_FILES};" MATCHES "/cosmic_src.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/cosmic_uod.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/inelastic_xs_grid_mod.F90;" AND
@@ -55,12 +55,12 @@ if ("/${MCNP_SRC_FILES};" MATCHES "/cosmic_src.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/talfft.F90;")
   set(MCNP_VERSION 6.1)
 endif ()
-# These files are present in 6.1.1 but not in 6.1
+# These files are present in 6.1.1beta but not in 6.1
 if ("/${MCNP_SRC_FILES};" MATCHES "/cerenkov_mod.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/cgm_interface.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/parse_ichoic.F90;" AND
     "/${MCNP_SRC_FILES};" MATCHES "/reflect_light.F90;")
-  set(MCNP_VERSION 6.1.1)
+  set(MCNP_VERSION 6.1.1beta)
 endif ()
 if (${MCNP_VERSION} STREQUAL Unknown)
   message(FATAL_ERROR "MCNP6 source files not found in mcnp6/Source/src")
@@ -103,9 +103,9 @@ endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
 # Include directories
 include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import)
-if (${MCNP_VERSION} STREQUAL 6.1.1)
+if (${MCNP_VERSION} STREQUAL 6.1.1beta)
   include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import/cgm)
-endif (${MCNP_VERSION} STREQUAL 6.1.1)
+endif (${MCNP_VERSION} STREQUAL 6.1.1beta)
 
 # Variables in mcnp_env.F90
 add_definitions(-DKODE="mcnp")
@@ -114,23 +114,23 @@ if (MPI_BUILD)
 else ()
   add_definitions(-DVERS="6")
 endif (MPI_BUILD)
-if (${MCNP_VERSION} STREQUAL 6beta2)
+if (${MCNP_VERSION} STREQUAL 6_beta2)
   add_definitions(-DTHREAD="MCNP6")
   add_definitions(-DTVERS="BETA2")
 elseif (${MCNP_VERSION} STREQUAL 6.1)
   add_definitions(-DTHREAD="MCNP6")
   add_definitions(-DTVERS="1.0")
-elseif (${MCNP_VERSION} STREQUAL 6.1.1)
+elseif (${MCNP_VERSION} STREQUAL 6.1.1beta)
   add_definitions(-DTHREAD="MCNP")
   add_definitions(-DTVERS="6.1.1b")
-endif (${MCNP_VERSION} STREQUAL 6beta2)
+endif (${MCNP_VERSION} STREQUAL 6_beta2)
 add_definitions(-DLODDAT=${DATE})
 
 # Preprocessor directives
-if (${MCNP_VERSION} STREQUAL 6beta2)
+if (${MCNP_VERSION} STREQUAL 6_beta2)
   add_definitions(-DALPHA_VERSION=ON)
   add_definitions(-DLANL=ON)
-endif (${MCNP_VERSION} STREQUAL 6beta2)
+endif (${MCNP_VERSION} STREQUAL 6_beta2)
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
 if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
@@ -142,16 +142,16 @@ endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 add_definitions(-DLLNL_FISS=ON)
 add_definitions(-DF90_INT_4BYTE=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
-if (${MCNP_VERSION} STREQUAL 6.1.1)
+if (${MCNP_VERSION} STREQUAL 6.1.1beta)
   add_definitions(-DCGM=ON)
-endif (${MCNP_VERSION} STREQUAL 6.1.1)
+endif (${MCNP_VERSION} STREQUAL 6.1.1beta)
 add_definitions(-DCEM=ON)
 add_definitions(-DCEM_M6=ON)
 add_definitions(-DCINDER=ON)
 add_definitions(-DLAQGSM=ON)
-if (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1)
+if (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1beta)
   add_definitions(-DUOD=ON)
-endif (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1)
+endif (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1beta)
 
 # Make sure DATAPATH is set
 if (MCNP6_DATAPATH)
@@ -168,9 +168,9 @@ endif (MCNP6_DATAPATH)
 if (MCNP6_PLOT)
   find_package(X11 REQUIRED)
   add_definitions(-DPLOT=ON)
-  if (${MCNP_VERSION} STREQUAL 6beta2)
+  if (${MCNP_VERSION} STREQUAL 6_beta2)
     add_definitions(-DMCPLOT=ON)
-  endif (${MCNP_VERSION} STREQUAL 6beta2)
+  endif (${MCNP_VERSION} STREQUAL 6_beta2)
   add_definitions(-DXLIB=ON)
 endif (MCNP6_PLOT)
 
@@ -189,9 +189,9 @@ if (MPI_BUILD)
   add_definitions(-DMPI=ON)
   add_definitions(-D_DOTCOMM_MPI=ON)
   include_directories(${MPI_INCLUDE_PATH})
-  if (${MCNP_VERSION} STREQUAL 6beta2)
+  if (${MCNP_VERSION} STREQUAL 6_beta2)
     include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/dotcomm)
-  endif (${MCNP_VERSION} STREQUAL 6beta2)
+  endif (${MCNP_VERSION} STREQUAL 6_beta2)
 endif (MPI_BUILD)
 
 # DAGMC
