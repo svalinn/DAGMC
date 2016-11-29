@@ -502,7 +502,7 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +    ! Allocate scratch arrays
 @@ -760 +875 @@
 -    integer :: i
-+    integer :: i,j
++    integer :: i, j
 @@ -806,0 +922,9 @@
 +       ! DAGMC: send comment contents if this is a dagmc mesh
 +       if( fm(i)%icrd == 3 ) then

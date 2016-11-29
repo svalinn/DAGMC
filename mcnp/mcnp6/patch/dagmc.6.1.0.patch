@@ -1,12 +1,12 @@
 diff -rN '--unified=0' Source/import/frgcpa_.inc Source_dagmc/import/frgcpa_.inc
---- Source/import/frgcpa_.inc	2016-11-28 16:43:39.756721066 -0600
-+++ Source_dagmc/import/frgcpa_.inc	2016-11-28 16:43:39.688694655 -0600
+--- Source/import/frgcpa_.inc
++++ Source_dagmc/import/frgcpa_.inc
 @@ -3 +3 @@
 -!$OMP THREADPRIVATE (/FRGCPA_/)
 +! !$OMP THREADPRIVATE (/FRGCPA_/)
 diff -rN '--unified=0' Source/import/frgspa_.inc Source_dagmc/import/frgspa_.inc
---- Source/import/frgspa_.inc	2016-11-28 16:43:39.756721066 -0600
-+++ Source_dagmc/import/frgspa_.inc	2016-11-28 16:43:39.688694655 -0600
+--- Source/import/frgspa_.inc
++++ Source_dagmc/import/frgspa_.inc
 @@ -3 +3 @@
 -!$OMP THREADPRIVATE (/FRGSPA_/)
 +! !$OMP THREADPRIVATE (/FRGSPA_/)

@@ -502,7 +502,7 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +    ! Allocate scratch arrays
 @@ -802 +917 @@
 -    integer :: i
-+    integer :: i,j
++    integer :: i, j
 @@ -849,0 +965,9 @@
 +       ! DAGMC: send comment contents if this is a dagmc mesh
 +       if( fm(i)%icrd == 3 ) then
@@ -905,9 +905,7 @@ diff -rN '--unified=0' Source/src/mcnp_iofiles.F90 Source_dagmc/src/mcnp_iofiles
 diff -rN '--unified=0' Source/src/mcnp_params.F90 Source_dagmc/src/mcnp_params.F90
 --- Source/src/mcnp_params.F90
 +++ Source_dagmc/src/mcnp_params.F90
-@@ -122,0 +123 @@
-+  integer,parameter :: iulc = 57        != I/O unit for DAGMC log file
-@@ -123,0 +125 @@
+@@ -123,0 +124 @@
 +  integer,parameter :: iulc = 79        != I/O unit for DAGMC log file
 diff -rN '--unified=0' Source/src/msgcon.F90 Source_dagmc/src/msgcon.F90
 --- Source/src/msgcon.F90
