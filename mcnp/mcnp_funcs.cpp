@@ -128,7 +128,7 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
 
   std::string lfname(lfile, *llen);
 
-  std::cerr << "Going to write an lcad file = " << lfname << std::endl;
+  std::cout << "Going to write an lcad file = " << lfname << std::endl;
   // Before opening file for writing, check for an existing file
   if( lfname != "lcad" ) {
     // Do not overwrite a lcad file if it already exists, except if it has the default name "lcad"

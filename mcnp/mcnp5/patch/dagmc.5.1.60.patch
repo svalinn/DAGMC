@@ -261,7 +261,7 @@ diff -rN '--unified=0' Source/src/dagmc_mod.F90 Source_dagmc/src/dagmc_mod.F90
 +
 +  subroutine init_dagmc
 +
-+    use mcnp_iofiles, only : gcad, lcad, fcad, ftol, file_exists
++    use mcnp_iofiles, only : jtty, gcad, lcad, fcad, ftol, file_exists
 +    use mcnp_params,  only : ver
 +    use pblcom,       only : mpb
 +
