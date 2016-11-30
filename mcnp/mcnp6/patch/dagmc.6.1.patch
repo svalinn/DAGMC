@@ -56,6 +56,18 @@ diff -rN '--unified=0' Source/src/celsrf.F90 Source_dagmc/src/celsrf.F90
 +    ! DAGMC: Skip this loop if in CAD mode
 +    if (isdgmc == 1) exit
 +
+diff -rN '--unified=0' Source/src/charged_particle_history.F90 Source_dagmc/src/charged_particle_history.F90
+--- Source/src/charged_particle_history.F90
++++ Source_dagmc/src/charged_particle_history.F90
+@@ -326,0 +327,5 @@
++
++        ! DAGMC: if minimum distance to next event is exactly zero, skip the
++        ! charged particle physics and go directly to the surface crossing
++        if( d_step_inter_decay_surf == zero ) goto 100
++
+@@ -627,0 +633,2 @@
++
++100     continue  ! DAGMC jump target
 diff -rN '--unified=0' Source/src/check_binary_expire.F90 Source_dagmc/src/check_binary_expire.F90
 --- Source/src/check_binary_expire.F90
 +++ Source_dagmc/src/check_binary_expire.F90

@@ -68,6 +68,18 @@ diff -rN '--unified=0' Source/src/cgm_interface.F90 Source_dagmc/src/cgm_interfa
 +#else
 @@ -30,0 +35 @@
 +#endif
+diff -rN '--unified=0' Source/src/charged_particle_history.F90 Source_dagmc/src/charged_particle_history.F90
+--- Source/src/charged_particle_history.F90
++++ Source_dagmc/src/charged_particle_history.F90
+@@ -331,0 +332,5 @@
++
++        ! DAGMC: if minimum distance to next event is exactly zero, skip the
++        ! charged particle physics and go directly to the surface crossing
++        if( d_step_inter_decay_surf == zero ) goto 100
++
+@@ -642,0 +648,2 @@
++
++100     continue  ! DAGMC jump target
 diff -rN '--unified=0' Source/src/check_binary_expire.F90 Source_dagmc/src/check_binary_expire.F90
 --- Source/src/check_binary_expire.F90
 +++ Source_dagmc/src/check_binary_expire.F90
