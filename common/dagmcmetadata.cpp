@@ -4,15 +4,20 @@
 #include <set>
 #include <algorithm> 
 
-dagmcMetaData::dagmcMetaData(moab::DagMC *dag_ptr) {
-  DAG = dag_ptr;
+// constructor for metadata class
+dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr) {
+  DAG = dag_ptr; // dagmc pointer
  
+  // these are the keywords that dagmc will understand
+  // from groups if you need to process more 
+  // they should be added here
   metadata_keywords.push_back( "mat" );
   metadata_keywords.push_back( "rho" );
   metadata_keywords.push_back( "boundary" );
   metadata_keywords.push_back( "tally" );
   metadata_keywords.push_back( "importance" );
 
+  // allow some synonyms
   keyword_synonyms[ "rho" ] = "density";
   keyword_synonyms[ "mat" ] = "material";
 }
@@ -117,17 +122,17 @@ void dagmcMetaData::parse_material_data() {
       std::size_t comp_found;
       int position;
       for ( int j = 0 ; j < material_props.size() ; j++ ) {
-	comp_found = material_props[j].find("_comp");
-	if ( comp_found != std::string::npos) {
-	  position = j;
-	  break;
-	}
+	      comp_found = material_props[j].find("_comp");
+      	if ( comp_found != std::string::npos) {
+	        position = j;
+      	  break;
+      	}
       } 
       if ( comp_found != std::string::npos ) {
 	// success found the _comp tag for the impl_compl material
 	// set the impl_comp material for use later
-	implicit_complement_material = material_props[position].substr(0,material_props[position].size()-5);
-	material_props.erase(material_props.begin()+position);	
+	      implicit_complement_material = material_props[position].substr(0,material_props[position].size()-5);
+	      material_props.erase(material_props.begin()+position);	
       } else {
 	// failure a volume can only have a single material associated with it
 	std::cout << "more than one material for volume with id " << cellid << std::endl;
