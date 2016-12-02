@@ -19,7 +19,7 @@
 #define flukam flukam_
 
 moab::DagMC* DAG = new moab::DagMC(); // dagmc instance
-dagmcMetaData* DGM; // metadata instance
+dagmcMetaData* DMD; // metadata instance
 
 
 #ifdef __cplusplus
@@ -97,7 +97,9 @@ int main(int argc, char* argv[])
     error = DAG->setup_indices();
   // since this is a preprocess run
   // grab hold of the metdata
-    DGM = new dagmcMetaData(DAG); 
+    DMD = new dagmcMetaData(DAG);
+    DMD->load_property_data(); 
+  // all metadata stored in DGM
   }
   if ( error != moab::MB_SUCCESS ) {
     std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;

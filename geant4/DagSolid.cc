@@ -208,9 +208,11 @@ DagSolid::~DagSolid ()
 EInside DagSolid::Inside (const G4ThreeVector &p) const
 {
   G4double point[3]= {p.x()/cm, p.y()/cm, p.z()/cm}; //convert to cm
+
   double u = rand();
   double v = rand();
   double w = rand();
+
   const double magnitude = sqrt( u*u + v*v + w*w );
   u /= magnitude;
   v /= magnitude;
@@ -218,7 +220,7 @@ EInside DagSolid::Inside (const G4ThreeVector &p) const
 
   G4double direction[3]= {u,v,w};
 
-  G4double minDist;
+  G4double minDist = 0.0;
 
   int result;
   ErrorCode ec;
@@ -230,19 +232,17 @@ EInside DagSolid::Inside (const G4ThreeVector &p) const
     exit(1);
   }
 
-  ec = fdagmc->closest_to_location(fvolEntity, point, minDist);
-  if( ec != MB_SUCCESS) {
-    G4cout << "failed to determine closed to location" << G4endl;
-    exit(1);
-  }
+  ec = fdagmc->closest_to_location(fvolEntity,point,minDist);
 
-  if (minDist <= 0.5*kCarTolerance)
+  // if on surface 
+  if (minDist <= 0.5*kCarTolerance) {
     return kSurface;
-  else if ( result == 0 )
-    return kOutside;
-  else
-    return kInside;
-
+  } else {
+    if ( result == 0 )
+      return kOutside;
+    else
+      return kInside;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

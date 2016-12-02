@@ -1,5 +1,6 @@
 #include <set>
 #include <iostream>
+#include "DagMC.hpp"
 
 class dagmcMetaData {
   public:
@@ -19,6 +20,9 @@ class dagmcMetaData {
 
    std::vector<std::string> unpack_string(std::string to_unpack, std::string delimiters="|");
   
+   // splits a string on the basis of the first delimiter it finds
+   std::pair<std::string,std::string> split_string(std::string property_string, std::string delimiter);
+
    std::string return_property(std::string property_string, std::string property, std::string delimiter = ":", bool chopped = true);
 
   // private member functions
@@ -49,9 +53,10 @@ class dagmcMetaData {
   // public member variables
   public:
    // material property data map, mat:/density value
+   // this is the full string in the form mat:<name>/density:<value>
    std::map<moab::EntityHandle,std::string> volume_material_property_data_eh;
 
-   // material data map, mat: value
+   // material data map, mat:<name>
    std::map<moab::EntityHandle,std::string> volume_material_data_eh;
 
    // density data map, rho: value
@@ -65,6 +70,12 @@ class dagmcMetaData {
 
    // tally map
    std::map<moab::EntityHandle, std::string> tally_data_eh;
+  
+  // set to collect all particle types in the problem
+  std::set<std::string> imp_particles;
+  // map of importance data
+  std::map<moab::EntityHandle, std::map<std::string,double> > importance_map;
+ 
 
    // material density pairs
    // std::map<std::string, std::set<std::string> > material_density_pairs; 

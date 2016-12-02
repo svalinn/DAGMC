@@ -7,6 +7,8 @@
 #include "ExN01SensitiveDetector.hh"
 #include "ExN01Analysis.hh"
 
+#include "dagmcMetaData.hpp"
+
 #include "G4Material.hh"
 #include "G4Box.hh"
 #include "G4Tubs.hh"
@@ -38,25 +40,23 @@
 
 #include "../pyne/pyne.h"
 
-//#include "pyne/particle.h"
-using namespace moab;
-
-moab::DagMC *dagmc = new moab::DagMC(); // create dag instance
-
+moab::DagMC* dagmc = new moab::DagMC(); // create dag instance
+dagmcMetaData* DMD;
+// constructor 
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW *uwuw_workflow_data)
   :  world_volume_log(0)
 {
   workflow_data = uwuw_workflow_data;
-  ;
 }
 
+// destructor
 ExN01DetectorConstruction::~ExN01DetectorConstruction()
 {
 }
 
+// the main method - takes the problem and loads 
 G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 {
-
   // load the material from the UW^2 library
   std::map<std::string,G4Material*> material_lib;
   material_lib = load_uwuw_materials(workflow_data);
@@ -65,8 +65,8 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 
   //------------------------------------------------------ volumes
   // -- World Volume in which we place other volumes
-
-
+  // we can probably do something like get the obb for the implicit complement
+  // and use that as the size for the world vol
   G4double world_width  = 50000.0*cm;
   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(2.*world_width);
 
@@ -76,74 +76,55 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
       "world_vol",0,false,0);
 
-  ErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str());
+  // load the dagmc file - only to get the counts of volumes 
+  moab::ErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str());
   if(rval != moab::MB_SUCCESS) {
     G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
     exit(1);
   }
+
+  // build the trees
   rval = dagmc->init_OBBTree();
   if(rval != moab::MB_SUCCESS) {
     G4cout << "ERROR: Failed to build the OBB Tree" << G4endl;
     exit(1);
   }
 
-  G4int Num_of_survertices = dagmc->num_entities(2);
+  // attach a metadata instance
+  DMD = new dagmcMetaData(dagmc);
+  DMD->load_property_data();
+
+  // get count of entities
   G4int num_of_objects = dagmc->num_entities(3);
 
   G4cout << "There are " << num_of_objects << " dag volumes" << G4endl;
-
-  // parse the dagmc props
-  std::vector<std::string> dagsolid_keywords;
-  dagsolid_keywords.push_back("mat");
-  dagsolid_keywords.push_back("rho");
-  std::map<std::string,std::string> synonymns;
-  char const *delimeters = ":/";
-
-  rval = dagmc->parse_properties(dagsolid_keywords,synonymns,delimeters);
 
   //Store a list of DagSolids, Logical Vols, and Physical Vols
   std::vector<DagSolid*> dag_volumes;
   std::vector<G4PVPlacement*> dag_physical_volumes;
 
+  // load the properties from the metadata instance
   for ( int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++ ) {
+    G4String idx_str = std::to_string(dag_idx);
     // get the MBEntity handle for the volume
     int dag_id = dagmc->id_by_index(3,dag_idx);
-    EntityHandle volume = dagmc->entity_by_id(3,dag_id);
-    std::string dag_material_name;
-    rval = dagmc->prop_value(volume,"mat",dag_material_name);
-    std::cout << "id = " << dag_id << " mat = " << dag_material_name << std::endl;
-    std::stringstream int_to_string;
-    int_to_string << dag_idx;
-    std::string idx_str = int_to_string.str();
+    moab::EntityHandle volume = dagmc->entity_by_id(3,dag_id);
+    // get the material_name
+    std::string mat_name = DMD->volume_material_property_data_eh[volume];
 
     // create new volume
     DagSolid* dag_vol = new DagSolid("vol_"+idx_str,dagmc,dag_idx);
     dag_volumes.push_back(dag_vol);
-
-    // define logical volume
-    if( dag_material_name.find("Blackhole") != std::string::npos ||
-        dag_material_name.find("Graveyard") != std::string::npos )
-      dag_material_name = "Vacuum";
-
-    G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol,material_lib["mat:"+dag_material_name],
+    // make new logical volume
+    G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol,material_lib[mat_name],
         "vol_"+idx_str+"_log",0,0,0);
-
-    //      std::cout << "vol_" << idx_str << "  has prop " << material_lib["mat:"+dag_material_name] << std::endl;
-    dag_logical_volumes[dag_idx]=dag_vol_log;
-
-    /*
-    pyne::Material mat = material_lib["mat:"+dag_material_name];
-    if( dag_material_name.find("Vacuum") != std::string::npos )
-    dag_vol_log->SetVisAttributes(invis);
-    */
-
-    // define physical volumes
+        dag_logical_volumes[dag_idx]=dag_vol_log;
+    // make a new physical placement
     G4PVPlacement* dag_vol_phys = new G4PVPlacement(0,G4ThreeVector(0*cm,0*cm,0*cm),dag_vol_log,
         "volume_"+idx_str+"_phys",
         world_volume_log,false,0);
     dag_physical_volumes.push_back(dag_vol_phys);
   }
-
 
   return world_volume_phys;
 }

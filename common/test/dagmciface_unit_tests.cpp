@@ -319,6 +319,36 @@ TEST_F(DagmcMetadataTest,TestReturnProperty)
   EXPECT_EQ(return_string,"1.8");
 }
 
+//---------------------------------------------------------------------------//
+// FIXTURE-BASED TESTS: Tests to make sure that the split_string function
+// behaves as it should
+//---------------------------------------------------------------------------//
+TEST_F(DagmcMetadataTest,TestSplitString)
+{
+  // new metadata instance
+  dgm = new dagmcMetaData(DAG);
+  
+  std::string to_split = "Neutron/1.0";
+  std::pair<std::string,std::string> pair = dgm->split_string(to_split,"/");
+  EXPECT_EQ(pair.first,"Neutron");
+  EXPECT_EQ(pair.second,"1.0");
+
+  // more complex example
+  std::string more_complex = "|Neutron/1.0|Photon/2.0|";
+  std::vector<std::string> imps = dgm->unpack_string(more_complex,"|");
+  for ( unsigned int i = 0 ; i < 2 ; i++ ) {
+    std::string split = imps[i];
+    pair = dgm->split_string(split,"/");
+    if(i==0){
+      EXPECT_EQ(pair.first,"Neutron");
+      EXPECT_EQ(pair.second,"1.0");
+    } else if (i == 1) {
+      EXPECT_EQ(pair.first,"Photon");
+      EXPECT_EQ(pair.second,"2.0");     
+    }
+  }
+}
+
 // assert some behaviors
 
 class DagmcMetadataTestImplCompMat : public ::testing::Test

@@ -21,9 +21,9 @@ install(TARGETS dagmciface LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                            PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
                            LIBRARY       PERMISSIONS ${PERMS}
                            ARCHIVE       PERMISSIONS ${PERMS})
+list(APPEND LINK_LIBS pyne_dagmc)
 list(APPEND LINK_LIBS ${HDF5_hdf5_hl_LIBRARY})
 list(APPEND LINK_LIBS ${HDF5_hdf5_LIBRARY})
 list(APPEND LINK_LIBS ${DAGMC_LIBRARIES})
-list(APPEND LINK_LIBS ${dagmc_pyne})
 target_link_libraries(dagmciface ${LINK_LIBS})
 add_subdirectory(test)

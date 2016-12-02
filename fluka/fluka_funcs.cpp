@@ -1,4 +1,5 @@
 #include "fluka_funcs.h"
+#include "dagmcmetadata.hpp"
 
 #include "moab/Interface.hpp"
 #include "moab/CartVect.hpp"
@@ -22,6 +23,7 @@ using moab::DagMC;
 
 // globals
 extern moab::DagMC *DAG;
+extern dagmcMetaData *DMD;
 
 #include <fstream>
 #include <numeric>
@@ -118,7 +120,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   if(debug) print_state(state);
 
   // direction changed reset history, may not be robust
-  if( dir[0] != state.old_direction[0] || dir[1] != state.old_direction[1] || dir[2] != state.old_direction[2] )
+  if( dir[0] != state.old_direction[0] || dir[1] != state.old_direction[1] || dir[2] != state.old_direction[2] ) {
     if( point[0] != state.old_position[0] || point[1] != state.old_position[1] || point[2] != state.old_position[2] ) {
       // if point and direction has changed, we should reset everything
       reset_state(state);
@@ -126,7 +128,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
       // direction has changed reset ray history
       state.history.reset();
     }
-
+  }
   /*
   // direction changed reset history, may not be robust
   if( dir[0] == state.old_direction[0] && dir[1] == state.old_direction[1] && dir[2] == state.old_direction[2] )  {
@@ -816,37 +818,85 @@ void fludag_write(std::string matfile, std::string lfname)
 
   // ASSIGNMA Cards
   std::ostringstream assignma_str;
-  fludagwrite_assignma(assignma_tr, workflow_data.material_library , map_name);
+  fludagwrite_assignma(assignma_str, workflow_data.material_library);
 
   // write COMPOUND CARDS
   std::ostringstream material_str;
   fludag_all_materials(material_str, workflow_data.material_library);
 
+  std::ostringstream importance_str;
+  fludagwrite_importances(importance_str);
+
   // Write all the streams to the input file
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   std::ofstream lcadfile (lfname.c_str());
   lcadfile << header << std::endl;
-  lcadfile << astr.str();
+  lcadfile << assignma_str.str();
   lcadfile << header << std::endl;
-  lcadfile << mstr.str();
-
+  lcadfile << material_str.str();
   lcadfile << header << std::endl;
+  
   lcadfile << "* UW**2 tallies" << std::endl;
-  mstr.str("");
-  fludag_all_tallies(mstr,workflow_data.tally_library);
-  lcadfile << mstr.str();
+  material_str.str("");
+  fludag_all_tallies(material_str,workflow_data.tally_library);
+  lcadfile << material_str.str();
 
   // all done
   lcadfile.close();
 }
 
+// for the entire problem write out biassing cards as appropriate
+void fludagwrite_importances(std::ostringstream& ostr) 
+{
+  // loop over the importance data and write out as found
+  // fluka is clever enough to default to no biassing for particles
+  // that do not have bias values, therefore we can simply loop over
+  // the volumes and retrieve the data
+
+  // right now this function takes the fluka approach of capping the 
+  // imoportances at higher than 1.0e-5 and lower than 1e5 - mcnp typically
+  // is allowed any range we should in the future loop through all the data
+  // collect up the particles wise importances and renormalise them to that 
+  // range
+
+   // for each volume index
+  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
+    int cellid = DAG->id_by_index( 3, vol_i );
+    moab::EntityHandle entity = DAG->entity_by_index( 3, vol_i );
+    std::string imp_props = DMD->volume_importance_data_eh[entity];
+    std::vector<std::string> imps = DMD->unpack_string(imp_props,"|");
+
+    // loop over each Particle/Value pair
+    for ( unsigned int i = 0 ; i < imps.size() ; i++ ) {
+      std::string prop = imps[i];
+      std::pair<std::string,std::string> pair = DMD->split_string(prop,"/");
+      std::string particle = pair.first;
+      std::string importance = pair.second;
+      // maybe we can be clever and renormalise?
+      if(std::stod(importance) > 1.e5) {
+        std::cout << "Importance too high for Fluka, capping at 1e.5";
+        importance = "1.0E5";
+      }
+      if(std::stod(importance) < 1.0e-5) {
+        std::cout << "Importance too low for Fluka, capping at 1e.-5";
+        importance = "1.0E-5";        
+      }
+      if(std::stod(importance) == 0.0) {
+        std::cout << "Importance zero in Fluka means no biassing as opposed to kill";
+        importance = "0.0";       
+      }
+      ostr << "BIASING" << "-1.0" << importance << pyne::particle::fluka(particle);
+      ostr << " " << " " << "PRIMRY" << std::endl;
+     }
+  }
+  return;
+}
 //---------------------------------------------------------------------------//
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
 void fludagwrite_assignma(std::ostringstream& ostr,
-                          std::map<std::string, pyne::Material> pyne_map,
-                          std::map<int, std::string> map_name)
+                          std::map<std::string, pyne::Material> pyne_map)
 {
   // for each volume index
   for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
@@ -859,18 +909,18 @@ void fludagwrite_assignma(std::ostringstream& ostr,
     std::string mat_name = "";
 
     // if the map size is 0 we assume simple naming
-    if ( pyne_map.size == 0) {
+    if ( pyne_map.size() == 0) {
       mat_name = mat_prop.substr(0,8);
     } else { 
     // otherwise we assume uwuw
       // if you arent graveyard or vacuum you must be in the uwuw library
-      if (grp_name.find("Graveyard") == std::string::npos && grp_name.find("Vacuum") == std::string::npos
-        && !(DAG->is_implicit_complement(entity)) {
+      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos
+        && !(DAG->is_implicit_complement(entity))) {
         pyne::Material material = pyne_map[mat_prop];
         mat_name = material.metadata["fluka_name"].asString();
-      } else if (grp_name.find("Graveyard") != std::string::npos ) {
+      } else if (mat_prop.find("Graveyard") != std::string::npos ) {
         mat_name = "BLCKHOLE";
-      } else if (grp_name.find("Vacuum") != std::string::npos) {
+      } else if (mat_prop.find("Vacuum") != std::string::npos) {
         mat_name = "VACUUM";
       }
     }

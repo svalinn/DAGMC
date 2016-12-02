@@ -488,6 +488,13 @@ std::set<int> make_exception_set();
 void fludag_write_ididx(std::string ididx);
 
 /**
+ * \brief Writes the importance assignment for each volume to an output stream
+ *
+ * \param[out] ostr the output stream of which the text is printed
+ */
+void fludagwrite_importances(std::ostringstream& ostr);
+
+/**
  * \brief Writes the material assignment for each volume to an output stream
  *
  * \param[out] ostr the output stream of which the text is printed
@@ -495,8 +502,7 @@ void fludag_write_ididx(std::string ididx);
  * \param[in] map_name ???
  */
 void fludagwrite_assignma(std::ostringstream& ostr,
-                          std::map<std::string, pyne::Material> pyne_map,
-                          std::map<int, std::string> map_name);
+                          std::map<std::string, pyne::Material> pyne_map);
 /**
  * \brief writes all the material compisitions from the map of materials to output stream
  *

@@ -27,6 +27,7 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 # Include directories
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/uwuw)
+include_directories(${CMAKE_SOURCE_DIR}/common)
 
 # Build DAG-Geant4
 add_executable(DagGeant4 ${SRC_FILES})

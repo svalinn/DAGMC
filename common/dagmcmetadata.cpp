@@ -1,4 +1,3 @@
-#include "DagMC.hpp"
 #include "dagmcmetadata.hpp"
 #include <iostream>
 #include <set>
@@ -229,7 +228,7 @@ void dagmcMetaData::parse_importance_data() {
   int num_vols = DAG->num_entities( 3 );
 
   std::vector<std::string> importance_assignment; // boundary conditions for the current entity
-  // loop over all volumes
+  // loop over all volumes set up the generic importance data
   for( int i = 1; i <= num_vols; ++i ) {
     int volid = DAG->id_by_index( 3, i );
     moab::EntityHandle eh = DAG->entity_by_index( 3, i );
@@ -241,9 +240,30 @@ void dagmcMetaData::parse_importance_data() {
     for ( int j = 0 ; j < importance_assignment.size() ; j++ ) {
         // delimit each particle/value pair with a pipe symbol
         importances += importance_assignment[j]+"|";
+        // also split to get key-value
+        std::pair<std::string,std::string> pair = split_string(imps,"/");
+        // add to the unique collection of particle names
+        imp_particles.insert(pair.first);
+        // insert into map too
+        importance_map[vol][pair.first] = std::stod(pair.second);
      }
      volume_importance_data_eh[eh] = importances;
   }
+ 
+  // now find which regions do not have all particle importances
+  // and give them importance 1.0;
+  for(int i = 1 ; i <= num_cells ; ++i ) {
+    for( int particle = 0 ; particle < particles.size() ; particles++ ) {
+      moab::EntityHandle vol = DAG->entity_by_index( 3, i );
+      if( importance_map[vol][particle].count() == 0 ) {
+        std::cout << "Warning: Volume with ID " << DAG->id_by_index(3,i);
+        std::cout << "Does not have an importance set for particle ";
+        std::cout << particle << " assuming importance 1.0 " << std::endl;
+        // give this particle default importance
+        importance_map[vol][particle] = 1.0;
+      }
+    }
+  } 
 }
 
 // parse the importance data from the file
@@ -499,4 +519,25 @@ std::string dagmcMetaData::return_property(std::string property_string, std::str
     }
   }
   return value;
+}
+
+std::pair<std::string,std::string> dagmcMetaData::split_string(std::string property_string, std::string delimiter) 
+{
+  // first see if delimeter exists
+  std::size_t found_delimiter = property_string.find(delimiter); 
+  std::string first = "";
+  std::string second = "";
+  // if we found delimiter
+  if ( found_delimiter != std::string::npos) {
+    // first match
+    first = property_string.substr(0,found_delimiter);
+    // second match
+    int str_length = property_string.length() - found_delimiter;
+    second = property_string.substr(found_delimiter+1,str_length);
+  } else {
+    std::cout << "Didnt find any delimiter" << std::endl;
+    std::cout << "Returning empty strings" << std::endl;
+  }
+  std::pair<std::string, std::string> pair(first,second);
+  return pair;
 }
