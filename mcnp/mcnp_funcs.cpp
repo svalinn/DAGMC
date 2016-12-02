@@ -1,7 +1,7 @@
 #include "mcnp_funcs.h"
 
 #include "DagMC.hpp"
-#include "dagmcMetaData.hpp"
+#include "dagmcmetadata.hpp"
 using moab::DagMC;
 
 #include <limits>
@@ -30,7 +30,6 @@ dagmcMetaData *DMD;
 #include <numeric>
 
 static std::ostream* raystat_dump = NULL;
-
 #endif
 
 
@@ -120,130 +119,6 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
 
 }
 
-/**
- * Helper function for parsing DagMC properties that are integers.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_int_prop( moab::EntityHandle vol, int cell_id, const std::string& property, int& result )
-{
-
-  moab::ErrorCode rval;
-  if( DAG->has_prop( vol, property ) ) {
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( moab::MB_SUCCESS != rval ) {
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtol( valst, &valend, 10 );
-    if( valend[0] != '\0' ) {
-      // strtol did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
-  } else return false;
-
-}
-
-/**
- * Helper function for parsing DagMC properties that are doubles.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_real_prop( moab::EntityHandle vol, int cell_id, const std::string& property, double& result )
-{
-
-  moab::ErrorCode rval;
-  if( DAG->has_prop( vol, property ) ) {
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( moab::MB_SUCCESS != rval ) {
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtod( valst, &valend );
-    if( valend[0] != '\0' ) {
-      // strtod did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
-  } else return false;
-
-}
-
-// take a string like "surf.flux.n", a key like "surf.flux", and a number like 2,
-// If the first part of the string matches the key, remove the key from the string (leaving, e.g. ".n")
-// and return the number.
-static int tallytype( std::string& str, const char* key, int ret )
-{
-  if( str.find(key) == 0 ) {
-    str.erase( 0, strlen(key) );
-    return ret;
-  }
-  return 0;
-}
-
-// given a tally specifier like "1.surf.flux.n", return a printable card for the specifier
-// and set 'dim' to 2 or 3 depending on whether its a surf or volume tally
-static char* get_tallyspec( std::string spec, int& dim )
-{
-
-  if( spec.length() < 2 ) return NULL;
-  const char* str = spec.c_str();
-  char* p;
-
-  int ID = strtol( str, &p, 10 );
-  if( p == str ) return NULL; // did not find a number at the beginning of the string
-  if( *p != '.' ) return NULL; // did not find required separator
-  str = p + 1;
-
-  if( strlen(str) < 1 ) return NULL;
-
-  std::string tmod;
-  if( str[0] == 'q' ) {
-    tmod = "+";
-    str++;
-  } else if( str[0] == 'e' ) {
-    tmod = "*";
-    str++;
-  }
-
-  std::string remainder(str);
-  int type = 0;
-  type = tallytype( remainder, "surf.current", 1 );
-  if(!type) type = tallytype( remainder, "surf.flux", 2 );
-  if(!type) type = tallytype( remainder, "cell.flux", 4 );
-  if(!type) type = tallytype( remainder, "cell.heating", 6 );
-  if(!type) type = tallytype( remainder, "cell.fission", 7 );
-  if(!type) type = tallytype( remainder, "pulse.height", 8 );
-  if( type == 0 ) return NULL;
-
-  std::string particle = "n";
-  if( remainder.length() >= 2 ) {
-    if(remainder[0] != '.') return NULL;
-    particle = remainder.substr(1);
-  }
-
-  char* ret = new char[80];
-  sprintf( ret, "%sf%d:%s", tmod.c_str(), (10*ID+type), particle.c_str() );
-
-  dim = 3;
-  if( type == 1 || type == 2 ) dim = 2;
-  return ret;
-
-}
-
 void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/surface cards
 {
   UWUW workflow_data = UWUW(dagfile);
@@ -266,18 +141,23 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   // by default overwrites the existing file at lfname.c_str()
   std::ofstream lcadfile( lfname.c_str(), std::ios::out );
 
+  // string stream for output
+  std::ostringstream lcadfile_str;
+
   write_cell_cards(lcadfile_str,workflow_data);
   lcadfile_str << std::endl;
   write_surface_cards(lcadfile_str,workflow_data);
   lcadfile_str << std::endl;
 
-  if(worfklow_data.material_library.size() > 0) 
+  if(workflow_data.material_library.size() > 0) 
     write_material_data(lcadfile_str,workflow_data);
 
-  if(worfklow_data.tally_library.size() > 0) 
+  if(workflow_data.tally_library.size() > 0) 
     write_tally_data(lcadfile_str,workflow_data);
 
   // all done
+  lcadfile << lcadfile_str;
+  lcadfile.close();
   return;
 }
 
@@ -300,20 +180,23 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
       if(mat_name.find("Vacuum") == std::string::npos || mat_name.find("Graveyard") == std::string::npos) {
-        pyne::Material material = workflow_data.material_library[mat_name]
+        pyne::Material material = workflow_data.material_library[mat_name];
         mat_num = material.metadata["mat_number"].asString();
-        density = "-1.0"+std::string(material.density);
+        density = "-1.0"+_to_string(material.density);
       } else {
-        mat_num = 0;
+        mat_num = "0";
         density = "";
       }
     }
 
     // string to collect importance data  
     std::string importances = "";
+    std::set<std::string>::iterator it;
+    std::set<std::string> set = DMD->imp_particles;
     // deal with importances;
-    for( int particle = 0 ; particle < DMD->particles.size() ; particles++ ) {
-      std::string particle_name = DMD->particles[i];
+    std::string mat_name = DMD->volume_material_property_data_eh[entity];
+    for ( it = set.begin() ; it != set.end() ; ++it) {
+      std::string particle_name = *it;
       std::string mcnp_name = pyne::particle::mcnp(particle_name);
       double imp = 0.0;
       // if we find graveyard always have importance 0.0
@@ -326,7 +209,7 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
       } else {
         imp = DMD->importance_map[entity][particle_name];
       }
-     importances += "imp:"+mcnp_name+"="std::to_string(imp)+" ";
+     importances += "imp:"+mcnp_name+"="+_to_string(imp)+" ";
     }
     // write out to lcadfile  
     lcadfile << cellid << " " << mat_num << " " << density << " " << importances << std::endl; 
@@ -336,20 +219,20 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
 }
 
 // write the surface data as appropriate
-void write_surface_card(std::ostringstream &lcadfile, UWUW worfklow_data) {
+void write_surface_cards(std::ostringstream &lcadfile, UWUW worfklow_data) {
   int num_surfaces = DAG->num_entities( 2 );
   
   std::string surface_property = "";
   // loop over all cells
   for( int i = 1; i <= num_surfaces; ++i ) {
     int surfid = DAG->id_by_index( 2, i );
-    moab::EntityHandle entity = DAG->entity_by_idx(2,i);
+    moab::EntityHandle entity = DAG->entity_by_index(2,i);
     std::string boundary_prop = DMD->surface_boundary_data_eh[entity];
     if(boundary_prop.find("Reflecting") != std::string::npos)
       surface_property = "*";
     if(boundary_prop.find("White") != std::string::npos)
       surface_property = "+";
-    lcadfile  << surface_property << std::to_string(surfid) << std::endl;
+    lcadfile  << surface_property << _to_string(surfid) << std::endl;
   }
   return;
 }
@@ -837,62 +720,22 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
   if( *srccell_mode ) {
     std::cout << "DAGMC source cell optimization is ENABLED (warning: experimental!)" << std::endl;
   }
-
 }
 
 
-// given a property string, dimension and the delimeter of the string, return an entityhandle wise map of the
-// property value
-std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property,
-    int dimension, std::string delimiters)
-{
-
-  std::map<moab::EntityHandle,std::vector<std::string> > prop_map;
-
-  std::vector< std::string > mcnp5_keywords;
-  std::map< std::string, std::string > mcnp5_keyword_synonyms;
-
-  // populate keywords
-  mcnp5_keywords.push_back( "mat" );
-  mcnp5_keywords.push_back( "rho" );
-  mcnp5_keywords.push_back( "tally" );
-  mcnp5_keywords.push_back( "boundary" );
-
-  // get initial sizes
-  int num_entities = DAG->num_entities( dimension );
-
-  // parse data from geometry
-  moab::ErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
-
-  if (moab::MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  // loop over all cells
-  for( int i = 1; i <= num_entities; ++i ) {
-    //
-    std::vector<std::string> properties;
-
-    // get cellid
-    moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
-
-    // get the group contents
-    if( DAG->has_prop( entity, property ) )
-      rval = DAG->prop_values(entity,property,properties);
-    else
-      properties.push_back("");
-
-    // remove duplicates
-    std::vector<std::string>::iterator it;
-    it = std::unique(properties.begin(),properties.end());
-    // resize vector to remove empty parts
-    properties.resize(std::distance(properties.begin(),it));
-
-    // assign the map value
-    prop_map[entity]=properties;
-  }
-
-  return prop_map;
+// these functions should be replaced when we adopt C++11
+// int to string
+std::string _to_string(int var) {
+  std::ostringstream outstr;
+  outstr << var; 
+  std::string ret_string = outstr.str();
+  return ret_string;
 }
 
+// double to string 
+std::string _to_string(double var) {
+  std::ostringstream outstr;
+  outstr << var; 
+  std::string ret_string = outstr.str();
+  return ret_string;
+}

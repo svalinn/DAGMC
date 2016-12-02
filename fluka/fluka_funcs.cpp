@@ -22,8 +22,9 @@ using moab::DagMC;
 #endif
 
 // globals
-extern moab::DagMC *DAG;
-extern dagmcMetaData *DMD;
+extern moab::DagMC* DAG;
+
+dagmcMetaData* DMD;
 
 #include <fstream>
 #include <numeric>
@@ -811,6 +812,12 @@ void fludag_write_ididx(std::string ididx)
 // material compositions to file.
 void fludag_write(std::string matfile, std::string lfname)
 {
+  // since this is a preprocess run
+  // grab hold of the metdata
+  DMD = new dagmcMetaData(DAG);
+  DMD->load_property_data(); 
+  // all metadata stored in DGM
+ 
   // get the pyne materials and tallies
   UWUW workflow_data = UWUW(matfile);
 
@@ -873,15 +880,15 @@ void fludagwrite_importances(std::ostringstream& ostr)
       std::string particle = pair.first;
       std::string importance = pair.second;
       // maybe we can be clever and renormalise?
-      if(std::stod(importance) > 1.e5) {
+      if(atof(importance.c_str()) > 1.e5) {
         std::cout << "Importance too high for Fluka, capping at 1e.5";
         importance = "1.0E5";
       }
-      if(std::stod(importance) < 1.0e-5) {
+      if(atof(importance.c_str()) < 1.0e-5) {
         std::cout << "Importance too low for Fluka, capping at 1e.-5";
         importance = "1.0E-5";        
       }
-      if(std::stod(importance) == 0.0) {
+      if(atof(importance.c_str()) == 0.0) {
         std::cout << "Importance zero in Fluka means no biassing as opposed to kill";
         importance = "0.0";       
       }

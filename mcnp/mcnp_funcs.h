@@ -136,32 +136,19 @@ extern "C" {
   void dagmc_init_settings_(int* use_dist_limit, int* use_cad,
                             double* overlap_thickness, double* facet_tol, int* srccell_mode );
 
-  /**
-   * \brief Performs the write of the lcad file using the "old" method
-   * \param[in] output file stream pointing to the lcadfile
-   */
-  void write_lcad_old(std::ofstream &lcadfile);
-
-  /**
-   * \brief performs the write of the lcadfile for the UWUW workflow
-   * \param[in] output file stream pointing to the lcadfile
-   * \param[in] UWUW class containing the UWUW workflow data
-   */
-  void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data);
-
-  /**
-   * \brief Get all properties by dimension
-   * \param[in] string (string) of the property you wish to query, e.g. "mat"
-   * \param[in] dimension (int) dimension to be queried (2/3)
-   * \param[in] delimiters (string) the delimiter that breaks up the string
-   * \return entity handle - string map of the property value, empty string in no property
-   */
-  std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property, int dimension,
-      std::string delimiters);
-
-
 #ifdef __cplusplus
 } // extern "C"
 #endif
+
+void write_cell_cards(std::ostringstream &lcad_string, UWUW workflow_data);
+void write_surface_cards(std::ostringstream &lcad_string, UWUW workflow_data);
+void write_material_data(std::ostringstream &lcad_string, UWUW workflow_data);
+void write_tally_data(std::ostringstream &lcad_string, UWUW workflow_data);
+
+// until we adopt C++11 - makes life easy
+// convenience functions for c++ int to string
+std::string _to_string(int val);
+// convenience functions for c++ double to string
+std::string _to_string(double val);
 
 #endif /* DAGMC_MCNP_IFACE_H */

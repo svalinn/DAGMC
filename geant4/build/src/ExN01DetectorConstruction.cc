@@ -7,7 +7,7 @@
 #include "ExN01SensitiveDetector.hh"
 #include "ExN01Analysis.hh"
 
-#include "dagmcMetaData.hpp"
+#include "dagmcmetadata.hpp"
 
 #include "G4Material.hh"
 #include "G4Box.hh"

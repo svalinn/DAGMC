@@ -241,26 +241,28 @@ void dagmcMetaData::parse_importance_data() {
         // delimit each particle/value pair with a pipe symbol
         importances += importance_assignment[j]+"|";
         // also split to get key-value
-        std::pair<std::string,std::string> pair = split_string(imps,"/");
+        std::pair<std::string,std::string> pair = split_string(importance_assignment[j],"/");
         // add to the unique collection of particle names
         imp_particles.insert(pair.first);
         // insert into map too
-        importance_map[vol][pair.first] = std::stod(pair.second);
+        importance_map[eh][pair.first] = atof(pair.second.c_str());
      }
      volume_importance_data_eh[eh] = importances;
   }
  
   // now find which regions do not have all particle importances
   // and give them importance 1.0;
-  for(int i = 1 ; i <= num_cells ; ++i ) {
-    for( int particle = 0 ; particle < particles.size() ; particles++ ) {
-      moab::EntityHandle vol = DAG->entity_by_index( 3, i );
-      if( importance_map[vol][particle].count() == 0 ) {
+  for(int i = 1 ; i <= num_vols ; ++i ) {
+    std::set<std::string>::iterator it;
+    for( it = imp_particles.begin() ; it != imp_particles.end() ; ++it ) {
+      std::string particle = *it;
+      moab::EntityHandle eh = DAG->entity_by_index( 3, i );
+      if( importance_map[eh].count(particle) == 0 ) {
         std::cout << "Warning: Volume with ID " << DAG->id_by_index(3,i);
         std::cout << "Does not have an importance set for particle ";
         std::cout << particle << " assuming importance 1.0 " << std::endl;
         // give this particle default importance
-        importance_map[vol][particle] = 1.0;
+        importance_map[eh][particle] = 1.0;
       }
     }
   } 
