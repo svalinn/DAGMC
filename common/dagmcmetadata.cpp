@@ -238,6 +238,7 @@ void dagmcMetaData::parse_importance_data() {
     // set the value of each string for
     std::string importances = "|"; 
     for ( int j = 0 ; j < importance_assignment.size() ; j++ ) {
+        if(importance_assignment[j] == "" ) break;
         // delimit each particle/value pair with a pipe symbol
         importances += importance_assignment[j]+"|";
         // also split to get key-value
@@ -259,7 +260,7 @@ void dagmcMetaData::parse_importance_data() {
       moab::EntityHandle eh = DAG->entity_by_index( 3, i );
       if( importance_map[eh].count(particle) == 0 ) {
         std::cout << "Warning: Volume with ID " << DAG->id_by_index(3,i);
-        std::cout << "Does not have an importance set for particle ";
+        std::cout << " does not have an importance set for particle ";
         std::cout << particle << " assuming importance 1.0 " << std::endl;
         // give this particle default importance
         importance_map[eh][particle] = 1.0;

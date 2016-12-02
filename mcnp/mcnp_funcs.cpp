@@ -156,7 +156,7 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
     write_tally_data(lcadfile_str,workflow_data);
 
   // all done
-  lcadfile << lcadfile_str;
+  lcadfile << lcadfile_str.str();
   lcadfile.close();
   return;
 }
@@ -176,6 +176,9 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
     if(workflow_data.material_library.size() == 0) {
       mat_num = DMD->volume_material_data_eh[entity];
       density = DMD->volume_density_data_eh[entity];
+      // if we have a vaccum problem
+      if(mat_num == "Graveyard" || mat_num == "Vacuum")
+        mat_num = "0";
     } else {
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
