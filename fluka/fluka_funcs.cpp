@@ -827,10 +827,7 @@ void fludag_write(std::string matfile, std::string lfname)
   std::ostringstream assignma_str;
   fludagwrite_assignma(assignma_str, workflow_data.material_library);
 
-  // write COMPOUND CARDS
-  std::ostringstream material_str;
-  fludag_all_materials(material_str, workflow_data.material_library);
-
+  // get the importances  
   std::ostringstream importance_str;
   fludagwrite_importances(importance_str);
 
@@ -840,14 +837,23 @@ void fludag_write(std::string matfile, std::string lfname)
   lcadfile << header << std::endl;
   lcadfile << assignma_str.str();
   lcadfile << header << std::endl;
-  lcadfile << material_str.str();
+  lcadfile << importance_str.str();
   lcadfile << header << std::endl;
-  
-  lcadfile << "* UW**2 tallies" << std::endl;
-  material_str.str("");
-  fludag_all_tallies(material_str,workflow_data.tally_library);
-  lcadfile << material_str.str();
-
+  // if uwuw then write materials
+  if(workflow_data.material_library.size() != 0) {
+    // write COMPOUND CARDS
+    std::ostringstream material_str;
+    fludag_all_materials(material_str, workflow_data.material_library);
+    lcadfile << material_str.str();
+    lcadfile << header << std::endl;
+  }
+  // uwuw then write tallies
+  if(workflow_data.tally_library.size() != 0) {
+    lcadfile << "* UW**2 tallies" << std::endl;
+    std::ostringstream tally_str;
+    fludag_all_tallies(tally_str,workflow_data.tally_library);
+    lcadfile << tally_str.str();
+  }
   // all done
   lcadfile.close();
 }
@@ -866,34 +872,58 @@ void fludagwrite_importances(std::ostringstream& ostr)
   // collect up the particles wise importances and renormalise them to that 
   // range
 
+  // this is not currently correct, fluka sets biassing parameters for the 
+  // following types of particle, {all particles}, {hadrons, heavy ions and muons}, {electrons,
+  // positrons, and photons}, {low energy neutrons}.
+
+  // Will need a function to determine what group we are for a given particle type
+
+  // below is not correct
+  return;
+
    // for each volume index
-  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
+   for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
     int cellid = DAG->id_by_index( 3, vol_i );
     moab::EntityHandle entity = DAG->entity_by_index( 3, vol_i );
-    std::string imp_props = DMD->volume_importance_data_eh[entity];
-    std::vector<std::string> imps = DMD->unpack_string(imp_props,"|");
 
-    // loop over each Particle/Value pair
-    for ( unsigned int i = 0 ; i < imps.size() ; i++ ) {
-      std::string prop = imps[i];
-      std::pair<std::string,std::string> pair = DMD->split_string(prop,"/");
-      std::string particle = pair.first;
-      std::string importance = pair.second;
-      // maybe we can be clever and renormalise?
-      if(atof(importance.c_str()) > 1.e5) {
+
+    std::set<std::string>::iterator it;
+    std::set<std::string> set = DMD->imp_particles;
+    // deal with importances;
+    std::string mat_name = DMD->volume_material_property_data_eh[entity];
+    for ( it = set.begin() ; it != set.end() ; ++it) {
+      std::string particle_name = *it;
+      std::string fluka_name = pyne::particle::fluka(particle_name);
+      double imp = 1.0;  
+      // if we find graveyard always have importance 0.0
+      if(mat_name.find("Graveyard") != std::string::npos || 
+         mat_name.find("Vacuum") != std::string::npos ) {
+         break;
+      } else {
+        imp = DMD->importance_map[entity][particle_name];
+      }
+      std::string importance = "";
+      if(imp > 1.e5) {
         std::cout << "Importance too high for Fluka, capping at 1e.5";
         importance = "1.0E5";
       }
-      if(atof(importance.c_str()) < 1.0e-5) {
+      if(imp < 1.0e-5) {
         std::cout << "Importance too low for Fluka, capping at 1e.-5";
         importance = "1.0E-5";        
       }
-      if(atof(importance.c_str()) == 0.0) {
+      if(imp == 0.0) {
         std::cout << "Importance zero in Fluka means no biassing as opposed to kill";
         importance = "0.0";       
       }
-      ostr << "BIASING" << "-1.0" << importance << pyne::particle::fluka(particle);
-      ostr << " " << " " << "PRIMRY" << std::endl;
+      //"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+..."
+      //"BIASING          1.0       0.7       0.4       3.0       8.0       0.0 PRINT
+      ostr << std::setw(10) << std::left << "BIASING";
+      ostr << std::setw(10) << std::right << "-1.0";
+      ostr << std::setw(10) << std::right << importance;
+      ostr << std::setw(10) << std::right << fluka_name;
+      ostr << std::setw(10) << std::right << " ";
+      ostr << std::setw(10) << std::right << " ";
+      ostr << std::setw(10) << std::left << "PRINT" << std::endl;
      }
   }
   return;
@@ -917,7 +947,13 @@ void fludagwrite_assignma(std::ostringstream& ostr,
 
     // if the map size is 0 we assume simple naming
     if ( pyne_map.size() == 0) {
-      mat_name = mat_prop.substr(0,8);
+      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
+        mat_name = mat_prop.substr(0,8);
+      } else if (mat_prop.find("Graveyard") != std::string::npos ) {
+        mat_name = "BLCKHOLE";
+      } else if (mat_prop.find("Vacuum") != std::string::npos) {
+        mat_name = "VACUUM";
+      }      
     } else { 
     // otherwise we assume uwuw
       // if you arent graveyard or vacuum you must be in the uwuw library
