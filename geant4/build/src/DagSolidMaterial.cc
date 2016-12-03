@@ -14,7 +14,7 @@ std::map<std::string,G4Material*> load_uwuw_materials(UWUW *workflow_data)
   for ( it = material_library.begin() ; it != material_library.end() ; ++it ) {
     pyne::Material new_mat = it->second;
     new_mat = new_mat.expand_elements();
-    material_library[it->first] = new_mat; 
+    material_library[it->first] = new_mat;
   }
 
 
@@ -71,7 +71,7 @@ std::map<int,G4Isotope*> get_g4isotopes(std::map<std::string, pyne::Material> ma
   return g4isotopes;
 }
 
-// this may seem odd to a geant4 user, but since we may care about 
+// this may seem odd to a geant4 user, but since we may care about
 // specific nuclides (g4isotopes) we need to make sure that our materials
 // have as much data regarding them as possible, since g4materials can only
 // be made of elements, we make an element for each g4isotope

@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
   // DAG call to load the file
   std::cout << "Loading the faceted geometry file " << infile << "..." << std::endl;
   error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
-  
+
   if ( error != moab::MB_SUCCESS ) {
     std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
     exit(EXIT_FAILURE);
@@ -90,12 +90,12 @@ int main(int argc, char* argv[])
   if(flukarun) {
     error = DAG->init_OBBTree();
   } else {
-  // otherwise this is a preprocess run
-  // no need to build the tree 
+    // otherwise this is a preprocess run
+    // no need to build the tree
     error = DAG->setup_impl_compl();
     error = DAG->setup_indices();
   }
-  
+
   if ( error != moab::MB_SUCCESS ) {
     std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
     exit(EXIT_FAILURE);

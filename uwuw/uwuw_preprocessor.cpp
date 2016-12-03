@@ -155,7 +155,7 @@ void uwuw_preprocessor::process_materials()
 
     std::string mat_name = dmd->return_property(*s_it,"mat");
     std::string density  = dmd->return_property(*s_it,"rho");
-    
+
     // find grave or vacuum
     std::size_t found_grave = mat_name.find("Graveyard");
     std::size_t found_vacuum = mat_name.find("Vacuum");
@@ -181,7 +181,7 @@ void uwuw_preprocessor::process_tallies()
 {
   std::vector<std::string>::iterator it;
 
-  // first volumes 
+  // first volumes
   for ( int i = 1 ; i <= DAG->num_entities(3); i++ ) {
     // get the tally properties
     std::string prop = dmd->get_volume_property("tally",i,true);
@@ -198,9 +198,9 @@ void uwuw_preprocessor::process_tallies()
   for ( int i = 1 ; i <= DAG->num_entities(2); i++ ) {
     // get the tally properties
     std::string prop = dmd->get_surface_property("tally",i,true);
-    std::vector<std::string> tally_props = dmd->unpack_string(prop,"|");    
+    std::vector<std::string> tally_props = dmd->unpack_string(prop,"|");
     moab::EntityHandle eh = DAG->entity_by_id(2,i);
-    if(tally_props.size() >= 1 && tally_props[0] != "" ) {  
+    if(tally_props.size() >= 1 && tally_props[0] != "" ) {
       for ( it = tally_props.begin() ; it != tally_props.end() ; ++it ) {
         tally_info tally_data = make_tally_groupname(*it,2,eh);
         tally_list.insert(tally_list.begin(),tally_data);
@@ -283,7 +283,8 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
   }
 }
 
-void uwuw_preprocessor::print_summary() {
+void uwuw_preprocessor::print_summary()
+{
   std::cout << "+----------------------------------------------------" << std::endl;
   std::cout << "|      UWUW Summary                                  " << std::endl;
   std::cout << "+----------------------------------------------------" << std::endl;
@@ -304,7 +305,8 @@ void uwuw_preprocessor::print_summary() {
 }
 
 // used for printing & debugging only
-void uwuw_preprocessor::property_vector(std::vector<int> props) {
+void uwuw_preprocessor::property_vector(std::vector<int> props)
+{
   if(props.size() == 0) return;
   for ( int i = 0 ; i < props.size() ; i++ ) {
     if ( i == 0 ) {

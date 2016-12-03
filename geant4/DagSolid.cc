@@ -234,7 +234,7 @@ EInside DagSolid::Inside (const G4ThreeVector &p) const
 
   ec = fdagmc->closest_to_location(fvolEntity,point,minDist);
 
-  // if on surface 
+  // if on surface
   if (minDist <= 0.5*kCarTolerance) {
     return kSurface;
   } else {

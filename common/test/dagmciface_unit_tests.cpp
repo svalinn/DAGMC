@@ -58,20 +58,20 @@ TEST_F(DagmcMetadataTest, SetUp)
 }
 
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully 
+// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully
 // been assigned and succesfully retreved from the metadata class
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest,TestMatAssigns)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
-  // process 
+
+  // process
   dgm->load_property_data();
-  
+
   std::string base_property = "Hydrogen";
   std::string impl_comp_prop = "Vacuum";
-  
+
   int num_vols = DAG->num_entities(3);
   for ( int i = 1 ; i <= num_vols ; i++ ) {
     moab::EntityHandle eh = DAG->entity_by_index(3,i);
@@ -99,7 +99,7 @@ TEST_F(DagmcMetadataTest,TestMatAssigns)
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all densities have succesfully 
+// FIXTURE-BASED TESTS: Tests to make sure that all densities have succesfully
 // been assigned and succesfully retreved from the metadata class
 // in this test there was no density data assigned, so it should be ""
 //---------------------------------------------------------------------------//
@@ -107,12 +107,12 @@ TEST_F(DagmcMetadataTest,TestDensityAssigns)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
-  // process 
+
+  // process
   dgm->load_property_data();
-  
+
   std::string base_property = "";
-  
+
   int num_vols = DAG->num_entities(3);
   for ( int i = 1 ; i <= num_vols ; i++ ) {
     moab::EntityHandle eh = DAG->entity_by_index(3,i);
@@ -121,14 +121,14 @@ TEST_F(DagmcMetadataTest,TestDensityAssigns)
 
     mat_prop = dgm->get_volume_property("density",i,true);
     EXPECT_EQ(mat_prop,base_property);
-    
+
     int cellid = DAG->id_by_index( 3, i );
     mat_prop = dgm->get_volume_property("density",i,true);
     EXPECT_EQ(mat_prop,base_property);
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully 
+// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully
 // been assigned and succesfully retreved from the metadata class - this test
 // is asserting that we have the full uwuw form for the uwuw map, i.e.
 // mat:+material_name + / rho:density
@@ -137,13 +137,13 @@ TEST_F(DagmcMetadataTest,TestMatDensityAssigns)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
-  // process 
+
+  // process
   dgm->load_property_data();
-  
+
   std::string base_property = "mat:Hydrogen";
   std::string impl_comp_prop = "mat:Vacuum";
-  
+
   int num_vols = DAG->num_entities(3);
   for ( int i = 1 ; i <= num_vols ; i++ ) {
     moab::EntityHandle eh = DAG->entity_by_index(3,i);
@@ -175,13 +175,13 @@ TEST_F(DagmcMetadataTest,TestUnpackString)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
-  // process 
+
+  // process
   dgm->load_property_data();
-  
+
   std::string neutron_property = "Neutron/1.0";
   std::string photon_property = "Photon/1.0";
-  
+
   std::string  mat_prop = dgm->get_volume_property("importance",1,true);
   std::vector<std::string> imps = dgm->unpack_string(mat_prop,"|");
   std::cout << imps[0] << std::endl;
@@ -193,7 +193,7 @@ TEST_F(DagmcMetadataTest,TestUnpackString)
 }
 
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully 
+// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully
 // been assigned and succesfully retreved from the metadata class - this test
 // is asserting that we have set and correctly retrived importance data
 //---------------------------------------------------------------------------//
@@ -201,13 +201,13 @@ TEST_F(DagmcMetadataTest,TestImportanceAssigns)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
-  // process 
+
+  // process
   dgm->load_property_data();
-  
+
   std::string base_property = "Neutron/1.0";
   std::string impl_comp_prop = "";
-  
+
   int num_vols = DAG->num_entities(3);
   for ( int i = 1 ; i <= num_vols ; i++ ) {
     moab::EntityHandle eh = DAG->entity_by_index(3,i);
@@ -221,7 +221,7 @@ TEST_F(DagmcMetadataTest,TestImportanceAssigns)
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully 
+// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully
 // been assigned and succesfully retreved from the dataset, specifically querying
 // the boundary condition case
 //---------------------------------------------------------------------------//
@@ -229,13 +229,13 @@ TEST_F(DagmcMetadataTest,TestBoundaryAssigns)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
-  // process 
+
+  // process
   dgm->load_property_data();
-  
+
   std::string base_property = "Reflecting";
   std::string impl_comp_prop = "";
-  
+
   int num_surfs = DAG->num_entities(2);
   int tmp[] = {1,2,3,5,6,7,8,9,11,13,14,15,16,17};
   std::vector<int> surf_ids( tmp, tmp+14 );
@@ -251,7 +251,7 @@ TEST_F(DagmcMetadataTest,TestBoundaryAssigns)
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully 
+// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully
 // been assigned and succesfully retreved from the dataset, specifically querying
 // the boundary condition case
 //---------------------------------------------------------------------------//
@@ -259,12 +259,12 @@ TEST_F(DagmcMetadataTest,TestTallyAssigns)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
-  // process 
+
+  // process
   dgm->load_property_data();
-  
+
   std::string base_property = "Neutron/Flux";
-  
+
   int num_vols = DAG->num_entities(3);
   int tmp[] = {1,2,3};
   std::vector<int> vol_ids( tmp, tmp+3 );
@@ -289,7 +289,7 @@ TEST_F(DagmcMetadataTest,TestReturnProperty)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
+
   std::string return_string = "";
   return_string = dgm->return_property("mat:Steel","mat",":",false);
   EXPECT_EQ(return_string,"mat:Steel");
@@ -327,7 +327,7 @@ TEST_F(DagmcMetadataTest,TestSplitString)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  
+
   std::string to_split = "Neutron/1.0";
   std::pair<std::string,std::string> pair = dgm->split_string(to_split,"/");
   EXPECT_EQ(pair.first,"Neutron");
@@ -339,12 +339,12 @@ TEST_F(DagmcMetadataTest,TestSplitString)
   for ( unsigned int i = 0 ; i < 2 ; i++ ) {
     std::string split = imps[i];
     pair = dgm->split_string(split,"/");
-    if(i==0){
+    if(i==0) {
       EXPECT_EQ(pair.first,"Neutron");
       EXPECT_EQ(pair.second,"1.0");
     } else if (i == 1) {
       EXPECT_EQ(pair.first,"Photon");
-      EXPECT_EQ(pair.second,"2.0");     
+      EXPECT_EQ(pair.second,"2.0");
     }
   }
 }
@@ -369,7 +369,7 @@ class DagmcMetadataTestImplCompMat : public ::testing::Test
     rval = DAG->init_OBBTree();
     assert (rval == moab::MB_SUCCESS);
   }
-  
+
   virtual void TearDown() {
     //    delete dgm;
     delete DAG;
@@ -396,7 +396,7 @@ TEST_F(DagmcMetadataTestImplCompMat, ImplCompMat)
 {
   // new metadata instance
   dgm = new dagmcMetaData(DAG);
-  // process 
+  // process
   dgm->load_property_data();
   // loop over the volumes
   int num_vols = DAG->num_entities(3);
@@ -408,5 +408,5 @@ TEST_F(DagmcMetadataTestImplCompMat, ImplCompMat)
   EXPECT_EQ(mat1,mat_prop);
 
   std::string mat_prop2 = dgm->get_volume_property("material",2,true);
-  EXPECT_EQ(mat_impl,mat_prop2);  
+  EXPECT_EQ(mat_impl,mat_prop2);
 }

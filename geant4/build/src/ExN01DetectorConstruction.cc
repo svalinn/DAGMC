@@ -42,7 +42,7 @@
 
 moab::DagMC* dagmc = new moab::DagMC(); // create dag instance
 dagmcMetaData* DMD;
-// constructor 
+// constructor
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW *uwuw_workflow_data)
   :  world_volume_log(0)
 {
@@ -54,7 +54,7 @@ ExN01DetectorConstruction::~ExN01DetectorConstruction()
 {
 }
 
-// the main method - takes the problem and loads 
+// the main method - takes the problem and loads
 G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
 {
   // load the material from the UW^2 library
@@ -76,7 +76,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
   G4PVPlacement* world_volume_phys = new G4PVPlacement(0,G4ThreeVector(),world_volume_log,
       "world_vol",0,false,0);
 
-  // load the dagmc file - only to get the counts of volumes 
+  // load the dagmc file - only to get the counts of volumes
   moab::ErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str());
   if(rval != moab::MB_SUCCESS) {
     G4cout << "ERROR: Failed to load the DAGMC file " << uwuw_filename << G4endl;
@@ -118,7 +118,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
     // make new logical volume
     G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol,material_lib[mat_name],
         "vol_"+idx_str+"_log",0,0,0);
-        dag_logical_volumes[dag_idx]=dag_vol_log;
+    dag_logical_volumes[dag_idx]=dag_vol_log;
     // make a new physical placement
     G4PVPlacement* dag_vol_phys = new G4PVPlacement(0,G4ThreeVector(0*cm,0*cm,0*cm),dag_vol_log,
         "volume_"+idx_str+"_phys",
@@ -449,9 +449,10 @@ void ExN01DetectorConstruction::BuildParticleFilter(std::string particle_name)
 }
 
 // as soon as we shift to c++11 or higher this should be removed
-std::string ExN01DetectorConstruction::_to_string(int var) {
+std::string ExN01DetectorConstruction::_to_string(int var)
+{
   std::ostringstream outstr;
-  outstr << var; 
+  outstr << var;
   std::string ret_string = outstr.str();
   return ret_string;
 }

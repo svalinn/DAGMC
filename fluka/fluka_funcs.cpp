@@ -808,16 +808,16 @@ void fludag_write_ididx(std::string ididx)
 }
 
 // FluDAG Material Card  Functions
-// FluDAG write writes all material assignments and 
+// FluDAG write writes all material assignments and
 // material compositions to file.
 void fludag_write(std::string matfile, std::string lfname)
 {
   // since this is a preprocess run
   // grab hold of the metdata
   DMD = new dagmcMetaData(DAG);
-  DMD->load_property_data(); 
+  DMD->load_property_data();
   // all metadata stored in DGM
- 
+
   // get the pyne materials and tallies
   UWUW workflow_data = UWUW(matfile);
 
@@ -827,7 +827,7 @@ void fludag_write(std::string matfile, std::string lfname)
   std::ostringstream assignma_str;
   fludagwrite_assignma(assignma_str, workflow_data.material_library);
 
-  // get the importances  
+  // get the importances
   std::ostringstream importance_str;
   fludagwrite_importances(importance_str);
 
@@ -859,20 +859,20 @@ void fludag_write(std::string matfile, std::string lfname)
 }
 
 // for the entire problem write out biassing cards as appropriate
-void fludagwrite_importances(std::ostringstream& ostr) 
+void fludagwrite_importances(std::ostringstream& ostr)
 {
   // loop over the importance data and write out as found
   // fluka is clever enough to default to no biassing for particles
   // that do not have bias values, therefore we can simply loop over
   // the volumes and retrieve the data
 
-  // right now this function takes the fluka approach of capping the 
+  // right now this function takes the fluka approach of capping the
   // imoportances at higher than 1.0e-5 and lower than 1e5 - mcnp typically
   // is allowed any range we should in the future loop through all the data
-  // collect up the particles wise importances and renormalise them to that 
+  // collect up the particles wise importances and renormalise them to that
   // range
 
-  // this is not currently correct, fluka sets biassing parameters for the 
+  // this is not currently correct, fluka sets biassing parameters for the
   // following types of particle, {all particles}, {hadrons, heavy ions and muons}, {electrons,
   // positrons, and photons}, {low energy neutrons}.
 
@@ -881,8 +881,8 @@ void fludagwrite_importances(std::ostringstream& ostr)
   // below is not correct
   return;
 
-   // for each volume index
-   for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
+  // for each volume index
+  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
     int cellid = DAG->id_by_index( 3, vol_i );
     moab::EntityHandle entity = DAG->entity_by_index( 3, vol_i );
 
@@ -894,11 +894,11 @@ void fludagwrite_importances(std::ostringstream& ostr)
     for ( it = set.begin() ; it != set.end() ; ++it) {
       std::string particle_name = *it;
       std::string fluka_name = pyne::particle::fluka(particle_name);
-      double imp = 1.0;  
+      double imp = 1.0;
       // if we find graveyard always have importance 0.0
-      if(mat_name.find("Graveyard") != std::string::npos || 
+      if(mat_name.find("Graveyard") != std::string::npos ||
          mat_name.find("Vacuum") != std::string::npos ) {
-         break;
+        break;
       } else {
         imp = DMD->importance_map[entity][particle_name];
       }
@@ -909,11 +909,11 @@ void fludagwrite_importances(std::ostringstream& ostr)
       }
       if(imp < 1.0e-5) {
         std::cout << "Importance too low for Fluka, capping at 1e.-5";
-        importance = "1.0E-5";        
+        importance = "1.0E-5";
       }
       if(imp == 0.0) {
         std::cout << "Importance zero in Fluka means no biassing as opposed to kill";
-        importance = "0.0";       
+        importance = "0.0";
       }
       //"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+..."
       //"BIASING          1.0       0.7       0.4       3.0       8.0       0.0 PRINT
@@ -924,7 +924,7 @@ void fludagwrite_importances(std::ostringstream& ostr)
       ostr << std::setw(10) << std::right << " ";
       ostr << std::setw(10) << std::right << " ";
       ostr << std::setw(10) << std::left << "PRINT" << std::endl;
-     }
+    }
   }
   return;
 }
@@ -959,10 +959,10 @@ void fludagwrite_assignma(std::ostringstream& ostr,
         mat_name = "BLCKHOLE";
       } else if (mat_prop.find("Vacuum") != std::string::npos) {
         mat_name = "VACUUM";
-      }      
+      }
     } else {
       // if uwuw key on the full mat:/rho form
-      std::string mat_prop = DMD->volume_material_property_data_eh[entity]; 
+      std::string mat_prop = DMD->volume_material_property_data_eh[entity];
       // otherwise we assume uwuw
       // if you arent graveyard or vacuum you must be in the uwuw library
       if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {

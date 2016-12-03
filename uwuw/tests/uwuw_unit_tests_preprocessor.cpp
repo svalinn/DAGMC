@@ -225,7 +225,7 @@ namespace
 class UWUWPreprocTest : public ::testing::Test
 {
  protected:
- uwuw_preprocessor *uwuw_preproc;
+  uwuw_preprocessor *uwuw_preproc;
 
   UWUWPreprocTest() {}
   virtual ~UWUWPreprocTest() {}
@@ -257,10 +257,10 @@ class UWUWPreprocTest : public ::testing::Test
 TEST_F(UWUWPreprocTest,testMaterials)
 {
   // write the material data
-    uwuw_preproc->write_uwuw_materials();
+  uwuw_preproc->write_uwuw_materials();
 
-    // write the tally data
-    uwuw_preproc->write_uwuw_tallies();
+  // write the tally data
+  uwuw_preproc->write_uwuw_tallies();
 }
 
 /*
@@ -269,9 +269,9 @@ TEST_F(UWUWPreprocTest,testMaterials)
 TEST_F(UWUWPreprocTest,testTallies)
 {
   // write the material data
-    uwuw_preproc->write_uwuw_materials();
+  uwuw_preproc->write_uwuw_materials();
 
-    // write the tally data
-    uwuw_preproc->write_uwuw_tallies();
+  // write the tally data
+  uwuw_preproc->write_uwuw_tallies();
 }
 };

@@ -18,7 +18,7 @@ using moab::DagMC;
 // globals
 
 moab::DagMC *DAG;
-dagmcMetaData *DMD; 
+dagmcMetaData *DMD;
 
 #define DGFM_SEQ   0
 #define DGFM_READ  1
@@ -123,7 +123,7 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
 {
   UWUW workflow_data = UWUW(dagfile);
   std::string full_dagfilename = workflow_data.full_filepath;
- 
+
   lfile[*llen]  = '\0';
 
   std::string lfname(lfile, *llen);
@@ -149,10 +149,10 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   write_surface_cards(lcadfile_str,workflow_data);
   lcadfile_str << std::endl;
 
-  if(workflow_data.material_library.size() > 0) 
+  if(workflow_data.material_library.size() > 0)
     write_material_data(lcadfile_str,workflow_data);
 
-  if(workflow_data.tally_library.size() > 0) 
+  if(workflow_data.tally_library.size() > 0)
     write_tally_data(lcadfile_str,workflow_data);
 
   // all done
@@ -162,9 +162,10 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
 }
 
 // write all cell related data
-void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
+void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
+{
   int num_cells = DAG->num_entities( 3 );
-  
+
   std::string mat_num, density;
 
   // loop over all cells
@@ -193,9 +194,9 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
         density = "";
       }
     }
-    
 
-    // string to collect importance data  
+
+    // string to collect importance data
     std::string importances = "";
     std::set<std::string>::iterator it;
     std::set<std::string> set = DMD->imp_particles;
@@ -208,10 +209,10 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
       // if we find graveyard always have importance 0.0
       if(mat_name.find("Graveyard") != std::string::npos) {
         imp = 0.0;
-      // no splitting can happenin vacuum set to 1
+        // no splitting can happenin vacuum set to 1
       } else if (mat_name.find("Vacuum") != std::string::npos) {
         imp = 1.0;
-      // otherwise as the map says
+        // otherwise as the map says
       } else {
         imp = DMD->importance_map[entity][particle_name];
       }
@@ -221,17 +222,18 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
     if(set.size() == 0 ) {
       importances = "imp:n=1";
     }
-    // write out to lcadfile  
-    lcadfile << cellid << " " << mat_num << " " << density << " " << importances << std::endl; 
-  } 
+    // write out to lcadfile
+    lcadfile << cellid << " " << mat_num << " " << density << " " << importances << std::endl;
+  }
   // all done
   return;
 }
 
 // write the surface data as appropriate
-void write_surface_cards(std::ostringstream &lcadfile, UWUW worfklow_data) {
+void write_surface_cards(std::ostringstream &lcadfile, UWUW worfklow_data)
+{
   int num_surfaces = DAG->num_entities( 2 );
-  
+
   std::string surface_property = "";
   // loop over all cells
   for( int i = 1; i <= num_surfaces; ++i ) {
@@ -248,7 +250,8 @@ void write_surface_cards(std::ostringstream &lcadfile, UWUW worfklow_data) {
 }
 
 // write out all the tally data from the uwuw file
-void write_material_data(std::ostringstream &lcadfile, UWUW workflow_data) {
+void write_material_data(std::ostringstream &lcadfile, UWUW workflow_data)
+{
   std::map<std::string,pyne::Material> material_library = workflow_data.material_library;
   // loop over all tallies
   std::cout << "Writing Materials ..." << std::endl;
@@ -265,7 +268,8 @@ void write_material_data(std::ostringstream &lcadfile, UWUW workflow_data) {
 }
 
 // write out all the tally data from the uwuw file
-void write_tally_data(std::ostringstream &lcadfile, UWUW workflow_data) {
+void write_tally_data(std::ostringstream &lcadfile, UWUW workflow_data)
+{
   std::map<std::string,pyne::Tally> tally_library = workflow_data.tally_library;
   // loop over all tallies
   std::cout << "Writing Tallies ..." << std::endl;
@@ -733,24 +737,27 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 }
 
 // delete the stored data
-void dagmc_teardown_() {
+void dagmc_teardown_()
+{
   delete DMD;
   delete DAG;
 }
 
 // these functions should be replaced when we adopt C++11
 // int to string
-std::string _to_string(int var) {
+std::string _to_string(int var)
+{
   std::ostringstream outstr;
-  outstr << var; 
+  outstr << var;
   std::string ret_string = outstr.str();
   return ret_string;
 }
 
-// double to string 
-std::string _to_string(double var) {
+// double to string
+std::string _to_string(double var)
+{
   std::ostringstream outstr;
-  outstr << var; 
+  outstr << var;
   std::string ret_string = outstr.str();
   return ret_string;
 }

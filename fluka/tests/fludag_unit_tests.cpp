@@ -252,19 +252,20 @@ TEST_F(FluDAGMetaDataTest, CheckAssignMatsLegacy)
   error = DAG->setup_indices();
   fludag_write(infile,"lcad");
 
- // expected values from the lcad file // only the cells
- const char* expected[] = {"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...",
-                           "ASSIGNMA           9        1.",
-                           "ASSIGNMA           9        2.",
-                           "ASSIGNMA           9        3.",
-                           "ASSIGNMA           9        4.",
-                           "ASSIGNMA           3        5.",
-                           "ASSIGNMA           3        6.",
-                           "ASSIGNMA           3        7.",
-                           "ASSIGNMA           3        8.",
-                           "ASSIGNMA           1        9.",
-                           "ASSIGNMA    BLCKHOLE       10.",
-                           "ASSIGNMA      VACUUM       11."};
+// expected values from the lcad file // only the cells
+  const char* expected[] = {"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...",
+                            "ASSIGNMA           9        1.",
+                            "ASSIGNMA           9        2.",
+                            "ASSIGNMA           9        3.",
+                            "ASSIGNMA           9        4.",
+                            "ASSIGNMA           3        5.",
+                            "ASSIGNMA           3        6.",
+                            "ASSIGNMA           3        7.",
+                            "ASSIGNMA           3        8.",
+                            "ASSIGNMA           1        9.",
+                            "ASSIGNMA    BLCKHOLE       10.",
+                            "ASSIGNMA      VACUUM       11."
+                           };
   std::vector<std::string> expected_lcad(expected,expected+12);
 
   // now read the lcad file
@@ -277,7 +278,7 @@ TEST_F(FluDAGMetaDataTest, CheckAssignMatsLegacy)
     input_deck.push_back(line);
   }
   input.close();
-  
+
   // for each line make sure the same
   for ( int i = 0 ; i < 11 ; i++ ) {
     EXPECT_EQ(expected_lcad[i],input_deck[i]);
