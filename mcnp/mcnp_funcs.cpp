@@ -204,7 +204,7 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
     for ( it = set.begin() ; it != set.end() ; ++it) {
       std::string particle_name = *it;
       std::string mcnp_name = pyne::particle::mcnp(particle_name);
-      double imp = 0.0;
+      double imp = 1.0;
       // if we find graveyard always have importance 0.0
       if(mat_name.find("Graveyard") != std::string::npos) {
         imp = 0.0;
@@ -215,7 +215,11 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
       } else {
         imp = DMD->importance_map[entity][particle_name];
       }
-     importances += "imp:"+mcnp_name+"="+_to_string(imp)+" ";
+      importances += "imp:"+mcnp_name+"="+_to_string(imp)+" ";
+    }
+    // its possible no importances were assigned
+    if(set.size() == 0 ) {
+      importances = "imp:n=1";
     }
     // write out to lcadfile  
     lcadfile << cellid << " " << mat_num << " " << density << " " << importances << std::endl; 

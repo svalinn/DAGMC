@@ -217,6 +217,7 @@ void dagmcMetaData::parse_importance_data() {
 
     // vector of importance values
     importance_assignment = importance_assignments[eh];
+
     // set the value of each string for
     std::string importances = "|"; 
     for ( int j = 0 ; j < importance_assignment.size() ; j++ ) {
