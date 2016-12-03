@@ -9,6 +9,15 @@ std::map<std::string,G4Material*> load_uwuw_materials(UWUW *workflow_data)
   std::map<std::string,pyne::Material> material_library;
   material_library = workflow_data->material_library;
 
+  // make sure to expand_elements
+  std::map<std::string,pyne::Material>::iterator it;
+  for ( it = material_library.begin() ; it != material_library.end() ; ++it ) {
+    pyne::Material new_mat = it->second;
+    new_mat = new_mat.expand_elements();
+    material_library[it->first] = new_mat; 
+  }
+
+
   std::map<std::string,G4Material*> g4_mat_empty;
   if (material_library.size() == 0 )
     return g4_mat_empty;
