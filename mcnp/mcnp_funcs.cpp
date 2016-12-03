@@ -176,9 +176,11 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
     if(workflow_data.material_library.size() == 0) {
       mat_num = DMD->volume_material_data_eh[entity];
       density = DMD->volume_density_data_eh[entity];
-      // if we have a vaccum problem
-      if(mat_num == "Graveyard" || mat_num == "Vacuum")
+      // if we have a vacuum problem
+      if(mat_num == "Graveyard" || mat_num == "Vacuum") {
         mat_num = "0";
+        density = "";
+      }
     } else {
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
@@ -191,6 +193,7 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data) {
         density = "";
       }
     }
+    
 
     // string to collect importance data  
     std::string importances = "";
