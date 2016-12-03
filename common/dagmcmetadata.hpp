@@ -4,7 +4,7 @@
 
 class dagmcMetaData {
   public:
-   dagmcMetaData(moab::DagMC *DAGptr);
+   dagmcMetaData(moab::DagMC *DAGptr, bool verbosity = false);
   ~dagmcMetaData();
 
    // load the dagmc properties into maps
@@ -82,7 +82,7 @@ class dagmcMetaData {
 
   private:
   moab::DagMC *DAG; // Pointer to DAGMC instance
-  
+  bool verbose;
   std::vector< std::string > metadata_keywords;
   std::map< std::string, std::string > keyword_synonyms;
 };

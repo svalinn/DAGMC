@@ -728,6 +728,11 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
   }
 }
 
+// delete the stored data
+void dagmc_teardown_() {
+  delete DMD;
+  delete DAG;
+}
 
 // these functions should be replaced when we adopt C++11
 // int to string

@@ -4,9 +4,9 @@
 #include <algorithm> 
 
 // constructor for metadata class
-dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr) {
+dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr, bool verbosity) {
   DAG = dag_ptr; // dagmc pointer
- 
+  verbose = verbosity; 
   // these are the keywords that dagmc will understand
   // from groups if you need to process more 
   // they should be added here
@@ -114,7 +114,6 @@ void dagmcMetaData::parse_material_data() {
 
     material_props = material_assignments[eh];
     density_props = density_assignments[eh];
-    std::cout << material_props[0] << " " << density_props[0] << std::endl;
 
     // this is actually ok for a single volume, one that has the _comp tag at the end of it
     if( material_props.size() > 1 ) {
@@ -129,9 +128,10 @@ void dagmcMetaData::parse_material_data() {
       	}
       } 
       if ( comp_found != std::string::npos ) {
-	     // success found the _comp tag for the impl_compl material
-	    // set the impl_comp material for use later
+	      // success found the _comp tag for the impl_compl material
+	      // set the impl_comp material for use later
 	      implicit_complement_material = material_props[position].substr(0,material_props[position].size()-5);
+        implicit_complement_density = density_props[0];
 	      material_props.erase(material_props.begin()+position);	
       } else {
       	// failure a volume can only have a single material associated with it
@@ -145,32 +145,15 @@ void dagmcMetaData::parse_material_data() {
 	      exit(EXIT_FAILURE);
       }
     }
-    // this is actually ok for a single volume, one that has the _comp tag at the end of it
+    // this is never ok for a volume to have more than one proprety for density
     if(density_props.size() > 1) {
-      // search the props for _comp
-      std::size_t comp_found;
-      int position;
-      for ( int j = 0 ; j < density_props.size() ; j++ ) {
-	      comp_found = density_props[j].find("_comp");
-	      if ( comp_found != std::string::npos) {
-	        position = j;
-	        break;
-	      }
-      } 
-      if ( comp_found != std::string::npos ) {
-	      // success found the _comp tag for the impl_compl material
-	      // set the impl_comp material for use later
-	      implicit_complement_density = density_props[position].substr(0,density_props[position].size()-5);
-	      density_props.erase(density_props.begin()+position);
-      } else {
-	std::cout << "More than one density specified for " << cellid <<std::endl;
-	std::cout << cellid << " has the following density assignments" << std::endl;
-	for ( int j = 0 ; j < density_props.size() ; j++ ) {
-	  std::cout << density_props[j] << std::endl;
-	}
-	std::cout << "Please check your density assignments " << cellid << std::endl;
-	exit(EXIT_FAILURE);
-      }
+     	std::cout << "More than one density specified for " << cellid <<std::endl;
+	    std::cout << cellid << " has the following density assignments" << std::endl;
+	    for ( int j = 0 ; j < density_props.size() ; j++ ) {
+	      std::cout << density_props[j] << std::endl;
+    	}
+	    std::cout << "Please check your density assignments " << cellid << std::endl;
+	    exit(EXIT_FAILURE);
     }
 
     std::string grp_name = "";
@@ -179,11 +162,9 @@ void dagmcMetaData::parse_material_data() {
     if (!density_props[0].empty()) {
       grp_name = "mat:"+material_props[0]+"/rho:"+density_props[0];
       volume_density_data_eh[eh] = density_props[0]; 
-      //material_density_pairs[material_props[0]].insert(density_props[0]);
     } else {
       grp_name = "mat:"+material_props[0];
       volume_density_data_eh[eh] = "";
-      //material_density_pairs[material_props[0]].insert("");
     }
 
     // set the material value
@@ -208,14 +189,14 @@ void dagmcMetaData::parse_material_data() {
     // implicit complement
     else if (DAG->is_implicit_complement(eh)) {
       if(implicit_complement_material == "" ) {
-	std::cout << "Implicit Complement assumed to be Vacuum" << std::endl;
-	volume_material_property_data_eh[eh] = "mat:Vacuum";
-	volume_material_data_eh[eh] = "Vacuum";
+      	std::cout << "Implicit Complement assumed to be Vacuum" << std::endl;
+	      volume_material_property_data_eh[eh] = "mat:Vacuum";
+	      volume_material_data_eh[eh] = "Vacuum";
       } else {
-	volume_material_property_data_eh[eh] = "mat:"+implicit_complement_material;
-	if(implicit_complement_density != "") volume_material_property_data_eh[eh] += "/rho"+implicit_complement_density;
-	volume_material_data_eh[eh] = implicit_complement_material;
-	volume_density_data_eh[eh] = implicit_complement_density;
+	     volume_material_property_data_eh[eh] = "mat:"+implicit_complement_material;
+	     if(implicit_complement_density != "") volume_material_property_data_eh[eh] += "/rho"+implicit_complement_density;
+	     volume_material_data_eh[eh] = implicit_complement_material;
+	     volume_density_data_eh[eh] = implicit_complement_density;
       }	
     }
   } 
@@ -260,9 +241,11 @@ void dagmcMetaData::parse_importance_data() {
       std::string particle = *it;
       moab::EntityHandle eh = DAG->entity_by_index( 3, i );
       if( importance_map[eh].count(particle) == 0 ) {
-        std::cout << "Warning: Volume with ID " << DAG->id_by_index(3,i);
-        std::cout << " does not have an importance set for particle ";
-        std::cout << particle << " assuming importance 1.0 " << std::endl;
+        if(verbose) {
+          std::cout << "Warning: Volume with ID " << DAG->id_by_index(3,i);
+          std::cout << " does not have an importance set for particle ";
+          std::cout << particle << " assuming importance 1.0 " << std::endl;
+        }
         // give this particle default importance
         importance_map[eh][particle] = 1.0;
       }

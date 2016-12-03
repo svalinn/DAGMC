@@ -6973,14 +6973,14 @@ void * pyne::particle::_fill_maps()
   altnames["Gamma"] = name_id["Photon"];
   altnames["X-Ray"] = name_id["Photon"];
 
-  part_to_mcnp["Neutron"]="N";
-  part_to_mcnp["Photon"]="P";
-  part_to_mcnp["Electron"]="E";
+  part_to_mcnp["Neutron"]="n";
+  part_to_mcnp["Photon"]="p";
+  part_to_mcnp["Electron"]="e";
 
-  part_to_mcnp6["Neutron"]="N";
-  part_to_mcnp6["Photon"]="P";
-  part_to_mcnp6["Electron"]="E";
-  part_to_mcnp6["Proton"]="H";
+  part_to_mcnp6["Neutron"]="n";
+  part_to_mcnp6["Photon"]="p";
+  part_to_mcnp6["Electron"]="e";
+  part_to_mcnp6["Proton"]="h";
 
   part_to_fluka["Electron"]="ELECTRON";
   part_to_fluka["Positron"]="POSITRON";
