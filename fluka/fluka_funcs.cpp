@@ -935,6 +935,12 @@ void fludagwrite_importances(std::ostringstream& ostr)
 void fludagwrite_assignma(std::ostringstream& ostr,
                           std::map<std::string, pyne::Material> pyne_map)
 {
+
+  std::map<std::string,pyne::Material>::iterator it;
+  for ( it = pyne_map.begin() ; it != pyne_map.end() ; ++it) {
+    std::cout << it->first << std::endl;
+  }
+
   // for each volume index
   for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
     int cellid = DAG->id_by_index( 3, vol_i );
@@ -942,11 +948,11 @@ void fludagwrite_assignma(std::ostringstream& ostr,
 
     // by using the metadata class, we know that we will have already failed
     // if materials do not have an approriate name and density
-    std::string mat_prop = DMD->volume_material_data_eh[entity];
-    std::string mat_name = "";
-
     // if the map size is 0 we assume simple naming
+    std::string mat_name = "";
     if ( pyne_map.size() == 0) {
+      // if we are simply key on the pure material data i.e. without mat:
+      std::string mat_prop = DMD->volume_material_data_eh[entity];
       if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
         mat_name = mat_prop.substr(0,8);
       } else if (mat_prop.find("Graveyard") != std::string::npos ) {
@@ -954,13 +960,15 @@ void fludagwrite_assignma(std::ostringstream& ostr,
       } else if (mat_prop.find("Vacuum") != std::string::npos) {
         mat_name = "VACUUM";
       }      
-    } else { 
-    // otherwise we assume uwuw
+    } else {
+      // if uwuw key on the full mat:/rho form
+      std::string mat_prop = DMD->volume_material_property_data_eh[entity]; 
+      // otherwise we assume uwuw
       // if you arent graveyard or vacuum you must be in the uwuw library
-      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos
-        && !(DAG->is_implicit_complement(entity))) {
+      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
         pyne::Material material = pyne_map[mat_prop];
         mat_name = material.metadata["fluka_name"].asString();
+        std::cout << mat_name << std::endl;
       } else if (mat_prop.find("Graveyard") != std::string::npos ) {
         mat_name = "BLCKHOLE";
       } else if (mat_prop.find("Vacuum") != std::string::npos) {
