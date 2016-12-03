@@ -195,7 +195,6 @@ TEST_F(UWUWTest,materialMetadata)
   uwuw_preprocessor *uwuw_preproc = new uwuw_preprocessor(lib_file,dag_file,
       out_file,verbose,fatal_errors);
   // load the geometry
-  uwuw_preproc->get_dagmc_properties();
   // process materials
   uwuw_preproc->process_materials();
   // write the new material library
