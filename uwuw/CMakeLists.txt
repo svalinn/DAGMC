@@ -25,8 +25,12 @@ target_link_libraries(uwuw_preprocessor dagmciface
   ${DAG_LINK_LIBS} ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
   pyne_dagmc)
 
+add_executable(material_maker uwuw_material_maker.cpp)
+target_link_libraries(material_maker ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
+  pyne_dagmc dagmciface)
+
 # Build UWUW tests
 add_subdirectory(tests)
 
 install(TARGETS uwuw_preproc DESTINATION bin)
-
+install(TARGETS material_maker DESTINATION bin)
