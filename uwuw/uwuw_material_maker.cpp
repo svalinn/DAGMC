@@ -1,6 +1,13 @@
 #include "uwuw.hpp"
 #include "moab/ProgOptions.hpp"
 #include "hdf5.h"
+#include "pyne.h"
+
+bool check_file_exists(std::string filename)
+{
+  std::ifstream infile(filename.c_str());
+  return infile.good();
+}
 
 int main(int argc, char* argv[])
 {
@@ -39,10 +46,11 @@ int main(int argc, char* argv[])
   }
   
   // make a new material 
-  pyne::Material material = Material();
+  pyne::Material material = pyne::Material();
   // retreve it
   material.from_text(material_file);
   std::string new_mat_name = material.metadata["name"].asString();
+  std::cout << new_mat_name << std::endl;
   // write it
   if(!append) {
     material.write_hdf5(out_file,"/materials");
@@ -53,15 +61,14 @@ int main(int argc, char* argv[])
     // get the library
     std::map<std::string,pyne::Material> mat_lib = uwuw->material_library;
     // check for a name clash
-    if(material_library.count(new_mat_name) != 0 && !overwrite) {
+    if(mat_lib.count(new_mat_name) != 0 && !overwrite) {
       std::cout << "A material already exists in the library with that name" << std::endl;
-      std::cout << "please rename it, if you wish to overwrite it, use the -overwrite option" << std::end;
+      std::cout << "please rename it, if you wish to overwrite it, use the -overwrite option" << std::endl;
       exit(EXIT_FAILURE);
     }    
     // add the new material
     mat_lib[new_mat_name] = material;
     // orphan the /materials dataspace in the file.
-    char* output_cstr = out_file.c_str();
 
     //Set file access properties so it closes cleanly                                                                            
     hid_t fapl;
@@ -69,7 +76,7 @@ int main(int argc, char* argv[])
     H5Pset_fclose_degree(fapl,H5F_CLOSE_STRONG);
 
     // open the file 
-    hid_t id = H5Fopen(filename.c_str(), H5F_ACC_RDWR, fapl);
+    hid_t id = H5Fopen(out_file.c_str(), H5F_ACC_RDWR, fapl);
 
     // datapaths to delete
     char* mat_path = "/materials";
@@ -78,9 +85,10 @@ int main(int argc, char* argv[])
 
     hid_t lapl = 0;
     // delete the links
-    herr_t error = H5Ldelete(id,mat_path,lapl);
-    herr_t error = H5Ldelete(id,nuc_path,lapl);
-    herr_t error = H5Ldelete(id,meta_path,lapl);
+    herr_t error = 0;
+    error = H5Ldelete(id,mat_path,lapl);
+    error = H5Ldelete(id,nuc_path,lapl);
+    error = H5Ldelete(id,meta_path,lapl);
 
     // close the hdf5 file
     H5Fclose(id);

@@ -8,6 +8,7 @@ set(DI_PUB_HEADERS ${DI_PUB_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/uwuw.hpp PARENT_S
 
 # Include directories
 include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/pyne)
 include_directories(${CMAKE_SOURCE_DIR}/common)
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${HDF5_INCLUDE_DIRS})
