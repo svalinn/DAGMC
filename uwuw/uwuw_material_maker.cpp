@@ -9,6 +9,18 @@ bool check_file_exists(std::string filename)
   return infile.good();
 }
 
+
+void print_mat(std::ostream& os, pyne::Material mat)
+{
+  //print the Mass Stream to stdout
+  os << "\tMass: " << mat.mass << "\n";
+  os << "\tDensity: " << mat.density << "\n";
+  os << "\t---------\n";
+  for(pyne::comp_iter i = mat.comp.begin(); i != mat.comp.end(); i++) {
+    os << "\t" << pyne::nucname::name( i->first ) << "\t" << i->second << "\n";
+  }
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -16,6 +28,8 @@ int main(int argc, char* argv[])
 
   bool append = false;
   bool overwrite = false;
+  bool print = false;
+  bool expand = false;
 
   std::string lib_file;
   std::string material_file;
@@ -23,6 +37,8 @@ int main(int argc, char* argv[])
 
   po.addOpt<void>( "append,a", "Append to existing library", &append);
   po.addOpt<void>( "overwite,w", "Overwrite existing materials with the same name", &overwrite);
+  po.addOpt<void>( "print,p", "Print the full material compositon", &print);
+  po.addOpt<void>( "expand,e", "Expand elements of the material", &expand);
 
   po.addRequiredArg<std::string>("material_file", "Path to DAGMC file to proccess", &material_file);
   po.addOpt<std::string>("output,o", "Specify the output filename (default "")", &out_file);
@@ -49,13 +65,21 @@ int main(int argc, char* argv[])
   pyne::Material material = pyne::Material();
   // retreve it
   material.from_text(material_file);
+  if (expand) material = material.expand_elements();
+  std::ostringstream ostr;
+  if (print) {
+      print_mat(ostr,material);
+      std::cout << ostr.str() << std::endl;
+  }
+
+  // need to key on Name 
   std::string new_mat_name = material.metadata["name"].asString();
-  std::cout << new_mat_name << std::endl;
-  // write it
+
+    // write it
   if(!append) {
     material.write_hdf5(out_file,"/materials");
   } else {
-  // if appending 
+    // if appending 
     // new uwuw class
     UWUW *uwuw = new UWUW(out_file);
     // get the library
