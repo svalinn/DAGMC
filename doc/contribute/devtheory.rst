@@ -8,7 +8,10 @@ development.
 Contructor
 ~~~~~~~~~~~~
 
-TBD - pretty sure this changed
+To initialize a DAGMC instance, the constructor must be called. If the
+constructor is called with no arguments, then a new instance is created. Else,
+a pointer to an existing instance can be passed in the constructor and DAGMC
+will be attached to that existing instance.
 
 DAGMC Setup
 ~~~~~~~~~~~~
@@ -89,9 +92,9 @@ possible. An example is the facet outlined in red below and it’s corresponding
 OBB. For the the rest of this section, facets will be represented by a line with
 a 2D OBB.
 
-..  image:: 3d-obb.svg
+..  image:: 3d-obb.png
     :height: 300
-    :width:  600
+    :width:  300
     :alt:    Image of a 3-D Oriented Bounding Box (OBB) around a facet
 
 OBB Tree Construction
@@ -104,18 +107,18 @@ This continues until each of the OBBs the level contains a single facet. A 2D
 example is given below where a single surface has been faceted and the
 orresponding OBB tree is created.
 
-..  image:: red-tree.svg
+..  image:: red-tree.png
     :height: 300
-    :width:  600
+    :width:  500
     :alt:    Image of OBB tree structure for a surface
 
 After OBB trees have been created for each surface in a geometry, they are
 joined together to create a complete OBB tree for a volume. See the example
 below where the green, red, and blue surfaces make up a volume.
 
-..  image:: vol-obb-tree.svg
-    :height: 400
-    :width:  600
+..  image:: vol-obb-tree.png
+    :height: 500
+    :width:  675
     :alt:    Image of OBB tree structure for a volume
 
 Implicit Complement
@@ -156,14 +159,27 @@ history of crossed surfaces is cleared.
 Point in Volume
 ~~~~~~~~~~~~~~~
 
-TBD
+Given a volume entity handle, position, and ray direction (optional), the
+point_in_volume function will test if the point is inside or outside the given
+volume. It is assumed that the test volume exists and is known. Passing a
+direction vector to this function adds robustness and ensures consistent results.
+Otherwise, a random direction is used.
 
 Ray Fire
 ~~~~~~~~
 
-TBD
+The ray_fire function will return the entity handle of the next surface to be
+crossed along with the distance to that surface given the ray's direction. If
+the ray is being tracked in a straight line through multiple volumes, passing
+in the ray-history is important to keep the ray from intersecting facets more
+than once (ie, if the particle is streaming).
 
 Next Volume
 ~~~~~~~~~~~
 
-TBD
+If the next surface is known (after calling ray_fire), the entity handle of the
+next volume can be determined by calling next_volume. Given the next surface and
+the known current volume, the next volume is determined by looking at the other
+volume tagged on that surface (as described in the Sense Tags section above).
+This assumes that a valid surface and volume are provided. If no next volumes
+exists, then the call will return 0 for the next volume.
