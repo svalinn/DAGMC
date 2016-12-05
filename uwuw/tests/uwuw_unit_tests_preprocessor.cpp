@@ -214,8 +214,8 @@ TEST_F(UWUWTest,materialMetadata)
 
   delete uwuw;
   delete uwuw_preproc;
+  std::remove(out_file.c_str());
 }
-
 };
 
 
@@ -232,8 +232,8 @@ class UWUWPreprocTest : public ::testing::Test
 
   virtual void SetUp() {
     // make new preprocessor
-    uwuw_preproc = new uwuw_preprocessor("material_library_test_file.h5",
-                                         "dagmc_geometry_test_file.h5m",
+    uwuw_preproc = new uwuw_preprocessor("mat_lib.h5",
+                                         "dag_file.h5m",
                                          "output_test_file.h5",
                                          true,
                                          false);
@@ -261,6 +261,8 @@ TEST_F(UWUWPreprocTest,testMaterials)
 
   // write the tally data
   uwuw_preproc->write_uwuw_tallies();
+
+  std::remove("output_test_file.h5m");
 }
 
 /*
@@ -273,5 +275,7 @@ TEST_F(UWUWPreprocTest,testTallies)
 
   // write the tally data
   uwuw_preproc->write_uwuw_tallies();
+
+  std::remove("output_test_file.h5m");
 }
 };
