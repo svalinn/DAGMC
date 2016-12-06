@@ -1,4 +1,5 @@
 #include "fluka_funcs.h"
+#include "dagmcmetadata.hpp"
 
 #include "moab/Interface.hpp"
 #include "moab/CartVect.hpp"
@@ -21,7 +22,9 @@ using moab::DagMC;
 #endif
 
 // globals
-extern moab::DagMC *DAG;
+extern moab::DagMC* DAG;
+
+dagmcMetaData* DMD;
 
 #include <fstream>
 #include <numeric>
@@ -118,7 +121,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
   if(debug) print_state(state);
 
   // direction changed reset history, may not be robust
-  if( dir[0] != state.old_direction[0] || dir[1] != state.old_direction[1] || dir[2] != state.old_direction[2] )
+  if( dir[0] != state.old_direction[0] || dir[1] != state.old_direction[1] || dir[2] != state.old_direction[2] ) {
     if( point[0] != state.old_position[0] || point[1] != state.old_position[1] || point[2] != state.old_position[2] ) {
       // if point and direction has changed, we should reset everything
       reset_state(state);
@@ -126,7 +129,7 @@ void g_fire(int &oldRegion, double point[], double dir[], double &propStep,
       // direction has changed reset ray history
       state.history.reset();
     }
-
+  }
   /*
   // direction changed reset history, may not be robust
   if( dir[0] == state.old_direction[0] && dir[1] == state.old_direction[1] && dir[2] == state.old_direction[2] )  {
@@ -805,128 +808,181 @@ void fludag_write_ididx(std::string ididx)
 }
 
 // FluDAG Material Card  Functions
+// FluDAG write writes all material assignments and
+// material compositions to file.
 void fludag_write(std::string matfile, std::string lfname)
 {
-
-
-  // Use DAG to read and count the volumes.
-  std::map<int, std::string> map_name;
-  if (0 == DAG->num_entities(3) ) {
-    std::cout << "Error: there are no volumes in this geometry!" << std::endl;
-    return;
-  }
+  // since this is a preprocess run
+  // grab hold of the metdata
+  DMD = new dagmcMetaData(DAG);
+  DMD->load_property_data();
+  // all metadata stored in DGM
 
   // get the pyne materials and tallies
   UWUW workflow_data = UWUW(matfile);
 
   std::list<pyne::Material> pyne_list;
-  std::map<std::string, pyne::Material> pyne_map;
-  pyne_map = workflow_data.material_library;
 
   // ASSIGNMA Cards
-  std::ostringstream astr;
-  fludagwrite_assignma(astr, pyne_map, map_name);
+  std::ostringstream assignma_str;
+  fludagwrite_assignma(assignma_str, workflow_data.material_library);
 
-  // write COMPOUND CARDS
-  std::ostringstream mstr;
-  fludag_all_materials(mstr, pyne_map);
+  // get the importances
+  std::ostringstream importance_str;
+  fludagwrite_importances(importance_str);
 
   // Write all the streams to the input file
   std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
   std::ofstream lcadfile (lfname.c_str());
   lcadfile << header << std::endl;
-  lcadfile << astr.str();
+  lcadfile << assignma_str.str();
   lcadfile << header << std::endl;
-  lcadfile << mstr.str();
-
+  lcadfile << importance_str.str();
   lcadfile << header << std::endl;
-  lcadfile << "* UW**2 tallies" << std::endl;
-  mstr.str("");
-  fludag_all_tallies(mstr,workflow_data.tally_library);
-  lcadfile << mstr.str();
-
+  // if uwuw then write materials
+  if(workflow_data.material_library.size() != 0) {
+    // write COMPOUND CARDS
+    std::ostringstream material_str;
+    fludag_all_materials(material_str, workflow_data.material_library);
+    lcadfile << material_str.str();
+    lcadfile << header << std::endl;
+  }
+  // uwuw then write tallies
+  if(workflow_data.tally_library.size() != 0) {
+    lcadfile << "* UW**2 tallies" << std::endl;
+    std::ostringstream tally_str;
+    fludag_all_tallies(tally_str,workflow_data.tally_library);
+    lcadfile << tally_str.str();
+  }
   // all done
   lcadfile.close();
 }
 
+// for the entire problem write out biassing cards as appropriate
+void fludagwrite_importances(std::ostringstream& ostr)
+{
+  // loop over the importance data and write out as found
+  // fluka is clever enough to default to no biassing for particles
+  // that do not have bias values, therefore we can simply loop over
+  // the volumes and retrieve the data
+
+  // right now this function takes the fluka approach of capping the
+  // imoportances at higher than 1.0e-5 and lower than 1e5 - mcnp typically
+  // is allowed any range we should in the future loop through all the data
+  // collect up the particles wise importances and renormalise them to that
+  // range
+
+  // this is not currently correct, fluka sets biassing parameters for the
+  // following types of particle, {all particles}, {hadrons, heavy ions and muons}, {electrons,
+  // positrons, and photons}, {low energy neutrons}.
+
+  // Will need a function to determine what group we are for a given particle type
+
+  // below is not correct
+  return;
+
+  // for each volume index
+  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
+    int cellid = DAG->id_by_index( 3, vol_i );
+    moab::EntityHandle entity = DAG->entity_by_index( 3, vol_i );
+
+
+    std::set<std::string>::iterator it;
+    std::set<std::string> set = DMD->imp_particles;
+    // deal with importances;
+    std::string mat_name = DMD->volume_material_property_data_eh[entity];
+    for ( it = set.begin() ; it != set.end() ; ++it) {
+      std::string particle_name = *it;
+      std::string fluka_name = pyne::particle::fluka(particle_name);
+      double imp = 1.0;
+      // if we find graveyard always have importance 0.0
+      if(mat_name.find("Graveyard") != std::string::npos ||
+         mat_name.find("Vacuum") != std::string::npos ) {
+        break;
+      } else {
+        imp = DMD->importance_map[entity][particle_name];
+      }
+      std::string importance = "";
+      if(imp > 1.e5) {
+        std::cout << "Importance too high for Fluka, capping at 1e.5";
+        importance = "1.0E5";
+      }
+      if(imp < 1.0e-5) {
+        std::cout << "Importance too low for Fluka, capping at 1e.-5";
+        importance = "1.0E-5";
+      }
+      if(imp == 0.0) {
+        std::cout << "Importance zero in Fluka means no biassing as opposed to kill";
+        importance = "0.0";
+      }
+      //"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+..."
+      //"BIASING          1.0       0.7       0.4       3.0       8.0       0.0 PRINT
+      ostr << std::setw(10) << std::left << "BIASING";
+      ostr << std::setw(10) << std::right << "-1.0";
+      ostr << std::setw(10) << std::right << importance;
+      ostr << std::setw(10) << std::right << fluka_name;
+      ostr << std::setw(10) << std::right << " ";
+      ostr << std::setw(10) << std::right << " ";
+      ostr << std::setw(10) << std::left << "PRINT" << std::endl;
+    }
+  }
+  return;
+}
 //---------------------------------------------------------------------------//
 // fludagwrite_assignma
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
 void fludagwrite_assignma(std::ostringstream& ostr,
-                          std::map<std::string, pyne::Material> pyne_map,
-                          std::map<int, std::string> map_name)
+                          std::map<std::string, pyne::Material> pyne_map)
 {
 
-  // get the material and density props
-  std::map<moab::EntityHandle,std::vector<std::string> > material_assignments = get_property_assignments("mat",3,":/");
-  std::map<moab::EntityHandle,std::vector<std::string> > density_assignments = get_property_assignments("rho",3,":/");
+  std::map<std::string,pyne::Material>::iterator it;
+  for ( it = pyne_map.begin() ; it != pyne_map.end() ; ++it) {
+    std::cout << it->first << std::endl;
+  }
 
-  pyne::Material material;
-
-  std::vector<std::string> material_props,density_props;
-
-  // loop over all volumes
+  // for each volume index
   for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
     int cellid = DAG->id_by_index( 3, vol_i );
     moab::EntityHandle entity = DAG->entity_by_index( 3, vol_i );
 
-    material_props = material_assignments[entity];
-    density_props = density_assignments[entity];
-
-    if( material_props.size() > 1 ) {
-      std::cout << "more than one material for volume with id " << cellid << std::endl;
-      std::cout << cellid << " has the following material assignments" << std::endl;
-      for ( int j = 0 ; j < material_props.size() ; j++ ) {
-        std::cout << material_props[j] << std::endl;
+    // by using the metadata class, we know that we will have already failed
+    // if materials do not have an approriate name and density
+    // if the map size is 0 we assume simple naming
+    std::string mat_name = "";
+    if ( pyne_map.size() == 0) {
+      // if we are simply key on the pure material data i.e. without mat:
+      std::string mat_prop = DMD->volume_material_data_eh[entity];
+      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
+        mat_name = mat_prop.substr(0,8);
+      } else if (mat_prop.find("Graveyard") != std::string::npos ) {
+        mat_name = "BLCKHOLE";
+      } else if (mat_prop.find("Vacuum") != std::string::npos) {
+        mat_name = "VACUUM";
       }
-      std::cout << "Please check your material assignments " << cellid << std::endl;
-      exit(EXIT_FAILURE);
-    }
-
-    if(density_props.size() > 1) {
-      std::cout << "More than one density specified for " << cellid <<std::endl;
-      std::cout << cellid << " has the following density assignments" << std::endl;
-      for ( int j = 0 ; j < density_props.size() ; j++ ) {
-        std::cout << density_props[j] << std::endl;
-      }
-      std::cout << "Please check your density assignments " << cellid << std::endl;
-      exit(EXIT_FAILURE);
-    }
-
-    std::string grp_name = "";
-    if (!density_props[0].empty()) {
-      grp_name = "mat:"+material_props[0]+"/rho:"+density_props[0];
     } else {
-      grp_name = "mat:"+material_props[0];
+      // if uwuw key on the full mat:/rho form
+      std::string mat_prop = DMD->volume_material_property_data_eh[entity];
+      // otherwise we assume uwuw
+      // if you arent graveyard or vacuum you must be in the uwuw library
+      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
+        pyne::Material material = pyne_map[mat_prop];
+        mat_name = material.metadata["fluka_name"].asString();
+        std::cout << mat_name << std::endl;
+      } else if (mat_prop.find("Graveyard") != std::string::npos ) {
+        mat_name = "BLCKHOLE";
+      } else if (mat_prop.find("Vacuum") != std::string::npos) {
+        mat_name = "VACUUM";
+      }
     }
-
-    std::string fluka_name = "";
-
-    // not graveyard or vacuum or implicit compliment
-    if (grp_name.find("Graveyard") == std::string::npos && grp_name.find("Vacuum") == std::string::npos
-        && !(DAG->is_implicit_complement(entity)) ) {
-      material = pyne_map[grp_name];
-      fluka_name = material.metadata["fluka_name"].asString();
-    } else if (grp_name.find("Graveyard") != std::string::npos ||
-               grp_name.find("graveyard") != std::string::npos ) {
-
-      fluka_name = "BLCKHOLE";
-    } else if (grp_name.find("Vacuum") != std::string::npos) {
-      fluka_name = "VACUUM";
-    }  else if (  DAG->is_implicit_complement(entity) ) {
-      fluka_name = "VACUUM";
-    }
-
     // The fluka name has been found, create the card
     ostr << std::setw(10) << std::left  << "ASSIGNMA ";
-    ostr << std::setw(10) << std::right << fluka_name;
+    ostr << std::setw(10) << std::right << mat_name;
     ostr << std::setprecision(0) << std::fixed << std::showpoint
          << std::setw(10) << std::right << (float)vol_i << std::endl;
 
   }   // End loop through vol_i
   std::cout << std::endl;
-
 }  // end fludagwrite_assignma
 
 
@@ -1056,54 +1112,4 @@ void region2name(int volindex, std::string &vname )  // file with cell/surface c
   ss << volindex;
   ss << ".";
   vname = ss.str();
-}
-
-// get all property in all volumes
-std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property,
-    int dimension, std::string delimiters)
-{
-
-  std::map<moab::EntityHandle,std::vector<std::string> > prop_map;
-
-  std::vector< std::string > mcnp5_keywords;
-  std::map< std::string, std::string > mcnp5_keyword_synonyms;
-
-  // populate keywords
-  mcnp5_keywords.push_back( "mat" );
-  mcnp5_keywords.push_back( "rho" );
-  mcnp5_keywords.push_back( "tally" );
-
-  // get initial sizes
-  int num_entities = DAG->num_entities( dimension );
-
-  // parse data from geometry
-  moab::ErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
-
-  if (moab::MB_SUCCESS != rval) {
-    std::cout << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-
-  // loop over all cells
-  for( int i = 1; i <= num_entities; ++i ) {
-    // get cellid
-    moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
-
-    std::vector<std::string> properties;
-    std::vector<std::string> tmp_properties;
-
-
-    // get the group contents
-    if( DAG->has_prop( entity, property ) ) {
-      rval = DAG->prop_values(entity,property,tmp_properties);
-      properties.push_back(tmp_properties[0]);
-    } else
-      properties.push_back("");
-
-    prop_map[entity]=properties;
-
-  }
-
-  return prop_map;
 }

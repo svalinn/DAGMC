@@ -8,6 +8,7 @@ set(DI_PUB_HEADERS ${DI_PUB_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/uwuw.hpp PARENT_S
 
 # Include directories
 include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/common)
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
@@ -21,7 +22,7 @@ target_link_libraries(uwuw_preproc dagmciface
 set(UWUW_PREPROCESSOR_SRC "uwuw_preprocessor.cpp")
 add_library(uwuw_preprocessor ${UWUW_PREPROCESSOR_SRC})
 target_link_libraries(uwuw_preprocessor dagmciface  
-  ${DAG_LINK_LIBS} ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY} 
+  ${DAG_LINK_LIBS} ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
   pyne_dagmc)
 
 # Build UWUW tests

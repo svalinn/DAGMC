@@ -38,9 +38,6 @@ int main(int argc, char* argv[])
   // make new preprocessor
   uwuw_preprocessor *uwuw_preproc = new uwuw_preprocessor(lib_file,dag_file,out_file,verbose,fatal_errors);
 
-  // load the materials only
-  uwuw_preproc->get_dagmc_properties();
-
   // process the materials
   uwuw_preproc->process_materials();
 

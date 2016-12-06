@@ -1,10 +1,10 @@
 message(STATUS "Building dagmciface library")
 
 # Source files
-set(DI_SRC_FILES ${DI_SRC_FILES} dagmciface.cpp PARENT_SCOPE)
-
+list(APPEND DI_SRC_FILES dagmcmetadata.cpp)
+                                
 # Public headers
-set(DI_PUB_HEADERS ${DI_PUB_HEADERS} dagmciface.h PARENT_SCOPE)
+list(APPEND DI_PUB_HEADERS dagmcmetadata.hpp)
 
 # Include directories
 include_directories(.)
@@ -19,3 +19,9 @@ install(TARGETS dagmciface LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                            PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
                            LIBRARY       PERMISSIONS ${PERMS}
                            ARCHIVE       PERMISSIONS ${PERMS})
+list(APPEND LINK_LIBS pyne_dagmc)
+list(APPEND LINK_LIBS ${HDF5_hdf5_hl_LIBRARY})
+list(APPEND LINK_LIBS ${HDF5_hdf5_LIBRARY})
+list(APPEND LINK_LIBS ${DAGMC_LIBRARIES})
+target_link_libraries(dagmciface ${LINK_LIBS})
+add_subdirectory(test)

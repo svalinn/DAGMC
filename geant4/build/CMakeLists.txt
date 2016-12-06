@@ -1,13 +1,25 @@
 message(STATUS "Building DAG-Geant4")
 
-# Get Geant4 libraries, include directories, and compile definitions
-include(${Geant4_USE_FILE})
-
 # CXX compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Geant4_CXX_FLAGS}")
 if (LIB_TYPE STREQUAL STATIC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
 endif (LIB_TYPE STREQUAL STATIC)
+
+#----------------------------------------------------------------------------
+# Find Geant4 package, activating all available UI and Vis drivers by default
+# You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
+# to build a batch mode only executable
+#
+option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
+			 if(WITH_GEANT4_UIVIS)
+  find_package(Geant4 REQUIRED ui_all vis_all)
+else()
+  find_package(Geant4 REQUIRED)
+endif()
+
+# Get Geant4 libraries, include directories, and compile definitions
+include(${Geant4_USE_FILE})
 
 # Source files
 set(SRC_FILES)
@@ -27,6 +39,7 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 # Include directories
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/uwuw)
+include_directories(${CMAKE_SOURCE_DIR}/common)
 
 # Build DAG-Geant4
 add_executable(DagGeant4 ${SRC_FILES})

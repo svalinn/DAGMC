@@ -38,6 +38,8 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction
   void build_histogram();
   void add_histogram_description(std::string tally_name);
   void end_histogram();
+ private:
+  std::string _to_string(int var);
 
  private:
 

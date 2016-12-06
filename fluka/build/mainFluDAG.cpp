@@ -10,6 +10,7 @@
 #include "fluka_funcs.h"
 
 #include "DagMC.hpp"
+#include "dagmcmetadata.hpp"
 
 #include <cstring>
 #include <fstream>
@@ -17,7 +18,7 @@
 
 #define flukam flukam_
 
-moab::DagMC *DAG = new moab::DagMC();
+moab::DagMC *DAG = new moab::DagMC(); // dagmc instance
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,6 +70,7 @@ int main(int argc, char* argv[])
   // DAG call to load the file
   std::cout << "Loading the faceted geometry file " << infile << "..." << std::endl;
   error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
+
   if ( error != moab::MB_SUCCESS ) {
     std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
     exit(EXIT_FAILURE);
@@ -83,7 +85,17 @@ int main(int argc, char* argv[])
   std::cout << "Time to load the h5m file = " << seconds << " seconds" << std::endl;
 
   // DAG call to initialize geometry
-  error = DAG->init_OBBTree();
+  // if more than 1 argument provided
+  // this an actual calculation
+  if(flukarun) {
+    error = DAG->init_OBBTree();
+  } else {
+    // otherwise this is a preprocess run
+    // no need to build the tree
+    error = DAG->setup_impl_compl();
+    error = DAG->setup_indices();
+  }
+
   if ( error != moab::MB_SUCCESS ) {
     std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
     exit(EXIT_FAILURE);

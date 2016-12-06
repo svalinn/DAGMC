@@ -1,7 +1,7 @@
 message(STATUS "Building DAG-MCNP5")
 
 enable_language(Fortran)
-
+include_directories(${CMAKE_SOURCE_DIR}/common)
 # Get date and time
 # modifed from http://www.cmake.org/pipermail/cmake/2010-November/041034.html
 macro (DATETIME RESULT)

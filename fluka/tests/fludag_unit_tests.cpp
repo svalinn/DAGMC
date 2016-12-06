@@ -15,24 +15,6 @@ moab::DagMC *DAG = new moab::DagMC();
 int num_slab_vols = 12;
 
 //---------------------------------------------------------------------------//
-// HELPER METHODS
-//---------------------------------------------------------------------------//
-// loads default mesh into the mbi instance and gets all mesh nodes
-/*
-void load_default_mesh(moab::Interface* mbi, moab::Range& mesh_nodes)
-{
-    std::string default_slabs = dir + "input/test2/fludag/slabs.h5m";
-
-    moab::ErrorCode rval = mbi->load_mesh(default_slabs);
-    assert(rval == moab::MB_SUCCESS);
-
-    // copy all mesh nodes into Range
-    moab::EntityHandle root_set = 0;
-    rval = mbi->get_entities_by_type(root_set, moab::MBVERTEX, mesh_nodes);
-    assert(rval == moab::MB_SUCCESS);
-}
-*/
-//---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
 class FluDAGTest : public ::testing::Test
@@ -250,49 +232,58 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
 }
 
 //---------------------------------------------------------------------------//
-// Test that for particles with a -z component exit(0) is called
-// Death Tests require special handling and naming recommendation
-/*
-TEST_F(FluDAGTest, LostParticleDeathTest)
-{
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-
-  oldReg   = 2;
-  point[2] = 5.0;
-  // Set prepStep to something more realistic than 0.0
-  propStep = 1e38;
-
-  // ++-
-  // Lost Particle!
-  dir[0] = +dir_norm;
-  dir[1] = +dir_norm;
-  dir[2] = -dir_norm;
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
-
-  // +--
-  // Lost Particle!
-  dir[0] = +dir_norm;
-  dir[1] = -dir_norm;
-  dir[2] = -dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
-
-  // -+-
-  // Lost Particle!
-  dir[0] = -dir_norm;
-  dir[1] = +dir_norm;
-  dir[2] = -dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
-
-  // ---
-  // Lost Particle!
-  dir[0] = -dir_norm;
-  dir[1] = -dir_norm;
-  dir[2] = -dir_norm;
-  g_fire(oldReg, point, dir, propStep, retStep, newReg);
-  EXPECT_EXIT(g_fire(oldReg, point, dir, propStep, retStep, newReg), ::testing::ExitedWithCode(0), "");
-}
-*/
+// TEST FIXTURES
 //---------------------------------------------------------------------------//
-// end of FluDAG/src/test/test_FlukaFuncs.cpp
+class FluDAGMetaDataTest : public ::testing::Test
+{
+};
+
+
+//---------------------------------------------------------------------------//
+// Test setup outcomes
+TEST_F(FluDAGMetaDataTest, CheckAssignMatsLegacy)
+{
+  delete DAG;
+  DAG = new moab::DagMC();
+  std::string infile = "test_geom_legacy.h5m";
+  moab::ErrorCode error;
+  error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
+  error = DAG->setup_impl_compl();
+  error = DAG->setup_indices();
+  fludag_write(infile,"lcad");
+
+// expected values from the lcad file // only the cells
+  const char* expected[] = {"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...",
+                            "ASSIGNMA           9        1.",
+                            "ASSIGNMA           9        2.",
+                            "ASSIGNMA           9        3.",
+                            "ASSIGNMA           9        4.",
+                            "ASSIGNMA           3        5.",
+                            "ASSIGNMA           3        6.",
+                            "ASSIGNMA           3        7.",
+                            "ASSIGNMA           3        8.",
+                            "ASSIGNMA           1        9.",
+                            "ASSIGNMA    BLCKHOLE       10.",
+                            "ASSIGNMA      VACUUM       11."
+                           };
+  std::vector<std::string> expected_lcad(expected,expected+12);
+
+  // now read the lcad file
+  std::ifstream input;
+  input.open("lcad");
+  std::string line;
+  std::vector<std::string> input_deck;
+  while(!input.eof()) {
+    std::getline(input,line);
+    input_deck.push_back(line);
+  }
+  input.close();
+
+  // for each line make sure the same
+  for ( int i = 0 ; i < 11 ; i++ ) {
+    EXPECT_EQ(expected_lcad[i],input_deck[i]);
+  }
+  // delete the lcad file
+  std::remove("lcad");
+
+}

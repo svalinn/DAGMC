@@ -1,6 +1,7 @@
 #include "mcnp_funcs.h"
 
 #include "DagMC.hpp"
+#include "dagmcmetadata.hpp"
 using moab::DagMC;
 
 #include <limits>
@@ -17,6 +18,7 @@ using moab::DagMC;
 // globals
 
 moab::DagMC *DAG;
+dagmcMetaData *DMD;
 
 #define DGFM_SEQ   0
 #define DGFM_READ  1
@@ -28,7 +30,6 @@ moab::DagMC *DAG;
 #include <numeric>
 
 static std::ostream* raystat_dump = NULL;
-
 #endif
 
 
@@ -94,6 +95,11 @@ void dagmcinit_(char *cfile, int *clen,  // geom
     exit(EXIT_FAILURE);
   }
 
+  // intialize the metadata
+  DMD = new dagmcMetaData(DAG);
+  DMD->load_property_data();
+  // all metadata now loaded
+
   pblcm_history_stack.resize( *max_pbl+1 ); // fortran will index from 1
 
 }
@@ -113,158 +119,10 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
 
 }
 
-/**
- * Helper function for parsing DagMC properties that are integers.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_int_prop( moab::EntityHandle vol, int cell_id, const std::string& property, int& result )
-{
-
-  moab::ErrorCode rval;
-  if( DAG->has_prop( vol, property ) ) {
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( moab::MB_SUCCESS != rval ) {
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtol( valst, &valend, 10 );
-    if( valend[0] != '\0' ) {
-      // strtol did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
-  } else return false;
-
-}
-
-/**
- * Helper function for parsing DagMC properties that are doubles.
- * Returns true on success, false if property does not exist on the volume,
- * in which case the result is unmodified.
- * If DagMC throws an error, calls exit().
- */
-static bool get_real_prop( moab::EntityHandle vol, int cell_id, const std::string& property, double& result )
-{
-
-  moab::ErrorCode rval;
-  if( DAG->has_prop( vol, property ) ) {
-    std::string propval;
-    rval = DAG->prop_value( vol, property, propval );
-    if( moab::MB_SUCCESS != rval ) {
-      std::cerr << "DagMC failed to get expected property " << property << " on cell " << cell_id << std::endl;
-      std::cerr << "Error code: " << rval << std::endl;
-      exit( EXIT_FAILURE );
-    }
-    const char* valst = propval.c_str();
-    char* valend;
-    result = strtod( valst, &valend );
-    if( valend[0] != '\0' ) {
-      // strtod did not consume whole string
-      std::cerr << "DagMC: trouble parsing '" << property <<"' value (" << propval << ") for cell " << cell_id << std::endl;
-      std::cerr << "       the parsed value is " << result << ", using that." << std::endl;
-    }
-    return true;
-  } else return false;
-
-}
-
-// take a string like "surf.flux.n", a key like "surf.flux", and a number like 2,
-// If the first part of the string matches the key, remove the key from the string (leaving, e.g. ".n")
-// and return the number.
-static int tallytype( std::string& str, const char* key, int ret )
-{
-  if( str.find(key) == 0 ) {
-    str.erase( 0, strlen(key) );
-    return ret;
-  }
-  return 0;
-}
-
-// given a tally specifier like "1.surf.flux.n", return a printable card for the specifier
-// and set 'dim' to 2 or 3 depending on whether its a surf or volume tally
-static char* get_tallyspec( std::string spec, int& dim )
-{
-
-  if( spec.length() < 2 ) return NULL;
-  const char* str = spec.c_str();
-  char* p;
-
-  int ID = strtol( str, &p, 10 );
-  if( p == str ) return NULL; // did not find a number at the beginning of the string
-  if( *p != '.' ) return NULL; // did not find required separator
-  str = p + 1;
-
-  if( strlen(str) < 1 ) return NULL;
-
-  std::string tmod;
-  if( str[0] == 'q' ) {
-    tmod = "+";
-    str++;
-  } else if( str[0] == 'e' ) {
-    tmod = "*";
-    str++;
-  }
-
-  std::string remainder(str);
-  int type = 0;
-  type = tallytype( remainder, "surf.current", 1 );
-  if(!type) type = tallytype( remainder, "surf.flux", 2 );
-  if(!type) type = tallytype( remainder, "cell.flux", 4 );
-  if(!type) type = tallytype( remainder, "cell.heating", 6 );
-  if(!type) type = tallytype( remainder, "cell.fission", 7 );
-  if(!type) type = tallytype( remainder, "pulse.height", 8 );
-  if( type == 0 ) return NULL;
-
-  std::string particle = "n";
-  if( remainder.length() >= 2 ) {
-    if(remainder[0] != '.') return NULL;
-    particle = remainder.substr(1);
-  }
-
-  char* ret = new char[80];
-  sprintf( ret, "%sf%d:%s", tmod.c_str(), (10*ID+type), particle.c_str() );
-
-  dim = 3;
-  if( type == 1 || type == 2 ) dim = 2;
-  return ret;
-
-}
-
 void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/surface cards
 {
-  bool old_method = false;
-
-  pyne::Material test_mat;
-
   UWUW workflow_data = UWUW(dagfile);
-
   std::string full_dagfilename = workflow_data.full_filepath;
-
-  std::cout << full_dagfilename << std::endl;
-
-  /*
-  if ( !old_method ) {
-    try
-      {
-  test_mat.from_hdf5(full_dagfilename,"/materials");
-      }
-    catch (const std::exception &except) // catch the exception from from_hdf5
-      {
-  std::cout << "No Materials found in the file, " << dagfile << std::endl;
-  std::cout << "Assuming that the groups are marked in old style" << std::endl;
-  old_method = true;
-      }
-  }
-  */
-  if ( workflow_data.material_library.size() == 0 )
-    old_method = true;
 
   lfile[*llen]  = '\0';
 
@@ -283,317 +141,164 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   // by default overwrites the existing file at lfname.c_str()
   std::ofstream lcadfile( lfname.c_str(), std::ios::out );
 
-  if ( old_method )
-    write_lcad_old(lcadfile);
-  else
-    write_lcad_uwuw(lcadfile, workflow_data);
+  // string stream for output
+  std::ostringstream lcadfile_str;
 
+  write_cell_cards(lcadfile_str,workflow_data);
+  lcadfile_str << std::endl;
+  write_surface_cards(lcadfile_str,workflow_data);
+  lcadfile_str << std::endl;
+
+  if(workflow_data.material_library.size() > 0)
+    write_material_data(lcadfile_str,workflow_data);
+
+  if(workflow_data.tally_library.size() > 0)
+    write_tally_data(lcadfile_str,workflow_data);
+
+  // all done
+  lcadfile << lcadfile_str.str();
+  lcadfile.close();
   return;
 }
 
-void write_lcad_uwuw(std::ofstream &lcadfile, UWUW workflow_data)
+// write all cell related data
+void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
 {
-
-  std::map<std::string,pyne::Material> material_library; // map of material objects by name
-  std::map<std::string,pyne::Tally> tally_library; // map of tally objects by name
-
-  material_library = workflow_data.material_library;
-  tally_library = workflow_data.tally_library;
-
-  if ( material_library.size() == 0 ) {
-    std::cout << "No Materials found in the file, " << workflow_data.full_filepath << std::endl;
-    std::cout << "Have you used the preprocess script?" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  if ( tally_library.size() == 0 ) {
-    std::cout << "Warning No Tallies found in the file, " << workflow_data.full_filepath << std::endl;
-  }
-
-  std::map<moab::EntityHandle,std::vector<std::string> > material_assignments;
-  material_assignments = get_property_assignments("mat",3,":/");
-  std::map<moab::EntityHandle,std::vector<std::string> > density_assignments;
-  density_assignments = get_property_assignments("rho",3,":");
-  std::map<moab::EntityHandle,std::vector<std::string> > boundary_assignments;
-  boundary_assignments = get_property_assignments("boundary",2,":");
-
   int num_cells = DAG->num_entities( 3 );
 
-  std::vector<std::string> material_props;
-  std::vector<std::string> density_props;
-
-  pyne::Material material;
-
-  double density;
-  int material_number;
+  std::string mat_num, density;
 
   // loop over all cells
   for( int i = 1; i <= num_cells; ++i ) {
-
-    density = 0.0;
-    material_number = 0;
-
     int cellid = DAG->id_by_index( 3, i );
     moab::EntityHandle entity = DAG->entity_by_index( 3, i );
 
-    material_props = material_assignments[entity];
-    density_props = density_assignments[entity];
-
-    if( material_props.size() > 1 ) {
-      std::cout << "more than one material for volume with id " << cellid << std::endl;
-      std::cout << cellid << " has the following material assignments" << std::endl;
-      for ( int j = 0 ; j < material_props.size() ; j++ ) {
-        std::cout << material_props[j] << std::endl;
+    // deal with material number & density
+    if(workflow_data.material_library.size() == 0) {
+      // assuming simplified naming scheme check to make sure
+      // that material numbers are assigned
+      mat_num = DMD->volume_material_data_eh[entity];
+      // if we cant make an int from the mat_num
+      if(mat_num.find("Graveyard") == std::string::npos &&
+         mat_num.find("Vacuum") == std::string::npos ) {
+        if(!DMD->try_to_make_int(mat_num)) {
+          std::cout << "Failed to cast material number to an integer"  << std::endl;
+          std::cout << "volume with ID " << cellid << " has material assignment" << std::endl;
+          std::cout << mat_num << " which appears to be a name rather than an integer" << std::endl;
+          std::cout << "Did you forget to run uwuw_preproc?" << std::endl;
+          exit(EXIT_FAILURE);
+        }
       }
-      std::cout << "Please check your material assignments " << cellid << std::endl;
-      exit(EXIT_FAILURE);
-    }
-    if(density_props.size() > 1) {
-      std::cout << "More than one density specified for " << cellid <<std::endl;
-      std::cout << cellid << " has the following density assignments" << std::endl;
-      for ( int j = 0 ; j < density_props.size() ; j++ ) {
-        std::cout << density_props[j] << std::endl;
+
+      density = DMD->volume_density_data_eh[entity];
+      // if we have a vacuum problem
+      if(mat_num == "Graveyard" || mat_num == "Vacuum") {
+        mat_num = "0";
+        density = "";
       }
-      std::cout << "Please check your density assignments " << cellid << std::endl;
-      exit(EXIT_FAILURE);
+    } else {
+      std::string mat_name = DMD->volume_material_property_data_eh[entity];
+      // if we not vacuum or graveyard
+      if(mat_name.find("Vacuum") == std::string::npos && mat_name.find("Graveyard") == std::string::npos) {
+        pyne::Material material = workflow_data.material_library[mat_name];
+        int matnumber = material.metadata["mat_number"].asInt();
+        mat_num = _to_string(matnumber);
+        density = "-"+_to_string(material.density);
+      } else {
+        mat_num = "0";
+        density = "";
+      }
     }
+    // write out cell, matnum and density
+    lcadfile  << cellid << " " << mat_num << " " << density << " ";
 
-    std::string grp_name = "";
-    if (!density_props[0].empty())
-      grp_name = "mat:"+material_props[0]+"/rho:"+density_props[0];
-    else
-      grp_name = "mat:"+material_props[0];
-
-    // not graveyard or vacuum or implicit compliment
-    if (grp_name.find("Graveyard") == std::string::npos && grp_name.find("Vacuum") == std::string::npos
-        && !(DAG->is_implicit_complement(entity)) ) {
-      material = material_library[grp_name];
-      material_number = material.metadata["mat_number"].asInt();
-      density = -1.0*material.density; // -ve for mass density
-      lcadfile << cellid << " " << material_number << " " << density << " imp:n=1" << std::endl;
+    // string to collect importance data
+    std::string importances = "";
+    std::set<std::string>::iterator it;
+    std::set<std::string> set = DMD->imp_particles;
+    // deal with importances;
+    std::string mat_name = DMD->volume_material_property_data_eh[entity];
+    for ( it = set.begin() ; it != set.end() ; ++it) {
+      std::string particle_name = *it;
+      std::string mcnp_name = pyne::particle::mcnp(particle_name);
+      double imp = 1.0;
+      // if we find graveyard always have importance 0.0
+      if(mat_name.find("Graveyard") != std::string::npos) {
+        imp = 0.0;
+        // no splitting can happenin vacuum set to 1
+      } else if (mat_name.find("Vacuum") != std::string::npos) {
+        imp = 1.0;
+        // otherwise as the map says
+      } else {
+        imp = DMD->importance_map[entity][particle_name];
+      }
+      importances += "imp:"+mcnp_name+"="+_to_string(imp)+" ";
     }
-    // found graveyard
-    else if (grp_name.find("Graveyard") != std::string::npos) {
-      lcadfile << cellid << " 0 imp:n=0" << std::endl;
+    // its possible no importances were assigned
+    if(set.size() == 0) {
+      if (mat_name.find("Graveyard") == std::string::npos ) {
+        importances = "imp:n=1";
+      } else {
+        importances = "imp:n=0";
+      }
     }
-    // vacuum
-    else if (grp_name.find("Vacuum") != std::string::npos) {
-      lcadfile << cellid << " 0 imp:n=1" << std::endl;
-    } else if (  DAG->is_implicit_complement(entity) ) {
-      // need to figure out how we will assign props to implcitcomp
-      lcadfile << cellid << " 0 imp:n=1" << std::endl;
-    }
+    // write out importances to lcadfile
+    lcadfile << importances << std::endl;
   }
+  // all done
+  return;
+}
 
-  // blankline
-  lcadfile << std::endl;
+// write the surface data as appropriate
+void write_surface_cards(std::ostringstream &lcadfile, UWUW worfklow_data)
+{
+  int num_surfaces = DAG->num_entities( 2 );
 
-  int num_surfs = DAG->num_entities( 2 );
-
-  std::vector<std::string> boundary_assignment; // boundary conditions for the current entity
-  // loop over all surfaces
-  for( int i = 1; i <= num_surfs; ++i ) {
+  std::string surface_property = "";
+  // loop over all cells
+  for( int i = 1; i <= num_surfaces; ++i ) {
     int surfid = DAG->id_by_index( 2, i );
-    moab::EntityHandle entity = DAG->entity_by_index( 2, i );
-
-    boundary_assignment = boundary_assignments[entity];
-    if (boundary_assignment.size() != 1 ) {
-      std::cout << "More than one boundary conditions specified for " << surfid <<std::endl;
-      std::cout << surfid << " has the following density assignments" << std::endl;
-      for ( int j = 0 ; j < boundary_assignment.size() ; j++ ) {
-        std::cout << boundary_assignment[j] << std::endl;
-      }
-      std::cout << "Please check your boundary condition assignments " << surfid << std::endl;
-
-    }
-    // 2d entities have been tagged with the boundary condition property
-    // ie. both surfaces and its members triangles,
-
-
-    if(boundary_assignment[0].find("Reflecting") != std::string::npos )
-      lcadfile << "*";
-    if (boundary_assignment[0].find("White") != std::string::npos )
-      lcadfile << "+";
-
-    lcadfile << surfid << std::endl;
+    moab::EntityHandle entity = DAG->entity_by_index(2,i);
+    std::string boundary_prop = DMD->surface_boundary_data_eh[entity];
+    if(boundary_prop.find("Reflecting") != std::string::npos)
+      surface_property = "*";
+    if(boundary_prop.find("White") != std::string::npos)
+      surface_property = "+";
+    lcadfile  << surface_property << _to_string(surfid) << std::endl;
   }
+  return;
+}
 
-  // blankline
-  lcadfile << std::endl;
+// write out all the tally data from the uwuw file
+void write_material_data(std::ostringstream &lcadfile, UWUW workflow_data)
+{
+  std::map<std::string,pyne::Material> material_library = workflow_data.material_library;
+  // loop over all tallies
+  std::cout << "Writing Materials ..." << std::endl;
 
-  // print materials
   lcadfile << "C materials from library" << std::endl;
+  // loop over the material and print them out
   for(std::map<std::string,pyne::Material>::const_iterator it = material_library.begin() ;
       it != material_library.end() ; ++it ) {
     pyne::Material new_material = (it->second);
     std::string material_card = new_material.mcnp();
     lcadfile << material_card;
   }
+  return;
+}
 
-  // now do tallies
-  // loop over all cells
-  std::cout << "Tallies" << std::endl;
+// write out all the tally data from the uwuw file
+void write_tally_data(std::ostringstream &lcadfile, UWUW workflow_data)
+{
+  std::map<std::string,pyne::Tally> tally_library = workflow_data.tally_library;
+  // loop over all tallies
+  std::cout << "Writing Tallies ..." << std::endl;
   int count = 1;
   for( std::map<std::string,pyne::Tally>::iterator it = tally_library.begin() ; it != tally_library.end() ; ++it ) {
     std::string tally_card = (it->second).mcnp(count,"mcnp5");
     lcadfile << tally_card;
     count++;
   }
-
-}
-
-
-
-void write_lcad_old(std::ofstream &lcadfile)
-{
-  moab::ErrorCode rval;
-
-  std::vector< std::string > mcnp5_keywords;
-  std::map< std::string, std::string > mcnp5_keyword_synonyms;
-
-  mcnp5_keywords.push_back( "mat" );
-  mcnp5_keywords.push_back( "rho" );
-  mcnp5_keywords.push_back( "comp" );
-  mcnp5_keywords.push_back( "imp.n" );
-  mcnp5_keywords.push_back( "imp.p" );
-  mcnp5_keywords.push_back( "imp.e" );
-  mcnp5_keywords.push_back( "tally" );
-  mcnp5_keywords.push_back( "spec.reflect" );
-  mcnp5_keywords.push_back( "white.reflect" );
-  mcnp5_keywords.push_back( "graveyard" );
-
-  mcnp5_keyword_synonyms[ "rest.of.world" ] = "graveyard";
-  mcnp5_keyword_synonyms[ "outside.world" ] = "graveyard";
-
-  // parse data from geometry
-  rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms );
-  if (moab::MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  int num_cells = DAG->num_entities( 3 );
-  int num_surfs = DAG->num_entities( 2 );
-
-  int cmat = 0;
-  double crho, cimp = 1.0;
-
-  // write the cell cards
-  for( int i = 1; i <= num_cells; ++i ) {
-
-    moab::EntityHandle vol = DAG->entity_by_index( 3, i );
-    int cellid = DAG->id_by_index( 3, i );
-    // set default importances for p and e to negative, indicating no card should be printed.
-    double imp_n = 1, imp_p = -1, imp_e = -1;
-
-    if( DAG->has_prop( vol, "imp.n" )) {
-      get_real_prop( vol, cellid, "imp.n", imp_n );
-    }
-
-    if( DAG->has_prop( vol, "imp.p" )) {
-      get_real_prop( vol, cellid, "imp.p", imp_p );
-    }
-
-    if( DAG->has_prop( vol, "imp.e" )) {
-      get_real_prop( vol, cellid, "imp.e", imp_e );
-    }
-
-    lcadfile << cellid << " ";
-
-    bool graveyard = DAG->has_prop( vol, "graveyard" );
-
-    if( graveyard ) {
-      lcadfile << " 0 imp:n=0";
-      if( DAG->has_prop(vol, "comp") ) {
-        // material for the implicit complement has been specified.
-        get_int_prop( vol, cellid, "mat", cmat );
-        get_real_prop( vol, cellid, "rho", crho );
-        std::cout << "Detected material and density specified for implicit complement: " << cmat <<", " << crho << std::endl;
-        cimp = imp_n;
-      }
-    } else if( DAG->is_implicit_complement(vol) ) {
-      lcadfile << cmat;
-      if( cmat != 0 ) lcadfile << " " << crho;
-      lcadfile << " imp:n=" << cimp << " $ implicit complement";
-    } else {
-      int mat = 0;
-      get_int_prop( vol, cellid, "mat", mat );
-
-      if( mat == 0 ) {
-        lcadfile << "0";
-      } else {
-        double rho = 1.0;
-        get_real_prop( vol, cellid, "rho", rho );
-        lcadfile << mat << " " << rho;
-      }
-      lcadfile << " imp:n=" << imp_n;
-      if( imp_p > 0 ) lcadfile << " imp:p=" << imp_p;
-      if( imp_e > 0 ) lcadfile << " imp:e=" << imp_e;
-    }
-
-    lcadfile << std::endl;
-  }
-
-  // cells finished, skip a line
-  lcadfile << std::endl;
-
-  // write the surface cards
-  for( int i = 1; i <= num_surfs; ++i ) {
-    moab::EntityHandle surf = DAG->entity_by_index( 2, i );
-    int surfid = DAG->id_by_index( 2, i );
-
-    if( DAG->has_prop( surf, "spec.reflect" ) ) {
-      lcadfile << "*";
-    } else if ( DAG->has_prop( surf, "white.reflect" ) ) {
-      lcadfile << "+";
-    }
-    lcadfile << surfid << std::endl;
-  }
-
-  // surfaces finished, skip a line
-  lcadfile << std::endl;
-
-  // write the tally cards
-  std::vector<std::string> tally_specifiers;
-  rval = DAG->get_all_prop_values( "tally", tally_specifiers );
-  if( rval != moab::MB_SUCCESS ) exit(EXIT_FAILURE);
-
-  for( std::vector<std::string>::iterator i = tally_specifiers.begin();
-       i != tally_specifiers.end(); ++i ) {
-    int dim = 0;
-    char* card = get_tallyspec( *i, dim );
-    if( card == NULL ) {
-      std::cerr << "Invalid dag-mcnp tally specifier: " << *i << std::endl;
-      std::cerr << "This tally will not appear in the problem." << std::endl;
-      continue;
-    }
-    std::stringstream tally_card;
-
-    tally_card << card;
-    std::vector<moab::EntityHandle> handles;
-    std::string s = *i;
-    rval = DAG->entities_by_property( "tally", handles, dim, &s );
-    if( rval != moab::MB_SUCCESS ) exit (EXIT_FAILURE);
-
-    for( std::vector<moab::EntityHandle>::iterator j = handles.begin();
-         j != handles.end(); ++j ) {
-      tally_card << " " << DAG->get_entity_id(*j);
-    }
-
-    tally_card  << " T";
-    delete[] card;
-
-    // write the contents of the the tally_card without exceeding 80 chars
-    std::string cardstr = tally_card.str();
-    while( cardstr.length() > 72 ) {
-      size_t pos = cardstr.rfind(' ',72);
-      lcadfile << cardstr.substr(0,pos) << " &" << std::endl;
-      lcadfile << "     ";
-      cardstr.erase(0,pos);
-    }
-    lcadfile << cardstr << std::endl;
-  }
-
 }
 
 void dagmcangl_(int *jsu, double *xxx, double *yyy, double *zzz, double *ang)
@@ -1049,62 +754,30 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
   if( *srccell_mode ) {
     std::cout << "DAGMC source cell optimization is ENABLED (warning: experimental!)" << std::endl;
   }
-
 }
 
-
-// given a property string, dimension and the delimeter of the string, return an entityhandle wise map of the
-// property value
-std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property,
-    int dimension, std::string delimiters)
+// delete the stored data
+void dagmc_teardown_()
 {
-
-  std::map<moab::EntityHandle,std::vector<std::string> > prop_map;
-
-  std::vector< std::string > mcnp5_keywords;
-  std::map< std::string, std::string > mcnp5_keyword_synonyms;
-
-  // populate keywords
-  mcnp5_keywords.push_back( "mat" );
-  mcnp5_keywords.push_back( "rho" );
-  mcnp5_keywords.push_back( "tally" );
-  mcnp5_keywords.push_back( "boundary" );
-
-  // get initial sizes
-  int num_entities = DAG->num_entities( dimension );
-
-  // parse data from geometry
-  moab::ErrorCode rval = DAG->parse_properties( mcnp5_keywords, mcnp5_keyword_synonyms,delimiters.c_str());
-
-  if (moab::MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" <<  std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  // loop over all cells
-  for( int i = 1; i <= num_entities; ++i ) {
-    //
-    std::vector<std::string> properties;
-
-    // get cellid
-    moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
-
-    // get the group contents
-    if( DAG->has_prop( entity, property ) )
-      rval = DAG->prop_values(entity,property,properties);
-    else
-      properties.push_back("");
-
-    // remove duplicates
-    std::vector<std::string>::iterator it;
-    it = std::unique(properties.begin(),properties.end());
-    // resize vector to remove empty parts
-    properties.resize(std::distance(properties.begin(),it));
-
-    // assign the map value
-    prop_map[entity]=properties;
-  }
-
-  return prop_map;
+  delete DMD;
+  delete DAG;
 }
 
+// these functions should be replaced when we adopt C++11
+// int to string
+std::string _to_string(int var)
+{
+  std::ostringstream outstr;
+  outstr << var;
+  std::string ret_string = outstr.str();
+  return ret_string;
+}
+
+// double to string
+std::string _to_string(double var)
+{
+  std::ostringstream outstr;
+  outstr << var;
+  std::string ret_string = outstr.str();
+  return ret_string;
+}
