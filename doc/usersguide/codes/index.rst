@@ -4,6 +4,6 @@ Monte Carlo code-specific steps
 ..  toctree::
     :maxdepth: 1
 
-    dag-mcnp5
+    dag-mcnp
     fludag
     dag-tripoli4

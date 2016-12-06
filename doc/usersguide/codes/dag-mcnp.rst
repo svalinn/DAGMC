@@ -1,7 +1,7 @@
-Code-specific steps for DAG-MCNP5
-=================================
+Code-specific steps for DAG-MCNP
+================================
 
-There are three varieties of code-specific steps for DAG-MCNP5:
+There are three varieties of code-specific steps for DAG-MCNP:
 
 1.  Defining attributes of the geometry using Cubit/Trelis groups
 2.  Defining DAGMC runtime parameters using the DAGMC input file
@@ -10,14 +10,14 @@ There are three varieties of code-specific steps for DAG-MCNP5:
 Geometry metadata
 ~~~~~~~~~~~~~~~~~
 
-In DAG-MCNP5, the geometry file can be used to define material and density
+In DAG-MCNP, the geometry file can be used to define material and density
 assignments, and boundary conditions.
 
 Materials and densities
 -----------------------
 
 The generic workflow description includes details on :ref:`grouping-basics`, but
-a specific naming convention is required for DAG-MCNP5. To define materials,
+a specific naming convention is required for DAG-MCNP. To define materials,
 both the MCNP material ID and density must be provided in the group name. The
 format for the group name is as follows: ``mat:[matid]/rho:[density]``.
 
@@ -58,12 +58,12 @@ complement rather than the graveyard.
 Boundary conditions
 -------------------
 
-There are two general classes of boundary condition supported by DAG-MCNP5:
+There are two general classes of boundary condition supported by DAG-MCNP:
 vacuum boundaries and surface boundary conditions.
 
 **Vacuum boundaries: defining the "graveyard"**
 
-Typical MCNP5 models contain a zero-importance volume that bounds the volumes of
+Typical MCNP models contain a zero-importance volume that bounds the volumes of
 interest and extends to infinity. Since solid models cannot include infinite
 volumes, it is necessary to define a finite zero-importance volume around your
 model to define the problem boundary. This is done by surrounding the entire
@@ -77,7 +77,7 @@ and same center with one slightly larger than the other, making sure that both
 bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The remaining volume is the graveyard.
 
-To indicate to MCNP5 that a given volume is the graveyard volume, you must
+To indicate to MCNP that a given volume is the graveyard volume, you must
 assign it to a group with:
 ::
 
@@ -93,7 +93,7 @@ create a valid graveyard for this problem:
     CUBIT> subtract vol 100 from vol 101  # This will produce volume 102
     CUBIT> group "mat:Graveyard" add vol 102
 
-When DAG-MCNP5 is run, the importance of any graveyard volumes will be set to
+When DAG-MCNP is run, the importance of any graveyard volumes will be set to
 zero.
 
 It is still recommended that you create a graveyard volume even if your problem
@@ -113,9 +113,9 @@ reflecting surfaces. This command would achieve that:
 
     CUBIT> group "boundary:Reflecting" add surf 10 11
 
-..  include:: dag-mcnp5_specific.txt
+..  include:: dag-mcnp_specific.txt
 
 ..  toctree::
     :hidden:
 
-    dag-mcnp5_deprecated
+    dag-mcnp_deprecated

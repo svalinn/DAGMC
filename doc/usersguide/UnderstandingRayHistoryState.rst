@@ -1,17 +1,17 @@
-Understanding ray history state in DAG-MCNP5
-============================================
+Understanding ray history state in DAG-MCNP5/6
+==============================================
 
-Documenting calls to the track() method in MCNP5
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Documenting calls to the track() method in MCNP
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The method used in MCNP5 to find the distance to the next boundary is
+The method used in MCNP to find the distance to the next boundary is
 track().  DAGMC completely circumvents any call to track() and uses
 its own version.
 
 As a first step to understanding the generic set of use cases for the
 ray-to-boundary method, and in particular, the different states of the
 physics code during these uses cases, this document will itemize these
-cases for MCNP5.
+cases for MCNP.
 
 1. (hstory.F90): non-forced collision neutral particle transport
 2. (hstory.F90): forced collision neutral particle transport

@@ -130,15 +130,15 @@ that would be performed on a normal operation, except that no data is actually
 written. This can be done to test your file to make sure all the expected
 materials are present in the file.
 
-MCNP5-specific steps
+MCNP-specific steps
 ~~~~~~~~~~~~~~~~~~~~
 
-..  include:: codes/dag-mcnp5_specific.txt
+..  include:: codes/dag-mcnp_specific.txt
 
 FluDAG-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 
-To run a FluDAG-based UWUW problem, like the above MCNP5 example, the user must
+To run a FluDAG-based UWUW problem, like the above MCNP example, the user must
 make a minmal Fluka input deck defining runtime parameters and source
 definition, remembering to set the ``GEOBEGIN`` to ``FLUGG``. Once this is done,
 run the ``mainfludag`` executable to produce the ``mat.inp`` file which contains
