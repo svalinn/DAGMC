@@ -187,7 +187,7 @@ void dagmcMetaData::parse_material_data()
 
     // check to see if the simplied naming scheme is used, by try to convert the
     // material property to an int
-    if(try_to_make_int(material_props[0]) && !(DAG->is_implicit_complement(eh))) {
+    if(try_to_make_int(material_props[0]) && density_props[0].empty() && !(DAG->is_implicit_complement(eh))) {
       std::cout << "Using the simplified nameing scheme without a density" << std::endl;
       std::cout << "property is forbidden, please rename the group mat:" << material_props[0] << std::endl;
       exit(EXIT_FAILURE);
