@@ -175,7 +175,21 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
 
     // deal with material number & density
     if(workflow_data.material_library.size() == 0) {
+      // assuming simplified naming scheme check to make sure
+      // that material numbers are assigned
       mat_num = DMD->volume_material_data_eh[entity];
+      // if we cant make an int from the mat_num
+      if(mat_num.find("Graveyard") == std::string::npos &&
+         mat_num.find("Vacuum") == std::string::npos ) {
+        if(!DMD->try_to_make_int(mat_num)) {
+          std::cout << "Failed to cast material number to an integer"  << std::endl;
+          std::cout << "volume with ID " << cellid << " has material assignment" << std::endl;
+          std::cout << mat_num << " which appears to be a name rather than an integer" << std::endl;
+          std::cout << "Did you forget to run uwuw_preproc?" << std::endl;
+          exit(EXIT_FAILURE);
+        }
+      }
+
       density = DMD->volume_density_data_eh[entity];
       // if we have a vacuum problem
       if(mat_num == "Graveyard" || mat_num == "Vacuum") {
@@ -221,10 +235,12 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
       importances += "imp:"+mcnp_name+"="+_to_string(imp)+" ";
     }
     // its possible no importances were assigned
-    if(set.size() == 0 && mat_name.find("Graveyard") == std::string::npos ) {
-      importances = "imp:n=1";
-    } else {
-      importances = "imp:n=0";
+    if(set.size() == 0) {
+      if (mat_name.find("Graveyard") == std::string::npos ) {
+        importances = "imp:n=1";
+      } else {
+        importances = "imp:n=0";
+      }
     }
     // write out importances to lcadfile
     lcadfile << importances << std::endl;
