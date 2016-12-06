@@ -185,16 +185,19 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
     } else {
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
-      if(mat_name.find("Vacuum") == std::string::npos || mat_name.find("Graveyard") == std::string::npos) {
+      std::cout << mat_name << std::endl;
+      if(mat_name.find("Vacuum") == std::string::npos && mat_name.find("Graveyard") == std::string::npos) {
         pyne::Material material = workflow_data.material_library[mat_name];
-        mat_num = material.metadata["mat_number"].asString();
+	int matnumber = material.metadata["mat_number"].asInt();
+	mat_num = _to_string(matnumber);
         density = "-"+_to_string(material.density);
       } else {
         mat_num = "0";
         density = "";
       }
     }
-
+    // write out cell, matnum and density
+    lcadfile  << cellid << " " << mat_num << " " << density << " ";
 
     // string to collect importance data
     std::string importances = "";
@@ -222,8 +225,8 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
     if(set.size() == 0 ) {
       importances = "imp:n=1";
     }
-    // write out to lcadfile
-    lcadfile << cellid << " " << mat_num << " " << density << " " << importances << std::endl;
+    // write out importances to lcadfile
+    lcadfile << importances << std::endl;
   }
   // all done
   return;
