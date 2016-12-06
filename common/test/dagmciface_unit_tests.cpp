@@ -332,6 +332,17 @@ TEST_F(DagmcMetadataTest,TestSplitString)
   }
 }
 
+// test to make sure the function try_to_make_int works
+TEST_F(DagmcMetadataTest,TestTryToMakeInt)
+{
+  // new metadata instance 
+  dgm = new dagmcMetaData(DAG);
+
+  EXPECT_EQ(dgm->try_to_make_int("1"), true);
+  EXPECT_EQ(dgm->try_to_make_int("1A"), false);
+  EXPECT_EQ(dgm->try_to_make_int("M33"), false);
+
+}
 // assert some behaviors
 
 class DagmcMetadataTestImplCompMat : public ::testing::Test
@@ -385,11 +396,16 @@ TEST_F(DagmcMetadataTestImplCompMat, ImplCompMat)
   int num_vols = DAG->num_entities(3);
 
   std::string mat1 = "Steel";
+  std::string mat_grave = "Graveyard";
   std::string mat_impl = "Steel";
 
   std::string mat_prop = dgm->get_volume_property("material",1,true);
   EXPECT_EQ(mat1,mat_prop);
 
   std::string mat_prop2 = dgm->get_volume_property("material",2,true);
-  EXPECT_EQ(mat_impl,mat_prop2);
+  EXPECT_EQ(mat_grave,mat_prop2);
+
+  std::string mat_prop3 = dgm->get_volume_property("material",3,true);
+  EXPECT_EQ(mat_impl,mat_prop3);
+
 }

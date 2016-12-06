@@ -26,6 +26,9 @@ class dagmcMetaData
 
   std::string return_property(std::string property_string, std::string property, std::string delimiter = ":", bool chopped = true);
 
+  // test to see if string is an int
+  bool try_to_make_int(std::string value);
+
   // private member functions
  private:
   // parse the material data
@@ -49,7 +52,6 @@ class dagmcMetaData
   std::vector<std::string> remove_duplicate_properties(std::vector<std::string> properties);
 
   std::set<std::string> set_remove_rich(std::set<std::string> properties_set);
-
 
   // public member variables
  public:
@@ -76,7 +78,6 @@ class dagmcMetaData
   std::set<std::string> imp_particles;
   // map of importance data
   std::map<moab::EntityHandle, std::map<std::string,double> > importance_map;
-
 
   // material density pairs
   // std::map<std::string, std::set<std::string> > material_density_pairs;

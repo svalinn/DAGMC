@@ -104,7 +104,7 @@ void dagmcMetaData::parse_material_data()
   std::map<moab::EntityHandle,std::vector<std::string> > material_assignments;
   material_assignments = get_property_assignments("mat",3,":/",true);
   std::map<moab::EntityHandle,std::vector<std::string> > density_assignments;
-  density_assignments = get_property_assignments("rho",3,":",trueOB);
+  density_assignments = get_property_assignments("rho",3,":",true);
 
   int num_cells = DAG->num_entities( 3 );
 
@@ -183,11 +183,14 @@ void dagmcMetaData::parse_material_data()
     } else {
       grp_name = "mat:"+material_props[0];
       volume_density_data_eh[eh] = "";
-      if(try_to_make_int(material_props[0])){
-	std::cout << "Using the simplified nameing scheme without a density" << std::endl;
-	std::cout << "property is forbidden, please rename the group mat:" << material_props[0] << std::endl;
-	exit(EXIT_FAILURE);
-      }
+    }
+
+    // check to see if the simplied naming scheme is used, by try to convert the
+    // material property to an int
+    if(try_to_make_int(material_props[0]) && !(DAG->is_implicit_complement(eh))){
+      std::cout << "Using the simplified nameing scheme without a density" << std::endl;
+      std::cout << "property is forbidden, please rename the group mat:" << material_props[0] << std::endl;
+      exit(EXIT_FAILURE);
     }
 
     // set the material value
@@ -400,7 +403,7 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
     moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
 
     // get the group contents
-    if( DAG->has_prop( entity, property ) )
+    if( DAG->has_prop( entity, property ) ) 
       rval = DAG->prop_values(entity,property,properties);
     else
       properties.push_back("");
@@ -423,16 +426,19 @@ std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<
 
   std::vector<std::string>::iterator it;
   // loop over all properties and insert them into a set
+  
   for ( it = properties.begin() ; it != properties.end() ; ++it) {
     properties_set.insert(*it);
   }
-
+  
   // due to dagmc parse group names, the property, and value are two seperate
   // entries in array, i.e a tag like bob:charlie/bob, will return as charlie and charlie/bob
   // so we need to search each item for its more information rich partner and remove the
   // degenerate item(s) - should probably be fixed upstream eventually
 
   properties_set = set_remove_rich(properties_set);
+
+  std::set<std::string>::iterator iter;
 
   std::vector<std::string> new_properties;
   // resize the array
@@ -445,7 +451,8 @@ std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<
 }
 
 // from a given set remove any matches if they are found in order to keep the
-// the information rich version.
+// the information rich version. ie. if we find both neutron and neutron/1.0 keep
+// the second one
 std::set<std::string> dagmcMetaData::set_remove_rich(std::set<std::string> properties_set)
 {
   std::set<std::string> new_set = properties_set;
@@ -457,10 +464,13 @@ std::set<std::string> dagmcMetaData::set_remove_rich(std::set<std::string> prope
   // loop over all elements in the set
   it = new_set.begin();
   while (it != new_set.end()) {
+    // loop over the set trying to find similar names 
     for ( set_it = new_set.begin(), toofar = new_set.end(); set_it != toofar; ++set_it)
-      if ((*set_it).find(*it) != std::string::npos) {
+      if ((*set_it).find(*it) != std::string::npos && (*set_it != *it)) {
+	matches.push_back(it);
         matches.push_back(set_it);
       }
+
     // if there were more than 2 matches
     if( matches.size() > 1 ) {
       int smallest = 0;
@@ -566,4 +576,26 @@ std::pair<std::string,std::string> dagmcMetaData::split_string(std::string prope
   }
   std::pair<std::string, std::string> pair(first,second);
   return pair;
+}
+
+bool dagmcMetaData::try_to_make_int(std::string value) {
+  // try to convert the string value into an int
+  char* end;
+  
+  int i = strtol(value.c_str(), &end, 10);
+  if(*end == '\0')
+    return true;
+  else 
+    return false;
+  /*
+  std::stringstream attempt;
+  attempt << value;
+  int number;
+  attempt >> number;
+  if(attempt.fail()){
+    return false;
+  }
+  std::cout << number << std::endl;
+  return true;
+  */
 }
