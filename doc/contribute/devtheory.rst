@@ -185,5 +185,5 @@ If the next surface is known (after calling ray_fire), the entity handle of the
 next volume can be determined by calling next_volume. Given the next surface and
 the known current volume, the next volume is determined by looking at the other
 volume tagged on that surface (as described in the Sense Tags section above).
-This assumes that a valid surface and volume are provided. If no next volumes
+This assumes that a valid surface and volume are provided. If no next volume
 exists, then the call will return 0 for the next volume.
