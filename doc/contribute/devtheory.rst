@@ -66,8 +66,8 @@ assigned by MOAB and is not necessarily contiguous.
 Cross Referencing
 -----------------
 
-If one type of indice is known, then either of the other two can be determined.
-By using the functions below or a combination of the functions, either ID,
+If one type of index is known, then either of the other two can be determined.
+By using the functions below or a combination of the functions, either global ID,
 index, or entity handle can be determined. It is important to note that surfaces
 and volumes each have their own set of integer indexes and global IDs, while
 entity handles are unique to each entity set. Each integer (whether it is an
@@ -87,7 +87,8 @@ What is an OBB?
 
 An OBB, or Oriented Bounding Box, is a box that contains a single facet or set
 of facets and has an axis oriented such that it is the smallest possible box
-encompassing the facet(s). This is different from an axis aligned bounding box,
+encompassing the facet(s), as opposed to having an axis aligned with the full geometry.
+This is different from an axis aligned bounding box,
 which is aligned with the global axis and is not necessarily the smallest box
 possible. An example is the facet outlined in red below and it’s corresponding
 OBB. For the the rest of this section, facets will be represented by a line with
@@ -104,9 +105,9 @@ OBB Tree Construction
 First, the OBB tree for each surface is built. This is built top down where the
 top level is an OBB that contains all the surface’s facets. Then the set of facets
 is split roughly in half and two new OBBs form around each of the new sets.
-This continues until each of the OBBs the level contains a single facet. A 2D
+This continues until each of the OBBs the level contains a small number of facets. A 2D
 example is given below where a single surface has been faceted and the
-orresponding OBB tree is created.
+corresponding OBB tree is created.
 
 ..  image:: red-tree.png
     :height: 300
@@ -173,7 +174,9 @@ The ray_fire function will return the entity handle of the next surface to be
 crossed along with the distance to that surface given the ray's direction. If
 the ray is being tracked in a straight line through multiple volumes, passing
 in the ray-history is important to keep the ray from intersecting facets more
-than once (ie, if the particle is streaming).
+than once (ie, if the particle is streaming). It is important to note that
+when tracking through multiple volumes, ray_fire must be called multiple times
+as it may only be called for a single volume at a time.
 
 Next Volume
 ~~~~~~~~~~~
