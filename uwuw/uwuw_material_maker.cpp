@@ -30,11 +30,13 @@ int main(int argc, char* argv[])
   bool overwrite = false;
   bool print = false;
   bool expand = false;
+  bool dump = false;
 
   std::string lib_file;
   std::string material_file;
   std::string out_file = "";
 
+  po.addOpt<void>( "dump,d", "Dump material library contents to screen",&dump);
   po.addOpt<void>( "append,a", "Append to existing library", &append);
   po.addOpt<void>( "overwite,w", "Overwrite existing materials with the same name", &overwrite);
   po.addOpt<void>( "print,p", "Print the full material compositon", &print);
@@ -45,7 +47,19 @@ int main(int argc, char* argv[])
 
   po.addOptionHelpHeading("Options for loading files");
   po.parseCommandLine(argc, argv);
-  
+ 
+  if(dump) {
+    UWUW *uwuw = new UWUW(material_file);
+    std::map<std::string,pyne::Material> mat_lib = uwuw->material_library;
+    std::map<std::string,pyne::Material>::iterator it;
+    std::ostringstream ostr;
+    for ( it = mat_lib.begin() ; it != mat_lib.end() ; ++it ) {
+      print_mat(ostr,it->second);
+    }
+    std::cout << ostr.str() << std::endl;
+    exit(EXIT_SUCCESS);
+  }
+ 
   if(out_file == "") {
     std::cout << "ouput file must be set" << std::endl;
     exit(EXIT_FAILURE);
@@ -60,16 +74,29 @@ int main(int argc, char* argv[])
     std::cout << "output doesnt already exist and you are appending" << std::endl;
     exit(EXIT_FAILURE);
   }
+
+
   
   // make a new material 
   pyne::Material material = pyne::Material();
   // retreve it
   material.from_text(material_file);
+  //
+  std::string mat_name = material.metadata["name"].asString();
+  if(mat_name == "") {
+    std::cout << "Material name not set" << std::endl;
+    exit(EXIT_FAILURE);
+  } else {
+    // remove whitespace
+    mat_name.erase(std::remove(mat_name.begin(), mat_name.end(), ' '), mat_name.end() );
+    material.metadata["name"] = mat_name;
+  }
   if (expand) material = material.expand_elements();
   std::ostringstream ostr;
   if (print) {
-      print_mat(ostr,material);
-      std::cout << ostr.str() << std::endl;
+    std::cout << "Name: '"<< material.metadata["name"].asString() << "'" << std::endl; 
+    print_mat(ostr,material);
+    std::cout << ostr.str() << std::endl;
   }
 
   // need to key on Name 
@@ -105,7 +132,7 @@ int main(int argc, char* argv[])
     // datapaths to delete
     char* mat_path = "/materials";
     char* nuc_path = "/nucid";
-    char* meta_path = "/metadata";
+    char* meta_path = "/materials_metadata";
 
     hid_t lapl = 0;
     // delete the links
