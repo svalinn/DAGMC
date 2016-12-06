@@ -10,7 +10,7 @@ Constructor
 
 To initialize a DAGMC instance, the constructor must be called. If the
 constructor is called with no arguments, then a new MOAB instance is created
-with an attached DAGMC instance.
+and attached to the DAGMC instance.
 Otherwise, a pointer to an existing MOAB instance can be passed in the
 constructor and a DAGMC instance will be attached to that existing MOAB instance.
 
@@ -86,7 +86,7 @@ What is an OBB?
 ---------------
 
 An OBB, or Oriented Bounding Box, is a box that contains a single facet or set
-of facets and has an axis oriented such that it is the smallest possible box
+of facets and is oriented such that it is the smallest possible box
 encompassing the facet(s), as opposed to having an axis aligned with the full geometry.
 This is different from an axis aligned bounding box,
 which is aligned with the global axis and is not necessarily the smallest box
