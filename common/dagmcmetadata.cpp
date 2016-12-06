@@ -137,9 +137,9 @@ void dagmcMetaData::parse_material_data()
       }
       // if there is no material property - not failure for impl_comp
       if(material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
-	std::cout << "No material property found for volume with ID " << cellid << std::endl;
-	std::cout << "Every volume must have only one mat: property" << std::endl;
-	exit(EXIT_FAILURE);
+        std::cout << "No material property found for volume with ID " << cellid << std::endl;
+        std::cout << "Every volume must have only one mat: property" << std::endl;
+        exit(EXIT_FAILURE);
       }
       if ( comp_found != std::string::npos ) {
         // success found the _comp tag for the impl_compl material
@@ -246,12 +246,12 @@ void dagmcMetaData::parse_importance_data()
       imp_particles.insert(pair.first);
       // insert into map too
       if(importance_map[eh].count(pair.first) == 0 ) {
-	importance_map[eh][pair.first] = atof(pair.second.c_str());
+        importance_map[eh][pair.first] = atof(pair.second.c_str());
       } else {
-	std::cout << "Volume with ID " << volid << " has more than one importance " << std::endl;
-	std::cout << "Assigned for particle type " << pair.first << std::endl;
-	std::cout << "Only one importance value per volume per particle type is allowed" << std::endl;
-	exit(EXIT_FAILURE);
+        std::cout << "Volume with ID " << volid << " has more than one importance " << std::endl;
+        std::cout << "Assigned for particle type " << pair.first << std::endl;
+        std::cout << "Only one importance value per volume per particle type is allowed" << std::endl;
+        exit(EXIT_FAILURE);
       }
     }
     volume_importance_data_eh[eh] = importances;
