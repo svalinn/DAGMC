@@ -173,6 +173,8 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
     int cellid = DAG->id_by_index( 3, i );
     moab::EntityHandle entity = DAG->entity_by_index( 3, i );
 
+    std::string mat_name = DMD->volume_material_property_data_eh[entity];
+
     // deal with material number & density
     if(workflow_data.material_library.size() == 0) {
       mat_num = DMD->volume_material_data_eh[entity];
@@ -183,9 +185,7 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
         density = "";
       }
     } else {
-      std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
-      std::cout << mat_name << std::endl;
       if(mat_name.find("Vacuum") == std::string::npos && mat_name.find("Graveyard") == std::string::npos) {
         pyne::Material material = workflow_data.material_library[mat_name];
         int matnumber = material.metadata["mat_number"].asInt();
@@ -222,8 +222,10 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
       importances += "imp:"+mcnp_name+"="+_to_string(imp)+" ";
     }
     // its possible no importances were assigned
-    if(set.size() == 0 ) {
+    if(set.size() == 0 && mat_name.find("Graveyard") == std::string::npos ) {
       importances = "imp:n=1";
+    } else {
+      importances = "imp:n=0";
     }
     // write out importances to lcadfile
     lcadfile << importances << std::endl;
