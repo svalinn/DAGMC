@@ -1,7 +1,5 @@
 message(STATUS "Including MCNP in dagmciface library")
 
-include_directories(${CMAKE_SOURCE_DIR}/common)
-
 # dagmciface source files
 set(DI_SRC_FILES ${DI_SRC_FILES} ${CMAKE_CURRENT_LIST_DIR}/mcnp_funcs.cpp PARENT_SCOPE)
 

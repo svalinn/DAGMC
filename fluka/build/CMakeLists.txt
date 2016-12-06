@@ -8,7 +8,6 @@ set(SRC_FILES mainFluDAG.cpp)
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS fludag)
-message(STATUS ${FLUKA_DIR})
 list(APPEND LINK_LIBS ${FLUKA_DIR}/libflukahp.a)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 list(APPEND LINK_LIBS dagmciface)

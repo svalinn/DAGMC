@@ -188,7 +188,7 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
       if(mat_name.find("Vacuum") == std::string::npos || mat_name.find("Graveyard") == std::string::npos) {
         pyne::Material material = workflow_data.material_library[mat_name];
         mat_num = material.metadata["mat_number"].asString();
-        density = "-1.0"+_to_string(material.density);
+        density = "-"+_to_string(material.density);
       } else {
         mat_num = "0";
         density = "";

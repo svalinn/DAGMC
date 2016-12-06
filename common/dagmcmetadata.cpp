@@ -27,7 +27,7 @@ dagmcMetaData::~dagmcMetaData()
 {
 }
 
-// load the property data from the dagma instance
+// load the property data from the dagmc instance
 void dagmcMetaData::load_property_data()
 {
   parse_material_data();
@@ -135,6 +135,12 @@ void dagmcMetaData::parse_material_data()
           break;
         }
       }
+      // if there is no material property - not failure for impl_comp
+      if(material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
+	std::cout << "No material property found for volume with ID " << cellid << std::endl;
+	std::cout << "Every volume must have only one mat: property" << std::endl;
+	exit(EXIT_FAILURE);
+      }
       if ( comp_found != std::string::npos ) {
         // success found the _comp tag for the impl_compl material
         // set the impl_comp material for use later
@@ -153,6 +159,7 @@ void dagmcMetaData::parse_material_data()
         exit(EXIT_FAILURE);
       }
     }
+
     // this is never ok for a volume to have more than one proprety for density
     if(density_props.size() > 1) {
       std::cout << "More than one density specified for " << cellid <<std::endl;
@@ -218,7 +225,7 @@ void dagmcMetaData::parse_importance_data()
 
   int num_vols = DAG->num_entities( 3 );
 
-  std::vector<std::string> importance_assignment; // boundary conditions for the current entity
+  std::vector<std::string> importance_assignment; // importance conditions for the current entity
   // loop over all volumes set up the generic importance data
   for( int i = 1; i <= num_vols; ++i ) {
     int volid = DAG->id_by_index( 3, i );
@@ -238,7 +245,14 @@ void dagmcMetaData::parse_importance_data()
       // add to the unique collection of particle names
       imp_particles.insert(pair.first);
       // insert into map too
-      importance_map[eh][pair.first] = atof(pair.second.c_str());
+      if(importance_map[eh].count(pair.first) == 0 ) {
+	importance_map[eh][pair.first] = atof(pair.second.c_str());
+      } else {
+	std::cout << "Volume with ID " << volid << " has more than one importance " << std::endl;
+	std::cout << "Assigned for particle type " << pair.first << std::endl;
+	std::cout << "Only one importance value per volume per particle type is allowed" << std::endl;
+	exit(EXIT_FAILURE);
+      }
     }
     volume_importance_data_eh[eh] = importances;
   }
@@ -263,7 +277,7 @@ void dagmcMetaData::parse_importance_data()
   }
 }
 
-// parse the importance data from the file
+// parse the tally data from the file
 void dagmcMetaData::parse_tally_volume_data()
 {
   std::map<moab::EntityHandle,std::vector<std::string> > tally_assignments;
@@ -271,7 +285,7 @@ void dagmcMetaData::parse_tally_volume_data()
 
   int num_vols = DAG->num_entities( 3 );
 
-  std::vector<std::string> tally_assignment; // boundary conditions for the current entity
+  std::vector<std::string> tally_assignment; // tally assignments for the current entity
   // loop over all volumes
   for( int i = 1; i <= num_vols; ++i ) {
     int volid = DAG->id_by_index( 3, i );
@@ -311,7 +325,7 @@ void dagmcMetaData::parse_boundary_data()
         std::cout << boundary_assignment[j] << std::endl;
       }
       std::cout << "Please check your boundary condition assignments " << surfid << std::endl;
-
+      exit(EXIT_FAILURE);
     }
     // 2d entities have been tagged with the boundary condition property
     // ie. both surfaces and its members triangles,
@@ -323,7 +337,7 @@ void dagmcMetaData::parse_boundary_data()
   }
 }
 
-// parse the importance data from the file
+// parse the surface tally data from the file
 void dagmcMetaData::parse_tally_surface_data()
 {
   std::map<moab::EntityHandle,std::vector<std::string> > tally_assignments;
@@ -331,7 +345,7 @@ void dagmcMetaData::parse_tally_surface_data()
 
   int num_surfaces = DAG->num_entities( 2 );
 
-  std::vector<std::string> tally_assignment; // boundary conditions for the current entity
+  std::vector<std::string> tally_assignment; // surface tally assignments for the current entity
   // loop over all volumes
   for( int i = 1; i <= num_surfaces; ++i ) {
     int surfid = DAG->id_by_index( 2, i );
@@ -422,10 +436,10 @@ std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<
   return new_properties;
 }
 
-// from a given set remove any matches if they are found to keep the
+// from a given set remove any matches if they are found in order to keep the
+// the information rich version.
 std::set<std::string> dagmcMetaData::set_remove_rich(std::set<std::string> properties_set)
 {
-
   std::set<std::string> new_set = properties_set;
 
   std::vector<std::set<std::string>::const_iterator> matches;

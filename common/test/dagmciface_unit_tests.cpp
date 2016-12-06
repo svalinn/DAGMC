@@ -89,13 +89,6 @@ TEST_F(DagmcMetadataTest,TestMatAssigns)
     else
       EXPECT_EQ(mat_prop,impl_comp_prop);
 
-    int cellid = DAG->id_by_index( 3, i );
-    mat_prop = dgm->get_volume_property("material",i,true);
-
-    if (!DAG->is_implicit_complement(eh))
-      EXPECT_EQ(mat_prop,base_property);
-    else
-      EXPECT_EQ(mat_prop,impl_comp_prop);
   }
 }
 //---------------------------------------------------------------------------//
@@ -122,9 +115,6 @@ TEST_F(DagmcMetadataTest,TestDensityAssigns)
     mat_prop = dgm->get_volume_property("density",i,true);
     EXPECT_EQ(mat_prop,base_property);
 
-    int cellid = DAG->id_by_index( 3, i );
-    mat_prop = dgm->get_volume_property("density",i,true);
-    EXPECT_EQ(mat_prop,base_property);
   }
 }
 //---------------------------------------------------------------------------//
@@ -161,13 +151,6 @@ TEST_F(DagmcMetadataTest,TestMatDensityAssigns)
     else
       EXPECT_EQ(mat_prop,impl_comp_prop);
 
-    int cellid = DAG->id_by_index( 3, i );
-    mat_prop = dgm->get_volume_property("material_density",i,true);
-
-    if (!DAG->is_implicit_complement(eh))
-      EXPECT_EQ(mat_prop,base_property);
-    else
-      EXPECT_EQ(mat_prop,impl_comp_prop);
   }
 }
 

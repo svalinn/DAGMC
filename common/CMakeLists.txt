@@ -6,8 +6,6 @@ list(APPEND DI_SRC_FILES dagmcmetadata.cpp)
 # Public headers
 list(APPEND DI_PUB_HEADERS dagmcmetadata.hpp)
 
-message(STATUS ${DI_SRC_FILES})
-
 # Include directories
 include_directories(.)
 include_directories(${HDF5_INCLUDE_DIRS})

@@ -1,5 +1,3 @@
-// FluDAG/src/test/test_FlukaFuncs.cpp
-
 #include <gtest/gtest.h>
 #include "mcnp_funcs.h"
 
