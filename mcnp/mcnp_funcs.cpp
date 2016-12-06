@@ -119,7 +119,7 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
 
 }
 
-void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/surface cards
+void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen, char *mcnp_version_major)  // file with cell/surface cards
 {
   UWUW workflow_data = UWUW(dagfile);
   std::string full_dagfilename = workflow_data.full_filepath;
@@ -144,7 +144,7 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
   // string stream for output
   std::ostringstream lcadfile_str;
 
-  write_cell_cards(lcadfile_str,workflow_data);
+  write_cell_cards(lcadfile_str,workflow_data,mcnp_version_major);
   lcadfile_str << std::endl;
   write_surface_cards(lcadfile_str,workflow_data);
   lcadfile_str << std::endl;
@@ -162,7 +162,7 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen)  // file with cell/s
 }
 
 // write all cell related data
-void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
+void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data, char* mcnp_version_major)
 {
   int num_cells = DAG->num_entities( 3 );
 
@@ -220,7 +220,15 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
     std::string mat_name = DMD->volume_material_property_data_eh[entity];
     for ( it = set.begin() ; it != set.end() ; ++it) {
       std::string particle_name = *it;
-      std::string mcnp_name = pyne::particle::mcnp(particle_name);
+      std::string mcnp_name;
+      if(mcnp_version_major[0] == '5') {
+        mcnp_name = pyne::particle::mcnp(particle_name);
+      } else if(mcnp_version_major[0] == '6') {
+        mcnp_name = pyne::particle::mcnp6(particle_name);
+      } else {
+        std::cout << "Unknown MCNP verison: " << mcnp_version_major << std::endl;
+        exit(EXIT_FAILURE);
+      }
       double imp = 1.0;
       // if we find graveyard always have importance 0.0
       if(mat_name.find("Graveyard") != std::string::npos) {
@@ -242,8 +250,17 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data)
         importances = "imp:n=0";
       }
     }
+
+    // add descriptive comments for special volumes
+    if (mat_name.find("Graveyard") != std::string::npos) {
+      importances += "  $ graveyard";
+    } else if (DAG->is_implicit_complement(entity)) {
+      importances += "  $ implicit complement";
+    }
+
     // write out importances to lcadfile
     lcadfile << importances << std::endl;
+
   }
   // all done
   return;
