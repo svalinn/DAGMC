@@ -5,13 +5,14 @@ This guide is meant to give developers a comprehensive understanding of how
 DAGMC works as it exists in MOAB and the key components one may use during
 development.
 
-Contructor
+Constructor
 ~~~~~~~~~~~~
 
 To initialize a DAGMC instance, the constructor must be called. If the
-constructor is called with no arguments, then a new instance is created. Else,
-a pointer to an existing instance can be passed in the constructor and DAGMC
-will be attached to that existing instance.
+constructor is called with no arguments, then a new MOAB instance is created
+with an attached DAGMC instance.
+Otherwise, a pointer to an existing MOAB instance can be passed in the
+constructor and a DAGMC instance will be attached to that existing MOAB instance.
 
 DAGMC Setup
 ~~~~~~~~~~~~
