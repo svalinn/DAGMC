@@ -153,7 +153,7 @@ void dagmcMetaData::parse_material_data()
         exit(EXIT_FAILURE);
       }
     } else {
-      // because of how the data are inserted into the map, ther are always 
+      // because of how the data are inserted into the map, ther are always
       // at least one entry, "" is nothing is found
       // if there is no material property - not failure for impl_comp
       if(material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
@@ -187,7 +187,7 @@ void dagmcMetaData::parse_material_data()
 
     // check to see if the simplied naming scheme is used, by try to convert the
     // material property to an int
-    if(try_to_make_int(material_props[0]) && !(DAG->is_implicit_complement(eh))){
+    if(try_to_make_int(material_props[0]) && !(DAG->is_implicit_complement(eh))) {
       std::cout << "Using the simplified nameing scheme without a density" << std::endl;
       std::cout << "property is forbidden, please rename the group mat:" << material_props[0] << std::endl;
       exit(EXIT_FAILURE);
@@ -403,7 +403,7 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
     moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
 
     // get the group contents
-    if( DAG->has_prop( entity, property ) ) 
+    if( DAG->has_prop( entity, property ) )
       rval = DAG->prop_values(entity,property,properties);
     else
       properties.push_back("");
@@ -426,11 +426,11 @@ std::vector<std::string> dagmcMetaData::remove_duplicate_properties(std::vector<
 
   std::vector<std::string>::iterator it;
   // loop over all properties and insert them into a set
-  
+
   for ( it = properties.begin() ; it != properties.end() ; ++it) {
     properties_set.insert(*it);
   }
-  
+
   // due to dagmc parse group names, the property, and value are two seperate
   // entries in array, i.e a tag like bob:charlie/bob, will return as charlie and charlie/bob
   // so we need to search each item for its more information rich partner and remove the
@@ -464,10 +464,10 @@ std::set<std::string> dagmcMetaData::set_remove_rich(std::set<std::string> prope
   // loop over all elements in the set
   it = new_set.begin();
   while (it != new_set.end()) {
-    // loop over the set trying to find similar names 
+    // loop over the set trying to find similar names
     for ( set_it = new_set.begin(), toofar = new_set.end(); set_it != toofar; ++set_it)
       if ((*set_it).find(*it) != std::string::npos && (*set_it != *it)) {
-	matches.push_back(it);
+        matches.push_back(it);
         matches.push_back(set_it);
       }
 
@@ -578,14 +578,15 @@ std::pair<std::string,std::string> dagmcMetaData::split_string(std::string prope
   return pair;
 }
 
-bool dagmcMetaData::try_to_make_int(std::string value) {
+bool dagmcMetaData::try_to_make_int(std::string value)
+{
   // try to convert the string value into an int
   char* end;
-  
+
   int i = strtol(value.c_str(), &end, 10);
   if(*end == '\0')
     return true;
-  else 
+  else
     return false;
   /*
   std::stringstream attempt;

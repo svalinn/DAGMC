@@ -335,7 +335,7 @@ TEST_F(DagmcMetadataTest,TestSplitString)
 // test to make sure the function try_to_make_int works
 TEST_F(DagmcMetadataTest,TestTryToMakeInt)
 {
-  // new metadata instance 
+  // new metadata instance
   dgm = new dagmcMetaData(DAG);
 
   EXPECT_EQ(dgm->try_to_make_int("1"), true);
