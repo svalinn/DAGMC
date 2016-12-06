@@ -102,9 +102,9 @@ std::string dagmcMetaData::get_surface_property(std::string property, int vol, b
 void dagmcMetaData::parse_material_data()
 {
   std::map<moab::EntityHandle,std::vector<std::string> > material_assignments;
-  material_assignments = get_property_assignments("mat",3,":/",false);
+  material_assignments = get_property_assignments("mat",3,":/",true);
   std::map<moab::EntityHandle,std::vector<std::string> > density_assignments;
-  density_assignments = get_property_assignments("rho",3,":",false);
+  density_assignments = get_property_assignments("rho",3,":",trueOB);
 
   int num_cells = DAG->num_entities( 3 );
 
@@ -135,12 +135,6 @@ void dagmcMetaData::parse_material_data()
           break;
         }
       }
-      // if there is no material property - not failure for impl_comp
-      if(material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
-        std::cout << "No material property found for volume with ID " << cellid << std::endl;
-        std::cout << "Every volume must have only one mat: property" << std::endl;
-        exit(EXIT_FAILURE);
-      }
       if ( comp_found != std::string::npos ) {
         // success found the _comp tag for the impl_compl material
         // set the impl_comp material for use later
@@ -156,6 +150,15 @@ void dagmcMetaData::parse_material_data()
           std::cout << material_props[j] << std::endl;
         }
         std::cout << "Please check your material assignments " << cellid << std::endl;
+        exit(EXIT_FAILURE);
+      }
+    } else {
+      // because of how the data are inserted into the map, ther are always 
+      // at least one entry, "" is nothing is found
+      // if there is no material property - not failure for impl_comp
+      if(material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
+        std::cout << "No material property found for volume with ID " << cellid << std::endl;
+        std::cout << "Every volume must have only one mat: property" << std::endl;
         exit(EXIT_FAILURE);
       }
     }
@@ -180,6 +183,11 @@ void dagmcMetaData::parse_material_data()
     } else {
       grp_name = "mat:"+material_props[0];
       volume_density_data_eh[eh] = "";
+      if(try_to_make_int(material_props[0])){
+	std::cout << "Using the simplified nameing scheme without a density" << std::endl;
+	std::cout << "property is forbidden, please rename the group mat:" << material_props[0] << std::endl;
+	exit(EXIT_FAILURE);
+      }
     }
 
     // set the material value
