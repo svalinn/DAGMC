@@ -26,18 +26,18 @@ and indices.
 Topology
 --------
 
-Every geometry contains entities that are either volumes, surfaces, or curves.
+Every mesh-based geometry contains entity sets that are either volumes, surfaces, or curves.
 There are two types of relationships that can relate entities to other entities.
 The first is called a parent-child relationship. Volumes are parents to surfaces
-that make up that volume; surfaces are parents of of curves; and curves are
-parents to the geometric vertices of that curve.
+that make up that volume; surfaces are parents to curves; and curves are
+parents to the geometric vertices.
 
 The second type of relationship is the set relationship, which is different
-from a parent-child relationship. Each surface and curve has an entity set.
-The entity set for a surface contains the triangles and their vertices for that
-surface. Curves contain edges and their vertices. The entity set for a volume,
-however, is empty. While a volume is made of surfaces (the parent-child
-relationship), the volume does not contain an entity set.
+from a parent-child relationship. Each surface and curve is an entity set.
+The surface entity sets contain the triangles and their vertices for that
+surface. The curve entity sets contain edges and their vertices. The volume entity sets,
+however, are empty. While a volume is parent to surfaces (the parent-child
+relationship), the volume does not contain any mesh entities.
 
 Sense Tags
 ----------
