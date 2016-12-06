@@ -26,7 +26,7 @@ and indices.
 Topology
 --------
 
-Every geometry contains entities that are either volumes, surfaces, and curves.
+Every geometry contains entities that are either volumes, surfaces, or curves.
 There are two types of relationships that can relate entities to other entities.
 The first is called a parent-child relationship. Volumes are parents to surfaces
 that make up that volume; surfaces are parents of of curves; and curves are
@@ -75,9 +75,9 @@ index or global ID) can refer to multiple entity handles (a surface or volume).
 Therefore, when cross referencing by either index or global ID, the dimension
 needs to be supplied, but is not necessary when cross referencing by entity
 handle. There are five methods for cross referencing: entity handle by index
-(entity_by_index), global ID by index (id_by_index), entity handle by global
-ID (entity_by_id), global ID by entity handle (get_entity_id), index by entity
-handle (index_by_handle).
+(``entity_by_index``), global ID by index (``id_by_index``), entity handle by global
+ID (``entity_by_id``), global ID by entity handle (``get_entity_id``), index by entity
+handle (``index_by_handle``).
 
 OBB Tree
 ~~~~~~~~
@@ -162,7 +162,7 @@ Point in Volume
 ~~~~~~~~~~~~~~~
 
 Given a volume entity handle, position, and ray direction (optional), the
-point_in_volume function will test if the point is inside or outside the given
+``point_in_volume`` function will test if the point is inside or outside the given
 volume. It is assumed that the test volume exists and is known. Passing a
 direction vector to this function adds robustness and ensures consistent results.
 Otherwise, a random direction is used.
@@ -170,19 +170,19 @@ Otherwise, a random direction is used.
 Ray Fire
 ~~~~~~~~
 
-The ray_fire function will return the entity handle of the next surface to be
+The ``ray_fire`` function will return the entity handle of the next surface to be
 crossed along with the distance to that surface given the ray's direction. If
 the ray is being tracked in a straight line through multiple volumes, passing
 in the ray-history is important to keep the ray from intersecting facets more
 than once (ie, if the particle is streaming). It is important to note that
-when tracking through multiple volumes, ray_fire must be called multiple times
+when tracking through multiple volumes, ``ray_fire`` must be called multiple times
 as it may only be called for a single volume at a time.
 
 Next Volume
 ~~~~~~~~~~~
 
-If the next surface is known (after calling ray_fire), the entity handle of the
-next volume can be determined by calling next_volume. Given the next surface and
+If the next surface is known (after calling ``ray_fire``), the entity handle of the
+next volume can be determined by calling ``next_volume``. Given the next surface and
 the known current volume, the next volume is determined by looking at the other
 volume tagged on that surface (as described in the Sense Tags section above).
 This assumes that a valid surface and volume are provided. If no next volume
