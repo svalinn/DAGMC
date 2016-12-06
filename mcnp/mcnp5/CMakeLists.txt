@@ -145,7 +145,8 @@ if (MPI_BUILD)
 endif (MPI_BUILD)
 
 # DAGMC
-include_directories(${PROJECT_SOURCE_DIR}/tally)
+include_directories(${CMAKE_SOURCE_DIR}/common)
+include_directories(${CMAKE_SOURCE_DIR}/tally)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 
