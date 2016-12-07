@@ -19,6 +19,7 @@ using moab::DagMC;
 
 moab::DagMC *DAG;
 dagmcMetaData *DMD;
+UWUW *workflow_data;
 
 #define DGFM_SEQ   0
 #define DGFM_READ  1
@@ -115,14 +116,34 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
     exit(EXIT_FAILURE);
   }
 
+  // if there a uwuw material library write it
+  // out to the fcad file
+  if(workflow_data->material_library.size() != 0) {
+    // get the mat lib
+    std::map<std::string, pyne::Material> mat_lib = workflow_data->material_library;
+    std::map<std::string, pyne::Material> ::iterator it;
+
+    // iterate over the map
+    for ( it = mat_lib.begin() ; it != mat_lib.end() ; ++it ) {
+      // check to make sure we find "mat in the key"
+      if(it->first.find("mat:") != std::string::npos) {
+        // write the hdf5 file data
+        it->second.write_hdf5(ffile,"/materials");
+      } else {
+        std::cout << "Warning: Spurious material " << it->first << std::endl;
+        std::cout << "not written to file " << std::endl;
+      }
+    }
+  }
+
   return;
 
 }
 
 void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen, char *mcnp_version_major)  // file with cell/surface cards
 {
-  UWUW workflow_data = UWUW(dagfile);
-  std::string full_dagfilename = workflow_data.full_filepath;
+  workflow_data = new UWUW(dagfile);
+  std::string full_dagfilename = workflow_data->full_filepath;
 
   lfile[*llen]  = '\0';
 
@@ -144,16 +165,16 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen, char *mcnp_version_m
   // string stream for output
   std::ostringstream lcadfile_str;
 
-  write_cell_cards(lcadfile_str,workflow_data,mcnp_version_major);
+  write_cell_cards(lcadfile_str,mcnp_version_major);
   lcadfile_str << std::endl;
-  write_surface_cards(lcadfile_str,workflow_data);
+  write_surface_cards(lcadfile_str);
   lcadfile_str << std::endl;
 
-  if(workflow_data.material_library.size() > 0)
-    write_material_data(lcadfile_str,workflow_data);
+  if(workflow_data->material_library.size() > 0)
+    write_material_data(lcadfile_str);
 
-  if(workflow_data.tally_library.size() > 0)
-    write_tally_data(lcadfile_str,workflow_data);
+  if(workflow_data->tally_library.size() > 0)
+    write_tally_data(lcadfile_str);
 
   // all done
   lcadfile << lcadfile_str.str();
@@ -162,7 +183,7 @@ void dagmcwritemcnp_(char* dagfile, char *lfile, int *llen, char *mcnp_version_m
 }
 
 // write all cell related data
-void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data, char* mcnp_version_major)
+void write_cell_cards(std::ostringstream &lcadfile, char* mcnp_version_major)
 {
   int num_cells = DAG->num_entities( 3 );
 
@@ -174,7 +195,7 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data, char* mc
     moab::EntityHandle entity = DAG->entity_by_index( 3, i );
 
     // deal with material number & density
-    if(workflow_data.material_library.size() == 0) {
+    if(workflow_data->material_library.size() == 0) {
       // assuming simplified naming scheme check to make sure
       // that material numbers are assigned
       mat_num = DMD->volume_material_data_eh[entity];
@@ -200,7 +221,13 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data, char* mc
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
       if(mat_name.find("Vacuum") == std::string::npos && mat_name.find("Graveyard") == std::string::npos) {
-        pyne::Material material = workflow_data.material_library[mat_name];
+        if(workflow_data->material_library.count(mat_name) == 0) {
+          std::cout << "Material with name " << mat_name <<  " not found " << std::endl;
+          std::cout << "In the material library" << std::endl;
+          exit(EXIT_FAILURE);
+        }
+
+        pyne::Material material = workflow_data->material_library[mat_name];
         int matnumber = material.metadata["mat_number"].asInt();
         mat_num = _to_string(matnumber);
         density = "-"+_to_string(material.density);
@@ -267,7 +294,7 @@ void write_cell_cards(std::ostringstream &lcadfile, UWUW workflow_data, char* mc
 }
 
 // write the surface data as appropriate
-void write_surface_cards(std::ostringstream &lcadfile, UWUW worfklow_data)
+void write_surface_cards(std::ostringstream &lcadfile)
 {
   int num_surfaces = DAG->num_entities( 2 );
 
@@ -287,9 +314,9 @@ void write_surface_cards(std::ostringstream &lcadfile, UWUW worfklow_data)
 }
 
 // write out all the tally data from the uwuw file
-void write_material_data(std::ostringstream &lcadfile, UWUW workflow_data)
+void write_material_data(std::ostringstream &lcadfile)
 {
-  std::map<std::string,pyne::Material> material_library = workflow_data.material_library;
+  std::map<std::string,pyne::Material> material_library = workflow_data->material_library;
   // loop over all tallies
   std::cout << "Writing Materials ..." << std::endl;
 
@@ -305,9 +332,9 @@ void write_material_data(std::ostringstream &lcadfile, UWUW workflow_data)
 }
 
 // write out all the tally data from the uwuw file
-void write_tally_data(std::ostringstream &lcadfile, UWUW workflow_data)
+void write_tally_data(std::ostringstream &lcadfile)
 {
-  std::map<std::string,pyne::Tally> tally_library = workflow_data.tally_library;
+  std::map<std::string,pyne::Tally> tally_library = workflow_data->tally_library;
   // loop over all tallies
   std::cout << "Writing Tallies ..." << std::endl;
   int count = 1;

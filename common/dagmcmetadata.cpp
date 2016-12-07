@@ -403,10 +403,26 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
     moab::EntityHandle entity = DAG->entity_by_index( dimension, i );
 
     // get the group contents
-    if( DAG->has_prop( entity, property ) )
+    if( DAG->has_prop( entity, property ) ) {
       rval = DAG->prop_values(entity,property,properties);
-    else
+
+      // loop over the properties and check for any mention
+      // of the 2nd delimiter, if so extract from 0
+      // to second delimiter
+      // by being here we already know he property exists
+      // being found upto the first delimiter
+      if(delimiters.size() > 1 ) {
+        for ( int j = 0 ; j < properties.size() ; j++ ) {
+          size_t npos = 0, first = npos;
+          npos = properties[j].find(delimiters[1]);
+          // extract from the match - which is either first
+          // match or .length()
+          properties[j] = properties[j].substr(0,npos);
+        }
+      }
+    } else {
       properties.push_back("");
+    }
 
     if (properties.size() > 1 )
       if (remove_duplicates)
@@ -588,15 +604,4 @@ bool dagmcMetaData::try_to_make_int(std::string value)
     return true;
   else
     return false;
-  /*
-  std::stringstream attempt;
-  attempt << value;
-  int number;
-  attempt >> number;
-  if(attempt.fail()){
-    return false;
-  }
-  std::cout << number << std::endl;
-  return true;
-  */
 }
