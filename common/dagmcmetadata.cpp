@@ -179,7 +179,6 @@ void dagmcMetaData::parse_material_data()
     // determine if we have a density property
     if (!density_props[0].empty()) {
       grp_name = "mat:"+material_props[0]+"/rho:"+density_props[0];
-      std::cout << grp_name << " " << material_props[0] << " " << density_props[0] << std::endl;
       volume_density_data_eh[eh] = density_props[0];
     } else {
       grp_name = "mat:"+material_props[0];
