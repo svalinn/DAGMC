@@ -122,10 +122,17 @@ void dagmcwritefacets_(char *ffile, int *flen)  // facet file
     // get the mat lib
     std::map<std::string, pyne::Material> mat_lib = workflow_data->material_library;
     std::map<std::string, pyne::Material> ::iterator it;
+
     // iterate over the map
     for ( it = mat_lib.begin() ; it != mat_lib.end() ; ++it ) {
-      // write the hdf5 file data
-      it->second.write_hdf5(ffile,"/materials");
+      // check to make sure we find "mat in the key"
+      if(it->first.find("mat:") != std::string::npos) {
+	// write the hdf5 file data
+	it->second.write_hdf5(ffile,"/materials");
+      } else {
+	std::cout << "Warning: Spurious material " << it->first << std::endl;
+	std::cout << "not written to file " << std::endl;
+      }
     }
   }
 
@@ -214,6 +221,12 @@ void write_cell_cards(std::ostringstream &lcadfile, char* mcnp_version_major)
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
       if(mat_name.find("Vacuum") == std::string::npos && mat_name.find("Graveyard") == std::string::npos) {
+	if(workflow_data->material_library.count(mat_name) == 0) {
+	  std::cout << "Material with name " << mat_name <<  " not found " << std::endl;
+	  std::cout << "In the material library" << std::endl;
+	  exit(EXIT_FAILURE);
+	}
+
         pyne::Material material = workflow_data->material_library[mat_name];
         int matnumber = material.metadata["mat_number"].asInt();
         mat_num = _to_string(matnumber);
