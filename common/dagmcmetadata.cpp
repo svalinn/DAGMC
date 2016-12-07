@@ -193,7 +193,6 @@ void dagmcMetaData::parse_material_data()
       exit(EXIT_FAILURE);
     }
 
-    std::cout << grp_name << std::endl;
     // set the material value
     volume_material_property_data_eh[eh] = grp_name;
 
