@@ -409,19 +409,19 @@ std::map<moab::EntityHandle,std::vector<std::string> > dagmcMetaData::get_proper
       rval = DAG->prop_values(entity,property,properties);
 
       // loop over the properties and check for any mention
-      // of the 2nd delimiter, if so extract from 0 
-      // to second delimiter 
+      // of the 2nd delimiter, if so extract from 0
+      // to second delimiter
       // by being here we already know he property exists
-      // being found upto the first delimiter 
+      // being found upto the first delimiter
       if(delimiters.size() > 1 ) {
-	for ( int j = 0 ; j < properties.size() ; j++ ) {
-	  size_t npos = 0, first = npos;                                                  
-	  npos = properties[j].find(delimiters[1]);
-	  // extract from the match - which is either first
-	  // match or .length()
-	  properties[j] = properties[j].substr(0,npos);
-	}
-      }	  
+        for ( int j = 0 ; j < properties.size() ; j++ ) {
+          size_t npos = 0, first = npos;
+          npos = properties[j].find(delimiters[1]);
+          // extract from the match - which is either first
+          // match or .length()
+          properties[j] = properties[j].substr(0,npos);
+        }
+      }
     } else {
       properties.push_back("");
     }
