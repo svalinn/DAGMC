@@ -142,10 +142,10 @@ extern "C" {
 } // extern "C"
 #endif
 
-void write_cell_cards(std::ostringstream &lcad_string, UWUW workflow_data, char* mcnp_version_major = "5");
-void write_surface_cards(std::ostringstream &lcad_string, UWUW workflow_data);
-void write_material_data(std::ostringstream &lcad_string, UWUW workflow_data);
-void write_tally_data(std::ostringstream &lcad_string, UWUW workflow_data);
+void write_cell_cards(std::ostringstream &lcad_string, char* mcnp_version_major = "5");
+void write_surface_cards(std::ostringstream &lcad_string);
+void write_material_data(std::ostringstream &lcad_string);
+void write_tally_data(std::ostringstream &lcad_string);
 
 // until we adopt C++11 - makes life easy
 // convenience functions for c++ int to string
