@@ -51,8 +51,12 @@ ErrorCode dag_init_file(char *filename, DagMC* &dagmc, ScdBox* &box) {
   //initalize the OBBTree (and the preconditioning datastructs)
   rval = dagmc->init_OBBTree();
   MB_CHK_SET_ERR(rval,"Could not initialize the OBBTree");
+
+  rval = dagmc->build_preconditioner();
+  MB_CHK_SET_ERR(rval,"Could not construct preconditioner.");
   //get the preconditioning box of interest
   box = dagmc->get_preconditioning_box(vols[0]);
+  if (!box) return MB_ENTITY_NOT_FOUND;
 
   return rval;
 };
