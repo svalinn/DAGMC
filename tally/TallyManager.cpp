@@ -256,7 +256,13 @@ Tally *TallyManager::createTally(unsigned int tally_id,
     input.particle = TallyInput::ELECTRON;
     break;
 
+  case 9:
+    input.particle = TallyInput::PROTON;
+    break;
+
   default:
+    std::cerr << "Warning: unknown particle type " << particle
+              << " for tally " << tally_id << "; assuming neutron" << std::endl;
     input.particle = TallyInput::NEUTRON;
   }
 

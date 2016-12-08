@@ -37,7 +37,8 @@ struct TallyEvent {
 
   EventType type;
 
-  /// Type of particle being tallied: NEUTRON = 1, PHOTON = 2, ELECTRON = 3.
+  /// Type of particle being tallied: NEUTRON = 1, PHOTON = 2, ELECTRON = 3,
+  /// PROTON = 9.
   unsigned int particle;
 
   /// Geometric cell in which the event occurred

@@ -104,6 +104,9 @@ else ()
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 add_definitions(-DF90_INT_4BYTE=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
+if (MESHTAL_DEBUG)
+  add_definitions(-DMESHTAL_DEBUG=ON)
+endif (MESHTAL_DEBUG)
 
 # Make sure DATAPATH is set
 if (MCNP5_DATAPATH)
