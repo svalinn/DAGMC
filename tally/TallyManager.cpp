@@ -282,9 +282,9 @@ Tally *TallyManager::createTally(unsigned int tally_id,
   case 36: input.particle = TallyInput::K_MINUS;      break;
   case 37: input.particle = TallyInput::HEAVY_ION;    break;
   default:
-    std::cerr << "Warning: unknown particle type " << particle
-              << " for tally " << tally_id << "; assuming neutron" << std::endl;
-    input.particle = TallyInput::NEUTRON;
+    std::cerr << "Error: unknown particle type " << particle
+              << " for tally " << tally_id;
+    return NULL;
   }
 
   // Set up the input structure from the passed parameters
