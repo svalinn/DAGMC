@@ -244,43 +244,117 @@ Tally *TallyManager::createTally(unsigned int tally_id,
   }
 
   switch (particle) {
-  case  1: input.particle = TallyInput::NEUTRON;      break;
-  case  2: input.particle = TallyInput::PHOTON;       break;
-  case  3: input.particle = TallyInput::ELECTRON;     break;
-  case  4: input.particle = TallyInput::MU_MINUS;     break;
-  case  5: input.particle = TallyInput::ANEUTRON;     break;
-  case  6: input.particle = TallyInput::NU_E;         break;
-  case  7: input.particle = TallyInput::NU_M;         break;
-  case  8: input.particle = TallyInput::POSITRON;     break;
-  case  9: input.particle = TallyInput::PROTON;       break;
-  case 10: input.particle = TallyInput::LAMBDA0;      break;
-  case 11: input.particle = TallyInput::SIGMA_PLUS;   break;
-  case 12: input.particle = TallyInput::SIGMA_MINUS;  break;
-  case 13: input.particle = TallyInput::XI0;          break;
-  case 14: input.particle = TallyInput::XI_MINUS;     break;
-  case 15: input.particle = TallyInput::OMEGA_MINUS;  break;
-  case 16: input.particle = TallyInput::MU_PLUS;      break;
-  case 17: input.particle = TallyInput::ANU_E;        break;
-  case 18: input.particle = TallyInput::ANU_M;        break;
-  case 19: input.particle = TallyInput::APROTON;      break;
-  case 20: input.particle = TallyInput::PI_PLUS;      break;
-  case 21: input.particle = TallyInput::PI_ZERO;      break;
-  case 22: input.particle = TallyInput::K_PLUS;       break;
-  case 23: input.particle = TallyInput::K0_SHORT;     break;
-  case 24: input.particle = TallyInput::K0_LONG;      break;
-  case 25: input.particle = TallyInput::ALAMBDA0;     break;
-  case 26: input.particle = TallyInput::ASIGMA_PLUS;  break;
-  case 27: input.particle = TallyInput::ASIGMA_MINUS; break;
-  case 28: input.particle = TallyInput::AXI0;         break;
-  case 29: input.particle = TallyInput::XI_PLUS;      break;
-  case 30: input.particle = TallyInput::AOMEGA_MINUS; break;
-  case 31: input.particle = TallyInput::DEUTERON;     break;
-  case 32: input.particle = TallyInput::TRITON;       break;
-  case 33: input.particle = TallyInput::HELION;       break;
-  case 34: input.particle = TallyInput::ALPHA;        break;
-  case 35: input.particle = TallyInput::PI_MINUS;     break;
-  case 36: input.particle = TallyInput::K_MINUS;      break;
-  case 37: input.particle = TallyInput::HEAVY_ION;    break;
+  case  1:
+    input.particle = TallyInput::NEUTRON;
+    break;
+  case  2:
+    input.particle = TallyInput::PHOTON;
+    break;
+  case  3:
+    input.particle = TallyInput::ELECTRON;
+    break;
+  case  4:
+    input.particle = TallyInput::MU_MINUS;
+    break;
+  case  5:
+    input.particle = TallyInput::ANEUTRON;
+    break;
+  case  6:
+    input.particle = TallyInput::NU_E;
+    break;
+  case  7:
+    input.particle = TallyInput::NU_M;
+    break;
+  case  8:
+    input.particle = TallyInput::POSITRON;
+    break;
+  case  9:
+    input.particle = TallyInput::PROTON;
+    break;
+  case 10:
+    input.particle = TallyInput::LAMBDA0;
+    break;
+  case 11:
+    input.particle = TallyInput::SIGMA_PLUS;
+    break;
+  case 12:
+    input.particle = TallyInput::SIGMA_MINUS;
+    break;
+  case 13:
+    input.particle = TallyInput::XI0;
+    break;
+  case 14:
+    input.particle = TallyInput::XI_MINUS;
+    break;
+  case 15:
+    input.particle = TallyInput::OMEGA_MINUS;
+    break;
+  case 16:
+    input.particle = TallyInput::MU_PLUS;
+    break;
+  case 17:
+    input.particle = TallyInput::ANU_E;
+    break;
+  case 18:
+    input.particle = TallyInput::ANU_M;
+    break;
+  case 19:
+    input.particle = TallyInput::APROTON;
+    break;
+  case 20:
+    input.particle = TallyInput::PI_PLUS;
+    break;
+  case 21:
+    input.particle = TallyInput::PI_ZERO;
+    break;
+  case 22:
+    input.particle = TallyInput::K_PLUS;
+    break;
+  case 23:
+    input.particle = TallyInput::K0_SHORT;
+    break;
+  case 24:
+    input.particle = TallyInput::K0_LONG;
+    break;
+  case 25:
+    input.particle = TallyInput::ALAMBDA0;
+    break;
+  case 26:
+    input.particle = TallyInput::ASIGMA_PLUS;
+    break;
+  case 27:
+    input.particle = TallyInput::ASIGMA_MINUS;
+    break;
+  case 28:
+    input.particle = TallyInput::AXI0;
+    break;
+  case 29:
+    input.particle = TallyInput::XI_PLUS;
+    break;
+  case 30:
+    input.particle = TallyInput::AOMEGA_MINUS;
+    break;
+  case 31:
+    input.particle = TallyInput::DEUTERON;
+    break;
+  case 32:
+    input.particle = TallyInput::TRITON;
+    break;
+  case 33:
+    input.particle = TallyInput::HELION;
+    break;
+  case 34:
+    input.particle = TallyInput::ALPHA;
+    break;
+  case 35:
+    input.particle = TallyInput::PI_MINUS;
+    break;
+  case 36:
+    input.particle = TallyInput::K_MINUS;
+    break;
+  case 37:
+    input.particle = TallyInput::HEAVY_ION;
+    break;
   default:
     std::cerr << "Error: unknown particle type " << particle
               << " for tally " << tally_id;
