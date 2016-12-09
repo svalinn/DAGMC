@@ -34,7 +34,45 @@ struct TallyInput {
   std::string tally_type;
 
   /// Defines type of particle that is tallied by this Tally
-  enum ParticleType {NEUTRON = 1, PHOTON = 2, ELECTRON = 3, PROTON = 9};
+  enum ParticleType {
+    NEUTRON      = 1,
+    PHOTON       = 2,
+    ELECTRON     = 3,
+    MU_MINUS     = 4,
+    ANEUTRON     = 5,
+    NU_E         = 6,
+    NU_M         = 7,
+    POSITRON     = 8,
+    PROTON       = 9,
+    LAMBDA0      = 10,
+    SIGMA_PLUS   = 11,
+    SIGMA_MINUS  = 12,
+    XI0          = 13,
+    XI_MINUS     = 14,
+    OMEGA_MINUS  = 15,
+    MU_PLUS      = 16,
+    ANU_E        = 17,
+    ANU_M        = 18,
+    APROTON      = 19,
+    PI_PLUS      = 20,
+    PI_ZERO      = 21,
+    K_PLUS       = 22,
+    K0_SHORT     = 23,
+    K0_LONG      = 24,
+    ALAMBDA0     = 25,
+    ASIGMA_PLUS  = 26,
+    ASIGMA_MINUS = 27,
+    AXI0         = 28,
+    XI_PLUS      = 29,
+    AOMEGA_MINUS = 30,
+    DEUTERON     = 31,
+    TRITON       = 32,
+    HELION       = 33,
+    ALPHA        = 34,
+    PI_MINUS     = 35,
+    K_MINUS      = 36,
+    HEAVY_ION    = 37
+  };
   ParticleType particle;
 
   /// Energy bin boundaries defined for all tally points
