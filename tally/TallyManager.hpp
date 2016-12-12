@@ -105,8 +105,8 @@ class TallyManager
    * energy bin boundaries are always assumed to be sorted from
    * min_energy to max_energy.
    *
-   * Valid particle types include NEUTRON = 1, PHOTON = 2, ELECTRON = 3, and
-   * more. See Tally.hpp for a complete listing of the allowed particles.
+   * Valid particle types are determined by the physics code. For MCNP,
+   * NEUTRON = 1, PHOTON = 2, ELECTRON = 3, PROTON = 9, etc.
    */
   void addNewTally(unsigned int tally_id,
                    std::string tally_type,
