@@ -153,11 +153,11 @@ Ray History
 ~~~~~~~~~~~
 
 A particle can be either streaming or reflecting. If streaming, the particle
-may only cross a particular surface once. To ensure this a list (or history)
+may only cross a particular surface once. To ensure this, a list (or history)
 of the surfaces that particle has crossed is maintained. If a surface encountered
-is reflecting, the particle does not cross that surface and is therefore not
-added to the history. If a particle is or becomes a reflecting particle, the
-history of crossed surfaces is cleared.
+is reflecting, the particle does not cross that surface and is therefore should not
+be added to the history. If a particle changes directions, the
+history of crossed surfaces should be cleared.
 
 Point in Volume
 ~~~~~~~~~~~~~~~
