@@ -59,7 +59,8 @@ global ID, index, or entity handle. The global ID is an integer number that
 corresponds to the Cubit ID. As a result, the set of global IDs does not
 necessarily have to be contiguous. During setup, the global ID is tagged on the
 entity set. The second method is to identify by index. This is an ordinal
-numerical reference for each volume or surface in the geometry. The third method
+numerical reference for each volume or surface in the geometry. It is important
+to note that index starts from one (not zero). The third method
 is to identify by the entity handle of the entity set. The entity handle is
 assigned by MOAB and is not necessarily contiguous.
 
