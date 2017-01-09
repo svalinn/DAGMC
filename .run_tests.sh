@@ -29,6 +29,7 @@ cd tests
 ./make_watertight_sphere_n_box_test
 ./make_watertight_cylinder_tests
 ./make_watertight_cone_tests
+./dagmcnp_unit_tests
 # if this is not a pull request, run regression tests
 if [ ! -z $TRAVIS_PULL_REQUEST ] && [ $TRAVIS_PULL_REQUEST == "false" ] ; then
     wget $MW_REG_TEST_MODELS_URL -O mw_reg_test_files.tar.gz -o wget.out
