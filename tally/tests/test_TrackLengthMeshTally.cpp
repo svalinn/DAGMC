@@ -6,6 +6,7 @@
 #include "../Tally.hpp"
 #include "../TallyEvent.hpp"
 #include "../TrackLengthMeshTally.hpp"
+#include "../TallyManager.cpp"
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
@@ -1159,4 +1160,80 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_3)
     total += track_data[i];
 
   EXPECT_DOUBLE_EQ(total, 20.0);
+}
+
+//---------------------------------------------------------------------------//
+TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayNeutron)
+{
+  input.tally_type = "unstr_track";
+  input.options.insert(std::make_pair("inp", "unstructured_mesh.h5m"));
+
+  // dummy variable to prevent segfault during teardown
+  mesh_tally = Tally::create_tally(input);
+
+  TallyEvent event;
+  make_event(event);
+  event.particle = 1;  // neutron
+
+  TallyManager* tallyManager = new TallyManager();
+  tallyManager->addNewTally(input.tally_id, input.tally_type, event.particle,
+                            input.energy_bin_bounds, input.options);
+
+  mod_event(event, 1.0, 1.0, 1.0);
+  tallyManager->setTrackEvent(event.particle,
+      event.position[0], event.position[1], event.position[2],
+      event.direction[0], event.direction[1], event.direction[2],
+      event.particle_energy, event.particle_weight, event.track_length,
+      event.current_cell);
+  tallyManager->updateTallies();
+  tallyManager->endHistory();
+
+  std::cout << tallyManager->numTallies() << std::endl;
+
+  int length;
+  double* track_data = tallyManager->getTallyData(input.tally_id, length);
+
+  double total = 0.0;
+  for (int i = 0; i < length; i++)
+    total += track_data[i];
+
+  EXPECT_EQ(total, event.track_length);
+}
+
+//---------------------------------------------------------------------------//
+TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayProton)
+{
+  input.tally_type = "unstr_track";
+  input.options.insert(std::make_pair("inp", "unstructured_mesh.h5m"));
+
+  // dummy variable to prevent segfault during teardown
+  mesh_tally = Tally::create_tally(input);
+
+  TallyEvent event;
+  make_event(event);
+  event.particle = 9; // proton
+
+  TallyManager* tallyManager = new TallyManager();
+  tallyManager->addNewTally(input.tally_id, input.tally_type, event.particle,
+                            input.energy_bin_bounds, input.options);
+
+  mod_event(event, 1.0, 1.0, 1.0);
+  tallyManager->setTrackEvent(event.particle,
+      event.position[0], event.position[1], event.position[2],
+      event.direction[0], event.direction[1], event.direction[2],
+      event.particle_energy, event.particle_weight, event.track_length,
+      event.current_cell);
+  tallyManager->updateTallies();
+  tallyManager->endHistory();
+
+  std::cout << tallyManager->numTallies() << std::endl;
+
+  int length;
+  double* track_data = tallyManager->getTallyData(input.tally_id, length);
+
+  double total = 0.0;
+  for (int i = 0; i < length; i++)
+    total += track_data[i];
+
+  EXPECT_EQ(total, event.track_length);
 }
