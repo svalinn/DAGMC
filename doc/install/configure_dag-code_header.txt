@@ -1,0 +1,20 @@
+Configure |DAG-Code|
+~~~~~~~~~~~~~~~~~~~~
+
+First, create and enter the build directory.
+::
+
+    $ cd $HOME/dagmc_bld/DAGMC
+    $ mkdir bld
+    $ cd bld
+
+Then, choose where you want to install DAGMC. This is where the binaries,
+libraries, header files, etc. will be placed. This guide uses ``$INSTALL_PATH``
+to represent this location.
+::
+
+    $ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
+
+CMake variables are used to configure DAGMC with your desired build options. A
+few examples will be shown here, but you can see a list of all possible options
+`here <cmake_options.html>`_.
