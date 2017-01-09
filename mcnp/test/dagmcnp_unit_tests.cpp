@@ -69,8 +69,8 @@ TEST_F(DAGMCNP5Test, dagmcinit_test)
                             "7 3 -2.0 imp:n=1 imp:p=1 ",
                             "8 3 -2.0 imp:n=1 imp:p=1 ",
                             "9 1 0.022 imp:n=1 imp:p=1 ",
-                            "12 0  imp:n=0 imp:p=0 ",
-                            "13 0  imp:n=1 imp:p=1 "
+                            "12 0  imp:n=0 imp:p=0   $ graveyard",
+                            "13 0  imp:n=1 imp:p=1   $ implicit complement"
                            };
   std::vector<std::string> expected_lcad(expected,expected+11);
 
@@ -122,8 +122,8 @@ TEST_F(DAGMCNP5Test, dagmcinit_comp_test)
                             "7 3 -2.0 imp:n=1 imp:p=1 ",
                             "8 3 -2.0 imp:n=1 imp:p=1 ",
                             "9 1 0.022 imp:n=1 imp:p=1 ",
-                            "12 0  imp:n=0 imp:p=0 ",
-                            "13 2 -3.1 imp:n=1 imp:p=1 "
+                            "12 0  imp:n=0 imp:p=0   $ graveyard",
+                            "13 2 -3.1 imp:n=1 imp:p=1   $ implicit complement"
                            };
   std::vector<std::string> expected_lcad(expected,expected+11);
 
