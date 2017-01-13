@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Direct Acclerated Geometry Monte Carlo Toolkit'
-copyright = u'2012-2015, The UW CNERG Team'
+copyright = u'2012-2016, The UW CNERG Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -123,7 +123,7 @@ html_title = 'DAGMC'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.

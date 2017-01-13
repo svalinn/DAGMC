@@ -1,21 +1,58 @@
-DAGMC User's Guide
-========
+User's guide
+============
 
-This document is intended for users of the DAGMC toolkit and includes
-instructions for installation and use with a variety of Monte Carlo
-codes.
+..  |UW2| replace:: UW\ :sup:`2`
 
-.. toctree::
-   :maxdepth: 1
+This document is intended for users of the DAGMC toolkit who want
+to better understand all the potential workflows for each Monte Carlo
+code. UW - Madison has developed several workflows for the Monte Carlo
+codes it supports. Exactly which workflow suits your needs depends on
+which codes you expect to use and how much manual data transfer you
+wish to do.
 
-   quick_start
-   get_install
-   workflow
-   uw2
-   dag-tripoli4
-   faq
++-------------------------+----------------+----------------+
+| Feature                 | UW2 Workflow   | Basic Workflow | 
++-------------------------+----------------+----------------+
+|  Assignment of Metadata | M              |  M             |
++-------------------------+----------------+----------------+
+|  MCNP5 Tallies          | A              |  M             |
++-------------------------+----------------+----------------+
+|  MCNP5 Materials        | A              |  M             |
++-------------------------+----------------+----------------+
+|  Fluka Tallies          | A              |  M             |
++-------------------------+----------------+----------------+
+|  Fluka Materials        | A              |  M             |
++-------------------------+----------------+----------------+
+|  Geant4 Tallies         | A              |  M             |
++-------------------------+----------------+----------------+
+|  Geant4 Materials       | A              |  M             |
++-------------------------+----------------+----------------+
+|  Tripoli4 Tallies       | N              |  None          |
++-------------------------+----------------+----------------+
+|  Tripoli4 Materials     | N              |  None          |
++-------------------------+----------------+----------------+
 
-Related Tools
-~~~~~~~~~~~~~
-There are several DAGMC related tools and information regarding them can be found `here <../tools/index.html>`_.
-`
+**N** not supported, **A** automatic production at run time, **M** manually performed
+
+So, if you are interested in running your geometry in multiple physics 
+packages with minimal effort, the UW2 workflow is your best option
+as it does the most work for you, however if you are interested
+in only a specific physics engine one of the basic workflows may
+interest you more. We still would recommend the UW2 workflow as it 
+offers robust and tested methods for material creation.
+
+..  toctree::
+    :maxdepth: 1
+
+    trelis_basics
+    uw2
+    codes/index
+    trelis_workflow
+    tally
+    tools
+    postprocessing
+
+..  toctree::
+    :hidden:
+
+    mcnp2cad
