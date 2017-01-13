@@ -116,7 +116,12 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
     DagSolid* dag_vol = new DagSolid("vol_"+idx_str,dagmc,dag_idx);
     dag_volumes.push_back(dag_vol);
     // make new logical volume
-    G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol,material_lib[mat_name],
+    std::string material_name = mat_name;
+    if( mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
+      material_name = "mat:Vacuum"; 
+    }
+    
+    G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol,material_lib[material_name],
         "vol_"+idx_str+"_log",0,0,0);
     dag_logical_volumes[dag_idx]=dag_vol_log;
     // make a new physical placement
