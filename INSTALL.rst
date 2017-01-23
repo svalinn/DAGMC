@@ -11,8 +11,7 @@ In order to install you must have done the following absolute minimum
 1) cloned the DAGMC repository, (http://github.com/svalinn/DAGMC)
 2) Installed MOAB
 3) Installed HDF5
-4) Installed Lapack
-5) Installed Fluka
+4) Installed Fluka
 
 How To
 ========

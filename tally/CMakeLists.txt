@@ -4,40 +4,16 @@ enable_language(Fortran)
 
 # Source files
 set(SRC_FILES)
-list(APPEND SRC_FILES CellTally.cpp)
-list(APPEND SRC_FILES KDEKernel.cpp)
-list(APPEND SRC_FILES KDEMeshTally.cpp)
-list(APPEND SRC_FILES KDENeighborhood.cpp)
-list(APPEND SRC_FILES MeshTally.cpp)
-list(APPEND SRC_FILES PolynomialKernel.cpp)
-list(APPEND SRC_FILES Quadrature.cpp)
-list(APPEND SRC_FILES Tally.cpp)
-list(APPEND SRC_FILES TallyData.cpp)
-list(APPEND SRC_FILES TallyManager.cpp)
-list(APPEND SRC_FILES TrackLengthMeshTally.cpp)
+file(GLOB SRC_FILES ${SRC_FILES} "*.cpp")
+file(GLOB SRC_FILES ${SRC_FILES} "lapack/*.f")
 
 # Public headers
 set(PUB_HEADERS)
-list(APPEND PUB_HEADERS CellTally.hpp)
-list(APPEND PUB_HEADERS KDEKernel.hpp)
-list(APPEND PUB_HEADERS KDEMeshTally.hpp)
-list(APPEND PUB_HEADERS KDENeighborhood.hpp)
-list(APPEND PUB_HEADERS MeshTally.hpp)
-list(APPEND PUB_HEADERS PolynomialKernel.hpp)
-list(APPEND PUB_HEADERS Quadrature.hpp)
-list(APPEND PUB_HEADERS TallyData.hpp)
-list(APPEND PUB_HEADERS TallyEvent.hpp)
-list(APPEND PUB_HEADERS Tally.hpp)
-list(APPEND PUB_HEADERS TallyManager.hpp)
-list(APPEND PUB_HEADERS TrackLengthMeshTally.hpp)
+file(GLOB PUB_HEADERS ${PUB_HEADERS} "*.hpp")
 
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
-list(APPEND LINK_LIBS lapack)
-list(APPEND LINK_LIBS blas)
-list(APPEND LINK_LIBS gfortran)
-list(APPEND LINK_LIBS quadmath)
 
 # Include directories
 include_directories(.)
