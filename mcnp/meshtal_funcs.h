@@ -27,7 +27,7 @@ extern "C" {
     #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
   #elif defined(__CNUC__) || defined(__GNUG__)
     /* gcc/gfortran 4.3 and above: name mangling is '__<module>_MOD_<function>' */
-    #elif ( __GNUC__ > 4 ) || ( __GNUC__ == 4  && __GNUC_MINOR__ >= 3 )
+    #if ( __GNUC__ > 4 ) || ( __GNUC__ == 4  && __GNUC_MINOR__ >= 3 )
       #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
     /* gcc/gfortran < 4.3: name mangling is '__<module>__<function>' */
     #elif ( __GNUC__ == 4)
