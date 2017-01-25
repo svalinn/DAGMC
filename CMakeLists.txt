@@ -48,6 +48,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 # Make sure we have HDF5 and MOAB
 find_package(HDF5 REQUIRED)
 find_package(MOAB REQUIRED)
+find_library(GFORTRAN_LIBRARY NAMES gfortran)
+find_library(QUADMATH_LIBRARY NAMES quadmath)
 
 # DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
 if (DAGMC_LIBRARIES)
