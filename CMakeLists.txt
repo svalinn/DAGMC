@@ -45,11 +45,18 @@ endif (STATIC_LIB)
 # Allow use of find_package(HDF5), find_package(MOAB), etc.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
+
 # Make sure we have HDF5 and MOAB
 find_package(HDF5 REQUIRED)
 find_package(MOAB REQUIRED)
-find_library(GFORTRAN_LIBRARY NAMES gfortran)
-find_library(QUADMATH_LIBRARY NAMES quadmath)
+find_library(GFORTRAN_LIBRARY NAMES gfortran
+  PATHS /usr/local/lib/gcc/6/ /usr/local/lib/gcc/5/ /usr/local/lib/gcc/4/
+        /lib /lib64 /usr/lib /usr/lib64)
+
+find_library(QUADMATH_LIBRARY NAMES quadmath
+  PATHS /usr/local/lib/gcc/6/ /usr/local/lib/gcc/5/ /usr/local/lib/gcc/4/
+        /lib /lib64 /usr/lib /usr/lib64
+)
 
 # DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
 if (DAGMC_LIBRARIES)
