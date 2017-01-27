@@ -1,7 +1,8 @@
 #include <DagMC.hpp>
 #include "moab/ProgOptions.hpp"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 
   std::string dag_file;
   std::string out_file;
@@ -16,7 +17,7 @@ int main(int argc, char* argv[]) {
   po.addOptionHelpHeading("Options for loading files");
 
   po.parseCommandLine(argc, argv);
-  
+
   // make new DagMC
   moab::DagMC *DAG = new moab::DagMC();
 

@@ -1,4 +1,4 @@
-message(STATUS "Building make_watertight")
+message(STATUS "Building build_obb")
 
 # Source files
 set(SRC_FILES)
