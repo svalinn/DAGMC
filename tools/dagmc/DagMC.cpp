@@ -1418,22 +1418,25 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   group_handles()[0] = 0;
   std::copy(groups.begin(), groups.end(), &group_handles()[1]);
 
+  // if we dont have a tree, dont setup these indices
+  if(have_obb_tree()) {
     // populate root sets vector
-  std::vector<EntityHandle> rsets;
-  rsets.resize(surfs.size());
-  rval = MBI->tag_get_data(obb_tag(), surfs, &rsets[0]);
-  if (MB_SUCCESS != rval) return MB_FAILURE;
-  Range::iterator rit;
-  int i;
-  for (i = 0, rit = surfs.begin(); rit != surfs.end(); ++rit, i++)
-    rootSets[*rit-setOffset] = rsets[i];
-
-  rsets.resize(vols.size());
-  rval = MBI->tag_get_data(obb_tag(), vols, &rsets[0]);
-  if (MB_SUCCESS != rval) return MB_FAILURE;
-  for (i = 0, rit = vols.begin(); rit != vols.end(); ++rit, i++)
-    rootSets[*rit-setOffset] = rsets[i];
-
+    std::vector<EntityHandle> rsets;
+    rsets.resize(surfs.size());
+    rval = MBI->tag_get_data(obb_tag(), surfs, &rsets[0]);
+    if (MB_SUCCESS != rval) return MB_FAILURE;
+    Range::iterator rit;
+    int i;
+    for (i = 0, rit = surfs.begin(); rit != surfs.end(); ++rit, i++)
+      rootSets[*rit-setOffset] = rsets[i];
+    
+    rsets.resize(vols.size());
+    rval = MBI->tag_get_data(obb_tag(), vols, &rsets[0]);
+    if (MB_SUCCESS != rval) return MB_FAILURE;
+    for (i = 0, rit = vols.begin(); rit != vols.end(); ++rit, i++)
+      rootSets[*rit-setOffset] = rsets[i];
+  }
+  
   return MB_SUCCESS;
 }
 
