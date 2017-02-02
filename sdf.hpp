@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <assert.h>
+#include "moab/Core.hpp"
 #include "moab/CartVect.hpp"
 
 namespace moab {
@@ -20,6 +21,10 @@ public:
   // distance between data points
   double step_size;
 
+  inline void get_llc(double &x, double &y, double &z) {
+    x = lower_left_corner[0]; y = lower_left_corner[1]; z = lower_left_corner[2];
+  }
+  
   inline void get_dims(int &x_steps, int &y_steps, int &z_steps) {
     x_steps = dims[0]; y_steps = dims[1]; z_steps = dims[2];    
   }
@@ -35,6 +40,8 @@ public:
   };
   
   inline void set_step(double step) { step_size = step; }
+
+  inline void get_step(double &step) { step = step_size; }
 
   inline void set_data(std::vector<double> data) {
     assert(data.size() == dims[0]*dims[1]*dims[2]);
@@ -55,7 +62,8 @@ public:
   void get_element_ijk(const double pnt[3], int &i, int &j, int &k);
   void get_element_ijk(const double pnt[3], int &i, int &j, int &k, bool &outside);
 
-
+  ErrorCode write_signed_distance_field_to_file(std::string filename);
+  
 };
 
 }

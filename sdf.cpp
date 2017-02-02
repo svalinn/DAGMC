@@ -1,6 +1,6 @@
 
-
 #include "sdf.hpp"
+#include "moab/ScdInterface.hpp"
 
 namespace moab {
 
@@ -76,4 +76,63 @@ namespace moab {
      }
   }
 
+  ErrorCode SignedDistanceField::write_signed_distance_field_to_file(std::string filename) {
+    //create new moab instance
+    moab::Interface* mbi = new moab::Core();
+    
+    ScdInterface* scdi  = new ScdInterface(mbi);
+
+    int num_x_steps,num_y_steps,num_z_steps;
+    get_dims(num_x_steps,num_y_steps,num_z_steps);
+
+    double x_min,y_min,z_min;
+    get_llc(x_min,y_min,z_min);
+
+    double step;
+    get_step(step);
+ 
+    //create the relevant locations and 
+    std::vector<double> pnts;
+    for(unsigned int k = 0; k < num_z_steps; k++){
+      for(unsigned int j = 0; j < num_y_steps; j++){
+    	for(unsigned int i = 0; i < num_x_steps; i++){
+    	  double xpnt = (i*step)+x_min;
+    	  double ypnt = (j*step)+y_min;
+    	  double zpnt = (k*step)+z_min;
+    	  pnts.push_back(xpnt);
+    	  pnts.push_back(ypnt);
+    	  pnts.push_back(zpnt);
+    	}
+      }
+    }
+
+    // now create an SCD box to track all of this info
+    HomCoord l = HomCoord(0,0,0);
+    HomCoord h = HomCoord(num_x_steps, num_y_steps, num_z_steps);
+    ScdBox *preCond;
+    ErrorCode rval = scdi->construct_box(l, h, &(pnts[0]), pnts.size(), preCond);
+
+    Tag sdfTag;
+    std::string tagname("SIGNED_DISTANCE_FIELD");
+    rval = mbi->tag_get_handle( tagname.c_str(), 1, MB_TYPE_DOUBLE, sdfTag, MB_TAG_DENSE|MB_TAG_CREAT );
+    MB_CHK_SET_ERR(rval, "Could not create the signed distance field tag.");
+
+    for(unsigned int k = 0 ; k < num_z_steps; k++){
+       for(unsigned int j = 0 ; j < num_y_steps; j++){  
+	 for(unsigned int i = 0 ; i < num_x_steps; i++){
+	   
+	   EntityHandle vert = preCond->get_vertex(i,j,k);
+	   double sdv = get_data_ijk(i,j,k);
+	   void *ptr = &sdv;
+	   rval = mbi->tag_set_data(sdfTag, &vert, 1, ptr);
+	   MB_CHK_SET_ERR(rval, "Could not tag vert with signed distance value");
+	   
+	 }
+       }
+    }
+
+    rval = mbi->write_mesh(filename.c_str());
+    MB_CHK_SET_ERR(rval,"Could not write signed distance field to file");
+    
+  }
 }
