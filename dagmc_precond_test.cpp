@@ -89,14 +89,12 @@ CartVect nearest_on_cylinder(CartVect point, double height, double radius) {
     nearest_to_lids = CartVect(point[0],point[1],-height/2);
   }
 
-  //  std::cout << nearest_to_lids << std::endl;
-  
   // find nearest point on an infinite barrel
   CartVect nearest_to_inf_barrel = (point[0] == 0 && point[1] == 0) ? CartVect(1,1,0) : CartVect(point[0],point[1],0);
   nearest_to_inf_barrel.normalize();
   nearest_to_inf_barrel*=5;
   nearest_to_inf_barrel[2] = point[2];
-  //  std::cout << nearest_to_inf_barrel << std::endl;
+
   // check if point is inside or outside the barrel
   if(CartVect(point[0],point[1],0).length() <= radius) {
     // point is inside the barrel, then check for the minimum between the barrel and lids
@@ -164,7 +162,6 @@ ErrorCode test_sphere(){
 };
 
 ErrorCode test_cylinder(){
-
   ErrorCode rval;
   DagMC* dagmc;
   SignedDistanceField* box = NULL;
@@ -180,12 +177,9 @@ ErrorCode test_cylinder(){
   for(unsigned int i = 0 ; i < xints; i++){
     for(unsigned int j = 0 ; j < yints; j++){
       for(unsigned int k = 0 ; k < zints; k++){
-	//retrieve vertex handle from box
-	// EntityHandle vert = box->get_vertex(i,j,k);
+
 	//get the vertex coordinates
 	CartVect vert_coords = box->get_vert_coords(i,j,k);
-	// rval = dagmc->moab_instance()->get_coords(&vert, 1, vert_coords.array());
-	// MB_CHK_SET_ERR(rval,"Could not get SCD vertex coords");
 
 	//get the distance to the nearest point on the sphere
 	double cylinder_radius = 5, cylinder_height = 5;
@@ -194,13 +188,11 @@ ErrorCode test_cylinder(){
 	
 	//retrieve the stored distance value of this vertex
 	double distance = box->get_data_ijk(i,j,k);
-	// void *ptr = &distance;
-	// rval = dagmc->moab_instance()->tag_get_data( sdfTag, &vert, 1, ptr);
-	// MB_CHK_SET_ERR(rval,"Could not retrieve signed distance field tag value");
 	distance = fabs(distance);
 	
 	//use facet tolerance as maximal error
 	double facet_tol = dagmc->faceting_tolerance();
+	
 	//compare the values - they should be off by no more than the faceting tolerance
 	if(fabs(expected_distance-distance) > facet_tol) {
 	  std::cout << 
