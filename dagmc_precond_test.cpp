@@ -203,6 +203,7 @@ ErrorCode test_cylinder(){
 	double facet_tol = dagmc->faceting_tolerance();
 	//compare the values - they should be off by no more than the faceting tolerance
 	if(fabs(expected_distance-distance) > facet_tol) {
+	  std::cout << 
 	  std::cout << vert_coords << std::endl;
 	  std::cout << expected_distance << std::endl;
 	  std::cout << distance << std::endl;
