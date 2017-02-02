@@ -1,42 +1,45 @@
 
 #include "sdf.hpp"
-#include "moab/ScdInterface.hpp"
 
 namespace moab {
 
-// Constructor
-//  SignedDistanceField::SignedDistanceField() {};
+  // Constructors
+  SignedDistanceField::SignedDistanceField(double x_min, double y_min, double z_min, double mesh_step_size, int num_x_points, int num_y_points, int num_z_points) {
+    lower_left_corner[0] = x_min; lower_left_corner[1] = y_min; lower_left_corner[2] = z_min;
+    step_size = mesh_step_size;
+    dims[0] = num_x_points; dims[1] = num_y_points; dims[2] = num_z_points;
+  }
 
   double SignedDistanceField::find_sdv(const double pnt[3]) {
 
     //first figure out what element we're in
     int i,j,k;
     bool outside;
-    get_element_ijk(pnt,i,j,k,outside);
+    get_element_indices_for_pnt(pnt,i,j,k,outside);
 
     //if point is outside the data structure, return big negative value
     return -1.e37;
 
     //now get the data for that element and construct associated points
     double sdvs[8];
-    sdvs[0] = signed_distance_values[(i)+(j)*dims[0]+(k)*dims[0]*dims[1]];
-    sdvs[1] = signed_distance_values[(i+1)+(j)*dims[0]+(k)*dims[0]*dims[1]];
-    sdvs[2] = signed_distance_values[(i+1)+(j+1)*dims[0]+(k)*dims[0]*dims[1]];
-    sdvs[3] = signed_distance_values[(i)+(j+1)*dims[0]+(k)*dims[0]*dims[1]];
-    sdvs[4] = signed_distance_values[(i)+(j)*dims[0]+(k+1)*dims[0]*dims[1]];
-    sdvs[5] = signed_distance_values[(i+1)+(j)*dims[0]+(k+1)*dims[0]*dims[1]];
-    sdvs[6] = signed_distance_values[(i+1)+(j+1)*dims[0]+(k+1)*dims[0]*dims[1]];
-    sdvs[7] = signed_distance_values[(i)+(j+1)*dims[0]+(k+1)*dims[0]*dims[1]];
+    sdvs[0] = get_data(i,j,k);
+    sdvs[1] = get_data(i+1,j,k);
+    sdvs[2] = get_data(i+1,j+1,k);
+    sdvs[3] = get_data(i,j+1,k);
+    sdvs[4] = get_data(i,j,k+1);
+    sdvs[5] = get_data(i+1,j,k+1);
+    sdvs[6] = get_data(i+1,j+1,k+1);
+    sdvs[7] = get_data(i,j+1,k+1);
 
     CartVect coords[8];
-    coords[0] = CartVect((i)*step_size,(j)*step_size,(k)*step_size);
-    coords[1] = CartVect((i+1)*step_size,(j)*step_size,(k)*step_size);
-    coords[2] = CartVect((i+1)*step_size,(j+1)*step_size,(k)*step_size);
-    coords[3] = CartVect((i)*step_size,(j+1)*step_size,(k)*step_size);
-    coords[4] = CartVect((i)*step_size,(j)*step_size,(k+1)*step_size);
-    coords[5] = CartVect((i+1)*step_size,(j)*step_size,(k+1)*step_size);
-    coords[6] = CartVect((i+1)*step_size,(j+1)*step_size,(k+1)*step_size);
-    coords[7] = CartVect((i)*step_size,(j+1)*step_size,(k+1)*step_size);
+    coords[0] = get_coords(i,j,k);
+    coords[1] = get_coords(i+1,j,k);
+    coords[2] = get_coords(i+1,j+1,k);
+    coords[3] = get_coords(i,j+1,k);
+    coords[4] = get_coords(i,j,k+1);
+    coords[5] = get_coords(i+1,j,k+1);
+    coords[6] = get_coords(i+1,j+1,k+1);
+    coords[7] = get_coords(i,j+1,k+1);
 
     //interpolate in x
     double a,b,c,d;
@@ -59,7 +62,7 @@ namespace moab {
   }
 
   
-  void SignedDistanceField::get_element_ijk(const double pnt[3], int &i, int &j, int &k) {
+  void SignedDistanceField::get_element_indices_for_pnt(const double pnt[3], int &i, int &j, int &k) {
     CartVect this_pnt(pnt);
     CartVect llc(lower_left_corner);
     CartVect vec = this_pnt-llc;
@@ -69,16 +72,21 @@ namespace moab {
   }
 
 
-  void SignedDistanceField::get_element_ijk(const double pnt[3], int &i, int &j, int &k, bool &outside) {
-    get_element_ijk(pnt, i, j, k);
+  void SignedDistanceField::get_element_indices_for_pnt(const double pnt[3], int &i, int &j, int &k, bool &outside) {
+    get_element_indices_for_pnt(pnt, i, j, k);
     if( i < 0 || j < 0 || k < 0 || i > dims[0]-2 || j > dims[1]-2 || k > dims[2]-2) {
     outside = true;
      }
   }
 
-  ErrorCode SignedDistanceField::write_signed_distance_field_to_file(std::string filename) {
-    //create new moab instance
-    moab::Interface* mbi = new moab::Core();
+  ErrorCode SignedDistanceField::create_scdBox(ScdBox *sdfBox, Interface* mbi) {
+
+    //create new moab instance if one doesn't already exist
+    bool created_new_moab = false;
+    if( !mbi ) {
+      Interface* mbi = new Core();
+      created_new_moab = true;
+    }
     
     ScdInterface* scdi  = new ScdInterface(mbi);
 
@@ -109,29 +117,33 @@ namespace moab {
     // now create an SCD box to track all of this info
     HomCoord l = HomCoord(0,0,0);
     HomCoord h = HomCoord(num_x_steps, num_y_steps, num_z_steps);
-    ScdBox *sdfBox;
     ErrorCode rval = scdi->construct_box(l, h, &(pnts[0]), pnts.size(), sdfBox);
 
     Tag sdfTag;
-    std::string tagname("SIGNED_DISTANCE_FIELD");
-    rval = mbi->tag_get_handle( tagname.c_str(), 1, MB_TYPE_DOUBLE, sdfTag, MB_TAG_DENSE|MB_TAG_CREAT );
+    rval = mbi->tag_get_handle( sdf_tag_name.c_str(), 1, MB_TYPE_DOUBLE, sdfTag, MB_TAG_DENSE|MB_TAG_CREAT );
     MB_CHK_SET_ERR(rval, "Could not create the signed distance field tag.");
     for(unsigned int k = 0 ; k < num_z_steps; k++){
        for(unsigned int j = 0 ; j < num_y_steps; j++){  
 	 for(unsigned int i = 0 ; i < num_x_steps; i++){
 	   EntityHandle vert = sdfBox->get_vertex(i,j,k);
-	   double sdv = get_data_ijk(i,j,k);
+	   double sdv = get_data(i,j,k);
 	   void *ptr = &sdv;
 	   rval = mbi->tag_set_data(sdfTag, &vert, 1, ptr);
 	   MB_CHK_SET_ERR(rval, "Could not tag vert with signed distance value");
 	 }
        }
     }
-    rval = mbi->write_mesh(filename.c_str());
-    MB_CHK_SET_ERR(rval,"Could not write signed distance field to file");
+  
+    //if we had to create a new moab instance, clean it out and the ptr
+    if(created_new_moab) {
+      rval = mbi->delete_mesh();
+      MB_CHK_SET_ERR(rval,"Could not delete the mesh");
+      delete mbi;
+    }    
 
-    //clean out the instance
-    rval = mbi->delete_mesh();
-    MB_CHK_SET_ERR(rval,"Could not delete the mesh");
+    delete scdi;
+
+    return MB_SUCCESS;
   }
+  
 }
