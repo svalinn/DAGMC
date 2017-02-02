@@ -29,7 +29,7 @@ int main() {
   return 0;
 }
 
-ErrorCode dag_init_file(char *filename, DagMC* &dagmc, ScdBox* &box) {
+ErrorCode dag_init_file(char *filename, DagMC* &dagmc, SignedDistanceField* &box) {
   //create a new dagmc instance and load the file
   ErrorCode rval;
   dagmc = new DagMC();
@@ -63,6 +63,11 @@ ErrorCode dag_init_file(char *filename, DagMC* &dagmc, ScdBox* &box) {
 
 // returns the nearest point on a sphere centered on the origin
 CartVect nearest_on_sphere(CartVect point, double radius) {
+  //exception for the origin
+  if( point.length() == 0 ) {
+    return radius*CartVect(1.0,0.0,0.0);
+  }
+  
   CartVect nearest_location = point;
   //get unit direction vector from origin
   nearest_location.normalize();
@@ -114,7 +119,7 @@ ErrorCode test_sphere(){
 
   ErrorCode rval;
   DagMC* dagmc;
-  ScdBox* box = NULL;
+  SignedDistanceField* box = NULL;
 
   char *filename = STRINGIFY(MESHDIR) "/sphere_rad5.h5m";
   rval = dag_init_file(filename, dagmc, box);
@@ -123,17 +128,14 @@ ErrorCode test_sphere(){
   //get the signed distance field tag
   Tag sdfTag = dagmc->sdf_tag();
   int xints, yints, zints;
-  box->box_size(xints,yints,zints);
+  box->get_dims(xints,yints,zints);
   for(unsigned int i = 0 ; i < xints; i++){
     for(unsigned int j = 0 ; j < yints; j++){
       for(unsigned int k = 0 ; k < zints; k++){
-	//retrieve vertex handle from box
-	EntityHandle vert = box->get_vertex(i,j,k);
-	//get the vertex coordinates
-	CartVect vert_coords;
-	rval = dagmc->moab_instance()->get_coords(&vert, 1, vert_coords.array());
-	MB_CHK_SET_ERR(rval,"Could not get SCD vertex coords");
 
+	//get the vertex coordinates
+	CartVect vert_coords = box->get_vert_coords(i,j,k);
+	
 	//get the distance to the nearest point on the sphere
 	double sphere_radius = 5;
 	CartVect expected_location = nearest_on_sphere(vert_coords, sphere_radius);
@@ -142,8 +144,7 @@ ErrorCode test_sphere(){
 	//retrieve the stored distance value of this vertex
 	double distance;
 	void *ptr = &distance;
-	rval = dagmc->moab_instance()->tag_get_data( sdfTag, &vert, 1, ptr);
-	MB_CHK_SET_ERR(rval,"Could not retrieve signed distance field tag value");
+	distance = box->get_data_ijk(i,j,k);
 	distance = fabs(distance);
 	
 	//use facet tolerance as maximal error
@@ -166,7 +167,7 @@ ErrorCode test_cylinder(){
 
   ErrorCode rval;
   DagMC* dagmc;
-  ScdBox* box = NULL;
+  SignedDistanceField* box = NULL;
 
   char *filename = STRINGIFY(MESHDIR) "/cyl_h5_r5.h5m";
   rval = dag_init_file(filename, dagmc, box);
@@ -175,27 +176,27 @@ ErrorCode test_cylinder(){
   //get the signed distance field tag
   Tag sdfTag = dagmc->sdf_tag();
   int xints, yints, zints;
-  box->box_size(xints,yints,zints);
+  box->get_dims(xints,yints,zints);
   for(unsigned int i = 0 ; i < xints; i++){
     for(unsigned int j = 0 ; j < yints; j++){
       for(unsigned int k = 0 ; k < zints; k++){
 	//retrieve vertex handle from box
-	EntityHandle vert = box->get_vertex(i,j,k);
+	// EntityHandle vert = box->get_vertex(i,j,k);
 	//get the vertex coordinates
-	CartVect vert_coords;
-	rval = dagmc->moab_instance()->get_coords(&vert, 1, vert_coords.array());
-	MB_CHK_SET_ERR(rval,"Could not get SCD vertex coords");
+	CartVect vert_coords = box->get_vert_coords(i,j,k);
+	// rval = dagmc->moab_instance()->get_coords(&vert, 1, vert_coords.array());
+	// MB_CHK_SET_ERR(rval,"Could not get SCD vertex coords");
 
 	//get the distance to the nearest point on the sphere
 	double cylinder_radius = 5, cylinder_height = 5;
-	CartVect expected_location = nearest_on_cylinder(vert_coords, cylinder_radius, cylinder_radius);
+	CartVect expected_location = nearest_on_cylinder(vert_coords, cylinder_radius, cylinder_height);
 	double expected_distance = fabs((vert_coords-expected_location).length());
 	
 	//retrieve the stored distance value of this vertex
-	double distance;
-	void *ptr = &distance;
-	rval = dagmc->moab_instance()->tag_get_data( sdfTag, &vert, 1, ptr);
-	MB_CHK_SET_ERR(rval,"Could not retrieve signed distance field tag value");
+	double distance = box->get_data_ijk(i,j,k);
+	// void *ptr = &distance;
+	// rval = dagmc->moab_instance()->tag_get_data( sdfTag, &vert, 1, ptr);
+	// MB_CHK_SET_ERR(rval,"Could not retrieve signed distance field tag value");
 	distance = fabs(distance);
 	
 	//use facet tolerance as maximal error
