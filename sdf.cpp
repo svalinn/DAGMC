@@ -12,7 +12,11 @@ namespace moab {
 
     //first figure out what element we're in
     int i,j,k;
-    get_element_ijk(pnt,i,j,k);
+    bool outside;
+    get_element_ijk(pnt,i,j,k,outside);
+
+    //if point is outside the data structure, return big negative value
+    return -1.e37;
 
     //now get the data for that element and construct associated points
     double sdvs[8];
@@ -53,7 +57,7 @@ namespace moab {
     double result = aa+((bb-aa)/(coords[5][2]-coords[1][2]))*(pnt[2]-coords[1][2]);
 
     return result;
-  };
+  }
 
   
   void SignedDistanceField::get_element_ijk(const double pnt[3], int &i, int &j, int &k) {
@@ -63,7 +67,7 @@ namespace moab {
     i = vec[0]/step_size;
     j = vec[1]/step_size;
     k = vec[2]/step_size;
-  };
+  }
 
 
   void SignedDistanceField::get_element_ijk(const double pnt[3], int &i, int &j, int &k, bool &outside) {
@@ -71,6 +75,6 @@ namespace moab {
     if( i < 0 || j < 0 || k < 0 || i > dims[0]-2 || j > dims[1]-2 || k > dims[2]-2) {
     outside = true;
      }
-  };
+  }
 
 }
