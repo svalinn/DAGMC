@@ -42,7 +42,7 @@ public:
   }
 
   inline CartVect get_vert_coords(int i, int j, int k){
-    return CartVect((i)*step_size,(j)*step_size,(k)*step_size);
+    return CartVect(lower_left_corner)+((i)*step_size,(j)*step_size,(k)*step_size);
   }
 
   inline double get_data_ijk(int i, int j, int k) {
