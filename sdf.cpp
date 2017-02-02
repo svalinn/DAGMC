@@ -1,7 +1,6 @@
 
 
 #include "sdf.hpp"
-#include "moab/CartVect.hpp"
 
 namespace moab {
 
