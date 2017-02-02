@@ -88,17 +88,17 @@ namespace moab {
     double x_min,y_min,z_min;
     get_llc(x_min,y_min,z_min);
 
-    double step;
-    get_step(step);
+    double step_size;
+    get_step(step_size);
  
     //create the relevant locations and 
     std::vector<double> pnts;
     for(unsigned int k = 0; k < num_z_steps; k++){
       for(unsigned int j = 0; j < num_y_steps; j++){
     	for(unsigned int i = 0; i < num_x_steps; i++){
-    	  double xpnt = (i*step)+x_min;
-    	  double ypnt = (j*step)+y_min;
-    	  double zpnt = (k*step)+z_min;
+    	  double xpnt = (i*step_size)+x_min;
+    	  double ypnt = (j*step_size)+y_min;
+    	  double zpnt = (k*step_size)+z_min;
     	  pnts.push_back(xpnt);
     	  pnts.push_back(ypnt);
     	  pnts.push_back(zpnt);
@@ -109,30 +109,29 @@ namespace moab {
     // now create an SCD box to track all of this info
     HomCoord l = HomCoord(0,0,0);
     HomCoord h = HomCoord(num_x_steps, num_y_steps, num_z_steps);
-    ScdBox *preCond;
-    ErrorCode rval = scdi->construct_box(l, h, &(pnts[0]), pnts.size(), preCond);
+    ScdBox *sdfBox;
+    ErrorCode rval = scdi->construct_box(l, h, &(pnts[0]), pnts.size(), sdfBox);
 
     Tag sdfTag;
     std::string tagname("SIGNED_DISTANCE_FIELD");
     rval = mbi->tag_get_handle( tagname.c_str(), 1, MB_TYPE_DOUBLE, sdfTag, MB_TAG_DENSE|MB_TAG_CREAT );
     MB_CHK_SET_ERR(rval, "Could not create the signed distance field tag.");
-
     for(unsigned int k = 0 ; k < num_z_steps; k++){
        for(unsigned int j = 0 ; j < num_y_steps; j++){  
 	 for(unsigned int i = 0 ; i < num_x_steps; i++){
-	   
-	   EntityHandle vert = preCond->get_vertex(i,j,k);
+	   EntityHandle vert = sdfBox->get_vertex(i,j,k);
 	   double sdv = get_data_ijk(i,j,k);
 	   void *ptr = &sdv;
 	   rval = mbi->tag_set_data(sdfTag, &vert, 1, ptr);
 	   MB_CHK_SET_ERR(rval, "Could not tag vert with signed distance value");
-	   
 	 }
        }
     }
-
     rval = mbi->write_mesh(filename.c_str());
     MB_CHK_SET_ERR(rval,"Could not write signed distance field to file");
-    
+
+    //clean out the instance
+    rval = mbi->delete_mesh();
+    MB_CHK_SET_ERR(rval,"Could not delete the mesh");
   }
 }
