@@ -132,7 +132,7 @@ ErrorCode test_sphere(){
       for(unsigned int k = 0 ; k < zints; k++){
 
 	//get the vertex coordinates
-	CartVect vert_coords = box->get_vert_coords(i,j,k);
+	CartVect vert_coords = box->get_coords(i,j,k);
 	
 	//get the distance to the nearest point on the sphere
 	double sphere_radius = 5;
@@ -142,7 +142,7 @@ ErrorCode test_sphere(){
 	//retrieve the stored distance value of this vertex
 	double distance;
 	void *ptr = &distance;
-	distance = box->get_data_ijk(i,j,k);
+	distance = box->get_data(i,j,k);
 	distance = fabs(distance);
 	
 	//use facet tolerance as maximal error
@@ -179,7 +179,7 @@ ErrorCode test_cylinder(){
       for(unsigned int k = 0 ; k < zints; k++){
 
 	//get the vertex coordinates
-	CartVect vert_coords = box->get_vert_coords(i,j,k);
+	CartVect vert_coords = box->get_coords(i,j,k);
 
 	//get the distance to the nearest point on the sphere
 	double cylinder_radius = 5, cylinder_height = 5;
@@ -187,7 +187,7 @@ ErrorCode test_cylinder(){
 	double expected_distance = fabs((vert_coords-expected_location).length());
 	
 	//retrieve the stored distance value of this vertex
-	double distance = box->get_data_ijk(i,j,k);
+	double distance = box->get_data(i,j,k);
 	distance = fabs(distance);
 	
 	//use facet tolerance as maximal error
