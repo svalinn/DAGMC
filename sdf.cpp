@@ -18,7 +18,9 @@ namespace moab {
     get_element_indices_for_pnt(pnt,i,j,k,outside);
 
     //if point is outside the data structure, return big negative value
+    if(outside) {
     return -1.e37;
+    }
 
     //now get the data for that element and construct associated points
     double sdvs[8];
@@ -75,8 +77,11 @@ namespace moab {
   void SignedDistanceField::get_element_indices_for_pnt(const double pnt[3], int &i, int &j, int &k, bool &outside) {
     get_element_indices_for_pnt(pnt, i, j, k);
     if( i < 0 || j < 0 || k < 0 || i > dims[0]-2 || j > dims[1]-2 || k > dims[2]-2) {
-    outside = true;
+      outside = true;
      }
+    else {
+      outside = false;
+    }
   }
 
   ErrorCode SignedDistanceField::create_scdBox(ScdBox *sdfBox, Interface* mbi) {

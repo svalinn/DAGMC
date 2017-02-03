@@ -48,7 +48,7 @@ public:
 
   // get the coordinates of a point at the i,j,k index
   inline CartVect get_coords(int i, int j, int k){
-    return CartVect(lower_left_corner)+((i)*step_size,(j)*step_size,(k)*step_size);
+    return CartVect(lower_left_corner)+CartVect((i)*step_size,(j)*step_size,(k)*step_size);
   }
 
   // get the data at the i,j,k index
