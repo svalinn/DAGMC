@@ -49,11 +49,20 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 # Make sure we have HDF5 and MOAB
 find_package(HDF5 REQUIRED)
 find_package(MOAB REQUIRED)
+
+# find the gfortran library name, this is required for OS/X which uses a variety
+# of package managers to install gfortan and caould be in a number of places
 find_library(GFORTRAN_LIBRARY NAMES gfortran libgfortran
   PATHS /usr/local/lib/gcc/*/ /lib /lib64 /usr/lib /usr/lib64 /usr/lib/gcc/*/*)
 
+# similarly to libgfortran could be in a number of places, and for OS/X
 find_library(QUADMATH_LIBRARY NAMES quadmath libquadmath
   PATHS /usr/local/lib/gcc/*/ /lib /lib64 /usr/lib /usr/lib64 /usr/lib/gcc/*/*)
+string(FIND ${QUADMATH_LIBRARY} "" QUADMATH_FOUND)
+# for some systems quadmath not found, and not actually needed
+if(${QUADMATH_FOUND} EQUAL 0)
+  set(QUADMATH_LIBRARY "")
+endif()
 
 # DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
 if (DAGMC_LIBRARIES)
