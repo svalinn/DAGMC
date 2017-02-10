@@ -110,7 +110,7 @@ DagSolid::DagSolid (const G4String &name, DagMC* dagmc, int volID)
 
   double min[3],max[3];
   fdagmc->getobb(fvolEntity,min,max);
-  
+
   xMinExtent =  min[0];
   xMaxExtent =  max[0];
   yMinExtent =  min[1];

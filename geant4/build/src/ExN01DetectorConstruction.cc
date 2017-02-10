@@ -118,9 +118,9 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct()
     // make new logical volume
     std::string material_name = mat_name;
     if( mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
-      material_name = "mat:Vacuum"; 
+      material_name = "mat:Vacuum";
     }
-    
+
     G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol,material_lib[material_name],
         "vol_"+idx_str+"_log",0,0,0);
     dag_logical_volumes[dag_idx]=dag_vol_log;

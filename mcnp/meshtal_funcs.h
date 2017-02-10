@@ -18,32 +18,32 @@ extern "C" {
    * and should only be called from within meshtal_funcs.cpp
    */
 
-/** FORT_FUNC:
- * Macro to access symbol of fortran function 'func' in module 'mod'
- */
+  /** FORT_FUNC:
+   * Macro to access symbol of fortran function 'func' in module 'mod'
+   */
 #ifndef FORT_FUNC
-  #if defined(__clang__)
-    /* clang/gfortran naming scheme" ___<module>_mod_MOD_<function> */
-    #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
-  #elif defined(__CNUC__) || defined(__GNUG__)
-    /* gcc/gfortran 4.3 and above: name mangling is '__<module>_MOD_<function>' */
-    #if ( __GNUC__ > 4 ) || ( __GNUC__ == 4  && __GNUC_MINOR__ >= 3 )
-      #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
-    /* gcc/gfortran < 4.3: name mangling is '__<module>__<function>' */
-    #elif ( __GNUC__ == 4)
-     #define FORT_FUNC( mod, func ) __##mod##__##func
-    #else
-      #error "Some unknown GCC compiler version"
-    #endif
-  #elif defined __INTEL_COMPILER
-    /* intel fortran: name mangling is '<module>_mp_<function>_' */
-    #define FORT_FUNC( mod, func ) mod##_mp_##func##_
-  #else
-    #error "Some unknown C++ compiler"
-    /* Comment out this error to force compile to proceed; it may or may not work */
-    #error "DagMC: unknown compiler with unknown fortran name mangling scheme."
-    #define FORT_FUNC( mod, func ) __##mod##__##func
-  #endif
+#if defined(__clang__)
+  /* clang/gfortran naming scheme" ___<module>_mod_MOD_<function> */
+#define FORT_FUNC( mod, func ) __##mod##_MOD_##func
+#elif defined(__CNUC__) || defined(__GNUG__)
+  /* gcc/gfortran 4.3 and above: name mangling is '__<module>_MOD_<function>' */
+#if ( __GNUC__ > 4 ) || ( __GNUC__ == 4  && __GNUC_MINOR__ >= 3 )
+#define FORT_FUNC( mod, func ) __##mod##_MOD_##func
+  /* gcc/gfortran < 4.3: name mangling is '__<module>__<function>' */
+#elif ( __GNUC__ == 4)
+#define FORT_FUNC( mod, func ) __##mod##__##func
+#else
+#error "Some unknown GCC compiler version"
+#endif
+#elif defined __INTEL_COMPILER
+  /* intel fortran: name mangling is '<module>_mp_<function>_' */
+#define FORT_FUNC( mod, func ) mod##_mp_##func##_
+#else
+#error "Some unknown C++ compiler"
+  /* Comment out this error to force compile to proceed; it may or may not work */
+#error "DagMC: unknown compiler with unknown fortran name mangling scheme."
+#define FORT_FUNC( mod, func ) __##mod##__##func
+#endif
 #endif
 
 #define FMESH_FUNC( func ) FORT_FUNC( fmesh_mod, func )
