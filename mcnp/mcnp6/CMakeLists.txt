@@ -152,6 +152,9 @@ add_definitions(-DLAQGSM=ON)
 if (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1beta)
   add_definitions(-DUOD=ON)
 endif (${MCNP_VERSION} STREQUAL 6.1 OR ${MCNP_VERSION} STREQUAL 6.1.1beta)
+if (MESHTAL_DEBUG)
+  add_definitions(-DMESHTAL_DEBUG=ON)
+endif (MESHTAL_DEBUG)
 
 # Make sure DATAPATH is set
 if (MCNP6_DATAPATH)

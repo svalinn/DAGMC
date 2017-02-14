@@ -243,24 +243,8 @@ Tally *TallyManager::createTally(unsigned int tally_id,
     return NULL;
   }
 
-  switch (particle) {
-  case 1:
-    input.particle = TallyInput::NEUTRON;
-    break;
-
-  case 2:
-    input.particle = TallyInput::PHOTON;
-    break;
-
-  case 3:
-    input.particle = TallyInput::ELECTRON;
-    break;
-
-  default:
-    input.particle = TallyInput::NEUTRON;
-  }
-
   // Set up the input structure from the passed parameters
+  input.particle          = particle;
   input.tally_id          = tally_id;
   input.tally_type        = tally_type;
   input.energy_bin_bounds = energy_bin_bounds;

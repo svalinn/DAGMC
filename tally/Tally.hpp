@@ -34,8 +34,7 @@ struct TallyInput {
   std::string tally_type;
 
   /// Defines type of particle that is tallied by this Tally
-  enum ParticleType {NEUTRON = 1, PHOTON = 2, ELECTRON = 3};
-  ParticleType particle;
+  unsigned int particle;
 
   /// Energy bin boundaries defined for all tally points
   std::vector<double> energy_bin_bounds;
