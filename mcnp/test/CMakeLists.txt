@@ -18,7 +18,7 @@ include_directories(${GTEST_INCLUDE_DIR})
 # Setup unit tests
 set(TEST_NAME dagmcnp_unit_tests)
 set(DRIVER mcnp5_unit_test_driver.cc)
-add_executable(${test_name} R{TEST_NAME}.cpp ../mcnp_funcs.cpp ${DRIVER})
+add_executable(${TEST_NAME} ${TEST_NAME}.cpp ../mcnp_funcs.cpp ${DRIVER})
 target_link_libraries(${TEST_NAME} "${LINK_LIBS}")
 install(TARGETS ${TEST_NAME} DESTINATION tests
                              PERMISSIONS ${PERMS})
