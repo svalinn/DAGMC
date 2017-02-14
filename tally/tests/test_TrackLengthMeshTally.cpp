@@ -1181,10 +1181,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayNeutron)
 
   mod_event(event, 1.0, 1.0, 1.0);
   tallyManager->setTrackEvent(event.particle,
-      event.position[0], event.position[1], event.position[2],
-      event.direction[0], event.direction[1], event.direction[2],
-      event.particle_energy, event.particle_weight, event.track_length,
-      event.current_cell);
+                              event.position[0], event.position[1], event.position[2],
+                              event.direction[0], event.direction[1], event.direction[2],
+                              event.particle_energy, event.particle_weight, event.track_length,
+                              event.current_cell);
   tallyManager->updateTallies();
   tallyManager->endHistory();
 
@@ -1219,10 +1219,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayProton)
 
   mod_event(event, 1.0, 1.0, 1.0);
   tallyManager->setTrackEvent(event.particle,
-      event.position[0], event.position[1], event.position[2],
-      event.direction[0], event.direction[1], event.direction[2],
-      event.particle_energy, event.particle_weight, event.track_length,
-      event.current_cell);
+                              event.position[0], event.position[1], event.position[2],
+                              event.direction[0], event.direction[1], event.direction[2],
+                              event.particle_energy, event.particle_weight, event.track_length,
+                              event.current_cell);
   tallyManager->updateTallies();
   tallyManager->endHistory();
 
