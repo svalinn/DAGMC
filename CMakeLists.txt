@@ -102,3 +102,9 @@ add_subdirectory(common)
 
 # Build tools
 add_subdirectory(tools)
+
+# Build tests that wouldn't normally be built for the CI
+if (BUILD_TESTS)
+  add_subdirectory(tally)
+  add_subdirectory(mcnp/test)
+endif (BUILD_TESTS)

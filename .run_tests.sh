@@ -32,12 +32,12 @@ cd tests
 ./dagmcnp_unit_tests
 # if this is not a pull request, run regression tests
 if [ ! -z $TRAVIS_PULL_REQUEST ] && [ $TRAVIS_PULL_REQUEST == "false" ] ; then
-    wget $MW_REG_TEST_MODELS_URL -O mw_reg_test_files.tar.gz -o wget.out
-    tar xzvf mw_reg_test_files.tar.gz
-    ./make_watertight_regression_tests
-    if [ $? != 0 ]; then
-	exit 1
-    fi
+  wget $MW_REG_TEST_MODELS_URL -O mw_reg_test_files.tar.gz -o wget.out
+  tar xzvf mw_reg_test_files.tar.gz
+  ./make_watertight_regression_tests
+  if [ $? != 0 ]; then
+    exit 1
+  fi
 fi
 # move to the base directory
 cd ..
