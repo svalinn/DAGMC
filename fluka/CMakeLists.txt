@@ -28,7 +28,8 @@ target_link_libraries(fludag ${LINK_LIBS})
 install(TARGETS fludag LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                        ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
                        PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                       LIBRARY       PERMISSIONS ${PERMS})
+                       LIBRARY       PERMISSIONS ${PERMS}
+                       ARCHIVE       PERMISSIONS ${PERMS})
 
 # Build FluDAG
 add_subdirectory(build)
