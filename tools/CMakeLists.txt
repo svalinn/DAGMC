@@ -1,2 +1,3 @@
 add_subdirectory(astyle)
+add_subdirectory(build_obb)
 add_subdirectory(make_watertight)
