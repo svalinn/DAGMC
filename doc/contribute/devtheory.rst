@@ -154,10 +154,10 @@ Ray History
 
 DAGMC implements a class called RayHistory which is local to the DAGMC class.
 The ray history stores a vector containing all the entity handles of the triangles
-that the ray has crossed. This structure can be emptied (reset), the last
-entry can be popped off and removed (rollback_last_intersection), or the
+that the ray has crossed. This structure can be emptied (``reset``), the last
+entry can be popped off and removed (``rollback_last_intersection``), or the
 entire history can be removed with the exception of the last intersection which forms
-the basis of the new RayHistory (reset_to_last_intersection). The purpose of the
+the basis of the new RayHistory (``reset_to_last_intersection``). The purpose of the
 class is to improve robustness of the ray queries inside of DAGMC for a number of
 purposes:
 
