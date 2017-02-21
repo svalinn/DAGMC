@@ -152,12 +152,28 @@ complement volume.
 Ray History
 ~~~~~~~~~~~
 
-A particle can be either streaming or reflecting. If streaming, the particle
-may only cross a particular surface once. To ensure this, a list (or history)
-of the surfaces that particle has crossed is maintained. If a surface encountered
-is reflecting, the particle does not cross that surface and is therefore should not
-be added to the history. If a particle changes directions, the
-history of crossed surfaces should be cleared.
+DAGMC implements a class called RayHistory which is local to the DAGMC class.
+The ray history stores a vector containing all the entity handles of the triangles
+that the ray has crossed. This structure can be emptied (reset), the last
+entry can be popped off and removed (rollback_last_intersection), or the
+entire history can be removed with the exception of the last intersection which forms
+the basis of the new RayHistory (reset_to_last_intersection). The purppose of the
+class is to improve robustness of the ray queries inside of DAGMC for a number of
+purposes:
+
+1. When a particle is streaming, to ensure that the same triangle cannot be hit twice
+2. When a particle is reflecting from a surface, to clear all history except the
+   triangle just hit
+3. When a particle is newly created or retrieved from the bank/stack and the RayHistory
+   should be cleared
+4. When a particle step was not fully taken, for example a sensing step or an interaction
+   occurred first, the RayHistory should be taken back to its previous state such that the
+   triangle could be hit again.
+
+The RayHistory class is an optional argument to the DAGMC ray functions, which will otherwise
+not retain nor exlude any intersections other than those not numerically possible.
+
+
 
 Point in Volume
 ~~~~~~~~~~~~~~~
