@@ -58,14 +58,15 @@ gh-preview html:
 
 gh-publish:
 	git checkout $(GH_PUBLISH_BRANCH)
-	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR)
+	rm -rf *
+	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR) Makefile gh-project.mk
 	git reset HEAD
 	make clean
 	make html
 	rsync -a $(BUILDDIR)/* .
 	rsync -a $(BUILDDIR)/.* .
-	git add `(cd $(BUILDDIR); find . -type f; cd ..)`
 	rm -rf $(GH_SOURCE_DIR) $(BUILDDIR)
+	git add .
 	git commit -m "Generated $(GH_PUBLISH_BRANCH) for `git log $(GH_SOURCE_BRANCH) -1 --pretty=short --abbrev-commit`" && git push $(GH_UPSTREAM_REPO) $(GH_PUBLISH_BRANCH)
 	git checkout $(GH_SOURCE_BRANCH)
 
