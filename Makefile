@@ -58,7 +58,7 @@ gh-preview html:
 
 gh-publish:
 	git checkout $(GH_PUBLISH_BRANCH)
-	rm -rf *
+	git rm -rf *
 	git checkout $(GH_SOURCE_BRANCH) -- $(GH_SOURCE_DIR) Makefile gh-project.mk
 	git reset HEAD
 	make clean
