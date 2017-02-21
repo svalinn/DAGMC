@@ -393,10 +393,6 @@ a native FLUKA problem, with the exception that we give the ``rfluka`` script an
 executable argument and a new ``-d`` argument, which specifies the geometry
 filename.
 ::
-<<<<<<< HEAD
-   %> $FLUPRO/flutil/rfluka -N0 -M1 -e /path/to/mainfludag -d example.h5m fluka.inp
-=======
->>>>>>> master
 
     $ $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
 
