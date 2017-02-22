@@ -243,3 +243,6 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# Default highlighting language
+highlight_language = 'none'
