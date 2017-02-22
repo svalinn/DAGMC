@@ -18,8 +18,8 @@ Note that unless set, all boolean options default to ``OFF``.
       will look for the data in the location specified by the ``$DATAPATH``
       environment variable instead.
 
-    * ``-DMPI_BUILD=ON`` If building DAG-MCNP5 or DAG-MCNP6, build an MPI
-      version.
+    * ``-DMPI_BUILD=ON`` If building DAG-MCNP5 and/or DAG-MCNP6, build MPI
+      versions.
 
     * ``-DBUILD_FLUKA=ON`` Build FluDAG. If this option is turned on,
       ``-DFLUKA_DIR`` must also be specified.

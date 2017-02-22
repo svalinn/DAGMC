@@ -1,6 +1,8 @@
 Understanding ray history state in DAG-MCNP5/6
 ==============================================
 
+Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6.
+
 Documenting calls to the track() method in MCNP
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

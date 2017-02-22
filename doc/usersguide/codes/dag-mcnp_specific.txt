@@ -1,6 +1,8 @@
 The DAG-MCNP input file
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6.
+
 The DAG-MCNP input file contains only the data cards section of a standard MCNP
 input file. There are no cell or surface cards included in the input file.
 
@@ -64,5 +66,3 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
 ::
 
     $ mcnp5 i=input g=geom.h5m l=lcad_modified
-
-Note that all the information here applies to DAG-MCNP5 as well as DAG-MCNP6.

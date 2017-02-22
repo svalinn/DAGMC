@@ -130,8 +130,8 @@ that would be performed on a normal operation, except that no data is actually
 written. This can be done to test your file to make sure all the expected
 materials are present in the file.
 
-MCNP-specific steps
-~~~~~~~~~~~~~~~~~~~~
+MCNP5/6-specific steps
+~~~~~~~~~~~~~~~~~~~~~~
 
 ..  include:: codes/dag-mcnp_specific.txt
 

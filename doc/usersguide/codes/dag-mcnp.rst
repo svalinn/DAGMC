@@ -1,5 +1,8 @@
-Code-specific steps for DAG-MCNP
-================================
+Code-specific steps for DAG-MCNP5/6
+===================================
+
+Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6, and
+the term "DAG-MCNP" refers to both.
 
 There are three varieties of code-specific steps for DAG-MCNP:
 

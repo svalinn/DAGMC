@@ -19,8 +19,8 @@ For DAG-Geant4, you will need to :ref:`install Geant4 <install_geant4>`.
 
 ..  include:: configure_dag-code_header.txt
 
-The following CMake command will build MPI versions of DAG-MCNP5 and DAG-MCNP6
-as well as DAG-Geant4 and FluDAG.
+The following CMake command will build DAG-Geant4 and FluDAG as well as MPI
+versions of DAG-MCNP5 and DAG-MCNP6.
 ::
 
     $ cmake .. -DBUILD_MCNP5=ON \
