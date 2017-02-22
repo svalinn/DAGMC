@@ -1,4 +1,4 @@
-Developer's Theory Guide
+Developer's theory guide
 ========================
 
 This guide is meant to give developers a comprehensive understanding of how
@@ -14,7 +14,7 @@ and attached to the DAGMC instance.
 Otherwise, a pointer to an existing MOAB instance can be passed in the
 constructor and a DAGMC instance will be attached to that existing MOAB instance.
 
-DAGMC Setup
+DAGMC setup
 ~~~~~~~~~~~~
 
 There are three main steps to setting up a DAGMC geometry. First the storage
@@ -39,7 +39,7 @@ surface. The curve entity sets contain edges and their vertices. The volume enti
 however, are empty. While a volume is parent to surfaces (the parent-child
 relationship), the volume does not contain any mesh entities.
 
-Sense Tags
+Sense tags
 ----------
 
 Each surface is tagged with the two volume handles of the adjacent volumes.
@@ -51,7 +51,7 @@ the surface sense.
 Indices
 ~~~~~~~
 
-Types of Indices
+Types of indices
 ----------------
 
 There are three ways to identify any surface and volume in a geometry:
@@ -64,7 +64,7 @@ to note that index starts from one (not zero). The third method
 is to identify by the entity handle of the entity set. The entity handle is
 assigned by MOAB and is not necessarily contiguous.
 
-Cross Referencing
+Cross referencing
 -----------------
 
 If one type of index is known, then either of the other two can be determined.
@@ -100,7 +100,7 @@ a 2D OBB.
     :width:  300
     :alt:    Image of a 3-D Oriented Bounding Box (OBB) around a facet
 
-OBB Tree Construction
+OBB tree construction
 ---------------------
 
 First, the OBB tree for each surface is built. This is built top down where the
@@ -124,10 +124,10 @@ below where the green, red, and blue surfaces make up a volume.
     :width:  675
     :alt:    Image of OBB tree structure for a volume
 
-Implicit Complement
+Implicit complement
 ~~~~~~~~~~~~~~~~~~~
 
-What is the Implicit Complement & How is it formed?
+What is the implicit complement & how is it formed?
 ---------------------------------------------------
 
 The implicit complement is the space not defined by the CAD model. It is formed
@@ -139,7 +139,7 @@ collection of all surfaces in the geometry that only have one sense defined are
 the surfaces that create the implicit complement by changing the sense already
 defined.
 
-OBB Tree Construction
+OBB tree construction
 ---------------------
 
 The OBB tree construction for the implicit complement is very similar to the
@@ -149,7 +149,7 @@ the surfaces are already known, and therefore the only construction step
 necessary is joining the trees to create a complete OBB tree for the implicit
 complement volume.
 
-Ray History
+Ray history
 ~~~~~~~~~~~
 
 DAGMC implements a class called RayHistory which is local to the DAGMC class.
@@ -173,9 +173,7 @@ purposes:
 The RayHistory class is an optional argument to the DAGMC ray functions, which will otherwise
 not retain nor exlude any intersections other than those not numerically possible.
 
-
-
-Point in Volume
+Point in volume
 ~~~~~~~~~~~~~~~
 
 Given a volume entity handle, position, and ray direction (optional), the
@@ -184,7 +182,7 @@ volume. It is assumed that the test volume exists and is known. Passing a
 direction vector to this function adds robustness and ensures consistent results.
 Otherwise, a random direction is used.
 
-Ray Fire
+Ray fire
 ~~~~~~~~
 
 The ``ray_fire`` function will return the entity handle of the next surface to be
@@ -195,7 +193,7 @@ than once (ie, if the particle is streaming). It is important to note that
 when tracking through multiple volumes, ``ray_fire`` must be called multiple times
 as it may only be called for a single volume at a time.
 
-Next Volume
+Next volume
 ~~~~~~~~~~~
 
 If the next surface is known (after calling ``ray_fire``), the entity handle of the
