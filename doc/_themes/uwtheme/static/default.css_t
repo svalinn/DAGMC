@@ -47,8 +47,18 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 
 p { margin-top: 0.75em; }
 
-.highlight-python { padding: 4px; border: 2px solid #000000; margin-left: 2em; }
-.highlight { background: #ffffff; }
+.highlight-python {
+  padding: 4px;
+  border: 2px solid #000000;
+  margin-left: 2em;
+}
+.highlight {
+  background: #ffffff;
+}
+
+div.highlight pre {
+  font-family: monospace;
+}
 
 body { line-height: 1; }
 /* ol, ul { list-style: none; }*/
@@ -743,8 +753,20 @@ h2 {margin-top: 1em;}
 
 h4 {font-weight: bold; margin-top: 1em;}
 
-pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa; margin: 1em;}
-.pre {font-family:Courier; background: #ffefef; border: 1px solid #ffaaaa;}
+pre {
+  font-family:Courier;
+  background: #ffefef;
+  border: 1px solid #ffaaaa;
+  margin: 1em;
+  font-family: monospace;
+}
+
+.pre {
+  font-family:Courier;
+  background: #ffefef;
+  border: 1px solid #ffaaaa;
+  font-family: monospace;
+}
 
 dl.docutils dt {
    margin: 1em 0 0 0;
@@ -752,6 +774,7 @@ dl.docutils dt {
 dl.docutils dd {
    margin: 0 0 0 1em;
 }
+
 /*Innovations single*/
 
 .single .post .label {
