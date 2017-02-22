@@ -31,8 +31,8 @@ One can immediately view this mesh, by using ``mbconvert`` to convert to vtk:
 Tetrahedral mesh tallies
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Currently the tetmesh tally option is only available in DAG-MCNP5, but there are
-plans to expand this to all the codes that DAGMC currently supports.
+Currently the tetmesh tally option is only available in DAG-MCNP5/6, but there
+are plans to expand this to all the codes that DAGMC currently supports.
 
 Once you have used the above instructions to produce one or more meshes in .h5m
 format, you must specify to MCNP that your tally is a tetmesh tally. This is

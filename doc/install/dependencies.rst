@@ -9,7 +9,6 @@ using a package manager.
 
 The following dependencies are required:
 
-    * LAPACK_
     * HDF5_
     * MOAB_
 
@@ -20,29 +19,6 @@ DAGMC in the subdirectory ``dagmc_bld`` of your home directory; i.e.
     $ cd $HOME
     $ mkdir dagmc_bld
     $ cd dagmc_bld
-
-LAPACK
-~~~~~~
-
-Source installation
--------------------
-
-If you don't have administrator privileges, refer to the
-`LAPACK website <LAPACK_>`_ for information on how to build
-LAPACK from source.
-
-Package manager installation
-----------------------------
-
-Ubuntu/Debian linux users can install LAPACK with:
-::
-
-    $ sudo apt-get install libblas-dev liblapack-dev
-
-Redhat linux users can do likewise with:
-::
-
-    $ sudo yum install libblas-dev liblapack-dev
 
 HDF5
 ~~~~~~
@@ -165,6 +141,5 @@ state when you open a new terminal, so it may be a good idea to add these
 If you have installed the dependencies corretly, you are now ready to
 `install DAGMC <dagmc.html>`_.
 
-..  _LAPACK: http://www.netlib.org/lapack
 ..  _HDF5: http://www.hdfgroup.org/HDF5
 ..  _MOAB: http://press3.mcs.anl.gov/sigma/moab-library

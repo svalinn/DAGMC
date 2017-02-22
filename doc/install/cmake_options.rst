@@ -11,7 +11,15 @@ Note that unless set, all boolean options default to ``OFF``.
       will look for the data in the location specified by the ``$DATAPATH``
       environment variable instead.
 
-    * ``-DMPI_BUILD=ON`` If building DAG-MCNP5, build an MPI version.
+    * ``-DBUILD_MCNP6=ON`` Build DAG-MCNP6.
+
+    * ``-DMCNP6_DATAPATH=/path/to/mcnp/data`` Set the path where the DAG-MCNP5
+      executable will look for nuclear data. If this variable is not set, it
+      will look for the data in the location specified by the ``$DATAPATH``
+      environment variable instead.
+
+    * ``-DMPI_BUILD=ON`` If building DAG-MCNP5 and/or DAG-MCNP6, build MPI
+      versions.
 
     * ``-DBUILD_FLUKA=ON`` Build FluDAG. If this option is turned on,
       ``-DFLUKA_DIR`` must also be specified.
@@ -25,9 +33,10 @@ Note that unless set, all boolean options default to ``OFF``.
 
     * ``-DGEANT4_DIR=/path/to/geant4`` Set the path to Geant4.
 
-    * ``-DBUILD_TALLY=ON`` Build the DagTally interface. Note that if you have
-      ``-DBUILD_MCNP5=ON`` then this is automatically set to ON.
+    * ``-DBUILD_TALLY=ON`` Build the DagTally interface. Note that if you are
+      using ``-DBUILD_MCNP5=ON`` or ``-DBUILD_MCNP6=ON`` then this is
+      automatically set to ON.
 
-    * ``-DBUILD_ALL=ON`` Build DAG-MCNP5, DAG-Geant4, and FluDAG.
+    * ``-DBUILD_ALL=ON`` Build DAG-MCNP5, DAG-MCNP6, FluDAG, and DAG-Geant4.
 
     * ``-DSTATIC_LIB=ON`` Build static libraries and executables.

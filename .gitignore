@@ -1,6 +1,8 @@
-# Ignore objects
+# Ignore extensions
 *.o
-# Extensions to ignore
 *.swp
 *~
 #*
+
+# Ignore built documentation
+gh-build

@@ -8,7 +8,7 @@ codes at a time.
 ..  toctree::
     :maxdepth: 1
 
-    dag-mcnp5
+    dag-mcnp
     fludag
     dag-geant4
     dag-shift

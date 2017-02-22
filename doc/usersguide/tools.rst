@@ -86,7 +86,7 @@ a Cubit or journal file which will draw the lost particles as vertices and their
 directions as curves. The script can be run with:
 ::
 
-    $ mklostvis.pl [mcnp output filename] [vector length] > [journal file name]
+    $ mklostvis.pl [mcnp_output_filename] [vector_length] > [journal_file_name]
 
 The produced Cubit journal file can be "played", and will plot these lost
 particles on top of whatever geometry is loaded into your Cubit session, like
