@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Install FluDAG &mdash; DAGMC</title>
+    <title>Install FluDAG &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="Installing DAGMC" href="dagmc.html" />
     <link rel="next" title="Install DAG-Geant4" href="dag-geant4.html" />
-    <link rel="prev" title="Install DAG-MCNP5" href="dag-mcnp5.html" /> 
+    <link rel="prev" title="Install DAG-MCNP5/6" href="dag-mcnp.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -60,7 +62,7 @@
         <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="dag-mcnp5.html" title="Install DAG-MCNP5"
+          <a href="dag-mcnp.html" title="Install DAG-MCNP5/6"
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
@@ -100,9 +102,9 @@ installed the required <a class="reference external" href="dependencies.html">de
 <div class="section" id="get-dagmc">
 <h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this headline">¶</a></h2>
 <p>As before, this guide assumes that you are building DAGMC in the subdirectory
-<tt class="docutils literal"><span class="pre">dagmc_bld</span></tt> of your home directory.</p>
+<code class="docutils literal"><span class="pre">dagmc_bld</span></code> of your home directory.</p>
 <p>The first step is to clone the <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC repository</a>.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ cd $HOME/dagmc_bld
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
 $ mkdir DAGMC
 $ cd DAGMC
 $ git clone https://github.com/svalinn/DAGMC
@@ -113,38 +115,35 @@ $ git checkout develop
 </div>
 <div class="section" id="install-fluka">
 <span id="id1"></span><h2>Install FLUKA<a class="headerlink" href="#install-fluka" title="Permalink to this headline">¶</a></h2>
-<p>FluDAG uses <a class="reference external" href="http://www.fluka.org/fluka.php">FLUKA</a> from CERN/INFN. In order
-to download FLUKA you need to become a registered user, which you can do at the
-<a class="reference external" href="https://www.fluka.org/fluka.php?id=secured_intro">FLUKA register</a> page.</p>
+<p>FluDAG uses <a class="reference external" href="http://www.fluka.org/fluka.php">FLUKA</a> from CERN/INFN. In order to download FLUKA you need to become
+a registered user, which you can do at the <a class="reference external" href="https://www.fluka.org/fluka.php?id=secured_intro">FLUKA registration</a> page.</p>
 <p>Save your user ID and password for future FLUKA updates. We recommend an x64
 worfklow and thus you should download the 64-bit executable. The name of the
-downloaded tarball is of the form <tt class="docutils literal"><span class="pre">fluka20xx.xx-linux-gfor64bitAA.tar.gz</span></tt>.
-Refer to the
-<a class="reference external" href="http://www.fluka.org/fluka.php?id=ins_run&amp;mm2=3">installation instructions</a>
-when building FLUKA.</p>
-<p>Take care to follow the FLUKA site instructions when setting the
-<tt class="docutils literal"><span class="pre">$FLUPRO</span></tt> and <tt class="docutils literal"><span class="pre">$FLUFOR</span></tt> environment variables.</p>
+downloaded tarball is of the form <code class="docutils literal"><span class="pre">fluka20xx.xx-linux-gfor64bitAA.tar.gz</span></code>.
+Refer to the <a class="reference external" href="http://www.fluka.org/fluka.php?id=ins_run">installation instructions</a> when building FLUKA.</p>
+<p>Take care to follow the FLUKA site instructions when setting the <code class="docutils literal"><span class="pre">$FLUPRO</span></code> and
+<code class="docutils literal"><span class="pre">$FLUFOR</span></code> environment variables.</p>
 </div>
 <div class="section" id="configure-dag-code">
 <h2>Configure FluDAG<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>First, create and enter the build directory.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ cd $HOME/dagmc_bld/DAGMC
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
 $ mkdir bld
 $ cd bld
 </pre></div>
 </div>
 <p>Then, choose where you want to install DAGMC. This is where the binaries,
-libraries, header files, etc. will be placed. This guide uses <tt class="docutils literal"><span class="pre">$INSTALL_PATH</span></tt>
+libraries, header files, etc. will be placed. This guide uses <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code>
 to represent this location.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 </pre></div>
 </div>
 <p>CMake variables are used to configure DAGMC with your desired build options. A
 few examples will be shown here, but you can see a list of all possible options
 <a class="reference external" href="cmake_options.html">here</a>.</p>
-<p>The following CMake command will build FluDAG. Note that <tt class="docutils literal"><span class="pre">$FLUPRO</span></tt> should have
+<p>The following CMake command will build FluDAG. Note that <code class="docutils literal"><span class="pre">$FLUPRO</span></code> should have
 previously been defined as part of the FLUKA install.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ cmake .. -DBUILD_FLUKA=ON \
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cmake .. -DBUILD_FLUKA=ON \
            -DFLUKA_DIR=$FLUPRO \
            -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 </pre></div>
@@ -155,30 +154,30 @@ DAGMC.</p>
 <div class="section" id="build-dag-code">
 <h2>Build FluDAG<a class="headerlink" href="#build-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>Use Make to install FluDAG.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ make
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ make
 $ make install
 </pre></div>
 </div>
 <p>If the build was successful, the binaries, libraries, header files, and tests
-will be installed to the <tt class="docutils literal"><span class="pre">bin</span></tt>, <tt class="docutils literal"><span class="pre">lib</span></tt>, <tt class="docutils literal"><span class="pre">include</span></tt>, and <tt class="docutils literal"><span class="pre">tests</span></tt>
-subdirectories of <tt class="docutils literal"><span class="pre">$INSTALL_PATH</span></tt> respectively.</p>
+will be installed to the <code class="docutils literal"><span class="pre">bin</span></code>, <code class="docutils literal"><span class="pre">lib</span></code>, <code class="docutils literal"><span class="pre">include</span></code>, and <code class="docutils literal"><span class="pre">tests</span></code>
+subdirectories of <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
 <p>In order to use DAGMC, make these additions to your paths:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ export PATH=$PATH:$INSTALL_PATH/bin
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$INSTALL_PATH/bin
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 </pre></div>
 </div>
-<p>Again, it may be wise to add these commands to your <tt class="docutils literal"><span class="pre">.bashrc</span></tt> file.</p>
+<p>Again, it may be wise to add these commands to your <code class="docutils literal"><span class="pre">.bashrc</span></code> file.</p>
 </div>
 <div class="section" id="test-dag-code">
 <h2>Test FluDAG<a class="headerlink" href="#test-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>To run the FluDAG unit tests, use</p>
-<div class="highlight-python"><div class="highlight"><pre>$ cd $INSTALL_PATH/tests
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $INSTALL_PATH/tests
 $ ./fludag_unit_tests
 </pre></div>
 </div>
 <p>If the tests ran successfully, the last few lines of the screen output will look
 like this:</p>
-<div class="highlight-python"><div class="highlight"><pre>[       OK ] FluDAGTest.GFireGoodPropStep (5 ms)
+<div class="highlight-none"><div class="highlight"><pre><span></span>[       OK ] FluDAGTest.GFireGoodPropStep (5 ms)
 [----------] 3 tests from FluDAGTest (108 ms total)
 
 [----------] Global test environment tear-down
@@ -189,8 +188,7 @@ like this:</p>
 </div>
 <div class="section" id="test-dagmc">
 <h2>Test DAGMC<a class="headerlink" href="#test-dagmc" title="Permalink to this headline">¶</a></h2>
-<p>We regularly run the DAGMC test suite on
-<a class="reference external" href="https://travis-ci.org/svalinn/DAGMC">Travis</a> as part of our continuous
+<p>We regularly run the DAGMC test suite on <a class="reference external" href="https://travis-ci.org/svalinn/DAGMC">Travis</a> as part of our continuous
 integration system. You may however wish to run the tests yourself in order to
 verify you have installed DAGMC correctly.</p>
 <p>If the tests have completed successfully, you are now ready to run your first
@@ -207,13 +205,13 @@ for more information.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

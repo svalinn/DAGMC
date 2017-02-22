@@ -3,7 +3,7 @@
 # GH_SOURCE_DIR = top-level directory of all the ReST source files
 GH_SOURCE_DIR = doc
 # GH_SOURCE_BRANCH = repository branch that contains the source
-GH_SOURCE_BRANCH = master
+GH_SOURCE_BRANCH = develop
 # GH_PUBLISH_BRANCH = repository branch that contains the rendered HTML
 GH_PUBLISH_BRANCH = gh-pages
 # GH_UPSTREAM_REPO = repository that contains the rendered HTML

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Understanding ray history state in DAG-MCNP5 &mdash; DAGMC</title>
+    <title>Understanding ray history state in DAG-MCNP5/6 &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,10 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
-    <link rel="prev" title="Gallery of projects that use DAGMC" href="../gallery/gallery.html" /> 
+    <link rel="up" title="User’s guide" href="index.html" />
+    <link rel="next" title="Contribute" href="../contribute/index.html" />
+    <link rel="prev" title="mcnp2cad" href="mcnp2cad.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -58,20 +62,25 @@
         <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="../gallery/gallery.html" title="Gallery of projects that use DAGMC"
+          <a href="mcnp2cad.html" title="mcnp2cad"
              accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../contribute/index.html" title="Contribute"
+             accesskey="N">next</a>
           </li>
         <li class="menu-item" >
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a>
-          </li> 
+          </li>
+          <li class="menu-item"><a href="index.html" accesskey="U">User&#8217;s guide</a></li> 
       </ul>
     </div>
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Understanding ray history state in DAG-MCNP5</a><ul>
-<li><a class="reference internal" href="#documenting-calls-to-the-track-method-in-mcnp5">Documenting calls to the track() method in MCNP5</a></li>
+<li><a class="reference internal" href="#">Understanding ray history state in DAG-MCNP5/6</a><ul>
+<li><a class="reference internal" href="#documenting-calls-to-the-track-method-in-mcnp">Documenting calls to the track() method in MCNP</a></li>
 <li><a class="reference internal" href="#mapping-the-possible-ray-history-states">Mapping the possible ray history states</a></li>
 <li><a class="reference internal" href="#other-history-state-variables">Other history state variables</a></li>
 </ul>
@@ -82,17 +91,18 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="understanding-ray-history-state-in-dag-mcnp5">
-<h1>Understanding ray history state in DAG-MCNP5<a class="headerlink" href="#understanding-ray-history-state-in-dag-mcnp5" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="documenting-calls-to-the-track-method-in-mcnp5">
-<h2>Documenting calls to the track() method in MCNP5<a class="headerlink" href="#documenting-calls-to-the-track-method-in-mcnp5" title="Permalink to this headline">¶</a></h2>
-<p>The method used in MCNP5 to find the distance to the next boundary is
+  <div class="section" id="understanding-ray-history-state-in-dag-mcnp5-6">
+<h1>Understanding ray history state in DAG-MCNP5/6<a class="headerlink" href="#understanding-ray-history-state-in-dag-mcnp5-6" title="Permalink to this headline">¶</a></h1>
+<p>Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6.</p>
+<div class="section" id="documenting-calls-to-the-track-method-in-mcnp">
+<h2>Documenting calls to the track() method in MCNP<a class="headerlink" href="#documenting-calls-to-the-track-method-in-mcnp" title="Permalink to this headline">¶</a></h2>
+<p>The method used in MCNP to find the distance to the next boundary is
 track().  DAGMC completely circumvents any call to track() and uses
 its own version.</p>
 <p>As a first step to understanding the generic set of use cases for the
 ray-to-boundary method, and in particular, the different states of the
 physics code during these uses cases, this document will itemize these
-cases for MCNP5.</p>
+cases for MCNP.</p>
 <ol class="arabic simple">
 <li>(hstory.F90): non-forced collision neutral particle transport</li>
 <li>(hstory.F90): forced collision neutral particle transport</li>
@@ -105,7 +115,7 @@ cases for MCNP5.</p>
 <h2>Mapping the possible ray history states<a class="headerlink" href="#mapping-the-possible-ray-history-states" title="Permalink to this headline">¶</a></h2>
 <p>For each new particle history, the ray history is reset to be empty.</p>
 <p>The only mechanism by which a ray history can grow is during ray firing:</p>
-<div class="highlight-python"><div class="highlight"><pre>MBErrorCode result = DAG-&gt;ray_fire( vol, point, dir, next_surf, next_surf_dist,
+<div class="highlight-none"><div class="highlight"><pre><span></span>MBErrorCode result = DAG-&gt;ray_fire( vol, point, dir, next_surf, next_surf_dist,
                          &amp;history, (use_dist_limit ? dist_limit : 0 ) )
 </pre></div>
 </div>
@@ -168,13 +178,13 @@ the first ray_fire in each history</li>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

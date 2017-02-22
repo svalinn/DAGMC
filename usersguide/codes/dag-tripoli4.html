@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Code-specific steps for DAG-Tripoli4 &mdash; DAGMC</title>
+    <title>Code-specific steps for DAG-Tripoli4 &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
     <link rel="top" title="DAGMC" href="../../index.html" />
     <link rel="up" title="Monte Carlo code-specific steps" href="index.html" />
     <link rel="next" title="Producing solid models for DAGMC using Cubit/Trelis" href="../trelis_workflow.html" />
     <link rel="prev" title="Code-specific steps for FluDAG" href="fludag.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -109,23 +111,23 @@ compositions and boundary conditions in the geometry.</p>
 <div class="section" id="assigning-materials-densities">
 <h3>Assigning materials &amp; densities<a class="headerlink" href="#assigning-materials-densities" title="Permalink to this headline">¶</a></h3>
 <p>The generic workflow description includes details on
-<a class="reference internal" href="../trelis_basics.html#grouping-basics"><em>Grouping volumes and surfaces</em></a>, but a specific naming convention is required
+<a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but a specific naming convention is required
 for DAG-Tripoli4. To define materials, the Tripoli composition name
 must be provided in the group name. The format for the group name is
 as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">comp_</span><span class="p">[</span><span class="n">compname</span><span class="p">]</span>
+<div class="highlight-none"><div class="highlight"><pre><span></span>comp_[compname]
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">[compname]</span></tt> is replaced by the composition name that will be
-specified in the Tripoli4 input file.  <tt class="docutils literal"><span class="pre">[density]</span></tt> is replaced by
+<p><code class="docutils literal"><span class="pre">[compname]</span></code> is replaced by the composition name that will be
+specified in the Tripoli4 input file.  <code class="docutils literal"><span class="pre">[density]</span></code> is replaced by
 either the atomic density or the mass density.  Like the MCNP cell
 cards, positive values are atomic densities in [atoms/barn-cm] and
 negative values are mass densities in [g/cc].</p>
-<p>For example, suppose UO2 is composition <tt class="docutils literal"><span class="pre">Uoxide</span></tt> and
+<p>For example, suppose UO2 is composition <code class="docutils literal"><span class="pre">Uoxide</span></code> and
 volumes 4 through 18 consist of this material in the problem. To
 assign materials to these volumes, the following command would be
 used:</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;comp_Uoxide&quot; add vol 4 to 18
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;comp_Uoxide&quot; add vol 4 to 18
 </pre></div>
 </div>
 <p><em>Note: If a volume is not assigned to a specific group, when run in
@@ -133,7 +135,7 @@ DAGMC it will be treated as a void; the material for that cell will be
 zero. This can actually become a fairly useful debugging tool to
 identify volumes that were not assigned to their appropriate group.</em></p>
 <p>If you would like to assign a material to the implicit complement, you
-can use the same mechanism, but add the string <tt class="docutils literal"><span class="pre">_comp</span></tt> to the end of
+can use the same mechanism, but add the string <code class="docutils literal"><span class="pre">_comp</span></code> to the end of
 the group name.  Since DAGMC only recognizes those groups that contain
 an entity, it is necessary to add a volume to this group, recognizing
 that this material will NOT be assigned to that volume.  (_It is often
@@ -141,7 +143,7 @@ convenient to assign the graveyard volume (see below) to the implicit
 complement material group to minimize confusion._) For example, if you
 would like the explicit complement to be modeled with the composition
 named &#8220;air&#8221;:</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; create group &quot;comp_air_comp&quot;
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; create group &quot;comp_air_comp&quot;
 </pre></div>
 </div>
 </div>
@@ -168,15 +170,15 @@ smaller from the larger.  The remaining volume is the graveyard.</p>
 <p>Like the material definitions and boundary conditions discussed in the
 previous section. The graveyard is defined by assigning it a specific
 group name, one of the following keywords:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">graveyard</span>
-<span class="n">outside</span><span class="o">.</span><span class="n">world</span>
-<span class="n">rest</span><span class="o">.</span><span class="n">of</span><span class="o">.</span><span class="n">world</span>
+<div class="highlight-none"><div class="highlight"><pre><span></span>graveyard
+outside.world
+rest.of.world
 </pre></div>
 </div>
 <p>Consider a geometry with 99 volumes that all fit within a cube
 centered at the origin with side-length 99 cm.  To create a graveyard
 for this problem in CUBIT, you could issue the following commands:</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; create brick x 100
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; create brick x 100
 CUBIT&gt; create brick x 105
 CUBIT&gt; subtract vol 100 from vol 101
 CUBIT&gt; group &quot;graveyard&quot; add vol 102
@@ -185,7 +187,7 @@ CUBIT&gt; group &quot;graveyard&quot; add vol 102
 <p>When DAG-Tripoli4 is run, the surfaces of volume 102 (or any other
 volumes included in the group) will be defined as having only one
 volume - the one on the OTHER SIDE relative to volume 102. <em>Note:
-this assumes that the two</em> <tt class="docutils literal"><span class="pre">create</span> <span class="pre">brick</span></tt> <em>commands generate volumes
+this assumes that the two</em> <code class="docutils literal"><span class="pre">create</span> <span class="pre">brick</span></code> <em>commands generate volumes
 numbered 100 and 101, respectively, and that the Boolean subtraction
 results in a new volume number 102.</em></p>
 <p>If you have boundary conditions (reflecting, white, or periodic) it is
@@ -203,21 +205,21 @@ periodic boundary conditions are not yet supported.</em></p>
 <p>Specifying reflecting and white boundary conditions are fairly
 straightforward.  The group names for reflecting and white are
 respectively:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">spec</span><span class="o">.</span><span class="n">reflect</span>
-<span class="n">white</span><span class="o">.</span><span class="n">reflect</span>
+<div class="highlight-none"><div class="highlight"><pre><span></span>spec.reflect
+white.reflect
 </pre></div>
 </div>
 <p>Suppose surfaces 10 and 11 are reflecting boundary conditions.  To
 specify these as reflecting surfaces, the following group would be
 created:</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;spec.reflect&quot; add surf 10 11
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;spec.reflect&quot; add surf 10 11
 </pre></div>
 </div>
 </div>
 <div class="section" id="dagmc-runtime-parameters">
 <h3>DAGMC runtime parameters<a class="headerlink" href="#dagmc-runtime-parameters" title="Permalink to this headline">¶</a></h3>
 <p>The DAGMC-Tripoli input file is formatted just like any other Tripoli
-input file but using the <tt class="docutils literal"><span class="pre">DAGMC_GEOMETRY</span></tt> block to indicate the
+input file but using the <code class="docutils literal"><span class="pre">DAGMC_GEOMETRY</span></code> block to indicate the
 geometry.  This block has the following parameters:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -267,13 +269,13 @@ material compositions that have been assigned in the previous step.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

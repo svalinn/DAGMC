@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Producing solid models for DAGMC using Cubit/Trelis &mdash; DAGMC</title>
+    <title>Producing solid models for DAGMC using Cubit/Trelis &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="User’s guide" href="index.html" />
     <link rel="next" title="DAGMC unstructured mesh tallies" href="tally.html" />
     <link rel="prev" title="Code-specific steps for DAG-Tripoli4" href="codes/dag-tripoli4.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -107,7 +109,7 @@ looks like that shown in the Figure below.</p>
 </li>
 <li><p class="first">Inspect and resolve overlapping volumes, you may need to scale the model up
 to detect these</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; validate vol all
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; validate vol all
 CUBIT&gt; autoheal problem vols
 </pre></div>
 </div>
@@ -119,7 +121,7 @@ CUBIT&gt; autoheal problem vols
 </li>
 <li><dl class="first docutils">
 <dt>Check and possibly remove negligibly small curves, surfaces, and volumes. (check &#8220;hydraulic&#8221; length and &#8220;regular&#8221; length)</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;smallsurfaces&quot; add surface with area &lt; 1.e-3
+<dd><div class="first last highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;smallsurfaces&quot; add surface with area &lt; 1.e-3
 CUBIT&gt; group &quot;smallcurves&quot; add curve with length &lt; 1.e-4
 CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 </pre></div>
@@ -130,21 +132,21 @@ CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 </ul>
 <ol class="arabic" start="4">
 <li><p class="first">Create pre-imprint/merge table of volume of volumes, and then imprint</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; imprint body all
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; imprint body all
 </pre></div>
 </div>
 </li>
 <li><p class="first">Merge model, in Cubit</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; merge all
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; merge all
 </pre></div>
 </div>
 <p>You may also wish to add a merge tolerance (this must be done before merging)</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; merge tol 1e-6
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; merge tol 1e-6
 </pre></div>
 </div>
 </li>
 <li><p class="first">Validate model, in Cubit</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; validate vol all
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; validate vol all
 </pre></div>
 </div>
 <ul class="simple">
@@ -157,7 +159,7 @@ CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 </ul>
 </li>
 <li><p class="first">Facet model</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; export dagmc &quot;geom.h5m&quot; faceting_tolerance 1.0e-4
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &quot;geom.h5m&quot; faceting_tolerance 1.0e-4
 </pre></div>
 </div>
 </li>
@@ -318,7 +320,7 @@ since it was never defined, but it automatically defines all undefined space in 
 we recommended ACIS *.sat files, but any format that reliably retains
 imprortant metadata will suffice.  Recommended storage formats are ACIS, *.Trelis or
 *.cub files.</p>
-<p>One should also use the <a class="reference internal" href="tools.html#make-watertight"><em>make_watertight</em></a>. tool on the
+<p>One should also use the <a class="reference internal" href="tools.html#make-watertight"><span class="std std-ref">make_watertight</span></a>. tool on the
 produced DAGMC *.h5m file in order to completely seal your geometry, this
 should help prevent tolerance issues due to faceting.</p>
 </div>
@@ -333,13 +335,13 @@ should help prevent tolerance issues due to faceting.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

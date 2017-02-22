@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Code-specific steps for FluDAG &mdash; DAGMC</title>
+    <title>Code-specific steps for FluDAG &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
     <link rel="top" title="DAGMC" href="../../index.html" />
     <link rel="up" title="Monte Carlo code-specific steps" href="index.html" />
     <link rel="next" title="Code-specific steps for DAG-Tripoli4" href="dag-tripoli4.html" />
-    <link rel="prev" title="Tallies" href="dag-mcnp5_deprecated.html" /> 
+    <link rel="prev" title="Tallies" href="dag-mcnp_deprecated.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -60,7 +62,7 @@
         <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="../../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="dag-mcnp5_deprecated.html" title="Tallies"
+          <a href="dag-mcnp_deprecated.html" title="Tallies"
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
@@ -80,7 +82,7 @@
  <div id="sidebar_section"><ul>
 <li><a class="reference internal" href="#">Code-specific steps for FluDAG</a><ul>
 <li><a class="reference internal" href="#geometry-metadata">Geometry metadata</a><ul>
-<li><a class="reference internal" href="#assigning-materials-densities">Assigning materials &amp; densities</a></li>
+<li><a class="reference internal" href="#assigning-materials-and-densities">Assigning materials and densities</a></li>
 <li><a class="reference internal" href="#defining-the-graveyard">Defining the graveyard</a></li>
 <li><a class="reference internal" href="#scoring-assignments">Scoring assignments</a></li>
 </ul>
@@ -99,112 +101,113 @@
 <h1>Code-specific steps for FluDAG<a class="headerlink" href="#code-specific-steps-for-fludag" title="Permalink to this headline">¶</a></h1>
 <p>There are several varieties of code-specific steps:</p>
 <ol class="arabic simple">
-<li>defining attributes of the geometry using groups in Cubit/Trelis</li>
-<li>producing material assignments in FLUKA input format from the h5m file, with
+<li>Defining attributes of the geometry using groups in Cubit/Trelis</li>
+<li>Producing material assignments in FLUKA input format from the h5m file, with
 the help of FluDAG</li>
-<li>preparing the FLUKA input file for running with DAGMC</li>
-<li>inserting the material assignments into the FLUKA input deck</li>
+<li>Preparing the FLUKA input file for running with DAGMC</li>
+<li>Inserting the material assignments into the FLUKA input deck</li>
 </ol>
 <div class="section" id="geometry-metadata">
 <h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
-<p>In FluDAG, the geometry file can be used to define material
-assignments, and eventually we would like to add the capability to
-define boundary conditions and tally locations.</p>
-<div class="section" id="assigning-materials-densities">
-<h3>Assigning materials &amp; densities<a class="headerlink" href="#assigning-materials-densities" title="Permalink to this headline">¶</a></h3>
-<p>The generic workflow description includes details on
-<a class="reference internal" href="../trelis_basics.html#grouping-basics"><em>Grouping volumes and surfaces</em></a>, but a specific naming convention is required
-for FluDAG. To define materials, the FLUKA material name must be
-provided in the group name. The group name must be that of a valid FLUKA
-material, for example any of the default materials or a valid COMPOUND name,
-note you are limited to 8 characters, as in FLUKA. The format for the group name
-is as follows:</p>
-<div class="highlight-python"><div class="highlight"><pre>mat:[material_name]
+<p>In FluDAG, the geometry file can be used to define material assignments.
+Eventually we would like to add the capability to define boundary conditions and
+tally locations.</p>
+<div class="section" id="assigning-materials-and-densities">
+<h3>Assigning materials and densities<a class="headerlink" href="#assigning-materials-and-densities" title="Permalink to this headline">¶</a></h3>
+<p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>,
+but a specific naming convention is required for FluDAG. To define materials,
+the FLUKA material name must be provided in the group name. The group name must
+be that of a valid FLUKA material; for example, any of the default materials or
+a valid COMPOUND name. Note that you are limited to 8 characters, as in FLUKA.
+The format for the group name is as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>mat:[material_name]
 </pre></div>
 </div>
-<p>For example, suppose we wish to add volumes 1 through 5 to a group
-that defines the material to be iron.  The following command
-would be used.</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:IRON&quot; add volume 1 to 5
+<p>For example, suppose we wish to add volumes 1 through 5 to a group that defines
+the material to be iron. The following command would be used.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:IRON&quot; add volume 1 to 5
 </pre></div>
 </div>
-<p>This will produce in the input file,</p>
-<div class="highlight-python"><div class="highlight"><pre>ASSIGNMA        IRON         1
+<p>This will produce in the input file:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>ASSIGNMA        IRON         1
 ASSIGNMA        IRON         2
 ASSIGNMA        IRON         3
 ASSIGNMA        IRON         4
 ASSIGNMA        IRON         5
 </pre></div>
 </div>
-<p>Compounds are also supported by FluDAG, for example, if we wish to have volume 6
+<p>Compounds are also supported by FluDAG; for example, if we wish to have volume 6
 belong to a group whose material name is STAINLESS then we can can use</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:STAINLESS&quot; add volume 6
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:STAINLESS&quot; add volume 6
 </pre></div>
 </div>
 <p>This will produce in the input file:</p>
-<div class="highlight-python"><div class="highlight"><pre>MATERIAL                                        26                    STAINLES
+<div class="highlight-none"><div class="highlight"><pre><span></span>MATERIAL                                        26                    STAINLES
 *...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
 ASSIGNMA    STAINLES         6
 </pre></div>
 </div>
-<p><em>Note: Material names longer than 8 characters are truncated to the first 8
-characters.</em></p>
-<p>Be aware that there are several predefined material names in FLUKA, and they
-are appropriately treated by FluDAG.</p>
-<p><em>Note: All volumes must belong to a group, if they do not have any information
-FluDAG will not assign material information.</em></p>
+<dl class="docutils">
+<dt>Some notes:</dt>
+<dd><ul class="first last simple">
+<li>Material names longer than 8 characters are truncated to the first 8
+characters.</li>
+<li>There are several predefined material names in FLUKA, and they are
+appropriately treated by FluDAG.</li>
+<li>All volumes must belong to a group. If any are not, FluDAG will not assign
+material information for them.</li>
+</ul>
+</dd>
+</dl>
 <p>The implicit complement is automatically assigned the value 1 + the id of the
-highest numberd volume. You can easily modify what material property that you
-would like the implicit compliment (or any other volume for that matter) to have
-by changing the material on the ASSIGNMAT card.</p>
+highest-numbered volume. You can easily modify what material property that you
+would like the implicit compliment (or any other volume) to have by changing the
+material on the ASSIGNMAT card.</p>
 </div>
 <div class="section" id="defining-the-graveyard">
 <h3>Defining the graveyard<a class="headerlink" href="#defining-the-graveyard" title="Permalink to this headline">¶</a></h3>
-<p>A typical usage of Monte Carlo codes include a volume that extends
-to infinity with an importance of 0 that bounds the active volumes of interest.
-Since solid models cannot include any infinite volumes, it is
-necessary to place a finite volume of importance 0 to define the
-problem boundary.  You will need to surround the entire geometry with a
-shell of finite thickness, known as the &#8220;graveyard&#8221;.  Any geometric
-shape can be used for this, however a cubic shell is usually preferred.  This
-shell volume will represent the outside world and will be the volume
-where all of the particles are terminated.</p>
-<p>To create this volume create two volumes in CUBIT with the same shape,
-same center, and one slightly larger than the other.  Subtract the
-smaller from the larger.  The remaining volume is the graveyard.</p>
-<p>As with the material definitions discussed in the previous section the
-graveyard is defined by assigning the volume a keyword
-group name,</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:BLCKHOLE&quot; add volume X
+<p>Typical FLUKA models contain a zero-importance volume that bounds the volumes of
+interest and extends to infinity. Since solid models cannot include infinite
+volumes, it is necessary to define a finite zero-importance volume around your
+model to define the problem boundary. This is done by surrounding the entire
+geometry with a shell of finite thickness; this is known as the &#8220;graveyard.&#8221; Any
+geometric shape can be used for this, but a cubic shell is preferred. The
+graveyard represents the outside world, and any particle that enters it will be
+terminated.</p>
+<p>To create a graveyard volume, create two volumes in Cubit with the same shape
+and same center with one slightly larger than the other, making sure that both
+bound the entire problem geometry. Then, subtract the smaller one from the
+larger one. The remaining volume is the graveyard.</p>
+<p>To indicate to FLUKA that a given volume is the graveyard volume, you must
+assign it to a group with:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:BLCKHOLE&quot; add volume X
 </pre></div>
 </div>
-<p>Consider a geometry with 99 volumes that all fit within a cube
-centered at the origin with side-length 99 cm.  To create a graveyard
-for this problem in CUBIT, you could issue the following commands:</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; create brick x 100
-CUBIT&gt; create brick x 105
-CUBIT&gt; subtract vol 100 from vol 101
+<p>For example, consider a geometry containing 99 volumes, all of which fit inside
+a cube of side length 99 cm centered at the origin. The following commands would
+create a valid graveyard for this problem:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; create brick x 100             # This will be volume 100
+CUBIT&gt; create brick x 105             # This will be volume 101
+CUBIT&gt; subtract vol 100 from vol 101  # This will produce volume 102
 CUBIT&gt; group &quot;mat:BLCKHOLE&quot; add vol 102
 </pre></div>
 </div>
-<p>When FLuDAG is run all the particles that enter volumes in group &#8220;mat:BLCKHOLE&#8221;
-will be killed.  This is effectively the same as the concept of importance
-in MCNP.</p>
+<p>When FluDAG is run, the importance of any graveyard volumes will be set to zero.</p>
 </div>
 <div class="section" id="scoring-assignments">
 <h3>Scoring assignments<a class="headerlink" href="#scoring-assignments" title="Permalink to this headline">¶</a></h3>
-<p>We do not currently support scoring assignments through group names. The user must manually
-add these to the FLUKA input deck.</p>
+<p>DAGMC does not currently support scoring assignments through group names. Users
+must add these to the FLUKA input deck manually.</p>
 </div>
 </div>
 <div class="section" id="preparing-the-fludag-input-file">
 <h2>Preparing the FluDAG input file<a class="headerlink" href="#preparing-the-fludag-input-file" title="Permalink to this headline">¶</a></h2>
-<p>The FluDAG (FLUKA) input file will look almost identical to the originating
-Fluka input file. The exception will be the removal of all data between
-the cards GEOBEGIN and GEOEND, i.e. all native Fluka input data. The last entry
-on the line of GEOBEGIN should be FLUGG.</p>
-<p>For example the most simple valid FLUKA geometry is as follows,</p>
-<div class="highlight-python"><div class="highlight"><pre>GEOBEGIN                                                              COMBNAME
+<p>The FluDAG input file will look almost identical to the originating FLUKA input
+file. The exception will be the removal of all data between the cards
+<code class="docutils literal"><span class="pre">GEOBEGIN</span></code> and <code class="docutils literal"><span class="pre">GEOEND</span></code>, i.e. all native FLUKA input data. The last entry
+on the line of <code class="docutils literal"><span class="pre">GEOBEGIN</span></code> should be <code class="docutils literal"><span class="pre">FLUGG</span></code>.</p>
+<p>For example, the most simple valid FLUKA geometry is as follows:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>GEOBEGIN                                                              COMBNAME
     0    0
 SPH S1         0.0 0.0 0.0 50.0
 CELL1        5 +S1
@@ -212,37 +215,37 @@ CELL2        5 -S1
 GEOEND
 </pre></div>
 </div>
-<p>To run this geometry with FluDAG, remove all data between GEOBEGIN and GEOEND, and
-switch the last entry to FLUGG,</p>
-<div class="highlight-python"><div class="highlight"><pre>GEOBEGIN                                                              FLUGG
+<p>To run this geometry with FluDAG, remove all data between <code class="docutils literal"><span class="pre">GEOBEGIN</span></code> and
+<code class="docutils literal"><span class="pre">GEOEND</span></code>, and switch the last entry to <code class="docutils literal"><span class="pre">FLUGG</span></code>:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>GEOBEGIN                                                              FLUGG
 GEOEND
 </pre></div>
 </div>
 </div>
 <div class="section" id="running-fludag">
 <h2>Running FluDAG<a class="headerlink" href="#running-fludag" title="Permalink to this headline">¶</a></h2>
-<p>Running FluDAG bears some similarity to running FLUGG: the first step is to create the CAD
-geometry of the problem you wish to run. In order to produce the material assignment
-data from the CAD geometry we must first <a class="reference external" href="../trelis_basics.html#production-of-the-dagmc-geometry">facet the file</a>
-using the Cubit/Trelis plugin. Using the subsequently defined geometry file, the user must
-produce the mat.inp file</p>
-<div class="highlight-python"><div class="highlight"><pre>$ /path/to/fludag/executable/mainfludag geom.h5m
+<p>Running FluDAG bears some similarity to running <code class="docutils literal"><span class="pre">FLUGG</span></code>. The first step is to
+create the CAD geometry of the problem you wish to run. In order to produce the
+material assignment data from the CAD geometry we must first
+<a class="reference internal" href="../trelis_basics.html#geom-production"><span class="std std-ref">facet the file</span></a> using the Cubit/Trelis plugin. Using the
+subsequently-defined geometry file, the user must produce the <code class="docutils literal"><span class="pre">mat.inp</span></code> file.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ /path/to/fludag/executable/mainfludag geom.h5m
 </pre></div>
 </div>
-<p>will load the named h5m file and produce the material assignments information.
-This information should then be pasted into the FLUKA input file and any adjustments
-that need to be made should be made, for example adding the density of non standard
-materials, or adding your scoring information. <strong>Please note that the user must always
-include the additional material and compound information themselves and take
-responsibility to ensure that the FLUKA material index number does not overlap with one
-produced by FluDAG.</strong></p>
-<p>The FluDAG calculation is now ok to run, first make a symbolic link from the geometry file
-to a fixed file called dagmc.h5m</p>
-<div class="highlight-python"><div class="highlight"><pre>$ ln -s geom.h5m dagmc.h5m
+<p>This will load the named .h5m file and produce the material assignment
+information. This information should then be pasted into the FLUKA input file,
+and any adjustments that need to be made should be made; for example, adding the
+density of non standard materials, or adding your scoring information. <strong>Please
+note that users must always include the additional material and compound
+information themselves and take responsibility to ensure that the FLUKA material
+index number does not overlap with one produced by FluDAG.</strong></p>
+<p>The FluDAG calculation is now ready to run. First make a symbolic link from the
+geometry file to a fixed file called <code class="docutils literal"><span class="pre">dagmc.h5m</span></code>.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ ln -s geom.h5m dagmc.h5m
 </pre></div>
 </div>
-<p>The user can then run the problem</p>
-<div class="highlight-python"><div class="highlight"><pre>$ $FLUPRO/flutil/rfluka -e &lt;path/to/fludag/executable/mainfludag&gt; \
+<p>The problem can then be run with</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -e &lt;path/to/fludag/executable/mainfludag&gt; \
       ++{standard fluka options}++ &lt;fludag_input_file&gt;
 </pre></div>
 </div>
@@ -257,13 +260,13 @@ to a fixed file called dagmc.h5m</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

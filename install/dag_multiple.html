@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Install DAGMC with multiple physics codes &mdash; DAGMC</title>
+    <title>Install DAGMC with multiple physics codes &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="Installing DAGMC" href="dagmc.html" />
     <link rel="next" title="DAGMC CMake variables" href="cmake_options.html" />
     <link rel="prev" title="Install DAG-Tripoli4" href="dag-tripoli4.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -99,9 +101,9 @@ installed the required <a class="reference external" href="dependencies.html">de
 <div class="section" id="get-dagmc">
 <h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this headline">¶</a></h2>
 <p>As before, this guide assumes that you are building DAGMC in the subdirectory
-<tt class="docutils literal"><span class="pre">dagmc_bld</span></tt> of your home directory.</p>
+<code class="docutils literal"><span class="pre">dagmc_bld</span></code> of your home directory.</p>
 <p>The first step is to clone the <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC repository</a>.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ cd $HOME/dagmc_bld
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
 $ mkdir DAGMC
 $ cd DAGMC
 $ git clone https://github.com/svalinn/DAGMC
@@ -114,31 +116,32 @@ $ git checkout develop
 <h2>Before configuring DAGMC<a class="headerlink" href="#before-configuring-dagmc" title="Permalink to this headline">¶</a></h2>
 <p>Before you configure DAGMC, you will need to perform the steps listed in the
 guides for the individual codes with which you want to install DAGMC.</p>
-<p>For DAG-MCNP5, you will need to
-<a class="reference internal" href="dag-mcnp5.html#mcnp5-patch"><em>apply the source code patch</em></a>.</p>
-<p>For FluDAG, you will need to <a class="reference internal" href="fludag.html#install-fluka"><em>install FLUKA</em></a></p>
-<p>For DAG-Geant4, you will need to <a class="reference internal" href="dag-geant4.html#install-geant4"><em>install Geant4</em></a>.</p>
+<p>For DAG-MCNP5/6, you will need to
+<a class="reference internal" href="dag-mcnp.html#mcnp-patch"><span class="std std-ref">apply one of the MCNP source code patches</span></a>.</p>
+<p>For FluDAG, you will need to <a class="reference internal" href="fludag.html#install-fluka"><span class="std std-ref">install FLUKA</span></a>.</p>
+<p>For DAG-Geant4, you will need to <a class="reference internal" href="dag-geant4.html#install-geant4"><span class="std std-ref">install Geant4</span></a>.</p>
 </div>
 <div class="section" id="configure-dag-code">
 <h2>Configure DAGMC with multiple physics codes<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>First, create and enter the build directory.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ cd $HOME/dagmc_bld/DAGMC
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
 $ mkdir bld
 $ cd bld
 </pre></div>
 </div>
 <p>Then, choose where you want to install DAGMC. This is where the binaries,
-libraries, header files, etc. will be placed. This guide uses <tt class="docutils literal"><span class="pre">$INSTALL_PATH</span></tt>
+libraries, header files, etc. will be placed. This guide uses <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code>
 to represent this location.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 </pre></div>
 </div>
 <p>CMake variables are used to configure DAGMC with your desired build options. A
 few examples will be shown here, but you can see a list of all possible options
 <a class="reference external" href="cmake_options.html">here</a>.</p>
-<p>The following CMake command will build an MPI version of DAG-MCNP5 as well as
-DAG-Geant4 and FluDAG.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ cmake .. -DBUILD_MCNP5=ON \
+<p>The following CMake command will build DAG-Geant4 and FluDAG as well as MPI
+versions of DAG-MCNP5 and DAG-MCNP6.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ cmake .. -DBUILD_MCNP5=ON \
+           -DBUILD_MCNP6=ON \
            -DMPI_BUILD=ON \
            -DBUILD_GEANT4=ON \
            -DGEANT4_DIR=$HOME/dagmc_bld/Geant4 \
@@ -153,24 +156,23 @@ DAGMC.</p>
 <div class="section" id="build-dag-code">
 <h2>Build DAGMC with multiple physics codes<a class="headerlink" href="#build-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>Use Make to install DAGMC with multiple physics codes.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ make
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ make
 $ make install
 </pre></div>
 </div>
 <p>If the build was successful, the binaries, libraries, header files, and tests
-will be installed to the <tt class="docutils literal"><span class="pre">bin</span></tt>, <tt class="docutils literal"><span class="pre">lib</span></tt>, <tt class="docutils literal"><span class="pre">include</span></tt>, and <tt class="docutils literal"><span class="pre">tests</span></tt>
-subdirectories of <tt class="docutils literal"><span class="pre">$INSTALL_PATH</span></tt> respectively.</p>
+will be installed to the <code class="docutils literal"><span class="pre">bin</span></code>, <code class="docutils literal"><span class="pre">lib</span></code>, <code class="docutils literal"><span class="pre">include</span></code>, and <code class="docutils literal"><span class="pre">tests</span></code>
+subdirectories of <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
 <p>In order to use DAGMC, make these additions to your paths:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ export PATH=$PATH:$INSTALL_PATH/bin
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$INSTALL_PATH/bin
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 </pre></div>
 </div>
-<p>Again, it may be wise to add these commands to your <tt class="docutils literal"><span class="pre">.bashrc</span></tt> file.</p>
+<p>Again, it may be wise to add these commands to your <code class="docutils literal"><span class="pre">.bashrc</span></code> file.</p>
 </div>
 <div class="section" id="test-dagmc">
 <h2>Test DAGMC<a class="headerlink" href="#test-dagmc" title="Permalink to this headline">¶</a></h2>
-<p>We regularly run the DAGMC test suite on
-<a class="reference external" href="https://travis-ci.org/svalinn/DAGMC">Travis</a> as part of our continuous
+<p>We regularly run the DAGMC test suite on <a class="reference external" href="https://travis-ci.org/svalinn/DAGMC">Travis</a> as part of our continuous
 integration system. You may however wish to run the tests yourself in order to
 verify you have installed DAGMC correctly.</p>
 <p>If the tests have completed successfully, you are now ready to run your first
@@ -187,13 +189,13 @@ for more information.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installing the Cubit/Trelis plugin &mdash; DAGMC</title>
+    <title>Installing the Cubit/Trelis plugin &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="DAGMC installation overview" href="index.html" />
     <link rel="next" title="User’s guide" href="../usersguide/index.html" />
     <link rel="prev" title="DAGMC CMake variables" href="cmake_options.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -78,9 +80,9 @@
 <div id="sidebar">
  <div id="sidebar_section"><ul>
 <li><a class="reference internal" href="#">Installing the Cubit/Trelis plugin</a><ul>
-<li><a class="reference internal" href="#linux-install-instructions">Linux Install Instructions</a></li>
-<li><a class="reference internal" href="#os-x-install-instructions">OS/X Install Instructions</a></li>
-<li><a class="reference internal" href="#windows-install-instructions">Windows Install Instructions</a></li>
+<li><a class="reference internal" href="#linux-install">Linux install</a></li>
+<li><a class="reference internal" href="#os-x-install">OS/X install</a></li>
+<li><a class="reference internal" href="#windows-install">Windows install</a></li>
 </ul>
 </li>
 </ul>
@@ -92,34 +94,39 @@
   <div class="section" id="installing-the-cubit-trelis-plugin">
 <h1>Installing the Cubit/Trelis plugin<a class="headerlink" href="#installing-the-cubit-trelis-plugin" title="Permalink to this headline">¶</a></h1>
 <p>There is a common location that stores all the plugins that are available for
-use. Go to the <a class="reference external" href="http://go.wisc.edu/dagmc-trelis">DAGMC Plugins</a> page and
-download the plugin appropriate for your operating system.</p>
-<div class="section" id="linux-install-instructions">
-<h2>Linux Install Instructions<a class="headerlink" href="#linux-install-instructions" title="Permalink to this headline">¶</a></h2>
-<p>Obtain the Linux plugin from the link above. The following operations should be
-performed as the root user (sudo).</p>
+use. Go to the <a class="reference external" href="http://go.wisc.edu/dagmc-trelis">DAGMC Plugins</a> page and download the plugin
+appropriate for your operating system.</p>
+<div class="section" id="linux-install">
+<h2>Linux install<a class="headerlink" href="#linux-install" title="Permalink to this headline">¶</a></h2>
+<p>Obtain the Linux plugin from the link above. These instructions assume that you
+have installed Trelis in <code class="docutils literal"><span class="pre">/opt/Trelis-16.0</span></code>. If you installed it somewhere
+else, modify these instructions appropriately.</p>
+<p>These operations may need to be performed as the root user (sudo).</p>
 <ol class="arabic simple">
-<li>Unpack tar ball in /opt/Trelis-16.0/bin/plugins</li>
-<li>Change directory to /opt/Trelis-16.0/bin/plugins/dagmc</li>
-<li>Run the install.sh script: ./install.sh</li>
+<li>Unpack the tarball in <code class="docutils literal"><span class="pre">/opt/Trelis-16.0/bin/plugins</span></code>.</li>
+<li>Change directory to <code class="docutils literal"><span class="pre">/opt/Trelis-16.0/bin/plugins/dagmc</span></code>.</li>
+<li>Run the install script: <code class="docutils literal"><span class="pre">./install.sh</span></code>.</li>
 </ol>
 </div>
-<div class="section" id="os-x-install-instructions">
-<h2>OS/X Install Instructions<a class="headerlink" href="#os-x-install-instructions" title="Permalink to this headline">¶</a></h2>
-<p>Obtain the OS/X plugin from the link above. The following operations should be
-performed as the root user (sudo).</p>
+<div class="section" id="os-x-install">
+<h2>OS/X install<a class="headerlink" href="#os-x-install" title="Permalink to this headline">¶</a></h2>
+<p>Obtain the OS/X plugin from the link above. These instructions assume that you
+have installed Trelis in <code class="docutils literal"><span class="pre">/Applications/Trelis-16.0</span></code>. If you installed it
+somewhere else, modify these instructions appropriately.</p>
+<p>These operations may need to be performed as the root user (sudo).</p>
 <ol class="arabic simple">
-<li>If it does not already exist, create a folder called &#8220;plugins&#8221; in
-/Applications/Trelis-16.0/Contents/MacOS/</li>
-<li>Unpack tar ball in /Applications/Trelis-16.0/Contents/MacOS/plugins</li>
-<li>Change directory to /Applications/Trelis-16.0/Contents/MacOS/plugins/dagmc</li>
-<li>Run the install.sh script: ./install.sh</li>
+<li>If it does not already exist, create a folder called <code class="docutils literal"><span class="pre">plugins</span></code> in
+<code class="docutils literal"><span class="pre">/Applications/Trelis-16.0/Contents/MacOS</span></code>.</li>
+<li>Unpack the tarball in <code class="docutils literal"><span class="pre">/Applications/Trelis-16.0/Contents/MacOS/plugins</span></code>.</li>
+<li>Change directory to
+<code class="docutils literal"><span class="pre">/Applications/Trelis-16.0/Contents/MacOS/plugins/dagmc</span></code>.</li>
+<li>Run the install script: <code class="docutils literal"><span class="pre">./install.sh</span></code>.</li>
 </ol>
 </div>
-<div class="section" id="windows-install-instructions">
-<h2>Windows Install Instructions<a class="headerlink" href="#windows-install-instructions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="windows-install">
+<h2>Windows install<a class="headerlink" href="#windows-install" title="Permalink to this headline">¶</a></h2>
 <p>A plugin for Windows is currently being developed; it will be posted to the
-above link when complete.</p>
+DAGMC plugins page when it is ready.</p>
 </div>
 </div>
 
@@ -131,13 +138,13 @@ above link when complete.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

@@ -9,13 +9,12 @@
 Install Geant4
 ~~~~~~~~~~~~~~
 
-DAG-Geant4 uses `Geant4 <http://geant4.cern.ch>`_ from CERN. It is open-source
-software so you do not need to register an account.
+DAG-Geant4 uses Geant4_ from CERN. It is open-source software so you do not need
+to register an account.
 
-Refer to the
-`getting started <http://geant4.cern.ch/support/gettingstarted.shtml>`_ page for
-information about downloading and installing Geant4. The following commands can
-be used to download the Geant4 source code and set it up for building:
+Refer to the `getting started <Geant4_getting_started_>`_ page for information
+about downloading and installing Geant4. The following commands can be used to
+download the Geant4 source code and set it up for building:
 ::
 
     $ cd $HOME/dagmc_bld
@@ -81,3 +80,6 @@ like this:
     [  PASSED  ] 16 tests.
 
 ..  include:: test_dagmc.txt
+
+..  _Geant4: http://geant4.cern.ch
+..  _Geant4_getting_started: http://geant4.cern.ch/support/gettingstarted.shtml

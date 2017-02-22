@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>DAGMC CMake variables &mdash; DAGMC</title>
+    <title>DAGMC CMake variables &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="Installing DAGMC" href="dagmc.html" />
     <link rel="next" title="Installing the Cubit/Trelis plugin" href="plugin.html" />
     <link rel="prev" title="Install DAGMC with multiple physics codes" href="dag_multiple.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -88,27 +90,34 @@
   <div class="section" id="dagmc-cmake-variables">
 <h1>DAGMC CMake variables<a class="headerlink" href="#dagmc-cmake-variables" title="Permalink to this headline">¶</a></h1>
 <p>This page describes the specific CMake variables that affect the DAGMC build.
-Note that unless set, all boolean options default to <tt class="docutils literal"><span class="pre">OFF</span></tt>.</p>
+Note that unless set, all boolean options default to <code class="docutils literal"><span class="pre">OFF</span></code>.</p>
 <blockquote>
 <div><ul class="simple">
-<li><tt class="docutils literal"><span class="pre">-DBUILD_MCNP5=ON</span></tt> Build DAG-MCNP5.</li>
-<li><tt class="docutils literal"><span class="pre">-DMCNP5_DATAPATH=/path/to/mcnp/data</span></tt> Set the path where the DAG-MCNP5
+<li><code class="docutils literal"><span class="pre">-DBUILD_MCNP5=ON</span></code> Build DAG-MCNP5.</li>
+<li><code class="docutils literal"><span class="pre">-DMCNP5_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
 executable will look for nuclear data. If this variable is not set, it
-will look for the data in the location specified by the <tt class="docutils literal"><span class="pre">$DATAPATH</span></tt>
+will look for the data in the location specified by the <code class="docutils literal"><span class="pre">$DATAPATH</span></code>
 environment variable instead.</li>
-<li><tt class="docutils literal"><span class="pre">-DMPI_BUILD=ON</span></tt> If building DAG-MCNP5, build an MPI version.</li>
-<li><tt class="docutils literal"><span class="pre">-DBUILD_FLUKA=ON</span></tt> Build FluDAG. If this option is turned on,
-<tt class="docutils literal"><span class="pre">-DFLUKA_DIR</span></tt> must also be specified.</li>
-<li><tt class="docutils literal"><span class="pre">-DFLUKA_DIR=/path/to/fluka</span></tt> Set the path to Fluka. It should typically
-be set to the <tt class="docutils literal"><span class="pre">$FLUPRO</span></tt> environment variable.</li>
-<li><tt class="docutils literal"><span class="pre">-DBUILD_GEANT4=ON</span></tt> Build DAG-Geant4 and the DagSolid library. If this
-option is turned on, <tt class="docutils literal"><span class="pre">-DGEANT4_DIR</span></tt> may need to be specified if the
+<li><code class="docutils literal"><span class="pre">-DBUILD_MCNP6=ON</span></code> Build DAG-MCNP6.</li>
+<li><code class="docutils literal"><span class="pre">-DMCNP6_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
+executable will look for nuclear data. If this variable is not set, it
+will look for the data in the location specified by the <code class="docutils literal"><span class="pre">$DATAPATH</span></code>
+environment variable instead.</li>
+<li><code class="docutils literal"><span class="pre">-DMPI_BUILD=ON</span></code> If building DAG-MCNP5 and/or DAG-MCNP6, build MPI
+versions.</li>
+<li><code class="docutils literal"><span class="pre">-DBUILD_FLUKA=ON</span></code> Build FluDAG. If this option is turned on,
+<code class="docutils literal"><span class="pre">-DFLUKA_DIR</span></code> must also be specified.</li>
+<li><code class="docutils literal"><span class="pre">-DFLUKA_DIR=/path/to/fluka</span></code> Set the path to Fluka. It should typically
+be set to the <code class="docutils literal"><span class="pre">$FLUPRO</span></code> environment variable.</li>
+<li><code class="docutils literal"><span class="pre">-DBUILD_GEANT4=ON</span></code> Build DAG-Geant4 and the DagSolid library. If this
+option is turned on, <code class="docutils literal"><span class="pre">-DGEANT4_DIR</span></code> may need to be specified if the
 CMake files can&#8217;t find Geant4 by themselves.</li>
-<li><tt class="docutils literal"><span class="pre">-DGEANT4_DIR=/path/to/geant4</span></tt> Set the path to Geant4.</li>
-<li><tt class="docutils literal"><span class="pre">-DBUILD_TALLY=ON</span></tt> Build the DagTally interface. Note that if you have
-<tt class="docutils literal"><span class="pre">-DBUILD_MCNP5=ON</span></tt> then this is automatically set to ON.</li>
-<li><tt class="docutils literal"><span class="pre">-DBUILD_ALL=ON</span></tt> Build DAG-MCNP5, DAG-Geant4, and FluDAG.</li>
-<li><tt class="docutils literal"><span class="pre">-DSTATIC_LIB=ON</span></tt> Build static libraries and executables.</li>
+<li><code class="docutils literal"><span class="pre">-DGEANT4_DIR=/path/to/geant4</span></code> Set the path to Geant4.</li>
+<li><code class="docutils literal"><span class="pre">-DBUILD_TALLY=ON</span></code> Build the DagTally interface. Note that if you are
+using <code class="docutils literal"><span class="pre">-DBUILD_MCNP5=ON</span></code> or <code class="docutils literal"><span class="pre">-DBUILD_MCNP6=ON</span></code> then this is
+automatically set to ON.</li>
+<li><code class="docutils literal"><span class="pre">-DBUILD_ALL=ON</span></code> Build DAG-MCNP5, DAG-MCNP6, FluDAG, and DAG-Geant4.</li>
+<li><code class="docutils literal"><span class="pre">-DSTATIC_LIB=ON</span></code> Build static libraries and executables.</li>
 </ul>
 </div></blockquote>
 </div>
@@ -121,13 +130,13 @@ CMake files can&#8217;t find Geant4 by themselves.</li>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

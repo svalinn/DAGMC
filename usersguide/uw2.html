@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>University of Wisconsin Unified Workflow (UWUW) &mdash; DAGMC</title>
+    <title>University of Wisconsin Unified Workflow (UWUW) &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="User’s guide" href="index.html" />
     <link rel="next" title="Monte Carlo code-specific steps" href="codes/index.html" />
     <link rel="prev" title="Cubit/Trelis basics" href="trelis_basics.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -83,14 +85,14 @@
 <li><a class="reference internal" href="#boundary-conditions">Boundary conditions</a></li>
 <li><a class="reference internal" href="#particle-importances">Particle importances</a></li>
 <li><a class="reference internal" href="#uw2-data">UW<sup>2</sup> data</a></li>
-<li><a class="reference internal" href="#mcnp-specific-steps">MCNP-specific steps</a></li>
-<li><a class="reference internal" href="#the-dag-mcnp5-input-file">The DAG-MCNP5 input file</a></li>
-<li><a class="reference internal" href="#running-dag-mcnp5">Running DAG-MCNP5</a></li>
+<li><a class="reference internal" href="#mcnp5-6-specific-steps">MCNP5/6-specific steps</a></li>
+<li><a class="reference internal" href="#the-dag-mcnp-input-file">The DAG-MCNP input file</a></li>
+<li><a class="reference internal" href="#running-dag-mcnp">Running DAG-MCNP</a></li>
 <li><a class="reference internal" href="#fludag-specific-steps">FluDAG-specific steps</a></li>
 <li><a class="reference internal" href="#geant4-specific-steps">Geant4-specific steps</a></li>
 <li><a class="reference internal" href="#worked-example">Worked example</a></li>
 <li><a class="reference internal" href="#example-input">Example input</a></li>
-<li><a class="reference internal" href="#mcnp-run">MCNP run</a></li>
+<li><a class="reference internal" href="#dag-mcnp5-run">DAG-MCNP5 run</a></li>
 <li><a class="reference internal" href="#fludag-run">FluDAG run</a></li>
 <li><a class="reference internal" href="#dag-geant4-run">Dag-Geant4 run</a></li>
 </ul>
@@ -103,123 +105,126 @@
             
   <div class="section" id="university-of-wisconsin-unified-workflow-uwuw">
 <h1>University of Wisconsin Unified Workflow (UWUW)<a class="headerlink" href="#university-of-wisconsin-unified-workflow-uwuw" title="Permalink to this headline">¶</a></h1>
-<p>The University of Wisconsin Unified Workflow (UW<sup>2</sup>) aims to solve the
-issue of running the same Monte Carlo problem using mutiple physics codes. Currently,
-if you wish to run the same problem in multiple codes you must fully recreate the
-input deck for each code, or maybe write a full syntax translator. UW<sup>2</sup> allows users
-to tag or associate groups of volumes or surfaces with a simple human readable syntax
-that is translated and stored in the geometry file of a DAGMC problem.</p>
+<p>The University of Wisconsin Unified Workflow (UW<sup>2</sup>) aims to solve the issue of
+running the same Monte Carlo problem using mutiple physics codes. Currently, if
+you wish to run the same problem in multiple codes you must fully recreate the
+input file for each code, or maybe write a full syntax translator. UW<sup>2</sup> allows
+users to tag or associate groups of volumes or surfaces with a simple human
+readable syntax that is translated and stored in the geometry file of a DAGMC
+problem.</p>
 <p>The workflow uses the Python for Nuclear Engineering toolkit, <a class="reference external" href="http://pyne.io">PyNE</a>. We
-levereage the existing infrastructure in PyNE to allow a consistent transport problem to be
-defined across all MC codes.</p>
+leverage the existing infrastructure in PyNE to allow a consistent transport
+problem to be defined across all MC codes.</p>
 <div class="section" id="materials">
 <h2>Materials<a class="headerlink" href="#materials" title="Permalink to this headline">¶</a></h2>
-<p>Materials are the most painful and error prone items to transfer from code to code, since each MC code
-specifies materials in a different way. Instead, we tag groups of volumes
-with a name and syntax that corresponds to material compositions in a predefined
-material library.</p>
+<p>Materials are the most painful and error-prone items to transfer from code to
+code, since each MC code specifies materials in a different way. Instead, we tag
+groups of volumes with a name and syntax that corresponds to material
+compositions in a predefined material library.</p>
 <p>The group naming syntax for describing materials in Cubit/Trelis is:</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;&quot;
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;&quot;
 </pre></div>
 </div>
-<p>If you wish to specify a material that is present in the library with a different
-density, then</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;/rho:&lt;density&gt;&quot;
+<p>If you wish to specify a material that is present in the library with a
+different density, then</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;/rho:&lt;density&gt;&quot;
 </pre></div>
 </div>
 <p>So for example, to specify a Stainless Steel at a density of 12.0 g/cc,</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;mat:Stainless Steel/rho:12.0&quot;
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Stainless Steel/rho:12.0&quot;
 </pre></div>
 </div>
 </div>
 <div class="section" id="scoring">
 <h2>Scoring<a class="headerlink" href="#scoring" title="Permalink to this headline">¶</a></h2>
-<p>Each MC code implements tallies, or scores, in very specific ways such that there
-is sometimes no equivalent to a tally you may be familiar with, code to code. However,
-there is a Cubit syntax to allow you to request scores on geomemtric elments, the generic form is,</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;tally:ParticleName/ScoreType&quot; add vol x
+<p>Each MC code implements tallies, or scores, in very specific ways such that
+there is sometimes no equivalent to a tally you may be familiar with, code to
+code. However, there is a Cubit syntax to allow you to request scores on
+geomemtric elments. The generic form is</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:ParticleName/ScoreType&quot; add vol x
 </pre></div>
 </div>
 <p>A specific example, scoring the neutron flux in vol 2,</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;tally:Neutron/Flux&quot; add vol 2
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:Neutron/Flux&quot; add vol 2
 </pre></div>
 </div>
 <p>or the photon current crossing surface 3,</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;tally:Photon/Current&quot; add surface 3
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:Photon/Current&quot; add surface 3
 </pre></div>
 </div>
-<p>Using the underlying PyNE libraries we can write out the appropriate MC code
-tally specification snippet; this allows the number of codes the DAGMC
-supports to grow organically with those that PyNE supports. When PyNE cannot
-fulfill your tally request it will warn you.</p>
+<p>Using the underlying PyNE libraries, we can write out the appropriate MC code
+tally specification snippet; this allows the number of codes that DAGMC supports
+to grow organically with those that PyNE supports. When PyNE cannot fulfill your
+tally request it will warn you.</p>
 </div>
 <div class="section" id="boundary-conditions">
 <h2>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h2>
 <p>All MC codes have an understanding of boundary conditions, and all at least
-implement some form of Graveyard, Blackhole or some region where particles are
-&#8216;killed&#8217;. Some MC codes go further and define reflecting or other boundary
-conditions; furthermore some apply these boundary conditions to entire Volumes
-as opposed to Surfaces.  Currently we support only reflecting surface
+implement some form of graveyard, black hole or region where particles are
+&#8220;killed&#8221;. Some MC codes go further and define reflecting or other boundary
+conditions. Furthermore, some apply these boundary conditions to entire volumes
+as opposed to surfaces. Currently we support only reflecting surface
 definitions, but in the near term we hope to support full volume reflecting
 boundaries. One can implement reflecting surfaces in UW<sup>2</sup> by adding surfaces
 to the following Cubit group defintion</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;boundary:Reflecting&quot;
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:Reflecting&quot;
 </pre></div>
 </div>
 <p>or if you prefer, Lambert (white reflection)</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;boundary:White&quot;
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:White&quot;
 </pre></div>
 </div>
 </div>
 <div class="section" id="particle-importances">
 <h2>Particle importances<a class="headerlink" href="#particle-importances" title="Permalink to this headline">¶</a></h2>
-<p>Particle importances are in important aspect of Monte Carlo simulations and
-are used to help particles to penetrate to &#8220;important&#8221; regions of the geometry.
-There are several automatic methods to generate mesh based importances or weights,
-but if your importances are tried to the geometry, then this can be tagged onto
-the geometry.</p>
+<p>Particle importances are in important aspect of Monte Carlo simulations and are
+used to help particles to penetrate to &#8220;important&#8221; regions of the geometry.
+There are several automatic methods to generate mesh based importances or
+weights, but if your importances are tried to the geometry, then they can be
+tagged onto the geometry.</p>
 <p>The UW<sup>2</sup> workflow has a code agnostic way of defining importances.</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; group &quot;importance:Neutron/1.0&quot;
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;importance:Neutron/1.0&quot;
 </pre></div>
 </div>
-<p>This is translated to the code specific version at runtime. <em>Note: Fluka&#8217;s importance
-range runs from 1e-5 to 1e5, when written to file, the range is rescaled and any out of
-range values are truncated to 1e-5 and 1e5.</em></p>
+<p>This is translated to the code specific version at runtime. <em>Note: Fluka&#8217;s
+importance range runs from 1e-5 to 1e5, when written to file. The range is
+rescaled and any out-of-range values are truncated to 1e-5 or 1e5.</em></p>
 </div>
 <div class="section" id="uw2-data">
 <h2>UW<sup>2</sup> data<a class="headerlink" href="#uw2-data" title="Permalink to this headline">¶</a></h2>
-<p>The UW<sup>2</sup> data is incorporated into the geometry file (*.h5m) file using a
-C++ program, uwuw_preproc, the purpose of which is to take the user&#8217;s
-material library, e.g. my_nuc_library.h5, and extract the materials requested,
-placing them into the geometry file. Having already marked up your geometry
-using the methods mentioned in previous sections, we can run the preprocessor</p>
-<div class="highlight-python"><div class="highlight"><pre>$ uwuw_preproc &lt;dagmc h5m filename&gt; -v -l &lt;path to nuclear data library&gt;
+<p>The UW<sup>2</sup> data is incorporated into the geometry file (*.h5m) file using the
+C++ program <code class="docutils literal"><span class="pre">uwuw_preproc</span></code>, the purpose of which is to take the user&#8217;s
+material library, e.g. <code class="docutils literal"><span class="pre">my_nuc_library.h5</span></code>, and extract the materials
+requested, placing them into the geometry file. If you have already marked up
+your geometry using the methods mentioned in previous sections, you can run the
+preprocessor.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ uwuw_preproc &lt;dagmc h5m filename&gt; -v -l &lt;path to nuclear data library&gt;
 </pre></div>
 </div>
 <p>Be sure to examine the output of this script which will inform you of the
 materials and densities requested and also the list of tallies that were
-produced. A sample output is shown below</p>
-<div class="highlight-python"><div class="highlight"><pre>$ uwuw_preproc test_geom.h5m -l \
+produced. A sample output is shown below.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ uwuw_preproc test_geom.h5m -l \
       $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 </pre></div>
 </div>
-<p>Also, the program will produce a fatal error if the material is not found in
-the material library. There is a simulate mode (flag -s) to perform all operations
-that would be performed on a normal operation, with the exception that no data
-is actually written, this can be done to test your file to make sure all the expected
+<p>Also, the program will produce a fatal error if the material is not found in the
+material library. There is a simulate mode (flag -s) to perform all operations
+that would be performed on a normal operation, except that no data is actually
+written. This can be done to test your file to make sure all the expected
 materials are present in the file.</p>
 </div>
-<div class="section" id="mcnp-specific-steps">
-<h2>MCNP-specific steps<a class="headerlink" href="#mcnp-specific-steps" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mcnp5-6-specific-steps">
+<h2>MCNP5/6-specific steps<a class="headerlink" href="#mcnp5-6-specific-steps" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="the-dag-mcnp5-input-file">
-<h2>The DAG-MCNP5 input file<a class="headerlink" href="#the-dag-mcnp5-input-file" title="Permalink to this headline">¶</a></h2>
-<p>The DAG-MCNP5 input file contains only the data cards section of a
-standard MCNP5 input file.  There are no cell or surface cards
-included in the input file.</p>
-<p>A new data card has been added to DAG-MCNP5 to define parameters for
-the DAGMC geometry capability.</p>
-<div class="highlight-python"><div class="highlight"><pre>Form: dagmc  keyword1=value   keyword2=value
+<div class="section" id="the-dag-mcnp-input-file">
+<h2>The DAG-MCNP input file<a class="headerlink" href="#the-dag-mcnp-input-file" title="Permalink to this headline">¶</a></h2>
+<p>Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6.</p>
+<p>The DAG-MCNP input file contains only the data cards section of a standard MCNP
+input file. There are no cell or surface cards included in the input file.</p>
+<p>A new data card has been added to DAG-MCNP to define parameters for the DAGMC
+geometry capability.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Form: dagmc  keyword1=value   keyword2=value
      check_src_cell: behavior of CEL variable in SDEF card
                         on  [default] standard interpretation for
                                       CEL variable: source rejection
@@ -234,89 +239,92 @@ the DAGMC geometry capability.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="running-dag-mcnp5">
-<h2>Running DAG-MCNP5<a class="headerlink" href="#running-dag-mcnp5" title="Permalink to this headline">¶</a></h2>
-<p>Running DAG-MCNP5 is identical to running the standard MCNP5, but a few new
+<div class="section" id="running-dag-mcnp">
+<h2>Running DAG-MCNP<a class="headerlink" href="#running-dag-mcnp" title="Permalink to this headline">¶</a></h2>
+<p>Running DAG-MCNP is identical to running the standard MCNP, but a few new
 keywords have been added to the command line to specify the necessary files.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">gcad=&lt;geom_file&gt;</span></tt> (required):</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required):</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Specify the filename of the input geometry
 file. It can be in one of two formats: the MOAB (*.h5m) format (this is the
-format produced by <tt class="docutils literal"><span class="pre">export</span> <span class="pre">dagmc</span></tt> in Trelis/Cubit), or a facet file
-produced by DAGMC. If this entry is not present, DAG-MCNP5 will assume that
-it is running in standard MCNP5 mode.</td>
+format produced by <code class="docutils literal"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
+produced by DAGMC. If this entry is not present, DAG-MCNP will assume that
+it is running in native MCNP mode.</td>
 </tr>
-<tr class="field-even field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">fcad=&lt;facet_file&gt;</span></tt> (optional):</th></tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">fcad=&lt;facet_file&gt;</span></code> (optional):</th></tr>
 <tr class="field-even field"><td>&nbsp;</td><td class="field-body">[default: fcad] Specify the filename of the
 output facet file. This is the file produced by DAGMC that contains the
 geometry as well as the products of a number of preprocessing steps, which
 can be quite time-consuming. This file can be used as input with the
-<tt class="docutils literal"><span class="pre">gcad=</span></tt> keyword in subsequent runs to avoid spending time redoing the
+<code class="docutils literal"><span class="pre">gcad=</span></code> keyword in subsequent runs to avoid spending time redoing the
 preprocessing steps.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name" colspan="2"><tt class="docutils literal"><span class="pre">lcad=&lt;log_file&gt;</span></tt> (optional):</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">lcad=&lt;log_file&gt;</span></code> (optional):</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body">[default: lcad] Specify the filename of the
 output log file. This is a skeleton of an MCNP file which contains
 information about the volumes, surfaces, materials and material assignments,
 boundary conditions, and tallies defined in the geometry. If you specify a
 name other than the default for this file on the command-line, that file
-will be used instead of the one generated automatically by DAG-MCNP5. This
+will be used instead of the one generated automatically by DAG-MCNP. This
 can be useful if you want to make small changes to your material
 assignments, importances, etc., but it cannot be used to change anything
 about the geometry. It is up to the user to ensure that the geometry file
 and log file being used correspond to each other. This runtime parameter is
-unique to DAG-MCNP5.</td>
+unique to DAG-MCNP.</td>
 </tr>
 </tbody>
 </table>
-<p>To run a MCNP based DAG problem, the user must make the minimum input deck
-that defines the particle source definition, runtime parameters, and physics
-cutoffs. You then run MCNP;</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mcnp5 i=input g=geom.h5m
+<p>To run DAG-MCNP, you must make the minimum input deck that defines the particle
+source definition, runtime parameters, and physics cutoffs. You then run
+DAG-MCNP5 with</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m
 </pre></div>
 </div>
-<p>It may be the case that some nuclides are not found, an lcad file will have been produced in the previous step
-which the user can modify to remove extraneous nuclides and re-run with;</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mcnp5 i=input g=geom.h5m l=lcad_modified
+<p>If DAG-MCNP is unable to find some nuclides, you can modify the lcad file that
+was produced in the previous step to remove extraneous nuclides, and re-run with</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m l=lcad_modified
 </pre></div>
 </div>
 </div>
 <div class="section" id="fludag-specific-steps">
 <h2>FluDAG-specific steps<a class="headerlink" href="#fludag-specific-steps" title="Permalink to this headline">¶</a></h2>
-<p>To run a FluDAG based UWUW problem, like the above MCNP example, the user must make a minmal Fluka input deck
-defining runtime parameters, source definition, remembering to include the GEOBEGIN keyword set to FLUGG.
-Once this is done run the mainfludag executable to produce the mat.inp which contains all the detailed
-material assignments and compound descriptions;</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mainfludag geom.h5m
+<p>To run a FluDAG-based UWUW problem, like the above MCNP example, the user must
+make a minmal Fluka input deck defining runtime parameters and source
+definition, remembering to set the <code class="docutils literal"><span class="pre">GEOBEGIN</span></code> to <code class="docutils literal"><span class="pre">FLUGG</span></code>. Once this is done,
+run the <code class="docutils literal"><span class="pre">mainfludag</span></code> executable to produce the <code class="docutils literal"><span class="pre">mat.inp</span></code> file which contains
+all the detailed material assignments and compound descriptions.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ mainfludag geom.h5m
 </pre></div>
 </div>
-<p>The user then should paste the contents of the mat.inp into the main Fluka input deck. Now the user must make
-a symbolic link to the geometry file named dagmc.h5m</p>
-<div class="highlight-python"><div class="highlight"><pre>$ ln -s geom.h5m dagmc.h5m
+<p>The user should then paste the contents of <code class="docutils literal"><span class="pre">mat.inp</span></code> into the main FLUKA input
+deck. Now the user must make a symbolic link to the geometry file named
+<code class="docutils literal"><span class="pre">dagmc.h5m</span></code>.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ ln -s geom.h5m dagmc.h5m
 </pre></div>
 </div>
-<p>The mainfludag executable always looks for the dagmc.h5m file. You can now run as if it were a standard
-Fluka problem</p>
-<div class="highlight-python"><div class="highlight"><pre>$ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
+<p>The <code class="docutils literal"><span class="pre">mainfludag</span></code> executable always looks for the <code class="docutils literal"><span class="pre">dagmc.h5m</span></code> file. You can
+now run as if it were a standard FLUKA problem</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 </pre></div>
 </div>
 </div>
 <div class="section" id="geant4-specific-steps">
 <h2>Geant4-specific steps<a class="headerlink" href="#geant4-specific-steps" title="Permalink to this headline">¶</a></h2>
-<p>To run a Geant4 problem, like those shown above, the user must write a Geant4 macro file that contains at
-minimum, only the source description (GPS) and the number of particles to simulate. The problem is then run with</p>
-<div class="highlight-python"><div class="highlight"><pre>$ DagGeant geom.h5m input.mac
+<p>To run a DAG-Geant4-based UWUW problem, like those shown above, the user must
+write a Geant4 macro file that contains at minimum the source description (GPS)
+and the number of particles to simulate. The problem is then run with</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ DagGeant geom.h5m input.mac
 </pre></div>
 </div>
 </div>
 <div class="section" id="worked-example">
 <h2>Worked example<a class="headerlink" href="#worked-example" title="Permalink to this headline">¶</a></h2>
-<p>Open Trelis/Cubit, and let&#8217;s place some volumes to create our first problem.  We will
-create 4 cubes of side 10 cm, shifting each in a different direction</p>
-<div class="highlight-python"><div class="highlight"><pre>CUBIT&gt; brick x 10
+<p>Open Cubit/Trelis, and let&#8217;s place some volumes to create our first problem. We
+will create 4 cubes of side 10 cm, shifting each in a different direction.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; brick x 10
 CUBIT&gt; move Volume 1 x 20 include_merged
 CUBIT&gt; group &quot;mat:Lead&quot; add volume 1
 CUBIT&gt; group &quot;tally:Photon/Flux&quot; add volume 1
@@ -342,19 +350,19 @@ CUBIT&gt; set attribute on
 CUBIT&gt; export acis &quot;example.sat&quot; overwrite
 </pre></div>
 </div>
-<p>You will end up with something like that shown below.</p>
+<p>You will end up with something like this.</p>
 <a class="reference internal image-reference" href="../_images/uwuwexample.png"><img alt="An example of the geometry you should get applying the above stages" src="../_images/uwuwexample.png" style="width: 600px; height: 300px;" /></a>
 <p>The file is now ready for preprocessing. First we must facet the file:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ dagmc_preproc example.sat -o example.h5m
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ dagmc_preproc example.sat -o example.h5m
 </pre></div>
 </div>
 <p>Now we can insert all the material data we need:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ uwuw_preproc example.h5m -l \
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ uwuw_preproc example.h5m -l \
       $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 </pre></div>
 </div>
-<p>Your output from this step should look exactly the same as below</p>
-<div class="highlight-python"><div class="highlight"><pre>Making new material with name      : mat:Lead
+<p>Your output from this step should look exactly the same as this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Making new material with name      : mat:Lead
                  with fluka_name:     LEAD
 Making new material with name      : mat:Lead/rho:12.3
                  with fluka_name:    LEAD1
@@ -370,19 +378,19 @@ Writing tally PHFL3 to file example.h5m
 Writing tally PHFL4 to file example.h5m
 </pre></div>
 </div>
-<p>So we see echoed back to us that we requested a Graveyard and two different
-material assignments: one for Lead, as defined in the material library, and
-another kind of Lead at a different density than the library version. We
-also see that 4 tallies were requested: the photon flux in each volume.</p>
+<p>So we see echoed back to us that we requested a graveyard and two different
+material assignments: one for lead, as defined in the material library, and
+another kind of lead at a different density than the library version. We also
+see that 4 tallies were requested: the photon flux in each volume.</p>
 </div>
 <div class="section" id="example-input">
 <h2>Example input<a class="headerlink" href="#example-input" title="Permalink to this headline">¶</a></h2>
-<p>We are now ready to run, once we have made the input deck for each Monte Carlo
-code. We wish to launch 10^5 particles from a point source located at 0 0 0,
-with isotropic angular behaviour for photons of 1 MeV. The input for MCNP and
-FLUKA are shown below.</p>
-<p>MCNP example: let us call this mcnp.inp</p>
-<div class="highlight-python"><div class="highlight"><pre>example of UWUW
+<p>We are now ready to run DAGMC, once we have made the input deck for each Monte
+Carlo code. We wish to simulate 10^5 photons with energy 1 MeV emitted
+isotropically from the point (0,0,0). The inputs for MCNP5 and FLUKA are shown
+below.</p>
+<p>MCNP5 example: let us call this <code class="docutils literal"><span class="pre">mcnp.inp</span></code>.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>example of UWUW
 c notice no cell cards
 c notice no surface cards
 c notice no blank lines!
@@ -394,8 +402,8 @@ nps 1e5
 print
 </pre></div>
 </div>
-<p>Fluka example: let us called this fluka.inp</p>
-<div class="highlight-python"><div class="highlight"><pre>TITLE
+<p>FLUKA example: let us called this <code class="docutils literal"><span class="pre">fluka.inp</span></code>.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>TITLE
 * Set the defaults for precision simulations
 DEFAULTS                                                              PRECISIO
 * Define the beam characteristics
@@ -416,14 +424,14 @@ STOP
 </pre></div>
 </div>
 </div>
-<div class="section" id="mcnp-run">
-<h2>MCNP run<a class="headerlink" href="#mcnp-run" title="Permalink to this headline">¶</a></h2>
-<p>Now we are ready to run the first DAG-MCNP5 example:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mcnp5 i=mcnp.inp g=example.h5m
+<div class="section" id="dag-mcnp5-run">
+<h2>DAG-MCNP5 run<a class="headerlink" href="#dag-mcnp5-run" title="Permalink to this headline">¶</a></h2>
+<p>Now we are ready to run the first DAG-MCNP5 example.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=mcnp.inp g=example.h5m
 </pre></div>
 </div>
-<p>You should see the following on screen</p>
-<div class="highlight-python"><div class="highlight"><pre>The implicit complement&#39;s total surface area = 128550
+<p>You should see something like this on screen.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>The implicit complement&#39;s total surface area = 128550
 This problem is using DAGMC version    1.000 w/ DagMC r   0
 Using default writer WriteHDF5 for file fcad
 /mnt/data/prod/uwuw_example/web_example/example.h5m
@@ -465,18 +473,18 @@ dump    2 on file runtpe   nps =      100000   coll =            56221
 mcrun  is done
 </pre></div>
 </div>
-<p>Feel free to examine the output of the run, but this provides a simple example on what to
-expect.</p>
+<p>Feel free to examine the output of the run, but this is only a simple example of
+what to expect.</p>
 </div>
 <div class="section" id="fludag-run">
 <h2>FluDAG run<a class="headerlink" href="#fludag-run" title="Permalink to this headline">¶</a></h2>
-<p>For FluDAG, first we produce the mat.inp snippet file: this must then be pasted into
-the full Fluka input deck</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mainfludag example.h5m
+<p>For FluDAG, first we produce the <code class="docutils literal"><span class="pre">mat.inp</span></code> snippet file. This must then be
+pasted into the full FLUKA input deck.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ mainfludag example.h5m
 </pre></div>
 </div>
-<p>The mat.inp file should look like</p>
-<div class="highlight-python"><div class="highlight"><pre>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+<p>The <code class="docutils literal"><span class="pre">mat.inp</span></code> file should look like</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
 ASSIGNMA       LEAD1        1.
 ASSIGNMA       LEAD1        2.
 ASSIGNMA       LEAD2        3.
@@ -505,21 +513,22 @@ USRTRACK       10.E1     1.E-3                                               &am
 <p>At this point you will need to add two lines to the input file manually. This is
 because the component of the code which identifies neutron cross section data is
 not yet complete.</p>
-<div class="highlight-python"><div class="highlight"><pre>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....
+<div class="highlight-none"><div class="highlight"><pre><span></span>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....
 LOW-MAT        LEAD1       82.       -2.      296.                    LEAD
 LOW-MAT        LEAD2       82.       -2.      296.                    LEAD
 </pre></div>
 </div>
-<p>The lines above must be pasted into the Fluka input and then run as you would
-any Fluka, with the exception that we give the rfluka script an executable
-argument and a new &#8220;-d&#8221; argument, which specifies the geometry filename:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
+<p>The lines above must be pasted into the FLUKA input and then run as you would
+a native FLUKA problem, with the exception that we give the <code class="docutils literal"><span class="pre">rfluka</span></code> script an
+executable argument and a new <code class="docutils literal"><span class="pre">-d</span></code> argument, which specifies the geometry
+filename.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
 </pre></div>
 </div>
 <p>The code should run and successfully produce screen output similar to the
-following (the filepaths will change according to your system, as will the
-numerical part of &#8220;fluka_26362&#8221;):</p>
-<div class="highlight-python"><div class="highlight"><pre>$TARGET_MACHINE = Linux
+following. (The filepaths will change according to your system, as will the
+numerical part of &#8220;fluka_26362&#8221;.)</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$TARGET_MACHINE = Linux
 $FLUPRO = /mnt/data/opt/fluka/fluka/
 
 Initial seed already existing
@@ -538,21 +547,21 @@ End of FLUKA run
 </div>
 <div class="section" id="dag-geant4-run">
 <h2>Dag-Geant4 run<a class="headerlink" href="#dag-geant4-run" title="Permalink to this headline">¶</a></h2>
-<p>DagGeant4 is probably the most trivial of all the UW<sup>2</sup> enabled codes to run.
-Copy the vis.mac file from DAGMC/geant4/build/vis.mac</p>
-<div class="highlight-python"><div class="highlight"><pre>$ DagGeant4 example.h5m
+<p>Dag-Geant4 is probably the most trivial of all the UW<sup>2</sup>-enabled codes to run.
+Copy the <code class="docutils literal"><span class="pre">vis.mac</span></code> file from <code class="docutils literal"><span class="pre">DAGMC/geant4/build/vis.mac</span></code>.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ DagGeant4 example.h5m
 </pre></div>
 </div>
-<p>After some loading you should see a GUI window open (if you build geant4 with
-visualisation on).  We can then use the Geant4 general particle
-source to emulate the behaviour of the previous two codes:</p>
-<div class="highlight-python"><div class="highlight"><pre>Idle&gt; /gps/particle gamma
+<p>After some loading you should see a GUI window open (if you built Geant4 with
+visualization enabled).  You can then use the Geant4 general particle source to
+emulate the behaviour of the previous two codes.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Idle&gt; /gps/particle gamma
 Idle&gt; /gps/ang/type iso
 Idle&gt; /gps/energy 1.0 MeV
 </pre></div>
 </div>
-<p>Now we are ready to run:</p>
-<div class="highlight-python"><div class="highlight"><pre>Idle&gt; /run/beamOn 1000000
+<p>Now we are ready to run.</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>Idle&gt; /run/beamOn 1000000
 </pre></div>
 </div>
 </div>
@@ -566,13 +575,13 @@ Idle&gt; /gps/energy 1.0 MeV
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

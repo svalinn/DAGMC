@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>DAGMC tools &mdash; DAGMC</title>
+    <title>DAGMC tools &#8212; DAGMC</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,12 +24,14 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="DAGMC" href="../index.html" />
     <link rel="up" title="User’s guide" href="index.html" />
     <link rel="next" title="Post-processing" href="postprocessing.html" />
     <link rel="prev" title="DAGMC unstructured mesh tallies" href="tally.html" /> 
   </head>
-  <body> 
+  <body role="document"> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -101,13 +103,13 @@ educate what those tools are and how to use them.</p>
 surfaces are coincident. Models produced by Cubit/Trelis are not guarenteed to
 be watertight, and as a general rule, the more complicated the model, the less
 likely it is to be completely watertight.</p>
-<p>The <tt class="docutils literal"><span class="pre">make_watertight</span></tt> tool aims to fix any watertightness issues in a model by
+<p>The <code class="docutils literal"><span class="pre">make_watertight</span></code> tool aims to fix any watertightness issues in a model by
 using faceted curve information to seal triangle facets that meet on the same
 curve. An example of its use is shown here: the red lines show the geometry
-before <tt class="docutils literal"><span class="pre">make_watertight</span></tt> and the black lines show the geometry after its use.</p>
+before <code class="docutils literal"><span class="pre">make_watertight</span></code> and the black lines show the geometry after its use.</p>
 <a class="reference internal image-reference" href="../_images/watertight.png"><img alt="An example of the use of make_wateright: the red lines show the geometry before ``make_watertight`` and the black lines show the geometry after its use." src="../_images/watertight.png" style="width: 600px; height: 500px;" /></a>
-<p><tt class="docutils literal"><span class="pre">make_watertight</span></tt> can be run with:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ make_wateright &lt;filename&gt;
+<p><code class="docutils literal"><span class="pre">make_watertight</span></code> can be run with:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ make_wateright &lt;filename&gt;
 </pre></div>
 </div>
 <p>The product will be a file named, <cite>filename_zip.h5m</cite>, and a summary is provided
@@ -115,14 +117,14 @@ of what operations were done to seal the model.</p>
 </div>
 <div class="section" id="check-watertight">
 <h2>check_watertight<a class="headerlink" href="#check-watertight" title="Permalink to this headline">¶</a></h2>
-<p>The <tt class="docutils literal"><span class="pre">check_watertight</span></tt> tool can be used to find out how watertight a
+<p>The <code class="docutils literal"><span class="pre">check_watertight</span></code> tool can be used to find out how watertight a
 given model is. It should be used as a post-processing step after
-<tt class="docutils literal"><span class="pre">make_watertight</span></tt> to verify that the model has been made more watertight.</p>
-<p><tt class="docutils literal"><span class="pre">check_watertight</span></tt> can be run  with:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ check_wateright &lt;filename&gt;
+<code class="docutils literal"><span class="pre">make_watertight</span></code> to verify that the model has been made more watertight.</p>
+<p><code class="docutils literal"><span class="pre">check_watertight</span></code> can be run  with:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ check_wateright &lt;filename&gt;
 </pre></div>
 </div>
-<p>Both <tt class="docutils literal"><span class="pre">make_watertight``and</span> <span class="pre">``check_watertight</span></tt> are built during the main DAGMC
+<p>Both <code class="docutils literal"><span class="pre">make_watertight``and</span> <span class="pre">``check_watertight</span></code> are built during the main DAGMC
 build procedure and can be found in DAGMC&#8217;s <cite>bin</cite> directory.</p>
 </div>
 <div class="section" id="mbconvert">
@@ -132,11 +134,11 @@ text based format. It is useful for converting DAGMC models into some other
 visualization form for result post processing, such as stl files for viewing in
 Visit or Paraview. To run mbconvert input option, input filename and output
 filename are specificed:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mbconvert &lt;input_filename&gt; &lt;output_filename&gt; [options]
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ mbconvert &lt;input_filename&gt; &lt;output_filename&gt; [options]
 </pre></div>
 </div>
 <p>The options which control mbconvert are:</p>
-<div class="highlight-python"><div class="highlight"><pre>-v  &lt;int&gt; - extract a specific volume or range of volumes
+<div class="highlight-none"><div class="highlight"><pre><span></span>-v  &lt;int&gt; - extract a specific volume or range of volumes
 -s  &lt;int&gt; - extract a specific surface or range of surfaces
 -c  &lt;int&gt; - extract a specific curve or range of curves
 -1  - extract edges only
@@ -152,16 +154,14 @@ filename are specificed:</p>
 <p>Sometimes either poor quality CAD, incorrect imprinting &amp; merging or overlapping
 volumes; particles are regarded as lost by the Monte Carlo code. It is therefore
 neccessary to be able to examine where the particles were lost and in which
-direction they were travelling in. The tool
-<a class="reference external" href="https://github.com/svalinn/meshtools/tree/master/lostparticles">mklostvis</a> is
-designed for this purpose, reading the output of the MCNP lost particle
-information and producing a <a class="reference external" href="https://cubit.sandia.gov/">Cubit</a> or
-<a class="reference external" href="http://www.csimsoft.com/trelis.jsp">Trelis</a> journal file which will draw the
-lost particles as vertices and their directions as curves. To run the script;</p>
-<div class="highlight-python"><div class="highlight"><pre>$ mklostvis.pl [mcnp output filename] [vector length] &gt; [journal file name]
+direction they were travelling in. The tool <a class="reference external" href="https://github.com/svalinn/meshtools/tree/master/lostparticles">mklostvis</a> is designed for this
+purpose, reading the output of the MCNP lost particle information and producing
+a Cubit or journal file which will draw the lost particles as vertices and their
+directions as curves. The script can be run with:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ mklostvis.pl [mcnp_output_filename] [vector_length] &gt; [journal_file_name]
 </pre></div>
 </div>
-<p>The produced Cubit journal file can be &#8216;played&#8217;, and will plot these lost
+<p>The produced Cubit journal file can be &#8220;played&#8221;, and will plot these lost
 particles on top of whatever geometry is loaded into your Cubit session, like
 that shown below.</p>
 <a class="reference internal image-reference" href="../_images/lost_p.png"><img alt="Image showing lost particle information" src="../_images/lost_p.png" style="width: 300px; height: 300px;" /></a>
@@ -177,13 +177,13 @@ that shown below.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2016, The UW CNERG Team.
+        &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 02, 2016.
+      Last updated on Feb 22, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
       </p>
     </div>
   </body>

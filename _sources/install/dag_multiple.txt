@@ -10,20 +10,21 @@ Before configuring DAGMC
 Before you configure DAGMC, you will need to perform the steps listed in the
 guides for the individual codes with which you want to install DAGMC.
 
-For DAG-MCNP5, you will need to
-:ref:`apply the source code patch <mcnp5_patch>`.
+For DAG-MCNP5/6, you will need to
+:ref:`apply one of the MCNP source code patches <mcnp_patch>`.
 
-For FluDAG, you will need to :ref:`install FLUKA <install_fluka>` 
+For FluDAG, you will need to :ref:`install FLUKA <install_fluka>`.
 
 For DAG-Geant4, you will need to :ref:`install Geant4 <install_geant4>`.
 
 ..  include:: configure_dag-code_header.txt
 
-The following CMake command will build an MPI version of DAG-MCNP5 as well as
-DAG-Geant4 and FluDAG.
+The following CMake command will build DAG-Geant4 and FluDAG as well as MPI
+versions of DAG-MCNP5 and DAG-MCNP6.
 ::
 
     $ cmake .. -DBUILD_MCNP5=ON \
+               -DBUILD_MCNP6=ON \
                -DMPI_BUILD=ON \
                -DBUILD_GEANT4=ON \
                -DGEANT4_DIR=$HOME/dagmc_bld/Geant4 \
