@@ -25,19 +25,19 @@ extern "C" {
 #if defined(__clang__)
   /* clang/gfortran naming scheme" ___<module>_mod_MOD_<function> */
 #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
+#elif defined __INTEL_COMPILER
+  /* intel fortran: name mangling is '<module>_mp_<function>_' */
+#define FORT_FUNC( mod, func ) mod##_mp_##func##_
 #elif defined(__CNUC__) || defined(__GNUG__)
-  /* gcc/gfortran 4.3 and above: name mangling is '__<module>_MOD_<function>' */
 #if ( __GNUC__ > 4 ) || ( __GNUC__ == 4  && __GNUC_MINOR__ >= 3 )
+  /* gcc/gfortran 4.3 and above: name mangling is '__<module>_MOD_<function>' */
 #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
-  /* gcc/gfortran < 4.3: name mangling is '__<module>__<function>' */
 #elif ( __GNUC__ == 4)
+  /* gcc/gfortran < 4.3: name mangling is '__<module>__<function>' */
 #define FORT_FUNC( mod, func ) __##mod##__##func
 #else
 #error "Some unknown GCC compiler version"
 #endif
-#elif defined __INTEL_COMPILER
-  /* intel fortran: name mangling is '<module>_mp_<function>_' */
-#define FORT_FUNC( mod, func ) mod##_mp_##func##_
 #else
 #error "Some unknown C++ compiler"
   /* Comment out this error to force compile to proceed; it may or may not work */
