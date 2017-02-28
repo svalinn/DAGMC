@@ -14,5 +14,18 @@ google-astyle on top of google-astyle source code before committing.
 
 The command line flags we are using are:
 
-  `--style=linux --indent=spaces=2`
-
+```
+astyle_google --style=linux               \
+              --indent=spaces=2           \
+              --pad-oper                  \
+              --pad-header                \
+              --unpad-paren               \
+              --convert-tabs              \
+              --align-pointer=type        \
+              --suffix=none               \
+              --recursive                 \
+              --formatted                 \
+              --lineend=linux             \
+              --exclude=gtest             \
+              *.cc *.cpp *.h *.hh *.hpp
+```
