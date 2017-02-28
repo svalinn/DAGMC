@@ -26,8 +26,8 @@ class DAGMCNP5Test : public ::testing::Test
     int max_pbl;
 
     // intialise dagmc
-    dagmcinit_(file,&len,ftol,&ftol_len,&parallel_mode,
-               &dagmc_version,&moab_version,&max_pbl);
+    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode,
+               &dagmc_version, &moab_version, &max_pbl);
 
   }
   void setup_problem_comp() {
@@ -43,8 +43,8 @@ class DAGMCNP5Test : public ::testing::Test
     int max_pbl;
 
     // intialise dagmc
-    dagmcinit_(file,&len,ftol,&ftol_len,&parallel_mode,
-               &dagmc_version,&moab_version,&max_pbl);
+    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode,
+               &dagmc_version, &moab_version, &max_pbl);
 
   }
 
@@ -72,29 +72,29 @@ TEST_F(DAGMCNP5Test, dagmcinit_test)
                             "12 0  imp:n=0 imp:p=0   $ graveyard",
                             "13 0  imp:n=1 imp:p=1   $ implicit complement"
                            };
-  std::vector<std::string> expected_lcad(expected,expected+11);
+  std::vector<std::string> expected_lcad(expected, expected + 11);
 
   std::string dagfile = test_file;
   char* dfile = &test_file[0];
   std::string lfile = "lcad";
   char* lcadfile = &lfile[0];
   int llen = 4;
-  dagmcwritemcnp_(dfile, lcadfile,&llen);
+  dagmcwritemcnp_(dfile, lcadfile, &llen);
 
   // now read the lcad file
   std::ifstream input;
   input.open("lcad");
   std::string line;
   std::vector<std::string> input_deck;
-  while(!input.eof()) {
-    std::getline(input,line);
+  while (!input.eof()) {
+    std::getline(input, line);
     input_deck.push_back(line);
   }
   input.close();
 
   // for each line make sure the same
-  for ( int i = 0 ; i < 11 ; i++ ) {
-    EXPECT_EQ(expected_lcad[i],input_deck[i]);
+  for (int i = 0 ; i < 11 ; i++) {
+    EXPECT_EQ(expected_lcad[i], input_deck[i]);
   }
   // delete the lcad file
   std::remove("lcad");
@@ -125,29 +125,29 @@ TEST_F(DAGMCNP5Test, dagmcinit_comp_test)
                             "12 0  imp:n=0 imp:p=0   $ graveyard",
                             "13 2 -3.1 imp:n=1 imp:p=1   $ implicit complement"
                            };
-  std::vector<std::string> expected_lcad(expected,expected+11);
+  std::vector<std::string> expected_lcad(expected, expected + 11);
 
   std::string dagfile = test_file;
   char* dfile = &test_file[0];
   std::string lfile = "lcad";
   char* lcadfile = &lfile[0];
   int llen = 4;
-  dagmcwritemcnp_(dfile, lcadfile,&llen);
+  dagmcwritemcnp_(dfile, lcadfile, &llen);
 
   // now read the lcad file
   std::ifstream input;
   input.open("lcad");
   std::string line;
   std::vector<std::string> input_deck;
-  while(!input.eof()) {
-    std::getline(input,line);
+  while (!input.eof()) {
+    std::getline(input, line);
     input_deck.push_back(line);
   }
   input.close();
 
   // for each line make sure the same
-  for ( int i = 0 ; i < 11 ; i++ ) {
-    EXPECT_EQ(expected_lcad[i],input_deck[i]);
+  for (int i = 0 ; i < 11 ; i++) {
+    EXPECT_EQ(expected_lcad[i], input_deck[i]);
   }
   // delete the lcad file
   std::remove("lcad");

@@ -95,8 +95,8 @@ const string ASResource::AS_AND_ASSIGN = string("&=");
 const string ASResource::AS_XOR_ASSIGN = string("^=");
 const string ASResource::AS_GR_GR_ASSIGN = string(">>=");
 const string ASResource::AS_LS_LS_ASSIGN = string("<<=");
-const string ASResource::AS_GR_GR_GR_ASSIGN = string(">>>=");	// Java only?
-const string ASResource::AS_LS_LS_LS_ASSIGN = string("<<<=");	// Java only?
+const string ASResource::AS_GR_GR_GR_ASSIGN = string(">>>="); // Java only?
+const string ASResource::AS_LS_LS_LS_ASSIGN = string("<<<="); // Java only?
 const string ASResource::AS_GCC_MIN_ASSIGN = string("<?");
 const string ASResource::AS_GCC_MAX_ASSIGN = string(">?");
 
@@ -111,10 +111,10 @@ const string ASResource::AS_MINUS_MINUS = string("--");
 const string ASResource::AS_NOT_EQUAL = string("!=");
 const string ASResource::AS_GR_EQUAL = string(">=");
 const string ASResource::AS_GR_GR = string(">>");
-const string ASResource::AS_GR_GR_GR = string(">>>");			// Java only?
+const string ASResource::AS_GR_GR_GR = string(">>>");     // Java only?
 const string ASResource::AS_LS_EQUAL = string("<=");
 const string ASResource::AS_LS_LS = string("<<");
-const string ASResource::AS_LS_LS_LS = string("<<<");			// Java only?
+const string ASResource::AS_LS_LS_LS = string("<<<");     // Java only?
 const string ASResource::AS_QUESTION_QUESTION = string("??");
 const string ASResource::AS_EQUAL_GR = string("=>");            // C# lambda expression arrow
 const string ASResource::AS_ARROW = string("->");
@@ -242,9 +242,9 @@ void ASResource::buildHeaders(vector<const string*>* headers, int fileType, bool
   headers->push_back(&AS_CATCH);
 
   if (fileType == C_TYPE) {
-    headers->push_back(&_AS_TRY);		// __try
-    headers->push_back(&_AS_FINALLY);	// __finally
-    headers->push_back(&_AS_EXCEPT);	// __except
+    headers->push_back(&_AS_TRY);   // __try
+    headers->push_back(&_AS_FINALLY); // __finally
+    headers->push_back(&_AS_EXCEPT);  // __except
   }
   if (fileType == JAVA_TYPE) {
     headers->push_back(&AS_FINALLY);
@@ -325,13 +325,13 @@ void ASResource::buildNonParenHeaders(vector<const string*>* nonParenHeaders, in
   nonParenHeaders->push_back(&AS_ELSE);
   nonParenHeaders->push_back(&AS_DO);
   nonParenHeaders->push_back(&AS_TRY);
-  nonParenHeaders->push_back(&AS_CATCH);		// can be paren or non-paren
-  nonParenHeaders->push_back(&AS_CASE);		// can be paren or non-paren
+  nonParenHeaders->push_back(&AS_CATCH);    // can be paren or non-paren
+  nonParenHeaders->push_back(&AS_CASE);   // can be paren or non-paren
   nonParenHeaders->push_back(&AS_DEFAULT);
 
   if (fileType == C_TYPE) {
-    nonParenHeaders->push_back(&_AS_TRY);		// __try
-    nonParenHeaders->push_back(&_AS_FINALLY);	// __finally
+    nonParenHeaders->push_back(&_AS_TRY);   // __try
+    nonParenHeaders->push_back(&_AS_FINALLY); // __finally
   }
   if (fileType == JAVA_TYPE) {
     nonParenHeaders->push_back(&AS_FINALLY);
@@ -455,8 +455,8 @@ void ASResource::buildPreCommandHeaders(vector<const string*>* preCommandHeaders
   if (fileType == C_TYPE) {
     preCommandHeaders->push_back(&AS_CONST);
     preCommandHeaders->push_back(&AS_VOLATILE);
-    preCommandHeaders->push_back(&AS_SEALED);		// Visual C only
-    preCommandHeaders->push_back(&AS_OVERRIDE);		// Visual C only
+    preCommandHeaders->push_back(&AS_SEALED);   // Visual C only
+    preCommandHeaders->push_back(&AS_OVERRIDE);   // Visual C only
   }
 
   if (fileType == JAVA_TYPE) {

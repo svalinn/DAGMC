@@ -16,7 +16,7 @@
 #include "MakeWatertight.hpp"
 #include "CheckWatertight.hpp"
 
-moab::Interface *MBI();
+moab::Interface* MBI();
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES

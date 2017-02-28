@@ -9,7 +9,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ExN01RunAction::ExN01RunAction(UWUW *uwuw_workflow_data)
+ExN01RunAction::ExN01RunAction(UWUW* uwuw_workflow_data)
   : G4UserRunAction()
 {
   workflow_data = uwuw_workflow_data;
@@ -89,10 +89,10 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run)
   //int num_of_event = G4RunManager::GetRunManager()->GetNumberOfEvent();
   int num_of_event = run->GetNumberOfEvent();
   // iterate over tallies
-  std::map<std::string,pyne::Tally>::iterator it;
+  std::map<std::string, pyne::Tally>::iterator it;
   // loop over histograms and get data
-  for ( it = workflow_data->tally_library.begin() ; it != workflow_data->tally_library.end() ; ++it ) {
-    int index = 1 + std::distance(workflow_data->tally_library.begin(),it);
+  for (it = workflow_data->tally_library.begin() ; it != workflow_data->tally_library.end() ; ++it) {
+    int index = 1 + std::distance(workflow_data->tally_library.begin(), it);
 
     // loop over this histograms
     //    G4cout << index << G4endl;

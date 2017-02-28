@@ -283,7 +283,7 @@ TEST_F(QuadratureTest, Integrate9thOrderPolynomial)
   EXPECT_EQ(5, quadrature->get_num_quad_points());
 
   // evaluate the integral
-  EXPECT_NEAR(-284087.356179,quadrature->integrate(a, b, *function), 1e-6);
+  EXPECT_NEAR(-284087.356179, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
 TEST_F(QuadratureTest, ChangeQuadratureSet)

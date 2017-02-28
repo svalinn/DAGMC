@@ -61,8 +61,8 @@ class TallyData
    * \param[in] energy_bin the index representing the energy bin
    * \return pair containing (tally, error) data for the tally point
    */
-  std::pair <double,double> get_data(unsigned int tally_point_index,
-                                     unsigned int energy_bin) const;
+  std::pair <double, double> get_data(unsigned int tally_point_index,
+                                      unsigned int energy_bin) const;
 
   /**
    * \brief get_tally_data(), get_error_data(), get_scratch_data()

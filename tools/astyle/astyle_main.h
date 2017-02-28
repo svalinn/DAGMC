@@ -112,7 +112,7 @@ class ASStreamIterator : public ASSourceIterator
   streamoff peekStart;   // starting position for peekNextLine
   bool prevLineDeleted;  // the previous input line was deleted
 
- public:	// inline functions
+ public:  // inline functions
   bool compareToInputBuffer(const string& nextLine_) const {
     return (nextLine_ == prevBuffer);
   }
@@ -134,13 +134,13 @@ class ASOptions
  public:
   ASOptions(ASFormatter& formatterArg) : formatter(formatterArg) {}
   string getOptionErrors();
-  void importOptions(istream& in, vector<string> &optionsVector);
-  bool parseOptions(vector<string> &optionsVector, const string& errorInfo);
+  void importOptions(istream& in, vector<string>& optionsVector);
+  bool parseOptions(vector<string>& optionsVector, const string& errorInfo);
 
  private:
   // variables
-  ASFormatter& formatter;			// reference to the ASFormatter object
-  stringstream optionErrors;		// option error messages
+  ASFormatter& formatter;     // reference to the ASFormatter object
+  stringstream optionErrors;    // option error messages
 
   // functions
   ASOptions& operator=(ASOptions&);          // not to be implemented
@@ -154,7 +154,7 @@ class ASOptions
   void parseOption(const string& arg, const string& errorInfo);
 };
 
-#ifndef	ASTYLE_LIB
+#ifndef ASTYLE_LIB
 
 //----------------------------------------------------------------------------
 // ASConsole class for console build
@@ -162,9 +162,9 @@ class ASOptions
 
 class ASConsole
 {
- private:	// variables
-  ASFormatter& formatter;				// reference to the ASFormatter object
-  ASLocalizer localizer;				// ASLocalizer object
+ private: // variables
+  ASFormatter& formatter;       // reference to the ASFormatter object
+  ASLocalizer localizer;        // ASLocalizer object
   // command line options
   bool isRecursive;                   // recursive option
   string origSuffix;                  // suffix= option
@@ -180,13 +180,13 @@ class ASConsole
   // other variables
   bool hasWildcard;                   // file name includes a wildcard
   size_t mainDirectoryLength;         // directory length to be excluded in displays
-  bool filesAreIdentical;				// input and output files are identical
-  bool lineEndsMixed;					// output has mixed line ends
+  bool filesAreIdentical;       // input and output files are identical
+  bool lineEndsMixed;         // output has mixed line ends
   int  linesOut;                      // number of output lines
   int  filesFormatted;                // number of files formatted
   int  filesUnchanged;                // number of files unchanged
-  char outputEOL[4];					// current line end
-  char prevEOL[4];					// previous line end
+  char outputEOL[4];          // current line end
+  char prevEOL[4];          // previous line end
 
   string optionsFileName;             // file path and name of the options file to use
   string targetDirectory;             // path to the directory being processed
@@ -244,7 +244,7 @@ class ASConsole
   bool getLineEndsMixed();
   bool getNoBackup();
   string getLanguageID() const;
-  string getNumberFormat(int num, size_t=0) const ;
+  string getNumberFormat(int num, size_t = 0) const ;
   string getNumberFormat(int num, const char* groupingArg, const char* separator) const;
   string getOptionsFileName();
   bool getOptionsFileRequired();
@@ -264,7 +264,7 @@ class ASConsole
   void setOrigSuffix(string suffix);
   void setPreserveDate(bool state);
   void setProgramLocale();
-  void standardizePath(string& path, bool removeBeginningSeparator=false) const;
+  void standardizePath(string& path, bool removeBeginningSeparator = false) const;
   bool stringEndsWith(const string& str, const string& suffix) const;
   void updateExcludeVector(string suffixParam);
   size_t Utf8Length(const char* data, size_t len, FileEncoding encoding) const;
@@ -313,7 +313,7 @@ class ASConsole
   void displayLastError();
 #endif
 };
-#endif	// ASTYLE_LIB
+#endif  // ASTYLE_LIB
 
 }   // end of namespace astyle
 

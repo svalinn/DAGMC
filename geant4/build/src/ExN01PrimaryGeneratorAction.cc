@@ -18,7 +18,7 @@
 
 
 ExN01PrimaryGeneratorAction::ExN01PrimaryGeneratorAction()
-  :G4VUserPrimaryGeneratorAction(), fParticleGun(0)
+  : G4VUserPrimaryGeneratorAction(), fParticleGun(0)
 {
   fParticleGun = new G4GeneralParticleSource();
   /*

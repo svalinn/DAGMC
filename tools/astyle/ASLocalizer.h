@@ -42,7 +42,7 @@ class Translation;
 
 class ASLocalizer
 {
- public:		// functions
+ public:    // functions
   ASLocalizer();
   virtual ~ASLocalizer();
   string getLanguageID() const;
@@ -53,15 +53,15 @@ class ASLocalizer
   void setLanguageFromName(const char* langID);
   const char* settext(const char* textIn) const;
 
- private:	// functions
+ private: // functions
   void setTranslationClass();
 
- private:	// variables
-  Translation* m_translation;		// pointer to a polymorphic Translation class
-  string m_langID;				// language identifier from the locale
-  string m_subLangID;				// sub language identifier, if needed
-  string m_localeName;			// name of the current locale (Linux only)
-  size_t m_lcid;					// LCID of the user locale (Windows only)
+ private: // variables
+  Translation* m_translation;   // pointer to a polymorphic Translation class
+  string m_langID;        // language identifier from the locale
+  string m_subLangID;       // sub language identifier, if needed
+  string m_localeName;      // name of the current locale (Linux only)
+  size_t m_lcid;          // LCID of the user locale (Windows only)
 };
 
 //----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ class Translation
  protected:
   void addPair(const string& english, const wstring& translated);
   // variables
-  vector<pair<string, wstring> > m_translation;		// translation vector
+  vector<pair<string, wstring> > m_translation;   // translation vector
 
  private:
   // unused method so the class will be identified as polymorphic
@@ -140,8 +140,8 @@ class Spanish : public Translation
   Spanish();
 };
 
-#endif	//  ASTYLE_LIB
+#endif  //  ASTYLE_LIB
 
-}	// namespace astyle
+} // namespace astyle
 
-#endif	//  ASLOCALIZER_H
+#endif  //  ASLOCALIZER_H

@@ -26,7 +26,7 @@
  */
 
 #include "astyle.h"
-#include <iostream>		// for cout
+#include <iostream>   // for cout
 
 namespace astyle
 {
@@ -38,7 +38,7 @@ ASEnhancer::ASEnhancer()
 {
   // the following prevents warning messages with cppcheck
   // it will NOT compile if activated
-//	init();
+//  init();
 }
 
 /**
@@ -107,7 +107,7 @@ void ASEnhancer::init(int fileType,
  */
 void ASEnhancer::enhance(string& line, bool isInPreprocessor, bool isInSQL)
 {
-  bool isSpecialChar = false;			// is a backslash escape character
+  bool isSpecialChar = false;     // is a backslash escape character
   shouldIndentLine = true;
   lineNumber++;
 
@@ -296,7 +296,7 @@ size_t ASEnhancer::findCaseColon(string&  line, size_t caseIndex) const
         continue;                           // must close quote before continuing
       }
     }
-    if (line[i] == '\'' || line[i] == '\"') {	// check opening quote
+    if (line[i] == '\'' || line[i] == '\"') { // check opening quote
       isInQuote_ = true;
       quoteChar_ = line[i];
       continue;
@@ -526,7 +526,7 @@ size_t ASEnhancer::processSwitchBlock(string& line, size_t index)
       int lineUnindent = sw.unindentDepth;
       if (line.find_first_not_of(" \t") == i
           && switchStack.size() > 0)
-        lineUnindent = switchStack[switchStack.size()-1].unindentDepth;
+        lineUnindent = switchStack[switchStack.size() - 1].unindentDepth;
       if (shouldIndentLine) {
         if (lineUnindent > 0)
           i -= unindentLine(line, lineUnindent);
@@ -541,15 +541,15 @@ size_t ASEnhancer::processSwitchBlock(string& line, size_t index)
 
   if (isPotentialKeyword
       && (findKeyword(line, i, "case") || findKeyword(line, i, "default"))) {
-    if (sw.unindentCase) {				// if unindented last case
-      sw.unindentCase = false;			// stop unindenting previous case
+    if (sw.unindentCase) {        // if unindented last case
+      sw.unindentCase = false;      // stop unindenting previous case
       sw.unindentDepth--;
     }
 
     i = findCaseColon(line, i);
 
     i++;
-    for (; i < line.length(); i++) {		// bypass whitespace
+    for (; i < line.length(); i++) {    // bypass whitespace
       if (!isWhiteSpace(line[i]))
         break;
     }
@@ -563,7 +563,7 @@ size_t ASEnhancer::processSwitchBlock(string& line, size_t index)
       }
     }
     lookingForCaseBracket = true;
-    i--;									// need to process this char
+    i--;                  // need to process this char
     return i;
   }
   if (isPotentialKeyword) {

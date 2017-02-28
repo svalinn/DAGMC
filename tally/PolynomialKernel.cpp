@@ -19,7 +19,7 @@ PolynomialKernel::PolynomialKernel(unsigned int s, unsigned int r)
       double value = pochhammer(0.5 + s + r, k);
       value /= factorial(k) * factorial(r - 1 - k) * pochhammer(1.5, k);
 
-      if (k%2 == 1) {
+      if (k % 2 == 1) {
         value *= -1.0;
       }
 
@@ -117,7 +117,7 @@ int PolynomialKernel::get_order() const
 //---------------------------------------------------------------------------//
 int PolynomialKernel::get_min_quadrature(unsigned int i) const
 {
-  return s + r + (i/2);
+  return s + r + (i / 2);
 }
 //---------------------------------------------------------------------------//
 double PolynomialKernel::integrate_moment(double a,

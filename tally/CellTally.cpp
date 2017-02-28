@@ -72,7 +72,7 @@ void CellTally::write_data(double num_histories)
       std::cout << "Total Energy Bin: " << std::endl;
     } else {
       std::cout << "Energy bin (" << input_data.energy_bin_bounds.at(i)
-                << ", " << input_data.energy_bin_bounds.at(i+1) << "):\n";
+                << ", " << input_data.energy_bin_bounds.at(i + 1) << "):\n";
     }
 
     std::pair <double, double> tally_data = data->get_data(point_index, i);

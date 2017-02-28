@@ -179,8 +179,8 @@ class uwuw_preprocessor
   void make_material_groupname(std::vector<std::string> material_props,
                                std::vector<std::string> density_props,
                                moab::EntityHandle entity,
-                               std::string &grp_name,
-                               std::pair<std::string,std::string > &mat_dens_pair);
+                               std::string& grp_name,
+                               std::pair<std::string, std::string >& mat_dens_pair);
 
   /**
    * \brief Given the tally_props string the dimension make the unqiue tally name and insert the data into a
@@ -216,16 +216,16 @@ class uwuw_preprocessor
   // private class members
  private:
   std::string output_filename; ///< the output file which we are going to write out the data to
-  std::map<std::string,std::pair<std::string,std::string> > volume_property_map; ///< map of grp name and props
+  std::map<std::string, std::pair<std::string, std::string> > volume_property_map; ///< map of grp name and props
   std::list<tally_info> tally_list; ///< unique list of tally information
   std::set<std::string> particles; ///< unqiue set of particles requested
   std::set<std::string> tallies; ///< set of tally types
   std::list<pyne::Tally> uwuw_tally_library; ///< unique list of tally objects
   std::map<std::string, pyne::Material> material_library; ///< material_library input by reading from library file
   std::map<std::string, pyne::Material> uwuw_material_library; ///< material library to write out to DAGMC file
-  name_concatenator *ncr; ///< unique naming class pointer
-  moab::DagMC *DAG; ///< DAGMC pointer
-  dagmcMetaData *dmd; ///< DAGMC metadata pointer
+  name_concatenator* ncr; ///< unique naming class pointer
+  moab::DagMC* DAG; ///< DAGMC pointer
+  dagmcMetaData* dmd; ///< DAGMC metadata pointer
   UWUW mat_lib; ///< static UWUW class for reading the material library
 
   std::vector<int> no_props; ///< list of cells with no properties

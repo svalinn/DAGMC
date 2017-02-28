@@ -22,7 +22,7 @@ void TallyManager::addNewTally(unsigned int tally_id,
                                const std::vector<double>& energy_bin_bounds,
                                const std::multimap<std::string, std::string>& options)
 {
-  Tally *newTally = createTally(tally_id, tally_type, particle,
+  Tally* newTally = createTally(tally_id, tally_type, particle,
                                 energy_bin_bounds, options);
 
   if (newTally != NULL) {
@@ -44,11 +44,11 @@ void TallyManager::addNewMultiplier(unsigned int multiplier_id)
 void TallyManager::addMultiplierToTally(unsigned int multiplier_id,
                                         unsigned int tally_id)
 {
-  std::map<int, Tally *>::iterator it;
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (event.multipliers.size() > multiplier_id && it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     tally->input_data.multiplier_id = multiplier_id;
   } else {
     std::cerr << "Warning: Cannot set multiplier id for Tally " << tally_id
@@ -70,7 +70,7 @@ unsigned int TallyManager::numTallies()
 //---------------------------------------------------------------------------//
 void TallyManager::removeTally(unsigned int tally_id)
 {
-  std::map<int, Tally *>::iterator it;
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
@@ -138,7 +138,7 @@ void TallyManager::updateTallies()
 {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
 
     // skip events involving particles not expected by the tally
     if (tally->input_data.particle == event.particle) {
@@ -152,7 +152,7 @@ void TallyManager::endHistory()
 {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
     tally->end_history();
   }
 }
@@ -161,7 +161,7 @@ void TallyManager::writeData(double num_histories)
 {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
     tally->write_data(num_histories);
   }
 }
@@ -173,11 +173,11 @@ void TallyManager::writeData(double num_histories)
 // each implementation can choose how to store its data.
 double* TallyManager::getTallyData(int tally_id, int& length)
 {
-  std::map<int, Tally *>::iterator it;
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     return tally->data->get_tally_data(length);;
   } else {
     std::cerr << "Warning: Tally " << tally_id
@@ -188,11 +188,11 @@ double* TallyManager::getTallyData(int tally_id, int& length)
 //---------------------------------------------------------------------------//
 double* TallyManager::getErrorData(int tally_id, int& length)
 {
-  std::map<int, Tally *>::iterator it;
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     return tally->data->get_error_data(length);;
   } else {
     std::cerr << "Warning: Tally " << tally_id
@@ -203,11 +203,11 @@ double* TallyManager::getErrorData(int tally_id, int& length)
 //---------------------------------------------------------------------------//
 double* TallyManager::getScratchData(int tally_id, int& length)
 {
-  std::map<int, Tally *>::iterator it;
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     return tally->data->get_scratch_data(length);;
   } else {
     std::cerr << "Warning: Tally " << tally_id
@@ -220,7 +220,7 @@ void TallyManager::zeroAllTallyData()
 {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
     tally->data->zero_tally_data();
   }
   clearLastEvent();
@@ -228,7 +228,7 @@ void TallyManager::zeroAllTallyData()
 //---------------------------------------------------------------------------//
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//
-Tally *TallyManager::createTally(unsigned int tally_id,
+Tally* TallyManager::createTally(unsigned int tally_id,
                                  std::string  tally_type,
                                  unsigned int particle,
                                  const std::vector<double>& energy_bin_bounds,

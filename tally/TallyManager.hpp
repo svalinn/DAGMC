@@ -251,7 +251,7 @@ class TallyManager
    *
    * Sets up TallyInput and calls the Tally factory method.
    */
-  Tally *createTally(unsigned int tally_id,
+  Tally* createTally(unsigned int tally_id,
                      std::string  tally_type,
                      unsigned int particle,
                      const std::vector<double>& energy_bin_bounds,

@@ -34,9 +34,9 @@ static void parse_fc_card(std::string& fc_content,
   size_t found;
   found = fc_content.find_first_of('=');
 
-  while (found!= fc_content.npos) {
+  while (found != fc_content.npos) {
     fc_content[found] = ' ';
-    found = fc_content.find_first_of('=',found+1);
+    found = fc_content.find_first_of('=', found + 1);
   }
 
   std::stringstream tokenizer(fc_content);
@@ -44,38 +44,38 @@ static void parse_fc_card(std::string& fc_content,
   // skip tokens until 'dagmc' found
   bool found_dagmc = false;
 
-  while(tokenizer) {
+  while (tokenizer) {
     std::string dagmc;
     tokenizer >> dagmc;
-    if(dagmc == "dagmc") {
+    if (dagmc == "dagmc") {
       found_dagmc = true;
       break;
     }
   }
 
-  if(!found_dagmc) {
+  if (!found_dagmc) {
     std::cerr << "Error: FC" << fcid << " card is incorrectly formatted" << std::endl;
     exit(EXIT_FAILURE);
   }
 
   std::string last_key;
 
-  while(tokenizer) {
+  while (tokenizer) {
     std::string token;
     tokenizer >> token;
 
-    if( token == "" ) continue;
-    if( token == "-dagmc") break; // stop parsing if -dagmc encountered
+    if (token == "") continue;
+    if (token == "-dagmc") break; // stop parsing if -dagmc encountered
 
-    if( last_key == "" ) {
+    if (last_key == "") {
       last_key = token;
     } else {
-      fmesh_params.insert(std::make_pair(last_key,token));
+      fmesh_params.insert(std::make_pair(last_key, token));
       last_key = "";
     }
   }
 
-  if( last_key != "" ) {
+  if (last_key != "") {
     std::cerr << "Warning: FC" << fcid << " card has unused key '"
               << last_key << "'" << std::endl;
   }
@@ -95,10 +95,10 @@ std::string copyComments(char* fort_comment, int* n_comment_lines)
   unsigned int comment_len = fort_line_len * *n_comment_lines;
 
   // Need to turn it into a c-style string first
-  char* c_comment = new char[(comment_len+1)];
+  char* c_comment = new char[(comment_len + 1)];
 
-  memcpy(c_comment,fort_comment,comment_len);
-  c_comment[comment_len]='\0';
+  memcpy(c_comment, fort_comment, comment_len);
+  c_comment[comment_len] = '\0';
 
   comment_str = c_comment;
   delete[] c_comment;
@@ -125,14 +125,14 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
   std::cout << "DAGMC tally " << *id << " has these " << *n_energy_mesh
             << " energy bin boundaries: " << std::endl;
 
-  for(int i = 0; i < *n_energy_mesh; ++i) {
+  for (int i = 0; i < *n_energy_mesh; ++i) {
     std::cout << "     " << energy_mesh[i] << std::endl;
   }
 
   // TODO: Total energy bin is currently always on unless one bin is used
   std::cout << "tot bin: " << (*tot_energy_bin ? "yes" : "no") << std::endl;
 
-  if(*n_comment_lines <= 0) {
+  if (*n_comment_lines <= 0) {
     std::cerr << "FMESH" << *id
               << " has geom=dag without matching FC card" << std::endl;
     exit(EXIT_FAILURE);
@@ -140,7 +140,7 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
 
   // Copy emesh bin boundaries from MCNP (includes 0.0 MeV)
   std::vector<double> energy_boundaries;
-  for(int i = 0; i < *n_energy_mesh; ++i) {
+  for (int i = 0; i < *n_energy_mesh; ++i) {
     energy_boundaries.push_back(energy_mesh[i]);
   }
 
@@ -152,10 +152,10 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
   // determine the user-specified tally type
   std::string type = "unstr_track";
 
-  if(fc_settings.find("type") != fc_settings.end()) {
+  if (fc_settings.find("type") != fc_settings.end()) {
     type = (*fc_settings.find("type")).second;
 
-    if(fc_settings.count("type") > 1) {
+    if (fc_settings.count("type") > 1) {
       std::cerr << "Warning: FC" << *id
                 << " has multiple 'type' keywords, using " << type << std::endl;
     }
@@ -264,7 +264,7 @@ void dagmc_fmesh_add_scratch_to_tally_(int* tally_id)
 
   assert(scratchlength >= length);
 
-  for(int i = 0; i < length; ++i) {
+  for (int i = 0; i < length; ++i) {
     data[i] += scratch[i];
   }
 }
@@ -286,7 +286,7 @@ void dagmc_fmesh_add_scratch_to_error_(int* tally_id)
 
   assert(scratchlength >= length);
 
-  for(int i = 0; i < length; ++i) {
+  for (int i = 0; i < length; ++i) {
     error_data[i] += scratch[i];
   }
 }
@@ -318,10 +318,10 @@ void dagmc_fmesh_end_history_()
  * This function is called once per track event.
  */
 void dagmc_fmesh_score_(int* ipt,
-                        double *x, double *y, double *z,
-                        double *u, double *v, double *w,
-                        double *erg,double *wgt,
-                        double *d, int *icl)
+                        double* x, double* y, double* z,
+                        double* u, double* v, double* w,
+                        double* erg, double* wgt,
+                        double* d, int* icl)
 {
 #ifdef MESHTAL_DEBUG
   std::cout << "particle type: " << *ipt << std::endl;
@@ -373,7 +373,7 @@ void dagmc_collision_score_(int* ipt,
  */
 void dagmc_update_multiplier_(int* fmesh_idx, double* value)
 {
-  tallyManager.updateMultiplier(*fmesh_idx-1, *value);
+  tallyManager.updateMultiplier(*fmesh_idx - 1, *value);
 }
 //---------------------------------------------------------------------------//
 

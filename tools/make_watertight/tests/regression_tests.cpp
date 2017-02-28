@@ -33,17 +33,17 @@ class BLiteMakeWatertightRegressionTest : public MakeWatertightTest
 
 };
 
-TEST_F(ITERMakeWatertightRegressionTest, ITERRegressionTest )
+TEST_F(ITERMakeWatertightRegressionTest, ITERRegressionTest)
 {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 
-TEST_F(FNSFMakeWatertightRegressionTest, FNSFRegressionTest )
+TEST_F(FNSFMakeWatertightRegressionTest, FNSFRegressionTest)
 {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 
-TEST_F(BLiteMakeWatertightRegressionTest, BLiteRegressionTest )
+TEST_F(BLiteMakeWatertightRegressionTest, BLiteRegressionTest)
 {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }

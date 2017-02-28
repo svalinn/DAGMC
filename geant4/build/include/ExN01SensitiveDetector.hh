@@ -76,7 +76,7 @@ class ExN01SensitiveDetector : public G4VSensitiveDetector
   G4double DetectorVolume;
   G4int* SensitiveParticles;
   G4int  NumberOfParticles;
-  std::map<G4int,G4int> hist_part_map;
+  std::map<G4int, G4int> hist_part_map;
   G4int hist_index;
 };
 

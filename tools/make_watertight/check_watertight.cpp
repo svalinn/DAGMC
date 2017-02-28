@@ -43,7 +43,7 @@
 
 #include "CheckWatertight.hpp"
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 
   // ******************************************************************
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
   start_time = clock();
   // check input args
 
-  if( argc < 2 || argc > 5) {
+  if (argc < 2 || argc > 5) {
     std::cout << "To check using topology of facet points:              " << std::endl;
     std::cout << "./check_watertight <filename> <verbose(true or false)>" << std::endl;
     std::cout << "To check using geometry tolerance of facet points:    " << std::endl;
@@ -69,13 +69,13 @@ int main(int argc, char **argv)
   moab::ErrorCode result;
   std::string filename = argv[1]; //set filename
   moab::EntityHandle input_set;
-  result = mbi->create_meshset( moab::MESHSET_SET, input_set ); //create handle to meshset
-  if(moab::MB_SUCCESS != result) {
+  result = mbi->create_meshset(moab::MESHSET_SET, input_set);   //create handle to meshset
+  if (moab::MB_SUCCESS != result) {
     return result;
   }
 
-  result = mbi->load_file( filename.c_str(), &input_set ); //load the file into the meshset
-  if(moab::MB_SUCCESS != result) {
+  result = mbi->load_file(filename.c_str(), &input_set);   //load the file into the meshset
+  if (moab::MB_SUCCESS != result) {
     // failed to load the file
     std::cout << "could not load file" << std::endl;
     return result;
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
   double tol; // tolerance for two verts to be considered the same
   bool check_topology, verbose;
 
-  if(2 == argc) { // set topological check
+  if (2 == argc) { // set topological check
     std::cout << "topology check" << std::endl;
     check_topology = true;
     verbose = false;
@@ -92,28 +92,28 @@ int main(int argc, char **argv)
     std::cout << "topology check" << std::endl;
     check_topology = true;
     const std::string verbose_string = argv[2];
-    verbose = ( 0==verbose_string.compare("true") );
+    verbose = (0 == verbose_string.compare("true"));
   } else { // otherwise do geometry check
     std::cout << "geometry check";
     check_topology = false;
-    tol = atof( argv[3] );
-    std::cout<< " tolerance=" << tol << std::endl;
+    tol = atof(argv[3]);
+    std::cout << " tolerance=" << tol << std::endl;
     const std::string verbose_string = argv[2];
-    verbose = ( 0==verbose_string.compare("true") );
+    verbose = (0 == verbose_string.compare("true"));
   }
 
   // replaced much of this code with a more modular version in check_watertight_func for testing purposes
   std::set<int> leaky_surfs, leaky_vols;
   bool sealed, test;
-  test=false;
+  test = false;
   // is the order of the optional variables going to be a problem?
   // (i.e. we 'skipped' the variable test)
   CheckWatertight cw = CheckWatertight(mbi);
-  result= cw.check_mesh_for_watertightness( input_set, tol, sealed, test, verbose, check_topology);
+  result = cw.check_mesh_for_watertightness(input_set, tol, sealed, test, verbose, check_topology);
   MB_CHK_SET_ERR(result, "could not check model for watertightness");
 
   clock_t end_time = clock();
-  std::cout << (double) (end_time-start_time)/CLOCKS_PER_SEC << " seconds" << std::endl;
+  std::cout << (double)(end_time - start_time) / CLOCKS_PER_SEC << " seconds" << std::endl;
 
 }
 

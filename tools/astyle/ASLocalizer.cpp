@@ -71,7 +71,7 @@ ASLocalizer::ASLocalizer()
   // setlocale() will use the LANG environment valiable on Linux.
 
   char* localeName = setlocale(LC_ALL, "");
-  if (localeName == NULL) {	// use the english (ascii) defaults
+  if (localeName == NULL) { // use the english (ascii) defaults
     fprintf(stderr, "\n%s\n\n", "Cannot set native locale, reverting to English");
     setTranslationClass();
     return;
@@ -134,13 +134,13 @@ void ASLocalizer::setLanguageFromLCID(size_t lcid)
 //       Same with LCIDToLocaleName().
 {
   m_lcid = lcid;
-  m_langID == "en";	// default to english
+  m_langID == "en"; // default to english
 
   size_t lang = PRIMARYLANGID(LANGIDFROMLCID(m_lcid));
   size_t sublang = SUBLANGID(LANGIDFROMLCID(m_lcid));
   // find language in the wlc table
-  size_t count = sizeof(wlc)/sizeof(wlc[0]);
-  for (size_t i = 0; i < count; i++ ) {
+  size_t count = sizeof(wlc) / sizeof(wlc[0]);
+  for (size_t i = 0; i < count; i++) {
     if (wlc[i].winLang == lang) {
       m_langID = wlc[i].canonicalLang;
       break;
@@ -150,12 +150,12 @@ void ASLocalizer::setLanguageFromLCID(size_t lcid)
     if (sublang == SUBLANG_CHINESE_SIMPLIFIED || sublang == SUBLANG_CHINESE_SINGAPORE)
       m_subLangID = "CHS";
     else
-      m_subLangID = "CHT";	// default
+      m_subLangID = "CHT";  // default
   }
   setTranslationClass();
 }
 
-#endif	// _win32
+#endif  // _win32
 
 string ASLocalizer::getLanguageID() const
 // Returns the language ID in m_langID.
@@ -204,7 +204,7 @@ void ASLocalizer::setLanguageFromName(const char* langID)
     if (subLang == "CN" || subLang == "SG")
       m_subLangID = "CHS";
     else
-      m_subLangID = "CHT";	// default
+      m_subLangID = "CHT";  // default
   }
   setTranslationClass();
 }
@@ -237,7 +237,7 @@ void ASLocalizer::setTranslationClass()
     m_translation = new German;
   else if (m_langID == "hi")
     m_translation = new Hindi;
-  else	// default
+  else  // default
     m_translation = new English;
 }
 
@@ -248,7 +248,7 @@ void ASLocalizer::setTranslationClass()
 void Translation::addPair(const string& english, const wstring& translated)
 // Add a string pair to the translation vector.
 {
-  pair<string, wstring> entry (english, translated);
+  pair<string, wstring> entry(english, translated);
   m_translation.push_back(entry);
 }
 
@@ -267,7 +267,7 @@ string Translation::convertToMultiByte(const wstring& wideStr) const
     return "";
   }
   // convert the characters
-  char* mbStr = new(nothrow) char[mbLen+1];
+  char* mbStr = new(nothrow) char[mbLen + 1];
   if (mbStr == NULL) {
     if (!msgDisplayed) {
       fprintf(stderr, "\n%s\n\n", "Bad memory alloc for multi-byte string, reverting to English");
@@ -275,7 +275,7 @@ string Translation::convertToMultiByte(const wstring& wideStr) const
     }
     return "";
   }
-  wcstombs(mbStr, wideStr.c_str(), mbLen+1);
+  wcstombs(mbStr, wideStr.c_str(), mbLen + 1);
   // return the string
   string mbTranslation = mbStr;
   delete [] mbStr;
@@ -327,10 +327,10 @@ string& Translation::translate(const string& stringIn) const
 // These classes have only a constructor which builds the language vector.
 //----------------------------------------------------------------------------
 
-ChineseSimplified::ChineseSimplified()	// 中文（简体）
+ChineseSimplified::ChineseSimplified()  // 中文（简体）
 {
-  addPair("Formatted  %s\n", L"格式化  %s\n");		// should align with unchanged
-  addPair("Unchanged  %s\n", L"不变    %s\n");		// should align with formatted
+  addPair("Formatted  %s\n", L"格式化  %s\n");   // should align with unchanged
+  addPair("Unchanged  %s\n", L"不变    %s\n");    // should align with formatted
   addPair("Directory  %s\n", L"目录  %s\n");
   addPair("Exclude  %s\n", L"排除  %s\n");
   addPair("Exclude (unmatched)  %s\n", L"排除（无与伦比） %s\n");
@@ -354,10 +354,10 @@ ChineseSimplified::ChineseSimplified()	// 中文（简体）
   addPair("\nArtistic Style has terminated", L"\nArtistic Style 已经终止");
 }
 
-ChineseTraditional::ChineseTraditional()	// 中文（繁體）
+ChineseTraditional::ChineseTraditional()  // 中文（繁體）
 {
-  addPair("Formatted  %s\n", L"格式化  %s\n");		// should align with unchanged
-  addPair("Unchanged  %s\n", L"不變    %s\n");		// should align with formatted
+  addPair("Formatted  %s\n", L"格式化  %s\n");   // should align with unchanged
+  addPair("Unchanged  %s\n", L"不變    %s\n");    // should align with formatted
   addPair("Directory  %s\n", L"目錄  %s\n");
   addPair("Exclude  %s\n", L"排除  %s\n");
   addPair("Exclude (unmatched)  %s\n", L"排除（無與倫比） %s\n");
@@ -385,11 +385,11 @@ English::English()
 // this class is NOT translated
 {}
 
-French::French()	// Française
+French::French()  // Française
 // build the translation vector in the Translation base class
 {
-  addPair("Formatted  %s\n", L"Formaté    %s\n");	// should align with unchanged
-  addPair("Unchanged  %s\n", L"Inchangée  %s\n");	// should align with formatted
+  addPair("Formatted  %s\n", L"Formaté    %s\n");  // should align with unchanged
+  addPair("Unchanged  %s\n", L"Inchangée  %s\n");  // should align with formatted
   addPair("Directory  %s\n", L"Répertoire  %s\n");
   addPair("Exclude  %s\n", L"Exclure  %s\n");
   addPair("Exclude (unmatched)  %s\n", L"Exclure (non appariés)  %s\n");
@@ -413,11 +413,11 @@ French::French()	// Française
   addPair("\nArtistic Style has terminated", L"\nArtistic Style a mis fin");
 }
 
-German::German()	// Deutsch
+German::German()  // Deutsch
 // build the translation vector in the Translation base class
 {
-  addPair("Formatted  %s\n", L"Formatiert   %s\n");	// should align with unchanged
-  addPair("Unchanged  %s\n", L"Unverändert  %s\n");	// should align with formatted
+  addPair("Formatted  %s\n", L"Formatiert   %s\n"); // should align with unchanged
+  addPair("Unchanged  %s\n", L"Unverändert  %s\n");  // should align with formatted
   addPair("Directory  %s\n", L"Verzeichnis  %s\n");
   addPair("Exclude  %s\n", L"Ausschließen  %s\n");
   addPair("Exclude (unmatched)  %s\n", L"Ausschließen (unerreichte)  %s\n");
@@ -441,13 +441,13 @@ German::German()	// Deutsch
   addPair("\nArtistic Style has terminated", L"\nArtistic Style ist beendet");
 }
 
-Hindi::Hindi()	// हिन्दी
+Hindi::Hindi()  // हिन्दी
 // build the translation vector in the Translation base class
 {
   // NOTE: Scintilla based editors (CodeBlocks) cannot always edit Hindi.
   //       Use Visual Studio instead.
-  addPair("Formatted  %s\n", L"स्वरूपित किया  %s\n");	// should align with unchanged
-  addPair("Unchanged  %s\n", L"अपरिवर्तित     %s\n");	// should align with formatted
+  addPair("Formatted  %s\n", L"स्वरूपित किया  %s\n"); // should align with unchanged
+  addPair("Unchanged  %s\n", L"अपरिवर्तित     %s\n"); // should align with formatted
   addPair("Directory  %s\n", L"निर्देशिका  %s\n");
   addPair("Exclude  %s\n", L"निकालना  %s\n");
   addPair("Exclude (unmatched)  %s\n", L"अपवर्जित (बेजोड़)  %s\n");
@@ -471,11 +471,11 @@ Hindi::Hindi()	// हिन्दी
   addPair("\nArtistic Style has terminated", L"\nArtistic Style समाप्त किया है");
 }
 
-Spanish::Spanish()	// Español
+Spanish::Spanish()  // Español
 // build the translation vector in the Translation base class
 {
-  addPair("Formatted  %s\n", L"Formato     %s\n");	// should align with unchanged
-  addPair("Unchanged  %s\n", L"Inalterado  %s\n");	// should align with formatted
+  addPair("Formatted  %s\n", L"Formato     %s\n");  // should align with unchanged
+  addPair("Unchanged  %s\n", L"Inalterado  %s\n");  // should align with formatted
   addPair("Directory  %s\n", L"Directorio  %s\n");
   addPair("Exclude  %s\n", L"Excluir  %s\n");
   addPair("Exclude (unmatched)  %s\n", L"Excluir (incomparable)  %s\n");
@@ -500,7 +500,7 @@ Spanish::Spanish()	// Español
 }
 
 
-#endif	// ASTYLE_LIB
+#endif  // ASTYLE_LIB
 
 }   // end of namespace astyle
 

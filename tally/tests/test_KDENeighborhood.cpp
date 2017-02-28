@@ -276,7 +276,7 @@ TEST_F(GetPointsTest, GetPointsInBox)
 {
   // define neighborhood using a track event (region overlaps z-mesh)
   TallyEvent event;
-  double uvw_val = 1.0/sqrt(2.0);
+  double uvw_val = 1.0 / sqrt(2.0);
   event.type = TallyEvent::TRACK;
   event.position = moab::CartVect(0.2, -0.2, 0.2);
   event.direction = moab::CartVect(uvw_val, 0.0, -1.0 * uvw_val);
@@ -506,7 +506,7 @@ TEST_F(IsCalculationPointTest, InvalidPoints)
   region.update_neighborhood(event, bandwidth);
 
   std::set<moab::EntityHandle>::iterator it;
-  for(it = invalid_set.begin(); it != invalid_set.end(); ++it) {
+  for (it = invalid_set.begin(); it != invalid_set.end(); ++it) {
     EXPECT_FALSE(region.is_calculation_point(*it));
   }
 }

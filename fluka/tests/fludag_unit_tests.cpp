@@ -10,7 +10,7 @@
 #include <cmath>
 #include <cassert>
 
-moab::DagMC *DAG = new moab::DagMC();
+moab::DagMC* DAG = new moab::DagMC();
 
 int num_slab_vols = 12;
 
@@ -31,7 +31,7 @@ class FluDAGTest : public ::testing::Test
 
     // DAG call to initialize geometry
     rval = DAG->init_OBBTree();
-    assert (rval == moab::MB_SUCCESS);
+    assert(rval == moab::MB_SUCCESS);
 
     // Initialize point and dir
     point[0] = 0.0;
@@ -48,7 +48,7 @@ class FluDAGTest : public ::testing::Test
     safety   = 0.0;
 
     // Direction cosine for component headed from center of cube to a corner
-    dir_norm = 1.0/sqrt(3);
+    dir_norm = 1.0 / sqrt(3);
   }
 
  protected:
@@ -98,17 +98,17 @@ TEST_F(FluDAGTest, SetUp)
   EXPECT_EQ(num_slab_vols, num_vols);
 
   std::vector< std::string > keywords;
-  rval = DAG->detect_available_props( keywords );
+  rval = DAG->detect_available_props(keywords);
   EXPECT_EQ(moab::MB_SUCCESS, rval);
-  rval = DAG->parse_properties( keywords );
+  rval = DAG->parse_properties(keywords);
   EXPECT_EQ(moab::MB_SUCCESS, rval);
 
   int ret, volume;
-  for (unsigned i=1; i<=num_slab_vols; i++) {
+  for (unsigned i = 1; i <= num_slab_vols; i++) {
     int id = DAG->id_by_index(3, i);
     std::cout << "Vol " << i << ", id = " << id << std::endl;
 
-    moab::EntityHandle eh = DAG->entity_by_index(3,i);
+    moab::EntityHandle eh = DAG->entity_by_index(3, i);
     rval = DAG->point_in_volume(eh, point, ret);
     EXPECT_EQ(moab::MB_SUCCESS, rval);
     if (ret == 1) {
@@ -205,7 +205,7 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   dir[1] = +dir_norm;
   dir[2] = +dir_norm;
   g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
-  EXPECT_DOUBLE_EQ(5.0/dir_norm, retStep);
+  EXPECT_DOUBLE_EQ(5.0 / dir_norm, retStep);
 
   // -+-
   // Not Lost Particle!
@@ -213,14 +213,14 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   dir[1] = +dir_norm;
   dir[2] = -dir_norm;
   g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
-  EXPECT_DOUBLE_EQ(5.0/dir_norm, retStep);
+  EXPECT_DOUBLE_EQ(5.0 / dir_norm, retStep);
 
   // --+
   dir[0] = -dir_norm;
   dir[1] = -dir_norm;
   dir[2] = +dir_norm;
   g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
-  EXPECT_DOUBLE_EQ(5.0/dir_norm, retStep);
+  EXPECT_DOUBLE_EQ(5.0 / dir_norm, retStep);
 
   // ---
   // Not Lost Particle!
@@ -228,7 +228,7 @@ TEST_F(FluDAGTest, GFireGoodPropStep)
   dir[1] = -dir_norm;
   dir[2] = -dir_norm;
   g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
-  EXPECT_DOUBLE_EQ(5.0/dir_norm, retStep);
+  EXPECT_DOUBLE_EQ(5.0 / dir_norm, retStep);
 }
 
 //---------------------------------------------------------------------------//
@@ -250,7 +250,7 @@ TEST_F(FluDAGMetaDataTest, CheckAssignMatsLegacy)
   error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
   error = DAG->setup_impl_compl();
   error = DAG->setup_indices();
-  fludag_write(infile,"lcad");
+  fludag_write(infile, "lcad");
 
 // expected values from the lcad file // only the cells
   const char* expected[] = {"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...",
@@ -266,22 +266,22 @@ TEST_F(FluDAGMetaDataTest, CheckAssignMatsLegacy)
                             "ASSIGNMA    BLCKHOLE       10.",
                             "ASSIGNMA      VACUUM       11."
                            };
-  std::vector<std::string> expected_lcad(expected,expected+12);
+  std::vector<std::string> expected_lcad(expected, expected + 12);
 
   // now read the lcad file
   std::ifstream input;
   input.open("lcad");
   std::string line;
   std::vector<std::string> input_deck;
-  while(!input.eof()) {
-    std::getline(input,line);
+  while (!input.eof()) {
+    std::getline(input, line);
     input_deck.push_back(line);
   }
   input.close();
 
   // for each line make sure the same
-  for ( int i = 0 ; i < 11 ; i++ ) {
-    EXPECT_EQ(expected_lcad[i],input_deck[i]);
+  for (int i = 0 ; i < 11 ; i++) {
+    EXPECT_EQ(expected_lcad[i], input_deck[i]);
   }
   // delete the lcad file
   std::remove("lcad");

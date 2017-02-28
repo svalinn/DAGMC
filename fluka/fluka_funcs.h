@@ -184,7 +184,7 @@ extern "C" {
    * \param[in] nreg the number of regions in the problem
    * \param[in] mlat the number oflattices in the problem
    */
-  int f_idnr(const int & nreg, const int & mlat);
+  int f_idnr(const int& nreg, const int& mlat);
 
   /**
    * \brief This is a the main Fluka tracking call made to FluDAG,
@@ -232,7 +232,7 @@ extern "C" {
    * \param[in] lou logical output unit number for fortran
    * \param[out] flukaReg the number of regions in the problem
    */
-  void jomiwr(int & nge, const int& lin, const int& lou,
+  void jomiwr(int& nge, const int& lin, const int& lou,
               int& flukaReg);
 
   /**
@@ -397,7 +397,7 @@ double dot_product(moab::EntityHandle surface, double point[3], double direction
  * \param[in] *dir the direction vector of the ray (double[3])
  * \param[out] the region index that the position belong to
  */
-int look( double& posx, double& posy, double& posz, double* dir, int& region);
+int look(double& posx, double& posy, double& posz, double* dir, int& region);
 
 /**
  * \brief g_fire is called by g_step, which is the external interface to FLuka.
@@ -410,7 +410,7 @@ int look( double& posx, double& posy, double& posz, double* dir, int& region);
  * \param[out] newRegion region after step
  **/
 void g_fire(int& oldRegion, double point[], double dir[],
-            double &propStep, double& retStep, double &safety,
+            double& propStep, double& retStep, double& safety,
             int& newRegion);
 
 /**
@@ -424,7 +424,7 @@ void g_fire(int& oldRegion, double point[], double dir[],
  * \param[out] *norml the returned normal vector
  * \param[int] curRegion the region contained by posx,posy, posz
  **/
-int normal (double& posx, double& posy, double& posz, double *norml, int& curRegion);
+int normal(double& posx, double& posy, double& posz, double* norml, int& curRegion);
 
 /**
  * \brief Tests if a particle is on the boundary of the volume vol, returns 1 true or 0 false,
@@ -444,16 +444,16 @@ int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3]);
  * \param[in] volindex any integer
  * \param[out] vname string of the integer form
  */
-void region2name(int volindex, std::string &vname );
+void region2name(int volindex, std::string& vname);
 
-void print_state(particle_state &state);
+void print_state(particle_state& state);
 
 /**
  * \brief resets the particle state associated with the particle.
  *
  * \param[in/out] state the particle state structure
  */
-void reset_state(particle_state &state);
+void reset_state(particle_state& state);
 
 /**
  * \brief Called from mainFludag when only one argument is given to the program.
@@ -519,7 +519,7 @@ void fludag_all_materials(std::ostringstream& mstr,
  * \param[out] mstr the output stream to which the tallies are to be printed
  * \param[in] tally_map the map of all tallies in the problem indexed by the tally name
  */
-void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tally> tally_map);
+void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Tally> tally_map);
 
 
 /**
@@ -530,7 +530,7 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string,pyne::Tal
  * \param[in] delimiters the possible characters used as delimiters
  * \return map of vector of property values in an entity handlewise map
  */
-std::map<moab::EntityHandle,std::vector<std::string> > get_property_assignments(std::string property,
+std::map<moab::EntityHandle, std::vector<std::string> > get_property_assignments(std::string property,
     int dimension, std::string delimiters);
 
 /*** end of uwuw functions ***/

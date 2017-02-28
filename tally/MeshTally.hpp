@@ -134,7 +134,7 @@ class MeshTally : public Tally
    * Note that labels are stored as MOAB tag handles in the tally_tags
    * and error_tags arrays.
    */
-  moab::ErrorCode setup_tags(moab::Interface* mbi, const char* prefix="");
+  moab::ErrorCode setup_tags(moab::Interface* mbi, const char* prefix = "");
 
   /**
    * \brief Adds weight * score to the mesh tally for the tally point

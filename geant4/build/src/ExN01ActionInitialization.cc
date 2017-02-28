@@ -11,7 +11,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ExN01ActionInitialization::ExN01ActionInitialization(UWUW *uwuw_workflow_data)
+ExN01ActionInitialization::ExN01ActionInitialization(UWUW* uwuw_workflow_data)
   : G4VUserActionInitialization()
 {
   //  workflow_data = UWUW(filename);
