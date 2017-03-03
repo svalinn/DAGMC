@@ -52,7 +52,15 @@ diff -rN '--unified=0' Source/src/celsrf.F90 Source_dagmc/src/celsrf.F90
 +++ Source_dagmc/src/celsrf.F90
 @@ -25,0 +26 @@
 +  use dagmc_mod, only : isdgmc
-@@ -505,0 +507,3 @@
+@@ -449 +450,6 @@
+-    write(iuo,460) js,j1,hq,hl,ht,surface_card(k)%symbol,(tpp(i),i=1,n)
++    ! DAGMC: surface_card(k)%symbol returns null characters in DAGMC mode
++    if (isdgmc == 1) then
++      write(iuo,460) js,j1,hq,hl,ht,'',(tpp(i),i=1,n)
++    else
++      write(iuo,460) js,j1,hq,hl,ht,surface_card(k)%symbol,(tpp(i),i=1,n)
++    endif
+@@ -505,0 +512,3 @@
 +    ! DAGMC: Skip this loop if in CAD mode
 +    if (isdgmc == 1) exit
 +
