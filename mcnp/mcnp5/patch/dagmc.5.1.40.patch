@@ -39,7 +39,15 @@ diff -rN '--unified=0' Source/src/celsrf.F90 Source_dagmc/src/celsrf.F90
 +++ Source_dagmc/src/celsrf.F90
 @@ -12,0 +13 @@
 +  use dagmc_mod
-@@ -309,0 +311,4 @@
+@@ -253 +254,6 @@
+-    write(iuo,460) js,j1,hq,hl,ht,ksf(k),(tpp(i),i=1,n)
++    ! DAGMC: ksf(k) returns null characters in DAGMC mode
++    if (isdgmc == 1) then
++      write(iuo,460) js,j1,hq,hl,ht,'',(tpp(i),i=1,n)
++    else
++      write(iuo,460) js,j1,hq,hl,ht,ksf(k),(tpp(i),i=1,n)
++    endif
+@@ -309,0 +316,4 @@
 +
 +    ! DAGMC: Skip this loop if in CAD mode
 +    if (isdgmc == 1) exit
