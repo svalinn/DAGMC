@@ -6,9 +6,11 @@ set(SRC_FILES pyne.cpp)
 # Public headers
 set(PUB_HEADERS pyne.h)
 
-# C++ flags
+# Optimization flags: always use -O0
 set(CMAKE_CXX_FLAGS_RELEASE "-O0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
 
 # Linked libraries
 set(LINK_LIBS        ${DAG_LINK_LIBS})
