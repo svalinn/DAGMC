@@ -6,6 +6,10 @@ set(SRC_FILES pyne.cpp)
 # Public headers
 set(PUB_HEADERS pyne.h)
 
+# C++ flags
+set(CMAKE_CXX_FLAGS_RELEASE "-O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+
 # Linked libraries
 set(LINK_LIBS        ${DAG_LINK_LIBS})
 set(LINK_LIBS_STATIC ${DAG_LINK_LIBS})
