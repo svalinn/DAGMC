@@ -434,7 +434,12 @@ ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets)
     }
     assert( rval == MB_SUCCESS );
 
-    Matrix3 a( p[1]-p[0], p[2]-p[0], p[3]-p[0] );
+    CartVect row0 = p[1]-p[0];
+    CartVect row1 = p[2]-p[0];
+    CartVect row2 = p[3]-p[0]; 
+    Matrix3 a( row0[0], row0[1], row0[2],
+	       row1[0], row1[1], row1[2],
+	       row2[0], row2[1], row2[2]);
     a = a.transpose().inverse();
     tet_baryc_data.at( get_entity_index(tet) ) = a;
   }
