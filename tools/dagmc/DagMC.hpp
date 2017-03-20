@@ -162,6 +162,47 @@ private:
   ErrorCode build_obb_impl_compl(Range &surfs);
 
 
+  /* SECTION II: Fundamental Geometry Operations/Queries */
+public:
+  ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
+                     const double ray_dir[3], EntityHandle& next_surf,
+                     double& next_surf_dist,
+                     GeomQueryTool::RayHistory* history = NULL,
+                     double dist_limit = 0, int ray_orientation = 1,
+                     OrientedBoxTreeTool::TrvStats* stats = NULL);
+
+  ErrorCode point_in_volume(const EntityHandle volume, const double xyz[3],
+                            int& result, const double* uvw = NULL,
+                            const GeomQueryTool::RayHistory* history = NULL);
+
+  ErrorCode point_in_volume_slow(const EntityHandle volume, const double xyz[3],
+                                 int& result);
+
+  ErrorCode test_volume_boundary(const EntityHandle volume,
+                                 const EntityHandle surface,
+                                 const double xyz[3], const double uvw[3],
+                                 int& result,
+                                 const GeomQueryTool::RayHistory* history = NULL);
+
+  ErrorCode closest_to_location(EntityHandle volume, const double point[3],
+                                double& result);
+
+  ErrorCode measure_volume(EntityHandle volume, double& result);
+
+  ErrorCode measure_area(EntityHandle surface, double& result);
+
+  ErrorCode surface_sense(EntityHandle volume, int num_surfaces,
+                          const EntityHandle* surfaces, int* senses_out);
+
+  ErrorCode surface_sense(EntityHandle volume, EntityHandle surface,
+                          int& sense_out);
+
+  ErrorCode get_angle(EntityHandle surf, const double xyz[3], double angle[3],
+                      const GeomQueryTool::RayHistory* history = NULL);
+
+  ErrorCode next_vol(EntityHandle surface, EntityHandle old_volume,
+                     EntityHandle& new_volume);
+
   /* SECTION III: Indexing & Cross-referencing */
 public:
   /* Most calling apps refer to geometric entities with a combination of
