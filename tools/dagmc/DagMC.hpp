@@ -1,16 +1,21 @@
 #ifndef MOABMC_HPP
 #define MOABMC_HPP
 
-#include "moab/Interface.hpp"
 #include "MBTagConventions.hpp"
+#include "moab/CartVect.hpp"
+#include "moab/Range.hpp"
+#include "moab/Core.hpp"
+#include "moab/GeomUtil.hpp"
+#include "moab/FileOptions.hpp"
+#include "moab/Interface.hpp"
+#include "moab/OrientedBoxTreeTool.hpp"
+#include "moab/GeomTopoTool.hpp"
+#include "moab/GeomQueryTool.hpp"
 
 #include <vector>
 #include <map>
 #include <string>
 #include <assert.h>
-
-#include "moab/OrientedBoxTreeTool.hpp"
-#include "moab/GeomTopoTool.hpp"
 
 class RefEntity;
 
@@ -355,8 +360,10 @@ private:
 
   Interface *MBI;
   bool moab_instance_created;
+
+  GeomTopoTool *GTT;
+  GeomQueryTool *GQT;
   OrientedBoxTreeTool *obbTree;
-  GeomTopoTool *gtTool;
   
   EntityHandle impl_compl_handle;
 public:

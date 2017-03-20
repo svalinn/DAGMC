@@ -1,11 +1,4 @@
 #include "DagMC.hpp"
-#include "GeomQueryTool.hpp"
-#include "MBTagConventions.hpp"
-#include "moab/CartVect.hpp"
-#include "moab/Range.hpp"
-#include "moab/Core.hpp"
-#include "moab/GeomUtil.hpp"
-#include "moab/FileOptions.hpp"
 
 #include <string>
 #include <iostream>
@@ -76,10 +69,12 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   // set the internal moab pointer
   MBI = mb_impl;
 
-  // make new obbtreetool
+  // make new GeomTopoTool and GeomQueryTool
+  GTT = new moab::GeomTopoTool(MBI,true,0);
+  GQT = new moab::GeomQueryTool(GTT);
+
+  // make new obbtreetool  
   obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
-  // make new geomtopotool
-  gtTool = new moab::GeomTopoTool(MBI,true,0);
   
   // This is the correct place to uniquely define default values for the dagmc settings
   overlapThickness = overlap_tolerance; // must be nonnegative
@@ -92,6 +87,8 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
 
 // Destructor
 DagMC::~DagMC(){
+  // delete the GeomTopoTool and GeomQueryTool
+  delete GTT, GQT;
   // delete the obb tree
   delete obbTree;
   // if we created the moab instance
@@ -415,7 +412,7 @@ ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
       // skip any surfaces that are non-manifold in the volume
       // because point containment code will get confused by them
       int sense = 0;
-      rval = surface_sense( *i, *j, sense );
+      rval = GQT->surface_sense( *i, *j, sense );
       if (MB_SUCCESS != rval) {
         std::cerr << "Surface/Volume sense data missing." << std::endl;
         return rval;
@@ -471,7 +468,7 @@ ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
     if (parent_vols.size() == 1 ) {
 
       double a;
-      measure_area( *surf_i, a );
+      GQT->measure_area( *surf_i, a );
       impl_compl_surf_count += 1;
       impl_compl_surf_area  += a;
 
