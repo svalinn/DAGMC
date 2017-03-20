@@ -88,7 +88,8 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
 // Destructor
 DagMC::~DagMC(){
   // delete the GeomTopoTool and GeomQueryTool
-  delete GTT, GQT;
+  delete GTT;
+  delete GQT;
   // delete the obb tree
   delete obbTree;
   // if we created the moab instance
