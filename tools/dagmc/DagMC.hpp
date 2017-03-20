@@ -10,6 +10,7 @@
 #include <assert.h>
 
 #include "moab/OrientedBoxTreeTool.hpp"
+#include "moab/GeomTopoTool.hpp"
 
 class RefEntity;
 
@@ -536,7 +537,8 @@ private:
   /* SECTION VI: Other */
 public:
   OrientedBoxTreeTool *obb_tree() {return obbTree;}
-
+  GeomTopoTool *geom_tool() {return gtTool;}
+  
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
 
@@ -561,7 +563,8 @@ private:
   Interface *MBI;
   bool moab_instance_created;
   OrientedBoxTreeTool *obbTree;
-
+  GeomTopoTool *gtTool;
+  
   EntityHandle impl_compl_handle;
 public:
   Tag obbTag, geomTag, idTag, nameTag, senseTag, facetingTolTag;

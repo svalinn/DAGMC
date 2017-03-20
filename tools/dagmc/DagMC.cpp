@@ -76,9 +76,11 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   // set the internal moab pointer
   MBI = mb_impl;
 
-  // make new obbtree
+  // make new obbtreetool
   obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
-
+  // make new geomtopotool
+  gtTool = new moab::GeomTopoTool(MBI,true,0);
+  
   // This is the correct place to uniquely define default values for the dagmc settings
   overlapThickness = overlap_tolerance; // must be nonnegative
   defaultFacetingTolerance = .001;
@@ -1349,12 +1351,7 @@ int DagMC::id_by_index( int dimension, int index )
 
 int DagMC::get_entity_id(EntityHandle this_ent)
 {
-  int id = 0;
-  ErrorCode result = MBI->tag_get_data(idTag, &this_ent, 1, &id);
-  if (MB_TAG_NOT_FOUND == result)
-    id = MBI->id_from_handle(this_ent);
-
-  return id;
+  return gtTool->global_id(this_ent);
 }
 
 ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
