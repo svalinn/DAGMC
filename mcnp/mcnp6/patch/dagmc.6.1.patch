@@ -675,6 +675,13 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +        call dagmc_setup_mesh_tally(i)
 +      endif
 +    enddo
+diff -rN '--unified=0' Source/src/history_neutral_high.F90 Source_dagmc/src/history_neutral_high.F90
+--- Source/src/history_neutral_high.F90
++++ Source_dagmc/src/history_neutral_high.F90
+@@ -156 +156,2 @@
+-      if( D <= zero ) then  !  Review the need for this test.
++      ! DAGMC: use < instead of <=
++      if( D < zero ) then  !  Review the need for this test.
 diff -rN '--unified=0' Source/src/hstory.F90 Source_dagmc/src/hstory.F90
 --- Source/src/hstory.F90
 +++ Source_dagmc/src/hstory.F90
