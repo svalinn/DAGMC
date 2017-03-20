@@ -1314,28 +1314,7 @@ ErrorCode DagMC::poly_solid_angle( EntityHandle face, const CartVect& point, dou
 
 EntityHandle DagMC::entity_by_id( int dimension, int id )
 {
-  assert(0 <= dimension && 3 >= dimension);
-  const Tag tags[] = { idTag, geomTag };
-  const void* const vals[] = { &id, &dimension };
-  ErrorCode rval;
-
-  Range results;
-  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, tags, vals, 2, results );
-
-  if ( MB_SUCCESS != rval )
-      return 0;
-
-  if ( results.empty() ){
-    // old versions of dagmc did not set tags correctly on the implicit complement 'volume',
-    // causing it to not be found by the call above.  This check allows this function to work
-    // correctly, even on reloaded files from older versions.
-    if( dimension == 3 && get_entity_id(impl_compl_handle) == id )
-      return impl_compl_handle;
-    else
-      return 0;
-  }
-
-  return results.front();
+  return gtTool->entity_by_id(dimension, id);  
 }
 
 int DagMC::id_by_index( int dimension, int index )
