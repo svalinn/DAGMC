@@ -71,7 +71,7 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
 
   // make new GeomTopoTool and GeomQueryTool
   GTT = new moab::GeomTopoTool(MBI,false,0);
-  GQT = new moab::GeomQueryTool(GTT);
+  GQT = new moab::GeomQueryTool(GTT,overlap_tolerance,p_numerical_precision);
   
   // make new obbtreetool  
   obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
@@ -745,28 +745,11 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
 /* SECTION IV */
 
 void DagMC::set_overlap_thickness( double new_thickness ){
-
-  if (new_thickness < 0 || new_thickness > 100) {
-    std::cerr << "Invalid overlap_thickness = " << new_thickness << std::endl;
-  }
-  else{
-    overlapThickness = new_thickness;
-  }
-  std::cout << "Set overlap thickness = " << overlapThickness << std::endl;
-
+  GQT->set_overlap_thickness(new_thickness);
 }
 
 void DagMC::set_numerical_precision( double new_precision ){
-
-  if ( new_precision <= 0 || new_precision > 1) {
-    std::cerr << "Invalid numerical_precision = " << numericalPrecision << std::endl;
-  }
-  else{
-    numericalPrecision = new_precision;
-  }
-
-  std::cout << "Set numerical precision = " << numericalPrecision << std::endl;
-
+  GQT->set_numerical_precision(new_precision);
 }
 
 ErrorCode DagMC::write_mesh(const char* ffile,
