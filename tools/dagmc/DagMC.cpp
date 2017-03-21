@@ -70,9 +70,11 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   MBI = mb_impl;
 
   // make new GeomTopoTool and GeomQueryTool
-  GTT = new moab::GeomTopoTool(MBI,true,0);
+  EntityHandle geomSets;
+  MBI->create_meshset(moab::MESHSET_SET,geomSets);
+  GTT = new moab::GeomTopoTool(MBI,true,geomSets);
   GQT = new moab::GeomQueryTool(GTT);
-
+  
   // make new obbtreetool  
   obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
   
@@ -166,18 +168,18 @@ ErrorCode DagMC::load_existing_contents( ) {
 ErrorCode DagMC::finish_loading() {
   ErrorCode rval;
 
-  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
+  // nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
 
-  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
+  // idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
 
-  geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
+  // geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
 
-  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
+  // obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
 
-  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
+  // facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
 
-  // get sense of surfaces wrt volumes
-  senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
+  // // get sense of surfaces wrt volumes
+  // senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
   // search for a tag that has the faceting tolerance
   Range tagged_sets;
@@ -216,7 +218,7 @@ ErrorCode DagMC::setup_impl_compl()
 {
   // If it doesn't already exist, create implicit complement
   // Create data structures for implicit complement
-  ErrorCode rval = get_impl_compl();
+  ErrorCode rval = GTT->get_implicit_complement(NULL, true);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to find or create implicit complement handle." << std::endl;
     return rval;
@@ -252,17 +254,14 @@ ErrorCode DagMC::setup_obbs()
 {
   ErrorCode rval;
   Range surfs,vols;
-  rval = setup_geometry(surfs,vols);
-  if(MB_SUCCESS != rval) {
-    std::cerr << "Failed to setup the geometry" << std::endl;
-    return rval;
-  }
-
+  rval = GTT->find_geomsets();
+  MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets.");
+  
   // If we havent got an OBB Tree, build one.
   if (!have_obb_tree()) {
     std::cout << "Building OBB Tree..." << std::endl;
-    rval = build_obbs(surfs, vols);
-    MB_CHK_SET_ERR(rval, "Failed to build obb.");
+    rval = GTT->construct_obb_trees(false);
+    MB_CHK_SET_ERR(rval, "Failed to build obb trees.");
   }
   return MB_SUCCESS;
 }
@@ -294,7 +293,7 @@ ErrorCode DagMC::init_OBBTree()
 {
   ErrorCode rval;
   // implicit compliment
-  rval = setup_impl_compl();
+  rval = GTT->get_implicit_complement(NULL, true);
   MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
 
   // build obbs
