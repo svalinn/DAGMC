@@ -168,15 +168,15 @@ ErrorCode DagMC::load_existing_contents( ) {
 ErrorCode DagMC::finish_loading() {
   ErrorCode rval;
 
-  // nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
+  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
 
-  // idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
+  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
 
-  // geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
+  geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
 
-  // obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
+  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
 
-  // facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
+  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
 
   // // get sense of surfaces wrt volumes
   // senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
@@ -218,7 +218,8 @@ ErrorCode DagMC::setup_impl_compl()
 {
   // If it doesn't already exist, create implicit complement
   // Create data structures for implicit complement
-  ErrorCode rval = GTT->get_implicit_complement(NULL, true);
+  EntityHandle implicit_complement;
+  ErrorCode rval = GTT->get_implicit_complement(implicit_complement, true);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to find or create implicit complement handle." << std::endl;
     return rval;
@@ -232,20 +233,14 @@ ErrorCode DagMC::setup_geometry(Range &surfs, Range &vols)
 {
   ErrorCode rval;
 
-  const int three = 3;
-  const void* const three_val[] = {&three};
-  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag,
-                                            three_val, 1, vols );
-  if (MB_SUCCESS != rval)
-    return rval;
+  // get all surfaces
+  rval = GTT->get_gsets_by_dimension(2,surfs);
+  MB_CHK_SET_ERR(rval, "Could not get surfaces from GTT.");
 
-  const int two = 2;
-  const void* const two_val[] = {&two};
-  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag,
-                                            two_val, 1, surfs );
-  if (MB_SUCCESS != rval)
-    return rval;
-
+  // get all volumes
+  rval = GTT->get_gsets_by_dimension(2,vols);
+  MB_CHK_SET_ERR(rval, "Could not get volumes from GTT.");
+  
   return MB_SUCCESS;
 }
 
@@ -293,7 +288,8 @@ ErrorCode DagMC::init_OBBTree()
 {
   ErrorCode rval;
   // implicit compliment
-  rval = GTT->get_implicit_complement(NULL, true);
+  EntityHandle implicit_complement;
+  rval = GTT->get_implicit_complement(implicit_complement, true);
   MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
 
   // build obbs
