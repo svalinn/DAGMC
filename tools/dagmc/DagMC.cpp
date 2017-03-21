@@ -70,9 +70,7 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   MBI = mb_impl;
 
   // make new GeomTopoTool and GeomQueryTool
-  EntityHandle geomSets;
-  MBI->create_meshset(moab::MESHSET_SET,geomSets);
-  GTT = new moab::GeomTopoTool(MBI,true,geomSets);
+  GTT = new moab::GeomTopoTool(MBI,false,0);
   GQT = new moab::GeomQueryTool(GTT);
   
   // make new obbtreetool  
@@ -133,10 +131,10 @@ ErrorCode DagMC::load_file(const char* cfile) {
   memcpy(file_ext, &cfile[strlen(cfile) - 4] ,4);
 
   EntityHandle file_set;
-  rval = MBI->create_meshset( MESHSET_SET, file_set );
+  rval = MBI->create_meshset(MESHSET_SET,file_set);
   if (MB_SUCCESS != rval)
     return rval;
-
+  
   rval = MBI->load_file(cfile, &file_set, options, NULL, 0, 0);
 
   if( MB_UNHANDLED_OPTION == rval ){
@@ -178,6 +176,8 @@ ErrorCode DagMC::finish_loading() {
 
   facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
 
+  senseTag = GTT->get_sense_tag();
+  
   // // get sense of surfaces wrt volumes
   // senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
 
@@ -248,9 +248,6 @@ ErrorCode DagMC::setup_geometry(Range &surfs, Range &vols)
 ErrorCode DagMC::setup_obbs()
 {
   ErrorCode rval;
-  Range surfs,vols;
-  rval = GTT->find_geomsets();
-  MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets.");
   
   // If we havent got an OBB Tree, build one.
   if (!have_obb_tree()) {
@@ -287,6 +284,11 @@ ErrorCode DagMC::setup_indices()
 ErrorCode DagMC::init_OBBTree()
 {
   ErrorCode rval;
+
+  // find all geometry sets
+  rval = GTT->find_geomsets();
+  MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets.");
+
   // implicit compliment
   EntityHandle implicit_complement;
   rval = GTT->get_implicit_complement(implicit_complement, true);
