@@ -376,7 +376,7 @@ private:
   /* SECTION VI: Other */
 public:
   OrientedBoxTreeTool *obb_tree() {return obbTree;}
-  GeomTopoTool *geom_tool() {return gtTool;}
+  GeomTopoTool *geom_tool() {return GTT;}
   
   ErrorCode write_mesh(const char* ffile,
                        const int flen);

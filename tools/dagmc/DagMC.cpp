@@ -641,7 +641,7 @@ ErrorCode DagMC::next_vol(EntityHandle surface, EntityHandle old_volume,
 
 EntityHandle DagMC::entity_by_id( int dimension, int id )
 {
-  return gtTool->entity_by_id(dimension, id);  
+  return GTT->entity_by_id(dimension, id);  
 }
 
 int DagMC::id_by_index( int dimension, int index )
@@ -657,7 +657,7 @@ int DagMC::id_by_index( int dimension, int index )
 
 int DagMC::get_entity_id(EntityHandle this_ent)
 {
-  return gtTool->global_id(this_ent);
+  return GTT->global_id(this_ent);
 }
 
 ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
