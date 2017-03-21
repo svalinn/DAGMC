@@ -6,6 +6,7 @@
 #include "TestUtil.hpp"
 #include "Internals.hpp"
 #include "moab/Core.hpp"
+#include "moab/GeomQueryTool.hpp"
 
 #include "DagMC.hpp"
 
@@ -74,7 +75,7 @@ void dagmc_outside_face_rayfire()
 
 void dagmc_outside_face_rayfire_orient_exit()
 {
-  DagMC::RayHistory history;
+  GeomQueryTool::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
@@ -89,7 +90,7 @@ void dagmc_outside_face_rayfire_orient_exit()
 
 void dagmc_outside_face_rayfire_orient_entrance()
 {
-  DagMC::RayHistory history;
+  GeomQueryTool::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
@@ -104,7 +105,7 @@ void dagmc_outside_face_rayfire_orient_entrance()
 
 void dagmc_outside_face_rayfire_history_fail()
 {
-  DagMC::RayHistory history;
+  GeomQueryTool::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
@@ -132,7 +133,7 @@ void dagmc_outside_face_rayfire_history_fail()
 
 void dagmc_outside_face_rayfire_history()
 {
-  DagMC::RayHistory history;
+  GeomQueryTool::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
