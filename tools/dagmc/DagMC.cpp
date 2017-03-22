@@ -235,11 +235,11 @@ ErrorCode DagMC::setup_geometry(Range &surfs, Range &vols)
 
   // get all surfaces
   rval = GTT->get_gsets_by_dimension(2,surfs);
-  MB_CHK_SET_ERR(rval, "Could not get surfaces from GTT.");
+  MB_CHK_SET_ERR(rval, "Could not get surfaces from GTT");
 
   // get all volumes
   rval = GTT->get_gsets_by_dimension(3,vols);
-  MB_CHK_SET_ERR(rval, "Could not get volumes from GTT.");
+  MB_CHK_SET_ERR(rval, "Could not get volumes from GTT");
   
   return MB_SUCCESS;
 }
@@ -253,7 +253,7 @@ ErrorCode DagMC::setup_obbs()
   if (!have_obb_tree()) {
     std::cout << "Building OBB Tree..." << std::endl;
     rval = GTT->construct_obb_trees(false);
-    MB_CHK_SET_ERR(rval, "Failed to build obb trees.");
+    MB_CHK_SET_ERR(rval, "Failed to build obb trees");
   }
   return MB_SUCCESS;
 }
@@ -276,7 +276,7 @@ ErrorCode DagMC::setup_indices()
 
   // build the various index vectors used for efficiency
   rval = build_indices(surfs, vols);
-  MB_CHK_SET_ERR(rval, "Failed to build surface/volume indices.");
+  MB_CHK_SET_ERR(rval, "Failed to build surface/volume indices");
   return MB_SUCCESS;
 }
 
@@ -287,7 +287,7 @@ ErrorCode DagMC::init_OBBTree()
 
   // find all geometry sets
   rval = GTT->find_geomsets();
-  MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets.");
+  MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets");
 
   // implicit compliment
   EntityHandle implicit_complement;
