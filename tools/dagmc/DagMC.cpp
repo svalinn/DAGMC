@@ -168,7 +168,7 @@ ErrorCode DagMC::finish_loading() {
 
   nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
 
-  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
+  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER , NULL, false);
 
   geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
 
@@ -694,6 +694,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     if( *rit != impl_compl_handle ){
       int result=0;
       MBI->tag_get_data( idTag, &*rit, 1, &result );
+      MB_CHK_SET_ERR(rval, "Could not set ID tag data");
       max_id = std::max( max_id, result );
     }
   }
@@ -701,6 +702,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
     // for consistency with earlier versions of DagMC, make sure it always has the highest ID
   max_id++;
   MBI->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
+  MB_CHK_SET_ERR(rval, "Could not set ID tag data on implicit compliment");
 
   // get group handles
   Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
