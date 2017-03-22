@@ -238,7 +238,7 @@ ErrorCode DagMC::setup_geometry(Range &surfs, Range &vols)
   MB_CHK_SET_ERR(rval, "Could not get surfaces from GTT.");
 
   // get all volumes
-  rval = GTT->get_gsets_by_dimension(2,vols);
+  rval = GTT->get_gsets_by_dimension(3,vols);
   MB_CHK_SET_ERR(rval, "Could not get volumes from GTT.");
   
   return MB_SUCCESS;
