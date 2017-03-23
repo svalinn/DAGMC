@@ -436,9 +436,6 @@ private:
   std::vector<int>    dirList;
   std::vector<EntityHandle> surList, facList;
 
-  // for (optional) counting
-  long long int n_pt_in_vol_calls, n_ray_fire_calls;
-
 };
 
 
