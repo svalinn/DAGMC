@@ -158,7 +158,7 @@ ErrorCode DagMC::load_file(const char* cfile) {
 }
 
 // helper function to load the existing contents of a MOAB instance into DAGMC
-ErrorCode DagMC::load_existing_contents( ) {
+ErrorCode DagMC::load_existing_contents() {
   return finish_loading();
 }
 
@@ -178,9 +178,6 @@ ErrorCode DagMC::finish_loading() {
 
   senseTag = GTT->get_sense_tag();
   
-  // // get sense of surfaces wrt volumes
-  // senseTag = get_tag( "GEOM_SENSE_2", 2, MB_TAG_SPARSE, MB_TYPE_HANDLE );
-
   // search for a tag that has the faceting tolerance
   Range tagged_sets;
   double facet_tol_tagvalue = 0;
@@ -218,8 +215,7 @@ ErrorCode DagMC::setup_impl_compl()
 {
   // If it doesn't already exist, create implicit complement
   // Create data structures for implicit complement
-  EntityHandle implicit_complement;
-  ErrorCode rval = GTT->get_implicit_complement(implicit_complement, true);
+  ErrorCode rval = GTT->get_implicit_complement(impl_compl_handle, true);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to find or create implicit complement handle." << std::endl;
     return rval;
@@ -687,22 +683,6 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   std::copy( vols.begin(), vols.end(), iter );
 
   idx = 1;
-  int max_id = -1;
-  for (Range::iterator rit = vols.begin(); rit != vols.end(); ++rit)    {
-    entIndices[*rit-setOffset] = idx++;
-
-    if( *rit != impl_compl_handle ){
-      int result=0;
-      MBI->tag_get_data( idTag, &*rit, 1, &result );
-      MB_CHK_SET_ERR(rval, "Could not set ID tag data");
-      max_id = std::max( max_id, result );
-    }
-  }
-    // assign ID to implicit complement
-    // for consistency with earlier versions of DagMC, make sure it always has the highest ID
-  max_id++;
-  MBI->tag_set_data(idTag, &impl_compl_handle, 1, &max_id);
-  MB_CHK_SET_ERR(rval, "Could not set ID tag data on implicit compliment");
 
   // get group handles
   Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
