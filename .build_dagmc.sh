@@ -7,6 +7,7 @@ cmake ../. -DBUILD_TALLY=ON \
            -DBUILD_TESTS=ON \
            -DBUILD_GEANT4=ON \
            -DGEANT4_DIR=/root/geant4.10.00.p02 \
+           -DENABLE_MW_REGRESSION_TESTS=ON \
            -DCMAKE_INSTALL_PREFIX=/root/dagmc
 make 
 make install

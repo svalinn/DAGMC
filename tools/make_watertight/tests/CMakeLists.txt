@@ -30,7 +30,6 @@ add_executable(make_watertight_cylinder_tests mw_unit_test_driver.cc test_cyl.cp
 add_executable(make_watertight_cone_tests mw_unit_test_driver.cc test_cones.cpp ${SRC_FILES})
 add_executable(make_watertight_no_curve_sphere_tests mw_unit_test_driver.cc test_no_curve_sphere.cpp ${SRC_FILES})
 add_executable(make_watertight_sphere_n_box_test mw_unit_test_driver.cc test_sphere_n_box.cpp ${SRC_FILES})
-add_executable(make_watertight_regression_tests mw_unit_test_driver.cc regression_tests.cpp ${SRC_FILES})
 
 # Includes
 include_directories(..)
@@ -42,13 +41,18 @@ target_link_libraries(make_watertight_cylinder_tests ${LINK_LIBS})
 target_link_libraries(make_watertight_cone_tests ${LINK_LIBS})
 target_link_libraries(make_watertight_no_curve_sphere_tests ${LINK_LIBS})
 target_link_libraries(make_watertight_sphere_n_box_test ${LINK_LIBS})
-target_link_libraries(make_watertight_regression_tests ${LINK_LIBS})
+
 
 # Install tests and test models
 install(TARGETS make_watertight_cylinder_tests make_watertight_cone_tests make_watertight_no_curve_sphere_tests make_watertight_sphere_n_box_test DESTINATION tests PERMISSIONS ${PERMS})
-install(TARGETS make_watertight_regression_tests DESTINATION tests PERMISSIONS ${PERMS})
+
 install(FILES cones.h5m cyl.h5m no_curve_sphere.h5m sphere_n_box.h5m DESTINATION tests)
 
+if(ENABLE_MW_REGRESSION_TESTS)
+  add_executable(make_watertight_regression_tests mw_unit_test_driver.cc regression_tests.cpp ${SRC_FILES})
+  target_link_libraries(make_watertight_regression_tests ${LINK_LIBS})
+  install(TARGETS make_watertight_regression_tests DESTINATION tests PERMISSIONS ${PERMS})
+endif()
 
 # Add to unit test framework
 add_test(make_watertight_cylinder_tests make_watertight_cylinder_tests)
