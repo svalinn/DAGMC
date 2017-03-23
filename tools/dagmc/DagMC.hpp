@@ -240,11 +240,11 @@ private:
 public:
 
   /** retrieve overlap thickness */
-  double overlap_thickness() {return overlapThickness;}
+  double overlap_thickness() { return GQT->get_overlap_thickness(); }
   /** retrieve numerical precision */
-  double numerical_precision() {return numericalPrecision;}
+  double numerical_precision() { return GQT->get_numerical_precision(); }
   /** retrieve faceting tolerance */
-  double faceting_tolerance() {return facetingTolerance;}
+  double faceting_tolerance() { return facetingTolerance; }
 
   /** Attempt to set a new overlap thickness tolerance, first checking for sanity */
   void set_overlap_thickness( double new_overlap_thickness );
@@ -341,7 +341,8 @@ public:
   Tag name_tag() {return nameTag;}
 
   // Get the tag used to associate OBB trees with geometry in load_file(..).
-  Tag obb_tag() { return NULL; }
+  // not sure what to do about the obb_tag, GTT has no concept of an obb_tag on EntitySets - PCS
+  Tag obb_tag() { return NULL; } 
   Tag geom_tag() { return GTT->get_geom_tag(); }
   Tag id_tag() { return GTT->get_gid_tag(); }
   Tag sense_tag() { return GTT->get_sense_tag(); }
@@ -374,7 +375,8 @@ private:
 
   /* SECTION VI: Other */
 public:
-  OrientedBoxTreeTool *obb_tree() { return GTT->obb_tree(); }
+  OrientedBoxTreeTool *obb_tree() {return GTT->obb_tree();}
+  
   GeomTopoTool *geom_tool() {return GTT;}
   
   ErrorCode write_mesh(const char* ffile,
@@ -427,8 +429,6 @@ private:
 
   char implComplName[NAME_TAG_SIZE];
 
-  double overlapThickness;
-  double numericalPrecision;
   double facetingTolerance, defaultFacetingTolerance;
 
   // for point_in_volume:

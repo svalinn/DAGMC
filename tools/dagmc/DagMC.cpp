@@ -74,9 +74,7 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   GQT = new moab::GeomQueryTool(GTT,overlap_tolerance,p_numerical_precision);
   
   // This is the correct place to uniquely define default values for the dagmc settings
-  overlapThickness = overlap_tolerance; // must be nonnegative
   defaultFacetingTolerance = .001;
-  numericalPrecision = p_numerical_precision;
 
   memset( implComplName, 0, NAME_TAG_SIZE );
   strcpy( implComplName , "impl_complement" );
