@@ -168,16 +168,8 @@ ErrorCode DagMC::finish_loading() {
 
   nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
 
-  idTag = get_tag( GLOBAL_ID_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER , NULL, false);
-
-  geomTag = get_tag( GEOM_DIMENSION_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_INTEGER );
-
-  obbTag = get_tag( MB_OBB_TREE_TAG_NAME, 1, MB_TAG_DENSE, MB_TYPE_HANDLE );
-
   facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
 
-  senseTag = GTT->get_sense_tag();
-  
   // search for a tag that has the faceting tolerance
   Range tagged_sets;
   double facet_tol_tagvalue = 0;
@@ -246,7 +238,7 @@ ErrorCode DagMC::setup_obbs()
   ErrorCode rval;
   
   // If we havent got an OBB Tree, build one.
-  if (!have_obb_tree()) {
+  if (!GTT->have_obb_tree()) {
     std::cout << "Building OBB Tree..." << std::endl;
     rval = GTT->construct_obb_trees();
     MB_CHK_SET_ERR(rval, "Failed to build obb trees");
@@ -304,14 +296,14 @@ ErrorCode DagMC::init_OBBTree()
 
 /* SECTION I (private) */
 
-bool DagMC::have_obb_tree()
-{
-  Range entities;
-  ErrorCode rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET,
-                                                           &obbTag, 0, 1,
-                                                           entities );
-  return MB_SUCCESS == rval && !entities.empty();
-}
+// bool DagMC::have_obb_tree()
+// {
+//   Range entities;
+//   ErrorCode rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET,
+//                                                            &obbTag, 0, 1,
+//                                                            entities );
+//   return MB_SUCCESS == rval && !entities.empty();
+// }
 
 bool DagMC::have_impl_compl()
 {
@@ -369,170 +361,170 @@ ErrorCode DagMC::get_impl_compl()
 
 }
 
-ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
-{
-  ErrorCode rval = MB_SUCCESS;
+// ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
+// {
+//   ErrorCode rval = MB_SUCCESS;
 
-  for (Range::iterator i = surfs.begin(); i != surfs.end(); ++i) {
-    EntityHandle root;
-    Range tris;
-    rval = MBI->get_entities_by_dimension( *i, 2, tris );
-    if (MB_SUCCESS != rval)
-      return rval;
-    if (tris.empty())
-      std::cerr << "WARNING: Surface " << get_entity_id(*i) << " has no facets." << std::endl;
-    rval = obbTree->build( tris, root );
-    if (MB_SUCCESS != rval)
-      return rval;
-    rval = MBI->add_entities( root, &*i, 1 );
-    if (MB_SUCCESS != rval)
-      return rval;
-    rval = MBI->tag_set_data( obbTag, &*i, 1, &root );
-    if (MB_SUCCESS != rval)
-      return rval;
-  }
+//   for (Range::iterator i = surfs.begin(); i != surfs.end(); ++i) {
+//     EntityHandle root;
+//     Range tris;
+//     rval = MBI->get_entities_by_dimension( *i, 2, tris );
+//     if (MB_SUCCESS != rval)
+//       return rval;
+//     if (tris.empty())
+//       std::cerr << "WARNING: Surface " << get_entity_id(*i) << " has no facets." << std::endl;
+//     rval = obbTree->build( tris, root );
+//     if (MB_SUCCESS != rval)
+//       return rval;
+//     rval = MBI->add_entities( root, &*i, 1 );
+//     if (MB_SUCCESS != rval)
+//       return rval;
+//     rval = MBI->tag_set_data( obbTag, &*i, 1, &root );
+//     if (MB_SUCCESS != rval)
+//       return rval;
+//   }
 
-  for (Range::iterator i = vols.begin(); i != vols.end(); ++i) {
-      // get all surfaces in volume
-    moab::Range tmp_surfs;
-    rval = MBI->get_child_meshsets( *i, tmp_surfs );
-    if (MB_SUCCESS != rval)
-      return rval;
+//   for (Range::iterator i = vols.begin(); i != vols.end(); ++i) {
+//       // get all surfaces in volume
+//     moab::Range tmp_surfs;
+//     rval = MBI->get_child_meshsets( *i, tmp_surfs );
+//     if (MB_SUCCESS != rval)
+//       return rval;
 
-      // get OBB trees for each surface
-    moab::EntityHandle root;
-    moab::Range trees;
-    for (Range::iterator j = tmp_surfs.begin();  j != tmp_surfs.end(); ++j) {
-      // skip any surfaces that are non-manifold in the volume
-      // because point containment code will get confused by them
-      int sense = 0;
-      rval = GQT->surface_sense( *i, *j, sense );
-      if (MB_SUCCESS != rval) {
-        std::cerr << "Surface/Volume sense data missing." << std::endl;
-        return rval;
-      }
-      if (!sense)
-        continue;
-      rval = MBI->tag_get_data( obbTag, &*j, 1, &root );
-      if (MB_SUCCESS != rval || !root) return MB_FAILURE;
-      trees.insert( root );
-    }
+//       // get OBB trees for each surface
+//     moab::EntityHandle root;
+//     moab::Range trees;
+//     for (Range::iterator j = tmp_surfs.begin();  j != tmp_surfs.end(); ++j) {
+//       // skip any surfaces that are non-manifold in the volume
+//       // because point containment code will get confused by them
+//       int sense = 0;
+//       rval = GQT->surface_sense( *i, *j, sense );
+//       if (MB_SUCCESS != rval) {
+//         std::cerr << "Surface/Volume sense data missing." << std::endl;
+//         return rval;
+//       }
+//       if (!sense)
+//         continue;
+//       rval = MBI->tag_get_data( obbTag, &*j, 1, &root );
+//       if (MB_SUCCESS != rval || !root) return MB_FAILURE;
+//       trees.insert( root );
+//     }
     
-    // build OBB tree for volume
-    rval = obbTree->join_trees( trees, root );
-    if (MB_SUCCESS != rval) return rval;
+//     // build OBB tree for volume
+//     rval = obbTree->join_trees( trees, root );
+//     if (MB_SUCCESS != rval) return rval;
 
-    rval = MBI->tag_set_data( obbTag, &*i, 1, &root );
-    if (MB_SUCCESS != rval) return rval;
-  }
+//     rval = MBI->tag_set_data( obbTag, &*i, 1, &root );
+//     if (MB_SUCCESS != rval) return rval;
+//   }
 
-  if ( !(have_impl_compl()) ) {
-    std::cerr << "Warning, there is no implicit compliment" << std::endl;
-  } else {
-    rval = build_obb_impl_compl(surfs);
-    if (MB_SUCCESS != rval) {
-      std::cerr << "Unable to build OBB tree for implicit complement." << std::endl;
-      return rval;
-    }
-  }
+//   if ( !(have_impl_compl()) ) {
+//     std::cerr << "Warning, there is no implicit compliment" << std::endl;
+//   } else {
+//     rval = build_obb_impl_compl(surfs);
+//     if (MB_SUCCESS != rval) {
+//       std::cerr << "Unable to build OBB tree for implicit complement." << std::endl;
+//       return rval;
+//     }
+//   }
 
-  return MB_SUCCESS;
-}
+//   return MB_SUCCESS;
+// }
 
-ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
-{
-  EntityHandle comp_root, surf_obb_root;
-  Range comp_tree;
-  ErrorCode rval;
-  std::vector<EntityHandle> parent_vols;
+// ErrorCode DagMC::build_obb_impl_compl(Range &surfs)
+// {
+//   EntityHandle comp_root, surf_obb_root;
+//   Range comp_tree;
+//   ErrorCode rval;
+//   std::vector<EntityHandle> parent_vols;
 
-  int impl_compl_surf_count = 0;
-  double impl_compl_surf_area = 0.0;
+//   int impl_compl_surf_count = 0;
+//   double impl_compl_surf_area = 0.0;
 
-    // search through all surfaces
-  for (Range::iterator surf_i = surfs.begin(); surf_i != surfs.end(); ++surf_i) {
+//     // search through all surfaces
+//   for (Range::iterator surf_i = surfs.begin(); surf_i != surfs.end(); ++surf_i) {
 
-    parent_vols.clear();
-      // get parents of each surface
-    rval = MBI->get_parent_meshsets( *surf_i, parent_vols );
-    if (MB_SUCCESS != rval)
-      return rval;
+//     parent_vols.clear();
+//       // get parents of each surface
+//     rval = MBI->get_parent_meshsets( *surf_i, parent_vols );
+//     if (MB_SUCCESS != rval)
+//       return rval;
 
-      // if only one parent, get the OBB root for this surface
-    if (parent_vols.size() == 1 ) {
+//       // if only one parent, get the OBB root for this surface
+//     if (parent_vols.size() == 1 ) {
 
-      double a;
-      GQT->measure_area( *surf_i, a );
-      impl_compl_surf_count += 1;
-      impl_compl_surf_area  += a;
+//       double a;
+//       GQT->measure_area( *surf_i, a );
+//       impl_compl_surf_count += 1;
+//       impl_compl_surf_area  += a;
 
-      rval = MBI->tag_get_data( obbTag, &*surf_i, 1, &surf_obb_root );
-      if (MB_SUCCESS != rval)
-        return rval;
-      if (!surf_obb_root)
-        return MB_FAILURE;
+//       rval = MBI->tag_get_data( obbTag, &*surf_i, 1, &surf_obb_root );
+//       if (MB_SUCCESS != rval)
+//         return rval;
+//       if (!surf_obb_root)
+//         return MB_FAILURE;
 
-        // add obb root to list of obb roots
-      comp_tree.insert( surf_obb_root );
+//         // add obb root to list of obb roots
+//       comp_tree.insert( surf_obb_root );
 
-      // add this surf to the topology of the implicit complement volume
-      rval = MBI->add_parent_child(impl_compl_handle,*surf_i);
-      if (MB_SUCCESS != rval)
-        return rval;
+//       // add this surf to the topology of the implicit complement volume
+//       rval = MBI->add_parent_child(impl_compl_handle,*surf_i);
+//       if (MB_SUCCESS != rval)
+//         return rval;
 
-      // get the surface sense wrt original volume
-      EntityHandle sense_data[2] = {0,0};
-      rval = MBI->tag_get_data( sense_tag(), &(*surf_i), 1, sense_data );
-      if (MB_SUCCESS != rval) return rval;
+//       // get the surface sense wrt original volume
+//       EntityHandle sense_data[2] = {0,0};
+//       rval = MBI->tag_get_data( GTT->get_sense_tag(), &(*surf_i), 1, sense_data );
+//       if (MB_SUCCESS != rval) return rval;
 
-      // set the surface sense wrt implicit complement volume
-      if(0==sense_data[0] && 0==sense_data[1]) return MB_FAILURE;
-      if(0==sense_data[0])
-        sense_data[0] = impl_compl_handle;
-      else if(0==sense_data[1])
-        sense_data[1] = impl_compl_handle;
-      else
-        return MB_FAILURE;
-      rval = MBI->tag_set_data( sense_tag(), &(*surf_i), 1, sense_data );
-      if (MB_SUCCESS != rval)  return rval;
+//       // set the surface sense wrt implicit complement volume
+//       if(0==sense_data[0] && 0==sense_data[1]) return MB_FAILURE;
+//       if(0==sense_data[0])
+//         sense_data[0] = impl_compl_handle;
+//       else if(0==sense_data[1])
+//         sense_data[1] = impl_compl_handle;
+//       else
+//         return MB_FAILURE;
+//       rval = MBI->tag_set_data( GTT->get_sense_tag(), &(*surf_i), 1, sense_data );
+//       if (MB_SUCCESS != rval)  return rval;
 
-    }
-  }
-  // print info about the implicit complement if one was created
-  if( impl_compl_surf_count ){
-    bool one = (impl_compl_surf_count == 1);
-    std::cout << "The implicit complement bounds " << impl_compl_surf_count
-              << (one ? " surface" : " surfaces") << std::endl;
-    std::cout << "The implicit complement's total surface area = "
-              << impl_compl_surf_area << std::endl;
-  }
+//     }
+//   }
+//   // print info about the implicit complement if one was created
+//   if( impl_compl_surf_count ){
+//     bool one = (impl_compl_surf_count == 1);
+//     std::cout << "The implicit complement bounds " << impl_compl_surf_count
+//               << (one ? " surface" : " surfaces") << std::endl;
+//     std::cout << "The implicit complement's total surface area = "
+//               << impl_compl_surf_area << std::endl;
+//   }
 
-    // join surface trees to make OBB tree for implicit complement
-  rval = obbTree->join_trees( comp_tree, comp_root );
-  if (MB_SUCCESS != rval)
-    return rval;
+//     // join surface trees to make OBB tree for implicit complement
+//   rval = obbTree->join_trees( comp_tree, comp_root );
+//   if (MB_SUCCESS != rval)
+//     return rval;
 
-    // tag the implicit complement handle with the handle for its own OBB tree
-  rval = MBI->tag_set_data( obbTag, &impl_compl_handle, 1, &comp_root );
-  if (MB_SUCCESS != rval)
-    return rval;
+//     // tag the implicit complement handle with the handle for its own OBB tree
+//   rval = MBI->tag_set_data( obbTag, &impl_compl_handle, 1, &comp_root );
+//   if (MB_SUCCESS != rval)
+//     return rval;
 
-  // following ReadCGM, assign dimension and category tags
-  int three = 3;
-  rval = MBI->tag_set_data(geomTag, &impl_compl_handle, 1, &three );
-  if (MB_SUCCESS != rval)
-    return rval;
+//   // following ReadCGM, assign dimension and category tags
+//   int three = 3;
+//   rval = MBI->tag_set_data(geomTag, &impl_compl_handle, 1, &three );
+//   if (MB_SUCCESS != rval)
+//     return rval;
 
-  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
-                             MB_TAG_SPARSE, MB_TYPE_OPAQUE);
-  static const char volume_category[CATEGORY_TAG_SIZE] = "Volume\0";
-  rval = MBI->tag_set_data(category_tag, &impl_compl_handle, 1, volume_category );
-  if (MB_SUCCESS != rval)
-    return rval;
+//   Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
+//                              MB_TAG_SPARSE, MB_TYPE_OPAQUE);
+//   static const char volume_category[CATEGORY_TAG_SIZE] = "Volume\0";
+//   rval = MBI->tag_set_data(category_tag, &impl_compl_handle, 1, volume_category );
+//   if (MB_SUCCESS != rval)
+//     return rval;
 
-  return MB_SUCCESS;
+//   return MB_SUCCESS;
 
-}
+// }
 
 /* SECTION II: Fundamental Geometry Operations/Queries */
 
@@ -644,7 +636,7 @@ int DagMC::id_by_index( int dimension, int index )
     return 0;
 
   int result = 0;
-  MBI->tag_get_data( idTag, &h, 1, &result );
+  MBI->tag_get_data( GTT->get_gid_tag(), &h, 1, &result );
   return result;
 }
 
@@ -664,8 +656,7 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   EntityHandle tmp_offset = std::max( surfs.back(), vols.back() );
 
     // set size
-  rootSets.resize(tmp_offset - setOffset + 1);
-  entIndices.resize(rootSets.size());
+  entIndices.resize(tmp_offset - setOffset +1);
 
     // store surf/vol handles lists (surf/vol by index) and
     // index by handle lists
@@ -699,25 +690,6 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   group_handles().resize(groups.size()+1);
   group_handles()[0] = 0;
   std::copy(groups.begin(), groups.end(), &group_handles()[1]);
-
-  // if we dont have a tree, dont setup these indices
-  if(have_obb_tree()) {
-    // populate root sets vector
-    std::vector<EntityHandle> rsets;
-    rsets.resize(surfs.size());
-    rval = MBI->tag_get_data(obb_tag(), surfs, &rsets[0]);
-    if (MB_SUCCESS != rval) return MB_FAILURE;
-    Range::iterator rit;
-    int i;
-    for (i = 0, rit = surfs.begin(); rit != surfs.end(); ++rit, i++)
-      rootSets[*rit-setOffset] = rsets[i];
-    
-    rsets.resize(vols.size());
-    rval = MBI->tag_get_data(obb_tag(), vols, &rsets[0]);
-    if (MB_SUCCESS != rval) return MB_FAILURE;
-    for (i = 0, rit = vols.begin(); rit != vols.end(); ++rit, i++)
-      rootSets[*rit-setOffset] = rsets[i];
-  }
   
   return MB_SUCCESS;
 }
@@ -1021,7 +993,7 @@ ErrorCode DagMC::entities_by_property( const std::string& prop, std::vector<Enti
   // Note that we cannot specify values for proptag here-- the passed value,
   // if it exists, may be only a subset of the packed string representation
   // of this tag.
-  Tag tags[2] = {proptag, geomTag };
+  Tag tags[2] = {proptag, GTT->get_geom_tag()};
   void* vals[2] = {NULL, (dimension!=0) ? &dimension : NULL };
   rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, tags, vals, 2, all_ents );
   if( MB_SUCCESS != rval ) return rval;
@@ -1085,38 +1057,6 @@ Tag DagMC::get_tag( const char* name, int size, TagType store,
     std::cerr << "Couldn't find nor create tag named " << name << std::endl;
 
   return retval;
-}
-
-
-ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
-                          double maxPt[3])
-{
-  double center[3], axis1[3], axis2[3], axis3[3];
-
-    // get center point and vectors to OBB faces
-  ErrorCode rval = getobb(volume, center, axis1, axis2, axis3);
-  if (MB_SUCCESS != rval)
-    return rval;
-
-    // compute min and max vertices
-  for (int i=0; i<3; i++)
-  {
-    double sum = fabs(axis1[i]) + fabs(axis2[i]) + fabs(axis3[i]);
-    minPt[i] = center[i] - sum;
-    maxPt[i] = center[i] + sum;
-  }
-  return MB_SUCCESS;
-}
-
-ErrorCode DagMC::getobb(EntityHandle volume, double center[3], double axis1[3],
-                          double axis2[3], double axis3[3])
-{
-    //find EntityHandle node_set for use in box
-  EntityHandle root = rootSets[volume - setOffset];
-
-    // call box to get center and vectors to faces
-  return obbTree->box(root, center, axis1, axis2, axis3);
-
 }
 
 

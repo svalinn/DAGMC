@@ -156,10 +156,10 @@ private:
   ErrorCode get_impl_compl();
 
   /** build obb structure for each surface and volume */
-  ErrorCode build_obbs(Range &surfs, Range &vols);
+  //  ErrorCode build_obbs(Range &surfs, Range &vols);
 
   /** build obb structure for the implicit complement */
-  ErrorCode build_obb_impl_compl(Range &surfs);
+  //ErrorCode build_obb_impl_compl(Range &surfs);
 
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
@@ -341,12 +341,12 @@ public:
   /** get the tag for the "name" of a surface == global ID */
   Tag name_tag() {return nameTag;}
 
-    // Get the tag used to associate OBB trees with geometry in load_file(..).
-  Tag obb_tag() {return obbTag;}
-  Tag geom_tag() {return geomTag;}
-  Tag id_tag() {return idTag;}
-  Tag sense_tag() { return senseTag; }
-
+  // Get the tag used to associate OBB trees with geometry in load_file(..).
+  Tag obb_tag() { return NULL; }
+  Tag geom_tag() { return GTT->get_geom_tag(); }
+  Tag id_tag() { return GTT->get_gid_tag(); }
+  Tag sense_tag() { return GTT->get_sense_tag(); }
+  
 private:
   /** tokenize the metadata stored in group names - basically borroed from ReadCGM.cpp */
   void tokenize( const std::string& str,
@@ -390,11 +390,10 @@ public:
 
     // get the root of the obbtree for a given entity
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle &root);
-
-  // Get the instance of MOAB used by functions in this file.
+  
+    // Get the instance of MOAB used by functions in this file.
   Interface* moab_instance() {return MBI;}
-
-
+  
 private:
 
   /* PRIVATE MEMBER DATA */
@@ -408,16 +407,14 @@ private:
   
   EntityHandle impl_compl_handle;
 public:
-  Tag obbTag, geomTag, idTag, nameTag, senseTag, facetingTolTag;
+  Tag  nameTag, facetingTolTag;
 private:
   std::vector<EntityHandle> entHandles[5];
     // store some lists indexed by handle
     // this is the lowest-valued handle among entity sets representing
     // surfaces & volumes
   EntityHandle setOffset;
-    // list of obbTree root sets for surfaces and volumes,
-    // indexed by [surf_or_vol_handle - setOffset]
-  std::vector<EntityHandle> rootSets;
+
     // entity index (contiguous 1-N indices) indexed like rootSets are
   std::vector<int> entIndices;
 
@@ -466,12 +463,23 @@ inline int DagMC::num_entities( int dimension )
   return entHandles[dimension].size() - 1;
 }
 
-    // get the root of the obbtree for a given entity
-inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle &root)
-{
-  unsigned int index = vol_or_surf - setOffset;
-  root = (index < rootSets.size() ? rootSets[index] : 0);
-  return (root ? MB_SUCCESS : MB_INDEX_OUT_OF_RANGE);
+  // get the corners of the OBB for a given volume
+inline ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3], double maxPt[3]){
+  ErrorCode rval = GTT->getobb(volume, minPt, maxPt);
+  MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
+}
+
+  // get the center point and three vectors for the OBB of a given volume
+inline ErrorCode DagMC::getobb(EntityHandle volume, double center[3],
+			double axis1[3], double axis2[3], double axis3[3]) {
+  ErrorCode rval = GTT->getobb(volume, center, axis1, axis2, axis3);
+  MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
+}
+
+  // get the root of the obbtree for a given entity
+inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle &root){
+  ErrorCode rval = GTT->get_root(vol_or_surf, root);
+  MB_CHK_SET_ERR(rval, "Failed to get obb root set of volume or surface");
 }
 
 } // namespace moab
