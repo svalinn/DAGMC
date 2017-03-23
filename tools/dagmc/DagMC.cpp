@@ -70,7 +70,7 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   MBI = mb_impl;
 
   // make new GeomTopoTool and GeomQueryTool
-  GTT = new moab::GeomTopoTool(MBI,false,0);
+  GTT = new moab::GeomTopoTool(MBI,false);
   GQT = new moab::GeomQueryTool(GTT,overlap_tolerance,p_numerical_precision);
   
   // make new obbtreetool  
