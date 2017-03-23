@@ -8,7 +8,6 @@
 #include "moab/GeomUtil.hpp"
 #include "moab/FileOptions.hpp"
 #include "moab/Interface.hpp"
-#include "moab/OrientedBoxTreeTool.hpp"
 #include "moab/GeomTopoTool.hpp"
 #include "moab/GeomQueryTool.hpp"
 
@@ -375,7 +374,7 @@ private:
 
   /* SECTION VI: Other */
 public:
-  OrientedBoxTreeTool *obb_tree() {return obbTree;}
+  OrientedBoxTreeTool *obb_tree() { return GTT->obb_tree(); }
   GeomTopoTool *geom_tool() {return GTT;}
   
   ErrorCode write_mesh(const char* ffile,
@@ -403,7 +402,6 @@ private:
 
   GeomTopoTool *GTT;
   GeomQueryTool *GQT;
-  OrientedBoxTreeTool *obbTree;
   
   EntityHandle impl_compl_handle;
 public:

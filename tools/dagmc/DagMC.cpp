@@ -73,9 +73,6 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   GTT = new moab::GeomTopoTool(MBI,false);
   GQT = new moab::GeomQueryTool(GTT,overlap_tolerance,p_numerical_precision);
   
-  // make new obbtreetool  
-  obbTree = new moab::OrientedBoxTreeTool(MBI,"OBB",true);
-  
   // This is the correct place to uniquely define default values for the dagmc settings
   overlapThickness = overlap_tolerance; // must be nonnegative
   defaultFacetingTolerance = .001;
@@ -90,8 +87,7 @@ DagMC::~DagMC(){
   // delete the GeomTopoTool and GeomQueryTool
   delete GTT;
   delete GQT;
-  // delete the obb tree
-  delete obbTree;
+
   // if we created the moab instance
   // clear it
   if(moab_instance_created) {
