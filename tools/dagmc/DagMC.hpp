@@ -425,9 +425,7 @@ private:
   std::vector<double> disList;
   std::vector<int>    dirList;
   std::vector<EntityHandle> surList, facList;
-
 };
-
 
 inline EntityHandle DagMC::entity_by_index( int dimension, int index )
 {
@@ -444,24 +442,26 @@ inline int DagMC::index_by_handle( EntityHandle handle )
 inline int DagMC::num_entities( int dimension )
 {
   assert(0 <= dimension && 3 >= dimension);
-
   return entHandles[dimension].size() - 1;
 }
 
 inline ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3], double maxPt[3]){
   ErrorCode rval = GTT->getobb(volume, minPt, maxPt);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
+  return MB_SUCCESS;
 }
 
 inline ErrorCode DagMC::getobb(EntityHandle volume, double center[3],
 			double axis1[3], double axis2[3], double axis3[3]) {
   ErrorCode rval = GTT->getobb(volume, center, axis1, axis2, axis3);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
+  return MB_SUCCESS;
 }
 
 inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle &root){
   ErrorCode rval = GTT->get_root(vol_or_surf, root);
   MB_CHK_SET_ERR(rval, "Failed to get obb root set of volume or surface");
+  return MB_SUCCESS;
 }
 
 } // namespace moab
