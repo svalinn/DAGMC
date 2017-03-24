@@ -579,7 +579,7 @@ ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3],
                            double angle[3],
                            const GeomQueryTool::RayHistory* history)
 {
-  ErrorCode rval = GQT->get_angle(surf, in_pt, angle, history);
+  ErrorCode rval = GQT->get_normal(surf, in_pt, angle, history);
   return rval;
 }
 
