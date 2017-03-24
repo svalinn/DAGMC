@@ -329,11 +329,9 @@ int main( int argc, char* argv[] )
   GeomQueryTool *gqt = new GeomQueryTool(gtt);
 
   EntityHandle impl_compl;
-  rval = gqt->gttool()->get_implicit_complement(impl_compl, true);
-  MB_CHK_SET_ERR(rval, "Failed to create implicit complement");
-  rval = gqt->gttool()->construct_obb_trees();
+  rval = gqt->initialize();
   if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to initialize DagMC." << std::endl;
+    std::cerr << "Failed to initialize the GeometryQueryTool." << std::endl;
     return 2;
   }
   
@@ -377,11 +375,9 @@ int main( int argc, char* argv[] )
   gtt = new GeomTopoTool(MBI);
   gqt = new GeomQueryTool(gtt);
   
-  rval = gqt->gttool()->get_implicit_complement(impl_compl, true);
-  MB_CHK_SET_ERR(rval, "Failed to create implicit complement");
-  rval = gqt->gttool()->construct_obb_trees();
+  rval = gqt->initialize();
   if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to initialize DagMC." << std::endl;
+    std::cerr << "Failed to initialize the GeometryQueryTool." << std::endl;
     return 2;
   }
 
