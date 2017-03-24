@@ -31,25 +31,6 @@ namespace moab {
      Robustness:   should not be affected
      Knowledge:    user must understand how coarser faceting influences accuracy
                    of results
-
-   Overlap Thickness:
-   This tolerance is the maximum distance across an overlap. It should be zero
-   unless the geometry has overlaps. The overlap thickness is set using the dagmc
-   card. Overlaps must be small enough not to significantly affect physics.
-     Performance: increasing tolerance decreases performance
-     Robustness:  increasing tolerance increases robustness
-     Knowledge:   user must have intuition of overlap thickness
-
-   Numerical Precision:
-   This tolerance is used for obb.intersect_ray, finding neighborhood of
-   adjacent triangle for edge/node intersections, and error in advancing
-   geometric position of particle (x' ~= x + d*u). When determining the
-   neighborhood of adjacent triangles for edge/node intersections, the facet
-   based model is expected to be watertight.
-     Performance: increasing tolerance decreases performance (but not very much)
-     Robustness:  increasing tolerance increases robustness
-     Knowledge:   user should not change this tolerance
-
 */
 
   const bool counting = false; /* controls counts of ray casts and pt_in_vols */
