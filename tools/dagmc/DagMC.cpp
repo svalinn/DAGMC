@@ -586,7 +586,7 @@ ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3],
 ErrorCode DagMC::next_vol(EntityHandle surface, EntityHandle old_volume,
                           EntityHandle& new_volume)
 {
-  ErrorCode rval = GQT->next_vol(surface, old_volume, new_volume);
+  ErrorCode rval = GTT->next_vol(surface, old_volume, new_volume);
   return rval;
 }
 
