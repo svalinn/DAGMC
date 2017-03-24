@@ -562,8 +562,8 @@ ErrorCode DagMC::measure_area(EntityHandle surface, double& result)
 ErrorCode DagMC::surface_sense(EntityHandle volume, int num_surfaces,
                                const EntityHandle* surfaces, int* senses_out)
 {
-  ErrorCode rval = GQT->surface_sense(volume, num_surfaces, surfaces,
-                                      senses_out);
+  ErrorCode rval = GTT->get_surface_senses(volume, num_surfaces, surfaces,
+                                           senses_out);
   return rval;
 }
 
@@ -571,7 +571,7 @@ ErrorCode DagMC::surface_sense(EntityHandle volume, int num_surfaces,
 ErrorCode DagMC::surface_sense(EntityHandle volume, EntityHandle surface,
                                int& sense_out)
 {
-  ErrorCode rval = GQT->surface_sense(volume, surface, sense_out);
+  ErrorCode rval = GTT->get_sense(surface, volume, sense_out);
   return rval;
 }
 
