@@ -107,36 +107,38 @@ public:
   /**\brief initialize the OBB tree structure for ray firing acceleration
    *
    * This method generates an OBB tree from the faceted representation of
-   * the geometry.  It also calls internal methods to generate the implicit
-   * complement and to build the cross-referencing indices.
+   * the geometry.  It also calls internal methods to build the 
+   * cross-referencing indices.
    */
   ErrorCode init_OBBTree();
 
-  /**\brief sets up storage for the implicit complimennt
+  /**\brief finds or creates the implicit complimennt
    *
-   * This method generates the implicit compliment storage, in normal situations
-   * this will be called just before init_OBBTree();
+   * This method calls the GeomTopoTool->get_implicit_complement which will
+   * return the IC handle if it already exists. If the IC doesn't exist, it will
+   * create one.  In normal situations, this will be called just before
+   * init_OBBTree();
    */
   ErrorCode setup_impl_compl();
 
   /**\brief sets up ranges of the volume and surface entity sets
    *
-   * Helper function for setup_obbs & setup_indices, sets ranges containing
-   * all volumes and surfaces
+   * Helper function for setup_indices. Sets ranges containing
+   * all volumes and surfaces.
    */
   ErrorCode setup_geometry(Range &surfs, Range &vols);
 
-  /**\brief thin wrapper around build_obbs()
+  /**\brief thin wrapper around GTT->construct_obb_trees()
    *
-   * Very thin wrapper around build_obbs, allows the setup_OBBTree() function to be
-   * made into atomic chunks
+   * Very thin wrapper around GTT->construct_obb_trees().
+   * Constructs obb trees for all surfaces and volumes in the geometry.
    */
   ErrorCode setup_obbs();
 
   /**\brief thin wrapper around build_indices()
    *
-   * Very thin wrapper around build_indices, allows the setup_OBBTree() function to be
-   * made into atomic chunks
+   * Very thin wrapper around build_indices.  Adds implicit complement handle
+   * to set of volumes; build_indices expects this.
    */
   ErrorCode setup_indices();
 
@@ -146,13 +148,13 @@ private:
   ErrorCode finish_loading();
 
   /** test for existing OBB Tree */
-  bool have_obb_tree();
+  // bool have_obb_tree();
 
   /** test for exisiting implicit compliment */
   bool have_impl_compl();
 
   /** test for pre-existing implicit complement definition, or return a new one */
-  ErrorCode get_impl_compl();
+  // ErrorCode get_impl_compl();
 
   /** build obb structure for each surface and volume */
   //  ErrorCode build_obbs(Range &surfs, Range &vols);
@@ -163,6 +165,10 @@ private:
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
 public:
+
+  /** The methods in this section are thin wrappers around methods in the
+   * GeometryQueryTool.
+   */
   ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
                      const double ray_dir[3], EntityHandle& next_surf,
                      double& next_surf_dist,

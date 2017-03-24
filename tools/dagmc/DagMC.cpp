@@ -293,6 +293,7 @@ bool DagMC::have_impl_compl()
     return false;
 }
 
+/*
 ErrorCode DagMC::get_impl_compl()
 {
   Range entities;
@@ -335,6 +336,7 @@ ErrorCode DagMC::get_impl_compl()
 
 
 }
+*/
 
 // ErrorCode DagMC::build_obbs(Range &surfs, Range &vols)
 // {
