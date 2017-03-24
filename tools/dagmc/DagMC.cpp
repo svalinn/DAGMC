@@ -227,16 +227,6 @@ ErrorCode DagMC::setup_indices()
   Range surfs, vols;
   ErrorCode rval = setup_geometry(surfs,vols);
 
-  // If we haven't got the implicit compliment it would be silly to add it
-  if(have_impl_compl())
-    {
-      // build_indices expects the implicit complement to be in vols.
-      if( vols.find(impl_compl_handle) == vols.end() )
-	     {
-	        vols.insert( vols.end(), impl_compl_handle );
-	     }
-    }
-
   // build the various index vectors used for efficiency
   rval = build_indices(surfs, vols);
   MB_CHK_SET_ERR(rval, "Failed to build surface/volume indices");
@@ -253,8 +243,9 @@ ErrorCode DagMC::init_OBBTree()
   MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets");
 
   // implicit compliment
-  EntityHandle implicit_complement;
-  rval = GTT->get_implicit_complement(implicit_complement, true);
+  // EntityHandle implicit_complement;
+  //  rval = GTT->get_implicit_complement(implicit_complement, true);
+  rval = setup_impl_compl();
   MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
 
   // build obbs

@@ -104,10 +104,11 @@ public:
    */
   ErrorCode load_existing_contents();
 
-  /**\brief initialize the OBB tree structure for ray firing acceleration
+  /**\brief initializes the geometry and OBB tree structure for ray firing acceleration
    *
-   * This method generates an OBB tree from the faceted representation of
-   * the geometry.  It also calls internal methods to build the 
+   * This method can be called after load_file to fully initialize DAGMC.  It calls 
+   * methods to set up the geometry, create the implicit complement, generate an 
+   * OBB tree from the faceted representation of the geometry, and build the 
    * cross-referencing indices.
    */
   ErrorCode init_OBBTree();
@@ -115,9 +116,8 @@ public:
   /**\brief finds or creates the implicit complimennt
    *
    * This method calls the GeomTopoTool->get_implicit_complement which will
-   * return the IC handle if it already exists. If the IC doesn't exist, it will
-   * create one.  In normal situations, this will be called just before
-   * init_OBBTree();
+   * return the IC if it already exists. If the IC doesn't exist, it will
+   * create one.
    */
   ErrorCode setup_impl_compl();
 
@@ -128,7 +128,7 @@ public:
    */
   ErrorCode setup_geometry(Range &surfs, Range &vols);
 
-  /**\brief thin wrapper around GTT->construct_obb_trees()
+  /**\brief constructs obb trees for all surfaces and volumes
    *
    * Very thin wrapper around GTT->construct_obb_trees().
    * Constructs obb trees for all surfaces and volumes in the geometry.
@@ -137,8 +137,7 @@ public:
 
   /**\brief thin wrapper around build_indices()
    *
-   * Very thin wrapper around build_indices.  Adds implicit complement handle
-   * to set of volumes; build_indices expects this.
+   * Very thin wrapper around build_indices().
    */
   ErrorCode setup_indices();
 
@@ -147,27 +146,14 @@ private:
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();
 
-  /** test for existing OBB Tree */
-  // bool have_obb_tree();
-
   /** test for exisiting implicit compliment */
   bool have_impl_compl();
-
-  /** test for pre-existing implicit complement definition, or return a new one */
-  // ErrorCode get_impl_compl();
-
-  /** build obb structure for each surface and volume */
-  //  ErrorCode build_obbs(Range &surfs, Range &vols);
-
-  /** build obb structure for the implicit complement */
-  //ErrorCode build_obb_impl_compl(Range &surfs);
-
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
 public:
 
   /** The methods in this section are thin wrappers around methods in the
-   * GeometryQueryTool.
+   *  GeometryQueryTool.
    */
   ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
                      const double ray_dir[3], EntityHandle& next_surf,
@@ -210,18 +196,18 @@ public:
 
   /* SECTION III: Indexing & Cross-referencing */
 public:
-  /* Most calling apps refer to geometric entities with a combination of
-   * base-1/0 ordinal index (or rank) and global ID (or name).
-   * DagMC also has an internal EntityHandle reference to each geometric entity.
-   * These method provide ways to translate from one to the other.
+  /** Most calling apps refer to geometric entities with a combination of
+   *  base-1/0 ordinal index (or rank) and global ID (or name).
+   *  DagMC also has an internal EntityHandle reference to each geometric entity.
+   *  These method provide ways to translate from one to the other.
    */
 
+  /** map from dimension & global ID to EntityHandle */
+  EntityHandle entity_by_id( int dimension, int id );
   /** map from dimension & base-1 ordinal index to EntityHandle */
   EntityHandle entity_by_index( int dimension, int index );
   /** map from dimension & base-1 ordinal index to global ID */
   int id_by_index( int dimension, int index );
-  /** map from dimension & global ID to EntityHandle */
-  EntityHandle entity_by_id( int dimension, int id );
   /** PPHW: Missing dim & global ID ==> base-1 ordinal index */
   /** map from EntityHandle to base-1 ordinal index */
   int index_by_handle( EntityHandle handle );
@@ -264,24 +250,24 @@ public:
   /* SECTION V: Metadata handling */
   /** Detect all the property keywords that appear in the loaded geometry
    *
-   * @param keywords_out The result list of keywords.  This list could be
+   *  @param keywords_out The result list of keywords.  This list could be
    *        validly passed to parse_properties().
    */
   ErrorCode detect_available_props( std::vector<std::string>& keywords_out, const char *delimiters = "_" );
 
   /** Parse properties from group names per metadata syntax standard
    *
-   * @param keywords A list of keywords to parse.  These are considered the canonical
-   *                 names of the properties, and constitute the valid inputs to
-   *                 has_prop() and prop_value().
-   * @param delimiters An array of characters the routine will use to split the groupname
-   *                   into properties.
-   * @param synonyms An optional mapping of synonym keywords to canonical keywords.
-   *                 This allows more than one group name keyword to take on the same
-   *                 meaning
-   *                 e.g. if synonyms["rest.of.world"] = "graveyard", then volumes
-   *                 in the "rest.of.world" group will behave as if they were in a
-   *                 group named "graveyard".
+   *  @param keywords A list of keywords to parse.  These are considered the canonical
+   *                  names of the properties, and constitute the valid inputs to
+   *                  has_prop() and prop_value().
+   *  @param delimiters An array of characters the routine will use to split the groupname
+   *                    into properties.
+   *  @param synonyms An optional mapping of synonym keywords to canonical keywords.
+   *                  This allows more than one group name keyword to take on the same
+   *                  meaning
+   *                  e.g. if synonyms["rest.of.world"] = "graveyard", then volumes
+   *                  in the "rest.of.world" group will behave as if they were in a
+   *                  group named "graveyard".
    */
   ErrorCode parse_properties( const std::vector<std::string>& keywords,
                               const std::map<std::string,std::string>& synonyms = no_synonyms,
@@ -289,54 +275,54 @@ public:
 
   /** Get the value of a property on a volume or surface
    *
-   * @param eh The entity handle to get a property value on
-   * @param prop The canonical property name
-   * @param value Output parameter, the value of the property.  If no value was
-   *              set on the handle, this will be the empty string.
-   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *         MOAB, or MB_SUCCESS if successful
+   *  @param eh The entity handle to get a property value on
+   *  @param prop The canonical property name
+   *  @param value Output parameter, the value of the property.  If no value was
+   *               set on the handle, this will be the empty string.
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
+   *          MOAB, or MB_SUCCESS if successful
    */
   ErrorCode prop_value( EntityHandle eh, const std::string& prop, std::string& value );
 
   /** Get the value of a property on a volume or surface
    *
-   * @param eh The entity handle to get a property value on
-   * @param prop The canonical property name
-   * @param values Output parameter, the values of the property will be appended to this list.  If no value was
-   *               set on the handle, no entries will be added.
-   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *         MOAB, or MB_SUCCESS if successful
+   *  @param eh The entity handle to get a property value on
+   *  @param prop The canonical property name
+   *  @param values Output parameter, the values of the property will be appended to this list.  If no value was
+   *                set on the handle, no entries will be added.
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
+   *          MOAB, or MB_SUCCESS if successful
    */
   ErrorCode prop_values( EntityHandle eh, const std::string& prop,
                          std::vector< std::string >& value );
 
   /** Return true if a volume or surface has the named property set upon it
    *
-   * @param eh The entity handle to query
-   * @param prop The canonical property name
-   * @retrun True if the handle has the property set, or false if not.
-   *         False is also returned if a MOAB error occurs.
+   *  @param eh The entity handle to query
+   *  @param prop The canonical property name
+   *  @retrun True if the handle has the property set, or false if not.
+   *          False is also returned if a MOAB error occurs.
    */
   bool has_prop( EntityHandle eh, const std::string& prop );
 
   /** Get a list of all unique values assigned to a named property on any entity
    *
-   * @param prop The canonical property name
-   * @param return_list Output param, a list of unique strings that are set as values for this property
-   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *         MOAB, or MB_SUCCESS if succesful
+   *  @param prop The canonical property name
+   *  @param return_list Output param, a list of unique strings that are set as values for this property
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
+   *          MOAB, or MB_SUCCESS if succesful
    */
   ErrorCode get_all_prop_values( const std::string& prop, std::vector<std::string>& return_list );
 
   /** Get a list of all entities which have a given property
    *
-   * @param prop The canonical property name
-   * @param return_list Output param, a list of entity handles that have this property
-   * @param dimension If nonzero, entities returned will be restricted to the given dimension,
-   *                  i.e. 2 for surfaces and 3 for volumes
-   * @parm value If non-NULL, only entities for which the property takes on this value will be returned.
-   * @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *         MOAB, or MB_SUCCESS if succesful
+   *  @param prop The canonical property name
+   *  @param return_list Output param, a list of entity handles that have this property
+   *  @param dimension If nonzero, entities returned will be restricted to the given dimension,
+   *                   i.e. 2 for surfaces and 3 for volumes
+   *  @parm value If non-NULL, only entities for which the property takes on this value will be returned.
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
+   *          MOAB, or MB_SUCCESS if succesful
    */
   ErrorCode entities_by_property( const std::string& prop, std::vector<EntityHandle>& return_list,
                                   int dimension = 0, const std::string* value = NULL );
@@ -346,20 +332,21 @@ public:
   /** get the tag for the "name" of a surface == global ID */
   Tag name_tag() {return nameTag;}
 
-  // Get the tag used to associate OBB trees with geometry in load_file(..).
-  // not sure what to do about the obb_tag, GTT has no concept of an obb_tag on EntitySets - PCS
+  /** Get the tag used to associate OBB trees with geometry in load_file(..).
+   * not sure what to do about the obb_tag, GTT has no concept of an obb_tag on EntitySets - PCS
+   */
   Tag obb_tag() { return NULL; } 
   Tag geom_tag() { return GTT->get_geom_tag(); }
   Tag id_tag() { return GTT->get_gid_tag(); }
   Tag sense_tag() { return GTT->get_sense_tag(); }
   
 private:
-  /** tokenize the metadata stored in group names - basically borroed from ReadCGM.cpp */
+  /** tokenize the metadata stored in group names - basically borrowed from ReadCGM.cpp */
   void tokenize( const std::string& str,
                  std::vector<std::string>& tokens,
                  const char* delimiters = "_" ) const;
 
-  // a common type within the property and group name functions
+  /** a common type within the property and group name functions */
   typedef std::map<std::string, std::string> prop_map;
 
   /** Store the name of a group in a string */
@@ -388,17 +375,17 @@ public:
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
 
-    // get the corners of the OBB for a given volume
+  /** get the corners of the OBB for a given volume */
   ErrorCode getobb(EntityHandle volume, double minPt[3], double maxPt[3]);
 
-    // get the center point and three vectors for the OBB of a given volume
+  /** get the center point and three vectors for the OBB of a given volume */
   ErrorCode getobb(EntityHandle volume, double center[3],
                      double axis1[3], double axis2[3], double axis3[3]);
 
-    // get the root of the obbtree for a given entity
+  /** get the root of the obbtree for a given entity */
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle &root);
   
-    // Get the instance of MOAB used by functions in this file.
+  /** Get the instance of MOAB used by functions in this file. */
   Interface* moab_instance() {return MBI;}
   
 private:
@@ -415,29 +402,26 @@ private:
 public:
   Tag  nameTag, facetingTolTag;
 private:
+  /** store some lists indexed by handle */
   std::vector<EntityHandle> entHandles[5];
-    // store some lists indexed by handle
-    // this is the lowest-valued handle among entity sets representing
-    // surfaces & volumes
+  /** lowest-valued handle among entity sets representing surfs and vols */
   EntityHandle setOffset;
-
-    // entity index (contiguous 1-N indices) indexed like rootSets are
+  /** entity index (contiguous 1-N indices); indexed like rootSets */
   std::vector<int> entIndices;
-
-    // corresponding geometric entities indexed like rootSets are
+  /** corresponding geometric entities; also indexed like rootSets */
   std::vector<RefEntity *> geomEntities;
 
-  // metadata
-  // an empty synonym map to provide as a default argument to parse_properties()
+  /* metadata */
+  /** empty synonym map to provide as a default argument to parse_properties() */
   static const std::map<std::string,std::string> no_synonyms;
-  // a map from the canonical property names to the tags representing them
+  /** map from the canonical property names to the tags representing them */
   std::map<std::string, Tag> property_tagmap;
 
   char implComplName[NAME_TAG_SIZE];
 
   double facetingTolerance, defaultFacetingTolerance;
 
-  // for point_in_volume:
+  /** vectors for point_in_volume: */
   std::vector<double> disList;
   std::vector<int>    dirList;
   std::vector<EntityHandle> surList, facList;
@@ -464,20 +448,17 @@ inline int DagMC::num_entities( int dimension )
   return entHandles[dimension].size() - 1;
 }
 
-  // get the corners of the OBB for a given volume
 inline ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3], double maxPt[3]){
   ErrorCode rval = GTT->getobb(volume, minPt, maxPt);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
 }
 
-  // get the center point and three vectors for the OBB of a given volume
 inline ErrorCode DagMC::getobb(EntityHandle volume, double center[3],
 			double axis1[3], double axis2[3], double axis3[3]) {
   ErrorCode rval = GTT->getobb(volume, center, axis1, axis2, axis3);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
 }
 
-  // get the root of the obbtree for a given entity
 inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle &root){
   ErrorCode rval = GTT->get_root(vol_or_surf, root);
   MB_CHK_SET_ERR(rval, "Failed to get obb root set of volume or surface");
