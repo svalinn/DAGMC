@@ -56,9 +56,6 @@ DagMC::DagMC(Interface *mb_impl, double overlap_tolerance, double p_numerical_pr
   
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
-
-  memset( implComplName, 0, NAME_TAG_SIZE );
-  strcpy( implComplName , "impl_complement" );
 }
 
 // Destructor
