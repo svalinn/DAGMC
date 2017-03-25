@@ -1,11 +1,10 @@
-#include "MBTagConventions.hpp"
-
 #include "moab/Interface.hpp"
 #include "moab/Core.hpp"
+#include "DagMC.hpp"
+#include "MBTagConventions.hpp"
 #include "moab/Range.hpp"
 #include "moab/CartVect.hpp"
 #include "moab/GeomQueryTool.hpp"
-#include "moab/GeomTopoTool.hpp"
 
 #ifdef MOAB_HAVE_MPI
 #include "moab_mpi.h"
@@ -29,23 +28,23 @@ using namespace moab;
 // (center of face at origin).
 ErrorCode write_geometry( const char* output_file_name );
 
-ErrorCode test_ray_fire( GeomQueryTool * );
+ErrorCode test_ray_fire( DagMC * );
 
-ErrorCode test_point_in_volume( GeomQueryTool * );
+ErrorCode test_point_in_volume( DagMC * );
 
-ErrorCode test_measure_volume( GeomQueryTool * );
+ErrorCode test_measure_volume( DagMC * );
 
-ErrorCode test_measure_area( GeomQueryTool * );
+ErrorCode test_measure_area( DagMC * );
 
-ErrorCode test_surface_sense( GeomQueryTool * );
+ErrorCode test_surface_sense( DagMC * );
 
 ErrorCode overlap_write_geometry( const char* output_file_name );
-ErrorCode overlap_test_ray_fire( GeomQueryTool * );
-ErrorCode overlap_test_point_in_volume( GeomQueryTool * );
-ErrorCode overlap_test_measure_volume( GeomQueryTool * );
-ErrorCode overlap_test_measure_area( GeomQueryTool * );
-ErrorCode overlap_test_surface_sense( GeomQueryTool * );
-ErrorCode overlap_test_tracking( GeomQueryTool * );
+ErrorCode overlap_test_ray_fire( DagMC * );
+ErrorCode overlap_test_point_in_volume( DagMC * );
+ErrorCode overlap_test_measure_volume( DagMC * );
+ErrorCode overlap_test_measure_area( DagMC * );
+ErrorCode overlap_test_surface_sense( DagMC * );
+ErrorCode overlap_test_tracking( DagMC * );
 
 ErrorCode write_geometry( const char* output_file_name )
 {
@@ -292,7 +291,7 @@ static bool run_test( std::string name, int argc, char* argv[] )
 #define RUN_TEST(A) do { \
   if (run_test( #A, argc, argv )) { \
     std::cout << #A << "... " << std::endl; \
-    if (MB_SUCCESS != A ( gqt ) ) { \
+    if (MB_SUCCESS != A ( dagmc ) ) { \
       ++errors; \
     } \
   } \
@@ -314,24 +313,20 @@ int main( int argc, char* argv[] )
     std::cerr << "Failed to create input file: " << filename << std::endl;
     return 1;
   }
-
-  Interface *MBI = new Core();
   
+  DagMC *dagmc = new DagMC();
+
   int errors = 0;
-  rval = MBI->load_file( filename );
+  //rval = dagmc.moab_instance()->load_file( filename );
+  rval = dagmc->load_file( filename );
   remove( filename );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file." << std::endl;
     return 2;
   }
-
-  GeomTopoTool *gtt = new GeomTopoTool(MBI);
-  GeomQueryTool *gqt = new GeomQueryTool(gtt);
-
-  EntityHandle impl_compl;
-  rval = gqt->initialize();
+  rval = dagmc->init_OBBTree();
   if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to initialize the GeometryQueryTool." << std::endl;
+    std::cerr << "Failed to initialize DagMC." << std::endl;
     return 2;
   }
   
@@ -343,12 +338,12 @@ int main( int argc, char* argv[] )
  
   // change settings to use overlap-tolerant mode (arbitrary thickness)
   double overlap_thickness = 0.1;
-  gqt->set_overlap_thickness( overlap_thickness );
+  dagmc->set_overlap_thickness( overlap_thickness );
   RUN_TEST( test_ray_fire );
   RUN_TEST( test_point_in_volume );
 
   // clear moab and dagmc instance
-  rval = gqt->moab_instance()->delete_mesh();
+  rval = dagmc->moab_instance()->delete_mesh();
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to delete mesh." << std::endl;
     return 2;
@@ -362,28 +357,24 @@ int main( int argc, char* argv[] )
     return 1;
   }
   
-  delete gtt;  
-  delete gqt;
-
-  rval = MBI->load_file( filename );
+  delete dagmc;
+  
+  dagmc = new DagMC();
+  //  rval = dagmc->moab_instance()->load_file( filename );
+  rval = dagmc->load_file( filename );
   remove( filename );
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file with overlaps." << std::endl;
     return 2;
   }
-
-  gtt = new GeomTopoTool(MBI);
-  gqt = new GeomQueryTool(gtt);
-  
-  rval = gqt->initialize();
+  rval = dagmc->init_OBBTree();
   if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to initialize the GeometryQueryTool." << std::endl;
+    std::cerr << "Failed to initialize DagMC with overlaps." << std::endl;
     return 2;
   }
-
   // change settings to use overlap-tolerant mode (with a large enough thickness)
   overlap_thickness = 3;
-  gqt->set_overlap_thickness( overlap_thickness );
+  dagmc->set_overlap_thickness( overlap_thickness );
   RUN_TEST( overlap_test_ray_fire );
   RUN_TEST( overlap_test_point_in_volume );
   RUN_TEST( overlap_test_measure_volume );
@@ -396,18 +387,17 @@ int main( int argc, char* argv[] )
   if (fail) return fail;
 #endif
 
-  delete gtt;
-  delete gqt;
+  delete dagmc;
   
   return errors;
 }
 
-ErrorCode test_surface_sense( GeomQueryTool * gqt )
+ErrorCode test_surface_sense( DagMC * dagmc )
 {
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range surfs, vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
@@ -427,7 +417,7 @@ ErrorCode test_surface_sense( GeomQueryTool * gqt )
   
   for (Range::iterator i = surfs.begin(); i != surfs.end(); ++i) {
     int sense = 0;
-    rval = gqt->surface_sense( vols.front(), 1, &*i, &sense );
+    rval = dagmc->surface_sense( vols.front(), 1, &*i, &sense );
     if (MB_SUCCESS != rval || sense != 1) {
       std::cerr << "ERROR: Expected 1 for surface sense, got " << sense << std::endl;
       return MB_FAILURE;
@@ -437,12 +427,12 @@ ErrorCode test_surface_sense( GeomQueryTool * gqt )
   return MB_SUCCESS;
 }  
 
-ErrorCode overlap_test_surface_sense( GeomQueryTool * gqt )
+ErrorCode overlap_test_surface_sense( DagMC * dagmc )
 {
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range surfs, vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
@@ -466,7 +456,7 @@ ErrorCode overlap_test_surface_sense( GeomQueryTool * gqt )
   
   for (Range::iterator i = surfs.begin(); i != surfs.end(); ++i) {
     int sense = 0;
-    rval = gqt->surface_sense( vols.front(), 1, &*i, &sense );
+    rval = dagmc->surface_sense( vols.front(), 1, &*i, &sense );
     if (MB_SUCCESS != rval || sense != 1) {
       std::cerr << "ERROR: Expected 1 for surface sense, got " << sense << std::endl;
       return MB_FAILURE;
@@ -475,12 +465,12 @@ ErrorCode overlap_test_surface_sense( GeomQueryTool * gqt )
   
   return MB_SUCCESS;
 }  
-ErrorCode test_measure_volume( GeomQueryTool * gqt )
+ErrorCode test_measure_volume( DagMC * dagmc )
 {
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
   
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range vols;
   const int three = 3;
   const void* ptr = &three;
@@ -497,7 +487,7 @@ ErrorCode test_measure_volume( GeomQueryTool * gqt )
   double result;
   const double vol = 2*2*2 - 1*4./3;
 
-  rval = gqt->measure_volume( vols.front(), result );
+  rval = dagmc->measure_volume( vols.front(), result );
   CHKERR;
   if (fabs(result - vol) > 10*std::numeric_limits<double>::epsilon()) {
     std::cerr << "ERROR: Expected " << vol << " as measure of volume, got " << result << std::endl;
@@ -506,12 +496,12 @@ ErrorCode test_measure_volume( GeomQueryTool * gqt )
   
   return MB_SUCCESS;
 }
-ErrorCode overlap_test_measure_volume( GeomQueryTool * gqt )
+ErrorCode overlap_test_measure_volume( DagMC * dagmc )
 {
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
   
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range vols;
   const int three = 3;
   const void* ptr = &three;
@@ -529,7 +519,7 @@ ErrorCode overlap_test_measure_volume( GeomQueryTool * gqt )
   double result;
   const double vol = (1+1.01)*2*2;
 
-  rval = gqt->measure_volume( vols.front(), result );
+  rval = dagmc->measure_volume( vols.front(), result );
   CHKERR;
   if (fabs(result - vol) > 2*std::numeric_limits<double>::epsilon()) {
     std::cerr << "ERROR: Expected " << vol << " as measure of volume, got " 
@@ -540,12 +530,12 @@ ErrorCode overlap_test_measure_volume( GeomQueryTool * gqt )
   return MB_SUCCESS;
 }
 
-ErrorCode test_measure_area( GeomQueryTool * gqt )
+ErrorCode test_measure_area( DagMC * dagmc )
 {
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range surfs;
   const int two = 2;
   const void* ptr = &two;
@@ -559,7 +549,7 @@ ErrorCode test_measure_area( GeomQueryTool * gqt )
   }
   
   int ids[6];
-  rval = moab->tag_get_data( gqt->gttool()->get_gid_tag(), surfs, ids );
+  rval = moab->tag_get_data( dagmc->id_tag(), surfs, ids );
   CHKERR;
   
     // expect area of 4 for all faces except face 6.
@@ -572,7 +562,7 @@ ErrorCode test_measure_area( GeomQueryTool * gqt )
     
     double result;
     
-    rval = gqt->measure_area( *iter, result );
+    rval = dagmc->measure_area( *iter, result );
     CHKERR;
     if (fabs(result - expected) > std::numeric_limits<double>::epsilon()) {
       std::cerr << "ERROR: Expected area of surface " << ids[i] << " to be " 
@@ -584,12 +574,12 @@ ErrorCode test_measure_area( GeomQueryTool * gqt )
   return MB_SUCCESS;
 }
 
-ErrorCode overlap_test_measure_area( GeomQueryTool * gqt )
+ErrorCode overlap_test_measure_area( DagMC * dagmc )
 {
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range surfs;
   const int two = 2;
   const void* ptr = &two;
@@ -605,7 +595,7 @@ ErrorCode overlap_test_measure_area( GeomQueryTool * gqt )
   }
   
   int ids[num_surfs];
-  rval = moab->tag_get_data( gqt->gttool()->get_gid_tag(), surfs, ids );
+  rval = moab->tag_get_data( dagmc->id_tag(), surfs, ids );
   CHKERR;
   
   const double x_area   = 2*2;
@@ -618,7 +608,7 @@ ErrorCode overlap_test_measure_area( GeomQueryTool * gqt )
     else if (1==i || 3==i || 7 ==i || 9 ==i) expected = x_area;
     else if (6==i || 8==i || 10==i || 11==i) expected = yz_area1;
     
-    rval = gqt->measure_area( *iter, result );
+    rval = dagmc->measure_area( *iter, result );
     CHKERR;
     if (fabs(result - expected) > std::numeric_limits<double>::epsilon()) {
       std::cerr << "ERROR: Expected area of surface " << ids[i] << " to be " 
@@ -637,7 +627,7 @@ struct ray_fire {
   double distance;
 };
 
-ErrorCode test_ray_fire( GeomQueryTool * gqt )
+ErrorCode test_ray_fire( DagMC * dagmc )
 {
   // Glancing ray-triangle intersections are not valid exit intersections. 
   // Piercing ray-triangle intersections are valid exit intersections.
@@ -662,9 +652,9 @@ ErrorCode test_ray_fire( GeomQueryTool * gqt )
     { 2, { 1.0, 0.0, 0.5 }, { -1.0/ROOT2, 1.0/ROOT2, 0.0 }, 3, ROOT2 } };
 
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range surfs, vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
@@ -683,7 +673,7 @@ ErrorCode test_ray_fire( GeomQueryTool * gqt )
   }
   
   int ids[6];
-  rval = moab->tag_get_data( gqt->gttool()->get_gid_tag(), surfs, ids );
+  rval = moab->tag_get_data( dagmc->id_tag(), surfs, ids );
   CHKERR;
   EntityHandle surf[6];
   std::copy( surfs.begin(), surfs.end(), surf );
@@ -709,7 +699,7 @@ ErrorCode test_ray_fire( GeomQueryTool * gqt )
     double dist;
     EntityHandle result;
     GeomQueryTool::RayHistory history;
-    rval = gqt->ray_fire( vols.front(), 
+    rval = dagmc->ray_fire( vols.front(), 
                            tests[i].origin, tests[i].direction,
                            result, dist, &history );
     
@@ -755,7 +745,7 @@ ErrorCode test_ray_fire( GeomQueryTool * gqt )
 
       int boundary_result = -1;
       
-      rval = gqt->test_volume_boundary( vols.front(), result, loc.array(), 
+      rval = dagmc->test_volume_boundary( vols.front(), result, loc.array(), 
                                          uvw.array(), boundary_result, h );
       
       
@@ -773,7 +763,7 @@ ErrorCode test_ray_fire( GeomQueryTool * gqt )
   return MB_SUCCESS;
 }
 
-ErrorCode overlap_test_ray_fire( GeomQueryTool * gqt )
+ErrorCode overlap_test_ray_fire( DagMC * dagmc )
 {
   // Glancing ray-triangle intersections are not valid exit intersections. 
   // Piercing ray-triangle intersections are valid exit intersections.
@@ -814,9 +804,9 @@ ErrorCode overlap_test_ray_fire( GeomQueryTool * gqt )
     { 8, {-1.0,  0.0, 0.0 }, { -1.0, 0.0, 0.0 }            , 10, 0.0   }  };
 
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range surfs, vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
@@ -840,7 +830,7 @@ ErrorCode overlap_test_ray_fire( GeomQueryTool * gqt )
   }
   
   int ids[num_surf];
-  rval = moab->tag_get_data( gqt->gttool()->get_gid_tag(), surfs, ids );
+  rval = moab->tag_get_data( dagmc->id_tag(), surfs, ids );
   CHKERR;
   EntityHandle surf[num_surf];
   std::copy( surfs.begin(), surfs.end(), surf );
@@ -865,7 +855,7 @@ ErrorCode overlap_test_ray_fire( GeomQueryTool * gqt )
 
     double dist;
     EntityHandle result;
-    rval = gqt->ray_fire( vols.front(), 
+    rval = dagmc->ray_fire( vols.front(), 
                            tests[i].origin, tests[i].direction,
                            result, dist );
     
@@ -895,7 +885,7 @@ ErrorCode overlap_test_ray_fire( GeomQueryTool * gqt )
 
 struct PointInVol { double coords[3]; int result; double dir[3]; };
 
-ErrorCode test_point_in_volume( GeomQueryTool * gqt )
+ErrorCode test_point_in_volume( DagMC * dagmc )
 {
   const char* const NAME_ARR[] = { "Boundary", "Outside", "Inside" };
   const char* const* names = NAME_ARR + 1;
@@ -931,9 +921,9 @@ ErrorCode test_point_in_volume( GeomQueryTool * gqt )
   const int num_test = sizeof(tests) / sizeof(tests[0]);
 
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
 
   Range vols;
   const int three = 3;
@@ -948,7 +938,7 @@ ErrorCode test_point_in_volume( GeomQueryTool * gqt )
 
   for (int i = 0; i < num_test; ++i) {
     int result;
-    rval = gqt->point_in_volume( vol, tests[i].coords,
+    rval = dagmc->point_in_volume( vol, tests[i].coords,
                                   result, tests[i].dir );
     CHKERR;
     if (result != tests[i].result) {
@@ -964,7 +954,7 @@ ErrorCode test_point_in_volume( GeomQueryTool * gqt )
     if (tests[i].result == BOUNDARY)
       continue;
      
-    rval = gqt->point_in_volume_slow( vol, tests[i].coords, result );
+    rval = dagmc->point_in_volume_slow( vol, tests[i].coords, result );
     CHKERR;
       
     if (result != tests[i].result) {
@@ -980,7 +970,7 @@ ErrorCode test_point_in_volume( GeomQueryTool * gqt )
   return MB_SUCCESS;
 }
 
-ErrorCode overlap_test_point_in_volume( GeomQueryTool * gqt )
+ErrorCode overlap_test_point_in_volume( DagMC * dagmc )
 {
   const char* const NAME_ARR[] = { "Boundary", "Outside", "Inside" };
   const char* const* names = NAME_ARR + 1;
@@ -1016,9 +1006,9 @@ ErrorCode overlap_test_point_in_volume( GeomQueryTool * gqt )
   const int num_test = sizeof(tests) / sizeof(tests[0]);
 
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
 
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range vols;
   const int three = 3;
   const void* ptr = &three;
@@ -1033,7 +1023,7 @@ ErrorCode overlap_test_point_in_volume( GeomQueryTool * gqt )
   const EntityHandle vol = vols.front();
   for (int i = 0; i < num_test; ++i) {
     int result;
-    rval = gqt->point_in_volume( vol, tests[i].coords,
+    rval = dagmc->point_in_volume( vol, tests[i].coords,
                                   result, tests[i].dir );
     CHKERR;
     if (result != tests[i].result) {
@@ -1049,7 +1039,7 @@ ErrorCode overlap_test_point_in_volume( GeomQueryTool * gqt )
     if (tests[i].result == BOUNDARY)
       continue;
      
-    rval = gqt->point_in_volume_slow( vol, tests[i].coords, result ); 
+    rval = dagmc->point_in_volume_slow( vol, tests[i].coords, result ); 
     CHKERR;
       
     if (result != tests[i].result) {
@@ -1065,7 +1055,7 @@ ErrorCode overlap_test_point_in_volume( GeomQueryTool * gqt )
   return MB_SUCCESS;
 }
 
-ErrorCode overlap_test_tracking( GeomQueryTool * gqt )
+ErrorCode overlap_test_tracking( DagMC * dagmc )
 {
   /* Track a particle from left (-x) to right (+x) through an overlap.
                 ____________________
@@ -1077,12 +1067,12 @@ ErrorCode overlap_test_tracking( GeomQueryTool * gqt )
      surf_id:   10        4         8         2                     */
 
   // get the surfaces and volumes
-  Tag dim_tag = gqt->gttool()->get_geom_tag();
+  Tag dim_tag = dagmc->geom_tag();
   Range surfs, explicit_vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
   ErrorCode rval;
-  Interface *moab = gqt->moab_instance();
+  Interface *moab = dagmc->moab_instance();
   rval = moab->get_entities_by_type_and_tag( 0, MBENTITYSET, &dim_tag, 
                                             ptrs, 1, surfs );
   CHKERR;
@@ -1109,7 +1099,7 @@ ErrorCode overlap_test_tracking( GeomQueryTool * gqt )
   EntityHandle vol = explicit_vol;
   int result;
   const int INSIDE = 1; // OUTSIDE = 0, BOUNDARY = -1;
-  rval = gqt->point_in_volume( explicit_vol, point, result, dir );
+  rval = dagmc->point_in_volume( explicit_vol, point, result, dir );
   CHKERR;
   if (result != INSIDE) {
     std::cerr << "ERROR: particle not inside explicit volume" << std::endl;
@@ -1120,7 +1110,7 @@ ErrorCode overlap_test_tracking( GeomQueryTool * gqt )
   double dist;
   EntityHandle next_surf;
   GeomQueryTool::RayHistory history;
-  rval = gqt->ray_fire( vol, point, dir, next_surf, dist, &history );
+  rval = dagmc->ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[7] || fabs(dist - 0.91) > 1e-6) {
     std::cerr << "ERROR: failed on advance 1" << std::endl;
@@ -1130,12 +1120,12 @@ ErrorCode overlap_test_tracking( GeomQueryTool * gqt )
 
   // get the next volume (implicit complement)
   EntityHandle next_vol;
-  rval = gqt->next_vol( next_surf, vol, next_vol ); 
+  rval = dagmc->next_vol( next_surf, vol, next_vol ); 
   CHKERR;
 
   // get the next surface (behind numerical location)
   vol       = next_vol;
-  rval = gqt->ray_fire( vol, point, dir, next_surf, dist, &history );
+  rval = dagmc->ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[3] || fabs(dist - 0.0) > 1e-6) {
     std::cerr << "ERROR: failed on advance 2" << std::endl;
@@ -1144,12 +1134,12 @@ ErrorCode overlap_test_tracking( GeomQueryTool * gqt )
   for(unsigned i=0; i<3; i++) point[i]+=dist*dir[i];
 
   // get the next volume (the explicit volume)
-  rval = gqt->next_vol( next_surf, vol, next_vol );
+  rval = dagmc->next_vol( next_surf, vol, next_vol );
   CHKERR;
 
   // get the next surface
   vol       = next_vol;
-  rval = gqt->ray_fire( vol, point, dir, next_surf, dist, &history );
+  rval = dagmc->ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[1] || fabs(dist - 0.99) > 1e-6) {
     std::cerr << "ERROR: failed on advance 3" << std::endl;
