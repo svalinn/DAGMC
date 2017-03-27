@@ -22,9 +22,9 @@ DagMC *DAG;
   return A; } } while(false)
 
 #ifdef MESHDIR
-static const char input_file[] = STRINGIFY(MESHDIR) "/dagmc/test_geom.h5m";
+static const char input_file[] = STRINGIFY(MESHDIR) "/test_geom.h5m";
 #else
-static const char input_file[] = STRINGIFY(MESHDIR) "/dagmc/test_geom.h5m";
+static const char input_file[] = STRINGIFY(MESHDIR) "/test_geom.h5m";
 #endif
 
 double eps = 1.0e-6;
