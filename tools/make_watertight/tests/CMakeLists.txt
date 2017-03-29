@@ -48,7 +48,7 @@ install(TARGETS make_watertight_cylinder_tests make_watertight_cone_tests make_w
 
 install(FILES cones.h5m cyl.h5m no_curve_sphere.h5m sphere_n_box.h5m DESTINATION tests)
 
-if(ENABLE_MW_REGRESSION_TESTS)
+if(BUILD_CI_TESTS)
   add_executable(make_watertight_regression_tests mw_unit_test_driver.cc regression_tests.cpp ${SRC_FILES})
   target_link_libraries(make_watertight_regression_tests ${LINK_LIBS})
   install(TARGETS make_watertight_regression_tests DESTINATION tests PERMISSIONS ${PERMS})
