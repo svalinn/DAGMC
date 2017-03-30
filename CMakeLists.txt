@@ -110,11 +110,11 @@ add_subdirectory(common)
 add_subdirectory(tools)
 
 # Build tests that wouldn't normally be built for the CI
-if (BUILD_TESTS)
+if (BUILD_CI_TESTS)
   if (NOT BUILD_TALLY)
     add_subdirectory(tally)
   endif (NOT BUILD_TALLY)
   if (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
     add_subdirectory(mcnp/test)
   endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
-endif (BUILD_TESTS)
+endif (BUILD_CI_TESTS)
