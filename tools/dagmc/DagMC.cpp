@@ -169,6 +169,11 @@ ErrorCode DagMC::finish_loading() {
     facetingTolerance = facet_tol_tagvalue;
   }
 
+  // initialize GQT
+  std::cout << "Initializing the GeomQueryTool..." << std::endl;
+  rval = GQT->initialize();
+  MB_CHK_SET_ERR(rval, "Failed to initialize the DagMC's GeomQueryTool");
+  
   std::cout << "Using faceting tolerance: " << facetingTolerance << std::endl;
 
   return MB_SUCCESS;
