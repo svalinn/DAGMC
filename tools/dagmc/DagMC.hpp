@@ -398,7 +398,6 @@ private:
   GeomTopoTool *GTT;
   GeomQueryTool *GQT;
   
-  EntityHandle impl_compl_handle;
 public:
   Tag  nameTag, facetingTolTag;
 private:

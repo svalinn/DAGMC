@@ -184,6 +184,7 @@ ErrorCode DagMC::setup_impl_compl()
 {
   // If it doesn't already exist, create implicit complement
   // Create data structures for implicit complement
+  EntityHandle impl_compl_handle;
   ErrorCode rval = GTT->get_implicit_complement(impl_compl_handle, true);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to find or create implicit complement handle." << std::endl;
@@ -266,15 +267,7 @@ ErrorCode DagMC::init_OBBTree()
 
 bool DagMC::have_impl_compl()
 {
-  Range entities;
-  const void* const tagdata[] = {implComplName};
-  ErrorCode rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET,
-                                                           &nameTag, tagdata, 1,
-                                                           entities );MB_CHK_ERR(rval);
-  if (!entities.empty())
-    return true;
-  else
-    return false;
+  return GQT->have_implicit_complement();
 }
 
 /* SECTION II: Fundamental Geometry Operations/Queries */
@@ -770,7 +763,7 @@ ErrorCode DagMC::entities_by_property( const std::string& prop, std::vector<Enti
 
 bool DagMC::is_implicit_complement(EntityHandle volume)
 {
-  return volume == impl_compl_handle;
+  return GQT->is_implicit_complement(volume);
 }
 
 void DagMC::tokenize( const std::string& str,
