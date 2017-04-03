@@ -184,8 +184,7 @@ ErrorCode DagMC::setup_impl_compl()
 {
   // If it doesn't already exist, create implicit complement
   // Create data structures for implicit complement
-  EntityHandle impl_compl_handle;
-  ErrorCode rval = GTT->get_implicit_complement(impl_compl_handle, true);
+  ErrorCode rval = GTT->setup_implicit_complement();
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to find or create implicit complement handle." << std::endl;
     return rval;
@@ -763,7 +762,7 @@ ErrorCode DagMC::entities_by_property( const std::string& prop, std::vector<Enti
 
 bool DagMC::is_implicit_complement(EntityHandle volume)
 {
-  return GQT->is_implicit_complement(volume);
+  return GTT->is_implicit_complement(volume);
 }
 
 void DagMC::tokenize( const std::string& str,
