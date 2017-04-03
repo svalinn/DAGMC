@@ -134,51 +134,6 @@ ErrorCode DagMC::load_existing_contents() {
   return finish_loading();
 }
 
-// helper function to finish setting up required tags.
-ErrorCode DagMC::finish_loading() {
-  ErrorCode rval;
-
-  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
-
-  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
-
-  // search for a tag that has the faceting tolerance
-  Range tagged_sets;
-  double facet_tol_tagvalue = 0;
-  bool other_set_tagged = false, root_tagged = false;
-
-  // get list of entity sets that are tagged with faceting tolerance
-  // (possibly empty set)
-  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &facetingTolTag,
-                                            NULL, 1, tagged_sets );
-  // if NOT empty set
-  if (MB_SUCCESS == rval && !tagged_sets.empty()) {
-    rval = MBI->tag_get_data( facetingTolTag, &(*tagged_sets.begin()), 1, &facet_tol_tagvalue );
-    if (MB_SUCCESS != rval) return rval;
-    other_set_tagged = true;
-  }
-  else if (MB_SUCCESS == rval) {
-    // check to see if interface is tagged
-    EntityHandle root = 0;
-    rval = MBI->tag_get_data( facetingTolTag, &root, 1, &facet_tol_tagvalue );
-    if (MB_SUCCESS == rval) root_tagged = true;
-    else rval = MB_SUCCESS;
-  }
-
-  if ( (root_tagged || other_set_tagged) && facet_tol_tagvalue > 0) {
-    facetingTolerance = facet_tol_tagvalue;
-  }
-
-  // initialize GQT
-  std::cout << "Initializing the GeomQueryTool..." << std::endl;
-  rval = GQT->initialize();
-  MB_CHK_SET_ERR(rval, "Failed to initialize the DagMC's GeomQueryTool");
-  
-  std::cout << "Using faceting tolerance: " << facetingTolerance << std::endl;
-
-  return MB_SUCCESS;
-}
-
 // setup the implicit compliment
 ErrorCode DagMC::setup_impl_compl()
 {
@@ -261,13 +216,51 @@ ErrorCode DagMC::init_OBBTree()
   return MB_SUCCESS;
 }
 
+  // helper function to finish setting up required tags.
+ErrorCode DagMC::finish_loading() {
+  ErrorCode rval;
 
-/* SECTION I (private) */
+  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
 
-bool DagMC::have_impl_compl()
-{
-  return GQT->have_implicit_complement();
+  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE );
+
+  // search for a tag that has the faceting tolerance
+  Range tagged_sets;
+  double facet_tol_tagvalue = 0;
+  bool other_set_tagged = false, root_tagged = false;
+
+  // get list of entity sets that are tagged with faceting tolerance
+  // (possibly empty set)
+  rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &facetingTolTag,
+                                            NULL, 1, tagged_sets );
+  // if NOT empty set
+  if (MB_SUCCESS == rval && !tagged_sets.empty()) {
+    rval = MBI->tag_get_data( facetingTolTag, &(*tagged_sets.begin()), 1, &facet_tol_tagvalue );
+    if (MB_SUCCESS != rval) return rval;
+    other_set_tagged = true;
+  }
+  else if (MB_SUCCESS == rval) {
+    // check to see if interface is tagged
+    EntityHandle root = 0;
+    rval = MBI->tag_get_data( facetingTolTag, &root, 1, &facet_tol_tagvalue );
+    if (MB_SUCCESS == rval) root_tagged = true;
+    else rval = MB_SUCCESS;
+  }
+
+  if ( (root_tagged || other_set_tagged) && facet_tol_tagvalue > 0) {
+    facetingTolerance = facet_tol_tagvalue;
+  }
+
+  // initialize GQT
+  std::cout << "Initializing the GeomQueryTool..." << std::endl;
+  rval = GQT->initialize();
+  MB_CHK_SET_ERR(rval, "Failed to initialize the DagMC's GeomQueryTool");
+  
+  std::cout << "Using faceting tolerance: " << facetingTolerance << std::endl;
+
+  return MB_SUCCESS;
 }
+
 
 /* SECTION II: Fundamental Geometry Operations/Queries */
 

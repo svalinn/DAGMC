@@ -146,9 +146,6 @@ private:
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();
 
-  /** test for exisiting implicit compliment */
-  bool have_impl_compl();
-
   /* SECTION II: Fundamental Geometry Operations/Queries */
 public:
 
