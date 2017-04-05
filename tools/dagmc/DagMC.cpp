@@ -253,9 +253,9 @@ ErrorCode DagMC::finish_loading() {
 
   // initialize GQT
   std::cout << "Initializing the GeomQueryTool..." << std::endl;
-  rval = GQT->initialize();
-  MB_CHK_SET_ERR(rval, "Failed to initialize the DagMC's GeomQueryTool");
-  
+  rval = GTT->find_geomsets();
+  MB_CHK_SET_ERR(rval, "Failed to find the geometry sets");
+
   std::cout << "Using faceting tolerance: " << facetingTolerance << std::endl;
 
   return MB_SUCCESS;
