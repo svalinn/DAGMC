@@ -159,7 +159,7 @@ class TrackLengthMeshTally : public MeshTally
    * \param[in] all_tets the set of tets extracted from the input mesh
    * \return the MOAB ErrorCode value
    */
-  ErrorCode compute_barycentric_data (const Range& all_tets);
+  ErrorCode compute_barycentric_data(const Range& all_tets);
 
   /**
    * \brief Constructs the KD and OBB trees from the mesh data
@@ -167,7 +167,7 @@ class TrackLengthMeshTally : public MeshTally
    *
    * Also adds the set of skin triangles to all_tets.
    */
-  void build_trees (Range& all_tets);
+  void build_trees(Range& all_tets);
 
   /**
    * \brief returns all triangle intersections and their distances from the point position
@@ -186,7 +186,7 @@ class TrackLengthMeshTally : public MeshTally
    * element to determine the actual track length
    */
   ErrorCode get_all_intersections(const CartVect& position, const CartVect& direction, double track_length,
-                                  std::vector<EntityHandle> &triangles,std::vector<double> &intersections);
+                                  std::vector<EntityHandle>& triangles, std::vector<double>& intersections);
 
   /**
    * \brief Checks if the given point is inside the given tet
@@ -203,7 +203,7 @@ class TrackLengthMeshTally : public MeshTally
    * \param [in] point point to test
    * \return entity handle to the tet which the point belongs to
    */
-  EntityHandle point_in_which_tet (const CartVect& point);
+  EntityHandle point_in_which_tet(const CartVect& point);
 
   /**
    * \brief return the tet_element in which the ray ends
@@ -228,7 +228,7 @@ class TrackLengthMeshTally : public MeshTally
    * \param[in, out] vector<EntityHandle> intersections list of the triangle entity handles that correspond to the intersections
    * \return void
    */
-  void sort_intersection_data(std::vector<double> &intersections, std::vector<EntityHandle> &triangles);
+  void sort_intersection_data(std::vector<double>& intersections, std::vector<EntityHandle>& triangles);
 
   /**
    * \brief return the tracklengths of the ray in each tet

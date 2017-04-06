@@ -46,9 +46,9 @@ Tally::~Tally()
 //               | Track Length   | Cell         || cell_track    implemented
 //               | Collision      | Cell         || cell_coll     implemented
 //---------------------------------------------------------------------------//
-Tally *Tally::create_tally(const TallyInput& input)
+Tally* Tally::create_tally(const TallyInput& input)
 {
-  Tally *newTally = NULL;
+  Tally* newTally = NULL;
 
   if (input.tally_type == "unstr_track") {
     newTally = new moab::TrackLengthMeshTally(input);
@@ -110,9 +110,9 @@ bool Tally::get_energy_bin(double energy, unsigned int& ebin)
       ebin =  max_ebound - 1;
 
       // find ebin if not maximum bin
-      for (unsigned int i=0; i < max_ebound; ++i) {
+      for (unsigned int i = 0; i < max_ebound; ++i) {
         if (input_data.energy_bin_bounds.at(i) <= energy &&
-            energy < input_data.energy_bin_bounds.at(i+1)) {
+            energy < input_data.energy_bin_bounds.at(i + 1)) {
           ebin = i;
           break;
         }

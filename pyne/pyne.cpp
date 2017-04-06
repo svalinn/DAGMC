@@ -65,7 +65,7 @@
 //
 // General Library
 #ifndef PYNE_IS_AMALGAMATED
-extern "C" double endftod_(char *str, int len);
+extern "C" double endftod_(char* str, int len);
 #endif
 
 #ifndef PYNE_IS_AMALGAMATED
@@ -81,29 +81,29 @@ std::string pyne::NUC_DATA_PATH = "";
 void pyne::pyne_start()
 {
 #if defined __WIN_MSVC__
-  char * tmpPYNE_DATA;
+  char* tmpPYNE_DATA;
   size_t lenPYNE_DATA;
   errno_t errPYNE_DATA = _dupenv_s(&tmpPYNE_DATA, &lenPYNE_DATA, "PYNE_DATA");
   if (errPYNE_DATA)
-    tmpPYNE_DATA = (char *) "<NOT_FOUND>";
+    tmpPYNE_DATA = (char*) "<NOT_FOUND>";
   PYNE_DATA = (std::string) tmpPYNE_DATA;
 
-  char * tmpNUC_DATA_PATH;
+  char* tmpNUC_DATA_PATH;
   size_t lenNUC_DATA_PATH;
   errno_t errNUC_DATA_PATH = _dupenv_s(&tmpNUC_DATA_PATH, &lenNUC_DATA_PATH, "NUC_DATA_PATH");
   if (errPYNE_DATA)
-    tmpNUC_DATA_PATH = (char *) "<NOT_FOUND>";
+    tmpNUC_DATA_PATH = (char*) "<NOT_FOUND>";
   NUC_DATA_PATH = (std::string) tmpNUC_DATA_PATH;
 #else
-  char * tmppath;
+  char* tmppath;
   tmppath = getenv("PYNE_DATA");
   if (tmppath == NULL)
-    tmppath = (char *) "<NOT_FOUND>";
+    tmppath = (char*) "<NOT_FOUND>";
   PYNE_DATA = std::string(tmppath);
 
   tmppath = getenv("NUC_DATA_PATH");
   if (tmppath == NULL)
-    tmppath = (char *) "<NOT_FOUND>";
+    tmppath = (char*) "<NOT_FOUND>";
   NUC_DATA_PATH = std::string(tmppath);
 #endif
   return;
@@ -143,15 +143,15 @@ std::string pyne::to_str(bool t)
 
 int pyne::to_int(std::string s)
 {
-  return atoi( s.c_str() );
+  return atoi(s.c_str());
 }
 
 double pyne::to_dbl(std::string s)
 {
-  return strtod( s.c_str(), NULL );
+  return strtod(s.c_str(), NULL);
 }
 
-double pyne::endftod_cpp(char * s)
+double pyne::endftod_cpp(char* s)
 {
   // Converts string from ENDF only handles "E-less" format but is 5x faster
   int pos, mant, exp;
@@ -166,27 +166,27 @@ double pyne::endftod_cpp(char * s)
              100000 * s[3] + 1000000 * s[1] - 1111111 * '0';
       exp = s[10] - '0';
       // Make the right power of 10.
-      dbl_exp = exp & 01? 10.: 1;
-      dbl_exp *= (exp >>= 1) & 01? 100.: 1;
-      dbl_exp *= (exp >>= 1) & 01? 1.0e4: 1;
-      dbl_exp *= (exp >>= 1) & 01? 1.0e8: 1;
+      dbl_exp = exp & 01 ? 10. : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 100. : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 1.0e4 : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 1.0e8 : 1;
       // Adjust for powers of ten from treating mantissa as an integer.
-      dbl_exp = (s[9] == '-'? 1/dbl_exp: dbl_exp) * 1.0e-6;
+      dbl_exp = (s[9] == '-' ? 1 / dbl_exp : dbl_exp) * 1.0e-6;
       // Get mantissa sign, apply exponent.
-      v = mant * (s[0] == '-'? -1: 1) * dbl_exp;
+      v = mant * (s[0] == '-' ? -1 : 1) * dbl_exp;
     } else {
       mant = s[7] + 10 * s[6] + 100 * s[5] + 1000 * s[4] + 10000 * s[3] + \
              100000 * s[1] - 111111 * '0';
       exp = s[10] + 10 * s[9] - 11 * '0';
-      dbl_exp = exp & 01? 10.: 1;
-      dbl_exp *= (exp >>= 1) & 01? 100.: 1;
-      dbl_exp *= (exp >>= 1) & 01? 1.0e4: 1;
-      dbl_exp *= (exp >>= 1) & 01? 1.0e8: 1;
-      dbl_exp *= (exp >>= 1) & 01? 1.0e16: 1;
-      dbl_exp *= (exp >>= 1) & 01? 1.0e32: 1;
-      dbl_exp *= (exp >>= 1) & 01? 1.0e64: 1;
-      dbl_exp = (s[8] == '-'? 1/dbl_exp: dbl_exp) * 1.0e-5;
-      v = mant * (s[0] == '-'? -1: 1) * dbl_exp;
+      dbl_exp = exp & 01 ? 10. : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 100. : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 1.0e4 : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 1.0e8 : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 1.0e16 : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 1.0e32 : 1;
+      dbl_exp *= (exp >>= 1) & 01 ? 1.0e64 : 1;
+      dbl_exp = (s[8] == '-' ? 1 / dbl_exp : dbl_exp) * 1.0e-5;
+      v = mant * (s[0] == '-' ? -1 : 1) * dbl_exp;
     }
   }
 
@@ -201,12 +201,12 @@ double pyne::endftod_cpp(char * s)
       mant *= 10;
       pos--;
     }
-    v *= (s[pos] == '-'? -1: 1);
+    v *= (s[pos] == '-' ? -1 : 1);
   }
   return v;
 }
 
-double pyne::endftod_f(char * s)
+double pyne::endftod_f(char* s)
 {
 #ifdef PYNE_IS_AMALGAMATED
   return endftod_cpp(s);
@@ -215,7 +215,7 @@ double pyne::endftod_f(char * s)
 #endif
 }
 
-double (*pyne::endftod)(char * s) = &pyne::endftod_f;
+double(*pyne::endftod)(char* s) = &pyne::endftod_f;
 
 void pyne::use_fast_endftod()
 {
@@ -225,7 +225,7 @@ void pyne::use_fast_endftod()
 std::string pyne::to_upper(std::string s)
 {
   // change each element of the string to upper case.
-  for(unsigned int i = 0; i < s.length(); i++)
+  for (unsigned int i = 0; i < s.length(); i++)
     s[i] = toupper(s[i]);
   return s;
 }
@@ -233,7 +233,7 @@ std::string pyne::to_upper(std::string s)
 std::string pyne::to_lower(std::string s)
 {
   // change each element of the string to lower case
-  for(unsigned int i = 0; i < s.length(); i++)
+  for (unsigned int i = 0; i < s.length(); i++)
     s[i] = tolower(s[i]);
   return s;
 }
@@ -247,7 +247,7 @@ std::string pyne::capitalize(std::string s)
   // uppercase the first character
   s[0] = toupper(s[0]);
   // change each subsequent element of the string to lower case
-  for(unsigned int i = 1; i < slen; i++)
+  for (unsigned int i = 1; i < slen; i++)
     s[i] = tolower(s[i]);
   return s;
 }
@@ -263,7 +263,7 @@ std::string pyne::get_flag(char line[], int max_l)
     } else
       tempflag[i] = line[i];
   }
-  return std::string (tempflag);
+  return std::string(tempflag);
 }
 
 
@@ -272,8 +272,8 @@ std::string pyne::remove_substring(std::string s, std::string substr)
 {
   // Removes a substring from the string s
   int n_found = s.find(substr);
-  while ( 0 <= n_found ) {
-    s.erase( n_found , substr.length() );
+  while (0 <= n_found) {
+    s.erase(n_found , substr.length());
     n_found = s.find(substr);
   }
   return s;
@@ -283,8 +283,8 @@ std::string pyne::remove_substring(std::string s, std::string substr)
 std::string pyne::remove_characters(std::string s, std::string chars)
 {
   // Removes all characters in the string chars from the string s
-  for (int i = 0; i < chars.length(); i++ ) {
-    s = remove_substring(s, chars.substr(i, 1) );
+  for (int i = 0; i < chars.length(); i++) {
+    s = remove_substring(s, chars.substr(i, 1));
   }
   return s;
 }
@@ -294,8 +294,8 @@ std::string pyne::replace_all_substrings(std::string s, std::string substr, std:
 {
   // Replaces all instance of substr in s with the string repstr
   int n_found = s.find(substr);
-  while ( 0 <= n_found ) {
-    s.replace( n_found , substr.length(), repstr );
+  while (0 <= n_found) {
+    s.replace(n_found , substr.length(), repstr);
     n_found = s.find(substr);
   }
   return s;
@@ -306,14 +306,14 @@ std::string pyne::replace_all_substrings(std::string s, std::string substr, std:
 std::string pyne::last_char(std::string s)
 {
   // Returns the last character in a string.
-  return s.substr(s.length()-1, 1);
+  return s.substr(s.length() - 1, 1);
 }
 
 
 std::string pyne::slice_from_end(std::string s, int n, int l)
 {
   // Returns the slice of a string using negative indices.
-  return s.substr(s.length()+n, l);
+  return s.substr(s.length() + n, l);
 }
 
 
@@ -328,7 +328,7 @@ bool pyne::contains_substring(std::string s, std::string substr)
 {
   // Returns a boolean based on if the sub is in s.
   int n = s.find(substr);
-  return ( 0 <= n && n < s.length() );
+  return (0 <= n && n < s.length());
 }
 
 
@@ -336,7 +336,7 @@ std::string pyne::natural_naming(std::string name)
 {
   // Calculates a version on the string name that is a valid
   // variable name, ie it uses only word characters.
-  std::string nat_name (name);
+  std::string nat_name(name);
 
   // Replace Whitespace characters with underscores
   nat_name = pyne::replace_all_substrings(nat_name, " ",  "_");
@@ -345,8 +345,8 @@ std::string pyne::natural_naming(std::string name)
 
   // Remove non-word characters
   int n = 0;
-  while ( n < nat_name.length() ) {
-    if ( pyne::words.find(nat_name[n]) == std::string::npos )
+  while (n < nat_name.length()) {
+    if (pyne::words.find(nat_name[n]) == std::string::npos)
       nat_name.erase(n, 1);
     else
       n++;
@@ -357,7 +357,7 @@ std::string pyne::natural_naming(std::string name)
     return nat_name;
 
   // Make sure that the name doesn't begin with a number.
-  if ( pyne::digits.find(nat_name[0]) != std::string::npos)
+  if (pyne::digits.find(nat_name[0]) != std::string::npos)
     nat_name.insert(0, "_");
 
   return nat_name;
@@ -377,7 +377,7 @@ double pyne::slope(double x2, double y2, double x1, double y1)
 
 double pyne::solve_line(double x, double x2, double y2, double x1, double y1)
 {
-  return (slope(x2,y2,x1,y1) * (x - x2)) + y2;
+  return (slope(x2, y2, x1, y1) * (x - x2)) + y2;
 }
 
 
@@ -406,7 +406,7 @@ bool pyne::file_exists(std::string strfilename)
   // Attempt to get the file attributes
   intStat = stat(strfilename.c_str(), &stFileInfo);
 
-  if(intStat == 0) {
+  if (intStat == 0) {
     // We were able to get the file attributes
     // so the file obviously exists.
     blnReturn = true;
@@ -2649,8 +2649,8 @@ pyne::nucname::zz_group pyne::nucname::name_to_zz_group(pyne::nucname::name_grou
 pyne::nucname::name_t pyne::nucname::LAN_array[15] = {"La", "Ce", "Pr", "Nd",
     "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu"
                                                      };
-pyne::nucname::name_group pyne::nucname::LAN (pyne::nucname::LAN_array,
-    pyne::nucname::LAN_array+15);
+pyne::nucname::name_group pyne::nucname::LAN(pyne::nucname::LAN_array,
+    pyne::nucname::LAN_array + 15);
 pyne::nucname::zz_group pyne::nucname::lan = \
     pyne::nucname::name_to_zz_group(pyne::nucname::LAN);
 
@@ -2658,7 +2658,7 @@ pyne::nucname::zz_group pyne::nucname::lan = \
 pyne::nucname::name_t pyne::nucname::ACT_array[15] = {"Ac", "Th", "Pa", "U",
     "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"
                                                      };
-pyne::nucname::name_group pyne::nucname::ACT (pyne::nucname::ACT_array, pyne::nucname::ACT_array+15);
+pyne::nucname::name_group pyne::nucname::ACT(pyne::nucname::ACT_array, pyne::nucname::ACT_array + 15);
 pyne::nucname::zz_group pyne::nucname::act = pyne::nucname::name_to_zz_group(pyne::nucname::ACT);
 
 // Transuarnics
@@ -2666,8 +2666,8 @@ pyne::nucname::name_t pyne::nucname::TRU_array[22] = {"Np", "Pu", "Am", "Cm",
     "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt",
     "Ds", "Rg", "Cn", "Fl", "Lv"
                                                      };
-pyne::nucname::name_group pyne::nucname::TRU (pyne::nucname::TRU_array,
-    pyne::nucname::TRU_array+22);
+pyne::nucname::name_group pyne::nucname::TRU(pyne::nucname::TRU_array,
+    pyne::nucname::TRU_array + 22);
 pyne::nucname::zz_group pyne::nucname::tru = \
     pyne::nucname::name_to_zz_group(pyne::nucname::TRU);
 
@@ -2675,8 +2675,8 @@ pyne::nucname::zz_group pyne::nucname::tru = \
 pyne::nucname::name_t pyne::nucname::MA_array[10] = {"Np", "Am", "Cm", "Bk",
     "Cf", "Es", "Fm", "Md", "No", "Lr"
                                                     };
-pyne::nucname::name_group pyne::nucname::MA (pyne::nucname::MA_array,
-    pyne::nucname::MA_array+10);
+pyne::nucname::name_group pyne::nucname::MA(pyne::nucname::MA_array,
+    pyne::nucname::MA_array + 10);
 pyne::nucname::zz_group pyne::nucname::ma = \
     pyne::nucname::name_to_zz_group(pyne::nucname::MA);
 
@@ -2690,8 +2690,8 @@ pyne::nucname::name_t pyne::nucname::FP_array[88] = {"Ag", "Al", "Ar", "As",
     "Se", "Si", "Sm", "Sn", "Sr", "Ta", "Tb", "Tc", "Te", "Ti", "Tl", "Tm", "V",
     "W",  "Xe", "Y",  "Yb", "Zn", "Zr"
                                                     };
-pyne::nucname::name_group pyne::nucname::FP (pyne::nucname::FP_array,
-    pyne::nucname::FP_array+88);
+pyne::nucname::name_group pyne::nucname::FP(pyne::nucname::FP_array,
+    pyne::nucname::FP_array + 88);
 pyne::nucname::zz_group pyne::nucname::fp = \
     pyne::nucname::name_to_zz_group(pyne::nucname::FP);
 
@@ -2705,15 +2705,15 @@ bool pyne::nucname::isnuclide(std::string nuc)
   int n;
   try {
     n = id(nuc);
-  } catch(NotANuclide) {
+  } catch (NotANuclide) {
     return false;
-  } catch(IndeterminateNuclideForm) {
+  } catch (IndeterminateNuclideForm) {
     return false;
   }
   return isnuclide(n);
 }
 
-bool pyne::nucname::isnuclide(const char * nuc)
+bool pyne::nucname::isnuclide(const char* nuc)
 {
   return isnuclide(std::string(nuc));
 }
@@ -2723,9 +2723,9 @@ bool pyne::nucname::isnuclide(int nuc)
   int n;
   try {
     n = id(nuc);
-  } catch(NotANuclide) {
+  } catch (NotANuclide) {
     return false;
-  } catch(IndeterminateNuclideForm) {
+  } catch (IndeterminateNuclideForm) {
     return false;
   }
   if (n <= 10000000)
@@ -2780,14 +2780,14 @@ int pyne::nucname::id(int nuc)
       // Unphysical metastable state warning
       warning("You have indicated a metastable state of " + pyne::to_str(ssss) + ". Metastable state above 5, possibly unphysical. ");
     }
-    return (zzz*10000000) + (aaa*10000) + (nuc%10);
+    return (zzz * 10000000) + (aaa * 10000) + (nuc % 10);
   } else if (aaa <= zzz && zzz <= aaa * 7 && 0 < zz_name.count(aaa)) {
     // Cinder-form (aaazzzm), ie 2350920
     if (5 < ssss) {
       // Unphysical metastable state warning
       warning("You have indicated a metastable state of " + pyne::to_str(ssss) + ". Metastable state above 5, possibly unphysical. ");
     }
-    return (aaa*10000000) + (zzz*10000) + (nuc%10);
+    return (aaa * 10000000) + (zzz * 10000) + (nuc % 10);
   }
   //else if (aaassss == 0 && 0 == zz_name.count(nuc/1000) && 0 < zz_name.count(zzz))
   else if (aaassss == 0 && 0 < zz_name.count(zzz)) {
@@ -2814,9 +2814,9 @@ int pyne::nucname::id(int nuc)
     } else {
       // Nuclide in MCNP metastable form
       if (nuc == 95642)
-        return (95642 - 400)*10000;  // special case MCNP Am-242
+        return (95642 - 400) * 10000; // special case MCNP Am-242
       nuc = ((nuc - 400) * 10000) + 1;
-      while (3.0 < (float ((nuc/10000)%1000) / float (nuc/10000000)))
+      while (3.0 < (float((nuc / 10000) % 1000) / float(nuc / 10000000)))
         nuc -= 999999;
       return nuc;
     }
@@ -2833,9 +2833,9 @@ int pyne::nucname::id(int nuc)
   throw IndeterminateNuclideForm(nuc, "");
 }
 
-int pyne::nucname::id(const char * nuc)
+int pyne::nucname::id(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return id(newnuc);
 }
 
@@ -2851,16 +2851,16 @@ int pyne::nucname::id(std::string nuc)
   if (dash1 == npos)
     dash2 = npos;
   else
-    dash2 = nuc.find("-", dash1+1);
+    dash2 = nuc.find("-", dash1 + 1);
 
   // nuc must be at least 4 characters or greater if it is in ZZLLAAAM form.
   if (nuc.length() >= 5 && dash1 != npos && dash2 != npos) {
     // Nuclide most likely in ZZLLAAAM Form, only form that contains two "-"'s.
     std::string zz = nuc.substr(0, dash1);
-    std::string ll = nuc.substr(dash1+1, dash2);
+    std::string ll = nuc.substr(dash1 + 1, dash2);
     int zz_int = to_int(zz);
     // Verifying that the LL and ZZ point to the same element as secondary
-    if(znum(ll) != zz_int)
+    if (znum(ll) != zz_int)
       throw NotANuclide(nuc, "mismatched znum and chemical symbol");
     return zzllaaam_to_id(nuc);
   }
@@ -2871,7 +2871,7 @@ int pyne::nucname::id(std::string nuc)
   int nuclen = nucstr.length();
 
   if (pyne::contains_substring(pyne::digits, nucstr.substr(0, 1))) {
-    if (pyne::contains_substring(pyne::digits, nucstr.substr(nuclen-1, nuclen))) {
+    if (pyne::contains_substring(pyne::digits, nucstr.substr(nuclen - 1, nuclen))) {
       // Nuclide must actually be an integer that
       // just happens to be living in string form.
       newnuc = pyne::to_int(nucstr);
@@ -2917,7 +2917,7 @@ int pyne::nucname::id(std::string nuc)
       throw NotANuclide(nucstr, newnuc);
 
     // Add the Z-number
-    elem_name = pyne::remove_characters(nucstr.substr(0, nuclen-1), pyne::digits);
+    elem_name = pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
     elem_name = pyne::capitalize(elem_name);
     if (0 < name_zz.count(elem_name))
       newnuc = (10000000 * name_zz[elem_name]) + newnuc;
@@ -2940,13 +2940,13 @@ bool pyne::nucname::iselement(std::string nuc)
   int n;
   try {
     n = id(nuc);
-  } catch(NotANuclide) {
+  } catch (NotANuclide) {
     return false;
   }
   return iselement(n);
 }
 
-bool pyne::nucname::iselement(const char * nuc)
+bool pyne::nucname::iselement(const char* nuc)
 {
   return iselement(std::string(nuc));
 }
@@ -2956,7 +2956,7 @@ bool pyne::nucname::iselement(int nuc)
   int n;
   try {
     n = id(nuc);
-  } catch(NotANuclide) {
+  } catch (NotANuclide) {
     return false;
   }
 
@@ -3002,9 +3002,9 @@ std::string pyne::nucname::name(int nuc)
 
 
 
-std::string pyne::nucname::name(const char * nuc)
+std::string pyne::nucname::name(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return name(newnuc);
 }
 
@@ -3023,7 +3023,7 @@ int pyne::nucname::znum(int nuc)
   return id(nuc) / 10000000;
 }
 
-int pyne::nucname::znum(const char * nuc)
+int pyne::nucname::znum(const char* nuc)
 {
   return id(nuc) / 10000000;
 }
@@ -3041,7 +3041,7 @@ int pyne::nucname::anum(int nuc)
   return (id(nuc) / 10000) % 1000;
 }
 
-int pyne::nucname::anum(const char * nuc)
+int pyne::nucname::anum(const char* nuc)
 {
   return (id(nuc) / 10000) % 1000;
 }
@@ -3059,7 +3059,7 @@ int pyne::nucname::snum(int nuc)
   return id(nuc) % 10000;
 }
 
-int pyne::nucname::snum(const char * nuc)
+int pyne::nucname::snum(const char* nuc)
 {
   return id(nuc) % 10000;
 }
@@ -3079,13 +3079,13 @@ int pyne::nucname::zzaaam(int nuc)
   int ssss = nucid % 10000;
   if (10 <= ssss)
     ssss = 9;
-  return zzzaaa*10 + ssss;
+  return zzzaaa * 10 + ssss;
 }
 
 
-int pyne::nucname::zzaaam(const char * nuc)
+int pyne::nucname::zzaaam(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return zzaaam(newnuc);
 }
 
@@ -3098,11 +3098,11 @@ int pyne::nucname::zzaaam(std::string nuc)
 
 int pyne::nucname::zzaaam_to_id(int nuc)
 {
-  return (nuc/10)*10000 + (nuc%10);
+  return (nuc / 10) * 10000 + (nuc % 10);
 }
 
 
-int pyne::nucname::zzaaam_to_id(const char * nuc)
+int pyne::nucname::zzaaam_to_id(const char* nuc)
 {
   return zzaaam_to_id(std::string(nuc));
 }
@@ -3119,15 +3119,15 @@ int pyne::nucname::zzaaam_to_id(std::string nuc)
 int pyne::nucname::zzzaaa(int nuc)
 {
   int nucid = id(nuc);
-  int zzzaaa = nucid/10000;
+  int zzzaaa = nucid / 10000;
 
   return zzzaaa;
 }
 
 
-int pyne::nucname::zzzaaa(const char * nuc)
+int pyne::nucname::zzzaaa(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return zzzaaa(newnuc);
 }
 
@@ -3140,11 +3140,11 @@ int pyne::nucname::zzzaaa(std::string nuc)
 
 int pyne::nucname::zzzaaa_to_id(int nuc)
 {
-  return (nuc)*10000;
+  return (nuc) * 10000;
 }
 
 
-int pyne::nucname::zzzaaa_to_id(const char * nuc)
+int pyne::nucname::zzzaaa_to_id(const char* nuc)
 {
   return zzzaaa_to_id(std::string(nuc));
 }
@@ -3188,9 +3188,9 @@ std::string pyne::nucname::zzllaaam(int nuc)
 }
 
 
-std::string pyne::nucname::zzllaaam(const char * nuc)
+std::string pyne::nucname::zzllaaam(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return zzllaaam(newnuc);
 }
 
@@ -3201,7 +3201,7 @@ std::string pyne::nucname::zzllaaam(std::string nuc)
 }
 
 
-int pyne::nucname::zzllaaam_to_id(const char * nuc)
+int pyne::nucname::zzllaaam_to_id(const char* nuc)
 {
   return zzllaaam_to_id(std::string(nuc));
 }
@@ -3219,7 +3219,7 @@ int pyne::nucname::zzllaaam_to_id(std::string nuc)
   // Removing first two characters (redundant), for 1 digit nuclides, such
   // as 2-He-4, the first slash will be removed, and the second attempt to
   // remove the second slash will do nothing.
-  nucstr.erase(0,2);
+  nucstr.erase(0, 2);
   nucstr = pyne::remove_substring(nucstr, "-");
   // Does nothing if nuclide is short, otherwise removes the second "-" instance
   nucstr = pyne::remove_substring(nucstr, "-");
@@ -3246,7 +3246,7 @@ int pyne::nucname::zzllaaam_to_id(std::string nuc)
     throw NotANuclide(nucstr, nucid);
 
   // Add the Z-number
-  elem_name = pyne::remove_characters(nucstr.substr(0, nuclen-1), pyne::digits);
+  elem_name = pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
   elem_name = pyne::capitalize(elem_name);
   if (0 < name_zz.count(elem_name))
     nucid = (10000000 * name_zz[elem_name]) + nucid;
@@ -3277,9 +3277,9 @@ int pyne::nucname::mcnp(int nuc)
 
 
 
-int pyne::nucname::mcnp(const char * nuc)
+int pyne::nucname::mcnp(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return mcnp(newnuc);
 }
 
@@ -3308,9 +3308,9 @@ int pyne::nucname::mcnp_to_id(int nuc)
     } else {
       // Nuclide in MCNP metastable form
       if (nuc == 95642)
-        return (95642 - 400)*10000;  // special case MCNP Am-242
+        return (95642 - 400) * 10000; // special case MCNP Am-242
       nuc = ((nuc - 400) * 10000) + 1;
-      while (3.0 < (float ((nuc/10000)%1000) / float (nuc/10000000)))
+      while (3.0 < (float((nuc / 10000) % 1000) / float(nuc / 10000000)))
         nuc -= 999999;
       return nuc;
     }
@@ -3321,7 +3321,7 @@ int pyne::nucname::mcnp_to_id(int nuc)
 }
 
 
-int pyne::nucname::mcnp_to_id(const char * nuc)
+int pyne::nucname::mcnp_to_id(const char* nuc)
 {
   return mcnp_to_id(std::string(nuc));
 }
@@ -3357,7 +3357,7 @@ int pyne::nucname::fluka_to_id(std::string name)
   return fluka_zz[name];
 }
 
-int pyne::nucname::fluka_to_id(char * name)
+int pyne::nucname::fluka_to_id(char* name)
 {
   return fluka_to_id(std::string(name));
 }
@@ -3404,9 +3404,9 @@ std::string pyne::nucname::serpent(int nuc)
 }
 
 
-std::string pyne::nucname::serpent(const char * nuc)
+std::string pyne::nucname::serpent(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return serpent(newnuc);
 }
 
@@ -3425,7 +3425,7 @@ std::string pyne::nucname::serpent(std::string nuc)
 //}
 
 
-int pyne::nucname::serpent_to_id(const char * nuc)
+int pyne::nucname::serpent_to_id(const char* nuc)
 {
   return serpent_to_id(std::string(nuc));
 }
@@ -3464,7 +3464,7 @@ int pyne::nucname::serpent_to_id(std::string nuc)
     throw NotANuclide(nucstr, nucid);
 
   // Add the Z-number
-  elem_name = pyne::remove_characters(nucstr.substr(0, nuclen-1), pyne::digits);
+  elem_name = pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
   elem_name = pyne::capitalize(elem_name);
   if (0 < name_zz.count(elem_name))
     nucid = (10000000 * name_zz[elem_name]) + nucid;
@@ -3512,9 +3512,9 @@ std::string pyne::nucname::nist(int nuc)
 }
 
 
-std::string pyne::nucname::nist(const char * nuc)
+std::string pyne::nucname::nist(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return nist(newnuc);
 }
 
@@ -3533,7 +3533,7 @@ std::string pyne::nucname::nist(std::string nuc)
 // NON-EXISTANT
 //};
 
-int pyne::nucname::nist_to_id(const char * nuc)
+int pyne::nucname::nist_to_id(const char* nuc)
 {
   return nist_to_id(std::string(nuc));
 }
@@ -3582,14 +3582,14 @@ int pyne::nucname::cinder(int nuc)
   int aaa = aaassss / 10000;
   if (10 <= ssss)
     ssss = 9;
-  return (aaa*10000) + (zzz*10) + ssss;
+  return (aaa * 10000) + (zzz * 10) + ssss;
 }
 
 
 
-int pyne::nucname::cinder(const char * nuc)
+int pyne::nucname::cinder(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return cinder(newnuc);
 }
 
@@ -3613,7 +3613,7 @@ int pyne::nucname::cinder_to_id(int nuc)
 }
 
 
-int pyne::nucname::cinder_to_id(const char * nuc)
+int pyne::nucname::cinder_to_id(const char* nuc)
 {
   return cinder_to_id(std::string(nuc));
 }
@@ -3648,7 +3648,7 @@ std::string pyne::nucname::alara(int nuc)
   // Add LL, in lower case
   ll += zz_name[zzz];
 
-  for(int i = 0; ll[i] != '\0'; i++)
+  for (int i = 0; ll[i] != '\0'; i++)
     ll[i] = tolower(ll[i]);
   newnuc += ll;
 
@@ -3663,9 +3663,9 @@ std::string pyne::nucname::alara(int nuc)
 }
 
 
-std::string pyne::nucname::alara(const char * nuc)
+std::string pyne::nucname::alara(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return alara(newnuc);
 }
 
@@ -3685,7 +3685,7 @@ std::string pyne::nucname::alara(std::string nuc)
 //}
 
 
-int pyne::nucname::alara_to_id(const char * nuc)
+int pyne::nucname::alara_to_id(const char* nuc)
 {
   return alara_to_id(std::string(nuc));
 }
@@ -3736,9 +3736,9 @@ int pyne::nucname::sza(int nuc)
 }
 
 
-int pyne::nucname::sza(const char * nuc)
+int pyne::nucname::sza(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return sza(newnuc);
 }
 
@@ -3761,9 +3761,9 @@ int pyne::nucname::sza_to_id(int nuc)
 }
 
 
-int pyne::nucname::sza_to_id(const char * nuc)
+int pyne::nucname::sza_to_id(const char* nuc)
 {
-  std::string newnuc (nuc);
+  std::string newnuc(nuc);
   return sza_to_id(newnuc);
 }
 
@@ -3812,7 +3812,7 @@ int pyne::nucname::id_to_state_id(int nuc_id)
 
   nuc_iter = state_id_map.lower_bound(nuc_id);
   nuc_end = state_id_map.upper_bound(nuc_id + 10000);
-  for (it = nuc_iter; it!= nuc_end; ++it) {
+  for (it = nuc_iter; it != nuc_end; ++it) {
     if (state == it->second) {
       return it->first;
     }
@@ -3834,7 +3834,7 @@ int pyne::nucname::id_to_state_id(int nuc_id)
 // ENSDF  -> Id
 //
 
-int pyne::nucname::ensdf_to_id(const char * nuc)
+int pyne::nucname::ensdf_to_id(const char* nuc)
 {
   return ensdf_to_id(std::string(nuc));
 }
@@ -3846,7 +3846,7 @@ int pyne::nucname::ensdf_to_id(std::string nuc)
   } else if (std::isdigit(nuc[3])) {
     int aaa = to_int(nuc.substr(0, 3));
     int zzz;
-    std::string xx_str = nuc.substr(3,2);
+    std::string xx_str = nuc.substr(3, 2);
     zzz = to_int(xx_str) + 100;
     int nid = 10000 * aaa + 10000000 * zzz;
     return nid;
@@ -4443,7 +4443,7 @@ std::string pyne::rxname::_names[NUM_RX_NAMES] = {
   "decay_2ec"
 };
 std::set<std::string> pyne::rxname::names(pyne::rxname::_names,
-    pyne::rxname::_names+NUM_RX_NAMES);
+    pyne::rxname::_names + NUM_RX_NAMES);
 
 
 std::map<std::string, unsigned int> pyne::rxname::altnames;
@@ -4456,7 +4456,7 @@ std::map<unsigned int, std::string> pyne::rxname::docs;
 std::map<std::pair<std::string, int>, unsigned int> pyne::rxname::offset_id;
 std::map<std::pair<std::string, unsigned int>, int> pyne::rxname::id_offset;
 
-void * pyne::rxname::_fill_maps()
+void* pyne::rxname::_fill_maps()
 {
   using std::make_pair;
   std::string rx;
@@ -6423,7 +6423,7 @@ void * pyne::rxname::_fill_maps()
   id_offset[make_pair("decay", name_id["decay_2ec"])] = offset(-2, 0);
   return NULL;
 }
-void * pyne::rxname::_ = pyne::rxname::_fill_maps();
+void* pyne::rxname::_ = pyne::rxname::_fill_maps();
 
 
 unsigned int pyne::rxname::hash(std::string s)
@@ -6431,13 +6431,13 @@ unsigned int pyne::rxname::hash(std::string s)
   return pyne::rxname::hash(s.c_str());
 }
 
-unsigned int pyne::rxname::hash(const char * s)
+unsigned int pyne::rxname::hash(const char* s)
 {
   // Modified from http://cboard.cprogramming.com/tech-board/114650-string-hashing-algorithm.html#post853145
   // starting from h = 32*2^5 > 1000, rather than 0, to reserve space for MT numbers
   int c;
   unsigned int h = 32;
-  while((c = *s++)) {
+  while ((c = *s++)) {
     h = ((h << 5) + h) ^ c;
   }
   return h;
@@ -6448,7 +6448,7 @@ unsigned int pyne::rxname::hash(const char * s)
 // *** name functions *****
 // ************************
 
-std::string pyne::rxname::name(char * s)
+std::string pyne::rxname::name(char* s)
 {
   return pyne::rxname::name(std::string(s));
 }
@@ -6463,11 +6463,11 @@ std::string pyne::rxname::name(std::string s)
   int i = 0;
   int I = s.length();
   int found = 0;
-  while(0 <= found && i < I) {
+  while (0 <= found && i < I) {
     found = pyne::digits.find(s[i]);
     i++;
   }
-  if (0<=found)
+  if (0 <= found)
     return pyne::rxname::name(atoi(s.c_str()));
   // dead...
   throw NotAReaction(s, "???");
@@ -6536,7 +6536,7 @@ unsigned int pyne::rxname::id(unsigned int x)
   return name_id[pyne::rxname::name(x)];
 }
 
-unsigned int pyne::rxname::id(const char * x)
+unsigned int pyne::rxname::id(const char* x)
 {
   return name_id[pyne::rxname::name(x)];
 }
@@ -6598,7 +6598,7 @@ unsigned int pyne::rxname::mt(unsigned int x)
   return id_mt[rxid];
 }
 
-unsigned int pyne::rxname::mt(char * x)
+unsigned int pyne::rxname::mt(char* x)
 {
   unsigned int rxid = pyne::rxname::id(x);
   if (0 == id_mt.count(rxid))
@@ -6660,7 +6660,7 @@ std::string pyne::rxname::label(unsigned int x)
   return labels[pyne::rxname::id(x)];
 }
 
-std::string pyne::rxname::label(char * x)
+std::string pyne::rxname::label(char* x)
 {
   return labels[pyne::rxname::id(x)];
 }
@@ -6704,7 +6704,7 @@ std::string pyne::rxname::doc(unsigned int x)
   return docs[pyne::rxname::id(x)];
 }
 
-std::string pyne::rxname::doc(char * x)
+std::string pyne::rxname::doc(char* x)
 {
   return docs[pyne::rxname::id(x)];
 }
@@ -6891,23 +6891,23 @@ int pyne::particle::_pdcids[NUM_PARTICLES] = {
 };
 
 std::set<std::string> pyne::particle::names(pyne::particle::_names,
-    pyne::particle::_names+NUM_PARTICLES);
+    pyne::particle::_names + NUM_PARTICLES);
 
 std::set<int> pyne::particle::pdc_nums(pyne::particle::_pdcids,
-                                       pyne::particle::_pdcids+NUM_PARTICLES);
+                                       pyne::particle::_pdcids + NUM_PARTICLES);
 
-std::map<std::string,int> pyne::particle::altnames;
-std::map<int,std::string> pyne::particle::id_name;
-std::map<std::string,int> pyne::particle::name_id;
-std::map<std::string,std::string> pyne::particle::docs;
+std::map<std::string, int> pyne::particle::altnames;
+std::map<int, std::string> pyne::particle::id_name;
+std::map<std::string, int> pyne::particle::name_id;
+std::map<std::string, std::string> pyne::particle::docs;
 
-std::map<std::string,std::string> pyne::particle::part_to_fluka;
-std::map<std::string,std::string> pyne::particle::part_to_mcnp;
-std::map<std::string,std::string> pyne::particle::part_to_mcnp6;
-std::map<std::string,std::string> pyne::particle::part_to_geant4;
+std::map<std::string, std::string> pyne::particle::part_to_fluka;
+std::map<std::string, std::string> pyne::particle::part_to_mcnp;
+std::map<std::string, std::string> pyne::particle::part_to_mcnp6;
+std::map<std::string, std::string> pyne::particle::part_to_geant4;
 
 
-void * pyne::particle::_fill_maps()
+void* pyne::particle::_fill_maps()
 {
   using std::make_pair;
 
@@ -6954,7 +6954,7 @@ void * pyne::particle::_fill_maps()
   };
 
   int pid;  // particle id
-  for ( int i = 0 ; i < NUM_PARTICLES ; i++ ) {
+  for (int i = 0 ; i < NUM_PARTICLES ; i++) {
     pid = _pdcids[i];
     // make id to name map
     id_name[pid] = _names[i];
@@ -6973,104 +6973,104 @@ void * pyne::particle::_fill_maps()
   altnames["Gamma"] = name_id["Photon"];
   altnames["X-Ray"] = name_id["Photon"];
 
-  part_to_mcnp["Neutron"]="n";
-  part_to_mcnp["Photon"]="p";
-  part_to_mcnp["Electron"]="e";
+  part_to_mcnp["Neutron"] = "n";
+  part_to_mcnp["Photon"] = "p";
+  part_to_mcnp["Electron"] = "e";
 
-  part_to_mcnp6["Neutron"]="n";
-  part_to_mcnp6["Photon"]="p";
-  part_to_mcnp6["Electron"]="e";
-  part_to_mcnp6["Proton"]="h";
+  part_to_mcnp6["Neutron"] = "n";
+  part_to_mcnp6["Photon"] = "p";
+  part_to_mcnp6["Electron"] = "e";
+  part_to_mcnp6["Proton"] = "h";
 
-  part_to_fluka["Electron"]="ELECTRON";
-  part_to_fluka["Positron"]="POSITRON";
-  part_to_fluka["ElectronNeutrino"] ="NEUTRIE";
-  part_to_fluka["ElectronAntiNeutrino"] ="ANEUTRIE";
-  part_to_fluka["Muon"]="MUON+";
-  part_to_fluka["AntiMuon"]="MUON-";
-  part_to_fluka["MuonNeutrino"]="NEUTRIM";
-  part_to_fluka["MuonAntiNeutrino"]="ANEUTRIM",
-                                    part_to_fluka["Tauon"]="TAU+";
-  part_to_fluka["Anti Tauon"]="TAU-";
-  part_to_fluka["TauNeutrino"]="NEUTRIT";
-  part_to_fluka["TauAntiNeutrino"]="ANEUTRIT";
+  part_to_fluka["Electron"] = "ELECTRON";
+  part_to_fluka["Positron"] = "POSITRON";
+  part_to_fluka["ElectronNeutrino"] = "NEUTRIE";
+  part_to_fluka["ElectronAntiNeutrino"] = "ANEUTRIE";
+  part_to_fluka["Muon"] = "MUON+";
+  part_to_fluka["AntiMuon"] = "MUON-";
+  part_to_fluka["MuonNeutrino"] = "NEUTRIM";
+  part_to_fluka["MuonAntiNeutrino"] = "ANEUTRIM",
+                                      part_to_fluka["Tauon"] = "TAU+";
+  part_to_fluka["Anti Tauon"] = "TAU-";
+  part_to_fluka["TauNeutrino"] = "NEUTRIT";
+  part_to_fluka["TauAntiNeutrino"] = "ANEUTRIT";
   // gauge bosons
-  part_to_fluka["Photon"]="PHOTON";
+  part_to_fluka["Photon"] = "PHOTON";
   // light mesons
-  part_to_fluka["Pion"]="PION-";
-  part_to_fluka["Anti Pion"]="PION+";
+  part_to_fluka["Pion"] = "PION-";
+  part_to_fluka["Anti Pion"] = "PION+";
   // strange mesons
-  part_to_fluka["Kaon"]="KAON+";
-  part_to_fluka["AntiKaon"]="KAON-";
-  part_to_fluka["KaonZero Short"]="KAONSHRT";
-  part_to_fluka["KaonZero"]="KAONZERO";
-  part_to_fluka["AntiKaonZero"]="AKAONZER";
+  part_to_fluka["Kaon"] = "KAON+";
+  part_to_fluka["AntiKaon"] = "KAON-";
+  part_to_fluka["KaonZero Short"] = "KAONSHRT";
+  part_to_fluka["KaonZero"] = "KAONZERO";
+  part_to_fluka["AntiKaonZero"] = "AKAONZER";
   // light baryons
-  part_to_fluka["Neutron"]="NEUTRON";
-  part_to_fluka["AntiNeutron"]="ANEUTRON";
-  part_to_fluka["Proton"]="PROTON";
-  part_to_fluka["AntiProton"]="APROTON";
+  part_to_fluka["Neutron"] = "NEUTRON";
+  part_to_fluka["AntiNeutron"] = "ANEUTRON";
+  part_to_fluka["Proton"] = "PROTON";
+  part_to_fluka["AntiProton"] = "APROTON";
   // strange baryons
-  part_to_fluka["Lambda"]="LAMBDA";
-  part_to_fluka["AntiLambda"]="ALAMBDA";
-  part_to_fluka["Sigma-"]="SIGMA-";
-  part_to_fluka["Anti Sigma-"]="ASIGMA-";
-  part_to_fluka["Sigma+"]="SIGMA+";
-  part_to_fluka["Anti Sigma+"]="ASIGMA+";
-  part_to_fluka["Sigma"]="SIGMAZER";
-  part_to_fluka["AntiSigmaZero"]="ASIGMAZE";
+  part_to_fluka["Lambda"] = "LAMBDA";
+  part_to_fluka["AntiLambda"] = "ALAMBDA";
+  part_to_fluka["Sigma-"] = "SIGMA-";
+  part_to_fluka["Anti Sigma-"] = "ASIGMA-";
+  part_to_fluka["Sigma+"] = "SIGMA+";
+  part_to_fluka["Anti Sigma+"] = "ASIGMA+";
+  part_to_fluka["Sigma"] = "SIGMAZER";
+  part_to_fluka["AntiSigmaZero"] = "ASIGMAZE";
 
-  part_to_geant4["Electron"]="e-";
-  part_to_geant4["Positron"]="e+";
-  part_to_geant4["ElectronNeutrino"] ="nu_e";
-  part_to_geant4["ElectronAntiNeutrino"] ="anti_nu_e";
-  part_to_geant4["Muon"]="mu+";
-  part_to_geant4["AntiMuon"]="mu-";
-  part_to_geant4["MuonNeutrino"]="nu_mu";
-  part_to_geant4["MuonAntiNeutrino"]="anti_nu_mu",
-                                     part_to_geant4["Tauon"]="tau+";
-  part_to_geant4["Anti Tauon"]="tau-";
-  part_to_geant4["TauNeutrino"]="nu_tau";
-  part_to_geant4["TauAntiNeutrino"]="anti_nu_tau";
+  part_to_geant4["Electron"] = "e-";
+  part_to_geant4["Positron"] = "e+";
+  part_to_geant4["ElectronNeutrino"] = "nu_e";
+  part_to_geant4["ElectronAntiNeutrino"] = "anti_nu_e";
+  part_to_geant4["Muon"] = "mu+";
+  part_to_geant4["AntiMuon"] = "mu-";
+  part_to_geant4["MuonNeutrino"] = "nu_mu";
+  part_to_geant4["MuonAntiNeutrino"] = "anti_nu_mu",
+                                       part_to_geant4["Tauon"] = "tau+";
+  part_to_geant4["Anti Tauon"] = "tau-";
+  part_to_geant4["TauNeutrino"] = "nu_tau";
+  part_to_geant4["TauAntiNeutrino"] = "anti_nu_tau";
   // gauge bosons
-  part_to_geant4["Photon"]="gamma";
+  part_to_geant4["Photon"] = "gamma";
   // light mesons
-  part_to_geant4["Pion"]="pi-";
-  part_to_geant4["Anti Pion"]="pi+";
+  part_to_geant4["Pion"] = "pi-";
+  part_to_geant4["Anti Pion"] = "pi+";
   // strange mesons
-  part_to_geant4["Kaon"]="kaon+";
-  part_to_geant4["AntiKaon"]="kaon-";
-  part_to_geant4["KaonZero Short"]="kaon0S";
-  part_to_geant4["KaonZero"]="kaon0";
+  part_to_geant4["Kaon"] = "kaon+";
+  part_to_geant4["AntiKaon"] = "kaon-";
+  part_to_geant4["KaonZero Short"] = "kaon0S";
+  part_to_geant4["KaonZero"] = "kaon0";
   // light baryons
-  part_to_geant4["Neutron"]="neutron";
-  part_to_geant4["AntiNeutron"]="anti_neutron";
-  part_to_geant4["Proton"]="proton";
-  part_to_geant4["AntiProton"]="anti_proton";
+  part_to_geant4["Neutron"] = "neutron";
+  part_to_geant4["AntiNeutron"] = "anti_neutron";
+  part_to_geant4["Proton"] = "proton";
+  part_to_geant4["AntiProton"] = "anti_proton";
   // strange baryons
-  part_to_geant4["Lambda"]="lambda";
-  part_to_geant4["AntiLambda"]="anti_lambda";
-  part_to_geant4["Sigma-"]="sigma-";
-  part_to_geant4["Anti Sigma-"]="anti_sigma-";
-  part_to_geant4["Sigma+"]="sigma+";
-  part_to_geant4["Anti Sigma+"]="anti_sigma+";
-  part_to_geant4["Sigma"]="sigma0";
-  part_to_geant4["AntiSigmaZero"]="anti_sigma0";
+  part_to_geant4["Lambda"] = "lambda";
+  part_to_geant4["AntiLambda"] = "anti_lambda";
+  part_to_geant4["Sigma-"] = "sigma-";
+  part_to_geant4["Anti Sigma-"] = "anti_sigma-";
+  part_to_geant4["Sigma+"] = "sigma+";
+  part_to_geant4["Anti Sigma+"] = "anti_sigma+";
+  part_to_geant4["Sigma"] = "sigma0";
+  part_to_geant4["AntiSigmaZero"] = "anti_sigma0";
 }
 
-void * pyne::particle::filler = pyne::particle::_fill_maps();
+void* pyne::particle::filler = pyne::particle::_fill_maps();
 
 // is hydrogen
 bool pyne::particle::is_hydrogen(int s)
 {
-  if(s == name_id["Proton"])
+  if (s == name_id["Proton"])
     return true;
-  if(pyne::particle::is_hydrogen(pyne::nucname::name(s)))
+  if (pyne::particle::is_hydrogen(pyne::nucname::name(s)))
     return true;
   return false;
 }
 
-bool pyne::particle::is_hydrogen(char *s)
+bool pyne::particle::is_hydrogen(char* s)
 {
   return pyne::particle::is_hydrogen(std::string(s));
 }
@@ -7078,11 +7078,11 @@ bool pyne::particle::is_hydrogen(char *s)
 bool pyne::particle::is_hydrogen(std::string s)
 {
   // check std name
-  if(name_id[s] == name_id["Proton"])
+  if (name_id[s] == name_id["Proton"])
     return true;
-  if(altnames[s] == name_id["Proton"])
+  if (altnames[s] == name_id["Proton"])
     return true;
-  if(pyne::nucname::name(s).find("H1") != std::string::npos)
+  if (pyne::nucname::name(s).find("H1") != std::string::npos)
     return true;
   return false;
 }
@@ -7092,15 +7092,15 @@ bool pyne::particle::is_heavy_ion(int s)
   return pyne::particle::is_heavy_ion(std::string(id_name[s]));
 }
 
-bool pyne::particle::is_heavy_ion(char *s)
+bool pyne::particle::is_heavy_ion(char* s)
 {
   return pyne::particle::is_heavy_ion(std::string(s));
 }
 
 bool pyne::particle::is_heavy_ion(std::string s)
 {
-  if(pyne::nucname::isnuclide(s)) {
-    if(pyne::particle::is_hydrogen(s))
+  if (pyne::nucname::isnuclide(s)) {
+    if (pyne::particle::is_hydrogen(s))
       return false;
     else
       return true;
@@ -7111,13 +7111,13 @@ bool pyne::particle::is_heavy_ion(std::string s)
 // is valid functions
 bool pyne::particle::is_valid(int s)
 {
-  if(pyne::nucname::isnuclide(s))
+  if (pyne::nucname::isnuclide(s))
     return true;
   else
     return pyne::particle::is_valid(std::string(id_name[s]));
 }
 
-bool pyne::particle::is_valid(char *s)
+bool pyne::particle::is_valid(char* s)
 {
   return pyne::particle::is_valid(std::string(s));
 }
@@ -7125,13 +7125,13 @@ bool pyne::particle::is_valid(char *s)
 bool pyne::particle::is_valid(std::string s)
 {
   // check std name
-  if(0 < names.count(s))
+  if (0 < names.count(s))
     return true;
   // check alternative name
-  if(0 < altnames.count(s))
+  if (0 < altnames.count(s))
     return true;
   // check if is a heavy ion
-  if(pyne::nucname::isnuclide(s))
+  if (pyne::nucname::isnuclide(s))
     return true;
   else
     return false;
@@ -7146,17 +7146,17 @@ int pyne::particle::id(int s)
     return 0;
 }
 
-int pyne::particle::id(char *s)
+int pyne::particle::id(char* s)
 {
   return pyne::particle::id(std::string(s));
 }
 
 int pyne::particle::id(std::string s)
 {
-  if(pyne::nucname::isnuclide(s)) {
-    if(pyne::particle::is_hydrogen(s))
+  if (pyne::nucname::isnuclide(s)) {
+    if (pyne::particle::is_hydrogen(s))
       return name_id["Proton"];
-    if( pyne::particle::is_heavy_ion(s) )
+    if (pyne::particle::is_heavy_ion(s))
       return 0;
   }
 
@@ -7170,14 +7170,14 @@ int pyne::particle::id(std::string s)
 // name functions
 std::string pyne::particle::name(int s)
 {
-  if(s < 9999999)
+  if (s < 9999999)
     return pyne::particle::name(id_name[s]);
-  if(pyne::nucname::isnuclide(s))
+  if (pyne::nucname::isnuclide(s))
     return pyne::particle::name(pyne::nucname::name(s));
   return pyne::particle::name(id_name[s]);
 }
 
-std::string pyne::particle::name(char *s)
+std::string pyne::particle::name(char* s)
 {
   return pyne::particle::name(std::string(s));
 }
@@ -7185,17 +7185,17 @@ std::string pyne::particle::name(char *s)
 std::string pyne::particle::name(std::string s)
 {
   // check if is a hydrogen
-  if(pyne::nucname::isnuclide(s)) {
-    if(pyne::particle::is_hydrogen(s))
+  if (pyne::nucname::isnuclide(s)) {
+    if (pyne::particle::is_hydrogen(s))
       return "Proton";
-    if( pyne::particle::is_heavy_ion(s) )
+    if (pyne::particle::is_heavy_ion(s))
       return s;
   }
   // check std name
-  if(0 < names.count(s))
+  if (0 < names.count(s))
     return s;
   // check alternative name
-  if(0 < altnames.count(s))
+  if (0 < altnames.count(s))
     return id_name[altnames[s]];
   // check for heavy ion
   else
@@ -7208,14 +7208,14 @@ std::string pyne::particle::mcnp(int s)
   return pyne::particle::mcnp(pyne::particle::name(s));
 }
 
-std::string pyne::particle::mcnp(char *s)
+std::string pyne::particle::mcnp(char* s)
 {
   return pyne::particle::mcnp(pyne::particle::name(s));
 }
 
 std::string pyne::particle::mcnp(std::string s)
 {
-  if(0 < part_to_mcnp.count(pyne::particle::name(s)))
+  if (0 < part_to_mcnp.count(pyne::particle::name(s)))
     return part_to_mcnp[pyne::particle::name(s)];
   else {
     std::cout << "Not a valid MCNP5 particle" << std::endl;
@@ -7229,14 +7229,14 @@ std::string pyne::particle::mcnp6(int s)
   return pyne::particle::mcnp6(pyne::particle::name(s));
 }
 
-std::string pyne::particle::mcnp6(char *s)
+std::string pyne::particle::mcnp6(char* s)
 {
   return pyne::particle::mcnp6(pyne::particle::name(s));
 }
 
 std::string pyne::particle::mcnp6(std::string s)
 {
-  if(0 < part_to_mcnp6.count(pyne::particle::name(s)))
+  if (0 < part_to_mcnp6.count(pyne::particle::name(s)))
     return part_to_mcnp6[pyne::particle::name(s)];
   else {
     std::cout << "Not a valid MCNP6 particle" << std::endl;
@@ -7250,7 +7250,7 @@ std::string pyne::particle::fluka(int s)
   return pyne::particle::fluka(pyne::particle::name(s));
 }
 
-std::string pyne::particle::fluka(char *s)
+std::string pyne::particle::fluka(char* s)
 {
   return pyne::particle::fluka(pyne::particle::name(s));
 }
@@ -7259,7 +7259,7 @@ std::string pyne::particle::fluka(std::string s)
 {
   if (pyne::particle::is_heavy_ion(s))
     return "HEAVYION";
-  else if(0 < part_to_fluka.count(pyne::particle::name(s)))
+  else if (0 < part_to_fluka.count(pyne::particle::name(s)))
     return part_to_fluka[pyne::particle::name(s)];
   else {
     std::cout << "Not a valid Fluka particle" << std::endl;
@@ -7273,7 +7273,7 @@ std::string pyne::particle::geant4(int s)
   return pyne::particle::geant4(pyne::particle::name(s));
 }
 
-std::string pyne::particle::geant4(char *s)
+std::string pyne::particle::geant4(char* s)
 {
   return pyne::particle::geant4(pyne::particle::name(s));
 }
@@ -7282,7 +7282,7 @@ std::string pyne::particle::geant4(std::string s)
 {
   if (pyne::particle::is_heavy_ion(s))
     return "GenericIon";
-  else if(0 < part_to_geant4.count(pyne::particle::name(s)))
+  else if (0 < part_to_geant4.count(pyne::particle::name(s)))
     return part_to_geant4[pyne::particle::name(s)];
   else {
     std::cout << "Not a valid Geant4 particle" << std::endl;
@@ -7294,12 +7294,12 @@ std::string pyne::particle::geant4(std::string s)
 // describe functions
 std::string pyne::particle::describe(int s)
 {
-  if(pyne::nucname::isnuclide(s))
+  if (pyne::nucname::isnuclide(s))
     return pyne::particle::describe(pyne::nucname::name(s));
   return pyne::particle::describe(id_name[s]);
 }
 
-std::string pyne::particle::describe(char *s)
+std::string pyne::particle::describe(char* s)
 {
   return pyne::particle::describe(std::string(s));
 }
@@ -7314,10 +7314,10 @@ std::string pyne::particle::describe(std::string s)
       return "Is a heavy ion";
   }
   // check std name
-  if(0 < names.count(s))
+  if (0 < names.count(s))
     return docs[s];
   // check alternative name
-  if(0 < altnames.count(s))
+  if (0 < altnames.count(s))
     return docs[id_name[altnames[s]]];
   // check if is a heavy ion
   else
@@ -7360,13 +7360,13 @@ std::map<std::string, std::string> pyne::get_data_checksums()
 {
   std::map<std::string, std::string> temp_map;
   // Initialization of dataset hashes
-  temp_map["/atomic_mass"]="10edfdc662e35bdfab91beb89285efff";
-  temp_map["/material_library"]="8b10864378fbd88538434679acf908cc";
-  temp_map["/neutron/eaf_xs"]="29622c636c4a3a46802207b934f9516c";
-  temp_map["/neutron/scattering_lengths"]="a24d391cc9dc0fc146392740bb97ead4";
-  temp_map["/neutron/simple_xs"]="3d6e086977783dcdf07e5c6b0c2416be";
-  temp_map["/decay"]="4f41f3e46f4306cc44449f08a20922e0";
-  temp_map["/dose_factors"]="dafa32c24b2303850a0bebdf3e6b122e";
+  temp_map["/atomic_mass"] = "10edfdc662e35bdfab91beb89285efff";
+  temp_map["/material_library"] = "8b10864378fbd88538434679acf908cc";
+  temp_map["/neutron/eaf_xs"] = "29622c636c4a3a46802207b934f9516c";
+  temp_map["/neutron/scattering_lengths"] = "a24d391cc9dc0fc146392740bb97ead4";
+  temp_map["/neutron/simple_xs"] = "3d6e086977783dcdf07e5c6b0c2416be";
+  temp_map["/decay"] = "4f41f3e46f4306cc44449f08a20922e0";
+  temp_map["/dose_factors"] = "dafa32c24b2303850a0bebdf3e6b122e";
   return temp_map;
 }
 
@@ -7408,7 +7408,7 @@ void pyne::_load_atomic_mass_map()
   int atomic_mass_length = H5Sget_simple_extent_npoints(atomic_mass_space);
 
   // Read in the data
-  atomic_mass_data * atomic_mass_array = new atomic_mass_data[atomic_mass_length];
+  atomic_mass_data* atomic_mass_array = new atomic_mass_data[atomic_mass_length];
   H5Dread(atomic_mass_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, atomic_mass_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -7416,7 +7416,7 @@ void pyne::_load_atomic_mass_map()
   H5Fclose(nuc_data_h5);
 
   // Ok now that we have the array of structs, put it in the map
-  for(int n = 0; n < atomic_mass_length; n++) {
+  for (int n = 0; n < atomic_mass_length; n++) {
     atomic_mass_map.insert(std::pair<int, double>(atomic_mass_array[n].nuc, \
                            atomic_mass_array[n].mass));
     natural_abund_map.insert(std::pair<int, double>(atomic_mass_array[n].nuc, \
@@ -7453,8 +7453,8 @@ double pyne::atomic_mass(int nuc)
 
   // If in an excited state, return the ground
   // state mass...not strictly true, but good guess.
-  if (0 < nucid%10000) {
-    aw = atomic_mass((nucid/10000)*10000);
+  if (0 < nucid % 10000) {
+    aw = atomic_mass((nucid / 10000) * 10000);
     if (atomic_mass_map.count(nuc) != 1) {
       atomic_mass_map.insert(std::pair<int, double>(nuc, aw));
     }
@@ -7464,7 +7464,7 @@ double pyne::atomic_mass(int nuc)
   // Finally, if none of these work,
   // take a best guess based on the
   // aaa number.
-  aw = (double) ((nucid/10000)%1000);
+  aw = (double)((nucid / 10000) % 1000);
   if (atomic_mass_map.count(nuc) != 1) {
     atomic_mass_map.insert(std::pair<int, double>(nuc, aw));
   }
@@ -7472,7 +7472,7 @@ double pyne::atomic_mass(int nuc)
 }
 
 
-double pyne::atomic_mass(char * nuc)
+double pyne::atomic_mass(char* nuc)
 {
   int nuc_zz = nucname::id(nuc);
   return atomic_mass(nuc_zz);
@@ -7517,8 +7517,8 @@ double pyne::natural_abund(int nuc)
 
   // If in an excited state, return the ground
   // state abundance...not strictly true, but good guess.
-  if (0 < nucid%10000) {
-    na = natural_abund((nucid/10000)*10000);
+  if (0 < nucid % 10000) {
+    na = natural_abund((nucid / 10000) * 10000);
     natural_abund_map[nuc] = na;
     return na;
   }
@@ -7532,7 +7532,7 @@ double pyne::natural_abund(int nuc)
 }
 
 
-double pyne::natural_abund(char * nuc)
+double pyne::natural_abund(char* nuc)
 {
   int nuc_zz = nucname::id(nuc);
   return natural_abund(nuc_zz);
@@ -7578,7 +7578,7 @@ void pyne::_load_q_val_map()
   int q_val_length = H5Sget_simple_extent_npoints(q_val_space);
 
   // Read in the data
-  q_val_data * q_val_array = new q_val_data[q_val_length];
+  q_val_data* q_val_array = new q_val_data[q_val_length];
   H5Dread(q_val_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, q_val_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -7586,7 +7586,7 @@ void pyne::_load_q_val_map()
   H5Fclose(nuc_data_h5);
 
   // Ok now that we have the array of structs, put it in the map
-  for(int n = 0; n < q_val_length; n++) {
+  for (int n = 0; n < q_val_length; n++) {
     q_val_map[q_val_array[n].nuc] = q_val_array[n].q_val;
     gamma_frac_map[q_val_array[n].nuc] = q_val_array[n].gamma_frac;
   }
@@ -7626,7 +7626,7 @@ double pyne::q_val(int nuc)
 }
 
 
-double pyne::q_val(const char * nuc)
+double pyne::q_val(const char* nuc)
 {
   int nuc_zz = nucname::id(nuc);
   return q_val(nuc_zz);
@@ -7676,7 +7676,7 @@ double pyne::gamma_frac(int nuc)
 }
 
 
-double pyne::gamma_frac(const char * nuc)
+double pyne::gamma_frac(const char* nuc)
 {
   int nuc_zz = nucname::id(nuc);
   return gamma_frac(nuc_zz);
@@ -7737,7 +7737,7 @@ void pyne::_load_dose_map(std::map<int, dose>& dm, std::string source_path)
   hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Convert source_path to proper format for HD5open
-  const char * c = source_path.c_str();
+  const char* c = source_path.c_str();
 
   // Open the data set
   hid_t dose_set = H5Dopen2(nuc_data_h5, c, H5P_DEFAULT);
@@ -7745,7 +7745,7 @@ void pyne::_load_dose_map(std::map<int, dose>& dm, std::string source_path)
   int dose_length = H5Sget_simple_extent_npoints(dose_space);
 
   // Read in the data
-  dose * dose_array = new dose[dose_length];
+  dose* dose_array = new dose[dose_length];
   H5Dread(dose_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, dose_array);
 
   // Put array of structs in the map
@@ -7811,14 +7811,14 @@ double pyne::ext_air_dose(int nuc, int source)
   std::map<int, pyne::dose>& dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
-  if (dm.count(nucid)==1) {
+  if (dm.count(nucid) == 1) {
     return dm[nucid].ext_air_dose;
   } else {
     return -1;
   }
 }
 
-double pyne::ext_air_dose(const char * nuc, int source)
+double pyne::ext_air_dose(const char* nuc, int source)
 {
   int nuc_zz = nucname::id(nuc);
   return ext_air_dose(nuc_zz, source);
@@ -7837,14 +7837,14 @@ double pyne::dose_ratio(int nuc, int source)
   std::map<int, pyne::dose>& dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
-  if (dm.count(nucid)==1) {
+  if (dm.count(nucid) == 1) {
     return dm[nucid].ratio;
   } else {
     return -1;
   }
 }
 
-double pyne::dose_ratio(const char * nuc, int source)
+double pyne::dose_ratio(const char* nuc, int source)
 {
   int nuc_zz = nucname::id(nuc);
   return dose_ratio(nuc_zz, source);
@@ -7866,14 +7866,14 @@ double pyne::ext_soil_dose(int nuc, int source)
   std::map<int, pyne::dose>& dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
-  if (dm.count(nucid)==1) {
+  if (dm.count(nucid) == 1) {
     return dm[nucid].ext_soil_dose;
   } else {
     return -1;
   }
 }
 
-double pyne::ext_soil_dose(const char * nuc, int source)
+double pyne::ext_soil_dose(const char* nuc, int source)
 {
   int nuc_zz = nucname::id(nuc);
   return ext_soil_dose(nuc_zz, source);
@@ -7897,14 +7897,14 @@ double pyne::ingest_dose(int nuc, int source)
   std::map<int, pyne::dose>& dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
-  if (dm.count(nucid)==1) {
+  if (dm.count(nucid) == 1) {
     return dm[nucid].ingest_dose;
   } else {
     return -1;
   }
 }
 
-double pyne::ingest_dose(const char * nuc, int source)
+double pyne::ingest_dose(const char* nuc, int source)
 {
   int nuc_zz = nucname::id(nuc);
   return ingest_dose(nuc_zz, source);
@@ -7922,14 +7922,14 @@ double pyne::dose_fluid_frac(int nuc, int source)
   std::map<int, pyne::dose>& dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
-  if (dm.count(nucid)==1) {
+  if (dm.count(nucid) == 1) {
     return dm[nucid].fluid_frac;
   } else {
     return -1;
   }
 }
 
-double pyne::dose_fluid_frac(const char * nuc, int source)
+double pyne::dose_fluid_frac(const char* nuc, int source)
 {
   int nuc_zz = nucname::id(nuc);
   return dose_fluid_frac(nuc_zz, source);
@@ -7952,14 +7952,14 @@ double pyne::inhale_dose(int nuc, int source)
   std::map<int, pyne::dose>& dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
-  if (dm.count(nucid)==1) {
+  if (dm.count(nucid) == 1) {
     return dm[nucid].inhale_dose;
   } else {
     return -1;
   }
 }
 
-double pyne::inhale_dose(const char * nuc, int source)
+double pyne::inhale_dose(const char* nuc, int source)
 {
   int nuc_zz = nucname::id(nuc);
   return inhale_dose(nuc_zz, source);
@@ -7977,14 +7977,14 @@ std::string pyne::dose_lung_model(int nuc, int source)
   std::map<int, pyne::dose>& dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
-  if (dm.count(nucid)==1) {
+  if (dm.count(nucid) == 1) {
     return std::string(1, dm[nucid].lung_mod);
   } else {
     return "Nada";
   }
 }
 
-std::string pyne::dose_lung_model(const char * nuc, int source)
+std::string pyne::dose_lung_model(const char* nuc, int source)
 {
   int nuc_zz = nucname::id(nuc);
   return dose_lung_model(nuc_zz, source);
@@ -8041,7 +8041,7 @@ void pyne::_load_scattering_lengths()
   int scat_len_length = H5Sget_simple_extent_npoints(scat_len_space);
 
   // Read in the data
-  scattering_lengths * scat_len_array = new scattering_lengths[scat_len_length];
+  scattering_lengths* scat_len_array = new scattering_lengths[scat_len_length];
   status = H5Dread(scat_len_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, scat_len_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -8049,7 +8049,7 @@ void pyne::_load_scattering_lengths()
   status = H5Fclose(nuc_data_h5);
 
   // Ok now that we have the array of stucts, put it in the maps
-  for(int n = 0; n < scat_len_length; n++) {
+  for (int n = 0; n < scat_len_length; n++) {
     b_coherent_map[scat_len_array[n].nuc] = scat_len_array[n].b_coherent;
     b_incoherent_map[scat_len_array[n].nuc] = scat_len_array[n].b_incoherent;
   }
@@ -8119,7 +8119,7 @@ xd_complex_t pyne::b_coherent(int nuc)
 }
 
 
-xd_complex_t pyne::b_coherent(char * nuc)
+xd_complex_t pyne::b_coherent(char* nuc)
 {
   int nuc_zz = nucname::id(nuc);
   return b_coherent(nuc_zz);
@@ -8194,7 +8194,7 @@ xd_complex_t pyne::b_incoherent(int nuc)
 }
 
 
-xd_complex_t pyne::b_incoherent(char * nuc)
+xd_complex_t pyne::b_incoherent(char* nuc)
 {
   return b_incoherent(nucname::id(nuc));
 }
@@ -8227,13 +8227,13 @@ double pyne::b(int nuc)
   xd_complex_t bc = b_coherent(nuc);
   xd_complex_t bi = b_incoherent(nuc);
 
-  double b_val = sqrt(bc.re*bc.re + bc.im*bc.im + bi.re*bi.re + bi.im*bi.im);
+  double b_val = sqrt(bc.re * bc.re + bc.im * bc.im + bi.re * bi.re + bi.im * bi.im);
 
   return b_val;
 }
 
 
-double pyne::b(char * nuc)
+double pyne::b(char* nuc)
 {
   int nucid = nucname::id(nuc);
   return b(nucid);
@@ -8286,7 +8286,7 @@ void pyne::_load_wimsdfpy()
   int wimsdfpy_length = H5Sget_simple_extent_npoints(wimsdfpy_space);
 
   // Read in the data
-  wimsdfpy * wimsdfpy_array = new wimsdfpy[wimsdfpy_length];
+  wimsdfpy* wimsdfpy_array = new wimsdfpy[wimsdfpy_length];
   status = H5Dread(wimsdfpy_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, wimsdfpy_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -8294,7 +8294,7 @@ void pyne::_load_wimsdfpy()
   status = H5Fclose(nuc_data_h5);
 
   // Ok now that we have the array of stucts, put it in the maps
-  for(int n=0; n < wimsdfpy_length; n++) {
+  for (int n = 0; n < wimsdfpy_length; n++) {
     wimsdfpy_data[std::make_pair(wimsdfpy_array[n].from_nuc,
                                  wimsdfpy_array[n].to_nuc)] = wimsdfpy_array[n].yields;
   }
@@ -8348,7 +8348,7 @@ void pyne::_load_ndsfpy()
   int ndsfpy_length = H5Sget_simple_extent_npoints(ndsfpy_space);
 
   // Read in the data
-  ndsfpy * ndsfpy_array = new ndsfpy[ndsfpy_length];
+  ndsfpy* ndsfpy_array = new ndsfpy[ndsfpy_length];
   status = H5Dread(ndsfpy_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, ndsfpy_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -8358,7 +8358,7 @@ void pyne::_load_ndsfpy()
   ndsfpysub ndsfpysub_temp;
 
   // Ok now that we have the array of structs, put it in the maps
-  for(int n=0; n < ndsfpy_length; n++) {
+  for (int n = 0; n < ndsfpy_length; n++) {
     ndsfpysub_temp.yield_thermal = ndsfpy_array[n].yield_thermal;
     ndsfpysub_temp.yield_thermal_err = ndsfpy_array[n].yield_thermal_err;
     ndsfpysub_temp.yield_fast = ndsfpy_array[n].yield_fast;
@@ -8415,7 +8415,7 @@ double pyne::fpyield(std::pair<int, int> from_to, int source, bool get_error)
 
   // Next, fill up the map with values from the
   // nuc_data.h5, if the map is empty.
-  if ((source == 0 ) && (wimsdfpy_data.empty())) {
+  if ((source == 0) && (wimsdfpy_data.empty())) {
     _load_wimsdfpy();
     return fpyield(from_to, 0, get_error);
   } else if (ndsfpy_data.empty()) {
@@ -8436,7 +8436,7 @@ double pyne::fpyield(int from_nuc, int to_nuc, int source, bool get_error)
                                      nucname::id(to_nuc)), source, get_error);
 }
 
-double pyne::fpyield(char * from_nuc, char * to_nuc, int source, bool get_error)
+double pyne::fpyield(char* from_nuc, char* to_nuc, int source, bool get_error)
 {
   return fpyield(std::pair<int, int>(nucname::id(from_nuc),
                                      nucname::id(to_nuc)), source, get_error);
@@ -8461,13 +8461,13 @@ double pyne::fpyield(std::string from_nuc, std::string to_nuc, int source,
 bool pyne::swapmapcompare::operator()(const std::pair<int, double>& lhs,
                                       const std::pair<int, double>& rhs) const
 {
-  return lhs.second<rhs.second || (!(rhs.second<lhs.second) &&
-                                   lhs.first<rhs.first);
+  return lhs.second < rhs.second || (!(rhs.second < lhs.second) &&
+                                     lhs.first < rhs.first);
 }
 
 template<typename T, typename U> std::vector<T> pyne::data_access(
-    double energy_min, double energy_max, size_t valoffset, std::map<std::pair<int,
-    double>, U>  &data)
+    double energy_min, double energy_max, size_t valoffset, std::map < std::pair < int,
+    double > , U >  &data)
 {
   typename std::map<std::pair<int, double>, U, swapmapcompare>::iterator
   nuc_iter, nuc_end, it;
@@ -8481,10 +8481,10 @@ template<typename T, typename U> std::vector<T> pyne::data_access(
   }
   nuc_iter = dc.lower_bound(std::make_pair(0, energy_min));
   nuc_end = dc.upper_bound(std::make_pair(9999999999, energy_max));
-  T *ret;
+  T* ret;
   // First check if we already have the nuc in the map
-  for (it = nuc_iter; it!= nuc_end; ++it) {
-    ret = (T *)((char *)&(it->second) + valoffset);
+  for (it = nuc_iter; it != nuc_end; ++it) {
+    ret = (T*)((char*) & (it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8498,16 +8498,16 @@ template<typename T, typename U> std::vector<T> pyne::data_access(
 
 template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
     double min, double max, size_t valoffset,
-    std::map<std::pair<int, double>, U>  &data)
+    std::map<std::pair<int, double>, U>&  data)
 {
   typename std::map<std::pair<int, double>, U>::iterator nuc_iter, nuc_end, it;
   std::vector<T> result;
-  nuc_iter = data.lower_bound(std::make_pair(parent,min));
-  nuc_end = data.upper_bound(std::make_pair(parent,max));
-  T *ret;
+  nuc_iter = data.lower_bound(std::make_pair(parent, min));
+  nuc_end = data.upper_bound(std::make_pair(parent, max));
+  T* ret;
   // First check if we already have the nuc in the map
-  for (it = nuc_iter; it!= nuc_end; ++it) {
-    ret = (T *)((char *)&(it->second) + valoffset);
+  for (it = nuc_iter; it != nuc_end; ++it) {
+    ret = (T*)((char*) & (it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8520,16 +8520,16 @@ template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
 }
 
 template<typename T, typename U> T pyne::data_access(std::pair<int, int>
-    from_to, size_t valoffset, std::map<std::pair<int, int>, U> &data)
+    from_to, size_t valoffset, std::map<std::pair<int, int>, U>& data)
 {
   typename std::map<std::pair<int, int>, U>::iterator nuc_iter, nuc_end;
 
   nuc_iter = data.find(from_to);
   nuc_end = data.end();
-  T *ret;
+  T* ret;
   // First check if we already have the nuc in the map
   if (nuc_iter != nuc_end) {
-    ret = (T *)((char *)&(nuc_iter->second) + valoffset);
+    ret = (T*)((char*) & (nuc_iter->second) + valoffset);
     return *ret;
   }
   // Next, fill up the map with values from the
@@ -8543,16 +8543,16 @@ template<typename T, typename U> T pyne::data_access(std::pair<int, int>
 }
 
 template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
-    size_t valoffset, std::map<std::pair<int, int>, U> &data)
+    size_t valoffset, std::map<std::pair<int, int>, U>& data)
 {
   typename std::map<std::pair<int, int>, U>::iterator nuc_iter, nuc_end, it;
   std::vector<T> result;
-  nuc_iter = data.lower_bound(std::make_pair(parent,0));
-  nuc_end = data.upper_bound(std::make_pair(parent,9999999999));
-  T *ret;
+  nuc_iter = data.lower_bound(std::make_pair(parent, 0));
+  nuc_end = data.upper_bound(std::make_pair(parent, 9999999999));
+  T* ret;
   // First check if we already have the nuc in the map
-  for (it = nuc_iter; it!= nuc_end; ++it) {
-    ret = (T *)((char *)&(it->second) + valoffset);
+  for (it = nuc_iter; it != nuc_end; ++it) {
+    ret = (T*)((char*) & (it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8565,17 +8565,17 @@ template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
 }
 
 template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
-    size_t valoffset, std::map<std::pair<int, unsigned int>, U> &data)
+    size_t valoffset, std::map<std::pair<int, unsigned int>, U>& data)
 {
   typename std::map<std::pair<int, unsigned int>, U>::iterator nuc_iter,
            nuc_end, it;
   std::vector<T> result;
-  nuc_iter = data.lower_bound(std::make_pair(parent,0));
-  nuc_end = data.upper_bound(std::make_pair(parent,UINT_MAX));
-  T *ret;
+  nuc_iter = data.lower_bound(std::make_pair(parent, 0));
+  nuc_end = data.upper_bound(std::make_pair(parent, UINT_MAX));
+  T* ret;
   // First check if we already have the nuc in the map
-  for (it = nuc_iter; it!= nuc_end; ++it) {
-    ret = (T *)((char *)&(it->second) + valoffset);
+  for (it = nuc_iter; it != nuc_end; ++it) {
+    ret = (T*)((char*) & (it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8588,7 +8588,7 @@ template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
 }
 
 template<typename U> double pyne::data_access(int nuc,
-    size_t valoffset, std::map<int, U> &data)
+    size_t valoffset, std::map<int, U>& data)
 {
   typename std::map<int, U>::iterator nuc_iter,
            nuc_end;
@@ -8596,7 +8596,7 @@ template<typename U> double pyne::data_access(int nuc,
   nuc_end = data.end();
   // First check if we already have the nuc in the map
   if (nuc_iter != nuc_end) {
-    return *(double *)((char *)&(nuc_iter->second) + valoffset);
+    return *(double*)((char*) & (nuc_iter->second) + valoffset);
   }
   // Next, fill up the map with values from the
   // nuc_data.h5, if the map is empty.
@@ -8691,7 +8691,7 @@ template<> void pyne::_load_data<pyne::atomic>()
   int atomic_length = H5Sget_simple_extent_npoints(atomic_space);
 
   // Read in the data
-  atomic * atomic_array = new atomic[atomic_length];
+  atomic* atomic_array = new atomic[atomic_length];
   status = H5Dread(atomic_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                    atomic_array);
 
@@ -8718,7 +8718,7 @@ pyne::calculate_xray_data(int z, double k_conv, double l_conv)
   double xl = 0;
   if (!isnan(k_conv)) {
     xk = data_access<atomic> (z, offsetof(atomic, k_shell_fluor),
-                              atomic_data_map)*k_conv;
+                              atomic_data_map) * k_conv;
     xka = xk / (1.0 + data_access<atomic> (z, offsetof(atomic,
                                            kb_to_ka), atomic_data_map));
     xka1 = xka / (1.0 + data_access<atomic> (z, offsetof(atomic,
@@ -8726,23 +8726,23 @@ pyne::calculate_xray_data(int z, double k_conv, double l_conv)
     xka2 = xka - xka1;
     xkb = xk - xka;
     if (!isnan(l_conv)) {
-      xl = (l_conv + k_conv*data_access<atomic> (z, offsetof(atomic,
-            prob), atomic_data_map))*data_access<atomic> (z, offsetof(atomic,
+      xl = (l_conv + k_conv * data_access<atomic> (z, offsetof(atomic,
+            prob), atomic_data_map)) * data_access<atomic> (z, offsetof(atomic,
                 l_shell_fluor), atomic_data_map);
     }
   } else if (!isnan(l_conv)) {
-    xl = l_conv*data_access<atomic> (z, offsetof(atomic,
-                                     l_shell_fluor), atomic_data_map);
+    xl = l_conv * data_access<atomic> (z, offsetof(atomic,
+                                       l_shell_fluor), atomic_data_map);
   }
   std::vector<std::pair<double, double> > result;
   result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                  ka1_x_ray_en), atomic_data_map),xka1));
+                                  ka1_x_ray_en), atomic_data_map), xka1));
   result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                  ka2_x_ray_en), atomic_data_map),xka2));
+                                  ka2_x_ray_en), atomic_data_map), xka2));
   result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                  kb_x_ray_en), atomic_data_map),xkb));
+                                  kb_x_ray_en), atomic_data_map), xkb));
   result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                  l_x_ray_en), atomic_data_map),xl));
+                                  l_x_ray_en), atomic_data_map), xl));
 
   return result;
 }
@@ -8752,9 +8752,9 @@ pyne::calculate_xray_data(int z, double k_conv, double l_conv)
 // Load level data
 //
 
-std::map<std::pair<int,double>, pyne::level_data> pyne::level_data_lvl_map;
-std::map<std::pair<int,unsigned int>,
-    pyne::level_data> pyne::level_data_rx_map;
+std::map<std::pair<int, double>, pyne::level_data> pyne::level_data_lvl_map;
+std::map < std::pair<int, unsigned int>,
+    pyne::level_data > pyne::level_data_rx_map;
 
 
 template<> void pyne::_load_data<pyne::level_data>()
@@ -8796,7 +8796,7 @@ template<> void pyne::_load_data<pyne::level_data>()
   int level_length = H5Sget_simple_extent_npoints(level_space);
 
   // Read in the data
-  level_data * level_array = new level_data[level_length];
+  level_data* level_array = new level_data[level_length];
   status = H5Dread(level_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                    level_array);
 
@@ -8829,13 +8829,13 @@ int pyne::id_from_level(int nuc, double level, std::string special)
   std::map<std::pair<int, double>, level_data>::iterator nuc_lower, nuc_upper;
 
   nuc_lower = level_data_lvl_map.lower_bound(std::make_pair(nostate, 0.0));
-  nuc_upper = level_data_lvl_map.upper_bound(std::make_pair(nostate+9999,
+  nuc_upper = level_data_lvl_map.upper_bound(std::make_pair(nostate + 9999,
               DBL_MAX));
   double minv = DBL_MAX;
   //by default return input nuc_id with level stripped
   int ret_id = nuc;
-  for (std::map<std::pair<int, double>, level_data>::iterator it=nuc_lower;
-       it!=nuc_upper; ++it) {
+  for (std::map<std::pair<int, double>, level_data>::iterator it = nuc_lower;
+       it != nuc_upper; ++it) {
     if ((std::abs(level - it->second.level) < minv) &&
         ((char)it->second.special == special.c_str()[0]) &&
         !isnan(it->second.level)) {
@@ -8861,7 +8861,7 @@ int pyne::id_from_level(int nuc, double level)
 int pyne::metastable_id(int nuc, int m)
 {
   int nostate = (nuc / 10000) * 10000;
-  if (m==0) return nostate;
+  if (m == 0) return nostate;
   if (level_data_lvl_map.empty()) {
     _load_data<level_data>();
   }
@@ -8869,10 +8869,10 @@ int pyne::metastable_id(int nuc, int m)
   std::map<std::pair<int, double>, level_data>::iterator nuc_lower, nuc_upper;
 
   nuc_lower = level_data_lvl_map.lower_bound(std::make_pair(nostate, 0.0));
-  nuc_upper = level_data_lvl_map.upper_bound(std::make_pair(nostate+9999,
+  nuc_upper = level_data_lvl_map.upper_bound(std::make_pair(nostate + 9999,
               DBL_MAX));
-  for (std::map<std::pair<int, double>, level_data>::iterator it=nuc_lower;
-       it!=nuc_upper; ++it) {
+  for (std::map<std::pair<int, double>, level_data>::iterator it = nuc_lower;
+       it != nuc_upper; ++it) {
     if (it->second.metastable == m)
       return it->second.nuc_id;
   }
@@ -8904,7 +8904,7 @@ std::set<int> pyne::decay_children(int nuc)
     switch (*it) {
     case 36125: {
       // internal conversion, rx == 'it'
-      result.insert((nuc /10000) * 10000);
+      result.insert((nuc / 10000) * 10000);
       break;
     }
     case 36565: {
@@ -8916,14 +8916,14 @@ std::set<int> pyne::decay_children(int nuc)
       break;
     }
     default: {
-      result.insert((rxname::child(nuc, *it, "decay") /10000) * 10000);
+      result.insert((rxname::child(nuc, *it, "decay") / 10000) * 10000);
     }
     }
   }
   return result;
 }
 
-std::set<int> pyne::decay_children(char * nuc)
+std::set<int> pyne::decay_children(char* nuc)
 {
   return decay_children(nucname::id(nuc));
 }
@@ -8942,11 +8942,11 @@ double pyne::state_energy(int nuc)
   std::vector<double> result = data_access<double, level_data>(nuc, 0.0,
                                DBL_MAX, offsetof(level_data, level), level_data_lvl_map);
   if (result.size() == 1)
-    return result[0]/1000.0;
+    return result[0] / 1000.0;
   return 0.0;
 }
 
-double pyne::state_energy(char * nuc)
+double pyne::state_energy(char* nuc)
 {
   return state_energy(nucname::id(nuc));
 }
@@ -8967,13 +8967,13 @@ double pyne::decay_const(int nuc)
   std::vector<double> result = data_access<double, level_data>(nuc, 0.0,
                                DBL_MAX, offsetof(level_data, half_life), level_data_lvl_map);
   if (result.size() == 1) {
-    return log(2.0)/result[0];
+    return log(2.0) / result[0];
   }
   return 0.0;
 }
 
 
-double pyne::decay_const(char * nuc)
+double pyne::decay_const(char* nuc)
 {
   int nuc_zz = nucname::id(nuc);
   return decay_const(nuc_zz);
@@ -8997,11 +8997,11 @@ double pyne::half_life(int nuc)
   if (result.size() == 1) {
     return result[0];
   }
-  return 1.0/0.0;
+  return 1.0 / 0.0;
 }
 
 
-double pyne::half_life(char * nuc)
+double pyne::half_life(char* nuc)
 {
   int nuc_zz = nucname::id(nuc);
   return half_life(nuc_zz);
@@ -9058,7 +9058,7 @@ double pyne::branch_ratio(int from_nuc, int to_nuc)
                                           nucname::id(to_nuc)));
 }
 
-double pyne::branch_ratio(char * from_nuc, char * to_nuc)
+double pyne::branch_ratio(char* from_nuc, char* to_nuc)
 {
   return branch_ratio(std::pair<int, int>(nucname::id(from_nuc),
                                           nucname::id(to_nuc)));
@@ -9122,7 +9122,7 @@ template<> void pyne::_load_data<pyne::decay>()
   int decay_length = H5Sget_simple_extent_npoints(decay_space);
 
   // Read in the data
-  decay * decay_array = new decay[decay_length];
+  decay* decay_array = new decay[decay_length];
   status = H5Dread(decay_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                    decay_array);
 
@@ -9159,8 +9159,8 @@ std::vector<std::pair<double, double> >pyne::decay_half_lifes(int parent)
                               offsetof(decay, half_life), decay_data);
   std::vector<double> part2 = data_access<double, decay>(parent,
                               offsetof(decay, half_life_error), decay_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9168,7 +9168,7 @@ std::vector<std::pair<double, double> >pyne::decay_half_lifes(int parent)
 std::pair<double, double> pyne::decay_branch_ratio(std::pair<int, int> from_to)
 {
   return std::make_pair(data_access<double, decay>(from_to, offsetof(decay,
-                        branch_ratio), decay_data),data_access<double, decay>(from_to, offsetof(decay,
+                        branch_ratio), decay_data), data_access<double, decay>(from_to, offsetof(decay,
                             branch_ratio_error), decay_data));
 }
 
@@ -9178,7 +9178,7 @@ std::vector<double> pyne::decay_branch_ratios(int parent)
                                     branch_ratio), decay_data);
 }
 
-std::pair<double, double> pyne::decay_photon_branch_ratio(std::pair<int,int>
+std::pair<double, double> pyne::decay_photon_branch_ratio(std::pair<int, int>
     from_to)
 {
   return std::make_pair(data_access<double, decay>(from_to,
@@ -9195,13 +9195,13 @@ std::vector<std::pair<double, double> >pyne::decay_photon_branch_ratios(
                               offsetof(decay, photon_branch_ratio), decay_data);
   std::vector<double> part2 = data_access<double, decay>(parent,
                               offsetof(decay, photon_branch_ratio_error), decay_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
 
-std::pair<double, double> pyne::decay_beta_branch_ratio(std::pair<int,int>
+std::pair<double, double> pyne::decay_beta_branch_ratio(std::pair<int, int>
     from_to)
 {
   return std::make_pair(data_access<double, decay>(from_to,
@@ -9218,8 +9218,8 @@ std::vector<std::pair<double, double> >pyne::decay_beta_branch_ratios(
                               offsetof(decay, beta_branch_ratio), decay_data);
   std::vector<double> part2 = data_access<double, decay>(parent,
                               offsetof(decay, beta_branch_ratio_error), decay_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9284,7 +9284,7 @@ template<> void pyne::_load_data<pyne::gamma>()
   int gamma_length = H5Sget_simple_extent_npoints(gamma_space);
 
   // Read in the data
-  gamma * gamma_array = new gamma[gamma_length];
+  gamma* gamma_array = new gamma[gamma_length];
   status = H5Dread(gamma_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                    gamma_array);
 
@@ -9307,8 +9307,8 @@ std::vector<std::pair<double, double> > pyne::gamma_energy(int parent)
                               DBL_MAX, offsetof(gamma, energy), gamma_data);
   std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
                               DBL_MAX, offsetof(gamma, energy_err), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9317,12 +9317,12 @@ std::vector<std::pair<double, double> > pyne::gamma_energy(double energy,
     double error)
 {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(energy+error,
-                              energy-error, offsetof(gamma, energy), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(energy+error,
-                              energy-error, offsetof(gamma, energy_err), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  std::vector<double> part1 = data_access<double, gamma>(energy + error,
+                              energy - error, offsetof(gamma, energy), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(energy + error,
+                              energy - error, offsetof(gamma, energy_err), gamma_data);
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9335,8 +9335,8 @@ std::vector<std::pair<double, double> > pyne::gamma_photon_intensity(
                               DBL_MAX, offsetof(gamma, photon_intensity), gamma_data);
   std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
                               DBL_MAX, offsetof(gamma, photon_intensity_err), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9345,12 +9345,12 @@ std::vector<std::pair<double, double> > pyne::gamma_photon_intensity(
     double energy, double error)
 {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(energy+error,
-                              energy-error, offsetof(gamma, photon_intensity), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(energy+error,
-                              energy-error, offsetof(gamma, photon_intensity_err), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  std::vector<double> part1 = data_access<double, gamma>(energy + error,
+                              energy - error, offsetof(gamma, photon_intensity), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(energy + error,
+                              energy - error, offsetof(gamma, photon_intensity_err), gamma_data);
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9363,8 +9363,8 @@ std::vector<std::pair<double, double> > pyne::gamma_conversion_intensity(
                               DBL_MAX, offsetof(gamma, conv_intensity), gamma_data);
   std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
                               DBL_MAX, offsetof(gamma, conv_intensity_err), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9377,8 +9377,8 @@ std::vector<std::pair<double, double> > pyne::gamma_total_intensity(
                               DBL_MAX, offsetof(gamma, total_intensity), gamma_data);
   std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
                               DBL_MAX, offsetof(gamma, total_intensity_err), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9390,8 +9390,8 @@ std::vector<std::pair<int, int> > pyne::gamma_from_to(int parent)
                            offsetof(gamma, from_nuc), gamma_data);
   std::vector<int> part2 = data_access<int, gamma>(parent, 0.0, DBL_MAX,
                            offsetof(gamma, to_nuc), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9400,12 +9400,12 @@ std::vector<std::pair<int, int> > pyne::gamma_from_to(double energy,
     double error)
 {
   std::vector<std::pair<int, int> > result;
-  std::vector<int> part1 = data_access<int, gamma>(energy+error,
-                           energy-error, offsetof(gamma, from_nuc), gamma_data);
-  std::vector<int> part2 = data_access<int, gamma>(energy+error,
-                           energy-error, offsetof(gamma, to_nuc), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  std::vector<int> part1 = data_access<int, gamma>(energy + error,
+                           energy - error, offsetof(gamma, from_nuc), gamma_data);
+  std::vector<int> part2 = data_access<int, gamma>(energy + error,
+                           energy - error, offsetof(gamma, to_nuc), gamma_data);
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
@@ -9415,25 +9415,25 @@ std::vector<std::pair<int, int> > pyne::gamma_parent_child(double energy,
     double error)
 {
   std::vector<std::pair<int, int> > result;
-  std::vector<int> part1 = data_access<int, gamma>(energy+error,
-                           energy-error, offsetof(gamma, parent_nuc), gamma_data);
-  std::vector<int> part2 = data_access<int, gamma>(energy+error,
-                           energy-error, offsetof(gamma, child_nuc), gamma_data);
-  for(int i = 0; i < part1.size(); ++i) {
-    result.push_back(std::make_pair(part1[i],part2[i]));
+  std::vector<int> part1 = data_access<int, gamma>(energy + error,
+                           energy - error, offsetof(gamma, parent_nuc), gamma_data);
+  std::vector<int> part2 = data_access<int, gamma>(energy + error,
+                           energy - error, offsetof(gamma, child_nuc), gamma_data);
+  for (int i = 0; i < part1.size(); ++i) {
+    result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
 
 std::vector<int> pyne::gamma_parent(double energy, double error)
 {
-  return data_access<int, gamma>(energy+error, energy-error,
+  return data_access<int, gamma>(energy + error, energy - error,
                                  offsetof(gamma, parent_nuc), gamma_data);
 }
 
 std::vector<int> pyne::gamma_child(double energy, double error)
 {
-  return data_access<int, gamma>(energy+error, energy-error,
+  return data_access<int, gamma>(energy + error, energy - error,
                                  offsetof(gamma, child_nuc), gamma_data);
 }
 
@@ -9456,11 +9456,11 @@ std::vector<std::pair<double, double> > pyne::gamma_xrays(int parent)
   std::vector<int> decay_children = decay_data_children(parent);
   std::vector<std::pair<double, double> > decay_br =
       decay_photon_branch_ratios(parent);
-  for(int i = 0; i < k_list.size(); ++i) {
+  for (int i = 0; i < k_list.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(children[i]),
-                                   k_list[i]*decay_br[j].first, l_list[i]*decay_br[j].first);
+                                   k_list[i] * decay_br[j].first, l_list[i] * decay_br[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -9521,7 +9521,7 @@ template<> void pyne::_load_data<pyne::alpha>()
   int alpha_length = H5Sget_simple_extent_npoints(alpha_space);
 
   // Read in the data
-  alpha * alpha_array = new alpha[alpha_length];
+  alpha* alpha_array = new alpha[alpha_length];
   status = H5Dread(alpha_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                    alpha_array);
 
@@ -9540,23 +9540,23 @@ template<> void pyne::_load_data<pyne::alpha>()
 std::vector<double > pyne::alpha_energy(int parent)
 {
   return data_access<double, alpha>(parent, 0.0, DBL_MAX,
-                                    offsetof(alpha,energy), alpha_data);
+                                    offsetof(alpha, energy), alpha_data);
 }
 std::vector<double> pyne::alpha_intensity(int parent)
 {
   return data_access<double, alpha>(parent, 0.0, DBL_MAX,
-                                    offsetof(alpha,intensity), alpha_data);
+                                    offsetof(alpha, intensity), alpha_data);
 }
 
 std::vector<int> pyne::alpha_parent(double energy, double error)
 {
-  return data_access<int, alpha>(energy+error, energy-error,
+  return data_access<int, alpha>(energy + error, energy - error,
                                  offsetof(alpha, from_nuc), alpha_data);
 }
 
 std::vector<int> pyne::alpha_child(double energy, double error)
 {
-  return data_access<int, alpha>(energy+error, energy-error,
+  return data_access<int, alpha>(energy + error, energy - error,
                                  offsetof(alpha, to_nuc), alpha_data);
 }
 
@@ -9606,7 +9606,7 @@ template<> void pyne::_load_data<pyne::beta>()
   int beta_length = H5Sget_simple_extent_npoints(beta_space);
 
   // Read in the data
-  beta * beta_array = new beta[beta_length];
+  beta* beta_array = new beta[beta_length];
   status = H5Dread(beta_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, beta_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -9641,20 +9641,20 @@ std::vector<double> pyne::beta_intensity(int parent)
 
 std::vector<int> pyne::beta_parent(double energy, double error)
 {
-  return data_access<int, beta>(energy+error, energy-error,
+  return data_access<int, beta>(energy + error, energy - error,
                                 offsetof(beta, from_nuc), beta_data);
 }
 
 std::vector<int> pyne::beta_child(double energy, double error)
 {
-  return data_access<int, beta>(energy+error, energy-error,
+  return data_access<int, beta>(energy + error, energy - error,
                                 offsetof(beta, to_nuc), beta_data);
 }
 
 std::vector<int> pyne::beta_child(int parent)
 {
   return data_access<int, beta>(parent, 0.0, DBL_MAX,
-                                offsetof(beta, to_nuc),beta_data);
+                                offsetof(beta, to_nuc), beta_data);
 }
 
 
@@ -9681,7 +9681,7 @@ template<> void pyne::_load_data<pyne::ecbp>()
   status = H5Tinsert(desc, "to_nuc", HOFFSET(ecbp, to_nuc),
                      H5T_NATIVE_INT);
   status = H5Tinsert(desc, "endpoint_energy", HOFFSET(ecbp,
-                     endpoint_energy),H5T_NATIVE_DOUBLE);
+                     endpoint_energy), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "avg_energy", HOFFSET(ecbp, avg_energy),
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "beta_plus_intensity", HOFFSET(ecbp,
@@ -9705,7 +9705,7 @@ template<> void pyne::_load_data<pyne::ecbp>()
   int ecbp_length = H5Sget_simple_extent_npoints(ecbp_space);
 
   // Read in the data
-  ecbp * ecbp_array = new ecbp[ecbp_length];
+  ecbp* ecbp_array = new ecbp[ecbp_length];
   status = H5Dread(ecbp_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, ecbp_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -9723,7 +9723,7 @@ template<> void pyne::_load_data<pyne::ecbp>()
 std::vector<double > pyne::ecbp_endpoint_energy(int parent)
 {
   return data_access<double, ecbp>(parent, 0.0, DBL_MAX,
-                                   offsetof(ecbp,endpoint_energy), ecbp_data);
+                                   offsetof(ecbp, endpoint_energy), ecbp_data);
 }
 
 std::vector<double > pyne::ecbp_average_energy(int parent)
@@ -9746,13 +9746,13 @@ std::vector<double> pyne::bp_intensity(int parent)
 
 std::vector<int> pyne::ecbp_parent(double energy, double error)
 {
-  return data_access<int, ecbp>(energy+error, energy-error,
+  return data_access<int, ecbp>(energy + error, energy - error,
                                 offsetof(ecbp, from_nuc), ecbp_data);
 }
 
 std::vector<int> pyne::ecbp_child(double energy, double error)
 {
-  return data_access<int, ecbp>(energy+error, energy-error,
+  return data_access<int, ecbp>(energy + error, energy - error,
                                 offsetof(ecbp, to_nuc), ecbp_data);
 }
 
@@ -9775,11 +9775,11 @@ std::vector<std::pair<double, double> > pyne::ecbp_xrays(int parent)
   std::vector<int> decay_children = decay_data_children(parent);
   std::vector<std::pair<double, double> > decay_br =
       decay_beta_branch_ratios(parent);
-  for(int i = 0; i < k_list.size(); ++i) {
+  for (int i = 0; i < k_list.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(children[i]),
-                                   k_list[i]*decay_br[j].first, l_list[i]*decay_br[j].first);
+                                   k_list[i] * decay_br[j].first, l_list[i] * decay_br[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -9821,7 +9821,7 @@ std::vector<std::pair<double, double> > pyne::gammas(int parent_state_id)
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i].first) == nucname::zzzaaa(decay_children[j])) {
         result.push_back(std::make_pair(energies[i].first,
-                                        decay_c*intensities[i].first*decay_br[j].first));
+                                        decay_c * intensities[i].first * decay_br[j].first));
       }
     }
   }
@@ -9841,7 +9841,7 @@ std::vector<std::pair<double, double> > pyne::alphas(int parent_state_id)
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         result.push_back(std::make_pair(energies[i],
-                                        decay_c*decay_br[j]*intensities[i]));
+                                        decay_c * decay_br[j]*intensities[i]));
       }
     }
   }
@@ -9862,7 +9862,7 @@ std::vector<std::pair<double, double> > pyne::betas(int parent_state_id)
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         result.push_back(std::make_pair(energies[i],
-                                        decay_c*decay_br[j].first*intensities[i]));
+                                        decay_c * decay_br[j].first * intensities[i]));
         break;
       }
     }
@@ -9884,11 +9884,11 @@ std::vector<std::pair<double, double> > pyne::xrays(int parent)
   std::vector<int> decay_children = decay_data_children(parent);
   std::vector<std::pair<double, double> > decay_br =
       decay_beta_branch_ratios(parent);
-  for(int i = 0; i < k_list.size(); ++i) {
+  for (int i = 0; i < k_list.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(children[i]),
-                                   k_list[i]*decay_br[j].first, l_list[i]*decay_br[j].first);
+                                   k_list[i] * decay_br[j].first, l_list[i] * decay_br[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -9916,11 +9916,11 @@ std::vector<std::pair<double, double> > pyne::xrays(int parent)
                                DBL_MAX, offsetof(gamma, from_nuc), gamma_data);
   std::vector<std::pair<double, double> > decay_nrbr =
       decay_photon_branch_ratios(parent);
-  for(int i = 0; i < gk_list.size(); ++i) {
+  for (int i = 0; i < gk_list.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(gchildren[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(gchildren[i]),
-                                   gk_list[i]*decay_nrbr[j].first, gl_list[i]*decay_nrbr[j].first);
+                                   gk_list[i] * decay_nrbr[j].first, gl_list[i] * decay_nrbr[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -9941,7 +9941,7 @@ std::vector<std::pair<double, double> > pyne::xrays(int parent)
     }
   }
 
-  for(int i = 0; i < result.size(); ++i)
+  for (int i = 0; i < result.size(); ++i)
     result[i].second = result[i].second * decay_c;
   return result;
 }
@@ -10037,7 +10037,7 @@ static void _load_simple_xs_map(std::string energy)
   H5Fclose(nuc_data_h5);
 
   // Ok now that we have the array of stucts, put it in the map
-  for(int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     std::map<unsigned int, size_t>::iterator it;
     for (it = rxns.begin(); it != rxns.end(); ++it) {
       double xs = *(double*)((char*)&array[i] + it->second);
@@ -10240,7 +10240,7 @@ isControlCharacter(char ch)
 
 enum {
     /// Constant that specify the size of the buffer that must be passed to uintToString.
-    uintToStringBufferSize = 3*sizeof(LargestUInt)+1
+    uintToStringBufferSize = 3 * sizeof(LargestUInt) + 1
 };
 
 // Defines a char buffer for use with uintToString().
@@ -10253,14 +10253,14 @@ typedef char UIntToStringBuffer[uintToStringBufferSize];
  *        Must have at least uintToStringBufferSize chars free.
  */
 static inline void
-uintToString( LargestUInt value,
-              char *&current )
+uintToString(LargestUInt value,
+             char*& current)
 {
   *--current = 0;
   do {
     *--current = char(value % 10) + '0';
     value /= 10;
-  } while ( value != 0 );
+  } while (value != 0);
 }
 
 } // namespace Json {
@@ -10308,8 +10308,8 @@ namespace Json
 // ////////////////////////////////
 
 Features::Features()
-  : allowComments_( true )
-, strictRoot_( false )
+  : allowComments_(true)
+, strictRoot_(false)
 {
 }
 
@@ -10335,24 +10335,24 @@ Features::strictMode()
 
 
 static inline bool
-in( Reader::Char c, Reader::Char c1, Reader::Char c2, Reader::Char c3, Reader::Char c4 )
+in(Reader::Char c, Reader::Char c1, Reader::Char c2, Reader::Char c3, Reader::Char c4)
 {
   return c == c1  ||  c == c2  ||  c == c3  ||  c == c4;
 }
 
 static inline bool
-in( Reader::Char c, Reader::Char c1, Reader::Char c2, Reader::Char c3, Reader::Char c4, Reader::Char c5 )
+in(Reader::Char c, Reader::Char c1, Reader::Char c2, Reader::Char c3, Reader::Char c4, Reader::Char c5)
 {
   return c == c1  ||  c == c2  ||  c == c3  ||  c == c4  ||  c == c5;
 }
 
 
 static bool
-containsNewLine( Reader::Location begin,
-                 Reader::Location end )
+containsNewLine(Reader::Location begin,
+                Reader::Location end)
 {
-  for ( ; begin < end; ++begin )
-    if ( *begin == '\n'  ||  *begin == '\r' )
+  for (; begin < end; ++begin)
+    if (*begin == '\n'  ||  *begin == '\r')
       return true;
   return false;
 }
@@ -10362,33 +10362,33 @@ containsNewLine( Reader::Location begin,
 // //////////////////////////////////////////////////////////////////
 
 Reader::Reader()
-  : features_( Features::all() )
+  : features_(Features::all())
 {
 }
 
 
-Reader::Reader( const Features &features )
-  : features_( features )
+Reader::Reader(const Features& features)
+  : features_(features)
 {
 }
 
 
 bool
-Reader::parse( const std::string &document,
-               Value &root,
-               bool collectComments )
+Reader::parse(const std::string& document,
+              Value& root,
+              bool collectComments)
 {
   document_ = document;
-  const char *begin = document_.c_str();
-  const char *end = begin + document_.length();
-  return parse( begin, end, root, collectComments );
+  const char* begin = document_.c_str();
+  const char* end = begin + document_.length();
+  return parse(begin, end, root, collectComments);
 }
 
 
 bool
-Reader::parse( std::istream& sin,
-               Value &root,
-               bool collectComments )
+Reader::parse(std::istream& sin,
+              Value& root,
+              bool collectComments)
 {
   //std::istream_iterator<char> begin(sin);
   //std::istream_iterator<char> end;
@@ -10399,15 +10399,15 @@ Reader::parse( std::istream& sin,
   // create an extra copy.
   std::string doc;
   std::getline(sin, doc, (char)EOF);
-  return parse( doc, root, collectComments );
+  return parse(doc, root, collectComments);
 }
 
 bool
-Reader::parse( const char *beginDoc, const char *endDoc,
-               Value &root,
-               bool collectComments )
+Reader::parse(const char* beginDoc, const char* endDoc,
+              Value& root,
+              bool collectComments)
 {
-  if ( !features_.allowComments_ ) {
+  if (!features_.allowComments_) {
     collectComments = false;
   }
 
@@ -10419,23 +10419,23 @@ Reader::parse( const char *beginDoc, const char *endDoc,
   lastValue_ = 0;
   commentsBefore_ = "";
   errors_.clear();
-  while ( !nodes_.empty() )
+  while (!nodes_.empty())
     nodes_.pop();
-  nodes_.push( &root );
+  nodes_.push(&root);
 
   bool successful = readValue();
   Token token;
-  skipCommentTokens( token );
-  if ( collectComments_  &&  !commentsBefore_.empty() )
-    root.setComment( commentsBefore_, commentAfter );
-  if ( features_.strictRoot_ ) {
-    if ( !root.isArray()  &&  !root.isObject() ) {
+  skipCommentTokens(token);
+  if (collectComments_  &&  !commentsBefore_.empty())
+    root.setComment(commentsBefore_, commentAfter);
+  if (features_.strictRoot_) {
+    if (!root.isArray()  &&  !root.isObject()) {
       // Set error location to start of doc, ideally should be first token found in doc
       token.type_ = tokenError;
       token.start_ = beginDoc;
       token.end_ = endDoc;
-      addError( "A valid JSON document must be either an array or an object value.",
-                token );
+      addError("A valid JSON document must be either an array or an object value.",
+               token);
       return false;
     }
   }
@@ -10447,27 +10447,27 @@ bool
 Reader::readValue()
 {
   Token token;
-  skipCommentTokens( token );
+  skipCommentTokens(token);
   bool successful = true;
 
-  if ( collectComments_  &&  !commentsBefore_.empty() ) {
-    currentValue().setComment( commentsBefore_, commentBefore );
+  if (collectComments_  &&  !commentsBefore_.empty()) {
+    currentValue().setComment(commentsBefore_, commentBefore);
     commentsBefore_ = "";
   }
 
 
-  switch ( token.type_ ) {
+  switch (token.type_) {
   case tokenObjectBegin:
-    successful = readObject( token );
+    successful = readObject(token);
     break;
   case tokenArrayBegin:
-    successful = readArray( token );
+    successful = readArray(token);
     break;
   case tokenNumber:
-    successful = decodeNumber( token );
+    successful = decodeNumber(token);
     break;
   case tokenString:
-    successful = decodeString( token );
+    successful = decodeString(token);
     break;
   case tokenTrue:
     currentValue() = true;
@@ -10479,10 +10479,10 @@ Reader::readValue()
     currentValue() = Value();
     break;
   default:
-    return addError( "Syntax error: value, object or array expected.", token );
+    return addError("Syntax error: value, object or array expected.", token);
   }
 
-  if ( collectComments_ ) {
+  if (collectComments_) {
     lastValueEnd_ = current_;
     lastValue_ = &currentValue();
   }
@@ -10492,36 +10492,36 @@ Reader::readValue()
 
 
 void
-Reader::skipCommentTokens( Token &token )
+Reader::skipCommentTokens(Token& token)
 {
-  if ( features_.allowComments_ ) {
+  if (features_.allowComments_) {
     do {
-      readToken( token );
-    } while ( token.type_ == tokenComment );
+      readToken(token);
+    } while (token.type_ == tokenComment);
   } else {
-    readToken( token );
+    readToken(token);
   }
 }
 
 
 bool
-Reader::expectToken( TokenType type, Token &token, const char *message )
+Reader::expectToken(TokenType type, Token& token, const char* message)
 {
-  readToken( token );
-  if ( token.type_ != type )
-    return addError( message, token );
+  readToken(token);
+  if (token.type_ != type)
+    return addError(message, token);
   return true;
 }
 
 
 bool
-Reader::readToken( Token &token )
+Reader::readToken(Token& token)
 {
   skipSpaces();
   token.start_ = current_;
   Char c = getNextChar();
   bool ok = true;
-  switch ( c ) {
+  switch (c) {
   case '{':
     token.type_ = tokenObjectBegin;
     break;
@@ -10558,15 +10558,15 @@ Reader::readToken( Token &token )
     break;
   case 't':
     token.type_ = tokenTrue;
-    ok = match( "rue", 3 );
+    ok = match("rue", 3);
     break;
   case 'f':
     token.type_ = tokenFalse;
-    ok = match( "alse", 4 );
+    ok = match("alse", 4);
     break;
   case 'n':
     token.type_ = tokenNull;
-    ok = match( "ull", 3 );
+    ok = match("ull", 3);
     break;
   case ',':
     token.type_ = tokenArraySeparator;
@@ -10581,7 +10581,7 @@ Reader::readToken( Token &token )
     ok = false;
     break;
   }
-  if ( !ok )
+  if (!ok)
     token.type_ = tokenError;
   token.end_ = current_;
   return true;
@@ -10591,9 +10591,9 @@ Reader::readToken( Token &token )
 void
 Reader::skipSpaces()
 {
-  while ( current_ != end_ ) {
+  while (current_ != end_) {
     Char c = *current_;
-    if ( c == ' '  ||  c == '\t'  ||  c == '\r'  ||  c == '\n' )
+    if (c == ' '  ||  c == '\t'  ||  c == '\r'  ||  c == '\n')
       ++current_;
     else
       break;
@@ -10602,14 +10602,14 @@ Reader::skipSpaces()
 
 
 bool
-Reader::match( Location pattern,
-               int patternLength )
+Reader::match(Location pattern,
+              int patternLength)
 {
-  if ( end_ - current_ < patternLength )
+  if (end_ - current_ < patternLength)
     return false;
   int index = patternLength;
-  while ( index-- )
-    if ( current_[index] != pattern[index] )
+  while (index--)
+    if (current_[index] != pattern[index])
       return false;
   current_ += patternLength;
   return true;
@@ -10622,39 +10622,39 @@ Reader::readComment()
   Location commentBegin = current_ - 1;
   Char c = getNextChar();
   bool successful = false;
-  if ( c == '*' )
+  if (c == '*')
     successful = readCStyleComment();
-  else if ( c == '/' )
+  else if (c == '/')
     successful = readCppStyleComment();
-  if ( !successful )
+  if (!successful)
     return false;
 
-  if ( collectComments_ ) {
+  if (collectComments_) {
     CommentPlacement placement = commentBefore;
-    if ( lastValueEnd_  &&  !containsNewLine( lastValueEnd_, commentBegin ) ) {
-      if ( c != '*'  ||  !containsNewLine( commentBegin, current_ ) )
+    if (lastValueEnd_  &&  !containsNewLine(lastValueEnd_, commentBegin)) {
+      if (c != '*'  ||  !containsNewLine(commentBegin, current_))
         placement = commentAfterOnSameLine;
     }
 
-    addComment( commentBegin, current_, placement );
+    addComment(commentBegin, current_, placement);
   }
   return true;
 }
 
 
 void
-Reader::addComment( Location begin,
-                    Location end,
-                    CommentPlacement placement )
+Reader::addComment(Location begin,
+                   Location end,
+                   CommentPlacement placement)
 {
-  assert( collectComments_ );
-  if ( placement == commentAfterOnSameLine ) {
-    assert( lastValue_ != 0 );
-    lastValue_->setComment( std::string( begin, end ), placement );
+  assert(collectComments_);
+  if (placement == commentAfterOnSameLine) {
+    assert(lastValue_ != 0);
+    lastValue_->setComment(std::string(begin, end), placement);
   } else {
-    if ( !commentsBefore_.empty() )
+    if (!commentsBefore_.empty())
       commentsBefore_ += "\n";
-    commentsBefore_ += std::string( begin, end );
+    commentsBefore_ += std::string(begin, end);
   }
 }
 
@@ -10662,9 +10662,9 @@ Reader::addComment( Location begin,
 bool
 Reader::readCStyleComment()
 {
-  while ( current_ != end_ ) {
+  while (current_ != end_) {
     Char c = getNextChar();
-    if ( c == '*'  &&  *current_ == '/' )
+    if (c == '*'  &&  *current_ == '/')
       break;
   }
   return getNextChar() == '/';
@@ -10674,9 +10674,9 @@ Reader::readCStyleComment()
 bool
 Reader::readCppStyleComment()
 {
-  while ( current_ != end_ ) {
+  while (current_ != end_) {
     Char c = getNextChar();
-    if (  c == '\r'  ||  c == '\n' )
+    if (c == '\r'  ||  c == '\n')
       break;
   }
   return true;
@@ -10686,9 +10686,9 @@ Reader::readCppStyleComment()
 void
 Reader::readNumber()
 {
-  while ( current_ != end_ ) {
-    if ( !(*current_ >= '0'  &&  *current_ <= '9')  &&
-         !in( *current_, '.', 'e', 'E', '+', '-' ) )
+  while (current_ != end_) {
+    if (!(*current_ >= '0'  &&  *current_ <= '9')  &&
+        !in(*current_, '.', 'e', 'E', '+', '-'))
       break;
     ++current_;
   }
@@ -10698,11 +10698,11 @@ bool
 Reader::readString()
 {
   Char c = 0;
-  while ( current_ != end_ ) {
+  while (current_ != end_) {
     c = getNextChar();
-    if ( c == '\\' )
+    if (c == '\\')
       getNextChar();
-    else if ( c == '"' )
+    else if (c == '"')
       break;
   }
   return c == '"';
@@ -10710,94 +10710,94 @@ Reader::readString()
 
 
 bool
-Reader::readObject( Token &/*tokenStart*/ )
+Reader::readObject(Token& /*tokenStart*/)
 {
   Token tokenName;
   std::string name;
-  currentValue() = Value( objectValue );
-  while ( readToken( tokenName ) ) {
+  currentValue() = Value(objectValue);
+  while (readToken(tokenName)) {
     bool initialTokenOk = true;
-    while ( tokenName.type_ == tokenComment  &&  initialTokenOk )
-      initialTokenOk = readToken( tokenName );
-    if  ( !initialTokenOk )
+    while (tokenName.type_ == tokenComment  &&  initialTokenOk)
+      initialTokenOk = readToken(tokenName);
+    if (!initialTokenOk)
       break;
-    if ( tokenName.type_ == tokenObjectEnd  &&  name.empty() )  // empty object
+    if (tokenName.type_ == tokenObjectEnd  &&  name.empty())    // empty object
       return true;
-    if ( tokenName.type_ != tokenString )
+    if (tokenName.type_ != tokenString)
       break;
 
     name = "";
-    if ( !decodeString( tokenName, name ) )
-      return recoverFromError( tokenObjectEnd );
+    if (!decodeString(tokenName, name))
+      return recoverFromError(tokenObjectEnd);
 
     Token colon;
-    if ( !readToken( colon ) ||  colon.type_ != tokenMemberSeparator ) {
-      return addErrorAndRecover( "Missing ':' after object member name",
-                                 colon,
-                                 tokenObjectEnd );
+    if (!readToken(colon) ||  colon.type_ != tokenMemberSeparator) {
+      return addErrorAndRecover("Missing ':' after object member name",
+                                colon,
+                                tokenObjectEnd);
     }
-    Value &value = currentValue()[ name ];
-    nodes_.push( &value );
+    Value& value = currentValue()[ name ];
+    nodes_.push(&value);
     bool ok = readValue();
     nodes_.pop();
-    if ( !ok ) // error already set
-      return recoverFromError( tokenObjectEnd );
+    if (!ok)   // error already set
+      return recoverFromError(tokenObjectEnd);
 
     Token comma;
-    if ( !readToken( comma )
-         ||  ( comma.type_ != tokenObjectEnd  &&
-               comma.type_ != tokenArraySeparator &&
-               comma.type_ != tokenComment ) ) {
-      return addErrorAndRecover( "Missing ',' or '}' in object declaration",
-                                 comma,
-                                 tokenObjectEnd );
+    if (!readToken(comma)
+        || (comma.type_ != tokenObjectEnd  &&
+            comma.type_ != tokenArraySeparator &&
+            comma.type_ != tokenComment)) {
+      return addErrorAndRecover("Missing ',' or '}' in object declaration",
+                                comma,
+                                tokenObjectEnd);
     }
     bool finalizeTokenOk = true;
-    while ( comma.type_ == tokenComment &&
-            finalizeTokenOk )
-      finalizeTokenOk = readToken( comma );
-    if ( comma.type_ == tokenObjectEnd )
+    while (comma.type_ == tokenComment &&
+           finalizeTokenOk)
+      finalizeTokenOk = readToken(comma);
+    if (comma.type_ == tokenObjectEnd)
       return true;
   }
-  return addErrorAndRecover( "Missing '}' or object member name",
-                             tokenName,
-                             tokenObjectEnd );
+  return addErrorAndRecover("Missing '}' or object member name",
+                            tokenName,
+                            tokenObjectEnd);
 }
 
 
 bool
-Reader::readArray( Token &/*tokenStart*/ )
+Reader::readArray(Token& /*tokenStart*/)
 {
-  currentValue() = Value( arrayValue );
+  currentValue() = Value(arrayValue);
   skipSpaces();
-  if ( *current_ == ']' ) { // empty array
+  if (*current_ == ']') {   // empty array
     Token endArray;
-    readToken( endArray );
+    readToken(endArray);
     return true;
   }
   int index = 0;
   for (;;) {
-    Value &value = currentValue()[ index++ ];
-    nodes_.push( &value );
+    Value& value = currentValue()[ index++ ];
+    nodes_.push(&value);
     bool ok = readValue();
     nodes_.pop();
-    if ( !ok ) // error already set
-      return recoverFromError( tokenArrayEnd );
+    if (!ok)   // error already set
+      return recoverFromError(tokenArrayEnd);
 
     Token token;
     // Accept Comment after last item in the array.
-    ok = readToken( token );
-    while ( token.type_ == tokenComment  &&  ok ) {
-      ok = readToken( token );
+    ok = readToken(token);
+    while (token.type_ == tokenComment  &&  ok) {
+      ok = readToken(token);
     }
-    bool badTokenType = ( token.type_ != tokenArraySeparator  &&
-                          token.type_ != tokenArrayEnd );
-    if ( !ok  ||  badTokenType ) {
-      return addErrorAndRecover( "Missing ',' or ']' in array declaration",
-                                 token,
-                                 tokenArrayEnd );
+    bool badTokenType = (token.type_ != tokenArraySeparator  &&
+                         token.type_ != tokenArrayEnd);
+    if (!ok  ||  badTokenType) {
+      return addErrorAndRecover("Missing ',' or ']' in array declaration",
+                                token,
+                                tokenArrayEnd);
     }
-    if ( token.type_ == tokenArrayEnd )
+    if (token.type_ == tokenArrayEnd)
       break;
   }
   return true;
@@ -10805,48 +10805,48 @@ Reader::readArray( Token &/*tokenStart*/ )
 
 
 bool
-Reader::decodeNumber( Token &token )
+Reader::decodeNumber(Token& token)
 {
   bool isDouble = false;
-  for ( Location inspect = token.start_; inspect != token.end_; ++inspect ) {
+  for (Location inspect = token.start_; inspect != token.end_; ++inspect) {
     isDouble = isDouble
-               ||  in( *inspect, '.', 'e', 'E', '+' )
-               ||  ( *inspect == '-'  &&  inspect != token.start_ );
+               ||  in(*inspect, '.', 'e', 'E', '+')
+               || (*inspect == '-'  &&  inspect != token.start_);
   }
-  if ( isDouble )
-    return decodeDouble( token );
+  if (isDouble)
+    return decodeDouble(token);
   // Attempts to parse the number as an integer. If the number is
   // larger than the maximum supported value of an integer then
   // we decode the number as a double.
   Location current = token.start_;
   bool isNegative = *current == '-';
-  if ( isNegative )
+  if (isNegative)
     ++current;
   Value::LargestUInt maxIntegerValue = isNegative ? Value::LargestUInt(-Value::minLargestInt)
                                        : Value::maxLargestUInt;
   Value::LargestUInt threshold = maxIntegerValue / 10;
-  Value::UInt lastDigitThreshold = Value::UInt( maxIntegerValue % 10 );
-  assert( lastDigitThreshold >=0  &&  lastDigitThreshold <= 9 );
+  Value::UInt lastDigitThreshold = Value::UInt(maxIntegerValue % 10);
+  assert(lastDigitThreshold >= 0  &&  lastDigitThreshold <= 9);
   Value::LargestUInt value = 0;
-  while ( current < token.end_ ) {
+  while (current < token.end_) {
     Char c = *current++;
-    if ( c < '0'  ||  c > '9' )
-      return addError( "'" + std::string( token.start_, token.end_ ) + "' is not a number.", token );
+    if (c < '0'  ||  c > '9')
+      return addError("'" + std::string(token.start_, token.end_) + "' is not a number.", token);
     Value::UInt digit(c - '0');
-    if ( value >= threshold ) {
+    if (value >= threshold) {
       // If the current digit is not the last one, or if it is
       // greater than the last digit of the maximum integer value,
       // the parse the number as a double.
-      if ( current != token.end_  ||  digit > lastDigitThreshold ) {
-        return decodeDouble( token );
+      if (current != token.end_  ||  digit > lastDigitThreshold) {
+        return decodeDouble(token);
       }
     }
     value = value * 10 + digit;
   }
-  if ( isNegative )
-    currentValue() = -Value::LargestInt( value );
-  else if ( value <= Value::LargestUInt(Value::maxInt) )
-    currentValue() = Value::LargestInt( value );
+  if (isNegative)
+    currentValue() = -Value::LargestInt(value);
+  else if (value <= Value::LargestUInt(Value::maxInt))
+    currentValue() = Value::LargestInt(value);
   else
     currentValue() = value;
   return true;
@@ -10854,34 +10854,34 @@ Reader::decodeNumber( Token &token )
 
 
 bool
-Reader::decodeDouble( Token &token )
+Reader::decodeDouble(Token& token)
 {
   double value = 0;
   const int bufferSize = 32;
   int count;
   int length = int(token.end_ - token.start_);
-  if ( length <= bufferSize ) {
-    Char buffer[bufferSize+1];
-    memcpy( buffer, token.start_, length );
+  if (length <= bufferSize) {
+    Char buffer[bufferSize + 1];
+    memcpy(buffer, token.start_, length);
     buffer[length] = 0;
-    count = sscanf( buffer, "%lf", &value );
+    count = sscanf(buffer, "%lf", &value);
   } else {
-    std::string buffer( token.start_, token.end_ );
-    count = sscanf( buffer.c_str(), "%lf", &value );
+    std::string buffer(token.start_, token.end_);
+    count = sscanf(buffer.c_str(), "%lf", &value);
   }
 
-  if ( count != 1 )
-    return addError( "'" + std::string( token.start_, token.end_ ) + "' is not a number.", token );
+  if (count != 1)
+    return addError("'" + std::string(token.start_, token.end_) + "' is not a number.", token);
   currentValue() = value;
   return true;
 }
 
 
 bool
-Reader::decodeString( Token &token )
+Reader::decodeString(Token& token)
 {
   std::string decoded;
-  if ( !decodeString( token, decoded ) )
+  if (!decodeString(token, decoded))
     return false;
   currentValue() = decoded;
   return true;
@@ -10889,20 +10889,20 @@ Reader::decodeString( Token &token )
 
 
 bool
-Reader::decodeString( Token &token, std::string &decoded )
+Reader::decodeString(Token& token, std::string& decoded)
 {
-  decoded.reserve( token.end_ - token.start_ - 2 );
+  decoded.reserve(token.end_ - token.start_ - 2);
   Location current = token.start_ + 1; // skip '"'
   Location end = token.end_ - 1;      // do not include '"'
-  while ( current != end ) {
+  while (current != end) {
     Char c = *current++;
-    if ( c == '"' )
+    if (c == '"')
       break;
-    else if ( c == '\\' ) {
-      if ( current == end )
-        return addError( "Empty escape sequence in string", token, current );
+    else if (c == '\\') {
+      if (current == end)
+        return addError("Empty escape sequence in string", token, current);
       Char escape = *current++;
-      switch ( escape ) {
+      switch (escape) {
       case '"':
         decoded += '"';
         break;
@@ -10929,13 +10929,13 @@ Reader::decodeString( Token &token, std::string &decoded )
         break;
       case 'u': {
         unsigned int unicode;
-        if ( !decodeUnicodeCodePoint( token, current, end, unicode ) )
+        if (!decodeUnicodeCodePoint(token, current, end, unicode))
           return false;
         decoded += codePointToUTF8(unicode);
       }
       break;
       default:
-        return addError( "Bad escape sequence in string", token, current );
+        return addError("Bad escape sequence in string", token, current);
       }
     } else {
       decoded += c;
@@ -10945,96 +10945,96 @@ Reader::decodeString( Token &token, std::string &decoded )
 }
 
 bool
-Reader::decodeUnicodeCodePoint( Token &token,
-                                Location &current,
-                                Location end,
-                                unsigned int &unicode )
+Reader::decodeUnicodeCodePoint(Token& token,
+                               Location& current,
+                               Location end,
+                               unsigned int& unicode)
 {
 
-  if ( !decodeUnicodeEscapeSequence( token, current, end, unicode ) )
+  if (!decodeUnicodeEscapeSequence(token, current, end, unicode))
     return false;
   if (unicode >= 0xD800 && unicode <= 0xDBFF) {
     // surrogate pairs
     if (end - current < 6)
-      return addError( "additional six characters expected to parse unicode surrogate pair.", token, current );
+      return addError("additional six characters expected to parse unicode surrogate pair.", token, current);
     unsigned int surrogatePair;
-    if (*(current++) == '\\' && *(current++)== 'u') {
-      if (decodeUnicodeEscapeSequence( token, current, end, surrogatePair )) {
+    if (*(current++) == '\\' && *(current++) == 'u') {
+      if (decodeUnicodeEscapeSequence(token, current, end, surrogatePair)) {
         unicode = 0x10000 + ((unicode & 0x3FF) << 10) + (surrogatePair & 0x3FF);
       } else
         return false;
     } else
-      return addError( "expecting another \\u token to begin the second half of a unicode surrogate pair", token, current );
+      return addError("expecting another \\u token to begin the second half of a unicode surrogate pair", token, current);
   }
   return true;
 }
 
 bool
-Reader::decodeUnicodeEscapeSequence( Token &token,
-                                     Location &current,
-                                     Location end,
-                                     unsigned int &unicode )
+Reader::decodeUnicodeEscapeSequence(Token& token,
+                                    Location& current,
+                                    Location end,
+                                    unsigned int& unicode)
 {
-  if ( end - current < 4 )
-    return addError( "Bad unicode escape sequence in string: four digits expected.", token, current );
+  if (end - current < 4)
+    return addError("Bad unicode escape sequence in string: four digits expected.", token, current);
   unicode = 0;
-  for ( int index =0; index < 4; ++index ) {
+  for (int index = 0; index < 4; ++index) {
     Char c = *current++;
     unicode *= 16;
-    if ( c >= '0'  &&  c <= '9' )
+    if (c >= '0'  &&  c <= '9')
       unicode += c - '0';
-    else if ( c >= 'a'  &&  c <= 'f' )
+    else if (c >= 'a'  &&  c <= 'f')
       unicode += c - 'a' + 10;
-    else if ( c >= 'A'  &&  c <= 'F' )
+    else if (c >= 'A'  &&  c <= 'F')
       unicode += c - 'A' + 10;
     else
-      return addError( "Bad unicode escape sequence in string: hexadecimal digit expected.", token, current );
+      return addError("Bad unicode escape sequence in string: hexadecimal digit expected.", token, current);
   }
   return true;
 }
 
 
 bool
-Reader::addError( const std::string &message,
-                  Token &token,
-                  Location extra )
+Reader::addError(const std::string& message,
+                 Token& token,
+                 Location extra)
 {
   ErrorInfo info;
   info.token_ = token;
   info.message_ = message;
   info.extra_ = extra;
-  errors_.push_back( info );
+  errors_.push_back(info);
   return false;
 }
 
 
 bool
-Reader::recoverFromError( TokenType skipUntilToken )
+Reader::recoverFromError(TokenType skipUntilToken)
 {
   int errorCount = int(errors_.size());
   Token skip;
   for (;;) {
-    if ( !readToken(skip) )
-      errors_.resize( errorCount ); // discard errors caused by recovery
-    if ( skip.type_ == skipUntilToken  ||  skip.type_ == tokenEndOfStream )
+    if (!readToken(skip))
+      errors_.resize(errorCount);   // discard errors caused by recovery
+    if (skip.type_ == skipUntilToken  ||  skip.type_ == tokenEndOfStream)
       break;
   }
-  errors_.resize( errorCount );
+  errors_.resize(errorCount);
   return false;
 }
 
 
 bool
-Reader::addErrorAndRecover( const std::string &message,
-                            Token &token,
-                            TokenType skipUntilToken )
+Reader::addErrorAndRecover(const std::string& message,
+                           Token& token,
+                           TokenType skipUntilToken)
 {
-  addError( message, token );
-  return recoverFromError( skipUntilToken );
+  addError(message, token);
+  return recoverFromError(skipUntilToken);
 }
 
 
-Value &
+Value&
 Reader::currentValue()
 {
   return *(nodes_.top());
@@ -11044,28 +11044,28 @@ Reader::currentValue()
 Reader::Char
 Reader::getNextChar()
 {
-  if ( current_ == end_ )
+  if (current_ == end_)
     return 0;
   return *current_++;
 }
 
 
 void
-Reader::getLocationLineAndColumn( Location location,
-                                  int &line,
-                                  int &column ) const
+Reader::getLocationLineAndColumn(Location location,
+                                 int& line,
+                                 int& column) const
 {
   Location current = begin_;
   Location lastLineStart = current;
   line = 0;
-  while ( current < location  &&  current != end_ ) {
+  while (current < location  &&  current != end_) {
     Char c = *current++;
-    if ( c == '\r' ) {
-      if ( *current == '\n' )
+    if (c == '\r') {
+      if (*current == '\n')
         ++current;
       lastLineStart = current;
       ++line;
-    } else if ( c == '\n' ) {
+    } else if (c == '\n') {
       lastLineStart = current;
       ++line;
     }
@@ -11077,12 +11077,12 @@ Reader::getLocationLineAndColumn( Location location,
 
 
 std::string
-Reader::getLocationLineAndColumn( Location location ) const
+Reader::getLocationLineAndColumn(Location location) const
 {
   int line, column;
-  getLocationLineAndColumn( location, line, column );
-  char buffer[18+16+16+1];
-  sprintf( buffer, "Line %d, Column %d", line, column );
+  getLocationLineAndColumn(location, line, column);
+  char buffer[18 + 16 + 16 + 1];
+  sprintf(buffer, "Line %d, Column %d", line, column);
   return buffer;
 }
 
@@ -11099,20 +11099,20 @@ std::string
 Reader::getFormattedErrorMessages() const
 {
   std::string formattedMessage;
-  for ( Errors::const_iterator itError = errors_.begin();
-        itError != errors_.end();
-        ++itError ) {
-    const ErrorInfo &error = *itError;
-    formattedMessage += "* " + getLocationLineAndColumn( error.token_.start_ ) + "\n";
+  for (Errors::const_iterator itError = errors_.begin();
+       itError != errors_.end();
+       ++itError) {
+    const ErrorInfo& error = *itError;
+    formattedMessage += "* " + getLocationLineAndColumn(error.token_.start_) + "\n";
     formattedMessage += "  " + error.message_ + "\n";
-    if ( error.extra_ )
-      formattedMessage += "See " + getLocationLineAndColumn( error.extra_ ) + " for detail.\n";
+    if (error.extra_)
+      formattedMessage += "See " + getLocationLineAndColumn(error.extra_) + " for detail.\n";
   }
   return formattedMessage;
 }
 
 
-std::istream& operator>>( std::istream &sin, Value &root )
+std::istream& operator>>(std::istream& sin, Value& root)
 {
   Json::Reader reader;
   bool ok = reader.parse(sin, root, true);
@@ -11165,89 +11165,89 @@ namespace Json
  * The in-place new operator must be used to construct the object using the pointer
  * returned by allocate.
  */
-template<typename AllocatedType
-,const unsigned int objectPerAllocation>
+template < typename AllocatedType
+, const unsigned int objectPerAllocation >
 class BatchAllocator
 {
  public:
   typedef AllocatedType Type;
 
-  BatchAllocator( unsigned int objectsPerPage = 255 )
-    : freeHead_( 0 )
-  , objectsPerPage_( objectsPerPage ) {
+  BatchAllocator(unsigned int objectsPerPage = 255)
+    : freeHead_(0)
+  , objectsPerPage_(objectsPerPage) {
 //      printf( "Size: %d => %s\n", sizeof(AllocatedType), typeid(AllocatedType).name() );
-    assert( sizeof(AllocatedType) * objectPerAllocation >= sizeof(AllocatedType *) ); // We must be able to store a slist in the object free space.
-    assert( objectsPerPage >= 16 );
-    batches_ = allocateBatch( 0 );   // allocated a dummy page
+    assert(sizeof(AllocatedType) * objectPerAllocation >= sizeof(AllocatedType*));    // We must be able to store a slist in the object free space.
+    assert(objectsPerPage >= 16);
+    batches_ = allocateBatch(0);     // allocated a dummy page
     currentBatch_ = batches_;
   }
 
   ~BatchAllocator() {
-    for ( BatchInfo *batch = batches_; batch;  ) {
-      BatchInfo *nextBatch = batch->next_;
-      free( batch );
+    for (BatchInfo* batch = batches_; batch;) {
+      BatchInfo* nextBatch = batch->next_;
+      free(batch);
       batch = nextBatch;
     }
   }
 
   /// allocate space for an array of objectPerAllocation object.
   /// @warning it is the responsability of the caller to call objects constructors.
-  AllocatedType *allocate() {
-    if ( freeHead_ ) { // returns node from free list.
-      AllocatedType *object = freeHead_;
-      freeHead_ = *(AllocatedType **)object;
+  AllocatedType* allocate() {
+    if (freeHead_) {   // returns node from free list.
+      AllocatedType* object = freeHead_;
+      freeHead_ = *(AllocatedType**)object;
       return object;
     }
-    if ( currentBatch_->used_ == currentBatch_->end_ ) {
+    if (currentBatch_->used_ == currentBatch_->end_) {
       currentBatch_ = currentBatch_->next_;
-      while ( currentBatch_  &&  currentBatch_->used_ == currentBatch_->end_ )
+      while (currentBatch_  &&  currentBatch_->used_ == currentBatch_->end_)
         currentBatch_ = currentBatch_->next_;
 
-      if ( !currentBatch_  ) { // no free batch found, allocate a new one
-        currentBatch_ = allocateBatch( objectsPerPage_ );
+      if (!currentBatch_) {    // no free batch found, allocate a new one
+        currentBatch_ = allocateBatch(objectsPerPage_);
         currentBatch_->next_ = batches_; // insert at the head of the list
         batches_ = currentBatch_;
       }
     }
-    AllocatedType *allocated = currentBatch_->used_;
+    AllocatedType* allocated = currentBatch_->used_;
     currentBatch_->used_ += objectPerAllocation;
     return allocated;
   }
 
   /// Release the object.
   /// @warning it is the responsability of the caller to actually destruct the object.
-  void release( AllocatedType *object ) {
-    assert( object != 0 );
-    *(AllocatedType **)object = freeHead_;
+  void release(AllocatedType* object) {
+    assert(object != 0);
+    *(AllocatedType**)object = freeHead_;
     freeHead_ = object;
   }
 
  private:
   struct BatchInfo {
-    BatchInfo *next_;
-    AllocatedType *used_;
-    AllocatedType *end_;
+    BatchInfo* next_;
+    AllocatedType* used_;
+    AllocatedType* end_;
     AllocatedType buffer_[objectPerAllocation];
   };
 
   // disabled copy constructor and assignement operator.
-  BatchAllocator( const BatchAllocator & );
-  void operator =( const BatchAllocator &);
+  BatchAllocator(const BatchAllocator&);
+  void operator =(const BatchAllocator&);
 
-  static BatchInfo *allocateBatch( unsigned int objectsPerPage ) {
-    const unsigned int mallocSize = sizeof(BatchInfo) - sizeof(AllocatedType)* objectPerAllocation
+  static BatchInfo* allocateBatch(unsigned int objectsPerPage) {
+    const unsigned int mallocSize = sizeof(BatchInfo) - sizeof(AllocatedType) * objectPerAllocation
                                     + sizeof(AllocatedType) * objectPerAllocation * objectsPerPage;
-    BatchInfo *batch = static_cast<BatchInfo*>( malloc( mallocSize ) );
+    BatchInfo* batch = static_cast<BatchInfo*>(malloc(mallocSize));
     batch->next_ = 0;
     batch->used_ = batch->buffer_;
     batch->end_ = batch->buffer_ + objectsPerPage;
     return batch;
   }
 
-  BatchInfo *batches_;
-  BatchInfo *currentBatch_;
+  BatchInfo* batches_;
+  BatchInfo* currentBatch_;
   /// Head of a single linked list within the allocated space of freeed object
-  AllocatedType *freeHead_;
+  AllocatedType* freeHead_;
   unsigned int objectsPerPage_;
 };
 
@@ -11293,13 +11293,13 @@ namespace Json
 ValueIteratorBase::ValueIteratorBase()
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   : current_()
-, isNull_( true )
+, isNull_(true)
 {
 }
 #else
   :
-isArray_( true )
-, isNull_( true )
+isArray_(true)
+, isNull_(true)
 {
   iterator_.array_ = ValueInternalArray::IteratorState();
 }
@@ -11307,35 +11307,35 @@ isArray_( true )
 
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-ValueIteratorBase::ValueIteratorBase( const Value::ObjectValues::iterator &current )
-  : current_( current )
-, isNull_( false )
+ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator& current)
+  : current_(current)
+, isNull_(false)
 {
 }
 #else
-ValueIteratorBase::ValueIteratorBase( const ValueInternalArray::IteratorState &state )
-  : isArray_( true )
+ValueIteratorBase::ValueIteratorBase(const ValueInternalArray::IteratorState& state)
+  : isArray_(true)
 {
   iterator_.array_ = state;
 }
 
 
-ValueIteratorBase::ValueIteratorBase( const ValueInternalMap::IteratorState &state )
-  : isArray_( false )
+ValueIteratorBase::ValueIteratorBase(const ValueInternalMap::IteratorState& state)
+  : isArray_(false)
 {
   iterator_.map_ = state;
 }
 #endif
 
-Value &
+Value&
 ValueIteratorBase::deref() const
 {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   return current_->second;
 #else
-  if ( isArray_ )
-    return ValueInternalArray::dereference( iterator_.array_ );
-  return ValueInternalMap::value( iterator_.map_ );
+  if (isArray_)
+    return ValueInternalArray::dereference(iterator_.array_);
+  return ValueInternalMap::value(iterator_.map_);
 #endif
 }
 
@@ -11346,9 +11346,9 @@ ValueIteratorBase::increment()
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   ++current_;
 #else
-  if ( isArray_ )
-    ValueInternalArray::increment( iterator_.array_ );
-  ValueInternalMap::increment( iterator_.map_ );
+  if (isArray_)
+    ValueInternalArray::increment(iterator_.array_);
+  ValueInternalMap::increment(iterator_.map_);
 #endif
 }
 
@@ -11359,15 +11359,15 @@ ValueIteratorBase::decrement()
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   --current_;
 #else
-  if ( isArray_ )
-    ValueInternalArray::decrement( iterator_.array_ );
-  ValueInternalMap::decrement( iterator_.map_ );
+  if (isArray_)
+    ValueInternalArray::decrement(iterator_.array_);
+  ValueInternalMap::decrement(iterator_.map_);
 #endif
 }
 
 
 ValueIteratorBase::difference_type
-ValueIteratorBase::computeDistance( const SelfType &other ) const
+ValueIteratorBase::computeDistance(const SelfType& other) const
 {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
 # ifdef JSON_USE_CPPTL_SMALLMAP
@@ -11378,7 +11378,7 @@ ValueIteratorBase::computeDistance( const SelfType &other ) const
   // std::map::iterator. As begin() and end() are two instance
   // of the default std::map::iterator, they can not be compared.
   // To allow this, we handle this comparison specifically.
-  if ( isNull_  &&  other.isNull_ ) {
+  if (isNull_  &&  other.isNull_) {
     return 0;
   }
 
@@ -11388,42 +11388,42 @@ ValueIteratorBase::computeDistance( const SelfType &other ) const
   // Using a portable hand-made version for non random iterator instead:
   //   return difference_type( std::distance( current_, other.current_ ) );
   difference_type myDistance = 0;
-  for ( Value::ObjectValues::iterator it = current_; it != other.current_; ++it ) {
+  for (Value::ObjectValues::iterator it = current_; it != other.current_; ++it) {
     ++myDistance;
   }
   return myDistance;
 # endif
 #else
-  if ( isArray_ )
-    return ValueInternalArray::distance( iterator_.array_, other.iterator_.array_ );
-  return ValueInternalMap::distance( iterator_.map_, other.iterator_.map_ );
+  if (isArray_)
+    return ValueInternalArray::distance(iterator_.array_, other.iterator_.array_);
+  return ValueInternalMap::distance(iterator_.map_, other.iterator_.map_);
 #endif
 }
 
 
 bool
-ValueIteratorBase::isEqual( const SelfType &other ) const
+ValueIteratorBase::isEqual(const SelfType& other) const
 {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  if ( isNull_ ) {
+  if (isNull_) {
     return other.isNull_;
   }
   return current_ == other.current_;
 #else
-  if ( isArray_ )
-    return ValueInternalArray::equals( iterator_.array_, other.iterator_.array_ );
-  return ValueInternalMap::equals( iterator_.map_, other.iterator_.map_ );
+  if (isArray_)
+    return ValueInternalArray::equals(iterator_.array_, other.iterator_.array_);
+  return ValueInternalMap::equals(iterator_.map_, other.iterator_.map_);
 #endif
 }
 
 
 void
-ValueIteratorBase::copy( const SelfType &other )
+ValueIteratorBase::copy(const SelfType& other)
 {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   current_ = other.current_;
 #else
-  if ( isArray_ )
+  if (isArray_)
     iterator_.array_ = other.iterator_.array_;
   iterator_.map_ = other.iterator_.map_;
 #endif
@@ -11435,20 +11435,20 @@ ValueIteratorBase::key() const
 {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   const Value::CZString czstring = (*current_).first;
-  if ( czstring.c_str() ) {
-    if ( czstring.isStaticString() )
-      return Value( StaticString( czstring.c_str() ) );
-    return Value( czstring.c_str() );
+  if (czstring.c_str()) {
+    if (czstring.isStaticString())
+      return Value(StaticString(czstring.c_str()));
+    return Value(czstring.c_str());
   }
-  return Value( czstring.index() );
+  return Value(czstring.index());
 #else
-  if ( isArray_ )
-    return Value( ValueInternalArray::indexOf( iterator_.array_ ) );
+  if (isArray_)
+    return Value(ValueInternalArray::indexOf(iterator_.array_));
   bool isStatic;
-  const char *memberName = ValueInternalMap::key( iterator_.map_, isStatic );
-  if ( isStatic )
-    return Value( StaticString( memberName ) );
-  return Value( memberName );
+  const char* memberName = ValueInternalMap::key(iterator_.map_, isStatic);
+  if (isStatic)
+    return Value(StaticString(memberName));
+  return Value(memberName);
 #endif
 }
 
@@ -11458,26 +11458,26 @@ ValueIteratorBase::index() const
 {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   const Value::CZString czstring = (*current_).first;
-  if ( !czstring.c_str() )
+  if (!czstring.c_str())
     return czstring.index();
-  return Value::UInt( -1 );
+  return Value::UInt(-1);
 #else
-  if ( isArray_ )
-    return Value::UInt( ValueInternalArray::indexOf( iterator_.array_ ) );
-  return Value::UInt( -1 );
+  if (isArray_)
+    return Value::UInt(ValueInternalArray::indexOf(iterator_.array_));
+  return Value::UInt(-1);
 #endif
 }
 
 
-const char *
+const char*
 ValueIteratorBase::memberName() const
 {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  const char *name = (*current_).first.c_str();
+  const char* name = (*current_).first.c_str();
   return name ? name : "";
 #else
-  if ( !isArray_ )
-    return ValueInternalMap::key( iterator_.map_ );
+  if (!isArray_)
+    return ValueInternalMap::key(iterator_.map_);
   return "";
 #endif
 }
@@ -11497,26 +11497,26 @@ ValueConstIterator::ValueConstIterator()
 
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-ValueConstIterator::ValueConstIterator( const Value::ObjectValues::iterator &current )
-  : ValueIteratorBase( current )
+ValueConstIterator::ValueConstIterator(const Value::ObjectValues::iterator& current)
+  : ValueIteratorBase(current)
 {
 }
 #else
-ValueConstIterator::ValueConstIterator( const ValueInternalArray::IteratorState &state )
-  : ValueIteratorBase( state )
+ValueConstIterator::ValueConstIterator(const ValueInternalArray::IteratorState& state)
+  : ValueIteratorBase(state)
 {
 }
 
-ValueConstIterator::ValueConstIterator( const ValueInternalMap::IteratorState &state )
-  : ValueIteratorBase( state )
+ValueConstIterator::ValueConstIterator(const ValueInternalMap::IteratorState& state)
+  : ValueIteratorBase(state)
 {
 }
 #endif
 
-ValueConstIterator &
-ValueConstIterator::operator =( const ValueIteratorBase &other )
+ValueConstIterator&
+ValueConstIterator::operator =(const ValueIteratorBase& other)
 {
-  copy( other );
+  copy(other);
   return *this;
 }
 
@@ -11535,36 +11535,36 @@ ValueIterator::ValueIterator()
 
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-ValueIterator::ValueIterator( const Value::ObjectValues::iterator &current )
-  : ValueIteratorBase( current )
+ValueIterator::ValueIterator(const Value::ObjectValues::iterator& current)
+  : ValueIteratorBase(current)
 {
 }
 #else
-ValueIterator::ValueIterator( const ValueInternalArray::IteratorState &state )
-  : ValueIteratorBase( state )
+ValueIterator::ValueIterator(const ValueInternalArray::IteratorState& state)
+  : ValueIteratorBase(state)
 {
 }
 
-ValueIterator::ValueIterator( const ValueInternalMap::IteratorState &state )
-  : ValueIteratorBase( state )
+ValueIterator::ValueIterator(const ValueInternalMap::IteratorState& state)
+  : ValueIteratorBase(state)
 {
 }
 #endif
 
-ValueIterator::ValueIterator( const ValueConstIterator &other )
-  : ValueIteratorBase( other )
+ValueIterator::ValueIterator(const ValueConstIterator& other)
+  : ValueIteratorBase(other)
 {
 }
 
-ValueIterator::ValueIterator( const ValueIterator &other )
-  : ValueIteratorBase( other )
+ValueIterator::ValueIterator(const ValueIterator& other)
+  : ValueIteratorBase(other)
 {
 }
 
-ValueIterator &
-ValueIterator::operator =( const SelfType &other )
+ValueIterator&
+ValueIterator::operator =(const SelfType& other)
 {
-  copy( other );
+  copy(other);
   return *this;
 }
 
@@ -11614,19 +11614,19 @@ namespace Json
 {
 
 const Value Value::null;
-const Int Value::minInt = Int( ~(UInt(-1)/2) );
-const Int Value::maxInt = Int( UInt(-1)/2 );
+const Int Value::minInt = Int(~(UInt(-1) / 2));
+const Int Value::maxInt = Int(UInt(-1) / 2);
 const UInt Value::maxUInt = UInt(-1);
-const Int64 Value::minInt64 = Int64( ~(UInt64(-1)/2) );
-const Int64 Value::maxInt64 = Int64( UInt64(-1)/2 );
+const Int64 Value::minInt64 = Int64(~(UInt64(-1) / 2));
+const Int64 Value::maxInt64 = Int64(UInt64(-1) / 2);
 const UInt64 Value::maxUInt64 = UInt64(-1);
-const LargestInt Value::minLargestInt = LargestInt( ~(LargestUInt(-1)/2) );
-const LargestInt Value::maxLargestInt = LargestInt( LargestUInt(-1)/2 );
+const LargestInt Value::minLargestInt = LargestInt(~(LargestUInt(-1) / 2));
+const LargestInt Value::maxLargestInt = LargestInt(LargestUInt(-1) / 2);
 const LargestUInt Value::maxLargestUInt = LargestUInt(-1);
 
 
 /// Unknown size marker
-static const unsigned int unknown = (unsigned)-1;
+static const unsigned int unknown = (unsigned) - 1;
 
 
 /** Duplicates the specified string value.
@@ -11636,15 +11636,15 @@ static const unsigned int unknown = (unsigned)-1;
  *               computed using strlen(value).
  * @return Pointer on the duplicate instance of string.
  */
-static inline char *
-duplicateStringValue( const char *value,
-                      unsigned int length = unknown )
+static inline char*
+duplicateStringValue(const char* value,
+                     unsigned int length = unknown)
 {
-  if ( length == unknown )
+  if (length == unknown)
     length = (unsigned int)strlen(value);
-  char *newString = static_cast<char *>( malloc( length + 1 ) );
-  JSON_ASSERT_MESSAGE( newString != 0, "Failed to allocate string value buffer" );
-  memcpy( newString, value, length );
+  char* newString = static_cast<char*>(malloc(length + 1));
+  JSON_ASSERT_MESSAGE(newString != 0, "Failed to allocate string value buffer");
+  memcpy(newString, value, length);
   newString[length] = 0;
   return newString;
 }
@@ -11653,10 +11653,10 @@ duplicateStringValue( const char *value,
 /** Free the string duplicated by duplicateStringValue().
  */
 static inline void
-releaseStringValue( char *value )
+releaseStringValue(char* value)
 {
-  if ( value )
-    free( value );
+  if (value)
+    free(value);
 }
 
 } // namespace Json
@@ -11691,26 +11691,26 @@ namespace Json
 
 
 Value::CommentInfo::CommentInfo()
-  : comment_( 0 )
+  : comment_(0)
 {
 }
 
 Value::CommentInfo::~CommentInfo()
 {
-  if ( comment_ )
-    releaseStringValue( comment_ );
+  if (comment_)
+    releaseStringValue(comment_);
 }
 
 
 void
-Value::CommentInfo::setComment( const char *text )
+Value::CommentInfo::setComment(const char* text)
 {
-  if ( comment_ )
-    releaseStringValue( comment_ );
-  JSON_ASSERT( text != 0 );
-  JSON_ASSERT_MESSAGE( text[0]=='\0' || text[0]=='/', "Comments must start with /");
+  if (comment_)
+    releaseStringValue(comment_);
+  JSON_ASSERT(text != 0);
+  JSON_ASSERT_MESSAGE(text[0] == '\0' || text[0] == '/', "Comments must start with /");
   // It seems that /**/ style comments are acceptable as well.
-  comment_ = duplicateStringValue( text );
+  comment_ = duplicateStringValue(text);
 }
 
 
@@ -11726,62 +11726,62 @@ Value::CommentInfo::setComment( const char *text )
 // Notes: index_ indicates if the string was allocated when
 // a string is stored.
 
-Value::CZString::CZString( ArrayIndex index )
-  : cstr_( 0 )
-, index_( index )
+Value::CZString::CZString(ArrayIndex index)
+  : cstr_(0)
+, index_(index)
 {
 }
 
-Value::CZString::CZString( const char *cstr, DuplicationPolicy allocate )
-  : cstr_( allocate == duplicate ? duplicateStringValue(cstr)
-         : cstr )
-, index_( allocate )
+Value::CZString::CZString(const char* cstr, DuplicationPolicy allocate)
+  : cstr_(allocate == duplicate ? duplicateStringValue(cstr)
+        : cstr)
+, index_(allocate)
 {
 }
 
-Value::CZString::CZString( const CZString &other )
-  : cstr_( other.index_ != noDuplication &&  other.cstr_ != 0
-         ?  duplicateStringValue( other.cstr_ )
-         : other.cstr_ )
-, index_( other.cstr_ ? (other.index_ == noDuplication ? noDuplication : duplicate)
-          : other.index_ )
+Value::CZString::CZString(const CZString& other)
+  : cstr_(other.index_ != noDuplication &&  other.cstr_ != 0
+        ?  duplicateStringValue(other.cstr_)
+        : other.cstr_)
+, index_(other.cstr_ ? (other.index_ == noDuplication ? noDuplication : duplicate)
+         : other.index_)
 {
 }
 
 Value::CZString::~CZString()
 {
-  if ( cstr_  &&  index_ == duplicate )
-    releaseStringValue( const_cast<char *>( cstr_ ) );
+  if (cstr_  &&  index_ == duplicate)
+    releaseStringValue(const_cast<char*>(cstr_));
 }
 
 void
-Value::CZString::swap( CZString &other )
+Value::CZString::swap(CZString& other)
 {
-  std::swap( cstr_, other.cstr_ );
-  std::swap( index_, other.index_ );
+  std::swap(cstr_, other.cstr_);
+  std::swap(index_, other.index_);
 }
 
-Value::CZString &
-Value::CZString::operator =( const CZString &other )
+Value::CZString&
+Value::CZString::operator =(const CZString& other)
 {
-  CZString temp( other );
-  swap( temp );
+  CZString temp(other);
+  swap(temp);
   return *this;
 }
 
 bool
-Value::CZString::operator<( const CZString &other ) const
+Value::CZString::operator<(const CZString& other) const
 {
-  if ( cstr_ )
-    return strcmp( cstr_, other.cstr_ ) < 0;
+  if (cstr_)
+    return strcmp(cstr_, other.cstr_) < 0;
   return index_ < other.index_;
 }
 
 bool
-Value::CZString::operator==( const CZString &other ) const
+Value::CZString::operator==(const CZString& other) const
 {
-  if ( cstr_ )
-    return strcmp( cstr_, other.cstr_ ) == 0;
+  if (cstr_)
+    return strcmp(cstr_, other.cstr_) == 0;
   return index_ == other.index_;
 }
 
@@ -11793,7 +11793,7 @@ Value::CZString::index() const
 }
 
 
-const char *
+const char*
 Value::CZString::c_str() const
 {
   return cstr_;
@@ -11820,15 +11820,15 @@ Value::CZString::isStaticString() const
  * memset( this, 0, sizeof(Value) )
  * This optimization is used in ValueInternalMap fast allocator.
  */
-Value::Value( ValueType type )
-  : type_( type )
-, allocated_( 0 )
-, comments_( 0 )
+Value::Value(ValueType type)
+  : type_(type)
+, allocated_(0)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
-  switch ( type ) {
+  switch (type) {
   case nullValue:
     break;
   case intValue:
@@ -11864,21 +11864,21 @@ Value::Value( ValueType type )
 
 
 #if defined(JSON_HAS_INT64)
-Value::Value( UInt value )
-  : type_( uintValue )
-, comments_( 0 )
+Value::Value(UInt value)
+  : type_(uintValue)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
   value_.uint_ = value;
 }
 
-Value::Value( Int value )
-  : type_( intValue )
-, comments_( 0 )
+Value::Value(Int value)
+  : type_(intValue)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
   value_.int_ = value;
@@ -11887,120 +11887,120 @@ Value::Value( Int value )
 #endif // if defined(JSON_HAS_INT64)
 
 
-Value::Value( Int64 value )
-  : type_( intValue )
-, comments_( 0 )
+Value::Value(Int64 value)
+  : type_(intValue)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
   value_.int_ = value;
 }
 
 
-Value::Value( UInt64 value )
-  : type_( uintValue )
-, comments_( 0 )
+Value::Value(UInt64 value)
+  : type_(uintValue)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
   value_.uint_ = value;
 }
 
-Value::Value( double value )
-  : type_( realValue )
-, comments_( 0 )
+Value::Value(double value)
+  : type_(realValue)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
   value_.real_ = value;
 }
 
-Value::Value( const char *value )
-  : type_( stringValue )
-, allocated_( true )
-, comments_( 0 )
+Value::Value(const char* value)
+  : type_(stringValue)
+, allocated_(true)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
-  value_.string_ = duplicateStringValue( value );
+  value_.string_ = duplicateStringValue(value);
 }
 
 
-Value::Value( const char *beginValue,
-              const char *endValue )
-  : type_( stringValue )
-, allocated_( true )
-, comments_( 0 )
+Value::Value(const char* beginValue,
+             const char* endValue)
+  : type_(stringValue)
+, allocated_(true)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
-  value_.string_ = duplicateStringValue( beginValue,
-                                         (unsigned int)(endValue - beginValue) );
+  value_.string_ = duplicateStringValue(beginValue,
+                                        (unsigned int)(endValue - beginValue));
 }
 
 
-Value::Value( const std::string &value )
-  : type_( stringValue )
-, allocated_( true )
-, comments_( 0 )
+Value::Value(const std::string& value)
+  : type_(stringValue)
+, allocated_(true)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
-  value_.string_ = duplicateStringValue( value.c_str(),
-                                         (unsigned int)value.length() );
+  value_.string_ = duplicateStringValue(value.c_str(),
+                                        (unsigned int)value.length());
 
 }
 
-Value::Value( const StaticString &value )
-  : type_( stringValue )
-, allocated_( false )
-, comments_( 0 )
+Value::Value(const StaticString& value)
+  : type_(stringValue)
+, allocated_(false)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
-  value_.string_ = const_cast<char *>( value.c_str() );
+  value_.string_ = const_cast<char*>(value.c_str());
 }
 
 
 # ifdef JSON_USE_CPPTL
-Value::Value( const CppTL::ConstString &value )
-  : type_( stringValue )
-, allocated_( true )
-, comments_( 0 )
+Value::Value(const CppTL::ConstString& value)
+  : type_(stringValue)
+, allocated_(true)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
-  value_.string_ = duplicateStringValue( value, value.length() );
+  value_.string_ = duplicateStringValue(value, value.length());
 }
 # endif
 
-Value::Value( bool value )
-  : type_( booleanValue )
-, comments_( 0 )
+Value::Value(bool value)
+  : type_(booleanValue)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
   value_.bool_ = value;
 }
 
 
-Value::Value( const Value &other )
-  : type_( other.type_ )
-, comments_( 0 )
+Value::Value(const Value& other)
+  : type_(other.type_)
+, comments_(0)
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-, itemIsUsed_( 0 )
+, itemIsUsed_(0)
 #endif
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
   case intValue:
   case uintValue:
@@ -12009,8 +12009,8 @@ Value::Value( const Value &other )
     value_ = other.value_;
     break;
   case stringValue:
-    if ( other.value_.string_ ) {
-      value_.string_ = duplicateStringValue( other.value_.string_ );
+    if (other.value_.string_) {
+      value_.string_ = duplicateStringValue(other.value_.string_);
       allocated_ = true;
     } else
       value_.string_ = 0;
@@ -12018,25 +12018,25 @@ Value::Value( const Value &other )
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
   case objectValue:
-    value_.map_ = new ObjectValues( *other.value_.map_ );
+    value_.map_ = new ObjectValues(*other.value_.map_);
     break;
 #else
   case arrayValue:
-    value_.array_ = arrayAllocator()->newArrayCopy( *other.value_.array_ );
+    value_.array_ = arrayAllocator()->newArrayCopy(*other.value_.array_);
     break;
   case objectValue:
-    value_.map_ = mapAllocator()->newMapCopy( *other.value_.map_ );
+    value_.map_ = mapAllocator()->newMapCopy(*other.value_.map_);
     break;
 #endif
   default:
     JSON_ASSERT_UNREACHABLE;
   }
-  if ( other.comments_ ) {
+  if (other.comments_) {
     comments_ = new CommentInfo[numberOfCommentPlacement];
-    for ( int comment =0; comment < numberOfCommentPlacement; ++comment ) {
-      const CommentInfo &otherComment = other.comments_[comment];
-      if ( otherComment.comment_ )
-        comments_[comment].setComment( otherComment.comment_ );
+    for (int comment = 0; comment < numberOfCommentPlacement; ++comment) {
+      const CommentInfo& otherComment = other.comments_[comment];
+      if (otherComment.comment_)
+        comments_[comment].setComment(otherComment.comment_);
     }
   }
 }
@@ -12044,7 +12044,7 @@ Value::Value( const Value &other )
 
 Value::~Value()
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
   case intValue:
   case uintValue:
@@ -12052,8 +12052,8 @@ Value::~Value()
   case booleanValue:
     break;
   case stringValue:
-    if ( allocated_ )
-      releaseStringValue( value_.string_ );
+    if (allocated_)
+      releaseStringValue(value_.string_);
     break;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
@@ -12062,35 +12062,35 @@ Value::~Value()
     break;
 #else
   case arrayValue:
-    arrayAllocator()->destructArray( value_.array_ );
+    arrayAllocator()->destructArray(value_.array_);
     break;
   case objectValue:
-    mapAllocator()->destructMap( value_.map_ );
+    mapAllocator()->destructMap(value_.map_);
     break;
 #endif
   default:
     JSON_ASSERT_UNREACHABLE;
   }
 
-  if ( comments_ )
+  if (comments_)
     delete[] comments_;
 }
 
-Value &
-Value::operator=( const Value &other )
+Value&
+Value::operator=(const Value& other)
 {
-  Value temp( other );
-  swap( temp );
+  Value temp(other);
+  swap(temp);
   return *this;
 }
 
 void
-Value::swap( Value &other )
+Value::swap(Value& other)
 {
   ValueType temp = type_;
   type_ = other.type_;
   other.type_ = temp;
-  std::swap( value_, other.value_ );
+  std::swap(value_, other.value_);
   int temp2 = allocated_;
   allocated_ = other.allocated_;
   other.allocated_ = temp2;
@@ -12104,23 +12104,23 @@ Value::type() const
 
 
 int
-Value::compare( const Value &other ) const
+Value::compare(const Value& other) const
 {
-  if ( *this < other )
+  if (*this < other)
     return -1;
-  if ( *this > other )
+  if (*this > other)
     return 1;
   return 0;
 }
 
 
 bool
-Value::operator <( const Value &other ) const
+Value::operator <(const Value& other) const
 {
   int typeDelta = type_ - other.type_;
-  if ( typeDelta )
+  if (typeDelta)
     return typeDelta < 0 ? true : false;
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return false;
   case intValue:
@@ -12132,23 +12132,23 @@ Value::operator <( const Value &other ) const
   case booleanValue:
     return value_.bool_ < other.value_.bool_;
   case stringValue:
-    return ( value_.string_ == 0  &&  other.value_.string_ )
-           || ( other.value_.string_
-                &&  value_.string_
-                && strcmp( value_.string_, other.value_.string_ ) < 0 );
+    return (value_.string_ == 0  &&  other.value_.string_)
+           || (other.value_.string_
+               &&  value_.string_
+               && strcmp(value_.string_, other.value_.string_) < 0);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
   case objectValue: {
-    int delta = int( value_.map_->size() - other.value_.map_->size() );
-    if ( delta )
+    int delta = int(value_.map_->size() - other.value_.map_->size());
+    if (delta)
       return delta < 0;
     return (*value_.map_) < (*other.value_.map_);
   }
 #else
   case arrayValue:
-    return value_.array_->compare( *(other.value_.array_) ) < 0;
+    return value_.array_->compare(*(other.value_.array_)) < 0;
   case objectValue:
-    return value_.map_->compare( *(other.value_.map_) ) < 0;
+    return value_.map_->compare(*(other.value_.map_)) < 0;
 #endif
   default:
     JSON_ASSERT_UNREACHABLE;
@@ -12157,34 +12157,34 @@ Value::operator <( const Value &other ) const
 }
 
 bool
-Value::operator <=( const Value &other ) const
+Value::operator <=(const Value& other) const
 {
   return !(other < *this);
 }
 
 bool
-Value::operator >=( const Value &other ) const
+Value::operator >=(const Value& other) const
 {
   return !(*this < other);
 }
 
 bool
-Value::operator >( const Value &other ) const
+Value::operator >(const Value& other) const
 {
   return other < *this;
 }
 
 bool
-Value::operator ==( const Value &other ) const
+Value::operator ==(const Value& other) const
 {
   //if ( type_ != other.type_ )
   // GCC 2.95.3 says:
   // attempt to take address of bit-field structure member `Json::Value::type_'
   // Beats me, but a temp solves the problem.
   int temp = other.type_;
-  if ( type_ != temp )
+  if (type_ != temp)
     return false;
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return true;
   case intValue:
@@ -12196,10 +12196,10 @@ Value::operator ==( const Value &other ) const
   case booleanValue:
     return value_.bool_ == other.value_.bool_;
   case stringValue:
-    return ( value_.string_ == other.value_.string_ )
-           || ( other.value_.string_
-                &&  value_.string_
-                && strcmp( value_.string_, other.value_.string_ ) == 0 );
+    return (value_.string_ == other.value_.string_)
+           || (other.value_.string_
+               &&  value_.string_
+               && strcmp(value_.string_, other.value_.string_) == 0);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
   case objectValue:
@@ -12207,9 +12207,9 @@ Value::operator ==( const Value &other ) const
            && (*value_.map_) == (*other.value_.map_);
 #else
   case arrayValue:
-    return value_.array_->compare( *(other.value_.array_) ) == 0;
+    return value_.array_->compare(*(other.value_.array_)) == 0;
   case objectValue:
-    return value_.map_->compare( *(other.value_.map_) ) == 0;
+    return value_.map_->compare(*(other.value_.map_)) == 0;
 #endif
   default:
     JSON_ASSERT_UNREACHABLE;
@@ -12218,15 +12218,15 @@ Value::operator ==( const Value &other ) const
 }
 
 bool
-Value::operator !=( const Value &other ) const
+Value::operator !=(const Value& other) const
 {
-  return !( *this == other );
+  return !(*this == other);
 }
 
-const char *
+const char*
 Value::asCString() const
 {
-  JSON_ASSERT( type_ == stringValue );
+  JSON_ASSERT(type_ == stringValue);
   return value_.string_;
 }
 
@@ -12234,7 +12234,7 @@ Value::asCString() const
 std::string
 Value::asString() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return "";
   case stringValue:
@@ -12246,7 +12246,7 @@ Value::asString() const
   case realValue:
   case arrayValue:
   case objectValue:
-    JSON_FAIL_MESSAGE( "Type is not convertible to string" );
+    JSON_FAIL_MESSAGE("Type is not convertible to string");
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12257,7 +12257,7 @@ Value::asString() const
 CppTL::ConstString
 Value::asConstString() const
 {
-  return CppTL::ConstString( asString().c_str() );
+  return CppTL::ConstString(asString().c_str());
 }
 # endif
 
@@ -12265,24 +12265,24 @@ Value::asConstString() const
 Value::Int
 Value::asInt() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return 0;
   case intValue:
-    JSON_ASSERT_MESSAGE( value_.int_ >= minInt  &&  value_.int_ <= maxInt, "unsigned integer out of signed int range" );
+    JSON_ASSERT_MESSAGE(value_.int_ >= minInt  &&  value_.int_ <= maxInt, "unsigned integer out of signed int range");
     return Int(value_.int_);
   case uintValue:
-    JSON_ASSERT_MESSAGE( value_.uint_ <= UInt(maxInt), "unsigned integer out of signed int range" );
+    JSON_ASSERT_MESSAGE(value_.uint_ <= UInt(maxInt), "unsigned integer out of signed int range");
     return Int(value_.uint_);
   case realValue:
-    JSON_ASSERT_MESSAGE( value_.real_ >= minInt  &&  value_.real_ <= maxInt, "Real out of signed integer range" );
-    return Int( value_.real_ );
+    JSON_ASSERT_MESSAGE(value_.real_ >= minInt  &&  value_.real_ <= maxInt, "Real out of signed integer range");
+    return Int(value_.real_);
   case booleanValue:
     return value_.bool_ ? 1 : 0;
   case stringValue:
   case arrayValue:
   case objectValue:
-    JSON_FAIL_MESSAGE( "Type is not convertible to int" );
+    JSON_FAIL_MESSAGE("Type is not convertible to int");
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12293,25 +12293,25 @@ Value::asInt() const
 Value::UInt
 Value::asUInt() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return 0;
   case intValue:
-    JSON_ASSERT_MESSAGE( value_.int_ >= 0, "Negative integer can not be converted to unsigned integer" );
-    JSON_ASSERT_MESSAGE( value_.int_ <= maxUInt, "signed integer out of UInt range" );
+    JSON_ASSERT_MESSAGE(value_.int_ >= 0, "Negative integer can not be converted to unsigned integer");
+    JSON_ASSERT_MESSAGE(value_.int_ <= maxUInt, "signed integer out of UInt range");
     return UInt(value_.int_);
   case uintValue:
-    JSON_ASSERT_MESSAGE( value_.uint_ <= maxUInt, "unsigned integer out of UInt range" );
+    JSON_ASSERT_MESSAGE(value_.uint_ <= maxUInt, "unsigned integer out of UInt range");
     return UInt(value_.uint_);
   case realValue:
-    JSON_ASSERT_MESSAGE( value_.real_ >= 0  &&  value_.real_ <= maxUInt,  "Real out of unsigned integer range" );
-    return UInt( value_.real_ );
+    JSON_ASSERT_MESSAGE(value_.real_ >= 0  &&  value_.real_ <= maxUInt,  "Real out of unsigned integer range");
+    return UInt(value_.real_);
   case booleanValue:
     return value_.bool_ ? 1 : 0;
   case stringValue:
   case arrayValue:
   case objectValue:
-    JSON_FAIL_MESSAGE( "Type is not convertible to uint" );
+    JSON_FAIL_MESSAGE("Type is not convertible to uint");
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12324,23 +12324,23 @@ Value::asUInt() const
 Value::Int64
 Value::asInt64() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return 0;
   case intValue:
     return value_.int_;
   case uintValue:
-    JSON_ASSERT_MESSAGE( value_.uint_ <= UInt64(maxInt64), "unsigned integer out of Int64 range" );
+    JSON_ASSERT_MESSAGE(value_.uint_ <= UInt64(maxInt64), "unsigned integer out of Int64 range");
     return value_.uint_;
   case realValue:
-    JSON_ASSERT_MESSAGE( value_.real_ >= minInt64  &&  value_.real_ <= maxInt64, "Real out of Int64 range" );
-    return Int( value_.real_ );
+    JSON_ASSERT_MESSAGE(value_.real_ >= minInt64  &&  value_.real_ <= maxInt64, "Real out of Int64 range");
+    return Int(value_.real_);
   case booleanValue:
     return value_.bool_ ? 1 : 0;
   case stringValue:
   case arrayValue:
   case objectValue:
-    JSON_FAIL_MESSAGE( "Type is not convertible to Int64" );
+    JSON_FAIL_MESSAGE("Type is not convertible to Int64");
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12351,23 +12351,23 @@ Value::asInt64() const
 Value::UInt64
 Value::asUInt64() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return 0;
   case intValue:
-    JSON_ASSERT_MESSAGE( value_.int_ >= 0, "Negative integer can not be converted to UInt64" );
+    JSON_ASSERT_MESSAGE(value_.int_ >= 0, "Negative integer can not be converted to UInt64");
     return value_.int_;
   case uintValue:
     return value_.uint_;
   case realValue:
-    JSON_ASSERT_MESSAGE( value_.real_ >= 0  &&  value_.real_ <= maxUInt64,  "Real out of UInt64 range" );
-    return UInt( value_.real_ );
+    JSON_ASSERT_MESSAGE(value_.real_ >= 0  &&  value_.real_ <= maxUInt64,  "Real out of UInt64 range");
+    return UInt(value_.real_);
   case booleanValue:
     return value_.bool_ ? 1 : 0;
   case stringValue:
   case arrayValue:
   case objectValue:
-    JSON_FAIL_MESSAGE( "Type is not convertible to UInt64" );
+    JSON_FAIL_MESSAGE("Type is not convertible to UInt64");
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12401,16 +12401,16 @@ Value::asLargestUInt() const
 double
 Value::asDouble() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return 0.0;
   case intValue:
-    return static_cast<double>( value_.int_ );
+    return static_cast<double>(value_.int_);
   case uintValue:
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-    return static_cast<double>( value_.uint_ );
+    return static_cast<double>(value_.uint_);
 #else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-    return static_cast<double>( Int(value_.uint_/2) ) * 2 + Int(value_.uint_ & 1);
+    return static_cast<double>(Int(value_.uint_ / 2)) * 2 + Int(value_.uint_ & 1);
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
   case realValue:
     return value_.real_;
@@ -12419,7 +12419,7 @@ Value::asDouble() const
   case stringValue:
   case arrayValue:
   case objectValue:
-    JSON_FAIL_MESSAGE( "Type is not convertible to double" );
+    JSON_FAIL_MESSAGE("Type is not convertible to double");
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12429,25 +12429,25 @@ Value::asDouble() const
 float
 Value::asFloat() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return 0.0f;
   case intValue:
-    return static_cast<float>( value_.int_ );
+    return static_cast<float>(value_.int_);
   case uintValue:
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-    return static_cast<float>( value_.uint_ );
+    return static_cast<float>(value_.uint_);
 #else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-    return static_cast<float>( Int(value_.uint_/2) ) * 2 + Int(value_.uint_ & 1);
+    return static_cast<float>(Int(value_.uint_ / 2)) * 2 + Int(value_.uint_ & 1);
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
   case realValue:
-    return static_cast<float>( value_.real_ );
+    return static_cast<float>(value_.real_);
   case booleanValue:
     return value_.bool_ ? 1.0f : 0.0f;
   case stringValue:
   case arrayValue:
   case objectValue:
-    JSON_FAIL_MESSAGE( "Type is not convertible to float" );
+    JSON_FAIL_MESSAGE("Type is not convertible to float");
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12457,7 +12457,7 @@ Value::asFloat() const
 bool
 Value::asBool() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return false;
   case intValue:
@@ -12480,34 +12480,34 @@ Value::asBool() const
 
 
 bool
-Value::isConvertibleTo( ValueType other ) const
+Value::isConvertibleTo(ValueType other) const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
     return true;
   case intValue:
-    return ( other == nullValue  &&  value_.int_ == 0 )
+    return (other == nullValue  &&  value_.int_ == 0)
            || other == intValue
-           || ( other == uintValue  && value_.int_ >= 0 )
+           || (other == uintValue  && value_.int_ >= 0)
            || other == realValue
            || other == stringValue
            || other == booleanValue;
   case uintValue:
-    return ( other == nullValue  &&  value_.uint_ == 0 )
-           || ( other == intValue  && value_.uint_ <= (unsigned)maxInt )
+    return (other == nullValue  &&  value_.uint_ == 0)
+           || (other == intValue  && value_.uint_ <= (unsigned)maxInt)
            || other == uintValue
            || other == realValue
            || other == stringValue
            || other == booleanValue;
   case realValue:
-    return ( other == nullValue  &&  value_.real_ == 0.0 )
-           || ( other == intValue  &&  value_.real_ >= minInt  &&  value_.real_ <= maxInt )
-           || ( other == uintValue  &&  value_.real_ >= 0  &&  value_.real_ <= maxUInt )
+    return (other == nullValue  &&  value_.real_ == 0.0)
+           || (other == intValue  &&  value_.real_ >= minInt  &&  value_.real_ <= maxInt)
+           || (other == uintValue  &&  value_.real_ >= 0  &&  value_.real_ <= maxUInt)
            || other == realValue
            || other == stringValue
            || other == booleanValue;
   case booleanValue:
-    return ( other == nullValue  &&  value_.bool_ == false )
+    return (other == nullValue  &&  value_.bool_ == false)
            || other == intValue
            || other == uintValue
            || other == realValue
@@ -12515,13 +12515,13 @@ Value::isConvertibleTo( ValueType other ) const
            || other == booleanValue;
   case stringValue:
     return other == stringValue
-           || ( other == nullValue  &&  (!value_.string_  ||  value_.string_[0] == 0) );
+           || (other == nullValue  && (!value_.string_  ||  value_.string_[0] == 0));
   case arrayValue:
     return other == arrayValue
-           ||  ( other == nullValue  &&  value_.map_->size() == 0 );
+           || (other == nullValue  &&  value_.map_->size() == 0);
   case objectValue:
     return other == objectValue
-           ||  ( other == nullValue  &&  value_.map_->size() == 0 );
+           || (other == nullValue  &&  value_.map_->size() == 0);
   default:
     JSON_ASSERT_UNREACHABLE;
   }
@@ -12533,7 +12533,7 @@ Value::isConvertibleTo( ValueType other ) const
 ArrayIndex
 Value::size() const
 {
-  switch ( type_ ) {
+  switch (type_) {
   case nullValue:
   case intValue:
   case uintValue:
@@ -12543,19 +12543,19 @@ Value::size() const
     return 0;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:  // size of the array is highest index + 1
-    if ( !value_.map_->empty() ) {
+    if (!value_.map_->empty()) {
       ObjectValues::const_iterator itLast = value_.map_->end();
       --itLast;
-      return (*itLast).first.index()+1;
+      return (*itLast).first.index() + 1;
     }
     return 0;
   case objectValue:
-    return ArrayIndex( value_.map_->size() );
+    return ArrayIndex(value_.map_->size());
 #else
   case arrayValue:
-    return Int( value_.array_->size() );
+    return Int(value_.array_->size());
   case objectValue:
-    return Int( value_.map_->size() );
+    return Int(value_.map_->size());
 #endif
   default:
     JSON_ASSERT_UNREACHABLE;
@@ -12567,7 +12567,7 @@ Value::size() const
 bool
 Value::empty() const
 {
-  if ( isNull() || isArray() || isObject() )
+  if (isNull() || isArray() || isObject())
     return size() == 0u;
   else
     return false;
@@ -12584,9 +12584,9 @@ Value::operator!() const
 void
 Value::clear()
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == arrayValue  || type_ == objectValue );
+  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue  || type_ == objectValue);
 
-  switch ( type_ ) {
+  switch (type_) {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
   case objectValue:
@@ -12606,230 +12606,230 @@ Value::clear()
 }
 
 void
-Value::resize( ArrayIndex newSize )
+Value::resize(ArrayIndex newSize)
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == arrayValue );
-  if ( type_ == nullValue )
-    *this = Value( arrayValue );
+  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue);
+  if (type_ == nullValue)
+    *this = Value(arrayValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   ArrayIndex oldSize = size();
-  if ( newSize == 0 )
+  if (newSize == 0)
     clear();
-  else if ( newSize > oldSize )
+  else if (newSize > oldSize)
     (*this)[ newSize - 1 ];
   else {
-    for ( ArrayIndex index = newSize; index < oldSize; ++index ) {
-      value_.map_->erase( index );
+    for (ArrayIndex index = newSize; index < oldSize; ++index) {
+      value_.map_->erase(index);
     }
-    assert( size() == newSize );
+    assert(size() == newSize);
   }
 #else
-  value_.array_->resize( newSize );
+  value_.array_->resize(newSize);
 #endif
 }
 
 
-Value &
-Value::operator[]( ArrayIndex index )
+Value&
+Value::operator[](ArrayIndex index)
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == arrayValue );
-  if ( type_ == nullValue )
-    *this = Value( arrayValue );
+  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue);
+  if (type_ == nullValue)
+    *this = Value(arrayValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  CZString key( index );
-  ObjectValues::iterator it = value_.map_->lower_bound( key );
-  if ( it != value_.map_->end()  &&  (*it).first == key )
+  CZString key(index);
+  ObjectValues::iterator it = value_.map_->lower_bound(key);
+  if (it != value_.map_->end()  && (*it).first == key)
     return (*it).second;
 
-  ObjectValues::value_type defaultValue( key, null );
-  it = value_.map_->insert( it, defaultValue );
+  ObjectValues::value_type defaultValue(key, null);
+  it = value_.map_->insert(it, defaultValue);
   return (*it).second;
 #else
-  return value_.array_->resolveReference( index );
+  return value_.array_->resolveReference(index);
 #endif
 }
 
 
-Value &
-Value::operator[]( int index )
+Value&
+Value::operator[](int index)
 {
-  JSON_ASSERT( index >= 0 );
+  JSON_ASSERT(index >= 0);
   return (*this)[ ArrayIndex(index) ];
 }
 
 
-const Value &
-Value::operator[]( ArrayIndex index ) const
+const Value&
+Value::operator[](ArrayIndex index) const
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == arrayValue );
-  if ( type_ == nullValue )
+  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue);
+  if (type_ == nullValue)
     return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  CZString key( index );
-  ObjectValues::const_iterator it = value_.map_->find( key );
-  if ( it == value_.map_->end() )
+  CZString key(index);
+  ObjectValues::const_iterator it = value_.map_->find(key);
+  if (it == value_.map_->end())
     return null;
   return (*it).second;
 #else
-  Value *value = value_.array_->find( index );
+  Value* value = value_.array_->find(index);
   return value ? *value : null;
 #endif
 }
 
 
-const Value &
-Value::operator[]( int index ) const
+const Value&
+Value::operator[](int index) const
 {
-  JSON_ASSERT( index >= 0 );
+  JSON_ASSERT(index >= 0);
   return (*this)[ ArrayIndex(index) ];
 }
 
 
-Value &
-Value::operator[]( const char *key )
+Value&
+Value::operator[](const char* key)
 {
-  return resolveReference( key, false );
+  return resolveReference(key, false);
 }
 
 
-Value &
-Value::resolveReference( const char *key,
-                         bool isStatic )
+Value&
+Value::resolveReference(const char* key,
+                        bool isStatic)
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == objectValue );
-  if ( type_ == nullValue )
-    *this = Value( objectValue );
+  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
+  if (type_ == nullValue)
+    *this = Value(objectValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  CZString actualKey( key, isStatic ? CZString::noDuplication
-                      : CZString::duplicateOnCopy );
-  ObjectValues::iterator it = value_.map_->lower_bound( actualKey );
-  if ( it != value_.map_->end()  &&  (*it).first == actualKey )
+  CZString actualKey(key, isStatic ? CZString::noDuplication
+                     : CZString::duplicateOnCopy);
+  ObjectValues::iterator it = value_.map_->lower_bound(actualKey);
+  if (it != value_.map_->end()  && (*it).first == actualKey)
     return (*it).second;
 
-  ObjectValues::value_type defaultValue( actualKey, null );
-  it = value_.map_->insert( it, defaultValue );
-  Value &value = (*it).second;
+  ObjectValues::value_type defaultValue(actualKey, null);
+  it = value_.map_->insert(it, defaultValue);
+  Value& value = (*it).second;
   return value;
 #else
-  return value_.map_->resolveReference( key, isStatic );
+  return value_.map_->resolveReference(key, isStatic);
 #endif
 }
 
 
 Value
-Value::get( ArrayIndex index,
-            const Value &defaultValue ) const
+Value::get(ArrayIndex index,
+           const Value& defaultValue) const
 {
-  const Value *value = &((*this)[index]);
+  const Value* value = &((*this)[index]);
   return value == &null ? defaultValue : *value;
 }
 
 
 bool
-Value::isValidIndex( ArrayIndex index ) const
+Value::isValidIndex(ArrayIndex index) const
 {
   return index < size();
 }
 
 
 
-const Value &
-Value::operator[]( const char *key ) const
+const Value&
+Value::operator[](const char* key) const
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == objectValue );
-  if ( type_ == nullValue )
+  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
+  if (type_ == nullValue)
     return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  CZString actualKey( key, CZString::noDuplication );
-  ObjectValues::const_iterator it = value_.map_->find( actualKey );
-  if ( it == value_.map_->end() )
+  CZString actualKey(key, CZString::noDuplication);
+  ObjectValues::const_iterator it = value_.map_->find(actualKey);
+  if (it == value_.map_->end())
     return null;
   return (*it).second;
 #else
-  const Value *value = value_.map_->find( key );
+  const Value* value = value_.map_->find(key);
   return value ? *value : null;
 #endif
 }
 
 
-Value &
-Value::operator[]( const std::string &key )
+Value&
+Value::operator[](const std::string& key)
 {
   return (*this)[ key.c_str() ];
 }
 
 
-const Value &
-Value::operator[]( const std::string &key ) const
+const Value&
+Value::operator[](const std::string& key) const
 {
   return (*this)[ key.c_str() ];
 }
 
-Value &
-Value::operator[]( const StaticString &key )
+Value&
+Value::operator[](const StaticString& key)
 {
-  return resolveReference( key, true );
+  return resolveReference(key, true);
 }
 
 
 # ifdef JSON_USE_CPPTL
-Value &
-Value::operator[]( const CppTL::ConstString &key )
+Value&
+Value::operator[](const CppTL::ConstString& key)
 {
   return (*this)[ key.c_str() ];
 }
 
 
-const Value &
-Value::operator[]( const CppTL::ConstString &key ) const
+const Value&
+Value::operator[](const CppTL::ConstString& key) const
 {
   return (*this)[ key.c_str() ];
 }
 # endif
 
 
-Value &
-Value::append( const Value &value )
+Value&
+Value::append(const Value& value)
 {
   return (*this)[size()] = value;
 }
 
 
 Value
-Value::get( const char *key,
-            const Value &defaultValue ) const
+Value::get(const char* key,
+           const Value& defaultValue) const
 {
-  const Value *value = &((*this)[key]);
+  const Value* value = &((*this)[key]);
   return value == &null ? defaultValue : *value;
 }
 
 
 Value
-Value::get( const std::string &key,
-            const Value &defaultValue ) const
+Value::get(const std::string& key,
+           const Value& defaultValue) const
 {
-  return get( key.c_str(), defaultValue );
+  return get(key.c_str(), defaultValue);
 }
 
 Value
-Value::removeMember( const char* key )
+Value::removeMember(const char* key)
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == objectValue );
-  if ( type_ == nullValue )
+  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
+  if (type_ == nullValue)
     return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  CZString actualKey( key, CZString::noDuplication );
-  ObjectValues::iterator it = value_.map_->find( actualKey );
-  if ( it == value_.map_->end() )
+  CZString actualKey(key, CZString::noDuplication);
+  ObjectValues::iterator it = value_.map_->find(actualKey);
+  if (it == value_.map_->end())
     return null;
   Value old(it->second);
   value_.map_->erase(it);
   return old;
 #else
-  Value *value = value_.map_->find( key );
+  Value* value = value_.map_->find(key);
   if (value) {
     Value old(*value);
-    value_.map_.remove( key );
+    value_.map_.remove(key);
     return old;
   } else {
     return null;
@@ -12838,63 +12838,63 @@ Value::removeMember( const char* key )
 }
 
 Value
-Value::removeMember( const std::string &key )
+Value::removeMember(const std::string& key)
 {
-  return removeMember( key.c_str() );
+  return removeMember(key.c_str());
 }
 
 # ifdef JSON_USE_CPPTL
 Value
-Value::get( const CppTL::ConstString &key,
-            const Value &defaultValue ) const
+Value::get(const CppTL::ConstString& key,
+           const Value& defaultValue) const
 {
-  return get( key.c_str(), defaultValue );
+  return get(key.c_str(), defaultValue);
 }
 # endif
 
 bool
-Value::isMember( const char *key ) const
+Value::isMember(const char* key) const
 {
-  const Value *value = &((*this)[key]);
+  const Value* value = &((*this)[key]);
   return value != &null;
 }
 
 
 bool
-Value::isMember( const std::string &key ) const
+Value::isMember(const std::string& key) const
 {
-  return isMember( key.c_str() );
+  return isMember(key.c_str());
 }
 
 
 # ifdef JSON_USE_CPPTL
 bool
-Value::isMember( const CppTL::ConstString &key ) const
+Value::isMember(const CppTL::ConstString& key) const
 {
-  return isMember( key.c_str() );
+  return isMember(key.c_str());
 }
 #endif
 
 Value::Members
 Value::getMemberNames() const
 {
-  JSON_ASSERT( type_ == nullValue  ||  type_ == objectValue );
-  if ( type_ == nullValue )
+  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
+  if (type_ == nullValue)
     return Value::Members();
   Members members;
-  members.reserve( value_.map_->size() );
+  members.reserve(value_.map_->size());
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   ObjectValues::const_iterator it = value_.map_->begin();
   ObjectValues::const_iterator itEnd = value_.map_->end();
-  for ( ; it != itEnd; ++it )
-    members.push_back( std::string( (*it).first.c_str() ) );
+  for (; it != itEnd; ++it)
+    members.push_back(std::string((*it).first.c_str()));
 #else
   ValueInternalMap::IteratorState it;
   ValueInternalMap::IteratorState itEnd;
-  value_.map_->makeBeginIterator( it );
-  value_.map_->makeEndIterator( itEnd );
-  for ( ; !ValueInternalMap::equals( it, itEnd ); ValueInternalMap::increment(it) )
-    members.push_back( std::string( ValueInternalMap::key( it ) ) );
+  value_.map_->makeBeginIterator(it);
+  value_.map_->makeEndIterator(itEnd);
+  for (; !ValueInternalMap::equals(it, itEnd); ValueInternalMap::increment(it))
+    members.push_back(std::string(ValueInternalMap::key(it)));
 #endif
   return members;
 }
@@ -12998,33 +12998,33 @@ Value::isObject() const
 
 
 void
-Value::setComment( const char *comment,
-                   CommentPlacement placement )
+Value::setComment(const char* comment,
+                  CommentPlacement placement)
 {
-  if ( !comments_ )
+  if (!comments_)
     comments_ = new CommentInfo[numberOfCommentPlacement];
-  comments_[placement].setComment( comment );
+  comments_[placement].setComment(comment);
 }
 
 
 void
-Value::setComment( const std::string &comment,
-                   CommentPlacement placement )
+Value::setComment(const std::string& comment,
+                  CommentPlacement placement)
 {
-  setComment( comment.c_str(), placement );
+  setComment(comment.c_str(), placement);
 }
 
 
 bool
-Value::hasComment( CommentPlacement placement ) const
+Value::hasComment(CommentPlacement placement) const
 {
   return comments_ != 0  &&  comments_[placement].comment_ != 0;
 }
 
 std::string
-Value::getComment( CommentPlacement placement ) const
+Value::getComment(CommentPlacement placement) const
 {
-  if ( hasComment(placement) )
+  if (hasComment(placement))
     return comments_[placement].comment_;
   return "";
 }
@@ -13034,34 +13034,34 @@ std::string
 Value::toStyledString() const
 {
   StyledWriter writer;
-  return writer.write( *this );
+  return writer.write(*this);
 }
 
 
 Value::const_iterator
 Value::begin() const
 {
-  switch ( type_ ) {
+  switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
-    if ( value_.array_ ) {
+    if (value_.array_) {
       ValueInternalArray::IteratorState it;
-      value_.array_->makeBeginIterator( it );
-      return const_iterator( it );
+      value_.array_->makeBeginIterator(it);
+      return const_iterator(it);
     }
     break;
   case objectValue:
-    if ( value_.map_ ) {
+    if (value_.map_) {
       ValueInternalMap::IteratorState it;
-      value_.map_->makeBeginIterator( it );
-      return const_iterator( it );
+      value_.map_->makeBeginIterator(it);
+      return const_iterator(it);
     }
     break;
 #else
   case arrayValue:
   case objectValue:
-    if ( value_.map_ )
-      return const_iterator( value_.map_->begin() );
+    if (value_.map_)
+      return const_iterator(value_.map_->begin());
     break;
 #endif
   default:
@@ -13073,27 +13073,27 @@ Value::begin() const
 Value::const_iterator
 Value::end() const
 {
-  switch ( type_ ) {
+  switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
-    if ( value_.array_ ) {
+    if (value_.array_) {
       ValueInternalArray::IteratorState it;
-      value_.array_->makeEndIterator( it );
-      return const_iterator( it );
+      value_.array_->makeEndIterator(it);
+      return const_iterator(it);
     }
     break;
   case objectValue:
-    if ( value_.map_ ) {
+    if (value_.map_) {
       ValueInternalMap::IteratorState it;
-      value_.map_->makeEndIterator( it );
-      return const_iterator( it );
+      value_.map_->makeEndIterator(it);
+      return const_iterator(it);
     }
     break;
 #else
   case arrayValue:
   case objectValue:
-    if ( value_.map_ )
-      return const_iterator( value_.map_->end() );
+    if (value_.map_)
+      return const_iterator(value_.map_->end());
     break;
 #endif
   default:
@@ -13106,27 +13106,27 @@ Value::end() const
 Value::iterator
 Value::begin()
 {
-  switch ( type_ ) {
+  switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
-    if ( value_.array_ ) {
+    if (value_.array_) {
       ValueInternalArray::IteratorState it;
-      value_.array_->makeBeginIterator( it );
-      return iterator( it );
+      value_.array_->makeBeginIterator(it);
+      return iterator(it);
     }
     break;
   case objectValue:
-    if ( value_.map_ ) {
+    if (value_.map_) {
       ValueInternalMap::IteratorState it;
-      value_.map_->makeBeginIterator( it );
-      return iterator( it );
+      value_.map_->makeBeginIterator(it);
+      return iterator(it);
     }
     break;
 #else
   case arrayValue:
   case objectValue:
-    if ( value_.map_ )
-      return iterator( value_.map_->begin() );
+    if (value_.map_)
+      return iterator(value_.map_->begin());
     break;
 #endif
   default:
@@ -13138,27 +13138,27 @@ Value::begin()
 Value::iterator
 Value::end()
 {
-  switch ( type_ ) {
+  switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
   case arrayValue:
-    if ( value_.array_ ) {
+    if (value_.array_) {
       ValueInternalArray::IteratorState it;
-      value_.array_->makeEndIterator( it );
-      return iterator( it );
+      value_.array_->makeEndIterator(it);
+      return iterator(it);
     }
     break;
   case objectValue:
-    if ( value_.map_ ) {
+    if (value_.map_) {
       ValueInternalMap::IteratorState it;
-      value_.map_->makeEndIterator( it );
-      return iterator( it );
+      value_.map_->makeEndIterator(it);
+      return iterator(it);
     }
     break;
 #else
   case arrayValue:
   case objectValue:
-    if ( value_.map_ )
-      return iterator( value_.map_->end() );
+    if (value_.map_)
+      return iterator(value_.map_->end());
     break;
 #endif
   default:
@@ -13172,127 +13172,127 @@ Value::end()
 // //////////////////////////////////////////////////////////////////
 
 PathArgument::PathArgument()
-  : kind_( kindNone )
+  : kind_(kindNone)
 {
 }
 
 
-PathArgument::PathArgument( ArrayIndex index )
-  : index_( index )
-, kind_( kindIndex )
+PathArgument::PathArgument(ArrayIndex index)
+  : index_(index)
+, kind_(kindIndex)
 {
 }
 
 
-PathArgument::PathArgument( const char *key )
-  : key_( key )
-, kind_( kindKey )
+PathArgument::PathArgument(const char* key)
+  : key_(key)
+, kind_(kindKey)
 {
 }
 
 
-PathArgument::PathArgument( const std::string &key )
-  : key_( key.c_str() )
-, kind_( kindKey )
+PathArgument::PathArgument(const std::string& key)
+  : key_(key.c_str())
+, kind_(kindKey)
 {
 }
 
 // class Path
 // //////////////////////////////////////////////////////////////////
 
-Path::Path( const std::string &path,
-            const PathArgument &a1,
-            const PathArgument &a2,
-            const PathArgument &a3,
-            const PathArgument &a4,
-            const PathArgument &a5 )
+Path::Path(const std::string& path,
+           const PathArgument& a1,
+           const PathArgument& a2,
+           const PathArgument& a3,
+           const PathArgument& a4,
+           const PathArgument& a5)
 {
   InArgs in;
-  in.push_back( &a1 );
-  in.push_back( &a2 );
-  in.push_back( &a3 );
-  in.push_back( &a4 );
-  in.push_back( &a5 );
-  makePath( path, in );
+  in.push_back(&a1);
+  in.push_back(&a2);
+  in.push_back(&a3);
+  in.push_back(&a4);
+  in.push_back(&a5);
+  makePath(path, in);
 }
 
 
 void
-Path::makePath( const std::string &path,
-                const InArgs &in )
+Path::makePath(const std::string& path,
+               const InArgs& in)
 {
-  const char *current = path.c_str();
-  const char *end = current + path.length();
+  const char* current = path.c_str();
+  const char* end = current + path.length();
   InArgs::const_iterator itInArg = in.begin();
-  while ( current != end ) {
-    if ( *current == '[' ) {
+  while (current != end) {
+    if (*current == '[') {
       ++current;
-      if ( *current == '%' )
-        addPathInArg( path, in, itInArg, PathArgument::kindIndex );
+      if (*current == '%')
+        addPathInArg(path, in, itInArg, PathArgument::kindIndex);
       else {
         ArrayIndex index = 0;
-        for ( ; current != end && *current >= '0'  &&  *current <= '9'; ++current )
+        for (; current != end && *current >= '0'  &&  *current <= '9'; ++current)
           index = index * 10 + ArrayIndex(*current - '0');
-        args_.push_back( index );
+        args_.push_back(index);
       }
-      if ( current == end  ||  *current++ != ']' )
-        invalidPath( path, int(current - path.c_str()) );
-    } else if ( *current == '%' ) {
-      addPathInArg( path, in, itInArg, PathArgument::kindKey );
+      if (current == end  ||  *current++ != ']')
+        invalidPath(path, int(current - path.c_str()));
+    } else if (*current == '%') {
+      addPathInArg(path, in, itInArg, PathArgument::kindKey);
       ++current;
-    } else if ( *current == '.' ) {
+    } else if (*current == '.') {
       ++current;
     } else {
-      const char *beginName = current;
-      while ( current != end  &&  !strchr( "[.", *current ) )
+      const char* beginName = current;
+      while (current != end  &&  !strchr("[.", *current))
         ++current;
-      args_.push_back( std::string( beginName, current ) );
+      args_.push_back(std::string(beginName, current));
     }
   }
 }
 
 
 void
-Path::addPathInArg( const std::string &path,
-                    const InArgs &in,
-                    InArgs::const_iterator &itInArg,
-                    PathArgument::Kind kind )
+Path::addPathInArg(const std::string& path,
+                   const InArgs& in,
+                   InArgs::const_iterator& itInArg,
+                   PathArgument::Kind kind)
 {
-  if ( itInArg == in.end() ) {
+  if (itInArg == in.end()) {
     // Error: missing argument %d
-  } else if ( (*itInArg)->kind_ != kind ) {
+  } else if ((*itInArg)->kind_ != kind) {
     // Error: bad argument type
   } else {
-    args_.push_back( **itInArg );
+    args_.push_back(**itInArg);
   }
 }
 
 
 void
-Path::invalidPath( const std::string &path,
-                   int location )
+Path::invalidPath(const std::string& path,
+                  int location)
 {
   // Error: invalid path.
 }
 
 
-const Value &
-Path::resolve( const Value &root ) const
+const Value&
+Path::resolve(const Value& root) const
 {
-  const Value *node = &root;
-  for ( Args::const_iterator it = args_.begin(); it != args_.end(); ++it ) {
-    const PathArgument &arg = *it;
-    if ( arg.kind_ == PathArgument::kindIndex ) {
-      if ( !node->isArray()  ||  node->isValidIndex( arg.index_ ) ) {
+  const Value* node = &root;
+  for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
+    const PathArgument& arg = *it;
+    if (arg.kind_ == PathArgument::kindIndex) {
+      if (!node->isArray()  ||  node->isValidIndex(arg.index_)) {
         // Error: unable to resolve path (array value expected at position...
       }
       node = &((*node)[arg.index_]);
-    } else if ( arg.kind_ == PathArgument::kindKey ) {
-      if ( !node->isObject() ) {
+    } else if (arg.kind_ == PathArgument::kindKey) {
+      if (!node->isObject()) {
         // Error: unable to resolve path (object value expected at position...)
       }
       node = &((*node)[arg.key_]);
-      if ( node == &Value::null ) {
+      if (node == &Value::null) {
         // Error: unable to resolve path (object has no member named '' at position...)
       }
     }
@@ -13302,21 +13302,21 @@ Path::resolve( const Value &root ) const
 
 
 Value
-Path::resolve( const Value &root,
-               const Value &defaultValue ) const
+Path::resolve(const Value& root,
+              const Value& defaultValue) const
 {
-  const Value *node = &root;
-  for ( Args::const_iterator it = args_.begin(); it != args_.end(); ++it ) {
-    const PathArgument &arg = *it;
-    if ( arg.kind_ == PathArgument::kindIndex ) {
-      if ( !node->isArray()  ||  node->isValidIndex( arg.index_ ) )
+  const Value* node = &root;
+  for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
+    const PathArgument& arg = *it;
+    if (arg.kind_ == PathArgument::kindIndex) {
+      if (!node->isArray()  ||  node->isValidIndex(arg.index_))
         return defaultValue;
       node = &((*node)[arg.index_]);
-    } else if ( arg.kind_ == PathArgument::kindKey ) {
-      if ( !node->isObject() )
+    } else if (arg.kind_ == PathArgument::kindKey) {
+      if (!node->isObject())
         return defaultValue;
       node = &((*node)[arg.key_]);
-      if ( node == &Value::null )
+      if (node == &Value::null)
         return defaultValue;
     }
   }
@@ -13324,19 +13324,19 @@ Path::resolve( const Value &root,
 }
 
 
-Value &
-Path::make( Value &root ) const
+Value&
+Path::make(Value& root) const
 {
-  Value *node = &root;
-  for ( Args::const_iterator it = args_.begin(); it != args_.end(); ++it ) {
-    const PathArgument &arg = *it;
-    if ( arg.kind_ == PathArgument::kindIndex ) {
-      if ( !node->isArray() ) {
+  Value* node = &root;
+  for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
+    const PathArgument& arg = *it;
+    if (arg.kind_ == PathArgument::kindIndex) {
+      if (!node->isArray()) {
         // Error: node is not an array at position ...
       }
       node = &((*node)[arg.index_]);
-    } else if ( arg.kind_ == PathArgument::kindKey ) {
-      if ( !node->isObject() ) {
+    } else if (arg.kind_ == PathArgument::kindKey) {
+      if (!node->isObject()) {
         // Error: node is not an object at position...
       }
       node = &((*node)[arg.key_]);
@@ -13385,57 +13385,57 @@ Path::make( Value &root ) const
 namespace Json
 {
 
-static bool containsControlCharacter( const char* str )
+static bool containsControlCharacter(const char* str)
 {
-  while ( *str ) {
-    if ( isControlCharacter( *(str++) ) )
+  while (*str) {
+    if (isControlCharacter(*(str++)))
       return true;
   }
   return false;
 }
 
 
-std::string valueToString( LargestInt value )
+std::string valueToString(LargestInt value)
 {
   UIntToStringBuffer buffer;
-  char *current = buffer + sizeof(buffer);
+  char* current = buffer + sizeof(buffer);
   bool isNegative = value < 0;
-  if ( isNegative )
+  if (isNegative)
     value = -value;
-  uintToString( LargestUInt(value), current );
-  if ( isNegative )
+  uintToString(LargestUInt(value), current);
+  if (isNegative)
     *--current = '-';
-  assert( current >= buffer );
+  assert(current >= buffer);
   return current;
 }
 
 
-std::string valueToString( LargestUInt value )
+std::string valueToString(LargestUInt value)
 {
   UIntToStringBuffer buffer;
-  char *current = buffer + sizeof(buffer);
-  uintToString( value, current );
-  assert( current >= buffer );
+  char* current = buffer + sizeof(buffer);
+  uintToString(value, current);
+  assert(current >= buffer);
   return current;
 }
 
 #if defined(JSON_HAS_INT64)
 
-std::string valueToString( Int value )
+std::string valueToString(Int value)
 {
-  return valueToString( LargestInt(value) );
+  return valueToString(LargestInt(value));
 }
 
 
-std::string valueToString( UInt value )
+std::string valueToString(UInt value)
 {
-  return valueToString( LargestUInt(value) );
+  return valueToString(LargestUInt(value));
 }
 
 #endif // # if defined(JSON_HAS_INT64)
 
 
-std::string valueToString( double value )
+std::string valueToString(double value)
 {
   char buffer[32];
 #if defined(_MSC_VER) && defined(__STDC_SECURE_LIB__) // Use secure version with visual studio 2005 to avoid warning. 
@@ -13445,12 +13445,12 @@ std::string valueToString( double value )
 #endif
   char* ch = buffer + strlen(buffer) - 1;
   if (*ch != '0') return buffer; // nothing to truncate, so save time
-  while(ch > buffer && *ch == '0') {
+  while (ch > buffer && *ch == '0') {
     --ch;
   }
   char* last_nonzero = ch;
-  while(ch >= buffer) {
-    switch(*ch) {
+  while (ch >= buffer) {
+    switch (*ch) {
     case '0':
     case '1':
     case '2':
@@ -13465,7 +13465,7 @@ std::string valueToString( double value )
       continue;
     case '.':
       // Truncate zeroes to save bytes in output, but keep one.
-      *(last_nonzero+2) = '\0';
+      *(last_nonzero + 2) = '\0';
       return buffer;
     default:
       return buffer;
@@ -13475,25 +13475,25 @@ std::string valueToString( double value )
 }
 
 
-std::string valueToString( bool value )
+std::string valueToString(bool value)
 {
   return value ? "true" : "false";
 }
 
-std::string valueToQuotedString( const char *value )
+std::string valueToQuotedString(const char* value)
 {
   // Not sure how to handle unicode...
-  if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL && !containsControlCharacter( value ))
+  if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL && !containsControlCharacter(value))
     return std::string("\"") + value + "\"";
   // We have to walk value and escape any special characters.
   // Appending to std::string is not efficient, but this should be rare.
   // (Note: forward slashes are *not* rare, but I am not escaping them.)
-  std::string::size_type maxsize = strlen(value)*2 + 3; // allescaped+quotes+NULL
+  std::string::size_type maxsize = strlen(value) * 2 + 3; // allescaped+quotes+NULL
   std::string result;
   result.reserve(maxsize); // to avoid lots of mallocs
   result += "\"";
-  for (const char* c=value; *c != 0; ++c) {
-    switch(*c) {
+  for (const char* c = value; *c != 0; ++c) {
+    switch (*c) {
     case '\"':
       result += "\\\"";
       break;
@@ -13524,7 +13524,7 @@ std::string valueToQuotedString( const char *value )
       // Should add a flag to allow this compatibility mode and prevent this
       // sequence from occurring.
     default:
-      if ( isControlCharacter( *c ) ) {
+      if (isControlCharacter(*c)) {
         std::ostringstream oss;
         oss << "\\u" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << static_cast<int>(*c);
         result += oss.str();
@@ -13549,7 +13549,7 @@ Writer::~Writer()
 // //////////////////////////////////////////////////////////////////
 
 FastWriter::FastWriter()
-  : yamlCompatiblityEnabled_( false )
+  : yamlCompatiblityEnabled_(false)
 {
 }
 
@@ -13562,61 +13562,61 @@ FastWriter::enableYAMLCompatibility()
 
 
 std::string
-FastWriter::write( const Value &root )
+FastWriter::write(const Value& root)
 {
   document_ = "";
-  writeValue( root );
+  writeValue(root);
   document_ += "\n";
   return document_;
 }
 
 
 void
-FastWriter::writeValue( const Value &value )
+FastWriter::writeValue(const Value& value)
 {
-  switch ( value.type() ) {
+  switch (value.type()) {
   case nullValue:
     document_ += "null";
     break;
   case intValue:
-    document_ += valueToString( value.asLargestInt() );
+    document_ += valueToString(value.asLargestInt());
     break;
   case uintValue:
-    document_ += valueToString( value.asLargestUInt() );
+    document_ += valueToString(value.asLargestUInt());
     break;
   case realValue:
-    document_ += valueToString( value.asDouble() );
+    document_ += valueToString(value.asDouble());
     break;
   case stringValue:
-    document_ += valueToQuotedString( value.asCString() );
+    document_ += valueToQuotedString(value.asCString());
     break;
   case booleanValue:
-    document_ += valueToString( value.asBool() );
+    document_ += valueToString(value.asBool());
     break;
   case arrayValue: {
     document_ += "[";
     int size = value.size();
-    for ( int index =0; index < size; ++index ) {
-      if ( index > 0 )
+    for (int index = 0; index < size; ++index) {
+      if (index > 0)
         document_ += ",";
-      writeValue( value[index] );
+      writeValue(value[index]);
     }
     document_ += "]";
   }
   break;
   case objectValue: {
-    Value::Members members( value.getMemberNames() );
+    Value::Members members(value.getMemberNames());
     document_ += "{";
-    for ( Value::Members::iterator it = members.begin();
-          it != members.end();
-          ++it ) {
-      const std::string &name = *it;
-      if ( it != members.begin() )
+    for (Value::Members::iterator it = members.begin();
+         it != members.end();
+         ++it) {
+      const std::string& name = *it;
+      if (it != members.begin())
         document_ += ",";
-      document_ += valueToQuotedString( name.c_str() );
+      document_ += valueToQuotedString(name.c_str());
       document_ += yamlCompatiblityEnabled_ ? ": "
                    : ":";
-      writeValue( value[name] );
+      writeValue(value[name]);
     }
     document_ += "}";
   }
@@ -13629,75 +13629,75 @@ FastWriter::writeValue( const Value &value )
 // //////////////////////////////////////////////////////////////////
 
 StyledWriter::StyledWriter()
-  : rightMargin_( 74 )
-, indentSize_( 3 )
+  : rightMargin_(74)
+, indentSize_(3)
 {
 }
 
 
 std::string
-StyledWriter::write( const Value &root )
+StyledWriter::write(const Value& root)
 {
   document_ = "";
   addChildValues_ = false;
   indentString_ = "";
-  writeCommentBeforeValue( root );
-  writeValue( root );
-  writeCommentAfterValueOnSameLine( root );
+  writeCommentBeforeValue(root);
+  writeValue(root);
+  writeCommentAfterValueOnSameLine(root);
   document_ += "\n";
   return document_;
 }
 
 
 void
-StyledWriter::writeValue( const Value &value )
+StyledWriter::writeValue(const Value& value)
 {
-  switch ( value.type() ) {
+  switch (value.type()) {
   case nullValue:
-    pushValue( "null" );
+    pushValue("null");
     break;
   case intValue:
-    pushValue( valueToString( value.asLargestInt() ) );
+    pushValue(valueToString(value.asLargestInt()));
     break;
   case uintValue:
-    pushValue( valueToString( value.asLargestUInt() ) );
+    pushValue(valueToString(value.asLargestUInt()));
     break;
   case realValue:
-    pushValue( valueToString( value.asDouble() ) );
+    pushValue(valueToString(value.asDouble()));
     break;
   case stringValue:
-    pushValue( valueToQuotedString( value.asCString() ) );
+    pushValue(valueToQuotedString(value.asCString()));
     break;
   case booleanValue:
-    pushValue( valueToString( value.asBool() ) );
+    pushValue(valueToString(value.asBool()));
     break;
   case arrayValue:
-    writeArrayValue( value);
+    writeArrayValue(value);
     break;
   case objectValue: {
-    Value::Members members( value.getMemberNames() );
-    if ( members.empty() )
-      pushValue( "{}" );
+    Value::Members members(value.getMemberNames());
+    if (members.empty())
+      pushValue("{}");
     else {
-      writeWithIndent( "{" );
+      writeWithIndent("{");
       indent();
       Value::Members::iterator it = members.begin();
       for (;;) {
-        const std::string &name = *it;
-        const Value &childValue = value[name];
-        writeCommentBeforeValue( childValue );
-        writeWithIndent( valueToQuotedString( name.c_str() ) );
+        const std::string& name = *it;
+        const Value& childValue = value[name];
+        writeCommentBeforeValue(childValue);
+        writeWithIndent(valueToQuotedString(name.c_str()));
         document_ += " : ";
-        writeValue( childValue );
-        if ( ++it == members.end() ) {
-          writeCommentAfterValueOnSameLine( childValue );
+        writeValue(childValue);
+        if (++it == members.end()) {
+          writeCommentAfterValueOnSameLine(childValue);
           break;
         }
         document_ += ",";
-        writeCommentAfterValueOnSameLine( childValue );
+        writeCommentAfterValueOnSameLine(childValue);
       }
       unindent();
-      writeWithIndent( "}" );
+      writeWithIndent("}");
     }
   }
   break;
@@ -13706,41 +13706,41 @@ StyledWriter::writeValue( const Value &value )
 
 
 void
-StyledWriter::writeArrayValue( const Value &value )
+StyledWriter::writeArrayValue(const Value& value)
 {
   unsigned size = value.size();
-  if ( size == 0 )
-    pushValue( "[]" );
+  if (size == 0)
+    pushValue("[]");
   else {
-    bool isArrayMultiLine = isMultineArray( value );
-    if ( isArrayMultiLine ) {
-      writeWithIndent( "[" );
+    bool isArrayMultiLine = isMultineArray(value);
+    if (isArrayMultiLine) {
+      writeWithIndent("[");
       indent();
       bool hasChildValue = !childValues_.empty();
-      unsigned index =0;
+      unsigned index = 0;
       for (;;) {
-        const Value &childValue = value[index];
-        writeCommentBeforeValue( childValue );
-        if ( hasChildValue )
-          writeWithIndent( childValues_[index] );
+        const Value& childValue = value[index];
+        writeCommentBeforeValue(childValue);
+        if (hasChildValue)
+          writeWithIndent(childValues_[index]);
         else {
           writeIndent();
-          writeValue( childValue );
+          writeValue(childValue);
         }
-        if ( ++index == size ) {
-          writeCommentAfterValueOnSameLine( childValue );
+        if (++index == size) {
+          writeCommentAfterValueOnSameLine(childValue);
           break;
         }
         document_ += ",";
-        writeCommentAfterValueOnSameLine( childValue );
+        writeCommentAfterValueOnSameLine(childValue);
       }
       unindent();
-      writeWithIndent( "]" );
+      writeWithIndent("]");
     } else { // output on a single line
-      assert( childValues_.size() == size );
+      assert(childValues_.size() == size);
       document_ += "[ ";
-      for ( unsigned index =0; index < size; ++index ) {
-        if ( index > 0 )
+      for (unsigned index = 0; index < size; ++index) {
+        if (index > 0)
           document_ += ", ";
         document_ += childValues_[index];
       }
@@ -13751,25 +13751,25 @@ StyledWriter::writeArrayValue( const Value &value )
 
 
 bool
-StyledWriter::isMultineArray( const Value &value )
+StyledWriter::isMultineArray(const Value& value)
 {
   int size = value.size();
-  bool isMultiLine = size*3 >= rightMargin_ ;
+  bool isMultiLine = size * 3 >= rightMargin_ ;
   childValues_.clear();
-  for ( int index =0; index < size  &&  !isMultiLine; ++index ) {
-    const Value &childValue = value[index];
+  for (int index = 0; index < size  &&  !isMultiLine; ++index) {
+    const Value& childValue = value[index];
     isMultiLine = isMultiLine  ||
-                  ( (childValue.isArray()  ||  childValue.isObject())  &&
-                    childValue.size() > 0 );
+                  ((childValue.isArray()  ||  childValue.isObject())  &&
+                   childValue.size() > 0);
   }
-  if ( !isMultiLine ) { // check if line length > max line length
-    childValues_.reserve( size );
+  if (!isMultiLine) {   // check if line length > max line length
+    childValues_.reserve(size);
     addChildValues_ = true;
-    int lineLength = 4 + (size-1)*2; // '[ ' + ', '*n + ' ]'
-    for ( int index =0; index < size  &&  !isMultiLine; ++index ) {
-      writeValue( value[index] );
-      lineLength += int( childValues_[index].length() );
-      isMultiLine = isMultiLine  &&  hasCommentForValue( value[index] );
+    int lineLength = 4 + (size - 1) * 2; // '[ ' + ', '*n + ' ]'
+    for (int index = 0; index < size  &&  !isMultiLine; ++index) {
+      writeValue(value[index]);
+      lineLength += int(childValues_[index].length());
+      isMultiLine = isMultiLine  &&  hasCommentForValue(value[index]);
     }
     addChildValues_ = false;
     isMultiLine = isMultiLine  ||  lineLength >= rightMargin_;
@@ -13779,10 +13779,10 @@ StyledWriter::isMultineArray( const Value &value )
 
 
 void
-StyledWriter::pushValue( const std::string &value )
+StyledWriter::pushValue(const std::string& value)
 {
-  if ( addChildValues_ )
-    childValues_.push_back( value );
+  if (addChildValues_)
+    childValues_.push_back(value);
   else
     document_ += value;
 }
@@ -13791,11 +13791,11 @@ StyledWriter::pushValue( const std::string &value )
 void
 StyledWriter::writeIndent()
 {
-  if ( !document_.empty() ) {
-    char last = document_[document_.length()-1];
-    if ( last == ' ' )     // already indented
+  if (!document_.empty()) {
+    char last = document_[document_.length() - 1];
+    if (last == ' ')       // already indented
       return;
-    if ( last != '\n' )    // Comments may add new-line
+    if (last != '\n')      // Comments may add new-line
       document_ += '\n';
   }
   document_ += indentString_;
@@ -13803,7 +13803,7 @@ StyledWriter::writeIndent()
 
 
 void
-StyledWriter::writeWithIndent( const std::string &value )
+StyledWriter::writeWithIndent(const std::string& value)
 {
   writeIndent();
   document_ += value;
@@ -13813,63 +13813,63 @@ StyledWriter::writeWithIndent( const std::string &value )
 void
 StyledWriter::indent()
 {
-  indentString_ += std::string( indentSize_, ' ' );
+  indentString_ += std::string(indentSize_, ' ');
 }
 
 
 void
 StyledWriter::unindent()
 {
-  assert( int(indentString_.size()) >= indentSize_ );
-  indentString_.resize( indentString_.size() - indentSize_ );
+  assert(int(indentString_.size()) >= indentSize_);
+  indentString_.resize(indentString_.size() - indentSize_);
 }
 
 
 void
-StyledWriter::writeCommentBeforeValue( const Value &root )
+StyledWriter::writeCommentBeforeValue(const Value& root)
 {
-  if ( !root.hasComment( commentBefore ) )
+  if (!root.hasComment(commentBefore))
     return;
-  document_ += normalizeEOL( root.getComment( commentBefore ) );
+  document_ += normalizeEOL(root.getComment(commentBefore));
   document_ += "\n";
 }
 
 
 void
-StyledWriter::writeCommentAfterValueOnSameLine( const Value &root )
+StyledWriter::writeCommentAfterValueOnSameLine(const Value& root)
 {
-  if ( root.hasComment( commentAfterOnSameLine ) )
-    document_ += " " + normalizeEOL( root.getComment( commentAfterOnSameLine ) );
+  if (root.hasComment(commentAfterOnSameLine))
+    document_ += " " + normalizeEOL(root.getComment(commentAfterOnSameLine));
 
-  if ( root.hasComment( commentAfter ) ) {
+  if (root.hasComment(commentAfter)) {
     document_ += "\n";
-    document_ += normalizeEOL( root.getComment( commentAfter ) );
+    document_ += normalizeEOL(root.getComment(commentAfter));
     document_ += "\n";
   }
 }
 
 
 bool
-StyledWriter::hasCommentForValue( const Value &value )
+StyledWriter::hasCommentForValue(const Value& value)
 {
-  return value.hasComment( commentBefore )
-         ||  value.hasComment( commentAfterOnSameLine )
-         ||  value.hasComment( commentAfter );
+  return value.hasComment(commentBefore)
+         ||  value.hasComment(commentAfterOnSameLine)
+         ||  value.hasComment(commentAfter);
 }
 
 
 std::string
-StyledWriter::normalizeEOL( const std::string &text )
+StyledWriter::normalizeEOL(const std::string& text)
 {
   std::string normalized;
-  normalized.reserve( text.length() );
-  const char *begin = text.c_str();
-  const char *end = begin + text.length();
-  const char *current = begin;
-  while ( current != end ) {
+  normalized.reserve(text.length());
+  const char* begin = text.c_str();
+  const char* end = begin + text.length();
+  const char* current = begin;
+  while (current != end) {
     char c = *current++;
-    if ( c == '\r' ) { // mac or dos EOL
-      if ( *current == '\n' ) // convert dos EOL
+    if (c == '\r') {   // mac or dos EOL
+      if (*current == '\n')   // convert dos EOL
         ++current;
       normalized += '\n';
     } else // handle unix EOL & other char
@@ -13882,77 +13882,77 @@ StyledWriter::normalizeEOL( const std::string &text )
 // Class StyledStreamWriter
 // //////////////////////////////////////////////////////////////////
 
-StyledStreamWriter::StyledStreamWriter( std::string indentation )
+StyledStreamWriter::StyledStreamWriter(std::string indentation)
   : document_(NULL)
-, rightMargin_( 74 )
-, indentation_( indentation )
+, rightMargin_(74)
+, indentation_(indentation)
 {
 }
 
 
 void
-StyledStreamWriter::write( std::ostream &out, const Value &root )
+StyledStreamWriter::write(std::ostream& out, const Value& root)
 {
   document_ = &out;
   addChildValues_ = false;
   indentString_ = "";
-  writeCommentBeforeValue( root );
-  writeValue( root );
-  writeCommentAfterValueOnSameLine( root );
+  writeCommentBeforeValue(root);
+  writeValue(root);
+  writeCommentAfterValueOnSameLine(root);
   *document_ << "\n";
   document_ = NULL; // Forget the stream, for safety.
 }
 
 
 void
-StyledStreamWriter::writeValue( const Value &value )
+StyledStreamWriter::writeValue(const Value& value)
 {
-  switch ( value.type() ) {
+  switch (value.type()) {
   case nullValue:
-    pushValue( "null" );
+    pushValue("null");
     break;
   case intValue:
-    pushValue( valueToString( value.asLargestInt() ) );
+    pushValue(valueToString(value.asLargestInt()));
     break;
   case uintValue:
-    pushValue( valueToString( value.asLargestUInt() ) );
+    pushValue(valueToString(value.asLargestUInt()));
     break;
   case realValue:
-    pushValue( valueToString( value.asDouble() ) );
+    pushValue(valueToString(value.asDouble()));
     break;
   case stringValue:
-    pushValue( valueToQuotedString( value.asCString() ) );
+    pushValue(valueToQuotedString(value.asCString()));
     break;
   case booleanValue:
-    pushValue( valueToString( value.asBool() ) );
+    pushValue(valueToString(value.asBool()));
     break;
   case arrayValue:
-    writeArrayValue( value);
+    writeArrayValue(value);
     break;
   case objectValue: {
-    Value::Members members( value.getMemberNames() );
-    if ( members.empty() )
-      pushValue( "{}" );
+    Value::Members members(value.getMemberNames());
+    if (members.empty())
+      pushValue("{}");
     else {
-      writeWithIndent( "{" );
+      writeWithIndent("{");
       indent();
       Value::Members::iterator it = members.begin();
       for (;;) {
-        const std::string &name = *it;
-        const Value &childValue = value[name];
-        writeCommentBeforeValue( childValue );
-        writeWithIndent( valueToQuotedString( name.c_str() ) );
+        const std::string& name = *it;
+        const Value& childValue = value[name];
+        writeCommentBeforeValue(childValue);
+        writeWithIndent(valueToQuotedString(name.c_str()));
         *document_ << " : ";
-        writeValue( childValue );
-        if ( ++it == members.end() ) {
-          writeCommentAfterValueOnSameLine( childValue );
+        writeValue(childValue);
+        if (++it == members.end()) {
+          writeCommentAfterValueOnSameLine(childValue);
           break;
         }
         *document_ << ",";
-        writeCommentAfterValueOnSameLine( childValue );
+        writeCommentAfterValueOnSameLine(childValue);
       }
       unindent();
-      writeWithIndent( "}" );
+      writeWithIndent("}");
     }
   }
   break;
@@ -13961,41 +13961,41 @@ StyledStreamWriter::writeValue( const Value &value )
 
 
 void
-StyledStreamWriter::writeArrayValue( const Value &value )
+StyledStreamWriter::writeArrayValue(const Value& value)
 {
   unsigned size = value.size();
-  if ( size == 0 )
-    pushValue( "[]" );
+  if (size == 0)
+    pushValue("[]");
   else {
-    bool isArrayMultiLine = isMultineArray( value );
-    if ( isArrayMultiLine ) {
-      writeWithIndent( "[" );
+    bool isArrayMultiLine = isMultineArray(value);
+    if (isArrayMultiLine) {
+      writeWithIndent("[");
       indent();
       bool hasChildValue = !childValues_.empty();
-      unsigned index =0;
+      unsigned index = 0;
       for (;;) {
-        const Value &childValue = value[index];
-        writeCommentBeforeValue( childValue );
-        if ( hasChildValue )
-          writeWithIndent( childValues_[index] );
+        const Value& childValue = value[index];
+        writeCommentBeforeValue(childValue);
+        if (hasChildValue)
+          writeWithIndent(childValues_[index]);
         else {
           writeIndent();
-          writeValue( childValue );
+          writeValue(childValue);
         }
-        if ( ++index == size ) {
-          writeCommentAfterValueOnSameLine( childValue );
+        if (++index == size) {
+          writeCommentAfterValueOnSameLine(childValue);
           break;
         }
         *document_ << ",";
-        writeCommentAfterValueOnSameLine( childValue );
+        writeCommentAfterValueOnSameLine(childValue);
       }
       unindent();
-      writeWithIndent( "]" );
+      writeWithIndent("]");
     } else { // output on a single line
-      assert( childValues_.size() == size );
+      assert(childValues_.size() == size);
       *document_ << "[ ";
-      for ( unsigned index =0; index < size; ++index ) {
-        if ( index > 0 )
+      for (unsigned index = 0; index < size; ++index) {
+        if (index > 0)
           *document_ << ", ";
         *document_ << childValues_[index];
       }
@@ -14006,25 +14006,25 @@ StyledStreamWriter::writeArrayValue( const Value &value )
 
 
 bool
-StyledStreamWriter::isMultineArray( const Value &value )
+StyledStreamWriter::isMultineArray(const Value& value)
 {
   int size = value.size();
-  bool isMultiLine = size*3 >= rightMargin_ ;
+  bool isMultiLine = size * 3 >= rightMargin_ ;
   childValues_.clear();
-  for ( int index =0; index < size  &&  !isMultiLine; ++index ) {
-    const Value &childValue = value[index];
+  for (int index = 0; index < size  &&  !isMultiLine; ++index) {
+    const Value& childValue = value[index];
     isMultiLine = isMultiLine  ||
-                  ( (childValue.isArray()  ||  childValue.isObject())  &&
-                    childValue.size() > 0 );
+                  ((childValue.isArray()  ||  childValue.isObject())  &&
+                   childValue.size() > 0);
   }
-  if ( !isMultiLine ) { // check if line length > max line length
-    childValues_.reserve( size );
+  if (!isMultiLine) {   // check if line length > max line length
+    childValues_.reserve(size);
     addChildValues_ = true;
-    int lineLength = 4 + (size-1)*2; // '[ ' + ', '*n + ' ]'
-    for ( int index =0; index < size  &&  !isMultiLine; ++index ) {
-      writeValue( value[index] );
-      lineLength += int( childValues_[index].length() );
-      isMultiLine = isMultiLine  &&  hasCommentForValue( value[index] );
+    int lineLength = 4 + (size - 1) * 2; // '[ ' + ', '*n + ' ]'
+    for (int index = 0; index < size  &&  !isMultiLine; ++index) {
+      writeValue(value[index]);
+      lineLength += int(childValues_[index].length());
+      isMultiLine = isMultiLine  &&  hasCommentForValue(value[index]);
     }
     addChildValues_ = false;
     isMultiLine = isMultiLine  ||  lineLength >= rightMargin_;
@@ -14034,10 +14034,10 @@ StyledStreamWriter::isMultineArray( const Value &value )
 
 
 void
-StyledStreamWriter::pushValue( const std::string &value )
+StyledStreamWriter::pushValue(const std::string& value)
 {
-  if ( addChildValues_ )
-    childValues_.push_back( value );
+  if (addChildValues_)
+    childValues_.push_back(value);
   else
     *document_ << value;
 }
@@ -14063,7 +14063,7 @@ StyledStreamWriter::writeIndent()
 
 
 void
-StyledStreamWriter::writeWithIndent( const std::string &value )
+StyledStreamWriter::writeWithIndent(const std::string& value)
 {
   writeIndent();
   *document_ << value;
@@ -14080,56 +14080,56 @@ StyledStreamWriter::indent()
 void
 StyledStreamWriter::unindent()
 {
-  assert( indentString_.size() >= indentation_.size() );
-  indentString_.resize( indentString_.size() - indentation_.size() );
+  assert(indentString_.size() >= indentation_.size());
+  indentString_.resize(indentString_.size() - indentation_.size());
 }
 
 
 void
-StyledStreamWriter::writeCommentBeforeValue( const Value &root )
+StyledStreamWriter::writeCommentBeforeValue(const Value& root)
 {
-  if ( !root.hasComment( commentBefore ) )
+  if (!root.hasComment(commentBefore))
     return;
-  *document_ << normalizeEOL( root.getComment( commentBefore ) );
+  *document_ << normalizeEOL(root.getComment(commentBefore));
   *document_ << "\n";
 }
 
 
 void
-StyledStreamWriter::writeCommentAfterValueOnSameLine( const Value &root )
+StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value& root)
 {
-  if ( root.hasComment( commentAfterOnSameLine ) )
-    *document_ << " " + normalizeEOL( root.getComment( commentAfterOnSameLine ) );
+  if (root.hasComment(commentAfterOnSameLine))
+    *document_ << " " + normalizeEOL(root.getComment(commentAfterOnSameLine));
 
-  if ( root.hasComment( commentAfter ) ) {
+  if (root.hasComment(commentAfter)) {
     *document_ << "\n";
-    *document_ << normalizeEOL( root.getComment( commentAfter ) );
+    *document_ << normalizeEOL(root.getComment(commentAfter));
     *document_ << "\n";
   }
 }
 
 
 bool
-StyledStreamWriter::hasCommentForValue( const Value &value )
+StyledStreamWriter::hasCommentForValue(const Value& value)
 {
-  return value.hasComment( commentBefore )
-         ||  value.hasComment( commentAfterOnSameLine )
-         ||  value.hasComment( commentAfter );
+  return value.hasComment(commentBefore)
+         ||  value.hasComment(commentAfterOnSameLine)
+         ||  value.hasComment(commentAfter);
 }
 
 
 std::string
-StyledStreamWriter::normalizeEOL( const std::string &text )
+StyledStreamWriter::normalizeEOL(const std::string& text)
 {
   std::string normalized;
-  normalized.reserve( text.length() );
-  const char *begin = text.c_str();
-  const char *end = begin + text.length();
-  const char *current = begin;
-  while ( current != end ) {
+  normalized.reserve(text.length());
+  const char* begin = text.c_str();
+  const char* end = begin + text.length();
+  const char* current = begin;
+  while (current != end) {
     char c = *current++;
-    if ( c == '\r' ) { // mac or dos EOL
-      if ( *current == '\n' ) // convert dos EOL
+    if (c == '\r') {   // mac or dos EOL
+      if (*current == '\n')   // convert dos EOL
         ++current;
       normalized += '\n';
     } else // handle unix EOL & other char
@@ -14139,7 +14139,7 @@ StyledStreamWriter::normalizeEOL( const std::string &text )
 }
 
 
-std::ostream& operator<<( std::ostream &sout, const Value &root )
+std::ostream& operator<<(std::ostream& sout, const Value& root)
 {
   Json::StyledStreamWriter writer;
   writer.write(sout, root);
@@ -14198,64 +14198,64 @@ THE SOFTWARE.
 namespace Json
 {
 
-CustomWriter::CustomWriter( std::string opencurly,
-                            std::string closecurly,
-                            std::string opensquare,
-                            std::string closesquare,
-                            std::string colon,
-                            std::string comma,
-                            std::string indent,
-                            int maxWidth)
-  : opencurly_( opencurly )
-, closecurly_( closecurly )
-, opensquare_( opensquare )
-, closesquare_( closesquare )
-, colon_( colon )
-, comma_( comma )
-, indent_( indent )
-, maxWidth_( maxWidth )
+CustomWriter::CustomWriter(std::string opencurly,
+                           std::string closecurly,
+                           std::string opensquare,
+                           std::string closesquare,
+                           std::string colon,
+                           std::string comma,
+                           std::string indent,
+                           int maxWidth)
+  : opencurly_(opencurly)
+, closecurly_(closecurly)
+, opensquare_(opensquare)
+, closesquare_(closesquare)
+, colon_(colon)
+, comma_(comma)
+, indent_(indent)
+, maxWidth_(maxWidth)
 {
 }
 
 
 std::string
-CustomWriter::write( const Value &root )
+CustomWriter::write(const Value& root)
 {
   document_ = "";
   indentString_ = "";
-  writeValue( root, document_, false );
+  writeValue(root, document_, false);
   document_ += "\n";
   return document_;
 }
 
 
 void
-CustomWriter::writeValue( const Value &value, std::string &doc, bool forceSingleLine )
+CustomWriter::writeValue(const Value& value, std::string& doc, bool forceSingleLine)
 {
-  switch ( value.type() ) {
+  switch (value.type()) {
   case nullValue:
     doc += "null";
     break;
   case intValue:
-    doc += valueToString( value.asLargestInt() );
+    doc += valueToString(value.asLargestInt());
     break;
   case uintValue:
-    doc += valueToString( value.asLargestUInt() );
+    doc += valueToString(value.asLargestUInt());
     break;
   case realValue:
-    doc += valueToString( value.asDouble() );
+    doc += valueToString(value.asDouble());
     break;
   case stringValue:
-    doc += valueToQuotedString( value.asCString() );
+    doc += valueToQuotedString(value.asCString());
     break;
   case booleanValue:
-    doc += valueToString( value.asBool() );
+    doc += valueToString(value.asBool());
     break;
   case arrayValue: {
     bool isMulti = false;
     if (!forceSingleLine) {
       std::string valLine = "";
-      writeValue( value, valLine, true);
+      writeValue(value, valLine, true);
       if (valLine.length() > maxWidth_) {
         isMulti = true;
       } else {
@@ -14266,13 +14266,13 @@ CustomWriter::writeValue( const Value &value, std::string &doc, bool forceSingle
     doc += opensquare_;
     if (isMulti)
       indent();
-    for ( int index =0; index < value.size(); ++index ) {
+    for (int index = 0; index < value.size(); ++index) {
       if (isMulti) {
         doc += "\n";
         doc += indentString_;
       }
-      writeValue( value[index], doc, false );
-      if ( index < value.size()-1 )
+      writeValue(value[index], doc, false);
+      if (index < value.size() - 1)
         doc += comma_;
     }
     if (isMulti) {
@@ -14287,7 +14287,7 @@ CustomWriter::writeValue( const Value &value, std::string &doc, bool forceSingle
     bool isMulti = false;
     if (!forceSingleLine) {
       std::string valLine = "";
-      writeValue( value, valLine, true);
+      writeValue(value, valLine, true);
       if (valLine.length() > maxWidth_) {
         isMulti = true;
       } else {
@@ -14295,23 +14295,23 @@ CustomWriter::writeValue( const Value &value, std::string &doc, bool forceSingle
         break;
       }
     }
-    Value::Members members( value.getMemberNames() );
+    Value::Members members(value.getMemberNames());
     doc += opencurly_;
     if (isMulti)
       indent();
-    for ( Value::Members::iterator it = members.begin();
-          it != members.end();
-          ++it ) {
+    for (Value::Members::iterator it = members.begin();
+         it != members.end();
+         ++it) {
       if (isMulti) {
         doc += "\n";
         doc += indentString_;
 
       }
-      const std::string &name = *it;
-      doc += valueToQuotedString( name.c_str() );
+      const std::string& name = *it;
+      doc += valueToQuotedString(name.c_str());
       doc += colon_;
-      writeValue( value[name], doc, forceSingleLine );
-      if ( !(it + 1 == members.end()) )
+      writeValue(value[name], doc, forceSingleLine);
+      if (!(it + 1 == members.end()))
         doc += comma_;
     }
     if (isMulti) {
@@ -14339,7 +14339,7 @@ CustomWriter::unindent()
   int idSize = int(indent_.size());
   int idsSize = int(indentString_.size());
   if (idsSize >= idSize)
-    indentString_.resize (idsSize - idSize);
+    indentString_.resize(idsSize - idSize);
 }
 
 }
@@ -14420,7 +14420,7 @@ void pyne::Material::_load_comp_protocol0(hid_t db, std::string datapath, int ro
   for (int matg = 0; matg < matG; matg++) {
     nuckeylen = 1 + H5Lget_name_by_idx(matgroup, ".", H5_INDEX_NAME, H5_ITER_INC, matg,
                                        NULL, 0, H5P_DEFAULT);
-    char * nkey = new char[nuckeylen];
+    char* nkey = new char[nuckeylen];
     nuckeylen = H5Lget_name_by_idx(matgroup, ".", H5_INDEX_NAME, H5_ITER_INC, matg,
                                    nkey, nuckeylen, H5P_DEFAULT);
     nuckey = nkey;
@@ -14463,7 +14463,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath, int ro
   hsize_t nuc_attr_len = nuc_info.data_size;
   hid_t str_attr = H5Tcopy(H5T_C_S1);
   H5Tset_size(str_attr, nuc_attr_len);
-  char * nucpathbuf = new char [nuc_attr_len];
+  char* nucpathbuf = new char [nuc_attr_len];
   H5Aread(nuc_attr, str_attr, nucpathbuf);
   nucpath = std::string(nucpathbuf, nuc_attr_len);
   delete[] nucpathbuf;
@@ -14482,7 +14482,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath, int ro
   hid_t mem_space = H5Screate_simple(1, data_count, NULL);
 
   // Get material type
-  size_t material_data_size = sizeof(pyne::material_data) + sizeof(double)*(nuc_size-1);
+  size_t material_data_size = sizeof(pyne::material_data) + sizeof(double) * (nuc_size - 1);
   hid_t desc = H5Tcreate(H5T_COMPOUND, material_data_size);
   hid_t comp_values_array_type = H5Tarray_create2(H5T_NATIVE_DOUBLE, 1, nuc_dims);
 
@@ -14495,7 +14495,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath, int ro
   H5Tinsert(desc, "comp", HOFFSET(pyne::material_data, comp), comp_values_array_type);
 
   // make the data array, have to over-allocate
-  material_data * mat_data = new material_data [material_data_size];
+  material_data* mat_data = new material_data [material_data_size];
 
   // Finally, get data and put in on this instance
   H5Dread(data_set, desc, mem_space, data_hyperslab, H5P_DEFAULT, mat_data);
@@ -14504,7 +14504,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath, int ro
   density = (*mat_data).density;
   atoms_per_molecule = (*mat_data).atoms_per_mol;
   for (int i = 0; i < nuc_size; i++)
-    comp[nuclides[i]] = (double) (*mat_data).comp[i];
+    comp[nuclides[i]] = (double)(*mat_data).comp[i];
 
   delete[] mat_data;
   H5Tclose(str_attr);
@@ -14532,7 +14532,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath, int ro
 
   // convert to in-memory JSON
   Json::Reader reader;
-  reader.parse((char *) attrdata[0].p, (char *) attrdata[0].p+attrdata[0].len, metadata, false);
+  reader.parse((char*) attrdata[0].p, (char*) attrdata[0].p + attrdata[0].len, metadata, false);
 
   // close attr data objects
   H5Fflush(db, H5F_SCOPE_GLOBAL);
@@ -14548,10 +14548,10 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath, int ro
 
 
 
-void pyne::Material::from_hdf5(char * filename, char * datapath, int row, int protocol)
+void pyne::Material::from_hdf5(char* filename, char* datapath, int row, int protocol)
 {
-  std::string fname (filename);
-  std::string dpath (datapath);
+  std::string fname(filename);
+  std::string dpath(datapath);
   from_hdf5(fname, dpath, row, protocol);
 }
 
@@ -14575,7 +14575,7 @@ void pyne::Material::from_hdf5(std::string filename, std::string datapath, int r
   //Set file access properties so it closes cleanly
   hid_t fapl;
   fapl = H5Pcreate(H5P_FILE_ACCESS);
-  H5Pset_fclose_degree(fapl,H5F_CLOSE_STRONG);
+  H5Pset_fclose_degree(fapl, H5F_CLOSE_STRONG);
   // Open the database
   hid_t db = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, fapl);
 
@@ -14605,11 +14605,11 @@ void pyne::Material::from_hdf5(std::string filename, std::string datapath, int r
 
 
 
-void pyne::Material::write_hdf5(char * filename, char * datapath, char * nucpath, float row, int chunksize)
+void pyne::Material::write_hdf5(char* filename, char* datapath, char* nucpath, float row, int chunksize)
 {
-  std::string fname (filename);
-  std::string groupname (datapath);
-  std::string nuclist (nucpath);
+  std::string fname(filename);
+  std::string groupname(datapath);
+  std::string nuclist(nucpath);
   write_hdf5(fname, groupname, nuclist, row, chunksize);
 }
 
@@ -14626,7 +14626,7 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
   //Set file access properties so it closes cleanly
   hid_t fapl;
   fapl = H5Pcreate(H5P_FILE_ACCESS);
-  H5Pset_fclose_degree(fapl,H5F_CLOSE_STRONG);
+  H5Pset_fclose_degree(fapl, H5F_CLOSE_STRONG);
   // Create new/open datafile.
   hid_t db;
   if (pyne::file_exists(filename)) {
@@ -14677,7 +14677,7 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
   hsize_t data_max_dims[1] = {H5S_UNLIMITED};
   hsize_t data_offset[1] = {0};
 
-  size_t material_data_size = sizeof(pyne::material_data) + sizeof(double)*(nuc_size-1);
+  size_t material_data_size = sizeof(pyne::material_data) + sizeof(double) * (nuc_size - 1);
   hid_t desc = H5Tcreate(H5T_COMPOUND, material_data_size);
   hid_t comp_values_array_type = H5Tarray_create2(H5T_NATIVE_DOUBLE, 1, nuc_dims);
 
@@ -14690,7 +14690,7 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
   H5Tinsert(desc, "comp", HOFFSET(pyne::material_data, comp),
             comp_values_array_type);
 
-  material_data * mat_data  = new material_data[material_data_size];
+  material_data* mat_data  = new material_data[material_data_size];
   (*mat_data).mass = mass;
   (*mat_data).density = density;
   (*mat_data).atoms_per_mol = atoms_per_molecule;
@@ -14798,7 +14798,7 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
 
     hvl_t attrfillvalue [1];
     attrfillvalue[0].len = 3;
-    attrfillvalue[0].p = (char *) "{}\n";
+    attrfillvalue[0].p = (char*) "{}\n";
     H5Pset_fill_value(metadataetparams, attrtype, &attrfillvalue);
 
     // make dataset
@@ -14813,7 +14813,7 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
   hvl_t attrdata [1];
   Json::FastWriter writer;
   std::string metadatatr = writer.write(metadata);
-  attrdata[0].p = (char *) metadatatr.c_str();
+  attrdata[0].p = (char*) metadatatr.c_str();
   attrdata[0].len = metadatatr.length();
 
   // write the attr
@@ -14860,11 +14860,11 @@ std::string pyne::Material::mcnp(std::string frac_type)
     if (comment_string.length() <= 77) {
       oss << "C " << comment_string << std::endl;
     } else { // otherwise create a remainder string and iterate/update it
-      oss << "C " << comment_string.substr(0,77) << std::endl;
+      oss << "C " << comment_string.substr(0, 77) << std::endl;
       std::string remainder_string = comment_string.substr(77);
       while (remainder_string.length() > 77) {
-        oss << "C " << remainder_string.substr(0,77) << std::endl;
-        remainder_string.erase(0,77);
+        oss << "C " << remainder_string.substr(0, 77) << std::endl;
+        remainder_string.erase(0, 77);
       }
       if (remainder_string.length() > 0) {
         oss << "C " << remainder_string << std::endl;
@@ -14898,7 +14898,7 @@ std::string pyne::Material::mcnp(std::string frac_type)
   std::stringstream ss;
   std::string nucmcnp;
   std::string table_item;
-  for(pyne::comp_iter i = fracs.begin(); i != fracs.end(); ++i) {
+  for (pyne::comp_iter i = fracs.begin(); i != fracs.end(); ++i) {
     if (i->second > 0.0) {
       // Clear first
       ss.str(std::string());
@@ -14929,7 +14929,7 @@ std::string pyne::Material::mcnp(std::string frac_type)
 ///---------------------------------------------------------------------------//
 /// Create a set out of the static string array.
 std::set<std::string> fluka_builtin(pyne::fluka_mat_strings,
-                                    pyne::fluka_mat_strings+pyne::FLUKA_MAT_NUM);
+                                    pyne::fluka_mat_strings + pyne::FLUKA_MAT_NUM);
 
 ///---------------------------------------------------------------------------//
 /// not_fluka_builtin
@@ -14982,7 +14982,7 @@ std::string pyne::Material::fluka_material_str(int id)
   if (metadata.isMember("fluka_name")) {
     fluka_name = metadata["fluka_name"].asString();
   } else {  // Should be elemental
-    if (comp.size() > 1 ) {
+    if (comp.size() > 1) {
       std::cerr << "Error: this mix is a compound, there should be a fluka_name defined."
                 << std::endl;
       return ms.str();
@@ -15030,7 +15030,7 @@ std::string pyne::Material::fluka_material_line(int znum, double atomic_mass,
 {
   std::stringstream ls;
 
-  if (metadata.isMember("comments") ) {
+  if (metadata.isMember("comments")) {
     std::string comment = metadata["comments"].asString();
     ls << "* " << comment;
     ls << std::endl;
@@ -15041,7 +15041,7 @@ std::string pyne::Material::fluka_material_line(int znum, double atomic_mass,
 
   ls << fluka_format_field(atomic_mass);
   // Note this is the current object density, and may or may not be meaningful
-  ls << fluka_format_field(std::sqrt(density*density));
+  ls << fluka_format_field(std::sqrt(density * density));
 
   ls << std::setprecision(0) << std::fixed << std::showpoint <<
      std::setw(10) << std::right << (float)fid;
@@ -15064,7 +15064,7 @@ std::string pyne::Material::fluka_format_field(float field)
 {
   std::stringstream ls;
   double intpart;
-  modf (field, &intpart);
+  modf(field, &intpart);
   if (field == intpart) {
     ls << std::setprecision(0) << std::fixed << std::showpoint
        << std::setw(10) << std::right << field;
@@ -15156,7 +15156,7 @@ std::string pyne::Material::fluka_compound_str(int id, std::string frac_type)
     nuc++;
     temp_s.str("");
 
-    if  (nuc != comp.end()) {
+    if (nuc != comp.end()) {
       temp_s << frac_sign << nuc->second;
       ss << std::setw(10) << std::right << temp_s.str();
       ss << std::setw(10) << std::right << nucname::fluka(nuc->first);
@@ -15176,9 +15176,9 @@ std::string pyne::Material::fluka_compound_str(int id, std::string frac_type)
   return ss.str();
 }
 
-void pyne::Material::from_text(char * filename)
+void pyne::Material::from_text(char* filename)
 {
-  std::string fname (filename);
+  std::string fname(filename);
   from_text(fname);
 }
 
@@ -15197,7 +15197,7 @@ void pyne::Material::from_text(std::string filename)
   comp.clear();
   std::string keystr, valstr;
 
-  while ( !f.eof() ) {
+  while (!f.eof()) {
     f >> keystr;
 
     if (0 == keystr.length())
@@ -15218,8 +15218,8 @@ void pyne::Material::from_text(std::string filename)
       comp[pyne::nucname::id(keystr)] = pyne::to_dbl(valstr);
     } else {
       getline(f, valstr);
-      valstr= valstr.substr(0, valstr.length()-1);
-      metadata[keystr]= valstr;
+      valstr = valstr.substr(0, valstr.length() - 1);
+      metadata[keystr] = valstr;
       continue;
     }
   }
@@ -15230,9 +15230,9 @@ void pyne::Material::from_text(std::string filename)
 
 
 
-void pyne::Material::write_text(char * filename)
+void pyne::Material::write_text(char* filename)
 {
-  std::string fname (filename);
+  std::string fname(filename);
   write_text(fname);
 }
 
@@ -15254,13 +15254,13 @@ void pyne::Material::write_text(std::string filename)
   if (0 <= atoms_per_molecule)
     f << "APerM   " << atoms_per_molecule << "\n";
 
-  for (int i=0; i < metadata.size(); i=i+2) {
-    f <<metadata.get(obj.at(i), "") << metadata.get(obj.at(i+1), "");
+  for (int i = 0; i < metadata.size(); i = i + 2) {
+    f << metadata.get(obj.at(i), "") << metadata.get(obj.at(i + 1), "");
   }
 
   std::string nuc_name;
-  for(pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
-    nuc_name = pyne::nucname::name( i->first ) + "  ";
+  for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
+    nuc_name = pyne::nucname::name(i->first) + "  ";
     while (nuc_name.length() < 8)
       nuc_name += " ";
     f << nuc_name << i->second << "\n";
@@ -15294,16 +15294,16 @@ Json::Value pyne::Material::dump_json()
   json["density"] = density;
   json["atoms_per_molecule"] = atoms_per_molecule;
   json["metadata"] = metadata;
-  for(comp_iter i = comp.begin(); i != comp.end(); i++)
+  for (comp_iter i = comp.begin(); i != comp.end(); i++)
     jcomp[nucname::name(i->first)] = (i->second);
   json["comp"] = jcomp;
   return json;
 }
 
 
-void pyne::Material::from_json(char * filename)
+void pyne::Material::from_json(char* filename)
 {
-  std::string fname (filename);
+  std::string fname(filename);
   from_json(fname);
 }
 
@@ -15312,7 +15312,7 @@ void pyne::Material::from_json(std::string filename)
   if (!pyne::file_exists(filename))
     throw pyne::FileNotFound(filename);
   std::string s;
-  std::ifstream f (filename.c_str(), std::ios::in | std::ios::binary);
+  std::ifstream f(filename.c_str(), std::ios::in | std::ios::binary);
   f.seekg(0, std::ios::end);
   s.resize(f.tellg());
   f.seekg(0, std::ios::beg);
@@ -15325,9 +15325,9 @@ void pyne::Material::from_json(std::string filename)
 }
 
 
-void pyne::Material::write_json(char * filename)
+void pyne::Material::write_json(char* filename)
 {
-  std::string fname (filename);
+  std::string fname(filename);
   write_json(fname);
 }
 
@@ -15365,7 +15365,7 @@ pyne::Material::Material(pyne::comp_map cm, double m, double d, double apm,
   // Initializes the mass stream based on an isotopic component dictionary.
   comp = cm;
   mass = m;
-  density=d;
+  density = d;
   atoms_per_molecule = apm;
   metadata = attributes;
   if (!comp.empty())
@@ -15374,16 +15374,16 @@ pyne::Material::Material(pyne::comp_map cm, double m, double d, double apm,
 
 
 
-pyne::Material::Material(char * filename, double m, double d, double apm,
+pyne::Material::Material(char* filename, double m, double d, double apm,
                          Json::Value attributes)
 {
   mass = m;
-  density=d;
+  density = d;
   atoms_per_molecule = apm;
   metadata = attributes;
 
   // Check that the file is there
-  std::string fname (filename);
+  std::string fname(filename);
   if (!pyne::file_exists(fname))
     throw pyne::FileNotFound(fname);
 
@@ -15401,7 +15401,7 @@ pyne::Material::Material(std::string filename, double m, double d, double apm,
 {
   // Initializes the mass stream based on an isotopic composition file with a string name.
   mass = m;
-  density=d;
+  density = d;
   atoms_per_molecule = apm;
   metadata = attributes;
 
@@ -15432,8 +15432,8 @@ std::ostream& operator<<(std::ostream& os, pyne::Material mat)
   //print the Mass Stream to stdout
   os << "\tMass: " << mat.mass << "\n";
   os << "\t---------\n";
-  for(pyne::comp_iter i = mat.comp.begin(); i != mat.comp.end(); i++) {
-    os << "\t" << pyne::nucname::name( i->first ) << "\t" << i->second << "\n";
+  for (pyne::comp_iter i = mat.comp.begin(); i != mat.comp.end(); i++) {
+    os << "\t" << pyne::nucname::name(i->first) << "\t" << i->second << "\n";
   }
   return os;
 }
@@ -15444,7 +15444,7 @@ std::ostringstream& operator<<(std::ostringstream& os, pyne::Material mat)
   return os;
 }
 
-void pyne::Material::normalize ()
+void pyne::Material::normalize()
 {
   // normalizes the mass
   mass = 1.0;
@@ -15564,16 +15564,16 @@ pyne::Material pyne::Material::expand_elements()
   abund_end = pyne::natural_abund_map.end();
   zabund = nucname::znum((*abund_itr).first);
   for (comp_iter nuc = comp.begin(); nuc != comp.end(); nuc++) {
-    if(abund_itr == abund_end)
+    if (abund_itr == abund_end)
       newcomp.insert(*nuc);
-    else if(0 == nucname::anum((*nuc).first)) {
+    else if (0 == nucname::anum((*nuc).first)) {
       n = (*nuc).first;
       znuc = nucname::znum(n);
       if (znuc < zabund) {
         newcomp.insert(*nuc);
         continue;
       }
-      while(zabund <= znuc) {
+      while (zabund <= znuc) {
         nabund = (*abund_itr).first;
         if (zabund == znuc && 0 != nucname::anum(nabund) && 0.0 != (*abund_itr).second)
           newcomp[nabund] = (*abund_itr).second * (*nuc).second * \
@@ -15618,8 +15618,8 @@ pyne::Material pyne::Material::collapse_elements(std::set<int> exception_ids)
     if (0 < ptr->second) {
       // There is a nonzero amount of this nucid in the current material,
       // check if znum and anum are in the exception list,
-      int cur_stripped_id = nucname::znum(ptr->first)*10000000
-                            + nucname::anum(ptr->first)*10000;
+      int cur_stripped_id = nucname::znum(ptr->first) * 10000000
+                            + nucname::anum(ptr->first) * 10000;
       if (0 < exception_ids.count(cur_stripped_id)) {
         // The znum/anum combination identify the current material as a
         // fluka-named exception list => copy, don't collapse
@@ -15638,11 +15638,11 @@ pyne::Material pyne::Material::collapse_elements(std::set<int> exception_ids)
 }
 
 // Wrapped version for calling from python
-pyne::Material pyne::Material::collapse_elements(int** int_ptr_arry )
+pyne::Material pyne::Material::collapse_elements(int** int_ptr_arry)
 {
   std::set<int> nucvec;
   // Set first pointer to first int pointed to by arg
-  int *int_ptr = *int_ptr_arry;
+  int* int_ptr = *int_ptr_arry;
   while (int_ptr != NULL) {
     nucvec.insert(*int_ptr);
     int_ptr++;
@@ -15679,7 +15679,7 @@ pyne::Material pyne::Material::sub_mat(std::set<int> nucset)
 
   pyne::comp_map cm;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
-    if ( 0 < nucset.count(i->first) )
+    if (0 < nucset.count(i->first))
       cm[i->first] = (i->second) * mass;
   }
 
@@ -15702,7 +15702,7 @@ pyne::Material pyne::Material::sub_mat(std::set<std::string> nucset)
 
 
 
-pyne::Material pyne::Material::set_mat (std::set<int> nucset, double value)
+pyne::Material pyne::Material::set_mat(std::set<int> nucset, double value)
 {
   // Sets a sub-material from this mat based on a set of integers.
   // Integers can either be of id form -OR- they can be a z-numer (is 8 for O, 93 for Np, etc).
@@ -15712,7 +15712,7 @@ pyne::Material pyne::Material::set_mat (std::set<int> nucset, double value)
 
   // Add non-set components
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
-    if ( 0 == nucset.count(i->first) )
+    if (0 == nucset.count(i->first))
       cm[i->first] = (i->second) * mass;
   }
 
@@ -15749,7 +15749,7 @@ pyne::Material pyne::Material::del_mat(std::set<int> nucset)
   pyne::comp_map cm;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
     // Only add to new comp if not in nucset
-    if ( 0 == nucset.count(i->first) )
+    if (0 == nucset.count(i->first))
       cm[i->first] = (i->second) * mass;
   }
 
@@ -15758,7 +15758,7 @@ pyne::Material pyne::Material::del_mat(std::set<int> nucset)
 
 
 
-pyne::Material pyne::Material::del_mat (std::set<std::string> nucset)
+pyne::Material pyne::Material::del_mat(std::set<std::string> nucset)
 {
   // Removes a substream from this stream based on a set of strings.
   // Strings can be of any form.
@@ -15790,7 +15790,7 @@ pyne::Material pyne::Material::sub_range(int lower, int upper)
       cm[i->first] = (i->second) * mass;
   }
 
-  return pyne::Material(cm, -1,-1);
+  return pyne::Material(cm, -1, -1);
 }
 
 
@@ -15812,7 +15812,7 @@ pyne::Material pyne::Material::set_range(int lower, int upper, double value)
       cm[i->first] = (i->second) * mass;
   }
 
-  return pyne::Material(cm, -1,-1);
+  return pyne::Material(cm, -1, -1);
 }
 
 
@@ -16005,7 +16005,7 @@ std::vector<std::pair<double, double> > pyne::Material::normalize_radioactivity(
   for (int i = 0; i < unnormed.size(); ++i) {
     if (!isnan(unnormed[i].second)) {
       normed.push_back(std::make_pair(unnormed[i].first,
-                                      (unnormed[i].second)/sum));
+                                      (unnormed[i].second) / sum));
     }
   }
   return normed;
@@ -16039,14 +16039,14 @@ pyne::Material pyne::Material::operator+ (Material y)
   pyne::comp_map ywgt = y.mult_by_mass();
 
   for (pyne::comp_iter i = xwgt.begin(); i != xwgt.end(); i++) {
-    if ( 0 < ywgt.count(i->first) )
+    if (0 < ywgt.count(i->first))
       cm[i->first] = xwgt[i->first] + ywgt[i->first];
     else
       cm[i->first] = xwgt[i->first];
   }
 
   for (pyne::comp_iter i = ywgt.begin(); i != ywgt.end(); i++) {
-    if ( 0 == cm.count(i->first) )
+    if (0 == cm.count(i->first))
       cm[i->first] = ywgt[i->first];
   }
 
@@ -16066,7 +16066,7 @@ pyne::Material pyne::Material::operator* (double y)
 pyne::Material pyne::Material::operator/ (double y)
 {
   // Overloads x / y
-  return pyne::Material(comp, mass / y, density );
+  return pyne::Material(comp, mass / y, density);
 }
 //
 // end of src/material.cpp
@@ -16125,7 +16125,7 @@ pyne::Tally::Tally()
 pyne::Tally::Tally(std::string type, std::string part_name,
                    int ent, std::string ent_type,
                    std::string ent_name, std::string tal_name,
-                   double size, double norm )
+                   double size, double norm)
 {
 
   // Empty Tally Constructor
@@ -16147,11 +16147,11 @@ pyne::Tally::~Tally()
 
 /*--- Method definitions ---*/
 //
-void pyne::Tally::from_hdf5(char * filename, char *datapath, int row)
+void pyne::Tally::from_hdf5(char* filename, char* datapath, int row)
 {
   std::string fname(filename);
   std::string dpath(datapath);
-  from_hdf5(fname,dpath,row);
+  from_hdf5(fname, dpath, row);
 }
 
 //
@@ -16188,15 +16188,15 @@ void pyne::Tally::from_hdf5(std::string filename, std::string datapath,
   hsize_t chunk_dimsr[1];
   int rank_chunk;
 
-  if(H5D_CHUNKED == H5Pget_layout(prop))
+  if (H5D_CHUNKED == H5Pget_layout(prop))
     rank_chunk = H5Pget_chunk(prop, rank, chunk_dimsr);
 
   // allocate memory for data from file
   tally_struct* read_data = new tally_struct[dims[0]];
 
   // if row number is larger than data set only give last element
-  if ( row >= dims[0] )
-    data_row = dims[0]-1;
+  if (row >= dims[0])
+    data_row = dims[0] - 1;
 
 
   // Create variable-length string datatype.
@@ -16234,11 +16234,11 @@ void pyne::Tally::from_hdf5(std::string filename, std::string datapath,
 }
 
 // Dummy Wrapper around C Style Functions
-void pyne::Tally::write_hdf5(char * filename, char * datapath)
+void pyne::Tally::write_hdf5(char* filename, char* datapath)
 {
   std::string fname(filename);
   std::string groupname(datapath);
-  write_hdf5(fname,groupname);
+  write_hdf5(fname, groupname);
 }
 
 // create filetype
@@ -16251,7 +16251,7 @@ hid_t pyne::Tally::create_filetype()
   status = H5Tset_size(strtype, H5T_VARIABLE);
 
   hid_t filetype = H5Tcreate(H5T_COMPOUND, 8 + 8 + 8 +
-                             (3*sizeof(hvl_t)) + 8 + 8);
+                             (3 * sizeof(hvl_t)) + 8 + 8);
   status = H5Tinsert(filetype, "entity_id", 0, H5T_STD_I64BE);
   status = H5Tinsert(filetype, "entity_type", 8, H5T_STD_I64BE);
   status = H5Tinsert(filetype, "tally_type", 8 + 8, H5T_STD_I64BE);
@@ -16259,11 +16259,11 @@ hid_t pyne::Tally::create_filetype()
   status = H5Tinsert(filetype, "entity_name", 8 + 8 + 8 +
                      sizeof(hvl_t), strtype);
   status = H5Tinsert(filetype, "tally_name", 8 + 8 + 8 +
-                     (2*sizeof(hvl_t)) , strtype);
+                     (2 * sizeof(hvl_t)) , strtype);
   status = H5Tinsert(filetype, "entity_size", 8 + 8 + 8 +
-                     (3*sizeof(hvl_t)), H5T_IEEE_F64BE);
+                     (3 * sizeof(hvl_t)), H5T_IEEE_F64BE);
   status = H5Tinsert(filetype, "normalization", 8 + 8 + 8 +
-                     (3*sizeof(hvl_t)) + 8, H5T_IEEE_F64BE);
+                     (3 * sizeof(hvl_t)) + 8, H5T_IEEE_F64BE);
   return filetype;
 }
 
@@ -16288,9 +16288,9 @@ hid_t pyne::Tally::create_memtype()
   status = H5Tinsert(memtype, "particle_name",
                      HOFFSET(tally_struct, particle_name),
                      strtype);
-  status = H5Tinsert(memtype, "entity_name",HOFFSET(tally_struct, entity_name),
+  status = H5Tinsert(memtype, "entity_name", HOFFSET(tally_struct, entity_name),
                      strtype);
-  status = H5Tinsert(memtype, "tally_name",HOFFSET(tally_struct, tally_name),
+  status = H5Tinsert(memtype, "tally_name", HOFFSET(tally_struct, tally_name),
                      strtype);
   status = H5Tinsert(memtype, "entity_size",
                      HOFFSET(tally_struct, entity_size), H5T_NATIVE_DOUBLE);
@@ -16304,7 +16304,7 @@ hid_t pyne::Tally::create_dataspace(hid_t file, std::string datapath)
   // enable chunking
   hid_t prop = H5Pcreate(H5P_DATASET_CREATE);
   // set chunk size
-  hsize_t chunk_dimensions[1]= {1};
+  hsize_t chunk_dimensions[1] = {1};
   herr_t status = H5Pset_chunk(prop, 1, chunk_dimensions);
 
   // allow varaible length strings
@@ -16373,7 +16373,7 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath)
   if (is_exist && !is_h5)
     throw h5wrap::FileNotHDF5(filename);
 
-  if (!is_exist ) { // is a new file
+  if (!is_exist) {  // is a new file
     hid_t file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
                            H5P_DEFAULT);
     // create a dataspace
@@ -16391,7 +16391,7 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath)
     //    status = H5Tclose(filetype);
     status = H5Fclose(file);
 
-  }  else if ( is_exist && is_h5 ) {// already exists and is an hdf file
+  }  else if (is_exist && is_h5) {  // already exists and is an hdf file
     // then we append the data to the end
     herr_t data_status; // iostatus
 
@@ -16399,13 +16399,13 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath)
     hid_t file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
 
     // see if path exists
-    data_status = H5Gget_objinfo (file, datapath.c_str(), 0, NULL);
+    data_status = H5Gget_objinfo(file, datapath.c_str(), 0, NULL);
 
     hid_t dset;
     // if fails neet to create dataset
     // still need to check that the datapath exists
     if (data_status != 0) { // doesnt exist
-      dset = create_dataspace(file,datapath.c_str());
+      dset = create_dataspace(file, datapath.c_str());
       hid_t memtype = create_memtype();
       herr_t status; // iostatus
 
@@ -16454,18 +16454,18 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath)
       dims[0] += 1;
 
       // Extend the dataset
-      status = H5Dextend(dset,dims);
+      status = H5Dextend(dset, dims);
       hid_t filespace = H5Dget_space(dset);
       // calculate the existing offset
       hsize_t offset[1] = {dims[0] - 1};
 
       // select hyerslab
       hsize_t new_length[1] = {1};
-      status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET,offset , NULL,
+      status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset , NULL,
                                    new_length, NULL);
 
       // create dataspace for new data
-      space = H5Screate_simple(1,new_length, NULL);
+      space = H5Screate_simple(1, new_length, NULL);
 
       // Write the dataset to memory
       status = H5Dwrite(dset, memtype, space, filespace, H5P_DEFAULT, tally_data);
@@ -16515,31 +16515,31 @@ std::string pyne::Tally::mcnp(int tally_index, std::string mcnp_version)
   // neednt check entity type
   if (entity_type.find("Surface") != std::string::npos) {
     if (tally_type.find("Current") != std::string::npos) {
-      output << "F"<< tally_index <<"1:" << particle_token
+      output << "F" << tally_index << "1:" << particle_token
              << " " << entity_id << std::endl;
       if (entity_size > 0.0)
-        output << "SD"<<tally_index <<"1 " << entity_size << std::endl;
+        output << "SD" << tally_index << "1 " << entity_size << std::endl;
       // normalisation
       if (normalization > 1.0)
         output << "FM" << tally_index << "1 " << normalization << std::endl;
     } else if (tally_type.find("Flux") != std::string::npos) {
-      output << "F"<< tally_index <<"2:" << particle_token
+      output << "F" << tally_index << "2:" << particle_token
              << " " << entity_id << std::endl;
       if (entity_size > 0.0)
-        output << "SD"<<tally_index <<"2 " << entity_size << std::endl;
+        output << "SD" << tally_index << "2 " << entity_size << std::endl;
       // normalisation
-      if(normalization > 1.0)
+      if (normalization > 1.0)
         output << "FM" << tally_index << "2 " << normalization << std::endl;
 
     }
   } else if (entity_type.find("Volume") != std::string::npos) {
     if (tally_type.find("Flux") != std::string::npos) {
-      output << "F"<< tally_index <<"4:" << particle_token << " "
+      output << "F" << tally_index << "4:" << particle_token << " "
              << entity_id << std::endl;
       if (entity_size > 0.0)
-        output << "SD"<<tally_index <<"4 " << entity_size << std::endl;
+        output << "SD" << tally_index << "4 " << entity_size << std::endl;
       // normalisation
-      if(normalization > 1.0)
+      if (normalization > 1.0)
         output << "FM" << tally_index << "4 " << normalization << std::endl;
     } else if (tally_type.find("Current") != std::string::npos) {
       // makes no sense in mcnp
@@ -16577,7 +16577,7 @@ std::string pyne::Tally::fluka(std::string unit_number)
            << pyne::particle::fluka(particle_name);
     output << std::setw(10) << std::right << unit_number;
     output << std::setw(10) << std::right << entity_name;
-    if(entity_size > 0.0) {
+    if (entity_size > 0.0) {
       output << std::scientific;
       output << std::setprecision(4);
       output << std::setw(10) << std::right << entity_size;
@@ -16606,7 +16606,7 @@ std::string pyne::Tally::fluka(std::string unit_number)
     output << std::setw(10) << std::right << unit_number;
     output << std::setw(10) << std::right << entity_name; // upstream
     output << std::setw(10) << std::right << entity_name; // downstream
-    if ( entity_size > 0.0 )
+    if (entity_size > 0.0)
       output << std::setw(10) << std::right << entity_size; // area
     else
       output << std::setw(10) << std::right << 1.0;
@@ -16653,35 +16653,35 @@ void pyne::_load_atomic_mass_map_memory()
 {
   // header version of atomic weight table data
   //see if the data table is already loaded
-  if(!atomic_mass_map.empty()) {
+  if (!atomic_mass_map.empty()) {
     return;
   } else {
     _insert_atomic_mass_map();
   }
   //see if the data table is already loaded
-  if(!natural_abund_map.empty()) {
+  if (!natural_abund_map.empty()) {
     return;
   } else {
     _insert_abund_map();
   }
   // calculate the atomic_masses of the elements
-  std::map<int,double> :: iterator it;
+  std::map<int, double> :: iterator it;
 
-  for ( int i = 0 ; i < 92 ; i++ ) {
+  for (int i = 0 ; i < 92 ; i++) {
     // loop through the natural abundance map
     double element_atomic_weight = 0.0;
     int atomic_number = i + 1;
-    for ( it = natural_abund_map.begin() ; it != natural_abund_map.end() ; ++it ) {
+    for (it = natural_abund_map.begin() ; it != natural_abund_map.end() ; ++it) {
       // if the atomic number of the abudance matches the
       // that of index
-      if(pyne::nucname::znum(it->first) == atomic_number ) {
+      if (pyne::nucname::znum(it->first) == atomic_number) {
         // take atomic abundance and multiply by mass
         // to get the mass of that nuclide / 100 since abundance is in %
-        element_atomic_weight += (it->second*atomic_mass_map[it->first]/100.0);
+        element_atomic_weight += (it->second * atomic_mass_map[it->first] / 100.0);
       }
     }
     // insert the abundance of the element into the list
-    atomic_mass_map[atomic_number*10000000] = element_atomic_weight;
+    atomic_mass_map[atomic_number * 10000000] = element_atomic_weight;
   }
 
 }
@@ -20372,9 +20372,9 @@ void pyne::_insert_abund_map()
 //       // if the atomic number of the abudance matches the
 //       // that of index
 //       if(pyne::nucname::znum(it->first) == atomic_number ) {
-// 	// take atomic abundance and multiply by mass
-// 	// to get the mass of that nuclide / 100 since abundance is in %
-// 	element_atomic_weight += (it->second*atomic_mass_map[it->first]/100.0);
+//  // take atomic abundance and multiply by mass
+//  // to get the mass of that nuclide / 100 since abundance is in %
+//  element_atomic_weight += (it->second*atomic_mass_map[it->first]/100.0);
 //       }
 //     }
 //     // insert the abundance of the element into the list

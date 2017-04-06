@@ -14,7 +14,7 @@
 TEST_F(MakeWatertightConeTest, SingleVertexMoveInXTest)
 {
   //bump in x direction
-  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -22,7 +22,7 @@ TEST_F(MakeWatertightConeTest, SingleVertexMoveInXTest)
 TEST_F(MakeWatertightConeTest, SingleVertexMoveInYTest)
 {
   //bump in y direction
-  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -30,7 +30,7 @@ TEST_F(MakeWatertightConeTest, SingleVertexMoveInYTest)
 TEST_F(MakeWatertightConeTest, SingleVertexMoveInZTest)
 {
   //bump in z direction
-  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -46,21 +46,21 @@ TEST_F(MakeWatertightConeTest, SingleVertexRandMoveTest)
 TEST_F(MakeWatertightConeTest, LockedVertexPairMoveInXTest)
 {
   //bump locked pair in x direction
-  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, LockedVertexPairMoveInYTest)
 {
   //bump locked pair in y direction
-  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, LockedVertexPairMoveInZTest)
 {
   //bump locked pair in z direction
-  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -76,21 +76,21 @@ TEST_F(MakeWatertightConeTest, LockedVertexPairRandMoveTest)
 TEST_F(MakeWatertightConeTest, RandomVertexPairMoveInXTest)
 {
   //bump random locked pair in x direction
-  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, RandomVertexPairMoveInYTest)
 {
   //bump random locked pair in y direction
-  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, RandomVertexPairMoveInZTest)
 {
   //bump random locked pair in z direction
-  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -105,21 +105,21 @@ TEST_F(MakeWatertightConeTest, RandomVertexPairRandMoveTest)
 TEST_F(MakeWatertightConeTest, AdjacentPlusOneVertexPairMoveInXTest)
 {
   //bump pair of verices in the x direction
-  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, AdjacentPlusOneVertexPairMoveInYTest)
 {
   //bump pair of verices in the y direction
-  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, AdjacentPlusOneVertexPairMoveInZTest)
 {
   //bump pair of verices in the z direction
-  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -134,21 +134,21 @@ TEST_F(MakeWatertightConeTest, AdjacentPlusOneVertexPairRandMoveTest)
 TEST_F(MakeWatertightConeTest, NonAdjacentVertexPairMoveInXTest)
 {
   //bump a non-adjacent pair of vertices in the x direction
-  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, NonAdjacentVertexPairMoveInYTest)
 {
   //bump a non-adjacent pair of vertices in the y direction
-  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightConeTest, NonAdjacentVertexPairMoveInZTest)
 {
   //bump a non-adjacent pair of vertices in the z direction
-  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }

@@ -10,7 +10,7 @@
 
 #include <iomanip>
 
-G4ThreadLocal G4Allocator<ExN01DetectorHit>* ExN01DetectorHitAllocator=0;
+G4ThreadLocal G4Allocator<ExN01DetectorHit>* ExN01DetectorHitAllocator = 0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -62,7 +62,7 @@ const ExN01DetectorHit& ExN01DetectorHit::operator=(const ExN01DetectorHit& righ
 
 G4int ExN01DetectorHit::operator==(const ExN01DetectorHit& right) const
 {
-  return ( this == &right ) ? 1 : 0;
+  return (this == &right) ? 1 : 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -92,9 +92,9 @@ void ExN01DetectorHit::Print()
       << "  trackID: " << fTrackID
       //     << std::setw(7) << G4BestUnit( fPos,"Length")
       << " Kinetic Energy: "
-      << std::setw(7) << G4BestUnit( fKe,"Energy")
+      << std::setw(7) << G4BestUnit(fKe, "Energy")
       << " Track Length: "
-      << std::setw(7) << G4BestUnit( fTl, "Length")
+      << std::setw(7) << G4BestUnit(fTl, "Length")
       << " Weight: "
       << std::setw(7) << fWeight
       << " name:"

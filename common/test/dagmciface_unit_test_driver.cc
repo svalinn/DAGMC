@@ -5,9 +5,9 @@
 
 int main(int argc, char* argv[])
 {
-  for ( int i = 0; i < argc; i++ ) {
+  for (int i = 0; i < argc; i++) {
     std::string arg = argv[i];
-    if ( arg == "--help" ) {
+    if (arg == "--help") {
       std::cout << "GTest flags" << std::endl;
       std::cout << "\t--gtest_list_tests List the tests" << std::endl;
       std::cout << "\t--gtest_repeat Number of times to repeat each test" << std::endl;
@@ -26,6 +26,6 @@ int main(int argc, char* argv[])
       return 0;
     }
   }
-  testing::InitGoogleTest ( &argc, argv );
+  testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

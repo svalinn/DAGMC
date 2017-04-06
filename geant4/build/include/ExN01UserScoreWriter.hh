@@ -25,7 +25,7 @@ class ExN01UserScoreWriter : public G4VScoreWriter
   moab::ErrorCode generate_moab_mesh(std::vector<double> x_bins,
                                      std::vector<double> y_bins,
                                      std::vector<double> z_bins,
-                                     std::vector<moab::EntityHandle> &mesh_elements);
+                                     std::vector<moab::EntityHandle>& mesh_elements);
 
  public:
   virtual void DumpAllQuantitiesToFile(const G4String& fileName,
@@ -34,5 +34,5 @@ class ExN01UserScoreWriter : public G4VScoreWriter
 
 };
 
-moab::Interface *MBI();
+moab::Interface* MBI();
 #endif

@@ -98,7 +98,7 @@ double KDEKernel::boundary_correction(const double* u,
     double correction_factor = coefficients[0];
 
     for (unsigned int i = 1; i <= num_corrections; ++i) {
-      correction_factor += u[i-1] * coefficients[i];
+      correction_factor += u[i - 1] * coefficients[i];
     }
 
     return correction_factor;

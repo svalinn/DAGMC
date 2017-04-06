@@ -31,7 +31,7 @@ TallyData::TallyData(unsigned int num_energy_bins, bool total_energy_bin)
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-std::pair <double,double> TallyData::get_data(unsigned int tally_point_index,
+std::pair <double, double> TallyData::get_data(unsigned int tally_point_index,
     unsigned int energy_bin) const
 {
   assert(energy_bin < num_energy_bins);

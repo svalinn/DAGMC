@@ -235,7 +235,7 @@ TEST_F(KDEIntegralTrackTest, ValidLimits)
   TallyEvent event;
   event.type = TallyEvent::TRACK;
   event.position = moab::CartVect(0.0, 0.0, 0.0);
-  double U_val = 1.0/sqrt(3.0);
+  double U_val = 1.0 / sqrt(3.0);
   event.direction = moab::CartVect(U_val, U_val, U_val);
   event.track_length = 1.0;
 
@@ -457,8 +457,8 @@ TEST_F(KDECollisionTest, EvaluateStandardKernel)
 TEST_F(KDECollisionTest, EvaluateNonBoundaryPoint)
 {
   // define boundary away from the calculation point
-  int boundary_data[3] = {-1, -1, -1};
-  double distance_data[3] = {-1.0, -1.0, -1.0};
+  int boundary_data[3] = { -1, -1, -1};
+  double distance_data[3] = { -1.0, -1.0, -1.0};
 
   // verify standard evaluate method called if no boundary correction used
   double score1 = test_evaluate_kernel(calculation_point,
@@ -483,8 +483,8 @@ TEST_F(KDECollisionTest, EvaluateNonBoundaryPoint)
 TEST_F(KDECollisionTest, EvaluateBoundaryPointOnZ)
 {
   // move calculation point onto the upper boundary along z-axis
-  int boundary_data[3] = {-1, -1, 1};
-  double distance_data[3] = {-1.0, -1.0, 0.0};
+  int boundary_data[3] = { -1, -1, 1};
+  double distance_data[3] = { -1.0, -1.0, 0.0};
 
   // verify standard evaluate method called if no boundary correction used
   double score1 = test_evaluate_kernel(calculation_point,

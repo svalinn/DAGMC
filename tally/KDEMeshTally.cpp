@@ -177,7 +177,7 @@ void KDEMeshTally::write_data(double num_histories)
 
   // tag tally and relative error results to the mesh for each tally point
   moab::ErrorCode rval = moab::MB_SUCCESS;
-  if(rval != moab::MB_SUCCESS) {
+  if (rval != moab::MB_SUCCESS) {
     std::cout << "This can't fail" << std::endl;
     exit(1);
   }
@@ -188,7 +188,7 @@ void KDEMeshTally::write_data(double num_histories)
     unsigned int point_index = get_entity_index(point);
 
     for (unsigned int j = 0; j < data->get_num_energy_bins(); ++ j) {
-      std::pair <double,double> tally_data = data->get_data(point_index,j);
+      std::pair <double, double> tally_data = data->get_data(point_index, j);
       double tally = tally_data.first;
       double error = tally_data.second;
 
@@ -218,7 +218,7 @@ void KDEMeshTally::write_data(double num_histories)
   rval = mbi->tag_get_handle("BANDWIDTH_TAG", 3,
                              moab::MB_TYPE_DOUBLE,
                              bandwidth_tag,
-                             moab::MB_TAG_MESH|moab::MB_TAG_CREAT);
+                             moab::MB_TAG_MESH | moab::MB_TAG_CREAT);
 
   assert(moab::MB_SUCCESS == rval);
 
@@ -275,7 +275,7 @@ void KDEMeshTally::parse_tally_options()
     std::string value = it->second;
 
     // process tally option according to key
-    if      (key == "hx") set_bandwidth_value(key, value, 0);
+    if (key == "hx") set_bandwidth_value(key, value, 0);
     else if (key == "hy") set_bandwidth_value(key, value, 1);
     else if (key == "hz") set_bandwidth_value(key, value, 2);
     else if (key == "kernel") {
@@ -419,7 +419,7 @@ moab::CartVect KDEMeshTally::get_optimal_bandwidth() const
 
   for (int i = 0; i < 3; ++i) {
     stdev = sqrt(variance[i] / (num_collisions - 1));
-    optimal_bandwidth[i] = 0.968625 * stdev * pow(num_collisions, -1.0/7.0);
+    optimal_bandwidth[i] = 0.968625 * stdev * pow(num_collisions, -1.0 / 7.0);
   }
 
   return optimal_bandwidth;

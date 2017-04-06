@@ -34,7 +34,7 @@ class MockEpanechnikovKernel : public KDEKernel
     MomentFunction moment(i, *this);
 
     // define the quadrature set for integrating the ith moment function
-    unsigned int n = 2 + (i/2);
+    unsigned int n = 2 + (i / 2);
     Quadrature quadrature(n);
 
     // evaluate the integral
@@ -202,8 +202,8 @@ TEST_F(KDEKernelTest, CreateHigherOrderKernel)
 TEST_F(BoundaryKernel1DTest, EvaluatePointAtLowerMax)
 {
   // test correction factor is one over the domain u = [-1, 1]
-  double u1[] = {-1.0, -0.8, -0.6, -0.4, -0.2,
-                 0.0,  0.2,  0.4,  0.6,  0.8, 1.0
+  double u1[] = { -1.0, -0.8, -0.6, -0.4, -0.2,
+                  0.0,  0.2,  0.4,  0.6,  0.8, 1.0
                 };
 
   for (int i = 0; i < 11; ++i) {
@@ -212,7 +212,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtLowerMax)
   }
 
   // test correction factor is zero outside the domain u = [-1, 1]
-  double u2[] = {-2.0, 2.0};
+  double u2[] = { -2.0, 2.0};
 
   double value2 = kernel->boundary_correction(&u2[0], &p_ratio, &side, 1);
   EXPECT_DOUBLE_EQ(0.0, value2);
@@ -228,8 +228,8 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtUpperMax)
   side = 1;
 
   // test correction factor is one over the domain u = [-1, 1]
-  double u1[] = {-1.0, -0.8, -0.6, -0.4, -0.2,
-                 0.0,  0.2,  0.4,  0.6,  0.8, 1.0
+  double u1[] = { -1.0, -0.8, -0.6, -0.4, -0.2,
+                  0.0,  0.2,  0.4,  0.6,  0.8, 1.0
                 };
 
   for (int i = 0; i < 11; ++i) {
@@ -238,7 +238,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtUpperMax)
   }
 
   // test correction factor is zero outside the domain u = [-1, 1]
-  double u2[] = {-2.0, 2.0};
+  double u2[] = { -2.0, 2.0};
 
   double value2 = kernel->boundary_correction(&u2[0], &p_ratio, &side, 1);
   EXPECT_DOUBLE_EQ(0.0, value2);
@@ -254,8 +254,8 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfLowerMax)
   p_ratio = 0.5;
 
   // define valid u and reference values
-  double u1[] = {-1.0, -0.8, -0.6, -0.4,
-                 -0.2,  0.0,  0.2,  0.5
+  double u1[] = { -1.0, -0.8, -0.6, -0.4,
+                  -0.2,  0.0,  0.2,  0.5
                 };
 
   double ref[] = {0.220500, 0.440999, 0.661499, 0.881998,
@@ -269,7 +269,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfLowerMax)
   }
 
   // test correction factor is zero outside the domain u = [-1, 0.5]
-  double u2[] = {-2.0, 0.8, 1.0, 2.0};
+  double u2[] = { -2.0, 0.8, 1.0, 2.0};
 
   for (int i = 0; i < 4; ++i) {
     double value2 = kernel->boundary_correction(&u2[i], &p_ratio, &side, 1);
@@ -285,8 +285,8 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfUpperMax)
   side = 1;
 
   // define valid u and reference values
-  double u1[] = {-0.5, -0.2, 0.0, 0.2,
-                 0.4,  0.6, 0.8, 1.0
+  double u1[] = { -0.5, -0.2, 0.0, 0.2,
+                  0.4,  0.6, 0.8, 1.0
                 };
 
   double ref[] = {1.874246, 1.543497, 1.322997, 1.102498,
@@ -300,7 +300,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfUpperMax)
   }
 
   // test correction factor is zero outside the domain u = [-0.5, 1]
-  double u2[] = {-2.0, -1.0, -0.8, 2.0};
+  double u2[] = { -2.0, -1.0, -0.8, 2.0};
 
   for (int i = 0; i < 4; ++i) {
     double value2 = kernel->boundary_correction(&u2[i], &p_ratio, &side, 1);
@@ -315,10 +315,10 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOnLowerBoundary)
   p_ratio = 0.0;
 
   // define valid u and reference values
-  double u1[] = {-1.0, -0.8, -0.6, -0.4, -0.2, 0.0};
+  double u1[] = { -1.0, -0.8, -0.6, -0.4, -0.2, 0.0};
 
-  double ref[] = {-5.894737, -3.368421, -0.842105,
-                  1.684211,  4.210526,  6.736842
+  double ref[] = { -5.894737, -3.368421, -0.842105,
+                   1.684211,  4.210526,  6.736842
                  };
 
   // test correction factor over the domain u = [-1, 0]
@@ -328,7 +328,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOnLowerBoundary)
   }
 
   // test correction factor is zero outside the domain u = [-1, 0]
-  double u2[] = {-2.0, 0.5, 1.0, 2.0};
+  double u2[] = { -2.0, 0.5, 1.0, 2.0};
 
   for (int i = 0; i < 4; ++i) {
     double value2 = kernel->boundary_correction(&u2[i], &p_ratio, &side, 1);
@@ -357,7 +357,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOnUpperBoundary)
   }
 
   // test correction factor is zero outside the domain u = [0, 1]
-  double u2[] = {-2.0, -0.5, -1.0, 2.0};
+  double u2[] = { -2.0, -0.5, -1.0, 2.0};
 
   for (int i = 0; i < 4; ++i) {
     double value2 = kernel->boundary_correction(&u2[i], &p_ratio, &side, 1);
@@ -371,8 +371,8 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOutsideMaxDistance)
   p_ratio = 1.5;
 
   // test correction factor is always one over the domain u = [-1, 1]
-  double u1[] = {-1.0, -0.8, -0.6, -0.4, -0.2,
-                 0.0,  0.2,  0.4,  0.6,  0.8, 1.0
+  double u1[] = { -1.0, -0.8, -0.6, -0.4, -0.2,
+                  0.0,  0.2,  0.4,  0.6,  0.8, 1.0
                 };
 
   for (int i = 0; i < 11; ++i) {
@@ -381,7 +381,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOutsideMaxDistance)
   }
 
   // test correction factor is zero outside the domain u = [-1, 1]
-  double u2[] = {-2.0, 2.0};
+  double u2[] = { -2.0, 2.0};
 
   double value2 = kernel->boundary_correction(&u2[0], &p_ratio, &side, 1);
   EXPECT_DOUBLE_EQ(0.0, value2);
@@ -396,7 +396,7 @@ TEST_F(BoundaryKernel1DTest, EvaluateNegativeDistanceRatio)
   p_ratio = -1.5;
 
   // test correction factor is always zero if p ratio is negative
-  double u2[] = {-2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0};
+  double u2[] = { -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0};
 
   for (int i = 0; i < 7; ++i) {
     double value2 = kernel->boundary_correction(&u2[i], &p_ratio, &side, 1);

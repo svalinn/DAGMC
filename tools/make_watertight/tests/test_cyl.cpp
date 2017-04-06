@@ -15,21 +15,21 @@
 TEST_F(MakeWatertightCylinderTest, SingleVertexMoveInXTest)
 {
   //bump vert in x direction
-  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, SingleVertexMoveInYTest)
 {
   //bump vert in y direction
-  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, SingleVertexMoveInZTest)
 {
   //bump vert in z direction
-  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = single_vert_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -58,21 +58,21 @@ TEST_F(MakeWatertightCylinderTest, SingleVertexRandMoveTest)
 TEST_F(MakeWatertightCylinderTest, LockedVertexPairMoveInXTest)
 {
   //bump a pair of verts in the same amount in the x direction
-  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, LockedVertexPairMoveInYTest)
 {
   //bump a pair of verts in the same amount in the y direction
-  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, LockedVertexPairMoveInZTest)
 {
   //bump a pair of verts in the same amount in the z direction
-  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -101,21 +101,21 @@ TEST_F(MakeWatertightCylinderTest, LockedVertexPairRandMoveTest)
 TEST_F(MakeWatertightCylinderTest, RandomVertexPairMoveInXTests)
 {
   //move a randomly selected locked pair of vertices in the x direction
-  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, RandomVertexPairMoveInYTest)
 {
   //move a randomly selected locked pair of vertices in the y direction
-  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, RandomVertexPairMoveInZTest)
 {
   //move a randomly selected locked pair of vertices in the z direction
-  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = rand_locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -144,21 +144,21 @@ TEST_F(MakeWatertightCylinderTest, RandomVertexPairRandMoveTest)
 TEST_F(MakeWatertightCylinderTest, AdjacentPlusOneVertexPairMoveInXTest)
 {
   //bump a vertex pair with a single, stationary vertex between them in the x direction
-  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, AdjacentPlusOneVertexPairMoveInYTest)
 {
   //bump a vertex pair with a single, stationary vertex between them in the y direction
-  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, AdjacentPlusOneVertexPairMoveInZTest)
 {
   //bump a vertex pair with a single, stationary vertex between them in the z direction
-  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = adjplone_locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
@@ -187,21 +187,21 @@ TEST_F(MakeWatertightCylinderTest, AdjacentPlusOneVertexPairRandMoveTest)
 TEST_F(MakeWatertightCylinderTest, NonAdjacentVertexPairMoveInXTest)
 {
   //move two randomly selected, non-adjacent vertices in the x direction
-  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.9*facet_tol, 0.0, 0.0));
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.9 * facet_tol, 0.0, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, NonAdjacentVertexPairMoveInYTest)
 {
   //move two randomly selected, non-adjacent vertices in the y direction
-  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.9*facet_tol, 0.0));
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.9 * facet_tol, 0.0));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 TEST_F(MakeWatertightCylinderTest, NonAdjacentVertexPairMoveInZTest)
 {
   //move two randomly selected, non-adjacent vertices in the z direction
-  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.0, 0.9*facet_tol));
+  EXPECT_NO_THROW(result = nonadj_locked_pair_bump(verts, 0.0, 0.0, 0.9 * facet_tol));
   EXPECT_TRUE(result == moab::MB_SUCCESS);
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }

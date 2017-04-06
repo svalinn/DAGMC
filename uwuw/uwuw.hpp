@@ -100,7 +100,7 @@ class UWUW
 
  private:
   // turns the filename string into the full file path
-  std::string get_full_filepath(char *filename);
+  std::string get_full_filepath(char* filename);
   // turns the filename string into the full file path
   std::string get_full_filepath(std::string filename);
   // make sure the file, filename exists

@@ -162,8 +162,8 @@ TEST_F(TallyEnergyBinTest, EnergyNotInBounds)
   tally->end_history();
 
   const TallyData& data = tally->getTallyData();
-  for (int i=0; i<5; ++i) {
-    std::pair<double, double> result = data.get_data(0,i);
+  for (int i = 0; i < 5; ++i) {
+    std::pair<double, double> result = data.get_data(0, i);
     EXPECT_DOUBLE_EQ(0.0, result.first);
     EXPECT_DOUBLE_EQ(0.0, result.second);
   }
@@ -171,19 +171,19 @@ TEST_F(TallyEnergyBinTest, EnergyNotInBounds)
   event.particle_energy = 69.9;
   tally->compute_score(event);
   tally->end_history();
-  for (int i=0; i<5; ++i) {
-    std::pair<double, double> result = data.get_data(0,i);
+  for (int i = 0; i < 5; ++i) {
+    std::pair<double, double> result = data.get_data(0, i);
     EXPECT_DOUBLE_EQ(0.0, result.first);
     EXPECT_DOUBLE_EQ(0.0, result.second);
   }
 }
 //---------------------------------------------------------------------------//
 //  Bin boundaries for 4 bins:
-//	0.0 10.0  20.3  34.5  67.9
-//	bin 0 includes 0
-//	bin 1 includes 10.0
-//	bin 2 includes 20.3
-//	bin 3 includes 34.5 AND 67.9
+//  0.0 10.0  20.3  34.5  67.9
+//  bin 0 includes 0
+//  bin 1 includes 10.0
+//  bin 2 includes 20.3
+//  bin 3 includes 34.5 AND 67.9
 //---------------------------------------------------------------------------//
 TEST_F(TallyEnergyBinTest, EnergyInBounds)
 {
@@ -193,47 +193,47 @@ TEST_F(TallyEnergyBinTest, EnergyInBounds)
   tally->end_history();
 
   const TallyData& data = tally->getTallyData();
-  std::pair<double, double> result = data.get_data(0,0);
+  std::pair<double, double> result = data.get_data(0, 0);
   EXPECT_DOUBLE_EQ(9.0, result.first);
   EXPECT_DOUBLE_EQ(81.0, result.second);
 
   event.particle_energy = 10.0;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,1);
+  result = data.get_data(0, 1);
   EXPECT_DOUBLE_EQ(9.0, result.first);
   EXPECT_DOUBLE_EQ(81.0, result.second);
 
   event.particle_energy = 20.3;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,2);
+  result = data.get_data(0, 2);
   EXPECT_DOUBLE_EQ(9.0, result.first);
   EXPECT_DOUBLE_EQ(81.0, result.second);
 
   event.particle_energy = 25.87;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,2);
+  result = data.get_data(0, 2);
   EXPECT_DOUBLE_EQ(18.0, result.first);
   EXPECT_DOUBLE_EQ(162.0, result.second);
 
   event.particle_energy = 34.5;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,3);
+  result = data.get_data(0, 3);
   EXPECT_DOUBLE_EQ(9.0, result.first);
   EXPECT_DOUBLE_EQ(81.0, result.second);
 
   event.particle_energy = 67.9;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,3);
+  result = data.get_data(0, 3);
   EXPECT_DOUBLE_EQ(18.0, result.first);
   EXPECT_DOUBLE_EQ(162.0, result.second);
 
   // check total energy bin (i.e. bin 4)
-  result = data.get_data(0,4);
+  result = data.get_data(0, 4);
   EXPECT_DOUBLE_EQ(54.0, result.first);
   EXPECT_DOUBLE_EQ(486.0, result.second);
 }
@@ -252,35 +252,35 @@ TEST_F(TallyEnergyBinTest, NonZeroEnergyBounds)
   tally->compute_score(event);
   tally->end_history();
   const TallyData& data = tally->getTallyData();
-  std::pair<double, double> result = data.get_data(0,0);
+  std::pair<double, double> result = data.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
 
   event.particle_energy = 5.0;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,0);
+  result = data.get_data(0, 0);
   EXPECT_DOUBLE_EQ(9.0, result.first);
   EXPECT_DOUBLE_EQ(81.0, result.second);
 
   event.particle_energy = 8.2;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,0);
+  result = data.get_data(0, 0);
   EXPECT_DOUBLE_EQ(18.0, result.first);
   EXPECT_DOUBLE_EQ(162.0, result.second);
 
   event.particle_energy = 17.0;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,0);
+  result = data.get_data(0, 0);
   EXPECT_DOUBLE_EQ(27.0, result.first);
   EXPECT_DOUBLE_EQ(243.0, result.second);
 
   event.particle_energy = 18.0;
   tally->compute_score(event);
   tally->end_history();
-  result = data.get_data(0,0);
+  result = data.get_data(0, 0);
   EXPECT_DOUBLE_EQ(27.0, result.first);
   EXPECT_DOUBLE_EQ(243.0, result.second);
 }

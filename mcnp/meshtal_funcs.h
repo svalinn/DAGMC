@@ -63,10 +63,10 @@ extern "C" {
   void dagmc_fmesh_end_history_();
 
   void dagmc_fmesh_score_(int* ipt,
-                          double *x, double *y, double *z,
-                          double *u, double *v, double *w,
-                          double *erg,double *wgt,
-                          double *d, int* icl);
+                          double* x, double* y, double* z,
+                          double* u, double* v, double* w,
+                          double* erg, double* wgt,
+                          double* d, int* icl);
 
   void dagmc_fmesh_print_(double* sp_norm);
 

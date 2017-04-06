@@ -118,13 +118,13 @@ moab::ErrorCode MeshTally::setup_tags(moab::Interface* mbi, const char* prefix)
   error_tags.resize(num_bins);
 
   // Create separate MOAB tag handles for every energy bin
-  for(unsigned i = 0; i < num_bins; ++i) {
+  for (unsigned i = 0; i < num_bins; ++i) {
     std::string t_name = pfx + "TALLY_TAG", e_name = pfx + "ERROR_TAG";
     std::stringstream str;
 
-    if(i + 1 != num_bins) {
+    if (i + 1 != num_bins) {
       str << "_" << input_data.energy_bin_bounds[i]
-          << '-' << input_data.energy_bin_bounds[i+1];
+          << '-' << input_data.energy_bin_bounds[i + 1];
     }
 
     t_name += str.str();
@@ -134,17 +134,17 @@ moab::ErrorCode MeshTally::setup_tags(moab::Interface* mbi, const char* prefix)
                                tag_size,
                                moab::MB_TYPE_DOUBLE,
                                tally_tags[i],
-                               moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
+                               moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
 
-    if(rval != moab::MB_SUCCESS) return rval;
+    if (rval != moab::MB_SUCCESS) return rval;
 
     rval = mbi->tag_get_handle(e_name.c_str(),
                                tag_size,
                                moab::MB_TYPE_DOUBLE,
                                error_tags[i],
-                               moab::MB_TAG_DENSE|moab::MB_TAG_CREAT);
+                               moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
 
-    if(rval != moab::MB_SUCCESS) return rval;
+    if (rval != moab::MB_SUCCESS) return rval;
   }
 
   return moab::MB_SUCCESS;

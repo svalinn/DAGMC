@@ -39,7 +39,7 @@ KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
 #if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7
     rval = kd_tree->build_tree(mesh_nodes, kd_tree_root);
 #else
-    const char settings[]="MESHSET_FLAGS=0x1;TAG_NAME=0";
+    const char settings[] = "MESHSET_FLAGS=0x1;TAG_NAME=0";
     moab::FileOptions fileopts(settings);
     rval = kd_tree->build_tree(mesh_nodes, &kd_tree_root, &fileopts);
 #endif
@@ -205,7 +205,7 @@ void KDENeighborhood::points_in_box()
   // find all leaves of the kd-tree within the given radius
   std::vector<moab::EntityHandle> leaves;
   moab::ErrorCode rval = moab::MB_SUCCESS;
-  if(rval != moab::MB_SUCCESS) {
+  if (rval != moab::MB_SUCCESS) {
     std::cout << "this can't fail" << std::endl;
     exit(1);
   }

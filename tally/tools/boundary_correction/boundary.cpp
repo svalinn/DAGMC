@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
   if (argc != 6) {
     std::cerr << "usage: " << argv[0] << " <input_mesh.h5m> "
               << "<input_geometry.h5m> <hx hy hz>" << std::endl;
-    exit( EXIT_FAILURE );
+    exit(EXIT_FAILURE);
   }
 
   // load the mesh data into the MOAB instance
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
   moab::CartVect bandwidth;
 
   for (int i = 0; i < 3; ++i) {
-    bandwidth[i] = parse_bandwidth_value(argv[i+3]);
+    bandwidth[i] = parse_bandwidth_value(argv[i + 3]);
   }
 
   std::cout << "Using bandwidth vector " << bandwidth
@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
   mb_error = mbi->tag_get_handle("BOUNDARY", tag_size,
                                  moab::MB_TYPE_INTEGER,
                                  boundary_tag,
-                                 moab::MB_TAG_DENSE|moab::MB_TAG_CREAT,
+                                 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT,
                                  &default_boundary[0]);
 
   assert(mb_error == moab::MB_SUCCESS);
@@ -326,7 +326,7 @@ int main(int argc, char* argv[])
   mb_error = mbi->tag_get_handle("DISTANCE_TO_BOUNDARY", tag_size,
                                  moab::MB_TYPE_DOUBLE,
                                  distance_tag,
-                                 moab::MB_TAG_DENSE|moab::MB_TAG_CREAT,
+                                 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT,
                                  default_distance.array());
 
   assert(mb_error == moab::MB_SUCCESS);
@@ -357,7 +357,7 @@ int main(int argc, char* argv[])
   moab::Range::iterator it;
   int node_count = 0;
 
-  for(it = mesh_nodes.begin(); it != mesh_nodes.end(); ++it) {
+  for (it = mesh_nodes.begin(); it != mesh_nodes.end(); ++it) {
     moab::EntityHandle node = *it;
     int boundary[3];
     double distance[3];

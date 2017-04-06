@@ -18,13 +18,13 @@
 
 #define flukam flukam_
 
-moab::DagMC *DAG = new moab::DagMC(); // dagmc instance
+moab::DagMC* DAG = new moab::DagMC(); // dagmc instance
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-  void flukam(const int &GeoFlag);
+  void flukam(const int& GeoFlag);
 
 #ifdef __cplusplus
 }
@@ -36,16 +36,16 @@ int main(int argc, char* argv[])
 {
   bool flukarun = false;
   moab::ErrorCode error;
-  time_t time_before,time_after;
+  time_t time_before, time_after;
 
   // Default h5m filename is for fluka runs
   std::string infile = "dagmc.h5m";
 
-  if ( argc == 1 ) { // then its a fluka run
+  if (argc == 1) {   // then its a fluka run
     // fluka creates a run dir one lvl higher
-    infile = "../"+infile;
+    infile = "../" + infile;
     flukarun = true;
-  } else if ( argc > 2 ) {
+  } else if (argc > 2) {
     std::cout << "run as main_fludag <facet_file>  to produce"
               << " material assignments" << std::endl;
     std::cout << "too many arguments provided" << std::endl;
@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
   }
 
 
-  std::ifstream h5mfile (infile.c_str()); // filestream for mesh geom
-  if ( !h5mfile.good() ) {
+  std::ifstream h5mfile(infile.c_str());  // filestream for mesh geom
+  if (!h5mfile.good()) {
     std::cout << "h5m file does not exist" << std::endl;
     exit(1);
   }
@@ -71,14 +71,14 @@ int main(int argc, char* argv[])
   std::cout << "Loading the faceted geometry file " << infile << "..." << std::endl;
   error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
 
-  if ( error != moab::MB_SUCCESS ) {
+  if (error != moab::MB_SUCCESS) {
     std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
     exit(EXIT_FAILURE);
   }
 
   time(&time_after);
 
-  double seconds = difftime(time_after,time_before); //get the time in seconds to load file
+  double seconds = difftime(time_after, time_before); //get the time in seconds to load file
 
   time_before = time_after; // reset time to now for the next call
 
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
   // DAG call to initialize geometry
   // if more than 1 argument provided
   // this an actual calculation
-  if(flukarun) {
+  if (flukarun) {
     error = DAG->init_OBBTree();
   } else {
     // otherwise this is a preprocess run
@@ -96,14 +96,14 @@ int main(int argc, char* argv[])
     error = DAG->setup_indices();
   }
 
-  if ( error != moab::MB_SUCCESS ) {
+  if (error != moab::MB_SUCCESS) {
     std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
     exit(EXIT_FAILURE);
   }
 
   time(&time_after);
 
-  seconds = difftime(time_after,time_before);
+  seconds = difftime(time_after, time_before);
   std::cout << "Time to initialise the geometry" << seconds << std::endl;
   // if fluka preprocess run then create mat file to paste into input deck
   if (!flukarun) {
