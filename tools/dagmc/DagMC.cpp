@@ -408,8 +408,9 @@ ErrorCode DagMC::build_indices(Range &surfs, Range &vols)
   iter = vol_handles().begin();
   *(iter++) = 0;
   std::copy( vols.begin(), vols.end(), iter );
-
   idx = 1;
+  for (Range::iterator rit = vols.begin(); rit != vols.end(); ++rit)
+    entIndices[*rit-setOffset] = idx++;
 
   // get group handles
   Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
