@@ -152,16 +152,21 @@ public:
   /** The methods in this section are thin wrappers around methods in the
    *  GeometryQueryTool.
    */
+  class RayHistory : public GeomQueryTool::RayHistory {
+
+    friend class DagMC;
+  };
+  
   ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
                      const double ray_dir[3], EntityHandle& next_surf,
                      double& next_surf_dist,
-                     GeomQueryTool::RayHistory* history = NULL,
+                     RayHistory* history = NULL,
                      double dist_limit = 0, int ray_orientation = 1,
                      OrientedBoxTreeTool::TrvStats* stats = NULL);
 
   ErrorCode point_in_volume(const EntityHandle volume, const double xyz[3],
                             int& result, const double* uvw = NULL,
-                            const GeomQueryTool::RayHistory* history = NULL);
+                            const RayHistory* history = NULL);
 
   ErrorCode point_in_volume_slow(const EntityHandle volume, const double xyz[3],
                                  int& result);
@@ -170,7 +175,7 @@ public:
                                  const EntityHandle surface,
                                  const double xyz[3], const double uvw[3],
                                  int& result,
-                                 const GeomQueryTool::RayHistory* history = NULL);
+                                 const RayHistory* history = NULL);
 
   ErrorCode closest_to_location(EntityHandle volume, const double point[3],
                                 double& result);
@@ -186,7 +191,7 @@ public:
                           int& sense_out);
 
   ErrorCode get_angle(EntityHandle surf, const double xyz[3], double angle[3],
-                      const GeomQueryTool::RayHistory* history = NULL);
+                      const RayHistory* history = NULL);
 
   ErrorCode next_vol(EntityHandle surface, EntityHandle old_volume,
                      EntityHandle& new_volume);

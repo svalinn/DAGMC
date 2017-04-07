@@ -75,7 +75,7 @@ void dagmc_outside_face_rayfire()
 
 void dagmc_outside_face_rayfire_orient_exit()
 {
-  GeomQueryTool::RayHistory history;
+  DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
@@ -90,7 +90,7 @@ void dagmc_outside_face_rayfire_orient_exit()
 
 void dagmc_outside_face_rayfire_orient_entrance()
 {
-  GeomQueryTool::RayHistory history;
+  DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
@@ -105,7 +105,7 @@ void dagmc_outside_face_rayfire_orient_entrance()
 
 void dagmc_outside_face_rayfire_history_fail()
 {
-  GeomQueryTool::RayHistory history;
+  DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
@@ -133,7 +133,7 @@ void dagmc_outside_face_rayfire_history_fail()
 
 void dagmc_outside_face_rayfire_history()
 {
-  GeomQueryTool::RayHistory history;
+  DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction

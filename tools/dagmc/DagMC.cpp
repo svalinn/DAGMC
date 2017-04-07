@@ -267,7 +267,7 @@ ErrorCode DagMC::finish_loading() {
 ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
                           const double dir[3], EntityHandle& next_surf,
                           double& next_surf_dist,
-                          GeomQueryTool::RayHistory* history,
+                          RayHistory* history,
                           double user_dist_limit, int ray_orientation,
                           OrientedBoxTreeTool::TrvStats* stats)
 {
@@ -279,7 +279,7 @@ ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
 
 ErrorCode DagMC::point_in_volume(const EntityHandle volume, const double xyz[3],
                                  int& result, const double *uvw,
-                                 const GeomQueryTool::RayHistory *history)
+                                 const RayHistory *history)
 {
   ErrorCode rval = GQT->point_in_volume(volume, xyz, result, uvw, history);
   return rval;
@@ -289,7 +289,7 @@ ErrorCode DagMC::test_volume_boundary(const EntityHandle volume,
                                       const EntityHandle surface,
                                       const double xyz[3], const double uvw[3],
                                       int& result,
-                                      const GeomQueryTool::RayHistory* history)
+                                      const RayHistory* history)
 {
   ErrorCode rval = GQT->test_volume_boundary(volume, surface, xyz, uvw, result,
                                              history);
@@ -345,7 +345,7 @@ ErrorCode DagMC::surface_sense(EntityHandle volume, EntityHandle surface,
 
 ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3],
                            double angle[3],
-                           const GeomQueryTool::RayHistory* history)
+                           const RayHistory* history)
 {
   ErrorCode rval = GQT->get_normal(surf, in_pt, angle, history);
   return rval;

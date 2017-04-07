@@ -698,7 +698,7 @@ ErrorCode test_ray_fire( DagMC * dagmc )
 
     double dist;
     EntityHandle result;
-    GeomQueryTool::RayHistory history;
+    DagMC::RayHistory history;
     rval = dagmc->ray_fire( vols.front(), 
                            tests[i].origin, tests[i].direction,
                            result, dist, &history );
@@ -725,17 +725,17 @@ ErrorCode test_ray_fire( DagMC * dagmc )
 
     CartVect loc = CartVect(tests[i].origin) + (dist * CartVect(tests[i].direction));
     
-    std::vector< std::pair<int,GeomQueryTool::RayHistory*> > boundary_tests;
+    std::vector< std::pair<int,DagMC::RayHistory*> > boundary_tests;
     boundary_tests.push_back( std::make_pair( 1, &history ) );
     boundary_tests.push_back( std::make_pair( 0, &history ) );
-    boundary_tests.push_back( std::make_pair( 1, (GeomQueryTool::RayHistory*)NULL ) );
-    boundary_tests.push_back( std::make_pair( 0, (GeomQueryTool::RayHistory*)NULL ) );
+    boundary_tests.push_back( std::make_pair( 1, (DagMC::RayHistory*)NULL ) );
+    boundary_tests.push_back( std::make_pair( 0, (DagMC::RayHistory*)NULL ) );
 
 
     for( unsigned int bt = 0; bt < boundary_tests.size(); ++bt ) {
       
       int expected = boundary_tests[bt].first;
-      GeomQueryTool::RayHistory* h = boundary_tests[bt].second;
+      DagMC::RayHistory* h = boundary_tests[bt].second;
       
       // pick the direction based on expected result of test. Either reuse the ray_fire
       // vector, or reverse it to check for a vector that enters the cell
@@ -1109,7 +1109,7 @@ ErrorCode overlap_test_tracking( DagMC * dagmc )
   // get next surface
   double dist;
   EntityHandle next_surf;
-  GeomQueryTool::RayHistory history;
+  DagMC::RayHistory history;
   rval = dagmc->ray_fire( vol, point, dir, next_surf, dist, &history );
   CHKERR;    
   if (next_surf != surfs[7] || fabs(dist - 0.91) > 1e-6) {
