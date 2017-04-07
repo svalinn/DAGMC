@@ -1,4 +1,12 @@
-message(STATUS "Building astyle_google")
+# astyle needs C++11
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+if (COMPILER_SUPPORTS_CXX11)
+  message(STATUS "Building astyle_google")
+else ()
+  message(STATUS "The C++ compiler does not support C++11. Not building astyle_google.")
+  return()
+endif (COMPILER_SUPPORTS_CXX11)
 
 # Source files
 set(SRC_FILES)
