@@ -152,10 +152,7 @@ public:
   /** The methods in this section are thin wrappers around methods in the
    *  GeometryQueryTool.
    */
-  class RayHistory : public GeomQueryTool::RayHistory {
-
-    friend class DagMC;
-  };
+  typedef GeomQueryTool::RayHistory RayHistory;
   
   ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
                      const double ray_dir[3], EntityHandle& next_surf,
