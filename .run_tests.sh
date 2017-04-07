@@ -44,6 +44,16 @@ cd ..
 # remove the bld dir
 rm -rf bld
 # run astyle to see if there are any differences
-tools/astyle_google --style=linux --indent=spaces=2 --exclude=gtest -r *.cpp *.h *.hpp *.cc *.hh	
+tools/astyle_google --options=tools/google.ini \
+                    --exclude=bld \
+                    --exclude=gtest \
+                    --exclude=tools/astyle \
+                    --exclude=mcnp/mcnp5/Source \
+                    --exclude=mcnp/mcnp6/Source \
+                    --ignore-exclude-errors \
+                    --recursive \
+                    --verbose \
+                    --formatted \
+                    "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
 # checks for C++ style guide adherence
 git diff --exit-code

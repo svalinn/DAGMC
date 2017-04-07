@@ -16,3 +16,4 @@ include_directories(src)
 add_executable(astyle_google ${SRC_FILES})
 install(TARGETS astyle_google DESTINATION tools
                               PERMISSIONS ${PERMS})
+install(FILES file/google.ini DESTINATION tools)
