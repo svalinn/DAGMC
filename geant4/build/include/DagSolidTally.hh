@@ -10,4 +10,4 @@
 /*
  * Loads all UWUW tallies from the hdf5 file
  */
-std::map<std::string,pyne::Tally> load_uwuw_tallies(std::string filepath);
+std::map<std::string, pyne::Tally> load_uwuw_tallies(std::string filepath);

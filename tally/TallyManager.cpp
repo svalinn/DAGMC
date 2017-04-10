@@ -9,8 +9,7 @@
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
-TallyManager::TallyManager()
-{
+TallyManager::TallyManager() {
   event.type = TallyEvent::NONE;
 }
 //---------------------------------------------------------------------------//
@@ -20,9 +19,8 @@ void TallyManager::addNewTally(unsigned int tally_id,
                                std::string tally_type,
                                unsigned int particle,
                                const std::vector<double>& energy_bin_bounds,
-                               const std::multimap<std::string, std::string>& options)
-{
-  Tally *newTally = createTally(tally_id, tally_type, particle,
+                               const std::multimap<std::string, std::string>& options) {
+  Tally* newTally = createTally(tally_id, tally_type, particle,
                                 energy_bin_bounds, options);
 
   if (newTally != NULL) {
@@ -32,8 +30,7 @@ void TallyManager::addNewTally(unsigned int tally_id,
   }
 }
 //---------------------------------------------------------------------------//
-void TallyManager::addNewMultiplier(unsigned int multiplier_id)
-{
+void TallyManager::addNewMultiplier(unsigned int multiplier_id) {
   // pad multipliers vector up to a size one greater than the multiplier_id
   // NOTE: this would not be needed if we use an unordered map over a vector
   while (event.multipliers.size() <= multiplier_id) {
@@ -42,13 +39,12 @@ void TallyManager::addNewMultiplier(unsigned int multiplier_id)
 }
 //---------------------------------------------------------------------------//
 void TallyManager::addMultiplierToTally(unsigned int multiplier_id,
-                                        unsigned int tally_id)
-{
-  std::map<int, Tally *>::iterator it;
+                                        unsigned int tally_id) {
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (event.multipliers.size() > multiplier_id && it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     tally->input_data.multiplier_id = multiplier_id;
   } else {
     std::cerr << "Warning: Cannot set multiplier id for Tally " << tally_id
@@ -56,21 +52,18 @@ void TallyManager::addMultiplierToTally(unsigned int multiplier_id,
   }
 }
 //---------------------------------------------------------------------------//
-void TallyManager::updateMultiplier(unsigned int multiplier_id, double value)
-{
+void TallyManager::updateMultiplier(unsigned int multiplier_id, double value) {
   if (event.multipliers.size() > multiplier_id) {
     event.multipliers.at(multiplier_id) = value;
   }
 }
 //---------------------------------------------------------------------------//
-unsigned int TallyManager::numTallies()
-{
+unsigned int TallyManager::numTallies() {
   return observers.size();
 }
 //---------------------------------------------------------------------------//
-void TallyManager::removeTally(unsigned int tally_id)
-{
-  std::map<int, Tally *>::iterator it;
+void TallyManager::removeTally(unsigned int tally_id) {
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
@@ -86,8 +79,7 @@ void TallyManager::removeTally(unsigned int tally_id)
 bool TallyManager::setCollisionEvent(unsigned int particle,
                                      double x, double y, double z,
                                      double particle_energy, double particle_weight,
-                                     double total_cross_section, int cell_id)
-{
+                                     double total_cross_section, int cell_id) {
   if (total_cross_section < 0.0) {
     std::cerr << "Warning: total_cross_section, " << total_cross_section
               << ", cannot be less than zero." << std::endl;
@@ -105,8 +97,7 @@ bool TallyManager::setTrackEvent(unsigned int particle,
                                  double x, double y, double z,
                                  double u, double v, double w,
                                  double particle_energy, double particle_weight,
-                                 double track_length, int cell_id)
-{
+                                 double track_length, int cell_id) {
   if (track_length < 0.0) {
     std::cerr << "Warning: track_length, " << track_length
               << ", cannot be less than zero." << std::endl;
@@ -120,8 +111,7 @@ bool TallyManager::setTrackEvent(unsigned int particle,
                   cell_id);
 }
 //---------------------------------------------------------------------------//
-void TallyManager::clearLastEvent()
-{
+void TallyManager::clearLastEvent() {
   event.type = TallyEvent::NONE;
   event.particle  = 0;
   event.position  = moab::CartVect(0.0, 0.0, 0.0);
@@ -134,11 +124,10 @@ void TallyManager::clearLastEvent()
 }
 //---------------------------------------------------------------------------//
 // Note: the event is set just before updateTallies is called
-void TallyManager::updateTallies()
-{
+void TallyManager::updateTallies() {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
 
     // skip events involving particles not expected by the tally
     if (tally->input_data.particle == event.particle) {
@@ -148,20 +137,18 @@ void TallyManager::updateTallies()
   clearLastEvent();
 }
 //---------------------------------------------------------------------------//
-void TallyManager::endHistory()
-{
+void TallyManager::endHistory() {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
     tally->end_history();
   }
 }
 //---------------------------------------------------------------------------//
-void TallyManager::writeData(double num_histories)
-{
+void TallyManager::writeData(double num_histories) {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
     tally->write_data(num_histories);
   }
 }
@@ -171,13 +158,12 @@ void TallyManager::writeData(double num_histories)
 // TODO: These will only work if TallyData is used to store all data.
 // Future addition could add similar functions to the Tally interface so that
 // each implementation can choose how to store its data.
-double* TallyManager::getTallyData(int tally_id, int& length)
-{
-  std::map<int, Tally *>::iterator it;
+double* TallyManager::getTallyData(int tally_id, int& length) {
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     return tally->data->get_tally_data(length);;
   } else {
     std::cerr << "Warning: Tally " << tally_id
@@ -186,13 +172,12 @@ double* TallyManager::getTallyData(int tally_id, int& length)
   }
 }
 //---------------------------------------------------------------------------//
-double* TallyManager::getErrorData(int tally_id, int& length)
-{
-  std::map<int, Tally *>::iterator it;
+double* TallyManager::getErrorData(int tally_id, int& length) {
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     return tally->data->get_error_data(length);;
   } else {
     std::cerr << "Warning: Tally " << tally_id
@@ -201,13 +186,12 @@ double* TallyManager::getErrorData(int tally_id, int& length)
   }
 }
 //---------------------------------------------------------------------------//
-double* TallyManager::getScratchData(int tally_id, int& length)
-{
-  std::map<int, Tally *>::iterator it;
+double* TallyManager::getScratchData(int tally_id, int& length) {
+  std::map<int, Tally*>::iterator it;
   it = observers.find(tally_id);
 
   if (it != observers.end()) {
-    Tally *tally = it->second;
+    Tally* tally = it->second;
     return tally->data->get_scratch_data(length);;
   } else {
     std::cerr << "Warning: Tally " << tally_id
@@ -216,11 +200,10 @@ double* TallyManager::getScratchData(int tally_id, int& length)
   }
 }
 //---------------------------------------------------------------------------//
-void TallyManager::zeroAllTallyData()
-{
+void TallyManager::zeroAllTallyData() {
   std::map<int, Tally*>::iterator map_it;
   for (map_it = observers.begin(); map_it != observers.end(); ++map_it) {
-    Tally *tally = map_it->second;
+    Tally* tally = map_it->second;
     tally->data->zero_tally_data();
   }
   clearLastEvent();
@@ -228,12 +211,11 @@ void TallyManager::zeroAllTallyData()
 //---------------------------------------------------------------------------//
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//
-Tally *TallyManager::createTally(unsigned int tally_id,
+Tally* TallyManager::createTally(unsigned int tally_id,
                                  std::string  tally_type,
                                  unsigned int particle,
                                  const std::vector<double>& energy_bin_bounds,
-                                 const std::multimap<std::string, std::string>& options)
-{
+                                 const std::multimap<std::string, std::string>& options) {
   TallyInput input;
 
   // Check that there are at least 2 energy bin boundaries
@@ -259,8 +241,7 @@ bool TallyManager::setEvent(TallyEvent::EventType type, unsigned int particle,
                             double u, double v, double w,
                             double particle_energy, double particle_weight,
                             double track_length, double total_cross_section,
-                            int cell_id)
-{
+                            int cell_id) {
   // Test whether an error condition has occurred for this event
   bool errflag = false;
 

@@ -12,8 +12,7 @@
 
 
 //Make sure the sphere is not deleted when sealing
-TEST_F(MakeWatertightNoCurveSphereTest, NoCurveSphereDeletionCheck)
-{
+TEST_F(MakeWatertightNoCurveSphereTest, NoCurveSphereDeletionCheck) {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 
   //make sure the sphere wasn't deleted

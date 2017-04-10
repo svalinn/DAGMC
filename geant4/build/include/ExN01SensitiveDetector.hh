@@ -53,8 +53,7 @@ class G4HCofThisEvent;
 /// by Geant4 kernel at each step. A hit is created with each step with non zero
 /// energy deposit.
 
-class ExN01SensitiveDetector : public G4VSensitiveDetector
-{
+class ExN01SensitiveDetector : public G4VSensitiveDetector {
  public:
   ExN01SensitiveDetector(const G4String& name,
                          const G4String& collectionName,
@@ -76,7 +75,7 @@ class ExN01SensitiveDetector : public G4VSensitiveDetector
   G4double DetectorVolume;
   G4int* SensitiveParticles;
   G4int  NumberOfParticles;
-  std::map<G4int,G4int> hist_part_map;
+  std::map<G4int, G4int> hist_part_map;
   G4int hist_index;
 };
 

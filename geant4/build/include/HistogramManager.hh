@@ -3,8 +3,7 @@
 #include <vector>
 #include <map>
 
-class HistogramManager
-{
+class HistogramManager {
  public:
   // Constructor
   HistogramManager();
@@ -18,6 +17,6 @@ class HistogramManager
   std::vector<int> get_senstitive_particles(int volume_id);
   void print_histogram_collection();
  private:
-  std::map<int,std::map<int, int> >         histogram_collection;
+  std::map<int, std::map<int, int> >         histogram_collection;
   int histogram_id;
 };

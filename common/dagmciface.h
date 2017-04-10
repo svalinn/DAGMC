@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 
-  void dagmc_version_(double* dagmcVersion);
+void dagmc_version_(double* dagmcVersion);
 #ifdef __cplusplus
 } // extern "C"
 #endif

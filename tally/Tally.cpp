@@ -13,8 +13,7 @@
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
 Tally::Tally(const TallyInput& input)
-  : input_data(input), data(NULL)
-{
+  : input_data(input), data(NULL) {
   assert(input_data.energy_bin_bounds.size() > 1);
 
   // This is a placeholder for a future option to set t.e.b. false via the
@@ -28,8 +27,7 @@ Tally::Tally(const TallyInput& input)
 //---------------------------------------------------------------------------//
 // DESTRUCTOR
 //---------------------------------------------------------------------------//
-Tally::~Tally()
-{
+Tally::~Tally() {
   delete data;
 }
 //---------------------------------------------------------------------------//
@@ -46,9 +44,8 @@ Tally::~Tally()
 //               | Track Length   | Cell         || cell_track    implemented
 //               | Collision      | Cell         || cell_coll     implemented
 //---------------------------------------------------------------------------//
-Tally *Tally::create_tally(const TallyInput& input)
-{
-  Tally *newTally = NULL;
+Tally* Tally::create_tally(const TallyInput& input) {
+  Tally* newTally = NULL;
 
   if (input.tally_type == "unstr_track") {
     newTally = new moab::TrackLengthMeshTally(input);
@@ -76,25 +73,21 @@ Tally *Tally::create_tally(const TallyInput& input)
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-void Tally::end_history()
-{
+void Tally::end_history() {
   data->end_history();
 }
 //---------------------------------------------------------------------------//
-const TallyData& Tally::getTallyData()
-{
+const TallyData& Tally::getTallyData() {
   return *data;
 }
 //---------------------------------------------------------------------------//
-std::string Tally::get_tally_type()
-{
+std::string Tally::get_tally_type() {
   return input_data.tally_type;
 }
 //---------------------------------------------------------------------------//
 // PROTECTED INTERFACE
 //---------------------------------------------------------------------------//
-bool Tally::get_energy_bin(double energy, unsigned int& ebin)
-{
+bool Tally::get_energy_bin(double energy, unsigned int& ebin) {
   bool bin_exists = false;
 
   if (energy_in_bounds(energy)) {
@@ -110,9 +103,9 @@ bool Tally::get_energy_bin(double energy, unsigned int& ebin)
       ebin =  max_ebound - 1;
 
       // find ebin if not maximum bin
-      for (unsigned int i=0; i < max_ebound; ++i) {
+      for (unsigned int i = 0; i < max_ebound; ++i) {
         if (input_data.energy_bin_bounds.at(i) <= energy &&
-            energy < input_data.energy_bin_bounds.at(i+1)) {
+            energy < input_data.energy_bin_bounds.at(i + 1)) {
           ebin = i;
           break;
         }
@@ -123,8 +116,7 @@ bool Tally::get_energy_bin(double energy, unsigned int& ebin)
   return bin_exists;
 }
 //---------------------------------------------------------------------------//
-bool Tally::energy_in_bounds(double energy)
-{
+bool Tally::energy_in_bounds(double energy) {
   unsigned int max_ebound = input_data.energy_bin_bounds.size() - 1;
 
   return !(energy < input_data.energy_bin_bounds.at(0) ||

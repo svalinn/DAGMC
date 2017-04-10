@@ -23,8 +23,7 @@ const double TOLERANCE = 1e-3;
 // >>> HELPER METHODS
 
 // loads mesh data from mesh_input_file into MOAB instance
-void load_moab_instance(char* mesh_input_file)
-{
+void load_moab_instance(char* mesh_input_file) {
   moab::ErrorCode mb_error = mbi->load_file(mesh_input_file);
 
   if (mb_error != moab::MB_SUCCESS) {
@@ -35,8 +34,7 @@ void load_moab_instance(char* mesh_input_file)
 }
 
 // loads geometry data from geometry_input_file into DAGMC instance
-void load_dagmc_instance(char* geometry_input_file)
-{
+void load_dagmc_instance(char* geometry_input_file) {
   moab::ErrorCode dagmc_error = dagmc->load_file(geometry_input_file);
 
   if (dagmc_error != moab::MB_SUCCESS) {
@@ -67,8 +65,7 @@ void load_dagmc_instance(char* geometry_input_file)
 
 // returns volume in which coords are located, based on direction
 moab::EntityHandle find_volume_ID(const moab::CartVect& coords,
-                                  const moab::CartVect& direction)
-{
+                                  const moab::CartVect& direction) {
   // get number of 3D volumes from DAGMC instance
   int num_volumes = dagmc->num_entities(3);
 
@@ -80,9 +77,9 @@ moab::EntityHandle find_volume_ID(const moab::CartVect& coords,
   while (inside_volume == 0 && volume_index <= num_volumes) {
     volume_ID = dagmc->entity_by_index(3, volume_index);
     moab::ErrorCode dagmc_error = dagmc->point_in_volume(volume_ID,
-                                  coords.array(),
-                                  inside_volume,
-                                  direction.array());
+                                                         coords.array(),
+                                                         inside_volume,
+                                                         direction.array());
 
     assert(dagmc_error == moab::MB_SUCCESS);
 
@@ -103,8 +100,7 @@ moab::EntityHandle find_volume_ID(const moab::CartVect& coords,
 double distance_to_boundary(double max_distance,
                             const moab::CartVect& coords,
                             const moab::CartVect& direction,
-                            const moab::EntityHandle& volume_ID)
-{
+                            const moab::EntityHandle& volume_ID) {
   assert(max_distance > 0.0);
 
   // create RayHistory to store surface crossing history
@@ -134,7 +130,8 @@ double distance_to_boundary(double max_distance,
     assert(dagmc_error == moab::MB_SUCCESS);
 
     // return if no intersection is found less than max_distance
-    if (next_surface == 0) return -1.0;
+    if (next_surface == 0)
+      return -1.0;
 
     // otherwise update distance to boundary and current position
     distance += next_surface_distance;
@@ -156,8 +153,7 @@ double distance_to_boundary(double max_distance,
 // updates volume ID if on a boundary to the next volume ID
 bool get_adjacent_volume(const moab::CartVect& coords,
                          const moab::CartVect& direction,
-                         moab::EntityHandle& volume_ID)
-{
+                         moab::EntityHandle& volume_ID) {
   moab::ErrorCode dagmc_error = moab::MB_SUCCESS;
   moab::EntityHandle next_surface = 0;
   double next_surface_distance = 0.0;
@@ -190,8 +186,7 @@ bool get_adjacent_volume(const moab::CartVect& coords,
 bool node_near_boundary(const moab::EntityHandle& mesh_node,
                         const moab::CartVect& bandwidth,
                         int boundary[3],
-                        double distance[3])
-{
+                        double distance[3]) {
   // get coordinates of the mesh node
   moab::CartVect coords;
   moab::ErrorCode mb_error = mbi->get_coords(&mesh_node, 1, coords.array());
@@ -226,7 +221,8 @@ bool node_near_boundary(const moab::EntityHandle& mesh_node,
     }
   }
 
-  if (volume_ID == 0) return false;
+  if (volume_ID == 0)
+    return false;
 
   // iterate through all directions x = 0, y = 1, and z = 2
   bool boundary_point = false;
@@ -268,8 +264,7 @@ bool node_near_boundary(const moab::EntityHandle& mesh_node,
 }
 
 // converts a C-string value into a valid bandwidth value
-double parse_bandwidth_value(char* value)
-{
+double parse_bandwidth_value(char* value) {
   char* end;
   double bandwidth_value = strtod(value, &end);
 
@@ -284,12 +279,11 @@ double parse_bandwidth_value(char* value)
 
 // >>> MAIN METHOD
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   if (argc != 6) {
     std::cerr << "usage: " << argv[0] << " <input_mesh.h5m> "
               << "<input_geometry.h5m> <hx hy hz>" << std::endl;
-    exit( EXIT_FAILURE );
+    exit(EXIT_FAILURE);
   }
 
   // load the mesh data into the MOAB instance
@@ -302,7 +296,7 @@ int main(int argc, char* argv[])
   moab::CartVect bandwidth;
 
   for (int i = 0; i < 3; ++i) {
-    bandwidth[i] = parse_bandwidth_value(argv[i+3]);
+    bandwidth[i] = parse_bandwidth_value(argv[i + 3]);
   }
 
   std::cout << "Using bandwidth vector " << bandwidth
@@ -318,7 +312,7 @@ int main(int argc, char* argv[])
   mb_error = mbi->tag_get_handle("BOUNDARY", tag_size,
                                  moab::MB_TYPE_INTEGER,
                                  boundary_tag,
-                                 moab::MB_TAG_DENSE|moab::MB_TAG_CREAT,
+                                 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT,
                                  &default_boundary[0]);
 
   assert(mb_error == moab::MB_SUCCESS);
@@ -326,7 +320,7 @@ int main(int argc, char* argv[])
   mb_error = mbi->tag_get_handle("DISTANCE_TO_BOUNDARY", tag_size,
                                  moab::MB_TYPE_DOUBLE,
                                  distance_tag,
-                                 moab::MB_TAG_DENSE|moab::MB_TAG_CREAT,
+                                 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT,
                                  default_distance.array());
 
   assert(mb_error == moab::MB_SUCCESS);
@@ -357,7 +351,7 @@ int main(int argc, char* argv[])
   moab::Range::iterator it;
   int node_count = 0;
 
-  for(it = mesh_nodes.begin(); it != mesh_nodes.end(); ++it) {
+  for (it = mesh_nodes.begin(); it != mesh_nodes.end(); ++it) {
     moab::EntityHandle node = *it;
     int boundary[3];
     double distance[3];

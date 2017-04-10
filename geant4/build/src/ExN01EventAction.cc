@@ -31,13 +31,11 @@ ExN01EventAction::~ExN01EventAction()
 {}
 
 // gets the tally ids
-void ExN01EventAction::BeginOfEventAction(const G4Event *)
-{
+void ExN01EventAction::BeginOfEventAction(const G4Event*) {
 }
 
 // collect up events and do work
-void ExN01EventAction::EndOfEventAction(const G4Event *event)
-{
+void ExN01EventAction::EndOfEventAction(const G4Event* event) {
   // get the stored trajectories
   /*
   G4TrajectoryContainer* trajectoryContainer = event->GetTrajectoryContainer();

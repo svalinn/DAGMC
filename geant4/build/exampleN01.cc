@@ -31,8 +31,7 @@
 #include "uwuw.hpp"
 #endif
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   G4Timer Timer;
   Timer.Start();
 
@@ -40,7 +39,7 @@ int main(int argc, char* argv[])
   G4RunManager* runManager = new G4RunManager;
 
   // Activate command-based scorer
-  G4ScoringManager * scManager = G4ScoringManager::GetScoringManager();
+  G4ScoringManager* scManager = G4ScoringManager::GetScoringManager();
   scManager->SetVerboseLevel(1);
   scManager->SetScoreWriter(new ExN01UserScoreWriter());
 
@@ -48,13 +47,13 @@ int main(int argc, char* argv[])
 
   // Activate UI-command base scorer
   // load the UWUW data
-  UWUW *workflow_data = new UWUW(uwuw_file);
+  UWUW* workflow_data = new UWUW(uwuw_file);
 
   // setup detectors and scores
   runManager->SetUserInitialization(new ExN01DetectorConstruction(workflow_data));
 
-  G4PhysListFactory *physListFactory = new G4PhysListFactory();
-  G4VUserPhysicsList *physicsList =
+  G4PhysListFactory* physListFactory = new G4PhysListFactory();
+  G4VUserPhysicsList* physicsList =
       physListFactory->GetReferencePhysList("QGSP_BIC_HP");
   runManager->SetUserInitialization(physicsList);
 
@@ -79,11 +78,11 @@ int main(int argc, char* argv[])
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   // batch mode
-  if( argc > 2 ) {
+  if (argc > 2) {
     G4String command = "/control/execute ";
     std::string filename(argv[2]);
-    G4UIExecutive* ui = new G4UIExecutive(argc,argv, "tcsh" );
-    UImanager->ApplyCommand(command+filename);
+    G4UIExecutive* ui = new G4UIExecutive(argc, argv, "tcsh");
+    UImanager->ApplyCommand(command + filename);
     ui->SessionStart();
     delete ui;
   } else {
@@ -103,7 +102,7 @@ int main(int argc, char* argv[])
   G4cout << G4endl;
   G4cout << "******************************************";
   G4cout << G4endl;
-  G4cout << "Total Real Elapsed Time is: "<< Timer.GetRealElapsed();
+  G4cout << "Total Real Elapsed Time is: " << Timer.GetRealElapsed();
   G4cout << G4endl;
   G4cout << "Total System Elapsed Time: " << Timer.GetSystemElapsed();
   G4cout << G4endl;

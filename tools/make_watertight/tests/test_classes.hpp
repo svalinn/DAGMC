@@ -16,13 +16,12 @@
 #include "MakeWatertight.hpp"
 #include "CheckWatertight.hpp"
 
-moab::Interface *MBI();
+moab::Interface* MBI();
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
-class MakeWatertightTest : public ::testing::Test
-{
+class MakeWatertightTest : public ::testing::Test {
  protected:
   virtual void SetUp();
   void reload_mesh();
@@ -85,8 +84,7 @@ class MakeWatertightTest : public ::testing::Test
 };
 
 // Rename of the general test class
-class MakeWatertightConeTest : public MakeWatertightTest
-{
+class MakeWatertightConeTest : public MakeWatertightTest {
  protected:
   // set test file name
   virtual void setFilename() {
@@ -97,8 +95,7 @@ class MakeWatertightConeTest : public MakeWatertightTest
 
 // FOR CYLINDER TESTING ONLY
 // Extension of the general test class to include cylinder-specific tests
-class MakeWatertightCylinderTest : public MakeWatertightTest
-{
+class MakeWatertightCylinderTest : public MakeWatertightTest {
 
  protected:
   /// set test file name
@@ -145,8 +142,7 @@ class MakeWatertightCylinderTest : public MakeWatertightTest
 };
 
 // Rename of the general test class
-class MakeWatertightNoCurveSphereTest : public MakeWatertightTest
-{
+class MakeWatertightNoCurveSphereTest : public MakeWatertightTest {
  protected:
   // set test file name
   virtual void setFilename() {

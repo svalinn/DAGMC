@@ -43,8 +43,7 @@
  * and the default value is 1.0.
  */
 //===========================================================================//
-class CellTally : public Tally
-{
+class CellTally : public Tally {
  public:
   /**
    * \brief Constructor

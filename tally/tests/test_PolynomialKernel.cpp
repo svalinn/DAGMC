@@ -6,8 +6,7 @@
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
-class PolynomialKernelTest : public ::testing::Test
-{
+class PolynomialKernelTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -24,8 +23,7 @@ class PolynomialKernelTest : public ::testing::Test
   PolynomialKernel* kernel;
 };
 //---------------------------------------------------------------------------//
-class IntegrateMomentTest : public ::testing::Test
-{
+class IntegrateMomentTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -59,8 +57,7 @@ class IntegrateMomentTest : public ::testing::Test
 // FIXTURE-BASED TESTS: PolynomialKernelTest
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate method of a 2nd-order uniform kernel
-TEST_F(PolynomialKernelTest, EvaluateUniformKernel)
-{
+TEST_F(PolynomialKernelTest, EvaluateUniformKernel) {
   kernel = new PolynomialKernel(0, 1);
   EXPECT_EQ("2nd-order uniform", kernel->get_kernel_name());
   EXPECT_EQ(2, kernel->get_order());
@@ -88,8 +85,7 @@ TEST_F(PolynomialKernelTest, EvaluateUniformKernel)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate method of a 2nd-order epanechnikov kernel
-TEST_F(PolynomialKernelTest, EvaluateEpanechnikovKernel)
-{
+TEST_F(PolynomialKernelTest, EvaluateEpanechnikovKernel) {
   kernel = new PolynomialKernel(1, 1);
   EXPECT_EQ("2nd-order epanechnikov", kernel->get_kernel_name());
   EXPECT_EQ(2, kernel->get_order());
@@ -117,8 +113,7 @@ TEST_F(PolynomialKernelTest, EvaluateEpanechnikovKernel)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate method of a 2nd-order biweight kernel
-TEST_F(PolynomialKernelTest, EvaluateBiweightKernel)
-{
+TEST_F(PolynomialKernelTest, EvaluateBiweightKernel) {
   kernel = new PolynomialKernel(2, 1);
   EXPECT_EQ("2nd-order biweight", kernel->get_kernel_name());
   EXPECT_EQ(2, kernel->get_order());
@@ -146,8 +141,7 @@ TEST_F(PolynomialKernelTest, EvaluateBiweightKernel)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate method of a 2nd-order triweight kernel
-TEST_F(PolynomialKernelTest, EvaluateTriweightKernel)
-{
+TEST_F(PolynomialKernelTest, EvaluateTriweightKernel) {
   kernel = new PolynomialKernel(3, 1);
   EXPECT_EQ("2nd-order triweight", kernel->get_kernel_name());
   EXPECT_EQ(2, kernel->get_order());
@@ -175,8 +169,7 @@ TEST_F(PolynomialKernelTest, EvaluateTriweightKernel)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate method of a 2nd-order general polynomial kernel
-TEST_F(PolynomialKernelTest, EvaluateGeneralPolynomialKernel)
-{
+TEST_F(PolynomialKernelTest, EvaluateGeneralPolynomialKernel) {
   kernel = new PolynomialKernel(4, 1);
   EXPECT_EQ("2nd-order polynomial (s = 4)", kernel->get_kernel_name());
   EXPECT_EQ(2, kernel->get_order());
@@ -204,8 +197,7 @@ TEST_F(PolynomialKernelTest, EvaluateGeneralPolynomialKernel)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate order of a 4th-order epanechnikov kernel
-TEST_F(PolynomialKernelTest, Evaluate4thOrderEpanechnikov)
-{
+TEST_F(PolynomialKernelTest, Evaluate4thOrderEpanechnikov) {
   kernel = new PolynomialKernel(1, 2);
   EXPECT_EQ("4th-order epanechnikov", kernel->get_kernel_name());
   EXPECT_EQ(4, kernel->get_order());
@@ -233,8 +225,7 @@ TEST_F(PolynomialKernelTest, Evaluate4thOrderEpanechnikov)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate order of a 6th-order epanechnikov kernel
-TEST_F(PolynomialKernelTest, Evaluate6thOrderEpanechnikov)
-{
+TEST_F(PolynomialKernelTest, Evaluate6thOrderEpanechnikov) {
   kernel = new PolynomialKernel(1, 3);
   EXPECT_EQ("6th-order epanechnikov", kernel->get_kernel_name());
   EXPECT_EQ(6, kernel->get_order());
@@ -262,8 +253,7 @@ TEST_F(PolynomialKernelTest, Evaluate6thOrderEpanechnikov)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate order of a 4th-order biweight kernel
-TEST_F(PolynomialKernelTest, Evaluate4thOrderBiweight)
-{
+TEST_F(PolynomialKernelTest, Evaluate4thOrderBiweight) {
   kernel = new PolynomialKernel(2, 2);
   EXPECT_EQ("4th-order biweight", kernel->get_kernel_name());
   EXPECT_EQ(4, kernel->get_order());
@@ -291,8 +281,7 @@ TEST_F(PolynomialKernelTest, Evaluate4thOrderBiweight)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate order of a 6th-order biweight kernel
-TEST_F(PolynomialKernelTest, Evaluate6thOrderBiweight)
-{
+TEST_F(PolynomialKernelTest, Evaluate6thOrderBiweight) {
   kernel = new PolynomialKernel(2, 3);
   EXPECT_EQ("6th-order biweight", kernel->get_kernel_name());
   EXPECT_EQ(6, kernel->get_order());
@@ -320,8 +309,7 @@ TEST_F(PolynomialKernelTest, Evaluate6thOrderBiweight)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate order of a 4th-order triweight kernel
-TEST_F(PolynomialKernelTest, Evaluate4thOrderTriweight)
-{
+TEST_F(PolynomialKernelTest, Evaluate4thOrderTriweight) {
   kernel = new PolynomialKernel(3, 2);
   EXPECT_EQ("4th-order triweight", kernel->get_kernel_name());
   EXPECT_EQ(4, kernel->get_order());
@@ -349,8 +337,7 @@ TEST_F(PolynomialKernelTest, Evaluate4thOrderTriweight)
 }
 //---------------------------------------------------------------------------//
 // Tests the basic evaluate order of a 6th-order triweight kernel
-TEST_F(PolynomialKernelTest, Evaluate6thOrderTriweight)
-{
+TEST_F(PolynomialKernelTest, Evaluate6thOrderTriweight) {
   kernel = new PolynomialKernel(3, 3);
   EXPECT_EQ("6th-order triweight", kernel->get_kernel_name());
   EXPECT_EQ(6, kernel->get_order());
@@ -379,16 +366,14 @@ TEST_F(PolynomialKernelTest, Evaluate6thOrderTriweight)
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: IntegrateMomentTest
 //---------------------------------------------------------------------------//
-TEST_F(IntegrateMomentTest, Integrate0thMoment)
-{
+TEST_F(IntegrateMomentTest, Integrate0thMoment) {
   EXPECT_NEAR(1.000000, kernel1->integrate_moment(a, b, i), 1e-6);
   EXPECT_NEAR(1.000000, kernel2->integrate_moment(a, b, i), 1e-6);
   EXPECT_NEAR(1.000000, kernel3->integrate_moment(a, b, i), 1e-6);
   EXPECT_NEAR(1.000000, kernel4->integrate_moment(a, b, i), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(IntegrateMomentTest, Integrate1stMoment)
-{
+TEST_F(IntegrateMomentTest, Integrate1stMoment) {
   i = 1;
   EXPECT_NEAR(0.000000, kernel1->integrate_moment(a, b, i), 1e-6);
   EXPECT_NEAR(0.000000, kernel2->integrate_moment(a, b, i), 1e-6);
@@ -396,8 +381,7 @@ TEST_F(IntegrateMomentTest, Integrate1stMoment)
   EXPECT_NEAR(0.000000, kernel4->integrate_moment(a, b, i), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(IntegrateMomentTest, Integrate2ndMoment)
-{
+TEST_F(IntegrateMomentTest, Integrate2ndMoment) {
   i = 2;
   EXPECT_NEAR(0.333333, kernel1->integrate_moment(a, b, i), 1e-6);
   EXPECT_NEAR(0.200000, kernel2->integrate_moment(a, b, i), 1e-6);
@@ -405,8 +389,7 @@ TEST_F(IntegrateMomentTest, Integrate2ndMoment)
   EXPECT_NEAR(0.000000, kernel4->integrate_moment(a, b, i), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(IntegrateMomentTest, Integrate3rdMoment)
-{
+TEST_F(IntegrateMomentTest, Integrate3rdMoment) {
   i = 3;
   EXPECT_NEAR(0.000000, kernel1->integrate_moment(a, b, i), 1e-6);
   EXPECT_NEAR(0.000000, kernel2->integrate_moment(a, b, i), 1e-6);
@@ -414,8 +397,7 @@ TEST_F(IntegrateMomentTest, Integrate3rdMoment)
   EXPECT_NEAR(0.000000, kernel4->integrate_moment(a, b, i), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(IntegrateMomentTest, Integrate4thMoment)
-{
+TEST_F(IntegrateMomentTest, Integrate4thMoment) {
   i = 4;
   EXPECT_NEAR(0.200000, kernel1->integrate_moment(a, b, i), 1e-6);
   EXPECT_NEAR(0.085714, kernel2->integrate_moment(a, b, i), 1e-6);
@@ -423,8 +405,7 @@ TEST_F(IntegrateMomentTest, Integrate4thMoment)
   EXPECT_NEAR(-0.047619, kernel4->integrate_moment(a, b, i), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(IntegrateMomentTest, IntegrateWithInvalidLimits)
-{
+TEST_F(IntegrateMomentTest, IntegrateWithInvalidLimits) {
   i = 4;
 
   // case 1 (a < -1.0, b < -1.0)
@@ -450,8 +431,7 @@ TEST_F(IntegrateMomentTest, IntegrateWithInvalidLimits)
   EXPECT_DOUBLE_EQ(0.0, kernel4->integrate_moment(a, b, i));
 }
 //---------------------------------------------------------------------------//
-TEST_F(IntegrateMomentTest, IntegrateWithValidLimits)
-{
+TEST_F(IntegrateMomentTest, IntegrateWithValidLimits) {
   i = 4;
 
   // case 1 (a = -1.0, b < 1.0)

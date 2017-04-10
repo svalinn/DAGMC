@@ -19,8 +19,7 @@ const double PI = 3.14159265359;
 // HELPER METHODS
 //---------------------------------------------------------------------------//
 // loads default mesh into the mbi instance and gets all mesh nodes
-void load_default_mesh(moab::Interface* mbi, moab::Range& mesh_nodes)
-{
+void load_default_mesh(moab::Interface* mbi, moab::Range& mesh_nodes) {
   moab::ErrorCode rval = mbi->load_mesh("structured_mesh.h5m");
   assert(rval == moab::MB_SUCCESS);
 
@@ -32,12 +31,12 @@ void load_default_mesh(moab::Interface* mbi, moab::Range& mesh_nodes)
 //---------------------------------------------------------------------------//
 // check all points are valid for given neighborhood region
 bool check_all_points(const KDENeighborhood& region,
-                      const std::set<moab::EntityHandle>& points)
-{
+                      const std::set<moab::EntityHandle>& points) {
   std::set<moab::EntityHandle>::iterator it;
 
   for (it = points.begin(); it != points.end(); ++it) {
-    if (!region.is_calculation_point(*it)) return false;
+    if (!region.is_calculation_point(*it))
+      return false;
   }
 
   return true;
@@ -45,8 +44,7 @@ bool check_all_points(const KDENeighborhood& region,
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
-class GetPointsTest : public ::testing::Test
-{
+class GetPointsTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -76,8 +74,7 @@ class GetPointsTest : public ::testing::Test
   KDENeighborhood* region2;
 };
 //---------------------------------------------------------------------------//
-class IsCalculationPointTest : public ::testing::Test
-{
+class IsCalculationPointTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -109,8 +106,7 @@ class IsCalculationPointTest : public ::testing::Test
 // SIMPLE TESTS
 //---------------------------------------------------------------------------//
 // Tests construction with no MOAB instance
-TEST(KDENeighborhoodDeathTest, NullMOABInstance)
-{
+TEST(KDENeighborhoodDeathTest, NullMOABInstance) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
   // define a NULL MOAB instance
@@ -127,8 +123,7 @@ TEST(KDENeighborhoodDeathTest, NullMOABInstance)
 }
 //---------------------------------------------------------------------------//
 // Tests NULL tally event passed to the update_neighborhood method
-TEST(KDENeighborhoodDeathTest, InvalidTallyEvent)
-{
+TEST(KDENeighborhoodDeathTest, InvalidTallyEvent) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
   moab::Core mb_core;
@@ -159,8 +154,7 @@ TEST(KDENeighborhoodDeathTest, InvalidTallyEvent)
 }
 //---------------------------------------------------------------------------//
 // Tests construction with an empty moab::Range containing no mesh nodes
-TEST(KDENeighborhoodTest, NoMeshNodes)
-{
+TEST(KDENeighborhoodTest, NoMeshNodes) {
   moab::Core mb_core;
   moab::Interface* mbi = &mb_core;
 
@@ -189,8 +183,7 @@ TEST(KDENeighborhoodTest, NoMeshNodes)
 // FIXTURE-BASED TESTS: GetPointsTest
 //---------------------------------------------------------------------------//
 // Tests all points are returned if neighborhood is conformal to mesh
-TEST_F(GetPointsTest, GetAllPointsInBox)
-{
+TEST_F(GetPointsTest, GetAllPointsInBox) {
   // define neighborhood conformal to mesh based on collision event
   TallyEvent event;
   event.type = TallyEvent::COLLISION;
@@ -218,8 +211,7 @@ TEST_F(GetPointsTest, GetAllPointsInBox)
 }
 //---------------------------------------------------------------------------//
 // Tests no points are returned if neighborhood exists outside mesh
-TEST_F(GetPointsTest, GetNoPointsOutsideBox)
-{
+TEST_F(GetPointsTest, GetNoPointsOutsideBox) {
   // define neighborhood outside the mesh based on collision event
   TallyEvent event;
   event.type = TallyEvent::COLLISION;
@@ -245,8 +237,7 @@ TEST_F(GetPointsTest, GetNoPointsOutsideBox)
 }
 //---------------------------------------------------------------------------//
 // Tests no points are returned if mesh cell is bigger than neighborhood
-TEST_F(GetPointsTest, GetNoPointsInBox)
-{
+TEST_F(GetPointsTest, GetNoPointsInBox) {
   // define neighborhood within mesh cell based on collision event
   TallyEvent event;
   event.type = TallyEvent::COLLISION;
@@ -272,11 +263,10 @@ TEST_F(GetPointsTest, GetNoPointsInBox)
 }
 //---------------------------------------------------------------------------//
 // Tests correct points are returned for normal cases
-TEST_F(GetPointsTest, GetPointsInBox)
-{
+TEST_F(GetPointsTest, GetPointsInBox) {
   // define neighborhood using a track event (region overlaps z-mesh)
   TallyEvent event;
-  double uvw_val = 1.0/sqrt(2.0);
+  double uvw_val = 1.0 / sqrt(2.0);
   event.type = TallyEvent::TRACK;
   event.position = moab::CartVect(0.2, -0.2, 0.2);
   event.direction = moab::CartVect(uvw_val, 0.0, -1.0 * uvw_val);
@@ -310,8 +300,7 @@ TEST_F(GetPointsTest, GetPointsInBox)
 // FIXTURE-BASED TESTS: IsCalculationPointTest
 //---------------------------------------------------------------------------//
 // Tests all points are calculation points when no kd-tree is used
-TEST_F(IsCalculationPointTest, NoKDTree)
-{
+TEST_F(IsCalculationPointTest, NoKDTree) {
   // copy all mesh nodes into Range and convert into set
   moab::Range mesh_nodes;
   moab::EntityHandle root_set = 0;
@@ -335,8 +324,7 @@ TEST_F(IsCalculationPointTest, NoKDTree)
 }
 //---------------------------------------------------------------------------//
 // Tests corners of neighborhood are valid calculation points
-TEST_F(IsCalculationPointTest, ValidCornerPoints)
-{
+TEST_F(IsCalculationPointTest, ValidCornerPoints) {
   // define additional valid calculation points at corners of neighborhood
   moab::Range corner_points;
   double corner_coords[] = {
@@ -379,8 +367,7 @@ TEST_F(IsCalculationPointTest, ValidCornerPoints)
 }
 //---------------------------------------------------------------------------//
 // Tests points along edges of neighborhood are valid calculation points
-TEST_F(IsCalculationPointTest, ValidEdgePoints)
-{
+TEST_F(IsCalculationPointTest, ValidEdgePoints) {
   // define additional valid calculation points along edges of neighborhood
   moab::Range edge_points;
   double edge_coords[] = {
@@ -423,8 +410,7 @@ TEST_F(IsCalculationPointTest, ValidEdgePoints)
 }
 //---------------------------------------------------------------------------//
 // Tests points inside neighborhood are valid calculation points
-TEST_F(IsCalculationPointTest, ValidInteriorPoints)
-{
+TEST_F(IsCalculationPointTest, ValidInteriorPoints) {
   // define additional valid points within interior of neighborhood
   moab::Range interior_points;
   double interior_coords[] = {
@@ -439,7 +425,7 @@ TEST_F(IsCalculationPointTest, ValidInteriorPoints)
   assert(rval == moab::MB_SUCCESS);
 
   std::set<moab::EntityHandle> interior_set(interior_points.begin(),
-      interior_points.end());
+                                            interior_points.end());
 
   EXPECT_EQ(4, interior_set.size());
 
@@ -463,8 +449,7 @@ TEST_F(IsCalculationPointTest, ValidInteriorPoints)
 }
 //---------------------------------------------------------------------------//
 // Tests points that are NOT in neighborhood are NOT valid calculation points
-TEST_F(IsCalculationPointTest, InvalidPoints)
-{
+TEST_F(IsCalculationPointTest, InvalidPoints) {
   // define additional points that are invalid calculation points
   moab::Range invalid_points;
   double invalid_coords[] = {
@@ -486,7 +471,7 @@ TEST_F(IsCalculationPointTest, InvalidPoints)
   assert(rval == moab::MB_SUCCESS);
 
   std::set<moab::EntityHandle> invalid_set(invalid_points.begin(),
-      invalid_points.end());
+                                           invalid_points.end());
 
   EXPECT_EQ(11, invalid_set.size());
 
@@ -506,7 +491,7 @@ TEST_F(IsCalculationPointTest, InvalidPoints)
   region.update_neighborhood(event, bandwidth);
 
   std::set<moab::EntityHandle>::iterator it;
-  for(it = invalid_set.begin(); it != invalid_set.end(); ++it) {
+  for (it = invalid_set.begin(); it != invalid_set.end(); ++it) {
     EXPECT_FALSE(region.is_calculation_point(*it));
   }
 }

@@ -12,10 +12,9 @@
 //---------------------------------------------------------------------------//
 CellTally::CellTally(const TallyInput& input, TallyEvent::EventType eventType)
   : Tally(input),
-  cell_id(1),
-  cell_volume(1.0),
-  expected_type(eventType)
-{
+    cell_id(1),
+    cell_volume(1.0),
+    expected_type(eventType) {
   // Set up CellTally member variables from TallyInput
   parse_tally_options();
 
@@ -25,8 +24,7 @@ CellTally::CellTally(const TallyInput& input, TallyEvent::EventType eventType)
 //---------------------------------------------------------------------------//
 // DERIVED PUBLIC INTERFACE from Tally.hpp
 //---------------------------------------------------------------------------//
-void CellTally::compute_score(const TallyEvent& event)
-{
+void CellTally::compute_score(const TallyEvent& event) {
   // Return if current cell or particle energy is incompatible with CellTally
   unsigned int ebin = 0;
 
@@ -50,8 +48,7 @@ void CellTally::compute_score(const TallyEvent& event)
   data->add_score_to_tally(tally_index, event_score, ebin);
 }
 //---------------------------------------------------------------------------//
-void CellTally::write_data(double num_histories)
-{
+void CellTally::write_data(double num_histories) {
   std::cout << "Writing data for CellTally " << input_data.tally_id
             << ": " << std::endl;
 
@@ -72,7 +69,7 @@ void CellTally::write_data(double num_histories)
       std::cout << "Total Energy Bin: " << std::endl;
     } else {
       std::cout << "Energy bin (" << input_data.energy_bin_bounds.at(i)
-                << ", " << input_data.energy_bin_bounds.at(i+1) << "):\n";
+                << ", " << input_data.energy_bin_bounds.at(i + 1) << "):\n";
     }
 
     std::pair <double, double> tally_data = data->get_data(point_index, i);
@@ -95,15 +92,13 @@ void CellTally::write_data(double num_histories)
   }
 }
 //---------------------------------------------------------------------------//
-int CellTally::get_cell_id()
-{
+int CellTally::get_cell_id() {
   return cell_id;
 }
 //---------------------------------------------------------------------------//
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//
-void CellTally::parse_tally_options()
-{
+void CellTally::parse_tally_options() {
   const TallyInput::TallyOptions& options = input_data.options;
   TallyInput::TallyOptions::const_iterator it;
 

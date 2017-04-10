@@ -6,8 +6,7 @@
 #include "../pyne/pyne.h"
 #include "DagMC.hpp"
 
-class uwuw_preprocessor
-{
+class uwuw_preprocessor {
  public:
   uwuw_preprocessor();
   ~uwuw_preprocessor();
@@ -22,6 +21,6 @@ class uwuw_preprocessor
 
  private:
   // map of all volume properties
-  std::map<std::string,std::pair<std::string,std::string> > volume_property_map;
+  std::map<std::string, std::pair<std::string, std::string> > volume_property_map;
 
 };

@@ -111,10 +111,9 @@
 #endif
 
 /// The 'pyne' namespace all PyNE functionality is included in.
-namespace pyne
-{
+namespace pyne {
 
-void pyne_start (); ///< Initializes PyNE based on environment.
+void pyne_start();  ///< Initializes PyNE based on environment.
 
 /// Path to the directory containing the PyNE data.
 extern std::string PYNE_DATA;
@@ -143,9 +142,9 @@ double to_dbl(std::string s);  ///< Converts a valid string to a float using ato
 
 /// Converts a string from ENDF format to a float. Only handles E-less format
 /// but is roughly 5 times faster than endftod.
-double endftod_cpp(char * s);
-double endftod_f(char * s); ///< Converts a string from ENDF format to a float.
-extern  double (*endftod)(char * s); ///< endftod function pointer. defaults to fortran
+double endftod_cpp(char* s);
+double endftod_f(char* s);  ///< Converts a string from ENDF format to a float.
+extern  double (*endftod)(char* s);  ///< endftod function pointer. defaults to fortran
 
 void use_fast_endftod();/// switches endftod to fast cpp version
 
@@ -179,7 +178,7 @@ std::string last_char(std::string s);
 
 /// Returns the slice of a string \a s using the negative index \a n and the
 /// length of the slice \a l.
-std::string slice_from_end(std::string s, int n=-1, int l=1);
+std::string slice_from_end(std::string s, int n = -1, int l = 1);
 
 /// Returns true if \a a <= \a b <= \a c and flase otherwise.
 bool ternary_ge(int a, int b, int c);
@@ -192,11 +191,11 @@ bool contains_substring(std::string s, std::string substr);
 std::string natural_naming(std::string name);
 
 /// Finds the slope of a line from the points (\a x1, \a y1) and (\a x2, \a y2).
-double slope (double x2, double y2, double x1, double y1);
+double slope(double x2, double y2, double x1, double y1);
 
 /// Solves the equation for the line y = mx + b, given \a x and the points that
 /// form the line: (\a x1, \a y1) and (\a x2, \a y2).
-double solve_line (double x, double x2, double y2, double x1, double y1);
+double solve_line(double x, double x2, double y2, double x1, double y1);
 
 double tanh(double x);  ///< The hyperbolic tangent function.
 double coth(double x);  ///< The hyperbolic cotangent function.
@@ -216,15 +215,14 @@ void warning(std::string s);
 
 /// Custom exception to be thrown in the event that a required file is not able to
 /// be found.
-class FileNotFound : public std::exception
-{
+class FileNotFound : public std::exception {
  public:
 
   /// default constructor
-  FileNotFound () {};
+  FileNotFound() {};
 
   /// default destructor
-  ~FileNotFound () throw () {};
+  ~FileNotFound() throw () {};
 
   /// constructor with the filename \a fname.
   FileNotFound(std::string fname) {
@@ -233,11 +231,11 @@ class FileNotFound : public std::exception
 
   /// Creates a helpful error message.
   virtual const char* what() const throw() {
-    std::string FNFstr ("File not found: ");
+    std::string FNFstr("File not found: ");
     if (!filename.empty())
       FNFstr += filename;
 
-    return (const char *) FNFstr.c_str();
+    return (const char*) FNFstr.c_str();
   };
 
  private:
@@ -266,8 +264,7 @@ class FileNotFound : public std::exception
 #define _XDRESS_EXTRA_TYPES_
 
 #if defined(__cplusplus)
-namespace extra_types
-{
+namespace extra_types {
 /// complex type struct, matching PyTables definition
 //  typedef struct {
 //    double re;  ///< real part
@@ -279,8 +276,7 @@ namespace extra_types
 /// rather than three template functions, because Cython does
 /// not yet support template function wrapping.
 template <class T>
-class MemoryKnight
-{
+class MemoryKnight {
  public:
   MemoryKnight() {};  ///< Default constructor
   ~MemoryKnight() {}; ///< Default Destructor
@@ -288,7 +284,7 @@ class MemoryKnight
   /// Creates a new instance of type T on the heap using
   /// its default constructor.
   /// \return T *
-  T * defnew() {
+  T* defnew() {
     return new T();
   };
 
@@ -296,13 +292,13 @@ class MemoryKnight
   /// constructor, at a given location.
   /// \param void * ptr, location to create T instance
   /// \return value of ptr recast as T *
-  T * renew(void * ptr) {
+  T* renew(void* ptr) {
     return new (ptr) T();
   };
 
   /// Deallocates a location in memory using delete.
   /// \param T * ptr, location to remove
-  void deall(T * ptr) {
+  void deall(T* ptr) {
     delete ptr;
   };
 };
@@ -358,11 +354,9 @@ typedef struct {
 #endif
 
 //! Wrapper for standard HDF5 operations
-namespace h5wrap
-{
+namespace h5wrap {
 /// Custom exception for HDF5 indexing errors.
-class HDF5BoundsError: public std::exception
-{
+class HDF5BoundsError: public std::exception {
   /// returns error message.
   virtual const char* what() const throw() {
     return "Index of point is out of bounds.  Cannot handle in HDF5 file.";
@@ -371,8 +365,7 @@ class HDF5BoundsError: public std::exception
 
 
 /// Custom exception for when an existing file is not in a valid HDF5 format.
-class FileNotHDF5: public std::exception
-{
+class FileNotHDF5: public std::exception {
  public:
 
   /// default constructor
@@ -388,11 +381,11 @@ class FileNotHDF5: public std::exception
 
   /// helpful error message that includes the filename
   virtual const char* what() const throw() {
-    std::string FNH5str ("Not a valid HDF5 file: ");
+    std::string FNH5str("Not a valid HDF5 file: ");
     if (!filename.empty())
       FNH5str += filename;
 
-    return (const char *) FNH5str.c_str();
+    return (const char*) FNH5str.c_str();
   };
 
  private:
@@ -401,8 +394,7 @@ class FileNotHDF5: public std::exception
 
 
 /// Custom exception for when a group cannot be found in an HDF5 file.
-class GroupNotFound: public std::exception
-{
+class GroupNotFound: public std::exception {
  public:
 
   /// default constructor
@@ -418,11 +410,11 @@ class GroupNotFound: public std::exception
 
   /// helpful error message that includes the filename and the groupname
   virtual const char* what() const throw() {
-    std::string msg ("the group ");
+    std::string msg("the group ");
     msg += groupname;
     msg += " not found in the file ";
     msg += filename;
-    return (const char *) msg.c_str();
+    return (const char*) msg.c_str();
   };
 
  private:
@@ -431,8 +423,7 @@ class GroupNotFound: public std::exception
 };
 
 /// Custom exception for when a path is not found in an HDF5 file
-class PathNotFound: public std::exception
-{
+class PathNotFound: public std::exception {
  public:
 
   /// default constructor
@@ -449,11 +440,11 @@ class PathNotFound: public std::exception
 
   /// helpful error message that includes the filename and the pathname
   virtual const char* what() const throw() {
-    std::string msg ("the path ");
+    std::string msg("the path ");
     msg += path;
     msg += " was not found in the HDF5 file ";
     msg += filename;
-    return (const char *) msg.c_str();
+    return (const char*) msg.c_str();
   };
 
  private:
@@ -468,8 +459,7 @@ class PathNotFound: public std::exception
 /// Retrieves the \a nth index out of the dataset \a dset (which has an HDF5
 /// datatype \a dtype).  The value is returned as the C/C++ type given by \a T.
 template <typename T>
-T get_array_index(hid_t dset, int n, hid_t dtype=H5T_NATIVE_DOUBLE)
-{
+T get_array_index(hid_t dset, int n, hid_t dtype = H5T_NATIVE_DOUBLE) {
   hsize_t count  [1] = {1};
   hsize_t offset [1] = {static_cast<hsize_t>(n)};
 
@@ -512,8 +502,7 @@ T get_array_index(hid_t dset, int n, hid_t dtype=H5T_NATIVE_DOUBLE)
 /// \param dtype HDF5 data type for the data set at \a data_path.
 /// \return an in memory set of type \a T.
 template <typename T>
-std::set<T> h5_array_to_cpp_set(hid_t h5file, std::string data_path, hid_t dtype=H5T_NATIVE_DOUBLE)
-{
+std::set<T> h5_array_to_cpp_set(hid_t h5file, std::string data_path, hid_t dtype = H5T_NATIVE_DOUBLE) {
   std::set<T> cpp_set = std::set<T>();
   hsize_t arr_len[1];
   hid_t dset = H5Dopen2(h5file, data_path.c_str(), H5P_DEFAULT);
@@ -523,7 +512,7 @@ std::set<T> h5_array_to_cpp_set(hid_t h5file, std::string data_path, hid_t dtype
   int arr_dim = H5Sget_simple_extent_dims(arr_space, arr_len, NULL);
 
   // Read in data from file to memory
-  T * mem_arr = new T [arr_len[0]];
+  T* mem_arr = new T [arr_len[0]];
   H5Dread(dset, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, mem_arr);
 
   // Load new values into the set
@@ -544,8 +533,7 @@ std::set<T> h5_array_to_cpp_set(hid_t h5file, std::string data_path, hid_t dtype
 /// \return an in memory 1D vector of type \a T.
 template <typename T>
 std::vector<T> h5_array_to_cpp_vector_1d(hid_t h5file, std::string data_path,
-    hid_t dtype=H5T_NATIVE_DOUBLE)
-{
+                                         hid_t dtype = H5T_NATIVE_DOUBLE) {
   std::vector<T> cpp_vec;
   hsize_t arr_dims [1];
   hid_t dset = H5Dopen2(h5file, data_path.c_str(), H5P_DEFAULT);
@@ -559,7 +547,7 @@ std::vector<T> h5_array_to_cpp_vector_1d(hid_t h5file, std::string data_path,
   H5Dread(dset, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, mem_arr);
 
   // Load new values into the vector
-  cpp_vec.assign(mem_arr, mem_arr+arr_dims[0]);
+  cpp_vec.assign(mem_arr, mem_arr + arr_dims[0]);
 
   H5Dclose(dset);
   return cpp_vec;
@@ -574,8 +562,7 @@ std::vector<T> h5_array_to_cpp_vector_1d(hid_t h5file, std::string data_path,
 /// \return an in memory 2D vector of type \a T.
 template <typename T>
 std::vector< std::vector<T> > h5_array_to_cpp_vector_2d(hid_t h5file, std::string data_path,
-    hid_t dtype=H5T_NATIVE_DOUBLE)
-{
+                                                        hid_t dtype = H5T_NATIVE_DOUBLE) {
   hsize_t arr_dims [2];
   hid_t dset = H5Dopen2(h5file, data_path.c_str(), H5P_DEFAULT);
 
@@ -590,9 +577,9 @@ std::vector< std::vector<T> > h5_array_to_cpp_vector_2d(hid_t h5file, std::strin
   H5Dread(dset, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, mem_arr);
 
   // Load new values into the vector of vectors, using some indexing tricks
-  std::vector< std::vector<T> > cpp_vec (arr_dims[0], std::vector<T>(arr_dims[1]));
-  for(int i = 0; i < arr_dims[0]; i++) {
-    cpp_vec[i].assign(mem_arr+(i*arr_dims[1]), mem_arr+((i+1)*arr_dims[1]));
+  std::vector< std::vector<T> > cpp_vec(arr_dims[0], std::vector<T>(arr_dims[1]));
+  for (int i = 0; i < arr_dims[0]; i++) {
+    cpp_vec[i].assign(mem_arr + (i * arr_dims[1]), mem_arr + ((i + 1)*arr_dims[1]));
   };
 
   H5Dclose(dset);
@@ -608,9 +595,8 @@ std::vector< std::vector<T> > h5_array_to_cpp_vector_2d(hid_t h5file, std::strin
 /// \return an in memory 3D vector of type \a T.
 template <typename T>
 std::vector< std::vector< std::vector<T> > > h5_array_to_cpp_vector_3d(hid_t h5file,
-    std::string data_path,
-    hid_t dtype=H5T_NATIVE_DOUBLE)
-{
+                                                                       std::string data_path,
+                                                                       hid_t dtype = H5T_NATIVE_DOUBLE) {
   hsize_t arr_dims [3];
   hid_t dset = H5Dopen2(h5file, data_path.c_str(), H5P_DEFAULT);
 
@@ -625,10 +611,10 @@ std::vector< std::vector< std::vector<T> > > h5_array_to_cpp_vector_3d(hid_t h5f
   H5Dread(dset, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, mem_arr);
 
   // Load new values into the vector of vectors of vectors, using some indexing tricks
-  std::vector< std::vector< std::vector<T> > > cpp_vec (arr_dims[0], std::vector< std::vector<T> >(arr_dims[1], std::vector<T>(arr_dims[2])));
-  for(int i = 0; i < arr_dims[0]; i++) {
-    for(int j = 0; j < arr_dims[1]; j++) {
-      cpp_vec[i][j].assign(mem_arr+((i*arr_dims[1]*arr_dims[2]) + (j*arr_dims[2])), mem_arr+((i*arr_dims[1]*arr_dims[2]) + ((j+1)*arr_dims[2])));
+  std::vector< std::vector< std::vector<T> > > cpp_vec(arr_dims[0], std::vector< std::vector<T> >(arr_dims[1], std::vector<T>(arr_dims[2])));
+  for (int i = 0; i < arr_dims[0]; i++) {
+    for (int j = 0; j < arr_dims[1]; j++) {
+      cpp_vec[i][j].assign(mem_arr + ((i * arr_dims[1]*arr_dims[2]) + (j * arr_dims[2])), mem_arr + ((i * arr_dims[1]*arr_dims[2]) + ((j + 1)*arr_dims[2])));
     };
   };
 
@@ -642,8 +628,7 @@ std::vector< std::vector< std::vector<T> > > h5_array_to_cpp_vector_3d(hid_t h5f
 /// A class representing a high-level table contruct whose columns all have the same
 /// type \a T in C/C++ (and the analogous type in HDF5).
 template <typename T>
-class HomogenousTypeTable
-{
+class HomogenousTypeTable {
  public:
 
   /// default constructor
@@ -657,7 +642,7 @@ class HomogenousTypeTable
   /// \param h5file HDF5 file id for an open file.
   /// \param data_path path to the data in the open file.
   /// \param dtype HDF5 data type for the data set at \a data_path.
-  HomogenousTypeTable(hid_t h5file, std::string data_path, hid_t dtype=H5T_NATIVE_DOUBLE) {
+  HomogenousTypeTable(hid_t h5file, std::string data_path, hid_t dtype = H5T_NATIVE_DOUBLE) {
     hid_t h5_set = H5Dopen2(h5file, data_path.c_str(), H5P_DEFAULT);
     hid_t h5_space = H5Dget_space(h5_set);
     hid_t h5_type = H5Dget_type(h5_set);
@@ -670,17 +655,17 @@ class HomogenousTypeTable
     shape[1] = H5Tget_nmembers(h5_type);
 
     // set cols
-    std::string * cols_buf = new std::string [shape[1]];
-    for(int n = 0; n < shape[1]; n++)
+    std::string* cols_buf = new std::string [shape[1]];
+    for (int n = 0; n < shape[1]; n++)
       cols_buf[n] = H5Tget_member_name(h5_type, n);
-    cols.assign(cols_buf, cols_buf+shape[1]);
+    cols.assign(cols_buf, cols_buf + shape[1]);
 
     // set data
     hid_t col_type;
-    T * col_buf = new T [shape[0]];
+    T* col_buf = new T [shape[0]];
 
     data.clear();
-    for(int n = 0; n < shape[1]; n++) {
+    for (int n = 0; n < shape[1]; n++) {
       // Make a compound data type of just this column
       col_type = H5Tcreate(H5T_COMPOUND, sizeof(T));
       H5Tinsert(col_type, cols[n].c_str(), 0, dtype);
@@ -689,7 +674,7 @@ class HomogenousTypeTable
       H5Dread(h5_set, col_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, col_buf);
 
       // save this column as a vector in out data map
-      data[cols[n]] = std::vector<T>(col_buf, col_buf+shape[0]);
+      data[cols[n]] = std::vector<T>(col_buf, col_buf + shape[0]);
     };
     delete[] col_buf;
   };
@@ -705,15 +690,15 @@ class HomogenousTypeTable
   // operator overloads
   //
   /// index into the table by column name (string)
-  std::vector<T> operator[] (std::string col_name) {
+  std::vector<T> operator[](std::string col_name) {
     return data[col_name];
   };
 
   /// index into the table by row
-  std::map<std::string, T> operator[] (int m) {
+  std::map<std::string, T> operator[](int m) {
     std::map<std::string, T> row = std::map<std::string, T>();
 
-    for(int n = 0; n < shape[1]; n++)
+    for (int n = 0; n < shape[1]; n++)
       row[cols[n]] = data[cols[n]][m];
 
     return row;
@@ -723,8 +708,7 @@ class HomogenousTypeTable
 
 /// Create an HDF5 data type for complex 128 bit data, which happens to match the
 /// complex data type that is used by PyTables ^_~.
-inline hid_t _get_PYTABLES_COMPLEX128()
-{
+inline hid_t _get_PYTABLES_COMPLEX128() {
   hid_t ct = H5Tcreate(H5T_COMPOUND, sizeof(xd_complex_t));
   H5Tinsert(ct, "r", HOFFSET(xd_complex_t, re), H5T_NATIVE_DOUBLE);
   H5Tinsert(ct, "i", HOFFSET(xd_complex_t, im), H5T_NATIVE_DOUBLE);
@@ -739,8 +723,7 @@ static hid_t PYTABLES_COMPLEX128 = _get_PYTABLES_COMPLEX128();
 /// \param h5file HDF5 file id for an open file.
 /// \param path path to the data in the open file.
 /// \return true or false
-inline bool path_exists(hid_t h5file, std::string path)
-{
+inline bool path_exists(hid_t h5file, std::string path) {
   bool rtn = false;
   hid_t ds = H5Dopen2(h5file, path.c_str(), H5P_DEFAULT);
   if (0 <= ds) {
@@ -787,11 +770,9 @@ inline bool path_exists(hid_t h5file, std::string path)
 #include "utils.h"
 #endif
 
-namespace pyne
-{
+namespace pyne {
 //! Nuclide naming conventions
-namespace nucname
-{
+namespace nucname {
 typedef std::string name_t; ///< name type
 typedef int zz_t;           ///< Z number type
 
@@ -824,7 +805,7 @@ typedef zz_group::iterator zz_group_iter; ///< Z number grouping iter
 /// Converts a name group to a Z number group.
 /// \param eg a grouping of nuclides by name
 /// \return a Z numbered group
-zz_group name_to_zz_group (name_group eg);
+zz_group name_to_zz_group(name_group eg);
 
 extern name_t LAN_array[15];  ///< array of lanthanide names
 extern name_group LAN;        ///< lanthanide name group
@@ -853,14 +834,13 @@ extern zz_group fp;           ///< fission product Z number group
 
 /// Custom expection for declaring that a value does not follow a recognizable
 /// nuclide naming convention.
-class NotANuclide : public std::exception
-{
+class NotANuclide : public std::exception {
  public:
   /// default constructor
-  NotANuclide () {};
+  NotANuclide() {};
 
   /// default destructor
-  ~NotANuclide () throw () {};
+  ~NotANuclide() throw () {};
 
   /// Constructor given previous and current state of nulide name
   /// \param wasptr Previous state, typically user input.
@@ -897,7 +877,7 @@ class NotANuclide : public std::exception
   /// Generates an informational message for the exception
   /// \return The error string
   virtual const char* what() const throw() {
-    std::string NaNEstr ("Not a Nuclide! ");
+    std::string NaNEstr("Not a Nuclide! ");
     if (!nucwas.empty())
       NaNEstr += nucwas;
 
@@ -905,7 +885,7 @@ class NotANuclide : public std::exception
       NaNEstr += " --> ";
       NaNEstr += nucnow;
     }
-    return (const char *) NaNEstr.c_str();
+    return (const char*) NaNEstr.c_str();
   };
 
  private:
@@ -915,14 +895,13 @@ class NotANuclide : public std::exception
 
 /// Custom expection for declaring that a value represents one or more nuclides
 /// in one or more namig conventions
-class IndeterminateNuclideForm : public std::exception
-{
+class IndeterminateNuclideForm : public std::exception {
  public:
   /// default constructor
-  IndeterminateNuclideForm () {};
+  IndeterminateNuclideForm() {};
 
   /// default destuctor
-  ~IndeterminateNuclideForm () throw () {};
+  ~IndeterminateNuclideForm() throw () {};
 
   /// Constructor given previous and current state of nulide name
   /// \param wasptr Previous state, typically user input.
@@ -959,7 +938,7 @@ class IndeterminateNuclideForm : public std::exception
   /// Generates an informational message for the exception
   /// \return The error string
   virtual const char* what() const throw() {
-    std::string INFEstr ("Indeterminate nuclide form: ");
+    std::string INFEstr("Indeterminate nuclide form: ");
     if (!nucwas.empty())
       INFEstr += nucwas;
 
@@ -967,7 +946,7 @@ class IndeterminateNuclideForm : public std::exception
       INFEstr += " --> ";
       INFEstr += nucnow;
     }
-    return (const char *) INFEstr.c_str();
+    return (const char*) INFEstr.c_str();
   }
 
  private:
@@ -981,7 +960,7 @@ class IndeterminateNuclideForm : public std::exception
 /// \param nuc a possible nuclide
 /// \return a bool
 bool isnuclide(std::string nuc);
-bool isnuclide(const char * nuc);
+bool isnuclide(const char* nuc);
 bool isnuclide(int nuc);
 /// \}
 
@@ -991,7 +970,7 @@ bool isnuclide(int nuc);
 /// \param nuc a possible element
 /// \return a bool
 bool iselement(std::string nuc);
-bool iselement(const char * nuc);
+bool iselement(const char* nuc);
 bool iselement(int nuc);
 
 /// \}
@@ -1026,7 +1005,7 @@ bool iselement(int nuc);
 /// \param nuc a nuclide
 /// \return nucid 32-bit integer identifier
 int id(int nuc);
-int id(const char * nuc);
+int id(const char* nuc);
 int id(std::string nuc);
 /// \}
 
@@ -1044,7 +1023,7 @@ int id(std::string nuc);
 /// \param nuc a nuclide
 /// \return a string nuclide identifier.
 std::string name(int nuc);
-std::string name(const char * nuc);
+std::string name(const char* nuc);
 std::string name(std::string nuc);
 /// \}
 
@@ -1055,7 +1034,7 @@ std::string name(std::string nuc);
 /// \param nuc a nuclide
 /// \return an integer Z-number.
 int znum(int nuc);
-int znum(const char * nuc);
+int znum(const char* nuc);
 int znum(std::string nuc);
 /// \}
 
@@ -1066,7 +1045,7 @@ int znum(std::string nuc);
 /// \param nuc a nuclide
 /// \return an integer A-number.
 int anum(int nuc);
-int anum(const char * nuc);
+int anum(const char* nuc);
 int anum(std::string nuc);
 /// \}
 
@@ -1078,7 +1057,7 @@ int anum(std::string nuc);
 /// \param nuc a nuclide
 /// \return an integer A-number.
 int snum(int nuc);
-int snum(const char * nuc);
+int snum(const char* nuc);
 int snum(std::string nuc);
 /// \}
 
@@ -1092,7 +1071,7 @@ int snum(std::string nuc);
 /// \param nuc a nuclide
 /// \return an integer nuclide identifier.
 int zzaaam(int nuc);
-int zzaaam(const char * nuc);
+int zzaaam(const char* nuc);
 int zzaaam(std::string nuc);
 /// \}
 
@@ -1103,7 +1082,7 @@ int zzaaam(std::string nuc);
 /// \param nuc a nuclide in ZZAAAM form.
 /// \return an integer id nuclide identifier.
 int zzaaam_to_id(int nuc);
-int zzaaam_to_id(const char * nuc);
+int zzaaam_to_id(const char* nuc);
 int zzaaam_to_id(std::string nuc);
 /// \}
 
@@ -1117,7 +1096,7 @@ int zzaaam_to_id(std::string nuc);
 /// \param nuc a nuclide
 /// \return an integer nuclide identifier.
 int zzzaaa(int nuc);
-int zzzaaa(const char * nuc);
+int zzzaaa(const char* nuc);
 int zzzaaa(std::string nuc);
 /// \}
 
@@ -1129,7 +1108,7 @@ int zzzaaa(std::string nuc);
 /// \param nuc a nuclide in ZZZAAA form.
 /// \return an integer id nuclide identifier.
 int zzzaaa_to_id(int nuc);
-int zzzaaa_to_id(const char * nuc);
+int zzzaaa_to_id(const char* nuc);
 int zzzaaa_to_id(std::string nuc);
 /// \}
 
@@ -1143,7 +1122,7 @@ int zzzaaa_to_id(std::string nuc);
 /// \param nuc a nuclide
 /// \return an integer nuclide identifier.
 std::string zzllaaam(int nuc);
-std::string zzllaaam(const char * nuc);
+std::string zzllaaam(const char* nuc);
 std::string zzllaaam(std::string nuc);
 /// \}
 
@@ -1155,7 +1134,7 @@ std::string zzllaaam(std::string nuc);
 /// \param nuc a nuclide in ZZLLAAAM form.
 /// \return an integer id nuclide identifier.
 //int zzllaaam_to_id(int nuc);
-int zzllaaam_to_id(const char * nuc);
+int zzllaaam_to_id(const char* nuc);
 int zzllaaam_to_id(std::string nuc);
 /// \}
 
@@ -1170,7 +1149,7 @@ int zzllaaam_to_id(std::string nuc);
 /// \param nuc a nuclide
 /// \return a string nuclide identifier.
 int mcnp(int nuc);
-int mcnp(const char * nuc);
+int mcnp(const char* nuc);
 int mcnp(std::string nuc);
 /// \}
 
@@ -1181,7 +1160,7 @@ int mcnp(std::string nuc);
 /// \param nuc a nuclide in MCNP form.
 /// \return an integer id nuclide identifier.
 int mcnp_to_id(int nuc);
-int mcnp_to_id(const char * nuc);
+int mcnp_to_id(const char* nuc);
 int mcnp_to_id(std::string nuc);
 /// \}
 
@@ -1204,7 +1183,7 @@ std::string fluka(int nuc);
 /// \param name a fluka name
 /// \return an integer id nuclide identifier.
 int fluka_to_id(std::string name);
-int fluka_to_id(char * name);
+int fluka_to_id(char* name);
 /// \}
 
 /// \name Serpent Form Functions
@@ -1217,7 +1196,7 @@ int fluka_to_id(char * name);
 /// \param nuc a nuclide
 /// \return a string nuclide identifier.
 std::string serpent(int nuc);
-std::string serpent(const char * nuc);
+std::string serpent(const char* nuc);
 std::string serpent(std::string nuc);
 /// \}
 
@@ -1228,7 +1207,7 @@ std::string serpent(std::string nuc);
 /// \param nuc a nuclide in Serpent form.
 /// \return an integer id nuclide identifier.
 //int serpent_to_id(int nuc);  Should be ZAID
-int serpent_to_id(const char * nuc);
+int serpent_to_id(const char* nuc);
 int serpent_to_id(std::string nuc);
 /// \}
 
@@ -1241,7 +1220,7 @@ int serpent_to_id(std::string nuc);
 /// \param nuc a nuclide
 /// \return a string nuclide identifier.
 std::string nist(int nuc);
-std::string nist(const char * nuc);
+std::string nist(const char* nuc);
 std::string nist(std::string nuc);
 /// \}
 
@@ -1252,7 +1231,7 @@ std::string nist(std::string nuc);
 /// \param nuc a nuclide in NIST form.
 /// \return an integer id nuclide identifier.
 //int serpent_to_id(int nuc);  NON-EXISTANT
-int nist_to_id(const char * nuc);
+int nist_to_id(const char* nuc);
 int nist_to_id(std::string nuc);
 /// \}
 
@@ -1265,7 +1244,7 @@ int nist_to_id(std::string nuc);
 /// \param nuc a nuclide
 /// \return a string nuclide identifier.
 int cinder(int nuc);
-int cinder(const char * nuc);
+int cinder(const char* nuc);
 int cinder(std::string nuc);
 /// \}
 
@@ -1276,7 +1255,7 @@ int cinder(std::string nuc);
 /// \param nuc a nuclide in Cinder form.
 /// \return an integer id nuclide identifier.
 int cinder_to_id(int nuc);
-int cinder_to_id(const char * nuc);
+int cinder_to_id(const char* nuc);
 int cinder_to_id(std::string nuc);
 /// \}
 
@@ -1288,7 +1267,7 @@ int cinder_to_id(std::string nuc);
 /// \param nuc a nuclide
 /// \return a string nuclide identifier.
 std::string alara(int nuc);
-std::string alara(const char * nuc);
+std::string alara(const char* nuc);
 std::string alara(std::string nuc);
 /// \}
 
@@ -1299,7 +1278,7 @@ std::string alara(std::string nuc);
 /// \param nuc a nuclide in ALARA form.
 /// \return an integer id nuclide identifier.
 //int alara_to_id(int nuc); NOT POSSIBLE
-int alara_to_id(const char * nuc);
+int alara_to_id(const char* nuc);
 int alara_to_id(std::string nuc);
 /// \}
 
@@ -1314,7 +1293,7 @@ int alara_to_id(std::string nuc);
 /// \param nuc a nuclide
 /// \return a string nuclide identifier.
 int sza(int nuc);
-int sza(const char * nuc);
+int sza(const char* nuc);
 int sza(std::string nuc);
 /// \}
 
@@ -1325,7 +1304,7 @@ int sza(std::string nuc);
 /// \param nuc a nuclide in SZA form.
 /// \return an integer id nuclide identifier.
 int sza_to_id(int nuc);
-int sza_to_id(const char * nuc);
+int sza_to_id(const char* nuc);
 int sza_to_id(std::string nuc);
 /// \}
 
@@ -1336,16 +1315,13 @@ int sza_to_id(std::string nuc);
 /// form as ID, but the four last digits are all zeros.
 /// \param nuc a nuclide
 /// \return a integer groundstate id
-inline int groundstate(int nuc)
-{
-  return (id(nuc) / 10000 ) * 10000;
+inline int groundstate(int nuc) {
+  return (id(nuc) / 10000) * 10000;
 }
-inline int groundstate(std::string nuc)
-{
+inline int groundstate(std::string nuc) {
   return groundstate(id(nuc));
 }
-inline int groundstate(const char * nuc)
-{
+inline int groundstate(const char* nuc) {
   return groundstate(std::string(nuc));
 }
 /// \}
@@ -1365,7 +1341,7 @@ extern std::map<int, int> state_id_map;
 /// This converts id's stored using standard ensdf syntax to nuc_id's
 /// \param ensdf nuc string
 /// \return PyNE nuc_id
-int ensdf_to_id(const char * nuc);
+int ensdf_to_id(const char* nuc);
 int ensdf_to_id(std::string nuc);
 /// \}
 
@@ -1402,11 +1378,9 @@ int ensdf_to_id(std::string nuc);
 /// Number of reactions supported by default.
 #define NUM_RX_NAMES 572
 
-namespace pyne
-{
+namespace pyne {
 //! Converts between naming conventions for reaction channels.
-namespace rxname
-{
+namespace rxname {
 extern std::string _names[NUM_RX_NAMES];  ///< Raw array of reaction names
 /// Set of reaction names, must be valid variable names.
 extern std::set<std::string> names;
@@ -1432,13 +1406,12 @@ extern std::map<std::pair<std::string, int>, unsigned int> offset_id;
 extern std::map<std::pair<std::string, unsigned int>, int> id_offset;
 
 /// A helper function to set the contents of the variables in this library.
-void * _fill_maps();
-extern void * _;  ///< A dummy variable used when calling #_fill_maps().
+void* _fill_maps();
+extern void* _;   ///< A dummy variable used when calling #_fill_maps().
 
 /// A helper function to compute nuclide id offsets from z-, a-, and s- deltas
-inline int offset(int dz, int da, int ds=0)
-{
-  return dz*10000000 + da*10000 + ds;
+inline int offset(int dz, int da, int ds = 0) {
+  return dz * 10000000 + da * 10000 + ds;
 }
 
 /// \name Hash Functions
@@ -1447,7 +1420,7 @@ inline int offset(int dz, int da, int ds=0)
 /// This functions will not return a value less than 1000, effectively reserving
 /// space for the MT numbers.
 unsigned int hash(std::string s);
-unsigned int hash(const char * s);
+unsigned int hash(const char* s);
 /// \}
 
 /// \name Name Functions
@@ -1463,12 +1436,12 @@ unsigned int hash(const char * s);
 ///          Particle flags are 'n', 'p', 'd', 't', 'He3', 'a', 'gamma', and 'decay'.
 std::string name(int n);
 std::string name(unsigned int n);
-std::string name(char * s);
+std::string name(char* s);
 std::string name(std::string s);
-std::string name(int from_nuc, int to_nuc, std::string z="n");
-std::string name(int from_nuc, std::string to_nuc, std::string z="n");
-std::string name(std::string from_nuc, int to_nuc, std::string z="n");
-std::string name(std::string from_nuc, std::string to_nuc, std::string z="n");
+std::string name(int from_nuc, int to_nuc, std::string z = "n");
+std::string name(int from_nuc, std::string to_nuc, std::string z = "n");
+std::string name(std::string from_nuc, int to_nuc, std::string z = "n");
+std::string name(std::string from_nuc, std::string to_nuc, std::string z = "n");
 /// \}
 
 /// \name ID Functions
@@ -1485,12 +1458,12 @@ std::string name(std::string from_nuc, std::string to_nuc, std::string z="n");
 ///          Particle flags are 'n', 'p', 'd', 't', 'He3', 'a', 'gamma', and 'decay'.
 unsigned int id(int x);
 unsigned int id(unsigned int x);
-unsigned int id(const char * x);
+unsigned int id(const char* x);
 unsigned int id(std::string x);
-unsigned int id(int from_nuc, int to_nuc, std::string z="n");
-unsigned int id(int from_nuc, std::string to_nuc, std::string z="n");
-unsigned int id(std::string from_nuc, int to_nuc, std::string z="n");
-unsigned int id(std::string from_nuc, std::string to_nuc, std::string z="n");
+unsigned int id(int from_nuc, int to_nuc, std::string z = "n");
+unsigned int id(int from_nuc, std::string to_nuc, std::string z = "n");
+unsigned int id(std::string from_nuc, int to_nuc, std::string z = "n");
+unsigned int id(std::string from_nuc, std::string to_nuc, std::string z = "n");
 /// \}
 
 /// \name MT Number Functions
@@ -1506,12 +1479,12 @@ unsigned int id(std::string from_nuc, std::string to_nuc, std::string z="n");
 ///          Particle flags are 'n', 'p', 'd', 't', 'He3', 'a', 'gamma', and 'decay'.
 unsigned int mt(int x);
 unsigned int mt(unsigned int x);
-unsigned int mt(char * x);
+unsigned int mt(char* x);
 unsigned int mt(std::string x);
-unsigned int mt(int from_nuc, int to_nuc, std::string z="n");
-unsigned int mt(int from_nuc, std::string to_nuc, std::string z="n");
-unsigned int mt(std::string from_nuc, int to_nuc, std::string z="n");
-unsigned int mt(std::string from_nuc, std::string to_nuc, std::string z="n");
+unsigned int mt(int from_nuc, int to_nuc, std::string z = "n");
+unsigned int mt(int from_nuc, std::string to_nuc, std::string z = "n");
+unsigned int mt(std::string from_nuc, int to_nuc, std::string z = "n");
+unsigned int mt(std::string from_nuc, std::string to_nuc, std::string z = "n");
 /// \}
 
 //// \name Label Functions
@@ -1527,12 +1500,12 @@ unsigned int mt(std::string from_nuc, std::string to_nuc, std::string z="n");
 ///          Particle flags are 'n', 'p', 'd', 't', 'He3', 'a', 'gamma', and 'decay'.
 std::string label(int x);
 std::string label(unsigned int x);
-std::string label(char * x);
+std::string label(char* x);
 std::string label(std::string x);
-std::string label(int from_nuc, int to_nuc, std::string z="n");
-std::string label(int from_nuc, std::string to_nuc, std::string z="n");
-std::string label(std::string from_nuc, int to_nuc, std::string z="n");
-std::string label(std::string from_nuc, std::string to_nuc, std::string z="n");
+std::string label(int from_nuc, int to_nuc, std::string z = "n");
+std::string label(int from_nuc, std::string to_nuc, std::string z = "n");
+std::string label(std::string from_nuc, int to_nuc, std::string z = "n");
+std::string label(std::string from_nuc, std::string to_nuc, std::string z = "n");
 /// \}
 
 /// \name Documentation Functions
@@ -1548,12 +1521,12 @@ std::string label(std::string from_nuc, std::string to_nuc, std::string z="n");
 ///          Particle flags are 'n', 'p', 'd', 't', 'He3', 'a', 'gamma', and 'decay'.
 std::string doc(int x);
 std::string doc(unsigned int x);
-std::string doc(char * x);
+std::string doc(char* x);
 std::string doc(std::string x);
-std::string doc(int from_nuc, int to_nuc, std::string z="n");
-std::string doc(int from_nuc, std::string to_nuc, std::string z="n");
-std::string doc(std::string from_nuc, int to_nuc, std::string z="n");
-std::string doc(std::string from_nuc, std::string to_nuc, std::string z="n");
+std::string doc(int from_nuc, int to_nuc, std::string z = "n");
+std::string doc(int from_nuc, std::string to_nuc, std::string z = "n");
+std::string doc(std::string from_nuc, int to_nuc, std::string z = "n");
+std::string doc(std::string from_nuc, std::string to_nuc, std::string z = "n");
 /// \}
 
 /// \name Child Functions
@@ -1565,10 +1538,10 @@ std::string doc(std::string from_nuc, std::string to_nuc, std::string z="n");
 ///           an id, or an MT number.
 /// \param z Flag for incident particle type.
 ///          Particle flags are 'n', 'p', 'd', 't', 'He3', 'a', 'gamma', and 'decay'.
-int parent(int nuc, unsigned int rx, std::string z="n");
-int parent(int nuc, std::string rx, std::string z="n");
-int parent(std::string nuc, unsigned int rx, std::string z="n");
-int parent(std::string nuc, std::string rx, std::string z="n");
+int parent(int nuc, unsigned int rx, std::string z = "n");
+int parent(int nuc, std::string rx, std::string z = "n");
+int parent(std::string nuc, unsigned int rx, std::string z = "n");
+int parent(std::string nuc, std::string rx, std::string z = "n");
 /// \}
 
 /// \name Parent Functions
@@ -1580,22 +1553,21 @@ int parent(std::string nuc, std::string rx, std::string z="n");
 ///           an id, or an MT number.
 /// \param z Flag for incident particle type.
 ///          Particle flags are 'n', 'p', 'd', 't', 'He3', 'a', 'gamma', and 'decay'.
-int child(int nuc, unsigned int rx, std::string z="n");
-int child(int nuc, std::string rx, std::string z="n");
-int child(std::string nuc, unsigned int rx, std::string z="n");
-int child(std::string nuc, std::string rx, std::string z="n");
+int child(int nuc, unsigned int rx, std::string z = "n");
+int child(int nuc, std::string rx, std::string z = "n");
+int child(std::string nuc, unsigned int rx, std::string z = "n");
+int child(std::string nuc, std::string rx, std::string z = "n");
 /// \}
 
 /// Custom exception for declaring a value not to be a valid reaction.
-class NotAReaction : public std::exception
-{
+class NotAReaction : public std::exception {
  public:
 
   /// default constructor
-  NotAReaction () {};
+  NotAReaction() {};
 
   /// default destructor
-  ~NotAReaction () throw () {};
+  ~NotAReaction() throw () {};
 
   /// Constructor using original reaction (\a wasptr) and the eventual state
   /// that PyNE calculated (\a nowptr).
@@ -1648,7 +1620,7 @@ class NotAReaction : public std::exception
 
   /// Returns a helpful error message containing prior and current reaction state.
   virtual const char* what() const throw() {
-    std::string narxstr ("Not a reaction! ");
+    std::string narxstr("Not a reaction! ");
     if (!rxwas.empty())
       narxstr += rxwas;
 
@@ -1656,7 +1628,7 @@ class NotAReaction : public std::exception
       narxstr += " --> ";
       narxstr += rxnow;
     }
-    return (const char *) narxstr.c_str();
+    return (const char*) narxstr.c_str();
   };
 
  private:
@@ -1667,15 +1639,14 @@ class NotAReaction : public std::exception
 
 
 /// Custom exception for declaring a value not to be of ambiquous reaction form.
-class IndeterminateReactionForm : public std::exception
-{
+class IndeterminateReactionForm : public std::exception {
  public:
 
   /// default constructor
-  IndeterminateReactionForm () {};
+  IndeterminateReactionForm() {};
 
   /// default destructor
-  ~IndeterminateReactionForm () throw () {};
+  ~IndeterminateReactionForm() throw () {};
 
   /// Constructor using original reaction (\a wasptr) and the eventual state
   /// that PyNE calculated (\a nowptr).
@@ -1707,7 +1678,7 @@ class IndeterminateReactionForm : public std::exception
 
   /// Returns a helpful error message containing prior and current reaction state.
   virtual const char* what() const throw() {
-    std::string INFEstr ("Indeterminate reaction form: ");
+    std::string INFEstr("Indeterminate reaction form: ");
     if (!rxwas.empty())
       INFEstr += rxwas;
 
@@ -1715,7 +1686,7 @@ class IndeterminateReactionForm : public std::exception
       INFEstr += " --> ";
       INFEstr += rxnow;
     }
-    return (const char *) INFEstr.c_str();
+    return (const char*) INFEstr.c_str();
   }
 
  private:
@@ -1754,11 +1725,9 @@ class IndeterminateReactionForm : public std::exception
 /// Number of pure particle types currently supported
 #define NUM_PARTICLES 32
 
-namespace pyne
-{
+namespace pyne {
 //! Converts betweeen naming/numbering conventions for particle types
-namespace particle
-{
+namespace particle {
 extern int _pdcids[NUM_PARTICLES]; ///
 /// set of Particle Data Centre integer id numbers
 extern std::string _docs[NUM_PARTICLES];
@@ -1769,21 +1738,21 @@ extern std::set<std::string> names;
 /// set of valid names
 extern std::set<int> pdc_nums;
 /// set of valid pdc numbers
-extern std::map<std::string,int> name_id;
+extern std::map<std::string, int> name_id;
 /// map of name to pdc number
-extern std::map<int,std::string> id_name;
+extern std::map<int, std::string> id_name;
 /// map of pdc number to name
-extern std::map<std::string,std::string> docs;
+extern std::map<std::string, std::string> docs;
 /// map of name to doc string
-extern std::map<std::string,int> altnames;
+extern std::map<std::string, int> altnames;
 /// map of alternative name to pdc number
-extern std::map<std::string,std::string> part_to_mcnp;
+extern std::map<std::string, std::string> part_to_mcnp;
 /// map of name to mcnp string
-extern std::map<std::string,std::string> part_to_mcnp6;
+extern std::map<std::string, std::string> part_to_mcnp6;
 /// map of name to mcnp6 string
-extern std::map<std::string,std::string> part_to_fluka;
+extern std::map<std::string, std::string> part_to_fluka;
 /// map of name to fluka string
-extern std::map<std::string,std::string> part_to_geant4;
+extern std::map<std::string, std::string> part_to_geant4;
 /// map of name to geant4 string
 
 
@@ -1796,7 +1765,7 @@ extern std::map<std::string,std::string> part_to_geant4;
 /// \param n Integer PDC number or nucid
 /// \param s String valid particle name, altname or nucid
 bool is_hydrogen(int n);
-bool is_hydrogen(char *s);
+bool is_hydrogen(char* s);
 bool is_hydrogen(std::string s);
 /// \}
 
@@ -1808,7 +1777,7 @@ bool is_hydrogen(std::string s);
 /// \param n Integer PDC number or nucid
 /// \param s String valid particle name, altname or nucid
 bool is_heavy_ion(int s);
-bool is_heavy_ion(char *s);
+bool is_heavy_ion(char* s);
 bool is_heavy_ion(std::string s);
 ///\}
 
@@ -1820,7 +1789,7 @@ bool is_heavy_ion(std::string s);
 /// \param n Integer PDC number or nucid
 /// \param s String valid particle name, altname or nucid
 bool is_valid(int n);
-bool is_valid(char *s);
+bool is_valid(char* s);
 bool is_valid(std::string s);
 ///\}
 
@@ -1831,7 +1800,7 @@ bool is_valid(std::string s);
 /// \param n Integer PDC number or nucid
 /// \param s String valid particle name, altname or nucid
 int id(int n);
-int id(char *s);
+int id(char* s);
 int id(std::string s);
 ///\}
 
@@ -1843,7 +1812,7 @@ int id(std::string s);
 /// \param n Integer PDC number or nucid
 /// \param s String valid particle name, altname or nucid
 std::string name(int s);
-std::string name(char *s);
+std::string name(char* s);
 std::string name(std::string s);
 ///\}
 
@@ -1852,7 +1821,7 @@ std::string name(std::string s);
 /// Returns the mcnp string of a valid pyne::particle name
 /// \param s int, char*, String valid particle name, altname or nucid
 std::string mcnp(int s);
-std::string mcnp(char *s);
+std::string mcnp(char* s);
 std::string mcnp(std::string s);
 ///\}
 
@@ -1861,7 +1830,7 @@ std::string mcnp(std::string s);
 /// Returns the mcnp6 string of a valid pyne::particle name
 /// \param s int, char*, String valid particle name, altname or nucid
 std::string mcnp6(int s);
-std::string mcnp6(char *s);
+std::string mcnp6(char* s);
 std::string mcnp6(std::string s);
 ///\}
 
@@ -1870,7 +1839,7 @@ std::string mcnp6(std::string s);
 /// Returns the Fluka string of a valid pyne::particle name, or heavy ion
 /// \param s int, char*, String valid particle name, altname or nucid
 std::string fluka(int s);
-std::string fluka(char *s);
+std::string fluka(char* s);
 std::string fluka(std::string s);
 ///\}
 
@@ -1879,7 +1848,7 @@ std::string fluka(std::string s);
 /// Returns the Geant4 string of a valid pyne::particle name, or heavy ion
 /// \param s int, char*, String valid particle name, altname or nucid
 std::string geant4(int s);
-std::string geant4(char *s);
+std::string geant4(char* s);
 std::string geant4(std::string s);
 ///\}
 
@@ -1891,23 +1860,22 @@ std::string geant4(std::string s);
 /// \param n Integer PDC number or nucid
 /// \param s String valid particle name, altname or nucid
 std::string describe(int s);
-std::string describe(char *s);
+std::string describe(char* s);
 std::string describe(std::string s);
 
 /// A helper function to set the contents of the variables in this library.
-void * _fill_maps();
-extern void * filler;  ///< A dummy variable used when calling #_fill_maps().
+void* _fill_maps();
+extern void* filler;   ///< A dummy variable used when calling #_fill_maps().
 
 
 /// Custom excpeption for failed particle types
-class NotAParticle : public std::exception
-{
+class NotAParticle : public std::exception {
  public:
   /// Default constructor
-  NotAParticle () {};
+  NotAParticle() {};
 
   /// Default destructor
-  ~NotAParticle () throw () {};
+  ~NotAParticle() throw () {};
 
   /// Constructor for raising the exception
   /// Spits out the particle name as input
@@ -1917,10 +1885,10 @@ class NotAParticle : public std::exception
 
   /// raises error message
   virtual const char* what() const throw() {
-    std::string pname ("Not a valid particle name ");
-    if(!part_name.empty())
+    std::string pname("Not a valid particle name ");
+    if (!part_name.empty())
       pname += part_name;
-    return (const char *) pname.c_str();
+    return (const char*) pname.c_str();
   }
 
  private:
@@ -1970,8 +1938,7 @@ class NotAParticle : public std::exception
 #include "rxname.h"
 #endif
 
-namespace pyne
-{
+namespace pyne {
 /// \name Mathematical and Physical Constants
 /// \{
 extern const double pi;   ///< pi = 3.14159265359
@@ -2019,7 +1986,7 @@ void _load_atomic_mass_map();
 /// state nuclide.  If the nuclide simply cannot be found, the A number is returned.
 double atomic_mass(int nuc);
 /// Returns the atomic mass of a nuclide \a nuc.
-double atomic_mass(char * nuc);
+double atomic_mass(char* nuc);
 /// Returns the atomic mass of a nuclide \a nuc.
 double atomic_mass(std::string nuc);
 /// \}
@@ -2038,7 +2005,7 @@ extern std::map<int, double> natural_abund_map;
 /// be found, the default value returned is 0.0.
 double natural_abund(int nuc);
 /// Returns the natural abundance of a nuclide \a nuc.
-double natural_abund(char * nuc);
+double natural_abund(char* nuc);
 /// Returns the natural abundance of a nuclide \a nuc.
 double natural_abund(std::string nuc);
 /// \}
@@ -2069,10 +2036,10 @@ void _load_q_val_map();
 /// If this map is empty, it will load the data from disk. If the nuclide simply
 /// cannot be found, the default value returned is 0.0.
 double q_val(int nuc);
-double q_val(const char * nuc);
+double q_val(const char* nuc);
 double q_val(std::string nuc);
 double gamma_frac(int nuc);
-double gamma_frac(const char * nuc);
+double gamma_frac(const char* nuc);
 double gamma_frac(std::string nuc);
 /// \}
 
@@ -2107,25 +2074,25 @@ void _load_dose_map(std::map<int, dose>& dm, std::string source_path);
 /// If the maps are empty, it will load the data from disk. If the nuclide simply
 /// cannot be found, the default value returned is -1.
 double ext_air_dose(int nuc, int source);
-double ext_air_dose(const char * nuc, int source);
+double ext_air_dose(const char* nuc, int source);
 double ext_air_dose(std::string nuc, int source);
 double ext_soil_dose(int nuc, int source);
-double ext_soil_dose(const char * nuc, int source);
+double ext_soil_dose(const char* nuc, int source);
 double ext_soil_dose(std::string nuc, int source);
 double ingest_dose(int nuc, int source);
-double ingest_dose(const char * nuc, int source);
+double ingest_dose(const char* nuc, int source);
 double ingest_dose(std::string nuc, int source);
 double inhale_dose(int nuc, int source);
-double inhale_dose(const char * nuc, int source);
+double inhale_dose(const char* nuc, int source);
 double inhale_dose(std::string nuc, int source);
 double dose_ratio(int nuc, int source);
-double dose_ratio(const char * nuc, int source);
+double dose_ratio(const char* nuc, int source);
 double dose_ratio(std::string nuc, int source);
 double dose_fluid_frac(int nuc, int source);
-double dose_fluid_frac(const char * nuc, int source);
+double dose_fluid_frac(const char* nuc, int source);
 double dose_fluid_frac(std::string nuc, int source);
 std::string dose_lung_model(int nuc, int source);
-std::string dose_lung_model(const char * nuc, int source);
+std::string dose_lung_model(const char* nuc, int source);
 std::string dose_lung_model(std::string nuc, int source);
 /// \}
 
@@ -2163,7 +2130,7 @@ void _load_scattering_lengths();
 /// work then 0.0 is returned.
 xd_complex_t b_coherent(int nuc);
 /// Finds the coherent scattering length [cm] for a nuclide \a nuc.
-xd_complex_t b_coherent(char * nuc);
+xd_complex_t b_coherent(char* nuc);
 /// Finds the coherent scattering length [cm] for a nuclide \a nuc.
 xd_complex_t b_coherent(std::string nuc);
 
@@ -2172,14 +2139,14 @@ xd_complex_t b_coherent(std::string nuc);
 /// This function works in the same way that b_coherent() does.
 xd_complex_t b_incoherent(int nuc);
 /// Finds the incoherent scattering length [cm] for a nuclide \a nuc.
-xd_complex_t b_incoherent(char * nuc);
+xd_complex_t b_incoherent(char* nuc);
 /// Finds the incoherent scattering length [cm] for a nuclide \a nuc.
 xd_complex_t b_incoherent(std::string nuc);
 
 /// Computes the scattering length [cm] from the coherent and incoherent components.
 double b(int nuc);
 /// Computes the scattering length [cm] from the coherent and incoherent components.
-double b(char * nuc);
+double b(char* nuc);
 /// Computes the scattering length [cm] from the coherent and incoherent components.
 double b(std::string nuc);
 /// \}
@@ -2241,7 +2208,7 @@ double fpyield(std::pair<int, int> from_to, int source, bool get_error);
 /// Returns the fission product yield for a parent/child nuclide pair
 double fpyield(int from_nuc, int to_nuc, int source, bool get_error);
 /// Returns the fission product yield for a parent/child nuclide pair
-double fpyield(char * from_nuc, char * to_nuc, int source, bool get_error);
+double fpyield(char* from_nuc, char* to_nuc, int source, bool get_error);
 /// Returns the fission product yield for a parent/child nuclide pair
 double fpyield(std::string from_nuc, std::string to_nuc, int source, bool get_error);
 
@@ -2254,8 +2221,7 @@ double fpyield(std::string from_nuc, std::string to_nuc, int source, bool get_er
 /// Data access functions
 
 /// simple class to swap the order in which a pair is compared
-class swapmapcompare
-{
+class swapmapcompare {
  public:
   /// This operator compares the second item in a pair first
   bool operator()(const std::pair<int, double>& lhs,
@@ -2266,30 +2232,30 @@ class swapmapcompare
 /// values of the second member of the pair. Returns a vector of all
 /// values at valoffset of class U of type T f
 template<typename T, typename U> std::vector<T> data_access(double emin,
-    double emax, size_t valoffset, std::map<std::pair<int, double>, U>  &data);
+                                                            double emax, size_t valoffset, std::map<std::pair<int, double>, U>&  data);
 /// Access data in a std::map<std::pair<int, double> for a given
 /// value of the first member of the pair. Returns a vector of all
 /// values at valoffset of class U of type T
 template<typename T, typename U> std::vector<T> data_access(int parent,
-    double min, double max, size_t valoffset,
-    std::map<std::pair<int, double>, U>  &data);
+                                                            double min, double max, size_t valoffset,
+                                                            std::map<std::pair<int, double>, U>&  data);
 /// Access data in a std::map<std::pair<int, int> for a given
 /// matching pair. Returns the value at valoffset of
 /// class U of type T
 template<typename T, typename U> T data_access(std::pair<int, int> from_to,
-    size_t valoffset, std::map<std::pair<int, int>, U> &data);
+                                               size_t valoffset, std::map<std::pair<int, int>, U>& data);
 /// Access data in a std::map<std::pair<int, int> for a given
 /// value of the first member of the pair. Returns an array of the values
 /// at valoffset of class U of type T
 template<typename T, typename U> std::vector<T> data_access(int parent,
-    size_t valoffset, std::map<std::pair<int, int>, U> &data);
+                                                            size_t valoffset, std::map<std::pair<int, int>, U>& data);
 template<typename T, typename U> std::vector<T> data_access(int parent,
-    size_t valoffset, std::map<std::pair<int, unsigned int>, U> &data);
+                                                            size_t valoffset, std::map<std::pair<int, unsigned int>, U>& data);
 
 /// Access data in a std::map<int, data> format for a given first member
 /// of the pair. Returns the value at valoffset of the matching datapoint.
 template<typename U> double data_access(int parent,
-                                        size_t valoffset, std::map<int, U> &data);
+                                        size_t valoffset, std::map<int, U>& data);
 
 /// Structure for atomic data
 typedef struct atomic {
@@ -2345,8 +2311,8 @@ typedef struct level_data {
 
 /// Mapping from nuclides in id form to a struct containing data associated
 /// with that level.
-extern std::map<std::pair<int,double>, level_data> level_data_lvl_map;
-extern std::map<std::pair<int,unsigned int>, level_data> level_data_rx_map;
+extern std::map<std::pair<int, double>, level_data> level_data_lvl_map;
+extern std::map<std::pair<int, unsigned int>, level_data> level_data_rx_map;
 
 template<> void _load_data<level_data>();
 
@@ -2371,7 +2337,7 @@ int metastable_id(int nuc);
 /// is assumed to be stable and infinity is returned.
 double half_life(int nuc);
 /// Returns the half life for a nuclide \a nuc.
-double half_life(char * nuc);
+double half_life(char* nuc);
 /// Returns the half life for a nuclide \a nuc.
 double half_life(std::string nuc);
 
@@ -2382,7 +2348,7 @@ double half_life(std::string nuc);
 /// is assumed to be stable and 0.0 is returned.
 double decay_const(int nuc);
 /// Returns the decay constant for a nuclide \a nuc.
-double decay_const(char * nuc);
+double decay_const(char* nuc);
 /// Returns the decay constant for a nuclide \a nuc.
 double decay_const(std::string nuc);
 
@@ -2395,7 +2361,7 @@ double branch_ratio(std::pair<int, int> from_to);
 /// Returns the branch ratio for a parent/child nuclide pair.
 double branch_ratio(int from_nuc, int to_nuc);
 /// Returns the branch ratio for a parent/child nuclide pair.
-double branch_ratio(char * from_nuc, char * to_nuc);
+double branch_ratio(char* from_nuc, char* to_nuc);
 /// Returns the branch ratio for a parent/child nuclide pair.
 double branch_ratio(std::string from_nuc, std::string to_nuc);
 
@@ -2406,7 +2372,7 @@ double branch_ratio(std::string from_nuc, std::string to_nuc);
 /// is assumed to be in a ground state and 0.0 is returned.
 double state_energy(int nuc);
 /// Returns the excitation energy [MeV] of a \a nuc in a given state.
-double state_energy(char * nuc);
+double state_energy(char* nuc);
 /// Returns the excitation energy [MeV] of a \a nuc in a given state.
 double state_energy(std::string nuc);
 
@@ -2417,7 +2383,7 @@ double state_energy(std::string nuc);
 /// is assumed to be stable and an empty set is returned.
 std::set<int> decay_children(int nuc);
 /// Returns the decay constant for a nuclide \a nuc.
-std::set<int> decay_children(char * nuc);
+std::set<int> decay_children(char* nuc);
 /// Returns the decay constant for a nuclide \a nuc.
 std::set<int> decay_children(std::string nuc);
 
@@ -2449,13 +2415,13 @@ extern std::map<std::pair<int, int>, decay> decay_data;
 //
 //
 std::vector<int> decay_data_children(int parent);
-std::pair<double, double> decay_half_life(std::pair<int,int>);
+std::pair<double, double> decay_half_life(std::pair<int, int>);
 std::vector<std::pair<double, double> > decay_half_lifes(int);
-std::pair<double, double> decay_branch_ratio(std::pair<int,int>);
+std::pair<double, double> decay_branch_ratio(std::pair<int, int>);
 std::vector<double> decay_branch_ratios(int parent);
-std::pair<double, double> decay_photon_branch_ratio(std::pair<int,int>);
+std::pair<double, double> decay_photon_branch_ratio(std::pair<int, int>);
 std::vector<std::pair<double, double> >decay_photon_branch_ratios(int parent);
-std::pair<double, double> decay_beta_branch_ratio(std::pair<int,int>);
+std::pair<double, double> decay_beta_branch_ratio(std::pair<int, int>);
 std::vector<std::pair<double, double> >decay_beta_branch_ratios(int parent);
 
 
@@ -2486,11 +2452,11 @@ extern std::map<std::pair<int, double>, gamma> gamma_data;
 //returns a list of gamma decay energies from input parent nuclide
 std::vector<std::pair<double, double> > gamma_energy(int parent);
 std::vector<std::pair<double, double> > gamma_energy(double energy,
-    double error);
+                                                     double error);
 //returns a list of gamma photon intensities from input parent nuclide
 std::vector<std::pair<double, double> > gamma_photon_intensity(int parent);
 std::vector<std::pair<double, double> > gamma_photon_intensity(double energy,
-    double error);
+                                                               double error);
 //returns a list of gamma conversion intensities from input parent nuclide
 std::vector<std::pair<double, double> > gamma_conversion_intensity(int parent);
 //returns a list of gamma total intensities from input parent nuclide
@@ -2639,11 +2605,10 @@ double simple_xs(std::string nuc, int rx, std::string energy);
 double simple_xs(std::string nuc, std::string rx, std::string energy);
 
 /// Custom exception for declaring a simple_xs request invalid
-class InvalidSimpleXS : public std::exception
-{
+class InvalidSimpleXS : public std::exception {
  public:
-  InvalidSimpleXS () {};
-  ~InvalidSimpleXS () throw () {};
+  InvalidSimpleXS() {};
+  ~InvalidSimpleXS() throw () {};
   /// Exception thrown if energy group or rxname are invalid
   InvalidSimpleXS(std::string msg) : msg_(msg) {};
   /// Exception returns the string passed when thrown.
@@ -2827,8 +2792,7 @@ license you like.
 # define JSONCPP_DEPRECATED(message)
 #endif // if !defined(JSONCPP_DEPRECATED)
 
-namespace Json
-{
+namespace Json {
 typedef int Int;
 typedef unsigned int UInt;
 # if defined(JSON_NO_INT64)
@@ -2878,8 +2842,7 @@ typedef UInt64 LargestUInt;
 # include "config.h"
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
-namespace Json
-{
+namespace Json {
 
 // writer.h
 class FastWriter;
@@ -3089,8 +3052,7 @@ license you like.
 # define JSONCPP_DEPRECATED(message)
 #endif // if !defined(JSONCPP_DEPRECATED)
 
-namespace Json
-{
+namespace Json {
 typedef int Int;
 typedef unsigned int UInt;
 # if defined(JSON_NO_INT64)
@@ -3140,8 +3102,7 @@ typedef UInt64 LargestUInt;
 # include "config.h"
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
-namespace Json
-{
+namespace Json {
 
 // writer.h
 class FastWriter;
@@ -3199,15 +3160,13 @@ class ValueInternalMap;
 # include "forwards.h"
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
-namespace Json
-{
+namespace Json {
 
 /** \brief Configuration passed to reader and writer.
  * This configuration object can be used to force the Reader or Writer
  * to behave in a standard conforming way.
  */
-class JSON_API Features
-{
+class JSON_API Features {
  public:
   /** \brief A configuration that allows all features and assumes all strings are UTF-8.
    * - C & C++ comments are allowed
@@ -3276,27 +3235,26 @@ class JSON_API Features
 
 /** \brief JSON (JavaScript Object Notation).
  */
-namespace Json
-{
+namespace Json {
 
 /** \brief Type of the value held by a Value object.
  */
 enum ValueType {
-    nullValue = 0, ///< 'null' value
-    intValue,      ///< signed integer value
-    uintValue,     ///< unsigned integer value
-    realValue,     ///< double value
-    stringValue,   ///< UTF-8 string value
-    booleanValue,  ///< bool value
-    arrayValue,    ///< array value (ordered list)
-    objectValue    ///< object value (collection of name/value pairs).
+  nullValue = 0, ///< 'null' value
+  intValue,      ///< signed integer value
+  uintValue,     ///< unsigned integer value
+  realValue,     ///< double value
+  stringValue,   ///< UTF-8 string value
+  booleanValue,  ///< bool value
+  arrayValue,    ///< array value (ordered list)
+  objectValue    ///< object value (collection of name/value pairs).
 };
 
 enum CommentPlacement {
-    commentBefore = 0,        ///< a comment placed on the line before a value
-    commentAfterOnSameLine,   ///< a comment just after a value on the same line
-    commentAfter,             ///< a comment on the line after a value (only make sense for root value)
-    numberOfCommentPlacement
+  commentBefore = 0,        ///< a comment placed on the line before a value
+  commentAfterOnSameLine,   ///< a comment just after a value on the same line
+  commentAfter,             ///< a comment on the line after a value (only make sense for root value)
+  numberOfCommentPlacement
 };
 
 //# ifdef JSON_USE_CPPTL
@@ -3318,23 +3276,22 @@ enum CommentPlacement {
  * object[code] = 1234;
  * \endcode
  */
-class JSON_API StaticString
-{
+class JSON_API StaticString {
  public:
-  explicit StaticString( const char *czstring )
-    : str_( czstring ) {
+  explicit StaticString(const char* czstring)
+    : str_(czstring) {
   }
 
-  operator const char *() const {
+  operator const char* () const {
     return str_;
   }
 
-  const char *c_str() const {
+  const char* c_str() const {
     return str_;
   }
 
  private:
-  const char *str_;
+  const char* str_;
 };
 
 /** \brief Represents a <a HREF="http://www.json.org">JSON</a> value.
@@ -3364,8 +3321,7 @@ class JSON_API StaticString
  * It is possible to iterate over the list of a #objectValue values using
  * the getMemberNames() method.
  */
-class JSON_API Value
-{
+class JSON_API Value {
   friend class ValueIteratorBase;
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
   friend class ValueInternalLink;
@@ -3410,27 +3366,26 @@ class JSON_API Value
  private:
 #ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 # ifndef JSON_VALUE_USE_INTERNAL_MAP
-  class CZString
-{
+  class CZString {
    public:
     enum DuplicationPolicy {
-        noDuplication = 0,
-        duplicate,
-        duplicateOnCopy
+      noDuplication = 0,
+      duplicate,
+      duplicateOnCopy
     };
-    CZString( ArrayIndex index );
-    CZString( const char *cstr, DuplicationPolicy allocate );
-    CZString( const CZString &other );
+    CZString(ArrayIndex index);
+    CZString(const char* cstr, DuplicationPolicy allocate);
+    CZString(const CZString& other);
     ~CZString();
-    CZString &operator =( const CZString &other );
-    bool operator<( const CZString &other ) const;
-    bool operator==( const CZString &other ) const;
+    CZString& operator =(const CZString& other);
+    bool operator<(const CZString& other) const;
+    bool operator==(const CZString& other) const;
     ArrayIndex index() const;
-    const char *c_str() const;
+    const char* c_str() const;
     bool isStaticString() const;
    private:
-    void swap( CZString &other );
-    const char *cstr_;
+    void swap(CZString& other);
+    const char* cstr_;
     ArrayIndex index_;
   };
 
@@ -3459,16 +3414,16 @@ class JSON_API Value
   Json::Value obj_value(Json::objectValue); // {}
   \endcode
   */
-  Value( ValueType type = nullValue );
-  Value( Int value );
-  Value( UInt value );
+  Value(ValueType type = nullValue);
+  Value(Int value);
+  Value(UInt value);
 #if defined(JSON_HAS_INT64)
-  Value( Int64 value );
-  Value( UInt64 value );
+  Value(Int64 value);
+  Value(UInt64 value);
 #endif // if defined(JSON_HAS_INT64)
-  Value( double value );
-  Value( const char *value );
-  Value( const char *beginValue, const char *endValue );
+  Value(double value);
+  Value(const char* value);
+  Value(const char* beginValue, const char* endValue);
   /** \brief Constructs a value from a static string.
 
    * Like other value string constructor but do not duplicate the string for
@@ -3479,34 +3434,34 @@ class JSON_API Value
    * Json::Value aValue( StaticString("some text") );
    * \endcode
    */
-  Value( const StaticString &value );
-  Value( const std::string &value );
+  Value(const StaticString& value);
+  Value(const std::string& value);
 # ifdef JSON_USE_CPPTL
-  Value( const CppTL::ConstString &value );
+  Value(const CppTL::ConstString& value);
 # endif
-  Value( bool value );
-  Value( const Value &other );
+  Value(bool value);
+  Value(const Value& other);
   ~Value();
 
-  Value &operator=( const Value &other );
+  Value& operator=(const Value& other);
   /// Swap values.
   /// \note Currently, comments are intentionally not swapped, for
   /// both logic and efficiency.
-  void swap( Value &other );
+  void swap(Value& other);
 
   ValueType type() const;
 
-  bool operator <( const Value &other ) const;
-  bool operator <=( const Value &other ) const;
-  bool operator >=( const Value &other ) const;
-  bool operator >( const Value &other ) const;
+  bool operator <(const Value& other) const;
+  bool operator <=(const Value& other) const;
+  bool operator >=(const Value& other) const;
+  bool operator >(const Value& other) const;
 
-  bool operator ==( const Value &other ) const;
-  bool operator !=( const Value &other ) const;
+  bool operator ==(const Value& other) const;
+  bool operator !=(const Value& other) const;
 
-  int compare( const Value &other ) const;
+  int compare(const Value& other) const;
 
-  const char *asCString() const;
+  const char* asCString() const;
   std::string asString() const;
 # ifdef JSON_USE_CPPTL
   CppTL::ConstString asConstString() const;
@@ -3532,7 +3487,7 @@ class JSON_API Value
   bool isArray() const;
   bool isObject() const;
 
-  bool isConvertibleTo( ValueType other ) const;
+  bool isConvertibleTo(ValueType other) const;
 
   /// Number of values in array or object
   ArrayIndex size() const;
@@ -3554,51 +3509,51 @@ class JSON_API Value
   /// May only be called on nullValue or arrayValue.
   /// \pre type() is arrayValue or nullValue
   /// \post type() is arrayValue
-  void resize( ArrayIndex size );
+  void resize(ArrayIndex size);
 
   /// Access an array element (zero based index ).
   /// If the array contains less than index element, then null value are inserted
   /// in the array so that its size is index+1.
   /// (You may need to say 'value[0u]' to get your compiler to distinguish
   ///  this from the operator[] which takes a string.)
-  Value &operator[]( ArrayIndex index );
+  Value& operator[](ArrayIndex index);
 
   /// Access an array element (zero based index ).
   /// If the array contains less than index element, then null value are inserted
   /// in the array so that its size is index+1.
   /// (You may need to say 'value[0u]' to get your compiler to distinguish
   ///  this from the operator[] which takes a string.)
-  Value &operator[]( int index );
+  Value& operator[](int index);
 
   /// Access an array element (zero based index )
   /// (You may need to say 'value[0u]' to get your compiler to distinguish
   ///  this from the operator[] which takes a string.)
-  const Value &operator[]( ArrayIndex index ) const;
+  const Value& operator[](ArrayIndex index) const;
 
   /// Access an array element (zero based index )
   /// (You may need to say 'value[0u]' to get your compiler to distinguish
   ///  this from the operator[] which takes a string.)
-  const Value &operator[]( int index ) const;
+  const Value& operator[](int index) const;
 
   /// If the array contains at least index+1 elements, returns the element value,
   /// otherwise returns defaultValue.
-  Value get( ArrayIndex index,
-             const Value &defaultValue ) const;
+  Value get(ArrayIndex index,
+            const Value& defaultValue) const;
   /// Return true if index < size().
-  bool isValidIndex( ArrayIndex index ) const;
+  bool isValidIndex(ArrayIndex index) const;
   /// \brief Append value to array at the end.
   ///
   /// Equivalent to jsonvalue[jsonvalue.size()] = value;
-  Value &append( const Value &value );
+  Value& append(const Value& value);
 
   /// Access an object value by name, create a null member if it does not exist.
-  Value &operator[]( const char *key );
+  Value& operator[](const char* key);
   /// Access an object value by name, returns null if there is no member with that name.
-  const Value &operator[]( const char *key ) const;
+  const Value& operator[](const char* key) const;
   /// Access an object value by name, create a null member if it does not exist.
-  Value &operator[]( const std::string &key );
+  Value& operator[](const std::string& key);
   /// Access an object value by name, returns null if there is no member with that name.
-  const Value &operator[]( const std::string &key ) const;
+  const Value& operator[](const std::string& key) const;
   /** \brief Access an object value by name, create a null member if it does not exist.
 
    * If the object as no entry for that name, then the member name used to store
@@ -3610,23 +3565,23 @@ class JSON_API Value
    * object[code] = 1234;
    * \endcode
    */
-  Value &operator[]( const StaticString &key );
+  Value& operator[](const StaticString& key);
 # ifdef JSON_USE_CPPTL
   /// Access an object value by name, create a null member if it does not exist.
-  Value &operator[]( const CppTL::ConstString &key );
+  Value& operator[](const CppTL::ConstString& key);
   /// Access an object value by name, returns null if there is no member with that name.
-  const Value &operator[]( const CppTL::ConstString &key ) const;
+  const Value& operator[](const CppTL::ConstString& key) const;
 # endif
   /// Return the member named key if it exist, defaultValue otherwise.
-  Value get( const char *key,
-             const Value &defaultValue ) const;
+  Value get(const char* key,
+            const Value& defaultValue) const;
   /// Return the member named key if it exist, defaultValue otherwise.
-  Value get( const std::string &key,
-             const Value &defaultValue ) const;
+  Value get(const std::string& key,
+            const Value& defaultValue) const;
 # ifdef JSON_USE_CPPTL
   /// Return the member named key if it exist, defaultValue otherwise.
-  Value get( const CppTL::ConstString &key,
-             const Value &defaultValue ) const;
+  Value get(const CppTL::ConstString& key,
+            const Value& defaultValue) const;
 # endif
   /// \brief Remove and return the named member.
   ///
@@ -3634,17 +3589,17 @@ class JSON_API Value
   /// \return the removed Value, or null.
   /// \pre type() is objectValue or nullValue
   /// \post type() is unchanged
-  Value removeMember( const char* key );
+  Value removeMember(const char* key);
   /// Same as removeMember(const char*)
-  Value removeMember( const std::string &key );
+  Value removeMember(const std::string& key);
 
   /// Return true if the object has a member named key.
-  bool isMember( const char *key ) const;
+  bool isMember(const char* key) const;
   /// Return true if the object has a member named key.
-  bool isMember( const std::string &key ) const;
+  bool isMember(const std::string& key) const;
 # ifdef JSON_USE_CPPTL
   /// Return true if the object has a member named key.
-  bool isMember( const CppTL::ConstString &key ) const;
+  bool isMember(const CppTL::ConstString& key) const;
 # endif
 
   /// \brief Return a list of the member names.
@@ -3660,14 +3615,14 @@ class JSON_API Value
 //# endif
 
   /// Comments must be //... or /* ... */
-  void setComment( const char *comment,
-                   CommentPlacement placement );
+  void setComment(const char* comment,
+                  CommentPlacement placement);
   /// Comments must be //... or /* ... */
-  void setComment( const std::string &comment,
-                   CommentPlacement placement );
-  bool hasComment( CommentPlacement placement ) const;
+  void setComment(const std::string& comment,
+                  CommentPlacement placement);
+  bool hasComment(CommentPlacement placement) const;
   /// Include delimiters and embedded newlines.
-  std::string getComment( CommentPlacement placement ) const;
+  std::string getComment(CommentPlacement placement) const;
 
   std::string toStyledString() const;
 
@@ -3678,15 +3633,15 @@ class JSON_API Value
   iterator end();
 
  private:
-  Value &resolveReference( const char *key,
-                           bool isStatic );
+  Value& resolveReference(const char* key,
+                          bool isStatic);
 
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
   inline bool isItemAvailable() const {
     return itemIsUsed_ == 0;
   }
 
-  inline void setItemUsed( bool isUsed = true ) {
+  inline void setItemUsed(bool isUsed = true) {
     itemIsUsed_ = isUsed ? 1 : 0;
   }
 
@@ -3694,7 +3649,7 @@ class JSON_API Value
     return memberNameIsStatic_ == 0;
   }
 
-  inline void setMemberNameIsStatic( bool isStatic ) {
+  inline void setMemberNameIsStatic(bool isStatic) {
     memberNameIsStatic_ = isStatic ? 1 : 0;
   }
 # endif // # ifdef JSON_VALUE_USE_INTERNAL_MAP
@@ -3704,9 +3659,9 @@ class JSON_API Value
     CommentInfo();
     ~CommentInfo();
 
-    void setComment( const char *text );
+    void setComment(const char* text);
 
-    char *comment_;
+    char* comment_;
   };
 
   //struct MemberNamesTransform
@@ -3723,12 +3678,12 @@ class JSON_API Value
     LargestUInt uint_;
     double real_;
     bool bool_;
-    char *string_;
+    char* string_;
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
-    ValueInternalArray *array_;
-    ValueInternalMap *map_;
+    ValueInternalArray* array_;
+    ValueInternalMap* map_;
 #else
-    ObjectValues *map_;
+    ObjectValues* map_;
 # endif
   } value_;
   ValueType type_ : 8;
@@ -3737,27 +3692,26 @@ class JSON_API Value
   unsigned int itemIsUsed_ : 1;      // used by the ValueInternalMap container.
   int memberNameIsStatic_ : 1;       // used by the ValueInternalMap container.
 # endif
-  CommentInfo *comments_;
+  CommentInfo* comments_;
 };
 
 
 /** \brief Experimental and untested: represents an element of the "path" to access a node.
  */
-class PathArgument
-{
+class PathArgument {
  public:
   friend class Path;
 
   PathArgument();
-  PathArgument( ArrayIndex index );
-  PathArgument( const char *key );
-  PathArgument( const std::string &key );
+  PathArgument(ArrayIndex index);
+  PathArgument(const char* key);
+  PathArgument(const std::string& key);
 
  private:
   enum Kind {
-      kindNone = 0,
-      kindIndex,
-      kindKey
+    kindNone = 0,
+    kindIndex,
+    kindKey
   };
   std::string key_;
   ArrayIndex index_;
@@ -3775,34 +3729,33 @@ class PathArgument
  * - ".%" => member name is provided as parameter
  * - ".[%]" => index is provied as parameter
  */
-class Path
-{
+class Path {
  public:
-  Path( const std::string &path,
-        const PathArgument &a1 = PathArgument(),
-        const PathArgument &a2 = PathArgument(),
-        const PathArgument &a3 = PathArgument(),
-        const PathArgument &a4 = PathArgument(),
-        const PathArgument &a5 = PathArgument() );
+  Path(const std::string& path,
+       const PathArgument& a1 = PathArgument(),
+       const PathArgument& a2 = PathArgument(),
+       const PathArgument& a3 = PathArgument(),
+       const PathArgument& a4 = PathArgument(),
+       const PathArgument& a5 = PathArgument());
 
-  const Value &resolve( const Value &root ) const;
-  Value resolve( const Value &root,
-                 const Value &defaultValue ) const;
+  const Value& resolve(const Value& root) const;
+  Value resolve(const Value& root,
+                const Value& defaultValue) const;
   /// Creates the "path" to access the specified node and returns a reference on the node.
-  Value &make( Value &root ) const;
+  Value& make(Value& root) const;
 
  private:
-  typedef std::vector<const PathArgument *> InArgs;
+  typedef std::vector<const PathArgument*> InArgs;
   typedef std::vector<PathArgument> Args;
 
-  void makePath( const std::string &path,
-                 const InArgs &in );
-  void addPathInArg( const std::string &path,
-                     const InArgs &in,
-                     InArgs::const_iterator &itInArg,
-                     PathArgument::Kind kind );
-  void invalidPath( const std::string &path,
-                    int location );
+  void makePath(const std::string& path,
+                const InArgs& in);
+  void addPathInArg(const std::string& path,
+                    const InArgs& in,
+                    InArgs::const_iterator& itInArg,
+                    PathArgument::Kind kind);
+  void invalidPath(const std::string& path,
+                   int location);
 
   Args args_;
 };
@@ -3854,29 +3807,27 @@ class Path
    };
  * \endcode
  */
-class JSON_API ValueMapAllocator
-{
+class JSON_API ValueMapAllocator {
  public:
   virtual ~ValueMapAllocator();
-  virtual ValueInternalMap *newMap() = 0;
-  virtual ValueInternalMap *newMapCopy( const ValueInternalMap &other ) = 0;
-  virtual void destructMap( ValueInternalMap *map ) = 0;
-  virtual ValueInternalLink *allocateMapBuckets( unsigned int size ) = 0;
-  virtual void releaseMapBuckets( ValueInternalLink *links ) = 0;
-  virtual ValueInternalLink *allocateMapLink() = 0;
-  virtual void releaseMapLink( ValueInternalLink *link ) = 0;
+  virtual ValueInternalMap* newMap() = 0;
+  virtual ValueInternalMap* newMapCopy(const ValueInternalMap& other) = 0;
+  virtual void destructMap(ValueInternalMap* map) = 0;
+  virtual ValueInternalLink* allocateMapBuckets(unsigned int size) = 0;
+  virtual void releaseMapBuckets(ValueInternalLink* links) = 0;
+  virtual ValueInternalLink* allocateMapLink() = 0;
+  virtual void releaseMapLink(ValueInternalLink* link) = 0;
 };
 
 /** \brief ValueInternalMap hash-map bucket chain link (for internal use only).
  * \internal previous_ & next_ allows for bidirectional traversal.
  */
-class JSON_API ValueInternalLink
-{
+class JSON_API ValueInternalLink {
  public:
   enum { itemPerLink = 6 };  // sizeof(ValueInternalLink) = 128 on 32 bits architecture.
   enum InternalFlags {
-      flagAvailable = 0,
-      flagUsed = 1
+    flagAvailable = 0,
+    flagUsed = 1
   };
 
   ValueInternalLink();
@@ -3884,9 +3835,9 @@ class JSON_API ValueInternalLink
   ~ValueInternalLink();
 
   Value items_[itemPerLink];
-  char *keys_[itemPerLink];
-  ValueInternalLink *previous_;
-  ValueInternalLink *next_;
+  char* keys_[itemPerLink];
+  ValueInternalLink* previous_;
+  ValueInternalLink* next_;
 };
 
 
@@ -3902,8 +3853,7 @@ class JSON_API ValueInternalLink
  * Only the last link of a bucket may contains 'available' item. The last link always
  * contains at least one element unless is it the bucket one very first link.
  */
-class JSON_API ValueInternalMap
-{
+class JSON_API ValueInternalMap {
   friend class ValueIteratorBase;
   friend class Value;
  public:
@@ -3914,75 +3864,75 @@ class JSON_API ValueInternalMap
   struct IteratorState {
     IteratorState()
       : map_(0)
-    , link_(0)
-    , itemIndex_(0)
-    , bucketIndex_(0) {
+      , link_(0)
+      , itemIndex_(0)
+      , bucketIndex_(0) {
     }
-    ValueInternalMap *map_;
-    ValueInternalLink *link_;
+    ValueInternalMap* map_;
+    ValueInternalLink* link_;
     BucketIndex itemIndex_;
     BucketIndex bucketIndex_;
   };
 # endif // ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 
   ValueInternalMap();
-  ValueInternalMap( const ValueInternalMap &other );
-  ValueInternalMap &operator =( const ValueInternalMap &other );
+  ValueInternalMap(const ValueInternalMap& other);
+  ValueInternalMap& operator =(const ValueInternalMap& other);
   ~ValueInternalMap();
 
-  void swap( ValueInternalMap &other );
+  void swap(ValueInternalMap& other);
 
   BucketIndex size() const;
 
   void clear();
 
-  bool reserveDelta( BucketIndex growth );
+  bool reserveDelta(BucketIndex growth);
 
-  bool reserve( BucketIndex newItemCount );
+  bool reserve(BucketIndex newItemCount);
 
-  const Value *find( const char *key ) const;
+  const Value* find(const char* key) const;
 
-  Value *find( const char *key );
+  Value* find(const char* key);
 
-  Value &resolveReference( const char *key,
-                           bool isStatic );
+  Value& resolveReference(const char* key,
+                          bool isStatic);
 
-  void remove( const char *key );
+  void remove(const char* key);
 
-  void doActualRemove( ValueInternalLink *link,
-                       BucketIndex index,
-                       BucketIndex bucketIndex );
+  void doActualRemove(ValueInternalLink* link,
+                      BucketIndex index,
+                      BucketIndex bucketIndex);
 
-  ValueInternalLink *&getLastLinkInBucket( BucketIndex bucketIndex );
+  ValueInternalLink*& getLastLinkInBucket(BucketIndex bucketIndex);
 
-  Value &setNewItem( const char *key,
-                     bool isStatic,
-                     ValueInternalLink *link,
-                     BucketIndex index );
-
-  Value &unsafeAdd( const char *key,
+  Value& setNewItem(const char* key,
                     bool isStatic,
-                    HashKey hashedKey );
+                    ValueInternalLink* link,
+                    BucketIndex index);
 
-  HashKey hash( const char *key ) const;
+  Value& unsafeAdd(const char* key,
+                   bool isStatic,
+                   HashKey hashedKey);
 
-  int compare( const ValueInternalMap &other ) const;
+  HashKey hash(const char* key) const;
 
- private:
-  void makeBeginIterator( IteratorState &it ) const;
-  void makeEndIterator( IteratorState &it ) const;
-  static bool equals( const IteratorState &x, const IteratorState &other );
-  static void increment( IteratorState &iterator );
-  static void incrementBucket( IteratorState &iterator );
-  static void decrement( IteratorState &iterator );
-  static const char *key( const IteratorState &iterator );
-  static const char *key( const IteratorState &iterator, bool &isStatic );
-  static Value &value( const IteratorState &iterator );
-  static int distance( const IteratorState &x, const IteratorState &y );
+  int compare(const ValueInternalMap& other) const;
 
  private:
-  ValueInternalLink *buckets_;
-  ValueInternalLink *tailLink_;
+  void makeBeginIterator(IteratorState& it) const;
+  void makeEndIterator(IteratorState& it) const;
+  static bool equals(const IteratorState& x, const IteratorState& other);
+  static void increment(IteratorState& iterator);
+  static void incrementBucket(IteratorState& iterator);
+  static void decrement(IteratorState& iterator);
+  static const char* key(const IteratorState& iterator);
+  static const char* key(const IteratorState& iterator, bool& isStatic);
+  static Value& value(const IteratorState& iterator);
+  static int distance(const IteratorState& x, const IteratorState& y);
+
+ private:
+  ValueInternalLink* buckets_;
+  ValueInternalLink* tailLink_;
   BucketIndex bucketsSize_;
   BucketIndex itemCount_;
 };
@@ -3998,8 +3948,7 @@ class JSON_API ValueInternalMap
 * Insertion is amortized constant time (only the array containing the index of pointers
 * need to be reallocated when items are appended).
 */
-class JSON_API ValueInternalArray
-{
+class JSON_API ValueInternalArray {
   friend class Value;
   friend class ValueIteratorBase;
  public:
@@ -4011,47 +3960,47 @@ class JSON_API ValueInternalArray
   struct IteratorState { // Must be a POD
     IteratorState()
       : array_(0)
-    , currentPageIndex_(0)
-    , currentItemIndex_(0) {
+      , currentPageIndex_(0)
+      , currentItemIndex_(0) {
     }
-    ValueInternalArray *array_;
-    Value **currentPageIndex_;
+    ValueInternalArray* array_;
+    Value** currentPageIndex_;
     unsigned int currentItemIndex_;
   };
 # endif // ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 
   ValueInternalArray();
-  ValueInternalArray( const ValueInternalArray &other );
-  ValueInternalArray &operator =( const ValueInternalArray &other );
+  ValueInternalArray(const ValueInternalArray& other);
+  ValueInternalArray& operator =(const ValueInternalArray& other);
   ~ValueInternalArray();
-  void swap( ValueInternalArray &other );
+  void swap(ValueInternalArray& other);
 
   void clear();
-  void resize( ArrayIndex newSize );
+  void resize(ArrayIndex newSize);
 
-  Value &resolveReference( ArrayIndex index );
+  Value& resolveReference(ArrayIndex index);
 
-  Value *find( ArrayIndex index ) const;
+  Value* find(ArrayIndex index) const;
 
   ArrayIndex size() const;
 
-  int compare( const ValueInternalArray &other ) const;
+  int compare(const ValueInternalArray& other) const;
 
  private:
-  static bool equals( const IteratorState &x, const IteratorState &other );
-  static void increment( IteratorState &iterator );
-  static void decrement( IteratorState &iterator );
-  static Value &dereference( const IteratorState &iterator );
-  static Value &unsafeDereference( const IteratorState &iterator );
-  static int distance( const IteratorState &x, const IteratorState &y );
-  static ArrayIndex indexOf( const IteratorState &iterator );
-  void makeBeginIterator( IteratorState &it ) const;
-  void makeEndIterator( IteratorState &it ) const;
-  void makeIterator( IteratorState &it, ArrayIndex index ) const;
+  static bool equals(const IteratorState& x, const IteratorState& other);
+  static void increment(IteratorState& iterator);
+  static void decrement(IteratorState& iterator);
+  static Value& dereference(const IteratorState& iterator);
+  static Value& unsafeDereference(const IteratorState& iterator);
+  static int distance(const IteratorState& x, const IteratorState& y);
+  static ArrayIndex indexOf(const IteratorState& iterator);
+  void makeBeginIterator(IteratorState& it) const;
+  void makeEndIterator(IteratorState& it) const;
+  void makeIterator(IteratorState& it, ArrayIndex index) const;
 
-  void makeIndexValid( ArrayIndex index );
+  void makeIndexValid(ArrayIndex index);
 
-  Value **pages_;
+  Value** pages_;
   ArrayIndex size_;
   PageIndex pageCount_;
 };
@@ -4115,13 +4064,12 @@ virtual void releaseArrayPage( Value *value )
 };
    \endcode
  */
-class JSON_API ValueArrayAllocator
-{
+class JSON_API ValueArrayAllocator {
  public:
   virtual ~ValueArrayAllocator();
-  virtual ValueInternalArray *newArray() = 0;
-  virtual ValueInternalArray *newArrayCopy( const ValueInternalArray &other ) = 0;
-  virtual void destructArray( ValueInternalArray *array ) = 0;
+  virtual ValueInternalArray* newArray() = 0;
+  virtual ValueInternalArray* newArrayCopy(const ValueInternalArray& other) = 0;
+  virtual void destructArray(ValueInternalArray* array) = 0;
   /** \brief Reallocate array page index.
    * Reallocates an array of pointer on each page.
    * \param indexes [input] pointer on the current index. May be \c NULL.
@@ -4133,13 +4081,13 @@ class JSON_API ValueArrayAllocator
    * \param minNewIndexCount Minimum number of page the new index must be able to
    *                         handle.
    */
-  virtual void reallocateArrayPageIndex( Value **&indexes,
-                                         ValueInternalArray::PageIndex &indexCount,
-                                         ValueInternalArray::PageIndex minNewIndexCount ) = 0;
-  virtual void releaseArrayPageIndex( Value **indexes,
-                                      ValueInternalArray::PageIndex indexCount ) = 0;
-  virtual Value *allocateArrayPage() = 0;
-  virtual void releaseArrayPage( Value *value ) = 0;
+  virtual void reallocateArrayPageIndex(Value**& indexes,
+                                        ValueInternalArray::PageIndex& indexCount,
+                                        ValueInternalArray::PageIndex minNewIndexCount) = 0;
+  virtual void releaseArrayPageIndex(Value** indexes,
+                                     ValueInternalArray::PageIndex indexCount) = 0;
+  virtual Value* allocateArrayPage() = 0;
+  virtual void releaseArrayPage(Value* value) = 0;
 };
 #endif // #ifdef JSON_VALUE_USE_INTERNAL_MAP
 
@@ -4147,8 +4095,7 @@ class JSON_API ValueArrayAllocator
 /** \brief base class for Value iterators.
  *
  */
-class ValueIteratorBase
-{
+class ValueIteratorBase {
  public:
   typedef unsigned int size_t;
   typedef int difference_type;
@@ -4156,22 +4103,22 @@ class ValueIteratorBase
 
   ValueIteratorBase();
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  explicit ValueIteratorBase( const Value::ObjectValues::iterator &current );
+  explicit ValueIteratorBase(const Value::ObjectValues::iterator& current);
 #else
-  ValueIteratorBase( const ValueInternalArray::IteratorState &state );
-  ValueIteratorBase( const ValueInternalMap::IteratorState &state );
+  ValueIteratorBase(const ValueInternalArray::IteratorState& state);
+  ValueIteratorBase(const ValueInternalMap::IteratorState& state);
 #endif
 
-  bool operator ==( const SelfType &other ) const {
-    return isEqual( other );
+  bool operator ==(const SelfType& other) const {
+    return isEqual(other);
   }
 
-  bool operator !=( const SelfType &other ) const {
-    return !isEqual( other );
+  bool operator !=(const SelfType& other) const {
+    return !isEqual(other);
   }
 
-  difference_type operator -( const SelfType &other ) const {
-    return computeDistance( other );
+  difference_type operator -(const SelfType& other) const {
+    return computeDistance(other);
   }
 
   /// Return either the index or the member name of the referenced value as a Value.
@@ -4181,20 +4128,20 @@ class ValueIteratorBase
   UInt index() const;
 
   /// Return the member name of the referenced Value. "" if it is not an objectValue.
-  const char *memberName() const;
+  const char* memberName() const;
 
  protected:
-  Value &deref() const;
+  Value& deref() const;
 
   void increment();
 
   void decrement();
 
-  difference_type computeDistance( const SelfType &other ) const;
+  difference_type computeDistance(const SelfType& other) const;
 
-  bool isEqual( const SelfType &other ) const;
+  bool isEqual(const SelfType& other) const;
 
-  void copy( const SelfType &other );
+  void copy(const SelfType& other);
 
  private:
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
@@ -4213,14 +4160,13 @@ class ValueIteratorBase
 /** \brief const iterator for object and array value.
  *
  */
-class ValueConstIterator : public ValueIteratorBase
-{
+class ValueConstIterator : public ValueIteratorBase {
   friend class Value;
  public:
   typedef unsigned int size_t;
   typedef int difference_type;
-  typedef const Value &reference;
-  typedef const Value *pointer;
+  typedef const Value& reference;
+  typedef const Value* pointer;
   typedef ValueConstIterator SelfType;
 
   ValueConstIterator();
@@ -4228,32 +4174,32 @@ class ValueConstIterator : public ValueIteratorBase
   /*! \internal Use by Value to create an iterator.
    */
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  explicit ValueConstIterator( const Value::ObjectValues::iterator &current );
+  explicit ValueConstIterator(const Value::ObjectValues::iterator& current);
 #else
-  ValueConstIterator( const ValueInternalArray::IteratorState &state );
-  ValueConstIterator( const ValueInternalMap::IteratorState &state );
+  ValueConstIterator(const ValueInternalArray::IteratorState& state);
+  ValueConstIterator(const ValueInternalMap::IteratorState& state);
 #endif
  public:
-  SelfType &operator =( const ValueIteratorBase &other );
+  SelfType& operator =(const ValueIteratorBase& other);
 
-  SelfType operator++( int ) {
-    SelfType temp( *this );
+  SelfType operator++(int) {
+    SelfType temp(*this);
     ++*this;
     return temp;
   }
 
-  SelfType operator--( int ) {
-    SelfType temp( *this );
+  SelfType operator--(int) {
+    SelfType temp(*this);
     --*this;
     return temp;
   }
 
-  SelfType &operator--() {
+  SelfType& operator--() {
     decrement();
     return *this;
   }
 
-  SelfType &operator++() {
+  SelfType& operator++() {
     increment();
     return *this;
   }
@@ -4266,50 +4212,49 @@ class ValueConstIterator : public ValueIteratorBase
 
 /** \brief Iterator for object and array value.
  */
-class ValueIterator : public ValueIteratorBase
-{
+class ValueIterator : public ValueIteratorBase {
   friend class Value;
  public:
   typedef unsigned int size_t;
   typedef int difference_type;
-  typedef Value &reference;
-  typedef Value *pointer;
+  typedef Value& reference;
+  typedef Value* pointer;
   typedef ValueIterator SelfType;
 
   ValueIterator();
-  ValueIterator( const ValueConstIterator &other );
-  ValueIterator( const ValueIterator &other );
+  ValueIterator(const ValueConstIterator& other);
+  ValueIterator(const ValueIterator& other);
  private:
   /*! \internal Use by Value to create an iterator.
    */
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  explicit ValueIterator( const Value::ObjectValues::iterator &current );
+  explicit ValueIterator(const Value::ObjectValues::iterator& current);
 #else
-  ValueIterator( const ValueInternalArray::IteratorState &state );
-  ValueIterator( const ValueInternalMap::IteratorState &state );
+  ValueIterator(const ValueInternalArray::IteratorState& state);
+  ValueIterator(const ValueInternalMap::IteratorState& state);
 #endif
  public:
 
-  SelfType &operator =( const SelfType &other );
+  SelfType& operator =(const SelfType& other);
 
-  SelfType operator++( int ) {
-    SelfType temp( *this );
+  SelfType operator++(int) {
+    SelfType temp(*this);
     ++*this;
     return temp;
   }
 
-  SelfType operator--( int ) {
-    SelfType temp( *this );
+  SelfType operator--(int) {
+    SelfType temp(*this);
     --*this;
     return temp;
   }
 
-  SelfType &operator--() {
+  SelfType& operator--() {
     decrement();
     return *this;
   }
 
-  SelfType &operator++() {
+  SelfType& operator++() {
     increment();
     return *this;
   }
@@ -4355,17 +4300,15 @@ class ValueIterator : public ValueIteratorBase
 # include <string>
 # include <iostream>
 
-namespace Json
-{
+namespace Json {
 
 /** \brief Unserialize a <a HREF="http://www.json.org">JSON</a> document into a Value.
  *
  */
-class JSON_API Reader
-{
+class JSON_API Reader {
  public:
   typedef char Char;
-  typedef const Char *Location;
+  typedef const Char* Location;
 
   /** \brief Constructs a Reader allowing all features
    * for parsing.
@@ -4375,7 +4318,7 @@ class JSON_API Reader
   /** \brief Constructs a Reader allowing the specified feature set
    * for parsing.
    */
-  Reader( const Features &features );
+  Reader(const Features& features);
 
   /** \brief Read a Value from a <a HREF="http://www.json.org">JSON</a> document.
    * \param document UTF-8 encoded string containing the document to read.
@@ -4387,9 +4330,9 @@ class JSON_API Reader
    *                        is \c false.
    * \return \c true if the document was successfully parsed, \c false if an error occurred.
    */
-  bool parse( const std::string &document,
-              Value &root,
-              bool collectComments = true );
+  bool parse(const std::string& document,
+             Value& root,
+             bool collectComments = true);
 
   /** \brief Read a Value from a <a HREF="http://www.json.org">JSON</a> document.
    * \param beginDoc Pointer on the beginning of the UTF-8 encoded string of the document to read.
@@ -4403,15 +4346,15 @@ class JSON_API Reader
    *                        is \c false.
    * \return \c true if the document was successfully parsed, \c false if an error occurred.
    */
-  bool parse( const char *beginDoc, const char *endDoc,
-              Value &root,
-              bool collectComments = true );
+  bool parse(const char* beginDoc, const char* endDoc,
+             Value& root,
+             bool collectComments = true);
 
   /// \brief Parse from input stream.
   /// \see Json::operator>>(std::istream&, Json::Value&).
-  bool parse( std::istream &is,
-              Value &root,
-              bool collectComments = true );
+  bool parse(std::istream& is,
+             Value& root,
+             bool collectComments = true);
 
   /** \brief Returns a user friendly string that list errors in the parsed document.
    * \return Formatted error message with the list of errors with their location in
@@ -4431,32 +4374,30 @@ class JSON_API Reader
 
  private:
   enum TokenType {
-      tokenEndOfStream = 0,
-      tokenObjectBegin,
-      tokenObjectEnd,
-      tokenArrayBegin,
-      tokenArrayEnd,
-      tokenString,
-      tokenNumber,
-      tokenTrue,
-      tokenFalse,
-      tokenNull,
-      tokenArraySeparator,
-      tokenMemberSeparator,
-      tokenComment,
-      tokenError
+    tokenEndOfStream = 0,
+    tokenObjectBegin,
+    tokenObjectEnd,
+    tokenArrayBegin,
+    tokenArrayEnd,
+    tokenString,
+    tokenNumber,
+    tokenTrue,
+    tokenFalse,
+    tokenNull,
+    tokenArraySeparator,
+    tokenMemberSeparator,
+    tokenComment,
+    tokenError
   };
 
-  class Token
-{
+  class Token {
    public:
     TokenType type_;
     Location start_;
     Location end_;
   };
 
-  class ErrorInfo
-{
+  class ErrorInfo {
    public:
     Token token_;
     std::string message_;
@@ -4465,51 +4406,51 @@ class JSON_API Reader
 
   typedef std::deque<ErrorInfo> Errors;
 
-  bool expectToken( TokenType type, Token &token, const char *message );
-  bool readToken( Token &token );
+  bool expectToken(TokenType type, Token& token, const char* message);
+  bool readToken(Token& token);
   void skipSpaces();
-  bool match( Location pattern,
-              int patternLength );
+  bool match(Location pattern,
+             int patternLength);
   bool readComment();
   bool readCStyleComment();
   bool readCppStyleComment();
   bool readString();
   void readNumber();
   bool readValue();
-  bool readObject( Token &token );
-  bool readArray( Token &token );
-  bool decodeNumber( Token &token );
-  bool decodeString( Token &token );
-  bool decodeString( Token &token, std::string &decoded );
-  bool decodeDouble( Token &token );
-  bool decodeUnicodeCodePoint( Token &token,
-                               Location &current,
-                               Location end,
-                               unsigned int &unicode );
-  bool decodeUnicodeEscapeSequence( Token &token,
-                                    Location &current,
-                                    Location end,
-                                    unsigned int &unicode );
-  bool addError( const std::string &message,
-                 Token &token,
-                 Location extra = 0 );
-  bool recoverFromError( TokenType skipUntilToken );
-  bool addErrorAndRecover( const std::string &message,
-                           Token &token,
-                           TokenType skipUntilToken );
+  bool readObject(Token& token);
+  bool readArray(Token& token);
+  bool decodeNumber(Token& token);
+  bool decodeString(Token& token);
+  bool decodeString(Token& token, std::string& decoded);
+  bool decodeDouble(Token& token);
+  bool decodeUnicodeCodePoint(Token& token,
+                              Location& current,
+                              Location end,
+                              unsigned int& unicode);
+  bool decodeUnicodeEscapeSequence(Token& token,
+                                   Location& current,
+                                   Location end,
+                                   unsigned int& unicode);
+  bool addError(const std::string& message,
+                Token& token,
+                Location extra = 0);
+  bool recoverFromError(TokenType skipUntilToken);
+  bool addErrorAndRecover(const std::string& message,
+                          Token& token,
+                          TokenType skipUntilToken);
   void skipUntilSpace();
-  Value &currentValue();
+  Value& currentValue();
   Char getNextChar();
-  void getLocationLineAndColumn( Location location,
-                                 int &line,
-                                 int &column ) const;
-  std::string getLocationLineAndColumn( Location location ) const;
-  void addComment( Location begin,
-                   Location end,
-                   CommentPlacement placement );
-  void skipCommentTokens( Token &token );
+  void getLocationLineAndColumn(Location location,
+                                int& line,
+                                int& column) const;
+  std::string getLocationLineAndColumn(Location location) const;
+  void addComment(Location begin,
+                  Location end,
+                  CommentPlacement placement);
+  void skipCommentTokens(Token& token);
 
-  typedef std::stack<Value *> Nodes;
+  typedef std::stack<Value*> Nodes;
   Nodes nodes_;
   Errors errors_;
   std::string document_;
@@ -4517,7 +4458,7 @@ class JSON_API Reader
   Location end_;
   Location current_;
   Location lastValueEnd_;
-  Value *lastValue_;
+  Value* lastValue_;
   std::string commentsBefore_;
   Features features_;
   bool collectComments_;
@@ -4547,7 +4488,7 @@ class JSON_API Reader
  \throw std::exception on parse error.
  \see Json::operator<<()
 */
-std::istream& operator>>( std::istream&, Value& );
+std::istream& operator>>(std::istream&, Value&);
 
 } // namespace Json
 
@@ -4581,19 +4522,17 @@ std::istream& operator>>( std::istream&, Value& );
 # include <string>
 # include <iostream>
 
-namespace Json
-{
+namespace Json {
 
 class Value;
 
 /** \brief Abstract class for writers.
  */
-class JSON_API Writer
-{
+class JSON_API Writer {
  public:
   virtual ~Writer();
 
-  virtual std::string write( const Value &root ) = 0;
+  virtual std::string write(const Value& root) = 0;
 };
 
 /** \brief Outputs a Value in <a HREF="http://www.json.org">JSON</a> format without formatting (not human friendly).
@@ -4602,8 +4541,7 @@ class JSON_API Writer
  * but may be usefull to support feature such as RPC where bandwith is limited.
  * \sa Reader, Value
  */
-class JSON_API FastWriter : public Writer
-{
+class JSON_API FastWriter : public Writer {
  public:
   FastWriter();
   virtual ~FastWriter() {}
@@ -4611,10 +4549,10 @@ class JSON_API FastWriter : public Writer
   void enableYAMLCompatibility();
 
  public: // overridden from Writer
-  virtual std::string write( const Value &root );
+  virtual std::string write(const Value& root);
 
  private:
-  void writeValue( const Value &value );
+  void writeValue(const Value& value);
 
   std::string document_;
   bool yamlCompatiblityEnabled_;
@@ -4638,8 +4576,7 @@ class JSON_API FastWriter : public Writer
  *
  * \sa Reader, Value, Value::setComment()
  */
-class JSON_API StyledWriter: public Writer
-{
+class JSON_API StyledWriter: public Writer {
  public:
   StyledWriter();
   virtual ~StyledWriter() {}
@@ -4649,21 +4586,21 @@ class JSON_API StyledWriter: public Writer
    * \param root Value to serialize.
    * \return String containing the JSON document that represents the root value.
    */
-  virtual std::string write( const Value &root );
+  virtual std::string write(const Value& root);
 
  private:
-  void writeValue( const Value &value );
-  void writeArrayValue( const Value &value );
-  bool isMultineArray( const Value &value );
-  void pushValue( const std::string &value );
+  void writeValue(const Value& value);
+  void writeArrayValue(const Value& value);
+  bool isMultineArray(const Value& value);
+  void pushValue(const std::string& value);
   void writeIndent();
-  void writeWithIndent( const std::string &value );
+  void writeWithIndent(const std::string& value);
   void indent();
   void unindent();
-  void writeCommentBeforeValue( const Value &root );
-  void writeCommentAfterValueOnSameLine( const Value &root );
-  bool hasCommentForValue( const Value &value );
-  static std::string normalizeEOL( const std::string &text );
+  void writeCommentBeforeValue(const Value& root);
+  void writeCommentAfterValueOnSameLine(const Value& root);
+  bool hasCommentForValue(const Value& value);
+  static std::string normalizeEOL(const std::string& text);
 
   typedef std::vector<std::string> ChildValues;
 
@@ -4695,10 +4632,9 @@ class JSON_API StyledWriter: public Writer
  * \param indentation Each level will be indented by this amount extra.
  * \sa Reader, Value, Value::setComment()
  */
-class JSON_API StyledStreamWriter
-{
+class JSON_API StyledStreamWriter {
  public:
-  StyledStreamWriter( std::string indentation="\t" );
+  StyledStreamWriter(std::string indentation = "\t");
   ~StyledStreamWriter() {}
 
  public:
@@ -4707,21 +4643,21 @@ class JSON_API StyledStreamWriter
    * \param root Value to serialize.
    * \note There is no point in deriving from Writer, since write() should not return a value.
    */
-  void write( std::ostream &out, const Value &root );
+  void write(std::ostream& out, const Value& root);
 
  private:
-  void writeValue( const Value &value );
-  void writeArrayValue( const Value &value );
-  bool isMultineArray( const Value &value );
-  void pushValue( const std::string &value );
+  void writeValue(const Value& value);
+  void writeArrayValue(const Value& value);
+  bool isMultineArray(const Value& value);
+  void pushValue(const std::string& value);
   void writeIndent();
-  void writeWithIndent( const std::string &value );
+  void writeWithIndent(const std::string& value);
   void indent();
   void unindent();
-  void writeCommentBeforeValue( const Value &root );
-  void writeCommentAfterValueOnSameLine( const Value &root );
-  bool hasCommentForValue( const Value &value );
-  static std::string normalizeEOL( const std::string &text );
+  void writeCommentBeforeValue(const Value& root);
+  void writeCommentAfterValueOnSameLine(const Value& root);
+  bool hasCommentForValue(const Value& value);
+  static std::string normalizeEOL(const std::string& text);
 
   typedef std::vector<std::string> ChildValues;
 
@@ -4734,18 +4670,18 @@ class JSON_API StyledStreamWriter
 };
 
 # if defined(JSON_HAS_INT64)
-std::string JSON_API valueToString( Int value );
-std::string JSON_API valueToString( UInt value );
+std::string JSON_API valueToString(Int value);
+std::string JSON_API valueToString(UInt value);
 # endif // if defined(JSON_HAS_INT64)
-std::string JSON_API valueToString( LargestInt value );
-std::string JSON_API valueToString( LargestUInt value );
-std::string JSON_API valueToString( double value );
-std::string JSON_API valueToString( bool value );
-std::string JSON_API valueToQuotedString( const char *value );
+std::string JSON_API valueToString(LargestInt value);
+std::string JSON_API valueToString(LargestUInt value);
+std::string JSON_API valueToString(double value);
+std::string JSON_API valueToString(bool value);
+std::string JSON_API valueToQuotedString(const char* value);
 
 /// \brief Output using the StyledStreamWriter.
 /// \see Json::operator>>()
-std::ostream& operator<<( std::ostream&, const Value &root );
+std::ostream& operator<<(std::ostream&, const Value& root);
 
 } // namespace Json
 
@@ -4800,8 +4736,7 @@ THE SOFTWARE.
 
 #include <string>
 
-namespace Json
-{
+namespace Json {
 
 /** \brief Writes a Value in <a HREF="http://www.json.org">JSON</a> format with custom formatting.
  *
@@ -4812,25 +4747,24 @@ namespace Json
  *
  * \sa Reader, Value
  */
-class JSON_API CustomWriter : public Writer
-{
+class JSON_API CustomWriter : public Writer {
  public:
-  CustomWriter( std::string opencurly = "{",
-                std::string closecurly = "}",
-                std::string opensquare = "[",
-                std::string closesquare = "]",
-                std::string colon = ":",
-                std::string comma = ",",
-                std::string indent = "  ",
-                int maxWidth = 74);
+  CustomWriter(std::string opencurly = "{",
+               std::string closecurly = "}",
+               std::string opensquare = "[",
+               std::string closesquare = "]",
+               std::string colon = ":",
+               std::string comma = ",",
+               std::string indent = "  ",
+               int maxWidth = 74);
   virtual ~CustomWriter() {}
 
  public: // overridden from Writer
-  virtual std::string write( const Value &root );
+  virtual std::string write(const Value& root);
 
  private:
-  void writeValue( const Value &value, std::string &doc, bool forceSingleLine );
-  bool isMultiline( const Value &value );
+  void writeValue(const Value& value, std::string& doc, bool forceSingleLine);
+  bool isMultiline(const Value& value);
   void indent();
   void unindent();
 
@@ -4873,7 +4807,7 @@ class JSON_API CustomWriter : public Writer
 #include <set>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sstream>	// std::ostringstream
+#include <sstream>  // std::ostringstream
 
 #if !defined(JSON_IS_AMALGAMATION)
 #define JSON_IS_AMALGAMATION
@@ -4889,15 +4823,13 @@ class JSON_API CustomWriter : public Writer
 #include "decay.h"
 #endif
 
-namespace pyne
-{
+namespace pyne {
 // Set Type Definitions
 typedef std::map<int, double> comp_map; ///< Nuclide-mass composition map type
 typedef comp_map::iterator comp_iter;   ///< Nuclide-mass composition iter type
 
 #ifdef PYNE_IS_AMALGAMATED
-namespace decayers
-{
+namespace decayers {
 extern comp_map decay(comp_map, double);
 }  // namespace decayers
 #endif
@@ -4917,17 +4849,16 @@ static std::string fluka_mat_strings[] = {
 static int FLUKA_MAT_NUM = 37;
 
 /// Material composed of nuclides.
-class Material
-{
+class Material {
  protected:
 
   /// Computes the total mass stored in the composition.
-  double get_comp_sum ();
+  double get_comp_sum();
 
  public:
 
   // Material Constructors
-  Material ();  ///< empty constructor
+  Material();   ///< empty constructor
   /// Constructor from composition map
   /// \param cm composition map
   /// \param m mass value, the mass is set to the sum of the values in the
@@ -4935,8 +4866,8 @@ class Material
   /// \param d density value
   /// \param apm atoms per mole
   /// \param attributes initial metadata
-  Material(comp_map cm, double m=-1.0, double d=-1.0, double apm=-1.0,
-           Json::Value attributes=Json::Value(Json::objectValue));
+  Material(comp_map cm, double m = -1.0, double d = -1.0, double apm = -1.0,
+           Json::Value attributes = Json::Value(Json::objectValue));
   /// Constructor from file
   /// \param filename path to file on disk, this file may be either in plaintext
   ///                 or HDF5 format.
@@ -4949,8 +4880,8 @@ class Material
   ///          may be overridden by the value from disk.
   /// \param attributes initial metadata,
   ///          may be overridden by the value from disk.
-  Material(char * filename, double m=-1.0, double d=-1.0, double apm=-1.0,
-           Json::Value attributes=Json::Value(Json::objectValue));
+  Material(char* filename, double m = -1.0, double d = -1.0, double apm = -1.0,
+           Json::Value attributes = Json::Value(Json::objectValue));
   /// Constructor from file
   /// \param filename path to file on disk, this file may be either in plaintext
   ///                 or HDF5 format.
@@ -4963,12 +4894,12 @@ class Material
   ///          may be overridden by the value from disk.
   /// \param attributes initial metadata,
   ///          may be overridden by the value from disk.
-  Material(std::string filename, double m=-1.0, double d=-1.0, double apm=-1.0,
-           Json::Value attributes=Json::Value(Json::objectValue));
-  ~Material (); ///< default destructor
+  Material(std::string filename, double m = -1.0, double d = -1.0, double apm = -1.0,
+           Json::Value attributes = Json::Value(Json::objectValue));
+  ~Material();  ///< default destructor
 
   /// Normalizes the mass values in the composition.
-  void norm_comp ();
+  void norm_comp();
 
   // Persistence functions.
 
@@ -4991,15 +4922,15 @@ class Material
   /// \param datapath Path to the the material in the file.
   /// \param row The index to read out, may be negative.
   /// \param protocol Flag for layout of material on disk.
-  void from_hdf5(char * filename, char * datapath, int row=-1, int protocol=1);
+  void from_hdf5(char* filename, char* datapath, int row = -1, int protocol = 1);
 
   /// Loads a material from an HDF5 file into this object.
   /// \param filename Path on disk to the HDF5 file.
   /// \param datapath Path to the the material in the file.
   /// \param row The index to read out, may be negative.
   /// \param protocol Flag for layout of material on disk.
-  void from_hdf5(std::string filename, std::string datapath="/material",
-                 int row=-1, int protocol=1);
+  void from_hdf5(std::string filename, std::string datapath = "/material",
+                 int row = -1, int protocol = 1);
 
   /// Writes this material out to an HDF5 file.
   /// This happens according to protocol 1.
@@ -5010,8 +4941,8 @@ class Material
   ///            float.  A value of -0.0 indicates that the material should be
   ///            appended to the end of the dataset.
   /// \param chunksize The chunksize for all material data on disk.
-  void write_hdf5(char * filename, char * datapath, char * nucpath, float row=-0.0,
-                  int chunksize=100);
+  void write_hdf5(char* filename, char* datapath, char* nucpath, float row = -0.0,
+                  int chunksize = 100);
   /// Writes this material out to an HDF5 file.
   /// This happens according to protocol 1.
   /// \param filename Path on disk to the HDF5 file.
@@ -5021,8 +4952,8 @@ class Material
   ///            float.  A value of -0.0 indicates that the material should be
   ///            appended to the end of the dataset.
   /// \param chunksize The chunksize for all material data on disk.
-  void write_hdf5(std::string filename, std::string datapath="/material",
-                  std::string nucpath="/nucid", float row=-0.0, int chunksize=100);
+  void write_hdf5(std::string filename, std::string datapath = "/material",
+                  std::string nucpath = "/nucid", float row = -0.0, int chunksize = 100);
 
   /// Return an mcnp input deck record as a string
   std::string mcnp(std::string frac_type = "mass");
@@ -5046,12 +4977,12 @@ class Material
   std::string fluka_compound_str(int id, std::string frac_type = "mass");
 
   /// Reads data from a plaintext file at \a filename into this Material instance.
-  void from_text(char * filename);
+  void from_text(char* filename);
   /// Reads data from a plaintext file at \a filename into this Material instance.
   void from_text(std::string filename);
 
   /// Writes the Material out to a simple plaintext file readable by from_text().
-  void write_text(char * filename);
+  void write_text(char* filename);
   /// Writes the Material out to a simple plaintext file readable by from_text().
   void write_text(std::string filename);
 
@@ -5060,11 +4991,11 @@ class Material
   /// Dumps the Material out to a JSON instance tree.
   Json::Value dump_json();
   /// Reads data from a JSON file at \a filename into this Material instance.
-  void from_json(char * filename);
+  void from_json(char* filename);
   /// Reads data from a JSON file at \a filename into this Material instance.
   void from_json(std::string filname);
   /// Writes the Material out to a JSON file
-  void write_json(char * filename);
+  void write_json(char* filename);
   /// Writes the Material out to a JSON file
   void write_json(std::string filename);
 
@@ -5078,7 +5009,7 @@ class Material
   Json::Value metadata;
 
   // Material function definitions
-  void normalize ();  ///< Normalizes the mass.
+  void normalize();   ///< Normalizes the mass.
   /// Returns a composition map that has been unnormalized by multiplying each
   /// mass weight by the actual mass of the material.
   comp_map mult_by_mass();
@@ -5087,7 +5018,7 @@ class Material
   /// used (and stored on the instance) as the atoms_per_molecule for this calculation.
   /// If \a apm and atoms_per_molecule on this instance are both negative, then the best
   /// guess value calculated from the normailized composition is used here.
-  double molecular_mass(double apm=-1.0);
+  double molecular_mass(double apm = -1.0);
   /// Calculates the activity of a material based on the composition and each
   /// nuclide's mass, decay_const, and atmoic_mass.
   comp_map activity();
@@ -5103,7 +5034,7 @@ class Material
   ///     inhale -- returns mrem per g
   ///   source is:
   ///     {EPA=0, DOE=1, GENII=2}, default is EPA
-  comp_map dose_per_g(std::string dose_type, int source=0);
+  comp_map dose_per_g(std::string dose_type, int source = 0);
   /// Returns a copy of the current material where all natural elements in the
   /// composition are expanded to their natural isotopic abundances.
   Material expand_elements();
@@ -5111,19 +5042,19 @@ class Material
   // are added up, atomic-fraction-wise, unless they are in the exception set
   Material collapse_elements(std::set<int> exception_znum);
   // Wrapped version to facilitate calling from python
-  Material collapse_elements(int **int_ptr_arry);
+  Material collapse_elements(int** int_ptr_arry);
   // void print_material( pyne::Material test_mat);
   /// Computes, sets, and returns the mass density when \a num_dens is greater
   /// than or equal zero.  If \a num_dens is negative, this simply returns the
   /// current value of the density member variable.  You may also use / set the
   /// atoms per molecule (atoms_per_molecule) in this function using \a apm.
-  double mass_density(double num_dens=-1.0, double apm=-1.0);
+  double mass_density(double num_dens = -1.0, double apm = -1.0);
   /// Computes and returns the number density of the material using the
   /// mass density if \a mass_dens is greater than or equal to zero.  If
   /// \a mass_dens is negative, the denisty member variable is used instead.
   /// You may also use / set the atoms per molecule (atoms_per_molecule) in this
   /// function using \a apm.
-  double number_density(double mass_dens=-1.0, double apm=-1.0);
+  double number_density(double mass_dens = -1.0, double apm = -1.0);
 
   // Sub-Stream Computation
   /// Creates a sub-Material with only the nuclides present in \a nucset.
@@ -5149,12 +5080,12 @@ class Material
   Material del_mat(std::set<std::string> nucset);
 
   /// Creates a sub-Material based on a range of id-form integers.
-  Material sub_range(int lower=0, int upper=10000000);
+  Material sub_range(int lower = 0, int upper = 10000000);
   /// Creates a new Material with the mass weights for all nuclides in the id
   /// range set to \a value.
-  Material set_range(int lower=0, int upper=10000000, double value=0.0);
+  Material set_range(int lower = 0, int upper = 10000000, double value = 0.0);
   /// Creates a new Material with the all nuclides in the id range removed.
-  Material del_range(int lower=0, int upper=10000000);
+  Material del_range(int lower = 0, int upper = 10000000);
 
   /// Creates a sub-Material of only the given element. Assumes element is
   /// id form.
@@ -5225,8 +5156,7 @@ typedef struct material_data {
 } material_data;
 
 /// Custom exception for invalid HDF5 protocol numbers
-class MaterialProtocolError: public std::exception
-{
+class MaterialProtocolError: public std::exception {
   /// marginally helpful error message.
   virtual const char* what() const throw() {
     return "Invalid loading protocol number; please use 0 or 1.";
@@ -5267,17 +5197,15 @@ class MaterialProtocolError: public std::exception
 #endif
 
 
-namespace pyne
-{
-class Tally
-{
+namespace pyne {
+class Tally {
  public:
   std::map<std::string, std::string> rx2fluka;
   std::map<std::string, std::string> rx2mcnp5;
   std::map<std::string, std::string> rx2mcnp6;
 
   /// Tally Constructors
-  Tally (); /// empty constructor
+  Tally();  /// empty constructor
 
   /// Constructor from passed in vars
   /// \param type the type of tally (flux or current)
@@ -5294,7 +5222,7 @@ class Tally
         std::string tally_name = "", double entity_size = 0.0,
         double normalization = 1.0);
 
-  ~Tally (); /// default destructor
+  ~Tally();  /// default destructor
 
 
   // Create hdf5 datatable for tallies
@@ -5311,7 +5239,7 @@ class Tally
   /// \param datapath _name the name of the region where tallies
   ///          are stored
   /// \param row  the array index of data to access
-  void from_hdf5(char * filename, char *datapath, int row = -1);
+  void from_hdf5(char* filename, char* datapath, int row = -1);
 
   /// Main read tally method
   /// \param filename the filename of the file to read from
@@ -5324,7 +5252,7 @@ class Tally
   /// \param filename the filename of the file to write to
   /// \param datapath _name the name of the region where tallies
   ///          are to be stored
-  void write_hdf5( char * filename, char * datapath);
+  void write_hdf5(char* filename, char* datapath);
 
   /// Main write tally method
   /// \param filename the filename of the file to write to
@@ -5333,7 +5261,7 @@ class Tally
   void write_hdf5(std::string filename, std::string datapath);
 
   // mcnp tally
-  std::string mcnp(int tally_index = 1, std::string mcnp_version = "mcnp5" );
+  std::string mcnp(int tally_index = 1, std::string mcnp_version = "mcnp5");
 
   // fluka tally
   std::string fluka(std::string unit_number = "-21");
@@ -5360,9 +5288,9 @@ typedef struct tally_struct {
   int entity_id;
   int entity_type;
   int tally_type;
-  const char * particle_name;
-  const char * entity_name;
-  const char * tally_name;
+  const char* particle_name;
+  const char* entity_name;
+  const char* tally_name;
   double entity_size;
   double normalization;
 } tally_struct;
@@ -5410,9 +5338,9 @@ typedef struct tally_struct {
 //       // if the atomic number of the abudance matches the
 //       // that of index
 //       if(pyne::nucname::znum(it->first) == atomic_number ) {
-// 	// take atomic abundance and multiply by mass
-// 	// to get the mass of that nuclide / 100 since abundance is in %
-// 	element_atomic_weight += (it->second*atomic_mass_map[it->first]/100.0);
+//  // take atomic abundance and multiply by mass
+//  // to get the mass of that nuclide / 100 since abundance is in %
+//  element_atomic_weight += (it->second*atomic_mass_map[it->first]/100.0);
 //       }
 //     }
 //     // insert the abundance of the element into the list
@@ -9079,8 +9007,7 @@ typedef struct tally_struct {
 /// \/brief Implements all the fundamental atomic & nuclear data data
 #include <map>
 
-namespace pyne
-{
+namespace pyne {
 /// main function to be called when you wish to load the nuclide data
 /// into memory
 void _load_atomic_mass_map_memory();
@@ -9094,14 +9021,14 @@ void _insert_atomic_mass_map();
 void _insert_abund_map();
 
 /// Mapping from nuclides in id form to their natural abundances
-extern std::map<int,double> natural_abund_map;
+extern std::map<int, double> natural_abund_map;
 
 /// Mapping from nuclides in id form to their atomic masses.
-extern std::map<int,double> atomic_mass_map;
+extern std::map<int, double> atomic_mass_map;
 
 /// Mapping from nuclides in id form to the associated error in
 /// abdundance
-extern std::map<int,double> atomic_mass_error_map;
+extern std::map<int, double> atomic_mass_error_map;
 } // namespace pyne
 //
 // end of src/atomic_data.h

@@ -14,8 +14,7 @@
 #include "Quadrature.hpp"
 
 // forward declarations
-namespace moab
-{
+namespace moab {
 class Interface;
 }
 
@@ -100,8 +99,7 @@ class Interface;
  * of sub-tracks to use for computing scores.
  */
 //===========================================================================//
-class KDEMeshTally : public MeshTally
-{
+class KDEMeshTally : public MeshTally {
  public:
   /**
    * \brief Defines type of estimator used in computing KDE mesh tally scores
@@ -260,8 +258,7 @@ class KDEMeshTally : public MeshTally
    * \class PathKernel
    * \brief Defines the path length kernel function K(X, s)
    */
-  class PathKernel : public Function
-{
+  class PathKernel : public Function {
    public:
     /**
      * \brief Constructor
@@ -359,7 +356,7 @@ class KDEMeshTally : public MeshTally
    * one point from each sub-track.
    */
   std::vector<moab::CartVect> choose_points(unsigned int p,
-      const TallyEvent& event) const;
+                                            const TallyEvent& event) const;
 };
 
 #endif // DAGMC_KDE_MESH_TALLY_HPP

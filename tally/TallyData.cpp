@@ -7,8 +7,7 @@
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
-TallyData::TallyData(unsigned int num_energy_bins, bool total_energy_bin)
-{
+TallyData::TallyData(unsigned int num_energy_bins, bool total_energy_bin) {
   assert(num_energy_bins >= 1);
   if (num_energy_bins == 1) {
     // Any time there is only one energy bin, total_energy_bin is moot
@@ -31,9 +30,8 @@ TallyData::TallyData(unsigned int num_energy_bins, bool total_energy_bin)
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-std::pair <double,double> TallyData::get_data(unsigned int tally_point_index,
-    unsigned int energy_bin) const
-{
+std::pair <double, double> TallyData::get_data(unsigned int tally_point_index,
+                                               unsigned int energy_bin) const {
   assert(energy_bin < num_energy_bins);
   assert(tally_point_index < num_tally_points);
 
@@ -44,36 +42,31 @@ std::pair <double,double> TallyData::get_data(unsigned int tally_point_index,
   return std::make_pair(tally, error);
 }
 //---------------------------------------------------------------------------//
-double* TallyData::get_tally_data(int& length)
-{
+double* TallyData::get_tally_data(int& length) {
   assert(tally_data.size() != 0);
   length = tally_data.size();
   return &(tally_data[0]);
 }
 //---------------------------------------------------------------------------//
-double* TallyData::get_error_data(int& length)
-{
+double* TallyData::get_error_data(int& length) {
   assert(error_data.size() != 0);
   length = error_data.size();
   return &(error_data[0]);
 }
 //---------------------------------------------------------------------------//
-double* TallyData::get_scratch_data(int& length)
-{
+double* TallyData::get_scratch_data(int& length) {
   assert(temp_tally_data.size() != 0);
   length = temp_tally_data.size();
   return &(temp_tally_data[0]);
 }
 //---------------------------------------------------------------------------//
-void TallyData::zero_tally_data()
-{
+void TallyData::zero_tally_data() {
   std::fill(tally_data.begin(), tally_data.end(), 0);
   std::fill(error_data.begin(), error_data.end(), 0);
   std::fill(temp_tally_data.begin(), temp_tally_data.end(), 0);
 }
 //---------------------------------------------------------------------------//
-void TallyData::resize_data_arrays(unsigned int tally_points)
-{
+void TallyData::resize_data_arrays(unsigned int tally_points) {
   assert(tally_points > 0);
   num_tally_points = tally_points;
   unsigned int new_size = num_tally_points * num_energy_bins;
@@ -83,20 +76,17 @@ void TallyData::resize_data_arrays(unsigned int tally_points)
   temp_tally_data.resize(new_size, 0);
 }
 //---------------------------------------------------------------------------//
-unsigned int TallyData::get_num_energy_bins() const
-{
+unsigned int TallyData::get_num_energy_bins() const {
   return num_energy_bins;
 }
 //---------------------------------------------------------------------------//
-bool TallyData::has_total_energy_bin() const
-{
+bool TallyData::has_total_energy_bin() const {
   return total_energy_bin;
 }
 //---------------------------------------------------------------------------//
 // TALLY ACTION METHODS
 //---------------------------------------------------------------------------//
-void TallyData::end_history()
-{
+void TallyData::end_history() {
   std::set<unsigned int>::iterator it;
 
   // add sum of scores for this history to mesh tally for each tally point
@@ -121,8 +111,7 @@ void TallyData::end_history()
 //---------------------------------------------------------------------------//
 void TallyData::add_score_to_tally(unsigned int tally_point_index,
                                    double score,
-                                   unsigned int energy_bin)
-{
+                                   unsigned int energy_bin) {
   assert(tally_point_index < num_tally_points);
   assert(energy_bin < num_energy_bins);
 

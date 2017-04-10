@@ -11,8 +11,7 @@
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
 // Base test fixture that defines common input parameters
-class CellTallyTest : public ::testing::Test
-{
+class CellTallyTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -59,8 +58,7 @@ class CellTallyTest : public ::testing::Test
 // SIMPLE TESTS
 //---------------------------------------------------------------------------//
 // Test parsing of an invalid cell id
-TEST(CellTallyInputTest, InvalidCellID)
-{
+TEST(CellTallyInputTest, InvalidCellID) {
   TallyInput input;
 
   // add general input data
@@ -78,8 +76,7 @@ TEST(CellTallyInputTest, InvalidCellID)
 }
 //---------------------------------------------------------------------------//
 // Test parsing of an invalid volume
-TEST(CellTallyInputTest, InvalidCellVolume)
-{
+TEST(CellTallyInputTest, InvalidCellVolume) {
   TallyInput input;
 
   // add general input data
@@ -98,8 +95,7 @@ TEST(CellTallyInputTest, InvalidCellVolume)
 // FIXTURE-BASED TESTS: CellTallyTest
 //---------------------------------------------------------------------------//
 // Test that cell_id mismatch results in no score being computed
-TEST_F(CellTallyTest, NotInCell)
-{
+TEST_F(CellTallyTest, NotInCell) {
   TallyEvent event;
   event.current_cell = -1;
 
@@ -108,7 +104,7 @@ TEST_F(CellTallyTest, NotInCell)
   EXPECT_NO_THROW(cell_tally1->end_history());
 
   const TallyData& data1 = cell_tally1->getTallyData();
-  std::pair<double, double> result = data1.get_data(0,0);
+  std::pair<double, double> result = data1.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
   EXPECT_EQ(1, cell_tally1->get_cell_id());
@@ -118,7 +114,7 @@ TEST_F(CellTallyTest, NotInCell)
   EXPECT_NO_THROW(cell_tally2->end_history());
 
   const TallyData& data2 = cell_tally2->getTallyData();
-  result = data2.get_data(0,0);
+  result = data2.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
   EXPECT_EQ(10, cell_tally2->get_cell_id());
@@ -128,15 +124,14 @@ TEST_F(CellTallyTest, NotInCell)
   EXPECT_NO_THROW(cell_tally3->end_history());
 
   const TallyData& data3 = cell_tally3->getTallyData();
-  result = data3.get_data(0,0);
+  result = data3.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
   EXPECT_EQ(45, cell_tally3->get_cell_id());
 }
 //---------------------------------------------------------------------------//
 // Test the case of a match between the current_cell and the cell_id
-TEST_F(CellTallyTest, InCell)
-{
+TEST_F(CellTallyTest, InCell) {
   TallyEvent event;
   event.current_cell = 1;  // default
   event.type         = TallyEvent::NONE;
@@ -148,7 +143,7 @@ TEST_F(CellTallyTest, InCell)
   EXPECT_NO_THROW(cell_tally1->end_history());
 
   const TallyData& data1 = cell_tally1->getTallyData();
-  std::pair<double, double> result = data1.get_data(0,0);
+  std::pair<double, double> result = data1.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
   EXPECT_EQ(1, cell_tally1->get_cell_id());
@@ -163,7 +158,7 @@ TEST_F(CellTallyTest, InCell)
   EXPECT_NO_THROW(cell_tally2->end_history());
 
   const TallyData& data2 = cell_tally2->getTallyData();
-  result = data2.get_data(0,0);
+  result = data2.get_data(0, 0);
 
   EXPECT_NEAR(0.123457, result.first, 1e-6);
   EXPECT_NEAR(0.015242, result.second, 1e-6);
@@ -178,7 +173,7 @@ TEST_F(CellTallyTest, InCell)
   EXPECT_NO_THROW(cell_tally3->end_history());
 
   const TallyData& data3 = cell_tally3->getTallyData();
-  result = data3.get_data(0,0);
+  result = data3.get_data(0, 0);
   EXPECT_DOUBLE_EQ(7.9, result.first);
   EXPECT_DOUBLE_EQ(62.41, result.second);
   EXPECT_EQ(45, cell_tally3->get_cell_id());
@@ -187,8 +182,7 @@ TEST_F(CellTallyTest, InCell)
 // Test the response to different event types
 //---------------------------------------------------------------------------//
 // Test TallyEvent::NONE
-TEST_F(CellTallyTest,NullEventScore)
-{
+TEST_F(CellTallyTest, NullEventScore) {
   TallyEvent event;
   event.type             = TallyEvent::NONE;
   event.particle_weight  = 1.0;
@@ -199,7 +193,7 @@ TEST_F(CellTallyTest,NullEventScore)
   EXPECT_NO_THROW(cell_tally1->end_history());
 
   const TallyData& data1 = cell_tally1->getTallyData();
-  std::pair<double, double> result = data1.get_data(0,0);
+  std::pair<double, double> result = data1.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
 
@@ -209,7 +203,7 @@ TEST_F(CellTallyTest,NullEventScore)
   EXPECT_NO_THROW(cell_tally2->end_history());
 
   const TallyData& data2 = cell_tally2->getTallyData();
-  result = data2.get_data(0,0);
+  result = data2.get_data(0, 0);
 
   EXPECT_NEAR(0.0, result.first,  1e-6);
   EXPECT_NEAR(0.0, result.second, 1e-6);
@@ -220,14 +214,13 @@ TEST_F(CellTallyTest,NullEventScore)
   EXPECT_NO_THROW(cell_tally3->end_history());
 
   const TallyData& data3 = cell_tally3->getTallyData();
-  result = data3.get_data(0,0);
+  result = data3.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0,  result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
 }
 //---------------------------------------------------------------------------//
 // Test TallyEvent::COLLISION
-TEST_F(CellTallyTest,CollisionEventScore)
-{
+TEST_F(CellTallyTest, CollisionEventScore) {
 
   TallyEvent event;
   event.type             = TallyEvent::COLLISION;
@@ -242,7 +235,7 @@ TEST_F(CellTallyTest,CollisionEventScore)
   EXPECT_NO_THROW(cell_tally1->end_history());
 
   const TallyData& data1 = cell_tally1->getTallyData();
-  std::pair<double, double> result = data1.get_data(0,0);
+  std::pair<double, double> result = data1.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
 
@@ -252,7 +245,7 @@ TEST_F(CellTallyTest,CollisionEventScore)
   EXPECT_NO_THROW(cell_tally2->end_history());
 
   const TallyData& data2 = cell_tally2->getTallyData();
-  result = data2.get_data(0,0);
+  result = data2.get_data(0, 0);
 
   EXPECT_NEAR(0.153846, result.first,  1e-6);
   EXPECT_NEAR(0.023669, result.second, 1e-6);
@@ -263,14 +256,13 @@ TEST_F(CellTallyTest,CollisionEventScore)
   EXPECT_NO_THROW(cell_tally3->end_history());
 
   const TallyData& data3 = cell_tally3->getTallyData();
-  result = data3.get_data(0,0);
+  result = data3.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0,  result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
 }
 //---------------------------------------------------------------------------//
 // Test TallyEvent::TRACK
-TEST_F(CellTallyTest,TrackEventScore)
-{
+TEST_F(CellTallyTest, TrackEventScore) {
   TallyEvent event;
   event.type             = TallyEvent::TRACK;
   event.particle_weight  = 1.0;
@@ -285,7 +277,7 @@ TEST_F(CellTallyTest,TrackEventScore)
   EXPECT_NO_THROW(cell_tally1->end_history());
 
   const TallyData& data1 = cell_tally1->getTallyData();
-  std::pair<double, double> result = data1.get_data(0,0);
+  std::pair<double, double> result = data1.get_data(0, 0);
   EXPECT_DOUBLE_EQ(0.0, result.first);
   EXPECT_DOUBLE_EQ(0.0, result.second);
 
@@ -295,7 +287,7 @@ TEST_F(CellTallyTest,TrackEventScore)
   EXPECT_NO_THROW(cell_tally2->end_history());
 
   const TallyData& data2 = cell_tally2->getTallyData();
-  result = data2.get_data(0,0);
+  result = data2.get_data(0, 0);
 
   EXPECT_NEAR(0.0, result.first,  1e-6);
   EXPECT_NEAR(0.0, result.second, 1e-6);
@@ -306,14 +298,13 @@ TEST_F(CellTallyTest,TrackEventScore)
   EXPECT_NO_THROW(cell_tally3->end_history());
 
   const TallyData& data3 = cell_tally3->getTallyData();
-  result = data3.get_data(0,0);
+  result = data3.get_data(0, 0);
   EXPECT_DOUBLE_EQ(2.8,  result.first);
   EXPECT_DOUBLE_EQ(7.84, result.second);
 }
 //---------------------------------------------------------------------------//
 // Tests tally multiplier works
-TEST_F(CellTallyTest, TallyMultiplier)
-{
+TEST_F(CellTallyTest, TallyMultiplier) {
   TallyEvent event;
   event.type             = TallyEvent::TRACK;
   event.particle_weight  = 1.1;
@@ -333,7 +324,7 @@ TEST_F(CellTallyTest, TallyMultiplier)
   EXPECT_NO_THROW(cell_tally3->end_history());
 
   const TallyData& data3 = cell_tally3->getTallyData();
-  std::pair<double, double> result = data3.get_data(0,0);
+  std::pair<double, double> result = data3.get_data(0, 0);
   EXPECT_DOUBLE_EQ(39.732, result.first);
   EXPECT_DOUBLE_EQ(1578.631824, result.second);
 }
