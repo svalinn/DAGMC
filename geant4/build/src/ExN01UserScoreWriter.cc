@@ -63,12 +63,12 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
 
     // name
     G4String score_name = it->first;
-    
-    #if G4VERSION_NUMBER >= 1030
-      std::map<G4int, G4StatDouble*> *score = it->second->GetMap();
-    #else
-      std::map<G4int, G4double*> *score = it->second->GetMap();
-    #endif
+
+#if G4VERSION_NUMBER >= 1030
+    std::map<G4int, G4StatDouble*> *score = it->second->GetMap();
+#else
+    std::map<G4int, G4double*> *score = it->second->GetMap();
+#endif
 
     std::cout << "Writing score for " << score_name << std::endl;
 
@@ -87,20 +87,20 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
         for (int z = 0; z < num_bins[2]; z++) {
 
           idx = GetIndex(x,y,z);
-	  #if G4VERSION_NUMBER >= 1030
-            std::map<G4int, G4StatDouble*>::iterator value = score->find(idx);  
-	  #else
-            std::map<G4int, G4double*>::iterator value = score->find(idx);    
-          #endif /* G4VERSION_NUMBER >= 1030 */
+#if G4VERSION_NUMBER >= 1030
+          std::map<G4int, G4StatDouble*>::iterator value = score->find(idx);
+#else
+          std::map<G4int, G4double*>::iterator value = score->find(idx);
+#endif /* G4VERSION_NUMBER >= 1030 */
           if(value != score->end())
-	    #if G4VERSION_NUMBER >= 1030
-    	       result = value->second->mean();
-	    #else
-	       result = *(value->second);
-	    #endif /* G4VERSION_NUMBER >= 1030 */
+#if G4VERSION_NUMBER >= 1030
+            result = value->second->mean();
+#else
+            result = *(value->second);
+#endif /* G4VERSION_NUMBER >= 1030 */
           else
             result = 0.0;
-	  
+
           // set the tag data
           rval = MBI()->tag_set_data(tag_handle, &(mesh_elements[idx]), 1, &result);
         } // z
