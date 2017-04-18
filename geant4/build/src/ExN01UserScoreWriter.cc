@@ -5,6 +5,7 @@
 #include "G4VPrimitiveScorer.hh"
 #include "G4VScoringMesh.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Version.hh"
 #include <map>
 
 ExN01UserScoreWriter::ExN01UserScoreWriter()
@@ -60,8 +61,14 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
     if (it == scMap.end())
       return;
 
+    // name
     G4String score_name = it->first;
-    std::map<G4int, G4double*>* score = it->second->GetMap();
+    
+    #if G4VERSION_NUMBER >= 1030
+      std::map<G4int, G4StatDouble*> *score = it->second->GetMap();
+    #else
+      std::map<G4int, G4double*> *score = it->second->GetMap();
+    #endif
 
     std::cout << "Writing score for " << score_name << std::endl;
 
@@ -79,14 +86,21 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
       for (int y = 0; y < num_bins[1]; y++) {
         for (int z = 0; z < num_bins[2]; z++) {
 
-          idx = GetIndex(x, y, z);
-          std::map<G4int, G4double*>::iterator value = score->find(idx);
-
-          if (value != score->end())
-            result = *(value->second);
+          idx = GetIndex(x,y,z);
+	  #if G4VERSION_NUMBER >= 1030
+            std::map<G4int, G4StatDouble*>::iterator value = score->find(idx);  
+	  #else
+            std::map<G4int, G4double*>::iterator value = score->find(idx);    
+          #endif /* G4VERSION_NUMBER >= 1030 */
+          if(value != score->end())
+	    #if G4VERSION_NUMBER >= 1030
+    	       result = value->second->mean();
+	    #else
+	       result = *(value->second);
+	    #endif /* G4VERSION_NUMBER >= 1030 */
           else
             result = 0.0;
-
+	  
           // set the tag data
           rval = MBI()->tag_set_data(tag_handle, &(mesh_elements[idx]), 1, &result);
         } // z
@@ -178,8 +192,6 @@ moab::ErrorCode ExN01UserScoreWriter::generate_moab_mesh(std::vector<double> x_b
       }
     }
   }
-  rval = MBI()->write_mesh("halfway.h5m");
-
   return rval;
 }
 
