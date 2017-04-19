@@ -36,7 +36,6 @@ before_install:
   # sudo docker commit $commit_id ljacobson64/dagmc-ci
 install:
   # build dagmc
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "ls -a /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC"
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC; ./.build_dagmc.sh $COMPILER $MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id ljacobson64/dagmc-ci
