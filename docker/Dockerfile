@@ -72,23 +72,23 @@ COPY *.env /root/etc/
 
 # Build HDF5
 COPY build_hdf5.sh /root/etc/
-RUN source /root/etc/gcc-4.8.env   && bash /root/etc/build_hdf5.sh
-RUN source /root/etc/gcc-5.env     && bash /root/etc/build_hdf5.sh
-RUN source /root/etc/gcc-6.env     && bash /root/etc/build_hdf5.sh
-RUN source /root/etc/clang-3.8.env && bash /root/etc/build_hdf5.sh
+RUN bash /root/etc/build_hdf5.sh gcc-4.8
+RUN bash /root/etc/build_hdf5.sh gcc-5
+RUN bash /root/etc/build_hdf5.sh gcc-6
+RUN bash /root/etc/build_hdf5.sh clang-3.8
 
 # Build MOAB
 COPY build_moab.sh /root/etc/
-RUN source /root/etc/gcc-4.8.env   && bash /root/etc/build_moab.sh
-RUN source /root/etc/gcc-5.env     && bash /root/etc/build_moab.sh
-RUN source /root/etc/gcc-6.env     && bash /root/etc/build_moab.sh
-RUN source /root/etc/clang-3.8.env && bash /root/etc/build_moab.sh
+RUN bash /root/etc/build_moab.sh gcc-4.8   4.9.2
+RUN bash /root/etc/build_moab.sh gcc-5     4.9.2
+RUN bash /root/etc/build_moab.sh gcc-6     4.9.2
+RUN bash /root/etc/build_moab.sh clang-3.8 4.9.2
 
 # Build Geant4
 COPY build_geant4.sh /root/etc/
-RUN source /root/etc/gcc-4.8.env   && bash /root/etc/build_geant4.sh
-RUN source /root/etc/gcc-5.env     && bash /root/etc/build_geant4.sh
-RUN source /root/etc/gcc-6.env     && bash /root/etc/build_geant4.sh
-RUN source /root/etc/clang-3.8.env && bash /root/etc/build_geant4.sh
+RUN bash /root/etc/build_geant4.sh gcc-4.8
+RUN bash /root/etc/build_geant4.sh gcc-5
+RUN bash /root/etc/build_geant4.sh gcc-6
+RUN bash /root/etc/build_geant4.sh clang-3.8
 
 CMD ["bash"]
