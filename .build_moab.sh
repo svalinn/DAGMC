@@ -1,16 +1,29 @@
 #!/bin/bash
-MOAB_VERSION=$1
-start_dir=$PWD
-cd /root
-git clone https://bitbucket.org/fathomteam/moab
+
+# $1: compiler (gcc-4.8, gcc-5, gcc-6, clang-3.8)
+# $2: moab version (4.9.2, master)
+
+source /root/etc/$1.env
+moab_version=$2
+mkdir -p ${build_dir}/moab-${moab_version}/bld
+cd ${build_dir}/moab-${moab_version}
+if [[ ${moab_version} == "master" ]]; then
+  git clone https://bitbucket.org/fathomteam/moab -b ${moab_version}
+else
+  git clone https://bitbucket.org/fathomteam/moab -b Version${moab_version}
+fi
+ln -snf moab src
 cd moab
-git checkout $MOAB_VERSION
 autoreconf -fi
-mkdir bld
-cd bld
-../configure --enable-dagmc --enable-shared --disable-debug --disable-ahf --enable-optimize --with-hdf5 --prefix=/root/moab
-make -j2
+cd ../bld
+../src/configure --enable-dagmc \
+                 --disable-ahf \
+                 --enable-shared \
+                 --enable-optimize \
+                 --disable-debug \
+                 --with-hdf5=${install_dir}/hdf5-${hdf5_version} \
+                 --prefix=${install_dir}/moab-${moab_version} \
+                 CC=${CC} CXX=${CXX} FC=${FC}
+make -j8
 make install
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/root/moab/lib/"
-export PATH="/root/moab/bin:$PATH"
-cd $start_dir
+rm -rf ${build_dir}

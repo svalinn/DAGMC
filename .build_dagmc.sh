@@ -1,15 +1,20 @@
 #!/bin/bash
 
-export LD_LIBRARY_PATH="/root/moab/lib"
-mkdir bld
-cd bld
-cmake ../. -DBUILD_TALLY=ON \
-           -DBUILD_CI_TESTS=ON \
-           -DBUILD_GEANT4=ON \
-           -DGEANT4_DIR=/root/geant4.10.00.p02 \
-           -DCMAKE_INSTALL_PREFIX=/root/dagmc
-make 
-make install
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/root/dagmc/lib"
-cd ..
+# $1: compiler (gcc-4.8, gcc-5, gcc-6, clang-3.8)
+# $2: moab version (4.9.2, master)
 
+source /root/etc/$1.env
+moab_version=$2
+mkdir -p ${build_dir}/DAGMC-moab-${moab_version}/bld
+cd ${build_dir}/DAGMC-moab-${moab_version}
+#git clone https://github.com/svalinn/DAGMC -b develop
+ln -snf DAGMC src
+cd bld
+cmake ../src -DBUILD_TALLY=ON \
+             -DBUILD_CI_TESTS=ON \
+             -DBUILD_GEANT4=ON \
+             -DGEANT4_DIR=${install_dir}/geant4-${geant4_version} \
+             -DCMAKE_INSTALL_PREFIX=${install_dir}/DAGMC-moab-${moab_version}
+make -j8
+make install
+rm -rf ${build_dir}
