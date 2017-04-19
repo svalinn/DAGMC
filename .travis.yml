@@ -31,22 +31,17 @@ before_install:
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id ljacobson64/dagmc-ci
   # build moab
-  # sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
-  #                                                  ./.build_moab.sh $COMPILER $MOAB_VERSION"
+  # sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC; ./.build_moab.sh $COMPILER $MOAB_VERSION"
   # commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   # sudo docker commit $commit_id ljacobson64/dagmc-ci
 install:
   # build dagmc
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "echo $PATH"
-  # sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
-  #                                                  ./.build_dagmc.sh $COMPILER $MOAB_VERSION"
-  # commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  # sudo docker commit $commit_id ljacobson64/dagmc-ci
-script:
-  # run tests
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
-                                                     export TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST && \
-                                                     export MW_REG_TEST_MODELS_URL=$MW_REG_TEST_MODELS_URL && \
-                                                     ./.run_tests.sh"
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "ls -a /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC"
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC; ./.build_dagmc.sh $COMPILER $MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id ljacobson64/dagmc-ci
+script:
+  # run tests
+  # sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC; export TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST; export MW_REG_TEST_MODELS_URL=$MW_REG_TEST_MODELS_URL; ./.run_tests.sh"
+  # commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  # sudo docker commit $commit_id ljacobson64/dagmc-ci
