@@ -13,13 +13,8 @@ export LD_LIBRARY_PATH=${install_dir}/hdf5-${hdf5_version}/lib:${LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${install_dir}/moab-${moab_version}/lib:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH=${install_dir}/geant4-${geant4_version}/lib:${LD_LIBRARY_PATH}
 
-echo
-echo $PATH
-echo
-echo $LD_LIBRARY_PATH
-echo
-
 mkdir -p ${build_dir}/DAGMC-moab-${moab_version}/bld
+rm -rf ${install_dir}/DAGMC-moab-${moab_version}
 cd ${build_dir}/DAGMC-moab-${moab_version}
 #git clone https://github.com/svalinn/DAGMC -b develop
 ln -snf DAGMC src

@@ -5,7 +5,9 @@
 
 source /root/etc/$1.env
 moab_version=$2
+
 mkdir -p ${build_dir}/moab-${moab_version}/bld
+rm -rf ${install_dir}/moab-${moab_version}
 cd ${build_dir}/moab-${moab_version}
 if [[ ${moab_version} == "master" ]]; then
   git clone https://bitbucket.org/fathomteam/moab -b ${moab_version}
