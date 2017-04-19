@@ -65,9 +65,9 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
     G4String score_name = it->first;
 
 #if G4VERSION_NUMBER >= 1030
-    std::map<G4int, G4StatDouble*> *score = it->second->GetMap();
+    std::map<G4int, G4StatDouble*>* score = it->second->GetMap();
 #else
-    std::map<G4int, G4double*> *score = it->second->GetMap();
+    std::map<G4int, G4double*>* score = it->second->GetMap();
 #endif
 
     std::cout << "Writing score for " << score_name << std::endl;
@@ -86,13 +86,13 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
       for (int y = 0; y < num_bins[1]; y++) {
         for (int z = 0; z < num_bins[2]; z++) {
 
-          idx = GetIndex(x,y,z);
+          idx = GetIndex(x, y, z);
 #if G4VERSION_NUMBER >= 1030
           std::map<G4int, G4StatDouble*>::iterator value = score->find(idx);
 #else
           std::map<G4int, G4double*>::iterator value = score->find(idx);
 #endif /* G4VERSION_NUMBER >= 1030 */
-          if(value != score->end())
+          if (value != score->end())
 #if G4VERSION_NUMBER >= 1030
             result = value->second->mean();
 #else
