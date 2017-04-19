@@ -12,8 +12,7 @@
 class G4GeneralParticleSource;
 class G4Event;
 
-class ExN01PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
-{
+class ExN01PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
  public:
   ExN01PrimaryGeneratorAction();
   ~ExN01PrimaryGeneratorAction();

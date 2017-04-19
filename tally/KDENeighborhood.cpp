@@ -20,8 +20,7 @@
 KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
                                  const moab::Range& mesh_nodes,
                                  bool build_kd_tree)
-  : kd_tree(NULL), kd_tree_root(0), radius(0.0)
-{
+  : kd_tree(NULL), kd_tree_root(0), radius(0.0) {
   if (build_kd_tree) {
     if (mbi == NULL) {
       std::cerr << "\nError: invalid moab::Interface for building KD-tree";
@@ -39,7 +38,7 @@ KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
 #if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7
     rval = kd_tree->build_tree(mesh_nodes, kd_tree_root);
 #else
-    const char settings[]="MESHSET_FLAGS=0x1;TAG_NAME=0";
+    const char settings[] = "MESHSET_FLAGS=0x1;TAG_NAME=0";
     moab::FileOptions fileopts(settings);
     rval = kd_tree->build_tree(mesh_nodes, &kd_tree_root, &fileopts);
 #endif
@@ -55,23 +54,21 @@ KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
 //---------------------------------------------------------------------------//
 // DESTRUCTOR
 //---------------------------------------------------------------------------//
-KDENeighborhood::~KDENeighborhood()
-{
+KDENeighborhood::~KDENeighborhood() {
   delete kd_tree;
 }
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-const std::set<moab::EntityHandle>& KDENeighborhood::get_points() const
-{
+const std::set<moab::EntityHandle>& KDENeighborhood::get_points() const {
   return points;
 }
 //---------------------------------------------------------------------------//
 void KDENeighborhood::update_neighborhood(const TallyEvent& event,
-    const moab::CartVect& bandwidth)
-{
+                                          const moab::CartVect& bandwidth) {
   // do nothing if there is no kd-tree defined
-  if (kd_tree == NULL) return;
+  if (kd_tree == NULL)
+    return;
 
   // otherwise redefine the neighborhood region based on this tally event
   if (event.type == TallyEvent::COLLISION) {
@@ -92,8 +89,7 @@ void KDENeighborhood::update_neighborhood(const TallyEvent& event,
   points_in_box();
 }
 //---------------------------------------------------------------------------//
-bool KDENeighborhood::is_calculation_point(const moab::EntityHandle& point) const
-{
+bool KDENeighborhood::is_calculation_point(const moab::EntityHandle& point) const {
   std::set<moab::EntityHandle>::iterator it = points.find(point);
 
   if (it == points.end()) {
@@ -106,8 +102,7 @@ bool KDENeighborhood::is_calculation_point(const moab::EntityHandle& point) cons
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//
 void KDENeighborhood::set_neighborhood(const moab::CartVect& collision_point,
-                                       const moab::CartVect& bandwidth)
-{
+                                       const moab::CartVect& bandwidth) {
   for (int i = 0; i < 3; ++i) {
     min_corner[i] = collision_point[i] - bandwidth[i];
     max_corner[i] = collision_point[i] + bandwidth[i];
@@ -120,8 +115,7 @@ void KDENeighborhood::set_neighborhood(const moab::CartVect& collision_point,
 void KDENeighborhood::set_neighborhood(double track_length,
                                        const moab::CartVect& start_point,
                                        const moab::CartVect& direction,
-                                       const moab::CartVect& bandwidth)
-{
+                                       const moab::CartVect& bandwidth) {
   for (int i = 0; i < 3; ++i) {
     // default case where coordinate of direction vector is zero
     min_corner[i] = start_point[i] - bandwidth[i];
@@ -140,8 +134,7 @@ void KDENeighborhood::set_neighborhood(double track_length,
 }
 //---------------------------------------------------------------------------//
 bool KDENeighborhood::point_within_max_radius(const TallyEvent& event,
-    const moab::CartVect& coords) const
-{
+                                              const moab::CartVect& coords) const {
   // process track-based tally event only
   if (event.type == TallyEvent::TRACK) {
     // create a vector from starting position to point being tested
@@ -156,15 +149,15 @@ bool KDENeighborhood::point_within_max_radius(const TallyEvent& event,
     double distance_to_track = (event.direction * temp).length();
 
     // return true if distance is less than radius of cylindrical region
-    if (distance_to_track < radius) return true;
+    if (distance_to_track < radius)
+      return true;
   }
 
   // otherwise return false
   return false;
 }
 //---------------------------------------------------------------------------//
-bool KDENeighborhood::point_inside_box(const moab::CartVect& coords) const
-{
+bool KDENeighborhood::point_inside_box(const moab::CartVect& coords) const {
   // check point is in the rectangular neighborhood region
   for (int i = 0; i < 3; ++i) {
     // account for boundary cases first
@@ -182,8 +175,7 @@ bool KDENeighborhood::point_inside_box(const moab::CartVect& coords) const
   return true;
 }
 //---------------------------------------------------------------------------//
-void KDENeighborhood::points_in_box()
-{
+void KDENeighborhood::points_in_box() {
   assert(kd_tree != NULL);
 
   // reset the set of calculation points
@@ -205,7 +197,7 @@ void KDENeighborhood::points_in_box()
   // find all leaves of the kd-tree within the given radius
   std::vector<moab::EntityHandle> leaves;
   moab::ErrorCode rval = moab::MB_SUCCESS;
-  if(rval != moab::MB_SUCCESS) {
+  if (rval != moab::MB_SUCCESS) {
     std::cout << "this can't fail" << std::endl;
     exit(1);
   }

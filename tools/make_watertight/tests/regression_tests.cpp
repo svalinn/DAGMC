@@ -3,8 +3,7 @@
 #include "gtest/gtest.h"
 #include "test_classes.hpp"
 
-class ITERMakeWatertightRegressionTest : public MakeWatertightTest
-{
+class ITERMakeWatertightRegressionTest : public MakeWatertightTest {
 
  protected:
   virtual void setFilename() {
@@ -13,8 +12,7 @@ class ITERMakeWatertightRegressionTest : public MakeWatertightTest
 
 };
 
-class FNSFMakeWatertightRegressionTest : public MakeWatertightTest
-{
+class FNSFMakeWatertightRegressionTest : public MakeWatertightTest {
 
  protected:
   virtual void setFilename() {
@@ -23,8 +21,7 @@ class FNSFMakeWatertightRegressionTest : public MakeWatertightTest
 
 };
 
-class BLiteMakeWatertightRegressionTest : public MakeWatertightTest
-{
+class BLiteMakeWatertightRegressionTest : public MakeWatertightTest {
 
  protected:
   virtual void setFilename() {
@@ -33,17 +30,14 @@ class BLiteMakeWatertightRegressionTest : public MakeWatertightTest
 
 };
 
-TEST_F(ITERMakeWatertightRegressionTest, ITERRegressionTest )
-{
+TEST_F(ITERMakeWatertightRegressionTest, ITERRegressionTest) {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 
-TEST_F(FNSFMakeWatertightRegressionTest, FNSFRegressionTest )
-{
+TEST_F(FNSFMakeWatertightRegressionTest, FNSFRegressionTest) {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }
 
-TEST_F(BLiteMakeWatertightRegressionTest, BLiteRegressionTest )
-{
+TEST_F(BLiteMakeWatertightRegressionTest, BLiteRegressionTest) {
   EXPECT_TRUE(seal_and_check(input_fileset, facet_tol));
 }

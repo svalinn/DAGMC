@@ -10,8 +10,7 @@
 #include "TallyEvent.hpp"
 
 // forward declarations
-namespace moab
-{
+namespace moab {
 class AdaptiveKDTree;
 class CartVect;
 }
@@ -46,8 +45,7 @@ class CartVect;
  * be obtained by get_points().
  */
 //===========================================================================//
-class KDENeighborhood
-{
+class KDENeighborhood {
  public:
   /**
    * \brief Constructor

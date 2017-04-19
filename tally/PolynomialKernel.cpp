@@ -9,8 +9,7 @@
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
 PolynomialKernel::PolynomialKernel(unsigned int s, unsigned int r)
-  : s(s), r(r), multiplier(compute_multiplier())
-{
+  : s(s), r(r), multiplier(compute_multiplier()) {
   assert(r > 0);
 
   // populate coefficients vector for higher order kernel functions
@@ -19,7 +18,7 @@ PolynomialKernel::PolynomialKernel(unsigned int s, unsigned int r)
       double value = pochhammer(0.5 + s + r, k);
       value /= factorial(k) * factorial(r - 1 - k) * pochhammer(1.5, k);
 
-      if (k%2 == 1) {
+      if (k % 2 == 1) {
         value *= -1.0;
       }
 
@@ -35,17 +34,16 @@ PolynomialKernel::PolynomialKernel(unsigned int s, unsigned int r)
 //---------------------------------------------------------------------------//
 // DESTRUCTOR
 //---------------------------------------------------------------------------//
-PolynomialKernel::~PolynomialKernel()
-{
+PolynomialKernel::~PolynomialKernel() {
   delete quadrature;
 }
 //---------------------------------------------------------------------------//
 // DERIVED PUBLIC INTERFACE from KDEKernel.hpp
 //---------------------------------------------------------------------------//
-double PolynomialKernel::evaluate(double u) const
-{
+double PolynomialKernel::evaluate(double u) const {
   // test if outside kernel function domain [-1.0, 1.0]
-  if (u < -1.0 || u > 1.0) return 0.0;
+  if (u < -1.0 || u > 1.0)
+    return 0.0;
 
   // evaluate a 2nd-order kernel function
   double value = multiplier;
@@ -76,54 +74,52 @@ double PolynomialKernel::evaluate(double u) const
   return value;
 }
 //---------------------------------------------------------------------------//
-std::string PolynomialKernel::get_kernel_name() const
-{
+std::string PolynomialKernel::get_kernel_name() const {
   // determine the order of this kernel and add to kernel name
   std::stringstream kernel_name;
   kernel_name << 2 * r;
 
-  if (r == 1) kernel_name << "nd-order ";
-  else kernel_name << "th-order ";
+  if (r == 1)
+    kernel_name << "nd-order ";
+  else
+    kernel_name << "th-order ";
 
   // determine type of this kernel and return its full name
   switch (s) {
-  case 0:
-    kernel_name << "uniform";
-    break;
+    case 0:
+      kernel_name << "uniform";
+      break;
 
-  case 1:
-    kernel_name << "epanechnikov";
-    break;
+    case 1:
+      kernel_name << "epanechnikov";
+      break;
 
-  case 2:
-    kernel_name << "biweight";
-    break;
+    case 2:
+      kernel_name << "biweight";
+      break;
 
-  case 3:
-    kernel_name << "triweight";
-    break;
+    case 3:
+      kernel_name << "triweight";
+      break;
 
-  default:
-    kernel_name << "polynomial (s = " << s << ")";
+    default:
+      kernel_name << "polynomial (s = " << s << ")";
   }
 
   return kernel_name.str();
 }
 //---------------------------------------------------------------------------//
-int PolynomialKernel::get_order() const
-{
+int PolynomialKernel::get_order() const {
   return 2 * r;
 }
 //---------------------------------------------------------------------------//
-int PolynomialKernel::get_min_quadrature(unsigned int i) const
-{
-  return s + r + (i/2);
+int PolynomialKernel::get_min_quadrature(unsigned int i) const {
+  return s + r + (i / 2);
 }
 //---------------------------------------------------------------------------//
 double PolynomialKernel::integrate_moment(double a,
-    double b,
-    unsigned int i) const
-{
+                                          double b,
+                                          unsigned int i) const {
   assert(quadrature != NULL);
 
   double value = 0.0;
@@ -141,8 +137,10 @@ double PolynomialKernel::integrate_moment(double a,
     }
 
     // modify integration limits if needed
-    if (a < -1.0) a = -1.0;
-    if (b > 1.0) b = 1.0;
+    if (a < -1.0)
+      a = -1.0;
+    if (b > 1.0)
+      b = 1.0;
 
     // evaluate the integral
     value = quadrature->integrate(a, b, moment);
@@ -153,8 +151,7 @@ double PolynomialKernel::integrate_moment(double a,
 //---------------------------------------------------------------------------//
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//
-double PolynomialKernel::compute_multiplier()
-{
+double PolynomialKernel::compute_multiplier() {
   // compute common multiplier term for 2nd-order polynomial kernel
   double value = pochhammer(0.5, s + 1) / factorial(s);
 
@@ -168,8 +165,7 @@ double PolynomialKernel::compute_multiplier()
   return value;
 }
 //---------------------------------------------------------------------------//
-double PolynomialKernel::pochhammer(double x, unsigned int n) const
-{
+double PolynomialKernel::pochhammer(double x, unsigned int n) const {
   // set default result for (x)_0 = 1
   double value = 1.0;
 
@@ -186,8 +182,7 @@ double PolynomialKernel::pochhammer(double x, unsigned int n) const
   return value;
 }
 //---------------------------------------------------------------------------//
-long double PolynomialKernel::factorial(unsigned int n) const
-{
+long double PolynomialKernel::factorial(unsigned int n) const {
   // set default result for 0! = 1! = 1
   long double value = 1.0;
 

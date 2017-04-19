@@ -2,8 +2,7 @@
 #include <string>
 #include <set>
 
-class name_concatenator
-{
+class name_concatenator {
  public:
   /// constructor
   name_concatenator();
@@ -39,7 +38,7 @@ class name_concatenator
    */
   std::string extract_alpha_num(std::string name); ///< extracts the chars [A-Z] and numbers [0-9] only
 
-  void int_to_string(int convert, std::string &string);
+  void int_to_string(int convert, std::string& string);
 
   /// Private variables
  private:

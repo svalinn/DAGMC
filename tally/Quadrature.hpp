@@ -14,8 +14,7 @@
  * be integrated by the integrate() method in the Quadrature class.
  */
 //===========================================================================//
-class Function
-{
+class Function {
  public:
   /**
    * \brief Virtual destructor
@@ -46,8 +45,7 @@ class Function
  * Quadrature if you need more accuracy.
  */
 //===========================================================================//
-class Quadrature
-{
+class Quadrature {
  public:
   /**
    * \brief Constructor

@@ -18,8 +18,7 @@
 
 
 ExN01PrimaryGeneratorAction::ExN01PrimaryGeneratorAction()
-  :G4VUserPrimaryGeneratorAction(), fParticleGun(0)
-{
+  : G4VUserPrimaryGeneratorAction(), fParticleGun(0) {
   fParticleGun = new G4GeneralParticleSource();
   /*
   G4int n_particle = 1;
@@ -33,13 +32,11 @@ ExN01PrimaryGeneratorAction::ExN01PrimaryGeneratorAction()
   */
 }
 
-ExN01PrimaryGeneratorAction::~ExN01PrimaryGeneratorAction()
-{
+ExN01PrimaryGeneratorAction::~ExN01PrimaryGeneratorAction() {
   delete fParticleGun;
 }
 
-void ExN01PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
-{
+void ExN01PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
   fParticleGun->GeneratePrimaryVertex(anEvent) ;
 
 

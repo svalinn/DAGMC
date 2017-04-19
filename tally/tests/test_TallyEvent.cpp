@@ -11,8 +11,7 @@
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
-class TallyEventTest : public ::testing::Test
-{
+class TallyEventTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -59,8 +58,7 @@ class TallyEventTest : public ::testing::Test
 // FIXTURE-BASED TESTS: TallyEventTest
 //---------------------------------------------------------------------------//
 // Tests only particle weight is returned for invalid multiplier index
-TEST_F(TallyEventTest, InvalidMultiplierIndex)
-{
+TEST_F(TallyEventTest, InvalidMultiplierIndex) {
   // test case with no multipliers
   EXPECT_NO_THROW(score_multiplier = event1->get_score_multiplier(-3));
   EXPECT_DOUBLE_EQ(1.0, score_multiplier);
@@ -93,8 +91,7 @@ TEST_F(TallyEventTest, InvalidMultiplierIndex)
 }
 //---------------------------------------------------------------------------//
 // Tests correct multiplier returned for valid multiplier index
-TEST_F(TallyEventTest, ValidMultiplierIndex)
-{
+TEST_F(TallyEventTest, ValidMultiplierIndex) {
   // test case with no multipliers
   EXPECT_NO_THROW(score_multiplier = event1->get_score_multiplier(-1));
   EXPECT_DOUBLE_EQ(1.0, score_multiplier);

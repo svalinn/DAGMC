@@ -9,8 +9,7 @@
 //---------------------------------------------------------------------------//
 // FACTORY METHOD
 //---------------------------------------------------------------------------//
-KDEKernel* KDEKernel::createKernel(const std::string& type, unsigned int order)
-{
+KDEKernel* KDEKernel::createKernel(const std::string& type, unsigned int order) {
   KDEKernel* kernel = NULL;
 
   // order must be a multiple of 2 as only symmetric kernels are supported
@@ -36,8 +35,7 @@ KDEKernel* KDEKernel::createKernel(const std::string& type, unsigned int order)
 double KDEKernel::boundary_correction(const double* u,
                                       const double* p,
                                       const unsigned int* side,
-                                      unsigned int num_corrections) const
-{
+                                      unsigned int num_corrections) const {
   assert(num_corrections <= 3);
   assert(num_corrections > 0);
 
@@ -46,7 +44,8 @@ double KDEKernel::boundary_correction(const double* u,
   bool valid_moments = compute_moments(u[0], p[0], side[0], ai_u);
 
   // check within boundary kernel domain
-  if (!valid_moments) return 0.0;
+  if (!valid_moments)
+    return 0.0;
 
   // solve for the boundary correction factor
   if (num_corrections == 1) {
@@ -59,7 +58,8 @@ double KDEKernel::boundary_correction(const double* u,
     valid_moments = compute_moments(u[1], p[1], side[1], ai_v);
 
     // check still within boundary kernel domain
-    if (!valid_moments) return 0.0;
+    if (!valid_moments)
+      return 0.0;
 
     // create coefficients vector initially with right-hand side values
     std::vector<double> coefficients;
@@ -76,7 +76,8 @@ double KDEKernel::boundary_correction(const double* u,
       get_correction_matrix2D(ai_u, ai_v, correction_matrix);
       solved = solve_symmetric_matrix(correction_matrix, coefficients);
 
-      if (!solved) return 0.0;
+      if (!solved)
+        return 0.0;
     } else { // correction needed in all three dimensions
       coefficients.push_back(0.0);
 
@@ -85,20 +86,22 @@ double KDEKernel::boundary_correction(const double* u,
       valid_moments = compute_moments(u[2], p[2], side[2], ai_w);
 
       // check still within boundary kernel domain
-      if (!valid_moments) return 0.0;
+      if (!valid_moments)
+        return 0.0;
 
       // solve 4x4 matrix system to get coefficients
       get_correction_matrix3D(ai_u, ai_v, ai_w, correction_matrix);
       solved = solve_symmetric_matrix(correction_matrix, coefficients);
 
-      if (!solved) return 0.0;
+      if (!solved)
+        return 0.0;
     }
 
     // compute the boundary correction factor from coefficients
     double correction_factor = coefficients[0];
 
     for (unsigned int i = 1; i <= num_corrections; ++i) {
-      correction_factor += u[i-1] * coefficients[i];
+      correction_factor += u[i - 1] * coefficients[i];
     }
 
     return correction_factor;
@@ -110,13 +113,13 @@ double KDEKernel::boundary_correction(const double* u,
 bool KDEKernel::compute_moments(double u,
                                 double p,
                                 unsigned int side,
-                                std::vector<double>& moments) const
-{
+                                std::vector<double>& moments) const {
   assert(side <= 1);
   assert(moments.empty());
 
   // make sure p is not negative
-  if (p < 0.0) return false;
+  if (p < 0.0)
+    return false;
 
   // determine the integration limits
   double u_min = -1.0;
@@ -131,7 +134,8 @@ bool KDEKernel::compute_moments(double u,
   }
 
   // test if outside domain u = [u_min, u_max]
-  if (u < u_min || u > u_max) return false;
+  if (u < u_min || u > u_max)
+    return false;
 
   // evaluate the partial moment functions ai(p) and add to moments vector
   moments.push_back(this->integrate_moment(u_min, u_max, 0));
@@ -143,8 +147,7 @@ bool KDEKernel::compute_moments(double u,
 //---------------------------------------------------------------------------//
 void KDEKernel::get_correction_matrix2D(const std::vector<double>& ai_u,
                                         const std::vector<double>& ai_v,
-                                        std::vector<double>& matrix) const
-{
+                                        std::vector<double>& matrix) const {
   assert(matrix.empty());
 
   // populate matrix elements in lower triangular format using moments
@@ -159,8 +162,7 @@ void KDEKernel::get_correction_matrix2D(const std::vector<double>& ai_u,
 void KDEKernel::get_correction_matrix3D(const std::vector<double>& ai_u,
                                         const std::vector<double>& ai_v,
                                         const std::vector<double>& ai_w,
-                                        std::vector<double>& matrix) const
-{
+                                        std::vector<double>& matrix) const {
   assert(matrix.empty());
 
   // populate matrix elements in lower triangular format using moments
@@ -177,8 +179,7 @@ void KDEKernel::get_correction_matrix3D(const std::vector<double>& ai_u,
 }
 //---------------------------------------------------------------------------//
 bool KDEKernel::solve_symmetric_matrix(std::vector<double>& A,
-                                       std::vector<double>& b) const
-{
+                                       std::vector<double>& b) const {
   int n = b.size();
 
   // LAPACK routine DSPSV input variables
@@ -199,8 +200,7 @@ bool KDEKernel::solve_symmetric_matrix(std::vector<double>& A,
   }
 }
 //---------------------------------------------------------------------------//
-double KDEKernel::MomentFunction::evaluate(double x) const
-{
+double KDEKernel::MomentFunction::evaluate(double x) const {
   double value = kernel.evaluate(x);
 
   if (moment_index > 0) {

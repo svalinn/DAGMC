@@ -6,6 +6,21 @@ export LD_LIBRARY_PATH=/root/geant4.10.00.p02/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/moab/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/dagmc/lib
 
+# run astyle to see if there are any differences
+tools/astyle_google --options=tools/google.ini \
+                    --exclude=bld \
+                    --exclude=gtest \
+                    --exclude=tools/astyle \
+                    --exclude=mcnp/mcnp5/Source \
+                    --exclude=mcnp/mcnp6/Source \
+                    --ignore-exclude-errors \
+                    --recursive \
+                    --verbose \
+                    --formatted \
+                    "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
+# exit if astyle found diffs
+git diff --exit-code
+
 # move to test dir
 cd tests
 # run each test
@@ -43,7 +58,3 @@ fi
 cd ..
 # remove the bld dir
 rm -rf bld
-# run astyle to see if there are any differences
-tools/astyle_google --style=linux --indent=spaces=2 --exclude=gtest -r *.cpp *.h *.hpp *.cc *.hh	
-# checks for C++ style guide adherence
-git diff --exit-code

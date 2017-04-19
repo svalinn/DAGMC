@@ -15,8 +15,7 @@
 /// deposit and track lengths of charged particles in Absober and Gap layers
 /// stored in the hits collections.
 
-class ExN01EventAction : public G4UserEventAction
-{
+class ExN01EventAction : public G4UserEventAction {
  public:
   ExN01EventAction();
   virtual ~ExN01EventAction();

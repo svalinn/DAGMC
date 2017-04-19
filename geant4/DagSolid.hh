@@ -70,35 +70,34 @@
 using namespace moab;
 
 
-class DagSolid : public G4TessellatedSolid
-{
+class DagSolid : public G4TessellatedSolid {
  public:  // with description
 
-  DagSolid ();
-  DagSolid (const G4String &name, DagMC* dagmc, int volID);
-  virtual ~DagSolid ();
+  DagSolid();
+  DagSolid(const G4String& name, DagMC* dagmc, int volID);
+  virtual ~DagSolid();
 
 
   // Mandatory Functions
 
-  virtual EInside Inside (const G4ThreeVector &p) const;
+  virtual EInside Inside(const G4ThreeVector& p) const;
 
-  virtual G4ThreeVector SurfaceNormal (const G4ThreeVector &p) const;
-  virtual G4double DistanceToIn(const G4ThreeVector &p,
-                                const G4ThreeVector &v) const;
-  virtual G4double DistanceToIn(const G4ThreeVector &p) const;
-  virtual G4double DistanceToOut(const G4ThreeVector &p,
-                                 const G4ThreeVector &v,
-                                 const G4bool calcNorm=false,
-                                 G4bool *validNorm=0, G4ThreeVector *n=0) const;
-  virtual G4double DistanceToOut (const G4ThreeVector &p) const;
-  virtual G4GeometryType GetEntityType () const;
+  virtual G4ThreeVector SurfaceNormal(const G4ThreeVector& p) const;
+  virtual G4double DistanceToIn(const G4ThreeVector& p,
+                                const G4ThreeVector& v) const;
+  virtual G4double DistanceToIn(const G4ThreeVector& p) const;
+  virtual G4double DistanceToOut(const G4ThreeVector& p,
+                                 const G4ThreeVector& v,
+                                 const G4bool calcNorm = false,
+                                 G4bool* validNorm = 0, G4ThreeVector* n = 0) const;
+  virtual G4double DistanceToOut(const G4ThreeVector& p) const;
+  virtual G4GeometryType GetEntityType() const;
 
   virtual G4bool CalculateExtent(const EAxis pAxis,
                                  const G4VoxelLimits& pVoxelLimit,
                                  const G4AffineTransform& pTransform,
                                  G4double& pMin, G4double& pMax) const;
-  virtual std::ostream &StreamInfo(std::ostream &os) const;
+  virtual std::ostream& StreamInfo(std::ostream& os) const;
 
 
 
@@ -106,17 +105,17 @@ class DagSolid : public G4TessellatedSolid
 //                                  const G4VPhysicalVolume* pRep);
 
 
-  virtual G4double GetCubicVolume ();
-  virtual G4double GetSurfaceArea ();
-  G4double      GetMinXExtent () const;
-  G4double      GetMaxXExtent () const;
-  G4double      GetMinYExtent () const;
-  G4double      GetMaxYExtent () const;
-  G4double      GetMinZExtent () const;
-  G4double      GetMaxZExtent () const;
+  virtual G4double GetCubicVolume();
+  virtual G4double GetSurfaceArea();
+  G4double      GetMinXExtent() const;
+  G4double      GetMaxXExtent() const;
+  G4double      GetMinYExtent() const;
+  G4double      GetMaxYExtent() const;
+  G4double      GetMinZExtent() const;
+  G4double      GetMaxZExtent() const;
   // Functions for visualization
 
-  virtual void  DescribeYourselfTo (G4VGraphicsScene& scene) const;
+  virtual void  DescribeYourselfTo(G4VGraphicsScene& scene) const;
 
 
 
@@ -131,8 +130,8 @@ class DagSolid : public G4TessellatedSolid
 
  protected:  // with description
 
-  void DeleteObjects ();
-  void CopyObjects (const DagSolid &s);
+  void DeleteObjects();
+  void CopyObjects(const DagSolid& s);
 
 
  private:

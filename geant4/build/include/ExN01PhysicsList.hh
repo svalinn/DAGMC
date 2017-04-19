@@ -20,8 +20,7 @@
 #include "G4VUserPhysicsList.hh"
 #include "globals.hh"
 
-class ExN01PhysicsList: public G4VUserPhysicsList
-{
+class ExN01PhysicsList: public G4VUserPhysicsList {
  public:
   ExN01PhysicsList();
   ~ExN01PhysicsList();

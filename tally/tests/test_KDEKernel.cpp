@@ -6,8 +6,7 @@
 //---------------------------------------------------------------------------//
 // MOCK OBJECTS
 //---------------------------------------------------------------------------//
-class MockEpanechnikovKernel : public KDEKernel
-{
+class MockEpanechnikovKernel : public KDEKernel {
  public:
   // Constructor
   MockEpanechnikovKernel() {}
@@ -17,7 +16,8 @@ class MockEpanechnikovKernel : public KDEKernel
   // evaluates the second-order Epanechnikov kernel K(u)
   double evaluate(double u) const {
     // test if outside domain u = [-1, 1]
-    if (u < -1.0 || u > 1.0) return 0.0;
+    if (u < -1.0 || u > 1.0)
+      return 0.0;
 
     // compute K(u)
     return 0.75 * (1 - u * u);
@@ -34,7 +34,7 @@ class MockEpanechnikovKernel : public KDEKernel
     MomentFunction moment(i, *this);
 
     // define the quadrature set for integrating the ith moment function
-    unsigned int n = 2 + (i/2);
+    unsigned int n = 2 + (i / 2);
     Quadrature quadrature(n);
 
     // evaluate the integral
@@ -45,8 +45,7 @@ class MockEpanechnikovKernel : public KDEKernel
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
 // Tests KDEKernel factory method
-class KDEKernelTest : public ::testing::Test
-{
+class KDEKernelTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -64,8 +63,7 @@ class KDEKernelTest : public ::testing::Test
 };
 //---------------------------------------------------------------------------//
 // Tests 1D boundary kernel implementation
-class BoundaryKernel1DTest : public KDEKernelTest
-{
+class BoundaryKernel1DTest : public KDEKernelTest {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -81,8 +79,7 @@ class BoundaryKernel1DTest : public KDEKernelTest
 };
 //---------------------------------------------------------------------------//
 // Tests both 2D and 3D boundary kernel implementation.
-class BoundaryKernel3DTest : public KDEKernelTest
-{
+class BoundaryKernel3DTest : public KDEKernelTest {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -111,32 +108,27 @@ class BoundaryKernel3DTest : public KDEKernelTest
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: KDEKernelTest
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateInvalidKernelType)
-{
+TEST_F(KDEKernelTest, CreateInvalidKernelType) {
   kernel = KDEKernel::createKernel("invalid_kernel");
   EXPECT_TRUE(kernel == NULL);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateInvalidHigherOrderKernel)
-{
+TEST_F(KDEKernelTest, CreateInvalidHigherOrderKernel) {
   kernel = KDEKernel::createKernel("epanechnikov", 5);
   EXPECT_TRUE(kernel == NULL);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateInvalidZeroOrderKernel)
-{
+TEST_F(KDEKernelTest, CreateInvalidZeroOrderKernel) {
   kernel = KDEKernel::createKernel("epanechnikov", 0);
   EXPECT_TRUE(kernel == NULL);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateInvalidTypeAndOrderKernel)
-{
+TEST_F(KDEKernelTest, CreateInvalidTypeAndOrderKernel) {
   kernel = KDEKernel::createKernel("invalid_kernel", 5);
   EXPECT_TRUE(kernel == NULL);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateUniformKernel)
-{
+TEST_F(KDEKernelTest, CreateUniformKernel) {
   kernel = KDEKernel::createKernel("uniform");
   EXPECT_TRUE(kernel != NULL);
   EXPECT_EQ("2nd-order uniform", kernel->get_kernel_name());
@@ -147,8 +139,7 @@ TEST_F(KDEKernelTest, CreateUniformKernel)
   EXPECT_EQ(2, kernel->get_min_quadrature(3));
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateEpanechnikovKernel)
-{
+TEST_F(KDEKernelTest, CreateEpanechnikovKernel) {
   kernel = KDEKernel::createKernel("epanechnikov");
   EXPECT_TRUE(kernel != NULL);
   EXPECT_EQ("2nd-order epanechnikov", kernel->get_kernel_name());
@@ -159,8 +150,7 @@ TEST_F(KDEKernelTest, CreateEpanechnikovKernel)
   EXPECT_EQ(3, kernel->get_min_quadrature(3));
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateBiweightKernel)
-{
+TEST_F(KDEKernelTest, CreateBiweightKernel) {
   kernel = KDEKernel::createKernel("biweight");
   EXPECT_TRUE(kernel != NULL);
   EXPECT_EQ("2nd-order biweight", kernel->get_kernel_name());
@@ -171,8 +161,7 @@ TEST_F(KDEKernelTest, CreateBiweightKernel)
   EXPECT_EQ(4, kernel->get_min_quadrature(3));
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateTriweightKernel)
-{
+TEST_F(KDEKernelTest, CreateTriweightKernel) {
   kernel = KDEKernel::createKernel("triweight");
   EXPECT_TRUE(kernel != NULL);
   EXPECT_EQ("2nd-order triweight", kernel->get_kernel_name());
@@ -183,8 +172,7 @@ TEST_F(KDEKernelTest, CreateTriweightKernel)
   EXPECT_EQ(5, kernel->get_min_quadrature(3));
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEKernelTest, CreateHigherOrderKernel)
-{
+TEST_F(KDEKernelTest, CreateHigherOrderKernel) {
   kernel = KDEKernel::createKernel("epanechnikov", 6);
   EXPECT_TRUE(kernel != NULL);
   EXPECT_EQ("6th-order epanechnikov", kernel->get_kernel_name());
@@ -199,8 +187,7 @@ TEST_F(KDEKernelTest, CreateHigherOrderKernel)
 //---------------------------------------------------------------------------//
 // Tests point located at the max distance from the LOWER boundary
 // i.e. distance = bandwidth, side = 0 (LOWER)
-TEST_F(BoundaryKernel1DTest, EvaluatePointAtLowerMax)
-{
+TEST_F(BoundaryKernel1DTest, EvaluatePointAtLowerMax) {
   // test correction factor is one over the domain u = [-1, 1]
   double u1[] = {-1.0, -0.8, -0.6, -0.4, -0.2,
                  0.0,  0.2,  0.4,  0.6,  0.8, 1.0
@@ -223,8 +210,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtLowerMax)
 //---------------------------------------------------------------------------//
 // Tests point located at the max distance from the UPPER boundary
 // i.e. distance = bandwidth, side = 1 (UPPER)
-TEST_F(BoundaryKernel1DTest, EvaluatePointAtUpperMax)
-{
+TEST_F(BoundaryKernel1DTest, EvaluatePointAtUpperMax) {
   side = 1;
 
   // test correction factor is one over the domain u = [-1, 1]
@@ -249,8 +235,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtUpperMax)
 //---------------------------------------------------------------------------//
 // Tests point located at half the max distance from the LOWER boundary
 // i.e. distance = 0.5 * bandwidth, side = 0 (LOWER)
-TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfLowerMax)
-{
+TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfLowerMax) {
   p_ratio = 0.5;
 
   // define valid u and reference values
@@ -279,8 +264,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfLowerMax)
 //---------------------------------------------------------------------------//
 // Tests point located at half the max distance from the UPPER boundary
 // i.e. distance = 0.5 * bandwidth, side = 1 (UPPER)
-TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfUpperMax)
-{
+TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfUpperMax) {
   p_ratio = 0.5;
   side = 1;
 
@@ -310,8 +294,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointAtHalfUpperMax)
 //---------------------------------------------------------------------------//
 // Tests point located on the LOWER boundary
 // i.e. distance = 0, side = 0 (LOWER)
-TEST_F(BoundaryKernel1DTest, EvaluatePointOnLowerBoundary)
-{
+TEST_F(BoundaryKernel1DTest, EvaluatePointOnLowerBoundary) {
   p_ratio = 0.0;
 
   // define valid u and reference values
@@ -338,8 +321,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOnLowerBoundary)
 //---------------------------------------------------------------------------//
 // Tests point located on the UPPER boundary
 // i.e. distance = 0, side = 1 (UPPER)
-TEST_F(BoundaryKernel1DTest, EvaluatePointOnUpperBoundary)
-{
+TEST_F(BoundaryKernel1DTest, EvaluatePointOnUpperBoundary) {
   p_ratio = 0.0;
   side = 1;
 
@@ -366,8 +348,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOnUpperBoundary)
 }
 //---------------------------------------------------------------------------//
 // Tests point that is outside the max distance from a boundary
-TEST_F(BoundaryKernel1DTest, EvaluatePointOutsideMaxDistance)
-{
+TEST_F(BoundaryKernel1DTest, EvaluatePointOutsideMaxDistance) {
   p_ratio = 1.5;
 
   // test correction factor is always one over the domain u = [-1, 1]
@@ -391,8 +372,7 @@ TEST_F(BoundaryKernel1DTest, EvaluatePointOutsideMaxDistance)
 }
 //---------------------------------------------------------------------------//
 // Tests point that is at a negative distance from a boundary
-TEST_F(BoundaryKernel1DTest, EvaluateNegativeDistanceRatio)
-{
+TEST_F(BoundaryKernel1DTest, EvaluateNegativeDistanceRatio) {
   p_ratio = -1.5;
 
   // test correction factor is always zero if p ratio is negative
@@ -406,8 +386,7 @@ TEST_F(BoundaryKernel1DTest, EvaluateNegativeDistanceRatio)
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: BoundaryKernel3DTest
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, AllValidKernelMoments)
-{
+TEST_F(BoundaryKernel3DTest, AllValidKernelMoments) {
   // 1D correction
   double value = kernel->boundary_correction(&u[0], &p[0], &sides[0], 1);
   EXPECT_NEAR(1.737159, value, 1e-6);
@@ -421,8 +400,7 @@ TEST_F(BoundaryKernel3DTest, AllValidKernelMoments)
   EXPECT_NEAR(-0.183359, value, 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, ReduceCorrectionMatrixTo2D)
-{
+TEST_F(BoundaryKernel3DTest, ReduceCorrectionMatrixTo2D) {
   // change 3D correction to include one point outside max distance
   p[2] = 2.3;
 
@@ -439,8 +417,7 @@ TEST_F(BoundaryKernel3DTest, ReduceCorrectionMatrixTo2D)
   EXPECT_NEAR(1.275992, value, 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, ReduceCorrectionMatrixTo1D)
-{
+TEST_F(BoundaryKernel3DTest, ReduceCorrectionMatrixTo1D) {
   // change 2D and 3D corrections to include points outside max distance
   p[1] = 1.1;
   p[2] = 7.9;
@@ -458,8 +435,7 @@ TEST_F(BoundaryKernel3DTest, ReduceCorrectionMatrixTo1D)
   EXPECT_NEAR(1.737159, value, 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, AllInvalidKernelMoments)
-{
+TEST_F(BoundaryKernel3DTest, AllInvalidKernelMoments) {
   // change u so that all moments will be invalid
   u[0] = -0.6;
   u[1] = 0.5;
@@ -472,8 +448,7 @@ TEST_F(BoundaryKernel3DTest, AllInvalidKernelMoments)
   }
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForU)
-{
+TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForU) {
   // change p so that only the first set of moments will be invalid
   p[0] = -1.5;
 
@@ -484,8 +459,7 @@ TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForU)
   }
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForV)
-{
+TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForV) {
   // change u so that only the second set of moments will be invalid
   u[1] = 0.5;
 
@@ -501,8 +475,7 @@ TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForV)
   EXPECT_DOUBLE_EQ(0.0, value);
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForW)
-{
+TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForW) {
   // change p so that only the third set of moments will be invalid
   p[2] = -5;
 
@@ -519,8 +492,7 @@ TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForW)
   EXPECT_DOUBLE_EQ(0.0, value);
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForUV)
-{
+TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForUV) {
   // change p so that the first and second set of moments will be invalid
   p[0] = -1.0;
   p[1] = 2.0;
@@ -532,8 +504,7 @@ TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForUV)
   }
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForUW)
-{
+TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForUW) {
   // change u so that the first and third set of moments will be invalid
   u[0] = 1.2;
   u[2] = -0.7;
@@ -545,8 +516,7 @@ TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForUW)
   }
 }
 //---------------------------------------------------------------------------//
-TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForVW)
-{
+TEST_F(BoundaryKernel3DTest, InvalidKernelMomentsForVW) {
   // change u/p so that the second and third set of moments will be invalid
   p[1] = -1.2;
   u[2] = 10.5;

@@ -12,15 +12,14 @@
 /// Action initialization class.
 ///
 
-class ExN01ActionInitialization : public G4VUserActionInitialization
-{
+class ExN01ActionInitialization : public G4VUserActionInitialization {
  public:
-  ExN01ActionInitialization(UWUW *uwuw_workflow_data);
+  ExN01ActionInitialization(UWUW* uwuw_workflow_data);
   virtual ~ExN01ActionInitialization();
 
   virtual void BuildForMaster() const;
   virtual void Build() const;
-  UWUW *workflow_data;
+  UWUW* workflow_data;
 };
 
 #endif

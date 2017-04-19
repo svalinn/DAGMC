@@ -2,8 +2,7 @@
 #include "gtest/gtest.h"
 #include "test_classes.hpp"
 
-class SphereNBoxMakeWatertightTest : public MakeWatertightTest
-{
+class SphereNBoxMakeWatertightTest : public MakeWatertightTest {
 
  protected:
   virtual void setFilename() {
@@ -13,8 +12,7 @@ class SphereNBoxMakeWatertightTest : public MakeWatertightTest
 };
 
 
-TEST_F(SphereNBoxMakeWatertightTest, SphereNBoxTest )
-{
+TEST_F(SphereNBoxMakeWatertightTest, SphereNBoxTest) {
   //make sure that the expected number of surfaces exist
   int dim = 2, expected_num_surfs = 7;
   moab::ErrorCode rval;

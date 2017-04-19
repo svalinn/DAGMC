@@ -55,8 +55,7 @@ extern "C" {
  * the PolynomialKernel implementation for an example.
  */
 //===========================================================================//
-class KDEKernel
-{
+class KDEKernel {
  protected:
   /**
    * \brief Constructor
@@ -228,8 +227,7 @@ class KDEKernel
    * \class MomentFunction
    * \brief Defines the ith moment function for a general kernel object
    */
-  class MomentFunction : public Function
-{
+  class MomentFunction : public Function {
    public:
     /**
      * \brief Constructor

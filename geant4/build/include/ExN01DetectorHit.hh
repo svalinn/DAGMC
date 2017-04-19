@@ -16,8 +16,7 @@
 /// and position of charged particles in a selected volume:
 /// - fTrackID, fChamberNB, fEdep, fPos
 
-class ExN01DetectorHit : public G4VHit
-{
+class ExN01DetectorHit : public G4VHit {
  public:
   ExN01DetectorHit();
   ExN01DetectorHit(const ExN01DetectorHit&);
@@ -27,15 +26,15 @@ class ExN01DetectorHit : public G4VHit
   const ExN01DetectorHit& operator=(const ExN01DetectorHit&);
   G4int operator==(const ExN01DetectorHit&) const;
 
-  inline void* operator new(size_t);
-  inline void  operator delete(void*);
+  inline void* operator new (size_t);
+  inline void  operator delete (void*);
 
   // methods from base class
   virtual void Draw();
   virtual void Print();
 
   // Set methods
-  void SetTrackID  (G4int track)      {
+  void SetTrackID(G4int track)      {
     fTrackID = track;
   };
   /*
@@ -43,19 +42,19 @@ class ExN01DetectorHit : public G4VHit
   void SetEdep     (G4double de)      { fEdep = de; };
   void SetPos      (G4ThreeVector xyz){ fPos = xyz; };
   */
-  void SetParticleEnergy       (G4double ke)      {
+  void SetParticleEnergy(G4double ke)      {
     fKe  = ke;
   };
-  void SetTrackLength  (G4double tl)  {
+  void SetTrackLength(G4double tl)  {
     fTl = tl;
   };
-  void SetWeight  (G4double weight)  {
+  void SetWeight(G4double weight)  {
     fWeight = weight;
   };
-  void SetParticleName (G4String name) {
+  void SetParticleName(G4String name) {
     fName = name;
   };
-  void SetParticlePDG (G4int PID)      {
+  void SetParticlePDG(G4int PID)      {
     fPID = PID;
   };
 
@@ -105,17 +104,15 @@ extern G4ThreadLocal G4Allocator<ExN01DetectorHit>* ExN01DetectorHitAllocator;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-inline void* ExN01DetectorHit::operator new(size_t)
-{
-  if(!ExN01DetectorHitAllocator)
+inline void* ExN01DetectorHit::operator new (size_t) {
+  if (!ExN01DetectorHitAllocator)
     ExN01DetectorHitAllocator = new G4Allocator<ExN01DetectorHit>;
-  return (void *) ExN01DetectorHitAllocator->MallocSingle();
+  return (void*) ExN01DetectorHitAllocator->MallocSingle();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-inline void ExN01DetectorHit::operator delete(void *hit)
-{
+inline void ExN01DetectorHit::operator delete (void* hit) {
   ExN01DetectorHitAllocator->FreeSingle((ExN01DetectorHit*) hit);
 }
 

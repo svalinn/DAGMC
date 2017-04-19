@@ -11,8 +11,7 @@
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
 // Base test fixture that defines common input parameters
-class KDEMeshTallyTest : public ::testing::Test
-{
+class KDEMeshTallyTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -73,7 +72,8 @@ class KDEMeshTallyTest : public ::testing::Test
       X.coords[i] = coords[i];
 
       // only copy boundary correction data if included
-      if (boundary_data == NULL || distance_data == NULL) continue;
+      if (boundary_data == NULL || distance_data == NULL)
+        continue;
       X.boundary_data[i] = boundary_data[i];
       X.distance_data[i] = distance_data[i];
     }
@@ -93,8 +93,7 @@ class KDEMeshTallyTest : public ::testing::Test
 };
 //---------------------------------------------------------------------------//
 // Tests the private integral_track_score method in KDEMeshTally
-class KDEIntegralTrackTest : public KDEMeshTallyTest
-{
+class KDEIntegralTrackTest : public KDEMeshTallyTest {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -107,8 +106,7 @@ class KDEIntegralTrackTest : public KDEMeshTallyTest
 };
 //---------------------------------------------------------------------------//
 // Tests the private subtrack_score method in KDEMeshTally
-class KDESubtrackTest : public KDEMeshTallyTest
-{
+class KDESubtrackTest : public KDEMeshTallyTest {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -127,8 +125,7 @@ class KDESubtrackTest : public KDEMeshTallyTest
 // Tests the private evaluate_kernel method in KDEMeshTally
 // NOTE: All KDE tallies use this method, but testing it with COLLISION tally
 // (only difference is the observation point passed as a parameter)
-class KDECollisionTest : public KDEMeshTallyTest
-{
+class KDECollisionTest : public KDEMeshTallyTest {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -151,8 +148,7 @@ class KDECollisionTest : public KDEMeshTallyTest
 //---------------------------------------------------------------------------//
 // SIMPLE TESTS
 //---------------------------------------------------------------------------//
-TEST(KDEMeshTallyDeathTest, MissingInputMesh)
-{
+TEST(KDEMeshTallyDeathTest, MissingInputMesh) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
   // define empty tally options
@@ -174,8 +170,7 @@ TEST(KDEMeshTallyDeathTest, MissingInputMesh)
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: KDEMeshTallyTest
 //---------------------------------------------------------------------------//
-TEST_F(KDEMeshTallyTest, MissingBoundaryTags)
-{
+TEST_F(KDEMeshTallyTest, MissingBoundaryTags) {
   // add boundary correction to input options
   input.options.insert(std::make_pair("boundary", "default"));
 
@@ -192,8 +187,7 @@ TEST_F(KDEMeshTallyTest, MissingBoundaryTags)
   EXPECT_NO_THROW(kde_tally->compute_score(event));
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEMeshTallyTest, TurnOffBoundaryForHigherOrderKernels)
-{
+TEST_F(KDEMeshTallyTest, TurnOffBoundaryForHigherOrderKernels) {
   // add boundary correction and kernel order to input options
   input.options.insert(std::make_pair("boundary", "default"));
   input.options.insert(std::make_pair("order", "6"));
@@ -211,8 +205,7 @@ TEST_F(KDEMeshTallyTest, TurnOffBoundaryForHigherOrderKernels)
   EXPECT_NO_THROW(kde_tally->compute_score(event));
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDEMeshTallyTest, InvalidBandwidth)
-{
+TEST_F(KDEMeshTallyTest, InvalidBandwidth) {
   // change bandwidth values in input options to be invalid
   input.options.erase("hx");
   input.options.erase("hy");
@@ -229,13 +222,12 @@ TEST_F(KDEMeshTallyTest, InvalidBandwidth)
 // FIXTURE-BASED TESTS: KDEIntegralTrackTest
 //---------------------------------------------------------------------------//
 // Tests cases that have a valid [Smin, Smax] interval with Smin != Smax
-TEST_F(KDEIntegralTrackTest, ValidLimits)
-{
+TEST_F(KDEIntegralTrackTest, ValidLimits) {
   // set up tally event
   TallyEvent event;
   event.type = TallyEvent::TRACK;
   event.position = moab::CartVect(0.0, 0.0, 0.0);
-  double U_val = 1.0/sqrt(3.0);
+  double U_val = 1.0 / sqrt(3.0);
   event.direction = moab::CartVect(U_val, U_val, U_val);
   event.track_length = 1.0;
 
@@ -328,8 +320,7 @@ TEST_F(KDEIntegralTrackTest, ValidLimits)
 }
 //---------------------------------------------------------------------------//
 // Tests cases that do not have a valid [Smin, Smax] interval
-TEST_F(KDEIntegralTrackTest, InvalidLimits)
-{
+TEST_F(KDEIntegralTrackTest, InvalidLimits) {
   // set up tally event
   TallyEvent event;
   event.type = TallyEvent::TRACK;
@@ -360,8 +351,7 @@ TEST_F(KDEIntegralTrackTest, InvalidLimits)
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: KDESubtrackTest
 //---------------------------------------------------------------------------//
-TEST_F(KDESubtrackTest, NoSubtracks)
-{
+TEST_F(KDESubtrackTest, NoSubtracks) {
   // verify no score is returned for a few calculation points
   moab::CartVect coords1(0.0, 0.0, 0.0);
   EXPECT_DOUBLE_EQ(0.0, test_subtrack_score(coords1, points));
@@ -373,8 +363,7 @@ TEST_F(KDESubtrackTest, NoSubtracks)
   EXPECT_DOUBLE_EQ(0.0, test_subtrack_score(coords3, points));
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDESubtrackTest, OneSubtrack)
-{
+TEST_F(KDESubtrackTest, OneSubtrack) {
   // add only one subtrack point
   points.push_back(moab::CartVect(-1.0, 0.0, 2.0));
 
@@ -399,8 +388,7 @@ TEST_F(KDESubtrackTest, OneSubtrack)
   EXPECT_NEAR(368.451750, test_subtrack_score(coords6, points), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDESubtrackTest, MultipleSubtracks)
-{
+TEST_F(KDESubtrackTest, MultipleSubtracks) {
   // add multiple subtrack points
   points.push_back(moab::CartVect(-0.05, -0.05, -0.05));
   points.push_back(moab::CartVect(0.0, 0.0, 0.0));
@@ -430,8 +418,7 @@ TEST_F(KDESubtrackTest, MultipleSubtracks)
 // FIXTURE-BASED TESTS: KDECollisionTest
 //---------------------------------------------------------------------------//
 // Tests standard evaluate method for different calculation points
-TEST_F(KDECollisionTest, EvaluateStandardKernel)
-{
+TEST_F(KDECollisionTest, EvaluateStandardKernel) {
   // verify no score is returned for calculation points outside neighborhood
   moab::CartVect coords1(0.0, 0.0, 0.0);
   EXPECT_DOUBLE_EQ(0.0, test_evaluate_kernel(coords1, collision));
@@ -454,8 +441,7 @@ TEST_F(KDECollisionTest, EvaluateStandardKernel)
 }
 //---------------------------------------------------------------------------//
 // Tests standard evaluate method is always used for non-boundary points
-TEST_F(KDECollisionTest, EvaluateNonBoundaryPoint)
-{
+TEST_F(KDECollisionTest, EvaluateNonBoundaryPoint) {
   // define boundary away from the calculation point
   int boundary_data[3] = {-1, -1, -1};
   double distance_data[3] = {-1.0, -1.0, -1.0};
@@ -480,8 +466,7 @@ TEST_F(KDECollisionTest, EvaluateNonBoundaryPoint)
   EXPECT_NEAR(60.117188, score2, 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDECollisionTest, EvaluateBoundaryPointOnZ)
-{
+TEST_F(KDECollisionTest, EvaluateBoundaryPointOnZ) {
   // move calculation point onto the upper boundary along z-axis
   int boundary_data[3] = {-1, -1, 1};
   double distance_data[3] = {-1.0, -1.0, 0.0};
@@ -506,8 +491,7 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnZ)
   EXPECT_NEAR(-278.437500, score2, 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXY)
-{
+TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXY) {
   // move calculation point near boundaries along x-axis and y-axis
   int boundary_data[3] = {0, 1, -1};
   double distance_data[3] = {0.05, 0.1, -1.0};
@@ -532,8 +516,7 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXY)
   EXPECT_NEAR(46.395349, score2, 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXYZ)
-{
+TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXYZ) {
   // move calculation point near boundaries along x-axis, y-axis and z-axis
   int boundary_data[3] = {0, 0, 1};
   double distance_data[3] = {0.0, 0.1, 0.05};

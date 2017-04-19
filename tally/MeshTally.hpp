@@ -11,8 +11,7 @@
 #include "Tally.hpp"
 
 // forward declaration
-namespace moab
-{
+namespace moab {
 class Interface;
 }
 
@@ -54,8 +53,7 @@ class Interface;
  * (i.e. "out"="filename.vtk" will write results to the VTK format).
  */
 //===========================================================================//
-class MeshTally : public Tally
-{
+class MeshTally : public Tally {
  protected:
   /**
    * \brief Constructor
@@ -134,7 +132,7 @@ class MeshTally : public Tally
    * Note that labels are stored as MOAB tag handles in the tally_tags
    * and error_tags arrays.
    */
-  moab::ErrorCode setup_tags(moab::Interface* mbi, const char* prefix="");
+  moab::ErrorCode setup_tags(moab::Interface* mbi, const char* prefix = "");
 
   /**
    * \brief Adds weight * score to the mesh tally for the tally point

@@ -10,8 +10,7 @@
 //---------------------------------------------------------------------------//
 // MOCK OBJECTS
 //---------------------------------------------------------------------------//
-class PolynomialFunction : public Function
-{
+class PolynomialFunction : public Function {
  public:
   /**
    * \brief Defines an nth order polynomial function
@@ -45,8 +44,7 @@ class PolynomialFunction : public Function
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
-class QuadratureTest : public ::testing::Test
-{
+class QuadratureTest : public ::testing::Test {
  protected:
   // initialize variables for each test
   virtual void SetUp() {
@@ -80,16 +78,14 @@ class QuadratureTest : public ::testing::Test
 //---------------------------------------------------------------------------//
 // SIMPLE TESTS
 //---------------------------------------------------------------------------//
-TEST(InvalidQuadratureTest, InvalidQuadPoints)
-{
+TEST(InvalidQuadratureTest, InvalidQuadPoints) {
   Quadrature quadrature(50);
   EXPECT_EQ(10, quadrature.get_num_quad_points());
 }
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: QuadratureTest
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, IntegrateZeroFunction)
-{
+TEST_F(QuadratureTest, IntegrateZeroFunction) {
   // set up polynomial function
   coefficients[0] = 0.0;
   function = new PolynomialFunction(coefficients, order);
@@ -102,8 +98,7 @@ TEST_F(QuadratureTest, IntegrateZeroFunction)
   EXPECT_NEAR(0.0, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, IntegrateConstant)
-{
+TEST_F(QuadratureTest, IntegrateConstant) {
   // set up polynomial function
   function = new PolynomialFunction(coefficients, order);
 
@@ -115,8 +110,7 @@ TEST_F(QuadratureTest, IntegrateConstant)
   EXPECT_NEAR(5.6, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate1stOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate1stOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   order = 1;
@@ -130,8 +124,7 @@ TEST_F(QuadratureTest, Integrate1stOrderPolynomial)
   EXPECT_NEAR(-3.36, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate2ndOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate2ndOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -146,8 +139,7 @@ TEST_F(QuadratureTest, Integrate2ndOrderPolynomial)
   EXPECT_NEAR(51.296, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate3rdOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate3rdOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -163,8 +155,7 @@ TEST_F(QuadratureTest, Integrate3rdOrderPolynomial)
   EXPECT_NEAR(-100.6656, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate4thOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate4thOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -181,8 +172,7 @@ TEST_F(QuadratureTest, Integrate4thOrderPolynomial)
   EXPECT_NEAR(535.99616, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate5thOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate5thOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -200,8 +190,7 @@ TEST_F(QuadratureTest, Integrate5thOrderPolynomial)
   EXPECT_NEAR(-1576.786176, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate6thOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate6thOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -220,8 +209,7 @@ TEST_F(QuadratureTest, Integrate6thOrderPolynomial)
   EXPECT_NEAR(6387.630234, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate7thOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate7thOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -241,8 +229,7 @@ TEST_F(QuadratureTest, Integrate7thOrderPolynomial)
   EXPECT_NEAR(-21567.468841, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate8thOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate8thOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -263,8 +250,7 @@ TEST_F(QuadratureTest, Integrate8thOrderPolynomial)
   EXPECT_NEAR(80504.4878275, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, Integrate9thOrderPolynomial)
-{
+TEST_F(QuadratureTest, Integrate9thOrderPolynomial) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);
@@ -283,11 +269,10 @@ TEST_F(QuadratureTest, Integrate9thOrderPolynomial)
   EXPECT_EQ(5, quadrature->get_num_quad_points());
 
   // evaluate the integral
-  EXPECT_NEAR(-284087.356179,quadrature->integrate(a, b, *function), 1e-6);
+  EXPECT_NEAR(-284087.356179, quadrature->integrate(a, b, *function), 1e-6);
 }
 //---------------------------------------------------------------------------//
-TEST_F(QuadratureTest, ChangeQuadratureSet)
-{
+TEST_F(QuadratureTest, ChangeQuadratureSet) {
   // set up polynomial function
   coefficients.push_back(-2.0);
   coefficients.push_back(3.0);

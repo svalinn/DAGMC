@@ -29,17 +29,16 @@ class G4Run;
 /// dispersion is printed.
 ///
 
-class ExN01RunAction : public G4UserRunAction
-{
+class ExN01RunAction : public G4UserRunAction {
  public:
-  ExN01RunAction(UWUW *uwuw_workflow_data);
+  ExN01RunAction(UWUW* uwuw_workflow_data);
   virtual ~ExN01RunAction();
 
   virtual void BeginOfRunAction(const G4Run*);
   virtual void   EndOfRunAction(const G4Run*);
 
  private:
-  UWUW *workflow_data;
+  UWUW* workflow_data;
 
 };
 

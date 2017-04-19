@@ -72,8 +72,7 @@ struct TallyInput {
  * behavior is desired, then Derived classes can override this method.
  */
 //===========================================================================//
-class Tally
-{
+class Tally {
  protected:
   /**
    * \brief Constructor
@@ -96,7 +95,7 @@ class Tally
    *
    * NOTE: if an invalid tally_type is requested, a NULL pointer is returned
    */
-  static Tally *create_tally(const TallyInput& input);
+  static Tally* create_tally(const TallyInput& input);
 
   // >>> PUBLIC INTERFACE
 
@@ -139,7 +138,7 @@ class Tally
   TallyInput input_data;
 
   /// All of the tally data for this tally
-  TallyData *data;
+  TallyData* data;
 
   /**
    * \brief Get the bin index for the current energy
