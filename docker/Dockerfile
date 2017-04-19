@@ -91,4 +91,4 @@ RUN source /root/etc/gcc-5.env     && bash /root/etc/build_geant4.sh
 RUN source /root/etc/gcc-6.env     && bash /root/etc/build_geant4.sh
 RUN source /root/etc/clang-3.8.env && bash /root/etc/build_geant4.sh
 
-# CMD ["bash"]
+CMD ["bash"]

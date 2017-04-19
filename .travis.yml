@@ -19,24 +19,29 @@ services:
   - docker
 before_install:
   - sudo docker pull ljacobson64/dagmc-ci
-  # to get a container id
+  # get a container id
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  # make the build directory
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "mkdir -p /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
+  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci
   # copy the repo in the docker instance
-  - sudo docker cp ../DAGMC $commit_id:/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC
+  - sudo docker cp ../DAGMC $commit_id:/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id ljacobson64/dagmc-ci
   # build moab
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
-                                                     ./.build_moab.sh $COMPILER $MOAB_VERSION"
-  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  # sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
+  #                                                  ./.build_moab.sh $COMPILER $MOAB_VERSION"
+  # commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  # sudo docker commit $commit_id ljacobson64/dagmc-ci
 install:
   # build dagmc
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
-                                                     ./.build_dagmc.sh $COMPILER $MOAB_VERSION"
-  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "echo $PATH"
+  # sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
+  #                                                  ./.build_dagmc.sh $COMPILER $MOAB_VERSION"
+  # commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  # sudo docker commit $commit_id ljacobson64/dagmc-ci
 script:
   # run tests
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC && \
