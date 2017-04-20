@@ -39,6 +39,8 @@ install:
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "ls -l /root/build/$COMPILER"
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "ls -l /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "ls -l /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC"
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "ls -l /root/opt/$COMPILER"
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "ls -l /root/opt/$COMPILER/moab-$MOAB_VERSION"
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC; bash docker/build_dagmc.sh $COMPILER $MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id ljacobson64/dagmc-ci

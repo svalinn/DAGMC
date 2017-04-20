@@ -30,4 +30,4 @@ cd ../bld
                  CC=${CC} CXX=${CXX} FC=${FC}
 make -j`grep -c processor /proc/cpuinfo`
 make install
-rm -rf ${build_dir}
+rm -rf ${build_dir}/moab-${moab_version}

@@ -19,4 +19,4 @@ cmake ../src -DBUILD_STATIC_LIBS=ON \
              -DCMAKE_INSTALL_PREFIX=${install_dir}/geant4-${geant4_version}
 make -j`grep -c processor /proc/cpuinfo`
 make install
-rm -rf ${build_dir}
+rm -rf ${build_dir}/geant4-${geant4_version}
