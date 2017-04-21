@@ -6824,8 +6824,8 @@ void* pyne::particle::_fill_maps() {
   part_to_fluka["Muon"] = "MUON+";
   part_to_fluka["AntiMuon"] = "MUON-";
   part_to_fluka["MuonNeutrino"] = "NEUTRIM";
-  part_to_fluka["MuonAntiNeutrino"] = "ANEUTRIM",
-                                      part_to_fluka["Tauon"] = "TAU+";
+  part_to_fluka["MuonAntiNeutrino"] = "ANEUTRIM";
+  part_to_fluka["Tauon"] = "TAU+";
   part_to_fluka["Anti Tauon"] = "TAU-";
   part_to_fluka["TauNeutrino"] = "NEUTRIT";
   part_to_fluka["TauAntiNeutrino"] = "ANEUTRIT";
@@ -6862,8 +6862,8 @@ void* pyne::particle::_fill_maps() {
   part_to_geant4["Muon"] = "mu+";
   part_to_geant4["AntiMuon"] = "mu-";
   part_to_geant4["MuonNeutrino"] = "nu_mu";
-  part_to_geant4["MuonAntiNeutrino"] = "anti_nu_mu",
-                                       part_to_geant4["Tauon"] = "tau+";
+  part_to_geant4["MuonAntiNeutrino"] = "anti_nu_mu";
+  part_to_geant4["Tauon"] = "tau+";
   part_to_geant4["Anti Tauon"] = "tau-";
   part_to_geant4["TauNeutrino"] = "nu_tau";
   part_to_geant4["TauAntiNeutrino"] = "anti_nu_tau";
@@ -6891,6 +6891,8 @@ void* pyne::particle::_fill_maps() {
   part_to_geant4["Anti Sigma+"] = "anti_sigma+";
   part_to_geant4["Sigma"] = "sigma0";
   part_to_geant4["AntiSigmaZero"] = "anti_sigma0";
+
+  return 0;
 }
 
 void* pyne::particle::filler = pyne::particle::_fill_maps();
