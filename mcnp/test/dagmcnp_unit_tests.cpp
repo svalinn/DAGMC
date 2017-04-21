@@ -22,7 +22,7 @@ class DAGMCNP5Test : public ::testing::Test {
     int parallel_mode = 0;
     double dagmc_version;
     int moab_version;
-    int max_pbl;
+    int max_pbl = 0;
 
     // intialise dagmc
     dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode,
@@ -39,7 +39,7 @@ class DAGMCNP5Test : public ::testing::Test {
     int parallel_mode = 0;
     double dagmc_version;
     int moab_version;
-    int max_pbl;
+    int max_pbl = 0;
 
     // intialise dagmc
     dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode,
