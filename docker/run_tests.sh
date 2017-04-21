@@ -20,16 +20,16 @@ export LD_LIBRARY_PATH=${install_dir}/geant4-${geant4_version}/lib:${LD_LIBRARY_
 export LD_LIBRARY_PATH=${DAGMC_dir}/lib:${LD_LIBRARY_PATH}
 
 # Run astyle to see if there are any differences
-${DAGMC_dir}/tools/astyle_google --options=${DAGMC_dir}/tools/google.ini \
-                                 --exclude=gtest \
-                                 --exclude=tools/astyle \
-                                 --exclude=mcnp/mcnp5/Source \
-                                 --exclude=mcnp/mcnp6/Source \
-                                 --ignore-exclude-errors \
-                                 --recursive \
-                                 --verbose \
-                                 --formatted \
-                                 "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
+${DAGMC_dir}/tools/astyle --options=${DAGMC_dir}/tools/google.ini \
+                          --exclude=gtest \
+                          --exclude=tools/astyle \
+                          --exclude=mcnp/mcnp5/Source \
+                          --exclude=mcnp/mcnp6/Source \
+                          --ignore-exclude-errors \
+                          --recursive \
+                          --verbose \
+                          --formatted \
+                          "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
 git diff --exit-code  # Exit if astyle found diffs
 
 # Run the tests

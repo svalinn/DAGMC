@@ -2,9 +2,9 @@
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 if (COMPILER_SUPPORTS_CXX11)
-  message(STATUS "Building astyle_google")
+  message(STATUS "Building astyle")
 else ()
-  message(STATUS "The C++ compiler does not support C++11. Not building astyle_google.")
+  message(STATUS "The C++ compiler does not support C++11. Not building astyle.")
   return()
 endif (COMPILER_SUPPORTS_CXX11)
 
@@ -29,8 +29,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-# Build astyle_google
-add_executable(astyle_google ${SRC_FILES})
-install(TARGETS astyle_google DESTINATION tools
-                              PERMISSIONS ${PERMS})
+# Build astyle
+add_executable(astyle ${SRC_FILES})
+install(TARGETS astyle DESTINATION tools
+                       PERMISSIONS ${PERMS})
 install(FILES file/google.ini DESTINATION tools)
