@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <stdlib.h>
 
 #include "TallyData.hpp"
 
