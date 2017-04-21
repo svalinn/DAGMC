@@ -76,8 +76,10 @@ TEST(TallyDataInputTest, TotalEnergyBinLogic) {
 //---------------------------------------------------------------------------//
 TEST(TallyDataDeathTest, ZeroEnergyBins) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-  EXPECT_DEATH(TallyData(0, true),  "");
-  EXPECT_DEATH(TallyData(0, false),  "");
+  EXPECT_EXIT(TallyData(0, true), ::testing::ExitedWithCode(EXIT_FAILURE),
+              "Error: number of energy bins cannot be zero");
+  EXPECT_EXIT(TallyData(0, false), ::testing::ExitedWithCode(EXIT_FAILURE),
+              "Error: number of energy bins cannot be zero");
 }
 //---------------------------------------------------------------------------//
 TEST(FilledTallyTest, ZeroTallyData) {

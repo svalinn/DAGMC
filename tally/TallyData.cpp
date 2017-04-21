@@ -1,6 +1,7 @@
 // MCNP5/dagmc/TallyData.cpp
 
 #include <cassert>
+#include <iostream>
 
 #include "TallyData.hpp"
 
@@ -8,7 +9,10 @@
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
 TallyData::TallyData(unsigned int num_energy_bins, bool total_energy_bin) {
-  assert(num_energy_bins >= 1);
+  if (num_energy_bins == 0) {
+    std::cerr << "Error: number of energy bins cannot be zero" << std::endl;
+    exit(EXIT_FAILURE);
+  }
   if (num_energy_bins == 1) {
     // Any time there is only one energy bin, total_energy_bin is moot
     this->total_energy_bin = false;
