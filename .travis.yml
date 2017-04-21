@@ -7,14 +7,14 @@ notifications:
   slack: cnerg:d48My26ZXfvHlg0On2WwNQFi
 env: 
   matrix:
-    # COMPILER="gcc-4.8"   MOAB_VERSION="4.9.2"
-    # COMPILER="gcc-4.8"   MOAB_VERSION="master"
-    # COMPILER="gcc-5"     MOAB_VERSION="4.9.2"
-    # COMPILER="gcc-5"     MOAB_VERSION="master"
+    - COMPILER="gcc-4.8"   MOAB_VERSION="4.9.2"
+    - COMPILER="gcc-4.8"   MOAB_VERSION="master"
+    - COMPILER="gcc-5"     MOAB_VERSION="4.9.2"
+    - COMPILER="gcc-5"     MOAB_VERSION="master"
     - COMPILER="gcc-6"     MOAB_VERSION="4.9.2"
     - COMPILER="gcc-6"     MOAB_VERSION="master"
-    # COMPILER="clang-3.8" MOAB_VERSION="4.9.2"
-    # COMPILER="clang-3.8" MOAB_VERSION="master"
+    - COMPILER="clang-3.8" MOAB_VERSION="4.9.2"
+    - COMPILER="clang-3.8" MOAB_VERSION="master"
 services:
   - docker
 before_install:
