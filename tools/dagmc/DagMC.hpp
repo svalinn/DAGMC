@@ -220,7 +220,7 @@ public:
    *\param dimension the dimensionality of the entities in question
    *\return integer number of entities of that dimension
    */
-  int num_entities( int dimension );
+  unsigned int num_entities( int dimension );
 
 private:
   /** build internal index vectors that speed up handle-by-id, etc. */
@@ -437,7 +437,7 @@ inline int DagMC::index_by_handle( EntityHandle handle )
   return entIndices[handle-setOffset];
 }
 
-inline int DagMC::num_entities( int dimension )
+inline unsigned int DagMC::num_entities( int dimension )
 {
   assert(0 <= dimension && 3 >= dimension);
   return entHandles[dimension].size() - 1;
