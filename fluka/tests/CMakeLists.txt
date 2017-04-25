@@ -18,13 +18,11 @@ setup_test(fludag_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
 install(FILES slabs.h5m DESTINATION tests)
-# we use a file from the mcnp5 test folder so if not buildiding
-# mcnp5 we have to install it
-if(BUILD_MCNP5)
-# do nothing
-else(BUILD_MCNP5)
+# We use a file from the mcnp5 test folder, so if not building mcnp5 we have to
+# install it
+if (NOT BUILD_MCNP5)
   install(FILES ${CMAKE_SOURCE_DIR}/mcnp/test/test_geom_legacy.h5m DESTINATION tests)
-endif(BUILD_MCNP5)
+endif (NOT BUILD_MCNP5)
 
 # Enable unit tests
 enable_testing()

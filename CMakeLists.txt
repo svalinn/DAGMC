@@ -33,18 +33,19 @@ set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other fil
 set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
 # Determine if we're building static libraries
-if (STATIC_LIB)
+option(BUILD_STATIC "Build static libraries and executables" OFF)
+if (BUILD_STATIC)
   set(LIB_TYPE "STATIC")
   set(BUILD_SHARED_LIBRARIES OFF)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 else ()
   set(LIB_TYPE "SHARED")
-endif (STATIC_LIB)
+  set(BUILD_SHARED_LIBRARIES ON)
+endif (BUILD_STATIC)
 
 # Allow use of find_package(HDF5), find_package(MOAB), etc.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
-
 
 # Make sure we have HDF5 and MOAB
 find_package(HDF5 REQUIRED)
@@ -61,6 +62,11 @@ if (DAGMC_LIBRARIES)
 else ()
   set(DAG_LINK_LIBS "dagmc ${MOAB_LIBRARIES}")
 endif (DAGMC_LIBRARIES)
+string(STRIP ${DAG_LINK_LIBS} DAG_LINK_LIBS)
+string(REGEX REPLACE "[ ]+" " " DAG_LINK_LIBS ${DAG_LINK_LIBS})
+separate_arguments(DAG_LINK_LIBS)
+list(REMOVE_DUPLICATES DAG_LINK_LIBS)
+message(STATUS "DAG_LINK_LIBS: ${DAG_LINK_LIBS}")
 
 # Build Gtest
 add_subdirectory(gtest)

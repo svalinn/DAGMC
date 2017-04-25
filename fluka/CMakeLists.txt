@@ -14,6 +14,9 @@ list(APPEND LINK_LIBS ${FLUKA_DIR}/libflukahp.a)
 list(APPEND LINK_LIBS pyne_dagmc)
 list(APPEND LINK_LIBS dagmciface)
 list(APPEND LINK_LIBS gfortran)
+if (BUILD_STATIC)
+  list(APPEND LINK_LIBS quadmath)
+endif (BUILD_STATIC)
 
 # Include directories
 include_directories(.)
@@ -22,7 +25,7 @@ include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 
 # Build FluDAG library
-add_library(fludag STATIC ${SRC_FILES})
+add_library(fludag ${LIB_TYPE} ${SRC_FILES})
 set_target_properties(fludag PROPERTIES PUBLIC_HEADER ${PUB_HEADERS})
 target_link_libraries(fludag ${LINK_LIBS})
 install(TARGETS fludag LIBRARY       DESTINATION ${INSTALL_LIB_DIR}

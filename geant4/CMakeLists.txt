@@ -1,13 +1,20 @@
 message(STATUS "Building the DagSolid Library for Geant4")
 
-# Find Geant4
-if ("${LIB_TYPE}" STREQUAL "STATIC")
-  find_package(Geant4 REQUIRED COMPONENTS static)
-else ()
-  find_package(Geant4 REQUIRED)
-endif ("${LIB_TYPE}" STREQUAL "STATIC")
+# Find Geant4 package, activating all available UI and Vis drivers by default
+# You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
+# to build a batch mode only executable
+option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
+set(GEANT4_REQUIRED_COMPONENTS)
+if (WITH_GEANT4_UIVIS)
+  list(APPEND GEANT4_REQUIRED_COMPONENTS ui_all)
+  list(APPEND GEANT4_REQUIRED_COMPONENTS vis_all)
+endif (WITH_GEANT4_UIVIS)
+if (BUILD_STATIC)
+  list(APPEND GEANT4_REQUIRED_COMPONENTS static)
+endif (BUILD_STATIC)
+find_package(Geant4 REQUIRED COMPONENTS ${GEANT4_REQUIRED_COMPONENTS})
 
-# Setup Geant4 include directories and compile definitions
+# Get Geant4 libraries, include directories, and compile definitions
 include(${Geant4_USE_FILE})
 
 # Source files
@@ -24,8 +31,9 @@ include_directories(${MOAB_INCLUDE_DIRS})
 include_directories(${GEANT4_DIR}/include/Geant4)
 
 # Libraries
-LIST(APPEND LINK_LIBS ${Geant4_LIBRARIES})
-LIST(APPEND LINK_LIBS ${DAGMC_LIBRARIES})
+set(LINK_LIBS)
+list(APPEND LINK_LIBS ${Geant4_LIBRARIES})
+list(APPEND LINK_LIBS ${DAGMC_LIBRARIES})
 
 # Build DagSolid library
 add_library(dagsolid ${LIB_TYPE} ${SRC_FILES})
