@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# $1: compiler (gcc-4.8, gcc-5, gcc-6, clang-3.8)
+# $1: compiler (gcc-4.8, gcc-4.9, gcc-5, gcc-6, clang-3.8, clang-3.9, clang-4.0)
 # $2: moab version (4.9.2, master)
 
 set -e
 
 source /root/etc/$1.env
+hdf5_version=1.8.13
 moab_version=$2
 
 mkdir -p ${build_dir}/moab-${moab_version}/bld

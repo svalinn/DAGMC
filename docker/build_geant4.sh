@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# $1: compiler (gcc-4.8, gcc-5, gcc-6, clang-3.8)
+# $1: compiler (gcc-4.8, gcc-4.9, gcc-5, gcc-6, clang-3.8, clang-3.9, clang-4.0)
+# $2: geant4 version (10.01.p03, 10.02.p03, 10.03.p01)
 
 set -e
 
 source /root/etc/$1.env
+geant4_version=$2
 
 mkdir -p ${build_dir}/geant4-${geant4_version}/bld
 rm -rf ${install_dir}/geant4-${geant4_version}

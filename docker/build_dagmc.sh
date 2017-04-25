@@ -1,12 +1,15 @@
 #!/bin/bash
 
-# $1: compiler (gcc-4.8, gcc-5, gcc-6, clang-3.8)
+# $1: compiler (gcc-4.8, gcc-4.9, gcc-5, gcc-6, clang-3.8, clang-3.9, clang-4.0)
 # $2: moab version (4.9.2, master)
+# $3: geant4 version (10.01.p03, 10.02.p03, 10.03.p01)
 
 set -e
 
 source /root/etc/$1.env
+hdf5_version=1.8.13
 moab_version=$2
+geant4_version=$3
 
 export PATH=${install_dir}/hdf5-${hdf5_version}/bin:${PATH}
 export PATH=${install_dir}/moab-${moab_version}/bin:${PATH}
@@ -25,6 +28,9 @@ cmake ../src -DBUILD_TALLY=ON \
              -DBUILD_CI_TESTS=ON \
              -DBUILD_GEANT4=ON \
              -DGEANT4_DIR=${install_dir}/geant4-${geant4_version} \
+             -DCMAKE_C_COMPILER=${CC} \
+             -DCMAKE_CXX_COMPILER=${CXX} \
+             -DCMAKE_Fortran_COMPILER=${FC} \
              -DCMAKE_INSTALL_PREFIX=${install_dir}/DAGMC-moab-${moab_version}
 make -j`grep -c processor /proc/cpuinfo`
 make install
