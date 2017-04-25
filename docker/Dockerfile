@@ -35,7 +35,7 @@ RUN apt-get -y install gcc-4.4 g++-4.4 gfortran-4.4 \
                        gcc-5   g++-5   gfortran-5 \
                        gcc-6   g++-6   gfortran-6
 
-## Get the Clang compilers
+# Get the Clang compilers
 RUN apt-get -y install clang-3.5 clang-3.6 clang-3.7 clang-3.8
 RUN apt-get -y install clang-3.9 clang-4.0 --allow-unauthenticated
 

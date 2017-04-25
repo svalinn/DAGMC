@@ -52,7 +52,7 @@ void dagmcwritefacets_(char* ffile, int* flen);
 /* parse metadata and write applications specific data for: MCNP5
  * includes the UWUW step
  */
-void dagmcwritemcnp_(char* dagmc_file, char* lfile, int* llen, char* mcnp_version_major = "5");
+void dagmcwritemcnp_(char* dagmc_file, char* lfile, int* llen, const char* mcnp_version_major = "5");
 
 /* Get normal of surface with id *jsu at location (*xxx,*yyy,*zzz) and store
    in three doubles at ang (an arry of length 3) */
@@ -142,7 +142,7 @@ void dagmc_teardown_();
 } // extern "C"
 #endif
 
-void write_cell_cards(std::ostringstream& lcad_string, char* mcnp_version_major = "5");
+void write_cell_cards(std::ostringstream& lcad_string, const char* mcnp_version_major = "5");
 void write_surface_cards(std::ostringstream& lcad_string);
 void write_material_data(std::ostringstream& lcad_string);
 void write_tally_data(std::ostringstream& lcad_string);

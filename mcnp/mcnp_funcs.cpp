@@ -138,7 +138,7 @@ void dagmcwritefacets_(char* ffile, int* flen) { // facet file
 
 }
 
-void dagmcwritemcnp_(char* dagfile, char* lfile, int* llen, char* mcnp_version_major) { // file with cell/surface cards
+void dagmcwritemcnp_(char* dagfile, char* lfile, int* llen, const char* mcnp_version_major) { // file with cell/surface cards
   workflow_data = new UWUW(dagfile);
   std::string full_dagfilename = workflow_data->full_filepath;
 
@@ -180,7 +180,7 @@ void dagmcwritemcnp_(char* dagfile, char* lfile, int* llen, char* mcnp_version_m
 }
 
 // write all cell related data
-void write_cell_cards(std::ostringstream& lcadfile, char* mcnp_version_major) {
+void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_major) {
   int num_cells = DAG->num_entities(3);
 
   std::string mat_num, density;
