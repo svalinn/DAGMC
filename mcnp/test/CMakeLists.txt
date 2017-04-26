@@ -20,8 +20,7 @@ set(TEST_NAME dagmcnp_unit_tests)
 set(DRIVER mcnp5_unit_test_driver.cc)
 add_executable(${TEST_NAME} ${TEST_NAME}.cpp ../mcnp_funcs.cpp ${DRIVER})
 target_link_libraries(${TEST_NAME} "${LINK_LIBS}")
-install(TARGETS ${TEST_NAME} DESTINATION tests
-                             PERMISSIONS ${PERMS})
+install(TARGETS ${TEST_NAME} DESTINATION tests)
 add_test(${TEST_NAME} ${TEST_NAME})
 
 # Install h5m files

@@ -25,8 +25,6 @@ set_target_properties(dagtally PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 target_link_libraries(dagtally ${LINK_LIBS})
 install(TARGETS dagtally LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                          ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
-                         PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                         LIBRARY       PERMISSIONS ${PERMS}
-                         ARCHIVE       PERMISSIONS ${PERMS})
+                         PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
 # Build dagtally tests
 add_subdirectory(tests)

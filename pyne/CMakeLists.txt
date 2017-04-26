@@ -20,6 +20,4 @@ set_target_properties(pyne_dagmc PROPERTIES PUBLIC_HEADER ${PUB_HEADERS})
 target_link_libraries(pyne_dagmc ${LINK_LIBS})
 install(TARGETS pyne_dagmc LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                            ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
-                           PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}
-                           LIBRARY       PERMISSIONS ${PERMS}
-                           ARCHIVE       PERMISSIONS ${PERMS})
+                           PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})

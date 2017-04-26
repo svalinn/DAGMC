@@ -19,5 +19,4 @@ include_directories(${MOAB_INCLUDE_DIRS})
 # Build FluDAG
 add_executable (mainfludag ${SRC_FILES})
 target_link_libraries(mainfludag ${LINK_LIBS})
-install(TARGETS mainfludag DESTINATION ${INSTALL_BIN_DIR}
-                           PERMISSIONS ${PERMS})
+install(TARGETS mainfludag DESTINATION ${INSTALL_BIN_DIR})

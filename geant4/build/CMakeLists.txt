@@ -27,5 +27,4 @@ include_directories(${CMAKE_SOURCE_DIR}/common)
 # Build DAG-Geant4
 add_executable(DagGeant4 ${SRC_FILES})
 target_link_libraries(DagGeant4 ${LINK_LIBS})
-install(TARGETS DagGeant4 DESTINATION ${INSTALL_BIN_DIR}
-                          PERMISSIONS ${PERMS})
+install(TARGETS DagGeant4 DESTINATION ${INSTALL_BIN_DIR})

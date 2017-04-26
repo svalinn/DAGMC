@@ -31,4 +31,4 @@ target_link_libraries(uwuw_preproc ${LINK_LIBS})
 # Build UWUW tests
 add_subdirectory(tests)
 
-install(TARGETS uwuw_preproc DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS ${PERMS})
+install(TARGETS uwuw_preproc DESTINATION ${INSTALL_BIN_DIR})

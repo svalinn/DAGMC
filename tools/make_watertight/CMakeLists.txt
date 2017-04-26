@@ -40,12 +40,10 @@ set_target_properties(makeWatertight PROPERTIES PUBLIC_HEADER "${MW_HEADERS}")
 target_link_libraries(makeWatertight ${LINK_LIBS})
 
 # Install
-install(TARGETS check_watertight make_watertight DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS ${PERMS})
+install(TARGETS check_watertight make_watertight DESTINATION ${INSTALL_BIN_DIR})
 install(TARGETS makeWatertight LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                                ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
-                               PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}/make_watertight
-                               LIBRARY       PERMISSIONS ${PERMS}
-                               ARCHIVE       PERMISSIONS ${PERMS})
+                               PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}/make_watertight)
 
 # build tests
 add_subdirectory(tests)

@@ -24,6 +24,4 @@ add_definitions(-DGTEST_HAS_PTHREAD=ON)
 # Build the static gtest library
 add_library(gtest STATIC ${SRC_FILES})
 install(TARGETS gtest LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
-                      ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
-                      LIBRARY       PERMISSIONS ${PERMS}
-                      ARCHIVE       PERMISSIONS ${PERMS})
+                      ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})

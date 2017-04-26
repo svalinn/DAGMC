@@ -10,8 +10,7 @@ endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 macro (setup_test test_name ext driver libs)
   add_executable(${test_name} ${test_name}.${ext} ${driver})
   target_link_libraries(${test_name} ${libs})
-  install(TARGETS ${test_name} DESTINATION tests
-                               PERMISSIONS ${PERMS})
+  install(TARGETS ${test_name} DESTINATION tests)
   add_test(${test_name} ${test_name})
 endmacro (setup_test)
 
@@ -28,9 +27,6 @@ set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executabl
 set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
-
-# Permissions of compiled binaries and libraries
-set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
 # Determine if we're building static libraries
 option(BUILD_STATIC "Build static libraries and executables" OFF)

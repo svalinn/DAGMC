@@ -15,4 +15,4 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 # Build build_obb
 add_executable(build_obb ${SRC_FILES})
 target_link_libraries(build_obb ${LINK_LIBS})
-install(TARGETS build_obb DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS ${PERMS})
+install(TARGETS build_obb DESTINATION ${INSTALL_BIN_DIR})
