@@ -33,7 +33,7 @@ include_directories(${GEANT4_DIR}/include/Geant4)
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS ${Geant4_LIBRARIES})
-list(APPEND LINK_LIBS ${DAGMC_LIBRARIES})
+list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Build DagSolid library
 add_library(dagsolid ${LIB_TYPE} ${SRC_FILES})

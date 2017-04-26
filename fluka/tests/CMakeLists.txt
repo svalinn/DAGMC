@@ -5,7 +5,6 @@ set(LINK_LIBS)
 list(APPEND LINK_LIBS gtest)
 list(APPEND LINK_LIBS pthread)
 list(APPEND LINK_LIBS fludag)
-list(APPEND LINK_LIBS dagmciface)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories

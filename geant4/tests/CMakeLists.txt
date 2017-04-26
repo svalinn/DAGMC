@@ -6,7 +6,6 @@ list(APPEND LINK_LIBS gtest)
 list(APPEND LINK_LIBS pthread)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 list(APPEND LINK_LIBS dagsolid)
-list(APPEND LINK_LIBS ${Geant4_LIBRARIES})
 
 # Include directories
 include_directories(..)

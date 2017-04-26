@@ -31,6 +31,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Build astyle
 add_executable(astyle ${SRC_FILES})
-install(TARGETS astyle DESTINATION tools
-                       PERMISSIONS ${PERMS})
+install(TARGETS astyle DESTINATION tools PERMISSIONS ${PERMS})
 install(FILES file/google.ini DESTINATION tools)

@@ -15,8 +15,6 @@ include_directories(${MOAB_INCLUDE_DIRS})
 
 # Libraries
 set(LINK_LIBS)
-list(APPEND LINK_LIBS ${HDF5_hdf5_hl_LIBRARY})
-list(APPEND LINK_LIBS ${HDF5_hdf5_LIBRARY})
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 list(APPEND LINK_LIBS dagmciface)
 list(APPEND LINK_LIBS pyne_dagmc)

@@ -8,9 +8,7 @@ set(SRC_FILES mainFluDAG.cpp)
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS fludag)
-list(APPEND LINK_LIBS ${FLUKA_DIR}/libflukahp.a)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
-list(APPEND LINK_LIBS dagmciface)
 
 # Include directories
 include_directories(.)
