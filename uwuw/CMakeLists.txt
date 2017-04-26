@@ -13,17 +13,22 @@ include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 
-set (UWUW_PREPROC_SRC "uwuw_preproc.cpp")
-add_executable(uwuw_preproc ${UWUW_PREPROC_SRC})
-target_link_libraries(uwuw_preproc dagmciface  
-  ${DAG_LINK_LIBS} ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY} 
-  uwuw_preprocessor pyne_dagmc)
+# Libraries
+set(LINK_LIBS)
+list(APPEND LINK_LIBS ${HDF5_hdf5_hl_LIBRARY})
+list(APPEND LINK_LIBS ${HDF5_hdf5_LIBRARY})
+list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS dagmciface)
+list(APPEND LINK_LIBS pyne_dagmc)
 
 set(UWUW_PREPROCESSOR_SRC "uwuw_preprocessor.cpp")
 add_library(uwuw_preprocessor ${UWUW_PREPROCESSOR_SRC})
-target_link_libraries(uwuw_preprocessor dagmciface  
-  ${DAG_LINK_LIBS} ${HDF5_hdf5_hl_LIBRARY} ${HDF5_hdf5_LIBRARY}
-  pyne_dagmc)
+target_link_libraries(uwuw_preprocessor ${LINK_LIBS})
+
+set(UWUW_PREPROC_SRC "uwuw_preproc.cpp")
+list(APPEND LINK_LIBS uwuw_preprocessor)
+add_executable(uwuw_preproc ${UWUW_PREPROC_SRC})
+target_link_libraries(uwuw_preproc ${LINK_LIBS})
 
 # Build UWUW tests
 add_subdirectory(tests)

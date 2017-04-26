@@ -67,6 +67,12 @@ string(REGEX REPLACE ";" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
 string(REGEX REPLACE "[ ]+" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
 separate_arguments(DAG_LINK_LIBS)
 list(REMOVE_DUPLICATES DAG_LINK_LIBS)
+if (BUILD_STATIC)
+  list(REMOVE_ITEM DAG_LINK_LIBS z)
+  list(APPEND DAG_LINK_LIBS z)
+  list(APPEND DAG_LINK_LIBS gfortran)
+  list(APPEND DAG_LINK_LIBS quadmath)
+endif (BUILD_STATIC)
 message(STATUS "DAG_LINK_LIBS: ${DAG_LINK_LIBS}")
 
 # Build Gtest
