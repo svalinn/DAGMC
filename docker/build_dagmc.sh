@@ -1,15 +1,17 @@
 #!/bin/bash
 
 # $1: compiler (gcc-4.8, gcc-4.9, gcc-5, gcc-6, clang-3.8, clang-3.9, clang-4.0)
-# $2: moab version (4.9.2, master)
-# $3: geant4 version (10.01.p03, 10.02.p03, 10.03.p01)
+# $2: build static (OFF, ON)
+# $3: moab version (4.9.2, master)
+# $4: geant4 version (10.01.p03, 10.02.p03, 10.03.p01)
 
 set -e
 
 source /root/etc/$1.env
+build_static=$2
 hdf5_version=1.8.13
-moab_version=$2
-geant4_version=$3
+moab_version=$3
+geant4_version=$4
 
 export PATH=${install_dir}/hdf5-${hdf5_version}/bin:${PATH}
 export PATH=${install_dir}/moab-${moab_version}/bin:${PATH}
@@ -24,10 +26,11 @@ cd ${build_dir}/DAGMC-moab-${moab_version}
 #git clone https://github.com/svalinn/DAGMC -b develop
 ln -snf DAGMC src
 cd bld
-cmake ../src -DBUILD_TALLY=ON \
-             -DBUILD_CI_TESTS=ON \
-             -DBUILD_GEANT4=ON \
+cmake ../src -DBUILD_GEANT4=ON \
              -DGEANT4_DIR=${install_dir}/geant4-${geant4_version} \
+             -DBUILD_TALLY=ON \
+             -DBUILD_CI_TESTS=ON \
+             -DBUILD_STATIC=${build_static} \
              -DCMAKE_C_COMPILER=${CC} \
              -DCMAKE_CXX_COMPILER=${CXX} \
              -DCMAKE_Fortran_COMPILER=${FC} \
