@@ -8,24 +8,20 @@ notifications:
 env:
   matrix:
     # main
-    - COMPILER="gcc-5"     BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
-    - COMPILER="gcc-5"     BUILD_STATIC="ON"  MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-4.0" BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-4.0" BUILD_STATIC="ON"  MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-5"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-4.0" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
     # vary moab version
-    - COMPILER="gcc-5"     BUILD_STATIC="OFF" MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
-    - COMPILER="gcc-5"     BUILD_STATIC="ON"  MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-4.0" BUILD_STATIC="OFF" MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-4.0" BUILD_STATIC="ON"  MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-5"     MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-4.0" MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
     # vary geant4 version
-    - COMPILER="gcc-5"     BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.01.p03"
-    - COMPILER="gcc-5"     BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.02.p03"
+    - COMPILER="gcc-5"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.01.p03"
+    - COMPILER="gcc-5"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.02.p03"
     # vary compiler
-    - COMPILER="gcc-4.8"   BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
-    - COMPILER="gcc-4.9"   BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
-    - COMPILER="gcc-6"     BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-3.8" BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-3.9" BUILD_STATIC="OFF" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-4.8"   MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-4.9"   MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-6"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-3.8" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-3.9" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
 services:
   - docker
 before_install:
@@ -47,9 +43,14 @@ before_install:
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id ljacobson64/dagmc-ci
 install:
-  # build dagmc
+  # build dagmc (shared executables)
   - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
-                                                     bash docker/build_dagmc.sh $COMPILER $BUILD_STATIC $MOAB_VERSION $GEANT4_VERSION"
+                                                     bash docker/build_dagmc.sh $COMPILER OFF $MOAB_VERSION $GEANT4_VERSION"
+  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  # build dagmc (static executables)
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                     bash docker/build_dagmc.sh $COMPILER ON $MOAB_VERSION $GEANT4_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   - sudo docker commit $commit_id ljacobson64/dagmc-ci
 script:

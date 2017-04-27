@@ -38,3 +38,4 @@ cmake ../src -DBUILD_GEANT4=ON \
 make -j`grep -c processor /proc/cpuinfo`
 make install
 #rm -rf ${build_dir}/DAGMC-moab-${moab_version}
+rm -rf ${build_dir}/DAGMC-moab-${moab_version}/bld
