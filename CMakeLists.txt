@@ -8,7 +8,12 @@ endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 
 # Setup test macro
 macro (setup_test test_name ext driver libs)
-  add_executable(${test_name} ${test_name}.${ext} ${driver})
+  set(drivers ${driver})
+  # Convert driver from string to list
+  string(STRIP "${drivers}" drivers)
+  string(REGEX REPLACE "[ ]+" " " drivers "${drivers}")
+  string(REPLACE " " ";" drivers "${drivers}")
+  add_executable(${test_name} ${test_name}.${ext} ${drivers})
   target_link_libraries(${test_name} ${libs})
   install(TARGETS ${test_name} DESTINATION tests)
   add_test(${test_name} ${test_name})

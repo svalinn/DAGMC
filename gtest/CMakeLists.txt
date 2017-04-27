@@ -22,6 +22,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
 add_definitions(-DGTEST_HAS_PTHREAD=ON)
 
 # Build the static gtest library
-add_library(gtest STATIC ${SRC_FILES})
-install(TARGETS gtest LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
-                      ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})
+add_library(gtest        SHARED ${SRC_FILES})
+add_library(gtest-static STATIC ${SRC_FILES})
+set_target_properties(gtest-static PROPERTIES OUTPUT_NAME gtest)
+install(TARGETS gtest        LIBRARY DESTINATION ${INSTALL_LIB_DIR})
+install(TARGETS gtest-static ARCHIVE DESTINATION ${INSTALL_LIB_DIR})

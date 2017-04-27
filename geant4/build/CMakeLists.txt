@@ -13,10 +13,17 @@ file(GLOB SRC_FILES ${SRC_FILES} "src/*.cc")
 
 # Libraries
 set(LINK_LIBS)
-list(APPEND LINK_LIBS dagsolid)
-list(APPEND LINK_LIBS dagmciface)
-list(APPEND LINK_LIBS pyne_dagmc)
-list(APPEND LINK_LIBS ${Geant4_LIBRARIES})
+if (BUILD_STATIC)
+  list(APPEND LINK_LIBS dagsolid-static)
+  list(APPEND LINK_LIBS dagmciface-static)
+  list(APPEND LINK_LIBS pyne_dagmc-static)
+  list(APPEND LINK_LIBS ${Geant4_LIBRARIES_STATIC})
+else ()
+  list(APPEND LINK_LIBS dagsolid)
+  list(APPEND LINK_LIBS dagmciface)
+  list(APPEND LINK_LIBS pyne_dagmc)
+  list(APPEND LINK_LIBS ${Geant4_LIBRARIES_SHARED})
+endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
