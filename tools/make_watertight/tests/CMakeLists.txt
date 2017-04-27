@@ -1,62 +1,36 @@
 message(STATUS "Building make_watertight tests")
 
-# Source files
-set(SRC_FILES)
-list(APPEND SRC_FILES ../Gen.cpp)
-list(APPEND SRC_FILES ../Arc.cpp)
-list(APPEND SRC_FILES ../Zip.cpp)
-list(APPEND SRC_FILES ../Cleanup.cpp)
-list(APPEND SRC_FILES ../MakeWatertight.cpp)
-list(APPEND SRC_FILES ../CheckWatertight.cpp)
-list(APPEND SRC_FILES test_classes.cpp)
-
-# Public headers
-set(PUB_HEADERS)
-list(APPEND PUB_HEADERS ../Gen.hpp)
-list(APPEND PUB_HEADERS ../Arc.hpp)
-list(APPEND PUB_HEADERS ../Zip.hpp)
-list(APPEND PUB_HEADERS ../Cleanup.hpp)
-list(APPEND PUB_HEADERS ../CheckWatertight.hpp)
-list(APPEND PUB_HEADERS ../MakeWatertight.hpp)
-list(APPEND PUB_HEADERS test_classes.hpp)
-
 # Libraries
 set(LINK_LIBS)
-list(APPEND LINK_LIBS gtest)
+if (BUILD_STATIC)
+  list(APPEND LINK_LIBS gtest-static)
+  list(APPEND LINK_LIBS makeWatertight-static)
+else ()
+  list(APPEND LINK_LIBS gtest)
+  list(APPEND LINK_LIBS makeWatertight)
+endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
-# Define executables
-add_executable(make_watertight_cylinder_tests mw_unit_test_driver.cc test_cyl.cpp ${SRC_FILES})
-add_executable(make_watertight_cone_tests mw_unit_test_driver.cc test_cones.cpp ${SRC_FILES})
-add_executable(make_watertight_no_curve_sphere_tests mw_unit_test_driver.cc test_no_curve_sphere.cpp ${SRC_FILES})
-add_executable(make_watertight_sphere_n_box_test mw_unit_test_driver.cc test_sphere_n_box.cpp ${SRC_FILES})
-
-# Includes
+# Include directories
 include_directories(..)
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${MOAB_INCLUDE_DIRS})
 
-# Link to libraries
-target_link_libraries(make_watertight_cylinder_tests ${LINK_LIBS})
-target_link_libraries(make_watertight_cone_tests ${LINK_LIBS})
-target_link_libraries(make_watertight_no_curve_sphere_tests ${LINK_LIBS})
-target_link_libraries(make_watertight_sphere_n_box_test ${LINK_LIBS})
-
-# Install tests and test models
-install(TARGETS make_watertight_cylinder_tests make_watertight_cone_tests make_watertight_no_curve_sphere_tests make_watertight_sphere_n_box_test DESTINATION tests)
-
-install(FILES cones.h5m cyl.h5m no_curve_sphere.h5m sphere_n_box.h5m DESTINATION tests)
-
+# Setup unit tests
+set(DRIVER "mw_unit_test_driver.cc test_classes.cpp")
+setup_test(make_watertight_cylinder_tests        cpp ${DRIVER} "${LINK_LIBS}")
+setup_test(make_watertight_cone_tests            cpp ${DRIVER} "${LINK_LIBS}")
+setup_test(make_watertight_no_curve_sphere_tests cpp ${DRIVER} "${LINK_LIBS}")
+setup_test(make_watertight_sphere_n_box_test     cpp ${DRIVER} "${LINK_LIBS}")
 if(BUILD_CI_TESTS)
-  add_executable(make_watertight_regression_tests mw_unit_test_driver.cc regression_tests.cpp ${SRC_FILES})
-  target_link_libraries(make_watertight_regression_tests ${LINK_LIBS})
-  install(TARGETS make_watertight_regression_tests DESTINATION tests)
+  setup_test(make_watertight_regression_tests      cpp ${DRIVER} "${LINK_LIBS}")
 endif()
 
-# Add to unit test framework
-add_test(make_watertight_cylinder_tests make_watertight_cylinder_tests)
-add_test(make_watertight_cone_tests make_watertight_cone_tests)
-add_test(make_watertight_no_curve_sphere_tests make_watertight_sphere_n_box_test)
+# Install h5m files
+install(FILES cones.h5m           DESTINATION tests)
+install(FILES cyl.h5m             DESTINATION tests)
+install(FILES no_curve_sphere.h5m DESTINATION tests)
+install(FILES sphere_n_box.h5m    DESTINATION tests)
 
 # enable tests
 enable_testing()

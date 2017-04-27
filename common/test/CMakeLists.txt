@@ -22,7 +22,6 @@ include_directories(${GTEST_INCLUDE_DIR})
 # Setup unit tests
 set(DRIVER dagmciface_unit_test_driver.cc)
 setup_test(dagmciface_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
-target_link_libraries(dagmciface_unit_tests ${LINK_LIBS})
 
 # Install h5m files
 install(FILES test_dagmciface.h5m DESTINATION tests)
