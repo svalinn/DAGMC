@@ -25,8 +25,8 @@ include_directories(${MOAB_INCLUDE_DIRS})
 
 # Build uwuw_preprocessor library
 set(UWUW_PREPROCESSOR_SRC "uwuw_preprocessor.cpp")
-add_library(uwuw_preprocessor        ${UWUW_PREPROCESSOR_SRC})
-add_library(uwuw_preprocessor-static ${UWUW_PREPROCESSOR_SRC})
+add_library(uwuw_preprocessor        SHARED ${UWUW_PREPROCESSOR_SRC})
+add_library(uwuw_preprocessor-static STATIC ${UWUW_PREPROCESSOR_SRC})
 set_target_properties(uwuw_preprocessor-static PROPERTIES OUTPUT_NAME uwuw_preprocessor)
 target_link_libraries(uwuw_preprocessor        ${LINK_LIBS})
 target_link_libraries(uwuw_preprocessor-static ${LINK_LIBS_STATIC})

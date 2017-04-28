@@ -17,13 +17,15 @@ endif (BUILD_STATIC)
 find_package(Geant4 REQUIRED COMPONENTS ${GEANT4_REQUIRED_COMPONENTS})
 set(Geant4_LIBRARIES_STATIC ${Geant4_LIBRARIES})
 
-# Fix bug in Geant4's CMakeConfig
+# Fix bug in Geant4's CMakeConfig (v10.02 and earlier?)
 if (BUILD_STATIC AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
   list(FIND Geant4_LIBRARIES_STATIC -Wl,-force_load LOC)
-  list(REMOVE_ITEM Geant4_LIBRARIES_STATIC -Wl,-force_load)
-  list(INSERT Geant4_LIBRARIES_STATIC ${LOC} -Wl,--whole-archive)
-  math(EXPR LOC "${LOC}+2")
-  list(INSERT Geant4_LIBRARIES_STATIC ${LOC} -Wl,--no-whole-archive)
+  if (NOT ${LOC} STREQUAL "-1")
+    list(REMOVE_ITEM Geant4_LIBRARIES_STATIC -Wl,-force_load)
+    list(INSERT Geant4_LIBRARIES_STATIC ${LOC} -Wl,--whole-archive)
+    math(EXPR LOC "${LOC}+2")
+    list(INSERT Geant4_LIBRARIES_STATIC ${LOC} -Wl,--no-whole-archive)
+  endif (NOT ${LOC} STREQUAL "-1")
 endif (BUILD_STATIC AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Get Geant4 libraries, include directories, and compile definitions
