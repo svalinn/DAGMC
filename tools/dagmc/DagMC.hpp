@@ -175,7 +175,7 @@ public:
                                  const RayHistory* history = NULL);
 
   ErrorCode closest_to_location(EntityHandle volume, const double point[3],
-                                double& result);
+                                double& result, EntityHandle *surface = 0);
 
   ErrorCode measure_volume(EntityHandle volume, double& result);
 

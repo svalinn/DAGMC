@@ -306,9 +306,10 @@ ErrorCode DagMC::point_in_volume_slow(EntityHandle volume, const double xyz[3],
 
 // detemine distance to nearest surface
 ErrorCode DagMC::closest_to_location(EntityHandle volume,
-                                     const double coords[3], double& result)
+                                     const double coords[3], double& result,
+				     EntityHandle *surface)
 {
-  ErrorCode rval = GQT->closest_to_location(volume, coords, result);
+  ErrorCode rval = GQT->closest_to_location(volume, coords, result, surface);
   return rval;
 }
 
