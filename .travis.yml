@@ -5,31 +5,59 @@ notifications:
     recipients:
       - dagmcci@googlegroups.com
   slack: cnerg:d48My26ZXfvHlg0On2WwNQFi
-env: 
+env:
   matrix:
-    - MOAB_VERSION="Version4.9.2"
-    - MOAB_VERSION="master"
+    # main
+    - COMPILER="gcc-5"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-4.0" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    # vary moab version
+    - COMPILER="gcc-5"     MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-4.0" MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
+    # vary geant4 version
+    - COMPILER="gcc-5"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.01.p03"
+    - COMPILER="gcc-5"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.02.p03"
+    # vary compiler
+    - COMPILER="gcc-4.8"   MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-4.9"   MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-6"     MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-3.8" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
+    - COMPILER="clang-3.9" MOAB_VERSION="4.9.2"  GEANT4_VERSION="10.03.p01"
 services:
-    - docker
+  - docker
 before_install:
-  - sudo docker pull makeclean/dagmc-ci
-  # to get a container id
-  - sudo docker run makeclean/dagmc-ci /bin/sh -c "cd /root"
+  - sudo docker pull ljacobson64/dagmc-ci
+  # get a container id
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  # make the build directory
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "mkdir -p /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
+  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci
   # copy the repo in the docker instance
-  - sudo docker cp ../DAGMC $commit_id:/root/dagmc
+  - sudo docker cp ../DAGMC $commit_id:/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id makeclean/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci
   # build moab
-  - sudo docker run makeclean/dagmc-ci /bin/sh -c "cd /root/dagmc/ ; ./.build_moab.sh $MOAB_VERSION"
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                     bash docker/build_moab.sh $COMPILER $MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id makeclean/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci
 install:
-  # build dagmc
-  - sudo docker run makeclean/dagmc-ci /bin/sh -c "cd /root/dagmc/ ; ./.build_dagmc.sh"
+  # build dagmc (shared executables)
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                     bash docker/build_dagmc.sh $COMPILER OFF $MOAB_VERSION $GEANT4_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id makeclean/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  # build dagmc (static executables)
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                     bash docker/build_dagmc.sh $COMPILER ON $MOAB_VERSION $GEANT4_VERSION"
+  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci
 script:
-  - sudo docker run makeclean/dagmc-ci /bin/sh -c "cd /root/dagmc/ ; export TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST ; export MW_REG_TEST_MODELS_URL=$MW_REG_TEST_MODELS_URL ; ./.run_tests.sh"
+  # run tests
+  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                     export TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST;
+                                                     export MW_REG_TEST_MODELS_URL=$MW_REG_TEST_MODELS_URL;
+                                                     bash docker/run_tests.sh $COMPILER $MOAB_VERSION $GEANT4_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id makeclean/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci

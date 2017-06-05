@@ -2,10 +2,16 @@ message(STATUS "Building DAG-MCNP5 unit tests")
 
 # Libraries
 set(LINK_LIBS)
-list(APPEND LINK_LIBS gtest)
 list(APPEND LINK_LIBS pthread)
-list(APPEND LINK_LIBS dagmciface)
-list(APPEND LINK_LIBS dagtally)
+if (BUILD_STATIC)
+  list(APPEND LINK_LIBS gtest-static)
+  list(APPEND LINK_LIBS dagmciface-static)
+  list(APPEND LINK_LIBS dagtally-static)
+else ()
+  list(APPEND LINK_LIBS gtest)
+  list(APPEND LINK_LIBS dagmciface)
+  list(APPEND LINK_LIBS dagtally)
+endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
@@ -20,8 +26,7 @@ set(TEST_NAME dagmcnp_unit_tests)
 set(DRIVER mcnp5_unit_test_driver.cc)
 add_executable(${TEST_NAME} ${TEST_NAME}.cpp ../mcnp_funcs.cpp ${DRIVER})
 target_link_libraries(${TEST_NAME} "${LINK_LIBS}")
-install(TARGETS ${TEST_NAME} DESTINATION tests
-                             PERMISSIONS ${PERMS})
+install(TARGETS ${TEST_NAME} DESTINATION tests)
 add_test(${TEST_NAME} ${TEST_NAME})
 
 # Install h5m files

@@ -39,4 +39,4 @@ Note that unless set, all boolean options default to ``OFF``.
 
     * ``-DBUILD_ALL=ON`` Build DAG-MCNP5, DAG-MCNP6, FluDAG, and DAG-Geant4.
 
-    * ``-DSTATIC_LIB=ON`` Build static libraries and executables.
+    * ``-DBUILD_STATIC=ON`` Build static libraries and executables.

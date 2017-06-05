@@ -2,18 +2,26 @@ message(STATUS "Building dagtally unit tests")
 
 # Libraries
 set(LINK_LIBS)
-list(APPEND LINK_LIBS gtest)
 list(APPEND LINK_LIBS pthread)
-list(APPEND LINK_LIBS dagtally)
+if (BUILD_STATIC)
+  list(APPEND LINK_LIBS gtest-static)
+  list(APPEND LINK_LIBS dagtally-static)
+else ()
+  list(APPEND LINK_LIBS gtest)
+  list(APPEND LINK_LIBS dagtally)
+endif (BUILD_STATIC)
 
 # Include directories
 include_directories(..)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # CXX compiler flags
-if (LIB_TYPE STREQUAL STATIC)
+if (BUILD_STATIC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
-endif (LIB_TYPE STREQUAL STATIC)
+endif (BUILD_STATIC)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Setup unit tests
 set(DRIVER tally_unit_test_driver.cc)

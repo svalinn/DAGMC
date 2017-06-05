@@ -8,10 +8,14 @@ endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 
 # Setup test macro
 macro (setup_test test_name ext driver libs)
-  add_executable(${test_name} ${test_name}.${ext} ${driver})
+  set(drivers ${driver})
+  # Convert driver from string to list
+  string(STRIP "${drivers}" drivers)
+  string(REGEX REPLACE "[ ]+" " " drivers "${drivers}")
+  string(REPLACE " " ";" drivers "${drivers}")
+  add_executable(${test_name} ${test_name}.${ext} ${drivers})
   target_link_libraries(${test_name} ${libs})
-  install(TARGETS ${test_name} DESTINATION tests
-                               PERMISSIONS ${PERMS})
+  install(TARGETS ${test_name} DESTINATION tests)
   add_test(${test_name} ${test_name})
 endmacro (setup_test)
 
@@ -29,22 +33,23 @@ set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
 
-# Permissions of compiled binaries and libraries
-set(PERMS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
-
 # Determine if we're building static libraries
-if (STATIC_LIB)
+option(BUILD_STATIC "Build static libraries and executables" OFF)
+if (BUILD_STATIC)
   set(LIB_TYPE "STATIC")
   set(BUILD_SHARED_LIBRARIES OFF)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 else ()
   set(LIB_TYPE "SHARED")
-endif (STATIC_LIB)
+  set(BUILD_SHARED_LIBRARIES ON)
+endif (BUILD_STATIC)
 
 # Allow use of find_package(HDF5), find_package(MOAB), etc.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
-
 
 # Make sure we have HDF5 and MOAB
 find_package(HDF5 REQUIRED)
@@ -61,6 +66,18 @@ if (DAGMC_LIBRARIES)
 else ()
   set(DAG_LINK_LIBS "dagmc ${MOAB_LIBRARIES}")
 endif (DAGMC_LIBRARIES)
+string(STRIP "${DAG_LINK_LIBS}" DAG_LINK_LIBS)
+string(REGEX REPLACE ";" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
+string(REGEX REPLACE "[ ]+" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
+separate_arguments(DAG_LINK_LIBS)
+list(REMOVE_DUPLICATES DAG_LINK_LIBS)
+if (BUILD_STATIC)
+  list(REMOVE_ITEM DAG_LINK_LIBS z)
+  list(APPEND DAG_LINK_LIBS z)
+  list(APPEND DAG_LINK_LIBS gfortran)
+  list(APPEND DAG_LINK_LIBS quadmath)
+endif (BUILD_STATIC)
+message(STATUS "DAG_LINK_LIBS: ${DAG_LINK_LIBS}")
 
 # Build Gtest
 add_subdirectory(gtest)
