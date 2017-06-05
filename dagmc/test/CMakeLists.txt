@@ -1,22 +1,22 @@
-message(STATUS "Building dagmciface unit tests")
+message(STATUS "Building libdagmc unit tests")
 
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS pthread)
 if (BUILD_STATIC)
   list(APPEND LINK_LIBS gtest-static)
-  list(APPEND LINK_LIBS dagmciface-static)
+  list(APPEND LINK_LIBS dagmc-static)
   list(APPEND LINK_LIBS pyne_dagmc-static)
 else ()
   list(APPEND LINK_LIBS gtest)
-  list(APPEND LINK_LIBS dagmciface)
+  list(APPEND LINK_LIBS dagmc)
   list(APPEND LINK_LIBS pyne_dagmc)
 endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
 include_directories(..)
-include_directories(${CMAKE_SOURCE_DIR}/common)
+include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests

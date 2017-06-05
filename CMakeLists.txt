@@ -23,7 +23,7 @@ endmacro (setup_test)
 macro(run_test test_target)
   add_custom_target(${test_target}_runtest COMMAND ${test_target}
                                            DEPENDS ${test_target}
-                                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+                                           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
   add_dependencies(${test_target}_runtest gtest)
 endmacro (run_test)
 
@@ -51,21 +51,17 @@ endif (BUILD_STATIC)
 # Allow use of find_package(HDF5), find_package(MOAB), etc.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-# Make sure we have HDF5 and MOAB
-find_package(HDF5 REQUIRED)
-find_package(MOAB REQUIRED)
-
 # find the gfortran library name, this is required for OS/X which uses a variety
 # of package managers to install gfortan and caould be in a number of places
 find_library(GFORTRAN_LIBRARY NAMES gfortran libgfortran
   PATHS /usr/local/lib/gcc/*/ /lib /lib64 /usr/lib /usr/lib64 /usr/lib/gcc/*/*)
 
-# DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
-if (DAGMC_LIBRARIES)
-  set(DAG_LINK_LIBS "${DAGMC_LIBRARIES}")
-else ()
-  set(DAG_LINK_LIBS "dagmc ${MOAB_LIBRARIES}")
-endif (DAGMC_LIBRARIES)
+# Make sure we have HDF5
+find_package(HDF5 REQUIRED)
+
+# Make sure we have MOAB
+find_package(MOAB REQUIRED)
+set(DAG_LINK_LIBS ${MOAB_LIBRARIES})
 string(STRIP "${DAG_LINK_LIBS}" DAG_LINK_LIBS)
 string(REGEX REPLACE ";" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
 string(REGEX REPLACE "[ ]+" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
@@ -119,9 +115,9 @@ if (BUILD_FLUKA)
   add_subdirectory(fluka)
 endif (BUILD_FLUKA)
 
-# Include UWUW in dagmciface library
+# Include UWUW in DAGMC library
 add_subdirectory(uwuw)
-add_subdirectory(common) 
+add_subdirectory(dagmc) 
 
 # Build tools
 add_subdirectory(tools)
