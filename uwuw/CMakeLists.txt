@@ -1,4 +1,4 @@
-message(STATUS "Including UWUW in dagmciface library")
+message(STATUS "Including UWUW in DAGMC library")
 
 # libdagmc source files
 set(DAGMC_SRC_FILES ${DAGMC_SRC_FILES} ${CMAKE_CURRENT_LIST_DIR}/uwuw.cpp PARENT_SCOPE)
