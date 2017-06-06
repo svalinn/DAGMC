@@ -3,11 +3,7 @@ message(STATUS "Building DAG-MCNP unit tests")
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS pthread)
-if (BUILD_STATIC)
-  list(APPEND LINK_LIBS gtest-static)
-else ()
-  list(APPEND LINK_LIBS gtest)
-endif (BUILD_STATIC)
+list(APPEND LINK_LIBS gtest)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 list(APPEND LINK_LIBS mcnpfuncs-internal)
 
