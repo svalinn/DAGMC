@@ -40,19 +40,16 @@ set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
 set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
 
-# Determine if we're building static libraries
-option(BUILD_STATIC "Build static libraries and executables" OFF)
+# Determine if we're building static executables
+option(BUILD_STATIC "Build static executables" OFF)
 if (BUILD_STATIC)
-  set(LIB_TYPE "STATIC")
-  set(BUILD_SHARED_LIBRARIES OFF)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
   if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
     set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
   endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 else ()
-  set(LIB_TYPE "SHARED")
-  set(BUILD_SHARED_LIBRARIES ON)
+  set(BUILD_SHARED ON)
 endif (BUILD_STATIC)
 
 # Allow use of find_package(HDF5), find_package(MOAB), etc.

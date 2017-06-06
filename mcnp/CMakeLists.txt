@@ -21,14 +21,14 @@ include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 
 # C compiler flags
-if (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
+if (BUILD_SHARED AND ${CMAKE_C_COMPILER_ID} STREQUAL Clang)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-endif (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
+endif (BUILD_SHARED AND ${CMAKE_C_COMPILER_ID} STREQUAL Clang)
 
 # CXX compiler flags
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+if (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+endif (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Build mcnpfuncs internal library
 add_library(mcnpfuncs STATIC ${MCNP_FUNCS_SRC})

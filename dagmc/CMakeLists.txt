@@ -22,9 +22,9 @@ include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 
 # CXX compiler flags
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+if (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+endif (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Build DAGMC library
 add_library(dagmc        SHARED ${DAGMC_SRC_FILES})
