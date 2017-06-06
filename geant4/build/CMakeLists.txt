@@ -2,9 +2,6 @@ message(STATUS "Building DAG-Geant4")
 
 # CXX compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Geant4_CXX_FLAGS}")
-if (BUILD_STATIC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
-endif (BUILD_STATIC)
 
 # Linker flags
 if (BUILD_STATIC)

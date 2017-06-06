@@ -15,9 +15,6 @@ include_directories(..)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # CXX compiler flags
-if (BUILD_STATIC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
-endif (BUILD_STATIC)
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)

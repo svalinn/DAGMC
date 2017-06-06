@@ -69,9 +69,6 @@ else()
   if (MCNP5_PLOT)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-real-8")
   endif (MCNP5_PLOT)
-  if (BUILD_STATIC)
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wl,--allow-multiple-definition")
-  endif (BUILD_STATIC)
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
 # Linker flags
