@@ -5,7 +5,6 @@ enable_language(Fortran)
 # Source files
 set(SRC_FILES)
 file(GLOB SRC_FILES ${SRC_FILES} "*.cpp")
-file(GLOB SRC_FILES ${SRC_FILES} "lapack/*.f")
 
 # Public headers
 set(PUB_HEADERS)
