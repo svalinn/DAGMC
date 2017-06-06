@@ -37,6 +37,7 @@ git diff --exit-code  # Exit if astyle found diffs
 
 # Run the tests
 cd ${DAGMC_dir}/tests
+./dagmc_unit_tests
 ./dagsolid_unit_tests
 #./fludag_unit_tests  # no fludag yet
 ./test_CellTally
