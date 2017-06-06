@@ -46,20 +46,12 @@ endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 message(STATUS "DAG-MCNP5 version ${MCNP_VERSION} source files found")
 
 # C compiler flags
-if (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-endif (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
 if (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
   #set(CMAKE_C_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=medium")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pc64")
 else ()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
 endif (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
-
-# C++ compiler flags
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Fortran compiler flags
 if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
@@ -185,11 +177,9 @@ endif (MCNP5_PLOT)
 if (MPI_BUILD)
   target_link_libraries(${MCNP_EXEC} ${MPI_Fortran_LIBRARIES})
 endif (MPI_BUILD)
-if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-  if (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
-    target_link_libraries(${MCNP_EXEC} gfortran)
-  endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
-endif (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+if (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
+  target_link_libraries(${MCNP_EXEC} gfortran)
+endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
 target_link_libraries(${MCNP_EXEC} ${DAG_LINK_LIBS})
 target_link_libraries(${MCNP_EXEC} mcnpfuncs-internal)
 

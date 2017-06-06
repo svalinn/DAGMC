@@ -33,6 +33,13 @@ set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
 
+set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "")
+set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
+set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
+
 # Determine if we're building static libraries
 option(BUILD_STATIC "Build static libraries and executables" OFF)
 if (BUILD_STATIC)
