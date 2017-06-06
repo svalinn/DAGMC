@@ -6,6 +6,11 @@ if (BUILD_STATIC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
 endif (BUILD_STATIC)
 
+# Linker flags
+if (BUILD_STATIC)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+endif (BUILD_STATIC)
+
 # Source files
 set(SRC_FILES)
 file(GLOB SRC_FILES ${SRC_FILES} "*.cc")

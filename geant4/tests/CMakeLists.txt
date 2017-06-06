@@ -1,5 +1,10 @@
 message(STATUS "Building DagSolid unit tests")
 
+# Linker flags
+if (BUILD_STATIC)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+endif (BUILD_STATIC)
+
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS pthread)

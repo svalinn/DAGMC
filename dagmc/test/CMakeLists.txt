@@ -17,7 +17,6 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 # Include directories
 include_directories(..)
 include_directories(${MOAB_INCLUDE_DIRS})
-message(STATUS "MOAB_INCLUDE_DIRS: ${MOAB_INCLUDE_DIRS}")
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${GTEST_INCLUDE_DIR})
 
