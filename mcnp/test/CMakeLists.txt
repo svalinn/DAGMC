@@ -9,7 +9,7 @@ else ()
   list(APPEND LINK_LIBS gtest)
 endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
-list(APPEND LINK_LIBS mcnp_funcs-internal)
+list(APPEND LINK_LIBS mcnpfuncs-internal)
 
 # Include directories
 include_directories(..)
