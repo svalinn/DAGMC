@@ -53,8 +53,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 # find the gfortran library name, this is required for OS/X which uses a variety
 # of package managers to install gfortan and caould be in a number of places
-find_library(GFORTRAN_LIBRARY NAMES gfortran libgfortran
-  PATHS /usr/local/lib/gcc/*/ /lib /lib64 /usr/lib /usr/lib64 /usr/lib/gcc/*/*)
+if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+  find_library(GFORTRAN_LIBRARY NAMES gfortran libgfortran
+                                PATHS /usr/local/lib/gcc/* /lib /lib64 /usr/lib
+                                      /usr/lib64 /usr/lib/gcc/*/*)
+endif (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
 
 # Make sure we have HDF5
 find_package(HDF5 REQUIRED)

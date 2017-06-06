@@ -8,6 +8,13 @@ set(LINK_LIBS_STATIC)
 list(APPEND LINK_LIBS_STATIC ${DAG_LINK_LIBS})
 list(APPEND LINK_LIBS_STATIC dagmc-static)
 list(APPEND LINK_LIBS_STATIC dagtally-static)
+if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+    list(APPEND LINK_LIBS_STATIC c++)
+  else ()
+    list(APPEND LINK_LIBS_STATIC stdc++)
+  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+endif (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
 
 # Include directories
 include_directories(${HDF5_INCLUDE_DIRS})
