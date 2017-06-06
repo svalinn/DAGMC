@@ -6,9 +6,17 @@ set(SRC_FILES pyne.cpp)
 # Public headers
 set(PUB_HEADERS pyne.h)
 
-# Linked libraries
-set(LINK_LIBS        ${DAG_LINK_LIBS})
-set(LINK_LIBS_STATIC ${DAG_LINK_LIBS})
+# Optimization flags: always use -O0
+set(CMAKE_CXX_FLAGS_RELEASE "-O0")
+if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+
+# Libraries
+set(LINK_LIBS)
+set(LINK_LIBS_STATIC)
+list(APPEND LINK_LIBS        ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS_STATIC ${DAG_LINK_LIBS})
 
 # Include directories
 include_directories(.)

@@ -5,14 +5,11 @@ set(LINK_LIBS)
 list(APPEND LINK_LIBS pthread)
 if (BUILD_STATIC)
   list(APPEND LINK_LIBS gtest-static)
-  list(APPEND LINK_LIBS dagmc-static)
-  list(APPEND LINK_LIBS dagtally-static)
 else ()
   list(APPEND LINK_LIBS gtest)
-  list(APPEND LINK_LIBS dagmc)
-  list(APPEND LINK_LIBS dagtally)
 endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS mcnp_funcs-internal)
 
 # Include directories
 include_directories(..)
@@ -22,15 +19,11 @@ include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests
-set(TEST_NAME dagmcnp_unit_tests)
 set(DRIVER mcnp5_unit_test_driver.cc)
-add_executable(${TEST_NAME} ${TEST_NAME}.cpp ../mcnp_funcs.cpp ${DRIVER})
-target_link_libraries(${TEST_NAME} "${LINK_LIBS}")
-install(TARGETS ${TEST_NAME} DESTINATION tests)
-add_test(${TEST_NAME} ${TEST_NAME})
+setup_test(dagmcnp_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
-install(FILES test_geom_legacy.h5m DESTINATION tests)
+install(FILES test_geom_legacy.h5m      DESTINATION tests)
 install(FILES test_geom_legacy_comp.h5m DESTINATION tests)
 
 # Enable unit tests
