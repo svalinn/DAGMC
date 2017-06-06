@@ -23,4 +23,3 @@ add_definitions(-DGTEST_HAS_PTHREAD=ON)
 
 # Build gtest internal library
 add_library(gtest STATIC ${SRC_FILES})
-#install(TARGETS gtest LIBRARY DESTINATION ${INSTALL_LIB_DIR})

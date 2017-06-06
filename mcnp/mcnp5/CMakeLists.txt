@@ -178,7 +178,7 @@ if (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
   target_link_libraries(${MCNP_EXEC} gfortran)
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
 target_link_libraries(${MCNP_EXEC} ${DAG_LINK_LIBS})
-target_link_libraries(${MCNP_EXEC} mcnpfuncs-internal)
+target_link_libraries(${MCNP_EXEC} mcnpfuncs)
 
 # Install DAG-MCNP5
 install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)

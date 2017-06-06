@@ -31,9 +31,8 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Build mcnpfuncs internal library
-add_library(mcnpfuncs-internal STATIC ${MCNP_FUNCS_SRC})
-set_target_properties(mcnpfuncs-internal PROPERTIES OUTPUT_NAME mcnpfuncs)
-target_link_libraries(mcnpfuncs-internal ${LINK_LIBS_STATIC})
+add_library(mcnpfuncs STATIC ${MCNP_FUNCS_SRC})
+target_link_libraries(mcnpfuncs ${LINK_LIBS_STATIC})
 
 # Build MCNP5
 if (BUILD_MCNP5)
