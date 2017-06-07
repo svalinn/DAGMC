@@ -33,6 +33,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   // particle filters for tallies
   std::map<std::string, G4SDParticleFilter*> particle_filters;
 
+  void build_geom();
   void BuildParticleFilter(std::string particle_name);
   void build_histogram();
   void add_histogram_description(std::string tally_name);

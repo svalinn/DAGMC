@@ -37,11 +37,17 @@
 
 #include "DagSolidMaterial.hh"
 #include "DagSolidTally.hh"
+#include "DagSolidHierarchy.hh"
 
 #include "../pyne/pyne.h"
 
 moab::DagMC* dagmc = new moab::DagMC(); // create dag instance
-dagmcMetaData* DMD;
+dagmcMetaData* DMD; // Dagmc Metadaata Instance
+DetermineHierarchy *DH; // Determine Hierahcy Instance
+
+std::map<std::string, G4Material*> material_lib;
+bool hierarchy = false;
+
 // constructor
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data)
   :  world_volume_log(0) {
@@ -50,12 +56,14 @@ ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data)
 
 // destructor
 ExN01DetectorConstruction::~ExN01DetectorConstruction() {
+  delete DH;
+  delete DMD;
+  delete dagmc;
 }
 
 // the main method - takes the problem and loads
 G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   // load the material from the UW^2 library
-  std::map<std::string, G4Material*> material_lib;
   material_lib = load_uwuw_materials(workflow_data);
 
   G4VisAttributes* invis = new G4VisAttributes(G4VisAttributes::Invisible);
@@ -91,17 +99,39 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   DMD = new dagmcMetaData(dagmc);
   DMD->load_property_data();
 
-  // get count of entities
+  // make a new hierarchy tool
+  G4cout << "Determining the hierarchy of volumes...." << G4endl;
+  DH = new DetermineHierarchy(dagmc->moab_instance(),dagmc->geom_tool());
+  rval = DH->DetermineTheHierarchy(true); // determine the hierarchy
+
+  // check that we determined a hierarchy succesfully
+  if(rval != moab::MB_SUCCESS) {
+    G4cout << "Failed to determine the hierarchy, assuming none exists" << G4endl;
+  } else {
+    hierarchy = true;
+    build_geom();     // build the geometry
+  }
+  return world_volume_phys;
+}
+
+void ExN01DetectorConstruction::build_geom() { 
+
+    // get count of entities
   G4int num_of_objects = dagmc->num_entities(3);
-
   G4cout << "There are " << num_of_objects << " dag volumes" << G4endl;
-
+  
   //Store a list of DagSolids, Logical Vols, and Physical Vols
-  std::vector<DagSolid*> dag_volumes;
-  std::vector<G4PVPlacement*> dag_physical_volumes;
+  std::map<int,DagSolid*> dag_volumes;
+  std::map<int,G4PVPlacement*> dag_physical_volumes;
 
-  // load the properties from the metadata instance
+  // start with the implicit complement,
+  moab::EntityHandle impl_comp;
+  moab::ErrorCode rval = dagmc->geom_tool()->get_implicit_complement(impl_comp);
+  int impl_comp_id = dagmc->geom_tool()->global_id(impl_comp);
+  
+  // First make all the DagSolids & the Logical Volumes
   for (int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++) {
+    
     G4String idx_str = _to_string(dag_idx);
     // get the MBEntity handle for the volume
     int dag_id = dagmc->id_by_index(3, dag_idx);
@@ -111,24 +141,55 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
 
     // create new volume
     DagSolid* dag_vol = new DagSolid("vol_" + idx_str, dagmc, dag_idx);
-    dag_volumes.push_back(dag_vol);
-    // make new logical volume
+    dag_volumes[dag_id] = dag_vol;
+
+    // material name
     std::string material_name = mat_name;
     if (mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
       material_name = "mat:Vacuum";
     }
 
+    // make new logical volume
     G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol, material_lib[material_name],
                                                        "vol_" + idx_str + "_log", 0, 0, 0);
-    dag_logical_volumes[dag_idx] = dag_vol_log;
-    // make a new physical placement
-    G4PVPlacement* dag_vol_phys = new G4PVPlacement(0, G4ThreeVector(0 * cm, 0 * cm, 0 * cm), dag_vol_log,
-                                                    "volume_" + idx_str + "_phys",
-                                                    world_volume_log, false, 0);
-    dag_physical_volumes.push_back(dag_vol_phys);
+    // we dont need implicit complement
+    if(dag_id == impl_comp_id)
+      dag_logical_volumes[dag_id] = world_volume_log;
+    else
+      dag_logical_volumes[dag_id] = dag_vol_log;
+   
   }
 
-  return world_volume_phys;
+  // 2 loops since if we have hierarchy we need the logical volumes to already
+  // exist
+  
+  // now make the physical volumes
+  for (int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++) {
+    
+    G4String idx_str = _to_string(dag_idx);
+    
+    // get the MBEntity handle for the volume
+    int dag_id = dagmc->id_by_index(3, dag_idx);
+    moab::EntityHandle volume = dagmc->entity_by_id(3, dag_id);
+
+    G4PVPlacement *dag_vol_phys;
+    if(hierarchy) {
+      int parent_id; 
+      rval = DH->FindParent(dag_id,parent_id);
+      dag_vol_phys = new G4PVPlacement(0, G4ThreeVector(0 * cm, 0 * cm, 0 * cm),
+				       dag_logical_volumes[dag_id],
+				       "volume_" + idx_str + "_phys",
+				       dag_logical_volumes[parent_id], false, 0);
+    } else {
+      // make a new physical placement
+      dag_vol_phys = new G4PVPlacement(0, G4ThreeVector(0 * cm, 0 * cm, 0 * cm),
+				       dag_logical_volumes[dag_id],
+				       "volume_" + idx_str + "_phys",
+				       world_volume_log, false, 0);
+    }
+    // keep it in the map
+    dag_physical_volumes[dag_id] = dag_vol_phys;
+  }
 }
 
 // Constructs the tallies
