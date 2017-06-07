@@ -1,51 +1,49 @@
-#include <iostream>
+#include <gtest/gtest.h>
+
 #include "moab/Interface.hpp"
-#ifndef IS_BUILDING_MB
-#define IS_BUILDING_MB
-#endif
-#include "TestUtil.hpp"
-#include "Internals.hpp"
 #include "moab/Core.hpp"
 #include "moab/GeomQueryTool.hpp"
-
 #include "DagMC.hpp"
+
+#include <iostream>
 
 using namespace moab;
 
 using moab::DagMC;
 
-DagMC* DAG;
+moab::DagMC* DAG;
 
-#define CHKERR(A) do { if (MB_SUCCESS != (A)) { \
-      std::cerr << "Failure (error code " << (A) << ") at " __FILE__ ":" \
-                << __LINE__ << std::endl; \
-      return A; } } while(false)
-
-#ifdef MESHDIR
-static const char input_file[] = STRINGIFY(MESHDIR) "/test_geom.h5m";
-#else
-static const char input_file[] = STRINGIFY(MESHDIR) "/test_geom.h5m";
-#endif
-
+static const char input_file[] = "test_geom.h5m";
 double eps = 1.0e-6;
 
-void dagmc_setup_test() {
-  ErrorCode rval = DAG->load_file(input_file); // open the Dag file
-  CHECK_ERR(rval);
-  rval = DAG->init_OBBTree();
-  CHECK_ERR(rval);
+class DagmcRayFireTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    // Create new DAGMC instance
+    DAG = new DagMC();
+    // Load mesh from file
+    rloadval = DAG->load_file(input_file);
+    assert(rloadval == moab::MB_SUCCESS);
+    // Create the OBB
+    rval = DAG->init_OBBTree();
+    assert(rval == moab::MB_SUCCESS);
+  }
+  virtual void TearDown() {
+    delete DAG;
+  }
+ protected:
+  moab::ErrorCode rloadval;
+  moab::ErrorCode rval;
+};
 
-  /*
-  int num_vols = DAG->num_entities(3);
-  EntityHandle vol_h;
-  for (int i = 0; i < num_vols; i++)
-    vol_h = DAG->entity_by_index(3, i);
-  */
-  // EntityHandle volume = 12682136550675316765;
-  // CHECK_EQUAL(volume, vol);
+TEST_F(DagmcRayFireTest, dagmc_setup_test) {
+  ErrorCode rval = DAG->load_file(input_file);
+  EXPECT_EQ(rval, MB_SUCCESS);
+  rval = DAG->init_OBBTree();
+  EXPECT_EQ(rval, MB_SUCCESS);
 }
 
-void dagmc_origin_face_rayfire() {
+TEST_F(DagmcRayFireTest, dagmc_origin_face_rayfire) {
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {-1.0, 0.0, 0.0};
@@ -54,10 +52,10 @@ void dagmc_origin_face_rayfire() {
   EntityHandle next_surf;
   DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist);
   double expected_next_surf_dist = 5.0;
-  CHECK_REAL_EQUAL(expected_next_surf_dist, next_surf_dist, eps);
+  EXPECT_NEAR(expected_next_surf_dist, next_surf_dist, eps);
 }
 
-void dagmc_outside_face_rayfire() {
+TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire) {
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
@@ -67,10 +65,10 @@ void dagmc_outside_face_rayfire() {
   DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist);
   std::cout << next_surf_dist << std::endl;
   double expected_next_surf_dist = 15.0;
-  CHECK_REAL_EQUAL(expected_next_surf_dist, next_surf_dist, eps);
+  EXPECT_NEAR(expected_next_surf_dist, next_surf_dist, eps);
 }
 
-void dagmc_outside_face_rayfire_orient_exit() {
+TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_orient_exit) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
@@ -81,10 +79,10 @@ void dagmc_outside_face_rayfire_orient_exit() {
   DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist, &history, 0, 1);
   std::cout << next_surf_dist << std::endl;
   double expected_next_surf_dist = 15.0;
-  CHECK_REAL_EQUAL(expected_next_surf_dist, next_surf_dist, eps);
+  EXPECT_NEAR(expected_next_surf_dist, next_surf_dist, eps);
 }
 
-void dagmc_outside_face_rayfire_orient_entrance() {
+TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_orient_entrance) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
@@ -95,10 +93,10 @@ void dagmc_outside_face_rayfire_orient_entrance() {
   DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist, &history, 0.0, -1);
   std::cout << next_surf_dist << std::endl;
   double expected_next_surf_dist = 5.0;
-  CHECK_REAL_EQUAL(expected_next_surf_dist, next_surf_dist, eps);
+  EXPECT_NEAR(expected_next_surf_dist, next_surf_dist, eps);
 }
 
-void dagmc_outside_face_rayfire_history_fail() {
+TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_history_fail) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
@@ -122,10 +120,10 @@ void dagmc_outside_face_rayfire_history_fail() {
 
   // using history with this geom, there should be no next surface, i.e. 0
   EntityHandle ZERO = 0;
-  CHECK_EQUAL(ZERO, next_surf);
+  EXPECT_EQ(ZERO, next_surf);
 }
 
-void dagmc_outside_face_rayfire_history() {
+TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_history) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
@@ -153,24 +151,5 @@ void dagmc_outside_face_rayfire_history() {
 
   // using history with this geom, there should be no next surface, i.e. 0
   EntityHandle ZERO = 0;
-  CHECK_EQUAL(ZERO, next_surf);
-}
-
-int main(int /* argc */, char** /* argv */) {
-  int result = 0;
-
-  DAG = new DagMC();
-
-  result += RUN_TEST(dagmc_setup_test); // setup problem
-  // rays fired along cardinal directions
-  result += RUN_TEST(dagmc_origin_face_rayfire); // point in centre
-  result += RUN_TEST(dagmc_outside_face_rayfire);
-  result += RUN_TEST(dagmc_outside_face_rayfire_orient_exit); // fire ray from point outside volume looking for exit intersections
-  result += RUN_TEST(dagmc_outside_face_rayfire_orient_entrance); // fire ray from point outside volume looking for entrance intersection
-  result += RUN_TEST(dagmc_outside_face_rayfire_history_fail); // fire ray from point outside geometry using ray history
-  result += RUN_TEST(dagmc_outside_face_rayfire_history); // fire ray from point outside geometry using ray history
-
-  delete DAG;
-
-  return result;
+  EXPECT_EQ(ZERO, next_surf);
 }
