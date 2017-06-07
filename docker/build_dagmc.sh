@@ -2,7 +2,7 @@
 
 # $1: compiler (gcc-4.8, gcc-4.9, gcc-5, gcc-6, clang-3.8, clang-3.9, clang-4.0)
 # $2: build static (OFF, ON)
-# $3: moab version (4.9.2, master)
+# $3: moab version (5.0, master)
 # $4: geant4 version (10.01.p03, 10.02.p03, 10.03.p01)
 
 set -e
