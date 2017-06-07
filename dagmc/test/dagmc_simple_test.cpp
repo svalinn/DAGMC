@@ -13,12 +13,12 @@ using namespace moab;
 
 using moab::DagMC;
 
-DagMC *DAG; 
+DagMC* DAG;
 
 #define CHKERR(A) do { if (MB_SUCCESS != (A)) { \
-  std::cerr << "Failure (error code " << (A) << ") at " __FILE__ ":" \
-            << __LINE__ << std::endl; \
-  return A; } } while(false)
+      std::cerr << "Failure (error code " << (A) << ") at " __FILE__ ":" \
+                << __LINE__ << std::endl; \
+      return A; } } while(false)
 
 #ifdef MESHDIR
 static const char input_file[] = STRINGIFY(MESHDIR) "/test_geom.h5m";
@@ -26,25 +26,23 @@ static const char input_file[] = STRINGIFY(MESHDIR) "/test_geom.h5m";
 static const char input_file[] = STRINGIFY(MESHDIR) "/test_geom.h5m";
 #endif
 
-void dagmc_load_file() 
-{
+void dagmc_load_file() {
   ErrorCode rval = DAG->load_file(input_file); // open the Dag file
   CHECK_ERR(rval);
 }
 
-void dagmc_load_file_dagmc() 
-{
+void dagmc_load_file_dagmc() {
   /* 1 - Test with external moab, load file in DAGMC*/
   // make new moab core
-  Core *mbi = new moab::Core();
+  Core* mbi = new moab::Core();
   // make new dagmc into that moab
-  DagMC *dagmc = new moab::DagMC(mbi);
+  DagMC* dagmc = new moab::DagMC(mbi);
 
   ErrorCode rval;
   // load a file
   rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
-  
+
   // delete dagmc
   delete dagmc;
   delete mbi;
@@ -55,13 +53,13 @@ void dagmc_load_file_dagmc_via_moab() {
   // load the file into moab rather than dagmc
   ErrorCode rval;
 
-  moab::Core *mbi = new moab::Core();
+  moab::Core* mbi = new moab::Core();
   rval = mbi->load_file(input_file);
   CHECK_ERR(rval);
-  moab::DagMC *dagmc = new moab::DagMC(mbi);
+  moab::DagMC* dagmc = new moab::DagMC(mbi);
   rval = dagmc->load_existing_contents();
   CHECK_ERR(rval);
-  
+
   // delete dagmc;
   delete dagmc;
   delete mbi;
@@ -72,22 +70,21 @@ void dagmc_load_file_dagmc_internal() {
   // make new dagmc into that moab
   ErrorCode rval;
 
-  moab::DagMC *dagmc = new moab::DagMC();
+  moab::DagMC* dagmc = new moab::DagMC();
   // load a file
   rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
   delete dagmc;
 }
 
-void dagmc_load_file_dagmc_build_obb() 
-{
+void dagmc_load_file_dagmc_build_obb() {
   /* 1 - Test with external moab, load file in DAGMC*/
   // make new moab core
   ErrorCode rval;
-    
-  moab::Core *mbi = new moab::Core();
+
+  moab::Core* mbi = new moab::Core();
   // make new dagmc into that moab
-  DagMC *dagmc = new moab::DagMC(mbi);
+  DagMC* dagmc = new moab::DagMC(mbi);
 
   // load a file
   rval = dagmc->load_file(input_file);
@@ -104,15 +101,15 @@ void dagmc_load_file_dagmc_via_moab_build_obb() {
   // load the file into moab rather than dagmc
   ErrorCode rval;
 
-  moab::Core *mbi = new moab::Core();
+  moab::Core* mbi = new moab::Core();
   rval = mbi->load_file(input_file);
   CHECK_ERR(rval);
-  moab::DagMC *dagmc = new moab::DagMC(mbi);
+  moab::DagMC* dagmc = new moab::DagMC(mbi);
   rval = dagmc->load_existing_contents();
   CHECK_ERR(rval);
   rval = dagmc->init_OBBTree();
   CHECK_ERR(rval);
-  
+
   // delete dagmc;
   delete dagmc;
   delete mbi;
@@ -123,7 +120,7 @@ void dagmc_load_file_dagmc_internal_build_obb() {
   // make new dagmc into that moab
   ErrorCode rval;
 
-  moab::DagMC *dagmc = new moab::DagMC();
+  moab::DagMC* dagmc = new moab::DagMC();
   // load a file
   rval = dagmc->load_file(input_file);
   CHECK_ERR(rval);
@@ -133,10 +130,10 @@ void dagmc_load_file_dagmc_internal_build_obb() {
 }
 
 void dagmc_test_obb_retreval() {
-    // make new dagmc
+  // make new dagmc
   std::cout << "test_obb_retreval" << std::endl;
 
-  DagMC *dagmc = new moab::DagMC();
+  DagMC* dagmc = new moab::DagMC();
 
   ErrorCode rval;
   // load a file
@@ -146,7 +143,7 @@ void dagmc_test_obb_retreval() {
   CHECK_ERR(rval);
 
   // write the file
-  rval = dagmc->write_mesh("fcad",4);
+  rval = dagmc->write_mesh("fcad", 4);
 
   // now remove the dagmc instance a
   delete dagmc;
@@ -163,21 +160,18 @@ void dagmc_test_obb_retreval() {
 }
 
 
-void dagmc_build_obb() 
-{
+void dagmc_build_obb() {
   ErrorCode rval = DAG->init_OBBTree();
   CHECK_ERR(rval);
 }
 
-void dagmc_num_vols()
-{
+void dagmc_num_vols() {
   int expect_num_vols = 2;
-  int num_vols = DAG->num_entities(3); 
+  int num_vols = DAG->num_entities(3);
   CHECK_EQUAL(expect_num_vols, num_vols);
 }
 
-void dagmc_entity_handle()
-{
+void dagmc_entity_handle() {
   /*
   int num_vols = DAG->num_entities(3);
   EntityHandle vol_h;
@@ -188,8 +182,7 @@ void dagmc_entity_handle()
   //CHECK_EQUAL(expect_vol_h, vol_h);
 }
 
-void dagmc_point_in()
-{
+void dagmc_point_in() {
   int result = 0;
   int expect_result = 1;
   int vol_idx = 1;
@@ -203,8 +196,8 @@ void dagmc_point_in()
 void dagmc_test_obb_retreval_rayfire() {
   // make new dagmc
   std::cout << "test_obb_retreval and ray_fire" << std::endl;
-  
-  DagMC *dagmc = new moab::DagMC();
+
+  DagMC* dagmc = new moab::DagMC();
 
   ErrorCode rval;
   // load a file
@@ -214,7 +207,7 @@ void dagmc_test_obb_retreval_rayfire() {
   CHECK_ERR(rval);
 
   // write the file
-  rval = dagmc->write_mesh("fcad",4);
+  rval = dagmc->write_mesh("fcad", 4);
 
   // now remove the dagmc instance a
   delete dagmc;
@@ -247,8 +240,7 @@ void dagmc_test_obb_retreval_rayfire() {
   delete dagmc;
 }
 
-void dagmc_rayfire()
-{
+void dagmc_rayfire() {
   const double eps = 1e-6; // epsilon for test, faceting tol?
 
   int vol_idx = 1;
@@ -266,8 +258,7 @@ void dagmc_rayfire()
   CHECK_REAL_EQUAL(expect_next_surf_dist, next_surf_dist, eps);
 }
 
-void dagmc_closest_to()
-{
+void dagmc_closest_to() {
   const double eps = 1e-6; // epsilon for test, faceting tol?
 
   int vol_idx = 1;
@@ -284,8 +275,7 @@ void dagmc_closest_to()
   CHECK_REAL_EQUAL(expect_distance, distance, eps);
 }
 
-void dagmc_test_boundary()
-{
+void dagmc_test_boundary() {
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
   int surf_idx = 1;
@@ -301,13 +291,12 @@ void dagmc_test_boundary()
   // check ray leaving volume
   CHECK_EQUAL(expect_result, result);
 }
-  
-int main(int /* argc */, char** /* argv */)
-{
+
+int main(int /* argc */, char** /* argv */) {
   int result = 0;
 
   DAG = new moab::DagMC();
-  
+
   result += RUN_TEST(dagmc_load_file); // test ray fire
   result += RUN_TEST(dagmc_build_obb); // build the obb
   result += RUN_TEST(dagmc_num_vols); // make sure the num of vols correct
@@ -316,7 +305,7 @@ int main(int /* argc */, char** /* argv */)
   result += RUN_TEST(dagmc_load_file_dagmc_internal); //
   result += RUN_TEST(dagmc_load_file_dagmc_build_obb); //
   result += RUN_TEST(dagmc_load_file_dagmc_via_moab_build_obb); //
-  result += RUN_TEST(dagmc_load_file_dagmc_internal_build_obb); // 
+  result += RUN_TEST(dagmc_load_file_dagmc_internal_build_obb); //
   result += RUN_TEST(dagmc_test_obb_retreval); // check that we are retreving loaded obbs
   result += RUN_TEST(dagmc_test_obb_retreval_rayfire); // check that we can ray fire on loaded obbs
   result += RUN_TEST(dagmc_point_in); // check entity by point
