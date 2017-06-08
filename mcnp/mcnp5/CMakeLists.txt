@@ -45,6 +45,17 @@ if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 message(STATUS "DAG-MCNP5 version ${MCNP_VERSION} source files found")
 
+# Optimization flags: use -O1 unless in debug mode
+set(CMAKE_C_FLAGS_RELEASE "-O1")
+set(CMAKE_CXX_FLAGS_RELEASE "-O1")
+set(CMAKE_Fortran_FLAGS_RELEASE "-O1")
+if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+  message(STATUS "Using -O1 optimization for DAG-MCNP5")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O1")
+endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+
 # C compiler flags
 if (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
   #set(CMAKE_C_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=medium")
