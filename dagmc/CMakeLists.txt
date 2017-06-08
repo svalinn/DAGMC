@@ -37,4 +37,5 @@ install(TARGETS dagmc-static ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})
 target_link_libraries(dagmc        ${LINK_LIBS})
 target_link_libraries(dagmc-static ${LINK_LIBS_STATIC})
 
+add_subdirectory(tools)
 add_subdirectory(test)
