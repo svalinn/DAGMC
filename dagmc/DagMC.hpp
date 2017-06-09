@@ -29,8 +29,8 @@ namespace moab {
 
 class CartVect;
 
-#define DAGMC_VERSION 2.0
-#define DAGMC_VERSION_STRING "2.0"
+#define DAGMC_VERSION 3.0
+#define DAGMC_VERSION_STRING "3.0"
 #define DAGMC_INTERFACE_REVISION "$Rev$"
 
 /**\brief
