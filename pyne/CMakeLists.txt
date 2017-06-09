@@ -13,10 +13,7 @@ if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
 endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
 
 # Libraries
-set(LINK_LIBS)
-set(LINK_LIBS_STATIC)
-list(APPEND LINK_LIBS        ${DAG_LINK_LIBS})
-list(APPEND LINK_LIBS_STATIC ${DAG_LINK_LIBS})
+set(LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
 include_directories(.)
@@ -33,7 +30,7 @@ add_library(pyne_dagmc-static STATIC ${SRC_FILES})
 set_target_properties(pyne_dagmc        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 set_target_properties(pyne_dagmc-static PROPERTIES OUTPUT_NAME pyne_dagmc)
 target_link_libraries(pyne_dagmc        ${LINK_LIBS})
-target_link_libraries(pyne_dagmc-static ${LINK_LIBS_STATIC})
+target_link_libraries(pyne_dagmc-static ${LINK_LIBS})
 install(TARGETS pyne_dagmc        LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                                   PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
 install(TARGETS pyne_dagmc-static ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})

@@ -24,7 +24,7 @@ else ()
 endif (BUILD_STATIC)
 
 # Include directories
-include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/geant4)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests

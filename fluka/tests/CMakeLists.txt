@@ -12,7 +12,7 @@ endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
-include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/fluka)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests

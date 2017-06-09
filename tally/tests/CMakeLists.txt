@@ -11,7 +11,7 @@ else ()
 endif (BUILD_STATIC)
 
 # Include directories
-include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/tally)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # CXX compiler flags

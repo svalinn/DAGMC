@@ -14,7 +14,7 @@ endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
-include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/uwuw)
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/pyne)
 include_directories(${HDF5_INCLUDE_DIRS})

@@ -19,8 +19,7 @@ list(APPEND PUB_HEADERS CheckWatertight.hpp)
 list(APPEND PUB_HEADERS MakeWatertight.hpp)
 
 # Libraries
-set(LINK_LIBS        ${DAG_LINK_LIBS})
-set(LINK_LIBS_STATIC ${DAG_LINK_LIBS})
+set(LINK_LIBS ${DAG_LINK_LIBS})
 
 # Define executables
 add_executable(make_watertight  make_watertight.cpp  ${SRC_FILES})
@@ -36,7 +35,7 @@ add_library(makeWatertight-static STATIC ${SRC_FILES})
 set_target_properties(makeWatertight        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 set_target_properties(makeWatertight-static PROPERTIES OUTPUT_NAME makeWatertight)
 target_link_libraries(makeWatertight        ${LINK_LIBS})
-target_link_libraries(makeWatertight-static ${LINK_LIBS_STATIC})
+target_link_libraries(makeWatertight-static ${LINK_LIBS})
 install(TARGETS makeWatertight        LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                                       PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}/make_watertight)
 install(TARGETS makeWatertight-static ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})
