@@ -22,11 +22,16 @@ extern "C" {
  * Macro to access symbol of fortran function 'func' in module 'mod'
  */
 #ifndef FORT_FUNC
-#if defined INTEL
+#if defined INTEL_FORTRAN
 // intel fortran: name mangling is '<module>_mp_<function>_'
 #define FORT_FUNC( mod, func ) mod##_mp_##func##_
-#else
+#elif defined GFORTRAN
 // gfortran: name mangling is ___<module>_mod_MOD_<function>
+#define FORT_FUNC( mod, func ) __##mod##_MOD_##func
+#else
+// unknown fortran compiler
+#warning "Unknown fortran compiler with unknown name mangling scheme, \
+proceeding with gfortran's scheme"
 #define FORT_FUNC( mod, func ) __##mod##_MOD_##func
 #endif
 #endif

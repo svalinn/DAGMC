@@ -25,9 +25,11 @@ include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 
 # Preprocessor directives
+# Needed for correct name mangling to be applied
 if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
-  # Needed for correct name mangling to be applied
-  add_definitions(-DINTEL=ON)
+  add_definitions(-DINTEL_FORTRAN=ON)
+elseif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
+  add_definitions(-DGFORTRAN=ON)
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
 # C compiler flags
