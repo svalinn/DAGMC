@@ -23,7 +23,7 @@ extern "C" {
  */
 #ifndef FORT_FUNC
 
-#if defined INTEL // from MCNP's CMake definitions
+#if defined INTEL
 /* intel fortran: name mangling is '<module>_mp_<function>_' */
 #define FORT_FUNC( mod, func ) mod##_mp_##func##_
 #elif defined(__clang__)

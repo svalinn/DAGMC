@@ -20,6 +20,12 @@ include_directories(${MOAB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 
+# Preprocessor directives
+if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+  # Needed for correct name mangling to be applied
+  add_definitions(-DINTEL=ON)
+endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+
 # C compiler flags
 if (BUILD_SHARED AND ${CMAKE_C_COMPILER_ID} STREQUAL Clang)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
