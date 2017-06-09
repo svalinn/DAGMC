@@ -1,7 +1,5 @@
 message(STATUS "Building DAG-MCNP5")
 
-enable_language(Fortran)
-
 # Get date and time
 # modifed from http://www.cmake.org/pipermail/cmake/2010-November/041034.html
 macro (DATETIME RESULT)
