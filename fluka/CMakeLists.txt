@@ -1,6 +1,6 @@
 message(STATUS "Building fludag library")
 
-enable_language(Fortran)
+enable_fortran()
 
 # Source files
 set(SRC_FILES fluka_funcs.cpp)

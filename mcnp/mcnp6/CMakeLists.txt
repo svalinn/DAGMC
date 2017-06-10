@@ -104,11 +104,6 @@ else ()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-double-8")
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
-# Linker flags
-if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel")
-endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
-
 # Include directories
 include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import)
 if (${MCNP_VERSION} STREQUAL 6.1.1beta)
@@ -191,7 +186,7 @@ if (OPENMP_BUILD)
   add_definitions(-DOMP=ON)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_C_FLAGS}")  # OpenMP_Fortran_FLAGS is undefined
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
 endif (OPENMP_BUILD)
 
 # MPI
@@ -242,4 +237,5 @@ target_link_libraries(${MCNP_EXEC} ${DAG_LINK_LIBS})
 target_link_libraries(${MCNP_EXEC} mcnpfuncs)
 
 # Install DAG-MCNP6
-install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR}
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)

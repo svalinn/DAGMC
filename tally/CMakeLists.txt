@@ -1,7 +1,5 @@
 message(STATUS "Building dagtally library")
 
-enable_language(Fortran)
-
 # Source files
 set(SRC_FILES)
 file(GLOB SRC_FILES ${SRC_FILES} "*.cpp")
@@ -16,11 +14,6 @@ set(LINK_LIBS ${DAG_LINK_LIBS})
 # Include directories
 include_directories(.)
 include_directories(${MOAB_INCLUDE_DIRS})
-
-# CXX compiler flags
-if (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Build dagtally library
 add_library(dagtally        SHARED ${SRC_FILES})

@@ -1,12 +1,18 @@
 message(STATUS "Building DAGMC library")
 
 # Source files
-list(APPEND DAGMC_SRC_FILES DagMC.cpp)
-list(APPEND DAGMC_SRC_FILES dagmcmetadata.cpp)
+set(SOURCE_FILES)
+list(APPEND SRC_FILES DagMC.cpp)
+list(APPEND SRC_FILES dagmcmetadata.cpp)
+list(APPEND SRC_FILES ${CMAKE_SOURCE_DIR}/uwuw/uwuw.cpp)
+list(APPEND SRC_FILES ${CMAKE_SOURCE_DIR}/uwuw/uwuw_preprocessor.cpp)
 
 # Public headers
-list(APPEND DAGMC_PUB_HEADERS DagMC.hpp)
-list(APPEND DAGMC_PUB_HEADERS dagmcmetadata.hpp)
+set(PUB_HEADERS)
+list(APPEND PUB_HEADERS DagMC.hpp)
+list(APPEND PUB_HEADERS dagmcmetadata.hpp)
+list(APPEND PUB_HEADERS ${CMAKE_SOURCE_DIR}/uwuw/uwuw.hpp)
+list(APPEND PUB_HEADERS ${CMAKE_SOURCE_DIR}/uwuw/uwuw_preprocessor.hpp)
 
 # Libraries
 set(LINK_LIBS)
@@ -21,15 +27,10 @@ include_directories(.)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 
-# CXX compiler flags
-if (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-
 # Build DAGMC library
-add_library(dagmc        SHARED ${DAGMC_SRC_FILES})
-add_library(dagmc-static STATIC ${DAGMC_SRC_FILES})
-set_target_properties(dagmc        PROPERTIES PUBLIC_HEADER "${DAGMC_PUB_HEADERS}")
+add_library(dagmc        SHARED ${SRC_FILES})
+add_library(dagmc-static STATIC ${SRC_FILES})
+set_target_properties(dagmc        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 set_target_properties(dagmc-static PROPERTIES OUTPUT_NAME dagmc)
 install(TARGETS dagmc        LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
                              PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
