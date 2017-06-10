@@ -12,16 +12,7 @@ macro (setup_test test_name ext driver libs)
   add_executable(${test_name} ${test_name}.${ext} ${drivers})
   target_link_libraries(${test_name} ${libs})
   install(TARGETS ${test_name} DESTINATION tests)
-  add_test(${test_name} ${test_name})
 endmacro (setup_test)
-
-# Run test macro
-macro(run_test test_target)
-  add_custom_target(${test_target}_runtest COMMAND ${test_target}
-                                           DEPENDS ${test_target}
-                                           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-  add_dependencies(${test_target}_runtest gtest)
-endmacro (run_test)
 
 # Installation directories
 set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
@@ -29,6 +20,7 @@ set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
 
+# Clear out some variables automatically set by CMake
 set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")

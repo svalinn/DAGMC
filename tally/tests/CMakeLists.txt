@@ -38,6 +38,3 @@ install(FILES rune_mesh.h5m         DESTINATION tests)
 install(FILES structured_mesh.h5m   DESTINATION tests)
 install(FILES unstr_mesh_split.h5m  DESTINATION tests)
 install(FILES unstructured_mesh.h5m DESTINATION tests)
-
-# Enable unit tests
-enable_testing()
