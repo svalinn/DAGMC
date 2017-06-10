@@ -2,6 +2,16 @@ project(DAGMC)
 
 cmake_minimum_required(VERSION 2.8)
 
+# Macro to enable fortran and get rid of some variables
+macro (enable_fortran)
+  enable_language(Fortran)
+  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
+  set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
+  if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel")
+  endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+endmacro (enable_fortran)
+
 # Setup test macro
 macro (setup_test test_name ext driver libs)
   set(drivers ${driver})
@@ -25,19 +35,21 @@ set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
-set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
-set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
 
 # Determine if we're building static executables
 option(BUILD_STATIC "Build static executables" OFF)
 if (BUILD_STATIC)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-  if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
-  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+  set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 else ()
   set(BUILD_SHARED ON)
+  if (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+  endif (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 endif (BUILD_STATIC)
 
 # Allow use of find_package(HDF5), find_package(MOAB), etc.

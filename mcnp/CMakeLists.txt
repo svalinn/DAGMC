@@ -1,6 +1,6 @@
 message(STATUS "Building mcnpfuncs internal library")
 
-enable_language(Fortran)
+enable_fortran()
 
 # Source files
 set(MCNP_FUNCS_SRC)
@@ -32,17 +32,7 @@ elseif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
   add_definitions(-DGFORTRAN=ON)
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
-# C compiler flags
-if (BUILD_SHARED AND ${CMAKE_C_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-endif (BUILD_SHARED AND ${CMAKE_C_COMPILER_ID} STREQUAL Clang)
-
-# CXX compiler flags
-if (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-
-# Build mcnpfuncs internal library
+# Build mcnpfuncs object library
 add_library(mcnpfuncs STATIC ${MCNP_FUNCS_SRC})
 target_link_libraries(mcnpfuncs ${LINK_LIBS_STATIC})
 

@@ -19,11 +19,6 @@ set(LINK_LIBS ${DAG_LINK_LIBS})
 include_directories(.)
 include_directories(${HDF5_INCLUDE_DIRS})
 
-# CXX compiler flags
-if (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (BUILD_SHARED AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-
 # Build pyne_dagmc library
 add_library(pyne_dagmc        SHARED ${SRC_FILES})
 add_library(pyne_dagmc-static STATIC ${SRC_FILES})

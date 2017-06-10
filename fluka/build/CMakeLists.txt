@@ -1,7 +1,5 @@
 message(STATUS "Building FluDAG")
 
-enable_language(Fortran)
-
 # Source files
 set(SRC_FILES mainFluDAG.cpp)
 

@@ -21,15 +21,11 @@ list(APPEND PUB_HEADERS MakeWatertight.hpp)
 # Libraries
 set(LINK_LIBS ${DAG_LINK_LIBS})
 
-# Define executables
-add_executable(make_watertight  make_watertight.cpp  ${SRC_FILES})
-add_executable(check_watertight check_watertight.cpp ${SRC_FILES})
-
 # Include directories
 include_directories(.)
 include_directories(${MOAB_INCLUDE_DIRS})
 
-# Build library with make_watertight functionality
+# Build make_watertight library
 add_library(makeWatertight        SHARED ${SRC_FILES})
 add_library(makeWatertight-static STATIC ${SRC_FILES})
 set_target_properties(makeWatertight        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
@@ -41,10 +37,12 @@ install(TARGETS makeWatertight        LIBRARY       DESTINATION ${INSTALL_LIB_DI
 install(TARGETS makeWatertight-static ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})
 
 # Build executables
-target_link_libraries(make_watertight ${LINK_LIBS})
+add_executable(make_watertight  ${SRC_FILES} make_watertight.cpp)
+add_executable(check_watertight ${SRC_FILES} check_watertight.cpp)
+target_link_libraries(make_watertight  ${LINK_LIBS})
 target_link_libraries(check_watertight ${LINK_LIBS})
 install(TARGETS make_watertight  DESTINATION ${INSTALL_BIN_DIR})
 install(TARGETS check_watertight DESTINATION ${INSTALL_BIN_DIR})
 
-# build tests
+# Build tests
 add_subdirectory(tests)
