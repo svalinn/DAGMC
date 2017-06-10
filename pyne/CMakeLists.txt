@@ -13,7 +13,9 @@ if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
 endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
 
 # Libraries
-set(LINK_LIBS ${DAG_LINK_LIBS})
+set(LINK_LIBS)
+list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS ${CXX_LIBRARY})
 
 # Include directories
 include_directories(.)
