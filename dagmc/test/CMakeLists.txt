@@ -29,6 +29,3 @@ setup_test(dagmc_simple_test     cpp ${DRIVER} "${LINK_LIBS}")
 install(FILES test_dagmc.h5m      DESTINATION tests)
 install(FILES test_dagmc_impl.h5m DESTINATION tests)
 install(FILES test_geom.h5m       DESTINATION tests)
-
-# Enable unit tests
-enable_testing()

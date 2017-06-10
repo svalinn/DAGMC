@@ -32,6 +32,3 @@ setup_test(uwuw_unit_tests_preprocessor cpp ${DRIVER} "${LINK_LIBS}")
 install(FILES test_uwuw.h5m DESTINATION tests)
 install(FILES mat_lib.h5    DESTINATION tests)
 install(FILES dag_file.h5m  DESTINATION tests)
-
-# Enable unit tests
-enable_testing()

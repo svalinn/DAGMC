@@ -30,6 +30,3 @@ install(FILES cones.h5m           DESTINATION tests)
 install(FILES cyl.h5m             DESTINATION tests)
 install(FILES no_curve_sphere.h5m DESTINATION tests)
 install(FILES sphere_n_box.h5m    DESTINATION tests)
-
-# enable tests
-enable_testing()

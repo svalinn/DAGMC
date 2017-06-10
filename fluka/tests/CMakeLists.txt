@@ -26,6 +26,3 @@ install(FILES slabs.h5m DESTINATION tests)
 if (NOT BUILD_MCNP5)
   install(FILES ${CMAKE_SOURCE_DIR}/mcnp/test/test_geom_legacy.h5m DESTINATION tests)
 endif (NOT BUILD_MCNP5)
-
-# Enable unit tests
-enable_testing()
