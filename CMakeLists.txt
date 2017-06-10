@@ -40,6 +40,12 @@ set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+  set(CXX_LIBRARY c++)
+else ()
+  set(CXX_LIBRARY stdc++)
+endif (${CMAKE_SYSTEM_NAME} STREQUAL Darwin AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+
 # Determine if we're building static executables
 option(BUILD_STATIC "Build static executables" OFF)
 if (BUILD_STATIC)
