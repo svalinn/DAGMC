@@ -100,22 +100,24 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   DMD->load_property_data();
 
   // make a new hierarchy tool
-  G4cout << "Determining the hierarchy of volumes...." << G4endl;
+  G4cout << "Determining the hierarchy of volumes..." << G4endl;
   DH = new DetermineHierarchy(dagmc->moab_instance(),dagmc->geom_tool());
   rval = DH->DetermineTheHierarchy(true); // determine the hierarchy
-
+  
   // check that we determined a hierarchy succesfully
   if(rval != moab::MB_SUCCESS) {
     G4cout << "Failed to determine the hierarchy, assuming none exists" << G4endl;
   } else {
     hierarchy = true;
-    build_geom();     // build the geometry
   }
+  
+  build_geom();     // build the geometry
+
   return world_volume_phys;
 }
 
 void ExN01DetectorConstruction::build_geom() { 
-
+  G4cout << "Building Geometry..." << G4endl;
     // get count of entities
   G4int num_of_objects = dagmc->num_entities(3);
   G4cout << "There are " << num_of_objects << " dag volumes" << G4endl;
@@ -190,6 +192,7 @@ void ExN01DetectorConstruction::build_geom() {
     // keep it in the map
     dag_physical_volumes[dag_id] = dag_vol_phys;
   }
+  G4cout << "Geometry Constructed." << G4endl;
 }
 
 // Constructs the tallies

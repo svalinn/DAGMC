@@ -66,7 +66,7 @@ using namespace moab;
 
 #include "DagSolid.hh"
 
-#define plot true
+#define plot false
 
 //#define G4SPECSDEBUG 1
 ///////////////////////////////////////////////////////////////////////////////
@@ -308,6 +308,7 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
 // Calculate distance to nearest surface of shape from an outside point p.
 
 G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
+  return 0.0;
   G4double minDist = kInfinity;
   G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; // convert position to cm
 
@@ -351,21 +352,23 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p,
   DagMC::RayHistory history;
 
   fdagmc->ray_fire(fvolEntity, position, dir, next_surf, next_dist, &history, 0, 1);
-  history.reset();
   next_dist *= cm; // convert back to mm
 
   // no more surfaces
   if (next_surf == 0)
     return kInfinity;
 
+  G4cout << calcNorm << " " << validNorm << std::endl;
   if (calcNorm) {
-    *n         = SurfaceNormal(p + minDist * v);
+    *n         = SurfaceNormal(p + minDist *v);
     *validNorm = false;
   }
 
   if (next_dist < minDist)
     minDist = next_dist;
 
+  history.reset();
+  
   // particle considered to be on surface
   if (minDist > 0.0 && minDist <= 0.5 * kCarTolerance) {
     return 0.0;
@@ -385,6 +388,7 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p,
 // Calculate distance to nearest surface of shape from an inside point.
 
 G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
+  return 0.0;
   G4double minDist = kInfinity;
   G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; // convert to cm
 

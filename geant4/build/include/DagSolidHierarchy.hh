@@ -8,17 +8,17 @@ class Network {
       public:
       // make new link
       Link(moab::EntityHandle A, moab::EntityHandle B) {
-          this->A = A;
-          this->B = B;
+          eA = A;
+          eB = B;
       }
       // get the entities of the link
       void GetLink(moab::EntityHandle &A, moab::EntityHandle &B) {
-        A = this->A;
-        B = this->B;
+        A = eA;
+        B = eB;
       }
       private:
-      moab::EntityHandle A;
-      moab::EntityHandle B;  
+      moab::EntityHandle eA;
+      moab::EntityHandle eB;  
    };
 
    // convenience link type
@@ -121,6 +121,7 @@ class DetermineHierarchy {
    void PrintRange(moab::Range item);
    // Print Tree 
    void PrintTree(moab::EntityHandle vol, moab::Range item);
+   void PrintTree();
    // Get the children of the the current parent
    moab::ErrorCode GetChildren(moab::EntityHandle parent,
 			       std::vector<moab::EntityHandle> &children);

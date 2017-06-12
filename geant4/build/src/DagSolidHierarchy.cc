@@ -172,7 +172,7 @@ moab::ErrorCode DetermineHierarchy::FindParent(moab::EntityHandle child, moab::E
 moab::ErrorCode DetermineHierarchy::FindParent(int child, int &parent) {
   moab::EntityHandle child_eh = gtt->entity_by_id(3,child);
   moab::EntityHandle parent_eh;
-  moab::ErrorCode ec = FindParent(child,parent_eh);
+  moab::ErrorCode ec = FindParent(child_eh,parent_eh);
   parent = gtt->global_id(parent_eh);
   return ec;
 }
@@ -191,4 +191,8 @@ void DetermineHierarchy::PrintTree(moab::EntityHandle vol, moab::Range item) {
   for ( it = item.begin() ; it != item.end() ; ++it ) {
     std::cout << gtt->global_id(vol) << "->" << gtt->global_id(*it) << std::endl;
   }
+}
+
+void DetermineHierarchy::PrintTree() {
+  network->Print();
 }
