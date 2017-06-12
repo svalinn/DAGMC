@@ -18,7 +18,8 @@
         VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="DAGMC" href="../index.html" />
-    <link rel="up" title="DAGMC installation overview" href="index.html" />
     <link rel="next" title="Installing DAGMC" href="dagmc.html" />
     <link rel="prev" title="DAGMC installation overview" href="index.html" /> 
   </head>
@@ -153,14 +152,14 @@ $ make install
 </div>
 <div class="section" id="moab-installation">
 <h2>MOAB installation<a class="headerlink" href="#moab-installation" title="Permalink to this headline">¶</a></h2>
-<p>As of DAGMC version 2.0, MOAB version 4.9.2 or higher is required. The following
+<p>As of DAGMC version 3.0, MOAB version 5.0 or higher is required. The following
 commands can be used to download MOAB from its <a class="reference external" href="http://press3.mcs.anl.gov/sigma/moab-library">source repository</a> and set it up for building.</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
 $ mkdir -p MOAB/bld
 $ cd MOAB
 $ git clone https://bitbucket.org/fathomteam/moab
 $ cd moab
-$ git checkout Version4.9.2
+$ git checkout Version5.0
 $ autoreconf -fi
 $ cd ..
 $ ln -s moab src
@@ -237,10 +236,10 @@ state when you open a new terminal, so it may be a good idea to add these
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 22, 2017.
+      Last updated on Jun 12, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
       </p>
     </div>
   </body>

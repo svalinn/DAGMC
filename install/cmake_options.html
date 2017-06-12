@@ -18,7 +18,8 @@
         VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="DAGMC" href="../index.html" />
-    <link rel="up" title="Installing DAGMC" href="dagmc.html" />
     <link rel="next" title="Installing the Cubit/Trelis plugin" href="plugin.html" />
     <link rel="prev" title="Install DAGMC with multiple physics codes" href="dag_multiple.html" /> 
   </head>
@@ -117,7 +116,7 @@ CMake files can&#8217;t find Geant4 by themselves.</li>
 using <code class="docutils literal"><span class="pre">-DBUILD_MCNP5=ON</span></code> or <code class="docutils literal"><span class="pre">-DBUILD_MCNP6=ON</span></code> then this is
 automatically set to ON.</li>
 <li><code class="docutils literal"><span class="pre">-DBUILD_ALL=ON</span></code> Build DAG-MCNP5, DAG-MCNP6, FluDAG, and DAG-Geant4.</li>
-<li><code class="docutils literal"><span class="pre">-DSTATIC_LIB=ON</span></code> Build static libraries and executables.</li>
+<li><code class="docutils literal"><span class="pre">-DBUILD_STATIC=ON</span></code> Build static libraries and executables.</li>
 </ul>
 </div></blockquote>
 </div>
@@ -133,10 +132,10 @@ automatically set to ON.</li>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 22, 2017.
+      Last updated on Jun 12, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
       </p>
     </div>
   </body>

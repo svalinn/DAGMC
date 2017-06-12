@@ -18,7 +18,8 @@
         VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="DAGMC" href="../../index.html" />
-    <link rel="up" title="Monte Carlo code-specific steps" href="index.html" />
     <link rel="next" title="Tallies" href="dag-mcnp_deprecated.html" />
     <link rel="prev" title="Monte Carlo code-specific steps" href="index.html" /> 
   </head>
@@ -225,14 +224,14 @@ keywords have been added to the command line to specify the necessary files.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required):</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Specify the filename of the input geometry
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">Specify the filename of the input geometry
 file. It can be in one of two formats: the MOAB (*.h5m) format (this is the
 format produced by <code class="docutils literal"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
 produced by DAGMC. If this entry is not present, DAG-MCNP will assume that
 it is running in native MCNP mode.</td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">fcad=&lt;facet_file&gt;</span></code> (optional):</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body">[default: fcad] Specify the filename of the
+<tr class="field-even field"><td>&#160;</td><td class="field-body">[default: fcad] Specify the filename of the
 output facet file. This is the file produced by DAGMC that contains the
 geometry as well as the products of a number of preprocessing steps, which
 can be quite time-consuming. This file can be used as input with the
@@ -240,7 +239,7 @@ can be quite time-consuming. This file can be used as input with the
 preprocessing steps.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">lcad=&lt;log_file&gt;</span></code> (optional):</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">[default: lcad] Specify the filename of the
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">[default: lcad] Specify the filename of the
 output log file. This is a skeleton of an MCNP file which contains
 information about the volumes, surfaces, materials and material assignments,
 boundary conditions, and tallies defined in the geometry. If you specify a
@@ -281,10 +280,10 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 22, 2017.
+      Last updated on Jun 12, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
       </p>
     </div>
   </body>

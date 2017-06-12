@@ -18,7 +18,8 @@
         VERSION:     '0.9',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
@@ -26,8 +27,6 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="DAGMC" href="../index.html" />
-    <link rel="up" title="User’s guide" href="index.html" />
     <link rel="next" title="Contribute" href="../contribute/index.html" />
     <link rel="prev" title="mcnp2cad" href="mcnp2cad.html" /> 
   </head>
@@ -121,12 +120,11 @@ cases for MCNP.</p>
 </div>
 <dl class="docutils">
 <dt>There are 2 circumstances that reset a ray history:</dt>
-<dd><ul class="first last">
-<li><p class="first">particle history termination</p>
-</li>
+<dd><ul class="first last simple">
+<li>particle history termination</li>
 <li><dl class="first docutils">
 <dt>a change in direction other than reflection</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>note that during reflection, the previous direction is changed
 to make it look like a boundary crossing/streaming event
 (dagmc_surf_reflection)</li>
@@ -143,10 +141,10 @@ erasing the tail except for the last facet.</p>
 </div>
 <div class="section" id="other-history-state-variables">
 <h2>Other history state variables<a class="headerlink" href="#other-history-state-variables" title="Permalink to this headline">¶</a></h2>
-<ul>
+<ul class="simple">
 <li><dl class="first docutils">
 <dt>visited_surface (bool)</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>turned on when a surface interaction is handled either in surface crossing or reflection</li>
 <li>turned off immediately following the next ray fire</li>
 </ul>
@@ -155,7 +153,7 @@ erasing the tail except for the last facet.</p>
 </li>
 <li><dl class="first docutils">
 <dt>last_uvw (unit direction vector)</dt>
-<dd><ul class="first last simple">
+<dd><ul class="first last">
 <li>set during reflection to spoof a surface crossing</li>
 <li>set following every ray fire to record direction of last ray_fire</li>
 <li>note: not reset for each history because is not used until after
@@ -164,8 +162,7 @@ the first ray_fire in each history</li>
 </dd>
 </dl>
 </li>
-<li><p class="first">last_nps (int)</p>
-</li>
+<li>last_nps (int)</li>
 </ul>
 </div>
 </div>
@@ -181,10 +178,10 @@ the first ray_fire in each history</li>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 22, 2017.
+      Last updated on Jun 12, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
       </p>
     </div>
   </body>
