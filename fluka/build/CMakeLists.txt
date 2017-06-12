@@ -16,7 +16,7 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
 include_directories(.)
-include_directories(${CMAKE_SOURCE_DIR}/common)
+include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 

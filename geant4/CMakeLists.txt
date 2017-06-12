@@ -42,6 +42,7 @@ include_directories(.)
 include_directories(build/include)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${GEANT4_DIR}/include/Geant4)
 
 # Libraries
@@ -49,8 +50,10 @@ set(LINK_LIBS)
 set(LINK_LIBS_STATIC)
 list(APPEND LINK_LIBS        ${Geant4_LIBRARIES_SHARED})
 list(APPEND LINK_LIBS        ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS        dagmc)
 list(APPEND LINK_LIBS_STATIC ${Geant4_LIBRARIES_STATIC})
 list(APPEND LINK_LIBS_STATIC ${DAG_LINK_LIBS})
+list(APPEND LINK_LIBS_STATIC dagmc-static)
 
 # Build DagSolid library
 add_library(dagsolid        SHARED ${SRC_FILES})

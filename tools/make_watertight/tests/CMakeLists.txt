@@ -2,17 +2,16 @@ message(STATUS "Building make_watertight tests")
 
 # Libraries
 set(LINK_LIBS)
+list(APPEND LINK_LIBS gtest)
 if (BUILD_STATIC)
-  list(APPEND LINK_LIBS gtest-static)
   list(APPEND LINK_LIBS makeWatertight-static)
 else ()
-  list(APPEND LINK_LIBS gtest)
   list(APPEND LINK_LIBS makeWatertight)
 endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
-include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/tools/make_watertight)
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${MOAB_INCLUDE_DIRS})
 

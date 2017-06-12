@@ -1,7 +1,5 @@
 message(STATUS "Building DAG-MCNP6")
 
-enable_language(Fortran)
-
 # Get date and time
 # modifed from http://www.cmake.org/pipermail/cmake/2010-November/041034.html
 macro (DATETIME RESULT)
@@ -30,7 +28,6 @@ file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/partisn/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.c")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "../*.cpp")
 if (MPI_BUILD)
   file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/dotcomm/*.c")
 endif (MPI_BUILD)
@@ -70,21 +67,24 @@ if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 message(STATUS "DAG-MCNP6 version ${MCNP_VERSION} source files found")
 
+# Optimization flags: use -O1 unless in debug mode
+set(CMAKE_C_FLAGS_RELEASE "-O1")
+set(CMAKE_CXX_FLAGS_RELEASE "-O1")
+set(CMAKE_Fortran_FLAGS_RELEASE "-O1")
+if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+  message(STATUS "Using -O1 optimization for DAG-MCNP6")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O1")
+endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+
 # C compiler flags
-if (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-endif (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
 if (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
   #set(CMAKE_C_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=medium")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pc64")
 else ()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
 endif (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
-
-# C++ compiler flags
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Fortran compiler flags
 if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
@@ -206,7 +206,7 @@ if (MPI_BUILD)
 endif (MPI_BUILD)
 
 # DAGMC
-include_directories(${CMAKE_SOURCE_DIR}/common)
+include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
@@ -235,21 +235,11 @@ endif (MCNP6_PLOT)
 if (MPI_BUILD)
   target_link_libraries(${MCNP_EXEC} ${MPI_Fortran_LIBRARIES})
 endif (MPI_BUILD)
-if (BUILD_STATIC)
-  target_link_libraries(${MCNP_EXEC} dagmciface-static)
-  target_link_libraries(${MCNP_EXEC} pyne_dagmc-static)
-  target_link_libraries(${MCNP_EXEC} dagtally-static)
-else ()
-  target_link_libraries(${MCNP_EXEC} dagmciface)
-  target_link_libraries(${MCNP_EXEC} pyne_dagmc)
-  target_link_libraries(${MCNP_EXEC} dagtally)
-endif (BUILD_STATIC)
+if (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
+  target_link_libraries(${MCNP_EXEC} gfortran)
+endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
 target_link_libraries(${MCNP_EXEC} ${DAG_LINK_LIBS})
-if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
-  set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "stdc++")
-  set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "stdc++")
-  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
-endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+target_link_libraries(${MCNP_EXEC} mcnpfuncs)
 
 # Install DAG-MCNP6
 install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)

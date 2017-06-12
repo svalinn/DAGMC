@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # $1: compiler (gcc-4.8, gcc-4.9, gcc-5, gcc-6, clang-3.8, clang-3.9, clang-4.0)
-# $2: moab version (4.9.2, master)
+# $2: moab version (5.0, master)
 # $3: geant4 version (10.01.p03, 10.02.p03, 10.03.p01)
 
 set -e
@@ -37,6 +37,10 @@ git diff --exit-code  # Exit if astyle found diffs
 
 # Run the tests
 cd ${DAGMC_dir}/tests
+./dagmc_unit_tests
+./dagmc_pointinvol_test
+./dagmc_rayfire_test
+./dagmc_simple_test
 ./dagsolid_unit_tests
 #./fludag_unit_tests  # no fludag yet
 ./test_CellTally

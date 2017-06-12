@@ -60,16 +60,6 @@ RUN bash /root/etc/build_hdf5.sh clang-3.8
 RUN bash /root/etc/build_hdf5.sh clang-3.9
 RUN bash /root/etc/build_hdf5.sh clang-4.0
 
-# Build MOAB
-COPY build_moab.sh /root/etc/
-RUN bash /root/etc/build_moab.sh gcc-4.8   4.9.2
-RUN bash /root/etc/build_moab.sh gcc-4.9   4.9.2
-RUN bash /root/etc/build_moab.sh gcc-5     4.9.2
-RUN bash /root/etc/build_moab.sh gcc-6     4.9.2
-RUN bash /root/etc/build_moab.sh clang-3.8 4.9.2
-RUN bash /root/etc/build_moab.sh clang-3.9 4.9.2
-RUN bash /root/etc/build_moab.sh clang-4.0 4.9.2
-
 # Build Geant4
 COPY build_geant4.sh /root/etc/
 RUN bash /root/etc/build_geant4.sh gcc-5     10.01.p03

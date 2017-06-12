@@ -7,10 +7,16 @@ list(APPEND SRC_FILES build_obb.cpp)
 # Include directories
 include_directories(.)
 include_directories(${MOAB_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+if (BUILD_STATIC)
+  list(APPEND LINK_LIBS dagmc-static)
+else()
+  list(APPEND LINK_LIBS dagmc)
+endif (BUILD_STATIC)
 
 # Build build_obb
 add_executable(build_obb ${SRC_FILES})

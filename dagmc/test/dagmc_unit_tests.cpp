@@ -22,7 +22,7 @@ class DagmcMetadataTest : public ::testing::Test {
   // initalize variables for each test
   virtual void SetUp() {
     // Default h5m file for testing
-    std::string infile = "test_dagmciface.h5m";
+    std::string infile = "test_dagmc.h5m";
 
     DAG = new moab::DagMC();
 
@@ -337,7 +337,7 @@ class DagmcMetadataTestImplCompMat : public ::testing::Test {
   // initalize variables for each test
   virtual void SetUp() {
     // Default h5m file for testing
-    std::string infile = "test_dagmciface_impl.h5m";
+    std::string infile = "test_dagmc_impl.h5m";
 
     DAG = new moab::DagMC();
 

@@ -23,7 +23,7 @@ endmacro (setup_test)
 macro(run_test test_target)
   add_custom_target(${test_target}_runtest COMMAND ${test_target}
                                            DEPENDS ${test_target}
-                                           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+                                           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
   add_dependencies(${test_target}_runtest gtest)
 endmacro (run_test)
 
@@ -33,39 +33,42 @@ set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
 
-# Determine if we're building static libraries
-option(BUILD_STATIC "Build static libraries and executables" OFF)
+set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "")
+set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
+set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
+
+# Determine if we're building static executables
+option(BUILD_STATIC "Build static executables" OFF)
 if (BUILD_STATIC)
-  set(LIB_TYPE "STATIC")
-  set(BUILD_SHARED_LIBRARIES OFF)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
   if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
     set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
   endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 else ()
-  set(LIB_TYPE "SHARED")
-  set(BUILD_SHARED_LIBRARIES ON)
+  set(BUILD_SHARED ON)
 endif (BUILD_STATIC)
 
 # Allow use of find_package(HDF5), find_package(MOAB), etc.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-# Make sure we have HDF5 and MOAB
-find_package(HDF5 REQUIRED)
-find_package(MOAB REQUIRED)
-
 # find the gfortran library name, this is required for OS/X which uses a variety
 # of package managers to install gfortan and caould be in a number of places
-find_library(GFORTRAN_LIBRARY NAMES gfortran libgfortran
-  PATHS /usr/local/lib/gcc/*/ /lib /lib64 /usr/lib /usr/lib64 /usr/lib/gcc/*/*)
+if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+  find_library(GFORTRAN_LIBRARY NAMES gfortran libgfortran
+                                PATHS /usr/local/lib/gcc/* /lib /lib64 /usr/lib
+                                      /usr/lib64 /usr/lib/gcc/*/*)
+endif (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
 
-# DAGMC_LIBRARIES used instead of MOAB_LIBRARIES for MOAB 4.7+
-if (DAGMC_LIBRARIES)
-  set(DAG_LINK_LIBS "${DAGMC_LIBRARIES}")
-else ()
-  set(DAG_LINK_LIBS "dagmc ${MOAB_LIBRARIES}")
-endif (DAGMC_LIBRARIES)
+# Make sure we have HDF5
+find_package(HDF5 REQUIRED)
+
+# Make sure we have MOAB
+find_package(MOAB REQUIRED)
+set(DAG_LINK_LIBS ${MOAB_LIBRARIES})
 string(STRIP "${DAG_LINK_LIBS}" DAG_LINK_LIBS)
 string(REGEX REPLACE ";" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
 string(REGEX REPLACE "[ ]+" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
@@ -119,9 +122,9 @@ if (BUILD_FLUKA)
   add_subdirectory(fluka)
 endif (BUILD_FLUKA)
 
-# Include UWUW in dagmciface library
+# Include UWUW in DAGMC library
 add_subdirectory(uwuw)
-add_subdirectory(common) 
+add_subdirectory(dagmc) 
 
 # Build tools
 add_subdirectory(tools)
@@ -132,6 +135,6 @@ if (BUILD_CI_TESTS)
     add_subdirectory(tally)
   endif (NOT BUILD_TALLY)
   if (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
-    add_subdirectory(mcnp/test)
+    add_subdirectory(mcnp)
   endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
 endif (BUILD_CI_TESTS)

@@ -3,17 +3,16 @@ message(STATUS "Building FluDAG unit tests")
 # Libraries
 set(LINK_LIBS)
 list(APPEND LINK_LIBS pthread)
+list(APPEND LINK_LIBS gtest)
 if (BUILD_STATIC)
-  list(APPEND LINK_LIBS gtest-static)
   list(APPEND LINK_LIBS fludag-static)
 else ()
-  list(APPEND LINK_LIBS gtest)
   list(APPEND LINK_LIBS fludag)
 endif (BUILD_STATIC)
 list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 
 # Include directories
-include_directories(..)
+include_directories(${CMAKE_SOURCE_DIR}/fluka)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup unit tests
