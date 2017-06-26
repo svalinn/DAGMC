@@ -26,13 +26,6 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   virtual G4VPhysicalVolume* Construct();
   virtual void ConstructSDandField();
 
-  // the tally library
-  std::map<std::string, pyne::Tally> tally_library;
-  // dag_volumes collection mapped by id number
-  std::map<int, G4LogicalVolume*> dag_logical_volumes;
-  // particle filters for tallies
-  std::map<std::string, G4SDParticleFilter*> particle_filters;
-
   void build_geom();
   void BuildParticleFilter(std::string particle_name);
   void build_histogram();
@@ -40,7 +33,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   void end_histogram();
  private:
   std::string _to_string(int var);
-
+  void ConstructDoseScorers();
  private:
 
   // Logical volumes
@@ -48,6 +41,14 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   std::string uwuw_filename;
 
   G4LogicalVolume* world_volume_log;
+
+  // the tally library
+  std::map<std::string, pyne::Tally> tally_library;
+  // dag_volumes collection mapped by id number
+  std::map<int, G4LogicalVolume*> dag_logical_volumes;
+  // particle filters for tallies
+  std::map<std::string, G4SDParticleFilter*> particle_filters;
+
 
   UWUW* workflow_data;
 

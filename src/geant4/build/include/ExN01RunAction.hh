@@ -34,6 +34,8 @@ class ExN01RunAction : public G4UserRunAction {
   ExN01RunAction(UWUW* uwuw_workflow_data);
   virtual ~ExN01RunAction();
 
+  virtual G4Run* GenerateRun();
+
   virtual void BeginOfRunAction(const G4Run*);
   virtual void   EndOfRunAction(const G4Run*);
 

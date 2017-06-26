@@ -26,6 +26,7 @@
 #include "G4PSEnergyDeposit.hh"
 #include "G4PSTrackLength.hh"
 #include "G4PSCellFlux.hh"
+#include "G4PSDoseDeposit.hh"
 
 #include "G4GeometryManager.hh"
 #include "G4ParticleTable.hh"
@@ -214,9 +215,6 @@ void ExN01DetectorConstruction::ConstructSDandField() {
   //  load tallies from the h5m file
   tally_library = workflow_data->tally_library;
 
-  // TrackLength Scorer
-  //  std::vector<G4MultiFunctionalDetector*> detectors;
-
   // for regisistering particle tallies
 
   /* notes for andy
@@ -244,15 +242,6 @@ void ExN01DetectorConstruction::ConstructSDandField() {
       // builds and keeps a store of particle filters
       BuildParticleFilter(scorer.particle_name);
 
-      // build the filters
-      /*
-      if( 0 < particle_filters.count(scorer.particle_name))
-        {
-          G4SDParticleFilter *filter = new G4SDParticleFilter(scorer.particle_name);
-          filter->add(pyne::particle::geant4(scorer.particle_name));
-          particle_filters[scorer.particle_name]=filter;
-        }
-      */
     }
   }
 
@@ -315,19 +304,6 @@ void ExN01DetectorConstruction::ConstructSDandField() {
     G4VSensitiveDetector* detector = new ExN01SensitiveDetector(detector_name,
                                                                 "flux", sd_index, det_volume * cm3,
                                                                 HM);
-
-    // May wish to filter particles here as well
-
-    //sets the sensitivity
-    // build the filters
-    /*
-    for ( str = particle_types.begin() ; str != particle_types.end() ; ++str )
-      {
-        // particle name
-        std::string particle_name = *str;
-        detector->SetFilter(particle_filters[particle_name]);
-      }
-     */
     // add the detector
     G4SDManager::GetSDMpointer()->AddNewDetector(detector);
     dag_logical_volumes[vol_idx]->SetSensitiveDetector(detector);
@@ -336,6 +312,34 @@ void ExN01DetectorConstruction::ConstructSDandField() {
 
   HM->print_histogram_collection();
   //exit(1);
+}
+
+/* construct dose scorers - should probably template this 
+   for arbitrary scoring mechanisms */
+void ExN01DetectorConstruction::ConstructDoseScorers() {
+  G4VPrimitiveScorer *primitive;
+  G4cout << "Constructing dose scorers ... ";
+  // loop over the volumes
+  std::map<int,G4LogicalVolume*>::iterator it;
+  for ( it = dag_logical_volumes.begin() ;
+        it != dag_logical_volumes.end() ; 
+        ++it ) { 
+      // volume in which to score dose
+      G4LogicalVolume *volume = it->second;
+      G4String det_name = volume->GetName();
+      // det_name += "_dose";
+      // create new detector
+      G4MultiFunctionalDetector* det = new G4MultiFunctionalDetector(det_name);
+      // new energy deposit
+      primitive = new G4PSDoseDeposit("Dose",0);
+      // register the new detector
+      det->RegisterPrimitive(primitive);
+      // add a new detector
+      G4SDManager::GetSDMpointer()->AddNewDetector(det);
+      // make it sensitive
+      volume->SetSensitiveDetector(det);
+  }
+  G4cout << "done" << G4endl;
 }
 
 /* initialise the histograms */

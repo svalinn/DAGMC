@@ -39,9 +39,10 @@ class ExN01DetectorHit : public G4VHit {
   };
   /*
   void SetChamberNb(G4int chamb)      { fChamberNb = chamb; };
-  void SetEdep     (G4double de)      { fEdep = de; };
   void SetPos      (G4ThreeVector xyz){ fPos = xyz; };
   */
+  void SetEdep     (G4double de)      { fEdep = de; };
+
   void SetParticleEnergy(G4double ke)      {
     fKe  = ke;
   };
@@ -64,9 +65,11 @@ class ExN01DetectorHit : public G4VHit {
   };
   /*
   G4int GetChamberNb() const   { return fChamberNb; };
-  G4double GetEdep() const     { return fEdep; };
   G4ThreeVector GetPos() const { return fPos; };
   */
+  G4double GetEdep() const     { return fEdep; };
+
+  
   G4double GetKE() const       {
     return fKe;
   };
@@ -87,7 +90,7 @@ class ExN01DetectorHit : public G4VHit {
 
   G4int         fTrackID;
 //      G4int         fChamberNb;
-//      G4double      fEdep;
+  G4double      fEdep;
 //      G4ThreeVector fPos;
   G4double      fKe;
   G4double      fTl;

@@ -97,8 +97,8 @@ G4bool ExN01SensitiveDetector::ProcessHits(G4Step* aStep,
   // G4double edep = aStep->GetTotalEnergyDeposit();
 
   ExN01DetectorHit* newHit = new ExN01DetectorHit();
-  /*
   newHit->SetEdep( aStep->GetTotalEnergyDeposit());
+  /*
   newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
   newHit->SetPos (aStep->GetPostStepPoint()->GetPosition());
   */
