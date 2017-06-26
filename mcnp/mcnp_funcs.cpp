@@ -56,6 +56,8 @@ void dagmcinit_(char* cfile, int* clen,  // geom
 
   // make new DagMC
   DAG = new moab::DagMC();
+  // make new UWUW object
+  workflow_data = new UWUW(cfile);
 
 #ifdef ENABLE_RAYSTAT_DUMPS
   // the file to which ray statistics dumps will be written
@@ -139,7 +141,7 @@ void dagmcwritefacets_(char* ffile, int* flen) { // facet file
 }
 
 void dagmcwritemcnp_(char* dagfile, char* lfile, int* llen, const char* mcnp_version_major) { // file with cell/surface cards
-  workflow_data = new UWUW(dagfile);
+
   std::string full_dagfilename = workflow_data->full_filepath;
 
   lfile[*llen]  = '\0';
