@@ -59,5 +59,3 @@ script:
                                                      export TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST;
                                                      export MW_REG_TEST_MODELS_URL=$MW_REG_TEST_MODELS_URL;
                                                      bash docker/run_tests.sh $COMPILER $MOAB_VERSION $GEANT4_VERSION"
-  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
