@@ -111,7 +111,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   } else {
     hierarchy = true;
   }
-  
+
   build_geom();     // build the geometry
 
   return world_volume_phys;
@@ -119,6 +119,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
 
 void ExN01DetectorConstruction::build_geom() { 
   G4cout << "Building Geometry..." << G4endl;
+  hierarchy = false;
     // get count of entities
   G4int num_of_objects = dagmc->num_entities(3);
   G4cout << "There are " << num_of_objects << " dag volumes" << G4endl;
@@ -156,16 +157,19 @@ void ExN01DetectorConstruction::build_geom() {
     G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol, material_lib[material_name],
                                                        "vol_" + idx_str + "_log", 0, 0, 0);
     // we dont need implicit complement
+    
+  /*
     if(dag_id == impl_comp_id)
       dag_logical_volumes[dag_id] = world_volume_log;
     else
       dag_logical_volumes[dag_id] = dag_vol_log;
-   
+    */
+    if(dag_id != impl_comp_id) dag_logical_volumes[dag_id] = dag_vol_log;
   }
 
   // 2 loops since if we have hierarchy we need the logical volumes to already
   // exist
-  
+  hierarchy = false;
   // now make the physical volumes
   for (int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++) {
     
@@ -311,6 +315,7 @@ void ExN01DetectorConstruction::ConstructSDandField() {
   end_histogram();
 
   HM->print_histogram_collection();
+  ConstructDoseScorers();
   //exit(1);
 }
 
@@ -323,7 +328,7 @@ void ExN01DetectorConstruction::ConstructDoseScorers() {
   std::map<int,G4LogicalVolume*>::iterator it;
   for ( it = dag_logical_volumes.begin() ;
         it != dag_logical_volumes.end() ; 
-        ++it ) { 
+        it++ ) { 
       // volume in which to score dose
       G4LogicalVolume *volume = it->second;
       G4String det_name = volume->GetName();

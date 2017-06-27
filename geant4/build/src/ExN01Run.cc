@@ -4,7 +4,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include "ExN01Run.hh"
 
-ExN01Run::ExN01Run() : nEvent(0) {
+ExN01Run::ExN01Run() : G4Run() {
     // get sensitive detector manager
     G4SDManager *SDM = G4SDManager::GetSDMpointer();
     
@@ -15,19 +15,23 @@ ExN01Run::ExN01Run() : nEvent(0) {
     // loop over all the logical volumes
     for ( lv_it = lvs->begin(); lv_it != lvs->end(); lv_it++ ) {
       G4String lv_name = (*lv_it)->GetName();
+      G4cout << lv_name << G4endl;
       // make the name
       G4String detector_name = lv_name + "/" + det_name;
       // get unique collection id 
       G4int score_id = SDM->GetCollectionID(detector_name);
-      detectors[detector_name] = score_id;
+      if(score_id != -1 ) detectors[detector_name] = score_id;
     }
     // all done
 }
 
-ExN01Run::~ExN01Run(){}
+ExN01Run::~ExN01Run(){
+  detectors.clear();
+  total_score.clear();
+}
 
 void ExN01Run::RecordEvent(const G4Event *evt) {
-  nEvent++;
+  numberOfEvent++;
   G4HCofThisEvent* HCE = evt->GetHCofThisEvent();
   // accumlate scores for this event
   std::map<G4String,G4int>::iterator it;
@@ -45,12 +49,14 @@ void ExN01Run::Merge(const G4Run *aRun) {
   G4Run::Merge(aRun);
 }
 
-G4THitsMap<G4double> ExN01Run::GetTotal(G4int id) {
+// Get the score for the given id
+G4THitsMap<G4double> ExN01Run::GetScore(G4int id) {
   G4THitsMap<G4double> tot = total_score[id];
   return tot;
 }
 
-G4THitsMap<G4double> ExN01Run::GetTotal(G4LogicalVolume *vol, G4String score_name) {
+// get the score for a given arbitrary volume and score name
+G4THitsMap<G4double> ExN01Run::GetScore(G4LogicalVolume *vol, G4String score_name) {
   G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   G4SDManager *SDM = G4SDManager::GetSDMpointer();
 
@@ -65,8 +71,33 @@ G4THitsMap<G4double> ExN01Run::GetTotal(G4LogicalVolume *vol, G4String score_nam
       // get unique collection id 
       G4int score_id = SDM->GetCollectionID(detector_name);
       // 
-      return GetTotal(score_id);
+      return GetScore(score_id);
     }
   }
 //  return G4THitsMap<G4double>*;
+}
+
+// 
+G4double ExN01Run::GetTotal(G4int id) {
+  G4THitsMap<G4double> scores = GetScore(id);
+  G4double total = 0.;
+  if(scores.GetSize()==0) return total;
+  std::map<G4int,G4double*>::iterator itr = scores.GetMap()->begin();
+  for(; itr != scores.GetMap()->end(); itr++) { 
+    total += *(itr->second); 
+  }
+  total /= double(numberOfEvent);
+  return total;
+}
+
+G4double ExN01Run::GetTotal(G4LogicalVolume *vol, G4String score_name) {
+  G4THitsMap<G4double> scores = GetScore(vol,score_name);
+  G4double total = 0.;
+  if(scores.GetSize()==0) return total;
+  std::map<G4int,G4double*>::iterator itr = scores.GetMap()->begin();
+  for(; itr != scores.GetMap()->end(); itr++) { 
+    total += *(itr->second); 
+  }
+  total /= double(numberOfEvent);
+  return total;
 }

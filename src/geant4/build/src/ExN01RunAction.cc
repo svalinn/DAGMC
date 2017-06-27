@@ -10,8 +10,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ExN01RunAction::ExN01RunAction(UWUW* uwuw_workflow_data)
-  : G4UserRunAction() {
+ExN01RunAction::ExN01RunAction(UWUW* uwuw_workflow_data) : G4UserRunAction() {
   workflow_data = uwuw_workflow_data;
 }
 
@@ -39,11 +38,10 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run) {
   // print histogram statistics
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   // number of primaries
-
-  //int num_of_event = G4RunManager::GetRunManager()->GetNumberOfEvent();
-  const ExN01Run* theRun = (const ExN01Run*) run;
+  // cast to ExN01Run
+  ExN01Run* theRun = (ExN01Run*) run;
   int num_of_event = theRun->GetNumberOfEvent();
-
+  
   G4cout << "############################################################################" << G4endl;
   G4cout << "#                                                                          #" << G4endl;
   G4cout << "#                           End of Run Summary                             #" << G4endl;
@@ -55,11 +53,11 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run) {
   // loop over the logical volumes and print summary
   G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume*>::iterator lv_it;
-  for( lv_it = lvs->begin(); lv_it != lvs->end(); lv_it++ ) {
+  for( lv_it = lvs->begin(); lv_it != lvs->end(); ++lv_it ) {
     G4String lv_name = (*lv_it)->GetName();
     G4cout << "#        " << lv_name;
-    G4double score = theRun->GetTotal(*lv_it,"Dose");
-    G4cout << "    " << score/double(num_of_event)  << G4endl;
+    G4double score = theRun->GetTotal( *lv_it,"Dose");
+    G4cout << "      " << score/MeV*g << G4endl;
   }
 
   G4cout << "#                                                                          #" << G4endl;
@@ -72,10 +70,7 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run) {
     int index = 1 + std::distance(workflow_data->tally_library.begin(), it);
 
     // loop over this histograms
-    //    G4cout << index << G4endl;
     G4cout << index << " " << analysisManager->GetH1(index)->mean() << G4endl;
-    // scale the result by 1/volume and by (1/cm*cm)
-    //analysisManager->ScaleH1(index,1./ double(num_of_event));
   }
   // save histograms & ntuple
   analysisManager->Write();
