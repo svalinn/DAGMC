@@ -1,3 +1,6 @@
+#ifndef UWUW_HPP
+#define UWUW_HPP
+
 #include "../pyne/pyne.h"
 #include <stdlib.h>
 #include <map>
@@ -137,3 +140,4 @@ class UWUW {
   int get_length_of_table(std::string filename, std::string datapath);
 
 };
+#endif /* UWUW_HPP */

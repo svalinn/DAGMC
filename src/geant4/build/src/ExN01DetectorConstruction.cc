@@ -47,6 +47,8 @@ dagmcMetaData* DMD; // Dagmc Metadaata Instance
 DetermineHierarchy *DH; // Determine Hierahcy Instance
 
 std::map<std::string, G4Material*> material_lib;
+std::map<std::string, G4VisAttributes*> material_colours;
+
 bool hierarchy = false;
 
 // constructor
@@ -66,6 +68,7 @@ ExN01DetectorConstruction::~ExN01DetectorConstruction() {
 G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   // load the material from the UW^2 library
   material_lib = load_uwuw_materials(workflow_data);
+  material_colours = get_visualisation_attributes(material_lib);
 
   G4VisAttributes* invis = new G4VisAttributes(G4VisAttributes::Invisible);
 
@@ -103,7 +106,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   // make a new hierarchy tool
   G4cout << "Determining the hierarchy of volumes..." << G4endl;
   DH = new DetermineHierarchy(dagmc->moab_instance(),dagmc->geom_tool());
-  rval = DH->DetermineTheHierarchy(true); // determine the hierarchy
+  // rval = DH->DetermineTheHierarchy(true); // determine the hierarchy
   
   // check that we determined a hierarchy succesfully
   if(rval != moab::MB_SUCCESS) {
@@ -156,6 +159,11 @@ void ExN01DetectorConstruction::build_geom() {
     // make new logical volume
     G4LogicalVolume* dag_vol_log = new G4LogicalVolume(dag_vol, material_lib[material_name],
                                                        "vol_" + idx_str + "_log", 0, 0, 0);
+    if ( material_name != "mat:Graveyard" && mat_name != "mat:Vacuum" ) {
+      dag_vol_log->SetVisAttributes(material_colours[material_name]);
+    } else {
+      dag_vol_log->SetVisAttributes(G4VisAttributes::GetInvisible());
+    }
     // we dont need implicit complement
     
   /*
