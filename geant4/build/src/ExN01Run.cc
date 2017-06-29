@@ -117,6 +117,13 @@ G4double ExN01Run::GetTotal(G4LogicalVolume *vol, G4String score_name) {
   for ( it = total_score[score_id].GetMap()->begin() ; it != total_score[score_id].GetMap()->end() ; it++ ) {
     total += *(it->second);
   }
+  /* note very well that in the above loop, it would be rational to define a 
+   * temporary variable like
+   *  G4THitsMap<G4double> scores = total_score[score_id];
+   * if this is done and the iterator loops over scores.GetMap() this leads to a
+   * segfault at program termination. Maybe this variable is stored on the stack 
+   * rather than the heap. ? Don't really know, will report to Geant4 team.
+   */
   total /= double(numberOfEvent);
   return total;
 }
