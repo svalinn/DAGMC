@@ -12,36 +12,39 @@ ExN01Run::ExN01Run() : G4Run() {
 
     G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
     std::vector<G4LogicalVolume*>::iterator lv_it;
+
     // loop over all the logical volumes
     for ( lv_it = lvs->begin(); lv_it != lvs->end(); lv_it++ ) {
       G4String lv_name = (*lv_it)->GetName();
-      G4cout << lv_name << G4endl;
       // make the name
-      G4String detector_name = lv_name + "/" + det_name;
+      G4String detector_name = lv_name + "/" + det_name;   
       // get unique collection id 
-      G4int score_id = SDM->GetCollectionID(detector_name);
-      if(score_id != -1 ) detectors[detector_name] = score_id;
+      G4int score_id = SDM->GetCollectionID(detector_name);    
+      if ( score_id != -1 ) {
+        detectors[detector_name] = score_id;
+      }
     }
     // all done
+
 }
 
-ExN01Run::~ExN01Run(){
-  detectors.clear();
-  total_score.clear();
-}
+ExN01Run::~ExN01Run(){}
 
 void ExN01Run::RecordEvent(const G4Event *evt) {
-  numberOfEvent++;
+  
   G4HCofThisEvent* HCE = evt->GetHCofThisEvent();
+  if(!HCE) return;
+  numberOfEvent++;
   // accumlate scores for this event
   std::map<G4String,G4int>::iterator it;
-  for ( it = detectors.begin() ; it != detectors.end() ; it++ ) {
+  for ( it = detectors.begin() ; it != detectors.end() ; ++it ) {
     // unqiue score id
     G4int score_id = it->second;
     // the actual tally score
     G4THitsMap<G4double>* score = (G4THitsMap<G4double>*)HCE->GetHC(score_id);
     // score sum 
-    total_score[it->second] += *score;
+    total_score[score_id] += *score;
+    //G4THitsMap<G4double> val += *score;
   }  
 }
 
@@ -49,6 +52,7 @@ void ExN01Run::Merge(const G4Run *aRun) {
   G4Run::Merge(aRun);
 }
 
+/*
 // Get the score for the given id
 G4THitsMap<G4double> ExN01Run::GetScore(G4int id) {
   G4THitsMap<G4double> tot = total_score[id];
@@ -62,19 +66,22 @@ G4THitsMap<G4double> ExN01Run::GetScore(G4LogicalVolume *vol, G4String score_nam
 
   std::vector<G4LogicalVolume*>::iterator lv_it;
   // loop over all the logical volumes
-  for ( lv_it = lvs->begin(); lv_it != lvs->end(); lv_it++ ) {
+  for ( lv_it = lvs->begin(); lv_it != lvs->end(); ++lv_it ) {
     if( vol == *lv_it) { 
       G4String lv_name = (*lv_it)->GetName();
       // make the name
-      G4String det_name = "Dose";
-      G4String detector_name = lv_name + "/" + det_name;
+      // G4String det_name = "Dose";
+      G4String detector_name = lv_name + "/" + score_name;
       // get unique collection id 
       G4int score_id = SDM->GetCollectionID(detector_name);
-      // 
-      return GetScore(score_id);
+      if(score_id != -1 ) 
+        return GetScore(score_id);
+      else {
+        G4THitsMap<G4double> dummy;
+        return dummy;
+      }
     }
   }
-//  return G4THitsMap<G4double>*;
 }
 
 // 
@@ -89,14 +96,26 @@ G4double ExN01Run::GetTotal(G4int id) {
   total /= double(numberOfEvent);
   return total;
 }
+*/
 
 G4double ExN01Run::GetTotal(G4LogicalVolume *vol, G4String score_name) {
-  G4THitsMap<G4double> scores = GetScore(vol,score_name);
+
+  G4String lv_name = vol->GetName();
+  // make the name
+  // G4String det_name = "Dose";
+  G4String detector_name = lv_name + "/" + score_name;
+  // get unique collection id 
+  G4SDManager *SDM = G4SDManager::GetSDMpointer();
+  G4int score_id = SDM->GetCollectionID(detector_name);
+
+  if ( score_id < 0 ) return 0.0;
   G4double total = 0.;
-  if(scores.GetSize()==0) return total;
-  std::map<G4int,G4double*>::iterator itr = scores.GetMap()->begin();
-  for(; itr != scores.GetMap()->end(); itr++) { 
-    total += *(itr->second); 
+  //  G4THitsMap<G4double> scores = total_score[score_id];
+  if(total_score[score_id].GetSize() == 0 ) return total;
+  //  return total;
+  std::map<G4int,G4double*>::iterator it;
+  for ( it = total_score[score_id].GetMap()->begin() ; it != total_score[score_id].GetMap()->end() ; it++ ) {
+    total += *(it->second);
   }
   total /= double(numberOfEvent);
   return total;

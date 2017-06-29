@@ -40,7 +40,6 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run) {
   // number of primaries
   // cast to ExN01Run
   ExN01Run* theRun = (ExN01Run*) run;
-  int num_of_event = theRun->GetNumberOfEvent();
   
   G4cout << "############################################################################" << G4endl;
   G4cout << "#                                                                          #" << G4endl;
@@ -56,7 +55,9 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run) {
   for( lv_it = lvs->begin(); lv_it != lvs->end(); ++lv_it ) {
     G4String lv_name = (*lv_it)->GetName();
     G4cout << "#        " << lv_name;
-    G4double score = theRun->GetTotal( *lv_it,"Dose");
+    G4String score_type = "Dose";
+    //G4double score = 0.0;
+    G4double score = theRun->GetTotal( *lv_it, score_type);
     G4cout << "      " << score/MeV*g << G4endl;
   }
 

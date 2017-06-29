@@ -34,7 +34,7 @@ void ExN01ActionInitialization::BuildForMaster() const {
 void ExN01ActionInitialization::Build() const {
   SetUserAction(new ExN01PrimaryGeneratorAction);
   SetUserAction(new ExN01RunAction(workflow_data));
-  SetUserAction(new ExN01EventAction);
+  //  SetUserAction(new ExN01EventAction);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
