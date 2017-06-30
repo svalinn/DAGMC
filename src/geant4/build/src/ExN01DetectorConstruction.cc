@@ -40,6 +40,7 @@
 #include "DagSolidTally.hh"
 #include "DagSolidHierarchy.hh"
 
+#include "progressbar.hpp"
 #include "../pyne/pyne.h"
 
 moab::DagMC* dagmc = new moab::DagMC(); // create dag instance
@@ -136,9 +137,13 @@ void ExN01DetectorConstruction::build_geom() {
   moab::ErrorCode rval = dagmc->geom_tool()->get_implicit_complement(impl_comp);
   int impl_comp_id = dagmc->geom_tool()->global_id(impl_comp);
   
+  progress_bar* pbar = new progress_bar(50, 0., num_of_objects-1);
+
   // First make all the DagSolids & the Logical Volumes
+  G4cout << "Constructing Dagolids..." << G4endl;
   for (int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++) {
-    
+    pbar->update(1);
+    pbar->print();
     G4String idx_str = _to_string(dag_idx);
     // get the MBEntity handle for the volume
     int dag_id = dagmc->id_by_index(3, dag_idx);
@@ -178,9 +183,14 @@ void ExN01DetectorConstruction::build_geom() {
   // 2 loops since if we have hierarchy we need the logical volumes to already
   // exist
   hierarchy = false;
+
+  delete pbar;
+  pbar = new progress_bar(50,0,num_of_objects-1);
+  G4cout << "Constructing G4PhysicalPlacements..." << G4endl;
   // now make the physical volumes
   for (int dag_idx = 1 ; dag_idx < num_of_objects ; dag_idx++) {
-    
+    pbar->update(1);
+    pbar->print();
     G4String idx_str = _to_string(dag_idx);
     
     // get the MBEntity handle for the volume
@@ -206,6 +216,7 @@ void ExN01DetectorConstruction::build_geom() {
     dag_physical_volumes[dag_id] = dag_vol_phys;
   }
   G4cout << "Geometry Constructed." << G4endl;
+  delete pbar;
 }
 
 // Constructs the tallies
