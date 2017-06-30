@@ -13,9 +13,6 @@ env:
     # vary moab version
     - COMPILER="gcc-5"     MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
     - COMPILER="clang-4.0" MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
-    # vary geant4 version
-    - COMPILER="gcc-5"     MOAB_VERSION="5.0"    GEANT4_VERSION="10.01.p03"
-    - COMPILER="gcc-5"     MOAB_VERSION="5.0"    GEANT4_VERSION="10.02.p03"
     # vary compiler
     - COMPILER="gcc-4.8"   MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
     - COMPILER="gcc-4.9"   MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"

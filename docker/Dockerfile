@@ -62,8 +62,6 @@ RUN bash /root/etc/build_hdf5.sh clang-4.0
 
 # Build Geant4
 COPY build_geant4.sh /root/etc/
-RUN bash /root/etc/build_geant4.sh gcc-5     10.01.p03
-RUN bash /root/etc/build_geant4.sh gcc-5     10.02.p03
 RUN bash /root/etc/build_geant4.sh gcc-4.8   10.03.p01
 RUN bash /root/etc/build_geant4.sh gcc-4.9   10.03.p01
 RUN bash /root/etc/build_geant4.sh gcc-5     10.03.p01
