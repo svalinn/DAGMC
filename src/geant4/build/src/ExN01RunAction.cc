@@ -36,10 +36,12 @@ void ExN01RunAction::BeginOfRunAction(const G4Run* /*run*/) {
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void ExN01RunAction::EndOfRunAction(const G4Run* run) {
   // print histogram statistics
+  std::vector<G4String> detector_types = {"Dose","Flux","NoSecondary","NoStep"};
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
   // number of primaries
   // cast to ExN01Run
   ExN01Run* theRun = (ExN01Run*) run;
+  //theRun->SetupDetectors(detector_types);
   
   G4cout << "############################################################################" << G4endl;
   G4cout << "#                                                                          #" << G4endl;
@@ -47,20 +49,32 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run) {
   G4cout << "#                                                                          #" << G4endl;
   G4cout << "############################################################################" << G4endl;
   G4cout << "#                                                                          #" << G4endl;
-  G4cout << "#              Volume Name           Score                                 #" << G4endl;
+  G4cout << "#              Volume Name   "; 
 
+  std::vector<G4String>::iterator det_it;
+  for ( det_it = detector_types.begin() ; det_it != detector_types.end() ; ++det_it ){ 
+    G4cout << *det_it << "     ";
+  }
+  G4cout << G4endl;
   // loop over the logical volumes and print summary
   G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume*>::iterator lv_it;
-  for( lv_it = lvs->begin(); lv_it != lvs->end(); ++lv_it ) {
-    G4String lv_name = (*lv_it)->GetName();
-    G4cout << "#        " << lv_name;
-    G4String score_type = "Dose";
-    //G4double score = 0.0;
-    G4double score = theRun->GetTotal( *lv_it, score_type);
-    G4cout << "      " << score/MeV*g << G4endl;
-  }
 
+  for( lv_it = lvs->begin(); lv_it != lvs->end(); ++lv_it ) {
+      G4String lv_name = (*lv_it)->GetName();
+      G4cout << "#        " << lv_name;
+
+    for ( det_it = detector_types.begin() ; det_it != detector_types.end() ; ++det_it ){ 
+      G4String score_type = *det_it; //"Dose";
+      //G4double score = 0.0;
+      G4double score = theRun->GetTotal( *lv_it, score_type);
+      if ( score_type == "Dose" )
+        G4cout << "      " << score/MeV*g;
+      else
+        G4cout << "      " << score;
+    }
+    G4cout << G4endl;
+  }
   G4cout << "#                                                                          #" << G4endl;
   G4cout << "############################################################################" << G4endl;
   

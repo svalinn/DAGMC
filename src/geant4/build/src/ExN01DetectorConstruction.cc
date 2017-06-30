@@ -27,6 +27,8 @@
 #include "G4PSTrackLength.hh"
 #include "G4PSCellFlux.hh"
 #include "G4PSDoseDeposit.hh"
+#include "G4PSNofStep.hh"
+#include "G4PSNofSecondary.hh"
 
 #include "G4GeometryManager.hh"
 #include "G4ParticleTable.hh"
@@ -171,12 +173,13 @@ void ExN01DetectorConstruction::build_geom() {
     }
     // we dont need implicit complement
     
-  /*
+    /*
     if(dag_id == impl_comp_id)
       dag_logical_volumes[dag_id] = world_volume_log;
     else
       dag_logical_volumes[dag_id] = dag_vol_log;
     */
+
     if(dag_id != impl_comp_id) dag_logical_volumes[dag_id] = dag_vol_log;
   }
 
@@ -196,6 +199,8 @@ void ExN01DetectorConstruction::build_geom() {
     // get the MBEntity handle for the volume
     int dag_id = dagmc->id_by_index(3, dag_idx);
     moab::EntityHandle volume = dagmc->entity_by_id(3, dag_id);
+
+    if( volume == impl_comp) continue;
 
     G4PVPlacement *dag_vol_phys;
     if(hierarchy) {
@@ -223,6 +228,11 @@ void ExN01DetectorConstruction::build_geom() {
 void ExN01DetectorConstruction::ConstructSDandField() {
 
   G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
+
+  // Always construct dose scorers
+  ConstructDoseScorers();
+
+  return;
 
   if (workflow_data->tally_library.size() == 0) {
     std::cout << "No Tallies found in the file, " << uwuw_filename << std::endl;
@@ -334,7 +344,6 @@ void ExN01DetectorConstruction::ConstructSDandField() {
   end_histogram();
 
   HM->print_histogram_collection();
-  ConstructDoseScorers();
   //exit(1);
 }
 
@@ -342,28 +351,49 @@ void ExN01DetectorConstruction::ConstructSDandField() {
    for arbitrary scoring mechanisms */
 void ExN01DetectorConstruction::ConstructDoseScorers() {
   G4VPrimitiveScorer *primitive;
-  G4cout << "Constructing dose scorers ... ";
+  G4cout << "Constructing scorers ... ";
+  
+  std::vector<G4String> detector_types = {"Dose","Flux","NoSecondary","NoStep"};
+
+  progress_bar *pbar = new progress_bar(50,0,dag_logical_volumes.size() * detector_types.size());
+
+  std::vector<G4String>::iterator det_it;
   // loop over the volumes
   std::map<int,G4LogicalVolume*>::iterator it;
   for ( it = dag_logical_volumes.begin() ;
         it != dag_logical_volumes.end() ; 
         it++ ) { 
-      // volume in which to score dose
-      G4LogicalVolume *volume = it->second;
-      G4String det_name = volume->GetName();
-      // det_name += "_dose";
-      // create new detector
-      G4MultiFunctionalDetector* det = new G4MultiFunctionalDetector(det_name);
-      // new energy deposit
-      primitive = new G4PSDoseDeposit("Dose",0);
-      // register the new detector
-      det->RegisterPrimitive(primitive);
-      // add a new detector
-      G4SDManager::GetSDMpointer()->AddNewDetector(det);
-      // make it sensitive
-      volume->SetSensitiveDetector(det);
+
+       // volume in which to score dose
+       G4LogicalVolume *volume = it->second;
+       G4String det_name = volume->GetName();
+       G4MultiFunctionalDetector* det = new G4MultiFunctionalDetector(det_name);
+      for ( det_it = detector_types.begin() ; 
+            det_it != detector_types.end() ;
+            det_it++ ) {
+
+       pbar->update(1);
+       pbar->print();
+ 
+       // new energy deposit
+       if ( *det_it == "Dose")
+         primitive = new G4PSDoseDeposit(*det_it,0);
+       else if ( *det_it == "Flux") 
+         primitive = new G4PSCellFlux(*det_it,0);
+       else if ( *det_it == "NoSecondary") 
+         primitive = new G4PSNofSecondary(*det_it,0);
+      else if ( *det_it == "NoStep") 
+         primitive = new G4PSNofStep(*det_it,0);
+       // register the new detector
+       det->RegisterPrimitive(primitive);
+       // add a new detector
+       G4SDManager::GetSDMpointer()->AddNewDetector(det);
+       // make it sensitive
+       volume->SetSensitiveDetector(det);
+     }
   }
   G4cout << "done" << G4endl;
+  delete pbar;
 }
 
 /* initialise the histograms */

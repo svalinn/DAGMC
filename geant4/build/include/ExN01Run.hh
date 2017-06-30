@@ -23,6 +23,8 @@ class ExN01Run : public G4Run {
 
      G4double GetTotal(G4LogicalVolume*, G4String score_name);
 
+     // void SetupDetectors(std::vector<G4String> detector_types);
+
    private:
      G4THitsMap<G4double> GetScore(G4int id);
 

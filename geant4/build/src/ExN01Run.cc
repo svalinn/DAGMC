@@ -4,28 +4,30 @@
 #include "G4LogicalVolumeStore.hh"
 #include "ExN01Run.hh"
 
-ExN01Run::ExN01Run() : G4Run() {
+ExN01Run::ExN01Run() : G4Run() {  
+    std::vector<G4String> detector_types = {"Dose","Flux","NoSecondary","NoStep"};
+
+    //G4String det_name = "Dose"; // maybe add more in the future?
     // get sensitive detector manager
     G4SDManager *SDM = G4SDManager::GetSDMpointer();
-    
-    G4String det_name = "Dose"; // maybe add more in the future?
-
     G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
     std::vector<G4LogicalVolume*>::iterator lv_it;
-
+    std::vector<G4String>::iterator det_it;
     // loop over all the logical volumes
     for ( lv_it = lvs->begin(); lv_it != lvs->end(); lv_it++ ) {
-      G4String lv_name = (*lv_it)->GetName();
-      // make the name
-      G4String detector_name = lv_name + "/" + det_name;   
-      // get unique collection id 
-      G4int score_id = SDM->GetCollectionID(detector_name);    
-      if ( score_id != -1 ) {
-        detectors[detector_name] = score_id;
+      for ( det_it = detector_types.begin() ; det_it != detector_types.end() ; det_it++ ) {
+        G4String lv_name = (*lv_it)->GetName();
+        // make the name
+        G4String det_name = *det_it; // name of score type
+        G4String detector_name = lv_name + "/" + det_name;   
+        // get unique collection id 
+        G4int score_id = SDM->GetCollectionID(detector_name);    
+        if ( score_id != -1 ) {
+          detectors[detector_name] = score_id;
+        }
       }
     }
     // all done
-
 }
 
 ExN01Run::~ExN01Run(){}
@@ -110,6 +112,8 @@ G4double ExN01Run::GetTotal(G4LogicalVolume *vol, G4String score_name) {
 
   if ( score_id < 0 ) return 0.0;
   G4double total = 0.;
+  //G4cout << " $" << score_id << " " << total_score[score_id].GetSize() << G4endl;
+
   //  G4THitsMap<G4double> scores = total_score[score_id];
   if(total_score[score_id].GetSize() == 0 ) return total;
   //  return total;
