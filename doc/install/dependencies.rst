@@ -82,8 +82,7 @@ is required.
 ::
 
     $ cd bld
-    $ ../src/configure --enable-dagmc \
-                       --enable-optimize \
+    $ ../src/configure --enable-optimize \
                        --enable-shared \
                        --disable-debug \
                        --with-hdf5=$HOME/dagmc_bld/HDF5 \
@@ -98,8 +97,7 @@ configure option is required.
 ::
 
     $ cd bld
-    $ ../src/configure --enable-dagmc \
-                       --enable-optimize \
+    $ ../src/configure --enable-optimize \
                        --enable-shared \
                        --disable-debug \
                        --with-hdf5 \
