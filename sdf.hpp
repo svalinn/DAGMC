@@ -6,6 +6,8 @@
 #include "moab/CartVect.hpp"
 #include "moab/ScdInterface.hpp"
 
+#define  SDF_TAG_NAME  "SIGNED_DISTANCE_FIELD";
+
 namespace moab {
   
 class SignedDistanceField {
@@ -24,7 +26,7 @@ private:
   // distance between data points
   double step_size;
   // signed distance value tag name
-  const std::string sdf_tag_name = "SIGNED_DISTANCE_FIELD";
+  std::string sdf_tag_name;
   
 public:
   // method for getting the lower left corner of the signed distance field
