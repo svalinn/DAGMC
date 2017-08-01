@@ -301,8 +301,10 @@ void write_surface_cards(std::ostringstream& lcadfile) {
     std::string boundary_prop = DMD->surface_boundary_data_eh[entity];
     if (boundary_prop.find("Reflecting") != std::string::npos)
       surface_property = "*";
-    if (boundary_prop.find("White") != std::string::npos)
+    else if (boundary_prop.find("White") != std::string::npos)
       surface_property = "+";
+    else
+      surface_property = "";
     lcadfile  << surface_property << _to_string(surfid) << std::endl;
   }
   return;

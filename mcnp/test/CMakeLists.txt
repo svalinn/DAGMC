@@ -21,6 +21,7 @@ setup_test(dagmcnp_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
 # Install h5m files
 install(FILES test_geom_legacy.h5m      DESTINATION tests)
 install(FILES test_geom_legacy_comp.h5m DESTINATION tests)
+install(FILES test_reflecting.h5m DESTINATION tests)
 
 # Enable unit tests
 enable_testing()
