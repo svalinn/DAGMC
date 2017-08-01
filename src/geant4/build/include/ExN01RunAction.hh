@@ -8,6 +8,7 @@
 
 #include "G4UserRunAction.hh"
 #include "globals.hh"
+#include "ExN01Run.hh"
 
 #ifndef uwuw_hpp
 #define uwuw_hpp 1
@@ -35,7 +36,7 @@ class ExN01RunAction : public G4UserRunAction {
   virtual ~ExN01RunAction();
 
   virtual G4Run* GenerateRun();
-
+  virtual void PrintParticleSummary(ExN01Run *run, std::vector<G4String> detector_types, std::vector<G4String> particle_names);
   virtual void BeginOfRunAction(const G4Run*);
   virtual void   EndOfRunAction(const G4Run*);
 

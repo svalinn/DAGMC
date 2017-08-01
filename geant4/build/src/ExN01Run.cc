@@ -6,26 +6,31 @@
 
 ExN01Run::ExN01Run() : G4Run() {  
     std::vector<G4String> detector_types = {"Dose","Flux","NoSecondary","NoStep"};
-
+    std::vector<G4String> particle_names = {"Neutron","Photon","Electron"};
+    
     //G4String det_name = "Dose"; // maybe add more in the future?
     // get sensitive detector manager
     G4SDManager *SDM = G4SDManager::GetSDMpointer();
     G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
     std::vector<G4LogicalVolume*>::iterator lv_it;
     std::vector<G4String>::iterator det_it;
+    std::vector<G4String>::iterator par_it;
     // loop over all the logical volumes
     for ( lv_it = lvs->begin(); lv_it != lvs->end(); lv_it++ ) {
       for ( det_it = detector_types.begin() ; det_it != detector_types.end() ; det_it++ ) {
-        G4String lv_name = (*lv_it)->GetName();
-        // make the name
-        G4String det_name = *det_it; // name of score type
-        G4String detector_name = lv_name + "/" + det_name;   
-        // get unique collection id 
-        G4int score_id = SDM->GetCollectionID(detector_name);    
-        if ( score_id != -1 ) {
-          detectors[detector_name] = score_id;
-        }
-      }
+	for ( par_it = particle_names.begin() ; par_it != particle_names.end() ;  par_it++ ) {
+	  G4String lv_name = (*lv_it)->GetName();
+	  // make the name
+	  G4String det_name = *det_it; // name of score type
+	  G4String particle_name = *par_it; // name of particle
+	  G4String detector_name = lv_name + "/" + det_name + "/" + particle_name;   
+	  // get unique collection id 
+	  G4int score_id = SDM->GetCollectionID(detector_name);    
+	  if ( score_id != -1 ) {
+	    detectors[detector_name] = score_id;
+	  }
+	}
+      }	
     }
     // all done
 }
@@ -86,7 +91,7 @@ G4THitsMap<G4double> ExN01Run::GetScore(G4LogicalVolume *vol, G4String score_nam
   }
 }
 
-// 
+// Get total by score id
 G4double ExN01Run::GetTotal(G4int id) {
   G4THitsMap<G4double> scores = GetScore(id);
   G4double total = 0.;
@@ -100,6 +105,7 @@ G4double ExN01Run::GetTotal(G4int id) {
 }
 */
 
+// Get total by logical volume and score name
 G4double ExN01Run::GetTotal(G4LogicalVolume *vol, G4String score_name) {
 
   G4String lv_name = vol->GetName();

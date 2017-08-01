@@ -354,8 +354,15 @@ void ExN01DetectorConstruction::ConstructDoseScorers() {
   G4cout << "Constructing scorers ... ";
   
   std::vector<G4String> detector_types = {"Dose","Flux","NoSecondary","NoStep"};
+  std::vector<G4String> particle_name = {"Photon","Electron","Neutron"};
 
-  progress_bar *pbar = new progress_bar(50,0,dag_logical_volumes.size() * detector_types.size());
+  std::vector<G4String>::iterator itr;
+  // construct filters 
+  for ( itr = particle_name.begin() ; itr != particle_name.end() ; ++itr ) {
+    BuildParticleFilter(*itr);
+  }
+    
+  progress_bar *pbar = new progress_bar(50,0,dag_logical_volumes.size() * detector_types.size() * particle_name.size());
 
   std::vector<G4String>::iterator det_it;
   // loop over the volumes
@@ -363,34 +370,51 @@ void ExN01DetectorConstruction::ConstructDoseScorers() {
   for ( it = dag_logical_volumes.begin() ;
         it != dag_logical_volumes.end() ; 
         it++ ) { 
-
+    
        // volume in which to score dose
        G4LogicalVolume *volume = it->second;
        G4String det_name = volume->GetName();
        G4MultiFunctionalDetector* det = new G4MultiFunctionalDetector(det_name);
-      for ( det_it = detector_types.begin() ; 
+
+       // we now attach a specific detector type and particle sensitivity to that
+       // multifunctional detector - i.e. each detector will have Dose/Photon,
+       // Dose/Neutron etc
+       
+       for ( det_it = detector_types.begin() ; 
             det_it != detector_types.end() ;
             det_it++ ) {
 
-       pbar->update(1);
-       pbar->print();
- 
-       // new energy deposit
-       if ( *det_it == "Dose")
-         primitive = new G4PSDoseDeposit(*det_it,0);
-       else if ( *det_it == "Flux") 
-         primitive = new G4PSCellFlux(*det_it,0);
-       else if ( *det_it == "NoSecondary") 
-         primitive = new G4PSNofSecondary(*det_it,0);
-      else if ( *det_it == "NoStep") 
-         primitive = new G4PSNofStep(*det_it,0);
-       // register the new detector
-       det->RegisterPrimitive(primitive);
+	 for ( itr = particle_name.begin() ;
+	       itr != particle_name.end() ;
+	       ++itr ) {
+      
+	   G4String name_particle = *itr;
+
+	   pbar->update(1);
+	   pbar->print();
+
+       
+	   // new energy deposit
+	   if ( *det_it == "Dose")
+	     primitive = new G4PSDoseDeposit(*det_it+"/"+name_particle,0);
+	   else if ( *det_it == "Flux") 
+	     primitive = new G4PSCellFlux(*det_it+"/"+name_particle,0);
+	   else if ( *det_it == "NoSecondary") 
+	     primitive = new G4PSNofSecondary(*det_it+"/"+name_particle,0);
+	   else if ( *det_it == "NoStep") 
+	     primitive = new G4PSNofStep(*det_it+"/"+name_particle,0);
+
+	   // register the filter for that detector type
+	   primitive->SetFilter(particle_filters[name_particle]);
+       
+	   // register the new detector
+	   det->RegisterPrimitive(primitive);
+	 }
+       }
        // add a new detector
        G4SDManager::GetSDMpointer()->AddNewDetector(det);
        // make it sensitive
        volume->SetSensitiveDetector(det);
-     }
   }
   G4cout << "done" << G4endl;
   delete pbar;

@@ -130,6 +130,8 @@ DagSolid::DagSolid (const G4String &name, DagMC* dagmc, int volID)
   Interface* moab = dagmc->moab_instance();
   moab->get_child_meshsets(fvolEntity, surfs, 1 );
 
+  //  G4cout << "Building entity " << dagmc->get_entity_id(fvolEntity) << G4endl;
+  
   if ( plot ) {
     //  G4cout<<"please wait for visualization... "<<G4endl;
     for(unsigned i=0 ; i<surfs.size() ; i++) {
