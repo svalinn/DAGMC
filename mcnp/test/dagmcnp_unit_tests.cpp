@@ -180,14 +180,14 @@ TEST_F(DAGMCNP5Test, dagmcreflecting_comp_test) {
 TEST_F(DAGMCNP5Test, dagmcreflecting_test) {
 // expected values from the lcad file // only the cells
   const char* expected[] = {"1 1 -1.0 imp:n=1",
-			    "2 0  imp:n=1  $ implicit complement",
-			    "",
-			    "*1",
-			    "2",
-			    "3",
-			    "4",
-			    "5",
-			    "*6"
+                            "2 0  imp:n=1  $ implicit complement",
+                            "",
+                            "*1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                            "*6"
                            };
   int num_lines = 9;
   std::vector<std::string> expected_lcad(expected, expected + num_lines);
