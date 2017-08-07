@@ -95,8 +95,8 @@ namespace moab {
     
     ScdInterface* scdi  = new ScdInterface(mbi);
 
-    int num_x_steps,num_y_steps,num_z_steps;
-    get_dims(num_x_steps,num_y_steps,num_z_steps);
+    int num_x_pnts,num_y_pnts,num_z_pnts;
+    get_dims(num_x_pnts,num_y_pnts,num_z_pnts);
 
     double x_min,y_min,z_min;
     get_llc(x_min,y_min,z_min);
@@ -106,30 +106,28 @@ namespace moab {
  
     //create the relevant locations and 
     std::vector<double> pnts;
-    for(unsigned int k = 0; k < num_z_steps; k++){
-      for(unsigned int j = 0; j < num_y_steps; j++){
-    	for(unsigned int i = 0; i < num_x_steps; i++){
-    	  double xpnt = (i*step_size)+x_min;
-    	  double ypnt = (j*step_size)+y_min;
-    	  double zpnt = (k*step_size)+z_min;
-    	  pnts.push_back(xpnt);
-    	  pnts.push_back(ypnt);
-    	  pnts.push_back(zpnt);
+    for(unsigned int k = 0; k < num_z_pnts+1; k++){
+      for(unsigned int j = 0; j < num_y_pnts+1; j++){
+    	for(unsigned int i = 0; i < num_x_pnts+1; i++){
+	  CartVect coords = get_coords(i,j,k);
+    	  pnts.push_back(coords[0]);
+    	  pnts.push_back(coords[1]);
+    	  pnts.push_back(coords[2]);
     	}
       }
     }
 
     // now create an SCD box to track all of this info
     HomCoord l = HomCoord(0,0,0);
-    HomCoord h = HomCoord(num_x_steps, num_y_steps, num_z_steps);
+    HomCoord h = HomCoord(num_x_pnts, num_y_pnts, num_z_pnts);
     ErrorCode rval = scdi->construct_box(l, h, &(pnts[0]), pnts.size(), sdfBox);
 
     Tag sdfTag;
     rval = mbi->tag_get_handle( sdf_tag_name.c_str(), 1, MB_TYPE_DOUBLE, sdfTag, MB_TAG_DENSE|MB_TAG_CREAT );
     MB_CHK_SET_ERR(rval, "Could not create the signed distance field tag.");
-    for(unsigned int k = 0 ; k < num_z_steps; k++){
-       for(unsigned int j = 0 ; j < num_y_steps; j++){  
-	 for(unsigned int i = 0 ; i < num_x_steps; i++){
+    for(unsigned int k = 0 ; k < num_z_pnts+1; k++){
+       for(unsigned int j = 0 ; j < num_y_pnts+1; j++){  
+	 for(unsigned int i = 0 ; i < num_x_pnts+1; i++){
 	   EntityHandle vert = sdfBox->get_vertex(i,j,k);
 	   double sdv = get_data(i,j,k);
 	   void *ptr = &sdv;

@@ -42,7 +42,7 @@ public:
 
   // sets the data for the signed distance field
   inline void set_data(std::vector<double> data) {
-    assert(data.size() == dims[0]*dims[1]*dims[2]);
+    //    assert(data.size() == ((dims[0]+1)*(dims[1]+1)*(dims[2]+1)));
     signed_distance_values = data;
   }
 
@@ -53,7 +53,7 @@ public:
 
   // get the data at the i,j,k index
   inline double get_data(int i, int j, int k) {
-       return signed_distance_values[(i)+(j)*dims[0]+(k)*dims[0]*dims[1]];
+    return signed_distance_values[(i)+(j*dims[0])+(k*dims[0]*dims[1])];
   }
 
   //returns the trilinear interpolated signed distance value for the point
