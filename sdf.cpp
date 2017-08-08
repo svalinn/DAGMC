@@ -106,9 +106,9 @@ namespace moab {
  
     //create the relevant locations and 
     std::vector<double> pnts;
-    for(unsigned int k = 0; k < num_z_pnts+1; k++){
-      for(unsigned int j = 0; j < num_y_pnts+1; j++){
-    	for(unsigned int i = 0; i < num_x_pnts+1; i++){
+    for(unsigned int k = 0; k < num_z_pnts; k++){
+      for(unsigned int j = 0; j < num_y_pnts; j++){
+    	for(unsigned int i = 0; i < num_x_pnts; i++){
 	  CartVect coords = get_coords(i,j,k);
     	  pnts.push_back(coords[0]);
     	  pnts.push_back(coords[1]);
@@ -119,15 +119,15 @@ namespace moab {
 
     // now create an SCD box to track all of this info
     HomCoord l = HomCoord(0,0,0);
-    HomCoord h = HomCoord(num_x_pnts, num_y_pnts, num_z_pnts);
+    HomCoord h = HomCoord(num_x_pnts-1, num_y_pnts-1, num_z_pnts-1);
     ErrorCode rval = scdi->construct_box(l, h, &(pnts[0]), pnts.size(), sdfBox);
 
     Tag sdfTag;
     rval = mbi->tag_get_handle( sdf_tag_name.c_str(), 1, MB_TYPE_DOUBLE, sdfTag, MB_TAG_DENSE|MB_TAG_CREAT );
     MB_CHK_SET_ERR(rval, "Could not create the signed distance field tag.");
-    for(unsigned int k = 0 ; k < num_z_pnts+1; k++){
-       for(unsigned int j = 0 ; j < num_y_pnts+1; j++){  
-	 for(unsigned int i = 0 ; i < num_x_pnts+1; i++){
+    for(unsigned int k = 0 ; k < num_z_pnts; k++){
+       for(unsigned int j = 0 ; j < num_y_pnts; j++){  
+	 for(unsigned int i = 0 ; i < num_x_pnts; i++){
 	   EntityHandle vert = sdfBox->get_vertex(i,j,k);
 	   double sdv = get_data(i,j,k);
 	   void *ptr = &sdv;
