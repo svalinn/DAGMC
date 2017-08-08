@@ -33,8 +33,8 @@ public:
   }
 
   // method for getting the dimensions of the field
-  inline void get_dims(int &x_steps, int &y_steps, int &z_steps) {
-    x_steps = dims[0]; y_steps = dims[1]; z_steps = dims[2];    
+  inline void get_dims(int &x_pnts, int &y_pnts, int &z_pnts) {
+    x_pnts = dims[0]; y_pnts = dims[1]; z_pnts = dims[2];    
   }
 
   // get the step size between points for this structured field
