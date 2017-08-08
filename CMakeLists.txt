@@ -82,6 +82,13 @@ if (BUILD_STATIC)
 endif (BUILD_STATIC)
 message(STATUS "DAG_LINK_LIBS: ${DAG_LINK_LIBS}")
 
+# Get some environment variables
+set(ENV_USER "$ENV{USER}")
+execute_process(COMMAND hostname       OUTPUT_VARIABLE ENV_HOST OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND uname -s       OUTPUT_VARIABLE ENV_OS   OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND date +%H:%M:%S OUTPUT_VARIABLE ENV_TIME OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 # Build Gtest
 add_subdirectory(gtest)
 
