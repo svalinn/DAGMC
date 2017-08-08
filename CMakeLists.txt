@@ -9,6 +9,9 @@ endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 # Macro to enable fortran and get rid of some variables
 macro (enable_fortran)
   enable_language(Fortran)
+  set(CMAKE_Fortran_FLAGS_DEBUG "-g")
+  set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
+  set(CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O2 -g")
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
   if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
@@ -33,6 +36,27 @@ set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executabl
 set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries")
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
+
+# Default to a release build
+if (NOT CMAKE_BUILD_TYPE)
+  message(STATUS "CMAKE_BUILD_TYPE not specified, defaulting to Release")
+  set(CMAKE_BUILD_TYPE Release)
+endif (NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND
+    NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND
+    NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  message(FATAL_ERROR "Specified CMAKE_BUILD_TYPE is invalid; valid options are Release, Debug, RelWithDebInfo")
+endif ()
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+# Optimization flags: note that these are overwritten for MCNP source code to
+# guarantee that nothing higher than -O1 is used
+set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_C_FLAGS_RELEASE "-O2")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 # Clear out some variables automatically set by CMake
 set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
