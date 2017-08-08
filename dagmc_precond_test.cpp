@@ -90,16 +90,27 @@ CartVect nearest_on_cylinder(CartVect point, double height, double radius) {
   }
 
   // find nearest point on an infinite barrel
-  CartVect nearest_to_inf_barrel = (point[0] == 0 && point[1] == 0) ? CartVect(1,1,0) : CartVect(point[0],point[1],0);
-  nearest_to_inf_barrel.normalize();
-  nearest_to_inf_barrel*=5;
-  nearest_to_inf_barrel[2] = point[2];
+  CartVect nearest_to_barrel = (point[0] == 0 && point[1] == 0) ? CartVect(1,1,0) : CartVect(point[0],point[1],0);
+  nearest_to_barrel.normalize();
+  nearest_to_barrel*=5;
+  nearest_to_barrel[2] = point[2];
 
+  if ( fabs(nearest_to_barrel[2]) > height/2.0 ) {
+    nearest_to_barrel[2] = nearest_to_barrel[2] > 0.0 ? height/2.0 : -height/2.0;
+  }
+
+  // if (nearest_to_lids.length() < nearest_to_barrel.length()) {
+  //   return nearest_to_lids;
+  // }
+  // else {
+  //   return nearest_to_barrel;
+  // }
+        
   // check if point is inside or outside the barrel
   if(CartVect(point[0],point[1],0).length() <= radius) {
     // point is inside the barrel, then check for the minimum between the barrel and lids
-    if((nearest_to_inf_barrel-point).length() < (nearest_to_lids-point).length()) {
-      nearest_location = nearest_to_inf_barrel;
+    if((nearest_to_barrel-point).length() < (nearest_to_lids-point).length()) {
+      nearest_location = nearest_to_barrel;
     }
     else {
       nearest_location = nearest_to_lids;
@@ -107,7 +118,7 @@ CartVect nearest_on_cylinder(CartVect point, double height, double radius) {
   }
   else {
     // point is outside the barrel, return the inf barrel location
-    nearest_location = nearest_to_inf_barrel;
+    nearest_location = nearest_to_barrel;
   }
   return nearest_location;
 };
@@ -195,8 +206,10 @@ ErrorCode test_cylinder(){
 	
 	//compare the values - they should be off by no more than the faceting tolerance
 	if(fabs(expected_distance-distance) > facet_tol) {
-	  std::cout << 
+	  std::cout << std::endl;
+	  std::cout <<  "[" << i << ", " << j <<  ", " << k << "]" << std::endl;
 	  std::cout << vert_coords << std::endl;
+	  std::cout << expected_location << std::endl;
 	  std::cout << expected_distance << std::endl;
 	  std::cout << distance << std::endl;
 	  MB_CHK_SET_ERR(MB_FAILURE, "Incorrect distance value found");	  
