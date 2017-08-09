@@ -1,10 +1,6 @@
 project(DAGMC)
 
-cmake_minimum_required(VERSION 2.8)
-cmake_policy(SET CMP0004 OLD)
-if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
-  cmake_policy(SET CMP0040 OLD)
-endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
+cmake_minimum_required(VERSION 3.6)
 
 # Setup test macro
 macro (setup_test test_name ext driver libs)
