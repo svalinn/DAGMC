@@ -372,6 +372,7 @@ G4double DagSolid::DistanceToIn (const G4ThreeVector &p,
 //////////////
 G4double DagSolid::DistanceToIn (const G4ThreeVector &p) const
 {
+  return 0.0;
   G4double safety = 0.0;
   G4double point[3]= {p.x()/cm, p.y()/cm, p.z()/cm}; // convert position to cm
   moab::ErrorCode rval;
@@ -487,6 +488,7 @@ G4double DagSolid::DistanceToOut (const G4ThreeVector &p,
 
 G4double DagSolid::DistanceToOut (const G4ThreeVector &p) const
 {
+  return 0.0;
   G4double safety = 0.0;
   G4double point[3]= {p.x()/cm, p.y()/cm, p.z()/cm}; // convert to cm
 
