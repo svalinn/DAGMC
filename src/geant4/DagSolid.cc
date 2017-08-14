@@ -285,11 +285,22 @@ G4ThreeVector DagSolid::SurfaceNormal (const G4ThreeVector &p) const
   // hence last_surf_hit is used. we should modify closest_to_location to allow
   // returning of the surface as well as distance
   G4double angle[3] = {0.,0.,0.};
+
+  if(!last_surf_hit) {
+    // need to pre populate last_surf_hit
+    G4double dist = 0.;
+    moab::ErrorCode rval = fdagmc->closest_to_location(fvolEntity,position,dist,
+						       &last_surf_hit);
+  }
+
+  // calculate the angle between 
   moab::ErrorCode rval = fdagmc->get_angle(last_surf_hit,position,angle);
 
   if(rval != moab::MB_SUCCESS) {
     std::ostringstream message;
-    message << "Failure from closest_to_location" << G4endl
+    message << "Failure from get_angle" << G4endl
+            << "In volume " << fvolID << G4endl
+            << "Surface is " << fdagmc->get_entity_id(last_surf_hit) << G4endl
 	    << "ErrorCode " << rval << G4endl
             << "Position:"  << G4endl << G4endl
             << "p.x() = "   << p.x()/mm << " mm" << G4endl
