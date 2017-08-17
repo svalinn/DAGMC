@@ -183,7 +183,14 @@ void KDEMeshTally::write_data(double num_histories) {
     moab::EntityHandle point = *i;
     unsigned int point_index = get_entity_index(point);
 
-    for (unsigned int j = 0; j < data->get_num_energy_bins(); ++ j) {
+    unsigned int num_ebins = data->get_num_energy_bins();
+    // if there is a total, dont do anything with it
+    if(data->has_total_energy_bin()) num_ebins--;
+
+    double tally_vect[num_ebins];
+    double error_vect[num_ebins];
+   
+    for (unsigned int j = 0; j < num_ebins; ++ j) {
       std::pair <double, double> tally_data = data->get_data(point_index, j);
       double tally = tally_data.first;
       double error = tally_data.second;
@@ -198,15 +205,14 @@ void KDEMeshTally::write_data(double num_histories) {
       // normalize mesh tally result by the number of source particles
       tally /= num_histories;
 
-      // set tally and error tag values for this entity
-      rval = mbi->tag_set_data(tally_tags[j], &point, 1, &tally);
-
-      assert(moab::MB_SUCCESS == rval);
-
-      rval = mbi->tag_set_data(error_tags[j], &point, 1, &rel_error);
-
-      assert(moab::MB_SUCCESS == rval);
+      tally_vect[j] = tally;
+      error_vect[j] = rel_error;
     }
+    // set tally and error tag values for this entity
+    rval = mbi->tag_set_data(tally_tag, &point, 1, tally_vect);
+    MB_CHK_SET_ERR_RET(rval, "Failed to set the tally_tag data");
+    rval = mbi->tag_set_data(error_tag, &point, 1, error_vect);
+    MB_CHK_SET_ERR_RET(rval, "Failed to set the error_tag data");
   }
 
   // create a global tag to store the bandwidth value
@@ -225,8 +231,9 @@ void KDEMeshTally::write_data(double num_histories) {
   assert(moab::MB_SUCCESS == rval);
 
   // define list of tags to include and write mesh to output file
-  std::vector<moab::Tag> output_tags = tally_tags;
-  output_tags.insert(output_tags.end(), error_tags.begin(), error_tags.end());
+  std::vector<moab::Tag> output_tags;
+  output_tags.push_back(tally_tag);
+  output_tags.push_back(error_tag);
   output_tags.push_back(bandwidth_tag);
 
   rval = mbi->write_file(output_filename.c_str(),
@@ -234,7 +241,6 @@ void KDEMeshTally::write_data(double num_histories) {
                          &tally_mesh_set, 1,
                          &(output_tags[0]),
                          output_tags.size());
-
   assert(moab::MB_SUCCESS == rval);
 }
 //---------------------------------------------------------------------------//

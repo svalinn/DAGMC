@@ -113,40 +113,43 @@ moab::ErrorCode MeshTally::setup_tags(moab::Interface* mbi, const char* prefix) 
   int tag_size = 1;
 
   unsigned int num_bins = data->get_num_energy_bins();
-  tally_tags.resize(num_bins);
-  error_tags.resize(num_bins);
+  if(data->has_total_energy_bin()) num_bins--;
 
-  // Create separate MOAB tag handles for every energy bin
-  for (unsigned i = 0; i < num_bins; ++i) {
-    std::string t_name = pfx + "TALLY_TAG", e_name = pfx + "ERROR_TAG";
-    std::stringstream str;
+  std::string tag_name = pfx + "TALLY_TAG";
+  std::string error_tag_name = pfx + "ERROR_TAG";
 
-    if (i + 1 != num_bins) {
-      str << "_" << input_data.energy_bin_bounds[i]
-          << '-' << input_data.energy_bin_bounds[i + 1];
-    }
+  // create vector tag to score particle spectra
+  rval = mbi->tag_get_handle(tag_name.c_str(),
+			     num_bins,
+			     moab::MB_TYPE_DOUBLE,
+			     tally_tag,
+			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
+  
+  rval = mbi->tag_get_handle(error_tag_name.c_str(),
+			     num_bins,
+			     moab::MB_TYPE_DOUBLE,
+			     error_tag,
+			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
+   
+  // create single tag to store the total
+  std::string total_tally_tag_name = tag_name + "_TOTAL";
+  rval = mbi->tag_get_handle(total_tally_tag_name.c_str(),
+			     tag_size,
+			     moab::MB_TYPE_DOUBLE,
+			     total_tally_tag,
+			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
 
-    t_name += str.str();
-    e_name += str.str();
+  std::string total_error_tag_name = error_tag_name + "_TOTAL";
+  rval = mbi->tag_get_handle(total_error_tag_name.c_str(),
+			     tag_size,
+			     moab::MB_TYPE_DOUBLE,
+			     total_error_tag,
+			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
 
-    rval = mbi->tag_get_handle(t_name.c_str(),
-                               tag_size,
-                               moab::MB_TYPE_DOUBLE,
-                               tally_tags[i],
-                               moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
-
-    if (rval != moab::MB_SUCCESS)
-      return rval;
-
-    rval = mbi->tag_get_handle(e_name.c_str(),
-                               tag_size,
-                               moab::MB_TYPE_DOUBLE,
-                               error_tags[i],
-                               moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
-
-    if (rval != moab::MB_SUCCESS)
-      return rval;
-  }
 
   return moab::MB_SUCCESS;
 }

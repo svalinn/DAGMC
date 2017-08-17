@@ -236,6 +236,7 @@ void TrackLengthMeshTally::write_data(double num_histories) {
   }
   assert(rval == MB_SUCCESS);
 
+  
   for (Range::const_iterator i = all_tets.begin(); i != all_tets.end(); ++i) {
     EntityHandle t = *i;
 
@@ -254,16 +255,19 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     double volume = tet_volume(v[0], v[1], v[2], v[3]);
     unsigned int tet_index = get_entity_index(t);
 
-    for (unsigned j = 0; j < data->get_num_energy_bins(); ++j) {
+    unsigned int num_ebins = data->get_num_energy_bins();
+    // if there is a total, dont do anything with it
+    if(data->has_total_energy_bin()) num_ebins--;
+
+    double tally_vect[num_ebins];
+    double error_vect[num_ebins];
+    
+    for (unsigned j = 0; j < num_ebins ; ++j) {
       std::pair <double, double> tally_data = data->get_data(tet_index, j);
       double tally = tally_data.first;
       double error = tally_data.second;
-      // double tally = get_data( tally_data, t, j );
-      // double error = get_data( error_data, t, j );
-      double score = (tally / (volume * num_histories));
 
-      rval = mb->tag_set_data(tally_tags[j], &t, 1, &score);
-      assert(rval == MB_SUCCESS);
+      double score = (tally / (volume * num_histories));
 
       // Use 0 as the error output value if nothing has been computed for this mesh cell;
       // this reflects MCNP's approach to avoiding a divide-by-zero situation.
@@ -272,13 +276,31 @@ void TrackLengthMeshTally::write_data(double num_histories) {
         rel_err = sqrt((error / (tally * tally)) - (1. / num_histories));
       }
 
-      rval = mb->tag_set_data(error_tags[j], &t, 1, &rel_err);
-      assert(rval == MB_SUCCESS);
+      tally_vect[j] = score;
+      error_vect[j] = rel_err;
+
+      // TODO: It would be convenient for users to be able to get the total
+      // values tagged onto the dataset automatically, since our typical
+      // visualiation path is h5m -> vtk. The vtk doesnt understand
+      // vector tags so it would be useful to be able to the total_tag
+      // for easy visualisation -> maybe just fix pyne to be able to expand the
+      // tags of an arbitrary mesh
+      
     }
+
+    rval = mb->tag_set_data(tally_tag,&t,1,tally_vect);
+    MB_CHK_SET_ERR_RET(rval,"Failed to set tally_tag "+std::to_string(rval)+" "+std::to_string(t));
+    
+    rval = mb->tag_set_data(error_tag,&t,1,error_vect);
+    MB_CHK_SET_ERR_RET(rval,"Failed to set error_tag "+std::to_string(rval)+" "+std::to_string(t));
   }
 
-  std::vector<Tag> output_tags = tally_tags;
-  output_tags.insert(output_tags.end(), error_tags.begin(), error_tags.end());
+  /*
+  */
+
+  std::vector<Tag> output_tags;
+  output_tags.push_back(tally_tag);
+  output_tags.push_back(error_tag);
 
   rval = mb->write_file(output_filename.c_str(), NULL, NULL, &tally_mesh_set, 1, &(output_tags[0]), output_tags.size());
   assert(rval == MB_SUCCESS);
