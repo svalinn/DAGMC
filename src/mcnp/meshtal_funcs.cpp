@@ -139,7 +139,10 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
 
   // Copy emesh bin boundaries from MCNP (includes 0.0 MeV)
   std::vector<double> energy_boundaries;
-  for (int i = 0; i < *n_energy_mesh; ++i) {
+  // if there is more than 1 bin, dont want 0->bottom bin
+  int bottom = 0;
+  if(*n_energy_mesh > 2) bottom = 1;
+  for (int i = bottom ; i < *n_energy_mesh; ++i) {
     energy_boundaries.push_back(energy_mesh[i]);
   }
 

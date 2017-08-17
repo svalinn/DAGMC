@@ -81,7 +81,9 @@ class MeshTally : public Tally {
   moab::Range tally_points;
 
   /// Tag arrays for storing energy bin labels
-  std::vector<moab::Tag> tally_tags, error_tags;
+  //  std::vector<moab::Tag> tally_tags, error_tags;
+  moab::Tag tally_tag, error_tag;
+  moab::Tag total_tally_tag, total_error_tag;
 
   // >>> PROTECTED METHODS
 
