@@ -256,9 +256,10 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     unsigned int tet_index = get_entity_index(t);
 
     unsigned int num_ebins = data->get_num_energy_bins();
+
     // if there is a total, dont do anything with it
     if(data->has_total_energy_bin()) num_ebins--;
-
+    
     double tally_vect[num_ebins];
     double error_vect[num_ebins];
     
@@ -278,29 +279,44 @@ void TrackLengthMeshTally::write_data(double num_histories) {
 
       tally_vect[j] = score;
       error_vect[j] = rel_err;
-
-      // TODO: It would be convenient for users to be able to get the total
-      // values tagged onto the dataset automatically, since our typical
-      // visualiation path is h5m -> vtk. The vtk doesnt understand
-      // vector tags so it would be useful to be able to the total_tag
-      // for easy visualisation -> maybe just fix pyne to be able to expand the
-      // tags of an arbitrary mesh
-      
     }
-
+    
     rval = mb->tag_set_data(tally_tag,&t,1,tally_vect);
     MB_CHK_SET_ERR_RET(rval,"Failed to set tally_tag "+std::to_string(rval)+" "+std::to_string(t));
-    
     rval = mb->tag_set_data(error_tag,&t,1,error_vect);
     MB_CHK_SET_ERR_RET(rval,"Failed to set error_tag "+std::to_string(rval)+" "+std::to_string(t));
+  
+
+    // if we have a total bin, write it out
+    if (data->has_total_energy_bin()) {
+      int j = num_ebins++;
+      std::pair <double, double> tally_data = data->get_data(tet_index, j);
+      double tally = tally_data.first;
+      double error = tally_data.second;
+      
+      double score = (tally / (volume * num_histories));
+      
+      // Use 0 as the error output value if nothing has been computed for this mesh cell;
+      // this reflects MCNP's approach to avoiding a divide-by-zero situation.
+      double rel_err = 0;
+      if (error != 0) {
+	rel_err = sqrt((error / (tally * tally)) - (1. / num_histories));
+      }
+      
+      rval = mb->tag_set_data(total_tally_tag,&t,1,&score);
+      MB_CHK_SET_ERR_RET(rval,"Failed to set tally_tag "+std::to_string(rval)+" "+std::to_string(t));
+      rval = mb->tag_set_data(total_error_tag,&t,1,&rel_err);
+      MB_CHK_SET_ERR_RET(rval,"Failed to set error_tag "+std::to_string(rval)+" "+std::to_string(t));    
+    }
   }
-
-  /*
-  */
-
+  
   std::vector<Tag> output_tags;
   output_tags.push_back(tally_tag);
   output_tags.push_back(error_tag);
+  if (data->has_total_energy_bin()) {
+    output_tags.push_back(total_tally_tag);
+    output_tags.push_back(total_error_tag);
+  }
 
   rval = mb->write_file(output_filename.c_str(), NULL, NULL, &tally_mesh_set, 1, &(output_tags[0]), output_tags.size());
   assert(rval == MB_SUCCESS);
