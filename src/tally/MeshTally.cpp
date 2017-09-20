@@ -113,42 +113,43 @@ moab::ErrorCode MeshTally::setup_tags(moab::Interface* mbi, const char* prefix) 
   int tag_size = 1;
 
   unsigned int num_bins = data->get_num_energy_bins();
-  if(data->has_total_energy_bin()) num_bins--;
+  if (data->has_total_energy_bin())
+    num_bins--;
 
   std::string tag_name = pfx + "TALLY_TAG";
   std::string error_tag_name = pfx + "ERROR_TAG";
 
   // create vector tag to score particle spectra
   rval = mbi->tag_get_handle(tag_name.c_str(),
-			     num_bins,
-			     moab::MB_TYPE_DOUBLE,
-			     tally_tag,
-			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
-  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
-  
+                             num_bins,
+                             moab::MB_TYPE_DOUBLE,
+                             tally_tag,
+                             moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval, "Failed to get the tag handle");
+
   rval = mbi->tag_get_handle(error_tag_name.c_str(),
-			     num_bins,
-			     moab::MB_TYPE_DOUBLE,
-			     error_tag,
-			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
-  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
-   
+                             num_bins,
+                             moab::MB_TYPE_DOUBLE,
+                             error_tag,
+                             moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval, "Failed to get the tag handle");
+
   // create single tag to store the total
   std::string total_tally_tag_name = tag_name + "_TOTAL";
   rval = mbi->tag_get_handle(total_tally_tag_name.c_str(),
-			     tag_size,
-			     moab::MB_TYPE_DOUBLE,
-			     total_tally_tag,
-			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
-  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
+                             tag_size,
+                             moab::MB_TYPE_DOUBLE,
+                             total_tally_tag,
+                             moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval, "Failed to get the tag handle");
 
   std::string total_error_tag_name = error_tag_name + "_TOTAL";
   rval = mbi->tag_get_handle(total_error_tag_name.c_str(),
-			     tag_size,
-			     moab::MB_TYPE_DOUBLE,
-			     total_error_tag,
-			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
-  MB_CHK_SET_ERR(rval,"Failed to get the tag handle");
+                             tag_size,
+                             moab::MB_TYPE_DOUBLE,
+                             total_error_tag,
+                             moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  MB_CHK_SET_ERR(rval, "Failed to get the tag handle");
 
 
   return moab::MB_SUCCESS;

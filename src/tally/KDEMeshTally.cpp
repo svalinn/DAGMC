@@ -185,11 +185,12 @@ void KDEMeshTally::write_data(double num_histories) {
 
     unsigned int num_ebins = data->get_num_energy_bins();
     // if there is a total, dont do anything with it
-    if(data->has_total_energy_bin()) num_ebins--;
+    if (data->has_total_energy_bin())
+      num_ebins--;
 
     double tally_vect[num_ebins];
     double error_vect[num_ebins];
-   
+
     for (unsigned int j = 0; j < num_ebins; ++ j) {
       std::pair <double, double> tally_data = data->get_data(point_index, j);
       double tally = tally_data.first;
