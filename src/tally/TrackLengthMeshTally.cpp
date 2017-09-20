@@ -236,7 +236,7 @@ void TrackLengthMeshTally::write_data(double num_histories) {
   }
   assert(rval == MB_SUCCESS);
 
-  
+
   for (Range::const_iterator i = all_tets.begin(); i != all_tets.end(); ++i) {
     EntityHandle t = *i;
 
@@ -258,11 +258,12 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     unsigned int num_ebins = data->get_num_energy_bins();
 
     // if there is a total, dont do anything with it
-    if(data->has_total_energy_bin()) num_ebins--;
-    
+    if (data->has_total_energy_bin())
+      num_ebins--;
+
     double tally_vect[num_ebins];
     double error_vect[num_ebins];
-    
+
     for (unsigned j = 0; j < num_ebins ; ++j) {
       std::pair <double, double> tally_data = data->get_data(tet_index, j);
       double tally = tally_data.first;
@@ -280,12 +281,12 @@ void TrackLengthMeshTally::write_data(double num_histories) {
       tally_vect[j] = score;
       error_vect[j] = rel_err;
     }
-    
-    rval = mb->tag_set_data(tally_tag,&t,1,tally_vect);
-    MB_CHK_SET_ERR_RET(rval,"Failed to set tally_tag "+std::to_string(rval)+" "+std::to_string(t));
-    rval = mb->tag_set_data(error_tag,&t,1,error_vect);
-    MB_CHK_SET_ERR_RET(rval,"Failed to set error_tag "+std::to_string(rval)+" "+std::to_string(t));
-  
+
+    rval = mb->tag_set_data(tally_tag, &t, 1, tally_vect);
+    MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " + std::to_string(rval) + " " + std::to_string(t));
+    rval = mb->tag_set_data(error_tag, &t, 1, error_vect);
+    MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " + std::to_string(rval) + " " + std::to_string(t));
+
 
     // if we have a total bin, write it out
     if (data->has_total_energy_bin()) {
@@ -293,23 +294,23 @@ void TrackLengthMeshTally::write_data(double num_histories) {
       std::pair <double, double> tally_data = data->get_data(tet_index, j);
       double tally = tally_data.first;
       double error = tally_data.second;
-      
+
       double score = (tally / (volume * num_histories));
-      
+
       // Use 0 as the error output value if nothing has been computed for this mesh cell;
       // this reflects MCNP's approach to avoiding a divide-by-zero situation.
       double rel_err = 0;
       if (error != 0) {
-	rel_err = sqrt((error / (tally * tally)) - (1. / num_histories));
+        rel_err = sqrt((error / (tally * tally)) - (1. / num_histories));
       }
-      
-      rval = mb->tag_set_data(total_tally_tag,&t,1,&score);
-      MB_CHK_SET_ERR_RET(rval,"Failed to set tally_tag "+std::to_string(rval)+" "+std::to_string(t));
-      rval = mb->tag_set_data(total_error_tag,&t,1,&rel_err);
-      MB_CHK_SET_ERR_RET(rval,"Failed to set error_tag "+std::to_string(rval)+" "+std::to_string(t));    
+
+      rval = mb->tag_set_data(total_tally_tag, &t, 1, &score);
+      MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " + std::to_string(rval) + " " + std::to_string(t));
+      rval = mb->tag_set_data(total_error_tag, &t, 1, &rel_err);
+      MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " + std::to_string(rval) + " " + std::to_string(t));
     }
   }
-  
+
   std::vector<Tag> output_tags;
   output_tags.push_back(tally_tag);
   output_tags.push_back(error_tag);

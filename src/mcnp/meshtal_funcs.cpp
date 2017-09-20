@@ -141,7 +141,8 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
   std::vector<double> energy_boundaries;
   // if there is more than 1 bin, dont want 0->bottom bin
   int bottom = 0;
-  if(*n_energy_mesh > 2) bottom = 1;
+  if (*n_energy_mesh > 2)
+    bottom = 1;
   for (int i = bottom ; i < *n_energy_mesh; ++i) {
     energy_boundaries.push_back(energy_mesh[i]);
   }
