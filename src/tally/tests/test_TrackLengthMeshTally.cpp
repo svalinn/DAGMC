@@ -1,6 +1,7 @@
 // test_TrackLengthMeshTally.cpp
 #include "gtest/gtest.h"
 
+#include "moab/Core.hpp"
 #include "moab/CartVect.hpp"
 
 #include "../Tally.hpp"
@@ -1212,4 +1213,60 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayProton) {
     total += track_data[i];
 
   EXPECT_EQ(total, event.track_length);
+}
+
+//---------------------------------------------------------------------------//
+TEST_F(TrackLengthMeshTallyTest, EnsureVectorTags ) {
+  input.tally_type = "unstr_track";
+  input.energy_bin_bounds.push_back(20.0);
+
+  input.options.insert(std::make_pair("inp", "unstructured_mesh.h5m"));
+  input.options.insert(std::make_pair("out", "mesh.out.h5m"));
+
+  // dummy variable to prevent segfault during teardown
+  mesh_tally = Tally::create_tally(input);
+
+  TallyEvent event;
+  make_event(event);
+  event.particle = 9; // proton
+
+  TallyManager* tallyManager = new TallyManager();
+  tallyManager->addNewTally(input.tally_id, input.tally_type, event.particle,
+                            input.energy_bin_bounds, input.options);
+
+  // write all 0's
+  tallyManager->writeData(1.);
+
+  moab::Core *MBI = new moab::Core();
+  // make a meshset
+  moab::EntityHandle mesh_set;
+  moab::ErrorCode rval = MBI->create_meshset(moab::MESHSET_SET, mesh_set);
+  EXPECT_EQ(rval, moab::MB_SUCCESS);
+  // load the mesh
+  rval = MBI->load_file("mesh.out.h5m");
+  EXPECT_EQ(rval,moab::MB_SUCCESS);
+  // look for the tag
+  moab::Tag tally_tag;
+  std::string tag_name = "TALLY_TAG";
+  // get the tag handle for the vector tag
+  rval = MBI->tag_get_handle(tag_name.c_str(),
+			     2,
+			     moab::MB_TYPE_DOUBLE,
+			     tally_tag,
+			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  // expect that this succeeded 
+  EXPECT_EQ(rval,moab::MB_SUCCESS);
+
+  // now look for the scalar tag
+  tag_name = "TALLY_TAG_TOTAL";
+  // get the tag handle for the vector tag
+  rval = MBI->tag_get_handle(tag_name.c_str(),
+			     1,
+			     moab::MB_TYPE_DOUBLE,
+			     tally_tag,
+			     moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  // expect that this succeeded 
+  EXPECT_EQ(rval,moab::MB_SUCCESS);
+  
+  // all done :)
 }
