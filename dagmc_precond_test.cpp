@@ -44,16 +44,39 @@ ErrorCode dag_init_file(char *filename, DagMC* &dagmc, SignedDistanceField* &box
   rval = dagmc->moab_instance()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, three_val, 1, vols );
   MB_CHK_SET_ERR(rval,"Could not get the model volumes");
 
-  //there shoul only be one volume before we init the OBB tree
+  //create a new group
+  EntityHandle sdf_group_set;
+  rval = dagmc->moab_instance()->create_meshset(0, sdf_group_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a new group for storing signed distance field volumes");
+
+  Tag cat_tag;
+  rval = dagmc->moab_instance()->tag_get_handle(CATEGORY_TAG_NAME, cat_tag);
+  MB_CHK_SET_ERR(rval, "Failed to get the category tag handle");
+
+  std::string group = "Group";
+  group.resize(32);
+  rval = dagmc->moab_instance()->tag_set_data(cat_tag, &sdf_group_set, 1, group.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the category tag of the signed distance field group set");
+  
+  std::string sdf = "sdf_0.5";
+  rval = dagmc->moab_instance()->tag_set_data(dagmc->name_tag(), &sdf_group_set, 1, (void*)sdf.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the name tag of the signed distance field group set");
+
+  //there should only be one volume before we init the OBB tree
   if(1 != vols.size()) {
     MB_CHK_SET_ERR(MB_FAILURE, "Incorrect number of volumes found after loading the model");
   }
+
+  rval = dagmc->moab_instance()->add_entities(sdf_group_set, vols);
+  MB_CHK_SET_ERR(rval, "Failed to add the volume to the signed distance field group set");
+
   //initalize the OBBTree (and the preconditioning datastructs)
   rval = dagmc->init_OBBTree();
   MB_CHK_SET_ERR(rval,"Could not initialize the OBBTree");
 
   rval = dagmc->build_preconditioner();
   MB_CHK_SET_ERR(rval,"Could not construct preconditioner.");
+  
   //get the preconditioning box of interest
   box = dagmc->get_signed_distance_field(vols[0]);
   if (!box) return MB_ENTITY_NOT_FOUND;
@@ -134,17 +157,17 @@ ErrorCode test_sphere(){
   rval = dag_init_file(filename, dagmc, box);
   MB_CHK_SET_ERR(rval,"Could not initalize DAGMC instance and retrieve preconditioner box");
 
+
   //get the signed distance field tag
   Tag sdfTag = dagmc->sdf_tag();
   int xints, yints, zints;
   box->get_dims(xints,yints,zints);
+
   for(unsigned int i = 0 ; i < xints; i++){
     for(unsigned int j = 0 ; j < yints; j++){
       for(unsigned int k = 0 ; k < zints; k++){
-
 	//get the vertex coordinates
 	CartVect vert_coords = box->get_coords(i,j,k);
-	
 	//get the distance to the nearest point on the sphere
 	double sphere_radius = 5;
 	CartVect expected_location = nearest_on_sphere(vert_coords, sphere_radius);
