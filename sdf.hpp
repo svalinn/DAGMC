@@ -25,6 +25,7 @@ private:
   int dims[3];
   // distance between data points
   double step_size;
+  double err_val;
   // signed distance value tag name
   std::string sdf_tag_name;
   
@@ -41,7 +42,12 @@ public:
 
   // get the step size between points for this structured field
   inline void get_step(double &step) { step = step_size; }
-
+  inline double get_step() { return step_size; }
+  
+  // get the step size between points for this structured field
+  inline void get_err(double &err) { err = err_val; }
+  inline double get_err() { return err_val; }
+  
   // sets the data for the signed distance field
   inline void set_data(std::vector<double> data) {
     //    assert(data.size() == ((dims[0]+1)*(dims[1]+1)*(dims[2]+1)));

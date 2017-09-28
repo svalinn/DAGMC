@@ -9,6 +9,7 @@ namespace moab {
     step_size = mesh_step_size;
     dims[0] = num_x_points; dims[1] = num_y_points; dims[2] = num_z_points;
     sdf_tag_name = SDF_TAG_NAME;
+    err_val = sqrt(3*step_size);
   }
 
   double SignedDistanceField::find_sdv(const double pnt[3]) {
