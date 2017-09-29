@@ -1,7 +1,7 @@
 message(STATUS "Building DAGMC library")
 
 # Source files
-set(SOURCE_FILES)
+set(SRC_FILES)
 list(APPEND SRC_FILES DagMC.cpp)
 list(APPEND SRC_FILES dagmcmetadata.cpp)
 list(APPEND SRC_FILES ${CMAKE_SOURCE_DIR}/uwuw/uwuw.cpp)
