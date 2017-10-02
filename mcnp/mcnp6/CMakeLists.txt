@@ -230,8 +230,14 @@ include_directories(${MOAB_INCLUDE_DIRS})
 
 # Get list of boolean compiler definitions set to ON
 if (${MCNP_VERSION} STREQUAL 6.1.1beta)
-  get_directory_property(COMPDEFS COMPILE_DEFINITIONS)
-  list(FILTER COMPDEFS INCLUDE REGEX "=ON$")  # requires cmake 3.6
+  get_directory_property(COMPDEFS_TMP COMPILE_DEFINITIONS)
+  set(COMPDEFS)
+  foreach (definition IN LISTS COMPDEFS_TMP)
+    if (${definition} MATCHES ".*=ON")
+      list(APPEND COMPDEFS ${definition})
+    endif ()
+  endforeach ()
+  list(REMOVE_DUPLICATES COMPDEFS)
   list(SORT COMPDEFS)
   string(REPLACE "=ON" " " COMPDEFS ${COMPDEFS})
   string(STRIP "${COMPDEFS}" COMPDEFS)
@@ -240,7 +246,7 @@ if (${MCNP_VERSION} STREQUAL 6.1.1beta)
   # Choose a number that will be greater than the number of definitions
   # but not too much greater, as there will be a number of blank lines
   # equal to the difference.
-  foreach(i RANGE 20)
+  foreach (i RANGE 20)
     if (${i} LESS ${NUM_COMPDEFS})
       list(GET COMPDEFS ${i} COMPDEF_CURRENT)
       add_definitions(-DCOMPDEF_${i}="${COMPDEF_CURRENT}")

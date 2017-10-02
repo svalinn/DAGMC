@@ -1,6 +1,6 @@
 project(DAGMC)
 
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 2.8)
 
 # Setup test macro
 macro (setup_test test_name ext driver libs)
