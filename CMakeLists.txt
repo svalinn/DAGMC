@@ -6,6 +6,19 @@ if (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
   cmake_policy(SET CMP0040 OLD)
 endif (CMAKE_MAJOR_VERSION GREATER 3 OR CMAKE_MAJOR_VERSION EQUAL 3)
 
+# Macro to enable fortran and get rid of some variables
+macro (enable_fortran)
+  enable_language(Fortran)
+  set(CMAKE_Fortran_FLAGS_DEBUG "-g")
+  set(CMAKE_Fortran_FLAGS_RELEASE "-O2")
+  set(CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O2 -g")
+  set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
+  set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
+  if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel")
+  endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+endmacro (enable_fortran)
+
 # Setup test macro
 macro (setup_test test_name ext driver libs)
   set(drivers ${driver})
@@ -16,16 +29,7 @@ macro (setup_test test_name ext driver libs)
   add_executable(${test_name} ${test_name}.${ext} ${drivers})
   target_link_libraries(${test_name} ${libs})
   install(TARGETS ${test_name} DESTINATION tests)
-  add_test(${test_name} ${test_name})
 endmacro (setup_test)
-
-# Run test macro
-macro(run_test test_target)
-  add_custom_target(${test_target}_runtest COMMAND ${test_target}
-                                           DEPENDS ${test_target}
-                                           WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-  add_dependencies(${test_target}_runtest gtest)
-endmacro (run_test)
 
 # Installation directories
 set(INSTALL_BIN_DIR     bin     CACHE PATH "Installation directory for executables")
@@ -33,23 +37,53 @@ set(INSTALL_LIB_DIR     lib     CACHE PATH "Installation directory for libraries
 set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
 set(INSTALL_SHARE_DIR   share   CACHE PATH "Installation directory for other files")
 
+# Default to a release build
+if (NOT CMAKE_BUILD_TYPE)
+  message(STATUS "CMAKE_BUILD_TYPE not specified, defaulting to Release")
+  set(CMAKE_BUILD_TYPE Release)
+endif (NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND
+    NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND
+    NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  message(FATAL_ERROR "Specified CMAKE_BUILD_TYPE is invalid; valid options are Release, Debug, RelWithDebInfo")
+endif ()
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+# Optimization flags: note that these are overwritten for MCNP source code to
+# guarantee that nothing higher than -O1 is used
+set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_C_FLAGS_RELEASE "-O2")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+# Clear out some variables automatically set by CMake
 set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
 set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
-set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES "")
-set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+  set(CXX_LIBRARY c++)
+else ()
+  set(CXX_LIBRARY stdc++)
+endif (${CMAKE_SYSTEM_NAME} STREQUAL Darwin AND ${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 
 # Determine if we're building static executables
 option(BUILD_STATIC "Build static executables" OFF)
 if (BUILD_STATIC)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-  if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
-  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+  set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
 else ()
   set(BUILD_SHARED ON)
+  if (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+  endif (${CMAKE_C_COMPILER_ID} STREQUAL Clang)
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 endif (BUILD_STATIC)
 
 # Allow use of find_package(HDF5), find_package(MOAB), etc.

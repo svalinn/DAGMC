@@ -28,6 +28,7 @@ file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/partisn/*.F90")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.c")
 file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.F90")
+file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "${CMAKE_SOURCE_DIR}/mcnp/*.cpp")
 if (MPI_BUILD)
   file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/dotcomm/*.c")
 endif (MPI_BUILD)
@@ -67,16 +68,13 @@ if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 endif (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
 message(STATUS "DAG-MCNP6 version ${MCNP_VERSION} source files found")
 
-# Optimization flags: use -O1 unless in debug mode
+# Optimization flags
 set(CMAKE_C_FLAGS_RELEASE "-O1")
 set(CMAKE_CXX_FLAGS_RELEASE "-O1")
 set(CMAKE_Fortran_FLAGS_RELEASE "-O1")
-if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
-  message(STATUS "Using -O1 optimization for DAG-MCNP6")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O1")
-endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL Debug)
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O1 -g")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O1 -g")
+set(CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O1 -g")
 
 # C compiler flags
 if (${CMAKE_C_COMPILER_ID} STREQUAL Intel)
@@ -102,11 +100,6 @@ else ()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-sign-zero")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-real-8")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-double-8")
-endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
-
-# Linker flags
-if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-intel")
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
 
 # Include directories
@@ -191,7 +184,7 @@ if (OPENMP_BUILD)
   add_definitions(-DOMP=ON)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_C_FLAGS}")  # OpenMP_Fortran_FLAGS is undefined
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
 endif (OPENMP_BUILD)
 
 # MPI
@@ -238,8 +231,16 @@ endif (MPI_BUILD)
 if (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
   target_link_libraries(${MCNP_EXEC} gfortran)
 endif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
+if (BUILD_STATIC)
+  target_link_libraries(${MCNP_EXEC} dagmc-static)
+  target_link_libraries(${MCNP_EXEC} dagtally-static)
+else ()
+  target_link_libraries(${MCNP_EXEC} dagmc)
+  target_link_libraries(${MCNP_EXEC} dagtally)
+endif (BUILD_STATIC)
 target_link_libraries(${MCNP_EXEC} ${DAG_LINK_LIBS})
-target_link_libraries(${MCNP_EXEC} mcnpfuncs)
+target_link_libraries(${MCNP_EXEC} ${CXX_LIBRARY})
 
 # Install DAG-MCNP6
-install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+install(TARGETS ${MCNP_EXEC} DESTINATION ${INSTALL_BIN_DIR}
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)

@@ -14,11 +14,6 @@ endif (BUILD_STATIC)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 include_directories(${GTEST_INCLUDE_DIR})
 
-# CXX compiler flags
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-endif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
-
 # Setup unit tests
 set(DRIVER tally_unit_test_driver.cc)
 setup_test(test_KDEKernel            cpp ${DRIVER} "${LINK_LIBS}")
@@ -38,6 +33,3 @@ install(FILES rune_mesh.h5m         DESTINATION tests)
 install(FILES structured_mesh.h5m   DESTINATION tests)
 install(FILES unstr_mesh_split.h5m  DESTINATION tests)
 install(FILES unstructured_mesh.h5m DESTINATION tests)
-
-# Enable unit tests
-enable_testing()
