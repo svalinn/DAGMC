@@ -10,6 +10,9 @@ Gallery of projects that use DAGMC
 ..  image:: atr.png
     :alt:   Advanced Test Reactor (ATR) cross section
 
+..  image:: sns_proton.png
+    :alt:   Proton flux in Spallation Neutron Source (SNS), DAG-MCNP6
+
 ..  image:: bsm_work.png
     :scale: 45
     :alt:   Fusion system blanket shield module, DAG-MCNP5
