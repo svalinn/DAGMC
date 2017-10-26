@@ -1,31 +1,23 @@
 message(STATUS "Building dagtally library")
 
-# Source files
 set(SRC_FILES)
 file(GLOB SRC_FILES ${SRC_FILES} "*.cpp")
 
-# Public headers
 set(PUB_HEADERS)
 file(GLOB PUB_HEADERS ${PUB_HEADERS} "*.hpp")
 
-# Libraries
-set(LINK_LIBS ${DAG_LINK_LIBS})
+set(LINK_LIBS_SHARED ${MOAB_LIBRARIES})
+set(LINK_LIBS_STATIC ${MOAB_LIBRARIES})
 
-# Include directories
-include_directories(.)
-include_directories(${MOAB_INCLUDE_DIRS})
-
-# Build dagtally library
 add_library(dagtally        SHARED ${SRC_FILES})
 add_library(dagtally-static STATIC ${SRC_FILES})
 
 set_target_properties(dagtally        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 set_target_properties(dagtally-static PROPERTIES OUTPUT_NAME dagtally)
-target_link_libraries(dagtally        ${LINK_LIBS})
-target_link_libraries(dagtally-static ${LINK_LIBS})
-install(TARGETS dagtally        LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
-                                PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
-install(TARGETS dagtally-static ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})
+target_link_libraries(dagtally        ${LINK_LIBS_SHARED})
+target_link_libraries(dagtally-static ${LINK_LIBS_STATIC})
+install(TARGETS dagtally        LIBRARY       DESTINATION lib
+                                PUBLIC_HEADER DESTINATION include)
+install(TARGETS dagtally-static ARCHIVE       DESTINATION lib)
 
-# Build dagtally tests
 add_subdirectory(tests)

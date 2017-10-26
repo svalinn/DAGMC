@@ -1,18 +1,23 @@
-# Try to find MOAB
-#
-# Once done this will define
-#
-#  MOAB_FOUND - system has MOAB
-#  MOAB_INCLUDE_DIRS - the MOAB include directory
-#  MOAB_LIBRARIES - Link these to use MOAB
-#  MOAB_DEFINITIONS - Compiler switches required for using MOAB
+find_path(MOAB_INCLUDE_DIR
+  NAMES MBiMesh.hpp
+  PATHS ${MOAB_ROOT} ENV MOAB_ROOT ENV LD_LIBRARY_PATH
+  PATH_SUFFIXES include Include
+  NO_DEFAULT_PATH
+)
 
-find_path(MOAB_CMAKE_CONFIG NAMES MOABConfig.cmake
-          HINTS ${MOAB_ROOT}
-          PATHS ENV LD_LIBRARY_PATH
-          PATH_SUFFIXES lib Lib cmake cmake/MOAB
-          NO_DEFAULT_PATH)
+find_library(MOAB_LIBRARY
+  NAMES MOAB
+  PATHS ${MOAB_ROOT} ENV MOAB_ROOT ENV LD_LIBRARY_PATH
+  PATH_SUFFIXES lib Lib
+  NO_DEFAULT_PATH
+)
 
-message(STATUS "Found MOAB in ${MOAB_CMAKE_CONFIG}")
+set(MOAB_LIBRARIES ${MOAB_LIBRARY})
+set(MOAB_INCLUDE_DIRS ${MOAB_INCLUDE_DIR})
 
-include(${MOAB_CMAKE_CONFIG}/MOABConfig.cmake)
+if (MOAB_INCLUDE_DIR AND MOAB_LIBRARY)
+  message(STATUS "MOAB_INCLUDE_DIRS: ${MOAB_INCLUDE_DIR}")
+  message(STATUS "MOAB_LIBRARIES: ${MOAB_LIBRARY}")
+else ()
+  message(FATAL_ERROR "Could not find MOAB")
+endif ()

@@ -1,28 +1,22 @@
 message(STATUS "Building FluDAG unit tests")
 
-# Libraries
-set(LINK_LIBS)
-list(APPEND LINK_LIBS pthread)
-list(APPEND LINK_LIBS gtest)
-if (BUILD_STATIC)
-  list(APPEND LINK_LIBS fludag-static)
+set(LINK_LIBS_SHARED gtest fludag)
+set(LINK_LIBS_STATIC gtest fludag-static)
+
+if (BUILD_STATIC_EXE)
+  set(LINK_LIBS_EXE ${LINK_LIBS_STATIC})
 else ()
-  list(APPEND LINK_LIBS fludag)
-endif (BUILD_STATIC)
-list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+  set(LINK_LIBS_EXE ${LINK_LIBS_SHARED})
+endif ()
 
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/fluka)
 include_directories(${GTEST_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/fluka)
 
-# Setup unit tests
 set(DRIVER fludag_unit_test_driver.cc)
-setup_test(fludag_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
+dagmc_setup_test(fludag_unit_tests cpp ${DRIVER} "${LINK_LIBS_EXE}")
 
-# Install h5m files
 install(FILES slabs.h5m DESTINATION tests)
-# We use a file from the mcnp5 test folder, so if not building mcnp5 we have to
-# install it
-if (NOT BUILD_MCNP5)
+# We use a file from the MCNP test folder, so if not building MCNP5/6 we have to install it
+if (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
   install(FILES ${CMAKE_SOURCE_DIR}/mcnp/test/test_geom_legacy.h5m DESTINATION tests)
-endif (NOT BUILD_MCNP5)
+endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)

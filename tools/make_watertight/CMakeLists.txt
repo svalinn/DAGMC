@@ -1,48 +1,35 @@
-message(STATUS "Building make_watertight")
+message(STATUS "Building make_watertight library")
 
-# Source files
-set(SRC_FILES)
-list(APPEND SRC_FILES Gen.cpp)
-list(APPEND SRC_FILES Arc.cpp)
-list(APPEND SRC_FILES Zip.cpp)
-list(APPEND SRC_FILES Cleanup.cpp)
-list(APPEND SRC_FILES MakeWatertight.cpp)
-list(APPEND SRC_FILES CheckWatertight.cpp)
+set(SRC_FILES
+  Gen.cpp
+  Arc.cpp
+  Zip.cpp
+  Cleanup.cpp
+  MakeWatertight.cpp
+  CheckWatertight.cpp
+)
 
-# Public headers
-set(PUB_HEADERS)
-list(APPEND PUB_HEADERS Gen.hpp)
-list(APPEND PUB_HEADERS Arc.hpp)
-list(APPEND PUB_HEADERS Zip.hpp)
-list(APPEND PUB_HEADERS Cleanup.hpp)
-list(APPEND PUB_HEADERS CheckWatertight.hpp)
-list(APPEND PUB_HEADERS MakeWatertight.hpp)
+set(PUB_HEADERS
+  Gen.hpp
+  Arc.hpp
+  Zip.hpp
+  Cleanup.hpp
+  CheckWatertight.hpp
+  MakeWatertight.hpp
+)
 
-# Libraries
-set(LINK_LIBS ${DAG_LINK_LIBS})
+set(LINK_LIBS_SHARED ${MOAB_LIBRARIES})
+set(LINK_LIBS_STATIC ${MOAB_LIBRARIES})
 
-# Include directories
-include_directories(.)
-include_directories(${MOAB_INCLUDE_DIRS})
-
-# Build make_watertight library
 add_library(makeWatertight        SHARED ${SRC_FILES})
 add_library(makeWatertight-static STATIC ${SRC_FILES})
 set_target_properties(makeWatertight        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
 set_target_properties(makeWatertight-static PROPERTIES OUTPUT_NAME makeWatertight)
-target_link_libraries(makeWatertight        ${LINK_LIBS})
-target_link_libraries(makeWatertight-static ${LINK_LIBS})
-install(TARGETS makeWatertight        LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
-                                      PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR}/make_watertight)
-install(TARGETS makeWatertight-static ARCHIVE       DESTINATION ${INSTALL_LIB_DIR})
+target_link_libraries(makeWatertight        ${LINK_LIBS_SHARED})
+target_link_libraries(makeWatertight-static ${LINK_LIBS_STATIC})
+install(TARGETS makeWatertight        LIBRARY       DESTINATION lib
+                                      PUBLIC_HEADER DESTINATION include/make_watertight)
+install(TARGETS makeWatertight-static ARCHIVE       DESTINATION lib)
 
-# Build executables
-add_executable(make_watertight  ${SRC_FILES} make_watertight.cpp)
-add_executable(check_watertight ${SRC_FILES} check_watertight.cpp)
-target_link_libraries(make_watertight  ${LINK_LIBS})
-target_link_libraries(check_watertight ${LINK_LIBS})
-install(TARGETS make_watertight  DESTINATION ${INSTALL_BIN_DIR})
-install(TARGETS check_watertight DESTINATION ${INSTALL_BIN_DIR})
-
-# Build tests
+add_subdirectory(build)
 add_subdirectory(tests)
