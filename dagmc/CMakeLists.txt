@@ -14,8 +14,16 @@ set(PUB_HEADERS
   ${CMAKE_SOURCE_DIR}/uwuw/uwuw_preprocessor.hpp
 )
 
-set(LINK_LIBS_SHARED ${HDF5_LIBRARIES} ${MOAB_LIBRARIES} pyne_dagmc       )
-set(LINK_LIBS_STATIC ${HDF5_LIBRARIES} ${MOAB_LIBRARIES} pyne_dagmc-static)
+set(LINK_LIBS_SHARED
+  ${HDF5_LIBRARIES_SHARED}
+  ${MOAB_LIBRARIES_SHARED}
+  pyne_dagmc
+)
+set(LINK_LIBS_STATIC
+  ${HDF5_LIBRARIES_STATIC}
+  ${MOAB_LIBRARIES_STATIC}
+  pyne_dagmc-static
+)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 

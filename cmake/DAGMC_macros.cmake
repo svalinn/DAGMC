@@ -1,3 +1,64 @@
+macro (dagmc_find_hdf5)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
+  find_package(HDF5 REQUIRED)
+
+  set(HDF5_LIBRARIES_SHARED ${HDF5_LIBRARIES})
+  # CMake doesn't let you find_package(HDF5) twice so we have to do this instead
+  string(REPLACE ".so" ".a" HDF5_LIBRARIES_STATIC "${HDF5_LIBRARIES_SHARED}")
+  set(HDF5_LIBRARIES)
+
+  message(STATUS "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}")
+  message(STATUS "HDF5_LIBRARIES_SHARED: ${HDF5_LIBRARIES_SHARED}")
+  message(STATUS "HDF5_LIBRARIES_STATIC: ${HDF5_LIBRARIES_STATIC}")
+
+  include_directories(${HDF5_INCLUDE_DIRS})
+endmacro ()
+
+macro (dagmc_find_moab)
+  find_path(MOAB_INCLUDE_DIRS
+    NAMES MBiMesh.hpp
+    HINTS ${MOAB_ROOT}
+    PATHS ENV MOAB_ROOT
+    PATHS ENV LD_LIBRARY_PATH
+    PATH_SUFFIXES . include Include ../include ../Include
+    NO_DEFAULT_PATH
+  )
+  get_filename_component(MOAB_INCLUDE_DIRS ${MOAB_INCLUDE_DIRS} ABSOLUTE)
+  message(STATUS "MOAB_INCLUDE_DIRS: ${MOAB_INCLUDE_DIRS}")
+
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
+  find_library(MOAB_LIBRARIES_SHARED
+    NAMES MOAB
+    HINTS ${MOAB_ROOT}
+    PATHS ENV MOAB_ROOT
+    PATHS ENV LD_LIBRARY_PATH
+    PATH_SUFFIXES . lib Lib ../lib ../Lib
+    NO_DEFAULT_PATH
+  )
+  get_filename_component(MOAB_LIBRARIES_SHARED ${MOAB_LIBRARIES_SHARED} ABSOLUTE)
+  message(STATUS "MOAB_LIBRARIES_SHARED: ${MOAB_LIBRARIES_SHARED}")
+
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+  find_library(MOAB_LIBRARIES_STATIC
+    NAMES MOAB
+    PATHS ${MOAB_ROOT}
+    PATHS ENV MOAB_ROOT
+    PATHS ENV LD_LIBRARY_PATH
+    PATH_SUFFIXES . lib Lib ../lib ../Lib
+    NO_DEFAULT_PATH
+  )
+  get_filename_component(MOAB_LIBRARIES_STATIC ${MOAB_LIBRARIES_STATIC} ABSOLUTE)
+  message(STATUS "MOAB_LIBRARIES_STATIC: ${MOAB_LIBRARIES_STATIC}")
+
+  if (MOAB_INCLUDE_DIRS AND MOAB_LIBRARIES_SHARED AND MOAB_LIBRARIES_STATIC)
+    message(STATUS "Found MOAB")
+  else ()
+    message(FATAL_ERROR "Could not find MOAB")
+  endif ()
+
+  include_directories(${MOAB_INCLUDE_DIRS})
+endmacro ()
+
 macro (dagmc_set_build_type)
   # Default to a release build
   if (NOT CMAKE_BUILD_TYPE)
@@ -12,7 +73,38 @@ macro (dagmc_set_build_type)
   message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 endmacro ()
 
-macro (dagmc_setup_compile_flags)
+macro (dagmc_setup_build_options)
+  option(BUILD_MCNP5           "Build DAG-MCNP5"  OFF)
+  option(BUILD_MCNP6           "Build DAG-MCNP6"  OFF)
+  option(BUILD_GEANT4          "Build DAG-Geant4" OFF)
+  option(BUILD_FLUKA           "Build FluDAG"     OFF)
+
+  option(BUILD_TALLY           "Build dagtally library"      ON)
+  option(BUILD_ASTYLE          "Build astyle code formatter" ON)
+  option(BUILD_BUILD_OBB       "Build build_obb tool"        ON)
+  option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool"  ON)
+
+  option(BUILD_CI_TESTS        "Build everything needed to run the CI tests" ON)
+
+  option(BUILD_STATIC_EXE      "Build static executables" OFF)
+
+  if (BUILD_ALL)
+    set(BUILD_MCNP5  ON)
+    set(BUILD_MCNP6  ON)
+    set(BUILD_GEANT4 ON)
+    set(BUILD_FLUKA  ON)
+  endif ()
+
+  if ((BUILD_MCNP5 OR BUILD_MCNP6) AND NOT BUILD_TALLY)
+    message(FATAL_ERROR "-DBUILD_TALLY must be ON if building DAG-MCNP5/6")
+  endif ()
+
+  if (BUILD_CI_TESTS AND NOT BUILD_TALLY)
+    message(FATAL_ERROR "-DBUILD_TALLY must be ON if building the CI tests")
+  endif ()
+endmacro ()
+
+macro (dagmc_setup_flags)
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
   set(CXX_LIBRARY)
@@ -30,14 +122,10 @@ macro (dagmc_setup_compile_flags)
   set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES     "")
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES   "")
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
-endmacro ()
-
-macro (dagmc_setup_link_flags)
-  option(BUILD_STATIC_EXE "Build static executables" OFF)
 
   if (BUILD_STATIC_EXE)
-    set(BUILD_SHARED_EXE OFF)
     message(STATUS "Building static executables")
+    set(BUILD_SHARED_EXE OFF)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
     set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
@@ -47,8 +135,9 @@ macro (dagmc_setup_link_flags)
     set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
     set(CMAKE_EXE_LINK_DYNAMIC_Fortran_FLAGS)
   else ()
-    set(BUILD_SHARED_EXE ON)
     message(STATUS "Building shared executables")
+    set(BUILD_SHARED_EXE ON)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
   endif ()
 
   if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
@@ -56,35 +145,6 @@ macro (dagmc_setup_link_flags)
   endif ()
 
   message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
-endmacro ()
-
-macro (dagmc_setup_build_options)
-  option(BUILD_TALLY           "Build dagtally library"      ON)
-  option(BUILD_ASTYLE          "Build astyle code formatter" ON)
-  option(BUILD_BUILD_OBB       "Build build_obb tool"        ON)
-  option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool"  ON)
-
-  option(BUILD_CI_TESTS        "Build everything needed to run the CI tests" ON)
-
-  option(BUILD_MCNP5  "Build DAG-MCNP5"  OFF)
-  option(BUILD_MCNP6  "Build DAG-MCNP6"  OFF)
-  option(BUILD_GEANT4 "Build DAG-Geant4" OFF)
-  option(BUILD_FLUKA  "Build FluDAG"     OFF)
-
-  if (BUILD_ALL)
-    set(BUILD_MCNP5  ON)
-    set(BUILD_MCNP6  ON)
-    set(BUILD_GEANT4 ON)
-    set(BUILD_FLUKA  ON)
-  endif ()
-
-  if ((BUILD_MCNP5 OR BUILD_MCNP6) AND NOT BUILD_TALLY)
-    message(FATAL_ERROR "-DBUILD_TALLY must be ON if building DAG-MCNP5/6")
-  endif ()
-
-  if (BUILD_CI_TESTS AND NOT BUILD_TALLY)
-    message(FATAL_ERROR "-DBUILD_TALLY must be ON if building the CI tests")
-  endif ()
 endmacro ()
 
 macro (dagmc_setup_test test_name ext driver libs)

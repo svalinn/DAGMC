@@ -18,8 +18,8 @@ set(PUB_HEADERS
   MakeWatertight.hpp
 )
 
-set(LINK_LIBS_SHARED ${MOAB_LIBRARIES})
-set(LINK_LIBS_STATIC ${MOAB_LIBRARIES})
+set(LINK_LIBS_SHARED ${MOAB_LIBRARIES_SHARED})
+set(LINK_LIBS_STATIC ${MOAB_LIBRARIES_STATIC})
 
 add_library(makeWatertight        SHARED ${SRC_FILES})
 add_library(makeWatertight-static STATIC ${SRC_FILES})
