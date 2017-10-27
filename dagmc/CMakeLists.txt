@@ -15,13 +15,14 @@ set(PUB_HEADERS
 )
 
 set(LINK_LIBS_SHARED
-  ${HDF5_LIBRARIES_SHARED}
   ${MOAB_LIBRARIES_SHARED}
+  ${HDF5_LIBRARIES_SHARED}
   pyne_dagmc
 )
 set(LINK_LIBS_STATIC
+  ${MOAB_LIBRARIES_STATIC}  # MOAB must be listed before HDF5 for some reason
   ${HDF5_LIBRARIES_STATIC}
-  ${MOAB_LIBRARIES_STATIC}
+  lapack blas gfortran quadmath  # Needed for static exes for some reason
   pyne_dagmc-static
 )
 
