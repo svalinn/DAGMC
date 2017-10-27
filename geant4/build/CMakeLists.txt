@@ -1,7 +1,5 @@
 message(STATUS "Building DAG-Geant4")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Geant4_CXX_FLAGS}")
-
 set(SRC_FILES)
 file(GLOB SRC_FILES ${SRC_FILES} "*.cc")
 file(GLOB SRC_FILES ${SRC_FILES} "src/*.cc")

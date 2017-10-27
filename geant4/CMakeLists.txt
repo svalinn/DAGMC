@@ -17,7 +17,9 @@ find_package(Geant4 REQUIRED COMPONENTS ${GEANT4_REQUIRED_COMPONENTS})
 set(Geant4_LIBRARIES_STATIC ${Geant4_LIBRARIES})
 
 # Get Geant4 libraries, include directories, and compile definitions
+set(CMAKE_EXE_LINKER_FLAGS_SAVE ${CMAKE_EXE_LINKER_FLAGS})
 include(${Geant4_USE_FILE})
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS_SAVE})
 
 set(SRC_FILES DagSolid.cc)
 

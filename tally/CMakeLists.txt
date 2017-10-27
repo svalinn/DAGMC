@@ -6,8 +6,8 @@ file(GLOB SRC_FILES ${SRC_FILES} "*.cpp")
 set(PUB_HEADERS)
 file(GLOB PUB_HEADERS ${PUB_HEADERS} "*.hpp")
 
-set(LINK_LIBS_SHARED ${MOAB_LIBRARIES_SHARED})
-set(LINK_LIBS_STATIC ${MOAB_LIBRARIES_STATIC})
+set(LINK_LIBS_SHARED dagmc)
+set(LINK_LIBS_STATIC dagmc-static)
 
 add_library(dagtally        SHARED ${SRC_FILES})
 add_library(dagtally-static STATIC ${SRC_FILES})

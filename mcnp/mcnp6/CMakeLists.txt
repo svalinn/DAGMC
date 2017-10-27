@@ -3,7 +3,7 @@ message(STATUS "Building DAG-MCNP6")
 # Get date and time
 execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(LINK_LIBS ${CXX_LIBRARY})
+set(LINK_LIBS)
 
 # Source files
 set(MCNP_SRC_FILES)
@@ -174,9 +174,9 @@ if (MCNP6_PLOT)
   endif ()
   add_definitions(-DXLIB=ON)
   list(APPEND LINK_LIBS ${X11_LIBRARIES})
-  #if (BUILD_STATIC_EXE)
-  #  list(APPEND LINK_LIBS xcb pthread Xau Xdmcp)
-  #endif ()
+  if (BUILD_STATIC_EXE)
+    list(APPEND LINK_LIBS xcb pthread Xau Xdmcp)
+  endif ()
 endif ()
 
 # OpenMP

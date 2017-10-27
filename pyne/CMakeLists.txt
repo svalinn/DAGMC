@@ -8,8 +8,8 @@ set(SRC_FILES pyne.cpp)
 
 set(PUB_HEADERS pyne.h)
 
-set(LINK_LIBS_SHARED)
-set(LINK_LIBS_STATIC)
+set(LINK_LIBS_SHARED ${HDF5_LIBRARIES_SHARED})
+set(LINK_LIBS_STATIC ${HDF5_LIBRARIES_STATIC})
 
 add_library(pyne_dagmc        SHARED ${SRC_FILES})
 add_library(pyne_dagmc-static STATIC ${SRC_FILES})

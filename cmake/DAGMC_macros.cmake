@@ -1,7 +1,10 @@
 macro (dagmc_find_hdf5)
+  if (HDF5_ROOT AND NOT HDF5_DIR)
+    set(HDF5_DIR ${HDF5_ROOT})
+  endif ()
+
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
   find_package(HDF5 REQUIRED)
-
   set(HDF5_LIBRARIES_SHARED ${HDF5_LIBRARIES})
   # CMake doesn't let you find_package(HDF5) twice so we have to do this instead
   string(REPLACE ".so" ".a" HDF5_LIBRARIES_STATIC "${HDF5_LIBRARIES_SHARED}")
@@ -118,7 +121,7 @@ macro (dagmc_setup_flags)
 
   set(CMAKE_C_IMPLICIT_LINK_LIBRARIES         "")
   set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES       "")
-  set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES       "")
+  set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES       "${CXX_LIBRARY}")
   set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES     "")
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES   "")
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")

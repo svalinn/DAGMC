@@ -18,8 +18,8 @@ set(PUB_HEADERS
   MakeWatertight.hpp
 )
 
-set(LINK_LIBS_SHARED ${MOAB_LIBRARIES_SHARED})
-set(LINK_LIBS_STATIC ${MOAB_LIBRARIES_STATIC})
+set(LINK_LIBS_SHARED dagmc)
+set(LINK_LIBS_STATIC dagmc-static)
 
 add_library(makeWatertight        SHARED ${SRC_FILES})
 add_library(makeWatertight-static STATIC ${SRC_FILES})
