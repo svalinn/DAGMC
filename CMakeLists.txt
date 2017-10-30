@@ -12,6 +12,7 @@ include(DAGMC_macros)
 dagmc_set_build_type()
 dagmc_setup_build_options()
 dagmc_setup_flags()
+dagmc_setup_rpath()
 
 # Make sure we have HDF5 and MOAB
 dagmc_find_hdf5()
