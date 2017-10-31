@@ -46,4 +46,10 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
 message(STATUS "Geant4_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}: ${Geant4_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}}")
 message(STATUS "Geant4_EXE_LINKER_FLAGS: ${Geant4_EXE_LINKER_FLAGS}")
 
+if (Geant4_INCLUDE_DIRS AND Geant4_LIBRARIES_SHARED AND Geant4_LIBRARIES_STATIC AND Geant4_CXX_FLAGS)
+  message(STATUS "Found Geant4")
+else ()
+  message(FATAL_ERROR "Could not find Geant4")
+endif ()
+
 message("")

@@ -15,8 +15,8 @@ dagmc_setup_flags()
 dagmc_setup_rpath()
 
 # Make sure we have HDF5 and MOAB
-dagmc_find_hdf5()
-dagmc_find_moab()
+find_package(HDF5_DAGMC REQUIRED)
+find_package(MOAB REQUIRED)
 
 add_subdirectory(gtest)
 add_subdirectory(pyne)
