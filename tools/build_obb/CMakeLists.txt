@@ -1,5 +1,3 @@
-message(STATUS "Building build_obb")
-
 set(SRC_FILES build_obb.cpp)
 
 set(LINK_LIBS_SHARED dagmc)

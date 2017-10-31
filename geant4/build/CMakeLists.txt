@@ -1,8 +1,4 @@
-message(STATUS "Building DAG-Geant4")
-
-set(SRC_FILES)
-file(GLOB SRC_FILES ${SRC_FILES} "*.cc")
-file(GLOB SRC_FILES ${SRC_FILES} "src/*.cc")
+file(GLOB SRC_FILES "*.cc" "src/*.cc")
 
 set(LINK_LIBS_SHARED dagsolid)
 set(LINK_LIBS_STATIC dagsolid-static)

@@ -152,9 +152,19 @@ endif ()
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 if (BUILD_STATIC_EXE)
-  list(APPEND LINK_LIBS dagmc-static dagtally-static)
+  list(APPEND LINK_LIBS
+    dagmc-static
+    pyne_dagmc-static
+    dagtally-static
+    uwuw-static
+  )
 else ()
-  list(APPEND LINK_LIBS dagmc dagtally)
+  list(APPEND LINK_LIBS
+    dagmc
+    pyne_dagmc
+    dagtally
+    uwuw
+  )
 endif ()
 
 # Executable

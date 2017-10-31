@@ -1,5 +1,3 @@
-message(STATUS "Building dagtally unit tests")
-
 if (BUILD_STATIC_EXE)
   set(LINK_LIBS_TEST dagtally-static)
 else ()

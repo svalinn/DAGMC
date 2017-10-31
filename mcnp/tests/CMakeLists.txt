@@ -1,9 +1,15 @@
-message(STATUS "Building DAG-MCNP unit tests")
-
 if (BUILD_STATIC_EXE)
-  set(LINK_LIBS_TEST dagmc-static)
+  set(LINK_LIBS_TEST
+    dagmc-static
+    pyne_dagmc-static
+    uwuw-static
+  )
 else ()
-  set(LINK_LIBS_TEST dagmc)
+  set(LINK_LIBS_TEST
+    dagmc
+    pyne_dagmc
+    uwuw
+  )
 endif ()
 
 include_directories(${GTEST_INCLUDE_DIR})

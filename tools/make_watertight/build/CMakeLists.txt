@@ -1,5 +1,3 @@
-message(STATUS "Building make_watertight and check_watertight")
-
 set(LINK_LIBS_SHARED makeWatertight)
 set(LINK_LIBS_STATIC makeWatertight-static)
 

@@ -1,5 +1,3 @@
-message(STATUS "Building make_watertight tests")
-
 if (BUILD_STATIC_EXE)
   set(LINK_LIBS_TEST makeWatertight-static)
 else ()

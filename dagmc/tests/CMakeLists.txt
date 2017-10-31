@@ -1,5 +1,3 @@
-message(STATUS "Building DAGMC unit tests")
-
 if (BUILD_STATIC_EXE)
   set(LINK_LIBS_TEST dagmc-static)
 else ()
@@ -7,6 +5,7 @@ else ()
 endif ()
 
 include_directories(${GTEST_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 
 set(DRIVERS dagmc_unit_test_driver.cc)
 dagmc_setup_test(dagmc_unit_tests      cpp)

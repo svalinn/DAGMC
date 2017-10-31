@@ -1,22 +1,5 @@
-message(STATUS "Building make_watertight library")
-
-set(SRC_FILES
-  Gen.cpp
-  Arc.cpp
-  Zip.cpp
-  Cleanup.cpp
-  MakeWatertight.cpp
-  CheckWatertight.cpp
-)
-
-set(PUB_HEADERS
-  Gen.hpp
-  Arc.hpp
-  Zip.hpp
-  Cleanup.hpp
-  CheckWatertight.hpp
-  MakeWatertight.hpp
-)
+file(GLOB SRC_FILES "*.cpp")
+file(GLOB PUB_HEADERS "*.hpp")
 
 set(LINK_LIBS_SHARED dagmc)
 set(LINK_LIBS_STATIC dagmc-static)

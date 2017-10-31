@@ -1,5 +1,3 @@
-message(STATUS "Building pyne_dagmc library")
-
 set(CMAKE_CXX_FLAGS_RELEASE        "-O0"   )
 set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 -g")

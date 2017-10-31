@@ -108,6 +108,8 @@ macro (dagmc_install_library lib_name)
   #   LINK_LIBS_SHARED
   #   LINK_LIBS_STATIC
 
+  message(STATUS "Building library: ${lib_name}")
+
   add_library(${lib_name}        SHARED ${SRC_FILES})
   add_library(${lib_name}-static STATIC ${SRC_FILES})
   set_target_properties(${lib_name}
@@ -126,6 +128,8 @@ macro (dagmc_setup_test test_name ext)
   # To use this macro, the following variables must be defined:
   #   DRIVERS
   #   LINK_LIBS_TEST
+
+  message(STATUS "Building unit test: ${test_name}")
 
   add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
   target_link_libraries(${test_name} gtest ${LINK_LIBS_TEST})

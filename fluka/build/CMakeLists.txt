@@ -1,5 +1,3 @@
-message(STATUS "Building FluDAG")
-
 set(SRC_FILES mainFluDAG.cpp)
 
 set(LINK_LIBS_SHARED fludag)

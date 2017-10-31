@@ -16,6 +16,8 @@ else ()
   set(LINK_LIBS_EXE ${LINK_LIBS_SHARED})
 endif ()
 
+include_directories(${CMAKE_SOURCE_DIR}/dagmc)
+
 build_tool(pt_vol_test   cpp "${LINK_LIBS_EXE}")
 build_tool(ray_fire_test cpp "${LINK_LIBS_EXE}")
 build_tool(test_geom     cpp "${LINK_LIBS_EXE}")
