@@ -1,6 +1,6 @@
 message(STATUS "Building fludag library")
 
-set(FLUKA_LIBRARIES ${FLUKA_DIR}/libflukahp.a gfortran)
+find_package(Fluka REQUIRED)
 
 set(SRC_FILES fluka_funcs.cpp)
 
