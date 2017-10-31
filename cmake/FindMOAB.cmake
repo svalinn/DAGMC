@@ -1,5 +1,3 @@
-message("")
-
 # Find MOAB include directory
 find_path(MOAB_INCLUDE_DIRS
   NAMES MBiMesh.hpp
@@ -52,5 +50,3 @@ else ()
 endif ()
 
 include_directories(${MOAB_INCLUDE_DIRS})
-
-message("")

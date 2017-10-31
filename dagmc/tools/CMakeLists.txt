@@ -1,23 +1,11 @@
-message(STATUS "Building DAGMC tools")
-
-macro (build_tool name ext libs)
-  add_executable(${name} ${name}.${ext})
-  target_link_libraries(${name} ${libs})
-  install(TARGETS ${name} DESTINATION tools)
-endmacro (build_tool)
-
-# Libraries
-set(LINK_LIBS_SHARED dagmc)
-set(LINK_LIBS_STATIC dagmc-static)
-
-if (BUILD_STATIC_EXE)
-  set(LINK_LIBS_EXE ${LINK_LIBS_STATIC})
-else ()
-  set(LINK_LIBS_EXE ${LINK_LIBS_SHARED})
-endif ()
+set(LINK_LIBS dagmc)
+set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 
-build_tool(pt_vol_test   cpp "${LINK_LIBS_EXE}")
-build_tool(ray_fire_test cpp "${LINK_LIBS_EXE}")
-build_tool(test_geom     cpp "${LINK_LIBS_EXE}")
+set(SRC_FILES pt_vol_test.cpp)
+dagmc_install_exe(pt_vol_test)
+set(SRC_FILES ray_fire_test.cpp)
+dagmc_install_exe(ray_fire_test)
+set(SRC_FILES test_geom.cpp)
+dagmc_install_exe(test_geom)

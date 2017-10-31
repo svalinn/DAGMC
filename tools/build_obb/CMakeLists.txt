@@ -1,13 +1,7 @@
 set(SRC_FILES build_obb.cpp)
 
-set(LINK_LIBS_SHARED dagmc)
-set(LINK_LIBS_STATIC dagmc-static)
-
-if (BUILD_STATIC_EXE)
-  set(LINK_LIBS_EXE ${LINK_LIBS_STATIC})
-else ()
-  set(LINK_LIBS_EXE ${LINK_LIBS_SHARED})
-endif ()
+set(LINK_LIBS dagmc)
+set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 

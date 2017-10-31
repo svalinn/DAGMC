@@ -1,5 +1,3 @@
-message("")
-
 find_path(FLUKA_LIBRARIES
   NAMES libflukahp.a
   HINTS ${FLUKA_ROOT}
@@ -19,5 +17,3 @@ if (FLUKA_LIBRARIES)
 else ()
   messate(FATAL_ERROR "Could not find Fluka")
 endif ()
-
-message("")

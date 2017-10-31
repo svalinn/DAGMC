@@ -1,7 +1,5 @@
 # This file isn't named "FindHDF5.cmake" because that file already exists in CMake
 
-message("")
-
 if (HDF5_ROOT AND NOT HDF5_DIR)
   set(HDF5_DIR ${HDF5_ROOT})
 endif ()
@@ -19,5 +17,3 @@ message(STATUS "HDF5_LIBRARIES_SHARED: ${HDF5_LIBRARIES_SHARED}")
 message(STATUS "HDF5_LIBRARIES_STATIC: ${HDF5_LIBRARIES_STATIC}")
 
 include_directories(${HDF5_INCLUDE_DIRS})
-
-message("")

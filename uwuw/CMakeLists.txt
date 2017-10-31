@@ -1,14 +1,8 @@
 file(GLOB SRC_FILES "*.cpp")
 file(GLOB PUB_HEADERS "*.hpp")
 
-set(LINK_LIBS_SHARED
-  dagmc
-  pyne_dagmc
-)
-set(LINK_LIBS_STATIC
-  dagmc-static
-  pyne_dagmc-static
-)
+set(LINK_LIBS dagmc pyne_dagmc)
+set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 

@@ -1,14 +1,12 @@
-if (BUILD_STATIC_EXE)
-  set(LINK_LIBS_TEST fludag-static)
-else ()
-  set(LINK_LIBS_TEST fludag)
-endif ()
+set(DRIVERS fludag_unit_test_driver.cc)
+
+set(LINK_LIBS fludag)
+set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/fluka)
 
-set(DRIVERS fludag_unit_test_driver.cc)
-dagmc_setup_test(fludag_unit_tests cpp)
+dagmc_install_test(fludag_unit_tests cpp)
 
 install(FILES slabs.h5m DESTINATION tests)
 # We use a file from the MCNP test folder, so if not building MCNP5/6 we have to install it

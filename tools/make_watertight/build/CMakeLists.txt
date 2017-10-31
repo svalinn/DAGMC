@@ -1,11 +1,5 @@
-set(LINK_LIBS_SHARED makeWatertight)
-set(LINK_LIBS_STATIC makeWatertight-static)
-
-if (BUILD_STATIC_EXE)
-  set(LINK_LIBS_EXE ${LINK_LIBS_STATIC})
-else ()
-  set(LINK_LIBS_EXE ${LINK_LIBS_SHARED})
-endif ()
+set(LINK_LIBS makeWatertight)
+set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${CMAKE_SOURCE_DIR}/tools/make_watertight)
 

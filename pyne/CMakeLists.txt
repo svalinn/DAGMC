@@ -1,12 +1,11 @@
+set(SRC_FILES pyne.cpp)
+set(PUB_HEADERS pyne.h)
+
+set(LINK_LIBS)
+set(LINK_LIBS_EXTERN_NAMES HDF5_LIBRARIES)
+
 set(CMAKE_CXX_FLAGS_RELEASE        "-O0"   )
 set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 -g")
-
-set(SRC_FILES pyne.cpp)
-
-set(PUB_HEADERS pyne.h)
-
-set(LINK_LIBS_SHARED ${HDF5_LIBRARIES_SHARED})
-set(LINK_LIBS_STATIC ${HDF5_LIBRARIES_STATIC})
 
 dagmc_install_library(pyne_dagmc)

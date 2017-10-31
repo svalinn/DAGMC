@@ -6,15 +6,12 @@ enable_language(Fortran)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 include(DAGMC_macros)
 
-# Setup
 dagmc_set_build_type()
 dagmc_setup_build_options()
 
-# Make sure we have HDF5 and MOAB
 find_package(HDF5_DAGMC REQUIRED)
 find_package(MOAB REQUIRED)
 
-# More setup
 dagmc_setup_flags()
 dagmc_setup_rpath()
 

@@ -1,5 +1,3 @@
-message("")
-
 # Find Geant4 cmake config file
 set(Geant4_SEARCH_DIRS)
 file(GLOB Geant4_SEARCH_DIRS ${Geant4_SEARCH_DIRS} "${GEANT4_ROOT}/lib*/Geant4-*")
@@ -51,5 +49,3 @@ if (Geant4_INCLUDE_DIRS AND Geant4_LIBRARIES_SHARED AND Geant4_LIBRARIES_STATIC 
 else ()
   message(FATAL_ERROR "Could not find Geant4")
 endif ()
-
-message("")

@@ -1,3 +1,5 @@
+set(DAGMC_LIBRARY_LIST dagmc pyne_dagmc uwuw dagtally makeWatertight dagsolid fludag)
+
 macro (dagmc_set_build_type)
   # Default to a release build
   if (NOT CMAKE_BUILD_TYPE)
@@ -36,10 +38,10 @@ macro (dagmc_setup_build_options)
   option(BUILD_STATIC_EXE "Build static executables" OFF)
 
   if (BUILD_ALL)
-    set(BUILD_MCNP5 ON)
-    set(BUILD_MCNP6 ON)
+    set(BUILD_MCNP5  ON)
+    set(BUILD_MCNP6  ON)
     set(BUILD_GEANT4 ON)
-    set(BUILD_FLUKA ON)
+    set(BUILD_FLUKA  ON)
   endif ()
 endmacro ()
 
@@ -101,14 +103,37 @@ macro (dagmc_setup_rpath)
   message(STATUS "CMAKE_INSTALL_RPATH: ${CMAKE_INSTALL_RPATH}")
 endmacro ()
 
-macro (dagmc_install_library lib_name)
-  # To use this macro, the following variables must be defined:
-  #   SRC_FILES
-  #   PUB_HEADERS
-  #   LINK_LIBS_SHARED
-  #   LINK_LIBS_STATIC
+# Figure out what LINK_LIBS_SHARED and LINK_LIBS_STATIC should be based on the
+# values of LINK_LIBS and LINK_LIBS_EXTERN_NAMES
+macro (dagmc_get_link_libs)
+  set(LINK_LIBS_SHARED ${LINK_LIBS})
+  set(LINK_LIBS_STATIC)
+  foreach (link_lib IN LISTS LINK_LIBS)
+    list(FIND DAGMC_LIBRARY_LIST ${link_lib} index)
+    if (index STREQUAL "-1")
+      list(APPEND LINK_LIBS_STATIC ${link_lib})
+    else ()
+      list(APPEND LINK_LIBS_STATIC ${link_lib}-static)
+    endif ()
+  endforeach ()
 
+  foreach (extern_name IN LISTS LINK_LIBS_EXTERN_NAMES)
+    list(APPEND LINK_LIBS_SHARED ${${extern_name}_SHARED})
+    list(APPEND LINK_LIBS_STATIC ${${extern_name}_STATIC})
+  endforeach ()
+endmacro ()
+
+# To use the dagmc_install macros, the following lists must be defined:
+#   SRC_FILES: source files
+#   PUB_HEADERS: public header files
+#   LINK_LIBS: e.g. dagmc, pyne_dagmc, uwuw, lapack, gfortran
+#   LINK_LIBS_EXTERN_NAMES: e.g. HDF5_LIBRARIES, MOAB_LIBRARIES
+
+# Install a library in both shared and static mode
+macro (dagmc_install_library lib_name)
   message(STATUS "Building library: ${lib_name}")
+
+  dagmc_get_link_libs()
 
   add_library(${lib_name}        SHARED ${SRC_FILES})
   add_library(${lib_name}-static STATIC ${SRC_FILES})
@@ -124,26 +149,34 @@ macro (dagmc_install_library lib_name)
   target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
 endmacro ()
 
+# Install an executable
 macro (dagmc_install_exe exe_name)
-  # To use this macro, the following variables must be defined:
-  #   SRC_FILES
-  #   LINK_LIBS_EXE
-
   message(STATUS "Building executable: ${exe_name}")
 
+  dagmc_get_link_libs()
+
   add_executable(${exe_name} ${SRC_FILES})
-  target_link_libraries(${exe_name} ${LINK_LIBS_EXE})
+  if (BUILD_STATIC_EXE)
+    target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+  else ()
+    target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+  endif ()
   install(TARGETS ${exe_name} DESTINATION bin)
 endmacro ()
 
-macro (dagmc_setup_test test_name ext)
-  # To use this macro, the following variables must be defined:
-  #   DRIVERS
-  #   LINK_LIBS_TEST
-
+# Install a unit test
+macro (dagmc_install_test test_name ext)
   message(STATUS "Building unit test: ${test_name}")
 
+  list(APPEND LINK_LIBS gtest)
+
+  dagmc_get_link_libs()
+
   add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
-  target_link_libraries(${test_name} gtest ${LINK_LIBS_TEST})
+  if (BUILD_STATIC_EXE)
+    target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
+  else ()
+    target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
+  endif ()
   install(TARGETS ${test_name} DESTINATION tests)
 endmacro ()
