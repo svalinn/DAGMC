@@ -2,7 +2,7 @@ file(GLOB SRC_FILES "*.cpp")
 file(GLOB PUB_HEADERS "*.hpp")
 
 set(LINK_LIBS lapack blas gfortran quadmath)
-set(LINK_LIBS_EXTERN_NAMES MOAB_LIBRARIES)
+set(LINK_LIBS_EXTERN_NAMES MOAB_LIBRARIES HDF5_LIBRARIES)
 
 dagmc_install_library(dagmc)
 
