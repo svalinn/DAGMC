@@ -26,15 +26,7 @@ set(LINK_LIBS_STATIC
 
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
-add_library(dagmc        SHARED ${SRC_FILES})
-add_library(dagmc-static STATIC ${SRC_FILES})
-set_target_properties(dagmc        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
-set_target_properties(dagmc-static PROPERTIES OUTPUT_NAME dagmc)
-install(TARGETS dagmc        LIBRARY       DESTINATION lib
-                             PUBLIC_HEADER DESTINATION include)
-install(TARGETS dagmc-static ARCHIVE       DESTINATION lib)
-target_link_libraries(dagmc        ${LINK_LIBS_SHARED})
-target_link_libraries(dagmc-static ${LINK_LIBS_STATIC})
+dagmc_install_library(dagmc)
 
 add_subdirectory(tools)
 add_subdirectory(tests)

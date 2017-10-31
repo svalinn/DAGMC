@@ -101,6 +101,27 @@ macro (dagmc_setup_rpath)
   message(STATUS "CMAKE_INSTALL_RPATH: ${CMAKE_INSTALL_RPATH}")
 endmacro ()
 
+macro (dagmc_install_library lib_name)
+  # To use this macro, the following variables must be defined:
+  #   SRC_FILES
+  #   PUB_HEADERS
+  #   LINK_LIBS_SHARED
+  #   LINK_LIBS_STATIC
+
+  add_library(${lib_name}        SHARED ${SRC_FILES})
+  add_library(${lib_name}-static STATIC ${SRC_FILES})
+  set_target_properties(${lib_name}
+    PROPERTIES OUTPUT_NAME ${lib_name} PUBLIC_HEADER "${PUB_HEADERS}")
+  set_target_properties(${lib_name}-static
+    PROPERTIES OUTPUT_NAME ${lib_name})
+  install(TARGETS ${lib_name}
+    LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)
+  install(TARGETS ${lib_name}-static
+    ARCHIVE DESTINATION lib PUBLIC_HEADER DESTINATION include)
+  target_link_libraries(${lib_name}        ${LINK_LIBS_SHARED})
+  target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
+endmacro ()
+
 macro (dagmc_setup_test test_name ext driver libs)
   set(drivers ${driver})
   # Convert driver from string to list

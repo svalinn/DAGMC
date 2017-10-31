@@ -21,15 +21,7 @@ set(PUB_HEADERS
 set(LINK_LIBS_SHARED dagmc)
 set(LINK_LIBS_STATIC dagmc-static)
 
-add_library(makeWatertight        SHARED ${SRC_FILES})
-add_library(makeWatertight-static STATIC ${SRC_FILES})
-set_target_properties(makeWatertight        PROPERTIES PUBLIC_HEADER "${PUB_HEADERS}")
-set_target_properties(makeWatertight-static PROPERTIES OUTPUT_NAME makeWatertight)
-target_link_libraries(makeWatertight        ${LINK_LIBS_SHARED})
-target_link_libraries(makeWatertight-static ${LINK_LIBS_STATIC})
-install(TARGETS makeWatertight        LIBRARY       DESTINATION lib
-                                      PUBLIC_HEADER DESTINATION include/make_watertight)
-install(TARGETS makeWatertight-static ARCHIVE       DESTINATION lib)
+dagmc_install_library(makeWatertight)
 
 add_subdirectory(build)
 add_subdirectory(tests)
