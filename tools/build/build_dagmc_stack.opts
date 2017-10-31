@@ -1,9 +1,0 @@
-$HOME/UW/research/software/DAGMC/MCNP5/build_dagmc_stack.bash \
-    --verbose                       \
-    --clean                         \
-    --j 8                           \
-    --path_to_cubit=/opt/cubit/13.1 \
-    --cgm_tag=13.1.1                \
-    --hdf5_installed                \
-    --moab_tag=4.6.2                \
-    --mcnp_source=$HOME/UW/research/software/MCNP/Source 
