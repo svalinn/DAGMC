@@ -89,6 +89,34 @@ macro (dagmc_setup_flags)
   message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 endmacro ()
 
+macro (dagmc_setup_rpath)
+  set(INSTALL_RPATH_DIRS ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR})
+
+  get_filename_component(CXX_COMPILER_ROOT ${CMAKE_CXX_COMPILER} DIRECTORY)
+  get_filename_component(CXX_COMPILER_ROOT ${CXX_COMPILER_ROOT} DIRECTORY)
+  find_path(CXX_LIBRARY_PATH
+    NAMES "lib${CXX_LIBRARY}.so"
+    HINTS ${CXX_COMPILER_ROOT}
+    PATH_SUFFIXES lib64 lib32 lib
+  )
+  get_filename_component(Fortran_COMPILER_ROOT ${CMAKE_Fortran_COMPILER} DIRECTORY)
+  get_filename_component(Fortran_COMPILER_ROOT ${Fortran_COMPILER_ROOT} DIRECTORY)
+  find_path(Fortran_LIBRARY_PATH
+    NAMES "libgfortran.so"
+    HINTS ${Fortran_COMPILER_ROOT}
+    PATH_SUFFIXES lib64 lib32 lib
+  )
+
+  if (Fortran_LIBRARY_PATH AND (NOT Fortran_LIBRARY_PATH STREQUAL CXX_LIBRARY_PATH))
+    set(INSTALL_RPATH_DIRS "${Fortran_LIBRARY_PATH}:${INSTALL_RPATH_DIRS}")
+  endif ()
+  if (CXX_LIBRARY_PATH)
+    set(INSTALL_RPATH_DIRS "${CXX_LIBRARY_PATH}:${INSTALL_RPATH_DIRS}")
+  endif ()
+
+  message(STATUS "INSTALL_RPATH_DIRS: ${INSTALL_RPATH_DIRS}")
+endmacro ()
+
 # Figure out what LINK_LIBS_SHARED and LINK_LIBS_STATIC should be based on the
 # values of LINK_LIBS and LINK_LIBS_EXTERN_NAMES
 macro (dagmc_get_link_libs)
@@ -127,7 +155,7 @@ macro (dagmc_install_library lib_name)
   set_target_properties(${lib_name}
     PROPERTIES OUTPUT_NAME ${lib_name}
                PUBLIC_HEADER "${PUB_HEADERS}"
-               INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}
+               INSTALL_RPATH ${INSTALL_RPATH_DIRS}
                INSTALL_RPATH_USE_LINK_PATH TRUE)
   set_target_properties(${lib_name}-static
     PROPERTIES OUTPUT_NAME ${lib_name}
@@ -157,7 +185,7 @@ macro (dagmc_install_exe exe_name)
     target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
   else ()
     set_target_properties(${exe_name}
-      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}
+      PROPERTIES INSTALL_RPATH ${INSTALL_RPATH_DIRS}
                  INSTALL_RPATH_USE_LINK_PATH TRUE)
     target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
   endif ()
@@ -180,7 +208,7 @@ macro (dagmc_install_test test_name ext)
     target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
   else ()
     set_target_properties(${test_name}
-      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}
+      PROPERTIES INSTALL_RPATH ${INSTALL_RPATH_DIRS}
                  INSTALL_RPATH_USE_LINK_PATH TRUE)
     target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
   endif ()
