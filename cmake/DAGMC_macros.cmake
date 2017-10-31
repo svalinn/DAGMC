@@ -86,9 +86,6 @@ macro (dagmc_setup_flags)
   endif ()
 
   message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
-
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  message(STATUS "CMAKE_INSTALL_RPATH: ${CMAKE_INSTALL_RPATH}")
 endmacro ()
 
 # Figure out what LINK_LIBS_SHARED and LINK_LIBS_STATIC should be based on the
@@ -129,7 +126,7 @@ macro (dagmc_install_library lib_name)
   set_target_properties(${lib_name}
     PROPERTIES OUTPUT_NAME ${lib_name}
                PUBLIC_HEADER "${PUB_HEADERS}"
-               INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
+               INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}
                INSTALL_RPATH_USE_LINK_PATH TRUE)
   set_target_properties(${lib_name}-static
     PROPERTIES OUTPUT_NAME ${lib_name}
@@ -138,9 +135,11 @@ macro (dagmc_install_library lib_name)
   target_link_libraries(${lib_name}        ${LINK_LIBS_SHARED})
   target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
   install(TARGETS ${lib_name}
-    LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)
+    LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
+    PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   install(TARGETS ${lib_name}-static
-    ARCHIVE DESTINATION lib PUBLIC_HEADER DESTINATION include)
+    ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
+    PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
 endmacro ()
 
 # Install an executable
@@ -157,11 +156,11 @@ macro (dagmc_install_exe exe_name)
     target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
   else ()
     set_target_properties(${exe_name}
-      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
+      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}
                  INSTALL_RPATH_USE_LINK_PATH TRUE)
     target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
   endif ()
-  install(TARGETS ${exe_name} DESTINATION bin)
+  install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
 endmacro ()
 
 # Install a unit test
@@ -180,9 +179,9 @@ macro (dagmc_install_test test_name ext)
     target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
   else ()
     set_target_properties(${test_name}
-      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
+      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}
                  INSTALL_RPATH_USE_LINK_PATH TRUE)
     target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
   endif ()
-  install(TARGETS ${test_name} DESTINATION tests)
+  install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
 endmacro ()

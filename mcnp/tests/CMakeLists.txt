@@ -9,6 +9,6 @@ include_directories(${CMAKE_SOURCE_DIR}/mcnp)
 
 dagmc_install_test(dagmcnp_unit_tests cpp)
 
-install(FILES test_geom_legacy.h5m      DESTINATION tests)
-install(FILES test_geom_legacy_comp.h5m DESTINATION tests)
-install(FILES test_reflecting.h5m       DESTINATION tests)
+install(FILES test_geom_legacy.h5m      DESTINATION ${INSTALL_TESTS_DIR})
+install(FILES test_geom_legacy_comp.h5m DESTINATION ${INSTALL_TESTS_DIR})
+install(FILES test_reflecting.h5m       DESTINATION ${INSTALL_TESTS_DIR})

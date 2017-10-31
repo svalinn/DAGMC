@@ -8,4 +8,4 @@ include_directories(${GTEST_INCLUDE_DIR})
 
 dagmc_install_test(dagsolid_unit_tests cpp)
 
-install(FILES test_geom.h5m DESTINATION tests)
+install(FILES test_geom.h5m DESTINATION ${INSTALL_TESTS_DIR})
