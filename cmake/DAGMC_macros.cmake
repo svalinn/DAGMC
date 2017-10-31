@@ -86,20 +86,8 @@ macro (dagmc_setup_flags)
   endif ()
 
   message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
-endmacro ()
 
-macro (dagmc_setup_rpath)
-  set(CMAKE_SKIP_BUILD_RPATH FALSE)
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-  # Don't include system directories
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-  if ("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  endif ()
-
   message(STATUS "CMAKE_INSTALL_RPATH: ${CMAKE_INSTALL_RPATH}")
 endmacro ()
 
@@ -139,15 +127,20 @@ macro (dagmc_install_library lib_name)
   add_library(${lib_name}        SHARED ${SRC_FILES})
   add_library(${lib_name}-static STATIC ${SRC_FILES})
   set_target_properties(${lib_name}
-    PROPERTIES OUTPUT_NAME ${lib_name} PUBLIC_HEADER "${PUB_HEADERS}")
+    PROPERTIES OUTPUT_NAME ${lib_name}
+               PUBLIC_HEADER "${PUB_HEADERS}"
+               INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
+               INSTALL_RPATH_USE_LINK_PATH TRUE)
   set_target_properties(${lib_name}-static
-    PROPERTIES OUTPUT_NAME ${lib_name})
+    PROPERTIES OUTPUT_NAME ${lib_name}
+               INSTALL_RPATH ""
+               INSTALL_RPATH_USE_LINK_PATH FALSE)
+  target_link_libraries(${lib_name}        ${LINK_LIBS_SHARED})
+  target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
   install(TARGETS ${lib_name}
     LIBRARY DESTINATION lib PUBLIC_HEADER DESTINATION include)
   install(TARGETS ${lib_name}-static
     ARCHIVE DESTINATION lib PUBLIC_HEADER DESTINATION include)
-  target_link_libraries(${lib_name}        ${LINK_LIBS_SHARED})
-  target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
 endmacro ()
 
 # Install an executable
@@ -158,8 +151,14 @@ macro (dagmc_install_exe exe_name)
 
   add_executable(${exe_name} ${SRC_FILES})
   if (BUILD_STATIC_EXE)
+    set_target_properties(${exe_name}
+      PROPERTIES INSTALL_RPATH ""
+                 INSTALL_RPATH_USE_LINK_PATH FALSE)
     target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
   else ()
+    set_target_properties(${exe_name}
+      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
+                 INSTALL_RPATH_USE_LINK_PATH TRUE)
     target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
   endif ()
   install(TARGETS ${exe_name} DESTINATION bin)
@@ -167,7 +166,7 @@ endmacro ()
 
 # Install a unit test
 macro (dagmc_install_test test_name ext)
-  message(STATUS "Building unit test: ${test_name}")
+  message(STATUS "Building unit tests: ${test_name}")
 
   list(APPEND LINK_LIBS gtest)
 
@@ -175,8 +174,14 @@ macro (dagmc_install_test test_name ext)
 
   add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
   if (BUILD_STATIC_EXE)
+    set_target_properties(${test_name}
+      PROPERTIES INSTALL_RPATH ""
+                 INSTALL_RPATH_USE_LINK_PATH FALSE)
     target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
   else ()
+    set_target_properties(${test_name}
+      PROPERTIES INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib
+                 INSTALL_RPATH_USE_LINK_PATH TRUE)
     target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
   endif ()
   install(TARGETS ${test_name} DESTINATION tests)

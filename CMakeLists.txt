@@ -13,7 +13,6 @@ find_package(HDF5_DAGMC REQUIRED)
 find_package(MOAB REQUIRED)
 
 dagmc_setup_flags()
-dagmc_setup_rpath()
 
 add_subdirectory(gtest)
 add_subdirectory(pyne)
