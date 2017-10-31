@@ -3,64 +3,64 @@ message(STATUS "Building DAG-MCNP6")
 # Get date and time
 execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(LINK_LIBS_EXE)
+set(LINK_LIBS)
 
 # Source files
-set(MCNP_SRC_FILES)
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/dedx/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/fluka89/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/hexs/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/*.cpp")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/*.f")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/*.F")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/cgm/*.c")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/import/cgm/*.cpp")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/lcs/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/meshtal/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/regl/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/spabi/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/*.c")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/partisn/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.c")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/src/utils/*.F90")
-file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "${CMAKE_SOURCE_DIR}/mcnp/*.cpp")
+set(SRC_FILES)
+file(GLOB SRC_FILES ${SRC_FILES} "Source/dedx/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/fluka89/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/hexs/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/import/*.cpp")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/import/*.f")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/import/*.F")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/import/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/import/cgm/*.c")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/import/cgm/*.cpp")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/lcs/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/meshtal/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/regl/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/spabi/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/src/*.c")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/src/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/src/partisn/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/src/utils/*.c")
+file(GLOB SRC_FILES ${SRC_FILES} "Source/src/utils/*.F90")
+file(GLOB SRC_FILES ${SRC_FILES} "${CMAKE_SOURCE_DIR}/mcnp/*.cpp")
 if (MPI_BUILD)
-  file(GLOB MCNP_SRC_FILES ${MCNP_SRC_FILES} "Source/dotcomm/*.c")
+  file(GLOB SRC_FILES ${SRC_FILES} "Source/dotcomm/*.c")
 endif ()
 
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
-if ("/${MCNP_SRC_FILES};" MATCHES "/main.F90;")
+if ("/${SRC_FILES};" MATCHES "/main.F90;")
   set(MCNP_VERSION 6_beta2)
 endif ()
 # These files are present in 6.1 but not in 6_beta2
-if ("/${MCNP_SRC_FILES};" MATCHES "/cosmic_src.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/cosmic_uod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/inelastic_xs_grid_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/italft.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/kadjoint_data_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/ksen_interface_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/ksen_xs_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/limited_interaction.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/model_cross_sections.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/otf_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/read_background.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/talfft.F90;")
+if ("/${SRC_FILES};" MATCHES "/cosmic_src.F90;" AND
+    "/${SRC_FILES};" MATCHES "/cosmic_uod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/inelastic_xs_grid_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/italft.F90;" AND
+    "/${SRC_FILES};" MATCHES "/kadjoint_data_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/ksen_interface_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/ksen_xs_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/limited_interaction.F90;" AND
+    "/${SRC_FILES};" MATCHES "/model_cross_sections.F90;" AND
+    "/${SRC_FILES};" MATCHES "/otf_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/read_background.F90;" AND
+    "/${SRC_FILES};" MATCHES "/talfft.F90;")
   set(MCNP_VERSION 6.1)
 endif ()
 # These files are present in 6.1.1beta but not in 6.1
-if ("/${MCNP_SRC_FILES};" MATCHES "/cerenkov_mod.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/cgm_interface.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/parse_ichoic.F90;" AND
-    "/${MCNP_SRC_FILES};" MATCHES "/reflect_light.F90;")
+if ("/${SRC_FILES};" MATCHES "/cerenkov_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/cgm_interface.F90;" AND
+    "/${SRC_FILES};" MATCHES "/parse_ichoic.F90;" AND
+    "/${SRC_FILES};" MATCHES "/reflect_light.F90;")
   set(MCNP_VERSION 6.1.1beta)
 endif ()
 if (${MCNP_VERSION} STREQUAL Unknown)
   message(FATAL_ERROR "MCNP6 source files not found in mcnp6/Source/src")
 endif ()
-if (NOT "/${MCNP_SRC_FILES};" MATCHES "/dagmc_mod.F90;")
+if (NOT "/${SRC_FILES};" MATCHES "/dagmc_mod.F90;")
   message(FATAL_ERROR "MCNP6 source version ${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
 endif ()
 message(STATUS "DAG-MCNP6 version ${MCNP_VERSION} source files found")
@@ -173,9 +173,9 @@ if (MCNP6_PLOT)
     add_definitions(-DMCPLOT=ON)
   endif ()
   add_definitions(-DXLIB=ON)
-  list(APPEND LINK_LIBS_EXE ${X11_LIBRARIES})
+  list(APPEND LINK_LIBS ${X11_LIBRARIES})
   if (BUILD_STATIC_EXE)
-    list(APPEND LINK_LIBS_EXE xcb pthread Xau Xdmcp)
+    list(APPEND LINK_LIBS xcb pthread Xau Xdmcp)
   endif ()
 endif ()
 
@@ -193,7 +193,7 @@ if (MPI_BUILD)
   find_package(MPI REQUIRED)
   add_definitions(-DMPI=ON)
   add_definitions(-D_DOTCOMM_MPI=ON)
-  list(APPEND LINK_LIBS_EXE ${MPI_Fortran_LIBRARIES})
+  list(APPEND LINK_LIBS ${MPI_Fortran_LIBRARIES})
   include_directories(${MPI_INCLUDE_PATH})
   if (${MCNP_VERSION} STREQUAL 6_beta2)
     add_definitions(-D_DOTCOMM_MPI=ON)
@@ -204,21 +204,7 @@ endif ()
 # DAGMC
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
-if (BUILD_STATIC_EXE)
-  list(APPEND LINK_LIBS_EXE
-    dagmc-static
-    pyne_dagmc-static
-    dagtally-static
-    uwuw-static
-  )
-else ()
-  list(APPEND LINK_LIBS_EXE
-    dagmc
-    pyne_dagmc
-    dagtally
-    uwuw
-  )
-endif ()
+list(APPEND LINK_LIBS dagmc pyne_dagmc dagtally uwuw)
 
 # Executable
 if (MPI_BUILD)
@@ -226,10 +212,7 @@ if (MPI_BUILD)
 else ()
   set(MCNP_EXEC "mcnp6")
 endif ()
-add_executable(${MCNP_EXEC} ${MCNP_SRC_FILES})
-set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)
 
-# Install DAG-MCNP6
-target_link_libraries(${MCNP_EXEC} ${LINK_LIBS_EXE})
-install(TARGETS ${MCNP_EXEC} DESTINATION bin
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+# Install
+dagmc_install_exe(${MCNP_EXEC})
+set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)
