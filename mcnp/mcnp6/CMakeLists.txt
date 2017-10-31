@@ -3,7 +3,7 @@ message(STATUS "Building DAG-MCNP6")
 # Get date and time
 execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(LINK_LIBS)
+set(LINK_LIBS_EXE)
 
 # Source files
 set(MCNP_SRC_FILES)
@@ -173,9 +173,9 @@ if (MCNP6_PLOT)
     add_definitions(-DMCPLOT=ON)
   endif ()
   add_definitions(-DXLIB=ON)
-  list(APPEND LINK_LIBS ${X11_LIBRARIES})
+  list(APPEND LINK_LIBS_EXE ${X11_LIBRARIES})
   if (BUILD_STATIC_EXE)
-    list(APPEND LINK_LIBS xcb pthread Xau Xdmcp)
+    list(APPEND LINK_LIBS_EXE xcb pthread Xau Xdmcp)
   endif ()
 endif ()
 
@@ -193,7 +193,7 @@ if (MPI_BUILD)
   find_package(MPI REQUIRED)
   add_definitions(-DMPI=ON)
   add_definitions(-D_DOTCOMM_MPI=ON)
-  list(APPEND LINK_LIBS ${MPI_Fortran_LIBRARIES})
+  list(APPEND LINK_LIBS_EXE ${MPI_Fortran_LIBRARIES})
   include_directories(${MPI_INCLUDE_PATH})
   if (${MCNP_VERSION} STREQUAL 6_beta2)
     add_definitions(-D_DOTCOMM_MPI=ON)
@@ -205,14 +205,14 @@ endif ()
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 if (BUILD_STATIC_EXE)
-  list(APPEND LINK_LIBS
+  list(APPEND LINK_LIBS_EXE
     dagmc-static
     pyne_dagmc-static
     dagtally-static
     uwuw-static
   )
 else ()
-  list(APPEND LINK_LIBS
+  list(APPEND LINK_LIBS_EXE
     dagmc
     pyne_dagmc
     dagtally
@@ -230,6 +230,6 @@ add_executable(${MCNP_EXEC} ${MCNP_SRC_FILES})
 set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)
 
 # Install DAG-MCNP6
-target_link_libraries(${MCNP_EXEC} ${LINK_LIBS})
+target_link_libraries(${MCNP_EXEC} ${LINK_LIBS_EXE})
 install(TARGETS ${MCNP_EXEC} DESTINATION bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)

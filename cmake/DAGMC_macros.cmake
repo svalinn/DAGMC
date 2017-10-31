@@ -124,6 +124,18 @@ macro (dagmc_install_library lib_name)
   target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
 endmacro ()
 
+macro (dagmc_install_exe exe_name)
+  # To use this macro, the following variables must be defined:
+  #   SRC_FILES
+  #   LINK_LIBS_EXE
+
+  message(STATUS "Building executable: ${exe_name}")
+
+  add_executable(${exe_name} ${SRC_FILES})
+  target_link_libraries(${exe_name} ${LINK_LIBS_EXE})
+  install(TARGETS ${exe_name} DESTINATION bin)
+endmacro ()
+
 macro (dagmc_setup_test test_name ext)
   # To use this macro, the following variables must be defined:
   #   DRIVERS

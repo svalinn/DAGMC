@@ -9,9 +9,7 @@ endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/tools/make_watertight)
 
-add_executable(make_watertight  make_watertight.cpp)
-add_executable(check_watertight check_watertight.cpp)
-target_link_libraries(make_watertight  ${LINK_LIBS_EXE})
-target_link_libraries(check_watertight ${LINK_LIBS_EXE})
-install(TARGETS make_watertight  DESTINATION bin)
-install(TARGETS check_watertight DESTINATION bin)
+set(SRC_FILES make_watertight.cpp)
+dagmc_install_exe(make_watertight)
+set(SRC_FILES check_watertight.cpp)
+dagmc_install_exe(check_watertight)

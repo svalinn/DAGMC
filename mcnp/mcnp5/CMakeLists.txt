@@ -3,7 +3,7 @@ message(STATUS "Building DAG-MCNP5")
 # Get date and time
 execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(LINK_LIBS)
+set(LINK_LIBS_EXE)
 
 # Source files
 set(MCNP_SRC_FILES)
@@ -120,9 +120,9 @@ if (MCNP5_PLOT)
   add_definitions(-DPLOT=ON)
   add_definitions(-DMCPLOT=ON)
   add_definitions(-DXLIB=ON)
-  list(APPEND LINK_LIBS ${X11_LIBRARIES})
+  list(APPEND LINK_LIBS_EXE ${X11_LIBRARIES})
   if (BUILD_STATIC_EXE)
-    list(APPEND LINK_LIBS xcb pthread Xau Xdmcp)
+    list(APPEND LINK_LIBS_EXE xcb pthread Xau Xdmcp)
   endif ()
 endif ()
 
@@ -142,7 +142,7 @@ if (MPI_BUILD)
   add_definitions(-DMPI=ON)
   add_definitions(-DDMMP_NAME="mcnp5.mpi")
   add_definitions(-D_DOTCOMM_MPI=ON)
-  list(APPEND LINK_LIBS ${MPI_Fortran_LIBRARIES})
+  list(APPEND LINK_LIBS_EXE ${MPI_Fortran_LIBRARIES})
   include_directories(${MPI_INCLUDE_PATH})
   include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/dotcomm/include)
   include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/dotcomm/src/internals/mpi)
@@ -152,14 +152,14 @@ endif ()
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 if (BUILD_STATIC_EXE)
-  list(APPEND LINK_LIBS
+  list(APPEND LINK_LIBS_EXE
     dagmc-static
     pyne_dagmc-static
     dagtally-static
     uwuw-static
   )
 else ()
-  list(APPEND LINK_LIBS
+  list(APPEND LINK_LIBS_EXE
     dagmc
     pyne_dagmc
     dagtally
@@ -177,6 +177,6 @@ add_executable(${MCNP_EXEC} ${MCNP_SRC_FILES})
 set_target_properties(${MCNP_EXEC} PROPERTIES LINKER_LANGUAGE Fortran)
 
 # Install DAG-MCNP5
-target_link_libraries(${MCNP_EXEC} ${LINK_LIBS})
+target_link_libraries(${MCNP_EXEC} ${LINK_LIBS_EXE})
 install(TARGETS ${MCNP_EXEC} DESTINATION bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)

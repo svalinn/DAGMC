@@ -12,6 +12,4 @@ endif ()
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/uwuw)
 
-add_executable(DagGeant4 ${SRC_FILES})
-target_link_libraries(DagGeant4 ${LINK_LIBS_EXE})
-install(TARGETS DagGeant4 DESTINATION bin)
+dagmc_install_exe(DagGeant4)

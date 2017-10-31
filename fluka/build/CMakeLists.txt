@@ -11,6 +11,4 @@ endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/fluka)
 
-add_executable(mainfludag ${SRC_FILES})
-target_link_libraries(mainfludag ${LINK_LIBS_EXE})
-install(TARGETS mainfludag DESTINATION bin)
+dagmc_install_exe(mainfludag)

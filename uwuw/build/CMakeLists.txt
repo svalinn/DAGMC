@@ -11,6 +11,4 @@ endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/uwuw)
 
-add_executable(uwuw_preproc ${SRC_FILES})
-target_link_libraries(uwuw_preproc ${LINK_LIBS_EXE})
-install(TARGETS uwuw_preproc DESTINATION bin)
+dagmc_install_exe(uwuw_preproc)

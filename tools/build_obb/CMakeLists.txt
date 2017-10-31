@@ -11,6 +11,4 @@ endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
 
-add_executable(build_obb ${SRC_FILES})
-target_link_libraries(build_obb ${LINK_LIBS_EXE})
-install(TARGETS build_obb DESTINATION bin)
+dagmc_install_exe(build_obb)
