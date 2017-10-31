@@ -13,4 +13,4 @@ if (BUILD_MCNP6)
   add_subdirectory(mcnp6)
 endif ()
 
-add_subdirectory(test)
+add_subdirectory(tests)

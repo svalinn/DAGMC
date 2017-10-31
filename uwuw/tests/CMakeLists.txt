@@ -1,22 +1,19 @@
 message(STATUS "Building UWUW unit tests")
 
-set(LINK_LIBS_SHARED gtest dagmc)
-set(LINK_LIBS_STATIC gtest dagmc-static)
-
 if (BUILD_STATIC_EXE)
-  set(LINK_LIBS_EXE ${LINK_LIBS_STATIC})
+  set(LINK_LIBS_TEST dagmc-static)
 else ()
-  set(LINK_LIBS_EXE ${LINK_LIBS_SHARED})
+  set(LINK_LIBS_TEST dagmc)
 endif ()
 
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/pyne)
 include_directories(${CMAKE_SOURCE_DIR}/uwuw)
 
-set(DRIVER uwuw_unit_test_driver.cpp)
-dagmc_setup_test(uwuw_unit_tests              cpp ${DRIVER} "${LINK_LIBS_EXE}")
-dagmc_setup_test(uwuw_unit_tests_tally        cpp ${DRIVER} "${LINK_LIBS_EXE}")
-dagmc_setup_test(uwuw_unit_tests_preprocessor cpp ${DRIVER} "${LINK_LIBS_EXE}")
+set(DRIVERS uwuw_unit_test_driver.cpp)
+dagmc_setup_test(uwuw_unit_tests              cpp)
+dagmc_setup_test(uwuw_unit_tests_tally        cpp)
+dagmc_setup_test(uwuw_unit_tests_preprocessor cpp)
 
 install(FILES test_uwuw.h5m DESTINATION tests)
 install(FILES mat_lib.h5    DESTINATION tests)

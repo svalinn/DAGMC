@@ -122,13 +122,12 @@ macro (dagmc_install_library lib_name)
   target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
 endmacro ()
 
-macro (dagmc_setup_test test_name ext driver libs)
-  set(drivers ${driver})
-  # Convert driver from string to list
-  string(STRIP "${drivers}" drivers)
-  string(REGEX REPLACE "[ ]+" " " drivers "${drivers}")
-  string(REPLACE " " ";" drivers "${drivers}")
-  add_executable(${test_name} ${test_name}.${ext} ${drivers})
-  target_link_libraries(${test_name} ${libs})
+macro (dagmc_setup_test test_name ext)
+  # To use this macro, the following variables must be defined:
+  #   DRIVERS
+  #   LINK_LIBS_TEST
+
+  add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
+  target_link_libraries(${test_name} gtest ${LINK_LIBS_TEST})
   install(TARGETS ${test_name} DESTINATION tests)
 endmacro ()

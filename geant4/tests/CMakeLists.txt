@@ -1,18 +1,15 @@
 message(STATUS "Building DagSolid unit tests")
 
-set(LINK_LIBS_SHARED gtest dagsolid)
-set(LINK_LIBS_STATIC gtest dagsolid-static)
-
 if (BUILD_STATIC_EXE)
-  set(LINK_LIBS_EXE ${LINK_LIBS_STATIC})
+  set(LINK_LIBS_TEST dagsolid-static)
 else ()
-  set(LINK_LIBS_EXE ${LINK_LIBS_SHARED})
+  set(LINK_LIBS_TEST dagsolid)
 endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/geant4)
 include_directories(${GTEST_INCLUDE_DIR})
 
-set(DRIVER dagsolid_unit_test_driver.cpp)
-dagmc_setup_test(dagsolid_unit_tests cpp ${DRIVER} "${LINK_LIBS_EXE}")
+set(DRIVERS dagsolid_unit_test_driver.cpp)
+dagmc_setup_test(dagsolid_unit_tests cpp)
 
 install(FILES test_geom.h5m DESTINATION tests)
