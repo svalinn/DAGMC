@@ -1,7 +1,5 @@
 project(DAGMC)
-
 cmake_minimum_required(VERSION 2.8)
-
 enable_language(Fortran)
 
 # Make the scripts in the "cmake" directory available to CMake
@@ -29,22 +27,12 @@ add_subdirectory(tools)
 if (BUILD_TALLY)
   add_subdirectory(tally)
 endif ()
-
-if (BUILD_MCNP5 OR BUILD_MCNP6)
+if (BUILD_MCNP5 OR BUILD_MCNP6 OR BUILD_CI_TESTS)
   add_subdirectory(mcnp)
 endif ()
-
 if (BUILD_GEANT4)
   add_subdirectory(geant4)
 endif ()
-
 if (BUILD_FLUKA)
   add_subdirectory(fluka)
-endif ()
-
-# Build tests that wouldn't normally be built for the CI
-if (BUILD_CI_TESTS)
-  if (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
-    add_subdirectory(mcnp)
-  endif ()
 endif ()
