@@ -1,6 +1,0 @@
-if (BUILD_BUILD_OBB)
-  add_subdirectory(build_obb)
-endif (BUILD_BUILD_OBB)
-if (BUILD_MAKE_WATERTIGHT)
-  add_subdirectory(make_watertight)
-endif (BUILD_MAKE_WATERTIGHT)
