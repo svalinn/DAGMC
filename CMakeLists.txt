@@ -11,12 +11,14 @@ include(DAGMC_macros)
 # Setup
 dagmc_set_build_type()
 dagmc_setup_build_options()
-dagmc_setup_flags()
-dagmc_setup_rpath()
 
 # Make sure we have HDF5 and MOAB
 find_package(HDF5_DAGMC REQUIRED)
 find_package(MOAB REQUIRED)
+
+# More setup
+dagmc_setup_flags()
+dagmc_setup_rpath()
 
 add_subdirectory(gtest)
 add_subdirectory(pyne)
