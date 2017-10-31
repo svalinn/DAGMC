@@ -21,7 +21,9 @@ macro (dagmc_find_moab)
   find_path(MOAB_INCLUDE_DIRS
     NAMES MBiMesh.hpp
     HINTS ${MOAB_ROOT}
+    HINTS ${MOAB_DIR}
     PATHS ENV MOAB_ROOT
+    PATHS ENV MOAB_DIR
     PATHS ENV LD_LIBRARY_PATH
     PATH_SUFFIXES . include Include ../include ../Include
     NO_DEFAULT_PATH
@@ -33,7 +35,9 @@ macro (dagmc_find_moab)
   find_library(MOAB_LIBRARIES_SHARED
     NAMES MOAB
     HINTS ${MOAB_ROOT}
+    HINTS ${MOAB_DIR}
     PATHS ENV MOAB_ROOT
+    PATHS ENV MOAB_DIR
     PATHS ENV LD_LIBRARY_PATH
     PATH_SUFFIXES . lib Lib ../lib ../Lib
     NO_DEFAULT_PATH
@@ -44,8 +48,10 @@ macro (dagmc_find_moab)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   find_library(MOAB_LIBRARIES_STATIC
     NAMES MOAB
-    PATHS ${MOAB_ROOT}
+    HINTS ${MOAB_ROOT}
+    HINTS ${MOAB_DIR}
     PATHS ENV MOAB_ROOT
+    PATHS ENV MOAB_DIR
     PATHS ENV LD_LIBRARY_PATH
     PATH_SUFFIXES . lib Lib ../lib ../Lib
     NO_DEFAULT_PATH
@@ -77,33 +83,33 @@ macro (dagmc_set_build_type)
 endmacro ()
 
 macro (dagmc_setup_build_options)
-  option(BUILD_MCNP5           "Build DAG-MCNP5"  OFF)
-  option(BUILD_MCNP6           "Build DAG-MCNP6"  OFF)
-  option(BUILD_GEANT4          "Build DAG-Geant4" OFF)
-  option(BUILD_FLUKA           "Build FluDAG"     OFF)
+  option(BUILD_MCNP5  "Build DAG-MCNP5"                       OFF)
+  option(BUILD_MCNP6  "Build DAG-MCNP6"                       OFF)
+  option(MCNP5_PLOT   "Build DAG-MCNP5 with plotting support" OFF)
+  option(MCNP6_PLOT   "Build DAG-MCNP6 with plotting support" OFF)
+  option(MPI_BUILD    "Build DAG-MCNP5/6 with MPI support"    OFF)
+  option(OPENMP_BUILD "Build DAG-MCNP5/6 with OpenMP support" OFF)
 
-  option(BUILD_TALLY           "Build dagtally library"      ON)
+  option(BUILD_GEANT4      "Build DAG-Geant4" OFF)
+  option(WITH_GEANT4_UIVIS "Build DAG-Geant4 with visualization support" ${BUILD_GEANT4})
+
+  option(BUILD_FLUKA "Build FluDAG" OFF)
+
+  option(BUILD_TALLY "Build dagtally library" ON)
+
   option(BUILD_ASTYLE          "Build astyle code formatter" ON)
   option(BUILD_BUILD_OBB       "Build build_obb tool"        ON)
   option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool"  ON)
 
-  option(BUILD_CI_TESTS        "Build everything needed to run the CI tests" ON)
+  option(BUILD_CI_TESTS "Build everything needed to run the CI tests" ON)
 
-  option(BUILD_STATIC_EXE      "Build static executables" OFF)
+  option(BUILD_STATIC_EXE "Build static executables" OFF)
 
   if (BUILD_ALL)
-    set(BUILD_MCNP5  ON)
-    set(BUILD_MCNP6  ON)
+    set(BUILD_MCNP5 ON)
+    set(BUILD_MCNP6 ON)
     set(BUILD_GEANT4 ON)
-    set(BUILD_FLUKA  ON)
-  endif ()
-
-  if ((BUILD_MCNP5 OR BUILD_MCNP6) AND NOT BUILD_TALLY)
-    message(FATAL_ERROR "-DBUILD_TALLY must be ON if building DAG-MCNP5/6")
-  endif ()
-
-  if (BUILD_CI_TESTS AND NOT BUILD_TALLY)
-    message(FATAL_ERROR "-DBUILD_TALLY must be ON if building the CI tests")
+    set(BUILD_FLUKA ON)
   endif ()
 endmacro ()
 
@@ -163,7 +169,7 @@ macro (dagmc_setup_rpath)
   endif ()
 
   message(STATUS "CMAKE_INSTALL_RPATH: ${CMAKE_INSTALL_RPATH}")
-endmacro (dagmc_setup_rpath)
+endmacro ()
 
 macro (dagmc_setup_test test_name ext driver libs)
   set(drivers ${driver})
