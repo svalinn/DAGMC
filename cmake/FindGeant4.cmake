@@ -1,22 +1,49 @@
-# Try to find Geant4
-#
-# Once done this will define
-#
-#  Geant4_USE_FILE - CMake config for Geant4
-#  Geant4_INCLUDE_DIRS - Geant4 include directories
-#  Geant4_LIBRARIES - In case they are ever needed
+message("")
 
-# Try to find Geant4Config.cmake
-file(GLOB SEARCH_DIRS "${GEANT4_DIR}/lib*/Geant4-*")
-string(REPLACE "\n" ";" SEARCH_DIRS ${SEARCH_DIRS})
-find_path(GEANT4_CMAKE_CONFIG
-          NAMES Geant4Config.cmake
-          PATHS ${SEARCH_DIRS}
-          NO_DEFAULT_PATH)
-if (${GEANT4_CMAKE_CONFIG} MATCHES GEANT4_CMAKE_CONFIG-NOTFOUND)
-  message(FATAL_ERROR "Geant4Config.cmake not found. Make sure to set -DGEANT4_DIR when running CMake.")
-endif (${GEANT4_CMAKE_CONFIG} MATCHES GEANT4_CMAKE_CONFIG-NOTFOUND)
-message(STATUS "Found Geant4Config.cmake at ${GEANT4_CMAKE_CONFIG}")
+# Find Geant4 cmake config file
+set(Geant4_SEARCH_DIRS)
+file(GLOB Geant4_SEARCH_DIRS ${Geant4_SEARCH_DIRS} "${GEANT4_ROOT}/lib*/Geant4-*")
+file(GLOB Geant4_SEARCH_DIRS ${Geant4_SEARCH_DIRS} "${GEANT4_DIR}/lib*/Geant4-*")
+string(REPLACE "\n" ";" Geant4_SEARCH_DIRS ${Geant4_SEARCH_DIRS})
+find_path(Geant4_CMAKE_CONFIG
+  NAMES Geant4Config.cmake
+  PATHS ${Geant4_SEARCH_DIRS}
+  NO_DEFAULT_PATH
+)
+if (Geant4_CMAKE_CONFIG)
+  set(Geant4_CMAKE_CONFIG ${Geant4_CMAKE_CONFIG}/Geant4Config.cmake)
+  message(STATUS "Geant4_CMAKE_CONFIG: ${Geant4_CMAKE_CONFIG}")
+else ()
+  message(FATAL_ERROR "Could not find Geant4")
+endif ()
 
-# Geant4 CMake config
-include(${GEANT4_CMAKE_CONFIG}/Geant4Config.cmake)
+# Activate all available UI and Vis drivers by default
+if (WITH_GEANT4_UIVIS)
+  set(Geant4_FIND_REQUIRED_ui_all ON)
+  set(Geant4_FIND_REQUIRED_vis_all ON)
+endif ()
+
+# Get Geant4 include directories and libraries
+set(Geant4_FIND_REQUIRED_static ON)
+include(${Geant4_CMAKE_CONFIG})
+set(Geant4_LIBRARIES_STATIC ${Geant4_LIBRARIES})
+set(Geant4_FIND_REQUIRED_static OFF)
+include(${Geant4_CMAKE_CONFIG})
+set(Geant4_LIBRARIES_SHARED ${Geant4_LIBRARIES})
+set(Geant4_LIBRARIES)
+
+# Get Geant4 compile definitions and flags
+set(CMAKE_EXE_LINKER_FLAGS_SAVE ${CMAKE_EXE_LINKER_FLAGS})
+include(${Geant4_USE_FILE})
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS_SAVE})
+
+message(STATUS "Geant4_INCLUDE_DIRS: ${Geant4_INCLUDE_DIRS}")
+message(STATUS "Geant4_LIBRARIES_SHARED: ${Geant4_LIBRARIES_SHARED}")
+message(STATUS "Geant4_LIBRARIES_STATIC: ${Geant4_LIBRARIES_STATIC}")
+message(STATUS "Geant4_DEFINITIONS: ${Geant4_DEFINITIONS}")
+message(STATUS "Geant4_CXX_FLAGS: ${Geant4_CXX_FLAGS}")
+string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
+message(STATUS "Geant4_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}: ${Geant4_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}}")
+message(STATUS "Geant4_EXE_LINKER_FLAGS: ${Geant4_EXE_LINKER_FLAGS}")
+
+message("")

@@ -1,25 +1,6 @@
 message(STATUS "Building the DagSolid Library for Geant4")
 
-# Find Geant4 package, activating all available UI and Vis drivers by default
-# You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
-# to build a batch mode only executable
-option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
-set(GEANT4_REQUIRED_COMPONENTS)
-if (WITH_GEANT4_UIVIS)
-  list(APPEND GEANT4_REQUIRED_COMPONENTS ui_all)
-  list(APPEND GEANT4_REQUIRED_COMPONENTS vis_all)
-endif (WITH_GEANT4_UIVIS)
-
-find_package(Geant4 REQUIRED COMPONENTS ${GEANT4_REQUIRED_COMPONENTS})
-set(Geant4_LIBRARIES_SHARED ${Geant4_LIBRARIES})
-list(APPEND GEANT4_REQUIRED_COMPONENTS static)
-find_package(Geant4 REQUIRED COMPONENTS ${GEANT4_REQUIRED_COMPONENTS})
-set(Geant4_LIBRARIES_STATIC ${Geant4_LIBRARIES})
-
-# Get Geant4 libraries, include directories, and compile definitions
-set(CMAKE_EXE_LINKER_FLAGS_SAVE ${CMAKE_EXE_LINKER_FLAGS})
-include(${Geant4_USE_FILE})
-set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS_SAVE})
+find_package(Geant4 REQUIRED)
 
 set(SRC_FILES DagSolid.cc)
 
