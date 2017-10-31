@@ -8,9 +8,9 @@ endif ()
 if (BUILD_MCNP5)
   add_subdirectory(mcnp5)
 endif ()
-
 if (BUILD_MCNP6)
   add_subdirectory(mcnp6)
 endif ()
-
-add_subdirectory(tests)
+if (BUILD_TESTS)
+  add_subdirectory(tests)
+endif ()

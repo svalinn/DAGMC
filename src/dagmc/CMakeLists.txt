@@ -6,5 +6,8 @@ set(LINK_LIBS_EXTERN_NAMES MOAB_LIBRARIES HDF5_LIBRARIES)
 
 dagmc_install_library(dagmc)
 
-add_subdirectory(tests)
 add_subdirectory(tools)
+
+if (BUILD_TESTS)
+  add_subdirectory(tests)
+endif ()

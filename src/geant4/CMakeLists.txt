@@ -11,4 +11,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
 dagmc_install_library(dagsolid)
 
 add_subdirectory(build)
-add_subdirectory(tests)
+if (BUILD_TESTS)
+  add_subdirectory(tests)
+endif ()

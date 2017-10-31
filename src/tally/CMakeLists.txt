@@ -6,4 +6,6 @@ set(LINK_LIBS_EXTERN_NAMES)
 
 dagmc_install_library(dagtally)
 
-add_subdirectory(tests)
+if (BUILD_TESTS)
+  add_subdirectory(tests)
+endif ()

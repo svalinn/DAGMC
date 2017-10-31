@@ -21,5 +21,8 @@ find_package(MOAB REQUIRED)
 
 dagmc_setup_flags()
 
-add_subdirectory(gtest)
+if (BUILD_TESTS)
+  add_subdirectory(gtest)
+endif ()
+
 add_subdirectory(src)
