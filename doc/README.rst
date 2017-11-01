@@ -25,7 +25,7 @@ commands:
 the ``gh-pages`` branch. To prevent a situation where the wrong branch is used
 to build the documentation, the git remote ``origin`` should be the main
 repository and not a fork. Additionally, the branch used for building the
-documentation should not contain any additional commits not present on Github.
+documentation should not contain any additional changes not present on Github.
 In other words, in order to use ``make publish``, the result of
 ``git remote -v && git status`` should be
 ::
