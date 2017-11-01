@@ -9,7 +9,9 @@ find_path(MOAB_INCLUDE_DIRS
   PATH_SUFFIXES . include Include ../include ../Include
   NO_DEFAULT_PATH
 )
-get_filename_component(MOAB_INCLUDE_DIRS ${MOAB_INCLUDE_DIRS} ABSOLUTE)
+if (MOAB_INCLUDE_DIRS)
+  get_filename_component(MOAB_INCLUDE_DIRS ${MOAB_INCLUDE_DIRS} ABSOLUTE)
+endif ()
 
 # Find MOAB library (shared)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
@@ -23,7 +25,9 @@ find_library(MOAB_LIBRARIES_SHARED
   PATH_SUFFIXES . lib Lib ../lib ../Lib
   NO_DEFAULT_PATH
 )
-get_filename_component(MOAB_LIBRARIES_SHARED ${MOAB_LIBRARIES_SHARED} ABSOLUTE)
+if (MOAB_LIBRARIES_SHARED)
+  get_filename_component(MOAB_LIBRARIES_SHARED ${MOAB_LIBRARIES_SHARED} ABSOLUTE)
+endif ()
 
 # Find MOAB library (static)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
@@ -37,7 +41,9 @@ find_library(MOAB_LIBRARIES_STATIC
   PATH_SUFFIXES . lib Lib ../lib ../Lib
   NO_DEFAULT_PATH
 )
-get_filename_component(MOAB_LIBRARIES_STATIC ${MOAB_LIBRARIES_STATIC} ABSOLUTE)
+if (MOAB_LIBRARIES_STATIC)
+  get_filename_component(MOAB_LIBRARIES_STATIC ${MOAB_LIBRARIES_STATIC} ABSOLUTE)
+endif ()
 
 message(STATUS "MOAB_INCLUDE_DIRS: ${MOAB_INCLUDE_DIRS}")
 message(STATUS "MOAB_LIBRARIES_SHARED: ${MOAB_LIBRARIES_SHARED}")
