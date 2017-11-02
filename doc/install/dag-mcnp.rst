@@ -19,7 +19,7 @@ DAGMC. The patch you use must correspond to your version of MCNP. Currently
 supported versions of MCNP5 are 5.1.40, 5.1.51, 5.1.60
 ::
 
-    $ cd mcnp/mcnp5
+    $ cd src/mcnp/mcnp5
     $ cp -r <path_to_dvd>/MCNP5/Source .
     $ chmod -R u+rw Source
     $ patch -p0 < patch/dagmc.5.1.60.patch
@@ -27,7 +27,7 @@ supported versions of MCNP5 are 5.1.40, 5.1.51, 5.1.60
 Currently supported versions of MCNP6 are 6_beta2, 6.1, and 6.1.1beta.
 ::
 
-    $ cd mcnp/mcnp6
+    $ cd src/mcnp/mcnp6
     $ cp -r <path_to_dvd>/MCNP6/Source .
     $ chmod -R u+rw Source
     $ patch -p0 < patch/dagmc.6.1.1beta.patch
