@@ -12,8 +12,6 @@
 //   src/material.cpp
 //   src/tally.cpp
 //   src/atomic_data.cpp
-//   src/atomic_data.cpp~
-//   src/atomic_data.h~
 
 // PyNE amalgated source http://pyne.io/
 #include "pyne.h"

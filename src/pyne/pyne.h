@@ -13,9 +13,7 @@
 //   src/jsoncustomwriter.h
 //   src/material.h
 //   src/tally.h
-//   src/atomic_data.cpp~
 //   src/atomic_data.h
-//   src/atomic_data.h~
 
 // PyNE amalgated header http://pyne.io/
 #ifndef PYNE_52BMSKGZ3FHG3NQI566D4I2ZLY
