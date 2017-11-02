@@ -11,6 +11,7 @@ macro (dagmc_set_build_type)
       NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     message(FATAL_ERROR "Specified CMAKE_BUILD_TYPE is invalid; valid options are Release, Debug, RelWithDebInfo")
   endif ()
+  string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
   message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 endmacro ()
 
@@ -143,7 +144,7 @@ endmacro ()
 # Figure out what LINK_LIBS_SHARED and LINK_LIBS_STATIC should be based on the
 # values of LINK_LIBS and LINK_LIBS_EXTERN_NAMES
 macro (dagmc_get_link_libs)
-  set(LINK_LIBS_SHARED ${LINK_LIBS})
+  set(LINK_LIBS_SHARED)
   set(LINK_LIBS_STATIC)
 
   foreach (extern_name IN LISTS LINK_LIBS_EXTERN_NAMES)
@@ -154,8 +155,10 @@ macro (dagmc_get_link_libs)
   foreach (link_lib IN LISTS LINK_LIBS)
     list(FIND DAGMC_LIBRARY_LIST ${link_lib} index)
     if (index STREQUAL "-1")
+      list(APPEND LINK_LIBS_SHARED ${link_lib})
       list(APPEND LINK_LIBS_STATIC ${link_lib})
     else ()
+      list(APPEND LINK_LIBS_SHARED ${link_lib}-shared)
       list(APPEND LINK_LIBS_STATIC ${link_lib}-static)
     endif ()
   endforeach ()
@@ -173,9 +176,10 @@ macro (dagmc_install_library lib_name)
 
   dagmc_get_link_libs()
 
-  add_library(${lib_name}        SHARED ${SRC_FILES})
-  add_library(${lib_name}-static STATIC ${SRC_FILES})
-  set_target_properties(${lib_name}
+  add_library(${lib_name}-object OBJECT ${SRC_FILES})
+  add_library(${lib_name}-shared SHARED $<TARGET_OBJECTS:${lib_name}-object>)
+  add_library(${lib_name}-static STATIC $<TARGET_OBJECTS:${lib_name}-object>)
+  set_target_properties(${lib_name}-shared
     PROPERTIES OUTPUT_NAME ${lib_name}
                PUBLIC_HEADER "${PUB_HEADERS}"
                INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
@@ -184,9 +188,9 @@ macro (dagmc_install_library lib_name)
     PROPERTIES OUTPUT_NAME ${lib_name}
                INSTALL_RPATH ""
                INSTALL_RPATH_USE_LINK_PATH FALSE)
-  target_link_libraries(${lib_name}        ${LINK_LIBS_SHARED})
+  target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
   target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
-  install(TARGETS ${lib_name}
+  install(TARGETS ${lib_name}-shared
     LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
     PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   install(TARGETS ${lib_name}-static
