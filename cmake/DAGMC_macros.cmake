@@ -2,6 +2,8 @@
 set(DAGMC_LIBRARY_LIST dagmc pyne_dagmc uwuw dagtally makeWatertight dagsolid fludag)
 
 macro (dagmc_setup_build)
+  message("")
+
   # Default to a release build
   if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMAKE_BUILD_TYPE not specified, defaulting to Release")
@@ -32,6 +34,8 @@ macro (dagmc_setup_build)
 endmacro ()
 
 macro (dagmc_setup_options)
+  message("")
+
   option(BUILD_MCNP5  "Build DAG-MCNP5"                       OFF)
   option(BUILD_MCNP6  "Build DAG-MCNP6"                       OFF)
   option(MCNP5_PLOT   "Build DAG-MCNP5 with plotting support" OFF)
@@ -64,6 +68,8 @@ macro (dagmc_setup_options)
 endmacro ()
 
 macro (dagmc_setup_flags)
+  message("")
+
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
   set(CXX_LIBRARY)
@@ -111,6 +117,8 @@ macro (dagmc_setup_flags)
 endmacro ()
 
 macro (dagmc_setup_rpath)
+  message("")
+
   # Attempt to find CXX library path
   get_filename_component(CXX_COMPILER_ROOT ${CMAKE_CXX_COMPILER} DIRECTORY)
   get_filename_component(CXX_COMPILER_ROOT ${CXX_COMPILER_ROOT} DIRECTORY)

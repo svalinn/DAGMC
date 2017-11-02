@@ -1,3 +1,5 @@
+message("")
+
 find_package(Fluka REQUIRED)
 
 set(SRC_FILES fluka_funcs.cpp)

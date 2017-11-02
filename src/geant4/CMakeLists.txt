@@ -1,3 +1,5 @@
+message("")
+
 find_package(Geant4 REQUIRED)
 
 set(SRC_FILES DagSolid.cc)

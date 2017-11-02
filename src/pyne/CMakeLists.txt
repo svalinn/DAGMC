@@ -1,3 +1,5 @@
+message("")
+
 set(SRC_FILES pyne.cpp)
 set(PUB_HEADERS pyne.h)
 

@@ -20,3 +20,5 @@ if (BUILD_TESTS)
 endif ()
 
 add_subdirectory(src)
+
+message("")

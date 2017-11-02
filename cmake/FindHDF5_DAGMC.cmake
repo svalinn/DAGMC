@@ -1,5 +1,7 @@
 # This file isn't named "FindHDF5.cmake" because that file already exists in CMake
 
+message("")
+
 if (HDF5_ROOT AND NOT HDF5_DIR)
   set(HDF5_DIR ${HDF5_ROOT})
 endif ()
