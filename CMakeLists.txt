@@ -6,15 +6,8 @@ enable_language(Fortran)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 include(DAGMC_macros)
 
-set(INSTALL_BIN_DIR     bin)
-set(INSTALL_LIB_DIR     lib)
-set(INSTALL_INCLUDE_DIR include)
-set(INSTALL_TESTS_DIR   tests)
-set(INSTALL_TOOLS_DIR   tools)
-set(INSTALL_SHARE_DIR   share)
-
-dagmc_set_build_type()
-dagmc_setup_build_options()
+dagmc_setup_build()
+dagmc_setup_options()
 
 find_package(HDF5_DAGMC REQUIRED)
 find_package(MOAB REQUIRED)

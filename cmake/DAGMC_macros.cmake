@@ -1,6 +1,7 @@
+# All DAGMC libraries
 set(DAGMC_LIBRARY_LIST dagmc pyne_dagmc uwuw dagtally makeWatertight dagsolid fludag)
 
-macro (dagmc_set_build_type)
+macro (dagmc_setup_build)
   # Default to a release build
   if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMAKE_BUILD_TYPE not specified, defaulting to Release")
@@ -13,9 +14,24 @@ macro (dagmc_set_build_type)
   endif ()
   string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
   message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+  # Installation directories
+  set(INSTALL_BIN_DIR     bin)
+  set(INSTALL_LIB_DIR     lib)
+  set(INSTALL_INCLUDE_DIR include)
+  set(INSTALL_TESTS_DIR   tests)
+  set(INSTALL_TOOLS_DIR   tools)
+  set(INSTALL_SHARE_DIR   share)
+
+  # Get some environment variables
+  set(ENV_USER "$ENV{USER}")
+  execute_process(COMMAND hostname       OUTPUT_VARIABLE ENV_HOST OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND uname -s       OUTPUT_VARIABLE ENV_OS   OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND date +%H:%M:%S OUTPUT_VARIABLE ENV_TIME OUTPUT_STRIP_TRAILING_WHITESPACE)
 endmacro ()
 
-macro (dagmc_setup_build_options)
+macro (dagmc_setup_options)
   option(BUILD_MCNP5  "Build DAG-MCNP5"                       OFF)
   option(BUILD_MCNP6  "Build DAG-MCNP6"                       OFF)
   option(MCNP5_PLOT   "Build DAG-MCNP5 with plotting support" OFF)
