@@ -1,7 +1,7 @@
 # Preprocessor directives needed for correct name mangling to be applied
-if (${CMAKE_Fortran_COMPILER_ID} STREQUAL Intel)
+if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   add_definitions(-DINTEL_FORTRAN=ON)
-elseif (${CMAKE_Fortran_COMPILER_ID} STREQUAL GNU)
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   add_definitions(-DGFORTRAN=ON)
 endif ()
 
