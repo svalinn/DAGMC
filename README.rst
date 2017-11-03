@@ -1,162 +1,40 @@
-Direct Accelerated Geometry Monte Carlo (DAGMC) Toolkit
-==========================================================
+DAGMC: Direct Accelerated Geometry Monte Carlo
+==============================================
 
-.. image:: https://travis-ci.org/svalinn/DAGMC.svg?branch=develop
+..  image:: https://travis-ci.org/svalinn/DAGMC.svg?branch=develop
     :target: https://travis-ci.org/svalinn/DAGMC
 
-The Direct Acclerated Geometry Monte Carlo (DAGMC) Toolkit is an
-interface (`DAGMC Source <https://bitbucket.org/fathomteam/moab/src/cba78ef585b471659f817076505f61117efeb0c7/tools/dagmc/?at=master>`_)
-to the `MOAB mesh database
-<http://sigma.mcs.anl.gov/moab-library/>`_ that provides the
-methods necessary for ray tracing on a CAD-based geometric model.
+Direct Accelerated Geometry Monte Carlo (DAGMC) is a software package that
+allows users to perform Monte Carlo radiation transport directly on CAD models.
 
-This repository provides implementations of that interface for various
-Monte Carlo radiation transport codes.  Depending on the distribution
-limitations and software design of each code, there are many modes by
-which we are delivering this capability.  The method of distribution
-is dictated by the geometry interface and the type of development 
-integration available. 
+DAGMC has been integrated into a variety of Monte Carlo radiation codes
+including MCNP5_, MCNP6_, Geant4_, FLUKA_, Tripoli4_, and Shift_. There are also
+efforts planned to integrate DAGMC into other codes such as Serpent2_, OpenMC_,
+Phits_, and Frensie.
 
-Geometry Interface
--------------------
+DAGMC currently relies on using the solid modeling software Cubit_ or its
+commercial counterpart, Trelis_, to prepare solid models. These packages can be
+used to import CAD models from other tools such as SolidWorks, CATIA, etc., or
+to create geometry from scratch. DAGMC also relies on Trelis/Cubit to assign
+materials and other geometry-related information.
 
-In cases where the physics package has a cleanly defined geometry
-interface (FLUKA), we are able to distribute a standalone collection of
-methods that each user can compile and link with the physics package.
+For more information, please visit the `DAGMC website <DAGMC_>`_.
 
-When the geometry interface is not cleanly defined, our modifications
-include modifications to the original source code.  Therefore our
-distribution mechanism depends the ability to integrate our
-modifications into the main physics code development path.
+Quick links:
 
-Mainline Development Integration
-----------------------------------
+* `Install guide <http://svalinn.github.io/DAGMC/install/index.html>`_
+* `Users guide <http://svalinn.github.io/DAGMC/usersguide/index.html>`_
+* `Contributors guide <http://svalinn.github.io/DAGMC/contribute/index.html>`_
 
-In cases where the authors of the physics package are willing to
-integrate DAGMC as an option in their primary software distribution
-(SHIFT), then the main distribution mechansim will be as part of that
-software in its normal distribution channels.  This may either in be
-in a shared software repository or in a regular release snapshot.
-
-In cases where the primary authors prefer DAGMC to be distributed
-separately as an enhancement for their software (MCNP5), the
-distribution mechanism will be as a patch to their source code, since
-we generally are not authorized to redistribute their code.
-
-Development Status
-------------------
-
-Efforts are underway to make DAGMC available in the following physics
-packages:
-   * MCNP5: complete and in production use
-   * Fluka: almost complete (10/2015)
-   * GEANT4: almost complete (10/2015)
-   * Serpent: underway (10/2015)
-   * OpenMC: planned for 2015
-   * MCNP6: planned for 2016
-
-Installing
-----------
-For installation instructions see `<http://svalinn.github.io/DAGMC/usersguide/>`_.
-
-Testing
-------------
-DAGMC now uses Docker to host most of the heavy dependencies for testing such as Geant4. 
-Adding Tests
-++++++++++++
-To add test a test
-
-Building Documentation
--------------------------
-
-(Note: Sphinx versions higher than 1.1.2 are required.)
-
-A 2 branch system has been implemented to maintain a clean process of
-rebuilding this site.
-
-1. The `master` branch contains the restructured text documents and
-Sphinx configuration used to build the site.  All direct editing of
-files should be made in the `master` branch.
-
-2. The `gh-pages` branch contains the processed and published web
-content that is derived by Sphinx from the `master` branch.  These
-files should not be editted directly.
-
-Best practice workflow for contributing to site changes
---------------------------------------------------------
-
-1. Checkout the `master` branch
-
-   ```git checkout master```
-
-2. Synchronize your branch with the repository (either `pull` or
-`fetch` and `merge`)
-
-     ```git pull upstream```
-
-3. Create a branch to contain your change
-
-     ```git checkout -b add_some_info```
-
-4. Make your changes in this branch
-
-5. Test you changes by using the `gh-preview` target
-
-     ```make gh-preview```
-
-   This will build a version of the site in the `gh-build` directory of
-   your branch, `add_some_info`.  You can load it directly in a local
-   browser.
-
-6. Repeat steps 4-5 until satisfied.
-
-7. Once satisfied with the master RST files, push your branch to the
-   repo.  Be sure to synchronize with any possible changes to the
-   `master` branch first.
-
-     ```
-     git fetch upstream
-     git rebase upstream/master
-     git push upstream add_some_info
-     ```
-
-8. Issue a pull request by going to your branch on the repo and
-   clicking the "Pull Request" button.
-
-Best practice for managing a pull request
-------------------------------------------
-
-1. Synchronize your repository with the remote repo
-
-     ```git fetch upstream```
-
-2. Checkout the `pull_request_branch`
-
-     ```git checkout -b pull_request_branch upstream/pull_request_branch```
-
-3. Test the changes by using the `gh-preview` target
-
-    ```make gh-preview```
-
-   This will build a version of the site in the `gh-build` directory in
-   your branch, `pull_request_branch`.  You can load it directly in a
-   local browser.
-
-5. If satisfied, merge the `pull_request_branch` into the `master`
-   branch.  Be sure to synchronize with the remote repo first.
-
-     ```
-     git checkout master
-     git fetch upstream
-     git rebase upstream/master
-     git merge pull_request_branch
-     ```
-
-6. If there are no conflicts, push this to the repo
-
-     ```git push upstream master```
-
-7. Republish the pages with the `gh-publish` target.
-
-     ```make gh-publish```
-
+..  _DAGMC: http://svalinn.github.io/DAGMC
+..  _Cubit: https://cubit.sandia.gov
+..  _Trelis: http://www.csimsoft.com/trelis
+..  _MCNP5: https://mcnp.lanl.gov
+..  _MCNP6: https://mcnp.lanl.gov
+..  _Geant4: http://geant4.cern.ch
+..  _FLUKA: http://www.fluka.org/fluka.php
+..  _Tripoli4: https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html
+..  _Shift: http://web.ornl.gov/sci/nsed/rnsd/rt
+..  _Serpent2: http://montecarlo.vtt.fi
+..  _OpenMC: https://mit-crpg.github.io/openmc
+..  _Phits: http://phits.jaea.go.jp

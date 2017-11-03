@@ -9,9 +9,9 @@ file=gallery.rst
 # function to write a gallery entry
 function gallery_entry()
 {
+    echo "" >> $2
     echo "..  image::" $1 >> $2
     echo "    :alt:   Dummy Text Lorem Ipsum" >> $2
-    echo "" >> $2
 }
 
 # for each png file
