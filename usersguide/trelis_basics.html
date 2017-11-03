@@ -1,17 +1,14 @@
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Cubit/Trelis basics &#8212; DAGMC</title>
-    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -30,7 +27,7 @@
     <link rel="next" title="University of Wisconsin Unified Workflow (UWUW)" href="uw2.html" />
     <link rel="prev" title="User’s guide" href="index.html" /> 
   </head>
-  <body role="document"> 
+  <body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -72,7 +69,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a>
           </li>
-          <li class="menu-item"><a href="index.html" accesskey="U">User&#8217;s guide</a></li> 
+          <li class="menu-item"><a href="index.html" accesskey="U">User’s guide</a></li> 
       </ul>
     </div>
   <div id="c_container"> 
@@ -140,21 +137,21 @@ geometries (on the order of 100 volumes) the process is rather quick.</p>
 defined within the geometry file. These characteristics generally relate to the
 physical behavior of the volume, for example its material definition or boundary
 conditions.</p>
-<p>Before the discussion of specific attributes, the practice of &#8220;grouping&#8221; needs
+<p>Before the discussion of specific attributes, the practice of “grouping” needs
 to be explained. A group is essentially a collection of volumes or surfaces that
-share a common attribute; the practical usage of &#8220;grouping&#8221; will be explained in
+share a common attribute; the practical usage of “grouping” will be explained in
 the next section.</p>
 <p>The general format for creating/adding volumes to a group is:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;group.name&quot; add vol/surf ...
 </pre></div>
 </div>
-<p>For example, to create a group called &#8220;moderator&#8221; containing volumes 5, 6, 7,
+<p>For example, to create a group called “moderator” containing volumes 5, 6, 7,
 and 10, the following command would be used:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;moderator&quot; add vol 5 to 8 10
 </pre></div>
 </div>
-<p>Another example, shows that groups don&#8217;t have to just contain volumes, but can
-contain surfaces too. Below the group &#8220;shield.boundary&#8221; is created with surfaces
+<p>Another example, shows that groups don’t have to just contain volumes, but can
+contain surfaces too. Below the group “shield.boundary” is created with surfaces
 16 and 37:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;shield.boundary&quot; add surf 16 37
 </pre></div>
@@ -199,7 +196,7 @@ issues due occurs, these should be addressed following the workflow listed
 above.</p>
 <p>Where faceting_tolerance, normal_tolerance, and length tolerance are optional
 arguments. For example, to export the currently loaded file to a file called
-&#8220;large_facets.h5m&#8221; with a faceting tolerance of 1.e-5, use</p>
+“large_facets.h5m” with a faceting tolerance of 1.e-5, use</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &quot;large_facets.h5m&quot; faceting_tolerance 1.e-5
 </pre></div>
 </div>
@@ -231,10 +228,10 @@ to be supported with identical infrastructure.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 12, 2017.
+      Last updated on Nov 03, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
       </p>
     </div>
   </body>

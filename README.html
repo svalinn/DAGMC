@@ -1,0 +1,124 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Building the DAGMC website &#8212; DAGMC</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head>
+  <body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="index.html"><img src="_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Building the DAGMC website</a></li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="building-the-dagmc-website">
+<h1>Building the DAGMC website<a class="headerlink" href="#building-the-dagmc-website" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference external" href="http://svalinn.github.io/DAGMC">DAGMC website</a> is built using the <a class="reference external" href="http://www.sphinx-doc.org">Sphinx</a> documentation
+generator.</p>
+<p>DAGMC uses a two-branch system to maintain a clean process of rebuilding the
+website. The <code class="docutils literal"><span class="pre">develop</span></code> branch contains the source restructured text documents
+and Sphinx configuration used to build the site. The <code class="docutils literal"><span class="pre">gh-pages</span></code> branch
+contains the processed and published web content that is produced by Sphinx
+using the source files in the <code class="docutils literal"><span class="pre">develop</span></code> branch. The files in this branch
+should NOT be edited directly.</p>
+<p>The DAGMC documentation build system relies on the <code class="docutils literal"><span class="pre">Makefile</span></code> located in the
+top-level directory of the DAGMC repository. Here is a summary of the available
+commands:</p>
+<p><code class="docutils literal"><span class="pre">make</span> <span class="pre">help</span></code>: Display available options and exit.</p>
+<p><code class="docutils literal"><span class="pre">make</span> <span class="pre">html</span></code>: Build the documentation for viewing on a local machine.</p>
+<p><code class="docutils literal"><span class="pre">make</span> <span class="pre">clean</span></code>: Remove the locally-built documentation.</p>
+<p><code class="docutils literal"><span class="pre">make</span> <span class="pre">publish</span></code>: Publish the documentation located in the <code class="docutils literal"><span class="pre">develop</span></code> branch to
+the <code class="docutils literal"><span class="pre">gh-pages</span></code> branch. To prevent a situation where the wrong branch is used
+to build the documentation, the git remote <code class="docutils literal"><span class="pre">origin</span></code> should be the main
+repository and not a fork. Additionally, the branch used for building the
+documentation should not contain any additional changes not present on Github.
+In other words, in order to use <code class="docutils literal"><span class="pre">make</span> <span class="pre">publish</span></code>, the result of
+<code class="docutils literal"><span class="pre">git</span> <span class="pre">remote</span> <span class="pre">-v</span> <span class="pre">&amp;&amp;</span> <span class="pre">git</span> <span class="pre">status</span></code> should be</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>origin  https://github.com/svalinn/DAGMC (fetch)
+origin  https://github.com/svalinn/DAGMC (push)
+On branch develop
+Your branch is up-to-date with &#39;origin/develop&#39;.
+nothing to commit, working tree clean
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2017, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Nov 03, 2017.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
+      </p>
+    </div>
+  </body>
+</html>

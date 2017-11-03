@@ -1,17 +1,14 @@
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Code-specific steps for DAG-Tripoli4 &#8212; DAGMC</title>
-    
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
@@ -30,7 +27,7 @@
     <link rel="next" title="Producing solid models for DAGMC using Cubit/Trelis" href="../trelis_workflow.html" />
     <link rel="prev" title="Code-specific steps for FluDAG" href="fludag.html" /> 
   </head>
-  <body role="document"> 
+  <body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -72,7 +69,7 @@
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a>
           </li>
-          <li class="menu-item"><a href="../index.html" >User&#8217;s guide</a></li>
+          <li class="menu-item"><a href="../index.html" >User’s guide</a></li>
           <li class="menu-item"><a href="index.html" accesskey="U">Monte Carlo code-specific steps</a></li> 
       </ul>
     </div>
@@ -141,7 +138,7 @@ that this material will NOT be assigned to that volume.  (_It is often
 convenient to assign the graveyard volume (see below) to the implicit
 complement material group to minimize confusion._) For example, if you
 would like the explicit complement to be modeled with the composition
-named &#8220;air&#8221;:</p>
+named “air”:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; create group &quot;comp_air_comp&quot;
 </pre></div>
 </div>
@@ -151,13 +148,13 @@ named &#8220;air&#8221;:</p>
 <p>There are two general classes of boundary condition supported by
 DAG-Tripoli4. a vacuum boundary and reflecting surfaces, and they are
 implemented in different ways.</p>
-<p><strong>Defining the &#8220;graveyard&#8221;: vacuum boundaries</strong></p>
+<p><strong>Defining the “graveyard”: vacuum boundaries</strong></p>
 <p>A vacuum boundary condition is typically defined in Tripoli4 by simply
 having a surface with no defined volume on its other side.  Since
-DAGMC&#8217;s implicit complement is also defined this way, it is not
+DAGMC’s implicit complement is also defined this way, it is not
 possible to use this convention in DAG-Tripoli4.  Instead, volumes are
 created on the vacuum side of those same surfaces, but those volumes
-are placed in a special group, known as the &#8220;graveyard&#8221; to change
+are placed in a special group, known as the “graveyard” to change
 their behavior.  Any geometric shape can be used for this; however, a
 cubic shell is often preferred.  This shell volume will represent the
 outside world and will be the cell where all of the particles are
@@ -235,13 +232,13 @@ geometry.  This block has the following parameters:</p>
 <tr class="row-odd"><td>facet_file &lt;string faceting filename&gt;</td>
 <td>(optional)</td>
 </tr>
-<tr class="row-even"><td>check_src_cell &lt;&#8221;off&#8221;|&#8221;false&#8221;|&#8221;no&#8221;&gt;</td>
+<tr class="row-even"><td>check_src_cell &lt;”off”|”false”|”no”&gt;</td>
 <td>(optional: default=on)</td>
 </tr>
-<tr class="row-odd"><td>usecad &lt;&#8221;on&#8221;|&#8221;true&#8221;|&#8221;yes&#8221;&gt;</td>
+<tr class="row-odd"><td>usecad &lt;”on”|”true”|”yes”&gt;</td>
 <td>(optional: default=off)</td>
 </tr>
-<tr class="row-even"><td>distlimit &lt;&#8221;on&#8221;|&#8221;true&#8221;|&#8221;yes&#8221;&gt;</td>
+<tr class="row-even"><td>distlimit &lt;”on”|”true”|”yes”&gt;</td>
 <td>(optional: default=off)</td>
 </tr>
 <tr class="row-odd"><td>tolerance &lt;double ray firing tolerance&gt;</td>
@@ -271,10 +268,10 @@ material compositions that have been assigned in the previous step.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 12, 2017.
+      Last updated on Nov 03, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
       </p>
     </div>
   </body>

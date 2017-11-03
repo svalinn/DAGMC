@@ -1,17 +1,14 @@
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Code-specific steps for DAG-MCNP5/6 &#8212; DAGMC</title>
-    
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
@@ -30,7 +27,7 @@
     <link rel="next" title="Tallies" href="dag-mcnp_deprecated.html" />
     <link rel="prev" title="Monte Carlo code-specific steps" href="index.html" /> 
   </head>
-  <body role="document"> 
+  <body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -72,7 +69,7 @@
           <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a>
           </li>
-          <li class="menu-item"><a href="../index.html" >User&#8217;s guide</a></li>
+          <li class="menu-item"><a href="../index.html" >User’s guide</a></li>
           <li class="menu-item"><a href="index.html" accesskey="U">Monte Carlo code-specific steps</a></li> 
       </ul>
     </div>
@@ -98,7 +95,7 @@
   <div class="section" id="code-specific-steps-for-dag-mcnp5-6">
 <h1>Code-specific steps for DAG-MCNP5/6<a class="headerlink" href="#code-specific-steps-for-dag-mcnp5-6" title="Permalink to this headline">¶</a></h1>
 <p>Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6, and
-the term &#8220;DAG-MCNP&#8221; refers to both.</p>
+the term “DAG-MCNP” refers to both.</p>
 <p>There are three varieties of code-specific steps for DAG-MCNP:</p>
 <ol class="arabic simple">
 <li>Defining attributes of the geometry using Cubit/Trelis groups</li>
@@ -127,12 +124,12 @@ to specify that information:</p>
 </pre></div>
 </div>
 <p>All volumes must belong to a group, if you want volumes to be filled with vacuum
-then add them to a group called, &#8220;mat:Vacuum&#8221;:</p>
+then add them to a group called, “mat:Vacuum”:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Vacuum&quot; add vol 4 to 18
 </pre></div>
 </div>
 <p>If you would like to assign a material to the implicit complement, a special
-procedure is needed. Since the implicit complement doesn&#8217;t exist before running
+procedure is needed. Since the implicit complement doesn’t exist before running
 DAGMC, and DAGMC can only recognize groups that contain an entity, the material
 for the implicit complement must be specified as if it were being specified for
 the graveyard volume. For example, if you would like the implicit complement to
@@ -149,12 +146,12 @@ complement rather than the graveyard.</p>
 <h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h3>
 <p>There are two general classes of boundary condition supported by DAG-MCNP:
 vacuum boundaries and surface boundary conditions.</p>
-<p><strong>Vacuum boundaries: defining the &#8220;graveyard&#8221;</strong></p>
+<p><strong>Vacuum boundaries: defining the “graveyard”</strong></p>
 <p>Typical MCNP models contain a zero-importance volume that bounds the volumes of
 interest and extends to infinity. Since solid models cannot include infinite
 volumes, it is necessary to define a finite zero-importance volume around your
 model to define the problem boundary. This is done by surrounding the entire
-geometry with a shell of finite thickness; this is known as the &#8220;graveyard.&#8221; Any
+geometry with a shell of finite thickness; this is known as the “graveyard.” Any
 geometric shape can be used for this, but a cubic shell is preferred. The
 graveyard represents the outside world, and any particle that enters it will be
 terminated.</p>
@@ -280,10 +277,10 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 12, 2017.
+      Last updated on Nov 03, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
       </p>
     </div>
   </body>

@@ -1,17 +1,14 @@
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Producing solid models for DAGMC using Cubit/Trelis &#8212; DAGMC</title>
-    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -30,7 +27,7 @@
     <link rel="next" title="DAGMC unstructured mesh tallies" href="tally.html" />
     <link rel="prev" title="Code-specific steps for DAG-Tripoli4" href="codes/dag-tripoli4.html" /> 
   </head>
-  <body role="document"> 
+  <body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -72,7 +69,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a>
           </li>
-          <li class="menu-item"><a href="index.html" accesskey="U">User&#8217;s guide</a></li> 
+          <li class="menu-item"><a href="index.html" accesskey="U">User’s guide</a></li> 
       </ul>
     </div>
   <div id="c_container"> 
@@ -102,7 +99,7 @@ looks like that shown in the Figure below.</p>
 <a class="reference internal image-reference" href="../_images/general_workflow.png"><img alt="The general workflow for producing quality CAD for DAGMC models." src="../_images/general_workflow.png" style="height: 400px;" /></a>
 <p>The general workflow for the production of DAGMC models is the following:</p>
 <ol class="arabic">
-<li><p class="first">Ensure that units/sizes for DAGMC models are &#8220;cm&#8221;</p>
+<li><p class="first">Ensure that units/sizes for DAGMC models are “cm”</p>
 </li>
 <li><p class="first">Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)</p>
 </li>
@@ -119,7 +116,7 @@ CUBIT&gt; autoheal problem vols
 <li><p class="first">Regularize may be needed (simplifies by removing splines, but will reverse imprint operation)</p>
 </li>
 <li><dl class="first docutils">
-<dt>Check and possibly remove negligibly small curves, surfaces, and volumes. (check &#8220;hydraulic&#8221; length and &#8220;regular&#8221; length)</dt>
+<dt>Check and possibly remove negligibly small curves, surfaces, and volumes. (check “hydraulic” length and “regular” length)</dt>
 <dd><div class="first last highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;smallsurfaces&quot; add surface with area &lt; 1.e-3
 CUBIT&gt; group &quot;smallcurves&quot; add curve with length &lt; 1.e-4
 CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
@@ -169,7 +166,7 @@ CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 <li><p class="first">If lost particles or leaky:</p>
 <ul class="simple">
 <li>examine lost locations (use <a class="reference external" href="tools.html#mklostvis">mklostvis.pl</a>)</li>
-<li>examine &#8220;leaks&#8221;/tunneling (can use a mesh tally to locate)</li>
+<li>examine “leaks”/tunneling (can use a mesh tally to locate)</li>
 <li>repair the pre-imprint/merge model (go to step 2)</li>
 </ul>
 </li>
@@ -255,18 +252,18 @@ next section to change, reduce and remove their effect on the model.</p>
 three following methods may be used to change, reduce, and remove their
 effect on the model.</p>
 <ul class="simple">
-<li>Create &#8220;voided&#8221; geometries</li>
+<li>Create “voided” geometries</li>
 <li>Modify volume/part dimensions</li>
 <li>Remove superfluous details</li>
 </ul>
 <p>Each method is discussed in detail below:</p>
 <p>As with the fuel rod example mentioned above, some regions that are
-&#8216;gaps&#8217; are also important. Instead of removing the gap entirely (by
+‘gaps’ are also important. Instead of removing the gap entirely (by
 changing the dimensions of the cladding or the fuel to force
 coincidence), a new volume/part could be modeled that coincided with
 the outer diameter of the fuel AND the inner diameter of the
-cladding. Now a &#8220;voided&#8221; geometry occupies the previously unaccounted
-for region. By specifying these &#8220;voided&#8221; geometries in a DAGMC-based
+cladding. Now a “voided” geometry occupies the previously unaccounted
+for region. By specifying these “voided” geometries in a DAGMC-based
 analysis, the physical importance of the region can be retained while
 accomodating the requirement of having coincident surfaces.</p>
 <p>Another method to resolve gaps and overlaps is to simply change the
@@ -279,19 +276,19 @@ were modeled with different unit systems. For example, one volume/part
 might have been model in [in] while its neighbor was modeled in [cm].
 While surfaces may be nearly coincident, rounding errors might
 prevent coincidence from occurring. A simple change to one dimension
-may hardly change the volume/part&#8217;s characteristics yet result in
+may hardly change the volume/part’s characteristics yet result in
 coincidence.</p>
 <p>Finally, superfluous details may prevent a volume/part from coinciding
 with its neighbors properly. A potential solution is to simply remove
 the superfluous detail to simplfy the model and ensure the desired
 surfaces are coincident. Some volumes/parts will inherently hurt the
-model&#8217;s effectiveness either due to its complex features or small
-dimensions. A volume/part&#8217;s effect on the model cannot truly be
+model’s effectiveness either due to its complex features or small
+dimensions. A volume/part’s effect on the model cannot truly be
 assessed until a DAGMC-based analysis is run. This final method is
 usually implemented in an attempt to reduce the number of lost particles
 while maintaining the most important characteristics of the system.</p>
 <p><em>Note: Of all steps, the removal of superfluous details is the most
-subjective and heavily dependent on the model&#8217;s intended
+subjective and heavily dependent on the model’s intended
 application.</em></p>
 </div>
 <div class="section" id="assessing-your-model">
@@ -337,10 +334,10 @@ should help prevent tolerance issues due to faceting.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 12, 2017.
+      Last updated on Nov 03, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
       </p>
     </div>
   </body>

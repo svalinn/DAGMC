@@ -1,17 +1,14 @@
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>DAGMC unstructured mesh tallies &#8212; DAGMC</title>
-    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -30,7 +27,7 @@
     <link rel="next" title="DAGMC tools" href="tools.html" />
     <link rel="prev" title="Producing solid models for DAGMC using Cubit/Trelis" href="trelis_workflow.html" /> 
   </head>
-  <body role="document"> 
+  <body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -72,7 +69,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a>
           </li>
-          <li class="menu-item"><a href="index.html" accesskey="U">User&#8217;s guide</a></li> 
+          <li class="menu-item"><a href="index.html" accesskey="U">User’s guide</a></li> 
       </ul>
     </div>
   <div id="c_container"> 
@@ -102,9 +99,9 @@ To do so, use the following steps.</p>
 <ol class="arabic simple">
 <li>Load the geometry you wish to mesh into Cubit/Trelis.</li>
 <li>Use the mesh tools to produce the meshes you want.</li>
-<li>Save the file as a .trelis or .cub file. Remember to check the &#8220;Use Legacy
-.cub file Format&#8221; option in Trelis or Cubit.</li>
-<li>Use MOAB&#8217;s <code class="docutils literal"><span class="pre">mbconvert</span></code> executable to convert from the Cubit/Trelis format
+<li>Save the file as a .trelis or .cub file. Remember to check the “Use Legacy
+.cub file Format” option in Trelis or Cubit.</li>
+<li>Use MOAB’s <code class="docutils literal"><span class="pre">mbconvert</span></code> executable to convert from the Cubit/Trelis format
 to a faceted .h5m file that DAGMC can use.</li>
 </ol>
 <p>Here is an example of how to use <code class="docutils literal"><span class="pre">mbconvert</span></code>:</p>
@@ -153,7 +150,7 @@ viewing or post-processing with <a class="reference external" href="https://wci.
 <p>The kernel density estimator tallies are a suite of tallies that allow scoring
 to be done using the vertices of a tetmesh or add additional mesh-based scoring
 such as collision estimator tallies. The theoretical details behind KDE tallies
-can be found in <a class="reference external" href="http://digital.library.wisc.edu/1711.dl/OXDMBPODZJERF8A">Kerry Dunn&#8217;s Ph.D. thesis</a>.</p>
+can be found in <a class="reference external" href="http://digital.library.wisc.edu/1711.dl/OXDMBPODZJERF8A">Kerry Dunn’s Ph.D. thesis</a>.</p>
 <p>To call a KDE collision tally, use:</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>fmesh4:p geom=dag type=kde_coll
 fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
@@ -188,10 +185,10 @@ fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 12, 2017.
+      Last updated on Nov 03, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
       </p>
     </div>
   </body>

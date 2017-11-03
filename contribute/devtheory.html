@@ -1,17 +1,14 @@
 
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Developer’s theory guide &#8212; DAGMC</title>
-    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -30,7 +27,7 @@
     <link rel="next" title="Gallery of projects that use DAGMC" href="../gallery/gallery.html" />
     <link rel="prev" title="Contributors guide" href="contributeguide.html" /> 
   </head>
-  <body role="document"> 
+  <body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -78,7 +75,7 @@
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Developer&#8217;s theory guide</a><ul>
+<li><a class="reference internal" href="#">Developer’s theory guide</a><ul>
 <li><a class="reference internal" href="#constructor">Constructor</a></li>
 <li><a class="reference internal" href="#dagmc-setup">DAGMC setup</a><ul>
 <li><a class="reference internal" href="#topology">Topology</a></li>
@@ -113,7 +110,7 @@
           <div class="post">
             
   <div class="section" id="developer-s-theory-guide">
-<h1>Developer&#8217;s theory guide<a class="headerlink" href="#developer-s-theory-guide" title="Permalink to this headline">¶</a></h1>
+<h1>Developer’s theory guide<a class="headerlink" href="#developer-s-theory-guide" title="Permalink to this headline">¶</a></h1>
 <p>This guide is meant to give developers a comprehensive understanding of how
 DAGMC works as it exists in MOAB and the key components one may use during
 development.</p>
@@ -271,7 +268,7 @@ Otherwise, a random direction is used.</p>
 <div class="section" id="ray-fire">
 <h2>Ray fire<a class="headerlink" href="#ray-fire" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal"><span class="pre">ray_fire</span></code> function will return the entity handle of the next surface to be
-crossed along with the distance to that surface given the ray&#8217;s direction. If
+crossed along with the distance to that surface given the ray’s direction. If
 the ray is being tracked in a straight line through multiple volumes, passing
 in the ray-history is important to keep the ray from intersecting facets more
 than once (ie, if the particle is streaming). It is important to note that
@@ -300,10 +297,10 @@ exists, then the call will return 0 for the next volume.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 12, 2017.
+      Last updated on Nov 03, 2017.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
       </p>
     </div>
   </body>
