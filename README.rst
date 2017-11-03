@@ -18,8 +18,13 @@ used to import CAD models from other tools such as SolidWorks, CATIA, etc., or
 to create geometry from scratch. DAGMC also relies on Trelis/Cubit to assign
 materials and other geometry-related information.
 
-For more information, including installation instructions and the User's guide,
-please visit the `DAGMC website <DAGMC_>`_.
+For more information, please visit the `DAGMC website <DAGMC_>`_.
+
+Quick links:
+
+* `Install guide <http://svalinn.github.io/DAGMC/install/index.html>`_
+* `Users guide <http://svalinn.github.io/DAGMC/usersguide/index.html>`_
+* `Contributors guide <http://svalinn.github.io/DAGMC/contribute/index.html>`_
 
 ..  _DAGMC: http://svalinn.github.io/DAGMC
 ..  _Cubit: https://cubit.sandia.gov
