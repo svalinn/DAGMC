@@ -70,8 +70,6 @@ endmacro ()
 macro (dagmc_setup_flags)
   message("")
 
-  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
   set(CXX_LIBRARY)
   foreach (library IN LISTS CMAKE_CXX_IMPLICIT_LINK_LIBRARIES)
     if (library MATCHES "c\\+\\+")
@@ -208,9 +206,8 @@ macro (dagmc_install_library lib_name)
 
   dagmc_get_link_libs()
 
-  add_library(${lib_name}-object OBJECT ${SRC_FILES})
-  add_library(${lib_name}-shared SHARED $<TARGET_OBJECTS:${lib_name}-object>)
-  add_library(${lib_name}-static STATIC $<TARGET_OBJECTS:${lib_name}-object>)
+  add_library(${lib_name}-shared SHARED ${SRC_FILES})
+  add_library(${lib_name}-static STATIC ${SRC_FILES})
   set_target_properties(${lib_name}-shared
     PROPERTIES OUTPUT_NAME ${lib_name}
                PUBLIC_HEADER "${PUB_HEADERS}"
