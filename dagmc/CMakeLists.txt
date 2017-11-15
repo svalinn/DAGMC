@@ -7,6 +7,7 @@ list(APPEND DAGMC_PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/DagMCVersion.hpp)
 # Source files
 list(APPEND DAGMC_SRC_FILES DagMC.cpp)
 list(APPEND DAGMC_SRC_FILES dagmcmetadata.cpp)
+list(APPEND DAGMC_SRC_FILES sdf.cpp)
 
 # Public headers
 list(APPEND DAGMC_PUB_HEADERS DagMC.hpp)

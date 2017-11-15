@@ -770,5 +770,175 @@ Tag DagMC::get_tag(const char* name, int size, TagType store,
   return retval;
 }
 
+ErrorCode DagMC::build_preconditioner()
+{
+  ErrorCode rval;
+  
+  std::vector<std::string> keywords;
+  std::string sdf = "sdf";
+  keywords.push_back(sdf);
+  rval = parse_properties(keywords);
+  MB_CHK_SET_ERR(rval, "Failed to parse the signed distance field property");
+  
+  std::vector<EntityHandle> vols;
+  rval = entities_by_property(sdf, vols, 3);
+  MB_CHK_SET_ERR(rval, "Failed to find signed distance field volumes");
+
+  // Range vols;
+  // const int three = 3;
+  // const void* const three_val[] = {&three};
+  // rval = MBI->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag,
+  //                                           three_val, 1, vols );
+  // MB_CHK_SET_ERR(rval, "Could not get the model volumes.");
+
+  sdfs.resize(num_entities(3));
+  
+  for(unsigned int i = 0; i < vols.size(); i++) {
+    
+    EntityHandle vol = vols[i];
+
+    std::string val;
+    rval = prop_value(vol, sdf, val);
+    MB_CHK_SET_ERR(rval, "Could not get preconditioner step size from property tag");
+    double sdf_step_size = std::atof(val.c_str());
+    
+    // never need this for the implicit compliment
+    if(GTT->is_implicit_complement(vol)) continue;
+
+    int vol_id = get_entity_id(vol);
+
+    double x_min,x_max,y_min,y_max,z_min,z_max;
+    CartVect lower_corner, upper_corner;
+    rval = getobb(vol, lower_corner.array(), upper_corner.array());
+    MB_CHK_SET_ERR(rval, "Could not get volume bounds.");
+
+    x_min = lower_corner[0]; y_min = lower_corner[1]; z_min = lower_corner[2];
+    x_max = upper_corner[0]; y_max = upper_corner[1]; z_max = upper_corner[2];
+    
+    int num_x_steps = (int)(x_max-x_min)/sdf_step_size;
+    if ( (x_max-x_min)/sdf_step_size - (double)num_x_steps > 0.0 ) num_x_steps+=1/sdf_step_size;
+    int num_y_steps = (int)(y_max-y_min)/sdf_step_size;
+    if ( (y_max-y_min)/sdf_step_size - (double)num_y_steps > 0.0 ) num_y_steps+=1/sdf_step_size;
+    int num_z_steps = (int)(z_max-z_min)/sdf_step_size;
+    if ( (z_max-z_min)/sdf_step_size - (double)num_z_steps > 0.0 ) num_z_steps+=1/sdf_step_size;    
+    
+    std::cout << " x min/max " << x_min <<  "/" << x_max << std::endl;
+    std::cout << " y min/max " << y_min <<  "/" << y_max << std::endl;
+    std::cout << " z min/max " << z_min <<  "/" << z_max << std::endl;
+    std::cout << " x steps " << num_x_steps << std::endl;
+    std::cout << " y steps " << num_y_steps << std::endl;
+    std::cout << " z steps " << num_z_steps << std::endl;
+    
+    // if any of these are zero, move on
+    if( 0 == num_x_steps || 0 == num_y_steps || 0 == num_z_steps ) {
+      continue;
+    }
+    
+    int num_x_verts = num_x_steps + 2;
+    int num_y_verts = num_y_steps + 2;
+    int num_z_verts = num_z_steps + 2;
+    
+    num_x_verts++;
+    num_y_verts++;
+    num_z_verts++;
+    
+    x_min -= sdf_step_size;
+    y_min -= sdf_step_size;
+    z_min -= sdf_step_size;
+    
+    SignedDistanceField* sdf = new SignedDistanceField(x_min, y_min, z_min,
+						       sdf_step_size,
+						       num_x_verts, num_y_verts, num_z_verts);
+    
+    MB_CHK_SET_ERR(rval, "Could not create preconditioner ScdBox.");
+    
+    std::cout << "Populating preconditioner..." << std::endl;
+    rval = populate_preconditioner_for_volume(vol, sdf);
+    MB_CHK_SET_ERR(rval, "Could not populate preconditioner.");
+    std::cout << "done." << std::endl;
+}
+  
+  return MB_SUCCESS;
+}
+
+ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle &vol, SignedDistanceField* sdf) {
+  ErrorCode rval;
+
+  EntityHandle tree_root;
+  rval = get_root(vol, tree_root);
+  MB_CHK_SET_ERR(rval, "Could not retrieve the volume's OBB tree root.");
+  
+  int xpnts, ypnts, zpnts;  
+  std::vector<double> sdvs;
+  
+  sdf->get_dims(xpnts,ypnts,zpnts);
+  
+  for(unsigned int k = 0 ; k < zpnts; k++){
+    for(unsigned int j = 0 ; j < ypnts; j++){  
+      for(unsigned int i = 0 ; i < xpnts; i++){
+	CartVect vert_coords = sdf->get_coords(i,j,k);
+	
+	CartVect closest_loc;
+	EntityHandle facet, surf;
+	rval = GTT->obb_tree()->closest_to_location( vert_coords.array(), tree_root, closest_loc.array(), facet, &surf);	
+	MB_CHK_SET_ERR(rval, "Could not get the closest location.");
+
+	CartVect vec = closest_loc - vert_coords;
+
+	//get facet connectivity
+	const EntityHandle * con = NULL;
+	int len;
+	rval = MBI->get_connectivity(facet, con, len);
+	MB_CHK_SET_ERR(rval, "Could not get connectivity of nearest facet.");
+	CartVect coords[3];
+	rval = MBI->get_coords( con, len, coords[0].array() );      
+	MB_CHK_SET_ERR(rval, "Coult not get coordinates of nearest facet verts.");
+	// get normal of triangle
+	CartVect v0 = coords[1] - coords[0];
+	CartVect v1 = coords[2] - coords[0];
+	CartVect norm = (v0*v1);
+	EntityHandle vols[2];
+	//adjust normal for sense wrt the volume datastruct being populated
+	rval = MBI->tag_get_data( sense_tag(), &surf, 1, vols );
+	MB_CHK_SET_ERR(rval, "Could not get nearest surface sense wrt volume.");
+	int sense = 1;
+	if (vol != vols[0]) sense = -1;
+	norm *= sense;
+
+	// if direction to the facet opposes the adjusted facet normal this distance
+	// value should be negative because it is on the outside
+	//	double dot_prod = norm%vec;
+	double sdv = fabs(vec.length());
+	//	if( fabs(dot_prod) < 1e-8 ) {
+	int inout = 0;
+	rval = point_in_volume(vol, vert_coords.array(), inout);
+	MB_CHK_SET_ERR(rval,"Point in volume failed");
+	if(0 == inout) sdv*=-1;
+	// }
+	// else {
+	//   if( dot_prod < 0 ) {
+	//     sdv *= -1;
+	//   }
+	// }
+	sdvs.push_back(sdv);
+	MB_CHK_SET_ERR(rval, "Could not set SDF tag data.");
+      }
+    }
+  }
+
+  //set the data for the field
+  sdf->set_data(sdvs);
+  sdfs[index_by_handle(vol)] = sdf;
+
+#ifdef SDF_WRITE
+  ScdBox* b;
+  rval = sdf->create_scdBox(b, moab_instance());
+  MB_CHK_SET_ERR(rval, "Failed to create ScdBox from SDF.");
+#endif
+  
+  return MB_SUCCESS;
+}
+
+  
 
 } // namespace moab

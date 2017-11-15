@@ -11,6 +11,7 @@
 #include "moab/GeomTopoTool.hpp"
 #include "moab/GeomQueryTool.hpp"
 #include "DagMCVersion.hpp"
+#include "sdf.hpp"
 
 #include <vector>
 #include <map>
@@ -188,6 +189,12 @@ class DagMC {
 
   ErrorCode next_vol(EntityHandle surface, EntityHandle old_volume,
                      EntityHandle& new_volume);
+
+  /** create preconditioning structure for volume */
+  ErrorCode build_preconditioner();
+
+  /** populate preconditioning structure for volume */
+  ErrorCode populate_preconditioner_for_volume(EntityHandle &vol, SignedDistanceField* sdf);
 
   /* SECTION III: Indexing & Cross-referencing */
  public:
@@ -405,6 +412,10 @@ class DagMC {
   /** corresponding geometric entities; also indexed like rootSets */
   std::vector<RefEntity*> geomEntities;
 
+  /** storage for sdfs **/
+  std::vector<SignedDistanceField*> sdfs;
+
+  
   /* metadata */
   /** empty synonym map to provide as a default argument to parse_properties() */
   static const std::map<std::string, std::string> no_synonyms;
@@ -455,6 +466,7 @@ inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle& root) {
   return MB_SUCCESS;
 }
 
+  
 } // namespace moab
 
 #endif
