@@ -199,17 +199,19 @@ class DagMC {
   /** get nearest surface intersection estimate using signed distance field */
   ErrorCode precondition_closest_to_location( EntityHandle volume, const double coords[3], double& result);
 
-  
-    /** precondition ray using physical distance limit */
+  /** use sign of signed distance value to determine point containment */
+  ErrorCode precondition_point_in_volume(EntityHandle volume, const double xyz[3], int& result);
+
+  /** precondition ray using physical distance limit */
   ErrorCode precondition_ray(const EntityHandle volume,
 			     const double ray_start[3],
-			     const double ray_end[3],
-			     bool &fire_ray);
+			     const double ray_end[3]);
 
     /** returns the interpolated sdf value for a point and volume */
   ErrorCode find_sdv(const EntityHandle volume,
 		     const double pnt[3],
-		     double &sdv);
+		     double &sdv,
+		     double &sdv_err);
   
   /** returns the error associated with signed distance value interpolations for the specified volume */
   ErrorCode get_sdf_err(const EntityHandle volume,

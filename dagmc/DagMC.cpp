@@ -939,17 +939,41 @@ ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle &vol, SignedDis
   return MB_SUCCESS;
 }
 
+ErrorCode DagMC::precondition_point_in_volume(EntityHandle volume, const double xyz[3], int& result) {
+  ErrorCode rval;
+  
+  // retrieve the signed distance value from the field
+  double sdv, sdv_err;
+  rval = find_sdv(volume, xyz, sdv, sdv_err);
+  MB_CHK_SET_ERR(rval, "Failed to retrieve signed distance value for volume " << get_entity_id(volume));
+    
+  // if the signed distance value is large enough,
+  // use its sign to determine the point containment
+  if(fabs(sdv) > sdv_err) {
+    result = sdv > 0.0;
+    return MB_SUCCESS;
+  }
+  
+  // if we get here then there is no sdf for this volume
+  // or the location is too close to the surface to determine
+  // using the SDF
+  return MB_FAILURE;
+  
+}
+
   
 ErrorCode DagMC::precondition_closest_to_location( EntityHandle volume, const double coords[3], double& result) {
   ErrorCode rval;
-  SignedDistanceField* sdf = get_signed_distance_field(volume);
-  rval = find_sdv(volume,coords,result);
-  if (MB_SUCCESS != rval && MB_ENTITY_NOT_FOUND != rval) return rval;
 
+  double sdv_err;
+  
+  rval = find_sdv(volume,coords,result, sdv_err);
+  MB_CHK_SET_ERR(rval, "Failed to find signed distance value for volume " << get_entity_id(volume));
+  
   // check that the nearest intersection can be considered valid
   // (is larger than interpolation error evaluation)
-  if ( MB_ENTITY_NOT_FOUND != rval && fabs(result) > sdf->get_err() && result > 0.0) {
-    result = result - sdf->get_err();
+  if ( fabs(result) > sdv_err && result > 0.0) {
+    result = result - sdv_err;
   }
   // if it is not, then return an errorcode indicating that this result
   // shouldn't be used
@@ -962,43 +986,36 @@ ErrorCode DagMC::precondition_closest_to_location( EntityHandle volume, const do
   
 /** precondition ray using physical distance limit */
 ErrorCode DagMC::precondition_ray(const EntityHandle volume,
-			   const double ray_start[3],
-			   const double ray_end[3],
-			   bool &fire_ray) {
+				  const double ray_start[3],
+				  const double ray_end[3]) {
   ErrorCode rval;
-  fire_ray = true;
-  SignedDistanceField* sdf = get_signed_distance_field(volume);
   
-  double ssdv, esdv;
+  double ssdv, ssdv_err, esdv, esdv_err;
   
-  rval = find_sdv(volume,ray_start,ssdv);
-  if (MB_ENTITY_NOT_FOUND == rval) {
-    fire_ray = true;
-    return rval;
-  }
+  rval = find_sdv(volume,ray_start,ssdv, ssdv_err);
   MB_CHK_SET_ERR(rval,"Could not find start point sdv");
 
-  rval = find_sdv(volume,ray_end,esdv);
-  if (MB_ENTITY_NOT_FOUND == rval) {
-    fire_ray = true;
-    return rval;
-  }
+  rval = find_sdv(volume,ray_end,esdv, esdv_err);
   MB_CHK_SET_ERR(rval,"Could not find end point sdv");
 
   // if the starting point is outside of the volume, we have a problem, fire ray
-  if(ssdv < 0) return MB_SUCCESS;
+  if(ssdv < 0) return MB_FAILURE;
   // end point is outside the volume, fire ray to get intersection distance and surf
-  if(esdv < 0) return MB_SUCCESS;
+  if(esdv < 0) return MB_FAILURE;
   // calculate ray length and try to account for all space in between
   double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
-  if( (ray_len-ssdv-esdv) < -2*sdf->get_err() ) fire_ray = false;
   
-  return MB_SUCCESS;
+  if( (ray_len-ssdv-esdv) < -(ssdv_err + esdv_err) ) {
+    return MB_SUCCESS;
+  }
+
+  return MB_FAILURE;
 }
 
 ErrorCode DagMC::find_sdv(const EntityHandle volume,
 			  const double pnt[3],
-			  double &sdv) {
+			  double &sdv,
+			  double &err) {
   ErrorCode rval;
   SignedDistanceField* sdf = get_signed_distance_field(volume);
   if( sdf != NULL) {
@@ -1007,6 +1024,9 @@ ErrorCode DagMC::find_sdv(const EntityHandle volume,
   else {
     return MB_ENTITY_NOT_FOUND;
   }
+
+  sdf->get_err(err);
+  
   return MB_SUCCESS;
 };
   
