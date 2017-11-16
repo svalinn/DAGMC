@@ -197,27 +197,32 @@ class DagMC {
   ErrorCode populate_preconditioner_for_volume(EntityHandle &vol, SignedDistanceField* sdf);
 
   /** get nearest surface intersection estimate using signed distance field */
-  ErrorCode precondition_closest_to_location( EntityHandle volume, const double coords[3], double& result);
+  ErrorCode precondition_closest_to_location( EntityHandle volume,
+					      const double coords[3],
+					      double& result,
+					      bool& preconditioned);
 
   /** use sign of signed distance value to determine point containment */
-  ErrorCode precondition_point_in_volume(EntityHandle volume, const double xyz[3], int& result);
+  ErrorCode precondition_point_in_volume(EntityHandle volume,
+					 const double xyz[3],
+					 int& result,
+					 bool& preconditioned);
 
-  
   /** precondition ray using physical distance limit */
-  ErrorCode precondition_ray(const EntityHandle volume,
-			     const double ray_start[3],
-			     const double ray_dir[3],
-			     const double ray_len,
-			     EntityHandle& next_surf,
-			     double& next_surf_dist,
-			     bool& fire_ray);
+  ErrorCode precondition_ray_fire(const EntityHandle volume,
+				  const double ray_start[3],
+				  const double ray_dir[3],
+				  const double ray_len,
+				  EntityHandle& next_surf,
+				  double& next_surf_dist,
+				  bool& preconditioned);
 
-  ErrorCode precondition_ray(const EntityHandle volume,
-			     const double ray_start[3],
-			     const double ray_end[3],
-			     EntityHandle& next_surf,
-			     double& next_surf_dist,
-			     bool& fire_ray);
+  ErrorCode precondition_ray_fire(const EntityHandle volume,
+				  const double ray_start[3],
+				  const double ray_end[3],
+				  EntityHandle& next_surf,
+				  double& next_surf_dist,
+				  bool& preconditioned);
 
     /** returns the interpolated sdf value for a point and volume */
   ErrorCode find_sdv(const EntityHandle volume,

@@ -28,8 +28,8 @@
 //  #define SDF_WRITE
   #define SDF_RF
 //  #define SDF_DEBUG
-//  #define SDF_PIV
-//  #define SDF_CTL
+  #define SDF_PIV
+  #define SDF_CTL
 #endif
 
 namespace moab {
@@ -285,15 +285,11 @@ ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
   ErrorCode rval;
   
 #ifdef SDF_RF
-  bool fire_ray;
-  rval = precondition_ray(volume, point, dir, user_dist_limit, next_surf, next_surf_dist, fire_ray);
+  bool precond_success;
+  rval = precondition_ray_fire(volume, point, dir, user_dist_limit, next_surf, next_surf_dist, precond_success);
   MB_CHK_SET_ERR(rval, "Failed to precondition ray");
-  if (!fire_ray) {
-    return rval;
-  }
-  else {
-    user_dist_limit = 0.0;
-  }
+  if (precond_success) { return rval; }
+  else { user_dist_limit = 0.0; }
 #endif
   
   rval = GQT->ray_fire(volume, point, dir, next_surf, next_surf_dist,
@@ -308,8 +304,12 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume, const double xyz[3],
   ErrorCode rval;
   
 #ifdef SDF_PIV
-  rval = precondition_point_in_volume(volume, xyz, result);
-  if (MB_SUCCESS == rval) return rval;
+  if(get_signed_distance_field(volume)) { 
+    bool precond_success;
+    rval = precondition_point_in_volume(volume, xyz, result, precond_success);
+    MB_CHK_SET_ERR(rval, "Failed to precondition point in volume call for volume " << get_entity_id(volume));
+    if (precond_success) return rval;
+  }
 #endif
   
   rval = GQT->point_in_volume(volume, xyz, result, uvw, history);
@@ -340,8 +340,10 @@ ErrorCode DagMC::closest_to_location(EntityHandle volume,
   ErrorCode rval;
   
 #ifdef SDF_CTL
-  rval = precondition_closest_to_location(volume, coords, result);
-  if (MB_SUCCESS == rval) return rval;
+  bool precond_success;
+  rval = precondition_closest_to_location(volume, coords, result, precond_success);
+  MB_CHK_SET_ERR(rval, "Failed in preconditioning closest to location call");
+  if (precond_success) return rval;
 #endif
   
   rval = GQT->closest_to_location(volume, coords, result, surface);
@@ -983,7 +985,8 @@ ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle &vol, SignedDis
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::precondition_point_in_volume(EntityHandle volume, const double xyz[3], int& result) {
+ErrorCode DagMC::precondition_point_in_volume(EntityHandle volume, const double xyz[3], int& result, bool& preconditioned) {
+  preconditioned = false;
   ErrorCode rval;
   
   // retrieve the signed distance value from the field
@@ -994,21 +997,19 @@ ErrorCode DagMC::precondition_point_in_volume(EntityHandle volume, const double 
   // if the signed distance value is large enough,
   // use its sign to determine the point containment
   if(fabs(sdv) > sdv_err) {
+    preconditioned = true;
     result = sdv > 0.0;
-    return MB_SUCCESS;
   }
   
-  // if we get here then there is no sdf for this volume
-  // or the location is too close to the surface to determine
-  // using the SDF
-  return MB_FAILURE;
+  return MB_SUCCESS;
   
 }
 
   
-ErrorCode DagMC::precondition_closest_to_location( EntityHandle volume, const double coords[3], double& result) {
+ErrorCode DagMC::precondition_closest_to_location(EntityHandle volume, const double coords[3], double& result, bool& preconditioned) {
   ErrorCode rval;
-
+  preconditioned = false;
+  
   double sdv_err;
   
   rval = find_sdv(volume,coords,result, sdv_err);
@@ -1017,28 +1018,21 @@ ErrorCode DagMC::precondition_closest_to_location( EntityHandle volume, const do
   // check that the nearest intersection can be considered valid
   // (is larger than interpolation error evaluation)
   if ( fabs(result) > sdv_err && result > 0.0) {
+    preconditioned = true;
     result = result - sdv_err;
-  }
-  // if it is not, then return an errorcode indicating that this result
-  // shouldn't be used
-  else{
-    return MB_FAILURE;
   }
   
   return MB_SUCCESS;
 }
 
-
-
 /** precondition ray using physical distance limit */
-
-ErrorCode DagMC::precondition_ray(const EntityHandle volume,
-				  const double ray_start[3],
-				  const double ray_dir[3],
-				  const double ray_len,
-				  EntityHandle& next_surf,
-				  double& next_surf_dist,
-				  bool& fire_ray) {
+ErrorCode DagMC::precondition_ray_fire(const EntityHandle volume,
+				       const double ray_start[3],
+				       const double ray_dir[3],
+				       const double ray_len,
+				       EntityHandle& next_surf,
+				       double& next_surf_dist,
+				       bool& preconditioned) {
 
   if (ray_len == 0) {return MB_FAILURE;}
   
@@ -1047,18 +1041,18 @@ ErrorCode DagMC::precondition_ray(const EntityHandle volume,
   ray_end *= ray_len;
   ray_end += CartVect(ray_start);
 
-  return precondition_ray(volume, ray_start, ray_end.array(), next_surf, next_surf_dist, fire_ray);
+  return precondition_ray_fire(volume, ray_start, ray_end.array(), next_surf, next_surf_dist, preconditioned);
   
 }
 		     
    
-ErrorCode DagMC::precondition_ray(const EntityHandle volume,
+ErrorCode DagMC::precondition_ray_fire(const EntityHandle volume,
 				  const double ray_start[3],
 				  const double ray_end[3],
 				  EntityHandle& next_surf,
 				  double& next_surf_dist,
-				  bool& fire_ray) {
-  fire_ray = true;
+				  bool& preconditioned) {
+  preconditioned = false;
   // calculate ray length and try to account for all space in between
   double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
 
@@ -1075,12 +1069,12 @@ ErrorCode DagMC::precondition_ray(const EntityHandle volume,
   MB_CHK_SET_ERR(rval,"Could not find end point sdv");
 
   // if the starting point is outside of the volume, we have a problem, fire ray
-  if(ssdv < 0) { fire_ray = true; return MB_SUCCESS; }
+  if(ssdv < 0) { preconditioned = false; return MB_SUCCESS; }
   // end point is outside the volume, fire ray to get intersection distance and surf
-  if(esdv < 0) { fire_ray = true; return MB_SUCCESS; }
+  if(esdv < 0) { preconditioned = false; return MB_SUCCESS; }
   
   if( (ray_len-ssdv-esdv) < -(ssdv_err + esdv_err) ) {
-    fire_ray = false;
+    preconditioned = true;
     Range surfs;
     rval = MBI->get_child_meshsets(volume, surfs);
     MB_CHK_SET_ERR(rval, "Failed to get child surfaces of volume " << get_entity_id(volume));
