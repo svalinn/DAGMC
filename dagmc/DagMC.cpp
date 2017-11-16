@@ -939,6 +939,55 @@ ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle &vol, SignedDis
   return MB_SUCCESS;
 }
 
+/** precondition ray using physical distance limit */
+ErrorCode DagMC::precondition_ray(const EntityHandle volume,
+			   const double ray_start[3],
+			   const double ray_end[3],
+			   bool &fire_ray) {
+  ErrorCode rval;
+  fire_ray = true;
+  SignedDistanceField* sdf = get_signed_distance_field(volume);
+  
+  double ssdv, esdv;
+  
+  rval = find_sdv(volume,ray_start,ssdv);
+  if (MB_ENTITY_NOT_FOUND == rval) {
+    fire_ray = true;
+    return rval;
+  }
+  MB_CHK_SET_ERR(rval,"Could not find start point sdv");
+
+  rval = find_sdv(volume,ray_end,esdv);
+  if (MB_ENTITY_NOT_FOUND == rval) {
+    fire_ray = true;
+    return rval;
+  }
+  MB_CHK_SET_ERR(rval,"Could not find end point sdv");
+
+  // if the starting point is outside of the volume, we have a problem, fire ray
+  if(ssdv < 0) return MB_SUCCESS;
+  // end point is outside the volume, fire ray to get intersection distance and surf
+  if(esdv < 0) return MB_SUCCESS;
+  // calculate ray length and try to account for all space in between
+  double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
+  if( (ray_len-ssdv-esdv) < -2*sdf->get_err() ) fire_ray = false;
+  
+  return MB_SUCCESS;
+}
+
+ErrorCode DagMC::find_sdv(const EntityHandle volume,
+			  const double pnt[3],
+			  double &sdv) {
+  ErrorCode rval;
+  SignedDistanceField* sdf = get_signed_distance_field(volume);
+  if( sdf != NULL) {
+    sdv = sdf->find_sdv(pnt);
+  }
+  else {
+    return MB_ENTITY_NOT_FOUND;
+  }
+  return MB_SUCCESS;
+};
   
 
 } // namespace moab

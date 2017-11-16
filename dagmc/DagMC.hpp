@@ -196,6 +196,23 @@ class DagMC {
   /** populate preconditioning structure for volume */
   ErrorCode populate_preconditioner_for_volume(EntityHandle &vol, SignedDistanceField* sdf);
 
+    /** precondition ray using physical distance limit */
+  ErrorCode precondition_ray(const EntityHandle volume,
+			     const double ray_start[3],
+			     const double ray_end[3],
+			     bool &fire_ray);
+
+    /** returns the interpolated sdf value for a point and volume */
+  ErrorCode find_sdv(const EntityHandle volume,
+		     const double pnt[3],
+		     double &sdv);
+  
+  /** returns the error associated with signed distance value interpolations for the specified volume */
+  ErrorCode get_sdf_err(const EntityHandle volume,
+			double &err);
+
+  
+  
   /* SECTION III: Indexing & Cross-referencing */
  public:
   /** Most calling apps refer to geometric entities with a combination of
