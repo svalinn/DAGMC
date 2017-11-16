@@ -2,7 +2,8 @@
 
 // constructor
 uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std::string dagmc_filename,
-                                     std::string output_file,  bool verbosity, bool fatal_errors) {
+                                     std::string output_file,  bool verbosity, bool fatal_errors)
+{
   // make new name concatenator class
   ncr = new name_concatenator();
 
@@ -32,11 +33,13 @@ uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std:
 }
 
 // destructor
-uwuw_preprocessor::~uwuw_preprocessor() {
+uwuw_preprocessor::~uwuw_preprocessor()
+{
 }
 
 // write the new material library
-void uwuw_preprocessor::write_uwuw_materials() {
+void uwuw_preprocessor::write_uwuw_materials()
+{
   std::map<std::string, pyne::Material> :: iterator it;
 
   // loop over the processed material library and write each one to the file
@@ -45,9 +48,9 @@ void uwuw_preprocessor::write_uwuw_materials() {
     pyne::Material mat = it->second;
     // write the material to the file
     if (verbose) {
-      std::cout << "writing material, " << mat.metadata["name"].asString();
-      std::cout << "writing material, " << mat.metadata["fluka_name"].asString();
-      std::cout << " to file " << output_filename << std::endl;
+      std::cout << "writing material," << mat.metadata["name"].asString();
+      std::cout << " writing material," << mat.metadata["fluka_name"].asString();
+      std::cout << " to file: " << output_filename << std::endl;
     }
     // write the uwuw materials to the geometry
     mat.write_hdf5(output_filename, "/materials");
@@ -57,7 +60,8 @@ void uwuw_preprocessor::write_uwuw_materials() {
 }
 
 // write the new material library
-void uwuw_preprocessor::write_uwuw_tallies() {
+void uwuw_preprocessor::write_uwuw_tallies()
+{
   std::list<pyne::Tally> :: iterator it;
 
   std::string tally_destination = "/tally"; // to avoid compiler warning
@@ -80,7 +84,8 @@ void uwuw_preprocessor::write_uwuw_tallies() {
 
 
 // creates a new material using the Material material as a basis
-pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, std::string density) {
+pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, std::string density)
+{
   pyne::Material new_mat; // to return
   pyne::comp_map comp = material.comp;
 
@@ -112,7 +117,8 @@ pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, s
 }
 
 // process the group names into unique material objects
-void uwuw_preprocessor::process_materials() {
+void uwuw_preprocessor::process_materials()
+{
   std::set<std::string> material_names;
 
   // vol prop iterator
@@ -123,7 +129,7 @@ void uwuw_preprocessor::process_materials() {
   for (it = volume_property_map.begin() ; it != volume_property_map.end() ; ++it) {
     std::string group_name = it->second;
     if (verbose) {
-      std::cout << "Making materiral group name ";
+      std::cout << "Making material group name=";
       std::cout << group_name << std::endl;
     }
     material_names.insert(group_name);
@@ -133,7 +139,10 @@ void uwuw_preprocessor::process_materials() {
   std::set<std::string> :: iterator s_it;
 
   if (verbose) {
-    std::cout << "Materials Present, :" << std::endl;
+    std::cout << std::endl;
+    int numinmatllib=material_library.size();
+    std::cout << "Number of materials in material library=" << numinmatllib << std::endl;
+    std::cout << "Materials present in the material library:" << std::endl;
     std::map<std::string, pyne::Material> :: iterator m_it;
     for (m_it = material_library.begin() ; m_it != material_library.end() ; ++m_it) {
       pyne::Material mat = m_it->second;
@@ -144,11 +153,19 @@ void uwuw_preprocessor::process_materials() {
 
   // loop over the unique material/density combinations
   for (s_it = material_names.begin() ; s_it != material_names.end() ; ++s_it) {
-    // material namesa are in the form mat:Name/rho:density
-    // if we find / then we have a density token
+    // material names are in the form mat:Name/rho:density
+    // if we find a / then we have a density token
+
+
 
     std::string mat_name = dmd->return_property(*s_it, "mat");
     std::string density  = dmd->return_property(*s_it, "rho");
+
+    // print some info while looping
+    if (verbose) {
+      std::cout << " material_names iterator=" << *s_it << std::endl;
+      std::cout << "                mat_name=" << mat_name << std::endl;
+    }
 
     // find grave or vacuum
     std::size_t found_grave = mat_name.find("Graveyard");
@@ -157,13 +174,14 @@ void uwuw_preprocessor::process_materials() {
     // check for missing materials
     if (found_grave == std::string::npos && found_vacuum == std::string::npos) {
       if (material_library.count(mat_name) == 0) {
-        std::cout << "material " << mat_name << " was not found in the material library" << std::endl;
+
+        std::cout << "material with name=" << mat_name << " was not found in the material library." << " Its density was=" << density << std::endl;
         exit(EXIT_FAILURE);
       }
 
       // make a new material object with the appropriate density & name
       pyne::Material new_material = create_new_material(material_library[mat_name],
-                                                        density);
+                                    density);
       uwuw_material_library[*s_it]  = new_material;
     }
   }
@@ -171,7 +189,8 @@ void uwuw_preprocessor::process_materials() {
 }
 
 // process and create all the tally objects
-void uwuw_preprocessor::process_tallies() {
+void uwuw_preprocessor::process_tallies()
+{
   std::vector<std::string>::iterator it;
 
   // first volumes
@@ -225,7 +244,8 @@ void uwuw_preprocessor::process_tallies() {
 }
 
 void uwuw_preprocessor::check_material_props(std::vector<std::string> material_props,
-                                             std::vector<std::string> density_props, int cellid) {
+    std::vector<std::string> density_props, int cellid)
+{
 
   if (material_props.size() == 0) {
     if (verbose || fatal) {
@@ -279,7 +299,8 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
   }
 }
 
-void uwuw_preprocessor::print_summary() {
+void uwuw_preprocessor::print_summary()
+{
   std::cout << "+----------------------------------------------------" << std::endl;
   std::cout << "|      UWUW Summary                                  " << std::endl;
   std::cout << "+----------------------------------------------------" << std::endl;
@@ -300,7 +321,8 @@ void uwuw_preprocessor::print_summary() {
 }
 
 // used for printing & debugging only
-void uwuw_preprocessor::property_vector(std::vector<int> props) {
+void uwuw_preprocessor::property_vector(std::vector<int> props)
+{
   if (props.size() == 0)
     return;
   for (int i = 0 ; i < props.size() ; i++) {
@@ -319,8 +341,9 @@ void uwuw_preprocessor::property_vector(std::vector<int> props) {
 
 
 tally_info uwuw_preprocessor::make_tally_groupname(std::string tally_props,
-                                                   int dimension,
-                                                   moab::EntityHandle entity) {
+    int dimension,
+    moab::EntityHandle entity)
+{
   // tally props should be of the form Neutron and Flux or, Photon and Current etc
 
   // split tally_props into the particle and tally type
@@ -398,9 +421,10 @@ tally_info uwuw_preprocessor::make_tally_groupname(std::string tally_props,
 }
 
 void uwuw_preprocessor::check_tally_props(std::string particle_name,
-                                          std::string tally_type,
-                                          int dimension,
-                                          int entityid) {
+    std::string tally_type,
+    int dimension,
+    int entityid)
+{
 
   // check to make sure the particle is allowed
   std::cout << "particle_name " << particle_name << std::endl;
@@ -434,15 +458,18 @@ void uwuw_preprocessor::check_tally_props(std::string particle_name,
 
 
 // constructor
-name_concatenator::name_concatenator() {
+name_concatenator::name_concatenator()
+{
 }
 
 // destructor
-name_concatenator::~name_concatenator() {
+name_concatenator::~name_concatenator()
+{
 }
 
 // make the fluka name from the string
-std::string name_concatenator::make_name_8bytes(std::string name) {
+std::string name_concatenator::make_name_8bytes(std::string name)
+{
   // fluka name needs to be 8 chars long uppercase and unique
   std::string b8_name = name;
   std::transform(b8_name.begin(), b8_name.end(), b8_name.begin(), toupper);
@@ -467,7 +494,8 @@ std::string name_concatenator::make_name_8bytes(std::string name) {
 }
 
 // function to extract only the letters [A-Z] and numbers [0-9]
-std::string name_concatenator::extract_alpha_num(std::string name) {
+std::string name_concatenator::extract_alpha_num(std::string name)
+{
   // loop over the string accepting only ascii
   std::string :: iterator it;
   std::string str;
@@ -485,7 +513,8 @@ std::string name_concatenator::extract_alpha_num(std::string name) {
 
 // Generates a new name but incremented by 1 relative to the last time
 // the function was called.
-std::string name_concatenator::shift_and_increment(std::string name) {
+std::string name_concatenator::shift_and_increment(std::string name)
+{
   int count = 0;
   // the following statements in braces are intended to turn the 8 char long string
   // version of the name into a unique 8 character ID string, mainly for fluka
@@ -533,7 +562,8 @@ std::string name_concatenator::shift_and_increment(std::string name) {
   return name;
 }
 
-void name_concatenator::int_to_string(int convert, std::string& string) {
+void name_concatenator::int_to_string(int convert, std::string& string)
+{
   std::stringstream ss;
   ss << convert;
   string = ss.str();

@@ -1,7 +1,18 @@
 #include "uwuw_preprocessor.hpp"
 #include "moab/ProgOptions.hpp"
+#include <stdlib.h>
+#include <fstream>
 
-int main(int argc, char* argv[]) {
+// useful functions
+bool file_exists(std::string filename)
+{
+  //this function returns true if a file can be opened
+  std::ifstream ifile(filename.c_str());
+  return (bool)ifile; // casts file object to a boolean
+};
+
+int main(int argc, char* argv[])
+{
 
   ProgOptions po("uwuw_preproc: a tool for preprocessing DAGMC files to incorporate UWUW workflow information");
 
@@ -17,8 +28,8 @@ int main(int argc, char* argv[]) {
   po.addOpt<void>("fatal,f", "Fatal errors cause exit", &fatal_errors);
   po.addOpt<void>("simulate,s", "Fatal errors cause exit", &simulate);
 
-  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to proccess", &dag_file);
-  po.addOpt<std::string>("lib_file,l", "Path to PyNE Material Library file to proccess", &lib_file);
+  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to process", &dag_file);
+  po.addOpt<std::string>("lib_file,l", "File name (with path) for PyNE Material Library file to process", &lib_file);
   po.addOpt<std::string>("output,o", "Specify the output filename (default "")", &out_file);
 
   po.addOptionHelpHeading("Options for loading files");
@@ -26,7 +37,12 @@ int main(int argc, char* argv[]) {
   po.parseCommandLine(argc, argv);
 
   if (lib_file == "") {
-    std::cout << "need to set the library" << std::endl;
+    std::cout << "You need to set the PyNE material library filename" << std::endl;
+    exit(1);
+  } else if (file_exists(lib_file)) {
+    std::cout <<"Will read materials from file: "<< lib_file << std::endl;
+  } else {
+    std::cout << "Cannot open the material library filename:" << lib_file << std::endl;
     exit(1);
   }
 
