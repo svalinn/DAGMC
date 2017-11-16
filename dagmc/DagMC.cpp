@@ -284,9 +284,16 @@ ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
                           OrientedBoxTreeTool::TrvStats* stats) {
   ErrorCode rval;
   
-#ifdef SDF_DF
-  rval = precondition_ray(volume, point, dir, user_dist_limit);
-  if (MB_SUCCESS == rval) return rval;
+#ifdef SDF_RF
+  bool fire_ray;
+  rval = precondition_ray(volume, point, dir, user_dist_limit, next_surf, next_surf_dist, fire_ray);
+  MB_CHK_SET_ERR(rval, "Failed to precondition ray");
+  if (!fire_ray) {
+    return rval;
+  }
+  else {
+    user_dist_limit = 0.0;
+  }
 #endif
   
   rval = GQT->ray_fire(volume, point, dir, next_surf, next_surf_dist,
@@ -1030,14 +1037,17 @@ ErrorCode DagMC::precondition_ray(const EntityHandle volume,
 				  const double ray_dir[3],
 				  const double ray_len,
 				  EntityHandle& next_surf,
-				  double& next_surf_dist) {
+				  double& next_surf_dist,
+				  bool& fire_ray) {
+
+  if (ray_len == 0) {return MB_FAILURE;}
   
   CartVect ray_end = CartVect(ray_dir[0], ray_dir[1], ray_dir[2]);
   ray_end.normalize();
   ray_end *= ray_len;
   ray_end += CartVect(ray_start);
 
-  return precondition_ray(volume, ray_start, ray_end.array(), next_surf, next_surf_dist);
+  return precondition_ray(volume, ray_start, ray_end.array(), next_surf, next_surf_dist, fire_ray);
   
 }
 		     
@@ -1046,12 +1056,13 @@ ErrorCode DagMC::precondition_ray(const EntityHandle volume,
 				  const double ray_start[3],
 				  const double ray_end[3],
 				  EntityHandle& next_surf,
-				  double& next_surf_dist) {
+				  double& next_surf_dist,
+				  bool& fire_ray) {
+  fire_ray = true;
   // calculate ray length and try to account for all space in between
   double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
 
-  // quick exit if ray length is zero
-  if (ray_len == 0) { return MB_FAILURE; }
+  if(!get_signed_distance_field(volume)) return MB_SUCCESS;
   
   ErrorCode rval;
   
@@ -1064,21 +1075,21 @@ ErrorCode DagMC::precondition_ray(const EntityHandle volume,
   MB_CHK_SET_ERR(rval,"Could not find end point sdv");
 
   // if the starting point is outside of the volume, we have a problem, fire ray
-  if(ssdv < 0) return MB_FAILURE;
+  if(ssdv < 0) { fire_ray = true; return MB_SUCCESS; }
   // end point is outside the volume, fire ray to get intersection distance and surf
-  if(esdv < 0) return MB_FAILURE;
+  if(esdv < 0) { fire_ray = true; return MB_SUCCESS; }
   
   if( (ray_len-ssdv-esdv) < -(ssdv_err + esdv_err) ) {
+    fire_ray = false;
     Range surfs;
     rval = MBI->get_child_meshsets(volume, surfs);
     MB_CHK_SET_ERR(rval, "Failed to get child surfaces of volume " << get_entity_id(volume));
     // spoof next surface and distance
     next_surf_dist = 2.0 * ray_len;
     next_surf = surfs[0];
-    return MB_SUCCESS;
   }
 
-  return MB_FAILURE;
+  return MB_SUCCESS;
 }
 
 ErrorCode DagMC::find_sdv(const EntityHandle volume,

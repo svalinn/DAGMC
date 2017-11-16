@@ -209,13 +209,15 @@ class DagMC {
 			     const double ray_dir[3],
 			     const double ray_len,
 			     EntityHandle& next_surf,
-			     double& next_surf_dist);
+			     double& next_surf_dist,
+			     bool& fire_ray);
 
   ErrorCode precondition_ray(const EntityHandle volume,
 			     const double ray_start[3],
 			     const double ray_end[3],
 			     EntityHandle& next_surf,
-			     double& next_surf_dist);
+			     double& next_surf_dist,
+			     bool& fire_ray);
 
     /** returns the interpolated sdf value for a point and volume */
   ErrorCode find_sdv(const EntityHandle volume,
