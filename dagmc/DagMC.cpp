@@ -21,6 +21,17 @@
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
 
+#define SDF_PRECONDITIONER
+
+#ifdef SDF_PRECONDITIONER
+  #define SDF_BUILD
+//  #define SDF_WRITE
+  #define SDF_RF
+//  #define SDF_DEBUG
+//  #define SDF_PIV
+//  #define SDF_CTL
+#endif
+
 namespace moab {
 
 /* Tolerance Summary
@@ -207,6 +218,11 @@ ErrorCode DagMC::init_OBBTree() {
   rval = setup_indices();
   MB_CHK_SET_ERR(rval, "Failed to setup problem indices");
 
+#ifdef SDF_BUILD
+  rval = build_preconditioner();
+  MB_CHK_SET_ERR(rval, "Failed to setup preconditioner datastructure.");
+#endif
+  
   return MB_SUCCESS;
 }
 
@@ -266,7 +282,14 @@ ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
                           RayHistory* history,
                           double user_dist_limit, int ray_orientation,
                           OrientedBoxTreeTool::TrvStats* stats) {
-  ErrorCode rval = GQT->ray_fire(volume, point, dir, next_surf, next_surf_dist,
+  ErrorCode rval;
+  
+#ifdef SDF_DF
+  rval = precondition_ray(volume, point, dir, user_dist_limit);
+  if (MB_SUCCESS == rval) return rval;
+#endif
+  
+  rval = GQT->ray_fire(volume, point, dir, next_surf, next_surf_dist,
                                  history, user_dist_limit, ray_orientation,
                                  stats);
   return rval;
@@ -275,7 +298,14 @@ ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
 ErrorCode DagMC::point_in_volume(const EntityHandle volume, const double xyz[3],
                                  int& result, const double* uvw,
                                  const RayHistory* history) {
-  ErrorCode rval = GQT->point_in_volume(volume, xyz, result, uvw, history);
+  ErrorCode rval;
+  
+#ifdef SDF_PIV
+  rval = precondition_point_in_volume(volume, xyz, result);
+  if (MB_SUCCESS == rval) return rval;
+#endif
+  
+  rval = GQT->point_in_volume(volume, xyz, result, uvw, history);
   return rval;
 }
 
@@ -300,7 +330,14 @@ ErrorCode DagMC::point_in_volume_slow(EntityHandle volume, const double xyz[3],
 ErrorCode DagMC::closest_to_location(EntityHandle volume,
                                      const double coords[3], double& result,
                                      EntityHandle* surface) {
-  ErrorCode rval = GQT->closest_to_location(volume, coords, result, surface);
+  ErrorCode rval;
+  
+#ifdef SDF_CTL
+  rval = precondition_closest_to_location(volume, coords, result);
+  if (MB_SUCCESS == rval) return rval;
+#endif
+  
+  rval = GQT->closest_to_location(volume, coords, result, surface);
   return rval;
 }
 
@@ -983,11 +1020,39 @@ ErrorCode DagMC::precondition_closest_to_location( EntityHandle volume, const do
   
   return MB_SUCCESS;
 }
-  
+
+
+
 /** precondition ray using physical distance limit */
+
 ErrorCode DagMC::precondition_ray(const EntityHandle volume,
 				  const double ray_start[3],
-				  const double ray_end[3]) {
+				  const double ray_dir[3],
+				  const double ray_len,
+				  EntityHandle& next_surf,
+				  double& next_surf_dist) {
+  
+  CartVect ray_end = CartVect(ray_dir[0], ray_dir[1], ray_dir[2]);
+  ray_end.normalize();
+  ray_end *= ray_len;
+  ray_end += CartVect(ray_start);
+
+  return precondition_ray(volume, ray_start, ray_end.array(), next_surf, next_surf_dist);
+  
+}
+		     
+   
+ErrorCode DagMC::precondition_ray(const EntityHandle volume,
+				  const double ray_start[3],
+				  const double ray_end[3],
+				  EntityHandle& next_surf,
+				  double& next_surf_dist) {
+  // calculate ray length and try to account for all space in between
+  double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
+
+  // quick exit if ray length is zero
+  if (ray_len == 0) { return MB_FAILURE; }
+  
   ErrorCode rval;
   
   double ssdv, ssdv_err, esdv, esdv_err;
@@ -1002,10 +1067,14 @@ ErrorCode DagMC::precondition_ray(const EntityHandle volume,
   if(ssdv < 0) return MB_FAILURE;
   // end point is outside the volume, fire ray to get intersection distance and surf
   if(esdv < 0) return MB_FAILURE;
-  // calculate ray length and try to account for all space in between
-  double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
   
   if( (ray_len-ssdv-esdv) < -(ssdv_err + esdv_err) ) {
+    Range surfs;
+    rval = MBI->get_child_meshsets(volume, surfs);
+    MB_CHK_SET_ERR(rval, "Failed to get child surfaces of volume " << get_entity_id(volume));
+    // spoof next surface and distance
+    next_surf_dist = 2.0 * ray_len;
+    next_surf = surfs[0];
     return MB_SUCCESS;
   }
 
