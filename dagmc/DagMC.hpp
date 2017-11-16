@@ -196,6 +196,10 @@ class DagMC {
   /** populate preconditioning structure for volume */
   ErrorCode populate_preconditioner_for_volume(EntityHandle &vol, SignedDistanceField* sdf);
 
+  /** get nearest surface intersection estimate using signed distance field */
+  ErrorCode precondition_closest_to_location( EntityHandle volume, const double coords[3], double& result);
+
+  
     /** precondition ray using physical distance limit */
   ErrorCode precondition_ray(const EntityHandle volume,
 			     const double ray_start[3],

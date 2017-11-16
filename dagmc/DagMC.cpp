@@ -939,6 +939,27 @@ ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle &vol, SignedDis
   return MB_SUCCESS;
 }
 
+  
+ErrorCode DagMC::precondition_closest_to_location( EntityHandle volume, const double coords[3], double& result) {
+  ErrorCode rval;
+  SignedDistanceField* sdf = get_signed_distance_field(volume);
+  rval = find_sdv(volume,coords,result);
+  if (MB_SUCCESS != rval && MB_ENTITY_NOT_FOUND != rval) return rval;
+
+  // check that the nearest intersection can be considered valid
+  // (is larger than interpolation error evaluation)
+  if ( MB_ENTITY_NOT_FOUND != rval && fabs(result) > sdf->get_err() && result > 0.0) {
+    result = result - sdf->get_err();
+  }
+  // if it is not, then return an errorcode indicating that this result
+  // shouldn't be used
+  else{
+    return MB_FAILURE;
+  }
+  
+  return MB_SUCCESS;
+}
+  
 /** precondition ray using physical distance limit */
 ErrorCode DagMC::precondition_ray(const EntityHandle volume,
 			   const double ray_start[3],
