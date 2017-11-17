@@ -1033,8 +1033,6 @@ ErrorCode DagMC::precondition_ray_fire(const EntityHandle volume,
 				       EntityHandle& next_surf,
 				       double& next_surf_dist,
 				       bool& preconditioned) {
-
-  if (ray_len == 0) {return MB_FAILURE;}
   
   CartVect ray_end = CartVect(ray_dir[0], ray_dir[1], ray_dir[2]);
   ray_end.normalize();
@@ -1056,6 +1054,8 @@ ErrorCode DagMC::precondition_ray_fire(const EntityHandle volume,
   // calculate ray length and try to account for all space in between
   double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
 
+  if(ray_len == 0.0) {return MB_SUCCESS;}
+  
   if(!get_signed_distance_field(volume)) return MB_SUCCESS;
   
   ErrorCode rval;
