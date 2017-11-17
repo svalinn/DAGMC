@@ -26,10 +26,10 @@
 #ifdef SDF_PRECONDITIONER
   #define SDF_BUILD
 //  #define SDF_WRITE
-  #define SDF_RF
+//  #define SDF_RF
 //  #define SDF_DEBUG
-  #define SDF_PIV
-  #define SDF_CTL
+//  #define SDF_PIV
+//  #define SDF_CTL
 #endif
 
 namespace moab {
