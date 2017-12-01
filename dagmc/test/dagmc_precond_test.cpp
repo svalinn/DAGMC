@@ -113,7 +113,7 @@ TEST_F(DagmcPrecondTest, precondition_ray_fire_test) {
   rval = dagmc->precondition_ray_fire(vol, ray_start, ray_dir, ray_len, next_surf, next_surf_dist, preconditioned);
   MB_CHK_SET_ERR_RET(rval, "Failed to precondition ray");
 
-  EXPECT_TRUE(!preconditioned);
+  EXPECT_FALSE(preconditioned);
 
   // increase ray distance to an un-preconditionable length
   ray_len = 4.99;
@@ -121,7 +121,7 @@ TEST_F(DagmcPrecondTest, precondition_ray_fire_test) {
   rval = dagmc->precondition_ray_fire(vol, ray_start, ray_dir, ray_len, next_surf, next_surf_dist, preconditioned);
   MB_CHK_SET_ERR_RET(rval, "Failed to precondition ray");
 
-  EXPECT_TRUE(!preconditioned);
+  EXPECT_FALSE(preconditioned);
 
 }
 
@@ -157,14 +157,14 @@ TEST_F(DagmcPrecondTest, precondition_closest_to_location_test) {
   rval = dagmc->precondition_closest_to_location(vol, point, nearest_surf_dist, preconditioned);
   MB_CHK_SET_ERR_RET(rval, "Failed to precondition CTL");
 
-  EXPECT_TRUE(!preconditioned);
+  EXPECT_FALSE(preconditioned);
 
   // point very close to the surface
   point[0] = 4.99; point[1] = 0.0; point[2] = 0.0;
   rval = dagmc->precondition_closest_to_location(vol, point, nearest_surf_dist, preconditioned);
   MB_CHK_SET_ERR_RET(rval, "Failed to precondition CTL");
 
-  EXPECT_TRUE(!preconditioned);
+  EXPECT_FALSE(preconditioned);
 
 }
 
@@ -209,6 +209,6 @@ TEST_F(DagmcPrecondTest, precondition_point_in_volume_test) {
   rval = dagmc->precondition_point_in_volume(vol, point, result, preconditioned);
   MB_CHK_SET_ERR_RET(rval, "Failed to precondition CTL");
 
-  EXPECT_TRUE(!preconditioned);
+  EXPECT_FALSE(preconditioned);
 
 }
