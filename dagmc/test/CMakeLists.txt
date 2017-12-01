@@ -25,7 +25,7 @@ setup_test(dagmc_unit_tests      cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(dagmc_pointinvol_test cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(dagmc_rayfire_test    cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(dagmc_simple_test     cpp ${DRIVER} "${LINK_LIBS}")
-setup_test(dagmc_precond_test    cpp ${DRIVER} "${LINK_LIBS}")
+setup_test(sdf_test    cpp ${DRIVER} "${LINK_LIBS}")
 
 # Install h5m files
 install(FILES test_dagmc.h5m      DESTINATION tests)
