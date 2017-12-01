@@ -24,7 +24,7 @@
 #define SDF_PRECONDITIONER
 
 #ifdef SDF_PRECONDITIONER
-  #define SDF_BUILD
+#define SDF_BUILD
 //  #define SDF_WRITE
 //  #define SDF_RF
 //  #define SDF_DEBUG
@@ -222,7 +222,7 @@ ErrorCode DagMC::init_OBBTree() {
   rval = build_preconditioner();
   MB_CHK_SET_ERR(rval, "Failed to setup preconditioner datastructure.");
 #endif
-  
+
   return MB_SUCCESS;
 }
 
@@ -283,18 +283,21 @@ ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
                           double user_dist_limit, int ray_orientation,
                           OrientedBoxTreeTool::TrvStats* stats) {
   ErrorCode rval;
-  
+
 #ifdef SDF_RF
   bool precond_success;
   rval = precondition_ray_fire(volume, point, dir, user_dist_limit, next_surf, next_surf_dist, precond_success);
   MB_CHK_SET_ERR(rval, "Failed to precondition ray");
-  if (precond_success) { return rval; }
-  else { user_dist_limit = 0.0; }
+  if (precond_success) {
+    return rval;
+  } else {
+    user_dist_limit = 0.0;
+  }
 #endif
-  
+
   rval = GQT->ray_fire(volume, point, dir, next_surf, next_surf_dist,
-                                 history, user_dist_limit, ray_orientation,
-                                 stats);
+                       history, user_dist_limit, ray_orientation,
+                       stats);
   return rval;
 }
 
@@ -302,16 +305,17 @@ ErrorCode DagMC::point_in_volume(const EntityHandle volume, const double xyz[3],
                                  int& result, const double* uvw,
                                  const RayHistory* history) {
   ErrorCode rval;
-  
+
 #ifdef SDF_PIV
-  if(get_signed_distance_field(volume)) { 
+  if (get_signed_distance_field(volume)) {
     bool precond_success;
     rval = precondition_point_in_volume(volume, xyz, result, precond_success);
     MB_CHK_SET_ERR(rval, "Failed to precondition point in volume call for volume " << get_entity_id(volume));
-    if (precond_success) return rval;
+    if (precond_success)
+      return rval;
   }
 #endif
-  
+
   rval = GQT->point_in_volume(volume, xyz, result, uvw, history);
   return rval;
 }
@@ -338,14 +342,15 @@ ErrorCode DagMC::closest_to_location(EntityHandle volume,
                                      const double coords[3], double& result,
                                      EntityHandle* surface) {
   ErrorCode rval;
-  
+
 #ifdef SDF_CTL
   bool precond_success;
   rval = precondition_closest_to_location(volume, coords, result, precond_success);
   MB_CHK_SET_ERR(rval, "Failed in preconditioning closest to location call");
-  if (precond_success) return rval;
+  if (precond_success)
+    return rval;
 #endif
-  
+
   rval = GQT->closest_to_location(volume, coords, result, surface);
   return rval;
 }
@@ -816,16 +821,15 @@ Tag DagMC::get_tag(const char* name, int size, TagType store,
   return retval;
 }
 
-ErrorCode DagMC::build_preconditioner()
-{
+ErrorCode DagMC::build_preconditioner() {
   ErrorCode rval;
-  
+
   std::vector<std::string> keywords;
   std::string sdf = "sdf";
   keywords.push_back(sdf);
   rval = parse_properties(keywords);
   MB_CHK_SET_ERR(rval, "Failed to parse the signed distance field property");
-  
+
   std::vector<EntityHandle> vols;
   rval = entities_by_property(sdf, vols, 3);
   MB_CHK_SET_ERR(rval, "Failed to find signed distance field volumes");
@@ -838,136 +842,142 @@ ErrorCode DagMC::build_preconditioner()
   // MB_CHK_SET_ERR(rval, "Could not get the model volumes.");
 
   sdfs.resize(num_entities(3));
-  
-  for(unsigned int i = 0; i < vols.size(); i++) {
-    
+
+  for (unsigned int i = 0; i < vols.size(); i++) {
+
     EntityHandle vol = vols[i];
 
     std::string val;
     rval = prop_value(vol, sdf, val);
     MB_CHK_SET_ERR(rval, "Could not get preconditioner step size from property tag");
     double sdf_step_size = std::atof(val.c_str());
-    
+
     // never need this for the implicit compliment
-    if(GTT->is_implicit_complement(vol)) continue;
+    if (GTT->is_implicit_complement(vol))
+      continue;
 
     int vol_id = get_entity_id(vol);
 
-    double x_min,x_max,y_min,y_max,z_min,z_max;
+    double x_min, x_max, y_min, y_max, z_min, z_max;
     CartVect lower_corner, upper_corner;
     rval = getobb(vol, lower_corner.array(), upper_corner.array());
     MB_CHK_SET_ERR(rval, "Could not get volume bounds.");
 
     x_min = lower_corner[0]; y_min = lower_corner[1]; z_min = lower_corner[2];
     x_max = upper_corner[0]; y_max = upper_corner[1]; z_max = upper_corner[2];
-    
-    int num_x_steps = (int)(x_max-x_min)/sdf_step_size;
-    if ( (x_max-x_min)/sdf_step_size - (double)num_x_steps > 0.0 ) num_x_steps+=1/sdf_step_size;
-    int num_y_steps = (int)(y_max-y_min)/sdf_step_size;
-    if ( (y_max-y_min)/sdf_step_size - (double)num_y_steps > 0.0 ) num_y_steps+=1/sdf_step_size;
-    int num_z_steps = (int)(z_max-z_min)/sdf_step_size;
-    if ( (z_max-z_min)/sdf_step_size - (double)num_z_steps > 0.0 ) num_z_steps+=1/sdf_step_size;    
-    
+
+    int num_x_steps = (int)(x_max - x_min) / sdf_step_size;
+    if ((x_max - x_min) / sdf_step_size - (double)num_x_steps > 0.0)
+      num_x_steps += 1 / sdf_step_size;
+    int num_y_steps = (int)(y_max - y_min) / sdf_step_size;
+    if ((y_max - y_min) / sdf_step_size - (double)num_y_steps > 0.0)
+      num_y_steps += 1 / sdf_step_size;
+    int num_z_steps = (int)(z_max - z_min) / sdf_step_size;
+    if ((z_max - z_min) / sdf_step_size - (double)num_z_steps > 0.0)
+      num_z_steps += 1 / sdf_step_size;
+
     std::cout << " x min/max " << x_min <<  "/" << x_max << std::endl;
     std::cout << " y min/max " << y_min <<  "/" << y_max << std::endl;
     std::cout << " z min/max " << z_min <<  "/" << z_max << std::endl;
     std::cout << " x steps " << num_x_steps << std::endl;
     std::cout << " y steps " << num_y_steps << std::endl;
     std::cout << " z steps " << num_z_steps << std::endl;
-    
+
     // if any of these are zero, move on
-    if( 0 == num_x_steps || 0 == num_y_steps || 0 == num_z_steps ) {
+    if (0 == num_x_steps || 0 == num_y_steps || 0 == num_z_steps) {
       continue;
     }
-    
+
     int num_x_verts = num_x_steps + 2;
     int num_y_verts = num_y_steps + 2;
     int num_z_verts = num_z_steps + 2;
-    
+
     num_x_verts++;
     num_y_verts++;
     num_z_verts++;
-    
+
     x_min -= sdf_step_size;
     y_min -= sdf_step_size;
     z_min -= sdf_step_size;
-    
+
     SignedDistanceField* sdf = new SignedDistanceField(x_min, y_min, z_min,
-						       sdf_step_size,
-						       num_x_verts, num_y_verts, num_z_verts);
-    
+                                                       sdf_step_size,
+                                                       num_x_verts, num_y_verts, num_z_verts);
+
     MB_CHK_SET_ERR(rval, "Could not create preconditioner ScdBox.");
-    
+
     std::cout << "Populating preconditioner..." << std::endl;
     rval = populate_preconditioner_for_volume(vol, sdf);
     MB_CHK_SET_ERR(rval, "Could not populate preconditioner.");
     std::cout << "done." << std::endl;
-}
-  
+  }
+
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle &vol, SignedDistanceField* sdf) {
+ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle& vol, SignedDistanceField* sdf) {
   ErrorCode rval;
 
   EntityHandle tree_root;
   rval = get_root(vol, tree_root);
   MB_CHK_SET_ERR(rval, "Could not retrieve the volume's OBB tree root.");
-  
-  int xpnts, ypnts, zpnts;  
+
+  int xpnts, ypnts, zpnts;
   std::vector<double> sdvs;
-  
-  sdf->get_dims(xpnts,ypnts,zpnts);
-  
-  for(unsigned int k = 0 ; k < zpnts; k++){
-    for(unsigned int j = 0 ; j < ypnts; j++){  
-      for(unsigned int i = 0 ; i < xpnts; i++){
-	CartVect vert_coords = sdf->get_coords(i,j,k);
-	
-	CartVect closest_loc;
-	EntityHandle facet, surf;
-	rval = GTT->obb_tree()->closest_to_location( vert_coords.array(), tree_root, closest_loc.array(), facet, &surf);	
-	MB_CHK_SET_ERR(rval, "Could not get the closest location.");
 
-	CartVect vec = closest_loc - vert_coords;
+  sdf->get_dims(xpnts, ypnts, zpnts);
 
-	//get facet connectivity
-	const EntityHandle * con = NULL;
-	int len;
-	rval = MBI->get_connectivity(facet, con, len);
-	MB_CHK_SET_ERR(rval, "Could not get connectivity of nearest facet.");
-	CartVect coords[3];
-	rval = MBI->get_coords( con, len, coords[0].array() );      
-	MB_CHK_SET_ERR(rval, "Coult not get coordinates of nearest facet verts.");
-	// get normal of triangle
-	CartVect v0 = coords[1] - coords[0];
-	CartVect v1 = coords[2] - coords[0];
-	CartVect norm = (v0*v1);
-	EntityHandle vols[2];
-	//adjust normal for sense wrt the volume datastruct being populated
-	rval = MBI->tag_get_data( sense_tag(), &surf, 1, vols );
-	MB_CHK_SET_ERR(rval, "Could not get nearest surface sense wrt volume.");
-	int sense = 1;
-	if (vol != vols[0]) sense = -1;
-	norm *= sense;
+  for (unsigned int k = 0 ; k < zpnts; k++) {
+    for (unsigned int j = 0 ; j < ypnts; j++) {
+      for (unsigned int i = 0 ; i < xpnts; i++) {
+        CartVect vert_coords = sdf->get_coords(i, j, k);
 
-	// if direction to the facet opposes the adjusted facet normal this distance
-	// value should be negative because it is on the outside
-	//	double dot_prod = norm%vec;
-	double sdv = fabs(vec.length());
-	//	if( fabs(dot_prod) < 1e-8 ) {
-	int inout = 0;
-	rval = point_in_volume(vol, vert_coords.array(), inout);
-	MB_CHK_SET_ERR(rval,"Point in volume failed");
-	if(0 == inout) sdv*=-1;
-	// }
-	// else {
-	//   if( dot_prod < 0 ) {
-	//     sdv *= -1;
-	//   }
-	// }
-	sdvs.push_back(sdv);
-	MB_CHK_SET_ERR(rval, "Could not set SDF tag data.");
+        CartVect closest_loc;
+        EntityHandle facet, surf;
+        rval = GTT->obb_tree()->closest_to_location(vert_coords.array(), tree_root, closest_loc.array(), facet, &surf);
+        MB_CHK_SET_ERR(rval, "Could not get the closest location.");
+
+        CartVect vec = closest_loc - vert_coords;
+
+        //get facet connectivity
+        const EntityHandle* con = NULL;
+        int len;
+        rval = MBI->get_connectivity(facet, con, len);
+        MB_CHK_SET_ERR(rval, "Could not get connectivity of nearest facet.");
+        CartVect coords[3];
+        rval = MBI->get_coords(con, len, coords[0].array());
+        MB_CHK_SET_ERR(rval, "Coult not get coordinates of nearest facet verts.");
+        // get normal of triangle
+        CartVect v0 = coords[1] - coords[0];
+        CartVect v1 = coords[2] - coords[0];
+        CartVect norm = (v0 * v1);
+        EntityHandle vols[2];
+        //adjust normal for sense wrt the volume datastruct being populated
+        rval = MBI->tag_get_data(sense_tag(), &surf, 1, vols);
+        MB_CHK_SET_ERR(rval, "Could not get nearest surface sense wrt volume.");
+        int sense = 1;
+        if (vol != vols[0])
+          sense = -1;
+        norm *= sense;
+
+        // if direction to the facet opposes the adjusted facet normal this distance
+        // value should be negative because it is on the outside
+        //  double dot_prod = norm%vec;
+        double sdv = fabs(vec.length());
+        //  if( fabs(dot_prod) < 1e-8 ) {
+        int inout = 0;
+        rval = point_in_volume(vol, vert_coords.array(), inout);
+        MB_CHK_SET_ERR(rval, "Point in volume failed");
+        if (0 == inout)
+          sdv *= -1;
+        // }
+        // else {
+        //   if( dot_prod < 0 ) {
+        //     sdv *= -1;
+        //   }
+        // }
+        sdvs.push_back(sdv);
+        MB_CHK_SET_ERR(rval, "Could not set SDF tag data.");
       }
     }
   }
@@ -981,99 +991,108 @@ ErrorCode DagMC::populate_preconditioner_for_volume(EntityHandle &vol, SignedDis
   rval = sdf->create_scdBox(b, moab_instance());
   MB_CHK_SET_ERR(rval, "Failed to create ScdBox from SDF.");
 #endif
-  
+
   return MB_SUCCESS;
 }
 
 ErrorCode DagMC::precondition_point_in_volume(EntityHandle volume, const double xyz[3], int& result, bool& preconditioned) {
   preconditioned = false;
   ErrorCode rval;
-  
+
   // retrieve the signed distance value from the field
   double sdv, sdv_err;
   rval = find_sdv(volume, xyz, sdv, sdv_err);
   MB_CHK_SET_ERR(rval, "Failed to retrieve signed distance value for volume " << get_entity_id(volume));
-    
+
   // if the signed distance value is large enough,
   // use its sign to determine the point containment
-  if(fabs(sdv) > sdv_err) {
+  if (fabs(sdv) > sdv_err) {
     preconditioned = true;
     result = sdv > 0.0;
   }
-  
+
   return MB_SUCCESS;
-  
+
 }
 
-  
+
 ErrorCode DagMC::precondition_closest_to_location(EntityHandle volume, const double coords[3], double& result, bool& preconditioned) {
   ErrorCode rval;
   preconditioned = false;
-  
+
   double sdv_err;
-  
-  rval = find_sdv(volume,coords,result, sdv_err);
+
+  rval = find_sdv(volume, coords, result, sdv_err);
   MB_CHK_SET_ERR(rval, "Failed to find signed distance value for volume " << get_entity_id(volume));
-  
+
   // check that the nearest intersection can be considered valid
   // (is larger than interpolation error evaluation)
-  if ( fabs(result) > sdv_err && result > 0.0) {
+  if (fabs(result) > sdv_err && result > 0.0) {
     preconditioned = true;
     result = result - sdv_err;
   }
-  
+
   return MB_SUCCESS;
 }
 
 /** precondition ray using physical distance limit */
 ErrorCode DagMC::precondition_ray_fire(const EntityHandle volume,
-				       const double ray_start[3],
-				       const double ray_dir[3],
-				       const double ray_len,
-				       EntityHandle& next_surf,
-				       double& next_surf_dist,
-				       bool& preconditioned) {
-  
+                                       const double ray_start[3],
+                                       const double ray_dir[3],
+                                       const double ray_len,
+                                       EntityHandle& next_surf,
+                                       double& next_surf_dist,
+                                       bool& preconditioned) {
+
   CartVect ray_end = CartVect(ray_dir[0], ray_dir[1], ray_dir[2]);
   ray_end.normalize();
   ray_end *= ray_len;
   ray_end += CartVect(ray_start);
 
   return precondition_ray_fire(volume, ray_start, ray_end.array(), next_surf, next_surf_dist, preconditioned);
-  
+
 }
-		     
-   
+
+
 ErrorCode DagMC::precondition_ray_fire(const EntityHandle volume,
-				  const double ray_start[3],
-				  const double ray_end[3],
-				  EntityHandle& next_surf,
-				  double& next_surf_dist,
-				  bool& preconditioned) {
+                                       const double ray_start[3],
+                                       const double ray_end[3],
+                                       EntityHandle& next_surf,
+                                       double& next_surf_dist,
+                                       bool& preconditioned) {
   preconditioned = false;
   // calculate ray length and try to account for all space in between
-  double ray_len = (CartVect(ray_start)-CartVect(ray_end)).length();
+  double ray_len = (CartVect(ray_start) - CartVect(ray_end)).length();
 
-  if(ray_len == 0.0) {return MB_SUCCESS;}
-  
-  if(!get_signed_distance_field(volume)) return MB_SUCCESS;
-  
+  if (ray_len == 0.0) {
+    return MB_SUCCESS;
+  }
+
+  if (!get_signed_distance_field(volume))
+    return MB_SUCCESS;
+
   ErrorCode rval;
-  
-  double ssdv, ssdv_err, esdv, esdv_err;
-  
-  rval = find_sdv(volume,ray_start,ssdv, ssdv_err);
-  MB_CHK_SET_ERR(rval,"Could not find start point sdv");
 
-  rval = find_sdv(volume,ray_end,esdv, esdv_err);
-  MB_CHK_SET_ERR(rval,"Could not find end point sdv");
+  double ssdv, ssdv_err, esdv, esdv_err;
+
+  rval = find_sdv(volume, ray_start, ssdv, ssdv_err);
+  MB_CHK_SET_ERR(rval, "Could not find start point sdv");
+
+  rval = find_sdv(volume, ray_end, esdv, esdv_err);
+  MB_CHK_SET_ERR(rval, "Could not find end point sdv");
 
   // if the starting point is outside of the volume, we have a problem, fire ray
-  if(ssdv < 0) { preconditioned = false; return MB_SUCCESS; }
+  if (ssdv < 0) {
+    preconditioned = false;
+    return MB_SUCCESS;
+  }
   // end point is outside the volume, fire ray to get intersection distance and surf
-  if(esdv < 0) { preconditioned = false; return MB_SUCCESS; }
-  
-  if( (ray_len-ssdv-esdv) < -(ssdv_err + esdv_err) ) {
+  if (esdv < 0) {
+    preconditioned = false;
+    return MB_SUCCESS;
+  }
+
+  if ((ray_len - ssdv - esdv) < -(ssdv_err + esdv_err)) {
     preconditioned = true;
     Range surfs;
     rval = MBI->get_child_meshsets(volume, surfs);
@@ -1087,22 +1106,33 @@ ErrorCode DagMC::precondition_ray_fire(const EntityHandle volume,
 }
 
 ErrorCode DagMC::find_sdv(const EntityHandle volume,
-			  const double pnt[3],
-			  double &sdv,
-			  double &err) {
+                          const double pnt[3],
+                          double& sdv,
+                          double& err) {
   ErrorCode rval;
   SignedDistanceField* sdf = get_signed_distance_field(volume);
-  if( sdf != NULL) {
+  if (sdf != NULL) {
     sdv = sdf->find_sdv(pnt);
-  }
-  else {
+  } else {
     return MB_ENTITY_NOT_FOUND;
   }
 
   sdf->get_err(err);
-  
+
   return MB_SUCCESS;
 };
-  
+
+
+ErrorCode DagMC::get_sdf_err(const EntityHandle volume,
+                             double& err) {
+  err = get_signed_distance_field(volume)->get_err();
+  return MB_SUCCESS;
+}
+
+SignedDistanceField* DagMC::get_signed_distance_field(EntityHandle vol) {
+  if (index_by_handle(vol) > sdfs.size() - 1)
+    return NULL;
+  return sdfs[index_by_handle(vol)];
+}
 
 } // namespace moab

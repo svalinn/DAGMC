@@ -194,48 +194,48 @@ class DagMC {
   ErrorCode build_preconditioner();
 
   /** populate preconditioning structure for volume */
-  ErrorCode populate_preconditioner_for_volume(EntityHandle &vol, SignedDistanceField* sdf);
+  ErrorCode populate_preconditioner_for_volume(EntityHandle& vol, SignedDistanceField* sdf);
 
   /** get nearest surface intersection estimate using signed distance field */
-  ErrorCode precondition_closest_to_location( EntityHandle volume,
-					      const double coords[3],
-					      double& result,
-					      bool& preconditioned);
+  ErrorCode precondition_closest_to_location(EntityHandle volume,
+                                             const double coords[3],
+                                             double& result,
+                                             bool& preconditioned);
 
   /** use sign of signed distance value to determine point containment */
   ErrorCode precondition_point_in_volume(EntityHandle volume,
-					 const double xyz[3],
-					 int& result,
-					 bool& preconditioned);
+                                         const double xyz[3],
+                                         int& result,
+                                         bool& preconditioned);
 
   /** precondition ray using physical distance limit */
   ErrorCode precondition_ray_fire(const EntityHandle volume,
-				  const double ray_start[3],
-				  const double ray_dir[3],
-				  const double ray_len,
-				  EntityHandle& next_surf,
-				  double& next_surf_dist,
-				  bool& preconditioned);
+                                  const double ray_start[3],
+                                  const double ray_dir[3],
+                                  const double ray_len,
+                                  EntityHandle& next_surf,
+                                  double& next_surf_dist,
+                                  bool& preconditioned);
 
   ErrorCode precondition_ray_fire(const EntityHandle volume,
-				  const double ray_start[3],
-				  const double ray_end[3],
-				  EntityHandle& next_surf,
-				  double& next_surf_dist,
-				  bool& preconditioned);
+                                  const double ray_start[3],
+                                  const double ray_end[3],
+                                  EntityHandle& next_surf,
+                                  double& next_surf_dist,
+                                  bool& preconditioned);
 
-    /** returns the interpolated sdf value for a point and volume */
+  /** returns the interpolated sdf value for a point and volume */
   ErrorCode find_sdv(const EntityHandle volume,
-		     const double pnt[3],
-		     double &sdv,
-		     double &sdv_err);
-  
+                     const double pnt[3],
+                     double& sdv,
+                     double& sdv_err);
+
   /** returns the error associated with signed distance value interpolations for the specified volume */
   ErrorCode get_sdf_err(const EntityHandle volume,
-			double &err);
+                        double& err);
 
-  
-  
+
+
   /* SECTION III: Indexing & Cross-referencing */
  public:
   /** Most calling apps refer to geometric entities with a combination of
@@ -264,6 +264,10 @@ class DagMC {
    *\return integer number of entities of that dimension
    */
   unsigned int num_entities(int dimension);
+
+  /** retrieve preconditioner box for a given volume */
+  SignedDistanceField* get_signed_distance_field(EntityHandle vol);
+
 
  private:
   /** build internal index vectors that speed up handle-by-id, etc. */
@@ -455,7 +459,7 @@ class DagMC {
   /** storage for sdfs **/
   std::vector<SignedDistanceField*> sdfs;
 
-  
+
   /* metadata */
   /** empty synonym map to provide as a default argument to parse_properties() */
   static const std::map<std::string, std::string> no_synonyms;
@@ -506,7 +510,7 @@ inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle& root) {
   return MB_SUCCESS;
 }
 
-  
+
 } // namespace moab
 
 #endif

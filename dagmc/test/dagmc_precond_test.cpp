@@ -14,7 +14,7 @@ using namespace moab;
 
 class DagmcPrecondTest : public ::testing::Test {
 
-protected:
+ protected:
 
   DagMC* dagmc;
   SignedDistanceField* box;
@@ -25,24 +25,24 @@ protected:
     // sphere of radius 5, centered on the origin
     filename = "sphere_rad5.h5m";
   };
-  
+
   virtual void SetUp() {
-    
+
     set_filename();
 
     dagmc = new DagMC();
-    
+
     //create a new dagmc instance and load the file
     rval = dagmc->load_file(filename.c_str());
-    MB_CHK_SET_ERR_RET(rval,"Could not load the preconditioner test file");
+    MB_CHK_SET_ERR_RET(rval, "Could not load the preconditioner test file");
 
     //get the ScdBox of the first (and only) volume
     Range vols;
     const int three = 3;
     const void* const three_val[] = {&three};
     Tag geomTag = dagmc->geom_tag();
-    rval = dagmc->moab_instance()->get_entities_by_type_and_tag( 0, MBENTITYSET, &geomTag, three_val, 1, vols );
-    MB_CHK_SET_ERR_RET(rval,"Could not get the model volumes");
+    rval = dagmc->moab_instance()->get_entities_by_type_and_tag(0, MBENTITYSET, &geomTag, three_val, 1, vols);
+    MB_CHK_SET_ERR_RET(rval, "Could not get the model volumes");
 
     //create a new group
     EntityHandle sdf_group_set;
@@ -57,13 +57,13 @@ protected:
     group.resize(32);
     rval = dagmc->moab_instance()->tag_set_data(cat_tag, &sdf_group_set, 1, group.c_str());
     MB_CHK_SET_ERR_RET(rval, "Failed to set the category tag of the signed distance field group set");
-  
+
     std::string sdf = "sdf_0.5";
     rval = dagmc->moab_instance()->tag_set_data(dagmc->name_tag(), &sdf_group_set, 1, (void*)sdf.c_str());
     MB_CHK_SET_ERR_RET(rval, "Failed to set the name tag of the signed distance field group set");
 
     //there should only be one volume before we init the OBB tree
-    if(1 != vols.size()) {
+    if (1 != vols.size()) {
       MB_CHK_SET_ERR_RET(MB_FAILURE, "Incorrect number of volumes found after loading the model");
     }
 
@@ -72,16 +72,16 @@ protected:
 
     //initalize the OBBTree (and the preconditioning datastructs)
     rval = dagmc->init_OBBTree();
-    MB_CHK_SET_ERR_RET(rval,"Could not initialize the OBBTree");
+    MB_CHK_SET_ERR_RET(rval, "Could not initialize the OBBTree");
 
     rval = dagmc->build_preconditioner();
-    MB_CHK_SET_ERR_RET(rval,"Could not construct preconditioner.");
+    MB_CHK_SET_ERR_RET(rval, "Could not construct preconditioner.");
 
   }
 
   virtual void TearDown() {
     delete dagmc;
-    
+
   }
 };
 
