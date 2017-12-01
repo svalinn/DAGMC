@@ -167,3 +167,48 @@ TEST_F(DagmcPrecondTest, precondition_closest_to_location_test) {
   EXPECT_TRUE(!preconditioned);
 
 }
+
+
+TEST_F(DagmcPrecondTest, precondition_point_in_volume_test) {
+
+  // get the volume (there should be only one, index starts at one)
+  EntityHandle vol = dagmc->entity_by_index(3, 1);
+
+  // return values to capture
+  int result;
+  bool preconditioned;
+
+  double point[3];
+
+  // point in the center of the volume (origin)
+  point[0] = 0.0; point[1] = 0.0; point[2] = 0.0;
+  rval = dagmc->precondition_point_in_volume(vol, point, result, preconditioned);
+  MB_CHK_SET_ERR_RET(rval, "Failed to precondition CTL");
+
+  EXPECT_TRUE(result);
+  EXPECT_TRUE(preconditioned);
+
+  // point just off the origin
+  point[0] = 1.0; point[1] = 0.0; point[2] = 0.0;
+  rval = dagmc->precondition_point_in_volume(vol, point, result, preconditioned);
+  MB_CHK_SET_ERR_RET(rval, "Failed to precondition CTL");
+
+  EXPECT_TRUE(result);
+  EXPECT_TRUE(preconditioned);
+
+  // point outside of the volume
+  point[0] = 10.0; point[1] = 0.0; point[2] = 0.0;
+  rval = dagmc->precondition_point_in_volume(vol, point, result, preconditioned);
+  MB_CHK_SET_ERR_RET(rval, "Failed to precondition CTL");
+
+  EXPECT_FALSE(result);
+  EXPECT_TRUE(preconditioned);
+
+  // point very close to the surface
+  point[0] = 4.99; point[1] = 0.0; point[2] = 0.0;
+  rval = dagmc->precondition_point_in_volume(vol, point, result, preconditioned);
+  MB_CHK_SET_ERR_RET(rval, "Failed to precondition CTL");
+
+  EXPECT_TRUE(!preconditioned);
+
+}
