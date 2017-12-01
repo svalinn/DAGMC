@@ -76,7 +76,7 @@ CartVect nearest_on_cylinder(CartVect point, double height, double radius) {
   return nearest_location;
 };
 
-class DagmcPrecondTest : public ::testing::Test {
+class SdfTest : public ::testing::Test {
 
 protected:
 
@@ -151,7 +151,7 @@ protected:
   }
 };
   
-class DagmcPrecondSphereTest : public DagmcPrecondTest {
+class SdfSphereTest : public SdfTest {
 
 protected:
 
@@ -162,7 +162,7 @@ protected:
 };
 
 
-TEST_F(DagmcPrecondSphereTest, test_sphere){
+TEST_F(SdfSphereTest, test_sphere){
 
   //get the signed distance field tag
   //  Tag sdfTag = dagmc->sdf_tag();
@@ -204,7 +204,7 @@ TEST_F(DagmcPrecondSphereTest, test_sphere){
 
 
   
-class DagmcPrecondCylinderTest : public DagmcPrecondTest {
+class SdfCylinderTest : public SdfTest {
 
 protected:
 
@@ -214,7 +214,7 @@ protected:
 
 };
 
-TEST_F(DagmcPrecondCylinderTest,test_cylinder){
+TEST_F(SdfCylinderTest,test_cylinder){
 
   //get the signed distance field tag
   int xints, yints, zints;
