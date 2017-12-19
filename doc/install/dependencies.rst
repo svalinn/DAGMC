@@ -77,13 +77,11 @@ commands can be used to download MOAB from its `source repository
     $ ln -s moab src
 
 If you have followed the source install route, then the following commands
-should be used to build MOAB. Note that the ``--enable-dagmc`` configure option
-is required.
+should be used to build MOAB.
 ::
 
     $ cd bld
-    $ ../src/configure --enable-dagmc \
-                       --enable-optimize \
+    $ ../src/configure --enable-optimize \
                        --enable-shared \
                        --disable-debug \
                        --with-hdf5=$HOME/dagmc_bld/HDF5 \
@@ -93,13 +91,11 @@ is required.
     $ make install
 
 If you have followed the package manager install route, then the following
-commands should be used to build MOAB. Note that the ``--enable-dagmc``
-configure option is required.
+commands should be used to build MOAB.
 ::
 
     $ cd bld
-    $ ../src/configure --enable-dagmc \
-                       --enable-optimize \
+    $ ../src/configure --enable-optimize \
                        --enable-shared \
                        --disable-debug \
                        --with-hdf5 \
