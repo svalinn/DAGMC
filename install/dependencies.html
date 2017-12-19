@@ -163,11 +163,9 @@ $ ln -s moab src
 </pre></div>
 </div>
 <p>If you have followed the source install route, then the following commands
-should be used to build MOAB. Note that the <code class="docutils literal"><span class="pre">--enable-dagmc</span></code> configure option
-is required.</p>
+should be used to build MOAB.</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ cd bld
-$ ../src/configure --enable-dagmc \
-                   --enable-optimize \
+$ ../src/configure --enable-optimize \
                    --enable-shared \
                    --disable-debug \
                    --with-hdf5=$HOME/dagmc_bld/HDF5 \
@@ -178,11 +176,9 @@ $ make install
 </pre></div>
 </div>
 <p>If you have followed the package manager install route, then the following
-commands should be used to build MOAB. Note that the <code class="docutils literal"><span class="pre">--enable-dagmc</span></code>
-configure option is required.</p>
+commands should be used to build MOAB.</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ cd bld
-$ ../src/configure --enable-dagmc \
-                   --enable-optimize \
+$ ../src/configure --enable-optimize \
                    --enable-shared \
                    --disable-debug \
                    --with-hdf5 \
@@ -233,7 +229,7 @@ state when you open a new terminal, so it may be a good idea to add these
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 03, 2017.
+      Last updated on Dec 19, 2017.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.

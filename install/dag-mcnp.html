@@ -119,12 +119,14 @@ DAGMC. The patch you use must correspond to your version of MCNP. Currently
 supported versions of MCNP5 are 5.1.40, 5.1.51, 5.1.60</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ cd mcnp/mcnp5
 $ cp -r &lt;path_to_dvd&gt;/MCNP5/Source .
+$ chmod -R u+rw Source
 $ patch -p0 &lt; patch/dagmc.5.1.60.patch
 </pre></div>
 </div>
 <p>Currently supported versions of MCNP6 are 6_beta2, 6.1, and 6.1.1beta.</p>
 <div class="highlight-none"><div class="highlight"><pre><span></span>$ cd mcnp/mcnp6
 $ cp -r &lt;path_to_dvd&gt;/MCNP6/Source .
+$ chmod -R u+rw Source
 $ patch -p0 &lt; patch/dagmc.6.1.1beta.patch
 </pre></div>
 </div>
@@ -229,7 +231,7 @@ for more information.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 03, 2017.
+      Last updated on Dec 19, 2017.
       </p>
       <p>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
