@@ -1,6 +1,3 @@
-# Get date and time
-execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 set(LINK_LIBS)
 
 # Source files
@@ -29,9 +26,9 @@ file(GLOB SRC_FILES
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
 if ("/${SRC_FILES};" MATCHES "/main.F90;")
-  set(MCNP_VERSION 6_beta2)
+  set(MCNP_VERSION 602)
 endif ()
-# These files are present in 6.1 but not in 6_beta2
+# These files are present in 610 but not in 602
 if ("/${SRC_FILES};" MATCHES "/cosmic_src.F90;" AND
     "/${SRC_FILES};" MATCHES "/cosmic_uod.F90;" AND
     "/${SRC_FILES};" MATCHES "/inelastic_xs_grid_mod.F90;" AND
@@ -44,22 +41,22 @@ if ("/${SRC_FILES};" MATCHES "/cosmic_src.F90;" AND
     "/${SRC_FILES};" MATCHES "/otf_mod.F90;" AND
     "/${SRC_FILES};" MATCHES "/read_background.F90;" AND
     "/${SRC_FILES};" MATCHES "/talfft.F90;")
-  set(MCNP_VERSION 6.1)
+  set(MCNP_VERSION 610)
 endif ()
-# These files are present in 6.1.1beta but not in 6.1
+# These files are present in 611 but not in 610
 if ("/${SRC_FILES};" MATCHES "/cerenkov_mod.F90;" AND
     "/${SRC_FILES};" MATCHES "/cgm_interface.F90;" AND
     "/${SRC_FILES};" MATCHES "/parse_ichoic.F90;" AND
     "/${SRC_FILES};" MATCHES "/reflect_light.F90;")
-  set(MCNP_VERSION 6.1.1beta)
+  set(MCNP_VERSION 611)
 endif ()
 if (MCNP_VERSION STREQUAL "Unknown")
   message(FATAL_ERROR "MCNP6 source files not found in mcnp6/Source/src")
+elseif (NOT "/${SRC_FILES};" MATCHES "/dagmc_mod.F90;")
+  message(FATAL_ERROR "MCNP${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
+else ()
+  message(STATUS "DAG-MCNP${MCNP_VERSION} source files found")
 endif ()
-if (NOT "/${SRC_FILES};" MATCHES "/dagmc_mod.F90;")
-  message(FATAL_ERROR "MCNP6 source version ${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
-endif ()
-message(STATUS "DAG-MCNP6 version ${MCNP_VERSION} source files found")
 
 # Optimization flags
 set(CMAKE_C_FLAGS_RELEASE              "-O1"   )
@@ -97,26 +94,36 @@ endif ()
 
 # Include directories
 include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import)
-if (MCNP_VERSION STREQUAL "6.1.1beta")
+if (MCNP_VERSION STREQUAL "611")
   include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import/cgm)
 endif ()
 
 # Variables in mcnp_env.F90
 add_definitions(-DKODE="mcnp")
-if (MCNP_VERSION STREQUAL "6_beta2")
+if (MCNP_VERSION STREQUAL "602")
   add_definitions(-DTHREAD="MCNP6")
   add_definitions(-DTVERS="BETA2")
-elseif (MCNP_VERSION STREQUAL "6.1")
+elseif (MCNP_VERSION STREQUAL "610")
   add_definitions(-DTHREAD="MCNP6")
   add_definitions(-DTVERS="1.0")
-elseif (MCNP_VERSION STREQUAL "6.1.1beta")
+elseif (MCNP_VERSION STREQUAL "611")
   add_definitions(-DTHREAD="MCNP")
   add_definitions(-DTVERS="6.1.1b")
 endif ()
 add_definitions(-DLODDAT="${ENV_DATE}")
+if (MCNP_VERSION STREQUAL "611")
+  add_definitions(-DENV_USER="${ENV_USER}")
+  add_definitions(-DENV_HOST="${ENV_HOST}")
+  add_definitions(-DENV_OS="${ENV_OS}")
+  add_definitions(-DENV_DATE="${ENV_DATE}")
+  add_definitions(-DENV_TIME="${ENV_TIME}")
+  add_definitions(-DENV_CC="${CMAKE_C_COMPILER}")
+  add_definitions(-DENV_CXX="${CMAKE_CXX_COMPILER}")
+  add_definitions(-DENV_F90="${CMAKE_Fortran_COMPILER}")
+endif ()
 
 # Preprocessor directives
-if (MCNP_VERSION STREQUAL "6_beta2")
+if (MCNP_VERSION STREQUAL "602")
   add_definitions(-DALPHA_VERSION=ON)
   add_definitions(-DLANL=ON)
 endif ()
@@ -131,14 +138,14 @@ endif ()
 add_definitions(-DLLNL_FISS=ON)
 add_definitions(-DF90_INT_4BYTE=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
-if (MCNP_VERSION STREQUAL "6.1.1beta")
+if (MCNP_VERSION STREQUAL "611")
   add_definitions(-DCGM=ON)
 endif ()
 add_definitions(-DCEM=ON)
 add_definitions(-DCEM_M6=ON)
 add_definitions(-DCINDER=ON)
 add_definitions(-DLAQGSM=ON)
-if (MCNP_VERSION STREQUAL "6.1" OR MCNP_VERSION STREQUAL "6.1.1beta")
+if (MCNP_VERSION STREQUAL "610" OR MCNP_VERSION STREQUAL "611")
   add_definitions(-DUOD=ON)
 endif ()
 if (MESHTAL_DEBUG)
@@ -160,7 +167,7 @@ endif ()
 if (MCNP6_PLOT)
   find_package(X11 REQUIRED)
   add_definitions(-DPLOT=ON)
-  if (MCNP_VERSION STREQUAL "6_beta2")
+  if (MCNP_VERSION STREQUAL "602")
     add_definitions(-DMCPLOT=ON)
   endif ()
   add_definitions(-DXLIB=ON)
@@ -188,8 +195,17 @@ if (MPI_BUILD)
   add_definitions(-D_DOTCOMM_MPI=ON)
   list(APPEND LINK_LIBS ${MPI_Fortran_LIBRARIES})
   include_directories(${MPI_INCLUDE_PATH})
-  if (MCNP_VERSION STREQUAL "6_beta2")
+  if (MCNP_VERSION STREQUAL "602")
     include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/dotcomm)
+  endif ()
+  if (MCNP_VERSION STREQUAL "611")
+    list(GET MPI_Fortran_INCLUDE_PATH 0 ENV_MPI_ROOT)
+    get_filename_component(temp "${ENV_MPI_ROOT}" NAME)
+    if (${temp} STREQUAL include OR ${temp} STREQUAL lib)
+      get_filename_component(ENV_MPI_ROOT "${ENV_MPI_ROOT}" DIRECTORY)
+    endif ()
+    get_filename_component(ENV_MPI_ROOT "${ENV_MPI_ROOT}" REALPATH)
+    add_definitions(-DENV_MPI_ROOT="${ENV_MPI_ROOT}")
   endif ()
 else ()
   add_definitions(-DVERS="6")
@@ -201,6 +217,34 @@ list(APPEND SRC_FILES
   $<TARGET_OBJECTS:meshtal_funcs>
 )
 list(APPEND LINK_LIBS dagmc pyne_dagmc uwuw dagtally)
+
+# Get list of boolean compiler definitions set to ON
+if (MCNP_VERSION STREQUAL "611")
+  get_directory_property(COMPDEFS_TMP COMPILE_DEFINITIONS)
+  set(COMPDEFS)
+  foreach (definition IN LISTS COMPDEFS_TMP)
+    if (${definition} MATCHES ".*=ON")
+      list(APPEND COMPDEFS ${definition})
+    endif ()
+  endforeach ()
+  list(REMOVE_DUPLICATES COMPDEFS)
+  list(SORT COMPDEFS)
+  string(REPLACE "=ON" " " COMPDEFS ${COMPDEFS})
+  string(STRIP "${COMPDEFS}" COMPDEFS)
+  separate_arguments(COMPDEFS)
+  list(LENGTH COMPDEFS NUM_COMPDEFS)
+  # Choose a number that will be greater than the number of definitions
+  # but not too much greater, as there will be a number of blank lines
+  # equal to the difference.
+  foreach (i RANGE 20)
+    if (${i} LESS ${NUM_COMPDEFS})
+      list(GET COMPDEFS ${i} COMPDEF_CURRENT)
+      add_definitions(-DCOMPDEF_${i}="${COMPDEF_CURRENT}")
+    else ()
+      add_definitions(-DCOMPDEF_${i}="")
+    endif ()
+  endforeach ()
+endif ()
 
 # Executable
 if (MPI_BUILD)

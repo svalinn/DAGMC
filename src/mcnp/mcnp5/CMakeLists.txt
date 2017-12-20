@@ -1,6 +1,3 @@
-# Get date and time
-execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
-
 set(LINK_LIBS)
 
 # Source files
@@ -13,27 +10,27 @@ file(GLOB SRC_FILES
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
 if ("/${SRC_FILES};" MATCHES "/main.F90;")
-  set(MCNP_VERSION 1.40)
+  set(MCNP_VERSION 514)
 endif ()
-# These files are present in 1.51 but not in 1.40
+# These files are present in 515 but not in 514
 if ("/${SRC_FILES};" MATCHES "/annihilation_gammas.F90;" AND
     "/${SRC_FILES};" MATCHES "/phtvr_mod.F90;" AND
     "/${SRC_FILES};" MATCHES "/read_line.F90;")
-  set(MCNP_VERSION 1.51)
+  set(MCNP_VERSION 515)
 endif ()
-# These files are present in 1.60 but not in 1.51
+# These files are present in 516 but not in 515
 if ("/${SRC_FILES};" MATCHES "/isotopic_mod.F90;" AND
     "/${SRC_FILES};" MATCHES "/kadjoint_mod.F90;" AND
     "/${SRC_FILES};" MATCHES "/kinetics_mod.F90;")
-  set(MCNP_VERSION 1.60)
+  set(MCNP_VERSION 516)
 endif ()
 if (MCNP_VERSION STREQUAL "Unknown")
   message(FATAL_ERROR "MCNP5 source files not found in mcnp5/Source/src")
+elseif (NOT "/${SRC_FILES};" MATCHES "/dagmc_mod.F90;")
+  message(FATAL_ERROR "MCNP${MCNP_VERSION} source files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
+else ()
+  message(STATUS "DAG-MCNP${MCNP_VERSION} source files found")
 endif ()
-if (NOT "/${SRC_FILES};" MATCHES "/dagmc_mod.F90;")
-  message(FATAL_ERROR "MCNP5 source version ${MCNP_VERSION} files were found, but dagmc_mod.F90 was not. Perhaps the patch was not applied?")
-endif ()
-message(STATUS "DAG-MCNP5 version ${MCNP_VERSION} source files found")
 
 # Optimization flags
 set(CMAKE_C_FLAGS_RELEASE              "-O1"   )
@@ -71,12 +68,16 @@ endif ()
 
 # Preprocessor directives
 add_definitions(-DKODE="mcnp")
-if (MCNP_VERSION STREQUAL "1.60")
-  add_definitions(-DTHREAD="MCNP5")
-else ()
+if (MCNP_VERSION STREQUAL "514")
   add_definitions(-DTHREAD="MCNP5_RSICC")
+  add_definitions(-DTVERS="1.40")
+elseif (MCNP_VERSION STREQUAL "515")
+  add_definitions(-DTHREAD="MCNP5_RSICC")
+  add_definitions(-DTVERS="1.51")
+elseif (MCNP_VERSION STREQUAL "516")
+  add_definitions(-DTHREAD="MCNP5")
+  add_definitions(-DTVERS="1.60")
 endif ()
-add_definitions(-DTVERS="${MCNP_VERSION}")
 add_definitions(-DLODDAT="${ENV_DATE}")
 add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
