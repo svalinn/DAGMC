@@ -835,7 +835,7 @@ diff -rN '--unified=0' Source/src/main.F90 Source_dagmc/src/main.F90
 diff -rN '--unified=0' Source/src/mcnp_env.F90 Source_dagmc/src/mcnp_env.F90
 --- Source/src/mcnp_env.F90
 +++ Source_dagmc/src/mcnp_env.F90
-@@ -0,0 +1,46 @@
+@@ -0,0 +1,78 @@
 +
 +  module mcnp_env
 +    !
@@ -857,28 +857,60 @@ diff -rN '--unified=0' Source/src/mcnp_env.F90 Source_dagmc/src/mcnp_env.F90
 +      write(iunit,*) '  +-----------------------------------------------------------'
 +      write(iunit,*) '  | mcnp6 build information:'
 +      write(iunit,*) '  |'
-+      write(iunit,*) '  |   user          ='
-+      write(iunit,*) '  |   host          ='
-+      write(iunit,*) '  |   OS            ='
-+      write(iunit,*) '  |   date          ='
-+      write(iunit,*) '  |   time          ='
++      write(iunit,*) '  | This executable was built with a custom CMake build, not'
++      write(iunit,*) '  | the build system from the discs supplied by RSICC. See'
++      write(iunit,*) '  | https://github.com/svalinn/DAGMC for more information.'
 +      write(iunit,*) '  |'
-+      write(iunit,*) '  |   CONFIG        ='
++      write(iunit,*) '  |   user          = ', ENV_USER
++      write(iunit,*) '  |   host          = ', ENV_HOST
++      write(iunit,*) '  |   OS            = ', ENV_OS
++      write(iunit,*) '  |   date          = ', ENV_DATE
++      write(iunit,*) '  |   time          = ', ENV_TIME
 +      write(iunit,*) '  |'
-+      write(iunit,*) '  |   f90           ='
-+      write(iunit,*) '  |   OpenMP        ='
-+      write(iunit,*) '  |   MPI           ='
-+      write(iunit,*) '  |   MPI_ROOT      ='
++      write(iunit,*) '  |   cc            = ', ENV_CC
++      write(iunit,*) '  |   cxx           = ', ENV_CXX
++      write(iunit,*) '  |   f90           = ', ENV_F90
++#ifdef OMP
++      write(iunit,*) '  |   OpenMP        = yes'
++#else
++      write(iunit,*) '  |   OpenMP        = no'
++#endif
++#ifdef MPI
++      write(iunit,*) '  |   MPI           = yes'
++      write(iunit,*) '  |   MPI_ROOT      = ', ENV_MPI_ROOT
++#else
++      write(iunit,*) '  |   MPI           = no'
++#endif
 +      write(iunit,*) '  |'
-+      write(iunit,*) '  |   code          ='
-+      write(iunit,*) '  |   version       ='
++      write(iunit,*) '  |   code          = ', KODE
++      write(iunit,*) '  |   version       = ', VERS
 +      write(iunit,*) '  |'
-+      write(iunit,*) '  |   thread name   ='
-+      write(iunit,*) '  |   thread number ='
++      write(iunit,*) '  |   thread name   = ', THREAD
++      write(iunit,*) '  |   thread number = ', TVERS
 +      write(iunit,*) '  |'
-+      write(iunit,*) '  |   datapath      ='
++      write(iunit,*) '  |   datapath      = ', DPATH
 +      write(iunit,*) '  |'
-+      write(iunit,*) '  |   fpp defs      ='
++      write(iunit,*) '  |   fpp defs      = '
++      write(iunit,*) '  |                   ', COMPDEF_0
++      write(iunit,*) '  |                   ', COMPDEF_1
++      write(iunit,*) '  |                   ', COMPDEF_2
++      write(iunit,*) '  |                   ', COMPDEF_3
++      write(iunit,*) '  |                   ', COMPDEF_4
++      write(iunit,*) '  |                   ', COMPDEF_5
++      write(iunit,*) '  |                   ', COMPDEF_6
++      write(iunit,*) '  |                   ', COMPDEF_7
++      write(iunit,*) '  |                   ', COMPDEF_8
++      write(iunit,*) '  |                   ', COMPDEF_9
++      write(iunit,*) '  |                   ', COMPDEF_10
++      write(iunit,*) '  |                   ', COMPDEF_11
++      write(iunit,*) '  |                   ', COMPDEF_12
++      write(iunit,*) '  |                   ', COMPDEF_13
++      write(iunit,*) '  |                   ', COMPDEF_14
++      write(iunit,*) '  |                   ', COMPDEF_15
++      write(iunit,*) '  |                   ', COMPDEF_16
++      write(iunit,*) '  |                   ', COMPDEF_17
++      write(iunit,*) '  |                   ', COMPDEF_18
++      write(iunit,*) '  |                   ', COMPDEF_19
 +      write(iunit,*) '  +-----------------------------------------------------------'
 +    end subroutine print_build_info
 +  end module mcnp_env
