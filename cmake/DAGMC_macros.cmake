@@ -58,6 +58,7 @@ macro (dagmc_setup_options)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" ${BUILD_TESTS})
 
   option(BUILD_STATIC_EXE "Build static executables" OFF)
+  option(BUILD_PIC        "Build with PIC"           OFF)
 
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
@@ -69,6 +70,10 @@ endmacro ()
 
 macro (dagmc_setup_flags)
   message("")
+
+  if (BUILD_PIC)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+  endif ()
 
   set(CXX_LIBRARY)
   foreach (library IN LISTS CMAKE_CXX_IMPLICIT_LINK_LIBRARIES)
