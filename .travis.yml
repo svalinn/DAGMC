@@ -8,51 +8,50 @@ notifications:
 env:
   matrix:
     # main
-    - COMPILER="gcc-5"     MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-4.0" MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-7"     MOAB_VERSION="5.0"    BUILD_GEANT4="ON"
+    - COMPILER="clang-5.0" MOAB_VERSION="5.0"    BUILD_GEANT4="ON"
     # vary moab version
-    - COMPILER="gcc-5"     MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-4.0" MOAB_VERSION="master" GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-7"     MOAB_VERSION="master" BUILD_GEANT4="ON"
+    - COMPILER="clang-5.0" MOAB_VERSION="master" BUILD_GEANT4="ON"
     # vary compiler
-    - COMPILER="gcc-4.8"   MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
-    - COMPILER="gcc-4.9"   MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
-    - COMPILER="gcc-6"     MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-3.8" MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
-    - COMPILER="clang-3.9" MOAB_VERSION="5.0"    GEANT4_VERSION="10.03.p01"
+    - COMPILER="gcc-4.8"   MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
+    - COMPILER="gcc-5"     MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
+    - COMPILER="gcc-6"     MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
+    - COMPILER="clang-4.0" MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
 services:
   - docker
 before_install:
-  - sudo docker pull ljacobson64/dagmc-ci
+  - sudo docker pull ljacobson64/dagmc-ci-ubuntu-16.04
   # get a container id
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root"
+  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/sh -c "cd /root"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   # make the build directory
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "mkdir -p /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
+  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/sh -c "mkdir -p /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
   # copy the repo in the docker instance
   - sudo docker cp ../DAGMC $commit_id:/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
   # build moab
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
-                                                     bash docker/build_moab.sh $COMPILER $MOAB_VERSION"
+  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                                  bash docker/build_moab.sh $COMPILER $MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
 install:
   # build dagmc (shared executables)
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
-                                                     bash docker/build_dagmc.sh $COMPILER OFF $MOAB_VERSION $GEANT4_VERSION"
+  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                                  bash docker/build_dagmc.sh $COMPILER OFF $MOAB_VERSION $BUILD_GEANT4"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
   # build dagmc (static executables)
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
-                                                     bash docker/build_dagmc.sh $COMPILER ON $MOAB_VERSION $GEANT4_VERSION"
+  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                                  bash docker/build_dagmc.sh $COMPILER ON $MOAB_VERSION $BUILD_GEANT4"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci
+  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
 script:
   # run tests
-  - sudo docker run ljacobson64/dagmc-ci /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
-                                                     export TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST;
-                                                     export MW_REG_TEST_MODELS_URL=$MW_REG_TEST_MODELS_URL;
-                                                     bash docker/run_tests.sh $COMPILER $MOAB_VERSION $GEANT4_VERSION"
+  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/sh -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+                                                                  export TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST;
+                                                                  export MW_REG_TEST_MODELS_URL=$MW_REG_TEST_MODELS_URL;
+                                                                  bash docker/run_tests.sh $COMPILER $MOAB_VERSION $BUILD_GEANT4"

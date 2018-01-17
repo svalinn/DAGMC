@@ -41,7 +41,10 @@ cd ${DAGMC_dir}/tests
 ./dagmc_pointinvol_test
 ./dagmc_rayfire_test
 ./dagmc_simple_test
-./dagsolid_unit_tests
+# not every CI run builds dagsolid
+if [ -f dagsolid_unit_tests ]; then
+  ./dagsolid_unit_tests
+fi
 #./fludag_unit_tests  # no fludag yet
 ./test_CellTally
 ./test_KDEKernel
