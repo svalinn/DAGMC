@@ -9,7 +9,6 @@ include(DAGMC_macros)
 dagmc_setup_build()
 dagmc_setup_options()
 
-find_package(HDF5_DAGMC REQUIRED)
 find_package(MOAB REQUIRED)
 
 dagmc_setup_flags()

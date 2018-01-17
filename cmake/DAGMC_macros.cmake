@@ -203,7 +203,7 @@ endmacro ()
 #   SRC_FILES: source files
 #   PUB_HEADERS: public header files
 #   LINK_LIBS: e.g. dagmc, pyne_dagmc, uwuw, lapack, gfortran
-#   LINK_LIBS_EXTERN_NAMES: e.g. HDF5_LIBRARIES, MOAB_LIBRARIES
+#   LINK_LIBS_EXTERN_NAMES: e.g. MOAB_LIBRARIES
 
 # Install a library in both shared and static mode
 macro (dagmc_install_library lib_name)
