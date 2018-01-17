@@ -102,6 +102,15 @@ configure command should be used to build MOAB.
 Making sure the dependencies were installed correctly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+In order to test HDF5 and MOAB, some of their directories must be added to your
+``$PATH`` and ``$LD_LIBRARY_PATH``.
+::
+
+    $ export PATH=$PATH:$HOME/dagmc_bld/HDF5/bin
+    $ export PATH=$PATH:$HOME/dagmc_bld/MOAB/bin
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/HDF5/lib
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/MOAB/lib
+
 The following commands can be used to test whether HDF5 and MOAB were built
 successfully.
 ::
