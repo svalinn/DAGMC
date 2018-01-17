@@ -20,9 +20,9 @@ download the Geant4 source code and set it up for building:
     $ cd $HOME/dagmc_bld
     $ mkdir -p Geant4/bld
     $ cd Geant4
-    $ wget http://geant4.cern.ch/support/source/geant4.10.02.p02.tar.gz
-    $ tar -xzvf geant4.10.02.p02.tar.gz
-    $ ln -s geant4.10.02.p02 src
+    $ wget http://geant4.cern.ch/support/source/geant4.10.04.tar.gz
+    $ tar -xzvf geant4.10.04.tar.gz
+    $ ln -s geant4.10.04 src
 
 Geant4 uses a CMake build, and we recommend using the following flags when
 installing it with the purpose of coupling with DAGMC:
@@ -34,15 +34,6 @@ installing it with the purpose of coupling with DAGMC:
                    -DGEANT4_USE_SYSTEM_EXPAT=OFF
     $ make
     $ make install
-
-If you installed Geant4, you will also need to add the Geant4 directories to
-your ``$PATH`` and ``$LD_LIBRARY_PATH``.
-::
-
-    $ export PATH=$PATH:$HOME/dagmc_bld/Geant4/bin
-    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/Geant4/lib
-
-..  include:: configure_dag-code_header.txt
 
 The following CMake command will build DAG-Geant4, assuming you built Geant4 as
 specified in the Geant4 build instructions above.
@@ -57,12 +48,19 @@ DAGMC.
 
 ..  include:: build_dagmc.txt
 
+To use DagGeant4, you first must make add the Geant4 library directory to your
+``$LD_LIBRARY_PATH``.
+::
+
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/Geant4/lib
+
 Test |DAG-Code|
 ~~~~~~~~~~~~~~~
 
-To run the DagSolid unit tests use the following command. Make sure that the
-Geant4 directories are in your ``$PATH`` and ``$LD_LIBRARY_PATH`` as specified
-above.
+..  include:: configure_dag-code_header.txt
+
+To run the DagSolid unit tests, use the following command. Make sure that the
+Geant4 library directory is in your ``$LD_LIBRARY_PATH`` as specified above.
 ::
 
     $ cd $INSTALL_PATH/tests
