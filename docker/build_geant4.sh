@@ -15,6 +15,7 @@ tar -xzvf geant4.${geant4_version}.tar.gz
 ln -snf geant4.${geant4_version} src
 cd bld
 cmake ../src -DBUILD_STATIC_LIBS=ON \
+             -DGEANT4_USE_SYSTEM_EXPAT=OFF \
              -DCMAKE_C_COMPILER=${CC} \
              -DCMAKE_CXX_COMPILER=${CXX} \
              -DCMAKE_INSTALL_PREFIX=${install_dir}/geant4-${geant4_version}
