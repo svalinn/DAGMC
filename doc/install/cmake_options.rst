@@ -42,8 +42,6 @@ Note that unless set, all boolean options default to ``OFF``.
 
     * ``-DBUILD_TALLY=ON`` Build the DagTally interface. (Default: ON)
 
-    * ``-DBUILD_ASTYLE=ON`` Build the Astyle code formatter. (Default: ON)
-
     * ``-DBUILD_BUILD_OBB=ON`` Build the build_obb tool. (Default: ON)
 
     * ``-DBUILD_MAKE_WATERTIGHT=ON`` Build the make_watertight tool. (Default:

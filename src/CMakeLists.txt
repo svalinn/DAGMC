@@ -20,9 +20,6 @@ if (BUILD_FLUKA)
 endif ()
 
 # Tools
-if (BUILD_ASTYLE)
-  add_subdirectory(astyle)
-endif ()
 if (BUILD_BUILD_OBB)
   add_subdirectory(build_obb)
 endif ()
