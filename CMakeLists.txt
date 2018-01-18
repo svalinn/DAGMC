@@ -12,7 +12,9 @@ dagmc_setup_options()
 find_package(MOAB REQUIRED)
 
 dagmc_setup_flags()
-dagmc_setup_rpath()
+if (BUILD_RPATH)
+  dagmc_setup_rpath()
+endif ()
 
 if (BUILD_TESTS)
   add_subdirectory(gtest)

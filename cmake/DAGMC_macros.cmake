@@ -50,14 +50,16 @@ macro (dagmc_setup_options)
 
   option(BUILD_TALLY "Build dagtally library" ON)
 
-  option(BUILD_BUILD_OBB       "Build build_obb tool"        ON)
-  option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool"  ON)
+  option(BUILD_BUILD_OBB       "Build build_obb tool"       ON)
+  option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool" ON)
 
   option(BUILD_TESTS    "Build unit tests" ON)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" ${BUILD_TESTS})
 
   option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_PIC        "Build with PIC"           OFF)
+
+  option(BUILD_RPATH "Build libraries and executables with RPATH" ON)
 
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
@@ -212,15 +214,23 @@ macro (dagmc_install_library lib_name)
 
   add_library(${lib_name}-shared SHARED ${SRC_FILES})
   add_library(${lib_name}-static STATIC ${SRC_FILES})
-  set_target_properties(${lib_name}-shared
-    PROPERTIES OUTPUT_NAME ${lib_name}
-               PUBLIC_HEADER "${PUB_HEADERS}"
-               INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-               INSTALL_RPATH_USE_LINK_PATH TRUE)
-  set_target_properties(${lib_name}-static
-    PROPERTIES OUTPUT_NAME ${lib_name}
-               INSTALL_RPATH ""
-               INSTALL_RPATH_USE_LINK_PATH FALSE)
+  if (BUILD_RPATH)
+    set_target_properties(${lib_name}-shared
+      PROPERTIES OUTPUT_NAME ${lib_name}
+                 PUBLIC_HEADER "${PUB_HEADERS}"
+                 INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                 INSTALL_RPATH_USE_LINK_PATH TRUE)
+    set_target_properties(${lib_name}-static
+      PROPERTIES OUTPUT_NAME ${lib_name}
+                 INSTALL_RPATH ""
+                 INSTALL_RPATH_USE_LINK_PATH FALSE)
+  else ()
+    set_target_properties(${lib_name}-shared
+      PROPERTIES OUTPUT_NAME ${lib_name}
+                 PUBLIC_HEADER "${PUB_HEADERS}")
+    set_target_properties(${lib_name}-static
+      PROPERTIES OUTPUT_NAME ${lib_name})
+  endif ()
   target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
   target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
   install(TARGETS ${lib_name}-shared
@@ -238,16 +248,24 @@ macro (dagmc_install_exe exe_name)
   dagmc_get_link_libs()
 
   add_executable(${exe_name} ${SRC_FILES})
-  if (BUILD_STATIC_EXE)
-    set_target_properties(${exe_name}
-      PROPERTIES INSTALL_RPATH ""
-                 INSTALL_RPATH_USE_LINK_PATH FALSE)
-    target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+  if (BUILD_RPATH)
+    if (BUILD_STATIC_EXE)
+      set_target_properties(${exe_name}
+        PROPERTIES INSTALL_RPATH ""
+                   INSTALL_RPATH_USE_LINK_PATH FALSE)
+      target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+    else ()
+      set_target_properties(${exe_name}
+        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                   INSTALL_RPATH_USE_LINK_PATH TRUE)
+      target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+    endif ()
   else ()
-    set_target_properties(${exe_name}
-      PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-                 INSTALL_RPATH_USE_LINK_PATH TRUE)
-    target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+    if (BUILD_STATIC_EXE)
+      target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+    else ()
+      target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+    endif ()
   endif ()
   install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
 endmacro ()
@@ -261,16 +279,24 @@ macro (dagmc_install_test test_name ext)
   dagmc_get_link_libs()
 
   add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
-  if (BUILD_STATIC_EXE)
-    set_target_properties(${test_name}
-      PROPERTIES INSTALL_RPATH ""
-                 INSTALL_RPATH_USE_LINK_PATH FALSE)
-    target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
+  if (BUILD_RPATH)
+    if (BUILD_STATIC_EXE)
+      set_target_properties(${test_name}
+        PROPERTIES INSTALL_RPATH ""
+                   INSTALL_RPATH_USE_LINK_PATH FALSE)
+      target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
+    else ()
+      set_target_properties(${test_name}
+        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                   INSTALL_RPATH_USE_LINK_PATH TRUE)
+      target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
+    endif ()
   else ()
-    set_target_properties(${test_name}
-      PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-                 INSTALL_RPATH_USE_LINK_PATH TRUE)
-    target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
+    if (BUILD_STATIC_EXE)
+      target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
+    else ()
+      target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
+    endif ()
   endif ()
   install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
 endmacro ()
