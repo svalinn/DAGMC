@@ -179,12 +179,27 @@ to isolate exactly which type is being referenced.
 C++ Style
 ~~~~~~~~~
 
-DAGMC conforms to the Google C++ style guide, and we have included a C++ style
-guide formatter to make developers' lives much easier. When you have added all
-the features you want to add, the style guide formatter should be run.
+DAGMC conforms to the Google C++ style guide. We use the Astyle_ code formatter
+to make developers' lives easier. Here is how to install Astyle on Ubuntu:
 ::
 
-    $ astyle --style=linux --indent=spaces=2
+    $ wget http://archive.ubuntu.com/ubuntu/pool/universe/a/astyle/astyle_3.0.1-1ubuntu1_amd64.deb
+    $ dpkg -i astyle_3.0.1-1ubuntu1_amd64.deb
+
+When you have added all the features you want to add, the style guide formatter
+should be run from the base level directory of the DAGMC repository like this:
+::
+
+    $ astyle --options=astyle_google.ini \
+             --exclude=gtest \
+             --exclude=src/astyle \
+             --exclude=src/mcnp/mcnp5/Source \
+             --exclude=src/mcnp/mcnp6/Source \
+             --ignore-exclude-errors \
+             --recursive \
+             --verbose \
+             --formatted \
+             "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
 
 Then commit the changes to your branch. Avoid commiting code only changes and
 then commiting C++ formatter changes, as this makes the changeset more difficult
