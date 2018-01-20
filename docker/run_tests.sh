@@ -26,7 +26,7 @@ astyle_deb=astyle_3.0.1-1ubuntu1_amd64.deb
 wget http://archive.ubuntu.com/ubuntu/pool/universe/a/astyle/${astyle_deb}
 dpkg -i ${astyle_deb}
 rm -f ${astyle_deb}
-astyle --options=tools/astyle/file/google.ini \
+astyle --options=astyle_google.ini \
        --exclude=gtest \
        --exclude=tools/astyle \
        --exclude=mcnp/mcnp5/Source \
