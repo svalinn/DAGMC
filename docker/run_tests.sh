@@ -1,39 +1,43 @@
 #!/bin/bash
 
-# $1: compiler (gcc-4.8, gcc-4.9, gcc-5, gcc-6, clang-3.8, clang-3.9, clang-4.0)
+# $1: compiler (gcc-4.8, gcc-5, gcc-6, gcc-7, clang-4.0, clang-5.0)
 # $2: moab version (5.0, master)
-# $3: geant4 version (10.01.p03, 10.02.p03, 10.03.p01)
+# $3: build Dag-Geant4 (OFF, ON)
 
 set -e
 
 source /root/etc/$1.env
-hdf5_version=1.8.13
 moab_version=$2
-geant4_version=$3
+build_daggeant4=$3
+hdf5_version=1.8.13
+geant4_version=10.04
 
 DAGMC_dir=${install_dir}/DAGMC-moab-${moab_version}
 
 export PATH=${install_dir}/hdf5-${hdf5_version}/bin:${PATH}
 export PATH=${install_dir}/moab-${moab_version}/bin:${PATH}
-export PATH=${install_dir}/geant4-${geant4_version}/bin:${PATH}
 export PATH=${DAGMC_dir}/bin:${PATH}
 export LD_LIBRARY_PATH=${install_dir}/hdf5-${hdf5_version}/lib
 export LD_LIBRARY_PATH=${install_dir}/moab-${moab_version}/lib:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${install_dir}/geant4-${geant4_version}/lib:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH=${DAGMC_dir}/lib:${LD_LIBRARY_PATH}
 
 # Run astyle to see if there are any differences
-${DAGMC_dir}/tools/astyle --options=${DAGMC_dir}/tools/google.ini \
-                          --exclude=gtest \
-                          --exclude=tools/astyle \
-                          --exclude=mcnp/mcnp5/Source \
-                          --exclude=mcnp/mcnp6/Source \
-                          --ignore-exclude-errors \
-                          --recursive \
-                          --verbose \
-                          --formatted \
-                          "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
-git diff --exit-code  # Exit if astyle found diffs
+astyle_deb=astyle_3.0.1-1ubuntu1_amd64.deb
+wget http://archive.ubuntu.com/ubuntu/pool/universe/a/astyle/${astyle_deb}
+dpkg -i ${astyle_deb}
+rm -f ${astyle_deb}
+astyle --options=tools/astyle/file/google.ini \
+       --exclude=gtest \
+       --exclude=tools/astyle \
+       --exclude=mcnp/mcnp5/Source \
+       --exclude=mcnp/mcnp6/Source \
+       --ignore-exclude-errors \
+       --recursive \
+       --verbose \
+       --formatted \
+       "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
+# Exit if astyle found diffs
+git diff --exit-code
 
 # Run the tests
 cd ${DAGMC_dir}/tests
@@ -41,7 +45,11 @@ cd ${DAGMC_dir}/tests
 ./dagmc_pointinvol_test
 ./dagmc_rayfire_test
 ./dagmc_simple_test
-./dagsolid_unit_tests
+if [ "$build_daggeant4" == "ON" ]; then
+  PATH=${install_dir}/geant4-${geant4_version}/bin:${PATH}
+  LD_LIBRARY_PATH=${install_dir}/geant4-${geant4_version}/lib:${LD_LIBRARY_PATH}
+  ./dagsolid_unit_tests
+fi
 #./fludag_unit_tests  # no fludag yet
 ./test_CellTally
 ./test_KDEKernel
