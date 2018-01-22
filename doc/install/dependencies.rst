@@ -35,7 +35,7 @@ HDF5 from source.
 
     $ mkdir -p $HOME/dagmc_bld/HDF5/bld
     $ cd $HOME/dagmc_bld/HDF5
-    $ wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
+    $ wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
     $ tar -xzvf hdf5-1.8.13.tar.gz
     $ ln -s hdf5-1.8.13 src
     $ cd bld
