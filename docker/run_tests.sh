@@ -21,24 +21,6 @@ export LD_LIBRARY_PATH=${install_dir}/hdf5-${hdf5_version}/lib
 export LD_LIBRARY_PATH=${install_dir}/moab-${moab_version}/lib:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH=${DAGMC_dir}/lib:${LD_LIBRARY_PATH}
 
-# Run astyle to see if there are any differences
-astyle_deb=astyle_3.0.1-1ubuntu1_amd64.deb
-wget http://archive.ubuntu.com/ubuntu/pool/universe/a/astyle/${astyle_deb}
-dpkg -i ${astyle_deb}
-rm -f ${astyle_deb}
-astyle --options=astyle_google.ini \
-       --exclude=gtest \
-       --exclude=tools/astyle \
-       --exclude=mcnp/mcnp5/Source \
-       --exclude=mcnp/mcnp6/Source \
-       --ignore-exclude-errors \
-       --recursive \
-       --verbose \
-       --formatted \
-       "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
-# Exit if astyle found diffs
-git diff --exit-code
-
 # Run the tests
 cd ${DAGMC_dir}/tests
 ./dagmc_unit_tests
@@ -80,7 +62,3 @@ if [ ! -z $TRAVIS_PULL_REQUEST ] && [ $TRAVIS_PULL_REQUEST == "false" ] ; then
     exit 1
   fi
 fi
-
-# Cleanup
-cd
-rm -rf ${build_dir}/DAGMC-moab-${moab_version}
