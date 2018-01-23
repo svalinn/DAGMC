@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 ASTYLE_ONLY=$1
 COMPILER=$2
 MOAB_VERSION=$3

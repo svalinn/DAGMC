@@ -16,5 +16,12 @@ astyle --options=astyle_google.ini \
        --verbose \
        --formatted \
        "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
+
 # Exit if astyle found diffs
-git diff --exit-code
+diffs=`git status --porcelain`
+if [ -z "${diffs}" ]; then
+  echo "Style guide checker passed!"
+else
+  echo "Style guide checker failed. Please run astyle."
+  exit 1
+fi
