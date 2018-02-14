@@ -16,6 +16,7 @@ list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
 # Include directories
 include_directories(${MOAB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/dagmc)
 include_directories(${GTEST_INCLUDE_DIR})
 
 # Setup dagmc unit tests

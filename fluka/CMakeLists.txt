@@ -24,6 +24,7 @@ list(APPEND LINK_LIBS_STATIC quadmath)
 # Include directories
 include_directories(.)
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/dagmc)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 

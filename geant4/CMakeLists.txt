@@ -43,6 +43,7 @@ include_directories(build/include)
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/dagmc)
 include_directories(${GEANT4_DIR}/include/Geant4)
 
 # Libraries
