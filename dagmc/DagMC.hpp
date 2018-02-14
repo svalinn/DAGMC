@@ -10,7 +10,7 @@
 #include "moab/Interface.hpp"
 #include "moab/GeomTopoTool.hpp"
 #include "moab/GeomQueryTool.hpp"
-#include "DagMC_version.hpp"
+#include "DagMCVersion.hpp"
 
 #include <vector>
 #include <map>

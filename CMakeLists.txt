@@ -2,6 +2,13 @@ project(DAGMC)
 
 cmake_minimum_required(VERSION 2.8)
 
+set(DAGMC_MAJOR_VERSION 3)
+set(DAGMC_MINOR_VERSION 0)
+set(DAGMC_PATCH_VERSION 0)
+set(DAGMC_VERSION
+  ${DAGMC_MAJOR_VERSION}.${DAGMC_MINOR_VERSION}.${DAGMC_PATCH_VERSION})
+message(STATUS "Configuring DAGMC ${DAGMC_VERSION}")
+
 # Setup test macro
 macro (setup_test test_name ext driver libs)
   set(drivers ${driver})
@@ -142,5 +149,6 @@ if (BUILD_CI_TESTS)
   endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
 endif (BUILD_CI_TESTS)
 
+# Setup the configuration file and install
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake)
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)

@@ -1,5 +1,9 @@
 message(STATUS "Building DAGMC library")
 
+# Configure version header
+configure_file(DagMCVersion.hpp.in DagMCVersion.hpp)
+list(APPEND DAGMC_PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/DagMCVersion.hpp)
+
 # Source files
 list(APPEND DAGMC_SRC_FILES DagMC.cpp)
 list(APPEND DAGMC_SRC_FILES dagmcmetadata.cpp)
@@ -17,7 +21,8 @@ list(APPEND LINK_LIBS_STATIC ${DAG_LINK_LIBS})
 list(APPEND LINK_LIBS_STATIC pyne_dagmc-static)
 
 # Include directories
-include_directories(.)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 
