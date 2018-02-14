@@ -141,3 +141,6 @@ if (BUILD_CI_TESTS)
     add_subdirectory(mcnp)
   endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
 endif (BUILD_CI_TESTS)
+
+configure_file(DAGMCConfig.cmake.in DAGMCConfig.cmake)
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)

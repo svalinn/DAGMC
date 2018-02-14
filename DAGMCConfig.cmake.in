@@ -1,0 +1,13 @@
+# - Config file for the Direct Accelerated Geometry Monte Carlo (DAGMC) package
+# It defines the following variables
+#  DAGMC_INCLUDE_DIRS - include directories for FooBar
+#  DAGMC_LIBRARIES    - libraries to link against
+
+set(DAGMC_FOUND 1)
+
+set(DAGMC_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_INCLUDE_DIR@" "@MOAB_INCLUDE_DIRS@")
+set(DAGMC_LINK_LIBS "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@/ -ldagmc -ldagtally -lmakeWatertight -lpyne_dagmc" "@DAG_LINK_LIBS@")
+
+
+
+ 
