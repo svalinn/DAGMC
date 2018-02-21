@@ -12,6 +12,7 @@ astyle --options=astyle_google.ini \
        --exclude=mcnp/mcnp5/Source \
        --exclude=mcnp/mcnp6/Source \
        --ignore-exclude-errors \
+       --suffix=none \
        --recursive \
        --verbose \
        --formatted \
@@ -22,6 +23,7 @@ diffs=`git status --porcelain`
 if [ -z "${diffs}" ]; then
   echo "Style guide checker passed!"
 else
-  echo "Style guide checker failed. Please run astyle."
+  echo "ERROR: Style guide checker failed. Please run astyle."
+  git diff
   exit 1
 fi
