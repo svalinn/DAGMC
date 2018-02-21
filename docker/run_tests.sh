@@ -14,13 +14,6 @@ geant4_version=10.04
 
 DAGMC_dir=${install_dir}/DAGMC-moab-${moab_version}
 
-export PATH=${install_dir}/hdf5-${hdf5_version}/bin:${PATH}
-export PATH=${install_dir}/moab-${moab_version}/bin:${PATH}
-export PATH=${DAGMC_dir}/bin:${PATH}
-export LD_LIBRARY_PATH=${install_dir}/hdf5-${hdf5_version}/lib
-export LD_LIBRARY_PATH=${install_dir}/moab-${moab_version}/lib:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${DAGMC_dir}/lib:${LD_LIBRARY_PATH}
-
 # Run the tests
 cd ${DAGMC_dir}/tests
 ./dagmc_unit_tests

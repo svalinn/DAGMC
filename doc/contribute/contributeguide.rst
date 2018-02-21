@@ -216,3 +216,4 @@ then pull request your changes.
 ..  _DAGMC_issues: https://github.com/svalinn/DAGMC/issues
 ..  _Google_test: https://code.google.com/p/googletest
 ..  _Travis: https://travis-ci.org/svalinn/DAGMC
+..  _Astyle: http://astyle.sourceforge.net
