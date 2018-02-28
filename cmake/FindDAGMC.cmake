@@ -7,10 +7,12 @@
 #  DAGMC_LIBRARY_DIRS - location of installed DAGMC libraries
 #  DAGMC_LIBRARIES    - set of libraries installed with DAGMC, use to link applications against DAGMC
 
+message(STATUS ${DAGMC_ROOT})
+
 find_path(DAGMC_CMAKE_CONFIG NAMES DAGMCConfig.cmake
           HINTS ${DAGMC_ROOT}
           PATHS ENV LD_LIBRARY_PATH
-          PATH_SUFFIXES lib Lib cmake cmake/DAGMC
+          PATH_SUFFIXES lib Lib cmake lib/cmake/
           NO_DEFAULT_PATH)
 
 message(STATUS "Found DAGMC in ${DAGMC_CMAKE_CONFIG}")
