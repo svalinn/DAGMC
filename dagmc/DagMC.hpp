@@ -10,6 +10,7 @@
 #include "moab/Interface.hpp"
 #include "moab/GeomTopoTool.hpp"
 #include "moab/GeomQueryTool.hpp"
+#include "DagMCVersion.hpp"
 
 #include <vector>
 #include <map>
@@ -28,10 +29,6 @@ struct DagmcVolData {
 namespace moab {
 
 class CartVect;
-
-#define DAGMC_VERSION 3.0
-#define DAGMC_VERSION_STRING "3.0"
-#define DAGMC_INTERFACE_REVISION "$Rev$"
 
 /**\brief
  *

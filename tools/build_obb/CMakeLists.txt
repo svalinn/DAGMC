@@ -8,6 +8,7 @@ list(APPEND SRC_FILES build_obb.cpp)
 include_directories(.)
 include_directories(${MOAB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/dagmc)
 
 # Libraries
 set(LINK_LIBS)

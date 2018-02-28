@@ -22,6 +22,7 @@ endif (${CMAKE_SYSTEM_NAME} STREQUAL Darwin AND ${CMAKE_CXX_COMPILER_ID} STREQUA
 include_directories(${HDF5_INCLUDE_DIRS})
 include_directories(${MOAB_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/tally)
 
 # Preprocessor directives
