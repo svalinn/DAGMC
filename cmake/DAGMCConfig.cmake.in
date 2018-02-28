@@ -1,17 +1,18 @@
 # - Config file for the Direct Accelerated Geometry Monte Carlo (DAGMC) package
 # It defines the following variables
-#  DAGMC_INCLUDE_DIRS - include directories for FooBar
-#  DAGMC_LIBRARIES    - libraries to link against
+#  DAGMC_INCLUDE_DIRS - include directories for installed DAGMC headers
+#  DAGMC_LIBRARIES    - location of installed DAGMC libraries
+#  DAGMC_LINK_LIBS    - standard libraries installed with DAGMC, use to link applications against DAGMC
 
+# Declares the DAGMC package as found by CMake
 set(DAGMC_FOUND 1)
 
 set(DAGMC_MAJOR_VERSION @DAGMC_MAJOR_VERSION@)
 set(DAGMC_MINOR_VERSION @DAGMC_MINOR_VERSION@)
 set(DAGMC_PATCH_VERSION @DAGMC_PATCH_VERSION@)
 set(DAGMC_VERSION @DAGMC_VERSION@)
-  
+ 
 message(STATUS "Configuring DAGMC ${DAGMC_VERSION}")
-
 
 set(DAGMC_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_INCLUDE_DIR@" "@MOAB_INCLUDE_DIRS@")
 set(DAGMC_LIBRARY_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@")
