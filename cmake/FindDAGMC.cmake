@@ -2,9 +2,10 @@
 #
 # Once done this will define
 #
-#  DAGMC_FOUND - system has DAGMC
-#  DAGMC_INCLUDE_DIRS - the DAGMC include directory
-#  DAGMC_LIBRARIES - Link these to use DAGMC
+#  DAGMC_FOUND        - indicates that the package has been found by CMake
+#  DAGMC_INCLUDE_DIRS - include directories for installed DAGMC headers
+#  DAGMC_LIBRARIES    - location of installed DAGMC libraries
+#  DAGMC_LINK_LIBS    - standard libraries installed with DAGMC, use to link applications against DAGMC
 
 find_path(DAGMC_CMAKE_CONFIG NAMES DAGMCConfig.cmake
           HINTS ${DAGMC_ROOT}
