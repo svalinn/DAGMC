@@ -155,5 +155,5 @@ if (BUILD_CI_TESTS)
 endif (BUILD_CI_TESTS)
 
 # Setup the configuration file and install
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
