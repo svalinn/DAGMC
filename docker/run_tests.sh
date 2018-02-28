@@ -22,7 +22,7 @@ export LD_LIBRARY_PATH=${install_dir}/moab-${moab_version}/lib:${LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${DAGMC_dir}/lib:${LD_LIBRARY_PATH}
 
 # test DAGMC CMake configuration file
-cd ${build_dir}/DAGMC-moab-${moab_version}/cmake/test_config
+cd ${build_dir}/DAGMC-moab-${moab_version}/src/cmake/test_config
 cmake .
 make all test
 
