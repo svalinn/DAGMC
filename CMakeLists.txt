@@ -71,18 +71,23 @@ find_package(HDF5 REQUIRED)
 
 # Make sure we have MOAB
 find_package(MOAB REQUIRED)
-set(DAG_LINK_LIBS ${MOAB_LIBRARIES})
-string(STRIP "${DAG_LINK_LIBS}" DAG_LINK_LIBS)
-string(REGEX REPLACE ";" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
-string(REGEX REPLACE "[ ]+" " " DAG_LINK_LIBS "${DAG_LINK_LIBS}")
-separate_arguments(DAG_LINK_LIBS)
-list(REMOVE_DUPLICATES DAG_LINK_LIBS)
+# some cleanup of the MOAB libraries variable
+string(STRIP "${MOAB_LIBRARIES}" MOAB_LIBRARIES)
+string(REGEX REPLACE ";" " " MOAB_LIBRARIES "${MOAB_LIBRARIES}")
+string(REGEX REPLACE "[ ]+" " " MOAB_LIBRARIES "${MOAB_LIBRARIES}")
+separate_arguments(MOAB_LIBRARIES)
+list(REMOVE_DUPLICATES MOAB_LIBRARIES)
 if (BUILD_STATIC)
-  list(REMOVE_ITEM DAG_LINK_LIBS z)
-  list(APPEND DAG_LINK_LIBS z)
-  list(APPEND DAG_LINK_LIBS gfortran)
-  list(APPEND DAG_LINK_LIBS quadmath)
+  list(REMOVE_ITEM MOAB_LIBRARIES z)
+  list(APPEND MOAB_LIBRARIES z)
+  list(APPEND MOAB_LIBRARIES gfortran)
+  list(APPEND MOAB_LIBRARIES quadmath)
 endif (BUILD_STATIC)
+# separate the MOAB library directory from the DAG_LINK_LIBS variable
+list(GET MOAB_LIBRARIES 0 MOAB_LIBRARY_DIRS) # ASSUMES THIS DIRECTORY COMES FIRST
+string(REGEX REPLACE "-L" "" MOAB_LIBRARY_DIRS "${MOAB_LIBRARY_DIRS}")
+
+set(DAG_LINK_LIBS ${MOAB_LIBRARIES})
 message(STATUS "DAG_LINK_LIBS: ${DAG_LINK_LIBS}")
 
 # Get some environment variables
@@ -134,7 +139,7 @@ endif (BUILD_FLUKA)
 
 # Include UWUW in DAGMC library
 add_subdirectory(uwuw)
-add_subdirectory(dagmc) 
+add_subdirectory(dagmc)
 
 # Build tools
 add_subdirectory(tools)
