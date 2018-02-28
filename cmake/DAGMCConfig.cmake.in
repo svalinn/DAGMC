@@ -1,8 +1,8 @@
 # - Config file for the Direct Accelerated Geometry Monte Carlo (DAGMC) package
 # It defines the following variables
 #  DAGMC_INCLUDE_DIRS - include directories for installed DAGMC headers
-#  DAGMC_LIBRARIES    - location of installed DAGMC libraries
-#  DAGMC_LINK_LIBS    - standard libraries installed with DAGMC, use to link applications against DAGMC
+#  DAGMC_LIBRARY_DIRS - location of installed DAGMC libraries
+#  DAGMC_LIBRARIES    - set of libraries installed with DAGMC, use to link applications against DAGMC
 
 # Declares the DAGMC package as found by CMake
 set(DAGMC_FOUND 1)
@@ -15,9 +15,7 @@ set(DAGMC_VERSION @DAGMC_VERSION@)
 message(STATUS "Configuring DAGMC ${DAGMC_VERSION}")
 
 set(DAGMC_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_INCLUDE_DIR@" "@MOAB_INCLUDE_DIRS@")
-set(DAGMC_LIBRARY_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@")
-set(DAGMC_LINK_LIBS "-L@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@/ -ldagmc -ldagtally -lmakeWatertight -lpyne_dagmc" "@DAG_LINK_LIBS@")
-
-
-
- 
+set(DAGMC_LIBRARY_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@" "@MOAB_LIBRARY_DIRS@")
+set(DAGMC_LIBRARIES "-ldagmc -ldagtally -lmakeWatertight -lpyne_dagmc @MOAB_LIBS@")
+# turn variable into list
+string(REGEX REPLACE " " ";" DAGMC_LIBRARIES "${DAGMC_LIBRARIES}")
