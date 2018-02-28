@@ -16,6 +16,4 @@ message(STATUS "Configuring DAGMC ${DAGMC_VERSION}")
 
 set(DAGMC_INCLUDE_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_INCLUDE_DIR@" "@MOAB_INCLUDE_DIRS@")
 set(DAGMC_LIBRARY_DIRS "@CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@" "@MOAB_LIBRARY_DIRS@")
-set(DAGMC_LIBRARIES "-ldagmc -ldagtally -lmakeWatertight -lpyne_dagmc @MOAB_LIBS@")
-# turn variable into list
-string(REGEX REPLACE " " ";" DAGMC_LIBRARIES "${DAGMC_LIBRARIES}")
+set(DAGMC_LIBRARIES dagmc dagtally makeWatertight pyne_dagmc @MOAB_LIBS@)
