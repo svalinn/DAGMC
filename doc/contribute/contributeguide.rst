@@ -110,6 +110,10 @@ pull request.
     :width:  600
     :alt:    Image showing when testing is launched.
 
+All pull requests must be accompanied by a restructured text (.rst) file in the
+`news` directory. The file should follow the template in `news/TEMPLATE.rst` and
+it should explain the changes made by the pull request in detail.
+
 When testing passes and another developer has reviewed your pull request, your
 changes will then be merged into the develop branch.
 
