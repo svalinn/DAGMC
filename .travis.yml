@@ -23,23 +23,23 @@ env:
 services:
   - docker
 before_install:
-  - sudo docker pull ljacobson64/dagmc-ci-ubuntu-16.04
+  - sudo docker pull cnerg/dagmc-ci-ubuntu-16.04
   # get a container id
-  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root"
+  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
   # make the build directory
-  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/bash -c "mkdir -p /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
+  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "mkdir -p /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
+  - sudo docker commit $commit_id cnerg/dagmc-ci-ubuntu-16.04
   # copy the repo in the docker instance
   - sudo docker cp ../DAGMC $commit_id:/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
+  - sudo docker commit $commit_id cnerg/dagmc-ci-ubuntu-16.04
 install:
-  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
                                                                     bash docker/travis.install.sh $ASTYLE_ONLY $COMPILER $MOAB_VERSION $BUILD_GEANT4"
   - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id ljacobson64/dagmc-ci-ubuntu-16.04
+  - sudo docker commit $commit_id cnerg/dagmc-ci-ubuntu-16.04
 script:
-  - sudo docker run ljacobson64/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
+  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
                                                                     bash docker/travis.script.sh $ASTYLE_ONLY $COMPILER $MOAB_VERSION $BUILD_GEANT4"
