@@ -1,0 +1,19 @@
+**Added:** None
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:**
+
+* ``gtest/README`` and ``gtest/configure.sh``: no longer used; last commit in March 2014
+* ``tools/build/*``: no longer used; last commit in June 2014
+* ``cmake/FindPyne.cmake``: no longer used; last commit in June 2014
+* ``tools/finish_dagmc_geom*``: out of date; last commit in June 2014
+* ``tools/txcorp_bld/*``: no idea what this is; last commit in June 2014
+* ``tools/dagmc_tag_eg/*``: out of date; last commit in October 2014
+* ``tally/tools/boundary_correction/*``: broken; last commit in June 2016
+
+**Fixed:** None
+
+**Security:** None
