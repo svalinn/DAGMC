@@ -7,8 +7,6 @@
   * Classes
   * Signed Distance Field (SDF) class
  
-**Changed:**
-
 * DagMC Functions/Methods
   * build_preconditioner      
   * populate_preconditioner_for_volume
@@ -17,7 +15,9 @@
   * precondition_ray_fire
   * find_sdv
   * get_sdf_err
-  *  get_signed_distance_field
+  * get_signed_distance_field
+
+**Changed:** None
 
 **Deprecated:** None
 
