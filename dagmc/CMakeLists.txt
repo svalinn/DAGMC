@@ -11,6 +11,7 @@ list(APPEND DAGMC_SRC_FILES sdf.cpp)
 
 # Public headers
 list(APPEND DAGMC_PUB_HEADERS DagMC.hpp)
+list(APPEND DAGMC_PUB_HEADERS sdf.hpp)
 list(APPEND DAGMC_PUB_HEADERS dagmcmetadata.hpp)
 
 # Libraries
