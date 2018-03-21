@@ -1,0 +1,28 @@
+
+**Added:**
+
+* Files
+  * sdf.cpp
+* sdf.hpp
+  * Classes
+  * Signed Distance Field (SDF) class
+ 
+**Changed:**
+
+* DagMC Functions/Methods
+  * build_preconditioner      
+  * populate_preconditioner_for_volume
+  * precondition_point_in_volume
+  * precondition_closest_to_location
+  * precondition_ray_fire
+  * find_sdv
+  * get_sdf_err
+  *  get_signed_distance_field
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
