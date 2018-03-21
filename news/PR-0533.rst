@@ -2,12 +2,16 @@
 **Added:**
 
 * Files
+  
   * sdf.cpp
+  
 * sdf.hpp
+      
   * Classes
   * Signed Distance Field (SDF) class
  
 * DagMC Functions/Methods
+      
   * build_preconditioner      
   * populate_preconditioner_for_volume
   * precondition_point_in_volume
