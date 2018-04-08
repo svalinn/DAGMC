@@ -1,0 +1,14 @@
+**Added:** None
+
+**Changed:**
+
+* The download link for astyle in the CI and documentation now points towards
+  astyle 3.1
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
