@@ -4,7 +4,7 @@ set -e
 
 # Run astyle to see if there are any differences
 astyle_deb=astyle_3.0.1-1ubuntu1_amd64.deb
-wget http://archive.ubuntu.com/ubuntu/pool/universe/a/astyle/${astyle_deb}
+wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/+files/${astyle_deb}
 dpkg -i ${astyle_deb}
 rm -f ${astyle_deb}
 astyle --options=astyle_google.ini \
