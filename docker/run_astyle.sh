@@ -8,9 +8,9 @@ wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/
 dpkg -i ${astyle_deb}
 rm -f ${astyle_deb}
 astyle --options=astyle_google.ini \
-       --exclude=gtest \
-       --exclude=mcnp/mcnp5/Source \
-       --exclude=mcnp/mcnp6/Source \
+       --exclude=src/gtest \
+       --exclude=src/mcnp/mcnp5/Source \
+       --exclude=src/mcnp/mcnp6/Source \
        --ignore-exclude-errors \
        --suffix=none \
        --recursive \
