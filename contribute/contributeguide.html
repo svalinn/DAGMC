@@ -184,6 +184,9 @@ tests, and after a short while, your changes will either pass all the tests or
 fail the some of them. The status of the tests is shown at the bottom of the
 pull request.</p>
 <a class="reference internal image-reference" href="../_images/github_testing.png"><img alt="Image showing when testing is launched." src="../_images/github_testing.png" style="width: 600px; height: 400px;" /></a>
+<p>All pull requests must be accompanied by a restructured text (.rst) file in the
+<cite>news</cite> directory. The file should follow the template in <cite>news/TEMPLATE.rst</cite> and
+it should explain the changes made by the pull request in detail.</p>
 <p>When testing passes and another developer has reviewed your pull request, your
 changes will then be merged into the develop branch.</p>
 </div>
@@ -241,10 +244,24 @@ to isolate exactly which type is being referenced.</p>
 </div>
 <div class="section" id="c-style">
 <h2>C++ Style<a class="headerlink" href="#c-style" title="Permalink to this headline">¶</a></h2>
-<p>DAGMC conforms to the Google C++ style guide, and we have included a C++ style
-guide formatter to make developers’ lives much easier. When you have added all
-the features you want to add, the style guide formatter should be run.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ astyle --style=linux --indent=spaces=2
+<p>DAGMC conforms to the Google C++ style guide. We use the <a href="#id1"><span class="problematic" id="id2">Astyle_</span></a> code formatter
+to make developers’ lives easier. Here is how to install Astyle on Ubuntu:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/+files/astyle_3.0.1-1ubuntu1_amd64.deb
+$ sudo dpkg -i astyle_3.0.1-1ubuntu1_amd64.deb
+</pre></div>
+</div>
+<p>When you have added all the features you want to add, the style guide formatter
+should be run from the base level directory of the DAGMC repository like this:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span>$ astyle --options=astyle_google.ini \
+         --exclude=gtest \
+         --exclude=src/astyle \
+         --exclude=src/mcnp/mcnp5/Source \
+         --exclude=src/mcnp/mcnp6/Source \
+         --ignore-exclude-errors \
+         --recursive \
+         --verbose \
+         --formatted \
+         &quot;*.cc&quot; &quot;*.cpp&quot; &quot;*.h&quot; &quot;*.hh&quot; &quot;*.hpp&quot;
 </pre></div>
 </div>
 <p>Then commit the changes to your branch. Avoid commiting code only changes and
@@ -270,10 +287,10 @@ then pull request your changes.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jan 23, 2018.
+      Last updated on May 07, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
       </p>
     </div>
   </body>
