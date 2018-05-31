@@ -97,62 +97,8 @@ execute_process(COMMAND uname -s       OUTPUT_VARIABLE ENV_OS   OUTPUT_STRIP_TRA
 execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND date +%H:%M:%S OUTPUT_VARIABLE ENV_TIME OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# Build Gtest
-add_subdirectory(gtest)
-
-# Figure out which physics codes to build
-if (BUILD_ALL)
-  set(BUILD_MCNP5 ON)
-  set(BUILD_MCNP6 ON)
-  set(BUILD_GEANT4 ON)
-  set(BUILD_FLUKA ON)
-endif (BUILD_ALL)
-if (BUILD_MCNP5 OR BUILD_MCNP6)
-  set(BUILD_TALLY ON)
-endif (BUILD_MCNP5 OR BUILD_MCNP6)
-
-# Build pyne_dagmc library
-add_subdirectory(pyne)
-
-# Build dagtally library
-if (BUILD_TALLY)
-  add_subdirectory(tally)
-endif (BUILD_TALLY)
-
-# Build MCNP
-if (BUILD_MCNP5 OR BUILD_MCNP6)
-  set(BUILD_ANY ON)
-  add_subdirectory(mcnp)
-endif (BUILD_MCNP5 OR BUILD_MCNP6)
-
-# Build Geant4
-if (BUILD_GEANT4)
-  set(BUILD_ANY ON)
-  add_subdirectory(geant4)
-endif (BUILD_GEANT4)
-
-# Build FLUKA
-if (BUILD_FLUKA)
-  set(BUILD_ANY ON)
-  add_subdirectory(fluka)
-endif (BUILD_FLUKA)
-
-# Include UWUW in DAGMC library
-add_subdirectory(uwuw)
-add_subdirectory(dagmc)
-
-# Build tools
-add_subdirectory(tools)
-
-# Build tests that wouldn't normally be built for the CI
-if (BUILD_CI_TESTS)
-  if (NOT BUILD_TALLY)
-    add_subdirectory(tally)
-  endif (NOT BUILD_TALLY)
-  if (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
-    add_subdirectory(mcnp)
-  endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
-endif (BUILD_CI_TESTS)
+# Build things
+add_subdirectory(src)
 
 # Setup the configuration file and install
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
