@@ -2,7 +2,7 @@ DAGMC is licensed under the Simplified BSD License. This license applies to all
 files in the DAGMC repository except those in the pyne/ and tally/lapack/
 directories.
 
-Copyright (c) 2003-2016, the DAGMC development team
+Copyright (c) 2003-2018, the DAGMC development team
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are
