@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Code-specific steps for DAG-MCNP5/6 &#8212; DAGMC</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Tallies" href="dag-mcnp_deprecated.html" />
     <link rel="prev" title="Monte Carlo code-specific steps" href="index.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -111,21 +102,21 @@ assignments, and boundary conditions.</p>
 <p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
 a specific naming convention is required for DAG-MCNP. To define materials,
 both the MCNP material ID and density must be provided in the group name. The
-format for the group name is as follows: <code class="docutils literal"><span class="pre">mat:[matid]/rho:[density]</span></code>.</p>
-<p><code class="docutils literal"><span class="pre">[matid]</span></code> should be replaced by the material ID that will be specified in the
-MCNP input file. <code class="docutils literal"><span class="pre">[density]</span></code> should replaced by either the atomic density or
+format for the group name is as follows: <code class="docutils literal notranslate"><span class="pre">mat:[matid]/rho:[density]</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[matid]</span></code> should be replaced by the material ID that will be specified in the
+MCNP input file. <code class="docutils literal notranslate"><span class="pre">[density]</span></code> should replaced by either the atomic density or
 the mass density. As in the MCNP cell cards, positive values represent atomic
 densities in [atoms/barn-cm] and negative values represent mass densities in
 [g/cc].</p>
 <p>For example, consider a problem where material 7 and an atomic density of 0.0223
 should be assigned to volumes 4 through 18. The following command should be used
 to specify that information:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:7/rho:0.0223&quot; add vol 4 to 18
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:7/rho:0.0223&quot; add vol 4 to 18
 </pre></div>
 </div>
 <p>All volumes must belong to a group, if you want volumes to be filled with vacuum
 then add them to a group called, “mat:Vacuum”:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Vacuum&quot; add vol 4 to 18
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Vacuum&quot; add vol 4 to 18
 </pre></div>
 </div>
 <p>If you would like to assign a material to the implicit complement, a special
@@ -135,10 +126,10 @@ for the implicit complement must be specified as if it were being specified for
 the graveyard volume. For example, if you would like the implicit complement to
 be modeled as material 9 with a density of 1 g/cc, and the graveyard volume is
 volume 102, the following command should be used:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:9_comp/rho:-1_comp&quot; add vol 102
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:9_comp/rho:-1_comp&quot; add vol 102
 </pre></div>
 </div>
-<p>DAGMC will recognize that volume 102 is the graveyard, and the <code class="docutils literal"><span class="pre">_comp</span></code> keyword
+<p>DAGMC will recognize that volume 102 is the graveyard, and the <code class="docutils literal notranslate"><span class="pre">_comp</span></code> keyword
 will trigger it to assign the specified material and density to the implicit
 complement rather than the graveyard.</p>
 </div>
@@ -161,13 +152,13 @@ bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The remaining volume is the graveyard.</p>
 <p>To indicate to MCNP that a given volume is the graveyard volume, you must
 assign it to a group with:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Graveyard&quot; add volume X
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Graveyard&quot; add volume X
 </pre></div>
 </div>
 <p>For example, consider a geometry containing 99 volumes, all of which fit inside
 a cube of side length 99 cm centered at the origin. The following commands would
 create a valid graveyard for this problem:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; create brick x 100             # This will be volume 100
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; create brick x 100             # This will be volume 100
 CUBIT&gt; create brick x 105             # This will be volume 101
 CUBIT&gt; subtract vol 100 from vol 101  # This will produce volume 102
 CUBIT&gt; group &quot;mat:Graveyard&quot; add vol 102
@@ -181,11 +172,11 @@ necessary.</p>
 <p><strong>Surface boundary conditions</strong></p>
 <p>Surface boundary conditions can be specified for a given surface by adding the
 surface to a group. The group names for reflecting and white boundary conditions
-are <code class="docutils literal"><span class="pre">boundary:Reflecting</span></code> and <code class="docutils literal"><span class="pre">boundary:White</span></code>, respectively. Note that
+are <code class="docutils literal notranslate"><span class="pre">boundary:Reflecting</span></code> and <code class="docutils literal notranslate"><span class="pre">boundary:White</span></code>, respectively. Note that
 periodic boundary conditions are not currently supported.</p>
 <p>For example, suppose you want to specify that surfaces 10 and 11 should be
 reflecting surfaces. This command would achieve that:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:Reflecting&quot; add surf 10 11
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:Reflecting&quot; add surf 10 11
 </pre></div>
 </div>
 </div>
@@ -197,7 +188,7 @@ reflecting surfaces. This command would achieve that:</p>
 input file. There are no cell or surface cards included in the input file.</p>
 <p>A new data card has been added to DAG-MCNP to define parameters for the DAGMC
 geometry capability.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Form: dagmc  keyword1=value   keyword2=value
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Form: dagmc  keyword1=value   keyword2=value
      check_src_cell: behavior of CEL variable in SDEF card
                         on  [default] standard interpretation for
                                       CEL variable: source rejection
@@ -220,22 +211,22 @@ keywords have been added to the command line to specify the necessary files.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required):</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal notranslate"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required):</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body">Specify the filename of the input geometry
 file. It can be in one of two formats: the MOAB (*.h5m) format (this is the
-format produced by <code class="docutils literal"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
+format produced by <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
 produced by DAGMC. If this entry is not present, DAG-MCNP will assume that
 it is running in native MCNP mode.</td>
 </tr>
-<tr class="field-even field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">fcad=&lt;facet_file&gt;</span></code> (optional):</th></tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><code class="docutils literal notranslate"><span class="pre">fcad=&lt;facet_file&gt;</span></code> (optional):</th></tr>
 <tr class="field-even field"><td>&#160;</td><td class="field-body">[default: fcad] Specify the filename of the
 output facet file. This is the file produced by DAGMC that contains the
 geometry as well as the products of a number of preprocessing steps, which
 can be quite time-consuming. This file can be used as input with the
-<code class="docutils literal"><span class="pre">gcad=</span></code> keyword in subsequent runs to avoid spending time redoing the
+<code class="docutils literal notranslate"><span class="pre">gcad=</span></code> keyword in subsequent runs to avoid spending time redoing the
 preprocessing steps.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">lcad=&lt;log_file&gt;</span></code> (optional):</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal notranslate"><span class="pre">lcad=&lt;log_file&gt;</span></code> (optional):</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body">[default: lcad] Specify the filename of the
 output log file. This is a skeleton of an MCNP file which contains
 information about the volumes, surfaces, materials and material assignments,
@@ -253,12 +244,12 @@ unique to DAG-MCNP.</td>
 <p>To run DAG-MCNP, you must make the minimum input deck that defines the particle
 source definition, runtime parameters, and physics cutoffs. You then run
 DAG-MCNP5 with</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m
 </pre></div>
 </div>
 <p>If DAG-MCNP is unable to find some nuclides, you can modify the lcad file that
 was produced in the previous step to remove extraneous nuclides, and re-run with</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m l=lcad_modified
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m l=lcad_modified
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
@@ -277,10 +268,10 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

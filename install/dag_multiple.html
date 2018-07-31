@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Install DAGMC with multiple physics codes &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="DAGMC CMake variables" href="cmake_options.html" />
     <link rel="prev" title="Install DAG-Tripoli4" href="dag-tripoli4.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -97,9 +88,9 @@ installed the required <a class="reference external" href="dependencies.html">de
 <div class="section" id="get-dagmc">
 <h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this headline">¶</a></h2>
 <p>As before, this guide assumes that you are building DAGMC in the subdirectory
-<code class="docutils literal"><span class="pre">dagmc_bld</span></code> of your home directory.</p>
+<code class="docutils literal notranslate"><span class="pre">dagmc_bld</span></code> of your home directory.</p>
 <p>The first step is to clone the <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC repository</a>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
 $ mkdir DAGMC
 $ cd DAGMC
 $ git clone https://github.com/svalinn/DAGMC
@@ -120,15 +111,15 @@ guides for the individual codes with which you want to install DAGMC.</p>
 <div class="section" id="configure-dag-code">
 <h2>Configure DAGMC with multiple physics codes<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>First, create and enter the build directory.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
 $ mkdir bld
 $ cd bld
 </pre></div>
 </div>
 <p>Then, choose where you want to install DAGMC. This is where the binaries,
-libraries, header files, etc. will be placed. This guide uses <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code>
+libraries, header files, etc. will be placed. This guide uses <code class="docutils literal notranslate"><span class="pre">$INSTALL_PATH</span></code>
 to represent this location.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 </pre></div>
 </div>
 <p>CMake variables are used to configure DAGMC with your desired build options. A
@@ -136,7 +127,7 @@ few examples will be shown here, but you can see a list of all possible options
 <a class="reference external" href="cmake_options.html">here</a>.</p>
 <p>The following CMake command will build DAG-Geant4 and FluDAG as well as MPI
 versions of DAG-MCNP5 and DAG-MCNP6.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cmake .. -DBUILD_MCNP5=ON \
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DBUILD_MCNP5=ON \
            -DBUILD_MCNP6=ON \
            -DMPI_BUILD=ON \
            -DBUILD_GEANT4=ON \
@@ -152,19 +143,19 @@ DAGMC.</p>
 <div class="section" id="build-dag-code">
 <h2>Build DAGMC with multiple physics codes<a class="headerlink" href="#build-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>Use Make to install DAGMC with multiple physics codes.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ make
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ make
 $ make install
 </pre></div>
 </div>
 <p>If the build was successful, the binaries, libraries, header files, and tests
-will be installed to the <code class="docutils literal"><span class="pre">bin</span></code>, <code class="docutils literal"><span class="pre">lib</span></code>, <code class="docutils literal"><span class="pre">include</span></code>, and <code class="docutils literal"><span class="pre">tests</span></code>
-subdirectories of <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
+will be installed to the <code class="docutils literal notranslate"><span class="pre">bin</span></code>, <code class="docutils literal notranslate"><span class="pre">lib</span></code>, <code class="docutils literal notranslate"><span class="pre">include</span></code>, and <code class="docutils literal notranslate"><span class="pre">tests</span></code>
+subdirectories of <code class="docutils literal notranslate"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
 <p>In order to use DAGMC, make these additions to your paths:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$INSTALL_PATH/bin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$INSTALL_PATH/bin
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 </pre></div>
 </div>
-<p>Again, it may be wise to add these commands to your <code class="docutils literal"><span class="pre">.bashrc</span></code> file.</p>
+<p>Again, it may be wise to add these commands to your <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> file.</p>
 </div>
 <div class="section" id="test-dagmc">
 <h2>Test DAGMC<a class="headerlink" href="#test-dagmc" title="Permalink to this headline">¶</a></h2>
@@ -188,10 +179,10 @@ for more information.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>University of Wisconsin Unified Workflow (UWUW) &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Monte Carlo code-specific steps" href="codes/index.html" />
     <link rel="prev" title="Cubit/Trelis basics" href="trelis_basics.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -118,16 +109,16 @@ code, since each MC code specifies materials in a different way. Instead, we tag
 groups of volumes with a name and syntax that corresponds to material
 compositions in a predefined material library.</p>
 <p>The group naming syntax for describing materials in Cubit/Trelis is:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;&quot;
 </pre></div>
 </div>
 <p>If you wish to specify a material that is present in the library with a
 different density, then</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;/rho:&lt;density&gt;&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;/rho:&lt;density&gt;&quot;
 </pre></div>
 </div>
 <p>So for example, to specify a Stainless Steel at a density of 12.0 g/cc,</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Stainless Steel/rho:12.0&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Stainless Steel/rho:12.0&quot;
 </pre></div>
 </div>
 </div>
@@ -137,15 +128,15 @@ different density, then</p>
 there is sometimes no equivalent to a tally you may be familiar with, code to
 code. However, there is a Cubit syntax to allow you to request scores on
 geomemtric elments. The generic form is</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:ParticleName/ScoreType&quot; add vol x
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:ParticleName/ScoreType&quot; add vol x
 </pre></div>
 </div>
 <p>A specific example, scoring the neutron flux in vol 2,</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:Neutron/Flux&quot; add vol 2
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:Neutron/Flux&quot; add vol 2
 </pre></div>
 </div>
 <p>or the photon current crossing surface 3,</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:Photon/Current&quot; add surface 3
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally:Photon/Current&quot; add surface 3
 </pre></div>
 </div>
 <p>Using the underlying PyNE libraries, we can write out the appropriate MC code
@@ -163,11 +154,11 @@ as opposed to surfaces. Currently we support only reflecting surface
 definitions, but in the near term we hope to support full volume reflecting
 boundaries. One can implement reflecting surfaces in UW<sup>2</sup> by adding surfaces
 to the following Cubit group defintion</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:Reflecting&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:Reflecting&quot;
 </pre></div>
 </div>
 <p>or if you prefer, Lambert (white reflection)</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:White&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:White&quot;
 </pre></div>
 </div>
 </div>
@@ -179,7 +170,7 @@ There are several automatic methods to generate mesh based importances or
 weights, but if your importances are tried to the geometry, then they can be
 tagged onto the geometry.</p>
 <p>The UW<sup>2</sup> workflow has a code agnostic way of defining importances.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;importance:Neutron/1.0&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;importance:Neutron/1.0&quot;
 </pre></div>
 </div>
 <p>This is translated to the code specific version at runtime. <em>Note: Fluka’s
@@ -189,18 +180,18 @@ rescaled and any out-of-range values are truncated to 1e-5 or 1e5.</em></p>
 <div class="section" id="uw2-data">
 <h2>UW<sup>2</sup> data<a class="headerlink" href="#uw2-data" title="Permalink to this headline">¶</a></h2>
 <p>The UW<sup>2</sup> data is incorporated into the geometry file (*.h5m) file using the
-C++ program <code class="docutils literal"><span class="pre">uwuw_preproc</span></code>, the purpose of which is to take the user’s
-material library, e.g. <code class="docutils literal"><span class="pre">my_nuc_library.h5</span></code>, and extract the materials
+C++ program <code class="docutils literal notranslate"><span class="pre">uwuw_preproc</span></code>, the purpose of which is to take the user’s
+material library, e.g. <code class="docutils literal notranslate"><span class="pre">my_nuc_library.h5</span></code>, and extract the materials
 requested, placing them into the geometry file. If you have already marked up
 your geometry using the methods mentioned in previous sections, you can run the
 preprocessor.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ uwuw_preproc &lt;dagmc h5m filename&gt; -v -l &lt;path to nuclear data library&gt;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ uwuw_preproc &lt;dagmc h5m filename&gt; -v -l &lt;path to nuclear data library&gt;
 </pre></div>
 </div>
 <p>Be sure to examine the output of this script which will inform you of the
 materials and densities requested and also the list of tallies that were
 produced. A sample output is shown below.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ uwuw_preproc test_geom.h5m -l \
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ uwuw_preproc test_geom.h5m -l \
       $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 </pre></div>
 </div>
@@ -220,7 +211,7 @@ materials are present in the file.</p>
 input file. There are no cell or surface cards included in the input file.</p>
 <p>A new data card has been added to DAG-MCNP to define parameters for the DAGMC
 geometry capability.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Form: dagmc  keyword1=value   keyword2=value
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Form: dagmc  keyword1=value   keyword2=value
      check_src_cell: behavior of CEL variable in SDEF card
                         on  [default] standard interpretation for
                                       CEL variable: source rejection
@@ -243,22 +234,22 @@ keywords have been added to the command line to specify the necessary files.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required):</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal notranslate"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required):</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body">Specify the filename of the input geometry
 file. It can be in one of two formats: the MOAB (*.h5m) format (this is the
-format produced by <code class="docutils literal"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
+format produced by <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
 produced by DAGMC. If this entry is not present, DAG-MCNP will assume that
 it is running in native MCNP mode.</td>
 </tr>
-<tr class="field-even field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">fcad=&lt;facet_file&gt;</span></code> (optional):</th></tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><code class="docutils literal notranslate"><span class="pre">fcad=&lt;facet_file&gt;</span></code> (optional):</th></tr>
 <tr class="field-even field"><td>&#160;</td><td class="field-body">[default: fcad] Specify the filename of the
 output facet file. This is the file produced by DAGMC that contains the
 geometry as well as the products of a number of preprocessing steps, which
 can be quite time-consuming. This file can be used as input with the
-<code class="docutils literal"><span class="pre">gcad=</span></code> keyword in subsequent runs to avoid spending time redoing the
+<code class="docutils literal notranslate"><span class="pre">gcad=</span></code> keyword in subsequent runs to avoid spending time redoing the
 preprocessing steps.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal"><span class="pre">lcad=&lt;log_file&gt;</span></code> (optional):</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><code class="docutils literal notranslate"><span class="pre">lcad=&lt;log_file&gt;</span></code> (optional):</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body">[default: lcad] Specify the filename of the
 output log file. This is a skeleton of an MCNP file which contains
 information about the volumes, surfaces, materials and material assignments,
@@ -276,12 +267,12 @@ unique to DAG-MCNP.</td>
 <p>To run DAG-MCNP, you must make the minimum input deck that defines the particle
 source definition, runtime parameters, and physics cutoffs. You then run
 DAG-MCNP5 with</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m
 </pre></div>
 </div>
 <p>If DAG-MCNP is unable to find some nuclides, you can modify the lcad file that
 was produced in the previous step to remove extraneous nuclides, and re-run with</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m l=lcad_modified
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mcnp5 i=input g=geom.h5m l=lcad_modified
 </pre></div>
 </div>
 </div>
@@ -289,21 +280,21 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
 <h2>FluDAG-specific steps<a class="headerlink" href="#fludag-specific-steps" title="Permalink to this headline">¶</a></h2>
 <p>To run a FluDAG-based UWUW problem, like the above MCNP example, the user must
 make a minmal Fluka input deck defining runtime parameters and source
-definition, remembering to set the <code class="docutils literal"><span class="pre">GEOBEGIN</span></code> to <code class="docutils literal"><span class="pre">FLUGG</span></code>. Once this is done,
-run the <code class="docutils literal"><span class="pre">mainfludag</span></code> executable to produce the <code class="docutils literal"><span class="pre">mat.inp</span></code> file which contains
+definition, remembering to set the <code class="docutils literal notranslate"><span class="pre">GEOBEGIN</span></code> to <code class="docutils literal notranslate"><span class="pre">FLUGG</span></code>. Once this is done,
+run the <code class="docutils literal notranslate"><span class="pre">mainfludag</span></code> executable to produce the <code class="docutils literal notranslate"><span class="pre">mat.inp</span></code> file which contains
 all the detailed material assignments and compound descriptions.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mainfludag geom.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mainfludag geom.h5m
 </pre></div>
 </div>
-<p>The user should then paste the contents of <code class="docutils literal"><span class="pre">mat.inp</span></code> into the main FLUKA input
+<p>The user should then paste the contents of <code class="docutils literal notranslate"><span class="pre">mat.inp</span></code> into the main FLUKA input
 deck. Now the user must make a symbolic link to the geometry file named
-<code class="docutils literal"><span class="pre">dagmc.h5m</span></code>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ ln -s geom.h5m dagmc.h5m
+<code class="docutils literal notranslate"><span class="pre">dagmc.h5m</span></code>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ln -s geom.h5m dagmc.h5m
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">mainfludag</span></code> executable always looks for the <code class="docutils literal"><span class="pre">dagmc.h5m</span></code> file. You can
+<p>The <code class="docutils literal notranslate"><span class="pre">mainfludag</span></code> executable always looks for the <code class="docutils literal notranslate"><span class="pre">dagmc.h5m</span></code> file. You can
 now run as if it were a standard FLUKA problem</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 </pre></div>
 </div>
 </div>
@@ -312,7 +303,7 @@ now run as if it were a standard FLUKA problem</p>
 <p>To run a DAG-Geant4-based UWUW problem, like those shown above, the user must
 write a Geant4 macro file that contains at minimum the source description (GPS)
 and the number of particles to simulate. The problem is then run with</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ DagGeant geom.h5m input.mac
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ DagGeant geom.h5m input.mac
 </pre></div>
 </div>
 </div>
@@ -320,7 +311,7 @@ and the number of particles to simulate. The problem is then run with</p>
 <h2>Worked example<a class="headerlink" href="#worked-example" title="Permalink to this headline">¶</a></h2>
 <p>Open Cubit/Trelis, and let’s place some volumes to create our first problem. We
 will create 4 cubes of side 10 cm, shifting each in a different direction.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; brick x 10
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; brick x 10
 CUBIT&gt; move Volume 1 x 20 include_merged
 CUBIT&gt; group &quot;mat:Lead&quot; add volume 1
 CUBIT&gt; group &quot;tally:Photon/Flux&quot; add volume 1
@@ -349,16 +340,16 @@ CUBIT&gt; export acis &quot;example.sat&quot; overwrite
 <p>You will end up with something like this.</p>
 <a class="reference internal image-reference" href="../_images/uwuwexample.png"><img alt="An example of the geometry you should get applying the above stages" src="../_images/uwuwexample.png" style="width: 600px; height: 300px;" /></a>
 <p>The file is now ready for preprocessing. First we must facet the file:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ dagmc_preproc example.sat -o example.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ dagmc_preproc example.sat -o example.h5m
 </pre></div>
 </div>
 <p>Now we can insert all the material data we need:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ uwuw_preproc example.h5m -l \
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ uwuw_preproc example.h5m -l \
       $HOME/.local/lib/python2.7/site-packages/pyne/nuc_data.h5
 </pre></div>
 </div>
 <p>Your output from this step should look exactly the same as this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Making new material with name      : mat:Lead
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Making new material with name      : mat:Lead
                  with fluka_name:     LEAD
 Making new material with name      : mat:Lead/rho:12.3
                  with fluka_name:    LEAD1
@@ -385,8 +376,8 @@ see that 4 tallies were requested: the photon flux in each volume.</p>
 Carlo code. We wish to simulate 10^5 photons with energy 1 MeV emitted
 isotropically from the point (0,0,0). The inputs for MCNP5 and FLUKA are shown
 below.</p>
-<p>MCNP5 example: let us call this <code class="docutils literal"><span class="pre">mcnp.inp</span></code>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>example of UWUW
+<p>MCNP5 example: let us call this <code class="docutils literal notranslate"><span class="pre">mcnp.inp</span></code>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>example of UWUW
 c notice no cell cards
 c notice no surface cards
 c notice no blank lines!
@@ -398,8 +389,8 @@ nps 1e5
 print
 </pre></div>
 </div>
-<p>FLUKA example: let us called this <code class="docutils literal"><span class="pre">fluka.inp</span></code>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>TITLE
+<p>FLUKA example: let us called this <code class="docutils literal notranslate"><span class="pre">fluka.inp</span></code>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>TITLE
 * Set the defaults for precision simulations
 DEFAULTS                                                              PRECISIO
 * Define the beam characteristics
@@ -423,11 +414,11 @@ STOP
 <div class="section" id="dag-mcnp5-run">
 <h2>DAG-MCNP5 run<a class="headerlink" href="#dag-mcnp5-run" title="Permalink to this headline">¶</a></h2>
 <p>Now we are ready to run the first DAG-MCNP5 example.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mcnp5 i=mcnp.inp g=example.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mcnp5 i=mcnp.inp g=example.h5m
 </pre></div>
 </div>
 <p>You should see something like this on screen.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>The implicit complement&#39;s total surface area = 128550
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The implicit complement&#39;s total surface area = 128550
 This problem is using DAGMC version    1.000 w/ DagMC r   0
 Using default writer WriteHDF5 for file fcad
 /mnt/data/prod/uwuw_example/web_example/example.h5m
@@ -474,13 +465,13 @@ what to expect.</p>
 </div>
 <div class="section" id="fludag-run">
 <h2>FluDAG run<a class="headerlink" href="#fludag-run" title="Permalink to this headline">¶</a></h2>
-<p>For FluDAG, first we produce the <code class="docutils literal"><span class="pre">mat.inp</span></code> snippet file. This must then be
+<p>For FluDAG, first we produce the <code class="docutils literal notranslate"><span class="pre">mat.inp</span></code> snippet file. This must then be
 pasted into the full FLUKA input deck.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mainfludag example.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mainfludag example.h5m
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">mat.inp</span></code> file should look like</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
+<p>The <code class="docutils literal notranslate"><span class="pre">mat.inp</span></code> file should look like</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...
 ASSIGNMA       LEAD1        1.
 ASSIGNMA       LEAD1        2.
 ASSIGNMA       LEAD2        3.
@@ -509,22 +500,22 @@ USRTRACK       10.E1     1.E-3                                               &am
 <p>At this point you will need to add two lines to the input file manually. This is
 because the component of the code which identifies neutron cross section data is
 not yet complete.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....
 LOW-MAT        LEAD1       82.       -2.      296.                    LEAD
 LOW-MAT        LEAD2       82.       -2.      296.                    LEAD
 </pre></div>
 </div>
 <p>The lines above must be pasted into the FLUKA input and then run as you would
-a native FLUKA problem, with the exception that we give the <code class="docutils literal"><span class="pre">rfluka</span></code> script an
-executable argument and a new <code class="docutils literal"><span class="pre">-d</span></code> argument, which specifies the geometry
+a native FLUKA problem, with the exception that we give the <code class="docutils literal notranslate"><span class="pre">rfluka</span></code> script an
+executable argument and a new <code class="docutils literal notranslate"><span class="pre">-d</span></code> argument, which specifies the geometry
 filename.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -N0 -M1 -e mainfludag -d example.h5m fluka.inp
 </pre></div>
 </div>
 <p>The code should run and successfully produce screen output similar to the
 following. (The filepaths will change according to your system, as will the
 numerical part of “fluka_26362”.)</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$TARGET_MACHINE = Linux
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$TARGET_MACHINE = Linux
 $FLUPRO = /mnt/data/opt/fluka/fluka/
 
 Initial seed already existing
@@ -544,20 +535,20 @@ End of FLUKA run
 <div class="section" id="dag-geant4-run">
 <h2>Dag-Geant4 run<a class="headerlink" href="#dag-geant4-run" title="Permalink to this headline">¶</a></h2>
 <p>Dag-Geant4 is probably the most trivial of all the UW<sup>2</sup>-enabled codes to run.
-Copy the <code class="docutils literal"><span class="pre">vis.mac</span></code> file from <code class="docutils literal"><span class="pre">DAGMC/geant4/build/vis.mac</span></code>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ DagGeant4 example.h5m
+Copy the <code class="docutils literal notranslate"><span class="pre">vis.mac</span></code> file from <code class="docutils literal notranslate"><span class="pre">DAGMC/geant4/build/vis.mac</span></code>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ DagGeant4 example.h5m
 </pre></div>
 </div>
 <p>After some loading you should see a GUI window open (if you built Geant4 with
 visualization enabled).  You can then use the Geant4 general particle source to
 emulate the behaviour of the previous two codes.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Idle&gt; /gps/particle gamma
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Idle&gt; /gps/particle gamma
 Idle&gt; /gps/ang/type iso
 Idle&gt; /gps/energy 1.0 MeV
 </pre></div>
 </div>
 <p>Now we are ready to run.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>Idle&gt; /run/beamOn 1000000
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Idle&gt; /run/beamOn 1000000
 </pre></div>
 </div>
 </div>
@@ -574,10 +565,10 @@ Idle&gt; /gps/energy 1.0 MeV
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

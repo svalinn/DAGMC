@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Tallies &#8212; DAGMC</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Code-specific steps for FluDAG" href="fludag.html" />
     <link rel="prev" title="Code-specific steps for DAG-MCNP5/6" href="dag-mcnp.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -90,14 +81,14 @@
 Tallies can be added by creating a group of volumes or surfaces and encoding the
 metadata in the names of those groups. The group names should follow this
 format:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>tally_[Cubit_tally_ID].[tally_type_keyword].[particles]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>tally_[Cubit_tally_ID].[tally_type_keyword].[particles]
 </pre></div>
 </div>
-<p>The <code class="docutils literal"><span class="pre">[Cubit_tally_ID]</span></code> field is an integer from 0 to 99.  Different tally
+<p>The <code class="docutils literal notranslate"><span class="pre">[Cubit_tally_ID]</span></code> field is an integer from 0 to 99.  Different tally
 types may have the same Cubit ID and will still be consistent. The tally number
 in MCNP will be 10 times the Cubit ID plus the tally type index (e.g. 4 for cell
 flux tallies).</p>
-<p>The <code class="docutils literal"><span class="pre">[tally_type_keyword]</span></code> should be one of the following:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">[tally_type_keyword]</span></code> should be one of the following:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="36%" />
@@ -131,14 +122,14 @@ flux tallies).</p>
 </tbody>
 </table>
 <p>It is possible to obtain tally results multiplied by particle energy (e.g. a
-*f2 tally in MCNP) by placing an <code class="docutils literal"><span class="pre">e</span></code> before the tally type. For example,
-to make a <code class="docutils literal"><span class="pre">*f2</span></code> tally, the keyword should be <code class="docutils literal"><span class="pre">esurf.flux</span></code>.</p>
-<p>The <code class="docutils literal"><span class="pre">[particles]</span></code> tag is a string stating which particles will be
+*f2 tally in MCNP) by placing an <code class="docutils literal notranslate"><span class="pre">e</span></code> before the tally type. For example,
+to make a <code class="docutils literal notranslate"><span class="pre">*f2</span></code> tally, the keyword should be <code class="docutils literal notranslate"><span class="pre">esurf.flux</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">[particles]</span></code> tag is a string stating which particles will be
 tallied.  To tally both photons and neutrons, set the tag to “np”.
 The default is neutrons only.  Should this be tag be omitted, only
 neutrons will be tallied.</p>
 <p>Here are some example Cubit commands to create tallies:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally_0.surf.current&quot; add surf 1 to 4
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;tally_0.surf.current&quot; add surf 1 to 4
 CUBIT&gt; group &quot;tally_0.cell.flux.p&quot; add vol 7
 CUBIT&gt; group &quot;tally_1.ecell.heating.np&quot; add vol 2 6
 CUBIT&gt; group &quot;tally_6.cell.heating.n&quot; add vol 2 6
@@ -148,7 +139,7 @@ CUBIT&gt; group &quot;tally_14.qpulse.height.p&quot; add vol 10 to 14
 </pre></div>
 </div>
 <p>The above are equivalent to following MCNP definitions:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>f1:n 1 2 3 4 T
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>f1:n 1 2 3 4 T
 f4:p 7 T
 *f16:n,p 2 6 T
 f66:n 2 6 T
@@ -171,10 +162,10 @@ f128:p 10 11 12 13 14 T
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

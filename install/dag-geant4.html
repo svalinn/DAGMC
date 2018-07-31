@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Install DAG-Geant4 &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Install DAG-Shift" href="dag-shift.html" />
     <link rel="prev" title="Install FluDAG" href="fludag.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -98,9 +89,9 @@ installed the required <a class="reference external" href="dependencies.html">de
 <div class="section" id="get-dagmc">
 <h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this headline">¶</a></h2>
 <p>As before, this guide assumes that you are building DAGMC in the subdirectory
-<code class="docutils literal"><span class="pre">dagmc_bld</span></code> of your home directory.</p>
+<code class="docutils literal notranslate"><span class="pre">dagmc_bld</span></code> of your home directory.</p>
 <p>The first step is to clone the <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC repository</a>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
 $ mkdir DAGMC
 $ cd DAGMC
 $ git clone https://github.com/svalinn/DAGMC
@@ -116,7 +107,7 @@ to register an account.</p>
 <p>Refer to the <a class="reference external" href="http://geant4.cern.ch/support/gettingstarted.shtml">getting started</a> page for information
 about downloading and installing Geant4. The following commands can be used to
 download the Geant4 source code and set it up for building:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
 $ mkdir -p Geant4/bld
 $ cd Geant4
 $ wget http://geant4.cern.ch/support/source/geant4.10.02.p02.tar.gz
@@ -126,7 +117,7 @@ $ ln -s geant4.10.02.p02 src
 </div>
 <p>Geant4 uses a CMake build, and we recommend using the following flags when
 installing it with the purpose of coupling with DAGMC:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd bld
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd bld
 $ cmake ../src -DGEANT4_INSTALL_DATA=ON \
                -DGEANT4_USE_QT=ON \  # or -DGEANT4_USE_OPENGL_X11=ON
                -DGEANT4_USE_SYSTEM_EXPAT=OFF
@@ -135,8 +126,8 @@ $ make install
 </pre></div>
 </div>
 <p>If you installed Geant4, you will also need to add the Geant4 directories to
-your <code class="docutils literal"><span class="pre">$PATH</span></code> and <code class="docutils literal"><span class="pre">$LD_LIBRARY_PATH</span></code>.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$HOME/dagmc_bld/Geant4/bin
+your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code>.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$HOME/dagmc_bld/Geant4/bin
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/Geant4/lib
 </pre></div>
 </div>
@@ -144,15 +135,15 @@ $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/Geant4/lib
 <div class="section" id="configure-dag-code">
 <h2>Configure DAG-Geant4<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>First, create and enter the build directory.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
 $ mkdir bld
 $ cd bld
 </pre></div>
 </div>
 <p>Then, choose where you want to install DAGMC. This is where the binaries,
-libraries, header files, etc. will be placed. This guide uses <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code>
+libraries, header files, etc. will be placed. This guide uses <code class="docutils literal notranslate"><span class="pre">$INSTALL_PATH</span></code>
 to represent this location.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ INSTALL_PATH=$HOME/dagmc_bld/DAGMC
 </pre></div>
 </div>
 <p>CMake variables are used to configure DAGMC with your desired build options. A
@@ -160,7 +151,7 @@ few examples will be shown here, but you can see a list of all possible options
 <a class="reference external" href="cmake_options.html">here</a>.</p>
 <p>The following CMake command will build DAG-Geant4, assuming you built Geant4 as
 specified in the Geant4 build instructions above.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cmake .. -DBUILD_GEANT4=ON \
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DBUILD_GEANT4=ON \
            -DGEANT4_DIR=$HOME/dagmc_bld/Geant4 \
            -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 </pre></div>
@@ -171,32 +162,32 @@ DAGMC.</p>
 <div class="section" id="build-dag-code">
 <h2>Build DAG-Geant4<a class="headerlink" href="#build-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>Use Make to install DAG-Geant4.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ make
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ make
 $ make install
 </pre></div>
 </div>
 <p>If the build was successful, the binaries, libraries, header files, and tests
-will be installed to the <code class="docutils literal"><span class="pre">bin</span></code>, <code class="docutils literal"><span class="pre">lib</span></code>, <code class="docutils literal"><span class="pre">include</span></code>, and <code class="docutils literal"><span class="pre">tests</span></code>
-subdirectories of <code class="docutils literal"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
+will be installed to the <code class="docutils literal notranslate"><span class="pre">bin</span></code>, <code class="docutils literal notranslate"><span class="pre">lib</span></code>, <code class="docutils literal notranslate"><span class="pre">include</span></code>, and <code class="docutils literal notranslate"><span class="pre">tests</span></code>
+subdirectories of <code class="docutils literal notranslate"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
 <p>In order to use DAGMC, make these additions to your paths:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$INSTALL_PATH/bin
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$INSTALL_PATH/bin
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_PATH/lib
 </pre></div>
 </div>
-<p>Again, it may be wise to add these commands to your <code class="docutils literal"><span class="pre">.bashrc</span></code> file.</p>
+<p>Again, it may be wise to add these commands to your <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> file.</p>
 </div>
 <div class="section" id="test-dag-code">
 <h2>Test DAG-Geant4<a class="headerlink" href="#test-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>To run the DagSolid unit tests use the following command. Make sure that the
-Geant4 directories are in your <code class="docutils literal"><span class="pre">$PATH</span></code> and <code class="docutils literal"><span class="pre">$LD_LIBRARY_PATH</span></code> as specified
+Geant4 directories are in your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code> as specified
 above.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ cd $INSTALL_PATH/tests
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $INSTALL_PATH/tests
 $ ./dagsolid_unit_tests
 </pre></div>
 </div>
 <p>If the tests ran successfully, the last few lines of the screen output will look
 like this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>[       OK ] DagSolidTest.surface_area_test (5 ms)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[       OK ] DagSolidTest.surface_area_test (5 ms)
 [----------] 16 tests from DagSolidTest (228 ms total)
 
 [----------] Global test environment tear-down
@@ -227,10 +218,10 @@ for more information.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

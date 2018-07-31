@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Post-processing &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="mcnp2cad" href="mcnp2cad.html" />
     <link rel="prev" title="DAGMC tools" href="tools.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -95,16 +86,16 @@ features in results.</p>
 <h2>Visualizing DAGMC geometry<a class="headerlink" href="#visualizing-dagmc-geometry" title="Permalink to this headline">¶</a></h2>
 <p>In the near future there will be support for reading native MOAB-produced .h5m
 files in <a class="reference external" href="https://wci.llnl.gov/simulation/computer-codes/visit">VisIt</a>. However for now users must follow this guide for viewing DAGMC
-geometry. One must use <code class="docutils literal"><span class="pre">mbconvert</span></code> to produce files for visualization. The
+geometry. One must use <code class="docutils literal notranslate"><span class="pre">mbconvert</span></code> to produce files for visualization. The
 following command will convert the DAGMC geometry to a .stl file.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mbconvert &lt;dagmc.h5m&gt; &lt;dagmc.stl&gt;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mbconvert &lt;dagmc.h5m&gt; &lt;dagmc.stl&gt;
 </pre></div>
 </div>
 <p>It is often the case that DAGMC models contain so many triangles that it is
 prohibitively slow to plot such a model even in <a class="reference external" href="https://wci.llnl.gov/simulation/computer-codes/visit">VisIt</a> or <a class="reference external" href="http://www.paraview.org">Paraview</a>. In such
 cases it has proven useful to extract the faceted curves from the file and plot
 those. This can be achieved with the following commands:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mbconvert -1 dagmc.h5m curves.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mbconvert -1 dagmc.h5m curves.h5m
 $ mbconvert curves.h5m curves.vtk
 </pre></div>
 </div>
@@ -125,14 +116,14 @@ higher tolerances purely for visualization purposes.</p>
 <h2>Visualizing DAGMC mesh tally output<a class="headerlink" href="#visualizing-dagmc-mesh-tally-output" title="Permalink to this headline">¶</a></h2>
 <p>There are number of ways that conventional MCNP cartesian meshtal files can be
 viewed in <a class="reference external" href="https://wci.llnl.gov/simulation/computer-codes/visit">VisIt</a> or <a class="reference external" href="http://www.paraview.org">Paraview</a>. Users can download and install the
-<a class="reference external" href="http://pyne.io">PyNE toolkit</a> and use the <code class="docutils literal"><span class="pre">meshtal_to_mesh</span></code> tool, or <code class="docutils literal"><span class="pre">mbconvert</span></code>
+<a class="reference external" href="http://pyne.io">PyNE toolkit</a> and use the <code class="docutils literal notranslate"><span class="pre">meshtal_to_mesh</span></code> tool, or <code class="docutils literal notranslate"><span class="pre">mbconvert</span></code>
 can be used to convert meshtal files to h5m. Advanced DAGMC mesh tallies
 (tetrahedral mesh tallies) are natively produced in .h5m file format. In either
 case, the resultant cartesian or tetrahedral mesh tally must be converted from
-.h5m to .vtk format. <code class="docutils literal"><span class="pre">mbconvert</span></code> can be used to convert the output mesh file
+.h5m to .vtk format. <code class="docutils literal notranslate"><span class="pre">mbconvert</span></code> can be used to convert the output mesh file
 to a .vtk file for viewing or post-processing with VisIt or other plotting
 tools.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ mbconvert mesh_out.h5m mesh_out.vtk
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mbconvert mesh_out.h5m mesh_out.vtk
 </pre></div>
 </div>
 <p>Having produced .stl files for slicing and .vtk files for mesh tallies, we can
@@ -152,10 +143,10 @@ and .vtk files.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Cubit/Trelis basics &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="University of Wisconsin Unified Workflow (UWUW)" href="uw2.html" />
     <link rel="prev" title="User’s guide" href="index.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -115,7 +106,7 @@ touching volumes. Merging then takes the touching surfaces and makes them into
 one surface. The imprint operation is shown below.</p>
 <a class="reference internal image-reference" href="../_images/imprint_operation.png"><img alt="Imprint operations, results in the creation of additional surfaces." src="../_images/imprint_operation.png" style="width: 600px; height: 200px;" /></a>
 <p>To imprint, issue the following command:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; imprint body all
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; imprint body all
 </pre></div>
 </div>
 <p>Should the imprint be successful, then the next step is to merge the geometry. A
@@ -123,7 +114,7 @@ schematic of what the merge operation achieves is shown below.</p>
 <a class="reference internal image-reference" href="../_images/merge_operation.png"><img alt="Merge operations, results in the removal of identical surfaces." src="../_images/merge_operation.png" style="width: 600px; height: 250px;" /></a>
 <p>Sometimes it may be important to specify a merge tolerance. To set the tolerance
 and merge, issue the following commands:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; merge tol 5e-7
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; merge tol 5e-7
 CUBIT&gt; merge all
 </pre></div>
 </div>
@@ -142,21 +133,21 @@ to be explained. A group is essentially a collection of volumes or surfaces that
 share a common attribute; the practical usage of “grouping” will be explained in
 the next section.</p>
 <p>The general format for creating/adding volumes to a group is:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;group.name&quot; add vol/surf ...
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;group.name&quot; add vol/surf ...
 </pre></div>
 </div>
 <p>For example, to create a group called “moderator” containing volumes 5, 6, 7,
 and 10, the following command would be used:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;moderator&quot; add vol 5 to 8 10
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;moderator&quot; add vol 5 to 8 10
 </pre></div>
 </div>
 <p>Another example, shows that groups don’t have to just contain volumes, but can
 contain surfaces too. Below the group “shield.boundary” is created with surfaces
 16 and 37:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;shield.boundary&quot; add surf 16 37
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;shield.boundary&quot; add surf 16 37
 </pre></div>
 </div>
-<p>Due to the importance of using the <code class="docutils literal"><span class="pre">group</span></code> command reading the
+<p>Due to the importance of using the <code class="docutils literal notranslate"><span class="pre">group</span></code> command reading the
 <a class="reference external" href="https://cubit.sandia.gov/public/15.2/help_manual/WebHelp/cubithelp.htm">CUBIT manual</a>
 section on its full usage is highly recommended.</p>
 </div>
@@ -166,7 +157,7 @@ section on its full usage is highly recommended.</p>
 Cubit/Trelis plugin make this very straightforward, assuming that the user has
 proceeded through the previous steps then all one must do is use the export
 dagmc command.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &lt;filename&gt; [faceting_tolerance &lt;faceting tolerance&gt;]
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &lt;filename&gt; [faceting_tolerance &lt;faceting tolerance&gt;]
                                [length_tolerance &lt;length tolerance&gt;]
                                [normal_tolerance &lt;normal tolerance&gt;]
                                [verbose] [fatal_on_curves]
@@ -185,7 +176,7 @@ of two adjacent facets.</dd>
 </dl>
 <p>For example to produce a file called, geometry.h5m with faceting tolerances and
 length tolerances of 1.0e-4 cm and 5.0 cm respectively</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc geometry.h5m faceting_tolerance 1.e-4 length_tolerance 5.0
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc geometry.h5m faceting_tolerance 1.e-4 length_tolerance 5.0
 </pre></div>
 </div>
 <p>The time taken to perform this step depends upon the complexity of the model, it
@@ -197,7 +188,7 @@ above.</p>
 <p>Where faceting_tolerance, normal_tolerance, and length tolerance are optional
 arguments. For example, to export the currently loaded file to a file called
 “large_facets.h5m” with a faceting tolerance of 1.e-5, use</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &quot;large_facets.h5m&quot; faceting_tolerance 1.e-5
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &quot;large_facets.h5m&quot; faceting_tolerance 1.e-5
 </pre></div>
 </div>
 </div>
@@ -228,10 +219,10 @@ to be supported with identical infrastructure.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

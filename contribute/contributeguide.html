@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Contributors guide &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Developer’s theory guide" href="devtheory.html" />
     <link rel="prev" title="Contribute" href="index.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -135,12 +126,12 @@ you’re doing.</p>
 <div class="section" id="cloning">
 <h3>Cloning<a class="headerlink" href="#cloning" title="Permalink to this headline">¶</a></h3>
 <p>You should now clone your fork of this repository to your local machine.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ git clone https://github.com/&lt;githubusername&gt;/DAGMC
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/&lt;githubusername&gt;/DAGMC
 $ cd DAGMC
 </pre></div>
 </div>
 <p>It is prudent to also add the main svalinn repository as another remote source.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ git add remote upstream https://github.com/svalinn/DAGMC
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ git add remote upstream https://github.com/svalinn/DAGMC
 </pre></div>
 </div>
 </div>
@@ -149,13 +140,13 @@ $ cd DAGMC
 <p>The base level of the repository contains folders for each of the supported
 Monte Carlo codes, the tools directory, and our amalgamated PyNE build. First,
 you need to checkout a new branch in which to keep your changes.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ git checkout -b &quot;my_feature_branch&quot;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ git checkout -b &quot;my_feature_branch&quot;
 </pre></div>
 </div>
 <p>To insert a new feature, edit an existing file or add new ones as required.
-Remember to update the <code class="docutils literal"><span class="pre">CMakeList.txt</span></code> files as required. Your new changes
+Remember to update the <code class="docutils literal notranslate"><span class="pre">CMakeList.txt</span></code> files as required. Your new changes
 then need to be added, commited, and pushed.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ git add &lt;files needed to add&gt;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ git add &lt;files needed to add&gt;
 $ git commit -m &quot;This is a message that describes why we need these changes&quot;
 </pre></div>
 </div>
@@ -164,7 +155,7 @@ $ git commit -m &quot;This is a message that describes why we need these changes
 <h3>Pushing<a class="headerlink" href="#pushing" title="Permalink to this headline">¶</a></h3>
 <p>Now that your changes are commited, push the changes to your remote branch in
 your clone of DAGMC.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ git push origin my_feature_branch
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ git push origin my_feature_branch
 </pre></div>
 </div>
 <p>Before pushing, your local feature branch is the only place this changeset is
@@ -197,14 +188,14 @@ branch successfully, your clone and your local repository’s develop branch wil
 reflect the pre-pull request state of DAGMC. In order for your personal clones
 and repositories to be updated, you must first pull the changes into your local
 clone.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ git checkout develop #remember to checkout the develop branch!
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ git checkout develop #remember to checkout the develop branch!
 $ git pull upstream develop
 </pre></div>
 </div>
 <p>Now your local clone of the repository has an up-to-date develop branch, but you
 still need to refresh your Github branch, and now you must push the develop
 changes to it.</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ git push origin develop
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ git push origin develop
 </pre></div>
 </div>
 </div>
@@ -216,7 +207,7 @@ our code, and we use the <a class="reference external" href="https://travis-ci.o
 changes to the code. When you add features to the codebase, tests should always
 be added which prove that the capabilities that have been added work.</p>
 <p>When a developer makes a pull request on GitHub, Travis detects it and launches
-the build as specified in the <code class="docutils literal"><span class="pre">.travis.yml</span></code> file. Travis pulls your feature
+the build as specified in the <code class="docutils literal notranslate"><span class="pre">.travis.yml</span></code> file. Travis pulls your feature
 branch, the MOAB libraries, HDF5, etc. as required and then launches the tests.
 Each test is run in succession and failure is reported if any dependency fails
 to build or if any test fails. An example of a Travis report is shown below.</p>
@@ -231,11 +222,11 @@ request.</p>
 <p>Explicit namespacing is preferred, so rather than using the
 <cite>using namespace xxx</cite> command, you should prefix the variable with the class
 name. For example,</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>pyne::Material new_material; // this is a new material
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pyne::Material new_material; // this is a new material
 </pre></div>
 </div>
 <p>is preferred over</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>using namepspace pyne;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>using namepspace pyne;
 Material new_material; // this is a new material
 </pre></div>
 </div>
@@ -246,13 +237,13 @@ to isolate exactly which type is being referenced.</p>
 <h2>C++ Style<a class="headerlink" href="#c-style" title="Permalink to this headline">¶</a></h2>
 <p>DAGMC conforms to the Google C++ style guide. We use the <a href="#id1"><span class="problematic" id="id2">Astyle_</span></a> code formatter
 to make developers’ lives easier. Here is how to install Astyle on Ubuntu:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/+files/astyle_3.0.1-1ubuntu1_amd64.deb
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/+files/astyle_3.0.1-1ubuntu1_amd64.deb
 $ sudo dpkg -i astyle_3.0.1-1ubuntu1_amd64.deb
 </pre></div>
 </div>
 <p>When you have added all the features you want to add, the style guide formatter
 should be run from the base level directory of the DAGMC repository like this:</p>
-<div class="highlight-none"><div class="highlight"><pre><span></span>$ astyle --options=astyle_google.ini \
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ astyle --options=astyle_google.ini \
          --exclude=gtest \
          --exclude=src/astyle \
          --exclude=src/mcnp/mcnp5/Source \
@@ -287,10 +278,10 @@ then pull request your changes.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

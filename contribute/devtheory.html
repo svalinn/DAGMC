@@ -5,20 +5,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Developer’s theory guide &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.9',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -26,8 +18,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Gallery of projects that use DAGMC" href="../gallery/gallery.html" />
     <link rel="prev" title="Contributors guide" href="contributeguide.html" /> 
-  </head>
-  <body> 
+  </head><body> 
 <div id="page-div" class="page">
 <div id="header">
     <a id="uwhome" href="http://www.wisc.edu"><img src="../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
@@ -177,9 +168,9 @@ index or global ID) can refer to multiple entity handles (a surface or volume).
 Therefore, when cross referencing by either index or global ID, the dimension
 needs to be supplied, but is not necessary when cross referencing by entity
 handle. There are five methods for cross referencing: entity handle by index
-(<code class="docutils literal"><span class="pre">entity_by_index</span></code>), global ID by index (<code class="docutils literal"><span class="pre">id_by_index</span></code>), entity handle by global
-ID (<code class="docutils literal"><span class="pre">entity_by_id</span></code>), global ID by entity handle (<code class="docutils literal"><span class="pre">get_entity_id</span></code>), index by entity
-handle (<code class="docutils literal"><span class="pre">index_by_handle</span></code>).</p>
+(<code class="docutils literal notranslate"><span class="pre">entity_by_index</span></code>), global ID by index (<code class="docutils literal notranslate"><span class="pre">id_by_index</span></code>), entity handle by global
+ID (<code class="docutils literal notranslate"><span class="pre">entity_by_id</span></code>), global ID by entity handle (<code class="docutils literal notranslate"><span class="pre">get_entity_id</span></code>), index by entity
+handle (<code class="docutils literal notranslate"><span class="pre">index_by_handle</span></code>).</p>
 </div>
 </div>
 <div class="section" id="obb-tree">
@@ -238,10 +229,10 @@ complement volume.</p>
 <h2>Ray history<a class="headerlink" href="#ray-history" title="Permalink to this headline">¶</a></h2>
 <p>DAGMC implements a class called RayHistory which is local to the DAGMC class.
 The ray history stores a vector containing all the entity handles of the triangles
-that the ray has crossed. This structure can be emptied (<code class="docutils literal"><span class="pre">reset</span></code>), the last
-entry can be popped off and removed (<code class="docutils literal"><span class="pre">rollback_last_intersection</span></code>), or the
+that the ray has crossed. This structure can be emptied (<code class="docutils literal notranslate"><span class="pre">reset</span></code>), the last
+entry can be popped off and removed (<code class="docutils literal notranslate"><span class="pre">rollback_last_intersection</span></code>), or the
 entire history can be removed with the exception of the last intersection which forms
-the basis of the new RayHistory (<code class="docutils literal"><span class="pre">reset_to_last_intersection</span></code>). The purpose of the
+the basis of the new RayHistory (<code class="docutils literal notranslate"><span class="pre">reset_to_last_intersection</span></code>). The purpose of the
 class is to improve robustness of the ray queries inside of DAGMC for a number of
 purposes:</p>
 <ol class="arabic simple">
@@ -260,25 +251,25 @@ not retain nor exlude any intersections other than those not numerically possibl
 <div class="section" id="point-in-volume">
 <h2>Point in volume<a class="headerlink" href="#point-in-volume" title="Permalink to this headline">¶</a></h2>
 <p>Given a volume entity handle, position, and ray direction (optional), the
-<code class="docutils literal"><span class="pre">point_in_volume</span></code> function will test if the point is inside or outside the given
+<code class="docutils literal notranslate"><span class="pre">point_in_volume</span></code> function will test if the point is inside or outside the given
 volume. It is assumed that the test volume exists and is known. Passing a
 direction vector to this function adds robustness and ensures consistent results.
 Otherwise, a random direction is used.</p>
 </div>
 <div class="section" id="ray-fire">
 <h2>Ray fire<a class="headerlink" href="#ray-fire" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal"><span class="pre">ray_fire</span></code> function will return the entity handle of the next surface to be
+<p>The <code class="docutils literal notranslate"><span class="pre">ray_fire</span></code> function will return the entity handle of the next surface to be
 crossed along with the distance to that surface given the ray’s direction. If
 the ray is being tracked in a straight line through multiple volumes, passing
 in the ray-history is important to keep the ray from intersecting facets more
 than once (ie, if the particle is streaming). It is important to note that
-when tracking through multiple volumes, <code class="docutils literal"><span class="pre">ray_fire</span></code> must be called multiple times
+when tracking through multiple volumes, <code class="docutils literal notranslate"><span class="pre">ray_fire</span></code> must be called multiple times
 as it may only be called for a single volume at a time.</p>
 </div>
 <div class="section" id="next-volume">
 <h2>Next volume<a class="headerlink" href="#next-volume" title="Permalink to this headline">¶</a></h2>
-<p>If the next surface is known (after calling <code class="docutils literal"><span class="pre">ray_fire</span></code>), the entity handle of the
-next volume can be determined by calling <code class="docutils literal"><span class="pre">next_volume</span></code>. Given the next surface and
+<p>If the next surface is known (after calling <code class="docutils literal notranslate"><span class="pre">ray_fire</span></code>), the entity handle of the
+next volume can be determined by calling <code class="docutils literal notranslate"><span class="pre">next_volume</span></code>. Given the next surface and
 the known current volume, the next volume is determined by looking at the other
 volume tagged on that surface (as described in the Sense Tags section above).
 This assumes that a valid surface and volume are provided. If no next volume
@@ -297,10 +288,10 @@ exists, then the call will return 0 for the next volume.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on May 07, 2018.
+      Last updated on Jul 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>
