@@ -9,6 +9,7 @@ set(LINK_LIBS dagmc pyne_dagmc uwuw)
 set(LINK_LIBS_EXTERN_NAMES Geant4_LIBRARIES)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 
 dagmc_install_library(dagsolid)
 

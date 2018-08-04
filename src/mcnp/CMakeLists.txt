@@ -8,6 +8,7 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/src/tally)
 
 message(STATUS "Building object library: mcnp_funcs")

@@ -5,6 +5,7 @@ set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
+include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 
 dagmc_install_test(dagmc_unit_tests      cpp)
 dagmc_install_test(dagmc_pointinvol_test cpp)
