@@ -1,31 +1,16 @@
-message(STATUS "Building FluDAG unit tests")
+set(DRIVERS fludag_unit_test_driver.cc)
 
-# Libraries
-set(LINK_LIBS)
-list(APPEND LINK_LIBS pthread)
-list(APPEND LINK_LIBS gtest)
-if (BUILD_STATIC)
-  list(APPEND LINK_LIBS fludag-static)
-else ()
-  list(APPEND LINK_LIBS fludag)
-endif (BUILD_STATIC)
-list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+set(LINK_LIBS fludag)
+set(LINK_LIBS_EXTERN_NAMES)
 
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/src/fluka)
 include_directories(${GTEST_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/src/fluka)
 
-# Setup unit tests
-set(DRIVER fludag_unit_test_driver.cc)
-setup_test(fludag_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
+dagmc_install_test(fludag_unit_tests cpp)
 
-# Install h5m files
-install(FILES slabs.h5m DESTINATION tests)
-# We use a file from the mcnp5 test folder, so if not building mcnp5 we have to
-# install it
-if (NOT BUILD_MCNP5)
-  install(FILES ${CMAKE_SOURCE_DIR}/src/mcnp/test/test_geom_legacy.h5m DESTINATION tests)
-endif (NOT BUILD_MCNP5)
-
-# Enable unit tests
-enable_testing()
+install(FILES slabs.h5m DESTINATION ${INSTALL_TESTS_DIR})
+# We use a file from the MCNP test folder, so if not building MCNP5/6 we have to install it
+if (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
+  install(FILES ${CMAKE_SOURCE_DIR}/src/mcnp/tests/test_geom_legacy.h5m
+    DESTINATION ${INSTALL_TESTS_DIR})
+endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)

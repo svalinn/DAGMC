@@ -4,6 +4,12 @@ set(DAGMC_LIBRARY_LIST dagmc pyne_dagmc uwuw dagtally makeWatertight dagsolid fl
 macro (dagmc_setup_build)
   message("")
 
+  # Set DAGMC version
+  set(DAGMC_MAJOR_VERSION 3)
+  set(DAGMC_MINOR_VERSION 0)
+  set(DAGMC_PATCH_VERSION 0)
+  set(DAGMC_VERSION ${DAGMC_MAJOR_VERSION}.${DAGMC_MINOR_VERSION}.${DAGMC_PATCH_VERSION})
+
   # Default to a release build
   if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMAKE_BUILD_TYPE not specified, defaulting to Release")
@@ -36,12 +42,11 @@ endmacro ()
 macro (dagmc_setup_options)
   message("")
 
-  option(BUILD_MCNP5  "Build DAG-MCNP5"                       OFF)
-  option(BUILD_MCNP6  "Build DAG-MCNP6"                       OFF)
-  option(MCNP5_PLOT   "Build DAG-MCNP5 with plotting support" OFF)
-  option(MCNP6_PLOT   "Build DAG-MCNP6 with plotting support" OFF)
-  option(MPI_BUILD    "Build DAG-MCNP5/6 with MPI support"    OFF)
-  option(OPENMP_BUILD "Build DAG-MCNP5/6 with OpenMP support" OFF)
+  option(BUILD_MCNP5  "Build DAG-MCNP5"                         OFF)
+  option(BUILD_MCNP6  "Build DAG-MCNP6"                         OFF)
+  option(BUILD_PLOT   "Build DAG-MCNP5/6 with plotting support" OFF)
+  option(BUILD_OPENMP "Build DAG-MCNP5/6 with OpenMP support"   OFF)
+  option(BUILD_MPI    "Build DAG-MCNP5/6 with MPI support"      OFF)
 
   option(BUILD_GEANT4      "Build DAG-Geant4" OFF)
   option(WITH_GEANT4_UIVIS "Build DAG-Geant4 with visualization support" ${BUILD_GEANT4})
@@ -120,63 +125,6 @@ macro (dagmc_setup_flags)
   message(STATUS "CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 endmacro ()
 
-macro (dagmc_setup_rpath)
-  message("")
-
-  # Attempt to find CXX library path
-  get_filename_component(CXX_COMPILER_ROOT ${CMAKE_CXX_COMPILER} DIRECTORY)
-  get_filename_component(CXX_COMPILER_ROOT ${CXX_COMPILER_ROOT} DIRECTORY)
-  if (CMAKE_CXX_COMPILER_ID STREQUAL Intel)
-    get_filename_component(CXX_COMPILER_ROOT ${CXX_COMPILER_ROOT} DIRECTORY)
-    find_path(CXX_LIBRARY_PATH
-      NAMES "libimf.so"
-      HINTS ${CXX_COMPILER_ROOT}
-      PATH_SUFFIXES compiler/lib/intel64
-    )
-  else ()
-    find_path(CXX_LIBRARY_PATH
-      NAMES "libstdc++.so"
-      HINTS ${CXX_COMPILER_ROOT}
-      PATH_SUFFIXES lib64 lib32 lib
-    )
-  endif ()
-  if (CXX_LIBRARY_PATH)
-    get_filename_component(CXX_LIBRARY_PATH ${CXX_LIBRARY_PATH} ABSOLUTE)
-  endif ()
-
-  # Attempt to find Fortran library path
-  get_filename_component(Fortran_COMPILER_ROOT ${CMAKE_Fortran_COMPILER} DIRECTORY)
-  get_filename_component(Fortran_COMPILER_ROOT ${Fortran_COMPILER_ROOT} DIRECTORY)
-  if (CMAKE_Fortran_COMPILER_ID STREQUAL Intel)
-    get_filename_component(Fortran_COMPILER_ROOT ${Fortran_COMPILER_ROOT} DIRECTORY)
-    find_path(Fortran_LIBRARY_PATH
-      NAMES "libimf.so"
-      HINTS ${Fortran_COMPILER_ROOT}
-      PATH_SUFFIXES compiler/lib/intel64
-    )
-  else ()
-    find_path(Fortran_LIBRARY_PATH
-      NAMES "libgfortran.so"
-      HINTS ${Fortran_COMPILER_ROOT}
-      PATH_SUFFIXES lib64 lib32 lib
-    )
-  endif ()
-  if (Fortran_LIBRARY_PATH)
-    get_filename_component(Fortran_LIBRARY_PATH ${Fortran_LIBRARY_PATH} ABSOLUTE)
-  endif ()
-
-  set(INSTALL_RPATH_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")
-
-  if (CXX_LIBRARY_PATH)
-    set(INSTALL_RPATH_DIRS "${INSTALL_RPATH_DIRS}:${CXX_LIBRARY_PATH}")
-  endif ()
-  if (Fortran_LIBRARY_PATH AND (NOT Fortran_LIBRARY_PATH STREQUAL CXX_LIBRARY_PATH))
-    set(INSTALL_RPATH_DIRS "${INSTALL_RPATH_DIRS}:${Fortran_LIBRARY_PATH}")
-  endif ()
-
-  message(STATUS "INSTALL_RPATH_DIRS: ${INSTALL_RPATH_DIRS}")
-endmacro ()
-
 # Figure out what LINK_LIBS_SHARED and LINK_LIBS_STATIC should be based on the
 # values of LINK_LIBS and LINK_LIBS_EXTERN_NAMES
 macro (dagmc_get_link_libs)
@@ -200,6 +148,15 @@ macro (dagmc_get_link_libs)
   endforeach ()
 endmacro ()
 
+# Setup the configuration file and install
+macro (dagmc_make_configure_file)
+  message("")
+
+  message(STATUS "DAGMC cmake config file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfig.cmake")
+  configure_file(cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+endmacro ()
+
 # To use the dagmc_install macros, the following lists must be defined:
 #   SRC_FILES: source files
 #   PUB_HEADERS: public header files
@@ -218,7 +175,6 @@ macro (dagmc_install_library lib_name)
     set_target_properties(${lib_name}-shared
       PROPERTIES OUTPUT_NAME ${lib_name}
                  PUBLIC_HEADER "${PUB_HEADERS}"
-                 INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                  INSTALL_RPATH_USE_LINK_PATH TRUE)
     set_target_properties(${lib_name}-static
       PROPERTIES OUTPUT_NAME ${lib_name}
@@ -256,8 +212,7 @@ macro (dagmc_install_exe exe_name)
       target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
     else ()
       set_target_properties(${exe_name}
-        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-                   INSTALL_RPATH_USE_LINK_PATH TRUE)
+        PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
       target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
     endif ()
   else ()
@@ -287,8 +242,7 @@ macro (dagmc_install_test test_name ext)
       target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
     else ()
       set_target_properties(${test_name}
-        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-                   INSTALL_RPATH_USE_LINK_PATH TRUE)
+        PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
       target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
     endif ()
   else ()
