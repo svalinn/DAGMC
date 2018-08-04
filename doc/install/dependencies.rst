@@ -21,16 +21,15 @@ DAGMC in the subdirectory ``dagmc_bld`` of your home directory; i.e.
     $ cd dagmc_bld
 
 HDF5
-~~~~~~
+~~~~
 
 Source installation
 -------------------
 
-If electing to install HDF5 from source. The tarball containing the HDF5
-source code can also be downloaded from the `HDF5 website <HDF5_>`_.
-Note that if you choose this option, we recommend you obtain HDF5 version 1.8.13
-instead of the newest version. The following commands can be used to install
-HDF5 from source.
+The tarball containing the HDF5 source code can also be downloaded from the
+`HDF5 website <HDF5_>`_. Note that if you choose this option, we recommend you
+obtain HDF5 version 1.8.13 instead of the newest version. The following commands
+can be used to install HDF5 from source.
 ::
 
     $ mkdir -p $HOME/dagmc_bld/HDF5/bld
@@ -51,19 +50,19 @@ Package manager installation
 Debian linux users can install the latest HDF5 release with:
 ::
 
-    $ sudo apt-get install hdf5-dev
+    $ sudo apt-get install libhdf5-dev
 
 Redhat linux users can do likewise with:
 ::
 
-    $ sudo yum install hdf5-dev
+    $ sudo yum install libhdf5-dev
 
 MOAB installation
 ~~~~~~~~~~~~~~~~~
 
 As of DAGMC version 3.0, MOAB version 5.0 or higher is required. The following
-commands can be used to download MOAB from its `source repository
-<MOAB_>`_ and set it up for building.
+commands can be used to download MOAB from its `source repository <MOAB_>`_ and
+set it up for building.
 ::
 
     $ cd $HOME/dagmc_bld
@@ -91,48 +90,33 @@ should be used to build MOAB.
     $ make install
 
 If you have followed the package manager install route, then the following
-commands should be used to build MOAB.
+configure command should be used to build MOAB.
 ::
 
-    $ cd bld
     $ ../src/configure --enable-optimize \
                        --enable-shared \
                        --disable-debug \
-                       --with-hdf5 \
+                       --with-hdf5=/usr/lib/x86_64-linux-gnu/hdf5/serial \
                        --prefix=$HOME/dagmc_bld/MOAB
-    $ make
-    $ make check
-    $ make install
-
 
 Making sure the dependencies were installed correctly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you installed HDF5 from source, you will need to make sure the system can
-find it when it comes time to build DAGMC. This is done by adding some
-directories to your ``$PATH`` and ``$LD_LIBRARY_PATH``. (This is not required if
-you used a package manager to install HDF5.)
+In order to test HDF5 and MOAB, some of their directories must be added to your
+``$PATH`` and ``$LD_LIBRARY_PATH``.
 ::
 
     $ export PATH=$PATH:$HOME/dagmc_bld/HDF5/bin
-    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/HDF5/lib
-
-You will also need to make sure the system can find MOAB.
-::
-
     $ export PATH=$PATH:$HOME/dagmc_bld/MOAB/bin
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/HDF5/lib
     $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/MOAB/lib
 
-After including HDF5 and MOAB in your paths as described above, the following
-commands can be used to test whether HDF5 and MOAB were built successfully.
+The following commands can be used to test whether HDF5 and MOAB were built
+successfully.
 ::
 
     $ which h5ls
     $ which mbconvert
-
-Note that your ``$PATH`` and ``$LD_LIBRARY_PATH`` will revert to their original
-state when you open a new terminal, so it may be a good idea to add these
-``export`` commands to your ``.bashrc`` file.
 
 If you have installed the dependencies corretly, you are now ready to
 `install DAGMC <dagmc.html>`_.

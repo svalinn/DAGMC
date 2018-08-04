@@ -23,9 +23,10 @@ The following CMake command will build DAG-Geant4 and FluDAG as well as MPI
 versions of DAG-MCNP5 and DAG-MCNP6.
 ::
 
-    $ cmake .. -DBUILD_MCNP5=ON \
+    $ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
+               -DBUILD_MCNP5=ON \
                -DBUILD_MCNP6=ON \
-               -DMPI_BUILD=ON \
+               -DBUILD_MCNP_MPI=ON \
                -DBUILD_GEANT4=ON \
                -DGEANT4_DIR=$HOME/dagmc_bld/Geant4 \
                -DBUILD_FLUKA=ON \
