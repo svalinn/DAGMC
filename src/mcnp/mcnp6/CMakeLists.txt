@@ -164,7 +164,7 @@ else ()
 endif ()
 
 # MCNP Plotter
-if (MCNP6_PLOT)
+if (BUILD_MCNP_PLOT)
   find_package(X11 REQUIRED)
   add_definitions(-DPLOT=ON)
   if (MCNP_VERSION STREQUAL "602")
@@ -178,7 +178,7 @@ if (MCNP6_PLOT)
 endif ()
 
 # OpenMP
-if (OPENMP_BUILD)
+if (BUILD_MCNP_OPENMP)
   find_package(OpenMP REQUIRED)
   add_definitions(-DOMP=ON)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -187,7 +187,7 @@ if (OPENMP_BUILD)
 endif ()
 
 # MPI
-if (MPI_BUILD)
+if (BUILD_MCNP_MPI)
   find_package(MPI REQUIRED)
   file(GLOB SRC_FILES ${SRC_FILES} "Source/dotcomm/*.c")
   add_definitions(-DVERS="6.mpi")
@@ -247,7 +247,7 @@ if (MCNP_VERSION STREQUAL "611")
 endif ()
 
 # Executable
-if (MPI_BUILD)
+if (BUILD_MCNP_MPI)
   set(MCNP_EXEC "mcnp6.mpi")
 else ()
   set(MCNP_EXEC "mcnp6")

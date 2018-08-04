@@ -61,7 +61,7 @@ else ()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mieee-fp")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdollar-ok")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-sign-zero")
-  if (MCNP5_PLOT)
+  if (BUILD_MCNP_PLOT)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-real-8")
   endif ()
 endif ()
@@ -105,7 +105,7 @@ else ()
 endif ()
 
 # MCNP Plotter
-if (MCNP5_PLOT)
+if (BUILD_MCNP_PLOT)
   find_package(X11 REQUIRED)
   add_definitions(-DPLOT=ON)
   add_definitions(-DMCPLOT=ON)
@@ -117,7 +117,7 @@ if (MCNP5_PLOT)
 endif ()
 
 # OpenMP
-if (OPENMP_BUILD)
+if (BUILD_MCNP_OPENMP)
   find_package(OpenMP REQUIRED)
   add_definitions(-DOMP=ON)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -126,7 +126,7 @@ if (OPENMP_BUILD)
 endif ()
 
 # MPI
-if (MPI_BUILD)
+if (BUILD_MCNP_MPI)
   find_package(MPI REQUIRED)
   file(GLOB SRC_FILES ${SRC_FILES} "Source/dotcomm/src/*.F90")
   file(GLOB SRC_FILES ${SRC_FILES} "Source/dotcomm/src/internals/mpi/*.c")
@@ -151,7 +151,7 @@ list(APPEND SRC_FILES
 list(APPEND LINK_LIBS dagmc pyne_dagmc uwuw dagtally)
 
 # Executable
-if (MPI_BUILD)
+if (BUILD_MCNP_MPI)
   set(MCNP_EXEC "mcnp5.mpi")
 else ()
   set(MCNP_EXEC "mcnp5")
