@@ -113,6 +113,11 @@ macro (dagmc_setup_flags)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
   endif ()
 
+  if (BUILD_RPATH)
+    set(INSTALL_RPATH_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")
+    message(STATUS "INSTALL_RPATH_DIRS: ${INSTALL_RPATH_DIRS}")
+  endif ()
+
   message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
   message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
   message(STATUS "CMAKE_Fortran_FLAGS: ${CMAKE_Fortran_FLAGS}")
@@ -175,6 +180,7 @@ macro (dagmc_install_library lib_name)
     set_target_properties(${lib_name}-shared
       PROPERTIES OUTPUT_NAME ${lib_name}
                  PUBLIC_HEADER "${PUB_HEADERS}"
+                 INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                  INSTALL_RPATH_USE_LINK_PATH TRUE)
     set_target_properties(${lib_name}-static
       PROPERTIES OUTPUT_NAME ${lib_name}
@@ -212,7 +218,8 @@ macro (dagmc_install_exe exe_name)
       target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
     else ()
       set_target_properties(${exe_name}
-        PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                   INSTALL_RPATH_USE_LINK_PATH TRUE)
       target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
     endif ()
   else ()
@@ -242,7 +249,8 @@ macro (dagmc_install_test test_name ext)
       target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
     else ()
       set_target_properties(${test_name}
-        PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                   INSTALL_RPATH_USE_LINK_PATH TRUE)
       target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
     endif ()
   else ()
