@@ -1,7 +1,11 @@
+message("")
+
 set(LINK_LIBS)
 
 # Source files
 file(GLOB SRC_FILES
+  "Source/cgm/*.c"
+  "Source/cgm/*.cpp"
   "Source/dedx/*.F90"
   "Source/fluka89/*.F90"
   "Source/hexs/*.F90"
@@ -11,7 +15,10 @@ file(GLOB SRC_FILES
   "Source/import/*.F90"
   "Source/import/cgm/*.c"
   "Source/import/cgm/*.cpp"
+  "Source/incl_abla/*.F90"
   "Source/lcs/*.F90"
+  "Source/llnlfiss/*.cpp"
+  "Source/llnlfiss/*.F90"
   "Source/meshtal/*.F90"
   "Source/regl/*.F90"
   "Source/spabi/*.F90"
@@ -50,6 +57,20 @@ if ("/${SRC_FILES};" MATCHES "/cerenkov_mod.F90;" AND
     "/${SRC_FILES};" MATCHES "/reflect_light.F90;")
   set(MCNP_VERSION 611)
 endif ()
+# These files are present in 620 but not in 611
+if ("/${SRC_FILES};" MATCHES "/charged_particle_knockon.F90;" AND
+    "/${SRC_FILES};" MATCHES "/corr_mult_interface_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/gdtal.F90;" AND
+    "/${SRC_FILES};" MATCHES "/mcnp_derived_types.F90;" AND
+    "/${SRC_FILES};" MATCHES "/mcnp_geometry.F90;" AND
+    "/${SRC_FILES};" MATCHES "/mcnp_storage.F90;" AND
+    "/${SRC_FILES};" MATCHES "/meshtal_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/pgdtal.F90;" AND
+    "/${SRC_FILES};" MATCHES "/printing_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/rgli_edits_mod.F90;" AND
+    "/${SRC_FILES};" MATCHES "/tbl199.F90;")
+  set(MCNP_VERSION 620)
+endif ()
 if (MCNP_VERSION STREQUAL "Unknown")
   message(FATAL_ERROR "MCNP6 source files not found in mcnp6/Source/src")
 elseif (NOT "/${SRC_FILES};" MATCHES "/dagmc_mod.F90;")
@@ -68,34 +89,61 @@ set(CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O1 -g")
 
 # C compiler flags
 if (CMAKE_C_COMPILER_ID STREQUAL "Intel")
-  #set(CMAKE_C_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=medium")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pc64")
+  if (MCNP_VERSION STREQUAL "620")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+  else ()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pc64")
+  endif ()
 else ()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
+  if (MCNP_VERSION STREQUAL "620")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-common")
+  endif ()
+endif ()
+
+# CXX compiler flags
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+  if (MCNP_VERSION STREQUAL "620")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+  else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pc64")
+  endif ()
+else ()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+  if (MCNP_VERSION STREQUAL "620")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-common")
+  endif ()
 endif ()
 
 # Fortran compiler flags
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -no-vec")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -heap-arrays 1024")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -traceback")
-  #set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=medium")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -pc64")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -diag-disable 8290,8291,8577")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -r8")
+  if (MCNP_VERSION STREQUAL "620")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -free")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -standard-semantics")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -m64")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -error-limit 1000")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -warn nodeclarations")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -stand f03")
+  else ()
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -no-vec")
+  endif ()
 else ()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -m64")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mieee-fp")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdollar-ok")
-  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-sign-zero")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-real-8")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdefault-double-8")
-endif ()
-
-# Include directories
-include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import)
-if (MCNP_VERSION STREQUAL "611")
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/import/cgm)
+  if (MCNP_VERSION STREQUAL "620")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-form")
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -std=f2003")
+  else ()
+    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fno-sign-zero")
+  endif ()
 endif ()
 
 # Variables in mcnp_env.F90
@@ -109,9 +157,12 @@ elseif (MCNP_VERSION STREQUAL "610")
 elseif (MCNP_VERSION STREQUAL "611")
   add_definitions(-DTHREAD="MCNP")
   add_definitions(-DTVERS="6.1.1b")
+elseif (MCNP_VERSION STREQUAL "620")
+  add_definitions(-DTHREAD="MCNP_6.20")
+  add_definitions(-DTVERS="6.2.0")
 endif ()
 add_definitions(-DLODDAT="${ENV_DATE}")
-if (MCNP_VERSION STREQUAL "611")
+if (MCNP_VERSION STREQUAL "611" OR MCNP_VERSION STREQUAL "620")
   add_definitions(-DENV_USER="${ENV_USER}")
   add_definitions(-DENV_HOST="${ENV_HOST}")
   add_definitions(-DENV_OS="${ENV_OS}")
@@ -120,6 +171,17 @@ if (MCNP_VERSION STREQUAL "611")
   add_definitions(-DENV_CC="${CMAKE_C_COMPILER}")
   add_definitions(-DENV_CXX="${CMAKE_CXX_COMPILER}")
   add_definitions(-DENV_F90="${CMAKE_Fortran_COMPILER}")
+endif ()
+if (MCNP_VERSION STREQUAL "620")
+  execute_process(COMMAND bash "-c" "${CMAKE_C_COMPILER}       --version 2>&1 | head -1" OUTPUT_VARIABLE ENV_CC_VERS)
+  execute_process(COMMAND bash "-c" "${CMAKE_CXX_COMPILER}     --version 2>&1 | head -1" OUTPUT_VARIABLE ENV_CXX_VERS)
+  execute_process(COMMAND bash "-c" "${CMAKE_Fortran_COMPILER} --version 2>&1 | head -1" OUTPUT_VARIABLE ENV_F90_VERS)
+  string(REPLACE "\n" "" ENV_CC_VERS  ${ENV_CC_VERS})
+  string(REPLACE "\n" "" ENV_CXX_VERS ${ENV_CXX_VERS})
+  string(REPLACE "\n" "" ENV_F90_VERS ${ENV_F90_VERS})
+  add_definitions(-DENV_CC_VERS="${ENV_CC_VERS}")
+  add_definitions(-DENV_CXX_VERS="${ENV_CXX_VERS}")
+  add_definitions(-DENV_F90_VERS="${ENV_F90_VERS}")
 endif ()
 
 # Preprocessor directives
@@ -131,22 +193,20 @@ add_definitions(-DLINUX=ON)
 add_definitions(-DUNIX=ON)
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   add_definitions(-DINTEL=ON)
-  add_definitions(-DDIRACCESS_RECL_WORDS=ON)
 else ()
   add_definitions(-DGFORTRAN=ON)
 endif ()
 add_definitions(-DLLNL_FISS=ON)
 add_definitions(-DF90_INT_4BYTE=ON)
 add_definitions(-DF90_REAL_8BYTE=ON)
-if (MCNP_VERSION STREQUAL "611")
-  add_definitions(-DCGM=ON)
-endif ()
+add_definitions(-DCGM=ON)
 add_definitions(-DCEM=ON)
 add_definitions(-DCEM_M6=ON)
 add_definitions(-DCINDER=ON)
 add_definitions(-DLAQGSM=ON)
-if (MCNP_VERSION STREQUAL "610" OR MCNP_VERSION STREQUAL "611")
-  add_definitions(-DUOD=ON)
+add_definitions(-DUOD=ON)
+if (MCNP_VERSION STREQUAL "620")
+  add_definitions(-DFREYA=ON)
 endif ()
 if (MESHTAL_DEBUG)
   add_definitions(-DMESHTAL_DEBUG=ON)
@@ -198,7 +258,7 @@ if (BUILD_MCNP_MPI)
   if (MCNP_VERSION STREQUAL "602")
     include_directories(${CMAKE_CURRENT_LIST_DIR}/Source/dotcomm)
   endif ()
-  if (MCNP_VERSION STREQUAL "611")
+  if (MCNP_VERSION STREQUAL "611" OR MCNP_VERSION STREQUAL "620")
     get_filename_component(ENV_MPI_ROOT "${MPI_Fortran_COMPILER}" DIRECTORY)
     get_filename_component(ENV_MPI_ROOT "${ENV_MPI_ROOT}" DIRECTORY)
     add_definitions(-DENV_MPI_ROOT="${ENV_MPI_ROOT}")
@@ -215,7 +275,7 @@ list(APPEND SRC_FILES
 list(APPEND LINK_LIBS dagmc pyne_dagmc uwuw dagtally)
 
 # Get list of boolean compiler definitions set to ON
-if (MCNP_VERSION STREQUAL "611")
+if (MCNP_VERSION STREQUAL "611" OR MCNP_VERSION STREQUAL "620")
   get_directory_property(COMPDEFS_TMP COMPILE_DEFINITIONS)
   set(COMPDEFS)
   foreach (definition IN LISTS COMPDEFS_TMP)

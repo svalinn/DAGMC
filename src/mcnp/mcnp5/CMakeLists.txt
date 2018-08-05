@@ -1,3 +1,5 @@
+message("")
+
 set(LINK_LIBS)
 
 # Source files
