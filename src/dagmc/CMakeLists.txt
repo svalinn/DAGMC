@@ -5,7 +5,7 @@ file(GLOB PUB_HEADERS "*.hpp")
 
 # Configure version header
 configure_file(DagMCVersion.hpp.in DagMCVersion.hpp)
-list(APPEND DAGMC_PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/DagMCVersion.hpp)
+list(APPEND PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/DagMCVersion.hpp)
 
 if (BUILD_STATIC_EXE)
   set(LINK_LIBS lapack blas gfortran quadmath)
