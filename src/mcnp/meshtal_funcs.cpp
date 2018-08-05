@@ -192,12 +192,12 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
  * Called when the tally data needs to be written or read from a runtpe file
  * or an MPI stream.
  */
-void dagmc_fmesh_get_tally_data_(int* tally_id, void* fortran_data_pointer) {
+void dagmc_fmesh_get_tally_data(int* tally_id, void* fortran_data_pointer) {
   double* data;
   int length;
 
   data = tallyManager.getTallyData(*tally_id, length);
-  FMESH_FUNC(dagmc_make_fortran_pointer)(fortran_data_pointer, data, &length);
+  dagmc_make_fortran_pointer(fortran_data_pointer, data, &length);
 }
 //---------------------------------------------------------------------------//
 /**
@@ -208,12 +208,12 @@ void dagmc_fmesh_get_tally_data_(int* tally_id, void* fortran_data_pointer) {
  * Called when the error data needs to be written or read from a runtpe file
  * or an MPI stream.
  */
-void dagmc_fmesh_get_error_data_(int* tally_id, void* fortran_data_pointer) {
+void dagmc_fmesh_get_error_data(int* tally_id, void* fortran_data_pointer) {
   double* data;
   int length;
 
   data = tallyManager.getErrorData(*tally_id, length);
-  FMESH_FUNC(dagmc_make_fortran_pointer)(fortran_data_pointer, data, &length);
+  dagmc_make_fortran_pointer(fortran_data_pointer, data, &length);
 }
 //---------------------------------------------------------------------------//
 /**
@@ -224,12 +224,12 @@ void dagmc_fmesh_get_error_data_(int* tally_id, void* fortran_data_pointer) {
  * Called when the scratch data needs to be written or read from a runtpe file
  * or an MPI stream.
  */
-void dagmc_fmesh_get_scratch_data_(int* tally_id, void* fortran_data_pointer) {
+void dagmc_fmesh_get_scratch_data(int* tally_id, void* fortran_data_pointer) {
   double* data;
   int length;
 
   data = tallyManager.getScratchData(*tally_id, length);
-  FMESH_FUNC(dagmc_make_fortran_pointer)(fortran_data_pointer, data, &length);
+  dagmc_make_fortran_pointer(fortran_data_pointer, data, &length);
 }
 //---------------------------------------------------------------------------//
 /**
