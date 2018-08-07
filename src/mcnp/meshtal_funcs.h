@@ -18,28 +18,8 @@ extern "C" {
  * and should only be called from within meshtal_funcs.cpp
  */
 
-/** FORT_FUNC:
- * Macro to access symbol of fortran function 'func' in module 'mod'
- */
-#ifndef FORT_FUNC
-#if defined INTEL_FORTRAN
-// intel fortran: name mangling is '<module>_mp_<function>_'
-#define FORT_FUNC( mod, func ) mod##_mp_##func##_
-#elif defined GFORTRAN
-// gfortran: name mangling is ___<module>_mod_MOD_<function>
-#define FORT_FUNC( mod, func ) __##mod##_MOD_##func
-#else
-// unknown fortran compiler
-#warning "Unknown fortran compiler with unknown name mangling scheme, \
-proceeding with gfortran's scheme"
-#define FORT_FUNC( mod, func ) __##mod##_MOD_##func
-#endif
-#endif
-
-#define FMESH_FUNC( func ) FORT_FUNC( fmesh_mod, func )
-
 /* Make a valid Fortran pointer to a C array */
-extern void FMESH_FUNC(dagmc_make_fortran_pointer)(void* fort_ref, double* array, int* size);
+extern void dagmc_make_fortran_pointer(void* fort_ref, double* array, int* size);
 
 /**
  * The dagmc_fmesh_*_ functions are called from fortran to drive our advanced mesh tallies,
@@ -67,9 +47,9 @@ void dagmc_collision_score_(int* ipt,
 
 void dagmc_update_multiplier_(int* fmesh_idx, double* value);
 
-void dagmc_fmesh_get_tally_data_(int* tally_id, void* fortran_data_pointer);
-void dagmc_fmesh_get_error_data_(int* tally_id, void* fortran_data_pointer);
-void dagmc_fmesh_get_scratch_data_(int* tally_id, void* fortran_data_pointer);
+void dagmc_fmesh_get_tally_data(int* tally_id, void* fortran_data_pointer);
+void dagmc_fmesh_get_error_data(int* tally_id, void* fortran_data_pointer);
+void dagmc_fmesh_get_scratch_data(int* tally_id, void* fortran_data_pointer);
 void dagmc_fmesh_clear_data_();
 void dagmc_fmesh_add_scratch_to_tally_(int* tally_id);
 void dagmc_fmesh_add_scratch_to_error_(int* tally_id);

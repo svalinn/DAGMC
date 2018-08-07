@@ -386,7 +386,7 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +  ! This interface specification ensures that the calls to these functions
 +  ! (which are implemented in C) are made with the correct types
 +  interface
-+    subroutine dagmc_fmesh_get_tally_data( fm_id, fref )
++    subroutine dagmc_fmesh_get_tally_data( fm_id, fref ) bind(c)
 +      implicit none
 +      integer :: fm_id
 +      ! The dknd parameter is unavailable in this scope for some reason,
@@ -394,13 +394,13 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +      real(selected_real_kind(15,307)) , dimension(:), pointer :: fref
 +    end subroutine dagmc_fmesh_get_tally_data
 +
-+    subroutine dagmc_fmesh_get_error_data( fm_id, fref )
++    subroutine dagmc_fmesh_get_error_data( fm_id, fref ) bind(c)
 +      implicit none
 +      integer :: fm_id
 +      real(selected_real_kind(15,307)) , dimension(:), pointer :: fref
 +    end subroutine dagmc_fmesh_get_error_data
 +
-+    subroutine dagmc_fmesh_get_scratch_data( fm_id, fref )
++    subroutine dagmc_fmesh_get_scratch_data( fm_id, fref ) bind(c)
 +      implicit none
 +      integer :: fm_id
 +      real(selected_real_kind(15,307)), dimension(:), pointer:: fref
@@ -410,7 +410,7 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 +
 @@ -128,0 +161,60 @@
 +  ! DAGMC: Helper function - create a valid Fortran pointer from a C array and a length 
-+  subroutine dagmc_make_fortran_pointer( fref, carray, size )
++  subroutine dagmc_make_fortran_pointer( fref, carray, size ) bind(c)
 +    implicit none
 +
 +    integer :: size ! The size (in doubles) of the array in C
