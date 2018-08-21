@@ -47,7 +47,7 @@ moab::ErrorCode DetermineHierarchy::DetermineTheHierarchy(bool loaded) {
   ec = gtt->get_gsets_by_dimension(3,vols);
   MB_CHK_SET_ERR(ec,"Failed to get 3d entities from MOAB");
 
-  range_it vol_it;
+  range_it vol_it; //
 
   std::map<moab::EntityHandle,moab::Range> vol_surfs;
   // loop over vols and get children
@@ -73,28 +73,30 @@ moab::ErrorCode DetermineHierarchy::DetermineVolume(moab::EntityHandle volume) {
   // as children, those surfaces also belong to other volumes. If some of the n 
   // surfaces belong to the 'other' volume then it is a child of the searched volume
 
-  moab::Range final_set;
+  moab::Range final_set; // the final set of child volumes
 
   moab::Range child_surfaces; // children_surface sets
   moab::ErrorCode ec = mbi->get_child_meshsets(volume,child_surfaces); // get childen
 
   range_it surf_it;
-  // loop over the children sets and determine which other volumes share the 
+  // loop over the child sets of volumes (child surfaces) and determine which other
+  // volumes share the each surface
   moab::Range child_volumes;
   for (surf_it = child_surfaces.begin() ; surf_it != child_surfaces.end() ; ++surf_it) {
     ec = GetParentSets(volume,*surf_it,child_volumes);
-    // 
+    MB_CHK_SET_ERR(ec,"Failed to determine the child volumes"); 
   }
-  // the parent volume range now includes all volumes that shares at least surface with the child surfaces
-  // of the current volume
-
-  // step through the list and remove any volumes that do not share all their child surfaces with the 
-  // current volume 
+  
+  // the parent volume range now includes all volumes that shares at least
+  // a single surface with the current volume step through the list and remove
+  // any volumes that do not share all their child surfaces with the current volume
+  // i.e. only volumes which are wholely contained within volume
   moab::Range parent_surfaces;
   ec = mbi->get_child_meshsets(volume,parent_surfaces);
   MB_CHK_SET_ERR(ec,"Failed to get child meshsets");
 
-  range_it vol_it; 
+  range_it vol_it;
+  // loop over the potential child_volumes
   for ( vol_it = child_volumes.begin() ; vol_it != child_volumes.end() ; ++vol_it ) {
 
     moab::Range child_surfaces;  
@@ -102,14 +104,37 @@ moab::ErrorCode DetermineHierarchy::DetermineVolume(moab::EntityHandle volume) {
     ec = mbi->get_child_meshsets(*vol_it,child_surfaces);
     MB_CHK_SET_ERR(ec,"Failed to get child meshsets");
   
-    // Note - if we do use all surfaces of the child volume we assume
+    // Note - if we must use all surfaces of the child volume we assume
     // volume not being inside of the parent.
    
     // if the intersect the ranges
     moab::Range overlap_set = intersect(parent_surfaces,child_surfaces);
+
     // if range not empty, we are not a child
-    if( subtract(overlap_set,child_surfaces).empty() ) final_set.insert(*vol_it);
+    if( subtract(overlap_set,child_surfaces).empty() ) {
+      final_set.insert(*vol_it);
+
+      // remove the parent child links between parent (volume)
+      // and the children surfaces
+      range_it surf_it; //
+
+      // for each surface remove the parent child linkage and set the new
+      // sense information
+      for ( surf_it = child_surface.begin() ; surf_it != child_surface.end() ; ++surf_it ) {
+	rval = mbi->remove_parent_child(volume, *surf_it);
+	MB_CHK_SET_ERR(ec,"Failed to remove parent child links");
+	// also need to reset senses such that the forward sense
+	// is with respect to the child volume
+	rval = gtt->set_surface_senses(*surf_it, *vol_it, 0);
+	MB_CHK_SET_ERR(ec,"Failed to set new sense information");
+      }
+    }
   }
+
+  // if set empty do nothing
+  if(final_set.empty()) return moab::MB_SUCCESS;
+  
+  // add the link between the volumes
   for ( vol_it = final_set.begin() ; vol_it != final_set.end() ; ++vol_it) 
     network->AddLink(volume,*vol_it);
   
@@ -117,7 +142,8 @@ moab::ErrorCode DetermineHierarchy::DetermineVolume(moab::EntityHandle volume) {
 }
 
 // Given a surface set and volume set, return back other volumes that also share this surface
-moab::ErrorCode DetermineHierarchy::GetParentSets(moab::EntityHandle volume, moab::EntityHandle surface, 
+moab::ErrorCode DetermineHierarchy::GetParentSets(moab::EntityHandle volume,
+						  moab::EntityHandle surface, 
                                                   moab::Range &parent_volumes) {
   // get the parents of the surface set
   moab::ErrorCode ec = mbi->get_parent_meshsets(surface,parent_volumes);
@@ -132,7 +158,7 @@ moab::ErrorCode DetermineHierarchy::GetParentSets(moab::EntityHandle volume, moa
 
 // Given the parent EH return its children
 moab::ErrorCode DetermineHierarchy::GetChildren(moab::EntityHandle parent,
-			    std::vector<moab::EntityHandle> &children) {
+						std::vector<moab::EntityHandle> &children) {
 
   std::vector<moab::EntityHandle> child_volumes;
   child_volumes = network->FindNeighbours(parent);
@@ -145,7 +171,7 @@ moab::ErrorCode DetermineHierarchy::GetChildren(moab::EntityHandle parent,
 
 // Given a parent id, return vector of children ids
 moab::ErrorCode DetermineHierarchy::GetChildren(int parent,
-			    std::vector<int> &children) {
+						std::vector<int> &children) {
   moab::ErrorCode ec;
   moab::EntityHandle parent_eh = gtt->entity_by_id(3,parent);
   std::vector<int> children_id;
