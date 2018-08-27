@@ -76,15 +76,15 @@ moab::ErrorCode DetermineHierarchy::DetermineVolume(moab::EntityHandle volume) {
   moab::Range final_set; // the final set of child volumes
 
   moab::Range child_surfaces; // children_surface sets
-  moab::ErrorCode ec = mbi->get_child_meshsets(volume,child_surfaces); // get childen
+  moab::ErrorCode rval = mbi->get_child_meshsets(volume,child_surfaces); // get childen
 
   range_it surf_it;
   // loop over the child sets of volumes (child surfaces) and determine which other
   // volumes share the each surface
   moab::Range child_volumes;
   for (surf_it = child_surfaces.begin() ; surf_it != child_surfaces.end() ; ++surf_it) {
-    ec = GetParentSets(volume,*surf_it,child_volumes);
-    MB_CHK_SET_ERR(ec,"Failed to determine the child volumes"); 
+    rval = GetParentSets(volume,*surf_it,child_volumes);
+    MB_CHK_SET_ERR(rval,"Failed to determine the child volumes"); 
   }
   
   // the parent volume range now includes all volumes that shares at least
@@ -92,8 +92,8 @@ moab::ErrorCode DetermineHierarchy::DetermineVolume(moab::EntityHandle volume) {
   // any volumes that do not share all their child surfaces with the current volume
   // i.e. only volumes which are wholely contained within volume
   moab::Range parent_surfaces;
-  ec = mbi->get_child_meshsets(volume,parent_surfaces);
-  MB_CHK_SET_ERR(ec,"Failed to get child meshsets");
+  rval = mbi->get_child_meshsets(volume,parent_surfaces);
+  MB_CHK_SET_ERR(rval,"Failed to get child meshsets");
 
   range_it vol_it;
   // loop over the potential child_volumes
@@ -101,8 +101,8 @@ moab::ErrorCode DetermineHierarchy::DetermineVolume(moab::EntityHandle volume) {
 
     moab::Range child_surfaces;  
     // get the children of the current volume
-    ec = mbi->get_child_meshsets(*vol_it,child_surfaces);
-    MB_CHK_SET_ERR(ec,"Failed to get child meshsets");
+    rval = mbi->get_child_meshsets(*vol_it,child_surfaces);
+    MB_CHK_SET_ERR(rval,"Failed to get child meshsets");
   
     // Note - if we must use all surfaces of the child volume we assume
     // volume not being inside of the parent.
@@ -120,13 +120,13 @@ moab::ErrorCode DetermineHierarchy::DetermineVolume(moab::EntityHandle volume) {
 
       // for each surface remove the parent child linkage and set the new
       // sense information
-      for ( surf_it = child_surface.begin() ; surf_it != child_surface.end() ; ++surf_it ) {
+      for ( surf_it = child_surfaces.begin() ; surf_it != child_surfaces.end() ; ++surf_it ) {
 	rval = mbi->remove_parent_child(volume, *surf_it);
-	MB_CHK_SET_ERR(ec,"Failed to remove parent child links");
+	MB_CHK_SET_ERR(rval,"Failed to remove parent child links");
 	// also need to reset senses such that the forward sense
 	// is with respect to the child volume
 	rval = gtt->set_surface_senses(*surf_it, *vol_it, 0);
-	MB_CHK_SET_ERR(ec,"Failed to set new sense information");
+	MB_CHK_SET_ERR(rval,"Failed to set new sense information");
       }
     }
   }
