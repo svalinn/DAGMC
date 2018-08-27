@@ -1,3 +1,52 @@
+diff -rN '--unified=0' Source/import/laqmod31.F90 Source_dagmc/import/laqmod31.F90
+--- Source/import/laqmod31.F90
++++ Source_dagmc/import/laqmod31.F90
+@@ -41114 +41113,0 @@
+-      use mcnp_random, only : rang
+@@ -41155 +41153,0 @@
+-      use mcnp_random, only : rang
+@@ -42270 +42267,0 @@
+-      use mcnp_random, only : rang
+@@ -42706 +42702,0 @@
+-      use mcnp_random, only : rang
+@@ -42939 +42934,0 @@
+-      use mcnp_random, only : rang
+@@ -42972 +42966,0 @@
+-      use mcnp_random, only : rang
+@@ -42994 +42987,0 @@
+-      use mcnp_random, only : rang
+@@ -43153 +43145,0 @@
+-      use mcnp_random, only : rang
+@@ -43209 +43200,0 @@
+-      use mcnp_random, only : rang
+@@ -43237 +43227,0 @@
+-      use mcnp_random, only : rang
+@@ -43257 +43246,0 @@
+-      use mcnp_random, only : rang
+@@ -43310 +43298,0 @@
+-      use mcnp_random, only : rang
+@@ -43343 +43330,0 @@
+-      use mcnp_random, only : rang
+@@ -43536 +43522,0 @@
+-      use mcnp_random, only : rang
+@@ -43639 +43624,0 @@
+-      use mcnp_random, only : rang
+@@ -43842 +43826,0 @@
+-      use mcnp_random, only : rang
+@@ -43928 +43911,0 @@
+-      use mcnp_random, only : rang
+@@ -43987 +43969,0 @@
+-      use mcnp_random, only : rang
+@@ -45528 +45509,0 @@
+-      use mcnp_random, only : rang
+@@ -45680 +45660,0 @@
+-      use mcnp_random, only : rang
+@@ -45855 +45834,0 @@
+-      use mcnp_random, only : rang
+@@ -45929 +45907,0 @@
+-      use mcnp_random, only : rang
+@@ -45963 +45940,0 @@
+-      use mcnp_random, only : rang
 diff -rN '--unified=0' Source/src/angl.F90 Source_dagmc/src/angl.F90
 --- Source/src/angl.F90
 +++ Source_dagmc/src/angl.F90
