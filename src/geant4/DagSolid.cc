@@ -66,7 +66,7 @@ using namespace moab;
 
 #include "DagSolid.hh"
 
-#define plot true
+#define plot false
 
 //
 // Standard contructor has blank name and defines no facets.
@@ -111,12 +111,12 @@ DagSolid::DagSolid (const G4String &name, DagMC* dagmc, int volID)
   double min[3],max[3];
   fdagmc->getobb(fvolEntity,min,max);
 
-  xMinExtent =  min[0]/mm;
-  xMaxExtent =  max[0]/mm;
-  yMinExtent =  min[1]/mm;
-  yMaxExtent =  max[1]/mm;
-  zMinExtent =  min[2]/mm;
-  zMaxExtent =  max[2]/mm;
+  xMinExtent =  min[0]/cm;
+  xMaxExtent =  max[0]/cm;
+  yMinExtent =  min[1]/cm;
+  yMaxExtent =  max[1]/cm;
+  zMinExtent =  min[2]/cm;
+  zMaxExtent =  max[2]/cm;
 
   int num_entities;
   std::vector<EntityHandle> surfs;
@@ -131,7 +131,7 @@ DagSolid::DagSolid (const G4String &name, DagMC* dagmc, int volID)
   moab->get_child_meshsets(fvolEntity, surfs, 1 );
 
   //  G4cout << "Building entity " << dagmc->get_entity_id(fvolEntity) << G4endl;
-  
+  //bool plot = false;
   if ( plot ) {
     //  G4cout<<"please wait for visualization... "<<G4endl;
     for(unsigned i=0 ; i<surfs.size() ; i++) {
@@ -239,6 +239,12 @@ EInside DagSolid::Inside (const G4ThreeVector &p) const
     G4Exception("DagSolid::Inside(p)","GeomSolidsFailure",
 		EventMustBeAborted,message);
   }
+
+  if ( result == 0 )
+    return kOutside;
+  else
+    return kInside;
+
   // note: would be nice to early exit from this function
   // but we to be more careful than that, if point is wihtin
   // kCartolerance/2.0 of surface we are actually on the surface
@@ -336,7 +342,7 @@ G4double DagSolid::DistanceToIn (const G4ThreeVector &p,
   G4double distance = kInfinity;
 
   DagMC::RayHistory history;
-
+  
   // perform the ray fire with modified dag call
   moab::ErrorCode rval = fdagmc->ray_fire(fvolEntity,position,dir,next_surf,distance,&history,0,-1);
   if(rval != moab::MB_SUCCESS) {
@@ -359,11 +365,12 @@ G4double DagSolid::DistanceToIn (const G4ThreeVector &p,
   
   last_surf_hit = next_surf;
   history.reset();
+  //z  std::cout << distance << std::endl;
   distance *= cm; // convert back to mm
 
   if ( next_surf == 0 ) { // no intersection
     return kInfinity;
-  } else if (distance <= delta) {    
+  } else if (distance <= kCarTolerance) {    
     return 0.0;
   } else {
     return distance;
@@ -387,6 +394,18 @@ G4double DagSolid::DistanceToIn (const G4ThreeVector &p) const
   G4double safety = 0.0;
   G4double point[3]= {p.x()/cm, p.y()/cm, p.z()/cm}; // convert position to cm
   moab::ErrorCode rval;
+
+  /*
+  G4ouble minpt[3], maxpt[3];
+  
+  rval = fdagmc->geom_tool()->get_obb(fvolEntity, minpt, maxpt);
+  
+  G4ThreeVector minp(minpt[0],minpt[1],minpt[2]);
+  G4ThreeVector maxp(maxpt[0],maxpt[1],maxpt[2]);
+
+  G4double dist1 = 
+  */
+  
   rval = fdagmc->closest_to_location(fvolEntity, point, safety);
   if(rval != moab::MB_SUCCESS) {
     std::ostringstream message;
@@ -440,7 +459,8 @@ G4double DagSolid::DistanceToOut (const G4ThreeVector &p,
   DagMC::RayHistory history;
 
   moab::ErrorCode rval = fdagmc->ray_fire(fvolEntity,position,dir,next_surf,
-					    next_dist,&history,0,1);
+					  next_dist,&history,0,1);
+
   if(rval != moab::MB_SUCCESS) {
     std::ostringstream message;
     message << "Failure from ray_fire" << G4endl
@@ -462,7 +482,7 @@ G4double DagSolid::DistanceToOut (const G4ThreeVector &p,
   last_surf_hit = next_surf;
   history.reset();
   next_dist *= cm; // convert back to mm
-
+  
   // no more surfaces
   if(next_surf == 0 )
     return kInfinity;
