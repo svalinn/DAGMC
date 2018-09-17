@@ -7,11 +7,13 @@ list(APPEND DAGMC_PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/DagMCVersion.hpp)
 # Source files
 list(APPEND DAGMC_SRC_FILES DagMC.cpp)
 list(APPEND DAGMC_SRC_FILES dagmcmetadata.cpp)
+list(APPEND DAGMC_SRC_FILES thread_manager.cpp)
 list(APPEND DAGMC_SRC_FILES ${CMAKE_SOURCE_DIR}/src/uwuw/uwuw.cpp)
 
 # Public headers
 list(APPEND DAGMC_PUB_HEADERS DagMC.hpp)
 list(APPEND DAGMC_PUB_HEADERS dagmcmetadata.hpp)
+list(APPEND DAGMC_PUB_HEADERS thread_manager.hpp)
 list(APPEND DAGMC_PUB_HEADERS ${CMAKE_SOURCE_DIR}/src/uwuw/uwuw.hpp)
 
 # Libraries
