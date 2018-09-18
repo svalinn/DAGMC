@@ -10,7 +10,11 @@ int main(int argc, char* argv[]) {
 
   // set the number of threads
   if ( argc > 1 ) {
-    num_thread_to_run = std::atoi(argv[1]);
+    // todo when DAGMC moves to C++11 uncomment the below line
+    // num_thread_to_run = std::atoi(argv[1]);
+    std::string num_hist(argv[1]);
+    std::istringstream is(num_hist);
+    is >> num_thread_to_run;
   } else {
     num_thread_to_run = 1;
   }
