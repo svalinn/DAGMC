@@ -1,5 +1,5 @@
 #include <iostream>
-#include "thread_manager.hpp"
+#include "DagMCThreadManager.hpp"
 
 // constructor
 DagThreadManager::DagThreadManager(int thread_count, moab::Interface* MBI) {
