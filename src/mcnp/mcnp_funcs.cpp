@@ -354,8 +354,8 @@ void dagmcangl_(int* jsu, double* xxx, double* yyy, double* zzz, double* ang) {
 #ifdef TRACE_DAGMC_CALLS
   std::cout << "angl: " << *xxx << ", " << *yyy << ", " << *zzz << " --> "
             << ang[0] << ", " << ang[1] << ", " << ang[2] << std::endl;
-  CartVect uvw(last_uvw);
-  CartVect norm(ang);
+  moab::CartVect uvw(last_uvw);
+  moab::CartVect norm(ang);
   double aa = angle(uvw, norm) * (180.0 / M_PI);
   std::cout << "    : " << aa << " deg to uvw" << (aa > 90.0 ? " (!)" : "")  << std::endl;
 #endif
@@ -501,8 +501,8 @@ void dagmc_surf_reflection_(double* uuu, double* vvv, double* www, int* verify_d
 
 #ifdef TRACE_DAGMC_CALLS
   // compute and report the angle between old and new
-  CartVect oldv(last_uvw);
-  CartVect newv(*uuu, *vvv, *www);
+  moab::CartVect oldv(last_uvw);
+  moab::CartVect newv(*uuu, *vvv, *www);
 
   std::cout << "surf_reflection: " << angle(oldv, newv)*(180.0 / M_PI) << std::endl;;
 #endif
