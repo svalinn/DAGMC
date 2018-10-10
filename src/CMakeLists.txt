@@ -1,25 +1,30 @@
-# Figure out which physics codes to build
-if (BUILD_ALL)
-  set(BUILD_MCNP5 ON)
-  set(BUILD_MCNP6 ON)
-  set(BUILD_GEANT4 ON)
-  set(BUILD_FLUKA ON)
+# Gtest
+if (BUILD_CI_TESTS)
+  set(BUILD_TESTS ON)
 endif ()
-
-# DAG-MCNP and CI require the dagtally library
-if (BUILD_MCNP5 OR BUILD_MCNP6 OR BUILD_CI_TESTS)
-  set(BUILD_TALLY ON)
+if (BUILD_TESTS)
+  add_subdirectory(gtest)
 endif ()
 
 # Required libraries
-add_subdirectory(gtest)
 add_subdirectory(dagmc)
 add_subdirectory(pyne)
 add_subdirectory(uwuw)
 
-# Non-required libraries
+# dagtally library (required for DAG-MCNP and CI)
+if (BUILD_MCNP5 OR BUILD_MCNP6 OR BUILD_CI_TESTS)
+  set(BUILD_TALLY ON)
+endif ()
 if (BUILD_TALLY)
   add_subdirectory(tally)
+endif ()
+
+# Tools
+if (BUILD_BUILD_OBB)
+  add_subdirectory(build_obb)
+endif ()
+if (BUILD_MAKE_WATERTIGHT)
+  add_subdirectory(make_watertight)
 endif ()
 
 # Physics code interfaces
@@ -32,7 +37,3 @@ endif ()
 if (BUILD_FLUKA)
   add_subdirectory(fluka)
 endif ()
-
-# Tools
-add_subdirectory(build_obb)
-add_subdirectory(make_watertight)

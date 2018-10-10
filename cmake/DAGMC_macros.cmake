@@ -59,7 +59,7 @@ macro (dagmc_setup_options)
   option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool" ON)
 
   option(BUILD_TESTS    "Build unit tests" ON)
-  option(BUILD_CI_TESTS "Build everything needed to run the CI tests" ${BUILD_TESTS})
+  option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
 
   option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_PIC        "Build with PIC"           OFF)
