@@ -261,4 +261,11 @@ macro (dagmc_install_test test_name ext)
     endif ()
   endif ()
   install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
+  add_test(NAME ${test_name} COMMAND ${test_name})
+endmacro ()
+
+# Install a file needed for unit testing
+macro (dagmc_install_test_file filename)
+  install(FILES ${filename} DESTINATION ${INSTALL_TESTS_DIR})
+  install(FILES ${filename} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endmacro ()

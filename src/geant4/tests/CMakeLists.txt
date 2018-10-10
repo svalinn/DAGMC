@@ -8,4 +8,4 @@ include_directories(${CMAKE_SOURCE_DIR}/src/geant4)
 
 dagmc_install_test(dagsolid_unit_tests cpp)
 
-install(FILES test_geom.h5m DESTINATION ${INSTALL_TESTS_DIR})
+dagmc_install_test_file(test_geom.h5m)

@@ -13,6 +13,10 @@ find_package(MOAB REQUIRED)
 
 dagmc_setup_flags()
 
+if (BUILD_TESTS)
+  enable_testing()
+endif ()
+
 add_subdirectory(src)
 
 dagmc_make_configure_file()
