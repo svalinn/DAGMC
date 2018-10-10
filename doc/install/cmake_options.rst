@@ -8,26 +8,23 @@ Note that unless set, all boolean options default to ``OFF``.
 
     * ``-DBUILD_MCNP5=ON`` Build DAG-MCNP5. (Default: OFF)
 
-    * ``-DBUILD_MCNP5_PLOT=ON`` Enable DAG-MCNP5 plotting capability. (Default:
-      OFF)
+    * ``-DBUILD_MCNP6=ON`` Build DAG-MCNP6. (Default: OFF)
 
     * ``-DMCNP5_DATAPATH=/path/to/mcnp/data`` Set the path where the DAG-MCNP5
       executable will look for nuclear data. If this variable is not set, it
       will look for the data in the location specified by the ``$DATAPATH``
       environment variable instead.
 
-    * ``-DBUILD_MCNP6=ON`` Build DAG-MCNP6. (Default: OFF)
-
-    * ``-DBUILD_MCNP6_PLOT=ON`` Enable DAG-MCNP6 plotting capability. (Default:
-      OFF)
-
     * ``-DMCNP6_DATAPATH=/path/to/mcnp/data`` Set the path where the DAG-MCNP5
       executable will look for nuclear data. If this variable is not set, it
       will look for the data in the location specified by the ``$DATAPATH``
       environment variable instead.
 
-    * ``-DMPI_BUILD=ON`` If building DAG-MCNP5 and/or DAG-MCNP6, build MPI
-      versions. (Default: OFF)
+    * ``-DBUILD_MCNP_PLOT=ON`` Enable DAG-MCNP5/6 plotting capability. (Default:
+      OFF)
+
+    * ``-DBUILD_MCNP_MPI=ON`` If building DAG-MCNP5/6, build MPI versions.
+      (Default: OFF)
 
     * ``-DBUILD_FLUKA=ON`` Build FluDAG and the fludag library. If this option
       is turned on, ``-DFLUKA_DIR`` must also be specified. (Default: OFF)
@@ -49,6 +46,11 @@ Note that unless set, all boolean options default to ``OFF``.
 
     * ``-DBUILD_TESTS=ON`` Build unit tests where appropriate. (Default: ON)
 
+    * ``-DBUILD_CI_TESTS=ON`` Build everything needed to run the continuous
+      integration tests. (Default: OFF)
+
     * ``-DBUILD_STATIC_EXE=ON`` Build static executables. (Default: OFF)
 
     * ``-DBUILD_PIC=ON`` Build with position-independent code. (Default: OFF)
+
+    * ``-DBUILD_RPATH=ON`` Build with RPATH functionality. (Default: ON)
