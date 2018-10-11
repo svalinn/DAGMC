@@ -26,6 +26,15 @@ setup_test(dagmc_pointinvol_test cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(dagmc_rayfire_test    cpp ${DRIVER} "${LINK_LIBS}")
 setup_test(dagmc_simple_test     cpp ${DRIVER} "${LINK_LIBS}")
 
+if(OPENMP_BUILD)
+  setup_test(dagmc_thread_test  cpp ${DRIVER} "${LINK_LIBS}")
+  find_package(OpenMP REQUIRED)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_C_FLAGS}")  # OpenMP_Fortran_FLAGS is undefined
+endif(OPENMP_BUILD)
+
+
 # Install h5m files
 install(FILES test_dagmc.h5m      DESTINATION tests)
 install(FILES test_dagmc_impl.h5m DESTINATION tests)

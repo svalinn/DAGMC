@@ -3,7 +3,22 @@
 
 #include <gtest/gtest.h>
 
+
+int num_thread_to_run; // number of threads for the test
+
 int main(int argc, char* argv[]) {
+
+  // set the number of threads
+  if ( argc > 1 ) {
+    // todo when DAGMC moves to C++11 uncomment the below line
+    // num_thread_to_run = std::atoi(argv[1]);
+    std::string num_hist(argv[1]);
+    std::istringstream is(num_hist);
+    is >> num_thread_to_run;
+  } else {
+    num_thread_to_run = 1;
+  }
+    
   for (int i = 0; i < argc; i++) {
     std::string arg = argv[i];
     if (arg == "--help") {

@@ -37,10 +37,11 @@ const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 
 // Empty synonym map for DagMC::parse_metadata()
 const std::map<std::string, std::string> DagMC::no_synonyms;
-
+  
 // DagMC Constructor
 DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_precision) {
   moab_instance_created = false;
+  gtt_instance_created = false;
   // if we arent handed a moab instance create one
   if (NULL == mb_impl) {
     mb_impl = new moab::Core();
@@ -52,8 +53,27 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 
   // make new GeomTopoTool and GeomQueryTool
   GTT = new moab::GeomTopoTool(MBI, false);
+  gtt_instance_created = true;
   GQT = new moab::GeomQueryTool(GTT, overlap_tolerance, p_numerical_precision);
 
+  // This is the correct place to uniquely define default values for the dagmc settings
+  defaultFacetingTolerance = .001;
+}
+
+DagMC::DagMC(GeomTopoTool *gtt, double overlap_tolerance, double p_numerical_precision) {
+  moab_instance_created = false; // always
+  gtt_instance_created = false;
+  
+  if(gtt == NULL) {
+    moab_instance_created = true;
+    gtt_instance_created = true;
+    MBI = new moab::Core();
+    GTT = new moab::GeomTopoTool(MBI, false);
+  } else {
+    MBI = gtt->get_moab_instance();
+    GTT = gtt;
+  }
+  GQT = new moab::GeomQueryTool(GTT, overlap_tolerance, p_numerical_precision);
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
 }
@@ -61,7 +81,9 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 // Destructor
 DagMC::~DagMC() {
   // delete the GeomTopoTool and GeomQueryTool
-  delete GTT;
+  if(gtt_instance_created) 
+    delete GTT;
+  
   delete GQT;
 
   // if we created the moab instance
