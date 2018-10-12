@@ -53,7 +53,8 @@ macro (dagmc_setup_options)
 
   option(BUILD_FLUKA "Build FluDAG" OFF)
 
-  option(BUILD_TALLY "Build dagtally library" ON)
+  option(BUILD_UWUW "Build UWUW library and uwuw_preproc" ON)
+  option(BUILD_TALLY "Build dagtally library"              ON)
 
   option(BUILD_BUILD_OBB       "Build build_obb tool"       ON)
   option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool" ON)

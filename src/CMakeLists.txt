@@ -9,7 +9,14 @@ endif ()
 # Required libraries
 add_subdirectory(dagmc)
 add_subdirectory(pyne)
-add_subdirectory(uwuw)
+
+# UWUW
+if (BUILD_MCNP5 OR BUILD_MCNP6 OR BUILD_GEANT4 OR BUILD_FLUKA OR BUILD_CI_TESTS)
+  set(BUILD_UWUW ON)
+endif ()
+if (BUILD_UWUW)
+  add_subdirectory(uwuw)
+endif ()
 
 # dagtally library (required for DAG-MCNP and CI)
 if (BUILD_MCNP5 OR BUILD_MCNP6 OR BUILD_CI_TESTS)
