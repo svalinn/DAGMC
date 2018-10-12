@@ -34,6 +34,9 @@ message(STATUS "HDF5_LIBRARIES_STATIC: ${HDF5_LIBRARIES_STATIC}")
 
 include_directories(${HDF5_INCLUDE_DIRS})
 
+# Don't use the DAGMC_LIBRARIES as it is defined in MOABConfig.cmake
+set(DAGMC_LIBRARIES)
+
 # Find MOAB include directory
 find_path(MOAB_INCLUDE_DIRS
   NAMES MBiMesh.hpp
@@ -57,6 +60,7 @@ find_library(MOAB_LIBRARIES_SHARED
 )
 if (MOAB_LIBRARIES_SHARED)
   get_filename_component(MOAB_LIBRARIES_SHARED ${MOAB_LIBRARIES_SHARED} ABSOLUTE)
+  get_filename_component(MOAB_LIBRARY_DIRS ${MOAB_LIBRARIES_SHARED} DIRECTORY)
 endif ()
 
 # Find MOAB library (static)
@@ -73,6 +77,7 @@ if (MOAB_LIBRARIES_STATIC)
 endif ()
 
 message(STATUS "MOAB_INCLUDE_DIRS: ${MOAB_INCLUDE_DIRS}")
+message(STATUS "MOAB_LIBRARY_DIRS: ${MOAB_LIBRARY_DIRS}")
 message(STATUS "MOAB_LIBRARIES_SHARED: ${MOAB_LIBRARIES_SHARED}")
 message(STATUS "MOAB_LIBRARIES_STATIC: ${MOAB_LIBRARIES_STATIC}")
 

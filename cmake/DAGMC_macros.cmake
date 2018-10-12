@@ -196,6 +196,13 @@ macro (dagmc_install_library lib_name)
   install(TARGETS ${lib_name}-static
     ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
     PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
+
+  # Keep a list of all libraries being installed
+  if (DAGMC_LIBRARIES)
+    set(DAGMC_LIBRARIES "${DAGMC_LIBRARIES} ${lib_name}" CACHE INTERNAL "DAGMC_LIBRARIES")
+  else ()
+    set(DAGMC_LIBRARIES ${lib_name} CACHE INTERNAL "DAGMC_LIBRARIES")
+  endif ()
 endmacro ()
 
 # Install an executable
