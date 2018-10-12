@@ -14,7 +14,7 @@ if (MOAB_CMAKE_CONFIG)
   set(MOAB_CMAKE_CONFIG ${MOAB_CMAKE_CONFIG}/MOABConfig.cmake)
   message(STATUS "MOAB_CMAKE_CONFIG: ${MOAB_CMAKE_CONFIG}")
 else ()
-  message(FATAL_ERROR "Could not find MOAB")
+  message(FATAL_ERROR "Could not find MOAB. Set -DMOAB_DIR=<moab_dir> when running cmake or use the $MOAB_DIR environment variable.")
 endif ()
 
 # Find HDF5
