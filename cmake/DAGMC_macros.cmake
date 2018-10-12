@@ -4,12 +4,6 @@ set(DAGMC_LIBRARY_LIST dagmc pyne_dagmc uwuw dagtally makeWatertight dagsolid fl
 macro (dagmc_setup_build)
   message("")
 
-  # Set DAGMC version
-  set(DAGMC_MAJOR_VERSION 3)
-  set(DAGMC_MINOR_VERSION 0)
-  set(DAGMC_PATCH_VERSION 0)
-  set(DAGMC_VERSION ${DAGMC_MAJOR_VERSION}.${DAGMC_MINOR_VERSION}.${DAGMC_PATCH_VERSION})
-
   # Default to a release build
   if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMAKE_BUILD_TYPE not specified, defaulting to Release")
