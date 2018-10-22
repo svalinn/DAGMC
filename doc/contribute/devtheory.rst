@@ -171,7 +171,7 @@ purposes:
    triangle could be hit again.
 
 The RayHistory class is an optional argument to the DAGMC ray functions, which will otherwise
-not retain nor exlude any intersections other than those not numerically possible.
+not retain nor exclude any intersections other than those not numerically possible.
 
 Point in volume
 ~~~~~~~~~~~~~~~
@@ -220,10 +220,18 @@ implementation-specific conventions.
 
 Default metadata keyword list:
   - mat: material composition assignment
-  - rho: material density assignment
+  - rho: material density assignment (units: g/cc)
   - boundary: boundary condition
   - tally: indicates a geometric tally on a surface or volume
-  - importance: used to set variance reduction properties (not used by all DAGMC implementations)
+- importance: used to set variance reduction properties [1]_
+
+The ``mat`` and ``rho`` keywords are required for all DAGMC simulations for full
+material definitions in each volume of the model.
+
+Once the metadata in the MOAB file has been parsed, the interface contains
+functions like ``get_surface_property`` and ``get_volume_property`` which allows
+one to retrieve metadata values for a keyword using the surface/volume index or
+MOAB entity handle.
 
 Metadata Structure in DAGMC Files
 ---------------------------------
@@ -234,13 +242,14 @@ when adding support for their generation from a new source.
 
 DAGMC metadata used during simulation (material assignments, boundary
 conditions, volume tallies, etc.) is stored on a MOAB entity set tagged with the
-metadata information using a `NAME` tag. Please see the user's guide for
-information about the syntax of this tagged information. Geometric entities
-associated with this metadata entry are contained by the metadata entity set.
+metadata information using a `NAME` tag. Please see the `UWUW Section
+<../usersguide/uw2.html>`_ of the user's guide for information about the syntax
+of this tagged information. Geometric entities associated with this metadata
+entry are contained by the metadata entity set.
 
 Metadata entity sets are also tagged with a `CATEGORY` tag (similar to geometric
 sets) with the value "Group" to indicate that the entity set's purpose is to
 group geometric entities together. These "Group" sets can be gathered using this
-tag and value to identify the proper sets and the entities they contain
-information for can be found by retrieving the entities contained by that set.
+tag and value to identify "Group" entity sets in the MOAB instance.
 
+.. [1] only used in DAG-MCNP simulations.
