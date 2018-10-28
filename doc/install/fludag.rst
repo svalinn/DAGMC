@@ -27,7 +27,8 @@ The following CMake command will build FluDAG. Note that ``$FLUPRO`` should have
 previously been defined as part of the FLUKA install.
 ::
 
-    $ cmake .. -DBUILD_FLUKA=ON \
+    $ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
+               -DBUILD_FLUKA=ON \
                -DFLUKA_DIR=$FLUPRO \
                -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 

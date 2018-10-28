@@ -1,38 +1,11 @@
-message(STATUS "Building DagSolid unit tests")
+set(DRIVERS dagsolid_unit_test_driver.cpp)
 
-# CXX compiler flags
-if (BUILD_STATIC)
-  # Needed for geant4 v10.02 and earlier
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--allow-multiple-definition")
-endif (BUILD_STATIC)
+set(LINK_LIBS dagsolid)
+set(LINK_LIBS_EXTERN_NAMES)
 
-# Linker flags
-if (BUILD_STATIC)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-endif (BUILD_STATIC)
-
-# Libraries
-set(LINK_LIBS)
-list(APPEND LINK_LIBS pthread)
-list(APPEND LINK_LIBS gtest)
-if (BUILD_STATIC)
-  list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
-  list(APPEND LINK_LIBS dagsolid-static)
-else ()
-  list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
-  list(APPEND LINK_LIBS dagsolid)
-endif (BUILD_STATIC)
-
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/src/geant4)
 include_directories(${GTEST_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/src/geant4)
 
-# Setup unit tests
-set(DRIVER dagsolid_unit_test_driver.cpp)
-setup_test(dagsolid_unit_tests cpp ${DRIVER} "${LINK_LIBS}")
+dagmc_install_test(dagsolid_unit_tests cpp)
 
-# Install h5m files
-install(FILES test_geom.h5m DESTINATION tests)
-
-# Enable unit tests
-enable_testing()
+dagmc_install_test_file(test_geom.h5m)

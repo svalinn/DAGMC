@@ -1,35 +1,17 @@
-message(STATUS "Building uwuw_preproc")
+message("")
 
-# Libraries
-set(LINK_LIBS_STATIC)
-list(APPEND LINK_LIBS_STATIC ${DAG_LINK_LIBS})
-list(APPEND LINK_LIBS_STATIC dagmc-static)
-list(APPEND LINK_LIBS_STATIC pyne_dagmc-static)
+file(GLOB SRC_FILES "*.cpp")
+file(GLOB PUB_HEADERS "*.hpp")
 
-# Include directories
-include_directories(.)
+set(LINK_LIBS dagmc pyne_dagmc)
+set(LINK_LIBS_EXTERN_NAMES)
+
 include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
-include_directories(${GTEST_INCLUDE_DIR})
-include_directories(${HDF5_INCLUDE_DIRS})
-include_directories(${MOAB_INCLUDE_DIRS})
 
-# Build uwuw_preprocessor internal library
-set(UWUW_PREPROCESSOR_SRC "uwuw_preprocessor.cpp")
-add_library(uwuw_preprocessor STATIC ${UWUW_PREPROCESSOR_SRC})
-target_link_libraries(uwuw_preprocessor ${LINK_LIBS_STATIC})
+dagmc_install_library(uwuw)
 
-# Build uwuw_preproc executable
-set(UWUW_PREPROC_SRC "uwuw_preproc.cpp")
-list(APPEND LINK_LIBS        uwuw_preprocessor)
-list(APPEND LINK_LIBS_STATIC uwuw_preprocessor)
-add_executable(uwuw_preproc ${UWUW_PREPROC_SRC})
-if (BUILD_STATIC)
-  target_link_libraries(uwuw_preproc ${LINK_LIBS_STATIC})
-else ()
-  target_link_libraries(uwuw_preproc ${LINK_LIBS})
-endif (BUILD_STATIC)
-install(TARGETS uwuw_preproc DESTINATION ${INSTALL_BIN_DIR})
-
-# Build UWUW tests
-add_subdirectory(tests)
+add_subdirectory(build)
+if (BUILD_TESTS)
+  add_subdirectory(tests)
+endif ()

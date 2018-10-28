@@ -1,37 +1,16 @@
-message(STATUS "Building UWUW unit tests")
+set(DRIVERS uwuw_unit_test_driver.cpp)
 
-# Libraries
-set(LINK_LIBS)
-list(APPEND LINK_LIBS pthread)
-list(APPEND LINK_LIBS gtest)
-if (BUILD_STATIC)
-  list(APPEND LINK_LIBS dagmc-static)
-  list(APPEND LINK_LIBS pyne_dagmc-static)
-else()
-  list(APPEND LINK_LIBS dagmc)
-  list(APPEND LINK_LIBS pyne_dagmc)
-endif (BUILD_STATIC)
-list(APPEND LINK_LIBS ${DAG_LINK_LIBS})
+set(LINK_LIBS uwuw)
+set(LINK_LIBS_EXTERN_NAMES)
 
-# Include directories
-include_directories(${CMAKE_SOURCE_DIR}/src/uwuw)
 include_directories(${GTEST_INCLUDE_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
-include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/src/uwuw)
 
-# Setup unit tests
-set(DRIVER uwuw_unit_test_driver.cpp)
-setup_test(uwuw_unit_tests       cpp ${DRIVER} "${LINK_LIBS}")
-setup_test(uwuw_unit_tests_tally cpp ${DRIVER} "${LINK_LIBS}")
+dagmc_install_test(uwuw_unit_tests              cpp)
+dagmc_install_test(uwuw_unit_tests_tally        cpp)
+dagmc_install_test(uwuw_unit_tests_preprocessor cpp)
 
-# uwuw_preprocessor tally test source
-list(APPEND LINK_LIBS uwuw_preprocessor)
-setup_test(uwuw_unit_tests_preprocessor cpp ${DRIVER} "${LINK_LIBS}")
-
-# Install h5m files
-install(FILES test_uwuw.h5m DESTINATION tests)
-install(FILES mat_lib.h5    DESTINATION tests)
-install(FILES dag_file.h5m  DESTINATION tests)
-
-# Enable unit tests
-enable_testing()
+dagmc_install_test_file(test_uwuw.h5m)
+dagmc_install_test_file(mat_lib.h5)
+dagmc_install_test_file(dag_file.h5m)
