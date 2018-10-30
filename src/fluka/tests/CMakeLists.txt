@@ -12,5 +12,6 @@ dagmc_install_test(fludag_unit_tests cpp)
 dagmc_install_test_file(slabs.h5m)
 # We use a file from the MCNP test folder, so if not building MCNP5/6 we have to install it
 if (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)
-  dagmc_install_test_file(${CMAKE_SOURCE_DIR}/src/mcnp/tests/test_geom_legacy.h5m)
+  install(FILES ${CMAKE_SOURCE_DIR}/src/mcnp/tests/test_geom_legacy.h5m DESTINATION ${INSTALL_TESTS_DIR})
+  configure_file(${CMAKE_SOURCE_DIR}/src/mcnp/tests/test_geom_legacy.h5m ${CMAKE_CURRENT_BINARY_DIR}/${filename} COPYONLY)
 endif (NOT BUILD_MCNP5 AND NOT BUILD_MCNP6)

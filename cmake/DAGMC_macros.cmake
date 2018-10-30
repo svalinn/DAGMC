@@ -58,6 +58,9 @@ macro (dagmc_setup_options)
   option(BUILD_TESTS    "Build unit tests" ON)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
 
+  option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+  option(BUILD_STATIC_LIBS "Build static libraries" ON)
+
   option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_PIC        "Build with PIC"           OFF)
 
@@ -68,6 +71,16 @@ macro (dagmc_setup_options)
     set(BUILD_MCNP6  ON)
     set(BUILD_GEANT4 ON)
     set(BUILD_FLUKA  ON)
+  endif ()
+
+  if (BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS)
+    set(BUILD_STATIC_EXE OFF)
+  endif ()
+  if (BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
+    set(BUILD_STATIC_EXE ON)
+  endif ()
+  if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS)
+    message(FATAL_ERROR "BUILD_SHARED_LIBS and BUILD_STATIC_LIBS cannot both be OFF")
   endif ()
 endmacro ()
 
@@ -171,33 +184,35 @@ macro (dagmc_install_library lib_name)
 
   dagmc_get_link_libs()
 
-  add_library(${lib_name}-shared SHARED ${SRC_FILES})
-  add_library(${lib_name}-static STATIC ${SRC_FILES})
-  if (BUILD_RPATH)
-    set_target_properties(${lib_name}-shared
-      PROPERTIES OUTPUT_NAME ${lib_name}
-                 PUBLIC_HEADER "${PUB_HEADERS}"
-                 INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-                 INSTALL_RPATH_USE_LINK_PATH TRUE)
-    set_target_properties(${lib_name}-static
-      PROPERTIES OUTPUT_NAME ${lib_name}
-                 INSTALL_RPATH ""
-                 INSTALL_RPATH_USE_LINK_PATH FALSE)
-  else ()
-    set_target_properties(${lib_name}-shared
-      PROPERTIES OUTPUT_NAME ${lib_name}
-                 PUBLIC_HEADER "${PUB_HEADERS}")
+  if (BUILD_SHARED_LIBS)
+    add_library(${lib_name}-shared SHARED ${SRC_FILES})
+      set_target_properties(${lib_name}-shared
+        PROPERTIES OUTPUT_NAME ${lib_name}
+                   PUBLIC_HEADER "${PUB_HEADERS}")
+    if (BUILD_RPATH)
+      set_target_properties(${lib_name}-shared
+        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                   INSTALL_RPATH_USE_LINK_PATH TRUE)
+    endif ()
+    target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
+    install(TARGETS ${lib_name}-shared
+            LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+            PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
+  endif ()
+
+  if (BUILD_STATIC_LIBS)
+    add_library(${lib_name}-static STATIC ${SRC_FILES})
     set_target_properties(${lib_name}-static
       PROPERTIES OUTPUT_NAME ${lib_name})
+    if (BUILD_RPATH)
+      set_target_properties(${lib_name}-static
+        PROPERTIES INSTALL_RPATH "" INSTALL_RPATH_USE_LINK_PATH FALSE)
+    endif ()
+    target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
+    install(TARGETS ${lib_name}-static
+            ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+            PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   endif ()
-  target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
-  target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
-  install(TARGETS ${lib_name}-shared
-    LIBRARY       DESTINATION ${INSTALL_LIB_DIR}
-    PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
-  install(TARGETS ${lib_name}-static
-    ARCHIVE       DESTINATION ${INSTALL_LIB_DIR}
-    PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
 
   # Keep a list of all libraries being installed
   if (DAGMC_LIBRARIES)
