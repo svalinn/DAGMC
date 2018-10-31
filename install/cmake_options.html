@@ -14,6 +14,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installing the Cubit/Trelis plugin" href="plugin.html" />
@@ -80,31 +81,38 @@
 Note that unless set, all boolean options default to <code class="docutils literal notranslate"><span class="pre">OFF</span></code>.</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP5=ON</span></code> Build DAG-MCNP5.</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DMOAB_DIR=/path/to/moab</span></code> Path to MOAB.</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP5=ON</span></code> Build DAG-MCNP5. (Default: OFF)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP6=ON</span></code> Build DAG-MCNP6. (Default: OFF)</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DMCNP5_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
 executable will look for nuclear data. If this variable is not set, it
 will look for the data in the location specified by the <code class="docutils literal notranslate"><span class="pre">$DATAPATH</span></code>
 environment variable instead.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP6=ON</span></code> Build DAG-MCNP6.</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DMCNP6_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
 executable will look for nuclear data. If this variable is not set, it
 will look for the data in the location specified by the <code class="docutils literal notranslate"><span class="pre">$DATAPATH</span></code>
 environment variable instead.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DMPI_BUILD=ON</span></code> If building DAG-MCNP5 and/or DAG-MCNP6, build MPI
-versions.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_FLUKA=ON</span></code> Build FluDAG. If this option is turned on,
-<code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR</span></code> must also be specified.</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_PLOT=ON</span></code> Enable DAG-MCNP5/6 plotting capability. (Default:
+OFF)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_MPI=ON</span></code> If building DAG-MCNP5/6, build MPI versions.
+(Default: OFF)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_FLUKA=ON</span></code> Build FluDAG and the fludag library. If this option
+is turned on, <code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR</span></code> must also be specified. (Default: OFF)</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR=/path/to/fluka</span></code> Set the path to Fluka. It should typically
 be set to the <code class="docutils literal notranslate"><span class="pre">$FLUPRO</span></code> environment variable.</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DBUILD_GEANT4=ON</span></code> Build DAG-Geant4 and the DagSolid library. If this
-option is turned on, <code class="docutils literal notranslate"><span class="pre">-DGEANT4_DIR</span></code> may need to be specified if the
-CMake files can’t find Geant4 by themselves.</li>
+option is turned on, <code class="docutils literal notranslate"><span class="pre">-DGEANT4_DIR</span></code> must be specified. (Default: OFF)</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DGEANT4_DIR=/path/to/geant4</span></code> Set the path to Geant4.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_TALLY=ON</span></code> Build the DagTally interface. Note that if you are
-using <code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP5=ON</span></code> or <code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP6=ON</span></code> then this is
-automatically set to ON.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_ALL=ON</span></code> Build DAG-MCNP5, DAG-MCNP6, FluDAG, and DAG-Geant4.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_STATIC=ON</span></code> Build static libraries and executables.</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_TALLY=ON</span></code> Build the DagTally interface. (Default: ON)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_BUILD_OBB=ON</span></code> Build the build_obb tool. (Default: ON)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MAKE_WATERTIGHT=ON</span></code> Build the make_watertight tool. (Default:
+ON)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_TESTS=ON</span></code> Build unit tests where appropriate. (Default: ON)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_CI_TESTS=ON</span></code> Build everything needed to run the continuous
+integration tests. (Default: OFF)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_STATIC_EXE=ON</span></code> Build static executables. (Default: OFF)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_PIC=ON</span></code> Build with position-independent code. (Default: OFF)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_RPATH=ON</span></code> Build with RPATH functionality. (Default: ON)</li>
 </ul>
 </div></blockquote>
 </div>
@@ -120,10 +128,10 @@ automatically set to ON.</li>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 31, 2018.
+      Last updated on Oct 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.1.
       </p>
     </div>
   </body>

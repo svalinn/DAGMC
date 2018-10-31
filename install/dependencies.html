@@ -14,6 +14,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installing DAGMC" href="dagmc.html" />
@@ -107,11 +108,10 @@ $ cd dagmc_bld
 <h2>HDF5<a class="headerlink" href="#hdf5" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="source-installation">
 <h3>Source installation<a class="headerlink" href="#source-installation" title="Permalink to this headline">¶</a></h3>
-<p>If electing to install HDF5 from source. The tarball containing the HDF5
-source code can also be downloaded from the <a class="reference external" href="http://www.hdfgroup.org/HDF5">HDF5 website</a>.
-Note that if you choose this option, we recommend you obtain HDF5 version 1.8.13
-instead of the newest version. The following commands can be used to install
-HDF5 from source.</p>
+<p>The tarball containing the HDF5 source code can also be downloaded from the
+<a class="reference external" href="http://www.hdfgroup.org/HDF5">HDF5 website</a>. Note that if you choose this option, we recommend you
+obtain HDF5 version 1.8.13 instead of the newest version. The following commands
+can be used to install HDF5 from source.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mkdir -p $HOME/dagmc_bld/HDF5/bld
 $ cd $HOME/dagmc_bld/HDF5
 $ wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
@@ -129,11 +129,11 @@ $ make install
 <div class="section" id="package-manager-installation">
 <h3>Package manager installation<a class="headerlink" href="#package-manager-installation" title="Permalink to this headline">¶</a></h3>
 <p>Debian linux users can install the latest HDF5 release with:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install hdf5-dev
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install libhdf5-dev
 </pre></div>
 </div>
 <p>Redhat linux users can do likewise with:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo yum install hdf5-dev
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo yum install libhdf5-dev
 </pre></div>
 </div>
 </div>
@@ -141,7 +141,8 @@ $ make install
 <div class="section" id="moab-installation">
 <h2>MOAB installation<a class="headerlink" href="#moab-installation" title="Permalink to this headline">¶</a></h2>
 <p>As of DAGMC version 3.0, MOAB version 5.0 or higher is required. The following
-commands can be used to download MOAB from its <a class="reference external" href="http://press3.mcs.anl.gov/sigma/moab-library">source repository</a> and set it up for building.</p>
+commands can be used to download MOAB from its <a class="reference external" href="http://press3.mcs.anl.gov/sigma/moab-library">source repository</a> and
+set it up for building.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld
 $ mkdir -p MOAB/bld
 $ cd MOAB
@@ -167,43 +168,31 @@ $ make install
 </pre></div>
 </div>
 <p>If you have followed the package manager install route, then the following
-commands should be used to build MOAB.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd bld
-$ ../src/configure --enable-optimize \
+configure command should be used to build MOAB.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ ../src/configure --enable-optimize \
                    --enable-shared \
                    --disable-debug \
-                   --with-hdf5 \
+                   --with-hdf5=/usr/lib/x86_64-linux-gnu/hdf5/serial \
                    --prefix=$HOME/dagmc_bld/MOAB
-$ make
-$ make check
-$ make install
 </pre></div>
 </div>
 </div>
 <div class="section" id="making-sure-the-dependencies-were-installed-correctly">
 <h2>Making sure the dependencies were installed correctly<a class="headerlink" href="#making-sure-the-dependencies-were-installed-correctly" title="Permalink to this headline">¶</a></h2>
-<p>If you installed HDF5 from source, you will need to make sure the system can
-find it when it comes time to build DAGMC. This is done by adding some
-directories to your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code>. (This is not required if
-you used a package manager to install HDF5.)</p>
+<p>In order to test HDF5 and MOAB, some of their directories must be added to your
+<code class="docutils literal notranslate"><span class="pre">$PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code>.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$HOME/dagmc_bld/HDF5/bin
+$ export PATH=$PATH:$HOME/dagmc_bld/MOAB/bin
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/HDF5/lib
-</pre></div>
-</div>
-<p>You will also need to make sure the system can find MOAB.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export PATH=$PATH:$HOME/dagmc_bld/MOAB/bin
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/MOAB/lib
 </pre></div>
 </div>
-<p>After including HDF5 and MOAB in your paths as described above, the following
-commands can be used to test whether HDF5 and MOAB were built successfully.</p>
+<p>The following commands can be used to test whether HDF5 and MOAB were built
+successfully.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ which h5ls
 $ which mbconvert
 </pre></div>
 </div>
-<p>Note that your <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code> will revert to their original
-state when you open a new terminal, so it may be a good idea to add these
-<code class="docutils literal notranslate"><span class="pre">export</span></code> commands to your <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> file.</p>
 <p>If you have installed the dependencies corretly, you are now ready to
 <a class="reference external" href="dagmc.html">install DAGMC</a>.</p>
 </div>
@@ -220,10 +209,10 @@ state when you open a new terminal, so it may be a good idea to add these
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 31, 2018.
+      Last updated on Oct 31, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.1.
       </p>
     </div>
   </body>
