@@ -253,3 +253,60 @@ group geometric entities together. These "Group" sets can be gathered using this
 tag and value to identify "Group" entity sets in the MOAB instance.
 
 .. [1] only used in DAG-MCNP simulations.
+
+The University of Wisconsin Unified Workflow (UWUW) Interface
+-------------------------------------------------------------
+
+The UWUW class in DagMC uses an amalgamated version of PyNE's C++ code to
+interface with PyNE material and tally libraries. PyNE's "physics code neutral"
+data formats allow the data in UWUW DAGMC files to interface with many different
+physics codes using the same .h5m file.
+
+Standard Use
+^^^^^^^^^^^^
+
+The UWUW class is typically constructed using the path to a .h5m file
+containing a material library. Both material and tally information are loaded
+into the UWUW instance upon its creation.
+::
+
+  UWUW* uwuw = new UWUW("/path/to/dagmc.h5m");
+
+UWUW will search the hdf5 file to find material and tally information in the
+default datapaths ``/materials`` and ``/tally``, respectively. At this point,
+material/tally library information can be accessed via the ``material_library``
+and ``tally_library`` attributes of the UWUW object.
+::
+
+  int mat_lib_size = uwuw->material_library.size();
+  pyne::Material steel = uwuw->material_library["Steel"];
+
+Material and tally information can then be written in a variety of supported
+formats using their writer methods, named for each of the physics codes they
+support.
+::
+   std::string mcnp_mat = mat.mcnp();
+  
+For more information on supported codes and how to gather other information from
+these objects, please refer to the PyNE's material_ and tally_ documentation.
+
+.. _material: http://pyne.io/cppapi/html/classpyne_1_1_material.html
+.. _tally: http://pyne.io/cppapi/html/classpyne_1_1_tally.html
+
+Custom hdf5 datapaths
+^^^^^^^^^^^^^^^^^^^^^
+
+While it is recommended that the default hdf5 datapaths for PyNE data are
+used. It is possible to provide specific datapaths to the interface. This can be
+done by creating a UWUW object with an empty constructor. This will subvert the
+automatic loading of material and tally data that would occur using the
+constructor shown in the previous section. The ``load_pyne_materials`` and
+``load_pyne_tallies`` methods can then be used to provide custom material/tally
+library files and hdf5 datapaths.
+::
+   UWUW* uwuw = new UWUW();
+   uwuw->load_pyne_materials("hdf5_material_file_path", datapath = "/custom/hdf5/datapath");
+   uwuw->load_pyne_tallies("hdf5_tally_file_path", datapath = "/custom/hdf5/datapath");
+
+**Note**: It is important to specify absolute filepaths if using a UWUW object
+ in this way. UWUW contains a ``get_full_filepath`` method for convenience.
