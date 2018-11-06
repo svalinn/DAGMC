@@ -302,7 +302,7 @@ done by creating a UWUW object with an empty constructor. This will subvert the
 automatic loading of material and tally data that would occur using the
 constructor shown in the previous section. The ``load_pyne_materials`` and
 ``load_pyne_tallies`` methods can then be used to provide custom material/tally
-library files and hdf5 datapaths. [2]_
+library files and/or customized hdf5 datapaths for those files. [2]_
 ::
    UWUW* uwuw = new UWUW();
    uwuw->load_pyne_materials("hdf5_material_file_path", datapath = "/custom/hdf5/datapath");
