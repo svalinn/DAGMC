@@ -30,6 +30,18 @@ file(GLOB SRC_FILES
   "Source/src/utils/*.F90"
 )
 
+# PyNE mesh source files
+if (BUILD_MCNP_PYNE_SOURCE)
+  message(STATUS "Building DAG-MCNP6 with PyNE mesh source routine support")
+  # Remove MCNP's source.F90 file
+  list(FILTER SRC_FILES EXCLUDE REGEX "/source.F90")
+  list(APPEND SRC_FILES
+    "pyne_source/source.F90"
+    $<TARGET_OBJECTS:measure>
+    $<TARGET_OBJECTS:source_sampling>
+  )
+endif ()
+
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
 if ("/${SRC_FILES};" MATCHES "/main.F90;")
