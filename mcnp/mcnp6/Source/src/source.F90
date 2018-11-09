@@ -11,91 +11,99 @@
 !
 ! Full instructions on compiling and using MCNP5 with this subroutine are found
 ! in the PyNE user manual.
-
+ 
 function find_cell() result(icl_tmp)
-! This function to determines the current MCNP cell index location and exits if
-! no valid cell is found. This only works if there are no repeated geometries or
-! universes present in the model.
-
-    use mcnp_global
-    use mcnp_debug
-    ! xxx,yyy,zzz are global variables
-    ! mxa is global
-    integer :: i ! iterator variable
-    integer :: j ! tempory cell test
-    integer :: icl_tmp ! temporary cell variable
-    icl_tmp = -1
-
-    do i = 1, mxa
-      call chkcel(i, 0, j)
-      if (j .eq. 0) then
-         ! valid cel set
-         icl_tmp = i
-         exit
-      endif
-    enddo
-    ! icl is now set
-
-    if(icl_tmp .le. 0) then
-      write(*,*) 'Nonsense cell number stopping'
-      stop
-    endif
-    ! icl now set to be valid cell
-
-end function find_cell
-
-subroutine source
-    ! This subroutine is called directly by MCNP to select particle birth
-    ! parameters
-    use mcnp_global
-    use mcnp_debug
-    implicit real(dknd) (a-h,o-z)
-    logical, save :: first_run = .true.
-    real(dknd), dimension(6) :: rands
-    integer :: icl_tmp ! temporary cell variable
-    integer :: find_cell
-    integer :: tries
-  
-    if (first_run .eqv. .true.) then
-        call sampling_setup(idum(1))
-        first_run = .false.
-    endif
- 
-100 continue 
-   tries = 0
-   rands(1) = rang() ! sample alias table
-   rands(2) = rang() ! sample alias table
-   rands(6) = rang() ! sample energy
-200 continue
-   rands(3) = rang() ! sample x
-   rands(4) = rang() ! sample y
-   rands(5) = rang() ! sample z
- 
-   call particle_birth(rands, pbl%r%x, pbl%r%y, pbl%r%z, pbl%r%erg, pbl%r%wgt)
-   icl_tmp = find_cell() ! change to findlv to be compatable with universes as seen below
-   if (mat(icl_tmp).eq.0 .and. tries < idum(2)) then
-       tries = tries + 1
-       goto 200
-   end if
-
-    ! for this location, MCNP to determine cell, surface and universe.
-   !pbl%i%jsu = 0
-   !pbl%i%icl = 0
-   !pbl%i%lev=0
-
-   ! Assume we might have repeated structures     
-   !call findlv
-
-
-
-   if(tries.eq.idum(2)) then
-       goto 100
-   end if
-
-   pbl%i%icl = icl_tmp
-   pbl%r%tme = 0.0
-   pbl%i%ipt = idum(3)
-   pbl%i%jsu = 0
- 
-   return
-end subroutine source
+    ! This function to determines the current MCNP cell index location and exits if
+    ! no valid cell is found. This only works if there are no repeated geometries or
+    ! universes present in the model.
+    
+        use mcnp_global
+        use mcnp_debug
+        use mcnp_params, only : dknd
+        use pblcom,      only: pbl
+    
+        ! xxx,yyy,zzz are global variables
+        ! mxa is global
+        integer :: i ! iterator variable
+        integer :: j ! tempory cell test
+        integer :: icl_tmp ! temporary cell variable
+        icl_tmp = -1
+    
+        do i = 1, mxa
+          call chkcel(i, 0, j)
+          if (j .eq. 0) then
+             ! valid cel set
+             icl_tmp = i
+             exit
+          endif
+        enddo
+        ! icl is now set
+    
+        if(icl_tmp .le. 0) then
+          write(*,*) 'Nonsense cell number stopping'
+          stop
+        endif
+        ! icl now set to be valid cell
+    
+    end function find_cell
+    
+    subroutine source
+        ! This subroutine is called directly by MCNP to select particle birth
+        ! parameters
+        use mcnp_global
+        use mcnp_debug
+        use mcnp_params, only : dknd
+        use pblcom,      only: pbl
+        use mcnp_random, only : rang
+    
+        implicit real(dknd) (a-h,o-z)
+        logical, save :: first_run = .true.
+        real(dknd), dimension(6) :: rands
+        integer :: icl_tmp ! temporary cell variable
+        integer :: find_cell
+        integer :: tries
+      
+        if (first_run .eqv. .true.) then
+            call sampling_setup(idum(1))
+            first_run = .false.
+        endif
+     
+    100 continue 
+       tries = 0
+       rands(1) = rang() ! sample alias table
+       rands(2) = rang() ! sample alias table
+       rands(6) = rang() ! sample energy
+    200 continue
+       rands(3) = rang() ! sample x
+       rands(4) = rang() ! sample y
+       rands(5) = rang() ! sample z
+     
+       call particle_birth(rands, pbl%r%x, pbl%r%y, pbl%r%z, pbl%r%erg, pbl%r%wgt)
+       icl_tmp = find_cell() ! change to findlv to be compatable with universes as seen below
+       if (mat(icl_tmp).eq.0 .and. tries < idum(2)) then
+           tries = tries + 1
+           goto 200
+       end if
+    
+        ! for this location, MCNP to determine cell, surface and universe.
+       !pbl%i%jsu = 0
+       !pbl%i%icl = 0
+       !pbl%i%lev=0
+    
+       ! Assume we might have repeated structures     
+       !call findlv
+    
+    
+    
+       if(tries.eq.idum(2)) then
+           goto 100
+       end if
+    
+       pbl%i%icl = icl_tmp
+       pbl%r%tme = 0.0
+       pbl%i%ipt = idum(3)
+       pbl%i%jsu = 0
+     
+       return
+    end subroutine source
+    
