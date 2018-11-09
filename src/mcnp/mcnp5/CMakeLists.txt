@@ -7,6 +7,10 @@ file(GLOB SRC_FILES
   "Source/src/*.F90"
 )
 
+# strip source.F90 for the pyne source sampling one
+list(REMOVE_ITEM MCNP_SRC_FILES "Source/src/source.F90")
+list(APPEND "source.F90")
+
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
 if ("/${SRC_FILES};" MATCHES "/main.F90;")
