@@ -49,6 +49,10 @@ Note that unless set, all boolean options default to ``OFF``.
     * ``-DBUILD_CI_TESTS=ON`` Build everything needed to run the continuous
       integration tests. (Default: OFF)
 
+    * ``-DBUILD_SHARED_LIBS=ON`` Build shared libraries. (Default: ON)
+
+    * ``-DBUILD_STATIC_LIBS=ON`` Build static libraries. (Default: ON)
+
     * ``-DBUILD_STATIC_EXE=ON`` Build static executables. (Default: OFF)
 
     * ``-DBUILD_PIC=ON`` Build with position-independent code. (Default: OFF)

@@ -21,12 +21,16 @@ if (WITH_GEANT4_UIVIS)
 endif ()
 
 # Get Geant4 include directories and libraries
-set(Geant4_FIND_REQUIRED_static ON)
-include(${Geant4_CMAKE_CONFIG})
-set(Geant4_LIBRARIES_STATIC ${Geant4_LIBRARIES})
-set(Geant4_FIND_REQUIRED_static OFF)
-include(${Geant4_CMAKE_CONFIG})
-set(Geant4_LIBRARIES_SHARED ${Geant4_LIBRARIES})
+if (BUILD_STATIC_LIBS)
+  set(Geant4_FIND_REQUIRED_static ON)
+  include(${Geant4_CMAKE_CONFIG})
+  set(Geant4_LIBRARIES_STATIC ${Geant4_LIBRARIES})
+endif ()
+if (BUILD_SHARED_LIBS)
+  set(Geant4_FIND_REQUIRED_static OFF)
+  include(${Geant4_CMAKE_CONFIG})
+  set(Geant4_LIBRARIES_SHARED ${Geant4_LIBRARIES})
+endif ()
 set(Geant4_LIBRARIES)
 
 # Get Geant4 compile definitions and flags
@@ -42,7 +46,8 @@ message(STATUS "Geant4_CXX_FLAGS: ${Geant4_CXX_FLAGS}")
 message(STATUS "Geant4_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}: ${Geant4_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPER}}")
 message(STATUS "Geant4_EXE_LINKER_FLAGS: ${Geant4_EXE_LINKER_FLAGS}")
 
-if (Geant4_INCLUDE_DIRS AND Geant4_LIBRARIES_SHARED AND Geant4_LIBRARIES_STATIC AND Geant4_CXX_FLAGS)
+if (Geant4_INCLUDE_DIRS AND (Geant4_LIBRARIES_SHARED OR NOT BUILD_SHARED_LIBS) AND
+    (Geant4_LIBRARIES_STATIC OR NOT BUILD_STATIC_LIBS) AND Geant4_CXX_FLAGS)
   message(STATUS "Found Geant4")
 else ()
   message(FATAL_ERROR "Could not find Geant4")

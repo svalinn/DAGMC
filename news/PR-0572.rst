@@ -1,0 +1,13 @@
+**Added:**
+
+* Added ability for users to disable building static or shared libraries
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
