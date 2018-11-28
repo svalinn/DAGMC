@@ -1,0 +1,16 @@
+**Added:** None
+
+**Changed:**
+
+* Use the values of ``MOAB_INCLUDE_DIRS`` and ``MOAB_LIBRARY_DIRS`` from
+  ``MOABConfig.cmake`` instead of trying to determine them ourselves. Note that
+  this change makes DAGMC incompatible with MOAB 5.0.
+* Change the ``MOAB_DIR`` variable to ``MOAB_ROOT``.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
