@@ -3,7 +3,7 @@ message("")
 # Find MOAB cmake config file
 # Only used to determine the location of the HDF5 with which MOAB was built
 set(MOAB_SEARCH_DIRS)
-file(GLOB MOAB_SEARCH_DIRS ${MOAB_SEARCH_DIRS} "${MOAB_DIR}/lib/cmake/MOAB")
+file(GLOB MOAB_SEARCH_DIRS ${MOAB_SEARCH_DIRS} "${MOAB_ROOT}/lib/cmake/MOAB")
 string(REPLACE "\n" ";" MOAB_SEARCH_DIRS ${MOAB_SEARCH_DIRS})
 find_path(MOAB_CMAKE_CONFIG
   NAMES MOABConfig.cmake
@@ -14,7 +14,7 @@ if (MOAB_CMAKE_CONFIG)
   set(MOAB_CMAKE_CONFIG ${MOAB_CMAKE_CONFIG}/MOABConfig.cmake)
   message(STATUS "MOAB_CMAKE_CONFIG: ${MOAB_CMAKE_CONFIG}")
 else ()
-  message(FATAL_ERROR "Could not find MOAB. Set -DMOAB_DIR=<moab_dir> when running cmake or use the $MOAB_DIR environment variable.")
+  message(FATAL_ERROR "Could not find MOAB. Set -DMOAB_ROOT=<MOAB_ROOT> when running cmake or use the $MOAB_ROOT environment variable.")
 endif ()
 
 # Find HDF5
@@ -46,8 +46,8 @@ set(DAGMC_LIBRARIES)
 # Find MOAB include directory
 find_path(MOAB_INCLUDE_DIRS
   NAMES MBiMesh.hpp
-  HINTS ${MOAB_DIR}
-  PATHS ENV MOAB_DIR
+  HINTS ${MOAB_ROOT}
+  PATHS ENV MOAB_ROOT
   PATH_SUFFIXES include
   NO_DEFAULT_PATH
 )
@@ -60,8 +60,8 @@ if (BUILD_SHARED_LIBS)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
   find_library(MOAB_LIBRARIES_SHARED
     NAMES MOAB
-    HINTS ${MOAB_DIR}
-    PATHS ENV MOAB_DIR
+    HINTS ${MOAB_ROOT}
+    PATHS ENV MOAB_ROOT
     PATH_SUFFIXES lib
     NO_DEFAULT_PATH
   )
@@ -76,8 +76,8 @@ if (BUILD_STATIC_LIBS)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
   find_library(MOAB_LIBRARIES_STATIC
     NAMES MOAB
-    HINTS ${MOAB_DIR}
-    PATHS ENV MOAB_DIR
+    HINTS ${MOAB_ROOT}
+    PATHS ENV MOAB_ROOT
     PATH_SUFFIXES lib
     NO_DEFAULT_PATH
   )
