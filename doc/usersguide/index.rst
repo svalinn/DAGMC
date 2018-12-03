@@ -30,6 +30,8 @@ much manual data transfer you wish to do.
 +-------------------------+----------------+----------------+
 |  Tripoli4 Materials     | N              |  None          |
 +-------------------------+----------------+----------------+
+|  OpenMC Materials       | N              |  M             |
++-------------------------+----------------+----------------+
 
 **N** not supported, **A** automatic production at run time, **M** manually
 performed
