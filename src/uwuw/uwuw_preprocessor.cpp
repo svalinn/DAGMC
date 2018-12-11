@@ -85,7 +85,10 @@ pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, s
   pyne::comp_map comp = material.comp;
 
   // make sure to bring metadata with us
-  new_mat = pyne::Material(comp, 1.0, material.density, 0.0, material.metadata);
+  new_mat = pyne::Material(comp, 1.0,
+                           material.density,
+                           material.atoms_per_molecule,
+                           material.metadata);
 
   // use the name concatenator to make the fluka name
   std::string fluka_name = ncr->make_name_8bytes(material.metadata["name"].asString());

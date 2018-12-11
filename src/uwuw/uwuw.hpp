@@ -1,4 +1,4 @@
-#include "../pyne/pyne.h"
+#include "pyne.h"
 #include <stdlib.h>
 #include <map>
 #include <string>

@@ -10,6 +10,7 @@ endif ()
 include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/src/tally)
+include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 
 message(STATUS "Building object library: mcnp_funcs")
 add_library(mcnp_funcs OBJECT mcnp_funcs.cpp)
