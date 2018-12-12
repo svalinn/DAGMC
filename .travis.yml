@@ -7,19 +7,25 @@ notifications:
   slack: cnerg:d48My26ZXfvHlg0On2WwNQFi
 env:
   matrix:
-    # astyle only
-    - ASTYLE_ONLY="ON"
-    # main
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-7"     MOAB_VERSION="5.0"    BUILD_GEANT4="ON"
-    - ASTYLE_ONLY="OFF" COMPILER="clang-5.0" MOAB_VERSION="5.0"    BUILD_GEANT4="ON"
-    # vary moab version
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-7"     MOAB_VERSION="master" BUILD_GEANT4="ON"
+    - name: "style only"
+      ASTYLE_ONLY="ON"
+    - name: "main gcc-7"
+      ASTYLE_ONLY="OFF" COMPILER="gcc-7"     MOAB_VERSION="5.0"    BUILD_GEANT4="ON"
+    - name: "main clang-5/0"
+      ASTYLE_ONLY="OFF" COMPILER="clang-5.0" MOAB_VERSION="5.0"    BUILD_GEANT4="ON"
+    - name: "master gcc-7"
+      ASTYLE_ONLY="OFF" COMPILER="gcc-7"     MOAB_VERSION="master" BUILD_GEANT4="ON"
+    - name: "master clang-5.0"
     - ASTYLE_ONLY="OFF" COMPILER="clang-5.0" MOAB_VERSION="master" BUILD_GEANT4="ON"
     # vary compiler
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-4.8"   MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-5"     MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-6"     MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
-    - ASTYLE_ONLY="OFF" COMPILER="clang-4.0" MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
+    - name: "main gcc-4.8"
+      ASTYLE_ONLY="OFF" COMPILER="gcc-4.8"   MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
+    - name: "main gcc-5"
+      ASTYLE_ONLY="OFF" COMPILER="gcc-5"     MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
+    - name: "main gcc-6"
+      ASTYLE_ONLY="OFF" COMPILER="gcc-6"     MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
+    - name: "main clang-4.0"
+      ASTYLE_ONLY="OFF" COMPILER="clang-4.0" MOAB_VERSION="5.0"    BUILD_GEANT4="OFF"
 services:
   - docker
 before_install:
