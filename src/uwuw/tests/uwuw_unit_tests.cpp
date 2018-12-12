@@ -156,6 +156,6 @@ TEST_F(UWUWTest, mat_write) {
   expected_rep << "</material>\n";
 
   EXPECT_EQ(expected_rep.str(), openmc_rep);
-  
+
   return;
 }
