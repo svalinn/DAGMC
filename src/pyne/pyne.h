@@ -95,158 +95,194 @@
 #include <algorithm>
 
 #if (__GNUC__ >= 4)
-#include <cmath>
-#define isnan(x) std::isnan(x)
+  #include <cmath>
+  #define isnan(x) std::isnan(x)
 #else
-#include <math.h>
-#define isnan(x) __isnand((double)x)
+  #include <math.h>
+  #define isnan(x) __isnand((double)x)
 #endif
 
 #ifdef __WIN_MSVC__
-#define isnan(x) ((x) != (x))
+    #define isnan(x) ((x) != (x))
 #endif
 
 #ifndef JSON_IS_AMALGAMATION
-#define JSON_IS_AMALGAMATION
+  #define JSON_IS_AMALGAMATION
 #endif
 
 /// The 'pyne' namespace all PyNE functionality is included in.
 namespace pyne {
 
-void pyne_start();  ///< Initializes PyNE based on environment.
+  void pyne_start (); ///< Initializes PyNE based on environment.
 
-/// Path to the directory containing the PyNE data.
-extern std::string PYNE_DATA;
-extern std::string NUC_DATA_PATH; ///< Path to the nuc_data.h5 file.
+  /// Path to the directory containing the PyNE data.
+  extern std::string PYNE_DATA;
+  extern std::string NUC_DATA_PATH; ///< Path to the nuc_data.h5 file.
+  extern std::string VERSION; ///< PyNE version number
 
-// String Transformations
-/// string of digit characters
-static std::string digits = "0123456789";
-/// uppercase alphabetical characters
-static std::string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-/// string of all valid word characters for variable names in programing languages.
-static std::string words = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+  // String Transformations
+  /// string of digit characters
+  static std::string digits = "0123456789";
+  /// uppercase alphabetical characters
+  static std::string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  /// string of all valid word characters for variable names in programing languages.
+  static std::string words = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
 
-/// \name String Conversion Functions
-/// \{
-/// Converts the variables of various types to their C++ string representation.
-std::string to_str(int t);
-std::string to_str(unsigned int t);
-std::string to_str(double t);
-std::string to_str(bool t);
-/// \}
+  /// \name String Conversion Functions
+  /// \{
+  /// Converts the variables of various types to their C++ string representation.
+  std::string to_str(int t);
+  std::string to_str(unsigned int t);
+  std::string to_str(double t);
+  std::string to_str(bool t);
+  /// \}
 
-int to_int(std::string s);  ///< Converts a string of digits to an int using atoi().
+  int to_int(std::string s);  ///< Converts a string of digits to an int using atoi().
 
-double to_dbl(std::string s);  ///< Converts a valid string to a float using atof().
+  double to_dbl(std::string s);  ///< Converts a valid string to a float using atof().
 
-/// Converts a string from ENDF format to a float. Only handles E-less format
-/// but is roughly 5 times faster than endftod.
-double endftod_cpp(char* s);
-double endftod_f(char* s);  ///< Converts a string from ENDF format to a float.
-extern  double (*endftod)(char* s);  ///< endftod function pointer. defaults to fortran
+  /// Converts a string from ENDF format to a float. Only handles E-less format
+  /// but is roughly 5 times faster than endftod.
+  double endftod_cpp(char * s);
+  double endftod_f(char * s); ///< Converts a string from ENDF format to a float.
+  extern  double (*endftod)(char * s); ///< endftod function pointer. defaults to fortran
 
-void use_fast_endftod();/// switches endftod to fast cpp version
+  void use_fast_endftod();/// switches endftod to fast cpp version
 
-/// Returns an all upper case copy of the string.
-std::string to_upper(std::string s);
+  /// Returns an all upper case copy of the string.
+  std::string to_upper(std::string s);
 
-/// Returns an all lower case copy of the string.
-std::string to_lower(std::string s);
+  /// Returns an all lower case copy of the string.
+  std::string to_lower(std::string s);
 
-/// Returns a capitalized copy of the string.
-std::string capitalize(std::string s);
+  /// Returns a capitalized copy of the string.
+  std::string capitalize(std::string s);
 
-/// Finds and returns the first white-space delimited token of a line.
-/// \param line a character array to take the first token from.
-/// \param max_l an upper bound to the length of the token.  Must be 11 or less.
-/// \returns a the flag as a string
-std::string get_flag(char line[], int max_l);
+  /// Finds and returns the first white-space delimited token of a line.
+  /// \param line a character array to take the first token from.
+  /// \param max_l an upper bound to the length of the token.  Must be 11 or less.
+  /// \returns a the flag as a string
+  std::string get_flag(char line[], int max_l);
 
-/// Creates a copy of \a s with all instances of \a substr taken out.
-std::string remove_substring(std::string s, std::string substr);
+  /// Creates a copy of \a s with all instances of \a substr taken out.
+  std::string remove_substring(std::string s, std::string substr);
 
-/// Removes all characters in the string \a chars from \a s.
-std::string remove_characters(std::string s, std::string chars);
+  /// Removes all characters in the string \a chars from \a s.
+  std::string remove_characters(std::string s, std::string chars);
 
-/// Replaces all instance of \a substr in \a s with \a repstr.
-std::string replace_all_substrings(std::string s, std::string substr,
-                                   std::string repstr);
+  /// Replaces all instance of \a substr in \a s with \a repstr.
+  std::string replace_all_substrings(std::string s, std::string substr,
+                                                    std::string repstr);
 
-/// Returns the last character in a string.
-std::string last_char(std::string s);
+  /// Returns the last character in a string.
+  std::string last_char(std::string s);
 
-/// Returns the slice of a string \a s using the negative index \a n and the
-/// length of the slice \a l.
-std::string slice_from_end(std::string s, int n = -1, int l = 1);
+  /// Returns the slice of a string \a s using the negative index \a n and the
+  /// length of the slice \a l.
+  std::string slice_from_end(std::string s, int n=-1, int l=1);
 
-/// Returns true if \a a <= \a b <= \a c and flase otherwise.
-bool ternary_ge(int a, int b, int c);
+  /// Returns true if \a a <= \a b <= \a c and flase otherwise.
+  bool ternary_ge(int a, int b, int c);
 
-/// Returns true if \a substr is in \a s.
-bool contains_substring(std::string s, std::string substr);
+  /// Returns true if \a substr is in \a s.
+  bool contains_substring(std::string s, std::string substr);
 
-/// Calculates a version of the string \a name that is also a valid variable name.
-/// That is to say that the return value uses only word characters.
-std::string natural_naming(std::string name);
+  /// Calculates a version of the string \a name that is also a valid variable name.
+  /// That is to say that the return value uses only word characters.
+  std::string natural_naming(std::string name);
 
-/// Finds the slope of a line from the points (\a x1, \a y1) and (\a x2, \a y2).
-double slope(double x2, double y2, double x1, double y1);
+  /// Finds the slope of a line from the points (\a x1, \a y1) and (\a x2, \a y2).
+  double slope (double x2, double y2, double x1, double y1);
 
-/// Solves the equation for the line y = mx + b, given \a x and the points that
-/// form the line: (\a x1, \a y1) and (\a x2, \a y2).
-double solve_line(double x, double x2, double y2, double x1, double y1);
+  /// Solves the equation for the line y = mx + b, given \a x and the points that
+  /// form the line: (\a x1, \a y1) and (\a x2, \a y2).
+  double solve_line (double x, double x2, double y2, double x1, double y1);
 
-double tanh(double x);  ///< The hyperbolic tangent function.
-double coth(double x);  ///< The hyperbolic cotangent function.
+  double tanh(double x);  ///< The hyperbolic tangent function.
+  double coth(double x);  ///< The hyperbolic cotangent function.
 
 
-// File Helpers
-/// Returns true if the file can be found.
-bool file_exists(std::string strfilename);
+  // File Helpers
+  /// Returns true if the file can be found.
+  bool file_exists(std::string strfilename);
 
-// Message Helpers
-extern bool USE_WARNINGS;
-/// Toggles warnings on and off
-bool toggle_warnings();
+  // Message Helpers
+  extern bool USE_WARNINGS;
+  /// Toggles warnings on and off
+  bool toggle_warnings();
 
-/// Prints a warning message.
-void warning(std::string s);
+  /// Prints a warning message.
+  void warning(std::string s);
 
-/// Custom exception to be thrown in the event that a required file is not able to
-/// be found.
-class FileNotFound : public std::exception {
- public:
+  /// Custom exception to be thrown in the event that a required file is not able to
+  /// be found.
+  class FileNotFound : public std::exception
+  {
+  public:
 
-  /// default constructor
-  FileNotFound() {};
+    /// default constructor
+    FileNotFound () {};
 
-  /// default destructor
-  ~FileNotFound() throw () {};
+    /// default destructor
+    ~FileNotFound () throw () {};
 
-  /// constructor with the filename \a fname.
-  FileNotFound(std::string fname) {
-    filename = fname;
+    /// constructor with the filename \a fname.
+    FileNotFound(std::string fname)
+    {
+      filename = fname;
+    };
+
+    /// Creates a helpful error message.
+    virtual const char* what() const throw()
+    {
+      std::string FNFstr ("File not found: ");
+      if (!filename.empty())
+        FNFstr += filename;
+
+      return (const char *) FNFstr.c_str();
+    };
+
+  private:
+    std::string filename; ///< unfindable filename.
   };
 
-  /// Creates a helpful error message.
-  virtual const char* what() const throw() {
-    std::string FNFstr("File not found: ");
-    if (!filename.empty())
-      FNFstr += filename;
+  /// Exception representing value errors of all kinds
+  class ValueError : public std::exception
+  {
+  public:
 
-    return (const char*) FNFstr.c_str();
+    /// default constructor
+    ValueError () {};
+
+    /// default destructor
+    ~ValueError () throw () {};
+
+    /// constructor with the filename \a fname.
+    ValueError(std::string msg)
+    {
+      message = msg;
+    };
+
+    /// Creates a helpful error message.
+    virtual const char* what() const throw()
+    {
+      std::string msgstr ("ValueError: ");
+      if (!message.empty())
+        msgstr += message;
+
+      return (const char *) msgstr.c_str();
+    };
+
+  private:
+    std::string message; ///< extra message for the user.
   };
-
- private:
-  std::string filename; ///< unfindable filename.
-};
 
 
 // End PyNE namespace
 }
 
 #endif  // PYNE_KMMHYNANYFF5BFMEYIP7TUNLHA
+
 //
 // end of src/utils.h
 //
@@ -770,585 +806,620 @@ inline bool path_exists(hid_t h5file, std::string path) {
 #include "utils.h"
 #endif
 
-namespace pyne {
+namespace pyne
+{
 //! Nuclide naming conventions
-namespace nucname {
-typedef std::string name_t; ///< name type
-typedef int zz_t;           ///< Z number type
+namespace nucname
+{
+  typedef std::string name_t; ///< name type
+  typedef int zz_t;           ///< Z number type
 
-typedef std::map<name_t, zz_t> name_zz_t; ///< name and Z num map type
-typedef name_zz_t::iterator name_zz_iter; ///< name and Z num iter type
-name_zz_t get_name_zz();  ///< Creates standard name to Z number mapping.
-extern name_zz_t name_zz; ///< name to Z num map
+  typedef std::map<name_t, zz_t> name_zz_t; ///< name and Z num map type
+  typedef name_zz_t::iterator name_zz_iter; ///< name and Z num iter type
+  name_zz_t get_name_zz();  ///< Creates standard name to Z number mapping.
+  extern name_zz_t name_zz; ///< name to Z num map
 
-typedef std::map<zz_t, name_t> zzname_t;  ///< Z num to name map type
-typedef zzname_t::iterator zzname_iter;   ///< Z num to name iter type
-zzname_t get_zz_name();   ///< Creates standard Z number to name mapping.
-extern zzname_t zz_name;  ///< Z num to name map
+  typedef std::map<zz_t, name_t> zzname_t;  ///< Z num to name map type
+  typedef zzname_t::iterator zzname_iter;   ///< Z num to name iter type
+  zzname_t get_zz_name();   ///< Creates standard Z number to name mapping.
+  extern zzname_t zz_name;  ///< Z num to name map
 
-name_zz_t get_fluka_zz();  ///< Creates standard fluka-name to nucid mapping.
-extern name_zz_t fluka_zz; ///< fluka-name to nucid map
-zzname_t get_zz_fluka();   ///< Creates standard nucid to fluka-name mapping.
-extern zzname_t zz_fluka;  ///< nucid to fluka-name map
-/******************************************/
-/*** Define useful elemental group sets ***/
-/******************************************/
+  name_zz_t get_fluka_zz();  ///< Creates standard fluka-name to nucid mapping.
+  extern name_zz_t fluka_zz; ///< fluka-name to nucid map
+  zzname_t get_zz_fluka();   ///< Creates standard nucid to fluka-name mapping.
+  extern zzname_t zz_fluka;  ///< nucid to fluka-name map
+  /******************************************/
+  /*** Define useful elemental group sets ***/
+  /******************************************/
 
-/// name grouping type (for testing containment)
-typedef std::set<name_t> name_group;
-typedef name_group::iterator name_group_iter; ///< name grouping iter type
+  /// name grouping type (for testing containment)
+  typedef std::set<name_t> name_group;
+  typedef name_group::iterator name_group_iter; ///< name grouping iter type
 
-/// Z number grouping type (for testing containment)
-typedef std::set<zz_t> zz_group;
-typedef zz_group::iterator zz_group_iter; ///< Z number grouping iter
+  /// Z number grouping type (for testing containment)
+  typedef std::set<zz_t> zz_group;
+  typedef zz_group::iterator zz_group_iter; ///< Z number grouping iter
 
-/// Converts a name group to a Z number group.
-/// \param eg a grouping of nuclides by name
-/// \return a Z numbered group
-zz_group name_to_zz_group(name_group eg);
+  /// Converts a name group to a Z number group.
+  /// \param eg a grouping of nuclides by name
+  /// \return a Z numbered group
+  zz_group name_to_zz_group (name_group eg);
 
-extern name_t LAN_array[15];  ///< array of lanthanide names
-extern name_group LAN;        ///< lanthanide name group
-extern zz_group lan;          ///< lanthanide Z number group
+  extern name_t LAN_array[15];  ///< array of lanthanide names
+  extern name_group LAN;        ///< lanthanide name group
+  extern zz_group lan;          ///< lanthanide Z number group
 
-extern name_t ACT_array[15];  ///< array of actinide names
-extern name_group ACT;        ///< actinide name group
-extern zz_group act;          ///< actinide Z number group
+  extern name_t ACT_array[15];  ///< array of actinide names
+  extern name_group ACT;        ///< actinide name group
+  extern zz_group act;          ///< actinide Z number group
 
-extern name_t TRU_array[22];  ///< array of transuranic names
-extern name_group TRU;        ///< transuranic name group
-extern zz_group tru;          ///< transuranic Z number group
+  extern name_t TRU_array[22];  ///< array of transuranic names
+  extern name_group TRU;        ///< transuranic name group
+  extern zz_group tru;          ///< transuranic Z number group
 
-extern name_t MA_array[10];   ///< array of minor actinide names
-extern name_group MA;         ///< minor actinide name group
-extern zz_group ma;           ///< minor actinide Z number group
+  extern name_t MA_array[10];   ///< array of minor actinide names
+  extern name_group MA;         ///< minor actinide name group
+  extern zz_group ma;           ///< minor actinide Z number group
 
-extern name_t FP_array[88];   ///< array of fission product names
-extern name_group FP;         ///< fission product name group
-extern zz_group fp;           ///< fission product Z number group
+  extern name_t FP_array[88];   ///< array of fission product names
+  extern name_group FP;         ///< fission product name group
+  extern zz_group fp;           ///< fission product Z number group
 
 
-/******************/
-/*** Exceptions ***/
-/******************/
+  /******************/
+  /*** Exceptions ***/
+  /******************/
 
-/// Custom expection for declaring that a value does not follow a recognizable
-/// nuclide naming convention.
-class NotANuclide : public std::exception {
- public:
-  /// default constructor
-  NotANuclide() {};
+  /// Custom expection for declaring that a value does not follow a recognizable
+  /// nuclide naming convention.
+  class NotANuclide : public std::exception
+  {
+  public:
+    /// default constructor
+    NotANuclide () {};
 
-  /// default destructor
-  ~NotANuclide() throw () {};
+    /// default destructor
+    ~NotANuclide () throw () {};
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  NotANuclide(std::string wasptr, std::string nowptr) {
-    nucwas = wasptr;
-    nucnow = nowptr;
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    NotANuclide(std::string wasptr, std::string nowptr)
+    {
+       nucwas = wasptr;
+       nucnow = nowptr;
+    };
+
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    NotANuclide(std::string wasptr, int nowptr)
+    {
+      nucwas = wasptr;
+      nucnow = pyne::to_str(nowptr);
+    };
+
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    NotANuclide(int wasptr, std::string nowptr)
+    {
+      nucwas = pyne::to_str(wasptr);
+      nucnow = nowptr;
+    };
+
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    NotANuclide(int wasptr, int nowptr)
+    {
+      nucwas = pyne::to_str(wasptr);
+      nucnow = pyne::to_str(nowptr);
+    };
+
+    /// Generates an informational message for the exception
+    /// \return The error string
+    virtual const char* what() const throw()
+    {
+      std::string NaNEstr ("Not a Nuclide! ");
+      if (!nucwas.empty())
+        NaNEstr += nucwas;
+
+      if (!nucnow.empty())
+      {
+        NaNEstr += " --> ";
+        NaNEstr += nucnow;
+      }
+      return (const char *) NaNEstr.c_str();
+    };
+
+  private:
+    std::string nucwas; ///< previous nuclide state
+    std::string nucnow; ///< current nuclide state
   };
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  NotANuclide(std::string wasptr, int nowptr) {
-    nucwas = wasptr;
-    nucnow = pyne::to_str(nowptr);
-  };
+  /// Custom expection for declaring that a value represents one or more nuclides
+  /// in one or more namig conventions
+  class IndeterminateNuclideForm : public std::exception
+  {
+  public:
+    /// default constructor
+    IndeterminateNuclideForm () {};
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  NotANuclide(int wasptr, std::string nowptr) {
-    nucwas = pyne::to_str(wasptr);
-    nucnow = nowptr;
-  };
+    /// default destuctor
+    ~IndeterminateNuclideForm () throw () {};
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  NotANuclide(int wasptr, int nowptr) {
-    nucwas = pyne::to_str(wasptr);
-    nucnow = pyne::to_str(nowptr);
-  };
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    IndeterminateNuclideForm(std::string wasptr, std::string nowptr)
+    {
+       nucwas = wasptr;
+       nucnow = nowptr;
+    };
 
-  /// Generates an informational message for the exception
-  /// \return The error string
-  virtual const char* what() const throw() {
-    std::string NaNEstr("Not a Nuclide! ");
-    if (!nucwas.empty())
-      NaNEstr += nucwas;
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    IndeterminateNuclideForm(std::string wasptr, int nowptr)
+    {
+      nucwas = wasptr;
+      nucnow = pyne::to_str(nowptr);
+    };
 
-    if (!nucnow.empty()) {
-      NaNEstr += " --> ";
-      NaNEstr += nucnow;
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    IndeterminateNuclideForm(int wasptr, std::string nowptr)
+    {
+      nucwas = pyne::to_str(wasptr);
+      nucnow = nowptr;
+    };
+
+    /// Constructor given previous and current state of nulide name
+    /// \param wasptr Previous state, typically user input.
+    /// \param nowptr Current state, as far as PyNE could get.
+    IndeterminateNuclideForm(int wasptr, int nowptr)
+    {
+      nucwas = pyne::to_str(wasptr);
+      nucnow = pyne::to_str(nowptr);
+    };
+
+    /// Generates an informational message for the exception
+    /// \return The error string
+    virtual const char* what() const throw()
+    {
+      std::string INFEstr ("Indeterminate nuclide form: ");
+      if (!nucwas.empty())
+        INFEstr += nucwas;
+
+      if (!nucnow.empty())
+      {
+        INFEstr += " --> ";
+        INFEstr += nucnow;
+      }
+      return (const char *) INFEstr.c_str();
     }
-    return (const char*) NaNEstr.c_str();
+
+  private:
+    std::string nucwas; ///< previous nuclide state
+    std::string nucnow; ///< current nuclide state
   };
 
- private:
-  std::string nucwas; ///< previous nuclide state
-  std::string nucnow; ///< current nuclide state
-};
+  /// \name isnuclide functions
+  /// \{
+  /// These functions test if an input \a nuc is a valid nuclide.
+  /// \param nuc a possible nuclide
+  /// \return a bool
+  bool isnuclide(std::string nuc);
+  bool isnuclide(const char * nuc);
+  bool isnuclide(int nuc);
+  /// \}
 
-/// Custom expection for declaring that a value represents one or more nuclides
-/// in one or more namig conventions
-class IndeterminateNuclideForm : public std::exception {
- public:
-  /// default constructor
-  IndeterminateNuclideForm() {};
+  /// \name iselement functions
+  /// \{
+  /// These functions test if an input \a nuc is a valid element.
+  /// \param nuc a possible element
+  /// \return a bool
+  bool iselement(std::string nuc);
+  bool iselement(const char * nuc);
+  bool iselement(int nuc);
 
-  /// default destuctor
-  ~IndeterminateNuclideForm() throw () {};
+  /// \}
+  /// \name Identifier Form Functions
+  /// \{
+  /// The 'id' nuclide naming convention is the canonical form for representing
+  /// nuclides in PyNE. This is termed a ZAS, or ZZZAAASSSS, representation because
+  /// It stores 3 Z-number digits, 3 A-number digits, followed by 4 S-number digits
+  /// which the nucleus excitation state.
+  ///
+  /// The id() function will always return an nuclide in id form, if successful.
+  /// If the input nuclide is in id form already, then this is function does no
+  /// work. For all other formats, the id() function provides a best-guess based
+  /// on a heirarchy of other formats that is used to resolve ambiguities between
+  /// naming conventions. For integer input the form resolution order is:
+  ///   - id
+  ///   - zz (elemental z-num only given)
+  ///   - zzaaam
+  ///   - cinder (aaazzzm)
+  ///   - mcnp
+  ///   - zzaaa
+  /// For string (or char *) input the form resolution order is as follows:
+  ///   - ZZ-LL-AAAM
+  ///   - Integer form in a string representation, uses interger resolution
+  ///   - NIST
+  ///   - name form
+  ///   - Serpent
+  ///   - LL (element symbol)
+  /// For well-defined situations where you know ahead of time what format the
+  /// nuclide is in, you should use the various form_to_id() functions, rather
+  /// than the id() function which is meant to resolve possibly ambiquous cases.
+  /// \param nuc a nuclide
+  /// \return nucid 32-bit integer identifier
+  int id(int nuc);
+  int id(const char * nuc);
+  int id(std::string nuc);
+  /// \}
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  IndeterminateNuclideForm(std::string wasptr, std::string nowptr) {
-    nucwas = wasptr;
-    nucnow = nowptr;
-  };
+  /// \name Name Form Functions
+  /// \{
+  /// The 'name' nuclide naming convention is the more common, human readable
+  /// notation. The chemical symbol (one or two characters long) is first, followed
+  /// by the nucleon number. Lastly if the nuclide is metastable, the letter M is
+  /// concatenated to the end. For example, ‘H-1’ and ‘Am242M’ are both valid.
+  /// Note that nucname will always return name form with dashes removed, the
+  /// chemical symbol used for letter casing (ie 'Pu'), and a trailing upercase 'M'
+  /// for a metastable flag. The name() function first converts functions to id form
+  /// using the id() function. Thus the form order resolution for id() also applies
+  /// here.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  std::string name(int nuc);
+  std::string name(const char * nuc);
+  std::string name(std::string nuc);
+  /// \}
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  IndeterminateNuclideForm(std::string wasptr, int nowptr) {
-    nucwas = wasptr;
-    nucnow = pyne::to_str(nowptr);
-  };
+  /// \name Z-Number Functions
+  /// \{
+  /// The Z-number, or charge number, represents the number of protons in a
+  /// nuclide.  This function returns that number.
+  /// \param nuc a nuclide
+  /// \return an integer Z-number.
+  int znum(int nuc);
+  int znum(const char * nuc);
+  int znum(std::string nuc);
+  /// \}
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  IndeterminateNuclideForm(int wasptr, std::string nowptr) {
-    nucwas = pyne::to_str(wasptr);
-    nucnow = nowptr;
-  };
+  /// \name A-Number Functions
+  /// \{
+  /// The A-number, or nucleon number, represents the number of protons and
+  /// neutrons in a nuclide.  This function returns that number.
+  /// \param nuc a nuclide
+  /// \return an integer A-number.
+  int anum(int nuc);
+  int anum(const char * nuc);
+  int anum(std::string nuc);
+  /// \}
 
-  /// Constructor given previous and current state of nulide name
-  /// \param wasptr Previous state, typically user input.
-  /// \param nowptr Current state, as far as PyNE could get.
-  IndeterminateNuclideForm(int wasptr, int nowptr) {
-    nucwas = pyne::to_str(wasptr);
-    nucnow = pyne::to_str(nowptr);
-  };
+  /// \name S-Number Functions
+  /// \{
+  /// The S-number, or excitation state number, represents the excitation
+  /// level of a nuclide.  Normally, this is zero.  This function returns
+  /// that number.
+  /// \param nuc a nuclide
+  /// \return an integer A-number.
+  int snum(int nuc);
+  int snum(const char * nuc);
+  int snum(std::string nuc);
+  /// \}
 
-  /// Generates an informational message for the exception
-  /// \return The error string
-  virtual const char* what() const throw() {
-    std::string INFEstr("Indeterminate nuclide form: ");
-    if (!nucwas.empty())
-      INFEstr += nucwas;
+  /// \name ZZAAAM Form Functions
+  /// \{
+  /// The ZZAAAM nuclide naming convention is the former canonical form for
+  /// nuclides in PyNE. This places the charge of the nucleus out front, then has
+  /// three digits for the atomic mass number, and ends with a metastable flag
+  /// (0 = ground, 1 = first excited state, 2 = second excited state, etc).
+  /// Uranium-235 here would be expressed as ‘922350’.
+  /// \param nuc a nuclide
+  /// \return an integer nuclide identifier.
+  int zzaaam(int nuc);
+  int zzaaam(const char * nuc);
+  int zzaaam(std::string nuc);
+  /// \}
 
-    if (!nucnow.empty()) {
-      INFEstr += " --> ";
-      INFEstr += nucnow;
-    }
-    return (const char*) INFEstr.c_str();
-  }
-
- private:
-  std::string nucwas; ///< previous nuclide state
-  std::string nucnow; ///< current nuclide state
-};
-
-/// \name isnuclide functions
-/// \{
-/// These functions test if an input \a nuc is a valid nuclide.
-/// \param nuc a possible nuclide
-/// \return a bool
-bool isnuclide(std::string nuc);
-bool isnuclide(const char* nuc);
-bool isnuclide(int nuc);
-/// \}
-
-/// \name iselement functions
-/// \{
-/// These functions test if an input \a nuc is a valid element.
-/// \param nuc a possible element
-/// \return a bool
-bool iselement(std::string nuc);
-bool iselement(const char* nuc);
-bool iselement(int nuc);
-
-/// \}
-/// \name Identifier Form Functions
-/// \{
-/// The 'id' nuclide naming convention is the canonical form for representing
-/// nuclides in PyNE. This is termed a ZAS, or ZZZAAASSSS, representation because
-/// It stores 3 Z-number digits, 3 A-number digits, followed by 4 S-number digits
-/// which the nucleus excitation state.
-///
-/// The id() function will always return an nuclide in id form, if successful.
-/// If the input nuclide is in id form already, then this is function does no
-/// work. For all other formats, the id() function provides a best-guess based
-/// on a heirarchy of other formats that is used to resolve ambiguities between
-/// naming conventions. For integer input the form resolution order is:
-///   - id
-///   - zz (elemental z-num only given)
-///   - zzaaam
-///   - cinder (aaazzzm)
-///   - mcnp
-///   - zzaaa
-/// For string (or char *) input the form resolution order is as follows:
-///   - ZZ-LL-AAAM
-///   - Integer form in a string representation, uses interger resolution
-///   - NIST
-///   - name form
-///   - Serpent
-///   - LL (element symbol)
-/// For well-defined situations where you know ahead of time what format the
-/// nuclide is in, you should use the various form_to_id() functions, rather
-/// than the id() function which is meant to resolve possibly ambiquous cases.
-/// \param nuc a nuclide
-/// \return nucid 32-bit integer identifier
-int id(int nuc);
-int id(const char* nuc);
-int id(std::string nuc);
-/// \}
-
-/// \name Name Form Functions
-/// \{
-/// The 'name' nuclide naming convention is the more common, human readable
-/// notation. The chemical symbol (one or two characters long) is first, followed
-/// by the nucleon number. Lastly if the nuclide is metastable, the letter M is
-/// concatenated to the end. For example, ‘H-1’ and ‘Am242M’ are both valid.
-/// Note that nucname will always return name form with dashes removed, the
-/// chemical symbol used for letter casing (ie 'Pu'), and a trailing upercase 'M'
-/// for a metastable flag. The name() function first converts functions to id form
-/// using the id() function. Thus the form order resolution for id() also applies
-/// here.
-/// \param nuc a nuclide
-/// \return a string nuclide identifier.
-std::string name(int nuc);
-std::string name(const char* nuc);
-std::string name(std::string nuc);
-/// \}
-
-/// \name Z-Number Functions
-/// \{
-/// The Z-number, or charge number, represents the number of protons in a
-/// nuclide.  This function returns that number.
-/// \param nuc a nuclide
-/// \return an integer Z-number.
-int znum(int nuc);
-int znum(const char* nuc);
-int znum(std::string nuc);
-/// \}
-
-/// \name A-Number Functions
-/// \{
-/// The A-number, or nucleon number, represents the number of protons and
-/// neutrons in a nuclide.  This function returns that number.
-/// \param nuc a nuclide
-/// \return an integer A-number.
-int anum(int nuc);
-int anum(const char* nuc);
-int anum(std::string nuc);
-/// \}
-
-/// \name S-Number Functions
-/// \{
-/// The S-number, or excitation state number, represents the excitation
-/// level of a nuclide.  Normally, this is zero.  This function returns
-/// that number.
-/// \param nuc a nuclide
-/// \return an integer A-number.
-int snum(int nuc);
-int snum(const char* nuc);
-int snum(std::string nuc);
-/// \}
-
-/// \name ZZAAAM Form Functions
-/// \{
-/// The ZZAAAM nuclide naming convention is the former canonical form for
-/// nuclides in PyNE. This places the charge of the nucleus out front, then has
-/// three digits for the atomic mass number, and ends with a metastable flag
-/// (0 = ground, 1 = first excited state, 2 = second excited state, etc).
-/// Uranium-235 here would be expressed as ‘922350’.
-/// \param nuc a nuclide
-/// \return an integer nuclide identifier.
-int zzaaam(int nuc);
-int zzaaam(const char* nuc);
-int zzaaam(std::string nuc);
-/// \}
-
-/// \name ZZAAAM Form to Identifier Form Functions
-/// \{
-/// This converts from the ZZAAAM nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in ZZAAAM form.
-/// \return an integer id nuclide identifier.
-int zzaaam_to_id(int nuc);
-int zzaaam_to_id(const char* nuc);
-int zzaaam_to_id(std::string nuc);
-/// \}
+  /// \name ZZAAAM Form to Identifier Form Functions
+  /// \{
+  /// This converts from the ZZAAAM nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in ZZAAAM form.
+  /// \return an integer id nuclide identifier.
+  int zzaaam_to_id(int nuc);
+  int zzaaam_to_id(const char * nuc);
+  int zzaaam_to_id(std::string nuc);
+  /// \}
 
 
-/// \name ZZZAAA Form Functions
-/// \{
-/// The ZZZAAA nuclide naming convention is a form in which the nuclides three
-///digit ZZZ number is followed by the 3 digit AAA number.  If the ZZZ number
-///is 2 digits, the preceding zeros are not included.
-/// Uranium-235 here would be expressed as ‘92235’.
-/// \param nuc a nuclide
-/// \return an integer nuclide identifier.
-int zzzaaa(int nuc);
-int zzzaaa(const char* nuc);
-int zzzaaa(std::string nuc);
-/// \}
+  /// \name ZZZAAA Form Functions
+  /// \{
+  /// The ZZZAAA nuclide naming convention is a form in which the nuclides three
+  ///digit ZZZ number is followed by the 3 digit AAA number.  If the ZZZ number
+  ///is 2 digits, the preceding zeros are not included.
+  /// Uranium-235 here would be expressed as ‘92235’.
+  /// \param nuc a nuclide
+  /// \return an integer nuclide identifier.
+  int zzzaaa(int nuc);
+  int zzzaaa(const char * nuc);
+  int zzzaaa(std::string nuc);
+  /// \}
 
 
-/// \name ZZZAAA Form to Identifier Form Functions
-/// \{
-/// This converts from the ZZZAAA nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in ZZZAAA form.
-/// \return an integer id nuclide identifier.
-int zzzaaa_to_id(int nuc);
-int zzzaaa_to_id(const char* nuc);
-int zzzaaa_to_id(std::string nuc);
-/// \}
+  /// \name ZZZAAA Form to Identifier Form Functions
+  /// \{
+  /// This converts from the ZZZAAA nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in ZZZAAA form.
+  /// \return an integer id nuclide identifier.
+  int zzzaaa_to_id(int nuc);
+  int zzzaaa_to_id(const char * nuc);
+  int zzzaaa_to_id(std::string nuc);
+  /// \}
 
 
-/// \name ZZLLAAAM Form Functions
-/// \{
-/// The ZZLLAAAM nuclide naming convention is a form in which the nuclides
-/// AA number is followed by the redundant two LL characters, followed by
-/// the nuclides ZZZ number.  Can also be followed with a metastable flag.
-/// Uranium-235 here would be expressed as ‘92-U-235’.
-/// \param nuc a nuclide
-/// \return an integer nuclide identifier.
-std::string zzllaaam(int nuc);
-std::string zzllaaam(const char* nuc);
-std::string zzllaaam(std::string nuc);
-/// \}
+  /// \name ZZLLAAAM Form Functions
+  /// \{
+  /// The ZZLLAAAM nuclide naming convention is a form in which the nuclides
+  /// AA number is followed by the redundant two LL characters, followed by
+  /// the nuclides ZZZ number.  Can also be followed with a metastable flag.
+  /// Uranium-235 here would be expressed as ‘92-U-235’.
+  /// \param nuc a nuclide
+  /// \return an integer nuclide identifier.
+  std::string zzllaaam(int nuc);
+  std::string zzllaaam(const char * nuc);
+  std::string zzllaaam(std::string nuc);
+  /// \}
 
 
-/// \name ZZLLAAAM Form to Identifier Form Functions
-/// \{
-/// This converts from the ZZLLAAAM nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in ZZLLAAAM form.
-/// \return an integer id nuclide identifier.
-//int zzllaaam_to_id(int nuc);
-int zzllaaam_to_id(const char* nuc);
-int zzllaaam_to_id(std::string nuc);
-/// \}
+  /// \name ZZLLAAAM Form to Identifier Form Functions
+  /// \{
+  /// This converts from the ZZLLAAAM nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in ZZLLAAAM form.
+  /// \return an integer id nuclide identifier.
+  //int zzllaaam_to_id(int nuc);
+  int zzllaaam_to_id(const char * nuc);
+  int zzllaaam_to_id(std::string nuc);
+  /// \}
 
 
-/// \name MCNP Form Functions
-/// \{
-/// This is the naming convention used by the MCNP suite of codes.
-/// The MCNP format for entering nuclides is unfortunately non-standard.
-/// In most ways it is similar to zzaaam form, except that it lacks the metastable
-/// flag. For information on how metastable isotopes are named, please consult the
-/// MCNP documentation for more information.
-/// \param nuc a nuclide
-/// \return a string nuclide identifier.
-int mcnp(int nuc);
-int mcnp(const char* nuc);
-int mcnp(std::string nuc);
-/// \}
+  /// \name MCNP Form Functions
+  /// \{
+  /// This is the naming convention used by the MCNP suite of codes.
+  /// The MCNP format for entering nuclides is unfortunately non-standard.
+  /// In most ways it is similar to zzaaam form, except that it lacks the metastable
+  /// flag. For information on how metastable isotopes are named, please consult the
+  /// MCNP documentation for more information.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  int mcnp(int nuc);
+  int mcnp(const char * nuc);
+  int mcnp(std::string nuc);
+  /// \}
 
-/// \name MCNP Form to Identifier Form Functions
-/// \{
-/// This converts from the MCNP nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in MCNP form.
-/// \return an integer id nuclide identifier.
-int mcnp_to_id(int nuc);
-int mcnp_to_id(const char* nuc);
-int mcnp_to_id(std::string nuc);
-/// \}
+  /// \name MCNP Form to Identifier Form Functions
+  /// \{
+  /// This converts from the MCNP nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in MCNP form.
+  /// \return an integer id nuclide identifier.
+  int mcnp_to_id(int nuc);
+  int mcnp_to_id(const char * nuc);
+  int mcnp_to_id(std::string nuc);
+  /// \}
 
-/// \name FLUKA Form Functions
-/// \{
-/// This is the naming convention used by the FLUKA suite of codes.
-/// The FLUKA format for entering nuclides requires some knowledge of FLUKA
-/// The nuclide in must cases should be the atomic # times 10000000.
-/// The exceptions are for FLUKA's named isotopes
-/// See the FLUKA Manual for more information.
-/// \param nuc a nuclide
-/// \return the received FLUKA name
-std::string fluka(int nuc);
-/// \}
+  /// \name OPENMC Form Functions
+  /// \{
+  /// This is the naming convention used by the OpenMC code.
+  /// The OpenMC format for entering nuclides uses a GND format.
+  /// For information on how metastable isotopes are named, please consult the
+  /// OpenMC documentation for more information.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  std::string openmc(int nuc);
+  std::string openmc(const char * nuc);
+  std::string openmc(std::string nuc);
+  /// \}
 
-/// \name FLUKA Form to Identifier Form Functions
-/// \{
-/// This converts from the FLUKA name to the
-/// id canonical form  for nuclides in PyNE.
-/// \param name a fluka name
-/// \return an integer id nuclide identifier.
-int fluka_to_id(std::string name);
-int fluka_to_id(char* name);
-/// \}
+  /// \name OPENMC Form to Identifier Form Functions
+  /// \{
+  /// This converts from the OPENMC nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in OPENMC form.
+  /// \return an integer id nuclide identifier.
+  int openmc_to_id(const char * nuc);
+  int openmc_to_id(std::string nuc);
+  /// \}
 
-/// \name Serpent Form Functions
-/// \{
-/// This is the string-based naming convention used by the Serpent suite of codes.
-/// The serpent naming convention is similar to name form. However, only the first
-/// letter in the chemical symbol is uppercase, the dash is always present, and the
-/// the meta-stable flag is lowercase. For instance, ‘Am-242m’ is the valid serpent
-/// notation for this nuclide.
-/// \param nuc a nuclide
-/// \return a string nuclide identifier.
-std::string serpent(int nuc);
-std::string serpent(const char* nuc);
-std::string serpent(std::string nuc);
-/// \}
+  /// \name FLUKA Form Functions
+  /// \{
+  /// This is the naming convention used by the FLUKA suite of codes.
+  /// The FLUKA format for entering nuclides requires some knowledge of FLUKA
+  /// The nuclide in must cases should be the atomic # times 10000000.
+  /// The exceptions are for FLUKA's named isotopes
+  /// See the FLUKA Manual for more information.
+  /// \param nuc a nuclide
+  /// \return the received FLUKA name
+  std::string fluka(int nuc);
+  /// \}
 
-/// \name Serpent Form to Identifier Form Functions
-/// \{
-/// This converts from the Serpent nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in Serpent form.
-/// \return an integer id nuclide identifier.
-//int serpent_to_id(int nuc);  Should be ZAID
-int serpent_to_id(const char* nuc);
-int serpent_to_id(std::string nuc);
-/// \}
+  /// \name FLUKA Form to Identifier Form Functions
+  /// \{
+  /// This converts from the FLUKA name to the
+  /// id canonical form  for nuclides in PyNE.
+  /// \param name a fluka name
+  /// \return an integer id nuclide identifier.
+  int fluka_to_id(std::string name);
+  int fluka_to_id(char * name);
+  /// \}
 
-/// \name NIST Form Functions
-/// \{
-/// This is the string-based naming convention used by NIST.
-/// The NIST naming convention is also similar to the Serpent form. However, this
-/// convention contains no metastable information. Moreover, the A-number comes
-/// before the element symbol. For example, ‘242Am’ is the valid NIST notation.
-/// \param nuc a nuclide
-/// \return a string nuclide identifier.
-std::string nist(int nuc);
-std::string nist(const char* nuc);
-std::string nist(std::string nuc);
-/// \}
+  /// \name Serpent Form Functions
+  /// \{
+  /// This is the string-based naming convention used by the Serpent suite of codes.
+  /// The serpent naming convention is similar to name form. However, only the first
+  /// letter in the chemical symbol is uppercase, the dash is always present, and the
+  /// the meta-stable flag is lowercase. For instance, ‘Am-242m’ is the valid serpent
+  /// notation for this nuclide.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  std::string serpent(int nuc);
+  std::string serpent(const char * nuc);
+  std::string serpent(std::string nuc);
+  /// \}
 
-/// \name NIST Form to Identifier Form Functions
-/// \{
-/// This converts from the NIST nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in NIST form.
-/// \return an integer id nuclide identifier.
-//int serpent_to_id(int nuc);  NON-EXISTANT
-int nist_to_id(const char* nuc);
-int nist_to_id(std::string nuc);
-/// \}
+  /// \name Serpent Form to Identifier Form Functions
+  /// \{
+  /// This converts from the Serpent nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in Serpent form.
+  /// \return an integer id nuclide identifier.
+  //int serpent_to_id(int nuc);  Should be ZAID
+  int serpent_to_id(const char * nuc);
+  int serpent_to_id(std::string nuc);
+  /// \}
 
-/// \name CINDER Form Functions
-/// \{
-/// This is the naming convention used by the CINDER burnup library.
-/// The CINDER format is similar to zzaaam form except that the placement of the
-/// Z- and A-numbers are swapped. Therefore, this format is effectively aaazzzm.
-/// For example, ‘2420951’ is the valid cinder notation for ‘AM242M’.
-/// \param nuc a nuclide
-/// \return a string nuclide identifier.
-int cinder(int nuc);
-int cinder(const char* nuc);
-int cinder(std::string nuc);
-/// \}
+  /// \name NIST Form Functions
+  /// \{
+  /// This is the string-based naming convention used by NIST.
+  /// The NIST naming convention is also similar to the Serpent form. However, this
+  /// convention contains no metastable information. Moreover, the A-number comes
+  /// before the element symbol. For example, ‘242Am’ is the valid NIST notation.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  std::string nist(int nuc);
+  std::string nist(const char * nuc);
+  std::string nist(std::string nuc);
+  /// \}
 
-/// \name Cinder Form to Identifier Form Functions
-/// \{
-/// This converts from the Cinder nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in Cinder form.
-/// \return an integer id nuclide identifier.
-int cinder_to_id(int nuc);
-int cinder_to_id(const char* nuc);
-int cinder_to_id(std::string nuc);
-/// \}
+  /// \name NIST Form to Identifier Form Functions
+  /// \{
+  /// This converts from the NIST nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in NIST form.
+  /// \return an integer id nuclide identifier.
+  //int serpent_to_id(int nuc);  NON-EXISTANT
+  int nist_to_id(const char * nuc);
+  int nist_to_id(std::string nuc);
+  /// \}
 
-/// \name ALARA Form Functions
-/// \{
-/// This is the format used in the ALARA activation code elements library.
-/// For elements, the form is "ll" where ll is the atomic symbol. For isotopes
-/// the form is "ll:AAA". No metastable isotope flag is used.
-/// \param nuc a nuclide
-/// \return a string nuclide identifier.
-std::string alara(int nuc);
-std::string alara(const char* nuc);
-std::string alara(std::string nuc);
-/// \}
+  /// \name CINDER Form Functions
+  /// \{
+  /// This is the naming convention used by the CINDER burnup library.
+  /// The CINDER format is similar to zzaaam form except that the placement of the
+  /// Z- and A-numbers are swapped. Therefore, this format is effectively aaazzzm.
+  /// For example, ‘2420951’ is the valid cinder notation for ‘AM242M’.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  int cinder(int nuc);
+  int cinder(const char * nuc);
+  int cinder(std::string nuc);
+  /// \}
 
-/// \name ALARA Form to Identifier Form Functions
-/// \{
-/// This converts from the ALARA nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in ALARA form.
-/// \return an integer id nuclide identifier.
-//int alara_to_id(int nuc); NOT POSSIBLE
-int alara_to_id(const char* nuc);
-int alara_to_id(std::string nuc);
-/// \}
+  /// \name Cinder Form to Identifier Form Functions
+  /// \{
+  /// This converts from the Cinder nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in Cinder form.
+  /// \return an integer id nuclide identifier.
+  int cinder_to_id(int nuc);
+  int cinder_to_id(const char * nuc);
+  int cinder_to_id(std::string nuc);
+  /// \}
 
-/// \name SZA Form Functions
-/// \{
-/// This is the new format for ACE data tables in the form SSSZZZAAA.
-/// The first three digits represent the excited state (000 = ground,
-/// 001 = first excited state, 002 = second excited state, etc).
-/// The second three digits are the atomic number and the last three
-/// digits are the atomic mass. Prepending zeros can be omitted, making
-/// the SZA form equal to the MCNP form for non-excited nuclides.
-/// \param nuc a nuclide
-/// \return a string nuclide identifier.
-int sza(int nuc);
-int sza(const char* nuc);
-int sza(std::string nuc);
-/// \}
+  /// \name ALARA Form Functions
+  /// \{
+  /// This is the format used in the ALARA activation code elements library.
+  /// For elements, the form is "ll" where ll is the atomic symbol. For isotopes
+  /// the form is "ll:AAA". No metastable isotope flag is used.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  std::string alara(int nuc);
+  std::string alara(const char * nuc);
+  std::string alara(std::string nuc);
+  /// \}
 
-/// \name SZA Form to Identifier Form Functions
-/// \{
-/// This converts from the SZA nuclide naming convention
-/// to the id canonical form  for nuclides in PyNE.
-/// \param nuc a nuclide in SZA form.
-/// \return an integer id nuclide identifier.
-int sza_to_id(int nuc);
-int sza_to_id(const char* nuc);
-int sza_to_id(std::string nuc);
-/// \}
+  /// \name ALARA Form to Identifier Form Functions
+  /// \{
+  /// This converts from the ALARA nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in ALARA form.
+  /// \return an integer id nuclide identifier.
+  //int alara_to_id(int nuc); NOT POSSIBLE
+  int alara_to_id(const char * nuc);
+  int alara_to_id(std::string nuc);
+  /// \}
 
-/// \name Ground State Form Functions
-/// \{
-/// This form stores the nuclide in id form, but removes
-/// the state information about the nuclide.  I is in the same
-/// form as ID, but the four last digits are all zeros.
-/// \param nuc a nuclide
-/// \return a integer groundstate id
-inline int groundstate(int nuc) {
-  return (id(nuc) / 10000) * 10000;
-}
-inline int groundstate(std::string nuc) {
-  return groundstate(id(nuc));
-}
-inline int groundstate(const char* nuc) {
-  return groundstate(std::string(nuc));
-}
-/// \}
+  /// \name SZA Form Functions
+  /// \{
+  /// This is the new format for ACE data tables in the form SSSZZZAAA.
+  /// The first three digits represent the excited state (000 = ground,
+  /// 001 = first excited state, 002 = second excited state, etc).
+  /// The second three digits are the atomic number and the last three
+  /// digits are the atomic mass. Prepending zeros can be omitted, making
+  /// the SZA form equal to the MCNP form for non-excited nuclides.
+  /// \param nuc a nuclide
+  /// \return a string nuclide identifier.
+  int sza(int nuc);
+  int sza(const char * nuc);
+  int sza(std::string nuc);
+  /// \}
 
-/// \name State Map functions
-/// \{
-/// These convert from/to decay state ids (used in decay data)
-/// to metastable ids (the PyNE default)
-void _load_state_map();
-int state_id_to_id(int state);
-int id_to_state_id(int nuc_id);
-extern std::map<int, int> state_id_map;
-/// \}
+  /// \name SZA Form to Identifier Form Functions
+  /// \{
+  /// This converts from the SZA nuclide naming convention
+  /// to the id canonical form  for nuclides in PyNE.
+  /// \param nuc a nuclide in SZA form.
+  /// \return an integer id nuclide identifier.
+  int sza_to_id(int nuc);
+  int sza_to_id(const char * nuc);
+  int sza_to_id(std::string nuc);
+  /// \}
 
-/// \name ENSDF Form Functions
-/// \{
-/// This converts id's stored using standard ensdf syntax to nuc_id's
-/// \param ensdf nuc string
-/// \return PyNE nuc_id
-int ensdf_to_id(const char* nuc);
-int ensdf_to_id(std::string nuc);
-/// \}
+  /// \name Ground State Form Functions
+  /// \{
+  /// This form stores the nuclide in id form, but removes
+  /// the state information about the nuclide.  I is in the same
+  /// form as ID, but the four last digits are all zeros.
+  /// \param nuc a nuclide
+  /// \return a integer groundstate id
+  inline int groundstate(int nuc) {return (id(nuc) / 10000 ) * 10000;}
+  inline int groundstate(std::string nuc) {return groundstate(id(nuc));}
+  inline int groundstate(const char * nuc) {return groundstate(std::string(nuc));}
+  /// \}
+
+  /// \name State Map functions
+  /// \{
+  /// These convert from/to decay state ids (used in decay data)
+  /// to metastable ids (the PyNE default). If the cooresponding value cannot
+  /// be found, -1 is returned.
+  void _load_state_map();
+  int state_id_to_id(int state);
+  int id_to_state_id(int nuc_id);
+  extern std::map<int, int> state_id_map;
+  /// \}
+
+  /// \name ENSDF Form Functions
+  /// \{
+  /// This converts id's stored using standard ensdf syntax to nuc_id's
+  /// \param ensdf nuc string
+  /// \return PyNE nuc_id
+  int ensdf_to_id(const char * nuc);
+  int ensdf_to_id(std::string nuc);
+  /// \}
 
 }
 }
 
 #endif  // PYNE_D35WIXV5DZAA5LLOWBY2BL2DPA
+
 //
 // end of src/nucname.h
 //
@@ -4807,10 +4878,10 @@ class JSON_API CustomWriter : public Writer {
 #include <set>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sstream>  // std::ostringstream
+#include <sstream>	// std::ostringstream
 
 #if !defined(JSON_IS_AMALGAMATION)
-#define JSON_IS_AMALGAMATION
+  #define JSON_IS_AMALGAMATION
 #endif
 
 #ifndef PYNE_IS_AMALGAMATED
@@ -4823,350 +4894,367 @@ class JSON_API CustomWriter : public Writer {
 #include "decay.h"
 #endif
 
-namespace pyne {
-// Set Type Definitions
-typedef std::map<int, double> comp_map; ///< Nuclide-mass composition map type
-typedef comp_map::iterator comp_iter;   ///< Nuclide-mass composition iter type
+namespace pyne
+{
+  // Set Type Definitions
+  typedef std::map<int, double> comp_map; ///< Nuclide-mass composition map type
+  typedef comp_map::iterator comp_iter;   ///< Nuclide-mass composition iter type
 
-#ifdef PYNE_IS_AMALGAMATED
-namespace decayers {
-extern comp_map decay(comp_map, double);
-}  // namespace decayers
-#endif
+  #ifdef PYNE_IS_AMALGAMATED
+  namespace decayers {
+    extern comp_map decay(comp_map, double);
+  }  // namespace decayers
+  #endif
 
 
-// These 37 strings are predefined FLUKA materials.
-// Materials not on this list requires a MATERIAL card.
-static std::string fluka_mat_strings[] = {
-  "BLCKHOLE", "VACUUM",   "HYDROGEN", "HELIUM",   "BERYLLIU", "CARBON",
-  "NITROGEN", "OXYGEN",   "MAGNESIU", "ALUMINUM", "IRON",     "COPPER",
-  "SILVER",   "SILICON",  "GOLD",     "MERCURY",  "LEAD",     "TANTALUM",
-  "SODIUM",   "ARGON",    "CALCIUM",  "TIN",      "TUNGSTEN", "TITANIUM",
-  "NICKEL",   "WATER",    "POLYSTYR", "PLASCINT", "PMMA",     "BONECOMP",
-  "BONECORT", "MUSCLESK", "MUSCLEST", "ADTISSUE", "KAPTON", "POLYETHY", "AIR"
-};
+  // These 37 strings are predefined FLUKA materials.
+  // Materials not on this list requires a MATERIAL card.
+  static std::string fluka_mat_strings[] = {
+   "BLCKHOLE", "VACUUM",   "HYDROGEN", "HELIUM",   "BERYLLIU", "CARBON",
+   "NITROGEN", "OXYGEN",   "MAGNESIU", "ALUMINUM", "IRON",     "COPPER",
+   "SILVER",   "SILICON",  "GOLD",     "MERCURY",  "LEAD",     "TANTALUM",
+   "SODIUM",   "ARGON",    "CALCIUM",  "TIN",      "TUNGSTEN", "TITANIUM",
+   "NICKEL",   "WATER",    "POLYSTYR", "PLASCINT", "PMMA",     "BONECOMP",
+   "BONECORT", "MUSCLESK", "MUSCLEST", "ADTISSUE", "KAPTON", "POLYETHY", "AIR"
+  };
 
-static int FLUKA_MAT_NUM = 37;
+  static int FLUKA_MAT_NUM = 37;
 
-/// Material composed of nuclides.
-class Material {
- protected:
+  /// Material composed of nuclides.
+  class Material
+  {
+  protected:
 
-  /// Computes the total mass stored in the composition.
-  double get_comp_sum();
+    /// Computes the total mass stored in the composition.
+    double get_comp_sum ();
 
- public:
+  public:
 
-  // Material Constructors
-  Material();   ///< empty constructor
-  /// Constructor from composition map
-  /// \param cm composition map
-  /// \param m mass value, the mass is set to the sum of the values in the
-  ///          composition if \a m is negative.
-  /// \param d density value
-  /// \param apm atoms per mole
-  /// \param attributes initial metadata
-  Material(comp_map cm, double m = -1.0, double d = -1.0, double apm = -1.0,
-           Json::Value attributes = Json::Value(Json::objectValue));
-  /// Constructor from file
-  /// \param filename path to file on disk, this file may be either in plaintext
-  ///                 or HDF5 format.
-  /// \param m mass value, the mass is set to the sum of the values in the
-  ///          composition if \a m is negative,
-  ///          may be overridden by the value from disk.
-  /// \param d density value,
-  ///          may be overridden by the value from disk.
-  /// \param apm atoms per mole,
-  ///          may be overridden by the value from disk.
-  /// \param attributes initial metadata,
-  ///          may be overridden by the value from disk.
-  Material(char* filename, double m = -1.0, double d = -1.0, double apm = -1.0,
-           Json::Value attributes = Json::Value(Json::objectValue));
-  /// Constructor from file
-  /// \param filename path to file on disk, this file may be either in plaintext
-  ///                 or HDF5 format.
-  /// \param m mass value, the mass is set to the sum of the values in the
-  ///          composition if \a m is negative,
-  ///          may be overridden by the value from disk.
-  /// \param d density value,
-  ///          may be overridden by the value from disk.
-  /// \param apm atoms per mole,
-  ///          may be overridden by the value from disk.
-  /// \param attributes initial metadata,
-  ///          may be overridden by the value from disk.
-  Material(std::string filename, double m = -1.0, double d = -1.0, double apm = -1.0,
-           Json::Value attributes = Json::Value(Json::objectValue));
-  ~Material();  ///< default destructor
+    // Material Constructors
+    Material ();  ///< empty constructor
+    /// Constructor from composition map
+    /// \param cm composition map
+    /// \param m mass value, the mass is set to the sum of the values in the
+    ///          composition if \a m is negative.
+    /// \param d density value
+    /// \param apm atoms per mole
+    /// \param attributes initial metadata
+    Material(comp_map cm, double m=-1.0, double d=-1.0, double apm=-1.0,
+             Json::Value attributes=Json::Value(Json::objectValue));
+    /// Constructor from file
+    /// \param filename path to file on disk, this file may be either in plaintext
+    ///                 or HDF5 format.
+    /// \param m mass value, the mass is set to the sum of the values in the
+    ///          composition if \a m is negative,
+    ///          may be overridden by the value from disk.
+    /// \param d density value,
+    ///          may be overridden by the value from disk.
+    /// \param apm atoms per mole,
+    ///          may be overridden by the value from disk.
+    /// \param attributes initial metadata,
+    ///          may be overridden by the value from disk.
+    Material(char * filename, double m=-1.0, double d=-1.0, double apm=-1.0,
+             Json::Value attributes=Json::Value(Json::objectValue));
+    /// Constructor from file
+    /// \param filename path to file on disk, this file may be either in plaintext
+    ///                 or HDF5 format.
+    /// \param m mass value, the mass is set to the sum of the values in the
+    ///          composition if \a m is negative,
+    ///          may be overridden by the value from disk.
+    /// \param d density value,
+    ///          may be overridden by the value from disk.
+    /// \param apm atoms per mole,
+    ///          may be overridden by the value from disk.
+    /// \param attributes initial metadata,
+    ///          may be overridden by the value from disk.
+    Material(std::string filename, double m=-1.0, double d=-1.0, double apm=-1.0,
+             Json::Value attributes=Json::Value(Json::objectValue));
+    ~Material (); ///< default destructor
 
-  /// Normalizes the mass values in the composition.
-  void norm_comp();
+    /// Normalizes the mass values in the composition.
+    void norm_comp ();
 
-  // Persistence functions.
+    // Persistence functions.
 
-  /// Loads the matrial composition from an HDF5 file according to the layout
-  /// defined by protocol 0.  This protocol is depratacted.
-  /// \param db HDF5 id for the open HDF5 file.
-  /// \param datapath Path to the base node for the material in \a db.
-  /// \param row The index to read out, may be negative.
-  void _load_comp_protocol0(hid_t db, std::string datapath, int row);
+    /// Loads the matrial composition from an HDF5 file according to the layout
+    /// defined by protocol 0.  This protocol is depratacted.
+    /// \param db HDF5 id for the open HDF5 file.
+    /// \param datapath Path to the base node for the material in \a db.
+    /// \param row The index to read out, may be negative.
+    void _load_comp_protocol0(hid_t db, std::string datapath, int row);
 
-  /// Loads the matrial composition from an HDF5 file according to the layout
-  /// defined by protocol 1.  This protocol should be used in favor of protocol 0.
-  /// \param db HDF5 id for the open HDF5 file.
-  /// \param datapath Path to the base node for the material in \a db.
-  /// \param row The index to read out, may be negative.
-  void _load_comp_protocol1(hid_t db, std::string datapath, int row);
+    /// Loads the matrial composition from an HDF5 file according to the layout
+    /// defined by protocol 1.  This protocol should be used in favor of protocol 0.
+    /// \param db HDF5 id for the open HDF5 file.
+    /// \param datapath Path to the base node for the material in \a db.
+    /// \param row The index to read out, may be negative.
+    void _load_comp_protocol1(hid_t db, std::string datapath, int row);
 
-  /// Loads a material from an HDF5 file into this object.
-  /// \param filename Path on disk to the HDF5 file.
-  /// \param datapath Path to the the material in the file.
-  /// \param row The index to read out, may be negative.
-  /// \param protocol Flag for layout of material on disk.
-  void from_hdf5(char* filename, char* datapath, int row = -1, int protocol = 1);
+    /// Loads a material from an HDF5 file into this object.
+    /// \param filename Path on disk to the HDF5 file.
+    /// \param datapath Path to the the material in the file.
+    /// \param row The index to read out, may be negative.
+    /// \param protocol Flag for layout of material on disk.
+    void from_hdf5(char * filename, char * datapath, int row=-1, int protocol=1);
 
-  /// Loads a material from an HDF5 file into this object.
-  /// \param filename Path on disk to the HDF5 file.
-  /// \param datapath Path to the the material in the file.
-  /// \param row The index to read out, may be negative.
-  /// \param protocol Flag for layout of material on disk.
-  void from_hdf5(std::string filename, std::string datapath = "/material",
-                 int row = -1, int protocol = 1);
+    /// Loads a material from an HDF5 file into this object.
+    /// \param filename Path on disk to the HDF5 file.
+    /// \param datapath Path to the the material in the file.
+    /// \param row The index to read out, may be negative.
+    /// \param protocol Flag for layout of material on disk.
+    void from_hdf5(std::string filename, std::string datapath="/material",
+                                                          int row=-1, int protocol=1);
 
-  /// Writes this material out to an HDF5 file.
-  /// This happens according to protocol 1.
-  /// \param filename Path on disk to the HDF5 file.
-  /// \param datapath Path to the the material in the file.
-  /// \param nucpath Path to the nuclides set in the file.
-  /// \param row The index to read out, may be negative. Also note that this is a
-  ///            float.  A value of -0.0 indicates that the material should be
-  ///            appended to the end of the dataset.
-  /// \param chunksize The chunksize for all material data on disk.
-  void write_hdf5(char* filename, char* datapath, char* nucpath, float row = -0.0,
-                  int chunksize = 100);
-  /// Writes this material out to an HDF5 file.
-  /// This happens according to protocol 1.
-  /// \param filename Path on disk to the HDF5 file.
-  /// \param datapath Path to the the material in the file.
-  /// \param nucpath Path to the nuclides set in the file.
-  /// \param row The index to read out, may be negative. Also note that this is a
-  ///            float.  A value of -0.0 indicates that the material should be
-  ///            appended to the end of the dataset.
-  /// \param chunksize The chunksize for all material data on disk.
-  void write_hdf5(std::string filename, std::string datapath = "/material",
-                  std::string nucpath = "/nucid", float row = -0.0, int chunksize = 100);
+    /// Writes this material out to an HDF5 file.
+    /// This happens according to protocol 1.
+    /// \param filename Path on disk to the HDF5 file.
+    /// \param datapath Path to the the material in the file.
+    /// \param nucpath Path to the nuclides set in the file.
+    /// \param row The index to read out, may be negative. Also note that this is a
+    ///            float.  A value of -0.0 indicates that the material should be
+    ///            appended to the end of the dataset.
+    /// \param chunksize The chunksize for all material data on disk.
+    void write_hdf5(char * filename, char * datapath, char * nucpath, float row=-0.0,
+                                                                    int chunksize=100);
+    /// Writes this material out to an HDF5 file.
+    /// This happens according to protocol 1.
+    /// \param filename Path on disk to the HDF5 file.
+    /// \param datapath Path to the the material in the file.
+    /// \param nucpath Path to the nuclides set in the file.
+    /// \param row The index to read out, may be negative. Also note that this is a
+    ///            float.  A value of -0.0 indicates that the material should be
+    ///            appended to the end of the dataset.
+    /// \param chunksize The chunksize for all material data on disk.
+    void write_hdf5(std::string filename, std::string datapath="/material",
+                    std::string nucpath="/nucid", float row=-0.0, int chunksize=100);
 
-  /// Return an mcnp input deck record as a string
-  std::string mcnp(std::string frac_type = "mass");
-  ///
-  /// Return a fluka input deck MATERIAL card as a string
-  std::string fluka(int id, std::string frac_type = "mass");
-  /// Convenience function to tell whether a given name needs a material card
-  bool not_fluka_builtin(std::string fluka_name);
-  /// High level call to get details and call material_component(..)
-  std::string fluka_material_str(int id);
-  /// Intermediate level call to prepare final info and call material_line(..)
-  std::string fluka_material_component(int fid, int nucid,
-                                       std::string fluka_name);
-  /// Format information into a FLUKA material card
-  std::string fluka_material_line(int znum, double atomic_mass,
-                                  int fid, std::string fluka_name);
-  /// Convenience function to format a single fluka field
-  std::string fluka_format_field(float field);
-  /// Return FLUKA compound card and the material card for the named compound
-  /// but not the material cards of the components
-  std::string fluka_compound_str(int id, std::string frac_type = "mass");
+    /// Return an openmc xml material element as a string
+    std::string openmc(std::string fact_type = "mass");
 
-  /// Reads data from a plaintext file at \a filename into this Material instance.
-  void from_text(char* filename);
-  /// Reads data from a plaintext file at \a filename into this Material instance.
-  void from_text(std::string filename);
+    /// Return an mcnp input deck record as a string
+    std::string mcnp(std::string frac_type = "mass");
+    ///
+    /// Return a fluka input deck MATERIAL card as a string
+    std::string fluka(int id, std::string frac_type = "mass");
+    /// Convenience function to tell whether a given name needs a material card
+    bool not_fluka_builtin(std::string fluka_name);
+    /// High level call to get details and call material_component(..)
+    std::string fluka_material_str(int id);
+    /// Intermediate level call to prepare final info and call material_line(..)
+    std::string fluka_material_component(int fid, int nucid,
+                                         std::string fluka_name);
+    /// Format information into a FLUKA material card
+    std::string fluka_material_line(int znum, double atomic_mass,
+                              int fid, std::string fluka_name);
+    /// Convenience function to format a single fluka field
+    std::string fluka_format_field(float field);
+    /// Return FLUKA compound card and the material card for the named compound
+    /// but not the material cards of the components
+    std::string fluka_compound_str(int id, std::string frac_type = "mass");
 
-  /// Writes the Material out to a simple plaintext file readable by from_text().
-  void write_text(char* filename);
-  /// Writes the Material out to a simple plaintext file readable by from_text().
-  void write_text(std::string filename);
+    /// Reads data from a plaintext file at \a filename into this Material instance.
+    void from_text(char * filename);
+    /// Reads data from a plaintext file at \a filename into this Material instance.
+    void from_text(std::string filename);
 
-  /// Loads a JSON instance tree into this Material.
-  void load_json(Json::Value);
-  /// Dumps the Material out to a JSON instance tree.
-  Json::Value dump_json();
-  /// Reads data from a JSON file at \a filename into this Material instance.
-  void from_json(char* filename);
-  /// Reads data from a JSON file at \a filename into this Material instance.
-  void from_json(std::string filname);
-  /// Writes the Material out to a JSON file
-  void write_json(char* filename);
-  /// Writes the Material out to a JSON file
-  void write_json(std::string filename);
+    /// Writes the Material out to a simple plaintext file readable by from_text().
+    void write_text(char * filename);
+    /// Writes the Material out to a simple plaintext file readable by from_text().
+    void write_text(std::string filename);
 
-  // Fundemental mass stream data
-  /// composition, maps nuclides in id form to normalized mass weights.
-  comp_map comp;
-  double mass;  ///< mass (in arbitrary units) of the Material.
-  double density; ///< density (in arbitrary units) of the Material.
-  double atoms_per_molecule; ///< The number of atoms per molecule.
-  /// container for arbitrary metadata, following the JSON rules.
-  Json::Value metadata;
+    /// Loads a JSON instance tree into this Material.
+    void load_json(Json::Value);
+    /// Dumps the Material out to a JSON instance tree.
+    Json::Value dump_json();
+    /// Reads data from a JSON file at \a filename into this Material instance.
+    void from_json(char * filename);
+    /// Reads data from a JSON file at \a filename into this Material instance.
+    void from_json(std::string filname);
+    /// Writes the Material out to a JSON file
+    void write_json(char * filename);
+    /// Writes the Material out to a JSON file
+    void write_json(std::string filename);
 
-  // Material function definitions
-  void normalize();   ///< Normalizes the mass.
-  /// Returns a composition map that has been unnormalized by multiplying each
-  /// mass weight by the actual mass of the material.
-  comp_map mult_by_mass();
-  /// Calculates the atomic weight of this material based on the composition
-  /// and the number of atoms per mol.  If \a apm is non-negative then it is
-  /// used (and stored on the instance) as the atoms_per_molecule for this calculation.
-  /// If \a apm and atoms_per_molecule on this instance are both negative, then the best
-  /// guess value calculated from the normailized composition is used here.
-  double molecular_mass(double apm = -1.0);
-  /// Calculates the activity of a material based on the composition and each
-  /// nuclide's mass, decay_const, and atmoic_mass.
-  comp_map activity();
-  /// Calculates the decay heat of a material based on the composition and
-  /// each nuclide's mass, q_val, decay_const, and atomic_mass.
-  comp_map decay_heat();
-  /// Caclulates the dose per gram using the composition of the the
-  /// material, the dose type desired, and the source for dose factors
-  ///   dose_type is one of:
-  ///     ext_air -- returns mrem/h per g per m^3
-  ///     ext_soil -- returns mrem/h per g per m^2
-  ///     ingest -- returns mrem per g
-  ///     inhale -- returns mrem per g
-  ///   source is:
-  ///     {EPA=0, DOE=1, GENII=2}, default is EPA
-  comp_map dose_per_g(std::string dose_type, int source = 0);
-  /// Returns a copy of the current material where all natural elements in the
-  /// composition are expanded to their natural isotopic abundances.
-  Material expand_elements();
-  // Returns a copy of the current material where all the isotopes of the elements
-  // are added up, atomic-fraction-wise, unless they are in the exception set
-  Material collapse_elements(std::set<int> exception_znum);
-  // Wrapped version to facilitate calling from python
-  Material collapse_elements(int** int_ptr_arry);
-  // void print_material( pyne::Material test_mat);
-  /// Computes, sets, and returns the mass density when \a num_dens is greater
-  /// than or equal zero.  If \a num_dens is negative, this simply returns the
-  /// current value of the density member variable.  You may also use / set the
-  /// atoms per molecule (atoms_per_molecule) in this function using \a apm.
-  double mass_density(double num_dens = -1.0, double apm = -1.0);
-  /// Computes and returns the number density of the material using the
-  /// mass density if \a mass_dens is greater than or equal to zero.  If
-  /// \a mass_dens is negative, the denisty member variable is used instead.
-  /// You may also use / set the atoms per molecule (atoms_per_molecule) in this
-  /// function using \a apm.
-  double number_density(double mass_dens = -1.0, double apm = -1.0);
+    // Fundemental mass stream data
+    /// composition, maps nuclides in id form to normalized mass weights.
+    comp_map comp;
+    double mass;  ///< mass (in arbitrary units) of the Material.
+    double density; ///< density (in arbitrary units) of the Material.
+    double atoms_per_molecule; ///< The number of atoms per molecule.
+    /// container for arbitrary metadata, following the JSON rules.
+    Json::Value metadata;
 
-  // Sub-Stream Computation
-  /// Creates a sub-Material with only the nuclides present in \a nucset.
-  /// Elements of this set may be either in id form or simple Z numbers.
-  Material sub_mat(std::set<int> nucset);
-  /// Creates a sub-Material with only the nuclides present in \a nucset.
-  /// Elements of this set may be in any form.
-  Material sub_mat(std::set<std::string> nucset);
+    // Material function definitions
+    void normalize ();  ///< Normalizes the mass.
+    /// Returns a composition map that has been unnormalized by multiplying each
+    /// mass weight by the actual mass of the material.
+    comp_map mult_by_mass();
+    /// Calculates the atomic weight of this material based on the composition
+    /// and the number of atoms per mol.  If \a apm is non-negative then it is
+    /// used (and stored on the instance) as the atoms_per_molecule for this calculation.
+    /// If \a apm and atoms_per_molecule on this instance are both negative, then the best
+    /// guess value calculated from the normailized composition is used here.
+    double molecular_mass(double apm=-1.0);
+    /// Calculates the activity of a material based on the composition and each
+    /// nuclide's mass, decay_const, and atmoic_mass.
+    comp_map activity();
+    /// Calculates the decay heat of a material based on the composition and
+    /// each nuclide's mass, q_val, decay_const, and atomic_mass. This assumes
+    /// input mass of grams. Return values is in megawatts.
+    comp_map decay_heat();
+    /// Caclulates the dose per gram using the composition of the the
+    /// material, the dose type desired, and the source for dose factors
+    ///   dose_type is one of:
+    ///     ext_air -- returns mrem/h per g per m^3
+    ///     ext_soil -- returns mrem/h per g per m^2
+    ///     ingest -- returns mrem per g
+    ///     inhale -- returns mrem per g
+    ///   source is:
+    ///     {EPA=0, DOE=1, GENII=2}, default is EPA
+    comp_map dose_per_g(std::string dose_type, int source=0);
+    /// Returns a copy of the current material where all natural elements in the
+    /// composition are expanded to their natural isotopic abundances.
+    Material expand_elements(std::set<int> exception_ids);
+    // Wrapped version to facilitate calling from python
+    Material expand_elements(int **int_ptr_arry = NULL);
+    // Returns a copy of the current material where all the isotopes of the elements
+    // are added up, atomic-fraction-wise, unless they are in the exception set
+    Material collapse_elements(std::set<int> exception_znum);
+    // Wrapped version to facilitate calling from python
+    Material collapse_elements(int **int_ptr_arry);
+    // void print_material( pyne::Material test_mat);
+    /// Computes, sets, and returns the mass density when \a num_dens is greater
+    /// than or equal zero.  If \a num_dens is negative, this simply returns the
+    /// current value of the density member variable.  You may also use / set the
+    /// atoms per molecule (atoms_per_molecule) in this function using \a apm.
+    double mass_density(double num_dens=-1.0, double apm=-1.0);
+    /// Computes and returns the number density of the material using the
+    /// mass density if \a mass_dens is greater than or equal to zero.  If
+    /// \a mass_dens is negative, the denisty member variable is used instead.
+    /// You may also use / set the atoms per molecule (atoms_per_molecule) in this
+    /// function using \a apm.
+    double number_density(double mass_dens=-1.0, double apm=-1.0);
 
-  /// Creates a new Material with the mass weights for all nuclides in \a nucset
-  /// set to \a value.
-  /// Elements of \a nucset may be either in id form or simple Z numbers.
-  Material set_mat(std::set<int> nucset, double value);
-  /// Creates a new Material with the mass weights for all nuclides in \a nucset
-  /// set to \a value.  Elements of \a nucset may be in any form.
-  Material set_mat(std::set<std::string> nucset, double value);
+    // Sub-Stream Computation
+    /// Creates a sub-Material with only the nuclides present in \a nucset.
+    /// Elements of this set may be either in id form or simple Z numbers.
+    Material sub_mat(std::set<int> nucset);
+    /// Creates a sub-Material with only the nuclides present in \a nucset.
+    /// Elements of this set may be in any form.
+    Material sub_mat(std::set<std::string> nucset);
 
-  /// Creates a new Material with the all nuclides in \a nucset removed.
-  /// Elements of \a nucset may be either in id form or simple Z numbers.
-  Material del_mat(std::set<int> nucset);
-  /// Creates a new Material with the all nuclides in \a nucset removed.
-  /// Elements of \a nucset may be in any form.
-  Material del_mat(std::set<std::string> nucset);
+    /// Creates a new Material with the mass weights for all nuclides in \a nucset
+    /// set to \a value.
+    /// Elements of \a nucset may be either in id form or simple Z numbers.
+    Material set_mat(std::set<int> nucset, double value);
+    /// Creates a new Material with the mass weights for all nuclides in \a nucset
+    /// set to \a value.  Elements of \a nucset may be in any form.
+    Material set_mat(std::set<std::string> nucset, double value);
 
-  /// Creates a sub-Material based on a range of id-form integers.
-  Material sub_range(int lower = 0, int upper = 10000000);
-  /// Creates a new Material with the mass weights for all nuclides in the id
-  /// range set to \a value.
-  Material set_range(int lower = 0, int upper = 10000000, double value = 0.0);
-  /// Creates a new Material with the all nuclides in the id range removed.
-  Material del_range(int lower = 0, int upper = 10000000);
+    /// Creates a new Material with the all nuclides in \a nucset removed.
+    /// Elements of \a nucset may be either in id form or simple Z numbers.
+    Material del_mat(std::set<int> nucset);
+    /// Creates a new Material with the all nuclides in \a nucset removed.
+    /// Elements of \a nucset may be in any form.
+    Material del_mat(std::set<std::string> nucset);
 
-  /// Creates a sub-Material of only the given element. Assumes element is
-  /// id form.
-  Material sub_elem(int element);
-  /// Creates a sub-Material of only lanthanides.
-  Material sub_lan();
-  /// Creates a sub-Material of only actinides.
-  Material sub_act();
-  /// Creates a sub-Material of only transuranics.
-  Material sub_tru();
-  /// Creates a sub-Material of only minor actinides.
-  Material sub_ma();
-  /// Creates a sub-Material of only fission products.
-  Material sub_fp();
+    /// Creates a sub-Material based on a range of id-form integers.
+    Material sub_range(int lower=0, int upper=10000000);
+    /// Creates a new Material with the mass weights for all nuclides in the id
+    /// range set to \a value.
+    Material set_range(int lower=0, int upper=10000000, double value=0.0);
+    /// Creates a new Material with the all nuclides in the id range removed.
+    Material del_range(int lower=0, int upper=10000000);
 
-  // Atom fraction functions
-  /// Returns a mapping of the nuclides in this material to their atom fractions.
-  /// This calculation is based off of the material's molecular weight.
-  std::map<int, double> to_atom_frac();
-  /// Sets the composition, mass, and atoms_per_molecule of this material to those
-  /// calculated from \a atom_fracs, a mapping of nuclides to atom fractions values.
-  void from_atom_frac(std::map<int, double> atom_fracs);
+    /// Creates a sub-Material of only the given element. Assumes element is
+    /// id form.
+    Material sub_elem(int element);
+    /// Creates a sub-Material of only lanthanides.
+    Material sub_lan();
+    /// Creates a sub-Material of only actinides.
+    Material sub_act();
+    /// Creates a sub-Material of only transuranics.
+    Material sub_tru();
+    /// Creates a sub-Material of only minor actinides.
+    Material sub_ma();
+    /// Creates a sub-Material of only fission products.
+    Material sub_fp();
 
-  /// Returns a mapping of the nuclides in this material to their atom densities.
-  /// This calculation is based off of the material's density.
-  std::map<int, double> to_atom_dens();
+    // Atom fraction functions
+    /// Returns a mapping of the nuclides in this material to their atom fractions.
+    /// This calculation is based off of the material's molecular weight.
+    std::map<int, double> to_atom_frac();
+    /// Sets the composition, mass, and atoms_per_molecule of this material to those
+    /// calculated from \a atom_fracs, a mapping of nuclides to atom fractions values.
+    void from_atom_frac(std::map<int, double> atom_fracs);
 
-  // Radioactive Material functions
-  /// Returns a list of gamma-rays energies in keV and intensities in
-  /// decays/s/atom material unnormalized
-  std::vector<std::pair<double, double> > gammas();
-  /// Returns a list of x-rays average energies in keV and intensities in
-  /// decays/s material unnormalized
-  std::vector<std::pair<double, double> > xrays();
-  /// Returns a list of photon energies in keV and intensities in
-  /// decays/s/atom material unnormalized
-  std::vector<std::pair<double, double> > photons(bool norm);
-  /// Takes a list of photon energies and intensities and normalizes them
-  /// so the sum of the intensities is one
-  std::vector<std::pair<double, double> > normalize_radioactivity(
+    /// Returns a mapping of the nuclides in this material to their atom densities.
+    /// This calculation is based off of the material's density.
+    std::map<int, double> to_atom_dens();
+
+    // Radioactive Material functions
+    /// Returns a list of gamma-rays energies in keV and intensities in
+    /// decays/s/atom material unnormalized
+    std::vector<std::pair<double, double> > gammas();
+    /// Returns a list of x-rays average energies in keV and intensities in
+    /// decays/s material unnormalized
+    std::vector<std::pair<double, double> > xrays();
+    /// Returns a list of photon energies in keV and intensities in
+    /// decays/s/atom material unnormalized
+    std::vector<std::pair<double, double> > photons(bool norm);
+    /// Takes a list of photon energies and intensities and normalizes them
+    /// so the sum of the intensities is one
+    std::vector<std::pair<double, double> > normalize_radioactivity(
       std::vector<std::pair<double, double> > unnormed);
 
-  /// Decays this material for a given amount of time in seconds
-  Material decay(double t);
+    /// Decays this material for a given amount of time in seconds
+    Material decay(double t);
 
-  // Overloaded Operators
-  /// Adds mass to a material instance.
-  Material operator+ (double);
-  /// Adds two materials together.
-  Material operator+ (Material);
-  /// Multiplies a material's mass.
-  Material operator* (double);
-  /// Divides a material's mass.
-  Material operator/ (double);
-};
+    /// Transmutes the material via the CRAM method.
+    /// \param A The transmutation matrix [unitless]
+    /// \param order The CRAM approximation order (default 14).
+    /// \return A new material which has been transmuted.
+    Material cram(std::vector<double> A, const int order=14);
 
-/// Converts a Material to a string stream representation for canonical writing.
-/// This operator is also defined on inheritors of std::ostream
-std::ostream& operator<< (std::ostream& os, Material mat);
+    // Overloaded Operators
+    /// Adds mass to a material instance.
+    Material operator+ (double);
+    /// Adds two materials together.
+    Material operator+ (Material);
+    /// Multiplies a material's mass.
+    Material operator* (double);
+    /// Divides a material's mass.
+    Material operator/ (double);
+  };
 
-/// A stuct for reprensenting fundemental data in a material.
-/// Useful for HDF5 representations.
-typedef struct material_data {
-  double mass;  ///< material mass
-  double density; ///< material density
-  double atoms_per_mol; ///< material atoms per mole
-  double comp[1]; ///< array of material composition mass weights.
-} material_data;
+  /// Converts a Material to a string stream representation for canonical writing.
+  /// This operator is also defined on inheritors of std::ostream
+  std::ostream& operator<< (std::ostream& os, Material mat);
 
-/// Custom exception for invalid HDF5 protocol numbers
-class MaterialProtocolError: public std::exception {
-  /// marginally helpful error message.
-  virtual const char* what() const throw() {
-    return "Invalid loading protocol number; please use 0 or 1.";
-  }
-};
+  /// A stuct for reprensenting fundemental data in a material.
+  /// Useful for HDF5 representations.
+  typedef struct material_data {
+    double mass;  ///< material mass
+    double density; ///< material density
+    double atoms_per_mol; ///< material atoms per mole
+    double comp[1]; ///< array of material composition mass weights.
+  } material_data;
+
+  /// Custom exception for invalid HDF5 protocol numbers
+  class MaterialProtocolError: public std::exception
+  {
+    /// marginally helpful error message.
+    virtual const char* what() const throw()
+    {
+      return "Invalid loading protocol number; please use 0 or 1.";
+    }
+  };
 
 // End pyne namespace
 }
 
 #endif  // PYNE_MR34UE5INRGMZK2QYRDWICFHVM
+
 //
 // end of src/material.h
 //
