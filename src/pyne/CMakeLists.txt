@@ -6,6 +6,8 @@ set(PUB_HEADERS pyne.h)
 set(LINK_LIBS)
 set(LINK_LIBS_EXTERN_NAMES HDF5_LIBRARIES)
 
+set(CMAKE_CXX_FLAGS_RELEASE "-std=c++11")
+
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
   set(CMAKE_CXX_FLAGS_RELEASE        "-O0")
   set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
