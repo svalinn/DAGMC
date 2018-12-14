@@ -43,6 +43,7 @@ macro (dagmc_setup_options)
   option(BUILD_MCNP_PLOT   "Build DAG-MCNP5/6 with plotting support" OFF)
   option(BUILD_MCNP_OPENMP "Build DAG-MCNP5/6 with OpenMP support"   OFF)
   option(BUILD_MCNP_MPI    "Build DAG-MCNP5/6 with MPI support"      OFF)
+  option(BUILD_MCNP_PYNE_SOURCE "Build DAG-MCNP5/6 with PyNE mesh source support" OFF)
 
   option(BUILD_GEANT4      "Build DAG-Geant4" OFF)
   option(WITH_GEANT4_UIVIS "Build DAG-Geant4 with visualization support" ${BUILD_GEANT4})
