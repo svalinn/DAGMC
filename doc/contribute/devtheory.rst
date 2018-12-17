@@ -206,15 +206,37 @@ exists, then the call will return 0 for the next volume.
 DAGMC Metadata
 ~~~~~~~~~~~~~~
 
+Metadata Structure in DAGMC Files
+---------------------------------
+
+This section describes the structure used to represent DAGMC metadata using
+MOAB's .h5m format. This is useful knowledge when constructing DAGMC geometries
+manually or when adding support for their generation from a new source.
+
+Metadata EntitySets are tagged with a `CATEGORY` tag (similar to geometric sets)
+with the value "Group" to indicate that the entity set's purpose is to group
+geometric entities together. These metadata EntitySets can be gathered using
+this tag and value to identify "Group" entity sets in the MOAB instance.
+
+DAGMC metadata information used during simulation (material assignments,
+boundary conditions, volume tallies, etc.) is stored on these "Group" EntitySets
+as the value of their `NAME` tag. Please see the `UWUW Section
+<../usersguide/uw2.html>`_ of the user's guide for information about the syntax
+of this tagged information. Geometric EntitySets associated with this metadata
+entry are contained by the metadata entity set.
+
+.. [1] only used in DAG-MCNP simulations.
+
 DAGMC's Metadata Interface
 --------------------------
 
 DAGMC's metadata interface allows one to navigate metadata in more
-straightforward ways, allowing one to retrieve entities with specific
-attributes quickly. The metadata class is constructed using an existing DAGMC
-class. Upon calling ``load_property_data``, the interface will parse all
-metadata existing in the MOAB file with keywords that have been provided to the
-interface (a list of the default keywords is provided below). Additional
+straightforward ways than querying MOAB tags directly, allowing one to retrieve
+entities with specific attributes quickly. The metadata class is constructed
+using an existing DAGMC class. Upon calling ``load_property_data``, the
+interface will parse all metadata existing in the MOAB file with keywords, such
+as "mat" or "boundary", which are provided to the interface in its
+constructor. A list of the default keywords is provided below. Additional
 keywords can be provided to the interface during its construction to support
 implementation-specific conventions.
 
@@ -229,30 +251,9 @@ The ``mat`` and ``rho`` keywords are required for all DAGMC simulations for full
 material definitions in each volume of the model.
 
 Once the metadata in the MOAB file has been parsed, the interface contains
-functions like ``get_surface_property`` and ``get_volume_property`` which allows
+functions like ``get_surface_property`` and ``get_volume_property`` which allow
 one to retrieve metadata values for a keyword using the surface/volume index or
 MOAB entity handle.
-
-Metadata Structure in DAGMC Files
----------------------------------
-
-This section describes the structure used to represent DAGMC metadata in
-MOAB. This is useful knowledge when constructing DAGMC geometries manually or
-when adding support for their generation from a new source.
-
-DAGMC metadata used during simulation (material assignments, boundary
-conditions, volume tallies, etc.) is stored on a MOAB entity set tagged with the
-metadata information using a `NAME` tag. Please see the `UWUW Section
-<../usersguide/uw2.html>`_ of the user's guide for information about the syntax
-of this tagged information. Geometric entities associated with this metadata
-entry are contained by the metadata entity set.
-
-Metadata entity sets are also tagged with a `CATEGORY` tag (similar to geometric
-sets) with the value "Group" to indicate that the entity set's purpose is to
-group geometric entities together. These "Group" sets can be gathered using this
-tag and value to identify "Group" entity sets in the MOAB instance.
-
-.. [1] only used in DAG-MCNP simulations.
 
 The University of Wisconsin Unified Workflow (UWUW) Interface
 -------------------------------------------------------------
@@ -286,7 +287,7 @@ formats using their writer methods, named for each of the physics codes they
 support.
 ::
    std::string mcnp_mat = mat.mcnp();
-  
+
 For more information on supported codes and how to gather other information from
 these objects, please refer to the PyNE's material_ and tally_ documentation.
 
@@ -310,4 +311,3 @@ library files and/or customized hdf5 datapaths for those files. [2]_
 
 .. [2] **Note**: It is important to specify absolute filepaths if using a UWUW object
  in this way. UWUW contains a ``get_full_filepath`` method for convenience.
-
