@@ -127,7 +127,11 @@ macro (dagmc_setup_flags)
   endif ()
 
   if (BUILD_RPATH)
-    set(INSTALL_RPATH_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")
+    if (CMAKE_INSTALL_RPATH)
+      set(INSTALL_RPATH_DIRS "${CMAKE_INSTALL_RPATH}:${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")
+    else ()
+      set(INSTALL_RPATH_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}")
+    endif ()
     message(STATUS "INSTALL_RPATH_DIRS: ${INSTALL_RPATH_DIRS}")
   endif ()
 
