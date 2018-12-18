@@ -177,11 +177,13 @@ TEST_F(UWUWTest, materialMetadata) {
   std::string lib_file = "mat_lib.h5";
   std::string dag_file = "dag_file.h5m";
   std::string out_file = "intermediate.h5";
+  std::string matlib_hdf5_path = "/materials";
   bool verbose = false;
   bool fatal_errors = false;
   // make new preprocessor
   uwuw_preprocessor* uwuw_preproc = new uwuw_preprocessor(lib_file, dag_file,
-                                                          out_file, verbose, fatal_errors);
+                                                          out_file, matlib_hdf5_path,
+                                                          verbose, fatal_errors);
   // load the geometry
   // process materials
   uwuw_preproc->process_materials();
@@ -221,6 +223,7 @@ class UWUWPreprocTest : public ::testing::Test {
     uwuw_preproc = new uwuw_preprocessor("mat_lib.h5",
                                          "dag_file.h5m",
                                          "output_test_file.h5",
+                                         "/materials",
                                          true,
                                          false);
 
