@@ -20,4 +20,4 @@ Other relevant information to this pull request.
 ## News file
 All pull requests are required to include an updated news file with the PR.
 The file should be located at the `/news/PR-<#>.rst` where `<#>` should be replaced with the appropriate PR number.
-Example news files can be seen [here](https://github.com/svalinn/DAGMC/tree/develop/news).
+Please see [here](https://github.com/svalinn/DAGMC/blob/develop/news/TEMPLATE.rst) for the news file template.
