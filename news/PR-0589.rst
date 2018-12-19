@@ -1,0 +1,13 @@
+**Added:**
+
+* Community best practices including issue templates, pull request templates, contributing guidelines, and code of conduct.
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
