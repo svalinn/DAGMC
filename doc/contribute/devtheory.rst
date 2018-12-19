@@ -171,7 +171,7 @@ purposes:
    triangle could be hit again.
 
 The RayHistory class is an optional argument to the DAGMC ray functions, which will otherwise
-not retain nor exlude any intersections other than those not numerically possible.
+not retain nor exclude any intersections other than those not numerically possible.
 
 Point in volume
 ~~~~~~~~~~~~~~~
@@ -202,3 +202,121 @@ the known current volume, the next volume is determined by looking at the other
 volume tagged on that surface (as described in the Sense Tags section above).
 This assumes that a valid surface and volume are provided. If no next volume
 exists, then the call will return 0 for the next volume.
+
+DAGMC Metadata
+~~~~~~~~~~~~~~
+
+Metadata Structure in DAGMC Files
+---------------------------------
+
+This section describes the structure used to represent DAGMC metadata using
+MOAB's .h5m format. This is useful knowledge when constructing DAGMC geometries
+manually or when adding support for their generation from a new source.
+
+Metadata EntitySets are tagged with a `CATEGORY` tag (similar to geometric sets)
+with the value "Group" to indicate that the entity set's purpose is to group
+geometric entities together. These metadata EntitySets can be gathered using
+this tag and value to identify "Group" entity sets in the MOAB instance.
+
+DAGMC metadata information used during simulation (material assignments,
+boundary conditions, volume tallies, etc.) is stored on these "Group" EntitySets
+as the value of their `NAME` tag. Please see the `UWUW Section
+<../usersguide/uw2.html>`_ of the user's guide for information about the syntax
+of this tagged information. Geometric EntitySets associated with this metadata
+entry are contained by the metadata entity set.
+
+.. [1] only used in DAG-MCNP simulations.
+
+DAGMC's Metadata Interface
+--------------------------
+
+DAGMC's metadata interface allows one to navigate metadata in more
+straightforward ways than querying MOAB tags directly, allowing one to retrieve
+entities with specific attributes quickly. The metadata class is constructed
+using an existing DAGMC class. Upon calling ``load_property_data``, the
+interface will parse all metadata existing in the MOAB file with keywords, such
+as "mat" or "boundary", which are provided to the interface in its
+constructor. A list of the default keywords is provided below. Additional
+keywords can be provided to the interface during its construction to support
+implementation-specific conventions.
+
+Default metadata keyword list:
+  - mat: material composition assignment
+  - rho: material density assignment (units: g/cc)
+  - boundary: boundary condition
+  - tally: indicates a geometric tally on a surface or volume
+- importance: used to set variance reduction properties [1]_
+
+The ``mat`` and ``rho`` keywords are required for all DAGMC simulations for full
+material definitions in each volume of the model.
+
+Once the metadata in the MOAB file has been parsed, the interface contains
+functions like ``get_surface_property`` and ``get_volume_property`` which allow
+one to retrieve metadata values for a keyword using the surface/volume index or
+MOAB entity handle.
+
+The University of Wisconsin Unified Workflow (UWUW) Interface
+-------------------------------------------------------------
+
+The UWUW class in DagMC uses an amalgamated version of PyNE's C++ code to
+interface with PyNE material and tally libraries. PyNE's "physics code neutral"
+data formats allow the data in UWUW DAGMC files to interface with many different
+physics codes using the same .h5m file.
+
+Standard Use
+^^^^^^^^^^^^
+
+The UWUW class is typically constructed using the path to a .h5m file containing
+a material library. Both material and tally definitions along with their
+assignment to EntitySets in the MOAB geometry are loaded into the UWUW instance
+upon its creation.
+::
+
+  UWUW* uwuw = new UWUW("/path/to/dagmc.h5m");
+
+UWUW will search the hdf5 file to find material and tally definitions in the
+default datapaths ``/materials`` and ``/tally``, respectively. At this point,
+material/tally library information can be accessed via the ``material_library``
+and ``tally_library`` attributes of the UWUW object.
+::
+
+  int mat_lib_size = uwuw->material_library.size();
+  pyne::Material steel = uwuw->material_library["Steel"];
+
+Material and tally information can then be written in a variety of supported
+formats using their writer methods, named for each of the physics codes they
+support.
+::
+   std::string mcnp_mat = mat.mcnp();
+
+For more information on supported codes and how to gather other information from
+these objects, please refer to the PyNE's material_ and tally_ documentation.
+
+.. _material: http://pyne.io/cppapi/html/classpyne_1_1_material.html
+.. _tally: http://pyne.io/cppapi/html/classpyne_1_1_tally.html
+
+The UWUW class relies on the `DAGMC's Metadata Interface`_ to parse material and
+tally assignments from the MOAB geometry in the DAGMC .h5m file using its
+default set of keywords. In particular, the mapping of material definitions to
+geometric EntitySets generated by the DAGMC metadata class is directly
+transferred to the UWUW class in the ``process_materials`` method. Certain
+utility functions of DAGMC's metadata class like ``unpack_string`` are used in
+UWUW as well for convenience in other areas of UWUW as well.
+
+Custom hdf5 datapaths
+^^^^^^^^^^^^^^^^^^^^^
+
+While it is recommended that the default hdf5 datapaths for PyNE data are
+used. It is possible to provide specific datapaths to the interface. This can be
+done by creating a UWUW object with an empty constructor. This will subvert the
+automatic loading of material and tally data that would occur using the
+constructor shown in the previous section. The ``load_pyne_materials`` and
+``load_pyne_tallies`` methods can then be used to provide custom material/tally
+library files and/or customized hdf5 datapaths for those files. [2]_
+::
+   UWUW* uwuw = new UWUW();
+   uwuw->load_pyne_materials("hdf5_material_file_path", datapath = "/custom/hdf5/datapath");
+   uwuw->load_pyne_tallies("hdf5_tally_file_path", datapath = "/custom/hdf5/datapath");
+
+.. [2] **Note**: It is important to specify absolute filepaths if using a UWUW object
+ in this way. UWUW contains a ``get_full_filepath`` method for convenience.
