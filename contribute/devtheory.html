@@ -14,6 +14,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Gallery of projects that use DAGMC" href="../gallery/gallery.html" />
@@ -92,6 +93,16 @@
 <li><a class="reference internal" href="#point-in-volume">Point in volume</a></li>
 <li><a class="reference internal" href="#ray-fire">Ray fire</a></li>
 <li><a class="reference internal" href="#next-volume">Next volume</a></li>
+<li><a class="reference internal" href="#dagmc-metadata">DAGMC Metadata</a><ul>
+<li><a class="reference internal" href="#metadata-structure-in-dagmc-files">Metadata Structure in DAGMC Files</a></li>
+<li><a class="reference internal" href="#dagmc-s-metadata-interface">DAGMC’s Metadata Interface</a></li>
+<li><a class="reference internal" href="#the-university-of-wisconsin-unified-workflow-uwuw-interface">The University of Wisconsin Unified Workflow (UWUW) Interface</a><ul>
+<li><a class="reference internal" href="#standard-use">Standard Use</a></li>
+<li><a class="reference internal" href="#custom-hdf5-datapaths">Custom hdf5 datapaths</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -246,7 +257,7 @@ occurred first, the RayHistory should be taken back to its previous state such t
 triangle could be hit again.</li>
 </ol>
 <p>The RayHistory class is an optional argument to the DAGMC ray functions, which will otherwise
-not retain nor exlude any intersections other than those not numerically possible.</p>
+not retain nor exclude any intersections other than those not numerically possible.</p>
 </div>
 <div class="section" id="point-in-volume">
 <h2>Point in volume<a class="headerlink" href="#point-in-volume" title="Permalink to this headline">¶</a></h2>
@@ -275,6 +286,123 @@ volume tagged on that surface (as described in the Sense Tags section above).
 This assumes that a valid surface and volume are provided. If no next volume
 exists, then the call will return 0 for the next volume.</p>
 </div>
+<div class="section" id="dagmc-metadata">
+<h2>DAGMC Metadata<a class="headerlink" href="#dagmc-metadata" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="metadata-structure-in-dagmc-files">
+<h3>Metadata Structure in DAGMC Files<a class="headerlink" href="#metadata-structure-in-dagmc-files" title="Permalink to this headline">¶</a></h3>
+<p>This section describes the structure used to represent DAGMC metadata using
+MOAB’s .h5m format. This is useful knowledge when constructing DAGMC geometries
+manually or when adding support for their generation from a new source.</p>
+<p>Metadata EntitySets are tagged with a <cite>CATEGORY</cite> tag (similar to geometric sets)
+with the value “Group” to indicate that the entity set’s purpose is to group
+geometric entities together. These metadata EntitySets can be gathered using
+this tag and value to identify “Group” entity sets in the MOAB instance.</p>
+<p>DAGMC metadata information used during simulation (material assignments,
+boundary conditions, volume tallies, etc.) is stored on these “Group” EntitySets
+as the value of their <cite>NAME</cite> tag. Please see the <a class="reference external" href="../usersguide/uw2.html">UWUW Section</a> of the user’s guide for information about the syntax
+of this tagged information. Geometric EntitySets associated with this metadata
+entry are contained by the metadata entity set.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>only used in DAG-MCNP simulations.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dagmc-s-metadata-interface">
+<h3>DAGMC’s Metadata Interface<a class="headerlink" href="#dagmc-s-metadata-interface" title="Permalink to this headline">¶</a></h3>
+<p>DAGMC’s metadata interface allows one to navigate metadata in more
+straightforward ways than querying MOAB tags directly, allowing one to retrieve
+entities with specific attributes quickly. The metadata class is constructed
+using an existing DAGMC class. Upon calling <code class="docutils literal notranslate"><span class="pre">load_property_data</span></code>, the
+interface will parse all metadata existing in the MOAB file with keywords, such
+as “mat” or “boundary”, which are provided to the interface in its
+constructor. A list of the default keywords is provided below. Additional
+keywords can be provided to the interface during its construction to support
+implementation-specific conventions.</p>
+<dl class="docutils">
+<dt>Default metadata keyword list:</dt>
+<dd><ul class="first last simple">
+<li>mat: material composition assignment</li>
+<li>rho: material density assignment (units: g/cc)</li>
+<li>boundary: boundary condition</li>
+<li>tally: indicates a geometric tally on a surface or volume</li>
+</ul>
+</dd>
+</dl>
+<ul class="simple">
+<li>importance: used to set variance reduction properties <a class="footnote-reference" href="#id2" id="id3">[1]</a></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">mat</span></code> and <code class="docutils literal notranslate"><span class="pre">rho</span></code> keywords are required for all DAGMC simulations for full
+material definitions in each volume of the model.</p>
+<p>Once the metadata in the MOAB file has been parsed, the interface contains
+functions like <code class="docutils literal notranslate"><span class="pre">get_surface_property</span></code> and <code class="docutils literal notranslate"><span class="pre">get_volume_property</span></code> which allow
+one to retrieve metadata values for a keyword using the surface/volume index or
+MOAB entity handle.</p>
+</div>
+<div class="section" id="the-university-of-wisconsin-unified-workflow-uwuw-interface">
+<h3>The University of Wisconsin Unified Workflow (UWUW) Interface<a class="headerlink" href="#the-university-of-wisconsin-unified-workflow-uwuw-interface" title="Permalink to this headline">¶</a></h3>
+<p>The UWUW class in DagMC uses an amalgamated version of PyNE’s C++ code to
+interface with PyNE material and tally libraries. PyNE’s “physics code neutral”
+data formats allow the data in UWUW DAGMC files to interface with many different
+physics codes using the same .h5m file.</p>
+<div class="section" id="standard-use">
+<h4>Standard Use<a class="headerlink" href="#standard-use" title="Permalink to this headline">¶</a></h4>
+<p>The UWUW class is typically constructed using the path to a .h5m file containing
+a material library. Both material and tally definitions along with their
+assignment to EntitySets in the MOAB geometry are loaded into the UWUW instance
+upon its creation.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>UWUW* uwuw = new UWUW(&quot;/path/to/dagmc.h5m&quot;);
+</pre></div>
+</div>
+<p>UWUW will search the hdf5 file to find material and tally definitions in the
+default datapaths <code class="docutils literal notranslate"><span class="pre">/materials</span></code> and <code class="docutils literal notranslate"><span class="pre">/tally</span></code>, respectively. At this point,
+material/tally library information can be accessed via the <code class="docutils literal notranslate"><span class="pre">material_library</span></code>
+and <code class="docutils literal notranslate"><span class="pre">tally_library</span></code> attributes of the UWUW object.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>int mat_lib_size = uwuw-&gt;material_library.size();
+pyne::Material steel = uwuw-&gt;material_library[&quot;Steel&quot;];
+</pre></div>
+</div>
+<p>Material and tally information can then be written in a variety of supported
+formats using their writer methods, named for each of the physics codes they
+support.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>std::string mcnp_mat = mat.mcnp();
+</pre></div>
+</div>
+<p>For more information on supported codes and how to gather other information from
+these objects, please refer to the PyNE’s <a class="reference external" href="http://pyne.io/cppapi/html/classpyne_1_1_material.html">material</a> and <a class="reference external" href="http://pyne.io/cppapi/html/classpyne_1_1_tally.html">tally</a> documentation.</p>
+<p>The UWUW class relies on the <a class="reference internal" href="#dagmc-s-metadata-interface">DAGMC’s Metadata Interface</a> to parse material and
+tally assignments from the MOAB geometry in the DAGMC .h5m file using its
+default set of keywords. In particular, the mapping of material definitions to
+geometric EntitySets generated by the DAGMC metadata class is directly
+transferred to the UWUW class in the <code class="docutils literal notranslate"><span class="pre">process_materials</span></code> method. Certain
+utility functions of DAGMC’s metadata class like <code class="docutils literal notranslate"><span class="pre">unpack_string</span></code> are used in
+UWUW as well for convenience in other areas of UWUW as well.</p>
+</div>
+<div class="section" id="custom-hdf5-datapaths">
+<h4>Custom hdf5 datapaths<a class="headerlink" href="#custom-hdf5-datapaths" title="Permalink to this headline">¶</a></h4>
+<p>While it is recommended that the default hdf5 datapaths for PyNE data are
+used. It is possible to provide specific datapaths to the interface. This can be
+done by creating a UWUW object with an empty constructor. This will subvert the
+automatic loading of material and tally data that would occur using the
+constructor shown in the previous section. The <code class="docutils literal notranslate"><span class="pre">load_pyne_materials</span></code> and
+<code class="docutils literal notranslate"><span class="pre">load_pyne_tallies</span></code> methods can then be used to provide custom material/tally
+library files and/or customized hdf5 datapaths for those files. <a class="footnote-reference" href="#id5" id="id4">[2]</a></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>UWUW* uwuw = new UWUW();
+uwuw-&gt;load_pyne_materials(&quot;hdf5_material_file_path&quot;, datapath = &quot;/custom/hdf5/datapath&quot;);
+uwuw-&gt;load_pyne_tallies(&quot;hdf5_tally_file_path&quot;, datapath = &quot;/custom/hdf5/datapath&quot;);
+</pre></div>
+</div>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><strong>Note</strong>: It is important to specify absolute filepaths if using a UWUW object
+in this way. UWUW contains a <code class="docutils literal notranslate"><span class="pre">get_full_filepath</span></code> method for convenience.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -288,10 +416,10 @@ exists, then the call will return 0 for the next volume.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Nov 25, 2018.
+      Last updated on Dec 19, 2018.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.1.
       </p>
     </div>
   </body>
