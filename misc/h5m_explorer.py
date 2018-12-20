@@ -2,13 +2,12 @@ import sys
 import os
 
 import pandas as pd
-import pymoab
+import numpy as np
 
 from pymoab import core
 from pymoab import types
 from pymoab.tag import Tag
 
-import numpy as npi
 
 
 class h5mexplorer:
@@ -21,9 +20,19 @@ class h5mexplorer:
 
         self.root_set = self.mb.get_root_set()
         self.handles = self.mb.get_entities_by_handle(self.root_set)
-        self.materials = BuildMaterial()
+        
+        self.materials = BuildMaterialTable()
+        self.volumes = BuildVolumeTable()
 
-    def BuildMaterial(self):
+
+    def GetCATEGORYHandle(self, category):
+        category_tg_name=self.mb.tag_get_handle(
+            "CATEGORY", 32, types.MB_TYPE_OPAQUE, False)
+        return self.mb.get_entities_by_type_and_tag(self.root_set, types.MBENTITYSET,
+                category_tg_name, np.array([category]))
+
+
+    def BuildMaterialTable(self):
         mat_handle = []
         mat_name = []
         mat_assignment = []
@@ -55,79 +64,66 @@ class h5mexplorer:
         index = range(0, len(mat_handle))
         columns = ('ID', 'Handle', 'Name', 'Assignment')
         mat_pdf = pd.DataFrame( columns=columns)
-        for x in range(len(mat_handle)):
-            for assigment in mat_assignment[x]:
-                row = [mat_id[x], mat_handle[x], mat_name[x], assigment]
+        for i in range(len(mat_handle)):
+            for assigment in mat_assignment[i]:
+                row = [mat_id[i], mat_handle[i], mat_name[i], assigment]
                 mat_pdf.loc[len(mat_pdf)] = row
-
 
         return mat_pdf
 
-
-
-    def GetCATEGORYHandle(self, category):
-        category_tg_name=self.mb.tag_get_handle(
-            "CATEGORY", 32, types.MB_TYPE_OPAQUE, False)
-        return self.mb.get_entities_by_type_and_tag(self.root_set, types.MBENTITYSET,
-                category_tg_name, np.array([category]))
-
-
-    def GetMaterialNameInVolume(self, volume_handle):
-        # Get assignment and Handle
-        mat_assigment=GetMaterialAssignment(self)
-        mat_handle=GetMaterialHandle(self)
-
-        # Search for matching mat assigment
-        mat_in_vol=[]
-        for i, asgmts in enumerate(mat_assignment):
-            if vol_handle in asgmts:
-                mat_in_vol.append(mat_handle[i])
-
-        if len(mat_in_vol) == 0:
-            return NULL
-        elif len(mat_in_vol) == 1:
-            return mat_in_vol[0]
-        else:
-            print("!!WARNING!! Multiple material assignements for a single Volume")
-            return mat_in_vol
-
-
-    def GetVolumeId(self):
-        rtn=[]
-        volume_identities=[]
-        vol_hdl=self.GetCATEGORYHandle("Volume")
-        tg_name=self.mb.tag_get_handle(
+    def BuildVolumeTable(self):
+        vol_id = []
+        vol_mat_names = []
+        vol_mat_handles = []
+        vol_surface_handle = []
+        
+        vol_handle = self.GetCATEGORYHandle("Volume")
+        
+        tg_name = self.mb.tag_get_handle(
             "GLOBAL_ID", 1, types.MB_TYPE_INTEGER, False)
-        for i in vol_hdl:
+        
+        for i in vol_handle:
             try:
-                volume_identities.append(
-                    self.mb.tag_get_data(tg_name, i)[0][0])
+                vol_id.append(self.mb.tag_get_data(tg_name, i)[0][0])
+                
+                vol_mat_handles.append(self.GetMaterialHandleInVolume(i))
+                vol_mat_names.append(self.GetMaterialNameInVolume(i))
+                
             except RuntimeError:
                 continue
-        return volume_identities
+        
+        index = range(0, len(vol_handle))
+        columns = ('ID', 'Handle', 'MaterialName', 'MaterialHandle')
+        vol_pdf = pd.DataFrame( columns=columns)
+        for i in range(len(vol_handle)):
+            for j in range(len(vol_mat_names[i])):
+                row = [vol_id[i], vol_handle[i], vol_mat_names[i][j],
+                        vol_mat_handles[i][j]]
+                vol_pdf.loc[len(vol_pdf)] = row
+
+        return vol_pdf
 
 
+    def GetMaterialHandleInVolume(self, volume_handle):
+        df_vol = self.materials[self.materials['Assignment'] == volume_handle]
 
-    def GetVolumeMaterialAssignment_handle(self):
-        mat_assigment=GetMaterialAssignment(self)
-        volume_handle=GetVolumeHandle(self)
-        mat_handle=GetMaterialHandle(self)
+        if len(df_vol) == 0:
+            return [None]
+        elif len(df_vol) == 1:
+            return [df_vol['Handle']]
+        else:
+            print("!!WARNING!! Multiple material assignements for a single Volume")
+            return df_vol['Handle'].tolist()
+    
+    
+    def GetMaterialNameInVolume(self, volume_handle):
+        df_vol = self.materials[self.materials['Assignment'] == volume_handle]
 
-        mat_in_vol=[]
-        for vol_hdl in volume_handle:
-            for i, asgmts in enumerate(mat_assignment):
-                if vol_hdl in asgmts:
-                    mat_in_vol.append(mat_handle[i])
-        return mat_in_vol
+        if len(df_vol) == 0:
+            return [None]
+        elif len(df_vol) == 1:
+            return [df_vol['Name']]
+        else:
+            print("!!WARNING!! Multiple material assignements for a single Volume")
+            return df_vol['Name'].tolist()
 
-    def GetVolumeMaterialAssignment_name(self):
-        mat_assigment=GetMaterialAssignment(self)
-        volume_handle=GetVolumeHandle(self)
-        mat_name=GetMaterialList(self)
-
-        mat_in_vol=[]
-        for vol_hdl in volume_handle:
-            for i, asgmts in enumerate(mat_assignment):
-                if vol_hdl in asgmts:
-                    mat_in_vol.append(mat_name[i])
-        return mat_in_vol
