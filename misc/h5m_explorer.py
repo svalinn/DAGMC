@@ -26,10 +26,10 @@ class h5mexplorer:
     def BuildMaterial(self):
         mat_handle = []
         mat_name = []
-        mat_assignment = GetMaterialAssignment()
-        mat_id = GetMaterialId()
+        mat_assignment = []
+        mat_id = []
 
-        group_handle = self.GetCATEGORYHandle(self, "Group")
+        group_handle = self.GetCATEGORYHandle("Group")
         name_tg_name = self.mb.tag_get_handle(
             "NAME", 32, types.MB_TYPE_OPAQUE, False)
         id_tg_name = self.mb.tag_get_handle(
@@ -40,7 +40,7 @@ class h5mexplorer:
                 name = self.mb.tag_get_data(name_tg_name, handle)[
                                             0][0].decode('utf-8')
                 if name[0:3] == "mat":
-                    mat_hld.append(handle)
+                    mat_handle.append(handle)
                     mat_name.append(name)
 
                     assignent = []
@@ -48,7 +48,7 @@ class h5mexplorer:
                         assignent.append(vol_hld)
                     mat_assignment.append(assignent)
 
-                    mat_id.append(self.mb.tag_get_data(id_tg_name, i)[0][0])
+                    mat_id.append(self.mb.tag_get_data(id_tg_name, handle)[0][0])
             except RuntimeError:
                 continue
 
@@ -88,8 +88,7 @@ class h5mexplorer:
         elif len(mat_in_vol) == 1:
             return mat_in_vol[0]
         else:
-            print("!!WARNING!! Multiple material assignements for a single
-            Volume")
+            print("!!WARNING!! Multiple material assignements for a single Volume")
             return mat_in_vol
 
 
