@@ -12,6 +12,7 @@ from pymoab.tag import Tag
 class h5mexplorer:
 
     def __init__(self, filename):
+        """ Constructor """
 
         self.mb = core.Core()
         self.h5m_file = filename
@@ -24,12 +25,34 @@ class h5mexplorer:
         self.volumes = BuildVolumeTable()
 
     def GetCATEGORYHandle(self, category):
+        """
+        Get the list of handle with the CATEGORY TAG matching the user
+        spacification
+
+        Parameters
+        ----------
+        category : string
+            Value of the category tag to select
+
+        Returns
+        -------
+            MOAB Range of EntityHandles
+
+        """
         category_tg_name = self.mb.tag_get_handle(
             "CATEGORY", 32, types.MB_TYPE_OPAQUE, False)
         return self.mb.get_entities_by_type_and_tag(self.root_set, types.MBENTITYSET,
                                                     category_tg_name, np.array([category]))
 
     def BuildMaterialTable(self):
+        """
+        Build the Material Table containing the list of material and one line
+        per assignment.
+
+        Returns
+        -------
+        PandaDataFrame
+        """
         mat_handle = []
         mat_name = []
         mat_assignment = []
@@ -70,6 +93,14 @@ class h5mexplorer:
         return mat_pdf
 
     def BuildVolumeTable(self):
+        """
+        Build the Volume Table containing the list of volume, their ID, handle,
+        material name and handle.
+
+        Returns
+        -------
+        PandaDataFrame
+        """
         vol_id = []
         vol_mat_names = []
         vol_mat_handles = []
@@ -102,6 +133,17 @@ class h5mexplorer:
         return vol_pdf
 
     def GetMaterialHandleInVolume(self, volume_handle):
+        """
+        Retrieve the Material Handle for a volume
+
+        Parameters
+        ----------
+        volume_handle : MOAB EntityHandle (long)
+
+        Returns
+        -------
+        list of material handles
+        """
         df_vol = self.materials[self.materials['Assignment'] == volume_handle]
 
         if len(df_vol) == 0:
@@ -111,6 +153,17 @@ class h5mexplorer:
         return df_vol['Handle'].tolist()
 
     def GetMaterialNameInVolume(self, volume_handle):
+        """
+        Retrieve the Material Name for a Volume
+
+        Parameters
+        ----------
+        volume_handle : MOAB EntityHandle (long)
+
+        Returns
+        -------
+        list of material names
+        """
         df_vol = self.materials[self.materials['Assignment'] == volume_handle]
 
         if len(df_vol) == 0:
