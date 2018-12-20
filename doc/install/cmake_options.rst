@@ -26,6 +26,9 @@ Note that unless set, all boolean options default to ``OFF``.
     * ``-DBUILD_MCNP_MPI=ON`` If building DAG-MCNP5/6, build MPI versions.
       (Default: OFF)
 
+    * ``-DBUILD_MCNP_PYNE_SOURCE=ON`` If building DAG-MCNP5/6, build with PyNE
+      mesh source routine support. (Default: OFF)
+
     * ``-DBUILD_FLUKA=ON`` Build FluDAG and the fludag library. If this option
       is turned on, ``-DFLUKA_DIR`` must also be specified. (Default: OFF)
 
