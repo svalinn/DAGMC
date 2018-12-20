@@ -109,11 +109,9 @@ class h5mexplorer:
 
         if len(df_vol) == 0:
             return [None]
-        elif len(df_vol) == 1:
-            return [df_vol['Handle']]
-        else:
+        elif len(df_vol) > 1:
             print("!!WARNING!! Multiple material assignements for a single Volume")
-            return df_vol['Handle'].tolist()
+        return df_vol['Handle'].tolist()
     
     
     def GetMaterialNameInVolume(self, volume_handle):
@@ -121,9 +119,7 @@ class h5mexplorer:
 
         if len(df_vol) == 0:
             return [None]
-        elif len(df_vol) == 1:
-            return [df_vol['Name']]
-        else:
+        elif len(df_vol) > 1:
             print("!!WARNING!! Multiple material assignements for a single Volume")
-            return df_vol['Name'].tolist()
+        return df_vol['Name'].tolist()
 
