@@ -9,7 +9,6 @@ from pymoab import types
 from pymoab.tag import Tag
 
 
-
 class h5mexplorer:
 
     def __init__(self, filename):
@@ -20,17 +19,15 @@ class h5mexplorer:
 
         self.root_set = self.mb.get_root_set()
         self.handles = self.mb.get_entities_by_handle(self.root_set)
-        
+
         self.materials = BuildMaterialTable()
         self.volumes = BuildVolumeTable()
 
-
     def GetCATEGORYHandle(self, category):
-        category_tg_name=self.mb.tag_get_handle(
+        category_tg_name = self.mb.tag_get_handle(
             "CATEGORY", 32, types.MB_TYPE_OPAQUE, False)
         return self.mb.get_entities_by_type_and_tag(self.root_set, types.MBENTITYSET,
-                category_tg_name, np.array([category]))
-
+                                                    category_tg_name, np.array([category]))
 
     def BuildMaterialTable(self):
         mat_handle = []
@@ -47,7 +44,7 @@ class h5mexplorer:
         for handle in group_handle:
             try:
                 name = self.mb.tag_get_data(name_tg_name, handle)[
-                                            0][0].decode('utf-8')
+                    0][0].decode('utf-8')
                 if name[0:3] == "mat":
                     mat_handle.append(handle)
                     mat_name.append(name)
@@ -57,13 +54,14 @@ class h5mexplorer:
                         assignent.append(vol_hld)
                     mat_assignment.append(assignent)
 
-                    mat_id.append(self.mb.tag_get_data(id_tg_name, handle)[0][0])
+                    mat_id.append(self.mb.tag_get_data(
+                        id_tg_name, handle)[0][0])
             except RuntimeError:
                 continue
 
         index = range(0, len(mat_handle))
         columns = ('ID', 'Handle', 'Name', 'Assignment')
-        mat_pdf = pd.DataFrame( columns=columns)
+        mat_pdf = pd.DataFrame(columns=columns)
         for i in range(len(mat_handle)):
             for assigment in mat_assignment[i]:
                 row = [mat_id[i], mat_handle[i], mat_name[i], assigment]
@@ -76,33 +74,32 @@ class h5mexplorer:
         vol_mat_names = []
         vol_mat_handles = []
         vol_surface_handle = []
-        
+
         vol_handle = self.GetCATEGORYHandle("Volume")
-        
+
         tg_name = self.mb.tag_get_handle(
             "GLOBAL_ID", 1, types.MB_TYPE_INTEGER, False)
-        
+
         for i in vol_handle:
             try:
                 vol_id.append(self.mb.tag_get_data(tg_name, i)[0][0])
-                
+
                 vol_mat_handles.append(self.GetMaterialHandleInVolume(i))
                 vol_mat_names.append(self.GetMaterialNameInVolume(i))
-                
+
             except RuntimeError:
                 continue
-        
+
         index = range(0, len(vol_handle))
         columns = ('ID', 'Handle', 'MaterialName', 'MaterialHandle')
-        vol_pdf = pd.DataFrame( columns=columns)
+        vol_pdf = pd.DataFrame(columns=columns)
         for i in range(len(vol_handle)):
             for j in range(len(vol_mat_names[i])):
                 row = [vol_id[i], vol_handle[i], vol_mat_names[i][j],
-                        vol_mat_handles[i][j]]
+                       vol_mat_handles[i][j]]
                 vol_pdf.loc[len(vol_pdf)] = row
 
         return vol_pdf
-
 
     def GetMaterialHandleInVolume(self, volume_handle):
         df_vol = self.materials[self.materials['Assignment'] == volume_handle]
@@ -112,8 +109,7 @@ class h5mexplorer:
         elif len(df_vol) > 1:
             print("!!WARNING!! Multiple material assignements for a single Volume")
         return df_vol['Handle'].tolist()
-    
-    
+
     def GetMaterialNameInVolume(self, volume_handle):
         df_vol = self.materials[self.materials['Assignment'] == volume_handle]
 
@@ -122,4 +118,3 @@ class h5mexplorer:
         elif len(df_vol) > 1:
             print("!!WARNING!! Multiple material assignements for a single Volume")
         return df_vol['Name'].tolist()
-
