@@ -98,7 +98,7 @@ class h5mexplorer:
 
         Returns
         -------
-        PandaDataFrame
+        Pandas DataFrame
         """
         vol_id = []
         vol_mat_names = []
