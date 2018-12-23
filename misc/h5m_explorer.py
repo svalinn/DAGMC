@@ -24,7 +24,7 @@ class h5mexplorer:
         self.materials = BuildMaterialTable()
         self.volumes = BuildVolumeTable()
 
-    def GetCATEGORYHandle(self, category):
+    def GetCATEGORYHandles(self, category):
         """
         Get the list of handle with the CATEGORY TAG matching the user
         spacification
@@ -40,7 +40,7 @@ class h5mexplorer:
 
         """
         category_tg_name = self.mb.tag_get_handle(
-            "CATEGORY", 32, types.MB_TYPE_OPAQUE, False)
+            "CATEGORY", 32, types.MB_TYPE_OPAQUE)
         return self.mb.get_entities_by_type_and_tag(self.root_set, types.MBENTITYSET,
                                                     category_tg_name, np.array([category]))
 
@@ -51,23 +51,22 @@ class h5mexplorer:
 
         Returns
         -------
-        PandaDataFrame
+            Pandas DataFrame
         """
         mat_handle = []
         mat_name = []
         mat_assignment = []
         mat_id = []
 
-        group_handle = self.GetCATEGORYHandle("Group")
+        group_handle = self.GetCATEGORYHandles("Group")
         name_tg_name = self.mb.tag_get_handle(
-            "NAME", 32, types.MB_TYPE_OPAQUE, False)
+            "NAME", 32, types.MB_TYPE_OPAQUE)
         id_tg_name = self.mb.tag_get_handle(
-            "GLOBAL_ID", 1, types.MB_TYPE_INTEGER, False)
+            "GLOBAL_ID", 1, types.MB_TYPE_INTEGER)
 
         for handle in group_handle:
             try:
-                name = self.mb.tag_get_data(name_tg_name, handle)[
-                    0][0].decode('utf-8')
+                name = self.mb.tag_get_data(name_tg_name, handle, flat=True)[0].decode('utf-8')
                 if name[0:3] == "mat":
                     mat_handle.append(handle)
                     mat_name.append(name)
@@ -78,7 +77,7 @@ class h5mexplorer:
                     mat_assignment.append(assignent)
 
                     mat_id.append(self.mb.tag_get_data(
-                        id_tg_name, handle)[0][0])
+                        id_tg_name, handle, flat=True)[0])
             except RuntimeError:
                 continue
 
@@ -106,14 +105,14 @@ class h5mexplorer:
         vol_mat_handles = []
         vol_surface_handle = []
 
-        vol_handle = self.GetCATEGORYHandle("Volume")
+        vol_handle = self.GetCATEGORYHandles("Volume")
 
         tg_name = self.mb.tag_get_handle(
-            "GLOBAL_ID", 1, types.MB_TYPE_INTEGER, False)
+            "GLOBAL_ID", 1, types.MB_TYPE_INTEGER)
 
         for i in vol_handle:
             try:
-                vol_id.append(self.mb.tag_get_data(tg_name, i)[0][0])
+                vol_id.append(self.mb.tag_get_data(tg_name, i, flat=True)[0])
 
                 vol_mat_handles.append(self.GetMaterialHandleInVolume(i))
                 vol_mat_names.append(self.GetMaterialNameInVolume(i))
@@ -138,7 +137,7 @@ class h5mexplorer:
 
         Parameters
         ----------
-        volume_handle : MOAB EntityHandle (long)
+        volume_handle : MOAB EntityHandle
 
         Returns
         -------
