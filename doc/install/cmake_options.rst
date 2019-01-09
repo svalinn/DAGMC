@@ -4,7 +4,7 @@ DAGMC CMake variables
 This page describes the specific CMake variables that affect the DAGMC build.
 Note that unless set, all boolean options default to ``OFF``.
 
-    * ``-DMOAB_ROOT=/path/to/moab`` Path to MOAB.
+    * ``-DMOAB_DIR=/path/to/moab`` Path to MOAB.
 
     * ``-DBUILD_MCNP5=ON`` Build DAG-MCNP5. (Default: OFF)
 

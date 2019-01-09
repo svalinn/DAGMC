@@ -19,7 +19,7 @@ cd ${build_dir}/DAGMC-moab-${moab_version}
 #git clone https://github.com/svalinn/DAGMC -b develop
 ln -snf DAGMC src
 cd bld
-cmake ../src -DMOAB_ROOT=${install_dir}/moab-${moab_version} \
+cmake ../src -DMOAB_DIR=${install_dir}/moab-${moab_version} \
              -DBUILD_GEANT4=${build_daggeant4} \
              -DGEANT4_DIR=${install_dir}/geant4-${geant4_version} \
              -DBUILD_CI_TESTS=ON \

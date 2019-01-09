@@ -6,7 +6,6 @@
   ``MOABConfig.cmake`` instead of trying to determine them ourselves. Note that
   this change makes DAGMC incompatible with MOAB 5.0.
 * Use MOAB 5.1.0 on CI instead of 5.0.
-* Change the ``MOAB_DIR`` variable to ``MOAB_ROOT``.
 
 **Deprecated:** None
 

@@ -2,10 +2,6 @@ project(DAGMC)
 cmake_minimum_required(VERSION 2.8)
 enable_language(Fortran)
 
-if (CMAKE_VERSION VERSION_GREATER 3.11)
-  cmake_policy(SET CMP0074 OLD)
-endif ()
-
 # Set DAGMC version
 set(DAGMC_MAJOR_VERSION 3)
 set(DAGMC_MINOR_VERSION 0)
