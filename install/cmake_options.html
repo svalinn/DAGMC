@@ -14,7 +14,6 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installing the Cubit/Trelis plugin" href="plugin.html" />
@@ -96,6 +95,8 @@ environment variable instead.</li>
 OFF)</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_MPI=ON</span></code> If building DAG-MCNP5/6, build MPI versions.
 (Default: OFF)</li>
+<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_PYNE_SOURCE=ON</span></code> If building DAG-MCNP5/6, build with PyNE
+mesh source routine support. (Default: OFF)</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DBUILD_FLUKA=ON</span></code> Build FluDAG and the fludag library. If this option
 is turned on, <code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR</span></code> must also be specified. (Default: OFF)</li>
 <li><code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR=/path/to/fluka</span></code> Set the path to Fluka. It should typically
@@ -130,10 +131,10 @@ integration tests. (Default: OFF)</li>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Dec 19, 2018.
+      Last updated on Jan 11, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
       </p>
     </div>
   </body>

@@ -60,7 +60,7 @@ Redhat linux users can do likewise with:
 MOAB installation
 ~~~~~~~~~~~~~~~~~
 
-As of DAGMC version 3.0, MOAB version 5.0 or higher is required. The following
+As of DAGMC version 3.1, MOAB version 5.1.0 or higher is required. The following
 commands can be used to download MOAB from its `source repository <MOAB_>`_ and
 set it up for building.
 ::
@@ -70,7 +70,7 @@ set it up for building.
     $ cd MOAB
     $ git clone https://bitbucket.org/fathomteam/moab
     $ cd moab
-    $ git checkout Version5.0
+    $ git checkout Version5.1.0
     $ autoreconf -fi
     $ cd ..
     $ ln -s moab src
