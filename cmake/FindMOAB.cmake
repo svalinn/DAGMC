@@ -14,13 +14,12 @@ if (MOAB_CMAKE_CONFIG)
   set(MOAB_CMAKE_CONFIG ${MOAB_CMAKE_CONFIG}/MOABConfig.cmake)
   message(STATUS "MOAB_CMAKE_CONFIG: ${MOAB_CMAKE_CONFIG}")
 else ()
-  message(FATAL_ERROR "Could not find MOAB. Set -DMOAB_DIR=<moab_dir> when running cmake or use the $MOAB_DIR environment variable.")
+  message(FATAL_ERROR "Could not find MOAB. Set -DMOAB_DIR=<MOAB_DIR> when running cmake or use the $MOAB_DIR environment variable.")
 endif ()
 
 # Find HDF5
 include(${MOAB_CMAKE_CONFIG})
-set(HDF5_ROOT ${HDF5_DIR})
-set(ENV{PATH} "${HDF5_ROOT}:$ENV{PATH}")
+set(ENV{PATH} "${HDF5_DIR}:$ENV{PATH}")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
 find_package(HDF5 REQUIRED)
 set(HDF5_LIBRARIES_SHARED ${HDF5_LIBRARIES})
@@ -40,35 +39,14 @@ message(STATUS "HDF5_LIBRARIES_STATIC: ${HDF5_LIBRARIES_STATIC}")
 
 include_directories(${HDF5_INCLUDE_DIRS})
 
-# Don't use the DAGMC_LIBRARIES as it is defined in MOABConfig.cmake
-set(DAGMC_LIBRARIES)
-
-# Find MOAB include directory
-find_path(MOAB_INCLUDE_DIRS
-  NAMES MBiMesh.hpp
-  HINTS ${MOAB_DIR}
-  PATHS ENV MOAB_DIR
-  PATH_SUFFIXES include
-  NO_DEFAULT_PATH
-)
-if (MOAB_INCLUDE_DIRS)
-  get_filename_component(MOAB_INCLUDE_DIRS ${MOAB_INCLUDE_DIRS} ABSOLUTE)
-endif ()
-
 # Find MOAB library (shared)
 if (BUILD_SHARED_LIBS)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
   find_library(MOAB_LIBRARIES_SHARED
     NAMES MOAB
-    HINTS ${MOAB_DIR}
-    PATHS ENV MOAB_DIR
-    PATH_SUFFIXES lib
+    HINTS ${MOAB_LIBRARY_DIRS}
     NO_DEFAULT_PATH
   )
-  if (MOAB_LIBRARIES_SHARED)
-    get_filename_component(MOAB_LIBRARIES_SHARED ${MOAB_LIBRARIES_SHARED} ABSOLUTE)
-    get_filename_component(MOAB_LIBRARY_DIRS ${MOAB_LIBRARIES_SHARED} DIRECTORY)
-  endif ()
 endif ()
 
 # Find MOAB library (static)
@@ -76,15 +54,9 @@ if (BUILD_STATIC_LIBS)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
   find_library(MOAB_LIBRARIES_STATIC
     NAMES MOAB
-    HINTS ${MOAB_DIR}
-    PATHS ENV MOAB_DIR
-    PATH_SUFFIXES lib
+    HINTS ${MOAB_LIBRARY_DIRS}
     NO_DEFAULT_PATH
   )
-  if (MOAB_LIBRARIES_STATIC)
-    get_filename_component(MOAB_LIBRARIES_STATIC ${MOAB_LIBRARIES_STATIC} ABSOLUTE)
-    get_filename_component(MOAB_LIBRARY_DIRS ${MOAB_LIBRARIES_STATIC} DIRECTORY)
-  endif ()
 endif ()
 
 message(STATUS "MOAB_INCLUDE_DIRS: ${MOAB_INCLUDE_DIRS}")

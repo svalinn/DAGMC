@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # $1: compiler (gcc-4.8, gcc-5, gcc-6, gcc-7, clang-4.0, clang-5.0)
-# $2: moab version (5.0, master)
+# $2: moab version (5.1.0, master)
 
 set -e
 
