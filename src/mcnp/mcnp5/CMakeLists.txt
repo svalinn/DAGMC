@@ -142,8 +142,9 @@ endif ()
 # MPI
 if (BUILD_MCNP_MPI)
   find_package(MPI REQUIRED)
-  file(GLOB SRC_FILES ${SRC_FILES} "Source/dotcomm/src/*.F90")
-  file(GLOB SRC_FILES ${SRC_FILES} "Source/dotcomm/src/internals/mpi/*.c")
+  file(GLOB SRC_FILES_MPI "Source/dotcomm/src/*.F90"
+                          "Source/dotcomm/src/internals/mpi/*.c")
+  list(APPEND SRC_FILES ${SRC_FILES_MPI})
   add_definitions(-DVERS="5.mpi")
   add_definitions(-DMULTP=ON)
   add_definitions(-DMPI=ON)
