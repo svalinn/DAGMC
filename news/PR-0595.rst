@@ -1,0 +1,15 @@
+**Added:**
+
+* Added a script which updates amalgamated pyne
+
+**Changed:**
+
+* Updated amalgamated pyne to match the main pyne repo
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

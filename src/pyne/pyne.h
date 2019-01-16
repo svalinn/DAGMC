@@ -13,9 +13,7 @@
 //   src/jsoncustomwriter.h
 //   src/material.h
 //   src/tally.h
-//   src/atomic_data.cpp~
 //   src/atomic_data.h
-//   src/atomic_data.h~
 
 // PyNE amalgated header http://pyne.io/
 #ifndef PYNE_52BMSKGZ3FHG3NQI566D4I2ZLY
@@ -26,7 +24,7 @@
 //
 // start of license.txt
 //
-// Copyright 2011-2015, the PyNE Development Team. All rights reserved.
+// Copyright 2011-2019, the PyNE Development Team. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -59,7 +57,32 @@
 // DE-AC04-94AL85000 with Sandia Coroporation, the U.S. Government
 // retains certain rights in this software.
 //
-// http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB
+// https://press3.mcs.anl.gov/sigma/moab-library
+//
+// -------------------------------------------------------------------------------
+// The files in fortranformat/ are covered by:
+//
+// The MIT License. Copyright (c) 2011 Brendan Arnold
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+// https://bitbucket.org/brendanarnold/py-fortranformat/src/
 // //
 // end of license.txt
 //
@@ -276,7 +299,6 @@ class ValueError : public std::exception {
 }
 
 #endif  // PYNE_KMMHYNANYFF5BFMEYIP7TUNLHA
-
 //
 // end of src/utils.h
 //
@@ -314,23 +336,17 @@ class MemoryKnight {
   /// Creates a new instance of type T on the heap using
   /// its default constructor.
   /// \return T *
-  T* defnew() {
-    return new T();
-  };
+  T* defnew() {return new T();};
 
   /// Creates a new instance of type T, using T's default
   /// constructor, at a given location.
   /// \param void * ptr, location to create T instance
   /// \return value of ptr recast as T *
-  T* renew(void* ptr) {
-    return new (ptr) T();
-  };
+  T* renew(void* ptr) {return new (ptr) T();};
 
   /// Deallocates a location in memory using delete.
   /// \param T * ptr, location to remove
-  void deall(T* ptr) {
-    delete ptr;
-  };
+  void deall(T* ptr) {delete ptr;};
 };
 
 // End namespace extra_types
@@ -1397,7 +1413,6 @@ int ensdf_to_id(std::string nuc);
 }
 
 #endif  // PYNE_D35WIXV5DZAA5LLOWBY2BL2DPA
-
 //
 // end of src/nucname.h
 //
@@ -1425,7 +1440,7 @@ int ensdf_to_id(std::string nuc);
 #endif
 
 /// Number of reactions supported by default.
-#define NUM_RX_NAMES 572
+#define NUM_RX_NAMES 574
 
 namespace pyne {
 //! Converts between naming conventions for reaction channels.
@@ -1459,9 +1474,7 @@ void* _fill_maps();
 extern void* _;   ///< A dummy variable used when calling #_fill_maps().
 
 /// A helper function to compute nuclide id offsets from z-, a-, and s- deltas
-inline int offset(int dz, int da, int ds = 0) {
-  return dz * 10000000 + da * 10000 + ds;
-}
+inline int offset(int dz, int da, int ds = 0) {return dz * 10000000 + da * 10000 + ds;}
 
 /// \name Hash Functions
 /// \{
@@ -2374,7 +2387,8 @@ int id_from_level(int nuc, double level, std::string special);
 /// \brief Returns the nuc_id of a metastable state
 ///
 /// This function looks through the level map for a given input nuc_id to find the
-/// nuc_id corresponding to the level
+/// nuc_id corresponding to the level, -1 is returned if a metastable state is not
+/// found.
 int metastable_id(int nuc, int m);
 /// Assumes the first metastable state is the desired one
 int metastable_id(int nuc);
@@ -5228,7 +5242,6 @@ class MaterialProtocolError: public std::exception {
 }
 
 #endif  // PYNE_MR34UE5INRGMZK2QYRDWICFHVM
-
 //
 // end of src/material.h
 //
@@ -5365,13 +5378,24 @@ typedef struct tally_struct {
 // end of src/tally.h
 //
 
+
 //
 // start of src/atomic_data.h
 //
-/// \/file atomic_nuclear_data.h
-/// \/author Andrew Davis (andrew.davis@wisc.edu)
+/*
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!! This file has been autogenerated, modify atomicgen.py !!!!!!!!!!
+!!!!!!          DO NOT MODIFY THIS FILE BY HAND!!            !!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*/
+/// /file atomic_nuclear_data.h
+/// /author Andrew Davis (andrew.davis@wisc.edu)
 ///
-/// \/brief Implements all the fundamental atomic & nuclear data data
+/// /brief Implements all the fundamental atomic & nuclear data data
 #include <map>
 
 namespace pyne {
@@ -5400,5 +5424,6 @@ extern std::map<int, double> atomic_mass_error_map;
 //
 // end of src/atomic_data.h
 //
+
 
 #endif  // PYNE_52BMSKGZ3FHG3NQI566D4I2ZLY
