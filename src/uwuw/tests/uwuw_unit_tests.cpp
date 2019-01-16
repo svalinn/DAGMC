@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include <iostream>
+#include <sstream>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -136,3 +137,25 @@ TEST_F(UWUWTest, material_datapath) {
   return;
 }
 
+TEST_F(UWUWTest, mat_write) {
+
+  pyne::comp_map nucvec;
+  nucvec[pyne::nucname::id("H1")] = 2.0;
+  nucvec[pyne::nucname::id("O16")] = 1.0;
+  pyne::Material mat = pyne::Material(nucvec, -1.0, 1.0);
+  mat.metadata["name"] = "Water";
+  mat.metadata["mat_number"] = 1;
+  // check openmc material write
+  std::string openmc_rep = mat.openmc();
+  std::cout << openmc_rep << std::endl;
+  std::stringstream expected_rep;
+  expected_rep << "<material id=\"1\" >\n";
+  expected_rep << "  <density value=\"1.\" units=\"g/cc\" />\n";
+  expected_rep << "  <nuclide name=\"H1\" wo=\"6.6667e-01\" />\n";
+  expected_rep << "  <nuclide name=\"O16\" wo=\"3.3333e-01\" />\n";
+  expected_rep << "</material>\n";
+
+  EXPECT_EQ(expected_rep.str(), openmc_rep);
+
+  return;
+}

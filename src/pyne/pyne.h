@@ -118,6 +118,7 @@ void pyne_start();  ///< Initializes PyNE based on environment.
 /// Path to the directory containing the PyNE data.
 extern std::string PYNE_DATA;
 extern std::string NUC_DATA_PATH; ///< Path to the nuc_data.h5 file.
+extern std::string VERSION; ///< PyNE version number
 
 // String Transformations
 /// string of digit characters
@@ -242,11 +243,40 @@ class FileNotFound : public std::exception {
   std::string filename; ///< unfindable filename.
 };
 
+/// Exception representing value errors of all kinds
+class ValueError : public std::exception {
+ public:
+
+  /// default constructor
+  ValueError() {};
+
+  /// default destructor
+  ~ValueError() throw () {};
+
+  /// constructor with the filename \a fname.
+  ValueError(std::string msg) {
+    message = msg;
+  };
+
+  /// Creates a helpful error message.
+  virtual const char* what() const throw() {
+    std::string msgstr("ValueError: ");
+    if (!message.empty())
+      msgstr += message;
+
+    return (const char*) msgstr.c_str();
+  };
+
+ private:
+  std::string message; ///< extra message for the user.
+};
+
 
 // End PyNE namespace
 }
 
 #endif  // PYNE_KMMHYNANYFF5BFMEYIP7TUNLHA
+
 //
 // end of src/utils.h
 //
@@ -1164,6 +1194,29 @@ int mcnp_to_id(const char* nuc);
 int mcnp_to_id(std::string nuc);
 /// \}
 
+/// \name OPENMC Form Functions
+/// \{
+/// This is the naming convention used by the OpenMC code.
+/// The OpenMC format for entering nuclides uses a GND format.
+/// For information on how metastable isotopes are named, please consult the
+/// OpenMC documentation for more information.
+/// \param nuc a nuclide
+/// \return a string nuclide identifier.
+std::string openmc(int nuc);
+std::string openmc(const char* nuc);
+std::string openmc(std::string nuc);
+/// \}
+
+/// \name OPENMC Form to Identifier Form Functions
+/// \{
+/// This converts from the OPENMC nuclide naming convention
+/// to the id canonical form  for nuclides in PyNE.
+/// \param nuc a nuclide in OPENMC form.
+/// \return an integer id nuclide identifier.
+int openmc_to_id(const char* nuc);
+int openmc_to_id(std::string nuc);
+/// \}
+
 /// \name FLUKA Form Functions
 /// \{
 /// This is the naming convention used by the FLUKA suite of codes.
@@ -1315,21 +1368,16 @@ int sza_to_id(std::string nuc);
 /// form as ID, but the four last digits are all zeros.
 /// \param nuc a nuclide
 /// \return a integer groundstate id
-inline int groundstate(int nuc) {
-  return (id(nuc) / 10000) * 10000;
-}
-inline int groundstate(std::string nuc) {
-  return groundstate(id(nuc));
-}
-inline int groundstate(const char* nuc) {
-  return groundstate(std::string(nuc));
-}
+inline int groundstate(int nuc) {return (id(nuc) / 10000) * 10000;}
+inline int groundstate(std::string nuc) {return groundstate(id(nuc));}
+inline int groundstate(const char* nuc) {return groundstate(std::string(nuc));}
 /// \}
 
 /// \name State Map functions
 /// \{
 /// These convert from/to decay state ids (used in decay data)
-/// to metastable ids (the PyNE default)
+/// to metastable ids (the PyNE default). If the cooresponding value cannot
+/// be found, -1 is returned.
 void _load_state_map();
 int state_id_to_id(int state);
 int id_to_state_id(int nuc_id);
@@ -1349,6 +1397,7 @@ int ensdf_to_id(std::string nuc);
 }
 
 #endif  // PYNE_D35WIXV5DZAA5LLOWBY2BL2DPA
+
 //
 // end of src/nucname.h
 //
@@ -4955,6 +5004,9 @@ class Material {
   void write_hdf5(std::string filename, std::string datapath = "/material",
                   std::string nucpath = "/nucid", float row = -0.0, int chunksize = 100);
 
+  /// Return an openmc xml material element as a string
+  std::string openmc(std::string fact_type = "mass");
+
   /// Return an mcnp input deck record as a string
   std::string mcnp(std::string frac_type = "mass");
   ///
@@ -5023,7 +5075,8 @@ class Material {
   /// nuclide's mass, decay_const, and atmoic_mass.
   comp_map activity();
   /// Calculates the decay heat of a material based on the composition and
-  /// each nuclide's mass, q_val, decay_const, and atomic_mass.
+  /// each nuclide's mass, q_val, decay_const, and atomic_mass. This assumes
+  /// input mass of grams. Return values is in megawatts.
   comp_map decay_heat();
   /// Caclulates the dose per gram using the composition of the the
   /// material, the dose type desired, and the source for dose factors
@@ -5037,7 +5090,9 @@ class Material {
   comp_map dose_per_g(std::string dose_type, int source = 0);
   /// Returns a copy of the current material where all natural elements in the
   /// composition are expanded to their natural isotopic abundances.
-  Material expand_elements();
+  Material expand_elements(std::set<int> exception_ids);
+  // Wrapped version to facilitate calling from python
+  Material expand_elements(int** int_ptr_arry = NULL);
   // Returns a copy of the current material where all the isotopes of the elements
   // are added up, atomic-fraction-wise, unless they are in the exception set
   Material collapse_elements(std::set<int> exception_znum);
@@ -5131,6 +5186,12 @@ class Material {
   /// Decays this material for a given amount of time in seconds
   Material decay(double t);
 
+  /// Transmutes the material via the CRAM method.
+  /// \param A The transmutation matrix [unitless]
+  /// \param order The CRAM approximation order (default 14).
+  /// \return A new material which has been transmuted.
+  Material cram(std::vector<double> A, const int order = 14);
+
   // Overloaded Operators
   /// Adds mass to a material instance.
   Material operator+ (double);
@@ -5167,6 +5228,7 @@ class MaterialProtocolError: public std::exception {
 }
 
 #endif  // PYNE_MR34UE5INRGMZK2QYRDWICFHVM
+
 //
 // end of src/material.h
 //
