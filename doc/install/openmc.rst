@@ -1,10 +1,11 @@
 .. |DAG-Code| replace:: OpenMC
+..  _OpenMC: https://mit-crpg.github.io/openmc
 
 .. include:: header.txt
 
-DAGMC is a dependency of OpenMC. Therefore, the install process for this code
-only generates and installs the DAGMC libraries to be used during compilation of
-OpenMC.
+DAGMC is an optional dependency of OpenMC_. Therefore, the install process for
+this code only generates and installs the DAGMC libraries necessary for linkage
+with OpenMC.
 
 .. include:: get_dagmc.txt
 
@@ -22,6 +23,14 @@ From the build directory, run::
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.
 
-..  include:: build_dagmc.txt
+Use Make to install the DAGMC libraries.
+::
+
+    $ make
+    $ make install
+
+If the build was successful, the binaries, libraries, header files, and tests
+will be installed to the ``bin``, ``lib``, ``include``, and ``tests``
+subdirectories of ``$INSTALL_PATH`` respectively.
 
 ..  include:: test_dagmc.txt
