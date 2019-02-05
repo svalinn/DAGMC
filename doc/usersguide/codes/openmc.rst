@@ -18,11 +18,11 @@ Geometry metadata
 The DAGMC geometry file can be used to define material assignments, boundary
 conditions, and temperatures.
 
-Materials and densities
------------------------
+Materials
+---------
 
 The generic workflow description includes details on :ref:`grouping-basics`, but
-a specific naming convention is required for DAG-OpenMC. To define materials,
+a specific naming convention is required for OpenMC. To define materials,
 the material ID must be provided in the group name. The format for the group
 name is as follows: ``mat:[matid]``.
 
@@ -70,13 +70,13 @@ surround the entire geometry with a shell of finite thickness. Any
 geometric shape can be used, but a cubic shell is recommended. This
 volume represents the boundary between the problem and the outside world.
 
-To create a containing volume, create two volumes in Cubit with the same shape
-and same center with one slightly larger than the other, making sure that both
-bound the entire problem geometry. Then, subtract the smaller one from the
+To create a containing volume, create two volumes in Cubit/Trelis with the same
+shape and same center with one slightly larger than the other, making sure that
+both bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The result is a containing volume for the problem.
 
 As mentioned above, this volume's surfaces should be assigned either vacuum or
-reflective boundary conditions as is appropriate for the problem.
+reflective boundary conditions according to the problem requirements.
 
 For example, consider a geometry containing 99 volumes, all of which fit inside
 a cube of side length 99 cm centered at the origin. The following commands would
@@ -94,11 +94,12 @@ Temperatures
 ~~~~~~~~~~~~
 
 Cell temperatures can be defined in OpenMC using a similar syntax to boundary
-conditions but with the "temp" keyword:
+conditions but with "temp" as the keyword:
 ::
     CUBIT> group "temp:100" add vol x
 
-All temperatures are assumed to be in Kelvin.
+**All temperatures are assumed to be in Kelvin when loaded in OpenMC.**
+
 
 Implicit complement materials
 -----------------------------
@@ -124,7 +125,7 @@ Running DAG-OpenMC
 The command for running OpenMC is identical to an OpenMC run using native
 geometry. Certain modifications to the OpenMC input files are required,
 however. The element ``<dagmc>true</dagmc>`` must be present in the
-``settings.xml`` file, and the DAGMC geometry must be named of symbolically
+``settings.xml`` file, and the DAGMC geometry must be named or symbolically
 linked as ``dagmc.h5m``.
 
 ..  toctree::
