@@ -1,10 +1,11 @@
 ..  _OpenMC: https://mit-crpg.github.io/openmc
 
+**Note: OpenMC supports the recommended** :ref:`UWUW`
+
+|
+
 Code-Specific steps for OpenMC
 ==================================
-
-**Note: DAGMC simulations in OpenMC also support the `UWUW <../uw2.html>`_
- workflow.**
 
 There are two varieties of code-specific steps for OpenMC_:
 
