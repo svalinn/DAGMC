@@ -284,6 +284,7 @@ macro (dagmc_install_test test_name ext)
   endif ()
   install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
   add_test(NAME ${test_name} COMMAND ${test_name})
+  set_property(TEST ${test_name} PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=''")
 endmacro ()
 
 # Install a file needed for unit testing
