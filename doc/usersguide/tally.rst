@@ -42,20 +42,20 @@ a tetmesh tally, that the input mesh file is ``mesh.h5m``, and the results
 should be stored in ``mesh_out.h5m``.
 ::
 
-    fmesh4:n geom=dag type=unstr_track
+    fmesh4:n geom=dag
     fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
 
 Other standard MCNP options can also be used, such as energy bins:
 ::
 
-    fmesh4:n geom=dag type=unstr_track
+    fmesh4:n geom=dag
              emesh=1.0 2.0 15.0
     fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
 
 Or tally multipliers:
 ::
 
-    fmesh4:p geom=dag type=unstr_track
+    fmesh4:p geom=dag
     fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
     fm4 -1 0 -5 -6
 
