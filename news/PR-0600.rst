@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** None
+
+**Deprecated:**
+
+* Keyword type=unstr_track in the documentation.
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
