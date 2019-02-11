@@ -2,9 +2,9 @@
 
 **Changed:** None
 
-**Deprecated:**
+* Move keyword type to FC card in the document doc/userguide/tally.rst
 
-* Keyword type=unstr_track in the documentation.
+**Deprecated:**
 
 **Removed:** None
 
