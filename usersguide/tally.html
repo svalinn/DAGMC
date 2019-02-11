@@ -14,6 +14,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="DAGMC tools" href="tools.html" />
@@ -114,19 +115,19 @@ done by putting special keywords on the tally comment (FC) line. For example,
 adding the following lines to an MCNP input file would tell MCNP that tally 4 is
 a tetmesh tally, that the input mesh file is <code class="docutils literal notranslate"><span class="pre">mesh.h5m</span></code>, and the results
 should be stored in <code class="docutils literal notranslate"><span class="pre">mesh_out.h5m</span></code>.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:n geom=dag type=unstr_track
-fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:n geom=dag
+fc4 dagmc type=unstr_track inp=mesh.h5m out=mesh_out.h5m
 </pre></div>
 </div>
 <p>Other standard MCNP options can also be used, such as energy bins:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:n geom=dag type=unstr_track
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:n geom=dag
          emesh=1.0 2.0 15.0
-fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+fc4 dagmc type=unstr_track inp=mesh.h5m out=mesh_out.h5m
 </pre></div>
 </div>
 <p>Or tally multipliers:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag type=unstr_track
-fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag
+fc4 dagmc type=unstr_track inp=mesh.h5m out=mesh_out.h5m
 fm4 -1 0 -5 -6
 </pre></div>
 </div>
@@ -143,20 +144,20 @@ to be done using the vertices of a tetmesh or add additional mesh-based scoring
 such as collision estimator tallies. The theoretical details behind KDE tallies
 can be found in <a class="reference external" href="http://digital.library.wisc.edu/1711.dl/OXDMBPODZJERF8A">Kerry Dunn’s Ph.D. thesis</a>.</p>
 <p>To call a KDE collision tally, use:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag type=kde_coll
-fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag
+fc4 dagmc type=kde_coll inp=mesh.h5m out=mesh_out.h5m
     hx=0.198 hy=0.0663 hz=0.0662
 </pre></div>
 </div>
 <p>To call a KDE track length tally, use:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag type=kde_track
-fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag
+fc4 dagmc type=kde_track inp=mesh.h5m out=mesh_out.h5m
     hx=0.198 hy=0.0663 hz=0.0662
 </pre></div>
 </div>
 <p>To call a KDE subtrack tally, use:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag type=kde_subtrack
-fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fmesh4:p geom=dag
+fc4 dagmc type=kde_subtrack inp=mesh.h5m out=mesh_out.h5m
     hx=0.1042 hy=0.0833 hz=0.0833
     hx=0.1042 hy=0.0833 hz=0.0833
     subtracks=3 seed=11699913
@@ -176,10 +177,10 @@ fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jan 11, 2019.
+      Last updated on Feb 11, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.7.5.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.1.
       </p>
     </div>
   </body>
