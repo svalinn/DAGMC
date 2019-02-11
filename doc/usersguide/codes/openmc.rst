@@ -64,12 +64,12 @@ Problem boundary
 
 The DAGMC model should have a "containing volume" which bounds the volumes of
 interest. This volume represents a particle "graveyard" or a region where
-particles are removed from the simulation upon entry. This volume should
-surround the entire geometry with a shell of finite thickness. Any geometric
-shape can be used, but a cubic shell is recommended. This volume represents the
-boundary between the problem and the outside world.
+particles are removed from the simulation upon entry. This volume represents the
+boundary between the problem and the outside world.  This volume should surround
+the entire geometry with a shell of finite thickness. Any geometric shape can be
+used, but a cubic shell is recommended to maximize performance.
 
-To create a containing volume, create two volumes in Cubit/Trelis with the same
+To create a containing volume, make two volumes in Cubit/Trelis with the same
 shape and same center with one slightly larger than the other, making sure that
 both bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The result is a containing volume for the problem.
@@ -89,23 +89,23 @@ surfaces will be given vacuum boundary conditions when the OpenMC simulation is
 initialized.
 
 Temperatures
-~~~~~~~~~~~~
+------------
 
-Cell temperatures can be defined in OpenMC using a similar syntax to boundary
-conditions but with "temp" as the keyword. To assign a temperature of 900K to
-a volume one can use the following command.
+Volume temperatures can be defined in OpenMC using a similar syntax to materials or boundary
+conditions but with "temp" as the keyword.
+
+To assign a temperature of 900K to a volume one can use the following command.
 ::
     CUBIT> group "temp:900" add vol x
 
-**Note: all temperatures are assumed to be in Kelvin when loaded in OpenMC.**
-
+**Note: all temperatures are assumed to be in units of Kelvin in OpenMC.**
 
 Implicit complement materials
 -----------------------------
 
 If you would like to assign a material to the implicit complement, a special
 procedure is needed. Since the implicit complement doesn't exist before running
-DAGMC, and DAGMC can only recognize groups that contain an entity, the material
+DAGMC and DAGMC can only recognize groups that contain an entity, the material
 for the implicit complement must be specified as if it were being specified for
 the graveyard volume. For example, if you would like the implicit complement to
 be modeled as material 9, and the graveyard volume is volume 102, the following
