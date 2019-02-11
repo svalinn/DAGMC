@@ -42,21 +42,21 @@ a tetmesh tally, that the input mesh file is ``mesh.h5m``, and the results
 should be stored in ``mesh_out.h5m``.
 ::
 
-    fmesh4:n geom=dag type=unstr_track
-    fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+    fmesh4:n geom=dag
+    fc4 dagmc type=unstr_track inp=mesh.h5m out=mesh_out.h5m
 
 Other standard MCNP options can also be used, such as energy bins:
 ::
 
-    fmesh4:n geom=dag type=unstr_track
+    fmesh4:n geom=dag
              emesh=1.0 2.0 15.0
-    fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+    fc4 dagmc type=unstr_track inp=mesh.h5m out=mesh_out.h5m
 
 Or tally multipliers:
 ::
 
-    fmesh4:p geom=dag type=unstr_track
-    fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+    fmesh4:p geom=dag
+    fc4 dagmc type=unstr_track inp=mesh.h5m out=mesh_out.h5m
     fm4 -1 0 -5 -6
 
 ``mbconvert`` can be used to convert the output mesh file to a .vtk file for
@@ -76,22 +76,22 @@ can be found in `Kerry Dunn's Ph.D. thesis <KD_thesis_>`_.
 To call a KDE collision tally, use:
 ::
 
-    fmesh4:p geom=dag type=kde_coll
-    fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+    fmesh4:p geom=dag
+    fc4 dagmc type=kde_coll inp=mesh.h5m out=mesh_out.h5m
         hx=0.198 hy=0.0663 hz=0.0662
 
 To call a KDE track length tally, use:
 ::
 
-    fmesh4:p geom=dag type=kde_track
-    fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+    fmesh4:p geom=dag
+    fc4 dagmc type=kde_track inp=mesh.h5m out=mesh_out.h5m
         hx=0.198 hy=0.0663 hz=0.0662
 
 To call a KDE subtrack tally, use:
 ::
 
-    fmesh4:p geom=dag type=kde_subtrack
-    fc4 dagmc inp=mesh.h5m out=mesh_out.h5m
+    fmesh4:p geom=dag
+    fc4 dagmc type=kde_subtrack inp=mesh.h5m out=mesh_out.h5m
         hx=0.1042 hy=0.0833 hz=0.0833
         hx=0.1042 hy=0.0833 hz=0.0833
         subtracks=3 seed=11699913

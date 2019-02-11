@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** None
+
+* Move keyword type to FC card in the document doc/userguide/tally.rst
+
+**Deprecated:**
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
