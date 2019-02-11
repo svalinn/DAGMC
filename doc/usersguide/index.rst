@@ -10,7 +10,7 @@ which workflow suits your needs depends on which codes you expect to use and how
 much manual data transfer you wish to do.
 
 +-------------------------+----------------+----------------+
-| Feature                 | UW2 Workflow   | Basic Workflow | 
+| Feature                 | UW2 Workflow   | Basic Workflow |
 +-------------------------+----------------+----------------+
 |  Assignment of Metadata | M              |  M             |
 +-------------------------+----------------+----------------+
@@ -30,7 +30,7 @@ much manual data transfer you wish to do.
 +-------------------------+----------------+----------------+
 |  Tripoli4 Materials     | N              |  None          |
 +-------------------------+----------------+----------------+
-|  OpenMC Materials       | N              |  M             |
+|  OpenMC Materials       | A              |  M             |
 +-------------------------+----------------+----------------+
 
 **N** not supported, **A** automatic production at run time, **M** manually
