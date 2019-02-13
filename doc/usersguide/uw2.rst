@@ -169,6 +169,7 @@ To run a OpenMC UWUW simulation, a ``dagmc.h5m`` file containing the UWUW model
 must be present in the OpenMC run directory and a ``dagmc`` element in the
 ``settings.xml`` file must be set to true like so:
 ::
+
    <dagmc>true</dagmc>
 
 OpenMC will then load the geometry and material library when setting up the simulation.

@@ -57,7 +57,7 @@ reflecting surfaces. This command would achieve that:
 
     CUBIT> group "boundary:Reflecting" add surf 10 11
 
-**Note: surfaces without a specified boundary condition will be set to ``transmission``.**
+**Note: surfaces without a specified boundary condition will be set to** ``transmission`` **.**
 
 Problem boundary
 ----------------

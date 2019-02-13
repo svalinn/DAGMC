@@ -1,10 +1,11 @@
-.. |DAG-Code| replace:: OpenMC
+.. |DAG-Code| replace:: DAGMC
 ..  _OpenMC: https://mit-crpg.github.io/openmc
 
 Installing for use with OpenMC
 ==============================
 
-**Note: DagMC can also be built with support for other physics codes while being installed as a dependency for OpenMC.**
+**Note: DagMC can simultaneously be built with support for other physics codes
+while being installed as a dependency for OpenMC.**
 
 This document explains how to install DAGMC for use with OpenMC, assuming you have
 already installed the required `dependencies <dependencies.html>`_.
@@ -15,7 +16,8 @@ with OpenMC.
 
 .. include:: get_dagmc.txt
 
-.. include:: configure_dag-code-header.txt
+.. include:: configure_dag-code_header.txt
+
 
 Installing DAGMC as a dependency of OpenMC
 ------------------------------------------
