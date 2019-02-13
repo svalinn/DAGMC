@@ -14,7 +14,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Monte Carlo code-specific steps" href="codes/index.html" />
@@ -77,6 +77,7 @@
 <li><a class="reference internal" href="#the-dag-mcnp-input-file">The DAG-MCNP input file</a></li>
 <li><a class="reference internal" href="#running-dag-mcnp">Running DAG-MCNP</a></li>
 <li><a class="reference internal" href="#fludag-specific-steps">FluDAG-specific steps</a></li>
+<li><a class="reference internal" href="#openmc-specific-steps">OpenMC-specific steps</a></li>
 <li><a class="reference internal" href="#geant4-specific-steps">Geant4-specific steps</a></li>
 <li><a class="reference internal" href="#worked-example">Worked example</a></li>
 <li><a class="reference internal" href="#example-input">Example input</a></li>
@@ -92,7 +93,7 @@
           <div class="post">
             
   <div class="section" id="university-of-wisconsin-unified-workflow-uwuw">
-<h1>University of Wisconsin Unified Workflow (UWUW)<a class="headerlink" href="#university-of-wisconsin-unified-workflow-uwuw" title="Permalink to this headline">¶</a></h1>
+<span id="uwuw"></span><h1>University of Wisconsin Unified Workflow (UWUW)<a class="headerlink" href="#university-of-wisconsin-unified-workflow-uwuw" title="Permalink to this headline">¶</a></h1>
 <p>The University of Wisconsin Unified Workflow (UW<sup>2</sup>) aims to solve the issue of
 running the same Monte Carlo problem using mutiple physics codes. Currently, if
 you wish to run the same problem in multiple codes you must fully recreate the
@@ -298,6 +299,16 @@ now run as if it were a standard FLUKA problem</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
 </pre></div>
 </div>
+</div>
+<div class="section" id="openmc-specific-steps">
+<h2>OpenMC-specific steps<a class="headerlink" href="#openmc-specific-steps" title="Permalink to this headline">¶</a></h2>
+<p>To run a OpenMC UWUW simulation, a <code class="docutils literal notranslate"><span class="pre">dagmc.h5m</span></code> file containing the UWUW model
+must be present in the OpenMC run directory and a <code class="docutils literal notranslate"><span class="pre">dagmc</span></code> element in the
+<code class="docutils literal notranslate"><span class="pre">settings.xml</span></code> file must be set to true like so:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;dagmc&gt;true&lt;/dagmc&gt;
+</pre></div>
+</div>
+<p>OpenMC will then load the geometry and material library when setting up the simulation.</p>
 </div>
 <div class="section" id="geant4-specific-steps">
 <h2>Geant4-specific steps<a class="headerlink" href="#geant4-specific-steps" title="Permalink to this headline">¶</a></h2>
@@ -566,10 +577,10 @@ Idle&gt; /gps/energy 1.0 MeV
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 11, 2019.
+      Last updated on Feb 13, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3.
       </p>
     </div>
   </body>

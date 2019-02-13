@@ -7,3 +7,4 @@ Monte Carlo code-specific steps
     dag-mcnp
     fludag
     dag-tripoli4
+    openmc

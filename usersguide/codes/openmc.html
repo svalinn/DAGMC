@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Code-Specific steps for OpenMC &#8212; DAGMC</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Producing solid models for DAGMC using Cubit/Trelis" href="../trelis_workflow.html" />
+    <link rel="prev" title="Code-specific steps for DAG-Tripoli4" href="dag-tripoli4.html" /> 
+  </head><body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="../../_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="../../_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="../../index.html"><img src="../../_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="../../search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="../../index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="dag-tripoli4.html" title="Code-specific steps for DAG-Tripoli4"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../trelis_workflow.html" title="Producing solid models for DAGMC using Cubit/Trelis"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li>
+          <li class="menu-item"><a href="../index.html" >User’s guide</a></li>
+          <li class="menu-item"><a href="index.html" accesskey="U">Monte Carlo code-specific steps</a></li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">Code-Specific steps for OpenMC</a><ul>
+<li><a class="reference internal" href="#geometry-metadata">Geometry metadata</a><ul>
+<li><a class="reference internal" href="#materials">Materials</a></li>
+<li><a class="reference internal" href="#surface-boundary-conditions">Surface boundary conditions</a></li>
+<li><a class="reference internal" href="#problem-boundary">Problem boundary</a></li>
+<li><a class="reference internal" href="#temperatures">Temperatures</a></li>
+<li><a class="reference internal" href="#implicit-complement-materials">Implicit complement materials</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-dag-openmc">Running DAG-OpenMC</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <p><strong>Note: OpenMC supports the recommended</strong> <a class="reference internal" href="../uw2.html#uwuw"><span class="std std-ref">University of Wisconsin Unified Workflow (UWUW)</span></a></p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="code-specific-steps-for-openmc">
+<h1>Code-Specific steps for OpenMC<a class="headerlink" href="#code-specific-steps-for-openmc" title="Permalink to this headline">¶</a></h1>
+<p>There are two varieties of code-specific steps for <a class="reference external" href="https://mit-crpg.github.io/openmc">OpenMC</a>:</p>
+<ol class="arabic simple">
+<li>Defining attributes of the geometry using Cubit/Trelis groups</li>
+<li>Defining DAGMC runtime parameters using the OpenMC input files</li>
+</ol>
+<div class="section" id="geometry-metadata">
+<h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
+<p>The DAGMC geometry file can be used to define material assignments, boundary
+conditions, and temperatures.</p>
+<div class="section" id="materials">
+<h3>Materials<a class="headerlink" href="#materials" title="Permalink to this headline">¶</a></h3>
+<p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
+a specific naming convention is required for OpenMC. To define materials,
+the material ID must be provided in the group name. The format for the group
+name is as follows: <code class="docutils literal notranslate"><span class="pre">mat:[matid]</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[matid]</span></code> should be replaced by the material ID that will be specified in the
+<code class="docutils literal notranslate"><span class="pre">materials.xml</span></code> file.</p>
+<p>For example, consider a problem where material 7 should be assigned to volumes 4
+through 18. The following command should be used to specify that information:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:7&quot; add vol 4 to 18
+</pre></div>
+</div>
+<p>All volumes must belong to a group, if you want volumes to be filled with vacuum
+then add them to a group called, “mat:Vacuum”:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Vacuum&quot; add vol 4 to 18
+</pre></div>
+</div>
+</div>
+<div class="section" id="surface-boundary-conditions">
+<h3>Surface boundary conditions<a class="headerlink" href="#surface-boundary-conditions" title="Permalink to this headline">¶</a></h3>
+<p>The following boundary conditions available in OpenMC are supported in
+DAGMC. These are:</p>
+<ul class="simple">
+<li>vacuum</li>
+<li>reflective</li>
+<li>transmission</li>
+</ul>
+<p>For example, suppose you want to specify that surfaces 10 and 11 should be
+reflecting surfaces. This command would achieve that:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:Reflecting&quot; add surf 10 11
+</pre></div>
+</div>
+<p><strong>Note: surfaces without a specified boundary condition will be set to</strong> <code class="docutils literal notranslate"><span class="pre">transmission</span></code> <strong>.</strong></p>
+</div>
+<div class="section" id="problem-boundary">
+<h3>Problem boundary<a class="headerlink" href="#problem-boundary" title="Permalink to this headline">¶</a></h3>
+<p>The DAGMC model should have a “containing volume” which bounds the volumes of
+interest. This volume represents a particle “graveyard” or a region where
+particles are removed from the simulation upon entry. This volume represents the
+boundary between the problem and the outside world.  This volume should surround
+the entire geometry with a shell of finite thickness. Any geometric shape can be
+used, but a cubic shell is recommended to maximize performance.</p>
+<p>To create a containing volume, make two volumes in Cubit/Trelis with the same
+shape and same center with one slightly larger than the other, making sure that
+both bound the entire problem geometry. Then, subtract the smaller one from the
+larger one. The result is a containing volume for the problem.</p>
+<p>For example, consider a geometry containing 99 volumes, all of which fit inside
+a cube of side length 99 cm centered at the origin. The following commands would
+create a valid graveyard for this problem:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; create brick x 100             # This will be volume 100
+CUBIT&gt; create brick x 105             # This will be volume 101
+CUBIT&gt; subtract vol 100 from vol 101  # This will produce volume 102
+CUBIT&gt; group &quot;mat:Graveyard&quot; add volume 102
+</pre></div>
+</div>
+<p>A volume in the <code class="docutils literal notranslate"><span class="pre">mat:Graveyard</span></code> group will be assigned a void material and its
+surfaces will be given vacuum boundary conditions when the OpenMC simulation is
+initialized.</p>
+</div>
+<div class="section" id="temperatures">
+<h3>Temperatures<a class="headerlink" href="#temperatures" title="Permalink to this headline">¶</a></h3>
+<p>Volume temperatures can be defined in OpenMC using a similar syntax to materials or boundary
+conditions but with “temp” as the keyword.</p>
+<p>To assign a temperature of 900K to a volume one can use the following command.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;temp:900&quot; add vol x
+</pre></div>
+</div>
+<p><strong>Note: all temperatures are assumed to be in units of Kelvin in OpenMC.</strong></p>
+</div>
+<div class="section" id="implicit-complement-materials">
+<h3>Implicit complement materials<a class="headerlink" href="#implicit-complement-materials" title="Permalink to this headline">¶</a></h3>
+<p>If you would like to assign a material to the implicit complement, a special
+procedure is needed. Since the implicit complement doesn’t exist before running
+DAGMC and DAGMC can only recognize groups that contain an entity, the material
+for the implicit complement must be specified as if it were being specified for
+the graveyard volume. For example, if you would like the implicit complement to
+be modeled as material 9, and the graveyard volume is volume 102, the following
+command should be used:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:9_comp&quot; add vol 102
+</pre></div>
+</div>
+<p>DAGMC will recognize that volume 102 is the graveyard volume, and the <code class="docutils literal notranslate"><span class="pre">_comp</span></code>
+keyword will trigger it to assign the specified material and density to the
+implicit complement rather than the containing volume.</p>
+</div>
+</div>
+<div class="section" id="running-dag-openmc">
+<h2>Running DAG-OpenMC<a class="headerlink" href="#running-dag-openmc" title="Permalink to this headline">¶</a></h2>
+<p>The command for running OpenMC is identical to an OpenMC run using native
+geometry. Certain modifications to the OpenMC input files are required,
+however. The element <code class="docutils literal notranslate"><span class="pre">&lt;dagmc&gt;true&lt;/dagmc&gt;</span></code> must be present in the
+<code class="docutils literal notranslate"><span class="pre">settings.xml</span></code> file, and the DAGMC geometry must be named or symbolically
+linked as <code class="docutils literal notranslate"><span class="pre">dagmc.h5m</span></code> in the directory where the <code class="docutils literal notranslate"><span class="pre">openmc</span></code> command is
+executed.</p>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2017, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Feb 13, 2019.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3.
+      </p>
+    </div>
+  </body>
+</html>

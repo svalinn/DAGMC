@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Install DAG-MCNP5/6 &#8212; DAGMC</title>
+    <title>Installing for use with OpenMC &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -17,8 +17,8 @@
     <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Install FluDAG" href="fludag.html" />
-    <link rel="prev" title="Installing DAGMC" href="dagmc.html" /> 
+    <link rel="next" title="DAGMC CMake variables" href="cmake_options.html" />
+    <link rel="prev" title="Install DAGMC with multiple physics codes" href="dag_multiple.html" /> 
   </head><body> 
 <div id="page-div" class="page">
 <div id="header">
@@ -50,11 +50,11 @@
         <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="dagmc.html" title="Installing DAGMC"
+          <a href="dag_multiple.html" title="Install DAGMC with multiple physics codes"
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
-          <a href="fludag.html" title="Install FluDAG"
+          <a href="cmake_options.html" title="DAGMC CMake variables"
              accesskey="N">next</a>
           </li>
         <li class="menu-item" >
@@ -68,11 +68,12 @@
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Install DAG-MCNP5/6</a><ul>
+<li><a class="reference internal" href="#">Installing for use with OpenMC</a><ul>
 <li><a class="reference internal" href="#get-dagmc">Get DAGMC</a></li>
-<li><a class="reference internal" href="#apply-the-mcnp-source-code-patch">Apply the MCNP source code patch</a></li>
-<li><a class="reference internal" href="#configure-dag-code">Configure DAG-MCNP5/6</a></li>
-<li><a class="reference internal" href="#build-dag-code">Build DAG-MCNP5/6</a></li>
+<li><a class="reference internal" href="#configure-dag-code">Configure DAGMC</a><ul>
+<li><a class="reference internal" href="#installing-dagmc-as-a-dependency-of-openmc">Installing DAGMC as a dependency of OpenMC</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#test-dagmc">Test DAGMC</a></li>
 </ul>
 </li>
@@ -82,10 +83,15 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="install-dag-code">
-<h1>Install DAG-MCNP5/6<a class="headerlink" href="#install-dag-code" title="Permalink to this headline">¶</a></h1>
-<p>This document explains how to install DAG-MCNP5/6, assuming you have already
-installed the required <a class="reference external" href="dependencies.html">dependencies</a>.</p>
+  <div class="section" id="installing-for-use-with-openmc">
+<h1>Installing for use with OpenMC<a class="headerlink" href="#installing-for-use-with-openmc" title="Permalink to this headline">¶</a></h1>
+<p><strong>Note: DagMC can simultaneously be built with support for other physics codes
+while being installed as a dependency for OpenMC.</strong></p>
+<p>This document explains how to install DAGMC for use with OpenMC, assuming you have
+already installed the required <a class="reference external" href="dependencies.html">dependencies</a>.</p>
+<p>DAGMC is an optional dependency of <a class="reference external" href="https://mit-crpg.github.io/openmc">OpenMC</a>. Therefore, the install process for
+this code only generates and installs the DAGMC libraries necessary for linkage
+with OpenMC.</p>
 <div class="section" id="get-dagmc">
 <h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this headline">¶</a></h2>
 <p>As before, this guide assumes that you are building DAGMC in the subdirectory
@@ -100,34 +106,8 @@ $ git checkout develop
 </pre></div>
 </div>
 </div>
-<div class="section" id="apply-the-mcnp-source-code-patch">
-<span id="mcnp-patch"></span><h2>Apply the MCNP source code patch<a class="headerlink" href="#apply-the-mcnp-source-code-patch" title="Permalink to this headline">¶</a></h2>
-<p>DAGMC can be built with <a class="reference external" href="https://mcnp.lanl.gov">MCNP5</a> or <a class="reference external" href="https://mcnp.lanl.gov">MCNP6</a> or both, from Los Alamos National
-Laboratory. It is export-controlled software so you will need to request it from
-<a class="reference external" href="https://rsicc.ornl.gov">RSICC</a>.</p>
-<p>If you are building DAG-MCNP5/6, you will need to copy the MCNP source code from
-the DVD into the DAGMC repository and apply a patch so it can be used with
-DAGMC. The patch you use must correspond to your version of MCNP. Currently
-supported versions of MCNP5 are 5.1.40, 5.1.51, and 5.1.60.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd src/mcnp/mcnp5
-$ cp -r &lt;path_to_dvd&gt;/MCNP5/Source .
-$ chmod -R u+rw Source
-$ patch -p0 &lt; patch/mcnp516.patch
-</pre></div>
-</div>
-<p>Currently supported versions of MCNP6 are 6_beta2, 6.1, and 6.1.1beta.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd src/mcnp/mcnp6
-$ cp -r &lt;path_to_dvd&gt;/MCNP6/Source .
-$ chmod -R u+rw Source
-$ patch -p0 &lt; patch/mcnp611.patch
-</pre></div>
-</div>
-<p>Assuming the patch or patches were succesfully applied, i.e. there were no
-warnings or errors, you are now ready to configure DAGMC to produce the desired
-build.</p>
-</div>
 <div class="section" id="configure-dag-code">
-<h2>Configure DAG-MCNP5/6<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
+<h2>Configure DAGMC<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
 <p>First, create and enter the build directory.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
 $ mkdir bld
@@ -143,56 +123,17 @@ to represent this location.</p>
 <p>CMake variables are used to configure DAGMC with your desired build options. A
 few examples will be shown here, but you can see a list of all possible options
 <a class="reference external" href="cmake_options.html">here</a>.</p>
-<p>Note that all of these examples examples assume that the <code class="docutils literal notranslate"><span class="pre">$DATAPATH</span></code>
-environment variable is set. If it is not set, then the <code class="docutils literal notranslate"><span class="pre">-DMCNP5_DATAPATH</span></code>
-and/or <code class="docutils literal notranslate"><span class="pre">-DMCNP6_DATAPATH</span></code> cmake options must be included instead.</p>
-<p><strong>Example 1:</strong> Build the DAGMC interfaces and DAG-MCNP5.</p>
+<div class="section" id="installing-dagmc-as-a-dependency-of-openmc">
+<h3>Installing DAGMC as a dependency of OpenMC<a class="headerlink" href="#installing-dagmc-as-a-dependency-of-openmc" title="Permalink to this headline">¶</a></h3>
+<p>From the build directory, run:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
-           -DBUILD_MCNP5=ON \
-           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-</pre></div>
-</div>
-<p><strong>Example 2:</strong> Build an MPI version of DAG-MCNP5.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
-           -DBUILD_MCNP5=ON \
-           -DBUILD_MCNP_MPI=ON \
-           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-</pre></div>
-</div>
-<p><strong>Example 3:</strong> Build the DAGMC interfaces and DAG-MCNP6.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
-           -DBUILD_MCNP6=ON \
-           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-</pre></div>
-</div>
-<p><strong>Example 4:</strong> Build an MPI version of DAG-MCNP6.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
-           -DBUILD_MCNP6=ON \
-           -DBUILD_MCNP_MPI=ON \
-           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-</pre></div>
-</div>
-<p><strong>Example 5:</strong> Build both DAG-MCNP5 and DAG-MCNP6.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
-           -DBUILD_MCNP5=ON \
-           -DBUILD_MCNP6=ON \
-           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
-</pre></div>
-</div>
-<p><strong>Example 6:</strong> Build MPI versions of both DAG-MCNP5 and DAG-MCNP6.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
-           -DBUILD_MCNP5=ON \
-           -DBUILD_MCNP6=ON \
-           -DBUILD_MCNP_MPI=ON \
-           -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
+           -DBUILD_TALLY=ON \
+           -DCMAKE_INSTALL_PATH=$INSTALL_PATH
 </pre></div>
 </div>
 <p>If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.</p>
-</div>
-<div class="section" id="build-dag-code">
-<h2>Build DAG-MCNP5/6<a class="headerlink" href="#build-dag-code" title="Permalink to this headline">¶</a></h2>
-<p>Use Make to install DAG-MCNP5/6.</p>
+<p>Use Make to install the DAGMC libraries.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ make
 $ make install
 </pre></div>
@@ -200,6 +141,7 @@ $ make install
 <p>If the build was successful, the binaries, libraries, header files, and tests
 will be installed to the <code class="docutils literal notranslate"><span class="pre">bin</span></code>, <code class="docutils literal notranslate"><span class="pre">lib</span></code>, <code class="docutils literal notranslate"><span class="pre">include</span></code>, and <code class="docutils literal notranslate"><span class="pre">tests</span></code>
 subdirectories of <code class="docutils literal notranslate"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
+</div>
 </div>
 <div class="section" id="test-dagmc">
 <h2>Test DAGMC<a class="headerlink" href="#test-dagmc" title="Permalink to this headline">¶</a></h2>

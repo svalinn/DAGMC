@@ -14,4 +14,5 @@ codes at a time.
     dag-shift
     dag-tripoli4
     dag_multiple
+    openmc
     cmake_options
