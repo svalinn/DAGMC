@@ -1,3 +1,5 @@
+..  _UWUW:
+
 University of Wisconsin Unified Workflow (UWUW)
 ===============================================
 
@@ -159,6 +161,18 @@ now run as if it were a standard FLUKA problem
 ::
 
     $ $FLUPRO/flutil/rfluka -N0 -M5 -e mainfludag input.inp
+
+OpenMC-specific steps
+~~~~~~~~~~~~~~~~~~~~~
+
+To run a OpenMC UWUW simulation, a ``dagmc.h5m`` file containing the UWUW model
+must be present in the OpenMC run directory and a ``dagmc`` element in the
+``settings.xml`` file must be set to true like so:
+::
+
+   <dagmc>true</dagmc>
+
+OpenMC will then load the geometry and material library when setting up the simulation.
 
 Geant4-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
