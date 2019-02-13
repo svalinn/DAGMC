@@ -96,6 +96,7 @@ conditions but with "temp" as the keyword.
 
 To assign a temperature of 900K to a volume one can use the following command.
 ::
+
     CUBIT> group "temp:900" add vol x
 
 **Note: all temperatures are assumed to be in units of Kelvin in OpenMC.**
