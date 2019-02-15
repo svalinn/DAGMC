@@ -913,12 +913,25 @@ diff -rN '--unified=0' Source/src/newcel.F90 Source_dagmc/src/newcel.F90
 +    if ( mxa == -1 ) kdb = 1
 +  endif
 +
-@@ -239 +247,4 @@
+@@ -234,6 +242,10 @@
+-  if( .not. found_surface_crossed ) then
+-    if( iovr == 2 )then
+-      kdb = LOST_NO_CELL_FOUND
+-      kdb_location = LOST_IN_NEWCEL
+-    else
 -      call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
-+      ! DAGMC: Only check this if running normally, (NOT in CAD mode)
-+      if (isdgmc == 0) then
++  ! DAGMC: Only check this if running normally, (NOT in CAD mode)
++  if (isdgmc == 0) then
++    if( .not. found_surface_crossed ) then
++      if( iovr == 2 )then
++        kdb = LOST_NO_CELL_FOUND
++        kdb_location = LOST_IN_NEWCEL
++      else
 +        call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
 +      endif
++      goto 999 ! return
+@@ -241 +252,0 @@
+-    goto 999 ! return
 diff -rN '--unified=0' Source/src/nextit.F90 Source_dagmc/src/nextit.F90
 --- Source/src/nextit.F90
 +++ Source_dagmc/src/nextit.F90

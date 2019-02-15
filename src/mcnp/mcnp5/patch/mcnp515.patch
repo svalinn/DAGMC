@@ -962,10 +962,24 @@ diff -rN '--unified=0' Source/src/newcel.F90 Source_dagmc/src/newcel.F90
 +    if ( mxa == -1 ) kdb = 1
 +  endif
 +
-@@ -36 +45,4 @@
+@@ -29,8 +38,11 @@
+-  ! find surface crossed among the bounding surfaces of cell icl.
+-  do i1 = abs(lca(icl)), abs(lca(icl+1))-1 
+-    if( abs(lja(i1))==jsu )  go to 30
+-  end do 
+-  if( iovr==2 ) then
+-    kdb = 1
+-  else
 -    call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
-+    ! DAGMC: Only check this if running normally, (NOT in CAD mode)
-+    if (isdgmc == 0) then
++  ! DAGMC: Only check this if running normally, (NOT in CAD mode)
++  if (isdgmc == 0) then
++    ! find surface crossed among the bounding surfaces of cell icl.
++    do i1 = abs(lca(icl)), abs(lca(icl+1))-1
++      if( abs(lja(i1))==jsu )  go to 30
++    end do
++    if( iovr==2 ) then
++      kdb = 1
++    else
 +      call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
 +    endif
 diff -rN '--unified=0' Source/src/nextit.F90 Source_dagmc/src/nextit.F90
