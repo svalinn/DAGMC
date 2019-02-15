@@ -905,33 +905,23 @@ diff -rN '--unified=0' Source/src/newcel.F90 Source_dagmc/src/newcel.F90
 +++ Source_dagmc/src/newcel.F90
 @@ -18,0 +19 @@
 +  use dagmc_mod, only : isdgmc
-@@ -52,0 +54,7 @@
+@@ -52,0 +54,14 @@
++  ! DAGMC: move this to the top
++  found_surface_crossed = .false.
++
 +  ! DAGMC: In CAD mode, call MOAB version of this
 +  if ( isdgmc == 1 ) then
 +    if ( cs /= 0 ) cs = angl()
 +    call dagmcnewcel(pbl%i%jsu, pbl%i%icl, pbl%i%iap)
-+    if ( mxa == -1 ) kdb = 1
++    if ( mxa == -1 ) then
++      kdb = 1
++    else
++      found_surface_crossed = .true.
++    endif
 +  endif
 +
-@@ -234,6 +242,10 @@
--  if( .not. found_surface_crossed ) then
--    if( iovr == 2 )then
--      kdb = LOST_NO_CELL_FOUND
--      kdb_location = LOST_IN_NEWCEL
--    else
--      call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
-+  ! DAGMC: Only check this if running normally, (NOT in CAD mode)
-+  if (isdgmc == 0) then
-+    if( .not. found_surface_crossed ) then
-+      if( iovr == 2 )then
-+        kdb = LOST_NO_CELL_FOUND
-+        kdb_location = LOST_IN_NEWCEL
-+      else
-+        call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
-+      endif
-+      goto 999 ! return
-@@ -241 +252,0 @@
--    goto 999 ! return
+@@ -78 +92,0 @@
+-  found_surface_crossed = .false.
 diff -rN '--unified=0' Source/src/nextit.F90 Source_dagmc/src/nextit.F90
 --- Source/src/nextit.F90
 +++ Source_dagmc/src/nextit.F90
