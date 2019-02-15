@@ -962,12 +962,11 @@ diff -rN '--unified=0' Source/src/newcel.F90 Source_dagmc/src/newcel.F90
 +    if ( mxa == -1 ) kdb = 1
 +  endif
 +
-@@ -36 +45,4 @@
--    call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
-+    ! DAGMC: Only check this if running normally, (NOT in CAD mode)
-+    if (isdgmc == 0) then
-+      call expirx(1,'newcel','the surface crossed is not a surface of this cell.')
-+    endif
+@@ -32,0 +42,4 @@
++
++  ! DAGMC: exit newcel here
++  if (isdgmc == 1) return
++
 diff -rN '--unified=0' Source/src/nextit.F90 Source_dagmc/src/nextit.F90
 --- Source/src/nextit.F90
 +++ Source_dagmc/src/nextit.F90
