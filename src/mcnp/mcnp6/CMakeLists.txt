@@ -35,11 +35,7 @@ if (BUILD_MCNP_PYNE_SOURCE)
   message(STATUS "Building DAG-MCNP6 with PyNE mesh source routine support")
   # Remove MCNP's source.F90 file
   list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_LIST_DIR}/Source/src/source.F90")
-  list(APPEND SRC_FILES
-    "pyne_source/source.F90"
-    $<TARGET_OBJECTS:measure>
-    $<TARGET_OBJECTS:source_sampling>
-  )
+  list(APPEND SRC_FILES "pyne_source/source.F90")
 endif ()
 
 # Figure out which version of MCNP we're compiling based on which source files are present
