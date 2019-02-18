@@ -20168,7 +20168,9 @@ void pyne::_insert_abund_map() {
 
 #include <math.h>
 
+#ifndef PYNE_IS_AMALGAMATED
 #include "measure.h"
+#endif
 
 class CartVect {
  private:

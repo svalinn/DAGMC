@@ -5492,7 +5492,9 @@ double measure(moab::EntityType type,
 
 #include "moab/Range.hpp"
 #include "moab/Core.hpp"
+#ifndef PYNE_IS_AMALGAMATED
 #include "measure.h"
+#endif
 #include "moab/CartVect.hpp"
 
 #ifdef __cplusplus
