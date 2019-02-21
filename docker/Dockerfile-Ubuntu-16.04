@@ -22,6 +22,12 @@ RUN apt-get -y install liblapack-dev
 RUN apt-get -y install libtool
 RUN apt-get -y install wget
 
+# Get 18.04 version of astyle
+RUN astyle_deb=astyle_3.1-1ubuntu2_amd64.deb && \
+    wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/${astyle_deb} && \
+    dpkg -i ${astyle_deb} && \
+    rm -f ${astyle_deb}
+
 # Copy the environment variable script
 RUN mkdir -p /root/etc/
 COPY env.sh /root/etc/
