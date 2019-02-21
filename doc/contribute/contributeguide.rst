@@ -224,6 +224,7 @@ If you find a bug, raise an issue on the main `svalinn/DAGMC <DAGMC_issues_>`_
 Github site. If you think you can tackle the issue yourself then please do so,
 then pull request your changes.
 
+..  _Astyle: http://astyle.sourceforge.net
 ..  _DAGMC_source: https://github.com/svalinn/DAGMC
 ..  _DAGMC_issues: https://github.com/svalinn/DAGMC/issues
 ..  _Google_test: https://code.google.com/p/googletest
