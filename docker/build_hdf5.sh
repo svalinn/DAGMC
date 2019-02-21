@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # $1: compiler (gcc, clang)
+# $2: hdf5 version (system, 1.10.4)
 
 set -e
 
 export compiler=$1
+export hdf5_version=$2
 
 source /root/etc/env.sh
 

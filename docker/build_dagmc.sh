@@ -1,14 +1,16 @@
 #!/bin/bash
 
 # $1: compiler (gcc, clang)
-# $2: moab version (5.1.0, master)
-# $3: build static (OFF, ON)
+# $2: hdf5 version (system, 1.10.4)
+# $3: moab version (5.1.0, master)
+# $4: build static (OFF, ON)
 
 set -e
 
 export compiler=$1
-export moab_version=$2
-export build_static=$3
+export hdf5_version=$2
+export moab_version=$3
+export build_static=$4
 
 source /root/etc/env.sh
 
