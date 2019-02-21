@@ -8,18 +8,16 @@ set -e
 source /root/etc/env.sh $1
 moab_version=$2
 
-DAGMC_dir=${install_dir}/DAGMC-moab-${moab_version}
-
 # clean out config test directory for next build
 git clean -dxf . 
 
 # Test DAGMC CMake configuration file
 cd ${build_dir}/DAGMC-moab-${moab_version}/src/cmake/test_config
-cmake . -DDAGMC_ROOT=${DAGMC_dir}
+cmake . -DDAGMC_ROOT=${install_dir}/DAGMC-moab-${moab_version}
 make all test
 
 # Run the unit tests
-cd ${DAGMC_dir}/bld
+cd ${build_dir}/DAGMC-moab-${moab_version}/bld
 make test
 
 # If this is not a pull request, run regression tests

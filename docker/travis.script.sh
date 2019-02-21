@@ -10,7 +10,9 @@ astyle_only=$1
 compiler=$2
 moab_version=$3
 
-cd /root/build/${compiler}/DAGMC-moab-${moab_version}/DAGMC
+source /root/etc/env.sh ${compiler}
+
+cd ${build_dir}/DAGMC-moab-${moab_version}/DAGMC
 
 # Only run astyle
 if [ "${astyle_only}" == "ON" ]; then
