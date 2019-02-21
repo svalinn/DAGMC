@@ -19,7 +19,8 @@ ln -snf moab src
 cd moab
 autoreconf -fi
 cd ../bld
-../src/configure --enable-shared \
+../src/configure --enable-pymoab \
+                 --enable-shared \
                  --enable-optimize \
                  --disable-debug \
                  --with-hdf5=${install_dir}/hdf5-${hdf5_version} \

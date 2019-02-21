@@ -20,8 +20,15 @@ RUN apt-get -y install git
 RUN apt-get -y install libblas-dev
 RUN apt-get -y install libhdf5-dev
 RUN apt-get -y install liblapack-dev
+RUN apt-get -y install libpython2.7-dev
 RUN apt-get -y install libtool
+RUN apt-get -y install python-numpy
+RUN apt-get -y install python-pip
+RUN apt-get -y install python-setuptools
 RUN apt-get -y install wget
+
+# Get some pip packages
+RUN pip install cython
 
 # Copy the environment variable script
 RUN mkdir -p /root/etc/
