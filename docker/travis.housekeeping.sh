@@ -3,12 +3,14 @@
 # $1: compiler (gcc, clang)
 # $2: hdf5 version (system, 1.10.4)
 # $3: moab version (5.1.0, master)
+# $4: Travis pull request ID
 
 set -e
 
 export compiler=$1
 export hdf5_version=$2
 export moab_version=$3
+export TRAVIS_PULL_REQUEST=$4
 
 source /root/etc/env.sh
 
@@ -17,7 +19,7 @@ cd ${dagmc_build_dir}/DAGMC
 # Check for news file if this is a PR into svalinn/DAGMC
 #  [ "${TRAVIS_PULL_REQUEST_SLUG}" == "svalinn/DAGMC" ]
 if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
-  news_file=$(printf 'news/PR-%04u.txt' $TRAVIS_PULL_REQUEST)
+  news_file=$(printf 'news/PR-%04u.txt' ${TRAVIS_PULL_REQUEST})
   if [ -f "${news_file}" ]; then
     echo "News file ${news_file} found!"
   else
