@@ -39,9 +39,15 @@ before_install:
   - docker commit $commit_id $docker_image
 install:
   # Build DAGMC
-  - docker run $docker_image /bin/bash -c "bash $build_dir/DAGMC/docker/travis.install.sh $HOUSEKEEPING_ONLY $COMPILER $MOAB_VERSION"
+  - docker run $docker_image /bin/bash -c "if [ ! $HOUSEKEEPING_ONLY ]; then
+                                             bash $build_dir/DAGMC/docker/travis.install.sh $COMPILER $MOAB_VERSION;
+                                           fi"
   - commit_id=$(docker ps -l | tail -n1 | awk '{print $1}')
   - docker commit $commit_id $docker_image
 script:
   # Run unit tests
-  - docker run $docker_image /bin/bash -c "bash $build_dir/DAGMC/docker/travis.script.sh $HOUSEKEEPING_ONLY $COMPILER $MOAB_VERSION"
+  - docker run $docker_image /bin/bash -c "if [ $HOUSEKEEPING_ONLY ]; then
+                                             bash $build_dir/DAGMC/docker/travis.housekeeping.sh $COMPILER $MOAB_VERSION;
+                                           else
+                                             bash $build_dir/DAGMC/docker/travis.tests.sh $COMPILER $MOAB_VERSION;
+                                           fi"

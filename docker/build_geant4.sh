@@ -4,11 +4,13 @@
 
 set -e
 
-source /root/etc/env.sh $1
+export compiler=$1
 
-mkdir -p ${build_dir}/geant4-${geant4_version}/bld
-rm -rf ${install_dir}/geant4-${geant4_version}
-cd ${build_dir}/geant4-${geant4_version}
+source /root/etc/env.sh
+
+rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
+mkdir -p ${geant4_build_dir}/bld
+cd ${geant4_build_dir}
 wget http://geant4.cern.ch/support/source/geant4.${geant4_version}.tar.gz
 tar -xzvf geant4.${geant4_version}.tar.gz
 ln -snf geant4.${geant4_version} src
@@ -18,8 +20,8 @@ cmake ../src -DBUILD_STATIC_LIBS=ON \
              -DCMAKE_BUILD_TYPE=Release \
              -DCMAKE_C_COMPILER=${CC} \
              -DCMAKE_CXX_COMPILER=${CXX} \
-             -DCMAKE_INSTALL_PREFIX=${install_dir}/geant4-${geant4_version}
+             -DCMAKE_INSTALL_PREFIX=${geant4_install_dir}
 make -j${jobs}
 make install
 cd
-rm -rf ${build_dir}/geant4-${geant4_version}
+rm -rf ${geant4_build_dir}
