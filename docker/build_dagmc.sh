@@ -10,6 +10,7 @@ source /root/etc/env.sh $1
 moab_version=$2
 build_static=$3
 
+rm -rf ${build_dir}/DAGMC-moab-${moab_version}/bld
 mkdir -p ${build_dir}/DAGMC-moab-${moab_version}/bld
 rm -rf ${install_dir}/DAGMC-moab-${moab_version}
 cd ${build_dir}/DAGMC-moab-${moab_version}
@@ -29,4 +30,3 @@ make -j${jobs}
 make install
 cd
 #rm -rf ${build_dir}/DAGMC-moab-${moab_version}
-rm -rf ${build_dir}/DAGMC-moab-${moab_version}/bld
