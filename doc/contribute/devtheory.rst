@@ -245,7 +245,7 @@ Default metadata keyword list:
   - rho: material density assignment (units: g/cc)
   - boundary: boundary condition
   - tally: indicates a geometric tally on a surface or volume
-- importance: used to set variance reduction properties [1]_
+  - importance: used to set variance reduction properties [1]_
 
 The ``mat`` and ``rho`` keywords are required for all DAGMC simulations for full
 material definitions in each volume of the model.
@@ -287,7 +287,8 @@ Material and tally information can then be written in a variety of supported
 formats using their writer methods, named for each of the physics codes they
 support.
 ::
-   std::string mcnp_mat = mat.mcnp();
+
+  std::string mcnp_mat = mat.mcnp();
 
 For more information on supported codes and how to gather other information from
 these objects, please refer to the PyNE's material_ and tally_ documentation.
@@ -314,9 +315,10 @@ constructor shown in the previous section. The ``load_pyne_materials`` and
 ``load_pyne_tallies`` methods can then be used to provide custom material/tally
 library files and/or customized hdf5 datapaths for those files. [2]_
 ::
-   UWUW* uwuw = new UWUW();
-   uwuw->load_pyne_materials("hdf5_material_file_path", datapath = "/custom/hdf5/datapath");
-   uwuw->load_pyne_tallies("hdf5_tally_file_path", datapath = "/custom/hdf5/datapath");
+
+  UWUW* uwuw = new UWUW();
+  uwuw->load_pyne_materials("hdf5_material_file_path", datapath = "/custom/hdf5/datapath");
+  uwuw->load_pyne_tallies("hdf5_tally_file_path", datapath = "/custom/hdf5/datapath");
 
 .. [2] **Note**: It is important to specify absolute filepaths if using a UWUW object
  in this way. UWUW contains a ``get_full_filepath`` method for convenience.
