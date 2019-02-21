@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # $1: compiler (gcc, clang)
-# $2: moab version (5.1.0, master)
+# $2: hdf5 version (system, 1.10.4)
+# $3: moab version (5.1.0, master)
 
 set -e
 
 export compiler=$1
-export moab_version=$2
+export hdf5_version=$2
+export moab_version=$3
 
 source /root/etc/env.sh
 

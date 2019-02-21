@@ -26,15 +26,15 @@ RUN apt-get -y install python-pip
 RUN apt-get -y install python-setuptools
 RUN apt-get -y install wget
 
-# Get some pip packages
-RUN pip install cython
-RUN pip install sphinx
-
 # Get 18.04 version of astyle
 RUN astyle_deb=astyle_3.1-1ubuntu2_amd64.deb && \
     wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/${astyle_deb} && \
     dpkg -i ${astyle_deb} && \
     rm -f ${astyle_deb}
+
+# Get some pip packages
+RUN pip install cython
+RUN pip install sphinx
 
 # Copy the environment variable script
 RUN mkdir -p /root/etc/
@@ -42,8 +42,8 @@ COPY env.sh /root/etc/
 
 # Build HDF5
 COPY build_hdf5.sh /root/etc/
-RUN bash /root/etc/build_hdf5.sh gcc
-RUN bash /root/etc/build_hdf5.sh clang
+RUN bash /root/etc/build_hdf5.sh gcc   1.10.4
+RUN bash /root/etc/build_hdf5.sh clang 1.10.4
 
 # Build Geant4
 COPY build_geant4.sh /root/etc/
@@ -52,5 +52,7 @@ RUN bash /root/etc/build_geant4.sh clang
 
 # Build MOAB 5.1.0
 COPY build_moab.sh /root/etc/
-RUN bash /root/etc/build_moab.sh gcc   5.1.0
-RUN bash /root/etc/build_moab.sh clang 5.1.0
+RUN bash /root/etc/build_moab.sh gcc   system 5.1.0
+RUN bash /root/etc/build_moab.sh clang system 5.1.0
+RUN bash /root/etc/build_moab.sh gcc   1.10.4 5.1.0
+RUN bash /root/etc/build_moab.sh clang 1.10.4 5.1.0

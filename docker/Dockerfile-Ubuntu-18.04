@@ -37,8 +37,8 @@ COPY env.sh /root/etc/
 
 # Build HDF5
 COPY build_hdf5.sh /root/etc/
-RUN bash /root/etc/build_hdf5.sh gcc
-RUN bash /root/etc/build_hdf5.sh clang
+RUN bash /root/etc/build_hdf5.sh gcc   1.10.4
+RUN bash /root/etc/build_hdf5.sh clang 1.10.4
 
 # Build Geant4
 COPY build_geant4.sh /root/etc/
@@ -47,5 +47,7 @@ RUN bash /root/etc/build_geant4.sh clang
 
 # Build MOAB 5.1.0
 COPY build_moab.sh /root/etc/
-RUN bash /root/etc/build_moab.sh gcc   5.1.0
-RUN bash /root/etc/build_moab.sh clang 5.1.0
+RUN bash /root/etc/build_moab.sh gcc   system 5.1.0
+RUN bash /root/etc/build_moab.sh clang system 5.1.0
+RUN bash /root/etc/build_moab.sh gcc   1.10.4 5.1.0
+RUN bash /root/etc/build_moab.sh clang 1.10.4 5.1.0

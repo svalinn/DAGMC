@@ -8,25 +8,25 @@ notifications:
 services:
   - docker
 env:
-  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=ON  COMPILER=gcc   MOAB_VERSION=5.1.0
-  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   MOAB_VERSION=5.1.0
-  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang MOAB_VERSION=5.1.0
-  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   MOAB_VERSION=5.1.0
-  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang MOAB_VERSION=5.1.0
-  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   MOAB_VERSION=master
-  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang MOAB_VERSION=master
-  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   MOAB_VERSION=master
-  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang MOAB_VERSION=master
+  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=ON  COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+  - UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
+  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+  - UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
 matrix:
   fast_finish: true
   allow_failures:
-    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   MOAB_VERSION=master
-    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang MOAB_VERSION=master
-    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   MOAB_VERSION=master
-    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang MOAB_VERSION=master
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=OFF COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
 before_install:
   - docker_image=ljacobson64/dagmc-ci-ubuntu-$UBUNTU_VERSION
-  - build_dir=/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION
+  - build_dir=/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION-hdf5-$HDF5_VERSION
   # Get the docker image
   - docker pull $docker_image
   # Make the build directory
@@ -39,15 +39,17 @@ before_install:
   - docker commit $commit_id $docker_image
 install:
   # Build DAGMC
-  - docker run $docker_image /bin/bash -c "if [ ! $HOUSEKEEPING_ONLY ]; then
-                                             bash $build_dir/DAGMC/docker/travis.install.sh $COMPILER $MOAB_VERSION;
+  - docker run $docker_image /bin/bash -c "if [ $HOUSEKEEPING_ONLY ]; then
+                                             :  # Do nothing
+                                           else
+                                             bash $build_dir/DAGMC/docker/travis.install.sh $COMPILER $HDF5_VERSION $MOAB_VERSION
                                            fi"
   - commit_id=$(docker ps -l | tail -n1 | awk '{print $1}')
   - docker commit $commit_id $docker_image
 script:
   # Run unit tests
   - docker run $docker_image /bin/bash -c "if [ $HOUSEKEEPING_ONLY ]; then
-                                             bash $build_dir/DAGMC/docker/travis.housekeeping.sh $COMPILER $MOAB_VERSION;
+                                             bash $build_dir/DAGMC/docker/travis.housekeeping.sh $COMPILER $HDF5_VERSION $MOAB_VERSION
                                            else
-                                             bash $build_dir/DAGMC/docker/travis.tests.sh $COMPILER $MOAB_VERSION;
+                                             bash $build_dir/DAGMC/docker/travis.tests.sh $COMPILER $HDF5_VERSION $MOAB_VERSION
                                            fi"
