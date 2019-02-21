@@ -10,6 +10,12 @@ source /root/etc/env.sh $1
 moab_version=$2
 build_static=$3
 
+if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
+  build_mw_reg_tests=ON
+else
+  build_mw_reg_tests=OFF
+fi
+
 rm -rf ${build_dir}/DAGMC-moab-${moab_version}/bld
 mkdir -p ${build_dir}/DAGMC-moab-${moab_version}/bld
 rm -rf ${install_dir}/DAGMC-moab-${moab_version}
@@ -21,6 +27,7 @@ cmake ../src -DMOAB_DIR=${install_dir}/moab-${moab_version} \
              -DBUILD_GEANT4=ON \
              -DGEANT4_DIR=${install_dir}/geant4-${geant4_version} \
              -DBUILD_CI_TESTS=ON \
+             -DBUILD_MW_REG_TESTS=${build_mw_reg_tests} \
              -DBUILD_STATIC_EXE=${build_static} \
              -DCMAKE_C_COMPILER=${CC} \
              -DCMAKE_CXX_COMPILER=${CXX} \
