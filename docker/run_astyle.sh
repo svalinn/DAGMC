@@ -3,8 +3,8 @@
 set -e
 
 # Run astyle to see if there are any differences
-astyle_deb=astyle_3.0.1-1ubuntu1_amd64.deb
-wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/+files/${astyle_deb}
+astyle_deb=astyle_3.1-1ubuntu2_amd64.deb
+wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/${astyle_deb}
 dpkg -i ${astyle_deb}
 rm -f ${astyle_deb}
 astyle --options=astyle_google.ini \
