@@ -12,12 +12,12 @@ moab_version=$3
 
 source /root/etc/env.sh ${compiler}
 
-cd ${build_dir}/DAGMC-moab-${moab_version}/DAGMC
-
 # If only running astyle, don't need to build anything
 if [ "${astyle_only}" == "ON" ]; then
   exit 0
 fi
+
+cd ${build_dir}/DAGMC-moab-${moab_version}/DAGMC
 
 # Only build MOAB master; v5.1.0 is already in the docker image
 if [ "${moab_version}" == "master" ]; then
