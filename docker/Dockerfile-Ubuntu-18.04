@@ -29,6 +29,7 @@ RUN apt-get -y install wget
 
 # Get some pip packages
 RUN pip install cython
+RUN pip install sphinx
 
 # Copy the environment variable script
 RUN mkdir -p /root/etc/
