@@ -28,6 +28,7 @@ RUN apt-get -y install wget
 
 # Get some pip packages
 RUN pip install cython
+RUN pip install sphinx
 
 # Get 18.04 version of astyle
 RUN astyle_deb=astyle_3.1-1ubuntu2_amd64.deb && \

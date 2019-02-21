@@ -29,3 +29,6 @@ bash docker/build_dagmc.sh ${compiler} ${moab_version} OFF
 
 # Build DAGMC (static executables)
 bash docker/build_dagmc.sh ${compiler} ${moab_version} ON
+
+# Build DAGMC documentation
+make html
