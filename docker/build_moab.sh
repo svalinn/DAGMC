@@ -5,15 +5,20 @@
 
 set -e
 
-source /root/etc/env.sh $1
-moab_version=$2
+export compiler=$1
+export moab_version=$2
 
-mkdir -p ${build_dir}/moab-${moab_version}/bld
-rm -rf ${install_dir}/moab-${moab_version}
-cd ${build_dir}/moab-${moab_version}
-if [[ ${moab_version} == "master" ]]; then branch=${moab_version}
-else branch=Version${moab_version}
+source /root/etc/env.sh
+
+if [[ ${moab_version} == "master" ]]; then
+  branch=${moab_version}
+else
+  branch=Version${moab_version}
 fi
+
+rm -rf ${moab_build_dir}/bld ${moab_install_dir}
+mkdir -p ${moab_build_dir}/bld
+cd ${moab_build_dir}
 git clone https://bitbucket.org/fathomteam/moab -b ${branch}
 ln -snf moab src
 cd moab
@@ -23,10 +28,10 @@ cd ../bld
                  --enable-shared \
                  --enable-optimize \
                  --disable-debug \
-                 --with-hdf5=${install_dir}/hdf5-${hdf5_version} \
-                 --prefix=${install_dir}/moab-${moab_version} \
+                 --with-hdf5=${hdf5_install_dir} \
+                 --prefix=${moab_install_dir} \
                  CC=${CC} CXX=${CXX} FC=${FC}
 make -j${jobs}
 make install
 cd
-rm -rf ${build_dir}/moab-${moab_version}
+rm -rf ${moab_build_dir}
