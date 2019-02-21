@@ -1,0 +1,42 @@
+FROM ubuntu:18.04
+
+# Use bash as the default shell
+RUN ln -snf /bin/bash /bin/sh
+
+# Update core packages
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get -y dist-upgrade
+
+# Get some packages
+RUN apt-get -y install autoconf
+RUN apt-get -y install clang
+RUN apt-get -y install cmake
+RUN apt-get -y install g++
+RUN apt-get -y install gcc
+RUN apt-get -y install gfortran
+RUN apt-get -y install git
+RUN apt-get -y install libblas-dev
+RUN apt-get -y install libhdf5-dev
+RUN apt-get -y install liblapack-dev
+RUN apt-get -y install libtool
+RUN apt-get -y install wget
+
+# Copy the environment variable script
+RUN mkdir -p /root/etc/
+COPY env.sh /root/etc/
+
+# Build HDF5
+COPY build_hdf5.sh /root/etc/
+RUN bash /root/etc/build_hdf5.sh gcc
+RUN bash /root/etc/build_hdf5.sh clang
+
+# Build Geant4
+COPY build_geant4.sh /root/etc/
+RUN bash /root/etc/build_geant4.sh gcc
+RUN bash /root/etc/build_geant4.sh clang
+
+# Build MOAB 5.1.0
+COPY build_moab.sh /root/etc/
+RUN bash /root/etc/build_moab.sh gcc   5.1.0
+RUN bash /root/etc/build_moab.sh clang 5.1.0
