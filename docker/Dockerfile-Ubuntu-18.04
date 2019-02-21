@@ -9,6 +9,7 @@ RUN apt-get -y upgrade
 RUN apt-get -y dist-upgrade
 
 # Get some packages
+RUN apt-get -y install astyle
 RUN apt-get -y install autoconf
 RUN apt-get -y install clang
 RUN apt-get -y install cmake
