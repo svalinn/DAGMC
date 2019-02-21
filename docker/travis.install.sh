@@ -9,8 +9,10 @@ if [ "${ASTYLE_ONLY}" == "ON" ]; then
   exit 0
 fi
 
-# Build MOAB
-bash docker/build_moab.sh  ${COMPILER} ${MOAB_VERSION}
+# Only build MOAB master; v5.1.0 is already in the docker image
+if [ "${MOAB_VERSION}" == "master" ]; then
+  bash docker/build_moab.sh ${COMPILER} ${MOAB_VERSION}
+fi
 
 # Build DAGMC (shared executables)
 bash docker/build_dagmc.sh ${COMPILER} ${MOAB_VERSION} OFF
