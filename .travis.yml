@@ -20,10 +20,10 @@ env:
 matrix:
   fast_finish: true
   allow_failures:
-    - env: UBUNTU_VERSION=16.04 COMPILER=gcc   MOAB_VERSION=master
-    - env: UBUNTU_VERSION=16.04 COMPILER=clang MOAB_VERSION=master
-    - env: UBUNTU_VERSION=18.04 COMPILER=gcc   MOAB_VERSION=master
-    - env: UBUNTU_VERSION=18.04 COMPILER=clang MOAB_VERSION=master
+    - env: UBUNTU_VERSION=16.04 ASTYLE_ONLY=OFF COMPILER=gcc   MOAB_VERSION=master
+    - env: UBUNTU_VERSION=16.04 ASTYLE_ONLY=OFF COMPILER=clang MOAB_VERSION=master
+    - env: UBUNTU_VERSION=18.04 ASTYLE_ONLY=OFF COMPILER=gcc   MOAB_VERSION=master
+    - env: UBUNTU_VERSION=18.04 ASTYLE_ONLY=OFF COMPILER=clang MOAB_VERSION=master
 before_install:
   - docker_image=ljacobson64/dagmc-ci-ubuntu-$UBUNTU_VERSION
   - build_dir=/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION
