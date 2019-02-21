@@ -16,9 +16,8 @@ else
   build_mw_reg_tests=OFF
 fi
 
-rm -rf ${build_dir}/DAGMC-moab-${moab_version}/bld
+rm -rf ${build_dir}/DAGMC-moab-${moab_version}/bld ${install_dir}/DAGMC-moab-${moab_version}
 mkdir -p ${build_dir}/DAGMC-moab-${moab_version}/bld
-rm -rf ${install_dir}/DAGMC-moab-${moab_version}
 cd ${build_dir}/DAGMC-moab-${moab_version}
 #git clone https://github.com/svalinn/DAGMC -b develop
 ln -snf DAGMC src
