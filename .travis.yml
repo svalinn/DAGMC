@@ -47,7 +47,7 @@ install:
 script:
   # Run unit tests
   - docker run ${docker_image} /bin/bash -c "if [ \"${HOUSEKEEPING_ONLY}\" == \"true\" ]; then
-                                               bash ${build_dir}/DAGMC/docker/travis.housekeeping.sh \"${COMPILER}\" \"${HDF5_VERSION}\" \"${MOAB_VERSION}\" \"${TRAVIS_PULL_REQUEST}\";
+                                               bash ${build_dir}/DAGMC/docker/travis.housekeeping.sh \"${COMPILER}\" \"${HDF5_VERSION}\" \"${MOAB_VERSION}\" \"${TRAVIS_REPO_SLUG}\" \"${TRAVIS_PULL_REQUEST}\";
                                              else
                                                bash ${build_dir}/DAGMC/docker/travis.tests.sh \"${COMPILER}\" \"${HDF5_VERSION}\" \"${MOAB_VERSION}\";
                                              fi"
