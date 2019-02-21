@@ -16,14 +16,23 @@ cd ${build_dir}/DAGMC-moab-${moab_version}/DAGMC
 
 # Only do housekeeping tasks
 if [ "${hk_only}" == "ON" ]; then
+  # Check for news file if this is a PR
+  if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
+    news_file=$(printf 'news/PR-%04u' $TRAVIS_PULL_REQUEST)
+    if [ ! -f "${news_file}" ]; then
+      echo "Error: news file ${news_file} not found."
+      exit 1
+    fi
+  fi
+
   # Run astyle
   bash docker/run_astyle.sh
+
   # Build documentation
   make html
+
   exit 0
 fi
 
 # Run the tests
-export TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
-export MW_REG_TEST_MODELS_URL=${MW_REG_TEST_MODELS_URL}
 bash docker/run_tests.sh ${compiler} ${moab_version}
