@@ -35,7 +35,7 @@ before_install:
   - commit_id=$(docker ps -l | tail -n1 | awk '{print $1}')
   - docker commit $commit_id $docker_image
 install:
-  # Build MOAB and DAGMC
+  # Build DAGMC
   - docker run $docker_image /bin/bash -c "bash $build_dir/DAGMC/docker/travis.install.sh"
   - commit_id=$(docker ps -l | tail -n1 | awk '{print $1}')
   - docker commit $commit_id $docker_image
