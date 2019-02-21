@@ -1,19 +1,22 @@
 #!/bin/bash
 
 # $1: astyle only (OFF, ON)
-# $2: compiler (gcc, clang)
-# $3: moab version (5.1.0, master)
+# $2: documentation only (OFF, ON)
+# $3: compiler (gcc, clang)
+# $4: moab version (5.1.0, master)
 
 set -e
 
 astyle_only=$1
-compiler=$2
-moab_version=$3
+doc_only=$2
+compiler=$3
+moab_version=$4
 
 source /root/etc/env.sh ${compiler}
 
-# If only running astyle, don't need to build anything
-if [ "${astyle_only}" == "ON" ]; then
+# If only running astyle or only building documentation, don't need to build
+# anything
+if [ "${astyle_only}" == "ON" ] || [ "${doc_only}" == "ON" ]; then
   exit 0
 fi
 
@@ -29,6 +32,3 @@ bash docker/build_dagmc.sh ${compiler} ${moab_version} OFF
 
 # Build DAGMC (static executables)
 bash docker/build_dagmc.sh ${compiler} ${moab_version} ON
-
-# Build DAGMC documentation
-make html
