@@ -2,7 +2,7 @@
 
 set -e
 
-source /root/etc/env.sh
+source ${env_file}
 
 if [ "${HDF5_VERSION:3:1}" == "." ]; then
   HDF5_VERSION_major=${HDF5_VERSION::3}

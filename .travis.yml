@@ -25,16 +25,19 @@ matrix:
     - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
     - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
 before_install:
+  # Set some local variables
+  - docker_image=ljacobson64/dagmc-ci-ubuntu-${UBUNTU_VERSION}
+  - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
+  - script_dir=${dagmc_build_dir}/DAGMC/docker
+  - env_file=${script_dir}/env.sh
   # Create a file which contains variables needed by Docker
   - |
     printf "COMPILER=${COMPILER}
     HDF5_VERSION=${HDF5_VERSION}
     MOAB_VERSION=${MOAB_VERSION}
     TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
-    TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}" > docker_env
-  # Set some local variables
-  - docker_image=ljacobson64/dagmc-ci-ubuntu-${UBUNTU_VERSION}
-  - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
+    TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
+    env_file=${env_file}" > docker_env
   # Get the docker image
   - docker pull ${docker_image}
   # Make the build directory
@@ -47,7 +50,6 @@ before_install:
   - docker commit ${commit_id} ${docker_image}
 install:
   # Build DAGMC
-  - script_dir=${dagmc_build_dir}/DAGMC/docker
   - if [ "${HOUSEKEEPING_ONLY}" == "false" ]; then
       docker run --env-file docker_env ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
     fi
