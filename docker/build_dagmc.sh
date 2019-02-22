@@ -2,7 +2,7 @@
 
 set -e
 
-export build_static=$1
+source /root/etc/env.sh
 
 if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   build_mw_reg_tests=ON
@@ -21,7 +21,7 @@ cmake ../src -DMOAB_DIR=${moab_install_dir} \
              -DGEANT4_DIR=${geant4_install_dir} \
              -DBUILD_CI_TESTS=ON \
              -DBUILD_MW_REG_TESTS=${build_mw_reg_tests} \
-             -DBUILD_STATIC_EXE=${build_static} \
+             -DBUILD_STATIC_EXE=${build_static_exe} \
              -DCMAKE_C_COMPILER=${CC} \
              -DCMAKE_CXX_COMPILER=${CXX} \
              -DCMAKE_Fortran_COMPILER=${FC} \

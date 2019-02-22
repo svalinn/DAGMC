@@ -2,6 +2,8 @@
 
 set -e
 
+source /root/etc/env.sh
+
 rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
 mkdir -p ${geant4_build_dir}/bld
 cd ${geant4_build_dir}

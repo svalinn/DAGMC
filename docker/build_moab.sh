@@ -2,6 +2,8 @@
 
 set -e
 
+source /root/etc/env.sh
+
 if [[ ${MOAB_VERSION} == "master" ]]; then
   branch=${MOAB_VERSION}
 else
