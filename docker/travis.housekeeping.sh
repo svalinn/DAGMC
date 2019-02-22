@@ -2,7 +2,7 @@
 
 set -e
 
-source /root/etc/env.sh
+source ${env_file}
 
 cd ${dagmc_build_dir}/DAGMC
 

@@ -25,6 +25,7 @@ RUN pip install cython sphinx
 # Copy scripts to docker image
 RUN mkdir -p /root/etc/
 COPY *.sh /root/etc/
+ENV env_file=/root/etc/env.sh
 
 # Build HDF5
 RUN COMPILER=gcc   HDF5_VERSION=1.10.4 /root/etc/build_hdf5.sh

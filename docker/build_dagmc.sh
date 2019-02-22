@@ -2,7 +2,7 @@
 
 set -e
 
-source /root/etc/env.sh
+source ${env_file}
 
 if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   build_mw_reg_tests=ON
