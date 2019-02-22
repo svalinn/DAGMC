@@ -25,29 +25,32 @@ matrix:
     - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
     - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
 before_install:
-  - docker_image=ljacobson64/dagmc-ci-ubuntu-${UBUNTU_VERSION}
-  - build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
+  # Make some environment variables available globally
+  - export COMPILER HDF5_VERSION MOAB_VERSION TRAVIS_REPO_SLUG TRAVIS_PULL_REQUEST
+  - source /root/etc/env.sh
   # Get the docker image
+  - docker_image=ljacobson64/dagmc-ci-ubuntu-${UBUNTU_VERSION}
   - docker pull ${docker_image}
   # Make the build directory
   - docker run ${docker_image} /bin/bash -c "mkdir -p ${build_dir}"
-  - commit_id=$(docker ps -l | tail -n1 | awk '{print $1}')
+  - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
   # Copy the repo in the docker instance
-  - docker cp ../DAGMC ${commit_id}:${build_dir}
-  - commit_id=$(docker ps -l | tail -n1 | awk '{print $1}')
+  - docker cp ../DAGMC ${commit_id}:${dagmc_build_dir}
+  - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
 install:
   # Build DAGMC
-  - docker run ${docker_image} /bin/bash -c "if [ \"${HOUSEKEEPING_ONLY}\" == \"false\" ]; then
-                                               bash ${build_dir}/DAGMC/docker/travis.install.sh \"${COMPILER}\" \"${HDF5_VERSION}\" \"${MOAB_VERSION}\";
-                                             fi"
-  - commit_id=$(docker ps -l | tail -n1 | awk '{print $1}')
+  - script_dir=${dagmc_build_dir}/DAGMC/docker
+  - if [ "${HOUSEKEEPING_ONLY}" == "false" ]; then
+      docker run ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+    fi
+  - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
 script:
-  # Run unit tests
-  - docker run ${docker_image} /bin/bash -c "if [ \"${HOUSEKEEPING_ONLY}\" == \"true\" ]; then
-                                               bash ${build_dir}/DAGMC/docker/travis.housekeeping.sh \"${COMPILER}\" \"${HDF5_VERSION}\" \"${MOAB_VERSION}\" \"${TRAVIS_REPO_SLUG}\" \"${TRAVIS_PULL_REQUEST}\";
-                                             else
-                                               bash ${build_dir}/DAGMC/docker/travis.tests.sh        \"${COMPILER}\" \"${HDF5_VERSION}\" \"${MOAB_VERSION}\" \"${TRAVIS_REPO_SLUG}\" \"${TRAVIS_PULL_REQUEST}\";
-                                             fi"
+  # Run tests
+  - if [ "${HOUSEKEEPING_ONLY}" == "true" ]; then
+      docker run ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
+    else
+      docker run ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
+    fi

@@ -1,12 +1,6 @@
 #!/bin/bash
 
-# $1: compiler (gcc, clang)
-
 set -e
-
-export compiler=$1
-
-source /root/etc/env.sh
 
 rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
 mkdir -p ${geant4_build_dir}/bld

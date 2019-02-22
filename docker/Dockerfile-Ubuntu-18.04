@@ -16,6 +16,9 @@ RUN apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
 # Get astyle
 RUN apt-get -y install astyle
 
+
+
+
 # Get some pip packages
 RUN pip install cython sphinx
 
@@ -25,17 +28,17 @@ COPY env.sh /root/etc/
 
 # Build HDF5
 COPY build_hdf5.sh /root/etc/
-RUN bash /root/etc/build_hdf5.sh gcc   1.10.4
-RUN bash /root/etc/build_hdf5.sh clang 1.10.4
+RUN COMPILER=gcc   HDF5_VERSION=1.10.4 /root/etc/build_hdf5.sh
+RUN COMPILER=clang HDF5_VERSION=1.10.4 /root/etc/build_hdf5.sh
 
 # Build Geant4
 COPY build_geant4.sh /root/etc/
-RUN bash /root/etc/build_geant4.sh gcc
-RUN bash /root/etc/build_geant4.sh clang
+RUN COMPILER=gcc   /root/etc/build_geant4.sh
+RUN COMPILER=clang /root/etc/build_geant4.sh
 
 # Build MOAB 5.1.0
 COPY build_moab.sh /root/etc/
-RUN bash /root/etc/build_moab.sh gcc   system 5.1.0
-RUN bash /root/etc/build_moab.sh clang system 5.1.0
-RUN bash /root/etc/build_moab.sh gcc   1.10.4 5.1.0
-RUN bash /root/etc/build_moab.sh clang 1.10.4 5.1.0
+RUN COMPILER=gcc   HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
+RUN COMPILER=clang HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
+RUN COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
+RUN COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
