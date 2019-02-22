@@ -29,7 +29,8 @@ before_install:
   - docker_image=ljacobson64/dagmc-ci-ubuntu-${UBUNTU_VERSION}
   - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
   - script_dir=${dagmc_build_dir}/DAGMC/docker
-  - env_file=${script_dir}/env.sh
+  - docker_env=${script_dir}/env.sh
+  - travis_env=/root/etc/travis_env
   # Create a file which contains variables needed by Docker
   - |
     printf "COMPILER=${COMPILER}
@@ -37,11 +38,11 @@ before_install:
     MOAB_VERSION=${MOAB_VERSION}
     TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
     TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
-    env_file=${env_file}" > docker_env
+    docker_env=${docker_env}" > ${travis_env}
   # Get the docker image
   - docker pull ${docker_image}
   # Make the build directory
-  - docker run --env-file docker_env ${docker_image} /bin/bash -c "mkdir -p ${dagmc_build_dir}"
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "mkdir -p ${dagmc_build_dir}"
   - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
   # Copy the repo in the docker instance
@@ -51,14 +52,14 @@ before_install:
 install:
   # Build DAGMC
   - if [ "${HOUSEKEEPING_ONLY}" == "false" ]; then
-      docker run --env-file docker_env ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
     fi
   - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
 script:
   # Run tests
   - if [ "${HOUSEKEEPING_ONLY}" == "true" ]; then
-      docker run --env-file docker_env ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
+      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
     else
-      docker run --env-file docker_env ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
+      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
     fi

@@ -2,7 +2,7 @@
 
 set -e
 
-source ${env_file}
+source ${docker_env}
 
 if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   build_mw_reg_tests=ON

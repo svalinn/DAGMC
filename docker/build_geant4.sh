@@ -2,7 +2,7 @@
 
 set -e
 
-source ${env_file}
+source ${docker_env}
 
 rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
 mkdir -p ${geant4_build_dir}/bld

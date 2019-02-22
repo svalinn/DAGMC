@@ -2,7 +2,7 @@
 
 set -e
 
-source ${env_file}
+source ${docker_env}
 
 cd ${dagmc_build_dir}/DAGMC
 
