@@ -30,7 +30,7 @@ before_install:
   - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
   - script_dir=${dagmc_build_dir}/DAGMC/docker
   - docker_env=${script_dir}/env.sh
-  - travis_env=/root/etc/travis_env
+  - travis_env=~/travis_env
   # Create a file which contains variables needed by Docker
   - |
     printf "COMPILER=${COMPILER}
