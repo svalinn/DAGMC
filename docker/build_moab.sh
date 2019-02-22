@@ -1,21 +1,11 @@
 #!/bin/bash
 
-# $1: compiler (gcc, clang)
-# $2: hdf5 version (system, 1.10.4)
-# $3: moab version (5.1.0, master)
-
 set -e
 
-export compiler=$1
-export hdf5_version=$2
-export moab_version=$3
-
-source /root/etc/env.sh
-
-if [[ ${moab_version} == "master" ]]; then
-  branch=${moab_version}
+if [[ ${MOAB_VERSION} == "master" ]]; then
+  branch=${MOAB_VERSION}
 else
-  branch=Version${moab_version}
+  branch=Version${MOAB_VERSION}
 fi
 
 rm -rf ${moab_build_dir}/bld ${moab_install_dir}
