@@ -30,6 +30,7 @@ astyle --options=astyle_google.ini \
        --formatted \
        "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
 astyle_diffs=`git status --porcelain`
+echo "astyle_diffs: ${astyle_diffs}"
 if [ -z "${astyle_diffs}" ]; then
   echo "Style guide checker passed!"
 else
