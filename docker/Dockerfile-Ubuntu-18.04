@@ -8,28 +8,16 @@ RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get -y dist-upgrade
 
-# Get some packages
+# Get some apt packages
+RUN apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
+                       libhdf5-dev liblapack-dev libpython2.7-dev libtool \
+                       python-numpy python-pip python-setuptools wget
+
+# Get astyle
 RUN apt-get -y install astyle
-RUN apt-get -y install autoconf
-RUN apt-get -y install clang
-RUN apt-get -y install cmake
-RUN apt-get -y install g++
-RUN apt-get -y install gcc
-RUN apt-get -y install gfortran
-RUN apt-get -y install git
-RUN apt-get -y install libblas-dev
-RUN apt-get -y install libhdf5-dev
-RUN apt-get -y install liblapack-dev
-RUN apt-get -y install libpython2.7-dev
-RUN apt-get -y install libtool
-RUN apt-get -y install python-numpy
-RUN apt-get -y install python-pip
-RUN apt-get -y install python-setuptools
-RUN apt-get -y install wget
 
 # Get some pip packages
-RUN pip install cython
-RUN pip install sphinx
+RUN pip install cython sphinx
 
 # Copy the environment variable script
 RUN mkdir -p /root/etc/
