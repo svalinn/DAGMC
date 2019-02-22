@@ -24,12 +24,12 @@ export moab_install_dir=${install_dir}/moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 export dagmc_build_dir=${build_dir}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 export dagmc_install_dir=${install_dir}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 
-if [ "$1" == "gcc" ]; then
-  export CC=gcc
-  export CXX=g++
-  export FC=gfortran
-elif [ "$1" == "clang" ]; then
-  export CC=clang
-  export CXX=clang++
-  export FC=gfortran
+if [ "$COMPILER" == "gcc" ]; then
+  export  CC=`which gcc`
+  export CXX=`which g++`
+  export  FC=`which gfortran`
+elif [ "$COMPILER" == "clang" ]; then
+  export  CC=`which clang`
+  export CXX=`which clang++`
+  export  FC=`which gfortran`
 fi
