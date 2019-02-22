@@ -2,6 +2,8 @@
 
 set -e
 
+source /root/etc/env.sh
+
 cd ${dagmc_build_dir}/DAGMC
 
 # Check for news file if this is a PR into svalinn/DAGMC

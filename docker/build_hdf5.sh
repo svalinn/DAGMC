@@ -2,6 +2,8 @@
 
 set -e
 
+source /root/etc/env.sh
+
 if [ "${HDF5_VERSION:3:1}" == "." ]; then
   HDF5_VERSION_major=${HDF5_VERSION::3}
 elif [ "${HDF5_VERSION:4:1}" == "." ]; then

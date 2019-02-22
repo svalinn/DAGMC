@@ -2,6 +2,8 @@
 
 set -e
 
+source /root/etc/env.sh
+
 cd ${dagmc_build_dir}/DAGMC
 
 # clean out config test directory for next build
