@@ -22,22 +22,19 @@ RUN astyle_deb=astyle_3.1-1ubuntu2_amd64.deb && \
 # Get some pip packages
 RUN pip install cython sphinx
 
-# Copy the environment variable script
+# Copy scripts to docker image
 RUN mkdir -p /root/etc/
-COPY env.sh /root/etc/
+COPY *.sh /root/etc/
 
 # Build HDF5
-COPY build_hdf5.sh /root/etc/
 RUN COMPILER=gcc   HDF5_VERSION=1.10.4 /root/etc/build_hdf5.sh
 RUN COMPILER=clang HDF5_VERSION=1.10.4 /root/etc/build_hdf5.sh
 
 # Build Geant4
-COPY build_geant4.sh /root/etc/
 RUN COMPILER=gcc   /root/etc/build_geant4.sh
 RUN COMPILER=clang /root/etc/build_geant4.sh
 
 # Build MOAB 5.1.0
-COPY build_moab.sh /root/etc/
 RUN COMPILER=gcc   HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
 RUN COMPILER=clang HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
 RUN COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
