@@ -1,0 +1,16 @@
+**Added:** None
+
+**Changed:**
+source_sampling.h
+source_sampling.cpp
+
+* Throw a fatal error if trying to build static executables but not static
+  libraries, or shared executables but not shared libraries
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

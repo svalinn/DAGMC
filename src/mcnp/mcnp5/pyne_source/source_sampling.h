@@ -47,7 +47,8 @@ extern "C" {
 namespace pyne {
 
 /// MCNP interface for source sampling setup
-/// \param mode The sampling mode: 1 = analog, 2 = uniform, 3 = user-specified
+/// \param mode The sampling mode: 0 = analog, 1 = uniform, 2 = user-biased,
+/// and 3 = user-weight  
 void sampling_setup_(int* mode);
 /// MCNP interface to sample particle birth parameters after sampling setup
 /// \param rands Six pseudo-random numbers supplied from the Fortran side.
@@ -120,7 +121,7 @@ class Sampler {
   ///                       If 1 (i.e. spatial biasing only), all energy groups
   ///                       within a mesh volume element are sampled equally.
   /// \param uweight If false, weights are calculated as pdf/biased_pdf.
-  /// If true, supplied weights are read from mesh.
+  ///                If true, supplied weights are read from mesh.
   Sampler(std::string filename,
           std::string src_tag_name,
           std::vector<double> e_bounds,
