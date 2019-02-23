@@ -18,7 +18,10 @@ void pyne::sampling_setup_(int* mode) {
       sampler = new pyne::Sampler(filename, src_tag_name, e_bounds, true);
     } else if (*mode == 2) {
       std::string bias_tag_name("biased_source_density");
-      sampler = new pyne::Sampler(filename, src_tag_name, e_bounds, bias_tag_name);
+      sampler = new pyne::Sampler(filename, src_tag_name, e_bounds, bias_tag_name, false);
+    } else if (*mode == 3) {
+      std::string bias_tag_name("weight");
+      sampler = new pyne::Sampler(filename, src_tag_name, e_bounds, bias_tag_name, true);
     }
   }
 }
@@ -63,12 +66,13 @@ pyne::Sampler::Sampler(std::string filename,
 pyne::Sampler::Sampler(std::string filename,
                        std::string src_tag_name,
                        std::vector<double> e_bounds,
-                       std::string bias_tag_name)
+                       std::string bias_tag_name,
+		       bool uweight)
   : filename(filename),
     src_tag_name(src_tag_name),
     e_bounds(e_bounds),
     bias_tag_name(bias_tag_name) {
-  mode = USER;
+  mode = (uweight) ? UWEIGHT : UBIASED;
   setup();
 }
 
@@ -193,6 +197,22 @@ void pyne::Sampler::mesh_tag_data(moab::Range ves,
   // Setup alias table based off PDF or biased PDF
   if (mode == ANALOG) {
     at = new AliasTable(pdf);
+  } else if (mode == UWEIGHT) {
+    // Read starting particle weights from mesh file.
+    moab::Tag bias_tag;
+    rval = mesh->tag_get_handle(bias_tag_name.c_str(),
+				moab::MB_TAG_VARLEN,
+				moab::MB_TYPE_DOUBLE,
+				bias_tag);
+    std::vector<double> u_weights(num_ves * num_e_groups);
+    rval = mesh->tag_get_data(src_tag, ves, &u_weights[0]);
+    if (rval != moab::MB_SUCCESS)
+      throw std::runtime_error("Problem getting source tag data.");
+    biased_weights.resize(num_ves * num_e_groups);
+    for (i = 0; i < num_ves * num_e_groups; ++i) {
+      biased_weights[i] = b_weights[i];
+    }
+    at = new AliasTable(pdf);
   } else {
     std::vector<double> bias_pdf = read_bias_pdf(ves, volumes, pdf);
     normalize_pdf(bias_pdf);
@@ -231,7 +251,7 @@ std::vector<double> pyne::Sampler::read_bias_pdf(moab::Range ves,
         }
       }
     }
-  } else if (mode == USER) {
+  } else if (mode == UBIASED) {
     // Get the biased PDF from the mesh
     moab::Tag bias_tag;
     rval = mesh->tag_get_handle(bias_tag_name.c_str(),

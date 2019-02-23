@@ -4,22 +4,23 @@
 /// \brief Mesh-based Monte Carlo source sampling.
 ///
 /// The Sampler class is used for Monte Carlo source sampling from mesh-based
-/// sources.  The source density distribution and optional biased source density
+/// sources. The source density distribution and optional biased source density
 /// distribution are defined on a MOAB mesh. Upon instantiation, a Sampler
 /// object reads this mesh and creates an alias table for randomly sampling
 /// particle birth parameters. The particle_birth member function is supplied
 /// with 6 pseudo-random numbers and returns the position, energy, and weight
 /// of a particle upon birth.
-/// There are three sampling modes: analog, uniform, and user-speficied
-/// In analog sampling, no source biasing is used and birth weights
-/// are all 1. In uniform sampling, the position of the particle (but not the
-/// energy) is sampled uniformly and weights are adjusted accordingly. In
-/// user-speficied mode, a supplied biased source density distribution is used
-/// for sampling and particle weights are adjusted accordingly. The biased
-/// source density distribution must have the same number of energy groups as
-/// the unbiased distribution. Alternatively, it may have exactly 1 energy
-/// group, in which case only spatial biasing is done, and energies are sampled
-/// in analog.
+/// There are four sampling modes: analog, uniform, user-biased, and user-weight.
+/// In analog sampling, no source biasing is used and birth weights are all 1.
+/// In uniform sampling, the position of the particle (but not the energy) is
+/// sampled uniformly and weights are adjusted accordingly. In user-biased mode,
+/// a supplied biased source density distribution is used for sampling and particle
+/// weights are adjusted accordingly. The biased source density distribution must
+/// have the same number of energy groups as the unbiased distribution. Alternatively,
+/// it may have exactly 1 energy group, in which case only spatial biasing is done,
+/// and energies are sampled in analog. In user-weight mode, supplied particles weights
+/// are used with sampling performed using the unbiased source density distribution.
+/// This mode is used for error propagation from mesh-based sources via random sampling.
 
 #ifndef PYNE_6OR6BJURKJHHTOFWXO2VMQM5EY
 #define PYNE_6OR6BJURKJHHTOFWXO2VMQM5EY
@@ -90,7 +91,7 @@ class AliasTable {
 };
 
 /// Problem modes
-enum Mode {USER, ANALOG, UNIFORM};
+ enum Mode {UWEIGHT, UBIASED, ANALOG, UNIFORM};
 
 /// Mesh based Monte Carlo source sampling.
 class Sampler {
@@ -118,10 +119,13 @@ class Sampler {
   ///                       number of energy groups as <src_tag_name> or 1.
   ///                       If 1 (i.e. spatial biasing only), all energy groups
   ///                       within a mesh volume element are sampled equally.
+  /// \param uweight If false, weights are calculated as pdf/biased_pdf.
+  /// If true, supplied weights are read from mesh.
   Sampler(std::string filename,
           std::string src_tag_name,
           std::vector<double> e_bounds,
-          std::string bias_tag_name);
+          std::string bias_tag_name,
+	  bool uweight);
   /// Samples particle birth parameters
   /// \param rands Six pseudo-random numbers in range [0, 1].
   /// \return A vector containing the x position, y, position, z, point, energy
