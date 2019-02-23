@@ -7,11 +7,7 @@ file(GLOB PUB_HEADERS "*.hpp")
 configure_file(DagMCVersion.hpp.in DagMCVersion.hpp)
 list(APPEND PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/DagMCVersion.hpp)
 
-if (BUILD_STATIC_EXE)
-  set(LINK_LIBS lapack blas gfortran quadmath)
-else ()
-  set(LINK_LIBS)
-endif ()
+set(LINK_LIBS)
 set(LINK_LIBS_EXTERN_NAMES MOAB_LIBRARIES HDF5_LIBRARIES)
 
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)

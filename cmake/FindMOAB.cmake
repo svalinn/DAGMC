@@ -47,6 +47,7 @@ if (BUILD_SHARED_LIBS)
     HINTS ${MOAB_LIBRARY_DIRS}
     NO_DEFAULT_PATH
   )
+  list(APPEND MOAB_LIBRARIES_SHARED lapack blas gfortran quadmath)
 endif ()
 
 # Find MOAB library (static)
@@ -57,6 +58,7 @@ if (BUILD_STATIC_LIBS)
     HINTS ${MOAB_LIBRARY_DIRS}
     NO_DEFAULT_PATH
   )
+  list(APPEND MOAB_LIBRARIES_STATIC lapack blas gfortran quadmath)
 endif ()
 
 message(STATUS "MOAB_INCLUDE_DIRS: ${MOAB_INCLUDE_DIRS}")
