@@ -205,7 +205,7 @@ void pyne::Sampler::mesh_tag_data(moab::Range ves,
 				moab::MB_TYPE_DOUBLE,
 				bias_tag);
     std::vector<double> u_weights(num_ves * num_e_groups);
-    rval = mesh->tag_get_data(src_tag, ves, &u_weights[0]);
+    rval = mesh->tag_get_data(bias_tag, ves, &u_weights[0]);
     if (rval != moab::MB_SUCCESS)
       throw std::runtime_error("Problem getting weight tag data.");
     biased_weights.resize(num_ves * num_e_groups);
