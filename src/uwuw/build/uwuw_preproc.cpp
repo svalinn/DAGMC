@@ -33,13 +33,12 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-
   if (out_file == "")
     out_file = dag_file;
 
   if (matlib_hdf5_path == "")
     matlib_hdf5_path = "/materials";
-
+  
   // make new preprocessor
   uwuw_preprocessor* uwuw_preproc = new uwuw_preprocessor(lib_file, dag_file, out_file, matlib_hdf5_path, verbose, fatal_errors);
 
