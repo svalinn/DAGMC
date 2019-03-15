@@ -72,6 +72,8 @@ class uwuw_preprocessor {
    * \param[in]  material_library_filename, a string defining the full path of the material library.
    * \param[in]  dagmc_filename, a string defining the full path of the DAGMC file.
    * \param[in]  output_filename, a string defining the full path of the output file.
+   * \param[in]  matlib_hdf5_path, a string defining where to find the material library within the HDF5 file
+   *             default location is "/materials"
    * \param[in]  verbosity, a boolean value representing if vebrose (true) or non verbose(false) ouput
    *             is required.
    * \param[in]  fatal, a boolean value representing if fatal (true) then we exit on fatal errors, not fatal (false)
@@ -79,7 +81,9 @@ class uwuw_preprocessor {
    */
   uwuw_preprocessor(std::string material_library_filename,
                     std::string dagmc_filename,
-                    std::string output_file, bool verbose = false,
+                    std::string output_file,
+                    std::string matlib_hdf5_path = "/materials",
+                    bool verbose = false,
                     bool fatal = true); // constructor
 
   /**

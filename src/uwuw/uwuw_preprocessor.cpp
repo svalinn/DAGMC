@@ -2,7 +2,8 @@
 
 // constructor
 uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std::string dagmc_filename,
-                                     std::string output_file,  bool verbosity, bool fatal_errors) {
+                                     std::string output_file,  std::string matlib_hdf5_path,
+                                     bool verbosity, bool fatal_errors) {
   // make new name concatenator class
   ncr = new name_concatenator();
 
@@ -10,7 +11,7 @@ uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std:
   DAG = new moab::DagMC();
 
   // load the materials
-  material_library = mat_lib.load_pyne_materials(material_library_filename, "/materials");
+  material_library = mat_lib.load_pyne_materials(material_library_filename, matlib_hdf5_path);
 
   // load the material objects
   // load the dag file
