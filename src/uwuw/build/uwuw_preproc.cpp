@@ -33,7 +33,6 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-
   if (out_file == "")
     out_file = dag_file;
 
