@@ -63,12 +63,12 @@ OpenMC's ``materials.xml`` file:
 This method for assigning materials is recommended for use with OpenMC as it
 provides a more verbose description of the material definition and purpose.
 
-This method of assignment also allows an easy transition to the UWUW workflow
-for future models. One can embed a PyNE material library in the DAGMC model at
-any point using ``uwuw_preproc`` without modification to the material
-assignments to obtain a working UWUW model, provided that materials with
-corresponding names and appropriate definitions are in the PyNE material
-library.
+This method of assignment also allows for straighforward model conversion to the
+UWUW workflow without material assignment modification, re-faceting, or
+re-sealing. To do this one can simply embed a PyNE material library in the
+original .h5m file at any point using ``uwuw_preproc``. No modification to the
+material assignments is necessary, provided that materials with appropriate
+names and definitions are in the PyNE material library.
 
 **Note: material names must be unique in the materials.xml file for this style**
 **of material assignment to work properly.**
