@@ -1,4 +1,4 @@
-..  _OpenMC: https://mit-crpg.github.io/openmc
+..  _OpenMC: https://openmc.readthedocs.io/en/latest/index.html
 
 **Note: OpenMC supports the recommended** :ref:`UWUW`
 
@@ -40,6 +40,38 @@ then add them to a group called, "mat:Vacuum":
 ::
 
     CUBIT> group "mat:Vacuum" add vol 4 to 18
+
+
+Assigning Materials by Name (recommended)
+-----------------------------------------
+
+OpenMC materials can also be assigned by name:
+::
+
+    CUBIT> group "mat:fuel" add vol 4 to 18
+
+For this example, a material with the name attribute "fuel" must be present in
+OpenMC's ``materials.xml`` file:
+::
+   <materials>
+     <material id="40" name="fuel">
+       <density units="g/cc" value="11" />
+       <nuclide ao="1.0" name="U235" />
+     </material>
+   </materials>
+
+This method for assigning materials is recommended for use with OpenMC as it
+provides a more verbose description of the material definition and purpose.
+
+This method of assignment also allows an easy transition to the UWUW workflow
+for future models. One can embed a PyNE material library in the DAGMC model at
+any point using ``uwuw_preproc`` without modification to the material
+assignments to obtain a working UWUW model, provided that materials with
+corresponding names and appropriate definitions are in the PyNE material
+library.
+
+**Note: material names must be unique in the materials.xml file for this style**
+**of material assignment to work properly.**
 
 Surface boundary conditions
 ----------------------------

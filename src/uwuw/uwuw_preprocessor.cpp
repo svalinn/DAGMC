@@ -152,7 +152,7 @@ void uwuw_preprocessor::process_materials() {
 
     std::string mat_name = dmd->return_property(*s_it, "mat");
     std::string density  = dmd->return_property(*s_it, "rho");
-
+    mat_name = "mat:"+mat_name;
     // find grave or vacuum
     std::size_t found_grave = mat_name.find("Graveyard");
     std::size_t found_vacuum = mat_name.find("Vacuum");
