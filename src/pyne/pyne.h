@@ -252,20 +252,18 @@ class FileNotFound : public std::exception {
 
   /// constructor with the filename \a fname.
   FileNotFound(std::string fname) {
-    filename = fname;
+    FNF_message = "File not found";
+    if (!fname.empty())
+      FNF_message += ": " + fname;
   };
 
   /// Creates a helpful error message.
   virtual const char* what() const throw() {
-    std::string FNFstr("File not found: ");
-    if (!filename.empty())
-      FNFstr += filename;
-
-    return (const char*) FNFstr.c_str();
+    return FNF_message.c_str();
   };
 
  private:
-  std::string filename; ///< unfindable filename.
+  std::string FNF_message; /// Message for exception
 };
 
 /// Exception representing value errors of all kinds
