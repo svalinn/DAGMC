@@ -30,6 +30,14 @@ file(GLOB SRC_FILES
   "Source/src/utils/*.F90"
 )
 
+# PyNE mesh source files
+if (BUILD_MCNP_PYNE_SOURCE)
+  message(STATUS "Building DAG-MCNP6 with PyNE mesh source routine support")
+  # Remove MCNP's source.F90 file
+  list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_LIST_DIR}/Source/src/source.F90")
+  list(APPEND SRC_FILES "pyne_source/source.F90")
+endif ()
+
 # Figure out which version of MCNP we're compiling based on which source files are present
 set(MCNP_VERSION Unknown)
 if ("/${SRC_FILES};" MATCHES "/main.F90;")
@@ -248,7 +256,8 @@ endif ()
 # MPI
 if (BUILD_MCNP_MPI)
   find_package(MPI REQUIRED)
-  file(GLOB SRC_FILES ${SRC_FILES} "Source/dotcomm/*.c")
+  file(GLOB SRC_FILES_MPI "Source/dotcomm/*.c")
+  list(APPEND SRC_FILES ${SRC_FILES_MPI})
   add_definitions(-DVERS="6.mpi")
   add_definitions(-DMPI=ON)
   add_definitions(-D_DOTCOMM_MPI=ON)
