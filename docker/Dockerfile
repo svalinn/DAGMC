@@ -1,4 +1,5 @@
-FROM ubuntu:18.04
+ARG UBUNTU_VERSION=18.04
+FROM ubuntu:${UBUNTU_VERSION}
 
 # Use bash as the default shell
 RUN ln -snf /bin/bash /bin/sh
@@ -14,10 +15,14 @@ RUN apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
                        python-numpy python-pip python-setuptools wget
 
 # Get astyle
-RUN apt-get -y install astyle
-
-
-
+RUN if [ "${UBUNTU_VERSION}" == "18.04" ]; then \
+      apt-get -y install astyle; \
+    else \
+      astyle_deb=astyle_3.1-1ubuntu2_amd64.deb && \
+      wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/${astyle_deb} && \
+      dpkg -i ${astyle_deb} && \
+      rm -f ${astyle_deb}; \
+    fi
 
 # Get some pip packages
 RUN pip install cython sphinx
