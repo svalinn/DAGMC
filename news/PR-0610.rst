@@ -1,6 +1,4 @@
-**Added:**
-
-* A Dockerfile has been added for Ubuntu 18.04.
+**Added:** None
 
 **Changed:**
 
@@ -13,15 +11,21 @@
     This is the version that is default on Ubuntu 18.04.
   * Documentation: the CI will now attempt to build the DAGMC documentation and
     will fail if it finds any errors or warnings.
+* The dockerfile has been modified so that it can be built with both Ubuntu
+  16.04 and 18.04.
+* The docker images have been moved from the cnerg dockerhub organization to the
+  svalinn organization.
 * The new build matrix for the non-housekeeping run is 2x2x2:
   * Ubuntu 16.04 vs. 18.04
   * gcc vs. clang
     * gcc-5.3 on 16.04; gcc-7.3 on 18.04
     * clang-3.8 on 16.04; clang-6.0 on 18.04
-  * MOAB 5.1.0 vs. master
-* The builds that use MOAB master are allowed to fail without the entire CI
-  failing. The CI will show as having passed once the housekeeping build and the
-  four MOAB 5.1.0 builds have passed.
+  * MOAB 5.1.0 vs. master vs. develop
+* The builds that use MOAB master and develop are allowed to fail without the
+  entire CI failing. The CI will show as having passed once the housekeeping
+  build and the four MOAB 5.1.0 builds have passed.
+* The CI will only build against MOAB master and develop during non-pull request
+  builds; i.e. only during push builds and nightlies
 * MOAB 5.1.0 is now included in the docker image so it does not need to be built
   every time the CI is run.
   * This is to save time, since we expect that previous versions of MOAB will
