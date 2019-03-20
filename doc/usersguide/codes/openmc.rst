@@ -18,8 +18,8 @@ Geometry metadata
 The DAGMC geometry file can be used to define material assignments, boundary
 conditions, and temperatures.
 
-Materials
----------
+Material Assignment
+-------------------
 
 The generic workflow description includes details on :ref:`grouping-basics`, but
 a specific naming convention is required for OpenMC. To define materials,
@@ -63,15 +63,18 @@ OpenMC's ``materials.xml`` file:
 This method for assigning materials is recommended for use with OpenMC as it
 provides a more verbose description of the material definition and purpose.
 
-This method of assignment also allows for straighforward model conversion to the
+This method of assignment also allows for straightforward model conversion to the
 UWUW workflow without material assignment modification, re-faceting, or
 re-sealing. To do this one can simply embed a PyNE material library in the
-original .h5m file at any point using ``uwuw_preproc``. No modification to the
+original .h5m file at any point using `uwuw_preproc`. No modification to the
 material assignments is necessary, provided that materials with appropriate
-names and definitions are in the PyNE material library.
+names and definitions are in the PyNE material library. After conversion to a
+UWUW format, the embedded PyNE material library will be used in place of the
+`materials.xml` file.
 
 **Note: material names must be unique in the materials.xml file for this style**
 **of material assignment to work properly.**
+
 
 Surface boundary conditions
 ----------------------------
