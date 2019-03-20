@@ -22,12 +22,24 @@ matrix:
       if: type != pull_request
     - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
       if: type != pull_request
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
   fast_finish: true
   allow_failures:
     - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
     - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
     - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
     - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
 before_install:
   # Set some local variables
   - docker_image=ljacobson64/dagmc-ci-ubuntu-${UBUNTU_VERSION}

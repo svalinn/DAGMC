@@ -4,7 +4,7 @@ set -e
 
 source ${docker_env}
 
-if [[ ${MOAB_VERSION} == "master" ]]; then
+if [ ${MOAB_VERSION} == "master" ] || [ ${MOAB_VERSION} == "develop" ]; then
   branch=${MOAB_VERSION}
 else
   branch=Version${MOAB_VERSION}
