@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:**
+
+* Updated amalgamated pyne
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
