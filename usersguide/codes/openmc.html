@@ -70,7 +70,8 @@
  <div id="sidebar_section"><ul>
 <li><a class="reference internal" href="#">Code-Specific steps for OpenMC</a><ul>
 <li><a class="reference internal" href="#geometry-metadata">Geometry metadata</a><ul>
-<li><a class="reference internal" href="#materials">Materials</a></li>
+<li><a class="reference internal" href="#material-assignment">Material Assignment</a></li>
+<li><a class="reference internal" href="#assigning-materials-by-name-recommended">Assigning Materials by Name (recommended)</a></li>
 <li><a class="reference internal" href="#surface-boundary-conditions">Surface boundary conditions</a></li>
 <li><a class="reference internal" href="#problem-boundary">Problem boundary</a></li>
 <li><a class="reference internal" href="#temperatures">Temperatures</a></li>
@@ -92,7 +93,7 @@
 </div>
 <div class="section" id="code-specific-steps-for-openmc">
 <h1>Code-Specific steps for OpenMC<a class="headerlink" href="#code-specific-steps-for-openmc" title="Permalink to this headline">¶</a></h1>
-<p>There are two varieties of code-specific steps for <a class="reference external" href="https://mit-crpg.github.io/openmc">OpenMC</a>:</p>
+<p>There are two varieties of code-specific steps for <a class="reference external" href="https://openmc.readthedocs.io/en/latest/index.html">OpenMC</a>:</p>
 <ol class="arabic simple">
 <li>Defining attributes of the geometry using Cubit/Trelis groups</li>
 <li>Defining DAGMC runtime parameters using the OpenMC input files</li>
@@ -101,8 +102,8 @@
 <h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
 <p>The DAGMC geometry file can be used to define material assignments, boundary
 conditions, and temperatures.</p>
-<div class="section" id="materials">
-<h3>Materials<a class="headerlink" href="#materials" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="material-assignment">
+<h3>Material Assignment<a class="headerlink" href="#material-assignment" title="Permalink to this headline">¶</a></h3>
 <p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
 a specific naming convention is required for OpenMC. To define materials,
 the material ID must be provided in the group name. The format for the group
@@ -119,6 +120,35 @@ then add them to a group called, “mat:Vacuum”:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:Vacuum&quot; add vol 4 to 18
 </pre></div>
 </div>
+</div>
+<div class="section" id="assigning-materials-by-name-recommended">
+<h3>Assigning Materials by Name (recommended)<a class="headerlink" href="#assigning-materials-by-name-recommended" title="Permalink to this headline">¶</a></h3>
+<p>OpenMC materials can also be assigned by name:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:fuel&quot; add vol 4 to 18
+</pre></div>
+</div>
+<p>For this example, a material with the name attribute “fuel” must be present in
+OpenMC’s <code class="docutils literal notranslate"><span class="pre">materials.xml</span></code> file:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;materials&gt;
+  &lt;material id=&quot;40&quot; name=&quot;fuel&quot;&gt;
+    &lt;density units=&quot;g/cc&quot; value=&quot;11&quot; /&gt;
+    &lt;nuclide ao=&quot;1.0&quot; name=&quot;U235&quot; /&gt;
+  &lt;/material&gt;
+&lt;/materials&gt;
+</pre></div>
+</div>
+<p>This method for assigning materials is recommended for use with OpenMC as it
+provides a more verbose description of the material definition and purpose.</p>
+<p>This method of assignment also allows for straightforward model conversion to the
+UWUW workflow without material assignment modification, re-faceting, or
+re-sealing. To do this one can simply embed a PyNE material library in the
+original .h5m file at any point using <cite>uwuw_preproc</cite>. No modification to the
+material assignments is necessary, provided that materials with appropriate
+names and definitions are in the PyNE material library. After conversion to a
+UWUW format, the embedded PyNE material library will be used in place of the
+<cite>materials.xml</cite> file.</p>
+<p><strong>Note: material names must be unique in the materials.xml file for this style</strong>
+<strong>of material assignment to work properly.</strong></p>
 </div>
 <div class="section" id="surface-boundary-conditions">
 <h3>Surface boundary conditions<a class="headerlink" href="#surface-boundary-conditions" title="Permalink to this headline">¶</a></h3>
@@ -212,10 +242,10 @@ executed.</p>
         &copy; Copyright 2012-2017, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Feb 18, 2019.
+      Last updated on Mar 21, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3.
       </p>
     </div>
   </body>

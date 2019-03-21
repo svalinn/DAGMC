@@ -1,4 +1,4 @@
-..  _OpenMC: https://mit-crpg.github.io/openmc
+..  _OpenMC: https://openmc.readthedocs.io/en/latest/index.html
 
 **Note: OpenMC supports the recommended** :ref:`UWUW`
 
@@ -18,8 +18,8 @@ Geometry metadata
 The DAGMC geometry file can be used to define material assignments, boundary
 conditions, and temperatures.
 
-Materials
----------
+Material Assignment
+-------------------
 
 The generic workflow description includes details on :ref:`grouping-basics`, but
 a specific naming convention is required for OpenMC. To define materials,
@@ -40,6 +40,41 @@ then add them to a group called, "mat:Vacuum":
 ::
 
     CUBIT> group "mat:Vacuum" add vol 4 to 18
+
+
+Assigning Materials by Name (recommended)
+-----------------------------------------
+
+OpenMC materials can also be assigned by name:
+::
+
+    CUBIT> group "mat:fuel" add vol 4 to 18
+
+For this example, a material with the name attribute "fuel" must be present in
+OpenMC's ``materials.xml`` file:
+::
+   <materials>
+     <material id="40" name="fuel">
+       <density units="g/cc" value="11" />
+       <nuclide ao="1.0" name="U235" />
+     </material>
+   </materials>
+
+This method for assigning materials is recommended for use with OpenMC as it
+provides a more verbose description of the material definition and purpose.
+
+This method of assignment also allows for straightforward model conversion to the
+UWUW workflow without material assignment modification, re-faceting, or
+re-sealing. To do this one can simply embed a PyNE material library in the
+original .h5m file at any point using `uwuw_preproc`. No modification to the
+material assignments is necessary, provided that materials with appropriate
+names and definitions are in the PyNE material library. After conversion to a
+UWUW format, the embedded PyNE material library will be used in place of the
+`materials.xml` file.
+
+**Note: material names must be unique in the materials.xml file for this style**
+**of material assignment to work properly.**
+
 
 Surface boundary conditions
 ----------------------------
