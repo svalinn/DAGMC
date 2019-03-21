@@ -1,24 +1,23 @@
 #!/bin/bash
 
-# $1: compiler (gcc-4.8, gcc-5, gcc-6, gcc-7, clang-4.0, clang-5.0)
-
 set -e
 
-source /root/etc/$1.env
-geant4_version=10.04
+source ${docker_env}
 
-mkdir -p ${build_dir}/geant4-${geant4_version}/bld
-rm -rf ${install_dir}/geant4-${geant4_version}
-cd ${build_dir}/geant4-${geant4_version}
+rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
+mkdir -p ${geant4_build_dir}/bld
+cd ${geant4_build_dir}
 wget http://geant4.cern.ch/support/source/geant4.${geant4_version}.tar.gz
 tar -xzvf geant4.${geant4_version}.tar.gz
 ln -snf geant4.${geant4_version} src
 cd bld
 cmake ../src -DBUILD_STATIC_LIBS=ON \
              -DGEANT4_USE_SYSTEM_EXPAT=OFF \
+             -DCMAKE_BUILD_TYPE=Release \
              -DCMAKE_C_COMPILER=${CC} \
              -DCMAKE_CXX_COMPILER=${CXX} \
-             -DCMAKE_INSTALL_PREFIX=${install_dir}/geant4-${geant4_version}
-make -j`grep -c processor /proc/cpuinfo`
+             -DCMAKE_INSTALL_PREFIX=${geant4_install_dir}
+make -j${jobs}
 make install
-rm -rf ${build_dir}/geant4-${geant4_version}
+cd
+rm -rf ${geant4_build_dir}

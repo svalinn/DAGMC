@@ -2,22 +2,17 @@
 
 set -e
 
-ASTYLE_ONLY=$1
-COMPILER=$2
-MOAB_VERSION=$3
-BUILD_GEANT4=$4
+source ${docker_env}
 
-if [ "${ASTYLE_ONLY}" == "ON" ]; then
-  exit 0
+cd ${dagmc_build_dir}/DAGMC
+
+# Only build MOAB master and develop; v5.1.0 is already in the docker image
+if [ "${MOAB_VERSION}" == "master" ] || [ "${MOAB_VERSION}" == "develop" ]; then
+  docker/build_moab.sh
 fi
 
-cd /root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}/DAGMC
-
-# Build MOAB
-bash docker/build_moab.sh ${COMPILER} ${MOAB_VERSION}
-
 # Build DAGMC (shared executables)
-bash docker/build_dagmc.sh ${COMPILER} OFF ${MOAB_VERSION} ${BUILD_GEANT4}
+build_static_exe=OFF docker/build_dagmc.sh
 
 # Build DAGMC (static executables)
-bash docker/build_dagmc.sh ${COMPILER} ON ${MOAB_VERSION} ${BUILD_GEANT4}
+build_static_exe=ON docker/build_dagmc.sh

@@ -10,7 +10,7 @@ dagmc_install_test(make_watertight_cylinder_tests        cpp)
 dagmc_install_test(make_watertight_cone_tests            cpp)
 dagmc_install_test(make_watertight_no_curve_sphere_tests cpp)
 dagmc_install_test(make_watertight_sphere_n_box_test     cpp)
-if (BUILD_CI_TESTS)
+if (BUILD_MW_REG_TESTS)
   dagmc_install_test(make_watertight_regression_tests      cpp)
 endif ()
 

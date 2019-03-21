@@ -1,49 +1,47 @@
-FROM ubuntu:16.04
+ARG UBUNTU_VERSION=18.04
+FROM ubuntu:${UBUNTU_VERSION}
 
 # Use bash as the default shell
 RUN ln -snf /bin/bash /bin/sh
 
+# Update core packages
 RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get -y dist-upgrade
 
-# Get some common utils
-RUN apt-get -y install build-essential software-properties-common
+# Get some apt packages
+RUN apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
+                       libhdf5-dev liblapack-dev libpython2.7-dev libtool \
+                       python-numpy python-pip python-setuptools wget
 
-# Add the GCC repo
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test
-RUN apt-get -y update
+# Get astyle
+RUN if [ "${UBUNTU_VERSION}" == "18.04" ]; then \
+      apt-get -y install astyle; \
+    else \
+      astyle_deb=astyle_3.1-1ubuntu2_amd64.deb && \
+      wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/${astyle_deb} && \
+      dpkg -i ${astyle_deb} && \
+      rm -f ${astyle_deb}; \
+    fi
 
-# Get the GNU compilers
-RUN apt-get -y install gcc-4.8 g++-4.8 gfortran-4.8
-RUN apt-get -y install gcc-5   g++-5   gfortran-5
-RUN apt-get -y install gcc-6   g++-6   gfortran-6
-RUN apt-get -y install gcc-7   g++-7   gfortran-7
+# Get some pip packages
+RUN pip install cython sphinx
 
-# Get the Clang compilers
-RUN apt-get -y install clang-4.0
-RUN apt-get -y install clang-5.0
-
-# Get some more specific utils
-RUN apt-get -y install autoconf cmake gfortran git libtool unzip wget
-RUN apt-get -y install libblas-dev libexpat-dev libhdf5-dev liblapack-dev libz-dev
-
-# Copy the environment variable and build instruction files
+# Copy scripts to docker image
 RUN mkdir -p /root/etc/
-COPY *.env /root/etc/
+COPY build_hdf5.sh build_geant4.sh build_moab.sh env.sh /root/etc/
+ENV docker_env=/root/etc/env.sh
 
 # Build HDF5
-COPY build_hdf5.sh /root/etc/
-RUN bash /root/etc/build_hdf5.sh gcc-4.8
-RUN bash /root/etc/build_hdf5.sh gcc-5
-RUN bash /root/etc/build_hdf5.sh gcc-6
-RUN bash /root/etc/build_hdf5.sh gcc-7
-RUN bash /root/etc/build_hdf5.sh clang-4.0
-RUN bash /root/etc/build_hdf5.sh clang-5.0
+RUN COMPILER=gcc   HDF5_VERSION=1.10.4 /root/etc/build_hdf5.sh
+RUN COMPILER=clang HDF5_VERSION=1.10.4 /root/etc/build_hdf5.sh
 
 # Build Geant4
-COPY build_geant4.sh /root/etc/
-RUN bash /root/etc/build_geant4.sh gcc-7
-RUN bash /root/etc/build_geant4.sh clang-5.0
+RUN COMPILER=gcc   /root/etc/build_geant4.sh
+RUN COMPILER=clang /root/etc/build_geant4.sh
 
-CMD ["bash"]
+# Build MOAB 5.1.0
+RUN COMPILER=gcc   HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
+RUN COMPILER=clang HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
+RUN COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/build_moab.sh
+RUN COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/build_moab.sh

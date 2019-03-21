@@ -184,11 +184,19 @@ C++ Style
 ~~~~~~~~~
 
 DAGMC conforms to the Google C++ style guide. We use the Astyle_ code formatter
-to make developers' lives easier. Here is how to install Astyle on Ubuntu:
+to make developers' lives easier. Here is how to install Astyle on Ubuntu 18.04:
 ::
 
-    $ wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/+files/astyle_3.0.1-1ubuntu1_amd64.deb
-    $ sudo dpkg -i astyle_3.0.1-1ubuntu1_amd64.deb
+    $ sudo apt install astyle
+
+If you are using a distribution of Linux other than Ubuntu 18.04, you may need
+to acquire astyle manually. This is because DAGMC requires astyle version 3, and
+not all distributions have easy access to astyle 3. This is the recommended way
+to get astyle on other versions of Ubuntu, i.e. 16.04:
+::
+
+    $ wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/astyle_3.1-1ubuntu2_amd64.deb
+    $ sudo dpkg -i astyle_3.1-1ubuntu2_amd64.deb
 
 When you have added all the features you want to add, the style guide formatter
 should be run from the base level directory of the DAGMC repository like this:
@@ -216,6 +224,7 @@ If you find a bug, raise an issue on the main `svalinn/DAGMC <DAGMC_issues_>`_
 Github site. If you think you can tackle the issue yourself then please do so,
 then pull request your changes.
 
+..  _Astyle: http://astyle.sourceforge.net
 ..  _DAGMC_source: https://github.com/svalinn/DAGMC
 ..  _DAGMC_issues: https://github.com/svalinn/DAGMC/issues
 ..  _Google_test: https://code.google.com/p/googletest

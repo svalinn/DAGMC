@@ -1,34 +1,31 @@
 #!/bin/bash
 
-# $1: compiler (gcc-4.8, gcc-5, gcc-6, gcc-7, clang-4.0, clang-5.0)
-# $2: moab version (5.1.0, master)
-
 set -e
 
-source /root/etc/$1.env
-moab_version=$2
-hdf5_version=1.8.13
+source ${docker_env}
 
-mkdir -p ${build_dir}/moab-${moab_version}/bld
-rm -rf ${install_dir}/moab-${moab_version}
-cd ${build_dir}/moab-${moab_version}
-if [[ ${moab_version} == "master" ]]; then
-  git clone https://bitbucket.org/fathomteam/moab -b ${moab_version}
+if [ ${MOAB_VERSION} == "master" ] || [ ${MOAB_VERSION} == "develop" ]; then
+  branch=${MOAB_VERSION}
 else
-  git clone https://bitbucket.org/fathomteam/moab -b Version${moab_version}
+  branch=Version${MOAB_VERSION}
 fi
+
+rm -rf ${moab_build_dir}/bld ${moab_install_dir}
+mkdir -p ${moab_build_dir}/bld
+cd ${moab_build_dir}
+git clone https://bitbucket.org/fathomteam/moab -b ${branch}
 ln -snf moab src
 cd moab
 autoreconf -fi
 cd ../bld
-../src/configure --enable-dagmc \
-                 --disable-ahf \
+../src/configure --enable-pymoab \
                  --enable-shared \
                  --enable-optimize \
                  --disable-debug \
-                 --with-hdf5=${install_dir}/hdf5-${hdf5_version} \
-                 --prefix=${install_dir}/moab-${moab_version} \
+                 --with-hdf5=${hdf5_install_dir} \
+                 --prefix=${moab_install_dir} \
                  CC=${CC} CXX=${CXX} FC=${FC}
-make -j`grep -c processor /proc/cpuinfo`
+make -j${jobs}
 make install
-rm -rf ${build_dir}/moab-${moab_version}
+cd
+rm -rf ${moab_build_dir}

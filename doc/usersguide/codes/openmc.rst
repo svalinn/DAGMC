@@ -53,6 +53,7 @@ OpenMC materials can also be assigned by name:
 For this example, a material with the name attribute "fuel" must be present in
 OpenMC's ``materials.xml`` file:
 ::
+
    <materials>
      <material id="40" name="fuel">
        <density units="g/cc" value="11" />

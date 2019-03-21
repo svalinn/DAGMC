@@ -5,41 +5,77 @@ notifications:
     recipients:
       - dagmcci@googlegroups.com
   slack: cnerg:d48My26ZXfvHlg0On2WwNQFi
-env:
-  matrix:
-    # astyle only
-    - ASTYLE_ONLY="ON"
-    # main
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-7"     MOAB_VERSION="5.1.0"  BUILD_GEANT4="ON"
-    - ASTYLE_ONLY="OFF" COMPILER="clang-5.0" MOAB_VERSION="5.1.0"  BUILD_GEANT4="ON"
-    # vary moab version
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-7"     MOAB_VERSION="master" BUILD_GEANT4="ON"
-    - ASTYLE_ONLY="OFF" COMPILER="clang-5.0" MOAB_VERSION="master" BUILD_GEANT4="ON"
-    # vary compiler
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-4.8"   MOAB_VERSION="5.1.0"  BUILD_GEANT4="OFF"
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-5"     MOAB_VERSION="5.1.0"  BUILD_GEANT4="OFF"
-    - ASTYLE_ONLY="OFF" COMPILER="gcc-6"     MOAB_VERSION="5.1.0"  BUILD_GEANT4="OFF"
-    - ASTYLE_ONLY="OFF" COMPILER="clang-4.0" MOAB_VERSION="5.1.0"  BUILD_GEANT4="OFF"
 services:
   - docker
+matrix:
+  include:
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=true  COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+      if: type != pull_request
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
+      if: type != pull_request
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+      if: type != pull_request
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
+      if: type != pull_request
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      if: type != pull_request
+  fast_finish: true
+  allow_failures:
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+    - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+    - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=false COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
 before_install:
-  - sudo docker pull cnerg/dagmc-ci-ubuntu-16.04
-  # get a container id
-  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root"
-  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  # make the build directory
-  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "mkdir -p /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION"
-  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id cnerg/dagmc-ci-ubuntu-16.04
-  # copy the repo in the docker instance
-  - sudo docker cp ../DAGMC $commit_id:/root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION
-  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id cnerg/dagmc-ci-ubuntu-16.04
+  # Set some local variables
+  - docker_image=svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
+  - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
+  - script_dir=${dagmc_build_dir}/DAGMC/docker
+  - docker_env=${script_dir}/env.sh
+  - travis_env=~/travis_env
+  # Create a file which contains variables needed by Docker
+  - |
+    printf "COMPILER=${COMPILER}
+    HDF5_VERSION=${HDF5_VERSION}
+    MOAB_VERSION=${MOAB_VERSION}
+    TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
+    TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
+    docker_env=${docker_env}" > ${travis_env}
+  # Get the docker image
+  - docker pull ${docker_image}
+  # Make the build directory
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "mkdir -p ${dagmc_build_dir}"
+  - commit_id=$(docker ps -lq | tail -n1)
+  - docker commit ${commit_id} ${docker_image}
+  # Copy the repo in the docker instance
+  - docker cp ../DAGMC ${commit_id}:${dagmc_build_dir}
+  - commit_id=$(docker ps -lq | tail -n1)
+  - docker commit ${commit_id} ${docker_image}
 install:
-  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
-                                                                    bash docker/travis.install.sh $ASTYLE_ONLY $COMPILER $MOAB_VERSION $BUILD_GEANT4"
-  - commit_id=$(sudo docker ps -l | tail -n1 | awk '{print $1}')
-  - sudo docker commit $commit_id cnerg/dagmc-ci-ubuntu-16.04
+  # Build DAGMC
+  - if [ "${HOUSEKEEPING_ONLY}" == "false" ]; then
+      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+    fi
+  - commit_id=$(docker ps -lq | tail -n1)
+  - docker commit ${commit_id} ${docker_image}
 script:
-  - sudo docker run cnerg/dagmc-ci-ubuntu-16.04 /bin/bash -c "cd /root/build/$COMPILER/DAGMC-moab-$MOAB_VERSION/DAGMC;
-                                                                    bash docker/travis.script.sh $ASTYLE_ONLY $COMPILER $MOAB_VERSION $BUILD_GEANT4"
+  # Run tests
+  - if [ "${HOUSEKEEPING_ONLY}" == "true" ]; then
+      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
+    else
+      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
+    fi
