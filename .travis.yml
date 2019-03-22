@@ -54,6 +54,7 @@ before_install:
     MOAB_VERSION=${MOAB_VERSION}
     TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
     TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
+    MW_REG_TEST_MODELS_URL=${MW_REG_TEST_MODELS_URL}
     docker_env=${docker_env}" > ${travis_env}
   # Get the docker image
   - docker pull ${docker_image}
