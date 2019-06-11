@@ -41,4 +41,17 @@ If the build was successful, the binaries, libraries, header files, and tests
 will be installed to the ``bin``, ``lib``, ``include``, and ``tests``
 subdirectories of ``$INSTALL_PATH`` respectively.
 
+Finally, ensure that the DagMC library is in your ``$LD_LIBRARY_PATH``
+::
+
+   $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/dagmc/lib
+
+Installing OpenMC with DagMC geometry enabled
+---------------------------------------------
+
+To install OpenMC with support for DagMC please refer to OpenMC's installation
+from source instructions `here <OpenMCInstallFromSource_>`_.
+
+..  _OpenMCInstallFromSource: https://openmc.readthedocs.io/en/latest/usersguide/install.html?#installing-from-source
+
 ..  include:: test_dagmc.txt
