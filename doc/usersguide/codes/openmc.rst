@@ -1,4 +1,4 @@
-..  _OpenMC: https://openmc.readthedocs.io/en/latest/index.html
+..  _OpenMC: https://docs.openmc.org/en/latest/index.html
 
 **Note: OpenMC supports the recommended** :ref:`UWUW`
 

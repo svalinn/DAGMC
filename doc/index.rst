@@ -55,5 +55,5 @@ materials and other geometry-related information.
 ..  _Tripoli4: https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html
 ..  _Shift: http://web.ornl.gov/sci/nsed/rnsd/rt
 ..  _Serpent2: http://montecarlo.vtt.fi
-..  _OpenMC: https://openmc.readthedocs.io/en/latest/index.html
+..  _OpenMC: https://docs.openmc.org/en/latest/index.html
 ..  _Phits: http://phits.jaea.go.jp
