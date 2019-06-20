@@ -236,10 +236,17 @@ to isolate exactly which type is being referenced.</p>
 </div>
 <div class="section" id="c-style">
 <h2>C++ Style<a class="headerlink" href="#c-style" title="Permalink to this headline">¶</a></h2>
-<p>DAGMC conforms to the Google C++ style guide. We use the <a href="#id1"><span class="problematic" id="id2">Astyle_</span></a> code formatter
-to make developers’ lives easier. Here is how to install Astyle on Ubuntu:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ wget https://launchpad.net/ubuntu/+source/astyle/3.0.1-1ubuntu1/+build/13700883/+files/astyle_3.0.1-1ubuntu1_amd64.deb
-$ sudo dpkg -i astyle_3.0.1-1ubuntu1_amd64.deb
+<p>DAGMC conforms to the Google C++ style guide. We use the <a class="reference external" href="http://astyle.sourceforge.net">Astyle</a> code formatter
+to make developers’ lives easier. Here is how to install Astyle on Ubuntu 18.04:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo apt install astyle
+</pre></div>
+</div>
+<p>If you are using a distribution of Linux other than Ubuntu 18.04, you may need
+to acquire astyle manually. This is because DAGMC requires astyle version 3, and
+not all distributions have easy access to astyle 3. This is the recommended way
+to get astyle on other versions of Ubuntu, i.e. 16.04:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/astyle_3.1-1ubuntu2_amd64.deb
+$ sudo dpkg -i astyle_3.1-1ubuntu2_amd64.deb
 </pre></div>
 </div>
 <p>When you have added all the features you want to add, the style guide formatter
@@ -276,13 +283,13 @@ then pull request your changes.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2017, The UW CNERG Team.
+        &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Mar 21, 2019.
+      Last updated on Jun 20, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
       </p>
     </div>
   </body>

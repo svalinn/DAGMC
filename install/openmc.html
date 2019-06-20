@@ -72,6 +72,7 @@
 <li><a class="reference internal" href="#get-dagmc">Get DAGMC</a></li>
 <li><a class="reference internal" href="#configure-dag-code">Configure DAGMC</a><ul>
 <li><a class="reference internal" href="#installing-dagmc-as-a-dependency-of-openmc">Installing DAGMC as a dependency of OpenMC</a></li>
+<li><a class="reference internal" href="#installing-openmc-with-dagmc-geometry-enabled">Installing OpenMC with DagMC geometry enabled</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#test-dagmc">Test DAGMC</a></li>
@@ -141,6 +142,15 @@ $ make install
 <p>If the build was successful, the binaries, libraries, header files, and tests
 will be installed to the <code class="docutils literal notranslate"><span class="pre">bin</span></code>, <code class="docutils literal notranslate"><span class="pre">lib</span></code>, <code class="docutils literal notranslate"><span class="pre">include</span></code>, and <code class="docutils literal notranslate"><span class="pre">tests</span></code>
 subdirectories of <code class="docutils literal notranslate"><span class="pre">$INSTALL_PATH</span></code> respectively.</p>
+<p>Finally, ensure that the DagMC library is in your <code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/dagmc/lib
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-openmc-with-dagmc-geometry-enabled">
+<h3>Installing OpenMC with DagMC geometry enabled<a class="headerlink" href="#installing-openmc-with-dagmc-geometry-enabled" title="Permalink to this headline">¶</a></h3>
+<p>To install OpenMC with support for DagMC please refer to OpenMC’s installation
+from source instructions <a class="reference external" href="https://openmc.readthedocs.io/en/latest/usersguide/install.html?#installing-from-source">here</a>.</p>
 </div>
 </div>
 <div class="section" id="test-dagmc">
@@ -162,13 +172,13 @@ for more information.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2017, The UW CNERG Team.
+        &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Mar 21, 2019.
+      Last updated on Jun 20, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
       </p>
     </div>
   </body>
