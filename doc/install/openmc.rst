@@ -24,9 +24,9 @@ Installing DAGMC as a dependency of OpenMC
 
 From the build directory, run::
 
-    $ cmake .. -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
-               -DBUILD_TALLY=ON \
-               -DCMAKE_INSTALL_PATH=$INSTALL_PATH
+    $ cmake ../src -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
+                   -DBUILD_TALLY=ON \
+                   -DCMAKE_INSTALL_PATH=$INSTALL_PATH
 
 If the CMake configuration proceeded successfully, you are now ready to install
 DAGMC.
