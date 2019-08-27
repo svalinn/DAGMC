@@ -5,6 +5,7 @@ First, create and enter the build directory.
 ::
 
     $ cd $HOME/dagmc_bld/DAGMC
+    $ ln -s DAGMC src
     $ mkdir bld
     $ cd bld
 

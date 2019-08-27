@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:**
+
+* Fix error in documentation where cmake was not pointing to the DAGMC source dir as it should
+
+**Security:** None
