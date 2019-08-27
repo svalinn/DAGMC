@@ -1,12 +1,10 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Understanding ray history state in DAG-MCNP5/6 &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -92,11 +90,11 @@ ray-to-boundary method, and in particular, the different states of the
 physics code during these uses cases, this document will itemize these
 cases for MCNP.</p>
 <ol class="arabic simple">
-<li>(hstory.F90): non-forced collision neutral particle transport</li>
-<li>(hstory.F90): forced collision neutral particle transport</li>
-<li>(tally.F90): tracking to tally segmenting surface (not relevant for DAGMC)</li>
-<li>(transm.F90): optical thickness of material for point detector/dxtran</li>
-<li>(electr.F90): electron substep transport  (also in the updated electron_history.F90)</li>
+<li><p>(hstory.F90): non-forced collision neutral particle transport</p></li>
+<li><p>(hstory.F90): forced collision neutral particle transport</p></li>
+<li><p>(tally.F90): tracking to tally segmenting surface (not relevant for DAGMC)</p></li>
+<li><p>(transm.F90): optical thickness of material for point detector/dxtran</p></li>
+<li><p>(electr.F90): electron substep transport  (also in the updated electron_history.F90)</p></li>
 </ol>
 </div>
 <div class="section" id="mapping-the-possible-ray-history-states">
@@ -107,16 +105,14 @@ cases for MCNP.</p>
                          &amp;history, (use_dist_limit ? dist_limit : 0 ) )
 </pre></div>
 </div>
-<dl class="docutils">
-<dt>There are 2 circumstances that reset a ray history:</dt>
-<dd><ul class="first last simple">
-<li>particle history termination</li>
-<li><dl class="first docutils">
-<dt>a change in direction other than reflection</dt>
-<dd><ul class="first last">
-<li>note that during reflection, the previous direction is changed
+<dl class="simple">
+<dt>There are 2 circumstances that reset a ray history:</dt><dd><ul class="simple">
+<li><p>particle history termination</p></li>
+<li><dl class="simple">
+<dt>a change in direction other than reflection</dt><dd><ul>
+<li><p>note that during reflection, the previous direction is changed
 to make it look like a boundary crossing/streaming event
-(dagmc_surf_reflection)</li>
+(dagmc_surf_reflection)</p></li>
 </ul>
 </dd>
 </dl>
@@ -131,27 +127,25 @@ erasing the tail except for the last facet.</p>
 <div class="section" id="other-history-state-variables">
 <h2>Other history state variables<a class="headerlink" href="#other-history-state-variables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>visited_surface (bool)</dt>
-<dd><ul class="first last">
-<li>turned on when a surface interaction is handled either in surface crossing or reflection</li>
-<li>turned off immediately following the next ray fire</li>
+<li><dl class="simple">
+<dt>visited_surface (bool)</dt><dd><ul>
+<li><p>turned on when a surface interaction is handled either in surface crossing or reflection</p></li>
+<li><p>turned off immediately following the next ray fire</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>last_uvw (unit direction vector)</dt>
-<dd><ul class="first last">
-<li>set during reflection to spoof a surface crossing</li>
-<li>set following every ray fire to record direction of last ray_fire</li>
-<li>note: not reset for each history because is not used until after
-the first ray_fire in each history</li>
+<li><dl class="simple">
+<dt>last_uvw (unit direction vector)</dt><dd><ul>
+<li><p>set during reflection to spoof a surface crossing</p></li>
+<li><p>set following every ray fire to record direction of last ray_fire</p></li>
+<li><p>note: not reset for each history because is not used until after
+the first ray_fire in each history</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li>last_nps (int)</li>
+<li><p>last_nps (int)</p></li>
 </ul>
 </div>
 </div>
@@ -167,10 +161,10 @@ the first ray_fire in each history</li>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 20, 2019.
+      Last updated on Aug 26, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
       </p>
     </div>
   </body>

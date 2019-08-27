@@ -1,12 +1,10 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>DAGMC CMake variables &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -81,42 +79,42 @@
 Note that unless set, all boolean options default to <code class="docutils literal notranslate"><span class="pre">OFF</span></code>.</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">-DMOAB_DIR=/path/to/moab</span></code> Path to MOAB.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP5=ON</span></code> Build DAG-MCNP5. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP6=ON</span></code> Build DAG-MCNP6. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DMCNP5_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
+<li><p><code class="docutils literal notranslate"><span class="pre">-DMOAB_DIR=/path/to/moab</span></code> Path to MOAB.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP5=ON</span></code> Build DAG-MCNP5. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP6=ON</span></code> Build DAG-MCNP6. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DMCNP5_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
 executable will look for nuclear data. If this variable is not set, it
 will look for the data in the location specified by the <code class="docutils literal notranslate"><span class="pre">$DATAPATH</span></code>
-environment variable instead.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DMCNP6_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
+environment variable instead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DMCNP6_DATAPATH=/path/to/mcnp/data</span></code> Set the path where the DAG-MCNP5
 executable will look for nuclear data. If this variable is not set, it
 will look for the data in the location specified by the <code class="docutils literal notranslate"><span class="pre">$DATAPATH</span></code>
-environment variable instead.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_PLOT=ON</span></code> Enable DAG-MCNP5/6 plotting capability. (Default:
-OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_MPI=ON</span></code> If building DAG-MCNP5/6, build MPI versions.
-(Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_PYNE_SOURCE=ON</span></code> If building DAG-MCNP5/6, build with PyNE
-mesh source routine support. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_FLUKA=ON</span></code> Build FluDAG and the fludag library. If this option
-is turned on, <code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR</span></code> must also be specified. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR=/path/to/fluka</span></code> Set the path to Fluka. It should typically
-be set to the <code class="docutils literal notranslate"><span class="pre">$FLUPRO</span></code> environment variable.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_GEANT4=ON</span></code> Build DAG-Geant4 and the DagSolid library. If this
-option is turned on, <code class="docutils literal notranslate"><span class="pre">-DGEANT4_DIR</span></code> must be specified. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DGEANT4_DIR=/path/to/geant4</span></code> Set the path to Geant4.</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_TALLY=ON</span></code> Build the DagTally interface. (Default: ON)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_BUILD_OBB=ON</span></code> Build the build_obb tool. (Default: ON)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_MAKE_WATERTIGHT=ON</span></code> Build the make_watertight tool. (Default:
-ON)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_TESTS=ON</span></code> Build unit tests where appropriate. (Default: ON)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_CI_TESTS=ON</span></code> Build everything needed to run the continuous
-integration tests. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_SHARED_LIBS=ON</span></code> Build shared libraries. (Default: ON)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_STATIC_LIBS=ON</span></code> Build static libraries. (Default: ON)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_STATIC_EXE=ON</span></code> Build static executables. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_PIC=ON</span></code> Build with position-independent code. (Default: OFF)</li>
-<li><code class="docutils literal notranslate"><span class="pre">-DBUILD_RPATH=ON</span></code> Build with RPATH functionality. (Default: ON)</li>
+environment variable instead.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_PLOT=ON</span></code> Enable DAG-MCNP5/6 plotting capability. (Default:
+OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_MPI=ON</span></code> If building DAG-MCNP5/6, build MPI versions.
+(Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_MCNP_PYNE_SOURCE=ON</span></code> If building DAG-MCNP5/6, build with PyNE
+mesh source routine support. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_FLUKA=ON</span></code> Build FluDAG and the fludag library. If this option
+is turned on, <code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR</span></code> must also be specified. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DFLUKA_DIR=/path/to/fluka</span></code> Set the path to Fluka. It should typically
+be set to the <code class="docutils literal notranslate"><span class="pre">$FLUPRO</span></code> environment variable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_GEANT4=ON</span></code> Build DAG-Geant4 and the DagSolid library. If this
+option is turned on, <code class="docutils literal notranslate"><span class="pre">-DGEANT4_DIR</span></code> must be specified. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DGEANT4_DIR=/path/to/geant4</span></code> Set the path to Geant4.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_TALLY=ON</span></code> Build the DagTally interface. (Default: ON)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_BUILD_OBB=ON</span></code> Build the build_obb tool. (Default: ON)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_MAKE_WATERTIGHT=ON</span></code> Build the make_watertight tool. (Default:
+ON)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_TESTS=ON</span></code> Build unit tests where appropriate. (Default: ON)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_CI_TESTS=ON</span></code> Build everything needed to run the continuous
+integration tests. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_SHARED_LIBS=ON</span></code> Build shared libraries. (Default: ON)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_STATIC_LIBS=ON</span></code> Build static libraries. (Default: ON)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_STATIC_EXE=ON</span></code> Build static executables. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_PIC=ON</span></code> Build with position-independent code. (Default: OFF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-DBUILD_RPATH=ON</span></code> Build with RPATH functionality. (Default: ON)</p></li>
 </ul>
 </div></blockquote>
 </div>
@@ -132,10 +130,10 @@ integration tests. (Default: OFF)</li>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 20, 2019.
+      Last updated on Aug 26, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
       </p>
     </div>
   </body>

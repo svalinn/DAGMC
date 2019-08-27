@@ -1,12 +1,10 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Code-specific steps for FluDAG &#8212; DAGMC</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -89,11 +87,11 @@
 <h1>Code-specific steps for FluDAG<a class="headerlink" href="#code-specific-steps-for-fludag" title="Permalink to this headline">¶</a></h1>
 <p>There are several varieties of code-specific steps:</p>
 <ol class="arabic simple">
-<li>Defining attributes of the geometry using groups in Cubit/Trelis</li>
-<li>Producing material assignments in FLUKA input format from the h5m file, with
-the help of FluDAG</li>
-<li>Preparing the FLUKA input file for running with DAGMC</li>
-<li>Inserting the material assignments into the FLUKA input deck</li>
+<li><p>Defining attributes of the geometry using groups in Cubit/Trelis</p></li>
+<li><p>Producing material assignments in FLUKA input format from the h5m file, with
+the help of FluDAG</p></li>
+<li><p>Preparing the FLUKA input file for running with DAGMC</p></li>
+<li><p>Inserting the material assignments into the FLUKA input deck</p></li>
 </ol>
 <div class="section" id="geometry-metadata">
 <h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
@@ -135,15 +133,14 @@ belong to a group whose material name is STAINLESS then we can can use</p>
 ASSIGNMA    STAINLES         6
 </pre></div>
 </div>
-<dl class="docutils">
-<dt>Some notes:</dt>
-<dd><ul class="first last simple">
-<li>Material names longer than 8 characters are truncated to the first 8
-characters.</li>
-<li>There are several predefined material names in FLUKA, and they are
-appropriately treated by FluDAG.</li>
-<li>All volumes must belong to a group. If any are not, FluDAG will not assign
-material information for them.</li>
+<dl class="simple">
+<dt>Some notes:</dt><dd><ul class="simple">
+<li><p>Material names longer than 8 characters are truncated to the first 8
+characters.</p></li>
+<li><p>There are several predefined material names in FLUKA, and they are
+appropriately treated by FluDAG.</p></li>
+<li><p>All volumes must belong to a group. If any are not, FluDAG will not assign
+material information for them.</p></li>
 </ul>
 </dd>
 </dl>
@@ -251,10 +248,10 @@ geometry file to a fixed file called <code class="docutils literal notranslate">
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 20, 2019.
+      Last updated on Aug 26, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
       </p>
     </div>
   </body>

@@ -1,12 +1,10 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Producing solid models for DAGMC using Cubit/Trelis &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -91,11 +89,9 @@ looks like that shown in the Figure below.</p>
 <a class="reference internal image-reference" href="../_images/general_workflow.png"><img alt="The general workflow for producing quality CAD for DAGMC models." src="../_images/general_workflow.png" style="height: 400px;" /></a>
 <p>The general workflow for the production of DAGMC models is the following:</p>
 <ol class="arabic">
-<li><p class="first">Ensure that units/sizes for DAGMC models are “cm”</p>
-</li>
-<li><p class="first">Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)</p>
-</li>
-<li><p class="first">Inspect and resolve overlapping volumes, you may need to scale the model up
+<li><p>Ensure that units/sizes for DAGMC models are “cm”</p></li>
+<li><p>Remove excessive detail (typically threads on bolts, combine washer stacks, etc.)</p></li>
+<li><p>Inspect and resolve overlapping volumes, you may need to scale the model up
 to detect these</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; validate vol all
 CUBIT&gt; autoheal problem vols
@@ -105,11 +101,9 @@ CUBIT&gt; autoheal problem vols
 </ol>
 <p><strong>Other tools:</strong></p>
 <ul>
-<li><p class="first">Regularize may be needed (simplifies by removing splines, but will reverse imprint operation)</p>
-</li>
-<li><dl class="first docutils">
-<dt>Check and possibly remove negligibly small curves, surfaces, and volumes. (check “hydraulic” length and “regular” length)</dt>
-<dd><div class="first last highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;smallsurfaces&quot; add surface with area &lt; 1.e-3
+<li><p>Regularize may be needed (simplifies by removing splines, but will reverse imprint operation)</p></li>
+<li><dl>
+<dt>Check and possibly remove negligibly small curves, surfaces, and volumes. (check “hydraulic” length and “regular” length)</dt><dd><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;smallsurfaces&quot; add surface with area &lt; 1.e-3
 CUBIT&gt; group &quot;smallcurves&quot; add curve with length &lt; 1.e-4
 CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 </pre></div>
@@ -119,12 +113,12 @@ CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 </li>
 </ul>
 <ol class="arabic" start="4">
-<li><p class="first">Create pre-imprint/merge table of volume of volumes, and then imprint</p>
+<li><p>Create pre-imprint/merge table of volume of volumes, and then imprint</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; imprint body all
 </pre></div>
 </div>
 </li>
-<li><p class="first">Merge model, in Cubit</p>
+<li><p>Merge model, in Cubit</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; merge all
 </pre></div>
 </div>
@@ -133,37 +127,34 @@ CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 </pre></div>
 </div>
 </li>
-<li><p class="first">Validate model, in Cubit</p>
+<li><p>Validate model, in Cubit</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; validate vol all
 </pre></div>
 </div>
 <ul class="simple">
-<li>re-check for overlapping volumes and now also check for overlapping surfaces</li>
-<li>create post imprint/merge table of volume of volumes (use volofvolcubit.py)</li>
-<li>compare pre and post-imprint/merge model volume of volumes</li>
-<li>inspect volumes in pre-imprint model with significant change in volume</li>
-<li>re-check for small areas, curves, volumes</li>
-<li>any problems in these steps repair volumes in pre-imprint model and go back to step 3</li>
+<li><p>re-check for overlapping volumes and now also check for overlapping surfaces</p></li>
+<li><p>create post imprint/merge table of volume of volumes (use volofvolcubit.py)</p></li>
+<li><p>compare pre and post-imprint/merge model volume of volumes</p></li>
+<li><p>inspect volumes in pre-imprint model with significant change in volume</p></li>
+<li><p>re-check for small areas, curves, volumes</p></li>
+<li><p>any problems in these steps repair volumes in pre-imprint model and go back to step 3</p></li>
 </ul>
 </li>
-<li><p class="first">Facet model</p>
+<li><p>Facet model</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &quot;geom.h5m&quot; faceting_tolerance 1.0e-4
 </pre></div>
 </div>
 </li>
-<li><p class="first">Seal model if possible (use <a class="reference external" href="tools.html#make-watertight">make_watertight</a>)</p>
-</li>
-<li><p class="first">Flood and/or transport particles in model</p>
-</li>
-<li><p class="first">If lost particles or leaky:</p>
+<li><p>Seal model if possible (use <a class="reference external" href="tools.html#make-watertight">make_watertight</a>)</p></li>
+<li><p>Flood and/or transport particles in model</p></li>
+<li><p>If lost particles or leaky:</p>
 <ul class="simple">
-<li>examine lost locations (use <a class="reference external" href="tools.html#mklostvis">mklostvis.pl</a>)</li>
-<li>examine “leaks”/tunneling (can use a mesh tally to locate)</li>
-<li>repair the pre-imprint/merge model (go to step 2)</li>
+<li><p>examine lost locations (use <a class="reference external" href="tools.html#mklostvis">mklostvis.pl</a>)</p></li>
+<li><p>examine “leaks”/tunneling (can use a mesh tally to locate)</p></li>
+<li><p>repair the pre-imprint/merge model (go to step 2)</p></li>
 </ul>
 </li>
-<li><p class="first">If no lost particles or leaks, then the model is ready for transport</p>
-</li>
+<li><p>If no lost particles or leaks, then the model is ready for transport</p></li>
 </ol>
 <div class="section" id="preparing-solid-models">
 <h2>Preparing solid models<a class="headerlink" href="#preparing-solid-models" title="Permalink to this headline">¶</a></h2>
@@ -173,8 +164,8 @@ about the choice of solid modeling system is the ability to export to
 a format that can be imported by Trelis or Cubit, in particular:</p>
 <blockquote>
 <div><ul class="simple">
-<li>ACIS (*.sat)</li>
-<li>STEP (*.stp, *.step, etc)</li>
+<li><p>ACIS (*.sat)</p></li>
+<li><p>STEP (*.stp, *.step, etc)</p></li>
 </ul>
 </div></blockquote>
 <p>The ACIS format is strongly recommended due to its ability to retain imprint and
@@ -216,8 +207,8 @@ DAGMC-based analysis.</p>
 primary concerns must addressed. These concerns are:</p>
 <blockquote>
 <div><ul class="simple">
-<li>Gaps</li>
-<li>Overlaps</li>
+<li><p>Gaps</p></li>
+<li><p>Overlaps</p></li>
 </ul>
 </div></blockquote>
 <p>Gaps occur when the surfaces of two volumes/parts that should be in
@@ -244,9 +235,9 @@ next section to change, reduce and remove their effect on the model.</p>
 three following methods may be used to change, reduce, and remove their
 effect on the model.</p>
 <ul class="simple">
-<li>Create “voided” geometries</li>
-<li>Modify volume/part dimensions</li>
-<li>Remove superfluous details</li>
+<li><p>Create “voided” geometries</p></li>
+<li><p>Modify volume/part dimensions</p></li>
+<li><p>Remove superfluous details</p></li>
 </ul>
 <p>Each method is discussed in detail below:</p>
 <p>As with the fuel rod example mentioned above, some regions that are
@@ -326,10 +317,10 @@ should help prevent tolerance issues due to faceting.</p>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 20, 2019.
+      Last updated on Aug 26, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
       </p>
     </div>
   </body>

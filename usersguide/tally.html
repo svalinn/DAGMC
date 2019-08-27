@@ -1,12 +1,10 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>DAGMC unstructured mesh tallies &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -89,12 +87,12 @@ an unstructured mesh.</p>
 <p>Cubit/Trelis can be used to generate the unstructured meshes needed for tallies.
 To do so, use the following steps.</p>
 <ol class="arabic simple">
-<li>Load the geometry you wish to mesh into Cubit/Trelis.</li>
-<li>Use the mesh tools to produce the meshes you want.</li>
-<li>Save the file as a .trelis or .cub file. Remember to check the “Use Legacy
-.cub file Format” option in Trelis or Cubit.</li>
-<li>Use MOAB’s <code class="docutils literal notranslate"><span class="pre">mbconvert</span></code> executable to convert from the Cubit/Trelis format
-to a faceted .h5m file that DAGMC can use.</li>
+<li><p>Load the geometry you wish to mesh into Cubit/Trelis.</p></li>
+<li><p>Use the mesh tools to produce the meshes you want.</p></li>
+<li><p>Save the file as a .trelis or .cub file. Remember to check the “Use Legacy
+.cub file Format” option in Trelis or Cubit.</p></li>
+<li><p>Use MOAB’s <code class="docutils literal notranslate"><span class="pre">mbconvert</span></code> executable to convert from the Cubit/Trelis format
+to a faceted .h5m file that DAGMC can use.</p></li>
 </ol>
 <p>Here is an example of how to use <code class="docutils literal notranslate"><span class="pre">mbconvert</span></code>:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mbconvert mesh.cub mesh.h5m
@@ -177,10 +175,10 @@ fc4 dagmc type=kde_subtrack inp=mesh.h5m out=mesh_out.h5m
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 20, 2019.
+      Last updated on Aug 26, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
       </p>
     </div>
   </body>

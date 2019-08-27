@@ -1,12 +1,10 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Developer’s theory guide &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -247,14 +245,14 @@ the basis of the new RayHistory (<code class="docutils literal notranslate"><spa
 class is to improve robustness of the ray queries inside of DAGMC for a number of
 purposes:</p>
 <ol class="arabic simple">
-<li>When a particle is streaming, to ensure that the same triangle cannot be hit twice</li>
-<li>When a particle is reflecting from a surface, to clear all history except the
-triangle just hit</li>
-<li>When a particle is newly created or retrieved from the bank/stack and the RayHistory
-should be cleared</li>
-<li>When a particle step was not fully taken, for example a sensing step or an interaction
+<li><p>When a particle is streaming, to ensure that the same triangle cannot be hit twice</p></li>
+<li><p>When a particle is reflecting from a surface, to clear all history except the
+triangle just hit</p></li>
+<li><p>When a particle is newly created or retrieved from the bank/stack and the RayHistory
+should be cleared</p></li>
+<li><p>When a particle step was not fully taken, for example a sensing step or an interaction
 occurred first, the RayHistory should be taken back to its previous state such that the
-triangle could be hit again.</li>
+triangle could be hit again.</p></li>
 </ol>
 <p>The RayHistory class is an optional argument to the DAGMC ray functions, which will otherwise
 not retain nor exclude any intersections other than those not numerically possible.</p>
@@ -302,12 +300,11 @@ boundary conditions, volume tallies, etc.) is stored on these “Group” Entity
 as the value of their <cite>NAME</cite> tag. Please see the <a class="reference external" href="../usersguide/uw2.html">UWUW Section</a> of the user’s guide for information about the syntax
 of this tagged information. Geometric EntitySets associated with this metadata
 entry are contained by the metadata entity set.</p>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>only used in DAG-MCNP simulations.</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id3">1</a></span></dt>
+<dd><p>only used in DAG-MCNP simulations.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="dagmc-s-metadata-interface">
 <h3>DAGMC’s Metadata Interface<a class="headerlink" href="#dagmc-s-metadata-interface" title="Permalink to this headline">¶</a></h3>
@@ -320,14 +317,13 @@ as “mat” or “boundary”, which are provided to the interface in its
 constructor. A list of the default keywords is provided below. Additional
 keywords can be provided to the interface during its construction to support
 implementation-specific conventions.</p>
-<dl class="docutils">
-<dt>Default metadata keyword list:</dt>
-<dd><ul class="first last simple">
-<li>mat: material composition assignment</li>
-<li>rho: material density assignment (units: g/cc)</li>
-<li>boundary: boundary condition</li>
-<li>tally: indicates a geometric tally on a surface or volume</li>
-<li>importance: used to set variance reduction properties <a class="footnote-reference" href="#id2" id="id3">[1]</a></li>
+<dl class="simple">
+<dt>Default metadata keyword list:</dt><dd><ul class="simple">
+<li><p>mat: material composition assignment</p></li>
+<li><p>rho: material density assignment (units: g/cc)</p></li>
+<li><p>boundary: boundary condition</p></li>
+<li><p>tally: indicates a geometric tally on a surface or volume</p></li>
+<li><p>importance: used to set variance reduction properties <a class="footnote-reference brackets" href="#id2" id="id3">1</a></p></li>
 </ul>
 </dd>
 </dl>
@@ -385,19 +381,18 @@ done by creating a UWUW object with an empty constructor. This will subvert the
 automatic loading of material and tally data that would occur using the
 constructor shown in the previous section. The <code class="docutils literal notranslate"><span class="pre">load_pyne_materials</span></code> and
 <code class="docutils literal notranslate"><span class="pre">load_pyne_tallies</span></code> methods can then be used to provide custom material/tally
-library files and/or customized hdf5 datapaths for those files. <a class="footnote-reference" href="#id5" id="id4">[2]</a></p>
+library files and/or customized hdf5 datapaths for those files. <a class="footnote-reference brackets" href="#id5" id="id4">2</a></p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>UWUW* uwuw = new UWUW();
 uwuw-&gt;load_pyne_materials(&quot;hdf5_material_file_path&quot;, datapath = &quot;/custom/hdf5/datapath&quot;);
 uwuw-&gt;load_pyne_tallies(&quot;hdf5_tally_file_path&quot;, datapath = &quot;/custom/hdf5/datapath&quot;);
 </pre></div>
 </div>
-<table class="docutils footnote" frame="void" id="id5" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td><strong>Note</strong>: It is important to specify absolute filepaths if using a UWUW object
-in this way. UWUW contains a <code class="docutils literal notranslate"><span class="pre">get_full_filepath</span></code> method for convenience.</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id4">2</a></span></dt>
+<dd><p><strong>Note</strong>: It is important to specify absolute filepaths if using a UWUW object
+in this way. UWUW contains a <code class="docutils literal notranslate"><span class="pre">get_full_filepath</span></code> method for convenience.</p>
+</dd>
+</dl>
 </div>
 </div>
 </div>
@@ -414,10 +409,10 @@ in this way. UWUW contains a <code class="docutils literal notranslate"><span cl
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 20, 2019.
+      Last updated on Aug 26, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
       </p>
     </div>
   </body>

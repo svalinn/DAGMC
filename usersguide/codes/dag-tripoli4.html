@@ -1,12 +1,10 @@
 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Code-specific steps for DAG-Tripoli4 &#8212; DAGMC</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -88,9 +86,9 @@
 <h1>Code-specific steps for DAG-Tripoli4<a class="headerlink" href="#code-specific-steps-for-dag-tripoli4" title="Permalink to this headline">¶</a></h1>
 <p>There are three varieties of code-specific steps:</p>
 <ol class="arabic simple">
-<li>defining attributes of the geometry using groups in Cubit/Trelis</li>
-<li>defining DAGMC runtime parameters using input file syntax</li>
-<li>changes to the command-line</li>
+<li><p>defining attributes of the geometry using groups in Cubit/Trelis</p></li>
+<li><p>defining DAGMC runtime parameters using input file syntax</p></li>
+<li><p>changes to the command-line</p></li>
 </ol>
 <div class="section" id="geometry-metadata">
 <h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
@@ -209,32 +207,32 @@ created:</p>
 <p>The DAGMC-Tripoli input file is formatted just like any other Tripoli
 input file but using the <code class="docutils literal notranslate"><span class="pre">DAGMC_GEOMETRY</span></code> block to indicate the
 geometry.  This block has the following parameters:</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
 <colgroup>
-<col width="53%" />
-<col width="47%" />
+<col style="width: 53%" />
+<col style="width: 47%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>&lt;geometry_filename&gt;</td>
-<td>This must be the first parameter</td>
+<tbody>
+<tr class="row-odd"><td><p>&lt;geometry_filename&gt;</p></td>
+<td><p>This must be the first parameter</p></td>
 </tr>
-<tr class="row-even"><td>facet_tol &lt;double faceting tolerance&gt;</td>
-<td>(optional: default=0.001)</td>
+<tr class="row-even"><td><p>facet_tol &lt;double faceting tolerance&gt;</p></td>
+<td><p>(optional: default=0.001)</p></td>
 </tr>
-<tr class="row-odd"><td>facet_file &lt;string faceting filename&gt;</td>
-<td>(optional)</td>
+<tr class="row-odd"><td><p>facet_file &lt;string faceting filename&gt;</p></td>
+<td><p>(optional)</p></td>
 </tr>
-<tr class="row-even"><td>check_src_cell &lt;”off”|”false”|”no”&gt;</td>
-<td>(optional: default=on)</td>
+<tr class="row-even"><td><p>check_src_cell &lt;”off”|”false”|”no”&gt;</p></td>
+<td><p>(optional: default=on)</p></td>
 </tr>
-<tr class="row-odd"><td>usecad &lt;”on”|”true”|”yes”&gt;</td>
-<td>(optional: default=off)</td>
+<tr class="row-odd"><td><p>usecad &lt;”on”|”true”|”yes”&gt;</p></td>
+<td><p>(optional: default=off)</p></td>
 </tr>
-<tr class="row-even"><td>distlimit &lt;”on”|”true”|”yes”&gt;</td>
-<td>(optional: default=off)</td>
+<tr class="row-even"><td><p>distlimit &lt;”on”|”true”|”yes”&gt;</p></td>
+<td><p>(optional: default=off)</p></td>
 </tr>
-<tr class="row-odd"><td>tolerance &lt;double ray firing tolerance&gt;</td>
-<td>(optional: default=1e-8)</td>
+<tr class="row-odd"><td><p>tolerance &lt;double ray firing tolerance&gt;</p></td>
+<td><p>(optional: default=1e-8)</p></td>
 </tr>
 </tbody>
 </table>
@@ -260,10 +258,10 @@ material compositions that have been assigned in the previous step.</p>
         &copy; Copyright 2012-2019, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jun 20, 2019.
+      Last updated on Aug 26, 2019.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.1.2.
       </p>
     </div>
   </body>
