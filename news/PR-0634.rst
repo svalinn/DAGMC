@@ -1,0 +1,11 @@
+**Added:** None
+
+**Changed:** Do not include lapack/blas/gfortran/quadmath in MOAB_LIBRARIES; directly link them to libraries as needed
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
