@@ -9,6 +9,7 @@ endif ()
 # Required libraries
 add_subdirectory(dagmc)
 add_subdirectory(pyne)
+add_subdirectory(overlap_check)
 
 # UWUW
 if (BUILD_MCNP5 OR BUILD_MCNP6 OR BUILD_GEANT4 OR BUILD_FLUKA OR BUILD_CI_TESTS)
