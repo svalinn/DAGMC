@@ -1,6 +1,7 @@
 // ********************************************************************
 // Brandon Smith August, 2009
 // Jonathan Shimwell, September 2019
+// Patrick Shriwise, September 2019
 
 // input:  input_file h5m filename,
 //         output_file h5m filename (optional),

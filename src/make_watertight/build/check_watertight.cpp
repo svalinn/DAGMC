@@ -1,6 +1,7 @@
 // ********************************************************************
 // Brandon Smith, August 2009
 // Jonathan Shimwell, September 2019
+// Patrick Shriwise, September 2019
 
 // This is a function to test DagMC-style mesh for watertightness. For
 // now this will be a stand-alone code that uses MOAB. For volumes to
