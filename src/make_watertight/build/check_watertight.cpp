@@ -6,9 +6,9 @@
 // To instead use a geometrical tolerance between two vertices that are
 // considered the same, pass in a tolerance.
 //
-// input:  input_file h5m filename, 
-//         output_file h5m filename (optional), 
-//         tolerance(optional), 
+// input:  input_file h5m filename,
+//         output_file h5m filename (optional),
+//         tolerance(optional),
 //         verbose(optional)
 // output: list of unmatched facet edges and their parent surfaces, by volume.
 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
   double tolerance = -1.0;
 
   po.addOpt<void>("verbose,v", "Verbose output", &verbose);
-  
+
   po.addRequiredArg<std::string>("input_file", "Path to h5m DAGMC file to proccess", &input_file);
   po.addOpt<std::string>("output_file,o", "Specify the output filename (default is to overwrite in input_file)", &output_file);
   po.addOpt<double>("tolerance,t", "Specify a coincidence tolerance for triangle vertices. If no tolerance is specified, a more robust, topological check of the DAGMC mesh will occur by default.", &tolerance);
@@ -87,13 +87,13 @@ int main(int argc, char* argv[]) {
   }
 
 
-  if (tolerance == -1.0){
+  if (tolerance == -1.0) {
     std::cout << "geometry check" << std::endl;
     check_topology = false;
-  }else if (tolerance > 0){
+  } else if (tolerance > 0) {
     std::cout << "topology check" << std::endl;
     check_topology = true;
-  }else{
+  } else {
     MB_CHK_SET_ERR(moab::MB_FAILURE, "A proximity tolerance of " << tolerance << " was provided. Please provide a tolerance greater than or equal to zero.");
   }
 

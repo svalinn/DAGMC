@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
   po.addRequiredArg<std::string>("input_file", "Path to h5m DAGMC file to proccess", &input_file);
   po.addOpt<std::string>("output_file,o", "Specify the output filename (default watertight_dagmc.h5m)", &output_file);
- 
+
   po.parseCommandLine(argc, argv);
 
   if (output_file == "")
