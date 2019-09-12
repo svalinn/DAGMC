@@ -1,6 +1,11 @@
 **Added:** None
 
-**Changed:** Do not include lapack/blas/gfortran/quadmath in MOAB_LIBRARIES; directly link them to libraries as needed
+**Changed:**
+
+* Do not include lapack/blas/gfortran/quadmath in MOAB_LIBRARIES unless MOAB
+  requires them
+* Directly link some of these libraries to libdagtally and fludag (these are the
+  only libraries that require them directly)
 
 **Deprecated:** None
 
