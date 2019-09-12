@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
     std::cout << "topology check" << std::endl;
     check_topology = true;
   }else{
-    MB_CHK_SET_ERR(moab::MB_FAILURE, "tolerance must be positive, current value is " << tolerance);
+    MB_CHK_SET_ERR(moab::MB_FAILURE, "A proximity tolerance of " << tolerance << " was provided. Please provide a tolerance greater than or equal to zero.");
   }
 
   // replaced much of this code with a more modular version in check_watertight_func for testing purposes
