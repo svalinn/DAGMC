@@ -1,8 +1,4 @@
 // ********************************************************************
-// Brandon Smith, August 2009
-// Jonathan Shimwell, September 2019
-// Patrick Shriwise, September 2019
-
 // This is a function to test DagMC-style mesh for watertightness. For
 // now this will be a stand-alone code that uses MOAB. For volumes to
 // be watertight, the facet edges of each surface must be matched
@@ -11,6 +7,7 @@
 // considered the same, pass in a tolerance.
 //
 // input:  input_file h5m filename, 
+//         output_file h5m filename (optional), 
 //         tolerance(optional), 
 //         verbose(optional)
 // output: list of unmatched facet edges and their parent surfaces, by volume.
@@ -57,14 +54,19 @@ int main(int argc, char* argv[]) {
   bool check_topology;
 
   std::string input_file;
+  std::string output_file;
   double tolerance = -1.0;
 
   po.addOpt<void>("verbose,v", "Verbose output", &verbose);
   
   po.addRequiredArg<std::string>("input_file", "Path to h5m DAGMC file to proccess", &input_file);
+  po.addOpt<std::string>("output_file,o", "Specify the output filename (default is to overwrite in input_file)", &output_file);
   po.addOpt<double>("tolerance,t", "Specify a coincidence tolerance for triangle vertices. If no tolerance is specified, a more robust, topological check of the DAGMC mesh will occur by default.", &tolerance);
 
   po.parseCommandLine(argc, argv);
+
+  if (output_file == "")
+    output_file = input_file;
 
   static moab::Core instance;
   moab::Interface* mbi = &instance;
