@@ -65,8 +65,6 @@ int main(int argc, char* argv[]) {
   po.addRequiredArg<std::string>("input_file", "Path to h5m DAGMC file to proccess", &input_file);
   po.addOpt<std::string>("output_file,o", "Specify the output filename (default is to overwrite in input_file)", &output_file);
   po.addOpt<double>("tolerance,t", "Specify a coincidence tolerance for triangle vertices. If no tolerance is specified, a more robust, topological check of the DAGMC mesh will occur by default.", &tolerance);
- 
-  po.addOptionHelpHeading("Options for loading files");
 
   po.parseCommandLine(argc, argv);
 
