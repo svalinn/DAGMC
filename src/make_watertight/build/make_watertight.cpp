@@ -24,6 +24,7 @@
 #include "moab/ProgOptions.hpp"
 
 #include "MakeWatertight.hpp"
+#include "CheckWatertight.hpp"
 
 moab::ErrorCode write_sealed_file(moab::Interface* mbi, std::string output_file);
 
@@ -73,17 +74,29 @@ int main(int argc, char* argv[]) {
 
 
   //write file
-  clock_t zip_time = clock();
-  std::cout << "Writing zipped file..." << std::endl;
+  clock_t seal_time = clock();
+  std::cout << "Writing sealed file..." << std::endl;
   write_sealed_file(mbi, output_file);
   MB_CHK_SET_ERR(result, "could not write the sealed mesh to a new file");
 
-
   clock_t write_time = clock();
+
+  bool sealed;
+  CheckWatertight cw = CheckWatertight(mbi);
+  result = cw.check_mesh_for_watertightness(input_set, -1.0, sealed);
+  MB_CHK_SET_ERR(result, "could not check model for watertightness");
+
+  std::cout << "Topological check performed" << std::endl;
+  std::cout << "To perform a tolerance based check run the check_Watertight tool" << std::endl;
+  std::cout << "$ check_watertight <dagmc_file> -t <tolerance> " << std::endl;
+
+
+  clock_t check_time = clock();
   std::cout << "Timing(seconds): loading="
             << (double)(load_time - start_time) / CLOCKS_PER_SEC << ", sealing="
-            << (double)(zip_time  - load_time) / CLOCKS_PER_SEC << ", writing="
-            << (double)(write_time - zip_time) / CLOCKS_PER_SEC << std::endl;
+            << (double)(seal_time  - load_time) / CLOCKS_PER_SEC << ", writing="
+            << (double)(write_time - seal_time) / CLOCKS_PER_SEC << ", checking="
+            << (double)(check_time - write_time) / CLOCKS_PER_SEC << std::endl;
 
   return 0;
 }
