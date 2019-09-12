@@ -1,5 +1,5 @@
 // ********************************************************************
-// Brandon Smith August, 2009
+// Brandon Smith, August 2009
 // Jonathan Shimwell, September 2019
 // Patrick Shriwise, September 2019
 
@@ -43,8 +43,6 @@ int main(int argc, char* argv[]) {
   po.addRequiredArg<std::string>("input_file", "Path to h5m DAGMC file to proccess", &input_file);
   po.addOpt<std::string>("output_file,o", "Specify the output filename (default watertight_dagmc.h5m)", &output_file);
  
-  po.addOptionHelpHeading("Options for loading files");
-
   po.parseCommandLine(argc, argv);
 
   if (output_file == "")
