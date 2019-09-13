@@ -1,25 +1,19 @@
 
 #include "overlap.hpp"
 
-#include <memory>
 #include "moab/GeomTopoTool.hpp"
 #include "moab/GeomQueryTool.hpp"
 #include "moab/ProgOptions.hpp"
 
 using namespace moab;
 ErrorCode
-check_file_for_overlaps(std::string filename,
-                        std::map<std::set<int>,std::array<double,3>>& overlap_map) {
-
-  std::shared_ptr<Interface> MBI(new Core());
-
-  ErrorCode rval = MBI->load_file(filename.c_str());
-  MB_CHK_SET_ERR(rval, "Failed to load file: " << filename);
+check_file_for_overlaps(std::shared_ptr<Interface> MBI,
+                        OverlapMap& overlap_map) {
 
   std::shared_ptr<GeomTopoTool> GTT(new GeomTopoTool(MBI.get()));
   std::shared_ptr<GeomQueryTool> GQT(new GeomQueryTool(GTT.get()));
 
-  rval = GTT->find_geomsets();
+  ErrorCode rval = GTT->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to detect geometry sets");
 
   std::cout << "Building OBB Trees..." << std::endl;
