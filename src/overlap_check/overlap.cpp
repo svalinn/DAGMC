@@ -47,7 +47,7 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
   rval = MBI->get_entities_by_type(0, MBVERTEX, all_verts);
   MB_CHK_SET_ERR(rval, "Failed to get all vertices");
 
-  std::cout << "Starting overlap check:" << std::endl;
+  std::cout << "Running overlap check:" << std::endl;
 
   ProgressBar prog_bar;
 
