@@ -11,5 +11,5 @@ set(INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR}/overlap_check)
 
 set(INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR_SAVE})
 
-set(SRC_FILES overlap_check.cpp overlap.cpp)
+set(SRC_FILES overlap_check.cpp overlap.cpp ProgressBar.cpp)
 dagmc_install_exe(overlap_check)
