@@ -51,11 +51,15 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
   Range all_tris;
   rval = MBI->get_entities_by_type(0, MBTRI, all_tris);
 
+  Range all_edges;
+  rval = MBI->get_adjacencies(all_tris, 1, true, all_edges, Interface::UNION);
+  MB_CHK_SET_ERR(rval, "Failed to get triangle edges");
+
   Range all_vols;
   rval = GTT->get_gsets_by_dimension(3, all_vols);
   MB_CHK_SET_ERR(rval, "Failed to get volumes from GTT");
 
-  int num_locations = all_verts.size() + 3 * pnts_per_edge * all_tris.size();
+  int num_locations = all_verts.size() + pnts_per_edge * all_edges.size();
   int num_checked = 0;
 
   std::cout << "Running overlap check:" << std::endl;
@@ -102,25 +106,24 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
   if (pnts_per_edge == 0) { return MB_SUCCESS; }
 
   // now check along triangle edges
-  for (const auto& tri : all_tris) {
+  for (const auto& edge : all_edges) {
 
-    Range tri_verts;
-    rval = MBI->get_connectivity(&tri, 1, tri_verts);
+    Range edge_verts;
+    rval = MBI->get_connectivity(&edge, 1, edge_verts);
     MB_CHK_SET_ERR(rval, "Failed to get triangle vertices");
 
-    CartVect tri_coords[3];
-    rval = MBI->get_coords(tri_verts, tri_coords[0].array());
+    CartVect edge_coords[2];
+    rval = MBI->get_coords(edge_verts, edge_coords[0].array());
     MB_CHK_SET_ERR(rval, "Failed to get triangle coordinates");
 
     std::vector<CartVect> locations;
 
-    for (int i = 0; i < 3; i++) {
-      CartVect edge = tri_coords[i < 2 ? i + 1 : 0] - tri_coords[i];
-      CartVect vert = tri_coords[i];
-      for (int j = 1; j <= pnts_per_edge; j++) {
-        double t = (double)j/(double)pnts_per_edge;
-        locations.push_back(vert + t * edge);
-      }
+    CartVect edge_vec = edge_coords[1] - edge_coords[0];
+    CartVect& start = edge_coords[0];
+
+    for (int j = 1; j <= pnts_per_edge; j++) {
+      double t = (double)j/(double)pnts_per_edge;
+      locations.push_back(start + t * edge_vec);
     }
 
     for (auto& loc : locations) {
