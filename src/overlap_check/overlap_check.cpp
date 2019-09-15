@@ -14,8 +14,11 @@ int main(int argc, char* argv[]) {
                  "This is currently a non-exhaustive search.");
 
   std::string filename;
+  int points_per_tri_edge = 0;
 
   po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to check", &filename);
+
+  po.addOpt<int>("points per edge,p","Number of evenly-spaced points to test on each triangle edge", &points_per_tri_edge);
 
   po.parseCommandLine(argc, argv);
 
@@ -27,7 +30,7 @@ int main(int argc, char* argv[]) {
 
   // check for overlaps
   OverlapMap overlap_map;
-  rval = check_file_for_overlaps(MBI, overlap_map);
+  rval = check_file_for_overlaps(MBI, overlap_map, points_per_tri_edge);
   MB_CHK_SET_ERR(rval, "Failure while checking for overlaps");
 
   // if any overlaps are found, report them

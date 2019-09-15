@@ -11,6 +11,7 @@ using OverlapMap = std::map<std::set<int>, CartVect>;
 
 ErrorCode
 check_file_for_overlaps(std::shared_ptr<Interface> MBI,
-                        OverlapMap& overlap_map);
+                        OverlapMap& overlap_map,
+                        int pnts_per_edge = 0);
 
 void report_overlaps(const OverlapMap& overlap_map);
