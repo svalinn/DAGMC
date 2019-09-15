@@ -64,8 +64,6 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
   ErrorCode rval = GTT->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to detect geometry sets");
 
-  std::cout << "Building OBB Trees..." << std::endl;
-
   rval = GTT->construct_obb_trees();
   MB_CHK_SET_ERR(rval, "Failed to build OBB trees");
 
@@ -124,13 +122,14 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
     CartVect edge_vec = edge_coords[1] - edge_coords[0];
     CartVect& start = edge_coords[0];
 
+    // create locations to check
     for (int j = 1; j <= pnts_per_edge; j++) {
       double t = (double)j/(double)pnts_per_edge;
       locations.push_back(start + t * edge_vec);
     }
 
+    // check edge locations
     for (auto& loc : locations) {
-
       rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
       MB_CHK_SET_ERR(rval, "Failed to check point for overlap");
 

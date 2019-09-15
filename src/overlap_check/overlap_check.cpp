@@ -28,6 +28,16 @@ int main(int argc, char* argv[]) {
   ErrorCode rval = MBI->load_file(filename.c_str());
   MB_CHK_SET_ERR(rval, "Failed to load file: " << filename);
 
+  if (points_per_tri_edge == 0) {
+    std::cout << "NOTICE: " << "\n";
+    std::cout << "\t Performing overlap check using triangle vertex locations only."
+              << "\n"
+              << "\t Use the '-p' option to check more points on the triangle edges."
+              << "\n"
+              << "\t Run '$dagmc_overlap_check --help' for more information."
+              << "\n\n";
+  }
+
   // check for overlaps
   OverlapMap overlap_map;
   rval = check_file_for_overlaps(MBI, overlap_map, points_per_tri_edge);
