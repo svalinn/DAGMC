@@ -9,11 +9,17 @@ using namespace moab;
 
 ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
                                      const Range& all_vols,
-                                     const CartVect& loc,
-                                     const CartVect& dir,
-                                     std::set<int>& vols_found) {
-  GeomTopoTool* GTT = GQT->gttool();
+                                     CartVect& loc,
+                                     CartVect& dir,
+                                     OverlapMap& overlap_map) {
   ErrorCode rval;
+
+  GeomTopoTool* GTT = GQT->gttool();
+  std::set<int> vols_found;
+  double bump = 1E-06;
+
+  // move our point slightly off the vertex
+  loc += dir * bump;
 
   for (const auto& vol : all_vols) {
     int result = 0;
@@ -24,6 +30,25 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
 
     if (result == 1) { vols_found.insert(GTT->global_id(vol)); }
   }
+
+  if (vols_found.size() > 1) { overlap_map[vols_found] = loc; }
+
+  // move our point slightly off the vertex
+  dir *= -1;
+  loc += dir * 2.0 * bump;
+  vols_found.clear();
+
+  for (const auto& vol : all_vols) {
+    int result = 0;
+    rval = GQT->point_in_volume(vol, loc.array(), result, dir.array());
+    MB_CHK_SET_ERR(rval, "Failed point in volume for Vol with id "
+                   << GTT->global_id(vol)
+                   << " at location " << loc);
+
+    if (result == 1) { vols_found.insert(GTT->global_id(vol)); }
+  }
+
+  if (vols_found.size() > 1) { overlap_map[vols_found] = loc; }
 
   return MB_SUCCESS;
 }
@@ -67,38 +92,16 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
   CartVect dir(rand(), rand(), rand());
   dir.normalize();
 
-  double bump = 1e-06;
-
   ProgressBar prog_bar;
 
   // first check all vertex locations
   for (const auto& vert : all_verts) {
-
     CartVect loc;
     rval = MBI->get_coords(&vert, 1, loc.array());
 
-    // move our point slightly off the vertex
-    loc += dir * bump;
+    rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
+    MB_CHK_SET_ERR(rval, "Failed to check point for overlap");
 
-    std::set<int>vols_found;
-    rval = check_location_for_overlap(GQT, all_vols, loc, dir, vols_found);
-    MB_CHK_SET_ERR(rval, "Failed to for overlap at location " << loc);
-
-    if (vols_found.size() > 1) {
-      overlap_map[vols_found] = loc;
-    }
-
-    // move our point slightly off the vertex
-    dir *= -1;
-    loc += dir * 2.0 * bump;
-
-    vols_found.clear();
-    rval = check_location_for_overlap(GQT, all_vols, loc, dir, vols_found);
-    MB_CHK_SET_ERR(rval, "Failed to for overlap at location " << loc);
-
-    if (vols_found.size() > 1) {
-      overlap_map[vols_found] = loc;
-    }
     prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
   }
 
@@ -128,28 +131,9 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
 
     for (auto& loc : locations) {
 
-      // move our point slightly off the vertex
-      loc += dir * bump;
+      rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
+      MB_CHK_SET_ERR(rval, "Failed to check point for overlap");
 
-      std::set<int>vols_found;
-      rval = check_location_for_overlap(GQT, all_vols, loc, dir, vols_found);
-      MB_CHK_SET_ERR(rval, "Failed to for overlap at location " << loc);
-
-      if (vols_found.size() > 1) {
-        overlap_map[vols_found] = loc;
-      }
-
-      // move our point slightly off the vertex
-      dir *= -1;
-      loc += dir * 2.0 * bump;
-
-      vols_found.clear();
-      rval = check_location_for_overlap(GQT, all_vols, loc, dir, vols_found);
-      MB_CHK_SET_ERR(rval, "Failed to for overlap at location " << loc);
-
-      if (vols_found.size() > 1) {
-        overlap_map[vols_found] = loc;
-      }
       prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
     }
   }
