@@ -18,22 +18,22 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
   std::set<int> vols_found;
   double bump = 1E-06;
 
-  // move our point slightly off the vertex
+  // move the point slightly off the vertex
   loc += dir * bump;
 
   for (const auto& vol : all_vols) {
     int result = 0;
     rval = GQT->point_in_volume(vol, loc.array(), result, dir.array());
     MB_CHK_SET_ERR(rval, "Failed point in volume for Vol with id "
-                   << GTT->global_id(vol)
-                   << " at location " << loc);
+                         << GTT->global_id(vol)
+                         << " at location " << loc);
 
     if (result == 1) { vols_found.insert(GTT->global_id(vol)); }
   }
 
   if (vols_found.size() > 1) { overlap_map[vols_found] = loc; }
 
-  // move our point slightly off the vertex
+  // move the point slightly off the vertex
   dir *= -1;
   loc += dir * 2.0 * bump;
   vols_found.clear();
@@ -54,7 +54,7 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
 }
 
 ErrorCode
-check_file_for_overlaps(std::shared_ptr<Interface> MBI,
+check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
                         OverlapMap& overlap_map,
                         int pnts_per_edge) {
 
@@ -73,6 +73,7 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
 
   Range all_tris;
   rval = MBI->get_entities_by_type(0, MBTRI, all_tris);
+  MB_CHK_SET_ERR(rval, "Failed to get all triangles");
 
   Range all_edges;
   rval = MBI->get_adjacencies(all_tris, 1, true, all_edges, Interface::UNION);
@@ -82,17 +83,16 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
   rval = GTT->get_gsets_by_dimension(3, all_vols);
   MB_CHK_SET_ERR(rval, "Failed to get volumes from GTT");
 
+  // number of locations we'll be checking
   int num_locations = all_verts.size() + pnts_per_edge * all_edges.size();
   int num_checked = 0;
-
-  std::cout << "Running overlap check:" << std::endl;
 
   CartVect dir(rand(), rand(), rand());
   dir.normalize();
 
   ProgressBar prog_bar;
 
-  // first check all vertex locations
+  // first check all triangle vertex locations
   for (const auto& vert : all_verts) {
     CartVect loc;
     rval = MBI->get_coords(&vert, 1, loc.array());
@@ -107,8 +107,9 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
   if (pnts_per_edge == 0) { return MB_SUCCESS; }
 
   // now check along triangle edges
+  // (curve edges are likely in here too,
+  //  but it isn't hurting anything to check more locations)
   for (const auto& edge : all_edges) {
-
     Range edge_verts;
     rval = MBI->get_connectivity(&edge, 1, edge_verts);
     MB_CHK_SET_ERR(rval, "Failed to get triangle vertices");
@@ -122,7 +123,7 @@ check_file_for_overlaps(std::shared_ptr<Interface> MBI,
     CartVect edge_vec = edge_coords[1] - edge_coords[0];
     CartVect& start = edge_coords[0];
 
-    // create locations to check
+    // create locations along the edge to check
     for (int j = 1; j <= pnts_per_edge; j++) {
       double t = (double)j/(double)pnts_per_edge;
       locations.push_back(start + t * edge_vec);

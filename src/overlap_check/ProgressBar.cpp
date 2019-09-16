@@ -18,7 +18,7 @@ ProgressBar::ProgressBar() {
 }
 
 ProgressBar::~ProgressBar() {
-  std::cout << std::endl;
+  std::cout << "\n";
 }
 
 bool ProgressBar::is_terminal() {

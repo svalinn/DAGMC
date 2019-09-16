@@ -1,11 +1,3 @@
-//
-// Patrick Shriwise
-// Sept 2019
-// This program tests for overlaps in some known test models - some containing
-// overlapping volume, some not.
-// input: overlap.h5m
-// output: pass/fail for each of the tests
-
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -40,12 +32,13 @@ class OverlappingVolumesTest : public OverlapTest {
 
 TEST_F(OverlappingVolumesTest, test1) {
   OverlapMap olaps;
-  ErrorCode rval = check_file_for_overlaps(MBI, olaps);
+  // triangle vertex locations only
+  ErrorCode rval = check_instance_for_overlaps(MBI, olaps);
   EXPECT_EQ(rval, MB_SUCCESS);
 
   // we expect one overlap for this model between volmes 1 and 2
   EXPECT_EQ(olaps.size(), 1);
-  std::set<int> expected_set = {1,2};
+  std::set<int> expected_set = {1, 2};
   EXPECT_EQ(expected_set, olaps.begin()->first);
 }
 
@@ -55,14 +48,14 @@ class NonOverlappingVolumesTest : public OverlapTest {
 
 TEST_F(NonOverlappingVolumesTest, test2) {
   OverlapMap olaps;
-  // tri verts only test
-  ErrorCode rval = check_file_for_overlaps(MBI, olaps);
+  // triangle vertex locations only
+  ErrorCode rval = check_instance_for_overlaps(MBI, olaps);
   EXPECT_EQ(rval, MB_SUCCESS);
 
   EXPECT_EQ(olaps.size(), 0);
 
-  // test tri edges too
-  rval = check_file_for_overlaps(MBI, olaps, 2);
+  // test a few points along trianlge edges too
+  rval = check_instance_for_overlaps(MBI, olaps, 2);
   EXPECT_EQ(rval, MB_SUCCESS);
 
   EXPECT_EQ(olaps.size(), 0);
@@ -74,16 +67,15 @@ class NonOverlappingImprintedVolumesTest : public OverlapTest {
 
 TEST_F(NonOverlappingImprintedVolumesTest, test3) {
   OverlapMap olaps;
-  // tri verts only test
-  ErrorCode rval = check_file_for_overlaps(MBI, olaps);
+  // triangle vertex locations only
+  ErrorCode rval = check_instance_for_overlaps(MBI, olaps);
   EXPECT_EQ(rval, MB_SUCCESS);
 
   EXPECT_EQ(olaps.size(), 0);
 
-  // test tri edges too
-  rval = check_file_for_overlaps(MBI, olaps, 2);
+  // test a few points along triangle edges too
+  rval = check_instance_for_overlaps(MBI, olaps, 2);
   EXPECT_EQ(rval, MB_SUCCESS);
 
   EXPECT_EQ(olaps.size(), 0);
-
 }
