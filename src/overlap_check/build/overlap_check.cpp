@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
               << "\n"
               << "\t Use the '-p' option to check more points on the triangle edges."
               << "\n"
-              << "\t Run '$dagmc_overlap_check --help' for more information."
+              << "\t Run '$ overlap_check --help' for more information."
               << "\n\n";
   }
 
