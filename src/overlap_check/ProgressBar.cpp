@@ -33,7 +33,8 @@ bool ProgressBar::is_terminal() {
 void
 ProgressBar::set_value(double val) {
 
-  if (!is_terminal()) return;
+  if (!is_terminal())
+    return;
 
   // set the bar percentage
   if (val >= 100.0) {
@@ -56,17 +57,19 @@ ProgressBar::set_value(double val) {
   } else if (val < 0.0) {
     bar.append(remaining_width, ' ');
   } else {
-    int width = (int)((double)remaining_width*val/100);
+    int width = (int)((double)remaining_width * val / 100);
     bar.append(width, '=');
     bar.append(1, '>');
-    bar.append(remaining_width-width-1, ' ');
+    bar.append(remaining_width - width - 1, ' ');
   }
 
   bar.append("|+");
 
   // write the bar
   std::cout << '\r' << bar << std::flush;
-  if (val >= 100.0) { std::cout << "\n"; }
+  if (val >= 100.0) {
+    std::cout << "\n";
+  }
 
   // reset the bar value
   bar = "";

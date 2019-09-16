@@ -6,7 +6,7 @@
 
 class ProgressBar {
 
-public:
+ public:
   // constructor
   ProgressBar();
 
@@ -17,7 +17,7 @@ public:
 
   static bool is_terminal();
 
-private:
+ private:
   std::string bar;
 
 };

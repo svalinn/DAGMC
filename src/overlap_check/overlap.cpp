@@ -25,13 +25,17 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
     int result = 0;
     rval = GQT->point_in_volume(vol, loc.array(), result, dir.array());
     MB_CHK_SET_ERR(rval, "Failed point in volume for Vol with id "
-                         << GTT->global_id(vol)
-                         << " at location " << loc);
+                   << GTT->global_id(vol)
+                   << " at location " << loc);
 
-    if (result == 1) { vols_found.insert(GTT->global_id(vol)); }
+    if (result == 1) {
+      vols_found.insert(GTT->global_id(vol));
+    }
   }
 
-  if (vols_found.size() > 1) { overlap_map[vols_found] = loc; }
+  if (vols_found.size() > 1) {
+    overlap_map[vols_found] = loc;
+  }
 
   // move the point slightly off the vertex
   dir *= -1;
@@ -45,18 +49,22 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
                    << GTT->global_id(vol)
                    << " at location " << loc);
 
-    if (result == 1) { vols_found.insert(GTT->global_id(vol)); }
+    if (result == 1) {
+      vols_found.insert(GTT->global_id(vol));
+    }
   }
 
-  if (vols_found.size() > 1) { overlap_map[vols_found] = loc; }
+  if (vols_found.size() > 1) {
+    overlap_map[vols_found] = loc;
+  }
 
   return MB_SUCCESS;
 }
 
 ErrorCode
 check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
-                        OverlapMap& overlap_map,
-                        int pnts_per_edge) {
+                            OverlapMap& overlap_map,
+                            int pnts_per_edge) {
 
   std::shared_ptr<GeomTopoTool> GTT(new GeomTopoTool(MBI.get()));
   std::shared_ptr<GeomQueryTool> GQT(new GeomQueryTool(GTT.get()));
@@ -104,7 +112,9 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
   }
 
   // if we aren't checking along edges, return
-  if (pnts_per_edge == 0) { return MB_SUCCESS; }
+  if (pnts_per_edge == 0) {
+    return MB_SUCCESS;
+  }
 
   // now check along triangle edges
   // (curve edges are likely in here too,
@@ -125,7 +135,7 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
 
     // create locations along the edge to check
     for (int j = 1; j <= pnts_per_edge; j++) {
-      double t = (double)j/(double)pnts_per_edge;
+      double t = (double)j / (double)pnts_per_edge;
       locations.push_back(start + t * edge_vec);
     }
 
