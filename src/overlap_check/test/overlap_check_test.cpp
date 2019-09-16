@@ -6,10 +6,6 @@
 // input: overlap.h5m
 // output: pass/fail for each of the tests
 
-
-#include "gtest/gtest.h"
-
-
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -20,43 +16,74 @@
 #include <memory>
 #include "moab/Core.hpp"
 
-using namespace moab;
-class OverlapCheckTest : public::testing::Test {
-protected:
-  void SetUp() {
-    setFilename();
+#include "overlap.hpp"
 
-    MBI = (new Core());
+#include "overlap_check_test.hpp"
 
-    ErrorCode rval = MBI->load_file(filename.c_str());
-    EXPECT_EQ(rval, MB_SUCCESS);
-  };
+void OverlapTest::SetUp() {
+  SetFilename();
 
-  virtual void TearDown() {
-    ErrorCode rval = MBI->delete_mesh();
-    EXPECT_EQ(rval, MB_SUCCESS);
-  };
+  MBI = std::shared_ptr<Interface>(new Core());
 
-  virtual void setFilename();
-
-  std::string filename;
-
-public:
-  std::shared_ptr<Interface> MBI;
+  ErrorCode rval = MBI->load_file(filename.c_str());
+  EXPECT_EQ(rval, MB_SUCCESS);
 };
 
-class OverlapFileTest : public OverlapCheckTest {
-
-  virtual void setFilename() {
-    filename = "overlap.h5m";
-  }
-
+void OverlapTest::TearDown() {
+  ErrorCode rval = MBI->delete_mesh();
+  EXPECT_EQ(rval, MB_SUCCESS);
 };
 
-TEST_F(OverlapCheckTest, OverlapCheckTest) {
+class OverlappingVolumesTest : public OverlapTest {
+  virtual void SetFilename() { filename = "overlap.h5m"; }
+};
+
+TEST_F(OverlappingVolumesTest, test1) {
   OverlapMap olaps;
   ErrorCode rval = check_file_for_overlaps(MBI, olaps);
   EXPECT_EQ(rval, MB_SUCCESS);
 
+  // we expect one overlap for this model between volmes 1 and 2
+  EXPECT_EQ(olaps.size(), 1);
+  std::set<int> expected_set = {1,2};
+  EXPECT_EQ(expected_set, olaps.begin()->first);
+}
+
+class NonOverlappingVolumesTest : public OverlapTest {
+  virtual void SetFilename() { filename = "no_overlap.h5m"; }
+};
+
+TEST_F(NonOverlappingVolumesTest, test2) {
+  OverlapMap olaps;
+  // tri verts only test
+  ErrorCode rval = check_file_for_overlaps(MBI, olaps);
+  EXPECT_EQ(rval, MB_SUCCESS);
+
   EXPECT_EQ(olaps.size(), 0);
+
+  // test tri edges too
+  rval = check_file_for_overlaps(MBI, olaps, 2);
+  EXPECT_EQ(rval, MB_SUCCESS);
+
+  EXPECT_EQ(olaps.size(), 0);
+}
+
+class NonOverlappingImprintedVolumesTest : public OverlapTest {
+  virtual void SetFilename() { filename = "no_overlap_imp.h5m"; }
+};
+
+TEST_F(NonOverlappingImprintedVolumesTest, test3) {
+  OverlapMap olaps;
+  // tri verts only test
+  ErrorCode rval = check_file_for_overlaps(MBI, olaps);
+  EXPECT_EQ(rval, MB_SUCCESS);
+
+  EXPECT_EQ(olaps.size(), 0);
+
+  // test tri edges too
+  rval = check_file_for_overlaps(MBI, olaps, 2);
+  EXPECT_EQ(rval, MB_SUCCESS);
+
+  EXPECT_EQ(olaps.size(), 0);
+
 }
