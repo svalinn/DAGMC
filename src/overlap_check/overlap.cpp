@@ -16,7 +16,7 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
 
   GeomTopoTool* GTT = GQT->gttool();
   std::set<int> vols_found;
-  double bump = 1E-06;
+  double bump = 1E-12;
 
   // move the point slightly off the vertex
   loc += dir * bump;
