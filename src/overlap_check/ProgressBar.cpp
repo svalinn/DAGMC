@@ -33,6 +33,8 @@ bool ProgressBar::is_terminal() {
 void
 ProgressBar::set_value(double val) {
 
+  std::string bar;
+
   if (!is_terminal())
     return;
 

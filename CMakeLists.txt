@@ -16,6 +16,7 @@ dagmc_setup_build()
 dagmc_setup_options()
 
 find_package(MOAB REQUIRED)
+find_package(OpenMP REQUIRED)
 
 dagmc_setup_flags()
 

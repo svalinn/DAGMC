@@ -9,14 +9,14 @@ using namespace moab;
 
 ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
                                      const Range& all_vols,
-                                     CartVect& loc,
-                                     CartVect& dir,
+                                     CartVect loc,
+                                     CartVect dir,
                                      OverlapMap& overlap_map) {
   ErrorCode rval;
 
   GeomTopoTool* GTT = GQT->gttool();
   std::set<int> vols_found;
-  double bump = 1E-12;
+  double bump = 1E-9;
 
   // move the point slightly off the vertex
   loc += dir * bump;
@@ -101,53 +101,65 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
   ProgressBar prog_bar;
 
   // first check all triangle vertex locations
-  for (const auto& vert : all_verts) {
-    CartVect loc;
-    rval = MBI->get_coords(&vert, 1, loc.array());
+#pragma omp parallel shared(overlap_map, num_checked)
+  {
+#pragma omp for
+    for (int i = 0; i < all_verts.size(); i++) {
 
-    rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
-    MB_CHK_SET_ERR(rval, "Failed to check point for overlap");
+      EntityHandle vert = all_verts[i];
+      CartVect loc;
+      rval = MBI->get_coords(&vert, 1, loc.array());
 
-    prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
+      rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
+      MB_CHK_SET_ERR_CONT(rval, "Failed to check location " << loc << " for an overlap");
+
+      #pragma omp critical
+      prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
+    }
   }
-
   // if we aren't checking along edges, return
   if (pnts_per_edge == 0) {
     return MB_SUCCESS;
   }
 
-  // now check along triangle edges
-  // (curve edges are likely in here too,
-  //  but it isn't hurting anything to check more locations)
-  for (const auto& edge : all_edges) {
-    Range edge_verts;
-    rval = MBI->get_connectivity(&edge, 1, edge_verts);
-    MB_CHK_SET_ERR(rval, "Failed to get triangle vertices");
 
-    CartVect edge_coords[2];
-    rval = MBI->get_coords(edge_verts, edge_coords[0].array());
-    MB_CHK_SET_ERR(rval, "Failed to get triangle coordinates");
+  #pragma omp parallel shared(overlap_map, num_checked)
+  {
+    // now check along triangle edges
+    // (curve edges are likely in here too,
+    //  but it isn't hurting anything to check more locations)
+    #pragma omp for
+    for (int i = 0; i < all_edges.size() ; i++) {
 
-    std::vector<CartVect> locations;
+      EntityHandle edge = all_edges[i];
+      Range edge_verts;
+      rval = MBI->get_connectivity(&edge, 1, edge_verts);
+      MB_CHK_SET_ERR_CONT(rval, "Failed to get triangle vertices");
 
-    CartVect edge_vec = edge_coords[1] - edge_coords[0];
-    CartVect& start = edge_coords[0];
+      CartVect edge_coords[2];
+      rval = MBI->get_coords(edge_verts, edge_coords[0].array());
+      MB_CHK_SET_ERR_CONT(rval, "Failed to get triangle coordinates");
 
-    // create locations along the edge to check
-    for (int j = 1; j <= pnts_per_edge; j++) {
-      double t = (double)j / (double)pnts_per_edge;
-      locations.push_back(start + t * edge_vec);
-    }
+      std::vector<CartVect> locations;
 
-    // check edge locations
-    for (auto& loc : locations) {
-      rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
-      MB_CHK_SET_ERR(rval, "Failed to check point for overlap");
+      CartVect edge_vec = edge_coords[1] - edge_coords[0];
+      CartVect& start = edge_coords[0];
 
-      prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
+      // create locations along the edge to check
+      for (int j = 1; j <= pnts_per_edge; j++) {
+        double t = (double)j / (double)pnts_per_edge;
+        locations.push_back(start + t * edge_vec);
+      }
+
+      // check edge locations
+      for (auto& loc : locations) {
+        rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
+        MB_CHK_SET_ERR_CONT(rval, "Failed to check point for overlap");
+        #pragma omp critical
+        prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
+      }
     }
   }
-
   return MB_SUCCESS;
 }
 
