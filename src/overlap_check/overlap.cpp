@@ -101,9 +101,9 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
   ProgressBar prog_bar;
 
   // first check all triangle vertex locations
-#pragma omp parallel shared(overlap_map, num_checked)
+  #pragma omp parallel shared(overlap_map, num_checked)
   {
-#pragma omp for
+    #pragma omp for
     for (int i = 0; i < all_verts.size(); i++) {
 
       EntityHandle vert = all_verts[i];
