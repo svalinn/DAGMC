@@ -93,7 +93,7 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
 
   // number of locations we'll be checking
   int num_locations = all_verts.size() + pnts_per_edge * all_edges.size();
-  int num_checked = 0;
+  int num_checked = 1;
 
   CartVect dir(rand(), rand(), rand());
   dir.normalize();
@@ -103,7 +103,7 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
   // first check all triangle vertex locations
   #pragma omp parallel shared(overlap_map, num_checked)
   {
-    #pragma omp for
+    #pragma omp for schedule(auto)
     for (int i = 0; i < all_verts.size(); i++) {
 
       EntityHandle vert = all_verts[i];
@@ -128,7 +128,7 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
     // now check along triangle edges
     // (curve edges are likely in here too,
     //  but it isn't hurting anything to check more locations)
-    #pragma omp for
+    #pragma omp for schedule(auto)
     for (int i = 0; i < all_edges.size() ; i++) {
 
       EntityHandle edge = all_edges[i];
