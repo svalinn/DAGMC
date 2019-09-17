@@ -1,4 +1,5 @@
-**Added:** None
+**Added:**
+
 Tool for checking DagMC models for overlaps.
 
 **Changed:** None
