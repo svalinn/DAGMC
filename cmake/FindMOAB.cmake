@@ -59,11 +59,9 @@ if (BUILD_STATIC_LIBS)
   )
 endif ()
 
-# The variable MOAB_USE_EIGEN determines whether or not libmoab requires
-# blas/lapack. If it is YES, then it does not require blas/lapack and those
-# libraries do not need to be linked. If it is NO, then it does require them and
-# they must be linked.
-if (NOT MOAB_USE_EIGEN)
+# The MOAB variable MOAB_USE_LAPACK determines whether or not libMOAB is linked
+# to blas/lapack
+if (MOAB_USE_LAPACK)
   list(APPEND MOAB_LIBRARIES_SHARED lapack blas gfortran quadmath)
   list(APPEND MOAB_LIBRARIES_STATIC lapack blas gfortran quadmath)
 endif ()
