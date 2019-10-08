@@ -1,8 +1,11 @@
-# All DAGMC libraries
-set(DAGMC_LIBRARY_LIST dagmc pyne_dagmc uwuw dagtally makeWatertight dagsolid fludag)
-
 macro (dagmc_setup_build)
   message("")
+
+  # All DAGMC libraries
+  set(DAGMC_LIBRARY_LIST dagmc pyne_dagmc uwuw dagtally makeWatertight dagsolid fludag)
+
+  # Keep track of which libraries are installed
+  set(DAGMC_LIBRARIES MOAB CACHE INTERNAL "DAGMC_LIBRARIES")
 
   # Default to a release build
   if (NOT CMAKE_BUILD_TYPE)
@@ -222,11 +225,7 @@ macro (dagmc_install_library lib_name)
   endif ()
 
   # Keep a list of all libraries being installed
-  if (DAGMC_LIBRARIES)
-    set(DAGMC_LIBRARIES "${DAGMC_LIBRARIES} ${lib_name}" CACHE INTERNAL "DAGMC_LIBRARIES")
-  else ()
-    set(DAGMC_LIBRARIES ${lib_name} CACHE INTERNAL "DAGMC_LIBRARIES")
-  endif ()
+  set(DAGMC_LIBRARIES ${DAGMC_LIBRARIES} ${lib_name} CACHE INTERNAL "DAGMC_LIBRARIES")
 endmacro ()
 
 # Install an executable
