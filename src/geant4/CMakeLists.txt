@@ -14,7 +14,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 
 dagmc_install_library(dagsolid)
 
-add_subdirectory(build)
+add_subdirectory(cli)
 if (BUILD_TESTS)
   add_subdirectory(tests)
 endif ()
