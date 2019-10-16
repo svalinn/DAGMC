@@ -14,7 +14,7 @@ include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 
 dagmc_install_library(fludag)
 
-add_subdirectory(build)
+add_subdirectory(app)
 if (BUILD_TESTS)
   add_subdirectory(tests)
 endif ()
