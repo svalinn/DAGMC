@@ -434,7 +434,7 @@ Dag-Geant4 run
 ~~~~~~~~~~~~~~
 
 Dag-Geant4 is probably the most trivial of all the |UW2|-enabled codes to run.
-Copy the ``vis.mac`` file from ``DAGMC/geant4/build/vis.mac``.
+Copy the ``vis.mac`` file from ``DAGMC/geant4/app/vis.mac``.
 ::
 
     $ DagGeant4 example.h5m
