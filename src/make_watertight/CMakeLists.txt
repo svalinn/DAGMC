@@ -13,7 +13,7 @@ dagmc_install_library(makeWatertight)
 
 set(INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR_SAVE})
 
-add_subdirectory(build)
+add_subdirectory(app)
 if (BUILD_TESTS)
   add_subdirectory(tests)
 endif ()

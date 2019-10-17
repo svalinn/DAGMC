@@ -12,7 +12,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 
 dagmc_install_library(uwuw)
 
-add_subdirectory(build)
+add_subdirectory(app)
 if (BUILD_TESTS)
   add_subdirectory(tests)
 endif ()
