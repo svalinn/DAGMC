@@ -40,6 +40,10 @@ int main(int argc, char* argv[]) {
 
   std::cout << "Running overlap check:" << std::endl;
 
+  if (points_per_tri_edge > 0) {
+    std::cout << "Checking " << points_per_tri_edge << " points along each triangle edge in addition to the triangle vertices." << std::endl;
+  }
+
   // check for overlaps
   OverlapMap overlap_map;
   rval = check_instance_for_overlaps(MBI, overlap_map, points_per_tri_edge);

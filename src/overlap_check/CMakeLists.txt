@@ -8,5 +8,5 @@ find_package(OpenMP)
 add_subdirectory(build)
 
 if (BUILD_TESTS)
-add_subdirectory(test)
+  add_subdirectory(test)
 endif()

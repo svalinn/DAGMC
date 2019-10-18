@@ -30,8 +30,13 @@ bool ProgressBar::is_terminal() {
 }
 
 
-void
-ProgressBar::set_value(double val) {
+void ProgressBar::set_value(double val) {
+
+  if ((int)val == current) {
+    return;
+  } else {
+    current = (int)val;
+  }
 
   std::string bar;
 
@@ -51,7 +56,7 @@ ProgressBar::set_value(double val) {
 
   bar.append("% |");
   // remaining width of the bar
-  int remaining_width = BAR_WIDTH - bar.size() - 2;
+  int remaining_width = BAR_WIDTH - 5;
 
   // set the bar width
   if (val >= 100.0) {
@@ -61,7 +66,6 @@ ProgressBar::set_value(double val) {
   } else {
     int width = (int)((double)remaining_width * val / 100);
     bar.append(width, '=');
-    bar.append(1, '>');
     bar.append(remaining_width - width - 1, ' ');
   }
 

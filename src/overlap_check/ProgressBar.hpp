@@ -18,8 +18,7 @@ class ProgressBar {
   static bool is_terminal();
 
  private:
-  std::string bar;
-
+  int current {0};
 };
 
 #endif // HEADER GUARD
