@@ -6,6 +6,10 @@
 #include "moab/Core.hpp"
 #include "moab/ProgOptions.hpp"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 using namespace moab;
 
 int main(int argc, char* argv[]) {
@@ -14,13 +18,21 @@ int main(int argc, char* argv[]) {
                  "This is currently a non-exhaustive search.");
 
   std::string filename;
-  int points_per_tri_edge = 0;
+  int points_per_tri_edge {0};
+  int n_threads {0};
 
   po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to check", &filename);
 
-  po.addOpt<int>("points per edge,p", "Number of evenly-spaced points to test on each triangle edge", &points_per_tri_edge);
+  po.addOpt<int>("points-per-edge,p", "Number of evenly-spaced points to test on each triangle edge", &points_per_tri_edge);
+#ifdef _OPENMP
+  po.addOpt<int>("threads,t", "Number of threads", &n_threads);
+#endif
 
   po.parseCommandLine(argc, argv);
+
+#ifdef _OPENMP
+  if (n_threads > 0) { omp_set_num_threads(n_threads); }
+#endif
 
   // Load the file
   std::shared_ptr<Interface> MBI(new Core());
