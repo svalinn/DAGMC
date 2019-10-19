@@ -31,7 +31,9 @@ int main(int argc, char* argv[]) {
   po.parseCommandLine(argc, argv);
 
 #ifdef _OPENMP
-  if (n_threads > 0) { omp_set_num_threads(n_threads); }
+  if (n_threads > 0) {
+    omp_set_num_threads(n_threads);
+  }
 #endif
 
   // Load the file
