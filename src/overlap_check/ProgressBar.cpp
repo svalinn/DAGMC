@@ -56,7 +56,7 @@ void ProgressBar::set_value(double val) {
 
   bar.append("% |");
   // remaining width of the bar
-  int remaining_width = BAR_WIDTH - 5;
+  int remaining_width = BAR_WIDTH - 8;
 
   // set the bar width
   if (val >= 100.0) {
