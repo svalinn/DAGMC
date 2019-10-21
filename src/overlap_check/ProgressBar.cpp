@@ -66,6 +66,7 @@ void ProgressBar::set_value(double val) {
   } else {
     int width = (int)((double)remaining_width * val / 100);
     bar.append(width, '=');
+    bar.append(1, '>');
     bar.append(remaining_width - width - 1, ' ');
   }
 
