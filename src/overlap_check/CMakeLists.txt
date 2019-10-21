@@ -10,7 +10,7 @@ if(OpenMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-add_subdirectory(build)
+add_subdirectory(app)
 
 if (BUILD_TESTS)
   add_subdirectory(test)
