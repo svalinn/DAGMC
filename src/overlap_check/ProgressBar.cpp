@@ -32,52 +32,37 @@ bool ProgressBar::is_terminal() {
 
 void ProgressBar::set_value(double val) {
 
+  if (!is_terminal()) {
+    return;
+  }
+
+  val = std::max(std::min(100.0, val), 0.0);
+
   if ((int)val == current) {
     return;
   } else {
     current = (int)val;
   }
 
-  std::string bar;
+  // current value and opening bracket
+  std::stringstream bar;
+  bar <<  std::setfill(' ') << std::setw(3) << (int)val;
+  bar << "% |";
 
-  if (!is_terminal())
-    return;
+  // remaining width of the bar, leaving room for the closing characters
+  // and the arrowhead
+  int remaining_width = BAR_WIDTH - 9;
+  int width = (int)((double)remaining_width * val / 100);
+  bar << std::string(width, '=');
+  bar << std::string(1, '>');
+  bar << std::string(remaining_width - width, ' ');
 
-  // set the bar percentage
-  if (val >= 100.0) {
-    bar.append("100");
-  } else if (val <= 0.0) {
-    bar.append("  0");
-  } else {
-    std::stringstream ss;
-    ss << std::setfill(' ') << std::setw(3) << (int)val;
-    bar.append(ss.str());
-  }
+  // closing bracket
+  bar << "|+";
 
-  bar.append("% |");
-  // remaining width of the bar
-  int remaining_width = BAR_WIDTH - 8;
-
-  // set the bar width
-  if (val >= 100.0) {
-    bar.append(remaining_width, '=');
-  } else if (val < 0.0) {
-    bar.append(remaining_width, ' ');
-  } else {
-    int width = (int)((double)remaining_width * val / 100);
-    bar.append(width, '=');
-    bar.append(1, '>');
-    bar.append(remaining_width - width - 1, ' ');
-  }
-
-  bar.append("|+");
-
-  // write the bar
-  std::cout << '\r' << bar << std::flush;
+  // write the bar to screen
+  std::cout << '\r' << bar.str() << std::flush;
   if (val >= 100.0) {
     std::cout << "\n";
   }
-
-  // reset the bar value
-  bar = "";
 }
