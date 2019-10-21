@@ -44,3 +44,7 @@ endif ()
 if (BUILD_FLUKA)
   add_subdirectory(fluka)
 endif ()
+
+if (BUILD_OVERLAP_CHECK)
+  add_subdirectory(overlap_check)
+endif ()
