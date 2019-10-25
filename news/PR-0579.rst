@@ -1,0 +1,15 @@
+**Added:** None
+
+**Changed:**
+
+* When configuring MPI-enabled DAG-MCNP6, do not rely on
+  ``MPI_Fortran_INCLUDE_PATH`` being set because this variable is not set when
+  using CMake 3.10 or newer. Instead, use ``MPI_Fortran_COMPILER``.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

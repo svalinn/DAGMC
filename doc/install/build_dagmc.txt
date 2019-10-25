@@ -1,0 +1,12 @@
+Build |DAG-Code|
+~~~~~~~~~~~~~~~~
+
+Use Make to install |DAG-Code|.
+::
+
+    $ make
+    $ make install
+
+If the build was successful, the binaries, libraries, header files, and tests
+will be installed to the ``bin``, ``lib``, ``include``, and ``tests``
+subdirectories of ``$INSTALL_PATH`` respectively.
