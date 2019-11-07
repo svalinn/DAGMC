@@ -183,6 +183,10 @@ std::string to_lower(std::string s);
 /// Returns a capitalized copy of the string.
 std::string capitalize(std::string s);
 
+/// Forms and returns the wrapped lines with a lenght up to line_lenght.
+std::ostringstream comment_line_wrapping(std::string line, std::string comment_prefix = "",
+                                         int line_length = 79);
+
 /// Finds and returns the first white-space delimited token of a line.
 /// \param line a character array to take the first token from.
 /// \param max_l an upper bound to the length of the token.  Must be 11 or less.
@@ -4845,7 +4849,8 @@ class JSON_API CustomWriter : public Writer {
 
 }
 
-#endif//
+#endif
+//
 // end of src/jsoncustomwriter.h
 //
 
@@ -5023,6 +5028,13 @@ class Material {
 
   /// Return an mcnp input deck record as a string
   std::string mcnp(std::string frac_type = "mass");
+  /// Return an phits input deck record as a string
+  std::string phits(std::string frac_type = "mass");
+  /// return the compo fraction writen ala "mcnp"
+  std::string mcnp_frac(std::map<int, double> fracs, std::string frac_type = "");
+  ///
+  /// Return an uwuw name
+  std::string get_uwuw_name();
   ///
   /// Return a fluka input deck MATERIAL card as a string
   std::string fluka(int id, std::string frac_type = "mass");
@@ -5118,6 +5130,11 @@ class Material {
   /// current value of the density member variable.  You may also use / set the
   /// atoms per molecule (atoms_per_molecule) in this function using \a apm.
   double mass_density(double num_dens = -1.0, double apm = -1.0);
+  // void print_material( pyne::Material test_mat);
+  /// Computes, sets, and returns the mass density when the material density is
+  /// definied otherwise return fraction. Fraction density is returned per atom
+  /// (default) in atom per barn cm or as a mass density.
+  std::map<int, double> get_density_frac(std::string frac_type = "atom");
   /// Computes and returns the number density of the material using the
   /// mass density if \a mass_dens is greater than or equal to zero.  If
   /// \a mass_dens is negative, the denisty member variable is used instead.
@@ -5338,6 +5355,11 @@ class Tally {
   // mcnp tally
   std::string mcnp(int tally_index = 1, std::string mcnp_version = "mcnp5");
 
+  // Form the mcnp tally line as function of its properties
+  std::string form_mcnp_tally(int tally_index, int type,
+                              std::string particle_token, int entity_id,
+                              double entity_size, double normalization);
+
   // fluka tally
   std::string fluka(std::string unit_number = "-21");
 
@@ -5441,7 +5463,6 @@ double measure(moab::EntityType type,
                const double* vertex_coordinatee);
 
 #endif
-
 
 //
 // end of src/measure.h
