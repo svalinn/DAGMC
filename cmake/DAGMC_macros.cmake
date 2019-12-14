@@ -71,6 +71,8 @@ macro (dagmc_setup_options)
 
   option(BUILD_RPATH "Build libraries and executables with RPATH" ON)
 
+  option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
+
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
     set(BUILD_MCNP6  ON)
