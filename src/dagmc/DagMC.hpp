@@ -19,6 +19,11 @@
 #include <string>
 #include <vector>
 
+#ifdef DOUBLE_DOWN
+#include "RTI.hpp"
+#include "MOABRay.h"
+#endif
+
 class RefEntity;
 
 struct DagmcVolData {
@@ -161,6 +166,7 @@ class DagMC {
    *  GeometryQueryTool.
    */
   #ifdef DOUBLE_DOWN
+  typedef std::vector<moab::EntityHandle> RayHistory;
   #else
   typedef GeomQueryTool::RayHistory RayHistory;
   #endif
@@ -421,7 +427,12 @@ class DagMC {
   bool moab_instance_created;
 
   std::shared_ptr<GeomTopoTool> GTT;
+
+  #ifdef DOUBLE_DOWN
+  std::unique_ptr<RayTracingInterface> GQT;
+  #else
   std::unique_ptr<GeomQueryTool> GQT;
+  #endif
 
  public:
   Tag  nameTag, facetingTolTag;

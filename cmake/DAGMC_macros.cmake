@@ -159,6 +159,10 @@ macro (dagmc_get_link_libs)
   set(LINK_LIBS_SHARED)
   set(LINK_LIBS_STATIC)
 
+  if (DOUBLE_DOWN)
+    list(APPEND LINK_LIBS_SHARED dd)
+  endif()
+
   foreach (extern_name IN LISTS LINK_LIBS_EXTERN_NAMES)
     list(APPEND LINK_LIBS_SHARED ${${extern_name}_SHARED})
     list(APPEND LINK_LIBS_STATIC ${${extern_name}_STATIC})
@@ -208,7 +212,8 @@ macro (dagmc_install_library lib_name)
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif ()
-    target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
+    message("LINK LIBS: ${LINK_LIBS_SHARED}")
+    target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
     install(TARGETS ${lib_name}-shared

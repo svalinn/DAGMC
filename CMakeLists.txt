@@ -22,6 +22,7 @@ if (DOUBLE_DOWN)
   find_package(DOUBLE_DOWN REQUIRED)
   set(DOUBLE_DOWN_SHARED dd)
   set(DOUBLE_DOWN_STATIC dd)
+  add_compile_definitions(DOUBLE_DOWN)
 endif()
 
 dagmc_setup_flags()
