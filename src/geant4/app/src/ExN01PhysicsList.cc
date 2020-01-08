@@ -32,7 +32,7 @@ void ExN01PhysicsList::ConstructProcess() {
 }
 
 void ExN01PhysicsList::SetCuts() {
-  // uppress error messages even in case e/gamma/proton do not exist
+  // suppress error messages even in case e/gamma/proton do not exist
   G4int temp = GetVerboseLevel();
   SetVerboseLevel(0);
   //  " G4VUserPhysicsList::SetCutsWithDefault" method sets

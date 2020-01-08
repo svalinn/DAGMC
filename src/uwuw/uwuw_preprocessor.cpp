@@ -133,7 +133,6 @@ void uwuw_preprocessor::process_materials() {
     material_names.insert(group_name);
   }
 
-  //
   std::set<std::string> :: iterator s_it;
 
   if (verbose) {
@@ -382,7 +381,7 @@ tally_info uwuw_preprocessor::make_tally_groupname(std::string tally_props,
     tally_name = particle.substr(0, 1) + tally_type.substr(0, 1)
                  + std::string(string_id);
 
-  // NB We rely on the code writing out the tally name to deal with allignment
+  // NB We rely on the code writing out the tally name to deal with alignment
 
   std::transform(tally_name.begin(), tally_name.end(), tally_name.begin(), toupper);
 

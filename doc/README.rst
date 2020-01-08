@@ -36,5 +36,5 @@ In other words, in order to use ``make publish``, the result of
     Your branch is up-to-date with 'origin/develop'.
     nothing to commit, working tree clean
 
-..  _DAGMC: http://svalinn.github.io/DAGMC
-..  _Sphinx: http://www.sphinx-doc.org
+..  _DAGMC: https://svalinn.github.io/DAGMC
+..  _Sphinx: https://www.sphinx-doc.org

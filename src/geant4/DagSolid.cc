@@ -95,7 +95,7 @@ DagSolid::DagSolid()
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Alternative constructor. Simple define name and geometry type - no facets
-// to detine.
+// to define.
 //
 DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
   : G4TessellatedSolid(name), cubicVolume(0.), surfaceArea(0.) {

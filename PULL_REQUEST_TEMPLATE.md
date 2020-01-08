@@ -1,5 +1,5 @@
 Please follow these guidelines when making a Pull Request.
-This template was adapted from [here](https://github.com/stevemao/github-issue-templates/edit/master/questions-answers/PULL_REQUEST_TEMPLATE.md) and [here](https://github.com/stevemao/github-issue-templates/edit/master/conversational/PULL_REQUEST_TEMPLATE.md).
+This template was adapted from [here](https://github.com/stevemao/github-issue-templates/blob/master/questions-answers/PULL_REQUEST_TEMPLATE.md) and [here](https://github.com/stevemao/github-issue-templates/blob/master/conversational/PULL_REQUEST_TEMPLATE.md).
 
 ## Description
 Describe your changes in detail.

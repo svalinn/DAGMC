@@ -192,7 +192,7 @@ TEST_F(DagmcSimpleTest, dagmc_test_obb_retreval_rayfire) {
   // write the file
   rval = dagmc->write_mesh("fcad", 4);
 
-  // now remove the dagmc instance a
+  // now remove the dagmc instance
   delete dagmc;
 
   // now create new DAGMC

@@ -108,7 +108,6 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
 
       EntityHandle vert = all_verts[i];
       CartVect loc;
-      rval = MBI->get_coords(&vert, 1, loc.array());
 
       rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
       MB_CHK_SET_ERR_CONT(rval, "Failed to check location " << loc << " for an overlap");
