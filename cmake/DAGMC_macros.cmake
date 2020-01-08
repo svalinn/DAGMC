@@ -80,6 +80,14 @@ macro (dagmc_setup_options)
     set(BUILD_FLUKA  ON)
   endif ()
 
+  if (DOUBLE_DOWN AND BUILD_STATIC_EXE)
+    message(FATAL_ERROR "BUILD_STATIC_EXE cannot be used while DOUBLE_DOWN is ON")
+  endif()
+
+  if (DOUBLE_DOWN AND BUILD_STATIC_LIBS)
+    message(FATAL_ERROR "BUILD_STATIC_LIBS cannot be used while DOUBLE_DOWN is ON")
+  endif()
+
   if (NOT BUILD_STATIC_LIBS AND BUILD_STATIC_EXE)
     message(FATAL_ERROR "BUILD_STATIC_EXE cannot be ON while BUILD_STATIC_LIBS is OFF")
   endif ()
@@ -206,7 +214,7 @@ macro (dagmc_install_library lib_name)
     add_library(${lib_name}-shared SHARED ${SRC_FILES})
       set_target_properties(${lib_name}-shared
         PROPERTIES OUTPUT_NAME ${lib_name}
-                   PUBLIC_HEADER "${PUB_HEADERS}")
+        PUBLIC_HEADER "${PUB_HEADERS}")
     if (BUILD_RPATH)
       set_target_properties(${lib_name}-shared
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
@@ -214,6 +222,9 @@ macro (dagmc_install_library lib_name)
     endif ()
     message("LINK LIBS: ${LINK_LIBS_SHARED}")
     target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
+    if (DOUBLE_DOWN)
+      target_link_libraries(${lib_name}-shared INTERFACE dd)
+    endif()
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
     install(TARGETS ${lib_name}-shared
@@ -256,18 +267,18 @@ macro (dagmc_install_exe exe_name)
       set_target_properties(${exe_name}
         PROPERTIES INSTALL_RPATH ""
                    INSTALL_RPATH_USE_LINK_PATH FALSE)
-      target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+                 target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
     else ()
       set_target_properties(${exe_name}
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
-      target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+                 target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
     endif ()
   else ()
     if (BUILD_STATIC_EXE)
       target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
     else ()
-      target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+      target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
     endif ()
   endif ()
   install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})

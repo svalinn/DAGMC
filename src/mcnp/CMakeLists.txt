@@ -17,6 +17,10 @@ add_library(mcnp_funcs OBJECT mcnp_funcs.cpp)
 message(STATUS "Building object library: meshtal_funcs")
 add_library(meshtal_funcs OBJECT meshtal_funcs.cpp)
 
+if (DOUBLE_DOWN)
+  target_link_libraries(mcnp_funcs dd)
+endif()
+
 if (BUILD_MCNP5)
   add_subdirectory(mcnp5)
 endif ()
