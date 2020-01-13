@@ -4,6 +4,10 @@ Authors
 The DAGMC project began as the CAD-MCNPX project in 2003, and since then has
 included contributions from the following:
 
+* Paul Romano
+* Jonathan Shimwell
+* Chelsea D'Angelo
+* Xiaokang Zhang
 * Andrew Davis
 * Kerry L. Dunn
 * Moataz Harb
