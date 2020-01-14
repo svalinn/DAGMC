@@ -32,11 +32,11 @@ v3.2.0
 * Add macros to ``cmake/DAGMC_macros.cmake``. This results in much less
   duplicated cmake elsewhere. The following macros were added: (PR#555)
   * ``dagmc_setup_build``: Sets core variables used throughout the rest of the
-      project.
+  project.
   * ``dagmc_setup_options``: Defines cmake build options.
   * ``dagmc_setup_flags``: Defines compiler flags.
   * ``dagmc_get_link_libs``: Used by the ``dagmc_install_X`` macros to
-      determine the names of the libraries that need to be linked.
+  determine the names of the libraries that need to be linked.
   * ``dagmc_make_configure_file``: Setup the ``DAGMCConfig.cmake`` file.
   * ``dagmc_install_library``: Install a library.
   * ``dagmc_install_exe``: Install an executable.
@@ -73,11 +73,11 @@ v3.2.0
   variable. If this variable is on, DAGMC will not be built and it will instead
   only perform 3 housekeeping checks: (PR#610)
   * News file: the CI will fail if a news file with the correct filename is not
-    included.
+  included.
   * Astyle: the version of astyle we use on the CI has been upgraded to 3.1.
-    This is the version that is default on Ubuntu 18.04.
+  This is the version that is default on Ubuntu 18.04.
   * Documentation: the CI will now attempt to build the DAGMC documentation and
-    will fail if it finds any errors or warnings.
+  will fail if it finds any errors or warnings.
 * The dockerfile has been modified so that it can be built with both Ubuntu
   16.04 and 18.04. (PR#610)
 * The docker images have been moved from the cnerg dockerhub organization to the
@@ -96,16 +96,16 @@ v3.2.0
 * MOAB 5.1.0 is now included in the docker image so it does not need to be built
   every time the CI is run. (PR#610)
   * This is to save time, since we expect that previous versions of MOAB will
-    not change. If it does change, we can update the Docker images.
+  not change. If it does change, we can update the Docker images.
   * MOAB master is still built every time it is needed.
 * MOAB is now built with pymoab support. This is for future-proofing in case
   DAGMC ever needs access to this functionality. (PR#610)
 * MOAB is now built against both custom-built HDF5 (1.10.4, up from 1.8.13) and
   against system HDF5. (PR#610)
   * The MOAB built against system HDF5 is currently unused, however, as there is
-    currently a bug that makes it so DAGMC cannot build static executables if
-    using system HDF5. If/when this bug is fixed, then building DAGMC with
-    system HDF5 can be added to the build matrix.
+  currently a bug that makes it so DAGMC cannot build static executables if
+  using system HDF5. If/when this bug is fixed, then building DAGMC with
+  system HDF5 can be added to the build matrix.
 * Geant4 has been upgraded to version 10.5. (PR#610)
 * Building the documentation will throw an error if it encounters any warnings
   or errors. The previous warnings and errors that were occurring have been
@@ -149,7 +149,7 @@ v3.2.0
   ``$LD_LIBRARY_PATH``. Now, users must specify ``-DMOAB_DIR`` when running
   cmake. (PR#555)
   * Note that the ``MOABConfig.cmake`` file is no longer used to find any MOAB
-      files.
+  files.
 * Since users no longer need to change their ``$PATH`` or ``$LD_LIBRARY_PATH``,
   remove the changes to those variables in the CI scripts. (PR#555)
 * Rename the cmake commands used to build DAG-MCNP5/6 with plotting and MPI
@@ -198,11 +198,11 @@ v3.2.0
 * The `make_watertight_regression_tests` should now be run if the CI is not
   doing a PR build. (PR#610)
   * I believe this was broken for an undetermined amount of time; I do not
-    believe they were ever getting run regardless of whether the CI was doing a
-    PR build or not. This is because intrinsic Travis variables like
-    `$TRAVIS_PULL_REQUEST` are only available to `.travis.yml`; if they are
-    needed in other scripts, they need to be passed manually, and this was not
-    happening before.
+  believe they were ever getting run regardless of whether the CI was doing a
+  PR build or not. This is because intrinsic Travis variables like
+  `$TRAVIS_PULL_REQUEST` are only available to `.travis.yml`; if they are
+  needed in other scripts, they need to be passed manually, and this was not
+  happening before.
 * Fixes issue with unstructured mesh tallies. (PR#597)
 * Now produces a vector tag of size num_groups instead of num_groups+2 scalar
   tags. (PR#597)
