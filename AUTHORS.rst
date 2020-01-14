@@ -4,10 +4,7 @@ Authors
 The DAGMC project began as the CAD-MCNPX project in 2003, and since then has
 included contributions from the following:
 
-* Paul Romano
-* Jonathan Shimwell
 * Chelsea D'Angelo
-* Xiaokang Zhang
 * Andrew Davis
 * Kerry L. Dunn
 * Moataz Harb
@@ -17,6 +14,8 @@ included contributions from the following:
 * Jason Kraftcheck
 * Lucas Jacobson
 * Eric Relson
+* Paul Romano
+* Jonathan Shimwell
 * Patrick Shriwise
 * Rachel N. Slaybaugh
 * Brandon Smith
@@ -25,6 +24,7 @@ included contributions from the following:
 * Zach Welch
 * Paul P.H. Wilson
 * Julie C. Zachman
+* Xiaokang Zhang
 
 The DAGMC project also relies heavily on the MOAB_ project and the Trelis_
 software package.
