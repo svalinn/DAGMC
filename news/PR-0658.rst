@@ -9,6 +9,7 @@
 **Deprecated:** None
 
 **Removed:**
+
 * news.rst
 
 **Fixed:** None
