@@ -28,20 +28,20 @@ v3.2.0
 * Patch file for DAG-MCNP6.2 (PR#569)
 * Default to a Release build. This results in optimization flags being used
   everywhere as appropriate. (PR#555)
-    * Note that MCNP is still configured to use no more than ``-O1``
+  * Note that MCNP is still configured to use no more than ``-O1``
 * Add macros to ``cmake/DAGMC_macros.cmake``. This results in much less
   duplicated cmake elsewhere. The following macros were added: (PR#555)
-    * ``dagmc_setup_build``: Sets core variables used throughout the rest of the
+  * ``dagmc_setup_build``: Sets core variables used throughout the rest of the
       project.
-    * ``dagmc_setup_options``: Defines cmake build options.
-    * ``dagmc_setup_flags``: Defines compiler flags.
-    * ``dagmc_get_link_libs``: Used by the ``dagmc_install_X`` macros to
+  * ``dagmc_setup_options``: Defines cmake build options.
+  * ``dagmc_setup_flags``: Defines compiler flags.
+  * ``dagmc_get_link_libs``: Used by the ``dagmc_install_X`` macros to
       determine the names of the libraries that need to be linked.
-    * ``dagmc_make_configure_file``: Setup the ``DAGMCConfig.cmake`` file.
-    * ``dagmc_install_library``: Install a library.
-    * ``dagmc_install_exe``: Install an executable.
-    * ``dagmc_install_test``: Install a unit test.
-    * ``dagmc_install_test_file``: Install a file needed for unit testing.
+  * ``dagmc_make_configure_file``: Setup the ``DAGMCConfig.cmake`` file.
+  * ``dagmc_install_library``: Install a library.
+  * ``dagmc_install_exe``: Install an executable.
+  * ``dagmc_install_test``: Install a unit test.
+  * ``dagmc_install_test_file``: Install a file needed for unit testing.
 * Add a ``FindFluka.cmake`` file to find the Fluka library. (PR#555)
 * Add ``RPATH`` functionality so that all executables and libraries
   automatically know where their dependencies are located. This removes the need
@@ -51,9 +51,9 @@ v3.2.0
   on by setting ``-DBUILD_PIC=ON``. (PR#555)
 * Add options to enable/disable building all optional functionality. The
   following options were added: (PR#555)
-    * ``BUILD_BUILD_OBB``
-    * ``BUILD_MAKE_WATERTIGHT``
-    * ``BUILD_TESTS``
+  * ``BUILD_BUILD_OBB``
+  * ``BUILD_MAKE_WATERTIGHT``
+  * ``BUILD_TESTS``
 * Documentation explaining the new requirement that all PRs must include a file
   explaining what the PR does. (PR#545)
 * Template for the news directory. (PR#545)
@@ -85,8 +85,8 @@ v3.2.0
 * The new build matrix for the non-housekeeping run is 2x2x2: (PR#610)
   * Ubuntu 16.04 vs. 18.04
   * gcc vs. clang
-    * gcc-5.3 on 16.04; gcc-7.3 on 18.04
-    * clang-3.8 on 16.04; clang-6.0 on 18.04
+  * gcc-5.3 on 16.04; gcc-7.3 on 18.04
+  * clang-3.8 on 16.04; clang-6.0 on 18.04
   * MOAB 5.1.0 vs. master vs. develop
 * The builds that use MOAB master and develop are allowed to fail without the
   entire CI failing. The CI will show as having passed once the housekeeping
@@ -148,7 +148,7 @@ v3.2.0
 * Change how we find MOAB. Previously, MOAB was required to be in users'
   ``$LD_LIBRARY_PATH``. Now, users must specify ``-DMOAB_DIR`` when running
   cmake. (PR#555)
-    * Note that the ``MOABConfig.cmake`` file is no longer used to find any MOAB
+  * Note that the ``MOABConfig.cmake`` file is no longer used to find any MOAB
       files.
 * Since users no longer need to change their ``$PATH`` or ``$LD_LIBRARY_PATH``,
   remove the changes to those variables in the CI scripts. (PR#555)
