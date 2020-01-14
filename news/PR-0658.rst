@@ -1,6 +1,7 @@
 **Added:** None
 
-**Changed:** None
+**Changed:**
+
 * Version number updated
 * Authors updated
 * CHANGELOG.rst file created to keep release notes

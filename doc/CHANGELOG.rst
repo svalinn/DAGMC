@@ -1,5 +1,5 @@
 ================
-dagmc Change Log
+DAGMC Changelog
 ================
 
 .. current developments
