@@ -1,0 +1,15 @@
+**Added:** None
+
+**Changed:** None
+* Version number updated
+* Authors updated
+* CHANGELOG.rst file created to keep release notes
+
+**Deprecated:** None
+
+**Removed:**
+* news.rst
+
+**Fixed:** None
+
+**Security:** None
