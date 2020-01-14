@@ -1,13 +1,13 @@
 **Added:** None
+* news file
 
 **Changed:** None
 
 **Deprecated:** None
 
-**Removed:** None
+**Removed:**
+* old news files
 
-**Fixed:**
-
-* Updated links to OpenMC documentation
+**Fixed:** None
 
 **Security:** None
