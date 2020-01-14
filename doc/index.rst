@@ -38,6 +38,7 @@ materials and other geometry-related information.
     install/index
     usersguide/index
     contribute/index
+    CHANGELOG
 
 ..  toctree::
     :hidden:
