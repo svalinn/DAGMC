@@ -1,3 +1,12 @@
+===============
+dagmc Change Log
+===============
+
+.. current developments
+
+v3.2.0
+====================
+
 **Added:**
 
 * Tool for checking DagMC models for overlaps. (PR#641)
