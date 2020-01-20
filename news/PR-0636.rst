@@ -1,0 +1,14 @@
+**Added:** None
+
+**Changed:** None
+
+* ``dagmc/src/make_watertight``: now accepting output_filename
+* ``dagmc/src/check_watertight``: now accepting output_filename
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:**
+
+**Security:** None

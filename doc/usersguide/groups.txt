@@ -1,0 +1,30 @@
+A DAGMC-based analysis allows a number of attributes of the geometry
+to be defined within the geometry file. These characteristics
+generally relate to the physical behavior of the volume, for example
+its material definition or boundary conditions.
+
+Before the discussion of specific attributes, the practice of
+"grouping" needs to be explained. A group is essentially a collection
+of volumes or surfaces that share a common attribute; the practical
+usage of "grouping" will be explained in the next section.
+
+The general format for creating/adding volumes to a group is:
+::
+
+    CUBIT> group "group.name" add vol/surf ...
+
+For example, to create a group called "moderator" containing volumes
+5, 6, 7, and 10, the following command would be used:
+::
+
+    CUBIT> group "moderator" add vol 5 to 8 10
+
+Another example, shows that groups don't have to just contain
+volumes, but can contain surfaces too. Below the group
+"shield.boundary" is created with surfaces 16 and 37:
+::
+
+    CUBIT> group "shield.boundary" add surf 16 37
+
+Due to the importance of using the ``group`` command reading the CUBIT
+manual section on its full usage is highly recommended.

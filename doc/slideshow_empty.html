@@ -1,0 +1,163 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- SLIDESHOW STYLE -->
+<style>
+* {box-sizing:border-box}
+
+/* Slideshow container */
+.slideshow-container {
+  width: 800px;
+  height: 450px;
+  position: relative;
+  margin: auto;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  margin-top: -22px;
+  padding: 16px;
+  color: grey;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+}
+
+/* Position the "next button" to the right */
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover, .next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+/* Caption text */
+.text {
+  color: #000;
+  font-size: 15px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: -10px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Number text (1/3 etc) */
+.numbertext {
+  color: #000;
+  font-size: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: -40px;
+  right: 0px;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+  cursor:pointer;
+  height: 13px;
+  width: 13px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.mySlides img {
+  max-width: 800px;
+  max-height: 400px;
+  object-fit: contain;
+  position: absolute;
+  bottom: 50px;
+}
+
+.active, .dot:hover {
+  background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 1.5s;
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+</style>
+
+<!-- WE WILL INSERT AUTO GEN CONENT HERE -->
+
+<script>
+var slideIndex = 1;
+var queue_next = true;
+var timeoutID = 0;
+showSlides(slideIndex);
+
+function nextSlide(n = 1) {
+  showSlides(slideIndex += n);
+}
+
+function plusSlides(n = 1) {
+  queue_next = false;
+  clearTimeout(timeoutID);
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  queue_next = false;
+  clearTimeout(timeoutID);
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  var dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
+
+  if (queue_next) {timeoutID = setTimeout(nextSlide,3000);}
+}
+
+$(document).keydown(function(evt) {
+  evt = evt || window.event;
+  switch (evt.keyCode) {
+  case 37:
+    queue_next = false;
+    clearTimeout(timeoutID);
+    plusSlides(-1);
+    break;
+  case 39:
+    queue_next = false;
+    clearTimeout(timeoutID);
+    plusSlides(1);
+    break;
+  }
+});
+</script>

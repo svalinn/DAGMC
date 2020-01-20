@@ -1,0 +1,15 @@
+**Added:**
+
+* Patch file for DAG-MCNP6.2
+
+**Changed:**
+
+* CMakeFile for DAG-MCNP6 to accomodate MCNP6.2
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

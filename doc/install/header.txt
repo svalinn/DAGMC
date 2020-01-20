@@ -1,0 +1,5 @@
+Install |DAG-Code|
+==================
+
+This document explains how to install |DAG-Code|, assuming you have already
+installed the required `dependencies <dependencies.html>`_.

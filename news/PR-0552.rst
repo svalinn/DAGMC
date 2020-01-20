@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:**
+
+Moved all source code into the ``src`` directory
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

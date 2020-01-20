@@ -1,0 +1,14 @@
+**Added:**
+
+* Note on adding DagMC libraries to LD_LIBRARY_PATH for OpenMC usage
+* Link to installation instructions for OpenMC with DagMC
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
