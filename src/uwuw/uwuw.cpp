@@ -151,6 +151,7 @@ int UWUW::get_length_of_table(std::string filename, std::string datapath) {
   hid_t arr_space = H5Dget_space(ds);
 
   hsize_t arr_dims[1];
+  int arr_ndim = H5Sget_simple_extent_dims(arr_space, arr_dims, NULL);
 
   status = H5Eclear(H5E_DEFAULT);
 
