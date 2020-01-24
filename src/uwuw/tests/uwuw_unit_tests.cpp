@@ -149,7 +149,7 @@ TEST_F(UWUWTest, mat_write) {
   std::string openmc_rep = mat.openmc();
   std::cout << openmc_rep << std::endl;
   std::stringstream expected_rep;
-  expected_rep << "<material id=\"1\" >\n";
+  expected_rep << "<material id=\"1\" name=\"Water\" >\n";
   expected_rep << "  <density value=\"1.\" units=\"g/cc\" />\n";
   expected_rep << "  <nuclide name=\"H1\" wo=\"6.6667e-01\" />\n";
   expected_rep << "  <nuclide name=\"O16\" wo=\"3.3333e-01\" />\n";
