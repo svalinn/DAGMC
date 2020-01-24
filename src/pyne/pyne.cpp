@@ -252,6 +252,25 @@ std::string pyne::to_lower(std::string s) {
   return s;
 }
 
+std::ostringstream pyne::comment_line_wrapping(std::string line,
+                                               std::string comment_prefix,
+                                               int line_length) {
+  std::ostringstream oss;
+
+  line_length -= comment_prefix.length();
+
+  // Include as is if short enough
+  while (line.length() > line_length) {
+    oss << comment_prefix << line.substr(0, line_length) << std::endl;
+    line.erase(0, line_length);
+  }
+
+  if (line.length() > 0) {
+    oss << comment_prefix << line << std::endl;
+  }
+
+  return oss;
+}
 
 std::string pyne::capitalize(std::string s) {
   unsigned int slen = s.length();
@@ -13209,7 +13228,7 @@ std::string valueToString(UInt value) {
 
 std::string valueToString(double value) {
   char buffer[32];
-#if defined(_MSC_VER) && defined(__STDC_SECURE_LIB__) // Use secure version with visual studio 2005 to avoid warning. 
+#if defined(_MSC_VER) && defined(__STDC_SECURE_LIB__) // Use secure version with visual studio 2005 to avoid warning.
   sprintf_s(buffer, sizeof(buffer), "%#.16g", value);
 #else
   sprintf(buffer, "%#.16g", value);
@@ -14098,7 +14117,7 @@ CustomWriter::unindent() {
 
 // h5wrap template
 template double h5wrap::get_array_index(hid_t, int, hid_t);
-
+const int mcnp_line_length = 79;
 
 
 /***************************/
@@ -14584,10 +14603,9 @@ std::string pyne::Material::openmc(std::string frac_type) {
   }
 
   // add name if specified
-  if (temp_mat.metadata.isMember("mat_name")) {
-    oss << "name=" << new_quote << temp_mat.metadata["mat_name"].asString() << end_quote;
+  if (temp_mat.metadata.isMember("name")) {
+    oss << "name=" << new_quote << temp_mat.metadata["name"].asString() << end_quote;
   }
-
   // close the material tag
   oss << ">";
   // new line
@@ -14677,9 +14695,32 @@ std::string pyne::Material::openmc(std::string frac_type) {
   return oss.str();
 }
 
+///---------------------------------------------------------------------------//
+std::string pyne::Material::get_uwuw_name() {
+  // standard uwuw material name is : "mat:<Name of Material>/rho:<density>"
+  if (! metadata.isMember("name")) {
+    pyne::warning("The material has no name");
+    return "";
+  }
+  std::ostringstream uwuw_name;
+  uwuw_name << "mat:";
+  uwuw_name << metadata["name"].asString();
+  if (density > 0) {
+    uwuw_name << "/rho:" << std::setprecision(5) << density;
+  } else {
+    pyne::warning("No Density defined for this Material");
+  }
+
+  return uwuw_name.str();
+}
+
+///---------------------------------------------------------------------------//
 std::string pyne::Material::mcnp(std::string frac_type) {
   //////////////////// Begin card creation ///////////////////////
   std::ostringstream oss;
+
+  std::string comment_prefix = "C ";
+
   // 'name'
   if (metadata.isMember("name")) {
     oss << "C name: " << metadata["name"].asString() << std::endl;
@@ -14697,20 +14738,7 @@ std::string pyne::Material::mcnp(std::string frac_type) {
   // Metadata comments
   if (metadata.isMember("comments")) {
     std::string comment_string = "comments: " + metadata["comments"].asString();
-    // Include as is if short enough
-    if (comment_string.length() <= 77) {
-      oss << "C " << comment_string << std::endl;
-    } else { // otherwise create a remainder string and iterate/update it
-      oss << "C " << comment_string.substr(0, 77) << std::endl;
-      std::string remainder_string = comment_string.substr(77);
-      while (remainder_string.length() > 77) {
-        oss << "C " << remainder_string.substr(0, 77) << std::endl;
-        remainder_string.erase(0, 77);
-      }
-      if (remainder_string.length() > 0) {
-        oss << "C " << remainder_string << std::endl;
-      }
-    }
+    oss << pyne::comment_line_wrapping(comment_string, comment_prefix, mcnp_line_length).str();
   }
 
   // Metadata mat_num
@@ -14723,27 +14751,81 @@ std::string pyne::Material::mcnp(std::string frac_type) {
   }
 
   // Set up atom or mass frac map
-  std::map<int, double> fracs;
-  std::string frac_sign;
+  std::map<int, double> fracs = get_density_frac(frac_type);
+  std::string frac_sign = "";
 
-  if ("atom" == frac_type) {
-    fracs = to_atom_frac();
-    frac_sign = "";
+  // write the frac map
+  oss << mcnp_frac(fracs, frac_type);
+
+  return oss.str();
+}
+
+
+///---------------------------------------------------------------------------//
+std::string pyne::Material::phits(std::string frac_type) {
+  //////////////////// Begin card creation ///////////////////////
+  std::ostringstream oss;
+
+  std::string comment_prefix = "C ";
+
+  // 'name'
+  if (metadata.isMember("name")) {
+    oss << "C name: " << metadata["name"].asString() << std::endl;
+  }
+  // Metadata comments
+  if (metadata.isMember("comments")) {
+    std::string comment_string = "comments: " + metadata["comments"].asString();
+    oss << pyne::comment_line_wrapping(comment_string, comment_prefix, mcnp_line_length).str();
+  }
+
+  // Metadata mat_num
+  oss << "M[ ";
+  if (metadata.isMember("mat_number")) {
+    int mat_num = metadata["mat_number"].asInt();
+    oss << mat_num;
   } else {
-    fracs = comp;
+    oss << "?";
+  }
+  oss << " ]" << std::endl;
+
+  // check for metadata
+  std::string keyworkds[6] = {"GAS", "ESTEP", "NLIB", "PLIB", "ELIB", "HLIB"};
+  for (auto keyword : keyworkds) {
+    if (metadata.isMember(keyword)) {
+      oss << "     " << keyword << "=" << metadata[keyword].asInt() << std::endl;
+    }
+  }
+  // COND should be "<" or "=" or ">" if present
+  if (metadata.isMember("COND")) {
+    oss << "     COND" << metadata["COND"].asString() << "0" << std::endl;
+  }
+
+  // Set up atom or mass frac map
+  std::map<int, double> fracs = get_density_frac(frac_type);
+  std::string frac_sign = "";
+
+  // write the frac map
+  oss << mcnp_frac(fracs, frac_type);
+
+  return oss.str();
+}
+
+std::string pyne::Material::mcnp_frac(std::map<int, double> fracs, std::string frac_type) {
+
+  std::string frac_sign = "";
+  if ("atom" != frac_type) {
     frac_sign = "-";
   }
 
   // iterate through frac map
   // This is an awkward pre-C++11 way to put an int to a string
-  std::stringstream ss;
-  std::string nucmcnp;
-  std::string table_item;
+  std::ostringstream oss;
   for (pyne::comp_iter i = fracs.begin(); i != fracs.end(); ++i) {
     if (i->second > 0.0) {
       // Clear first
-      ss.str(std::string());
-      ss.str("");
+      std::stringstream ss;
+      std::string nucmcnp;
+      std::string table_item;
       ss << pyne::nucname::mcnp(i->first);
       nucmcnp = ss.str();
 
@@ -14758,12 +14840,10 @@ std::string pyne::Material::mcnp(std::string frac_type) {
       }
       // The int needs a little formatting
       std::stringstream fs;
-      fs << std::setprecision(4) << std::scientific << frac_sign << i->second \
-         << std::endl;
+      fs << std::setprecision(4) << std::scientific << frac_sign << i->second << std::endl;
       oss << fs.str();
     }
   }
-
   return oss.str();
 }
 
@@ -15302,8 +15382,8 @@ pyne::comp_map pyne::Material::decay_heat() {
   double masspermole = mass * pyne::N_A;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); ++i) {
     dh[i->first] = masspermole * (i->second) * \
-                   decay_const(i->first) * q_val(i->first) / \
-                   atomic_mass(i->first) / pyne::MeV_per_MJ;
+                   decay_const(metastable_id(i->first, nucname::snum(i->first))) * \
+                   q_val(i->first) / atomic_mass(i->first) / pyne::MeV_per_MJ;
   }
   return dh;
 }
@@ -15483,6 +15563,33 @@ pyne::Material pyne::Material::collapse_elements(int** int_ptr_arry) {
   }
   return collapse_elements(nucvec);
 }
+
+// Set up atom or mass frac map
+
+std::map<int, double> pyne::Material::get_density_frac(std::string frac_type) {
+  std::map<int, double> fracs;
+
+  if ("atom" == frac_type) {
+    if (density != -1.0) {
+      fracs = to_atom_dens();
+      for (comp_iter ci = fracs.begin(); ci != fracs.end(); ci++) {
+        ci->second *= pyne::cm2_per_barn; // unit requirememt is [10^24 atoms/cm3] = [atoms/b.cm]
+      }
+    } else {
+      fracs = to_atom_frac();
+    }
+  } else {
+    fracs = comp;
+    if (density != -1.0) {
+      for (comp_iter ci = fracs.begin(); ci != fracs.end(); ci++) {
+        ci->second *= density;
+      }
+    }
+  }
+  return fracs;
+}
+
+
 
 double pyne::Material::mass_density(double num_dens, double apm) {
   if (0.0 <= num_dens) {
@@ -16304,38 +16411,23 @@ std::string pyne::Tally::mcnp(int tally_index, std::string mcnp_version) {
   output << "C " << tally_name << std::endl;
   output << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
-  if (normalization > 1.0)
+  if (normalization != 1.0)
     output << std::scientific;
 
   // neednt check entity type
   if (entity_type.find("Surface") != std::string::npos) {
     if (tally_type.find("Current") != std::string::npos) {
-      output << "F" << tally_index << "1:" << particle_token
-             << " " << entity_id << std::endl;
-      if (entity_size > 0.0)
-        output << "SD" << tally_index << "1 " << entity_size << std::endl;
-      // normalisation
-      if (normalization > 1.0)
-        output << "FM" << tally_index << "1 " << normalization << std::endl;
+      output << form_mcnp_tally(tally_index, 1, particle_token,
+                                entity_id, entity_size, normalization);
     } else if (tally_type.find("Flux") != std::string::npos) {
-      output << "F" << tally_index << "2:" << particle_token
-             << " " << entity_id << std::endl;
-      if (entity_size > 0.0)
-        output << "SD" << tally_index << "2 " << entity_size << std::endl;
-      // normalisation
-      if (normalization > 1.0)
-        output << "FM" << tally_index << "2 " << normalization << std::endl;
-
+      output << form_mcnp_tally(tally_index, 2, particle_token,
+                                entity_id, entity_size, normalization);
     }
+
   } else if (entity_type.find("Volume") != std::string::npos) {
     if (tally_type.find("Flux") != std::string::npos) {
-      output << "F" << tally_index << "4:" << particle_token << " "
-             << entity_id << std::endl;
-      if (entity_size > 0.0)
-        output << "SD" << tally_index << "4 " << entity_size << std::endl;
-      // normalisation
-      if (normalization > 1.0)
-        output << "FM" << tally_index << "4 " << normalization << std::endl;
+      output << form_mcnp_tally(tally_index, 4, particle_token,
+                                entity_id, entity_size, normalization);
     } else if (tally_type.find("Current") != std::string::npos) {
       // makes no sense in mcnp
     }
@@ -16347,6 +16439,30 @@ std::string pyne::Tally::mcnp(int tally_index, std::string mcnp_version) {
   // print sd card if area/volume specified
   return output.str();
 }
+
+// Form the tally line as function of its properties
+std::string pyne::Tally::form_mcnp_tally(int tally_index,
+                                         int type,
+                                         std::string particle_token,
+                                         int entity_id, double entity_size,
+                                         double normalization) {
+  std::stringstream tally_stream;  // tally stream
+  tally_stream << std::setiosflags(std::ios::fixed) << std::setprecision(6);
+  if (normalization != 1.0)
+    tally_stream << std::scientific;
+
+  tally_stream << "F" << tally_index << type
+               << ":" << particle_token << " " << entity_id << std::endl;
+
+  if (entity_size > 0.0)
+    tally_stream << "SD" << tally_index << type << " " << entity_size << std::endl;
+
+  if (normalization != 1.0)
+    tally_stream << "FM" << tally_index << type << " " << normalization << std::endl;
+
+  return tally_stream.str();
+}
+
 
 // Produces valid fluka tally
 std::string pyne::Tally::fluka(std::string unit_number) {
@@ -16541,26 +16657,26 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[30130000] = 13.062631523;
   atomic_mass_map[40130000] = 13.036134506;
   atomic_mass_map[50130000] = 13.017780166;
-  atomic_mass_map[60130000] = 13.0033548351;
+  atomic_mass_map[60130000] = 13.00335483507;
   atomic_mass_map[70130000] = 13.005738609;
   atomic_mass_map[80130000] = 13.024815446;
   atomic_mass_map[40140000] = 14.04289292;
   atomic_mass_map[50140000] = 14.025404012;
-  atomic_mass_map[60140000] = 14.0032419884;
-  atomic_mass_map[70140000] = 14.0030740044;
+  atomic_mass_map[60140000] = 14.00324198843;
+  atomic_mass_map[70140000] = 14.00307400443;
   atomic_mass_map[80140000] = 14.008596359;
   atomic_mass_map[90140000] = 14.034315207;
   atomic_mass_map[40150000] = 15.05342;
   atomic_mass_map[50150000] = 15.03108768;
   atomic_mass_map[60150000] = 15.010599256;
-  atomic_mass_map[70150000] = 15.0001088989;
+  atomic_mass_map[70150000] = 15.00010889888;
   atomic_mass_map[80150000] = 15.003065618;
   atomic_mass_map[90150000] = 15.018042853;
   atomic_mass_map[40160000] = 16.061672036;
   atomic_mass_map[50160000] = 16.039841663;
   atomic_mass_map[60160000] = 16.014701252;
   atomic_mass_map[70160000] = 16.006101925;
-  atomic_mass_map[80160000] = 15.9949146196;
+  atomic_mass_map[80160000] = 15.99491461957;
   atomic_mass_map[90160000] = 16.011465725;
   atomic_mass_map[100160000] = 16.025750197;
   atomic_mass_map[50170000] = 17.046989906;
@@ -16572,7 +16688,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[50180000] = 18.055660189;
   atomic_mass_map[60180000] = 18.026750708;
   atomic_mass_map[70180000] = 18.014077565;
-  atomic_mass_map[80180000] = 17.9991596129;
+  atomic_mass_map[80180000] = 17.99915961286;
   atomic_mass_map[90180000] = 18.000937325;
   atomic_mass_map[100180000] = 18.005708703;
   atomic_mass_map[110180000] = 18.026878252;
@@ -16580,7 +16696,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[60190000] = 19.034796372;
   atomic_mass_map[70190000] = 19.017021603;
   atomic_mass_map[80190000] = 19.00357797;
-  atomic_mass_map[90190000] = 18.9984031627;
+  atomic_mass_map[90190000] = 18.99840316273;
   atomic_mass_map[100190000] = 19.001880907;
   atomic_mass_map[110190000] = 19.013880272;
   atomic_mass_map[120190000] = 19.034169186;
@@ -16589,7 +16705,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[70200000] = 20.023365807;
   atomic_mass_map[80200000] = 20.004075354;
   atomic_mass_map[90200000] = 19.999981252;
-  atomic_mass_map[100200000] = 19.9924401762;
+  atomic_mass_map[100200000] = 19.99244017617;
   atomic_mass_map[110200000] = 20.007354426;
   atomic_mass_map[120200000] = 20.018850004;
   atomic_mass_map[50210000] = 21.08129;
@@ -16615,7 +16731,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[80230000] = 23.015695922;
   atomic_mass_map[90230000] = 23.003556696;
   atomic_mass_map[100230000] = 22.994466905;
-  atomic_mass_map[110230000] = 22.989769282;
+  atomic_mass_map[110230000] = 22.98976928196;
   atomic_mass_map[120230000] = 22.994124208;
   atomic_mass_map[130230000] = 23.007244351;
   atomic_mass_map[140230000] = 23.02544;
@@ -16651,7 +16767,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[100270000] = 27.007553268;
   atomic_mass_map[110270000] = 26.994076531;
   atomic_mass_map[120270000] = 26.984340624;
-  atomic_mass_map[130270000] = 26.981538531;
+  atomic_mass_map[130270000] = 26.981538530999998;
   atomic_mass_map[140270000] = 26.986704811;
   atomic_mass_map[150270000] = 26.999224406;
   atomic_mass_map[160270000] = 27.01828;
@@ -16661,7 +16777,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[110280000] = 27.998939;
   atomic_mass_map[120280000] = 27.983876728;
   atomic_mass_map[130280000] = 27.98191021;
-  atomic_mass_map[140280000] = 27.9769265347;
+  atomic_mass_map[140280000] = 27.97692653465;
   atomic_mass_map[150280000] = 27.992326585;
   atomic_mass_map[160280000] = 28.004372766;
   atomic_mass_map[170280000] = 28.02954;
@@ -16690,7 +16806,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[120310000] = 30.996648032;
   atomic_mass_map[130310000] = 30.983945171;
   atomic_mass_map[140310000] = 30.975363194;
-  atomic_mass_map[150310000] = 30.9737619984;
+  atomic_mass_map[150310000] = 30.97376199842;
   atomic_mass_map[160310000] = 30.979557007;
   atomic_mass_map[170310000] = 30.992414203;
   atomic_mass_map[180310000] = 31.012124;
@@ -16700,7 +16816,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[130320000] = 31.988085239;
   atomic_mass_map[140320000] = 31.974151539;
   atomic_mass_map[150320000] = 31.973907643;
-  atomic_mass_map[160320000] = 31.9720711744;
+  atomic_mass_map[160320000] = 31.97207117441;
   atomic_mass_map[170320000] = 31.985684637;
   atomic_mass_map[180320000] = 31.997637826;
   atomic_mass_map[190320000] = 32.02265;
@@ -16710,7 +16826,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[130330000] = 32.990908977;
   atomic_mass_map[140330000] = 32.977976964;
   atomic_mass_map[150330000] = 32.971725694;
-  atomic_mass_map[160330000] = 32.9714589098;
+  atomic_mass_map[160330000] = 32.97145890982;
   atomic_mass_map[170330000] = 32.977451989;
   atomic_mass_map[180330000] = 32.989925546;
   atomic_mass_map[190330000] = 33.00756;
@@ -16775,7 +16891,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[160390000] = 38.975134197;
   atomic_mass_map[170390000] = 38.968008176;
   atomic_mass_map[180390000] = 38.964313038;
-  atomic_mass_map[190390000] = 38.9637064864;
+  atomic_mass_map[190390000] = 38.96370648643;
   atomic_mass_map[200390000] = 38.970710813;
   atomic_mass_map[210390000] = 38.984784968;
   atomic_mass_map[220390000] = 39.00236;
@@ -16785,7 +16901,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[150400000] = 39.991331748;
   atomic_mass_map[160400000] = 39.975482562;
   atomic_mass_map[170400000] = 39.970415469;
-  atomic_mass_map[180400000] = 39.9623831237;
+  atomic_mass_map[180400000] = 39.96238312372;
   atomic_mass_map[190400000] = 39.963998166;
   atomic_mass_map[200400000] = 39.962590863;
   atomic_mass_map[210400000] = 39.977967291;
@@ -16797,7 +16913,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[160410000] = 40.979593451;
   atomic_mass_map[170410000] = 40.970684525;
   atomic_mass_map[180410000] = 40.96450057;
-  atomic_mass_map[190410000] = 40.9618252579;
+  atomic_mass_map[190410000] = 40.96182525792;
   atomic_mass_map[200410000] = 40.962277924;
   atomic_mass_map[210410000] = 40.969251105;
   atomic_mass_map[220410000] = 40.983148;
@@ -16868,7 +16984,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[170470000] = 46.98916;
   atomic_mass_map[180470000] = 46.972934865;
   atomic_mass_map[190470000] = 46.961661614;
-  atomic_mass_map[200470000] = 46.95454243;
+  atomic_mass_map[200470000] = 46.954542430000004;
   atomic_mass_map[210470000] = 46.95240374;
   atomic_mass_map[220470000] = 46.951758787;
   atomic_mass_map[230470000] = 46.954904914;
@@ -16956,7 +17072,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[220540000] = 53.951049547;
   atomic_mass_map[230540000] = 53.946438617;
   atomic_mass_map[240540000] = 53.938879158;
-  atomic_mass_map[250540000] = 53.940357615;
+  atomic_mass_map[250540000] = 53.940357614999996;
   atomic_mass_map[260540000] = 53.939608986;
   atomic_mass_map[270540000] = 53.948459872;
   atomic_mass_map[280540000] = 53.957892463;
@@ -16975,7 +17091,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[290550000] = 54.966038;
   atomic_mass_map[300550000] = 54.98398;
   atomic_mass_map[190560000] = 56.00851;
-  atomic_mass_map[200560000] = 55.98508;
+  atomic_mass_map[200560000] = 55.985079999999996;
   atomic_mass_map[210560000] = 55.97345;
   atomic_mass_map[220560000] = 55.957911353;
   atomic_mass_map[230560000] = 55.95048481;
@@ -17329,7 +17445,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[330840000] = 83.929303292;
   atomic_mass_map[340840000] = 83.918466763;
   atomic_mass_map[350840000] = 83.916496419;
-  atomic_mass_map[360840000] = 83.9114977282;
+  atomic_mass_map[360840000] = 83.91149772816;
   atomic_mass_map[370840000] = 83.914375229;
   atomic_mass_map[380840000] = 83.913419136;
   atomic_mass_map[390840000] = 83.920672086;
@@ -17355,7 +17471,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[330860000] = 85.936701533;
   atomic_mass_map[340860000] = 85.924311733;
   atomic_mass_map[350860000] = 85.918805433;
-  atomic_mass_map[360860000] = 85.9106106269;
+  atomic_mass_map[360860000] = 85.91061062693;
   atomic_mass_map[370860000] = 85.911167425;
   atomic_mass_map[380860000] = 85.909260608;
   atomic_mass_map[390860000] = 85.91488598;
@@ -17412,7 +17528,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[370900000] = 89.914798453;
   atomic_mass_map[380900000] = 89.907730037;
   atomic_mass_map[390900000] = 89.907143942;
-  atomic_mass_map[400900000] = 89.904697659;
+  atomic_mass_map[400900000] = 89.90469765899999;
   atomic_mass_map[410900000] = 89.911258449;
   atomic_mass_map[420900000] = 89.913930861;
   atomic_mass_map[430900000] = 89.924073921;
@@ -17445,7 +17561,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[430920000] = 91.915269779;
   atomic_mass_map[440920000] = 91.920234375;
   atomic_mass_map[450920000] = 91.932367694;
-  atomic_mass_map[460920000] = 91.94088;
+  atomic_mass_map[460920000] = 91.94087999999999;
   atomic_mass_map[340930000] = 92.95629;
   atomic_mass_map[350930000] = 92.943134;
   atomic_mass_map[360930000] = 92.931147174;
@@ -17548,7 +17664,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[480990000] = 98.924925848;
   atomic_mass_map[490990000] = 98.93411;
   atomic_mass_map[500990000] = 98.94853;
-  atomic_mass_map[361000000] = 99.96237;
+  atomic_mass_map[361000000] = 99.96236999999999;
   atomic_mass_map[371000000] = 99.95003;
   atomic_mass_map[381000000] = 99.935769692;
   atomic_mass_map[391000000] = 99.927714692;
@@ -17561,7 +17677,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[461000000] = 99.908504805;
   atomic_mass_map[471000000] = 99.916115445;
   atomic_mass_map[481000000] = 99.92034882;
-  atomic_mass_map[491000000] = 99.93095718;
+  atomic_mass_map[491000000] = 99.93095718000001;
   atomic_mass_map[501000000] = 99.938504196;
   atomic_mass_map[361010000] = 100.96873;
   atomic_mass_map[371010000] = 100.954039;
@@ -18008,7 +18124,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[511290000] = 128.909146665;
   atomic_mass_map[521290000] = 128.90659646;
   atomic_mass_map[531290000] = 128.904983669;
-  atomic_mass_map[541290000] = 128.904780861;
+  atomic_mass_map[541290000] = 128.90478086113;
   atomic_mass_map[551290000] = 128.906065683;
   atomic_mass_map[561290000] = 128.908680798;
   atomic_mass_map[571290000] = 128.912694431;
@@ -18056,7 +18172,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[511320000] = 131.914507691;
   atomic_mass_map[521320000] = 131.908546716;
   atomic_mass_map[531320000] = 131.907993514;
-  atomic_mass_map[541320000] = 131.904155086;
+  atomic_mass_map[541320000] = 131.90415508563;
   atomic_mass_map[551320000] = 131.906433914;
   atomic_mass_map[561320000] = 131.905061128;
   atomic_mass_map[571320000] = 131.910118979;
@@ -18350,7 +18466,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[551500000] = 149.95833;
   atomic_mass_map[561500000] = 149.94605;
   atomic_mass_map[571500000] = 149.93947;
-  atomic_mass_map[581500000] = 149.930384042;
+  atomic_mass_map[581500000] = 149.93038404200001;
   atomic_mass_map[591500000] = 149.926676502;
   atomic_mass_map[601500000] = 149.920902249;
   atomic_mass_map[611500000] = 149.920990941;
@@ -18586,7 +18702,7 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[671640000] = 163.930240273;
   atomic_mass_map[681640000] = 163.929208791;
   atomic_mass_map[691640000] = 163.933543614;
-  atomic_mass_map[701640000] = 163.934494934;
+  atomic_mass_map[701640000] = 163.93449493399999;
   atomic_mass_map[711640000] = 163.941339;
   atomic_mass_map[721640000] = 163.944370845;
   atomic_mass_map[731640000] = 163.953534;

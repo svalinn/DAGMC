@@ -15,6 +15,7 @@ python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
     src/material.* src/tally.* src/atomic_data.* src/measure.* \
     src/source_sampling.*
 cp pyne.cpp pyne.h ..
+githash=`git rev-parse HEAD`
 cd ..
 astyle --options=../../astyle_google.ini --suffix=none --verbose --formatted \
        "pyne.cpp" "pyne.h"
@@ -27,3 +28,5 @@ cp -v pyne/share/source_mcnp6.F90 ../mcnp/mcnp6/pyne_source/source.F90
 
 # Delete pyne repo
 rm -rf pyne
+update_date=`date "+%y/%m/%d"`
+echo "$update_date: PyNE/pyne $githash" >> pyne.version
