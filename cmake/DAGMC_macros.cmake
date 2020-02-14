@@ -181,6 +181,7 @@ macro (dagmc_make_configure_file)
   message(STATUS "DAGMC cmake config file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfig.cmake")
   configure_file(cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+  install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/)
 endmacro ()
 
 # To use the dagmc_install macros, the following lists must be defined:
@@ -207,6 +208,7 @@ macro (dagmc_install_library lib_name)
     endif ()
     target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
     install(TARGETS ${lib_name}-shared
+            EXPORT DAGMCTargets
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   endif ()
@@ -221,6 +223,7 @@ macro (dagmc_install_library lib_name)
     endif ()
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
     install(TARGETS ${lib_name}-static
+            EXPORT DAGMCTargets
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   endif ()
@@ -255,7 +258,9 @@ macro (dagmc_install_exe exe_name)
       target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
     endif ()
   endif ()
-  install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
+  install(TARGETS ${exe_name}
+          EXPORT DAGMCTargets
+          DESTINATION ${INSTALL_BIN_DIR})
 endmacro ()
 
 # Install a unit test
@@ -296,7 +301,3 @@ macro (dagmc_install_test_file filename)
   install(FILES ${filename} DESTINATION ${INSTALL_TESTS_DIR})
   configure_file(${CMAKE_CURRENT_LIST_DIR}/${filename} ${CMAKE_CURRENT_BINARY_DIR}/${filename} COPYONLY)
 endmacro ()
-
-macro (dagmc_export_target target_name)
-      export(TARGETS ${target} APPEND FILE "DAGMCTargets.cmake")
-endmacro()

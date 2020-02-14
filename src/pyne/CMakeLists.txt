@@ -13,4 +13,3 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
 endif ()
 
 dagmc_install_library(pyne_dagmc)
-dagmc_export_target(pyne_dagmc)

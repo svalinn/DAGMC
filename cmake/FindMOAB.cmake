@@ -47,6 +47,7 @@ if (BUILD_SHARED_LIBS)
     HINTS ${MOAB_LIBRARY_DIRS}
     NO_DEFAULT_PATH
   )
+  list(APPEND MOAB_LIBRARIES_SHARED ${NETCDF_DIR}/lib/libnetcdf.so gfortran quadmath)
 endif ()
 
 # Find MOAB library (static)
@@ -57,6 +58,8 @@ if (BUILD_STATIC_LIBS)
     HINTS ${MOAB_LIBRARY_DIRS}
     NO_DEFAULT_PATH
   )
+  list(APPEND MOAB_LIBRARIES_SHARED ${NETCDF_DIR}/lib/libnetcdf.so)
+  list(APPEND MOAB_LIBRARIES_STATIC ${NETCDF_DIR}/lib/libnetcdf.so)
 endif ()
 
 # The MOAB variable MOAB_USE_LAPACK determines whether or not libMOAB is linked
