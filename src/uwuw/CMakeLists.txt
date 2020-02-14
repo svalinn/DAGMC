@@ -11,7 +11,6 @@ include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 
 dagmc_install_library(uwuw)
-dagmc_export_target(uwuw)
 
 add_subdirectory(app)
 if (BUILD_TESTS)
