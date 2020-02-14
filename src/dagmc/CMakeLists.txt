@@ -14,6 +14,8 @@ include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 
 dagmc_install_library(dagmc)
 
+dagmc_export_target(dagmc)
+
 add_subdirectory(tools)
 
 if (BUILD_TESTS)

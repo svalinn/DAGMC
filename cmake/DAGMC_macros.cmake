@@ -296,3 +296,7 @@ macro (dagmc_install_test_file filename)
   install(FILES ${filename} DESTINATION ${INSTALL_TESTS_DIR})
   configure_file(${CMAKE_CURRENT_LIST_DIR}/${filename} ${CMAKE_CURRENT_BINARY_DIR}/${filename} COPYONLY)
 endmacro ()
+
+macro (dagmc_export_target target_name)
+      export(TARGETS ${target} APPEND FILE "DAGMCTargets.cmake")
+endmacro()
