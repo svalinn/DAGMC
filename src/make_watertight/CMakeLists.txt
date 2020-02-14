@@ -10,6 +10,7 @@ set(INSTALL_INCLUDE_DIR_SAVE ${INSTALL_INCLUDE_DIR})
 set(INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR}/make_watertight)
 
 dagmc_install_library(makeWatertight)
+dagmc_export_target(makeWatertight)
 
 set(INSTALL_INCLUDE_DIR ${INSTALL_INCLUDE_DIR_SAVE})
 
