@@ -263,9 +263,7 @@ macro (dagmc_install_exe exe_name)
       target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
     endif ()
   endif ()
-  install(TARGETS ${exe_name}
-          EXPORT DAGMCTargets
-          DESTINATION ${INSTALL_BIN_DIR})
+  install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
 endmacro ()
 
 # Install a unit test
