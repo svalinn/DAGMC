@@ -203,7 +203,7 @@ ErrorCode DagMC::setup_obbs() {
   if (!GTT->have_obb_tree()) {
     std::cout << "Building acceleration data structures..." << std::endl;
     #ifdef DOUBLE_DOWN
-    GQT->init();
+    rval = GQT->init();
     #else
     rval = GTT->construct_obb_trees();
     #endif
