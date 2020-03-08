@@ -77,6 +77,7 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
   GQT = std::make_unique<RayTracer>(GTT, overlap_tolerance, p_numerical_precision);
   GQT->set_overlap_thickness(overlap_tolerance);
   GQT->set_numerical_precision(p_numerical_precision);
+
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
 }
