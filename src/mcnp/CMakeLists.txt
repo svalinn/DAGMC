@@ -18,7 +18,7 @@ message(STATUS "Building object library: meshtal_funcs")
 add_library(meshtal_funcs OBJECT meshtal_funcs.cpp)
 
 if (DOUBLE_DOWN)
-  target_link_libraries(mcnp_funcs dd)
+   target_link_libraries(mcnp_funcs PUBLIC dd)
 endif()
 
 if (BUILD_MCNP5)
