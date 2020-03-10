@@ -24,6 +24,7 @@ cd ${dagmc_build_dir}
 #git clone https://github.com/svalinn/DAGMC -b develop
 ln -snf DAGMC src
 cd bld
+LD_LIBRARY_PATH=${double_down_install_dir}/lib \
 cmake ../src -DMOAB_DIR=${moab_install_dir} \
              -DBUILD_GEANT4=ON \
              -DGEANT4_DIR=${geant4_install_dir} \
