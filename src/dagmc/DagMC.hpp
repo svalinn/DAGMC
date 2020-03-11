@@ -19,11 +19,6 @@
 #include <string>
 #include <vector>
 
-#ifdef DOUBLE_DOWN
-#include "RTI.hpp"
-#include "MOABRay.h"
-#endif
-
 class RefEntity;
 
 struct DagmcVolData {
@@ -32,6 +27,7 @@ struct DagmcVolData {
   std::string comp_name;
 };
 
+class RayTracingInterface;
 
 namespace moab {
 
@@ -43,6 +39,7 @@ static const int groups_handle_idx = 4;
 
 
 class CartVect;
+class GeomQueryTool;
 
 /**\brief
  *
@@ -251,9 +248,9 @@ class DagMC {
  public:
 
   /** retrieve overlap thickness */
-  double overlap_thickness() { return GQT->get_overlap_thickness(); }
+  double overlap_thickness();
   /** retrieve numerical precision */
-  double numerical_precision() { return GQT->get_numerical_precision(); }
+  double numerical_precision();
   /** retrieve faceting tolerance */
   double faceting_tolerance() { return facetingTolerance; }
 

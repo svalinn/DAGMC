@@ -19,6 +19,11 @@
 # define M_PI 3.14159265358979323846
 #endif
 
+#ifdef DOUBLE_DOWN
+#include "RTI.hpp"
+#include "MOABRay.h"
+#endif
+
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
 static const int null_delimiter_length = 1;
@@ -466,6 +471,10 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
 
 
 /* SECTION IV */
+
+double DagMC::overlap_thickness() { return GQT->get_overlap_thickness(); }
+
+double DagMC::numerical_precision() { return GQT->get_numerical_precision(); }
 
 void DagMC::set_overlap_thickness(double new_thickness) {
   GQT->set_overlap_thickness(new_thickness);
