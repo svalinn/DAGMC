@@ -20,4 +20,6 @@ fi
 build_static_exe=OFF docker/build_dagmc.sh
 
 # Build DAGMC (static executables)
-build_static_exe=ON docker/build_dagmc.sh
+if [ "${DOUBLE_DOWN}" != "yes"]; then
+  build_static_exe=ON docker/build_dagmc.sh
+fi
