@@ -362,7 +362,7 @@ void f_normal(double& pSx, double& pSy, double& pSz,
 
   moab::EntityHandle OldReg = DAG -> entity_by_index(3, oldRegion); // entity handle
   double xyz[3] = {pSx, pSy, pSz}; //position vector
-  double uvw[3] = {pVx, pVy, pVz}; //particl directoin
+  double uvw[3] = {pVx, pVy, pVz}; //particle direction
   int result; // particle is entering or leaving
 
   moab::ErrorCode rval = DAG->test_volume_boundary(OldReg, state.next_surface, xyz, uvw
@@ -398,10 +398,7 @@ inline bool check_vol(double pos[3], double dir[3], int oldRegion) {
   if (moab::MB_SUCCESS != rval)
     fludag_abort("check_vol", "DAGMC failed in point_in_volume", rval);
 
-  if (is_inside == 1)   // we are inside the cell tested
-    return true;
-  else
-    return false;
+  return is_inside == 1;   // we are inside the cell tested
 }
 
 
@@ -624,7 +621,6 @@ void lkmgwr(double& pSx, double& pSy, double& pSz,
   return;
 }
 
-/* */
 void f_lookdb(double& pSx, double& pSy, double& pSz,
               double* pV, const int& oldReg, const int& oldLttc,
               int& newReg, int& flagErr, int& newLttc) {
@@ -708,7 +704,7 @@ void flgfwr(int& flkflg) {
   return;
 }
 
-/* when lost try to fine the particle */
+/* when lost try to find the particle */
 void lkfxwr(double& pSx, double& pSy, double& pSz,
             double* pV,  int& oldReg, int& oldLttc,
             int& newReg, int& flagErr, int& newLttc) {
@@ -773,7 +769,7 @@ std::set<int> make_exception_set() {
 
   // Print out results
   if (debug) {
-    std::cout << "Nucids of FLUKA exceptions" << std::endl;
+    std::cout << "Nuclides of FLUKA exceptions" << std::endl;
     int i = 1;
     for (std::set<int>::iterator ptr = nuc_exceptions.begin(); ptr != nuc_exceptions.end(); ++ptr) {
       std::cout << std::setw(10) << std::right << *ptr;

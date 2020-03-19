@@ -49,13 +49,13 @@ UWUW::UWUW(std::string filename) {
 UWUW::~UWUW() {
 };
 
-// convert convert a filename into path+filename (for pyne)
+// convert a filename into path+filename (for pyne)
 std::string UWUW::get_full_filepath(char* filename) {
   std::string file(filename);
   return UWUW::get_full_filepath(file);
 }
 
-// convert convert a filename into path+filename (for pyne)
+// convert a filename into path+filename (for pyne)
 std::string UWUW::get_full_filepath(std::string filename) {
   // remove all extra whitespace
   filename.erase(std::remove(filename.begin(), filename.end(), ' '), filename.end());

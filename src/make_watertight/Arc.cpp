@@ -429,7 +429,7 @@ moab::ErrorCode Arc::order_verts_by_edge(moab::Range unordered_edges,
     assert(moab::MB_SUCCESS == result);
     adj_edges = intersect(adj_edges, unordered_edges);
     if (adj_edges.empty()) {
-      std::cout << "    order_verts_by_edgs: adj_edges is empty" << std::endl;
+      std::cout << "    order_verts_by_edge: adj_edges is empty" << std::endl;
       return moab::MB_FAILURE;
     }
     edge = adj_edges.front();

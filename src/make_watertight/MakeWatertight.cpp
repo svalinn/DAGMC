@@ -225,7 +225,7 @@ moab::ErrorCode MakeWatertight::create_arc_pair(const double FACET_TOL,
   // initialize stuff
   double min_dist = std::numeric_limits<double>::max();
   curve_set = 0;
-  double curve_set_idx, skin_pos;;
+  double curve_set_idx, skin_pos;
   curve.clear();
   skin_arc.clear();
   skin_arc.reserve(skin_loop.size());
@@ -1104,7 +1104,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range& surface_sets,
       continue; // nothing to zip
     // The MOAB skinner is not used here currently as it doesn't allow
     // make_watertight to close loops. The local version of find_skin is used instead.
-    // This should be ok as the local find_skin fundtion should only be avoided when checking meshes for watertightness
+    // This should be ok as the local find_skin function should only be avoided when checking meshes for watertightness
     // to keep from altering the data set when checking.
     result = tool.find_skin(0, tris, 1, skin_edges, false);
     MB_CHK_SET_ERR(result, "could not find_skin");

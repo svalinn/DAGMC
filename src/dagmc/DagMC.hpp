@@ -32,7 +32,7 @@ class CartVect;
 
 /**\brief
  *
- * In sectction 1, the public interface you will find all the functions needed
+ * In section 1, the public interface you will find all the functions needed
  * for problem setup. For the typical MC code, the order of function calls
  * required to fully populate DAGMC ready to run are
  *
@@ -47,7 +47,7 @@ class CartVect;
  *   1) DAG->load_file();
  *   2) DAG->setup_obb();
  *
- * Similarly, if you need access to problem indices only then, one may call
+ * Similarly, if you need access to problem indices only, one may call
  * load_file followed by setup_indices.
  *
  *   1) DAG->load_file();
@@ -83,8 +83,8 @@ class DagMC {
    *
    * 1) The file is loaded and when we query the meshset, we find entities with the OBB_TREE tag
    * 2) The OBBTreeTool assumes that any children of the entity being queried in a ray intersect sets
-   *     operation are fair game, the surface meshesets have triangles as members, but OBB's as children
-   *     but no querying is done, just assumtions that the tags exist.
+   *     operation are fair game, the surface meshsets have triangles as members, but OBB's as children
+   *     but no querying is done, just assumptions that the tags exist.
    */
   ErrorCode load_file(const char* cfile);
 
@@ -109,7 +109,7 @@ class DagMC {
    */
   ErrorCode init_OBBTree();
 
-  /**\brief finds or creates the implicit complimennt
+  /**\brief finds or creates the implicit complement
    *
    * This method calls the GeomTopoTool->get_implicit_complement which will
    * return the IC if it already exists. If the IC doesn't exist, it will
@@ -317,7 +317,7 @@ class DagMC {
    *                   i.e. 2 for surfaces and 3 for volumes
    *  @parm value If non-NULL, only entities for which the property takes on this value will be returned.
    *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *          MOAB, or MB_SUCCESS if succesful
+   *          MOAB, or MB_SUCCESS if successful
    */
   ErrorCode entities_by_property(const std::string& prop, std::vector<EntityHandle>& return_list,
                                  int dimension = 0, const std::string* value = NULL);

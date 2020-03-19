@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# scans the current directory and for each new file not already existing the
+# scans the current directory and for each new file not already existing in the
 # gallery.rst file, creates a new entry, the person adding the file will however
 # need to add descriptive text
 

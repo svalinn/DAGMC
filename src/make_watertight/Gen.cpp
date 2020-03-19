@@ -1694,7 +1694,7 @@ moab::ErrorCode Gen::delete_surface(moab::EntityHandle surf, moab::Tag geom_tag,
   MB_CHK_SET_ERR(result, "could not measure area");
   assert(moab::MB_SUCCESS == result);
 
-  //remove triagngles from the surface
+  //remove triangles from the surface
   result = MBI()->remove_entities(surf, tris);
   MB_CHK_SET_ERR(result, "could not remove tris");
   assert(moab::MB_SUCCESS == result);
@@ -1758,10 +1758,8 @@ moab::ErrorCode Gen::remove_surf_sense_data(moab::EntityHandle del_surf, bool de
   moab::Range del_surf_curves;
   result = MBI() -> get_child_meshsets(del_surf, del_surf_curves);
   MB_CHK_SET_ERR(result, "could not get the curves of the surface to delete");
-  if (debug)
-    std::cout << "got the curves" << std::endl;
-
   if (debug) {
+    std::cout << "got the curves" << std::endl;
     std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
     for (unsigned int index = 0 ; index < del_surf_curves.size() ; index++) {
       std::cout << "deleted surface's child curve id " << index << " = " << geom_id_by_handle(del_surf_curves[index]) << std::endl;
@@ -1872,7 +1870,7 @@ moab::ErrorCode Gen::combine_merged_curve_senses(std::vector<moab::EntityHandle>
         std::cout << combined_senses.size() << std::endl;
         for (unsigned int index = 0; index < combined_senses.size(); index++) {
 
-          std::cout << "combined_surfs{" << index << "] = " << geom_id_by_handle(combined_surfs[index]) << std::endl;
+          std::cout << "combined_surfs[" << index << "] = " << geom_id_by_handle(combined_surfs[index]) << std::endl;
           std::cout << "combined_sense[" << index << "] = " << combined_senses[index] << std::endl;
         }
       } // end debug st.

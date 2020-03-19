@@ -22,11 +22,11 @@ are found in `src/DagSolid.cc` and their associated prototypes are found in `inc
 appropriately included in a G4 project (by using the DagSolid methods and includes) users can 
 include new DAG volumes in a very G4-like way, for example
 
-1) We must instanciate a new DAG instance
+1) We must instantiate a new DAG instance
  DagMC* dagmc = DagMC::instance(); // create dag instance
 2) Load the h5m file
   const char* h5mfilename = "test_geom.h5m";
-3) Having succesfully loaded the file, create a new DagSolid component
+3) Having successfully loaded the file, create a new DagSolid component
   DagSolid* vol_1 = new DagSolid("vol_1",dagmc,1);
 4) Thus now DagSolid volumes behave as any other volume, placing logical and physical volumes
 

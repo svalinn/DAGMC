@@ -8,7 +8,7 @@ and make sure to follow it in all interactions with this project.
 Creating a Pull Request
 -----------------------
 1. Fork this repository from `develop` and create a branch for new code.
-2. Add or update any applicaple tests for the new code.
+2. Add or update any applicable tests for the new code.
 3. If applicable, update the [README documentation](https://github.com/svalinn/DAGMC/blob/develop/README.rst) or [website documentation](https://github.com/svalinn/DAGMC/tree/develop/doc).
 4. Issue a pull request using the pull request template. All pull requests must be accompanied by a news update.
 

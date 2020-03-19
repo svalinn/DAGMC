@@ -35,7 +35,7 @@ void dagmcMetaData::load_property_data() {
   // finalise_counters();
 }
 
-// get the a given volume property on a given entity handle
+// get the given volume property on a given entity handle
 std::string dagmcMetaData::get_volume_property(std::string property, moab::EntityHandle eh) {
   std::string value = "";
   if (property == "material_density") {
@@ -79,7 +79,7 @@ std::string dagmcMetaData::get_surface_property(std::string property, moab::Enti
   return value;
 }
 
-// overloaded get_surface_property for indices and id's'
+// overloaded get_surface_property for indices and ids
 std::string dagmcMetaData::get_surface_property(std::string property, int vol, bool idx) {
   // if this is an index query
   moab::EntityHandle eh;
@@ -145,8 +145,8 @@ void dagmcMetaData::parse_material_data() {
         exit(EXIT_FAILURE);
       }
     } else {
-      // because of how the data are inserted into the map, ther are always
-      // at least one entry, "" is nothing is found
+      // because of how the data are inserted into the map, there is always
+      // at least one entry, "" if nothing is found
       // if there is no material property - not failure for impl_comp
       if (material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
         std::cout << "No material property found for volume with ID " << cellid << std::endl;
@@ -177,10 +177,10 @@ void dagmcMetaData::parse_material_data() {
       volume_density_data_eh[eh] = "";
     }
 
-    // check to see if the simplied naming scheme is used, by try to convert the
+    // check to see if the simplified naming scheme is used, by try to convert the
     // material property to an int
     if (try_to_make_int(material_props[0]) && density_props[0].empty() && !(DAG->is_implicit_complement(eh))) {
-      std::cout << "Using the simplified nameing scheme without a density" << std::endl;
+      std::cout << "Using the simplified naming scheme without a density" << std::endl;
       std::cout << "property is forbidden, please rename the group mat:" << material_props[0] << std::endl;
       exit(EXIT_FAILURE);
     }
@@ -398,7 +398,7 @@ std::map<moab::EntityHandle, std::vector<std::string> > dagmcMetaData::get_prope
       // loop over the properties and check for any mention
       // of the 2nd delimiter, if so extract from 0
       // to second delimiter
-      // by being here we already know he property exists
+      // by being here we already know the property exists
       // being found upto the first delimiter
       if (delimiters.size() > 1) {
         for (int j = 0 ; j < properties.size() ; j++) {

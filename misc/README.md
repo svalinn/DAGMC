@@ -11,11 +11,11 @@ with all its metadata. In order to be able to copy the material metadata we
 need a materials library to copy from so some dependencies are required.
 
 The material Library provided is expected to have a specified structure for the 
-script to effectively copy all materials metadat from. This can be achieved by 
+script to effectively copy all materials metadata from. This can be achieved by 
 using PyNE functions to create the material library.
 e.g. write_hdf5("filename",nucpath="/material_library/nucid",datapath="/material_library/materials") 
 All needed info can be found here: 
-http://pyne.io/pyapi/material.html#pyne.material.Material
+https://pyne.io/pyapi/material.html#pyne.material.Material
 
 The script can be run as a python script and all the flags needed can be found using:
   ```python uwuw_preproc -h```
@@ -31,7 +31,7 @@ Automated Imprint/Merge & Graveyard
 
 The script `finish_dagmc_geom.bash` also relies on the Cubit journal file `finish_dagmc_geom.jou`,
 to perform the following steps automatically on an ACIS file.  For a given geometry file, say `geom.sat`, 
-this do the following steps:
+do the following steps:
 
 * imprint & merge all volumes/surfaces
 * export an ACIS file without graveyard for visualization: `geom_ng.sat`

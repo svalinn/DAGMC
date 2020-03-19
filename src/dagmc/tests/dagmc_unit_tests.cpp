@@ -54,8 +54,8 @@ TEST_F(DagmcMetadataTest, SetUp) {
 }
 
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully
-// been assigned and succesfully retreved from the metadata class
+// FIXTURE-BASED TESTS: Tests to make sure that all volumes have successfully
+// been assigned and successfully retreved from the metadata class
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestMatAssigns) {
   // new metadata instance
@@ -87,8 +87,8 @@ TEST_F(DagmcMetadataTest, TestMatAssigns) {
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all densities have succesfully
-// been assigned and succesfully retreved from the metadata class
+// FIXTURE-BASED TESTS: Tests to make sure that all densities have successfully
+// been assigned and successfully retreved from the metadata class
 // in this test there was no density data assigned, so it should be ""
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestDensityAssigns) {
@@ -112,8 +112,8 @@ TEST_F(DagmcMetadataTest, TestDensityAssigns) {
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully
-// been assigned and succesfully retreved from the metadata class - this test
+// FIXTURE-BASED TESTS: Tests to make sure that all volumes have successfully
+// been assigned and successfully retreved from the metadata class - this test
 // is asserting that we have the full uwuw form for the uwuw map, i.e.
 // mat:+material_name + / rho:density
 //---------------------------------------------------------------------------//
@@ -168,8 +168,8 @@ TEST_F(DagmcMetadataTest, TestUnpackString) {
 }
 
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all volumes have succesfully
-// been assigned and succesfully retreved from the metadata class - this test
+// FIXTURE-BASED TESTS: Tests to make sure that all volumes have successfully
+// been assigned and successfully retreved from the metadata class - this test
 // is asserting that we have set and correctly retrived importance data
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestImportanceAssigns) {
@@ -195,8 +195,8 @@ TEST_F(DagmcMetadataTest, TestImportanceAssigns) {
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully
-// been assigned and succesfully retreved from the dataset, specifically querying
+// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have successfully
+// been assigned and successfully retreved from the dataset, specifically querying
 // the boundary condition case
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
@@ -224,8 +224,8 @@ TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
   }
 }
 //---------------------------------------------------------------------------//
-// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have succesfully
-// been assigned and succesfully retreved from the dataset, specifically querying
+// FIXTURE-BASED TESTS: Tests to make sure that all surfaces have successfully
+// been assigned and successfully retreved from the dataset, specifically querying
 // the boundary condition case
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestTallyAssigns) {

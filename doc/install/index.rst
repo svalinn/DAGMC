@@ -26,8 +26,8 @@ DAGMC-based radiation transport calculations. The
 `User's Guide <../usersguide/index.html>`_ will guide you through the workflow
 options available to you.
 
-..  _MCNP5: https://mcnp.lanl.gov
+..  _MCNP5: https://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.shtml
 ..  _MCNP6: https://mcnp.lanl.gov
 ..  _FLUKA: http://www.fluka.org/fluka.php
 ..  _Cubit: https://cubit.sandia.gov
-..  _Trelis: http://www.csimsoft.com/trelis
+..  _Trelis: https://www.csimsoft.com/trelis

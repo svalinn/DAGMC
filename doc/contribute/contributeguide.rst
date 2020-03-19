@@ -10,9 +10,9 @@ Contributing
 Contributing to the DAGMC project is very straightforward. DAGMC is hosted on
 `Github <DAGMC_source_>`_ where issues and pull requests are discussed and
 merged. We use the git version control system, which could be the most
-unfamiliar aspect of ontributing for most people. The general workflow to
+unfamiliar aspect of contributing for most people. The general workflow to
 contribute to DAGMC and many other open source projects involves steps like
-this.
+this:
 
 ..  image:: workflow.png
     :height: 300
@@ -33,7 +33,7 @@ These stages are outlined below.
 Forking
 -------
 
-To start the repository must be forked. The easiest way to do this is to click
+To start, the repository must be forked. The easiest way to do this is to click
 on the "Fork" button from the `svalinn/DAGMC` branch shown below.
 
 ..  image:: workflow_fork.png
@@ -102,7 +102,7 @@ this message you can edit and submit the pull request. If you've waited a few
 tens of minutes between pushing and going to Github, you may need to create a
 pull request manually. Your pull request will launch our continuous integration
 tests, and after a short while, your changes will either pass all the tests or
-fail the some of them. The status of the tests is shown at the bottom of the
+fail some of them. The status of the tests is shown at the bottom of the
 pull request.
 
 ..  image:: github_testing.png
@@ -204,9 +204,8 @@ should be run from the base level directory of the DAGMC repository like this:
 
     $ astyle --options=astyle_google.ini \
              --exclude=gtest \
-             --exclude=src/astyle \
-             --exclude=src/mcnp/mcnp5/Source \
-             --exclude=src/mcnp/mcnp6/Source \
+             --exclude=src/mcnp/mcnp5 \
+             --exclude=src/mcnp/mcnp6 \
              --ignore-exclude-errors \
              --recursive \
              --verbose \

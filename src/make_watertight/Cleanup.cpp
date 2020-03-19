@@ -37,7 +37,7 @@ moab::ErrorCode Cleanup::remove_obb_tree(bool verbose) {
   for (moab::Range::iterator i = obb_entities.begin(); i != obb_entities.end(); i++) {
     moab::EntityHandle root;
     result = MBI()->tag_get_data(obbTag, &(*i), 1, &root);
-    MB_CHK_SET_ERR(result, "coule not get OBB tree data");
+    MB_CHK_SET_ERR(result, "could not get OBB tree data");
     tool.delete_tree(root);
   }
   result = MBI()->tag_delete(obbTag);   // use this for DENSE tags
