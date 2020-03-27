@@ -48,9 +48,9 @@ const std::map<std::string, std::string> DagMC::no_synonyms;
 // DagMC Constructor
 DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance, double p_numerical_precision) {
 
-  #ifdef DOUBLE_DOWN
+#ifdef DOUBLE_DOWN
   std::cout << "Using the DOUBLE-DOWN interface to Embree." << std::endl;
-  #endif
+#endif
 
   moab_instance_created = false;
   // if we arent handed a moab instance create one
@@ -210,11 +210,11 @@ ErrorCode DagMC::setup_obbs() {
   // If we havent got an OBB Tree, build one.
   if (!GTT->have_obb_tree()) {
     std::cout << "Building acceleration data structures..." << std::endl;
-    #ifdef DOUBLE_DOWN
+#ifdef DOUBLE_DOWN
     rval = GQT->init();
-    #else
+#else
     rval = GTT->construct_obb_trees();
-    #endif
+#endif
     MB_CHK_SET_ERR(rval, "Failed to build obb trees");
   }
   return MB_SUCCESS;
