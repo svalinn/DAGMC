@@ -201,10 +201,10 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       if (mat_num.find("Graveyard") == std::string::npos &&
           mat_num.find("Vacuum") == std::string::npos) {
         if (!DMD->try_to_make_int(mat_num)) {
-          std::cout << "Failed to cast material number to an integer"  << std::endl;
-          std::cout << "volume with ID " << cellid << " has material assignment" << std::endl;
-          std::cout << mat_num << " which appears to be a name rather than an integer" << std::endl;
-          std::cout << "Did you forget to run uwuw_preproc?" << std::endl;
+          std::cerr << "Failed to cast material number to an integer"  << std::endl;
+          std::cerr << "volume with ID " << cellid << " has material assignment" << std::endl;
+          std::cerr << mat_num << " which appears to be a name rather than an integer" << std::endl;
+          std::cerr << "Did you forget to run uwuw_preproc?" << std::endl;
           exit(EXIT_FAILURE);
         }
       }
@@ -220,8 +220,8 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       // if we not vacuum or graveyard
       if (mat_name.find("Vacuum") == std::string::npos && mat_name.find("Graveyard") == std::string::npos) {
         if (workflow_data->material_library.count(mat_name) == 0) {
-          std::cout << "Material with name " << mat_name <<  " not found " << std::endl;
-          std::cout << "In the material library" << std::endl;
+          std::cerr << "Material with name " << mat_name <<  " not found " << std::endl;
+          std::cerr << "In the material library" << std::endl;
           exit(EXIT_FAILURE);
         }
 
@@ -251,7 +251,7 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       } else if (mcnp_version_major[0] == '6') {
         mcnp_name = pyne::particle::mcnp6(particle_name);
       } else {
-        std::cout << "Unknown MCNP verison: " << mcnp_version_major << std::endl;
+        std::cerr << "Unknown MCNP verison: " << mcnp_version_major << std::endl;
         exit(EXIT_FAILURE);
       }
       double imp = 1.0;
