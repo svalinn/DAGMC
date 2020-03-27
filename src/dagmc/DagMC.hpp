@@ -162,12 +162,6 @@ class DagMC {
   /** The methods in this section are thin wrappers around methods in the
    *  GeometryQueryTool.
    */
-  // #ifdef DOUBLE_DOWN
-  // using RayHistory = std::vector<moab::EntityHandle>;
-  // //  typedef std::vector<moab::EntityHandle> RayHistory;
-  // #else
-  // using RayHistory = GeomQueryTool::RayHistory;
-  // #endif
 
   typedef GeomQueryTool::RayHistory RayHistory;
 
