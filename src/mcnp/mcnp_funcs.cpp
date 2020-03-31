@@ -230,7 +230,7 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
 
         pyne::Material material = workflow_data->material_library[mat_name];
         int matnumber = material.metadata["mat_number"].asInt();
-        mat_num = _to_string(matnumber);
+        mat_num = std::to_string(matnumber);
         density = "-" + _to_string(material.density);
       } else {
         mat_num = "0";
@@ -310,7 +310,7 @@ void write_surface_cards(std::ostringstream& lcadfile) {
       surface_property = "+";
     else
       surface_property = "";
-    lcadfile  << surface_property << _to_string(surfid) << std::endl;
+    lcadfile  << surface_property << std::to_string(surfid) << std::endl;
   }
   return;
 }
@@ -788,15 +788,6 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 void dagmc_teardown_() {
   delete DMD;
   delete DAG;
-}
-
-// these functions should be replaced when we adopt C++11
-// int to string
-std::string _to_string(int var) {
-  std::ostringstream outstr;
-  outstr << var;
-  std::string ret_string = outstr.str();
-  return ret_string;
 }
 
 // double to string

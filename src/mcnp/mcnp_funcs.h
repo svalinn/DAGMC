@@ -147,9 +147,6 @@ void write_surface_cards(std::ostringstream& lcad_string);
 void write_material_data(std::ostringstream& lcad_string);
 void write_tally_data(std::ostringstream& lcad_string);
 
-// until we adopt C++11 - makes life easy
-// convenience functions for c++ int to string
-std::string _to_string(int val);
 // convenience functions for c++ double to string
 std::string _to_string(double val);
 
