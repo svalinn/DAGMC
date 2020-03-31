@@ -267,7 +267,6 @@ moab::ErrorCode MakeWatertight::create_arc_pair(const double FACET_TOL,
       std::cout << "warning11: curve is degenerate" << std::endl;
     if (debug) {
       std::cout << "  adj curve " << gen->geom_id_by_handle(curve_sets[i]) << ":" << std::endl;
-      //gen->print_loop( temp_curve );
     }
 
     // Get the curve-surface relative sense. From CGMA/builds/dbg/include/CubitDefines,
@@ -577,7 +576,6 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
       //   advance the curve ahead. We need to merge all the verts between the
       //   current skin vert and the curve vert that we are merging to. This
       //   could be more than one!
-      //} else if(FACET_TOL > fabs(c_dist-s_dist)) {
     } else if (TOL_SQR > es_dist) {
       // merge the verts if they are not the same
       moab::EntityHandle keep_vert  = edge[e_pos];
@@ -1338,13 +1336,10 @@ moab::ErrorCode MakeWatertight::get_geom_size_before_sealing(const moab::Range g
   for (int dim = 1 ; dim < 4 ; ++dim) {
     for (moab::Range::iterator i = geom_sets[dim].begin() ; i != geom_sets[dim].end() ; i++) {
       double size;
-      //std::cout << "dim = " << dim << " *i =" << *i << std::endl;
       rval = gen->measure(*i, geom_tag, size, debug, verbose);
-      //std::cout << " here in gen mesaure" << std::endl;
       MB_CHK_SET_ERR(rval, "could not measure");
 
       rval = MBI()->tag_set_data(size_tag, &(*i), 1, &size);
-      //std::cout << " here in set tag data" << std::endl;
       MB_CHK_SET_ERR(rval, "could not set size tag");
     }
   }
