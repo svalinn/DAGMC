@@ -223,7 +223,9 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       // check to see if the endpoints part of the skin
       bool endpt0_is_skin = !adj_skin_edges0.empty();
       bool endpt1_is_skin = !adj_skin_edges1.empty();
-      if (endpt0_is_skin && endpt1_is_skin) { continue; }
+      if (endpt0_is_skin && endpt1_is_skin) {
+        continue;
+      }
 
       // Keep the skin endpt, and delete the other endpt
       moab::EntityHandle keep_endpt, delete_endpt;

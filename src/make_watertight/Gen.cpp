@@ -57,8 +57,7 @@ void Gen::moab_printer(moab::ErrorCode error_code) {
   }
   if (error_code == moab::MB_FAILURE) {
     std::cerr << "ERROR: moab::MB_FAILURE" << std::endl;
-  }
-  else {
+  } else {
     std::cerr << "ERROR CODE NOT RECOGNIZED" << std::endl;
   }
   return;
