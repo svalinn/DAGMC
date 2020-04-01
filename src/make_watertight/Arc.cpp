@@ -317,7 +317,9 @@ moab::ErrorCode Arc::create_loops_from_oriented_edges(moab::Range edges,
       }
 
       // if the next edge was not found, we're done
-      if (0 == next_edge) { break; }
+      if (0 == next_edge) {
+        break;
+      }
 
       // add it to the loop
       loop_of_edges.push_back(next_edge);
