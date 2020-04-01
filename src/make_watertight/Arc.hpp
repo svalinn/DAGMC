@@ -50,9 +50,6 @@ class Arc {
                                                  moab::EntityHandle& edge_out,
                                                  moab::EntityHandle& vertex_out);
 
-  moab::ErrorCode create_loops_from_oriented_edges_fast(moab::Range edges,
-                                                        std::vector< std::vector<moab::EntityHandle> >& loops_of_edges,
-                                                        const bool debug);
   moab::ErrorCode create_loops_from_oriented_edges(moab::Range edges,
                                                    std::vector< std::vector<moab::EntityHandle> >& loops_of_edges,
                                                    const bool debug);
