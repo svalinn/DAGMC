@@ -267,7 +267,7 @@ class Gen {
 };
 
 
-struct edge {
+struct Edge {
   moab::EntityHandle edge, v0, v1;
 };
 

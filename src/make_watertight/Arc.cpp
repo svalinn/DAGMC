@@ -125,7 +125,8 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
 
   // populate edge array, used only for searching
   unsigned n_orig_edges = edges.size();
-  edge* my_edges = new edge[n_orig_edges];
+  std::vector<Edge> my_edges(n_orig_edges);
+  // edge* my_edges = new edge[n_orig_edges];
   unsigned j = 0;
   for (moab::Range::const_iterator i = edges.begin(); i != edges.end(); ++i) {
     // get the endpoints of the edge
@@ -151,7 +152,7 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
   }
 
   // sort edge array
-  qsort(my_edges, n_orig_edges, sizeof(struct edge), compare_edge);
+  qsort(my_edges.data(), n_orig_edges, sizeof(struct Edge), compare_edge);
 
   // find duplicate edges
   j = 0;
@@ -171,7 +172,6 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
       edges = subtract(edges, duplicate_edges);
       rval = MBI()->delete_entities(duplicate_edges);
       if (moab::MB_SUCCESS != rval) {
-        delete[] my_edges;
         MB_CHK_SET_ERR(moab::MB_FAILURE, "cannot delete edge");
       }
       if (debug) {
@@ -183,7 +183,6 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
     j = i;
   }
 
-  delete[] my_edges;
   return moab::MB_SUCCESS;
 }
 
@@ -257,7 +256,7 @@ moab::ErrorCode Arc::create_loops_from_oriented_edges_fast(moab::Range edges,
                                                            std::vector< std::vector<moab::EntityHandle> >& loops_of_edges,
                                                            const bool debug) {
   // place all edges in map
-  std::multimap<moab::EntityHandle, edge> my_edges;
+  std::multimap<moab::EntityHandle, Edge> my_edges;
   moab::ErrorCode rval;
   for (moab::Range::const_iterator i = edges.begin(); i != edges.end(); ++i) {
     // get the endpoints of the edge
@@ -268,11 +267,11 @@ moab::ErrorCode Arc::create_loops_from_oriented_edges_fast(moab::Range edges,
       MB_CHK_SET_ERR(moab::MB_FAILURE, "could not get connectivity");
     }
     // store the edges
-    edge temp;
+    Edge temp;
     temp.edge = *i;
     temp.v0   = endpts[0];
     temp.v1   = endpts[1];
-    my_edges.insert(std::pair<moab::EntityHandle, edge>(temp.v0, temp));
+    my_edges.insert(std::pair<moab::EntityHandle, Edge>(temp.v0, temp));
   }
   std::cout << "error: function not complete" << std::endl;
   return moab::MB_FAILURE;

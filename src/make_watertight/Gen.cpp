@@ -1283,8 +1283,8 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
 // qsort struct comparision function
 // If the first handle is the same, compare the second
 int compare_edge(const void* a, const void* b) {
-  struct edge* ia = (struct edge*)a;
-  struct edge* ib = (struct edge*)b;
+  struct Edge* ia = (struct Edge*)a;
+  struct Edge* ib = (struct Edge*)b;
   if (ia->v0 == ib->v0) {
     return (int)(ia->v1 - ib->v1);
   } else {
@@ -1329,7 +1329,7 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
   assert(0 == n_edges);
 
   // Get connectivity. Do not create edges.
-  edge* edges = new edge[3 * tris.size()];
+  std::vector<Edge> edges(3 * tris.size());
   int n_verts;
   int ii = 0;
   for (moab::Range::iterator i = tris.begin(); i != tris.end(); i++) {
@@ -1362,7 +1362,7 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
 
   // Sort by first handle, then second handle. Do not sort the extra edge on the
   // back.
-  qsort(edges, 3 * tris.size(), sizeof(struct edge), compare_edge);
+  qsort(edges.data(), 3 * tris.size(), sizeof(struct Edge), compare_edge);
 
   // Go through array, saving edges that are not paired.
   for (unsigned int i = 0; i < 3 * tris.size(); i++) {
@@ -1398,7 +1398,6 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
       skin_edges.insert(edge);
     }
   }
-  delete[] edges;
   return moab::MB_SUCCESS;
 }
 
