@@ -724,7 +724,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
       std::cout << "skin:" << std::endl;
       gen->print_loop(skin);
     }
-    //return moab::MB_FAILURE;
+    return moab::MB_FAILURE;
   }
 
   if (debug) {
@@ -1520,7 +1520,7 @@ moab::ErrorCode MakeWatertight::delete_merged_curves(moab::Range& existing_curve
   result = MBI()->delete_entities(curves_to_delete);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
-    std::cout << "Houston, we have a problem" << std::endl;
+    std::cout << "Failed to delete curves" << std::endl;
   }
   existing_curve_sets = subtract(existing_curve_sets, curves_to_delete);
   if (debug)

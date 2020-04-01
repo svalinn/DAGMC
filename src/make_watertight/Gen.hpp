@@ -54,13 +54,13 @@ class Gen {
   void print_loop(const std::vector<moab::EntityHandle> loop_of_verts);
 
   moab::ErrorCode find_closest_vert(const moab::EntityHandle reference_vert,
-                                    const std::vector<moab::EntityHandle> arc_of_verts,
+                                    const std::vector<moab::EntityHandle>& arc_of_verts,
                                     unsigned& position,
                                     const double dist_limit);
 
   moab::ErrorCode find_closest_vert(const double tol,
                                     const moab::EntityHandle reference_vert,
-                                    const std::vector<moab::EntityHandle> loop_of_verts,
+                                    const std::vector<moab::EntityHandle>& loop_of_verts,
                                     std::vector<unsigned>& positions,
                                     std::vector<double>&   dists);
 

@@ -115,7 +115,6 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
 
     // get the skin first, because my find_skin does not check before creating edges.
     moab::Range skin_edges;
-    //result = gen->find_skin( tris, 1, skin_edges, false );
     moab::Skinner tool(MBI());
     result = tool.find_skin(0, tris, 1, skin_edges, false);
     assert(moab::MB_SUCCESS == result);
@@ -152,7 +151,7 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
         MBI()->list_entities(duplicate_edges);
       assert(1 == duplicate_edges.size());
 
-      // if the edge length is less than MERGE_TOL do nothing
+      // if the edge length is less than FACET_TOL do nothing
       if (FACET_TOL < gen->dist_between_verts(endpts[0], endpts[1]))
         continue;
 
@@ -208,11 +207,6 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       }
       assert(3 <= adj_edges0.size());
       moab::Range adj_skin_edges0 = intersect(adj_edges0, skin_edges);
-      bool endpt0_is_skin;
-      if (adj_skin_edges0.empty())
-        endpt0_is_skin = false;
-      else
-        endpt0_is_skin = true;
 
       moab::Range adj_edges1;
       result = MBI()->get_adjacencies(&endpts[1], 1, 1, true, adj_edges1);
@@ -225,13 +219,11 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       }
       assert(3 <= adj_edges1.size());
       moab::Range adj_skin_edges1 = intersect(adj_edges1, skin_edges);
-      bool endpt1_is_skin;
-      if (adj_skin_edges1.empty())
-        endpt1_is_skin = false;
-      else
-        endpt1_is_skin = true;
-      if (endpt0_is_skin && endpt1_is_skin)
-        continue;
+
+      // check to see if the endpoints part of the skin
+      bool endpt0_is_skin = !adj_skin_edges0.empty();
+      bool endpt1_is_skin = !adj_skin_edges1.empty();
+      if (endpt0_is_skin && endpt1_is_skin) { continue; }
 
       // Keep the skin endpt, and delete the other endpt
       moab::EntityHandle keep_endpt, delete_endpt;

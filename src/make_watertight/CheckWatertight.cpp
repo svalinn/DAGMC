@@ -81,16 +81,6 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness(moab::EntityHandl
   if (moab::MB_SUCCESS != result) { // failed to get edge data
     return result; // failed
   }
-//10/11/13
-//removed as a result of the change from the gen::find_skin function to the moab::Skinner:find_skin function
-  /*
-    result = MBI()->delete_entities( edges ); //otherwise delete all edge
-
-    if(moab::MB_SUCCESS != result) // failed to delete edge data
-      {
-        return result; // failed
-      }
-  */
   // loop over each volume meshset
   int vol_counter = 0;
   for (moab::Range::iterator i = vol_sets.begin(); i != vol_sets.end(); ++i) {
@@ -128,7 +118,6 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness(moab::EntityHandl
     }
 
     // save the edges in a vector that is large enough to avoid resizing
-    // presumably some kind of efficiency thing?? ad ??
     std::vector<coords_and_id> the_coords_and_id;
     the_coords_and_id.reserve(n_tris);
 
@@ -224,20 +213,6 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness(moab::EntityHandl
         temp.matched = false;
         the_coords_and_id.push_back(temp);
       }
-      //10/10/13
-      // Removed the following to avoid altering the data set at all
-      // -No need to delete skin_edges with the moab:Skinner find_skin function
-      // -skin_edges size will be reset to zero upon new moab::Range skin_edges; call
-      // clean up the edges for the next find_skin call
-      //result = MBI()->delete_entities( skin_edges );
-      //if(moab::MB_SUCCESS != result) return result;
-
-      //10/10/13
-      // - No ned to ensure edges aren't in the meshset with moab::Skinner find_skin function
-      //int n_edges;
-      //result = MBI()->get_number_entities_by_type(0, moab::MBEDGE, n_edges );
-      //if(moab::MB_SUCCESS != result) return result;
-      //if(0 != n_edges) MB_CHK_SET_ERR(moab::MB_MULTIPLE_ENTITIES_FOUND,"n_edges not equal to zero");
     }
 
     // sort the edges by the first vert. The first vert has a lower handle than the second.
@@ -271,7 +246,6 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness(moab::EntityHandl
               the_coords_and_id[j].vert2 == the_coords_and_id[k].vert2) {
             the_coords_and_id[j].matched = true;
             the_coords_and_id[k].matched = true;
-            //std::cout<< "matched by handle" << std::endl;
             break;
           }
         } else {
@@ -292,7 +266,6 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness(moab::EntityHandl
           if (d0 < tol * tol && d1 < tol * tol) {
             the_coords_and_id[j].matched = true;
             the_coords_and_id[k].matched = true;
-            //std::cout<< "matched by proximity" << std::endl;
             break;
           }
           // Due to the sort, once the x-coords are out of tolerance, a match
