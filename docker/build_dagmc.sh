@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
@@ -13,7 +13,6 @@ fi
 rm -rf ${dagmc_build_dir}/bld ${dagmc_install_dir}
 mkdir -p ${dagmc_build_dir}/bld
 cd ${dagmc_build_dir}
-#git clone https://github.com/svalinn/DAGMC -b develop
 ln -snf DAGMC src
 cd bld
 cmake ../src -DMOAB_DIR=${moab_install_dir} \
@@ -29,4 +28,3 @@ cmake ../src -DMOAB_DIR=${moab_install_dir} \
 make -j${jobs}
 make install
 cd
-#rm -rf ${dagmc_build_dir}

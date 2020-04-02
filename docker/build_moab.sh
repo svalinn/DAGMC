@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
@@ -13,7 +13,7 @@ fi
 rm -rf ${moab_build_dir}/bld ${moab_install_dir}
 mkdir -p ${moab_build_dir}/bld
 cd ${moab_build_dir}
-git clone https://bitbucket.org/fathomteam/moab -b ${branch}
+git clone --depth 1 https://bitbucket.org/fathomteam/moab -b ${branch}
 ln -snf moab src
 cd moab
 autoreconf -fi

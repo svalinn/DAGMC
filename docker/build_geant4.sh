@@ -1,13 +1,13 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
 rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
 mkdir -p ${geant4_build_dir}/bld
 cd ${geant4_build_dir}
-wget http://geant4.cern.ch/support/source/geant4.${geant4_version}.tar.gz
+wget https://geant4.cern.ch/support/source/geant4.${geant4_version}.tar.gz --no-check-certificate
 tar -xzvf geant4.${geant4_version}.tar.gz
 ln -snf geant4.${geant4_version} src
 cd bld

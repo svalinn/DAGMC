@@ -2,12 +2,10 @@ ARG UBUNTU_VERSION=18.04
 FROM ubuntu:${UBUNTU_VERSION}
 
 # Use bash as the default shell
-RUN ln -snf /bin/bash /bin/sh
+SHELL ["/bin/bash", "-c"]
 
 # Update core packages
 RUN apt-get -y update
-RUN apt-get -y upgrade
-RUN apt-get -y dist-upgrade
 
 # Get some apt packages
 RUN apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
