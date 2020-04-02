@@ -19,7 +19,7 @@ if [ "${TRAVIS_REPO_SLUG}" == "svalinn/DAGMC" ] && \
 fi
 
 apt-get install astyle
-pip install sphinx
+pip install sphinx --force-reinstall
 # Run astyle check
 astyle --options=astyle_google.ini \
        --exclude=src/gtest \
