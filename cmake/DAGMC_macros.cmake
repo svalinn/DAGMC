@@ -207,9 +207,8 @@ macro (dagmc_install_library lib_name)
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif ()
     target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
-    target_include_directories(${lib_name}-shared PUBLIC $<INSTALL_INTERFACE:include>
-                                                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                                         ${MOAB_INCLUDE_DIRS})
+    target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:include>
+                                                            ${MOAB_INCLUDE_DIRS})
     install(TARGETS ${lib_name}-shared
             EXPORT DAGMCTargets
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
@@ -225,9 +224,8 @@ macro (dagmc_install_library lib_name)
         PROPERTIES INSTALL_RPATH "" INSTALL_RPATH_USE_LINK_PATH FALSE)
     endif ()
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
-    target_include_directories(${lib_name}-static PUBLIC $<INSTALL_INTERFACE:include>
-                                                         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                                         ${MOAB_INCLUDE_DIRS})
+    target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:include>
+                                                            ${MOAB_INCLUDE_DIRS})
 
     install(TARGETS ${lib_name}-static
             EXPORT DAGMCTargets
