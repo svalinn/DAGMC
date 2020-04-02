@@ -67,8 +67,9 @@ before_install:
   - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
 install:
-  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
-    if: ENV(HOUSEKEEPING_ONLY) != true 
+  - if [ "${HOUSEKEEPING_ONLY}" == "false" ]; then
+    docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+    fi
   - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
 script:
