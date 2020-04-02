@@ -207,7 +207,7 @@ macro (dagmc_install_library lib_name)
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif ()
     target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
-    target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:include>
+    target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
     install(TARGETS ${lib_name}-shared
             EXPORT DAGMCTargets
@@ -224,7 +224,7 @@ macro (dagmc_install_library lib_name)
         PROPERTIES INSTALL_RPATH "" INSTALL_RPATH_USE_LINK_PATH FALSE)
     endif ()
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
-    target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:include>
+    target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
 
     install(TARGETS ${lib_name}-static
