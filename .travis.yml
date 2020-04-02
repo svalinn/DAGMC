@@ -9,6 +9,10 @@ services:
   - docker
 matrix:
   include:
+    - stage: housekeeping
+      env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=true COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+      install: skip # bundle install is not required
+      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh"; 
     - env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=true COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
     - env: UBUNTU_VERSION=16.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
     - env: UBUNTU_VERSION=16.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
@@ -79,10 +83,3 @@ script:
     else
       docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
     fi
-
-jobs:
-  include:
-    - stage: housekeeping
-      env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=true COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
-      install: skip # bundle install is not required
-      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh"; 
