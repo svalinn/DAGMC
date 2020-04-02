@@ -46,6 +46,7 @@ jobs::
         - env: UBUNTU_VERSION=16.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
         - env: UBUNTU_VERSION=18.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=develop
         - env: UBUNTU_VERSION=18.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
+      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh"; 
 before_install:
   # Set some local variables
   - docker_image=svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
