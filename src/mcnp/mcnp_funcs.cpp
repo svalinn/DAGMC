@@ -46,6 +46,9 @@ static bool visited_surface = false;
 static bool use_dist_limit = false;
 static double dist_limit; // needs to be thread-local
 
+static std::string graveyard_str = "Graveyard";
+static std::string vacuum_str = "Vacuum";
+
 
 void dagmcinit_(char* cfile, int* clen,  // geom
                 char* ftol,  int* ftlen, // faceting tolerance
@@ -198,36 +201,36 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       // that material numbers are assigned
       mat_num = DMD->volume_material_data_eh[entity];
       // if we cant make an int from the mat_num
-      if (mat_num.find("Graveyard") == std::string::npos &&
-          mat_num.find("Vacuum") == std::string::npos) {
+      if (mat_num.find(graveyard_str) == std::string::npos &&
+          mat_num.find(vacuum_str) == std::string::npos) {
         if (!DMD->try_to_make_int(mat_num)) {
-          std::cout << "Failed to cast material number to an integer"  << std::endl;
-          std::cout << "volume with ID " << cellid << " has material assignment" << std::endl;
-          std::cout << mat_num << " which appears to be a name rather than an integer" << std::endl;
-          std::cout << "Did you forget to run uwuw_preproc?" << std::endl;
+          std::cerr << "Failed to cast material number to an integer"  << std::endl;
+          std::cerr << "volume with ID " << cellid << " has material assignment" << std::endl;
+          std::cerr << mat_num << " which appears to be a name rather than an integer" << std::endl;
+          std::cerr << "Did you forget to run uwuw_preproc?" << std::endl;
           exit(EXIT_FAILURE);
         }
       }
 
       density = DMD->volume_density_data_eh[entity];
       // if we have a vacuum problem
-      if (mat_num == "Graveyard" || mat_num == "Vacuum") {
+      if (mat_num == graveyard_str || mat_num == vacuum_str) {
         mat_num = "0";
         density = "";
       }
     } else {
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
-      if (mat_name.find("Vacuum") == std::string::npos && mat_name.find("Graveyard") == std::string::npos) {
+      if (mat_name.find(vacuum_str) == std::string::npos && mat_name.find(graveyard_str) == std::string::npos) {
         if (workflow_data->material_library.count(mat_name) == 0) {
-          std::cout << "Material with name " << mat_name <<  " not found " << std::endl;
-          std::cout << "In the material library" << std::endl;
+          std::cerr << "Material with name " << mat_name <<  " not found " << std::endl;
+          std::cerr << "In the material library" << std::endl;
           exit(EXIT_FAILURE);
         }
 
         pyne::Material material = workflow_data->material_library[mat_name];
         int matnumber = material.metadata["mat_number"].asInt();
-        mat_num = _to_string(matnumber);
+        mat_num = std::to_string(matnumber);
         density = "-" + _to_string(material.density);
       } else {
         mat_num = "0";
@@ -251,15 +254,15 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       } else if (mcnp_version_major[0] == '6') {
         mcnp_name = pyne::particle::mcnp6(particle_name);
       } else {
-        std::cout << "Unknown MCNP verison: " << mcnp_version_major << std::endl;
+        std::cerr << "Unknown MCNP verison: " << mcnp_version_major << std::endl;
         exit(EXIT_FAILURE);
       }
       double imp = 1.0;
       // if we find graveyard always have importance 0.0
-      if (mat_name.find("Graveyard") != std::string::npos) {
+      if (mat_name.find(graveyard_str) != std::string::npos) {
         imp = 0.0;
         // no splitting can happenin vacuum set to 1
-      } else if (mat_name.find("Vacuum") != std::string::npos) {
+      } else if (mat_name.find(vacuum_str) != std::string::npos) {
         imp = 1.0;
         // otherwise as the map says
       } else {
@@ -269,7 +272,7 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
     }
     // its possible no importances were assigned
     if (set.size() == 0) {
-      if (mat_name.find("Graveyard") == std::string::npos) {
+      if (mat_name.find(graveyard_str) == std::string::npos) {
         importances = "imp:n=1";
       } else {
         importances = "imp:n=0";
@@ -277,7 +280,7 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
     }
 
     // add descriptive comments for special volumes
-    if (mat_name.find("Graveyard") != std::string::npos) {
+    if (mat_name.find(graveyard_str) != std::string::npos) {
       importances += "  $ graveyard";
     } else if (DAG->is_implicit_complement(entity)) {
       importances += "  $ implicit complement";
@@ -307,7 +310,7 @@ void write_surface_cards(std::ostringstream& lcadfile) {
       surface_property = "+";
     else
       surface_property = "";
-    lcadfile  << surface_property << _to_string(surfid) << std::endl;
+    lcadfile  << surface_property << std::to_string(surfid) << std::endl;
   }
   return;
 }
@@ -785,15 +788,6 @@ void dagmc_init_settings_(int* fort_use_dist_limit, int* use_cad,
 void dagmc_teardown_() {
   delete DMD;
   delete DAG;
-}
-
-// these functions should be replaced when we adopt C++11
-// int to string
-std::string _to_string(int var) {
-  std::ostringstream outstr;
-  outstr << var;
-  std::string ret_string = outstr.str();
-  return ret_string;
 }
 
 // double to string

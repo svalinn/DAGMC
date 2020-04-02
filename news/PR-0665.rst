@@ -1,0 +1,16 @@
+**Added:** None
+
+**Changed:** None
+- Applied changes from PullRequest-Agent to MCNP related files:
+    - using std::err for errors
+    - update to C++11 standards for converting ints to strings
+    - removed unnecessary comments
+    - moved Graveyard and Vacuum strings to variables
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
