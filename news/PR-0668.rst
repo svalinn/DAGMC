@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** 
+- Applied changes from PullRequest-Agent to docker related
+- Simplified travis.yaml configuration
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
