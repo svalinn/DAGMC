@@ -67,12 +67,10 @@ before_install:
   - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
 install:
-  # Build DAGMC
-  - if [ "${HOUSEKEEPING_ONLY}" != "true" ]; then
-      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
-    fi
-  - commit_id=$(docker ps -lq | tail -n1)
-  - docker commit ${commit_id} ${docker_image}
+  if: ENV(HOUSEKEEPING_ONLY) != true 
+    - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+    - commit_id=$(docker ps -lq | tail -n1)
+    - docker commit ${commit_id} ${docker_image}
 script:
   # Run tests
   - if [ "${HOUSEKEEPING_ONLY}" == "true" ]; then
