@@ -80,3 +80,10 @@ script:
     else
       docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
     fi
+jobs:
+    include:
+        - env: UBUNTU_VERSION=18.04 HOUSEKEEPING_ONLY=true  COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+        - install:
+            - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+        - script:
+            - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";

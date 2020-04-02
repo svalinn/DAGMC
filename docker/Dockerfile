@@ -15,6 +15,7 @@ RUN apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
 # Get astyle
 RUN if [ "${UBUNTU_VERSION}" == "18.04" ]; then \
       apt-get -y install astyle; \
+      pip install sphinx
     else \
       astyle_deb=astyle_3.1-1ubuntu2_amd64.deb && \
       wget https://launchpad.net/ubuntu/+source/astyle/3.1-1ubuntu2/+build/14532685/+files/${astyle_deb} && \
@@ -23,7 +24,7 @@ RUN if [ "${UBUNTU_VERSION}" == "18.04" ]; then \
     fi
 
 # Get some pip packages
-RUN pip install cython sphinx
+RUN pip install cython
 
 # Copy scripts to docker image
 RUN mkdir -p /root/etc/
