@@ -7,6 +7,43 @@ notifications:
   slack: cnerg:d48My26ZXfvHlg0On2WwNQFi
 services:
   - docker
+
+before_install:
+  # Set some local variables
+  - docker_image=svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
+  - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
+  - script_dir=${dagmc_build_dir}/DAGMC/docker
+  - docker_env=${script_dir}/env.sh
+  - travis_env=~/travis_env
+  # Create a file which contains variables needed by Docker
+  - |
+    printf "COMPILER=${COMPILER}
+    HDF5_VERSION=${HDF5_VERSION}
+    MOAB_VERSION=${MOAB_VERSION}
+    TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
+    TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
+    MW_REG_TEST_MODELS_URL=${MW_REG_TEST_MODELS_URL}
+    docker_env=${docker_env}" > ${travis_env}
+  # Get the docker image
+  - docker pull ${docker_image}
+  # Make the build directory
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "mkdir -p ${dagmc_build_dir}"
+  - commit_id=$(docker ps -lq | tail -n1)
+  - docker commit ${commit_id} ${docker_image}
+  # Copy the repo in the docker instance
+  - docker cp ../DAGMC ${commit_id}:${dagmc_build_dir}
+  - commit_id=$(docker ps -lq | tail -n1)
+  - docker commit ${commit_id} ${docker_image}
+
+install:
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+  - commit_id=$(docker ps -lq | tail -n1)
+  - docker commit ${commit_id} ${docker_image}
+
+script:
+  # Run tests
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
+
 jobs:
   fast_finish: true
   allow_failures:
@@ -43,42 +80,3 @@ jobs:
       env: UBUNTU_VERSION=16.04 HOUSEKEEPING_ONLY=true COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
       install: skip # bundle install is not required
       script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh"; 
-before_install:
-  # Set some local variables
-  - docker_image=svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
-  - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
-  - script_dir=${dagmc_build_dir}/DAGMC/docker
-  - docker_env=${script_dir}/env.sh
-  - travis_env=~/travis_env
-  # Create a file which contains variables needed by Docker
-  - |
-    printf "COMPILER=${COMPILER}
-    HDF5_VERSION=${HDF5_VERSION}
-    MOAB_VERSION=${MOAB_VERSION}
-    TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
-    TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
-    MW_REG_TEST_MODELS_URL=${MW_REG_TEST_MODELS_URL}
-    docker_env=${docker_env}" > ${travis_env}
-  # Get the docker image
-  - docker pull ${docker_image}
-  # Make the build directory
-  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "mkdir -p ${dagmc_build_dir}"
-  - commit_id=$(docker ps -lq | tail -n1)
-  - docker commit ${commit_id} ${docker_image}
-  # Copy the repo in the docker instance
-  - docker cp ../DAGMC ${commit_id}:${dagmc_build_dir}
-  - commit_id=$(docker ps -lq | tail -n1)
-  - docker commit ${commit_id} ${docker_image}
-install:
-  - if [ "${HOUSEKEEPING_ONLY}" == "false" ]; then
-    docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
-    fi
-  - commit_id=$(docker ps -lq | tail -n1)
-  - docker commit ${commit_id} ${docker_image}
-script:
-  # Run tests
-  - if [ "${HOUSEKEEPING_ONLY}" == "true" ]; then
-      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
-    else
-      docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
-    fi
