@@ -1,3 +1,4 @@
+message("")
 
 file(GLOB SRC_FILES "*.cpp")
 file(GLOB PUB_HEADERS "*.hpp")
