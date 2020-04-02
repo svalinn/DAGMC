@@ -67,10 +67,10 @@ before_install:
   - commit_id=$(docker ps -lq | tail -n1)
   - docker commit ${commit_id} ${docker_image}
 install:
-  if: ENV(HOUSEKEEPING_ONLY) != true 
-    - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
-    - commit_id=$(docker ps -lq | tail -n1)
-    - docker commit ${commit_id} ${docker_image}
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+    if: ENV(HOUSEKEEPING_ONLY) != true 
+  - commit_id=$(docker ps -lq | tail -n1)
+  - docker commit ${commit_id} ${docker_image}
 script:
   # Run tests
   - if [ "${HOUSEKEEPING_ONLY}" == "true" ]; then
