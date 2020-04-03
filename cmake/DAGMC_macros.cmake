@@ -181,6 +181,7 @@ macro (dagmc_make_configure_file)
   message(STATUS "DAGMC cmake config file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfig.cmake")
   configure_file(cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+  install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/)
 endmacro ()
 
 # To use the dagmc_install macros, the following lists must be defined:
@@ -206,7 +207,10 @@ macro (dagmc_install_library lib_name)
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif ()
     target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
+    target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+                                                            ${MOAB_INCLUDE_DIRS})
     install(TARGETS ${lib_name}-shared
+            EXPORT DAGMCTargets
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   endif ()
@@ -220,7 +224,11 @@ macro (dagmc_install_library lib_name)
         PROPERTIES INSTALL_RPATH "" INSTALL_RPATH_USE_LINK_PATH FALSE)
     endif ()
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
+    target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+                                                            ${MOAB_INCLUDE_DIRS})
+
     install(TARGETS ${lib_name}-static
+            EXPORT DAGMCTargets
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   endif ()
