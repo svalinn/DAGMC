@@ -637,7 +637,7 @@ moab::ErrorCode Arc::merge_curves(moab::Range curve_sets, const double facet_tol
         result = zip->merge_verts(curve_i_verts.back(), curve_j_verts.back(),
                                   curve_i_verts, curve_j_verts);
         if (moab::MB_SUCCESS != result)
-          std::cout << "Failed to merge vertices with error: " << result << std::endl;
+          std::cerr << "Failed to merge vertices with error: " << result << std::endl;
         assert(moab::MB_SUCCESS == result);
       }
 
@@ -683,4 +683,3 @@ moab::ErrorCode Arc::merge_curves(moab::Range curve_sets, const double facet_tol
   }
   return moab::MB_SUCCESS;
 }
-
