@@ -92,6 +92,7 @@ endmacro ()
 macro (dagmc_setup_flags)
   message("")
 
+  set(CMAKE_CXX_STANDARD 11)
 
   if (BUILD_PIC)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
