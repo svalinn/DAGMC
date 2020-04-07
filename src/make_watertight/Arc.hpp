@@ -70,7 +70,7 @@ class Arc {
 
   /// goes through curve_sets and finds any curves with coincident ( dist. apart <= FACET_TOL) front and back points.
   /// it then merges the curves topologically. Any merged curves aren't deleted until prepare surfaces.
-  moab::ErrorCode merge_curves(moab::Range curve_sets, const double facet_tol,
+  moab::ErrorCode merge_curves(moab::Range curve_sets, const double FACET_TOL,
                                moab::Tag idTag, moab::Tag merge_tag, const bool debug);
 };
 
