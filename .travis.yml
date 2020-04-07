@@ -15,6 +15,8 @@ before_install:
   - script_dir=${dagmc_build_dir}/DAGMC/docker
   - docker_env=${script_dir}/env.sh
   - travis_env=~/travis_env
+  # Set and alias to simplify docker run commands
+  - alias run_in_docker="docker run --env-file ${travis_env} ${docker_image} /bin/bash -c"
   # Create a file which contains variables needed by Docker
   - |
     printf "COMPILER=${COMPILER}
@@ -27,7 +29,7 @@ before_install:
   # Get the docker image
   - docker pull ${docker_image}
   # Make the build directory
-  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "mkdir -p ${dagmc_build_dir}"
+  - run_in_docker "mkdir -p ${dagmc_build_dir}"
   - container_id=$(docker ps -lq | tail -n1)
   # Copy the repo in the docker instance
   - docker cp ../DAGMC ${container_id}:${dagmc_build_dir}
@@ -36,13 +38,13 @@ before_install:
 
 install:
   # Build and install DAGMC
-  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+  - run_in_docker "${script_dir}/travis.install.sh";
   # Commit change in the container
   - docker commit ${container_id} ${docker_image}
 
 script:
   # Run tests
-  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
+  - run_in_docker "${script_dir}/travis.tests.sh";
 
 jobs:
   fast_finish: true
@@ -70,7 +72,7 @@ jobs:
     - stage: housekeeping
       env: UBUNTU_VERSION=18.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
       install: skip # install is not required for house keeping
-      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh"; 
+      script: run_in_docker "${script_dir}/travis.housekeeping.sh";
   allow_failures:
     - env: UBUNTU_VERSION=16.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
     - env: UBUNTU_VERSION=16.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
