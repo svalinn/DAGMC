@@ -38,6 +38,7 @@ install:
   # Build and install DAGMC
   - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
   # Commit change in the container
+  - container_id=$(docker ps -lq | tail -n1)
   - docker commit ${container_id} ${docker_image}
 
 script:
