@@ -28,14 +28,14 @@ before_install:
   - docker pull ${docker_image}
   # Make the build directory
   - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "mkdir -p ${dagmc_build_dir}"
-  - commit_id=$(docker ps -lq | tail -n1)
+  - container_id=$(docker ps -lq | tail -n1)
   # Copy the repo in the docker instance
-  - docker cp ../DAGMC ${commit_id}:${dagmc_build_dir}
-  - docker commit ${commit_id} ${docker_image}
+  - docker cp ../DAGMC ${container_id}:${dagmc_build_dir}
+  - docker container ${container_id} ${docker_image}
 
 install:
   - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
-  - docker commit ${commit_id} ${docker_image}
+  - docker container ${container_id} ${docker_image}
 
 script:
   # Run tests
