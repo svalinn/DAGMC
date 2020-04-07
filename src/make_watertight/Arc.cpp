@@ -126,7 +126,6 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
   // populate edge array, used only for searching
   unsigned n_orig_edges = edges.size();
   std::vector<Edge> my_edges(n_orig_edges);
-  // edge* my_edges = new edge[n_orig_edges];
   unsigned j = 0;
   for (moab::Range::const_iterator i = edges.begin(); i != edges.end(); ++i) {
     // get the endpoints of the edge

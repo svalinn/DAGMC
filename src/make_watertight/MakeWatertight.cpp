@@ -1520,7 +1520,7 @@ moab::ErrorCode MakeWatertight::delete_merged_curves(moab::Range& existing_curve
   result = MBI()->delete_entities(curves_to_delete);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
-    std::cout << "Failed to delete curves" << std::endl;
+    std::cerr << "Failed to delete curves" << std::endl;
   }
   existing_curve_sets = subtract(existing_curve_sets, curves_to_delete);
   if (debug)
