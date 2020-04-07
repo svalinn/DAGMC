@@ -382,16 +382,16 @@ class DagMC {
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle& root);
 
   /** Get the instance of MOAB used by functions in this file. */
-  Interface* moab_instance() {return MBI;}
+  Interface* moab_instance() {return MBI.get();}
 
  private:
 
   /* PRIVATE MEMBER DATA */
 
-  Interface* MBI;
+  std::unique_ptr<Interface> MBI;
   bool moab_instance_created;
 
-  std::shared_ptr<GeomTopoTool> GTT;
+  std::unique_ptr<GeomTopoTool> GTT;
   std::unique_ptr<GeomQueryTool> GQT;
 
  public:

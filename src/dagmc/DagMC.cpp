@@ -48,10 +48,10 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
   }
 
   // set the internal moab pointer
-  MBI = mb_impl;
+  MBI = std::unique_ptr<Interface>(mb_impl);
 
   // make new GeomTopoTool and GeomQueryTool
-  GTT = std::shared_ptr<GeomTopoTool> (new GeomTopoTool(MBI, false));
+  GTT = std::unique_ptr<GeomTopoTool> (new GeomTopoTool(MBI.get(), false));
   GQT = std::unique_ptr<GeomQueryTool> (new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
 
   // This is the correct place to uniquely define default values for the dagmc settings
@@ -65,7 +65,6 @@ DagMC::~DagMC() {
   // clear it
   if (moab_instance_created) {
     MBI->delete_mesh();
-    delete MBI;
   }
 }
 
