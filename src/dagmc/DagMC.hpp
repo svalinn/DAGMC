@@ -388,11 +388,11 @@ class DagMC {
 
   /* PRIVATE MEMBER DATA */
 
-  std::unique_ptr<Interface> MBI;
+  std::shared_ptr<Interface> MBI;
   bool moab_instance_created;
 
-  std::unique_ptr<GeomTopoTool> GTT;
-  std::unique_ptr<GeomQueryTool> GQT;
+  std::shared_ptr<GeomTopoTool> GTT;
+  std::shared_ptr<GeomQueryTool> GQT;
 
  public:
   Tag  nameTag, facetingTolTag;
