@@ -16,6 +16,7 @@
 #include <map>
 #include <string>
 #include <assert.h>
+#include <memory>
 
 class RefEntity;
 
@@ -365,7 +366,7 @@ class DagMC {
  public:
   OrientedBoxTreeTool* obb_tree() {return GTT->obb_tree();}
 
-  GeomTopoTool* geom_tool() {return GTT;}
+  GeomTopoTool* geom_tool() {return GTT.get();}
 
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
@@ -390,8 +391,8 @@ class DagMC {
   Interface* MBI;
   bool moab_instance_created;
 
-  GeomTopoTool* GTT;
-  GeomQueryTool* GQT;
+  std::shared_ptr<GeomTopoTool> GTT;
+  std::unique_ptr<GeomQueryTool> GQT;
 
  public:
   Tag  nameTag, facetingTolTag;

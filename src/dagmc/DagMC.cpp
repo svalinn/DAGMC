@@ -51,8 +51,8 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
   MBI = mb_impl;
 
   // make new GeomTopoTool and GeomQueryTool
-  GTT = new moab::GeomTopoTool(MBI, false);
-  GQT = new moab::GeomQueryTool(GTT, overlap_tolerance, p_numerical_precision);
+  GTT = std::shared_ptr<GeomTopoTool> (new GeomTopoTool(MBI, false));
+  GQT = std::unique_ptr<GeomQueryTool> (new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
 
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
@@ -60,9 +60,6 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 
 // Destructor
 DagMC::~DagMC() {
-  // delete the GeomTopoTool and GeomQueryTool
-  delete GTT;
-  delete GQT;
 
   // if we created the moab instance
   // clear it
