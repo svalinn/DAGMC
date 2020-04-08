@@ -14,11 +14,9 @@ if [ $geant4_shasum != $tar_chashum ]; then
     exit 1
 fi
 
-
 tar -xzvf geant4.${geant4_version}.tar.gz
-ln -snf geant4.${geant4_version} src
 cd bld
-cmake ../src -DBUILD_STATIC_LIBS=ON \
+cmake ../geant4.${geant4_version} -DBUILD_STATIC_LIBS=ON \
              -DGEANT4_USE_SYSTEM_EXPAT=OFF \
              -DCMAKE_BUILD_TYPE=Release \
              -DCMAKE_C_COMPILER=${CC} \
