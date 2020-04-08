@@ -57,6 +57,8 @@ void Gen::moab_printer(moab::ErrorCode error_code) {
   }
   if (error_code == moab::MB_FAILURE) {
     std::cerr << "ERROR: moab::MB_FAILURE" << std::endl;
+  } else {
+    std::cerr << "ERROR CODE NOT RECOGNIZED" << std::endl;
   }
   return;
 }
@@ -69,7 +71,7 @@ void Gen::print_vertex_cubit(const moab::EntityHandle vertex) {
 
   moab::ErrorCode result;
   double coords[3];
-  int n_precision = 20;
+  const int n_precision = 20;
   result = MBI()->get_coords(&vertex, 1, coords);
   assert(moab::MB_SUCCESS == result);
   std::cout << "  create vertex "
@@ -214,7 +216,7 @@ void Gen::print_loop(const std::vector<moab::EntityHandle> loop_of_verts) {
 /// For efficiency: only get_coords on the reference vertex once
 ///                 if specified, limit search length along curve
 moab::ErrorCode Gen::find_closest_vert(const moab::EntityHandle reference_vert,
-                                       const std::vector<moab::EntityHandle> arc_of_verts,
+                                       const std::vector<moab::EntityHandle>& arc_of_verts,
                                        unsigned& position,
                                        const double dist_limit) {
   moab::ErrorCode rval;
@@ -264,7 +266,7 @@ moab::ErrorCode Gen::find_closest_vert(const moab::EntityHandle reference_vert,
 // This ensure that both are returned as candidates.
 moab::ErrorCode Gen::find_closest_vert(const double tol,
                                        const moab::EntityHandle reference_vert,
-                                       const std::vector<moab::EntityHandle> loop_of_verts,
+                                       const std::vector<moab::EntityHandle>& loop_of_verts,
                                        std::vector<unsigned>& positions,
                                        std::vector<double>& dists) {
 
@@ -305,7 +307,7 @@ moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */, const double tol
   const double SQR_TOL = tol * tol;
   // Clean up the created tree, and track verts so that if merged away they are
   // removed from the tree.
-  moab::AdaptiveKDTree kdtree(MBI()); //, true, 0, moab::MESHSET_TRACK_OWNER);
+  moab::AdaptiveKDTree kdtree(MBI());
   // initialize the KD Tree
   moab::EntityHandle root;
   const char settings[] = "MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;PLANE_SET=2;MESHSET_FLAGS=0x1;TAG_NAME=0";
@@ -327,8 +329,12 @@ moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */, const double tol
       std::vector<moab::EntityHandle> leaf_verts;
       result = MBI()->get_entities_by_type(leaves_out[j], moab::MBVERTEX, leaf_verts);
       assert(moab::MB_SUCCESS == result);
-      if (100 < leaf_verts.size())
+
+      // write number of leaf verts to screen if there is an abnormally high number of them
+      const int large_leaf_limit = 100;
+      if (leaf_verts.size() > large_leaf_limit)
         std::cout << "*i=" << *i << " leaf_verts.size()=" << leaf_verts.size() << std::endl;
+
       for (unsigned int k = 0; k < leaf_verts.size(); k++) {
         if (leaf_verts[k] == *i)
           continue;
@@ -357,7 +363,7 @@ moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */, const double tol
 
 moab::ErrorCode Gen::squared_dist_between_verts(const moab::EntityHandle v0,
                                                 const moab::EntityHandle v1,
-                                                double& d) {
+                                                double& squared_dist) {
   moab::ErrorCode result;
   moab::CartVect coords0, coords1;
   result = MBI()->get_coords(&v0, 1, coords0.array());
@@ -373,7 +379,7 @@ moab::ErrorCode Gen::squared_dist_between_verts(const moab::EntityHandle v0,
     return result;
   }
   const moab::CartVect diff = coords0 - coords1;
-  d = diff.length_squared();
+  squared_dist = diff.length_squared();
   return moab::MB_SUCCESS;
 }
 
@@ -427,7 +433,6 @@ double Gen::length(std::vector<moab::EntityHandle> edges) {
     return 0;
 
   moab::ErrorCode result;
-  std::vector<moab::EntityHandle>::iterator i;
   double dist = 0;
   moab::EntityType type = MBI()->type_from_handle(edges[0]);
 
@@ -435,7 +440,7 @@ double Gen::length(std::vector<moab::EntityHandle> edges) {
   // NOTE: The curve sets from ReadCGM do not contain duplicate endpoints for loops!
   moab::EntityType end_type = MBI()->type_from_handle(edges.back());
   if (type != end_type) {
-    for (std::vector<moab::EntityHandle>::iterator i = edges.begin(); i != edges.end(); i++) {
+    for (auto i = edges.begin(); i != edges.end(); i++) {
       if (moab::MBVERTEX == MBI()->type_from_handle(*i)) {
         i = edges.erase(i) - 1;
       }
@@ -447,7 +452,7 @@ double Gen::length(std::vector<moab::EntityHandle> edges) {
   if (moab::MBEDGE == type) {
     if (edges.empty())
       return 0.0;
-    for (i = edges.begin(); i != edges.end(); i++) {
+    for (auto i = edges.begin(); i != edges.end(); i++) {
       int n_verts;
       const moab::EntityHandle* conn;
       result = MBI()->get_connectivity(*i, conn, n_verts);
@@ -463,7 +468,7 @@ double Gen::length(std::vector<moab::EntityHandle> edges) {
     if (2 > edges.size())
       return 0.0;
     moab::EntityHandle front_vert = edges.front();
-    for (i = edges.begin() + 1; i != edges.end(); i++) {
+    for (auto i = edges.begin() + 1; i != edges.end(); i++) {
       dist += dist_between_verts(front_vert, *i);
       front_vert = *i;
     }
@@ -510,7 +515,6 @@ bool Gen::edges_adjacent(moab::EntityHandle edge0, moab::EntityHandle edge1) {
 // get the direction unit vector from one vertex to another vertex
 moab::ErrorCode Gen::get_direction(const moab::EntityHandle from_vert, const moab::EntityHandle to_vert,
                                    moab::CartVect& dir) {
-  // double d[3];
   moab::ErrorCode result;
   moab::CartVect coords0, coords1;
   result = MBI()->get_coords(&from_vert, 1, coords0.array());
@@ -821,11 +825,6 @@ bool Gen::collinear(const moab::EntityHandle a, const moab::EntityHandle b,
     return false;
 }
 
-// Exclusive or: T iff exactly one argument is true
-bool logical_xor(const bool x, const bool y) {
-  return (x || y) && !(x && y);
-}
-
 bool Gen::intersect_prop(const moab::EntityHandle a, const moab::EntityHandle b,
                          const moab::EntityHandle c, const moab::EntityHandle d,
                          const moab::CartVect n) {
@@ -835,8 +834,8 @@ bool Gen::intersect_prop(const moab::EntityHandle a, const moab::EntityHandle b,
       collinear(c, d, b, n)) {
     return false;
   } else {
-    return logical_xor(left(a, b, c, n), left(a, b, d, n)) &&
-           logical_xor(left(c, d, a, n), left(c, d, b, n));
+    return (left(a, b, c, n) != left(a, b, d, n)) &&
+           (left(c, d, a, n) != left(c, d, b, n));
   }
 }
 
@@ -1246,18 +1245,11 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
     }
   }
 
-  for (unsigned int i = 0; i < mgd_params.size(); i++) {
-
-  }
-
   // Insert new points to match the other arcs points, by parameter.
   for (unsigned int i = 0; i < 2; i++) {
     for (unsigned int j = 0; j < mgd_params.size(); j++) {
-      //std::cout << "params[" << i << "][" << j << "]=" << params[i][j]
-      //          << " mgd_params[" << j << "]=" << mgd_params[j] << std::endl;
       if (params[i][j] > mgd_params[j]) {
         double ratio = (mgd_params[j] - params[i][j - 1]) / (params[i][j] - params[i][j - 1]);
-        //std::cout << "j=" << j << " ratio=" << ratio << std::endl;
         moab::CartVect pt = coords[i][j - 1] + ratio * (coords[i][j] - coords[i][j - 1]);
         coords[i].insert(coords[i].begin() + j, pt);
         params[i].insert(params[i].begin() + j, mgd_params[j]);
@@ -1291,8 +1283,8 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
 // qsort struct comparision function
 // If the first handle is the same, compare the second
 int compare_edge(const void* a, const void* b) {
-  struct edge* ia = (struct edge*)a;
-  struct edge* ib = (struct edge*)b;
+  struct Edge* ia = (struct Edge*)a;
+  struct Edge* ib = (struct Edge*)b;
   if (ia->v0 == ib->v0) {
     return (int)(ia->v1 - ib->v1);
   } else {
@@ -1337,7 +1329,7 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
   assert(0 == n_edges);
 
   // Get connectivity. Do not create edges.
-  edge* edges = new edge[3 * tris.size()];
+  std::vector<Edge> edges(3 * tris.size());
   int n_verts;
   int ii = 0;
   for (moab::Range::iterator i = tris.begin(); i != tris.end(); i++) {
@@ -1370,7 +1362,7 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
 
   // Sort by first handle, then second handle. Do not sort the extra edge on the
   // back.
-  qsort(edges, 3 * tris.size(), sizeof(struct edge), compare_edge);
+  qsort(edges.data(), 3 * tris.size(), sizeof(struct Edge), compare_edge);
 
   // Go through array, saving edges that are not paired.
   for (unsigned int i = 0; i < 3 * tris.size(); i++) {
@@ -1406,7 +1398,6 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
       skin_edges.insert(edge);
     }
   }
-  delete[] edges;
   return moab::MB_SUCCESS;
 }
 
@@ -1533,7 +1524,11 @@ moab::ErrorCode Gen::get_signed_volume(const moab::EntityHandle surf_set, double
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::measure(const moab::EntityHandle set, const moab::Tag geom_tag, double& size, bool debug,  bool verbose) {
+moab::ErrorCode Gen::measure(const moab::EntityHandle set,
+                             const moab::Tag geom_tag,
+                             double& measurement,
+                             bool debug,
+                             bool verbose) {
   moab::ErrorCode result;
   int dim;
   result = MBI()->tag_get_data(geom_tag, &set, 1, &dim);
@@ -1546,17 +1541,17 @@ moab::ErrorCode Gen::measure(const moab::EntityHandle set, const moab::Tag geom_
     std::vector<moab::EntityHandle> vctr;
     result = get_meshset(set, vctr);
     assert(moab::MB_SUCCESS == result);
-    size = length(vctr);
+    measurement = length(vctr);
 
   } else if (2 == dim) {
     moab::Range tris;
     result = MBI()->get_entities_by_type(set, moab::MBTRI, tris);
     assert(moab::MB_SUCCESS == result);
-    size = triangle_area(tris);
+    measurement = triangle_area(tris);
 
   } else if (3 == dim) {
 
-    result = measure_volume(set, size, debug, verbose);
+    result = measure_volume(set, measurement, debug, verbose);
 
     if (moab::MB_SUCCESS != result) {
       std::cout << "result=" << result << " vol_id="

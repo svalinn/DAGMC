@@ -125,7 +125,7 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
 
   // populate edge array, used only for searching
   unsigned n_orig_edges = edges.size();
-  edge* my_edges = new edge[n_orig_edges];
+  std::vector<Edge> my_edges(n_orig_edges);
   unsigned j = 0;
   for (moab::Range::const_iterator i = edges.begin(); i != edges.end(); ++i) {
     // get the endpoints of the edge
@@ -151,7 +151,7 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
   }
 
   // sort edge array
-  qsort(my_edges, n_orig_edges, sizeof(struct edge), compare_edge);
+  qsort(my_edges.data(), n_orig_edges, sizeof(struct Edge), compare_edge);
 
   // find duplicate edges
   j = 0;
@@ -171,7 +171,6 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
       edges = subtract(edges, duplicate_edges);
       rval = MBI()->delete_entities(duplicate_edges);
       if (moab::MB_SUCCESS != rval) {
-        delete[] my_edges;
         MB_CHK_SET_ERR(moab::MB_FAILURE, "cannot delete edge");
       }
       if (debug) {
@@ -183,7 +182,6 @@ moab::ErrorCode Arc::remove_opposite_pairs_of_edges_fast(moab::Range& edges, con
     j = i;
   }
 
-  delete[] my_edges;
   return moab::MB_SUCCESS;
 }
 
@@ -218,7 +216,6 @@ moab::ErrorCode Arc::get_next_oriented_edge(const moab::Range edges,
       std::cout << "result=" << result
                 << " could not get connectivity of edge" << std::endl;
       return result;
-      //print_edge( *i );
     }
     assert(moab::MB_SUCCESS == result);
     assert(2 == n_verts);
@@ -246,37 +243,11 @@ moab::ErrorCode Arc::get_next_oriented_edge(const moab::Range edges,
     std::cout << "get_next_oriented_edge: " << adj_edges.size() <<
               " possible edges indicates a pinch point." << std::endl;
     result = MBI()->list_entity(end_verts[1]);
-    //assert(moab::MB_SUCCESS == result);
-    //return moab::MB_MULTIPLE_ENTITIES_FOUND;
+    if (result != moab::MB_SUCCESS) {
+      return moab::MB_MULTIPLE_ENTITIES_FOUND;
+    }
     next_edge = adj_edges.front();
   }
-  return moab::MB_SUCCESS;
-}
-
-moab::ErrorCode Arc::create_loops_from_oriented_edges_fast(moab::Range edges,
-                                                           std::vector< std::vector<moab::EntityHandle> >& loops_of_edges,
-                                                           const bool debug) {
-  // place all edges in map
-  std::multimap<moab::EntityHandle, edge> my_edges;
-  moab::ErrorCode rval;
-  for (moab::Range::const_iterator i = edges.begin(); i != edges.end(); ++i) {
-    // get the endpoints of the edge
-    const moab::EntityHandle* endpts;
-    int n_verts;
-    rval = MBI()->get_connectivity(*i, endpts, n_verts);
-    if (moab::MB_SUCCESS != rval || 2 != n_verts) {
-      MB_CHK_SET_ERR(moab::MB_FAILURE, "could not get connectivity");
-    }
-    // store the edges
-    edge temp;
-    temp.edge = *i;
-    temp.v0   = endpts[0];
-    temp.v1   = endpts[1];
-    my_edges.insert(std::pair<moab::EntityHandle, edge>(temp.v0, temp));
-  }
-  std::cout << "error: function not complete" << std::endl;
-  return moab::MB_FAILURE;
-
   return moab::MB_SUCCESS;
 }
 
@@ -344,25 +315,22 @@ moab::ErrorCode Arc::create_loops_from_oriented_edges(moab::Range edges,
         return result;
       }
 
-      // if the next edge was found
-      if (0 != next_edge) {
-        // add it to the loop
-        loop_of_edges.push_back(next_edge);
-        if (debug)
-          std::cout << "push_back: " << next_edge << std::endl;
-        n_edges_out++;
-
-        // remove the edge from the possible edges
-        edges.erase(next_edge);
-
-        // set the new reference vertex
-        edge = next_edge;
-
-        // if another edge was not found
-      } else {
+      // if the next edge was not found, we're done
+      if (0 == next_edge) {
         break;
-
       }
+
+      // add it to the loop
+      loop_of_edges.push_back(next_edge);
+      if (debug)
+        std::cout << "push_back: " << next_edge << std::endl;
+      n_edges_out++;
+
+      // remove the edge from the possible edges
+      edges.erase(next_edge);
+
+      // set the new reference vertex
+      edge = next_edge;
     }
 
     // check to ensure the arc is closed
@@ -515,9 +483,13 @@ moab::ErrorCode Arc::merge_curves(moab::Range curve_sets, const double facet_tol
     moab::EntityHandle back_endpt  = curve[curve.size() - 1];
     // ADD CODE TO HANDLE SPECIAL CASES!!
     if (front_endpt == back_endpt) { // special case
+      std::cerr << "Warning: Special case hit in merge_curves: ";
       if (0 == gen->length(curve)) { // point curve
+        std::cerr << "point curve";
       } else {                      // circle
+        std::cerr << "circle";
       }
+      std::cerr << std::endl;
     } else {                        // normal curve
       endpoints.insert(front_endpt);
       endpoints.insert(back_endpt);
@@ -527,7 +499,7 @@ moab::ErrorCode Arc::merge_curves(moab::Range curve_sets, const double facet_tol
   // add endpoints to kd-tree. Tree must track ownership to know when verts are
   // merged away (deleted).
 
-  moab::AdaptiveKDTree kdtree(MBI()); //, 0, MESHSET_TRACK_OWNER);
+  moab::AdaptiveKDTree kdtree(MBI());
   moab::EntityHandle root;
 
   //set tree options
@@ -664,7 +636,7 @@ moab::ErrorCode Arc::merge_curves(moab::Range curve_sets, const double facet_tol
         result = zip->merge_verts(curve_i_verts.back(), curve_j_verts.back(),
                                   curve_i_verts, curve_j_verts);
         if (moab::MB_SUCCESS != result)
-          std::cout << result << std::endl;
+          std::cerr << "Failed to merge vertices with error: " << result << std::endl;
         assert(moab::MB_SUCCESS == result);
       }
 
@@ -710,4 +682,3 @@ moab::ErrorCode Arc::merge_curves(moab::Range curve_sets, const double facet_tol
   }
   return moab::MB_SUCCESS;
 }
-

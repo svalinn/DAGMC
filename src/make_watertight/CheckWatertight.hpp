@@ -78,26 +78,23 @@ inline int compare_by_coords(const void* a, const void* b) {
             if (ia->z2 == ib->z2) {
               return ia->surf_id - ib->surf_id;
             } else {
-              return (ia->z2 > ib->z2) - (ia->z2 < ib->z2);
+              return (ia->z2 > ib->z2) ? 1 : -1;
             }
           } else {
-            return (ia->y2 > ib->y2) - (ia->y2 < ib->y2);
+            return (ia->y2 > ib->y2) ? 1 : -1;
           }
         } else {
-          return (ia->x2 > ib->x2) - (ia->x2 < ib->x2);
+          return (ia->x2 > ib->x2) ? 1 : -1;
         }
       } else {
-        return (ia->z1 > ib->z1) - (ia->z1 < ib->z1);
+        return (ia->z1 > ib->z1) ? 1 : -1;
       }
     } else {
-      return (ia->y1 > ib->y1) - (ia->y1 < ib->y1);;
+      return (ia->y1 > ib->y1) ? 1 : -1;
     }
   } else {
-    return (ia->x1 > ib->x1) - (ia->x1 < ib->x1);
+    return (ia->x1 > ib->x1) ? 1 : -1;
   }
-  /* float comparison: returns negative if b > a
-     and positive if a > b. We multiplied result by 100.0
-     to preserve decimal fraction */
 }
 
 #endif
