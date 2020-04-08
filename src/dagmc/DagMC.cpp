@@ -39,11 +39,11 @@ const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
-DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_precision) {
+DagMC::DagMC(std::shared_ptr<Interface> mb_impl, double overlap_tolerance, double p_numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
-  if (NULL == mb_impl) {
-    mb_impl = new moab::Core();
+  if (nullptr == mb_impl) {
+    mb_impl = std::shared_ptr<Interface>(new moab::Core());
     moab_instance_created = true;
   }
 

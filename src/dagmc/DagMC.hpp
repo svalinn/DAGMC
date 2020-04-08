@@ -58,7 +58,7 @@ class CartVect;
 class DagMC {
  public:
   // Constructor
-  DagMC(Interface* mb_impl = NULL, double overlap_tolerance = 0., double numerical_precision = .001);
+  DagMC(std::shared_ptr<Interface> mb_impl = nullptr, double overlap_tolerance = 0., double numerical_precision = .001);
   // Destructor
   ~DagMC();
 

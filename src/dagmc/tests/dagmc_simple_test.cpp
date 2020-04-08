@@ -29,18 +29,16 @@ TEST_F(DagmcSimpleTest, dagmc_load_file) {
 TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc) {
   /* 1 - Test with external moab, load file in DAGMC*/
   // make new moab core
-  Core* mbi = new moab::Core();
+  std::shared_ptr<Core> mbi = std::shared_ptr<Core>(new moab::Core());
   // make new dagmc into that moab
   DagMC* dagmc = new moab::DagMC(mbi);
 
   ErrorCode rval;
+
   // load a file
   rval = dagmc->load_file(input_file);
   EXPECT_EQ(rval, MB_SUCCESS);
-
-  // delete dagmc
   delete dagmc;
-  delete mbi;
 }
 
 TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_via_moab) {
@@ -48,7 +46,7 @@ TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_via_moab) {
   // load the file into moab rather than dagmc
   ErrorCode rval;
 
-  moab::Core* mbi = new moab::Core();
+  std::shared_ptr<Core> mbi = std::shared_ptr<Core>(new moab::Core());
   rval = mbi->load_file(input_file);
   EXPECT_EQ(rval, MB_SUCCESS);
   moab::DagMC* dagmc = new moab::DagMC(mbi);
@@ -57,7 +55,6 @@ TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_via_moab) {
 
   // delete dagmc;
   delete dagmc;
-  delete mbi;
 }
 
 TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_internal) {
@@ -77,7 +74,7 @@ TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_build_obb) {
   // make new moab core
   ErrorCode rval;
 
-  moab::Core* mbi = new moab::Core();
+  std::shared_ptr<Core> mbi = std::shared_ptr<Core>(new moab::Core());
   // make new dagmc into that moab
   DagMC* dagmc = new moab::DagMC(mbi);
 
@@ -88,7 +85,6 @@ TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_build_obb) {
   EXPECT_EQ(rval, MB_SUCCESS);
   // delete dagmc
   delete dagmc;
-  delete mbi;
 }
 
 TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_via_moab_build_obb) {
@@ -96,7 +92,7 @@ TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_via_moab_build_obb) {
   // load the file into moab rather than dagmc
   ErrorCode rval;
 
-  moab::Core* mbi = new moab::Core();
+  std::shared_ptr<Core> mbi = std::shared_ptr<Core>(new moab::Core());
   rval = mbi->load_file(input_file);
   EXPECT_EQ(rval, MB_SUCCESS);
   moab::DagMC* dagmc = new moab::DagMC(mbi);
@@ -107,7 +103,6 @@ TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_via_moab_build_obb) {
 
   // delete dagmc;
   delete dagmc;
-  delete mbi;
 }
 
 TEST_F(DagmcSimpleTest, dagmc_load_file_dagmc_internal_build_obb) {
