@@ -91,7 +91,9 @@ endmacro ()
 
 macro (dagmc_setup_flags)
   message("")
-# check for and enable c++11 support
+  
+  set(CMAKE_CXX_STANDARD 11)
+  # check for and enable c++11 support
   INCLUDE(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
   IF(COMPILER_SUPPORTS_CXX11)
