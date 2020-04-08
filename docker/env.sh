@@ -3,6 +3,7 @@
 export jobs=`grep -c processor /proc/cpuinfo`
 
 export geant4_version=10.05
+export geant4_shasum=4b05b4f7d50945459f8dbe287333b9efb772bd23d50920630d5454ec570b782d
 
 export build_dir=/root/build/${COMPILER}
 export install_dir=/root/opt/${COMPILER}
