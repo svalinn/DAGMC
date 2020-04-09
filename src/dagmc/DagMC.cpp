@@ -51,7 +51,7 @@ DagMC::DagMC(std::shared_ptr<Interface> mb_impl, double overlap_tolerance, doubl
   MBI = std::shared_ptr<Interface>(mb_impl);
 
   // make new GeomTopoTool and GeomQueryTool
-  GTT = std::shared_ptr<GeomTopoTool> (new GeomTopoTool(MBI.get(), false));
+  GTT = std::make_shared<GeomTopoTool>(MBI.get(), false);
   GQT = std::shared_ptr<GeomQueryTool> (new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
 
   // This is the correct place to uniquely define default values for the dagmc settings
