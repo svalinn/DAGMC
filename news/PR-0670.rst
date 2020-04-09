@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:**
+- DagMC class: chaneg pointer class member into shared_ptr
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
