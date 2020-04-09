@@ -43,7 +43,7 @@ DagMC::DagMC(std::shared_ptr<Interface> mb_impl, double overlap_tolerance, doubl
   moab_instance_created = false;
   // if we arent handed a moab instance create one
   if (nullptr == mb_impl) {
-    mb_impl = std::shared_ptr<Interface>(new moab::Core());
+    mb_impl = std::shared_ptr<Core>();
     moab_instance_created = true;
   }
 
