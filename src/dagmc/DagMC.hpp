@@ -60,7 +60,8 @@ class DagMC {
   // Constructor
   DagMC(std::shared_ptr<Interface> mb_impl = nullptr, double overlap_tolerance = 0., double numerical_precision = .001);
   // Deprecated Constructor
-  [[ deprecated ]] DagMC(Interface* mb_impl, double overlap_tolerance = 0., double numerical_precision = .001);
+  [[ deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... )") ]] 
+    DagMC(Interface* mb_impl, double overlap_tolerance = 0., double numerical_precision = .001);
   // Destructor
   ~DagMC();
 
@@ -368,7 +369,9 @@ class DagMC {
  public:
   OrientedBoxTreeTool* obb_tree() {return GTT->obb_tree();}
 
-  GeomTopoTool* geom_tool() {return GTT.get();}
+  [[ deprecated("Replaced by std::shared_ptr<GeomTopoTool> geom_tool_ptr()") ]] 
+    GeomTopoTool* geom_tool() {return GTT.get();}
+  std::shared_ptr<GeomTopoTool> geom_tool_ptr() {return GTT;}
 
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
@@ -384,7 +387,9 @@ class DagMC {
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle& root);
 
   /** Get the instance of MOAB used by functions in this file. */
-  Interface* moab_instance() {return MBI;}
+  [[ deprecated("Replaced by std::shared_ptr<Interface> moab_instance_ptr()") ]] 
+    Interface* moab_instance() {return MBI;}
+  std::shared_ptr<Interface> moab_instance_ptr() {return MBI_shared_ptr;}
 
  private:
 
@@ -396,7 +401,7 @@ class DagMC {
   // MBI is either externally owned or owned by the MBI_shared_ptr
   Interface* MBI;
   bool moab_instance_created;
-  
+
   std::shared_ptr<GeomTopoTool> GTT;
   std::shared_ptr<GeomQueryTool> GQT;
 
