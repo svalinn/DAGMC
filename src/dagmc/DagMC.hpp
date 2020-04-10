@@ -369,9 +369,7 @@ class DagMC {
  public:
   OrientedBoxTreeTool* obb_tree() {return GTT->obb_tree();}
 
-  [[ deprecated("Replaced by std::shared_ptr<GeomTopoTool> geom_tool_ptr()") ]]
   GeomTopoTool* geom_tool() {return GTT.get();}
-  std::shared_ptr<GeomTopoTool> geom_tool_ptr() {return GTT;}
 
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
@@ -387,9 +385,7 @@ class DagMC {
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle& root);
 
   /** Get the instance of MOAB used by functions in this file. */
-  [[ deprecated("Replaced by std::shared_ptr<Interface> moab_instance_ptr()") ]]
   Interface* moab_instance() {return MBI;}
-  std::shared_ptr<Interface> moab_instance_ptr() {return MBI_shared_ptr;}
 
  private:
 
