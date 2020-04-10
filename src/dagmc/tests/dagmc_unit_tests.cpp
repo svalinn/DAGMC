@@ -8,10 +8,10 @@
 #include <cassert>
 
 // dagmc instance
-moab::DagMC* DAG;
+std::shared_ptr<moab::DagMC> DAG;
 
 // metadata instance
-dagmcMetaData* dgm;
+std::shared_ptr<dagmcMetaData> dgm;
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
@@ -24,7 +24,7 @@ class DagmcMetadataTest : public ::testing::Test {
     // Default h5m file for testing
     std::string infile = "test_dagmc.h5m";
 
-    DAG = new moab::DagMC();
+    DAG = std::make_shared<moab::DagMC>();
 
     rloadval = DAG->load_file(infile.c_str());
     assert(rloadval == moab::MB_SUCCESS);
@@ -34,10 +34,7 @@ class DagmcMetadataTest : public ::testing::Test {
     assert(rval == moab::MB_SUCCESS);
   }
 
-  virtual void TearDown() {
-    delete DAG;
-    delete dgm;
-  }
+  virtual void TearDown() {}
 
  protected:
 
@@ -59,7 +56,7 @@ TEST_F(DagmcMetadataTest, SetUp) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestMatAssigns) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   // process
   dgm->load_property_data();
@@ -93,7 +90,7 @@ TEST_F(DagmcMetadataTest, TestMatAssigns) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestDensityAssigns) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   // process
   dgm->load_property_data();
@@ -119,7 +116,7 @@ TEST_F(DagmcMetadataTest, TestDensityAssigns) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestMatDensityAssigns) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   // process
   dgm->load_property_data();
@@ -149,7 +146,7 @@ TEST_F(DagmcMetadataTest, TestMatDensityAssigns) {
 
 TEST_F(DagmcMetadataTest, TestUnpackString) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   // process
   dgm->load_property_data();
@@ -174,7 +171,7 @@ TEST_F(DagmcMetadataTest, TestUnpackString) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestImportanceAssigns) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   // process
   dgm->load_property_data();
@@ -201,7 +198,7 @@ TEST_F(DagmcMetadataTest, TestImportanceAssigns) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   // process
   dgm->load_property_data();
@@ -230,7 +227,7 @@ TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestTallyAssigns) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   // process
   dgm->load_property_data();
@@ -259,7 +256,7 @@ TEST_F(DagmcMetadataTest, TestTallyAssigns) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestReturnProperty) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   std::string return_string = "";
   return_string = dgm->return_property("mat:Steel", "mat", ":", false);
@@ -296,7 +293,7 @@ TEST_F(DagmcMetadataTest, TestReturnProperty) {
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestSplitString) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   std::string to_split = "Neutron/1.0";
   std::pair<std::string, std::string> pair = dgm->split_string(to_split, "/");
@@ -322,7 +319,7 @@ TEST_F(DagmcMetadataTest, TestSplitString) {
 // test to make sure the function try_to_make_int works
 TEST_F(DagmcMetadataTest, TestTryToMakeInt) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
 
   EXPECT_EQ(dgm->try_to_make_int("1"), true);
   EXPECT_EQ(dgm->try_to_make_int("1A"), false);
@@ -339,7 +336,7 @@ class DagmcMetadataTestImplCompMat : public ::testing::Test {
     // Default h5m file for testing
     std::string infile = "test_dagmc_impl.h5m";
 
-    DAG = new moab::DagMC();
+    DAG = std::make_shared<moab::DagMC>();
 
     rloadval = DAG->load_file(infile.c_str());
     assert(rloadval == moab::MB_SUCCESS);
@@ -349,10 +346,7 @@ class DagmcMetadataTestImplCompMat : public ::testing::Test {
     assert(rval == moab::MB_SUCCESS);
   }
 
-  virtual void TearDown() {
-    //    delete dgm;
-    delete DAG;
-  }
+  virtual void TearDown() {}
 
  protected:
 
@@ -372,7 +366,7 @@ TEST_F(DagmcMetadataTestImplCompMat, SetUp) {
 // is set
 TEST_F(DagmcMetadataTestImplCompMat, ImplCompMat) {
   // new metadata instance
-  dgm = new dagmcMetaData(DAG);
+  dgm = std::make_shared<dagmcMetaData>(DAG.get());
   // process
   dgm->load_property_data();
   // loop over the volumes
