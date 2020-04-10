@@ -47,7 +47,7 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
     moab_instance_created = true;
   }
 
-  MBI_shared_ptr = std::shared_ptr<Interface>(mb_impl);
+  MBI_shared_ptr = mb_impl;
   // set the internal moab pointer
   MBI = MBI_shared_ptr.get();
 
