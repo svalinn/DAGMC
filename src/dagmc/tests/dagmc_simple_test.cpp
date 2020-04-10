@@ -5,6 +5,7 @@
 #include "DagMC.hpp"
 
 #include <iostream>
+#include <memory>
 
 using namespace moab;
 

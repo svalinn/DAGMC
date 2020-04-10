@@ -59,6 +59,8 @@ class DagMC {
  public:
   // Constructor
   DagMC(std::shared_ptr<Interface> mb_impl = nullptr, double overlap_tolerance = 0., double numerical_precision = .001);
+  // Deprecated Constructor
+  [[ deprecated ]] DagMC(Interface* mb_impl, double overlap_tolerance = 0., double numerical_precision = .001);
   // Destructor
   ~DagMC();
 
@@ -382,15 +384,19 @@ class DagMC {
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle& root);
 
   /** Get the instance of MOAB used by functions in this file. */
-  Interface* moab_instance() {return MBI.get();}
+  Interface* moab_instance() {return MBI;}
 
  private:
 
   /* PRIVATE MEMBER DATA */
 
-  std::shared_ptr<Interface> MBI;
+  // Shared_ptr owning *MBI (if allocated internally)
+  std::shared_ptr<Interface> MBI_shared_ptr;
+  // Use for the call to MOAB interface, should never be deleted in the DagMC instanced
+  // MBI is either externally owned or owned by the MBI_shared_ptr
+  Interface* MBI;
   bool moab_instance_created;
-
+  
   std::shared_ptr<GeomTopoTool> GTT;
   std::shared_ptr<GeomQueryTool> GQT;
 

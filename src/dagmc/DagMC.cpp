@@ -39,20 +39,34 @@ const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
-DagMC::DagMC(std::shared_ptr<Interface> mb_impl, double overlap_tolerance, double p_numerical_precision) {
+DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance, double p_numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
   if (nullptr == mb_impl) {
-    mb_impl = std::shared_ptr<Core>();
+    mb_impl = std::make_shared<Core>();
     moab_instance_created = true;
   }
 
+  MBI_shared_ptr = std::shared_ptr<Interface>(mb_impl);
   // set the internal moab pointer
-  MBI = std::shared_ptr<Interface>(mb_impl);
+  MBI = MBI_shared_ptr.get();
 
   // make new GeomTopoTool and GeomQueryTool
-  GTT = std::make_shared<GeomTopoTool>(MBI.get(), false);
-  GQT = std::shared_ptr<GeomQueryTool> (new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
+  GTT = std::make_shared<GeomTopoTool> (MBI, false);
+  GQT = std::make_shared<GeomQueryTool> (GTT.get(), overlap_tolerance, p_numerical_precision);
+
+  // This is the correct place to uniquely define default values for the dagmc settings
+  defaultFacetingTolerance = .001;
+}
+
+DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_precision) {
+  moab_instance_created = false;
+  // set the internal moab pointer
+  MBI = mb_impl;
+
+  // make new GeomTopoTool and GeomQueryTool
+  GTT = std::make_shared<GeomTopoTool> (MBI, false);
+  GQT = std::make_shared<GeomQueryTool> (GTT.get(), overlap_tolerance, p_numerical_precision);
 
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
