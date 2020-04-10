@@ -1,7 +1,8 @@
 **Added:** None
 
 **Changed:**
-- DagMC class: chaneg pointer class member into shared_ptr
+- DagMC: change pointer class member into shared_ptr
+- DagMC tests: change pointer class member into shared_ptr
 
 **Deprecated:** None
 
