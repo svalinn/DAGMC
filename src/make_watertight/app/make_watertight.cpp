@@ -3,9 +3,6 @@
 //         output_file h5m filename (optional),
 // output: watertight h5m
 
-// make CXXFLAGS=-g for debug
-// make CXXFLAGS=-pg for profiling
-
 #include <iostream>
 #include <sstream>
 #include <iomanip>

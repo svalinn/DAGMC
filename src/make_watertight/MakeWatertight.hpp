@@ -53,11 +53,11 @@ class MakeWatertight {
                                  moab::Tag geom_tag,
                                  moab::Tag id_tag,
                                  moab::Tag merge_tag,
-                                 const double FACET_TOL,
+                                 const double facet_tol,
                                  const bool debug,
                                  bool verbose = true);
 
-  moab::ErrorCode create_arc_pair(const double FACET_TOL,
+  moab::ErrorCode create_arc_pair(const double facet_tol,
                                   const moab::EntityHandle surf_set,
                                   std::vector<moab::EntityHandle>& skin_loop,
                                   std::vector<moab::EntityHandle>& curve_sets,
@@ -69,14 +69,14 @@ class MakeWatertight {
                                   std::vector<moab::EntityHandle>& skin_arc);
 
   moab::ErrorCode seal_arc_pair(const bool debug,
-                                const double FACET_TOL,
+                                const double facet_tol,
                                 const moab::Tag normal_tag,
                                 std::vector<moab::EntityHandle>& edge, /* in */
                                 std::vector<moab::EntityHandle>& skin /* in/out */,
                                 const int surf_id);
 
   moab::ErrorCode seal_loop(bool debug,
-                            const double FACET_TOL,
+                            const double facet_tol,
                             const moab::Tag normal_tag,
                             const moab::Tag orig_curve_tag,
                             const moab::EntityHandle surf_set,
@@ -90,8 +90,8 @@ class MakeWatertight {
                                    moab::Tag normal_tag,
                                    moab::Tag merge_tag,
                                    moab::Tag orig_curve_tag,
-                                   const double SME_RESABS_TOL,
-                                   const double FACET_TOL,
+                                   const double sme_resabs_tol,
+                                   const double facet_tol,
                                    const bool debug,
                                    bool verbose = true);
 
@@ -114,7 +114,7 @@ class MakeWatertight {
   moab::ErrorCode get_geom_size_after_sealing(const moab::Range geom_sets[],
                                               const moab::Tag geom_tag,
                                               const moab::Tag size_tag,
-                                              const double FACET_TOL,
+                                              const double facet_tol,
                                               bool debug,
                                               bool verbose);
 
@@ -136,9 +136,9 @@ class MakeWatertight {
   /// The vertex loops are returned in the vector array, skin.
   moab::ErrorCode create_skin_vert_loops(moab::Range& skin_edges, moab::Range tris, std::vector < std::vector <moab::EntityHandle> >& skin, int surf_id, bool& cont, bool debug);
 
-  /// merges any skin vertices closer in proximity than the SME_RESABS_TOL.
+  /// merges any skin vertices closer in proximity than the sme_resabs_tol.
   /// It then checks the skins for any degenerate edges resultant of vertex merging.
-  moab::ErrorCode merge_skin_verts(moab::Range& skin_verts, moab::Range& skin_edges, double SME_RESABS_TOL, int surf_id, bool cont, bool debug);
+  moab::ErrorCode merge_skin_verts(moab::Range& skin_verts, moab::Range& skin_edges, double sme_resabs_tol, int surf_id, bool cont, bool debug);
 
   /// runs the make_watertight algorithm on each set of skin_loops for the surface, surf.
   moab::ErrorCode seal_surface_loops(moab::EntityHandle surf,
@@ -147,7 +147,7 @@ class MakeWatertight {
                                      std::vector<moab::EntityHandle> curves,
                                      moab::Tag normal_tag,
                                      moab::Tag orig_curve_tag,
-                                     double FACET_TOL,
+                                     double facet_tol,
                                      int surf_id,
                                      bool debug);
 

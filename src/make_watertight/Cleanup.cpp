@@ -85,7 +85,7 @@ moab::ErrorCode Cleanup::delete_small_edge_and_tris(const moab::EntityHandle ver
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const double FACET_TOL) {
+moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const double facet_tol) {
   // PROBLEM: THIS IS INVALID BECAUSE TRIS CAN HAVE LONG EDGES BUT
   // SMALL AREA. All three pts are in a line. This is the nature of
   // faceting vs. meshing.
@@ -151,8 +151,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
         MBI()->list_entities(duplicate_edges);
       assert(1 == duplicate_edges.size());
 
-      // if the edge length is less than FACET_TOL do nothing
-      if (FACET_TOL < gen->dist_between_verts(endpts[0], endpts[1]))
+      // if the edge length is less than facet_tol do nothing
+      if (facet_tol < gen->dist_between_verts(endpts[0], endpts[1]))
         continue;
 
       // quick check

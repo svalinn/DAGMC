@@ -52,7 +52,7 @@ class Zip {
   moab::ErrorCode remove_inverted_tris(moab::Tag normal_tag, moab::Range tris, const bool debug);
 
   /// tests the watertightness of all arcs in the vector-array of moab entity handles arcs
-  moab::ErrorCode test_zipping(const double FACET_TOL,
+  moab::ErrorCode test_zipping(const double facet_tol,
                                const std::vector< std::vector<moab::EntityHandle> > arcs);
 
 

@@ -71,7 +71,7 @@ moab::ErrorCode MakeWatertight::find_degenerate_tris() {
 // Output: Ordered sets of verts that do track ownership. All edges are deleted.
 moab::ErrorCode MakeWatertight::prepare_curves(moab::Range& curve_sets,
                                                moab::Tag geom_tag, moab::Tag id_tag, moab::Tag merge_tag,
-                                               const double FACET_TOL, const bool debug, bool verbose) {
+                                               const double facet_tol, const bool debug, bool verbose) {
   moab::ErrorCode result;
   if (verbose)
     std::cout << "Modifying faceted curve representation and removing small curves..."
@@ -95,7 +95,7 @@ moab::ErrorCode MakeWatertight::prepare_curves(moab::Range& curve_sets,
     Use the MERGE_TOL because these edges will be merged with the MERGE_TOL
     during zipping anyhow. Doing this now removes small curves from zipping and
     reduces ambiguity. */
-    if (FACET_TOL > gen->length(curve_edges)) {
+    if (facet_tol > gen->length(curve_edges)) {
       if (debug) {
         std::cout << "  deleted curve " << id << ", length=" << gen->length(curve_edges)
                   << " cm, n_verts=" << curve_edges.size() + 1 << std::endl;
@@ -186,7 +186,7 @@ moab::ErrorCode MakeWatertight::prepare_curves(moab::Range& curve_sets,
   // merge curves that are the same within facet_tol
   if (verbose)
     std::cout << "Identifying coincident curves to be merged..." << std::endl;
-  result = arc->merge_curves(curve_sets, FACET_TOL, id_tag, merge_tag, debug);
+  result = arc->merge_curves(curve_sets, facet_tol, id_tag, merge_tag, debug);
   MB_CHK_SET_ERR(result, "could not merge_curves");
 
   return moab::MB_SUCCESS;
@@ -194,14 +194,14 @@ moab::ErrorCode MakeWatertight::prepare_curves(moab::Range& curve_sets,
 
 /* The chosen curve may need to be reversed to be in the same direction as the skin.
    The skin itself is not changed. */
-/* PROBLEM: Some sliver surfaces are smaller in every dimension than the 5x
- facet_tol that the skin was found to vary within.
+/* PROBLEM: Some sliver surfaces are smaller in every dimension than 5 times
+ the faceting tolerance that the skin was found to vary within.
  This method finds the average distance between a curve and skin arc. The
  smallest distance is the next curve. */
 /// Cut an arc out of the skin. Return a corresponding curve, the curve's set, and
 /// is the curve has ben reversed. The returned skin has the arc cut away. The
 /// returned vector of curve sets has the curve removed.
-moab::ErrorCode MakeWatertight::create_arc_pair(const double FACET_TOL,
+moab::ErrorCode MakeWatertight::create_arc_pair(const double facet_tol,
                                                 const moab::EntityHandle surf_set,
                                                 std::vector<moab::EntityHandle>& skin_loop,
                                                 std::vector<moab::EntityHandle>& curve_sets,
@@ -374,7 +374,7 @@ moab::ErrorCode MakeWatertight::create_arc_pair(const double FACET_TOL,
   }
 
   // If the average distance between the closest skin and curve is too far...
-  if (100 * FACET_TOL <= min_dist) {
+  if (100 * facet_tol <= min_dist) {
     std::cout << "  warning8: curve too far from skin, average_dist="
               << min_dist << std::endl;
     if (1.0 <= min_dist)
@@ -409,7 +409,7 @@ moab::ErrorCode MakeWatertight::create_arc_pair(const double FACET_TOL,
 // sealed curve in a new vector, using only push_back. This
 // would avoid all of the really slow inserts and erases in the curve and skin vectors.
 moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
-                                              const double FACET_TOL,
+                                              const double facet_tol,
                                               const moab::Tag normal_tag,
                                               std::vector<moab::EntityHandle>& edge, /* in */
                                               std::vector<moab::EntityHandle>& skin /* in/out */,
@@ -422,7 +422,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
   }
 
   moab::ErrorCode rval;
-  const double TOL_SQR = FACET_TOL * FACET_TOL;
+  const double tol_sqr = facet_tol * facet_tol;
   if (edge.empty() || skin.empty()) {
     MB_CHK_SET_ERR(moab::MB_FAILURE, "edge or skin has no verts");
   }
@@ -441,7 +441,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
         std::cout << "  merged skin_vert=" << delete_vert << " to edge_vert=" << keep_vert
                   << " merge_dist=" << merge_dist << std::endl;
       }
-      if (FACET_TOL < merge_dist) {
+      if (facet_tol < merge_dist) {
         std::cout << "  warning0: front pt merge_dist=" << merge_dist << std::endl;
       }
       rval = zip->merge_verts(keep_vert, delete_vert, skin, edge);
@@ -463,10 +463,10 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
         std::cout << "  merged skin_vert=" << delete_vert << " to edge_vert=" << keep_vert
                   << " merge_dist=" << merge_dist << std::endl;
       }
-      if (FACET_TOL < merge_dist) {
+      if (facet_tol < merge_dist) {
         std::cout << "  warning0: surf " << surf_id << " back pt merge_dist="
                   << merge_dist << std::endl;
-        if (1000 * FACET_TOL < merge_dist)
+        if (1000 * facet_tol < merge_dist)
           return moab::MB_FAILURE;
       }
       rval = zip->merge_verts(keep_vert, delete_vert, skin, edge);
@@ -507,7 +507,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
       double move_dist;
       rval = gen->line_point_dist(edge[e_pos - 1], edge[e_pos], skin[s_pos], move_dist);
       MB_CHK_SET_ERR(rval, "could not get line_point_dist");
-      if (10 * FACET_TOL < move_dist) {
+      if (10 * facet_tol < move_dist) {
         std::cout << "  warning5: surf " << surf_id << " vertex move_dist="
                   << move_dist << std::endl;
       }
@@ -532,7 +532,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
     // **************************************************************************
     // Merge with previous vert if it is too close
     // **************************************************************************
-    if (dist < TOL_SQR) {
+    if (dist < tol_sqr) {
       moab::EntityHandle keep_vert = edge[e_pos - 1];
       if (edge_is_next) {
         moab::EntityHandle delete_vert = edge[e_pos];
@@ -576,7 +576,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
       //   advance the curve ahead. We need to merge all the verts between the
       //   current skin vert and the curve vert that we are merging to. This
       //   could be more than one!
-    } else if (TOL_SQR > es_dist) {
+    } else if (tol_sqr > es_dist) {
       // merge the verts if they are not the same
       moab::EntityHandle keep_vert  = edge[e_pos];
       if (skin[s_pos] != keep_vert) {
@@ -603,7 +603,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
         double merge_dist;
         rval = gen->dist_between_verts(keep_vert, delete_vert, merge_dist);
         MB_CHK_SET_ERR(rval, "could not get merge_dist d");
-        if (FACET_TOL < merge_dist)
+        if (facet_tol < merge_dist)
           break;
         // merge the verts if they are not the same
         if (keep_vert != delete_vert) {
@@ -626,7 +626,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
         double merge_dist;
         rval = gen->dist_between_verts(keep_vert, delete_vert, merge_dist);
         MB_CHK_SET_ERR(rval, "could not get merge_dist e");
-        if (FACET_TOL < merge_dist)
+        if (facet_tol < merge_dist)
           break;
         // merge the verts if they are not the same
         if (keep_vert != delete_vert) {
@@ -653,7 +653,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
         double move_dist;
         rval = gen->line_point_dist(edge[e_pos - 1], skin[s_pos], edge[e_pos], move_dist);
         MB_CHK_SET_ERR(rval, "could not get line_point_dist");
-        if (10 * FACET_TOL < move_dist) {
+        if (10 * facet_tol < move_dist) {
           std::cout << "  warning6: surf " << surf_id << " vertex move_dist="
                     << move_dist << std::endl;
         }
@@ -671,7 +671,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
         double move_dist;
         rval = gen->line_point_dist(edge[e_pos - 1], edge[e_pos], skin[s_pos], move_dist);
         MB_CHK_SET_ERR(rval, "could not get line_point_dist");
-        if (10 * FACET_TOL < move_dist) {
+        if (10 * facet_tol < move_dist) {
           std::cout << "  warning6: surf " << surf_id << " vertex move_dist="
                     << move_dist << std::endl;
         }
@@ -693,12 +693,12 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
       double d;
       rval = gen->squared_dist_between_verts(edge[e_pos - 1], edge[e_pos - 2], d);
       MB_CHK_SET_ERR(rval, "could not get dist");
-      if (TOL_SQR > d) {
+      if (tol_sqr > d) {
         std::cout << "zip_loop: d=" << d << std::endl;
         gen->print_vertex_coords(edge[e_pos - 1]);
         gen->print_vertex_coords(edge[e_pos - 2]);
         std::cout << "warning7: surf " << surf_id
-                  << " adjacent edge points are closer than FACET_TOL" << std::endl;
+                  << " adjacent edge points are closer than facet_tol" << std::endl;
       }
     }
     // The position should be the same. Do not exceed array bounds when checking.
@@ -731,7 +731,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
     std::vector< std::vector<moab::EntityHandle> > temp;
     temp.push_back(edge);
     temp.push_back(skin);
-    rval = zip->test_zipping(FACET_TOL, temp);
+    rval = zip->test_zipping(facet_tol, temp);
     MB_CHK_SET_ERR(rval, "sealing test failed");
   }
 
@@ -741,7 +741,7 @@ moab::ErrorCode MakeWatertight::seal_arc_pair(const bool debug,
 
 /// seals the skin_loop to the closest curves in curve sets in a watertight fashion
 moab::ErrorCode MakeWatertight::seal_loop(bool debug,
-                                          const double FACET_TOL,
+                                          const double facet_tol,
                                           const moab::Tag normal_tag,
                                           const moab::Tag orig_curve_tag,
                                           const moab::EntityHandle surf_set,
@@ -868,8 +868,8 @@ moab::ErrorCode MakeWatertight::seal_loop(bool debug,
   moab::EntityHandle front_endpt = closest_front_curve_endpt;
 
   // The closest points should be within facet tolerance
-  if (100 * FACET_TOL < min_dist && verbose) {
-    std::cout << "closest skin pt farther than 100*FACET_TOL from curve vert ("
+  if (100 * facet_tol < min_dist && verbose) {
+    std::cout << "closest skin pt farther than 100*facet_tol from curve vert ("
               << min_dist << ")" << std::endl;
     if (true) {
       std::cout << "  skin pt:" << std::endl;
@@ -930,7 +930,7 @@ moab::ErrorCode MakeWatertight::seal_loop(bool debug,
     bool curve_is_reversed;
     moab::EntityHandle curve_set;
     std::vector<moab::EntityHandle> curve, skin_arc;
-    rval = create_arc_pair(FACET_TOL, surf_set, skin_loop, curve_sets, front_endpt,
+    rval = create_arc_pair(facet_tol, surf_set, skin_loop, curve_sets, front_endpt,
                            debug, curve_set, curve_is_reversed, curve, skin_arc);
     MB_CHK_SET_ERR(rval, "  pair creation failed");
 
@@ -970,7 +970,7 @@ moab::ErrorCode MakeWatertight::seal_loop(bool debug,
     } else {
       // seal the pair together
       std::vector<moab::EntityHandle> sealed_curve;
-      rval = seal_arc_pair(debug, FACET_TOL, normal_tag, curve, skin_arc,
+      rval = seal_arc_pair(debug, facet_tol, normal_tag, curve, skin_arc,
                            gen->geom_id_by_handle(surf_set));
       MB_CHK_SET_ERR(rval, "can't seal pair");
     }
@@ -1003,9 +1003,13 @@ moab::ErrorCode MakeWatertight::seal_loop(bool debug,
 // input: surface sets, ordered curve sets,
 // output: skin arcs corresponding to curves are added to parent surface sets
 moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range& surface_sets,
-                                                 moab::Tag geom_tag, moab::Tag id_tag, moab::Tag normal_tag, moab::Tag merge_tag,
+                                                 moab::Tag geom_tag,
+                                                 moab::Tag id_tag,
+                                                 moab::Tag normal_tag,
+                                                 moab::Tag merge_tag,
                                                  moab::Tag orig_curve_tag,
-                                                 const double SME_RESABS_TOL, const double FACET_TOL,
+                                                 const double sme_resabs_tol,
+                                                 const double facet_tol,
                                                  const bool debug, bool verbose) {
 
   moab::ErrorCode result;
@@ -1115,7 +1119,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range& surface_sets,
     // found the verts, but tol=0 did not.
     moab::Range skin_verts;
     bool cont = false;
-    result = merge_skin_verts(skin_verts, skin_edges, SME_RESABS_TOL, surf_id, cont, debug);
+    result = merge_skin_verts(skin_verts, skin_edges, sme_resabs_tol, surf_id, cont, debug);
     MB_CHK_SET_ERR(result, "could not merge the skin verts");
     if (cont)
       continue;
@@ -1136,7 +1140,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range& surface_sets,
 
 
     moab::EntityHandle skin_loop_sets[skin.size()];
-    result = seal_surface_loops(*i, skin_loop_sets, skin,  curve_sets, normal_tag, orig_curve_tag, FACET_TOL, surf_id, debug);
+    result = seal_surface_loops(*i, skin_loop_sets, skin,  curve_sets, normal_tag, orig_curve_tag, facet_tol, surf_id, debug);
     MB_CHK_SET_ERR(result, "could not seal the surface loops");
 
 
@@ -1352,7 +1356,7 @@ moab::ErrorCode MakeWatertight::get_geom_size_before_sealing(const moab::Range g
 moab::ErrorCode MakeWatertight::get_geom_size_after_sealing(const moab::Range geom_sets[],
                                                             const moab::Tag geom_tag,
                                                             const moab::Tag size_tag,
-                                                            const double FACET_TOL,
+                                                            const double facet_tol,
                                                             bool debug,
                                                             bool verbose) {
 
@@ -1408,10 +1412,10 @@ moab::ErrorCode MakeWatertight::get_geom_size_after_sealing(const moab::Range ge
       bool print_warning = false;
       // PROBLEM: There is no analytical "maximum" change for this. There are special
       // cases in each that could be infinitely large. For example, a curve can oscillate
-      // up and down infinitely and still be within FACET_TOL of the geometric curve.
-      // The curve is changed only by merging vertices within FACET_TOL.
+      // up and down infinitely and still be within facet_tol of the geometric curve.
+      // The curve is changed only by merging vertices within facet_tol.
       if (1 == dim) {
-        if (FACET_TOL < diff)
+        if (facet_tol < diff)
           print_warning = true;
 
         // The surface cannot change more than its zipped curves.
@@ -1424,7 +1428,7 @@ moab::ErrorCode MakeWatertight::get_geom_size_after_sealing(const moab::Range ge
           rval = MBI()->tag_get_data(size_tag, &(*j), 1, &length);
           total_length += length;
         }
-        if (total_length * FACET_TOL < fabs(new_size - orig_size))
+        if (total_length * facet_tol < fabs(new_size - orig_size))
           print_warning = true;
         // The volume cannot change more than the "cylinder" of error around each curve.
       } else if (3 == dim) {
@@ -1440,7 +1444,7 @@ moab::ErrorCode MakeWatertight::get_geom_size_after_sealing(const moab::Range ge
             total_length += length;
           }
         }
-        if (total_length * FACET_TOL * FACET_TOL * 3.14 < fabs(new_size - orig_size)) {
+        if (total_length * facet_tol * facet_tol * 3.14 < fabs(new_size - orig_size)) {
           print_warning = true;
         }
       } else {
@@ -1749,7 +1753,7 @@ moab::ErrorCode MakeWatertight::seal_surface_loops(moab::EntityHandle surf,
                                                    std::vector<moab::EntityHandle> curves,
                                                    moab::Tag normal_tag,
                                                    moab::Tag orig_curve_tag,
-                                                   double FACET_TOL,
+                                                   double facet_tol,
                                                    int surf_id,
                                                    bool debug) {
 
@@ -1780,7 +1784,7 @@ moab::ErrorCode MakeWatertight::seal_surface_loops(moab::EntityHandle surf,
     rval = arc->get_meshset(skin_loops[j], skin_loop);
     MB_CHK_SET_ERR(rval, "failed to zip: setting skin_loop_set failed");
 
-    rval = seal_loop(debug, FACET_TOL, normal_tag, orig_curve_tag, surf,
+    rval = seal_loop(debug, facet_tol, normal_tag, orig_curve_tag, surf,
                      curves, skin_loop);
     if (moab::MB_SUCCESS != rval) {
       std::cout << "failed to zip: surface " << surf_id << ": failed to seal a loop"
@@ -1793,8 +1797,6 @@ moab::ErrorCode MakeWatertight::seal_surface_loops(moab::EntityHandle surf,
 }
 
 moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_set, double& facet_tol, bool verbose) {
-
-
 
   moab::ErrorCode result;
 
@@ -1810,17 +1812,22 @@ moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_se
   double sme_resabs_tol = 1e-6;
 
   // retrieve mesh tags necessary for sealing the mesh
-  result = gen->get_sealing_mesh_tags(facet_tol, sme_resabs_tol, geom_tag, id_tag, normal_tag, merge_tag, faceting_tol_tag,
-                                      geometry_resabs_tag, size_tag, orig_curve_tag);
+  result = gen->get_sealing_mesh_tags(facet_tol,
+                                      sme_resabs_tol,
+                                      geom_tag,
+                                      id_tag,
+                                      normal_tag,
+                                      merge_tag,
+                                      faceting_tol_tag,
+                                      geometry_resabs_tag,
+                                      size_tag,
+                                      orig_curve_tag);
   MB_CHK_SET_ERR(result, "could not get the mesh tags");
 
 
   // In practice, use 2*facet_tol because we are always comparing 2 faceted
   // entities. If instead we were comparing a faceted entity and a geometric
   // entitiy, then 1*facet_tol is correct.
-
-  const double SME_RESABS_TOL = sme_resabs_tol; // from ACIS through CGM
-  const double FACET_TOL = facet_tol; // specified by user when faceting cad
 
   if (verbose) {
     std::cout << "  faceting tolerance=" << facet_tol << " cm" << std::endl;
@@ -1857,7 +1864,7 @@ moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_se
   MB_CHK_SET_ERR(moab::MB_SUCCESS, "could not determine if triangles were degenerate or not");
 
 
-  result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, FACET_TOL, debug, verbose);
+  result = prepare_curves(geom_sets[1], geom_tag, id_tag, merge_tag, facet_tol, debug, verbose);
   MB_CHK_SET_ERR(moab::MB_SUCCESS, "could not prepare the curves");
 
   result = gen->check_for_geometry_sets(geom_tag, verbose);
@@ -1866,10 +1873,10 @@ moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_se
 
   if (verbose) {
     std::cout << "Zipping loops and removing small surfaces whose curves were all merged as pairs..." << std::endl;
-    std::cout << "SME_RESABS_TOL = " << SME_RESABS_TOL << " FACET_TOL = " << FACET_TOL << std::endl;
+    std::cout << "SME_RESABS_TOL = " << sme_resabs_tol << " facet_tol = " << facet_tol << std::endl;
   }
   result = prepare_surfaces(geom_sets[2], geom_tag, id_tag, normal_tag, merge_tag,
-                            orig_curve_tag, SME_RESABS_TOL, FACET_TOL, debug);
+                            orig_curve_tag, sme_resabs_tol, facet_tol, debug);
   MB_CHK_SET_ERR(moab::MB_SUCCESS, "I have failed to zip");
 
 
@@ -1902,7 +1909,7 @@ moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_se
   // As sanity check, did zipping drastically change the entity's size?
   if (check_geom_size && verbose) {
     std::cout << "Checking size change of zipped entities..." << std::endl;
-    result = get_geom_size_after_sealing(geom_sets, geom_tag, size_tag, FACET_TOL, debug, verbose);
+    result = get_geom_size_after_sealing(geom_sets, geom_tag, size_tag, facet_tol, debug, verbose);
     MB_CHK_SET_ERR(result, "measuring geom size failed");
   }
 
@@ -1974,6 +1981,3 @@ moab::ErrorCode MakeWatertight::make_mesh_watertight(moab::EntityHandle input_se
   }
   return moab::MB_SUCCESS;
 }
-
-
-
