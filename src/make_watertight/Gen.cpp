@@ -273,7 +273,7 @@ moab::ErrorCode Gen::find_closest_vert(const double tol,
   moab::ErrorCode rval;
   positions.clear();
   dists.clear();
-  const double TOL_SQR = tol * tol;
+  const double tol_sqr = tol * tol;
   unsigned min_pos;
   double sqr_min_dist = std::numeric_limits<double>::max();
   for (unsigned int i = 0; i < loop_of_verts.size(); i++) {
@@ -281,11 +281,11 @@ moab::ErrorCode Gen::find_closest_vert(const double tol,
     rval = squared_dist_between_verts(reference_vert, loop_of_verts[i], sqr_dist);
     MB_CHK_SET_ERR(rval, "could not get dist");
     if (sqr_dist < sqr_min_dist) {
-      if (sqr_dist >= TOL_SQR) {
+      if (sqr_dist >= tol_sqr) {
         sqr_min_dist = sqr_dist;
         min_pos = i;
       } else {
-        sqr_min_dist = TOL_SQR;
+        sqr_min_dist = tol_sqr;
         positions.push_back(i);
         dists.push_back(sqrt(sqr_dist));
       }
@@ -1950,6 +1950,7 @@ moab::ErrorCode Gen::get_sealing_mesh_tags(double& facet_tol,
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
+
   // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
   // on the file_set.
   moab::Range file_set;

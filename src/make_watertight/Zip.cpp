@@ -426,7 +426,7 @@ moab::ErrorCode Zip::remove_inverted_tris(moab::Tag normal_tag, moab::Range tris
 }
 
 // we do not merge edges, just vert. check the verts
-moab::ErrorCode Zip::test_zipping(const double FACET_TOL,
+moab::ErrorCode Zip::test_zipping(const double facet_tol,
                                   const std::vector< std::vector<moab::EntityHandle> > arcs) {
   moab::ErrorCode result;
 
@@ -451,7 +451,7 @@ moab::ErrorCode Zip::test_zipping(const double FACET_TOL,
 
     // check for edge of zero dist
     double d = gen->dist_between_verts(arcs[0][i], arcs[0][i + 1]);
-    if (FACET_TOL >= d) {
+    if (facet_tol >= d) {
       std::cout << "edge length=" << d << " betwee pos " << i << " and " << i + 1
                 << " with verts " << arcs[0][i] << " and " << arcs[0][i + 1] << std::endl;
       return moab::MB_FAILURE;

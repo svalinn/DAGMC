@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** None
+
+  - Updates to variable names in make_watergight files
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
