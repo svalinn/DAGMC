@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
     trv_stats = new OrientedBoxTreeTool::TrvStats;
   }
 
-  DagMC dagmc = DagMC();
+  DagMC dagmc{};
   rval = dagmc.load_file(filename);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file '" << filename << "'" << std::endl;
