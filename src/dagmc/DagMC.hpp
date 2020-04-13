@@ -399,7 +399,7 @@ class DagMC {
   bool moab_instance_created;
 
   std::shared_ptr<GeomTopoTool> GTT;
-  std::shared_ptr<GeomQueryTool> GQT;
+  std::unique_ptr<GeomQueryTool> GQT;
 
  public:
   Tag  nameTag, facetingTolTag;
