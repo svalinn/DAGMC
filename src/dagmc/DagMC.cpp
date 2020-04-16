@@ -63,6 +63,7 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
   moab_instance_created = false;
   // set the internal moab pointer
   MBI = mb_impl;
+  MBI_shared_ptr = nullptr;
 
   // make new GeomTopoTool and GeomQueryTool
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
