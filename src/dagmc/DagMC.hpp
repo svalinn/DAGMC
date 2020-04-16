@@ -386,7 +386,7 @@ class DagMC {
 
   /** Get the instance of MOAB used by functions in this file. */
   Interface* moab_instance() {return MBI;}
-  std::shared_ptr<Interface> moab_instance_sptr() {return MBI;}
+  std::shared_ptr<Interface> moab_instance_sptr() {return MBI_shared_ptr;}
 
  private:
 
