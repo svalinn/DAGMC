@@ -7,6 +7,7 @@
 #include <limits>
 #include <algorithm>
 #include <set>
+#include <climits>
 
 #include <ctype.h>
 #include <string.h>
@@ -92,10 +93,19 @@ float DagMC::version(std::string* version_string) {
 
 unsigned int DagMC::interface_revision() {
   unsigned int result = 0;
-  const char* interface_string = DAGMC_INTERFACE_REVISION;
-  if (strlen(interface_string) >= 5) {
+  std::string interface_string = DAGMC_INTERFACE_REVISION;
+  if (interface_string.rfind("$Rev:") != std::string::npos) {
     // start looking for the revision number after "$Rev: "
-    result = strtol(interface_string + 5, NULL, 10);
+    char *endptr;
+    errno = 0;
+    result = strtol(interface_string.c_str() + 5, NULL, 10);
+    if (endptr == interface_string.c_str() + 5 || 
+        ((result == LONG_MAX || result == LONG_MIN) && errno == ERANGE) )
+    {
+      std::cerr << "Not able to parse revision number" << std::endl;
+      exit (1);
+    }
+    
   }
   return result;
 }
