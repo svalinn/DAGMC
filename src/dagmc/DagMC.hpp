@@ -369,7 +369,7 @@ class DagMC {
  public:
   OrientedBoxTreeTool* obb_tree() {return GTT->obb_tree();}
 
-  GeomTopoTool* geom_tool() {return GTT.get();}
+  std::shared_ptr<GeomTopoTool> geom_tool() {return GTT;}
 
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
@@ -386,6 +386,7 @@ class DagMC {
 
   /** Get the instance of MOAB used by functions in this file. */
   Interface* moab_instance() {return MBI;}
+  std::shared_ptr<Interface> moab_instance_sptr() {return MBI;}
 
  private:
 
