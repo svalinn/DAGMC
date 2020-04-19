@@ -24,10 +24,6 @@ if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   cd ../../..
 fi
 
-# Run the unit tests
-cd ./src/geant4/tests/
-./dagsolid_unit_tests
-cd -
 make test
 
 # Delete regression test files
