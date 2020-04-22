@@ -22,7 +22,7 @@ build_static_exe=OFF docker/build_dagmc.sh
 cd ${dagmc_build_dir}/bld/src/make_watertight/tests/
 for i in /tmp/*.h5m; do ln -sf $i; done
 cd ${dagmc_build_dir}/bld
-LD_LIBRARY_PATH=${geant4_install_dir}/lib:$LD_LIBRARY_PATH \
+export LD_LIBRARY_PATH=${geant4_install_dir}/lib:$LD_LIBRARY_PATH
 CTEST_OUTPUT_ON_FAILURE=1 make test
 
 # Build DAGMC and test (static executables)
