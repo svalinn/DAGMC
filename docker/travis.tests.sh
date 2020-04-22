@@ -6,6 +6,14 @@ source ${docker_env}
 
 cd ${dagmc_build_dir}/DAGMC
 
+# Build DAGMC and test (shared executables)
+build_static_exe=OFF docker/build_dagmc.sh
+make test
+
+# Build DAGMC and test (static executables)
+build_static_exe=ON docker/build_dagmc.sh
+make test
+
 # clean out config test directory for next build
 git clean -dxf .
 

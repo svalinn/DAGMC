@@ -15,11 +15,3 @@ fi
 if [ "${DOUBLE_DOWN}" == "yes" ]; then
   docker/build_double_down.sh
 fi
-
-# Build DAGMC (shared executables)
-build_static_exe=OFF docker/build_dagmc.sh
-
-# Build DAGMC (static executables)
-if [ "${DOUBLE_DOWN}" != "yes"]; then
-  build_static_exe=ON docker/build_dagmc.sh
-fi
