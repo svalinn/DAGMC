@@ -4,6 +4,13 @@ set -e
 
 source ${docker_env}
 
+# Build DAGMC and test (shared executables)
+# GEANT4's internal RPATH's aren't quite right,
+# so we need to set the LD_LIBRARY_PATH for the
+# test to run
+LD_LIBRARY_PATH=${geant4_install_dir}/lib:$LD_LIBRARY_PATH \
+build_static_exe=OFF docker/build_dagmc.sh
+
 cd ${dagmc_build_dir}/bld
 
 # If this is not a pull request, get files needed for regression tests
@@ -14,12 +21,6 @@ if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   cd ../../..
 fi
 
-# Build DAGMC and test (shared executables)
-# GEANT4's internal RPATH's aren't quite right,
-# so we need to set the LD_LIBRARY_PATH for the
-# test to run
-LD_LIBRARY_PATH=${geant4_install_dir}/lib:$LD_LIBRARY_PATH \
-build_static_exe=OFF docker/build_dagmc.sh
 make test
 
 # Build DAGMC and test (static executables)
