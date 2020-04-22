@@ -35,6 +35,7 @@ cd ${dagmc_build_dir}/bld
 CTEST_OUTPUT_ON_FAILURE=1 make test
 
 # clean out config test directory for next build
+cd ${dagmc_build_dir}/DAGMC
 git clean -dxf .
 
 # Test DAGMC CMake configuration file
