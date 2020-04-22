@@ -11,8 +11,8 @@ git clone https://github.com/pshriwise/double-down
 ln -snf double-down src
 /bin/bash ${double_down_build_dir}/src/ci/embree-install.sh
 cd bld
-LD_LIBRARY_PATH=${moab_install_dir}/lib:$HOME/EMBREE/lib/:$LD_LIBRARY_PATH \
-cmake ../src -DCMAKE_INSTALL_PREFIX=${double_down_install_dir}
+cmake ../src -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
+      -DMOAB_DIR=${moab_install_dir} -DEMBREE_DIR=$HOME/EMBREE/
 make -j${jobs}
 make install
 cd

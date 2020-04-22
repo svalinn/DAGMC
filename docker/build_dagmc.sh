@@ -24,7 +24,6 @@ cd ${dagmc_build_dir}
 #git clone https://github.com/svalinn/DAGMC -b develop
 ln -snf DAGMC src
 cd bld
-LD_LIBRARY_PATH=${double_down_install_dir}/lib \
 cmake ../src -DMOAB_DIR=${moab_install_dir} \
              -DBUILD_GEANT4=ON \
              -DGEANT4_DIR=${geant4_install_dir} \
@@ -33,6 +32,7 @@ cmake ../src -DMOAB_DIR=${moab_install_dir} \
              -DBUILD_STATIC_EXE=${build_static_exe} \
              -DBUILD_STATIC_LIBS=${BUILD_STATIC_LIBS} \
              -DDOUBLE_DOWN=${DOUBLE_DOWN} \
+             -DDOUBLE_DOWN_DIR=${double_down_install_dir}
              -DCMAKE_C_COMPILER=${CC} \
              -DCMAKE_CXX_COMPILER=${CXX} \
              -DCMAKE_Fortran_COMPILER=${FC} \
