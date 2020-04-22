@@ -7,11 +7,10 @@
 #  dd_LIBRARY_DIRS - location of installed dd libraries
 #  dd_LIBRARIES    - set of libraries installed with dd, use to link applications against dd
 
-message(STATUS ${dd_ROOT})
-
 find_path(dd_CMAKE_CONFIG NAMES ddConfig.cmake
           HINTS ${dd_ROOT} $ENV{dd_ROOT}
           PATHS ENV LD_LIBRARY_PATH
+          PATHS ${DOUBLE_DOWN_DIR}
           PATH_SUFFIXES lib Lib cmake lib/cmake/
           NO_DEFAULT_PATH)
 
