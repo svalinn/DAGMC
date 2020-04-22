@@ -22,7 +22,7 @@ build_static_exe=OFF docker/build_dagmc.sh
 
 cd ${dagmc_build_dir}/bld
 for i in /tmp/*.h5m; do ln -sf src/make_watertight/tests/$i; done
-make test
+CTEST_OUTPUT_ON_FAILURE=1 make test
 
 # Build DAGMC and test (static executables)
 cd ${dagmc_build_dir}/DAGMC
@@ -30,7 +30,7 @@ build_static_exe=ON docker/build_dagmc.sh
 
 cd ${dagmc_build_dir}/bld
 for i in /tmp/*.h5m; do ln -sf src/make_watertight/tests/$i; done
-make test
+CTEST_OUTPUT_ON_FAILURE=1 make test
 
 # clean out config test directory for next build
 git clean -dxf .
