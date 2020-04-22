@@ -18,6 +18,7 @@ dagmc_setup_options()
 
 find_package(MOAB REQUIRED)
 find_package(OpenMP)
+
 if (DOUBLE_DOWN)
   find_package(DOUBLE_DOWN REQUIRED)
 endif()
