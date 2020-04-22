@@ -8,6 +8,7 @@ source ${docker_env}
 # GEANT4's internal RPATH's aren't quite right,
 # so we need to set the LD_LIBRARY_PATH for the
 # test to run
+cd ${dagmc_build_dir}/DAGMC
 LD_LIBRARY_PATH=${geant4_install_dir}/lib:$LD_LIBRARY_PATH \
 build_static_exe=OFF docker/build_dagmc.sh
 
@@ -24,7 +25,10 @@ fi
 make test
 
 # Build DAGMC and test (static executables)
+cd ${dagmc_build_dir}/DAGMC
 build_static_exe=ON docker/build_dagmc.sh
+
+cd ${dagmc_build_dir}/bld
 make test
 
 # clean out config test directory for next build
