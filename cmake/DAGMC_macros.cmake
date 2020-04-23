@@ -221,6 +221,7 @@ macro (dagmc_install_library lib_name)
     target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
     if (DOUBLE_DOWN)
       target_compile_definitions(${lib_name}-shared PUBLIC DOUBLE_DOWN)
+      target_link_libraries(${lib_name}-shared PUBLIC dd)
     endif()
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})

@@ -10,10 +10,6 @@ list(APPEND PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/DagMCVersion.hpp)
 set(LINK_LIBS)
 set(LINK_LIBS_EXTERN_NAMES MOAB_LIBRARIES HDF5_LIBRARIES)
 
-if (DOUBLE_DOWN)
-  list(APPEND LINK_LIBS dd)
-endif()
-
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 
 dagmc_install_library(dagmc)
