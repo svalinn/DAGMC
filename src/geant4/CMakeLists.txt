@@ -12,6 +12,8 @@ include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--disable-new-dtags")
+
 dagmc_install_library(dagsolid)
 
 add_subdirectory(app)
