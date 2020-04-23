@@ -15,10 +15,6 @@ if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   cd -
 fi
 
-# Build DAGMC and test (shared executables)
-# GEANT4's internal RPATH's aren't quite right,
-# so we need to set the LD_LIBRARY_PATH for the
-# test to run
 cd ${dagmc_build_dir}/DAGMC
 build_static_exe=OFF docker/build_dagmc.sh
 

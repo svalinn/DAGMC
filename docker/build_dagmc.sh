@@ -4,14 +4,6 @@ set -e
 
 source ${docker_env}
 
-if [ "${DOUBLE_DOWN}" == "yes" ]; then
-    DOUBLE_DOWN=ON
-    BUILD_STATIC_LIBS=OFF
-else
-    DOUBLE_DOWN=OFF
-    BUILD_STATIC_LIBS=ON
-fi
-
 if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   build_mw_reg_tests=ON
 else
@@ -30,7 +22,6 @@ cmake ../src -DMOAB_DIR=${moab_install_dir} \
              -DBUILD_CI_TESTS=ON \
              -DBUILD_MW_REG_TESTS=${build_mw_reg_tests} \
              -DBUILD_STATIC_EXE=${build_static_exe} \
-             -DBUILD_STATIC_LIBS=${BUILD_STATIC_LIBS} \
              -DDOUBLE_DOWN=${DOUBLE_DOWN} \
              -DDOUBLE_DOWN_DIR=${double_down_install_dir} \
              -DCMAKE_C_COMPILER=${CC} \

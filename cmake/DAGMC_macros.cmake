@@ -264,12 +264,12 @@ macro (dagmc_install_exe exe_name)
       set_target_properties(${exe_name}
         PROPERTIES INSTALL_RPATH ""
                    INSTALL_RPATH_USE_LINK_PATH FALSE)
-                 target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+      target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
     else ()
       set_target_properties(${exe_name}
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
-                 target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
+      target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
     endif ()
   else ()
     if (BUILD_STATIC_EXE)

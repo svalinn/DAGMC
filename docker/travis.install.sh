@@ -11,7 +11,7 @@ if [ "${MOAB_VERSION}" == "master" ] || [ "${MOAB_VERSION}" == "develop" ]; then
   docker/build_moab.sh
 fi
 
-# Build the double_down project if
-if [ "${DOUBLE_DOWN}" == "yes" ]; then
+# Build the double_down project if needed
+if [ "${DOUBLE_DOWN}" == "ON" ]; then
   docker/build_double_down.sh
 fi
