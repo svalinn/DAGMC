@@ -8,6 +8,8 @@ export geant4_shasum=4b05b4f7d50945459f8dbe287333b9efb772bd23d50920630d5454ec570
 export build_dir=/root/build/${COMPILER}
 export install_dir=/root/opt/${COMPILER}
 
+export CTEST_OUTPUT_ON_FAILURE=1
+
 if [ "${HDF5_VERSION}" == "system" ]; then
   export hdf5_build_dir=
   export hdf5_install_dir=/usr/lib/x86_64-linux-gnu/hdf5/serial

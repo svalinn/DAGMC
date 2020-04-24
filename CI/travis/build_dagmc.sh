@@ -29,4 +29,9 @@ cmake ../DAGMC -DMOAB_DIR=${moab_install_dir} \
              -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir}
 make -j${jobs}
 make install
+
+# symlink make_watertight test files if present
+cd ${dagmc_build_dir}/bld/src/make_watertight/tests/
+for i in /tmp/*.h5m; do ln -sf $i; done
+
 cd
