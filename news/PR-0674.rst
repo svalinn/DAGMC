@@ -1,0 +1,15 @@
+**Added:** None
+
+**Changed:**
+
+  - Enabling testing for the shared object build of DAGMC
+  - Adding RPATH value for our build of Geant4 on CI
+  - Including additional test output on failure in CI
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
