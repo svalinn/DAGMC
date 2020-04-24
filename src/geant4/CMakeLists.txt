@@ -12,12 +12,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 
-# GEANT4 libraries require the RPATH (not RUNPATH) to be
-# set properly without setting the LD_LIBRARY_PATH.
-# This flag ensures RPATH will be used over RUNPATH.
-set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--disable-new-dtags")
-
-
 dagmc_install_library(dagsolid)
 
 add_subdirectory(app)
