@@ -4,9 +4,6 @@ set -ex
 
 source ${docker_env}
 
-# this command may fail due to lack of Geant4 data
-source ${geant4_install_dir}/bin/geant4.sh || true
-
 # If this is not a pull request, get files needed for regression tests
 if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   cd /tmp
