@@ -12,11 +12,12 @@
 #include "moab/GeomQueryTool.hpp"
 #include "DagMCVersion.hpp"
 
-#include <vector>
-#include <map>
-#include <string>
 #include <assert.h>
+#include <map>
 #include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 class RefEntity;
 
@@ -386,7 +387,11 @@ class DagMC {
 
   /** Get the instance of MOAB used by functions in this file. */
   Interface* moab_instance() {return MBI;}
-  std::shared_ptr<Interface> moab_instance_sptr() {return MBI_shared_ptr;}
+  std::shared_ptr<Interface> moab_instance_sptr() {
+    if (nullptr == MBI_shared_ptr)
+      std::runtime_error("MBI instance is not defined as a shared pointer !");
+    return MBI_shared_ptr;
+  }
 
  private:
 
