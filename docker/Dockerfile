@@ -17,7 +17,7 @@ RUN apt-get -y update; \
 
 # Copy scripts to docker image
 RUN mkdir -p /root/etc/
-COPY docker/script/build_hdf5.sh docker/script/build_geant4.sh docker/script/build_moab.sh docker/script/env.sh /root/etc/
+COPY script/build_hdf5.sh script/build_geant4.sh script/build_moab.sh script/env.sh /root/etc/
 ENV docker_env=/root/etc/env.sh
 
 # Build HDF5 then Geant4 then MOAB 5.1.0
