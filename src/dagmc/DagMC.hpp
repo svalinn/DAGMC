@@ -12,10 +12,12 @@
 #include "moab/GeomQueryTool.hpp"
 #include "DagMCVersion.hpp"
 
-#include <vector>
-#include <map>
-#include <string>
 #include <assert.h>
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 class RefEntity;
 
@@ -57,7 +59,10 @@ class CartVect;
 class DagMC {
  public:
   // Constructor
-  DagMC(Interface* mb_impl = NULL, double overlap_tolerance = 0., double numerical_precision = .001);
+  DagMC(std::shared_ptr<Interface> mb_impl = nullptr, double overlap_tolerance = 0., double numerical_precision = .001);
+  // Deprecated Constructor
+  [[ deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... )") ]]
+  DagMC(Interface* mb_impl, double overlap_tolerance = 0., double numerical_precision = .001);
   // Destructor
   ~DagMC();
 
@@ -365,7 +370,7 @@ class DagMC {
  public:
   OrientedBoxTreeTool* obb_tree() {return GTT->obb_tree();}
 
-  GeomTopoTool* geom_tool() {return GTT;}
+  std::shared_ptr<GeomTopoTool> geom_tool() {return GTT;}
 
   ErrorCode write_mesh(const char* ffile,
                        const int flen);
@@ -382,16 +387,25 @@ class DagMC {
 
   /** Get the instance of MOAB used by functions in this file. */
   Interface* moab_instance() {return MBI;}
+  std::shared_ptr<Interface> moab_instance_sptr() {
+    if (nullptr == MBI_shared_ptr)
+      std::runtime_error("MBI instance is not defined as a shared pointer !");
+    return MBI_shared_ptr;
+  }
 
  private:
 
   /* PRIVATE MEMBER DATA */
 
+  // Shared_ptr owning *MBI (if allocated internally)
+  std::shared_ptr<Interface> MBI_shared_ptr;
+  // Use for the call to MOAB interface, should never be deleted in the DagMC instanced
+  // MBI is either externally owned or owned by the MBI_shared_ptr
   Interface* MBI;
   bool moab_instance_created;
 
-  GeomTopoTool* GTT;
-  GeomQueryTool* GQT;
+  std::shared_ptr<GeomTopoTool> GTT;
+  std::unique_ptr<GeomQueryTool> GQT;
 
  public:
   Tag  nameTag, facetingTolTag;

@@ -39,20 +39,35 @@ const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
-DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_precision) {
+DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance, double p_numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
-  if (NULL == mb_impl) {
-    mb_impl = new moab::Core();
+  if (nullptr == mb_impl) {
+    mb_impl = std::make_shared<Core>();
     moab_instance_created = true;
   }
 
+  MBI_shared_ptr = mb_impl;
   // set the internal moab pointer
-  MBI = mb_impl;
+  MBI = MBI_shared_ptr.get();
 
   // make new GeomTopoTool and GeomQueryTool
-  GTT = new moab::GeomTopoTool(MBI, false);
-  GQT = new moab::GeomQueryTool(GTT, overlap_tolerance, p_numerical_precision);
+  GTT = std::make_shared<GeomTopoTool> (MBI, false);
+  GQT = std::unique_ptr<GeomQueryTool>(new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
+
+  // This is the correct place to uniquely define default values for the dagmc settings
+  defaultFacetingTolerance = .001;
+}
+
+DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_precision) {
+  moab_instance_created = false;
+  // set the internal moab pointer
+  MBI = mb_impl;
+  MBI_shared_ptr = nullptr;
+
+  // make new GeomTopoTool and GeomQueryTool
+  GTT = std::make_shared<GeomTopoTool> (MBI, false);
+  GQT = std::unique_ptr<GeomQueryTool>(new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
 
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
@@ -60,15 +75,11 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 
 // Destructor
 DagMC::~DagMC() {
-  // delete the GeomTopoTool and GeomQueryTool
-  delete GTT;
-  delete GQT;
 
   // if we created the moab instance
   // clear it
   if (moab_instance_created) {
     MBI->delete_mesh();
-    delete MBI;
   }
 }
 

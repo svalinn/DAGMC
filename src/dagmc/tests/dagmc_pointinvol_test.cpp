@@ -10,7 +10,7 @@ using namespace moab;
 
 using moab::DagMC;
 
-moab::DagMC* DAG;
+std::shared_ptr<moab::DagMC> DAG;
 
 static const char input_file[] = "test_geom.h5m";
 
@@ -18,7 +18,7 @@ class DagmcPointInVolTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
     // Create new DAGMC instance
-    DAG = new DagMC();
+    DAG = std::make_shared<moab::DagMC>();
     // Load mesh from file
     rloadval = DAG->load_file(input_file);
     assert(rloadval == moab::MB_SUCCESS);
@@ -26,9 +26,7 @@ class DagmcPointInVolTest : public ::testing::Test {
     rval = DAG->init_OBBTree();
     assert(rval == moab::MB_SUCCESS);
   }
-  virtual void TearDown() {
-    delete DAG;
-  }
+  virtual void TearDown() {}
  protected:
   moab::ErrorCode rloadval;
   moab::ErrorCode rval;

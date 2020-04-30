@@ -2,6 +2,7 @@ project(Test_DAGMC_config)
 cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_CXX_STANDARD 11)
 
 find_package(DAGMC REQUIRED)
 
