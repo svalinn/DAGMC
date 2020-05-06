@@ -1,6 +1,4 @@
 language: c++
-keep_history: true
-allow_empty_commit: true
 sudo: required
 
 notifications:
