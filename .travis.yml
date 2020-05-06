@@ -1,10 +1,13 @@
 language: c++
+
 sudo: required
+
 notifications:
   email:
     recipients:
       - dagmcci@googlegroups.com
   slack: cnerg:d48My26ZXfvHlg0On2WwNQFi
+
 services:
   - docker
 
