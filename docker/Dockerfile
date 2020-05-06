@@ -5,11 +5,12 @@ FROM ubuntu:${UBUNTU_VERSION}
 SHELL ["/bin/bash", "-c"]
 
 # Update core packages
+ARG UBUNTU_VERSION=18.04
 RUN apt-get -y update; \
     apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
                        libhdf5-dev liblapack-dev libpython2.7-dev libtool \
                        python-numpy python-pip python-setuptools wget; \
-    if [ "${UBUNTU_VERSION}" == "18.04" ]; then \
+    if [ "${UBUNTU_VERSION}" = "18.04" ]; then \
         pip install sphinx; \
         apt-get -y install astyle; \
     fi; \
