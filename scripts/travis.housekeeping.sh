@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
@@ -40,5 +40,3 @@ fi
 
 # Build documentation
 make html
-
-exit 0

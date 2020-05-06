@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
@@ -19,7 +19,7 @@ cd ${dagmc_build_dir}/bld
 # If this is not a pull request, get files needed for regression tests
 if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   cd src/make_watertight/tests
-  wget ${MW_REG_TEST_MODELS_URL} -O mw_reg_test_files.tar.gz -o wget.out
+  wget ${MW_REG_TEST_MODELS_URL} -O mw_reg_test_files.tar.gz
   tar xzvf mw_reg_test_files.tar.gz
   cd ../../..
 fi

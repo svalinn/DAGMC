@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
@@ -15,9 +15,8 @@ mkdir -p ${hdf5_build_dir}/bld
 cd ${hdf5_build_dir}
 wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION_major}/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.gz
 tar -xzvf hdf5-${HDF5_VERSION}.tar.gz
-ln -snf hdf5-${HDF5_VERSION} src
 cd bld
-../src/configure --enable-shared \
+../hdf5-${HDF5_VERSION}/configure --enable-shared \
                  --prefix=${hdf5_install_dir} \
                  CC=${CC} CXX=${CXX} FC=${FC}
 make -j${jobs}
