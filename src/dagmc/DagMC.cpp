@@ -1,5 +1,10 @@
 #include "DagMC.hpp"
 
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -8,11 +13,6 @@
 #include <algorithm>
 #include <set>
 #include <climits>
-
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 #include <math.h>
 #ifndef M_PI  /* windows */

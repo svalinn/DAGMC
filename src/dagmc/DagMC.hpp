@@ -1,6 +1,12 @@
 #ifndef MOABMC_HPP
 #define MOABMC_HPP
 
+#include <assert.h>
+
+#include <vector>
+#include <map>
+#include <string>
+
 #include "MBTagConventions.hpp"
 #include "moab/CartVect.hpp"
 #include "moab/Range.hpp"
