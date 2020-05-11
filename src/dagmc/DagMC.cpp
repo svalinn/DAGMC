@@ -40,7 +40,8 @@ const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
-DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance, double p_numerical_precision) {
+DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
+             double p_numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
   if (nullptr == mb_impl) {
@@ -70,8 +71,9 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
   GQT = std::unique_ptr<GeomQueryTool>(new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
 
-  // This is the correct place to uniquely define default values for the dagmc settings
-  defaultFacetingTolerance = .001;
+  // This is the correct place to uniquely define default values for the dagmc
+  // settings
+  facetingTolerance = defaultFacetingTolerance = .001;
 }
 
 // Destructor
@@ -87,7 +89,8 @@ DagMC::~DagMC() {
 // get the float verision of dagmc version string
 float DagMC::version(std::string* version_string) {
   if (NULL != version_string)
-    *version_string = std::string("DagMC version ") + std::string(DAGMC_VERSION_STRING);
+    *version_string = std::string("DagMC version ")
+                      + std::string(DAGMC_VERSION_STRING);
   return DAGMC_VERSION;
 }
 
@@ -96,16 +99,14 @@ unsigned int DagMC::interface_revision() {
   std::string interface_string = DAGMC_INTERFACE_REVISION;
   if (interface_string.rfind("$Rev:") != std::string::npos) {
     // start looking for the revision number after "$Rev: "
-    char *endptr;
+    char *endptr = NULL;
     errno = 0;
-    result = strtol(interface_string.c_str() + 5, NULL, 10);
-    if (endptr == interface_string.c_str() + 5 || 
-        ((result == LONG_MAX || result == LONG_MIN) && errno == ERANGE) )
-    {
+    result = strtol(interface_string.c_str() + 5, &endptr, 10);
+    if (endptr == interface_string.c_str() + 5 ||
+        ((result == LONG_MAX || result == LONG_MIN) && errno == ERANGE)) {
       std::cerr << "Not able to parse revision number" << std::endl;
-      exit (1);
+      exit(1);
     }
-    
   }
   return result;
 }
@@ -118,10 +119,15 @@ ErrorCode DagMC::load_file(const char* cfile) {
   std::cout << "Loading file " << cfile << std::endl;
   // load options
   char options[120] = {0};
-  char file_ext[4] = "" ; // file extension
+  char file_ext[4] = "";  // file extension
 
   // get the last 4 chars of file .i.e .h5m .sat etc
-  memcpy(file_ext, &cfile[strlen(cfile) - 4], 4);
+  if (sizeof(cfile)/sizeof(char) > 4) {
+    memcpy(file_ext, &cfile[strlen(cfile) - 4], 4);
+  } else {
+      std::cerr << "DagMC warning: unhandled file "
+                << "loading options." << std::endl;
+  }
 
   EntityHandle file_set;
   rval = MBI->create_meshset(MESHSET_SET, file_set);
@@ -132,10 +138,11 @@ ErrorCode DagMC::load_file(const char* cfile) {
 
   if (MB_UNHANDLED_OPTION == rval) {
     // Some options were unhandled; this is common for loading h5m files.
-    // Print a warning if an option was unhandled for a file that does not end in '.h5m'
-    std::string filename(cfile);
-    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".h5m") {
-      std::cerr << "DagMC warning: unhandled file loading options." << std::endl;
+    // Print a warning if an option was unhandled for a file that does not end
+    // in '.h5m'
+    if (std::string(file_ext) != ".h5m") {
+      std::cerr << "DagMC warning: unhandled file "
+                << "loading options." << std::endl;
     }
   } else if (MB_SUCCESS != rval) {
     std::cerr << "DagMC Couldn't read file " << cfile << std::endl;
@@ -160,7 +167,8 @@ ErrorCode DagMC::setup_impl_compl() {
   // Create data structures for implicit complement
   ErrorCode rval = GTT->setup_implicit_complement();
   if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to find or create implicit complement handle." << std::endl;
+    std::cerr << "Failed to find or create implicit complement handle."
+              << std::endl;
     return rval;
   }
   return MB_SUCCESS;
@@ -195,7 +203,8 @@ ErrorCode DagMC::setup_obbs() {
   return MB_SUCCESS;
 }
 
-// setups of the indices for the problem, builds a list of
+// setups of the indices for the problem, builds a list of surface/volume
+// indices
 ErrorCode DagMC::setup_indices() {
   Range surfs, vols;
   ErrorCode rval = setup_geometry(surfs, vols);
@@ -215,8 +224,6 @@ ErrorCode DagMC::init_OBBTree() {
   MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets");
 
   // implicit compliment
-  // EntityHandle implicit_complement;
-  //  rval = GTT->get_implicit_complement(implicit_complement, true);
   rval = setup_impl_compl();
   MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
 
@@ -235,9 +242,11 @@ ErrorCode DagMC::init_OBBTree() {
 ErrorCode DagMC::finish_loading() {
   ErrorCode rval;
 
-  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE, MB_TYPE_OPAQUE, NULL, false);
+  nameTag = get_tag(NAME_TAG_NAME, NAME_TAG_SIZE, MB_TAG_SPARSE,
+                    MB_TYPE_OPAQUE, NULL, false);
 
-  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE, MB_TYPE_DOUBLE);
+  facetingTolTag = get_tag(FACETING_TOL_TAG_NAME, 1, MB_TAG_SPARSE,
+                           MB_TYPE_DOUBLE);
 
   // search for a tag that has the faceting tolerance
   Range tagged_sets;
@@ -250,7 +259,8 @@ ErrorCode DagMC::finish_loading() {
                                            NULL, 1, tagged_sets);
   // if NOT empty set
   if (MB_SUCCESS == rval && !tagged_sets.empty()) {
-    rval = MBI->tag_get_data(facetingTolTag, &(*tagged_sets.begin()), 1, &facet_tol_tagvalue);
+    rval = MBI->tag_get_data(facetingTolTag, &(*tagged_sets.begin()), 1,
+                             &facet_tol_tagvalue);
     if (MB_SUCCESS != rval)
       return rval;
     other_set_tagged = true;
@@ -389,8 +399,9 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
   // surf/vol offsets are just first handles
-  setOffset = std::min(*surfs.begin(), *vols.begin());
-
+  if (surfs.size() != 0 && vols.size() != 0) {
+    setOffset = std::min(*surfs.begin(), *vols.begin());
+  }
   // max
   EntityHandle tmp_offset = std::max(surfs.back(), vols.back());
 

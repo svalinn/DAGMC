@@ -149,7 +149,6 @@ class DagMC {
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
  public:
-
   /** The methods in this section are thin wrappers around methods in the
    *  GeometryQueryTool.
    */
@@ -230,7 +229,6 @@ class DagMC {
 
   /* SECTION IV: Handling DagMC settings */
  public:
-
   /** retrieve overlap thickness */
   double overlap_thickness() { return GQT->get_overlap_thickness(); }
   /** retrieve numerical precision */
@@ -253,7 +251,8 @@ class DagMC {
    *  @param keywords_out The result list of keywords.  This list could be
    *        validly passed to parse_properties().
    */
-  ErrorCode detect_available_props(std::vector<std::string>& keywords_out, const char* delimiters = "_");
+  ErrorCode detect_available_props(std::vector<std::string>& keywords_out,
+                                   const char* delimiters = "_");
 
   /** Parse properties from group names per metadata syntax standard
    *
@@ -270,7 +269,8 @@ class DagMC {
    *                  group named "graveyard".
    */
   ErrorCode parse_properties(const std::vector<std::string>& keywords,
-                             const std::map<std::string, std::string>& synonyms = no_synonyms,
+                             const std::map<std::string,
+                             std::string>& synonyms = no_synonyms,
                              const char* delimiters = "_");
 
   /** Get the value of a property on a volume or surface
@@ -341,7 +341,8 @@ class DagMC {
   Tag sense_tag() { return GTT->get_sense_tag(); }
 
  private:
-  /** tokenize the metadata stored in group names - basically borrowed from ReadCGM.cpp */
+  /** tokenize the metadata stored in group names - basically borrowed from
+   * ReadCGM.cpp */
   void tokenize(const std::string& str,
                 std::vector<std::string>& tokens,
                 const char* delimiters = "_") const;
@@ -394,7 +395,6 @@ class DagMC {
   }
 
  private:
-
   /* PRIVATE MEMBER DATA */
 
   // Shared_ptr owning *MBI (if allocated internally)
@@ -409,6 +409,7 @@ class DagMC {
 
  public:
   Tag  nameTag, facetingTolTag;
+
  private:
   /** store some lists indexed by handle */
   std::vector<EntityHandle> entHandles[5];
@@ -420,12 +421,11 @@ class DagMC {
   std::vector<RefEntity*> geomEntities;
 
   /* metadata */
-  /** empty synonym map to provide as a default argument to parse_properties() */
-  static const std::map<std::string, std::string> no_synonyms;
-  /** map from the canonical property names to the tags representing them */
-  std::map<std::string, Tag> property_tagmap;
+  // empty synonym map to provide as a default argument to parse_properties()
+      static const std::map<std::string, std::string> no_synonyms;
 
-  char implComplName[NAME_TAG_SIZE];
+  // map from the canonical property names to the tags representing them
+  std::map<std::string, Tag> property_tagmap;
 
   double facetingTolerance, defaultFacetingTolerance;
 
@@ -436,7 +436,8 @@ class DagMC {
 };
 
 inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
-  assert(2 <= dimension && 3 >= dimension && (unsigned) index < entHandles[dimension].size());
+  assert(2 <= dimension && 3 >= dimension
+                        && (unsigned) index < entHandles[dimension].size());
   return entHandles[dimension][index];
 }
 
@@ -450,14 +451,16 @@ inline unsigned int DagMC::num_entities(int dimension) {
   return entHandles[dimension].size() - 1;
 }
 
-inline ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3], double maxPt[3]) {
+inline ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
+                               double maxPt[3]) {
   ErrorCode rval = GTT->get_bounding_coords(volume, minPt, maxPt);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
   return MB_SUCCESS;
 }
 
 inline ErrorCode DagMC::getobb(EntityHandle volume, double center[3],
-                               double axis1[3], double axis2[3], double axis3[3]) {
+                               double axis1[3], double axis2[3],
+                               double axis3[3]) {
   ErrorCode rval = GTT->get_obb(volume, center, axis1, axis2, axis3);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
   return MB_SUCCESS;
@@ -469,6 +472,6 @@ inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle& root) {
   return MB_SUCCESS;
 }
 
-} // namespace moab
+}  // namespace moab
 
 #endif
