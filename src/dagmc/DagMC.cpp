@@ -1,5 +1,6 @@
 #include "DagMC.hpp"
 
+#include <math.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -14,7 +15,6 @@
 #include <set>
 #include <climits>
 
-#include <math.h>
 #ifndef M_PI  /* windows */
 # define M_PI 3.14159265358979323846
 #endif
