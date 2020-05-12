@@ -399,11 +399,21 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
   // surf/vol offsets are just first handles
+  EntityHandle tmp_offset = 0;
+
   if (surfs.size() != 0 && vols.size() != 0) {
     setOffset = std::min(*surfs.begin(), *vols.begin());
+    tmp_offset = std::max(surfs.back(), vols.back());
+  } else if (0 == surfs.size()) {
+    setOffset = *surfs.begin();
+    tmp_offset = surfs.back();
+  } else if (0 == vols.size()) {
+    setOffset = *vols.begin();
+    tmp_offset = vols.back();
+  } else {
+      std::cout << "Volumes or Surfaces founds" << std::endl;
+      return  MB_ENTITY_NOT_FOUND;
   }
-  // max
-  EntityHandle tmp_offset = std::max(surfs.back(), vols.back());
 
   // set size
   entIndices.resize(tmp_offset - setOffset + 1);
