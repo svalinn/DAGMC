@@ -1,5 +1,5 @@
-#ifndef MOABMC_HPP
-#define MOABMC_HPP
+#ifndef SRC_DAGMC_DAGMC_HPP_
+#define SRC_DAGMC_DAGMC_HPP_
 
 #include <assert.h>
 
@@ -492,4 +492,4 @@ inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle& root) {
 
 }  // namespace moab
 
-#endif
+#endif  // SRC_DAGMC_DAGMC_HPP_
