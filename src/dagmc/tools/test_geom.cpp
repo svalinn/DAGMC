@@ -1130,7 +1130,8 @@ ErrorCode overlap_test_tracking(DagMC* dagmc) {
   DagMC::RayHistory history;
   rval = dagmc->ray_fire(vol, point, dir, next_surf, dist, &history);
   CHKERR;
-  if (next_surf != surfs[7] || fabs(dist - 0.91) > 1e-6) {
+  double expected_dist = 0.91
+  if (next_surf != surfs[7] || fabs(dist - expected_dist) > 1e-6) {
     std::cerr << "ERROR: failed on advance 1" << std::endl;
     return MB_FAILURE;
   }

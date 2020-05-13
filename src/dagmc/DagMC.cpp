@@ -21,6 +21,7 @@
 
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
+static const int null_delimiter_length = 1;
 
 namespace moab {
 
@@ -428,6 +429,10 @@ ErrorCode DagMC::build_indices(const Range& surfs, const Range& vols) {
   // index by handle lists
   surf_handles().resize(surfs.size() + 1);
   std::vector<EntityHandle>::iterator iter = surf_handles().begin();
+
+  // MCNP wants a 1-based index but C++ has a 0-based index. So we need to set
+  // the first value to 0 and then start at the next position in the vector
+  // (iter++) thereafter.
   *(iter++) = 0;
   std::copy(surfs.begin(), surfs.end(), iter);
   int idx = 1;
@@ -436,6 +441,10 @@ ErrorCode DagMC::build_indices(const Range& surfs, const Range& vols) {
 
   vol_handles().resize(vols.size() + 1);
   iter = vol_handles().begin();
+
+  // MCNP wants a 1-based index but C++ has a 0-based index. So we need to set
+  // the first value to 0 and then start at the next position in the vector
+  // (iter++) thereafter.
   *(iter++) = 0;
   std::copy(vols.begin(), vols.end(), iter);
   idx = 1;
@@ -485,7 +494,6 @@ ErrorCode DagMC::write_mesh(const char* ffile,
       return rval;
     }
   }
-
   return MB_SUCCESS;
 }
 
@@ -567,8 +575,8 @@ ErrorCode DagMC::append_packed_string(Tag tag, EntityHandle eh,
   }
 
   // append a new value for the property to the existing property string
-  unsigned int tail_len = new_string.length() + 1;
-  int new_len = new_string.length() + len + 1;
+  unsigned int tail_len = new_string.length() + null_delimiter_length;
+  int new_len = tail_len + len;
 
   char* new_packed_string = new char[ new_len ];
   memcpy(new_packed_string, str, len);
@@ -594,7 +602,7 @@ ErrorCode DagMC::unpack_packed_string(Tag tag, EntityHandle eh,
   while (idx < len) {
     std::string item(str + idx);
     values.push_back(item);
-    idx += item.length() + 1;
+    idx += item.length() + null_delimiter_length;
   }
   return MB_SUCCESS;
 }
