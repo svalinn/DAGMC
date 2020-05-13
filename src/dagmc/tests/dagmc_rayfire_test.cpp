@@ -1,11 +1,11 @@
+#include <iostream>
+
 #include <gtest/gtest.h>
 
 #include "moab/Interface.hpp"
 #include "moab/Core.hpp"
 #include "moab/GeomQueryTool.hpp"
 #include "DagMC.hpp"
-
-#include <iostream>
 
 using namespace moab;
 
@@ -56,8 +56,8 @@ TEST_F(DagmcRayFireTest, dagmc_origin_face_rayfire) {
 TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire) {
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
-  double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
-  double origin[3] = {-10.0, 0.0, 0.0}; // origin at -10 0 0
+  double dir[3] = {1.0, 0.0, 0.0};  // ray along x direction
+  double origin[3] = {-10.0, 0.0, 0.0};  // origin at -10 0 0
   double next_surf_dist;
   EntityHandle next_surf;
   DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist);
@@ -70,8 +70,8 @@ TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_orient_exit) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
-  double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
-  double origin[3] = {-10.0, 0.0, 0.0}; // origin at -10 0 0
+  double dir[3] = {1.0, 0.0, 0.0};  // ray along x direction
+  double origin[3] = {-10.0, 0.0, 0.0};  // origin at -10 0 0
   double next_surf_dist;
   EntityHandle next_surf;
   DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist, &history, 0, 1);
@@ -84,11 +84,12 @@ TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_orient_entrance) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
-  double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
-  double origin[3] = {-10.0, 0.0, 0.0}; // origin at -10 0 0
+  double dir[3] = {1.0, 0.0, 0.0};  // ray along x direction
+  double origin[3] = {-10.0, 0.0, 0.0};  // origin at -10 0 0
   double next_surf_dist;
   EntityHandle next_surf;
-  DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist, &history, 0.0, -1);
+  DAG->ray_fire(vol_h, origin, dir, next_surf, next_surf_dist, &history, 0.0,
+                -1);
   std::cout << next_surf_dist << std::endl;
   double expected_next_surf_dist = 5.0;
   EXPECT_NEAR(expected_next_surf_dist, next_surf_dist, eps);
@@ -98,8 +99,8 @@ TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_history_fail) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
-  double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
-  double origin[3] = {-10.0, 0.0, 0.0}; // origin at -10 0 0
+  double dir[3] = {1.0, 0.0, 0.0};  // ray along x direction
+  double origin[3] = {-10.0, 0.0, 0.0};  // origin at -10 0 0
   double xyz[3];
   double next_surf_dist;
   EntityHandle next_surf;
@@ -125,8 +126,8 @@ TEST_F(DagmcRayFireTest, dagmc_outside_face_rayfire_history) {
   DagMC::RayHistory history;
   int vol_idx = 1;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
-  double dir[3] = {1.0, 0.0, 0.0}; // ray along x direction
-  double origin[3] = {-10.0, 0.0, 0.0}; // origin at -10 0 0
+  double dir[3] = {1.0, 0.0, 0.0};  // ray along x direction
+  double origin[3] = {-10.0, 0.0, 0.0};  // origin at -10 0 0
   double xyz[3];
   double next_surf_dist;
   EntityHandle next_surf;

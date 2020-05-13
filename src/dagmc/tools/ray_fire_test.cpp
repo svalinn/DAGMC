@@ -1,21 +1,22 @@
-#include "moab/Interface.hpp"
-#include "moab/Core.hpp"
+#include <fcntl.h>
+#include <math.h>
+#include <stdio.h>
+#include <time.h>
+#include <unistd.h>
+
+#include <cfloat>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include <vector>
+
 #include "DagMC.hpp"
 #include "MBTagConventions.hpp"
 #include "moab/CartVect.hpp"
+#include "moab/Core.hpp"
+#include "moab/Interface.hpp"
 
-#include <vector>
-#include <iostream>
-#include <math.h>
-#include <unistd.h>
-#include <limits>
-#include <fcntl.h>
-#include <stdio.h>
-#include <time.h>
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <cfloat>
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
 #include <sys/resource.h>
 #endif
@@ -29,13 +30,14 @@ extern "C" int getrusage(int, struct rusage*);
 using namespace moab;
 
 // define following macro for verbose debugging of random ray generation
-//#define DEBUG
 
 void get_time_mem(double& tot_time, double& user_time,
                   double& sys_time, double& tot_mem);
 
-void dump_pyfile(char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
-                 OrientedBoxTreeTool::TrvStats* trv_stats, EntityHandle tree_root);
+void dump_pyfile(char* filename, double timewith, double timewithout,
+                 double tmem, DagMC& dagmc,
+                 OrientedBoxTreeTool::TrvStats* trv_stats,
+                 EntityHandle tree_root);
 
 static const double PI = acos(-1.0);
 static const double denom = 1.0 / ((double) RAND_MAX);
@@ -43,17 +45,17 @@ static const double denomPI = PI * denom;
 
 inline void RNDVEC(CartVect& uvw, double& az) {
   // denom normalizes rand values (see global defines)
-  double theta = az * denom * rand(); // randomly samples from 0 to az. (Default az is 2PI)
-  double u = 2 * denom * rand() - 1; // randomly samples from -1 to 1.
+  double theta = az * denom * rand();  // randomly samples from 0 to az.
+                                       // (Default az is 2PI)
+  double u = 2 * denom * rand() - 1;  // randomly samples from -1 to 1.
   uvw[0] = sqrt(1 - u * u) * cos(theta);
   uvw[1] = sqrt(1 - u * u) * sin(theta);
   uvw[2] = u;
-
 }
 
 /* program global data, including settings with their defaults*/
 typedef struct { CartVect p; CartVect v; } ray_t;
-std::vector< ray_t > rays; // list of user-specified rays (given with -f flag)
+std::vector< ray_t > rays;  // list of user-specified rays (given with -f flag)
 
 static CartVect ray_source(0, 0, 0);
 
@@ -67,10 +69,13 @@ static double location_az = 2.0 * PI;
 static double direction_az = location_az;
 static const char* pyfile = NULL;
 
-static int random_rays_missed = 0; // count of random rays that did not hit a surface
+static int random_rays_missed = 0;  // count of random rays that did not hit a
+                                    // surface
 
-/* Most of the argument handling code was stolen/adapted from MOAB/test/obb/obb_test.cpp */
-static void usage(const char* error, const char* opt, const char* name = "ray_fire_test") {
+/* Most of the argument handling code was stolen/adapted from
+   MOAB/test/obb/obb_test.cpp */
+static void usage(const char* error, const char* opt,
+                  const char* name = "ray_fire_test") {
   const char* default_message = "Invalid option";
   if (opt && !error)
     error = default_message;
@@ -90,19 +95,31 @@ static void usage(const char* error, const char* opt, const char* name = "ray_fi
     str << "-h  print this help" << std::endl;
     str << "-s  print OBB tree structural statistics" << std::endl;
     str << "-S  track and print OBB tree traversal statistics" << std::endl;
-    str << "-i <int>   specify volume to upon which to test ray intersections (default 1)" << std::endl;
-    str << "-n <int>   specify number of random rays to fire (default 1000)" << std::endl;
-    str << "-c <x> <y> <z>  Specify center of of random ray generation (default origin)." << std::endl;
-    str << "-r <real>  random ray radius.  Random rays begin at this distance from the center." << std::endl;
-    str << "           if < 0, fire rays inward through the center" << std::endl;
-    str << "           if >= 0, fire randomly directed rays.  (default 0)" << std::endl;
-    str << "-f <x> <y> <z> <u> <v> <w>  Fire one given ray and report result." << std::endl;
-    str << "           (May be given multiple times.  -f implies -n 0)" << std::endl;
-    str << "-z <int>   seed the random number generator (default 12345)" << std::endl;
-    str << "-L <real>  if present, limit random ray Location to between +-<value> degrees" << std::endl;
-    str << "-D <real>  if present, limit random ray Direction to between +-<value> degrees" << std::endl;
+    str << "-i <int>   specify volume to upon which to test ray intersections "
+           "(default 1)" << std::endl;
+    str << "-n <int>   specify number of random rays to fire (default 1000)"
+        << std::endl;
+    str << "-c <x> <y> <z>  Specify center of of random ray generation "
+           "(default origin)." << std::endl;
+    str << "-r <real>  random ray radius.  Random rays begin at this distance "
+           "from the center." << std::endl;
+    str << "           if < 0, fire rays inward through the center"
+        << std::endl;
+    str << "           if >= 0, fire randomly directed rays.  (default 0)"
+        << std::endl;
+    str << "-f <x> <y> <z> <u> <v> <w>  Fire one given ray and report result."
+        << std::endl;
+    str << "           (May be given multiple times.  -f implies -n 0)"
+        << std::endl;
+    str << "-z <int>   seed the random number generator (default 12345)"
+        << std::endl;
+    str << "-L <real>  if present, limit random ray Location to between "
+           "+-<value> degrees" << std::endl;
+    str << "-D <real>  if present, limit random ray Direction to between "
+           "+-<value> degrees" << std::endl;
     str << "           (unused if random ray radius < 0)" << std::endl;
-    str << "-p <filename>  if present, save parameters and results to a python dictionary" << std::endl;
+    str << "-p <filename>  if present, save parameters and results to a "
+           "python dictionary" << std::endl;
   }
 
   exit(error ? 1 : 0);
@@ -174,9 +191,7 @@ static void parse_ray(int& i, int argc, char* argv[]) {
   rays.push_back(ray);
 }
 
-
 int main(int argc, char* argv[]) {
-
   char* filename = NULL;
   bool flags = true;
   for (int i = 1; i < argc; ++i) {
@@ -247,45 +262,51 @@ int main(int argc, char* argv[]) {
   rval = dagmc.load_file(filename);
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to load file '" << filename << "'" << std::endl;
+    delete trv_stats;
     return 2;
   }
 
   rval = dagmc.init_OBBTree();
   if (MB_SUCCESS != rval) {
     std::cerr << "Failed to initialize DagMC." << std::endl;
+    delete trv_stats;
     return 2;
   }
 
   vol = dagmc.entity_by_id(3, vol_index);
   if (0 == vol) {
     std::cerr << "Problem getting volume " << vol_index << std::endl;
+    delete trv_stats;
     return 2;
   }
 
   /* Fire any rays specified with -f flag */
   if (rays.size() > 0) {
-
-    std:: cout << "Firing user-specified rays at volume " << vol_index << std::endl;
+    std:: cout << "Firing user-specified rays at volume " << vol_index
+               << std::endl;
     for (unsigned i = 0; i < rays.size(); ++i) {
-
       ray_t ray = rays[i];
       std::cout << " Ray: point = " << ray.p << " dir = " << ray.v << std::endl;
 
       // added ray orientation
-      rval = dagmc.ray_fire(vol, ray.p.array(), ray.v.array(), surf, dist, NULL, 0, 1, trv_stats);
+      rval = dagmc.ray_fire(vol, ray.p.array(), ray.v.array(), surf, dist,
+                            NULL, 0, 1, trv_stats);
 
       if (MB_SUCCESS != rval) {
         std::cerr << "ERROR: ray_fire() failed!" << std::endl;
         return 2;
       }
       if (0 == surf) {
-        std::cerr << "ERROR: Ray finds no surface.  Particle is lost." << std::endl;
-        // might as well keep going here, in case other user specified rays were given
+        std::cerr << "ERROR: Ray finds no surface.  Particle is lost."
+                  << std::endl;
+        // might as well keep going here, in case other user specified rays
+        // were given
         continue;
       }
 
       int surf_id = dagmc.id_by_index(2, dagmc.index_by_handle(surf));
-      std::cout << "       hits surf_id " << surf_id << " dist=" << dist << " new_xyz="
+      std::cout << "       hits surf_id " << surf_id << " dist=" << dist
+                << " new_xyz="
                 << ray.p + (ray.v * dist) << std::endl;
     }
   }
@@ -322,17 +343,17 @@ int main(int argc, char* argv[]) {
     uavg += uvw[0]; vavg += uvw[1]; wavg += uvw[2];
 #endif
     // added ray orientation
-    dagmc.ray_fire(vol, xyz.array(), uvw.array(), surf, dist, NULL, 0, 1, trv_stats);
+    dagmc.ray_fire(vol, xyz.array(), uvw.array(), surf, dist, NULL, 0, 1,
+                   trv_stats);
 
     if (surf == 0) {
       random_rays_missed++;
     }
-
   }
   get_time_mem(ttime2, utime2, stime2, tmem1);
   double timewith = ttime2 - ttime1;
 
-  srand(randseed); // reseed to generate the same values as before
+  srand(randseed);  // reseed to generate the same values as before
 
   // now without ray fire call, to subtract out overhead
   for (int j = 0; j < num_random_rays; j++) {
@@ -350,17 +371,20 @@ int main(int argc, char* argv[]) {
   std::cout << " done." << std::endl;
 
   if (random_rays_missed) {
-    std::cout << "Warning: " << random_rays_missed << " random rays did not hit the target volume" << std::endl;
+    std::cout << "Warning: " << random_rays_missed << " random rays did not "
+              << "hit the target volume" << std::endl;
   }
 
   if (num_random_rays > 0) {
     std::cout << "Total time per ray fire: " << timewith / num_random_rays
               << " sec" << std::endl;
     std::cout << "Estimated time per call (excluding ray generation): "
-              << (timewith - timewithout) / num_random_rays << " sec" << std::endl;
+              << (timewith - timewithout) / num_random_rays << " sec"
+              << std::endl;
   }
   std::cout << "Program memory used: "
-            << tmem2 << " bytes (" << tmem2 / (1024 * 1024) << " MB)" << std::endl;
+            << tmem2 << " bytes (" << tmem2 / (1024 * 1024) << " MB)"
+            << std::endl;
 
   /* Gather OBB tree stats and make final reports */
   EntityHandle root;
@@ -376,12 +400,15 @@ int main(int argc, char* argv[]) {
   } else {
     unsigned int entities_in_tree, tree_height, node_count, num_leaves;
     double root_volume, tot_node_volume, tot_to_root_volume;
-    dagmc.obb_tree()->stats(root, entities_in_tree, root_volume, tot_node_volume,
-                            tot_to_root_volume, tree_height, node_count, num_leaves);
+    dagmc.obb_tree()->stats(root, entities_in_tree, root_volume,
+                            tot_node_volume, tot_to_root_volume,
+                            tree_height, node_count, num_leaves);
 
     std::cout << "Tree dimensions:" << std::endl;
-    std::cout << "   facets: " << entities_in_tree << ", height: " << tree_height << std::endl;
-    std::cout << "   num leaves: " << num_leaves << ", num nodes: " << node_count << std::endl;
+    std::cout << "   facets: " << entities_in_tree << ", height: "
+              << tree_height << std::endl;
+    std::cout << "   num leaves: " << num_leaves << ", num nodes: "
+              << node_count << std::endl;
   }
 
   if (do_trv_stats) {
@@ -394,11 +421,11 @@ int main(int argc, char* argv[]) {
   }
 
 #ifdef DEBUG
-  std::cout << "uavg, vavg, wavg = " << uavg << " " << vavg << " " << wavg << std::endl;
+  std::cout << "uavg, vavg, wavg = " << uavg << " " << vavg << " " << wavg
+            << std::endl;
 #endif
 
   return 0;
-
 }
 
 void get_time_mem(double& tot_time, double& user_time,
@@ -427,32 +454,33 @@ void get_time_mem(double& tot_time, double& user_time,
   int dum_int;
   unsigned int dum_uint, vm_size, rss;
   int num_fields = sscanf(file_str,
-                          "%d " // pid
-                          "%s " // comm
-                          "%c " // state
-                          "%d %d %d %d %d " // ppid, pgrp, session, tty, tpgid
-                          "%u %u %u %u %u " // flags, minflt, cminflt, majflt, cmajflt
-                          "%d %d %d %d %d %d " // utime, stime, cutime, cstime, counter, priority
-                          "%u %u " // timeout, itrealvalue
-                          "%d " // starttime
-                          "%u %u", // vsize, rss
+                          "%d "  // pid
+                          "%s "  // comm
+                          "%c "  // state
+                          "%d %d %d %d %d "  // ppid, pgrp, session, tty, tpgid
+                          "%u %u %u %u %u "  // flags, minflt, cminflt,
+                                             // majflt, cmajflt
+                          "%d %d %d %d %d %d "  // utime, stime, cutime,
+                                                // cstime, counter, priority
+                          "%u %u "  // timeout, itrealvalue
+                          "%d "  // starttime
+                          "%u %u",  // vsize, rss
                           &dum_int,
                           dum_str,
                           dum_str,
                           &dum_int, &dum_int, &dum_int, &dum_int, &dum_int,
                           &dum_uint, &dum_uint, &dum_uint, &dum_uint, &dum_uint,
-                          &dum_int, &dum_int, &dum_int, &dum_int, &dum_int, &dum_int,
+                          &dum_int, &dum_int, &dum_int, &dum_int, &dum_int,
+                                    &dum_int,
                           &dum_uint, &dum_uint,
                           &dum_int,
                           &vm_size, &rss);
   if (num_fields == 24)
     tot_mem = ((double)vm_size);
-
 }
 
 
 class HistogramBuilder : public OrientedBoxTreeTool::Op {
-
  protected:
   int last_depth;
 
@@ -483,8 +511,8 @@ class HistogramBuilder : public OrientedBoxTreeTool::Op {
   }
 };
 
-void write_obbtree_histogram(EntityHandle root, OrientedBoxTreeTool& tree, std::ostream& out) {
-
+void write_obbtree_histogram(EntityHandle root, OrientedBoxTreeTool& tree,
+                             std::ostream& out) {
   HistogramBuilder hb;
   tree.preorder_traverse(root, hb);
 
@@ -493,31 +521,36 @@ void write_obbtree_histogram(EntityHandle root, OrientedBoxTreeTool& tree, std::
     out << "(" << hb.node_counts[i] << ", " << hb.leaf_counts.at(i) << "),";
   }
   out << "]";
-
 }
 
-void moab_memory_estimates(Interface* mbi, unsigned long long& moab_data_bytes, unsigned long long& moab_alldata_est_bytes) {
-
+void moab_memory_estimates(Interface* mbi, unsigned long long& moab_data_bytes,
+                           unsigned long long& moab_alldata_est_bytes) {
   unsigned long long storage, amortized_storage;
   mbi->estimated_memory_use(NULL, 0, &storage, &amortized_storage);
 
   moab_data_bytes = storage;
   moab_alldata_est_bytes = amortized_storage;
-
 }
 
 #define DICT_VAL(X) out << "'" #X "':" << X << "," << std::endl;
 #define DICT_VAL_STR(X) out << "'" #X  "':'" << X << "'," << std::endl;
-void dump_pyfile(char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
-                 OrientedBoxTreeTool::TrvStats* trv_stats, EntityHandle tree_root) {
+void dump_pyfile(char* filename, double timewith, double timewithout,
+                 double tmem, DagMC& dagmc,
+                 OrientedBoxTreeTool::TrvStats* trv_stats,
+                 EntityHandle tree_root) {
   std::ofstream out(pyfile);
   out.precision(14);
 
-  out << "# This file was automatically generated by ray_fire_test, and contains" << std::endl;
-  out << "# the results of a single program run.  It is formatted as a python dictionary," << std::endl;
-  out << "# and its contents may be loaded into python with a command such as: " << std::endl;
-  out << "#  data = eval( compile( open('filename').read(), 'filename','eval'))" << std::endl;
-  out << "# (with the name of this file substituted for 'filename')" << std::endl;
+  out << "# This file was automatically generated by ray_fire_test, and "
+         "contains" << std::endl;
+  out << "# the results of a single program run.  It is formatted as a python "
+         "dictionary," << std::endl;
+  out << "# and its contents may be loaded into python with a command such as: "
+      << std::endl;
+  out << "#  data = eval( compile( open('filename').read(), 'filename','eval'))"
+      << std::endl;
+  out << "# (with the name of this file substituted for 'filename')"
+      << std::endl;
   out << "{" << std::endl;
 
   time_t now = time(NULL);
@@ -526,14 +559,16 @@ void dump_pyfile(char* filename, double timewith, double timewithout, double tme
   finish_time.resize(finish_time.length() - 1);
   DICT_VAL_STR(finish_time);
   DICT_VAL_STR(filename);
-  out << "'ray_source':[" << ray_source[0] << "," << ray_source[1] << "," << ray_source[2] << "]," << std::endl;
+  out << "'ray_source':[" << ray_source[0] << "," << ray_source[1] << ","
+      << ray_source[2] << "]," << std::endl;
   DICT_VAL(source_rad);
   unsigned num_user_rays = rays.size();
   DICT_VAL(num_user_rays);
   out << "'user_rays':[";
   for (unsigned i = 0; i < num_user_rays; ++i) {
-    out << "(("   << rays[i].p[0] << "," << rays[i].p[1] << "," << rays[i].p[2]
-        << "),(" << rays[i].v[0] << "," << rays[i].v[1] << "," << rays[i].v[2] << ")),";
+    out << "(("  << rays[i].p[0] << "," << rays[i].p[1] << "," << rays[i].p[2]
+        << "),(" << rays[i].v[0] << "," << rays[i].v[1] << "," << rays[i].v[2]
+        << ")),";
   }
   out << "]," << std::endl;
 
@@ -546,14 +581,16 @@ void dump_pyfile(char* filename, double timewith, double timewithout, double tme
   }
   DICT_VAL(tmem);
   unsigned long long moab_data_bytes, moab_alldata_est_bytes;
-  moab_memory_estimates(dagmc.moab_instance(), moab_data_bytes, moab_alldata_est_bytes);
+  moab_memory_estimates(dagmc.moab_instance(), moab_data_bytes,
+                        moab_alldata_est_bytes);
   DICT_VAL(moab_data_bytes);
   DICT_VAL(moab_alldata_est_bytes);
 
   unsigned int entities_in_tree, tree_height, node_count, num_leaves;
   double root_volume, tot_node_volume, tot_to_root_volume;
-  dagmc.obb_tree()->stats(tree_root, entities_in_tree, root_volume, tot_node_volume,
-                          tot_to_root_volume, tree_height, node_count, num_leaves);
+  dagmc.obb_tree()->stats(tree_root, entities_in_tree, root_volume,
+                          tot_node_volume, tot_to_root_volume, tree_height,
+                          node_count, num_leaves);
 
   DICT_VAL(entities_in_tree);
   DICT_VAL(tree_height);
@@ -593,6 +630,5 @@ void dump_pyfile(char* filename, double timewith, double timewithout, double tme
   out << "\"\"\"" << std::endl;
 
   out << "}" << std::endl;
-
 
 }

@@ -1,13 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <iostream>
+
 #include "moab/Interface.hpp"
 #include "moab/Core.hpp"
 #include "DagMC.hpp"
 
-#include <iostream>
-
 using namespace moab;
-
 using moab::DagMC;
 
 moab::DagMC* DAG;
@@ -22,7 +21,7 @@ class DagmcSimpleTest : public ::testing::Test {
 
 TEST_F(DagmcSimpleTest, dagmc_load_file) {
   DAG = new DagMC();
-  ErrorCode rval = DAG->load_file(input_file); // open the Dag file
+  ErrorCode rval = DAG->load_file(input_file);  // open the Dag file
   EXPECT_EQ(rval, MB_SUCCESS);
 }
 
@@ -200,7 +199,7 @@ TEST_F(DagmcSimpleTest, dagmc_test_obb_retreval_rayfire) {
 }
 
 TEST_F(DagmcSimpleTest, dagmc_rayfire) {
-  const double eps = 1e-6; // epsilon for test, faceting tol?
+  const double eps = 1e-6;  // epsilon for test, faceting tol?
 
   int vol_idx = 1;
   // note model is cube of side 10, centred at 0,0,0, so ray fire along
@@ -218,13 +217,13 @@ TEST_F(DagmcSimpleTest, dagmc_rayfire) {
 }
 
 TEST_F(DagmcSimpleTest, dagmc_closest_to) {
-  const double eps = 1e-6; // epsilon for test, faceting tol?
+  const double eps = 1e-6;  // epsilon for test, faceting tolerance ?
 
   int vol_idx = 1;
   // note model is cube of side 10, centred at 0,0,0, so ray fire along
   // any unit direction should be exactly 5.0
   double xyz[3] = {-6.0, 0.0, 0.0};
-  double distance; // distance from point to nearest surface
+  double distance;  // distance from point to nearest surface
   double expect_distance = 1.0;
   EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
 

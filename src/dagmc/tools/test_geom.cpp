@@ -1,3 +1,11 @@
+#include <math.h>
+#include <stdio.h>  // for remove()
+
+#include <vector>
+#include <iostream>
+#include <limits>
+#include <algorithm>
+
 #include "moab/Interface.hpp"
 #include "moab/Core.hpp"
 #include "DagMC.hpp"
@@ -10,12 +18,6 @@
 #include "moab_mpi.h"
 #endif
 
-#include <vector>
-#include <iostream>
-#include <math.h>
-#include <limits>
-#include <algorithm>
-#include <stdio.h> // for remove()
 
 #define CHKERR if (MB_SUCCESS != rval) return rval
 
@@ -65,13 +67,13 @@ ErrorCode write_geometry(const char* output_file_name) {
     0,  0,  0
   };
   const int connectivity[] = {
-    0, 3, 1,  3, 2, 1, // -Z
-    0, 1, 4,  5, 4, 1, // +X
-    1, 2, 6,  6, 5, 1, // +Y
-    6, 2, 3,  7, 6, 3, // -X
-    0, 4, 3,  7, 3, 4, // -Y
-    4, 5, 8,  5, 6, 8, // +Z
-    6, 7, 8,  7, 4, 8  // +Z
+    0, 3, 1,  3, 2, 1,  // -Z
+    0, 1, 4,  5, 4, 1,  // +X
+    1, 2, 6,  6, 5, 1,  // +Y
+    6, 2, 3,  7, 6, 3,  // -X
+    0, 4, 3,  7, 3, 4,  // -Y
+    4, 5, 8,  5, 6, 8,  // +Z
+    6, 7, 8,  7, 4, 8   // +Z
   };
   const unsigned tris_per_surf[] = { 2, 2, 2, 2, 2, 4 };
 
@@ -182,19 +184,20 @@ ErrorCode overlap_write_geometry(const char* output_file_name) {
     -1,    -1,  1
   };
   const int connectivity[] = {
-    0, 3, 1,  3, 2, 1, // -Z
-    0, 1, 4,  5, 4, 1, // +X
-    1, 2, 6,  6, 5, 1, // +Y
-    6, 2, 3,  7, 6, 3, // -X
-    0, 4, 3,  7, 3, 4, // -Y
+    0, 3, 1,  3, 2, 1,  // -Z
+    0, 1, 4,  5, 4, 1,  // +X
+    1, 2, 6,  6, 5, 1,  // +Y
+    6, 2, 3,  7, 6, 3,  // -X
+    0, 4, 3,  7, 3, 4,  // -Y
     4, 5, 6,  6, 7, 4
-  };// +Z
+  };  // +Z
 
   // Create the geometry
   const unsigned tris_per_surf = 2;
   const unsigned num_cubes     = 2;
   const unsigned num_verts = sizeof(coords) / (3 * sizeof(double));
-  const unsigned num_tris  = num_cubes * sizeof(connectivity) / (3 * sizeof(int));
+  const unsigned num_tris  = num_cubes * sizeof(connectivity)
+                                       / (3 * sizeof(int));
   const unsigned num_surfs = num_tris / tris_per_surf;
   EntityHandle verts[num_verts], tris[num_tris], surfs[num_surfs];
 
@@ -284,7 +287,7 @@ ErrorCode overlap_write_geometry(const char* output_file_name) {
   return MB_SUCCESS;
 }
 
-static bool run_test(std::string name, int argc, char* argv[]) {
+static bool run_test(const std::string& name, int argc, char* argv[]) {
   if (argc == 1)
     return true;
   for (int i = 1; i < argc; ++i)
@@ -293,14 +296,14 @@ static bool run_test(std::string name, int argc, char* argv[]) {
   return false;
 }
 
-#define RUN_TEST(A) do { \
-    if (run_test( #A, argc, argv )) { \
+#define RUN_TEST(A) { \
+    if (run_test(#A, argc, argv)) { \
       std::cout << #A << "... " << std::endl; \
-      if (MB_SUCCESS != A ( dagmc ) ) { \
+      if (MB_SUCCESS != A(dagmc)) { \
         ++errors; \
       } \
     } \
-  } while(false)
+  }
 
 int main(int argc, char* argv[]) {
   ErrorCode rval;
@@ -322,7 +325,6 @@ int main(int argc, char* argv[]) {
   DagMC* dagmc = new DagMC();
 
   int errors = 0;
-  //rval = dagmc.moab_instance()->load_file( filename );
   rval = dagmc->load_file(filename);
   remove(filename);
   if (MB_SUCCESS != rval) {
@@ -365,7 +367,6 @@ int main(int argc, char* argv[]) {
   delete dagmc;
 
   dagmc = new DagMC();
-  //  rval = dagmc->moab_instance()->load_file( filename );
   rval = dagmc->load_file(filename);
   remove(filename);
   if (MB_SUCCESS != rval) {
@@ -377,7 +378,8 @@ int main(int argc, char* argv[]) {
     std::cerr << "Failed to initialize DagMC with overlaps." << std::endl;
     return 2;
   }
-  // change settings to use overlap-tolerant mode (with a large enough thickness)
+  // change settings to use overlap-tolerant mode
+  // (with a large enough thickness)
   overlap_thickness = 3;
   dagmc->set_overlap_thickness(overlap_thickness);
   RUN_TEST(overlap_test_ray_fire);
@@ -405,18 +407,22 @@ ErrorCode test_surface_sense(DagMC* dagmc) {
   Tag dim_tag = dagmc->geom_tag();
   Range surfs, vols;
   const int two = 2, three = 3;
-  const void* ptrs[] = { &two, &three };
-  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs, 1, surfs);
+  const void* ptrs[] = {&two, &three};
+  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs, 1,
+                                            surfs);
   CHKERR;
-  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs + 1, 1, vols);
+  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs + 1,
+                                            1, vols);
   CHKERR;
 
   if (vols.size() != 2) {
-    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size()
+              << std::endl;
     return MB_FAILURE;
   }
   if (surfs.size() != 6) {
-    std::cerr << "ERROR: Expected 6 surfaces in input, found " << surfs.size() << std::endl;
+    std::cerr << "ERROR: Expected 6 surfaces in input, found " << surfs.size()
+              << std::endl;
     return MB_FAILURE;
   }
 
@@ -424,7 +430,8 @@ ErrorCode test_surface_sense(DagMC* dagmc) {
     int sense = 0;
     rval = dagmc->surface_sense(vols.front(), 1, &*i, &sense);
     if (MB_SUCCESS != rval || sense != 1) {
-      std::cerr << "ERROR: Expected 1 for surface sense, got " << sense << std::endl;
+      std::cerr << "ERROR: Expected 1 for surface sense, got " << sense
+                << std::endl;
       return MB_FAILURE;
     }
   }
@@ -462,7 +469,8 @@ ErrorCode overlap_test_surface_sense(DagMC* dagmc) {
     int sense = 0;
     rval = dagmc->surface_sense(vols.front(), 1, &*i, &sense);
     if (MB_SUCCESS != rval || sense != 1) {
-      std::cerr << "ERROR: Expected 1 for surface sense, got " << sense << std::endl;
+      std::cerr << "ERROR: Expected 1 for surface sense, got " << sense
+                << std::endl;
       return MB_FAILURE;
     }
   }
@@ -477,11 +485,13 @@ ErrorCode test_measure_volume(DagMC* dagmc) {
   Range vols;
   const int three = 3;
   const void* ptr = &three;
-  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, &ptr, 1, vols);
+  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, &ptr, 1,
+                                            vols);
   CHKERR;
 
   if (vols.size() != 2) {
-    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size()
+              << std::endl;
     return MB_FAILURE;
   }
 
@@ -493,7 +503,8 @@ ErrorCode test_measure_volume(DagMC* dagmc) {
   rval = dagmc->measure_volume(vols.front(), result);
   CHKERR;
   if (fabs(result - vol) > 10 * std::numeric_limits<double>::epsilon()) {
-    std::cerr << "ERROR: Expected " << vol << " as measure of volume, got " << result << std::endl;
+    std::cerr << "ERROR: Expected " << vol << " as measure of volume, got "
+              << result << std::endl;
     return MB_FAILURE;
   }
 
@@ -540,7 +551,8 @@ ErrorCode test_measure_area(DagMC* dagmc) {
   Range surfs;
   const int two = 2;
   const void* ptr = &two;
-  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, &ptr, 1, surfs);
+  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, &ptr, 1,
+                                            surfs);
   CHKERR;
 
   if (surfs.size() != 6) {
@@ -661,17 +673,21 @@ ErrorCode test_ray_fire(DagMC* dagmc) {
   Range surfs, vols;
   const int two = 2, three = 3;
   const void* ptrs[] = { &two, &three };
-  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs, 1, surfs);
+  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs, 1,
+                                            surfs);
   CHKERR;
-  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs + 1, 1, vols);
+  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, ptrs + 1,
+                                            1, vols);
   CHKERR;
 
   if (vols.size() != 2) {
-    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size()
+              << std::endl;
     return MB_FAILURE;
   }
   if (surfs.size() != 6) {
-    std::cerr << "ERROR: Expected 6 surfaces in input, found " << surfs.size() << std::endl;
+    std::cerr << "ERROR: Expected 6 surfaces in input, found " << surfs.size()
+              << std::endl;
     return MB_FAILURE;
   }
 
@@ -686,15 +702,16 @@ ErrorCode test_ray_fire(DagMC* dagmc) {
     int* ptr = std::find(ids, ids + 6, tests[i].prev_surf);
     int idx = ptr - ids;
     if (idx >= 6) {
-      std::cerr << "Surface " << tests[i].prev_surf << " not found." << std::endl;
+      std::cerr << "Surface " << tests[i].prev_surf << " not found."
+                << std::endl;
       return MB_FAILURE;
     }
-    //const EntityHandle src_surf = surf[idx];
 
     ptr = std::find(ids, ids + 6, tests[i].hit_surf);
     idx = ptr - ids;
     if (idx >= 6) {
-      std::cerr << "Surface " << tests[i].hit_surf << " not found." << std::endl;
+      std::cerr << "Surface " << tests[i].hit_surf << " not found."
+                << std::endl;
       return MB_FAILURE;
     }
     const EntityHandle hit_surf = surf[idx];
@@ -719,14 +736,15 @@ ErrorCode test_ray_fire(DagMC* dagmc) {
                 << tests[i].direction[1] << ", "
                 << tests[i].direction[2] << "]" << std::endl
                 << "\t Beginning on surface " << tests[i].prev_surf << std::endl
-                << "\t Expected to hit surface " << tests[i].hit_surf << " after "
-                << tests[i].distance << " units." << std::endl
-                << "\t Actually hit surface " << id << " after " << dist << " units."
-                << std::endl;
+                << "\t Expected to hit surface " << tests[i].hit_surf
+                << " after " << tests[i].distance << " units." << std::endl
+                << "\t Actually hit surface " << id << " after " << dist
+                << " units." << std::endl;
       return MB_FAILURE;
     }
 
-    CartVect loc = CartVect(tests[i].origin) + (dist * CartVect(tests[i].direction));
+    CartVect loc = CartVect(tests[i].origin)
+                   + (dist * CartVect(tests[i].direction));
 
     std::vector< std::pair<int, DagMC::RayHistory*> > boundary_tests;
     boundary_tests.push_back(std::make_pair(1, &history));
@@ -736,12 +754,12 @@ ErrorCode test_ray_fire(DagMC* dagmc) {
 
 
     for (unsigned int bt = 0; bt < boundary_tests.size(); ++bt) {
-
       int expected = boundary_tests[bt].first;
       DagMC::RayHistory* h = boundary_tests[bt].second;
 
-      // pick the direction based on expected result of test. Either reuse the ray_fire
-      // vector, or reverse it to check for a vector that enters the cell
+      // pick the direction based on expected result of test. Either reuse the
+      // ray_fire vector, or reverse it to check for a vector that enters the
+      // cell
       CartVect uvw(tests[i].direction);
       if (expected == 1)
         uvw = -uvw;
@@ -753,14 +771,13 @@ ErrorCode test_ray_fire(DagMC* dagmc) {
 
 
       if (boundary_result != expected) {
-        std::cerr << "DagMC::test_volume_boundary failed (" << ((expected == 0) ? "+" : "-")
-                  << " dir," << ((h) ? "+" : "-") << " history, i=" << i << ")" <<  std::endl;
+        std::cerr << "DagMC::test_volume_boundary failed ("
+                  << ((expected == 0) ? "+" : "-")
+                  << " dir," << ((h) ? "+" : "-") << " history, i=" << i << ")"
+                  << std::endl;
         return MB_FAILURE;
       }
-
     }
-
-
   }
 
   return MB_SUCCESS;
@@ -843,15 +860,16 @@ ErrorCode overlap_test_ray_fire(DagMC* dagmc) {
     int* ptr = std::find(ids, ids + num_surf, tests[i].prev_surf);
     unsigned idx = ptr - ids;
     if (idx >= num_surf) {
-      std::cerr << "Surface " << tests[i].prev_surf << " not found." << std::endl;
+      std::cerr << "Surface " << tests[i].prev_surf << " not found."
+                << std::endl;
       return MB_FAILURE;
     }
-    //const EntityHandle src_surf = surf[idx];
 
     ptr = std::find(ids, ids + num_surf, tests[i].hit_surf);
     idx = ptr - ids;
     if (idx >= num_surf) {
-      std::cerr << "Surface " << tests[i].hit_surf << " not found." << std::endl;
+      std::cerr << "Surface " << tests[i].hit_surf << " not found."
+                << std::endl;
       return MB_FAILURE;
     }
     const EntityHandle hit_surf = surf[idx];
@@ -875,10 +893,10 @@ ErrorCode overlap_test_ray_fire(DagMC* dagmc) {
                 << tests[i].direction[1] << ", "
                 << tests[i].direction[2] << "]" << std::endl
                 << "\t Beginning on surface " << tests[i].prev_surf << std::endl
-                << "\t Expected to hit surface " << tests[i].hit_surf << " after "
-                << tests[i].distance << " units." << std::endl
-                << "\t Actually hit surface " << id << " after " << dist << " units."
-                << std::endl;
+                << "\t Expected to hit surface " << tests[i].hit_surf
+                << " after " << tests[i].distance << " units." << std::endl
+                << "\t Actually hit surface " << id << " after " << dist
+                << " units." << std::endl;
       return MB_FAILURE;
     }
   }
@@ -915,12 +933,6 @@ ErrorCode test_point_in_volume(DagMC* dagmc) {
     { { 0.5, -0.5, -2.0 }, OUTSIDE, { 0.0, 0.0, 1.0} }
   };
 
-  //    { { 1.0, 0.0, 0.0 }, BOUNDARY}, MCNP doesn't return on boundary
-  //{ {-1.0, 0.0, 0.0 }, BOUNDARY},
-  //{ { 0.0, 1.0, 0.0 }, BOUNDARY},
-  //{ { 0.0,-1.0, 0.0 }, BOUNDARY},
-  //{ { 0.0, 0.0, 0.0 }, BOUNDARY},
-  //{ { 0.0, 0.0,-1.0 }, BOUNDARY} };
   const int num_test = sizeof(tests) / sizeof(tests[0]);
 
   ErrorCode rval;
@@ -931,10 +943,12 @@ ErrorCode test_point_in_volume(DagMC* dagmc) {
   Range vols;
   const int three = 3;
   const void* ptr = &three;
-  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, &ptr, 1, vols);
+  rval = moab->get_entities_by_type_and_tag(0, MBENTITYSET, &dim_tag, &ptr, 1,
+                                            vols);
   CHKERR;
   if (vols.size() != 2) {
-    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size() << std::endl;
+    std::cerr << "ERROR: Expected 2 volumes in input, found " << vols.size()
+              << std::endl;
     return MB_FAILURE;
   }
   const EntityHandle vol = vols.front();
@@ -961,7 +975,8 @@ ErrorCode test_point_in_volume(DagMC* dagmc) {
     CHKERR;
 
     if (result != tests[i].result) {
-      std::cerr << "ERROR testing point_in_volume_slow[" << i << "]:" << std::endl
+      std::cerr << "ERROR testing point_in_volume_slow[" << i << "]:"
+                << std::endl
                 << "\tExpected " << names[tests[i].result]
                 << " for (" << tests[i].coords[0] << ", "
                 << tests[i].coords[1] << ", " << tests[i].coords[2]
@@ -1046,7 +1061,8 @@ ErrorCode overlap_test_point_in_volume(DagMC* dagmc) {
     CHKERR;
 
     if (result != tests[i].result) {
-      std::cerr << "ERROR testing point_in_volume_slow[" << i << "]:" << std::endl
+      std::cerr << "ERROR testing point_in_volume_slow[" << i << "]:"
+                << std::endl
                 << "\tExpected " << names[tests[i].result]
                 << " for (" << tests[i].coords[0] << ", "
                 << tests[i].coords[1] << ", " << tests[i].coords[2]
@@ -1100,7 +1116,7 @@ ErrorCode overlap_test_tracking(DagMC* dagmc) {
   const double dir[] = { 1, 0, 0 };
   EntityHandle vol = explicit_vol;
   int result;
-  const int INSIDE = 1; // OUTSIDE = 0, BOUNDARY = -1;
+  const int INSIDE = 1;  // OUTSIDE = 0, BOUNDARY = -1;
   rval = dagmc->point_in_volume(explicit_vol, point, result, dir);
   CHKERR;
   if (result != INSIDE) {
