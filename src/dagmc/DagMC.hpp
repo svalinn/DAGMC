@@ -3,9 +3,11 @@
 
 #include <assert.h>
 
-#include <vector>
 #include <map>
+#include <memory>
+#include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "MBTagConventions.hpp"
 #include "moab/CartVect.hpp"
@@ -18,12 +20,6 @@
 #include "moab/GeomQueryTool.hpp"
 #include "DagMCVersion.hpp"
 
-#include <assert.h>
-#include <map>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
 class RefEntity;
 
@@ -35,6 +31,10 @@ struct DagmcVolData {
 
 
 namespace moab {
+
+static const int surfs_handle_idx = 2;
+static const int vols_handle_idx = 3;
+static const int groups_handle_idx = 4;
 
 class CartVect;
 
@@ -65,10 +65,14 @@ class CartVect;
 class DagMC {
  public:
   // Constructor
-  DagMC(std::shared_ptr<Interface> mb_impl = nullptr, double overlap_tolerance = 0., double numerical_precision = .001);
+  DagMC(std::shared_ptr<Interface> mb_impl = nullptr,
+        double overlap_tolerance = 0., double numerical_precision = .001);
+
   // Deprecated Constructor
-  [[ deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... )") ]]
-  DagMC(Interface* mb_impl, double overlap_tolerance = 0., double numerical_precision = .001);
+  [[ deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl ... )") ]]
+  DagMC(Interface* mb_impl, double overlap_tolerance = 0.,
+        double numerical_precision = .001);
+
   // Destructor
   ~DagMC();
 
@@ -94,7 +98,7 @@ class DagMC {
    *
    * 1) The file is loaded and when we query the meshset, we find entities with the OBB_TREE tag
    * 2) The OBBTreeTool assumes that any children of the entity being queried in a ray intersect sets
-   *     operation are fair game, the surface meshsets have triangles as members, but OBB's as children
+   *     operation are fair game, the surface meshsets have triangles as members, but OBBs as children
    *     but no querying is done, just assumptions that the tags exist.
    */
   ErrorCode load_file(const char* cfile);
@@ -230,7 +234,7 @@ class DagMC {
 
  private:
   /** build internal index vectors that speed up handle-by-id, etc. */
-  ErrorCode build_indices(Range& surfs, Range& vols);
+  ErrorCode build_indices(const Range& surfs, const Range& vols);
 
 
   /* SECTION IV: Handling DagMC settings */
@@ -242,7 +246,8 @@ class DagMC {
   /** retrieve faceting tolerance */
   double faceting_tolerance() { return facetingTolerance; }
 
-  /** Attempt to set a new overlap thickness tolerance, first checking for sanity */
+  /** Attempt to set a new overlap thickness tolerance, first checking for
+    sanity */
   void set_overlap_thickness(double new_overlap_thickness);
 
   /** Attempt to set a new numerical precision , first checking for sanity
@@ -318,7 +323,8 @@ class DagMC {
    *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
    *          MOAB, or MB_SUCCESS if succesful
    */
-  ErrorCode get_all_prop_values(const std::string& prop, std::vector<std::string>& return_list);
+  ErrorCode get_all_prop_values(const std::string& prop,
+                                std::vector<std::string>& return_list);
 
   /** Get a list of all entities which have a given property
    *
@@ -330,8 +336,10 @@ class DagMC {
    *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
    *          MOAB, or MB_SUCCESS if successful
    */
-  ErrorCode entities_by_property(const std::string& prop, std::vector<EntityHandle>& return_list,
-                                 int dimension = 0, const std::string* value = NULL);
+  ErrorCode entities_by_property(const std::string& prop,
+                                 std::vector<EntityHandle>& return_list,
+                                 int dimension = 0,
+                                 const std::string* value = NULL);
 
   bool is_implicit_complement(EntityHandle volume);
 
@@ -359,16 +367,20 @@ class DagMC {
   /** Store the name of a group in a string */
   ErrorCode get_group_name(EntityHandle group_set, std::string& name);
   /** Parse a group name into a set of key:value pairs */
-  ErrorCode parse_group_name(EntityHandle group_set, prop_map& result, const char* delimiters = "_");
+  ErrorCode parse_group_name(EntityHandle group_set, prop_map& result,
+                             const char* delimiters = "_");
   /** Add a string value to a property tag for a given entity */
   ErrorCode append_packed_string(Tag, EntityHandle, std::string&);
   /** Convert a property tag's value on a handle to a list of strings */
   ErrorCode unpack_packed_string(Tag tag, EntityHandle eh,
                                  std::vector< std::string >& values);
 
-  std::vector<EntityHandle>& surf_handles() {return entHandles[2];}
-  std::vector<EntityHandle>& vol_handles() {return entHandles[3];}
-  std::vector<EntityHandle>& group_handles() {return entHandles[4];}
+  std::vector<EntityHandle>& surf_handles()
+    {return entHandles[surfs_handle_idx];}
+  std::vector<EntityHandle>& vol_handles()
+    {return entHandles[vols_handle_idx];}
+  std::vector<EntityHandle>& group_handles()
+  {return entHandles[groups_handle_idx];}
 
   Tag get_tag(const char* name, int size, TagType store, DataType type,
               const void* def_value = NULL, bool create_if_missing = true);
@@ -405,8 +417,8 @@ class DagMC {
 
   // Shared_ptr owning *MBI (if allocated internally)
   std::shared_ptr<Interface> MBI_shared_ptr;
-  // Use for the call to MOAB interface, should never be deleted in the DagMC instanced
-  // MBI is either externally owned or owned by the MBI_shared_ptr
+  // Use for the call to MOAB interface, should never be deleted in the DagMC
+  // instanced MBI is either externally owned or owned by the MBI_shared_ptr
   Interface* MBI;
   bool moab_instance_created;
 
@@ -442,7 +454,7 @@ class DagMC {
 };
 
 inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
-  assert(2 <= dimension && 3 >= dimension
+  assert(vols_handle_idx <= dimension && groups_handle_idx >= dimension
                         && (unsigned) index < entHandles[dimension].size());
   return entHandles[dimension][index];
 }
@@ -453,7 +465,7 @@ inline int DagMC::index_by_handle(EntityHandle handle) {
 }
 
 inline unsigned int DagMC::num_entities(int dimension) {
-  assert(0 <= dimension && 3 >= dimension);
+  assert(0 <= dimension && groups_handle_idx >= dimension);
   return entHandles[dimension].size() - 1;
 }
 

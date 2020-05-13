@@ -40,7 +40,8 @@ const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
-DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
+DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl,
+             double overlap_tolerance,
              double p_numerical_precision) {
   moab_instance_created = false;
   // if we arent handed a moab instance create one
@@ -55,13 +56,17 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
 
   // make new GeomTopoTool and GeomQueryTool
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
-  GQT = std::unique_ptr<GeomQueryTool>(new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
+  GQT = std::unique_ptr<GeomQueryTool>(
+            new GeomQueryTool(GTT.get(), overlap_tolerance,
+                              p_numerical_precision));
 
-  // This is the correct place to uniquely define default values for the dagmc settings
+  // This is the correct place to uniquely define default values for the dagmc
+  // settings
   defaultFacetingTolerance = .001;
 }
 
-DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_precision) {
+DagMC::DagMC(Interface* mb_impl, double overlap_tolerance,
+             double p_numerical_precision) {
   moab_instance_created = false;
   // set the internal moab pointer
   MBI = mb_impl;
@@ -69,7 +74,9 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 
   // make new GeomTopoTool and GeomQueryTool
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
-  GQT = std::unique_ptr<GeomQueryTool>(new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
+  GQT = std::unique_ptr<GeomQueryTool>(
+            new GeomQueryTool(GTT.get(), overlap_tolerance,
+                              p_numerical_precision));
 
   // This is the correct place to uniquely define default values for the dagmc
   // settings
@@ -78,7 +85,6 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 
 // Destructor
 DagMC::~DagMC() {
-
   // if we created the moab instance
   // clear it
   if (moab_instance_created) {
@@ -395,7 +401,7 @@ int DagMC::get_entity_id(EntityHandle this_ent) {
   return GTT->global_id(this_ent);
 }
 
-ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
+ErrorCode DagMC::build_indices(const Range& surfs, const Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
   // surf/vol offsets are just first handles
@@ -562,7 +568,7 @@ ErrorCode DagMC::append_packed_string(Tag tag, EntityHandle eh,
 
   // append a new value for the property to the existing property string
   unsigned int tail_len = new_string.length() + 1;
-  int new_len = new_string.length() + len + tail_len +1;
+  int new_len = new_string.length() + len + 1;
 
   char* new_packed_string = new char[ new_len ];
   memcpy(new_packed_string, str, len);
@@ -657,8 +663,8 @@ ErrorCode DagMC::parse_properties(const std::vector<std::string>& keywords,
         const unsigned int groupsize = grp_sets.size();
         for (unsigned int j = 0; j < groupsize; ++j) {
           rval = append_packed_string(proptag, grp_sets[j], groupval);
-          if (MB_SUCCESS != rval)
-            return rval;
+           if (MB_SUCCESS != rval)
+             return rval;
         }
       }
     }
