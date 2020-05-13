@@ -496,7 +496,8 @@ ErrorCode DagMC::get_group_name(EntityHandle group_set, std::string& name) {
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::parse_group_name(EntityHandle group_set, prop_map& result, const char* delimiters) {
+ErrorCode DagMC::parse_group_name(EntityHandle group_set, prop_map& result,
+                                  const char* delimiters) {
   ErrorCode rval;
   std::string group_name;
   rval = get_group_name(group_set, group_name);
@@ -518,7 +519,8 @@ ErrorCode DagMC::parse_group_name(EntityHandle group_set, prop_map& result, cons
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::detect_available_props(std::vector<std::string>& keywords_list, const char* delimiters) {
+ErrorCode DagMC::detect_available_props(std::vector<std::string>& keywords_list,
+                                        const char* delimiters) {
   ErrorCode rval;
   std::set< std::string > keywords;
   for (std::vector<EntityHandle>::const_iterator grp = group_handles().begin();
@@ -541,8 +543,8 @@ ErrorCode DagMC::detect_available_props(std::vector<std::string>& keywords_list,
 
 ErrorCode DagMC::append_packed_string(Tag tag, EntityHandle eh,
                                       std::string& new_string) {
-  // When properties have multiple values, the values are tagged in a single character array
-  // with the different values separated by null characters
+  // When properties have multiple values, the values are tagged in a single
+  // character array with the different values separated by null characters
   ErrorCode rval;
   const void* p;
   const char* str;
@@ -552,19 +554,20 @@ ErrorCode DagMC::append_packed_string(Tag tag, EntityHandle eh,
     // This is the first entry, and can be set directly
     p = new_string.c_str();
     return MBI->tag_clear_data(tag, &eh, 1, p, new_string.length() + 1);
-  } else if (rval != MB_SUCCESS)
+  } else if (rval != MB_SUCCESS) {
     return rval;
-  else {
+  } else {
     str = static_cast<const char*>(p);
   }
 
   // append a new value for the property to the existing property string
   unsigned int tail_len = new_string.length() + 1;
-  char* new_packed_string = new char[ len + tail_len ];
+  int new_len = new_string.length() + len + tail_len +1;
+
+  char* new_packed_string = new char[ new_len ];
   memcpy(new_packed_string, str, len);
   memcpy(new_packed_string + len, new_string.c_str(), tail_len);
 
-  int new_len = len + tail_len;
   p = new_packed_string;
   rval = MBI->tag_set_by_ptr(tag, &eh, 1, &p, &new_len);
   delete[] new_packed_string;
@@ -591,11 +594,13 @@ ErrorCode DagMC::unpack_packed_string(Tag tag, EntityHandle eh,
 }
 
 ErrorCode DagMC::parse_properties(const std::vector<std::string>& keywords,
-                                  const std::map<std::string, std::string>& keyword_synonyms,
+                                  const std::map<std::string,
+                                  std::string>& keyword_synonyms,
                                   const char* delimiters) {
   ErrorCode rval;
 
-  // master keyword map, mapping user-set words in cubit to canonical property names
+  // master keyword map, mapping user-set words in cubit to canonical property
+  // names
   std::map< std::string, std::string > keyword_map(keyword_synonyms);
 
   for (std::vector<std::string>::const_iterator i = keywords.begin();
@@ -624,10 +629,10 @@ ErrorCode DagMC::parse_properties(const std::vector<std::string>& keywords,
     property_tagmap[(*i)] = new_tag;
   }
 
-  // now that the keywords and tags are ready, iterate over all the actual geometry groups
+  // now that the keywords and tags are ready, iterate over all the actual
+  // geometry groups
   for (std::vector<EntityHandle>::iterator grp = group_handles().begin();
        grp != group_handles().end(); ++grp) {
-
     prop_map properties;
     rval = parse_group_name(*grp, properties, delimiters);
     if (rval == MB_TAG_NOT_FOUND)
@@ -652,6 +657,8 @@ ErrorCode DagMC::parse_properties(const std::vector<std::string>& keywords,
         const unsigned int groupsize = grp_sets.size();
         for (unsigned int j = 0; j < groupsize; ++j) {
           rval = append_packed_string(proptag, grp_sets[j], groupval);
+          if (MB_SUCCESS != rval)
+            return rval;
         }
       }
     }
@@ -659,7 +666,8 @@ ErrorCode DagMC::parse_properties(const std::vector<std::string>& keywords,
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::prop_value(EntityHandle eh, const std::string& prop, std::string& value) {
+ErrorCode DagMC::prop_value(EntityHandle eh, const std::string& prop,
+                            std::string& value) {
   ErrorCode rval;
 
   std::map<std::string, Tag>::iterator it = property_tagmap.find(prop);
@@ -680,7 +688,6 @@ ErrorCode DagMC::prop_value(EntityHandle eh, const std::string& prop, std::strin
 
 ErrorCode DagMC::prop_values(EntityHandle eh, const std::string& prop,
                              std::vector< std::string >& values) {
-
   std::map<std::string, Tag>::iterator it = property_tagmap.find(prop);
   if (it == property_tagmap.end()) {
     return MB_TAG_NOT_FOUND;
@@ -688,7 +695,6 @@ ErrorCode DagMC::prop_values(EntityHandle eh, const std::string& prop,
   Tag proptag = (*it).second;
 
   return unpack_packed_string(proptag, eh, values);
-
 }
 
 bool DagMC::has_prop(EntityHandle eh, const std::string& prop) {
@@ -705,11 +711,11 @@ bool DagMC::has_prop(EntityHandle eh, const std::string& prop) {
 
   rval = MBI->tag_get_by_ptr(proptag, &eh, 1, &data, &ignored);
   return (rval == MB_SUCCESS);
-
 }
 
 
-ErrorCode DagMC::get_all_prop_values(const std::string& prop, std::vector<std::string>& return_list) {
+ErrorCode DagMC::get_all_prop_values(const std::string& prop,
+                                     std::vector<std::string>& return_list) {
   ErrorCode rval;
   std::map<std::string, Tag>::iterator it = property_tagmap.find(prop);
   if (it == property_tagmap.end()) {
@@ -718,7 +724,8 @@ ErrorCode DagMC::get_all_prop_values(const std::string& prop, std::vector<std::s
   Tag proptag = (*it).second;
   Range all_ents;
 
-  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &proptag, NULL, 1, all_ents);
+  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &proptag, NULL, 1,
+                                           all_ents);
   if (MB_SUCCESS != rval)
     return rval;
 
@@ -735,7 +742,8 @@ ErrorCode DagMC::get_all_prop_values(const std::string& prop, std::vector<std::s
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::entities_by_property(const std::string& prop, std::vector<EntityHandle>& return_list,
+ErrorCode DagMC::entities_by_property(const std::string& prop,
+                                      std::vector<EntityHandle>& return_list,
                                       int dimension, const std::string* value) {
   ErrorCode rval;
   std::map<std::string, Tag>::iterator it = property_tagmap.find(prop);
@@ -750,7 +758,8 @@ ErrorCode DagMC::entities_by_property(const std::string& prop, std::vector<Entit
   // of this tag.
   Tag tags[2] = {proptag, GTT->get_geom_tag()};
   void* vals[2] = {NULL, (dimension != 0) ? &dimension : NULL };
-  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, tags, vals, 2, all_ents);
+  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, tags, vals, 2,
+                                           all_ents);
   if (MB_SUCCESS != rval)
     return rval;
 
@@ -782,9 +791,9 @@ void DagMC::tokenize(const std::string& str,
                      const char* delimiters) const {
   std::string::size_type last = str.find_first_not_of(delimiters, 0);
   std::string::size_type pos  = str.find_first_of(delimiters, last);
-  if (std::string::npos == pos)
+  if (std::string::npos == pos) {
     tokens.push_back(str);
-  else
+  } else {
     while (std::string::npos != pos && std::string::npos != last) {
       tokens.push_back(str.substr(last, pos - last));
       last = str.find_first_not_of(delimiters, pos);
@@ -792,6 +801,7 @@ void DagMC::tokenize(const std::string& str,
       if (std::string::npos == pos)
         pos = str.size();
     }
+  }
 }
 
 Tag DagMC::get_tag(const char* name, int size, TagType store,
@@ -805,12 +815,12 @@ Tag DagMC::get_tag(const char* name, int size, TagType store,
   // in place.  -- j.kraftcheck.
   if (!create_if_missing)
     flags |= MB_TAG_EXCL;
-  ErrorCode result = MBI->tag_get_handle(name, size, type, retval, flags, def_value);
+  ErrorCode result = MBI->tag_get_handle(name, size, type, retval, flags,
+                                         def_value);
   if (create_if_missing && MB_SUCCESS != result)
     std::cerr << "Couldn't find nor create tag named " << name << std::endl;
 
   return retval;
 }
 
-
-} // namespace moab
+}  // namespace moab
