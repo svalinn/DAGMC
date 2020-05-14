@@ -47,7 +47,12 @@ script:
 
 jobs:
   fast_finish: true
+  fail_fast: true
   include:
+    - stage: housekeeping
+      env: UBUNTU_VERSION=18.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
+      install: skip # install is not required for house keeping
+      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
     - env: UBUNTU_VERSION=16.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
     - env: UBUNTU_VERSION=16.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
     - env: UBUNTU_VERSION=18.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
@@ -68,10 +73,6 @@ jobs:
       if: type != pull_request
     - env: UBUNTU_VERSION=18.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=develop
       if: type != pull_request
-    - stage: housekeeping
-      env: UBUNTU_VERSION=18.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
-      install: skip # install is not required for house keeping
-      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
   allow_failures:
     - env: UBUNTU_VERSION=16.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=master
     - env: UBUNTU_VERSION=16.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=master
