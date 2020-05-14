@@ -3,7 +3,6 @@
 # DAGMC source code already exists because it was copied into
 # the docker image by travis.yml
 
-
 set -ex
 
 source ${docker_env}

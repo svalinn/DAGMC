@@ -53,6 +53,7 @@ jobs:
       env: UBUNTU_VERSION=18.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
       install: skip # install is not required for house keeping
       script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
+      if: type = pull_request
     - stage: Tests
       env: UBUNTU_VERSION=16.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
     - env: UBUNTU_VERSION=16.04 COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
