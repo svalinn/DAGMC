@@ -12,7 +12,7 @@ before_install:
   # Set some local variables
   - docker_image=svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
   - dagmc_build_dir=/root/build/${COMPILER}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
-  - script_dir=${dagmc_build_dir}/DAGMC/scripts
+  - script_dir=${dagmc_build_dir}/DAGMC/CI
   - docker_env=${script_dir}/env.sh
   - travis_env=~/travis_env
   # Create a file which contains variables needed by Docker
