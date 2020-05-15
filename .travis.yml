@@ -36,14 +36,14 @@ before_install:
 
 install:
   # Build and install DAGMC
-  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.install.sh";
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis/install.sh";
   # Commit change in the container
   - container_id=$(docker ps -lq | tail -n1)
   - docker commit ${container_id} ${docker_image}
 
 script:
   # Run tests
-  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.tests.sh";
+  - docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis/tests.sh";
 
 jobs:
   fast_finish: true
@@ -52,7 +52,7 @@ jobs:
     - stage: Housekeeping
       env: UBUNTU_VERSION=18.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0
       install: skip # install is not required for house keeping
-      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis.housekeeping.sh";
+      script: docker run --env-file ${travis_env} ${docker_image} /bin/bash -c "${script_dir}/travis/housekeeping.sh";
       if: type = pull_request
     - stage: Tests
       env: UBUNTU_VERSION=16.04 COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0

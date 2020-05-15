@@ -18,15 +18,15 @@ RUN apt-get -y update; \
 
 # Copy scripts to docker image
 RUN mkdir -p /root/etc/
-COPY CI/docker.build_hdf5.sh CI/docker.build_geant4.sh CI/docker.build_moab.sh CI/env.sh /root/etc/
-ENV docker_env=/root/etc/env.sh
+COPY CI/ /root/etc/CI
+ENV docker_env=/root/etc/CI/env.sh
 
 # Build HDF5 then Geant4 then MOAB 5.1.0
-RUN COMPILER=gcc   HDF5_VERSION=1.10.4 /root/etc/docker.build_hdf5.sh; \
-    COMPILER=clang HDF5_VERSION=1.10.4 /root/etc/docker.build_hdf5.sh; \
-    COMPILER=gcc   /root/etc/docker.build_geant4.sh; \
-    COMPILER=clang /root/etc/docker.build_geant4.sh; \
-    COMPILER=gcc   HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/docker.build_moab.sh; \
-    COMPILER=clang HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/docker.build_moab.sh; \
-    COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/docker.build_moab.sh; \
-    COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/docker.build_moab.sh
+RUN COMPILER=gcc   HDF5_VERSION=1.10.4 /root/etc/CI/docker/build_hdf5.sh; \
+    COMPILER=clang HDF5_VERSION=1.10.4 /root/etc/CI/docker/build_hdf5.sh; \
+    COMPILER=gcc   /root/etc/CI/docker/build_geant4.sh; \
+    COMPILER=clang /root/etc/CI/docker/build_geant4.sh; \
+    COMPILER=gcc   HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/CI/docker/build_moab.sh; \
+    COMPILER=clang HDF5_VERSION=system MOAB_VERSION=5.1.0 /root/etc/CI/docker/build_moab.sh; \
+    COMPILER=gcc   HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/CI/docker/build_moab.sh; \
+    COMPILER=clang HDF5_VERSION=1.10.4 MOAB_VERSION=5.1.0 /root/etc/CI/docker/build_moab.sh

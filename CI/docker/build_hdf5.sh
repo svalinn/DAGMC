@@ -16,7 +16,7 @@ cd ${hdf5_build_dir}
 
 wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION_major}/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.gz
 tar_chashum=$(sha256sum hdf5-${HDF5_VERSION}.tar.gz | cut -d' ' -f1)
-if [ $hdf5_shasum != $tar_chashum ]; then
+if [ $hdf5_1_10_4_shasum != $tar_chashum ]; then
     echo "Bad shasum for hdf5 tar!"
     exit 1
 fi
