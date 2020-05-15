@@ -1,6 +1,6 @@
 find_path(FLUKA_LIBRARIES
-  NAMES libflukahp.a
-  HINTS ${FLUKA_DIR}
+  NAMES libfluka.a
+  HINTS ${FLUKA_DIR} ${FLUKA_DIR}/lib
   PATHS ENV FLUKA_DIR
   NO_DEFAULT_PATH
 )
@@ -8,7 +8,7 @@ if (FLUKA_LIBRARIES)
   get_filename_component(FLUKA_LIBRARIES ${FLUKA_LIBRARIES} ABSOLUTE)
 endif ()
 
-set(FLUKA_LIBRARIES ${FLUKA_LIBRARIES}/libflukahp.a gfortran)
+set(FLUKA_LIBRARIES ${FLUKA_LIBRARIES}/libfluka.a gfortran)
 
 message(STATUS "FLUKA_LIBRARIES: ${FLUKA_LIBRARIES}")
 
