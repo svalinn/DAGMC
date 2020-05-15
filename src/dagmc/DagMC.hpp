@@ -30,6 +30,11 @@ struct DagmcVolData {
 
 namespace moab {
 
+static const int surfs_handle_idx = 2;
+static const int vols_handle_idx = 3;
+static const int groups_handle_idx = 4;
+
+
 class CartVect;
 
 /**\brief
@@ -88,7 +93,7 @@ class DagMC {
    *
    * 1) The file is loaded and when we query the meshset, we find entities with the OBB_TREE tag
    * 2) The OBBTreeTool assumes that any children of the entity being queried in a ray intersect sets
-   *     operation are fair game, the surface meshsets have triangles as members, but OBB's as children
+   *     operation are fair game, the surface meshsets have triangles as members, but OBBs as children
    *     but no querying is done, just assumptions that the tags exist.
    */
   ErrorCode load_file(const char* cfile);
@@ -359,9 +364,12 @@ class DagMC {
   ErrorCode unpack_packed_string(Tag tag, EntityHandle eh,
                                  std::vector< std::string >& values);
 
-  std::vector<EntityHandle>& surf_handles() {return entHandles[2];}
-  std::vector<EntityHandle>& vol_handles() {return entHandles[3];}
-  std::vector<EntityHandle>& group_handles() {return entHandles[4];}
+  std::vector<EntityHandle>& surf_handles()
+  {return entHandles[surfs_handle_idx];}
+  std::vector<EntityHandle>& vol_handles()
+  {return entHandles[vols_handle_idx];}
+  std::vector<EntityHandle>& group_handles()
+  {return entHandles[groups_handle_idx];}
 
   Tag get_tag(const char* name, int size, TagType store, DataType type,
               const void* def_value = NULL, bool create_if_missing = true);
@@ -446,7 +454,7 @@ inline int DagMC::index_by_handle(EntityHandle handle) {
 }
 
 inline unsigned int DagMC::num_entities(int dimension) {
-  assert(0 <= dimension && 3 >= dimension);
+  assert(0 <= dimension && groups_handle_idx >= dimension);
   return entHandles[dimension].size() - 1;
 }
 

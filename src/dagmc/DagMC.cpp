@@ -7,6 +7,7 @@
 #include <limits>
 #include <algorithm>
 #include <set>
+#include <climits>
 
 #include <ctype.h>
 #include <string.h>
@@ -20,6 +21,7 @@
 
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
+static const int null_delimiter_length = 1;
 
 namespace moab {
 
@@ -92,15 +94,21 @@ float DagMC::version(std::string* version_string) {
 
 unsigned int DagMC::interface_revision() {
   unsigned int result = 0;
-  const char* interface_string = DAGMC_INTERFACE_REVISION;
-  if (strlen(interface_string) >= 5) {
+  std::string interface_string = DAGMC_INTERFACE_REVISION;
+  if (interface_string.rfind("$Rev:") != std::string::npos) {
     // start looking for the revision number after "$Rev: "
-    result = strtol(interface_string + 5, NULL, 10);
+    char* endptr = NULL;
+    errno = 0;
+    result = strtol(interface_string.c_str() + 5, &endptr, 10);
+    if (endptr == interface_string.c_str() + 5 ||
+        ((result == LONG_MAX || result == LONG_MIN) && errno == ERANGE)) {
+      std::cerr << "Not able to parse revision number" << std::endl;
+      exit(1);
+    }
+    return result;
   }
-  return result;
+  /* SECTION I: Geometry Initialization and problem setup */
 }
-
-/* SECTION I: Geometry Initialization and problem setup */
 
 // the standard DAGMC load file method
 ErrorCode DagMC::load_file(const char* cfile) {
@@ -111,7 +119,12 @@ ErrorCode DagMC::load_file(const char* cfile) {
   char file_ext[4] = "" ; // file extension
 
   // get the last 4 chars of file .i.e .h5m .sat etc
-  memcpy(file_ext, &cfile[strlen(cfile) - 4], 4);
+  if (sizeof(cfile) / sizeof(char) > 4) {
+    memcpy(file_ext, &cfile[strlen(cfile) - 4], 4);
+  } else {
+    std::cerr << "DagMC warning: unhandled file "
+              << "loading options." << std::endl;
+  }
 
   EntityHandle file_set;
   rval = MBI->create_meshset(MESHSET_SET, file_set);
@@ -124,7 +137,7 @@ ErrorCode DagMC::load_file(const char* cfile) {
     // Some options were unhandled; this is common for loading h5m files.
     // Print a warning if an option was unhandled for a file that does not end in '.h5m'
     std::string filename(cfile);
-    if (filename.length() < 4 || filename.substr(filename.length() - 4) != ".h5m") {
+    if (std::string(file_ext) != ".h5m") {
       std::cerr << "DagMC warning: unhandled file loading options." << std::endl;
     }
   } else if (MB_SUCCESS != rval) {
@@ -185,7 +198,8 @@ ErrorCode DagMC::setup_obbs() {
   return MB_SUCCESS;
 }
 
-// setups of the indices for the problem, builds a list of
+// setups of the indices for the problem, builds a list of surface and volumes
+// indices
 ErrorCode DagMC::setup_indices() {
   Range surfs, vols;
   ErrorCode rval = setup_geometry(surfs, vols);
@@ -205,8 +219,6 @@ ErrorCode DagMC::init_OBBTree() {
   MB_CHK_SET_ERR(rval, "GeomTopoTool could not find the geometry sets");
 
   // implicit compliment
-  // EntityHandle implicit_complement;
-  //  rval = GTT->get_implicit_complement(implicit_complement, true);
   rval = setup_impl_compl();
   MB_CHK_SET_ERR(rval, "Failed to setup the implicit compliment");
 
@@ -379,10 +391,21 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
   // surf/vol offsets are just first handles
-  setOffset = std::min(*surfs.begin(), *vols.begin());
+  EntityHandle tmp_offset = 0;
 
-  // max
-  EntityHandle tmp_offset = std::max(surfs.back(), vols.back());
+  if (surfs.size() != 0 && vols.size() != 0) {
+    setOffset = std::min(*surfs.begin(), *vols.begin());
+    tmp_offset = std::max(surfs.back(), vols.back());
+  } else if (0 == surfs.size()) {
+    setOffset = *surfs.begin();
+    tmp_offset = surfs.back();
+  } else if (0 == vols.size()) {
+    setOffset = *vols.begin();
+    tmp_offset = vols.back();
+  } else {
+    std::cout << "Volumes or Surfaces founds" << std::endl;
+    return  MB_ENTITY_NOT_FOUND;
+  }
 
   // set size
   entIndices.resize(tmp_offset - setOffset + 1);
@@ -391,6 +414,9 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   // index by handle lists
   surf_handles().resize(surfs.size() + 1);
   std::vector<EntityHandle>::iterator iter = surf_handles().begin();
+  // MCNP wants a 1-based index but C++ has a 0-based index. So we need to set
+  // the first value to 0 and then start at the next position in the vector
+  // (iter++) thereafter.
   *(iter++) = 0;
   std::copy(surfs.begin(), surfs.end(), iter);
   int idx = 1;
@@ -399,6 +425,10 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
 
   vol_handles().resize(vols.size() + 1);
   iter = vol_handles().begin();
+
+  // MCNP wants a 1-based index but C++ has a 0-based index. So we need to set
+  // the first value to 0 and then start at the next position in the vector
+  // (iter++) thereafter.
   *(iter++) = 0;
   std::copy(vols.begin(), vols.end(), iter);
   idx = 1;
@@ -528,12 +558,13 @@ ErrorCode DagMC::append_packed_string(Tag tag, EntityHandle eh,
   }
 
   // append a new value for the property to the existing property string
-  unsigned int tail_len = new_string.length() + 1;
-  char* new_packed_string = new char[ len + tail_len ];
+  unsigned int tail_len = new_string.length() + null_delimiter_length;
+  int new_len = tail_len + len;
+
+  char* new_packed_string = new char[ new_len ];
   memcpy(new_packed_string, str, len);
   memcpy(new_packed_string + len, new_string.c_str(), tail_len);
 
-  int new_len = len + tail_len;
   p = new_packed_string;
   rval = MBI->tag_set_by_ptr(tag, &eh, 1, &p, &new_len);
   delete[] new_packed_string;
@@ -554,7 +585,7 @@ ErrorCode DagMC::unpack_packed_string(Tag tag, EntityHandle eh,
   while (idx < len) {
     std::string item(str + idx);
     values.push_back(item);
-    idx += item.length() + 1;
+    idx += item.length() + null_delimiter_length;
   }
   return MB_SUCCESS;
 }
@@ -621,6 +652,8 @@ ErrorCode DagMC::parse_properties(const std::vector<std::string>& keywords,
         const unsigned int groupsize = grp_sets.size();
         for (unsigned int j = 0; j < groupsize; ++j) {
           rval = append_packed_string(proptag, grp_sets[j], groupval);
+          if (MB_SUCCESS != rval)
+            return rval;
         }
       }
     }

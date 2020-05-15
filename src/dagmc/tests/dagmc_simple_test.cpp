@@ -218,7 +218,7 @@ TEST_F(DagmcSimpleTest, dagmc_rayfire) {
 }
 
 TEST_F(DagmcSimpleTest, dagmc_closest_to) {
-  const double eps = 1e-6; // epsilon for test, faceting tol?
+  const double eps = 1e-6; // epsilon for test, faceting tolerance
 
   int vol_idx = 1;
   // note model is cube of side 10, centred at 0,0,0, so ray fire along

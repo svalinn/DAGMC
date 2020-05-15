@@ -57,7 +57,7 @@ int dagmc_point_in_vol_dir(double origin[3], double dir[3], int vol_idx) {
   double next_surf_dist;
   EntityHandle next_surf;
 
-  // normalise the vector
+  // normalise the direction vector
   double dir_norm = (dir[0] * dir[0]) + (dir[1] * dir[1]) + (dir[2] * dir[2]);
 
   dir[0] = dir[0] / sqrt(dir_norm);
