@@ -30,6 +30,8 @@ struct DagmcVolData {
 
 namespace moab {
 
+static const int vertex_handle_idx = 0;
+static const int curve_handle_idx = 1;
 static const int surfs_handle_idx = 2;
 static const int vols_handle_idx = 3;
 static const int groups_handle_idx = 4;
@@ -364,12 +366,15 @@ class DagMC {
   ErrorCode unpack_packed_string(Tag tag, EntityHandle eh,
                                  std::vector< std::string >& values);
 
-  std::vector<EntityHandle>& surf_handles()
-  {return entHandles[surfs_handle_idx];}
-  std::vector<EntityHandle>& vol_handles()
-  {return entHandles[vols_handle_idx];}
-  std::vector<EntityHandle>& group_handles()
-  {return entHandles[groups_handle_idx];}
+  std::vector<EntityHandle>& surf_handles() {
+    return entHandles[surfs_handle_idx];
+  }
+  std::vector<EntityHandle>& vol_handles() {
+    return entHandles[vols_handle_idx];
+  }
+  std::vector<EntityHandle>& group_handles() {
+    return entHandles[groups_handle_idx];
+  }
 
   Tag get_tag(const char* name, int size, TagType store, DataType type,
               const void* def_value = NULL, bool create_if_missing = true);
@@ -454,7 +459,7 @@ inline int DagMC::index_by_handle(EntityHandle handle) {
 }
 
 inline unsigned int DagMC::num_entities(int dimension) {
-  assert(0 <= dimension && groups_handle_idx >= dimension);
+  assert(vertex_handle_idx <= dimension && groups_handle_idx >= dimension);
   return entHandles[dimension].size() - 1;
 }
 

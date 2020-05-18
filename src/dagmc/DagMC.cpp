@@ -94,38 +94,43 @@ float DagMC::version(std::string* version_string) {
 
 unsigned int DagMC::interface_revision() {
   unsigned int result = 0;
+  std::string key_str = "$Rev:";
+  int max_length = 10;
+
   std::string interface_string = DAGMC_INTERFACE_REVISION;
-  if (interface_string.rfind("$Rev:") != std::string::npos) {
+  if (interface_string.rfind(key_str) != std::string::npos) {
     // start looking for the revision number after "$Rev: "
     char* endptr = NULL;
     errno = 0;
-    result = strtol(interface_string.c_str() + 5, &endptr, 10);
-    if (endptr == interface_string.c_str() + 5 ||
-        ((result == LONG_MAX || result == LONG_MIN) && errno == ERANGE)) {
+    result = strtol(interface_string.c_str() + key_str.size(), &endptr,
+                    max_length);
+    // check if the string has been fully parsed and the results is within
+    // normal range
+    if (endptr == interface_string.c_str() + key_str.size()  // parsing end
+        || ((result == LONG_MAX || result == LONG_MIN)
+            && errno == ERANGE)) {  // checking range
       std::cerr << "Not able to parse revision number" << std::endl;
       exit(1);
     }
     return result;
   }
-  /* SECTION I: Geometry Initialization and problem setup */
+  return result;
 }
 
 // the standard DAGMC load file method
 ErrorCode DagMC::load_file(const char* cfile) {
   ErrorCode rval;
+  std::string filename(cfile);
   std::cout << "Loading file " << cfile << std::endl;
   // load options
   char options[120] = {0};
-  char file_ext[4] = "" ; // file extension
+  std::string file_ext = "" ; // file extension
 
   // get the last 4 chars of file .i.e .h5m .sat etc
-  if (sizeof(cfile) / sizeof(char) > 4) {
-    memcpy(file_ext, &cfile[strlen(cfile) - 4], 4);
-  } else {
-    std::cerr << "DagMC warning: unhandled file "
-              << "loading options." << std::endl;
+  int file_extension_size = 4;
+  if (filename.size() > file_extension_size) {
+    file_ext = filename.substr(filename.size() - file_extension_size);
   }
-
   EntityHandle file_set;
   rval = MBI->create_meshset(MESHSET_SET, file_set);
   if (MB_SUCCESS != rval)
@@ -393,19 +398,12 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   // surf/vol offsets are just first handles
   EntityHandle tmp_offset = 0;
 
-  if (surfs.size() != 0 && vols.size() != 0) {
-    setOffset = std::min(*surfs.begin(), *vols.begin());
-    tmp_offset = std::max(surfs.back(), vols.back());
-  } else if (0 == surfs.size()) {
-    setOffset = *surfs.begin();
-    tmp_offset = surfs.back();
-  } else if (0 == vols.size()) {
-    setOffset = *vols.begin();
-    tmp_offset = vols.back();
-  } else {
+  if (surfs.size() == 0 || vols.size() == 0) {
     std::cout << "Volumes or Surfaces founds" << std::endl;
     return  MB_ENTITY_NOT_FOUND;
   }
+  setOffset = std::min(*surfs.begin(), *vols.begin());
+  tmp_offset = std::max(surfs.back(), vols.back());
 
   // set size
   entIndices.resize(tmp_offset - setOffset + 1);

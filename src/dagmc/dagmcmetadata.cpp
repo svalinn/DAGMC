@@ -254,12 +254,12 @@ void dagmcMetaData::parse_importance_data() {
       imp_particles.insert(pair.first);
       // insert into map too
       if (importance_map[eh].count(pair.first) == 0) {
-        char* e;
-        errno = 0;
-        double imp = std::strtod(pair.second.c_str(), &e);
-        if (*e != '\0' || errno != 0) {
-          std::cerr << "Can't parse importance " << pair.second << " as a float."
-                    << std::endl;
+        double imp = 0;
+        try {
+          imp = std::stod(pair.second.c_str());
+        } catch (const std::exception& e) {
+          std::cerr << "Can't parse importance " << pair.second
+                    << " as a float: " << e.what() << std::endl;
           exit(EXIT_FAILURE);
         }
         importance_map[eh][pair.first] = imp;
