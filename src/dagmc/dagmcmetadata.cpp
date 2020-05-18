@@ -258,7 +258,7 @@ void dagmcMetaData::parse_importance_data() {
         errno = 0;
         double imp = std::strtod(pair.second.c_str(), &e);
         if (*e != '\0' || errno != 0) {
-          std::cerr << "Can't parse " << pair.second << " as a float."
+          std::cerr << "Can't parse importance " << pair.second << " as a float."
                     << std::endl;
           exit(EXIT_FAILURE);
         }
