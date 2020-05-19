@@ -399,7 +399,7 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   EntityHandle tmp_offset = 0;
 
   if (surfs.size() == 0 || vols.size() == 0) {
-    std::cout << "Volumes or Surfaces founds" << std::endl;
+    std::cout << "Volumes or Surfaces not found" << std::endl;
     return  MB_ENTITY_NOT_FOUND;
   }
   setOffset = std::min(*surfs.begin(), *vols.begin());
