@@ -117,6 +117,8 @@ unsigned int DagMC::interface_revision() {
   return result;
 }
 
+/* SECTION I: Geometry Initialization and problem setup */
+
 // the standard DAGMC load file method
 ErrorCode DagMC::load_file(const char* cfile) {
   ErrorCode rval;
@@ -142,7 +144,7 @@ ErrorCode DagMC::load_file(const char* cfile) {
     // Some options were unhandled; this is common for loading h5m files.
     // Print a warning if an option was unhandled for a file that does not end in '.h5m'
     std::string filename(cfile);
-    if (std::string(file_ext) != ".h5m") {
+    if (file_ext != ".h5m") {
       std::cerr << "DagMC warning: unhandled file loading options." << std::endl;
     }
   } else if (MB_SUCCESS != rval) {
@@ -395,15 +397,14 @@ int DagMC::get_entity_id(EntityHandle this_ent) {
 ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
-  // surf/vol offsets are just first handles
-  EntityHandle tmp_offset = 0;
 
   if (surfs.size() == 0 || vols.size() == 0) {
     std::cout << "Volumes or Surfaces not found" << std::endl;
     return  MB_ENTITY_NOT_FOUND;
   }
   setOffset = std::min(*surfs.begin(), *vols.begin());
-  tmp_offset = std::max(surfs.back(), vols.back());
+  // surf/vol offsets are just first handles
+  EntityHandle tmp_offset = std::max(surfs.back(), vols.back());
 
   // set size
   entIndices.resize(tmp_offset - setOffset + 1);
