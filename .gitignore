@@ -3,9 +3,12 @@
 *.swp
 *~
 #*
+# vscode settings
+.vscode
 
 # Ignore built documentation
 gh-build
 
 # Ignore common build directory names
 bld
+build
