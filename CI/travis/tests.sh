@@ -14,13 +14,13 @@ fi
 
 # Build DAGMC and test (shared executables)
 cd ${dagmc_build_dir}/DAGMC
-build_static_exe=OFF docker/build_dagmc.sh
+build_static_exe=OFF CI/travis/build_dagmc.sh
 cd ${dagmc_build_dir}/bld
 make test
 
 # Build DAGMC and test (static executables)
 cd ${dagmc_build_dir}/DAGMC
-build_static_exe=ON docker/build_dagmc.sh
+build_static_exe=ON CI/travis/build_dagmc.sh
 cd ${dagmc_build_dir}/bld
 make test
 
