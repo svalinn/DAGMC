@@ -3,6 +3,8 @@
 *.swp
 *~
 #*
+# vscode settings
+.vscode
 
 # Ignore built documentation
 gh-build

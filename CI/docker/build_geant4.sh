@@ -1,17 +1,22 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
 rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
 mkdir -p ${geant4_build_dir}/bld
 cd ${geant4_build_dir}
-wget http://geant4.cern.ch/support/source/geant4.${geant4_version}.tar.gz
+wget https://geant4.cern.ch/support/source/geant4.${geant4_version}.tar.gz --no-check-certificate
+tar_chashum=$(sha256sum ${geant4_version}.tar.gz | cut -d' ' -f1)
+if [ $geant4_shasum != $tar_chashum ]; then
+    echo "Bad shasum for Geant4 tar!"
+    exit 1
+fi
+
 tar -xzvf geant4.${geant4_version}.tar.gz
-ln -snf geant4.${geant4_version} src
 cd bld
-cmake ../src -DBUILD_STATIC_LIBS=ON \
+cmake ../geant4.${geant4_version} -DBUILD_STATIC_LIBS=ON \
              -DGEANT4_USE_SYSTEM_EXPAT=OFF \
              -DCMAKE_BUILD_TYPE=Release \
              -DCMAKE_C_COMPILER=${CC} \
