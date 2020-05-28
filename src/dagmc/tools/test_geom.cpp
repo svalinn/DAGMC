@@ -293,14 +293,14 @@ static bool run_test(std::string name, int argc, char* argv[]) {
   return false;
 }
 
-#define RUN_TEST(A) do { \
+#define RUN_TEST(A) { \
     if (run_test( #A, argc, argv )) { \
       std::cout << #A << "... " << std::endl; \
       if (MB_SUCCESS != A ( dagmc ) ) { \
         ++errors; \
       } \
     } \
-  } while(false)
+  }
 
 int main(int argc, char* argv[]) {
   ErrorCode rval;
@@ -322,7 +322,6 @@ int main(int argc, char* argv[]) {
   DagMC* dagmc = new DagMC();
 
   int errors = 0;
-  //rval = dagmc.moab_instance()->load_file( filename );
   rval = dagmc->load_file(filename);
   remove(filename);
   if (MB_SUCCESS != rval) {
@@ -915,12 +914,6 @@ ErrorCode test_point_in_volume(DagMC* dagmc) {
     { { 0.5, -0.5, -2.0 }, OUTSIDE, { 0.0, 0.0, 1.0} }
   };
 
-  //    { { 1.0, 0.0, 0.0 }, BOUNDARY}, MCNP doesn't return on boundary
-  //{ {-1.0, 0.0, 0.0 }, BOUNDARY},
-  //{ { 0.0, 1.0, 0.0 }, BOUNDARY},
-  //{ { 0.0,-1.0, 0.0 }, BOUNDARY},
-  //{ { 0.0, 0.0, 0.0 }, BOUNDARY},
-  //{ { 0.0, 0.0,-1.0 }, BOUNDARY} };
   const int num_test = sizeof(tests) / sizeof(tests[0]);
 
   ErrorCode rval;
@@ -1114,7 +1107,8 @@ ErrorCode overlap_test_tracking(DagMC* dagmc) {
   DagMC::RayHistory history;
   rval = dagmc->ray_fire(vol, point, dir, next_surf, dist, &history);
   CHKERR;
-  if (next_surf != surfs[7] || fabs(dist - 0.91) > 1e-6) {
+  double expected_dist = 0.91;
+  if (next_surf != surfs[7] || fabs(dist - expected_dist) > 1e-6) {
     std::cerr << "ERROR: failed on advance 1" << std::endl;
     return MB_FAILURE;
   }

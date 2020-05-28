@@ -1,3 +1,5 @@
+#ifndef SRC_DAGMC_DAGMCMETADATA_HPP_
+#define SRC_DAGMC_DAGMCMETADATA_HPP_
 #include <set>
 #include <iostream>
 #include "DagMC.hpp"
@@ -78,12 +80,11 @@ class dagmcMetaData {
   // map of importance data
   std::map<moab::EntityHandle, std::map<std::string, double> > importance_map;
 
-  // material density pairs
-  // std::map<std::string, std::set<std::string> > material_density_pairs;
-
  private:
   moab::DagMC* DAG; // Pointer to DAGMC instance
   bool verbose;
   std::vector< std::string > metadata_keywords;
   std::map< std::string, std::string > keyword_synonyms;
 };
+
+#endif  // SRC_DAGMC_DAGMCMETADATA_HPP_
