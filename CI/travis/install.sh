@@ -10,3 +10,6 @@ cd ${dagmc_build_dir}/DAGMC
 if [ "${MOAB_VERSION}" == "master" ] || [ "${MOAB_VERSION}" == "develop" ]; then
   CI/docker/build_moab.sh
 fi
+
+# Build and install DAGMC
+CI/travis/build_dagmc.sh

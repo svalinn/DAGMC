@@ -30,6 +30,13 @@ export moab_install_dir=${install_dir}/moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 export dagmc_build_dir=${build_dir}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 export dagmc_install_dir=${install_dir}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 
+export dagmc_build_dir_shared=${dagmc_build_dir}-shared
+export dagmc_install_dir_shared=${dagmc_install_dir}-shared
+
+export dagmc_build_dir_static=${dagmc_build_dir}-static
+export dagmc_install_dir_static=${dagmc_install_dir}-static
+
+
 if [ "$COMPILER" == "gcc" ]; then
   export  CC=`which gcc`
   export CXX=`which g++`

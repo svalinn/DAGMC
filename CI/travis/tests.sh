@@ -12,17 +12,22 @@ if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
   cd -
 fi
 
-# Build DAGMC and test (shared executables)
-cd ${dagmc_build_dir}/DAGMC
-build_static_exe=OFF CI/travis/build_dagmc.sh
-cd ${dagmc_build_dir}/bld
-make test
+# symlink make_watertight test files if present
+# shared
+cd ${dagmc_build_dir_shared}/bld/src/make_watertight/tests/
+for i in /tmp/*.h5m; do ln -sf $i; done
+# static
+cd ${dagmc_build_dir_static}/bld/src/make_watertight/tests/
+for i in /tmp/*.h5m; do ln -sf $i; done
 
-# Build DAGMC and test (static executables)
-cd ${dagmc_build_dir}/DAGMC
-build_static_exe=ON CI/travis/build_dagmc.sh
-cd ${dagmc_build_dir}/bld
-make test
+
+# Test DAGMC (shared executables)
+cd ${dagmc_build_dir_shared}/bld
+PATH=${dagmc_install_dir_shared}/bin:$PATH make test
+
+# Test DAGMC (static executables)
+cd ${dagmc_build_dir_static}/bld
+PATH=${dagmc_install_dir_static}/bin:PATH make test
 
 # clean out config test directory for next build
 cd ${dagmc_build_dir}/DAGMC
@@ -30,7 +35,7 @@ git clean -dxf .
 
 # Test DAGMC CMake configuration file
 cd ${dagmc_build_dir}/DAGMC/cmake/test_config
-cmake . -DDAGMC_ROOT=${dagmc_install_dir}
+cmake . -DDAGMC_ROOT=${dagmc_install_dir_shared}
 make all test
 
 cd ${dagmc_build_dir}/bld
