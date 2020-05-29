@@ -20,9 +20,9 @@ function build_dagmc() {
   fi
 
   if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
-    build_mw_reg_tests=ON
+    local build_mw_reg_tests=ON
   else
-    build_mw_reg_tests=OFF
+    local build_mw_reg_tests=OFF
   fi
 
   rm -rf ${build_dir}/bld ${install_dir}
