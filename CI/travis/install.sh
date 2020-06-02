@@ -11,8 +11,13 @@ if [ "${MOAB_VERSION}" == "master" ] || [ "${MOAB_VERSION}" == "develop" ]; then
   CI/docker/build_moab.sh
 fi
 
-# Build DAGMC (shared executables)
-build_static_exe=OFF CI/travis/build_dagmc.sh
+# If this is not a pull request, get files needed for regression tests
+if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
+  cd /tmp
+  wget ${MW_REG_TEST_MODELS_URL} -O mw_reg_test_files.tar.gz -o wget.out
+  tar xzvf mw_reg_test_files.tar.gz
+  cd -
+fi
 
-# Build DAGMC (static executables)
-build_static_exe=ON CI/travis/build_dagmc.sh
+# Build and install DAGMC
+CI/travis/build_dagmc.sh

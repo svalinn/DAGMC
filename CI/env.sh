@@ -8,6 +8,8 @@ export geant4_shasum=4b05b4f7d50945459f8dbe287333b9efb772bd23d50920630d5454ec570
 export build_dir=/root/build/${COMPILER}
 export install_dir=/root/opt/${COMPILER}
 
+export CTEST_OUTPUT_ON_FAILURE=1
+
 if [ "${HDF5_VERSION}" == "system" ]; then
   export hdf5_build_dir=
   export hdf5_install_dir=/usr/lib/x86_64-linux-gnu/hdf5/serial
@@ -27,6 +29,13 @@ export moab_install_dir=${install_dir}/moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 
 export dagmc_build_dir=${build_dir}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
 export dagmc_install_dir=${install_dir}/DAGMC-moab-${MOAB_VERSION}-hdf5-${HDF5_VERSION}
+
+export dagmc_build_dir_shared=${dagmc_build_dir}-shared
+export dagmc_install_dir_shared=${dagmc_install_dir}-shared
+
+export dagmc_build_dir_static=${dagmc_build_dir}-static
+export dagmc_install_dir_static=${dagmc_install_dir}-static
+
 
 if [ "$COMPILER" == "gcc" ]; then
   export  CC=`which gcc`
