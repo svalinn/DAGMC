@@ -428,7 +428,7 @@ class DagMC {
     using RayTracer = GeomQueryTool;
   #endif
 
-  std::unique_ptr<RayTracingInterface> GQT;
+  std::unique_ptr<RayTracer> GQT;
 
  public:
   Tag  nameTag, facetingTolTag;

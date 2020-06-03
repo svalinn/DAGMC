@@ -65,7 +65,11 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
 
   // make new GeomTopoTool and GeomQueryTool
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
-  GQT = std::unique_ptr<GeomQueryTool>(new GeomQueryTool(GTT.get(), overlap_tolerance, p_numerical_precision));
+  #ifdef DOUBLE_DOWN
+  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT));
+  #else
+  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
+  #endif
 
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
@@ -79,7 +83,11 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 
   // make new GeomTopoTool and GeomQueryTool
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
-  GQT = std::make_unique<RayTracer>(GTT, overlap_tolerance, p_numerical_precision);
+  #ifdef DOUBLE_DOWN
+  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT));
+  #else
+  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
+  #endif
   GQT->set_overlap_thickness(overlap_tolerance);
   GQT->set_numerical_precision(p_numerical_precision);
 
