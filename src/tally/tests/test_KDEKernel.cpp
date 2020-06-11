@@ -24,9 +24,9 @@ class MockEpanechnikovKernel : public KDEKernel {
   }
 
   // not implemented
-  std::string get_kernel_name() const {}
-  int get_order() const {}
-  int get_min_quadrature(unsigned int i) const {}
+  std::string get_kernel_name() const { return std::string(); }
+  int get_order() const { return 0; }
+  int get_min_quadrature(unsigned int i) const { return 0; }
 
   // integrates the ith moment function
   double integrate_moment(double a, double b, unsigned int i) const {

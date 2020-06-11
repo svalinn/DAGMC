@@ -188,9 +188,9 @@ void KDEMeshTally::write_data(double num_histories) {
     if (data->has_total_energy_bin())
       num_ebins--;
 
-    double tally_vect[num_ebins];
-    double error_vect[num_ebins];
-
+    std::vector<double> tally_vect(num_ebins);
+    std::vector<double> error_vect(num_ebins);
+    
     for (unsigned int j = 0; j < num_ebins; ++ j) {
       std::pair <double, double> tally_data = data->get_data(point_index, j);
       double tally = tally_data.first;
@@ -210,9 +210,9 @@ void KDEMeshTally::write_data(double num_histories) {
       error_vect[j] = rel_error;
     }
     // set tally and error tag values for this entity
-    rval = mbi->tag_set_data(tally_tag, &point, 1, tally_vect);
+    rval = mbi->tag_set_data(tally_tag, &point, 1, tally_vect.data());
     MB_CHK_SET_ERR_RET(rval, "Failed to set the tally_tag data");
-    rval = mbi->tag_set_data(error_tag, &point, 1, error_vect);
+    rval = mbi->tag_set_data(error_tag, &point, 1, error_vect.data());
     MB_CHK_SET_ERR_RET(rval, "Failed to set the error_tag data");
   }
 
