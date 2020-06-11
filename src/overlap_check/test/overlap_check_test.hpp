@@ -5,9 +5,9 @@ using namespace moab;
 
 class OverlapTest : public::testing::Test {
  protected:
-  virtual void SetUp();
-  virtual void TearDown();
-  virtual void SetFilename() {};
+  virtual void SetUp() override;
+  virtual void TearDown() override;
+  virtual void SetFilename() override {};
 
   std::string filename;
 

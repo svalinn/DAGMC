@@ -27,7 +27,7 @@ void OverlapTest::TearDown() {
 };
 
 class OverlappingVolumesTest : public OverlapTest {
-  virtual void SetFilename() { filename = "overlap.h5m"; }
+  virtual void SetFilename() override { filename = "overlap.h5m"; }
 };
 
 TEST_F(OverlappingVolumesTest, test1) {
@@ -43,7 +43,7 @@ TEST_F(OverlappingVolumesTest, test1) {
 }
 
 class NonOverlappingVolumesTest : public OverlapTest {
-  virtual void SetFilename() { filename = "no_overlap.h5m"; }
+  virtual void SetFilename() override { filename = "no_overlap.h5m"; }
 };
 
 TEST_F(NonOverlappingVolumesTest, test2) {
@@ -62,7 +62,7 @@ TEST_F(NonOverlappingVolumesTest, test2) {
 }
 
 class NonOverlappingImprintedVolumesTest : public OverlapTest {
-  virtual void SetFilename() { filename = "no_overlap_imp.h5m"; }
+  virtual void SetFilename() override { filename = "no_overlap_imp.h5m"; }
 };
 
 TEST_F(NonOverlappingImprintedVolumesTest, test3) {
@@ -81,7 +81,7 @@ TEST_F(NonOverlappingImprintedVolumesTest, test3) {
 }
 
 class EnclosedVolumeTest : public OverlapTest {
-  virtual void SetFilename() { filename = "enclosed.h5m"; }
+  virtual void SetFilename() override { filename = "enclosed.h5m"; }
 };
 
 TEST_F(EnclosedVolumeTest, test1) {

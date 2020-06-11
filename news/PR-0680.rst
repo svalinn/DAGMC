@@ -2,7 +2,7 @@
 
 **Changed:** 
 * a few small fixes prompted by PullRequest review #660
-* only changed files in `uwuw` and `tally`
+* only changed files in `uwuw`, `tally`, and `overlap_check`
 
 **Deprecated:** None
 
