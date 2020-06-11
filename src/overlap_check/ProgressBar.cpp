@@ -13,7 +13,7 @@
 
 #define BAR_WIDTH 72
 
-void ProgressBar::~ProgressBar() {
+ProgressBar::~ProgressBar() {
   if (need_final_newline) {
     std::cout << std::endl;
   }
