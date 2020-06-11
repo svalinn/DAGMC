@@ -209,7 +209,7 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event) {
   sort_intersection_data(intersections, triangles);
 
   // compute the tracklengths
-  compute_tracklengths(event, ebin, weight, intersections, triangles);
+  compute_tracklengths(event, ebin, weight, intersections);
 
   return;
 }
