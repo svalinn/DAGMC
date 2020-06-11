@@ -150,6 +150,7 @@ int UWUW::get_length_of_table(std::string filename, std::string datapath) {
   // Initilize to dataspace, to find the indices we are looping over
   hid_t arr_space = H5Dget_space(ds);
 
+  hsize_t arr_dims[1];
   H5Sget_simple_extent_dims(arr_space, arr_dims, NULL);
 
   status = H5Eclear(H5E_DEFAULT);
