@@ -7,7 +7,7 @@ class OverlapTest : public::testing::Test {
  protected:
   virtual void SetUp() override;
   virtual void TearDown() override;
-  virtual void SetFilename() override {};
+  virtual void SetFilename() {};
 
   std::string filename;
 
