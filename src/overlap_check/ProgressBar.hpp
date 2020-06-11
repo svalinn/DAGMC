@@ -14,7 +14,7 @@ class ProgressBar {
   // destructor
   ~ProgressBar()  {
     if (need_final_newline) {
-      std::cout << "\n";
+      std::cout << std::endl;
     }
   };
 
