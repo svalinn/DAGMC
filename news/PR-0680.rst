@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** 
+* a few small fixes prompted by PullRequest review #660
+* only changed files in `uwuw` and `tally`
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
