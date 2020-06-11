@@ -5,7 +5,7 @@
 #*
 # vscode settings
 .vscode
-.code-workspace
+*.code-workspace
 
 # Ignore built documentation
 gh-build
