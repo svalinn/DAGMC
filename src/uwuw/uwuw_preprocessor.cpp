@@ -96,8 +96,8 @@ pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, s
 
   std::string material_name;
   // make a new name
- material_name = "mat:" + material.metadata["name"].asString();
- if (density != "") {
+  material_name = "mat:" + material.metadata["name"].asString();
+  if (density != "") {
     material_name = material_name + "/rho:" + density;
     new_mat.density = atof(density.c_str());
   }

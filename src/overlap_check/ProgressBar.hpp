@@ -6,7 +6,7 @@ class ProgressBar {
 
  public:
   // constructor
-  ProgressBar() { 
+  ProgressBar() {
     // initialize bar
     set_value(0.0);
   };

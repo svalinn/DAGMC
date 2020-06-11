@@ -190,7 +190,7 @@ void KDEMeshTally::write_data(double num_histories) {
 
     std::vector<double> tally_vect(num_ebins);
     std::vector<double> error_vect(num_ebins);
-    
+
     for (unsigned int j = 0; j < num_ebins; ++ j) {
       std::pair <double, double> tally_data = data->get_data(point_index, j);
       double tally = tally_data.first;

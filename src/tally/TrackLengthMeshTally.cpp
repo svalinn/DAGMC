@@ -263,7 +263,7 @@ void TrackLengthMeshTally::write_data(double num_histories) {
 
     std::vector<double> tally_vect(num_ebins);
     std::vector<double> error_vect(num_ebins);
-    
+
     for (unsigned j = 0; j < num_ebins ; ++j) {
       std::pair <double, double> tally_data = data->get_data(tet_index, j);
       double tally = tally_data.first;
@@ -284,7 +284,7 @@ void TrackLengthMeshTally::write_data(double num_histories) {
 
     rval = mb->tag_set_data(tally_tag, &t, 1, tally_vect.data());
     MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " + std::to_string(rval) + " " + std::to_string(t));
-    rval = mb->tag_set_data(error_tag, &t, 1, error_vect.data() );
+    rval = mb->tag_set_data(error_tag, &t, 1, error_vect.data());
     MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " + std::to_string(rval) + " " + std::to_string(t));
 
 
