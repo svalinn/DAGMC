@@ -2,7 +2,11 @@
 
 **Changed:** 
 * a few small fixes prompted by PullRequest review #660
-* only changed files in `uwuw`, `tally`, and `overlap_check`
+* only changed files in 
+    * `uwuw`
+    * `tally`
+    * `overlap_check`
+    * `build_obb`
 
 **Deprecated:** None
 
