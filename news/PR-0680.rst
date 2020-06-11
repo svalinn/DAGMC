@@ -7,6 +7,7 @@
     * `tally`
     * `overlap_check`
     * `build_obb`
+    * `misc/tests`
 
 **Deprecated:** None
 
