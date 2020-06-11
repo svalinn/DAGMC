@@ -239,8 +239,7 @@ class TrackLengthMeshTally : public MeshTally {
    */
   void compute_tracklengths(const TallyEvent& event,
                             unsigned int ebin, double weight,
-                            const std::vector<double>& intersections,
-                            const std::vector<EntityHandle>& triangles);
+                            const std::vector<double>& intersections);
 
 };
 
