@@ -13,6 +13,12 @@
 
 #define BAR_WIDTH 72
 
+void ProgressBar::~ProgressBar()   {
+    if (need_final_newline) {
+      std::cout << std::endl;
+    }
+  }
+
 bool ProgressBar::is_terminal() {
 #ifdef _POSIX_VERSION
   return isatty(STDOUT_FILENO) != 0;

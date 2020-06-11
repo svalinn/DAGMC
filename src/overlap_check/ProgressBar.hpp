@@ -12,11 +12,7 @@ class ProgressBar {
   };
 
   // destructor
-  ~ProgressBar()  {
-    if (need_final_newline) {
-      std::cout << std::endl;
-    }
-  };
+  ~ProgressBar();
 
   void set_value(double val);
 
