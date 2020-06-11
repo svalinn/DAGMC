@@ -5,10 +5,10 @@
 class name_concatenator {
  public:
   /// constructor
-  name_concatenator();
+  name_concatenator() {};
 
   /// destructor
-  ~name_concatenator();
+  ~name_concatenator() {};
 
   /// returns the a unique name
   std::string make_name_8bytes(std::string name);

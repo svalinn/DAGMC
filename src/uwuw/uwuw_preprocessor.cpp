@@ -96,11 +96,10 @@ pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, s
 
   std::string material_name;
   // make a new name
-  if (density != "") {
-    material_name = "mat:" + material.metadata["name"].asString() + "/rho:" + density;
+ material_name = "mat:" + material.metadata["name"].asString();
+ if (density != "") {
+    material_name = material_name + "/rho:" + density;
     new_mat.density = atof(density.c_str());
-  } else {
-    material_name = "mat:" + material.metadata["name"].asString();
   }
 
   if (verbose) {
@@ -178,7 +177,7 @@ void uwuw_preprocessor::process_tallies() {
   std::vector<std::string>::iterator it;
 
   // first volumes
-  for (int i = 1 ; i <= DAG->num_entities(3); i++) {
+  for (size_t i = 1 ; i <= DAG->num_entities(3); i++) {
     // get the tally properties
     std::string prop = dmd->get_volume_property("tally", i, true);
     std::vector<std::string> tally_props = dmd->unpack_string(prop, "|");
@@ -191,7 +190,7 @@ void uwuw_preprocessor::process_tallies() {
     }
   }
   // now surfaces
-  for (int i = 1 ; i <= DAG->num_entities(2); i++) {
+  for (size_t i = 1 ; i <= DAG->num_entities(2); i++) {
     // get the tally properties
     std::string prop = dmd->get_surface_property("tally", i, true);
     std::vector<std::string> tally_props = dmd->unpack_string(prop, "|");
@@ -245,7 +244,7 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
     if (verbose || fatal) {
       std::cout << "More than one material for volume with id " << cellid << std::endl;
       std::cout << cellid << " has the following material assignments" << std::endl;
-      for (int j = 0 ; j < material_props.size() ; j++) {
+      for (size_t j = 0 ; j < material_props.size() ; j++) {
         std::cout << material_props[j] << std::endl;
       }
       std::cout << "Please check your material assignments " << cellid << std::endl;
@@ -271,7 +270,7 @@ void uwuw_preprocessor::check_material_props(std::vector<std::string> material_p
     if (verbose || fatal) {
       std::cout << "More than one density specified for " << cellid << std::endl;
       std::cout << cellid << " has the following density assignments" << std::endl;
-      for (int j = 0 ; j < density_props.size() ; j++) {
+      for (size_t j = 0 ; j < density_props.size() ; j++) {
         std::cout << density_props[j] << std::endl;
       }
       std::cout << "Please check your density assignments " << cellid << std::endl;
@@ -303,10 +302,10 @@ void uwuw_preprocessor::print_summary() {
 }
 
 // used for printing & debugging only
-void uwuw_preprocessor::property_vector(std::vector<int> props) {
+void uwuw_preprocessor::property_vector(const std::vector<int>& props) {
   if (props.size() == 0)
     return;
-  for (int i = 0 ; i < props.size() ; i++) {
+  for (size_t i = 0 ; i < props.size() ; i++) {
     if (i == 0) {
       std::cout << "| " << props[i] << " ";
       continue;
@@ -435,14 +434,6 @@ void uwuw_preprocessor::check_tally_props(std::string particle_name,
   return;
 }
 
-
-// constructor
-name_concatenator::name_concatenator() {
-}
-
-// destructor
-name_concatenator::~name_concatenator() {
-}
 
 // make the fluka name from the string
 std::string name_concatenator::make_name_8bytes(std::string name) {
