@@ -8,7 +8,7 @@ SHELL ["/bin/bash", "-c"]
 ARG UBUNTU_VERSION=18.04
 RUN apt-get -y update; \
     apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
-                       libhdf5-dev liblapack-dev libpython2.7-dev libtool \
+                       libhdf5-dev liblapack-dev libpython2.7-dev libtool libeigen3-dev\
                        python-numpy python-pip python-setuptools wget; \
     if [ "${UBUNTU_VERSION}" = "18.04" ]; then \
         pip install sphinx; \
