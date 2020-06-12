@@ -6,13 +6,10 @@
 #include <string>
 #include <vector>
 
+#include <eigen3/Dense>
+
 #include "Quadrature.hpp"
 
-// LAPACK routine for solving Ax = b using symmetric matrix with packed storage
-extern "C" {
-  void dspsv_(char* UPLO, int* N, int* NRHS, double* AP, int* IPIV, double* B,
-              int* LDB, int* INFO);
-}
 
 //===========================================================================//
 /**
@@ -194,7 +191,7 @@ class KDEKernel {
    */
   void get_correction_matrix2D(const std::vector<double>& ai_u,
                                const std::vector<double>& ai_v,
-                               std::vector<double>& matrix) const;
+                               MatrixXd& matrix) const;
 
   /**
    * \brief Sets up the 4x4 matrix needed to solve for the 3D boundary kernel
@@ -206,22 +203,7 @@ class KDEKernel {
   void get_correction_matrix3D(const std::vector<double>& ai_u,
                                const std::vector<double>& ai_v,
                                const std::vector<double>& ai_w,
-                               std::vector<double>& matrix) const;
-
-  /**
-   * \brief Solve a symmetric matrix system Ax = b
-   * \param[in/out] A an NxN symmetric matrix
-   * \param[in/out] b the right-hand side vector
-   * \return true if matrix system was solved; false otherwise
-   *
-   * The matrix A should be in lower triangular format, stored by columns.
-   *
-   * On exit, A will be overwritten by the diagonal matrix obtained through
-   * the factorization method that was used to solve the matrix system.  The
-   * vector b will also be overwritten with the solution x.
-   */
-  bool solve_symmetric_matrix(std::vector<double>& A,
-                              std::vector<double>& b) const;
+                               MatrixXd& matrix) const;
 
   /**
    * \class MomentFunction
