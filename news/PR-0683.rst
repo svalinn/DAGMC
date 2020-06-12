@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+* Added `libeigen3-dev` package to be installed by `apt`
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
