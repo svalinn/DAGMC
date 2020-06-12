@@ -1,7 +1,8 @@
 **Added:** None
+* Added `libeigen3-dev` package to be installed by `apt`
 
 **Changed:** 
-* Added `libeigen3-dev` package to be installed by `apt`
+* build settings for MOAB remove BLAS/LAPACK and add Eigen3
 
 **Deprecated:** None
 
