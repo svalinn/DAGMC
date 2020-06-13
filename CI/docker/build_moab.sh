@@ -22,7 +22,6 @@ cd ../bld
                  --enable-optimize \
                  --disable-debug \
                  --disable-blaslapack \
-                 --enableeigen \
                  --with-hdf5=${hdf5_install_dir} \
                  --prefix=${moab_install_dir} \
                  CC=${CC} CXX=${CXX} FC=${FC}
