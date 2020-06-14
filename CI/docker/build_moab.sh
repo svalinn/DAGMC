@@ -21,6 +21,7 @@ cd ../bld
                  --enable-shared \
                  --enable-optimize \
                  --disable-debug \
+                 --disable-fortran \
                  --disable-blaslapack \
                  --with-hdf5=${hdf5_install_dir} \
                  --prefix=${moab_install_dir} \
