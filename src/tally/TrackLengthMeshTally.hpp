@@ -234,7 +234,6 @@ class TrackLengthMeshTally : public MeshTally {
    * \param[in] ebin the energy bin index corresponding to the energy
    * \param[in] weight the multiplier value for the score to be tallied
    * \param[in] vector<double> intersections list of all the intersections
-   * \param[in] vector<EntityHandle> triangles list of the triangle entity handles that correspond to the intersections
    * \return void
    */
   void compute_tracklengths(const TallyEvent& event,
