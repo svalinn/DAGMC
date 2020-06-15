@@ -5,10 +5,10 @@
 class name_concatenator {
  public:
   /// constructor
-  name_concatenator() {};
+  name_concatenator() = default;
 
   /// destructor
-  ~name_concatenator() {};
+  ~name_concatenator() = default;
 
   /// returns the a unique name
   std::string make_name_8bytes(std::string name);
@@ -44,4 +44,3 @@ class name_concatenator {
  private:
   std::set<std::string> used_b8_names; ///< the collection of names used so far
 };
-
