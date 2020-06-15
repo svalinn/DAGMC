@@ -94,9 +94,8 @@ pyne::Material uwuw_preprocessor::create_new_material(pyne::Material material, s
   // use the name concatenator to make the fluka name
   std::string fluka_name = ncr->make_name_8bytes(material.metadata["name"].asString());
 
-  std::string material_name;
   // make a new name
-  material_name = "mat:" + material.metadata["name"].asString();
+  std::string material_name = "mat:" + material.metadata["name"].asString();
   if (density != "") {
     material_name = material_name + "/rho:" + density;
     new_mat.density = atof(density.c_str());
