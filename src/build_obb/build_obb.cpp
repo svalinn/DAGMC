@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
   // sets the output filename if none specified
   if (out_file == "") {
     int pos = dag_file.find(".h5m");
-    if (pos != -1) {
+    if (pos != std::string::npos) {
       out_file = dag_file.substr(0, pos);
     } else {
       out_file = dag_file;
