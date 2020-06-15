@@ -60,7 +60,7 @@ void ProgressBar::set_value(double val) {
 
   // write the bar to screen
   std::cout << '\r' << bar.str() << std::flush;
-  need_final_newline = true;
+
   if (val >= 100.0) {
     std::cout << "\n";
     need_final_newline = false;

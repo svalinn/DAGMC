@@ -20,7 +20,7 @@ class ProgressBar {
 
  private:
   int current {0};
-  bool need_final_newline {false};
+  bool need_final_newline {true};
 };
 
 #endif // HEADER GUARD
