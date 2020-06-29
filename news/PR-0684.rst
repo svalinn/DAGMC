@@ -1,0 +1,15 @@
+**Added:** None
+
+**Changed:** 
+* turn off fortran support in MOAB build
+* use '&&' to join successive build steps to fail build on first failure
+* remove specification of unused FORTRAN compiler for HDF5 & MOAB builds
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** 
+* remove bad flag for Eigen3 in MOAB build
+
+**Security:** None

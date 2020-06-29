@@ -25,7 +25,7 @@ tar -xzvf hdf5-${HDF5_VERSION}.tar.gz
 cd bld
 ../hdf5-${HDF5_VERSION}/configure --enable-shared \
                  --prefix=${hdf5_install_dir} \
-                 CC=${CC} CXX=${CXX} FC=${FC}
+                 CC=${CC} CXX=${CXX}
 make -j${jobs}
 make install
 cd

@@ -21,11 +21,11 @@ cd ../bld
                  --enable-shared \
                  --enable-optimize \
                  --disable-debug \
+                 --disable-fortran \
                  --disable-blaslapack \
-                 --enableeigen \
                  --with-hdf5=${hdf5_install_dir} \
                  --prefix=${moab_install_dir} \
-                 CC=${CC} CXX=${CXX} FC=${FC}
+                 CC=${CC} CXX=${CXX}
 make -j${jobs}
 make install
 cd
