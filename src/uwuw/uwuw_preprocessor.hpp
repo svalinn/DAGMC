@@ -209,7 +209,7 @@ class uwuw_preprocessor {
    */
   pyne::Material create_new_material(pyne::Material material, std::string density);
 
-  void property_vector(std::vector<int> props);
+  void property_vector(const std::vector<int>& props);
 
   // public class members
  public:

@@ -103,7 +103,7 @@ class UWUW {
   // turns the filename string into the full file path
   std::string get_full_filepath(std::string filename);
   // make sure the file, filename exists
-  bool check_file_exists(std::string filename);
+  bool check_file_exists(const std::string& filename);
 
   /**
    * \brief loads the pyne materials in map of name vs Material

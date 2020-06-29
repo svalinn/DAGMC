@@ -65,7 +65,7 @@ std::string UWUW::get_full_filepath(std::string filename) {
 }
 
 // see if file exists
-bool UWUW::check_file_exists(std::string filename) {
+bool UWUW::check_file_exists(const std::string& filename) {
   // from http://stackoverflow.com/questions/12774207/
   // fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c
   std::ifstream infile(filename.c_str());
@@ -151,7 +151,7 @@ int UWUW::get_length_of_table(std::string filename, std::string datapath) {
   hid_t arr_space = H5Dget_space(ds);
 
   hsize_t arr_dims[1];
-  int arr_ndim = H5Sget_simple_extent_dims(arr_space, arr_dims, NULL);
+  H5Sget_simple_extent_dims(arr_space, arr_dims, NULL);
 
   status = H5Eclear(H5E_DEFAULT);
 

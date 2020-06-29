@@ -2,6 +2,7 @@
 
 #include "ProgressBar.hpp"
 
+#include <string>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
@@ -12,13 +13,10 @@
 
 #define BAR_WIDTH 72
 
-ProgressBar::ProgressBar() {
-  // initialize bar
-  set_value(0.0);
-}
-
 ProgressBar::~ProgressBar() {
-  std::cout << "\n";
+  if (need_final_newline) {
+    std::cout << std::endl;
+  }
 }
 
 bool ProgressBar::is_terminal() {
@@ -62,7 +60,9 @@ void ProgressBar::set_value(double val) {
 
   // write the bar to screen
   std::cout << '\r' << bar.str() << std::flush;
+
   if (val >= 100.0) {
     std::cout << "\n";
+    need_final_newline = false;
   }
 }

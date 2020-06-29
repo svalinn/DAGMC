@@ -2,13 +2,14 @@
 #ifndef DAGMC_PROGRESSBAR_H
 #define DAGMC_PROGRESSBAR_H
 
-#include <string>
-
 class ProgressBar {
 
  public:
   // constructor
-  ProgressBar();
+  ProgressBar() {
+    // initialize bar
+    set_value(0.0);
+  };
 
   // destructor
   ~ProgressBar();
@@ -19,6 +20,7 @@ class ProgressBar {
 
  private:
   int current {0};
+  bool need_final_newline {true};
 };
 
 #endif // HEADER GUARD

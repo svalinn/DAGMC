@@ -19,7 +19,9 @@ int main(int argc, char* argv[]) {
 
   std::string filename;
   int points_per_tri_edge {0};
+#ifdef _OPENMP
   int n_threads {0};
+#endif
 
   po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to check", &filename);
 

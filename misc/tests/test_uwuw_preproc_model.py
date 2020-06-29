@@ -28,9 +28,8 @@ def test_model_material():
     # group_list is the final list of group names found on the CAD h5m file
     for k in pseudo_list:
         if ("mat:" in k):
-            index = k.index('\n')
-            k = k[0:index]
-            group_list.append(k.rstrip("\n"))
+            idx = k.index('\n')
+            group_list.append(k[0:idx].rstrip("\n"))
     # tag_list is the list of group names obtained by running get_tag_values
     # function
     tag_list = gtag.get_tag_values(filename, output_filename)

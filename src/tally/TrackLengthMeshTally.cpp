@@ -209,7 +209,7 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event) {
   sort_intersection_data(intersections, triangles);
 
   // compute the tracklengths
-  compute_tracklengths(event, ebin, weight, intersections, triangles);
+  compute_tracklengths(event, ebin, weight, intersections);
 
   return;
 }
@@ -261,8 +261,8 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     if (data->has_total_energy_bin())
       num_ebins--;
 
-    double tally_vect[num_ebins];
-    double error_vect[num_ebins];
+    std::vector<double> tally_vect(num_ebins);
+    std::vector<double> error_vect(num_ebins);
 
     for (unsigned j = 0; j < num_ebins ; ++j) {
       std::pair <double, double> tally_data = data->get_data(tet_index, j);
@@ -282,9 +282,9 @@ void TrackLengthMeshTally::write_data(double num_histories) {
       error_vect[j] = rel_err;
     }
 
-    rval = mb->tag_set_data(tally_tag, &t, 1, tally_vect);
+    rval = mb->tag_set_data(tally_tag, &t, 1, tally_vect.data());
     MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " + std::to_string(rval) + " " + std::to_string(t));
-    rval = mb->tag_set_data(error_tag, &t, 1, error_vect);
+    rval = mb->tag_set_data(error_tag, &t, 1, error_vect.data());
     MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " + std::to_string(rval) + " " + std::to_string(t));
 
 
@@ -630,8 +630,7 @@ void TrackLengthMeshTally::sort_intersection_data(std::vector<double>& intersect
 // function to compute the track lengths
 void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
                                                 unsigned int ebin, double weight,
-                                                const std::vector<double>& intersections,
-                                                const std::vector<EntityHandle>& triangles) {
+                                                const std::vector<double>& intersections) {
   double track_length; // track_length to add to the tet
   CartVect hit_p; //position on the triangular face of the hit
   std::vector<CartVect> hit_point; // array of all hit points

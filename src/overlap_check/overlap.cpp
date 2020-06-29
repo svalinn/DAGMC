@@ -104,11 +104,11 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
   #pragma omp parallel shared(overlap_map, num_checked)
   {
     #pragma omp for schedule(auto)
-    for (int i = 0; i < all_verts.size(); i++) {
+    for (size_t i = 0; i < all_verts.size(); i++) {
 
       EntityHandle vert = all_verts[i];
       CartVect loc;
-      rval = MBI->get_coords(&vert, 1, loc.array());
+      MBI->get_coords(&vert, 1, loc.array());
 
       rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
       MB_CHK_SET_ERR_CONT(rval, "Failed to check location " << loc << " for an overlap");
@@ -129,7 +129,7 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
     // (curve edges are likely in here too,
     //  but it isn't hurting anything to check more locations)
     #pragma omp for schedule(auto)
-    for (int i = 0; i < all_edges.size() ; i++) {
+    for (size_t i = 0; i < all_edges.size() ; i++) {
 
       EntityHandle edge = all_edges[i];
       Range edge_verts;
