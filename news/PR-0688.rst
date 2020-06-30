@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:**
+
+Behavior of the dagmcMetaData class to ignore missing density assignments for more flexible integration with certain codes.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
