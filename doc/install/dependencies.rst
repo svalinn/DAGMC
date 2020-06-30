@@ -9,6 +9,7 @@ using a package manager.
 
 The following dependencies are required:
 
+    * Eigen3_
     * HDF5_
     * MOAB_
 
@@ -19,6 +20,24 @@ DAGMC in the subdirectory ``dagmc_bld`` of your home directory; i.e.
     $ cd $HOME
     $ mkdir dagmc_bld
     $ cd dagmc_bld
+
+Eigen3
+~~~~~~
+
+The best way to install the Eigen3 package is with your package manager.
+
+Package manager installation
+----------------------------
+
+Debian linux users can install the latest HDF5 release with:
+::
+
+    $ sudo apt-get install libeigen3-dev
+
+Redhat linux users can do likewise with:
+::
+
+    $ sudo yum install eigen3-devel
 
 HDF5
 ~~~~
@@ -123,3 +142,4 @@ If you have installed the dependencies corretly, you are now ready to
 
 ..  _HDF5: http://www.hdfgroup.org/HDF5
 ..  _MOAB: http://press3.mcs.anl.gov/sigma/moab-library
+..  _Eigen3: http://eigen.tuxfamily.org/index.php
