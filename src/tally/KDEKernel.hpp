@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include <eigen3/Dense>
+#include <eigen3/Eigen/Dense>
 
 #include "Quadrature.hpp"
 
@@ -191,7 +191,7 @@ class KDEKernel {
    */
   void get_correction_matrix2D(const std::vector<double>& ai_u,
                                const std::vector<double>& ai_v,
-                               MatrixXd& matrix) const;
+                               Eigen::MatrixXd& matrix) const;
 
   /**
    * \brief Sets up the 4x4 matrix needed to solve for the 3D boundary kernel
@@ -203,7 +203,7 @@ class KDEKernel {
   void get_correction_matrix3D(const std::vector<double>& ai_u,
                                const std::vector<double>& ai_v,
                                const std::vector<double>& ai_w,
-                               MatrixXd& matrix) const;
+                               Eigen::MatrixXd& matrix) const;
 
   /**
    * \class MomentFunction

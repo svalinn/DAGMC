@@ -3,7 +3,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <eigen3/Dense>
+#include <eigen3/Eigen/Dense>
 
 #include "KDEKernel.hpp"
 #include "PolynomialKernel.hpp"
@@ -70,8 +70,8 @@ double KDEKernel::boundary_correction(const double* u,
     double precision = 1e-10;
 
     // create coefficients vector initially with right-hand side values
-    VectorXd rhs(num_corrections + 1);
-    MatrixXd correction_matrix(num_corrections + 1, num_corrections + 1);
+    Eigen::VectorXd rhs(num_corrections + 1);
+    Eigen::MatrixXd correction_matrix(num_corrections + 1, num_corrections + 1);
 
     if (num_corrections == 2) {
 
@@ -99,7 +99,7 @@ double KDEKernel::boundary_correction(const double* u,
     }
 
     // solve 3x3 or 4x4 system
-    VectorXd coefficients = correction_matrix.householderQr().solve(rhs);
+    Eigen::VectorXd coefficients = correction_matrix.householderQr().solve(rhs);
 
     // test for valid solution
     solved = (correction_matrix * coefficients).isApprox(rhs, precision); 
@@ -157,7 +157,7 @@ bool KDEKernel::compute_moments(double u,
 //---------------------------------------------------------------------------//
 void KDEKernel::get_correction_matrix2D(const std::vector<double>& u,
                                         const std::vector<double>& v,
-                                        MatrixXd& matrix) const {
+                                        Eigen::MatrixXd& matrix) const {
   
   // populate matrix elements in lower triangular format using moments
   matrix << u[0] * v[0], u[1] * v[0], u[0] * v[1],
@@ -168,7 +168,7 @@ void KDEKernel::get_correction_matrix2D(const std::vector<double>& u,
 void KDEKernel::get_correction_matrix3D(const std::vector<double>& u,
                                         const std::vector<double>& v,
                                         const std::vector<double>& w,
-                                        MatrixXd& matrix) const {
+                                        Eigen::MatrixXd& matrix) const {
   // populate matrix elements in lower triangular format using moments
   matrix << u[0] * v[0] * w[0], u[1] * v[0] * w[0], u[0] * v[1] * w[0],
             u[1] * v[0] * w[0], u[2] * v[0] * w[0], u[1] * v[1] * w[0],
