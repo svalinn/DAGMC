@@ -104,8 +104,9 @@ double KDEKernel::boundary_correction(const double* u,
     // test for valid solution
     solved = (correction_matrix * coefficients).isApprox(rhs, precision); 
 
-    if (!solved)
+    if (!solved) {
         return 0.0;
+    }
 
     // compute the boundary correction factor from coefficients
     double correction_factor = coefficients(0);
@@ -170,9 +171,10 @@ void KDEKernel::get_correction_matrix3D(const std::vector<double>& u,
                                         const std::vector<double>& w,
                                         Eigen::MatrixXd& matrix) const {
   // populate matrix elements in lower triangular format using moments
-  matrix << u[0] * v[0] * w[0], u[1] * v[0] * w[0], u[0] * v[1] * w[0],
-            u[1] * v[0] * w[0], u[2] * v[0] * w[0], u[1] * v[1] * w[0],
-            u[0] * v[1] * w[0], u[1] * v[1] * w[0], u[0] * v[0] * w[2];
+  matrix << u[0] * v[0] * w[0], u[1] * v[0] * w[0], u[0] * v[1] * w[0], u[0] * v[0] * w[1],
+            u[1] * v[0] * w[0], u[2] * v[0] * w[0], u[1] * v[1] * w[0], u[1] * v[0] * w[1],
+            u[0] * v[1] * w[0], u[1] * v[1] * w[0], u[0] * v[2] * w[0], u[0] * v[1] * w[1],
+            u[0] * v[0] * w[1], u[1] * v[0] * w[1], u[0] * v[1] * w[1], u[0] * v[0] * w[2];
 }
 //---------------------------------------------------------------------------//
 double KDEKernel::MomentFunction::evaluate(double x) const {
