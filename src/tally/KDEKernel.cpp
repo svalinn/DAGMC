@@ -102,10 +102,10 @@ double KDEKernel::boundary_correction(const double* u,
     Eigen::VectorXd coefficients = correction_matrix.householderQr().solve(rhs);
 
     // test for valid solution
-    solved = (correction_matrix * coefficients).isApprox(rhs, precision); 
+    solved = (correction_matrix * coefficients).isApprox(rhs, precision);
 
     if (!solved) {
-        return 0.0;
+      return 0.0;
     }
 
     // compute the boundary correction factor from coefficients
@@ -159,11 +159,11 @@ bool KDEKernel::compute_moments(double u,
 void KDEKernel::get_correction_matrix2D(const std::vector<double>& u,
                                         const std::vector<double>& v,
                                         Eigen::MatrixXd& matrix) const {
-  
+
   // populate matrix elements in lower triangular format using moments
   matrix << u[0] * v[0], u[1] * v[0], u[0] * v[1],
-            u[1] * v[0], u[2] * v[0], u[1] * v[1],
-            u[0] * v[1], u[1] * v[1], u[0] * v[2];
+         u[1] * v[0], u[2] * v[0], u[1] * v[1],
+         u[0] * v[1], u[1] * v[1], u[0] * v[2];
 }
 //---------------------------------------------------------------------------//
 void KDEKernel::get_correction_matrix3D(const std::vector<double>& u,
@@ -172,9 +172,9 @@ void KDEKernel::get_correction_matrix3D(const std::vector<double>& u,
                                         Eigen::MatrixXd& matrix) const {
   // populate matrix elements in lower triangular format using moments
   matrix << u[0] * v[0] * w[0], u[1] * v[0] * w[0], u[0] * v[1] * w[0], u[0] * v[0] * w[1],
-            u[1] * v[0] * w[0], u[2] * v[0] * w[0], u[1] * v[1] * w[0], u[1] * v[0] * w[1],
-            u[0] * v[1] * w[0], u[1] * v[1] * w[0], u[0] * v[2] * w[0], u[0] * v[1] * w[1],
-            u[0] * v[0] * w[1], u[1] * v[0] * w[1], u[0] * v[1] * w[1], u[0] * v[0] * w[2];
+         u[1] * v[0] * w[0], u[2] * v[0] * w[0], u[1] * v[1] * w[0], u[1] * v[0] * w[1],
+         u[0] * v[1] * w[0], u[1] * v[1] * w[0], u[0] * v[2] * w[0], u[0] * v[1] * w[1],
+         u[0] * v[0] * w[1], u[1] * v[0] * w[1], u[0] * v[1] * w[1], u[0] * v[0] * w[2];
 }
 //---------------------------------------------------------------------------//
 double KDEKernel::MomentFunction::evaluate(double x) const {
