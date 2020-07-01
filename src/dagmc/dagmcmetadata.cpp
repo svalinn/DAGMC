@@ -9,10 +9,10 @@ const char vacuum_str[] = "Vacuum";
 // constructor for metadata class
 dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr,
                              bool verbosity,
-                             bool ensure_density_present) {
+                             bool require_density_present) {
   DAG = dag_ptr; // dagmc pointer
   verbose = verbosity;
-  ensure_density = ensure_density_present;
+  require_density = require_density_present;
   // these are the keywords that dagmc will understand
   // from groups if you need to process more
   // they should be added here
@@ -187,7 +187,7 @@ void dagmcMetaData::parse_material_data() {
 
     // check to see if the simplified naming scheme is used, by try to convert the
     // material property to an int
-    if (ensure_density && try_to_make_int(material_props[0]) &&
+    if (require_density && try_to_make_int(material_props[0]) &&
         density_props[0].empty() && !(DAG->is_implicit_complement(eh))) {
       std::cerr << "Using the simplified naming scheme without a density" << std::endl;
       std::cerr << "property is forbidden, please rename the group mat:" << material_props[0] << std::endl;

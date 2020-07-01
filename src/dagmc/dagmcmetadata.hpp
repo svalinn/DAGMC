@@ -8,7 +8,7 @@ class dagmcMetaData {
  public:
   dagmcMetaData(moab::DagMC* DAGptr,
                 bool verbosity = false,
-                bool ensure_density_present = true);
+                bool require_density_present = true);
   ~dagmcMetaData();
 
   // load the dagmc properties into maps
@@ -85,7 +85,7 @@ class dagmcMetaData {
  private:
   moab::DagMC* DAG; // Pointer to DAGMC instance
   bool verbose;
-  bool ensure_density;
+  bool require_density;
   std::vector< std::string > metadata_keywords;
   std::map< std::string, std::string > keyword_synonyms;
 };
