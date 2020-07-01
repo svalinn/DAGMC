@@ -89,7 +89,7 @@ class dagmcMetaData {
   // importance data map, importance: value
   std::map<moab::EntityHandle, std::string> volume_importance_data_eh;
 
-  // surface boundary data, rho: value
+  // surface boundary data, boundary: value
   std::map<moab::EntityHandle, std::string> surface_boundary_data_eh;
 
   // tally map
