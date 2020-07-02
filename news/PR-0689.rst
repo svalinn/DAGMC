@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** None
+Updates to the coding style of the dagmcMetaData class.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
