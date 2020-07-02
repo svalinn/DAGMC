@@ -7,10 +7,9 @@
 dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr,
                              bool verbosity,
                              bool require_density_present)
-                             : DAG(dag_ptr),
-                             verbose(verbosity),
-                             require_density(require_density_present)
-{
+  : DAG(dag_ptr),
+    verbose(verbosity),
+    require_density(require_density_present) {
   // these are the keywords that dagmc will understand
   // from groups if you need to process more
   // they should be added here
@@ -370,10 +369,10 @@ void dagmcMetaData::parse_tally_surface_data() {
 }
 
 std::map<moab::EntityHandle, std::vector<std::string>>
-dagmcMetaData::get_property_assignments(std::string property,
-                                        int dimension,
-                                        std::string delimiters,
-                                        bool remove_duplicates) {
+                                                    dagmcMetaData::get_property_assignments(std::string property,
+                                                        int dimension,
+                                                        std::string delimiters,
+bool remove_duplicates) {
   // output property map
   std::map<moab::EntityHandle, std::vector<std::string>> prop_map;
 
@@ -421,7 +420,7 @@ dagmcMetaData::get_property_assignments(std::string property,
     }
 
     if (properties.size() > 1 && remove_duplicates) {
-        properties = remove_duplicate_properties(properties);
+      properties = remove_duplicate_properties(properties);
     }
 
     // assign the map value

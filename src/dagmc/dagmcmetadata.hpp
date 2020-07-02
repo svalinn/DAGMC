@@ -61,10 +61,10 @@ class dagmcMetaData {
   // Parse property for entities with the specified dimension and delimiters.
   // Optionally remove duplicate property values if necessary.
   std::map<moab::EntityHandle, std::vector<std::string>>
-  get_property_assignments(std::string property,
-                           int dimension,
-                           std::string delimiters,
-                           bool remove_duplicates = true);
+                                                      get_property_assignments(std::string property,
+                                                                               int dimension,
+                                                                               std::string delimiters,
+                                                                               bool remove_duplicates = true);
 
   // remove duplicate properties from the vector of properties
   std::vector<std::string> remove_duplicate_properties(std::vector<std::string> properties);
