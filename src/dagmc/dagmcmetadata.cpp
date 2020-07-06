@@ -312,6 +312,12 @@ void dagmcMetaData::parse_tally_volume_data() {
   }
 }
 
+void dagmcMetaData::to_lower(std::string& input) {
+  for (int i = 0; i < input.size(); i++) {
+    input[i] = std::tolower(input[i]);
+  }
+}
+
 // parse the boundary data
 void dagmcMetaData::parse_boundary_data() {
   auto boundary_assignments = get_property_assignments("boundary", 2, ":");
@@ -337,10 +343,17 @@ void dagmcMetaData::parse_boundary_data() {
     // 2d entities have been tagged with the boundary condition property
     // ie. both surfaces and its members triangles,
 
-    if (boundary_assignment[0].find("Reflecting") != std::string::npos)
+
+    to_lower(boundary_assignment[0]);
+
+    if (boundary_assignment[0].find("reflecting") != std::string::npos)
       surface_boundary_data_eh[eh] = "Reflecting";
-    if (boundary_assignment[0].find("White") != std::string::npos)
+    if (boundary_assignment[0].find("white") != std::string::npos)
       surface_boundary_data_eh[eh] = "White";
+    if (boundary_assignment[0].find("periodic") != std::string::npos)
+      surface_boundary_data_eh[eh] = "Periodic";
+    if (boundary_assignment[0].find("vacuum") != std::string::npos)
+      surface_boundary_data_eh[eh] = "Vacuum";
   }
 }
 
@@ -570,7 +583,7 @@ std::pair<std::string, std::string> dagmcMetaData::split_string(std::string prop
     int str_length = property_string.length() - found_delimiter;
     second = property_string.substr(found_delimiter + 1, str_length);
   } else {
-    std::cout << "Didnt find any delimiter" << std::endl;
+    std::cout << "Didn't find any delimiter" << std::endl;
     std::cout << "Returning empty strings" << std::endl;
   }
 

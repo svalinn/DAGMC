@@ -74,6 +74,8 @@ class dagmcMetaData {
   // the second one
   std::set<std::string> set_remove_rich(std::set<std::string> properties_set);
 
+  void to_lower(std::string& input);
+
   // public member variables
  public:
   // material property data map, mat:/density value
