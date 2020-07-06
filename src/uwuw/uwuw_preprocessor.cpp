@@ -125,7 +125,7 @@ void uwuw_preprocessor::process_materials() {
   for (it = volume_property_map.begin() ; it != volume_property_map.end() ; ++it) {
     std::string group_name = it->second;
     if (verbose) {
-      std::cout << "Making materiral group name ";
+      std::cout << "Making material group name ";
       std::cout << group_name << std::endl;
     }
     material_names.insert(group_name);

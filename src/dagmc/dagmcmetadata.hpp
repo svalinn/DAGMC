@@ -6,27 +6,38 @@
 
 class dagmcMetaData {
  public:
+  // Constructor
   dagmcMetaData(moab::DagMC* DAGptr,
                 bool verbosity = false,
                 bool require_density_present = true);
-  ~dagmcMetaData();
+
+  // Destructor
+  ~dagmcMetaData() = default;
 
   // load the dagmc properties into maps
   void load_property_data();
 
   // get a given property on a volume
   std::string get_volume_property(std::string property, moab::EntityHandle vol);
+  // get a property for the specified volume, treats the vol parameter as
+  // an index by default and as an ID if idx is false.
   std::string get_volume_property(std::string property, int vol, bool idx = true);
 
   // get a given property on a surface
   std::string get_surface_property(std::string property, moab::EntityHandle surface);
+  // get a property for the specified surface, treats the surface parameter as
+  // an index by default and as an ID if idx is false.
   std::string get_surface_property(std::string property, int surface, bool idx = true);
 
+  // unpack the packed string of the form delimeter<data>delimiter<data>delimiter into
+  // a vector of the form data[0],data[1] etc
   std::vector<std::string> unpack_string(std::string to_unpack, std::string delimiters = "|");
 
   // splits a string on the basis of the first delimiter it finds
   std::pair<std::string, std::string> split_string(std::string property_string, std::string delimiter);
 
+  // from a string of the form key:property/key:property
+  // return the value of a desired key
   std::string return_property(std::string property_string, std::string property, std::string delimiter = ":", bool chopped = true);
 
   // test to see if string is an int
@@ -47,13 +58,20 @@ class dagmcMetaData {
   // finalise the count data
   void finalise_counters();
 
-  std::map<moab::EntityHandle, std::vector<std::string> > get_property_assignments(std::string property,
-      int dimension,
-      std::string delimiters,
-      bool remove_duplicates = true);
+  // Parse property for entities with the specified dimension and delimiters.
+  // Optionally remove duplicate property values if necessary.
+  std::map<moab::EntityHandle, std::vector<std::string>>
+                                                      get_property_assignments(std::string property,
+                                                                               int dimension,
+                                                                               std::string delimiters,
+                                                                               bool remove_duplicates = true);
 
+  // remove duplicate properties from the vector of properties
   std::vector<std::string> remove_duplicate_properties(std::vector<std::string> properties);
 
+  // from a given set remove any matches if they are found in order to keep the
+  // the information rich version. ie. if we find both neutron and neutron/1.0 keep
+  // the second one
   std::set<std::string> set_remove_rich(std::set<std::string> properties_set);
 
   // public member variables
@@ -71,7 +89,7 @@ class dagmcMetaData {
   // importance data map, importance: value
   std::map<moab::EntityHandle, std::string> volume_importance_data_eh;
 
-  // surface boundary data, rho: value
+  // surface boundary data, boundary: value
   std::map<moab::EntityHandle, std::string> surface_boundary_data_eh;
 
   // tally map
@@ -80,14 +98,17 @@ class dagmcMetaData {
   // set to collect all particle types in the problem
   std::set<std::string> imp_particles;
   // map of importance data
-  std::map<moab::EntityHandle, std::map<std::string, double> > importance_map;
+  std::map<moab::EntityHandle, std::map<std::string, double>> importance_map;
 
+  // private member variables
  private:
   moab::DagMC* DAG; // Pointer to DAGMC instance
-  bool verbose;
-  bool require_density;
-  std::vector< std::string > metadata_keywords;
-  std::map< std::string, std::string > keyword_synonyms;
+  bool verbose; // Provide additional output while setting up and parsing properties
+  bool require_density; // Require that all volumes have a specified density value
+  std::vector<std::string> metadata_keywords; // Keywords supported by the metadata manager
+  std::map<std::string, std::string> keyword_synonyms; // Keyword synonyms
+  const std::string graveyard_str{"Graveyard"};
+  const std::string vacuum_str{"Vacuum"};
 };
 
 #endif  // SRC_DAGMC_DAGMCMETADATA_HPP_
