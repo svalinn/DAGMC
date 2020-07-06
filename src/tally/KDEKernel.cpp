@@ -51,11 +51,9 @@ double KDEKernel::boundary_correction(const double* u,
 
   // solve for the boundary correction factor
   if (num_corrections == 1) {
-
     double correction_factor = (ai_u[2] - ai_u[1] * u[0]);
     correction_factor /= ai_u[0] * ai_u[2] - ai_u[1] * ai_u[1];
     return correction_factor;
-
   } else { // correction needed in more than one dimension
     // compute partial moments ai(p) for second dimension
     std::vector<double> ai_v;
