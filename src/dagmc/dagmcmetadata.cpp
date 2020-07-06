@@ -188,19 +188,20 @@ void dagmcMetaData::parse_material_data() {
     // set the material value
     volume_material_property_data_eh[eh] = grp_name;
 
+    bool is_graveyard = to_lower(grp_name).find(to_lower(graveyard_str)) != std::string::npos;
+    bool is_vacuum = to_lower(grp_name).find(to_lower(vacuum_str)) != std::string::npos;
+
     // not graveyard or vacuum or implicit compliment
-    if (grp_name.find(graveyard_str) == std::string::npos &&
-        grp_name.find(vacuum_str) == std::string::npos &&
-        !DAG->is_implicit_complement(eh)) {
+    if (!is_graveyard && !is_vacuum && !DAG->is_implicit_complement(eh)) {
       volume_material_data_eh[eh] = material_props[0];
     }
     // found graveyard
-    else if (grp_name.find(graveyard_str) != std::string::npos) {
+    else if (is_graveyard) {
       volume_material_property_data_eh[eh] = "mat:Graveyard";
       volume_material_data_eh[eh] = graveyard_str;
     }
     // vacuum
-    else if (grp_name.find(vacuum_str) != std::string::npos) {
+    else if (is_vacuum) {
       volume_material_property_data_eh[eh] = "mat:Vacuum";
       volume_material_data_eh[eh] = vacuum_str;
     }
@@ -312,10 +313,11 @@ void dagmcMetaData::parse_tally_volume_data() {
   }
 }
 
-void dagmcMetaData::to_lower(std::string& input) {
+std::string dagmcMetaData::to_lower(std::string input) {
   for (int i = 0; i < input.size(); i++) {
     input[i] = std::tolower(input[i]);
   }
+  return input;
 }
 
 // parse the boundary data
@@ -344,15 +346,15 @@ void dagmcMetaData::parse_boundary_data() {
     // ie. both surfaces and its members triangles,
 
 
-    to_lower(boundary_assignment[0]);
+    std::string bc_string = to_lower(boundary_assignment[0]);
 
-    if (boundary_assignment[0].find("reflecting") != std::string::npos)
+    if (bc_string.find("reflecting") != std::string::npos)
       surface_boundary_data_eh[eh] = "Reflecting";
-    if (boundary_assignment[0].find("white") != std::string::npos)
+    if (bc_string.find("white") != std::string::npos)
       surface_boundary_data_eh[eh] = "White";
-    if (boundary_assignment[0].find("periodic") != std::string::npos)
+    if (bc_string.find("periodic") != std::string::npos)
       surface_boundary_data_eh[eh] = "Periodic";
-    if (boundary_assignment[0].find("vacuum") != std::string::npos)
+    if (bc_string.find("vacuum") != std::string::npos)
       surface_boundary_data_eh[eh] = "Vacuum";
   }
 }
