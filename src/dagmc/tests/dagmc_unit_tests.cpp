@@ -207,10 +207,8 @@ TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
   std::string impl_comp_prop = "";
 
   int num_surfs = DAG->num_entities(2);
-  int tmp[] = {1, 2, 3, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16, 17};
-  std::vector<int> surf_ids(tmp, tmp + 14);
-  for (int i = 0 ; i < surf_ids.size(); i++) {
-    int id = surf_ids[i];
+  std::vector<int> surf_ids = {1, 2, 3, 5, 6, 7, 8, 9, 11, 13, 14, 15, 16};
+  for (int id : surf_ids) {
     std::string bound_prop = dgm->get_surface_property("boundary", id, false);
     moab::EntityHandle eh = DAG->entity_by_id(2, id);
     std::string bound_prop2 = dgm->get_surface_property("boundary", eh);
@@ -219,6 +217,16 @@ TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
     EXPECT_EQ(bound_prop2, base_property);
 
   }
+
+  // check for vacuum boundary condition
+  int vacuum_surf_id = 17;
+  std::string expected_surface_bc = "Vacuum";
+  std::string actual_surface_bc;
+  actual_surface_bc = dgm->get_surface_property("boundary", vacuum_surf_id, false);
+  EXPECT_EQ(expected_surface_bc, actual_surface_bc);
+  moab::EntityHandle eh = DAG->entity_by_id(2, vacuum_surf_id);
+  actual_surface_bc = dgm->get_surface_property("boundary", eh);
+  EXPECT_EQ(expected_surface_bc, actual_surface_bc);
 }
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: Tests to make sure that all surfaces have successfully
