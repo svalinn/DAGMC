@@ -120,14 +120,9 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   G4int nofHits = fHitsCollection->entries();
-  /*
-  G4cout << "Detector = " << DetectorName << G4endl;
-  G4cout << "\n-------->Hits Collection: in this event they are " << nofHits
-         << G4endl;
-         */
+
   G4double score = 0.0;
-//  G4cout << DetectorName << " " << nofHits << G4endl;
-//  G4cout << nofHits << G4endl;
+
   for (G4int i = 0; i < nofHits; i++) {
     // filter on the particle type
     int pdg = (*fHitsCollection)[i]->GetParticlePDG();
@@ -135,8 +130,7 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 
       // find which histogram to put this particle in
       hist_index = hist_part_map[(*fHitsCollection)[i]->GetParticlePDG()];
-      //    G4cout << "hist index = " << hist_index << " number of hits = " << nofHits << " PDG = " << pdg << G4endl;
-      //    if (hist_index != 0 ) {
+
       score = (*fHitsCollection)[i]->GetWeight() *
               (*fHitsCollection)[i]->GetTrackLength()
               * cm / (DetectorVolume);
@@ -144,9 +138,7 @@ void ExN01SensitiveDetector::EndOfEvent(G4HCofThisEvent*) {
 
       analysisManager->FillH1(hist_index, erg, score);
 
-      //    G4cout << hist_index << " " << DetectorIndex << " " << score << "  " << erg << G4endl;
     }
-    //G4cout << DetectorIndex << " " << score << G4endl;
   }
 }
 

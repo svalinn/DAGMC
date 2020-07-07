@@ -99,12 +99,6 @@ class DagSolid : public G4TessellatedSolid {
                                  G4double& pMin, G4double& pMax) const;
   virtual std::ostream& StreamInfo(std::ostream& os) const;
 
-
-
-//    virtual void ComputeDimensions (G4VPVParameterisation* p, const G4int n,
-//                                  const G4VPhysicalVolume* pRep);
-
-
   virtual G4double GetCubicVolume();
   virtual G4double GetSurfaceArea();
   G4double      GetMinXExtent() const;
@@ -117,8 +111,6 @@ class DagSolid : public G4TessellatedSolid {
 
   virtual void  DescribeYourselfTo(G4VGraphicsScene& scene) const;
 
-
-
  public:  // without description
 
   DagSolid(__void__&);
@@ -126,16 +118,12 @@ class DagSolid : public G4TessellatedSolid {
   // persistency for clients requiring preallocation of memory for
   // persistifiable objects.
 
-
-
  protected:  // with description
 
   void DeleteObjects();
   void CopyObjects(const DagSolid& s);
 
-
  private:
-
 
   G4GeometryType           geometryType;
   G4double                 cubicVolume;
@@ -146,7 +134,6 @@ class DagSolid : public G4TessellatedSolid {
   G4double                 yMaxExtent;
   G4double                 zMinExtent;
   G4double                 zMaxExtent;
-
 
   G4String Myname;
 

@@ -91,7 +91,6 @@ void ExN01RunAction::EndOfRunAction(const G4Run* run) {
     int index = 1 + std::distance(workflow_data->tally_library.begin(), it);
 
     // loop over this histograms
-    //    G4cout << index << G4endl;
     G4cout << index << " " << analysisManager->GetH1(index)->mean() << G4endl;
     // scale the result by 1/volume and by (1/cm*cm)
     //analysisManager->ScaleH1(index,1./ double(num_of_event));
