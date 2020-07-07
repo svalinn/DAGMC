@@ -17,12 +17,8 @@ G4ThreadLocal G4Allocator<ExN01DetectorHit>* ExN01DetectorHitAllocator = 0;
 ExN01DetectorHit::ExN01DetectorHit()
   : G4VHit(),
     fTrackID(-1),
-    //fChamberNb(-1),
-    //fEdep(0.),
-    //fPos(G4ThreeVector()),
     fKe(0.),
     fTl(0.)
-    //fName("")
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -34,24 +30,16 @@ ExN01DetectorHit::~ExN01DetectorHit() {}
 ExN01DetectorHit::ExN01DetectorHit(const ExN01DetectorHit& right)
   : G4VHit() {
   fTrackID   = right.fTrackID;
-  //fChamberNb = right.fChamberNb;
-  //fEdep      = right.fEdep;
-  //fPos       = right.fPos;
   fKe        = right.fKe;
   fTl        = right.fTl;
-  //fName      = right.fName;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 const ExN01DetectorHit& ExN01DetectorHit::operator=(const ExN01DetectorHit& right) {
   fTrackID   = right.fTrackID;
-  //fChamberNb = right.fChamberNb;
-  //fEdep      = right.fEdep;
-  //fPos       = right.fPos;
   fKe        = right.fKe;
   fTl        = right.fTl;
-  //fName      = right.fName;
 
   return *this;
 }
@@ -85,7 +73,6 @@ void ExN01DetectorHit::Draw() {
 void ExN01DetectorHit::Print() {
   G4cout
       << "  trackID: " << fTrackID
-      //     << std::setw(7) << G4BestUnit( fPos,"Length")
       << " Kinetic Energy: "
       << std::setw(7) << G4BestUnit(fKe, "Energy")
       << " Track Length: "
