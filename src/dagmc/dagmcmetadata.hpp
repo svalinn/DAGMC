@@ -74,6 +74,8 @@ class dagmcMetaData {
   // the second one
   std::set<std::string> set_remove_rich(std::set<std::string> properties_set);
 
+  std::string to_lower(const std::string input);
+
   // public member variables
  public:
   // material property data map, mat:/density value
@@ -107,8 +109,12 @@ class dagmcMetaData {
   bool require_density; // Require that all volumes have a specified density value
   std::vector<std::string> metadata_keywords; // Keywords supported by the metadata manager
   std::map<std::string, std::string> keyword_synonyms; // Keyword synonyms
+  // Some constant keyword values
   const std::string graveyard_str{"Graveyard"};
   const std::string vacuum_str{"Vacuum"};
+  const std::string reflecting_str{"Reflecting"};
+  const std::string white_str{"White"};
+  const std::string periodic_str{"Periodic"};
 };
 
 #endif  // SRC_DAGMC_DAGMCMETADATA_HPP_

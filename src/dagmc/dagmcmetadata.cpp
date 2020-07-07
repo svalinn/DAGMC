@@ -188,19 +188,20 @@ void dagmcMetaData::parse_material_data() {
     // set the material value
     volume_material_property_data_eh[eh] = grp_name;
 
+    bool is_graveyard = to_lower(grp_name).find(to_lower(graveyard_str)) != std::string::npos;
+    bool is_vacuum = to_lower(grp_name).find(to_lower(vacuum_str)) != std::string::npos;
+
     // not graveyard or vacuum or implicit compliment
-    if (grp_name.find(graveyard_str) == std::string::npos &&
-        grp_name.find(vacuum_str) == std::string::npos &&
-        !DAG->is_implicit_complement(eh)) {
+    if (!is_graveyard && !is_vacuum && !DAG->is_implicit_complement(eh)) {
       volume_material_data_eh[eh] = material_props[0];
     }
     // found graveyard
-    else if (grp_name.find(graveyard_str) != std::string::npos) {
+    else if (is_graveyard) {
       volume_material_property_data_eh[eh] = "mat:Graveyard";
       volume_material_data_eh[eh] = graveyard_str;
     }
     // vacuum
-    else if (grp_name.find(vacuum_str) != std::string::npos) {
+    else if (is_vacuum) {
       volume_material_property_data_eh[eh] = "mat:Vacuum";
       volume_material_data_eh[eh] = vacuum_str;
     }
@@ -312,6 +313,13 @@ void dagmcMetaData::parse_tally_volume_data() {
   }
 }
 
+std::string dagmcMetaData::to_lower(std::string input) {
+  for (int i = 0; i < input.size(); i++) {
+    input[i] = std::tolower(input[i]);
+  }
+  return input;
+}
+
 // parse the boundary data
 void dagmcMetaData::parse_boundary_data() {
   auto boundary_assignments = get_property_assignments("boundary", 2, ":");
@@ -337,10 +345,17 @@ void dagmcMetaData::parse_boundary_data() {
     // 2d entities have been tagged with the boundary condition property
     // ie. both surfaces and its members triangles,
 
-    if (boundary_assignment[0].find("Reflecting") != std::string::npos)
-      surface_boundary_data_eh[eh] = "Reflecting";
-    if (boundary_assignment[0].find("White") != std::string::npos)
-      surface_boundary_data_eh[eh] = "White";
+
+    std::string bc_string = to_lower(boundary_assignment[0]);
+
+    if (bc_string.find(to_lower(reflecting_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = reflecting_str;
+    if (bc_string.find(to_lower(white_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = white_str;
+    if (bc_string.find(to_lower(periodic_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = periodic_str;
+    if (bc_string.find(to_lower(vacuum_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = vacuum_str;
   }
 }
 
@@ -570,7 +585,7 @@ std::pair<std::string, std::string> dagmcMetaData::split_string(std::string prop
     int str_length = property_string.length() - found_delimiter;
     second = property_string.substr(found_delimiter + 1, str_length);
   } else {
-    std::cout << "Didnt find any delimiter" << std::endl;
+    std::cout << "Didn't find any delimiter" << std::endl;
     std::cout << "Returning empty strings" << std::endl;
   }
 
