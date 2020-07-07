@@ -3,6 +3,8 @@
 #include <cassert>
 #include <iostream>
 
+#include <eigen3/Eigen/Dense>
+
 #include "KDEKernel.hpp"
 #include "PolynomialKernel.hpp"
 
@@ -61,25 +63,23 @@ double KDEKernel::boundary_correction(const double* u,
     if (!valid_moments)
       return 0.0;
 
-    // create coefficients vector initially with right-hand side values
-    std::vector<double> coefficients;
-    coefficients.push_back(1.0);
-    coefficients.push_back(0.0);
-    coefficients.push_back(0.0);
-
     // solve for the coefficients of the boundary correction factor
     bool solved = false;
-    std::vector<double> correction_matrix;
+    double precision = 1e-10;
+
+    // create coefficients vector initially with right-hand side values
+    Eigen::VectorXd rhs(num_corrections + 1);
+    Eigen::MatrixXd correction_matrix(num_corrections + 1, num_corrections + 1);
 
     if (num_corrections == 2) {
-      // solve 3x3 matrix system to get coefficients
-      get_correction_matrix2D(ai_u, ai_v, correction_matrix);
-      solved = solve_symmetric_matrix(correction_matrix, coefficients);
 
-      if (!solved)
-        return 0.0;
+      // initialize 3x1 right-hand side
+      rhs << 1.0, 0.0, 0.0;
+
+      // get 3x3 matrix for 2-D correction
+      get_correction_matrix2D(ai_u, ai_v, correction_matrix);
+
     } else { // correction needed in all three dimensions
-      coefficients.push_back(0.0);
 
       // compute partial moments ai(p) for third dimension
       std::vector<double> ai_w;
@@ -89,19 +89,28 @@ double KDEKernel::boundary_correction(const double* u,
       if (!valid_moments)
         return 0.0;
 
-      // solve 4x4 matrix system to get coefficients
-      get_correction_matrix3D(ai_u, ai_v, ai_w, correction_matrix);
-      solved = solve_symmetric_matrix(correction_matrix, coefficients);
+      // initialize 4x1 right-hand side
+      rhs << 1.0, 0.0, 0.0, 0.0;
 
-      if (!solved)
-        return 0.0;
+      // get 4x4 matrix for 3-D correction
+      get_correction_matrix3D(ai_u, ai_v, ai_w, correction_matrix);
+    }
+
+    // solve 3x3 or 4x4 system
+    Eigen::VectorXd coefficients = correction_matrix.householderQr().solve(rhs);
+
+    // test for valid solution
+    solved = (correction_matrix * coefficients).isApprox(rhs, precision);
+
+    if (!solved) {
+      return 0.0;
     }
 
     // compute the boundary correction factor from coefficients
-    double correction_factor = coefficients[0];
+    double correction_factor = coefficients(0);
 
     for (unsigned int i = 1; i <= num_corrections; ++i) {
-      correction_factor += u[i - 1] * coefficients[i];
+      correction_factor += u[i - 1] * coefficients(i);
     }
 
     return correction_factor;
@@ -145,59 +154,25 @@ bool KDEKernel::compute_moments(double u,
   return true;
 }
 //---------------------------------------------------------------------------//
-void KDEKernel::get_correction_matrix2D(const std::vector<double>& ai_u,
-                                        const std::vector<double>& ai_v,
-                                        std::vector<double>& matrix) const {
-  assert(matrix.empty());
+void KDEKernel::get_correction_matrix2D(const std::vector<double>& u,
+                                        const std::vector<double>& v,
+                                        Eigen::MatrixXd& matrix) const {
 
   // populate matrix elements in lower triangular format using moments
-  matrix.push_back(ai_u[0] * ai_v[0]);
-  matrix.push_back(ai_u[1] * ai_v[0]);
-  matrix.push_back(ai_u[0] * ai_v[1]);
-  matrix.push_back(ai_u[2] * ai_v[0]);
-  matrix.push_back(ai_u[1] * ai_v[1]);
-  matrix.push_back(ai_u[0] * ai_v[2]);
+  matrix << u[0] * v[0], u[1] * v[0], u[0] * v[1],
+         u[1] * v[0], u[2] * v[0], u[1] * v[1],
+         u[0] * v[1], u[1] * v[1], u[0] * v[2];
 }
 //---------------------------------------------------------------------------//
-void KDEKernel::get_correction_matrix3D(const std::vector<double>& ai_u,
-                                        const std::vector<double>& ai_v,
-                                        const std::vector<double>& ai_w,
-                                        std::vector<double>& matrix) const {
-  assert(matrix.empty());
-
+void KDEKernel::get_correction_matrix3D(const std::vector<double>& u,
+                                        const std::vector<double>& v,
+                                        const std::vector<double>& w,
+                                        Eigen::MatrixXd& matrix) const {
   // populate matrix elements in lower triangular format using moments
-  matrix.push_back(ai_u[0] * ai_v[0] * ai_w[0]);
-  matrix.push_back(ai_u[1] * ai_v[0] * ai_w[0]);
-  matrix.push_back(ai_u[0] * ai_v[1] * ai_w[0]);
-  matrix.push_back(ai_u[0] * ai_v[0] * ai_w[1]);
-  matrix.push_back(ai_u[2] * ai_v[0] * ai_w[0]);
-  matrix.push_back(ai_u[1] * ai_v[1] * ai_w[0]);
-  matrix.push_back(ai_u[1] * ai_v[0] * ai_w[1]);
-  matrix.push_back(ai_u[0] * ai_v[2] * ai_w[0]);
-  matrix.push_back(ai_u[0] * ai_v[1] * ai_w[1]);
-  matrix.push_back(ai_u[0] * ai_v[0] * ai_w[2]);
-}
-//---------------------------------------------------------------------------//
-bool KDEKernel::solve_symmetric_matrix(std::vector<double>& A,
-                                       std::vector<double>& b) const {
-  int n = b.size();
-
-  // LAPACK routine DSPSV input variables
-  char uplo = 'L';  // store symmetric matrix in lower triangular format
-  int nrhs = 1;
-  int ldb = n;
-  int info = 0;
-  std::vector<int> ipiv(n, 0);
-
-  dspsv_(&uplo, &n, &nrhs, &A[0], &ipiv[0], &b[0], &ldb, &info);
-
-  if (info == 0) {
-    return true;
-  } else { // matrix system could not be solved
-    std::cerr << "Warning: LAPACK could not solve symmetric matrix system"
-              << std::endl;
-    return false;
-  }
+  matrix << u[0] * v[0] * w[0], u[1] * v[0] * w[0], u[0] * v[1] * w[0], u[0] * v[0] * w[1],
+         u[1] * v[0] * w[0], u[2] * v[0] * w[0], u[1] * v[1] * w[0], u[1] * v[0] * w[1],
+         u[0] * v[1] * w[0], u[1] * v[1] * w[0], u[0] * v[2] * w[0], u[0] * v[1] * w[1],
+         u[0] * v[0] * w[1], u[1] * v[0] * w[1], u[0] * v[1] * w[1], u[0] * v[0] * w[2];
 }
 //---------------------------------------------------------------------------//
 double KDEKernel::MomentFunction::evaluate(double x) const {

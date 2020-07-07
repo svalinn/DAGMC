@@ -1,5 +1,7 @@
 message("")
 
+find_package(Eigen3 REQUIRED NO_MODULE)
+
 file(GLOB SRC_FILES "*.cpp")
 file(GLOB PUB_HEADERS "*.hpp")
 
