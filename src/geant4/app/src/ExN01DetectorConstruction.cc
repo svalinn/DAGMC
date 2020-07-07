@@ -271,7 +271,6 @@ void ExN01DetectorConstruction::ConstructSDandField() {
   end_histogram();
 
   HM->print_histogram_collection();
-  //exit(1);
 }
 
 /* initialise the histograms */
