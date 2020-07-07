@@ -19,8 +19,8 @@ git clone https://bitbucket.org/fathomteam/moab
 cd moab
 git checkout ${branch}
 cd ../bld
-cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
-              -DENABLE_PYMOAB=ON \
+cmake ../moab -DBUILD_SHARED_LIBS=OFF \
+              -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
               -DENABLE_BLASLAPACK=OFF \
               -DENABLE_FORTRAN=OFF \
               -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
@@ -29,8 +29,7 @@ cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
 make -j${ci_jobs}
 make install
 rm -rf *
-cmake ../moab -DBUILD_SHARED_LIBS=OFF \
-              -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
               -DENABLE_PYMOAB=ON \
               -DENABLE_BLASLAPACK=OFF \
               -DENABLE_FORTRAN=OFF \
