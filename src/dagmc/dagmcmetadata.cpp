@@ -348,14 +348,14 @@ void dagmcMetaData::parse_boundary_data() {
 
     std::string bc_string = to_lower(boundary_assignment[0]);
 
-    if (bc_string.find("reflecting") != std::string::npos)
-      surface_boundary_data_eh[eh] = "Reflecting";
-    if (bc_string.find("white") != std::string::npos)
-      surface_boundary_data_eh[eh] = "White";
-    if (bc_string.find("periodic") != std::string::npos)
-      surface_boundary_data_eh[eh] = "Periodic";
-    if (bc_string.find("vacuum") != std::string::npos)
-      surface_boundary_data_eh[eh] = "Vacuum";
+    if (bc_string.find(to_lower(reflecting_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = reflecting_str;
+    if (bc_string.find(to_lower(white_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = white_str;
+    if (bc_string.find(to_lower(periodic_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = periodic_str;
+    if (bc_string.find(to_lower(vacuum_str)) != std::string::npos)
+      surface_boundary_data_eh[eh] = vacuum_str;
   }
 }
 
