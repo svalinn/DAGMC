@@ -22,7 +22,7 @@ jobs:
         type: string
     docker: 
       - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
-  environment:
+    environment:
       COMPILER: "gcc"
       HDF5_VERSION: "1.10.4"
       MOAB_VERSION: "5.1.0"
