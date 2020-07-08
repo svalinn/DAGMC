@@ -35,33 +35,32 @@ jobs:
           name: Housekeeping
           command: CI/travis/housekeeping.sh
  
-  # build_and_test:
-  #   parameters:
-  #     img: 
-  #       type: executor
-  #     compiler:
-  #       type: string
-  #     hdf5:
-  #       type: string
-  #     moab: 
-  #       type: string
-  #   executor: << parameters.img >>
-  #   working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>
-  #   environment:
-  #     COMPILER: << parameters.compiler >>
-  #     HDF5_VERSION: << parameters.hdf5 >>
-  #     MOAB_VERSION: << parameters.moab >>
-  #     TRAVIS_REPO_SLUG: ${{ github.repository }}
-  #     TRAVIS_PULL_REQUEST: ${{ github.event.number }} 
-
-  #   steps:
-  #     - checkout
-  #     - run:
-  #       name: building DAGMC
-  #       command: CI/travis/install.sh
-  #     - run:
-  #       name: building DAGMC
-  #       command: CI/travis/test.sh
+  build_and_test:
+    parameters:
+      img: 
+        type: executor
+      compiler:
+        type: string
+      hdf5:
+        type: string
+      moab: 
+        type: string
+    executor: << parameters.img >>
+    working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>
+    environment:
+      COMPILER: << parameters.compiler >>
+      HDF5_VERSION: << parameters.hdf5 >>
+      MOAB_VERSION: << parameters.moab >>
+      TRAVIS_REPO_SLUG: ${{ github.repository }}
+      TRAVIS_PULL_REQUEST: ${{ github.event.number }} 
+    steps:
+      - checkout
+      - run:
+        name: building DAGMC
+        command: CI/travis/install.sh
+      - run:
+        name: building DAGMC
+        command: CI/travis/test.sh
   
 
 # Workflow part:
@@ -75,19 +74,19 @@ workflows:
       - house_keeping:
           matrix:
             parameters:
-              img: ["16.04", "18.04"]
+              img: ["18.04"]
           filters:
             branches:
               ignore: develop
       
-      # - build_and_test:
-      #     matrix:
-      #       paramters:
-      #         img: [ 16.04, 18.04]
-      #         compiler: ["clang", "gcc"]
-      #         hdf5: ["1.10.4"]
-      #         moab: ["5.1.0"]
-      #     filters:
-      #       branches:
-      #         pull_request: true
+      - build_and_test:
+          matrix:
+            paramters:
+              img: [ 16.04, 18.04]
+              compiler: ["clang", "gcc"]
+              hdf5: ["1.10.4"]
+              moab: ["5.1.0"]
+          filters:
+            branches:
+              pull_request: true
     
