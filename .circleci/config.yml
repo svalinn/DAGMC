@@ -70,7 +70,7 @@ workflows:
               img: ["16.04", "18.04"]
           filters:
             branches:
-              exclude: develop
+              ignore: develop
       
       # - build_and_test:
       #     matrix:
