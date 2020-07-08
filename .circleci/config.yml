@@ -16,11 +16,12 @@ executors:
 # Define the different job that will be ran this separate building form
 # testing for each configuration allowing to get more information out of the CI
 jobs:
-# news file checker
-  housekeeping:
-      parameters:
-          img: 
-            type: executor
+  house_keeping:
+    parameters:
+      img:
+        type: string
+      node:
+        type: string
     executor: << parameters.img >>
     steps:
       - checkout
@@ -39,7 +40,6 @@ jobs:
         type: string
       moab: 
         type: string
-
     executor: << parameters.img >>
     working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>
     environment:
@@ -67,18 +67,19 @@ workflows:
   version: 2
   pull_request:
     jobs:
-      - housekeeping
+      - house_keeping:
           matrix:
             paramters:
-              img: ["18.04"] 
+              img: ["18.04"]
+              node: ["test"]
           filters:
             branches:
               pull_request: true
       
-      - build_and_test
+      - build_and_test:
           matrix:
             paramters:
-              img: ["16.04", "18.04"]
+              img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0"]
