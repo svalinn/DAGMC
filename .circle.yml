@@ -19,7 +19,7 @@ jobs:
   housekeeping:
     parameters:
       img:
-        type: executor
+        type: string
       node:
         type: string
     executor: << parameters.img >>
@@ -70,7 +70,7 @@ workflows:
       - housekeeping:
           matrix:
             paramters:
-              img: [18.04]
+              img: ["18.04"]
               node: ["test"]
           filters:
             branches:
@@ -79,7 +79,7 @@ workflows:
       - build_and_test:
           matrix:
             paramters:
-              img: [ 16.04, 18.04]
+              img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0"]
