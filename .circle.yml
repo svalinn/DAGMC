@@ -16,10 +16,9 @@ executors:
 # Define the different job that will be ran this separate building form
 # testing for each configuration allowing to get more information out of the CI
 jobs:
-# news file checker
   housekeeping:
     parameters:
-      img: 
+      img:
         type: executor
     executor: << parameters.img >>
     steps:
