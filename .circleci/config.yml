@@ -82,12 +82,12 @@ workflows:
       
       - build_and_test:
           matrix:
-            paramters:
+            paramaters:
               img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0"]
           filters:
             branches:
-              pull_request: true
+              ignore: develop
     
