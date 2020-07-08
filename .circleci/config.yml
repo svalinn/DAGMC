@@ -22,16 +22,18 @@ jobs:
         type: string
     docker: 
       - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
-    environment:
-      COMPILER: "gcc"
-      HDF5_VERSION: "1.10.4"
-      MOAB_VERSION: "5.1.0"
-      TRAVIS_REPO_SLUG: ${CIRCLE_PR_REPONAME}
-      TRAVIS_PULL_REQUEST: ${CIRCLE_PULL_REQUEST}
     working_directory: /root/build/gcc/DAGMC-moab-5.1.0-hdf5-1.10.4/DAGMC
     steps:
       - checkout
       - run:
+        name: Setup enviroment
+        command: |
+          echo "export COMPILER=gcc" >> $BASH_ENV
+          echo "export MOAB_VERSION=5.1.0" >> $BASH_ENV
+          echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
+          echo "export TRAVIS_REPO_SLUG=${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+          echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PULL_REQUEST}" >> $BASH_ENV
+    - run:
           name: Housekeeping
           command: CI/travis/housekeeping.sh
  
@@ -48,14 +50,16 @@ jobs:
     docker: 
       - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
     working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< parameters.moab >>-hdf5-<< parameters.hdf5 >>/DAGMC
-    environment:
-      COMPILER: << parameters.compiler >>
-      HDF5_VERSION: << parameters.hdf5 >>
-      MOAB_VERSION: << parameters.moab >>
-      TRAVIS_REPO_SLUG: ${CIRCLE_PR_REPONAME}
-      TRAVIS_PULL_REQUEST: ${CIRCLE_PULL_REQUEST} 
     steps:
       - checkout
+      - run:
+          name: Setup enviroment
+          command: |
+            echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
+            echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
+            echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
+            echo "export TRAVIS_REPO_SLUG=${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+            echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PULL_REQUEST}" >> $BASH_ENV
       - run:
           name: building DAGMC
           command: CI/travis/install.sh
