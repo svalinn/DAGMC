@@ -68,7 +68,6 @@ workflows:
           matrix:
             paramters:
               img: ["16.04", "18.04"]
-              node: ["test"]
           filters:
             branches:
               pull_request: true
