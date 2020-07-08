@@ -82,7 +82,7 @@ workflows:
       
       - build_and_test:
           matrix:
-            paramaters:
+            parameters:
               img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
