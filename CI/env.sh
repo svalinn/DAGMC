@@ -41,6 +41,7 @@ if [ "$COMPILER" == "gcc" ]; then
   export  CC=`which gcc`
   export CXX=`which g++`
   export  FC=`which gfortran`
+  export jobs=4
 elif [ "$COMPILER" == "clang" ]; then
   export  CC=`which clang`
   export CXX=`which clang++`
