@@ -37,15 +37,16 @@ jobs:
  
   build_and_test:
     parameters:
-      img: 
-        type: executor
+      img:
+        type: string
       compiler:
         type: string
       hdf5:
         type: string
       moab: 
         type: string
-    executor: << parameters.img >>
+    docker: 
+      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
     working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>
     environment:
       COMPILER: << parameters.compiler >>
@@ -82,7 +83,7 @@ workflows:
       - build_and_test:
           matrix:
             paramters:
-              img: [ 16.04, 18.04]
+              img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0"]
