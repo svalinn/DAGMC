@@ -2,13 +2,13 @@ version: 2.1
 # Executors:
 # Alias the environment on which run the different jobs
 # i.e. in this case, docker image in which the jobs will be run
-executors:
-    u16.04:
-        docker:
-            - image: svalinn/dagmc-ci-ubuntu-16.04:latest
-    u18.04:
-        docker:
-            - image: svalinn/dagmc-ci-ubuntu-18.04:latest
+# executors:
+#     u16.04:
+#         docker:
+#             - image: svalinn/dagmc-ci-ubuntu-16.04:latest
+#     u18.04:
+#         docker:
+#             - image: svalinn/dagmc-ci-ubuntu-18.04:latest
 
 
 
@@ -19,8 +19,8 @@ jobs:
   house_keeping:
     parameters:
       img:
-        type: executor
-    executor: << parameters.img >>
+        type: string
+    docker: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
     steps:
       - checkout
       - run:
@@ -67,7 +67,7 @@ workflows:
       - house_keeping:
           matrix:
             paramters:
-              img: [u18.04]
+              img: ["18.04"]
               node: ["test"]
           filters:
             branches:
