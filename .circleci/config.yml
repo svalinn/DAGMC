@@ -47,7 +47,7 @@ jobs:
         type: string
     docker: 
       - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
-    working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>/DAGMC
+    working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< parameters.moab >>-hdf5-<< parameters.hdf5 >>/DAGMC
     environment:
       COMPILER: << parameters.compiler >>
       HDF5_VERSION: << parameters.hdf5 >>
