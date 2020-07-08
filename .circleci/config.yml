@@ -32,7 +32,7 @@ jobs:
             echo "export MOAB_VERSION=5.1.0" >> $BASH_ENV
             echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
             echo "export TRAVIS_REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
-            echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PULL_REQUEST}" >> $BASH_ENV
+            echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
       - run:
           name: Housekeeping
           command: CI/travis/housekeeping.sh
@@ -58,8 +58,8 @@ jobs:
             echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
             echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
             echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
-            echo "export TRAVIS_REPO_SLUG=${CIRCLE_PR_REPONAME}" >> $BASH_ENV
-            echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PULL_REQUEST}" >> $BASH_ENV
+            echo "export TRAVIS_REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+            echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
       - run:
           name: building DAGMC
           command: CI/travis/install.sh
