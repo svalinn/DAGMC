@@ -19,8 +19,8 @@ jobs:
 # news file checker
   housekeeping:
     parameters:
-        img: 
-          type: executor
+      img: 
+        type: executor
     executor: << parameters.img >>
     steps:
       - checkout
