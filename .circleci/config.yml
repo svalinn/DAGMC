@@ -20,7 +20,8 @@ jobs:
     parameters:
       img:
         type: string
-    docker: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
+    docker: 
+      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
     steps:
       - checkout
       - run:
