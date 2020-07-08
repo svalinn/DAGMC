@@ -67,7 +67,7 @@ workflows:
       - house_keeping:
           matrix:
             paramters:
-              img: ["18.04"]
+              img: ["16.04", "18.04"]
               node: ["test"]
           filters:
             branches:
