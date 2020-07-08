@@ -2,7 +2,7 @@
 
 set -ex
 
-source CI/envb.sh
+source CI/env.sh
 
 # symlink make_watertight regression test files if present
 # shared

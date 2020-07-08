@@ -2,7 +2,7 @@
 
 set -ex
 
-source CI/envb.sh
+source CI/env.sh
 
 cd ${dagmc_build_dir}/DAGMC
 
