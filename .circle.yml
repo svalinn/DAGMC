@@ -70,7 +70,7 @@ workflows:
       - housekeeping
           matrix:
             paramters:
-              img: ["18.04"] 
+              img: [18.04] 
           filters:
             branches:
               pull_request: true
