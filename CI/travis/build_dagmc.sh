@@ -5,7 +5,7 @@
 
 set -ex
 
-source ${docker_env}
+source CI/env.sh
 
 function build_dagmc() {
 
