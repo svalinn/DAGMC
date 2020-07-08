@@ -26,8 +26,8 @@ jobs:
       COMPILER: "gcc"
       HDF5_VERSION: "1.10.4"
       MOAB_VERSION: "5.1.0"
-      TRAVIS_REPO_SLUG: ${{ github.repository }}
-      TRAVIS_PULL_REQUEST: ${{ github.event.number }}
+      TRAVIS_REPO_SLUG: ${CIRCLE_PR_REPONAME}
+      TRAVIS_PULL_REQUEST: ${CIRCLE_PULL_REQUEST}
     working_directory: /root/build/gcc/DAGMC-moab-5.1.0-hdf5-1.10.4/DAGMC
     steps:
       - checkout
@@ -52,8 +52,8 @@ jobs:
       COMPILER: << parameters.compiler >>
       HDF5_VERSION: << parameters.hdf5 >>
       MOAB_VERSION: << parameters.moab >>
-      TRAVIS_REPO_SLUG: ${{ github.repository }}
-      TRAVIS_PULL_REQUEST: ${{ github.event.number }} 
+      TRAVIS_REPO_SLUG: ${CIRCLE_PR_REPONAME}
+      TRAVIS_PULL_REQUEST: ${CIRCLE_PULL_REQUEST} 
     steps:
       - checkout
       - run:
