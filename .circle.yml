@@ -18,9 +18,9 @@ executors:
 jobs:
 # news file checker
   housekeeping:
-      parameters:
-          img: 
-            type: executor
+    parameters:
+        img: 
+          type: executor
     executor: << parameters.img >>
     steps:
       - checkout
@@ -39,7 +39,6 @@ jobs:
         type: string
       moab: 
         type: string
-
     executor: << parameters.img >>
     working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>
     environment:
