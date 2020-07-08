@@ -20,6 +20,8 @@ jobs:
     parameters:
       img:
         type: executor
+      node:
+        type: string
     executor: << parameters.img >>
     steps:
       - checkout
@@ -68,7 +70,8 @@ workflows:
       - housekeeping:
           matrix:
             paramters:
-              img: [18.04] 
+              img: [18.04]
+              node: ["test"]
           filters:
             branches:
               pull_request: true
