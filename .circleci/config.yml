@@ -47,7 +47,7 @@ jobs:
         type: string
     docker: 
       - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
-    working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>
+    working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< paramters.moab >>-hdf5-<< paramters.hdf5 >>/DAGMC
     environment:
       COMPILER: << parameters.compiler >>
       HDF5_VERSION: << parameters.hdf5 >>
@@ -57,11 +57,11 @@ jobs:
     steps:
       - checkout
       - run:
-        name: building DAGMC
-        command: CI/travis/install.sh
+          name: building DAGMC
+          command: CI/travis/install.sh
       - run:
-        name: building DAGMC
-        command: CI/travis/test.sh
+          name: building DAGMC
+          command: CI/travis/test.sh
   
 
 # Workflow part:
