@@ -26,14 +26,14 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Setup enviroment
-        command: |
-          echo "export COMPILER=gcc" >> $BASH_ENV
-          echo "export MOAB_VERSION=5.1.0" >> $BASH_ENV
-          echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
-          echo "export TRAVIS_REPO_SLUG=${CIRCLE_PR_REPONAME}" >> $BASH_ENV
-          echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PULL_REQUEST}" >> $BASH_ENV
-    - run:
+          name: Setup enviroment
+          command: |
+            echo "export COMPILER=gcc" >> $BASH_ENV
+            echo "export MOAB_VERSION=5.1.0" >> $BASH_ENV
+            echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
+            echo "export TRAVIS_REPO_SLUG=${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+            echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PULL_REQUEST}" >> $BASH_ENV
+      - run:
           name: Housekeeping
           command: CI/travis/housekeeping.sh
  
