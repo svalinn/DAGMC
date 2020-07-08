@@ -66,11 +66,11 @@ workflows:
     jobs:
       - house_keeping:
           matrix:
-            paramters:
+            parameters:
               img: ["16.04", "18.04"]
           filters:
             branches:
-              exlude: develop
+              exclude: develop
       
       # - build_and_test:
       #     matrix:
