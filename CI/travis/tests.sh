@@ -2,7 +2,7 @@
 
 set -ex
 
-source ${docker_env}
+source CI/envb.sh
 
 # symlink make_watertight regression test files if present
 # shared
