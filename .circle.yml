@@ -67,7 +67,7 @@ workflows:
   version: 2
   pull_request:
     jobs:
-      - housekeeping
+      - housekeeping:
           matrix:
             paramters:
               img: [18.04] 
@@ -75,7 +75,7 @@ workflows:
             branches:
               pull_request: true
       
-      - build_and_test
+      - build_and_test:
           matrix:
             paramters:
               img: [ 16.04, 18.04]
