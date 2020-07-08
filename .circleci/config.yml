@@ -27,7 +27,8 @@ jobs:
       HDF5_VERSION: "1.10.4"
       MOAB_VERSION: "5.1.0"
       TRAVIS_REPO_SLUG: ${{ github.repository }}
-      TRAVIS_PULL_REQUEST: ${{ github.event.number }} 
+      TRAVIS_PULL_REQUEST: ${{ github.event.number }}
+    working_directory: /root/build/gcc/DAGMC-moab-5.1.0-hdf5-1.10.4/DAGMC
     steps:
       - checkout
       - run:
