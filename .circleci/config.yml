@@ -22,6 +22,12 @@ jobs:
         type: string
     docker: 
       - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
+  environment:
+      COMPILER: "gcc"
+      HDF5_VERSION: "1.10.4"
+      MOAB_VERSION: "5.1.0"
+      TRAVIS_REPO_SLUG: ${{ github.repository }}
+      TRAVIS_PULL_REQUEST: ${{ github.event.number }} 
     steps:
       - checkout
       - run:
