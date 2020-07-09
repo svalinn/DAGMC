@@ -29,7 +29,7 @@ function build_dagmc() {
   mkdir -p ${build_dir}/bld
   cd ${build_dir}
   cd bld
-  cmake ${dagmc_build_dir}/DAGMC -DMOAB_DIR=${moab_install_dir} \
+  cmake ${dagmc_build_dir} -DMOAB_DIR=${moab_install_dir} \
                -DBUILD_GEANT4=ON \
                -DGEANT4_DIR=${geant4_install_dir} \
                -DBUILD_CI_TESTS=ON \
