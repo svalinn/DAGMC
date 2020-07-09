@@ -5,7 +5,7 @@ jobs:
       img:
         type: string
     docker: 
-      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
+      - image: svalinn/test_dagmc-ci-ubuntu-<< parameters.img >>:latest
     working_directory: /root/build/gcc/DAGMC-moab-5.1.0-hdf5-1.10.4/DAGMC
     steps:
       - checkout
@@ -32,7 +32,7 @@ jobs:
       moab: 
         type: string
     docker: 
-      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>:latest
+      - image: svalinn/test_dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-g4-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
     working_directory: /root/build/<< parameters.compiler >>/DAGMC-moab-<< parameters.moab >>-hdf5-<< parameters.hdf5 >>/DAGMC
     steps:
       - checkout
