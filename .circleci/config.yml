@@ -79,7 +79,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "0 0 * * 2,45" # only running on Tuesday and Thursday
+          cron: "0 0 * * 2,4" # only running on Tuesday and Thursday
           filters:
             branches:
               only:
