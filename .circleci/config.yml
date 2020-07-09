@@ -17,6 +17,7 @@ jobs:
             echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
             echo "export TRAVIS_REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
             echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
+      - run: ls && pwd
       - run:
           name: Housekeeping
           command: CI/travis/housekeeping.sh
