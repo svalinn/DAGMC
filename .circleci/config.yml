@@ -1,20 +1,4 @@
 version: 2.1
-# Executors:
-# Alias the environment on which run the different jobs
-# i.e. in this case, docker image in which the jobs will be run
-# executors:
-#     u16.04:
-#         docker:
-#             - image: svalinn/dagmc-ci-ubuntu-16.04:latest
-#     u18.04:
-#         docker:
-#             - image: svalinn/dagmc-ci-ubuntu-18.04:latest
-
-
-
-# Jobs part:
-# Define the different job that will be ran this separate building form
-# testing for each configuration allowing to get more information out of the CI
 jobs:
   house_keeping:
     parameters:
@@ -68,10 +52,6 @@ jobs:
           command: CI/travis/tests.sh
   
 
-# Workflow part:
-# This part defines the list of the jobs that will be ran and in which sequence.
-# The goal was to avoid running advanced configuration if PyNE does not work
-# with limited amount of dependencies.
 workflows:
   version: 2
   pull_request:
