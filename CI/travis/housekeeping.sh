@@ -4,7 +4,7 @@ set -ex
 
 source CI/env.sh
 
-cd ${dagmc_build_dir}/DAGMC
+cd ${dagmc_build_dir}
 
 # Check for news file if this is a PR into svalinn/DAGMC
 if [ "${TRAVIS_REPO_SLUG}" == "svalinn/DAGMC" ] && \
