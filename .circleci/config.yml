@@ -71,6 +71,8 @@ workflows:
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0"]
+          requires:
+            house_keeping
           filters:
             branches:
               ignore: develop
