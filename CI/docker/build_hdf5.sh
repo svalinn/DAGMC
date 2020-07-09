@@ -24,7 +24,7 @@ if [ $hdf5_1_10_4_shasum != $tar_chashum ]; then
     exit 1
 fi
 
-tar -xzvf hdf5-${HDF5_VERSION}.tar.gz
+tar -xzf hdf5-${HDF5_VERSION}.tar.gz
 cd bld
 ../hdf5-${HDF5_VERSION}/configure --enable-shared \
                  --prefix=${hdf5_install_dir} \
