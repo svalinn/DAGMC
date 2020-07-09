@@ -23,3 +23,10 @@ ENV docker_env=/root/etc/CI/env.sh
 
 ENV build_dir=/root/build_dir
 ENV install_dir=/root/opt
+ENV geant4_build_dir=${build_dir}/geant4
+ENV geant4_install_dir=${install_dir}/geant4
+ENV hdf5_build_dir=${build_dir}/hdf5
+ENV hdf5_install_dir=${install_dir}/hdf5
+ENV moab_build_dir=${build_dir}/moab
+ENV moab_install_dir=${install_dir}/moab
+

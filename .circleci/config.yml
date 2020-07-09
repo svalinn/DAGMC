@@ -20,6 +20,7 @@ jobs:
       - run: echo $install_dir
       - run: echo $moab_install_dir
       - run: echo $hdf5_build_dir
+      - run: echo $COMPILER
       - run:
           name: Housekeeping
           command: CI/travis/housekeeping.sh

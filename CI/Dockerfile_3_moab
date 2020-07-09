@@ -3,9 +3,9 @@ ARG COMPILER=gcc
 ARG HDF5=1.10.4
 FROM svalinn/test_dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-g4-hdf5_${HDF5}
 
-ENV moab_build_dir=${build_dir}/moab
-ENV moab_install_dir=${install_dir}/moab
+# ENV moab_build_dir=${build_dir}/moab
+# ENV moab_install_dir=${install_dir}/moab
 
 # MOAB Verions: 5.1.0
 ENV MOAB_VERSION=${MOAB}
-RUN /root/etc/CI/docker/build_moab.sh
+#RUN /root/etc/CI/docker/build_moab.sh

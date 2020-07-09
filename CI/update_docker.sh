@@ -15,14 +15,14 @@ for ubuntu_version in ${ubuntu_versions}; do
     image_name="svalinn/test_dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-g4"
     docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
                                   --build-arg COMPILER=${compiler} \
-                 -f CI/Dockerfile_1_g4 . --no-cache
+                 -f CI/Dockerfile_1_g4 .
     docker push ${image_name}
     for hdf5 in $hdf5_versions; do
       image_name="svalinn/test_dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-g4-hdf5_${hdf5}"
       docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
                                     --build-arg COMPILER=${compiler} \
                                     --build-arg HDF5=${hdf5} \
-                   -f CI/Dockerfile_2_hdf5 . --no-cache
+                   -f CI/Dockerfile_2_hdf5 .
       docker push ${image_name}
       for moab in $moab_versions; do
         image_name="svalinn/test_dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-g4-hdf5_${hdf5}-moab_${moab}"
@@ -30,7 +30,7 @@ for ubuntu_version in ${ubuntu_versions}; do
                                       --build-arg COMPILER=${compiler} \
                                       --build-arg HDF5=${hdf5} \
                                       --build-arg MOAB=${moab} \
-                     -f CI/Dockerfile_2_hdf5 . --no-cache
+                     -f CI/Dockerfile_2_hdf5 .
         docker push ${image_name}
       done
     done
