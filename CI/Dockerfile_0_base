@@ -1,0 +1,27 @@
+ARG UBUNTU_VERSION=18.04
+FROM ubuntu:${UBUNTU_VERSION}
+
+# Use bash as the default shell
+SHELL ["/bin/bash", "-c"]
+
+# Update core packages
+ARG UBUNTU_VERSION=18.04
+ARG COMPILER=gcc
+RUN apt-get -y update; \
+    apt-get -y install autoconf clang cmake ${COMPILER} gfortran git libblas-dev \
+                       libhdf5-dev liblapack-dev libpython2.7-dev libtool libeigen3-dev\
+                       python-numpy python-pip python-setuptools wget; \
+    if [ "${UBUNTU_VERSION}" = "18.04" ]; then \
+        pip install sphinx; \
+        apt-get -y install astyle; \
+    fi; \
+    pip install cython
+
+# Copy scripts to docker image
+RUN mkdir -p /root/etc/
+COPY CI/ /root/etc/CI
+ENV docker_env=/root/etc/CI/env.sh
+
+ENV build_dir=/root/build_dir
+ENV install_dir=/root/opt
+ENV COMPILER=${COMPILER}

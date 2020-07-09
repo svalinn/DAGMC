@@ -1,0 +1,14 @@
+ARG UBUNTU_VERSION=18.04
+ARG COMPILER=gcc
+ARG HDF5=1.10.4
+FROM svalinn/test_dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-G4-HDF5_${HDF5}
+
+
+
+ENV moab_build_dir=${build_dir}/moab
+ENV moab_install_dir=${install_dir}/moab
+
+
+# MOAB Verions: 5.1.0
+ENV MOAB_VERSION=${MOAB}
+RUN /root/etc/CI/docker/build_moab.sh
