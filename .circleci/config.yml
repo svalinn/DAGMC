@@ -19,6 +19,7 @@ jobs:
             echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
       - run: echo $install_dir
       - run: echo $moab_install_dir
+      - run: echo $hdf5_build_dir
       - run:
           name: Housekeeping
           command: CI/travis/housekeeping.sh
