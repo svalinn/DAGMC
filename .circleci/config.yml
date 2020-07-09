@@ -48,10 +48,9 @@ jobs:
           name: building DAGMC
           command: CI/travis/install.sh
       - run:
-          name: building DAGMC
+          name: Testing DAGMC
           command: CI/travis/tests.sh
   
-
 workflows:
   version: 2
   pull_request:
@@ -76,4 +75,25 @@ workflows:
           filters:
             branches:
               ignore: develop
+  
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * 2,45" # only running on Tuesday and Thursday
+          filters:
+            branches:
+              only:
+                - develop
+    jobs:
+      - build_and_test:
+          matrix:
+            parameters:
+              img: [ "16.04", "18.04"]
+              compiler: ["clang", "gcc"]
+              hdf5: ["1.10.4"]
+              moab: ["5.1.0", "develop", "master"]
+          filters:
+            branches:
+              only: develop
+  
     
