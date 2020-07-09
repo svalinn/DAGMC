@@ -6,7 +6,7 @@ jobs:
         type: string
     docker: 
       - image: svalinn/test_dagmc-ci-ubuntu-<< parameters.img >>:latest
-    working_directory: /root/build/DAGMC
+    working_directory: /root/build_dir/DAGMC
     steps:
       - checkout
       - run:
@@ -33,7 +33,7 @@ jobs:
         type: string
     docker: 
       - image: svalinn/test_dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-g4-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
-    working_directory: /root/build/DAGMC
+    working_directory: /root/build_dir/DAGMC
     steps:
       - checkout
       - run:
