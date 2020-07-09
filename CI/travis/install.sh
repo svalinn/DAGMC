@@ -4,7 +4,7 @@ set -ex
 
 source CI/env.sh
 
-cd ${dagmc_build_dir}/DAGMC
+cd ${dagmc_build_dir}
 
 # Only build MOAB master and develop; v5.1.0 is already in the docker image
 if [ "${MOAB_VERSION}" == "master" ] || [ "${MOAB_VERSION}" == "develop" ]; then
