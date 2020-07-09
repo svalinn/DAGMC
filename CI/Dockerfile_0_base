@@ -19,7 +19,7 @@ RUN apt-get -y update; \
 # Copy scripts to docker image
 RUN mkdir -p /root/etc/
 COPY CI/ /root/etc/CI
-run  echo 'export docker_env=/root/etc/CI/env.sh' >> $BASH_ENV
+ENV docker_env=/root/etc/CI/env.sh
 
-run  echo 'export build_dir=/root/build_dir' >> $BASH_ENV
-run  echo 'export install_dir=/root/opt' >> $BASH_ENV
+ENV build_dir=/root/build_dir
+ENV install_dir=/root/opt
