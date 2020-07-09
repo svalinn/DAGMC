@@ -2,7 +2,7 @@
 
 set -ex
 
-ubuntu_versions="16.04 18.04"
+ubuntu_versions="16.04 18.04 20.04"
 compilers="gcc clang"
 hdf5_versions="1.10.4"
 moab_versions="5.1.0"
