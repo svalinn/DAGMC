@@ -6,7 +6,7 @@ set -ex
 export geant4_version=10.05
 export geant4_shasum=4b05b4f7d50945459f8dbe287333b9efb772bd23d50920630d5454ec570b782d
 
-source docker_env
+source ${docker_env}
 
 rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
 mkdir -p ${geant4_build_dir}/bld

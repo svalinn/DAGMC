@@ -6,9 +6,8 @@ SHELL ["/bin/bash", "-c"]
 
 # Update core packages
 ARG UBUNTU_VERSION=18.04
-ARG COMPILER=gcc
 RUN apt-get -y update; \
-    apt-get -y install autoconf clang cmake ${COMPILER} gfortran git libblas-dev \
+    apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
                        libhdf5-dev liblapack-dev libpython2.7-dev libtool libeigen3-dev\
                        python-numpy python-pip python-setuptools wget; \
     if [ "${UBUNTU_VERSION}" = "18.04" ]; then \
@@ -22,6 +21,6 @@ RUN mkdir -p /root/etc/
 COPY CI/ /root/etc/CI
 ENV docker_env=/root/etc/CI/env.sh
 
+RUN echo $docker_env
 ENV build_dir=/root/build_dir
 ENV install_dir=/root/opt
-ENV COMPILER=${COMPILER}

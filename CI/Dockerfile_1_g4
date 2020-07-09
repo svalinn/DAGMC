@@ -1,6 +1,8 @@
 ARG UBUNTU_VERSION=18.04
+FROM svalinn/test_dagmc-ci-ubuntu-${UBUNTU_VERSION}
+
 ARG COMPILER=gcc
-FROM svalinn/test_dagmc-ci-ubuntu-${UBUNTU_VERSION}-$COMPILER}
+ENV COMPILER=${COMPILER}
 
 # Set Geant4 env variable
 ENV geant4_build_dir=${build_dir}/geant4
