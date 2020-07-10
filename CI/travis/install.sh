@@ -2,7 +2,7 @@
 
 set -ex
 
-source CI/env.sh
+source ${docker_env}
 
 cd ${dagmc_build_dir}
 
