@@ -5,7 +5,8 @@ jobs:
       img:
         type: string
     docker: 
-      - image: svalinn/test_dagmc-ci-ubuntu-<< parameters.img >>:latest
+      - image: svalinn/test_dagmc-ci-ubuntu-16.04-gcc-g4-hdf5_1.10.4
+      #- image: svalinn/test_dagmc-ci-ubuntu-<< parameters.img >>:latest
     working_directory: /root/build_dir/DAGMC
     steps:
       - checkout
