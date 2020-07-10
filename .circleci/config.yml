@@ -13,9 +13,6 @@ jobs:
       - run:
           name: Setup enviroment
           command: |
-            echo "export COMPILER=gcc" >> $BASH_ENV
-            echo "export MOAB_VERSION=5.1.0" >> $BASH_ENV
-            echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
             echo "export TRAVIS_REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
             echo "export TRAVIS_PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
       - run: echo $install_dir
