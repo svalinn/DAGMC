@@ -30,7 +30,7 @@ for ubuntu_version in ${ubuntu_versions}; do
                                       --build-arg COMPILER=${compiler} \
                                       --build-arg HDF5=${hdf5} \
                                       --build-arg MOAB=${moab} \
-                     -f CI/Dockerfile_2_hdf5 .
+                     -f CI/Dockerfile_3_moab .
         docker push ${image_name}
       done
     done
