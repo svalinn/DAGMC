@@ -88,6 +88,10 @@ macro (dagmc_setup_options)
     message(WARNING "DOUBLE_DOWN is enabled but will only be applied to executables using the DAGMC shared library")
   endif()
 
+if (DOUBLE_DOWN)
+  find_package(DOUBLE_DOWN REQUIRED)
+endif()
+
 
   if (NOT BUILD_STATIC_LIBS AND BUILD_STATIC_EXE)
     message(FATAL_ERROR "BUILD_STATIC_EXE cannot be ON while BUILD_STATIC_LIBS is OFF")
@@ -220,7 +224,7 @@ macro (dagmc_install_library lib_name)
     message("LINK LIBS: ${LINK_LIBS_SHARED}")
     target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
     if (DOUBLE_DOWN)
-      target_compile_definitions(${lib_name}-shared PUBLIC DOUBLE_DOWN)
+      target_compile_definitions(${lib_name}-shared PRIVATE DOUBLE_DOWN)
       target_link_libraries(${lib_name}-shared PUBLIC dd)
     endif()
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
