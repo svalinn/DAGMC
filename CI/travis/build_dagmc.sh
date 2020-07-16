@@ -25,6 +25,11 @@ function build_dagmc() {
     local build_mw_reg_tests=OFF
   fi
 
+  if [ "${DOUBLE_DOWN}" == "ON"]; then
+    local double_down=ON
+  else
+    local double_down=OFF
+
   rm -rf ${build_dir}/bld ${install_dir}
   mkdir -p ${build_dir}/bld
   cd ${build_dir}
@@ -38,7 +43,8 @@ function build_dagmc() {
                -DCMAKE_C_COMPILER=${CC} \
                -DCMAKE_CXX_COMPILER=${CXX} \
                -DCMAKE_Fortran_COMPILER=${FC} \
-               -DCMAKE_INSTALL_PREFIX=${install_dir}
+               -DCMAKE_INSTALL_PREFIX=${install_dir} \
+               -DDOUBLE_DOWN=${double_down}
   make -j${jobs}
   make install
 }

@@ -19,5 +19,10 @@ if [ "${PULL_REQUEST}" == "false" ]; then
   cd -
 fi
 
+# Build the double_down project if needed
+if [ "${DOUBLE_DOWN}" == "ON" ]; then
+  CI/docker/build_double_down.sh
+fi
+
 # Build and install DAGMC
 CI/travis/build_dagmc.sh
