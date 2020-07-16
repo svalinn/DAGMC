@@ -29,6 +29,7 @@ function build_dagmc() {
     local double_down=ON
   else
     local double_down=OFF
+  fi
 
   rm -rf ${build_dir}/bld ${install_dir}
   mkdir -p ${build_dir}/bld
