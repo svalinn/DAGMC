@@ -422,11 +422,11 @@ class DagMC {
 
   std::shared_ptr<GeomTopoTool> GTT;
   // type alias for ray tracing engine
-  #ifdef DOUBLE_DOWN
-    using RayTracer = RayTracingInterface;
-  #else
-    using RayTracer = GeomQueryTool;
-  #endif
+#ifdef DOUBLE_DOWN
+  using RayTracer = RayTracingInterface;
+#else
+  using RayTracer = GeomQueryTool;
+#endif
 
   std::unique_ptr<RayTracer> GQT;
 
