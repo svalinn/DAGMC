@@ -66,9 +66,9 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
   // make new GeomTopoTool and GeomQueryTool
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
 #ifdef DOUBLE_DOWN
-  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT));
+  ray_tracer = std::unique_ptr<RayTracer>(new RayTracer(GTT));
 #else
-  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
+  ray_tracer = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
 #endif
 
   // This is the correct place to uniquely define default values for the dagmc settings
@@ -84,12 +84,12 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
   // make new GeomTopoTool and GeomQueryTool
   GTT = std::make_shared<GeomTopoTool> (MBI, false);
 #ifdef DOUBLE_DOWN
-  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT));
+  ray_tracer = std::unique_ptr<RayTracer>(new RayTracer(GTT));
 #else
-  GQT = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
+  ray_tracer = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
 #endif
-  GQT->set_overlap_thickness(overlap_tolerance);
-  GQT->set_numerical_precision(p_numerical_precision);
+  ray_tracer->set_overlap_thickness(overlap_tolerance);
+  ray_tracer->set_numerical_precision(p_numerical_precision);
 
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
@@ -219,7 +219,7 @@ ErrorCode DagMC::setup_obbs() {
   if (!GTT->have_obb_tree()) {
     std::cout << "Building acceleration data structures..." << std::endl;
 #ifdef DOUBLE_DOWN
-    rval = GQT->init();
+    rval = ray_tracer->init();
 #else
     rval = GTT->construct_obb_trees();
 #endif
@@ -300,7 +300,7 @@ ErrorCode DagMC::finish_loading() {
     facetingTolerance = facet_tol_tagvalue;
   }
 
-  // initialize GQT
+  // initialize ray_tracer
   std::cout << "Initializing the GeomQueryTool..." << std::endl;
   rval = GTT->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to find the geometry sets");
@@ -319,16 +319,16 @@ ErrorCode DagMC::ray_fire(const EntityHandle volume, const double point[3],
                           RayHistory* history,
                           double user_dist_limit, int ray_orientation,
                           OrientedBoxTreeTool::TrvStats* stats) {
-  ErrorCode rval = GQT->ray_fire(volume, point, dir, next_surf, next_surf_dist,
-                                 history, user_dist_limit, ray_orientation,
-                                 stats);
+  ErrorCode rval = ray_tracer->ray_fire(volume, point, dir, next_surf, next_surf_dist,
+                                        history, user_dist_limit, ray_orientation,
+                                        stats);
   return rval;
 }
 
 ErrorCode DagMC::point_in_volume(const EntityHandle volume, const double xyz[3],
                                  int& result, const double* uvw,
                                  const RayHistory* history) {
-  ErrorCode rval = GQT->point_in_volume(volume, xyz, result, uvw, history);
+  ErrorCode rval = ray_tracer->point_in_volume(volume, xyz, result, uvw, history);
   return rval;
 }
 
@@ -337,15 +337,15 @@ ErrorCode DagMC::test_volume_boundary(const EntityHandle volume,
                                       const double xyz[3], const double uvw[3],
                                       int& result,
                                       const RayHistory* history) {
-  ErrorCode rval = GQT->test_volume_boundary(volume, surface, xyz, uvw, result,
-                                             history);
+  ErrorCode rval = ray_tracer->test_volume_boundary(volume, surface, xyz, uvw, result,
+                                                    history);
   return rval;
 }
 
 // use spherical area test to determine inside/outside of a polyhedron.
 ErrorCode DagMC::point_in_volume_slow(EntityHandle volume, const double xyz[3],
                                       int& result) {
-  ErrorCode rval = GQT->point_in_volume_slow(volume, xyz, result);
+  ErrorCode rval = ray_tracer->point_in_volume_slow(volume, xyz, result);
   return rval;
 }
 
@@ -353,19 +353,19 @@ ErrorCode DagMC::point_in_volume_slow(EntityHandle volume, const double xyz[3],
 ErrorCode DagMC::closest_to_location(EntityHandle volume,
                                      const double coords[3], double& result,
                                      EntityHandle* surface) {
-  ErrorCode rval = GQT->closest_to_location(volume, coords, result, surface);
+  ErrorCode rval = ray_tracer->closest_to_location(volume, coords, result, surface);
   return rval;
 }
 
 // calculate volume of polyhedron
 ErrorCode DagMC::measure_volume(EntityHandle volume, double& result) {
-  ErrorCode rval = GQT->measure_volume(volume, result);
+  ErrorCode rval = ray_tracer->measure_volume(volume, result);
   return rval;
 }
 
 // sum area of elements in surface
 ErrorCode DagMC::measure_area(EntityHandle surface, double& result) {
-  ErrorCode rval = GQT->measure_area(surface, result);
+  ErrorCode rval = ray_tracer->measure_area(surface, result);
   return rval;
 }
 
@@ -387,7 +387,7 @@ ErrorCode DagMC::surface_sense(EntityHandle volume, EntityHandle surface,
 ErrorCode DagMC::get_angle(EntityHandle surf, const double in_pt[3],
                            double angle[3],
                            const RayHistory* history) {
-  ErrorCode rval = GQT->get_normal(surf, in_pt, angle, history);
+  ErrorCode rval = ray_tracer->get_normal(surf, in_pt, angle, history);
   return rval;
 }
 
@@ -480,16 +480,16 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
 
 /* SECTION IV */
 
-double DagMC::overlap_thickness() { return GQT->get_overlap_thickness(); }
+double DagMC::overlap_thickness() { return ray_tracer->get_overlap_thickness(); }
 
-double DagMC::numerical_precision() { return GQT->get_numerical_precision(); }
+double DagMC::numerical_precision() { return ray_tracer->get_numerical_precision(); }
 
 void DagMC::set_overlap_thickness(double new_thickness) {
-  GQT->set_overlap_thickness(new_thickness);
+  ray_tracer->set_overlap_thickness(new_thickness);
 }
 
 void DagMC::set_numerical_precision(double new_precision) {
-  GQT->set_numerical_precision(new_precision);
+  ray_tracer->set_numerical_precision(new_precision);
 }
 
 ErrorCode DagMC::write_mesh(const char* ffile,
