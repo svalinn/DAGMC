@@ -25,7 +25,7 @@ function build_dagmc() {
     local build_mw_reg_tests=OFF
   fi
 
-  if [ "${DOUBLE_DOWN}" == "ON"]; then
+  if [ "${DOUBLE_DOWN}" == "ON" ]; then
     local double_down=ON
   else
     local double_down=OFF
