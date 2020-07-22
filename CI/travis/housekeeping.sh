@@ -19,24 +19,24 @@ if [ "${TRAVIS_REPO_SLUG}" == "svalinn/DAGMC" ] && \
 fi
 
 # Run astyle check
-# astyle --options=astyle_google.ini \
-#        --exclude=src/gtest \
-#        --exclude=src/mcnp/mcnp5/Source \
-#        --exclude=src/mcnp/mcnp6/Source \
-#        --ignore-exclude-errors \
-#        --suffix=none \
-#        --recursive \
-#        --verbose \
-#        --formatted \
-#        "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
-# astyle_diffs=`git status --porcelain`
-# if [ -z "${astyle_diffs}" ]; then
-#   echo "Style guide checker passed!"
-# else
-#   echo "ERROR: Style guide checker failed. Please run astyle."
-#   echo "astyle_diffs: ${astyle_diffs}"
-#   exit 1
-# fi
+astyle --options=astyle_google.ini \
+       --exclude=src/gtest \
+       --exclude=src/mcnp/mcnp5/Source \
+       --exclude=src/mcnp/mcnp6/Source \
+       --ignore-exclude-errors \
+       --suffix=none \
+       --recursive \
+       --verbose \
+       --formatted \
+       "*.cc" "*.cpp" "*.h" "*.hh" "*.hpp"
+astyle_diffs=`git status --porcelain`
+if [ -z "${astyle_diffs}" ]; then
+  echo "Style guide checker passed!"
+else
+  echo "ERROR: Style guide checker failed. Please run astyle."
+  echo "astyle_diffs: ${astyle_diffs}"
+  exit 1
+fi
 
 # Build documentation
-# make html
+make html
