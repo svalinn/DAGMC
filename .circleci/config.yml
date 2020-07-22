@@ -10,6 +10,7 @@ jobs:
     working_directory: /root/build_dir/DAGMC
     steps:
       - checkout
+      - run: apt-get install -y astyle
       - run:
           name: Setup enviroment
           command: |
