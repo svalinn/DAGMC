@@ -11,4 +11,4 @@ ENV hdf5_install_dir=${install_dir}/hdf5
 # HDF5 argument possible value: 1.10.4 or system
 ARG HDF5=1.10.4
 ENV HDF5_VERSION=${HDF5}
-#RUN /root/etc/CI/docker/build_hdf5.sh
+RUN /root/etc/CI/docker/build_hdf5.sh

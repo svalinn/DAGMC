@@ -10,5 +10,5 @@ ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
 # Build Geant4
-#RUN /root/etc/CI/docker/build_geant4.sh 
+RUN /root/etc/CI/docker/build_geant4.sh 
 
