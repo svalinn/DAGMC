@@ -39,4 +39,4 @@ fi
 # fi
 
 # Build documentation
-make html
+# make html
