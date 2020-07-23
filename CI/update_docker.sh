@@ -39,3 +39,4 @@ done
 
 
 docker build -t svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping -f CI/Dockerfile_1_housekeeping .
+docker push svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping
