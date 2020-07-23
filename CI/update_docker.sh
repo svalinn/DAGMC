@@ -34,15 +34,7 @@ for ubuntu_version in ${ubuntu_versions}; do
         docker push ${image_name}
       done
 
-      # creating 2 additional tags for the container without MOAB to build live against MOAB `master` and `develop`
-      for moab in "develop master"; do
-        image_name="svalinn/test_dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-g4-hdf5_${hdf5}-moab_${moab}"
-        docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
-                                      --build-arg COMPILER=${compiler} \
-                                      --build-arg HDF5=${hdf5} \
-                    -f CI/Dockerfile_2_hdf5 .
-        docker push ${image_name}
-      done
+
     done
   done
 done

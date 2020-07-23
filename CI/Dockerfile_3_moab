@@ -10,4 +10,6 @@ ENV moab_install_dir=${install_dir}/moab
 # MOAB Verions: 5.1.0
 ARG MOAB=5.1.0
 ENV MOAB_VERSION ${MOAB}
-RUN /root/etc/CI/docker/build_moab.sh
+RUN if [ "${MOAB_VERSION}" != "master" ] && [ "${MOAB_VERSION}" != "develop" ]; then \
+        /root/etc/CI/docker/build_moab.sh; \
+    fi;
