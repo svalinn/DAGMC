@@ -19,7 +19,7 @@ for ubuntu_version in ${ubuntu_versions}; do
     docker push ${image_name}
     for hdf5 in $hdf5_versions; do
       image_name="svalinn/test_dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-g4-hdf5_${hdf5}"
-      docker build -t ${image_name} --no-cache --build-arg UBUNTU_VERSION=${ubuntu_version} \
+      docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
                                     --build-arg COMPILER=${compiler} \
                                     --build-arg HDF5=${hdf5} \
                    -f CI/Dockerfile_2_hdf5 .
@@ -38,4 +38,4 @@ for ubuntu_version in ${ubuntu_versions}; do
 done
 
 
-
+docker build -t svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping -f CI/Dockerfile_1_housekeeping .
