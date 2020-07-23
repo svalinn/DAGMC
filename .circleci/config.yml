@@ -87,8 +87,8 @@ workflows:
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0", "develop", "master"]
-          filters:
-            branches:
-              only: develop
+          # filters:
+          #   branches:
+          #     only: develop
   
     
