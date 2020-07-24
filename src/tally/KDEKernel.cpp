@@ -3,8 +3,6 @@
 #include <cassert>
 #include <iostream>
 
-#include <eigen3/Eigen/Dense>
-
 #include "KDEKernel.hpp"
 #include "PolynomialKernel.hpp"
 
