@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # DAGMC source code already exists because it was copied into
-# the docker image by travis.yml
+# the docker image by circle.yml
 
 set -ex
 
@@ -19,7 +19,7 @@ function build_dagmc() {
     local static_exe=ON
   fi
 
-  if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
+  if [ "${PULL_REQUEST}" == "false" ]; then
     local build_mw_reg_tests=ON
   else
     local build_mw_reg_tests=OFF

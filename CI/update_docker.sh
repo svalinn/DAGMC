@@ -5,7 +5,7 @@ set -ex
 ubuntu_versions="16.04 18.04"
 compilers="gcc clang"
 hdf5_versions="1.10.4"
-moab_versions="5.1.0"
+moab_versions="5.1.0 develop master"
 for ubuntu_version in ${ubuntu_versions}; do
   image_name="svalinn/test_dagmc-ci-ubuntu-${ubuntu_version}"
   docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
@@ -39,6 +39,6 @@ for ubuntu_version in ${ubuntu_versions}; do
   done
 done
 
-
+# Building image for houe keeping
 docker build -t svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping -f CI/Dockerfile_1_housekeeping .
 docker push svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping
