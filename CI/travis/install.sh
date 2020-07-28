@@ -4,7 +4,7 @@ set -ex
 
 source ${docker_env}
 
-cd ${dagmc_build_dir}/DAGMC
+cd ${dagmc_build_dir}
 
 # Only build MOAB master and develop; v5.1.0 is already in the docker image
 if [ "${MOAB_VERSION}" == "master" ] || [ "${MOAB_VERSION}" == "develop" ]; then
@@ -12,7 +12,7 @@ if [ "${MOAB_VERSION}" == "master" ] || [ "${MOAB_VERSION}" == "develop" ]; then
 fi
 
 # If this is not a pull request, get files needed for regression tests
-if [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
+if [ "${PULL_REQUEST}" == "false" ]; then
   cd /tmp
   wget ${MW_REG_TEST_MODELS_URL} -O mw_reg_test_files.tar.gz -o wget.out
   tar xzvf mw_reg_test_files.tar.gz

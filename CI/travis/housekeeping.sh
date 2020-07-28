@@ -4,12 +4,12 @@ set -ex
 
 source ${docker_env}
 
-cd ${dagmc_build_dir}/DAGMC
+cd ${dagmc_build_dir}
 
 # Check for news file if this is a PR into svalinn/DAGMC
-if [ "${TRAVIS_REPO_SLUG}" == "svalinn/DAGMC" ] && \
-   [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
-  news_file=$(printf 'news/PR-%04u.rst' ${TRAVIS_PULL_REQUEST})
+if [ "${REPO_SLUG}" == "svalinn/DAGMC" ] && \
+   [ "${PULL_REQUEST}" != "false" ]; then
+  news_file=$(printf 'news/PR-%04u.rst' ${PULL_REQUEST})
   if [ -f "${news_file}" ]; then
     echo "News file ${news_file} found!"
   else

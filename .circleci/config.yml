@@ -1,0 +1,89 @@
+version: 2.1
+jobs:
+  house_keeping:
+    parameters:
+      img:
+        type: string
+    docker: 
+      - image: svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
+    working_directory: /root/build_dir/DAGMC
+    steps:
+      - checkout
+      - run:
+          name: Setup environment
+          command: |
+            echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+            echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
+      - run:
+          name: Housekeeping
+          command: CI/travis/housekeeping.sh
+ 
+  build_and_test:
+    parameters:
+      img:
+        type: string
+      compiler:
+        type: string
+      hdf5:
+        type: string
+      moab: 
+        type: string
+    docker: 
+      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-g4-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
+    working_directory: /root/build_dir/DAGMC
+    steps:
+      - checkout
+      - run:
+          name: Setup environment
+          command: |
+            echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
+            echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
+            echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
+            echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+            echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
+      - run:
+          name: building DAGMC
+          command: CI/travis/install.sh
+      - run:
+          name: Testing DAGMC
+          command: CI/travis/tests.sh
+  
+workflows:
+  version: 2
+  pull_request: # Run only for PullRequest
+    jobs:
+      - house_keeping:
+          matrix:
+            parameters:
+              img: ["18.04"]
+          filters:
+            branches:
+              ignore: develop
+      
+      - build_and_test:
+          matrix:
+            parameters:
+              img: [ "16.04", "18.04"]
+              compiler: ["clang", "gcc"]
+              hdf5: ["1.10.4"]
+              moab: ["5.1.0"]
+          requires:
+            - house_keeping
+          filters:
+            branches:
+              ignore: develop
+  
+  merge:  # Run only on develop change -> when merging a PullRequest
+    jobs:
+      - build_and_test:
+          matrix:
+            parameters:
+              img: [ "16.04", "18.04"]
+              compiler: ["clang", "gcc"]
+              hdf5: ["1.10.4"]
+              moab: ["5.1.0", "develop", "master"]
+          filters:
+            branches:
+              only: develop
+  
+    

@@ -1,0 +1,14 @@
+ARG UBUNTU_VERSION=18.04
+ARG COMPILER=gcc
+FROM svalinn/test_dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-g4
+
+
+# Set HDF5 env variable
+ENV hdf5_build_dir=${build_dir}/hdf5
+ENV hdf5_install_dir=${install_dir}/hdf5
+
+# Build HDF5
+# HDF5 argument possible value: 1.10.4 or system
+ARG HDF5=1.10.4
+ENV HDF5_VERSION=${HDF5}
+RUN /root/etc/CI/docker/build_hdf5.sh

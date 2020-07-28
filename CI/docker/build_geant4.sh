@@ -2,6 +2,10 @@
 
 set -ex
 
+# Geant version and corresponding SHASUM
+export geant4_version=10.05
+export geant4_shasum=4b05b4f7d50945459f8dbe287333b9efb772bd23d50920630d5454ec570b782d
+
 source ${docker_env}
 
 rm -rf ${geant4_build_dir}/bld ${geant4_install_dir}
@@ -14,7 +18,7 @@ if [ $geant4_shasum != $tar_chashum ]; then
     exit 1
 fi
 
-tar -xzvf geant4.${geant4_version}.tar.gz
+tar -xzf geant4.${geant4_version}.tar.gz
 cd bld
 cmake ../geant4.${geant4_version} -DBUILD_STATIC_LIBS=ON \
              -DGEANT4_USE_SYSTEM_EXPAT=OFF \

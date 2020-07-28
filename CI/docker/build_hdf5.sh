@@ -4,6 +4,9 @@ set -ex
 
 source ${docker_env}
 
+export hdf5_1_10_4_shasum=8f60dc4dd6ab5fcd23c750d1dc5bca3d0453bdce5c8cdaf0a4a61a9d1122adb2
+
+
 if [ "${HDF5_VERSION:3:1}" == "." ]; then
   HDF5_VERSION_major=${HDF5_VERSION::3}
 elif [ "${HDF5_VERSION:4:1}" == "." ]; then
@@ -21,7 +24,7 @@ if [ $hdf5_1_10_4_shasum != $tar_chashum ]; then
     exit 1
 fi
 
-tar -xzvf hdf5-${HDF5_VERSION}.tar.gz
+tar -xzf hdf5-${HDF5_VERSION}.tar.gz
 cd bld
 ../hdf5-${HDF5_VERSION}/configure --enable-shared \
                  --prefix=${hdf5_install_dir} \
