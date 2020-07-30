@@ -67,13 +67,24 @@ diff -rN '--unified=0' Source/src/celsrf.F90 Source_dagmc/src/celsrf.F90
 diff -rN '--unified=0' Source/src/charged_particle_history.F90 Source_dagmc/src/charged_particle_history.F90
 --- Source/src/charged_particle_history.F90
 +++ Source_dagmc/src/charged_particle_history.F90
-@@ -326,0 +327,5 @@
+@@ -54,0 +55 @@
++  use dagmc_mod, only : isdgmc
+@@ -326,0 +328,5 @@
 +
 +        ! DAGMC: if minimum distance to next event is exactly zero, skip the
 +        ! charged particle physics and go directly to the surface crossing
-+        if( d_step_inter_decay_surf == zero ) goto 101
++        if( isdgmc == 1 .and. d_step_inter_decay_surf == zero ) goto 101
 +
-@@ -627,0 +633,2 @@
+@@ -580 +586,7 @@
+-          call uplpos(xt,uold,pbl%i%lev,D,v,0)
++          ! Fixed bug where high-energy protons in geometries involving
++          ! universes were getting lost; patch provided by Franz Gallmeier
++          if (am /= one) then
++            call uplpos(xt,uold,pbl%i%lev,D,v,1)
++          else
++            call uplpos(xt,uold,pbl%i%lev,D,v,0)
++          endif
+@@ -627,0 +640,2 @@
 +
 +101     continue  ! DAGMC jump target
 diff -rN '--unified=0' Source/src/check_binary_expire.F90 Source_dagmc/src/check_binary_expire.F90
@@ -678,10 +689,23 @@ diff -rN '--unified=0' Source/src/fmesh_mod.F90 Source_dagmc/src/fmesh_mod.F90
 diff -rN '--unified=0' Source/src/history_neutral_high.F90 Source_dagmc/src/history_neutral_high.F90
 --- Source/src/history_neutral_high.F90
 +++ Source_dagmc/src/history_neutral_high.F90
-@@ -156 +156,2 @@
+@@ -38,0 +39 @@
++  use dagmc_mod, only : isdgmc
+@@ -156,3 +157,11 @@
 -      if( D <= zero ) then  !  Review the need for this test.
-+      ! DAGMC: use < instead of <=
-+      if( D < zero ) then  !  Review the need for this test.
+-        call expirx(1,'neutral_particle_history','event distance = zero')
+-        exit CELL_LOOP ! Return
++      ! DAGMC: use < instead of <= in check between D and zero
++      if (isdgmc == 1) then
++        if( D < zero ) then  !  Review the need for this test.
++          call expirx(1,'neutral_particle_history','event distance = zero')
++          exit CELL_LOOP ! Return
++        endif
++      else
++        if( D <= zero ) then  !  Review the need for this test.
++          call expirx(1,'neutral_particle_history','event distance = zero')
++          exit CELL_LOOP ! Return
++        endif
 diff -rN '--unified=0' Source/src/hstory.F90 Source_dagmc/src/hstory.F90
 --- Source/src/hstory.F90
 +++ Source_dagmc/src/hstory.F90
