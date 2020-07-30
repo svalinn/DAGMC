@@ -32,7 +32,7 @@ jobs:
         type: string
         default: "OFF"
     docker:
-      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-g4-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
+      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-g4-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>-double_down_<< parameters.double_down >>:latest
     working_directory: /root/build_dir/DAGMC
     steps:
       - checkout
@@ -71,6 +71,7 @@ workflows:
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0"]
+              double_down: ["ON"]
           requires:
             - house_keeping
           filters:
@@ -89,15 +90,3 @@ workflows:
           filters:
             branches:
               only: develop
-      - double_down:
-          matrix:
-            parameters:
-              img: ["18.04"]
-              compiler: ["gcc"]
-              hdf5: ["1.10.4"]
-              moab: ["master"]
-              double_down: ["ON"]
-          filters:
-            branches:
-              only : develop
-
