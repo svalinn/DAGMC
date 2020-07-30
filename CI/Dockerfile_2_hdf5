@@ -3,6 +3,7 @@ ARG COMPILER=gcc
 FROM svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-g4
 
 
+
 # Set HDF5 env variable
 ENV hdf5_build_dir=${build_dir}/hdf5
 ENV hdf5_install_dir=${install_dir}/hdf5
