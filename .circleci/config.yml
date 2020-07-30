@@ -32,7 +32,7 @@ jobs:
         type: string
         default: "OFF"
     docker:
-      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-g4-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>-double_down_<< parameters.double_down >>:latest
+      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-g4-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>-embree_<< parameters.double_down >>:latest
     working_directory: /root/build_dir/DAGMC
     steps:
       - checkout
