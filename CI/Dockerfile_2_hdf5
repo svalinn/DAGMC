@@ -1,6 +1,6 @@
 ARG UBUNTU_VERSION=18.04
 ARG COMPILER=gcc
-FROM svalinn/test_dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-g4
+FROM svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-g4
 
 
 # Set HDF5 env variable
