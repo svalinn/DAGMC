@@ -46,11 +46,18 @@ jobs:
             echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
             echo "export DOUBLE_DOWN=<< parameters.double_down >>" >> $BASH_ENV
       - run:
-          name: building DAGMC
+          name: Building DAGMC
           command: CI/travis/install.sh
       - run:
           name: Testing DAGMC
           command: CI/travis/tests.sh
+      # do not report failure for experimental double down builds
+      - when:
+          name: Experimental build check
+          condition: <<parameters.double_down>>
+          ignore_previous_status: true
+          steps:
+            - run: echo "DOUBLE DOWN BUILD FAILED"
 
 workflows:
   version: 2
@@ -77,6 +84,13 @@ workflows:
           filters:
             branches:
               ignore: develop
+      - build_and_test:
+          name: "Double Down"
+          img: "18.04"
+          compiler: "gcc"
+          hdf5: "1.10.4"
+          moab: "master"
+          double_down: "ON"
 
   merge:  # Run only on develop change -> when merging a PullRequest
     jobs:
