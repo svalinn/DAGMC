@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 source ${docker_env}
 
@@ -11,7 +11,7 @@ git clone https://github.com/pshriwise/double-down
 ln -snf double-down src
 
 cd ${double_down_build_dir}/bld
-cmake ${double_down_build_dir} -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
+cmake ${double_down_build_dir}/src -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
       -DMOAB_DIR=${moab_install_dir} -DEMBREE_DIR=$HOME/EMBREE/
 make -j${jobs}
 make install
