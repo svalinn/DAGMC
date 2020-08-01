@@ -21,7 +21,7 @@ fi
 
 # Build the double_down project if needed
 if [ "${DOUBLE_DOWN}" == "ON" ]; then
-  CI/docker/build_double_down.sh
+  CI/travis/build_double_down.sh
 fi
 
 # Build and install DAGMC
