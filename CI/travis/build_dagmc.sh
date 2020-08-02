@@ -45,7 +45,8 @@ function build_dagmc() {
                -DCMAKE_CXX_COMPILER=${CXX} \
                -DCMAKE_Fortran_COMPILER=${FC} \
                -DCMAKE_INSTALL_PREFIX=${install_dir} \
-               -DDOUBLE_DOWN=${double_down}
+               -DDOUBLE_DOWN=${double_down} \
+               -DCMAKE_PREFIX_PATH=${double_down_install_dir}/lib
   make -j${jobs}
   make install
 }
