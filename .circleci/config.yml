@@ -78,7 +78,6 @@ workflows:
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
               moab: ["5.1.0"]
-              double_down: ["ON"]
           requires:
             - house_keeping
           filters:
