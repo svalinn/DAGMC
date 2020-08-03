@@ -83,13 +83,6 @@ workflows:
           filters:
             branches:
               ignore: develop
-      - build_and_test:
-          name: "Double Down"
-          img: "18.04"
-          compiler: "gcc"
-          hdf5: "1.10.4"
-          moab: "master"
-          double_down: "ON"
 
   merge:  # Run only on develop change -> when merging a PullRequest
     jobs:
@@ -103,3 +96,10 @@ workflows:
           filters:
             branches:
               only: develop
+      - build_and_test:
+          name: "Double Down"
+          img: "18.04"
+          compiler: "gcc"
+          hdf5: "1.10.4"
+          moab: "master"
+          double_down: "ON"
