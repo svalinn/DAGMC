@@ -16,7 +16,7 @@ jobs:
             echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
       - run:
           name: Housekeeping
-          command: CI/travis/housekeeping.sh
+          command: CI/circleci/housekeeping.sh
 
   build_and_test:
     parameters:
@@ -47,10 +47,10 @@ jobs:
             echo "export DOUBLE_DOWN=<< parameters.double_down >>" >> $BASH_ENV
       - run:
           name: Building DAGMC
-          command: CI/travis/install.sh
+          command: CI/circleci/install.sh
       - run:
           name: Testing DAGMC
-          command: CI/travis/tests.sh
+          command: CI/circleci/tests.sh
 
 workflows:
   version: 2
