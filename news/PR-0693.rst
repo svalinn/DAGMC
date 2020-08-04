@@ -1,0 +1,11 @@
+**Added:** None
+
+**Changed:** Adding optional double-down dependency to enable ray tracing with Embree.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

@@ -1,7 +1,7 @@
 ARG UBUNTU_VERSION=18.04
 FROM svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
 
-#setting the COMPILER variable 
+#setting the COMPILER variable
 ARG COMPILER=gcc
 ENV COMPILER=${COMPILER}
 
@@ -10,5 +10,11 @@ ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
 # Build Geant4
-RUN /root/etc/CI/docker/build_geant4.sh 
+RUN /root/etc/CI/docker/build_geant4.sh
+
+ENV double_down_build_dir=${build_dir}/double-down/
+ENV double_down_install_dir=${install_dir}/double-down/
+
+# Build Embree
+RUN /root/etc/CI/docker/build_embree.sh
 

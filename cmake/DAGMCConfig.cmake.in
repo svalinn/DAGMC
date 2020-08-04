@@ -18,4 +18,14 @@ set(DAGMC_INCLUDE_DIRS @CMAKE_INSTALL_PREFIX@/@INSTALL_INCLUDE_DIR@ @MOAB_INCLUD
 set(DAGMC_LIBRARY_DIRS @CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@ @MOAB_LIBRARY_DIRS@)
 set(DAGMC_LIBRARIES @DAGMC_LIBRARIES@)
 
+
+# if DAGMC was built using the double-down package,
+# search for that package in the same location to provide
+# its target definitions
+if(@DOUBLE_DOWN@)
+  find_package(DOUBLE_DOWN REQUIRED
+               NAMES dd
+               HINTS @dd_CMAKE_CONFIG@)
+endif()
+
 include(@CMAKE_INSTALL_PREFIX@/lib/cmake/DAGMCTargets.cmake)
