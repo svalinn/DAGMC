@@ -141,20 +141,20 @@ Testing and continuous integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We use the `Google Test <Google_test_>`_ gtest libraries to control testing of
-our code, and we use the Travis_ continuous integration system to test all
+our code, and we use the CircleCI_ continuous integration system to test all
 changes to the code. When you add features to the codebase, tests should always
 be added which prove that the capabilities that have been added work.
 
-When a developer makes a pull request on GitHub, Travis detects it and launches
-the build as specified in the ``.travis.yml`` file. Travis pulls your feature
+When a developer makes a pull request on GitHub, CircleCI detects it and launches
+the build as specified in the ``.circleci/config.yml`` file. CircleCI pulls your feature
 branch, the MOAB libraries, HDF5, etc. as required and then launches the tests.
 Each test is run in succession and failure is reported if any dependency fails
-to build or if any test fails. An example of a Travis report is shown below.
+to build or if any test fails. An example of a CircleCI report is shown below.
 
-..  image:: travis_example.png
+..  image:: circleci_example.png
     :height: 300
     :width:  600
-    :alt:    Image showing the status of the an example Travis-CI run
+    :alt:    Image showing the status of the an example CircleCI run
 
 Once the testing is complete and your changes have been verified as not breaking
 any of the existing capabilities, a reviewer will check your pull request over
@@ -227,4 +227,4 @@ then pull request your changes.
 ..  _DAGMC_source: https://github.com/svalinn/DAGMC
 ..  _DAGMC_issues: https://github.com/svalinn/DAGMC/issues
 ..  _Google_test: https://code.google.com/p/googletest
-..  _Travis: https://travis-ci.org/svalinn/DAGMC
+..  _CircleCI: https://circleci.com/gh/svalinn/DAGMC
