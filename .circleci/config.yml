@@ -51,13 +51,6 @@ jobs:
       - run:
           name: Testing DAGMC
           command: CI/travis/tests.sh
-      # do not report failure for experimental double down builds
-      - when:
-          name: Experimental build check
-          condition: <<parameters.double_down>>
-          ignore_previous_status: true
-          steps:
-            - run: echo "DOUBLE DOWN BUILD FAILED"
 
 workflows:
   version: 2
@@ -83,6 +76,14 @@ workflows:
           filters:
             branches:
               ignore: develop
+      - build_and_test:
+          name: "Double Down"
+          img: "18.04"
+          compiler: "gcc"
+          hdf5: "1.10.4"
+          moab: "master"
+          double_down: "ON"
+
 
   merge:  # Run only on develop change -> when merging a PullRequest
     jobs:
@@ -96,10 +97,3 @@ workflows:
           filters:
             branches:
               only: develop
-      - build_and_test:
-          name: "Double Down"
-          img: "18.04"
-          compiler: "gcc"
-          hdf5: "1.10.4"
-          moab: "master"
-          double_down: "ON"
