@@ -414,7 +414,7 @@ void ExN01DetectorConstruction::end_histogram() {
 // build the particle filters
 void ExN01DetectorConstruction::BuildParticleFilter(std::vector<std::string> particle_names) {
   // build filter if it doesnt exist
-  for (int i = 0; i < particle_names; i++) {
+  for (int i = 0; i < particle_names.size(); i++) {
     std::string particule_name = particle_names[i];
     if (particle_filters.count(particle_name) == 0) {
       // create particle filter
