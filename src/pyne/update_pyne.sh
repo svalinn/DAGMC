@@ -13,7 +13,7 @@ python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
     src/state_map.cpp src/nucname.* src/rxname.* src/particle.* src/data.* \
     src/json-forwards.h src/json.h src/jsoncpp.cpp src/jsoncustomwriter.* \
     src/material.* src/tally.* src/atomic_data.* src/measure.* \
-    src/source_sampling.*
+    src/source_sampling.* src/utils.*
 cp pyne.cpp pyne.h ..
 githash=`git rev-parse HEAD`
 cd ..
