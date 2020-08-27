@@ -180,7 +180,7 @@ void ExN01DetectorConstruction::ConstructSDandField() {
       volume_part_map[vol_id] = particles;
 
       // builds and keeps a store of particle filters
-      BuildParticleFilter(scorer.particle_name);
+      BuildParticleFilter(scorer.particle_names);
 
       // build the filters
       /*
