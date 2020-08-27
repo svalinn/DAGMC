@@ -174,8 +174,8 @@ void ExN01DetectorConstruction::ConstructSDandField() {
       int vol_idx = dagmc->index_by_handle(vol); // get the volume index
 
       particles = volume_part_map[vol_id];
-      for (int i = 0; i < scorer.particule_names.size(); i++) {
-        particles.push_back(scorer.particule_names[i]);
+      for (int i = 0; i < scorer.particle_names.size(); i++) {
+        particles.push_back(scorer.particle_names[i]);
       }
       volume_part_map[vol_id] = particles;
 
@@ -412,20 +412,23 @@ void ExN01DetectorConstruction::end_histogram() {
 }
 
 // build the particle filters
-void ExN01DetectorConstruction::BuildParticleFilter(std::string particle_name) {
+void ExN01DetectorConstruction::BuildParticleFilter(vector<std::string> particle_names) {
   // build filter if it doesnt exist
-  if (particle_filters.count(particle_name) == 0) {
-    // create particle filter
-    G4SDParticleFilter* filter = new G4SDParticleFilter(particle_name);
-    if (!pyne::particle::is_heavy_ion(particle_name))
-      filter->add(pyne::particle::geant4(particle_name));
-    else
-      // add ion by getting z and a from pyne
-      filter->addIon(pyne::nucname::znum(particle_name),
-                     pyne::nucname::anum(particle_name));
+  for (int i = 0; i < particle_names; i++){
+    std::string particule_name = particle_names[i];
+    if (particle_filters.count(particle_name) == 0) {
+      // create particle filter
+      G4SDParticleFilter* filter = new G4SDParticleFilter(particle_name);
+      if (!pyne::particle::is_heavy_ion(particle_name))
+        filter->add(pyne::particle::geant4(particle_name));
+      else
+        // add ion by getting z and a from pyne
+        filter->addIon(pyne::nucname::znum(particle_name),
+                       pyne::nucname::anum(particle_name));
 
-    particle_filters[particle_name] = filter;
-  }
+      particle_filters[particle_name] = filter;
+    }
+}
 }
 
 // as soon as we shift to c++11 or higher this should be removed
