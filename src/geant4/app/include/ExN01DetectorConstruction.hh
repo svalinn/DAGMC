@@ -9,6 +9,7 @@ class G4VPhysicalVolume;
 #include "G4SDParticleFilter.hh"
 #include "DagSolidTally.hh"
 #include <map>
+#include <vector>
 #include <string>
 
 #ifndef uwuw_hpp
