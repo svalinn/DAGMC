@@ -420,10 +420,6 @@ std::string pyne::join_to_string(std::vector<T> vect, std::string delimiter) {
     out << delimiter << vect[i];
   return out.str();
 }
-template std::string pyne::join_to_string(std::vector<int> vect, std::string delimiter);
-template std::string pyne::join_to_string(std::vector<double> vect,
-                                          std::string delimiter);
-template std::string pyne::join_to_string(std::vector<std::string> vect, std::string delimiter);
 
 //
 // Math Helpers
