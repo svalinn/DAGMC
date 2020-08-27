@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- Update amalgamated PyNE version to v0.7
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
