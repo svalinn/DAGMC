@@ -174,8 +174,8 @@ void ExN01DetectorConstruction::ConstructSDandField() {
       int vol_idx = dagmc->index_by_handle(vol); // get the volume index
 
       particles = volume_part_map[vol_id];
-      for (auto particule_name : scorer.particle_names) {
-        particles.push_back(particle_name);
+      for (int i = 0; i < scorer.particule_names.size(); i++) {
+        particles.push_back(scorer.particule_names[i]);
       }
       volume_part_map[vol_id] = particles;
 
