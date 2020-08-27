@@ -119,14 +119,11 @@ TEST_F(UWUWTest, material_datapath) {
   nucvec[pyne::nucname::id("Fe")] = 1.0;
   pyne::Material mat = pyne::Material(nucvec);
   mat.metadata["name"] = "Wet Steel";
-  mat.write_hdf5("new_mat_test.h5", "/materials"
-                 , "/nucid");
+  mat.write_hdf5("new_mat_test.h5", "/materials");
 
   pyne::Material mat2 = pyne::Material(nucvec);
   mat2.metadata["name"] = "Wet Steel 2";
-  mat2.write_hdf5("new_mat_test.h5", "/materials"
-                  , "/nucid");
-
+  mat2.write_hdf5("new_mat_test.h5", "/materials");
 
   workflow_data->~UWUW();
 
