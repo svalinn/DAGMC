@@ -2,6 +2,8 @@
 
 **Changed:** 
 - Update amalgamated PyNE version to v0.7
+- revamped Material management to leverage the PyNE::MaterialLibrary in place 
+    of the map<string, PyNE::Material>
 
 **Deprecated:** None
 
