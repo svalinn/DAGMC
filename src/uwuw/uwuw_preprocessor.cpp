@@ -161,7 +161,7 @@ void uwuw_preprocessor::process_materials() {
     // check for missing materials
     if (found_grave == std::string::npos && found_vacuum == std::string::npos) {
       pyne::Material found_mat = material_library.get_material(mat_name);
-      if (found_mat.mass == -1 && found_mat.density == -1.0 && found_mat.atoms_per_molecule == -1 ) {
+      if (found_mat.mass == -1 && found_mat.density == -1.0 && found_mat.atoms_per_molecule == -1) {
         std::cout << "material " << mat_name << " was not found in the material library" << std::endl;
         exit(EXIT_FAILURE);
       }

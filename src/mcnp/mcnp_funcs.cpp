@@ -224,7 +224,7 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       // if we not vacuum or graveyard
       if (mat_name.find(vacuum_str) == std::string::npos && mat_name.find(graveyard_str) == std::string::npos) {
         pyne::Material material = workflow_data->material_library.get_material(mat_name);
-      if (material.mass == -1 && material.density == -1.0 && material.atoms_per_molecule == -1 ) {
+        if (material.mass == -1 && material.density == -1.0 && material.atoms_per_molecule == -1) {
           std::cerr << "Material with name " << mat_name <<  " not found " << std::endl;
           std::cerr << "In the material library" << std::endl;
           exit(EXIT_FAILURE);
