@@ -74,24 +74,10 @@ bool UWUW::check_file_exists(const std::string& filename) {
 
 // loads all materials into map
 
-std::map<std::string, pyne::Material> UWUW::load_pyne_materials(std::string filename, std::string datapath) {
-  std::map<std::string, pyne::Material> library; // material library
+pyne::MaterialLibrary UWUW::load_pyne_materials(std::string filename, std::string datapath) {
+  pyne::MaterialLibrary library(filename, datapath); // material library
 
-  const char* data_path = datapath.c_str();
-
-  if (!hdf5_path_exists(filename, data_path))
-    return library;
-
-  num_materials = get_length_of_table(filename, datapath);
-
-  for (int i = 0 ; i < num_materials ; i++) {
-    pyne::Material mat; // from file
-    mat.from_hdf5(filename, datapath, i);
-    // renumber material number by position in the library
-    mat.metadata["mat_number"] = i + 1;
-    library[mat.metadata["name"].asString()] = mat;
-  }
-
+  std::cout << "My lib size: "<< library.size() << std::endl;
   return library;
 }
 
