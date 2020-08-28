@@ -76,7 +76,7 @@ class UWUW {
    * \brief material_library is a std::map of <material name, Material object>
    * iterate through this map to get its contents
    */
-  std::map<std::string, pyne::Material> material_library; // material library
+  pyne::MaterialLibrary material_library; // material library
   /**
    * \brief tally_library is a std::map of <tally name, Tally object>
    * iterate through this map to get its contents
@@ -111,7 +111,7 @@ class UWUW {
    * \return std::map of material name vs Material object
    */
  public:
-  std::map<std::string, pyne::Material> load_pyne_materials(std::string filename, std::string datapath = "/materials");
+  pyne::MaterialLibrary load_pyne_materials(std::string filename, std::string datapath = "/materials");
 
   /**
    * \brief loads the pyne tallies in map of name vs Material

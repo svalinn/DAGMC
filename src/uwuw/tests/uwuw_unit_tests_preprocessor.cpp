@@ -192,14 +192,14 @@ TEST_F(UWUWTest, materialMetadata) {
 
   // now read in the material library
   UWUW* uwuw = new UWUW(out_file);
-  std::map<std::string, pyne::Material> mat_lib = uwuw->material_library;
+  pyne::MaterialLibrary mat_lib = uwuw->material_library;
 
   // pull out the only material
-  pyne::Material mat = mat_lib["mat:CentreStack"];
+  pyne::Material mat = mat_lib.get_material("mat:CentreStack");
 
   EXPECT_EQ(mat.metadata["name"].asString(), "mat:CentreStack");
   EXPECT_EQ(mat.metadata["fluka_name"].asString(), "CENTREST");
-  EXPECT_EQ(mat.metadata["mat_number"].asInt(), 1);
+  EXPECT_EQ(mat.metadata["mat_number"].asInt(), 8);
   EXPECT_EQ(mat.metadata["special_tag"].asString(), "this is a test tag");
 
   delete uwuw;

@@ -1,5 +1,7 @@
 #include "uwuw_preprocessor.hpp"
 
+#include <memory>
+
 // constructor
 uwuw_preprocessor::uwuw_preprocessor(std::string material_library_filename, std::string dagmc_filename,
                                      std::string output_file,  std::string matlib_hdf5_path,
@@ -38,24 +40,25 @@ uwuw_preprocessor::~uwuw_preprocessor() {
 
 // write the new material library
 void uwuw_preprocessor::write_uwuw_materials() {
-  std::map<std::string, pyne::Material> :: iterator it;
+  if (verbose) {
+    pyne::mat_map mat_lib_obj = uwuw_material_library.get_mat_library();
+    pyne::mat_map::iterator it;
 
-  // loop over the processed material library and write each one to the file
-  for (it = uwuw_material_library.begin() ; it != uwuw_material_library.end() ; ++it) {
-    // the current material
-    pyne::Material mat = it->second;
-    // write the material to the file
-    if (verbose) {
-      std::cout << "writing material, " << mat.metadata["name"].asString();
-      std::cout << "writing material, " << mat.metadata["fluka_name"].asString();
+    // loop over the processed material library and write each one to the file
+    for (it = mat_lib_obj.begin(); it != mat_lib_obj.end(); ++it) {
+      // the current material
+      std::shared_ptr<pyne::Material> mat = it->second;
+      std::cout << "writing material, " << mat->metadata["name"].asString();
+      std::cout << "writing material, "
+                << mat->metadata["fluka_name"].asString();
       std::cout << " to file " << output_filename << std::endl;
     }
-    // write the uwuw materials to the geometry
-    mat.write_hdf5(output_filename, "/materials");
   }
+  uwuw_material_library.write_hdf5(output_filename, "/materials", true);
 
   return;
 }
+
 
 // write the new material library
 void uwuw_preprocessor::write_uwuw_tallies() {
@@ -134,10 +137,10 @@ void uwuw_preprocessor::process_materials() {
   std::set<std::string> :: iterator s_it;
 
   if (verbose) {
+    pyne::mat_map mat_lib_obj = material_library.get_mat_library();
     std::cout << "Materials Present, :" << std::endl;
-    std::map<std::string, pyne::Material> :: iterator m_it;
-    for (m_it = material_library.begin() ; m_it != material_library.end() ; ++m_it) {
-      pyne::Material mat = m_it->second;
+    pyne::mat_map::iterator m_it;
+    for (m_it = mat_lib_obj.begin() ; m_it != mat_lib_obj.end() ; ++m_it) {
       std::cout << m_it->first << ", ";
     }
     std::cout << std::endl;
@@ -157,15 +160,16 @@ void uwuw_preprocessor::process_materials() {
 
     // check for missing materials
     if (found_grave == std::string::npos && found_vacuum == std::string::npos) {
-      if (material_library.count(mat_name) == 0) {
+      pyne::Material found_mat = material_library.get_material(mat_name);
+      if (found_mat.mass == -1 && found_mat.density == -1.0 && found_mat.atoms_per_molecule == -1 ) {
         std::cout << "material " << mat_name << " was not found in the material library" << std::endl;
         exit(EXIT_FAILURE);
       }
 
       // make a new material object with the appropriate density & name
-      pyne::Material new_material = create_new_material(material_library[mat_name],
+      pyne::Material new_material = create_new_material(found_mat,
                                                         density);
-      uwuw_material_library[*s_it]  = new_material;
+      uwuw_material_library.add_material(new_material);
     }
   }
   return;
