@@ -102,10 +102,9 @@ TEST_F(UWUWTest, materiallibrary1) {
  */
 TEST_F(UWUWTest, materiallibrary2) {
   // iterator for material library
-  pyne::mat_map mat_lib_obj = workflow_data->material_library.get_mat_library();
   pyne::mat_map::iterator it;
-  it = mat_lib_obj.begin();
-  EXPECT_NE(it, mat_lib_obj.end());
+  it = workflow_data->material_library.get_mat_library().begin();
+  EXPECT_NE(it, workflow_data->material_library.get_mat_library().end());
   return;
 }
 
