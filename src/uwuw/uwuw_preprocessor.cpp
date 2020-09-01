@@ -48,7 +48,7 @@ void uwuw_preprocessor::write_uwuw_materials() {
     for (it = mat_lib_obj.begin(); it != mat_lib_obj.end(); ++it) {
       // the current material
       std::shared_ptr<pyne::Material> mat = it->second;
-      std::cout << "writing material, " << mat->metadata["name"].asString();
+      std::cout << "writing material, " << mat->metadata["name"].asString() << std::endl;
       std::cout << "writing material, "
                 << mat->metadata["fluka_name"].asString();
       std::cout << " to file " << output_filename << std::endl;
