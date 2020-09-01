@@ -45,7 +45,7 @@ void uwuw_preprocessor::write_uwuw_materials() {
     pyne::mat_map::iterator it;
 
     // loop over the processed material library and write each one to the file
-    for (it = uwuw_material_library.get_mat_library().begin(); 
+    for (it = uwuw_material_library.get_mat_library().begin();
          it != uwuw_material_library.get_mat_library().end(); ++it) {
       // the current material
       std::shared_ptr<pyne::Material> mat = it->second;

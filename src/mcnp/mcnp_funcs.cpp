@@ -127,7 +127,7 @@ void dagmcwritefacets_(char* ffile, int* flen) { // facet file
     pyne::mat_map::iterator it;
 
     // iterate over the map
-    for (it = workflow_data->material_library.get_mat_library().begin(); 
+    for (it = workflow_data->material_library.get_mat_library().begin();
          it != workflow_data->material_library.get_mat_library().end() ; ++it) {
       // check to make sure we find "mat in the key"
       if (it->first.find("mat:") != std::string::npos) {
