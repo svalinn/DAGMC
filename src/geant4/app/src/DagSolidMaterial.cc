@@ -91,7 +91,6 @@ std::map<std::string, G4Material*> get_g4materials(std::map<int, G4Element*> ele
                                                    pyne::MaterialLibrary material_library) {
   std::map<std::string, G4Material*> material_map;
 
-  pyne::mat_map pyne_mat_map = material_library.get_mat_library();
   pyne::mat_map::iterator it;
   pyne::comp_iter mat_it;
 
@@ -99,7 +98,7 @@ std::map<std::string, G4Material*> get_g4materials(std::map<int, G4Element*> ele
   int ncomponents;
 
   // loop over the PyNE material library instanciating as needed
-  for (it = pyne_mat_map.begin() ; it != pyne_mat_map.end() ; ++it) {
+  for (it = material_library.get_mat_library().begin() ; it != material_library.get_mat_library().end() ; ++it) {
     // get the material object
     pyne::Material mat = *(it->second);
 
