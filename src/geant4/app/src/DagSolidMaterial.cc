@@ -103,10 +103,10 @@ std::map<std::string, G4Material*> get_g4materials(std::map<int, G4Element*> ele
   // loop over the PyNE material library instanciating as needed
   for (it = pyne_mat_map.begin() ; it != pyne_mat_map.end() ; ++it) {
     // get the material object
-    std::shared_ptr<pyne::Material> mat = it->second;
+    pyne::Material mat = *(it->second);
 
     int num_nucs = 0;
-    for (mat_it = mat->comp.begin() ; mat_it != mat->comp.end() ; ++mat_it) {
+    for (mat_it = mat.comp.begin() ; mat_it != mat.comp.end() ; ++mat_it) {
       if ((mat_it->second) > 0.0) {
         num_nucs++;
       }
@@ -114,17 +114,17 @@ std::map<std::string, G4Material*> get_g4materials(std::map<int, G4Element*> ele
 
 
     // create the g4 material
-    std::cout << mat->metadata["name"].asString() << std::endl;
-    G4Material* g4mat = new G4Material(name = mat->metadata["name"].asString(),
-                                       mat->density * g / (cm * cm * cm),
+    std::cout << mat.metadata["name"].asString() << std::endl;
+    G4Material* g4mat = new G4Material(name = mat.metadata["name"].asString(),
+                                       mat.density * g / (cm * cm * cm),
                                        ncomponents = num_nucs);
     // now iterate over the composiiton
-    for (mat_it = mat->comp.begin() ; mat_it != mat->comp.end() ; ++mat_it) {
+    for (mat_it = mat.comp.begin() ; mat_it != mat.comp.end() ; ++mat_it) {
       if ((mat_it->second) > 0.0) {  // strip out abundance 0 nuclides
         g4mat->AddElement(element_map[mat_it->first], mat_it->second);
       }
     }
-    material_map[mat->metadata["name"].asString()] = g4mat;
+    material_map[mat.metadata["name"].asString()] = g4mat;
   }
 
   // Add vacuum
