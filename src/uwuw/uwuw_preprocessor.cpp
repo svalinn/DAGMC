@@ -45,8 +45,8 @@ void uwuw_preprocessor::write_uwuw_materials() {
     pyne::mat_map::iterator it;
 
     // loop over the processed material library and write each one to the file
-    for (it = uwuw_material_library.get_mat_library().begin();
-         it != uwuw_material_library.get_mat_library().end(); ++it) {
+    pyne::mat_map mat_lib_obj = material_library.get_mat_library();
+    for (it = mat_lib_obj.begin(); it != mat_lib_obj.end(); ++it) {
       // the current material
       std::shared_ptr<pyne::Material> mat = it->second;
       std::cout << "writing material, " << mat->metadata["name"].asString() << std::endl;
@@ -140,7 +140,8 @@ void uwuw_preprocessor::process_materials() {
   if (verbose) {
     std::cout << "Materials Present, :" << std::endl;
     pyne::mat_map::iterator m_it;
-    for (m_it = material_library.get_mat_library().begin() ; m_it != material_library.get_mat_library().end() ; ++m_it) {
+    pyne::mat_map mat_lib_obj = material_library.get_mat_library();
+    for (m_it = mat_lib_obj.begin(); m_it != mat_lib_obj.end(); ++m_it) {
       std::cout << m_it->first << ", ";
     }
     std::cout << std::endl;
