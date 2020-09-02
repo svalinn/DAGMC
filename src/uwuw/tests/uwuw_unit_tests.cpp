@@ -129,7 +129,7 @@ TEST_F(UWUWTest, material_datapath) {
   mat2.metadata["name"] = "Wet Steel 2";
   mat_lib.add_material(mat2);
   // write the material libs
-  mat_lib.write_hdf5("new_mat_test.h5", "/materials");
+  mat_lib.write_hdf5("new_mat_test.h5", "/materials", true);
 
   workflow_data->~UWUW();
 
