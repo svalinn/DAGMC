@@ -42,11 +42,10 @@ uwuw_preprocessor::~uwuw_preprocessor() {
 void uwuw_preprocessor::write_uwuw_materials() {
   if (verbose) {
 
-    pyne::mat_map::iterator it;
+    pyne::MaterialLibrary::iterator it;
 
     // loop over the processed material library and write each one to the file
-    pyne::mat_map mat_lib_obj = material_library.get_mat_library();
-    for (it = mat_lib_obj.begin(); it != mat_lib_obj.end(); ++it) {
+    for (it = material_library.begin(); it != material_library.end(); ++it) {
       // the current material
       std::shared_ptr<pyne::Material> mat = it->second;
       std::cout << "writing material, " << mat->metadata["name"].asString() << std::endl;
@@ -139,9 +138,8 @@ void uwuw_preprocessor::process_materials() {
 
   if (verbose) {
     std::cout << "Materials Present, :" << std::endl;
-    pyne::mat_map::iterator m_it;
-    pyne::mat_map mat_lib_obj = material_library.get_mat_library();
-    for (m_it = mat_lib_obj.begin(); m_it != mat_lib_obj.end(); ++m_it) {
+    pyne::MaterialLibrary::iterator m_it;
+    for (m_it = material_library.begin(); m_it != material_library.end(); ++m_it) {
       std::cout << m_it->first << ", ";
     }
     std::cout << std::endl;
@@ -161,11 +159,11 @@ void uwuw_preprocessor::process_materials() {
 
     // check for missing materials
     if (found_grave == std::string::npos && found_vacuum == std::string::npos) {
-      pyne::Material found_mat = material_library.get_material(mat_name);
-      if (found_mat.mass == -1 && found_mat.density == -1.0 && found_mat.atoms_per_molecule == -1) {
+      if (material_library.count(mat_name) == 0) {
         std::cout << "material " << mat_name << " was not found in the material library" << std::endl;
         exit(EXIT_FAILURE);
       }
+      pyne::Material found_mat = material_library.get_material(mat_name);
 
       // make a new material object with the appropriate density & name
       pyne::Material new_material = create_new_material(found_mat,
