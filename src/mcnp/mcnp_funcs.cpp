@@ -124,11 +124,11 @@ void dagmcwritefacets_(char* ffile, int* flen) { // facet file
   if (workflow_data->material_library.size() != 0) {
     // get the mat lib
 
-    pyne::mat_map::iterator it;
+    pyne::MaterialLibrary::iterator it;
 
     // iterate over the map
-    for (it = workflow_data->material_library.get_mat_library().begin();
-         it != workflow_data->material_library.get_mat_library().end() ; ++it) {
+    for (it = workflow_data->material_library.begin();
+         it != workflow_data->material_library.end() ; ++it) {
       // check to make sure we find "mat in the key"
       if (it->first.find("mat:") != std::string::npos) {
         // write the hdf5 file data
@@ -224,7 +224,7 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       // if we not vacuum or graveyard
       if (mat_name.find(vacuum_str) == std::string::npos && mat_name.find(graveyard_str) == std::string::npos) {
 
-        if (workflow_data->material_library.get_keylist().count(mat_name) == 0) {
+        if (workflow_data->material_library.count(mat_name) == 0) {
           std::cerr << "Material with name " << mat_name <<  " not found " << std::endl;
           std::cerr << "In the material library" << std::endl;
           exit(EXIT_FAILURE);
@@ -326,9 +326,9 @@ void write_material_data(std::ostringstream& lcadfile) {
   lcadfile << "C materials from library" << std::endl;
   // loop over the material and print them out
 
-  pyne::mat_map::iterator it;
+  pyne::MaterialLibrary::iterator it;
 
-  for (it = material_library.get_mat_library().begin(); it != material_library.get_mat_library().end() ; ++it) {
+  for (it = material_library.begin(); it != material_library.end() ; ++it) {
     std::shared_ptr<pyne::Material> new_material = (it->second);
     std::string material_card = new_material->mcnp();
     lcadfile << material_card;
