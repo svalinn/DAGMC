@@ -1,6 +1,6 @@
 project(DAGMC)
 cmake_minimum_required(VERSION 3.1)
-enable_language(Fortran)
+enable_language(CXX)
 
 # Set DAGMC version
 set(DAGMC_MAJOR_VERSION 3)
@@ -15,6 +15,11 @@ include(DAGMC_macros)
 dagmc_setup_build()
 
 dagmc_setup_options()
+
+if(BUILD_MCNP5 OR BUILD_MCNP6)
+  enable_language(Fortran)
+endif()
+
 
 find_package(MOAB REQUIRED)
 find_package(OpenMP)
