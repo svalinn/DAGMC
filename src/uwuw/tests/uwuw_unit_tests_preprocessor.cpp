@@ -199,7 +199,7 @@ TEST_F(UWUWTest, materialMetadata) {
 
   EXPECT_EQ(mat.metadata["name"].asString(), "mat:CentreStack");
   EXPECT_EQ(mat.metadata["fluka_name"].asString(), "CENTREST");
-  EXPECT_EQ(mat.metadata["mat_number"].asInt(), 8);
+  EXPECT_EQ(mat.metadata["mat_number"].asInt(), 1);
   EXPECT_EQ(mat.metadata["special_tag"].asString(), "this is a test tag");
 
   delete uwuw;

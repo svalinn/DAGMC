@@ -168,6 +168,11 @@ void uwuw_preprocessor::process_materials() {
       // make a new material object with the appropriate density & name
       pyne::Material new_material = create_new_material(found_mat,
                                                         density);
+      
+      // Renumbering the material will ensure uniqueness of material number for each mat/density 
+      // combinason in the library
+      new_material.metadata["mat_number"] =
+          (int)uwuw_material_library.size() + 1;
       uwuw_material_library.add_material(new_material);
     }
   }
