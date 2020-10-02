@@ -2,14 +2,12 @@
 
 set -e
 
+branch="develop"
 # Clone pyne repo
-git clone https://github.com/bam241/pyne
-
+git clone --depth 1 https://github.com/pyne/pyne -b ${branch}
 
 # Update amalgamated pyne
 cd pyne/src
-git fetch
-git checkout mat_lib
 python atomicgen.py
 cd ..
 python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
