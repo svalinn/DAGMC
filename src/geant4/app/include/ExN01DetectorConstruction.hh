@@ -50,15 +50,6 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
 
   UWUW* workflow_data;
 
-  // DAG Logical volumes
-  // G4LogicalVolume* dag_vol_log;
-
-  // Physical volumes
-  //
-  // G4VPhysicalVolume* world_volume_phys;
-  // DAG Physical volumes
-
-
 };
 
 #endif
