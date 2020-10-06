@@ -3,7 +3,7 @@
 #include <map>
 
 #include "uwuw.hpp"
-#include "../pyne/pyne.h"
+#include "pyne.h"
 #include "DagMC.hpp"
 
 class uwuw_preprocessor {

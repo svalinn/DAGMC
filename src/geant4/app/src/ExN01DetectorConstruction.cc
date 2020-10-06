@@ -38,7 +38,7 @@
 #include "DagSolidMaterial.hh"
 #include "DagSolidTally.hh"
 
-#include "../pyne/pyne.h"
+#include "pyne.h"
 
 moab::DagMC* dagmc = new moab::DagMC(); // create dag instance
 dagmcMetaData* DMD;
