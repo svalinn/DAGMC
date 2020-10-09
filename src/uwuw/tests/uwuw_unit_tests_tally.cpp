@@ -1,7 +1,7 @@
 //  DagSolid_test.cpp
 #include <gtest/gtest.h>
 #include "uwuw.hpp"
-#include "../pyne/pyne.h"
+#include "pyne.h"
 
 #define TEST_FILE "mat_lib.h5"
 

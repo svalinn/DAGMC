@@ -1,7 +1,7 @@
 #include <map>
 #include "G4SystemOfUnits.hh"
 #include "G4Material.hh"
-#include "../pyne/pyne.h"
+#include "pyne.h"
 
 #ifndef uwuw_hpp
 #define uwuw_hpp 1

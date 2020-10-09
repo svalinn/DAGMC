@@ -4,7 +4,7 @@
 #include <map>
 
 #include "uwuw.hpp"
-#include "../pyne/pyne.h"
+#include "pyne.h"
 #include "DagMC.hpp"
 #include "name_concatenator.hpp"
 

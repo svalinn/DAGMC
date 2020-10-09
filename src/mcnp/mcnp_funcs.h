@@ -10,8 +10,8 @@
 #include <fstream>
 #include <sstream>
 
-#include "../uwuw/uwuw.hpp"
-#include "../pyne/pyne.h"
+#include "uwuw.hpp"
+#include "pyne.h"
 #include <unistd.h>
 
 #ifdef __cplusplus
