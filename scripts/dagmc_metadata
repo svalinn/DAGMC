@@ -67,19 +67,9 @@ def print_groups(mb):
         group_id = mb.tag_get_data(tags['id'], group, flat=True)[0]
         output += "Group {}: {}\n".format(group_id, name)
 
-        volumes = []
-        surfaces = []
-
-        group_entities = mb.get_entities_by_handle(group)
-
-        # gather up volumes, surfaces by ID using category information
-        for entity in group_entities:
-            category = mb.tag_get_data(tags['category'], entity, flat=True)
-            id = mb.tag_get_data(tags['id'], entity, flat=True)[0]
-            if category == 'Volume':
-                volumes.append(id)
-            elif category == 'Surface':
-                surfaces.insert(id)
+        assignments = get_group_assignments(mb, group_id)
+        volumes = assignments['volumes']
+        surfaces = assignments['surfaces']
 
         if volumes:
             output += "\tVolumes: {}\n".format(volumes)
@@ -92,6 +82,75 @@ def print_groups(mb):
     footer = "-------------------\n"
 
     print(header + output + footer)
+
+def find_group_by_id(mb, id):
+    """
+    Finds and returns a group handle using an ID
+
+    Parameters
+    ----------
+    mb : PyMOAB Core instance
+        PyMOAB Core instance containing a loaded DAGMC file
+    id : int
+        Group ID
+
+    Returns
+    -------
+    handle : PyMOAB EntityHandle (numpy.int64)
+        PyMOAB handle of the group requested
+    """
+    tags = metadata_tags(mb)
+
+    # find the group with this id
+    groups = groups = mb.get_entities_by_type_and_tag(0, types.MBENTITYSET,
+                                                      [tags['category']], ["Group"])
+    group_ids = mb.tag_get_data(tags['id'], groups, flat=True)
+
+    if (id not in group_ids):
+        raise ValueError("Cannot find group with ID {}.".format(id))
+
+    idx = list(group_ids).index(id)
+
+    return groups[idx]
+
+def get_group_assignments(mb, id):
+    """
+    Returns the IDs of volumes and surfaces
+    to which the group's metadata applies.
+
+    Parameters
+    ----------
+    mb : PyMOAB core instance
+        PyMOAB Core instance containing a loaded DAGMC file
+    id : int
+        ID of the group
+
+    Returns
+    -------
+    assignments : dict
+        Dictionary containing the volume and surface IDs
+        this group's information applies to
+    """
+    tags = metadata_tags(mb)
+
+    group = find_group_by_id(mb, id)
+
+    group_entities = mb.get_entities_by_handle(group)
+
+    volumes = []
+    surfaces = []
+
+    # gather up volumes, surfaces by ID using category information
+    for entity in group_entities:
+        category = mb.tag_get_data(tags['category'], entity, flat=True)
+        id = mb.tag_get_data(tags['id'], entity, flat=True)[0]
+        if category == 'Volume':
+            volumes.append(id)
+        elif category == 'Surface':
+            surfaces.insert(id)
+
+    return {'volumes' : volumes, 'surfaces' : surfaces}
+
 
 def update_group_metadata(mb, id, new_value, verbose=False):
     """
@@ -109,22 +168,14 @@ def update_group_metadata(mb, id, new_value, verbose=False):
 
     tags = metadata_tags(mb)
 
-    # find the group with this id
-    groups = groups = mb.get_entities_by_type_and_tag(0, types.MBENTITYSET,
-                                                      [tags['category']], ["Group"])
-    group_ids = mb.tag_get_data(tags['id'], groups, flat=True)
-
-    if (id not in group_ids):
-        raise ValueError("Cannot find group with ID {}.".format(id))
-
-    idx = list(group_ids).index(id)
+    group = find_group_by_id(mb, id)
 
     # set the group's metadata (name) information
     if verbose:
-        old_value = mb.tag_get_data(tags['name'], groups[idx], flat=True)[0]
+        old_value = mb.tag_get_data(tags['name'], group, flat=True)[0]
         print("Group {}'s old value: {}".format(id, old_value))
         print("Group {}'s new value: {}".format(id, new_value))
-    mb.tag_set_data(tags['name'], groups[idx], new_value)
+    mb.tag_set_data(tags['name'], group, new_value)
 
 
 def main():
@@ -171,7 +222,7 @@ def main():
             print("Performing changes in-place.")
             mb.write_file(args.file)
         elif(args.output):
-            print("Writing new file {} with changes.".format(args.file))
+            print("Writing new file {} with changes.".format(args.output))
             mb.write_file(args.output)
         else:
             raise Warning("Modifications were made to groups. "
