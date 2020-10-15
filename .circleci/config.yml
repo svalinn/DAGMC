@@ -89,7 +89,7 @@ workflows:
   merge:  # Run only on develop change -> when merging a PullRequest
     jobs:
       - build_and_test:
-          context: Dockerhub
+          context: dockerhub
           matrix:
             parameters:
               img: [ "16.04", "18.04"]
