@@ -100,7 +100,7 @@ workflows:
             branches:
               only: develop
       - build_and_test:
-          context: Dockerhub
+          context: dockerhub
           name: "Double Down"
           img: "18.04"
           compiler: "gcc"
@@ -110,4 +110,3 @@ workflows:
           filters:
             branches:
               only: develop
-
