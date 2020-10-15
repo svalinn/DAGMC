@@ -64,7 +64,7 @@ workflows:
     jobs:
       
       - house_keeping:
-          context: Dockerhub
+          context: dockerhub
           matrix:
             parameters:
               img: ["18.04"]
