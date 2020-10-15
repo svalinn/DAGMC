@@ -21,7 +21,6 @@ def metadata_tags(mb):
     tags : Dictionary mapping tag names to PyMOAB tags
         Returns the category, name, and ID tags from the instance
     """
-
     category_tag = mb.tag_get_handle(types.CATEGORY_TAG_NAME)
 
     name_tag = mb.tag_get_handle(types.NAME_TAG_NAME)
@@ -43,7 +42,6 @@ def print_groups(mb):
     ----------
     mb : PyMOAB Core instance
     """
-
     tags = metadata_tags(mb)
 
     # gather group entity sets and their metadata (names)
@@ -113,6 +111,7 @@ def find_group_by_id(mb, id):
 
     return groups[idx]
 
+
 def get_group_assignments(mb, id):
     """
     Returns the IDs of volumes and surfaces
@@ -165,7 +164,6 @@ def update_group_metadata(mb, id, new_value, verbose=False):
     verbose : bool, optional
         Display additional information if requested
     """
-
     tags = metadata_tags(mb)
 
     group = find_group_by_id(mb, id)
