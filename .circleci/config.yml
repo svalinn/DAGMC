@@ -73,7 +73,7 @@ workflows:
               ignore: develop
 
       - build_and_test:
-          context: Dockerhub
+          context: dockerhub
           matrix:
             parameters:
               img: [ "16.04", "18.04"]
