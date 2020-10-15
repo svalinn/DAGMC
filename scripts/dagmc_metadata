@@ -1,0 +1,176 @@
+#!/usr/bin/env python
+
+from argparse import ArgumentParser
+
+from pymoab import core, types
+from pymoab.rng import Range
+
+
+def metadata_tags(mb):
+    """
+    Retrieves tags needed to retrieve metadata information
+    from the PyMOAB instance.
+
+    Parameters
+    ----------
+    mb : PyMOAB Core instance
+        A PyMOAB instance with a loaded DAGMC file to retrieve
+        tags from
+
+    Returns
+    -------
+    tags : Dictionary mapping tag names to PyMOAB tags
+        Returns the category, name, and ID tags from the instance
+    """
+
+    category_tag = mb.tag_get_handle(types.CATEGORY_TAG_NAME)
+
+    name_tag = mb.tag_get_handle(types.NAME_TAG_NAME)
+
+    id_tag = mb.tag_get_handle(types.GLOBAL_ID_TAG_NAME)
+
+    tags = {'category' : category_tag,
+            'name' : name_tag,
+            'id' : id_tag}
+
+    return tags
+
+
+def print_groups(mb):
+    """
+    Prints group and metadata information to screen.
+
+    Parameters
+    ----------
+    mb : PyMOAB Core instance
+    """
+
+    tags = metadata_tags(mb)
+
+    # gather group entity sets and their metadata (names)
+    groups = mb.get_entities_by_type_and_tag(0, types.MBENTITYSET,
+                                            [tags['category']], ["Group"])
+
+    names = mb.tag_get_data(tags['name'], groups, flat=True)
+
+    group_names = {k : v for k, v in zip(groups, names)}
+
+    # determine what geometric entities the group applies to
+    for group, name in group_names.items():
+
+        # this group is always exported by Trelis, but we don't use it
+        if name == 'picked':
+            continue
+
+        group_id = mb.tag_get_data(tags['id'], group, flat=True)[0]
+        print("Group {}: {}".format(group_id, name))
+        group_id = mb.tag_get_data(tags['id'], group)
+
+        volumes = []
+        surfaces = []
+
+        group_entities = mb.get_entities_by_handle(group)
+
+        for entity in group_entities:
+            category = mb.tag_get_data(tags['category'], entity, flat=True)
+            id = mb.tag_get_data(tags['id'], entity, flat=True)[0]
+            if category == 'Volume':
+                volumes.append(id)
+            elif category == 'Surface':
+                surfaces.insert(id)
+
+        if volumes:
+            print("\tVolumes: {}".format(volumes))
+        if surfaces:
+            print("\tSurfaces: {}".format(surfaces))
+
+
+def update_group_metadata(mb, id, new_value, verbose=False):
+    """
+    Parameters_
+    ----------
+    mb : PyMOAB Core instance
+        PyMOAB Core instance containing a loaded DAGMC file
+    id : int
+        ID of the group to be modified
+    new_value : str
+        New value of the metadata for the group
+    verbose : bool, optional
+        Display additional information if requested
+    """
+
+    tags = metadata_tags(mb)
+
+    # find the group with this id
+    groups = groups = mb.get_entities_by_type_and_tag(0, types.MBENTITYSET,
+                                                      [tags['category']], ["Group"])
+    group_ids = mb.tag_get_data(tags['id'], groups, flat=True)
+
+    if (id not in group_ids):
+        raise ValueError("Cannot find group with ID {}.".format(id))
+
+    idx = list(group_ids).index(id)
+
+    # set the group's metadata (name) information
+    if verbose:
+        old_value = mb.tag_get_data(tags['name'], groups[idx], flat=True)[0]
+        print("Group {}'s old value: {}".format(id, old_value))
+        print("Group {}'s new value: {}".format(id, new_value))
+    mb.tag_set_data(tags['name'], groups[idx], new_value)
+
+
+def main():
+
+    ap = ArgumentParser(description="Program for interrogation and modification of DAGMC metadata")
+
+    ap.add_argument('file', help="Path to the DAGMC file.")
+
+    ap.add_argument('-l','--list', action='store_true', default=False,
+                    help="List all DAGMC metadata information.")
+    ap.add_argument('-m','--modify', type=str, default="",
+                    help="Modify metadata information for a group. Syntax: <group_id,new_data>.")
+    ap.add_argument('-i', '--in_place', action='store_true', default=False,
+                    help="Perform group modifications in-place and overwrite the existing DAGMC file.")
+    ap.add_argument('-o', '--output', type=str,
+                    help="Path of the output file if modifying groups.")
+    ap.add_argument('-v', '--verbose', action='store_true', default=False,
+                    help="Increase verbosity of output")
+
+    args = ap.parse_args()
+
+    # create a new PyMOAB instance and load the file
+    mb = core.Core()
+    mb.load_file(args.file)
+
+    if (args.in_place and args.output):
+        raise RuntimeError("Both in-place modification and output file are specified. "
+                           "Only one of these two options is allowed.")
+
+    if (args.modify and not args.in_place and not args.output):
+        raise RuntimeError("Modifications to groups have been requested."
+                           "Specify either in-place modification or "
+                           "an output file to save these changes.")
+
+    if (args.list):
+        print_groups(mb)
+
+    if (args.modify):
+
+        group_id, metadata = args.modify.split(',')
+        group_id = int(group_id)
+        update_group_metadata(mb, group_id, metadata, args.verbose)
+
+        if(args.in_place):
+            print("Performing changes in-place.")
+            mb.write_file(args.file)
+        elif(args.output):
+            print("Writing new file {} with changes.".format(args.file))
+            mb.write_file(args.output)
+        else:
+            raise Warning("Modifications were made to groups. "
+                          "Specify either in-place modification or "
+                          "an output file to save these changes.")
+
+
+if __name__ == "__main__":
+    main()
