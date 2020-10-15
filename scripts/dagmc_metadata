@@ -3,7 +3,6 @@
 from argparse import ArgumentParser
 
 from pymoab import core, types
-from pymoab.rng import Range
 
 
 def metadata_tags(mb):
@@ -55,6 +54,8 @@ def print_groups(mb):
 
     group_names = {k : v for k, v in zip(groups, names)}
 
+    output = ''
+
     # determine what geometric entities the group applies to
     for group, name in group_names.items():
 
@@ -62,15 +63,16 @@ def print_groups(mb):
         if name == 'picked':
             continue
 
+        # retrieve group ID
         group_id = mb.tag_get_data(tags['id'], group, flat=True)[0]
-        print("Group {}: {}".format(group_id, name))
-        group_id = mb.tag_get_data(tags['id'], group)
+        output += "Group {}: {}\n".format(group_id, name)
 
         volumes = []
         surfaces = []
 
         group_entities = mb.get_entities_by_handle(group)
 
+        # gather up volumes, surfaces by ID using category information
         for entity in group_entities:
             category = mb.tag_get_data(tags['category'], entity, flat=True)
             id = mb.tag_get_data(tags['id'], entity, flat=True)[0]
@@ -80,10 +82,16 @@ def print_groups(mb):
                 surfaces.insert(id)
 
         if volumes:
-            print("\tVolumes: {}".format(volumes))
+            output += "\tVolumes: {}\n".format(volumes)
         if surfaces:
-            print("\tSurfaces: {}".format(surfaces))
+            output += "\tSurfaces: {}\n".format(surfaces)
 
+    header = "-------------------\n" \
+                " GROUP INFORMATION \n" \
+                "-------------------\n"
+    footer = "-------------------\n"
+
+    print(header + output + footer)
 
 def update_group_metadata(mb, id, new_value, verbose=False):
     """
@@ -124,11 +132,10 @@ def main():
     ap = ArgumentParser(description="Program for interrogation and modification of DAGMC metadata")
 
     ap.add_argument('file', help="Path to the DAGMC file.")
-
     ap.add_argument('-l','--list', action='store_true', default=False,
                     help="List all DAGMC metadata information.")
     ap.add_argument('-m','--modify', type=str, default="",
-                    help="Modify metadata information for a group. Syntax: <group_id,new_data>.")
+                    help="Modify metadata information for a group. \nSyntax: <group_id,new_data>.")
     ap.add_argument('-i', '--in_place', action='store_true', default=False,
                     help="Perform group modifications in-place and overwrite the existing DAGMC file.")
     ap.add_argument('-o', '--output', type=str,
