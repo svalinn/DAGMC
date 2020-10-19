@@ -329,9 +329,7 @@ void write_material_data(std::ostringstream& lcadfile) {
   pyne::MaterialLibrary::iterator it;
 
   for (it = material_library.begin(); it != material_library.end() ; ++it) {
-    std::shared_ptr<pyne::Material> new_material = (it->second);
-    std::string material_card = new_material->mcnp();
-    lcadfile << material_card;
+    lcadfile << (it->second)->mcnp();
   }
   return;
 }
