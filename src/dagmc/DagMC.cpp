@@ -112,28 +112,7 @@ float DagMC::version(std::string* version_string) {
 }
 
 unsigned int DagMC::interface_revision() {
-  unsigned int result = 0;
-  std::string key_str = "$Rev:";
-  int max_length = 10;
-
-  std::string interface_string = DAGMC_INTERFACE_REVISION;
-  if (interface_string.rfind(key_str) != std::string::npos) {
-    // start looking for the revision number after "$Rev: "
-    char* endptr = NULL;
-    errno = 0;
-    result = strtol(interface_string.c_str() + key_str.size(), &endptr,
-                    max_length);
-    // check if the string has been fully parsed and the results is within
-    // normal range
-    if (endptr == interface_string.c_str() + key_str.size()  // parsing end
-        || ((result == LONG_MAX || result == LONG_MIN)
-            && errno == ERANGE)) {  // checking range
-      std::cerr << "Not able to parse revision number" << std::endl;
-      exit(1);
-    }
-    return result;
-  }
-  return result;
+  return 0;
 }
 
 /* SECTION I: Geometry Initialization and problem setup */

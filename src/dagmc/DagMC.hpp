@@ -78,7 +78,11 @@ class DagMC {
   /** Return the version of this library */
   static float version(std::string* version_string = NULL);
   /** Get subversion revision of this file (DagMC.hpp) */
+  [[deprecated]]
   static unsigned int interface_revision();
+
+  /** Git revision of DAGMC */
+  inline std::string git_sha() { return DAGMC_GIT_SHA; }
 
   /* SECTION I: Geometry Initialization */
 
