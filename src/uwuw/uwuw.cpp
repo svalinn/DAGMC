@@ -76,8 +76,6 @@ bool UWUW::check_file_exists(const std::string& filename) {
 
 pyne::MaterialLibrary UWUW::load_pyne_materials(std::string filename, std::string datapath) {
   pyne::MaterialLibrary library(filename, datapath); // material library
-
-  std::cout << "My lib size: " << library.size() << std::endl;
   return library;
 }
 
