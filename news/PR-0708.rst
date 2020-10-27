@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:**
+
+ - replaced calls for overlap tolerance and numerical precision in DagMC constructor
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
