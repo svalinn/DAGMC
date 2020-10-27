@@ -2,9 +2,8 @@
 
 set -e
 
-branch="develop"
 # Clone pyne repo
-git clone --depth 1 https://github.com/pyne/pyne -b ${branch}
+git clone --depth 1 https://github.com/pyne/pyne -b develop
 
 # Update amalgamated pyne
 cd pyne/src

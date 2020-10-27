@@ -319,14 +319,14 @@ void write_surface_cards(std::ostringstream& lcadfile) {
 
 // write out all the tally data from the uwuw file
 void write_material_data(std::ostringstream& lcadfile) {
-  pyne::MaterialLibrary material_library = workflow_data->material_library;
+  const pyne::MaterialLibrary& material_library = workflow_data->material_library;
   // loop over all tallies
   std::cout << "Writing Materials ..." << std::endl;
 
   lcadfile << "C materials from library" << std::endl;
   // loop over the material and print them out
 
-  pyne::MaterialLibrary::iterator it;
+  pyne::MaterialLibrary::const_iterator it;
 
   for (it = material_library.begin(); it != material_library.end() ; ++it) {
     lcadfile << (it->second)->mcnp();
