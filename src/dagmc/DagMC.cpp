@@ -70,6 +70,8 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
 #else
   ray_tracer = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
 #endif
+  this->set_overlap_thickness(overlap_tolerance);
+  this->set_numerical_precision(p_numerical_precision);
 
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
@@ -88,8 +90,8 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
 #else
   ray_tracer = std::unique_ptr<RayTracer>(new RayTracer(GTT.get()));
 #endif
-  ray_tracer->set_overlap_thickness(overlap_tolerance);
-  ray_tracer->set_numerical_precision(p_numerical_precision);
+  this->set_overlap_thickness(overlap_tolerance);
+  this->set_numerical_precision(p_numerical_precision);
 
   // This is the correct place to uniquely define default values for the dagmc settings
   defaultFacetingTolerance = .001;
