@@ -170,7 +170,7 @@ void uwuw_preprocessor::process_materials() {
                                                         density);
 
       // Renumbering the material will ensure uniqueness of material number for each mat/density
-      // combinason in the library
+      // combination in the library
       new_material.metadata["mat_number"] =
           (int)uwuw_material_library.size() + 1;
       uwuw_material_library.add_material(new_material);
