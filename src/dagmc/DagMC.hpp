@@ -2,7 +2,7 @@
 #define MOABMC_HPP
 
 #include <assert.h>
-
+#include <limits>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -21,6 +21,8 @@
 #include "moab/Range.hpp"
 
 class RefEntity;
+
+constexpr double INFTY {std::numeric_limits<double>::max()};
 
 struct DagmcVolData {
   int mat_id;
@@ -160,9 +162,24 @@ class DagMC {
    */
   ErrorCode setup_indices();
 
+  /**\brief Create a graveyard volume.
+   *
+   * Create a cuboid volume marked with metadata indicating it is the boundary
+   * of the DAGMC model. This method will create an additional graveyard
+   * if one already exists. Use the has_graveyard method to check
+   * if the DAGMC instance already has a graveyard.
+   */
+  ErrorCode create_graveyard();
+
  private:
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();
+
+  /** create geometric meshset from a set of elements
+   *
+   * Valid types are "curve", "surface", or "volume"
+  */
+  ErrorCode create_geometric_entity(const Range& entities, const std::string& type);
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
  public:

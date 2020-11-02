@@ -212,6 +212,116 @@ ErrorCode DagMC::setup_indices() {
   return MB_SUCCESS;
 }
 
+ErrorCode DagMC::create_graveyard() {
+
+  // internal structure used to track geometry bounds
+  struct BBOX {
+    double lower[3] = { INFTY,  INFTY,  INFTY};
+    double upper[3] = {-INFTY, -INFTY, -INFTY};
+
+    bool valid() {
+      return ( lower[0] <= upper[0] &&
+	       lower[1] <= upper[1] &&
+	       lower[2] <= upper[2] );
+    }
+
+    void update(double x, double y, double z) {
+      lower[0] = x < lower[0] ? x : lower[0];
+      lower[1] = y < lower[1] ? y : lower[1];
+      lower[2] = z < lower[2] ? z : lower[2];
+
+      upper[0] = x > upper[0] ? x : upper[0];
+      upper[1] = y > upper[1] ? y : upper[1];
+      upper[2] = z > upper[2] ? z : upper[2];
+    }
+
+    void update(double xyz[3]) {
+      update(xyz[0], xyz[1], xyz[2]);
+    }
+  };
+  BBOX box;
+
+  ErrorCode rval;
+
+  int num_vols = num_entities(3);
+  double vmin[3], vmax[3];
+  for(int i = 0; i < num_vols; i++) {
+    moab::EntityHandle vol = this->entity_by_index(3, i+1);
+    rval = this->getobb(vol, vmin, vmax);
+    MB_CHK_SET_ERR(rval, "Failed to get volume OBB");
+
+    box.update(vmin);
+    box.update(vmax);
+  }
+
+  // start modifying the MOAB mesh
+  moab::Interface* MBI = this->moab_instance();
+
+  //start with vertices
+  std::vector<std::array<double,3>> vertex_coords;
+  // vertex coordinates for the lower z face
+  vertex_coords.push_back({box.lower[0], box.lower[1], box.lower[2]});
+  vertex_coords.push_back({box.upper[0], box.lower[1], box.lower[2]});
+  vertex_coords.push_back({box.upper[0], box.upper[1], box.lower[2]});
+  vertex_coords.push_back({box.lower[0], box.upper[1], box.lower[2]});
+  // vertex coordinate for the upper z face
+  vertex_coords.push_back({box.lower[0], box.lower[1], box.upper[2]});
+  vertex_coords.push_back({box.upper[0], box.lower[1], box.upper[2]});
+  vertex_coords.push_back({box.upper[0], box.upper[1], box.upper[2]});
+  vertex_coords.push_back({box.lower[0], box.upper[1], box.upper[2]});
+
+  std::vector<moab::EntityHandle> box_verts;
+  for(const auto& coords : vertex_coords) {
+    EntityHandle new_vertex;
+    rval = MBI->create_vertex(coords.data(), new_vertex);
+    MB_CHK_SET_ERR(rval, "Failed to create graveyard vertex");
+    box_verts.push_back(new_vertex);
+  }
+
+  // now we have 8 vertices to create triangles with
+  std::vector<std::array<int, 3>> connectivity_indices;
+  // lower z
+  connectivity_indices.push_back({1, 0, 2});
+  connectivity_indices.push_back({3, 2, 0});
+  // upper z
+  connectivity_indices.push_back({5, 6, 4});
+  connectivity_indices.push_back({7, 4, 6});
+  // lower x
+  connectivity_indices.push_back({0, 1, 4});
+  connectivity_indices.push_back({3, 4, 1});
+  // upper x
+  connectivity_indices.push_back({2, 3, 6});
+  connectivity_indices.push_back({7, 6, 3});
+  // lower y
+  connectivity_indices.push_back({0, 4, 3});
+  connectivity_indices.push_back({7, 3, 4});
+  // upper y
+  connectivity_indices.push_back({1, 2, 3});
+  connectivity_indices.push_back({6, 3, 2});
+
+  moab::Range new_tris;
+  for(const auto& ind : connectivity_indices) {
+    EntityHandle new_triangle;
+    std::array<EntityHandle, 3> tri_conn = {box_verts[ind[0]], box_verts[ind[1]], box_verts[ind[2]]};
+    rval = MBI->create_element(moab::MBTRI, tri_conn.data(), 3, new_triangle);
+    MB_CHK_SET_ERR(rval, "Failed to create new graveyard triangle");
+    new_tris.insert(new_triangle);
+  }
+
+  //create a new surface meshset
+  rval = create_geometric_entity(new_tris, "surface");
+
+  return rval;
+}
+
+ErrorCode DagMC::create_geometric_entity(const Range& entities, const std::string& type) {
+  if (type == "surface" && !entities.all_of_type(moab::MBTRI)) {
+    MB_CHK_SET_ERR(moab::MB_FAILURE, "Cannot create surface with non-triangle types present");
+  }
+
+  return moab::MB_SUCCESS;
+}
+
 // initialise the obb tree
 ErrorCode DagMC::init_OBBTree() {
   ErrorCode rval;
