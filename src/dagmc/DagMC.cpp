@@ -315,8 +315,13 @@ ErrorCode DagMC::create_graveyard() {
 }
 
 ErrorCode DagMC::create_geometric_entity(const Range& entities, const std::string& type) {
+
   if (type == "surface" && !entities.all_of_type(moab::MBTRI)) {
     MB_CHK_SET_ERR(moab::MB_FAILURE, "Cannot create surface with non-triangle types present");
+  }
+
+  if (type == "volume" && !entities.all_of_type(moab::MBENTITYSET)) {
+    MB_CHK_SET_ERR(moab::MB_FAILURE, "Cannot create a volume with non-entityset types present");
   }
 
   return moab::MB_SUCCESS;
