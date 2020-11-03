@@ -169,18 +169,14 @@ class DagMC {
    * if one already exists. Use the has_graveyard method to check
    * if the DAGMC instance already has a graveyard.
    */
-  ErrorCode create_graveyard();
+  ErrorCode create_graveyard(bool overwrite = false);
 
- private:
+private:
+  /** convenience function for creating a box of triangles from a bounding box */
+  ErrorCode box_to_surf(double llc[3], double urc[3], EntityHandle& surface_set);
+
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();
-
-  /** create geometric meshset from a set of elements
-   *
-   * Valid types are "curve", "surface", or "volume"
-  */
-  ErrorCode create_geometric_entity(const Range& entities,
-                                    const std::string& type);
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
  public:
@@ -247,8 +243,10 @@ class DagMC {
   /** map from EntityHandle to global ID */
   int get_entity_id(EntityHandle this_ent);
 
-  /**\brief get number of geometric sets corresponding to geometry of specified
-   *dimension
+  /** get the largest ID value for entities of a specified dimension */
+  int get_max_id(int dimension);
+
+  /**\brief get number of geometric sets corresponding to geometry of specified dimension
    *
    * For a given dimension (e.g. dimension=3 for volumes, dimension=2 for
    *surfaces) return the number of entities of that dimension \param dimension
@@ -379,6 +377,7 @@ class DagMC {
    * EntitySets - PCS
    */
   Tag obb_tag() { return NULL; }
+  Tag category_tag();
   Tag geom_tag() { return GTT->get_geom_tag(); }
   Tag id_tag() { return GTT->get_gid_tag(); }
   Tag sense_tag() { return GTT->get_sense_tag(); }

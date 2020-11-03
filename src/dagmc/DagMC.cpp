@@ -212,7 +212,7 @@ ErrorCode DagMC::setup_indices() {
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::create_graveyard() {
+ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // internal structure used to track geometry bounds
   struct BBOX {
@@ -243,6 +243,29 @@ ErrorCode DagMC::create_graveyard() {
 
   ErrorCode rval;
 
+  // create a new volume meshset
+  EntityHandle volume_set;
+  rval = MBI->create_meshset(0, volume_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a graveyard volume set");
+
+  // tag the volume set with the appropriate info
+  int volume_dim = 3;
+  rval = MBI->tag_set_data(geom_tag(), &volume_set, 1, &volume_dim);
+  MB_CHK_SET_ERR(rval, "Failed to set the graveyard volume's geometric dimension");
+
+  // determine what ID to give the volume
+  int vol_id = get_max_id(3);
+  vol_id++;
+
+  // set the volume ID
+  rval = MBI->tag_set_data(id_tag(), &volume_set, 1, &vol_id);
+  MB_CHK_SET_ERR(rval, "Failed to get graveyard volume's id");
+
+  // set the category tag
+  std::string volume_str = "Volume";
+  rval = MBI->tag_set_data(category_tag(), &volume_set, 1, volume_str.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard volume category");
+
   int num_vols = num_entities(3);
   double vmin[3], vmax[3];
   for(int i = 0; i < num_vols; i++) {
@@ -254,21 +277,62 @@ ErrorCode DagMC::create_graveyard() {
     box.update(vmax);
   }
 
-  // start modifying the MOAB mesh
-  moab::Interface* MBI = this->moab_instance();
+  // expand the box a bit
+  for (int i = 0; i < 3; i++) {
+    box.upper[i] += 10.0 * numerical_precision();
+    box.lower[i] -= 10.0 * numerical_precision();
+  }
+
+  EntityHandle inner_surface;
+  rval = box_to_surf(box.lower, box.upper, inner_surface);
+
+  // establish the volume-surface parent-child relationship with the inner surface
+  rval = MBI->add_parent_child(volume_set, inner_surface);
+  MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
+
+  // set the surface senses (all triangles have outward normals so this should
+  // be REVERSE wrt the graveyard volume)
+  EntityHandle inner_senses[2] = {0, volume_set};
+  rval = MBI->tag_set_data(sense_tag(), &inner_surface, 1, inner_senses);
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
+
+  // expand the box a bit again for the outer surface
+  for (int i = 0; i < 3; i++) {
+    box.upper[i] += 10.0 * numerical_precision();
+    box.lower[i] -= 10.0 * numerical_precision();
+  }
+
+  EntityHandle outer_surface;
+  rval = box_to_surf(box.lower, box.upper, outer_surface);
+
+  // establish the volume-surface parent-child relationship with tie outer surface
+  rval = MBI->add_parent_child(volume_set, outer_surface);
+  MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
+
+  // set the surface senses (all triangles have outward normals so this should
+  // be FORWARD wrt the graveyard volume)
+  EntityHandle outer_senses[2] = {volume_set, 0};
+  rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
+
+  return rval;
+}
+
+ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface_set) {
+  ErrorCode rval;
 
   //start with vertices
   std::vector<std::array<double,3>> vertex_coords;
   // vertex coordinates for the lower z face
-  vertex_coords.push_back({box.lower[0], box.lower[1], box.lower[2]});
-  vertex_coords.push_back({box.upper[0], box.lower[1], box.lower[2]});
-  vertex_coords.push_back({box.upper[0], box.upper[1], box.lower[2]});
-  vertex_coords.push_back({box.lower[0], box.upper[1], box.lower[2]});
+  vertex_coords.push_back({llc[0], llc[1], llc[2]});
+  vertex_coords.push_back({urc[0], llc[1], llc[2]});
+  vertex_coords.push_back({urc[0], urc[1], llc[2]});
+  vertex_coords.push_back({llc[0], urc[1], llc[2]});
   // vertex coordinate for the upper z face
-  vertex_coords.push_back({box.lower[0], box.lower[1], box.upper[2]});
-  vertex_coords.push_back({box.upper[0], box.lower[1], box.upper[2]});
-  vertex_coords.push_back({box.upper[0], box.upper[1], box.upper[2]});
-  vertex_coords.push_back({box.lower[0], box.upper[1], box.upper[2]});
+  vertex_coords.push_back({llc[0], llc[1], urc[2]});
+  vertex_coords.push_back({urc[0], llc[1], urc[2]});
+  vertex_coords.push_back({urc[0], urc[1], urc[2]});
+  vertex_coords.push_back({llc[0], urc[1], urc[2]});
 
   std::vector<moab::EntityHandle> box_verts;
   for(const auto& coords : vertex_coords) {
@@ -308,23 +372,36 @@ ErrorCode DagMC::create_graveyard() {
     new_tris.insert(new_triangle);
   }
 
-  //create a new surface meshset
-  rval = create_geometric_entity(new_tris, "surface");
+  // create a surface set
+  rval = MBI->create_meshset(0, surface_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a graveyard surface set");
+
+    // add the triangles and vertices to the surface
+  rval = MBI->add_entities(surface_set, new_tris);
+  MB_CHK_SET_ERR(rval, "Failed to add triangles to the graveyard surface set");
+
+  rval = MBI->add_entities(surface_set, box_verts.data(), box_verts.size());
+  MB_CHK_SET_ERR(rval, "Failed to add vertices to the graveyard surface set");
+
+  // tag the surface set with the appropriate info
+  int surface_dim = 2;
+  rval = MBI->tag_set_data(geom_tag(), &surface_set, 1, &surface_dim);
+  MB_CHK_SET_ERR(rval, "Failed to set the graveyard surface's geometric dimension");
+
+  // determine what ID to give the volume
+  int surf_id = get_max_id(2);
+  surf_id++;
+
+  // set the volume ID
+  rval = MBI->tag_set_data(id_tag(), &surface_set, 1, &surf_id);
+  MB_CHK_SET_ERR(rval, "Failed to get graveyard surface's id");
+
+  // set the category tag
+  std::string  surface_str = "Surface";
+  rval = MBI->tag_set_data(category_tag(), &surface_set, 1, surface_str.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard volume category");
 
   return rval;
-}
-
-ErrorCode DagMC::create_geometric_entity(const Range& entities, const std::string& type) {
-
-  if (type == "surface" && !entities.all_of_type(moab::MBTRI)) {
-    MB_CHK_SET_ERR(moab::MB_FAILURE, "Cannot create surface with non-triangle types present");
-  }
-
-  if (type == "volume" && !entities.all_of_type(moab::MBENTITYSET)) {
-    MB_CHK_SET_ERR(moab::MB_FAILURE, "Cannot create a volume with non-entityset types present");
-  }
-
-  return moab::MB_SUCCESS;
 }
 
 // initialise the obb tree
@@ -503,6 +580,16 @@ int DagMC::get_entity_id(EntityHandle this_ent) {
   return GTT->global_id(this_ent);
 }
 
+int DagMC::get_max_id(int dimension) {
+    // determine what ID to give the volume
+  int max_id = 0;
+  for (int i = 0; i < num_entities(dimension); i++) {
+    int id = id_by_index(dimension, i);
+    max_id = std::max(id, max_id);
+  }
+  return max_id;
+}
+
 ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
@@ -543,14 +630,13 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
     entIndices[*rit - setOffset] = idx++;
 
   // get group handles
-  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
-                             MB_TAG_SPARSE, MB_TYPE_OPAQUE);
+  Tag cat_tag = category_tag();
   char group_category[CATEGORY_TAG_SIZE];
   std::fill(group_category, group_category + CATEGORY_TAG_SIZE, '\0');
   sprintf(group_category, "%s", "Group");
   const void* const group_val[] = {&group_category};
   Range groups;
-  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &category_tag,
+  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &cat_tag,
                                            group_val, 1, groups);
   if (MB_SUCCESS != rval) return rval;
   group_handles().resize(groups.size() + 1);
@@ -558,6 +644,11 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   std::copy(groups.begin(), groups.end(), &group_handles()[1]);
 
   return MB_SUCCESS;
+}
+
+Tag DagMC::category_tag() {
+  return get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
+                 MB_TAG_SPARSE, MB_TYPE_OPAQUE);
 }
 
 /* SECTION IV: Handling DagMC settings */
