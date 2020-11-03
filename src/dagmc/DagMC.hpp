@@ -22,8 +22,6 @@
 
 class RefEntity;
 
-constexpr double INFTY {std::numeric_limits<double>::max()};
-
 struct DagmcVolData {
   int mat_id;
   double density, importance;
@@ -33,6 +31,8 @@ struct DagmcVolData {
 class RayTracingInterface;
 
 namespace moab {
+
+constexpr double INFTY {std::numeric_limits<double>::max()};
 
 static const int vertex_handle_idx = 0;
 static const int curve_handle_idx = 1;
@@ -179,7 +179,8 @@ class DagMC {
    *
    * Valid types are "curve", "surface", or "volume"
   */
-  ErrorCode create_geometric_entity(const Range& entities, const std::string& type);
+  ErrorCode create_geometric_entity(const Range& entities,
+                                    const std::string& type);
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
  public:
