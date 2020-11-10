@@ -256,6 +256,9 @@ private:
   unsigned int num_entities(int dimension);
 
  private:
+  /** get group sets */
+  ErrorCode get_groups(Range& groups);
+
   /** build internal index vectors that speed up handle-by-id, etc. */
   ErrorCode build_indices(Range& surfs, Range& vols);
 

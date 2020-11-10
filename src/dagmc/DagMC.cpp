@@ -630,20 +630,29 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
     entIndices[*rit - setOffset] = idx++;
 
   // get group handles
-  Tag cat_tag = category_tag();
-  char group_category[CATEGORY_TAG_SIZE];
-  std::fill(group_category, group_category + CATEGORY_TAG_SIZE, '\0');
-  sprintf(group_category, "%s", "Group");
-  const void* const group_val[] = {&group_category};
   Range groups;
-  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &cat_tag,
-                                           group_val, 1, groups);
-  if (MB_SUCCESS != rval) return rval;
+  rval = get_groups(groups);
+  if (MB_SUCCESS != rval)
+    return rval;
+
   group_handles().resize(groups.size() + 1);
   group_handles()[0] = 0;
   std::copy(groups.begin(), groups.end(), &group_handles()[1]);
 
   return MB_SUCCESS;
+}
+
+ErrorCode DagMC::get_groups(Range& groups) {
+  // get group handles
+  Tag cat_tag = category_tag();
+  char group_category[CATEGORY_TAG_SIZE];
+  std::fill(group_category, group_category + CATEGORY_TAG_SIZE, '\0');
+  sprintf(group_category, "%s", "Group");
+  const void* const group_val[] = {&group_category};
+  ErrorCode rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &cat_tag,
+                                                     group_val, 1, groups);
+  MB_CHK_SET_ERR(rval, "Failed to retrieve groups from the MOAB instance");
+  return rval;
 }
 
 Tag DagMC::category_tag() {
