@@ -224,9 +224,6 @@ bool DagMC::has_graveyard() {
     rval = get_group_name(group, group_name);
     MB_CHK_SET_ERR_CONT(rval, "Failed to get a group name");
 
-    rval = moab_instance()->tag_get_data(name_tag(), &group, 1, const_cast<char*>(group_name.c_str()));
-    MB_CHK_SET_ERR_CONT(rval, "Failed to get group name");
-
     // convert name to lower case
     lowercase_str(group_name);
 
