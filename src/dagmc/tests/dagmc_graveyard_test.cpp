@@ -33,5 +33,13 @@ TEST_F(DagmcGraveyardTest, dagmc_load_file) {
   ErrorCode rval = DAG->load_file(input_file); // open the Dag file
   EXPECT_EQ(rval, MB_SUCCESS);
 
+  rval = DAG->init_OBBTree();
+  EXPECT_EQ(rval, MB_SUCCESS);
+
   EXPECT_FALSE(DAG->has_graveyard());
+
+  rval = DAG->create_graveyard();
+  EXPECT_EQ(rval, MB_SUCCESS);
+
+  EXPECT_TRUE(DAG->has_graveyard());
 }

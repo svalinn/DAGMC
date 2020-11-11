@@ -229,6 +229,9 @@ bool DagMC::has_graveyard() {
     // convert name to lower case
     lowercase_str(group_name);
 
+    // resize to match lengths
+    group_name.resize(graveyard_name.size());
+
     // check for the graveyard string
     if (group_name == graveyard_name) { return true; }
   }
@@ -286,7 +289,9 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   MB_CHK_SET_ERR(rval, "Failed to get graveyard volume's id");
 
   // set the category tag
-  std::string volume_str = "Volume";
+  std::string volume_str;
+  volume_str.resize(CATEGORY_TAG_SIZE);
+  volume_str = "Volume";
   rval = MBI->tag_set_data(category_tag(), &volume_set, 1, volume_str.c_str());
   MB_CHK_SET_ERR(rval, "Failed to set graveyard volume category");
 
@@ -338,6 +343,39 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   EntityHandle outer_senses[2] = {volume_set, 0};
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
+
+  // create group set for the graveyard volume
+  EntityHandle group_set;
+  rval = MBI->create_meshset(0, group_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a new graveyard group set");
+
+  // set the group dimension
+  int group_dim = 4;
+  rval = MBI->tag_set_data(geom_tag(), &group_set, 1, &group_dim);
+  MB_CHK_SET_ERR(rval, "Failed to set the graveyard group dimension");
+
+  // set the group category
+  std::string group_str = "Group\0";
+  group_str.resize(CATEGORY_TAG_SIZE);
+  std::cout << group_str << std::endl;
+  rval = MBI->tag_set_data(category_tag(), &group_set, 1, group_str.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the group category");
+
+  // set the volume name tag data (material metadata)
+  rval = MBI->tag_set_data(name_tag(), &group_set, 1, graveyard_name.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the graveyard name");
+
+  // add the graveyard volume to this group
+  rval = MBI->add_entities(group_set, &volume_set, 1);
+  MB_CHK_SET_ERR(rval, "Failed to add the graveyard volume to the graveyard group");
+
+  // // reset BVH data structures
+  // rval = geom_tool()->delete_all_obb_trees();
+  // MB_CHK_SET_ERR(rval, "Failed to remove BVH after creating a graveyard volume");
+
+  rval = init_OBBTree();
+  MB_CHK_SET_ERR(rval, "Failed to re-build the BVH after creating a graveyard volume");
+
 
   return rval;
 }
@@ -400,7 +438,7 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   rval = MBI->create_meshset(0, surface_set);
   MB_CHK_SET_ERR(rval, "Failed to create a graveyard surface set");
 
-    // add the triangles and vertices to the surface
+  // add the triangles and vertices to the surface
   rval = MBI->add_entities(surface_set, new_tris);
   MB_CHK_SET_ERR(rval, "Failed to add triangles to the graveyard surface set");
 
@@ -416,12 +454,14 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   int surf_id = get_max_id(2);
   surf_id++;
 
-  // set the volume ID
+  // set the surface ID
   rval = MBI->tag_set_data(id_tag(), &surface_set, 1, &surf_id);
   MB_CHK_SET_ERR(rval, "Failed to get graveyard surface's id");
 
   // set the category tag
-  std::string  surface_str = "Surface";
+  std::string surface_str;
+  surface_str.resize(CATEGORY_TAG_SIZE);
+  surface_str = "Surface";
   rval = MBI->tag_set_data(category_tag(), &surface_set, 1, surface_str.c_str());
   MB_CHK_SET_ERR(rval, "Failed to set graveyard volume category");
 

@@ -39,7 +39,7 @@ static const int curve_handle_idx = 1;
 static const int surfs_handle_idx = 2;
 static const int vols_handle_idx = 3;
 static const int groups_handle_idx = 4;
-static const std::string graveyard_name = "mat:graveyard\0";
+static const std::string graveyard_name = "mat:graveyard";
 
 class CartVect;
 class GeomQueryTool;
