@@ -254,6 +254,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
     9) Construct the new volume's OBBTree/BVH
     10) Construct the updated implicit complement OBBTree/BVH
   */
+  ErrorCode rval;
 
   // if a graveyard already exists and we aren't overwriting it,
   // report an error
@@ -282,8 +283,6 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
     MB_CHK_SET_ERR(rval, "Invalid model bounding box generated for graveyard volume");
   }
 
-  ErrorCode rval;
-
   // create a new volume meshset
   EntityHandle volume_set;
   rval = MBI->create_meshset(0, volume_set);
@@ -309,9 +308,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   MB_CHK_SET_ERR(rval, "Failed to add the graveyard group to the GeomTopoTool");
 
   // set the group category
-  std::string group_str = "Group\0";
+  std::string group_str = "Group";
   group_str.resize(CATEGORY_TAG_SIZE);
-  std::cout << group_str << std::endl;
   rval = MBI->tag_set_data(category_tag(), &group_set, 1, group_str.c_str());
   MB_CHK_SET_ERR(rval, "Failed to set the group category");
 
