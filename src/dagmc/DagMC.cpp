@@ -279,18 +279,9 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = MBI->create_meshset(0, volume_set);
   MB_CHK_SET_ERR(rval, "Failed to create a graveyard volume set");
 
-  // tag the volume set with the appropriate info
-  int volume_dim = 3;
-  rval = MBI->tag_set_data(geom_tag(), &volume_set, 1, &volume_dim);
-  MB_CHK_SET_ERR(rval, "Failed to set the graveyard volume's geometric dimension");
-
-  // determine what ID to give the volume
-  int vol_id = get_max_id(3);
-  vol_id++;
-
-  // set the volume ID
-  rval = MBI->tag_set_data(id_tag(), &volume_set, 1, &vol_id);
-  MB_CHK_SET_ERR(rval, "Failed to get graveyard volume's id");
+  // add volume set to the model
+  rval = geom_tool()->add_geo_set(volume_set, 3);
+  MB_CHK_SET_ERR(rval, "Failed to add the volume to the GeomTopoTool");
 
   // set the category tag
   std::string volume_str;
@@ -467,17 +458,8 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   MB_CHK_SET_ERR(rval, "Failed to add vertices to the graveyard surface set");
 
   // tag the surface set with the appropriate info
-  int surface_dim = 2;
-  rval = MBI->tag_set_data(geom_tag(), &surface_set, 1, &surface_dim);
-  MB_CHK_SET_ERR(rval, "Failed to set the graveyard surface's geometric dimension");
-
-  // determine what ID to give the volume
-  int surf_id = get_max_id(2);
-  surf_id++;
-
-  // set the surface ID
-  rval = MBI->tag_set_data(id_tag(), &surface_set, 1, &surf_id);
-  MB_CHK_SET_ERR(rval, "Failed to get graveyard surface's id");
+  rval = geom_tool()->add_geo_set(surface_set, 2);
+  MB_CHK_SET_ERR(rval, "Failed to add the surface to the GeomTopoTool");
 
   // set the category tag
   std::string surface_str;
