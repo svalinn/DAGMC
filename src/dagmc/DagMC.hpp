@@ -39,6 +39,7 @@ static const int curve_handle_idx = 1;
 static const int surfs_handle_idx = 2;
 static const int vols_handle_idx = 3;
 static const int groups_handle_idx = 4;
+static const std::string graveyard_name = "mat:graveyard\0";
 
 class CartVect;
 class GeomQueryTool;
@@ -170,6 +171,9 @@ class DagMC {
    * if the DAGMC instance already has a graveyard.
    */
   ErrorCode create_graveyard(bool overwrite = false);
+
+  /** The model contains a graveyard volume */
+  bool has_graveyard();
 
 private:
   /** convenience function for creating a box of triangles from a bounding box */

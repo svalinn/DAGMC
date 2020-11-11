@@ -1,4 +1,5 @@
 #include "DagMC.hpp"
+#include "util.hpp"
 
 #include <ctype.h>
 #include <math.h>
@@ -210,6 +211,29 @@ ErrorCode DagMC::setup_indices() {
   rval = build_indices(surfs, vols);
   MB_CHK_SET_ERR(rval, "Failed to build surface/volume indices");
   return MB_SUCCESS;
+}
+
+bool DagMC::has_graveyard() {
+  Range groups;
+  ErrorCode rval = get_groups(groups);
+  MB_CHK_SET_ERR_CONT(rval, "Failed to retrieve groups");
+
+  // get the name of each group and check for the 'mat:graveyard' string
+  for (auto group : groups) {
+    std::string group_name;
+    group_name.resize(NAME_TAG_SIZE);
+
+    rval = moab_instance()->tag_get_data(name_tag(), &group, 1, const_cast<char*>(group_name.c_str()));
+    MB_CHK_SET_ERR_CONT(rval, "Failed to get group name");
+
+    // convert name to lower case
+    lowercase_str(group_name);
+
+    // check for the graveyard string
+    if (group_name == graveyard_name) { return true; }
+  }
+
+  return false;
 }
 
 ErrorCode DagMC::create_graveyard(bool overwrite) {
