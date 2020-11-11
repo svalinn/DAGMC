@@ -42,4 +42,8 @@ TEST_F(DagmcGraveyardTest, dagmc_load_file) {
   EXPECT_EQ(rval, MB_SUCCESS);
 
   EXPECT_TRUE(DAG->has_graveyard());
+
+  rval = DAG->remove_graveyard();
+  EXPECT_EQ(MB_SUCCESS, rval);
+
 }

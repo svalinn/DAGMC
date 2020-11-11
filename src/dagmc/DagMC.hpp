@@ -163,6 +163,9 @@ class DagMC {
    */
   ErrorCode setup_indices();
 
+  /**\brief Removes the graveyard volume. */
+  ErrorCode remove_graveyard();
+
   /**\brief Create a graveyard volume.
    *
    * Create a cuboid volume marked with metadata indicating it is the boundary
@@ -174,6 +177,9 @@ class DagMC {
 
   /** The model contains a graveyard volume */
   bool has_graveyard();
+
+  /** Retrieve the graveyard group */
+  EntityHandle get_graveyard_group();
 
 private:
   /** convenience function for creating a box of triangles from a bounding box */
