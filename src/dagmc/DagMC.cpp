@@ -221,7 +221,8 @@ bool DagMC::has_graveyard() {
   // get the name of each group and check for the 'mat:graveyard' string
   for (auto group : groups) {
     std::string group_name;
-    group_name.resize(NAME_TAG_SIZE);
+    rval = get_group_name(group, group_name);
+    MB_CHK_SET_ERR_CONT(rval, "Failed to get a group name");
 
     rval = moab_instance()->tag_get_data(name_tag(), &group, 1, const_cast<char*>(group_name.c_str()));
     MB_CHK_SET_ERR_CONT(rval, "Failed to get group name");
@@ -709,10 +710,10 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
 ErrorCode DagMC::get_groups(Range& groups) {
   // get group handles
   Tag cat_tag = category_tag();
-  char group_category[CATEGORY_TAG_SIZE];
-  std::fill(group_category, group_category + CATEGORY_TAG_SIZE, '\0');
-  sprintf(group_category, "%s", "Group");
-  const void* const group_val[] = {&group_category};
+  std::string group_category;
+  group_category.resize(CATEGORY_TAG_SIZE);
+  group_category = "Group";
+  const void* const group_val[] = {group_category.c_str()};
   ErrorCode rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &cat_tag,
                                                      group_val, 1, groups);
   MB_CHK_SET_ERR(rval, "Failed to retrieve groups from the MOAB instance");
