@@ -230,6 +230,8 @@ bool DagMC::has_graveyard() {
     // resize to match lengths
     group_name.resize(graveyard_name.size());
 
+    std::cout << group_name << std::endl;
+
     // check for the graveyard string
     if (group_name == graveyard_name) { return true; }
   }
@@ -238,6 +240,10 @@ bool DagMC::has_graveyard() {
 }
 
 ErrorCode DagMC::create_graveyard(bool overwrite) {
+
+  if (!geom_tool()->have_obb_tree()) {
+    MB_CHK_SET_ERR(MB_FAILURE, "Graveyard creation attempted without BVH");
+  }
 
   // internal structure used to track geometry bounds
   struct BBOX {
@@ -310,6 +316,15 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
     box.lower[i] -= 10.0 * numerical_precision();
   }
 
+  // tear down the implicit complement tree
+  EntityHandle ic;
+  rval = geom_tool()->get_implicit_complement(ic);
+  MB_CHK_SET_ERR(rval, "Failed to get the implicit complement");
+
+  // delete the implicit complement tree (but not the surface trees)
+  rval = geom_tool()->delete_obb_tree(ic, true);
+  MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
+
   EntityHandle inner_surface;
   rval = box_to_surf(box.lower, box.upper, inner_surface);
 
@@ -317,9 +332,13 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = MBI->add_parent_child(volume_set, inner_surface);
   MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
 
+  // establish the volume-surface parent-child relationship with the inner surface
+  rval = MBI->add_parent_child(ic, inner_surface);
+  MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
+
   // set the surface senses (all triangles have outward normals so this should
   // be REVERSE wrt the graveyard volume)
-  EntityHandle inner_senses[2] = {0, volume_set};
+  EntityHandle inner_senses[2] = {ic, volume_set};
   rval = MBI->tag_set_data(sense_tag(), &inner_surface, 1, inner_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
 
@@ -336,9 +355,13 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = MBI->add_parent_child(volume_set, outer_surface);
   MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
 
+  // establish the volume-surface parent-child relationship with tie outer surface
+  rval = MBI->add_parent_child(ic, outer_surface);
+  MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
+
   // set the surface senses (all triangles have outward normals so this should
   // be FORWARD wrt the graveyard volume)
-  EntityHandle outer_senses[2] = {volume_set, 0};
+  EntityHandle outer_senses[2] = {volume_set, ic};
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
 
@@ -367,13 +390,13 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = MBI->add_entities(group_set, &volume_set, 1);
   MB_CHK_SET_ERR(rval, "Failed to add the graveyard volume to the graveyard group");
 
-  // // reset BVH data structures
-  // rval = geom_tool()->delete_all_obb_trees();
-  // MB_CHK_SET_ERR(rval, "Failed to remove BVH after creating a graveyard volume");
+  // create BVH for both the new implicit complement and the new graveyard
+  // volume
+  rval = geom_tool()->construct_obb_tree(volume_set);
+  MB_CHK_SET_ERR(rval, "Failed to build accel. data structure for the new graveyard volume");
 
-  rval = init_OBBTree();
-  MB_CHK_SET_ERR(rval, "Failed to re-build the BVH after creating a graveyard volume");
-
+  rval = geom_tool()->construct_obb_tree(ic);
+  MB_CHK_SET_ERR(rval, "Failed to build accel. data structure for the new implicit complement");
 
   return rval;
 }
