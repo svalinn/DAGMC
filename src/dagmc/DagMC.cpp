@@ -240,37 +240,47 @@ bool DagMC::has_graveyard() {
 }
 
 ErrorCode DagMC::create_graveyard(bool overwrite) {
+  /* Methodology
+    1) Determine the axis-aligned bounding box of the current model
+    2) Create a new volume set for the graveyard
+    3) Create a new group labeled as the graveyard and add volume to that group
+    4) Create an inner surface from the bounding box
+    5) Create an outer surface by extending the inner surface
+    6) Add surfaces as children of the new graveyard volume and the implicit
+       complement
+    7) Set the surface senses w.r.t. the new graveyard volume and implicit
+       complement
+    8) Delete the implicit complement volume's out-of-date OBBTree/BVH
+    9) Construct the new volume's OBBTree/BVH
+    10) Construct the updated implicit complement OBBTree/BVH
+  */
 
+  // if a graveyard already exists and we aren't overwriting it,
+  // report an error
+  if (has_graveyard() && !overwrite) {
+    MB_CHK_SET_ERR(rval, "Graveyard already exists");
+  }
+
+  // currently relying on the BVH as looping over all vertices may
+  // be prohibitive
   if (!geom_tool()->have_obb_tree()) {
     MB_CHK_SET_ERR(MB_FAILURE, "Graveyard creation attempted without BVH");
   }
 
-  // internal structure used to track geometry bounds
-  struct BBOX {
-    double lower[3] = { INFTY,  INFTY,  INFTY};
-    double upper[3] = {-INFTY, -INFTY, -INFTY};
-
-    bool valid() {
-      return ( lower[0] <= upper[0] &&
-	       lower[1] <= upper[1] &&
-	       lower[2] <= upper[2] );
-    }
-
-    void update(double x, double y, double z) {
-      lower[0] = x < lower[0] ? x : lower[0];
-      lower[1] = y < lower[1] ? y : lower[1];
-      lower[2] = z < lower[2] ? z : lower[2];
-
-      upper[0] = x > upper[0] ? x : upper[0];
-      upper[1] = y > upper[1] ? y : upper[1];
-      upper[2] = z > upper[2] ? z : upper[2];
-    }
-
-    void update(double xyz[3]) {
-      update(xyz[0], xyz[1], xyz[2]);
-    }
-  };
   BBOX box;
+  for(int i = 0; i < num_entities(3); i++) {
+    moab::EntityHandle vol = this->entity_by_index(3, i+1);
+    double vmin[3], vmax[3];
+    rval = this->getobb(vol, vmin, vmax);
+    MB_CHK_SET_ERR(rval, "Failed to get volume OBB");
+
+    box.update(vmin);
+    box.update(vmax);
+  }
+
+  if (!box.valid()) {
+    MB_CHK_SET_ERR(rval, "Invalid model bounding box generated for graveyard volume");
+  }
 
   ErrorCode rval;
 
@@ -290,16 +300,30 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = MBI->tag_set_data(category_tag(), &volume_set, 1, volume_str.c_str());
   MB_CHK_SET_ERR(rval, "Failed to set graveyard volume category");
 
-  int num_vols = num_entities(3);
-  double vmin[3], vmax[3];
-  for(int i = 0; i < num_vols; i++) {
-    moab::EntityHandle vol = this->entity_by_index(3, i+1);
-    rval = this->getobb(vol, vmin, vmax);
-    MB_CHK_SET_ERR(rval, "Failed to get volume OBB");
+  // create group set for the graveyard volume
+  EntityHandle group_set;
+  rval = MBI->create_meshset(0, group_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a new graveyard group set");
 
-    box.update(vmin);
-    box.update(vmax);
-  }
+  rval = geom_tool()->add_geo_set(group_set, 4);
+  MB_CHK_SET_ERR(rval, "Failed to add the graveyard group to the GeomTopoTool");
+
+  // set the group category
+  std::string group_str = "Group\0";
+  group_str.resize(CATEGORY_TAG_SIZE);
+  std::cout << group_str << std::endl;
+  rval = MBI->tag_set_data(category_tag(), &group_set, 1, group_str.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the group category");
+
+  // set the volume name tag data (material metadata)
+  rval = MBI->tag_set_data(name_tag(), &group_set, 1, graveyard_name.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the graveyard name");
+
+  // add the graveyard volume to this group
+  rval = MBI->add_entities(group_set, &volume_set, 1);
+  MB_CHK_SET_ERR(rval, "Failed to add the graveyard volume to the graveyard group");
+
+  /// SURFACE CREATION ///
 
   // expand the box a bit
   for (int i = 0; i < 3; i++) {
@@ -311,10 +335,6 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   EntityHandle ic;
   rval = geom_tool()->get_implicit_complement(ic);
   MB_CHK_SET_ERR(rval, "Failed to get the implicit complement");
-
-  // delete the implicit complement tree (but not the surface trees)
-  rval = geom_tool()->delete_obb_tree(ic, true);
-  MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
 
   EntityHandle inner_surface;
   rval = box_to_surf(box.lower, box.upper, inner_surface);
@@ -356,30 +376,11 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
 
-  // create group set for the graveyard volume
-  EntityHandle group_set;
-  rval = MBI->create_meshset(0, group_set);
-  MB_CHK_SET_ERR(rval, "Failed to create a new graveyard group set");
+  // OBBTree/BVH update
 
-  // set the group dimension
-  int group_dim = 4;
-  rval = MBI->tag_set_data(geom_tag(), &group_set, 1, &group_dim);
-  MB_CHK_SET_ERR(rval, "Failed to set the graveyard group dimension");
-
-  // set the group category
-  std::string group_str = "Group\0";
-  group_str.resize(CATEGORY_TAG_SIZE);
-  std::cout << group_str << std::endl;
-  rval = MBI->tag_set_data(category_tag(), &group_set, 1, group_str.c_str());
-  MB_CHK_SET_ERR(rval, "Failed to set the group category");
-
-  // set the volume name tag data (material metadata)
-  rval = MBI->tag_set_data(name_tag(), &group_set, 1, graveyard_name.c_str());
-  MB_CHK_SET_ERR(rval, "Failed to set the graveyard name");
-
-  // add the graveyard volume to this group
-  rval = MBI->add_entities(group_set, &volume_set, 1);
-  MB_CHK_SET_ERR(rval, "Failed to add the graveyard volume to the graveyard group");
+  // delete the implicit complement tree (but not the surface trees)
+  rval = geom_tool()->delete_obb_tree(ic, true);
+  MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
 
   // create BVH for both the new implicit complement and the new graveyard
   // volume

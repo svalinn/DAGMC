@@ -496,7 +496,36 @@ private:
   std::vector<double> disList;
   std::vector<int> dirList;
   std::vector<EntityHandle> surList, facList;
-};
+
+  // axis-aligned box used to track geometry bounds
+  // (internal use only)
+  struct BBOX {
+    double lower[3] = { INFTY,  INFTY,  INFTY};
+    double upper[3] = {-INFTY, -INFTY, -INFTY};
+
+    bool valid() {
+      return ( lower[0] <= upper[0] &&
+	             lower[1] <= upper[1] &&
+	             lower[2] <= upper[2] );
+    }
+
+    void update(double x, double y, double z) {
+      lower[0] = x < lower[0] ? x : lower[0];
+      lower[1] = y < lower[1] ? y : lower[1];
+      lower[2] = z < lower[2] ? z : lower[2];
+
+      upper[0] = x > upper[0] ? x : upper[0];
+      upper[1] = y > upper[1] ? y : upper[1];
+      upper[2] = z > upper[2] ? z : upper[2];
+    }
+
+    void update(double xyz[3]) {
+      update(xyz[0], xyz[1], xyz[2]);
+    }
+  };
+
+}; // end DagMC
+
 
 inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
   assert(2 <= dimension && 3 >= dimension &&
