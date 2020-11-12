@@ -146,7 +146,7 @@ material assignment data from the CAD geometry we must first
 subsequently-defined geometry file, the user must produce the ``mat.inp`` file.
 ::
 
-    $ /path/to/fludag/executable/mainfludag geom.h5m
+    $ /path/to/fludag/executable/mainfludag --dagmc geom.h5m
 
 This will load the named .h5m file and produce the material assignment
 information. This information should then be pasted into the FLUKA input file,
@@ -165,5 +165,5 @@ geometry file to a fixed file called ``dagmc.h5m``.
 The problem can then be run with
 ::
 
-    $ $FLUPRO/flutil/rfluka -e <path/to/fludag/executable/mainfludag> \
+    $ rfluka -e <path/to/fludag/executable/mainfludag> \
           ++{standard fluka options}++ <fludag_input_file>
