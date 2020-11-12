@@ -101,14 +101,14 @@ v3.2.0
   * removed an unused function (Arc::create_loops_from_oriented_edges_fast)
 * PullRequest-Agent suggestions DagMC (PR#671, PR#676):
   * updated pointer management to RAII ("Resource Allocation Is Initialization") technique:
-    * MBI is now a shared_ptr unless passed as a raw pointer in the DagMC
+    - MBI is now a shared_ptr unless passed as a raw pointer in the DagMC
       constructor (can be returned as a shared_ptr if not provided as a raw
       pointer)
-    * GTT is now a shared_ptr, and can only be returned as such
-    * GQT is now a uniq_ptr, (and can't be return - not change there)
+    - GTT is now a shared_ptr, and can only be returned as such
+    - GQT is now a uniq_ptr, (and can't be return - not change there)
   * tests: 
-    * DagMC instance is now a shared_ptr
-    * when used, MBI instance is now a shared_ptr
+    - DagMC instance is now a shared_ptr
+    - when used, MBI instance is now a shared_ptr
 * PullRequest-Agent suggestions uwuw, tally, overlap_check, build_obb, misc/tests (PR#680)
 * PullRequest-Agent suggestions Geat4 (PR#691)
 * Updates to variable names in make_watergight files (PR#672)
