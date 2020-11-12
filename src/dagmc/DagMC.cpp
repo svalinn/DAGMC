@@ -253,6 +253,10 @@ ErrorCode DagMC::remove_graveyard() {
 
   if (graveyard_group == 0) { return MB_SUCCESS; }
 
+  Range to_delete;
+
+  to_delete.insert(graveyard_group);
+
   bool trees_exist = geom_tool()->have_obb_tree();
 
   // get the graveyard volume(s)
@@ -267,7 +271,12 @@ ErrorCode DagMC::remove_graveyard() {
     MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
   }
 
-  Range to_delete;
+  // update the implicit complement tree if needed
+  if (trees_exist && ic) {
+    rval = geom_tool()->delete_obb_tree(ic, true);
+    MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement OBBTree/BVH");
+  }
+
 
   for (auto vol : graveyard_vols) {
     if (trees_exist) {
@@ -296,12 +305,6 @@ ErrorCode DagMC::remove_graveyard() {
     }
   }
 
-  // update the implicit complement tree if needed
-  if (trees_exist && ic) {
-    rval = geom_tool()->delete_obb_tree(ic, true);
-    MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement OBBTree/BVH");
-  }
-
   // delete accumulated entities
   rval = moab_instance()->delete_entities(to_delete);
   MB_CHK_SET_ERR(rval, "Failed to delete graveyard entities");
@@ -310,6 +313,9 @@ ErrorCode DagMC::remove_graveyard() {
     rval = geom_tool()->construct_obb_tree(ic);
     MB_CHK_SET_ERR(rval, "Failed to re-create the implicit complement OBBTree/BVH");
   }
+
+  rval = geom_tool()->find_geomsets();
+  MB_CHK_SET_ERR(rval, "Failed to find geometry sets after removing the graveyard");
 
   return rval;
 }

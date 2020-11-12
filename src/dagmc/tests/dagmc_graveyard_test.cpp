@@ -34,16 +34,27 @@ TEST_F(DagmcGraveyardTest, dagmc_load_file) {
   EXPECT_EQ(rval, MB_SUCCESS);
 
   rval = DAG->init_OBBTree();
-  EXPECT_EQ(rval, MB_SUCCESS);
+  EXPECT_EQ(MB_SUCCESS, rval);
 
   EXPECT_FALSE(DAG->has_graveyard());
 
   rval = DAG->create_graveyard();
-  EXPECT_EQ(rval, MB_SUCCESS);
+  EXPECT_EQ(MB_SUCCESS, rval);
 
   EXPECT_TRUE(DAG->has_graveyard());
 
   rval = DAG->remove_graveyard();
   EXPECT_EQ(MB_SUCCESS, rval);
 
+  EXPECT_FALSE(DAG->has_graveyard());
+
+  rval = DAG->create_graveyard();
+  EXPECT_EQ(MB_SUCCESS, rval);
+
+  EXPECT_TRUE(DAG->has_graveyard());
+
+  rval = DAG->remove_graveyard();
+  EXPECT_EQ(MB_SUCCESS, rval);
+
+  EXPECT_FALSE(DAG->has_graveyard());
 }
