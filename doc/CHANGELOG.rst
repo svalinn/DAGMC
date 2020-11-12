@@ -229,7 +229,8 @@ v3.2.0
 * Direct Travis to grab the docker image from the cnerg dockerhub account
   instead of Lucas's account. (PR#546)
 
-**Deprecated:** 
+**Deprecated:**
+
 * DagMC: Deprecated constructor using a raw pointer for the MBI instance,
   prefered way uses shared_ptr for MBI instance. (PR#671)
 * `DagMC::interface_revision` method (PR#707)
