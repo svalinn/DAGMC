@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** 
+
+* combining news files into the CHANGELOG (PR#710)
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
