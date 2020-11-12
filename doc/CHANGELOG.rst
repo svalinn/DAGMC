@@ -86,33 +86,31 @@ v3.2.0
 * Enabling testing for the shared object build of DAGMC (PR#674)
 * Adding RPATH value for our build of Geant4 on CI (PR#674)
 * Including additional test output on failure in CI (PR#674)
-* Comply with PullRequest-Agent suggestions (PR#664, PR#665, PR#666, PR#668, PR#671, PR#676, PR#680, PR#691):
-  * mcnp (PR#665):
-    * using std::err for errors
-    * update to C++11 standards for converting ints to strings
-    * removed unnecessary comments
-    * moved Graveyard and Vacuum strings to variables
-  * MakeWaterTight (PR#666):
-    * remove commented code blocks that are either outdated or are debug statements
-    * improvements to some logic for clarity
-    * use of standard library containers to avoid potential memory leaks in Arc.cpp/Gen.cpp
-    * improvements to struct/variable names
-    * declared variables for "magic numbers"
-    * passing by const reference where possible to avoid unnecessary memory allocation
-    * removed an unused function (Arc::create_loops_from_oriented_edges_fast)
-  * DagMC (PR#671, PR#676):
-    * updated pointer management to RAII ("Resource Allocation Is
-  Initialization") technique:
-      * MBI is now a shared_ptr unless passed as a raw pointer in the DagMC
-        constructor (can be returned as a shared_ptr if not provided as a raw
-        pointer)
-      * GTT is now a shared_ptr, and can only be returned as such
-      * GQT is now a uniq_ptr, (and can't be return - not change there)
-    * tests: 
-      * DagMC instance is now a shared_ptr
-      * when used, MBI instance is now a shared_ptr
-  * uwuw, tally, overlap_check, build_obb, misc/tests (PR#680)
-  * Geat4 (PR#691)
+* PullRequest-Agent suggestionsmcnp (PR#665)
+  * using std::err for errors
+  * update to C++11 standards for converting ints to strings
+  * removed unnecessary comments
+  * moved Graveyard and Vacuum strings to variables
+* PullRequest-Agent suggestions MakeWaterTight (PR#666):
+  * remove commented code blocks that are either outdated or are debug statements
+  * improvements to some logic for clarity
+  * use of standard library containers to avoid potential memory leaks in Arc.cpp/Gen.cpp
+  * improvements to struct/variable names
+  * declared variables for "magic numbers"
+  * passing by const reference where possible to avoid unnecessary memory allocation
+  * removed an unused function (Arc::create_loops_from_oriented_edges_fast)
+* PullRequest-Agent suggestions DagMC (PR#671, PR#676):
+  * updated pointer management to RAII ("Resource Allocation Is Initialization") technique:
+    * MBI is now a shared_ptr unless passed as a raw pointer in the DagMC
+      constructor (can be returned as a shared_ptr if not provided as a raw
+      pointer)
+    * GTT is now a shared_ptr, and can only be returned as such
+    * GQT is now a uniq_ptr, (and can't be return - not change there)
+  * tests: 
+    * DagMC instance is now a shared_ptr
+    * when used, MBI instance is now a shared_ptr
+* PullRequest-Agent suggestions uwuw, tally, overlap_check, build_obb, misc/tests (PR#680)
+* PullRequest-Agent suggestions Geat4 (PR#691)
 * Updates to variable names in make_watergight files (PR#672)
 * Changed name of overlap_check executable directory from "build" to
   "app". (PR#653)
