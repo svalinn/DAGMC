@@ -79,7 +79,7 @@ class DagMC {
   static float version(std::string* version_string = NULL);
   /** Get subversion revision of this file (DagMC.hpp) */
   [[deprecated]]
-  static unsigned int interface_revision();
+  static unsigned int interface_revision() { return 0; }
 
   /** Git revision of DAGMC */
   inline std::string git_sha() { return DAGMC_GIT_SHA; }

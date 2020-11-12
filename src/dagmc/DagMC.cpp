@@ -111,10 +111,6 @@ float DagMC::version(std::string* version_string) {
   return DAGMC_VERSION;
 }
 
-unsigned int DagMC::interface_revision() {
-  return 0;
-}
-
 /* SECTION I: Geometry Initialization and problem setup */
 
 // the standard DAGMC load file method
