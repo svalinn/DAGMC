@@ -8,8 +8,9 @@
  */
 //----------------------------------------------------//
 #include <time.h>  // for timing the routine
-#include <cstring>
 #include <fstream>
+#include <cstdlib>
+#include <cstring>
 
 //---------------------------------------------------------------------------//
 #include "fluka_funcs.h"
@@ -154,8 +155,30 @@ int main(int argc, char* argv[]) {
     fludag_write_ididx(vol_id);
   } else {
     // call fluka run
-    // flugg mode is flag = 1
-    const int flag = 1;
+    
+    // check for the input file argument
+    // get it from the command line
+    if(argc >= 1) {
+      // convert to std::string
+      std::string chinpf_s(argv[1]);
+      char chinpf[256] = "";
+      memset(chinpf,' ',256);
+      std::copy(chinpf_s.begin(),chinpf_s.end(),chinpf);
+      strcpy(chcmpt_.chinpf,chinpf);
+    } else {
+      // get it from the environment
+      std::cout << "from env" << std::endl;
+      char* env = std::getenv("INPF");
+      std::cout << env << std::endl;
+      strncpy(env,chcmpt_.chinpf,sizeof(env));
+      if (chcmpt_.chinpf[0] == 0) {
+	//	flabrt("FLUKAM","FLUDAG NO INPUT SPECIFIED");
+	return 1;
+      }
+      std::cout << chcmpt_.chinpf << std::endl;
+    }
+    const int flag = 2;
+    std::cout << "running fluka" << std::endl;
     flukam(flag);
   }
 
