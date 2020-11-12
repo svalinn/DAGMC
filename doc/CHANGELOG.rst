@@ -242,7 +242,7 @@ v3.2.0
 
 **Fixed:**
 
-*eigen3:
+* eigen3:
   * remove bad flag in MOAB build (PR#684)
   * fixed use include directories (PR#694)
 * Regenerate the DAGMC_LIBRARIES variable upon re-running cmake. (PR#643)
