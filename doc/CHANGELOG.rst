@@ -9,6 +9,7 @@ v3.2.0
 
 **Added:**
 
+* `DagMC::git_sha` method (PR#707)
 * Added `libeigen3-dev` package to be installed by `apt` (PR#683)
 * Tool for checking DagMC models for overlaps. (PR#641)
 * turn off fortran support in MOAB build (PR#684)
@@ -66,6 +67,8 @@ v3.2.0
 
 **Changed:**
 
+* replaced calls for overlap tolerance and numerical precision in DagMC constructor (PR#708)
+* Packages now use direct path to include one-another, instead of relative ones (PR#703)
 * No longer require Fortran compiler unless building MCNP5/6 (PR#701)
 * Update amalgamated PyNE version to v0.7.3 (PR#700)
 * revamped Material management to leverage the PyNE::MaterialLibrary in place of the map<string, PyNE::Material> (PR#700)
@@ -229,6 +232,7 @@ v3.2.0
 **Deprecated:** 
 * DagMC: Deprecated constructor using a raw pointer for the MBI instance,
   prefered way uses shared_ptr for MBI instance. (PR#671)
+* `DagMC::interface_revision` method (PR#707)
 
 **Removed:**
 
