@@ -32,10 +32,10 @@ using namespace moab;
 
 // define following macro for verbose debugging of random ray generation
 //#define DEBUG
-
-void get_time_mem(double& tot_time, double& user_time,
-                  double& sys_time, double& tot_mem);
-
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+  void get_time_mem(double& tot_time, double& user_time,
+                    double& sys_time, double& tot_mem);
+#endif
 void dump_pyfile(char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
                  OrientedBoxTreeTool::TrvStats* trv_stats, EntityHandle tree_root);
 
@@ -301,8 +301,18 @@ int main(int argc, char* argv[]) {
 
   CartVect xyz, uvw;
 
-  double ttime1, utime1, stime1, tmem1, ttime2, utime2, stime2, tmem2;
+  double ttime1 = 0;
+  double utime1 = 0;
+  double stime1 = 0;
+  double tmem1 = 0;
+  double ttime2 = 0;
+  double utime2 = 0;
+  double stime2 = 0;
+  double tmem2 = 0;
+
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
   get_time_mem(ttime1, utime1, stime1, tmem1);
+#endif
 
   srand(randseed);
 
@@ -331,8 +341,11 @@ int main(int argc, char* argv[]) {
     }
 
   }
+  double timewith = 0;
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
   get_time_mem(ttime2, utime2, stime2, tmem1);
-  double timewith = ttime2 - ttime1;
+  timewith = ttime2 - ttime1;
+#endif
 
   srand(randseed); // reseed to generate the same values as before
 
@@ -345,9 +358,11 @@ int main(int argc, char* argv[]) {
       RNDVEC(uvw, direction_az);
     }
   }
-
+  double timewithout = 0;
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
   get_time_mem(ttime1, utime1, stime1, tmem2);
-  double timewithout = ttime1 - ttime2;
+  timewithout = ttime1 - ttime2;
+#endif
 
   std::cout << " done." << std::endl;
 
@@ -355,14 +370,17 @@ int main(int argc, char* argv[]) {
     std::cout << "Warning: " << random_rays_missed << " random rays did not hit the target volume" << std::endl;
   }
 
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
   if (num_random_rays > 0) {
     std::cout << "Total time per ray fire: " << timewith / num_random_rays
               << " sec" << std::endl;
     std::cout << "Estimated time per call (excluding ray generation): "
-              << (timewith - timewithout) / num_random_rays << " sec" << std::endl;
+              << (timewith - timewithout) / num_random_rays << " sec"
+              << std::endl;
   }
   std::cout << "Program memory used: "
             << tmem2 << " bytes (" << tmem2 / (1024 * 1024) << " MB)" << std::endl;
+#endif
 
   /* Gather OBB tree stats and make final reports */
   EntityHandle root;
@@ -403,6 +421,7 @@ int main(int argc, char* argv[]) {
 
 }
 
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
 void get_time_mem(double& tot_time, double& user_time,
                   double& sys_time, double& tot_mem) {
   struct rusage r_usage;
@@ -451,7 +470,7 @@ void get_time_mem(double& tot_time, double& user_time,
     tot_mem = ((double)vm_size);
 
 }
-
+#endif
 
 class HistogramBuilder : public OrientedBoxTreeTool::Op {
 
