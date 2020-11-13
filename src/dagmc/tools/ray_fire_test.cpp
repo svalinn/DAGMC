@@ -19,7 +19,7 @@
   #include <sys/resource.h>
   #include <unistd.h>
 #else
-  #include <windows.h>
+  #include <io.h>
 #endif
 #ifdef SOLARIS
 extern "C" int getrusage(int, struct rusage*);
