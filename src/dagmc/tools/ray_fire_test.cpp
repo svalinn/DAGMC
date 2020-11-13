@@ -7,7 +7,6 @@
 #include <vector>
 #include <iostream>
 #include <math.h>
-#include <unistd.h>
 #include <limits>
 #include <fcntl.h>
 #include <stdio.h>
@@ -17,7 +16,10 @@
 #include <cstdlib>
 #include <cfloat>
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
-#include <sys/resource.h>
+  #include <sys/resource.h>
+  #include <unistd.h>
+#else
+  #include <windows.h>
 #endif
 #ifdef SOLARIS
 extern "C" int getrusage(int, struct rusage*);
