@@ -1139,13 +1139,13 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(moab::Range& surface_sets,
 // separate this part from prepare surfaces into make_mesh_watertight??
 
 
-    moab::EntityHandle skin_loop_sets[skin.size()];
-    result = seal_surface_loops(*i, skin_loop_sets, skin,  curve_sets, normal_tag, orig_curve_tag, facet_tol, surf_id, debug);
+    std::vector< moab::EntityHandle > skin_loop_sets;
+    result = seal_surface_loops(*i, skin_loop_sets, skin, curve_sets, normal_tag, orig_curve_tag, facet_tol, surf_id, debug);
     MB_CHK_SET_ERR(result, "could not seal the surface loops");
 
 
     // Remove the sets of skin loops
-    result = MBI()->delete_entities(&skin_loop_sets[0], skin.size());
+    result = MBI()->delete_entities(skin_loop_sets.data(), skin.size());
     MB_CHK_SET_ERR(result, "failed to zip: deleting skin_loop_sets failed");
 
 
@@ -1748,7 +1748,7 @@ moab::ErrorCode MakeWatertight::merge_skin_verts(moab::Range& skin_verts,
 }
 
 moab::ErrorCode MakeWatertight::seal_surface_loops(moab::EntityHandle surf,
-                                                   moab::EntityHandle skin_loops[],
+                                                   std::vector < moab::EntityHandle > &skin_loops,
                                                    std::vector < std::vector<moab::EntityHandle> > skin,
                                                    std::vector<moab::EntityHandle> curves,
                                                    moab::Tag normal_tag,
@@ -1768,7 +1768,9 @@ moab::ErrorCode MakeWatertight::seal_surface_loops(moab::EntityHandle surf,
 
   moab::ErrorCode rval;
   for (unsigned j = 0; j < skin.size(); ++j) {
-    rval = MBI()->create_meshset(moab::MESHSET_TRACK_OWNER | moab::MESHSET_ORDERED, skin_loops[j]);
+    skin_loops.push_back(moab::EntityHandle());
+    rval = MBI()->create_meshset(
+        moab::MESHSET_TRACK_OWNER | moab::MESHSET_ORDERED, skin_loops[j]);
     MB_CHK_SET_ERR(rval, "failed to zip: creating skin_loop_set failed");
 
 
