@@ -454,7 +454,7 @@ class DagMC {
 
   char implComplName[NAME_TAG_SIZE];
 
-  double facetingTolerance, defaultFacetingTolerance;
+  double facetingTolerance;
 
   /** vectors for point_in_volume: */
   std::vector<double> disList;
