@@ -220,10 +220,11 @@ v3.2.0
   variables from ``MOABConfig.cmake``. (PR#555)
 * Change how we find MOAB. Previously, MOAB was required to be in users'
   ``$LD_LIBRARY_PATH``. Now, users must specify ``-DMOAB_DIR`` when running
-   cmake. (PR#555)
+  cmake. (PR#555)
 
   * Note that the ``MOABConfig.cmake`` file is no longer used to find any MOAB
     files.
+
 * Since users no longer need to change their ``$PATH`` or ``$LD_LIBRARY_PATH``,
   remove the changes to those variables in the CI scripts. (PR#555)
 * Rename the cmake commands used to build DAG-MCNP5/6 with plotting and MPI
