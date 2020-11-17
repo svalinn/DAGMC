@@ -36,6 +36,7 @@ v3.2.0
   * Note that MCNP is still configured to use no more than ``-O1``
 * Add macros to ``cmake/DAGMC_macros.cmake``. This results in much less
   duplicated cmake elsewhere. The following macros were added: (PR#555)
+
   * ``dagmc_setup_build``: Sets core variables used throughout the rest of the
   project.
   * ``dagmc_setup_options``: Defines cmake build options.
@@ -47,6 +48,7 @@ v3.2.0
   * ``dagmc_install_exe``: Install an executable.
   * ``dagmc_install_test``: Install a unit test.
   * ``dagmc_install_test_file``: Install a file needed for unit testing.
+
 * Add a ``FindFluka.cmake`` file to find the Fluka library. (PR#555)
 * Add ``RPATH`` functionality so that all executables and libraries
   automatically know where their dependencies are located. This removes the need
@@ -56,9 +58,11 @@ v3.2.0
   on by setting ``-DBUILD_PIC=ON``. (PR#555)
 * Add options to enable/disable building all optional functionality. The
   following options were added: (PR#555)
+  
   * ``BUILD_BUILD_OBB``
   * ``BUILD_MAKE_WATERTIGHT``
   * ``BUILD_TESTS``
+
 * Documentation explaining the new requirement that all PRs must include a file
   explaining what the PR does. (PR#545)
 * Template for the news directory. (PR#545)
