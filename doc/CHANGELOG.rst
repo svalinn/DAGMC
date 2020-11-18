@@ -33,6 +33,7 @@ v3.2.0
 * Patch file for DAG-MCNP6.2 (PR#569)
 * Default to a Release build. This results in optimization flags being used
   everywhere as appropriate. (PR#555)
+
   * Note that MCNP is still configured to use no more than ``-O1``
 * Add macros to ``cmake/DAGMC_macros.cmake``. This results in much less
   duplicated cmake elsewhere. The following macros were added: (PR#555)
