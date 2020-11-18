@@ -121,7 +121,7 @@ v3.2.0
 
 * PullRequest-Agent suggestions uwuw, tally, overlap_check, build_obb, misc/tests (PR#680)
 * PullRequest-Agent suggestions Geat4 (PR#691)
-* Updates to variable names in make_watergight files (PR#672)
+* Updates to variable names in make_watertight files (PR#672)
 * Changed name of overlap_check executable directory from "build" to
   "app". (PR#653)
 * all directories named `build` are changed to `app` for clarity. (PR#645)
