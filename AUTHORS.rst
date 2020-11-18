@@ -9,10 +9,11 @@ included contributions from the following:
 * Kerry L. Dunn
 * Moataz Harb
 * Steve Jackson
+* Lucas Jacobson
 * Brian Kiedrowski
 * Kalin Kiesling
 * Jason Kraftcheck
-* Lucas Jacobson
+* Baptiste Mouginot
 * Eric Relson
 * Paul Romano
 * Jonathan Shimwell

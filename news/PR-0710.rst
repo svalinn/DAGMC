@@ -1,7 +1,8 @@
 **Added:** None
 
-**Changed:**
-  - No longer require Fortran compiler unless building MCNP5/6
+**Changed:** 
+
+* combining news files into the CHANGELOG (PR#710)
 
 **Deprecated:** None
 
