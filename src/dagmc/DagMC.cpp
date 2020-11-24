@@ -73,8 +73,6 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
   this->set_overlap_thickness(overlap_tolerance);
   this->set_numerical_precision(p_numerical_precision);
 
-  // This is the correct place to uniquely define default values for the dagmc settings
-  defaultFacetingTolerance = .001;
 }
 
 DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_precision) {
@@ -93,8 +91,6 @@ DagMC::DagMC(Interface* mb_impl, double overlap_tolerance, double p_numerical_pr
   this->set_overlap_thickness(overlap_tolerance);
   this->set_numerical_precision(p_numerical_precision);
 
-  // This is the correct place to uniquely define default values for the dagmc settings
-  defaultFacetingTolerance = .001;
 }
 
 // Destructor
