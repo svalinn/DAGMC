@@ -502,7 +502,7 @@ void fludagwrite_importances(std::ostringstream& ostr);
  * \param[in] map_name ???
  */
 void fludagwrite_assignma(std::ostringstream& ostr,
-                          std::map<std::string, pyne::Material> pyne_map);
+                          const pyne::mat_map& pyne_map);
 /**
  * \brief writes all the material compisitions from the map of materials to output stream
  *
@@ -511,7 +511,7 @@ void fludagwrite_assignma(std::ostringstream& ostr,
  *
  */
 void fludag_all_materials(std::ostringstream& mstr,
-                          std::map<std::string, pyne::Material> pyne_list);
+                          const pyne::mat_map& pyne_list);
 
 /**
  * \brief Writes all the PyNE tally objects out that are contained in the tally map
