@@ -1,0 +1,14 @@
+**Added:** None
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:**
+
+  - pyne::MaterialLibrary calls in fluka_funcs.
+  - Tally::particle_name to Tally::particle_names update in fluka_funcs as well.
+
+**Security:** None
