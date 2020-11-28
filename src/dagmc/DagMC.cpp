@@ -276,6 +276,7 @@ ErrorCode DagMC::remove_graveyard() {
   Range graveyard_vols;
   rval = moab_instance()->get_entities_by_handle(graveyard_group, graveyard_vols);
   MB_CHK_SET_ERR(rval, "Failed to get the graveyard volume(s)");
+  ents_to_delete.merge(graveyard_vols);
 
   // get the implicit complement, it's children will need updating
   EntityHandle ic = 0;
@@ -285,22 +286,29 @@ ErrorCode DagMC::remove_graveyard() {
   }
 
   // update the implicit complement tree if needed
-  if (trees_exist && ic) {
-    rval = geom_tool()->delete_obb_tree(ic, true);
-    MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement OBBTree/BVH");
+  if (trees_exist) {
+    if (ic) {
+      rval = geom_tool()->delete_obb_tree(ic, true);
+      MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement OBBTree/BVH");
+    }
+    for (auto vol : graveyard_vols) {
+      // will recursively delete the volume's surface trees as well
+      rval = geom_tool()->delete_obb_tree(vol);
+      MB_CHK_SET_ERR(rval, "Failed to delete the graveyard volume's tree");
+    }
   }
 
-  for (auto vol : graveyard_vols) {
-    Range surfs;
-    rval = moab_instance()->get_child_meshsets(vol, surfs);
-    MB_CHK_SET_ERR(rval, "Failed to get graveyard volume surfaces");
 
-    for (auto surf: surfs) {
-      // update implicit complement relationships
-      // if (ic) {
-      //   rval = moab_instance()->remove_child_meshset(ic, surf);
-      //   MB_CHK_SET_ERR(rval, "Failed to remove graveyard surface relationship to implicit complement");
-      // }
+  if (ic) {
+    for (auto vol : graveyard_vols) {
+      Range surfs;
+      rval = moab_instance()->get_child_meshsets(vol, surfs);
+      MB_CHK_SET_ERR(rval, "Failed to get graveyard volume surfaces");
+      for (auto surf: surfs) {
+        // update implicit complement relationships
+        rval = moab_instance()->remove_child_meshset(ic, surf);
+        MB_CHK_SET_ERR(rval, "Failed to remove graveyard surface relationship to implicit complement");
+      }
     }
   }
 
