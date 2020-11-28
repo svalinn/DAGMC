@@ -321,13 +321,32 @@ ErrorCode DagMC::remove_graveyard() {
       Range curves;
       rval = moab_instance()->get_child_meshsets(surf, curves);
       MB_CHK_SET_ERR(rval, "Failed to get the graveyard surface curves");
-      ents_to_delete.merge(curves);
 
       for (auto curve : curves) {
+        ents_to_delete.insert(curve);
         Range edges;
         rval = moab_instance()->get_entities_by_type(curve, MBEDGE, edges);
         MB_CHK_SET_ERR(rval, "Failed to get graveyard curve edges");
         ents_to_delete.merge(edges);
+
+        Range curve_vertices;
+        rval = moab_instance()->get_entities_by_type(curve, MBVERTEX, curve_vertices);
+        MB_CHK_SET_ERR(rval, "Failed to get graveyard curve vertices");
+        verts_to_delete.merge(curve_vertices);
+
+        // now remove the geometric vertex sets (vertices represented in the CAD
+        // representing the end of an analytic curve)
+        Range geom_vertices;
+        rval = moab_instance()->get_child_meshsets(curve, geom_vertices);
+        MB_CHK_SET_ERR(rval, "Failed to get the graveyard curve's geometric vertices");
+        for (auto geom_vert : geom_vertices) {
+          ents_to_delete.insert(geom_vert);
+          // the only entities in here should be vertices
+          Range geom_vertices;
+          rval = moab_instance()->get_entities_by_type(geom_vert, MBVERTEX, geom_vertices);
+          MB_CHK_SET_ERR(rval, "Failed to get graveyard curve vertices");
+          verts_to_delete.merge(geom_vertices);
+        }
       }
 
       // update implicit complement relationships
