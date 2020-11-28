@@ -400,7 +400,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   ErrorCode rval;
 
   // remove existing graveyard
-  if(overwrite) {
+  if (overwrite) {
     remove_graveyard();
   }
 
@@ -550,15 +550,15 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   //start with vertices
   std::vector<std::array<double,3>> vertex_coords;
   // vertex coordinates for the lower z face
-  vertex_coords.push_back({llc[0], llc[1], llc[2]});
-  vertex_coords.push_back({urc[0], llc[1], llc[2]});
-  vertex_coords.push_back({urc[0], urc[1], llc[2]});
-  vertex_coords.push_back({llc[0], urc[1], llc[2]});
-  // vertex coordinate for the upper z face
-  vertex_coords.push_back({llc[0], llc[1], urc[2]});
   vertex_coords.push_back({urc[0], llc[1], urc[2]});
   vertex_coords.push_back({urc[0], urc[1], urc[2]});
   vertex_coords.push_back({llc[0], urc[1], urc[2]});
+  vertex_coords.push_back({llc[0], llc[1], urc[2]});
+  // vertex coordinate for the upper z face
+  vertex_coords.push_back({urc[0], llc[1], llc[2]});
+  vertex_coords.push_back({urc[0], urc[1], llc[2]});
+  vertex_coords.push_back({llc[0], urc[1], llc[2]});
+  vertex_coords.push_back({llc[0], llc[1], llc[2]});
 
   std::vector<moab::EntityHandle> box_verts;
   for(const auto& coords : vertex_coords) {
@@ -571,23 +571,23 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   // now we have 8 vertices to create triangles with
   std::vector<std::array<int, 3>> connectivity_indices;
   // lower z
-  connectivity_indices.push_back({1, 0, 2});
-  connectivity_indices.push_back({3, 2, 0});
+  connectivity_indices.push_back({0, 1, 3});
+  connectivity_indices.push_back({3, 1, 2});
   // upper z
-  connectivity_indices.push_back({5, 6, 4});
-  connectivity_indices.push_back({7, 4, 6});
+  connectivity_indices.push_back({4, 7, 5});
+  connectivity_indices.push_back({7, 6, 5});
   // lower x
-  connectivity_indices.push_back({0, 1, 4});
-  connectivity_indices.push_back({3, 4, 1});
-  // upper x
-  connectivity_indices.push_back({2, 3, 6});
-  connectivity_indices.push_back({7, 6, 3});
-  // lower y
-  connectivity_indices.push_back({0, 4, 3});
-  connectivity_indices.push_back({7, 3, 4});
-  // upper y
-  connectivity_indices.push_back({1, 2, 3});
   connectivity_indices.push_back({6, 3, 2});
+  connectivity_indices.push_back({7, 3, 6});
+  // upper x
+  connectivity_indices.push_back({0, 4, 1});
+  connectivity_indices.push_back({5, 1, 4});
+  // lower y
+  connectivity_indices.push_back({0, 3, 4});
+  connectivity_indices.push_back({7, 4, 3});
+  // upper y
+  connectivity_indices.push_back({1, 6, 2});
+  connectivity_indices.push_back({6, 1, 5});
 
   moab::Range new_tris;
   for(const auto& ind : connectivity_indices) {
