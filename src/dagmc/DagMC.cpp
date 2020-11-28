@@ -318,6 +318,18 @@ ErrorCode DagMC::remove_graveyard() {
       MB_CHK_SET_ERR(rval, "Failed to get vertices of the graveyard surface");
       verts_to_delete.merge(vertices);
 
+      Range curves;
+      rval = moab_instance()->get_child_meshsets(surf, curves);
+      MB_CHK_SET_ERR(rval, "Failed to get the graveyard surface curves");
+      ents_to_delete.merge(curves);
+
+      for (auto curve : curves) {
+        Range edges;
+        rval = moab_instance()->get_entities_by_type(curve, MBEDGE, edges);
+        MB_CHK_SET_ERR(rval, "Failed to get graveyard curve edges");
+        ents_to_delete.merge(edges);
+      }
+
       // update implicit complement relationships
       if (ic) {
         rval = moab_instance()->remove_child_meshset(ic, surf);
@@ -443,8 +455,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // expand the box a bit
   for (int i = 0; i < 3; i++) {
-    box.upper[i] += 10.0 * numerical_precision();
-    box.lower[i] -= 10.0 * numerical_precision();
+    box.upper[i] += 5.0;
+    box.lower[i] -= 5.0;
   }
 
   // tear down the implicit complement tree
@@ -471,8 +483,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // expand the box a bit again for the outer surface
   for (int i = 0; i < 3; i++) {
-    box.upper[i] += 10.0 * numerical_precision();
-    box.lower[i] -= 10.0 * numerical_precision();
+    box.upper[i] += 2.0;
+    box.lower[i] -= 2.0;
   }
 
   EntityHandle outer_surface;
