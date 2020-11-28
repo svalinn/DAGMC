@@ -16,3 +16,5 @@ dagmc_install_test(dagmc_graveyard_test  cpp)
 dagmc_install_test_file(test_dagmc.h5m)
 dagmc_install_test_file(test_dagmc_impl.h5m)
 dagmc_install_test_file(test_geom.h5m)
+dagmc_install_test_file(pincell.h5m)
+
