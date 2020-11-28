@@ -214,16 +214,17 @@ ErrorCode DagMC::setup_indices() {
 }
 
 bool DagMC::has_graveyard() {
-  return get_graveyard_group() != 0;
+  EntityHandle eh;
+  return get_graveyard_group(eh) == MB_SUCCESS && eh != 0;
 }
 
-EntityHandle DagMC::get_graveyard_group() {
+ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
   Range groups;
   ErrorCode rval = get_groups(groups);
   MB_CHK_SET_ERR_CONT(rval, "Failed to retrieve groups");
 
-  EntityHandle graveyard_group = 0;
-
+  graveyard_group = 0;
+  int graveyard_count = 0;
   // get the name of each group and check for the 'mat:graveyard' string
   for (auto group : groups) {
     std::string group_name;
@@ -234,25 +235,35 @@ EntityHandle DagMC::get_graveyard_group() {
     lowercase_str(group_name);
 
     // resize to match lengths
-    group_name.resize(graveyard_name.size());
+    group_name.resize(GRAVEYARD_NAME.size());
 
     // check for the graveyard string
-    if (group_name == graveyard_name) {
+    if (group_name == GRAVEYARD_NAME) {
       graveyard_group = group;
-      break;
+      graveyard_count++;
     }
   }
 
-  return graveyard_group;
+  // there should not be more than one graveyard
+  if (graveyard_count > 1) {
+    MB_CHK_SET_ERR(MB_FAILURE, "More than one graveyard is present in the model");
+  }
+
+  // if the graveyard was not found, return an error
+  if (graveyard_group == 0) return MB_ENTITY_NOT_FOUND;
+
+  return MB_SUCCESS;
 }
 
 ErrorCode DagMC::remove_graveyard() {
   ErrorCode rval;
 
-  EntityHandle graveyard_group = get_graveyard_group();
+  EntityHandle graveyard_group;
+  rval = get_graveyard_group(graveyard_group);
+  if (rval == MB_ENTITY_NOT_FOUND) { return MB_SUCCESS; }
+  MB_CHK_SET_ERR(rval, "Failed to check for existing graveyard volume");
 
-  if (graveyard_group == 0) { return MB_SUCCESS; }
-
+  // set of entities to delete from the MOAB instance
   Range to_delete;
 
   to_delete.insert(graveyard_group);
@@ -395,7 +406,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   MB_CHK_SET_ERR(rval, "Failed to set the group category");
 
   // set the volume name tag data (material metadata)
-  rval = MBI->tag_set_data(name_tag(), &group_set, 1, graveyard_name.c_str());
+  rval = MBI->tag_set_data(name_tag(), &group_set, 1, GRAVEYARD_NAME.c_str());
   MB_CHK_SET_ERR(rval, "Failed to set the graveyard name");
 
   // add the graveyard volume to this group

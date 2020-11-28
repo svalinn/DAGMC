@@ -39,7 +39,7 @@ static const int curve_handle_idx = 1;
 static const int surfs_handle_idx = 2;
 static const int vols_handle_idx = 3;
 static const int groups_handle_idx = 4;
-static const std::string graveyard_name = "mat:graveyard";
+static const std::string GRAVEYARD_NAME = "mat:graveyard";
 
 class CartVect;
 class GeomQueryTool;
@@ -179,7 +179,7 @@ class DagMC {
   bool has_graveyard();
 
   /** Retrieve the graveyard group */
-  EntityHandle get_graveyard_group();
+  ErrorCode get_graveyard_group(EntityHandle& graveyard_group);
 
 private:
   /** convenience function for creating a box of triangles from a bounding box */
@@ -266,7 +266,7 @@ private:
   unsigned int num_entities(int dimension);
 
  private:
-  /** get group sets */
+  /** get all group sets on the model */
   ErrorCode get_groups(Range& groups);
 
   /** build internal index vectors that speed up handle-by-id, etc. */
