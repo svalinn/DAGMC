@@ -32,8 +32,6 @@ class RayTracingInterface;
 
 namespace moab {
 
-constexpr double INFTY {std::numeric_limits<double>::max()};
-
 static const int vertex_handle_idx = 0;
 static const int curve_handle_idx = 1;
 static const int surfs_handle_idx = 2;
@@ -169,20 +167,23 @@ class DagMC {
   /**\brief Create a graveyard volume.
    *
    * Create a cuboid volume marked with metadata indicating it is the boundary
-   * of the DAGMC model. This method will create an additional graveyard
-   * if one already exists. Use the has_graveyard method to check
-   * if the DAGMC instance already has a graveyard.
+   * of the DAGMC model. This method will fail if a graveyard volume already
+   * exists and `overwrite` is not true.
+   *
    */
   ErrorCode create_graveyard(bool overwrite = false);
 
-  /** The model contains a graveyard volume */
+  /** True if the model has a graveyard volume, false if not */
   bool has_graveyard();
 
-  /** Retrieve the graveyard group */
+  /** Retrieve the graveyard group on the model if it exists */
   ErrorCode get_graveyard_group(EntityHandle& graveyard_group);
 
 private:
-  /** convenience function for creating a box of triangles from a bounding box */
+  /** convenience function for converting a bounding box into a box of triangles
+   *  with outward facing normals
+   *
+   */
   ErrorCode box_to_surf(double llc[3], double urc[3], EntityHandle& surface_set);
 
   /** loading code shared by load_file and load_existing_contents */
@@ -252,9 +253,6 @@ private:
   int index_by_handle(EntityHandle handle);
   /** map from EntityHandle to global ID */
   int get_entity_id(EntityHandle this_ent);
-
-  /** get the largest ID value for entities of a specified dimension */
-  int get_max_id(int dimension);
 
   /**\brief get number of geometric sets corresponding to geometry of specified dimension
    *
@@ -506,6 +504,8 @@ private:
   // axis-aligned box used to track geometry bounds
   // (internal use only)
   struct BBOX {
+    constexpr static double INFTY {std::numeric_limits<double>::max()};
+
     double lower[3] = { INFTY,  INFTY,  INFTY};
     double upper[3] = {-INFTY, -INFTY, -INFTY};
 

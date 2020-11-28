@@ -225,16 +225,16 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
 
   graveyard_group = 0;
   int graveyard_count = 0;
-  // get the name of each group and check for the 'mat:graveyard' string
+  // get the name of each group and check for the GRAVEYARD_NAME string
   for (auto group : groups) {
     std::string group_name;
     rval = get_group_name(group, group_name);
     MB_CHK_SET_ERR_CONT(rval, "Failed to get a group name");
 
-    // convert name to lower case
+    // convert name to lower case for comparison
     lowercase_str(group_name);
 
-    // resize to match lengths
+    // resize to match the length (trims trailing empty values)
     group_name.resize(GRAVEYARD_NAME.size());
 
     // check for the graveyard string
@@ -244,9 +244,9 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
     }
   }
 
-  // there should not be more than one graveyard
+  // there should not be more than one graveyard group
   if (graveyard_count > 1) {
-    MB_CHK_SET_ERR(MB_FAILURE, "More than one graveyard is present in the model");
+    MB_CHK_SET_ERR(MB_FAILURE, "More than one graveyard group is present in the model");
   }
 
   // if the graveyard was not found, return an error
@@ -272,12 +272,12 @@ ErrorCode DagMC::remove_graveyard() {
 
   bool trees_exist = geom_tool()->have_obb_tree();
 
-  // get the graveyard volume(s)
+  // get the graveyard volume
   Range graveyard_vols;
   rval = moab_instance()->get_entities_by_handle(graveyard_group, graveyard_vols);
   MB_CHK_SET_ERR(rval, "Failed to get the graveyard volume(s)");
 
-  // get the implicit complement
+  // get the implicit complement, it's children will need updating
   EntityHandle ic = 0;
   rval = geom_tool()->get_implicit_complement(ic);
   if (rval != MB_ENTITY_NOT_FOUND || rval != MB_SUCCESS) {
@@ -290,14 +290,17 @@ ErrorCode DagMC::remove_graveyard() {
     MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement OBBTree/BVH");
   }
 
+  // collect graveyard volume entities for deletion
   for (auto vol : graveyard_vols) {
     ents_to_delete.insert(vol);
+
     if (trees_exist) {
       // will recursively delete the volume's surface trees as well
       rval = geom_tool()->delete_obb_tree(vol);
       MB_CHK_SET_ERR(rval, "Failed to delete the graveyard volume's tree");
     }
 
+    // collect entities from the graveyard surfaces
     Range surfs;
     rval = moab_instance()->get_child_meshsets(vol, surfs);
     MB_CHK_SET_ERR(rval, "Failed to get the surfaces of the graveyard volume");
@@ -315,6 +318,7 @@ ErrorCode DagMC::remove_graveyard() {
       MB_CHK_SET_ERR(rval, "Failed to get vertices of the graveyard surface");
       verts_to_delete.merge(vertices);
 
+      // update implicit complement relationships
       if (ic) {
         rval = moab_instance()->remove_child_meshset(ic, surf);
         MB_CHK_SET_ERR(rval, "Failed to remove graveyard surface relationship to implicit complement");
@@ -326,18 +330,21 @@ ErrorCode DagMC::remove_graveyard() {
   rval = moab_instance()->delete_entities(ents_to_delete);
   MB_CHK_SET_ERR(rval, "Failed to delete graveyard entities");
 
+  // delete accumulated vertices
   rval = moab_instance()->delete_entities(verts_to_delete);
   MB_CHK_SET_ERR(rval, "Failed to delete graveyard vertices");
 
+  // re-construct the implicit complement's tree if needed
   if(trees_exist && ic) {
     rval = geom_tool()->construct_obb_tree(ic);
     MB_CHK_SET_ERR(rval, "Failed to re-create the implicit complement OBBTree/BVH");
   }
 
+  // update geometry sets in the GTT
   rval = geom_tool()->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to find geometry sets after removing the graveyard");
 
-  // re-initialize indices
+  // re-initialize DAGMC indices
   rval = setup_indices();
   MB_CHK_SET_ERR(rval, "Failed to setup DAGMC indices");
 
@@ -345,7 +352,7 @@ ErrorCode DagMC::remove_graveyard() {
 }
 
 ErrorCode DagMC::create_graveyard(bool overwrite) {
-  /* Methodology
+  /* Method summary
     - Determine the axis-aligned bounding box of the current model
     - Create a new volume set for the graveyard
     - Create a new group labeled as the graveyard and add volume to that group
@@ -759,16 +766,6 @@ int DagMC::id_by_index(int dimension, int index) {
 
 int DagMC::get_entity_id(EntityHandle this_ent) {
   return GTT->global_id(this_ent);
-}
-
-int DagMC::get_max_id(int dimension) {
-    // determine what ID to give the volume
-  int max_id = 0;
-  for (int i = 0; i < num_entities(dimension); i++) {
-    int id = id_by_index(dimension, i);
-    max_id = std::max(id, max_id);
-  }
-  return max_id;
 }
 
 ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {

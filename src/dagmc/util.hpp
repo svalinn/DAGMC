@@ -1,6 +1,3 @@
-
-
-// include guard
 #ifndef _DAGMC_UTIL
 #define _DAGMC_UTIL
 
