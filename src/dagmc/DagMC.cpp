@@ -290,72 +290,48 @@ ErrorCode DagMC::remove_graveyard() {
     MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement OBBTree/BVH");
   }
 
-  // collect graveyard volume entities for deletion
   for (auto vol : graveyard_vols) {
-    ents_to_delete.insert(vol);
-
-    if (trees_exist) {
-      // will recursively delete the volume's surface trees as well
-      rval = geom_tool()->delete_obb_tree(vol);
-      MB_CHK_SET_ERR(rval, "Failed to delete the graveyard volume's tree");
-    }
-
-    // collect entities from the graveyard surfaces
     Range surfs;
     rval = moab_instance()->get_child_meshsets(vol, surfs);
-    MB_CHK_SET_ERR(rval, "Failed to get the surfaces of the graveyard volume");
-    ents_to_delete.merge(surfs);
+    MB_CHK_SET_ERR(rval, "Failed to get graveyard volume surfaces");
 
-    for (auto surf : surfs) {
-      // add triangles, vertices to the list of entities to remove
-      Range triangles;
-      rval = moab_instance()->get_entities_by_type(surf, MBTRI, triangles);
-      MB_CHK_SET_ERR(rval, "Failed to get triangles of the graveyard surface");
-      ents_to_delete.merge(triangles);
-
-      Range vertices;
-      rval = moab_instance()->get_entities_by_type(surf, MBVERTEX, vertices);
-      MB_CHK_SET_ERR(rval, "Failed to get vertices of the graveyard surface");
-      verts_to_delete.merge(vertices);
-
-      Range curves;
-      rval = moab_instance()->get_child_meshsets(surf, curves);
-      MB_CHK_SET_ERR(rval, "Failed to get the graveyard surface curves");
-
-      for (auto curve : curves) {
-        ents_to_delete.insert(curve);
-        Range edges;
-        rval = moab_instance()->get_entities_by_type(curve, MBEDGE, edges);
-        MB_CHK_SET_ERR(rval, "Failed to get graveyard curve edges");
-        ents_to_delete.merge(edges);
-
-        Range curve_vertices;
-        rval = moab_instance()->get_entities_by_type(curve, MBVERTEX, curve_vertices);
-        MB_CHK_SET_ERR(rval, "Failed to get graveyard curve vertices");
-        verts_to_delete.merge(curve_vertices);
-
-        // now remove the geometric vertex sets (vertices represented in the CAD
-        // representing the end of an analytic curve)
-        Range geom_vertices;
-        rval = moab_instance()->get_child_meshsets(curve, geom_vertices);
-        MB_CHK_SET_ERR(rval, "Failed to get the graveyard curve's geometric vertices");
-        for (auto geom_vert : geom_vertices) {
-          ents_to_delete.insert(geom_vert);
-          // the only entities in here should be vertices
-          Range geom_vertices;
-          rval = moab_instance()->get_entities_by_type(geom_vert, MBVERTEX, geom_vertices);
-          MB_CHK_SET_ERR(rval, "Failed to get graveyard curve vertices");
-          verts_to_delete.merge(geom_vertices);
-        }
-      }
-
+    for (auto surf: surfs) {
       // update implicit complement relationships
-      if (ic) {
-        rval = moab_instance()->remove_child_meshset(ic, surf);
-        MB_CHK_SET_ERR(rval, "Failed to remove graveyard surface relationship to implicit complement");
-      }
+      // if (ic) {
+      //   rval = moab_instance()->remove_child_meshset(ic, surf);
+      //   MB_CHK_SET_ERR(rval, "Failed to remove graveyard surface relationship to implicit complement");
+      // }
     }
   }
+
+  // get all sets underneath these volumes
+  for (auto vol : graveyard_vols) {
+    Range children;
+    // recursively collect all child sets
+    rval = moab_instance()->get_child_meshsets(vol, children, -1);
+    MB_CHK_SET_ERR(rval, "Failed to get the child geometry of the graveyard volume");
+    ents_to_delete.merge(children);
+  }
+
+  // collect the vertices of each set
+  for (auto ent_set : ents_to_delete) {
+    Range vertices;
+    rval = moab_instance()->get_entities_by_type(ent_set, MBVERTEX, vertices);
+    MB_CHK_SET_ERR(rval, "Failed to get vertices of a graveyard set");
+    verts_to_delete.merge(vertices);
+  }
+
+  // get the union of the adjacencies of the graveyard vertices.
+  // this should retrieve all elements connected to these vertices
+  // (edges, triangles, etc. )
+  Range adj;
+  rval = moab_instance()->get_adjacencies(verts_to_delete, 1, true, adj, Interface::UNION);
+  MB_CHK_SET_ERR(rval, "Failed to get dimension 1 adjacencies of graveyard vertices");
+  ents_to_delete.merge(adj);
+  adj.clear();
+  rval = moab_instance()->get_adjacencies(verts_to_delete, 2, true, adj, Interface::UNION);
+  MB_CHK_SET_ERR(rval, "Failed to get dimension 2 adjacencies of graveyard vertices");
+  ents_to_delete.merge(adj);
 
   // delete accumulated entities
   rval = moab_instance()->delete_entities(ents_to_delete);
