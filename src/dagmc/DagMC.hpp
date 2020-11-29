@@ -179,7 +179,7 @@ class DagMC {
   /** Retrieve the graveyard group on the model if it exists */
   ErrorCode get_graveyard_group(EntityHandle& graveyard_group);
 
-private:
+ private:
   /** convenience function for converting a bounding box into a box of triangles
    *  with outward facing normals
    *
@@ -510,9 +510,9 @@ private:
     double upper[3] = {-INFTY, -INFTY, -INFTY};
 
     bool valid() {
-      return ( lower[0] <= upper[0] &&
-	             lower[1] <= upper[1] &&
-	             lower[2] <= upper[2] );
+      return (lower[0] <= upper[0] &&
+              lower[1] <= upper[1] &&
+              lower[2] <= upper[2]);
     }
 
     void update(double x, double y, double z) {

@@ -22,7 +22,7 @@ class DagmcGraveyardTest : public ::testing::Test {
 
 
 class GraveyardTest : public::testing::Test {
-  protected:
+ protected:
   virtual void SetUp() override {}
   virtual void TearDown() {}
 };

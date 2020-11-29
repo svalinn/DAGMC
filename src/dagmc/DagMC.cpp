@@ -250,7 +250,8 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
   }
 
   // if the graveyard was not found, return an error
-  if (graveyard_group == 0) return MB_ENTITY_NOT_FOUND;
+  if (graveyard_group == 0)
+    return MB_ENTITY_NOT_FOUND;
 
   return MB_SUCCESS;
 }
@@ -260,7 +261,9 @@ ErrorCode DagMC::remove_graveyard() {
 
   EntityHandle graveyard_group;
   rval = get_graveyard_group(graveyard_group);
-  if (rval == MB_ENTITY_NOT_FOUND) { return MB_SUCCESS; }
+  if (rval == MB_ENTITY_NOT_FOUND) {
+    return MB_SUCCESS;
+  }
   MB_CHK_SET_ERR(rval, "Failed to check for existing graveyard volume");
 
   // ranges of sets, entities, and vertices to delete
@@ -338,7 +341,7 @@ ErrorCode DagMC::remove_graveyard() {
   MB_CHK_SET_ERR(rval, "Failed to delete graveyard vertices");
 
   // re-construct the implicit complement's tree if needed
-  if(trees_exist && ic) {
+  if (trees_exist && ic) {
     rval = geom_tool()->construct_obb_tree(ic);
     MB_CHK_SET_ERR(rval, "Failed to re-create the implicit complement OBBTree/BVH");
   }
@@ -389,8 +392,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   }
 
   BBOX box;
-  for(int i = 0; i < num_entities(3); i++) {
-    moab::EntityHandle vol = this->entity_by_index(3, i+1);
+  for (int i = 0; i < num_entities(3); i++) {
+    moab::EntityHandle vol = this->entity_by_index(3, i + 1);
     double vmin[3], vmax[3];
     rval = this->getobb(vol, vmin, vmax);
     MB_CHK_SET_ERR(rval, "Failed to get volume OBB");
@@ -520,7 +523,7 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   ErrorCode rval;
 
   //start with vertices
-  std::vector<std::array<double,3>> vertex_coords;
+  std::vector<std::array<double, 3>> vertex_coords;
   // vertex coordinates for the lower z face
   vertex_coords.push_back({urc[0], llc[1], urc[2]});
   vertex_coords.push_back({urc[0], urc[1], urc[2]});
@@ -533,7 +536,7 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   vertex_coords.push_back({llc[0], llc[1], llc[2]});
 
   std::vector<moab::EntityHandle> box_verts;
-  for(const auto& coords : vertex_coords) {
+  for (const auto& coords : vertex_coords) {
     EntityHandle new_vertex;
     rval = MBI->create_vertex(coords.data(), new_vertex);
     MB_CHK_SET_ERR(rval, "Failed to create graveyard vertex");
@@ -562,7 +565,7 @@ ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface
   connectivity_indices.push_back({6, 1, 5});
 
   moab::Range new_tris;
-  for(const auto& ind : connectivity_indices) {
+  for (const auto& ind : connectivity_indices) {
     EntityHandle new_triangle;
     std::array<EntityHandle, 3> tri_conn = {box_verts[ind[0]], box_verts[ind[1]], box_verts[ind[2]]};
     rval = MBI->create_element(moab::MBTRI, tri_conn.data(), 3, new_triangle);
