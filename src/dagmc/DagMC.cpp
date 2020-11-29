@@ -296,19 +296,6 @@ ErrorCode DagMC::remove_graveyard() {
     }
   }
 
-  if (ic) {
-    for (auto vol : graveyard_vols) {
-      Range surfs;
-      rval = moab_instance()->get_child_meshsets(vol, surfs);
-      MB_CHK_SET_ERR(rval, "Failed to get graveyard volume surfaces");
-      for (auto surf: surfs) {
-        // update implicit complement relationships
-        rval = moab_instance()->remove_child_meshset(ic, surf);
-        MB_CHK_SET_ERR(rval, "Failed to remove graveyard surface relationship to implicit complement");
-      }
-    }
-  }
-
   // get all sets underneath these volumes
   for (auto vol : graveyard_vols) {
     Range children;
