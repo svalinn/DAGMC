@@ -263,12 +263,10 @@ ErrorCode DagMC::remove_graveyard() {
   if (rval == MB_ENTITY_NOT_FOUND) { return MB_SUCCESS; }
   MB_CHK_SET_ERR(rval, "Failed to check for existing graveyard volume");
 
-  // set of entities to delete from the MOAB instance
-  Range ents_to_delete;
-  // vertices need to be tracked separately and deleted after everything else
-  Range verts_to_delete;
+  // ranges of sets, entities, and vertices to delete
+  Range sets_to_delete, ents_to_delete, verts_to_delete;
 
-  ents_to_delete.insert(graveyard_group);
+  sets_to_delete.insert(graveyard_group);
 
   bool trees_exist = geom_tool()->have_obb_tree();
 
@@ -276,7 +274,7 @@ ErrorCode DagMC::remove_graveyard() {
   Range graveyard_vols;
   rval = moab_instance()->get_entities_by_handle(graveyard_group, graveyard_vols);
   MB_CHK_SET_ERR(rval, "Failed to get the graveyard volume(s)");
-  ents_to_delete.merge(graveyard_vols);
+  sets_to_delete.merge(graveyard_vols);
 
   // get the implicit complement, it's children will need updating
   EntityHandle ic = 0;
@@ -298,7 +296,6 @@ ErrorCode DagMC::remove_graveyard() {
     }
   }
 
-
   if (ic) {
     for (auto vol : graveyard_vols) {
       Range surfs;
@@ -318,13 +315,13 @@ ErrorCode DagMC::remove_graveyard() {
     // recursively collect all child sets
     rval = moab_instance()->get_child_meshsets(vol, children, -1);
     MB_CHK_SET_ERR(rval, "Failed to get the child geometry of the graveyard volume");
-    ents_to_delete.merge(children);
+    sets_to_delete.merge(children);
   }
 
   // collect the vertices of each set
-  for (auto ent_set : ents_to_delete) {
+  for (auto entity_set : sets_to_delete) {
     Range vertices;
-    rval = moab_instance()->get_entities_by_type(ent_set, MBVERTEX, vertices);
+    rval = moab_instance()->get_entities_by_type(entity_set, MBVERTEX, vertices);
     MB_CHK_SET_ERR(rval, "Failed to get vertices of a graveyard set");
     verts_to_delete.merge(vertices);
   }
@@ -340,6 +337,10 @@ ErrorCode DagMC::remove_graveyard() {
   rval = moab_instance()->get_adjacencies(verts_to_delete, 2, true, adj, Interface::UNION);
   MB_CHK_SET_ERR(rval, "Failed to get dimension 2 adjacencies of graveyard vertices");
   ents_to_delete.merge(adj);
+
+  // delete accumulated entity sets
+  rval = moab_instance()->delete_entities(sets_to_delete);
+  MB_CHK_SET_ERR(rval, "Failed to delete graveyard entity sets");
 
   // delete accumulated entities
   rval = moab_instance()->delete_entities(ents_to_delete);
