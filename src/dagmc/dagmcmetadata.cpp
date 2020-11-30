@@ -341,7 +341,7 @@ void dagmcMetaData::parse_tally_volume_data() {
 }
 
 std::string dagmcMetaData::to_lower(std::string input) {
-  lowercase_str(input);
+  moab::lowercase_str(input);
   return input;
 }
 
