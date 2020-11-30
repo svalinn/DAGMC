@@ -250,8 +250,9 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
   }
 
   // if the graveyard was not found, return an error
-  if (graveyard_group == 0)
+  if (graveyard_group == 0) {
     return MB_ENTITY_NOT_FOUND;
+  }
 
   return MB_SUCCESS;
 }
@@ -268,9 +269,9 @@ ErrorCode DagMC::remove_graveyard() {
 
   // ranges of sets, entities, and vertices to delete
   Range sets_to_delete, ents_to_delete, verts_to_delete;
-
   sets_to_delete.insert(graveyard_group);
 
+  // check for bounding box trees on the model
   bool trees_exist = geom_tool()->have_obb_tree();
 
   // get the graveyard volume
@@ -293,7 +294,7 @@ ErrorCode DagMC::remove_graveyard() {
       MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement OBBTree/BVH");
     }
     for (auto vol : graveyard_vols) {
-      // will recursively delete the volume's surface trees as well
+      // will recursively delete the graveyard volume's surface trees as well
       rval = geom_tool()->delete_obb_tree(vol);
       MB_CHK_SET_ERR(rval, "Failed to delete the graveyard volume's tree");
     }
@@ -316,9 +317,9 @@ ErrorCode DagMC::remove_graveyard() {
     verts_to_delete.merge(vertices);
   }
 
-  // get the union of the adjacencies of the graveyard vertices.
+  // get the union of the graveyard vertices' adjacencies.
   // this should retrieve all elements connected to these vertices
-  // (edges, triangles, etc. )
+  // (edges, triangles, tets, etc. )
   Range adj;
   rval = moab_instance()->get_adjacencies(verts_to_delete, 1, true, adj, Interface::UNION);
   MB_CHK_SET_ERR(rval, "Failed to get dimension 1 adjacencies of graveyard vertices");
@@ -336,7 +337,7 @@ ErrorCode DagMC::remove_graveyard() {
   rval = moab_instance()->delete_entities(ents_to_delete);
   MB_CHK_SET_ERR(rval, "Failed to delete graveyard entities");
 
-  // delete accumulated vertices
+  // delete accumulated vertices (this must come last)
   rval = moab_instance()->delete_entities(verts_to_delete);
   MB_CHK_SET_ERR(rval, "Failed to delete graveyard vertices");
 
@@ -359,7 +360,7 @@ ErrorCode DagMC::remove_graveyard() {
 
 ErrorCode DagMC::create_graveyard(bool overwrite) {
   /* Method summary
-    - Determine the axis-aligned bounding box of the current model
+    - Determine the global axis-aligned bounding box of the current model
     - Create a new volume set for the graveyard
     - Create a new group labeled as the graveyard and add volume to that group
     - Create an inner surface from the bounding box
@@ -393,11 +394,12 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   BBOX box;
   for (int i = 0; i < num_entities(3); i++) {
+    // get the bounding box of the volume
     moab::EntityHandle vol = this->entity_by_index(3, i + 1);
     double vmin[3], vmax[3];
-    rval = this->getobb(vol, vmin, vmax);
-    MB_CHK_SET_ERR(rval, "Failed to get volume OBB");
-
+    rval = this->getobb(vol, vmin, vmax); // this method name is a misnomer
+    MB_CHK_SET_ERR(rval, "Failed to get volume bounding box");
+    // update the global bounding box
     box.update(vmin);
     box.update(vmax);
   }
@@ -449,8 +451,9 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // expand the box a bit
   for (int i = 0; i < 3; i++) {
-    box.upper[i] += 5.0;
-    box.lower[i] -= 5.0;
+    double bump = 10 * numerical_precision();
+    box.upper[i] += bump;
+    box.lower[i] -= bump;
   }
 
   // tear down the implicit complement tree
@@ -477,18 +480,19 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // expand the box a bit again for the outer surface
   for (int i = 0; i < 3; i++) {
-    box.upper[i] += 2.0;
-    box.lower[i] -= 2.0;
+    double bump = 10.0 * numerical_precision();
+    box.upper[i] += bump;
+    box.lower[i] -= bump;
   }
 
   EntityHandle outer_surface;
   rval = box_to_surf(box.lower, box.upper, outer_surface);
 
-  // establish the volume-surface parent-child relationship with tie outer surface
+  // establish the volume-surface parent-child relationship with the outer surface
   rval = MBI->add_parent_child(volume_set, outer_surface);
   MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
 
-  // establish the volume-surface parent-child relationship with tie outer surface
+  // establish the volume-surface parent-child relationship with the outer surface
   rval = MBI->add_parent_child(ic, outer_surface);
   MB_CHK_SET_ERR(rval, "Failed to create the graveyard parent-child relationship");
 
@@ -498,7 +502,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
 
-  // OBBTree/BVH update
+  // OBBTree/BVH updates
 
   // delete the implicit complement tree (but not the surface trees)
   rval = geom_tool()->delete_obb_tree(ic, true);
@@ -522,7 +526,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 ErrorCode DagMC::box_to_surf(double llc[3], double urc[3], EntityHandle& surface_set) {
   ErrorCode rval;
 
-  //start with vertices
+  // start with vertices
   std::vector<std::array<double, 3>> vertex_coords;
   // vertex coordinates for the lower z face
   vertex_coords.push_back({urc[0], llc[1], urc[2]});

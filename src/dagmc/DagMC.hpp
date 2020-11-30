@@ -161,19 +161,19 @@ class DagMC {
    */
   ErrorCode setup_indices();
 
-  /**\brief Removes the graveyard volume. */
+  /**\brief Removes the graveyard if one is present. */
   ErrorCode remove_graveyard();
 
-  /**\brief Create a graveyard volume.
+  /**\brief Create a graveyard (a volume representing the volume boundary).
    *
    * Create a cuboid volume marked with metadata indicating it is the boundary
    * of the DAGMC model. This method will fail if a graveyard volume already
-   * exists and `overwrite` is not true.
+   * exists and `overwrite` is not true. Requires BVH tree's existence.
    *
    */
   ErrorCode create_graveyard(bool overwrite = false);
 
-  /** True if the model has a graveyard volume, false if not */
+  /** Returns true if the model has a graveyard volume, false if not */
   bool has_graveyard();
 
   /** Retrieve the graveyard group on the model if it exists */
@@ -181,8 +181,8 @@ class DagMC {
 
  private:
   /** convenience function for converting a bounding box into a box of triangles
-   *  with outward facing normals
-   *
+   *  with outward facing normals and setting up set structure necessary for
+   *  representation as a geometric entity
    */
   ErrorCode box_to_surf(double llc[3], double urc[3], EntityHandle& surface_set);
 
