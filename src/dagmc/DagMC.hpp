@@ -509,12 +509,14 @@ class DagMC {
     double lower[3] = { INFTY,  INFTY,  INFTY};
     double upper[3] = {-INFTY, -INFTY, -INFTY};
 
+    /** ensure box corners are valid */
     bool valid() {
       return (lower[0] <= upper[0] &&
               lower[1] <= upper[1] &&
               lower[2] <= upper[2]);
     }
 
+    /** update box to ensure the provided point is contained */
     void update(double x, double y, double z) {
       lower[0] = x < lower[0] ? x : lower[0];
       lower[1] = y < lower[1] ? y : lower[1];
@@ -525,6 +527,7 @@ class DagMC {
       upper[2] = z > upper[2] ? z : upper[2];
     }
 
+    /** update box to ensure the provided point is contained */
     void update(double xyz[3]) {
       update(xyz[0], xyz[1], xyz[2]);
     }
