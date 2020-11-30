@@ -20,15 +20,10 @@ class DagmcGraveyardTest : public ::testing::Test {
   virtual void TearDown() {}
 };
 
-
-class GraveyardTest : public::testing::Test {
- protected:
-  virtual void SetUp() override {}
-  virtual void TearDown() {}
-};
-
 TEST_F(DagmcGraveyardTest, dagmc_graveyard_simple_test) {
+  // create a DAGMC instance
   std::unique_ptr<DagMC> DAG(new DagMC());
+  // load the test geometry file
   ErrorCode rval = DAG->load_file(simple_file.c_str()); // open the Dag file
   EXPECT_EQ(MB_SUCCESS, rval);
 
@@ -48,7 +43,7 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_simple_test) {
   rval = DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, starting_sets);
   EXPECT_EQ(MB_SUCCESS, rval);
 
-  // there is no graveyard present in this model
+  // there is no graveyard present to start in this model
   EXPECT_FALSE(DAG->has_graveyard());
 
   int n_vols = DAG->num_entities(3);
@@ -117,8 +112,10 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_simple_test) {
 }
 
 TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file) {
+  // create DAGMC instance
   std::unique_ptr<DagMC> DAG(new DagMC());
-  ErrorCode rval = DAG->load_file(trelis_file.c_str()); // open the Dag file
+  // load the trelis test file
+  ErrorCode rval = DAG->load_file(trelis_file.c_str());
   EXPECT_EQ(MB_SUCCESS, rval);
 
   rval = DAG->init_OBBTree();
@@ -137,7 +134,7 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file) {
   rval = DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, starting_sets);
   EXPECT_EQ(MB_SUCCESS, rval);
 
-  // there should already be a graveyard present in this model
+  // a graveyard is already present in this model
   EXPECT_TRUE(DAG->has_graveyard());
 
   int n_groups = DAG->num_entities(4);
