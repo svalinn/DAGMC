@@ -1044,9 +1044,9 @@ void fludag_all_materials(std::ostringstream& mstr,
   pyne::Material unique = pyne::Material();
 
   // loop over all materials, summing
-  pyne::MaterialLibrary::const_iterator nuc;
-  for (nuc = pyne_map.begin(); nuc != pyne_map.end(); ++nuc) {
-    unique = unique + *(nuc->second);
+  pyne::MaterialLibrary::const_iterator mat;
+  for (mat = pyne_map.begin(); mat != pyne_map.end(); ++mat) {
+    unique = unique + *(mat->second);
   }
   // now collapse elements
   unique = unique.collapse_elements(exception_set);
@@ -1054,14 +1054,14 @@ void fludag_all_materials(std::ostringstream& mstr,
   // remove those that are no longer needed due to
   // compound card inclusions
   // now write out material card & compound card for each compound
-  for (nuc = pyne_map.begin() ; nuc != pyne_map.end(); ++nuc) {
-    pyne::Material compound = (nuc->second)->collapse_elements(exception_set);
+  for (mat = pyne_map.begin() ; mat != pyne_map.end(); ++mat) {
+    pyne::Material compound = (mat->second)->collapse_elements(exception_set);
     // if only one element in comp, then we can remove the one that exists
     // in the unique material
     if (compound.comp.size() == 1) {
-      pyne::comp_iter nuc = compound.comp.begin();
+      pyne::comp_iter mat = compound.comp.begin();
       std::set<int> nuc2del;
-      nuc2del.insert(nuc->first);
+      nuc2del.insert(mat->first);
       // remove the nuclide from the unique list
       unique = unique.del_mat(nuc2del);
     }
@@ -1090,8 +1090,8 @@ void fludag_all_materials(std::ostringstream& mstr,
 
   // now write out material card & compound card for each compound
   std::string compound_string;
-  for (nuc = pyne_map.begin() ; nuc != pyne_map.end(); ++nuc) {
-    pyne::Material compound = (nuc->second)->collapse_elements(exception_set);
+  for (mat = pyne_map.begin() ; mat != pyne_map.end(); ++mat) {
+    pyne::Material compound = (mat->second)->collapse_elements(exception_set);
     compound_string = compound.fluka(i);
     if (compound_string.length() != 0) {
       i++;
