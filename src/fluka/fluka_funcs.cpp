@@ -985,7 +985,16 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Ta
   std::list<std::string> tally_parts;
   std::string tally_id;
   for (it = tally_map.begin() ; it != tally_map.end() ; ++it) {
-    tally_id = (it->second).tally_type + "/" + (it->second).particle_names[0];
+
+    std::string particle_name = (it->second).particle_names.at(0);
+
+    if ((it->second).particle_names.size() > 1) {
+      std::cerr << "Warning: Multiple particles specified on a tally. "
+                   "Only the first particle (" << particle_name <<
+                   ") will be used." << std::endl;
+    }
+
+    tally_id = (it->second).tally_type + "/" + particle_name;
     if (std::count(tally_parts.begin(), tally_parts.end(), tally_id) == 0) {
       tally_parts.insert(tally_parts.end(), tally_id);
     }
@@ -1007,7 +1016,7 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Ta
     ss << ".";
     tally.entity_name = ss.str();
 
-    std::string tally_id = tally.tally_type + "/" + tally.particle_names[0];
+    std::string tally_id = tally.tally_type + "/" + tally.particle_names.at(0);
 
     std::list<std::string>::iterator iter = std::find(tally_parts.begin(), tally_parts.end(), tally_id);
 
