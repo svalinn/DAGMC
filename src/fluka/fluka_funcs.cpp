@@ -988,8 +988,8 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Ta
 
     if ((it->second).particle_names.size() > 1) {
       std::cerr << "Warning: Multiple particles specified on a tally. "
-                   "Only the first particle (" << particle_name <<
-                   ") will be used." << std::endl;
+                "Only the first particle (" << particle_name <<
+                ") will be used." << std::endl;
     }
 
     tally_id = (it->second).tally_type + "/" + particle_name;
