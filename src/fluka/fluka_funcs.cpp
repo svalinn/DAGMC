@@ -815,8 +815,7 @@ void fludag_write(std::string matfile, std::string lfname) {
 
   // ASSIGNMA Cards
   std::ostringstream assignma_str;
-  pyne::mat_map mat_lib = workflow_data.material_library.get_mat_library();
-  fludagwrite_assignma(assignma_str, mat_lib);
+  fludagwrite_assignma(assignma_str, workflow_data.material_library);
 
   // get the importances
   std::ostringstream importance_str;
@@ -834,8 +833,7 @@ void fludag_write(std::string matfile, std::string lfname) {
   if (workflow_data.material_library.size() != 0) {
     // write COMPOUND CARDS
     std::ostringstream material_str;
-    pyne::mat_map mat_lib = workflow_data.material_library.get_mat_library();
-    fludag_all_materials(material_str, mat_lib);
+    fludag_all_materials(material_str, workflow_data.material_library);
     lcadfile << material_str.str();
     lcadfile << header << std::endl;
   }
@@ -924,8 +922,8 @@ void fludagwrite_importances(std::ostringstream& ostr) {
 //---------------------------------------------------------------------------//
 // Put the ASSIGNMAt statements in the output ostringstream
 void fludagwrite_assignma(std::ostringstream& ostr,
-                          const pyne::mat_map& pyne_map) {
-  pyne::mat_map::const_iterator it;
+                          const pyne::MaterialLibrary& pyne_map) {
+  pyne::MaterialLibrary::const_iterator it;
   for (it = pyne_map.begin(); it != pyne_map.end(); it++) {
     std::cout << it->first << std::endl;
   }
@@ -955,7 +953,7 @@ void fludagwrite_assignma(std::ostringstream& ostr,
       // otherwise we assume uwuw
       // if you arent graveyard or vacuum you must be in the uwuw library
       if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
-        pyne::Material material = *(pyne_map.at(mat_prop));
+        pyne::Material material = pyne_map.get_material(mat_prop);
         mat_name = material.metadata["fluka_name"].asString();
         std::cout << mat_name << std::endl;
       } else if (mat_prop.find("Graveyard") != std::string::npos) {
@@ -1038,7 +1036,7 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Ta
 //---------------------------------------------------------------------------//
 // Get material cards for all materials in the problem, both elemental and compounds
 void fludag_all_materials(std::ostringstream& mstr,
-                          const pyne::mat_map& pyne_map) {
+                          const pyne::MaterialLibrary& pyne_map) {
   std::set<int> exception_set = make_exception_set();
 
   std::map<int, std::string> map_nucid_fname;
@@ -1046,7 +1044,7 @@ void fludag_all_materials(std::ostringstream& mstr,
   pyne::Material unique = pyne::Material();
 
   // loop over all materials, summing
-  pyne::mat_map::const_iterator nuc;
+  pyne::MaterialLibrary::const_iterator nuc;
   for (nuc = pyne_map.begin(); nuc != pyne_map.end(); ++nuc) {
     unique = unique + *(nuc->second);
   }
