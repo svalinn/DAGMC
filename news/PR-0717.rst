@@ -3,7 +3,7 @@
   without the executable (for static and/or shared libs)
 
 **Changed:** None
-
+- now install dagmc header when building and instaling static libs
 **Deprecated:** None
 
 **Removed:** None
