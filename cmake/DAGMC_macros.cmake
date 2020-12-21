@@ -297,7 +297,7 @@ endmacro ()
 
 # Install a unit test
 macro (dagmc_install_test test_name ext)
-  if (NOT BUILD_EXEC)
+  if (NOT BUILD_EXE)
       message(STATUS "Skipping unit tests ${test_name} build.")
   else ()
     message(STATUS "Building unit tests: ${test_name}")
