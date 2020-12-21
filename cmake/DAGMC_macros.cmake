@@ -67,6 +67,7 @@ macro (dagmc_setup_options)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
 
   option(BUILD_STATIC_EXE "Build static executables" OFF)
+  option(BUILD_EXE "Build DAGMC executables" ON)
   option(BUILD_PIC        "Build with PIC"           OFF)
 
   option(BUILD_RPATH "Build libraries and executables with RPATH" ON)
@@ -96,11 +97,11 @@ endif()
   if (NOT BUILD_STATIC_LIBS AND BUILD_STATIC_EXE)
     message(FATAL_ERROR "BUILD_STATIC_EXE cannot be ON while BUILD_STATIC_LIBS is OFF")
   endif ()
-  if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_EXE)
-    message(FATAL_ERROR "BUILD_STATIC_EXE cannot be OFF while BUILD_SHARED_LIBS is OFF")
-  endif ()
   if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS)
     message(FATAL_ERROR "BUILD_SHARED_LIBS and BUILD_STATIC_LIBS cannot both be OFF")
+  endif ()
+  if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_EXE AND BUILD_EXE)
+      message("Turning BUILD_EXE to OFF: SHARED_BUIL_LIBS and BUILD_STATIC_EXE are OFF")
   endif ()
 endmacro ()
 
@@ -128,22 +129,24 @@ macro (dagmc_setup_flags)
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES   "")
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
 
-  if (BUILD_STATIC_EXE)
-    message(STATUS "Building static executables")
-    set(BUILD_SHARED_EXE OFF)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
-    set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
-    set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
-    set(CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS)
-    set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
-    set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
-    set(CMAKE_EXE_LINK_DYNAMIC_Fortran_FLAGS)
-  else ()
-    message(STATUS "Building shared executables")
-    set(BUILD_SHARED_EXE ON)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
-  endif ()
+  if(BUILD_EXE)
+    if (BUILD_STATIC_EXE)
+      message(STATUS "Building static executables")
+      set(BUILD_SHARED_EXE OFF)
+      set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+      set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
+      set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
+      set(CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS)
+      set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
+      set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+      set(CMAKE_EXE_LINK_DYNAMIC_Fortran_FLAGS)
+    else ()
+      message(STATUS "Building shared executables")
+      set(BUILD_SHARED_EXE ON)
+      set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
+    endif ()
+  endif()
 
   if (BUILD_RPATH)
     if (CMAKE_INSTALL_RPATH)
@@ -259,6 +262,7 @@ endmacro ()
 
 # Install an executable
 macro (dagmc_install_exe exe_name)
+<<<<<<< HEAD
   message(STATUS "Building executable: ${exe_name}")
 
   dagmc_get_link_libs()
@@ -276,47 +280,70 @@ macro (dagmc_install_exe exe_name)
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
       target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
     endif ()
+=======
+  if( NOT $BUILD_EXE)
+    message(STATUS "Skiping executable ${exe_name} build")
+>>>>>>> adding build_exe option to cmake
   else ()
-    if (BUILD_STATIC_EXE)
-      target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+    message(STATUS "Building executable: ${exe_name}")
+  
+    dagmc_get_link_libs()
+  
+    add_executable(${exe_name} ${SRC_FILES})
+    if (BUILD_RPATH)
+      if (BUILD_STATIC_EXE)
+        set_target_properties(${exe_name}
+          PROPERTIES INSTALL_RPATH ""
+                     INSTALL_RPATH_USE_LINK_PATH FALSE)
+        target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+      else ()
+        set_target_properties(${exe_name}
+          PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                     INSTALL_RPATH_USE_LINK_PATH TRUE)
+        target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+      endif ()
     else ()
       target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
     endif ()
-  endif ()
-  install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
+    install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
+  endif()
 endmacro ()
 
 # Install a unit test
 macro (dagmc_install_test test_name ext)
-  message(STATUS "Building unit tests: ${test_name}")
-
-  list(APPEND LINK_LIBS gtest)
-
-  dagmc_get_link_libs()
-
-  add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
-  if (BUILD_RPATH)
-    if (BUILD_STATIC_EXE)
-      set_target_properties(${test_name}
-        PROPERTIES INSTALL_RPATH ""
-                   INSTALL_RPATH_USE_LINK_PATH FALSE)
-      target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
-    else ()
-      set_target_properties(${test_name}
-        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-                   INSTALL_RPATH_USE_LINK_PATH TRUE)
-      target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
-    endif ()
+  if( NOT $BUILD_EXE)
+    message(STATUS "Skiping ${test_name} unit tests build")
   else ()
-    if (BUILD_STATIC_EXE)
-      target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
+    message(STATUS "Building unit tests: ${test_name}")
+  
+    list(APPEND LINK_LIBS gtest)
+  
+    dagmc_get_link_libs()
+  
+    add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
+    if (BUILD_RPATH)
+      if (BUILD_STATIC_EXE)
+        set_target_properties(${test_name}
+          PROPERTIES INSTALL_RPATH ""
+                     INSTALL_RPATH_USE_LINK_PATH FALSE)
+        target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
+      else ()
+        set_target_properties(${test_name}
+          PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
+                     INSTALL_RPATH_USE_LINK_PATH TRUE)
+        target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
+      endif ()
     else ()
-      target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
+      if (BUILD_STATIC_EXE)
+        target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
+      else ()
+        target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
+      endif ()
     endif ()
+    install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
+    add_test(NAME ${test_name} COMMAND ${test_name})
+    set_property(TEST ${test_name} PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=''")
   endif ()
-  install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
-  add_test(NAME ${test_name} COMMAND ${test_name})
-  set_property(TEST ${test_name} PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=''")
 endmacro ()
 
 # Install a file needed for unit testing
