@@ -243,7 +243,8 @@ macro (dagmc_install_library lib_name)
   if (BUILD_STATIC_LIBS)
     add_library(${lib_name}-static STATIC ${SRC_FILES})
     set_target_properties(${lib_name}-static
-      PROPERTIES OUTPUT_NAME ${lib_name})
+      PROPERTIES OUTPUT_NAME ${lib_name}
+      PUBLIC_HEADER "${PUB_HEADERS}")
     if (BUILD_RPATH)
       set_target_properties(${lib_name}-static
         PROPERTIES INSTALL_RPATH "" INSTALL_RPATH_USE_LINK_PATH FALSE)
