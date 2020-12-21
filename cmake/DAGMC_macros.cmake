@@ -66,13 +66,11 @@ macro (dagmc_setup_options)
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
 
-  option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_EXE "Build DAGMC executables" ON)
+  option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_PIC        "Build with PIC"           OFF)
 
   option(BUILD_RPATH "Build libraries and executables with RPATH" ON)
-
-  option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
 
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
@@ -81,19 +79,6 @@ macro (dagmc_setup_options)
     set(BUILD_FLUKA  ON)
   endif ()
 
-  if (DOUBLE_DOWN AND BUILD_STATIC_LIBS)
-    message(WARNING "DOUBLE_DOWN is enabled but will only be applied to the shared DAGMC library")
-  endif()
-
-  if (DOUBLE_DOWN AND BUILD_STATIC_EXE)
-    message(WARNING "DOUBLE_DOWN is enabled but will only be applied to executables using the DAGMC shared library")
-  endif()
-
-if (DOUBLE_DOWN)
-  find_package(DOUBLE_DOWN REQUIRED)
-endif()
-
-
   if (NOT BUILD_STATIC_LIBS AND BUILD_STATIC_EXE)
     message(FATAL_ERROR "BUILD_STATIC_EXE cannot be ON while BUILD_STATIC_LIBS is OFF")
   endif ()
@@ -101,7 +86,8 @@ endif()
     message(FATAL_ERROR "BUILD_SHARED_LIBS and BUILD_STATIC_LIBS cannot both be OFF")
   endif ()
   if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_EXE AND BUILD_EXE)
-      message("Turning BUILD_EXE to OFF: SHARED_BUIL_LIBS and BUILD_STATIC_EXE are OFF")
+      SET(BUILD_EXE OFF)
+    message("Turning BUILD_EXE to OFF: SHARED_BUIL_LIBS and BUILD_STATIC_EXE are OFF")
   endif ()
 endmacro ()
 
@@ -218,18 +204,13 @@ macro (dagmc_install_library lib_name)
     add_library(${lib_name}-shared SHARED ${SRC_FILES})
       set_target_properties(${lib_name}-shared
         PROPERTIES OUTPUT_NAME ${lib_name}
-        PUBLIC_HEADER "${PUB_HEADERS}")
+                   PUBLIC_HEADER "${PUB_HEADERS}")
     if (BUILD_RPATH)
       set_target_properties(${lib_name}-shared
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif ()
-    message("LINK LIBS: ${LINK_LIBS_SHARED}")
-    target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
-    if (DOUBLE_DOWN)
-      target_compile_definitions(${lib_name}-shared PRIVATE DOUBLE_DOWN)
-      target_link_libraries(${lib_name}-shared PUBLIC dd)
-    endif()
+    target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
     install(TARGETS ${lib_name}-shared
@@ -262,33 +243,13 @@ endmacro ()
 
 # Install an executable
 macro (dagmc_install_exe exe_name)
-<<<<<<< HEAD
-  message(STATUS "Building executable: ${exe_name}")
-
-  dagmc_get_link_libs()
-
-  add_executable(${exe_name} ${SRC_FILES})
-  if (BUILD_RPATH)
-    if (BUILD_STATIC_EXE)
-      set_target_properties(${exe_name}
-        PROPERTIES INSTALL_RPATH ""
-                   INSTALL_RPATH_USE_LINK_PATH FALSE)
-      target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
-    else ()
-      set_target_properties(${exe_name}
-        PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
-                   INSTALL_RPATH_USE_LINK_PATH TRUE)
-      target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
-    endif ()
-=======
-  if( NOT $BUILD_EXE)
-    message(STATUS "Skiping executable ${exe_name} build")
->>>>>>> adding build_exe option to cmake
+  if (NOT BUILD_EXE)
+    message(STATUS "Skipping executable ${exe_name} build")
   else ()
     message(STATUS "Building executable: ${exe_name}")
-  
+
     dagmc_get_link_libs()
-  
+
     add_executable(${exe_name} ${SRC_FILES})
     if (BUILD_RPATH)
       if (BUILD_STATIC_EXE)
@@ -303,23 +264,26 @@ macro (dagmc_install_exe exe_name)
         target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
       endif ()
     else ()
-      target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
+      if (BUILD_STATIC_EXE)
+        target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
+      else ()
+        target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+      endif ()
     endif ()
     install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
-  endif()
+  endif ()
 endmacro ()
 
 # Install a unit test
 macro (dagmc_install_test test_name ext)
-  if( NOT $BUILD_EXE)
-    message(STATUS "Skiping ${test_name} unit tests build")
+  if (NOT BUILD_EXEC)
+      message(STATUS "Skipping unit tests ${test_name} build.")
   else ()
     message(STATUS "Building unit tests: ${test_name}")
-  
     list(APPEND LINK_LIBS gtest)
-  
+
     dagmc_get_link_libs()
-  
+
     add_executable(${test_name} ${test_name}.${ext} ${DRIVERS})
     if (BUILD_RPATH)
       if (BUILD_STATIC_EXE)
