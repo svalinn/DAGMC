@@ -1,0 +1,13 @@
+**Added:**
+- adding BUILD_EXE option (default ON) alowing to build only the dagmc libs
+  without the executable (for static and/or shared libs)
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
