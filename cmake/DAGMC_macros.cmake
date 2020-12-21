@@ -72,12 +72,27 @@ macro (dagmc_setup_options)
 
   option(BUILD_RPATH "Build libraries and executables with RPATH" ON)
 
+  option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
+
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
     set(BUILD_MCNP6  ON)
     set(BUILD_GEANT4 ON)
     set(BUILD_FLUKA  ON)
   endif ()
+
+  if (DOUBLE_DOWN AND BUILD_STATIC_LIBS)
+    message(WARNING "DOUBLE_DOWN is enabled but will only be applied to the shared DAGMC library")
+  endif()
+
+  if (DOUBLE_DOWN AND BUILD_STATIC_EXE)
+    message(WARNING "DOUBLE_DOWN is enabled but will only be applied to executables using the DAGMC shared library")
+  endif()
+
+if (DOUBLE_DOWN)
+  find_package(DOUBLE_DOWN REQUIRED)
+endif()
+
 
   if (NOT BUILD_STATIC_LIBS AND BUILD_STATIC_EXE)
     message(FATAL_ERROR "BUILD_STATIC_EXE cannot be ON while BUILD_STATIC_LIBS is OFF")
@@ -86,9 +101,10 @@ macro (dagmc_setup_options)
     message(FATAL_ERROR "BUILD_SHARED_LIBS and BUILD_STATIC_LIBS cannot both be OFF")
   endif ()
   if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_EXE AND BUILD_EXE)
-      SET(BUILD_EXE OFF)
+    SET(BUILD_EXE OFF)
     message("Turning BUILD_EXE to OFF: SHARED_BUIL_LIBS and BUILD_STATIC_EXE are OFF")
   endif ()
+
 endmacro ()
 
 macro (dagmc_setup_flags)
@@ -115,7 +131,7 @@ macro (dagmc_setup_flags)
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES   "")
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
 
-  if(BUILD_EXE)
+  if (BUILD_EXE)
     if (BUILD_STATIC_EXE)
       message(STATUS "Building static executables")
       set(BUILD_SHARED_EXE OFF)
@@ -132,7 +148,7 @@ macro (dagmc_setup_flags)
       set(BUILD_SHARED_EXE ON)
       set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
     endif ()
-  endif()
+  endif ()
 
   if (BUILD_RPATH)
     if (CMAKE_INSTALL_RPATH)
@@ -204,13 +220,18 @@ macro (dagmc_install_library lib_name)
     add_library(${lib_name}-shared SHARED ${SRC_FILES})
       set_target_properties(${lib_name}-shared
         PROPERTIES OUTPUT_NAME ${lib_name}
-                   PUBLIC_HEADER "${PUB_HEADERS}")
+        PUBLIC_HEADER "${PUB_HEADERS}")
     if (BUILD_RPATH)
       set_target_properties(${lib_name}-shared
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif ()
-    target_link_libraries(${lib_name}-shared ${LINK_LIBS_SHARED})
+    message("LINK LIBS: ${LINK_LIBS_SHARED}")
+    target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
+    if (DOUBLE_DOWN)
+      target_compile_definitions(${lib_name}-shared PRIVATE DOUBLE_DOWN)
+      target_link_libraries(${lib_name}-shared PUBLIC dd)
+    endif()
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
     install(TARGETS ${lib_name}-shared
@@ -261,13 +282,13 @@ macro (dagmc_install_exe exe_name)
         set_target_properties(${exe_name}
           PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                      INSTALL_RPATH_USE_LINK_PATH TRUE)
-        target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+        target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
       endif ()
     else ()
       if (BUILD_STATIC_EXE)
         target_link_libraries(${exe_name} ${LINK_LIBS_STATIC})
       else ()
-        target_link_libraries(${exe_name} ${LINK_LIBS_SHARED})
+        target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
       endif ()
     endif ()
     install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
@@ -280,6 +301,7 @@ macro (dagmc_install_test test_name ext)
       message(STATUS "Skipping unit tests ${test_name} build.")
   else ()
     message(STATUS "Building unit tests: ${test_name}")
+
     list(APPEND LINK_LIBS gtest)
 
     dagmc_get_link_libs()
@@ -307,7 +329,7 @@ macro (dagmc_install_test test_name ext)
     install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
     add_test(NAME ${test_name} COMMAND ${test_name})
     set_property(TEST ${test_name} PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=''")
-  endif ()
+endif ()
 endmacro ()
 
 # Install a file needed for unit testing
