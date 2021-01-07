@@ -156,6 +156,16 @@ TEST_F(DagmcSimpleTest, dagmc_point_in) {
   EXPECT_EQ(expect_result, result);
 }
 
+TEST_F(DagmcSimpleTest, dagmc_find_volume) {
+  int vol_idx = 1;
+  int vol_dim = 3;
+  double xyz[3] = {0.0, 0.0, 0.0};
+  EntityHandle expected_vol_h = DAG->entity_by_index(vol_dim, vol_idx);
+  ErrorCode rval=DAG->find_volume(xyz, vol_h);
+  EXPECT_EQ(rval, MB_SUCCESS);
+  EXPECT_EQ(expected_vol_h, vol_h);
+}
+
 TEST_F(DagmcSimpleTest, dagmc_test_obb_retreval_rayfire) {
   // make new dagmc
   std::cout << "test_obb_retreval and ray_fire" << std::endl;
