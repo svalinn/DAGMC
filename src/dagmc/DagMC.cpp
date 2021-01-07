@@ -811,6 +811,14 @@ ErrorCode DagMC::point_in_volume_slow(EntityHandle volume, const double xyz[3],
   return rval;
 }
 
+ErrorCode find_volume(const double xyz[3], EntityHandle& volume,
+                        const double* uvw = NULL) {
+
+  ErrorCode rval = ray_tracer->find_volume( xyz, volume, uvw);
+  return rval;
+                        
+}
+
 // detemine distance to nearest surface
 ErrorCode DagMC::closest_to_location(EntityHandle volume,
                                      const double coords[3], double& result,

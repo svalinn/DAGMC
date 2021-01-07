@@ -1,0 +1,13 @@
+**Added:** 
+
+* exposed the new find_volume() method that is implemented in MOAB GQT
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
