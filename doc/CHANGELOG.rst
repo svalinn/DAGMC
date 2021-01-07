@@ -270,6 +270,8 @@ v3.2.0
 
 **Fixed:**
 
+* pyne::MaterialLibrary calls in fluka_funcs.
+* Tally::particle_name to Tally::particle_names update in fluka_funcs as well.
 * eigen3:
 
   * remove bad flag in MOAB build (PR#684)
