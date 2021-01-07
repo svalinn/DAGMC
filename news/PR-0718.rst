@@ -2,7 +2,9 @@
 
 * exposed the new find_volume() method that is implemented in MOAB GQT
 
-**Changed:** None
+**Changed:** 
+
+* changed housekeeping test to show differences on failure
 
 **Deprecated:** None
 
