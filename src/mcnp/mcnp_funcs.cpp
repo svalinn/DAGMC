@@ -123,15 +123,16 @@ void dagmcwritefacets_(char* ffile, int* flen) { // facet file
   // out to the fcad file
   if (workflow_data->material_library.size() != 0) {
     // get the mat lib
-    std::map<std::string, pyne::Material> mat_lib = workflow_data->material_library;
-    std::map<std::string, pyne::Material> ::iterator it;
+
+    pyne::MaterialLibrary::iterator it;
 
     // iterate over the map
-    for (it = mat_lib.begin() ; it != mat_lib.end() ; ++it) {
+    for (it = workflow_data->material_library.begin();
+         it != workflow_data->material_library.end() ; ++it) {
       // check to make sure we find "mat in the key"
       if (it->first.find("mat:") != std::string::npos) {
         // write the hdf5 file data
-        it->second.write_hdf5(ffile, "/materials");
+        it->second->write_hdf5(ffile, "/materials");
       } else {
         std::cout << "Warning: Spurious material " << it->first << std::endl;
         std::cout << "not written to file " << std::endl;
@@ -222,13 +223,14 @@ void write_cell_cards(std::ostringstream& lcadfile, const char* mcnp_version_maj
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
       if (mat_name.find(vacuum_str) == std::string::npos && mat_name.find(graveyard_str) == std::string::npos) {
+
         if (workflow_data->material_library.count(mat_name) == 0) {
           std::cerr << "Material with name " << mat_name <<  " not found " << std::endl;
           std::cerr << "In the material library" << std::endl;
           exit(EXIT_FAILURE);
         }
 
-        pyne::Material material = workflow_data->material_library[mat_name];
+        pyne::Material material = workflow_data->material_library.get_material(mat_name);
         int matnumber = material.metadata["mat_number"].asInt();
         mat_num = std::to_string(matnumber);
         density = "-" + _to_string(material.density);
@@ -317,17 +319,17 @@ void write_surface_cards(std::ostringstream& lcadfile) {
 
 // write out all the tally data from the uwuw file
 void write_material_data(std::ostringstream& lcadfile) {
-  std::map<std::string, pyne::Material> material_library = workflow_data->material_library;
+  const pyne::MaterialLibrary& material_library = workflow_data->material_library;
   // loop over all tallies
   std::cout << "Writing Materials ..." << std::endl;
 
   lcadfile << "C materials from library" << std::endl;
   // loop over the material and print them out
-  for (std::map<std::string, pyne::Material>::const_iterator it = material_library.begin() ;
-       it != material_library.end() ; ++it) {
-    pyne::Material new_material = (it->second);
-    std::string material_card = new_material.mcnp();
-    lcadfile << material_card;
+
+  pyne::MaterialLibrary::const_iterator it;
+
+  for (it = material_library.begin(); it != material_library.end() ; ++it) {
+    lcadfile << (it->second)->mcnp();
   }
   return;
 }

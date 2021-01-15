@@ -12,6 +12,7 @@
 //   src/json.h
 //   src/jsoncustomwriter.h
 //   src/material.h
+//   src/material_library.h
 //   src/tally.h
 //   src/atomic_data.h
 //   src/measure.h
@@ -26,7 +27,7 @@
 //
 // start of license.txt
 //
-// Copyright 2011-2019, the PyNE Development Team. All rights reserved.
+// Copyright 2011-2020, the PyNE Development Team. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
@@ -111,6 +112,7 @@
 #include <cctype>
 #include <stdlib.h>
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <exception>
 #include <sys/stat.h>
@@ -184,8 +186,8 @@ std::string to_lower(std::string s);
 std::string capitalize(std::string s);
 
 /// Forms and returns the wrapped lines with a lenght up to line_lenght.
-std::ostringstream comment_line_wrapping(std::string line, std::string comment_prefix = "",
-                                         int line_length = 79);
+std::string comment_line_wrapping(std::string line, std::string comment_prefix = "",
+                                  int line_length = 79);
 
 /// Finds and returns the first white-space delimited token of a line.
 /// \param line a character array to take the first token from.
@@ -220,6 +222,30 @@ bool contains_substring(std::string s, std::string substr);
 /// That is to say that the return value uses only word characters.
 std::string natural_naming(std::string name);
 
+// split a string into a vector of string using a delimiter
+std::vector<std::string> split_string(std::string lists, std::string delimiter = " ");
+
+// join the vector element into a string, each values will be delimited ny the delimiter
+template<typename T>
+std::string join_to_string(std::vector<T> vect, std::string delimiter = " ") {
+  std::stringstream out;
+  out << std::setiosflags(std::ios::fixed) << std::setprecision(6);
+
+  // ensure there is at least 1 element in the vector
+  if (vect.size() == 0)
+    return out.str();
+  // no delimiter needed before the first element
+  out << vect[0];
+  for (int i = 1; i < vect.size(); i++)
+    out << delimiter << vect[i];
+  return out.str();
+};
+template std::string join_to_string(std::vector<int> vect,
+                                    std::string delimiter);
+template std::string join_to_string(std::vector<double> vect,
+                                    std::string delimiter);
+template std::string join_to_string(std::vector<std::string> vect, std::string delimiter);
+
 /// Finds the slope of a line from the points (\a x1, \a y1) and (\a x2, \a y2).
 double slope(double x2, double y2, double x1, double y1);
 
@@ -234,6 +260,11 @@ double coth(double x);  ///< The hyperbolic cotangent function.
 // File Helpers
 /// Returns true if the file can be found.
 bool file_exists(std::string strfilename);
+
+// turns the filename string into the full file path
+std::string get_full_filepath(char* filename);
+// turns the filename string into the full file path
+std::string get_full_filepath(std::string filename);
 
 // Message Helpers
 extern bool USE_WARNINGS;
@@ -290,8 +321,8 @@ class ValueError : public std::exception {
     std::string msgstr("ValueError: ");
     if (!message.empty())
       msgstr += message;
-
-    return (const char*) msgstr.c_str();
+    const char* msgstr_rtn = msgstr.c_str();
+    return msgstr_rtn;
   };
 
  private:
@@ -435,7 +466,8 @@ class FileNotHDF5: public std::exception {
     if (!filename.empty())
       FNH5str += filename;
 
-    return (const char*) FNH5str.c_str();
+    const char* FNH5str_rtn = FNH5str.c_str();
+    return FNH5str_rtn;
   };
 
  private:
@@ -464,7 +496,8 @@ class GroupNotFound: public std::exception {
     msg += groupname;
     msg += " not found in the file ";
     msg += filename;
-    return (const char*) msg.c_str();
+    const char* msg_rtn = msg.c_str();
+    return msg_rtn;
   };
 
  private:
@@ -494,7 +527,8 @@ class PathNotFound: public std::exception {
     msg += path;
     msg += " was not found in the HDF5 file ";
     msg += filename;
-    return (const char*) msg.c_str();
+    const char* msg_rtn = msg.c_str();
+    return msg_rtn;
   };
 
  private:
@@ -935,7 +969,8 @@ class NotANuclide : public std::exception {
       NaNEstr += " --> ";
       NaNEstr += nucnow;
     }
-    return (const char*) NaNEstr.c_str();
+    const char* NaNEstr_rtn = NaNEstr.c_str();
+    return NaNEstr_rtn;
   };
 
  private:
@@ -996,7 +1031,8 @@ class IndeterminateNuclideForm : public std::exception {
       INFEstr += " --> ";
       INFEstr += nucnow;
     }
-    return (const char*) INFEstr.c_str();
+    const char* INFEstr_rtn = INFEstr.c_str();
+    return INFEstr_rtn;
   }
 
  private:
@@ -1694,7 +1730,8 @@ class NotAReaction : public std::exception {
       narxstr += " --> ";
       narxstr += rxnow;
     }
-    return (const char*) narxstr.c_str();
+    const char* narxstr_rtn = narxstr.c_str();
+    return narxstr_rtn;
   };
 
  private:
@@ -1752,7 +1789,8 @@ class IndeterminateReactionForm : public std::exception {
       INFEstr += " --> ";
       INFEstr += rxnow;
     }
-    return (const char*) INFEstr.c_str();
+    const char* INFEstr_rtn = INFEstr.c_str();
+    return INFEstr_rtn;
   }
 
  private:
@@ -1954,7 +1992,8 @@ class NotAParticle : public std::exception {
     std::string pname("Not a valid particle name ");
     if (!part_name.empty())
       pname += part_name;
-    return (const char*) pname.c_str();
+    const char* pname_rtn = pname.c_str();
+    return pname_rtn;
   }
 
  private:
@@ -2790,7 +2829,7 @@ license you like.
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef JSON_CONFIG_H_INCLUDED
 # define JSON_CONFIG_H_INCLUDED
@@ -2900,7 +2939,7 @@ typedef UInt64 LargestUInt;
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef JSON_FORWARDS_H_INCLUDED
 # define JSON_FORWARDS_H_INCLUDED
@@ -2959,7 +2998,7 @@ class ValueInternalMap;
 //
 // start of src/json.h
 //
-/// Json-cpp amalgated header (http://jsoncpp.sourceforge.net/).
+/// Json-cpp amalgated header (https://github.com/open-source-parsers/jsoncpp/).
 /// It is intented to be used with #include <json.h>
 
 // //////////////////////////////////////////////////////////////////////
@@ -3050,7 +3089,7 @@ license you like.
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef JSON_CONFIG_H_INCLUDED
 # define JSON_CONFIG_H_INCLUDED
@@ -3160,7 +3199,7 @@ typedef UInt64 LargestUInt;
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef JSON_FORWARDS_H_INCLUDED
 # define JSON_FORWARDS_H_INCLUDED
@@ -3218,7 +3257,7 @@ class ValueInternalMap;
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef CPPTL_JSON_FEATURES_H_INCLUDED
 # define CPPTL_JSON_FEATURES_H_INCLUDED
@@ -3280,7 +3319,7 @@ class JSON_API Features {
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef CPPTL_JSON_H_INCLUDED
 # define CPPTL_JSON_H_INCLUDED
@@ -4353,7 +4392,7 @@ class ValueIterator : public ValueIteratorBase {
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef CPPTL_JSON_READER_H_INCLUDED
 # define CPPTL_JSON_READER_H_INCLUDED
@@ -4577,7 +4616,7 @@ std::istream& operator>>(std::istream&, Value&);
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef JSON_WRITER_H_INCLUDED
 # define JSON_WRITER_H_INCLUDED
@@ -4882,6 +4921,7 @@ class JSON_API CustomWriter : public Writer {
 #endif
 
 #ifndef PYNE_IS_AMALGAMATED
+#define PYNE_DECAY
 #include "json-forwards.h"
 #include "json.h"
 #include "h5wrap.h"
@@ -4890,6 +4930,8 @@ class JSON_API CustomWriter : public Writer {
 #include "data.h"
 #include "decay.h"
 #endif
+
+#define DEFAULT_MAT_CHUNKSIZE 100
 
 namespace pyne {
 // Set Type Definitions
@@ -4902,6 +4944,13 @@ extern comp_map decay(comp_map, double);
 }  // namespace decayers
 #endif
 
+/// Looking for the nuclide list path in the nucpath attribute of the dataset.
+/// This happens according to protocol 1.
+/// \param dataset hid of the dataset.
+/// \param nucpath address of the path to the nuclides list in the file
+/// (update when nucpath is found).
+/// \return true if the nucpath attribure is present in the dataset
+bool detect_nuclidelist(hid_t dataset, std::string& nucpath);
 
 // These 37 strings are predefined FLUKA materials.
 // Materials not on this list requires a MATERIAL card.
@@ -4985,6 +5034,14 @@ class Material {
   /// \param row The index to read out, may be negative.
   void _load_comp_protocol1(hid_t db, std::string datapath, int row);
 
+  /// Loads the matrial composition from an HDF5 file according to the layout
+  /// defined by protocol 1.  This protocol should be used in favor of protocol 0.
+  /// \param db HDF5 id for the open HDF5 file.
+  /// \param datapath Path to the base node for the material in a db.
+  /// \param nucpath Path to the base node for nuclide list in a db.
+  /// \param row The index to read out, may be negative.
+  void _load_comp_protocol1(hid_t db, std::string datapath, std::string nucpath, int row);
+
   /// Loads a material from an HDF5 file into this object.
   /// \param filename Path on disk to the HDF5 file.
   /// \param datapath Path to the the material in the file.
@@ -4997,39 +5054,106 @@ class Material {
   /// \param datapath Path to the the material in the file.
   /// \param row The index to read out, may be negative.
   /// \param protocol Flag for layout of material on disk.
-  void from_hdf5(std::string filename, std::string datapath = "/material",
+  void from_hdf5(std::string filename, std::string datapath = "/mat_name",
                  int row = -1, int protocol = 1);
 
-  /// Writes this material out to an HDF5 file.
-  /// This happens according to protocol 1.
-  /// \param filename Path on disk to the HDF5 file.
-  /// \param datapath Path to the the material in the file.
-  /// \param nucpath Path to the nuclides set in the file.
-  /// \param row The index to read out, may be negative. Also note that this is a
-  ///            float.  A value of -0.0 indicates that the material should be
-  ///            appended to the end of the dataset.
-  /// \param chunksize The chunksize for all material data on disk.
-  void write_hdf5(char* filename, char* datapath, char* nucpath, float row = -0.0,
-                  int chunksize = 100);
-  /// Writes this material out to an HDF5 file.
-  /// This happens according to protocol 1.
-  /// \param filename Path on disk to the HDF5 file.
-  /// \param datapath Path to the the material in the file.
-  /// \param nucpath Path to the nuclides set in the file.
-  /// \param row The index to read out, may be negative. Also note that this is a
-  ///            float.  A value of -0.0 indicates that the material should be
-  ///            appended to the end of the dataset.
-  /// \param chunksize The chunksize for all material data on disk.
-  void write_hdf5(std::string filename, std::string datapath = "/material",
-                  std::string nucpath = "/nucid", float row = -0.0, int chunksize = 100);
+ private:
 
+  /// Detect the HDF5 file assuming protocol1.
+  /// \param db HDF5 id for the open HDF5 file.
+  /// \param datapath Path to look for the material in the file.
+  /// Return options are:
+  ///     -"-1": datapath and "/material" do not exist
+  ///     - "0": datapath and/or "/material" exist but either as a group or a dataset
+  ///     - "1": datapath exists as a dataset -> old layout
+  ///     - "2": "/material" exists as a group-> new layout
+  int detect_hdf5_layout(hid_t db, std::string datapath);
+
+  enum prot1_layout {path_donotexists = -1, unknown, old_layout, new_layout};
+
+ public:
+
+  /// Writes this material out to an HDF5 file.
+  /// This happens according to protocol 1.
+  /// \param filename Path on disk to the HDF5 file.
+  /// \param datapath Path to the the material in the file.
+  /// \param row The index to read out, may be negative. Also note that this is a
+  ///            float.  A value of -0.0 indicates that the material should be
+  ///            appended to the end of the dataset.
+  /// \param chunksize The chunksize for all material data on disk.
+  /// New write_hdf5 which fallback on the old one when required
+  void write_hdf5(std::string filename, std::string datapath = "/mat_name",
+                  float row = -0.0, int chunksize = DEFAULT_MAT_CHUNKSIZE);
+
+  /// Writes this nucpath to an HDF5 file.
+  /// This happens according to protocol 1.
+  /// \param db HDF5 id for the open HDF5 file.
+  /// \param nucpath Path to the nuclides list in the file.
+  /// \return list of nuclide writen in the file (or the existing list if the nuclides
+  /// list was already in the file
+  std::vector<int> write_hdf5_nucpath(hid_t db, std::string nucpath);
+
+  /// Writes this datapath to an HDF5 file.
+  /// This happens according to protocol 1.
+  /// \param db HDF5 id for the open HDF5 file.
+  /// \param datapath Path to the the material in the file.
+  /// \param nucpath Path to the nuclides list in the file.
+  /// \param row The index to read out, may be negative. Also note that this is a
+  ///            float.  A value of -0.0 indicates that the material should be
+  ///            appended to the end of the dataset.
+  /// \param chunksize The chunksize for all material data on disk.
+  /// Only the nuclides present in the nuclides list can be part of the composition
+  /// of the material, additional nuclides will be ignored, and a warning will be thrown
+  void write_hdf5_datapath(hid_t db, std::string datapath, float row, int chunksize,
+                           std::vector<int> nuclides);
+  /// Writes this material out to an HDF5 file in the old data structure
+  /// format.
+  /// Now deprecated, as material data structure in HDF5 format has been
+  /// refactored. Only used when adding material in a file containing
+  /// old material data structure.
+  /// This happens according to protocol 1.
+  /// \param filename Path on disk to the HDF5 file.
+  /// \param datapath Path to the the material in the file.
+  /// \param nucpath Path to the nuclides set in the file.
+  /// \param row The index to read out, may be negative. Also note that this is a
+  ///            float.  A value of -0.0 indicates that the material should be
+  ///            appended to the end of the dataset.
+  /// \param chunksize The chunksize for all material data on disk.
+  void deprecated_write_hdf5(char* filename, char* datapath, char* nucpath, float row = -0.0,
+                             int chunksize = DEFAULT_MAT_CHUNKSIZE);
+  /// Writes this material out to an HDF5 file in the old data structure
+  /// format.
+  /// Now deprecated, as material data structure in HDF5 format has been
+  /// refactored. Only used when adding material in a file containing
+  /// old material data structure.
+  /// This happens according to protocol 1.
+  /// \param db HDF5 id for the open HDF5 file.
+  /// \param datapath Path to the the material in the file.
+  /// \param nucpath Path to the nuclides set in the file.
+  /// \param row The index to read out, may be negative. Also note that this is a
+  ///            float.  A value of -0.0 indicates that the material should be
+  ///            appended to the end of the dataset.
+  /// \param chunksize The chunksize for all material data on disk.
+  void deprecated_write_hdf5(hid_t db, std::string datapath, std::string nucpath, float row = -0.0,
+                             int chunksize = DEFAULT_MAT_CHUNKSIZE);
+  /// Writes this material out to an HDF5 file.
+  /// This happens according to protocol 1.
+  /// \param filename Path on disk to the HDF5 file.
+  /// \param datapath Path to the the material in the file.
+  /// \param nucpath Path to the nuclides list in the file.
+  /// \param row The index to read out, may be negative. Also note that this is a
+  ///            float.  A value of -0.0 indicates that the material should be
+  ///            appended to the end of the dataset.
+  /// \param chunksize The chunksize for all material data on disk.
+  void deprecated_write_hdf5(std::string filename, std::string datapath,
+                             std::string nucpath, float row = -0.0, int chunksize = DEFAULT_MAT_CHUNKSIZE);
   /// Return an openmc xml material element as a string
   std::string openmc(std::string fact_type = "mass");
 
   /// Return an mcnp input deck record as a string
-  std::string mcnp(std::string frac_type = "mass");
+  std::string mcnp(std::string frac_type = "mass", bool mult_den = true);
   /// Return an phits input deck record as a string
-  std::string phits(std::string frac_type = "mass");
+  std::string phits(std::string frac_type = "mass", bool mult_den = true);
   /// return the compo fraction writen ala "mcnp"
   std::string mcnp_frac(std::map<int, double> fracs, std::string frac_type = "");
   ///
@@ -5131,10 +5255,10 @@ class Material {
   /// atoms per molecule (atoms_per_molecule) in this function using \a apm.
   double mass_density(double num_dens = -1.0, double apm = -1.0);
   // void print_material( pyne::Material test_mat);
-  /// Computes, sets, and returns the mass density when the material density is
-  /// definied otherwise return fraction. Fraction density is returned per atom
+  /// Computes, sets, and returns the mass density if \a mult_den is true
+  /// otherwise return mass fraction. Fraction density is returned per atom
   /// (default) in atom per barn cm or as a mass density.
-  std::map<int, double> get_density_frac(std::string frac_type = "atom");
+  std::map<int, double> get_density_frac(std::string frac_type = "atom", bool mult_den = true);
   /// Computes and returns the number density of the material using the
   /// mass density if \a mass_dens is greater than or equal to zero.  If
   /// \a mass_dens is negative, the denisty member variable is used instead.
@@ -5213,9 +5337,14 @@ class Material {
   /// so the sum of the intensities is one
   std::vector<std::pair<double, double> > normalize_radioactivity(
       std::vector<std::pair<double, double> > unnormed);
+  /// Sets the composition, mass, and atoms_per_molecule of this material to those
+  /// calculated from \a activities, a mapping of radionuclides to activities.
+  void from_activity(std::map<int, double> activities);
 
+#ifdef PYNE_DECAY
   /// Decays this material for a given amount of time in seconds
   Material decay(double t);
+#endif // PYNE_DECAY
 
   /// Transmutes the material via the CRAM method.
   /// \param A The transmutation matrix [unitless]
@@ -5265,6 +5394,208 @@ class MaterialProtocolError: public std::exception {
 
 
 //
+// start of src/material_library.h
+//
+#ifndef PYNE_MATERIAL_LIBRARY
+#define PYNE_MATERIAL_LIBRARY
+
+#include <stdlib.h>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#if !defined(JSON_IS_AMALGAMATION)
+#define JSON_IS_AMALGAMATION
+#endif
+
+#ifndef PYNE_IS_AMALGAMATED
+#include "material.h"
+#endif
+
+namespace pyne {
+
+typedef std::shared_ptr<pyne::Material> shr_mat_ptr;
+typedef std::unordered_map<std::string, shr_mat_ptr> mat_map;
+typedef std::set<std::string> matname_set;
+typedef std::set<int> nuc_set;
+
+class MaterialLibrary {
+ public:
+  // materialLibrary constructor
+  MaterialLibrary();  //< empty constryctor
+
+  /**
+   * \brief Constructor from file
+   * \param filename path to file on disk, this file may be either in
+            plaintext or HDF5 format.
+   * \param datapath Path to the materials in the
+   * file.
+   */
+  MaterialLibrary(const std::string& fname, const std::string& datapath);
+
+  ~MaterialLibrary() {}; //< default destructor
+
+  /**
+   * \brief loads the pyne materials in map of name vs Material
+   * \param filename Path on disk to the HDF5 file.
+   * \param datapath Path to the materials in the file.
+   * \param protocol Flag for layout of material on disk.
+   */
+  void from_hdf5(const std::string& filename, const std::string& datapath);
+  /**
+   * \brief loads the pyne materials in map of name vs Material
+    /// \param filename Path on disk to the json file.
+  */
+  void from_json(const std::string& filename);
+  void load_json(Json::Value json);
+  Json::Value dump_json();
+  void write_json(const std::string& filename);
+  /**
+   * \brief Writes MaterialLibrary out to an HDF5 file.
+            This happens according to protocol 1.
+            Writting in a file already containing
+            This might cause issue to
+            read material already present in the datapath,
+            and for the new materials if written in the
+            same datapath.
+   *  \param filename Path on disk to the HDF5 file.
+   *  \param datapath Path to the the material in the file.
+   *  \param h5_overwrite bool to decide if existing path should be overwritten
+   */
+  void write_hdf5(const std::string& filename,
+                  const std::string& datapath = "/materials",
+                  bool h5_overwrite = false) const;
+  /**
+   * \brief Writes this nucpath to an HDF5 file.
+   *  This happens according to protocol 1.
+   * \param db HDF5 id for the open HDF5 file.
+   * \param nucpath Path to the nuclides list in the file.
+   */
+  void write_hdf5_nucpath(hid_t db, std::string nucpath) const;
+  /**
+   * \brief Merge a material library into the current one
+   * \param mat_library pyne material library to merge
+   */
+  void merge(const pyne::MaterialLibrary& mat_lib);
+  /**
+   * \brief Merge a material library into the current one
+   * \param mat_library pointer to the pyne material library to merge
+   */
+  void merge(pyne::MaterialLibrary* mat_lib);
+  /**
+   * \brief Add a material to the library
+   * \param mat material to add
+   */
+  void add_material(pyne::Material mat);
+  /**
+   * \brief Add a material to the library
+   * \param mat_name name of the material to add(will overwrite material name
+            if it already has one)
+   * \param mat material to add
+  */
+  void add_material(const std::string& mat_name, const pyne::Material& mat);
+  /**
+   * \brief remove a material of the Library by name
+   * \param mat_name name of the material to remove
+   */
+  void del_material(const std::string& mat_name);
+  /**
+   * \brief remove a material of the Library by name
+   * \param mat_name name of the material to remove
+   */
+  pyne::Material get_material(const std::string& mat_name) const;
+  /**
+   * \brief Get a material of the Library by name
+   * \param mat_name name of the material to return
+   */
+  pyne::shr_mat_ptr get_material_ptr(const std::string& mat_name) const;
+  /**
+  * \brief Return a material material number, ensure it exist if it does not
+          exist build it using the material number, if material number is not
+          defined, define it accordingly to the material library
+  * \param mat material to check
+  * \return std::string
+  */
+  std::string ensure_material_name_and_number(pyne::Material& mat) const;
+  /**
+  * \brief Return a material material number, ensure it exist as an int, if it
+          exist as a string convert it into int and update the material
+  * \param mat material to check
+  * \return int
+  */
+  int ensure_material_number(pyne::Material& mat) const;
+  /**
+   * \brief Get the material library itself
+   * \return std::map<std::string, pyne::Material>
+   */
+  pyne::mat_map get_mat_library() const { return material_library; }
+  /**
+   * \brief Get the list of materials in the Library
+   * \return std::set<std::string>
+   */
+  pyne::matname_set get_keylist() const { return keylist; }
+  /**
+   * \brief Get the list of nuclides in the Library
+   * \return std::set<int>
+   */
+  pyne::nuc_set get_nuclist() const { return nuclist; }
+
+  /** Set of method allowing MaterialLibrary to behave like a undordered_map,
+   * pointing directly to the nested material_library
+   **/
+  typedef mat_map::iterator iterator;
+  typedef mat_map::const_iterator const_iterator;
+  iterator begin() { return material_library.begin(); }
+  iterator end() { return material_library.end(); }
+  const_iterator begin() const { return material_library.begin(); }
+  const_iterator end() const { return material_library.end(); }
+  const_iterator cbegin() const { return material_library.cbegin(); }
+  const_iterator cend() const { return material_library.cend(); }
+
+  std::size_t size() const { return material_library.size(); }
+  bool empty() const { return material_library.empty(); }
+  std::size_t count(std::string mat_name) const {
+    return material_library.count(mat_name);
+  }
+  std::shared_ptr<Material>& operator[](const std::string& k) {
+    return material_library[k];
+  }
+  std::shared_ptr<Material>& operator[](std::string&& k) {
+    return material_library[k];
+  }
+
+ private:
+  /**
+   * \brief Add the nuclide form the material to the list of nuclides
+   * \param material from which add the nuclide to the list
+   */
+  void append_to_nuclist(const pyne::Material& mat);
+  /**
+   * \brief determines the length of an hdf5 data table
+   * \param db HDF5 id for the open HDF5 file.
+   * \param datapath we would like to read
+   * \return the number of elements to the array
+   */
+  int get_length_of_table(hid_t db, const std::string& datapath) const;
+
+  std::set<int>
+  mat_number_set;   // list of material number in the library (ordered)
+  matname_set keylist;  // list of masterial keys
+  nuc_set nuclist;      // list of nuclides in the library
+  // The actual library
+  mat_map material_library;  // material library
+
+};  // end MaterialLibrary class header
+}  // namespace pyne
+#endif  // PYNE_MATERIAL_LIBRARY
+//
+// end of src/material_library.h
+//
+
+
+//
 // start of src/tally.h
 //
 /// \brief The tally class and helper functions.
@@ -5275,13 +5606,13 @@ class MaterialProtocolError: public std::exception {
 #ifndef PYNE_IQ4M73STINHJDPRV6KWUZZXOYE
 #define PYNE_IQ4M73STINHJDPRV6KWUZZXOYE
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <map>
-#include <set>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
 
 #ifndef PYNE_IS_AMALGAMATED
 #include "h5wrap.h"
@@ -5290,6 +5621,12 @@ class MaterialProtocolError: public std::exception {
 
 
 namespace pyne {
+// simplifying implementation...
+using std::vector;
+// default empty parameters for constructors
+const vector<double> null_v_dbl;
+const vector<int> null_v_int;
+
 class Tally {
  public:
   std::map<std::string, std::string> rx2fluka;
@@ -5299,7 +5636,7 @@ class Tally {
   /// Tally Constructors
   Tally();  /// empty constructor
 
-  /// Constructor from passed in vars
+  /// Constructor for regular tally
   /// \param type the type of tally (flux or current)
   /// \param particle_name the name of the particle type
   /// \param entity the entity id of the tally (eg. surface index,
@@ -5314,8 +5651,45 @@ class Tally {
         std::string tally_name = "", double entity_size = 0.0,
         double normalization = 1.0);
 
-  ~Tally();  /// default destructor
+  /// Constructor for regular tally
+  /// \param type the type of tally (flux or current)
+  /// \param particles_name vector of the name of the particle types
+  /// \param entity the entity id of the tally (eg. surface index,
+  ///          volume number)
+  /// \param entity_type (volume or surface)
+  /// \param entity_name string identifying the entity
+  /// \param tally_name string identifying the tally
+  /// \param entity_size the physical size of the tally volume
+  /// \param normalization the number required to normalize your tally
+  Tally(std::string type, std::vector<std::string> part_names, int entity,
+        std::string entity_type, std::string entity_name,
+        std::string tally_name = "", double entity_size = 0.0,
+        double normalization = 1.0);
 
+  /// Constructor for mesh tally
+  /// \param particle_name the name of the particle type
+  /// \param entity_geom (xyz, cylinder)
+  /// \param orgn double[3] origin of the meshtally
+  /// \param i_mesh, j_mesh, k_mesh vector<double> coordinate of the coarse meshes
+  /// \param i_ints, j_ints, k_ints vector<int> coordinate of the coarse meshes
+  /// \param e_bounds vector<double values of the coearse mesh points in energy in MeV
+  /// \param e_ints vector<int> number of fine mesh points within each corresponding
+  ///        coarse mesh in energy
+  /// \param axs vector<double> vector giving the direction of the axis of the
+  ///        cylindrical mesh
+  /// \param vec vector<double> vector defining along with axs the plane for Theta=0
+  /// \param tally_name string identifying the tally
+  /// \param norm the number required to normalize your tally
+  Tally(std::string particle_name, std::string entity_geom, vector<double> orgn,
+        vector<double> i_mesh, vector<double> j_mesh, vector<double> k_mesh,
+        vector<int> i_ints = null_v_int,
+        vector<int> j_ints = null_v_int,
+        vector<int> k_ints = null_v_int,
+        vector<double> e_bounds = null_v_dbl, vector<int> e_ints = null_v_int,
+        vector<double> axs = null_v_dbl, vector<double> vec = null_v_dbl,
+        std::string tally_name = "", double norm = 1.0);
+
+  ~Tally();  /// default destructor
 
   // Create hdf5 datatable for tallies
   hid_t create_dataspace(hid_t file, std::string datapath);
@@ -5353,25 +5727,46 @@ class Tally {
   void write_hdf5(std::string filename, std::string datapath);
 
   // mcnp tally
-  std::string mcnp(int tally_index = 1, std::string mcnp_version = "mcnp5");
+  std::string mcnp(int tally_index = 1, std::string mcnp_version = "mcnp5",
+                   std::string out = "");
+
+  template<typename T> bool is_zero(T vect);
 
   // Form the mcnp tally line as function of its properties
   std::string form_mcnp_tally(int tally_index, int type,
                               std::string particle_token, int entity_id,
                               double entity_size, double normalization);
+  // Form the mesh tally line as function of its properties
+  std::string form_mcnp_meshtally(
+      int tally_index, std::string particle_token, std::string entity_geometry,
+      std::vector<double> axs, std::vector<double> vec,
+      std::vector<double> origin, std::vector<double> meshes[3],
+      std::vector<int> ints[3], std::vector<double> e_bounds,
+      std::vector<int> e_ints, std::string out);
 
   // fluka tally
   std::string fluka(std::string unit_number = "-21");
 
-  /// fundamental tally variables
-  std::string entity_type; ///< the type of entity (volume,surface)
-  std::string entity_name; ///< the name of the entity (optional)
-  std::string particle_name; ///< particle name string
-  std::string tally_type; ///< type of tally flux or current
-  std::string tally_name; ///< name of the tally
-  int entity_id; ///< id number of the entity being tallied upon
-  double entity_size; ///< the physical size of the entity
-  double normalization; ///< the tally normalization
+  /// fundamental Tally variables
+  /// Volume/Surface Tally variables
+  std::string entity_type;   ///< the type of entity (volume,surface)
+  std::string entity_name;   ///< the name of the entity (optional)
+  std::vector<std::string> particle_names; ///< particle names string
+  std::string tally_type;    ///< type of tally flux or current
+  std::string tally_name;    ///< name of the tally
+  int entity_id;             ///< id number of the entity being tallied upon
+  double entity_size;        ///< the physical size of the entity
+  double normalization;      ///< the tally normalization
+
+  /// Mesh Tally variables
+  std::string entity_geometry;   ///< Shape of the Mesh, XYZ or Cylindrical
+  std::vector<double> origin;    ///< Origin of the Mesh Tally
+  std::vector<double> vec;       ///< defining with axs the place for Theta=0 (Cyl Mesh)
+  std::vector<double> axs;       ///< dircetion of the axis of the cylindrical Mesh
+  std::vector<double> meshes[3]; ///< mesh interval coordinates
+  std::vector<int> ints[3];      ///< Bin per mesh interval
+  std::vector<double> e_bounds;  ///< Energy Mesh
+  std::vector<int> e_ints;       ///< Bin per energy
 };
 
 /// Converts a Tally to a string stream representation.
@@ -5655,6 +6050,15 @@ class Sampler {
           std::vector<double> e_bounds,
           int mode);
 
+  /// Constuctor for simplified overall sampler
+  /// \param filename The filename of the h5m file
+  /// \param tag_names The map of src_tag_name and bias_tag_name
+  /// \param mode The mode number, 0, 1, 2, 3, 4 or 5
+  Sampler(std::string filename,
+          std::map<std::string, std::string> tag_names,
+          int mode);
+
+
   /// Samples particle birth parameters
   /// \param rands Six pseudo-random numbers in range [0, 1].
   /// \return A SourceParticle object containing the x position, y, position,
@@ -5678,6 +6082,7 @@ class Sampler {
   std::string cell_number_tag_name; ///< Cell number tag
   std::string cell_fracs_tag_name; ///< Cell volume fraction tag
   std::map<std::string, std::string> tag_names; /// < tag names
+  std::string e_bounds_tag_name; ///< Energy boundaries tag name
   std::vector<double> e_bounds;  ///< Energy boundaries
   int num_e_groups; ///< Number of groups in tag \a _src_tag_name
   int num_bias_groups; ///< Number of groups tag \a _bias_tag_name
@@ -5711,6 +6116,7 @@ class Sampler {
   void setup();
   void mesh_geom_data(moab::Range ves, std::vector<double>& volumes);
   void mesh_tag_data(moab::Range ves, const std::vector<double> volumes);
+  void mesh_e_bounds_data();
   // select birth parameters
   moab::CartVect sample_xyz(int ve_idx, std::vector<double> rands);
   double sample_e(int e_idx, double rand);

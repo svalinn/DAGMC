@@ -9,6 +9,7 @@ class G4VPhysicalVolume;
 #include "G4SDParticleFilter.hh"
 #include "DagSolidTally.hh"
 #include <map>
+#include <vector>
 #include <string>
 
 #ifndef uwuw_hpp
@@ -33,7 +34,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   // particle filters for tallies
   std::map<std::string, G4SDParticleFilter*> particle_filters;
 
-  void BuildParticleFilter(std::string particle_name);
+  void BuildParticleFilter(std::vector<std::string> particle_name);
   void build_histogram();
   void add_histogram_description(std::string tally_name);
   void end_histogram();
@@ -49,15 +50,6 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   G4LogicalVolume* world_volume_log;
 
   UWUW* workflow_data;
-
-  // DAG Logical volumes
-  // G4LogicalVolume* dag_vol_log;
-
-  // Physical volumes
-  //
-  // G4VPhysicalVolume* world_volume_phys;
-  // DAG Physical volumes
-
 
 };
 
