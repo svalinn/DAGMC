@@ -34,7 +34,8 @@ if [ -z "${astyle_diffs}" ]; then
   echo "Style guide checker passed!"
 else
   echo "ERROR: Style guide checker failed. Please run astyle."
-  echo "astyle_diffs: ${astyle_diffs}"
+  # echo "astyle_diffs: ${astyle_diffs}"
+  git diff
   exit 1
 fi
 

@@ -183,6 +183,9 @@ class DagMC {
   ErrorCode point_in_volume_slow(const EntityHandle volume, const double xyz[3],
                                  int& result);
 
+  ErrorCode find_volume(const double xyz[3], EntityHandle& volume,
+                        const double* uvw = NULL);
+
   ErrorCode test_volume_boundary(const EntityHandle volume,
                                  const EntityHandle surface,
                                  const double xyz[3], const double uvw[3],
