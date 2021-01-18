@@ -1,0 +1,3 @@
+
+set(PACKAGE_VERSION "@DAGMC_VERSION@")
+

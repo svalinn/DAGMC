@@ -47,6 +47,6 @@ endif ()
 
 add_subdirectory(src)
 
-dagmc_make_configure_file()
+dagmc_make_configure_files()
 
 message("")
