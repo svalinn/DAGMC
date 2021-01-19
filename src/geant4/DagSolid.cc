@@ -47,7 +47,6 @@
 //
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-//#include "G4TessellatedSolid.hh"
 #include "DagSolid.hh"
 #include "globals.hh"
 #include "Randomize.hh"
@@ -84,11 +83,6 @@ DagSolid::DagSolid()
   yMaxExtent = -kInfinity;
   zMinExtent =  kInfinity;
   zMaxExtent = -kInfinity;
-//G4TessellatedSolid
-//  SetRandomVectors();
-
-  // SetRndVectors();
-
 }
 
 
@@ -129,12 +123,9 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
   moab->get_child_meshsets(fvolEntity, surfs, 1);
 
   if (plot) {
-    //  G4cout<<"please wait for visualization... "<<G4endl;
     for (unsigned i = 0 ; i < surfs.size() ; i++) {
       My_sulf_hit = surfs[i];
       moab->get_number_entities_by_type(surfs[i], MBTRI, num_entities);
-      //G4cout<<"Number of triangles = "<<num_entities<<" in surface index: "<<fdagmc->index_by_handle(surfs[i])<<G4endl;
-      //G4cout<<"please wait for visualization... "<<G4endl;
 
       moab->get_entities_by_type(surfs[i], MBTRI, tris);
 
@@ -142,14 +133,11 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
         moab->get_connectivity(tris[j], tri_conn, n_verts);
         moab->get_coords(tri_conn, n_verts, coords[0].array());
 
-        //    G4cout<<"add facet for vis = "<<coords[0]<<" "<<coords[1]<<" "<<coords[2]<<G4endl;
-
         vertex[0] = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm, coords[0][2] * cm);
         vertex[1] = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm, coords[1][2] * cm);
         vertex[2] = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm, coords[2][2] * cm);
 
         G4TriangularFacet* facet = new G4TriangularFacet(vertex[0], vertex[1], vertex[2], ABSOLUTE);
-        //  G4cout << vertex[0] << " " << vertex[1] << " " << vertex[2] << G4endl;
         AddFacet((G4VFacet*)facet);
 
         for (G4int k = 0 ; k < 3 ; k++) {
@@ -171,13 +159,7 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
     }
   }
 
-//SetRandomVectorSet();
-
   SetSolidClosed(true);
-
-//  G4cout<<"Number Of Facets = "<<GetNumberOfFacets() <<G4endl;
-//  G4cout <<"maximum point = "<< xMinExtent <<" "<< yMinExtent <<" "<< zMinExtent << G4endl
-//         <<"minimum point = "<< xMaxExtent <<" "<< yMaxExtent <<" "<< zMaxExtent << G4endl;
 
 }
 
@@ -194,7 +176,6 @@ DagSolid::DagSolid(__void__& a)
     xMinExtent(0.), xMaxExtent(0.),
     yMinExtent(0.), yMaxExtent(0.),
     zMinExtent(0.), zMaxExtent(0.) {
-  //SetRandomVectorSet();
 }
 
 

@@ -5,15 +5,13 @@
 // of g4materials
 std::map<std::string, G4Material*> load_uwuw_materials(UWUW* workflow_data) {
   // new material library
-  std::map<std::string, pyne::Material> material_library;
+  pyne::MaterialLibrary material_library;
   material_library = workflow_data->material_library;
 
   // make sure to expand_elements
-  std::map<std::string, pyne::Material>::iterator it;
-  for (it = material_library.begin() ; it != material_library.end() ; ++it) {
-    pyne::Material new_mat = it->second;
-    new_mat = new_mat.expand_elements();
-    material_library[it->first] = new_mat;
+  pyne::MaterialLibrary::iterator it;
+  for (it = material_library.begin(); it != material_library.end(); ++it) {
+    *(it->second) = (it->second)->expand_elements();
   }
 
 
@@ -41,7 +39,7 @@ std::map<std::string, G4Material*> load_uwuw_materials(UWUW* workflow_data) {
 // Given a pyne material library, get hold of the materials and return the collection
 // of nuclides in the problem *note* using the name istope is not correct but follows
 // the Geant4 style
-std::map<int, G4Isotope*> get_g4isotopes(std::map<std::string, pyne::Material> material_library) {
+std::map<int, G4Isotope*> get_g4isotopes(pyne::MaterialLibrary material_library) {
   // map to store the isotopes
   std::map<int, G4Isotope*> g4isotopes;
   pyne::Material sum_mat;
@@ -51,16 +49,13 @@ std::map<int, G4Isotope*> get_g4isotopes(std::map<std::string, pyne::Material> m
   int iz, n; // atomic number, nucleon number
   double a; // atomic mass
 
-  // loop over the materials present and produce a single new material which contains all the isotopes
-  for (std::map<std::string, pyne::Material>::const_iterator it = material_library.begin() ; it != material_library.end() ; ++it) {
-    sum_mat = sum_mat + (it->second);
-  }
+  pyne::nuc_set nuclide_list = material_library.get_nuclist();
+
 
   // loop through the comp map of this material
   pyne::comp_iter mat_it;
   // loop over the nuclides in the composition, making a new g4isotope for each one
-  for (mat_it = sum_mat.comp.begin() ; mat_it != sum_mat.comp.end() ; ++mat_it) {
-    int nuc_id = mat_it->first;
+  for (auto nuc_id : nuclide_list) {
     G4Isotope* new_iso = new G4Isotope(name = pyne::nucname::name(nuc_id), iz = pyne::nucname::znum(nuc_id), n = pyne::nucname::anum(nuc_id),
                                        a = (pyne::atomic_mass(nuc_id) * g / mole));
     g4isotopes[nuc_id] = new_iso;
@@ -93,9 +88,10 @@ std::map<int, G4Element*> get_g4elements(std::map<int, G4Isotope*> isotope_map) 
 
 // using each g4element make the geant4 version of each pyne material
 std::map<std::string, G4Material*> get_g4materials(std::map<int, G4Element*> element_map,
-                                                   std::map<std::string, pyne::Material> material_library) {
+                                                   pyne::MaterialLibrary material_library) {
   std::map<std::string, G4Material*> material_map;
-  std::map<std::string, pyne::Material>::iterator it;
+
+  pyne::MaterialLibrary::iterator it;
   pyne::comp_iter mat_it;
 
   std::string name;
@@ -104,7 +100,7 @@ std::map<std::string, G4Material*> get_g4materials(std::map<int, G4Element*> ele
   // loop over the PyNE material library instanciating as needed
   for (it = material_library.begin() ; it != material_library.end() ; ++it) {
     // get the material object
-    pyne::Material mat = it->second;
+    pyne::Material mat = *(it->second);
 
     int num_nucs = 0;
     for (mat_it = mat.comp.begin() ; mat_it != mat.comp.end() ; ++mat_it) {

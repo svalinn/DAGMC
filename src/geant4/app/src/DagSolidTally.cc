@@ -11,7 +11,6 @@ std::map<std::string, pyne::Tally> load_uwuw_tallies(std::string filepath) {
   std::cout << filepath << std::endl;
   while (!end) {
     pyne::Tally tally; // from file
-    std::cout << i << std::endl;
     tally.from_hdf5(filepath, "/tally", i++);
     if (tally_library.count(tally.tally_name)) {
       end = true;

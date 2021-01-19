@@ -102,7 +102,7 @@ TEST_F(UWUWTest, materiallibrary1) {
  */
 TEST_F(UWUWTest, materiallibrary2) {
   // iterator for material library
-  std::map<std::string, pyne::Material>::iterator it;
+  pyne::MaterialLibrary::iterator it;
   it = workflow_data->material_library.begin();
   EXPECT_NE(it, workflow_data->material_library.end());
   return;
@@ -117,16 +117,19 @@ TEST_F(UWUWTest, material_datapath) {
   pyne::comp_map nucvec;
   nucvec[pyne::nucname::id("H")] = 1.0;
   nucvec[pyne::nucname::id("Fe")] = 1.0;
+
+  // create a Material Library object
+  pyne::MaterialLibrary mat_lib = pyne::MaterialLibrary();
+
+  // Fill the material library with mats
   pyne::Material mat = pyne::Material(nucvec);
   mat.metadata["name"] = "Wet Steel";
-  mat.write_hdf5("new_mat_test.h5", "/materials"
-                 , "/nucid");
-
+  mat_lib.add_material(mat);
   pyne::Material mat2 = pyne::Material(nucvec);
   mat2.metadata["name"] = "Wet Steel 2";
-  mat2.write_hdf5("new_mat_test.h5", "/materials"
-                  , "/nucid");
-
+  mat_lib.add_material(mat2);
+  // write the material libs
+  mat_lib.write_hdf5("new_mat_test.h5", "/materials", true);
 
   workflow_data->~UWUW();
 
