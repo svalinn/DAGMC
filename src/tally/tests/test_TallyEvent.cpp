@@ -2,11 +2,9 @@
 
 #include <vector>
 
-#include "gtest/gtest.h"
-
-#include "moab/CartVect.hpp"
-
 #include "../TallyEvent.hpp"
+#include "gtest/gtest.h"
+#include "moab/CartVect.hpp"
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES

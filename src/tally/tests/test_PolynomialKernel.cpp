@@ -1,7 +1,7 @@
 // MCNP5/dagmc/test/test_PolynomialKernel.cpp
 
-#include "gtest/gtest.h"
 #include "../PolynomialKernel.hpp"
+#include "gtest/gtest.h"
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
@@ -9,14 +9,10 @@
 class PolynomialKernelTest : public ::testing::Test {
  protected:
   // initialize variables for each test
-  virtual void SetUp() {
-    kernel = NULL;
-  }
+  virtual void SetUp() { kernel = NULL; }
 
   // deallocate memory resources
-  virtual void TearDown() {
-    delete kernel;
-  }
+  virtual void TearDown() { delete kernel; }
 
  protected:
   // data needed for each test
