@@ -44,7 +44,7 @@ ErrorCode test_pt_volume_slow(DagMC& dagmc, int volID, double xxx, double yyy,
 }
 
 int main(int argc, char* argv[]) {
-  Í ErrorCode rval;
+  ErrorCode rval;
 
   if (argc != 6 && argc != 9) {
     std::cerr << "Usage: " << argv[0] << " <mesh_filename> "
