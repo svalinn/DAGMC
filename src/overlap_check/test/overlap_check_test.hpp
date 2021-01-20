@@ -1,5 +1,6 @@
 
 #include "gtest/gtest.h"
+#include "moab/Core.hpp"
 
 using namespace moab;
 

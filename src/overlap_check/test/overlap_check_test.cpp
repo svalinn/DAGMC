@@ -9,7 +9,6 @@
 #include <set>
 #include <vector>
 
-#include "moab/Core.hpp"
 #include "overlap.hpp"
 
 void OverlapTest::SetUp() {
