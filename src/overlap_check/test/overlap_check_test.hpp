@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include "gtest/gtest.h"
 #include "moab/Core.hpp"
 
