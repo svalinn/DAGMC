@@ -4,6 +4,7 @@ message("")
 # Only used to determine the location of the HDF5 with which MOAB was built
 set(MOAB_SEARCH_DIRS)
 file(GLOB MOAB_SEARCH_DIRS ${MOAB_SEARCH_DIRS} "${MOAB_DIR}/lib*/cmake/MOAB")
+MESSAGE("MOAB_SEARCH_DIRS: ${MOAB_SEARCH_DIRS}")
 string(REPLACE "\n" ";" MOAB_SEARCH_DIRS ${MOAB_SEARCH_DIRS})
 find_path(MOAB_CMAKE_CONFIG
   NAMES MOABConfig.cmake
