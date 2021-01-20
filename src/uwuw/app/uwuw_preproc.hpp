@@ -1,10 +1,10 @@
 #include <iostream>
-#include <string>
 #include <map>
+#include <string>
 
-#include "uwuw.hpp"
-#include "pyne.h"
 #include "DagMC.hpp"
+#include "pyne.h"
+#include "uwuw.hpp"
 
 class uwuw_preprocessor {
  public:
@@ -21,6 +21,6 @@ class uwuw_preprocessor {
 
  private:
   // map of all volume properties
-  std::map<std::string, std::pair<std::string, std::string> > volume_property_map;
-
+  std::map<std::string, std::pair<std::string, std::string> >
+      volume_property_map;
 };

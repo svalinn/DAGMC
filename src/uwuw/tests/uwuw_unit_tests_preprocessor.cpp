@@ -1,34 +1,29 @@
 
 #include <gtest/gtest.h>
-#include <cmath>
-#include <cassert>
-
-#include <iostream>
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 
-#include "uwuw_preprocessor.hpp"
+#include <cassert>
+#include <cmath>
+#include <iostream>
+
 #include "pyne.h"
+#include "uwuw_preprocessor.hpp"
 
 namespace {
 
 class UWUWTest : public ::testing::Test {
  protected:
-
   UWUWTest() {}
   virtual ~UWUWTest() {}
 
-  virtual void SetUp() {
-  }
-
+  virtual void SetUp() {}
 };
-
 
 /*
  * Empty common setup function
  */
-TEST_F(UWUWTest, SetUp) {
-}
+TEST_F(UWUWTest, SetUp) {}
 
 /*
  * Test to make sure the name is only uppercased
@@ -105,7 +100,7 @@ TEST_F(UWUWTest, name8lessthan8preserve100) {
   std::string name = "Air, Dry";
   EXPECT_EQ(ncr->make_name_8bytes(name), "  AIRDRY");
 
-  for (int i = 1 ; i < 10 ; i++) {
+  for (int i = 1; i < 10; i++) {
     std::stringstream ss;
     ss << i;
 
@@ -113,7 +108,7 @@ TEST_F(UWUWTest, name8lessthan8preserve100) {
     ss >> str;
     EXPECT_EQ(ncr->make_name_8bytes(name), " AIRDRY" + str);
   }
-  for (int i = 10 ; i < 100 ; i++) {
+  for (int i = 10; i < 100; i++) {
     std::stringstream ss;
     ss << i;
 
@@ -121,7 +116,7 @@ TEST_F(UWUWTest, name8lessthan8preserve100) {
     ss >> str;
     EXPECT_EQ(ncr->make_name_8bytes(name), "AIRDRY" + str);
   }
-  for (int i = 100 ; i < 999 ; i++) {
+  for (int i = 100; i < 999; i++) {
     std::stringstream ss;
     ss << i;
 
@@ -142,7 +137,7 @@ TEST_F(UWUWTest, name8lessthan8preserve1000Steel) {
   std::string name = "Special Steel";
   EXPECT_EQ(ncr->make_name_8bytes(name), "SPECIALS");
 
-  for (int i = 1 ; i < 10 ; i++) {
+  for (int i = 1; i < 10; i++) {
     std::stringstream ss;
     ss << i;
 
@@ -150,7 +145,7 @@ TEST_F(UWUWTest, name8lessthan8preserve1000Steel) {
     ss >> str;
     EXPECT_EQ(ncr->make_name_8bytes(name), "SPECIAL" + str);
   }
-  for (int i = 10 ; i < 100 ; i++) {
+  for (int i = 10; i < 100; i++) {
     std::stringstream ss;
     ss << i;
 
@@ -158,7 +153,7 @@ TEST_F(UWUWTest, name8lessthan8preserve1000Steel) {
     ss >> str;
     EXPECT_EQ(ncr->make_name_8bytes(name), "SPECIA" + str);
   }
-  for (int i = 100 ; i < 999 ; i++) {
+  for (int i = 100; i < 999; i++) {
     std::stringstream ss;
     ss << i;
 
@@ -181,9 +176,8 @@ TEST_F(UWUWTest, materialMetadata) {
   bool verbose = false;
   bool fatal_errors = false;
   // make new preprocessor
-  uwuw_preprocessor* uwuw_preproc = new uwuw_preprocessor(lib_file, dag_file,
-                                                          out_file, matlib_hdf5_path,
-                                                          verbose, fatal_errors);
+  uwuw_preprocessor* uwuw_preproc = new uwuw_preprocessor(
+      lib_file, dag_file, out_file, matlib_hdf5_path, verbose, fatal_errors);
   // load the geometry
   // process materials
   uwuw_preproc->process_materials();
@@ -206,8 +200,7 @@ TEST_F(UWUWTest, materialMetadata) {
   delete uwuw_preproc;
   std::remove(out_file.c_str());
 }
-};
-
+};  // namespace
 
 namespace {
 
@@ -220,24 +213,18 @@ class UWUWPreprocTest : public ::testing::Test {
 
   virtual void SetUp() {
     // make new preprocessor
-    uwuw_preproc = new uwuw_preprocessor("mat_lib.h5",
-                                         "dag_file.h5m",
-                                         "output_test_file.h5",
-                                         "/materials",
-                                         true,
-                                         false);
+    uwuw_preproc =
+        new uwuw_preprocessor("mat_lib.h5", "dag_file.h5m",
+                              "output_test_file.h5", "/materials", true, false);
 
     // process the materials
     uwuw_preproc->process_materials();
 
     // process the tallies
     uwuw_preproc->process_tallies();
-
   }
 
-  virtual void TearDown() {
-    delete uwuw_preproc;
-  }
+  virtual void TearDown() { delete uwuw_preproc; }
 };
 
 /*
@@ -265,4 +252,4 @@ TEST_F(UWUWPreprocTest, testTallies) {
 
   std::remove("output_test_file.h5m");
 }
-};
+};  // namespace

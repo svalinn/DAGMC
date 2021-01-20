@@ -1,9 +1,8 @@
 #include <iostream>
 
 // moab includes
-#include "moab/OrientedBoxTreeTool.hpp"
-
 #include "Cleanup.hpp"
+#include "moab/OrientedBoxTreeTool.hpp"
 
 // The obbtrees are no longer valid because the triangles have been altered.
 //  -Surface and volume sets are tagged with tags holding the obb tree
@@ -16,7 +15,8 @@ moab::ErrorCode Cleanup::remove_obb_tree(bool verbose) {
   moab::Range obb_entities;
   moab::Tag obbTag;
   result = MBI()->tag_get_handle("OBB_TREE", sizeof(moab::EntityHandle),
-                                 moab::MB_TYPE_HANDLE, obbTag, moab::MB_TAG_DENSE, NULL, 0);
+                                 moab::MB_TYPE_HANDLE, obbTag,
+                                 moab::MB_TAG_DENSE, NULL, 0);
   if (verbose) {
     MB_CHK_SET_ERR(result, "could not get OBB tree handle");
   } else {
@@ -25,27 +25,29 @@ moab::ErrorCode Cleanup::remove_obb_tree(bool verbose) {
   // This gets the surface/volume sets. I don't want to delete the sets.
   // I want to remove the obbTag that contains the tree root handle and
   // delete the tree.
-  result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET,
-                                               &obbTag, 0, 1, obb_entities);
+  result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, &obbTag, 0,
+                                               1, obb_entities);
   assert(moab::MB_SUCCESS == result);
-  std::cout << "  found " << obb_entities.size() << " OBB entities" << std::endl;
+  std::cout << "  found " << obb_entities.size() << " OBB entities"
+            << std::endl;
 
   // find tree roots
   moab::Range trees;
   moab::OrientedBoxTreeTool tool(MBI());
   moab::Tag rootTag;
-  for (moab::Range::iterator i = obb_entities.begin(); i != obb_entities.end(); i++) {
+  for (moab::Range::iterator i = obb_entities.begin(); i != obb_entities.end();
+       i++) {
     moab::EntityHandle root;
     result = MBI()->tag_get_data(obbTag, &(*i), 1, &root);
     MB_CHK_SET_ERR(result, "could not get OBB tree data");
     tool.delete_tree(root);
   }
-  result = MBI()->tag_delete(obbTag);   // use this for DENSE tags
+  result = MBI()->tag_delete(obbTag);  // use this for DENSE tags
   assert(moab::MB_SUCCESS == result);
 
   bool created;
-  result = MBI()->tag_get_handle("OBB", sizeof(double),
-                                 moab::MB_TYPE_DOUBLE, rootTag, moab::MB_TAG_SPARSE, 0, &created);
+  result = MBI()->tag_get_handle("OBB", sizeof(double), moab::MB_TYPE_DOUBLE,
+                                 rootTag, moab::MB_TAG_SPARSE, 0, &created);
   assert(moab::MB_SUCCESS == result || moab::MB_ALREADY_ALLOCATED == result);
   // Were all of the trees deleted? Perhaps some of the roots we found were
   // child roots that got deleted with their parents.
@@ -53,16 +55,16 @@ moab::ErrorCode Cleanup::remove_obb_tree(bool verbose) {
   result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, &rootTag,
                                                NULL, 1, trees);
   assert(moab::MB_SUCCESS == result);
-  std::cout << "  " << trees.size() << " OBB tree(s) contained in file" << std::endl;
+  std::cout << "  " << trees.size() << " OBB tree(s) contained in file"
+            << std::endl;
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Cleanup::delete_small_edge_and_tris(const moab::EntityHandle vert0,
-                                                    moab::EntityHandle& vert1,
-                                                    const double tol) {
+moab::ErrorCode Cleanup::delete_small_edge_and_tris(
+    const moab::EntityHandle vert0, moab::EntityHandle& vert1,
+    const double tol) {
   // If the verts are the same, this is not meaningful.
-  if (vert0 == vert1)
-    return moab::MB_SUCCESS;
+  if (vert0 == vert1) return moab::MB_SUCCESS;
   moab::ErrorCode result;
 
   // If the edge is small, delete it and the adjacent tris.
@@ -85,7 +87,8 @@ moab::ErrorCode Cleanup::delete_small_edge_and_tris(const moab::EntityHandle ver
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const double facet_tol) {
+moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces,
+                                            const double facet_tol) {
   // PROBLEM: THIS IS INVALID BECAUSE TRIS CAN HAVE LONG EDGES BUT
   // SMALL AREA. All three pts are in a line. This is the nature of
   // faceting vs. meshing.
@@ -93,7 +96,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
   Remove small edges by merging their endpoints together, creating
   degenerate triangles. Delete the degenerate triangles. */
   moab::ErrorCode result;
-  for (moab::Range::const_iterator i = surfaces.begin(); i != surfaces.end(); i++) {
+  for (moab::Range::const_iterator i = surfaces.begin(); i != surfaces.end();
+       i++) {
     std::cout << "surf_id=" << gen->geom_id_by_handle(*i) << std::endl;
 
     // get all tris
@@ -112,8 +116,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       assert(endpts[0] != endpts[1] && endpts[1] != endpts[2]);
     }
 
-
-    // get the skin first, because my find_skin does not check before creating edges.
+    // get the skin first, because my find_skin does not check before creating
+    // edges.
     moab::Range skin_edges;
     moab::Skinner tool(MBI());
     result = tool.find_skin(0, tris, 1, skin_edges, false);
@@ -121,7 +125,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
 
     // create the edges
     moab::Range edges;
-    result = MBI()->get_adjacencies(tris, 1, true, edges, moab::Interface::UNION);
+    result =
+        MBI()->get_adjacencies(tris, 1, true, edges, moab::Interface::UNION);
     if (moab::MB_SUCCESS != result) {
       std::cout << "result=" << result << std::endl;
     }
@@ -130,7 +135,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
     // get the internal edges
     moab::Range internal_edges = subtract(edges, skin_edges);
 
-    for (moab::Range::iterator j = internal_edges.begin(); j != internal_edges.end(); j++) {
+    for (moab::Range::iterator j = internal_edges.begin();
+         j != internal_edges.end(); j++) {
       int n_internal_edges = internal_edges.size();
       std::cout << "edge=" << *j << std::endl;
       MBI()->list_entity(*j);
@@ -147,16 +153,15 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       moab::Range duplicate_edges;
       result = MBI()->get_adjacencies(endpts, 2, 1, true, duplicate_edges);
       assert(moab::MB_SUCCESS == result);
-      if (1 < duplicate_edges.size())
-        MBI()->list_entities(duplicate_edges);
+      if (1 < duplicate_edges.size()) MBI()->list_entities(duplicate_edges);
       assert(1 == duplicate_edges.size());
 
       // if the edge length is less than facet_tol do nothing
-      if (facet_tol < gen->dist_between_verts(endpts[0], endpts[1]))
-        continue;
+      if (facet_tol < gen->dist_between_verts(endpts[0], endpts[1])) continue;
 
       // quick check
-      for (moab::Range::iterator k = internal_edges.begin(); k != internal_edges.end(); k++) {
+      for (moab::Range::iterator k = internal_edges.begin();
+           k != internal_edges.end(); k++) {
         const moab::EntityHandle* epts;
         int n_vts;
         result = MBI()->get_connectivity(*k, epts, n_vts);
@@ -192,7 +197,6 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
         }
         assert(3 <= adj_edges1.size());
       }
-
 
       // The skin edges/verts cannot be moved, therefore both endpoints cannot
       // be on the skin. If they are, continue.
@@ -230,10 +234,10 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       // Keep the skin endpt, and delete the other endpt
       moab::EntityHandle keep_endpt, delete_endpt;
       if (endpt0_is_skin) {
-        keep_endpt   = endpts[0];
+        keep_endpt = endpts[0];
         delete_endpt = endpts[1];
       } else {
-        keep_endpt   = endpts[1];
+        keep_endpt = endpts[1];
         delete_endpt = endpts[0];
       }
 
@@ -251,22 +255,26 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       // When merging away an edge, a tri and 2 edges will be deleted.
       // Get each triangle's edge other edge the will be deleted.
       moab::Range tri0_delete_edge_verts;
-      result = MBI()->get_adjacencies(&adj_tris[0], 1, 0, true, tri0_delete_edge_verts);
+      result = MBI()->get_adjacencies(&adj_tris[0], 1, 0, true,
+                                      tri0_delete_edge_verts);
       assert(moab::MB_SUCCESS == result);
       assert(3 == tri0_delete_edge_verts.size());
       tri0_delete_edge_verts.erase(keep_endpt);
       moab::Range tri0_delete_edge;
-      result = MBI()->get_adjacencies(tri0_delete_edge_verts, 1, true, tri0_delete_edge);
+      result = MBI()->get_adjacencies(tri0_delete_edge_verts, 1, true,
+                                      tri0_delete_edge);
       assert(moab::MB_SUCCESS == result);
       assert(1 == tri0_delete_edge.size());
 
       moab::Range tri1_delete_edge_verts;
-      result = MBI()->get_adjacencies(&adj_tris[1], 1, 0, true, tri1_delete_edge_verts);
+      result = MBI()->get_adjacencies(&adj_tris[1], 1, 0, true,
+                                      tri1_delete_edge_verts);
       assert(moab::MB_SUCCESS == result);
       assert(3 == tri1_delete_edge_verts.size());
       tri1_delete_edge_verts.erase(keep_endpt);
       moab::Range tri1_delete_edge;
-      result = MBI()->get_adjacencies(tri1_delete_edge_verts, 1, true, tri1_delete_edge);
+      result = MBI()->get_adjacencies(tri1_delete_edge_verts, 1, true,
+                                      tri1_delete_edge);
       assert(moab::MB_SUCCESS == result);
       assert(1 == tri1_delete_edge.size());
 
@@ -279,7 +287,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       result = MBI()->get_adjacencies(&delete_endpt, 1, 2, false, altered_tris);
       assert(moab::MB_SUCCESS == result);
       bool inverted_tri = false;
-      for (moab::Range::const_iterator k = altered_tris.begin(); k != altered_tris.end(); ++k) {
+      for (moab::Range::const_iterator k = altered_tris.begin();
+           k != altered_tris.end(); ++k) {
         const moab::EntityHandle* conn;
         int n_verts;
         result = MBI()->get_connectivity(*k, conn, n_verts);
@@ -298,8 +307,7 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
           break;
         }
       }
-      if (inverted_tri)
-        continue;
+      if (inverted_tri) continue;
 
       // If we got here, then the merge will occur. Delete the edge the will be
       // made degenerate and the edge that will be made duplicate.
@@ -308,7 +316,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
       gen->print_triangle(adj_tris[1], true);
       internal_edges.erase(tri0_delete_edge.front());
       internal_edges.erase(tri1_delete_edge.front());
-      std::cout << "merged verts=" << keep_endpt << " " << delete_endpt << std::endl;
+      std::cout << "merged verts=" << keep_endpt << " " << delete_endpt
+                << std::endl;
       MBI()->list_entity(keep_endpt);
       MBI()->list_entity(delete_endpt);
       result = MBI()->merge_entities(keep_endpt, delete_endpt, false, true);
@@ -353,7 +362,6 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
     assert(moab::MB_SUCCESS == result);
     result = MBI()->delete_entities(edges);
     assert(moab::MB_SUCCESS == result);
-
   }
   return moab::MB_SUCCESS;
 }
@@ -364,7 +372,8 @@ moab::ErrorCode Cleanup::delete_small_edges(const moab::Range& surfaces, const d
 moab::ErrorCode Cleanup::cleanup_edges(moab::Range curve_meshsets) {
   moab::ErrorCode result;
   moab::Range edges, edges_to_keep;
-  for (moab::Range::iterator i = curve_meshsets.begin(); i != curve_meshsets.end(); i++) {
+  for (moab::Range::iterator i = curve_meshsets.begin();
+       i != curve_meshsets.end(); i++) {
     result = MBI()->get_entities_by_dimension(*i, 1, edges);
     assert(moab::MB_SUCCESS == result);
     edges_to_keep.merge(edges);
@@ -376,9 +385,9 @@ moab::ErrorCode Cleanup::cleanup_edges(moab::Range curve_meshsets) {
 
   // delete the edges that are not in curves.
   moab::Range edges_to_delete = subtract(all_edges, edges_to_keep);
-  std::cout << "deleting " << edges_to_delete.size() << " unused edges" << std::endl;
+  std::cout << "deleting " << edges_to_delete.size() << " unused edges"
+            << std::endl;
   result = MBI()->delete_entities(edges_to_delete);
   assert(moab::MB_SUCCESS == result);
   return moab::MB_SUCCESS;
 }
-

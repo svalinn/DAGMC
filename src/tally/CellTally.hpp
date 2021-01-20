@@ -98,6 +98,6 @@ class CellTally : public Tally {
   void parse_tally_options();
 };
 
-#endif // DAGMC_CELL_TALLY_HPP
+#endif  // DAGMC_CELL_TALLY_HPP
 
 // end of MCNP5/dagmc/CellTally.hpp

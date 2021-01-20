@@ -1,15 +1,17 @@
 // MCNP5/dagmc/KDEKernel.cpp
 
+#include "KDEKernel.hpp"
+
 #include <cassert>
 #include <iostream>
 
-#include "KDEKernel.hpp"
 #include "PolynomialKernel.hpp"
 
 //---------------------------------------------------------------------------//
 // FACTORY METHOD
 //---------------------------------------------------------------------------//
-KDEKernel* KDEKernel::createKernel(const std::string& type, unsigned int order) {
+KDEKernel* KDEKernel::createKernel(const std::string& type,
+                                   unsigned int order) {
   KDEKernel* kernel = NULL;
 
   // order must be a multiple of 2 as only symmetric kernels are supported
@@ -32,34 +34,31 @@ KDEKernel* KDEKernel::createKernel(const std::string& type, unsigned int order) 
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-double KDEKernel::boundary_correction(const double* u,
-                                      const double* p,
+double KDEKernel::boundary_correction(const double* u, const double* p,
                                       const unsigned int* side,
                                       unsigned int num_corrections) const {
   assert(num_corrections <= 3);
   assert(num_corrections > 0);
 
   // compute partial moments ai(p) for first dimension
-  std::vector <double> ai_u;
+  std::vector<double> ai_u;
   bool valid_moments = compute_moments(u[0], p[0], side[0], ai_u);
 
   // check within boundary kernel domain
-  if (!valid_moments)
-    return 0.0;
+  if (!valid_moments) return 0.0;
 
   // solve for the boundary correction factor
   if (num_corrections == 1) {
     double correction_factor = (ai_u[2] - ai_u[1] * u[0]);
     correction_factor /= ai_u[0] * ai_u[2] - ai_u[1] * ai_u[1];
     return correction_factor;
-  } else { // correction needed in more than one dimension
+  } else {  // correction needed in more than one dimension
     // compute partial moments ai(p) for second dimension
     std::vector<double> ai_v;
     valid_moments = compute_moments(u[1], p[1], side[1], ai_v);
 
     // check still within boundary kernel domain
-    if (!valid_moments)
-      return 0.0;
+    if (!valid_moments) return 0.0;
 
     // solve for the coefficients of the boundary correction factor
     bool solved = false;
@@ -70,22 +69,20 @@ double KDEKernel::boundary_correction(const double* u,
     Eigen::MatrixXd correction_matrix(num_corrections + 1, num_corrections + 1);
 
     if (num_corrections == 2) {
-
       // initialize 3x1 right-hand side
       rhs << 1.0, 0.0, 0.0;
 
       // get 3x3 matrix for 2-D correction
       get_correction_matrix2D(ai_u, ai_v, correction_matrix);
 
-    } else { // correction needed in all three dimensions
+    } else {  // correction needed in all three dimensions
 
       // compute partial moments ai(p) for third dimension
       std::vector<double> ai_w;
       valid_moments = compute_moments(u[2], p[2], side[2], ai_w);
 
       // check still within boundary kernel domain
-      if (!valid_moments)
-        return 0.0;
+      if (!valid_moments) return 0.0;
 
       // initialize 4x1 right-hand side
       rhs << 1.0, 0.0, 0.0, 0.0;
@@ -117,32 +114,28 @@ double KDEKernel::boundary_correction(const double* u,
 //---------------------------------------------------------------------------//
 // PROTECTED METHODS
 //---------------------------------------------------------------------------//
-bool KDEKernel::compute_moments(double u,
-                                double p,
-                                unsigned int side,
+bool KDEKernel::compute_moments(double u, double p, unsigned int side,
                                 std::vector<double>& moments) const {
   assert(side <= 1);
   assert(moments.empty());
 
   // make sure p is not negative
-  if (p < 0.0)
-    return false;
+  if (p < 0.0) return false;
 
   // determine the integration limits
   double u_min = -1.0;
   double u_max = 1.0;
 
   if (p < 1.0) {
-    if (side == 0) { // side == LOWER
+    if (side == 0) {  // side == LOWER
       u_max = p;
-    } else { // side == UPPER
+    } else {  // side == UPPER
       u_min = -1.0 * p;
     }
   }
 
   // test if outside domain u = [u_min, u_max]
-  if (u < u_min || u > u_max)
-    return false;
+  if (u < u_min || u > u_max) return false;
 
   // evaluate the partial moment functions ai(p) and add to moments vector
   moments.push_back(this->integrate_moment(u_min, u_max, 0));
@@ -155,11 +148,9 @@ bool KDEKernel::compute_moments(double u,
 void KDEKernel::get_correction_matrix2D(const std::vector<double>& u,
                                         const std::vector<double>& v,
                                         Eigen::MatrixXd& matrix) const {
-
   // populate matrix elements in lower triangular format using moments
-  matrix << u[0] * v[0], u[1] * v[0], u[0] * v[1],
-         u[1] * v[0], u[2] * v[0], u[1] * v[1],
-         u[0] * v[1], u[1] * v[1], u[0] * v[2];
+  matrix << u[0] * v[0], u[1] * v[0], u[0] * v[1], u[1] * v[0], u[2] * v[0],
+      u[1] * v[1], u[0] * v[1], u[1] * v[1], u[0] * v[2];
 }
 //---------------------------------------------------------------------------//
 void KDEKernel::get_correction_matrix3D(const std::vector<double>& u,
@@ -167,10 +158,12 @@ void KDEKernel::get_correction_matrix3D(const std::vector<double>& u,
                                         const std::vector<double>& w,
                                         Eigen::MatrixXd& matrix) const {
   // populate matrix elements in lower triangular format using moments
-  matrix << u[0] * v[0] * w[0], u[1] * v[0] * w[0], u[0] * v[1] * w[0], u[0] * v[0] * w[1],
-         u[1] * v[0] * w[0], u[2] * v[0] * w[0], u[1] * v[1] * w[0], u[1] * v[0] * w[1],
-         u[0] * v[1] * w[0], u[1] * v[1] * w[0], u[0] * v[2] * w[0], u[0] * v[1] * w[1],
-         u[0] * v[0] * w[1], u[1] * v[0] * w[1], u[0] * v[1] * w[1], u[0] * v[0] * w[2];
+  matrix << u[0] * v[0] * w[0], u[1] * v[0] * w[0], u[0] * v[1] * w[0],
+      u[0] * v[0] * w[1], u[1] * v[0] * w[0], u[2] * v[0] * w[0],
+      u[1] * v[1] * w[0], u[1] * v[0] * w[1], u[0] * v[1] * w[0],
+      u[1] * v[1] * w[0], u[0] * v[2] * w[0], u[0] * v[1] * w[1],
+      u[0] * v[0] * w[1], u[1] * v[0] * w[1], u[0] * v[1] * w[1],
+      u[0] * v[0] * w[2];
 }
 //---------------------------------------------------------------------------//
 double KDEKernel::MomentFunction::evaluate(double x) const {
@@ -180,7 +173,6 @@ double KDEKernel::MomentFunction::evaluate(double x) const {
     for (unsigned int i = 0; i < moment_index; ++i) {
       value *= x;
     }
-
   }
 
   return value;

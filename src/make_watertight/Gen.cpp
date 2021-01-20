@@ -1,18 +1,18 @@
-#include <iostream>
-#include <iomanip> // for setprecision
-#include <limits> // for min/max values
+#include "Gen.hpp"
+
 #include <assert.h>
 #include <math.h>
 #include <time.h>
+
+#include <iomanip>  // for setprecision
+#include <iostream>
+#include <limits>  // for min/max values
 #include <vector>
 
-#include "moab/GeomTopoTool.hpp"
 #include "moab/FileOptions.hpp"
-
-#include "Gen.hpp"
-#include "moab/Skinner.hpp"
+#include "moab/GeomTopoTool.hpp"
 #include "moab/Range.hpp"
-
+#include "moab/Skinner.hpp"
 
 const char GEOM_SENSE_2_TAG_NAME[] = "GEOM_SENSE_2";
 const char GEOM_SENSE_N_ENTS_TAG_NAME[] = "GEOM_SENSE_N_ENTS";
@@ -63,34 +63,24 @@ void Gen::moab_printer(moab::ErrorCode error_code) {
   return;
 }
 
-
-
-
-
 void Gen::print_vertex_cubit(const moab::EntityHandle vertex) {
-
   moab::ErrorCode result;
   double coords[3];
   const int n_precision = 20;
   result = MBI()->get_coords(&vertex, 1, coords);
   assert(moab::MB_SUCCESS == result);
-  std::cout << "  create vertex "
-            << std::setprecision(n_precision)
-            << coords[0] << " " << coords[1] << " " << coords[2]
-            << std::endl;
+  std::cout << "  create vertex " << std::setprecision(n_precision) << coords[0]
+            << " " << coords[1] << " " << coords[2] << std::endl;
 }
 
 void Gen::print_vertex_coords(const moab::EntityHandle vertex) {
-
   moab::ErrorCode result;
   double coords[3];
   result = MBI()->get_coords(&vertex, 1, coords);
-  if (moab::MB_SUCCESS != result)
-    std::cout << "vert=" << vertex << std::endl;
+  if (moab::MB_SUCCESS != result) std::cout << "vert=" << vertex << std::endl;
   assert(moab::MB_SUCCESS == result);
-  std::cout << "    vertex " << vertex << " coords= ("
-            << coords[0] << "," << coords[1] << "," << coords[2] << ")"
-            << std::endl;
+  std::cout << "    vertex " << vertex << " coords= (" << coords[0] << ","
+            << coords[1] << "," << coords[2] << ")" << std::endl;
 }
 
 void Gen::print_triangles(const moab::Range tris) {
@@ -110,8 +100,7 @@ void Gen::print_triangle(const moab::EntityHandle tri, bool print_edges) {
   result = MBI()->get_connectivity(tri, conn, n_verts);
   assert(moab::MB_SUCCESS == result);
   assert(3 == n_verts);
-  for (int i = 0; i < 3; i++)
-    print_vertex_coords(conn[i]);
+  for (int i = 0; i < 3; i++) print_vertex_coords(conn[i]);
 
   if (print_edges) {
     moab::Range edges;
@@ -161,9 +150,7 @@ void Gen::print_range_of_edges(const moab::Range range) {
   }
 }
 
-
 void Gen::print_vertex_count(const moab::EntityHandle input_meshset) {
-
   // get the range of facets of the surface meshset
   moab::ErrorCode result;
   moab::Range vertices;
@@ -173,15 +160,15 @@ void Gen::print_vertex_count(const moab::EntityHandle input_meshset) {
   std::cout << "    " << vertices.size() << " vertices found." << std::endl;
 }
 
-void Gen::print_arcs(const std::vector< std::vector<moab::EntityHandle> > arcs) {
+void Gen::print_arcs(const std::vector<std::vector<moab::EntityHandle> > arcs) {
   for (unsigned int i = 0; i < arcs.size(); i++) {
     std::cout << "arc " << i << std::endl;
     print_loop(arcs[i]);
   }
 }
 
-void Gen::print_arc_of_edges(const std::vector<moab::EntityHandle> arc_of_edges) {
-
+void Gen::print_arc_of_edges(
+    const std::vector<moab::EntityHandle> arc_of_edges) {
   moab::ErrorCode result;
   std::vector<moab::EntityHandle>::const_iterator i;
   double dist = 0;
@@ -199,7 +186,6 @@ void Gen::print_arc_of_edges(const std::vector<moab::EntityHandle> arc_of_edges)
 }
 
 void Gen::print_loop(const std::vector<moab::EntityHandle> loop_of_verts) {
-
   std::cout << "  size=" << loop_of_verts.size() << std::endl;
   double dist = 0;
   for (unsigned int i = 0; i < loop_of_verts.size(); i++) {
@@ -211,14 +197,13 @@ void Gen::print_loop(const std::vector<moab::EntityHandle> loop_of_verts) {
   std::cout << "  dist=" << dist << std::endl;
 }
 
-
 /// Return the closest vertex to the arc.
 /// For efficiency: only get_coords on the reference vertex once
 ///                 if specified, limit search length along curve
-moab::ErrorCode Gen::find_closest_vert(const moab::EntityHandle reference_vert,
-                                       const std::vector<moab::EntityHandle>& arc_of_verts,
-                                       unsigned& position,
-                                       const double dist_limit) {
+moab::ErrorCode Gen::find_closest_vert(
+    const moab::EntityHandle reference_vert,
+    const std::vector<moab::EntityHandle>& arc_of_verts, unsigned& position,
+    const double dist_limit) {
   moab::ErrorCode rval;
   const bool debug = false;
   double min_dist_sqr = std::numeric_limits<double>::max();
@@ -238,9 +223,9 @@ moab::ErrorCode Gen::find_closest_vert(const moab::EntityHandle reference_vert,
       moab::CartVect temp = prev_coords - coords;
       length += temp.length();
       if (length > dist_limit && debug)
-        std::cout << "length=" << length << " dist_limit=" << dist_limit << std::endl;
-      if (length > dist_limit)
-        return moab::MB_SUCCESS;
+        std::cout << "length=" << length << " dist_limit=" << dist_limit
+                  << std::endl;
+      if (length > dist_limit) return moab::MB_SUCCESS;
     }
     prev_coords = coords;
 
@@ -250,26 +235,21 @@ moab::ErrorCode Gen::find_closest_vert(const moab::EntityHandle reference_vert,
     if (dist_sqr < min_dist_sqr) {
       position = i;
       min_dist_sqr = dist_sqr;
-      if (debug)
-        std::cout << "min_dist_sqr=" << min_dist_sqr << std::endl;
+      if (debug) std::cout << "min_dist_sqr=" << min_dist_sqr << std::endl;
     }
   }
 
   return moab::MB_SUCCESS;
 }
 
-
-
 // Return the closest vert and all within tol. This is needed because sometimes
 // the correct vert is not the closest. For example, iter_surf4010 the skin
-// loop has the same point in it twice, at two different locations (center of L).
-// This ensure that both are returned as candidates.
-moab::ErrorCode Gen::find_closest_vert(const double tol,
-                                       const moab::EntityHandle reference_vert,
-                                       const std::vector<moab::EntityHandle>& loop_of_verts,
-                                       std::vector<unsigned>& positions,
-                                       std::vector<double>& dists) {
-
+// loop has the same point in it twice, at two different locations (center of
+// L). This ensure that both are returned as candidates.
+moab::ErrorCode Gen::find_closest_vert(
+    const double tol, const moab::EntityHandle reference_vert,
+    const std::vector<moab::EntityHandle>& loop_of_verts,
+    std::vector<unsigned>& positions, std::vector<double>& dists) {
   moab::ErrorCode rval;
   positions.clear();
   dists.clear();
@@ -278,7 +258,8 @@ moab::ErrorCode Gen::find_closest_vert(const double tol,
   double sqr_min_dist = std::numeric_limits<double>::max();
   for (unsigned int i = 0; i < loop_of_verts.size(); i++) {
     double sqr_dist = std::numeric_limits<double>::max();
-    rval = squared_dist_between_verts(reference_vert, loop_of_verts[i], sqr_dist);
+    rval =
+        squared_dist_between_verts(reference_vert, loop_of_verts[i], sqr_dist);
     MB_CHK_SET_ERR(rval, "could not get dist");
     if (sqr_dist < sqr_min_dist) {
       if (sqr_dist >= tol_sqr) {
@@ -297,12 +278,11 @@ moab::ErrorCode Gen::find_closest_vert(const double tol,
     positions.push_back(min_pos);
   }
 
-
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */, const double tol /* in */) {
-
+moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */,
+                                    const double tol /* in */) {
   moab::ErrorCode result;
   const double SQR_TOL = tol * tol;
   // Clean up the created tree, and track verts so that if merged away they are
@@ -310,7 +290,9 @@ moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */, const double tol
   moab::AdaptiveKDTree kdtree(MBI());
   // initialize the KD Tree
   moab::EntityHandle root;
-  const char settings[] = "MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;PLANE_SET=2;MESHSET_FLAGS=0x1;TAG_NAME=0";
+  const char settings[] =
+      "MAX_PER_LEAF=6;MAX_DEPTH=50;SPLITS_PER_DIR=1;PLANE_SET=2;MESHSET_FLAGS="
+      "0x1;TAG_NAME=0";
   moab::FileOptions fileopts(settings);
   // builds the KD Tree, making the moab::EntityHandle root the root of the tree
   result = kdtree.build_tree(verts, &root, &fileopts);
@@ -327,17 +309,19 @@ moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */, const double tol
     assert(moab::MB_SUCCESS == result);
     for (unsigned int j = 0; j < leaves_out.size(); j++) {
       std::vector<moab::EntityHandle> leaf_verts;
-      result = MBI()->get_entities_by_type(leaves_out[j], moab::MBVERTEX, leaf_verts);
+      result = MBI()->get_entities_by_type(leaves_out[j], moab::MBVERTEX,
+                                           leaf_verts);
       assert(moab::MB_SUCCESS == result);
 
-      // write number of leaf verts to screen if there is an abnormally high number of them
+      // write number of leaf verts to screen if there is an abnormally high
+      // number of them
       const int large_leaf_limit = 100;
       if (leaf_verts.size() > large_leaf_limit)
-        std::cout << "*i=" << *i << " leaf_verts.size()=" << leaf_verts.size() << std::endl;
+        std::cout << "*i=" << *i << " leaf_verts.size()=" << leaf_verts.size()
+                  << std::endl;
 
       for (unsigned int k = 0; k < leaf_verts.size(); k++) {
-        if (leaf_verts[k] == *i)
-          continue;
+        if (leaf_verts[k] == *i) continue;
         double sqr_dist;
         result = squared_dist_between_verts(*i, leaf_verts[k], sqr_dist);
         assert(moab::MB_SUCCESS == result);
@@ -347,12 +331,13 @@ moab::ErrorCode Gen::merge_vertices(moab::Range verts /* in */, const double tol
           // uses tracking meshsets. merge_verts checks for degenerate tris.
           // Update the list of leaf verts to prevent stale handles.
           std::vector<moab::EntityHandle> temp_arc;
-          moab::EntityHandle keep_vert   = *i;
+          moab::EntityHandle keep_vert = *i;
           moab::EntityHandle delete_vert = leaf_verts[k];
           result = merge_verts(keep_vert, delete_vert, leaf_verts, temp_arc);
           assert(moab::MB_SUCCESS == result);
           // Erase delete_vert from verts
-          // Iterator should remain valid because delete_vert > keep_vert handle.
+          // Iterator should remain valid because delete_vert > keep_vert
+          // handle.
           verts.erase(delete_vert);
         }
       }
@@ -368,14 +353,14 @@ moab::ErrorCode Gen::squared_dist_between_verts(const moab::EntityHandle v0,
   moab::CartVect coords0, coords1;
   result = MBI()->get_coords(&v0, 1, coords0.array());
   if (moab::MB_SUCCESS != result) {
-    std::cout << "dist_between_verts: get_coords on v0=" << v0 << " result="
-              << result << std::endl;
+    std::cout << "dist_between_verts: get_coords on v0=" << v0
+              << " result=" << result << std::endl;
     return result;
   }
   result = MBI()->get_coords(&v1, 1, coords1.array());
   if (moab::MB_SUCCESS != result) {
-    std::cout << "dist_between_verts: get_coords on v1=" << v1 << " result="
-              << result << std::endl;
+    std::cout << "dist_between_verts: get_coords on v1=" << v1
+              << " result=" << result << std::endl;
     return result;
   }
   const moab::CartVect diff = coords0 - coords1;
@@ -383,23 +368,26 @@ moab::ErrorCode Gen::squared_dist_between_verts(const moab::EntityHandle v0,
   return moab::MB_SUCCESS;
 }
 
-double Gen::dist_between_verts(const moab::CartVect v0, const moab::CartVect v1) {
+double Gen::dist_between_verts(const moab::CartVect v0,
+                               const moab::CartVect v1) {
   moab::CartVect v2 = v0 - v1;
   return v2.length();
 }
-moab::ErrorCode Gen::dist_between_verts(const moab::EntityHandle v0, const moab::EntityHandle v1, double& d) {
+moab::ErrorCode Gen::dist_between_verts(const moab::EntityHandle v0,
+                                        const moab::EntityHandle v1,
+                                        double& d) {
   moab::ErrorCode result;
   moab::CartVect coords0, coords1;
   result = MBI()->get_coords(&v0, 1, coords0.array());
   if (moab::MB_SUCCESS != result) {
-    std::cout << "dist_between_verts: get_coords on v0=" << v0 << " result="
-              << result << std::endl;
+    std::cout << "dist_between_verts: get_coords on v0=" << v0
+              << " result=" << result << std::endl;
     return result;
   }
   result = MBI()->get_coords(&v1, 1, coords1.array());
   if (moab::MB_SUCCESS != result) {
-    std::cout << "dist_between_verts: get_coords on v1=" << v1 << " result="
-              << result << std::endl;
+    std::cout << "dist_between_verts: get_coords on v1=" << v1
+              << " result=" << result << std::endl;
     return result;
   }
   d = dist_between_verts(coords0, coords1);
@@ -411,33 +399,33 @@ double Gen::dist_between_verts(double coords0[], double coords1[]) {
               (coords0[1] - coords1[1]) * (coords0[1] - coords1[1]) +
               (coords0[2] - coords1[2]) * (coords0[2] - coords1[2]));
 }
-double Gen::dist_between_verts(moab::EntityHandle vert0, moab::EntityHandle vert1) {
+double Gen::dist_between_verts(moab::EntityHandle vert0,
+                               moab::EntityHandle vert1) {
   double coords0[3], coords1[3];
   moab::ErrorCode result;
   result = MBI()->get_coords(&vert0, 1, coords0);
   if (moab::MB_SUCCESS != result)
-    std::cout << "result=" << result << " vert="
-              << vert0 << std::endl;
+    std::cout << "result=" << result << " vert=" << vert0 << std::endl;
   assert(moab::MB_SUCCESS == result);
   result = MBI()->get_coords(&vert1, 1, coords1);
   if (moab::MB_SUCCESS != result)
-    std::cout << "result=" << result << " vert="
-              << vert1 << std::endl;
+    std::cout << "result=" << result << " vert=" << vert1 << std::endl;
   assert(moab::MB_SUCCESS == result);
   return dist_between_verts(coords0, coords1);
 }
 
-// Return the length of the curve defined by moab::MBEDGEs or ordered moab::MBVERTEXs.
+// Return the length of the curve defined by moab::MBEDGEs or ordered
+// moab::MBVERTEXs.
 double Gen::length(std::vector<moab::EntityHandle> edges) {
-  if (edges.empty())
-    return 0;
+  if (edges.empty()) return 0;
 
   moab::ErrorCode result;
   double dist = 0;
   moab::EntityType type = MBI()->type_from_handle(edges[0]);
 
   // if vector has both edges and verts, only use edges
-  // NOTE: The curve sets from ReadCGM do not contain duplicate endpoints for loops!
+  // NOTE: The curve sets from ReadCGM do not contain duplicate endpoints for
+  // loops!
   moab::EntityType end_type = MBI()->type_from_handle(edges.back());
   if (type != end_type) {
     for (auto i = edges.begin(); i != edges.end(); i++) {
@@ -450,8 +438,7 @@ double Gen::length(std::vector<moab::EntityHandle> edges) {
   // determine if vector defines an arc by edges of verts
   type = MBI()->type_from_handle(edges[0]);
   if (moab::MBEDGE == type) {
-    if (edges.empty())
-      return 0.0;
+    if (edges.empty()) return 0.0;
     for (auto i = edges.begin(); i != edges.end(); i++) {
       int n_verts;
       const moab::EntityHandle* conn;
@@ -460,13 +447,11 @@ double Gen::length(std::vector<moab::EntityHandle> edges) {
         std::cout << "result=" << result << std::endl;
       assert(moab::MB_SUCCESS == result);
       assert(2 == n_verts);
-      if (conn[0] == conn[1])
-        continue;
+      if (conn[0] == conn[1]) continue;
       dist += dist_between_verts(conn[0], conn[1]);
     }
   } else if (moab::MBVERTEX == type) {
-    if (2 > edges.size())
-      return 0.0;
+    if (2 > edges.size()) return 0.0;
     moab::EntityHandle front_vert = edges.front();
     for (auto i = edges.begin() + 1; i != edges.end(); i++) {
       dist += dist_between_verts(front_vert, *i);
@@ -478,7 +463,8 @@ double Gen::length(std::vector<moab::EntityHandle> edges) {
   return dist;
 }
 
-// Given a vertex and vector of edges, return the number of edges adjacent to the vertex.
+// Given a vertex and vector of edges, return the number of edges adjacent to
+// the vertex.
 unsigned int Gen::n_adj_edges(moab::EntityHandle vert, moab::Range edges) {
   moab::ErrorCode result;
   moab::Range adj_edges;
@@ -487,8 +473,6 @@ unsigned int Gen::n_adj_edges(moab::EntityHandle vert, moab::Range edges) {
   adj_edges = moab::intersect(adj_edges, edges);
   return adj_edges.size();
 }
-
-
 
 // Return true if the edges share a vertex. Does not check for coincident edges.
 bool Gen::edges_adjacent(moab::EntityHandle edge0, moab::EntityHandle edge1) {
@@ -504,16 +488,17 @@ bool Gen::edges_adjacent(moab::EntityHandle edge0, moab::EntityHandle edge1) {
     return true;
   else if (verts0.front() == verts1.back())
     return true;
-  else if (verts0.back()  == verts1.back())
+  else if (verts0.back() == verts1.back())
     return true;
-  else if (verts0.back()  == verts1.front())
+  else if (verts0.back() == verts1.front())
     return true;
   else
     return false;
 }
 
 // get the direction unit vector from one vertex to another vertex
-moab::ErrorCode Gen::get_direction(const moab::EntityHandle from_vert, const moab::EntityHandle to_vert,
+moab::ErrorCode Gen::get_direction(const moab::EntityHandle from_vert,
+                                   const moab::EntityHandle to_vert,
                                    moab::CartVect& dir) {
   moab::ErrorCode result;
   moab::CartVect coords0, coords1;
@@ -533,7 +518,8 @@ moab::ErrorCode Gen::get_direction(const moab::EntityHandle from_vert, const moa
 }
 
 // from http://www.topcoder.com/tc?module=Static&d1=tutorials&d2=geometry1
-double Gen::edge_point_dist(const moab::CartVect a, const moab::CartVect b, const moab::CartVect c) {
+double Gen::edge_point_dist(const moab::CartVect a, const moab::CartVect b,
+                            const moab::CartVect c) {
   moab::CartVect ab, bc, ba, ac;
   ab = b - a;
   bc = c - b;
@@ -555,7 +541,8 @@ double Gen::edge_point_dist(const moab::CartVect a, const moab::CartVect b, cons
   }
   return fabs(dist);
 }
-double Gen::edge_point_dist(const moab::EntityHandle endpt0, const moab::EntityHandle endpt1,
+double Gen::edge_point_dist(const moab::EntityHandle endpt0,
+                            const moab::EntityHandle endpt1,
                             const moab::EntityHandle pt) {
   moab::ErrorCode result;
   moab::CartVect a, b, c;
@@ -563,11 +550,12 @@ double Gen::edge_point_dist(const moab::EntityHandle endpt0, const moab::EntityH
   assert(moab::MB_SUCCESS == result);
   result = MBI()->get_coords(&endpt1, 1, b.array());
   assert(moab::MB_SUCCESS == result);
-  result = MBI()->get_coords(&pt,     1, c.array());
+  result = MBI()->get_coords(&pt, 1, c.array());
   assert(moab::MB_SUCCESS == result);
   return edge_point_dist(a, b, c);
 }
-double Gen::edge_point_dist(const moab::EntityHandle edge, const moab::EntityHandle pt) {
+double Gen::edge_point_dist(const moab::EntityHandle edge,
+                            const moab::EntityHandle pt) {
   moab::ErrorCode result;
   const moab::EntityHandle* conn;
   int n_verts;
@@ -583,7 +571,8 @@ double Gen::triangle_area(const moab::CartVect a, const moab::CartVect b,
   moab::CartVect f = d * e;
   return 0.5 * f.length();
 }
-moab::ErrorCode Gen::triangle_area(const moab::EntityHandle conn[], double& area) {
+moab::ErrorCode Gen::triangle_area(const moab::EntityHandle conn[],
+                                   double& area) {
   moab::CartVect coords[3];
   moab::ErrorCode result = MBI()->get_coords(conn, 3, coords[0].array());
   assert(moab::MB_SUCCESS == result);
@@ -623,14 +612,15 @@ bool Gen::triangle_degenerate(const moab::EntityHandle tri) {
   return triangle_degenerate(conn[0], conn[1], conn[2]);
 }
 
-bool Gen::triangle_degenerate(const moab::EntityHandle v0, const moab::EntityHandle v1,
+bool Gen::triangle_degenerate(const moab::EntityHandle v0,
+                              const moab::EntityHandle v1,
                               const moab::EntityHandle v2) {
-  if (v0 == v1 || v1 == v2 || v2 == v0)
-    return true;
+  if (v0 == v1 || v1 == v2 || v2 == v0) return true;
   return false;
 }
 
-moab::ErrorCode Gen::triangle_normals(const moab::Range tris, std::vector<moab::CartVect>& normals) {
+moab::ErrorCode Gen::triangle_normals(const moab::Range tris,
+                                      std::vector<moab::CartVect>& normals) {
   moab::ErrorCode result;
   normals.clear();
   for (moab::Range::const_iterator i = tris.begin(); i != tris.end(); i++) {
@@ -642,7 +632,8 @@ moab::ErrorCode Gen::triangle_normals(const moab::Range tris, std::vector<moab::
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::triangle_normal(const moab::EntityHandle tri, moab::CartVect& normal) {
+moab::ErrorCode Gen::triangle_normal(const moab::EntityHandle tri,
+                                     moab::CartVect& normal) {
   moab::ErrorCode result;
   const moab::EntityHandle* conn;
   int n_verts;
@@ -660,9 +651,10 @@ moab::ErrorCode Gen::triangle_normal(const moab::EntityHandle tri, moab::CartVec
   }
 }
 
-moab::ErrorCode Gen::triangle_normal(const moab::EntityHandle v0, const moab::EntityHandle v1,
-                                     const moab::EntityHandle v2, moab::CartVect& normal) {
-
+moab::ErrorCode Gen::triangle_normal(const moab::EntityHandle v0,
+                                     const moab::EntityHandle v1,
+                                     const moab::EntityHandle v2,
+                                     moab::CartVect& normal) {
   // if tri is degenerate return 0,0,0
   if (triangle_degenerate(v0, v1, v2)) {
     moab::CartVect zero_vector(0.0);
@@ -682,28 +674,29 @@ moab::ErrorCode Gen::triangle_normal(const moab::EntityHandle v0, const moab::En
   return triangle_normal(coords[0], coords[1], coords[2], normal);
 }
 
-moab::ErrorCode Gen::triangle_normal(const moab::CartVect coords0, const moab::CartVect coords1,
-                                     const moab::CartVect coords2, moab::CartVect& normal) {
+moab::ErrorCode Gen::triangle_normal(const moab::CartVect coords0,
+                                     const moab::CartVect coords1,
+                                     const moab::CartVect coords2,
+                                     moab::CartVect& normal) {
   moab::CartVect edge0, edge1;
   edge0 = coords1 - coords0;
   edge1 = coords2 - coords0;
   normal = edge0 * edge1;
 
   // do not normalize if magnitude is zero (avoid nans)
-  if (0 == normal.length())
-    return moab::MB_SUCCESS;
+  if (0 == normal.length()) return moab::MB_SUCCESS;
 
   normal.normalize();
   return moab::MB_SUCCESS;
 }
 
-
-
 // Distance between a point and line. The line is defined by two verts.
 // We are using a line and not a line segment!
 // http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
-moab::ErrorCode Gen::line_point_dist(const moab::EntityHandle line_pt1, const moab::EntityHandle line_pt2,
-                                     const moab::EntityHandle pt0, double& dist) {
+moab::ErrorCode Gen::line_point_dist(const moab::EntityHandle line_pt1,
+                                     const moab::EntityHandle line_pt2,
+                                     const moab::EntityHandle pt0,
+                                     double& dist) {
   moab::ErrorCode result;
   moab::CartVect x0, x1, x2;
   result = MBI()->get_coords(&line_pt1, 1, x1.array());
@@ -723,9 +716,8 @@ moab::ErrorCode Gen::point_line_projection(const moab::EntityHandle line_pt1,
                                            const moab::EntityHandle pt0) {
   moab::CartVect projected_coords;
   double parameter;
-  moab::ErrorCode result = point_line_projection(line_pt1, line_pt2,
-                                                 pt0, projected_coords,
-                                                 parameter);
+  moab::ErrorCode result = point_line_projection(line_pt1, line_pt2, pt0,
+                                                 projected_coords, parameter);
   assert(moab::MB_SUCCESS == result);
   result = MBI()->set_coords(&pt0, 1, projected_coords.array());
   assert(moab::MB_SUCCESS == result);
@@ -737,7 +729,6 @@ moab::ErrorCode Gen::point_line_projection(const moab::EntityHandle line_pt1,
                                            const moab::EntityHandle pt0,
                                            moab::CartVect& projected_coords,
                                            double& parameter) {
-
   moab::ErrorCode result;
   moab::CartVect coords[3];
   result = MBI()->get_coords(&line_pt1, 1, coords[1].array());
@@ -751,9 +742,9 @@ moab::ErrorCode Gen::point_line_projection(const moab::EntityHandle line_pt1,
   // http://en.wikipedia.org/wiki/Vector_projection
   moab::CartVect a = coords[0] - coords[1];
   moab::CartVect b = coords[2] - coords[1];
-  parameter    = (a % b) / (b % b);
+  parameter = (a % b) / (b % b);
   moab::CartVect c = parameter * b;
-  projected_coords = c     + coords[1];
+  projected_coords = c + coords[1];
   return moab::MB_SUCCESS;
 }
 
@@ -761,7 +752,6 @@ moab::ErrorCode Gen::point_line_projection(const moab::EntityHandle line_pt1,
                                            const moab::EntityHandle line_pt2,
                                            const moab::EntityHandle pt0,
                                            double& dist_along_edge) {
-
   moab::ErrorCode result;
   moab::CartVect coords[3];
   result = MBI()->get_coords(&line_pt1, 1, coords[1].array());
@@ -780,7 +770,8 @@ moab::ErrorCode Gen::point_line_projection(const moab::EntityHandle line_pt1,
 }
 
 double Gen::area2(const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
-                  const moab::EntityHandle pt_c, const moab::CartVect plane_normal) {
+                  const moab::EntityHandle pt_c,
+                  const moab::CartVect plane_normal) {
   moab::ErrorCode result;
   moab::CartVect a, b, c;
   result = MBI()->get_coords(&pt_a, 1, a.array());
@@ -828,9 +819,7 @@ bool Gen::collinear(const moab::EntityHandle a, const moab::EntityHandle b,
 bool Gen::intersect_prop(const moab::EntityHandle a, const moab::EntityHandle b,
                          const moab::EntityHandle c, const moab::EntityHandle d,
                          const moab::CartVect n) {
-  if (collinear(a, b, c, n) ||
-      collinear(a, b, d, n) ||
-      collinear(c, d, a, n) ||
+  if (collinear(a, b, c, n) || collinear(a, b, d, n) || collinear(c, d, a, n) ||
       collinear(c, d, b, n)) {
     return false;
   } else {
@@ -841,8 +830,7 @@ bool Gen::intersect_prop(const moab::EntityHandle a, const moab::EntityHandle b,
 
 bool Gen::between(const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
                   const moab::EntityHandle pt_c, const moab::CartVect n) {
-  if (!collinear(pt_a, pt_b, pt_c, n))
-    return false;
+  if (!collinear(pt_a, pt_b, pt_c, n)) return false;
 
   moab::ErrorCode result;
   moab::CartVect a, b, c;
@@ -855,11 +843,14 @@ bool Gen::between(const moab::EntityHandle pt_a, const moab::EntityHandle pt_b,
 
   // if ab not vertical, check betweenness on x; else on y.
   if (a[0] != b[0]) {
-    return ((a[0] <= c[0]) && (c[0] <= b[0])) || ((a[0] >= c[0]) && (c[0] >= b[0]));
+    return ((a[0] <= c[0]) && (c[0] <= b[0])) ||
+           ((a[0] >= c[0]) && (c[0] >= b[0]));
   } else if (a[1] != b[1]) {
-    return ((a[1] <= c[1]) && (c[1] <= b[1])) || ((a[1] >= c[1]) && (c[1] >= b[1]));
+    return ((a[1] <= c[1]) && (c[1] <= b[1])) ||
+           ((a[1] >= c[1]) && (c[1] >= b[1]));
   } else {
-    return ((a[2] <= c[2]) && (c[2] <= b[2])) || ((a[2] >= c[2]) && (c[2] >= b[2]));
+    return ((a[2] <= c[2]) && (c[2] <= b[2])) ||
+           ((a[2] >= c[2]) && (c[2] >= b[2]));
   }
 }
 
@@ -868,9 +859,7 @@ bool Gen::intersect(const moab::EntityHandle a, const moab::EntityHandle b,
                     const moab::CartVect n) {
   if (intersect_prop(a, b, c, d, n))
     return true;
-  else if (between(a, b, c, n) ||
-           between(a, b, d, n) ||
-           between(c, d, a, n) ||
+  else if (between(a, b, c, n) || between(a, b, d, n) || between(c, d, a, n) ||
            between(c, d, b, n))
     return true;
   else
@@ -889,8 +878,7 @@ bool Gen::diagonalie(const moab::EntityHandle a, const moab::EntityHandle b,
     else
       c1 = verts[i + 1];
 
-    if ((c != a) && (c1 != a) &&
-        (c != b) && (c1 != b) &&
+    if ((c != a) && (c1 != a) && (c != b) && (c1 != b) &&
         intersect(a, b, c, c1, n)) {
       return false;
     }
@@ -917,8 +905,7 @@ bool Gen::in_cone(const moab::EntityHandle a, const moab::EntityHandle b,
     a1 = *(a_iter + 1);
 
   // if a is a convex vertex
-  if (left_on(a, a1, a0, n))
-    return left(a, b, a0, n) && left(b, a, a1, n);
+  if (left_on(a, a1, a0, n)) return left(a, b, a0, n) && left(b, a, a1, n);
 
   // else a is reflex
   else
@@ -928,17 +915,16 @@ bool Gen::in_cone(const moab::EntityHandle a, const moab::EntityHandle b,
 bool Gen::diagonal(const moab::EntityHandle a, const moab::EntityHandle b,
                    const moab::CartVect n,
                    const std::vector<moab::EntityHandle> verts) {
-  bool result = in_cone(a, b, n, verts) && in_cone(b, a, n, verts) && diagonalie(a, b, n, verts);
+  bool result = in_cone(a, b, n, verts) && in_cone(b, a, n, verts) &&
+                diagonalie(a, b, n, verts);
   return result;
 }
 
-
 // Determine if each vertex is an ear. Input an ordered polygon of verts.
 moab::ErrorCode Gen::ear_init(const std::vector<moab::EntityHandle> verts,
-                              const moab::CartVect n, // plane normal vector
+                              const moab::CartVect n,  // plane normal vector
                               std::vector<bool>& is_ear) {
-  if (verts.size() != is_ear.size())
-    return moab::MB_FAILURE;
+  if (verts.size() != is_ear.size()) return moab::MB_FAILURE;
   for (unsigned int i = 0; i < verts.size(); i++) {
     moab::EntityHandle prev, next;
     if (0 == i)
@@ -957,9 +943,7 @@ moab::ErrorCode Gen::ear_init(const std::vector<moab::EntityHandle> verts,
 // Input an ordered polygon of verts and a normal vector of the plane
 // that the polygon is mostly in. The vector is required for orientation.
 moab::ErrorCode Gen::ear_clip_polygon(std::vector<moab::EntityHandle> verts,
-                                      moab::CartVect n,
-                                      moab::Range& new_tris) {
-
+                                      moab::CartVect n, moab::Range& new_tris) {
   moab::ErrorCode result;
   std::vector<bool> is_ear(verts.size());
   result = ear_init(verts, n, is_ear);
@@ -1005,7 +989,7 @@ moab::ErrorCode Gen::ear_clip_polygon(std::vector<moab::EntityHandle> verts,
         if (0 == i)
           is_ear[verts.size() - 1] = diagonal(v0, v3, n, verts);
         else
-          is_ear[i - 1]            = diagonal(v0, v3, n, verts);
+          is_ear[i - 1] = diagonal(v0, v3, n, verts);
         if (verts.size() - 1 == i)
           is_ear[0] = diagonal(v1, v4, n, verts);
         else
@@ -1040,7 +1024,8 @@ moab::ErrorCode Gen::ear_clip_polygon(std::vector<moab::EntityHandle> verts,
 int Gen::geom_id_by_handle(const moab::EntityHandle set) {
   moab::ErrorCode result;
   moab::Tag id_tag;
-  result = MBI()->tag_get_handle(GLOBAL_ID_TAG_NAME, 1, moab::MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE);
+  result = MBI()->tag_get_handle(GLOBAL_ID_TAG_NAME, 1, moab::MB_TYPE_INTEGER,
+                                 id_tag, moab::MB_TAG_DENSE);
   assert(moab::MB_SUCCESS == result || moab::MB_ALREADY_ALLOCATED == result);
   int id;
   result = MBI()->tag_get_data(id_tag, &set, 1, &id);
@@ -1058,12 +1043,15 @@ moab::ErrorCode Gen::save_normals(moab::Range tris, moab::Tag normal_tag) {
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::flip(const moab::EntityHandle tri, const moab::EntityHandle vert0,
-                          const moab::EntityHandle vert2, const moab::EntityHandle surf_set) {
-
-  // get the triangles in the surface. The tri and adj_tri must be in the surface.
+moab::ErrorCode Gen::flip(const moab::EntityHandle tri,
+                          const moab::EntityHandle vert0,
+                          const moab::EntityHandle vert2,
+                          const moab::EntityHandle surf_set) {
+  // get the triangles in the surface. The tri and adj_tri must be in the
+  // surface.
   moab::Range surf_tris;
-  moab::EntityHandle result = MBI()->get_entities_by_type(surf_set, moab::MBTRI, surf_tris);
+  moab::EntityHandle result =
+      MBI()->get_entities_by_type(surf_set, moab::MBTRI, surf_tris);
   assert(moab::MB_SUCCESS == result);
 
   // get the triangle across the edge that will be flipped
@@ -1108,8 +1096,9 @@ moab::ErrorCode Gen::flip(const moab::EntityHandle tri, const moab::EntityHandle
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::ordered_verts_from_ordered_edges(const std::vector<moab::EntityHandle> ordered_edges,
-                                                      std::vector<moab::EntityHandle>& ordered_verts) {
+moab::ErrorCode Gen::ordered_verts_from_ordered_edges(
+    const std::vector<moab::EntityHandle> ordered_edges,
+    std::vector<moab::EntityHandle>& ordered_verts) {
   moab::ErrorCode result;
   ordered_verts.clear();
   ordered_verts.reserve(ordered_edges.size() + 1);
@@ -1117,7 +1106,8 @@ moab::ErrorCode Gen::ordered_verts_from_ordered_edges(const std::vector<moab::En
   // Save the back of the previous edge to check for continuity.
   moab::EntityHandle previous_back_vert;
 
-  for (std::vector<moab::EntityHandle>::const_iterator i = ordered_edges.begin();
+  for (std::vector<moab::EntityHandle>::const_iterator i =
+           ordered_edges.begin();
        i != ordered_edges.end(); i++) {
     const moab::EntityHandle* conn;
     int n_verts;
@@ -1137,10 +1127,9 @@ moab::ErrorCode Gen::ordered_verts_from_ordered_edges(const std::vector<moab::En
 
 /* Find the distance between two arcs. Assume that their endpoints are somewhat
    close together. */
-moab::ErrorCode Gen::dist_between_arcs(bool debug,
-                                       const std::vector<moab::EntityHandle> arc0,
-                                       const std::vector<moab::EntityHandle> arc1,
-                                       double& dist) {
+moab::ErrorCode Gen::dist_between_arcs(
+    bool debug, const std::vector<moab::EntityHandle> arc0,
+    const std::vector<moab::EntityHandle> arc1, double& dist) {
   dist = 0;
 
   // Special Case: arcs have no verts.
@@ -1154,25 +1143,28 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
 
   // Special Case: Remove duplicate vert handles
   for (unsigned int i = 0; i < 2; ++i) {
-    if (2 > arcs[i].size())
-      continue;
-    for (std::vector<moab::EntityHandle>::iterator j = arcs[i].begin() + 1; j != arcs[i].end(); ++j) {
+    if (2 > arcs[i].size()) continue;
+    for (std::vector<moab::EntityHandle>::iterator j = arcs[i].begin() + 1;
+         j != arcs[i].end(); ++j) {
       if (*j == *(j - 1)) {
         if (debug) {
           print_loop(arcs[i]);
-          std::cout << "dist_between_arcs: found duplicate vert handle in arc" << std::endl;
+          std::cout << "dist_between_arcs: found duplicate vert handle in arc"
+                    << std::endl;
         }
         j = arcs[i].erase(j) - 1;
       }
     }
   }
 
-  // get the coords in one call per arc. For speed, do not ask MOAB again for coords.
+  // get the coords in one call per arc. For speed, do not ask MOAB again for
+  // coords.
   moab::ErrorCode result;
   std::vector<moab::CartVect> coords[2];
   for (unsigned int i = 0; i < 2; i++) {
     coords[i].resize(arcs[i].size());
-    result = MBI()->get_coords(&arcs[i][0], arcs[i].size(), coords[i][0].array());
+    result =
+        MBI()->get_coords(&arcs[i][0], arcs[i].size(), coords[i][0].array());
     assert(moab::MB_SUCCESS == result);
   }
 
@@ -1182,11 +1174,11 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
   for (unsigned int i = 0; i < 2; ++i) {
     if (1 == arcs[i].size()) {
       point_arc_exists = true;
-      point_arc_index  = i;
+      point_arc_index = i;
       break;
     } else if (0 == length(arcs[i])) {
       point_arc_exists = true;
-      point_arc_index  = i;
+      point_arc_index = i;
       break;
     }
   }
@@ -1195,7 +1187,8 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
     unsigned int other_arc_index = (0 == point_arc_index) ? 1 : 0;
     // Both are point arcs
     if (1 == arcs[other_arc_index].size()) {
-      dist = dist_between_verts(arcs[point_arc_index].front(), arcs[other_arc_index].front());
+      dist = dist_between_verts(arcs[point_arc_index].front(),
+                                arcs[other_arc_index].front());
       return moab::MB_SUCCESS;
       // The other arc has more than one point
     } else {
@@ -1249,20 +1242,22 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
   for (unsigned int i = 0; i < 2; i++) {
     for (unsigned int j = 0; j < mgd_params.size(); j++) {
       if (params[i][j] > mgd_params[j]) {
-        double ratio = (mgd_params[j] - params[i][j - 1]) / (params[i][j] - params[i][j - 1]);
-        moab::CartVect pt = coords[i][j - 1] + ratio * (coords[i][j] - coords[i][j - 1]);
+        double ratio = (mgd_params[j] - params[i][j - 1]) /
+                       (params[i][j] - params[i][j - 1]);
+        moab::CartVect pt =
+            coords[i][j - 1] + ratio * (coords[i][j] - coords[i][j - 1]);
         coords[i].insert(coords[i].begin() + j, pt);
         params[i].insert(params[i].begin() + j, mgd_params[j]);
       }
     }
   }
 
-
   // Each arc should now have the same number of points
   if (coords[0].size() != coords[1].size()) {
     for (unsigned int i = 0; i < 2; i++) {
       for (unsigned int j = 0; j < coords[i].size(); j++) {
-        std::cout << "coords[" << i << "][" << j << "]=" << coords[i][j] << std::endl;
+        std::cout << "coords[" << i << "][" << j << "]=" << coords[i][j]
+                  << std::endl;
       }
     }
   }
@@ -1271,11 +1266,13 @@ moab::ErrorCode Gen::dist_between_arcs(bool debug,
   // Get the area between arcs. Use absolute value to prevent cancelling.
   double area = 0;
   for (unsigned int i = 0; i < coords[0].size() - 1; i++) {
-    area += fabs(triangle_area(coords[0][i], coords[0][i + 1], coords[1][i + 1]));
+    area +=
+        fabs(triangle_area(coords[0][i], coords[0][i + 1], coords[1][i + 1]));
     area += fabs(triangle_area(coords[0][i], coords[1][i + 1], coords[1][i]));
   }
 
-  // Divide the area by the average length to get the average distance between arcs.
+  // Divide the area by the average length to get the average distance between
+  // arcs.
   dist = fabs(2 * area / (arc_len[0] + arc_len[1]));
   return moab::MB_SUCCESS;
 }
@@ -1300,19 +1297,15 @@ int compare_edge(const void* a, const void* b) {
 // creating a new one if very slow. This is partly the reason that MBSkinner is
 // very slow.
 moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
-                               moab::Range& skin_edges,
-                               const bool temp_bool) {
-
+                               moab::Range& skin_edges, const bool temp_bool) {
   const bool local_debug = false;
 
-  if (1 != dim)
-    return moab::MB_NOT_IMPLEMENTED;
+  if (1 != dim) return moab::MB_NOT_IMPLEMENTED;
   if (moab::MBTRI != MBI()->type_from_handle(tris.front()))
     return moab::MB_NOT_IMPLEMENTED;
 
   skin_edges.clear();
-  if (tris.empty())
-    return moab::MB_ENTITY_NOT_FOUND;
+  if (tris.empty()) return moab::MB_ENTITY_NOT_FOUND;
 
   // This implementation gets some of its speed due to not checking for edges
   moab::ErrorCode result;
@@ -1376,11 +1369,13 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
       skin_edges.insert(edge);
 
       // If a match exists, skip ahead
-    } else if (edges[i].v0 == edges[i + 1].v0 && edges[i].v1 == edges[i + 1].v1) {
+    } else if (edges[i].v0 == edges[i + 1].v0 &&
+               edges[i].v1 == edges[i + 1].v1) {
       i++;
       // test to make sure surface is manifold
-      if (3 * tris.size() != i + 1) { // avoid overrunning array
-        while (edges[i].v0 == edges[i + 1].v0 && edges[i].v1 == edges[i + 1].v1) {
+      if (3 * tris.size() != i + 1) {  // avoid overrunning array
+        while (edges[i].v0 == edges[i + 1].v0 &&
+               edges[i].v1 == edges[i + 1].v1) {
           if (local_debug) {
             std::cout << "find_skin WARNING: non-manifold edge" << std::endl;
             MBI()->list_entity(edges[i].v0);
@@ -1405,39 +1400,34 @@ moab::ErrorCode Gen::find_skin(moab::Range tris, const int dim,
 // Copied from DagMC, without index_by_handle. The dagmc function will
 // segfault if build_indices is not first called. For sealing there is
 // no need to build_indices.
-moab::ErrorCode Gen::measure_volume(const moab::EntityHandle volume, double& result, bool debug, bool verbose) {
+moab::ErrorCode Gen::measure_volume(const moab::EntityHandle volume,
+                                    double& result, bool debug, bool verbose) {
   moab::ErrorCode rval;
   std::vector<moab::EntityHandle> surfaces, surf_volumes;
   result = 0.0;
-
-
 
   // get surfaces from volume
   rval = MBI()->get_child_meshsets(volume, surfaces);
   if (moab::MB_SUCCESS != rval) {
     return rval;
   }
-  if (debug)
-    std::cout << "in measure_volume 1" << std::endl;
+  if (debug) std::cout << "in measure_volume 1" << std::endl;
 
   // get surface senses
   std::vector<int> senses(surfaces.size());
 
-
   if (rval != moab::MB_SUCCESS) {
     std::cout << "Could not measure volume" << std::endl;
-    std::cout << "This can happen for 2 reasons, there are no volumes" << std::endl;
+    std::cout << "This can happen for 2 reasons, there are no volumes"
+              << std::endl;
     std::cout << "or the pointer to the Moab instance is poor" << std::endl;
     exit(rval);
   }
-  if (debug)
-    std::cout << surfaces.size() << " " << result << std::endl;
+  if (debug) std::cout << surfaces.size() << " " << result << std::endl;
 
   rval = surface_sense(volume, surfaces.size(), &surfaces[0], &senses[0]);
 
-
-  if (debug)
-    std::cout << "in measure_volume 2" << std::endl;
+  if (debug) std::cout << "in measure_volume 2" << std::endl;
 
   if (moab::MB_SUCCESS != rval) {
     std::cerr << "ERROR: Surface-Volume relative sense not available. "
@@ -1445,11 +1435,9 @@ moab::ErrorCode Gen::measure_volume(const moab::EntityHandle volume, double& res
     return rval;
   }
 
-
   for (unsigned i = 0; i < surfaces.size(); ++i) {
     // skip non-manifold surfaces
-    if (!senses[i])
-      continue;
+    if (!senses[i]) continue;
 
     // get triangles in surface
     moab::Range triangles;
@@ -1459,7 +1447,8 @@ moab::ErrorCode Gen::measure_volume(const moab::EntityHandle volume, double& res
     }
     if (!triangles.all_of_type(moab::MBTRI)) {
       std::cout << "WARNING: Surface " << geom_id_by_handle(surfaces[i])
-                << " contains non-triangle elements. Volume calculation may be incorrect."
+                << " contains non-triangle elements. Volume calculation may be "
+                   "incorrect."
                 << std::endl;
       triangles.clear();
       rval = MBI()->get_entities_by_type(surfaces[i], moab::MBTRI, triangles);
@@ -1473,14 +1462,13 @@ moab::ErrorCode Gen::measure_volume(const moab::EntityHandle volume, double& res
     const moab::EntityHandle* conn;
     int len;
     moab::CartVect coords[3];
-    for (moab::Range::iterator j = triangles.begin(); j != triangles.end(); ++j) {
+    for (moab::Range::iterator j = triangles.begin(); j != triangles.end();
+         ++j) {
       rval = MBI()->get_connectivity(*j, conn, len, true);
-      if (moab::MB_SUCCESS != rval)
-        return rval;
+      if (moab::MB_SUCCESS != rval) return rval;
       assert(3 == len);
       rval = MBI()->get_coords(conn, 3, coords[0].array());
-      if (moab::MB_SUCCESS != rval)
-        return rval;
+      if (moab::MB_SUCCESS != rval) return rval;
 
       coords[1] -= coords[0];
       coords[2] -= coords[0];
@@ -1490,32 +1478,29 @@ moab::ErrorCode Gen::measure_volume(const moab::EntityHandle volume, double& res
   }
 
   result /= 6.0;
-  if (debug)
-    std::cout << result << std::endl;
+  if (debug) std::cout << result << std::endl;
   return moab::MB_SUCCESS;
 }
 
 /// Calculate the signed volumes beneath the surface (x 6.0). Use the triangle's
 ///   cannonical sense. Do not take sense tags into account. Code taken from
 ///   DagMC::measure_volume.
-moab::ErrorCode Gen::get_signed_volume(const moab::EntityHandle surf_set, double& signed_volume) {
+moab::ErrorCode Gen::get_signed_volume(const moab::EntityHandle surf_set,
+                                       double& signed_volume) {
   moab::ErrorCode rval;
   moab::Range tris;
   rval = MBI()->get_entities_by_type(surf_set, moab::MBTRI, tris);
-  if (moab::MB_SUCCESS != rval)
-    return rval;
+  if (moab::MB_SUCCESS != rval) return rval;
   signed_volume = 0.0;
   const moab::EntityHandle* conn;
   int len;
   moab::CartVect coords[3];
   for (moab::Range::iterator j = tris.begin(); j != tris.end(); ++j) {
     rval = MBI()->get_connectivity(*j, conn, len, true);
-    if (moab::MB_SUCCESS != rval)
-      return rval;
+    if (moab::MB_SUCCESS != rval) return rval;
     assert(3 == len);
     rval = MBI()->get_coords(conn, 3, coords[0].array());
-    if (moab::MB_SUCCESS != rval)
-      return rval;
+    if (moab::MB_SUCCESS != rval) return rval;
 
     coords[1] -= coords[0];
     coords[2] -= coords[0];
@@ -1525,10 +1510,8 @@ moab::ErrorCode Gen::get_signed_volume(const moab::EntityHandle surf_set, double
 }
 
 moab::ErrorCode Gen::measure(const moab::EntityHandle set,
-                             const moab::Tag geom_tag,
-                             double& measurement,
-                             bool debug,
-                             bool verbose) {
+                             const moab::Tag geom_tag, double& measurement,
+                             bool debug, bool verbose) {
   moab::ErrorCode result;
   int dim;
   result = MBI()->tag_get_data(geom_tag, &set, 1, &dim);
@@ -1550,12 +1533,11 @@ moab::ErrorCode Gen::measure(const moab::EntityHandle set,
     measurement = triangle_area(tris);
 
   } else if (3 == dim) {
-
     result = measure_volume(set, measurement, debug, verbose);
 
     if (moab::MB_SUCCESS != result) {
-      std::cout << "result=" << result << " vol_id="
-                << geom_id_by_handle(set) << std::endl;
+      std::cout << "result=" << result << " vol_id=" << geom_id_by_handle(set)
+                << std::endl;
     }
   } else {
     std::cout << "measure: incorrect dimension" << std::endl;
@@ -1565,8 +1547,10 @@ moab::ErrorCode Gen::measure(const moab::EntityHandle set,
 }
 
 // From CGMA/builds/dbg/include/CubitDefines
-/// gets the surface sense with respect to the curve and returns the value to sense
-moab::ErrorCode Gen::get_curve_surf_sense(const moab::EntityHandle surf_set, const moab::EntityHandle curve_set,
+/// gets the surface sense with respect to the curve and returns the value to
+/// sense
+moab::ErrorCode Gen::get_curve_surf_sense(const moab::EntityHandle surf_set,
+                                          const moab::EntityHandle curve_set,
                                           int& sense, bool debug) {
   std::vector<moab::EntityHandle> surfs;
   std::vector<int> senses;
@@ -1592,7 +1576,7 @@ moab::ErrorCode Gen::get_curve_surf_sense(const moab::EntityHandle surf_set, con
   }
 
   if (debug) {
-    for (unsigned int index = 0; index < surfs.size() ; index++) {
+    for (unsigned int index = 0; index < surfs.size(); index++) {
       std::cout << "surf = " << geom_id_by_handle(surfs[index]) << std::endl;
       std::cout << "sense = " << senses[index] << std::endl;
     }
@@ -1603,31 +1587,32 @@ moab::ErrorCode Gen::get_curve_surf_sense(const moab::EntityHandle surf_set, con
   }
 
   // special case: ambiguous
-  if (1 < counter)
-    sense = moab::SENSE_BOTH;
+  if (1 < counter) sense = moab::SENSE_BOTH;
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::surface_sense(moab::EntityHandle volume,
-                                   int num_surfaces,
+moab::ErrorCode Gen::surface_sense(moab::EntityHandle volume, int num_surfaces,
                                    const moab::EntityHandle* surfaces,
                                    int* senses_out) {
   std::vector<moab::EntityHandle> surf_volumes(2 * num_surfaces);
-  moab::Tag senseTag = get_tag("GEOM_SENSE_2", 2, moab::MB_TAG_SPARSE, moab::MB_TYPE_HANDLE, NULL, false);
-  moab::ErrorCode rval = MBI()->tag_get_data(senseTag, surfaces, num_surfaces, &surf_volumes[0]);
+  moab::Tag senseTag = get_tag("GEOM_SENSE_2", 2, moab::MB_TAG_SPARSE,
+                               moab::MB_TYPE_HANDLE, NULL, false);
+  moab::ErrorCode rval =
+      MBI()->tag_get_data(senseTag, surfaces, num_surfaces, &surf_volumes[0]);
   if (moab::MB_SUCCESS != rval) {
     return rval;
   }
 
   const moab::EntityHandle* end = surfaces + num_surfaces;
-  std::vector<moab::EntityHandle>::const_iterator surf_vols = surf_volumes.begin();
+  std::vector<moab::EntityHandle>::const_iterator surf_vols =
+      surf_volumes.begin();
   while (surfaces != end) {
     moab::EntityHandle forward = *surf_vols;
     ++surf_vols;
     moab::EntityHandle reverse = *surf_vols;
     ++surf_vols;
     if (volume == forward) {
-      *senses_out = (volume != reverse); // zero if both, otherwise 1
+      *senses_out = (volume != reverse);  // zero if both, otherwise 1
     } else if (volume == reverse) {
       *senses_out = moab::SENSE_BOTH;
     } else {
@@ -1643,18 +1628,19 @@ moab::ErrorCode Gen::surface_sense(moab::EntityHandle volume,
 
 /// get sense of surface(s) wrt volume
 moab::ErrorCode Gen::surface_sense(moab::EntityHandle volume,
-                                   moab::EntityHandle surface,
-                                   int& sense_out) {
+                                   moab::EntityHandle surface, int& sense_out) {
   // get sense of surfaces wrt volumes
   moab::EntityHandle surf_volumes[2];
-  moab::Tag senseTag = get_tag("GEOM_SENSE_2", 2, moab::MB_TAG_SPARSE, moab::MB_TYPE_HANDLE, NULL, false);
-  moab::ErrorCode rval = MBI()->tag_get_data(senseTag, &surface, 1, surf_volumes);
+  moab::Tag senseTag = get_tag("GEOM_SENSE_2", 2, moab::MB_TAG_SPARSE,
+                               moab::MB_TYPE_HANDLE, NULL, false);
+  moab::ErrorCode rval =
+      MBI()->tag_get_data(senseTag, &surface, 1, surf_volumes);
   if (moab::MB_SUCCESS != rval) {
     return rval;
   }
 
   if (surf_volumes[0] == volume) {
-    sense_out = (surf_volumes[1] != volume); // zero if both, otherwise 1
+    sense_out = (surf_volumes[1] != volume);  // zero if both, otherwise 1
   } else if (surf_volumes[1] == volume) {
     sense_out = moab::SENSE_BOTH;
   } else {
@@ -1672,48 +1658,50 @@ moab::Tag Gen::get_tag(const char* name, int size, moab::TagType store,
   if (!create_if_missing) {
     flags |= moab::MB_TAG_EXCL;
   }
-  moab::ErrorCode result = MBI()->tag_get_handle(name, size, type, retval, flags, def_value);
+  moab::ErrorCode result =
+      MBI()->tag_get_handle(name, size, type, retval, flags, def_value);
   if (create_if_missing && moab::MB_SUCCESS != result) {
     std::cerr << "Couldn't find nor create tag named " << name << std::endl;
   }
   return retval;
 }
 
-moab::ErrorCode Gen::delete_surface(moab::EntityHandle surf, moab::Tag geom_tag, moab::Range tris, int id, bool debug, bool verbose) {
-
+moab::ErrorCode Gen::delete_surface(moab::EntityHandle surf, moab::Tag geom_tag,
+                                    moab::Range tris, int id, bool debug,
+                                    bool verbose) {
   moab::ErrorCode result;
 
-  //measure area of the surface
+  // measure area of the surface
   double area;
   result = measure(surf, geom_tag, area, debug, verbose);
   MB_CHK_SET_ERR(result, "could not measure area");
   assert(moab::MB_SUCCESS == result);
 
-  //remove triangles from the surface
+  // remove triangles from the surface
   result = MBI()->remove_entities(surf, tris);
   MB_CHK_SET_ERR(result, "could not remove tris");
   assert(moab::MB_SUCCESS == result);
-  //print information about the deleted surface if requested by the user
+  // print information about the deleted surface if requested by the user
   if (debug)
-    std::cout << "  deleted surface " << id
-              << ", area=" << area << " cm^2, n_facets=" << tris.size() << std::endl;
+    std::cout << "  deleted surface " << id << ", area=" << area
+              << " cm^2, n_facets=" << tris.size() << std::endl;
 
   // delete triangles from mesh data
   result = MBI()->delete_entities(tris);
   MB_CHK_SET_ERR(result, "could not delete tris");
   assert(moab::MB_SUCCESS == result);
 
-  //remove the sense data for the surface from its child curves
+  // remove the sense data for the surface from its child curves
   result = remove_surf_sense_data(surf, debug);
   MB_CHK_SET_ERR(result, "could not remove surface's sense data");
 
-  //if this was the last surface in a volume, then delete the volume
+  // if this was the last surface in a volume, then delete the volume
   std::vector<moab::EntityHandle> parent_volumes;
   result = MBI()->get_parent_meshsets(surf, parent_volumes);
   MB_CHK_SET_ERR(result, "could not get the surface's parent meshsets");
   assert(moab::MB_SUCCESS == result);
 
-  //check each parent volume
+  // check each parent volume
   std::vector<moab::EntityHandle>::iterator i;
   for (i = parent_volumes.begin(); i != parent_volumes.end(); i++) {
     moab::EntityHandle parent_vol = *i;
@@ -1729,125 +1717,148 @@ moab::ErrorCode Gen::delete_surface(moab::EntityHandle surf, moab::Tag geom_tag,
     }
   }
 
-  //remove the surface set itself
+  // remove the surface set itself
   result = MBI()->delete_entities(&(surf), 1);
   MB_CHK_SET_ERR(result, "could not delete surface set");
   assert(moab::MB_SUCCESS == result);
 
-
   return moab::MB_SUCCESS;
 }
 
-/// removes sense data from all curves associated with the surface given to the function
-moab::ErrorCode Gen::remove_surf_sense_data(moab::EntityHandle del_surf, bool debug) {
-
+/// removes sense data from all curves associated with the surface given to the
+/// function
+moab::ErrorCode Gen::remove_surf_sense_data(moab::EntityHandle del_surf,
+                                            bool debug) {
   moab::ErrorCode result;
   moab::GeomTopoTool gt(MBI(), false);
   int edim = gt.dimension(del_surf);
 
   if (edim != 2) {
-    MB_CHK_SET_ERR(moab::MB_FAILURE, "could not remove sense data: entity is of the wrong dimension");
+    MB_CHK_SET_ERR(
+        moab::MB_FAILURE,
+        "could not remove sense data: entity is of the wrong dimension");
   }
 
-// get the curves of the surface
+  // get the curves of the surface
   moab::Range del_surf_curves;
-  result = MBI() -> get_child_meshsets(del_surf, del_surf_curves);
+  result = MBI()->get_child_meshsets(del_surf, del_surf_curves);
   MB_CHK_SET_ERR(result, "could not get the curves of the surface to delete");
   if (debug) {
     std::cout << "got the curves" << std::endl;
-    std::cout << "number of curves to the deleted surface = " << del_surf_curves.size() << std::endl;
-    for (unsigned int index = 0 ; index < del_surf_curves.size() ; index++) {
-      std::cout << "deleted surface's child curve id " << index << " = " << geom_id_by_handle(del_surf_curves[index]) << std::endl;
+    std::cout << "number of curves to the deleted surface = "
+              << del_surf_curves.size() << std::endl;
+    for (unsigned int index = 0; index < del_surf_curves.size(); index++) {
+      std::cout << "deleted surface's child curve id " << index << " = "
+                << geom_id_by_handle(del_surf_curves[index]) << std::endl;
     }
   }
-  //get the sense data for each curve
+  // get the sense data for each curve
 
-  //get sense_tag handles from MOAB
+  // get sense_tag handles from MOAB
   moab::Tag senseEnts, senseSenses;
   unsigned flags = moab::MB_TAG_SPARSE;
 
-  //get tag for the entities with sense data associated with a given moab entity
-  result = MBI()-> tag_get_handle(GEOM_SENSE_N_ENTS_TAG_NAME, 0, moab::MB_TYPE_HANDLE, senseEnts, flags);
+  // get tag for the entities with sense data associated with a given moab
+  // entity
+  result = MBI()->tag_get_handle(GEOM_SENSE_N_ENTS_TAG_NAME, 0,
+                                 moab::MB_TYPE_HANDLE, senseEnts, flags);
   MB_CHK_SET_ERR(result, "could not get senseEnts tag");
 
-  //get tag for the sense data associated with the senseEnts entities for a given moab entity
-  result = MBI()-> tag_get_handle(GEOM_SENSE_N_SENSES_TAG_NAME, 0, moab::MB_TYPE_INTEGER, senseSenses, flags);
+  // get tag for the sense data associated with the senseEnts entities for a
+  // given moab entity
+  result = MBI()->tag_get_handle(GEOM_SENSE_N_SENSES_TAG_NAME, 0,
+                                 moab::MB_TYPE_INTEGER, senseSenses, flags);
   MB_CHK_SET_ERR(result, "could not get senseSenses tag");
 
-  //initialize vectors for entities and sense data
+  // initialize vectors for entities and sense data
   std::vector<moab::EntityHandle> surfaces;
   std::vector<int> senses;
-  for (moab::Range::iterator i = del_surf_curves.begin(); i != del_surf_curves.end(); i++) {
-
+  for (moab::Range::iterator i = del_surf_curves.begin();
+       i != del_surf_curves.end(); i++) {
     result = gt.get_senses(*i, surfaces, senses);
     MB_CHK_SET_ERR(result, "could not get the senses for the del_surf_curve");
-    // if the surface to be deleted (del_surf) exists in the sense data (which it should), then remove it
-    for (unsigned int index = 0; index < senses.size() ; index++) {
+    // if the surface to be deleted (del_surf) exists in the sense data (which
+    // it should), then remove it
+    for (unsigned int index = 0; index < senses.size(); index++) {
       if (surfaces[index] == del_surf) {
         surfaces.erase(surfaces.begin() + index);
         senses.erase(senses.begin() + index);
         index = -1;
       }
     }
-    //remove existing sense entity data for the curve
-    result = MBI()-> tag_delete_data(senseEnts, &*i, 1);
+    // remove existing sense entity data for the curve
+    result = MBI()->tag_delete_data(senseEnts, &*i, 1);
     MB_CHK_SET_ERR(result, "could not delete sense entity data");
 
-    //remove existing sense data for the curve
-    result = MBI()-> tag_delete_data(senseSenses, &*i, 1);
+    // remove existing sense data for the curve
+    result = MBI()->tag_delete_data(senseSenses, &*i, 1);
     MB_CHK_SET_ERR(result, "could not delete sense data");
 
-    //reset the sense data for each curve
+    // reset the sense data for each curve
     result = gt.set_senses(*i, surfaces, senses);
     MB_CHK_SET_ERR(result, "could not update sense data for surface deletion");
-
   }
 
   return moab::MB_SUCCESS;
 }
 
 /// combines the senses of any curves tagged as merged in the vector curves
-moab::ErrorCode Gen::combine_merged_curve_senses(std::vector<moab::EntityHandle>& curves, moab::Tag merge_tag, bool debug) {
-
+moab::ErrorCode Gen::combine_merged_curve_senses(
+    std::vector<moab::EntityHandle>& curves, moab::Tag merge_tag, bool debug) {
   moab::ErrorCode result;
 
-  for (std::vector<moab::EntityHandle>::iterator j = curves.begin(); j != curves.end(); j++) {
-
+  for (std::vector<moab::EntityHandle>::iterator j = curves.begin();
+       j != curves.end(); j++) {
     moab::EntityHandle merged_curve;
-    result = MBI() -> tag_get_data(merge_tag, &(*j), 1, &merged_curve);
+    result = MBI()->tag_get_data(merge_tag, &(*j), 1, &merged_curve);
     if (moab::MB_SUCCESS != result && moab::MB_TAG_NOT_FOUND != result) {
       MB_CHK_SET_ERR(result, "could not get the merge_tag data of the curve");
     }
 
-    if (moab::MB_SUCCESS == result) { // we have found a merged curve pairing
+    if (moab::MB_SUCCESS == result) {  // we have found a merged curve pairing
       // add the senses from the curve_to_delete to curve_to keep
       // create vectors for the senses and surfaces of each curve
-      std::vector<moab::EntityHandle> curve_to_keep_surfs, curve_to_delete_surfs, combined_surfs;
-      std::vector<int> curve_to_keep_senses, curve_to_delete_senses, combined_senses;
+      std::vector<moab::EntityHandle> curve_to_keep_surfs,
+          curve_to_delete_surfs, combined_surfs;
+      std::vector<int> curve_to_keep_senses, curve_to_delete_senses,
+          combined_senses;
 
-      //initialize GeomTopoTool.cpp instance in MOAB
+      // initialize GeomTopoTool.cpp instance in MOAB
       moab::GeomTopoTool gt(MBI(), false);
-      // get senses of the iterator curve and place them in the curve_to_delete vectors
+      // get senses of the iterator curve and place them in the curve_to_delete
+      // vectors
       result = gt.get_senses(*j, curve_to_delete_surfs, curve_to_delete_senses);
-      MB_CHK_SET_ERR(result, "could not get the surfs/senses of the curve to delete");
-      // get surfaces/senses of the merged_curve and place them in the curve_to_keep vectors
-      result = gt.get_senses(merged_curve, curve_to_keep_surfs, curve_to_keep_senses);
-      MB_CHK_SET_ERR(result, "could not get the surfs/senses of the curve to delete");
+      MB_CHK_SET_ERR(result,
+                     "could not get the surfs/senses of the curve to delete");
+      // get surfaces/senses of the merged_curve and place them in the
+      // curve_to_keep vectors
+      result = gt.get_senses(merged_curve, curve_to_keep_surfs,
+                             curve_to_keep_senses);
+      MB_CHK_SET_ERR(result,
+                     "could not get the surfs/senses of the curve to delete");
 
       if (debug) {
-        std::cout << "curve to keep id = " << geom_id_by_handle(merged_curve) << std::endl;
-        std::cout << "curve to delete id = " << geom_id_by_handle(*j) << std::endl;
-        for (unsigned int index = 0; index < curve_to_keep_surfs.size(); index++) {
-          std::cout << "curve_to_keep_surf " << index << " id = " << geom_id_by_handle(curve_to_keep_surfs[index]) << std::endl;
-          std::cout << "curve_to_keep_sense " << index << " = " << curve_to_keep_senses[index] << std::endl;
-
+        std::cout << "curve to keep id = " << geom_id_by_handle(merged_curve)
+                  << std::endl;
+        std::cout << "curve to delete id = " << geom_id_by_handle(*j)
+                  << std::endl;
+        for (unsigned int index = 0; index < curve_to_keep_surfs.size();
+             index++) {
+          std::cout << "curve_to_keep_surf " << index
+                    << " id = " << geom_id_by_handle(curve_to_keep_surfs[index])
+                    << std::endl;
+          std::cout << "curve_to_keep_sense " << index << " = "
+                    << curve_to_keep_senses[index] << std::endl;
         }
-        for (unsigned int index = 0; index < curve_to_keep_surfs.size(); index++) {
-
-          std::cout << "curve_to_delete_surf " << index << " id = " << geom_id_by_handle(curve_to_delete_surfs[index]) << std::endl;
-          std::cout << "curve_to_delete_sense " << index << " = " << curve_to_delete_senses[index] << std::endl;
+        for (unsigned int index = 0; index < curve_to_keep_surfs.size();
+             index++) {
+          std::cout << "curve_to_delete_surf " << index << " id = "
+                    << geom_id_by_handle(curve_to_delete_surfs[index])
+                    << std::endl;
+          std::cout << "curve_to_delete_sense " << index << " = "
+                    << curve_to_delete_senses[index] << std::endl;
         }
-      } // end of debug st.
+      }  // end of debug st.
 
       // combine the surface and sense data for both curves into the same vector
 
@@ -1855,97 +1866,99 @@ moab::ErrorCode Gen::combine_merged_curve_senses(std::vector<moab::EntityHandle>
                             curve_to_keep_surfs.end());
       combined_surfs.insert(combined_surfs.end(), curve_to_delete_surfs.begin(),
                             curve_to_delete_surfs.end());
-      combined_senses.insert(combined_senses.end(), curve_to_keep_senses.begin(),
+      combined_senses.insert(combined_senses.end(),
+                             curve_to_keep_senses.begin(),
                              curve_to_keep_senses.end());
-      combined_senses.insert(combined_senses.end(), curve_to_delete_senses.begin(),
+      combined_senses.insert(combined_senses.end(),
+                             curve_to_delete_senses.begin(),
                              curve_to_delete_senses.end());
 
       if (debug) {
         std::cout << combined_surfs.size() << std::endl;
         std::cout << combined_senses.size() << std::endl;
         for (unsigned int index = 0; index < combined_senses.size(); index++) {
-
-          std::cout << "combined_surfs[" << index << "] = " << geom_id_by_handle(combined_surfs[index]) << std::endl;
-          std::cout << "combined_sense[" << index << "] = " << combined_senses[index] << std::endl;
+          std::cout << "combined_surfs[" << index
+                    << "] = " << geom_id_by_handle(combined_surfs[index])
+                    << std::endl;
+          std::cout << "combined_sense[" << index
+                    << "] = " << combined_senses[index] << std::endl;
         }
-      } // end debug st.
+      }  // end debug st.
 
       result = gt.set_senses(merged_curve, combined_surfs, combined_senses);
-      if (moab::MB_SUCCESS != result && moab::MB_MULTIPLE_ENTITIES_FOUND != result) {
+      if (moab::MB_SUCCESS != result &&
+          moab::MB_MULTIPLE_ENTITIES_FOUND != result) {
         MB_CHK_SET_ERR(moab::MB_FAILURE, "failed to set senses: ");
       }
-
-
 
       // add the duplicate curve_to_keep to the vector of curves
       *j = merged_curve;
 
-    } //end merge_tag result if st.
+    }  // end merge_tag result if st.
 
-
-  } //end curves loop
+  }  // end curves loop
 
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::get_sealing_mesh_tags(double& facet_tol,
-                                           double& sme_resabs_tol,
-                                           moab::Tag& geom_tag,
-                                           moab::Tag& id_tag,
-                                           moab::Tag& normal_tag,
-                                           moab::Tag& merge_tag,
-                                           moab::Tag& faceting_tol_tag,
-                                           moab::Tag& geometry_resabs_tag,
-                                           moab::Tag& size_tag,
-                                           moab::Tag& orig_curve_tag) {
-
+moab::ErrorCode Gen::get_sealing_mesh_tags(
+    double& facet_tol, double& sme_resabs_tol, moab::Tag& geom_tag,
+    moab::Tag& id_tag, moab::Tag& normal_tag, moab::Tag& merge_tag,
+    moab::Tag& faceting_tol_tag, moab::Tag& geometry_resabs_tag,
+    moab::Tag& size_tag, moab::Tag& orig_curve_tag) {
   moab::ErrorCode result;
 
-  result = MBI()->tag_get_handle(GEOM_DIMENSION_TAG_NAME, 1,
-                                 moab::MB_TYPE_INTEGER, geom_tag, moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  result =
+      MBI()->tag_get_handle(GEOM_DIMENSION_TAG_NAME, 1, moab::MB_TYPE_INTEGER,
+                            geom_tag, moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
-  result = MBI()->tag_get_handle(GLOBAL_ID_TAG_NAME, 1,
-                                 moab::MB_TYPE_INTEGER, id_tag, moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  result =
+      MBI()->tag_get_handle(GLOBAL_ID_TAG_NAME, 1, moab::MB_TYPE_INTEGER,
+                            id_tag, moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
-  result = MBI()->tag_get_handle("NORMAL", sizeof(moab::CartVect), moab::MB_TYPE_OPAQUE,
-                                 normal_tag, moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  result = MBI()->tag_get_handle("NORMAL", sizeof(moab::CartVect),
+                                 moab::MB_TYPE_OPAQUE, normal_tag,
+                                 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
-  result = MBI()->tag_get_handle("MERGE", 1, moab::MB_TYPE_HANDLE,
-                                 merge_tag, moab::MB_TAG_SPARSE | moab::MB_TAG_CREAT);
+  result = MBI()->tag_get_handle("MERGE", 1, moab::MB_TYPE_HANDLE, merge_tag,
+                                 moab::MB_TAG_SPARSE | moab::MB_TAG_CREAT);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
   result = MBI()->tag_get_handle("FACETING_TOL", 1, moab::MB_TYPE_DOUBLE,
-                                 faceting_tol_tag, moab::MB_TAG_SPARSE | moab::MB_TAG_CREAT);
+                                 faceting_tol_tag,
+                                 moab::MB_TAG_SPARSE | moab::MB_TAG_CREAT);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
-  result = MBI()->tag_get_handle("GEOMETRY_RESABS", 1,     moab::MB_TYPE_DOUBLE,
-                                 geometry_resabs_tag, moab::MB_TAG_SPARSE | moab::MB_TAG_CREAT);
+  result = MBI()->tag_get_handle("GEOMETRY_RESABS", 1, moab::MB_TYPE_DOUBLE,
+                                 geometry_resabs_tag,
+                                 moab::MB_TAG_SPARSE | moab::MB_TAG_CREAT);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
-  result = MBI()->tag_get_handle("GEOM_SIZE", 1, moab::MB_TYPE_DOUBLE,
-                                 size_tag, moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  result = MBI()->tag_get_handle("GEOM_SIZE", 1, moab::MB_TYPE_DOUBLE, size_tag,
+                                 moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
   assert((moab::MB_SUCCESS == result));
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
   }
   int true_int = 1;
-  result = MBI()->tag_get_handle("ORIG_CURVE", 1,
-                                 moab::MB_TYPE_INTEGER, orig_curve_tag, moab::MB_TAG_DENSE | moab::MB_TAG_CREAT, &true_int);
+  result = MBI()->tag_get_handle(
+      "ORIG_CURVE", 1, moab::MB_TYPE_INTEGER, orig_curve_tag,
+      moab::MB_TAG_DENSE | moab::MB_TAG_CREAT, &true_int);
   assert(moab::MB_SUCCESS == result);
   if (result != moab::MB_SUCCESS) {
     moab_printer(result);
@@ -1954,8 +1967,8 @@ moab::ErrorCode Gen::get_sealing_mesh_tags(double& facet_tol,
   // PROBLEM: MOAB is not consistent with file_set behavior. The tag may not be
   // on the file_set.
   moab::Range file_set;
-  result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, &faceting_tol_tag,
-                                               NULL, 1, file_set);
+  result = MBI()->get_entities_by_type_and_tag(
+      0, moab::MBENTITYSET, &faceting_tol_tag, NULL, 1, file_set);
 
   MB_CHK_SET_ERR(result, "could not get faceting_tol_tag");
 
@@ -1967,41 +1980,45 @@ moab::ErrorCode Gen::get_sealing_mesh_tags(double& facet_tol,
     MB_CHK_SET_ERR(moab::MB_FAILURE, "Refacet with newer version of ReadCGM.");
   }
 
-  result = MBI()->tag_get_data(faceting_tol_tag, &file_set.front(), 1,
-                               &facet_tol);
+  result =
+      MBI()->tag_get_data(faceting_tol_tag, &file_set.front(), 1, &facet_tol);
   assert(moab::MB_SUCCESS == result);
   result = MBI()->tag_get_data(geometry_resabs_tag, &file_set.front(), 1,
                                &sme_resabs_tol);
   if (moab::MB_SUCCESS != result) {
-    std::cout <<  "absolute tolerance could not be read from file" << std::endl;
+    std::cout << "absolute tolerance could not be read from file" << std::endl;
   }
 
   return moab::MB_SUCCESS;
 }
 
-moab::ErrorCode Gen::get_geometry_meshsets(moab::Range geometry_sets[], moab::Tag geom_tag, bool verbose) {
-
+moab::ErrorCode Gen::get_geometry_meshsets(moab::Range geometry_sets[],
+                                           moab::Tag geom_tag, bool verbose) {
   moab::ErrorCode result;
 
   // get all geometry sets
   for (unsigned dim = 0; dim < 4; dim++) {
     void* val[] = {&dim};
-    result = MBI()->get_entities_by_type_and_tag(0, moab::MBENTITYSET, &geom_tag,
-                                                 val, 1, geometry_sets[dim]);
+    result = MBI()->get_entities_by_type_and_tag(
+        0, moab::MBENTITYSET, &geom_tag, val, 1, geometry_sets[dim]);
     assert(moab::MB_SUCCESS == result);
 
     // make sure that sets TRACK membership and curves are ordered
-    // moab::MESHSET_TRACK_OWNER=0x1, moab::MESHSET_SET=0x2, moab::MESHSET_ORDERED=0x4
+    // moab::MESHSET_TRACK_OWNER=0x1, moab::MESHSET_SET=0x2,
+    // moab::MESHSET_ORDERED=0x4
 
-    for (moab::Range::iterator i = geometry_sets[dim].begin(); i != geometry_sets[dim].end(); i++) {
+    for (moab::Range::iterator i = geometry_sets[dim].begin();
+         i != geometry_sets[dim].end(); i++) {
       unsigned int options;
       result = MBI()->get_meshset_options(*i, options);
       assert(moab::MB_SUCCESS == result);
 
       // if options are wrong change them
       if (dim == 1) {
-        if (!(moab::MESHSET_TRACK_OWNER & options) || !(moab::MESHSET_ORDERED & options)) {
-          result = MBI()->set_meshset_options(*i, moab::MESHSET_TRACK_OWNER | moab::MESHSET_ORDERED);
+        if (!(moab::MESHSET_TRACK_OWNER & options) ||
+            !(moab::MESHSET_ORDERED & options)) {
+          result = MBI()->set_meshset_options(
+              *i, moab::MESHSET_TRACK_OWNER | moab::MESHSET_ORDERED);
           assert(moab::MB_SUCCESS == result);
         }
       } else {
@@ -2017,19 +2034,15 @@ moab::ErrorCode Gen::get_geometry_meshsets(moab::Range geometry_sets[], moab::Ta
 }
 
 moab::ErrorCode Gen::check_for_geometry_sets(moab::Tag geom_tag, bool verbose) {
-
   moab::ErrorCode result;
   // go get all geometry sets
   moab::Range geometry_sets[4];
   result = get_geometry_meshsets(geometry_sets, geom_tag, false);
   MB_CHK_SET_ERR(result, "could not get the geometry meshsets");
 
-  //make sure they're there
+  // make sure they're there
   for (unsigned dim = 2; dim < 4; dim++) {
-
-    if (geometry_sets[dim].size() == 0)
-      return moab::MB_FAILURE;
-
+    if (geometry_sets[dim].size() == 0) return moab::MB_FAILURE;
   }
 
   return moab::MB_SUCCESS;
@@ -2038,14 +2051,14 @@ moab::ErrorCode Gen::check_for_geometry_sets(moab::Tag geom_tag, bool verbose) {
 moab::ErrorCode Gen::delete_vol(moab::EntityHandle volume) {
   // Remove the volume set. This also removes parent-child relationships.
   moab::ErrorCode result;
-  std::cout << "  deleting volume " << geom_id_by_handle(volume)  << std::endl;
+  std::cout << "  deleting volume " << geom_id_by_handle(volume) << std::endl;
   result = MBI()->delete_entities(&volume, 1);
   assert(moab::MB_SUCCESS == result);
   return result;
 }
 
-
-moab::ErrorCode Gen::get_meshset(const moab::EntityHandle set, std::vector<moab::EntityHandle>& vec) {
+moab::ErrorCode Gen::get_meshset(const moab::EntityHandle set,
+                                 std::vector<moab::EntityHandle>& vec) {
   moab::ErrorCode result;
   vec.clear();
   result = MBI()->get_entities_by_handle(set, vec);
@@ -2057,22 +2070,22 @@ moab::ErrorCode Gen::merge_verts(const moab::EntityHandle keep_vert,
                                  const moab::EntityHandle delete_vert,
                                  std::vector<moab::EntityHandle>& arc0,
                                  std::vector<moab::EntityHandle>& arc1) {
-
   moab::ErrorCode rval;
   // first update the arcs with the keep_vert
-  for (std::vector<moab::EntityHandle>::iterator i = arc0.begin(); i != arc0.end(); ++i) {
-    if (delete_vert == *i)
-      *i = keep_vert;
+  for (std::vector<moab::EntityHandle>::iterator i = arc0.begin();
+       i != arc0.end(); ++i) {
+    if (delete_vert == *i) *i = keep_vert;
   }
-  for (std::vector<moab::EntityHandle>::iterator i = arc1.begin(); i != arc1.end(); ++i) {
-    if (delete_vert == *i)
-      *i = keep_vert;
+  for (std::vector<moab::EntityHandle>::iterator i = arc1.begin();
+       i != arc1.end(); ++i) {
+    if (delete_vert == *i) *i = keep_vert;
   }
 
   // get adjacent tris
   moab::Range tris;
   moab::EntityHandle verts[2] = {keep_vert, delete_vert};
-  rval = MBI()->get_adjacencies(verts, 2, 2, false, tris, moab::Interface::UNION);
+  rval =
+      MBI()->get_adjacencies(verts, 2, 2, false, tris, moab::Interface::UNION);
   MB_CHK_SET_ERR(rval, "getting adjacent tris failed");
 
   // actually do the merge

@@ -1,23 +1,24 @@
 #ifndef MOABMC_HPP
 #define MOABMC_HPP
 
-#include "MBTagConventions.hpp"
-#include "moab/CartVect.hpp"
-#include "moab/Range.hpp"
-#include "moab/Core.hpp"
-#include "moab/GeomUtil.hpp"
-#include "moab/FileOptions.hpp"
-#include "moab/Interface.hpp"
-#include "moab/GeomTopoTool.hpp"
-#include "moab/GeomQueryTool.hpp"
-#include "DagMCVersion.hpp"
-
 #include <assert.h>
+
 #include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "DagMCVersion.hpp"
+#include "MBTagConventions.hpp"
+#include "moab/CartVect.hpp"
+#include "moab/Core.hpp"
+#include "moab/FileOptions.hpp"
+#include "moab/GeomQueryTool.hpp"
+#include "moab/GeomTopoTool.hpp"
+#include "moab/GeomUtil.hpp"
+#include "moab/Interface.hpp"
+#include "moab/Range.hpp"
 
 class RefEntity;
 
@@ -37,7 +38,6 @@ static const int surfs_handle_idx = 2;
 static const int vols_handle_idx = 3;
 static const int groups_handle_idx = 4;
 
-
 class CartVect;
 class GeomQueryTool;
 
@@ -52,8 +52,8 @@ class GeomQueryTool;
  *
  * Modifications were made to init_OBBTree which allows the functions of
  * init_OBBTree to be called without having used init_OBBTree. For example
- * if you would like access to be able to call DAG->point_in_volume() but without
- * having an implicit compliment you need only call
+ * if you would like access to be able to call DAG->point_in_volume() but
+ * without having an implicit compliment you need only call
  *
  *   1) DAG->load_file();
  *   2) DAG->setup_obb();
@@ -68,18 +68,21 @@ class GeomQueryTool;
 class DagMC {
  public:
   // Constructor
-  DagMC(std::shared_ptr<Interface> mb_impl = nullptr, double overlap_tolerance = 0., double numerical_precision = .001);
+  DagMC(std::shared_ptr<Interface> mb_impl = nullptr,
+        double overlap_tolerance = 0., double numerical_precision = .001);
   // Deprecated Constructor
-  [[ deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... )") ]]
-  DagMC(Interface* mb_impl, double overlap_tolerance = 0., double numerical_precision = .001);
+  [
+      [deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... "
+                  ")")]] DagMC(Interface* mb_impl,
+                               double overlap_tolerance = 0.,
+                               double numerical_precision = .001);
   // Destructor
   ~DagMC();
 
   /** Return the version of this library */
   static float version(std::string* version_string = NULL);
   /** Get subversion revision of this file (DagMC.hpp) */
-  [[deprecated]]
-  static unsigned int interface_revision() { return 0; }
+  [[deprecated]] static unsigned int interface_revision() { return 0; }
 
   /** Git revision of DAGMC */
   inline std::string git_sha() { return DAGMC_GIT_SHA; }
@@ -92,17 +95,18 @@ class DagMC {
    * In case this is a solid model geometry file, it will pass
    * the facet_tolerance option as guidance for the faceting engine.
    *\param cfile the file name to be loaded
-   *\param facet_tolerance the faceting tolerance guidance for the faceting engine
-   *\return - MB_SUCCESS if file loads correctly
+   *\param facet_tolerance the faceting tolerance guidance for the faceting
+   *engine \return - MB_SUCCESS if file loads correctly
    *        - other MB ErrorCodes returned from MOAB
    *
-   * Note: When loading a prexisting file with an OBB_TREE tag, a number of unspoken
-   * things happen that one should be aware of.
+   * Note: When loading a prexisting file with an OBB_TREE tag, a number of
+   *unspoken things happen that one should be aware of.
    *
-   * 1) The file is loaded and when we query the meshset, we find entities with the OBB_TREE tag
-   * 2) The OBBTreeTool assumes that any children of the entity being queried in a ray intersect sets
-   *     operation are fair game, the surface meshsets have triangles as members, but OBBs as children
-   *     but no querying is done, just assumptions that the tags exist.
+   * 1) The file is loaded and when we query the meshset, we find entities with
+   *the OBB_TREE tag 2) The OBBTreeTool assumes that any children of the entity
+   *being queried in a ray intersect sets operation are fair game, the surface
+   *meshsets have triangles as members, but OBBs as children but no querying is
+   *done, just assumptions that the tags exist.
    */
   ErrorCode load_file(const char* cfile);
 
@@ -118,12 +122,13 @@ class DagMC {
    */
   ErrorCode load_existing_contents();
 
-  /**\brief initializes the geometry and OBB tree structure for ray firing acceleration
+  /**\brief initializes the geometry and OBB tree structure for ray firing
+   * acceleration
    *
-   * This method can be called after load_file to fully initialize DAGMC.  It calls
-   * methods to set up the geometry, create the implicit complement, generate an
-   * OBB tree from the faceted representation of the geometry, and build the
-   * cross-referencing indices.
+   * This method can be called after load_file to fully initialize DAGMC.  It
+   * calls methods to set up the geometry, create the implicit complement,
+   * generate an OBB tree from the faceted representation of the geometry, and
+   * build the cross-referencing indices.
    */
   ErrorCode init_OBBTree();
 
@@ -155,14 +160,12 @@ class DagMC {
    */
   ErrorCode setup_indices();
 
-
  private:
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();
 
   /* SECTION II: Fundamental Geometry Operations/Queries */
  public:
-
   /** The methods in this section are thin wrappers around methods in the
    *  GeometryQueryTool.
    */
@@ -171,8 +174,7 @@ class DagMC {
 
   ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
                      const double ray_dir[3], EntityHandle& next_surf,
-                     double& next_surf_dist,
-                     RayHistory* history = NULL,
+                     double& next_surf_dist, RayHistory* history = NULL,
                      double dist_limit = 0, int ray_orientation = 1,
                      OrientedBoxTreeTool::TrvStats* stats = NULL);
 
@@ -186,8 +188,7 @@ class DagMC {
   ErrorCode test_volume_boundary(const EntityHandle volume,
                                  const EntityHandle surface,
                                  const double xyz[3], const double uvw[3],
-                                 int& result,
-                                 const RayHistory* history = NULL);
+                                 int& result, const RayHistory* history = NULL);
 
   ErrorCode closest_to_location(EntityHandle volume, const double point[3],
                                 double& result, EntityHandle* surface = 0);
@@ -212,8 +213,8 @@ class DagMC {
  public:
   /** Most calling apps refer to geometric entities with a combination of
    *  base-1/0 ordinal index (or rank) and global ID (or name).
-   *  DagMC also has an internal EntityHandle reference to each geometric entity.
-   *  These method provide ways to translate from one to the other.
+   *  DagMC also has an internal EntityHandle reference to each geometric
+   * entity. These method provide ways to translate from one to the other.
    */
 
   /** map from dimension & global ID to EntityHandle */
@@ -228,12 +229,13 @@ class DagMC {
   /** map from EntityHandle to global ID */
   int get_entity_id(EntityHandle this_ent);
 
-  /**\brief get number of geometric sets corresponding to geometry of specified dimension
+  /**\brief get number of geometric sets corresponding to geometry of specified
+   *dimension
    *
-   * For a given dimension (e.g. dimension=3 for volumes, dimension=2 for surfaces)
-   * return the number of entities of that dimension
-   *\param dimension the dimensionality of the entities in question
-   *\return integer number of entities of that dimension
+   * For a given dimension (e.g. dimension=3 for volumes, dimension=2 for
+   *surfaces) return the number of entities of that dimension \param dimension
+   *the dimensionality of the entities in question \return integer number of
+   *entities of that dimension
    */
   unsigned int num_entities(int dimension);
 
@@ -241,10 +243,8 @@ class DagMC {
   /** build internal index vectors that speed up handle-by-id, etc. */
   ErrorCode build_indices(Range& surfs, Range& vols);
 
-
   /* SECTION IV: Handling DagMC settings */
  public:
-
   /** retrieve overlap thickness */
   double overlap_thickness();
   /** retrieve numerical precision */
@@ -252,7 +252,8 @@ class DagMC {
   /** retrieve faceting tolerance */
   double faceting_tolerance() { return facetingTolerance; }
 
-  /** Attempt to set a new overlap thickness tolerance, first checking for sanity */
+  /** Attempt to set a new overlap thickness tolerance, first checking for
+   * sanity */
   void set_overlap_thickness(double new_overlap_thickness);
 
   /** Attempt to set a new numerical precision , first checking for sanity
@@ -260,32 +261,33 @@ class DagMC {
    */
   void set_numerical_precision(double new_precision);
 
-
   /* SECTION V: Metadata handling */
   /** Detect all the property keywords that appear in the loaded geometry
    *
    *  @param keywords_out The result list of keywords.  This list could be
    *        validly passed to parse_properties().
    */
-  ErrorCode detect_available_props(std::vector<std::string>& keywords_out, const char* delimiters = "_");
+  ErrorCode detect_available_props(std::vector<std::string>& keywords_out,
+                                   const char* delimiters = "_");
 
   /** Parse properties from group names per metadata syntax standard
    *
-   *  @param keywords A list of keywords to parse.  These are considered the canonical
-   *                  names of the properties, and constitute the valid inputs to
+   *  @param keywords A list of keywords to parse.  These are considered the
+   * canonical names of the properties, and constitute the valid inputs to
    *                  has_prop() and prop_value().
-   *  @param delimiters An array of characters the routine will use to split the groupname
-   *                    into properties.
-   *  @param synonyms An optional mapping of synonym keywords to canonical keywords.
-   *                  This allows more than one group name keyword to take on the same
+   *  @param delimiters An array of characters the routine will use to split the
+   * groupname into properties.
+   *  @param synonyms An optional mapping of synonym keywords to canonical
+   * keywords. This allows more than one group name keyword to take on the same
    *                  meaning
-   *                  e.g. if synonyms["rest.of.world"] = "graveyard", then volumes
-   *                  in the "rest.of.world" group will behave as if they were in a
-   *                  group named "graveyard".
+   *                  e.g. if synonyms["rest.of.world"] = "graveyard", then
+   * volumes in the "rest.of.world" group will behave as if they were in a group
+   * named "graveyard".
    */
-  ErrorCode parse_properties(const std::vector<std::string>& keywords,
-                             const std::map<std::string, std::string>& synonyms = no_synonyms,
-                             const char* delimiters = "_");
+  ErrorCode parse_properties(
+      const std::vector<std::string>& keywords,
+      const std::map<std::string, std::string>& synonyms = no_synonyms,
+      const char* delimiters = "_");
 
   /** Get the value of a property on a volume or surface
    *
@@ -293,22 +295,24 @@ class DagMC {
    *  @param prop The canonical property name
    *  @param value Output parameter, the value of the property.  If no value was
    *               set on the handle, this will be the empty string.
-   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *          MOAB, or MB_SUCCESS if successful
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors
+   * from MOAB, or MB_SUCCESS if successful
    */
-  ErrorCode prop_value(EntityHandle eh, const std::string& prop, std::string& value);
+  ErrorCode prop_value(EntityHandle eh, const std::string& prop,
+                       std::string& value);
 
   /** Get the value of a property on a volume or surface
    *
    *  @param eh The entity handle to get a property value on
    *  @param prop The canonical property name
-   *  @param values Output parameter, the values of the property will be appended to this list.  If no value was
-   *                set on the handle, no entries will be added.
-   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *          MOAB, or MB_SUCCESS if successful
+   *  @param values Output parameter, the values of the property will be
+   * appended to this list.  If no value was set on the handle, no entries will
+   * be added.
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors
+   * from MOAB, or MB_SUCCESS if successful
    */
   ErrorCode prop_values(EntityHandle eh, const std::string& prop,
-                        std::vector< std::string >& value);
+                        std::vector<std::string>& value);
 
   /** Return true if a volume or surface has the named property set upon it
    *
@@ -322,32 +326,39 @@ class DagMC {
   /** Get a list of all unique values assigned to a named property on any entity
    *
    *  @param prop The canonical property name
-   *  @param return_list Output param, a list of unique strings that are set as values for this property
-   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *          MOAB, or MB_SUCCESS if succesful
+   *  @param return_list Output param, a list of unique strings that are set as
+   * values for this property
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors
+   * from MOAB, or MB_SUCCESS if succesful
    */
-  ErrorCode get_all_prop_values(const std::string& prop, std::vector<std::string>& return_list);
+  ErrorCode get_all_prop_values(const std::string& prop,
+                                std::vector<std::string>& return_list);
 
   /** Get a list of all entities which have a given property
    *
    *  @param prop The canonical property name
-   *  @param return_list Output param, a list of entity handles that have this property
-   *  @param dimension If nonzero, entities returned will be restricted to the given dimension,
-   *                   i.e. 2 for surfaces and 3 for volumes
-   *  @parm value If non-NULL, only entities for which the property takes on this value will be returned.
-   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors from
-   *          MOAB, or MB_SUCCESS if successful
+   *  @param return_list Output param, a list of entity handles that have this
+   * property
+   *  @param dimension If nonzero, entities returned will be restricted to the
+   * given dimension, i.e. 2 for surfaces and 3 for volumes
+   *  @parm value If non-NULL, only entities for which the property takes on
+   * this value will be returned.
+   *  @return MB_TAG_NOT_FOUND if prop is invalid.  Otherwise return any errors
+   * from MOAB, or MB_SUCCESS if successful
    */
-  ErrorCode entities_by_property(const std::string& prop, std::vector<EntityHandle>& return_list,
-                                 int dimension = 0, const std::string* value = NULL);
+  ErrorCode entities_by_property(const std::string& prop,
+                                 std::vector<EntityHandle>& return_list,
+                                 int dimension = 0,
+                                 const std::string* value = NULL);
 
   bool is_implicit_complement(EntityHandle volume);
 
   /** get the tag for the "name" of a surface == global ID */
-  Tag name_tag() {return nameTag;}
+  Tag name_tag() { return nameTag; }
 
   /** Get the tag used to associate OBB trees with geometry in load_file(..).
-   * not sure what to do about the obb_tag, GTT has no concept of an obb_tag on EntitySets - PCS
+   * not sure what to do about the obb_tag, GTT has no concept of an obb_tag on
+   * EntitySets - PCS
    */
   Tag obb_tag() { return NULL; }
   Tag geom_tag() { return GTT->get_geom_tag(); }
@@ -355,9 +366,9 @@ class DagMC {
   Tag sense_tag() { return GTT->get_sense_tag(); }
 
  private:
-  /** tokenize the metadata stored in group names - basically borrowed from ReadCGM.cpp */
-  void tokenize(const std::string& str,
-                std::vector<std::string>& tokens,
+  /** tokenize the metadata stored in group names - basically borrowed from
+   * ReadCGM.cpp */
+  void tokenize(const std::string& str, std::vector<std::string>& tokens,
                 const char* delimiters = "_") const;
 
   /** a common type within the property and group name functions */
@@ -366,12 +377,13 @@ class DagMC {
   /** Store the name of a group in a string */
   ErrorCode get_group_name(EntityHandle group_set, std::string& name);
   /** Parse a group name into a set of key:value pairs */
-  ErrorCode parse_group_name(EntityHandle group_set, prop_map& result, const char* delimiters = "_");
+  ErrorCode parse_group_name(EntityHandle group_set, prop_map& result,
+                             const char* delimiters = "_");
   /** Add a string value to a property tag for a given entity */
   ErrorCode append_packed_string(Tag, EntityHandle, std::string&);
   /** Convert a property tag's value on a handle to a list of strings */
   ErrorCode unpack_packed_string(Tag tag, EntityHandle eh,
-                                 std::vector< std::string >& values);
+                                 std::vector<std::string>& values);
 
   std::vector<EntityHandle>& surf_handles() {
     return entHandles[surfs_handle_idx];
@@ -388,25 +400,24 @@ class DagMC {
 
   /* SECTION VI: Other */
  public:
-  OrientedBoxTreeTool* obb_tree() {return GTT->obb_tree();}
+  OrientedBoxTreeTool* obb_tree() { return GTT->obb_tree(); }
 
-  std::shared_ptr<GeomTopoTool> geom_tool() {return GTT;}
+  std::shared_ptr<GeomTopoTool> geom_tool() { return GTT; }
 
-  ErrorCode write_mesh(const char* ffile,
-                       const int flen);
+  ErrorCode write_mesh(const char* ffile, const int flen);
 
   /** get the corners of the OBB for a given volume */
   ErrorCode getobb(EntityHandle volume, double minPt[3], double maxPt[3]);
 
   /** get the center point and three vectors for the OBB of a given volume */
-  ErrorCode getobb(EntityHandle volume, double center[3],
-                   double axis1[3], double axis2[3], double axis3[3]);
+  ErrorCode getobb(EntityHandle volume, double center[3], double axis1[3],
+                   double axis2[3], double axis3[3]);
 
   /** get the root of the obbtree for a given entity */
   ErrorCode get_root(EntityHandle vol_or_surf, EntityHandle& root);
 
   /** Get the instance of MOAB used by functions in this file. */
-  Interface* moab_instance() {return MBI;}
+  Interface* moab_instance() { return MBI; }
   std::shared_ptr<Interface> moab_instance_sptr() {
     if (nullptr == MBI_shared_ptr)
       std::runtime_error("MBI instance is not defined as a shared pointer !");
@@ -414,13 +425,12 @@ class DagMC {
   }
 
  private:
-
   /* PRIVATE MEMBER DATA */
 
   // Shared_ptr owning *MBI (if allocated internally)
   std::shared_ptr<Interface> MBI_shared_ptr;
-  // Use for the call to MOAB interface, should never be deleted in the DagMC instanced
-  // MBI is either externally owned or owned by the MBI_shared_ptr
+  // Use for the call to MOAB interface, should never be deleted in the DagMC
+  // instanced MBI is either externally owned or owned by the MBI_shared_ptr
   Interface* MBI;
   bool moab_instance_created;
 
@@ -435,7 +445,8 @@ class DagMC {
   std::unique_ptr<RayTracer> ray_tracer;
 
  public:
-  Tag  nameTag, facetingTolTag;
+  Tag nameTag, facetingTolTag;
+
  private:
   /** store some lists indexed by handle */
   std::vector<EntityHandle> entHandles[5];
@@ -447,7 +458,8 @@ class DagMC {
   std::vector<RefEntity*> geomEntities;
 
   /* metadata */
-  /** empty synonym map to provide as a default argument to parse_properties() */
+  /** empty synonym map to provide as a default argument to parse_properties()
+   */
   static const std::map<std::string, std::string> no_synonyms;
   /** map from the canonical property names to the tags representing them */
   std::map<std::string, Tag> property_tagmap;
@@ -458,12 +470,13 @@ class DagMC {
 
   /** vectors for point_in_volume: */
   std::vector<double> disList;
-  std::vector<int>    dirList;
+  std::vector<int> dirList;
   std::vector<EntityHandle> surList, facList;
 };
 
 inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
-  assert(2 <= dimension && 3 >= dimension && (unsigned) index < entHandles[dimension].size());
+  assert(2 <= dimension && 3 >= dimension &&
+         (unsigned)index < entHandles[dimension].size());
   return entHandles[dimension][index];
 }
 
@@ -477,14 +490,16 @@ inline unsigned int DagMC::num_entities(int dimension) {
   return entHandles[dimension].size() - 1;
 }
 
-inline ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3], double maxPt[3]) {
+inline ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
+                               double maxPt[3]) {
   ErrorCode rval = GTT->get_bounding_coords(volume, minPt, maxPt);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
   return MB_SUCCESS;
 }
 
 inline ErrorCode DagMC::getobb(EntityHandle volume, double center[3],
-                               double axis1[3], double axis2[3], double axis3[3]) {
+                               double axis1[3], double axis2[3],
+                               double axis3[3]) {
   ErrorCode rval = GTT->get_obb(volume, center, axis1, axis2, axis3);
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
   return MB_SUCCESS;
@@ -496,6 +511,6 @@ inline ErrorCode DagMC::get_root(EntityHandle vol_or_surf, EntityHandle& root) {
   return MB_SUCCESS;
 }
 
-} // namespace moab
+}  // namespace moab
 
 #endif

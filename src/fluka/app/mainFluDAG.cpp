@@ -1,4 +1,4 @@
-//----------------------------------*-C++, Fortran-*----------------------------------//
+//-------------*-C++, //Fortran-*--------------------//
 /*!
  * \file   ~/DAGMC/FluDAG/src/cpp/mainFluDAG.cpp
  * \author Julie Zachman
@@ -6,19 +6,19 @@
  * \brief  Functions called by fluka
  * \note   Unittested
  */
-//---------------------------------------------------------------------------//
-#include "fluka_funcs.h"
-
-#include "DagMC.hpp"
-#include "dagmcmetadata.hpp"
+//--------------------------ß-------------------------//
+#include <time.h>  // for timing the routine
 
 #include <cstring>
 #include <fstream>
-#include <time.h>       // for timing the routine
+
+#include "DagMC.hpp"
+#include "dagmcmetadata.hpp"
+#include "fluka_funcs.h"
 
 #define flukam flukam_
 
-moab::DagMC* DAG = new moab::DagMC(); // dagmc instance
+moab::DagMC* DAG = new moab::DagMC();  // dagmc instance
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
   // Default h5m filename is for fluka runs
   std::string infile = "dagmc.h5m";
 
-  if (argc == 1) {   // then its a fluka run
+  if (argc == 1) {  // then its a fluka run
     // fluka creates a run dir one lvl higher
     infile = "../" + infile;
     flukarun = true;
@@ -49,10 +49,9 @@ int main(int argc, char* argv[]) {
               << " material assignments" << std::endl;
     std::cout << "too many arguments provided" << std::endl;
     exit(1);
-  } else { // its a pre process run
-    infile = argv[1]; // must be the 2nd argument
+  } else {             // its a pre process run
+    infile = argv[1];  // must be the 2nd argument
   }
-
 
   std::ifstream h5mfile(infile.c_str());  // filestream for mesh geom
   if (!h5mfile.good()) {
@@ -63,12 +62,13 @@ int main(int argc, char* argv[]) {
   int max_pbl = 1;
 
   // get the current time
-  time(&time_before);  /* get current time; same as: timer = time(NULL)  */
-
+  time(&time_before); /* get current time; same as: timer = time(NULL)  */
 
   // DAG call to load the file
-  std::cout << "Loading the faceted geometry file " << infile << "..." << std::endl;
-  error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
+  std::cout << "Loading the faceted geometry file " << infile << "..."
+            << std::endl;
+  error = DAG->load_file(
+      infile.c_str());  // load the dag file takeing the faceting from h5m
 
   if (error != moab::MB_SUCCESS) {
     std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
@@ -77,11 +77,13 @@ int main(int argc, char* argv[]) {
 
   time(&time_after);
 
-  double seconds = difftime(time_after, time_before); //get the time in seconds to load file
+  double seconds = difftime(
+      time_after, time_before);  // get the time in seconds to load file
 
-  time_before = time_after; // reset time to now for the next call
+  time_before = time_after;  // reset time to now for the next call
 
-  std::cout << "Time to load the h5m file = " << seconds << " seconds" << std::endl;
+  std::cout << "Time to load the h5m file = " << seconds << " seconds"
+            << std::endl;
 
   // DAG call to initialize geometry
   // if more than 1 argument provided
@@ -96,7 +98,8 @@ int main(int argc, char* argv[]) {
   }
 
   if (error != moab::MB_SUCCESS) {
-    std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
+    std::cerr << "DAGMC failed to initialize geometry and create OBB tree"
+              << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -123,4 +126,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
-

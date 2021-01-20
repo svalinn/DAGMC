@@ -1,15 +1,15 @@
 // MCNP5/dagmc/PolynomialKernel.cpp
 
+#include "PolynomialKernel.hpp"
+
 #include <cassert>
 #include <sstream>
-
-#include "PolynomialKernel.hpp"
 
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
 PolynomialKernel::PolynomialKernel(unsigned int s, unsigned int r)
-  : s(s), r(r), multiplier(compute_multiplier()) {
+    : s(s), r(r), multiplier(compute_multiplier()) {
   assert(r > 0);
 
   // populate coefficients vector for higher order kernel functions
@@ -34,21 +34,18 @@ PolynomialKernel::PolynomialKernel(unsigned int s, unsigned int r)
 //---------------------------------------------------------------------------//
 // DESTRUCTOR
 //---------------------------------------------------------------------------//
-PolynomialKernel::~PolynomialKernel() {
-  delete quadrature;
-}
+PolynomialKernel::~PolynomialKernel() { delete quadrature; }
 //---------------------------------------------------------------------------//
 // DERIVED PUBLIC INTERFACE from KDEKernel.hpp
 //---------------------------------------------------------------------------//
 double PolynomialKernel::evaluate(double u) const {
   // test if outside kernel function domain [-1.0, 1.0]
-  if (u < -1.0 || u > 1.0)
-    return 0.0;
+  if (u < -1.0 || u > 1.0) return 0.0;
 
   // evaluate a 2nd-order kernel function
   double value = multiplier;
 
-  if (s == 1) { // epanechnikov kernel
+  if (s == 1) {  // epanechnikov kernel
     value *= (1 - u * u);
   } else if (s > 1) {
     double temp = 1 - u * u;
@@ -109,16 +106,13 @@ std::string PolynomialKernel::get_kernel_name() const {
   return kernel_name.str();
 }
 //---------------------------------------------------------------------------//
-int PolynomialKernel::get_order() const {
-  return 2 * r;
-}
+int PolynomialKernel::get_order() const { return 2 * r; }
 //---------------------------------------------------------------------------//
 int PolynomialKernel::get_min_quadrature(unsigned int i) const {
   return s + r + (i / 2);
 }
 //---------------------------------------------------------------------------//
-double PolynomialKernel::integrate_moment(double a,
-                                          double b,
+double PolynomialKernel::integrate_moment(double a, double b,
                                           unsigned int i) const {
   assert(quadrature != NULL);
 
@@ -137,10 +131,8 @@ double PolynomialKernel::integrate_moment(double a,
     }
 
     // modify integration limits if needed
-    if (a < -1.0)
-      a = -1.0;
-    if (b > 1.0)
-      b = 1.0;
+    if (a < -1.0) a = -1.0;
+    if (b > 1.0) b = 1.0;
 
     // evaluate the integral
     value = quadrature->integrate(a, b, moment);

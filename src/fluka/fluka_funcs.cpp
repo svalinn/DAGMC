@@ -1,21 +1,22 @@
 #include "fluka_funcs.h"
-#include "dagmcmetadata.hpp"
 
-#include "moab/Interface.hpp"
-#include "moab/CartVect.hpp"
 #include "DagMC.hpp"
+#include "dagmcmetadata.hpp"
+#include "moab/CartVect.hpp"
+#include "moab/Interface.hpp"
 #include "moab/Types.hpp"
 
 using moab::DagMC;
 
-#include <iomanip>
-#include <fstream>     // ofstream
-#include <sstream>
+#include <stdlib.h>  // atoi
+
+#include <algorithm>  // sort
 #include <cstring>
+#include <fstream>  // ofstream
+#include <iomanip>
 #include <list>
-#include <algorithm>   // sort
-#include <utility>     // makepair
-#include <stdlib.h>    // atoi
+#include <sstream>
+#include <utility>  // makepair
 
 #ifdef CUBIT_LIBS_PRESENT
 #include <fenv.h>
@@ -48,28 +49,25 @@ static particle_state state;
 
 /* For DAGMC only sets the number of volumes in the problem */
 void jomiwr(int& nge, const int& lin, const int& lou, int& flukaReg) {
-
   if (debug) {
     std::cout << "================== JOMIWR =================" << std::endl;
   }
 
-  //Original comment:  returns number of volumes
+  // Original comment:  returns number of volumes
   unsigned int numVol = DAG->num_entities(3);
   flukaReg = numVol;
 
   if (debug) {
     std::cout << "Number of volumes: " << flukaReg << std::endl;
-    std::cout << "================== Out of JOMIWR =================" << std::endl;
+    std::cout << "================== Out of JOMIWR ================="
+              << std::endl;
   }
 
   return;
 }
 
 /* returns the approved step from pS along pV */
-void g_step(double& pSx,
-            double& pSy,
-            double& pSz,
-            double* pV,
+void g_step(double& pSx, double& pSy, double& pSz, double* pV,
             int& oldReg,         // pass through
             const int& oldLttc,  // ignore
             double& propStep,    // .
@@ -81,20 +79,21 @@ void g_step(double& pSx,
             int& LttcFlag,       // .
             double* sLt,         // .
             int* jrLt) {         // .
-  double safety; // safety parameter
+  double safety;                 // safety parameter
 
   if (debug) {
     std::cout << "============= G_STEP	 ==============" << std::endl;
     std::cout << "Position " << pSx << " " << pSy << " " << pSz << std::endl;
-    std::cout << "Direction vector " << pV[0] << " " << pV[1] << " " << pV[2] << std::endl;
+    std::cout << "Direction vector " << pV[0] << " " << pV[1] << " " << pV[2]
+              << std::endl;
     std::cout << "Oldreg = " << oldReg << std::endl;
     std::cout << "PropStep = " << propStep << std::endl;
   }
 
   double point[3] = {pSx, pSy, pSz};
-  double dir[3]   = {pV[0], pV[1], pV[2]};
+  double dir[3] = {pV[0], pV[1], pV[2]};
 
-  g_fire(oldReg, point, dir, propStep, retStep, saf, newReg); // fire a ray
+  g_fire(oldReg, point, dir, propStep, retStep, saf, newReg);  // fire a ray
 
   if (debug) {
     std::cout << " ret = " << retStep;
@@ -109,18 +108,21 @@ void g_step(double& pSx,
 
 /* function to determine the particles next volume & step length */
 void g_fire(int& oldRegion, double point[], double dir[], double& propStep,
-            double& retStep, double& safety,  int& newRegion) {
-  moab::EntityHandle vol = DAG->entity_by_index(3, oldRegion); // get eh of current region
-  moab::EntityHandle next_surf; // next surf we hit
+            double& retStep, double& safety, int& newRegion) {
+  moab::EntityHandle vol =
+      DAG->entity_by_index(3, oldRegion);  // get eh of current region
+  moab::EntityHandle next_surf;            // next surf we hit
   double next_surf_dist;
   moab::EntityHandle newvol = 0;
 
-  if (debug)
-    print_state(state);
+  if (debug) print_state(state);
 
   // direction changed reset history, may not be robust
-  if (dir[0] != state.old_direction[0] || dir[1] != state.old_direction[1] || dir[2] != state.old_direction[2]) {
-    if (point[0] != state.old_position[0] || point[1] != state.old_position[1] || point[2] != state.old_position[2]) {
+  if (dir[0] != state.old_direction[0] || dir[1] != state.old_direction[1] ||
+      dir[2] != state.old_direction[2]) {
+    if (point[0] != state.old_position[0] ||
+        point[1] != state.old_position[1] ||
+        point[2] != state.old_position[2]) {
       // if point and direction has changed, we should reset everything
       reset_state(state);
     } else {
@@ -130,10 +132,11 @@ void g_fire(int& oldRegion, double point[], double dir[], double& propStep,
   }
   /*
   // direction changed reset history, may not be robust
-  if( dir[0] == state.old_direction[0] && dir[1] == state.old_direction[1] && dir[2] == state.old_direction[2] )  {
+  if( dir[0] == state.old_direction[0] && dir[1] == state.old_direction[1] &&
+  dir[2] == state.old_direction[2] )  {
     // position may have changed since last time, may not be robust
-    if( point[0] == state.old_position[0] && point[1] == state.old_position[1] && point[2] == state.old_position[2] ) {
-    } else {
+    if( point[0] == state.old_position[0] && point[1] == state.old_position[1]
+  && point[2] == state.old_position[2] ) { } else {
       // if point and direction has changed, we should reset everything
       reset_state(state);
     }
@@ -143,20 +146,23 @@ void g_fire(int& oldRegion, double point[], double dir[], double& propStep,
   }
   */
 
-  if (debug)
-    print_state(state);
+  if (debug) print_state(state);
 
   if (state.on_boundary) {
-    // electrons do funny things on the boundary, since electrons can interact on the boundary, it may be the case
-    // that the when on the boundary the electron changes direction, not end up in the new region as originally thought
-    // when this happens
-    // Alfredo says that we only need to check the dot product of the normal of the last surface crossed &
-    // the particle direction if less than 0.0 then we return a step of 0.0 and set newRegion to -3
+    // electrons do funny things on the boundary, since electrons can interact
+    // on the boundary, it may be the case that the when on the boundary the
+    // electron changes direction, not end up in the new region as originally
+    // thought when this happens Alfredo says that we only need to check the dot
+    // product of the normal of the last surface crossed & the particle
+    // direction if less than 0.0 then we return a step of 0.0 and set newRegion
+    // to -3
 
     // since the fluka normal points the other way
     if (state.prev_surface == 0 && state.next_surface != 0) {
       if (debug)
-        std::cout << "Checking to see if we have changed direction using next surface" << std::endl;
+        std::cout
+            << "Checking to see if we have changed direction using next surface"
+            << std::endl;
       if (dot_product(state.next_surface, point, dir) < 0.0) {
         retStep = 0.0;
         newRegion = -3;
@@ -164,70 +170,83 @@ void g_fire(int& oldRegion, double point[], double dir[], double& propStep,
       }
     } else if (state.prev_surface != 0) {
       if (debug)
-        std::cout << "Checking to see if we have changed direction using last surface" << std::endl;
+        std::cout
+            << "Checking to see if we have changed direction using last surface"
+            << std::endl;
       if (dot_product(state.prev_surface, point, dir) < 0.0) {
         retStep = 0.0;
         newRegion = -3;
         return;
       }
     } else {
-      fludag_abort("g_fire", "Failure from within FluDAG, next_surf & prev_surf are both 0", 1);
+      fludag_abort(
+          "g_fire",
+          "Failure from within FluDAG, next_surf & prev_surf are both 0", 1);
     }
 
     // if we are not on the boundary but think we should be
-    if (boundary_test(vol, point, dir) == 0) { // if ray not on boundary of leaving vol
-      if (debug)
-        std::cout << " ray is on boundary" << std::endl;
-      state.history.reset(); // reset history
-      state.on_boundary = false; // reset on boundary
+    if (boundary_test(vol, point, dir) ==
+        0) {  // if ray not on boundary of leaving vol
+      if (debug) std::cout << " ray is on boundary" << std::endl;
+      state.history.reset();      // reset history
+      state.on_boundary = false;  // reset on boundary
     }
   }
 
   // perform the actual ray fire
-  moab::ErrorCode rval = DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist, &state.history); // fire a ray
+  moab::ErrorCode rval =
+      DAG->ray_fire(vol, point, dir, next_surf, next_surf_dist,
+                    &state.history);  // fire a ray
   if (rval != moab::MB_SUCCESS)
-    fludag_abort("g_fire", "Failure from within DAGMC, ray_fire returned errorcode", rval);
+    fludag_abort("g_fire",
+                 "Failure from within DAGMC, ray_fire returned errorcode",
+                 rval);
 
-  if (next_surf == 0) {   // if next_surface is 0 then we are lost
+  if (next_surf == 0) {  // if next_surface is 0 then we are lost
     if (debug) {
       std::cout << "!!! Lost Particle !!! " << std::endl;
-      std::cout << "in region, " << oldRegion << " aka " << DAG->entity_by_index(3, oldRegion) << std::endl;
+      std::cout << "in region, " << oldRegion << " aka "
+                << DAG->entity_by_index(3, oldRegion) << std::endl;
       std::cout.precision(25);
-      std::cout << std::scientific ;
-      std::cout << "position of particle " << point[0] << " " << point[1] << " " << point[2] << std::endl;
-      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " " << dir[2] << std::endl;
+      std::cout << std::scientific;
+      std::cout << "position of particle " << point[0] << " " << point[1] << " "
+                << point[2] << std::endl;
+      std::cout << " traveling in direction " << dir[0] << " " << dir[1] << " "
+                << dir[2] << std::endl;
       std::cout << "!!! Lost Particle !!!" << std::endl;
     }
-    newRegion = -33; // return error
+    newRegion = -33;  // return error
     retStep = 0.0;
     return;
   }
 
   // set the safety
-  retStep = next_surf_dist; // the returned step length is the distance to next surf
+  retStep =
+      next_surf_dist;  // the returned step length is the distance to next surf
 
   // proposed step
   double proposed_step = propStep;
 
-  if (proposed_step >= retStep) {   // will cross into next volume next step
+  if (proposed_step >= retStep) {  // will cross into next volume next step
     moab::ErrorCode rval = DAG->next_vol(next_surf, vol, newvol);
     if (moab::MB_SUCCESS != rval)
       fludag_abort("g_fire", "DAGMC failed in next_vol", rval);
 
     newRegion = DAG->index_by_handle(newvol);
     //      retStep = retStep; // path limited by geometry
-    state.next_surface = next_surf; // no operation - but for clarity
+    state.next_surface = next_surf;  // no operation - but for clarity
     state.on_boundary = true;
     // history is preserved
-  } else { // step less than the distance to surface or false step
-    newRegion = oldRegion; // dont leave the current region
-    retStep = proposed_step;    // physics limits step
-    state.next_surface = state.prev_surface; // still hit the previous surface
-    state.history.reset();       // reset the history
-    state.on_boundary = false;     // cannot be on boundary
+  } else {  // step less than the distance to surface or false step
+    newRegion = oldRegion;                    // dont leave the current region
+    retStep = proposed_step;                  // physics limits step
+    state.next_surface = state.prev_surface;  // still hit the previous surface
+    state.history.reset();                    // reset the history
+    state.on_boundary = false;                // cannot be on boundary
   }
 
-  state.PrevRegion = newRegion; // particle will be moving to PrevRegion upon next entry.
+  state.PrevRegion =
+      newRegion;  // particle will be moving to PrevRegion upon next entry.
 
   /*
   if ( mulbou_.lsense ) {
@@ -243,15 +262,14 @@ void g_fire(int& oldRegion, double point[], double dir[], double& propStep,
   }
   */
 
-
-  if (debug)  {
+  if (debug) {
     std::cout << "Region on other side of surface is  = " << newRegion
               << ", Distance to next surf is " << retStep << std::endl;
   }
 
   // if lsense true, a false sensing step, facet not hit, surface not crossed
-  // if sensing step takes is beyond volume doesnt matter, if takes in same volume
-  // doesnt matter
+  // if sensing step takes is beyond volume doesnt matter, if takes in same
+  // volume doesnt matter
   //  if(mulbou_.lsense) {
   //    state.history.rollback_last_intersection();
   //    if(debug) {
@@ -270,12 +288,12 @@ void g_fire(int& oldRegion, double point[], double dir[], double& propStep,
   state.old_position[1] = point[1];
   state.old_position[2] = point[2];
 
-
   return;
 }
 
 // function to determine the angle between
-double dot_product(moab::EntityHandle surface, double point[3], double direction[3]) {
+double dot_product(moab::EntityHandle surface, double point[3],
+                   double direction[3]) {
   moab::EntityHandle rval;
   double normal[3] = {0, 0, 0};
   if (debug) {
@@ -285,7 +303,7 @@ double dot_product(moab::EntityHandle surface, double point[3], double direction
   if (moab::MB_SUCCESS != rval)
     fludag_abort("dot_product", "DAGMC failed in get_angle", rval);
 
-  //may want to write our own inline vec angle function
+  // may want to write our own inline vec angle function
   moab::CartVect v1(normal);
   moab::CartVect v2(direction);
 
@@ -293,7 +311,8 @@ double dot_product(moab::EntityHandle surface, double point[3], double direction
 
   if (debug) {
     std::cout << "------ dot_product -------" << std::endl;
-    std::cout << "angle between surface, " << surface << "with normal, " << v1 << std::endl;
+    std::cout << "angle between surface, " << surface << "with normal, " << v1
+              << std::endl;
     std::cout << " amd direction " << v2 << " is " << angle << std::endl;
   }
 
@@ -304,12 +323,14 @@ double dot_product(moab::EntityHandle surface, double point[3], double direction
 void print_state(particle_state& state) {
   std::cout << "-------print_state-------" << std::endl;
   std::cout << "pos= " << state.old_position[0] << " " << state.old_position[1];
-  std::cout << " "     << state.old_position[2] << std::endl;
-  std::cout << "dir= " << state.old_direction[0] << " " << state.old_direction[1];
-  std::cout << " "     << state.old_direction[2] << std::endl;
+  std::cout << " " << state.old_position[2] << std::endl;
+  std::cout << "dir= " << state.old_direction[0] << " "
+            << state.old_direction[1];
+  std::cout << " " << state.old_direction[2] << std::endl;
 
-  std::cout << "next_surface: " << state.next_surface << " prev_surface: " << state.prev_surface << std::endl;
-  std::cout << "prevRegion: " << state.PrevRegion  << std::endl;
+  std::cout << "next_surface: " << state.next_surface
+            << " prev_surface: " << state.prev_surface << std::endl;
+  std::cout << "prevRegion: " << state.PrevRegion << std::endl;
   std::cout << "on_boundary: " << state.on_boundary << std::endl;
   return;
 }
@@ -342,31 +363,33 @@ void reset_state(particle_state& state) {
   return;
 }
 
-
 /* testable wrapper for f_normal */
-int normal(double& posx, double& posy, double& posz, double* norml, int& curRegion) {
+int normal(double& posx, double& posy, double& posz, double* norml,
+           int& curRegion) {
   int flagErr;
   int dummyReg;
   double dummyDirx, dummyDiry, dummyDirz;
-  f_normal(posx, posy, posz, dummyDirx, dummyDiry, dummyDirz, norml, curRegion, dummyReg, flagErr);
+  f_normal(posx, posy, posz, dummyDirx, dummyDiry, dummyDirz, norml, curRegion,
+           dummyReg, flagErr);
   return flagErr;
 }
 
-/* given the particle position, direction, region return the normal to surface */
-void f_normal(double& pSx, double& pSy, double& pSz,
-              double& pVx, double& pVy, double& pVz,
-              double* norml, const int& oldRegion,
+/* given the particle position, direction, region return the normal to surface
+ */
+void f_normal(double& pSx, double& pSy, double& pSz, double& pVx, double& pVy,
+              double& pVz, double* norml, const int& oldRegion,
               const int& newReg, int& flagErr) {
-  if (debug)
-    std::cout << "============ NRMLWR =============" << std::endl;
+  if (debug) std::cout << "============ NRMLWR =============" << std::endl;
 
-  moab::EntityHandle OldReg = DAG -> entity_by_index(3, oldRegion); // entity handle
-  double xyz[3] = {pSx, pSy, pSz}; //position vector
-  double uvw[3] = {pVx, pVy, pVz}; //particle direction
-  int result; // particle is entering or leaving
+  moab::EntityHandle OldReg =
+      DAG->entity_by_index(3, oldRegion);  // entity handle
+  double xyz[3] = {pSx, pSy, pSz};         // position vector
+  double uvw[3] = {pVx, pVy, pVz};         // particle direction
+  int result;                              // particle is entering or leaving
 
-  moab::ErrorCode rval = DAG->test_volume_boundary(OldReg, state.next_surface, xyz, uvw
-                                                   , result, &state.history); // see if we are on boundary
+  moab::ErrorCode rval =
+      DAG->test_volume_boundary(OldReg, state.next_surface, xyz, uvw, result,
+                                &state.history);  // see if we are on boundary
   if (moab::MB_SUCCESS != rval)
     fludag_abort("f_normal", "DAGMC failed in test_volume_boundary", rval);
 
@@ -375,47 +398,49 @@ void f_normal(double& pSx, double& pSy, double& pSz,
     fludag_abort("f_normal", "DAGMC failed in get_angle", rval);
 
   // result = 1 entering, 0 leaving
-  if (result == 0) {   // vector should point towards OldReg
+  if (result == 0) {  // vector should point towards OldReg
     norml[0] = norml[0] * -1.0;
     norml[1] = norml[1] * -1.0;
     norml[2] = norml[2] * -1.0;
   }
 
   if (debug)
-    std::cout << "Normal: " << norml[0] << ", " << norml[1] << ", " << norml[2]  << std::endl;
+    std::cout << "Normal: " << norml[0] << ", " << norml[1] << ", " << norml[2]
+              << std::endl;
 
   return;
 }
 
 /* does the position pos belong to region oldRegion */
 inline bool check_vol(double pos[3], double dir[3], int oldRegion) {
-  int is_inside; // in volume or not
+  int is_inside;  // in volume or not
   // convert region id into entityhandle
-  moab::EntityHandle volume = DAG->entity_by_index(3, oldRegion); // get the volume by index
+  moab::EntityHandle volume =
+      DAG->entity_by_index(3, oldRegion);  // get the volume by index
   moab::ErrorCode rval = DAG->point_in_volume(volume, pos, is_inside, dir);
 
   // check for non error
   if (moab::MB_SUCCESS != rval)
     fludag_abort("check_vol", "DAGMC failed in point_in_volume", rval);
 
-  return is_inside == 1;   // we are inside the cell tested
+  return is_inside == 1;  // we are inside the cell tested
 }
 
-
 /* testable wrapper function for f_look */
-int look(double& posx, double& posy, double& posz, double* dir, int& oldRegion) {
+int look(double& posx, double& posy, double& posz, double* dir,
+         int& oldRegion) {
   int flagErr;
   int lattice_dummy;  // not used
   int nextRegion;
-  f_look(posx, posy, posz, dir, oldRegion, lattice_dummy, nextRegion, flagErr, lattice_dummy);
+  f_look(posx, posy, posz, dir, oldRegion, lattice_dummy, nextRegion, flagErr,
+         lattice_dummy);
   return nextRegion;
 }
 
-
 /* determine where a particle is, given position, direction etc */
-void f_look(double& pSx, double& pSy, double& pSz,
-            double* pV, const int& oldReg, const int& oldLttc,
-            int& nextRegion, int& flagErr, int& newLttc) {
+void f_look(double& pSx, double& pSy, double& pSz, double* pV,
+            const int& oldReg, const int& oldLttc, int& nextRegion,
+            int& flagErr, int& newLttc) {
   if (debug) {
     std::cout << "-------f_look------" << std::endl;
     std::cout << " stack size is " << flkstk_.npflka << std::endl;
@@ -426,14 +451,15 @@ void f_look(double& pSx, double& pSy, double& pSz,
   // get the stack count
   //  state.stack_count = flkstk_.npflka;
 
-  const double xyz[] = {pSx, pSy, pSz};       // location of the particle (xyz)
+  const double xyz[] = {pSx, pSy, pSz};  // location of the particle (xyz)
   const double dir[] = {pV[0], pV[1], pV[2]};
 
   int is_inside = 0;
   int num_vols = DAG->num_entities(3);  // number of volumes
 
-  for (int i = 1 ; i <= num_vols ; i++) { // loop over all volumes
-    moab::EntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+  for (int i = 1; i <= num_vols; i++) {  // loop over all volumes
+    moab::EntityHandle volume =
+        DAG->entity_by_index(3, i);  // get the volume by index
     // No ray history  - doesnt matter, only called for new source particles
     moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, is_inside, dir);
     // check for non error
@@ -441,40 +467,44 @@ void f_look(double& pSx, double& pSy, double& pSz,
       fludag_abort("f_look", "DAGMC failed in point_in_volume", rval);
 
     // we think that we are inside ,
-    if (is_inside == 1) {   // we are inside the cell tested
+    if (is_inside == 1) {  // we are inside the cell tested
       // test point in vol again, but reverse the direction
       double new_dir[3];
-      new_dir[0] = -1.*dir[0];
-      new_dir[1] = -1.*dir[1];
-      new_dir[2] = -1.*dir[2];
+      new_dir[0] = -1. * dir[0];
+      new_dir[1] = -1. * dir[1];
+      new_dir[2] = -1. * dir[2];
 
-      int second_test = 0 ;
+      int second_test = 0;
 
-      moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, second_test, new_dir);
+      moab::ErrorCode rval =
+          DAG->point_in_volume(volume, xyz, second_test, new_dir);
       // check for non error
       if (moab::MB_SUCCESS != rval)
         fludag_abort("f_look", "DAGMC failed in point_in_volume", rval);
 
       if (is_inside != second_test) {
         if (debug) {
-          std::cout << "First test inconclusive, doing the slow test" << std::endl;
+          std::cout << "First test inconclusive, doing the slow test"
+                    << std::endl;
         }
 
-        rval =  DAG->point_in_volume_slow(volume, xyz, second_test);
+        rval = DAG->point_in_volume_slow(volume, xyz, second_test);
         if (moab::MB_SUCCESS != rval)
           fludag_abort("f_look", "DAGMC failed in point_in_volume_slow", rval);
-        // firing rays in two opposing directions didnt work, the slow test didnt work
+        // firing rays in two opposing directions didnt work, the slow test
+        // didnt work
         if (second_test == 0) {
           continue;
         }
       }
 
-      //WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
+      // WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
       nextRegion = i;
       flagErr = nextRegion;
 
       if (debug) {
-        std::cout << "region is " << nextRegion << " aka " << volume << std::endl;
+        std::cout << "region is " << nextRegion << " aka " << volume
+                  << std::endl;
       }
       return;
     } else if (is_inside == -1) {
@@ -488,15 +518,15 @@ void f_look(double& pSx, double& pSy, double& pSz,
   flagErr = nextRegion;
 
   if (debug)
-    std::cout <<  oldReg << " " <<  oldLttc << " " << nextRegion <<  " " << flagErr << " " << newLttc << std::endl;
+    std::cout << oldReg << " " << oldLttc << " " << nextRegion << " " << flagErr
+              << " " << newLttc << std::endl;
 
   return;
 }
 
 /* If particle is lost calls this routine */
-void f_lostlook(double& pSx, double& pSy, double& pSz,
-                double* pV,  int& oldReg, int& oldLttc,
-                int& nextRegion, int& flagErr, int& newLttc) {
+void f_lostlook(double& pSx, double& pSy, double& pSz, double* pV, int& oldReg,
+                int& oldLttc, int& nextRegion, int& flagErr, int& newLttc) {
   if (debug) {
     std::cout << "-------f_lostlook------" << std::endl;
     std::cout << " stack size is " << flkstk_.npflka << std::endl;
@@ -507,14 +537,15 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
   // get the stack count
   //  state.stack_count = flkstk_.npflka;
 
-  const double xyz[] = {pSx, pSy, pSz};       // location of the particle (xyz)
+  const double xyz[] = {pSx, pSy, pSz};  // location of the particle (xyz)
   const double dir[] = {pV[0], pV[1], pV[2]};
 
   int is_inside = 0;
   int num_vols = DAG->num_entities(3);  // number of volumes
 
-  for (int i = 1 ; i <= num_vols ; i++) { // loop over all volumes
-    moab::EntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+  for (int i = 1; i <= num_vols; i++) {  // loop over all volumes
+    moab::EntityHandle volume =
+        DAG->entity_by_index(3, i);  // get the volume by index
     // No ray history  - doesnt matter, only called for new source particles
     moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, is_inside, dir);
     // check for non error
@@ -522,40 +553,45 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
       fludag_abort("f_lostlook", "DAGMC failed in point_in_volume", rval);
 
     // we think that we are inside ,
-    if (is_inside == 1) {   // we are inside the cell tested
+    if (is_inside == 1) {  // we are inside the cell tested
       // test point in vol again, but reverse the direction
       double new_dir[3];
-      new_dir[0] = -1.*dir[0];
-      new_dir[1] = -1.*dir[1];
-      new_dir[2] = -1.*dir[2];
+      new_dir[0] = -1. * dir[0];
+      new_dir[1] = -1. * dir[1];
+      new_dir[2] = -1. * dir[2];
 
-      int second_test = 0 ;
+      int second_test = 0;
 
-      moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, second_test, new_dir);
+      moab::ErrorCode rval =
+          DAG->point_in_volume(volume, xyz, second_test, new_dir);
       // check for non error
       if (moab::MB_SUCCESS != rval)
         fludag_abort("f_lostlook", "DAGMC failed in point_in_volume", rval);
 
       if (is_inside != second_test) {
         if (debug) {
-          std::cout << "First test inconclusive, doing the slow test" << std::endl;
+          std::cout << "First test inconclusive, doing the slow test"
+                    << std::endl;
         }
 
-        rval =  DAG->point_in_volume_slow(volume, xyz, second_test);
+        rval = DAG->point_in_volume_slow(volume, xyz, second_test);
         if (moab::MB_SUCCESS != rval)
-          fludag_abort("f_lostlook", "DAGMC failed in point_in_volume_slow", rval);
-        // firing rays in two opposing directions didnt work, the slow test didnt work
+          fludag_abort("f_lostlook", "DAGMC failed in point_in_volume_slow",
+                       rval);
+        // firing rays in two opposing directions didnt work, the slow test
+        // didnt work
         if (second_test == 0) {
           continue;
         }
       }
 
-      //WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
+      // WHEN WE ARE INSIDE A VOLUME, BOTH, nextRegion has to equal flagErr
       nextRegion = i;
       flagErr = nextRegion;
 
       if (debug) {
-        std::cout << "region is " << nextRegion << " aka " << volume << std::endl;
+        std::cout << "region is " << nextRegion << " aka " << volume
+                  << std::endl;
       }
       return;
     } else if (is_inside == -1) {
@@ -565,11 +601,12 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
   }  // end loop over all volumes
 
   // if are here then no volume has been found
-  nextRegion = num_vols + 1; // return nextRegion
+  nextRegion = num_vols + 1;  // return nextRegion
   flagErr = nextRegion;
 
   if (debug)
-    std::cout <<  oldReg << " " <<  oldLttc << " " << nextRegion <<  " " << flagErr << " " << newLttc << std::endl;
+    std::cout << oldReg << " " << oldLttc << " " << nextRegion << " " << flagErr
+              << " " << newLttc << std::endl;
 
   return;
 }
@@ -577,8 +614,9 @@ void f_lostlook(double& pSx, double& pSy, double& pSz,
 /* entering or leaving, if particle on boundary */
 int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3]) {
   int result;
-  moab::ErrorCode rval = DAG->test_volume_boundary(vol, state.next_surface,
-                                                   xyz, uvw, result, &state.history); // see if we are on boundary
+  moab::ErrorCode rval =
+      DAG->test_volume_boundary(vol, state.next_surface, xyz, uvw, result,
+                                &state.history);  // see if we are on boundary
   // check for non error
   if (moab::MB_SUCCESS != rval)
     fludag_abort("boundary_test", "DAGMC failed in test_volume_boundary", rval);
@@ -587,15 +625,16 @@ int boundary_test(moab::EntityHandle vol, double xyz[3], double uvw[3]) {
 }
 
 /* Particle localisation when magnetic field tracking is on */
-void lkmgwr(double& pSx, double& pSy, double& pSz,
-            double* pV, const int& oldReg, const int& oldLttc,
-            int& flagErr, int& newReg, int& newLttc) {
-  const double xyz[] = {pSx, pSy, pSz}; // location of the particle (xyz)
-  int is_inside = 0; // logical inside or outside of volume
-  int num_vols = DAG->num_entities(3); // number of volumes
+void lkmgwr(double& pSx, double& pSy, double& pSz, double* pV,
+            const int& oldReg, const int& oldLttc, int& flagErr, int& newReg,
+            int& newLttc) {
+  const double xyz[] = {pSx, pSy, pSz};  // location of the particle (xyz)
+  int is_inside = 0;                     // logical inside or outside of volume
+  int num_vols = DAG->num_entities(3);   // number of volumes
 
-  for (int i = 1 ; i <= num_vols ; i++) { // loop over all volumes
-    moab::EntityHandle volume = DAG->entity_by_index(3, i); // get the volume by index
+  for (int i = 1; i <= num_vols; i++) {  // loop over all volumes
+    moab::EntityHandle volume =
+        DAG->entity_by_index(3, i);  // get the volume by index
     // No ray history or ray direction.
     moab::ErrorCode rval = DAG->point_in_volume(volume, xyz, is_inside);
 
@@ -603,7 +642,7 @@ void lkmgwr(double& pSx, double& pSy, double& pSz,
     if (moab::MB_SUCCESS != rval)
       fludag_abort("lkmgwr", "DAGMC failed in point_in_volume", rval);
 
-    if (is_inside == 1) {   // we are inside the cell tested
+    if (is_inside == 1) {  // we are inside the cell tested
       newReg = i;
       flagErr = i + 1;
       if (debug) {
@@ -621,21 +660,20 @@ void lkmgwr(double& pSx, double& pSy, double& pSz,
   return;
 }
 
-void f_lookdb(double& pSx, double& pSy, double& pSz,
-              double* pV, const int& oldReg, const int& oldLttc,
-              int& newReg, int& flagErr, int& newLttc) {
+void f_lookdb(double& pSx, double& pSy, double& pSz, double* pV,
+              const int& oldReg, const int& oldLttc, int& newReg, int& flagErr,
+              int& newLttc) {
   if (debug) {
     std::cout << "============= F_LooKDB ==============" << std::endl;
   }
 
-  //return region number and dummy variables
+  // return region number and dummy variables
   newReg = 0;
   newLttc = 0;
   flagErr = -1;
 
   return;
 }
-
 
 /* terminates a history */
 void f_g1rt(void) {
@@ -650,8 +688,7 @@ void f_g1rt(void) {
 
 /* Set DNEAR option if needed */
 int f_idnr(const int& nreg, const int& mlat) {
-  if (debug)
-    std::cout << "============= F_IDNR ==============" << std::endl;
+  if (debug) std::cout << "============= F_IDNR ==============" << std::endl;
 
   // returns 0 if user doesn't want Fluka to use DNEAR to compute the
   // step (the same effect is obtained with the GLOBAL (WHAT(3)=-1)
@@ -679,17 +716,15 @@ void rg2nwr(const int& mreg, const char* Vname) {
 }
 
 /* does nothing */
-void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg,
-            int* indMother, int* repMother, int& depthFluka) {
-  if (debug)
-    std::cout << "============= RGRPWR ==============" << std::endl;
+void rgrpwr(const int& flukaReg, const int& ptrLttc, int& g4Reg, int* indMother,
+            int* repMother, int& depthFluka) {
+  if (debug) std::cout << "============= RGRPWR ==============" << std::endl;
   return;
 }
 
 /* returns magnetic field values in a given position */
-void fldwr(const double& pX, const double& pY, const double& pZ,
-           double& cosBx, double& cosBy, double& cosBz,
-           double& Bmag, int& reg, int& idiscflag)
+void fldwr(const double& pX, const double& pY, const double& pZ, double& cosBx,
+           double& cosBy, double& cosBz, double& Bmag, int& reg, int& idiscflag)
 
 {
   if (debug)
@@ -699,36 +734,35 @@ void fldwr(const double& pX, const double& pY, const double& pZ,
 
 /* does nothing */
 void flgfwr(int& flkflg) {
-  if (debug)
-    std::cout << "=======FLGFWR =======" << std::endl;
+  if (debug) std::cout << "=======FLGFWR =======" << std::endl;
   return;
 }
 
 /* when lost try to find the particle */
-void lkfxwr(double& pSx, double& pSy, double& pSz,
-            double* pV,  int& oldReg, int& oldLttc,
-            int& newReg, int& flagErr, int& newLttc) {
-  if (debug)
-    std::cout << "======= LKFXWR =======" << std::endl;
+void lkfxwr(double& pSx, double& pSy, double& pSz, double* pV, int& oldReg,
+            int& oldLttc, int& newReg, int& flagErr, int& newLttc) {
+  if (debug) std::cout << "======= LKFXWR =======" << std::endl;
 
   f_lostlook(pSx, pSy, pSz, pV, oldReg, oldLttc, newReg, flagErr, newLttc);
   return;
 }
 
 /**************************************************************************************************/
-/******                                End of FLUKA stubs                                  ********/
+/******                                End of FLUKA stubs ********/
 /**************************************************************************************************/
 
-void fludag_abort(const char* function_name, const char* error_message, int error_code) {
+void fludag_abort(const char* function_name, const char* error_message,
+                  int error_code) {
   std::stringstream ss;
   ss << std::string(error_message) << " " << error_code;
   std::string message = ss.str();
   const char* error_message_and_error = message.c_str();
-  flabrt(function_name, error_message_and_error, strlen(function_name), strlen(error_message_and_error));
+  flabrt(function_name, error_message_and_error, strlen(function_name),
+         strlen(error_message_and_error));
 }
 
 /**************************************************************************************************/
-/******                                End of utility functions                            ********/
+/******                                End of utility functions ********/
 /**************************************************************************************************/
 
 /* make the set of nuclides that are to be retained in full */
@@ -739,25 +773,43 @@ std::set<int> make_exception_set() {
   // Question about
   // Xenon (many named isotopes, useful only for detectors?)
 
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("H-1")));    // HYDROG-1
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("H-2")));    // DEUTERIU
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("H-3")));    // TRITIUM
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("H-1")));  // HYDROG-1
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("H-2")));  // DEUTERIU
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("H-3")));  // TRITIUM
 
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("He-4")));   // HELIUM-4
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("Li-6")));   // LITHIU-6
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("Li-7")));   // LITHIU-7
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("B-10")));   // BORON-10
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("B-11")));   // BORON-11
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("Sr-90")));  // 90-SR
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("I-129")));  // 129-I
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("Cs-135"))); // 135-CS
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("Cs-137"))); // 137-CS
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("Th-230"))); // 230-TH
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("Th-232"))); // 232-TH
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("U-233")));  // 233-U
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("U-234")));  // 234-U
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("U-235")));  // 235-U
-  nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("U-238")));  // 238-U
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("He-4")));  // HELIUM-4
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("Li-6")));  // LITHIU-6
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("Li-7")));  // LITHIU-7
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("B-10")));  // BORON-10
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("B-11")));  // BORON-11
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("Sr-90")));  // 90-SR
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("I-129")));  // 129-I
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("Cs-135")));  // 135-CS
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("Cs-137")));  // 137-CS
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("Th-230")));  // 230-TH
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("Th-232")));  // 232-TH
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("U-233")));  // 233-U
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("U-234")));  // 234-U
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("U-235")));  // 235-U
+  nuc_exceptions.insert(
+      pyne::nucname::id(const_cast<char*>("U-238")));  // 238-U
 
   // All isotopes should be on the exception list, including the base isotope
   nuc_exceptions.insert(pyne::nucname::id(const_cast<char*>("H")));
@@ -771,7 +823,8 @@ std::set<int> make_exception_set() {
   if (debug) {
     std::cout << "Nuclides of FLUKA exceptions" << std::endl;
     int i = 1;
-    for (std::set<int>::iterator ptr = nuc_exceptions.begin(); ptr != nuc_exceptions.end(); ++ptr) {
+    for (std::set<int>::iterator ptr = nuc_exceptions.begin();
+         ptr != nuc_exceptions.end(); ++ptr) {
       std::cout << std::setw(10) << std::right << *ptr;
       if (i % 5 == 0) {
         std::cout << std::endl;
@@ -790,7 +843,7 @@ void fludag_write_ididx(std::string ididx) {
   int num_vols = DAG->num_entities(3);
   std::ofstream file;
   file.open(ididx.c_str());
-  for (int i = 1 ; i <= num_vols ; i++) {
+  for (int i = 1; i <= num_vols; i++) {
     int cellid = DAG->id_by_index(3, i);
     moab::EntityHandle entity = DAG->entity_by_index(3, i);
     file << i << " " << cellid << " " << entity << std::endl;
@@ -822,7 +875,9 @@ void fludag_write(std::string matfile, std::string lfname) {
   fludagwrite_importances(importance_str);
 
   // Write all the streams to the input file
-  std::string header = "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...";
+  std::string header =
+      "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7.."
+      ".";
   std::ofstream lcadfile(lfname.c_str());
   lcadfile << header << std::endl;
   lcadfile << assignma_str.str();
@@ -862,25 +917,25 @@ void fludagwrite_importances(std::ostringstream& ostr) {
   // range
 
   // this is not currently correct, fluka sets biassing parameters for the
-  // following types of particle, {all particles}, {hadrons, heavy ions and muons}, {electrons,
-  // positrons, and photons}, {low energy neutrons}.
+  // following types of particle, {all particles}, {hadrons, heavy ions and
+  // muons}, {electrons, positrons, and photons}, {low energy neutrons}.
 
-  // Will need a function to determine what group we are for a given particle type
+  // Will need a function to determine what group we are for a given particle
+  // type
 
   // below is not correct
   return;
 
   // for each volume index
-  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
+  for (unsigned int vol_i = 1; vol_i <= DAG->num_entities(3); vol_i++) {
     int cellid = DAG->id_by_index(3, vol_i);
     moab::EntityHandle entity = DAG->entity_by_index(3, vol_i);
-
 
     std::set<std::string>::iterator it;
     std::set<std::string> set = DMD->imp_particles;
     // deal with importances;
     std::string mat_name = DMD->volume_material_property_data_eh[entity];
-    for (it = set.begin() ; it != set.end() ; ++it) {
+    for (it = set.begin(); it != set.end(); ++it) {
       std::string particle_name = *it;
       std::string fluka_name = pyne::particle::fluka(particle_name);
       double imp = 1.0;
@@ -901,11 +956,13 @@ void fludagwrite_importances(std::ostringstream& ostr) {
         importance = "1.0E-5";
       }
       if (imp == 0.0) {
-        std::cout << "Importance zero in Fluka means no biassing as opposed to kill";
+        std::cout
+            << "Importance zero in Fluka means no biassing as opposed to kill";
         importance = "0.0";
       }
       //"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+..."
-      //"BIASING          1.0       0.7       0.4       3.0       8.0       0.0 PRINT
+      //"BIASING          1.0       0.7       0.4       3.0       8.0       0.0
+      //PRINT
       ostr << std::setw(10) << std::left << "BIASING";
       ostr << std::setw(10) << std::right << "-1.0";
       ostr << std::setw(10) << std::right << importance;
@@ -929,7 +986,7 @@ void fludagwrite_assignma(std::ostringstream& ostr,
   }
 
   // for each volume index
-  for (unsigned int vol_i = 1 ; vol_i <= DAG->num_entities(3) ; vol_i++) {
+  for (unsigned int vol_i = 1; vol_i <= DAG->num_entities(3); vol_i++) {
     int cellid = DAG->id_by_index(3, vol_i);
     moab::EntityHandle entity = DAG->entity_by_index(3, vol_i);
 
@@ -940,7 +997,8 @@ void fludagwrite_assignma(std::ostringstream& ostr,
     if (pyne_map.size() == 0) {
       // if we are simply key on the pure material data i.e. without mat:
       std::string mat_prop = DMD->volume_material_data_eh[entity];
-      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
+      if (mat_prop.find("Graveyard") == std::string::npos &&
+          mat_prop.find("Vacuum") == std::string::npos) {
         mat_name = mat_prop.substr(0, 8);
       } else if (mat_prop.find("Graveyard") != std::string::npos) {
         mat_name = "BLCKHOLE";
@@ -952,7 +1010,8 @@ void fludagwrite_assignma(std::ostringstream& ostr,
       std::string mat_prop = DMD->volume_material_property_data_eh[entity];
       // otherwise we assume uwuw
       // if you arent graveyard or vacuum you must be in the uwuw library
-      if (mat_prop.find("Graveyard") == std::string::npos && mat_prop.find("Vacuum") == std::string::npos) {
+      if (mat_prop.find("Graveyard") == std::string::npos &&
+          mat_prop.find("Vacuum") == std::string::npos) {
         pyne::Material material = pyne_map.get_material(mat_prop);
         mat_name = material.metadata["fluka_name"].asString();
         std::cout << mat_name << std::endl;
@@ -963,33 +1022,32 @@ void fludagwrite_assignma(std::ostringstream& ostr,
       }
     }
     // The fluka name has been found, create the card
-    ostr << std::setw(10) << std::left  << "ASSIGNMA ";
+    ostr << std::setw(10) << std::left << "ASSIGNMA ";
     ostr << std::setw(10) << std::right << mat_name;
     ostr << std::setprecision(0) << std::fixed << std::showpoint
          << std::setw(10) << std::right << (float)vol_i << std::endl;
 
-  }   // End loop through vol_i
+  }  // End loop through vol_i
   std::cout << std::endl;
 }  // end fludagwrite_assignma
 
-
 // Get tally cards for all tallies in the problem
-void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Tally> tally_map) {
-  int start_unit = 21; // starting unit number for tallies
+void fludag_all_tallies(std::ostringstream& mstr,
+                        std::map<std::string, pyne::Tally> tally_map) {
+  int start_unit = 21;  // starting unit number for tallies
 
   std::map<std::string, pyne::Tally>::iterator it;
 
   // generate number of tally/particle pairs
   std::list<std::string> tally_parts;
   std::string tally_id;
-  for (it = tally_map.begin() ; it != tally_map.end() ; ++it) {
-
+  for (it = tally_map.begin(); it != tally_map.end(); ++it) {
     std::string particle_name = (it->second).particle_names.at(0);
 
     if ((it->second).particle_names.size() > 1) {
       std::cerr << "Warning: Multiple particles specified on a tally. "
-                "Only the first particle (" << particle_name <<
-                ") will be used." << std::endl;
+                   "Only the first particle ("
+                << particle_name << ") will be used." << std::endl;
     }
 
     tally_id = (it->second).tally_type + "/" + particle_name;
@@ -999,7 +1057,7 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Ta
   }
 
   // loop over tallies in map
-  for (it = tally_map.begin() ; it != tally_map.end() ; ++it) {
+  for (it = tally_map.begin(); it != tally_map.end(); ++it) {
     pyne::Tally tally = (it->second);
     // pyne tallies are by id, FluDAG is by index, need to convert
     moab::EntityHandle vol_eh = DAG->entity_by_id(3, tally.entity_id);
@@ -1016,14 +1074,14 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Ta
 
     std::string tally_id = tally.tally_type + "/" + tally.particle_names.at(0);
 
-    std::list<std::string>::iterator iter = std::find(tally_parts.begin(), tally_parts.end(), tally_id);
+    std::list<std::string>::iterator iter =
+        std::find(tally_parts.begin(), tally_parts.end(), tally_id);
 
     int unit_number = std::distance(tally_parts.begin(), iter) + start_unit;
 
     ss.str(std::string());
     ss << "-";
     ss << unit_number;
-
 
     mstr << tally.fluka(ss.str()) << std::endl;
   }
@@ -1034,7 +1092,8 @@ void fludag_all_tallies(std::ostringstream& mstr, std::map<std::string, pyne::Ta
 //---------------------------------------------------------------------------//
 // fludag_all_materials
 //---------------------------------------------------------------------------//
-// Get material cards for all materials in the problem, both elemental and compounds
+// Get material cards for all materials in the problem, both elemental and
+// compounds
 void fludag_all_materials(std::ostringstream& mstr,
                           const pyne::MaterialLibrary& pyne_map) {
   std::set<int> exception_set = make_exception_set();
@@ -1054,7 +1113,7 @@ void fludag_all_materials(std::ostringstream& mstr,
   // remove those that are no longer needed due to
   // compound card inclusions
   // now write out material card & compound card for each compound
-  for (mat = pyne_map.begin() ; mat != pyne_map.end(); ++mat) {
+  for (mat = pyne_map.begin(); mat != pyne_map.end(); ++mat) {
     pyne::Material compound = (mat->second)->collapse_elements(exception_set);
     // if only one element in comp, then we can remove the one that exists
     // in the unique material
@@ -1067,7 +1126,7 @@ void fludag_all_materials(std::ostringstream& mstr,
     }
   }
 
-  //del_mat
+  // del_mat
 
   // number of required material cards due to calls
   int num_mat = unique.comp.size();
@@ -1076,11 +1135,12 @@ void fludag_all_materials(std::ostringstream& mstr,
   int i = ID_START;
   pyne::comp_map::iterator element;
   std::string mat_line;
-  for (element = unique.comp.begin() ; element != unique.comp.end() ; ++element) {
-    int nuc_id = element->first; // get the nuc id
+  for (element = unique.comp.begin(); element != unique.comp.end(); ++element) {
+    int nuc_id = element->first;  // get the nuc id
     pyne::comp_map nucvec;
-    nucvec[nuc_id] = 100.0; // create temp nucvec
-    pyne::Material element_tmp = pyne::Material(nucvec); // create temp material
+    nucvec[nuc_id] = 100.0;  // create temp nucvec
+    pyne::Material element_tmp =
+        pyne::Material(nucvec);  // create temp material
     mat_line = element_tmp.fluka(i);
     if (mat_line.length() != 0) {
       i++;
@@ -1090,7 +1150,7 @@ void fludag_all_materials(std::ostringstream& mstr,
 
   // now write out material card & compound card for each compound
   std::string compound_string;
-  for (mat = pyne_map.begin() ; mat != pyne_map.end(); ++mat) {
+  for (mat = pyne_map.begin(); mat != pyne_map.end(); ++mat) {
     pyne::Material compound = (mat->second)->collapse_elements(exception_set);
     compound_string = compound.fluka(i);
     if (compound_string.length() != 0) {
@@ -1101,7 +1161,8 @@ void fludag_all_materials(std::ostringstream& mstr,
 }
 
 // region2name
-void region2name(int volindex, std::string& vname) { // file with cell/surface cards
+void region2name(int volindex,
+                 std::string& vname) {  // file with cell/surface cards
   std::stringstream ss;
   ss << volindex;
   ss << ".";

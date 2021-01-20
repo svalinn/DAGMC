@@ -1,5 +1,7 @@
 // MCNP5/dagmc/KDENeighborhood.cpp
 
+#include "KDENeighborhood.hpp"
+
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
@@ -9,10 +11,8 @@
 
 #include "moab/AdaptiveKDTree.hpp"
 #include "moab/CartVect.hpp"
-#include "moab/Range.hpp"
 #include "moab/MOABConfig.h"
-
-#include "KDENeighborhood.hpp"
+#include "moab/Range.hpp"
 
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
@@ -20,7 +20,7 @@
 KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
                                  const moab::Range& mesh_nodes,
                                  bool build_kd_tree)
-  : kd_tree(NULL), kd_tree_root(0), radius(0.0) {
+    : kd_tree(NULL), kd_tree_root(0), radius(0.0) {
   if (build_kd_tree) {
     if (mbi == NULL) {
       std::cerr << "\nError: invalid moab::Interface for building KD-tree";
@@ -47,16 +47,13 @@ KDENeighborhood::KDENeighborhood(moab::Interface* mbi,
     std::cout << "Using all nodes to construct neighborhood" << std::endl;
 
     // convert range into a default set of calculation points
-    points = std::set<moab::EntityHandle>(mesh_nodes.begin(),
-                                          mesh_nodes.end());
+    points = std::set<moab::EntityHandle>(mesh_nodes.begin(), mesh_nodes.end());
   }
 }
 //---------------------------------------------------------------------------//
 // DESTRUCTOR
 //---------------------------------------------------------------------------//
-KDENeighborhood::~KDENeighborhood() {
-  delete kd_tree;
-}
+KDENeighborhood::~KDENeighborhood() { delete kd_tree; }
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
@@ -67,16 +64,13 @@ const std::set<moab::EntityHandle>& KDENeighborhood::get_points() const {
 void KDENeighborhood::update_neighborhood(const TallyEvent& event,
                                           const moab::CartVect& bandwidth) {
   // do nothing if there is no kd-tree defined
-  if (kd_tree == NULL)
-    return;
+  if (kd_tree == NULL) return;
 
   // otherwise redefine the neighborhood region based on this tally event
   if (event.type == TallyEvent::COLLISION) {
     set_neighborhood(event.position, bandwidth);
   } else if (event.type == TallyEvent::TRACK) {
-    set_neighborhood(event.track_length,
-                     event.position,
-                     event.direction,
+    set_neighborhood(event.track_length, event.position, event.direction,
                      bandwidth);
   } else {
     // neighborhood region does not exist
@@ -89,7 +83,8 @@ void KDENeighborhood::update_neighborhood(const TallyEvent& event,
   points_in_box();
 }
 //---------------------------------------------------------------------------//
-bool KDENeighborhood::is_calculation_point(const moab::EntityHandle& point) const {
+bool KDENeighborhood::is_calculation_point(
+    const moab::EntityHandle& point) const {
   std::set<moab::EntityHandle>::iterator it = points.find(point);
 
   if (it == points.end()) {
@@ -133,8 +128,8 @@ void KDENeighborhood::set_neighborhood(double track_length,
   radius = bandwidth.length();
 }
 //---------------------------------------------------------------------------//
-bool KDENeighborhood::point_within_max_radius(const TallyEvent& event,
-                                              const moab::CartVect& coords) const {
+bool KDENeighborhood::point_within_max_radius(
+    const TallyEvent& event, const moab::CartVect& coords) const {
   // process track-based tally event only
   if (event.type == TallyEvent::TRACK) {
     // create a vector from starting position to point being tested
@@ -149,8 +144,7 @@ bool KDENeighborhood::point_within_max_radius(const TallyEvent& event,
     double distance_to_track = (event.direction * temp).length();
 
     // return true if distance is less than radius of cylindrical region
-    if (distance_to_track < radius)
-      return true;
+    if (distance_to_track < radius) return true;
   }
 
   // otherwise return false
@@ -167,7 +161,7 @@ bool KDENeighborhood::point_inside_box(const moab::CartVect& coords) const {
     if (min_diff < 1e-12 || max_diff < 1e-12 ||
         (coords[i] > min_corner[i] && coords[i] < max_corner[i])) {
       // point may still be in the box, so do nothing
-    } else { // point is not in the box
+    } else {  // point is not in the box
       return false;
     }
   }
@@ -203,7 +197,8 @@ void KDENeighborhood::points_in_box() {
   }
 
 #if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7
-  rval = kd_tree->leaves_within_distance(kd_tree_root, box_center, radius, leaves);
+  rval =
+      kd_tree->leaves_within_distance(kd_tree_root, box_center, radius, leaves);
 #else
   // moab::AdaptiveKDTree now checks if box_center is in tree's bounding box,
   // which does not always work for neighborhood region that overlaps mesh

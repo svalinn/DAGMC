@@ -8,7 +8,7 @@
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 
-//class G4ParticleGun;
+// class G4ParticleGun;
 class G4GeneralParticleSource;
 class G4Event;
 
@@ -25,4 +25,3 @@ class ExN01PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
 };
 
 #endif
-

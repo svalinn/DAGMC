@@ -1,9 +1,9 @@
 // MCNP5/dagmc/Quadrature.cpp
 
+#include "Quadrature.hpp"
+
 #include <cassert>
 #include <iostream>
-
-#include "Quadrature.hpp"
 
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
@@ -47,9 +47,7 @@ double Quadrature::integrate(double a, double b, const Function& f) const {
   return c1 * sum;
 }
 //---------------------------------------------------------------------------//
-unsigned int Quadrature::get_num_quad_points() const {
-  return num_quad_points;
-}
+unsigned int Quadrature::get_num_quad_points() const { return num_quad_points; }
 //---------------------------------------------------------------------------//
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//

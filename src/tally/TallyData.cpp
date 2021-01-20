@@ -1,10 +1,11 @@
 // MCNP5/dagmc/TallyData.cpp
 
-#include <cassert>
-#include <iostream>
+#include "TallyData.hpp"
+
 #include <stdlib.h>
 
-#include "TallyData.hpp"
+#include <cassert>
+#include <iostream>
 
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
@@ -35,9 +36,8 @@ TallyData::TallyData(unsigned int num_energy_bins, bool total_energy_bin) {
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-std::pair <double, double> TallyData::get_data(unsigned int tally_point_index,
-                                               unsigned int energy_bin) const {
-
+std::pair<double, double> TallyData::get_data(unsigned int tally_point_index,
+                                              unsigned int energy_bin) const {
   assert(energy_bin < num_energy_bins + this->total_energy_bin);
   assert(tally_point_index < num_tally_points);
 
@@ -82,13 +82,9 @@ void TallyData::resize_data_arrays(unsigned int tally_points) {
   temp_tally_data.resize(new_size, 0);
 }
 //---------------------------------------------------------------------------//
-unsigned int TallyData::get_num_energy_bins() const {
-  return num_energy_bins;
-}
+unsigned int TallyData::get_num_energy_bins() const { return num_energy_bins; }
 //---------------------------------------------------------------------------//
-bool TallyData::has_total_energy_bin() const {
-  return total_energy_bin;
-}
+bool TallyData::has_total_energy_bin() const { return total_energy_bin; }
 //---------------------------------------------------------------------------//
 // TALLY ACTION METHODS
 //---------------------------------------------------------------------------//
@@ -96,12 +92,13 @@ void TallyData::end_history() {
   std::set<unsigned int>::iterator it;
 
   // add sum of scores for this history to mesh tally for each tally point
-  for (it = visited_this_history.begin(); it != visited_this_history.end(); ++it) {
+  for (it = visited_this_history.begin(); it != visited_this_history.end();
+       ++it) {
     for (unsigned int j = 0; j < num_energy_bins; ++j) {
       int index = (*it) * num_energy_bins + j;
       double& history_score = temp_tally_data.at(index);
-      double& tally         = tally_data.at(index);
-      double& error         = error_data.at(index);
+      double& tally = tally_data.at(index);
+      double& error = error_data.at(index);
 
       tally += history_score;
       error += history_score * history_score;
@@ -115,14 +112,14 @@ void TallyData::end_history() {
   visited_this_history.clear();
 }
 //---------------------------------------------------------------------------//
-void TallyData::add_score_to_tally(unsigned int tally_point_index,
-                                   double score,
+void TallyData::add_score_to_tally(unsigned int tally_point_index, double score,
                                    unsigned int energy_bin) {
   assert(tally_point_index < num_tally_points);
   assert(energy_bin < num_energy_bins);
 
   // update tally for this history with new score
-  int index = tally_point_index * num_energy_bins + energy_bin;;
+  int index = tally_point_index * num_energy_bins + energy_bin;
+  ;
   temp_tally_data.at(index) += score;
 
   // also update total energy bin tally for this history if one exists

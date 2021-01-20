@@ -1,41 +1,43 @@
 #ifndef CWF_HPP
 #define CWF_HPP
 
-#include <iostream>
-#include <iomanip>
-#include <limits>
 #include <assert.h>
 #include <math.h>
 #include <time.h>
-#include <vector>
+
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <vector>
 
 // moab includes
-#include "moab/Core.hpp"
-#include "moab/Range.hpp"
+#include "Arc.hpp"
 #include "moab/AdaptiveKDTree.hpp"
 #include "moab/CartVect.hpp"
-
-#include "Arc.hpp"
+#include "moab/Core.hpp"
+#include "moab/Range.hpp"
 
 class CheckWatertight {
-
  public:
   CheckWatertight(moab::Interface* mbInterface) : mbi(mbInterface) {
     gen = new Arc(mbInterface);
   };
 
-  ~CheckWatertight() {};
+  ~CheckWatertight(){};
   Arc* gen;
   moab::Interface* mbi;
-  moab::Interface* MBI() {
-    return mbi;
-  };
-  /// checks the input mesh for watertightness. If check_topology=true, then the mesh will be checked topologically only, no tolerances allowed.
-  /// If check_topology = false, then the model will be checked for watertightness by proximity.
-  /// (i.e. so long as paired vertices are within tol of each other, the mesh will be considered watertight)
-  moab::ErrorCode check_mesh_for_watertightness(moab::EntityHandle input_set, double tol, bool& sealed, bool test = false,  bool verbose = false, bool check_topology = false);
-
+  moab::Interface* MBI() { return mbi; };
+  /// checks the input mesh for watertightness. If check_topology=true, then the
+  /// mesh will be checked topologically only, no tolerances allowed. If
+  /// check_topology = false, then the model will be checked for watertightness
+  /// by proximity. (i.e. so long as paired vertices are within tol of each
+  /// other, the mesh will be considered watertight)
+  moab::ErrorCode check_mesh_for_watertightness(moab::EntityHandle input_set,
+                                                double tol, bool& sealed,
+                                                bool test = false,
+                                                bool verbose = false,
+                                                bool check_topology = false);
 };
 
 struct coords_and_id {
@@ -45,7 +47,7 @@ struct coords_and_id {
   double x2;
   double y2;
   double z2;
-  int  surf_id;
+  int surf_id;
   bool matched;
   moab::EntityHandle vert1;
   moab::EntityHandle vert2;
@@ -98,4 +100,3 @@ inline int compare_by_coords(const void* a, const void* b) {
 }
 
 #endif
-

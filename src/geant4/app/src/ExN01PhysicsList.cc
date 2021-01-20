@@ -5,16 +5,12 @@
 //
 
 #include "ExN01PhysicsList.hh"
+
 #include "G4ParticleTypes.hh"
 
+ExN01PhysicsList::ExN01PhysicsList() { ; }
 
-ExN01PhysicsList::ExN01PhysicsList() {
-  ;
-}
-
-ExN01PhysicsList::~ExN01PhysicsList() {
-  ;
-}
+ExN01PhysicsList::~ExN01PhysicsList() { ; }
 
 void ExN01PhysicsList::ConstructParticle() {
   // In this method, static member functions should be called
@@ -42,4 +38,3 @@ void ExN01PhysicsList::SetCuts() {
   // Retrieve verbose level
   SetVerboseLevel(temp);
 }
-

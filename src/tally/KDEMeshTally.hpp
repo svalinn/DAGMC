@@ -6,12 +6,11 @@
 #include <utility>
 #include <vector>
 
-#include "moab/CartVect.hpp"
-
 #include "KDEKernel.hpp"
 #include "KDENeighborhood.hpp"
 #include "MeshTally.hpp"
 #include "Quadrature.hpp"
+#include "moab/CartVect.hpp"
 
 // forward declarations
 namespace moab {
@@ -33,10 +32,10 @@ class Interface;
  *     3) KDE SUB_TRACK mesh tally, based on approximated particle tracks
  *
  * The primary difference between these three options is what estimator is used
- * to compute the tally scores for the TallyEvent::COLLISION or TallyEvent::TRACK
- * events that are set through the TallyManager.  If a KDEMeshTally object
- * receives an invalid TallyEvent type for its estimator type, then no scores
- * are computed.
+ * to compute the tally scores for the TallyEvent::COLLISION or
+ * TallyEvent::TRACK events that are set through the TallyManager.  If a
+ * KDEMeshTally object receives an invalid TallyEvent type for its estimator
+ * type, then no scores are computed.
  *
  * For more information on using kernel density estimator methods for mesh tally
  * purposes, please refer to the following two references
@@ -108,7 +107,7 @@ class KDEMeshTally : public MeshTally {
    *     1) INTEGRAL_TRACK estimator is used for KDE integral-track tallies
    *     2) SUB_TRACK estimator is used for KDE sub-track tallies
    */
-  enum Estimator {COLLISION = 0, INTEGRAL_TRACK = 1, SUB_TRACK = 2};
+  enum Estimator { COLLISION = 0, INTEGRAL_TRACK = 1, SUB_TRACK = 2 };
   static const char* const kde_estimator_names[];
 
   /**
@@ -192,8 +191,7 @@ class KDEMeshTally : public MeshTally {
    * \param[in] value the value of the bandwidth vector component
    * \param[in] i the index in the bandwidth vector associated with the key
    */
-  void set_bandwidth_value(const std::string& key,
-                           const std::string& value,
+  void set_bandwidth_value(const std::string& key, const std::string& value,
                            unsigned int i);
 
   /**
@@ -266,10 +264,9 @@ class KDEMeshTally : public MeshTally {
      * \param[in] event the tally event containing the track segment data
      * \param[in] X the calculation point
      */
-    PathKernel(const KDEMeshTally& tally,
-               const TallyEvent& event,
+    PathKernel(const KDEMeshTally& tally, const TallyEvent& event,
                const CalculationPoint& X)
-      : tally(tally), event(event), X(X) {}
+        : tally(tally), event(event), X(X) {}
 
     /**
      * \brief Evaluates the path length kernel function
@@ -359,6 +356,6 @@ class KDEMeshTally : public MeshTally {
                                             const TallyEvent& event) const;
 };
 
-#endif // DAGMC_KDE_MESH_TALLY_HPP
+#endif  // DAGMC_KDE_MESH_TALLY_HPP
 
 // end of MCNP5/dagmc/KDEMeshTally.hpp

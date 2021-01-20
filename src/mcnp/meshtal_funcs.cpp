@@ -1,15 +1,16 @@
 // MCNP5/dagmc/meshtal_funcs.cpp
 
+#include "meshtal_funcs.h"
+
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <map>
-#include <fstream>
 #include <sstream>
-#include <cassert>
 #include <vector>
 
-#include "meshtal_funcs.h"
 #include "TallyManager.hpp"
 
 // create a tally manager to handle all DAGMC tally actions
@@ -53,7 +54,8 @@ static void parse_fc_card(std::string& fc_content,
   }
 
   if (!found_dagmc) {
-    std::cerr << "Error: FC" << fcid << " card is incorrectly formatted" << std::endl;
+    std::cerr << "Error: FC" << fcid << " card is incorrectly formatted"
+              << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -63,10 +65,8 @@ static void parse_fc_card(std::string& fc_content,
     std::string token;
     tokenizer >> token;
 
-    if (token == "")
-      continue;
-    if (token == "-dagmc")
-      break; // stop parsing if -dagmc encountered
+    if (token == "") continue;
+    if (token == "-dagmc") break;  // stop parsing if -dagmc encountered
 
     if (last_key == "") {
       last_key = token;
@@ -77,8 +77,8 @@ static void parse_fc_card(std::string& fc_content,
   }
 
   if (last_key != "") {
-    std::cerr << "Warning: FC" << fcid << " card has unused key '"
-              << last_key << "'" << std::endl;
+    std::cerr << "Warning: FC" << fcid << " card has unused key '" << last_key
+              << "'" << std::endl;
   }
 }
 //---------------------------------------------------------------------------//
@@ -118,9 +118,8 @@ std::string copyComments(char* fort_comment, int* n_comment_lines) {
  */
 void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
                              double* energy_mesh, int* n_energy_mesh,
-                             int* tot_energy_bin,
-                             char* fort_comment, int* n_comment_lines,
-                             int* is_collision_tally) {
+                             int* tot_energy_bin, char* fort_comment,
+                             int* n_comment_lines, int* is_collision_tally) {
   std::cout << "DAGMC tally " << *id << " has these " << *n_energy_mesh
             << " energy bin boundaries: " << std::endl;
 
@@ -132,8 +131,8 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
   std::cout << "tot bin: " << (*tot_energy_bin ? "yes" : "no") << std::endl;
 
   if (*n_comment_lines <= 0) {
-    std::cerr << "FMESH" << *id
-              << " has geom=dag without matching FC card" << std::endl;
+    std::cerr << "FMESH" << *id << " has geom=dag without matching FC card"
+              << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -141,9 +140,8 @@ void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
   std::vector<double> energy_boundaries;
   // if there is more than 1 bin, dont want 0->bottom bin
   int bottom = 0;
-  if (*n_energy_mesh > 2)
-    bottom = 1;
-  for (int i = bottom ; i < *n_energy_mesh; ++i) {
+  if (*n_energy_mesh > 2) bottom = 1;
+  for (int i = bottom; i < *n_energy_mesh; ++i) {
     energy_boundaries.push_back(energy_mesh[i]);
   }
 
@@ -242,9 +240,7 @@ void dagmc_fmesh_get_scratch_data(int* tally_id, void* fortran_data_pointer) {
  * Called when an MPI subtask has just sent all its tally and error values
  * back to the master task.
  */
-void dagmc_fmesh_clear_data_() {
-  tallyManager.zeroAllTallyData();
-}
+void dagmc_fmesh_clear_data_() { tallyManager.zeroAllTallyData(); }
 //---------------------------------------------------------------------------//
 /**
  * \brief Add values in the given tally's scratch data to its tally data
@@ -313,10 +309,8 @@ void dagmc_fmesh_end_history_() {
  *
  * This function is called once per track event.
  */
-void dagmc_fmesh_score_(int* ipt,
-                        double* x, double* y, double* z,
-                        double* u, double* v, double* w,
-                        double* erg, double* wgt,
+void dagmc_fmesh_score_(int* ipt, double* x, double* y, double* z, double* u,
+                        double* v, double* w, double* erg, double* wgt,
                         double* d, int* icl) {
 #ifdef MESHTAL_DEBUG
   std::cout << "particle type: " << *ipt << std::endl;
@@ -328,17 +322,17 @@ void dagmc_fmesh_score_(int* ipt,
   std::cout << "current cell: " << *icl << std::endl;
 #endif
 
-  tallyManager.setTrackEvent(*ipt, *x, *y, *z, *u, *v, *w, *erg, *wgt, *d, *icl);
+  tallyManager.setTrackEvent(*ipt, *x, *y, *z, *u, *v, *w, *erg, *wgt, *d,
+                             *icl);
   tallyManager.updateTallies();
 }
 //---------------------------------------------------------------------------//
 /**
  * \brief Called from fortran to instruct tallies to print data to file
- * \param[in] sp_norm "Source Particle Normalization", number of source particles
+ * \param[in] sp_norm "Source Particle Normalization", number of source
+ * particles
  */
-void dagmc_fmesh_print_(double* sp_norm) {
-  tallyManager.writeData(*sp_norm);
-}
+void dagmc_fmesh_print_(double* sp_norm) { tallyManager.writeData(*sp_norm); }
 //---------------------------------------------------------------------------//
 /**
  * \brief Called from hstory.F90 to score a collision event
@@ -351,10 +345,8 @@ void dagmc_fmesh_print_(double* sp_norm) {
  *
  * This function is called once per collision event.
  */
-void dagmc_collision_score_(int* ipt,
-                            double* x,   double* y, double* z,
-                            double* erg, double* wgt,
-                            double* ple, int* icl) {
+void dagmc_collision_score_(int* ipt, double* x, double* y, double* z,
+                            double* erg, double* wgt, double* ple, int* icl) {
   tallyManager.setCollisionEvent(*ipt, *x, *y, *z, *erg, *wgt, *ple, *icl);
   tallyManager.updateTallies();
 }

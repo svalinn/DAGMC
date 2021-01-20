@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "DagMC.hpp"
-#include "moab/Interface.hpp"
-#include "dagmcmetadata.hpp"
-
-#include <cmath>
 #include <cassert>
+#include <cmath>
+
+#include "DagMC.hpp"
+#include "dagmcmetadata.hpp"
+#include "moab/Interface.hpp"
 
 // dagmc instance
 std::shared_ptr<moab::DagMC> DAG;
@@ -18,7 +18,6 @@ std::shared_ptr<dagmcMetaData> dgm;
 //---------------------------------------------------------------------------//
 class DagmcMetadataTest : public ::testing::Test {
  protected:
-
   // initalize variables for each test
   virtual void SetUp() {
     // Default h5m file for testing
@@ -37,7 +36,6 @@ class DagmcMetadataTest : public ::testing::Test {
   virtual void TearDown() {}
 
  protected:
-
   moab::ErrorCode rloadval;
   moab::ErrorCode rval;
 };
@@ -65,7 +63,7 @@ TEST_F(DagmcMetadataTest, TestMatAssigns) {
   std::string impl_comp_prop = "Vacuum";
 
   int num_vols = DAG->num_entities(3);
-  for (int i = 1 ; i <= num_vols ; i++) {
+  for (int i = 1; i <= num_vols; i++) {
     moab::EntityHandle eh = DAG->entity_by_index(3, i);
     std::string mat_prop = dgm->get_volume_property("material", eh);
 
@@ -80,7 +78,6 @@ TEST_F(DagmcMetadataTest, TestMatAssigns) {
       EXPECT_EQ(mat_prop, base_property);
     else
       EXPECT_EQ(mat_prop, impl_comp_prop);
-
   }
 }
 //---------------------------------------------------------------------------//
@@ -98,14 +95,13 @@ TEST_F(DagmcMetadataTest, TestDensityAssigns) {
   std::string base_property = "";
 
   int num_vols = DAG->num_entities(3);
-  for (int i = 1 ; i <= num_vols ; i++) {
+  for (int i = 1; i <= num_vols; i++) {
     moab::EntityHandle eh = DAG->entity_by_index(3, i);
     std::string mat_prop = dgm->get_volume_property("density", eh);
     EXPECT_EQ(mat_prop, base_property);
 
     mat_prop = dgm->get_volume_property("density", i, true);
     EXPECT_EQ(mat_prop, base_property);
-
   }
 }
 //---------------------------------------------------------------------------//
@@ -125,7 +121,7 @@ TEST_F(DagmcMetadataTest, TestMatDensityAssigns) {
   std::string impl_comp_prop = "mat:Vacuum";
 
   int num_vols = DAG->num_entities(3);
-  for (int i = 1 ; i <= num_vols ; i++) {
+  for (int i = 1; i <= num_vols; i++) {
     moab::EntityHandle eh = DAG->entity_by_index(3, i);
     std::string mat_prop = dgm->get_volume_property("material_density", eh);
 
@@ -140,7 +136,6 @@ TEST_F(DagmcMetadataTest, TestMatDensityAssigns) {
       EXPECT_EQ(mat_prop, base_property);
     else
       EXPECT_EQ(mat_prop, impl_comp_prop);
-
   }
 }
 
@@ -154,14 +149,13 @@ TEST_F(DagmcMetadataTest, TestUnpackString) {
   std::string neutron_property = "Neutron/1.0";
   std::string photon_property = "Photon/1.0";
 
-  std::string  mat_prop = dgm->get_volume_property("importance", 1, true);
+  std::string mat_prop = dgm->get_volume_property("importance", 1, true);
   std::vector<std::string> imps = dgm->unpack_string(mat_prop, "|");
   std::cout << imps[0] << std::endl;
   std::cout << imps[1] << std::endl;
   EXPECT_EQ(imps.size(), 2);
   EXPECT_EQ(imps[0], neutron_property);
   EXPECT_EQ(imps[1], photon_property);
-
 }
 
 //---------------------------------------------------------------------------//
@@ -180,10 +174,10 @@ TEST_F(DagmcMetadataTest, TestImportanceAssigns) {
   std::string impl_comp_prop = "";
 
   int num_vols = DAG->num_entities(3);
-  for (int i = 1 ; i <= num_vols ; i++) {
+  for (int i = 1; i <= num_vols; i++) {
     moab::EntityHandle eh = DAG->entity_by_index(3, i);
 
-    std::string  mat_prop = dgm->get_volume_property("importance", i, true);
+    std::string mat_prop = dgm->get_volume_property("importance", i, true);
     std::vector<std::string> imps = dgm->unpack_string(mat_prop, "|");
     if (!DAG->is_implicit_complement(eh))
       EXPECT_EQ(imps[0], base_property);
@@ -193,8 +187,8 @@ TEST_F(DagmcMetadataTest, TestImportanceAssigns) {
 }
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: Tests to make sure that all surfaces have successfully
-// been assigned and successfully retreved from the dataset, specifically querying
-// the boundary condition case
+// been assigned and successfully retreved from the dataset, specifically
+// querying the boundary condition case
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
   // new metadata instance
@@ -215,14 +209,14 @@ TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
 
     EXPECT_EQ(bound_prop, base_property);
     EXPECT_EQ(bound_prop2, base_property);
-
   }
 
   // check for vacuum boundary condition
   int vacuum_surf_id = 17;
   std::string expected_surface_bc = "Vacuum";
   std::string actual_surface_bc;
-  actual_surface_bc = dgm->get_surface_property("boundary", vacuum_surf_id, false);
+  actual_surface_bc =
+      dgm->get_surface_property("boundary", vacuum_surf_id, false);
   EXPECT_EQ(expected_surface_bc, actual_surface_bc);
   moab::EntityHandle eh = DAG->entity_by_id(2, vacuum_surf_id);
   actual_surface_bc = dgm->get_surface_property("boundary", eh);
@@ -230,8 +224,8 @@ TEST_F(DagmcMetadataTest, TestBoundaryAssigns) {
 }
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: Tests to make sure that all surfaces have successfully
-// been assigned and successfully retreved from the dataset, specifically querying
-// the boundary condition case
+// been assigned and successfully retreved from the dataset, specifically
+// querying the boundary condition case
 //---------------------------------------------------------------------------//
 TEST_F(DagmcMetadataTest, TestTallyAssigns) {
   // new metadata instance
@@ -245,7 +239,7 @@ TEST_F(DagmcMetadataTest, TestTallyAssigns) {
   int num_vols = DAG->num_entities(3);
   int tmp[] = {1, 2, 3};
   std::vector<int> vol_ids(tmp, tmp + 3);
-  for (int i = 0 ; i < vol_ids.size(); i++) {
+  for (int i = 0; i < vol_ids.size(); i++) {
     int id = vol_ids[i];
     std::string vol_prop = dgm->get_volume_property("tally", id, false);
     std::vector<std::string> tally_props = dgm->unpack_string(vol_prop);
@@ -311,7 +305,7 @@ TEST_F(DagmcMetadataTest, TestSplitString) {
   // more complex example
   std::string more_complex = "|Neutron/1.0|Photon/2.0|";
   std::vector<std::string> imps = dgm->unpack_string(more_complex, "|");
-  for (unsigned int i = 0 ; i < 2 ; i++) {
+  for (unsigned int i = 0; i < 2; i++) {
     std::string split = imps[i];
     pair = dgm->split_string(split, "/");
     if (i == 0) {
@@ -332,13 +326,11 @@ TEST_F(DagmcMetadataTest, TestTryToMakeInt) {
   EXPECT_EQ(dgm->try_to_make_int("1"), true);
   EXPECT_EQ(dgm->try_to_make_int("1A"), false);
   EXPECT_EQ(dgm->try_to_make_int("M33"), false);
-
 }
 // assert some behaviors
 
 class DagmcMetadataTestImplCompMat : public ::testing::Test {
  protected:
-
   // initalize variables for each test
   virtual void SetUp() {
     // Default h5m file for testing
@@ -357,7 +349,6 @@ class DagmcMetadataTestImplCompMat : public ::testing::Test {
   virtual void TearDown() {}
 
  protected:
-
   moab::ErrorCode rloadval;
   moab::ErrorCode rval;
 };
@@ -392,5 +383,4 @@ TEST_F(DagmcMetadataTestImplCompMat, ImplCompMat) {
 
   std::string mat_prop3 = dgm->get_volume_property("material", 3, true);
   EXPECT_EQ(mat_impl, mat_prop3);
-
 }
