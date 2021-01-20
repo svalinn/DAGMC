@@ -102,7 +102,7 @@ endif()
   endif ()
   if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_EXE AND BUILD_EXE)
     SET(BUILD_EXE OFF)
-    message("Turning BUILD_EXE to OFF: SHARED_BUIL_LIBS and BUILD_STATIC_EXE are OFF")
+    message("Turning BUILD_EXE OFF: SHARED_BUILD_LIBS and BUILD_STATIC_EXE are OFF")
   endif ()
 
 endmacro ()
