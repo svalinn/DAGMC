@@ -962,7 +962,7 @@ void fludagwrite_importances(std::ostringstream& ostr) {
       }
       //"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7....+..."
       //"BIASING          1.0       0.7       0.4       3.0       8.0       0.0
-      //PRINT
+      // PRINT
       ostr << std::setw(10) << std::left << "BIASING";
       ostr << std::setw(10) << std::right << "-1.0";
       ostr << std::setw(10) << std::right << importance;
