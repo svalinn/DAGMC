@@ -42,7 +42,7 @@ std::string dagmcMetaData::get_volume_property(std::string property,
   } else if (property == "material") {
     value = volume_material_data_eh[eh];
   } else if (property == "density") {
-    value = volume_density_data_eh[ßßßeh];
+    value = volume_density_data_eh[eh];
   } else if (property == "importance") {
     value = volume_importance_data_eh[eh];
   } else if (property == "tally") {
