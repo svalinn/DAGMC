@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "moab/Interface.hpp"
-#include "moab/Core.hpp"
-#include "DagMC.hpp"
-
 #include <iostream>
 #include <memory>
+
+#include "DagMC.hpp"
+#include "moab/Core.hpp"
+#include "moab/Interface.hpp"
 
 using namespace moab;
 
@@ -24,7 +24,7 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_simple_test) {
   // create a DAGMC instance
   std::unique_ptr<DagMC> DAG(new DagMC());
   // load the test geometry file
-  ErrorCode rval = DAG->load_file(simple_file.c_str()); // open the Dag file
+  ErrorCode rval = DAG->load_file(simple_file.c_str());  // open the Dag file
   EXPECT_EQ(MB_SUCCESS, rval);
 
   rval = DAG->init_OBBTree();
@@ -32,15 +32,18 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_simple_test) {
 
   // collect starting sets to make sure we end up with the same thing at the end
   Range starting_vertices;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, starting_vertices);
+  rval = DAG->moab_instance()->get_entities_by_type(0, MBVERTEX,
+                                                    starting_vertices);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range starting_triangles;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBTRI, starting_triangles);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBTRI, starting_triangles);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range starting_sets;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, starting_sets);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, starting_sets);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   // there is no graveyard present to start in this model
@@ -90,7 +93,8 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_simple_test) {
 
   // checks to make sure we didn't accumulate any new data on the mesh
   Range ending_vertices;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, ending_vertices);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, ending_vertices);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range ending_triangles;
@@ -98,7 +102,8 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_simple_test) {
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range ending_sets;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, ending_sets);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, ending_sets);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   EXPECT_EQ(starting_vertices.size(), ending_vertices.size());
@@ -123,15 +128,18 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file) {
 
   // collect starting sets to make sure we end up with the same thing at the end
   Range starting_vertices;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, starting_vertices);
+  rval = DAG->moab_instance()->get_entities_by_type(0, MBVERTEX,
+                                                    starting_vertices);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range starting_triangles;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBTRI, starting_triangles);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBTRI, starting_triangles);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range starting_sets;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, starting_sets);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, starting_sets);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   // a graveyard is already present in this model
@@ -149,7 +157,8 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file) {
   EXPECT_EQ(MB_SUCCESS, rval);
 
   // geometric sets removed:
-  // (geometric vertices - 16, curves - 24, surfaces - 12, volumes - 1, groups - 1)
+  // (geometric vertices - 16, curves - 24, surfaces - 12, volumes - 1, groups -
+  // 1)
   EXPECT_EQ(16, n_geom_verts - DAG->geom_tool()->num_ents_of_dim(0));
   EXPECT_EQ(24, n_curves - DAG->geom_tool()->num_ents_of_dim(1));
   EXPECT_EQ(12, n_surfs - DAG->num_entities(2));
@@ -159,7 +168,8 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file) {
   DAG->moab_instance()->write_file("test.h5m");
   // set of vertices, triangles, and sets without the original graveyard volume
   Range model_vertices;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, model_vertices);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, model_vertices);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range model_triangles;
@@ -221,7 +231,8 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file) {
 
   // checks to make sure we didn't accumulate any new data on the mesh
   Range ending_vertices;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, ending_vertices);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBVERTEX, ending_vertices);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range ending_triangles;
@@ -229,7 +240,8 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file) {
   EXPECT_EQ(MB_SUCCESS, rval);
 
   Range ending_sets;
-  rval = DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, ending_sets);
+  rval =
+      DAG->moab_instance()->get_entities_by_type(0, MBENTITYSET, ending_sets);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   EXPECT_EQ(model_vertices.size(), ending_vertices.size());

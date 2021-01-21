@@ -2,6 +2,7 @@
 #define MOABMC_HPP
 
 #include <assert.h>
+
 #include <limits>
 #include <map>
 #include <memory>
@@ -184,7 +185,8 @@ class DagMC {
    *  with outward facing normals and setting up set structure necessary for
    *  representation as a geometric entity
    */
-  ErrorCode box_to_surf(double llc[3], double urc[3], EntityHandle& surface_set);
+  ErrorCode box_to_surf(double llc[3], double urc[3],
+                        EntityHandle& surface_set);
 
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();
@@ -254,7 +256,8 @@ class DagMC {
   /** map from EntityHandle to global ID */
   int get_entity_id(EntityHandle this_ent);
 
-  /**\brief get number of geometric sets corresponding to geometry of specified dimension
+  /**\brief get number of geometric sets corresponding to geometry of specified
+   *dimension
    *
    * For a given dimension (e.g. dimension=3 for volumes, dimension=2 for
    *surfaces) return the number of entities of that dimension \param dimension
@@ -504,15 +507,14 @@ class DagMC {
   // axis-aligned box used to track geometry bounds
   // (internal use only)
   struct BBOX {
-    constexpr static double INFTY {std::numeric_limits<double>::max()};
+    constexpr static double INFTY{std::numeric_limits<double>::max()};
 
-    double lower[3] = { INFTY,  INFTY,  INFTY};
+    double lower[3] = {INFTY, INFTY, INFTY};
     double upper[3] = {-INFTY, -INFTY, -INFTY};
 
     /** ensure box corners are valid */
     bool valid() {
-      return (lower[0] <= upper[0] &&
-              lower[1] <= upper[1] &&
+      return (lower[0] <= upper[0] && lower[1] <= upper[1] &&
               lower[2] <= upper[2]);
     }
 
@@ -528,13 +530,10 @@ class DagMC {
     }
 
     /** update box to ensure the provided point is contained */
-    void update(double xyz[3]) {
-      update(xyz[0], xyz[1], xyz[2]);
-    }
+    void update(double xyz[3]) { update(xyz[0], xyz[1], xyz[2]); }
   };
 
-}; // end DagMC
-
+};  // end DagMC
 
 inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
   assert(2 <= dimension && 3 >= dimension &&
