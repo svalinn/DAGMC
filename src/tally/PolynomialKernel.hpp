@@ -136,6 +136,6 @@ class PolynomialKernel : public KDEKernel {
   long double factorial(unsigned int n) const;
 };
 
-#endif // DAGMC_POLYNOMIAL_KERNEL_HPP
+#endif  // DAGMC_POLYNOMIAL_KERNEL_HPP
 
 // end of MCNP5/dagmc/PolynomialKernel.hpp

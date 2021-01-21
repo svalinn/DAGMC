@@ -1,8 +1,8 @@
 #include <DagMC.hpp>
+
 #include "moab/ProgOptions.hpp"
 
 int main(int argc, char* argv[]) {
-
   std::string dag_file;
   std::string out_file;
   bool verbose = false;
@@ -10,8 +10,12 @@ int main(int argc, char* argv[]) {
   ProgOptions po("build_obb: A tool to prebuild your DAGMC OBB Tree");
 
   po.addOpt<void>("verbose,v", "Verbose output", &verbose);
-  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to proccess", &dag_file);
-  po.addOpt<std::string>("output,o", "Specify the output filename (default "")", &out_file);
+  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to proccess",
+                                 &dag_file);
+  po.addOpt<std::string>("output,o",
+                         "Specify the output filename (default "
+                         ")",
+                         &out_file);
 
   po.addOptionHelpHeading("Options for loading files");
 
@@ -44,14 +48,15 @@ int main(int argc, char* argv[]) {
   // initialize geometry
   rval = DAG->init_OBBTree();
   if (moab::MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to initialize geometry and create OBB tree" <<  std::endl;
+    std::cerr << "DAGMC failed to initialize geometry and create OBB tree"
+              << std::endl;
     exit(EXIT_FAILURE);
   }
 
   // write the new file
   rval = DAG->write_mesh(out_file.c_str(), out_file.length());
   if (moab::MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed write file with OBB" <<  std::endl;
+    std::cerr << "DAGMC failed write file with OBB" << std::endl;
     exit(EXIT_FAILURE);
   }
 

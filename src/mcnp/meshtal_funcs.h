@@ -19,31 +19,29 @@ extern "C" {
  */
 
 /* Make a valid Fortran pointer to a C array */
-extern void dagmc_make_fortran_pointer(void* fort_ref, double* array, int* size);
+extern void dagmc_make_fortran_pointer(void* fort_ref, double* array,
+                                       int* size);
 
 /**
- * The dagmc_fmesh_*_ functions are called from fortran to drive our advanced mesh tallies,
- * mostly from fmesh_mod.F90.  They should probably not be called from C++ code.
- * Per-function documentation is found in meshtal_funcs.cpp
+ * The dagmc_fmesh_*_ functions are called from fortran to drive our advanced
+ * mesh tallies, mostly from fmesh_mod.F90.  They should probably not be called
+ * from C++ code. Per-function documentation is found in meshtal_funcs.cpp
  */
 void dagmc_fmesh_setup_mesh_(int* fm_ipt, int* id, int* fmesh_idx,
-                             double* energy_mesh, int* n_energy_mesh, int* tot_energy_bin,
-                             char* comment, int* n_comment_lines, int* is_collision_tally);
+                             double* energy_mesh, int* n_energy_mesh,
+                             int* tot_energy_bin, char* comment,
+                             int* n_comment_lines, int* is_collision_tally);
 
 void dagmc_fmesh_end_history_();
 
-void dagmc_fmesh_score_(int* ipt,
-                        double* x, double* y, double* z,
-                        double* u, double* v, double* w,
-                        double* erg, double* wgt,
+void dagmc_fmesh_score_(int* ipt, double* x, double* y, double* z, double* u,
+                        double* v, double* w, double* erg, double* wgt,
                         double* d, int* icl);
 
 void dagmc_fmesh_print_(double* sp_norm);
 
-void dagmc_collision_score_(int* ipt,
-                            double* x,   double* y, double* z,
-                            double* erg, double* wgt,
-                            double* ple, int* icl);
+void dagmc_collision_score_(int* ipt, double* x, double* y, double* z,
+                            double* erg, double* wgt, double* ple, int* icl);
 
 void dagmc_update_multiplier_(int* fmesh_idx, double* value);
 

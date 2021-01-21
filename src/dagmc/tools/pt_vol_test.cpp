@@ -1,20 +1,23 @@
-#include "moab/Interface.hpp"
-#include "moab/Core.hpp"
-#include "DagMC.hpp"
-#include "MBTagConventions.hpp"
-
-#include <vector>
-#include <iostream>
 #include <math.h>
-#include <limits>
 #include <stdlib.h>
 
-#define CHKERR if (MB_SUCCESS != rval) return rval
+#include <iostream>
+#include <limits>
+#include <vector>
+
+#include "DagMC.hpp"
+#include "MBTagConventions.hpp"
+#include "moab/Core.hpp"
+#include "moab/Interface.hpp"
+
+#define CHKERR \
+  if (MB_SUCCESS != rval) return rval
 
 using namespace moab;
 
-ErrorCode test_pt_volume(DagMC& dagmc, int volID, double xxx, double yyy, double zzz, int& inside,
-                         double uuu, double vvv, double www) {
+ErrorCode test_pt_volume(DagMC& dagmc, int volID, double xxx, double yyy,
+                         double zzz, int& inside, double uuu, double vvv,
+                         double www) {
   ErrorCode rval;
 
   EntityHandle vol = dagmc.entity_by_id(3, volID);
@@ -25,10 +28,10 @@ ErrorCode test_pt_volume(DagMC& dagmc, int volID, double xxx, double yyy, double
   CHKERR;
 
   return MB_SUCCESS;
-
 }
 
-ErrorCode test_pt_volume_slow(DagMC& dagmc, int volID, double xxx, double yyy, double zzz, int& inside) {
+ErrorCode test_pt_volume_slow(DagMC& dagmc, int volID, double xxx, double yyy,
+                              double zzz, int& inside) {
   ErrorCode rval;
 
   EntityHandle vol = dagmc.entity_by_id(3, volID);
@@ -38,7 +41,6 @@ ErrorCode test_pt_volume_slow(DagMC& dagmc, int volID, double xxx, double yyy, d
   CHKERR;
 
   return MB_SUCCESS;
-
 }
 
 int main(int argc, char* argv[]) {
@@ -69,9 +71,9 @@ int main(int argc, char* argv[]) {
 
   std::cout << "Checking pt_in_volume for:" << std::endl
             << "(x,y,z) = (" << xxx << "," << yyy << "," << zzz << ")"
-            << std::endl << "in volume " << volID
-            << " of geometry " << filename << std::endl;
-
+            << std::endl
+            << "in volume " << volID << " of geometry " << filename
+            << std::endl;
 
   DagMC dagmc{};
   rval = dagmc.load_file(filename);
@@ -93,8 +95,8 @@ int main(int argc, char* argv[]) {
     return 3;
   }
 
-  std::cout << "[fast] Point is " << (inside ? "inside" : "outside") << " volume "
-            << volID << std::endl;
+  std::cout << "[fast] Point is " << (inside ? "inside" : "outside")
+            << " volume " << volID << std::endl;
 
   rval = test_pt_volume_slow(dagmc, volID, xxx, yyy, zzz, inside);
   if (MB_SUCCESS != rval) {
@@ -102,8 +104,8 @@ int main(int argc, char* argv[]) {
     return 3;
   }
 
-  std::cout << "[slow] Point is " << (inside ? "inside" : "outside") << " volume "
-            << volID << std::endl;
+  std::cout << "[slow] Point is " << (inside ? "inside" : "outside")
+            << " volume " << volID << std::endl;
 
   return errors;
 }

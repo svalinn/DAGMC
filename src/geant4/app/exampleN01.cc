@@ -4,19 +4,16 @@
 //      GEANT 4 - exampleN01
 // --------------------------------------------------------------
 
-#include "G4RunManager.hh"
-#include "G4UImanager.hh"
-#include "G4Timer.hh"
-
+#include "ExN01ActionInitialization.hh"
 #include "ExN01DetectorConstruction.hh"
 #include "ExN01PhysicsList.hh"
 #include "ExN01PrimaryGeneratorAction.hh"
-#include "ExN01ActionInitialization.hh"
-
 #include "ExN01UserScoreWriter.hh"
-
 #include "G4PhysListFactory.hh"
+#include "G4RunManager.hh"
 #include "G4ScoringManager.hh"
+#include "G4Timer.hh"
+#include "G4UImanager.hh"
 
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
@@ -43,29 +40,30 @@ int main(int argc, char* argv[]) {
   scManager->SetVerboseLevel(1);
   scManager->SetScoreWriter(new ExN01UserScoreWriter());
 
-  std::string uwuw_file(argv[1]); // file containing data & uwuw
+  std::string uwuw_file(argv[1]);  // file containing data & uwuw
 
   // Activate UI-command base scorer
   // load the UWUW data
   UWUW* workflow_data = new UWUW(uwuw_file);
 
   // setup detectors and scores
-  runManager->SetUserInitialization(new ExN01DetectorConstruction(workflow_data));
+  runManager->SetUserInitialization(
+      new ExN01DetectorConstruction(workflow_data));
 
   G4PhysListFactory* physListFactory = new G4PhysListFactory();
   G4VUserPhysicsList* physicsList =
       physListFactory->GetReferencePhysList("QGSP_BIC_HP");
   runManager->SetUserInitialization(physicsList);
 
-
   // set mandatory user action class
   //
-  ExN01ActionInitialization* actionInitialization = new ExN01ActionInitialization(workflow_data);
+  ExN01ActionInitialization* actionInitialization =
+      new ExN01ActionInitialization(workflow_data);
   runManager->SetUserInitialization(actionInitialization);
 
-  //  G4VUserPrimaryGeneratorAction* gen_action = new ExN01PrimaryGeneratorAction;
-  //runManager->SetUserAction(gen_action);
-
+  //  G4VUserPrimaryGeneratorAction* gen_action = new
+  //  ExN01PrimaryGeneratorAction;
+  // runManager->SetUserAction(gen_action);
 
   //  G4VUserSteppingAction* step_action = new ExN01SteppingAction;
   // runManager->SetUserAction(step_action);

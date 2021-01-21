@@ -1,8 +1,9 @@
 #ifndef ExN01ActionInitialization_h
 #define ExN01ActionInitialization_h 1
 
-#include "G4VUserActionInitialization.hh"
 #include <string>
+
+#include "G4VUserActionInitialization.hh"
 
 #ifndef uwuw_hpp
 #define uwuw_hpp 1

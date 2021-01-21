@@ -1,11 +1,9 @@
 // MCNP5/dagmc/test/test_Tally.cpp
 
-#include "gtest/gtest.h"
-
-#include "moab/CartVect.hpp"
-
 #include "../Tally.hpp"
 #include "../TallyEvent.hpp"
+#include "gtest/gtest.h"
+#include "moab/CartVect.hpp"
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
@@ -21,9 +19,7 @@ class TallyFactoryTest : public ::testing::Test {
   }
 
   // deallocate memory resources
-  virtual void TearDown() {
-    delete tally;
-  }
+  virtual void TearDown() { delete tally; }
 
  protected:
   // data needed for each test
@@ -52,9 +48,7 @@ class TallyEnergyBinTest : public ::testing::Test {
   }
 
   // deallocate memory resources
-  virtual void TearDown() {
-    delete tally;
-  }
+  virtual void TearDown() { delete tally; }
 
  protected:
   // data needed for each test

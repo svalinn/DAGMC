@@ -1,17 +1,15 @@
 
 #include "overlap.hpp"
-#include "ProgressBar.hpp"
 
-#include "moab/GeomTopoTool.hpp"
+#include "ProgressBar.hpp"
 #include "moab/GeomQueryTool.hpp"
+#include "moab/GeomTopoTool.hpp"
 
 using namespace moab;
 
 ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
-                                     const Range& all_vols,
-                                     CartVect loc,
-                                     CartVect dir,
-                                     OverlapMap& overlap_map) {
+                                     const Range& all_vols, CartVect loc,
+                                     CartVect dir, OverlapMap& overlap_map) {
   ErrorCode rval;
 
   GeomTopoTool* GTT = GQT->gttool();
@@ -25,8 +23,7 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
     int result = 0;
     rval = GQT->point_in_volume(vol, loc.array(), result, dir.array());
     MB_CHK_SET_ERR(rval, "Failed point in volume for Vol with id "
-                   << GTT->global_id(vol)
-                   << " at location " << loc);
+                             << GTT->global_id(vol) << " at location " << loc);
 
     if (result == 1) {
       vols_found.insert(GTT->global_id(vol));
@@ -46,8 +43,7 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
     int result = 0;
     rval = GQT->point_in_volume(vol, loc.array(), result, dir.array());
     MB_CHK_SET_ERR(rval, "Failed point in volume for Vol with id "
-                   << GTT->global_id(vol)
-                   << " at location " << loc);
+                             << GTT->global_id(vol) << " at location " << loc);
 
     if (result == 1) {
       vols_found.insert(GTT->global_id(vol));
@@ -61,11 +57,9 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
   return MB_SUCCESS;
 }
 
-ErrorCode
-check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
-                            OverlapMap& overlap_map,
-                            int pnts_per_edge) {
-
+ErrorCode check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
+                                      OverlapMap& overlap_map,
+                                      int pnts_per_edge) {
   std::shared_ptr<GeomTopoTool> GTT(new GeomTopoTool(MBI.get()));
   std::shared_ptr<GeomQueryTool> GQT(new GeomQueryTool(GTT.get()));
 
@@ -100,21 +94,21 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
 
   ProgressBar prog_bar;
 
-  // first check all triangle vertex locations
-  #pragma omp parallel shared(overlap_map, num_checked)
+// first check all triangle vertex locations
+#pragma omp parallel shared(overlap_map, num_checked)
   {
-    #pragma omp for schedule(auto)
+#pragma omp for schedule(auto)
     for (size_t i = 0; i < all_verts.size(); i++) {
-
       EntityHandle vert = all_verts[i];
       CartVect loc;
       MBI->get_coords(&vert, 1, loc.array());
 
       rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
-      MB_CHK_SET_ERR_CONT(rval, "Failed to check location " << loc << " for an overlap");
+      MB_CHK_SET_ERR_CONT(
+          rval, "Failed to check location " << loc << " for an overlap");
 
-      #pragma omp critical
-      prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
+#pragma omp critical
+      prog_bar.set_value(100.0 * (double)num_checked++ / (double)num_locations);
     }
   }
   // if we aren't checking along edges, return
@@ -122,15 +116,13 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
     return MB_SUCCESS;
   }
 
-
-  #pragma omp parallel shared(overlap_map, num_checked)
+#pragma omp parallel shared(overlap_map, num_checked)
   {
-    // now check along triangle edges
-    // (curve edges are likely in here too,
-    //  but it isn't hurting anything to check more locations)
-    #pragma omp for schedule(auto)
-    for (size_t i = 0; i < all_edges.size() ; i++) {
-
+// now check along triangle edges
+// (curve edges are likely in here too,
+//  but it isn't hurting anything to check more locations)
+#pragma omp for schedule(auto)
+    for (size_t i = 0; i < all_edges.size(); i++) {
       EntityHandle edge = all_edges[i];
       Range edge_verts;
       rval = MBI->get_connectivity(&edge, 1, edge_verts);
@@ -155,14 +147,14 @@ check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
       for (auto& loc : locations) {
         rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
         MB_CHK_SET_ERR_CONT(rval, "Failed to check point for overlap");
-        #pragma omp critical
-        prog_bar.set_value(100.0 * (double) num_checked++ / (double) num_locations);
+#pragma omp critical
+        prog_bar.set_value(100.0 * (double)num_checked++ /
+                           (double)num_locations);
       }
     }
   }
   return MB_SUCCESS;
 }
-
 
 void report_overlaps(const OverlapMap& overlap_map) {
   std::cout << "Overlap locations found: " << overlap_map.size() << std::endl;
@@ -171,9 +163,7 @@ void report_overlaps(const OverlapMap& overlap_map) {
     std::set<int> overlap_vols = entry.first;
     CartVect loc = entry.second;
 
-    std::cout << "Overlap Location: "
-              << loc[0] << " "
-              << loc[1] << " "
+    std::cout << "Overlap Location: " << loc[0] << " " << loc[1] << " "
               << loc[2] << std::endl;
     std::cout << "Overlapping volumes: ";
     for (const auto& i : overlap_vols) {

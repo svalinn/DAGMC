@@ -6,9 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "moab/Range.hpp"
-
 #include "Tally.hpp"
+#include "moab/Range.hpp"
 
 // forward declaration
 namespace moab {
@@ -115,9 +114,9 @@ class MeshTally : public Tally {
   /**
    * \brief Reduces a MOAB mesh set to include only its 3D elements
    * \param[in] mbi the MOAB interface for this mesh tally
-   * \param[in, out] mesh_set entity handle for the mesh set that will be reduced
-   * \param[out] mesh_elements stores 3D elements that were added to the mesh set
-   * \return the MOAB ErrorCode value
+   * \param[in, out] mesh_set entity handle for the mesh set that will be
+   * reduced \param[out] mesh_elements stores 3D elements that were added to the
+   * mesh set \return the MOAB ErrorCode value
    *
    * NOTE: this method will overwrite the mesh set
    */
@@ -150,6 +149,6 @@ class MeshTally : public Tally {
                                double weight, double score, unsigned int ebin);
 };
 
-#endif // DAGMC_MESHTALLY_HPP
+#endif  // DAGMC_MESHTALLY_HPP
 
 // end of MCNP5/dagmc/MeshTally.hpp

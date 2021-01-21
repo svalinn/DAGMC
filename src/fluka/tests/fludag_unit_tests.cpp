@@ -2,13 +2,12 @@
 
 #include <gtest/gtest.h>
 
-#include "DagMC.hpp"
-#include "moab/Interface.hpp"
-#include "fluka_funcs.h"
-
-
-#include <cmath>
 #include <cassert>
+#include <cmath>
+
+#include "DagMC.hpp"
+#include "fluka_funcs.h"
+#include "moab/Interface.hpp"
 
 moab::DagMC* DAG = new moab::DagMC();
 
@@ -19,7 +18,6 @@ int num_slab_vols = 12;
 //---------------------------------------------------------------------------//
 class FluDAGTest : public ::testing::Test {
  protected:
-
   // initalize variables for each test
   virtual void SetUp() {
     // Default h5m file for testing
@@ -44,14 +42,13 @@ class FluDAGTest : public ::testing::Test {
     oldReg = 1;
     // How far the particle would be expected to go if no physics boundaries
     propStep = 0.0;
-    safety   = 0.0;
+    safety = 0.0;
 
     // Direction cosine for component headed from center of cube to a corner
     dir_norm = 1.0 / sqrt(3);
   }
 
  protected:
-
   moab::ErrorCode rloadval;
   moab::ErrorCode rval;
 
@@ -61,27 +58,29 @@ class FluDAGTest : public ::testing::Test {
   // Direction Vector
   double dir[3];
 
-  int      oldReg;
+  int oldReg;
   double propStep;
   double safety;
   double retStep;
-  int    newReg;
+  int newReg;
 
   double dir_norm;
 };
 
 //---------------------------------------------------------------------------//
 // void g_fire(int& oldRegion, double point[], double dir[],
-//              double &propStep, double& retStep, double& safety, int& newRegion)
+//              double &propStep, double& retStep, double& safety, int&
+//              newRegion)
 //---------------------------------------------------------------------------//
 // oldRegion - the region of the particle's current coordinates
 // point     - the particle's coordinate location vector
 // dir       - the direction vector of the particle's current path (ray)
 // propStep  - ??
-// retStep   - returned as the distance from the particle's current location, along its ray, to the next boundary
-// newRegion - gotten from the value returned by DAG->next_vol
-// newRegion is gotten from the volue returned by DAG->next_vol
-// void g_fire(int& oldRegion, double point[], double dir[], double &propStep, double& retStep, double& safety, int& newRegion)
+// retStep   - returned as the distance from the particle's current location,
+// along its ray, to the next boundary newRegion - gotten from the value
+// returned by DAG->next_vol newRegion is gotten from the volue returned by
+// DAG->next_vol void g_fire(int& oldRegion, double point[], double dir[],
+// double &propStep, double& retStep, double& safety, int& newRegion)
 
 //---------------------------------------------------------------------------//
 // Test setup outcomes
@@ -95,7 +94,7 @@ TEST_F(FluDAGTest, SetUp) {
   std::cout << "Number of regions is " << num_vols << std::endl;
   EXPECT_EQ(num_slab_vols, num_vols);
 
-  std::vector< std::string > keywords;
+  std::vector<std::string> keywords;
   rval = DAG->detect_available_props(keywords);
   EXPECT_EQ(moab::MB_SUCCESS, rval);
   rval = DAG->parse_properties(keywords);
@@ -120,10 +119,11 @@ TEST_F(FluDAGTest, SetUp) {
 //---------------------------------------------------------------------------//
 // Test default propStep value of 0.0 is not right
 TEST_F(FluDAGTest, GFireBadPropStep) {
-  std::cout << "Calling g_fire. Start in middle of leftmost 10x10x10 cube" << std::endl;
-  oldReg   = 2;
+  std::cout << "Calling g_fire. Start in middle of leftmost 10x10x10 cube"
+            << std::endl;
+  oldReg = 2;
   point[2] = 5.0;
-  dir[2]   = 1.0;
+  dir[2] = 1.0;
 
   g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   EXPECT_EQ(0.0, retStep);
@@ -131,14 +131,15 @@ TEST_F(FluDAGTest, GFireBadPropStep) {
 //---------------------------------------------------------------------------//
 // Test distance to next surface or vertex for various directions
 TEST_F(FluDAGTest, GFireGoodPropStep) {
-  // std::cout << "Calling g_fire. Start in middle of leftmost cube" << std::endl;
-  oldReg   = 2;
+  // std::cout << "Calling g_fire. Start in middle of leftmost cube" <<
+  // std::endl;
+  oldReg = 2;
   point[2] = 5.0;
   // Set prepStep to something more realistic than 0.0
   propStep = 1e38;
 
   // +z direction
-  dir[2]   = 1.0;
+  dir[2] = 1.0;
   g_fire(oldReg, point, dir, propStep, retStep, safety, newReg);
   std::cout << "newReg is " << newReg << std::endl;
   // Start in middle of 10x10x10 cube, expect 10/2 to be dist. to next surface
@@ -230,9 +231,7 @@ TEST_F(FluDAGTest, GFireGoodPropStep) {
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
 //---------------------------------------------------------------------------//
-class FluDAGMetaDataTest : public ::testing::Test {
-};
-
+class FluDAGMetaDataTest : public ::testing::Test {};
 
 //---------------------------------------------------------------------------//
 // Test setup outcomes
@@ -241,25 +240,27 @@ TEST_F(FluDAGMetaDataTest, CheckAssignMatsLegacy) {
   DAG = new moab::DagMC();
   std::string infile = "test_geom_legacy.h5m";
   moab::ErrorCode error;
-  error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
+  error = DAG->load_file(
+      infile.c_str());  // load the dag file takeing the faceting from h5m
   error = DAG->setup_impl_compl();
   error = DAG->setup_indices();
   fludag_write(infile, "lcad");
 
-// expected values from the lcad file // only the cells
-  const char* expected[] = {"*...+....1....+....2....+....3....+....4....+....5....+....6....+....7...",
-                            "ASSIGNMA           9        1.",
-                            "ASSIGNMA           9        2.",
-                            "ASSIGNMA           9        3.",
-                            "ASSIGNMA           9        4.",
-                            "ASSIGNMA           3        5.",
-                            "ASSIGNMA           3        6.",
-                            "ASSIGNMA           3        7.",
-                            "ASSIGNMA           3        8.",
-                            "ASSIGNMA           1        9.",
-                            "ASSIGNMA    BLCKHOLE       10.",
-                            "ASSIGNMA      VACUUM       11."
-                           };
+  // expected values from the lcad file // only the cells
+  const char* expected[] = {
+      "*...+....1....+....2....+....3....+....4....+....5....+....6....+....7.."
+      ".",
+      "ASSIGNMA           9        1.",
+      "ASSIGNMA           9        2.",
+      "ASSIGNMA           9        3.",
+      "ASSIGNMA           9        4.",
+      "ASSIGNMA           3        5.",
+      "ASSIGNMA           3        6.",
+      "ASSIGNMA           3        7.",
+      "ASSIGNMA           3        8.",
+      "ASSIGNMA           1        9.",
+      "ASSIGNMA    BLCKHOLE       10.",
+      "ASSIGNMA      VACUUM       11."};
   std::vector<std::string> expected_lcad(expected, expected + 12);
 
   // now read the lcad file
@@ -274,10 +275,9 @@ TEST_F(FluDAGMetaDataTest, CheckAssignMatsLegacy) {
   input.close();
 
   // for each line make sure the same
-  for (int i = 0 ; i < 11 ; i++) {
+  for (int i = 0; i < 11; i++) {
     EXPECT_EQ(expected_lcad[i], input_deck[i]);
   }
   // delete the lcad file
   std::remove("lcad");
-
 }

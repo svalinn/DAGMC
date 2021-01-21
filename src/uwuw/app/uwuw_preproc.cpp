@@ -1,9 +1,10 @@
-#include "uwuw_preprocessor.hpp"
 #include "moab/ProgOptions.hpp"
+#include "uwuw_preprocessor.hpp"
 
 int main(int argc, char* argv[]) {
-
-  ProgOptions po("uwuw_preproc: a tool for preprocessing DAGMC files to incorporate UWUW workflow information");
+  ProgOptions po(
+      "uwuw_preproc: a tool for preprocessing DAGMC files to incorporate UWUW "
+      "workflow information");
 
   bool verbose = false;
   bool fatal_errors = false;
@@ -18,11 +19,20 @@ int main(int argc, char* argv[]) {
   po.addOpt<void>("fatal,f", "Fatal errors cause exit", &fatal_errors);
   po.addOpt<void>("simulate,s", "Fatal errors cause exit", &simulate);
 
-  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to proccess", &dag_file);
-  po.addOpt<std::string>("lib_file,l", "Path to PyNE Material Library file to proccess", &lib_file);
-  po.addOpt<std::string>("output,o", "Specify the output filename (default "")", &out_file);
-  po.addOpt<std::string>("matlib_hdf5_path,m", "specify the HDF5 location of the material library (default "")",
-                         &matlib_hdf5_path);
+  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to proccess",
+                                 &dag_file);
+  po.addOpt<std::string>("lib_file,l",
+                         "Path to PyNE Material Library file to proccess",
+                         &lib_file);
+  po.addOpt<std::string>("output,o",
+                         "Specify the output filename (default "
+                         ")",
+                         &out_file);
+  po.addOpt<std::string>(
+      "matlib_hdf5_path,m",
+      "specify the HDF5 location of the material library (default "
+      ")",
+      &matlib_hdf5_path);
 
   po.addOptionHelpHeading("Options for loading files");
 
@@ -33,14 +43,13 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  if (out_file == "")
-    out_file = dag_file;
+  if (out_file == "") out_file = dag_file;
 
-  if (matlib_hdf5_path == "")
-    matlib_hdf5_path = "/materials";
+  if (matlib_hdf5_path == "") matlib_hdf5_path = "/materials";
 
   // make new preprocessor
-  uwuw_preprocessor* uwuw_preproc = new uwuw_preprocessor(lib_file, dag_file, out_file, matlib_hdf5_path, verbose, fatal_errors);
+  uwuw_preprocessor* uwuw_preproc = new uwuw_preprocessor(
+      lib_file, dag_file, out_file, matlib_hdf5_path, verbose, fatal_errors);
 
   // process the materials
   uwuw_preproc->process_materials();

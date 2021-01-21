@@ -3,9 +3,9 @@
 #ifndef DAGMC_TALLY_DATA_HPP
 #define DAGMC_TALLY_DATA_HPP
 
-#include <vector>
 #include <set>
 #include <utility>
+#include <vector>
 
 /**
  * \class TallyData
@@ -60,8 +60,8 @@ class TallyData {
    * \param[in] energy_bin the index representing the energy bin
    * \return pair containing (tally, error) data for the tally point
    */
-  std::pair <double, double> get_data(unsigned int tally_point_index,
-                                      unsigned int energy_bin) const;
+  std::pair<double, double> get_data(unsigned int tally_point_index,
+                                     unsigned int energy_bin) const;
 
   /**
    * \brief get_tally_data(), get_error_data(), get_scratch_data()
@@ -115,7 +115,8 @@ class TallyData {
    * \param[in] score the score to be added
    * \param[in] ebin the energy bin to which score will be added
    */
-  void add_score_to_tally(unsigned int tally_point_index, double score, unsigned int ebin);
+  void add_score_to_tally(unsigned int tally_point_index, double score,
+                          unsigned int ebin);
 
  private:
   // Data array for storing sum of scores for all particle histories
@@ -140,6 +141,6 @@ class TallyData {
   unsigned int num_tally_points;
 };
 
-#endif // DAGMC_TALLY_DATA_HPP
+#endif  // DAGMC_TALLY_DATA_HPP
 
 // end of MCNP5/dagmc/TallyData.hpp

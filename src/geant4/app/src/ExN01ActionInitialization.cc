@@ -5,23 +5,22 @@
 /// rief Implementation of the B4dActionInitialization class
 
 #include "ExN01ActionInitialization.hh"
+
+#include "ExN01EventAction.hh"
 #include "ExN01PrimaryGeneratorAction.hh"
 #include "ExN01RunAction.hh"
-#include "ExN01EventAction.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ExN01ActionInitialization::ExN01ActionInitialization(UWUW* uwuw_workflow_data)
-  : G4VUserActionInitialization() {
+    : G4VUserActionInitialization() {
   //  workflow_data = UWUW(filename);
   workflow_data = uwuw_workflow_data;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ExN01ActionInitialization::~ExN01ActionInitialization() {
-  ;
-}
+ExN01ActionInitialization::~ExN01ActionInitialization() { ; }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

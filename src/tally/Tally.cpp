@@ -1,19 +1,19 @@
 // MCNP5/dagmc/Tally.cpp
 
-#include <cassert>
-#include <iostream>
-#include <cmath>
-
 #include "Tally.hpp"
-#include "TrackLengthMeshTally.hpp"
-#include "KDEMeshTally.hpp"
+
+#include <cassert>
+#include <cmath>
+#include <iostream>
+
 #include "CellTally.hpp"
+#include "KDEMeshTally.hpp"
+#include "TrackLengthMeshTally.hpp"
 
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
-Tally::Tally(const TallyInput& input)
-  : input_data(input), data(NULL) {
+Tally::Tally(const TallyInput& input) : input_data(input), data(NULL) {
   assert(input_data.energy_bin_bounds.size() > 1);
 
   // This is a placeholder for a future option to set t.e.b. false via the
@@ -27,9 +27,7 @@ Tally::Tally(const TallyInput& input)
 //---------------------------------------------------------------------------//
 // DESTRUCTOR
 //---------------------------------------------------------------------------//
-Tally::~Tally() {
-  delete data;
-}
+Tally::~Tally() { delete data; }
 //---------------------------------------------------------------------------//
 // FACTORY METHOD
 //
@@ -73,17 +71,11 @@ Tally* Tally::create_tally(const TallyInput& input) {
 //---------------------------------------------------------------------------//
 // PUBLIC INTERFACE
 //---------------------------------------------------------------------------//
-void Tally::end_history() {
-  data->end_history();
-}
+void Tally::end_history() { data->end_history(); }
 //---------------------------------------------------------------------------//
-const TallyData& Tally::getTallyData() {
-  return *data;
-}
+const TallyData& Tally::getTallyData() { return *data; }
 //---------------------------------------------------------------------------//
-std::string Tally::get_tally_type() {
-  return input_data.tally_type;
-}
+std::string Tally::get_tally_type() { return input_data.tally_type; }
 //---------------------------------------------------------------------------//
 // PROTECTED INTERFACE
 //---------------------------------------------------------------------------//
@@ -96,11 +88,11 @@ bool Tally::get_energy_bin(double energy, unsigned int& ebin) {
 
     if (data->get_num_energy_bins() == 1) {
       ebin = 0;
-    } else { // in bounds and more than one energy bin
+    } else {  // in bounds and more than one energy bin
       unsigned int max_ebound = input_data.energy_bin_bounds.size() - 1;
 
       // Pre-load ebin with maximum bin as default
-      ebin =  max_ebound - 1;
+      ebin = max_ebound - 1;
 
       // find ebin if not maximum bin
       for (unsigned int i = 0; i < max_ebound; ++i) {
@@ -110,8 +102,8 @@ bool Tally::get_energy_bin(double energy, unsigned int& ebin) {
           break;
         }
       }  // end for
-    }  // end else in bounds and >1 energy bin
-  }  // end if in bounds
+    }    // end else in bounds and >1 energy bin
+  }      // end if in bounds
 
   return bin_exists;
 }

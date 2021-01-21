@@ -46,37 +46,30 @@
 //
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef DagSolid_hh
 #define DagSolid_hh 1
 
+#include <iostream>
+#include <map>
+#include <set>
+#include <vector>
+
+#include "DagMC.hpp"
+#include "G4AffineTransform.hh"
 #include "G4TessellatedSolid.hh"
 #include "G4VGraphicsScene.hh"
 #include "G4VPVParameterisation.hh"
-
 #include "G4VPhysicalVolume.hh"
 #include "G4VoxelLimits.hh"
-#include "G4AffineTransform.hh"
 #include "globals.hh"
-
-#include <iostream>
-#include <vector>
-#include <set>
-#include <map>
-
-#include "DagMC.hpp"
 using namespace moab;
-
 
 class DagSolid : public G4TessellatedSolid {
  public:  // with description
-
   DagSolid();
   DagSolid(const G4String& name, DagMC* dagmc, int volID);
   virtual ~DagSolid();
-
 
   // Mandatory Functions
 
@@ -86,10 +79,10 @@ class DagSolid : public G4TessellatedSolid {
   virtual G4double DistanceToIn(const G4ThreeVector& p,
                                 const G4ThreeVector& v) const;
   virtual G4double DistanceToIn(const G4ThreeVector& p) const;
-  virtual G4double DistanceToOut(const G4ThreeVector& p,
-                                 const G4ThreeVector& v,
+  virtual G4double DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
                                  const G4bool calcNorm = false,
-                                 G4bool* validNorm = 0, G4ThreeVector* n = 0) const;
+                                 G4bool* validNorm = 0,
+                                 G4ThreeVector* n = 0) const;
   virtual G4double DistanceToOut(const G4ThreeVector& p) const;
   virtual G4GeometryType GetEntityType() const;
 
@@ -101,39 +94,36 @@ class DagSolid : public G4TessellatedSolid {
 
   virtual G4double GetCubicVolume();
   virtual G4double GetSurfaceArea();
-  G4double      GetMinXExtent() const;
-  G4double      GetMaxXExtent() const;
-  G4double      GetMinYExtent() const;
-  G4double      GetMaxYExtent() const;
-  G4double      GetMinZExtent() const;
-  G4double      GetMaxZExtent() const;
+  G4double GetMinXExtent() const;
+  G4double GetMaxXExtent() const;
+  G4double GetMinYExtent() const;
+  G4double GetMaxYExtent() const;
+  G4double GetMinZExtent() const;
+  G4double GetMaxZExtent() const;
   // Functions for visualization
 
-  virtual void  DescribeYourselfTo(G4VGraphicsScene& scene) const;
+  virtual void DescribeYourselfTo(G4VGraphicsScene& scene) const;
 
  public:  // without description
-
   DagSolid(__void__&);
   // Fake default constructor for usage restricted to direct object
   // persistency for clients requiring preallocation of memory for
   // persistifiable objects.
 
  protected:  // with description
-
   void DeleteObjects();
   void CopyObjects(const DagSolid& s);
 
  private:
-
-  G4GeometryType           geometryType;
-  G4double                 cubicVolume;
-  G4double                 surfaceArea;
-  G4double                 xMinExtent;
-  G4double                 xMaxExtent;
-  G4double                 yMinExtent;
-  G4double                 yMaxExtent;
-  G4double                 zMinExtent;
-  G4double                 zMaxExtent;
+  G4GeometryType geometryType;
+  G4double cubicVolume;
+  G4double surfaceArea;
+  G4double xMinExtent;
+  G4double xMaxExtent;
+  G4double yMinExtent;
+  G4double yMaxExtent;
+  G4double zMinExtent;
+  G4double zMaxExtent;
 
   G4String Myname;
 
@@ -144,7 +134,6 @@ class DagSolid : public G4TessellatedSolid {
   mutable EntityHandle Last_sulf_hit;
   mutable G4int nVertices;
   EntityHandle My_sulf_hit;
-
 };
 
 #endif

@@ -2,10 +2,9 @@
 
 #include <cmath>
 
-#include "gtest/gtest.h"
-
 #include "../KDEMeshTally.hpp"
 #include "../TallyEvent.hpp"
+#include "gtest/gtest.h"
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
@@ -32,9 +31,7 @@ class KDEMeshTallyTest : public ::testing::Test {
   }
 
   // deallocate memory resources
-  virtual void TearDown() {
-    delete kde_tally;
-  }
+  virtual void TearDown() { delete kde_tally; }
 
  protected:
   // data needed for each test
@@ -72,8 +69,7 @@ class KDEMeshTallyTest : public ::testing::Test {
       X.coords[i] = coords[i];
 
       // only copy boundary correction data if included
-      if (boundary_data == NULL || distance_data == NULL)
-        continue;
+      if (boundary_data == NULL || distance_data == NULL) continue;
       X.boundary_data[i] = boundary_data[i];
       X.distance_data[i] = distance_data[i];
     }
@@ -447,10 +443,8 @@ TEST_F(KDECollisionTest, EvaluateNonBoundaryPoint) {
   double distance_data[3] = {-1.0, -1.0, -1.0};
 
   // verify standard evaluate method called if no boundary correction used
-  double score1 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score1 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(60.117188, score1, 1e-6);
 
@@ -458,10 +452,8 @@ TEST_F(KDECollisionTest, EvaluateNonBoundaryPoint) {
   force_boundary_correction();
 
   // verify standard evaluate method is still called
-  double score2 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score2 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(60.117188, score2, 1e-6);
 }
@@ -472,10 +464,8 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnZ) {
   double distance_data[3] = {-1.0, -1.0, 0.0};
 
   // verify standard evaluate method called if no boundary correction used
-  double score1 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score1 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(60.117188, score1, 1e-6);
 
@@ -483,10 +473,8 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnZ) {
   force_boundary_correction();
 
   // verify boundary kernel is used instead of standard evaluate method
-  double score2 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score2 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(-278.437500, score2, 1e-6);
 }
@@ -497,10 +485,8 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXY) {
   double distance_data[3] = {0.05, 0.1, -1.0};
 
   // verify standard evaluate method called if no boundary correction used
-  double score1 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score1 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(60.117188, score1, 1e-6);
 
@@ -508,10 +494,8 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXY) {
   force_boundary_correction();
 
   // verify boundary kernel is used instead of standard evaluate method
-  double score2 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score2 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(46.395349, score2, 1e-6);
 }
@@ -522,10 +506,8 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXYZ) {
   double distance_data[3] = {0.0, 0.1, 0.05};
 
   // verify standard evaluate method called if no boundary correction used
-  double score1 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score1 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(60.117188, score1, 1e-6);
 
@@ -533,10 +515,8 @@ TEST_F(KDECollisionTest, EvaluateBoundaryPointOnXYZ) {
   force_boundary_correction();
 
   // verify boundary kernel is used instead of standard evaluate method
-  double score2 = test_evaluate_kernel(calculation_point,
-                                       collision,
-                                       boundary_data,
-                                       distance_data);
+  double score2 = test_evaluate_kernel(calculation_point, collision,
+                                       boundary_data, distance_data);
 
   EXPECT_NEAR(-72.732558, score2, 1e-6);
 }

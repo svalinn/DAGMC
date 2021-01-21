@@ -2,12 +2,13 @@
 
 #include "ProgressBar.hpp"
 
-#include <string>
-#include <sstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
 
-#if defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
+#if defined(__unix__) || defined(__unix) || \
+    (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
 #endif
 
@@ -27,9 +28,7 @@ bool ProgressBar::is_terminal() {
 #endif
 }
 
-
 void ProgressBar::set_value(double val) {
-
   if (!is_terminal()) {
     return;
   }
@@ -44,7 +43,7 @@ void ProgressBar::set_value(double val) {
 
   // current value and opening bracket
   std::stringstream bar;
-  bar <<  std::setfill(' ') << std::setw(3) << (int)val;
+  bar << std::setfill(' ') << std::setw(3) << (int)val;
   bar << "% |";
 
   // remaining width of the bar, leaving room for the closing characters

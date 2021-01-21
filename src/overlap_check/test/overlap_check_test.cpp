@@ -1,16 +1,14 @@
-#include <iostream>
+#include "overlap_check_test.hpp"
+
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
-#include <vector>
+#include <iostream>
 #include <set>
-#include <algorithm>
-#include <memory>
-#include "moab/Core.hpp"
+#include <vector>
 
 #include "overlap.hpp"
-
-#include "overlap_check_test.hpp"
 
 void OverlapTest::SetUp() {
   SetFilename();

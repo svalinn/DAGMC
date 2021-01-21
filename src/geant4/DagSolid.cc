@@ -32,9 +32,11 @@
 // MODULE:              DagSolid.hh
 //
 // Date:                27/03/2014
-// Author:              A. Davis M. C. Han, C. H. Kim, J. H. Jeong, Y. S. Yeom, S.
+// Author:              A. Davis M. C. Han, C. H. Kim, J. H. Jeong, Y. S. Yeom,
+// S.
 //                      Kim, Paul. P. H. Wilson, J. Apostolakis
-// Organisation:        The University of Wisconsin-Madison, USA & Hanyang Univ., KR
+// Organisation:        The University of Wisconsin-Madison, USA & Hanyang
+// Univ., KR
 //
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //
@@ -48,19 +50,19 @@
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #include "DagSolid.hh"
-#include "globals.hh"
-#include "Randomize.hh"
-#include "G4TriangularFacet.hh"
-#include "G4VFacet.hh"
-#include "G4TessellatedSolid.hh"
-#include "G4SystemOfUnits.hh"
 
 #include <iostream>
 
+#include "DagMC.hpp"
+#include "G4SystemOfUnits.hh"
+#include "G4TessellatedSolid.hh"
+#include "G4TriangularFacet.hh"
+#include "G4VFacet.hh"
+#include "Randomize.hh"
+#include "globals.hh"
+#include "moab/CartVect.hpp"
 #include "moab/Interface.hpp"
 #include "moab/Range.hpp"
-#include "moab/CartVect.hpp"
-#include "DagMC.hpp"
 using namespace moab;
 
 #include "DagSolid.hh"
@@ -73,18 +75,16 @@ using namespace moab;
 // Standard contructor has blank name and defines no facets.
 //
 DagSolid::DagSolid()
-  : G4TessellatedSolid("dummy"), cubicVolume(0.), surfaceArea(0.) {
-
+    : G4TessellatedSolid("dummy"), cubicVolume(0.), surfaceArea(0.) {
   geometryType = "DagSolid";
 
-  xMinExtent =  kInfinity;
+  xMinExtent = kInfinity;
   xMaxExtent = -kInfinity;
-  yMinExtent =  kInfinity;
+  yMinExtent = kInfinity;
   yMaxExtent = -kInfinity;
-  zMinExtent =  kInfinity;
+  zMinExtent = kInfinity;
   zMaxExtent = -kInfinity;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -92,7 +92,7 @@ DagSolid::DagSolid()
 // to define.
 //
 DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
-  : G4TessellatedSolid(name), cubicVolume(0.), surfaceArea(0.) {
+    : G4TessellatedSolid(name), cubicVolume(0.), surfaceArea(0.) {
   geometryType = "DagSolid";
   Myname = name;
 
@@ -103,12 +103,12 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
   double min[3], max[3];
   fdagmc->getobb(fvolEntity, min, max);
 
-  xMinExtent =  min[0];
-  xMaxExtent =  max[0];
-  yMinExtent =  min[1];
-  yMaxExtent =  max[1];
-  zMinExtent =  min[2];
-  zMaxExtent =  max[2];
+  xMinExtent = min[0];
+  xMaxExtent = max[0];
+  yMinExtent = min[1];
+  yMaxExtent = max[1];
+  zMinExtent = min[2];
+  zMaxExtent = max[2];
 
   int num_entities;
   std::vector<EntityHandle> surfs;
@@ -123,36 +123,34 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
   moab->get_child_meshsets(fvolEntity, surfs, 1);
 
   if (plot) {
-    for (unsigned i = 0 ; i < surfs.size() ; i++) {
+    for (unsigned i = 0; i < surfs.size(); i++) {
       My_sulf_hit = surfs[i];
       moab->get_number_entities_by_type(surfs[i], MBTRI, num_entities);
 
       moab->get_entities_by_type(surfs[i], MBTRI, tris);
 
-      for (unsigned j = 0 ; j < tris.size() ; j++) {
+      for (unsigned j = 0; j < tris.size(); j++) {
         moab->get_connectivity(tris[j], tri_conn, n_verts);
         moab->get_coords(tri_conn, n_verts, coords[0].array());
 
-        vertex[0] = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm, coords[0][2] * cm);
-        vertex[1] = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm, coords[1][2] * cm);
-        vertex[2] = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm, coords[2][2] * cm);
+        vertex[0] = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm,
+                                  coords[0][2] * cm);
+        vertex[1] = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm,
+                                  coords[1][2] * cm);
+        vertex[2] = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm,
+                                  coords[2][2] * cm);
 
-        G4TriangularFacet* facet = new G4TriangularFacet(vertex[0], vertex[1], vertex[2], ABSOLUTE);
+        G4TriangularFacet* facet =
+            new G4TriangularFacet(vertex[0], vertex[1], vertex[2], ABSOLUTE);
         AddFacet((G4VFacet*)facet);
 
-        for (G4int k = 0 ; k < 3 ; k++) {
-          if (vertex[k].x() < xMinExtent)
-            xMinExtent = vertex[k].x();
-          if (vertex[k].x() > xMaxExtent)
-            xMaxExtent = vertex[k].x();
-          if (vertex[k].y() < yMinExtent)
-            yMinExtent = vertex[k].y();
-          if (vertex[k].y() > yMaxExtent)
-            yMaxExtent = vertex[k].y();
-          if (vertex[k].z() < zMinExtent)
-            zMinExtent = vertex[k].z();
-          if (vertex[k].z() > zMaxExtent)
-            zMaxExtent = vertex[k].z();
+        for (G4int k = 0; k < 3; k++) {
+          if (vertex[k].x() < xMinExtent) xMinExtent = vertex[k].x();
+          if (vertex[k].x() > xMaxExtent) xMaxExtent = vertex[k].x();
+          if (vertex[k].y() < yMinExtent) yMinExtent = vertex[k].y();
+          if (vertex[k].y() > yMaxExtent) yMaxExtent = vertex[k].y();
+          if (vertex[k].z() < zMinExtent) zMinExtent = vertex[k].z();
+          if (vertex[k].z() > zMaxExtent) zMaxExtent = vertex[k].z();
         }
       }
       tris.clear();
@@ -160,10 +158,7 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
   }
 
   SetSolidClosed(true);
-
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -171,29 +166,29 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
 //                            for usage restricted to object persistency.
 //
 DagSolid::DagSolid(__void__& a)
-  : G4TessellatedSolid(a),
-    geometryType("DagSolid"), cubicVolume(0.), surfaceArea(0.),
-    xMinExtent(0.), xMaxExtent(0.),
-    yMinExtent(0.), yMaxExtent(0.),
-    zMinExtent(0.), zMaxExtent(0.) {
-}
-
-
+    : G4TessellatedSolid(a),
+      geometryType("DagSolid"),
+      cubicVolume(0.),
+      surfaceArea(0.),
+      xMinExtent(0.),
+      xMaxExtent(0.),
+      yMinExtent(0.),
+      yMaxExtent(0.),
+      zMinExtent(0.),
+      zMaxExtent(0.) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Destructor.
 //
-DagSolid::~DagSolid()
-{}
-
+DagSolid::~DagSolid() {}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // EInside DagSolid::Inside (const G4ThreeVector &p) const
 //
 EInside DagSolid::Inside(const G4ThreeVector& p) const {
-  G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; //convert to cm
+  G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
 
   double u = rand();
   double v = rand();
@@ -210,8 +205,9 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
 
   int result;
   ErrorCode ec;
-  ec = fdagmc->point_in_volume(fvolEntity, point, result,
-                               direction);  // if uvw is not given, this function generate uvw ran
+  ec = fdagmc->point_in_volume(
+      fvolEntity, point, result,
+      direction);  // if uvw is not given, this function generate uvw ran
 
   if (ec != MB_SUCCESS) {
     G4cout << "failed to get point in volume" << std::endl;
@@ -239,9 +235,8 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
 // surface closest to the point at offset p.
 
 G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
-
   G4double ang[3] = {0, 0, 1};
-  G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; //convert to cm
+  G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
 
   fdagmc->get_angle(My_sulf_hit, position, ang);
 
@@ -256,9 +251,8 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
 //
 G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
                                 const G4ThreeVector& v) const {
-
   G4double minDist = kInfinity;
-  G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; //convert to cm
+  G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
   G4double dir[3] = {v.x(), v.y(), v.z()};
   EntityHandle next_surf;
   G4double distance;
@@ -266,20 +260,18 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
   DagMC::RayHistory history;
 
   // perform the ray fire with modified dag call
-  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, distance, &history, 0, -1);
+  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, distance, &history, 0,
+                   -1);
   history.reset();
-  distance *= cm; // convert back to mm
+  distance *= cm;  // convert back to mm
 
-  if (next_surf == 0)   // no intersection
+  if (next_surf == 0)  // no intersection
     return kInfinity;
   else if (-kCarTolerance * 0.5 >= distance && distance <= kCarTolerance * 0.5)
     return 0.0;
   else
     return distance;
-
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -290,17 +282,16 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
 
 G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
   G4double minDist = kInfinity;
-  G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; // convert position to cm
-
+  G4double point[3] = {p.x() / cm, p.y() / cm,
+                       p.z() / cm};  // convert position to cm
 
   fdagmc->closest_to_location(fvolEntity, point, minDist);
-  minDist *= cm; // convert back to mm
+  minDist *= cm;  // convert back to mm
   if (minDist <= kCarTolerance * 0.5)
     return 0.0;
   else
     return minDist;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -320,42 +311,42 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
 //       exiting surface.
 // If calcNorm is false, then validNorm and n are unused.
 
-G4double DagSolid::DistanceToOut(const G4ThreeVector& p,
-                                 const G4ThreeVector& v, const G4bool calcNorm,
-                                 G4bool* validNorm, G4ThreeVector* n) const {
+G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
+                                 const G4bool calcNorm, G4bool* validNorm,
+                                 G4ThreeVector* n) const {
   G4double minDist = kInfinity;
-  double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; //convert position to cm
+  double position[3] = {p.x() / cm, p.y() / cm,
+                        p.z() / cm};  // convert position to cm
   double dir[3] = {v.x(), v.y(), v.z()};
 
   EntityHandle next_surf;
   double next_dist;
   DagMC::RayHistory history;
 
-  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, next_dist, &history, 0, 1);
+  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, next_dist, &history, 0,
+                   1);
   history.reset();
-  next_dist *= cm; // convert back to mm
+  next_dist *= cm;  // convert back to mm
 
   // no more surfaces
-  if (next_surf == 0)
-    return kInfinity;
+  if (next_surf == 0) return kInfinity;
 
   if (calcNorm) {
-    *n         = SurfaceNormal(p + minDist * v);
+    *n = SurfaceNormal(p + minDist * v);
     *validNorm = false;
   }
 
-  if (next_dist < minDist)
-    minDist = next_dist;
+  if (next_dist < minDist) minDist = next_dist;
 
   // particle considered to be on surface
   if (minDist > 0.0 && minDist <= 0.5 * kCarTolerance) {
     return 0.0;
   } else if (minDist < kInfinity) {
-    if (calcNorm) // if calc norm true,s should set validNorm true
+    if (calcNorm)  // if calc norm true,s should set validNorm true
       *validNorm = true;
     return minDist;
   } else {
-    return 0.0; //was kinfinity
+    return 0.0;  // was kinfinity
   }
 }
 
@@ -367,10 +358,10 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p,
 
 G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
   G4double minDist = kInfinity;
-  G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm}; // convert to cm
+  G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
 
   fdagmc->closest_to_location(fvolEntity, point, minDist);
-  minDist *= cm; // convert back to mm
+  minDist *= cm;  // convert back to mm
   if (minDist < kCarTolerance / 2.0)
     return 0.0;
   else
@@ -381,11 +372,10 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
 //
 // G4GeometryType GetEntityType() const;
 //
-// Provide identification of the class of an object (required for persistency and STEP interface).
+// Provide identification of the class of an object (required for persistency
+// and STEP interface).
 //
-G4GeometryType DagSolid::GetEntityType() const {
-  return geometryType;
-}
+G4GeometryType DagSolid::GetEntityType() const { return geometryType; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -393,13 +383,11 @@ void DagSolid::DescribeYourselfTo(G4VGraphicsScene& scene) const {
   scene.AddSolid(*this);
 }
 
-
 std::ostream& DagSolid::StreamInfo(std::ostream& os) const {
   os << G4endl;
-  os << "Geometry Type    = " << geometryType  << G4endl;
+  os << "Geometry Type    = " << geometryType << G4endl;
   return os;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -407,25 +395,21 @@ std::ostream& DagSolid::StreamInfo(std::ostream& os) const {
 //
 // Based on correction provided by Stan Seibert, University of Texas.
 //
-G4bool
-DagSolid::CalculateExtent(const EAxis pAxis,
-                          const G4VoxelLimits& pVoxelLimit,
-                          const G4AffineTransform& pTransform,
-                          G4double& pMin, G4double& pMax) const {
-
-
-// Calculate the minimum and maximum extent of the solid,
-// when under the specified transform, and within the specified limits.
-// If the solid is not intersected by the region, return false, else return true.
-
+G4bool DagSolid::CalculateExtent(const EAxis pAxis,
+                                 const G4VoxelLimits& pVoxelLimit,
+                                 const G4AffineTransform& pTransform,
+                                 G4double& pMin, G4double& pMax) const {
+  // Calculate the minimum and maximum extent of the solid,
+  // when under the specified transform, and within the specified limits.
+  // If the solid is not intersected by the region, return false, else return
+  // true.
 
   G4ThreeVector minExtent(xMinExtent, yMinExtent, zMinExtent);
   G4ThreeVector maxExtent(xMaxExtent, yMaxExtent, zMaxExtent);
 
-
   // Check for containment and clamp to voxel boundaries
   for (G4int axis = G4ThreeVector::X; axis < G4ThreeVector::SIZE; axis++) {
-    EAxis geomAxis = kXAxis; // G4 geom classes use different index type
+    EAxis geomAxis = kXAxis;  // G4 geom classes use different index type
     switch (axis) {
       case G4ThreeVector::X:
         geomAxis = kXAxis;
@@ -444,10 +428,10 @@ DagSolid::CalculateExtent(const EAxis pAxis,
     if (isLimited) {
       if (minExtent[axis] > voxelMaxExtent + kCarTolerance ||
           maxExtent[axis] < voxelMinExtent - kCarTolerance) {
-        return false ;
+        return false;
       } else {
         if (minExtent[axis] < voxelMinExtent) {
-          minExtent[axis] = voxelMinExtent ;
+          minExtent[axis] = voxelMinExtent;
         }
         if (maxExtent[axis] > voxelMaxExtent) {
           maxExtent[axis] = voxelMaxExtent;
@@ -478,39 +462,27 @@ DagSolid::CalculateExtent(const EAxis pAxis,
   return true;
 }
 
-G4double DagSolid::GetMinXExtent() const {
-  return xMinExtent / cm;
-}
+G4double DagSolid::GetMinXExtent() const { return xMinExtent / cm; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-G4double DagSolid::GetMaxXExtent() const {
-  return xMaxExtent / cm;
-}
+G4double DagSolid::GetMaxXExtent() const { return xMaxExtent / cm; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-G4double DagSolid::GetMinYExtent() const {
-  return yMinExtent / cm;
-}
+G4double DagSolid::GetMinYExtent() const { return yMinExtent / cm; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-G4double DagSolid::GetMaxYExtent() const {
-  return yMaxExtent / cm;
-}
+G4double DagSolid::GetMaxYExtent() const { return yMaxExtent / cm; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-G4double DagSolid::GetMinZExtent() const {
-  return zMinExtent / cm;
-}
+G4double DagSolid::GetMinZExtent() const { return zMinExtent / cm; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-G4double DagSolid::GetMaxZExtent() const {
-  return zMaxExtent / cm;
-}
+G4double DagSolid::GetMaxZExtent() const { return zMaxExtent / cm; }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -527,4 +499,3 @@ G4double DagSolid::GetSurfaceArea() {
   fdagmc->measure_area(fvolEntity, result);
   return result * cm * cm;
 }
-
