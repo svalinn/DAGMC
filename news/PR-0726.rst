@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- Installing clang-format in the docker container
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
