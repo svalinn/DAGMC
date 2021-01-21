@@ -18,7 +18,6 @@ if [ "${REPO_SLUG}" == "svalinn/DAGMC" ] && \
   fi
 fi
 
-apt-get install -y clang-format
 # Run clang-format check
 find src/ \( -name "*.hpp" -o -name "*.cpp" -o -name "*.hh" -o -name "*.cc" -o -name "*.h" \) \
           \( -not -path "src/gtest*" -not -path "src/mcnp/mcnp?/Source/*" -not -path "src/pyne*" \)  \
