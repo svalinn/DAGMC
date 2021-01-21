@@ -6,7 +6,7 @@ SHELL ["/bin/bash", "-c"]
 
 # Update core packages
 RUN apt-get -y update; \
-    apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
+    apt-get -y install autoconf clang clang-format cmake g++ gcc gfortran git libblas-dev \
                        libhdf5-dev liblapack-dev libpython2.7-dev libtool libeigen3-dev\
                        python-numpy python-pip python-setuptools wget; \
     pip install cython
