@@ -190,12 +190,14 @@ macro (dagmc_get_link_libs)
 endmacro ()
 
 # Setup the configuration file and install
-macro (dagmc_make_configure_file)
+macro (dagmc_make_configure_files)
   message("")
-
   message(STATUS "DAGMC cmake config file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfig.cmake")
+  message(STATUS "DAGMC cmake version file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfigVersion.cmake")
   configure_file(cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+  configure_file(cmake/DAGMCConfigVersion.cmake.in DAGMCConfigVersion.cmake @ONLY)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfigVersion.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
   install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/)
 endmacro ()
 
