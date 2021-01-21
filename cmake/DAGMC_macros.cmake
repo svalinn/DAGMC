@@ -53,12 +53,12 @@ macro (dagmc_setup_options)
 
   option(BUILD_FLUKA "Build FluDAG" OFF)
 
-  option(BUILD_UWUW "Build UWUW library and uwuw_preproc" ON)
+  option(BUILD_UWUW  "Build UWUW library and uwuw_preproc" ON)
   option(BUILD_TALLY "Build dagtally library"              ON)
 
   option(BUILD_BUILD_OBB       "Build build_obb tool"       ON)
   option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool" ON)
-  option(BUILD_OVERLAP_CHECK "Build overlap_check tool" ON)
+  option(BUILD_OVERLAP_CHECK   "Build overlap_check tool"   ON)
 
   option(BUILD_TESTS    "Build unit tests" ON)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
@@ -66,7 +66,7 @@ macro (dagmc_setup_options)
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
 
-  option(BUILD_EXE "Build DAGMC executables" ON)
+  option(BUILD_EXE i      "Build DAGMC executables"  ON)
   option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_PIC        "Build with PIC"           OFF)
 
