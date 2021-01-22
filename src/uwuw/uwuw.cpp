@@ -1,5 +1,8 @@
+#ifndef _WIN32
 #include <unistd.h>
-#include <iostream>
+#endif
+#include < iostream>
+
 #include "uwuw.hpp"
 
 // Empty Constructor

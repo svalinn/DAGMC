@@ -16262,8 +16262,10 @@ bool pyne::detect_nuclidelist(hid_t data_set, std::string& nucpath) {
 //
 // start of src/material_library.cpp
 //
+#ifndef _WIN32
 #include <unistd.h>
-#include <iostream>
+#endif
+#include < iostream>
 
 #ifndef PYNE_IS_AMALGAMATED
 #include "material_library.h"
