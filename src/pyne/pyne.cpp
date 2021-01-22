@@ -16576,7 +16576,8 @@ void pyne::MaterialLibrary::write_hdf5_nucpath(hid_t db,
   hid_t nuc_space = H5Screate_simple(1, nuc_dims, NULL);
   hid_t nuc_set = H5Dcreate2(db, nucpath.c_str(), H5T_NATIVE_INT, nuc_space,
                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-  H5Dwrite(nuc_set, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, nuclist);
+  H5Dwrite(nuc_set, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+           nuclist.data());
 
   H5Fflush(db, H5F_SCOPE_GLOBAL);
   H5Sclose(nuc_space);
