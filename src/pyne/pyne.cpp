@@ -107,7 +107,7 @@ std::string pyne::NUC_DATA_PATH = "";
 std::string pyne::VERSION = "0.7.1";
 
 void pyne::pyne_start() {
-#if defined __WIN_MSVC__
+#if defined _WIN32
   char* tmpPYNE_DATA;
   size_t lenPYNE_DATA;
   errno_t errPYNE_DATA = _dupenv_s(&tmpPYNE_DATA, &lenPYNE_DATA, "PYNE_DATA");
@@ -216,7 +216,7 @@ double pyne::endftod_cpp(char* s) {
     v = 0;
     mant = 1; // Here we use mant for the place value about to be read in.
     pos = 10;
-    while (s[pos] != '-' and s[pos] != '+' and s[pos] != ' ' and pos > 0) {
+    while (s[pos] != '-' && s[pos] != '+' && s[pos] != ' ' && pos > 0) {
       v += mant * (s[pos] - '0');
       mant *= 10;
       pos--;
@@ -471,7 +471,7 @@ std::string pyne::get_full_filepath(std::string filename) {
   // remove all extra whitespace
   filename = pyne::remove_characters(" ", filename);
   // use stdlib call
-#ifndef __WIN_MSVC__
+#ifndef _WIN32
   const char* full_filepath = realpath(filename.c_str(), NULL);
 #else
   const char* full_filepath = filename.c_str();

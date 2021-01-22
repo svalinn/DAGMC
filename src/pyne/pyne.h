@@ -129,7 +129,7 @@
 #define isnan(x) __isnand((double)x)
 #endif
 
-#ifdef __WIN_MSVC__
+#ifdef _WIN32
 #define isnan(x) ((x) != (x))
 #endif
 
