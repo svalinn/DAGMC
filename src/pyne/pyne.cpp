@@ -21929,7 +21929,7 @@ int pyne::Sampler::get_cell_list_size() {
   // 0: for unstructured mesh
   // 1: for sub-voxel R2S
   // max_num_cells: for voxel R2S
-  if (ve_type == moab::MBTET or has_cell_fracs == false) {
+  if (ve_type == moab::MBTET || has_cell_fracs == false) {
     return 0;
   } else {
     if (mesh_mode == VOXEL) {
