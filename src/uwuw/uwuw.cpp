@@ -60,7 +60,11 @@ std::string UWUW::get_full_filepath(std::string filename) {
   // remove all extra whitespace
   filename.erase(std::remove(filename.begin(), filename.end(), ' '), filename.end());
   // use stdlib call
+#ifndef __WIN_MSVC__
   const char* full_filepath = realpath(filename.c_str(), NULL);
+#else
+  const char* full_filepath = filename.c_str();
+#endif
   return std::string(full_filepath);
 }
 
