@@ -248,7 +248,8 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
   // there should not be more than one graveyard group
   if (graveyard_count > 1) {
     MB_CHK_SET_ERR(MB_FAILURE,
-                   "More than one graveyard group is present in the model");
+                   "More than one graveyard group is present in the model. "
+                       << graveyard_count << " graveyard groups were found.");
   }
 
   // if the graveyard was not found, return an error
