@@ -464,11 +464,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   /// SURFACE CREATION ///
 
   // expand the box a bit
-  for (int i = 0; i < 3; i++) {
-    double bump = 10 * numerical_precision();
-    box.upper[i] += bump;
-    box.lower[i] -= bump;
-  }
+  box.expand(10.0 * numerical_precision());
 
   // tear down the implicit complement tree
   EntityHandle implicit_complement;
@@ -497,11 +493,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
 
   // expand the box a bit again for the outer surface
-  for (int i = 0; i < 3; i++) {
-    double bump = 10.0 * numerical_precision();
-    box.upper[i] += bump;
-    box.lower[i] -= bump;
-  }
+  box.expand(10.0 * numerical_precision());
 
   EntityHandle outer_surface;
   rval = box_to_surf(box.lower, box.upper, outer_surface);

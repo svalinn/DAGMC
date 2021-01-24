@@ -529,6 +529,14 @@ class DagMC {
       upper[2] = z > upper[2] ? z : upper[2];
     }
 
+    /** expand the box by some absolute value*/
+    void expand(double bump) {
+      for (int i = 0; i < 3; i++) {
+        upper[i] += bump;
+        lower[i] -= bump;
+      }
+    }
+
     /** update box to ensure the provided point is contained */
     void update(double xyz[3]) { update(xyz[0], xyz[1], xyz[2]); }
   };
