@@ -284,16 +284,16 @@ ErrorCode DagMC::remove_graveyard() {
   sets_to_delete.merge(graveyard_vols);
 
   // get the implicit complement, it's children will need updating
-  EntityHandle ic = 0;
-  rval = geom_tool()->get_implicit_complement(ic);
+  EntityHandle implicit_complement = 0;
+  rval = geom_tool()->get_implicit_complement(implicit_complement);
   if (rval != MB_ENTITY_NOT_FOUND || rval != MB_SUCCESS) {
     MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
   }
 
   // update the implicit complement tree if needed
   if (trees_exist) {
-    if (ic) {
-      rval = geom_tool()->delete_obb_tree(ic, true);
+    if (implicit_complement) {
+      rval = geom_tool()->delete_obb_tree(implicit_complement, true);
       MB_CHK_SET_ERR(rval,
                      "Failed to delete the implicit complement OBBTree/BVH");
     }
@@ -352,8 +352,8 @@ ErrorCode DagMC::remove_graveyard() {
   MB_CHK_SET_ERR(rval, "Failed to delete graveyard vertices");
 
   // re-construct the implicit complement's tree if needed
-  if (trees_exist && ic) {
-    rval = geom_tool()->construct_obb_tree(ic);
+  if (trees_exist && implicit_complement) {
+    rval = geom_tool()->construct_obb_tree(implicit_complement);
     MB_CHK_SET_ERR(rval,
                    "Failed to re-create the implicit complement OBBTree/BVH");
   }
@@ -399,7 +399,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   }
 
   // currently relying on the BVH as looping over all vertices may
-  // be prohibitive
+  // be too expensive
   if (!geom_tool()->have_obb_tree()) {
     MB_CHK_SET_ERR(MB_FAILURE, "Graveyard creation attempted without BVH");
   }
@@ -471,8 +471,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   }
 
   // tear down the implicit complement tree
-  EntityHandle ic;
-  rval = geom_tool()->get_implicit_complement(ic);
+  EntityHandle implicit_complement;
+  rval = geom_tool()->get_implicit_complement(implicit_complement);
   MB_CHK_SET_ERR(rval, "Failed to get the implicit complement");
 
   EntityHandle inner_surface;
@@ -486,13 +486,13 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // establish the volume-surface parent-child relationship with the inner
   // surface
-  rval = MBI->add_parent_child(ic, inner_surface);
+  rval = MBI->add_parent_child(implicit_complement, inner_surface);
   MB_CHK_SET_ERR(rval,
                  "Failed to create the graveyard parent-child relationship");
 
   // set the surface senses (all triangles have outward normals so this should
   // be REVERSE wrt the graveyard volume)
-  EntityHandle inner_senses[2] = {ic, volume_set};
+  EntityHandle inner_senses[2] = {implicit_complement, volume_set};
   rval = MBI->tag_set_data(sense_tag(), &inner_surface, 1, inner_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
 
@@ -514,20 +514,20 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // establish the volume-surface parent-child relationship with the outer
   // surface
-  rval = MBI->add_parent_child(ic, outer_surface);
+  rval = MBI->add_parent_child(implicit_complement, outer_surface);
   MB_CHK_SET_ERR(rval,
                  "Failed to create the graveyard parent-child relationship");
 
   // set the surface senses (all triangles have outward normals so this should
   // be FORWARD wrt the graveyard volume)
-  EntityHandle outer_senses[2] = {volume_set, ic};
+  EntityHandle outer_senses[2] = {volume_set, implicit_complement};
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
 
   // OBBTree/BVH updates
 
   // delete the implicit complement tree (but not the surface trees)
-  rval = geom_tool()->delete_obb_tree(ic, true);
+  rval = geom_tool()->delete_obb_tree(implicit_complement, true);
   MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
 
   // create BVH for both the new implicit complement and the new graveyard
@@ -537,7 +537,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
       rval,
       "Failed to build accel. data structure for the new graveyard volume");
 
-  rval = geom_tool()->construct_obb_tree(ic);
+  rval = geom_tool()->construct_obb_tree(implicit_complement);
   MB_CHK_SET_ERR(
       rval,
       "Failed to build accel. data structure for the new implicit complement");
