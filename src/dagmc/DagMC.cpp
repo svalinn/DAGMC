@@ -392,9 +392,9 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
     remove_graveyard();
   }
 
-  // if a graveyard already exists and we aren't overwriting it,
+  // if a graveyard already exists at this point,
   // report an error
-  if (has_graveyard() && !overwrite) {
+  if (has_graveyard()) {
     MB_CHK_SET_ERR(MB_FAILURE, "Graveyard already exists");
   }
 
