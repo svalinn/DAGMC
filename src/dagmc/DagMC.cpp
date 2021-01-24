@@ -233,7 +233,7 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
     MB_CHK_SET_ERR_CONT(rval, "Failed to get a group name");
 
     // convert name to lower case for comparison
-    lowercase_str(group_name);
+    dagmc_util::lowercase_str(group_name);
 
     // resize to match the length (trims trailing empty values)
     group_name.resize(GRAVEYARD_NAME.size());
