@@ -185,7 +185,7 @@ class DagMC {
    *  with outward facing normals and setting up set structure necessary for
    *  representation as a geometric entity
    */
-  ErrorCode box_to_surf(double llc[3], double urc[3],
+  ErrorCode box_to_surf(const double llc[3], const double urc[3],
                         EntityHandle& surface_set);
 
   /** loading code shared by load_file and load_existing_contents */

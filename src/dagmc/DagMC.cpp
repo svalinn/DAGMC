@@ -541,7 +541,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   return rval;
 }
 
-ErrorCode DagMC::box_to_surf(double llc[3], double urc[3],
+ErrorCode DagMC::box_to_surf(const double llc[3], const double urc[3],
                              EntityHandle& surface_set) {
   ErrorCode rval;
 
