@@ -627,7 +627,7 @@ std::vector<T> h5_array_to_cpp_vector_1d(hid_t h5file, std::string data_path,
   int arr_ndim = H5Sget_simple_extent_dims(arr_space, arr_dims, NULL);
 
   // Read in data from file to memory
-  T mem_arr [arr_dims[0]];
+  T* mem_arr;
   H5Dread(dset, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, mem_arr);
 
   // Load new values into the vector
