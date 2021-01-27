@@ -35,7 +35,11 @@ macro (dagmc_setup_build)
   execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process(COMMAND date +%H:%M:%S OUTPUT_VARIABLE ENV_TIME OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
+  if(MSVC)
+    set(CMAKE_STATIC_LIBRARY_SUFFIX ".lib")
+  else()
+    set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
+  endif()
 endmacro ()
 
 macro (dagmc_setup_options)
