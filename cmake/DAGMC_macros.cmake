@@ -66,7 +66,7 @@ macro (dagmc_setup_options)
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
 
-  option(BUILD_EXE i      "Build DAGMC executables"  ON)
+  option(BUILD_EXE        "Build DAGMC executables"  ON)
   option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_PIC        "Build with PIC"           OFF)
 
