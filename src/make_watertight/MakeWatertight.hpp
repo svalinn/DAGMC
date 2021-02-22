@@ -136,15 +136,11 @@ class MakeWatertight {
 
   /// runs the make_watertight algorithm on each set of skin_loops for the
   /// surface, surf.
-  moab::ErrorCode seal_surface_loops(moab::EntityHandle surf,
-                                     std::vector<moab::EntityHandle> &skin_loops,
-                                     std::vector < std::vector<moab::EntityHandle> > skin,
-                                     std::vector<moab::EntityHandle> curves,
-                                     moab::Tag normal_tag,
-                                     moab::Tag orig_curve_tag,
-                                     double facet_tol,
-                                     int surf_id,
-                                     bool debug);
+  moab::ErrorCode seal_surface_loops(
+      moab::EntityHandle surf, std::vector<moab::EntityHandle>& skin_loops,
+      std::vector<std::vector<moab::EntityHandle> > skin,
+      std::vector<moab::EntityHandle> curves, moab::Tag normal_tag,
+      moab::Tag orig_curve_tag, double facet_tol, int surf_id, bool debug);
 
   /// takes the mesh in input_set and makes it watertight
   moab::ErrorCode make_mesh_watertight(moab::EntityHandle input_set,

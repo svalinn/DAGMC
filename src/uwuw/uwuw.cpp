@@ -5,7 +5,6 @@
 #endif
 #include < iostream>
 
-
 // Empty Constructor
 UWUW::UWUW() {
   num_tallies = 0;

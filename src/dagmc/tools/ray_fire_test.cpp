@@ -1,13 +1,3 @@
-#include "moab/Interface.hpp"
-#include "moab/Core.hpp"
-#include "DagMC.hpp"
-#include "MBTagConventions.hpp"
-#include "moab/CartVect.hpp"
-
-#include <vector>
-#include <iostream>
-#include <math.h>
-#include <limits>
 #include <fcntl.h>
 #include <math.h>
 #include <stdio.h>
@@ -27,10 +17,10 @@
 #include "moab/Core.hpp"
 #include "moab/Interface.hpp"
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
-  #include <sys/resource.h>
-  #include <unistd.h>
+#include <sys/resource.h>
+#include <unistd.h>
 #else
-  #include <io.h>
+#include <io.h>
 #endif
 #ifdef SOLARIS
 extern "C" int getrusage(int, struct rusage*);
@@ -44,11 +34,13 @@ using namespace moab;
 // define following macro for verbose debugging of random ray generation
 //#define DEBUG
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
-  void get_time_mem(double& tot_time, double& user_time,
-                    double& sys_time, double& tot_mem);
+void get_time_mem(double& tot_time, double& user_time, double& sys_time,
+                  double& tot_mem);
 #endif
-void dump_pyfile(char* filename, double timewith, double timewithout, double tmem, DagMC& dagmc,
-                 OrientedBoxTreeTool::TrvStats* trv_stats, EntityHandle tree_root);
+void dump_pyfile(char* filename, double timewith, double timewithout,
+                 double tmem, DagMC& dagmc,
+                 OrientedBoxTreeTool::TrvStats* trv_stats,
+                 EntityHandle tree_root);
 
 static const double PI = acos(-1.0);
 static const double denom = 1.0 / ((double)RAND_MAX);
@@ -475,8 +467,8 @@ int main(int argc, char* argv[]) {
 }
 
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
-void get_time_mem(double& tot_time, double& user_time,
-                  double& sys_time, double& tot_mem) {
+void get_time_mem(double& tot_time, double& user_time, double& sys_time,
+                  double& tot_mem) {
   struct rusage r_usage;
   getrusage(RUSAGE_SELF, &r_usage);
   user_time = (double)r_usage.ru_utime.tv_sec +

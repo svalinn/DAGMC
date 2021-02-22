@@ -1112,7 +1112,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(
       MB_CHK_SET_ERR(moab::MB_FAILURE, "edges exist");
     }
     assert(0 == n_edges);  //*** Why can't we have edges? (Also, this assertion
-                           //is never used)
+                           // is never used)
 
     // get the range of skin edges from the range of facets
     moab::Range skin_edges, skin_edges2;
