@@ -1,0 +1,14 @@
+**Added:** None
+
+**Changed:** 
+- new PyNE amalgamation on the way... 
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** 
+- windows compatibility fix
+- pyne amalgamation now update the file format using clang-format.
+
+**Security:** None
