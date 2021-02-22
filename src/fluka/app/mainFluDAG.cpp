@@ -175,7 +175,6 @@ int main(int argc, char* argv[]) {
 	//	flabrt("FLUKAM","FLUDAG NO INPUT SPECIFIED");
 	return 1;
       }
-      std::cout << chcmpt_.chinpf << std::endl;
     }
     const int flag = 2;
     std::cout << "running fluka" << std::endl;
