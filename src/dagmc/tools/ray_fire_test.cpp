@@ -423,7 +423,7 @@ int main(int argc, char* argv[]) {
   }
   std::cout << "Program memory used: " << tmem2 << " bytes ("
             << tmem2 / (1024 * 1024) << " MB)" << std::endl;
-
+#endif
   /* Gather OBB tree stats and make final reports */
   EntityHandle root;
   ErrorCode result = dagmc.get_root(vol, root);
