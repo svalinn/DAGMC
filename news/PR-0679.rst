@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:**
+- reformat all files using clang-format
+- change housekeeping to test format against clang-format
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

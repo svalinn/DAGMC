@@ -4,10 +4,10 @@
 #ifndef ExN01DetectorHit_h
 #define ExN01DetectorHit_h 1
 
-#include "G4VHit.hh"
-#include "G4THitsCollection.hh"
 #include "G4Allocator.hh"
+#include "G4THitsCollection.hh"
 #include "G4ThreeVector.hh"
+#include "G4VHit.hh"
 #include "tls.hh"
 
 /// Tracker hit class
@@ -26,63 +26,38 @@ class ExN01DetectorHit : public G4VHit {
   const ExN01DetectorHit& operator=(const ExN01DetectorHit&);
   G4int operator==(const ExN01DetectorHit&) const;
 
-  inline void* operator new (size_t);
-  inline void  operator delete (void*);
+  inline void* operator new(size_t);
+  inline void operator delete(void*);
 
   // methods from base class
   virtual void Draw();
   virtual void Print();
 
   // Set methods
-  void SetTrackID(G4int track)      {
-    fTrackID = track;
-  };
+  void SetTrackID(G4int track) { fTrackID = track; };
 
-  void SetParticleEnergy(G4double ke)      {
-    fKe  = ke;
-  };
-  void SetTrackLength(G4double tl)  {
-    fTl = tl;
-  };
-  void SetWeight(G4double weight)  {
-    fWeight = weight;
-  };
-  void SetParticleName(G4String name) {
-    fName = name;
-  };
-  void SetParticlePDG(G4int PID)      {
-    fPID = PID;
-  };
+  void SetParticleEnergy(G4double ke) { fKe = ke; };
+  void SetTrackLength(G4double tl) { fTl = tl; };
+  void SetWeight(G4double weight) { fWeight = weight; };
+  void SetParticleName(G4String name) { fName = name; };
+  void SetParticlePDG(G4int PID) { fPID = PID; };
 
   // Get methods
-  G4int GetTrackID() const     {
-    return fTrackID;
-  };
+  G4int GetTrackID() const { return fTrackID; };
 
-  G4double GetKE() const       {
-    return fKe;
-  };
-  G4double GetTrackLength() const {
-    return fTl;
-  };
-  G4double GetWeight()      const {
-    return fWeight;
-  };
-  G4String GetParticleName() const {
-    return fName;
-  };
-  G4int GetParticlePDG() const {
-    return fPID;
-  };
+  G4double GetKE() const { return fKe; };
+  G4double GetTrackLength() const { return fTl; };
+  G4double GetWeight() const { return fWeight; };
+  G4String GetParticleName() const { return fName; };
+  G4int GetParticlePDG() const { return fPID; };
 
  private:
-
-  G4int         fTrackID;
-  G4double      fKe;
-  G4double      fTl;
-  G4double      fWeight;
-  G4String      fName;
-  G4int         fPID;
+  G4int fTrackID;
+  G4double fKe;
+  G4double fTl;
+  G4double fWeight;
+  G4String fName;
+  G4int fPID;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -93,16 +68,16 @@ extern G4ThreadLocal G4Allocator<ExN01DetectorHit>* ExN01DetectorHitAllocator;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-inline void* ExN01DetectorHit::operator new (size_t) {
+inline void* ExN01DetectorHit::operator new(size_t) {
   if (!ExN01DetectorHitAllocator)
     ExN01DetectorHitAllocator = new G4Allocator<ExN01DetectorHit>;
-  return (void*) ExN01DetectorHitAllocator->MallocSingle();
+  return (void*)ExN01DetectorHitAllocator->MallocSingle();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-inline void ExN01DetectorHit::operator delete (void* hit) {
-  ExN01DetectorHitAllocator->FreeSingle((ExN01DetectorHit*) hit);
+inline void ExN01DetectorHit::operator delete(void* hit) {
+  ExN01DetectorHitAllocator->FreeSingle((ExN01DetectorHit*)hit);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -3,7 +3,6 @@
 #define DAGMC_PROGRESSBAR_H
 
 class ProgressBar {
-
  public:
   // constructor
   ProgressBar() {
@@ -19,8 +18,8 @@ class ProgressBar {
   static bool is_terminal();
 
  private:
-  int current {0};
-  bool need_final_newline {true};
+  int current{0};
+  bool need_final_newline{true};
 };
 
-#endif // HEADER GUARD
+#endif  // HEADER GUARD

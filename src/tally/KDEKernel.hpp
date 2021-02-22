@@ -3,13 +3,11 @@
 #ifndef DAGMC_KDE_KERNEL_HPP
 #define DAGMC_KDE_KERNEL_HPP
 
+#include <Eigen/Dense>
 #include <string>
 #include <vector>
 
-#include <Eigen/Dense>
-
 #include "Quadrature.hpp"
-
 
 //===========================================================================//
 /**
@@ -154,8 +152,7 @@ class KDEKernel {
    * outside the valid domain for the boundary kernel and there is no valid
    * kernel contribution.
    */
-  virtual double boundary_correction(const double* u,
-                                     const double* p,
+  virtual double boundary_correction(const double* u, const double* p,
                                      const unsigned int* side,
                                      unsigned int num_corrections) const;
 
@@ -178,9 +175,7 @@ class KDEKernel {
    * [-1, p].  If UPPER, then the integration is performed on [-p, 1]. If
    * p >= 1 moments will be always be defined on the domain [-1, 1].
    */
-  bool compute_moments(double u,
-                       double p,
-                       unsigned int side,
+  bool compute_moments(double u, double p, unsigned int side,
                        std::vector<double>& moments) const;
 
   /**
@@ -217,7 +212,7 @@ class KDEKernel {
      * \param[in] kernel the kernel for which the moment function is desired
      */
     MomentFunction(unsigned int i, const KDEKernel& kernel)
-      : moment_index(i), kernel(kernel) {}
+        : moment_index(i), kernel(kernel) {}
 
     /**
      * \brief Evaluates the ith moment function
@@ -232,6 +227,6 @@ class KDEKernel {
   };
 };
 
-#endif // DAGMC_KDE_KERNEL_HPP
+#endif  // DAGMC_KDE_KERNEL_HPP
 
 // end of MCNP5/dagmc/KDEKernel.hpp

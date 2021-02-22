@@ -57,12 +57,12 @@ macro (dagmc_setup_options)
 
   option(BUILD_FLUKA "Build FluDAG" OFF)
 
-  option(BUILD_UWUW "Build UWUW library and uwuw_preproc" ON)
+  option(BUILD_UWUW  "Build UWUW library and uwuw_preproc" ON)
   option(BUILD_TALLY "Build dagtally library"              ON)
 
   option(BUILD_BUILD_OBB       "Build build_obb tool"       ON)
   option(BUILD_MAKE_WATERTIGHT "Build make_watertight tool" ON)
-  option(BUILD_OVERLAP_CHECK "Build overlap_check tool" ON)
+  option(BUILD_OVERLAP_CHECK   "Build overlap_check tool"   ON)
 
   option(BUILD_TESTS    "Build unit tests" ON)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
@@ -70,7 +70,7 @@ macro (dagmc_setup_options)
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
 
-  option(BUILD_EXE "Build DAGMC executables" ON)
+  option(BUILD_EXE        "Build DAGMC executables"  ON)
   option(BUILD_STATIC_EXE "Build static executables" OFF)
   option(BUILD_PIC        "Build with PIC"           OFF)
 
@@ -106,7 +106,7 @@ endif()
   endif ()
   if (NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_EXE AND BUILD_EXE)
     SET(BUILD_EXE OFF)
-    message("Turning BUILD_EXE to OFF: SHARED_BUIL_LIBS and BUILD_STATIC_EXE are OFF")
+    message("Turning BUILD_EXE OFF: SHARED_BUILD_LIBS and BUILD_STATIC_EXE are OFF")
   endif ()
 
 endmacro ()
@@ -199,12 +199,14 @@ macro (dagmc_get_link_libs)
 endmacro ()
 
 # Setup the configuration file and install
-macro (dagmc_make_configure_file)
+macro (dagmc_make_configure_files)
   message("")
-
   message(STATUS "DAGMC cmake config file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfig.cmake")
+  message(STATUS "DAGMC cmake version file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfigVersion.cmake")
   configure_file(cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+  configure_file(cmake/DAGMCConfigVersion.cmake.in DAGMCConfigVersion.cmake @ONLY)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfigVersion.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
   install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/)
 endmacro ()
 

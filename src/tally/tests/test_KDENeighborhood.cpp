@@ -4,14 +4,12 @@
 #include <cmath>
 #include <set>
 
+#include "../KDENeighborhood.hpp"
+#include "../TallyEvent.hpp"
 #include "gtest/gtest.h"
-
 #include "moab/CartVect.hpp"
 #include "moab/Core.hpp"
 #include "moab/Types.hpp"
-
-#include "../KDENeighborhood.hpp"
-#include "../TallyEvent.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER METHODS
@@ -33,8 +31,7 @@ bool check_all_points(const KDENeighborhood& region,
   std::set<moab::EntityHandle>::iterator it;
 
   for (it = points.begin(); it != points.end(); ++it) {
-    if (!region.is_calculation_point(*it))
-      return false;
+    if (!region.is_calculation_point(*it)) return false;
   }
 
   return true;
@@ -89,9 +86,7 @@ class IsCalculationPointTest : public ::testing::Test {
   }
 
   // deallocate memory resources
-  virtual void TearDown() {
-    delete mbi;
-  }
+  virtual void TearDown() { delete mbi; }
 
  protected:
   // data needed for each test
@@ -325,16 +320,9 @@ TEST_F(IsCalculationPointTest, NoKDTree) {
 TEST_F(IsCalculationPointTest, ValidCornerPoints) {
   // define additional valid calculation points at corners of neighborhood
   moab::Range corner_points;
-  double corner_coords[] = {
-    -0.1, -0.2, -0.3,
-      0.1,  0.2,  0.3,
-    -0.1, -0.2,  0.3,
-    -0.1,  0.2, -0.3,
-      0.1, -0.2,  0.3,
-    -0.1,  0.2,  0.3,
-      0.1, -0.2,  0.3,
-      0.1,  0.2, -0.3
-    };
+  double corner_coords[] = {-0.1, -0.2, -0.3, 0.1,  0.2, 0.3,  -0.1, -0.2,
+                            0.3,  -0.1, 0.2,  -0.3, 0.1, -0.2, 0.3,  -0.1,
+                            0.2,  0.3,  0.1,  -0.2, 0.3, 0.1,  0.2,  -0.3};
 
   // add new corner points to the MOAB instance and convert Range to set
   rval = mbi->create_vertices(corner_coords, 8, corner_points);
@@ -368,23 +356,15 @@ TEST_F(IsCalculationPointTest, ValidCornerPoints) {
 TEST_F(IsCalculationPointTest, ValidEdgePoints) {
   // define additional valid calculation points along edges of neighborhood
   moab::Range edge_points;
-  double edge_coords[] = {
-    -0.1,  -0.2,   0.1667,
-    -0.1,  -0.05, -0.3,
-      0.0,  -0.2,  -0.3,
-      0.1,   0.2,  -0.01,
-      0.1,   0.13,  0.3,
-    -0.09,  0.2,   0.3,
-      0.07, -0.2,   0.3,
-      0.1,  0.0,   -0.3
-    };
+  double edge_coords[] = {-0.1, -0.2, 0.1667, -0.1,  -0.05, -0.3, 0.0, -0.2,
+                          -0.3, 0.1,  0.2,    -0.01, 0.1,   0.13, 0.3, -0.09,
+                          0.2,  0.3,  0.07,   -0.2,  0.3,   0.1,  0.0, -0.3};
 
   // add new edge points to the MOAB instance and convert Range to set
   rval = mbi->create_vertices(edge_coords, 8, edge_points);
   assert(rval == moab::MB_SUCCESS);
 
-  std::set<moab::EntityHandle> edge_set(edge_points.begin(),
-                                        edge_points.end());
+  std::set<moab::EntityHandle> edge_set(edge_points.begin(), edge_points.end());
 
   EXPECT_EQ(8, edge_set.size());
 
@@ -411,12 +391,8 @@ TEST_F(IsCalculationPointTest, ValidEdgePoints) {
 TEST_F(IsCalculationPointTest, ValidInteriorPoints) {
   // define additional valid points within interior of neighborhood
   moab::Range interior_points;
-  double interior_coords[] = {
-    0.0,    0.0,   0.0,
-    0.001,  0.19,  0.2,
-    -0.06,  -0.1,  -0.1,
-    -0.0,    0.05, -0.23
-  };
+  double interior_coords[] = {0.0,   0.0,  0.0,  0.001, 0.19, 0.2,
+                              -0.06, -0.1, -0.1, -0.0,  0.05, -0.23};
 
   // add new interior points to the MOAB instance and convert Range to set
   rval = mbi->create_vertices(interior_coords, 4, interior_points);
@@ -451,18 +427,9 @@ TEST_F(IsCalculationPointTest, InvalidPoints) {
   // define additional points that are invalid calculation points
   moab::Range invalid_points;
   double invalid_coords[] = {
-    -0.1, -0.2,  0.5,
-    -0.1, -0.3, -0.3,
-      0.2, -0.2, -0.3,
-      0.1,  0.2, -0.7,
-      0.1,  0.9,  0.3,
-    -0.1,  5.1, -2.9,
-      1.7,  0.0, 10.4,
-    -0.5, -0.8,  0.3,
-      0.6, -0.9,  1.5,
-    -0.7,  0.4, -0.5,
-    -0.1, -0.3, -0.3
-    };
+      -0.1, -0.2, 0.5, -0.1, -0.3, -0.3, 0.2,  -0.2, -0.3, 0.1,  0.2,
+      -0.7, 0.1,  0.9, 0.3,  -0.1, 5.1,  -2.9, 1.7,  0.0,  10.4, -0.5,
+      -0.8, 0.3,  0.6, -0.9, 1.5,  -0.7, 0.4,  -0.5, -0.1, -0.3, -0.3};
 
   // add new invalid points to the MOAB instance and convert Range to set
   rval = mbi->create_vertices(invalid_coords, 11, invalid_points);

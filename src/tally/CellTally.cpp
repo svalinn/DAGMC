@@ -1,20 +1,17 @@
 // MCNP5/dagmc/CellTally.cpp
 
+#include "CellTally.hpp"
+
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include <cmath>
 #include <utility>
-
-#include "CellTally.hpp"
 
 //---------------------------------------------------------------------------//
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
 CellTally::CellTally(const TallyInput& input, TallyEvent::EventType eventType)
-  : Tally(input),
-    cell_id(1),
-    cell_volume(1.0),
-    expected_type(eventType) {
+    : Tally(input), cell_id(1), cell_volume(1.0), expected_type(eventType) {
   // Set up CellTally member variables from TallyInput
   parse_tally_options();
 
@@ -38,9 +35,10 @@ void CellTally::compute_score(const TallyEvent& event) {
 
   if (event.type == TallyEvent::TRACK && event.type == expected_type) {
     event_score *= event.track_length;
-  } else if (event.type == TallyEvent::COLLISION && event.type == expected_type) {
+  } else if (event.type == TallyEvent::COLLISION &&
+             event.type == expected_type) {
     event_score /= event.total_cross_section;
-  } else { // NONE, return from this method
+  } else {  // NONE, return from this method
     return;
   }
 
@@ -49,13 +47,14 @@ void CellTally::compute_score(const TallyEvent& event) {
 }
 //---------------------------------------------------------------------------//
 void CellTally::write_data(double num_histories) {
-  std::cout << "Writing data for CellTally " << input_data.tally_id
-            << ": " << std::endl;
+  std::cout << "Writing data for CellTally " << input_data.tally_id << ": "
+            << std::endl;
 
   std::cout << "cell id = " << cell_id << std::endl;
-  std::cout << "type = " <<
-            (expected_type == TallyEvent::COLLISION ? "collision " :
-             expected_type == TallyEvent::TRACK     ? "track "     : "none");
+  std::cout << "type = "
+            << (expected_type == TallyEvent::COLLISION
+                    ? "collision "
+                    : expected_type == TallyEvent::TRACK ? "track " : "none");
   std::cout << std::endl;
 
   std::cout << "volume = " << cell_volume << std::endl << std::endl;
@@ -68,11 +67,11 @@ void CellTally::write_data(double num_histories) {
     if (data->has_total_energy_bin() && (i == num_bins - 1)) {
       std::cout << "Total Energy Bin: " << std::endl;
     } else {
-      std::cout << "Energy bin (" << input_data.energy_bin_bounds.at(i)
-                << ", " << input_data.energy_bin_bounds.at(i + 1) << "):\n";
+      std::cout << "Energy bin (" << input_data.energy_bin_bounds.at(i) << ", "
+                << input_data.energy_bin_bounds.at(i + 1) << "):\n";
     }
 
-    std::pair <double, double> tally_data = data->get_data(point_index, i);
+    std::pair<double, double> tally_data = data->get_data(point_index, i);
     double tally = tally_data.first;
     double error = tally_data.second;
 
@@ -92,9 +91,7 @@ void CellTally::write_data(double num_histories) {
   }
 }
 //---------------------------------------------------------------------------//
-int CellTally::get_cell_id() {
-  return cell_id;
-}
+int CellTally::get_cell_id() { return cell_id; }
 //---------------------------------------------------------------------------//
 // PRIVATE METHODS
 //---------------------------------------------------------------------------//
@@ -108,7 +105,7 @@ void CellTally::parse_tally_options() {
 
     // process tally option according to key
     if (key == "cell") {
-      char* end; // pointer to first non-numeric char
+      char* end;  // pointer to first non-numeric char
       cell_id = strtol(value.c_str(), &end, 10);
 
       if (value.c_str() == end) {
@@ -119,7 +116,7 @@ void CellTally::parse_tally_options() {
                   << " for a CellTally option." << std::endl;
       }
     } else if (key == "volume") {
-      char* end; // pointer to first non-numeric char
+      char* end;  // pointer to first non-numeric char
       cell_volume = strtod(value.c_str(), &end);
 
       if (value.c_str() == end) {
@@ -128,9 +125,8 @@ void CellTally::parse_tally_options() {
         cell_volume = 1.0;
         std::cerr << "cell_volume has been set to " << cell_volume << std::endl;
       }
-    } else { // invalid tally option
-      std::cerr << "Warning: input data for cell tally "
-                << input_data.tally_id
+    } else {  // invalid tally option
+      std::cerr << "Warning: input data for cell tally " << input_data.tally_id
                 << " has unknown key '" << key << "'" << std::endl;
     }
   }

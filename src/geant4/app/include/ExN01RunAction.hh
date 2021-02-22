@@ -35,11 +35,10 @@ class ExN01RunAction : public G4UserRunAction {
   virtual ~ExN01RunAction();
 
   virtual void BeginOfRunAction(const G4Run*);
-  virtual void   EndOfRunAction(const G4Run*);
+  virtual void EndOfRunAction(const G4Run*);
 
  private:
   UWUW* workflow_data;
-
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

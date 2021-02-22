@@ -107,8 +107,7 @@ class TallyManager {
    * Valid particle types are determined by the physics code. For MCNP,
    * NEUTRON = 1, PHOTON = 2, ELECTRON = 3, PROTON = 9, etc.
    */
-  void addNewTally(unsigned int tally_id,
-                   std::string tally_type,
+  void addNewTally(unsigned int tally_id, std::string tally_type,
                    unsigned int particle,
                    const std::vector<double>& energy_bin_bounds,
                    const std::multimap<std::string, std::string>& options);
@@ -159,12 +158,11 @@ class TallyManager {
    * \param[in] x, y, z coordinates of the collision point
    * \param[in] particle_energy the energy of the particle prior to collision
    * \param[in] particle_weight the weight of the particle prior to collision
-   * \param[in] total_cross_section the macroscopic cross section for current cell
-   * \param[in] cell_id the unique ID for the current cell
-   * \return true if a collision event was set; false otherwise
+   * \param[in] total_cross_section the macroscopic cross section for current
+   * cell \param[in] cell_id the unique ID for the current cell \return true if
+   * a collision event was set; false otherwise
    */
-  bool setCollisionEvent(unsigned int particle,
-                         double x, double y, double z,
+  bool setCollisionEvent(unsigned int particle, double x, double y, double z,
                          double particle_energy, double particle_weight,
                          double total_cross_section, int cell_id);
 
@@ -178,11 +176,9 @@ class TallyManager {
    * \param[in] track_length the length of the track
    * \return true if a track event was set; false otherwise
    */
-  bool setTrackEvent(unsigned int particle,
-                     double x, double y, double z,
-                     double u, double v, double w,
-                     double particle_energy, double particle_weight,
-                     double track_length, int cell_id);
+  bool setTrackEvent(unsigned int particle, double x, double y, double z,
+                     double u, double v, double w, double particle_energy,
+                     double particle_weight, double track_length, int cell_id);
 
   /**
    *  \brief Reset a tally event
@@ -250,8 +246,7 @@ class TallyManager {
    *
    * Sets up TallyInput and calls the Tally factory method.
    */
-  Tally* createTally(unsigned int tally_id,
-                     std::string  tally_type,
+  Tally* createTally(unsigned int tally_id, std::string tally_type,
                      unsigned int particle,
                      const std::vector<double>& energy_bin_bounds,
                      const std::multimap<std::string, std::string>& options);
@@ -265,18 +260,16 @@ class TallyManager {
    * \param[in] particle_energy the energy of the particle prior to event
    * \param[in] particle_weight the weight of the particle prior to event
    * \param[in] track_length the length of the track
-   * \param[in] total_cross_section the macroscopic cross section for current cell
-   * \param[in] cell_id the unique ID for the current geometric cell
+   * \param[in] total_cross_section the macroscopic cross section for current
+   * cell \param[in] cell_id the unique ID for the current geometric cell
    * \return true if an event was set; false otherwise
    */
-  bool setEvent(TallyEvent::EventType type, unsigned int particle,
-                double x, double y, double z,
-                double u, double v, double w,
+  bool setEvent(TallyEvent::EventType type, unsigned int particle, double x,
+                double y, double z, double u, double v, double w,
                 double particle_energy, double particle_weight,
-                double track_length, double total_cross_section,
-                int cell_id);
+                double track_length, double total_cross_section, int cell_id);
 };
 
-#endif // DAGMC_TALLY_MANAGER_HPP
+#endif  // DAGMC_TALLY_MANAGER_HPP
 
 // end of MCNP5/dagmc/TallyManager.hpp

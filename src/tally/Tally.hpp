@@ -162,6 +162,6 @@ class Tally {
   bool energy_in_bounds(double energy);
 };
 
-#endif // DAGMC_TALLY_HPP
+#endif  // DAGMC_TALLY_HPP
 
 // end of MCNP5/dagmc/Tally.hpp

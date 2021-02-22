@@ -1,0 +1,13 @@
+**Added:**
+
+  * Including installation of a CMake version file for use with `find_package` in client codes.
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

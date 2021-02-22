@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "moab/Interface.hpp"
-#include "moab/Core.hpp"
-#include "DagMC.hpp"
-
 #include <iostream>
+
+#include "DagMC.hpp"
+#include "moab/Core.hpp"
+#include "moab/Interface.hpp"
 
 using namespace moab;
 
@@ -27,6 +27,7 @@ class DagmcPointInVolTest : public ::testing::Test {
     assert(rval == moab::MB_SUCCESS);
   }
   virtual void TearDown() {}
+
  protected:
   moab::ErrorCode rloadval;
   moab::ErrorCode rval;
@@ -57,7 +58,8 @@ int dagmc_point_in_vol_dir(double origin[3], double dir[3], int vol_idx) {
   double next_surf_dist;
   EntityHandle next_surf;
 
-  // direction vectors are always interpreted as unit vectors - make sure this one is normalized
+  // direction vectors are always interpreted as unit vectors - make sure this
+  // one is normalized
   double dir_norm = (dir[0] * dir[0]) + (dir[1] * dir[1]) + (dir[2] * dir[2]);
 
   dir[0] = dir[0] / sqrt(dir_norm);

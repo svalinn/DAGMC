@@ -1,10 +1,10 @@
 
-#include "overlap.hpp"
-
-#include <set>
 #include <memory>
+#include <set>
+
 #include "moab/Core.hpp"
 #include "moab/ProgOptions.hpp"
+#include "overlap.hpp"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -13,19 +13,22 @@
 using namespace moab;
 
 int main(int argc, char* argv[]) {
-
-  ProgOptions po("overlap_check: a tool that searches for overlaps in a DagMC geometry."
-                 "This is currently a non-exhaustive search.");
+  ProgOptions po(
+      "overlap_check: a tool that searches for overlaps in a DagMC geometry."
+      "This is currently a non-exhaustive search.");
 
   std::string filename;
-  int points_per_tri_edge {0};
+  int points_per_tri_edge{0};
 #ifdef _OPENMP
-  int n_threads {0};
+  int n_threads{0};
 #endif
 
-  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to check", &filename);
+  po.addRequiredArg<std::string>("dag_file", "Path to DAGMC file to check",
+                                 &filename);
 
-  po.addOpt<int>("points-per-edge,p", "Number of evenly-spaced points to test on each triangle edge", &points_per_tri_edge);
+  po.addOpt<int>("points-per-edge,p",
+                 "Number of evenly-spaced points to test on each triangle edge",
+                 &points_per_tri_edge);
 #ifdef _OPENMP
   po.addOpt<int>("threads,t", "Number of threads", &n_threads);
 #endif
@@ -45,19 +48,24 @@ int main(int argc, char* argv[]) {
   MB_CHK_SET_ERR(rval, "Failed to load file: " << filename);
 
   if (points_per_tri_edge == 0) {
-    std::cout << "NOTICE: " << "\n";
-    std::cout << "\t Performing overlap check using triangle vertex locations only."
-              << "\n"
-              << "\t Use the '-p' option to check more points on the triangle edges."
-              << "\n"
-              << "\t Run '$ overlap_check --help' for more information."
-              << "\n\n";
+    std::cout << "NOTICE: "
+              << "\n";
+    std::cout
+        << "\t Performing overlap check using triangle vertex locations only."
+        << "\n"
+        << "\t Use the '-p' option to check more points on the triangle edges."
+        << "\n"
+        << "\t Run '$ overlap_check --help' for more information."
+        << "\n\n";
   }
 
   std::cout << "Running overlap check:" << std::endl;
 
   if (points_per_tri_edge > 0) {
-    std::cout << "Checking " << points_per_tri_edge << " points along each triangle edge in addition to the triangle vertices." << std::endl;
+    std::cout << "Checking " << points_per_tri_edge
+              << " points along each triangle edge in addition to the triangle "
+                 "vertices."
+              << std::endl;
   }
 
   // check for overlaps

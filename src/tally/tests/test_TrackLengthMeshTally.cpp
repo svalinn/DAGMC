@@ -1,13 +1,11 @@
 // test_TrackLengthMeshTally.cpp
-#include "gtest/gtest.h"
-
-#include "moab/Core.hpp"
-#include "moab/CartVect.hpp"
-
 #include "../Tally.hpp"
 #include "../TallyEvent.hpp"
-#include "../TrackLengthMeshTally.hpp"
 #include "../TallyManager.cpp"
+#include "../TrackLengthMeshTally.hpp"
+#include "gtest/gtest.h"
+#include "moab/CartVect.hpp"
+#include "moab/Core.hpp"
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
@@ -21,16 +19,13 @@ class TrackLengthMeshTallyTest : public ::testing::Test {
     input.energy_bin_bounds.push_back(0.0);
     input.energy_bin_bounds.push_back(10.0);
     input.tally_id = 4;
-
   }
 
   // deallocate memory resources
-  virtual void TearDown() {
-    delete mesh_tally;
-  }
+  virtual void TearDown() { delete mesh_tally; }
 
   void make_event(TallyEvent& event) {
-    event.type = TallyEvent::TRACK; // track length tally
+    event.type = TallyEvent::TRACK;  // track length tally
     event.particle = 1;
     event.current_cell = 1;
     event.track_length = 1.0;
@@ -48,7 +43,6 @@ class TrackLengthMeshTallyTest : public ::testing::Test {
 
   void mod_event(TallyEvent& event, double x_coord, double x_dir,
                  double track_length) {
-
     event.position[0] = x_coord;
     event.direction[0] = x_dir;
     event.track_length = track_length;
@@ -56,7 +50,6 @@ class TrackLengthMeshTallyTest : public ::testing::Test {
 
   void mod_event_3d(TallyEvent& event, double coord[3], double dir[3],
                     double track_length) {
-
     event.position[0] = coord[0];
     event.position[1] = coord[1];
     event.position[2] = coord[2];
@@ -67,7 +60,6 @@ class TrackLengthMeshTallyTest : public ::testing::Test {
 
     event.track_length = track_length;
   }
-
 
  protected:
   // data needed for each test
@@ -138,10 +130,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore1Ray) {
 
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -171,10 +163,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore2Ray) {
 
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -197,10 +189,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore1RaySplit) {
 
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -237,10 +229,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore4RaySplit) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -280,10 +272,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScore5RaySplit) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -320,10 +312,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScorePointOnBoundary) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -359,10 +351,10 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScorePointOnAdjacentBoundary) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -413,16 +405,15 @@ TEST_F(TrackLengthMeshTallyTest, PointOutside5of5RayReEntrantMeshRayOffCenter) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
   EXPECT_DOUBLE_EQ(total, 3.0);
 }
-
 
 //---------------------------------------------------------------------------//
 TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenter) {
@@ -469,10 +460,10 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenter) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -518,14 +509,13 @@ TEST_F(TrackLengthMeshTallyTest, 4of5RayReEntrantMeshRayOffCenter) {
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
 
-
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -568,10 +558,10 @@ TEST_F(TrackLengthMeshTallyTest, 3of5RayReEntrantMeshRayOffCenter) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -606,10 +596,10 @@ TEST_F(TrackLengthMeshTallyTest, 2of5RayReEntrantMeshRayOffCenter) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -635,14 +625,13 @@ TEST_F(TrackLengthMeshTallyTest, ReEntrantMeshRayOffCenter) {
   mesh_tally->compute_score(event);
   mesh_tally->end_history();
 
-
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -694,10 +683,10 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOnCenter) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -749,10 +738,10 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -804,10 +793,10 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -859,10 +848,10 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2Z) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -914,10 +903,10 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY2Z2) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -969,10 +958,10 @@ TEST_F(TrackLengthMeshTallyTest, 5of5RayReEntrantMeshRayOffCenterY3Z3) {
   // now figure out the track
   TallyData data = mesh_tally->getTallyData();
   int length;
-  double* track_data = data.TallyData::get_tally_data(length); // << std::endl;
+  double* track_data = data.TallyData::get_tally_data(length);  // << std::endl;
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++) {
+  for (int i = 0; i < length; i++) {
     total += track_data[i];
   }
 
@@ -1027,8 +1016,7 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_1) {
   double* track_data = data.TallyData::get_tally_data(length);
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++)
-    total += track_data[i];
+  for (int i = 0; i < length; i++) total += track_data[i];
 
   EXPECT_DOUBLE_EQ(total, 20.0);
 }
@@ -1081,8 +1069,7 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_2) {
   double* track_data = data.TallyData::get_tally_data(length);
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++)
-    total += track_data[i];
+  for (int i = 0; i < length; i++) total += track_data[i];
 
   EXPECT_DOUBLE_EQ(total, 20.0);
 }
@@ -1135,8 +1122,7 @@ TEST_F(TrackLengthMeshTallyTest, HashtagMeshReentrantSeparateTracks_3) {
   double* track_data = data.TallyData::get_tally_data(length);
 
   double total = 0.0;
-  for (int i = 0 ; i < length ; i++)
-    total += track_data[i];
+  for (int i = 0; i < length; i++) total += track_data[i];
 
   EXPECT_DOUBLE_EQ(total, 20.0);
 }
@@ -1158,11 +1144,11 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayNeutron) {
                             input.energy_bin_bounds, input.options);
 
   mod_event(event, 1.0, 1.0, 1.0);
-  tallyManager->setTrackEvent(event.particle,
-                              event.position[0], event.position[1], event.position[2],
-                              event.direction[0], event.direction[1], event.direction[2],
-                              event.particle_energy, event.particle_weight, event.track_length,
-                              event.current_cell);
+  tallyManager->setTrackEvent(
+      event.particle, event.position[0], event.position[1], event.position[2],
+      event.direction[0], event.direction[1], event.direction[2],
+      event.particle_energy, event.particle_weight, event.track_length,
+      event.current_cell);
   tallyManager->updateTallies();
   tallyManager->endHistory();
 
@@ -1172,8 +1158,7 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayNeutron) {
   double* track_data = tallyManager->getTallyData(input.tally_id, length);
 
   double total = 0.0;
-  for (int i = 0; i < length; i++)
-    total += track_data[i];
+  for (int i = 0; i < length; i++) total += track_data[i];
 
   EXPECT_EQ(total, event.track_length);
 }
@@ -1188,18 +1173,18 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayProton) {
 
   TallyEvent event;
   make_event(event);
-  event.particle = 9; // proton
+  event.particle = 9;  // proton
 
   TallyManager* tallyManager = new TallyManager();
   tallyManager->addNewTally(input.tally_id, input.tally_type, event.particle,
                             input.energy_bin_bounds, input.options);
 
   mod_event(event, 1.0, 1.0, 1.0);
-  tallyManager->setTrackEvent(event.particle,
-                              event.position[0], event.position[1], event.position[2],
-                              event.direction[0], event.direction[1], event.direction[2],
-                              event.particle_energy, event.particle_weight, event.track_length,
-                              event.current_cell);
+  tallyManager->setTrackEvent(
+      event.particle, event.position[0], event.position[1], event.position[2],
+      event.direction[0], event.direction[1], event.direction[2],
+      event.particle_energy, event.particle_weight, event.track_length,
+      event.current_cell);
   tallyManager->updateTallies();
   tallyManager->endHistory();
 
@@ -1209,8 +1194,7 @@ TEST_F(TrackLengthMeshTallyTest, ComputeScoreTallyManager1RayProton) {
   double* track_data = tallyManager->getTallyData(input.tally_id, length);
 
   double total = 0.0;
-  for (int i = 0; i < length; i++)
-    total += track_data[i];
+  for (int i = 0; i < length; i++) total += track_data[i];
 
   EXPECT_EQ(total, event.track_length);
 }
@@ -1228,7 +1212,7 @@ TEST_F(TrackLengthMeshTallyTest, EnsureVectorTags) {
 
   TallyEvent event;
   make_event(event);
-  event.particle = 9; // proton
+  event.particle = 9;  // proton
 
   TallyManager* tallyManager = new TallyManager();
   tallyManager->addNewTally(input.tally_id, input.tally_type, event.particle,
@@ -1249,22 +1233,18 @@ TEST_F(TrackLengthMeshTallyTest, EnsureVectorTags) {
   moab::Tag tally_tag;
   std::string tag_name = "TALLY_TAG";
   // get the tag handle for the vector tag
-  rval = MBI->tag_get_handle(tag_name.c_str(),
-                             2,
-                             moab::MB_TYPE_DOUBLE,
-                             tally_tag,
-                             moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  rval =
+      MBI->tag_get_handle(tag_name.c_str(), 2, moab::MB_TYPE_DOUBLE, tally_tag,
+                          moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
   // expect that this succeeded
   EXPECT_EQ(rval, moab::MB_SUCCESS);
 
   // now look for the scalar tag
   tag_name = "TALLY_TAG_TOTAL";
   // get the tag handle for the vector tag
-  rval = MBI->tag_get_handle(tag_name.c_str(),
-                             1,
-                             moab::MB_TYPE_DOUBLE,
-                             tally_tag,
-                             moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
+  rval =
+      MBI->tag_get_handle(tag_name.c_str(), 1, moab::MB_TYPE_DOUBLE, tally_tag,
+                          moab::MB_TAG_DENSE | moab::MB_TAG_CREAT);
   // expect that this succeeded
   EXPECT_EQ(rval, moab::MB_SUCCESS);
 

@@ -1,22 +1,19 @@
 //  DagSolid_test.cpp
 #include <gtest/gtest.h>
-#include "uwuw.hpp"
+
 #include "pyne.h"
+#include "uwuw.hpp"
 
 #define TEST_FILE "mat_lib.h5"
 
 namespace {
 
-
 class UWUWTest : public ::testing::Test {
  protected:
-
   UWUWTest() {}
   virtual ~UWUWTest() {}
 
-  virtual void SetUp() {
-    workflow_data = new UWUW(std::string(TEST_FILE));
-  }
+  virtual void SetUp() { workflow_data = new UWUW(std::string(TEST_FILE)); }
   UWUW* workflow_data;
 };
 
@@ -38,4 +35,4 @@ TEST_F(UWUWTest, MaterialLibraryCorrectNumber) {
   return;
 }
 
-} // namespace
+}  // namespace

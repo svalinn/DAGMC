@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
-#include "mcnp_funcs.h"
 
-#include <cmath>
 #include <cassert>
+#include <cmath>
+
+#include "mcnp_funcs.h"
 
 std::string test_file = "test_geom_legacy.h5m";
 std::string test_file_comp = "test_geom_legacy_comp.h5m";
@@ -26,9 +27,8 @@ class DAGMCNP5Test : public ::testing::Test {
     int max_pbl = 0;
 
     // intialise dagmc
-    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode,
-               &dagmc_version, &moab_version, &max_pbl);
-
+    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode, &dagmc_version,
+               &moab_version, &max_pbl);
   }
   void setup_problem_comp() {
     std::string filename = test_file_comp;
@@ -43,9 +43,8 @@ class DAGMCNP5Test : public ::testing::Test {
     int max_pbl = 0;
 
     // intialise dagmc
-    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode,
-               &dagmc_version, &moab_version, &max_pbl);
-
+    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode, &dagmc_version,
+               &moab_version, &max_pbl);
   }
 
   void setup_problem_reflecting() {
@@ -61,21 +60,17 @@ class DAGMCNP5Test : public ::testing::Test {
     int max_pbl = 0;
 
     // intialise dagmc
-    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode,
-               &dagmc_version, &moab_version, &max_pbl);
-
+    dagmcinit_(file, &len, ftol, &ftol_len, &parallel_mode, &dagmc_version,
+               &moab_version, &max_pbl);
   }
-
 };
 
 // Test setup outcomes
-TEST_F(DAGMCNP5Test, dagmclcad_test) {
-  setup_problem();
-}
+TEST_F(DAGMCNP5Test, dagmclcad_test) { setup_problem(); }
 
 // Test setup outcomes
 TEST_F(DAGMCNP5Test, dagmcinit_test) {
-// expected values from the lcad file // only the cells
+  // expected values from the lcad file // only the cells
   const char* expected[] = {"1 9 -12.0 imp:n=1 imp:p=1 ",
                             "2 9 -12.0 imp:n=1 imp:p=1 ",
                             "3 9 -12.0 imp:n=1 imp:p=1 ",
@@ -86,8 +81,7 @@ TEST_F(DAGMCNP5Test, dagmcinit_test) {
                             "8 3 -2.0 imp:n=1 imp:p=1 ",
                             "9 1 0.022 imp:n=1 imp:p=1 ",
                             "12 0  imp:n=0 imp:p=0   $ graveyard",
-                            "13 0  imp:n=1 imp:p=1   $ implicit complement"
-                           };
+                            "13 0  imp:n=1 imp:p=1   $ implicit complement"};
   std::vector<std::string> expected_lcad(expected, expected + 11);
 
   std::string dagfile = test_file;
@@ -109,7 +103,7 @@ TEST_F(DAGMCNP5Test, dagmcinit_test) {
   input.close();
 
   // for each line make sure the same
-  for (int i = 0 ; i < 11 ; i++) {
+  for (int i = 0; i < 11; i++) {
     EXPECT_EQ(expected_lcad[i], input_deck[i]);
   }
   // delete the lcad file
@@ -120,25 +114,23 @@ TEST_F(DAGMCNP5Test, dagmcinit_test) {
 }
 
 // Test setup outcomes
-TEST_F(DAGMCNP5Test, dagmclcad_comp_test) {
-  setup_problem_comp();
-}
+TEST_F(DAGMCNP5Test, dagmclcad_comp_test) { setup_problem_comp(); }
 
 // Test setup outcomes
 TEST_F(DAGMCNP5Test, dagmcinit_comp_test) {
-// expected values from the lcad file // only the cells
-  const char* expected[] = {"1 9 -12.0 imp:n=1 imp:p=1 ",
-                            "2 9 -12.0 imp:n=1 imp:p=1 ",
-                            "3 9 -12.0 imp:n=1 imp:p=1 ",
-                            "4 9 -12.0 imp:n=1 imp:p=1 ",
-                            "5 3 -2.0 imp:n=1 imp:p=1 ",
-                            "6 3 -2.0 imp:n=1 imp:p=1 ",
-                            "7 3 -2.0 imp:n=1 imp:p=1 ",
-                            "8 3 -2.0 imp:n=1 imp:p=1 ",
-                            "9 1 0.022 imp:n=1 imp:p=1 ",
-                            "12 0  imp:n=0 imp:p=0   $ graveyard",
-                            "13 2 -3.1 imp:n=1 imp:p=1   $ implicit complement"
-                           };
+  // expected values from the lcad file // only the cells
+  const char* expected[] = {
+      "1 9 -12.0 imp:n=1 imp:p=1 ",
+      "2 9 -12.0 imp:n=1 imp:p=1 ",
+      "3 9 -12.0 imp:n=1 imp:p=1 ",
+      "4 9 -12.0 imp:n=1 imp:p=1 ",
+      "5 3 -2.0 imp:n=1 imp:p=1 ",
+      "6 3 -2.0 imp:n=1 imp:p=1 ",
+      "7 3 -2.0 imp:n=1 imp:p=1 ",
+      "8 3 -2.0 imp:n=1 imp:p=1 ",
+      "9 1 0.022 imp:n=1 imp:p=1 ",
+      "12 0  imp:n=0 imp:p=0   $ graveyard",
+      "13 2 -3.1 imp:n=1 imp:p=1   $ implicit complement"};
   std::vector<std::string> expected_lcad(expected, expected + 11);
 
   std::string dagfile = test_file;
@@ -160,7 +152,7 @@ TEST_F(DAGMCNP5Test, dagmcinit_comp_test) {
   input.close();
 
   // for each line make sure the same
-  for (int i = 0 ; i < 11 ; i++) {
+  for (int i = 0; i < 11; i++) {
     EXPECT_EQ(expected_lcad[i], input_deck[i]);
   }
   // delete the lcad file
@@ -172,13 +164,10 @@ TEST_F(DAGMCNP5Test, dagmcinit_comp_test) {
 // Test setup outcomes
 
 // Test setup outcomes
-TEST_F(DAGMCNP5Test, dagmcreflecting_comp_test) {
-  setup_problem_reflecting();
-}
-
+TEST_F(DAGMCNP5Test, dagmcreflecting_comp_test) { setup_problem_reflecting(); }
 
 TEST_F(DAGMCNP5Test, dagmcreflecting_test) {
-// expected values from the lcad file // only the cells
+  // expected values from the lcad file // only the cells
   const char* expected[] = {"1 1 -1.0 imp:n=1",
                             "2 0  imp:n=1  $ implicit complement",
                             "",
@@ -187,8 +176,7 @@ TEST_F(DAGMCNP5Test, dagmcreflecting_test) {
                             "3",
                             "4",
                             "5",
-                            "*6"
-                           };
+                            "*6"};
   int num_lines = 9;
   std::vector<std::string> expected_lcad(expected, expected + num_lines);
 
@@ -211,7 +199,7 @@ TEST_F(DAGMCNP5Test, dagmcreflecting_test) {
   input.close();
 
   // for each line make sure the same
-  for (int i = 0 ; i < num_lines ; i++) {
+  for (int i = 0; i < num_lines; i++) {
     EXPECT_EQ(expected_lcad[i], input_deck[i]);
   }
   // delete the lcad file

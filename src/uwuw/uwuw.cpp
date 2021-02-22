@@ -1,9 +1,10 @@
+#include "uwuw.hpp"
+
 #ifndef _WIN32
 #include <unistd.h>
 #endif
 #include < iostream>
 
-#include "uwuw.hpp"
 
 // Empty Constructor
 UWUW::UWUW() {
@@ -19,7 +20,8 @@ UWUW::UWUW(char* file) {
   full_filepath = get_full_filepath(filename);
 
   if (!check_file_exists(full_filepath)) {
-    std::cerr << "The file " << full_filepath << " does not exist or is read protected" << std::endl;
+    std::cerr << "The file " << full_filepath
+              << " does not exist or is read protected" << std::endl;
     exit(1);
   }
 
@@ -37,7 +39,8 @@ UWUW::UWUW(std::string filename) {
 
   // check for file existence
   if (!check_file_exists(full_filepath)) {
-    std::cerr << "The file " << full_filepath << " does not exist or is read protected" << std::endl;
+    std::cerr << "The file " << full_filepath
+              << " does not exist or is read protected" << std::endl;
     exit(1);
   }
 
@@ -49,8 +52,7 @@ UWUW::UWUW(std::string filename) {
 };
 
 // Destructor
-UWUW::~UWUW() {
-};
+UWUW::~UWUW(){};
 
 // convert a filename into path+filename (for pyne)
 std::string UWUW::get_full_filepath(char* filename) {
@@ -61,7 +63,8 @@ std::string UWUW::get_full_filepath(char* filename) {
 // convert a filename into path+filename (for pyne)
 std::string UWUW::get_full_filepath(std::string filename) {
   // remove all extra whitespace
-  filename.erase(std::remove(filename.begin(), filename.end(), ' '), filename.end());
+  filename.erase(std::remove(filename.begin(), filename.end(), ' '),
+                 filename.end());
   // use stdlib call
 #ifndef _WIN32
   const char* full_filepath = realpath(filename.c_str(), NULL);
@@ -81,22 +84,23 @@ bool UWUW::check_file_exists(const std::string& filename) {
 
 // loads all materials into map
 
-pyne::MaterialLibrary UWUW::load_pyne_materials(std::string filename, std::string datapath) {
-  pyne::MaterialLibrary library(filename, datapath); // material library
+pyne::MaterialLibrary UWUW::load_pyne_materials(std::string filename,
+                                                std::string datapath) {
+  pyne::MaterialLibrary library(filename, datapath);  // material library
   return library;
 }
 
 // loads all tallies into map
-std::map<std::string, pyne::Tally> UWUW::load_pyne_tallies(std::string filename, std::string datapath) {
-  std::map<std::string, pyne::Tally> library; // material library
+std::map<std::string, pyne::Tally> UWUW::load_pyne_tallies(
+    std::string filename, std::string datapath) {
+  std::map<std::string, pyne::Tally> library;  // material library
 
-  if (!hdf5_path_exists(filename, datapath))
-    return library;
+  if (!hdf5_path_exists(filename, datapath)) return library;
 
   num_tallies = get_length_of_table(filename, datapath);
 
-  for (int i = 0 ; i < num_tallies ; i++) {
-    pyne::Tally tally; // from file
+  for (int i = 0; i < num_tallies; i++) {
+    pyne::Tally tally;  // from file
     tally.from_hdf5(filename, datapath, i);
     library[tally.tally_name] = tally;
   }
@@ -109,7 +113,7 @@ bool UWUW::hdf5_path_exists(std::string filename, std::string datapath) {
   herr_t status;
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
-  //Set file access properties so it closes cleanly
+  // Set file access properties so it closes cleanly
   hid_t fapl = H5Pcreate(H5P_FILE_ACCESS);
   H5Pset_fclose_degree(fapl, H5F_CLOSE_STRONG);
 
@@ -130,7 +134,7 @@ int UWUW::get_length_of_table(std::string filename, std::string datapath) {
   herr_t status;
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
-  //Set file access properties so it closes cleanly
+  // Set file access properties so it closes cleanly
   hid_t fapl = H5Pcreate(H5P_FILE_ACCESS);
   H5Pset_fclose_degree(fapl, H5F_CLOSE_STRONG);
 

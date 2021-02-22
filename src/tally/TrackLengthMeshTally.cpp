@@ -1,25 +1,26 @@
 // MCNP5/dagmc/TrackLengthMeshTally.cpp
 
-#include <iostream>
-#include <sstream>
 #include <cmath>
+#include <iostream>
 #include <set>
+#include <sstream>
 
-#include "moab/Core.hpp"
-#include "moab/Range.hpp"
-#include "moab/GeomUtil.hpp"
 #include "moab/AdaptiveKDTree.hpp"
-#include "moab/OrientedBoxTreeTool.hpp"
-#include "moab/Skinner.hpp"
 #include "moab/CN.hpp"
+#include "moab/Core.hpp"
+#include "moab/GeomUtil.hpp"
 #include "moab/MOABConfig.h"
+#include "moab/OrientedBoxTreeTool.hpp"
+#include "moab/Range.hpp"
+#include "moab/Skinner.hpp"
 
 /* Two macros are available:
- * MESHTAL_DEBUG: produce much debugging output, with histories of particular particle tracks.
+ * MESHTAL_DEBUG: produce much debugging output, with histories of particular
+ * particle tracks.
  *
- * MESHTAL_FORCE_ASSERTS: force use of assert(), regardless of compile settings.  Useful for
- *     testing at scale; asserts do not lead to substantial slowdown at run time.
- *     MESHTAL_DEBUG implies MESHTAL_FORCE_ASSERTS.
+ * MESHTAL_FORCE_ASSERTS: force use of assert(), regardless of compile settings.
+ * Useful for testing at scale; asserts do not lead to substantial slowdown at
+ * run time. MESHTAL_DEBUG implies MESHTAL_FORCE_ASSERTS.
  */
 
 #ifdef MESHTAL_DEBUG
@@ -32,11 +33,13 @@
 
 #include <cassert>
 
-// the header file has at least one assert, so keep this include below the macro checks
+// the header file has at least one assert, so keep this include below the macro
+// checks
 #include "TrackLengthMeshTally.hpp"
 
 // tolerance for ray-triangle intersection tests
-// (note: this paramater is ignored by GeomUtil, so don't bother trying to tune it)
+// (note: this paramater is ignored by GeomUtil, so don't bother trying to tune
+// it)
 #define TRIANGLE_INTERSECTION_TOL 1e-6
 
 // used to store the intersection data
@@ -89,8 +92,7 @@ static bool parse_int_list(const char* string, std::set<int>& results) {
       break;
     }
 
-    for (; val <= val2; ++val)
-      results.insert((int)val);
+    for (; val <= val2; ++val) results.insert((int)val);
   }
 
   free(mystr);
@@ -116,16 +118,16 @@ namespace moab {
 // CONSTRUCTOR
 //---------------------------------------------------------------------------//
 TrackLengthMeshTally::TrackLengthMeshTally(const TallyInput& input)
-  : MeshTally(input),
-    mb(new moab::Core()),
-    obb_tool(new OrientedBoxTreeTool(mb)),
-    last_visited_tet(0),
-    last_cell(-1),
-    convex(false),
-    conformal_surface_source(false) {
+    : MeshTally(input),
+      mb(new moab::Core()),
+      obb_tool(new OrientedBoxTreeTool(mb)),
+      last_visited_tet(0),
+      last_cell(-1),
+      convex(false),
+      conformal_surface_source(false) {
   std::cout << "Creating dagmc mesh tally" << input.tally_id
-            << ", input: " << input_filename
-            << ", output: " << output_filename << std::endl;
+            << ", input: " << input_filename << ", output: " << output_filename
+            << std::endl;
 
   parse_tally_options();
   set_tally_meshset();
@@ -151,7 +153,6 @@ TrackLengthMeshTally::TrackLengthMeshTally(const TallyInput& input)
   assert(rval == MB_SUCCESS);
 
   build_trees(all_tets);
-
 }
 //---------------------------------------------------------------------------//
 // DESTRUCTOR
@@ -166,8 +167,7 @@ TrackLengthMeshTally::~TrackLengthMeshTally() {
 //---------------------------------------------------------------------------//
 void TrackLengthMeshTally::compute_score(const TallyEvent& event) {
   // If it's not the type we want leave immediately
-  if (event.type != TallyEvent::TRACK)
-    return;
+  if (event.type != TallyEvent::TRACK) return;
 
   unsigned int ebin;
   if (!get_energy_bin(event.particle_energy, ebin)) {
@@ -176,21 +176,26 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event) {
 
   double weight = event.get_score_multiplier(input_data.multiplier_id);
 
-  std::vector<double> intersections;     // vector of distance to triangular facet intersections
-  std::vector< EntityHandle > triangles; // vector of entityhandles that belong to the triangles hit
-  //  std::vector<ray_data> hit_information; // vector of reformated ray triangle intersections
+  std::vector<double>
+      intersections;  // vector of distance to triangular facet intersections
+  std::vector<EntityHandle>
+      triangles;  // vector of entityhandles that belong to the triangles hit
+  //  std::vector<ray_data> hit_information; // vector of reformated ray
+  //  triangle intersections
 
   // get all ray-triangle intersections along the ray
-  ErrorCode rval = get_all_intersections(event.position, event.direction, event.track_length, triangles, intersections);
+  ErrorCode rval =
+      get_all_intersections(event.position, event.direction, event.track_length,
+                            triangles, intersections);
   if (rval != MB_SUCCESS) {
     std::cout << "we have a problem finding intersections" << std::endl;
     exit(1);
   }
 
-  EntityHandle tet; // tet
+  EntityHandle tet;  // tet
   if (intersections.size() == 0)
-    // ray is so short it either does not intersect a triangular face, or it inside the mesh
-    // but can't reach
+  // ray is so short it either does not intersect a triangular face, or it
+  // inside the mesh but can't reach
   {
     // tet = point_in_which_tet(event.position);
     tet = point_in_which_tet(event.position);
@@ -214,7 +219,6 @@ void TrackLengthMeshTally::compute_score(const TallyEvent& event) {
   return;
 }
 
-
 //---------------------------------------------------------------------------//
 // This may not need to be overridden, depending on whether conformality
 void TrackLengthMeshTally::end_history() {
@@ -236,7 +240,6 @@ void TrackLengthMeshTally::write_data(double num_histories) {
   }
   assert(rval == MB_SUCCESS);
 
-
   for (Range::const_iterator i = all_tets.begin(); i != all_tets.end(); ++i) {
     EntityHandle t = *i;
 
@@ -247,7 +250,8 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     assert(vtx.size() == 4);
 
     int k = 0;
-    for (std::vector<EntityHandle>::iterator j = vtx.begin(); j != vtx.end(); ++j) {
+    for (std::vector<EntityHandle>::iterator j = vtx.begin(); j != vtx.end();
+         ++j) {
       EntityHandle vertex = *j;
       mb->get_coords(&vertex, 1, v[k++].array());
     }
@@ -258,21 +262,21 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     unsigned int num_ebins = data->get_num_energy_bins();
 
     // if there is a total, dont do anything with it
-    if (data->has_total_energy_bin())
-      num_ebins--;
+    if (data->has_total_energy_bin()) num_ebins--;
 
     std::vector<double> tally_vect(num_ebins);
     std::vector<double> error_vect(num_ebins);
 
-    for (unsigned j = 0; j < num_ebins ; ++j) {
-      std::pair <double, double> tally_data = data->get_data(tet_index, j);
+    for (unsigned j = 0; j < num_ebins; ++j) {
+      std::pair<double, double> tally_data = data->get_data(tet_index, j);
       double tally = tally_data.first;
       double error = tally_data.second;
 
       double score = (tally / (volume * num_histories));
 
-      // Use 0 as the error output value if nothing has been computed for this mesh cell;
-      // this reflects MCNP's approach to avoiding a divide-by-zero situation.
+      // Use 0 as the error output value if nothing has been computed for this
+      // mesh cell; this reflects MCNP's approach to avoiding a divide-by-zero
+      // situation.
       double rel_err = 0;
       if (error != 0) {
         rel_err = sqrt((error / (tally * tally)) - (1. / num_histories));
@@ -283,31 +287,37 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     }
 
     rval = mb->tag_set_data(tally_tag, &t, 1, tally_vect.data());
-    MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " + std::to_string(rval) + " " + std::to_string(t));
+    MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " + std::to_string(rval) +
+                                 " " + std::to_string(t));
     rval = mb->tag_set_data(error_tag, &t, 1, error_vect.data());
-    MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " + std::to_string(rval) + " " + std::to_string(t));
-
+    MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " + std::to_string(rval) +
+                                 " " + std::to_string(t));
 
     // if we have a total bin, write it out
     if (data->has_total_energy_bin()) {
       int j = num_ebins++;
-      std::pair <double, double> tally_data = data->get_data(tet_index, j);
+      std::pair<double, double> tally_data = data->get_data(tet_index, j);
       double tally = tally_data.first;
       double error = tally_data.second;
 
       double score = (tally / (volume * num_histories));
 
-      // Use 0 as the error output value if nothing has been computed for this mesh cell;
-      // this reflects MCNP's approach to avoiding a divide-by-zero situation.
+      // Use 0 as the error output value if nothing has been computed for this
+      // mesh cell; this reflects MCNP's approach to avoiding a divide-by-zero
+      // situation.
       double rel_err = 0;
       if (error != 0) {
         rel_err = sqrt((error / (tally * tally)) - (1. / num_histories));
       }
 
       rval = mb->tag_set_data(total_tally_tag, &t, 1, &score);
-      MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " + std::to_string(rval) + " " + std::to_string(t));
+      MB_CHK_SET_ERR_RET(rval, "Failed to set tally_tag " +
+                                   std::to_string(rval) + " " +
+                                   std::to_string(t));
       rval = mb->tag_set_data(total_error_tag, &t, 1, &rel_err);
-      MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " + std::to_string(rval) + " " + std::to_string(t));
+      MB_CHK_SET_ERR_RET(rval, "Failed to set error_tag " +
+                                   std::to_string(rval) + " " +
+                                   std::to_string(t));
     }
   }
 
@@ -319,9 +329,9 @@ void TrackLengthMeshTally::write_data(double num_histories) {
     output_tags.push_back(total_error_tag);
   }
 
-  rval = mb->write_file(output_filename.c_str(), NULL, NULL, &tally_mesh_set, 1, &(output_tags[0]), output_tags.size());
+  rval = mb->write_file(output_filename.c_str(), NULL, NULL, &tally_mesh_set, 1,
+                        &(output_tags[0]), output_tags.size());
   assert(rval == MB_SUCCESS);
-
 }
 //---------------------------------------------------------------------------//
 // PROTECTED METHODS
@@ -341,15 +351,19 @@ void TrackLengthMeshTally::parse_tally_options() {
     else if (key == "conf_surf_src" && (val == "t" || val == "true"))
       conformal_surface_source = true;
     else if (key == "conformal") {
-      // Since the options are a multimap, the conformal tag could (illogically) occur more than once
+      // Since the options are a multimap, the conformal tag could (illogically)
+      // occur more than once
       if (conformality.empty()) {
         if (!parse_int_list(val.c_str(), conformality)) {
-          std::cerr << "Error: Tally " << input_data.tally_id << " input has bad conformality value '" << val << "'" << std::endl;
+          std::cerr << "Error: Tally " << input_data.tally_id
+                    << " input has bad conformality value '" << val << "'"
+                    << std::endl;
           exit(EXIT_FAILURE);
         }
       }
     } else {
-      std::cerr << "Warning: Tally " << input_data.tally_id << " input has unknown key '" << key << "'" << std::endl;
+      std::cerr << "Warning: Tally " << input_data.tally_id
+                << " input has unknown key '" << key << "'" << std::endl;
     }
   }
   if (tag_name != "") {
@@ -380,38 +394,46 @@ void TrackLengthMeshTally::set_tally_meshset() {
   if (tag_name.length() > 0) {
     std::cout << "  User-specified tag to load:  " << tag_name << std::endl;
 
-    // Until there is more certainty about the type and parameters of the tag the user specified,
+    // Until there is more certainty about the type and parameters of the tag
+    // the user specified,
     //   use MB_TAG_ANY to get access to any tag with the given name
     Tag user_spec_tag;
-    rval = mb->tag_get_handle(tag_name.c_str(), 0, MB_TYPE_OPAQUE, user_spec_tag, MB_TAG_ANY);
+    rval = mb->tag_get_handle(tag_name.c_str(), 0, MB_TYPE_OPAQUE,
+                              user_spec_tag, MB_TAG_ANY);
     assert(rval == MB_SUCCESS);
 
     int user_spec_tag_length = 0;
     rval = mb->tag_get_bytes(user_spec_tag, user_spec_tag_length);
     assert(rval == MB_SUCCESS);
 
-    std::cout << "  user tag length: " << user_spec_tag_length << " bytes" << std::endl;
+    std::cout << "  user tag length: " << user_spec_tag_length << " bytes"
+              << std::endl;
 
     Range user_sets;
-    rval = mb->get_entities_by_type_and_tag(loaded_file_set, MBENTITYSET, &user_spec_tag, NULL, 1, user_sets);
+    rval = mb->get_entities_by_type_and_tag(loaded_file_set, MBENTITYSET,
+                                            &user_spec_tag, NULL, 1, user_sets);
     assert(rval == MB_SUCCESS);
 
-    std::cout << "  Found " << user_sets.size() << " sets with this tag." << std::endl;
+    std::cout << "  Found " << user_sets.size() << " sets with this tag."
+              << std::endl;
 
     for (Range::iterator i = user_sets.begin(); i != user_sets.end(); ++i) {
       EntityHandle s = *i;
-      char* name = new char[ user_spec_tag_length + 1];
+      char* name = new char[user_spec_tag_length + 1];
 
       rval = mb->tag_get_data(user_spec_tag, &s, 1, name);
       assert(rval == MB_SUCCESS);
 
-      // if user specified no tag value, list the available ones for informational purposes
+      // if user specified no tag value, list the available ones for
+      // informational purposes
       if (tag_values.size() == 0) {
         std::cout << "    available tag value: " << name << std::endl;
       }
 
-      if (std::find(tag_values.begin(), tag_values.end(), std::string(name)) != tag_values.end()) {
-        std::cout << "  Successfully found a set with tag value " << name << std::endl;
+      if (std::find(tag_values.begin(), tag_values.end(), std::string(name)) !=
+          tag_values.end()) {
+        std::cout << "  Successfully found a set with tag value " << name
+                  << std::endl;
         rval = mb->unite_meshset(tally_mesh_set, s);
         assert(rval == MB_SUCCESS);
       }
@@ -428,12 +450,14 @@ void TrackLengthMeshTally::set_tally_meshset() {
   }
 }
 //---------------------------------------------------------------------------//
-ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets) {
+ErrorCode TrackLengthMeshTally::compute_barycentric_data(
+    const Range& all_tets) {
   ErrorCode rval;
 
   // Iterate over all tets and compute barycentric matrices
   int num_tets = all_tets.size();
-  std::cerr << "  There are " << num_tets << " tetrahedrons in this tally mesh." << std::endl;
+  std::cerr << "  There are " << num_tets << " tetrahedrons in this tally mesh."
+            << std::endl;
 
   if (num_tets != 0) {
     tet_baryc_data.resize(num_tets);
@@ -452,8 +476,11 @@ ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets) 
     assert(rval == MB_SUCCESS);
 
     if (num_verts != 4) {
-      std::cerr << "Error: DAGMC TrackLengthMeshTally cannot handle non-tetrahedral meshes yet," << std::endl;
-      std::cerr << "       but your mesh has at least one cell with " << num_verts << " vertices." << std::endl;
+      std::cerr << "Error: DAGMC TrackLengthMeshTally cannot handle "
+                   "non-tetrahedral meshes yet,"
+                << std::endl;
+      std::cerr << "       but your mesh has at least one cell with "
+                << num_verts << " vertices." << std::endl;
       return MB_NOT_IMPLEMENTED;
     }
 
@@ -468,9 +495,8 @@ ErrorCode TrackLengthMeshTally::compute_barycentric_data(const Range& all_tets) 
     CartVect row0 = p[1] - p[0];
     CartVect row1 = p[2] - p[0];
     CartVect row2 = p[3] - p[0];
-    Matrix3 a(row0[0], row0[1], row0[2],
-              row1[0], row1[1], row1[2],
-              row2[0], row2[1], row2[2]);
+    Matrix3 a(row0[0], row0[1], row0[2], row1[0], row1[1], row1[2], row2[0],
+              row2[1], row2[2]);
     a = a.transpose().inverse();
     tet_baryc_data.at(get_entity_index(tet)) = a;
   }
@@ -483,13 +509,15 @@ void TrackLengthMeshTally::build_trees(Range& all_tets) {
   // get the triangles that belong to the mesh
   Range new_triangles = get_adjacency_info(all_tets);
 
-  std::cout << "  Tally mesh has " << new_triangles.size() << " triangles." << std::flush;
+  std::cout << "  Tally mesh has " << new_triangles.size() << " triangles."
+            << std::flush;
 
   // put tris with tets to be rolled into KD tree
   all_tets.merge(new_triangles);
 
   // build KD tree of all tetrahedra and triangles
-  std::cout << "  Building KD tree of size " << all_tets.size() << "... " << std::flush;
+  std::cout << "  Building KD tree of size " << all_tets.size() << "... "
+            << std::flush;
   kdtree = new AdaptiveKDTree(mb);
 
 #if MB_VERSION_MAJOR == 4 && MB_VERSION_MINOR < 7
@@ -500,7 +528,8 @@ void TrackLengthMeshTally::build_trees(Range& all_tets) {
   kdtree->build_tree(all_tets, &kdtree_root, &fileopts);
 #endif
 
-  std::cout << "done." << std::endl << std::endl;;
+  std::cout << "done." << std::endl << std::endl;
+  ;
 }
 //---------------------------------------------------------------------------//
 bool TrackLengthMeshTally::point_in_tet(const CartVect& point,
@@ -524,7 +553,7 @@ bool TrackLengthMeshTally::point_in_tet(const CartVect& point,
   }
   assert(rval == MB_SUCCESS);
 
-  Matrix3& Ainverse = tet_baryc_data[ get_entity_index(*tet) ];
+  Matrix3& Ainverse = tet_baryc_data[get_entity_index(*tet)];
 
   CartVect bary = (Ainverse) * (point - p0);
 
@@ -537,19 +566,18 @@ bool TrackLengthMeshTally::point_in_tet(const CartVect& point,
 /*
  * return the list of intersections
  */
-ErrorCode TrackLengthMeshTally::get_all_intersections(const CartVect& position, const CartVect& direction, double track_length,
-                                                      std::vector<EntityHandle>& triangles, std::vector<double>& intersections) {
-
-  ErrorCode result = kdtree->ray_intersect_triangles(kdtree_root, TRIANGLE_INTERSECTION_TOL,
-                                                     direction.array(), position.array(), triangles,
-                                                     intersections, 0, track_length);
+ErrorCode TrackLengthMeshTally::get_all_intersections(
+    const CartVect& position, const CartVect& direction, double track_length,
+    std::vector<EntityHandle>& triangles, std::vector<double>& intersections) {
+  ErrorCode result = kdtree->ray_intersect_triangles(
+      kdtree_root, TRIANGLE_INTERSECTION_TOL, direction.array(),
+      position.array(), triangles, intersections, 0, track_length);
   if (result != MB_SUCCESS) {
     std::cerr << "There is a problem!!" << std::endl;
   }
 
   return result;
 }
-
 
 /*
  * loop through all tets to find which one we are in
@@ -570,7 +598,8 @@ EntityHandle TrackLengthMeshTally::point_in_which_tet(const CartVect& point) {
     Range candidate_tets;
     rval = mb->get_entities_by_dimension(leaf, 3, candidate_tets, false);
     assert(rval == MB_SUCCESS);
-    for (Range::const_iterator i = candidate_tets.begin(); i != candidate_tets.end(); ++i) {
+    for (Range::const_iterator i = candidate_tets.begin();
+         i != candidate_tets.end(); ++i) {
       if (point_in_tet(point, &(*i))) {
         return *i;
       }
@@ -593,8 +622,8 @@ Range TrackLengthMeshTally::get_adjacency_info(const Range& input_handles) {
   dimension = mb->dimension_from_handle(input_handles[0]);
 
   // generate all edges for these tets
-  rval = mb->get_adjacencies(input_handles, dimension - 1, true,
-                             adjacencies, Interface::UNION);
+  rval = mb->get_adjacencies(input_handles, dimension - 1, true, adjacencies,
+                             Interface::UNION);
 
   if (rval != MB_SUCCESS)
     std::cout << "ERROR could not determine adjacancy data" << std::endl;
@@ -603,23 +632,25 @@ Range TrackLengthMeshTally::get_adjacency_info(const Range& input_handles) {
 }
 
 // function to sort the ray-mesh intersection data
-void TrackLengthMeshTally::sort_intersection_data(std::vector<double>& intersections,
-                                                  std::vector<EntityHandle>& triangles) {
-  std::vector<ray_data> hit_information; // vector of reformated ray triangle intersections)
+void TrackLengthMeshTally::sort_intersection_data(
+    std::vector<double>& intersections, std::vector<EntityHandle>& triangles) {
+  std::vector<ray_data>
+      hit_information;  // vector of reformated ray triangle intersections)
 
-  // copy the data from intersections and triangles to temporary array of structs for the
-  // purpose of sorting the intersection data
-  for (unsigned int i = 0 ; i < intersections.size() ; i++) {
+  // copy the data from intersections and triangles to temporary array of
+  // structs for the purpose of sorting the intersection data
+  for (unsigned int i = 0; i < intersections.size(); i++) {
     ray_data data;
     data.intersect = intersections[i];
     data.triangle = triangles[i];
     hit_information.push_back(data);
   }
   // at some point the sort will be done by moab rather than by us
-  std::sort(hit_information.begin(), hit_information.end(), compare); // sort the intersections
+  std::sort(hit_information.begin(), hit_information.end(),
+            compare);  // sort the intersections
 
   // copy the sorted data back into array
-  for (unsigned int i = 0 ; i < intersections.size() ; i++) {
+  for (unsigned int i = 0; i < intersections.size(); i++) {
     intersections[i] = hit_information[i].intersect;
     triangles[i] = hit_information[i].triangle;
   }
@@ -628,33 +659,35 @@ void TrackLengthMeshTally::sort_intersection_data(std::vector<double>& intersect
 }
 
 // function to compute the track lengths
-void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
-                                                unsigned int ebin, double weight,
-                                                const std::vector<double>& intersections) {
-  double track_length; // track_length to add to the tet
-  CartVect hit_p; //position on the triangular face of the hit
-  std::vector<CartVect> hit_point; // array of all hit points
-  CartVect tet_centroid; // centroid position between intersect point
+void TrackLengthMeshTally::compute_tracklengths(
+    const TallyEvent& event, unsigned int ebin, double weight,
+    const std::vector<double>& intersections) {
+  double track_length;  // track_length to add to the tet
+  CartVect hit_p;       // position on the triangular face of the hit
+  std::vector<CartVect> hit_point;  // array of all hit points
+  CartVect tet_centroid;            // centroid position between intersect point
   EntityHandle tet;
-  hit_point.push_back(event.position); // add the origin of the ray to the point to the list
+  hit_point.push_back(
+      event.position);  // add the origin of the ray to the point to the list
 
   EntityHandle next_tet = 0;
   // loop over all intersections
-  for (unsigned int i = 0 ; i < intersections.size() ; i++) {
+  for (unsigned int i = 0; i < intersections.size(); i++) {
     // make the hit point, this is absolute 3d coordinate of the hit
     // on the face of a tet
     hit_p = (event.direction * intersections[i]) + event.position;
-    hit_point.push_back(hit_p); // add to list of hit points
+    hit_point.push_back(hit_p);  // add to list of hit points
 
     // calculate the average position for the point in tet check
-    tet_centroid = ((hit_point[i + 1] - hit_point[i]) / 2.0) + hit_point[i]; // centre of the tet
+    tet_centroid = ((hit_point[i + 1] - hit_point[i]) / 2.0) +
+                   hit_point[i];  // centre of the tet
 
     // determine the tet that the point belongs to
     tet = point_in_which_tet(tet_centroid);
 
     // if point in tet returns a valid entity handle
     if (tet > 0) {
-      if (i != 0)   // determine the track_length, the general case
+      if (i != 0)  // determine the track_length, the general case
         track_length = intersections[i] - intersections[i - 1];
       else
         // special case for the first intersection
@@ -663,29 +696,32 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
       // we don't want this to happen ever, just in case warn user
       if (track_length < 0.0) {
         std::cout << "!!! Negative Track Length !!!" << std::endl;
-        std::cout << track_length << " " << intersections[i] << " " << intersections[i - 1] << std::endl;
+        std::cout << track_length << " " << intersections[i] << " "
+                  << intersections[i - 1] << std::endl;
         std::cout << tet << " " << next_tet << std::endl;
       }
-      // Note: track_length is for the current tet; it is not the event tracklength
+      // Note: track_length is for the current tet; it is not the event
+      // tracklength
       add_score_to_mesh_tally(tet, weight, track_length, ebin);
     }
   }
 
-  // it is possible that there is some tracklength left to allocate at the end, where the ray ends in the middle of a tet
-  // or the ray could end in free space
+  // it is possible that there is some tracklength left to allocate at the end,
+  // where the ray ends in the middle of a tet or the ray could end in free
+  // space
   double last_intersection = intersections.back();
   if (intersections[intersections.size() - 1] < event.track_length) {
-
     // the last intersection of the set, may have a hit distance of nearly 0.0
-    // we should therfore, calculate an average position between the end of track
-    // and this hit position. This works since last intersection can only be either
-    // insde a tet in which there were no more intersections, or the ray leaves
-    // a section of non re-entrant mesh and therefore is in reality not in any mesh
-    // element
+    // we should therfore, calculate an average position between the end of
+    // track and this hit position. This works since last intersection can only
+    // be either insde a tet in which there were no more intersections, or the
+    // ray leaves a section of non re-entrant mesh and therefore is in reality
+    // not in any mesh element
     track_length = event.track_length - last_intersection;
 
     // determine the average distance, this is to ensure tha the point is well
-    // away from any 'near' intersections thus mitigating any floating point issues
+    // away from any 'near' intersections thus mitigating any floating point
+    // issues
     double average_distance = track_length / 2.0 + last_intersection;
 
     // calculate this average hit position, this point should therefore be
@@ -702,7 +738,9 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
     // the track_length is negative, very naughty
     if (track_length < 0.0) {
       std::cout << "Negative Track Length!!" << std::endl;
-      std::cout << track_length << " " << intersections[intersections.size() - 1] << " " <<  event.track_length << std::endl;
+      std::cout << track_length << " "
+                << intersections[intersections.size() - 1] << " "
+                << event.track_length << std::endl;
       std::cout << tet << " " << next_tet << std::endl;
     }
 
@@ -715,6 +753,6 @@ void TrackLengthMeshTally::compute_tracklengths(const TallyEvent& event,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace moab
+}  // end namespace moab
 
 // end of MCNP5/dagmc/TrackLengthMeshTally.cpp

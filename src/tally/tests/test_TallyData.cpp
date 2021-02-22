@@ -1,8 +1,7 @@
 // MCNP5/dagmc/test/test_TallyData.cpp
 
-#include "gtest/gtest.h"
-
 #include "../TallyData.hpp"
+#include "gtest/gtest.h"
 
 //---------------------------------------------------------------------------//
 // TEST FIXTURES
@@ -29,7 +28,6 @@ class TallyDataTest : public ::testing::Test {
   }
 
  protected:
-
   TallyData* tallyData1;
   TallyData* tallyData2;
   TallyData* tallyData3;
@@ -37,8 +35,8 @@ class TallyDataTest : public ::testing::Test {
 //---------------------------------------------------------------------------//
 // Helper function to fill initial tally data
 void fillTally(TallyData& tallyData) {
-  double fill_tally[]   = {1.2, -3.4, 5.6, 0.0, 8.9, 7.8};
-  double fill_error[]   = {0.2, -0.4, 0.06, 0.0, .089, .078};
+  double fill_tally[] = {1.2, -3.4, 5.6, 0.0, 8.9, 7.8};
+  double fill_error[] = {0.2, -0.4, 0.06, 0.0, .089, .078};
   double fill_scratch[] = {10.2, -30.4, 50.6, 0.0, 80.9, 70.8};
 
   // Populate tally data arrays for the tallyData object
@@ -94,7 +92,7 @@ TEST(FilledTallyTest, ZeroTallyData) {
   double* tally_ary = tallyData.get_tally_data(length);
   EXPECT_EQ(6, length);
 
-  double* error_ary   = tallyData.get_error_data(length);
+  double* error_ary = tallyData.get_error_data(length);
   EXPECT_EQ(6, length);
 
   double* scratch_ary = tallyData.get_scratch_data(length);
@@ -147,12 +145,11 @@ TEST(FilledTallyTest, GetDataTest) {
 //---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: TallyDataTest
 //---------------------------------------------------------------------------//
-void ResizeDataArraysHelper(TallyData* tallyData,
-                            unsigned int num_tally_points,
+void ResizeDataArraysHelper(TallyData* tallyData, unsigned int num_tally_points,
                             unsigned int expected_length) {
   int length;
 
-  double* tallyArray1, *tallyArray2, *tallyArray3;
+  double *tallyArray1, *tallyArray2, *tallyArray3;
   tallyData->resize_data_arrays(num_tally_points);
 
   tallyArray1 = tallyData->get_tally_data(length);
@@ -197,8 +194,8 @@ TEST_F(TallyDataTest, NullEndHistory) {
   // This is a null end history - no scoring has been done
   tallyData1->end_history();
   // test arrays initialized
-  double* data    = tallyData1->get_tally_data(length);
-  double* error   = tallyData1->get_error_data(length);
+  double* data = tallyData1->get_tally_data(length);
+  double* error = tallyData1->get_error_data(length);
   double* scratch = tallyData1->get_scratch_data(length);
 
   for (int i = 0; i < length; i++) {
@@ -208,8 +205,8 @@ TEST_F(TallyDataTest, NullEndHistory) {
   }
 
   tallyData2->end_history();
-  data    = tallyData2->get_tally_data(length);
-  error   = tallyData2->get_error_data(length);
+  data = tallyData2->get_tally_data(length);
+  error = tallyData2->get_error_data(length);
   scratch = tallyData2->get_scratch_data(length);
 
   for (int i = 0; i < length; i++) {
@@ -239,7 +236,7 @@ TEST_F(TallyDataTest, EndHistory) {
 
   // Two tally points, 5 energy bins, total
   tallyData2->resize_data_arrays(2);
-  double fill_tally[]   = {1.2, -3.4, 5.6, 0.0, 8.9, 12.3};
+  double fill_tally[] = {1.2, -3.4, 5.6, 0.0, 8.9, 12.3};
 
   // Set it up - note we don't include the total bin, that
   // gets done as each score is tallied

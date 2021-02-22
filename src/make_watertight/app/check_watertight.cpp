@@ -23,30 +23,30 @@
      }
      match edges
    }
-   Each surface is skinned twice, but the logic is simple and the memory handling
-   is easy.
+   Each surface is skinned twice, but the logic is simple and the memory
+   handling is easy.
 */
 
-#include <iostream>
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
-#include <vector>
+#include <iostream>
 #include <set>
-#include <algorithm>
+#include <vector>
 
 // moab includes
-#include "moab/Core.hpp"
+#include "CheckWatertight.hpp"
 #include "MBTagConventions.hpp"
+#include "moab/Core.hpp"
+#include "moab/ProgOptions.hpp"
 #include "moab/Range.hpp"
 #include "moab/Skinner.hpp"
-#include "moab/ProgOptions.hpp"
-
-#include "CheckWatertight.hpp"
 
 int main(int argc, char* argv[]) {
-
-  ProgOptions po("check_watertight: a tool for preprocessing DAGMC files to test DagMC-style mesh for watertightness");
+  ProgOptions po(
+      "check_watertight: a tool for preprocessing DAGMC files to test "
+      "DagMC-style mesh for watertightness");
 
   clock_t start_time = clock();
 
@@ -59,14 +59,21 @@ int main(int argc, char* argv[]) {
 
   po.addOpt<void>("verbose,v", "Verbose output", &verbose);
 
-  po.addRequiredArg<std::string>("input_file", "Path to h5m DAGMC file to proccess", &input_file);
-  po.addOpt<std::string>("output_file,o", "Specify the output filename (default is to overwrite in input_file)", &output_file);
-  po.addOpt<double>("tolerance,t", "Specify a coincidence tolerance for triangle vertices. If no tolerance is specified, a more robust, topological check of the DAGMC mesh will occur by default.", &tolerance);
+  po.addRequiredArg<std::string>(
+      "input_file", "Path to h5m DAGMC file to proccess", &input_file);
+  po.addOpt<std::string>(
+      "output_file,o",
+      "Specify the output filename (default is to overwrite in input_file)",
+      &output_file);
+  po.addOpt<double>("tolerance,t",
+                    "Specify a coincidence tolerance for triangle vertices. If "
+                    "no tolerance is specified, a more robust, topological "
+                    "check of the DAGMC mesh will occur by default.",
+                    &tolerance);
 
   po.parseCommandLine(argc, argv);
 
-  if (output_file == "")
-    output_file = input_file;
+  if (output_file == "") output_file = input_file;
 
   static moab::Core instance;
   moab::Interface* mbi = &instance;
@@ -74,18 +81,19 @@ int main(int argc, char* argv[]) {
   // load file
   moab::ErrorCode result;
   moab::EntityHandle input_set;
-  result = mbi->create_meshset(moab::MESHSET_SET, input_set);   //create handle to meshset
+  result = mbi->create_meshset(moab::MESHSET_SET,
+                               input_set);  // create handle to meshset
   if (moab::MB_SUCCESS != result) {
     return result;
   }
 
-  result = mbi->load_file(input_file.c_str(), &input_set);   //load the file into the meshset
+  result = mbi->load_file(input_file.c_str(),
+                          &input_set);  // load the file into the meshset
   if (moab::MB_SUCCESS != result) {
     // failed to load the file
     std::cout << "could not load file" << std::endl;
     return result;
   }
-
 
   if (tolerance == -1.0) {
     std::cout << "geometry check" << std::endl;
@@ -94,22 +102,26 @@ int main(int argc, char* argv[]) {
     std::cout << "topology check" << std::endl;
     check_topology = true;
   } else {
-    MB_CHK_SET_ERR(moab::MB_FAILURE, "A proximity tolerance of " << tolerance << " was provided. Please provide a tolerance greater than or equal to zero.");
+    MB_CHK_SET_ERR(moab::MB_FAILURE,
+                   "A proximity tolerance of "
+                       << tolerance
+                       << " was provided. Please provide a tolerance greater "
+                          "than or equal to zero.");
   }
 
-  // replaced much of this code with a more modular version in check_watertight_func for testing purposes
+  // replaced much of this code with a more modular version in
+  // check_watertight_func for testing purposes
   std::set<int> leaky_surfs, leaky_vols;
   bool sealed, test;
   test = false;
   // is the order of the optional variables going to be a problem?
   // (i.e. we 'skipped' the variable test)
   CheckWatertight cw = CheckWatertight(mbi);
-  result = cw.check_mesh_for_watertightness(input_set, tolerance, sealed, test, verbose, check_topology);
+  result = cw.check_mesh_for_watertightness(input_set, tolerance, sealed, test,
+                                            verbose, check_topology);
   MB_CHK_SET_ERR(result, "could not check model for watertightness");
 
   clock_t end_time = clock();
-  std::cout << (double)(end_time - start_time) / CLOCKS_PER_SEC << " seconds" << std::endl;
-
+  std::cout << (double)(end_time - start_time) / CLOCKS_PER_SEC << " seconds"
+            << std::endl;
 }
-
-

@@ -4,8 +4,8 @@
 #include <cmath>
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "../Quadrature.hpp"
+#include "gtest/gtest.h"
 
 //---------------------------------------------------------------------------//
 // MOCK OBJECTS
@@ -18,7 +18,7 @@ class PolynomialFunction : public Function {
    * \param n the order of the polynomial
    */
   PolynomialFunction(std::vector<double> coefficients, unsigned int n)
-    : coefficients(coefficients), order(n) {
+      : coefficients(coefficients), order(n) {
     assert(coefficients.size() == n + 1);
   }
 
@@ -30,7 +30,7 @@ class PolynomialFunction : public Function {
   double evaluate(double x) const {
     double value = 0.0;
 
-    for (unsigned int i = 0 ; i <= order; ++i) {
+    for (unsigned int i = 0; i <= order; ++i) {
       value += pow(x, i) * coefficients[i];
     }
 

@@ -5,15 +5,14 @@
 
 #include <set>
 
-#include "moab/Interface.hpp"
-
 #include "TallyEvent.hpp"
+#include "moab/Interface.hpp"
 
 // forward declarations
 namespace moab {
 class AdaptiveKDTree;
 class CartVect;
-}
+}  // namespace moab
 
 //===========================================================================//
 /**
@@ -56,8 +55,7 @@ class KDENeighborhood {
    * Note that setting build_kd_tree to false forces the KDENeighborhood to
    * always use all calculation points with every TallyEvent that occurs.
    */
-  KDENeighborhood(moab::Interface* mbi,
-                  const moab::Range& mesh_nodes,
+  KDENeighborhood(moab::Interface* mbi, const moab::Range& mesh_nodes,
                   bool build_kd_tree = true);
 
   /**
@@ -129,8 +127,7 @@ class KDENeighborhood {
    * \param[in] direction the direction the particle is traveling (uo, vo, wo)
    * \param[in] bandwidth the bandwidth vector (hx, hy, hz)
    */
-  void set_neighborhood(double track_length,
-                        const moab::CartVect& start_point,
+  void set_neighborhood(double track_length, const moab::CartVect& start_point,
                         const moab::CartVect& direction,
                         const moab::CartVect& bandwidth);
 
@@ -165,6 +162,6 @@ class KDENeighborhood {
   void points_in_box();
 };
 
-#endif // DAGMC_KDE_NEIGHBORHOOD_HPP
+#endif  // DAGMC_KDE_NEIGHBORHOOD_HPP
 
 // end of MCNP5/dagmc/KDENeighborhood.hpp

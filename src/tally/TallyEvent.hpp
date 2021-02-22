@@ -3,8 +3,9 @@
 #ifndef DAGMC_TALLY_EVENT_HPP
 #define DAGMC_TALLY_EVENT_HPP
 
-#include "moab/CartVect.hpp"
 #include <vector>
+
+#include "moab/CartVect.hpp"
 
 //===========================================================================//
 /**
@@ -33,7 +34,7 @@ struct TallyEvent {
    *     1) COLLISION indicates a collision event has been set
    *     2) TRACK indicates a track-based event has been set
    */
-  enum EventType {NONE = 0, COLLISION = 1, TRACK = 2};
+  enum EventType { NONE = 0, COLLISION = 1, TRACK = 2 };
 
   EventType type;
 
@@ -83,6 +84,6 @@ struct TallyEvent {
   }
 };
 
-#endif // DAGMC_TALLY_EVENT_HPP
+#endif  // DAGMC_TALLY_EVENT_HPP
 
 // end of MCNP5/dagmc/TallyEvent.hpp

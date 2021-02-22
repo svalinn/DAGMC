@@ -3,36 +3,31 @@
 /// rief Implementation of the ExN01EventAction class
 
 #include "ExN01EventAction.hh"
-#include "ExN01Analysis.hh"
 
-#include "G4RunManager.hh"
-#include "G4Event.hh"
-#include "G4SDManager.hh"
-#include "G4HCofThisEvent.hh"
-#include "G4UnitsTable.hh"
-
-#include "pyne.h"
-#include "ExN01DetectorConstruction.hh"
-
-#include "Randomize.hh"
 #include <iomanip>
+
+#include "ExN01Analysis.hh"
+#include "ExN01DetectorConstruction.hh"
+#include "G4Event.hh"
+#include "G4HCofThisEvent.hh"
+#include "G4RunManager.hh"
+#include "G4SDManager.hh"
+#include "G4UnitsTable.hh"
+#include "Randomize.hh"
+#include "pyne.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // constructor for event action
 // should populate the ids of the sensitive detectors
-ExN01EventAction::ExN01EventAction()
-  : G4UserEventAction()
-{}
+ExN01EventAction::ExN01EventAction() : G4UserEventAction() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 // destructor, do nothing
-ExN01EventAction::~ExN01EventAction()
-{}
+ExN01EventAction::~ExN01EventAction() {}
 
 // gets the tally ids
-void ExN01EventAction::BeginOfEventAction(const G4Event*) {
-}
+void ExN01EventAction::BeginOfEventAction(const G4Event*) {}
 
 // collect up events and do work
 void ExN01EventAction::EndOfEventAction(const G4Event* event) {

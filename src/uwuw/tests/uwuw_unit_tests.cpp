@@ -1,15 +1,15 @@
 //  DagSolid_test.cpp
 #include <gtest/gtest.h>
-#include <cmath>
-#include <cassert>
+#include <stdio.h>
+#include <unistd.h>
 
+#include <cassert>
+#include <cmath>
 #include <iostream>
 #include <sstream>
-#include <unistd.h>
-#include <stdio.h>
 
-#include "uwuw.hpp"
 #include "pyne.h"
+#include "uwuw.hpp"
 
 UWUW* workflow_data;
 
@@ -17,18 +17,13 @@ UWUW* workflow_data;
 
 class UWUWTest : public ::testing::Test {
  protected:
-
-  virtual void SetUp() {
-    workflow_data = new UWUW(std::string(TEST_FILE));
-  }
+  virtual void SetUp() { workflow_data = new UWUW(std::string(TEST_FILE)); }
 };
 
 /*
  * Empty common setup function
  */
-TEST_F(UWUWTest, SetUp) {
-
-}
+TEST_F(UWUWTest, SetUp) {}
 
 /*
  * Test to make sure the total path is correct
@@ -87,8 +82,6 @@ TEST_F(UWUWTest, filepath4) {
   return;
 }
 
-
-
 /*
  * Test to make sure that the number of materials is correct
  */
@@ -141,7 +134,6 @@ TEST_F(UWUWTest, material_datapath) {
 }
 
 TEST_F(UWUWTest, mat_write) {
-
   pyne::comp_map nucvec;
   nucvec[pyne::nucname::id("H1")] = 2.0;
   nucvec[pyne::nucname::id("O16")] = 1.0;

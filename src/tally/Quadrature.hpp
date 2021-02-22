@@ -88,6 +88,6 @@ class Quadrature {
   void set_up_quadrature();
 };
 
-#endif // DAGMC_QUADRATURE_HPP
+#endif  // DAGMC_QUADRATURE_HPP
 
 // end of MCNP5/dagmc/Quadrature.hpp

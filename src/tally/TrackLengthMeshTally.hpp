@@ -3,17 +3,16 @@
 #ifndef DAGMC_TRACK_LENGTH_MESH_TALLY_HPP
 #define DAGMC_TRACK_LENGTH_MESH_TALLY_HPP
 
-#include <string>
 #include <cassert>
 #include <set>
+#include <string>
 
-#include "moab/Interface.hpp"
-#include "moab/CartVect.hpp"
-#include "moab/Range.hpp"
-
-#include "moab/Matrix3.hpp"
 #include "MeshTally.hpp"
 #include "TallyEvent.hpp"
+#include "moab/CartVect.hpp"
+#include "moab/Interface.hpp"
+#include "moab/Matrix3.hpp"
+#include "moab/Range.hpp"
 
 namespace moab {
 
@@ -61,7 +60,8 @@ class TrackLengthMeshTally : public MeshTally {
  public:
   /**
    * \brief Constructor
-   * \param[in] input user-defined input parameters for this TrackLengthMeshTally
+   * \param[in] input user-defined input parameters for this
+   * TrackLengthMeshTally
    */
   explicit TrackLengthMeshTally(const TallyInput& input);
 
@@ -73,8 +73,8 @@ class TrackLengthMeshTally : public MeshTally {
   // >>> DERIVED PUBLIC INTERFACE from Tally.hpp
 
   /**
-   * \brief Computes scores for this TrackLengthMeshTally based on the given TallyEvent
-   * \param[in] event the parameters needed to compute the scores
+   * \brief Computes scores for this TrackLengthMeshTally based on the given
+   * TallyEvent \param[in] event the parameters needed to compute the scores
    */
   virtual void compute_score(const TallyEvent& event);
 
@@ -168,23 +168,25 @@ class TrackLengthMeshTally : public MeshTally {
   void build_trees(Range& all_tets);
 
   /**
-   * \brief returns all triangle intersections and their distances from the point position
-   * \param[in] position cart vect of the origin
-   * \param[in] direction cart vect unit vector of direction
-   * \param[in] track_length distance to intersect upto
-   * \param[out] triangles returns the handles to the triangles we hit
-   * \param[out] intersections returns the distances to the triangles we hit
-   * \returns the error code should call the kdtree fail
+   * \brief returns all triangle intersections and their distances from the
+   * point position \param[in] position cart vect of the origin \param[in]
+   * direction cart vect unit vector of direction \param[in] track_length
+   * distance to intersect upto \param[out] triangles returns the handles to the
+   * triangles we hit \param[out] intersections returns the distances to the
+   * triangles we hit \returns the error code should call the kdtree fail
    *
    * Notes:
-   * Note, and Note well, the vector of intersections is a vector of the absolute
-   * hit distances from the reference point of the track, i.e. they are the
-   * cumulatitive tracklength inside each tet a running total, to determine
+   * Note, and Note well, the vector of intersections is a vector of the
+   * absolute hit distances from the reference point of the track, i.e. they are
+   * the cumulatitive tracklength inside each tet a running total, to determine
    * the track length in a given tet, subtract the i th element from the i+1 th
    * element to determine the actual track length
    */
-  ErrorCode get_all_intersections(const CartVect& position, const CartVect& direction, double track_length,
-                                  std::vector<EntityHandle>& triangles, std::vector<double>& intersections);
+  ErrorCode get_all_intersections(const CartVect& position,
+                                  const CartVect& direction,
+                                  double track_length,
+                                  std::vector<EntityHandle>& triangles,
+                                  std::vector<double>& intersections);
 
   /**
    * \brief Checks if the given point is inside the given tet
@@ -209,24 +211,28 @@ class TrackLengthMeshTally : public MeshTally {
    * \param[in] dir unit direction vector of the ray
    * \param[in] distance to the last intersecction
    * \param[in] left_over remaining track_length
-   * \return the tet which the end point of the ray belongs to, zero if none found
+   * \return the tet which the end point of the ray belongs to, zero if none
+   * found
    */
-  EntityHandle remainder(const CartVect& start, const CartVect& dir, double distance, double left_over);
+  EntityHandle remainder(const CartVect& start, const CartVect& dir,
+                         double distance, double left_over);
 
   /**
-   * \brief return the MBRange of triangles that belong in the tet mesh there are no repliacted surfaces in this list
-   * \param[in] all_tets the MBRange of tets in the problem
-   * \return range of triangles that make up faces in the mesh
+   * \brief return the MBRange of triangles that belong in the tet mesh there
+   * are no repliacted surfaces in this list \param[in] all_tets the MBRange of
+   * tets in the problem \return range of triangles that make up faces in the
+   * mesh
    */
   Range get_adjacency_info(const Range& all_tets);
 
   /**
    * \brief return the sorted (by distance) list of triangles and intersections
    * \param[in, out] vector<double> intersections list of all the intersections
-   * \param[in, out] vector<EntityHandle> intersections list of the triangle entity handles that correspond to the intersections
-   * \return void
+   * \param[in, out] vector<EntityHandle> intersections list of the triangle
+   * entity handles that correspond to the intersections \return void
    */
-  void sort_intersection_data(std::vector<double>& intersections, std::vector<EntityHandle>& triangles);
+  void sort_intersection_data(std::vector<double>& intersections,
+                              std::vector<EntityHandle>& triangles);
 
   /**
    * \brief return the tracklengths of the ray in each tet
@@ -236,14 +242,13 @@ class TrackLengthMeshTally : public MeshTally {
    * \param[in] vector<double> intersections list of all the intersections
    * \return void
    */
-  void compute_tracklengths(const TallyEvent& event,
-                            unsigned int ebin, double weight,
+  void compute_tracklengths(const TallyEvent& event, unsigned int ebin,
+                            double weight,
                             const std::vector<double>& intersections);
-
 };
 
-} // end namespace moab
+}  // end namespace moab
 
-#endif // DAGMC_TRACK_LENGTH_MESH_TALLY_HPP
+#endif  // DAGMC_TRACK_LENGTH_MESH_TALLY_HPP
 
 // end of MCNP5/dagmc/TrackLengthMeshTally.hpp
