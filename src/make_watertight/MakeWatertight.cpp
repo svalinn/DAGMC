@@ -1112,7 +1112,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(
       MB_CHK_SET_ERR(moab::MB_FAILURE, "edges exist");
     }
     assert(0 == n_edges);  //*** Why can't we have edges? (Also, this assertion
-                           //  is never used)
+                           //is never used)
 
     // get the range of skin edges from the range of facets
     moab::Range skin_edges, skin_edges2;
@@ -1738,7 +1738,7 @@ moab::ErrorCode MakeWatertight::merge_skin_verts(moab::Range& skin_verts,
 }
 
 moab::ErrorCode MakeWatertight::seal_surface_loops(
-    moab::EntityHandle surf, moab::EntityHandle skin_loops[],
+    moab::EntityHandle surf, std::vector<moab::EntityHandle>& skin_loops,
     std::vector<std::vector<moab::EntityHandle> > skin,
     std::vector<moab::EntityHandle> curves, moab::Tag normal_tag,
     moab::Tag orig_curve_tag, double facet_tol, int surf_id, bool debug) {
@@ -1752,6 +1752,7 @@ moab::ErrorCode MakeWatertight::seal_surface_loops(
 
   moab::ErrorCode rval;
   for (unsigned j = 0; j < skin.size(); ++j) {
+    skin_loops.push_back(moab::EntityHandle());
     rval = MBI()->create_meshset(
         moab::MESHSET_TRACK_OWNER | moab::MESHSET_ORDERED, skin_loops[j]);
     MB_CHK_SET_ERR(rval, "failed to zip: creating skin_loop_set failed");
