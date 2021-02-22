@@ -1149,15 +1149,10 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(
 
     // separate this part from prepare surfaces into make_mesh_watertight??
 
-<<<<<<< HEAD
-    std::vector< moab::EntityHandle > skin_loop_sets;
-    result = seal_surface_loops(*i, skin_loop_sets, skin, curve_sets, normal_tag, orig_curve_tag, facet_tol, surf_id, debug);
-=======
     moab::EntityHandle skin_loop_sets[skin.size()];
     result =
         seal_surface_loops(*i, skin_loop_sets, skin, curve_sets, normal_tag,
                            orig_curve_tag, facet_tol, surf_id, debug);
->>>>>>> upstream/develop
     MB_CHK_SET_ERR(result, "could not seal the surface loops");
 
     // Remove the sets of skin loops
