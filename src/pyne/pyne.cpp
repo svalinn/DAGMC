@@ -24,29 +24,33 @@
 //
 // Copyright 2011-2020, the PyNE Development Team. All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
 //
-//    1. Redistributions of source code must retain the above copyright notice, this list of
+//    1. Redistributions of source code must retain the above copyright notice,
+//    this list of
 //       conditions and the following disclaimer.
 //
-//    2. Redistributions in binary form must reproduce the above copyright notice, this list
-//       of conditions and the following disclaimer in the documentation and/or other materials
-//       provided with the distribution.
+//    2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list
+//       of conditions and the following disclaimer in the documentation and/or
+//       other materials provided with the distribution.
 //
-// THIS SOFTWARE IS PROVIDED BY THE PYNE DEVELOPMENT TEAM ``AS IS'' AND ANY EXPRESS OR IMPLIED
-// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-// FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// THIS SOFTWARE IS PROVIDED BY THE PYNE DEVELOPMENT TEAM ``AS IS'' AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// The views and conclusions contained in the software and documentation are those of the
-// authors and should not be interpreted as representing official policies, either expressed
-// or implied, of the stakeholders of the PyNE project or the employers of PyNE developers.
+// The views and conclusions contained in the software and documentation are
+// those of the authors and should not be interpreted as representing official
+// policies, either expressed or implied, of the stakeholders of the PyNE
+// project or the employers of PyNE developers.
 //
 // -------------------------------------------------------------------------------
 // The files cpp/measure.cpp and cpp/measure.hpp are covered by:
@@ -85,20 +89,18 @@
 // end of license.txt
 //
 
-
 //
 // start of src/utils.cpp
 //
 // General Library
 #ifndef PYNE_IS_AMALGAMATED
-extern "C" double endftod_(char* str, int len);
+extern "C" double endftod_(char *str, int len);
 #endif
 #include <iomanip>
 
 #ifndef PYNE_IS_AMALGAMATED
 #include "utils.h"
 #endif
-
 
 // PyNE Globals
 
@@ -108,35 +110,30 @@ std::string pyne::VERSION = "0.7.1";
 
 void pyne::pyne_start() {
 #if defined _WIN32
-  char* tmpPYNE_DATA;
+  char *tmpPYNE_DATA;
   size_t lenPYNE_DATA;
   errno_t errPYNE_DATA = _dupenv_s(&tmpPYNE_DATA, &lenPYNE_DATA, "PYNE_DATA");
-  if (errPYNE_DATA)
-    tmpPYNE_DATA = (char*) "<NOT_FOUND>";
-  PYNE_DATA = (std::string) tmpPYNE_DATA;
+  if (errPYNE_DATA) tmpPYNE_DATA = (char *)"<NOT_FOUND>";
+  PYNE_DATA = (std::string)tmpPYNE_DATA;
 
-  char* tmpNUC_DATA_PATH;
+  char *tmpNUC_DATA_PATH;
   size_t lenNUC_DATA_PATH;
-  errno_t errNUC_DATA_PATH = _dupenv_s(&tmpNUC_DATA_PATH, &lenNUC_DATA_PATH, "NUC_DATA_PATH");
-  if (errPYNE_DATA)
-    tmpNUC_DATA_PATH = (char*) "<NOT_FOUND>";
-  NUC_DATA_PATH = (std::string) tmpNUC_DATA_PATH;
+  errno_t errNUC_DATA_PATH =
+      _dupenv_s(&tmpNUC_DATA_PATH, &lenNUC_DATA_PATH, "NUC_DATA_PATH");
+  if (errPYNE_DATA) tmpNUC_DATA_PATH = (char *)"<NOT_FOUND>";
+  NUC_DATA_PATH = (std::string)tmpNUC_DATA_PATH;
 #else
-  char* tmppath;
+  char *tmppath;
   tmppath = getenv("PYNE_DATA");
-  if (tmppath == NULL)
-    tmppath = (char*) "<NOT_FOUND>";
+  if (tmppath == NULL) tmppath = (char *)"<NOT_FOUND>";
   PYNE_DATA = std::string(tmppath);
 
   tmppath = getenv("NUC_DATA_PATH");
-  if (tmppath == NULL)
-    tmppath = (char*) "<NOT_FOUND>";
+  if (tmppath == NULL) tmppath = (char *)"<NOT_FOUND>";
   NUC_DATA_PATH = std::string(tmppath);
 #endif
   return;
 }
-
-
 
 // String Transformations
 std::string pyne::to_str(int t) {
@@ -163,16 +160,11 @@ std::string pyne::to_str(bool t) {
   return ss.str();
 }
 
+int pyne::to_int(std::string s) { return atoi(s.c_str()); }
 
-int pyne::to_int(std::string s) {
-  return atoi(s.c_str());
-}
+double pyne::to_dbl(std::string s) { return strtod(s.c_str(), NULL); }
 
-double pyne::to_dbl(std::string s) {
-  return strtod(s.c_str(), NULL);
-}
-
-double pyne::endftod_cpp(char* s) {
+double pyne::endftod_cpp(char *s) {
   // Converts string from ENDF only handles "E-less" format but is 5x faster
   int pos, mant, exp;
   double v, dbl_exp;
@@ -182,7 +174,7 @@ double pyne::endftod_cpp(char* s) {
     // Convert an ENDF float
     if (s[9] == '+' || s[9] == '-') {
       // All these factors of ten are from place values.
-      mant = s[8] + 10 * s[7] + 100 * s[6] + 1000 * s[5] + 10000 * s[4] + \
+      mant = s[8] + 10 * s[7] + 100 * s[6] + 1000 * s[5] + 10000 * s[4] +
              100000 * s[3] + 1000000 * s[1] - 1111111 * '0';
       exp = s[10] - '0';
       // Make the right power of 10.
@@ -195,7 +187,7 @@ double pyne::endftod_cpp(char* s) {
       // Get mantissa sign, apply exponent.
       v = mant * (s[0] == '-' ? -1 : 1) * dbl_exp;
     } else {
-      mant = s[7] + 10 * s[6] + 100 * s[5] + 1000 * s[4] + 10000 * s[3] + \
+      mant = s[7] + 10 * s[6] + 100 * s[5] + 1000 * s[4] + 10000 * s[3] +
              100000 * s[1] - 111111 * '0';
       exp = s[10] + 10 * s[9] - 11 * '0';
       dbl_exp = exp & 01 ? 10. : 1;
@@ -214,9 +206,9 @@ double pyne::endftod_cpp(char* s) {
   // move forward until we hit a non-digit.
   else {
     v = 0;
-    mant = 1; // Here we use mant for the place value about to be read in.
+    mant = 1;  // Here we use mant for the place value about to be read in.
     pos = 10;
-    while (s[pos] != '-' && s[pos] != '+' && s[pos] != ' ' && pos > 0) {
+    while (s[pos] != '-' and s[pos] != '+' and s[pos] != ' ' and pos > 0) {
       v += mant * (s[pos] - '0');
       mant *= 10;
       pos--;
@@ -226,7 +218,7 @@ double pyne::endftod_cpp(char* s) {
   return v;
 }
 
-double pyne::endftod_f(char* s) {
+double pyne::endftod_f(char *s) {
 #ifdef PYNE_IS_AMALGAMATED
   return endftod_cpp(s);
 #else
@@ -234,23 +226,19 @@ double pyne::endftod_f(char* s) {
 #endif
 }
 
-double (*pyne::endftod)(char* s) = &pyne::endftod_f;
+double (*pyne::endftod)(char *s) = &pyne::endftod_f;
 
-void pyne::use_fast_endftod() {
-  pyne::endftod = &pyne::endftod_cpp;
-}
+void pyne::use_fast_endftod() { pyne::endftod = &pyne::endftod_cpp; }
 
 std::string pyne::to_upper(std::string s) {
   // change each element of the string to upper case.
-  for (unsigned int i = 0; i < s.length(); i++)
-    s[i] = toupper(s[i]);
+  for (unsigned int i = 0; i < s.length(); i++) s[i] = toupper(s[i]);
   return s;
 }
 
 std::string pyne::to_lower(std::string s) {
   // change each element of the string to lower case
-  for (unsigned int i = 0; i < s.length(); i++)
-    s[i] = tolower(s[i]);
+  for (unsigned int i = 0; i < s.length(); i++) s[i] = tolower(s[i]);
   return s;
 }
 
@@ -276,21 +264,19 @@ std::string pyne::comment_line_wrapping(std::string line,
 
 std::string pyne::capitalize(std::string s) {
   unsigned int slen = s.length();
-  if (slen == 0)
-    return s;
+  if (slen == 0) return s;
   // uppercase the first character
   s[0] = toupper(s[0]);
   // change each subsequent element of the string to lower case
-  for (unsigned int i = 1; i < slen; i++)
-    s[i] = tolower(s[i]);
+  for (unsigned int i = 1; i < slen; i++) s[i] = tolower(s[i]);
   return s;
 }
 
-
 std::string pyne::get_flag(char line[], int max_l) {
-  char tempflag [10];
+  char tempflag[10];
   for (int i = 0; i < max_l; i++) {
-    if (line[i] == '\t' || line[i] == '\n' || line[i] == ' ' || line[i] == '\0') {
+    if (line[i] == '\t' || line[i] == '\n' || line[i] == ' ' ||
+        line[i] == '\0') {
       tempflag[i] = '\0';
       break;
     } else
@@ -298,8 +284,6 @@ std::string pyne::get_flag(char line[], int max_l) {
   }
   return std::string(tempflag);
 }
-
-
 
 std::string pyne::remove_substring(std::string s, std::string substr) {
   // Removes a substring from the string s
@@ -311,7 +295,6 @@ std::string pyne::remove_substring(std::string s, std::string substr) {
   return s;
 }
 
-
 std::string pyne::remove_characters(std::string s, std::string chars) {
   // Removes all characters in the string chars from the string s
   for (int i = 0; i < chars.length(); i++) {
@@ -320,8 +303,8 @@ std::string pyne::remove_characters(std::string s, std::string chars) {
   return s;
 }
 
-
-std::string pyne::replace_all_substrings(std::string s, std::string substr, std::string repstr) {
+std::string pyne::replace_all_substrings(std::string s, std::string substr,
+                                         std::string repstr) {
   // Replaces all instance of substr in s with the string repstr
   int n_found = s.find(substr);
   while (0 <= n_found) {
@@ -331,25 +314,20 @@ std::string pyne::replace_all_substrings(std::string s, std::string substr, std:
   return s;
 }
 
-
-
 std::string pyne::last_char(std::string s) {
   // Returns the last character in a string.
   return s.substr(s.length() - 1, 1);
 }
-
 
 std::string pyne::slice_from_end(std::string s, int n, int l) {
   // Returns the slice of a string using negative indices.
   return s.substr(s.length() + n, l);
 }
 
-
 bool pyne::ternary_ge(int a, int b, int c) {
   // Returns true id a <= b <= c and flase otherwise.
   return (a <= b && b <= c);
 }
-
 
 bool pyne::contains_substring(std::string s, std::string substr) {
   // Returns a boolean based on if the sub is in s.
@@ -357,14 +335,13 @@ bool pyne::contains_substring(std::string s, std::string substr) {
   return (0 <= n && n < s.length());
 }
 
-
 std::string pyne::natural_naming(std::string name) {
   // Calculates a version on the string name that is a valid
   // variable name, ie it uses only word characters.
   std::string nat_name(name);
 
   // Replace Whitespace characters with underscores
-  nat_name = pyne::replace_all_substrings(nat_name, " ",  "_");
+  nat_name = pyne::replace_all_substrings(nat_name, " ", "_");
   nat_name = pyne::replace_all_substrings(nat_name, "\t", "_");
   nat_name = pyne::replace_all_substrings(nat_name, "\n", "_");
 
@@ -378,8 +355,7 @@ std::string pyne::natural_naming(std::string name) {
   }
 
   // Make sure that the name in non-empty before continuing
-  if (nat_name.length() == 0)
-    return nat_name;
+  if (nat_name.length() == 0) return nat_name;
 
   // Make sure that the name doesn't begin with a number.
   if (pyne::digits.find(nat_name[0]) != std::string::npos)
@@ -388,13 +364,14 @@ std::string pyne::natural_naming(std::string name) {
   return nat_name;
 }
 
-
-std::vector<std::string> pyne::split_string(std::string particles_list, std::string delimiter) {
+std::vector<std::string> pyne::split_string(std::string particles_list,
+                                            std::string delimiter) {
   std::vector<std::string> output_vector;
-  size_t prev_pos = 0; //item start position
-  size_t pos = 0; //item end position
+  size_t prev_pos = 0;  // item start position
+  size_t pos = 0;       // item end position
 
-  while ((pos = particles_list.find(delimiter, prev_pos)) != std::string::npos) {
+  while ((pos = particles_list.find(delimiter, prev_pos)) !=
+         std::string::npos) {
     output_vector.push_back(particles_list.substr(prev_pos, pos));
     prev_pos = pos + delimiter.length();
   }
@@ -405,7 +382,6 @@ std::vector<std::string> pyne::split_string(std::string particles_list, std::str
   return output_vector;
 }
 
-
 //
 // Math Helpers
 //
@@ -415,21 +391,13 @@ double pyne::slope(double x2, double y2, double x1, double y1) {
   return (y2 - y1) / (x2 - x1);
 }
 
-
 double pyne::solve_line(double x, double x2, double y2, double x1, double y1) {
   return (slope(x2, y2, x1, y1) * (x - x2)) + y2;
 }
 
+double pyne::tanh(double x) { return std::tanh(x); }
 
-double pyne::tanh(double x) {
-  return std::tanh(x);
-}
-
-double pyne::coth(double x) {
-  return 1.0 / std::tanh(x);
-}
-
-
+double pyne::coth(double x) { return 1.0 / std::tanh(x); }
 
 // File Helpers
 
@@ -461,7 +429,7 @@ bool pyne::file_exists(std::string strfilename) {
 }
 
 // convert convert a filename into path+filename (for pyne)
-std::string pyne::get_full_filepath(char* filename) {
+std::string pyne::get_full_filepath(char *filename) {
   std::string file(filename);
   return pyne::get_full_filepath(file);
 }
@@ -472,9 +440,9 @@ std::string pyne::get_full_filepath(std::string filename) {
   filename = pyne::remove_characters(" ", filename);
   // use stdlib call
 #ifndef _WIN32
-  const char* full_filepath = realpath(filename.c_str(), NULL);
+  const char *full_filepath = realpath(filename.c_str(), NULL);
 #else
-  const char* full_filepath = filename.c_str();
+  const char *full_filepath = filename.c_str();
 #endif
   return std::string(full_filepath);
 }
@@ -495,2066 +463,242 @@ void pyne::warning(std::string s) {
   }
 }
 
-
-
-
 //
 // end of src/utils.cpp
 //
 
-
 //
 // start of src/state_map.cpp
 //
-//Mapping file for state ids to nuc ids
-//This File was autogenerated!!
+// Mapping file for state ids to nuc ids
+// This File was autogenerated!!
 #ifndef PYNE_4HFU6PUEQJB3ZJ4UIFLVU4SPCM
 #define PYNE_4HFU6PUEQJB3ZJ4UIFLVU4SPCM
 namespace pyne {
 namespace nucname {
 #define TOTAL_STATE_MAPS 1016
 std::map<int, int> state_id_map;
-int map_nuc_ids [TOTAL_STATE_MAPS] = {110240001,
-                                      130240001,
-                                      90260001,
-                                      130260001,
-                                      130320002,
-                                      170340001,
-                                      170380001,
-                                      190380001,
-                                      190380015,
-                                      210420002,
-                                      210430001,
-                                      210440004,
-                                      230440001,
-                                      210450001,
-                                      210460002,
-                                      230460001,
-                                      210500001,
-                                      250500001,
-                                      250520001,
-                                      260520042,
-                                      260530022,
-                                      270530003,
-                                      270540001,
-                                      210560001,
-                                      210560004,
-                                      250580001,
-                                      270580001,
-                                      270580002,
-                                      230600000,
-                                      230600001,
-                                      250600001,
-                                      270600001,
-                                      260610004,
-                                      250620001,
-                                      270620001,
-                                      230640001,
-                                      250640002,
-                                      260650003,
-                                      260670002,
-                                      290670023,
-                                      290680003,
-                                      280690001,
-                                      280690008,
-                                      300690001,
-                                      340690004,
-                                      270700001,
-                                      290700001,
-                                      290700003,
-                                      350700006,
-                                      280710002,
-                                      300710001,
-                                      320710002,
-                                      310720002,
-                                      350720001,
-                                      300730001,
-                                      300730002,
-                                      320730002,
-                                      340730001,
-                                      360730004,
-                                      310740002,
-                                      350740002,
-                                      290750001,
-                                      290750002,
-                                      300750001,
-                                      320750002,
-                                      330750004,
-                                      280760004,
-                                      290760001,
-                                      350760002,
-                                      300770002,
-                                      320770001,
-                                      330770004,
-                                      340770001,
-                                      350770001,
-                                      300780004,
-                                      310780004,
-                                      350780004,
-                                      370780003,
-                                      390780001,
-                                      300790002,
-                                      320790001,
-                                      330790007,
-                                      340790001,
-                                      350790001,
-                                      360790001,
-                                      310800001,
-                                      350800002,
-                                      390800001,
-                                      390800003,
-                                      320810001,
-                                      340810001,
-                                      360810002,
-                                      370810001,
-                                      330820001,
-                                      340820015,
-                                      350820001,
-                                      370820001,
-                                      410820003,
-                                      340830001,
-                                      360830002,
-                                      370830002,
-                                      380830002,
-                                      390830001,
-                                      310840001,
-                                      350840001,
-                                      360840019,
-                                      360840061,
-                                      370840002,
-                                      390840002,
-                                      410840007,
-                                      360850001,
-                                      370850003,
-                                      380850002,
-                                      390850001,
-                                      400850002,
-                                      410850003,
-                                      410850005,
-                                      370860002,
-                                      380860014,
-                                      390860002,
-                                      410860001,
-                                      410860002,
-                                      380870001,
-                                      390870001,
-                                      400870002,
-                                      410870001,
-                                      430870005,
-                                      350880003,
-                                      410880001,
-                                      430880000,
-                                      430880001,
-                                      390890001,
-                                      400890001,
-                                      410890001,
-                                      420890002,
-                                      430890001,
-                                      370900001,
-                                      390900002,
-                                      400900003,
-                                      410900002,
-                                      410900007,
-                                      430900001,
-                                      430900006,
-                                      390910001,
-                                      400910040,
-                                      410910001,
-                                      420910001,
-                                      430910001,
-                                      440910001,
-                                      450910001,
-                                      410920001,
-                                      450920001,
-                                      390930002,
-                                      410930001,
-                                      420930016,
-                                      430930001,
-                                      440930001,
-                                      410940001,
-                                      430940001,
-                                      470940001,
-                                      470940002,
-                                      410950001,
-                                      430950001,
-                                      450950001,
-                                      460950005,
-                                      470950002,
-                                      390960005,
-                                      430960001,
-                                      450960001,
-                                      370970002,
-                                      390970001,
-                                      390970029,
-                                      410970001,
-                                      430970001,
-                                      450970001,
-                                      370980001,
-                                      390980005,
-                                      410980001,
-                                      450980001,
-                                      410990001,
-                                      430990002,
-                                      450990001,
-                                      470990002,
-                                      371000001,
-                                      391000004,
-                                      411000001,
-                                      411000009,
-                                      411000012,
-                                      431000002,
-                                      431000004,
-                                      451000004,
-                                      471000001,
-                                      451010001,
-                                      471010002,
-                                      411020001,
-                                      431020001,
-                                      451020005,
-                                      471020001,
-                                      441030005,
-                                      451030001,
-                                      471030002,
-                                      491030001,
-                                      411040004,
-                                      451040003,
-                                      471040001,
-                                      491040003,
-                                      451050001,
-                                      471050001,
-                                      491050001,
-                                      411060003,
-                                      451060001,
-                                      471060001,
-                                      491060001,
-                                      431070000,
-                                      461070002,
-                                      471070001,
-                                      491070001,
-                                      401080009,
-                                      411080003,
-                                      451080004,
-                                      471080002,
-                                      491080001,
-                                      461090002,
-                                      471090001,
-                                      491090001,
-                                      491090026,
-                                      451100001,
-                                      471100002,
-                                      491100001,
-                                      421110001,
-                                      461110002,
-                                      471110001,
-                                      481110003,
-                                      491110001,
-                                      491120001,
-                                      491120004,
-                                      491120009,
-                                      461130002,
-                                      471130001,
-                                      481130001,
-                                      491130001,
-                                      501130001,
-                                      451140005,
-                                      491140001,
-                                      491140005,
-                                      531140005,
-                                      461150001,
-                                      471150001,
-                                      481150001,
-                                      491150001,
-                                      521150001,
-                                      451160001,
-                                      471160001,
-                                      471160004,
-                                      491160001,
-                                      491160004,
-                                      511160003,
-                                      551160001,
-                                      441170003,
-                                      471170001,
-                                      481170002,
-                                      491170001,
-                                      501170002,
-                                      521170003,
-                                      471180004,
-                                      491180001,
-                                      491180003,
-                                      511180007,
-                                      531180002,
-                                      551180001,
-                                      441190002,
-                                      471190000,
-                                      471190001,
-                                      481190002,
-                                      491190001,
-                                      501190002,
-                                      511190072,
-                                      521190002,
-                                      551190001,
-                                      451200002,
-                                      471200002,
-                                      491200001,
-                                      491200002,
-                                      511200001,
-                                      531200013,
-                                      551200001,
-                                      571200000,
-                                      461210001,
-                                      481210002,
-                                      491210001,
-                                      501210001,
-                                      521210002,
-                                      551210001,
-                                      451220002,
-                                      471220001,
-                                      471220002,
-                                      491220001,
-                                      491220005,
-                                      511220005,
-                                      511220006,
-                                      551220007,
-                                      551220008,
-                                      481230003,
-                                      491230001,
-                                      501230001,
-                                      521230002,
-                                      551230005,
-                                      461240004,
-                                      471240001,
-                                      471240002,
-                                      471240003,
-                                      491240002,
-                                      501240016,
-                                      511240001,
-                                      511240002,
-                                      551240025,
-                                      471250007,
-                                      471250010,
-                                      481250001,
-                                      491250001,
-                                      501250001,
-                                      521250002,
-                                      541250002,
-                                      571250005,
-                                      461260003,
-                                      461260004,
-                                      461260005,
-                                      471260001,
-                                      471260004,
-                                      491260001,
-                                      511260001,
-                                      511260002,
-                                      481270006,
-                                      491270001,
-                                      491270009,
-                                      501270001,
-                                      521270002,
-                                      541270002,
-                                      561270002,
-                                      571270001,
-                                      581270001,
-                                      461280004,
-                                      511280001,
-                                      571280001,
-                                      471290001,
-                                      481290001,
-                                      481290004,
-                                      491290001,
-                                      491290010,
-                                      491290012,
-                                      491290013,
-                                      501290001,
-                                      501290017,
-                                      501290018,
-                                      501290025,
-                                      511290011,
-                                      511290012,
-                                      511290023,
-                                      521290001,
-                                      541290002,
-                                      551290010,
-                                      561290001,
-                                      571290002,
-                                      601290001,
-                                      601290003,
-                                      491300001,
-                                      491300002,
-                                      491300003,
-                                      501300002,
-                                      511300001,
-                                      531300001,
-                                      551300004,
-                                      561300030,
-                                      591300002,
-                                      491310001,
-                                      491310004,
-                                      501310001,
-                                      521310001,
-                                      521310033,
-                                      541310002,
-                                      561310002,
-                                      571310006,
-                                      581310001,
-                                      591310002,
-                                      501320006,
-                                      511320001,
-                                      521320006,
-                                      521320022,
-                                      531320003,
-                                      541320030,
-                                      571320004,
-                                      581320030,
-                                      491330001,
-                                      521330002,
-                                      531330016,
-                                      531330059,
-                                      531330065,
-                                      541330001,
-                                      561330002,
-                                      581330001,
-                                      591330003,
-                                      601330001,
-                                      611330005,
-                                      621330000,
-                                      511340002,
-                                      521340003,
-                                      531340005,
-                                      541340007,
-                                      551340003,
-                                      601340017,
-                                      611340000,
-                                      611340001,
-                                      521350010,
-                                      541350002,
-                                      551350010,
-                                      561350002,
-                                      581350004,
-                                      591350004,
-                                      601350001,
-                                      611350000,
-                                      611350003,
-                                      501360003,
-                                      531360006,
-                                      551360001,
-                                      561360005,
-                                      571360051,
-                                      611360000,
-                                      611360001,
-                                      631360001,
-                                      561370002,
-                                      581370002,
-                                      601370004,
-                                      501380003,
-                                      531380002,
-                                      551380003,
-                                      581380005,
-                                      591380005,
-                                      611380001,
-                                      571390021,
-                                      581390002,
-                                      601390002,
-                                      601390035,
-                                      611390001,
-                                      621390004,
-                                      631390003,
-                                      641390001,
-                                      511400003,
-                                      591400003,
-                                      591400015,
-                                      601400009,
-                                      611400008,
-                                      631400004,
-                                      601410002,
-                                      621410002,
-                                      631410001,
-                                      641410004,
-                                      651410001,
-                                      591420001,
-                                      591420024,
-                                      601420004,
-                                      611420012,
-                                      631420031,
-                                      641420019,
-                                      641420020,
-                                      651420003,
-                                      621430002,
-                                      621430043,
-                                      641430002,
-                                      651430001,
-                                      661430003,
-                                      551440004,
-                                      591440001,
-                                      651440004,
-                                      651440006,
-                                      651440007,
-                                      671440003,
-                                      641450002,
-                                      651450004,
-                                      661450002,
-                                      681450002,
-                                      571460001,
-                                      651460022,
-                                      651460026,
-                                      661460011,
-                                      691460001,
-                                      651470001,
-                                      661470002,
-                                      681470002,
-                                      691470001,
-                                      591480000,
-                                      591480001,
-                                      611480003,
-                                      651480001,
-                                      671480001,
-                                      671480012,
-                                      681480008,
-                                      651490001,
-                                      661490027,
-                                      671490001,
-                                      681490002,
-                                      631500001,
-                                      651500002,
-                                      671500001,
-                                      691500005,
-                                      581510001,
-                                      621510012,
-                                      631510002,
-                                      651510003,
-                                      671510001,
-                                      681510021,
-                                      691510001,
-                                      691510012,
-                                      701510001,
-                                      701510005,
-                                      701510010,
-                                      611520004,
-                                      611520014,
-                                      631520001,
-                                      631520016,
-                                      651520006,
-                                      671520001,
-                                      691520006,
-                                      691520018,
-                                      691520019,
-                                      701520006,
-                                      621530006,
-                                      641530003,
-                                      641530008,
-                                      651530003,
-                                      671530001,
-                                      691530001,
-                                      601540003,
-                                      611540001,
-                                      631540013,
-                                      651540001,
-                                      651540002,
-                                      711540015,
-                                      721540006,
-                                      641550006,
-                                      661550009,
-                                      671550002,
-                                      691550001,
-                                      711550001,
-                                      711550004,
-                                      611560002,
-                                      651560002,
-                                      651560004,
-                                      671560001,
-                                      671560012,
-                                      711560001,
-                                      721560004,
-                                      731560001,
-                                      641570012,
-                                      661570005,
-                                      711570001,
-                                      731570001,
-                                      731570004,
-                                      601580004,
-                                      611580002,
-                                      651580003,
-                                      651580023,
-                                      671580001,
-                                      671580009,
-                                      691580002,
-                                      691580003,
-                                      711580000,
-                                      731580001,
-                                      731580015,
-                                      621590006,
-                                      641590002,
-                                      661590009,
-                                      671590003,
-                                      731590001,
-                                      601600003,
-                                      671600001,
-                                      671600006,
-                                      691600002,
-                                      711600001,
-                                      611610005,
-                                      671610002,
-                                      681610014,
-                                      691610001,
-                                      711610004,
-                                      721610002,
-                                      671620003,
-                                      691620020,
-                                      711620008,
-                                      711620009,
-                                      751620001,
-                                      671630003,
-                                      751630001,
-                                      621640005,
-                                      671640003,
-                                      691640001,
-                                      771640001,
-                                      661650002,
-                                      751650001,
-                                      771650001,
-                                      641660009,
-                                      671660001,
-                                      691660006,
-                                      711660001,
-                                      711660002,
-                                      681670003,
-                                      711670001,
-                                      751670001,
-                                      671680001,
-                                      711680013,
-                                      771680001,
-                                      701690001,
-                                      711690001,
-                                      751690001,
-                                      771690001,
-                                      671700001,
-                                      711700008,
-                                      771700001,
-                                      711710001,
-                                      721710001,
-                                      771710001,
-                                      781710002,
-                                      691720011,
-                                      711720001,
-                                      711720005,
-                                      751720001,
-                                      771720001,
-                                      791720001,
-                                      771730000,
-                                      771730003,
-                                      791730001,
-                                      711740003,
-                                      771740001,
-                                      701750007,
-                                      711750053,
-                                      791750001,
-                                      701760005,
-                                      711760001,
-                                      731760012,
-                                      731760090,
-                                      791760001,
-                                      791760002,
-                                      691770000,
-                                      701770006,
-                                      711770029,
-                                      711770203,
-                                      721770048,
-                                      721770107,
-                                      791770002,
-                                      711780003,
-                                      721780005,
-                                      721780109,
-                                      731780000,
-                                      731780059,
-                                      731780094,
-                                      731780139,
-                                      711790006,
-                                      721790005,
-                                      721790046,
-                                      731790117,
-                                      741790002,
-                                      751790137,
-                                      791790007,
-                                      811790001,
-                                      721800006,
-                                      731800002,
-                                      721810025,
-                                      721810078,
-                                      761810001,
-                                      811810002,
-                                      721820009,
-                                      721820026,
-                                      731820001,
-                                      731820029,
-                                      741820062,
-                                      751820001,
-                                      761820029,
-                                      721830007,
-                                      731830032,
-                                      741830007,
-                                      751830004,
-                                      751830005,
-                                      751830070,
-                                      751830074,
-                                      761830002,
-                                      781830001,
-                                      811830002,
-                                      811830005,
-                                      821830001,
-                                      721840005,
-                                      751840005,
-                                      771840007,
-                                      781840034,
-                                      791840003,
-                                      741850006,
-                                      781850002,
-                                      791850001,
-                                      801850004,
-                                      811850003,
-                                      751860004,
-                                      771860001,
-                                      811860000,
-                                      811860005,
-                                      831860001,
-                                      791870002,
-                                      801870001,
-                                      811870002,
-                                      821870001,
-                                      831870002,
-                                      751880007,
-                                      811880001,
-                                      731890001,
-                                      751890033,
-                                      751890034,
-                                      761890001,
-                                      771890006,
-                                      771890085,
-                                      781890004,
-                                      781890005,
-                                      791890003,
-                                      791890006,
-                                      791890200,
-                                      801890002,
-                                      811890001,
-                                      821890001,
-                                      821890014,
-                                      831890002,
-                                      831890003,
-                                      731900002,
-                                      741900006,
-                                      751900003,
-                                      761900032,
-                                      771900002,
-                                      771900037,
-                                      791900014,
-                                      811900000,
-                                      811900001,
-                                      811900006,
-                                      831900000,
-                                      831900001,
-                                      761910001,
-                                      771910003,
-                                      771910071,
-                                      791910004,
-                                      801910035,
-                                      811910002,
-                                      821910002,
-                                      831910002,
-                                      831910005,
-                                      831910028,
-                                      751920002,
-                                      751920003,
-                                      761920047,
-                                      761920112,
-                                      771920003,
-                                      771920015,
-                                      791920004,
-                                      791920015,
-                                      811920002,
-                                      811920008,
-                                      821920011,
-                                      821920014,
-                                      821920017,
-                                      821920020,
-                                      821920021,
-                                      831920001,
-                                      841920006,
-                                      851920000,
-                                      851920001,
-                                      771930002,
-                                      781930005,
-                                      791930004,
-                                      801930003,
-                                      811930002,
-                                      821930001,
-                                      831930001,
-                                      841930001,
-                                      851930001,
-                                      851930002,
-                                      751940001,
-                                      751940002,
-                                      751940003,
-                                      771940007,
-                                      771940012,
-                                      791940003,
-                                      791940008,
-                                      811940001,
-                                      831940001,
-                                      831940002,
-                                      851940000,
-                                      851940001,
-                                      761950002,
-                                      761950004,
-                                      771950002,
-                                      781950007,
-                                      791950004,
-                                      791950055,
-                                      801950003,
-                                      811950002,
-                                      821950002,
-                                      831950001,
-                                      841950002,
-                                      851950001,
-                                      861950001,
-                                      751960001,
-                                      771960004,
-                                      791960003,
-                                      791960054,
-                                      811960006,
-                                      831960002,
-                                      831960003,
-                                      841960015,
-                                      761970001,
-                                      771970002,
-                                      781970009,
-                                      791970004,
-                                      801970004,
-                                      811970002,
-                                      821970002,
-                                      831970001,
-                                      841970002,
-                                      851970001,
-                                      861970001,
-                                      761980006,
-                                      761980010,
-                                      771980001,
-                                      791980051,
-                                      811980007,
-                                      811980012,
-                                      831980001,
-                                      831980003,
-                                      851980001,
-                                      871980001,
-                                      781990008,
-                                      791990006,
-                                      801990007,
-                                      811990003,
-                                      821990003,
-                                      831990001,
-                                      841990002,
-                                      861990001,
-                                      792000011,
-                                      812000010,
-                                      832000001,
-                                      832000003,
-                                      852000001,
-                                      852000003,
-                                      802010013,
-                                      812010003,
-                                      822010004,
-                                      832010001,
-                                      842010003,
-                                      862010001,
-                                      872010001,
-                                      882010000,
-                                      782020003,
-                                      822020014,
-                                      852020001,
-                                      852020002,
-                                      872020001,
-                                      822030006,
-                                      822030053,
-                                      832030006,
-                                      842030005,
-                                      862030001,
-                                      882030001,
-                                      812040029,
-                                      822040021,
-                                      832040008,
-                                      832040038,
-                                      852040001,
-                                      872040001,
-                                      872040002,
-                                      802050008,
-                                      822050009,
-                                      842050010,
-                                      842050017,
-                                      882050001,
-                                      812060045,
-                                      832060016,
-                                      872060001,
-                                      872060002,
-                                      892060001,
-                                      812070002,
-                                      822070003,
-                                      832070036,
-                                      842070014,
-                                      862070007,
-                                      882070001,
-                                      802080004,
-                                      832080018,
-                                      802100002,
-                                      802100005,
-                                      832100002,
-                                      822110014,
-                                      832110021,
-                                      842110015,
-                                      852110076,
-                                      872110013,
-                                      872110019,
-                                      832120005,
-                                      832120012,
-                                      842120030,
-                                      852120004,
-                                      882130005,
-                                      822140004,
-                                      852140006,
-                                      862140004,
-                                      862140005,
-                                      872140001,
-                                      902140004,
-                                      832150009,
-                                      862150013,
-                                      902150003,
-                                      822160004,
-                                      872160001,
-                                      922160001,
-                                      832170005,
-                                      892170010,
-                                      902170001,
-                                      912170001,
-                                      872180002,
-                                      922180001,
-                                      892220001,
-                                      912340002,
-                                      922350001,
-                                      922350174,
-                                      942350010,
-                                      932360001,
-                                      952360001,
-                                      942370003,
-                                      922380119,
-                                      932380128,
-                                      942380047,
-                                      942380052,
-                                      952380001,
-                                      942390106,
-                                      942390111,
-                                      952390011,
-                                      932400001,
-                                      942400102,
-                                      952400057,
-                                      962400002,
-                                      962400003,
-                                      942410106,
-                                      942410107,
-                                      952410075,
-                                      962410007,
-                                      932420007,
-                                      942420044,
-                                      942420045,
-                                      952420002,
-                                      952420141,
-                                      962420004,
-                                      962420005,
-                                      972420002,
-                                      972420003,
-                                      942440032,
-                                      952440001,
-                                      952440112,
-                                      952440113,
-                                      962440009,
-                                      962440013,
-                                      962440014,
-                                      972440004,
-                                      982440002,
-                                      942450024,
-                                      952450021,
-                                      962450061,
-                                      972450003,
-                                      1012450001,
-                                      952460001,
-                                      952460008,
-                                      972460000,
-                                      982460002,
-                                      992460000,
-                                      1012460000,
-                                      1012460001,
-                                      1002470001,
-                                      1012470001,
-                                      972480001,
-                                      1002480006,
-                                      992500001,
-                                      1002500001,
-                                      1002500002,
-                                      1022500001,
-                                      1022510002,
-                                      1002530008,
-                                      1022530003,
-                                      1022530030,
-                                      1022530031,
-                                      1022530032,
-                                      1032530000,
-                                      1032530001,
-                                      992540002,
-                                      1012540000,
-                                      1012540001,
-                                      1022540011,
-                                      1032550001,
-                                      1032550027,
-                                      992560001,
-                                      1002560026,
-                                      1042560007,
-                                      1042560009,
-                                      1042560012,
-                                      1042570002,
-                                      1052570002,
-                                      1012580001,
-                                      1052580001,
-                                      1042610001,
-                                      1072620001,
-                                      1062630003,
-                                      1062650001,
-                                      1082650001,
-                                      1082670002,
-                                      1102700001,
-                                      1102710001,
-                                      1082770001,
-                                     };
-int map_metastable [TOTAL_STATE_MAPS] = {1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         3,
-                                         4,
-                                         1,
-                                         2,
-                                         3,
-                                         4,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         3,
-                                         4,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         4,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         3,
-                                         4,
-                                         5,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         4,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         2,
-                                         1,
-                                         1,
-                                         1,
-                                         2,
-                                         3,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                         1,
-                                        };
-}
-}
+int map_nuc_ids[TOTAL_STATE_MAPS] = {
+    110240001,  130240001,  90260001,   130260001,  130320002,  170340001,
+    170380001,  190380001,  190380015,  210420002,  210430001,  210440004,
+    230440001,  210450001,  210460002,  230460001,  210500001,  250500001,
+    250520001,  260520042,  260530022,  270530003,  270540001,  210560001,
+    210560004,  250580001,  270580001,  270580002,  230600000,  230600001,
+    250600001,  270600001,  260610004,  250620001,  270620001,  230640001,
+    250640002,  260650003,  260670002,  290670023,  290680003,  280690001,
+    280690008,  300690001,  340690004,  270700001,  290700001,  290700003,
+    350700006,  280710002,  300710001,  320710002,  310720002,  350720001,
+    300730001,  300730002,  320730002,  340730001,  360730004,  310740002,
+    350740002,  290750001,  290750002,  300750001,  320750002,  330750004,
+    280760004,  290760001,  350760002,  300770002,  320770001,  330770004,
+    340770001,  350770001,  300780004,  310780004,  350780004,  370780003,
+    390780001,  300790002,  320790001,  330790007,  340790001,  350790001,
+    360790001,  310800001,  350800002,  390800001,  390800003,  320810001,
+    340810001,  360810002,  370810001,  330820001,  340820015,  350820001,
+    370820001,  410820003,  340830001,  360830002,  370830002,  380830002,
+    390830001,  310840001,  350840001,  360840019,  360840061,  370840002,
+    390840002,  410840007,  360850001,  370850003,  380850002,  390850001,
+    400850002,  410850003,  410850005,  370860002,  380860014,  390860002,
+    410860001,  410860002,  380870001,  390870001,  400870002,  410870001,
+    430870005,  350880003,  410880001,  430880000,  430880001,  390890001,
+    400890001,  410890001,  420890002,  430890001,  370900001,  390900002,
+    400900003,  410900002,  410900007,  430900001,  430900006,  390910001,
+    400910040,  410910001,  420910001,  430910001,  440910001,  450910001,
+    410920001,  450920001,  390930002,  410930001,  420930016,  430930001,
+    440930001,  410940001,  430940001,  470940001,  470940002,  410950001,
+    430950001,  450950001,  460950005,  470950002,  390960005,  430960001,
+    450960001,  370970002,  390970001,  390970029,  410970001,  430970001,
+    450970001,  370980001,  390980005,  410980001,  450980001,  410990001,
+    430990002,  450990001,  470990002,  371000001,  391000004,  411000001,
+    411000009,  411000012,  431000002,  431000004,  451000004,  471000001,
+    451010001,  471010002,  411020001,  431020001,  451020005,  471020001,
+    441030005,  451030001,  471030002,  491030001,  411040004,  451040003,
+    471040001,  491040003,  451050001,  471050001,  491050001,  411060003,
+    451060001,  471060001,  491060001,  431070000,  461070002,  471070001,
+    491070001,  401080009,  411080003,  451080004,  471080002,  491080001,
+    461090002,  471090001,  491090001,  491090026,  451100001,  471100002,
+    491100001,  421110001,  461110002,  471110001,  481110003,  491110001,
+    491120001,  491120004,  491120009,  461130002,  471130001,  481130001,
+    491130001,  501130001,  451140005,  491140001,  491140005,  531140005,
+    461150001,  471150001,  481150001,  491150001,  521150001,  451160001,
+    471160001,  471160004,  491160001,  491160004,  511160003,  551160001,
+    441170003,  471170001,  481170002,  491170001,  501170002,  521170003,
+    471180004,  491180001,  491180003,  511180007,  531180002,  551180001,
+    441190002,  471190000,  471190001,  481190002,  491190001,  501190002,
+    511190072,  521190002,  551190001,  451200002,  471200002,  491200001,
+    491200002,  511200001,  531200013,  551200001,  571200000,  461210001,
+    481210002,  491210001,  501210001,  521210002,  551210001,  451220002,
+    471220001,  471220002,  491220001,  491220005,  511220005,  511220006,
+    551220007,  551220008,  481230003,  491230001,  501230001,  521230002,
+    551230005,  461240004,  471240001,  471240002,  471240003,  491240002,
+    501240016,  511240001,  511240002,  551240025,  471250007,  471250010,
+    481250001,  491250001,  501250001,  521250002,  541250002,  571250005,
+    461260003,  461260004,  461260005,  471260001,  471260004,  491260001,
+    511260001,  511260002,  481270006,  491270001,  491270009,  501270001,
+    521270002,  541270002,  561270002,  571270001,  581270001,  461280004,
+    511280001,  571280001,  471290001,  481290001,  481290004,  491290001,
+    491290010,  491290012,  491290013,  501290001,  501290017,  501290018,
+    501290025,  511290011,  511290012,  511290023,  521290001,  541290002,
+    551290010,  561290001,  571290002,  601290001,  601290003,  491300001,
+    491300002,  491300003,  501300002,  511300001,  531300001,  551300004,
+    561300030,  591300002,  491310001,  491310004,  501310001,  521310001,
+    521310033,  541310002,  561310002,  571310006,  581310001,  591310002,
+    501320006,  511320001,  521320006,  521320022,  531320003,  541320030,
+    571320004,  581320030,  491330001,  521330002,  531330016,  531330059,
+    531330065,  541330001,  561330002,  581330001,  591330003,  601330001,
+    611330005,  621330000,  511340002,  521340003,  531340005,  541340007,
+    551340003,  601340017,  611340000,  611340001,  521350010,  541350002,
+    551350010,  561350002,  581350004,  591350004,  601350001,  611350000,
+    611350003,  501360003,  531360006,  551360001,  561360005,  571360051,
+    611360000,  611360001,  631360001,  561370002,  581370002,  601370004,
+    501380003,  531380002,  551380003,  581380005,  591380005,  611380001,
+    571390021,  581390002,  601390002,  601390035,  611390001,  621390004,
+    631390003,  641390001,  511400003,  591400003,  591400015,  601400009,
+    611400008,  631400004,  601410002,  621410002,  631410001,  641410004,
+    651410001,  591420001,  591420024,  601420004,  611420012,  631420031,
+    641420019,  641420020,  651420003,  621430002,  621430043,  641430002,
+    651430001,  661430003,  551440004,  591440001,  651440004,  651440006,
+    651440007,  671440003,  641450002,  651450004,  661450002,  681450002,
+    571460001,  651460022,  651460026,  661460011,  691460001,  651470001,
+    661470002,  681470002,  691470001,  591480000,  591480001,  611480003,
+    651480001,  671480001,  671480012,  681480008,  651490001,  661490027,
+    671490001,  681490002,  631500001,  651500002,  671500001,  691500005,
+    581510001,  621510012,  631510002,  651510003,  671510001,  681510021,
+    691510001,  691510012,  701510001,  701510005,  701510010,  611520004,
+    611520014,  631520001,  631520016,  651520006,  671520001,  691520006,
+    691520018,  691520019,  701520006,  621530006,  641530003,  641530008,
+    651530003,  671530001,  691530001,  601540003,  611540001,  631540013,
+    651540001,  651540002,  711540015,  721540006,  641550006,  661550009,
+    671550002,  691550001,  711550001,  711550004,  611560002,  651560002,
+    651560004,  671560001,  671560012,  711560001,  721560004,  731560001,
+    641570012,  661570005,  711570001,  731570001,  731570004,  601580004,
+    611580002,  651580003,  651580023,  671580001,  671580009,  691580002,
+    691580003,  711580000,  731580001,  731580015,  621590006,  641590002,
+    661590009,  671590003,  731590001,  601600003,  671600001,  671600006,
+    691600002,  711600001,  611610005,  671610002,  681610014,  691610001,
+    711610004,  721610002,  671620003,  691620020,  711620008,  711620009,
+    751620001,  671630003,  751630001,  621640005,  671640003,  691640001,
+    771640001,  661650002,  751650001,  771650001,  641660009,  671660001,
+    691660006,  711660001,  711660002,  681670003,  711670001,  751670001,
+    671680001,  711680013,  771680001,  701690001,  711690001,  751690001,
+    771690001,  671700001,  711700008,  771700001,  711710001,  721710001,
+    771710001,  781710002,  691720011,  711720001,  711720005,  751720001,
+    771720001,  791720001,  771730000,  771730003,  791730001,  711740003,
+    771740001,  701750007,  711750053,  791750001,  701760005,  711760001,
+    731760012,  731760090,  791760001,  791760002,  691770000,  701770006,
+    711770029,  711770203,  721770048,  721770107,  791770002,  711780003,
+    721780005,  721780109,  731780000,  731780059,  731780094,  731780139,
+    711790006,  721790005,  721790046,  731790117,  741790002,  751790137,
+    791790007,  811790001,  721800006,  731800002,  721810025,  721810078,
+    761810001,  811810002,  721820009,  721820026,  731820001,  731820029,
+    741820062,  751820001,  761820029,  721830007,  731830032,  741830007,
+    751830004,  751830005,  751830070,  751830074,  761830002,  781830001,
+    811830002,  811830005,  821830001,  721840005,  751840005,  771840007,
+    781840034,  791840003,  741850006,  781850002,  791850001,  801850004,
+    811850003,  751860004,  771860001,  811860000,  811860005,  831860001,
+    791870002,  801870001,  811870002,  821870001,  831870002,  751880007,
+    811880001,  731890001,  751890033,  751890034,  761890001,  771890006,
+    771890085,  781890004,  781890005,  791890003,  791890006,  791890200,
+    801890002,  811890001,  821890001,  821890014,  831890002,  831890003,
+    731900002,  741900006,  751900003,  761900032,  771900002,  771900037,
+    791900014,  811900000,  811900001,  811900006,  831900000,  831900001,
+    761910001,  771910003,  771910071,  791910004,  801910035,  811910002,
+    821910002,  831910002,  831910005,  831910028,  751920002,  751920003,
+    761920047,  761920112,  771920003,  771920015,  791920004,  791920015,
+    811920002,  811920008,  821920011,  821920014,  821920017,  821920020,
+    821920021,  831920001,  841920006,  851920000,  851920001,  771930002,
+    781930005,  791930004,  801930003,  811930002,  821930001,  831930001,
+    841930001,  851930001,  851930002,  751940001,  751940002,  751940003,
+    771940007,  771940012,  791940003,  791940008,  811940001,  831940001,
+    831940002,  851940000,  851940001,  761950002,  761950004,  771950002,
+    781950007,  791950004,  791950055,  801950003,  811950002,  821950002,
+    831950001,  841950002,  851950001,  861950001,  751960001,  771960004,
+    791960003,  791960054,  811960006,  831960002,  831960003,  841960015,
+    761970001,  771970002,  781970009,  791970004,  801970004,  811970002,
+    821970002,  831970001,  841970002,  851970001,  861970001,  761980006,
+    761980010,  771980001,  791980051,  811980007,  811980012,  831980001,
+    831980003,  851980001,  871980001,  781990008,  791990006,  801990007,
+    811990003,  821990003,  831990001,  841990002,  861990001,  792000011,
+    812000010,  832000001,  832000003,  852000001,  852000003,  802010013,
+    812010003,  822010004,  832010001,  842010003,  862010001,  872010001,
+    882010000,  782020003,  822020014,  852020001,  852020002,  872020001,
+    822030006,  822030053,  832030006,  842030005,  862030001,  882030001,
+    812040029,  822040021,  832040008,  832040038,  852040001,  872040001,
+    872040002,  802050008,  822050009,  842050010,  842050017,  882050001,
+    812060045,  832060016,  872060001,  872060002,  892060001,  812070002,
+    822070003,  832070036,  842070014,  862070007,  882070001,  802080004,
+    832080018,  802100002,  802100005,  832100002,  822110014,  832110021,
+    842110015,  852110076,  872110013,  872110019,  832120005,  832120012,
+    842120030,  852120004,  882130005,  822140004,  852140006,  862140004,
+    862140005,  872140001,  902140004,  832150009,  862150013,  902150003,
+    822160004,  872160001,  922160001,  832170005,  892170010,  902170001,
+    912170001,  872180002,  922180001,  892220001,  912340002,  922350001,
+    922350174,  942350010,  932360001,  952360001,  942370003,  922380119,
+    932380128,  942380047,  942380052,  952380001,  942390106,  942390111,
+    952390011,  932400001,  942400102,  952400057,  962400002,  962400003,
+    942410106,  942410107,  952410075,  962410007,  932420007,  942420044,
+    942420045,  952420002,  952420141,  962420004,  962420005,  972420002,
+    972420003,  942440032,  952440001,  952440112,  952440113,  962440009,
+    962440013,  962440014,  972440004,  982440002,  942450024,  952450021,
+    962450061,  972450003,  1012450001, 952460001,  952460008,  972460000,
+    982460002,  992460000,  1012460000, 1012460001, 1002470001, 1012470001,
+    972480001,  1002480006, 992500001,  1002500001, 1002500002, 1022500001,
+    1022510002, 1002530008, 1022530003, 1022530030, 1022530031, 1022530032,
+    1032530000, 1032530001, 992540002,  1012540000, 1012540001, 1022540011,
+    1032550001, 1032550027, 992560001,  1002560026, 1042560007, 1042560009,
+    1042560012, 1042570002, 1052570002, 1012580001, 1052580001, 1042610001,
+    1072620001, 1062630003, 1062650001, 1082650001, 1082670002, 1102700001,
+    1102710001, 1082770001,
+};
+int map_metastable[TOTAL_STATE_MAPS] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,
+    1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1,
+    1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1,
+    1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1,
+    1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2,
+    1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1,
+    2, 3, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 3,
+    4, 1, 2, 3, 4, 1, 2, 3, 1, 1, 1, 1, 1, 1, 2, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1,
+    2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1,
+    1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 3, 1, 2, 1, 2, 1, 1, 1, 2, 3, 1,
+    1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1,
+    1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1,
+    2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1,
+    1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2,
+    1, 2, 3, 4, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 2, 1, 2, 1, 1, 1,
+    1, 1, 1, 1, 2, 3, 4, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 3, 1, 1, 1, 2, 1,
+    2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 3, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 3, 1, 2,
+    1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 3, 4, 5, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 2, 1, 2, 3, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1,
+    1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2,
+    1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 2,
+    2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,
+    1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 2, 1, 1, 2, 1, 2, 1,
+    2, 1, 2, 1, 2, 1, 1, 2, 3, 1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1,
+    2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 3, 4, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1,
+    1, 2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+};
+}  // namespace nucname
+}  // namespace pyne
 #endif
 //
 // end of src/state_map.cpp
 //
-
 
 //
 // start of src/nucname.cpp
@@ -2568,7 +712,6 @@ int map_metastable [TOTAL_STATE_MAPS] = {1,
 #include "nucname.h"
 #include "state_map.cpp"
 #endif
-
 
 /*** Constructs the LL to zz Dictionary ***/
 pyne::nucname::name_zz_t pyne::nucname::get_name_zz() {
@@ -2697,7 +840,6 @@ pyne::nucname::name_zz_t pyne::nucname::get_name_zz() {
 }
 pyne::nucname::name_zz_t pyne::nucname::name_zz = pyne::nucname::get_name_zz();
 
-
 /*** Constructs zz to LL dictionary **/
 pyne::nucname::zzname_t pyne::nucname::get_zz_name() {
   zzname_t zld;
@@ -2708,159 +850,157 @@ pyne::nucname::zzname_t pyne::nucname::get_zz_name() {
 }
 pyne::nucname::zzname_t pyne::nucname::zz_name = pyne::nucname::get_zz_name();
 
-
-
 /*** Constructs the fluka to zz Dictionary ***/
 pyne::nucname::name_zz_t pyne::nucname::get_fluka_zz() {
   pyne::nucname::name_zz_t fzd;
 
   fzd["BERYLLIU"] = 40000000;
-  fzd["BARIUM"]   = 560000000;
-  fzd["BOHRIUM"]  = 1070000000;   // No fluka
-  fzd["BISMUTH"]  = 830000000;
-  fzd["BERKELIU"] = 970000000;    // No fluka
-  fzd["BROMINE"]  = 350000000;
-  fzd["RUTHENIU"] = 440000000;    // No fluka
-  fzd["RHENIUM"]  = 750000000;
+  fzd["BARIUM"] = 560000000;
+  fzd["BOHRIUM"] = 1070000000;  // No fluka
+  fzd["BISMUTH"] = 830000000;
+  fzd["BERKELIU"] = 970000000;  // No fluka
+  fzd["BROMINE"] = 350000000;
+  fzd["RUTHENIU"] = 440000000;  // No fluka
+  fzd["RHENIUM"] = 750000000;
   fzd["RUTHERFO"] = 1040000000;
   fzd["ROENTGEN"] = 1110000000;
-  fzd["RADIUM"]   = 880000000;    // No fluka
-  fzd["RUBIDIUM"] = 370000000;    // No fluka
-  fzd["RADON"]    = 860000000;    // no fluka
-  fzd["RHODIUM"]  = 450000000;    // no fluka
-  fzd["THULIUM"]  = 690000000;    // no fluka
+  fzd["RADIUM"] = 880000000;    // No fluka
+  fzd["RUBIDIUM"] = 370000000;  // No fluka
+  fzd["RADON"] = 860000000;     // no fluka
+  fzd["RHODIUM"] = 450000000;   // no fluka
+  fzd["THULIUM"] = 690000000;   // no fluka
   fzd["HYDROGEN"] = 10000000;
-  fzd["PHOSPHO"]  = 150000000;
+  fzd["PHOSPHO"] = 150000000;
   fzd["GERMANIU"] = 320000000;
   fzd["GADOLINI"] = 640000000;
-  fzd["GALLIUM"]  = 310000000;
-  fzd["OSMIUM"]   = 760000000;    // no fluka
-  fzd["HASSIUM"]  = 1080000000;
-  fzd["ZINC"]     = 300000000;
-  fzd["HOLMIUM"]  = 670000000;    // no fluka
-  fzd["HAFNIUM"]  = 720000000;
-  fzd["MERCURY"]  = 800000000;
-  fzd["HELIUM"]   = 20000000;
-  fzd["PRASEODY"] = 590000000;   // no fluka
+  fzd["GALLIUM"] = 310000000;
+  fzd["OSMIUM"] = 760000000;  // no fluka
+  fzd["HASSIUM"] = 1080000000;
+  fzd["ZINC"] = 300000000;
+  fzd["HOLMIUM"] = 670000000;  // no fluka
+  fzd["HAFNIUM"] = 720000000;
+  fzd["MERCURY"] = 800000000;
+  fzd["HELIUM"] = 20000000;
+  fzd["PRASEODY"] = 590000000;  // no fluka
   fzd["PLATINUM"] = 780000000;
-  fzd["239-PU"]   = 940000000;   // "239-PU"
-  fzd["LEAD"]     = 820000000;
-  fzd["PROTACTI"] = 910000000;   // no fluka
-  fzd["PALLADIU"] = 460000000;   // no fluka
-  fzd["POLONIUM"] = 840000000;   // no fluka
-  fzd["PROMETHI"] = 610000000;   // no fluka
-  fzd["CARBON"]   = 60000000;
+  fzd["239-PU"] = 940000000;  // "239-PU"
+  fzd["LEAD"] = 820000000;
+  fzd["PROTACTI"] = 910000000;  // no fluka
+  fzd["PALLADIU"] = 460000000;  // no fluka
+  fzd["POLONIUM"] = 840000000;  // no fluka
+  fzd["PROMETHI"] = 610000000;  // no fluka
+  fzd["CARBON"] = 60000000;
   fzd["POTASSIU"] = 190000000;
-  fzd["OXYGEN"]   = 80000000;
-  fzd["SULFUR"]   = 160000000;
+  fzd["OXYGEN"] = 80000000;
+  fzd["SULFUR"] = 160000000;
   fzd["TUNGSTEN"] = 740000000;
   fzd["EUROPIUM"] = 630000000;
   fzd["EINSTEIN"] = 990000000;   // no fluka
-  fzd["ERBIUM"]   = 680000000;   // no fluka
+  fzd["ERBIUM"] = 680000000;     // no fluka
   fzd["MENDELEV"] = 1010000000;  // no fluka
   fzd["MAGNESIU"] = 120000000;
   fzd["MOLYBDEN"] = 420000000;
   fzd["MANGANES"] = 250000000;
   fzd["MEITNERI"] = 1090000000;  // no fluka
-  fzd["URANIUM"]  = 920000000;
-  fzd["FRANCIUM"] = 870000000;   // no fluka
-  fzd["IRON"]     = 260000000;
-  fzd["FERMIUM"]  = 1000000000;  // no fluka
-  fzd["NICKEL"]   = 280000000;
+  fzd["URANIUM"] = 920000000;
+  fzd["FRANCIUM"] = 870000000;  // no fluka
+  fzd["IRON"] = 260000000;
+  fzd["FERMIUM"] = 1000000000;  // no fluka
+  fzd["NICKEL"] = 280000000;
   fzd["NITROGEN"] = 70000000;
   fzd["NOBELIUM"] = 1020000000;  // no fluka
-  fzd["SODIUM"]   = 110000000;
-  fzd["NIOBIUM"]  = 410000000;
+  fzd["SODIUM"] = 110000000;
+  fzd["NIOBIUM"] = 410000000;
   fzd["NEODYMIU"] = 600000000;
-  fzd["NEON"]     = 100000000;
+  fzd["NEON"] = 100000000;
   fzd["ZIRCONIU"] = 400000000;
-  fzd["NEPTUNIU"] = 930000000;   // no fluka
-  fzd["BORON"]    = 50000000;
-  fzd["COBALT"]   = 270000000;
-  fzd["CURIUM"]   = 960000000;   // no fluka
+  fzd["NEPTUNIU"] = 930000000;  // no fluka
+  fzd["BORON"] = 50000000;
+  fzd["COBALT"] = 270000000;
+  fzd["CURIUM"] = 960000000;  // no fluka
   fzd["FLUORINE"] = 90000000;
-  fzd["CALCIUM"]  = 200000000;
-  fzd["CALIFORN"] = 980000000;   // no fluka
-  fzd["CERIUM"]   = 580000000;
-  fzd["CADMIUM"]  = 480000000;
+  fzd["CALCIUM"] = 200000000;
+  fzd["CALIFORN"] = 980000000;  // no fluka
+  fzd["CERIUM"] = 580000000;
+  fzd["CADMIUM"] = 480000000;
   fzd["VANADIUM"] = 230000000;
-  fzd["CESIUM"]   = 550000000;
+  fzd["CESIUM"] = 550000000;
   fzd["CHROMIUM"] = 240000000;
-  fzd["COPPER"]   = 290000000;
+  fzd["COPPER"] = 290000000;
   fzd["STRONTIU"] = 380000000;
-  fzd["KRYPTON"]  = 360000000;
-  fzd["SILICON"]  = 140000000;
-  fzd["TIN"]      = 500000000;
+  fzd["KRYPTON"] = 360000000;
+  fzd["SILICON"] = 140000000;
+  fzd["TIN"] = 500000000;
   fzd["SAMARIUM"] = 620000000;
   fzd["SCANDIUM"] = 210000000;
   fzd["ANTIMONY"] = 510000000;
   fzd["SEABORGI"] = 1060000000;  // no fluka
   fzd["SELENIUM"] = 340000000;   // no fluka
   fzd["YTTERBIU"] = 700000000;   // no fluka
-  fzd["DUBNIUM"]  = 1050000000;  // no fluka
+  fzd["DUBNIUM"] = 1050000000;   // no fluka
   fzd["DYSPROSI"] = 660000000;   // no fluka
   fzd["DARMSTAD"] = 1100000000;  // no fluka
   fzd["LANTHANU"] = 570000000;
   fzd["CHLORINE"] = 170000000;
-  fzd["LITHIUM"]  = 030000000;
+  fzd["LITHIUM"] = 030000000;
   fzd["THALLIUM"] = 810000000;   // no fluka
   fzd["LUTETIUM"] = 710000000;   // no fluka
   fzd["LAWRENCI"] = 1030000000;  // no fluka
-  fzd["THORIUM"]  = 900000000;   // no fluka
+  fzd["THORIUM"] = 900000000;    // no fluka
   fzd["TITANIUM"] = 220000000;
-  fzd["TELLURIU"] = 520000000;   // no fluka
-  fzd["TERBIUM"]  = 650000000;
-  fzd["99-TC"]    = 430000000;   // "99-TC"
+  fzd["TELLURIU"] = 520000000;  // no fluka
+  fzd["TERBIUM"] = 650000000;
+  fzd["99-TC"] = 430000000;  // "99-TC"
   fzd["TANTALUM"] = 730000000;
-  fzd["ACTINIUM"] = 890000000;   // no fluka
-  fzd["SILVER"]   = 470000000;
-  fzd["IODINE"]   = 530000000;
-  fzd["IRIDIUM"]  = 770000000;
-  fzd["241-AM"]   = 950000000;   // "241-AM"
+  fzd["ACTINIUM"] = 890000000;  // no fluka
+  fzd["SILVER"] = 470000000;
+  fzd["IODINE"] = 530000000;
+  fzd["IRIDIUM"] = 770000000;
+  fzd["241-AM"] = 950000000;  // "241-AM"
   fzd["ALUMINUM"] = 130000000;
-  fzd["ARSENIC"]  = 330000000;
-  fzd["ARGON"]    = 180000000;
-  fzd["GOLD"]     = 790000000;
-  fzd["ASTATINE"] = 850000000;   // no fluka
-  fzd["INDIUM"]   = 490000000;
-  fzd["YTTRIUM"]  = 390000000;
-  fzd["XENON"]    = 540000000;
+  fzd["ARSENIC"] = 330000000;
+  fzd["ARGON"] = 180000000;
+  fzd["GOLD"] = 790000000;
+  fzd["ASTATINE"] = 850000000;  // no fluka
+  fzd["INDIUM"] = 490000000;
+  fzd["YTTRIUM"] = 390000000;
+  fzd["XENON"] = 540000000;
   fzd["COPERNIC"] = 1120000000;  // no fluka
   fzd["UNUNQUAD"] = 1140000000;  // no fluka:  UNUNQUADIUM,  "Flerovium"
   fzd["UNUNHEXI"] = 1160000000;  // no fluka:  UNUNHEXIUM , "Livermorium"
   fzd["HYDROG-1"] = 10010000;
   fzd["DEUTERIU"] = 10020000;
-  fzd["TRITIUM"]  = 10040000;
+  fzd["TRITIUM"] = 10040000;
   fzd["HELIUM-3"] = 20030000;
   fzd["HELIUM-4"] = 20040000;
   fzd["LITHIU-6"] = 30060000;
   fzd["LITHIU-7"] = 30070000;
   fzd["BORON-10"] = 50100000;
   fzd["BORON-11"] = 50110000;
-  fzd["90-SR"]    = 380900000;   // fluka "90-SR"
-  fzd["129-I"]    = 531290000;   // fluka "129-I"
-  fzd["124-XE"]   = 541240000;   // fluka "124-XE"
-  fzd["126-XE"]   = 541260000;   // fluka "126-XE"
-  fzd["128-XE"]   = 541280000;   // fluka "128-XE"
-  fzd["130-XE"]   = 541300000;   // fluka "130-XE"
-  fzd["131-XE"]   = 541310000;   // fluka "131-XE"
-  fzd["132-XE"]   = 541320000;   // fluka "132-XE"
-  fzd["134-XE"]   = 541340000;   // fluka "134-XE"
-  fzd["135-XE"]   = 541350000;   // fluka "135-XE"
-  fzd["136-XE"]   = 541360000;   // fluka "136-XE"
-  fzd["135-CS"]   = 551350000;   // fluka "135-CS"
-  fzd["137-CS"]   = 551370000;   // fluka "137-CS"
-  fzd["230-TH"]   = 902300000;   // fluka "230-TH"
-  fzd["232-TH"]   = 902320000;   // fluka "232-TH"
-  fzd["233-U"]    = 922330000;   // fluka "233-U"
-  fzd["234-U"]    = 922340000;   // fluka "234-U"
-  fzd["235-U"]    = 922350000;   // fluka "235-U"
-  fzd["238-U"]    = 922380000;   // fluka "238-U"
+  fzd["90-SR"] = 380900000;   // fluka "90-SR"
+  fzd["129-I"] = 531290000;   // fluka "129-I"
+  fzd["124-XE"] = 541240000;  // fluka "124-XE"
+  fzd["126-XE"] = 541260000;  // fluka "126-XE"
+  fzd["128-XE"] = 541280000;  // fluka "128-XE"
+  fzd["130-XE"] = 541300000;  // fluka "130-XE"
+  fzd["131-XE"] = 541310000;  // fluka "131-XE"
+  fzd["132-XE"] = 541320000;  // fluka "132-XE"
+  fzd["134-XE"] = 541340000;  // fluka "134-XE"
+  fzd["135-XE"] = 541350000;  // fluka "135-XE"
+  fzd["136-XE"] = 541360000;  // fluka "136-XE"
+  fzd["135-CS"] = 551350000;  // fluka "135-CS"
+  fzd["137-CS"] = 551370000;  // fluka "137-CS"
+  fzd["230-TH"] = 902300000;  // fluka "230-TH"
+  fzd["232-TH"] = 902320000;  // fluka "232-TH"
+  fzd["233-U"] = 922330000;   // fluka "233-U"
+  fzd["234-U"] = 922340000;   // fluka "234-U"
+  fzd["235-U"] = 922350000;   // fluka "235-U"
+  fzd["238-U"] = 922380000;   // fluka "238-U"
 
   return fzd;
 }
-pyne::nucname::name_zz_t pyne::nucname::fluka_zz = pyne::nucname::get_fluka_zz();
-
+pyne::nucname::name_zz_t pyne::nucname::fluka_zz =
+    pyne::nucname::get_fluka_zz();
 
 /*** Constructs zz to fluka dictionary **/
 pyne::nucname::zzname_t pyne::nucname::get_zz_fluka() {
@@ -2872,13 +1012,12 @@ pyne::nucname::zzname_t pyne::nucname::get_zz_fluka() {
 }
 pyne::nucname::zzname_t pyne::nucname::zz_fluka = pyne::nucname::get_zz_fluka();
 
-
-
 /******************************************/
 /*** Define useful elemental group sets ***/
 /******************************************/
 
-pyne::nucname::zz_group pyne::nucname::name_to_zz_group(pyne::nucname::name_group eg) {
+pyne::nucname::zz_group pyne::nucname::name_to_zz_group(
+    pyne::nucname::name_group eg) {
   zz_group zg;
   for (name_group_iter i = eg.begin(); i != eg.end(); i++)
     zg.insert(name_zz[*i]);
@@ -2886,55 +1025,54 @@ pyne::nucname::zz_group pyne::nucname::name_to_zz_group(pyne::nucname::name_grou
 }
 
 // Lanthanides
-pyne::nucname::name_t pyne::nucname::LAN_array[15] = {"La", "Ce", "Pr", "Nd",
-                                                      "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu"
-                                                     };
+pyne::nucname::name_t pyne::nucname::LAN_array[15] = {
+    "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd",
+    "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu"};
 pyne::nucname::name_group pyne::nucname::LAN(pyne::nucname::LAN_array,
                                              pyne::nucname::LAN_array + 15);
-pyne::nucname::zz_group pyne::nucname::lan = \
-                                             pyne::nucname::name_to_zz_group(pyne::nucname::LAN);
+pyne::nucname::zz_group pyne::nucname::lan =
+    pyne::nucname::name_to_zz_group(pyne::nucname::LAN);
 
 // Actinides
-pyne::nucname::name_t pyne::nucname::ACT_array[15] = {"Ac", "Th", "Pa", "U",
-                                                      "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"
-                                                     };
-pyne::nucname::name_group pyne::nucname::ACT(pyne::nucname::ACT_array, pyne::nucname::ACT_array + 15);
-pyne::nucname::zz_group pyne::nucname::act = pyne::nucname::name_to_zz_group(pyne::nucname::ACT);
+pyne::nucname::name_t pyne::nucname::ACT_array[15] = {
+    "Ac", "Th", "Pa", "U",  "Np", "Pu", "Am", "Cm",
+    "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"};
+pyne::nucname::name_group pyne::nucname::ACT(pyne::nucname::ACT_array,
+                                             pyne::nucname::ACT_array + 15);
+pyne::nucname::zz_group pyne::nucname::act =
+    pyne::nucname::name_to_zz_group(pyne::nucname::ACT);
 
 // Transuarnics
-pyne::nucname::name_t pyne::nucname::TRU_array[22] = {"Np", "Pu", "Am", "Cm",
-                                                      "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt",
-                                                      "Ds", "Rg", "Cn", "Fl", "Lv"
-                                                     };
+pyne::nucname::name_t pyne::nucname::TRU_array[22] = {
+    "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr",
+    "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Fl", "Lv"};
 pyne::nucname::name_group pyne::nucname::TRU(pyne::nucname::TRU_array,
                                              pyne::nucname::TRU_array + 22);
-pyne::nucname::zz_group pyne::nucname::tru = \
-                                             pyne::nucname::name_to_zz_group(pyne::nucname::TRU);
+pyne::nucname::zz_group pyne::nucname::tru =
+    pyne::nucname::name_to_zz_group(pyne::nucname::TRU);
 
-//Minor Actinides
-pyne::nucname::name_t pyne::nucname::MA_array[10] = {"Np", "Am", "Cm", "Bk",
-                                                     "Cf", "Es", "Fm", "Md", "No", "Lr"
-                                                    };
+// Minor Actinides
+pyne::nucname::name_t pyne::nucname::MA_array[10] = {
+    "Np", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr"};
 pyne::nucname::name_group pyne::nucname::MA(pyne::nucname::MA_array,
                                             pyne::nucname::MA_array + 10);
-pyne::nucname::zz_group pyne::nucname::ma = \
-                                            pyne::nucname::name_to_zz_group(pyne::nucname::MA);
+pyne::nucname::zz_group pyne::nucname::ma =
+    pyne::nucname::name_to_zz_group(pyne::nucname::MA);
 
-//Fission Products
-pyne::nucname::name_t pyne::nucname::FP_array[88] = {"Ag", "Al", "Ar", "As",
-                                                     "At", "Au", "B",  "Ba", "Be", "Bi", "Br", "C",  "Ca", "Cd", "Ce", "Cl", "Co",
-                                                     "Cr", "Cs", "Cu", "Dy", "Er", "Eu", "F",  "Fe", "Fr", "Ga", "Gd", "Ge", "H",
-                                                     "He", "Hf", "Hg", "Ho", "I",  "In", "Ir", "K",  "Kr", "La", "Li", "Lu", "Mg",
-                                                     "Mn", "Mo", "N",  "Na", "Nb", "Nd", "Ne", "Ni", "O",  "Os", "P",  "Pb", "Pd",
-                                                     "Pm", "Po", "Pr", "Pt", "Ra", "Rb", "Re", "Rh", "Rn", "Ru", "S",  "Sb", "Sc",
-                                                     "Se", "Si", "Sm", "Sn", "Sr", "Ta", "Tb", "Tc", "Te", "Ti", "Tl", "Tm", "V",
-                                                     "W",  "Xe", "Y",  "Yb", "Zn", "Zr"
-                                                    };
+// Fission Products
+pyne::nucname::name_t pyne::nucname::FP_array[88] = {
+    "Ag", "Al", "Ar", "As", "At", "Au", "B",  "Ba", "Be", "Bi", "Br",
+    "C",  "Ca", "Cd", "Ce", "Cl", "Co", "Cr", "Cs", "Cu", "Dy", "Er",
+    "Eu", "F",  "Fe", "Fr", "Ga", "Gd", "Ge", "H",  "He", "Hf", "Hg",
+    "Ho", "I",  "In", "Ir", "K",  "Kr", "La", "Li", "Lu", "Mg", "Mn",
+    "Mo", "N",  "Na", "Nb", "Nd", "Ne", "Ni", "O",  "Os", "P",  "Pb",
+    "Pd", "Pm", "Po", "Pr", "Pt", "Ra", "Rb", "Re", "Rh", "Rn", "Ru",
+    "S",  "Sb", "Sc", "Se", "Si", "Sm", "Sn", "Sr", "Ta", "Tb", "Tc",
+    "Te", "Ti", "Tl", "Tm", "V",  "W",  "Xe", "Y",  "Yb", "Zn", "Zr"};
 pyne::nucname::name_group pyne::nucname::FP(pyne::nucname::FP_array,
                                             pyne::nucname::FP_array + 88);
-pyne::nucname::zz_group pyne::nucname::fp = \
-                                            pyne::nucname::name_to_zz_group(pyne::nucname::FP);
-
+pyne::nucname::zz_group pyne::nucname::fp =
+    pyne::nucname::name_to_zz_group(pyne::nucname::FP);
 
 /***************************/
 /*** isnuclide functions ***/
@@ -2952,7 +1090,7 @@ bool pyne::nucname::isnuclide(std::string nuc) {
   return isnuclide(n);
 }
 
-bool pyne::nucname::isnuclide(const char* nuc) {
+bool pyne::nucname::isnuclide(const char *nuc) {
   return isnuclide(std::string(nuc));
 }
 
@@ -2965,8 +1103,7 @@ bool pyne::nucname::isnuclide(int nuc) {
   } catch (IndeterminateNuclideForm) {
     return false;
   }
-  if (n <= 10000000)
-    return false;
+  if (n <= 10000000) return false;
   int zzz = n / 10000000;
   int aaa = (n % 10000000) / 10000;
   if (aaa == 0)
@@ -2976,26 +1113,24 @@ bool pyne::nucname::isnuclide(int nuc) {
   return true;
 }
 
-
-
 /********************/
 /*** id functions ***/
 /********************/
 int pyne::nucname::id(int nuc) {
-  if (nuc < 0)
-    throw NotANuclide(nuc, "");
+  if (nuc < 0) throw NotANuclide(nuc, "");
 
   int newnuc;
-  int zzz = nuc / 10000000;     // ZZZ ?
-  int aaassss = nuc % 10000000; // AAA-SSSS ?
-  int aaa = aaassss / 10000;    // AAA ?
-  int ssss = aaassss % 10000;   // SSSS ?
+  int zzz = nuc / 10000000;      // ZZZ ?
+  int aaassss = nuc % 10000000;  // AAA-SSSS ?
+  int aaa = aaassss / 10000;     // AAA ?
+  int ssss = aaassss % 10000;    // SSSS ?
   // Nuclide must already be in id form
   if (0 < zzz && zzz <= aaa && aaa <= zzz * 7) {
     // Normal nuclide
     if (5 < ssss) {
       // Unphysical metastable state warning
-      warning("You have indicated a metastable state of " + pyne::to_str(ssss) + ". Metastable state above 5, possibly unphysical. ");
+      warning("You have indicated a metastable state of " + pyne::to_str(ssss) +
+              ". Metastable state above 5, possibly unphysical. ");
     }
     return nuc;
   } else if (aaassss == 0 && 0 < zz_name.count(zzz)) {
@@ -3006,26 +1141,29 @@ int pyne::nucname::id(int nuc) {
     return nuc * 10000000;
 
   // Not in id form, try  ZZZAAAM form.
-  zzz = nuc / 10000;     // ZZZ ?
-  aaassss = nuc % 10000; // AAA-SSSS ?
-  aaa = aaassss / 10;    // AAA ?
-  ssss = nuc % 10;       // SSSS ?
+  zzz = nuc / 10000;      // ZZZ ?
+  aaassss = nuc % 10000;  // AAA-SSSS ?
+  aaa = aaassss / 10;     // AAA ?
+  ssss = nuc % 10;        // SSSS ?
   if (zzz <= aaa && aaa <= zzz * 7) {
     // ZZZAAAM nuclide
     if (5 < ssss) {
       // Unphysical metastable state warning
-      warning("You have indicated a metastable state of " + pyne::to_str(ssss) + ". Metastable state above 5, possibly unphysical. ");
+      warning("You have indicated a metastable state of " + pyne::to_str(ssss) +
+              ". Metastable state above 5, possibly unphysical. ");
     }
     return (zzz * 10000000) + (aaa * 10000) + (nuc % 10);
   } else if (aaa <= zzz && zzz <= aaa * 7 && 0 < zz_name.count(aaa)) {
     // Cinder-form (aaazzzm), ie 2350920
     if (5 < ssss) {
       // Unphysical metastable state warning
-      warning("You have indicated a metastable state of " + pyne::to_str(ssss) + ". Metastable state above 5, possibly unphysical. ");
+      warning("You have indicated a metastable state of " + pyne::to_str(ssss) +
+              ". Metastable state above 5, possibly unphysical. ");
     }
     return (aaa * 10000000) + (zzz * 10000) + (nuc % 10);
   }
-  //else if (aaassss == 0 && 0 == zz_name.count(nuc/1000) && 0 < zz_name.count(zzz))
+  // else if (aaassss == 0 && 0 == zz_name.count(nuc/1000) && 0 <
+  // zz_name.count(zzz))
   else if (aaassss == 0 && 0 < zz_name.count(zzz)) {
     // zzaaam form natural nuclide
     return zzz * 10000000;
@@ -3050,9 +1188,9 @@ int pyne::nucname::id(int nuc) {
     } else {
       // Nuclide in MCNP metastable form
       if (nuc == 95642)
-        return (95642 - 400) * 10000; // special case MCNP Am-242
+        return (95642 - 400) * 10000;  // special case MCNP Am-242
       nuc = ((nuc - 400) * 10000) + 1;
-      while (3.0 < (float ((nuc / 10000) % 1000) / float (nuc / 10000000)))
+      while (3.0 < (float((nuc / 10000) % 1000) / float(nuc / 10000000)))
         nuc -= 999999;
       return nuc;
     }
@@ -3064,20 +1202,18 @@ int pyne::nucname::id(int nuc) {
   // Not a normal nuclide, might be a
   // Natural elemental nuclide.
   // ie 92 for Uranium = 920000
-  if (0 < zz_name.count(nuc))
-    return nuc * 10000000;
+  if (0 < zz_name.count(nuc)) return nuc * 10000000;
   throw IndeterminateNuclideForm(nuc, "");
 }
 
-int pyne::nucname::id(const char* nuc) {
+int pyne::nucname::id(const char *nuc) {
   std::string newnuc(nuc);
   return id(newnuc);
 }
 
 int pyne::nucname::id(std::string nuc) {
   size_t npos = std::string::npos;
-  if (nuc.empty())
-    throw NotANuclide(nuc, "<empty>");
+  if (nuc.empty()) throw NotANuclide(nuc, "<empty>");
   int newnuc;
   std::string elem_name;
   int dash1 = nuc.find("-");
@@ -3105,7 +1241,8 @@ int pyne::nucname::id(std::string nuc) {
   int nuclen = nucstr.length();
 
   if (pyne::contains_substring(pyne::digits, nucstr.substr(0, 1))) {
-    if (pyne::contains_substring(pyne::digits, nucstr.substr(nuclen - 1, nuclen))) {
+    if (pyne::contains_substring(pyne::digits,
+                                 nucstr.substr(nuclen - 1, nuclen))) {
       // Nuclide must actually be an integer that
       // just happens to be living in string form.
       newnuc = pyne::to_int(nucstr);
@@ -3131,15 +1268,13 @@ int pyne::nucname::id(std::string nuc) {
     // natural element form, a la 'U' -> 920000000
     if (anum_str.empty()) {
       elem_name = pyne::capitalize(nucstr);
-      if (0 < name_zz.count(elem_name))
-        return 10000000 * name_zz[elem_name];
+      if (0 < name_zz.count(elem_name)) return 10000000 * name_zz[elem_name];
     }
 
     int anum = pyne::to_int(anum_str);
 
     // bad form
-    if (anum < 0)
-      throw NotANuclide(nucstr, anum);
+    if (anum < 0) throw NotANuclide(nucstr, anum);
 
     // Figure out if we are meta-stable or not
     std::string end_char = pyne::last_char(nucstr);
@@ -3151,7 +1286,8 @@ int pyne::nucname::id(std::string nuc) {
       throw NotANuclide(nucstr, newnuc);
 
     // Add the Z-number
-    elem_name = pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
+    elem_name =
+        pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
     elem_name = pyne::capitalize(elem_name);
     if (0 < name_zz.count(elem_name))
       newnuc = (10000000 * name_zz[elem_name]) + newnuc;
@@ -3163,7 +1299,6 @@ int pyne::nucname::id(std::string nuc) {
   }
   return newnuc;
 }
-
 
 /***************************/
 /*** iselement functions ***/
@@ -3179,7 +1314,7 @@ bool pyne::nucname::iselement(std::string nuc) {
   return iselement(n);
 }
 
-bool pyne::nucname::iselement(const char* nuc) {
+bool pyne::nucname::iselement(const char *nuc) {
   return iselement(std::string(nuc));
 }
 
@@ -3191,12 +1326,10 @@ bool pyne::nucname::iselement(int nuc) {
     return false;
   }
 
-  if (n < 10000000)
-    return false;
+  if (n < 10000000) return false;
   int zzz = znum(n);
   int aaa = anum(n);
-  if (zzz > 0 && aaa == 0)
-    return true;  // is element
+  if (zzz > 0 && aaa == 0) return true;  // is element
   return false;
 }
 
@@ -3213,80 +1346,53 @@ std::string pyne::nucname::name(int nuc) {
   int aaa = aaassss / 10000;
 
   // Make sure the LL value is correct
-  if (0 == zz_name.count(zzz))
-    throw NotANuclide(nuc, nucid);
+  if (0 == zz_name.count(zzz)) throw NotANuclide(nuc, nucid);
 
   // Add LL
   newnuc += zz_name[zzz];
 
   // Add A-number
-  if (0 < aaa)
-    newnuc += pyne::to_str(aaa);
+  if (0 < aaa) newnuc += pyne::to_str(aaa);
 
   // Add meta-stable flag
-  if (0 < ssss)
-    newnuc += "M";
+  if (0 < ssss) newnuc += "M";
 
   return newnuc;
 }
 
-
-
-std::string pyne::nucname::name(const char* nuc) {
+std::string pyne::nucname::name(const char *nuc) {
   std::string newnuc(nuc);
   return name(newnuc);
 }
 
-
-std::string pyne::nucname::name(std::string nuc) {
-  return name(id(nuc));
-}
-
+std::string pyne::nucname::name(std::string nuc) { return name(id(nuc)); }
 
 /**********************/
 /*** znum functions ***/
 /**********************/
-int pyne::nucname::znum(int nuc) {
-  return id(nuc) / 10000000;
-}
+int pyne::nucname::znum(int nuc) { return id(nuc) / 10000000; }
 
-int pyne::nucname::znum(const char* nuc) {
-  return id(nuc) / 10000000;
-}
+int pyne::nucname::znum(const char *nuc) { return id(nuc) / 10000000; }
 
-int pyne::nucname::znum(std::string nuc) {
-  return id(nuc) / 10000000;
-}
+int pyne::nucname::znum(std::string nuc) { return id(nuc) / 10000000; }
 
 /**********************/
 /*** anum functions ***/
 /**********************/
-int pyne::nucname::anum(int nuc) {
-  return (id(nuc) / 10000) % 1000;
-}
+int pyne::nucname::anum(int nuc) { return (id(nuc) / 10000) % 1000; }
 
-int pyne::nucname::anum(const char* nuc) {
-  return (id(nuc) / 10000) % 1000;
-}
+int pyne::nucname::anum(const char *nuc) { return (id(nuc) / 10000) % 1000; }
 
-int pyne::nucname::anum(std::string nuc) {
-  return (id(nuc) / 10000) % 1000;
-}
+int pyne::nucname::anum(std::string nuc) { return (id(nuc) / 10000) % 1000; }
 
 /**********************/
 /*** snum functions ***/
 /**********************/
-int pyne::nucname::snum(int nuc) {
-  return id(nuc) % 10000;
-}
+int pyne::nucname::snum(int nuc) { return id(nuc) % 10000; }
 
-int pyne::nucname::snum(const char* nuc) {
-  return id(nuc) % 10000;
-}
+int pyne::nucname::snum(const char *nuc) { return id(nuc) % 10000; }
 
-int pyne::nucname::snum(std::string nuc) {
-  return id(nuc) % 10000;
-}
+int pyne::nucname::snum(std::string nuc) { return id(nuc) % 10000; }
 
 /************************/
 /*** zzaaam functions ***/
@@ -3295,32 +1401,24 @@ int pyne::nucname::zzaaam(int nuc) {
   int nucid = id(nuc);
   int zzzaaa = nucid / 10000;
   int ssss = nucid % 10000;
-  if (10 <= ssss)
-    ssss = 9;
+  if (10 <= ssss) ssss = 9;
   return zzzaaa * 10 + ssss;
 }
 
-
-int pyne::nucname::zzaaam(const char* nuc) {
+int pyne::nucname::zzaaam(const char *nuc) {
   std::string newnuc(nuc);
   return zzaaam(newnuc);
 }
 
-
-int pyne::nucname::zzaaam(std::string nuc) {
-  return zzaaam(id(nuc));
-}
-
+int pyne::nucname::zzaaam(std::string nuc) { return zzaaam(id(nuc)); }
 
 int pyne::nucname::zzaaam_to_id(int nuc) {
   return (nuc / 10) * 10000 + (nuc % 10);
 }
 
-
-int pyne::nucname::zzaaam_to_id(const char* nuc) {
+int pyne::nucname::zzaaam_to_id(const char *nuc) {
   return zzaaam_to_id(std::string(nuc));
 }
-
 
 int pyne::nucname::zzaaam_to_id(std::string nuc) {
   return zzaaam_to_id(pyne::to_int(nuc));
@@ -3336,27 +1434,18 @@ int pyne::nucname::zzzaaa(int nuc) {
   return zzzaaa;
 }
 
-
-int pyne::nucname::zzzaaa(const char* nuc) {
+int pyne::nucname::zzzaaa(const char *nuc) {
   std::string newnuc(nuc);
   return zzzaaa(newnuc);
 }
 
+int pyne::nucname::zzzaaa(std::string nuc) { return zzzaaa(id(nuc)); }
 
-int pyne::nucname::zzzaaa(std::string nuc) {
-  return zzzaaa(id(nuc));
-}
+int pyne::nucname::zzzaaa_to_id(int nuc) { return (nuc)*10000; }
 
-
-int pyne::nucname::zzzaaa_to_id(int nuc) {
-  return (nuc) * 10000;
-}
-
-
-int pyne::nucname::zzzaaa_to_id(const char* nuc) {
+int pyne::nucname::zzzaaa_to_id(const char *nuc) {
   return zzzaaa_to_id(std::string(nuc));
 }
-
 
 int pyne::nucname::zzzaaa_to_id(std::string nuc) {
   return zzzaaa_to_id(pyne::to_int(nuc));
@@ -3375,9 +1464,8 @@ std::string pyne::nucname::zzllaaam(int nuc) {
   int aaa = aaassss / 10000;
 
   // Make sure the LL value is correct
-  if (0 == zz_name.count(zzz))
-    throw NotANuclide(nuc, nucid);
-  //Adding ZZ
+  if (0 == zz_name.count(zzz)) throw NotANuclide(nuc, nucid);
+  // Adding ZZ
   newnuc += pyne::to_str(zzz);
   newnuc += "-";
   // Add LL
@@ -3385,34 +1473,27 @@ std::string pyne::nucname::zzllaaam(int nuc) {
   // Add required dash
   newnuc += "-";
   // Add AAA
-  if (0 < aaassss)
-    newnuc += pyne::to_str(aaa);
+  if (0 < aaassss) newnuc += pyne::to_str(aaa);
   // Add meta-stable flag
-  if (0 < ssss)
-    newnuc += "m";
+  if (0 < ssss) newnuc += "m";
   return newnuc;
 }
 
-
-std::string pyne::nucname::zzllaaam(const char* nuc) {
+std::string pyne::nucname::zzllaaam(const char *nuc) {
   std::string newnuc(nuc);
   return zzllaaam(newnuc);
 }
-
 
 std::string pyne::nucname::zzllaaam(std::string nuc) {
   return zzllaaam(id(nuc));
 }
 
-
-int pyne::nucname::zzllaaam_to_id(const char* nuc) {
+int pyne::nucname::zzllaaam_to_id(const char *nuc) {
   return zzllaaam_to_id(std::string(nuc));
 }
 
-
 int pyne::nucname::zzllaaam_to_id(std::string nuc) {
-  if (nuc.empty())
-    throw NotANuclide(nuc, "<empty>");
+  if (nuc.empty()) throw NotANuclide(nuc, "<empty>");
   int nucid;
   std::string elem_name;
 
@@ -3433,8 +1514,7 @@ int pyne::nucname::zzllaaam_to_id(std::string nuc) {
   // natural element form, a la 'U' -> 920000000
   if (anum_str.empty() || pyne::contains_substring(nucstr, "NAT")) {
     elem_name = pyne::capitalize(pyne::remove_substring(nucstr, "NAT"));
-    if (0 < name_zz.count(elem_name))
-      return 10000000 * name_zz[elem_name];
+    if (0 < name_zz.count(elem_name)) return 10000000 * name_zz[elem_name];
   }
   int anum = pyne::to_int(anum_str);
 
@@ -3448,7 +1528,8 @@ int pyne::nucname::zzllaaam_to_id(std::string nuc) {
     throw NotANuclide(nucstr, nucid);
 
   // Add the Z-number
-  elem_name = pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
+  elem_name =
+      pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
   elem_name = pyne::capitalize(elem_name);
   if (0 < name_zz.count(elem_name))
     nucid = (10000000 * name_zz[elem_name]) + nucid;
@@ -3466,28 +1547,20 @@ int pyne::nucname::mcnp(int nuc) {
   int newnuc = nuc / 10000;
 
   // special case Am242(m)
-  if (newnuc == 95242 && ssss < 2)
-    ssss = (ssss + 1) % 2;
+  if (newnuc == 95242 && ssss < 2) ssss = (ssss + 1) % 2;
 
   // Handle the crazy MCNP meta-stable format
-  if (0 != ssss && ssss < 10)
-    newnuc += 300 + (ssss * 100);
+  if (0 != ssss && ssss < 10) newnuc += 300 + (ssss * 100);
 
   return newnuc;
 }
 
-
-
-int pyne::nucname::mcnp(const char* nuc) {
+int pyne::nucname::mcnp(const char *nuc) {
   std::string newnuc(nuc);
   return mcnp(newnuc);
 }
 
-
-
-int pyne::nucname::mcnp(std::string nuc) {
-  return mcnp(id(nuc));
-}
+int pyne::nucname::mcnp(std::string nuc) { return mcnp(id(nuc)); }
 
 //
 // MCNP -> id
@@ -3506,9 +1579,9 @@ int pyne::nucname::mcnp_to_id(int nuc) {
     } else {
       // Nuclide in MCNP metastable form
       if (nuc == 95642)
-        return (95642 - 400) * 10000; // special case MCNP Am-242
+        return (95642 - 400) * 10000;  // special case MCNP Am-242
       nuc = ((nuc - 400) * 10000) + 1;
-      while (3.0 < (float ((nuc / 10000) % 1000) / float (nuc / 10000000)))
+      while (3.0 < (float((nuc / 10000) % 1000) / float(nuc / 10000000)))
         nuc -= 999999;
       return nuc;
     }
@@ -3518,11 +1591,9 @@ int pyne::nucname::mcnp_to_id(int nuc) {
   throw IndeterminateNuclideForm(nuc, "");
 }
 
-
-int pyne::nucname::mcnp_to_id(const char* nuc) {
+int pyne::nucname::mcnp_to_id(const char *nuc) {
   return mcnp_to_id(std::string(nuc));
 }
-
 
 int pyne::nucname::mcnp_to_id(std::string nuc) {
   return mcnp_to_id(pyne::to_int(nuc));
@@ -3550,19 +1621,17 @@ std::string pyne::nucname::openmc(int nuc) {
   return nucname;
 }
 
-std::string pyne::nucname::openmc(const char* nuc) {
+std::string pyne::nucname::openmc(const char *nuc) {
   std::string newnuc(nuc);
   return openmc(newnuc);
 }
 
-std::string pyne::nucname::openmc(std::string nuc) {
-  return openmc(id(nuc));
-}
+std::string pyne::nucname::openmc(std::string nuc) { return openmc(id(nuc)); }
 
 //
 // OPENMC -> id
 //
-int pyne::nucname::openmc_to_id(const char* nuc) {
+int pyne::nucname::openmc_to_id(const char *nuc) {
   return openmc_to_id(std::string(nuc));
 }
 
@@ -3587,20 +1656,20 @@ int pyne::nucname::openmc_to_id(std::string nuc) {
 
   // set aaa - stop on "-" if the character exists
   std::string::iterator aaa_end = std::find(nuc.begin(), nuc.end(), '_');
-  int aaa = pyne::to_int(nuc.substr(aaa_start - nuc.begin(), aaa_end - aaa_start));
+  int aaa =
+      pyne::to_int(nuc.substr(aaa_start - nuc.begin(), aaa_end - aaa_start));
 
   // check for metastable state
   int m = 0;
   if (aaa_end != nuc.end()) {
-    std::string::iterator m_start = aaa_end + 2; // move forward once to skip "_m" characters
+    std::string::iterator m_start =
+        aaa_end + 2;  // move forward once to skip "_m" characters
     m = pyne::to_int(nuc.substr(m_start - nuc.begin(), nuc.end() - m_start));
   }
 
   // form integer id and return
   return (zzz * 10000000) + (aaa * 10000) + m;
-
 }
-
 
 /**********************/
 /*** fluka functions ***/
@@ -3613,7 +1682,6 @@ std::string pyne::nucname::fluka(int nuc) {
   return zz_fluka[x];
 }
 
-
 //
 // FLUKA name -> id
 //
@@ -3624,10 +1692,9 @@ int pyne::nucname::fluka_to_id(std::string name) {
   return fluka_zz[name];
 }
 
-int pyne::nucname::fluka_to_id(char* name) {
+int pyne::nucname::fluka_to_id(char *name) {
   return fluka_to_id(std::string(name));
 }
-
 
 /*************************/
 /*** serpent functions ***/
@@ -3642,15 +1709,13 @@ std::string pyne::nucname::serpent(int nuc) {
   int aaa = aaassss / 10000;
 
   // Make sure the LL value is correct
-  if (0 == zz_name.count(zzz))
-    throw NotANuclide(nuc, nucid);
+  if (0 == zz_name.count(zzz)) throw NotANuclide(nuc, nucid);
 
   // Add LL
   std::string llupper = pyne::to_upper(zz_name[zzz]);
   std::string lllower = pyne::to_lower(zz_name[zzz]);
   newnuc += llupper[0];
-  for (int l = 1; l < lllower.size(); l++)
-    newnuc += lllower[l];
+  for (int l = 1; l < lllower.size(); l++) newnuc += lllower[l];
 
   // Add required dash
   newnuc += "-";
@@ -3662,40 +1727,32 @@ std::string pyne::nucname::serpent(int nuc) {
     newnuc += "nat";
 
   // Add meta-stable flag
-  if (0 < ssss)
-    newnuc += "m";
+  if (0 < ssss) newnuc += "m";
 
   return newnuc;
 }
 
-
-std::string pyne::nucname::serpent(const char* nuc) {
+std::string pyne::nucname::serpent(const char *nuc) {
   std::string newnuc(nuc);
   return serpent(newnuc);
 }
 
-
-std::string pyne::nucname::serpent(std::string nuc) {
-  return serpent(id(nuc));
-}
+std::string pyne::nucname::serpent(std::string nuc) { return serpent(id(nuc)); }
 
 //
 // Serpent -> id
 //
-//int pyne::nucname::serpent_to_id(int nuc)
+// int pyne::nucname::serpent_to_id(int nuc)
 //{
 // Should be ZAID
 //}
 
-
-int pyne::nucname::serpent_to_id(const char* nuc) {
+int pyne::nucname::serpent_to_id(const char *nuc) {
   return serpent_to_id(std::string(nuc));
 }
 
-
 int pyne::nucname::serpent_to_id(std::string nuc) {
-  if (nuc.empty())
-    throw NotANuclide(nuc, "<empty>");
+  if (nuc.empty()) throw NotANuclide(nuc, "<empty>");
   int nucid;
   std::string elem_name;
 
@@ -3710,8 +1767,7 @@ int pyne::nucname::serpent_to_id(std::string nuc) {
   // natural element form, a la 'U' -> 920000000
   if (anum_str.empty() || pyne::contains_substring(nucstr, "NAT")) {
     elem_name = pyne::capitalize(pyne::remove_substring(nucstr, "NAT"));
-    if (0 < name_zz.count(elem_name))
-      return 10000000 * name_zz[elem_name];
+    if (0 < name_zz.count(elem_name)) return 10000000 * name_zz[elem_name];
   }
   int anum = pyne::to_int(anum_str);
 
@@ -3725,7 +1781,8 @@ int pyne::nucname::serpent_to_id(std::string nuc) {
     throw NotANuclide(nucstr, nucid);
 
   // Add the Z-number
-  elem_name = pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
+  elem_name =
+      pyne::remove_characters(nucstr.substr(0, nuclen - 1), pyne::digits);
   elem_name = pyne::capitalize(elem_name);
   if (0 < name_zz.count(elem_name))
     nucid = (10000000 * name_zz[elem_name]) + nucid;
@@ -3733,7 +1790,6 @@ int pyne::nucname::serpent_to_id(std::string nuc) {
     throw NotANuclide(nucstr, nucid);
   return nucid;
 }
-
 
 /**********************/
 /*** nist functions ***/
@@ -3748,56 +1804,47 @@ std::string pyne::nucname::nist(int nuc) {
   int aaa = aaassss / 10000;
 
   // Make sure the LL value is correct
-  if (0 == zz_name.count(zzz))
-    throw NotANuclide(nuc, nucid);
+  if (0 == zz_name.count(zzz)) throw NotANuclide(nuc, nucid);
 
   // Add A-number
-  if (0 < aaassss)
-    newnuc += pyne::to_str(aaa);
+  if (0 < aaassss) newnuc += pyne::to_str(aaa);
 
   // Add name
   std::string name_upper = pyne::to_upper(zz_name[zzz]);
   std::string name_lower = pyne::to_lower(zz_name[zzz]);
   newnuc += name_upper[0];
-  for (int l = 1; l < name_lower.size(); l++)
-    newnuc += name_lower[l];
+  for (int l = 1; l < name_lower.size(); l++) newnuc += name_lower[l];
 
   // Add meta-stable flag
   // No metastable flag for NIST,
   // but could add star, by uncommenting below
-  //if (0 < mod_10)
+  // if (0 < mod_10)
   //  newnuc += "*";
 
   return newnuc;
 }
 
-
-std::string pyne::nucname::nist(const char* nuc) {
+std::string pyne::nucname::nist(const char *nuc) {
   std::string newnuc(nuc);
   return nist(newnuc);
 }
 
-
-std::string pyne::nucname::nist(std::string nuc) {
-  return nist(id(nuc));
-}
-
+std::string pyne::nucname::nist(std::string nuc) { return nist(id(nuc)); }
 
 //
 // NIST -> id
 //
-//int pyne::nucname::nist_to_id(int nuc)
+// int pyne::nucname::nist_to_id(int nuc)
 //{
 // NON-EXISTANT
 //};
 
-int pyne::nucname::nist_to_id(const char* nuc) {
+int pyne::nucname::nist_to_id(const char *nuc) {
   return nist_to_id(std::string(nuc));
 }
 
 int pyne::nucname::nist_to_id(std::string nuc) {
-  if (nuc.empty())
-    throw NotANuclide(nuc, "<empty>");
+  if (nuc.empty()) throw NotANuclide(nuc, "<empty>");
   int nucid;
   nuc = pyne::to_upper(nuc);
   std::string elem_name;
@@ -3809,8 +1856,7 @@ int pyne::nucname::nist_to_id(std::string nuc) {
   // natural element form, a la 'U' -> 920000000
   if (anum_str.empty()) {
     elem_name = pyne::capitalize(nuc);
-    if (0 < name_zz.count(elem_name))
-      return 10000000 * name_zz[elem_name];
+    if (0 < name_zz.count(elem_name)) return 10000000 * name_zz[elem_name];
   }
   nucid = pyne::to_int(anum_str) * 10000;
 
@@ -3824,7 +1870,6 @@ int pyne::nucname::nist_to_id(std::string nuc) {
   return nucid;
 }
 
-
 /************************/
 /*** cinder functions ***/
 /************************/
@@ -3835,23 +1880,16 @@ int pyne::nucname::cinder(int nuc) {
   int ssss = nucid % 10000;
   int aaassss = nucid % 10000000;
   int aaa = aaassss / 10000;
-  if (10 <= ssss)
-    ssss = 9;
+  if (10 <= ssss) ssss = 9;
   return (aaa * 10000) + (zzz * 10) + ssss;
 }
 
-
-
-int pyne::nucname::cinder(const char* nuc) {
+int pyne::nucname::cinder(const char *nuc) {
   std::string newnuc(nuc);
   return cinder(newnuc);
 }
 
-
-
-int pyne::nucname::cinder(std::string nuc) {
-  return cinder(id(nuc));
-}
+int pyne::nucname::cinder(std::string nuc) { return cinder(id(nuc)); }
 
 //
 // Cinder -> Id
@@ -3864,18 +1902,13 @@ int pyne::nucname::cinder_to_id(int nuc) {
   return (zzz * 10000000) + (aaa * 10000) + ssss;
 }
 
-
-int pyne::nucname::cinder_to_id(const char* nuc) {
+int pyne::nucname::cinder_to_id(const char *nuc) {
   return cinder_to_id(std::string(nuc));
 }
-
 
 int pyne::nucname::cinder_to_id(std::string nuc) {
   return cinder_to_id(pyne::to_int(nuc));
 }
-
-
-
 
 /**********************/
 /*** ALARA functions ***/
@@ -3891,14 +1924,12 @@ std::string pyne::nucname::alara(int nuc) {
   int aaa = aaassss / 10000;
 
   // Make sure the LL value is correct
-  if (0 == zz_name.count(zzz))
-    throw NotANuclide(nuc, nucid);
+  if (0 == zz_name.count(zzz)) throw NotANuclide(nuc, nucid);
 
   // Add LL, in lower case
   ll += zz_name[zzz];
 
-  for (int i = 0; ll[i] != '\0'; i++)
-    ll[i] = tolower(ll[i]);
+  for (int i = 0; ll[i] != '\0'; i++) ll[i] = tolower(ll[i]);
   newnuc += ll;
 
   // Add A-number
@@ -3911,35 +1942,27 @@ std::string pyne::nucname::alara(int nuc) {
   return newnuc;
 }
 
-
-std::string pyne::nucname::alara(const char* nuc) {
+std::string pyne::nucname::alara(const char *nuc) {
   std::string newnuc(nuc);
   return alara(newnuc);
 }
 
-
-std::string pyne::nucname::alara(std::string nuc) {
-  return alara(id(nuc));
-}
-
+std::string pyne::nucname::alara(std::string nuc) { return alara(id(nuc)); }
 
 //
 // Cinder -> Id
 //
-//int pyne::nucname::alara_to_id(int nuc)
+// int pyne::nucname::alara_to_id(int nuc)
 //{
 // Not Possible
 //}
 
-
-int pyne::nucname::alara_to_id(const char* nuc) {
+int pyne::nucname::alara_to_id(const char *nuc) {
   return alara_to_id(std::string(nuc));
 }
 
-
 int pyne::nucname::alara_to_id(std::string nuc) {
-  if (nuc.empty())
-    throw NotANuclide(nuc, "<empty>");
+  if (nuc.empty()) throw NotANuclide(nuc, "<empty>");
   int nucid;
   nuc = pyne::to_upper(pyne::remove_characters(nuc, ":"));
   std::string elem_name;
@@ -3951,8 +1974,7 @@ int pyne::nucname::alara_to_id(std::string nuc) {
   // natural element form, a la 'U' -> 920000000
   if (anum_str.empty()) {
     elem_name = pyne::capitalize(nuc);
-    if (0 < name_zz.count(elem_name))
-      return 10000000 * name_zz[elem_name];
+    if (0 < name_zz.count(elem_name)) return 10000000 * name_zz[elem_name];
   }
   nucid = pyne::to_int(anum_str) * 10000;
 
@@ -3966,9 +1988,6 @@ int pyne::nucname::alara_to_id(std::string nuc) {
   return nucid;
 }
 
-
-
-
 /***********************/
 /***  SZA functions  ***/
 /***********************/
@@ -3979,39 +1998,32 @@ int pyne::nucname::sza(int nuc) {
   return sss * 1000000 + zzzaaa;
 }
 
-
-int pyne::nucname::sza(const char* nuc) {
+int pyne::nucname::sza(const char *nuc) {
   std::string newnuc(nuc);
   return sza(newnuc);
 }
 
-
-int pyne::nucname::sza(std::string nuc) {
-  return sza(id(nuc));
-}
-
+int pyne::nucname::sza(std::string nuc) { return sza(id(nuc)); }
 
 int pyne::nucname::sza_to_id(int nuc) {
   int sss = nuc / 1000000;
   int zzzaaa = nuc % 1000000;
   if (5 < sss) {
     // Unphysical metastable state warning
-    warning("You have indicated a metastable state of " + pyne::to_str(sss) + ". Metastable state above 5, possibly unphysical. ");
+    warning("You have indicated a metastable state of " + pyne::to_str(sss) +
+            ". Metastable state above 5, possibly unphysical. ");
   }
   return zzzaaa * 10000 + sss;
 }
 
-
-int pyne::nucname::sza_to_id(const char* nuc) {
+int pyne::nucname::sza_to_id(const char *nuc) {
   std::string newnuc(nuc);
   return sza_to_id(newnuc);
 }
 
-
 int pyne::nucname::sza_to_id(std::string nuc) {
   return sza_to_id(pyne::to_int(nuc));
 }
-
 
 void pyne::nucname::_load_state_map() {
   for (int i = 0; i < TOTAL_STATE_MAPS; ++i) {
@@ -4022,8 +2034,7 @@ void pyne::nucname::_load_state_map() {
 int pyne::nucname::state_id_to_id(int state) {
   int zzzaaa = (state / 10000) * 10000;
   int state_number = state % 10000;
-  if (state_number == 0)
-    return state;
+  if (state_number == 0) return state;
   std::map<int, int>::iterator nuc_iter, nuc_end;
 
   nuc_iter = state_id_map.find(state);
@@ -4033,19 +2044,17 @@ int pyne::nucname::state_id_to_id(int state) {
     return zzzaaa + m;
   }
 
-  if (state_id_map.empty())  {
+  if (state_id_map.empty()) {
     _load_state_map();
     return state_id_to_id(state);
   }
   return -1;
 }
 
-
 int pyne::nucname::id_to_state_id(int nuc_id) {
   int zzzaaa = (nuc_id / 10000) * 10000;
   int state = nuc_id % 10000;
-  if (state == 0)
-    return nuc_id;
+  if (state == 0) return nuc_id;
   std::map<int, int>::iterator nuc_iter, nuc_end, it;
 
   nuc_iter = state_id_map.lower_bound(zzzaaa);
@@ -4056,13 +2065,12 @@ int pyne::nucname::id_to_state_id(int nuc_id) {
     }
   }
 
-  if (state_id_map.empty())  {
+  if (state_id_map.empty()) {
     _load_state_map();
     return id_to_state_id(nuc_id);
   }
   return -1;
 }
-
 
 /************************/
 /*** ENSDF functions ***/
@@ -4071,7 +2079,7 @@ int pyne::nucname::id_to_state_id(int nuc_id) {
 // ENSDF  -> Id
 //
 
-int pyne::nucname::ensdf_to_id(const char* nuc) {
+int pyne::nucname::ensdf_to_id(const char *nuc) {
   return ensdf_to_id(std::string(nuc));
 }
 
@@ -4088,13 +2096,11 @@ int pyne::nucname::ensdf_to_id(std::string nuc) {
   } else {
     return nucname::id(nuc);
   }
-
 }
 
 //
 // end of src/nucname.cpp
 //
-
 
 //
 // start of src/rxname.cpp
@@ -4104,584 +2110,582 @@ int pyne::nucname::ensdf_to_id(std::string nuc) {
 #endif
 
 std::string pyne::rxname::_names[NUM_RX_NAMES] = {
-  "total",
-  "scattering",
-  "elastic",
-  "nonelastic",
-  "n",
-  "misc",
-  "continuum",
-  "z_2nd",
-  "z_2n",
-  "z_2n_0",
-  "z_2n_1",
-  "z_2n_2",
-  "z_3n",
-  "z_3n_0",
-  "z_3n_1",
-  "z_3n_2",
-  "fission",
-  "fission_first",
-  "fission_second",
-  "fission_third",
-  "na",
-  "na_0",
-  "na_1",
-  "na_2",
-  "n3a",
-  "z_2na",
-  "z_3na",
-  "absorption",
-  "np",
-  "np_0",
-  "np_1",
-  "np_2",
-  "npd",
-  "n2a",
-  "z_2n2a",
-  "nd",
-  "nd_0",
-  "nd_1",
-  "nd_2",
-  "nt",
-  "nt_0",
-  "nt_1",
-  "nt_2",
-  "nHe3",
-  "nHe3_0",
-  "nHe3_1",
-  "nHe3_2",
-  "nd3a",
-  "nt2a",
-  "z_4n",
-  "z_4n_0",
-  "z_4n_1",
-  "fission_fourth",
-  "z_2np",
-  "z_3np",
-  "n2p",
-  "npa",
-  "n_0",
-  "n_1",
-  "n_2",
-  "n_3",
-  "n_4",
-  "n_5",
-  "n_6",
-  "n_7",
-  "n_8",
-  "n_9",
-  "n_10",
-  "n_11",
-  "n_12",
-  "n_13",
-  "n_14",
-  "n_15",
-  "n_16",
-  "n_17",
-  "n_18",
-  "n_19",
-  "n_20",
-  "n_21",
-  "n_22",
-  "n_23",
-  "n_24",
-  "n_25",
-  "n_26",
-  "n_27",
-  "n_28",
-  "n_29",
-  "n_30",
-  "n_31",
-  "n_32",
-  "n_33",
-  "n_34",
-  "n_35",
-  "n_36",
-  "n_37",
-  "n_38",
-  "n_39",
-  "n_40",
-  "n_continuum",
-  "disappearance",
-  "gamma",
-  "gamma_0",
-  "gamma_1",
-  "gamma_2",
-  "p",
-  "d",
-  "t",
-  "He3",
-  "a",
-  "z_2a",
-  "z_3a",
-  "z_2p",
-  "z_2p_0",
-  "z_2p_1",
-  "z_2p_2",
-  "pa",
-  "t2a",
-  "d2a",
-  "pd",
-  "pt",
-  "da",
-  "resonance_parameters",
-  "n_total",
-  "gamma_total",
-  "p_total",
-  "d_total",
-  "t_total",
-  "He3_total",
-  "a_total",
-  "pionp",
-  "pion0",
-  "pionm",
-  "muonp",
-  "muonm",
-  "kaonp",
-  "kaon0_long",
-  "kaon0_short",
-  "kaonm",
-  "antip",
-  "antin",
-  "mubar",
-  "epsilon",
-  "y",
-  "erel_total",
-  "erel_elastic",
-  "erel_nonelastic",
-  "erel_n",
-  "erel_misc",
-  "erel_continuum",
-  "erel_2nd",
-  "erel_2n",
-  "erel_3n",
-  "erel_fission",
-  "erel_fission_first",
-  "erel_fission_second",
-  "erel_fission_third",
-  "erel_na",
-  "erel_n3a",
-  "erel_2na",
-  "erel_3na",
-  "erel_absorption",
-  "erel_np",
-  "erel_n2a",
-  "erel_2n2a",
-  "erel_nd",
-  "erel_nt",
-  "erel_nHe3",
-  "erel_nd3a",
-  "erel_nt2a",
-  "erel_4n",
-  "erel_fission_fourth",
-  "erel_2np",
-  "erel_3np",
-  "erel_n2p",
-  "erel_npa",
-  "erel_n_0",
-  "erel_n_1",
-  "erel_n_2",
-  "erel_n_3",
-  "erel_n_4",
-  "erel_n_5",
-  "erel_n_6",
-  "erel_n_7",
-  "erel_n_8",
-  "erel_n_9",
-  "erel_n_10",
-  "erel_n_11",
-  "erel_n_12",
-  "erel_n_13",
-  "erel_n_14",
-  "erel_n_15",
-  "erel_n_16",
-  "erel_n_17",
-  "erel_n_18",
-  "erel_n_19",
-  "erel_n_20",
-  "erel_n_21",
-  "erel_n_22",
-  "erel_n_23",
-  "erel_n_24",
-  "erel_n_25",
-  "erel_n_26",
-  "erel_n_27",
-  "erel_n_28",
-  "erel_n_29",
-  "erel_n_30",
-  "erel_n_31",
-  "erel_n_32",
-  "erel_n_33",
-  "erel_n_34",
-  "erel_n_35",
-  "erel_n_36",
-  "erel_n_37",
-  "erel_n_38",
-  "erel_n_39",
-  "erel_n_40",
-  "erel_n_continuum",
-  "erel_disappearance",
-  "erel_gamma",
-  "erel_p",
-  "erel_d",
-  "erel_t",
-  "erel_He3",
-  "erel_a",
-  "erel_2a",
-  "erel_3a",
-  "erel_2p",
-  "erel_pa",
-  "erel_t2a",
-  "erel_d2a",
-  "erel_pd",
-  "erel_pt",
-  "erel_da",
-  "damage",
-  "heading",
-  "nubar",
-  "fission_product_yield_independent",
-  "nubar_delayed",
-  "nubar_prompt",
-  "decay",
-  "energy_per_fission",
-  "fission_product_yield_cumulative",
-  "gamma_delayed",
-  "stopping_power",
-  "photon_total",
-  "photon_coherent",
-  "photon_incoherent",
-  "scattering_factor_imag",
-  "scattering_factor_real",
-  "pair_prod_elec",
-  "pair_prod",
-  "pair_prod_nuc",
-  "absorption_photoelectric",
-  "photoexcitation",
-  "scattering_electroatomic",
-  "bremsstrahlung",
-  "excitation_electroatomic",
-  "atomic_relaxation",
-  "k_photoelectric",
-  "l1_photoelectric",
-  "l2_photoelectric",
-  "l3_photoelectric",
-  "m1_photoelectric",
-  "m2_photoelectric",
-  "m3_photoelectric",
-  "m4_photoelectric",
-  "m5_photoelectric",
-  "n1_photoelectric",
-  "n2_photoelectric",
-  "n3_photoelectric",
-  "n4_photoelectric",
-  "n5_photoelectric",
-  "n6_photoelectric",
-  "n7_photoelectric",
-  "o1_photoelectric",
-  "o2_photoelectric",
-  "o3_photoelectric",
-  "o4_photoelectric",
-  "o5_photoelectric",
-  "o6_photoelectric",
-  "o7_photoelectric",
-  "o8_photoelectric",
-  "o9_photoelectric",
-  "p1_photoelectric",
-  "p2_photoelectric",
-  "p3_photoelectric",
-  "p4_photoelectric",
-  "p5_photoelectric",
-  "p6_photoelectric",
-  "p7_photoelectric",
-  "p8_photoelectric",
-  "p9_photoelectric",
-  "p10_photoelectric",
-  "p11_photoelectric",
-  "q1_photoelectric",
-  "q2_photoelectric",
-  "q3_photoelectric",
-  "p_0",
-  "p_1",
-  "p_2",
-  "p_3",
-  "p_4",
-  "p_5",
-  "p_6",
-  "p_7",
-  "p_8",
-  "p_9",
-  "p_10",
-  "p_11",
-  "p_12",
-  "p_13",
-  "p_14",
-  "p_15",
-  "p_16",
-  "p_17",
-  "p_18",
-  "p_19",
-  "p_20",
-  "p_21",
-  "p_22",
-  "p_23",
-  "p_24",
-  "p_25",
-  "p_26",
-  "p_27",
-  "p_28",
-  "p_29",
-  "p_30",
-  "p_31",
-  "p_32",
-  "p_33",
-  "p_34",
-  "p_35",
-  "p_36",
-  "p_37",
-  "p_38",
-  "p_39",
-  "p_40",
-  "p_41",
-  "p_42",
-  "p_43",
-  "p_44",
-  "p_45",
-  "p_46",
-  "p_47",
-  "p_48",
-  "p_continuum",
-  "d_0",
-  "d_1",
-  "d_2",
-  "d_3",
-  "d_4",
-  "d_5",
-  "d_6",
-  "d_7",
-  "d_8",
-  "d_9",
-  "d_10",
-  "d_11",
-  "d_12",
-  "d_13",
-  "d_14",
-  "d_15",
-  "d_16",
-  "d_17",
-  "d_18",
-  "d_19",
-  "d_20",
-  "d_21",
-  "d_22",
-  "d_23",
-  "d_24",
-  "d_25",
-  "d_26",
-  "d_27",
-  "d_28",
-  "d_29",
-  "d_30",
-  "d_31",
-  "d_32",
-  "d_33",
-  "d_34",
-  "d_35",
-  "d_36",
-  "d_37",
-  "d_38",
-  "d_39",
-  "d_40",
-  "d_41",
-  "d_42",
-  "d_43",
-  "d_44",
-  "d_45",
-  "d_46",
-  "d_47",
-  "d_48",
-  "d_continuum",
-  "t_0",
-  "t_1",
-  "t_2",
-  "t_3",
-  "t_4",
-  "t_5",
-  "t_6",
-  "t_7",
-  "t_8",
-  "t_9",
-  "t_10",
-  "t_11",
-  "t_12",
-  "t_13",
-  "t_14",
-  "t_15",
-  "t_16",
-  "t_17",
-  "t_18",
-  "t_19",
-  "t_20",
-  "t_21",
-  "t_22",
-  "t_23",
-  "t_24",
-  "t_25",
-  "t_26",
-  "t_27",
-  "t_28",
-  "t_29",
-  "t_30",
-  "t_31",
-  "t_32",
-  "t_33",
-  "t_34",
-  "t_35",
-  "t_36",
-  "t_37",
-  "t_38",
-  "t_39",
-  "t_40",
-  "t_41",
-  "t_42",
-  "t_43",
-  "t_44",
-  "t_45",
-  "t_46",
-  "t_47",
-  "t_48",
-  "t_continuum",
-  "He3_0",
-  "He3_1",
-  "He3_2",
-  "He3_3",
-  "He3_4",
-  "He3_5",
-  "He3_6",
-  "He3_7",
-  "He3_8",
-  "He3_9",
-  "He3_10",
-  "He3_11",
-  "He3_12",
-  "He3_13",
-  "He3_14",
-  "He3_15",
-  "He3_16",
-  "He3_17",
-  "He3_18",
-  "He3_19",
-  "He3_20",
-  "He3_21",
-  "He3_22",
-  "He3_23",
-  "He3_24",
-  "He3_25",
-  "He3_26",
-  "He3_27",
-  "He3_28",
-  "He3_29",
-  "He3_30",
-  "He3_31",
-  "He3_32",
-  "He3_33",
-  "He3_34",
-  "He3_35",
-  "He3_36",
-  "He3_37",
-  "He3_38",
-  "He3_39",
-  "He3_40",
-  "He3_41",
-  "He3_42",
-  "He3_43",
-  "He3_44",
-  "He3_45",
-  "He3_46",
-  "He3_47",
-  "He3_48",
-  "He3_continuum",
-  "a_0",
-  "a_1",
-  "a_2",
-  "a_3",
-  "a_4",
-  "a_5",
-  "a_6",
-  "a_7",
-  "a_8",
-  "a_9",
-  "a_10",
-  "a_11",
-  "a_12",
-  "a_13",
-  "a_14",
-  "a_15",
-  "a_16",
-  "a_17",
-  "a_18",
-  "a_19",
-  "a_20",
-  "a_21",
-  "a_22",
-  "a_23",
-  "a_24",
-  "a_25",
-  "a_26",
-  "a_27",
-  "a_28",
-  "a_29",
-  "a_30",
-  "a_31",
-  "a_32",
-  "a_33",
-  "a_34",
-  "a_35",
-  "a_36",
-  "a_37",
-  "a_38",
-  "a_39",
-  "a_40",
-  "a_41",
-  "a_42",
-  "a_43",
-  "a_44",
-  "a_45",
-  "a_46",
-  "a_47",
-  "a_48",
-  "a_continuum",
-  "lumped_covar",
-  "excited",
-  "bminus",
-  "bplus",
-  "ec",
-  "bminus_n",
-  "bminus_a",
-  "it",
-  "bplus_a",
-  "ec_bplus",
-  "bplus_p",
-  "bminus_2n",
-  "bminus_3n",
-  "bminus_4n",
-  "ecp",
-  "eca",
-  "bplus_2p",
-  "ec_2p",
-  "decay_2bminus",
-  "bminus_p",
-  "decay_14c",
-  "bplus_3p",
-  "sf",
-  "decay_2bplus",
-  "decay_2ec",
-  "ec_3p",
-  "bminus_sf"
-};
+    "total",
+    "scattering",
+    "elastic",
+    "nonelastic",
+    "n",
+    "misc",
+    "continuum",
+    "z_2nd",
+    "z_2n",
+    "z_2n_0",
+    "z_2n_1",
+    "z_2n_2",
+    "z_3n",
+    "z_3n_0",
+    "z_3n_1",
+    "z_3n_2",
+    "fission",
+    "fission_first",
+    "fission_second",
+    "fission_third",
+    "na",
+    "na_0",
+    "na_1",
+    "na_2",
+    "n3a",
+    "z_2na",
+    "z_3na",
+    "absorption",
+    "np",
+    "np_0",
+    "np_1",
+    "np_2",
+    "npd",
+    "n2a",
+    "z_2n2a",
+    "nd",
+    "nd_0",
+    "nd_1",
+    "nd_2",
+    "nt",
+    "nt_0",
+    "nt_1",
+    "nt_2",
+    "nHe3",
+    "nHe3_0",
+    "nHe3_1",
+    "nHe3_2",
+    "nd3a",
+    "nt2a",
+    "z_4n",
+    "z_4n_0",
+    "z_4n_1",
+    "fission_fourth",
+    "z_2np",
+    "z_3np",
+    "n2p",
+    "npa",
+    "n_0",
+    "n_1",
+    "n_2",
+    "n_3",
+    "n_4",
+    "n_5",
+    "n_6",
+    "n_7",
+    "n_8",
+    "n_9",
+    "n_10",
+    "n_11",
+    "n_12",
+    "n_13",
+    "n_14",
+    "n_15",
+    "n_16",
+    "n_17",
+    "n_18",
+    "n_19",
+    "n_20",
+    "n_21",
+    "n_22",
+    "n_23",
+    "n_24",
+    "n_25",
+    "n_26",
+    "n_27",
+    "n_28",
+    "n_29",
+    "n_30",
+    "n_31",
+    "n_32",
+    "n_33",
+    "n_34",
+    "n_35",
+    "n_36",
+    "n_37",
+    "n_38",
+    "n_39",
+    "n_40",
+    "n_continuum",
+    "disappearance",
+    "gamma",
+    "gamma_0",
+    "gamma_1",
+    "gamma_2",
+    "p",
+    "d",
+    "t",
+    "He3",
+    "a",
+    "z_2a",
+    "z_3a",
+    "z_2p",
+    "z_2p_0",
+    "z_2p_1",
+    "z_2p_2",
+    "pa",
+    "t2a",
+    "d2a",
+    "pd",
+    "pt",
+    "da",
+    "resonance_parameters",
+    "n_total",
+    "gamma_total",
+    "p_total",
+    "d_total",
+    "t_total",
+    "He3_total",
+    "a_total",
+    "pionp",
+    "pion0",
+    "pionm",
+    "muonp",
+    "muonm",
+    "kaonp",
+    "kaon0_long",
+    "kaon0_short",
+    "kaonm",
+    "antip",
+    "antin",
+    "mubar",
+    "epsilon",
+    "y",
+    "erel_total",
+    "erel_elastic",
+    "erel_nonelastic",
+    "erel_n",
+    "erel_misc",
+    "erel_continuum",
+    "erel_2nd",
+    "erel_2n",
+    "erel_3n",
+    "erel_fission",
+    "erel_fission_first",
+    "erel_fission_second",
+    "erel_fission_third",
+    "erel_na",
+    "erel_n3a",
+    "erel_2na",
+    "erel_3na",
+    "erel_absorption",
+    "erel_np",
+    "erel_n2a",
+    "erel_2n2a",
+    "erel_nd",
+    "erel_nt",
+    "erel_nHe3",
+    "erel_nd3a",
+    "erel_nt2a",
+    "erel_4n",
+    "erel_fission_fourth",
+    "erel_2np",
+    "erel_3np",
+    "erel_n2p",
+    "erel_npa",
+    "erel_n_0",
+    "erel_n_1",
+    "erel_n_2",
+    "erel_n_3",
+    "erel_n_4",
+    "erel_n_5",
+    "erel_n_6",
+    "erel_n_7",
+    "erel_n_8",
+    "erel_n_9",
+    "erel_n_10",
+    "erel_n_11",
+    "erel_n_12",
+    "erel_n_13",
+    "erel_n_14",
+    "erel_n_15",
+    "erel_n_16",
+    "erel_n_17",
+    "erel_n_18",
+    "erel_n_19",
+    "erel_n_20",
+    "erel_n_21",
+    "erel_n_22",
+    "erel_n_23",
+    "erel_n_24",
+    "erel_n_25",
+    "erel_n_26",
+    "erel_n_27",
+    "erel_n_28",
+    "erel_n_29",
+    "erel_n_30",
+    "erel_n_31",
+    "erel_n_32",
+    "erel_n_33",
+    "erel_n_34",
+    "erel_n_35",
+    "erel_n_36",
+    "erel_n_37",
+    "erel_n_38",
+    "erel_n_39",
+    "erel_n_40",
+    "erel_n_continuum",
+    "erel_disappearance",
+    "erel_gamma",
+    "erel_p",
+    "erel_d",
+    "erel_t",
+    "erel_He3",
+    "erel_a",
+    "erel_2a",
+    "erel_3a",
+    "erel_2p",
+    "erel_pa",
+    "erel_t2a",
+    "erel_d2a",
+    "erel_pd",
+    "erel_pt",
+    "erel_da",
+    "damage",
+    "heading",
+    "nubar",
+    "fission_product_yield_independent",
+    "nubar_delayed",
+    "nubar_prompt",
+    "decay",
+    "energy_per_fission",
+    "fission_product_yield_cumulative",
+    "gamma_delayed",
+    "stopping_power",
+    "photon_total",
+    "photon_coherent",
+    "photon_incoherent",
+    "scattering_factor_imag",
+    "scattering_factor_real",
+    "pair_prod_elec",
+    "pair_prod",
+    "pair_prod_nuc",
+    "absorption_photoelectric",
+    "photoexcitation",
+    "scattering_electroatomic",
+    "bremsstrahlung",
+    "excitation_electroatomic",
+    "atomic_relaxation",
+    "k_photoelectric",
+    "l1_photoelectric",
+    "l2_photoelectric",
+    "l3_photoelectric",
+    "m1_photoelectric",
+    "m2_photoelectric",
+    "m3_photoelectric",
+    "m4_photoelectric",
+    "m5_photoelectric",
+    "n1_photoelectric",
+    "n2_photoelectric",
+    "n3_photoelectric",
+    "n4_photoelectric",
+    "n5_photoelectric",
+    "n6_photoelectric",
+    "n7_photoelectric",
+    "o1_photoelectric",
+    "o2_photoelectric",
+    "o3_photoelectric",
+    "o4_photoelectric",
+    "o5_photoelectric",
+    "o6_photoelectric",
+    "o7_photoelectric",
+    "o8_photoelectric",
+    "o9_photoelectric",
+    "p1_photoelectric",
+    "p2_photoelectric",
+    "p3_photoelectric",
+    "p4_photoelectric",
+    "p5_photoelectric",
+    "p6_photoelectric",
+    "p7_photoelectric",
+    "p8_photoelectric",
+    "p9_photoelectric",
+    "p10_photoelectric",
+    "p11_photoelectric",
+    "q1_photoelectric",
+    "q2_photoelectric",
+    "q3_photoelectric",
+    "p_0",
+    "p_1",
+    "p_2",
+    "p_3",
+    "p_4",
+    "p_5",
+    "p_6",
+    "p_7",
+    "p_8",
+    "p_9",
+    "p_10",
+    "p_11",
+    "p_12",
+    "p_13",
+    "p_14",
+    "p_15",
+    "p_16",
+    "p_17",
+    "p_18",
+    "p_19",
+    "p_20",
+    "p_21",
+    "p_22",
+    "p_23",
+    "p_24",
+    "p_25",
+    "p_26",
+    "p_27",
+    "p_28",
+    "p_29",
+    "p_30",
+    "p_31",
+    "p_32",
+    "p_33",
+    "p_34",
+    "p_35",
+    "p_36",
+    "p_37",
+    "p_38",
+    "p_39",
+    "p_40",
+    "p_41",
+    "p_42",
+    "p_43",
+    "p_44",
+    "p_45",
+    "p_46",
+    "p_47",
+    "p_48",
+    "p_continuum",
+    "d_0",
+    "d_1",
+    "d_2",
+    "d_3",
+    "d_4",
+    "d_5",
+    "d_6",
+    "d_7",
+    "d_8",
+    "d_9",
+    "d_10",
+    "d_11",
+    "d_12",
+    "d_13",
+    "d_14",
+    "d_15",
+    "d_16",
+    "d_17",
+    "d_18",
+    "d_19",
+    "d_20",
+    "d_21",
+    "d_22",
+    "d_23",
+    "d_24",
+    "d_25",
+    "d_26",
+    "d_27",
+    "d_28",
+    "d_29",
+    "d_30",
+    "d_31",
+    "d_32",
+    "d_33",
+    "d_34",
+    "d_35",
+    "d_36",
+    "d_37",
+    "d_38",
+    "d_39",
+    "d_40",
+    "d_41",
+    "d_42",
+    "d_43",
+    "d_44",
+    "d_45",
+    "d_46",
+    "d_47",
+    "d_48",
+    "d_continuum",
+    "t_0",
+    "t_1",
+    "t_2",
+    "t_3",
+    "t_4",
+    "t_5",
+    "t_6",
+    "t_7",
+    "t_8",
+    "t_9",
+    "t_10",
+    "t_11",
+    "t_12",
+    "t_13",
+    "t_14",
+    "t_15",
+    "t_16",
+    "t_17",
+    "t_18",
+    "t_19",
+    "t_20",
+    "t_21",
+    "t_22",
+    "t_23",
+    "t_24",
+    "t_25",
+    "t_26",
+    "t_27",
+    "t_28",
+    "t_29",
+    "t_30",
+    "t_31",
+    "t_32",
+    "t_33",
+    "t_34",
+    "t_35",
+    "t_36",
+    "t_37",
+    "t_38",
+    "t_39",
+    "t_40",
+    "t_41",
+    "t_42",
+    "t_43",
+    "t_44",
+    "t_45",
+    "t_46",
+    "t_47",
+    "t_48",
+    "t_continuum",
+    "He3_0",
+    "He3_1",
+    "He3_2",
+    "He3_3",
+    "He3_4",
+    "He3_5",
+    "He3_6",
+    "He3_7",
+    "He3_8",
+    "He3_9",
+    "He3_10",
+    "He3_11",
+    "He3_12",
+    "He3_13",
+    "He3_14",
+    "He3_15",
+    "He3_16",
+    "He3_17",
+    "He3_18",
+    "He3_19",
+    "He3_20",
+    "He3_21",
+    "He3_22",
+    "He3_23",
+    "He3_24",
+    "He3_25",
+    "He3_26",
+    "He3_27",
+    "He3_28",
+    "He3_29",
+    "He3_30",
+    "He3_31",
+    "He3_32",
+    "He3_33",
+    "He3_34",
+    "He3_35",
+    "He3_36",
+    "He3_37",
+    "He3_38",
+    "He3_39",
+    "He3_40",
+    "He3_41",
+    "He3_42",
+    "He3_43",
+    "He3_44",
+    "He3_45",
+    "He3_46",
+    "He3_47",
+    "He3_48",
+    "He3_continuum",
+    "a_0",
+    "a_1",
+    "a_2",
+    "a_3",
+    "a_4",
+    "a_5",
+    "a_6",
+    "a_7",
+    "a_8",
+    "a_9",
+    "a_10",
+    "a_11",
+    "a_12",
+    "a_13",
+    "a_14",
+    "a_15",
+    "a_16",
+    "a_17",
+    "a_18",
+    "a_19",
+    "a_20",
+    "a_21",
+    "a_22",
+    "a_23",
+    "a_24",
+    "a_25",
+    "a_26",
+    "a_27",
+    "a_28",
+    "a_29",
+    "a_30",
+    "a_31",
+    "a_32",
+    "a_33",
+    "a_34",
+    "a_35",
+    "a_36",
+    "a_37",
+    "a_38",
+    "a_39",
+    "a_40",
+    "a_41",
+    "a_42",
+    "a_43",
+    "a_44",
+    "a_45",
+    "a_46",
+    "a_47",
+    "a_48",
+    "a_continuum",
+    "lumped_covar",
+    "excited",
+    "bminus",
+    "bplus",
+    "ec",
+    "bminus_n",
+    "bminus_a",
+    "it",
+    "bplus_a",
+    "ec_bplus",
+    "bplus_p",
+    "bminus_2n",
+    "bminus_3n",
+    "bminus_4n",
+    "ecp",
+    "eca",
+    "bplus_2p",
+    "ec_2p",
+    "decay_2bminus",
+    "bminus_p",
+    "decay_14c",
+    "bplus_3p",
+    "sf",
+    "decay_2bplus",
+    "decay_2ec",
+    "ec_3p",
+    "bminus_sf"};
 std::set<std::string> pyne::rxname::names(pyne::rxname::_names,
                                           pyne::rxname::_names + NUM_RX_NAMES);
-
 
 std::map<std::string, unsigned int> pyne::rxname::altnames;
 std::map<unsigned int, std::string> pyne::rxname::id_name;
@@ -4693,1738 +2697,1200 @@ std::map<unsigned int, std::string> pyne::rxname::docs;
 std::map<std::pair<std::string, int>, unsigned int> pyne::rxname::offset_id;
 std::map<std::pair<std::string, unsigned int>, int> pyne::rxname::id_offset;
 
-void* pyne::rxname::_fill_maps() {
+void *pyne::rxname::_fill_maps() {
   using std::make_pair;
   std::string rx;
   unsigned int rxid;
-  unsigned int _mts [NUM_RX_NAMES] = {
-    1,
-    0,
-    2,
-    3,
-    4,
-    5,
-    10,
-    11,
-    16,
-    0,
-    0,
-    0,
-    17,
-    0,
-    0,
-    0,
-    18,
-    19,
-    20,
-    21,
-    22,
-    0,
-    0,
-    0,
-    23,
-    24,
-    25,
-    27,
-    28,
-    0,
-    0,
-    0,
-    0,
-    29,
-    30,
-    32,
-    0,
-    0,
-    0,
-    33,
-    0,
-    0,
-    0,
-    34,
-    0,
-    0,
-    0,
-    35,
-    36,
-    37,
-    0,
-    0,
-    38,
-    41,
-    42,
-    44,
-    45,
-    50,
-    51,
-    52,
-    53,
-    54,
-    55,
-    56,
-    57,
-    58,
-    59,
-    60,
-    61,
-    62,
-    63,
-    64,
-    65,
-    66,
-    67,
-    68,
-    69,
-    70,
-    71,
-    72,
-    73,
-    74,
-    75,
-    76,
-    77,
-    78,
-    79,
-    80,
-    81,
-    82,
-    83,
-    84,
-    85,
-    86,
-    87,
-    88,
-    89,
-    90,
-    91,
-    101,
-    102,
-    0,
-    0,
-    0,
-    103,
-    104,
-    105,
-    106,
-    107,
-    108,
-    109,
-    111,
-    0,
-    0,
-    0,
-    112,
-    113,
-    114,
-    115,
-    116,
-    117,
-    151,
-    201,
-    202,
-    203,
-    204,
-    205,
-    206,
-    207,
-    208,
-    209,
-    210,
-    211,
-    212,
-    213,
-    214,
-    215,
-    216,
-    217,
-    218,
-    251,
-    252,
-    253,
-    301,
-    302,
-    303,
-    304,
-    305,
-    310,
-    311,
-    316,
-    317,
-    318,
-    319,
-    320,
-    321,
-    322,
-    323,
-    324,
-    325,
-    327,
-    328,
-    329,
-    330,
-    332,
-    333,
-    334,
-    335,
-    336,
-    337,
-    338,
-    341,
-    342,
-    344,
-    345,
-    350,
-    351,
-    352,
-    353,
-    354,
-    355,
-    356,
-    357,
-    358,
-    359,
-    360,
-    361,
-    362,
-    363,
-    364,
-    365,
-    366,
-    367,
-    368,
-    369,
-    370,
-    371,
-    372,
-    373,
-    374,
-    375,
-    376,
-    377,
-    378,
-    379,
-    380,
-    381,
-    382,
-    383,
-    384,
-    385,
-    386,
-    387,
-    388,
-    389,
-    390,
-    391,
-    401,
-    402,
-    403,
-    404,
-    405,
-    406,
-    407,
-    408,
-    409,
-    411,
-    412,
-    413,
-    414,
-    415,
-    416,
-    417,
-    444,
-    451,
-    452,
-    454,
-    455,
-    456,
-    457,
-    458,
-    459,
-    460,
-    500,
-    501,
-    502,
-    504,
-    505,
-    506,
-    515,
-    516,
-    517,
-    522,
-    523,
-    526,
-    527,
-    528,
-    533,
-    534,
-    535,
-    536,
-    537,
-    538,
-    539,
-    540,
-    541,
-    542,
-    543,
-    544,
-    545,
-    546,
-    547,
-    548,
-    549,
-    550,
-    551,
-    552,
-    553,
-    554,
-    555,
-    556,
-    557,
-    558,
-    559,
-    560,
-    561,
-    562,
-    563,
-    564,
-    565,
-    566,
-    567,
-    568,
-    569,
-    570,
-    571,
-    572,
-    600,
-    601,
-    602,
-    603,
-    604,
-    605,
-    606,
-    607,
-    608,
-    609,
-    610,
-    611,
-    612,
-    613,
-    614,
-    615,
-    616,
-    617,
-    618,
-    619,
-    620,
-    621,
-    622,
-    623,
-    624,
-    625,
-    626,
-    627,
-    628,
-    629,
-    630,
-    631,
-    632,
-    633,
-    634,
-    635,
-    636,
-    637,
-    638,
-    639,
-    640,
-    641,
-    642,
-    643,
-    644,
-    645,
-    646,
-    647,
-    648,
-    649,
-    650,
-    651,
-    652,
-    653,
-    654,
-    655,
-    656,
-    657,
-    658,
-    659,
-    660,
-    661,
-    662,
-    663,
-    664,
-    665,
-    666,
-    667,
-    668,
-    669,
-    670,
-    671,
-    672,
-    673,
-    674,
-    675,
-    676,
-    677,
-    678,
-    679,
-    680,
-    681,
-    682,
-    683,
-    684,
-    685,
-    686,
-    687,
-    688,
-    689,
-    690,
-    691,
-    692,
-    693,
-    694,
-    695,
-    696,
-    697,
-    698,
-    699,
-    700,
-    701,
-    702,
-    703,
-    704,
-    705,
-    706,
-    707,
-    708,
-    709,
-    710,
-    711,
-    712,
-    713,
-    714,
-    715,
-    716,
-    717,
-    718,
-    719,
-    720,
-    721,
-    722,
-    723,
-    724,
-    725,
-    726,
-    727,
-    728,
-    729,
-    730,
-    731,
-    732,
-    733,
-    734,
-    735,
-    736,
-    737,
-    738,
-    739,
-    740,
-    741,
-    742,
-    743,
-    744,
-    745,
-    746,
-    747,
-    748,
-    749,
-    750,
-    751,
-    752,
-    753,
-    754,
-    755,
-    756,
-    757,
-    758,
-    759,
-    760,
-    761,
-    762,
-    763,
-    764,
-    765,
-    766,
-    767,
-    768,
-    769,
-    770,
-    771,
-    772,
-    773,
-    774,
-    775,
-    776,
-    777,
-    778,
-    779,
-    780,
-    781,
-    782,
-    783,
-    784,
-    785,
-    786,
-    787,
-    788,
-    789,
-    790,
-    791,
-    792,
-    793,
-    794,
-    795,
-    796,
-    797,
-    798,
-    799,
-    800,
-    801,
-    802,
-    803,
-    804,
-    805,
-    806,
-    807,
-    808,
-    809,
-    810,
-    811,
-    812,
-    813,
-    814,
-    815,
-    816,
-    817,
-    818,
-    819,
-    820,
-    821,
-    822,
-    823,
-    824,
-    825,
-    826,
-    827,
-    828,
-    829,
-    830,
-    831,
-    832,
-    833,
-    834,
-    835,
-    836,
-    837,
-    838,
-    839,
-    840,
-    841,
-    842,
-    843,
-    844,
-    845,
-    846,
-    847,
-    848,
-    849,
-    851,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  };
+  unsigned int _mts[NUM_RX_NAMES] = {
+      1,   0,   2,   3,   4,   5,   10,  11,  16,  0,   0,   0,   17,  0,   0,
+      0,   18,  19,  20,  21,  22,  0,   0,   0,   23,  24,  25,  27,  28,  0,
+      0,   0,   0,   29,  30,  32,  0,   0,   0,   33,  0,   0,   0,   34,  0,
+      0,   0,   35,  36,  37,  0,   0,   38,  41,  42,  44,  45,  50,  51,  52,
+      53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,
+      68,  69,  70,  71,  72,  73,  74,  75,  76,  77,  78,  79,  80,  81,  82,
+      83,  84,  85,  86,  87,  88,  89,  90,  91,  101, 102, 0,   0,   0,   103,
+      104, 105, 106, 107, 108, 109, 111, 0,   0,   0,   112, 113, 114, 115, 116,
+      117, 151, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213,
+      214, 215, 216, 217, 218, 251, 252, 253, 301, 302, 303, 304, 305, 310, 311,
+      316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 327, 328, 329, 330, 332,
+      333, 334, 335, 336, 337, 338, 341, 342, 344, 345, 350, 351, 352, 353, 354,
+      355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369,
+      370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384,
+      385, 386, 387, 388, 389, 390, 391, 401, 402, 403, 404, 405, 406, 407, 408,
+      409, 411, 412, 413, 414, 415, 416, 417, 444, 451, 452, 454, 455, 456, 457,
+      458, 459, 460, 500, 501, 502, 504, 505, 506, 515, 516, 517, 522, 523, 526,
+      527, 528, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545,
+      546, 547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560,
+      561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 600, 601, 602,
+      603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617,
+      618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632,
+      633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647,
+      648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658, 659, 660, 661, 662,
+      663, 664, 665, 666, 667, 668, 669, 670, 671, 672, 673, 674, 675, 676, 677,
+      678, 679, 680, 681, 682, 683, 684, 685, 686, 687, 688, 689, 690, 691, 692,
+      693, 694, 695, 696, 697, 698, 699, 700, 701, 702, 703, 704, 705, 706, 707,
+      708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722,
+      723, 724, 725, 726, 727, 728, 729, 730, 731, 732, 733, 734, 735, 736, 737,
+      738, 739, 740, 741, 742, 743, 744, 745, 746, 747, 748, 749, 750, 751, 752,
+      753, 754, 755, 756, 757, 758, 759, 760, 761, 762, 763, 764, 765, 766, 767,
+      768, 769, 770, 771, 772, 773, 774, 775, 776, 777, 778, 779, 780, 781, 782,
+      783, 784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797,
+      798, 799, 800, 801, 802, 803, 804, 805, 806, 807, 808, 809, 810, 811, 812,
+      813, 814, 815, 816, 817, 818, 819, 820, 821, 822, 823, 824, 825, 826, 827,
+      828, 829, 830, 831, 832, 833, 834, 835, 836, 837, 838, 839, 840, 841, 842,
+      843, 844, 845, 846, 847, 848, 849, 851, 0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0};
   std::string _labels[NUM_RX_NAMES] = {
-    "(z,total)",
-    "(z,scattering)",
-    "(z,elastic)",
-    "(z,nonelastic)",
-    "(z,n)",
-    "(misc)",
-    "(z,continuum)",
-    "(z,2nd)",
-    "(z,2n)",
-    "(z,2n0)",
-    "(z,2n1)",
-    "(z,2n2)",
-    "(z,3n)",
-    "(z,3n0)",
-    "(z,3n1)",
-    "(z,3n2)",
-    "(z,fission)",
-    "(z,f)",
-    "(z,nf)",
-    "(z,2nf)",
-    "(z,n+a)",
-    "(z,n+a0)",
-    "(z,n+a1)",
-    "(z,n+a2)",
-    "(z,n+3a)",
-    "(z,2n+a)",
-    "(z,3n+a)",
-    "(z,abs) Absorption",
-    "(z,n+p)",
-    "(z,n+p0)",
-    "(z,n+p1)",
-    "(z,n+p2)",
-    "(z,n+p+d)",
-    "(z,n+2a)",
-    "(z,2n+2a)",
-    "(z,nd)",
-    "(z,nd0)",
-    "(z,nd1)",
-    "(z,nd2)",
-    "(z,nt)",
-    "(z,nt0)",
-    "(z,nt1)",
-    "(z,nt2)",
-    "(z,n+He3)",
-    "(z,n+He3-0)",
-    "(z,n+He3-1)",
-    "(z,n+He3-2)",
-    "(z,n+d+3a)",
-    "(z,n+t+2a)",
-    "(z,4n)",
-    "(z,4n0)",
-    "(z,4n1)",
-    "(z,3nf)",
-    "(z,2n+p)",
-    "(z,3n+p)",
-    "(z,n+2p)",
-    "(z,npa)",
-    "(z,n0)",
-    "(z,n1)",
-    "(z,n2)",
-    "(z,n3)",
-    "(z,n4)",
-    "(z,n5)",
-    "(z,n6)",
-    "(z,n7)",
-    "(z,n8)",
-    "(z,n9)",
-    "(z,n10)",
-    "(z,n11)",
-    "(z,n12)",
-    "(z,n13)",
-    "(z,n14)",
-    "(z,n15)",
-    "(z,n16)",
-    "(z,n17)",
-    "(z,n18)",
-    "(z,n19)",
-    "(z,n20)",
-    "(z,n21)",
-    "(z,n22)",
-    "(z,n23)",
-    "(z,n24)",
-    "(z,n25)",
-    "(z,n26)",
-    "(z,n27)",
-    "(z,n28)",
-    "(z,n29)",
-    "(z,n30)",
-    "(z,n31)",
-    "(z,n32)",
-    "(z,n33)",
-    "(z,n34)",
-    "(z,n35)",
-    "(z,n36)",
-    "(z,n37)",
-    "(z,n38)",
-    "(z,n39)",
-    "(z,n40)",
-    "(z,nc)",
-    "(z,disap) Neutron disappearance",
-    "(z,gamma)",
-    "(z,gamma0)",
-    "(z,gamma1)",
-    "(z,gamma2)",
-    "(z,p)",
-    "(z,d)",
-    "(z,t)",
-    "(z,3He)",
-    "(z,a)",
-    "(z,2a)",
-    "(z,3a)",
-    "(z,2p)",
-    "(z,2p0)",
-    "(z,2p1)",
-    "(z,2p2)",
-    "(z,pa)",
-    "(z,t2a)",
-    "(z,d2a)",
-    "(z,pd)",
-    "(z,pt)",
-    "(z,da)",
-    "Resonance Parameters",
-    "(z,Xn)",
-    "(z,Xgamma)",
-    "(z,Xp)",
-    "(z,Xd)",
-    "(z,Xt)",
-    "(z,X3He)",
-    "(z,Xa)",
-    "(z,Xpi+) Total pi+ meson production",
-    "(z,Xpi0) Total pi0 meson production",
-    "(z,Xpi-) Total pi- meson production",
-    "(z,Xmu+) Total anti-muon production",
-    "(z,Xmu-) Total muon production",
-    "(z,Xk+) Total positive kaon production",
-    "(z,Xk0long) Total long-lived neutral kaon production",
-    "(z,Xk0short) Total short-lived neutral kaon production",
-    "(z,Xk-) Total negative kaon production",
-    "(z,Xp-) Total anti-proton production",
-    "(z,Xn-) Total anti-neutron production",
-    "Average cosine of scattering angle",
-    "Average logarithmic energy decrement",
-    "Average xi^2/(2*xi)",
-    "Energy Release from (z,total)",
-    "Energy Release from (z,elastic)",
-    "Energy Release from (z,nonelastic)",
-    "Energy Release from (z,inelastic)",
-    "Energy Release from (misc)",
-    "Energy Release from (z,continuum)",
-    "Energy Release from (z,2nd)",
-    "Energy Release from (z,2n)",
-    "Energy Release from (z,3n)",
-    "Energy Release from (z,fission)",
-    "Energy Release from (z,f)",
-    "Energy Release from (z,nf)",
-    "Energy Release from (z,2nf)",
-    "Energy Release from (z,n+a)",
-    "Energy Release from (z,n+3a)",
-    "Energy Release from (z,2n+a)",
-    "Energy Release from (z,3n+a)",
-    "Energy Release from (z,abs) Absorption",
-    "Energy Release from (z,n+p)",
-    "Energy Release from (z,n+2a)",
-    "Energy Release from (z,2n+2a)",
-    "Energy Release from (z,nd)",
-    "Energy Release from (z,nt)",
-    "Energy Release from (z,n+He3)",
-    "Energy Release from (z,n+d+3a)",
-    "Energy Release from (z,n+t+2a)",
-    "Energy Release from (z,4n)",
-    "Energy Release from (z,3nf)",
-    "Energy Release from (z,2n+p)",
-    "Energy Release from (z,3n+p)",
-    "Energy Release from (z,n+2p)",
-    "Energy Release from (z,npa)",
-    "Energy Release from (z,n0)",
-    "Energy Release from (z,n1)",
-    "Energy Release from (z,n2)",
-    "Energy Release from (z,n3)",
-    "Energy Release from (z,n4)",
-    "Energy Release from (z,n5)",
-    "Energy Release from (z,n6)",
-    "Energy Release from (z,n7)",
-    "Energy Release from (z,n8)",
-    "Energy Release from (z,n9)",
-    "Energy Release from (z,n10)",
-    "Energy Release from (z,n11)",
-    "Energy Release from (z,n12)",
-    "Energy Release from (z,n13)",
-    "Energy Release from (z,n14)",
-    "Energy Release from (z,n15)",
-    "Energy Release from (z,n16)",
-    "Energy Release from (z,n17)",
-    "Energy Release from (z,n18)",
-    "Energy Release from (z,n19)",
-    "Energy Release from (z,n20)",
-    "Energy Release from (z,n21)",
-    "Energy Release from (z,n22)",
-    "Energy Release from (z,n23)",
-    "Energy Release from (z,n24)",
-    "Energy Release from (z,n25)",
-    "Energy Release from (z,n26)",
-    "Energy Release from (z,n27)",
-    "Energy Release from (z,n28)",
-    "Energy Release from (z,n29)",
-    "Energy Release from (z,n30)",
-    "Energy Release from (z,n31)",
-    "Energy Release from (z,n32)",
-    "Energy Release from (z,n33)",
-    "Energy Release from (z,n34)",
-    "Energy Release from (z,n35)",
-    "Energy Release from (z,n36)",
-    "Energy Release from (z,n37)",
-    "Energy Release from (z,n38)",
-    "Energy Release from (z,n39)",
-    "Energy Release from (z,n40)",
-    "Energy Release from (z,nc)",
-    "Energy Release from (z,disap) Neutron disappearance",
-    "Energy Release from (z,gamma)",
-    "Energy Release from (z,p)",
-    "Energy Release from (z,d)",
-    "Energy Release from (z,t)",
-    "Energy Release from (z,3He)",
-    "Energy Release from (z,a)",
-    "Energy Release from (z,2a)",
-    "Energy Release from (z,3a)",
-    "Energy Release from (z,2p)",
-    "Energy Release from (z,pa)",
-    "Energy Release from (z,t2a)",
-    "Energy Release from (z,d2a)",
-    "Energy Release from (z,pd)",
-    "Energy Release from (z,pt)",
-    "Energy Release from (z,da)",
-    "(damage)",
-    "Descriptive Data",
-    "Total Neutrons per Fission",
-    "Independent fission product yield",
-    "Delayed Neutron Data",
-    "Prompt Neutrons per Fission",
-    "Radioactive Decay Data",
-    "Energy Release Due to Fission",
-    "Cumulative Fission Product Yield",
-    "Delayed Photon Data",
-    "Total charged-particle stopping power",
-    "Total photon interaction",
-    "Photon coherent scattering",
-    "Photon incoherent scattering",
-    "Imaginary scattering factor",
-    "Real scattering factor",
-    "Pair production, electron field",
-    "Total pair production",
-    "Pair production, nuclear field",
-    "Photoelectric absorption",
-    "Photo-excitation cross section",
-    "Electro-atomic scattering",
-    "Electro-atomic bremsstrahlung",
-    "Electro-atomic excitation cross section",
-    "Atomic relaxation data",
-    "K (1s1/2) subshell",
-    "L1 (2s1/2) subshell",
-    "L2 (2p1/2) subshell",
-    "L3 (2p3/2) subshell",
-    "M1 (3s1/2) subshell",
-    "M2 (3p1/2) subshell",
-    "M3 (3p3/2) subshell",
-    "M4 (3d1/2) subshell",
-    "M5 (3d1/2) subshell",
-    "N1 (4s1/2) subshell",
-    "N2 (4p1/2) subshell",
-    "N3 (4p3/2) subshell",
-    "N4 (4d3/2) subshell",
-    "N5 (4d5/2) subshell",
-    "N6 (4f5/2) subshell",
-    "N7 (4f7/2) subshell",
-    "O1 (5s1/2) subshell",
-    "O2 (5p1/2) subshell",
-    "O3 (5p3/2) subshell",
-    "O4 (5d3/2) subshell",
-    "O5 (5d5/2) subshell",
-    "O6 (5f5/2) subshell",
-    "O7 (5f7/2) subshell",
-    "O8 (5g7/2) subshell",
-    "O9 (5g9/2) subshell",
-    "P1 (6s1/2) subshell",
-    "P2 (6p1/2) subshell",
-    "P3 (6p3/2) subshell",
-    "P4 (6d3/2) subshell",
-    "P5 (6d5/2) subshell",
-    "P6 (6f5/2) subshell",
-    "P7 (6f7/2) subshell",
-    "P8 (6g7/2) subshell",
-    "P9 (6g9/2) subshell",
-    "P10 (6h9/2) subshell",
-    "P11 (6h11/2) subshell",
-    "Q1 (7s1/2) subshell",
-    "Q2 (7p1/2) subshell",
-    "Q3 (7p3/2) subshell",
-    "(z,p0)",
-    "(z,p1)",
-    "(z,p2)",
-    "(z,p3)",
-    "(z,p4)",
-    "(z,p5)",
-    "(z,p6)",
-    "(z,p7)",
-    "(z,p8)",
-    "(z,p9)",
-    "(z,p10)",
-    "(z,p11)",
-    "(z,p12)",
-    "(z,p13)",
-    "(z,p14)",
-    "(z,p15)",
-    "(z,p16)",
-    "(z,p17)",
-    "(z,p18)",
-    "(z,p19)",
-    "(z,p20)",
-    "(z,p21)",
-    "(z,p22)",
-    "(z,p23)",
-    "(z,p24)",
-    "(z,p25)",
-    "(z,p26)",
-    "(z,p27)",
-    "(z,p28)",
-    "(z,p29)",
-    "(z,p30)",
-    "(z,p31)",
-    "(z,p32)",
-    "(z,p33)",
-    "(z,p34)",
-    "(z,p35)",
-    "(z,p36)",
-    "(z,p37)",
-    "(z,p38)",
-    "(z,p39)",
-    "(z,p40)",
-    "(z,p41)",
-    "(z,p42)",
-    "(z,p43)",
-    "(z,p44)",
-    "(z,p45)",
-    "(z,p46)",
-    "(z,p47)",
-    "(z,p48)",
-    "(z,pc)",
-    "(z,d0)",
-    "(z,d1)",
-    "(z,d2)",
-    "(z,d3)",
-    "(z,d4)",
-    "(z,d5)",
-    "(z,d6)",
-    "(z,d7)",
-    "(z,d8)",
-    "(z,d9)",
-    "(z,d10)",
-    "(z,d11)",
-    "(z,d12)",
-    "(z,d13)",
-    "(z,d14)",
-    "(z,d15)",
-    "(z,d16)",
-    "(z,d17)",
-    "(z,d18)",
-    "(z,d19)",
-    "(z,d20)",
-    "(z,d21)",
-    "(z,d22)",
-    "(z,d23)",
-    "(z,d24)",
-    "(z,d25)",
-    "(z,d26)",
-    "(z,d27)",
-    "(z,d28)",
-    "(z,d29)",
-    "(z,d30)",
-    "(z,d31)",
-    "(z,d32)",
-    "(z,d33)",
-    "(z,d34)",
-    "(z,d35)",
-    "(z,d36)",
-    "(z,d37)",
-    "(z,d38)",
-    "(z,d39)",
-    "(z,d40)",
-    "(z,d41)",
-    "(z,d42)",
-    "(z,d43)",
-    "(z,d44)",
-    "(z,d45)",
-    "(z,d46)",
-    "(z,d47)",
-    "(z,d48)",
-    "(z,dc)",
-    "(z,t0)",
-    "(z,t1)",
-    "(z,t2)",
-    "(z,t3)",
-    "(z,t4)",
-    "(z,t5)",
-    "(z,t6)",
-    "(z,t7)",
-    "(z,t8)",
-    "(z,t9)",
-    "(z,t10)",
-    "(z,t11)",
-    "(z,t12)",
-    "(z,t13)",
-    "(z,t14)",
-    "(z,t15)",
-    "(z,t16)",
-    "(z,t17)",
-    "(z,t18)",
-    "(z,t19)",
-    "(z,t20)",
-    "(z,t21)",
-    "(z,t22)",
-    "(z,t23)",
-    "(z,t24)",
-    "(z,t25)",
-    "(z,t26)",
-    "(z,t27)",
-    "(z,t28)",
-    "(z,t29)",
-    "(z,t30)",
-    "(z,t31)",
-    "(z,t32)",
-    "(z,t33)",
-    "(z,t34)",
-    "(z,t35)",
-    "(z,t36)",
-    "(z,t37)",
-    "(z,t38)",
-    "(z,t39)",
-    "(z,t40)",
-    "(z,t41)",
-    "(z,t42)",
-    "(z,t43)",
-    "(z,t44)",
-    "(z,t45)",
-    "(z,t46)",
-    "(z,t47)",
-    "(z,t48)",
-    "(z,tc)",
-    "(z,3He0)",
-    "(z,3He1)",
-    "(z,3He2)",
-    "(z,3He3)",
-    "(z,3He4)",
-    "(z,3He5)",
-    "(z,3He6)",
-    "(z,3He7)",
-    "(z,3He8)",
-    "(z,3He9)",
-    "(z,3He10)",
-    "(z,3He11)",
-    "(z,3He12)",
-    "(z,3He13)",
-    "(z,3He14)",
-    "(z,3He15)",
-    "(z,3He16)",
-    "(z,3He17)",
-    "(z,3He18)",
-    "(z,3He19)",
-    "(z,3He20)",
-    "(z,3He21)",
-    "(z,3He22)",
-    "(z,3He23)",
-    "(z,3He24)",
-    "(z,3He25)",
-    "(z,3He26)",
-    "(z,3He27)",
-    "(z,3He28)",
-    "(z,3He29)",
-    "(z,3He30)",
-    "(z,3He31)",
-    "(z,3He32)",
-    "(z,3He33)",
-    "(z,3He34)",
-    "(z,3He35)",
-    "(z,3He36)",
-    "(z,3He37)",
-    "(z,3He38)",
-    "(z,3He39)",
-    "(z,3He40)",
-    "(z,3He41)",
-    "(z,3He42)",
-    "(z,3He43)",
-    "(z,3He44)",
-    "(z,3He45)",
-    "(z,3He46)",
-    "(z,3He47)",
-    "(z,3He48)",
-    "(z,3Hec)",
-    "(z,a0)",
-    "(z,a1)",
-    "(z,a2)",
-    "(z,a3)",
-    "(z,a4)",
-    "(z,a5)",
-    "(z,a6)",
-    "(z,a7)",
-    "(z,a8)",
-    "(z,a9)",
-    "(z,a10)",
-    "(z,a11)",
-    "(z,a12)",
-    "(z,a13)",
-    "(z,a14)",
-    "(z,a15)",
-    "(z,a16)",
-    "(z,a17)",
-    "(z,a18)",
-    "(z,a19)",
-    "(z,a20)",
-    "(z,a21)",
-    "(z,a22)",
-    "(z,a23)",
-    "(z,a24)",
-    "(z,a25)",
-    "(z,a26)",
-    "(z,a27)",
-    "(z,a28)",
-    "(z,a29)",
-    "(z,a30)",
-    "(z,a31)",
-    "(z,a32)",
-    "(z,a33)",
-    "(z,a34)",
-    "(z,a35)",
-    "(z,a36)",
-    "(z,a37)",
-    "(z,a38)",
-    "(z,a39)",
-    "(z,a40)",
-    "(z,a41)",
-    "(z,a42)",
-    "(z,a43)",
-    "(z,a44)",
-    "(z,a45)",
-    "(z,a46)",
-    "(z,a47)",
-    "(z,a48)",
-    "(z,ac)",
-    "Lumped Covariances",
-    "Any Excited State",
-    "(z,b-)",
-    "(z,b+)",
-    "(z,ec)",
-    "(z,b-n)",
-    "(z,b-a)",
-    "(z,it)",
-    "(z,b+a)",
-    "(z,ec+b+)",
-    "(z,b+p)",
-    "(z,b-2n)",
-    "(z,b-3n)",
-    "(z,b-4n)",
-    "(z,ecp)",
-    "(z,eca)",
-    "(z,b+2p)",
-    "(z,ec2p)",
-    "(z,2b-)",
-    "(z,b-p)",
-    "(z,14c)",
-    "(z,b+3p)",
-    "(z,sf)",
-    "(z,2b+)",
-    "(z,2ec)",
-    "(z,ec3p)",
-    "(z,b-sf)"
-  };
+      "(z,total)",
+      "(z,scattering)",
+      "(z,elastic)",
+      "(z,nonelastic)",
+      "(z,n)",
+      "(misc)",
+      "(z,continuum)",
+      "(z,2nd)",
+      "(z,2n)",
+      "(z,2n0)",
+      "(z,2n1)",
+      "(z,2n2)",
+      "(z,3n)",
+      "(z,3n0)",
+      "(z,3n1)",
+      "(z,3n2)",
+      "(z,fission)",
+      "(z,f)",
+      "(z,nf)",
+      "(z,2nf)",
+      "(z,n+a)",
+      "(z,n+a0)",
+      "(z,n+a1)",
+      "(z,n+a2)",
+      "(z,n+3a)",
+      "(z,2n+a)",
+      "(z,3n+a)",
+      "(z,abs) Absorption",
+      "(z,n+p)",
+      "(z,n+p0)",
+      "(z,n+p1)",
+      "(z,n+p2)",
+      "(z,n+p+d)",
+      "(z,n+2a)",
+      "(z,2n+2a)",
+      "(z,nd)",
+      "(z,nd0)",
+      "(z,nd1)",
+      "(z,nd2)",
+      "(z,nt)",
+      "(z,nt0)",
+      "(z,nt1)",
+      "(z,nt2)",
+      "(z,n+He3)",
+      "(z,n+He3-0)",
+      "(z,n+He3-1)",
+      "(z,n+He3-2)",
+      "(z,n+d+3a)",
+      "(z,n+t+2a)",
+      "(z,4n)",
+      "(z,4n0)",
+      "(z,4n1)",
+      "(z,3nf)",
+      "(z,2n+p)",
+      "(z,3n+p)",
+      "(z,n+2p)",
+      "(z,npa)",
+      "(z,n0)",
+      "(z,n1)",
+      "(z,n2)",
+      "(z,n3)",
+      "(z,n4)",
+      "(z,n5)",
+      "(z,n6)",
+      "(z,n7)",
+      "(z,n8)",
+      "(z,n9)",
+      "(z,n10)",
+      "(z,n11)",
+      "(z,n12)",
+      "(z,n13)",
+      "(z,n14)",
+      "(z,n15)",
+      "(z,n16)",
+      "(z,n17)",
+      "(z,n18)",
+      "(z,n19)",
+      "(z,n20)",
+      "(z,n21)",
+      "(z,n22)",
+      "(z,n23)",
+      "(z,n24)",
+      "(z,n25)",
+      "(z,n26)",
+      "(z,n27)",
+      "(z,n28)",
+      "(z,n29)",
+      "(z,n30)",
+      "(z,n31)",
+      "(z,n32)",
+      "(z,n33)",
+      "(z,n34)",
+      "(z,n35)",
+      "(z,n36)",
+      "(z,n37)",
+      "(z,n38)",
+      "(z,n39)",
+      "(z,n40)",
+      "(z,nc)",
+      "(z,disap) Neutron disappearance",
+      "(z,gamma)",
+      "(z,gamma0)",
+      "(z,gamma1)",
+      "(z,gamma2)",
+      "(z,p)",
+      "(z,d)",
+      "(z,t)",
+      "(z,3He)",
+      "(z,a)",
+      "(z,2a)",
+      "(z,3a)",
+      "(z,2p)",
+      "(z,2p0)",
+      "(z,2p1)",
+      "(z,2p2)",
+      "(z,pa)",
+      "(z,t2a)",
+      "(z,d2a)",
+      "(z,pd)",
+      "(z,pt)",
+      "(z,da)",
+      "Resonance Parameters",
+      "(z,Xn)",
+      "(z,Xgamma)",
+      "(z,Xp)",
+      "(z,Xd)",
+      "(z,Xt)",
+      "(z,X3He)",
+      "(z,Xa)",
+      "(z,Xpi+) Total pi+ meson production",
+      "(z,Xpi0) Total pi0 meson production",
+      "(z,Xpi-) Total pi- meson production",
+      "(z,Xmu+) Total anti-muon production",
+      "(z,Xmu-) Total muon production",
+      "(z,Xk+) Total positive kaon production",
+      "(z,Xk0long) Total long-lived neutral kaon production",
+      "(z,Xk0short) Total short-lived neutral kaon production",
+      "(z,Xk-) Total negative kaon production",
+      "(z,Xp-) Total anti-proton production",
+      "(z,Xn-) Total anti-neutron production",
+      "Average cosine of scattering angle",
+      "Average logarithmic energy decrement",
+      "Average xi^2/(2*xi)",
+      "Energy Release from (z,total)",
+      "Energy Release from (z,elastic)",
+      "Energy Release from (z,nonelastic)",
+      "Energy Release from (z,inelastic)",
+      "Energy Release from (misc)",
+      "Energy Release from (z,continuum)",
+      "Energy Release from (z,2nd)",
+      "Energy Release from (z,2n)",
+      "Energy Release from (z,3n)",
+      "Energy Release from (z,fission)",
+      "Energy Release from (z,f)",
+      "Energy Release from (z,nf)",
+      "Energy Release from (z,2nf)",
+      "Energy Release from (z,n+a)",
+      "Energy Release from (z,n+3a)",
+      "Energy Release from (z,2n+a)",
+      "Energy Release from (z,3n+a)",
+      "Energy Release from (z,abs) Absorption",
+      "Energy Release from (z,n+p)",
+      "Energy Release from (z,n+2a)",
+      "Energy Release from (z,2n+2a)",
+      "Energy Release from (z,nd)",
+      "Energy Release from (z,nt)",
+      "Energy Release from (z,n+He3)",
+      "Energy Release from (z,n+d+3a)",
+      "Energy Release from (z,n+t+2a)",
+      "Energy Release from (z,4n)",
+      "Energy Release from (z,3nf)",
+      "Energy Release from (z,2n+p)",
+      "Energy Release from (z,3n+p)",
+      "Energy Release from (z,n+2p)",
+      "Energy Release from (z,npa)",
+      "Energy Release from (z,n0)",
+      "Energy Release from (z,n1)",
+      "Energy Release from (z,n2)",
+      "Energy Release from (z,n3)",
+      "Energy Release from (z,n4)",
+      "Energy Release from (z,n5)",
+      "Energy Release from (z,n6)",
+      "Energy Release from (z,n7)",
+      "Energy Release from (z,n8)",
+      "Energy Release from (z,n9)",
+      "Energy Release from (z,n10)",
+      "Energy Release from (z,n11)",
+      "Energy Release from (z,n12)",
+      "Energy Release from (z,n13)",
+      "Energy Release from (z,n14)",
+      "Energy Release from (z,n15)",
+      "Energy Release from (z,n16)",
+      "Energy Release from (z,n17)",
+      "Energy Release from (z,n18)",
+      "Energy Release from (z,n19)",
+      "Energy Release from (z,n20)",
+      "Energy Release from (z,n21)",
+      "Energy Release from (z,n22)",
+      "Energy Release from (z,n23)",
+      "Energy Release from (z,n24)",
+      "Energy Release from (z,n25)",
+      "Energy Release from (z,n26)",
+      "Energy Release from (z,n27)",
+      "Energy Release from (z,n28)",
+      "Energy Release from (z,n29)",
+      "Energy Release from (z,n30)",
+      "Energy Release from (z,n31)",
+      "Energy Release from (z,n32)",
+      "Energy Release from (z,n33)",
+      "Energy Release from (z,n34)",
+      "Energy Release from (z,n35)",
+      "Energy Release from (z,n36)",
+      "Energy Release from (z,n37)",
+      "Energy Release from (z,n38)",
+      "Energy Release from (z,n39)",
+      "Energy Release from (z,n40)",
+      "Energy Release from (z,nc)",
+      "Energy Release from (z,disap) Neutron disappearance",
+      "Energy Release from (z,gamma)",
+      "Energy Release from (z,p)",
+      "Energy Release from (z,d)",
+      "Energy Release from (z,t)",
+      "Energy Release from (z,3He)",
+      "Energy Release from (z,a)",
+      "Energy Release from (z,2a)",
+      "Energy Release from (z,3a)",
+      "Energy Release from (z,2p)",
+      "Energy Release from (z,pa)",
+      "Energy Release from (z,t2a)",
+      "Energy Release from (z,d2a)",
+      "Energy Release from (z,pd)",
+      "Energy Release from (z,pt)",
+      "Energy Release from (z,da)",
+      "(damage)",
+      "Descriptive Data",
+      "Total Neutrons per Fission",
+      "Independent fission product yield",
+      "Delayed Neutron Data",
+      "Prompt Neutrons per Fission",
+      "Radioactive Decay Data",
+      "Energy Release Due to Fission",
+      "Cumulative Fission Product Yield",
+      "Delayed Photon Data",
+      "Total charged-particle stopping power",
+      "Total photon interaction",
+      "Photon coherent scattering",
+      "Photon incoherent scattering",
+      "Imaginary scattering factor",
+      "Real scattering factor",
+      "Pair production, electron field",
+      "Total pair production",
+      "Pair production, nuclear field",
+      "Photoelectric absorption",
+      "Photo-excitation cross section",
+      "Electro-atomic scattering",
+      "Electro-atomic bremsstrahlung",
+      "Electro-atomic excitation cross section",
+      "Atomic relaxation data",
+      "K (1s1/2) subshell",
+      "L1 (2s1/2) subshell",
+      "L2 (2p1/2) subshell",
+      "L3 (2p3/2) subshell",
+      "M1 (3s1/2) subshell",
+      "M2 (3p1/2) subshell",
+      "M3 (3p3/2) subshell",
+      "M4 (3d1/2) subshell",
+      "M5 (3d1/2) subshell",
+      "N1 (4s1/2) subshell",
+      "N2 (4p1/2) subshell",
+      "N3 (4p3/2) subshell",
+      "N4 (4d3/2) subshell",
+      "N5 (4d5/2) subshell",
+      "N6 (4f5/2) subshell",
+      "N7 (4f7/2) subshell",
+      "O1 (5s1/2) subshell",
+      "O2 (5p1/2) subshell",
+      "O3 (5p3/2) subshell",
+      "O4 (5d3/2) subshell",
+      "O5 (5d5/2) subshell",
+      "O6 (5f5/2) subshell",
+      "O7 (5f7/2) subshell",
+      "O8 (5g7/2) subshell",
+      "O9 (5g9/2) subshell",
+      "P1 (6s1/2) subshell",
+      "P2 (6p1/2) subshell",
+      "P3 (6p3/2) subshell",
+      "P4 (6d3/2) subshell",
+      "P5 (6d5/2) subshell",
+      "P6 (6f5/2) subshell",
+      "P7 (6f7/2) subshell",
+      "P8 (6g7/2) subshell",
+      "P9 (6g9/2) subshell",
+      "P10 (6h9/2) subshell",
+      "P11 (6h11/2) subshell",
+      "Q1 (7s1/2) subshell",
+      "Q2 (7p1/2) subshell",
+      "Q3 (7p3/2) subshell",
+      "(z,p0)",
+      "(z,p1)",
+      "(z,p2)",
+      "(z,p3)",
+      "(z,p4)",
+      "(z,p5)",
+      "(z,p6)",
+      "(z,p7)",
+      "(z,p8)",
+      "(z,p9)",
+      "(z,p10)",
+      "(z,p11)",
+      "(z,p12)",
+      "(z,p13)",
+      "(z,p14)",
+      "(z,p15)",
+      "(z,p16)",
+      "(z,p17)",
+      "(z,p18)",
+      "(z,p19)",
+      "(z,p20)",
+      "(z,p21)",
+      "(z,p22)",
+      "(z,p23)",
+      "(z,p24)",
+      "(z,p25)",
+      "(z,p26)",
+      "(z,p27)",
+      "(z,p28)",
+      "(z,p29)",
+      "(z,p30)",
+      "(z,p31)",
+      "(z,p32)",
+      "(z,p33)",
+      "(z,p34)",
+      "(z,p35)",
+      "(z,p36)",
+      "(z,p37)",
+      "(z,p38)",
+      "(z,p39)",
+      "(z,p40)",
+      "(z,p41)",
+      "(z,p42)",
+      "(z,p43)",
+      "(z,p44)",
+      "(z,p45)",
+      "(z,p46)",
+      "(z,p47)",
+      "(z,p48)",
+      "(z,pc)",
+      "(z,d0)",
+      "(z,d1)",
+      "(z,d2)",
+      "(z,d3)",
+      "(z,d4)",
+      "(z,d5)",
+      "(z,d6)",
+      "(z,d7)",
+      "(z,d8)",
+      "(z,d9)",
+      "(z,d10)",
+      "(z,d11)",
+      "(z,d12)",
+      "(z,d13)",
+      "(z,d14)",
+      "(z,d15)",
+      "(z,d16)",
+      "(z,d17)",
+      "(z,d18)",
+      "(z,d19)",
+      "(z,d20)",
+      "(z,d21)",
+      "(z,d22)",
+      "(z,d23)",
+      "(z,d24)",
+      "(z,d25)",
+      "(z,d26)",
+      "(z,d27)",
+      "(z,d28)",
+      "(z,d29)",
+      "(z,d30)",
+      "(z,d31)",
+      "(z,d32)",
+      "(z,d33)",
+      "(z,d34)",
+      "(z,d35)",
+      "(z,d36)",
+      "(z,d37)",
+      "(z,d38)",
+      "(z,d39)",
+      "(z,d40)",
+      "(z,d41)",
+      "(z,d42)",
+      "(z,d43)",
+      "(z,d44)",
+      "(z,d45)",
+      "(z,d46)",
+      "(z,d47)",
+      "(z,d48)",
+      "(z,dc)",
+      "(z,t0)",
+      "(z,t1)",
+      "(z,t2)",
+      "(z,t3)",
+      "(z,t4)",
+      "(z,t5)",
+      "(z,t6)",
+      "(z,t7)",
+      "(z,t8)",
+      "(z,t9)",
+      "(z,t10)",
+      "(z,t11)",
+      "(z,t12)",
+      "(z,t13)",
+      "(z,t14)",
+      "(z,t15)",
+      "(z,t16)",
+      "(z,t17)",
+      "(z,t18)",
+      "(z,t19)",
+      "(z,t20)",
+      "(z,t21)",
+      "(z,t22)",
+      "(z,t23)",
+      "(z,t24)",
+      "(z,t25)",
+      "(z,t26)",
+      "(z,t27)",
+      "(z,t28)",
+      "(z,t29)",
+      "(z,t30)",
+      "(z,t31)",
+      "(z,t32)",
+      "(z,t33)",
+      "(z,t34)",
+      "(z,t35)",
+      "(z,t36)",
+      "(z,t37)",
+      "(z,t38)",
+      "(z,t39)",
+      "(z,t40)",
+      "(z,t41)",
+      "(z,t42)",
+      "(z,t43)",
+      "(z,t44)",
+      "(z,t45)",
+      "(z,t46)",
+      "(z,t47)",
+      "(z,t48)",
+      "(z,tc)",
+      "(z,3He0)",
+      "(z,3He1)",
+      "(z,3He2)",
+      "(z,3He3)",
+      "(z,3He4)",
+      "(z,3He5)",
+      "(z,3He6)",
+      "(z,3He7)",
+      "(z,3He8)",
+      "(z,3He9)",
+      "(z,3He10)",
+      "(z,3He11)",
+      "(z,3He12)",
+      "(z,3He13)",
+      "(z,3He14)",
+      "(z,3He15)",
+      "(z,3He16)",
+      "(z,3He17)",
+      "(z,3He18)",
+      "(z,3He19)",
+      "(z,3He20)",
+      "(z,3He21)",
+      "(z,3He22)",
+      "(z,3He23)",
+      "(z,3He24)",
+      "(z,3He25)",
+      "(z,3He26)",
+      "(z,3He27)",
+      "(z,3He28)",
+      "(z,3He29)",
+      "(z,3He30)",
+      "(z,3He31)",
+      "(z,3He32)",
+      "(z,3He33)",
+      "(z,3He34)",
+      "(z,3He35)",
+      "(z,3He36)",
+      "(z,3He37)",
+      "(z,3He38)",
+      "(z,3He39)",
+      "(z,3He40)",
+      "(z,3He41)",
+      "(z,3He42)",
+      "(z,3He43)",
+      "(z,3He44)",
+      "(z,3He45)",
+      "(z,3He46)",
+      "(z,3He47)",
+      "(z,3He48)",
+      "(z,3Hec)",
+      "(z,a0)",
+      "(z,a1)",
+      "(z,a2)",
+      "(z,a3)",
+      "(z,a4)",
+      "(z,a5)",
+      "(z,a6)",
+      "(z,a7)",
+      "(z,a8)",
+      "(z,a9)",
+      "(z,a10)",
+      "(z,a11)",
+      "(z,a12)",
+      "(z,a13)",
+      "(z,a14)",
+      "(z,a15)",
+      "(z,a16)",
+      "(z,a17)",
+      "(z,a18)",
+      "(z,a19)",
+      "(z,a20)",
+      "(z,a21)",
+      "(z,a22)",
+      "(z,a23)",
+      "(z,a24)",
+      "(z,a25)",
+      "(z,a26)",
+      "(z,a27)",
+      "(z,a28)",
+      "(z,a29)",
+      "(z,a30)",
+      "(z,a31)",
+      "(z,a32)",
+      "(z,a33)",
+      "(z,a34)",
+      "(z,a35)",
+      "(z,a36)",
+      "(z,a37)",
+      "(z,a38)",
+      "(z,a39)",
+      "(z,a40)",
+      "(z,a41)",
+      "(z,a42)",
+      "(z,a43)",
+      "(z,a44)",
+      "(z,a45)",
+      "(z,a46)",
+      "(z,a47)",
+      "(z,a48)",
+      "(z,ac)",
+      "Lumped Covariances",
+      "Any Excited State",
+      "(z,b-)",
+      "(z,b+)",
+      "(z,ec)",
+      "(z,b-n)",
+      "(z,b-a)",
+      "(z,it)",
+      "(z,b+a)",
+      "(z,ec+b+)",
+      "(z,b+p)",
+      "(z,b-2n)",
+      "(z,b-3n)",
+      "(z,b-4n)",
+      "(z,ecp)",
+      "(z,eca)",
+      "(z,b+2p)",
+      "(z,ec2p)",
+      "(z,2b-)",
+      "(z,b-p)",
+      "(z,14c)",
+      "(z,b+3p)",
+      "(z,sf)",
+      "(z,2b+)",
+      "(z,2ec)",
+      "(z,ec3p)",
+      "(z,b-sf)"};
   std::string _docs[NUM_RX_NAMES] = {
-    "(n,total) Neutron total",
-    "Total scattering",
-    "(z,z0) Elastic scattering",
-    "(z,nonelas) Nonelastic neutron",
-    "(z,n) One neutron in exit channel",
-    "(z,anything) Miscellaneous",
-    "(z,contin) Total continuum reaction",
-    "(z,2nd) Production of 2n and d",
-    "(z,2n) Production of 2n",
-    "(z,2n0) Production of 2n, ground state",
-    "(z,2n1) Production of 2n, 1st excited state",
-    "(z,2n2) Production of 2n, 2nd excited state",
-    "(z,3n) Production of 3n",
-    "(z,3n0) Production of 3n, ground state",
-    "(z,3n1) Production of 3n, 1st excited state",
-    "(z,3n2) Production of 3n, 2nd excited state",
-    "(z,fiss) Particle-induced fission",
-    "(z,f) First-chance fission",
-    "(z,nf) Second chance fission",
-    "(z,2nf) Third-chance fission",
-    "(z,na) Production of n and alpha",
-    "(z,na0) Production of n and alpha, ground state",
-    "(z,na1) Production of n and alpha, 1st excited state",
-    "(z,na2) Production of n and alpha, 2nd excited state",
-    "(z,n3a) Production of n and 3 alphas",
-    "(z,2na) Production of 2n and alpha",
-    "(z,3na) Production of 3n and alpha",
-    "(n,abs) Absorption",
-    "(z,np) Production of n and p",
-    "(z,np0) Production of n and p, ground state",
-    "(z,np1) Production of n and p, 1st excited state",
-    "(z,np2) Production of n and p, 2nd excited state",
-    "(z,npd) Production of n, p, and d",
-    "(z,n2a) Production of n and 2 alphas",
-    "(z,2n2a) Production of 2n and 2 alphas",
-    "(z,nd) Production of n and d",
-    "(z,nd0) Production of n and d, ground state",
-    "(z,nd1) Production of n and d, 1st excited state",
-    "(z,nd2) Production of n and d, 2nd excited state",
-    "(z,nt) Production of n and t",
-    "(z,nt0) Production of n and t, ground state",
-    "(z,nt1) Production of n and t, 1st excited state",
-    "(z,nt2) Production of n and t, 2nd excited state",
-    "(z,n3He) Production of n and He-3",
-    "(z,n3He-0) Production of n and He-3, ground state",
-    "(z,n3He-1) Production of n and He-3, 1st excited state",
-    "(z,n3He-2) Production of n and He-3, 2nd excited state",
-    "(z,nd2a) Production of n, d, and alpha",
-    "(z,nt2a) Production of n, t, and 2 alphas",
-    "(z,4n) Production of 4n",
-    "(z,4n0) Production of 4n, ground state",
-    "(z,4n1) Production of 4n, 1st excited state",
-    "(z,3nf) Fourth-chance fission",
-    "(z,2np) Production of 2n and p",
-    "(z,3np) Production of 3n and p",
-    "(z,n2p) Production of n and 2p",
-    "(z,npa) Production of n, p, and alpha",
-    "(z,n0) Production of n, ground state",
-    "(z,n1) Production of n, 1st excited state",
-    "(z,n2) Production of n, 2nd excited state",
-    "(z,n3) Production of n, 3rd excited state",
-    "(z,n4) Production of n, 4th excited state",
-    "(z,n5) Production of n, 5th excited state",
-    "(z,n6) Production of n, 6th excited state",
-    "(z,n7) Production of n, 7th excited state",
-    "(z,n8) Production of n, 8th excited state",
-    "(z,n9) Production of n, 9th excited state",
-    "(z,n10) Production of n, 10th excited state",
-    "(z,n11) Production of n, 11th excited state",
-    "(z,n12) Production of n, 12th excited state",
-    "(z,n13) Production of n, 13th excited state",
-    "(z,n14) Production of n, 14th excited state",
-    "(z,n15) Production of n, 15th excited state",
-    "(z,n16) Production of n, 16th excited state",
-    "(z,n17) Production of n, 17th excited state",
-    "(z,n18) Production of n, 18th excited state",
-    "(z,n19) Production of n, 19th excited state",
-    "(z,n20) Production of n, 20th excited state",
-    "(z,n21) Production of n, 21st excited state",
-    "(z,n22) Production of n, 22nd excited state",
-    "(z,n23) Production of n, 23rd excited state",
-    "(z,n24) Production of n, 24th excited state",
-    "(z,n25) Production of n, 25th excited state",
-    "(z,n26) Production of n, 26th excited state",
-    "(z,n27) Production of n, 27th excited state",
-    "(z,n28) Production of n, 28th excited state",
-    "(z,n29) Production of n, 29th excited state",
-    "(z,n30) Production of n, 30th excited state",
-    "(z,n31) Production of n, 31st excited state",
-    "(z,n32) Production of n, 32nd excited state",
-    "(z,n33) Production of n, 33rd excited state",
-    "(z,n34) Production of n, 34th excited state",
-    "(z,n35) Production of n, 35th excited state",
-    "(z,n36) Production of n, 36th excited state",
-    "(z,n37) Production of n, 37th excited state",
-    "(z,n38) Production of n, 38th excited state",
-    "(z,n39) Production of n, 39th excited state",
-    "(z,n40) Production of n, 40th excited state",
-    "(z,nc) Production of n in continuum",
-    "(n,disap) Neutron disappearance",
-    "(z,gamma) Radiative capture",
-    "(z,gamma0) Radiative capture, ground state",
-    "(z,gamma1) Radiative capture, 1st excited state",
-    "(z,gamma2) Radiative capture, 2st excited state",
-    "(z,p) Production of p",
-    "(z,d) Production of d",
-    "(z,t) Production of t",
-    "(z,3He) Production of He-3",
-    "(z,a) Production of alpha",
-    "(z,2a) Production of 2 alphas",
-    "(z,3a) Production of 3 alphas",
-    "(z,2p) Production of 2p",
-    "(z,2p0) Production of 2p, ground state",
-    "(z,2p1) Production of 2p, 1st excited state",
-    "(z,2p2) Production of 2p, 2nd excited state",
-    "(z,pa) Production of p and alpha",
-    "(z,t2a) Production of t and 2 alphas",
-    "(z,d2a) Production of d and 2 alphas",
-    "(z,pd) Production of p and d",
-    "(z,pt) Production of p and t",
-    "(z,da) Production of d and a",
-    "Resonance Parameters",
-    "(z,Xn) Total neutron production",
-    "(z,Xgamma) Total gamma production",
-    "(z,Xp) Total proton production",
-    "(z,Xd) Total deuteron production",
-    "(z,Xt) Total triton production",
-    "(z,X3He) Total He-3 production",
-    "(z,Xa) Total alpha production",
-    "(z,Xpi+) Total pi+ meson production",
-    "(z,Xpi0) Total pi0 meson production",
-    "(z,Xpi-) Total pi- meson production",
-    "(z,Xmu+) Total anti-muon production",
-    "(z,Xmu-) Total muon production",
-    "(z,Xk+) Total positive kaon production",
-    "(z,Xk0long) Total long-lived neutral kaon production",
-    "(z,Xk0short) Total short-lived neutral kaon production",
-    "(z,Xk-) Total negative kaon production",
-    "(z,Xp-) Total anti-proton production",
-    "(z,Xn-) Total anti-neutron production",
-    "Average cosine of scattering angle",
-    "Average logarithmic energy decrement",
-    "Average xi^2/(2*xi)",
-    "Energy Release from (n,total) Neutron total",
-    "Energy Release from (z,z0) Elastic scattering",
-    "Energy Release from (z,nonelas) Nonelastic neutron",
-    "Energy Release from (z,n) One neutron in exit channel",
-    "Energy Release from (z,anything) Miscellaneous",
-    "Energy Release from (z,contin) Total continuum reaction",
-    "Energy Release from (z,2nd) Production of 2n and d",
-    "Energy Release from (z,2n) Production of 2n",
-    "Energy Release from (z,3n) Production of 3n",
-    "Energy Release from (z,fiss) Particle-induced fission",
-    "Energy Release from (z,f) First-chance fission",
-    "Energy Release from (z,nf) Second chance fission",
-    "Energy Release from (z,2nf) Third-chance fission",
-    "Energy Release from (z,na) Production of n and alpha",
-    "Energy Release from (z,n3a) Production of n and 3 alphas",
-    "Energy Release from (z,2na) Production of 2n and alpha",
-    "Energy Release from (z,3na) Production of 3n and alpha",
-    "Energy Release from (n,abs) Absorption",
-    "Energy Release from (z,np) Production of n and p",
-    "Energy Release from (z,n2a) Production of n and 2 alphas",
-    "Energy Release from (z,2n2a) Production of 2n and 2 alphas",
-    "Energy Release from (z,nd) Production of n and d",
-    "Energy Release from (z,nt) Production of n and t",
-    "Energy Release from (z,n3He) Production of n and He-3",
-    "Energy Release from (z,nd2a) Production of n, d, and alpha",
-    "Energy Release from (z,nt2a) Production of n, t, and 2 alphas",
-    "Energy Release from (z,4n) Production of 4n",
-    "Energy Release from (z,3nf) Fourth-chance fission",
-    "Energy Release from (z,2np) Production of 2n and p",
-    "Energy Release from (z,3np) Production of 3n and p",
-    "Energy Release from (z,n2p) Production of n and 2p",
-    "Energy Release from (z,npa) Production of n, p, and alpha",
-    "Energy Release from (z,n0) Production of n, ground state",
-    "Energy Release from (z,n1) Production of n, 1st excited state",
-    "Energy Release from (z,n2) Production of n, 2nd excited state",
-    "Energy Release from (z,n3) Production of n, 3rd excited state",
-    "Energy Release from (z,n4) Production of n, 4th excited state",
-    "Energy Release from (z,n5) Production of n, 5th excited state",
-    "Energy Release from (z,n6) Production of n, 6th excited state",
-    "Energy Release from (z,n7) Production of n, 7th excited state",
-    "Energy Release from (z,n8) Production of n, 8th excited state",
-    "Energy Release from (z,n9) Production of n, 9th excited state",
-    "Energy Release from (z,n10) Production of n, 10th excited state",
-    "Energy Release from (z,n11) Production of n, 11th excited state",
-    "Energy Release from (z,n12) Production of n, 12th excited state",
-    "Energy Release from (z,n13) Production of n, 13th excited state",
-    "Energy Release from (z,n14) Production of n, 14th excited state",
-    "Energy Release from (z,n15) Production of n, 15th excited state",
-    "Energy Release from (z,n16) Production of n, 16th excited state",
-    "Energy Release from (z,n17) Production of n, 17th excited state",
-    "Energy Release from (z,n18) Production of n, 18th excited state",
-    "Energy Release from (z,n19) Production of n, 19th excited state",
-    "Energy Release from (z,n20) Production of n, 20th excited state",
-    "Energy Release from (z,n21) Production of n, 21st excited state",
-    "Energy Release from (z,n22) Production of n, 22nd excited state",
-    "Energy Release from (z,n23) Production of n, 23rd excited state",
-    "Energy Release from (z,n24) Production of n, 24th excited state",
-    "Energy Release from (z,n25) Production of n, 25th excited state",
-    "Energy Release from (z,n26) Production of n, 26th excited state",
-    "Energy Release from (z,n27) Production of n, 27th excited state",
-    "Energy Release from (z,n28) Production of n, 28th excited state",
-    "Energy Release from (z,n29) Production of n, 29th excited state",
-    "Energy Release from (z,n30) Production of n, 30th excited state",
-    "Energy Release from (z,n31) Production of n, 31st excited state",
-    "Energy Release from (z,n32) Production of n, 32nd excited state",
-    "Energy Release from (z,n33) Production of n, 33rd excited state",
-    "Energy Release from (z,n34) Production of n, 34th excited state",
-    "Energy Release from (z,n35) Production of n, 35th excited state",
-    "Energy Release from (z,n36) Production of n, 36th excited state",
-    "Energy Release from (z,n37) Production of n, 37th excited state",
-    "Energy Release from (z,n38) Production of n, 38th excited state",
-    "Energy Release from (z,n39) Production of n, 39th excited state",
-    "Energy Release from (z,n40) Production of n, 40th excited state",
-    "Energy Release from (z,nc) Production of n in continuum",
-    "Energy Release from (n,disap) Neutron disappearance",
-    "Energy Release from (z,gamma) Radiative capture",
-    "Energy Release from (z,p) Production of p",
-    "Energy Release from (z,d) Production of d",
-    "Energy Release from (z,t) Production of t",
-    "Energy Release from (z,3He) Production of He-3",
-    "Energy Release from (z,a) Production of alpha",
-    "Energy Release from (z,2a) Production of 2 alphas",
-    "Energy Release from (z,3a) Production of 3 alphas",
-    "Energy Release from (z,2p) Production of 2p",
-    "Energy Release from (z,pa) Production of p and alpha",
-    "Energy Release from (z,t2a) Production of t and 2 alphas",
-    "Energy Release from (z,d2a) Production of d and 2 alphas",
-    "Energy Release from (z,pd) Production of p and d",
-    "Energy Release from (z,pt) Production of p and t",
-    "Energy Release from (z,da) Production of d and a",
-    "(damage)",
-    "Descriptive Data",
-    "Total Neutrons per Fission",
-    "Independent fission product yield",
-    "Delayed Neutron Data",
-    "Prompt Neutrons per Fission",
-    "Radioactive Decay Data",
-    "Energy Release Due to Fission",
-    "Cumulative Fission Product Yield",
-    "Delayed Photon Data",
-    "Total charged-particle stopping power",
-    "Total photon interaction",
-    "Photon coherent scattering",
-    "Photon incoherent scattering",
-    "Imaginary scattering factor",
-    "Real scattering factor",
-    "Pair production, electron field",
-    "Total pair production",
-    "Pair production, nuclear field",
-    "Photoelectric absorption",
-    "Photo-excitation cross section",
-    "Electro-atomic scattering",
-    "Electro-atomic bremsstrahlung",
-    "Electro-atomic excitation cross section",
-    "Atomic relaxation data",
-    "K (1s1/2) subshell",
-    "L1 (2s1/2) subshell",
-    "L2 (2p1/2) subshell",
-    "L3 (2p3/2) subshell",
-    "M1 (3s1/2) subshell",
-    "M2 (3p1/2) subshell",
-    "M3 (3p3/2) subshell",
-    "M4 (3d1/2) subshell",
-    "M5 (3d1/2) subshell",
-    "N1 (4s1/2) subshell",
-    "N2 (4p1/2) subshell",
-    "N3 (4p3/2) subshell",
-    "N4 (4d3/2) subshell",
-    "N5 (4d5/2) subshell",
-    "N6 (4f5/2) subshell",
-    "N7 (4f7/2) subshell",
-    "O1 (5s1/2) subshell",
-    "O2 (5p1/2) subshell",
-    "O3 (5p3/2) subshell",
-    "O4 (5d3/2) subshell",
-    "O5 (5d5/2) subshell",
-    "O6 (5f5/2) subshell",
-    "O7 (5f7/2) subshell",
-    "O8 (5g7/2) subshell",
-    "O9 (5g9/2) subshell",
-    "P1 (6s1/2) subshell",
-    "P2 (6p1/2) subshell",
-    "P3 (6p3/2) subshell",
-    "P4 (6d3/2) subshell",
-    "P5 (6d5/2) subshell",
-    "P6 (6f5/2) subshell",
-    "P7 (6f7/2) subshell",
-    "P8 (6g7/2) subshell",
-    "P9 (6g9/2) subshell",
-    "P10 (6h9/2) subshell",
-    "P11 (6h11/2) subshell",
-    "Q1 (7s1/2) subshell",
-    "Q2 (7p1/2) subshell",
-    "Q3 (7p3/2) subshell",
-    "(n,p0)",
-    "(n,p1)",
-    "(n,p2)",
-    "(n,p3)",
-    "(n,p4)",
-    "(n,p5)",
-    "(n,p6)",
-    "(n,p7)",
-    "(n,p8)",
-    "(n,p9)",
-    "(n,p10)",
-    "(n,p11)",
-    "(n,p12)",
-    "(n,p13)",
-    "(n,p14)",
-    "(n,p15)",
-    "(n,p16)",
-    "(n,p17)",
-    "(n,p18)",
-    "(n,p19)",
-    "(n,p20)",
-    "(n,p21)",
-    "(n,p22)",
-    "(n,p23)",
-    "(n,p24)",
-    "(n,p25)",
-    "(n,p26)",
-    "(n,p27)",
-    "(n,p28)",
-    "(n,p29)",
-    "(n,p30)",
-    "(n,p31)",
-    "(n,p32)",
-    "(n,p33)",
-    "(n,p34)",
-    "(n,p35)",
-    "(n,p36)",
-    "(n,p37)",
-    "(n,p38)",
-    "(n,p39)",
-    "(n,p40)",
-    "(n,p41)",
-    "(n,p42)",
-    "(n,p43)",
-    "(n,p44)",
-    "(n,p45)",
-    "(n,p46)",
-    "(n,p47)",
-    "(n,p48)",
-    "(n,pc)",
-    "(n,d0)",
-    "(n,d1)",
-    "(n,d2)",
-    "(n,d3)",
-    "(n,d4)",
-    "(n,d5)",
-    "(n,d6)",
-    "(n,d7)",
-    "(n,d8)",
-    "(n,d9)",
-    "(n,d10)",
-    "(n,d11)",
-    "(n,d12)",
-    "(n,d13)",
-    "(n,d14)",
-    "(n,d15)",
-    "(n,d16)",
-    "(n,d17)",
-    "(n,d18)",
-    "(n,d19)",
-    "(n,d20)",
-    "(n,d21)",
-    "(n,d22)",
-    "(n,d23)",
-    "(n,d24)",
-    "(n,d25)",
-    "(n,d26)",
-    "(n,d27)",
-    "(n,d28)",
-    "(n,d29)",
-    "(n,d30)",
-    "(n,d31)",
-    "(n,d32)",
-    "(n,d33)",
-    "(n,d34)",
-    "(n,d35)",
-    "(n,d36)",
-    "(n,d37)",
-    "(n,d38)",
-    "(n,d39)",
-    "(n,d40)",
-    "(n,d41)",
-    "(n,d42)",
-    "(n,d43)",
-    "(n,d44)",
-    "(n,d45)",
-    "(n,d46)",
-    "(n,d47)",
-    "(n,d48)",
-    "(n,dc)",
-    "(z,t0)",
-    "(z,t1)",
-    "(z,t2)",
-    "(z,t3)",
-    "(z,t4)",
-    "(z,t5)",
-    "(z,t6)",
-    "(z,t7)",
-    "(z,t8)",
-    "(z,t9)",
-    "(z,t10)",
-    "(z,t11)",
-    "(z,t12)",
-    "(z,t13)",
-    "(z,t14)",
-    "(z,t15)",
-    "(z,t16)",
-    "(z,t17)",
-    "(z,t18)",
-    "(z,t19)",
-    "(z,t20)",
-    "(z,t21)",
-    "(z,t22)",
-    "(z,t23)",
-    "(z,t24)",
-    "(z,t25)",
-    "(z,t26)",
-    "(z,t27)",
-    "(z,t28)",
-    "(z,t29)",
-    "(z,t30)",
-    "(z,t31)",
-    "(z,t32)",
-    "(z,t33)",
-    "(z,t34)",
-    "(z,t35)",
-    "(z,t36)",
-    "(z,t37)",
-    "(z,t38)",
-    "(z,t39)",
-    "(z,t40)",
-    "(z,t41)",
-    "(z,t42)",
-    "(z,t43)",
-    "(z,t44)",
-    "(z,t45)",
-    "(z,t46)",
-    "(z,t47)",
-    "(z,t48)",
-    "(n,tc)",
-    "(n,3He0)",
-    "(n,3He1)",
-    "(n,3He2)",
-    "(n,3He3)",
-    "(n,3He4)",
-    "(n,3He5)",
-    "(n,3He6)",
-    "(n,3He7)",
-    "(n,3He8)",
-    "(n,3He9)",
-    "(n,3He10)",
-    "(n,3He11)",
-    "(n,3He12)",
-    "(n,3He13)",
-    "(n,3He14)",
-    "(n,3He15)",
-    "(n,3He16)",
-    "(n,3He17)",
-    "(n,3He18)",
-    "(n,3He19)",
-    "(n,3He20)",
-    "(n,3He21)",
-    "(n,3He22)",
-    "(n,3He23)",
-    "(n,3He24)",
-    "(n,3He25)",
-    "(n,3He26)",
-    "(n,3He27)",
-    "(n,3He28)",
-    "(n,3He29)",
-    "(n,3He30)",
-    "(n,3He31)",
-    "(n,3He32)",
-    "(n,3He33)",
-    "(n,3He34)",
-    "(n,3He35)",
-    "(n,3He36)",
-    "(n,3He37)",
-    "(n,3He38)",
-    "(n,3He39)",
-    "(n,3He40)",
-    "(n,3He41)",
-    "(n,3He42)",
-    "(n,3He43)",
-    "(n,3He44)",
-    "(n,3He45)",
-    "(n,3He46)",
-    "(n,3He47)",
-    "(n,3He48)",
-    "(n,3Hec)",
-    "(z,a0)",
-    "(z,a1)",
-    "(z,a2)",
-    "(z,a3)",
-    "(z,a4)",
-    "(z,a5)",
-    "(z,a6)",
-    "(z,a7)",
-    "(z,a8)",
-    "(z,a9)",
-    "(z,a10)",
-    "(z,a11)",
-    "(z,a12)",
-    "(z,a13)",
-    "(z,a14)",
-    "(z,a15)",
-    "(z,a16)",
-    "(z,a17)",
-    "(z,a18)",
-    "(z,a19)",
-    "(z,a20)",
-    "(z,a21)",
-    "(z,a22)",
-    "(z,a23)",
-    "(z,a24)",
-    "(z,a25)",
-    "(z,a26)",
-    "(z,a27)",
-    "(z,a28)",
-    "(z,a29)",
-    "(z,a30)",
-    "(z,a31)",
-    "(z,a32)",
-    "(z,a33)",
-    "(z,a34)",
-    "(z,a35)",
-    "(z,a36)",
-    "(z,a37)",
-    "(z,a38)",
-    "(z,a39)",
-    "(z,a40)",
-    "(z,a41)",
-    "(z,a42)",
-    "(z,a43)",
-    "(z,a44)",
-    "(z,a45)",
-    "(z,a46)",
-    "(z,a47)",
-    "(z,a48)",
-    "(n,ac)",
-    "Lumped-Reaction Covariances",
-    "production of any excited state nucleus",
-    "(z,b-)",
-    "(z,b+)",
-    "(z,ec)",
-    "(z,b-n)",
-    "(z,b-a)",
-    "(z,it)",
-    "(z,b+a)",
-    "(z,ec+b+)",
-    "(z,b+p)",
-    "(z,b-2n)",
-    "(z,b-3n)",
-    "(z,b-4n)",
-    "(z,ecp)",
-    "(z,eca)",
-    "(z,b+2p)",
-    "(z,ec2p)",
-    "(z,2b-)",
-    "(z,b-p)",
-    "(z,14c)",
-    "(z,b+3p)",
-    "(z,sf)",
-    "(z,2b+)",
-    "(z,2ec)",
-    "(z,ec3p)",
-    "(z,b-sf)"
-  };
+      "(n,total) Neutron total",
+      "Total scattering",
+      "(z,z0) Elastic scattering",
+      "(z,nonelas) Nonelastic neutron",
+      "(z,n) One neutron in exit channel",
+      "(z,anything) Miscellaneous",
+      "(z,contin) Total continuum reaction",
+      "(z,2nd) Production of 2n and d",
+      "(z,2n) Production of 2n",
+      "(z,2n0) Production of 2n, ground state",
+      "(z,2n1) Production of 2n, 1st excited state",
+      "(z,2n2) Production of 2n, 2nd excited state",
+      "(z,3n) Production of 3n",
+      "(z,3n0) Production of 3n, ground state",
+      "(z,3n1) Production of 3n, 1st excited state",
+      "(z,3n2) Production of 3n, 2nd excited state",
+      "(z,fiss) Particle-induced fission",
+      "(z,f) First-chance fission",
+      "(z,nf) Second chance fission",
+      "(z,2nf) Third-chance fission",
+      "(z,na) Production of n and alpha",
+      "(z,na0) Production of n and alpha, ground state",
+      "(z,na1) Production of n and alpha, 1st excited state",
+      "(z,na2) Production of n and alpha, 2nd excited state",
+      "(z,n3a) Production of n and 3 alphas",
+      "(z,2na) Production of 2n and alpha",
+      "(z,3na) Production of 3n and alpha",
+      "(n,abs) Absorption",
+      "(z,np) Production of n and p",
+      "(z,np0) Production of n and p, ground state",
+      "(z,np1) Production of n and p, 1st excited state",
+      "(z,np2) Production of n and p, 2nd excited state",
+      "(z,npd) Production of n, p, and d",
+      "(z,n2a) Production of n and 2 alphas",
+      "(z,2n2a) Production of 2n and 2 alphas",
+      "(z,nd) Production of n and d",
+      "(z,nd0) Production of n and d, ground state",
+      "(z,nd1) Production of n and d, 1st excited state",
+      "(z,nd2) Production of n and d, 2nd excited state",
+      "(z,nt) Production of n and t",
+      "(z,nt0) Production of n and t, ground state",
+      "(z,nt1) Production of n and t, 1st excited state",
+      "(z,nt2) Production of n and t, 2nd excited state",
+      "(z,n3He) Production of n and He-3",
+      "(z,n3He-0) Production of n and He-3, ground state",
+      "(z,n3He-1) Production of n and He-3, 1st excited state",
+      "(z,n3He-2) Production of n and He-3, 2nd excited state",
+      "(z,nd2a) Production of n, d, and alpha",
+      "(z,nt2a) Production of n, t, and 2 alphas",
+      "(z,4n) Production of 4n",
+      "(z,4n0) Production of 4n, ground state",
+      "(z,4n1) Production of 4n, 1st excited state",
+      "(z,3nf) Fourth-chance fission",
+      "(z,2np) Production of 2n and p",
+      "(z,3np) Production of 3n and p",
+      "(z,n2p) Production of n and 2p",
+      "(z,npa) Production of n, p, and alpha",
+      "(z,n0) Production of n, ground state",
+      "(z,n1) Production of n, 1st excited state",
+      "(z,n2) Production of n, 2nd excited state",
+      "(z,n3) Production of n, 3rd excited state",
+      "(z,n4) Production of n, 4th excited state",
+      "(z,n5) Production of n, 5th excited state",
+      "(z,n6) Production of n, 6th excited state",
+      "(z,n7) Production of n, 7th excited state",
+      "(z,n8) Production of n, 8th excited state",
+      "(z,n9) Production of n, 9th excited state",
+      "(z,n10) Production of n, 10th excited state",
+      "(z,n11) Production of n, 11th excited state",
+      "(z,n12) Production of n, 12th excited state",
+      "(z,n13) Production of n, 13th excited state",
+      "(z,n14) Production of n, 14th excited state",
+      "(z,n15) Production of n, 15th excited state",
+      "(z,n16) Production of n, 16th excited state",
+      "(z,n17) Production of n, 17th excited state",
+      "(z,n18) Production of n, 18th excited state",
+      "(z,n19) Production of n, 19th excited state",
+      "(z,n20) Production of n, 20th excited state",
+      "(z,n21) Production of n, 21st excited state",
+      "(z,n22) Production of n, 22nd excited state",
+      "(z,n23) Production of n, 23rd excited state",
+      "(z,n24) Production of n, 24th excited state",
+      "(z,n25) Production of n, 25th excited state",
+      "(z,n26) Production of n, 26th excited state",
+      "(z,n27) Production of n, 27th excited state",
+      "(z,n28) Production of n, 28th excited state",
+      "(z,n29) Production of n, 29th excited state",
+      "(z,n30) Production of n, 30th excited state",
+      "(z,n31) Production of n, 31st excited state",
+      "(z,n32) Production of n, 32nd excited state",
+      "(z,n33) Production of n, 33rd excited state",
+      "(z,n34) Production of n, 34th excited state",
+      "(z,n35) Production of n, 35th excited state",
+      "(z,n36) Production of n, 36th excited state",
+      "(z,n37) Production of n, 37th excited state",
+      "(z,n38) Production of n, 38th excited state",
+      "(z,n39) Production of n, 39th excited state",
+      "(z,n40) Production of n, 40th excited state",
+      "(z,nc) Production of n in continuum",
+      "(n,disap) Neutron disappearance",
+      "(z,gamma) Radiative capture",
+      "(z,gamma0) Radiative capture, ground state",
+      "(z,gamma1) Radiative capture, 1st excited state",
+      "(z,gamma2) Radiative capture, 2st excited state",
+      "(z,p) Production of p",
+      "(z,d) Production of d",
+      "(z,t) Production of t",
+      "(z,3He) Production of He-3",
+      "(z,a) Production of alpha",
+      "(z,2a) Production of 2 alphas",
+      "(z,3a) Production of 3 alphas",
+      "(z,2p) Production of 2p",
+      "(z,2p0) Production of 2p, ground state",
+      "(z,2p1) Production of 2p, 1st excited state",
+      "(z,2p2) Production of 2p, 2nd excited state",
+      "(z,pa) Production of p and alpha",
+      "(z,t2a) Production of t and 2 alphas",
+      "(z,d2a) Production of d and 2 alphas",
+      "(z,pd) Production of p and d",
+      "(z,pt) Production of p and t",
+      "(z,da) Production of d and a",
+      "Resonance Parameters",
+      "(z,Xn) Total neutron production",
+      "(z,Xgamma) Total gamma production",
+      "(z,Xp) Total proton production",
+      "(z,Xd) Total deuteron production",
+      "(z,Xt) Total triton production",
+      "(z,X3He) Total He-3 production",
+      "(z,Xa) Total alpha production",
+      "(z,Xpi+) Total pi+ meson production",
+      "(z,Xpi0) Total pi0 meson production",
+      "(z,Xpi-) Total pi- meson production",
+      "(z,Xmu+) Total anti-muon production",
+      "(z,Xmu-) Total muon production",
+      "(z,Xk+) Total positive kaon production",
+      "(z,Xk0long) Total long-lived neutral kaon production",
+      "(z,Xk0short) Total short-lived neutral kaon production",
+      "(z,Xk-) Total negative kaon production",
+      "(z,Xp-) Total anti-proton production",
+      "(z,Xn-) Total anti-neutron production",
+      "Average cosine of scattering angle",
+      "Average logarithmic energy decrement",
+      "Average xi^2/(2*xi)",
+      "Energy Release from (n,total) Neutron total",
+      "Energy Release from (z,z0) Elastic scattering",
+      "Energy Release from (z,nonelas) Nonelastic neutron",
+      "Energy Release from (z,n) One neutron in exit channel",
+      "Energy Release from (z,anything) Miscellaneous",
+      "Energy Release from (z,contin) Total continuum reaction",
+      "Energy Release from (z,2nd) Production of 2n and d",
+      "Energy Release from (z,2n) Production of 2n",
+      "Energy Release from (z,3n) Production of 3n",
+      "Energy Release from (z,fiss) Particle-induced fission",
+      "Energy Release from (z,f) First-chance fission",
+      "Energy Release from (z,nf) Second chance fission",
+      "Energy Release from (z,2nf) Third-chance fission",
+      "Energy Release from (z,na) Production of n and alpha",
+      "Energy Release from (z,n3a) Production of n and 3 alphas",
+      "Energy Release from (z,2na) Production of 2n and alpha",
+      "Energy Release from (z,3na) Production of 3n and alpha",
+      "Energy Release from (n,abs) Absorption",
+      "Energy Release from (z,np) Production of n and p",
+      "Energy Release from (z,n2a) Production of n and 2 alphas",
+      "Energy Release from (z,2n2a) Production of 2n and 2 alphas",
+      "Energy Release from (z,nd) Production of n and d",
+      "Energy Release from (z,nt) Production of n and t",
+      "Energy Release from (z,n3He) Production of n and He-3",
+      "Energy Release from (z,nd2a) Production of n, d, and alpha",
+      "Energy Release from (z,nt2a) Production of n, t, and 2 alphas",
+      "Energy Release from (z,4n) Production of 4n",
+      "Energy Release from (z,3nf) Fourth-chance fission",
+      "Energy Release from (z,2np) Production of 2n and p",
+      "Energy Release from (z,3np) Production of 3n and p",
+      "Energy Release from (z,n2p) Production of n and 2p",
+      "Energy Release from (z,npa) Production of n, p, and alpha",
+      "Energy Release from (z,n0) Production of n, ground state",
+      "Energy Release from (z,n1) Production of n, 1st excited state",
+      "Energy Release from (z,n2) Production of n, 2nd excited state",
+      "Energy Release from (z,n3) Production of n, 3rd excited state",
+      "Energy Release from (z,n4) Production of n, 4th excited state",
+      "Energy Release from (z,n5) Production of n, 5th excited state",
+      "Energy Release from (z,n6) Production of n, 6th excited state",
+      "Energy Release from (z,n7) Production of n, 7th excited state",
+      "Energy Release from (z,n8) Production of n, 8th excited state",
+      "Energy Release from (z,n9) Production of n, 9th excited state",
+      "Energy Release from (z,n10) Production of n, 10th excited state",
+      "Energy Release from (z,n11) Production of n, 11th excited state",
+      "Energy Release from (z,n12) Production of n, 12th excited state",
+      "Energy Release from (z,n13) Production of n, 13th excited state",
+      "Energy Release from (z,n14) Production of n, 14th excited state",
+      "Energy Release from (z,n15) Production of n, 15th excited state",
+      "Energy Release from (z,n16) Production of n, 16th excited state",
+      "Energy Release from (z,n17) Production of n, 17th excited state",
+      "Energy Release from (z,n18) Production of n, 18th excited state",
+      "Energy Release from (z,n19) Production of n, 19th excited state",
+      "Energy Release from (z,n20) Production of n, 20th excited state",
+      "Energy Release from (z,n21) Production of n, 21st excited state",
+      "Energy Release from (z,n22) Production of n, 22nd excited state",
+      "Energy Release from (z,n23) Production of n, 23rd excited state",
+      "Energy Release from (z,n24) Production of n, 24th excited state",
+      "Energy Release from (z,n25) Production of n, 25th excited state",
+      "Energy Release from (z,n26) Production of n, 26th excited state",
+      "Energy Release from (z,n27) Production of n, 27th excited state",
+      "Energy Release from (z,n28) Production of n, 28th excited state",
+      "Energy Release from (z,n29) Production of n, 29th excited state",
+      "Energy Release from (z,n30) Production of n, 30th excited state",
+      "Energy Release from (z,n31) Production of n, 31st excited state",
+      "Energy Release from (z,n32) Production of n, 32nd excited state",
+      "Energy Release from (z,n33) Production of n, 33rd excited state",
+      "Energy Release from (z,n34) Production of n, 34th excited state",
+      "Energy Release from (z,n35) Production of n, 35th excited state",
+      "Energy Release from (z,n36) Production of n, 36th excited state",
+      "Energy Release from (z,n37) Production of n, 37th excited state",
+      "Energy Release from (z,n38) Production of n, 38th excited state",
+      "Energy Release from (z,n39) Production of n, 39th excited state",
+      "Energy Release from (z,n40) Production of n, 40th excited state",
+      "Energy Release from (z,nc) Production of n in continuum",
+      "Energy Release from (n,disap) Neutron disappearance",
+      "Energy Release from (z,gamma) Radiative capture",
+      "Energy Release from (z,p) Production of p",
+      "Energy Release from (z,d) Production of d",
+      "Energy Release from (z,t) Production of t",
+      "Energy Release from (z,3He) Production of He-3",
+      "Energy Release from (z,a) Production of alpha",
+      "Energy Release from (z,2a) Production of 2 alphas",
+      "Energy Release from (z,3a) Production of 3 alphas",
+      "Energy Release from (z,2p) Production of 2p",
+      "Energy Release from (z,pa) Production of p and alpha",
+      "Energy Release from (z,t2a) Production of t and 2 alphas",
+      "Energy Release from (z,d2a) Production of d and 2 alphas",
+      "Energy Release from (z,pd) Production of p and d",
+      "Energy Release from (z,pt) Production of p and t",
+      "Energy Release from (z,da) Production of d and a",
+      "(damage)",
+      "Descriptive Data",
+      "Total Neutrons per Fission",
+      "Independent fission product yield",
+      "Delayed Neutron Data",
+      "Prompt Neutrons per Fission",
+      "Radioactive Decay Data",
+      "Energy Release Due to Fission",
+      "Cumulative Fission Product Yield",
+      "Delayed Photon Data",
+      "Total charged-particle stopping power",
+      "Total photon interaction",
+      "Photon coherent scattering",
+      "Photon incoherent scattering",
+      "Imaginary scattering factor",
+      "Real scattering factor",
+      "Pair production, electron field",
+      "Total pair production",
+      "Pair production, nuclear field",
+      "Photoelectric absorption",
+      "Photo-excitation cross section",
+      "Electro-atomic scattering",
+      "Electro-atomic bremsstrahlung",
+      "Electro-atomic excitation cross section",
+      "Atomic relaxation data",
+      "K (1s1/2) subshell",
+      "L1 (2s1/2) subshell",
+      "L2 (2p1/2) subshell",
+      "L3 (2p3/2) subshell",
+      "M1 (3s1/2) subshell",
+      "M2 (3p1/2) subshell",
+      "M3 (3p3/2) subshell",
+      "M4 (3d1/2) subshell",
+      "M5 (3d1/2) subshell",
+      "N1 (4s1/2) subshell",
+      "N2 (4p1/2) subshell",
+      "N3 (4p3/2) subshell",
+      "N4 (4d3/2) subshell",
+      "N5 (4d5/2) subshell",
+      "N6 (4f5/2) subshell",
+      "N7 (4f7/2) subshell",
+      "O1 (5s1/2) subshell",
+      "O2 (5p1/2) subshell",
+      "O3 (5p3/2) subshell",
+      "O4 (5d3/2) subshell",
+      "O5 (5d5/2) subshell",
+      "O6 (5f5/2) subshell",
+      "O7 (5f7/2) subshell",
+      "O8 (5g7/2) subshell",
+      "O9 (5g9/2) subshell",
+      "P1 (6s1/2) subshell",
+      "P2 (6p1/2) subshell",
+      "P3 (6p3/2) subshell",
+      "P4 (6d3/2) subshell",
+      "P5 (6d5/2) subshell",
+      "P6 (6f5/2) subshell",
+      "P7 (6f7/2) subshell",
+      "P8 (6g7/2) subshell",
+      "P9 (6g9/2) subshell",
+      "P10 (6h9/2) subshell",
+      "P11 (6h11/2) subshell",
+      "Q1 (7s1/2) subshell",
+      "Q2 (7p1/2) subshell",
+      "Q3 (7p3/2) subshell",
+      "(n,p0)",
+      "(n,p1)",
+      "(n,p2)",
+      "(n,p3)",
+      "(n,p4)",
+      "(n,p5)",
+      "(n,p6)",
+      "(n,p7)",
+      "(n,p8)",
+      "(n,p9)",
+      "(n,p10)",
+      "(n,p11)",
+      "(n,p12)",
+      "(n,p13)",
+      "(n,p14)",
+      "(n,p15)",
+      "(n,p16)",
+      "(n,p17)",
+      "(n,p18)",
+      "(n,p19)",
+      "(n,p20)",
+      "(n,p21)",
+      "(n,p22)",
+      "(n,p23)",
+      "(n,p24)",
+      "(n,p25)",
+      "(n,p26)",
+      "(n,p27)",
+      "(n,p28)",
+      "(n,p29)",
+      "(n,p30)",
+      "(n,p31)",
+      "(n,p32)",
+      "(n,p33)",
+      "(n,p34)",
+      "(n,p35)",
+      "(n,p36)",
+      "(n,p37)",
+      "(n,p38)",
+      "(n,p39)",
+      "(n,p40)",
+      "(n,p41)",
+      "(n,p42)",
+      "(n,p43)",
+      "(n,p44)",
+      "(n,p45)",
+      "(n,p46)",
+      "(n,p47)",
+      "(n,p48)",
+      "(n,pc)",
+      "(n,d0)",
+      "(n,d1)",
+      "(n,d2)",
+      "(n,d3)",
+      "(n,d4)",
+      "(n,d5)",
+      "(n,d6)",
+      "(n,d7)",
+      "(n,d8)",
+      "(n,d9)",
+      "(n,d10)",
+      "(n,d11)",
+      "(n,d12)",
+      "(n,d13)",
+      "(n,d14)",
+      "(n,d15)",
+      "(n,d16)",
+      "(n,d17)",
+      "(n,d18)",
+      "(n,d19)",
+      "(n,d20)",
+      "(n,d21)",
+      "(n,d22)",
+      "(n,d23)",
+      "(n,d24)",
+      "(n,d25)",
+      "(n,d26)",
+      "(n,d27)",
+      "(n,d28)",
+      "(n,d29)",
+      "(n,d30)",
+      "(n,d31)",
+      "(n,d32)",
+      "(n,d33)",
+      "(n,d34)",
+      "(n,d35)",
+      "(n,d36)",
+      "(n,d37)",
+      "(n,d38)",
+      "(n,d39)",
+      "(n,d40)",
+      "(n,d41)",
+      "(n,d42)",
+      "(n,d43)",
+      "(n,d44)",
+      "(n,d45)",
+      "(n,d46)",
+      "(n,d47)",
+      "(n,d48)",
+      "(n,dc)",
+      "(z,t0)",
+      "(z,t1)",
+      "(z,t2)",
+      "(z,t3)",
+      "(z,t4)",
+      "(z,t5)",
+      "(z,t6)",
+      "(z,t7)",
+      "(z,t8)",
+      "(z,t9)",
+      "(z,t10)",
+      "(z,t11)",
+      "(z,t12)",
+      "(z,t13)",
+      "(z,t14)",
+      "(z,t15)",
+      "(z,t16)",
+      "(z,t17)",
+      "(z,t18)",
+      "(z,t19)",
+      "(z,t20)",
+      "(z,t21)",
+      "(z,t22)",
+      "(z,t23)",
+      "(z,t24)",
+      "(z,t25)",
+      "(z,t26)",
+      "(z,t27)",
+      "(z,t28)",
+      "(z,t29)",
+      "(z,t30)",
+      "(z,t31)",
+      "(z,t32)",
+      "(z,t33)",
+      "(z,t34)",
+      "(z,t35)",
+      "(z,t36)",
+      "(z,t37)",
+      "(z,t38)",
+      "(z,t39)",
+      "(z,t40)",
+      "(z,t41)",
+      "(z,t42)",
+      "(z,t43)",
+      "(z,t44)",
+      "(z,t45)",
+      "(z,t46)",
+      "(z,t47)",
+      "(z,t48)",
+      "(n,tc)",
+      "(n,3He0)",
+      "(n,3He1)",
+      "(n,3He2)",
+      "(n,3He3)",
+      "(n,3He4)",
+      "(n,3He5)",
+      "(n,3He6)",
+      "(n,3He7)",
+      "(n,3He8)",
+      "(n,3He9)",
+      "(n,3He10)",
+      "(n,3He11)",
+      "(n,3He12)",
+      "(n,3He13)",
+      "(n,3He14)",
+      "(n,3He15)",
+      "(n,3He16)",
+      "(n,3He17)",
+      "(n,3He18)",
+      "(n,3He19)",
+      "(n,3He20)",
+      "(n,3He21)",
+      "(n,3He22)",
+      "(n,3He23)",
+      "(n,3He24)",
+      "(n,3He25)",
+      "(n,3He26)",
+      "(n,3He27)",
+      "(n,3He28)",
+      "(n,3He29)",
+      "(n,3He30)",
+      "(n,3He31)",
+      "(n,3He32)",
+      "(n,3He33)",
+      "(n,3He34)",
+      "(n,3He35)",
+      "(n,3He36)",
+      "(n,3He37)",
+      "(n,3He38)",
+      "(n,3He39)",
+      "(n,3He40)",
+      "(n,3He41)",
+      "(n,3He42)",
+      "(n,3He43)",
+      "(n,3He44)",
+      "(n,3He45)",
+      "(n,3He46)",
+      "(n,3He47)",
+      "(n,3He48)",
+      "(n,3Hec)",
+      "(z,a0)",
+      "(z,a1)",
+      "(z,a2)",
+      "(z,a3)",
+      "(z,a4)",
+      "(z,a5)",
+      "(z,a6)",
+      "(z,a7)",
+      "(z,a8)",
+      "(z,a9)",
+      "(z,a10)",
+      "(z,a11)",
+      "(z,a12)",
+      "(z,a13)",
+      "(z,a14)",
+      "(z,a15)",
+      "(z,a16)",
+      "(z,a17)",
+      "(z,a18)",
+      "(z,a19)",
+      "(z,a20)",
+      "(z,a21)",
+      "(z,a22)",
+      "(z,a23)",
+      "(z,a24)",
+      "(z,a25)",
+      "(z,a26)",
+      "(z,a27)",
+      "(z,a28)",
+      "(z,a29)",
+      "(z,a30)",
+      "(z,a31)",
+      "(z,a32)",
+      "(z,a33)",
+      "(z,a34)",
+      "(z,a35)",
+      "(z,a36)",
+      "(z,a37)",
+      "(z,a38)",
+      "(z,a39)",
+      "(z,a40)",
+      "(z,a41)",
+      "(z,a42)",
+      "(z,a43)",
+      "(z,a44)",
+      "(z,a45)",
+      "(z,a46)",
+      "(z,a47)",
+      "(z,a48)",
+      "(n,ac)",
+      "Lumped-Reaction Covariances",
+      "production of any excited state nucleus",
+      "(z,b-)",
+      "(z,b+)",
+      "(z,ec)",
+      "(z,b-n)",
+      "(z,b-a)",
+      "(z,it)",
+      "(z,b+a)",
+      "(z,ec+b+)",
+      "(z,b+p)",
+      "(z,b-2n)",
+      "(z,b-3n)",
+      "(z,b-4n)",
+      "(z,ecp)",
+      "(z,eca)",
+      "(z,b+2p)",
+      "(z,ec2p)",
+      "(z,2b-)",
+      "(z,b-p)",
+      "(z,14c)",
+      "(z,b+3p)",
+      "(z,sf)",
+      "(z,2b+)",
+      "(z,2ec)",
+      "(z,ec3p)",
+      "(z,b-sf)"};
 
   // fill the maps
   for (int i = 0; i < NUM_RX_NAMES; i++) {
@@ -6494,12 +3960,10 @@ void* pyne::rxname::_fill_maps() {
   altnames["2ec"] = name_id["decay_2ec"];
   altnames["b-sf"] = name_id["bminus_sf"];
 
-
   // set the nuclide difference mappings, offset_id
-  // offset_id[incident particle type "n", "p", ...][delta Z num][delta A num][rxid]
-  // offset_id mapping may be ambiquious so they must come before the id_offsets!
-  // the following should be sorted by (dz, da, ds)
-  // neutrons:
+  // offset_id[incident particle type "n", "p", ...][delta Z num][delta A
+  // num][rxid] offset_id mapping may be ambiquious so they must come before the
+  // id_offsets! the following should be sorted by (dz, da, ds) neutrons:
   offset_id[make_pair("n", offset(-4, -8))] = name_id["n2a"];
   offset_id[make_pair("n", offset(-4, -7))] = name_id["z_2a"];
   offset_id[make_pair("n", offset(-2, -5))] = name_id["z_2na"];
@@ -6642,7 +4106,8 @@ void* pyne::rxname::_fill_maps() {
   // pre-loaded child offsets
   std::map<std::pair<std::string, int>, unsigned int>::iterator ioffid;
   for (ioffid = offset_id.begin(); ioffid != offset_id.end(); ioffid++) {
-    id_offset[make_pair(ioffid->first.first, ioffid->second)] = ioffid->first.second;
+    id_offset[make_pair(ioffid->first.first, ioffid->second)] =
+        ioffid->first.second;
   }
   // neutrons:
   id_offset[make_pair("n", name_id["nHe3"])] = offset(-2, -3);
@@ -6668,16 +4133,17 @@ void* pyne::rxname::_fill_maps() {
   id_offset[make_pair("decay", name_id["decay_2ec"])] = offset(-2, 0);
   return NULL;
 }
-void* pyne::rxname::_ = pyne::rxname::_fill_maps();
-
+void *pyne::rxname::_ = pyne::rxname::_fill_maps();
 
 unsigned int pyne::rxname::hash(std::string s) {
   return pyne::rxname::hash(s.c_str());
 }
 
-unsigned int pyne::rxname::hash(const char* s) {
-  // Modified from http://cboard.cprogramming.com/tech-board/114650-string-hashing-algorithm.html#post853145
-  // starting from h = 32*2^5 > 1000, rather than 0, to reserve space for MT numbers
+unsigned int pyne::rxname::hash(const char *s) {
+  // Modified from
+  // http://cboard.cprogramming.com/tech-board/114650-string-hashing-algorithm.html#post853145
+  // starting from h = 32*2^5 > 1000, rather than 0, to reserve space for MT
+  // numbers
   int c;
   unsigned int h = 32;
   while ((c = *s++)) {
@@ -6686,20 +4152,17 @@ unsigned int pyne::rxname::hash(const char* s) {
   return h;
 }
 
-
 // ************************
 // *** name functions *****
 // ************************
 
-std::string pyne::rxname::name(char* s) {
+std::string pyne::rxname::name(char *s) {
   return pyne::rxname::name(std::string(s));
 }
 
 std::string pyne::rxname::name(std::string s) {
-  if (0 < names.count(s))
-    return s;
-  if (0 < altnames.count(s))
-    return id_name[altnames[s]];
+  if (0 < names.count(s)) return s;
+  if (0 < altnames.count(s)) return id_name[altnames[s]];
   // see if id in string form
   int i = 0;
   int I = s.length();
@@ -6708,76 +4171,67 @@ std::string pyne::rxname::name(std::string s) {
     found = pyne::digits.find(s[i]);
     i++;
   }
-  if (0 <= found)
-    return pyne::rxname::name(atoi(s.c_str()));
+  if (0 <= found) return pyne::rxname::name(atoi(s.c_str()));
   // dead...
   throw NotAReaction(s, "???");
 }
 
-
 std::string pyne::rxname::name(int n) {
-  return pyne::rxname::name((unsigned int) n);
+  return pyne::rxname::name((unsigned int)n);
 }
 
 std::string pyne::rxname::name(unsigned int n) {
-  if (0 < id_name.count(n))
-    return id_name[n];
-  if (0 < mt_id.count(n))
-    return id_name[mt_id[n]];
+  if (0 < id_name.count(n)) return id_name[n];
+  if (0 < mt_id.count(n)) return id_name[mt_id[n]];
   throw NotAReaction(n, "???");
 }
-
 
 std::string pyne::rxname::name(int from_nuc, int to_nuc, std::string z) {
   // This assumes nuclides are in id form
   std::pair<std::string, int> key = std::make_pair(z, to_nuc - from_nuc);
   if (0 == offset_id.count(key))
-    throw IndeterminateReactionForm("z=" + z + ", " + pyne::to_str(from_nuc) + \
-                                    ", " + pyne::to_str(to_nuc), "???");
+    throw IndeterminateReactionForm(
+        "z=" + z + ", " + pyne::to_str(from_nuc) + ", " + pyne::to_str(to_nuc),
+        "???");
   return id_name[offset_id[key]];
 }
 
-std::string pyne::rxname::name(std::string from_nuc, int to_nuc, std::string z) {
+std::string pyne::rxname::name(std::string from_nuc, int to_nuc,
+                               std::string z) {
   return pyne::rxname::name(pyne::nucname::id(from_nuc),
                             pyne::nucname::id(to_nuc), z);
 }
 
-std::string pyne::rxname::name(int from_nuc, std::string to_nuc, std::string z) {
+std::string pyne::rxname::name(int from_nuc, std::string to_nuc,
+                               std::string z) {
   return pyne::rxname::name(pyne::nucname::id(from_nuc),
                             pyne::nucname::id(to_nuc), z);
 }
 
-std::string pyne::rxname::name(std::string from_nuc, std::string to_nuc, std::string z) {
+std::string pyne::rxname::name(std::string from_nuc, std::string to_nuc,
+                               std::string z) {
   return pyne::rxname::name(pyne::nucname::id(from_nuc),
                             pyne::nucname::id(to_nuc), z);
 }
-
-
 
 // **********************
 // *** id functions *****
 // **********************
-unsigned int pyne::rxname::id(int x) {
-  return name_id[pyne::rxname::name(x)];
-}
+unsigned int pyne::rxname::id(int x) { return name_id[pyne::rxname::name(x)]; }
 
 unsigned int pyne::rxname::id(unsigned int x) {
-  if (0 < id_name.count(x))
-    return x;
-  if (0 < mt_id.count(x))
-    return mt_id[x];
+  if (0 < id_name.count(x)) return x;
+  if (0 < mt_id.count(x)) return mt_id[x];
   return name_id[pyne::rxname::name(x)];
 }
 
-unsigned int pyne::rxname::id(const char* x) {
+unsigned int pyne::rxname::id(const char *x) {
   return name_id[pyne::rxname::name(x)];
 }
 
 unsigned int pyne::rxname::id(std::string x) {
-  if (0 < names.count(x))
-    return name_id[x];
-  if (0 < altnames.count(x))
-    return altnames[x];
+  if (0 < names.count(x)) return name_id[x];
+  if (0 < altnames.count(x)) return altnames[x];
   return name_id[pyne::rxname::name(x)];
 }
 
@@ -6785,8 +4239,9 @@ unsigned int pyne::rxname::id(int from_nuc, int to_nuc, std::string z) {
   // This assumes nuclides are in id form
   std::pair<std::string, int> key = std::make_pair(z, to_nuc - from_nuc);
   if (0 == offset_id.count(key))
-    throw IndeterminateReactionForm("z=" + z + ", " + pyne::to_str(from_nuc) + \
-                                    ", " + pyne::to_str(to_nuc), "???");
+    throw IndeterminateReactionForm(
+        "z=" + z + ", " + pyne::to_str(from_nuc) + ", " + pyne::to_str(to_nuc),
+        "???");
   return offset_id[key];
 }
 
@@ -6800,86 +4255,74 @@ unsigned int pyne::rxname::id(std::string from_nuc, int to_nuc, std::string z) {
                           pyne::nucname::id(to_nuc), z);
 }
 
-unsigned int pyne::rxname::id(std::string from_nuc, std::string to_nuc, std::string z) {
+unsigned int pyne::rxname::id(std::string from_nuc, std::string to_nuc,
+                              std::string z) {
   return pyne::rxname::id(pyne::nucname::id(from_nuc),
                           pyne::nucname::id(to_nuc), z);
 }
-
 
 // **********************
 // *** MT functions *****
 // **********************
 unsigned int pyne::rxname::mt(int x) {
   unsigned int rxid = pyne::rxname::id(x);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
 
 unsigned int pyne::rxname::mt(unsigned int x) {
   unsigned int rxid = pyne::rxname::id(x);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
 
-unsigned int pyne::rxname::mt(char* x) {
+unsigned int pyne::rxname::mt(char *x) {
   unsigned int rxid = pyne::rxname::id(x);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
 
 unsigned int pyne::rxname::mt(std::string x) {
   unsigned int rxid = pyne::rxname::id(x);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
 
 unsigned int pyne::rxname::mt(int from_nuc, int to_nuc, std::string z) {
   unsigned int rxid = pyne::rxname::id(from_nuc, to_nuc, z);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
 
 unsigned int pyne::rxname::mt(int from_nuc, std::string to_nuc, std::string z) {
   unsigned int rxid = pyne::rxname::id(from_nuc, to_nuc, z);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
 
 unsigned int pyne::rxname::mt(std::string from_nuc, int to_nuc, std::string z) {
   unsigned int rxid = pyne::rxname::id(from_nuc, to_nuc, z);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
 
-unsigned int pyne::rxname::mt(std::string from_nuc, std::string to_nuc, std::string z) {
+unsigned int pyne::rxname::mt(std::string from_nuc, std::string to_nuc,
+                              std::string z) {
   unsigned int rxid = pyne::rxname::id(from_nuc, to_nuc, z);
-  if (0 == id_mt.count(rxid))
-    throw NotAReaction();
+  if (0 == id_mt.count(rxid)) throw NotAReaction();
   return id_mt[rxid];
 }
-
 
 // ***********************
 // *** label functions ***
 // ***********************
-std::string pyne::rxname::label(int x) {
-  return labels[pyne::rxname::id(x)];
-}
+std::string pyne::rxname::label(int x) { return labels[pyne::rxname::id(x)]; }
 
 std::string pyne::rxname::label(unsigned int x) {
   return labels[pyne::rxname::id(x)];
 }
 
-std::string pyne::rxname::label(char* x) {
-  return labels[pyne::rxname::id(x)];
-}
+std::string pyne::rxname::label(char *x) { return labels[pyne::rxname::id(x)]; }
 
 std::string pyne::rxname::label(std::string x) {
   return labels[pyne::rxname::id(x)];
@@ -6889,33 +4332,31 @@ std::string pyne::rxname::label(int from_nuc, int to_nuc, std::string z) {
   return labels[pyne::rxname::id(from_nuc, to_nuc, z)];
 }
 
-std::string pyne::rxname::label(int from_nuc, std::string to_nuc, std::string z) {
+std::string pyne::rxname::label(int from_nuc, std::string to_nuc,
+                                std::string z) {
   return labels[pyne::rxname::id(from_nuc, to_nuc, z)];
 }
 
-std::string pyne::rxname::label(std::string from_nuc, int to_nuc, std::string z) {
+std::string pyne::rxname::label(std::string from_nuc, int to_nuc,
+                                std::string z) {
   return labels[pyne::rxname::id(from_nuc, to_nuc, z)];
 }
 
-std::string pyne::rxname::label(std::string from_nuc, std::string to_nuc, std::string z) {
+std::string pyne::rxname::label(std::string from_nuc, std::string to_nuc,
+                                std::string z) {
   return labels[pyne::rxname::id(from_nuc, to_nuc, z)];
 }
-
 
 // *********************
 // *** doc functions ***
 // *********************
-std::string pyne::rxname::doc(int x) {
-  return docs[pyne::rxname::id(x)];
-}
+std::string pyne::rxname::doc(int x) { return docs[pyne::rxname::id(x)]; }
 
 std::string pyne::rxname::doc(unsigned int x) {
   return docs[pyne::rxname::id(x)];
 }
 
-std::string pyne::rxname::doc(char* x) {
-  return docs[pyne::rxname::id(x)];
-}
+std::string pyne::rxname::doc(char *x) { return docs[pyne::rxname::id(x)]; }
 
 std::string pyne::rxname::doc(std::string x) {
   return docs[pyne::rxname::id(x)];
@@ -6933,10 +4374,10 @@ std::string pyne::rxname::doc(std::string from_nuc, int to_nuc, std::string z) {
   return docs[pyne::rxname::id(from_nuc, to_nuc, z)];
 }
 
-std::string pyne::rxname::doc(std::string from_nuc, std::string to_nuc, std::string z) {
+std::string pyne::rxname::doc(std::string from_nuc, std::string to_nuc,
+                              std::string z) {
   return docs[pyne::rxname::id(from_nuc, to_nuc, z)];
 }
-
 
 // ***********************
 // *** child functions ***
@@ -6946,7 +4387,8 @@ int pyne::rxname::child(int nuc, unsigned int rx, std::string z) {
   // This assumes nuclides are in id form
   std::pair<std::string, unsigned int> key = std::make_pair(z, rx);
   if (0 == id_offset.count(key))
-    throw IndeterminateReactionForm("z=" + z + ", rx=" + pyne::to_str(rx), "???");
+    throw IndeterminateReactionForm("z=" + z + ", rx=" + pyne::to_str(rx),
+                                    "???");
   int to_nuc = pyne::nucname::groundstate(nuc) + id_offset[key];
   if (!pyne::nucname::isnuclide(to_nuc))
     throw pyne::nucname::NotANuclide(nuc, to_nuc);
@@ -6973,7 +4415,8 @@ int pyne::rxname::parent(int nuc, unsigned int rx, std::string z) {
   // This assumes nuclides are in id form
   std::pair<std::string, unsigned int> key = std::make_pair(z, rx);
   if (0 == id_offset.count(key))
-    throw IndeterminateReactionForm("z=" + z + ", rx=" + pyne::to_str(rx), "???");
+    throw IndeterminateReactionForm("z=" + z + ", rx=" + pyne::to_str(rx),
+                                    "???");
   int from_nuc = nuc - id_offset[key];
   if (!pyne::nucname::isnuclide(from_nuc))
     throw pyne::nucname::NotANuclide(from_nuc, nuc);
@@ -6996,7 +4439,6 @@ int pyne::rxname::parent(std::string nuc, std::string rx, std::string z) {
 // end of src/rxname.cpp
 //
 
-
 //
 // start of src/particle.cpp
 //
@@ -7005,90 +4447,42 @@ int pyne::rxname::parent(std::string nuc, std::string rx, std::string z) {
 #endif
 
 std::string pyne::particle::_names[NUM_PARTICLES] = {
-  // leptons
-  "Electron",
-  "Positron",
-  "ElectronNeutrino",
-  "ElectronAntiNeutrino",
-  "Muon",
-  "AntiMuon",
-  "MuonNeutrino",
-  "MuonAntiNeutrino",
-  "Tauon",
-  "AntiTauon",
-  "TauNeutrino",
-  "TauAntiNeutrino",
-  // gauge bosons
-  "Photon",
-  // light mesons
-  "Pion",
-  "AntiPion",
-  // strange mesons
-  "Kaon",
-  "AntiKaon",
-  "KaonZeroShort",
-  "KaonZero",
-  "AntiKaonZero",
-  // light baryons
-  "Neutron",
-  "AntiNeutron",
-  "Proton",
-  "AntiProton",
-  // strange baryons
-  "Lambda",
-  "AntiLambda",
-  "Sigma-",
-  "AntiSigma-",
-  "Sigma+",
-  "AntiSigma+",
-  "Sigma",
-  "AntiSigmaZero"
-  // Charmed baryons
+    // leptons
+    "Electron", "Positron", "ElectronNeutrino", "ElectronAntiNeutrino", "Muon",
+    "AntiMuon", "MuonNeutrino", "MuonAntiNeutrino", "Tauon", "AntiTauon",
+    "TauNeutrino", "TauAntiNeutrino",
+    // gauge bosons
+    "Photon",
+    // light mesons
+    "Pion", "AntiPion",
+    // strange mesons
+    "Kaon", "AntiKaon", "KaonZeroShort", "KaonZero", "AntiKaonZero",
+    // light baryons
+    "Neutron", "AntiNeutron", "Proton", "AntiProton",
+    // strange baryons
+    "Lambda", "AntiLambda", "Sigma-", "AntiSigma-", "Sigma+", "AntiSigma+",
+    "Sigma", "AntiSigmaZero"
+    // Charmed baryons
 };
 
 int pyne::particle::_pdcids[NUM_PARTICLES] = {
-  11,
-  -11,
-  12,
-  -12,
-  13,
-  -13,
-  14,
-  -14,
-  15,
-  -15,
-  16,
-  -16,
-  // gauge bosons
-  22,
-  // light mesons
-  211,
-  -211,
-  // strange mesons
-  321,
-  -321,
-  310,
-  311,
-  -311,
-  // light baryons
-  2112,
-  -2112,
-  2212,
-  -2212,
-  // strange Baryons
-  3122,
-  -3122,
-  3112,
-  3112,
-  3222,
-  -3222,
-  3212,
-  -3212
-  // charmed baryons
+    11, -11, 12, -12, 13, -13, 14, -14, 15, -15, 16, -16,
+    // gauge bosons
+    22,
+    // light mesons
+    211, -211,
+    // strange mesons
+    321, -321, 310, 311, -311,
+    // light baryons
+    2112, -2112, 2212, -2212,
+    // strange Baryons
+    3122, -3122, 3112, 3112, 3222, -3222, 3212, -3212
+    // charmed baryons
 };
 
 std::set<std::string> pyne::particle::names(pyne::particle::_names,
-                                            pyne::particle::_names + NUM_PARTICLES);
+                                            pyne::particle::_names +
+                                                NUM_PARTICLES);
 
 std::set<int> pyne::particle::pdc_nums(pyne::particle::_pdcids,
                                        pyne::particle::_pdcids + NUM_PARTICLES);
@@ -7103,54 +4497,30 @@ std::map<std::string, std::string> pyne::particle::part_to_mcnp;
 std::map<std::string, std::string> pyne::particle::part_to_mcnp6;
 std::map<std::string, std::string> pyne::particle::part_to_geant4;
 
-
-void* pyne::particle::_fill_maps() {
+void *pyne::particle::_fill_maps() {
   using std::make_pair;
 
   std::string _docs[NUM_PARTICLES] = {
-    // leptons
-    "Electron",
-    "Positron",
-    "Electron Neutrino",
-    "Electron Anti Neutrino",
-    "Muon Neutrino",
-    "Anti Muon",
-    "Muon Neutrino",
-    "Muon Anti Neutrino",
-    "Tauon",
-    "Anti Tauon",
-    "Tau Neutrino",
-    "Tau Anti Neutrino",
-    // gauge bosons
-    "Photon",
-    // light mesons
-    "Pion",
-    "Anti Pion",
-    // strange mesons
-    "Kaon",
-    "Anti Kaon",
-    "Kaon Zero Short",
-    "Kaon Zero",
-    "Anti Kaon Zero",
-    // light baryons
-    "Neutron",
-    "Anti Neutron",
-    "Proton",
-    "Anti Proton",
-    // strange baryons
-    "Lambda",
-    "Anti Lambda",
-    "Sigma-",
-    "Anti Sigma-",
-    "Sigma+",
-    "Anti Sigma+",
-    "Sigma",
-    "Anti Sigma Zero"
-    // Charmed baryons
+      // leptons
+      "Electron", "Positron", "Electron Neutrino", "Electron Anti Neutrino",
+      "Muon Neutrino", "Anti Muon", "Muon Neutrino", "Muon Anti Neutrino",
+      "Tauon", "Anti Tauon", "Tau Neutrino", "Tau Anti Neutrino",
+      // gauge bosons
+      "Photon",
+      // light mesons
+      "Pion", "Anti Pion",
+      // strange mesons
+      "Kaon", "Anti Kaon", "Kaon Zero Short", "Kaon Zero", "Anti Kaon Zero",
+      // light baryons
+      "Neutron", "Anti Neutron", "Proton", "Anti Proton",
+      // strange baryons
+      "Lambda", "Anti Lambda", "Sigma-", "Anti Sigma-", "Sigma+", "Anti Sigma+",
+      "Sigma", "Anti Sigma Zero"
+      // Charmed baryons
   };
 
   int pid;  // particle id
-  for (int i = 0 ; i < NUM_PARTICLES ; i++) {
+  for (int i = 0; i < NUM_PARTICLES; i++) {
     pid = _pdcids[i];
     // make id to name map
     id_name[pid] = _names[i];
@@ -7255,29 +4625,24 @@ void* pyne::particle::_fill_maps() {
   return NULL;
 }
 
-void* pyne::particle::filler = pyne::particle::_fill_maps();
+void *pyne::particle::filler = pyne::particle::_fill_maps();
 
 // is hydrogen
 bool pyne::particle::is_hydrogen(int s) {
-  if (s == name_id["Proton"])
-    return true;
-  if (pyne::particle::is_hydrogen(pyne::nucname::name(s)))
-    return true;
+  if (s == name_id["Proton"]) return true;
+  if (pyne::particle::is_hydrogen(pyne::nucname::name(s))) return true;
   return false;
 }
 
-bool pyne::particle::is_hydrogen(char* s) {
+bool pyne::particle::is_hydrogen(char *s) {
   return pyne::particle::is_hydrogen(std::string(s));
 }
 
 bool pyne::particle::is_hydrogen(std::string s) {
   // check std name
-  if (name_id[s] == name_id["Proton"])
-    return true;
-  if (altnames[s] == name_id["Proton"])
-    return true;
-  if (pyne::nucname::name(s).find("H1") != std::string::npos)
-    return true;
+  if (name_id[s] == name_id["Proton"]) return true;
+  if (altnames[s] == name_id["Proton"]) return true;
+  if (pyne::nucname::name(s).find("H1") != std::string::npos) return true;
   return false;
 }
 // heavy ion
@@ -7285,7 +4650,7 @@ bool pyne::particle::is_heavy_ion(int s) {
   return pyne::particle::is_heavy_ion(std::string(id_name[s]));
 }
 
-bool pyne::particle::is_heavy_ion(char* s) {
+bool pyne::particle::is_heavy_ion(char *s) {
   return pyne::particle::is_heavy_ion(std::string(s));
 }
 
@@ -7307,17 +4672,15 @@ bool pyne::particle::is_valid(int s) {
     return pyne::particle::is_valid(std::string(id_name[s]));
 }
 
-bool pyne::particle::is_valid(char* s) {
+bool pyne::particle::is_valid(char *s) {
   return pyne::particle::is_valid(std::string(s));
 }
 
 bool pyne::particle::is_valid(std::string s) {
   // check std name
-  if (0 < names.count(s))
-    return true;
+  if (0 < names.count(s)) return true;
   // check alternative name
-  if (0 < altnames.count(s))
-    return true;
+  if (0 < altnames.count(s)) return true;
   // check if is a heavy ion
   if (pyne::nucname::isnuclide(s))
     return true;
@@ -7333,52 +4696,41 @@ int pyne::particle::id(int s) {
     return 0;
 }
 
-int pyne::particle::id(char* s) {
-  return pyne::particle::id(std::string(s));
-}
+int pyne::particle::id(char *s) { return pyne::particle::id(std::string(s)); }
 
 int pyne::particle::id(std::string s) {
   if (pyne::nucname::isnuclide(s)) {
-    if (pyne::particle::is_hydrogen(s))
-      return name_id["Proton"];
-    if (pyne::particle::is_heavy_ion(s))
-      return 0;
+    if (pyne::particle::is_hydrogen(s)) return name_id["Proton"];
+    if (pyne::particle::is_heavy_ion(s)) return 0;
   }
 
-  if (0 < pdc_nums.count(name_id[s]))
-    return name_id[s];
-  if (0 < pdc_nums.count(altnames[s]))
-    return altnames[s];
+  if (0 < pdc_nums.count(name_id[s])) return name_id[s];
+  if (0 < pdc_nums.count(altnames[s])) return altnames[s];
   return 0;
 }
 
 // name functions
 std::string pyne::particle::name(int s) {
-  if (s < 9999999)
-    return pyne::particle::name(id_name[s]);
+  if (s < 9999999) return pyne::particle::name(id_name[s]);
   if (pyne::nucname::isnuclide(s))
     return pyne::particle::name(pyne::nucname::name(s));
   return pyne::particle::name(id_name[s]);
 }
 
-std::string pyne::particle::name(char* s) {
+std::string pyne::particle::name(char *s) {
   return pyne::particle::name(std::string(s));
 }
 
 std::string pyne::particle::name(std::string s) {
   // check if is a hydrogen
   if (pyne::nucname::isnuclide(s)) {
-    if (pyne::particle::is_hydrogen(s))
-      return "Proton";
-    if (pyne::particle::is_heavy_ion(s))
-      return s;
+    if (pyne::particle::is_hydrogen(s)) return "Proton";
+    if (pyne::particle::is_heavy_ion(s)) return s;
   }
   // check std name
-  if (0 < names.count(s))
-    return s;
+  if (0 < names.count(s)) return s;
   // check alternative name
-  if (0 < altnames.count(s))
-    return id_name[altnames[s]];
+  if (0 < altnames.count(s)) return id_name[altnames[s]];
   // check for heavy ion
   else
     throw NotAParticle(s);
@@ -7389,7 +4741,7 @@ std::string pyne::particle::mcnp(int s) {
   return pyne::particle::mcnp(pyne::particle::name(s));
 }
 
-std::string pyne::particle::mcnp(char* s) {
+std::string pyne::particle::mcnp(char *s) {
   return pyne::particle::mcnp(pyne::particle::name(s));
 }
 
@@ -7407,7 +4759,7 @@ std::string pyne::particle::mcnp6(int s) {
   return pyne::particle::mcnp6(pyne::particle::name(s));
 }
 
-std::string pyne::particle::mcnp6(char* s) {
+std::string pyne::particle::mcnp6(char *s) {
   return pyne::particle::mcnp6(pyne::particle::name(s));
 }
 
@@ -7423,7 +4775,7 @@ std::string pyne::particle::fluka(int s) {
   return pyne::particle::fluka(pyne::particle::name(s));
 }
 
-std::string pyne::particle::fluka(char* s) {
+std::string pyne::particle::fluka(char *s) {
   return pyne::particle::fluka(pyne::particle::name(s));
 }
 
@@ -7443,7 +4795,7 @@ std::string pyne::particle::geant4(int s) {
   return pyne::particle::geant4(pyne::particle::name(s));
 }
 
-std::string pyne::particle::geant4(char* s) {
+std::string pyne::particle::geant4(char *s) {
   return pyne::particle::geant4(pyne::particle::name(s));
 }
 
@@ -7458,7 +4810,6 @@ std::string pyne::particle::geant4(std::string s) {
   }
 }
 
-
 // describe functions
 std::string pyne::particle::describe(int s) {
   if (pyne::nucname::isnuclide(s))
@@ -7466,24 +4817,20 @@ std::string pyne::particle::describe(int s) {
   return pyne::particle::describe(id_name[s]);
 }
 
-std::string pyne::particle::describe(char* s) {
+std::string pyne::particle::describe(char *s) {
   return pyne::particle::describe(std::string(s));
 }
 
 std::string pyne::particle::describe(std::string s) {
   // check if is a hydrogen
   if (pyne::nucname::isnuclide(s)) {
-    if (pyne::particle::is_hydrogen(s))
-      return docs[pyne::particle::name(s)];
-    if (pyne::particle::is_heavy_ion(s))
-      return "Is a heavy ion";
+    if (pyne::particle::is_hydrogen(s)) return docs[pyne::particle::name(s)];
+    if (pyne::particle::is_heavy_ion(s)) return "Is a heavy ion";
   }
   // check std name
-  if (0 < names.count(s))
-    return docs[s];
+  if (0 < names.count(s)) return docs[s];
   // check alternative name
-  if (0 < altnames.count(s))
-    return docs[id_name[altnames[s]]];
+  if (0 < altnames.count(s)) return docs[id_name[altnames[s]]];
   // check if is a heavy ion
   else
     throw NotAParticle(s);
@@ -7492,14 +4839,13 @@ std::string pyne::particle::describe(std::string s) {
 // end of src/particle.cpp
 //
 
-
 //
 // start of src/data.cpp
 //
 // Implements basic nuclear data functions.
 #ifndef PYNE_IS_AMALGAMATED
-#include "data.h"
 #include "atomic_data.h"
+#include "data.h"
 #endif
 
 //
@@ -7515,7 +4861,6 @@ const double pyne::MeV_per_K = 8.617343e-11;
 const double pyne::MeV_per_MJ = 6.2415096471204E+18;
 const double pyne::Bq_per_Ci = 3.7e10;
 const double pyne::Ci_per_Bq = 2.7027027e-11;
-
 
 /********************************/
 /*** data_checksums Functions ***/
@@ -7545,25 +4890,25 @@ std::map<int, double> pyne::atomic_mass_map = std::map<int, double>();
 void pyne::_load_atomic_mass_map() {
   // Loads the important parts of atomic_wight table into atomic_mass_map
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH)) {
     pyne::_load_atomic_mass_map_memory();
     return;
   }
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(atomic_mass_data));
-  H5Tinsert(desc, "nuc",   HOFFSET(atomic_mass_data, nuc),   H5T_NATIVE_INT);
-  H5Tinsert(desc, "mass",  HOFFSET(atomic_mass_data, mass),  H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "nuc", HOFFSET(atomic_mass_data, nuc), H5T_NATIVE_INT);
+  H5Tinsert(desc, "mass", HOFFSET(atomic_mass_data, mass), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "error", HOFFSET(atomic_mass_data, error), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "abund", HOFFSET(atomic_mass_data, abund), H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
   hid_t atomic_mass_set = H5Dopen2(nuc_data_h5, "/atomic_mass", H5P_DEFAULT);
@@ -7571,8 +4916,10 @@ void pyne::_load_atomic_mass_map() {
   int atomic_mass_length = H5Sget_simple_extent_npoints(atomic_mass_space);
 
   // Read in the data
-  atomic_mass_data* atomic_mass_array = new atomic_mass_data[atomic_mass_length];
-  H5Dread(atomic_mass_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, atomic_mass_array);
+  atomic_mass_data *atomic_mass_array =
+      new atomic_mass_data[atomic_mass_length];
+  H5Dread(atomic_mass_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+          atomic_mass_array);
 
   // close the nuc_data library, before doing anything stupid
   H5Dclose(atomic_mass_set);
@@ -7580,15 +4927,14 @@ void pyne::_load_atomic_mass_map() {
 
   // Ok now that we have the array of structs, put it in the map
   for (int n = 0; n < atomic_mass_length; n++) {
-    atomic_mass_map.insert(std::pair<int, double>(atomic_mass_array[n].nuc, \
+    atomic_mass_map.insert(std::pair<int, double>(atomic_mass_array[n].nuc,
                                                   atomic_mass_array[n].mass));
-    natural_abund_map.insert(std::pair<int, double>(atomic_mass_array[n].nuc, \
-                                                    atomic_mass_array[n].abund));
+    natural_abund_map.insert(std::pair<int, double>(
+        atomic_mass_array[n].nuc, atomic_mass_array[n].abund));
   }
 
   delete[] atomic_mass_array;
 }
-
 
 double pyne::atomic_mass(int nuc) {
   // Find the nuclide's mass in AMU
@@ -7633,18 +4979,15 @@ double pyne::atomic_mass(int nuc) {
   return aw;
 }
 
-
-double pyne::atomic_mass(char* nuc) {
+double pyne::atomic_mass(char *nuc) {
   int nuc_zz = nucname::id(nuc);
   return atomic_mass(nuc_zz);
 }
-
 
 double pyne::atomic_mass(std::string nuc) {
   int nuc_zz = nucname::id(nuc);
   return atomic_mass(nuc_zz);
 }
-
 
 /*******************************/
 /*** natural_abund functions ***/
@@ -7660,8 +5003,7 @@ double pyne::natural_abund(int nuc) {
   nuc_end = natural_abund_map.end();
 
   // First check if we already have the nuc mass in the map
-  if (nuc_iter != nuc_end)
-    return (*nuc_iter).second;
+  if (nuc_iter != nuc_end) return (*nuc_iter).second;
 
   // Next, fill up the map with values from the
   // nuc_data.h5, if the map is empty.
@@ -7690,19 +5032,15 @@ double pyne::natural_abund(int nuc) {
   return na;
 }
 
-
-double pyne::natural_abund(char* nuc) {
+double pyne::natural_abund(char *nuc) {
   int nuc_zz = nucname::id(nuc);
   return natural_abund(nuc_zz);
 }
-
 
 double pyne::natural_abund(std::string nuc) {
   int nuc_zz = nucname::id(nuc);
   return natural_abund(nuc_zz);
 }
-
-
 
 /*************************/
 /*** Q_value Functions ***/
@@ -7711,22 +5049,23 @@ double pyne::natural_abund(std::string nuc) {
 void pyne::_load_q_val_map() {
   // Loads the important parts of q_value table into q_value_map
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(q_val_data));
-  H5Tinsert(desc, "nuc", HOFFSET(q_val_data, nuc),  H5T_NATIVE_INT);
+  H5Tinsert(desc, "nuc", HOFFSET(q_val_data, nuc), H5T_NATIVE_INT);
   H5Tinsert(desc, "q_val", HOFFSET(q_val_data, q_val), H5T_NATIVE_DOUBLE);
-  H5Tinsert(desc, "gamma_frac", HOFFSET(q_val_data, gamma_frac), H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "gamma_frac", HOFFSET(q_val_data, gamma_frac),
+            H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
   hid_t q_val_set = H5Dopen2(nuc_data_h5, "/decay/q_values", H5P_DEFAULT);
@@ -7734,7 +5073,7 @@ void pyne::_load_q_val_map() {
   int q_val_length = H5Sget_simple_extent_npoints(q_val_space);
 
   // Read in the data
-  q_val_data* q_val_array = new q_val_data[q_val_length];
+  q_val_data *q_val_array = new q_val_data[q_val_length];
   H5Dread(q_val_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, q_val_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -7760,8 +5099,7 @@ double pyne::q_val(int nuc) {
   nuc_end = q_val_map.end();
 
   // First check if we already have the nuc q_val in the map
-  if (nuc_iter != nuc_end)
-    return (*nuc_iter).second;
+  if (nuc_iter != nuc_end) return (*nuc_iter).second;
 
   // Next, fill up the map with values from the nuc_data.h5 if the map is empty.
   if (q_val_map.empty()) {
@@ -7771,8 +5109,7 @@ double pyne::q_val(int nuc) {
 
   double qv;
   int nucid = nucname::id(nuc);
-  if (nucid != nuc)
-    return q_val(nucid);
+  if (nucid != nuc) return q_val(nucid);
 
   // If nuclide is not found, return 0
   qv = 0.0;
@@ -7780,18 +5117,15 @@ double pyne::q_val(int nuc) {
   return qv;
 }
 
-
-double pyne::q_val(const char* nuc) {
+double pyne::q_val(const char *nuc) {
   int nuc_zz = nucname::id(nuc);
   return q_val(nuc_zz);
 }
-
 
 double pyne::q_val(std::string nuc) {
   int nuc_zz = nucname::id(nuc);
   return q_val(nuc_zz);
 }
-
 
 /****************************/
 /*** gamma_frac functions ***/
@@ -7807,8 +5141,7 @@ double pyne::gamma_frac(int nuc) {
   nuc_end = gamma_frac_map.end();
 
   // First check if we already have the gamma_frac in the map
-  if (nuc_iter != nuc_end)
-    return (*nuc_iter).second;
+  if (nuc_iter != nuc_end) return (*nuc_iter).second;
 
   // Next, fill up the map with values from nuc_data.h5 if the map is empty.
   if (gamma_frac_map.empty()) {
@@ -7818,8 +5151,7 @@ double pyne::gamma_frac(int nuc) {
 
   double gf;
   int nucid = nucname::id(nuc);
-  if (nucid != nuc)
-    return gamma_frac(nucid);
+  if (nucid != nuc) return gamma_frac(nucid);
 
   // If nuclide is not found, return 0
   gf = 0.0;
@@ -7827,18 +5159,15 @@ double pyne::gamma_frac(int nuc) {
   return gf;
 }
 
-
-double pyne::gamma_frac(const char* nuc) {
+double pyne::gamma_frac(const char *nuc) {
   int nuc_zz = nucname::id(nuc);
   return gamma_frac(nuc_zz);
 }
-
 
 double pyne::gamma_frac(std::string nuc) {
   int nuc_zz = nucname::id(nuc);
   return gamma_frac(nuc_zz);
 }
-
 
 /*****************************/
 /*** Dose Factor Functions ***/
@@ -7854,16 +5183,15 @@ Liability Disclaimer: The PyNE Development Team shall not be liable for any
 loss or injury resulting from decisions made with this data.
 **************************************************************************/
 
-void pyne::_load_dose_map(std::map<int, dose>& dm, std::string source_path) {
+void pyne::_load_dose_map(std::map<int, dose> &dm, std::string source_path) {
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Defining string type for lung model data
   hid_t string_type_;
@@ -7874,19 +5202,25 @@ void pyne::_load_dose_map(std::map<int, dose>& dm, std::string source_path) {
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(dose));
   status = H5Tinsert(desc, "nuc", HOFFSET(dose, nuc), H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "ext_air_dose", HOFFSET(dose, ext_air_dose), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "ext_air_dose", HOFFSET(dose, ext_air_dose),
+                     H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "ratio", HOFFSET(dose, ratio), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "ext_soil_dose", HOFFSET(dose, ext_soil_dose), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "ingest_dose", HOFFSET(dose, ingest_dose), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "fluid_frac", HOFFSET(dose, fluid_frac), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "inhale_dose", HOFFSET(dose, inhale_dose), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "ext_soil_dose", HOFFSET(dose, ext_soil_dose),
+                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "ingest_dose", HOFFSET(dose, ingest_dose),
+                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "fluid_frac", HOFFSET(dose, fluid_frac),
+                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "inhale_dose", HOFFSET(dose, inhale_dose),
+                     H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "lung_mod", HOFFSET(dose, lung_mod), string_type_);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Convert source_path to proper format for HD5open
-  const char* c = source_path.c_str();
+  const char *c = source_path.c_str();
 
   // Open the data set
   hid_t dose_set = H5Dopen2(nuc_data_h5, c, H5P_DEFAULT);
@@ -7894,7 +5228,7 @@ void pyne::_load_dose_map(std::map<int, dose>& dm, std::string source_path) {
   int dose_length = H5Sget_simple_extent_npoints(dose_space);
 
   // Read in the data
-  dose* dose_array = new dose[dose_length];
+  dose *dose_array = new dose[dose_length];
   H5Dread(dose_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, dose_array);
 
   // Put array of structs in the map
@@ -7927,8 +5261,8 @@ std::string source_string(int source) {
   return source_location;
 }
 
-std::map<int, pyne::dose>& dose_source_map(int source) {
-  std::map<int, pyne::dose>* dm;
+std::map<int, pyne::dose> &dose_source_map(int source) {
+  std::map<int, pyne::dose> *dm;
   if (source == 1) {
     dm = &pyne::doe_dose_map;
   } else if (source == 2) {
@@ -7954,7 +5288,7 @@ std::map<int, pyne::dose> pyne::genii_dose_map;
 
 /// External Air
 double pyne::ext_air_dose(int nuc, int source) {
-  std::map<int, pyne::dose>& dm = dose_source_map(source);
+  std::map<int, pyne::dose> &dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
   if (dm.count(nucid) == 1) {
@@ -7964,11 +5298,10 @@ double pyne::ext_air_dose(int nuc, int source) {
   }
 }
 
-double pyne::ext_air_dose(const char* nuc, int source) {
+double pyne::ext_air_dose(const char *nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return ext_air_dose(nuc_zz, source);
 }
-
 
 double pyne::ext_air_dose(std::string nuc, int source) {
   int nuc_zz = nucname::id(nuc);
@@ -7977,7 +5310,7 @@ double pyne::ext_air_dose(std::string nuc, int source) {
 
 /// Dose Ratio
 double pyne::dose_ratio(int nuc, int source) {
-  std::map<int, pyne::dose>& dm = dose_source_map(source);
+  std::map<int, pyne::dose> &dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
   if (dm.count(nucid) == 1) {
@@ -7987,11 +5320,10 @@ double pyne::dose_ratio(int nuc, int source) {
   }
 }
 
-double pyne::dose_ratio(const char* nuc, int source) {
+double pyne::dose_ratio(const char *nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return dose_ratio(nuc_zz, source);
 }
-
 
 double pyne::dose_ratio(std::string nuc, int source) {
   int nuc_zz = nucname::id(nuc);
@@ -8003,7 +5335,7 @@ double pyne::dose_ratio(std::string nuc, int source) {
 ///
 
 double pyne::ext_soil_dose(int nuc, int source) {
-  std::map<int, pyne::dose>& dm = dose_source_map(source);
+  std::map<int, pyne::dose> &dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
   if (dm.count(nucid) == 1) {
@@ -8013,11 +5345,10 @@ double pyne::ext_soil_dose(int nuc, int source) {
   }
 }
 
-double pyne::ext_soil_dose(const char* nuc, int source) {
+double pyne::ext_soil_dose(const char *nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return ext_soil_dose(nuc_zz, source);
 }
-
 
 double pyne::ext_soil_dose(std::string nuc, int source) {
   int nuc_zz = nucname::id(nuc);
@@ -8031,7 +5362,7 @@ double pyne::ext_soil_dose(std::string nuc, int source) {
 
 /// Ingestion
 double pyne::ingest_dose(int nuc, int source) {
-  std::map<int, pyne::dose>& dm = dose_source_map(source);
+  std::map<int, pyne::dose> &dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
   if (dm.count(nucid) == 1) {
@@ -8041,7 +5372,7 @@ double pyne::ingest_dose(int nuc, int source) {
   }
 }
 
-double pyne::ingest_dose(const char* nuc, int source) {
+double pyne::ingest_dose(const char *nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return ingest_dose(nuc_zz, source);
 }
@@ -8053,7 +5384,7 @@ double pyne::ingest_dose(std::string nuc, int source) {
 
 /// Fluid Fraction
 double pyne::dose_fluid_frac(int nuc, int source) {
-  std::map<int, pyne::dose>& dm = dose_source_map(source);
+  std::map<int, pyne::dose> &dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
   if (dm.count(nucid) == 1) {
@@ -8063,7 +5394,7 @@ double pyne::dose_fluid_frac(int nuc, int source) {
   }
 }
 
-double pyne::dose_fluid_frac(const char* nuc, int source) {
+double pyne::dose_fluid_frac(const char *nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return dose_fluid_frac(nuc_zz, source);
 }
@@ -8080,7 +5411,7 @@ double pyne::dose_fluid_frac(std::string nuc, int source) {
 
 /// Inhalation
 double pyne::inhale_dose(int nuc, int source) {
-  std::map<int, pyne::dose>& dm = dose_source_map(source);
+  std::map<int, pyne::dose> &dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
   if (dm.count(nucid) == 1) {
@@ -8090,7 +5421,7 @@ double pyne::inhale_dose(int nuc, int source) {
   }
 }
 
-double pyne::inhale_dose(const char* nuc, int source) {
+double pyne::inhale_dose(const char *nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return inhale_dose(nuc_zz, source);
 }
@@ -8102,7 +5433,7 @@ double pyne::inhale_dose(std::string nuc, int source) {
 
 /// Lung Model
 std::string pyne::dose_lung_model(int nuc, int source) {
-  std::map<int, pyne::dose>& dm = dose_source_map(source);
+  std::map<int, pyne::dose> &dm = dose_source_map(source);
   int nucid = nucname::id(nuc);
 
   if (dm.count(nucid) == 1) {
@@ -8112,62 +5443,69 @@ std::string pyne::dose_lung_model(int nuc, int source) {
   }
 }
 
-std::string pyne::dose_lung_model(const char* nuc, int source) {
+std::string pyne::dose_lung_model(const char *nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return dose_lung_model(nuc_zz, source);
 }
-
 
 std::string pyne::dose_lung_model(std::string nuc, int source) {
   int nuc_zz = nucname::id(nuc);
   return dose_lung_model(nuc_zz, source);
 }
 
-
 /***********************************/
 /*** scattering length functions ***/
 /***********************************/
-std::map<int, xd_complex_t> pyne::b_coherent_map = std::map<int, xd_complex_t>();
-std::map<int, xd_complex_t> pyne::b_incoherent_map = std::map<int, xd_complex_t>();
+std::map<int, xd_complex_t> pyne::b_coherent_map =
+    std::map<int, xd_complex_t>();
+std::map<int, xd_complex_t> pyne::b_incoherent_map =
+    std::map<int, xd_complex_t>();
 std::map<int, double> pyne::b_map = std::map<int, double>();
-
 
 void pyne::_load_scattering_lengths() {
   // Loads the important parts of atomic_wight table into atomic_mass_map
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(scattering_lengths));
-  status = H5Tinsert(desc, "nuc", HOFFSET(scattering_lengths, nuc), H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "b_coherent", HOFFSET(scattering_lengths, b_coherent),
-                     h5wrap::PYTABLES_COMPLEX128);
-  status = H5Tinsert(desc, "b_incoherent", HOFFSET(scattering_lengths, b_incoherent),
-                     h5wrap::PYTABLES_COMPLEX128);
-  status = H5Tinsert(desc, "xs_coherent", HOFFSET(scattering_lengths, xs_coherent),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "xs_incoherent", HOFFSET(scattering_lengths, xs_incoherent),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "xs", HOFFSET(scattering_lengths, xs), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "nuc", HOFFSET(scattering_lengths, nuc), H5T_NATIVE_INT);
+  status =
+      H5Tinsert(desc, "b_coherent", HOFFSET(scattering_lengths, b_coherent),
+                h5wrap::PYTABLES_COMPLEX128);
+  status =
+      H5Tinsert(desc, "b_incoherent", HOFFSET(scattering_lengths, b_incoherent),
+                h5wrap::PYTABLES_COMPLEX128);
+  status =
+      H5Tinsert(desc, "xs_coherent", HOFFSET(scattering_lengths, xs_coherent),
+                H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "xs_incoherent",
+                HOFFSET(scattering_lengths, xs_incoherent), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "xs", HOFFSET(scattering_lengths, xs), H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
-  hid_t scat_len_set = H5Dopen2(nuc_data_h5, "/neutron/scattering_lengths", H5P_DEFAULT);
+  hid_t scat_len_set =
+      H5Dopen2(nuc_data_h5, "/neutron/scattering_lengths", H5P_DEFAULT);
   hid_t scat_len_space = H5Dget_space(scat_len_set);
   int scat_len_length = H5Sget_simple_extent_npoints(scat_len_space);
 
   // Read in the data
-  scattering_lengths* scat_len_array = new scattering_lengths[scat_len_length];
-  status = H5Dread(scat_len_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, scat_len_array);
+  scattering_lengths *scat_len_array = new scattering_lengths[scat_len_length];
+  status = H5Dread(scat_len_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                   scat_len_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(scat_len_set);
@@ -8182,12 +5520,9 @@ void pyne::_load_scattering_lengths() {
   delete[] scat_len_array;
 }
 
-
-
 //
 // Coherent functions
 //
-
 
 xd_complex_t pyne::b_coherent(int nuc) {
   // Find the nuclide's bound scattering length in cm
@@ -8197,8 +5532,7 @@ xd_complex_t pyne::b_coherent(int nuc) {
   nuc_end = b_coherent_map.end();
 
   // First check if we already have the nuc in the map
-  if (nuc_iter != nuc_end)
-    return (*nuc_iter).second;
+  if (nuc_iter != nuc_end) return (*nuc_iter).second;
 
   // Next, fill up the map with values from the
   // nuc_data.h5, if the map is empty.
@@ -8242,24 +5576,19 @@ xd_complex_t pyne::b_coherent(int nuc) {
   return bc;
 }
 
-
-xd_complex_t pyne::b_coherent(char* nuc) {
+xd_complex_t pyne::b_coherent(char *nuc) {
   int nuc_zz = nucname::id(nuc);
   return b_coherent(nuc_zz);
 }
-
 
 xd_complex_t pyne::b_coherent(std::string nuc) {
   int nuc_zz = nucname::id(nuc);
   return b_coherent(nuc_zz);
 }
 
-
-
 //
 // Incoherent functions
 //
-
 
 xd_complex_t pyne::b_incoherent(int nuc) {
   // Find the nuclide's bound inchoherent scattering length in cm
@@ -8269,8 +5598,7 @@ xd_complex_t pyne::b_incoherent(int nuc) {
   nuc_end = b_incoherent_map.end();
 
   // First check if we already have the nuc in the map
-  if (nuc_iter != nuc_end)
-    return (*nuc_iter).second;
+  if (nuc_iter != nuc_end) return (*nuc_iter).second;
 
   // Next, fill up the map with values from the
   // nuc_data.h5, if the map is empty.
@@ -8314,17 +5642,13 @@ xd_complex_t pyne::b_incoherent(int nuc) {
   return bi;
 }
 
-
-xd_complex_t pyne::b_incoherent(char* nuc) {
+xd_complex_t pyne::b_incoherent(char *nuc) {
   return b_incoherent(nucname::id(nuc));
 }
-
 
 xd_complex_t pyne::b_incoherent(std::string nuc) {
   return b_incoherent(nucname::id(nuc));
 }
-
-
 
 //
 // b functions
@@ -8338,71 +5662,66 @@ double pyne::b(int nuc) {
   nuc_end = b_map.end();
 
   // First check if we already have the nuc in the map
-  if (nuc_iter != nuc_end)
-    return (*nuc_iter).second;
+  if (nuc_iter != nuc_end) return (*nuc_iter).second;
 
   // Next, calculate the value from coherent and incoherent lengths
   xd_complex_t bc = b_coherent(nuc);
   xd_complex_t bi = b_incoherent(nuc);
 
-  double b_val = sqrt(bc.re * bc.re + bc.im * bc.im + bi.re * bi.re + bi.im * bi.im);
+  double b_val =
+      sqrt(bc.re * bc.re + bc.im * bc.im + bi.re * bi.re + bi.im * bi.im);
 
   return b_val;
 }
 
-
-double pyne::b(char* nuc) {
+double pyne::b(char *nuc) {
   int nucid = nucname::id(nuc);
   return b(nucid);
 }
-
 
 double pyne::b(std::string nuc) {
   int nucid = nucname::id(nuc);
   return b(nucid);
 }
 
-
-
 //
 // Fission Product Yield Data
 //
-std::map<std::pair<int, int>, double> pyne::wimsdfpy_data = \
-                                                            std::map<std::pair<int, int>, double>();
+std::map<std::pair<int, int>, double> pyne::wimsdfpy_data =
+    std::map<std::pair<int, int>, double>();
 
 void pyne::_load_wimsdfpy() {
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(wimsdfpy));
-  status = H5Tinsert(desc, "from_nuc", HOFFSET(wimsdfpy, from_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "to_nuc", HOFFSET(wimsdfpy, to_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "yields", HOFFSET(wimsdfpy, yields),
-                     H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "from_nuc", HOFFSET(wimsdfpy, from_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "to_nuc", HOFFSET(wimsdfpy, to_nuc), H5T_NATIVE_INT);
+  status =
+      H5Tinsert(desc, "yields", HOFFSET(wimsdfpy, yields), H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
-  hid_t wimsdfpy_set = H5Dopen2(nuc_data_h5, "/neutron/wimsd_fission_products",
-                                H5P_DEFAULT);
+  hid_t wimsdfpy_set =
+      H5Dopen2(nuc_data_h5, "/neutron/wimsd_fission_products", H5P_DEFAULT);
   hid_t wimsdfpy_space = H5Dget_space(wimsdfpy_set);
   int wimsdfpy_length = H5Sget_simple_extent_npoints(wimsdfpy_space);
 
   // Read in the data
-  wimsdfpy* wimsdfpy_array = new wimsdfpy[wimsdfpy_length];
-  status = H5Dread(wimsdfpy_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, wimsdfpy_array);
+  wimsdfpy *wimsdfpy_array = new wimsdfpy[wimsdfpy_length];
+  status = H5Dread(wimsdfpy_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                   wimsdfpy_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(wimsdfpy_set);
@@ -8411,37 +5730,35 @@ void pyne::_load_wimsdfpy() {
   // Ok now that we have the array of stucts, put it in the maps
   for (int n = 0; n < wimsdfpy_length; n++) {
     wimsdfpy_data[std::make_pair(wimsdfpy_array[n].from_nuc,
-                                 wimsdfpy_array[n].to_nuc)] = wimsdfpy_array[n].yields;
+                                 wimsdfpy_array[n].to_nuc)] =
+        wimsdfpy_array[n].yields;
   }
 
   delete[] wimsdfpy_array;
 }
 
-
-std::map<std::pair<int, int>, pyne::ndsfpysub> pyne::ndsfpy_data = \
-                                                                   std::map<std::pair<int, int>, pyne::ndsfpysub>();
+std::map<std::pair<int, int>, pyne::ndsfpysub> pyne::ndsfpy_data =
+    std::map<std::pair<int, int>, pyne::ndsfpysub>();
 
 void pyne::_load_ndsfpy() {
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(ndsfpy));
-  status = H5Tinsert(desc, "from_nuc", HOFFSET(ndsfpy, from_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "to_nuc", HOFFSET(ndsfpy, to_nuc),
-                     H5T_NATIVE_INT);
+  status =
+      H5Tinsert(desc, "from_nuc", HOFFSET(ndsfpy, from_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "to_nuc", HOFFSET(ndsfpy, to_nuc), H5T_NATIVE_INT);
   status = H5Tinsert(desc, "yield_thermal", HOFFSET(ndsfpy, yield_thermal),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "yield_thermal_err", HOFFSET(ndsfpy, yield_thermal_err),
-                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "yield_thermal_err",
+                     HOFFSET(ndsfpy, yield_thermal_err), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "yield_fast", HOFFSET(ndsfpy, yield_fast),
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "yield_fast_err", HOFFSET(ndsfpy, yield_fast_err),
@@ -8452,18 +5769,19 @@ void pyne::_load_ndsfpy() {
                      H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
-  hid_t ndsfpy_set = H5Dopen2(nuc_data_h5, "/neutron/nds_fission_products",
-                              H5P_DEFAULT);
+  hid_t ndsfpy_set =
+      H5Dopen2(nuc_data_h5, "/neutron/nds_fission_products", H5P_DEFAULT);
   hid_t ndsfpy_space = H5Dget_space(ndsfpy_set);
   int ndsfpy_length = H5Sget_simple_extent_npoints(ndsfpy_space);
 
   // Read in the data
-  ndsfpy* ndsfpy_array = new ndsfpy[ndsfpy_length];
-  status = H5Dread(ndsfpy_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, ndsfpy_array);
+  ndsfpy *ndsfpy_array = new ndsfpy[ndsfpy_length];
+  status =
+      H5Dread(ndsfpy_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, ndsfpy_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(ndsfpy_set);
@@ -8483,8 +5801,6 @@ void pyne::_load_ndsfpy() {
                                ndsfpy_array[n].to_nuc)] = ndsfpysub_temp;
   }
 
-
-
   delete[] ndsfpy_array;
 }
 
@@ -8498,7 +5814,7 @@ double pyne::fpyield(std::pair<int, int> from_to, int source, bool get_error) {
     fpy_iter = wimsdfpy_data.find(from_to);
     fpy_end = wimsdfpy_data.end();
     if (fpy_iter != fpy_end)
-      //if (get_error == true) return 0;
+      // if (get_error == true) return 0;
       return (*fpy_iter).second;
   } else {
     std::map<std::pair<int, int>, ndsfpysub>::iterator fpy_iter, fpy_end;
@@ -8507,24 +5823,20 @@ double pyne::fpyield(std::pair<int, int> from_to, int source, bool get_error) {
     if (fpy_iter != fpy_end) {
       switch (source) {
         case 1:
-          if (get_error)
-            return (*fpy_iter).second.yield_thermal_err;
+          if (get_error) return (*fpy_iter).second.yield_thermal_err;
           return (*fpy_iter).second.yield_thermal;
           break;
         case 2:
-          if (get_error)
-            return (*fpy_iter).second.yield_fast_err;
+          if (get_error) return (*fpy_iter).second.yield_fast_err;
           return (*fpy_iter).second.yield_fast;
           break;
         case 3:
-          if (get_error)
-            return (*fpy_iter).second.yield_14MeV_err;
+          if (get_error) return (*fpy_iter).second.yield_14MeV_err;
           return (*fpy_iter).second.yield_14MeV;
           break;
       }
     }
   }
-
 
   // Next, fill up the map with values from the
   // nuc_data.h5, if the map is empty.
@@ -8544,21 +5856,23 @@ double pyne::fpyield(std::pair<int, int> from_to, int source, bool get_error) {
 }
 
 double pyne::fpyield(int from_nuc, int to_nuc, int source, bool get_error) {
-  return fpyield(std::pair<int, int>(nucname::id(from_nuc),
-                                     nucname::id(to_nuc)), source, get_error);
+  return fpyield(
+      std::pair<int, int>(nucname::id(from_nuc), nucname::id(to_nuc)), source,
+      get_error);
 }
 
-double pyne::fpyield(char* from_nuc, char* to_nuc, int source, bool get_error) {
-  return fpyield(std::pair<int, int>(nucname::id(from_nuc),
-                                     nucname::id(to_nuc)), source, get_error);
+double pyne::fpyield(char *from_nuc, char *to_nuc, int source, bool get_error) {
+  return fpyield(
+      std::pair<int, int>(nucname::id(from_nuc), nucname::id(to_nuc)), source,
+      get_error);
 }
 
 double pyne::fpyield(std::string from_nuc, std::string to_nuc, int source,
                      bool get_error) {
-  return fpyield(std::pair<int, int>(nucname::id(from_nuc),
-                                     nucname::id(to_nuc)), source, get_error);
+  return fpyield(
+      std::pair<int, int>(nucname::id(from_nuc), nucname::id(to_nuc)), source,
+      get_error);
 }
-
 
 /***********************/
 /*** decay functions ***/
@@ -8568,17 +5882,19 @@ double pyne::fpyield(std::string from_nuc, std::string to_nuc, int source,
 // Data access tools
 //
 
-bool pyne::swapmapcompare::operator()(const std::pair<int, double>& lhs,
-                                      const std::pair<int, double>& rhs) const {
-  return lhs.second < rhs.second || (!(rhs.second < lhs.second) &&
-                                     lhs.first < rhs.first);
+bool pyne::swapmapcompare::operator()(const std::pair<int, double> &lhs,
+                                      const std::pair<int, double> &rhs) const {
+  return lhs.second < rhs.second ||
+         (!(rhs.second < lhs.second) && lhs.first < rhs.first);
 }
 
-template<typename T, typename U> std::vector<T> pyne::data_access(
-    double energy_min, double energy_max, size_t valoffset, std::map<std::pair<int,
-    double>, U>&  data) {
+template <typename T, typename U>
+std::vector<T> pyne::data_access(double energy_min, double energy_max,
+                                 size_t valoffset,
+                                 std::map<std::pair<int, double>, U> &data) {
   typename std::map<std::pair<int, double>, U, swapmapcompare>::iterator
-  nuc_iter, nuc_end, it;
+      nuc_iter,
+      nuc_end, it;
   std::map<std::pair<int, double>, U, swapmapcompare> dc(data.begin(),
                                                          data.end());
   std::vector<T> result;
@@ -8589,10 +5905,10 @@ template<typename T, typename U> std::vector<T> pyne::data_access(
   }
   nuc_iter = dc.lower_bound(std::make_pair(0, energy_min));
   nuc_end = dc.upper_bound(std::make_pair(9999999999, energy_max));
-  T* ret;
+  T *ret;
   // First check if we already have the nuc in the map
   for (it = nuc_iter; it != nuc_end; ++it) {
-    ret = (T*)((char*) & (it->second) + valoffset);
+    ret = (T *)((char *)&(it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8604,17 +5920,18 @@ template<typename T, typename U> std::vector<T> pyne::data_access(
   return result;
 }
 
-template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
-                                                                  double min, double max, size_t valoffset,
-                                                                  std::map<std::pair<int, double>, U>&  data) {
+template <typename T, typename U>
+std::vector<T> pyne::data_access(int parent, double min, double max,
+                                 size_t valoffset,
+                                 std::map<std::pair<int, double>, U> &data) {
   typename std::map<std::pair<int, double>, U>::iterator nuc_iter, nuc_end, it;
   std::vector<T> result;
   nuc_iter = data.lower_bound(std::make_pair(parent, min));
   nuc_end = data.upper_bound(std::make_pair(parent, max));
-  T* ret;
+  T *ret;
   // First check if we already have the nuc in the map
   for (it = nuc_iter; it != nuc_end; ++it) {
-    ret = (T*)((char*) & (it->second) + valoffset);
+    ret = (T *)((char *)&(it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8626,16 +5943,17 @@ template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
   return result;
 }
 
-template<typename T, typename U> T pyne::data_access(std::pair<int, int>
-                                                     from_to, size_t valoffset, std::map<std::pair<int, int>, U>& data) {
+template <typename T, typename U>
+T pyne::data_access(std::pair<int, int> from_to, size_t valoffset,
+                    std::map<std::pair<int, int>, U> &data) {
   typename std::map<std::pair<int, int>, U>::iterator nuc_iter, nuc_end;
 
   nuc_iter = data.find(from_to);
   nuc_end = data.end();
-  T* ret;
+  T *ret;
   // First check if we already have the nuc in the map
   if (nuc_iter != nuc_end) {
-    ret = (T*)((char*) & (nuc_iter->second) + valoffset);
+    ret = (T *)((char *)&(nuc_iter->second) + valoffset);
     return *ret;
   }
   // Next, fill up the map with values from the
@@ -8648,16 +5966,17 @@ template<typename T, typename U> T pyne::data_access(std::pair<int, int>
   return 0;
 }
 
-template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
-                                                                  size_t valoffset, std::map<std::pair<int, int>, U>& data) {
+template <typename T, typename U>
+std::vector<T> pyne::data_access(int parent, size_t valoffset,
+                                 std::map<std::pair<int, int>, U> &data) {
   typename std::map<std::pair<int, int>, U>::iterator nuc_iter, nuc_end, it;
   std::vector<T> result;
   nuc_iter = data.lower_bound(std::make_pair(parent, 0));
   nuc_end = data.upper_bound(std::make_pair(parent, 9999999999));
-  T* ret;
+  T *ret;
   // First check if we already have the nuc in the map
   for (it = nuc_iter; it != nuc_end; ++it) {
-    ret = (T*)((char*) & (it->second) + valoffset);
+    ret = (T *)((char *)&(it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8669,17 +5988,19 @@ template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
   return result;
 }
 
-template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
-                                                                  size_t valoffset, std::map<std::pair<int, unsigned int>, U>& data) {
+template <typename T, typename U>
+std::vector<T> pyne::data_access(
+    int parent, size_t valoffset,
+    std::map<std::pair<int, unsigned int>, U> &data) {
   typename std::map<std::pair<int, unsigned int>, U>::iterator nuc_iter,
-           nuc_end, it;
+      nuc_end, it;
   std::vector<T> result;
   nuc_iter = data.lower_bound(std::make_pair(parent, 0));
   nuc_end = data.upper_bound(std::make_pair(parent, UINT_MAX));
-  T* ret;
+  T *ret;
   // First check if we already have the nuc in the map
   for (it = nuc_iter; it != nuc_end; ++it) {
-    ret = (T*)((char*) & (it->second) + valoffset);
+    ret = (T *)((char *)&(it->second) + valoffset);
     result.push_back(*ret);
   }
   // Next, fill up the map with values from the
@@ -8691,15 +6012,14 @@ template<typename T, typename U> std::vector<T> pyne::data_access(int parent,
   return result;
 }
 
-template<typename U> double pyne::data_access(int nuc,
-                                              size_t valoffset, std::map<int, U>& data) {
-  typename std::map<int, U>::iterator nuc_iter,
-           nuc_end;
+template <typename U>
+double pyne::data_access(int nuc, size_t valoffset, std::map<int, U> &data) {
+  typename std::map<int, U>::iterator nuc_iter, nuc_end;
   nuc_iter = data.find(nuc);
   nuc_end = data.end();
   // First check if we already have the nuc in the map
   if (nuc_iter != nuc_end) {
-    return *(double*)((char*) & (nuc_iter->second) + valoffset);
+    return *(double *)((char *)&(nuc_iter->second) + valoffset);
   }
   // Next, fill up the map with values from the
   // nuc_data.h5, if the map is empty.
@@ -8710,39 +6030,36 @@ template<typename U> double pyne::data_access(int nuc,
   throw pyne::nucname::NotANuclide(nuc, "");
 }
 
-
 //
 // Load atomic data
 //
 
 std::map<int, pyne::atomic> pyne::atomic_data_map;
 
-template<> void pyne::_load_data<pyne::atomic>() {
+template <>
+void pyne::_load_data<pyne::atomic>() {
   // Loads the atomic table into memory
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(atomic));
-  status = H5Tinsert(desc, "z", HOFFSET(atomic, z),
-                     H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "z", HOFFSET(atomic, z), H5T_NATIVE_INT);
   status = H5Tinsert(desc, "k_shell_fluor", HOFFSET(atomic, k_shell_fluor),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "k_shell_fluor_error", HOFFSET(atomic, k_shell_fluor_error),
-                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "k_shell_fluor_error",
+                     HOFFSET(atomic, k_shell_fluor_error), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "l_shell_fluor", HOFFSET(atomic, l_shell_fluor),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "l_shell_fluor_error", HOFFSET(atomic, l_shell_fluor_error),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "prob", HOFFSET(atomic, prob),
-                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "l_shell_fluor_error",
+                     HOFFSET(atomic, l_shell_fluor_error), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "prob", HOFFSET(atomic, prob), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "k_shell_be", HOFFSET(atomic, k_shell_be),
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "k_shell_be_err", HOFFSET(atomic, k_shell_be_err),
@@ -8759,43 +6076,43 @@ template<> void pyne::_load_data<pyne::atomic>() {
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "ni_shell_be_err", HOFFSET(atomic, ni_shell_be_err),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "kb_to_ka", HOFFSET(atomic, kb_to_ka),
-                     H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "kb_to_ka", HOFFSET(atomic, kb_to_ka), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "kb_to_ka_err", HOFFSET(atomic, kb_to_ka_err),
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "ka2_to_ka1", HOFFSET(atomic, ka2_to_ka1),
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "ka2_to_ka1_err", HOFFSET(atomic, ka2_to_ka1_err),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "l_auger", HOFFSET(atomic, l_auger),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "k_auger", HOFFSET(atomic, k_auger),
-                     H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "l_auger", HOFFSET(atomic, l_auger), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "k_auger", HOFFSET(atomic, k_auger), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "ka1_x_ray_en", HOFFSET(atomic, ka1_x_ray_en),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "ka1_x_ray_en_err", HOFFSET(atomic, ka1_x_ray_en_err),
-                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "ka1_x_ray_en_err",
+                     HOFFSET(atomic, ka1_x_ray_en_err), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "ka2_x_ray_en", HOFFSET(atomic, ka2_x_ray_en),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "ka2_x_ray_en_err", HOFFSET(atomic, ka2_x_ray_en_err),
-                     H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "ka2_x_ray_en_err",
+                     HOFFSET(atomic, ka2_x_ray_en_err), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "kb_x_ray_en", HOFFSET(atomic, kb_x_ray_en),
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "l_x_ray_en", HOFFSET(atomic, l_x_ray_en),
                      H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   // Open the data set
   hid_t atomic_set = H5Dopen2(nuc_data_h5, "/decay/atomic", H5P_DEFAULT);
   hid_t atomic_space = H5Dget_space(atomic_set);
   int atomic_length = H5Sget_simple_extent_npoints(atomic_space);
 
   // Read in the data
-  atomic* atomic_array = new atomic[atomic_length];
-  status = H5Dread(atomic_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                   atomic_array);
+  atomic *atomic_array = new atomic[atomic_length];
+  status =
+      H5Dread(atomic_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, atomic_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(atomic_set);
@@ -8806,11 +6123,10 @@ template<> void pyne::_load_data<pyne::atomic>() {
   }
 
   delete[] atomic_array;
-
 }
 
-std::vector<std::pair<double, double> >
-pyne::calculate_xray_data(int z, double k_conv, double l_conv) {
+std::vector<std::pair<double, double> > pyne::calculate_xray_data(
+    int z, double k_conv, double l_conv) {
   double xk = 0;
   double xka = 0;
   double xka1 = 0;
@@ -8818,87 +6134,88 @@ pyne::calculate_xray_data(int z, double k_conv, double l_conv) {
   double xkb = 0;
   double xl = 0;
   if (!isnan(k_conv)) {
-    xk = data_access<atomic> (z, offsetof(atomic, k_shell_fluor),
-                              atomic_data_map) * k_conv;
-    xka = xk / (1.0 + data_access<atomic> (z, offsetof(atomic,
-                                                       kb_to_ka), atomic_data_map));
-    xka1 = xka / (1.0 + data_access<atomic> (z, offsetof(atomic,
-                                                         ka2_to_ka1), atomic_data_map));
+    xk = data_access<atomic>(z, offsetof(atomic, k_shell_fluor),
+                             atomic_data_map) *
+         k_conv;
+    xka = xk / (1.0 + data_access<atomic>(z, offsetof(atomic, kb_to_ka),
+                                          atomic_data_map));
+    xka1 = xka / (1.0 + data_access<atomic>(z, offsetof(atomic, ka2_to_ka1),
+                                            atomic_data_map));
     xka2 = xka - xka1;
     xkb = xk - xka;
     if (!isnan(l_conv)) {
-      xl = (l_conv + k_conv * data_access<atomic> (z, offsetof(atomic,
-                                                               prob), atomic_data_map)) * data_access<atomic> (z, offsetof(atomic,
-                                                                   l_shell_fluor), atomic_data_map);
+      xl = (l_conv + k_conv * data_access<atomic>(z, offsetof(atomic, prob),
+                                                  atomic_data_map)) *
+           data_access<atomic>(z, offsetof(atomic, l_shell_fluor),
+                               atomic_data_map);
     }
   } else if (!isnan(l_conv)) {
-    xl = l_conv * data_access<atomic> (z, offsetof(atomic,
-                                                   l_shell_fluor), atomic_data_map);
+    xl = l_conv * data_access<atomic>(z, offsetof(atomic, l_shell_fluor),
+                                      atomic_data_map);
   }
   std::vector<std::pair<double, double> > result;
-  result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                                                   ka1_x_ray_en), atomic_data_map), xka1));
-  result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                                                   ka2_x_ray_en), atomic_data_map), xka2));
-  result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                                                   kb_x_ray_en), atomic_data_map), xkb));
-  result.push_back(std::make_pair(data_access<atomic> (z, offsetof(atomic,
-                                                                   l_x_ray_en), atomic_data_map), xl));
+  result.push_back(std::make_pair(
+      data_access<atomic>(z, offsetof(atomic, ka1_x_ray_en), atomic_data_map),
+      xka1));
+  result.push_back(std::make_pair(
+      data_access<atomic>(z, offsetof(atomic, ka2_x_ray_en), atomic_data_map),
+      xka2));
+  result.push_back(std::make_pair(
+      data_access<atomic>(z, offsetof(atomic, kb_x_ray_en), atomic_data_map),
+      xkb));
+  result.push_back(std::make_pair(
+      data_access<atomic>(z, offsetof(atomic, l_x_ray_en), atomic_data_map),
+      xl));
 
   return result;
 }
-
 
 //
 // Load level data
 //
 
 std::map<std::pair<int, double>, pyne::level_data> pyne::level_data_lvl_map;
-std::map<std::pair<int, unsigned int>,
-    pyne::level_data> pyne::level_data_rx_map;
+std::map<std::pair<int, unsigned int>, pyne::level_data>
+    pyne::level_data_rx_map;
 
-
-template<> void pyne::_load_data<pyne::level_data>() {
-
+template <>
+void pyne::_load_data<pyne::level_data>() {
   // Loads the level table into memory
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(level_data));
-  status = H5Tinsert(desc, "nuc_id", HOFFSET(level_data, nuc_id),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "rx_id", HOFFSET(level_data, rx_id),
-                     H5T_NATIVE_UINT);
+  status =
+      H5Tinsert(desc, "nuc_id", HOFFSET(level_data, nuc_id), H5T_NATIVE_INT);
+  status =
+      H5Tinsert(desc, "rx_id", HOFFSET(level_data, rx_id), H5T_NATIVE_UINT);
   status = H5Tinsert(desc, "half_life", HOFFSET(level_data, half_life),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "level", HOFFSET(level_data, level),
-                     H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "level", HOFFSET(level_data, level), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "branch_ratio", HOFFSET(level_data, branch_ratio),
                      H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "metastable", HOFFSET(level_data, metastable),
                      H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "special", HOFFSET(level_data, special),
-                     H5T_C_S1);
+  status = H5Tinsert(desc, "special", HOFFSET(level_data, special), H5T_C_S1);
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
   // Open the data set
   hid_t level_set = H5Dopen2(nuc_data_h5, "/decay/level_list", H5P_DEFAULT);
   hid_t level_space = H5Dget_space(level_set);
   int level_length = H5Sget_simple_extent_npoints(level_space);
 
   // Read in the data
-  level_data* level_array = new level_data[level_length];
-  status = H5Dread(level_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                   level_array);
+  level_data *level_array = new level_data[level_length];
+  status = H5Dread(level_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, level_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(level_set);
@@ -8928,10 +6245,10 @@ int pyne::id_from_level(int nuc, double level, std::string special) {
   std::map<std::pair<int, double>, level_data>::iterator nuc_lower, nuc_upper;
 
   nuc_lower = level_data_lvl_map.lower_bound(std::make_pair(nostate, 0.0));
-  nuc_upper = level_data_lvl_map.upper_bound(std::make_pair(nostate + 9999,
-                                                            DBL_MAX));
+  nuc_upper =
+      level_data_lvl_map.upper_bound(std::make_pair(nostate + 9999, DBL_MAX));
   double minv = DBL_MAX;
-  //by default return input nuc_id with level stripped
+  // by default return input nuc_id with level stripped
   int ret_id = nuc;
   for (std::map<std::pair<int, double>, level_data>::iterator it = nuc_lower;
        it != nuc_upper; ++it) {
@@ -8958,8 +6275,7 @@ int pyne::id_from_level(int nuc, double level) {
 
 int pyne::metastable_id(int nuc, int m) {
   int nostate = (nuc / 10000) * 10000;
-  if (m == 0)
-    return nostate;
+  if (m == 0) return nostate;
   if (level_data_lvl_map.empty()) {
     _load_data<level_data>();
   }
@@ -8967,33 +6283,28 @@ int pyne::metastable_id(int nuc, int m) {
   std::map<std::pair<int, double>, level_data>::iterator nuc_lower, nuc_upper;
 
   nuc_lower = level_data_lvl_map.lower_bound(std::make_pair(nostate, 0.0));
-  nuc_upper = level_data_lvl_map.upper_bound(std::make_pair(nostate + 9999,
-                                                            DBL_MAX));
+  nuc_upper =
+      level_data_lvl_map.upper_bound(std::make_pair(nostate + 9999, DBL_MAX));
   for (std::map<std::pair<int, double>, level_data>::iterator it = nuc_lower;
        it != nuc_upper; ++it) {
-    if (it->second.metastable == m)
-      return it->second.nuc_id;
+    if (it->second.metastable == m) return it->second.nuc_id;
   }
 
   return -1;
 }
 
-int pyne::metastable_id(int nuc) {
-  return metastable_id(nuc, 1);
-}
+int pyne::metastable_id(int nuc) { return metastable_id(nuc, 1); }
 
 //
 // Decay children data
 //
 
-
 std::set<int> pyne::decay_children(int nuc) {
   // make sure spontaneous fission data is loaded
-  if (wimsdfpy_data.empty())
-    _load_wimsdfpy();
+  if (wimsdfpy_data.empty()) _load_wimsdfpy();
 
-  std::vector<unsigned int> part = data_access<unsigned int, level_data>(nuc,
-                                                                         offsetof(level_data, rx_id), level_data_rx_map);
+  std::vector<unsigned int> part = data_access<unsigned int, level_data>(
+      nuc, offsetof(level_data, rx_id), level_data_rx_map);
   std::vector<unsigned int>::iterator it = part.begin();
   std::set<int> result;
   for (; it != part.end(); ++it) {
@@ -9007,10 +6318,10 @@ std::set<int> pyne::decay_children(int nuc) {
       case 1794828612: {
         // spontaneous fission, rx == 'sf', 36565
         // beta- & spontaneous fission, rx == 'b-sf', 1794828612
-        std::map<std::pair<int, int>, double>::iterator sf = wimsdfpy_data.begin();
+        std::map<std::pair<int, int>, double>::iterator sf =
+            wimsdfpy_data.begin();
         for (; sf != wimsdfpy_data.end(); ++sf)
-          if (sf->first.first == nuc)
-            result.insert(sf->first.second);
+          if (sf->first.first == nuc) result.insert(sf->first.second);
         break;
       }
       default: {
@@ -9021,7 +6332,7 @@ std::set<int> pyne::decay_children(int nuc) {
   return result;
 }
 
-std::set<int> pyne::decay_children(char* nuc) {
+std::set<int> pyne::decay_children(char *nuc) {
   return decay_children(nucname::id(nuc));
 }
 
@@ -9034,63 +6345,58 @@ std::set<int> pyne::decay_children(std::string nuc) {
 //
 
 double pyne::state_energy(int nuc) {
-  std::vector<double> result = data_access<double, level_data>(nuc, 0.0,
-                                                               DBL_MAX, offsetof(level_data, level), level_data_lvl_map);
-  if (result.size() == 1)
-    return result[0] / 1000.0;
+  std::vector<double> result = data_access<double, level_data>(
+      nuc, 0.0, DBL_MAX, offsetof(level_data, level), level_data_lvl_map);
+  if (result.size() == 1) return result[0] / 1000.0;
   return 0.0;
 }
 
-double pyne::state_energy(char* nuc) {
-  return state_energy(nucname::id(nuc));
-}
-
+double pyne::state_energy(char *nuc) { return state_energy(nucname::id(nuc)); }
 
 double pyne::state_energy(std::string nuc) {
   return state_energy(nucname::id(nuc));
 }
-
 
 //
 // Decay constant data
 //
 
 double pyne::decay_const(int nuc) {
-  std::vector<double> result = data_access<double, level_data>(nuc, 0.0,
-                                                               DBL_MAX, offsetof(level_data, half_life), level_data_lvl_map);
+  std::vector<double> result = data_access<double, level_data>(
+      nuc, 0.0, DBL_MAX, offsetof(level_data, half_life), level_data_lvl_map);
   if (result.size() == 1) {
     return log(2.0) / result[0];
   }
   return 0.0;
 }
 
-
-double pyne::decay_const(char* nuc) {
+double pyne::decay_const(char *nuc) {
   int nuc_zz = nucname::id(nuc);
   return decay_const(nuc_zz);
 }
-
 
 double pyne::decay_const(std::string nuc) {
   int nuc_zz = nucname::id(nuc);
   return decay_const(nuc_zz);
 }
 
-
 //
 // Half-life data
 //
 double pyne::half_life(int nuc) {
-  std::vector<double> result = data_access<double, level_data>(nuc, 0.0,
-                                                               DBL_MAX, offsetof(level_data, half_life), level_data_lvl_map);
+  std::vector<double> result = data_access<double, level_data>(
+      nuc, 0.0, DBL_MAX, offsetof(level_data, half_life), level_data_lvl_map);
   if (result.size() == 1) {
     return result[0];
   }
+#ifndef _WIN32
+  return 1.0 / 0.0;
+#else
   return -1.0;
+#endif
 }
 
-
-double pyne::half_life(char* nuc) {
+double pyne::half_life(char *nuc) {
   int nuc_zz = nucname::id(nuc);
   return half_life(nuc_zz);
 }
@@ -9100,23 +6406,19 @@ double pyne::half_life(std::string nuc) {
   return half_life(nuc_zz);
 }
 
-
 //
 // Branch ratio data
 //
 double pyne::branch_ratio(std::pair<int, int> from_to) {
-  using std::vector;
   using pyne::nucname::groundstate;
+  using std::vector;
   // make sure spontaneous fission data is loaded
-  if (wimsdfpy_data.empty())
-    _load_wimsdfpy();
+  if (wimsdfpy_data.empty()) _load_wimsdfpy();
 
-  vector<unsigned int> part1 = \
-                               data_access<unsigned int, level_data>(from_to.first, offsetof(level_data, rx_id),
-                                                                     level_data_rx_map);
-  vector<double> part2 = \
-                         data_access<double, level_data>(from_to.first, offsetof(level_data, branch_ratio),
-                                                         level_data_rx_map);
+  vector<unsigned int> part1 = data_access<unsigned int, level_data>(
+      from_to.first, offsetof(level_data, rx_id), level_data_rx_map);
+  vector<double> part2 = data_access<double, level_data>(
+      from_to.first, offsetof(level_data, branch_ratio), level_data_rx_map);
   double result = 0.0;
   if ((from_to.first == from_to.second) && (decay_const(from_to.first) == 0.0))
     return 1.0;
@@ -9131,8 +6433,9 @@ double pyne::branch_ratio(std::pair<int, int> from_to) {
       // spontaneous fission, rx == 'sf', 36565
       // beta- & spontaneous fission, rx == 'b-sf', 1794828612
       result += part2[i] * 0.01 * wimsdfpy_data[from_to];
-    } else if ((part1[i] != 0) && (groundstate(rxname::child(from_to.first,
-                                                             part1[i], "decay")) == from_to.second)) {
+    } else if ((part1[i] != 0) &&
+               (groundstate(rxname::child(from_to.first, part1[i], "decay")) ==
+                from_to.second)) {
       result += part2[i] * 0.01;
     }
   }
@@ -9140,64 +6443,62 @@ double pyne::branch_ratio(std::pair<int, int> from_to) {
 }
 
 double pyne::branch_ratio(int from_nuc, int to_nuc) {
-  return branch_ratio(std::pair<int, int>(nucname::id(from_nuc),
-                                          nucname::id(to_nuc)));
+  return branch_ratio(
+      std::pair<int, int>(nucname::id(from_nuc), nucname::id(to_nuc)));
 }
 
-double pyne::branch_ratio(char* from_nuc, char* to_nuc) {
-  return branch_ratio(std::pair<int, int>(nucname::id(from_nuc),
-                                          nucname::id(to_nuc)));
+double pyne::branch_ratio(char *from_nuc, char *to_nuc) {
+  return branch_ratio(
+      std::pair<int, int>(nucname::id(from_nuc), nucname::id(to_nuc)));
 }
 
 double pyne::branch_ratio(std::string from_nuc, std::string to_nuc) {
-  return branch_ratio(std::pair<int, int>(nucname::id(from_nuc),
-                                          nucname::id(to_nuc)));
+  return branch_ratio(
+      std::pair<int, int>(nucname::id(from_nuc), nucname::id(to_nuc)));
 }
 
-std::map<std::pair<int, int>, pyne::decay> pyne::decay_data = \
-                                                              std::map<std::pair<int, int>, pyne::decay>();
+std::map<std::pair<int, int>, pyne::decay> pyne::decay_data =
+    std::map<std::pair<int, int>, pyne::decay>();
 
-template<> void pyne::_load_data<pyne::decay>() {
-
+template <>
+void pyne::_load_data<pyne::decay>() {
   // Loads the decay table into memory
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(decay));
-  status = H5Tinsert(desc, "parent", HOFFSET(decay, parent),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "child", HOFFSET(decay, child),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "decay", HOFFSET(decay, decay),
-                     H5T_NATIVE_UINT);
+  status = H5Tinsert(desc, "parent", HOFFSET(decay, parent), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "child", HOFFSET(decay, child), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "decay", HOFFSET(decay, decay), H5T_NATIVE_UINT);
   status = H5Tinsert(desc, "half_life", HOFFSET(decay, half_life),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "half_life_error", HOFFSET(decay,
-                                                      half_life_error), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "half_life_error", HOFFSET(decay, half_life_error),
+                     H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "branch_ratio", HOFFSET(decay, branch_ratio),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "branch_ratio_error", HOFFSET(decay, branch_ratio_error),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "photon_branch_ratio", HOFFSET(decay,
-                                                          photon_branch_ratio), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "photon_branch_ratio_err", HOFFSET(decay,
-                                                              photon_branch_ratio_error), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "beta_branch_ratio", HOFFSET(decay,
-                                                        beta_branch_ratio), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "beta_branch_ratio_err", HOFFSET(decay,
-                                                            beta_branch_ratio_error), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "branch_ratio_error",
+                     HOFFSET(decay, branch_ratio_error), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "photon_branch_ratio",
+                     HOFFSET(decay, photon_branch_ratio), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "photon_branch_ratio_err",
+                HOFFSET(decay, photon_branch_ratio_error), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "beta_branch_ratio",
+                     HOFFSET(decay, beta_branch_ratio), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "beta_branch_ratio_err",
+                HOFFSET(decay, beta_branch_ratio_error), H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
   hid_t decay_set = H5Dopen2(nuc_data_h5, "/decay/decays", H5P_DEFAULT);
@@ -9205,93 +6506,98 @@ template<> void pyne::_load_data<pyne::decay>() {
   int decay_length = H5Sget_simple_extent_npoints(decay_space);
 
   // Read in the data
-  decay* decay_array = new decay[decay_length];
-  status = H5Dread(decay_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                   decay_array);
+  decay *decay_array = new decay[decay_length];
+  status = H5Dread(decay_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, decay_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(decay_set);
   status = H5Fclose(nuc_data_h5);
 
   for (int i = 0; i < decay_length; ++i) {
-    decay_data[std::make_pair(decay_array[i].parent, decay_array[i].child)] = \
-                                                                              decay_array[i];
+    decay_data[std::make_pair(decay_array[i].parent, decay_array[i].child)] =
+        decay_array[i];
   }
   delete[] decay_array;
 }
 
-
 std::vector<int> pyne::decay_data_children(int parent) {
-  std::vector<int> result = data_access<int, decay>(parent,
-                                                    offsetof(decay, child), decay_data);
+  std::vector<int> result =
+      data_access<int, decay>(parent, offsetof(decay, child), decay_data);
   return result;
 }
 
 std::pair<double, double> pyne::decay_half_life(std::pair<int, int> from_to) {
-  return std::make_pair(data_access<double, decay>(from_to, offsetof(
-                                                       decay, half_life), decay_data), data_access<double, decay>(
-                            from_to, offsetof(decay, half_life_error), decay_data));
+  return std::make_pair(
+      data_access<double, decay>(from_to, offsetof(decay, half_life),
+                                 decay_data),
+      data_access<double, decay>(from_to, offsetof(decay, half_life_error),
+                                 decay_data));
 }
 
-std::vector<std::pair<double, double> >pyne::decay_half_lifes(int parent) {
+std::vector<std::pair<double, double> > pyne::decay_half_lifes(int parent) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, decay>(parent,
-                                                         offsetof(decay, half_life), decay_data);
-  std::vector<double> part2 = data_access<double, decay>(parent,
-                                                         offsetof(decay, half_life_error), decay_data);
+  std::vector<double> part1 = data_access<double, decay>(
+      parent, offsetof(decay, half_life), decay_data);
+  std::vector<double> part2 = data_access<double, decay>(
+      parent, offsetof(decay, half_life_error), decay_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
 
-std::pair<double, double> pyne::decay_branch_ratio(std::pair<int, int> from_to) {
-  return std::make_pair(data_access<double, decay>(from_to, offsetof(decay,
-                                                                     branch_ratio), decay_data), data_access<double, decay>(from_to, offsetof(decay,
-                                                                         branch_ratio_error), decay_data));
+std::pair<double, double> pyne::decay_branch_ratio(
+    std::pair<int, int> from_to) {
+  return std::make_pair(
+      data_access<double, decay>(from_to, offsetof(decay, branch_ratio),
+                                 decay_data),
+      data_access<double, decay>(from_to, offsetof(decay, branch_ratio_error),
+                                 decay_data));
 }
 
 std::vector<double> pyne::decay_branch_ratios(int parent) {
-  return data_access<double, decay>(parent, offsetof(decay,
-                                                     branch_ratio), decay_data);
+  return data_access<double, decay>(parent, offsetof(decay, branch_ratio),
+                                    decay_data);
 }
 
-std::pair<double, double> pyne::decay_photon_branch_ratio(std::pair<int, int>
-                                                          from_to) {
-  return std::make_pair(data_access<double, decay>(from_to,
-                                                   offsetof(decay, photon_branch_ratio), decay_data),
-                        data_access<double, decay>(from_to, offsetof(decay,
-                                                                     photon_branch_ratio_error), decay_data));
+std::pair<double, double> pyne::decay_photon_branch_ratio(
+    std::pair<int, int> from_to) {
+  return std::make_pair(
+      data_access<double, decay>(from_to, offsetof(decay, photon_branch_ratio),
+                                 decay_data),
+      data_access<double, decay>(
+          from_to, offsetof(decay, photon_branch_ratio_error), decay_data));
 }
 
-std::vector<std::pair<double, double> >pyne::decay_photon_branch_ratios(
+std::vector<std::pair<double, double> > pyne::decay_photon_branch_ratios(
     int parent) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, decay>(parent,
-                                                         offsetof(decay, photon_branch_ratio), decay_data);
-  std::vector<double> part2 = data_access<double, decay>(parent,
-                                                         offsetof(decay, photon_branch_ratio_error), decay_data);
+  std::vector<double> part1 = data_access<double, decay>(
+      parent, offsetof(decay, photon_branch_ratio), decay_data);
+  std::vector<double> part2 = data_access<double, decay>(
+      parent, offsetof(decay, photon_branch_ratio_error), decay_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
 
-std::pair<double, double> pyne::decay_beta_branch_ratio(std::pair<int, int>
-                                                        from_to) {
-  return std::make_pair(data_access<double, decay>(from_to,
-                                                   offsetof(decay, beta_branch_ratio), decay_data),
-                        data_access<double, decay>(from_to, offsetof(decay,
-                                                                     beta_branch_ratio_error), decay_data));
+std::pair<double, double> pyne::decay_beta_branch_ratio(
+    std::pair<int, int> from_to) {
+  return std::make_pair(
+      data_access<double, decay>(from_to, offsetof(decay, beta_branch_ratio),
+                                 decay_data),
+      data_access<double, decay>(
+          from_to, offsetof(decay, beta_branch_ratio_error), decay_data));
 }
 
-std::vector<std::pair<double, double> >pyne::decay_beta_branch_ratios(
+std::vector<std::pair<double, double> > pyne::decay_beta_branch_ratios(
     int parent) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, decay>(parent,
-                                                         offsetof(decay, beta_branch_ratio), decay_data);
-  std::vector<double> part2 = data_access<double, decay>(parent,
-                                                         offsetof(decay, beta_branch_ratio_error), decay_data);
+  std::vector<double> part1 = data_access<double, decay>(
+      parent, offsetof(decay, beta_branch_ratio), decay_data);
+  std::vector<double> part2 = data_access<double, decay>(
+      parent, offsetof(decay, beta_branch_ratio_error), decay_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9300,56 +6606,52 @@ std::vector<std::pair<double, double> >pyne::decay_beta_branch_ratios(
 
 std::map<std::pair<int, double>, pyne::gamma> pyne::gamma_data;
 
-template<> void pyne::_load_data<pyne::gamma>() {
-
+template <>
+void pyne::_load_data<pyne::gamma>() {
   // Loads the gamma table into memory
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(gamma));
-  status = H5Tinsert(desc, "from_nuc", HOFFSET(gamma, from_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "to_nuc", HOFFSET(gamma, to_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "parent_nuc", HOFFSET(gamma, parent_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "child_nuc", HOFFSET(gamma, child_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "energy", HOFFSET(gamma, energy),
-                     H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "from_nuc", HOFFSET(gamma, from_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "to_nuc", HOFFSET(gamma, to_nuc), H5T_NATIVE_INT);
+  status =
+      H5Tinsert(desc, "parent_nuc", HOFFSET(gamma, parent_nuc), H5T_NATIVE_INT);
+  status =
+      H5Tinsert(desc, "child_nuc", HOFFSET(gamma, child_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "energy", HOFFSET(gamma, energy), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "energy_err", HOFFSET(gamma, energy_err),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "photon_intensity", HOFFSET(gamma,
-                                                       photon_intensity), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "photon_intensity_err", HOFFSET(gamma,
-                                                           photon_intensity_err), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "conv_intensity", HOFFSET(gamma,
-                                                     conv_intensity), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "conv_intensity_err", HOFFSET(gamma,
-                                                         conv_intensity_err), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "total_intensity", HOFFSET(gamma,
-                                                      total_intensity), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "total_intensity_err", HOFFSET(gamma,
-                                                          total_intensity_err), H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "k_conv_e", HOFFSET(gamma, k_conv_e),
+  status = H5Tinsert(desc, "photon_intensity", HOFFSET(gamma, photon_intensity),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "l_conv_e", HOFFSET(gamma, l_conv_e),
+  status = H5Tinsert(desc, "photon_intensity_err",
+                     HOFFSET(gamma, photon_intensity_err), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "conv_intensity", HOFFSET(gamma, conv_intensity),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "m_conv_e", HOFFSET(gamma, m_conv_e),
+  status = H5Tinsert(desc, "conv_intensity_err",
+                     HOFFSET(gamma, conv_intensity_err), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "total_intensity", HOFFSET(gamma, total_intensity),
                      H5T_NATIVE_DOUBLE);
-
+  status = H5Tinsert(desc, "total_intensity_err",
+                     HOFFSET(gamma, total_intensity_err), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "k_conv_e", HOFFSET(gamma, k_conv_e), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "l_conv_e", HOFFSET(gamma, l_conv_e), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "m_conv_e", HOFFSET(gamma, m_conv_e), H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
   hid_t gamma_set = H5Dopen2(nuc_data_h5, "/decay/gammas", H5P_DEFAULT);
@@ -9357,9 +6659,8 @@ template<> void pyne::_load_data<pyne::gamma>() {
   int gamma_length = H5Sget_simple_extent_npoints(gamma_space);
 
   // Read in the data
-  gamma* gamma_array = new gamma[gamma_length];
-  status = H5Dread(gamma_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                   gamma_array);
+  gamma *gamma_array = new gamma[gamma_length];
+  status = H5Dread(gamma_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, gamma_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(gamma_set);
@@ -9375,10 +6676,10 @@ template<> void pyne::_load_data<pyne::gamma>() {
 
 std::vector<std::pair<double, double> > pyne::gamma_energy(int parent) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, energy), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, energy_err), gamma_data);
+  std::vector<double> part1 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, energy), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, energy_err), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9388,10 +6689,10 @@ std::vector<std::pair<double, double> > pyne::gamma_energy(int parent) {
 std::vector<std::pair<double, double> > pyne::gamma_energy(double energy,
                                                            double error) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(energy + error,
-                                                         energy - error, offsetof(gamma, energy), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(energy + error,
-                                                         energy - error, offsetof(gamma, energy_err), gamma_data);
+  std::vector<double> part1 = data_access<double, gamma>(
+      energy + error, energy - error, offsetof(gamma, energy), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(
+      energy + error, energy - error, offsetof(gamma, energy_err), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9401,10 +6702,10 @@ std::vector<std::pair<double, double> > pyne::gamma_energy(double energy,
 std::vector<std::pair<double, double> > pyne::gamma_photon_intensity(
     int parent) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, photon_intensity), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, photon_intensity_err), gamma_data);
+  std::vector<double> part1 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, photon_intensity), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, photon_intensity_err), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9414,10 +6715,12 @@ std::vector<std::pair<double, double> > pyne::gamma_photon_intensity(
 std::vector<std::pair<double, double> > pyne::gamma_photon_intensity(
     double energy, double error) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(energy + error,
-                                                         energy - error, offsetof(gamma, photon_intensity), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(energy + error,
-                                                         energy - error, offsetof(gamma, photon_intensity_err), gamma_data);
+  std::vector<double> part1 =
+      data_access<double, gamma>(energy + error, energy - error,
+                                 offsetof(gamma, photon_intensity), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(
+      energy + error, energy - error, offsetof(gamma, photon_intensity_err),
+      gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9427,10 +6730,10 @@ std::vector<std::pair<double, double> > pyne::gamma_photon_intensity(
 std::vector<std::pair<double, double> > pyne::gamma_conversion_intensity(
     int parent) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, conv_intensity), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, conv_intensity_err), gamma_data);
+  std::vector<double> part1 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, conv_intensity), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, conv_intensity_err), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9440,10 +6743,10 @@ std::vector<std::pair<double, double> > pyne::gamma_conversion_intensity(
 std::vector<std::pair<double, double> > pyne::gamma_total_intensity(
     int parent) {
   std::vector<std::pair<double, double> > result;
-  std::vector<double> part1 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, total_intensity), gamma_data);
-  std::vector<double> part2 = data_access<double, gamma>(parent, 0.0,
-                                                         DBL_MAX, offsetof(gamma, total_intensity_err), gamma_data);
+  std::vector<double> part1 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, total_intensity), gamma_data);
+  std::vector<double> part2 = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, total_intensity_err), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9452,10 +6755,10 @@ std::vector<std::pair<double, double> > pyne::gamma_total_intensity(
 
 std::vector<std::pair<int, int> > pyne::gamma_from_to(int parent) {
   std::vector<std::pair<int, int> > result;
-  std::vector<int> part1 = data_access<int, gamma>(parent, 0.0, DBL_MAX,
-                                                   offsetof(gamma, from_nuc), gamma_data);
-  std::vector<int> part2 = data_access<int, gamma>(parent, 0.0, DBL_MAX,
-                                                   offsetof(gamma, to_nuc), gamma_data);
+  std::vector<int> part1 = data_access<int, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, from_nuc), gamma_data);
+  std::vector<int> part2 = data_access<int, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, to_nuc), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9465,24 +6768,23 @@ std::vector<std::pair<int, int> > pyne::gamma_from_to(int parent) {
 std::vector<std::pair<int, int> > pyne::gamma_from_to(double energy,
                                                       double error) {
   std::vector<std::pair<int, int> > result;
-  std::vector<int> part1 = data_access<int, gamma>(energy + error,
-                                                   energy - error, offsetof(gamma, from_nuc), gamma_data);
-  std::vector<int> part2 = data_access<int, gamma>(energy + error,
-                                                   energy - error, offsetof(gamma, to_nuc), gamma_data);
+  std::vector<int> part1 = data_access<int, gamma>(
+      energy + error, energy - error, offsetof(gamma, from_nuc), gamma_data);
+  std::vector<int> part2 = data_access<int, gamma>(
+      energy + error, energy - error, offsetof(gamma, to_nuc), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
   return result;
 }
 
-
 std::vector<std::pair<int, int> > pyne::gamma_parent_child(double energy,
                                                            double error) {
   std::vector<std::pair<int, int> > result;
-  std::vector<int> part1 = data_access<int, gamma>(energy + error,
-                                                   energy - error, offsetof(gamma, parent_nuc), gamma_data);
-  std::vector<int> part2 = data_access<int, gamma>(energy + error,
-                                                   energy - error, offsetof(gamma, child_nuc), gamma_data);
+  std::vector<int> part1 = data_access<int, gamma>(
+      energy + error, energy - error, offsetof(gamma, parent_nuc), gamma_data);
+  std::vector<int> part2 = data_access<int, gamma>(
+      energy + error, energy - error, offsetof(gamma, child_nuc), gamma_data);
   for (int i = 0; i < part1.size(); ++i) {
     result.push_back(std::make_pair(part1[i], part2[i]));
   }
@@ -9507,12 +6809,12 @@ std::vector<int> pyne::gamma_child(int parent) {
 std::vector<std::pair<double, double> > pyne::gamma_xrays(int parent) {
   std::vector<std::pair<double, double> > result;
   std::vector<std::pair<double, double> > temp;
-  std::vector<double> k_list = data_access<double, gamma>(parent, 0.0, DBL_MAX,
-                                                          offsetof(gamma, k_conv_e), gamma_data);
-  std::vector<double> l_list = data_access<double, gamma>(parent, 0.0, DBL_MAX,
-                                                          offsetof(gamma, l_conv_e), gamma_data);
-  std::vector<int> children = data_access<int, gamma>(parent, 0.0,
-                                                      DBL_MAX, offsetof(gamma, from_nuc), gamma_data);
+  std::vector<double> k_list = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, k_conv_e), gamma_data);
+  std::vector<double> l_list = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, l_conv_e), gamma_data);
+  std::vector<int> children = data_access<int, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, from_nuc), gamma_data);
   std::vector<int> decay_children = decay_data_children(parent);
   std::vector<std::pair<double, double> > decay_br =
       decay_photon_branch_ratios(parent);
@@ -9520,7 +6822,8 @@ std::vector<std::pair<double, double> > pyne::gamma_xrays(int parent) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(children[i]),
-                                   k_list[i] * decay_br[j].first, l_list[i] * decay_br[j].first);
+                                   k_list[i] * decay_br[j].first,
+                                   l_list[i] * decay_br[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -9545,34 +6848,30 @@ std::vector<std::pair<double, double> > pyne::gamma_xrays(int parent) {
 
 std::map<std::pair<int, double>, pyne::alpha> pyne::alpha_data;
 
-template<> void pyne::_load_data<pyne::alpha>() {
-
+template <>
+void pyne::_load_data<pyne::alpha>() {
   // Loads the alpha table into memory
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(alpha));
-  status = H5Tinsert(desc, "from_nuc", HOFFSET(alpha, from_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "to_nuc", HOFFSET(alpha, to_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "energy", HOFFSET(alpha, energy),
-                     H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "from_nuc", HOFFSET(alpha, from_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "to_nuc", HOFFSET(alpha, to_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "energy", HOFFSET(alpha, energy), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "intensity", HOFFSET(alpha, intensity),
                      H5T_NATIVE_DOUBLE);
 
-
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
   hid_t alpha_set = H5Dopen2(nuc_data_h5, "/decay/alphas", H5P_DEFAULT);
@@ -9580,9 +6879,8 @@ template<> void pyne::_load_data<pyne::alpha>() {
   int alpha_length = H5Sget_simple_extent_npoints(alpha_space);
 
   // Read in the data
-  alpha* alpha_array = new alpha[alpha_length];
-  status = H5Dread(alpha_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-                   alpha_array);
+  alpha *alpha_array = new alpha[alpha_length];
+  status = H5Dread(alpha_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, alpha_array);
 
   // close the nuc_data library, before doing anything stupid
   status = H5Dclose(alpha_set);
@@ -9590,13 +6888,13 @@ template<> void pyne::_load_data<pyne::alpha>() {
 
   for (int i = 0; i < alpha_length; ++i) {
     if ((alpha_array[i].from_nuc != 0) && !isnan(alpha_array[i].energy))
-      alpha_data[std::make_pair(alpha_array[i].from_nuc, alpha_array[i].energy)]
-        = alpha_array[i];
+      alpha_data[std::make_pair(alpha_array[i].from_nuc,
+                                alpha_array[i].energy)] = alpha_array[i];
   }
   delete[] alpha_array;
 }
 
-std::vector<double > pyne::alpha_energy(int parent) {
+std::vector<double> pyne::alpha_energy(int parent) {
   return data_access<double, alpha>(parent, 0.0, DBL_MAX,
                                     offsetof(alpha, energy), alpha_data);
 }
@@ -9616,42 +6914,38 @@ std::vector<int> pyne::alpha_child(double energy, double error) {
 }
 
 std::vector<int> pyne::alpha_child(int parent) {
-  return data_access<int, alpha>(parent, 0.0, DBL_MAX,
-                                 offsetof(alpha, to_nuc), alpha_data);
+  return data_access<int, alpha>(parent, 0.0, DBL_MAX, offsetof(alpha, to_nuc),
+                                 alpha_data);
 }
 
 std::map<std::pair<int, double>, pyne::beta> pyne::beta_data;
 
-template<> void pyne::_load_data<pyne::beta>() {
-
+template <>
+void pyne::_load_data<pyne::beta>() {
   // Loads the beta table into memory
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(beta));
-  status = H5Tinsert(desc, "endpoint_energy", HOFFSET(beta,
-                                                      endpoint_energy), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "endpoint_energy", HOFFSET(beta, endpoint_energy),
+                     H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "avg_energy", HOFFSET(beta, avg_energy),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "intensity", HOFFSET(beta, intensity),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "from_nuc", HOFFSET(beta, from_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "to_nuc", HOFFSET(beta, to_nuc),
-                     H5T_NATIVE_INT);
-
+  status =
+      H5Tinsert(desc, "intensity", HOFFSET(beta, intensity), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "from_nuc", HOFFSET(beta, from_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "to_nuc", HOFFSET(beta, to_nuc), H5T_NATIVE_INT);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
   hid_t beta_set = H5Dopen2(nuc_data_h5, "/decay/betas", H5P_DEFAULT);
@@ -9659,7 +6953,7 @@ template<> void pyne::_load_data<pyne::beta>() {
   int beta_length = H5Sget_simple_extent_npoints(beta_space);
 
   // Read in the data
-  beta* beta_array = new beta[beta_length];
+  beta *beta_array = new beta[beta_length];
   status = H5Dread(beta_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, beta_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -9668,18 +6962,18 @@ template<> void pyne::_load_data<pyne::beta>() {
 
   for (int i = 0; i < beta_length; ++i) {
     if ((beta_array[i].from_nuc != 0) && !isnan(beta_array[i].avg_energy))
-      beta_data[std::make_pair(beta_array[i].from_nuc, beta_array[i].avg_energy)]
-        = beta_array[i];
+      beta_data[std::make_pair(beta_array[i].from_nuc,
+                               beta_array[i].avg_energy)] = beta_array[i];
   }
   delete[] beta_array;
 }
 
-std::vector<double > pyne::beta_endpoint_energy(int parent) {
+std::vector<double> pyne::beta_endpoint_energy(int parent) {
   return data_access<double, beta>(parent, 0.0, DBL_MAX,
                                    offsetof(beta, endpoint_energy), beta_data);
 }
 
-std::vector<double > pyne::beta_average_energy(int parent) {
+std::vector<double> pyne::beta_average_energy(int parent) {
   return data_access<double, beta>(parent, 0.0, DBL_MAX,
                                    offsetof(beta, avg_energy), beta_data);
 }
@@ -9700,50 +6994,46 @@ std::vector<int> pyne::beta_child(double energy, double error) {
 }
 
 std::vector<int> pyne::beta_child(int parent) {
-  return data_access<int, beta>(parent, 0.0, DBL_MAX,
-                                offsetof(beta, to_nuc), beta_data);
+  return data_access<int, beta>(parent, 0.0, DBL_MAX, offsetof(beta, to_nuc),
+                                beta_data);
 }
-
 
 std::map<std::pair<int, double>, pyne::ecbp> pyne::ecbp_data;
 
-template<> void pyne::_load_data<pyne::ecbp>() {
-
+template <>
+void pyne::_load_data<pyne::ecbp>() {
   // Loads the ecbp table into memory
   herr_t status;
 
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(ecbp));
-  status = H5Tinsert(desc, "from_nuc", HOFFSET(ecbp, from_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "to_nuc", HOFFSET(ecbp, to_nuc),
-                     H5T_NATIVE_INT);
-  status = H5Tinsert(desc, "endpoint_energy", HOFFSET(ecbp,
-                                                      endpoint_energy), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "from_nuc", HOFFSET(ecbp, from_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "to_nuc", HOFFSET(ecbp, to_nuc), H5T_NATIVE_INT);
+  status = H5Tinsert(desc, "endpoint_energy", HOFFSET(ecbp, endpoint_energy),
+                     H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "avg_energy", HOFFSET(ecbp, avg_energy),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "beta_plus_intensity", HOFFSET(ecbp,
-                                                          beta_plus_intensity), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(desc, "beta_plus_intensity",
+                     HOFFSET(ecbp, beta_plus_intensity), H5T_NATIVE_DOUBLE);
   status = H5Tinsert(desc, "ec_intensity", HOFFSET(ecbp, ec_intensity),
                      H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "k_conv_e", HOFFSET(ecbp, k_conv_e),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "l_conv_e", HOFFSET(ecbp, l_conv_e),
-                     H5T_NATIVE_DOUBLE);
-  status = H5Tinsert(desc, "m_conv_e", HOFFSET(ecbp, m_conv_e),
-                     H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "k_conv_e", HOFFSET(ecbp, k_conv_e), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "l_conv_e", HOFFSET(ecbp, l_conv_e), H5T_NATIVE_DOUBLE);
+  status =
+      H5Tinsert(desc, "m_conv_e", HOFFSET(ecbp, m_conv_e), H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY,
-                              H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // Open the data set
   hid_t ecbp_set = H5Dopen2(nuc_data_h5, "/decay/ecbp", H5P_DEFAULT);
@@ -9751,7 +7041,7 @@ template<> void pyne::_load_data<pyne::ecbp>() {
   int ecbp_length = H5Sget_simple_extent_npoints(ecbp_space);
 
   // Read in the data
-  ecbp* ecbp_array = new ecbp[ecbp_length];
+  ecbp *ecbp_array = new ecbp[ecbp_length];
   status = H5Dread(ecbp_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, ecbp_array);
 
   // close the nuc_data library, before doing anything stupid
@@ -9760,18 +7050,18 @@ template<> void pyne::_load_data<pyne::ecbp>() {
 
   for (int i = 0; i < ecbp_length; ++i) {
     if ((ecbp_array[i].from_nuc != 0) && !isnan(ecbp_array[i].avg_energy))
-      ecbp_data[std::make_pair(ecbp_array[i].from_nuc, ecbp_array[i].avg_energy)]
-        = ecbp_array[i];
+      ecbp_data[std::make_pair(ecbp_array[i].from_nuc,
+                               ecbp_array[i].avg_energy)] = ecbp_array[i];
   }
   delete[] ecbp_array;
 }
 
-std::vector<double > pyne::ecbp_endpoint_energy(int parent) {
+std::vector<double> pyne::ecbp_endpoint_energy(int parent) {
   return data_access<double, ecbp>(parent, 0.0, DBL_MAX,
                                    offsetof(ecbp, endpoint_energy), ecbp_data);
 }
 
-std::vector<double > pyne::ecbp_average_energy(int parent) {
+std::vector<double> pyne::ecbp_average_energy(int parent) {
   return data_access<double, ecbp>(parent, 0.0, DBL_MAX,
                                    offsetof(ecbp, avg_energy), ecbp_data);
 }
@@ -9782,8 +7072,8 @@ std::vector<double> pyne::ec_intensity(int parent) {
 }
 
 std::vector<double> pyne::bp_intensity(int parent) {
-  return data_access<double, ecbp>(parent, 0.0, DBL_MAX,
-                                   offsetof(ecbp, beta_plus_intensity), ecbp_data);
+  return data_access<double, ecbp>(
+      parent, 0.0, DBL_MAX, offsetof(ecbp, beta_plus_intensity), ecbp_data);
 }
 
 std::vector<int> pyne::ecbp_parent(double energy, double error) {
@@ -9797,19 +7087,19 @@ std::vector<int> pyne::ecbp_child(double energy, double error) {
 }
 
 std::vector<int> pyne::ecbp_child(int parent) {
-  return data_access<int, ecbp>(parent, 0.0, DBL_MAX,
-                                offsetof(ecbp, to_nuc), ecbp_data);
+  return data_access<int, ecbp>(parent, 0.0, DBL_MAX, offsetof(ecbp, to_nuc),
+                                ecbp_data);
 }
 
 std::vector<std::pair<double, double> > pyne::ecbp_xrays(int parent) {
   std::vector<std::pair<double, double> > result;
   std::vector<std::pair<double, double> > temp;
-  std::vector<double> k_list = data_access<double, ecbp>(parent, 0.0, DBL_MAX,
-                                                         offsetof(ecbp, k_conv_e), ecbp_data);
-  std::vector<double> l_list = data_access<double, ecbp>(parent, 0.0, DBL_MAX,
-                                                         offsetof(ecbp, l_conv_e), ecbp_data);
-  std::vector<int> children = data_access<int, ecbp>(parent, 0.0, DBL_MAX,
-                                                     offsetof(ecbp, to_nuc), ecbp_data);
+  std::vector<double> k_list = data_access<double, ecbp>(
+      parent, 0.0, DBL_MAX, offsetof(ecbp, k_conv_e), ecbp_data);
+  std::vector<double> l_list = data_access<double, ecbp>(
+      parent, 0.0, DBL_MAX, offsetof(ecbp, l_conv_e), ecbp_data);
+  std::vector<int> children = data_access<int, ecbp>(
+      parent, 0.0, DBL_MAX, offsetof(ecbp, to_nuc), ecbp_data);
   std::vector<int> decay_children = decay_data_children(parent);
   std::vector<std::pair<double, double> > decay_br =
       decay_beta_branch_ratios(parent);
@@ -9817,7 +7107,8 @@ std::vector<std::pair<double, double> > pyne::ecbp_xrays(int parent) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(children[i]),
-                                   k_list[i] * decay_br[j].first, l_list[i] * decay_br[j].first);
+                                   k_list[i] * decay_br[j].first,
+                                   l_list[i] * decay_br[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -9847,7 +7138,8 @@ std::vector<std::pair<double, double> > pyne::ecbp_xrays(int parent) {
 std::vector<std::pair<double, double> > pyne::gammas(int parent_state_id) {
   std::vector<std::pair<double, double> > result;
   double decay_c = decay_const(parent_state_id);
-  std::vector<std::pair<double, double> > energies = gamma_energy(parent_state_id);
+  std::vector<std::pair<double, double> > energies =
+      gamma_energy(parent_state_id);
   std::vector<std::pair<double, double> > intensities =
       gamma_photon_intensity(parent_state_id);
   std::vector<std::pair<int, int> > children = gamma_from_to(parent_state_id);
@@ -9856,9 +7148,11 @@ std::vector<std::pair<double, double> > pyne::gammas(int parent_state_id) {
       decay_photon_branch_ratios(parent_state_id);
   for (int i = 0; i < children.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
-      if (nucname::zzzaaa(children[i].first) == nucname::zzzaaa(decay_children[j])) {
-        result.push_back(std::make_pair(energies[i].first,
-                                        decay_c * intensities[i].first * decay_br[j].first));
+      if (nucname::zzzaaa(children[i].first) ==
+          nucname::zzzaaa(decay_children[j])) {
+        result.push_back(
+            std::make_pair(energies[i].first,
+                           decay_c * intensities[i].first * decay_br[j].first));
       }
     }
   }
@@ -9876,8 +7170,8 @@ std::vector<std::pair<double, double> > pyne::alphas(int parent_state_id) {
   for (int i = 0; i < children.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
-        result.push_back(std::make_pair(energies[i],
-                                        decay_c * decay_br[j]*intensities[i]));
+        result.push_back(std::make_pair(
+            energies[i], decay_c * decay_br[j] * intensities[i]));
       }
     }
   }
@@ -9896,8 +7190,8 @@ std::vector<std::pair<double, double> > pyne::betas(int parent_state_id) {
   for (int i = 0; i < children.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
-        result.push_back(std::make_pair(energies[i],
-                                        decay_c * decay_br[j].first * intensities[i]));
+        result.push_back(std::make_pair(
+            energies[i], decay_c * decay_br[j].first * intensities[i]));
         break;
       }
     }
@@ -9909,12 +7203,12 @@ std::vector<std::pair<double, double> > pyne::xrays(int parent) {
   double decay_c = decay_const(parent);
   std::vector<std::pair<double, double> > result;
   std::vector<std::pair<double, double> > temp;
-  std::vector<double> k_list = data_access<double, ecbp>(parent, 0.0, DBL_MAX,
-                                                         offsetof(ecbp, k_conv_e), ecbp_data);
-  std::vector<double> l_list = data_access<double, ecbp>(parent, 0.0, DBL_MAX,
-                                                         offsetof(ecbp, l_conv_e), ecbp_data);
-  std::vector<int> children = data_access<int, ecbp>(parent, 0.0, DBL_MAX,
-                                                     offsetof(ecbp, to_nuc), ecbp_data);
+  std::vector<double> k_list = data_access<double, ecbp>(
+      parent, 0.0, DBL_MAX, offsetof(ecbp, k_conv_e), ecbp_data);
+  std::vector<double> l_list = data_access<double, ecbp>(
+      parent, 0.0, DBL_MAX, offsetof(ecbp, l_conv_e), ecbp_data);
+  std::vector<int> children = data_access<int, ecbp>(
+      parent, 0.0, DBL_MAX, offsetof(ecbp, to_nuc), ecbp_data);
   std::vector<int> decay_children = decay_data_children(parent);
   std::vector<std::pair<double, double> > decay_br =
       decay_beta_branch_ratios(parent);
@@ -9922,7 +7216,8 @@ std::vector<std::pair<double, double> > pyne::xrays(int parent) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(children[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(children[i]),
-                                   k_list[i] * decay_br[j].first, l_list[i] * decay_br[j].first);
+                                   k_list[i] * decay_br[j].first,
+                                   l_list[i] * decay_br[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -9942,19 +7237,20 @@ std::vector<std::pair<double, double> > pyne::xrays(int parent) {
       }
     }
   }
-  std::vector<double> gk_list = data_access<double, gamma>(parent, 0.0, DBL_MAX,
-                                                           offsetof(gamma, k_conv_e), gamma_data);
-  std::vector<double> gl_list = data_access<double, gamma>(parent, 0.0, DBL_MAX,
-                                                           offsetof(gamma, l_conv_e), gamma_data);
-  std::vector<int> gchildren = data_access<int, gamma>(parent, 0.0,
-                                                       DBL_MAX, offsetof(gamma, from_nuc), gamma_data);
+  std::vector<double> gk_list = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, k_conv_e), gamma_data);
+  std::vector<double> gl_list = data_access<double, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, l_conv_e), gamma_data);
+  std::vector<int> gchildren = data_access<int, gamma>(
+      parent, 0.0, DBL_MAX, offsetof(gamma, from_nuc), gamma_data);
   std::vector<std::pair<double, double> > decay_nrbr =
       decay_photon_branch_ratios(parent);
   for (int i = 0; i < gk_list.size(); ++i) {
     for (int j = 0; j < decay_children.size(); ++j) {
       if (nucname::zzzaaa(gchildren[i]) == nucname::zzzaaa(decay_children[j])) {
         temp = calculate_xray_data(nucname::znum(gchildren[i]),
-                                   gk_list[i] * decay_nrbr[j].first, gl_list[i] * decay_nrbr[j].first);
+                                   gk_list[i] * decay_nrbr[j].first,
+                                   gl_list[i] * decay_nrbr[j].first);
         for (int k = 0; k < temp.size(); ++k) {
           if (!isnan(temp[k].second) && !isnan(temp[k].first)) {
             int found = 0;
@@ -10002,18 +7298,18 @@ typedef struct simple_xs {
   double sigma_4n;
 } simple_xs;
 
-std::map<std::string, std::map<int, std::map<int, double> > > pyne::simple_xs_map;
+std::map<std::string, std::map<int, std::map<int, double> > >
+    pyne::simple_xs_map;
 
 // loads the simple cross section data for the specified energy band from
 // the nuc_data.h5 file into memory.
 static void _load_simple_xs_map(std::string energy) {
-  //Check to see if the file is in HDF5 format.
+  // Check to see if the file is in HDF5 format.
   if (!pyne::file_exists(pyne::NUC_DATA_PATH))
     throw pyne::FileNotFound(pyne::NUC_DATA_PATH);
 
   bool ish5 = H5Fis_hdf5(pyne::NUC_DATA_PATH.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
+  if (!ish5) throw h5wrap::FileNotHDF5(pyne::NUC_DATA_PATH);
 
   using pyne::rxname::id;
   std::map<unsigned int, size_t> rxns;
@@ -10034,24 +7330,30 @@ static void _load_simple_xs_map(std::string energy) {
 
   // Get the HDF5 compound type (table) description
   hid_t desc = H5Tcreate(H5T_COMPOUND, sizeof(simple_xs));
-  H5Tinsert(desc, "nuc",   HOFFSET(simple_xs, nuc),   H5T_NATIVE_INT);
-  H5Tinsert(desc, "sigma_t",  HOFFSET(simple_xs, sigma_t),  H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "nuc", HOFFSET(simple_xs, nuc), H5T_NATIVE_INT);
+  H5Tinsert(desc, "sigma_t", HOFFSET(simple_xs, sigma_t), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_s", HOFFSET(simple_xs, sigma_s), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_e", HOFFSET(simple_xs, sigma_e), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_i", HOFFSET(simple_xs, sigma_i), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_a", HOFFSET(simple_xs, sigma_a), H5T_NATIVE_DOUBLE);
-  H5Tinsert(desc, "sigma_gamma", HOFFSET(simple_xs, sigma_gamma), H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "sigma_gamma", HOFFSET(simple_xs, sigma_gamma),
+            H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_f", HOFFSET(simple_xs, sigma_f), H5T_NATIVE_DOUBLE);
-  H5Tinsert(desc, "sigma_alpha", HOFFSET(simple_xs, sigma_alpha), H5T_NATIVE_DOUBLE);
-  H5Tinsert(desc, "sigma_proton", HOFFSET(simple_xs, sigma_proton), H5T_NATIVE_DOUBLE);
-  H5Tinsert(desc, "sigma_deut", HOFFSET(simple_xs, sigma_deut), H5T_NATIVE_DOUBLE);
-  H5Tinsert(desc, "sigma_trit", HOFFSET(simple_xs, sigma_trit), H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "sigma_alpha", HOFFSET(simple_xs, sigma_alpha),
+            H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "sigma_proton", HOFFSET(simple_xs, sigma_proton),
+            H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "sigma_deut", HOFFSET(simple_xs, sigma_deut),
+            H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "sigma_trit", HOFFSET(simple_xs, sigma_trit),
+            H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_2n", HOFFSET(simple_xs, sigma_2n), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_3n", HOFFSET(simple_xs, sigma_3n), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "sigma_4n", HOFFSET(simple_xs, sigma_4n), H5T_NATIVE_DOUBLE);
 
   // Open the HDF5 file
-  hid_t nuc_data_h5 = H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+  hid_t nuc_data_h5 =
+      H5Fopen(pyne::NUC_DATA_PATH.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
 
   // build path to prober simple xs table
   std::string path = "/neutron/simple_xs/" + energy;
@@ -10062,7 +7364,7 @@ static void _load_simple_xs_map(std::string energy) {
   int n = H5Sget_simple_extent_npoints(simple_xs_space);
 
   // Read in the data
-  simple_xs* array = new simple_xs[n];
+  simple_xs *array = new simple_xs[n];
   H5Dread(simple_xs_set, desc, H5S_ALL, H5S_ALL, H5P_DEFAULT, array);
 
   // close the nuc_data library, before doing anything stupid
@@ -10073,7 +7375,7 @@ static void _load_simple_xs_map(std::string energy) {
   for (int i = 0; i < n; i++) {
     std::map<unsigned int, size_t>::iterator it;
     for (it = rxns.begin(); it != rxns.end(); ++it) {
-      double xs = *(double*)((char*)&array[i] + it->second);
+      double xs = *(double *)((char *)&array[i] + it->second);
       pyne::simple_xs_map[energy][array[i].nuc][it->first] = xs;
     }
   }
@@ -10119,7 +7421,6 @@ double pyne::simple_xs(std::string nuc, std::string rx, std::string energy) {
 // end of src/data.cpp
 //
 
-
 //
 // start of src/jsoncpp.cpp
 //
@@ -10139,8 +7440,8 @@ The author (Baptiste Lepilleur) explicitly disclaims copyright in all
 jurisdictions which recognize such a disclaimer. In such jurisdictions,
 this software is released into the Public Domain.
 
-In jurisdictions which do not recognize Public Domain property (e.g. Germany as of
-2010), this software is Copyright (c) 2007-2010 by Baptiste Lepilleur, and is
+In jurisdictions which do not recognize Public Domain property (e.g. Germany as
+of 2010), this software is Copyright (c) 2007-2010 by Baptiste Lepilleur, and is
 released under the terms of the MIT License (see below).
 
 In jurisdictions which recognize Public Domain property, the user of this
@@ -10193,10 +7494,6 @@ license you like.
 // End of content of file: LICENSE
 // //////////////////////////////////////////////////////////////////////
 
-
-
-
-
 #ifdef PYNE_IS_AMALGAMATED
 #if !defined(JSON_IS_AMALGAMATION)
 #define JSON_IS_AMALGAMATION
@@ -10205,7 +7502,6 @@ license you like.
 #include "json.h"
 #endif
 
-
 // //////////////////////////////////////////////////////////////////////
 // Beginning of content of file: src/lib_json/json_tool.h
 // //////////////////////////////////////////////////////////////////////
@@ -10213,10 +7509,11 @@ license you like.
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
+// See file LICENSE for detail or copy at
+// https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef LIB_JSONCPP_JSON_TOOL_H_INCLUDED
-# define LIB_JSONCPP_JSON_TOOL_H_INCLUDED
+#define LIB_JSONCPP_JSON_TOOL_H_INCLUDED
 
 /* This header provides common string manipulation support, such as UTF-8,
  * portable conversion from/to string...
@@ -10227,8 +7524,7 @@ license you like.
 namespace Json {
 
 /// Converts a unicode code-point to UTF-8.
-static inline std::string
-codePointToUTF8(unsigned int cp) {
+static inline std::string codePointToUTF8(unsigned int cp) {
   std::string result;
 
   // based on description from http://en.wikipedia.org/wiki/UTF-8
@@ -10256,31 +7552,24 @@ codePointToUTF8(unsigned int cp) {
   return result;
 }
 
-
 /// Returns true if ch is a control character (in range [0,32[).
-static inline bool
-isControlCharacter(char ch) {
-  return ch > 0 && ch <= 0x1F;
-}
-
+static inline bool isControlCharacter(char ch) { return ch > 0 && ch <= 0x1F; }
 
 enum {
-  /// Constant that specify the size of the buffer that must be passed to uintToString.
+  /// Constant that specify the size of the buffer that must be passed to
+  /// uintToString.
   uintToStringBufferSize = 3 * sizeof(LargestUInt) + 1
 };
 
 // Defines a char buffer for use with uintToString().
 typedef char UIntToStringBuffer[uintToStringBufferSize];
 
-
 /** Converts an unsigned integer to string.
  * @param value Unsigned interger to convert to string
  * @param current Input/Output string buffer.
  *        Must have at least uintToStringBufferSize chars free.
  */
-static inline void
-uintToString(LargestUInt value,
-             char*& current) {
+static inline void uintToString(LargestUInt value, char *&current) {
   *--current = 0;
   do {
     *--current = char(value % 10) + '0';
@@ -10288,18 +7577,13 @@ uintToString(LargestUInt value,
   } while (value != 0);
 }
 
-} // namespace Json {
+}  // namespace Json
 
-#endif // LIB_JSONCPP_JSON_TOOL_H_INCLUDED
+#endif  // LIB_JSONCPP_JSON_TOOL_H_INCLUDED
 
 // //////////////////////////////////////////////////////////////////////
 // End of content of file: src/lib_json/json_tool.h
 // //////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 // //////////////////////////////////////////////////////////////////////
 // Beginning of content of file: src/lib_json/json_reader.cpp
@@ -10308,22 +7592,25 @@ uintToString(LargestUInt value,
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
+// See file LICENSE for detail or copy at
+// https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #if !defined(JSON_IS_AMALGAMATION)
-# include <json/reader.h>
-# include <json/value.h>
-# include "json_tool.h"
-#endif // if !defined(JSON_IS_AMALGAMATION)
-#include <utility>
-#include <cstdio>
+#include <json/reader.h>
+#include <json/value.h>
+
+#include "json_tool.h"
+#endif  // if !defined(JSON_IS_AMALGAMATION)
 #include <cassert>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
-#if _MSC_VER >= 1400 // VC++ 8.0
-#pragma warning( disable : 4996 )   // disable warning about strdup being deprecated.
+#if _MSC_VER >= 1400  // VC++ 8.0
+#pragma warning( \
+    disable : 4996)  // disable warning about strdup being deprecated.
 #endif
 
 namespace Json {
@@ -10331,20 +7618,11 @@ namespace Json {
 // Implementation of class Features
 // ////////////////////////////////
 
-Features::Features()
-  : allowComments_(true)
-  , strictRoot_(false) {
-}
+Features::Features() : allowComments_(true), strictRoot_(false) {}
 
+Features Features::all() { return Features(); }
 
-Features
-Features::all() {
-  return Features();
-}
-
-
-Features
-Features::strictMode() {
+Features Features::strictMode() {
   Features features;
   features.allowComments_ = false;
   features.strictRoot_ = true;
@@ -10354,58 +7632,40 @@ Features::strictMode() {
 // Implementation of class Reader
 // ////////////////////////////////
 
-
-static inline bool
-in(Reader::Char c, Reader::Char c1, Reader::Char c2, Reader::Char c3, Reader::Char c4) {
-  return c == c1  ||  c == c2  ||  c == c3  ||  c == c4;
+static inline bool in(Reader::Char c, Reader::Char c1, Reader::Char c2,
+                      Reader::Char c3, Reader::Char c4) {
+  return c == c1 || c == c2 || c == c3 || c == c4;
 }
 
-static inline bool
-in(Reader::Char c, Reader::Char c1, Reader::Char c2, Reader::Char c3, Reader::Char c4, Reader::Char c5) {
-  return c == c1  ||  c == c2  ||  c == c3  ||  c == c4  ||  c == c5;
+static inline bool in(Reader::Char c, Reader::Char c1, Reader::Char c2,
+                      Reader::Char c3, Reader::Char c4, Reader::Char c5) {
+  return c == c1 || c == c2 || c == c3 || c == c4 || c == c5;
 }
 
-
-static bool
-containsNewLine(Reader::Location begin,
-                Reader::Location end) {
+static bool containsNewLine(Reader::Location begin, Reader::Location end) {
   for (; begin < end; ++begin)
-    if (*begin == '\n'  ||  *begin == '\r')
-      return true;
+    if (*begin == '\n' || *begin == '\r') return true;
   return false;
 }
-
 
 // Class Reader
 // //////////////////////////////////////////////////////////////////
 
-Reader::Reader()
-  : features_(Features::all()) {
-}
+Reader::Reader() : features_(Features::all()) {}
 
+Reader::Reader(const Features &features) : features_(features) {}
 
-Reader::Reader(const Features& features)
-  : features_(features) {
-}
-
-
-bool
-Reader::parse(const std::string& document,
-              Value& root,
-              bool collectComments) {
+bool Reader::parse(const std::string &document, Value &root,
+                   bool collectComments) {
   document_ = document;
-  const char* begin = document_.c_str();
-  const char* end = begin + document_.length();
+  const char *begin = document_.c_str();
+  const char *end = begin + document_.length();
   return parse(begin, end, root, collectComments);
 }
 
-
-bool
-Reader::parse(std::istream& sin,
-              Value& root,
-              bool collectComments) {
-  //std::istream_iterator<char> begin(sin);
-  //std::istream_iterator<char> end;
+bool Reader::parse(std::istream &sin, Value &root, bool collectComments) {
+  // std::istream_iterator<char> begin(sin);
+  // std::istream_iterator<char> end;
   // Those would allow streamed input from a file, if parse() were a
   // template function.
 
@@ -10416,10 +7676,8 @@ Reader::parse(std::istream& sin,
   return parse(doc, root, collectComments);
 }
 
-bool
-Reader::parse(const char* beginDoc, const char* endDoc,
-              Value& root,
-              bool collectComments) {
+bool Reader::parse(const char *beginDoc, const char *endDoc, Value &root,
+                   bool collectComments) {
   if (!features_.allowComments_) {
     collectComments = false;
   }
@@ -10432,41 +7690,39 @@ Reader::parse(const char* beginDoc, const char* endDoc,
   lastValue_ = 0;
   commentsBefore_ = "";
   errors_.clear();
-  while (!nodes_.empty())
-    nodes_.pop();
+  while (!nodes_.empty()) nodes_.pop();
   nodes_.push(&root);
 
   bool successful = readValue();
   Token token;
   skipCommentTokens(token);
-  if (collectComments_  &&  !commentsBefore_.empty())
+  if (collectComments_ && !commentsBefore_.empty())
     root.setComment(commentsBefore_, commentAfter);
   if (features_.strictRoot_) {
-    if (!root.isArray()  &&  !root.isObject()) {
-      // Set error location to start of doc, ideally should be first token found in doc
+    if (!root.isArray() && !root.isObject()) {
+      // Set error location to start of doc, ideally should be first token found
+      // in doc
       token.type_ = tokenError;
       token.start_ = beginDoc;
       token.end_ = endDoc;
-      addError("A valid JSON document must be either an array or an object value.",
-               token);
+      addError(
+          "A valid JSON document must be either an array or an object value.",
+          token);
       return false;
     }
   }
   return successful;
 }
 
-
-bool
-Reader::readValue() {
+bool Reader::readValue() {
   Token token;
   skipCommentTokens(token);
   bool successful = true;
 
-  if (collectComments_  &&  !commentsBefore_.empty()) {
+  if (collectComments_ && !commentsBefore_.empty()) {
     currentValue().setComment(commentsBefore_, commentBefore);
     commentsBefore_ = "";
   }
-
 
   switch (token.type_) {
     case tokenObjectBegin:
@@ -10502,9 +7758,7 @@ Reader::readValue() {
   return successful;
 }
 
-
-void
-Reader::skipCommentTokens(Token& token) {
+void Reader::skipCommentTokens(Token &token) {
   if (features_.allowComments_) {
     do {
       readToken(token);
@@ -10514,18 +7768,13 @@ Reader::skipCommentTokens(Token& token) {
   }
 }
 
-
-bool
-Reader::expectToken(TokenType type, Token& token, const char* message) {
+bool Reader::expectToken(TokenType type, Token &token, const char *message) {
   readToken(token);
-  if (token.type_ != type)
-    return addError(message, token);
+  if (token.type_ != type) return addError(message, token);
   return true;
 }
 
-
-bool
-Reader::readToken(Token& token) {
+bool Reader::readToken(Token &token) {
   skipSpaces();
   token.start_ = current_;
   Char c = getNextChar();
@@ -10590,41 +7839,31 @@ Reader::readToken(Token& token) {
       ok = false;
       break;
   }
-  if (!ok)
-    token.type_ = tokenError;
+  if (!ok) token.type_ = tokenError;
   token.end_ = current_;
   return true;
 }
 
-
-void
-Reader::skipSpaces() {
+void Reader::skipSpaces() {
   while (current_ != end_) {
     Char c = *current_;
-    if (c == ' '  ||  c == '\t'  ||  c == '\r'  ||  c == '\n')
+    if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
       ++current_;
     else
       break;
   }
 }
 
-
-bool
-Reader::match(Location pattern,
-              int patternLength) {
-  if (end_ - current_ < patternLength)
-    return false;
+bool Reader::match(Location pattern, int patternLength) {
+  if (end_ - current_ < patternLength) return false;
   int index = patternLength;
   while (index--)
-    if (current_[index] != pattern[index])
-      return false;
+    if (current_[index] != pattern[index]) return false;
   current_ += patternLength;
   return true;
 }
 
-
-bool
-Reader::readComment() {
+bool Reader::readComment() {
   Location commentBegin = current_ - 1;
   Char c = getNextChar();
   bool successful = false;
@@ -10632,13 +7871,12 @@ Reader::readComment() {
     successful = readCStyleComment();
   else if (c == '/')
     successful = readCppStyleComment();
-  if (!successful)
-    return false;
+  if (!successful) return false;
 
   if (collectComments_) {
     CommentPlacement placement = commentBefore;
-    if (lastValueEnd_  &&  !containsNewLine(lastValueEnd_, commentBegin)) {
-      if (c != '*'  ||  !containsNewLine(commentBegin, current_))
+    if (lastValueEnd_ && !containsNewLine(lastValueEnd_, commentBegin)) {
+      if (c != '*' || !containsNewLine(commentBegin, current_))
         placement = commentAfterOnSameLine;
     }
 
@@ -10647,57 +7885,44 @@ Reader::readComment() {
   return true;
 }
 
-
-void
-Reader::addComment(Location begin,
-                   Location end,
-                   CommentPlacement placement) {
+void Reader::addComment(Location begin, Location end,
+                        CommentPlacement placement) {
   assert(collectComments_);
   if (placement == commentAfterOnSameLine) {
     assert(lastValue_ != 0);
     lastValue_->setComment(std::string(begin, end), placement);
   } else {
-    if (!commentsBefore_.empty())
-      commentsBefore_ += "\n";
+    if (!commentsBefore_.empty()) commentsBefore_ += "\n";
     commentsBefore_ += std::string(begin, end);
   }
 }
 
-
-bool
-Reader::readCStyleComment() {
+bool Reader::readCStyleComment() {
   while (current_ != end_) {
     Char c = getNextChar();
-    if (c == '*'  &&  *current_ == '/')
-      break;
+    if (c == '*' && *current_ == '/') break;
   }
   return getNextChar() == '/';
 }
 
-
-bool
-Reader::readCppStyleComment() {
+bool Reader::readCppStyleComment() {
   while (current_ != end_) {
     Char c = getNextChar();
-    if (c == '\r'  ||  c == '\n')
-      break;
+    if (c == '\r' || c == '\n') break;
   }
   return true;
 }
 
-
-void
-Reader::readNumber() {
+void Reader::readNumber() {
   while (current_ != end_) {
-    if (!(*current_ >= '0'  &&  *current_ <= '9')  &&
+    if (!(*current_ >= '0' && *current_ <= '9') &&
         !in(*current_, '.', 'e', 'E', '+', '-'))
       break;
     ++current_;
   }
 }
 
-bool
-Reader::readString() {
+bool Reader::readString() {
   Char c = 0;
   while (current_ != end_) {
     c = getNextChar();
@@ -10709,133 +7934,116 @@ Reader::readString() {
   return c == '"';
 }
 
-
-bool
-Reader::readObject(Token& /*tokenStart*/) {
+bool Reader::readObject(Token & /*tokenStart*/) {
   Token tokenName;
   std::string name;
   currentValue() = Value(objectValue);
   while (readToken(tokenName)) {
     bool initialTokenOk = true;
-    while (tokenName.type_ == tokenComment  &&  initialTokenOk)
+    while (tokenName.type_ == tokenComment && initialTokenOk)
       initialTokenOk = readToken(tokenName);
-    if (!initialTokenOk)
-      break;
-    if (tokenName.type_ == tokenObjectEnd  &&  name.empty())    // empty object
+    if (!initialTokenOk) break;
+    if (tokenName.type_ == tokenObjectEnd && name.empty())  // empty object
       return true;
-    if (tokenName.type_ != tokenString)
-      break;
+    if (tokenName.type_ != tokenString) break;
 
     name = "";
-    if (!decodeString(tokenName, name))
-      return recoverFromError(tokenObjectEnd);
+    if (!decodeString(tokenName, name)) return recoverFromError(tokenObjectEnd);
 
     Token colon;
-    if (!readToken(colon) ||  colon.type_ != tokenMemberSeparator) {
-      return addErrorAndRecover("Missing ':' after object member name",
-                                colon,
+    if (!readToken(colon) || colon.type_ != tokenMemberSeparator) {
+      return addErrorAndRecover("Missing ':' after object member name", colon,
                                 tokenObjectEnd);
     }
-    Value& value = currentValue()[ name ];
+    Value &value = currentValue()[name];
     nodes_.push(&value);
     bool ok = readValue();
     nodes_.pop();
-    if (!ok)   // error already set
+    if (!ok)  // error already set
       return recoverFromError(tokenObjectEnd);
 
     Token comma;
-    if (!readToken(comma)
-        || (comma.type_ != tokenObjectEnd  &&
-            comma.type_ != tokenArraySeparator &&
-            comma.type_ != tokenComment)) {
+    if (!readToken(comma) ||
+        (comma.type_ != tokenObjectEnd && comma.type_ != tokenArraySeparator &&
+         comma.type_ != tokenComment)) {
       return addErrorAndRecover("Missing ',' or '}' in object declaration",
-                                comma,
-                                tokenObjectEnd);
+                                comma, tokenObjectEnd);
     }
     bool finalizeTokenOk = true;
-    while (comma.type_ == tokenComment &&
-           finalizeTokenOk)
+    while (comma.type_ == tokenComment && finalizeTokenOk)
       finalizeTokenOk = readToken(comma);
-    if (comma.type_ == tokenObjectEnd)
-      return true;
+    if (comma.type_ == tokenObjectEnd) return true;
   }
-  return addErrorAndRecover("Missing '}' or object member name",
-                            tokenName,
+  return addErrorAndRecover("Missing '}' or object member name", tokenName,
                             tokenObjectEnd);
 }
 
-
-bool
-Reader::readArray(Token& /*tokenStart*/) {
+bool Reader::readArray(Token & /*tokenStart*/) {
   currentValue() = Value(arrayValue);
   skipSpaces();
-  if (*current_ == ']') {   // empty array
+  if (*current_ == ']') {  // empty array
     Token endArray;
     readToken(endArray);
     return true;
   }
   int index = 0;
   for (;;) {
-    Value& value = currentValue()[ index++ ];
+    Value &value = currentValue()[index++];
     nodes_.push(&value);
     bool ok = readValue();
     nodes_.pop();
-    if (!ok)   // error already set
+    if (!ok)  // error already set
       return recoverFromError(tokenArrayEnd);
 
     Token token;
     // Accept Comment after last item in the array.
     ok = readToken(token);
-    while (token.type_ == tokenComment  &&  ok) {
+    while (token.type_ == tokenComment && ok) {
       ok = readToken(token);
     }
-    bool badTokenType = (token.type_ != tokenArraySeparator  &&
-                         token.type_ != tokenArrayEnd);
-    if (!ok  ||  badTokenType) {
+    bool badTokenType =
+        (token.type_ != tokenArraySeparator && token.type_ != tokenArrayEnd);
+    if (!ok || badTokenType) {
       return addErrorAndRecover("Missing ',' or ']' in array declaration",
-                                token,
-                                tokenArrayEnd);
+                                token, tokenArrayEnd);
     }
-    if (token.type_ == tokenArrayEnd)
-      break;
+    if (token.type_ == tokenArrayEnd) break;
   }
   return true;
 }
 
-
-bool
-Reader::decodeNumber(Token& token) {
+bool Reader::decodeNumber(Token &token) {
   bool isDouble = false;
   for (Location inspect = token.start_; inspect != token.end_; ++inspect) {
-    isDouble = isDouble
-               ||  in(*inspect, '.', 'e', 'E', '+')
-               || (*inspect == '-'  &&  inspect != token.start_);
+    isDouble = isDouble || in(*inspect, '.', 'e', 'E', '+') ||
+               (*inspect == '-' && inspect != token.start_);
   }
-  if (isDouble)
-    return decodeDouble(token);
+  if (isDouble) return decodeDouble(token);
   // Attempts to parse the number as an integer. If the number is
   // larger than the maximum supported value of an integer then
   // we decode the number as a double.
   Location current = token.start_;
   bool isNegative = *current == '-';
-  if (isNegative)
-    ++current;
-  Value::LargestUInt maxIntegerValue = isNegative ? Value::LargestUInt(-Value::minLargestInt)
-                                       : Value::maxLargestUInt;
+  if (isNegative) ++current;
+  Value::LargestUInt maxIntegerValue =
+      isNegative ? Value::LargestUInt(-Value::minLargestInt)
+                 : Value::maxLargestUInt;
   Value::LargestUInt threshold = maxIntegerValue / 10;
   Value::UInt lastDigitThreshold = Value::UInt(maxIntegerValue % 10);
-  assert(lastDigitThreshold >= 0  &&  lastDigitThreshold <= 9);
+  assert(lastDigitThreshold >= 0 && lastDigitThreshold <= 9);
   Value::LargestUInt value = 0;
   while (current < token.end_) {
     Char c = *current++;
-    if (c < '0'  ||  c > '9')
-      return addError("'" + std::string(token.start_, token.end_) + "' is not a number.", token);
+    if (c < '0' || c > '9')
+      return addError(
+          "'" + std::string(token.start_, token.end_) + "' is not a number.",
+          token);
     Value::UInt digit(c - '0');
     if (value >= threshold) {
       // If the current digit is not the last one, or if it is
       // greater than the last digit of the maximum integer value,
       // the parse the number as a double.
-      if (current != token.end_  ||  digit > lastDigitThreshold) {
+      if (current != token.end_ || digit > lastDigitThreshold) {
         return decodeDouble(token);
       }
     }
@@ -10850,9 +8058,7 @@ Reader::decodeNumber(Token& token) {
   return true;
 }
 
-
-bool
-Reader::decodeDouble(Token& token) {
+bool Reader::decodeDouble(Token &token) {
   double value = 0;
   const int bufferSize = 32;
   int count;
@@ -10868,27 +8074,24 @@ Reader::decodeDouble(Token& token) {
   }
 
   if (count != 1)
-    return addError("'" + std::string(token.start_, token.end_) + "' is not a number.", token);
+    return addError(
+        "'" + std::string(token.start_, token.end_) + "' is not a number.",
+        token);
   currentValue() = value;
   return true;
 }
 
-
-bool
-Reader::decodeString(Token& token) {
+bool Reader::decodeString(Token &token) {
   std::string decoded;
-  if (!decodeString(token, decoded))
-    return false;
+  if (!decodeString(token, decoded)) return false;
   currentValue() = decoded;
   return true;
 }
 
-
-bool
-Reader::decodeString(Token& token, std::string& decoded) {
+bool Reader::decodeString(Token &token, std::string &decoded) {
   decoded.reserve(token.end_ - token.start_ - 2);
-  Location current = token.start_ + 1; // skip '"'
-  Location end = token.end_ - 1;      // do not include '"'
+  Location current = token.start_ + 1;  // skip '"'
+  Location end = token.end_ - 1;        // do not include '"'
   while (current != end) {
     Char c = *current++;
     if (c == '"')
@@ -10898,21 +8101,36 @@ Reader::decodeString(Token& token, std::string& decoded) {
         return addError("Empty escape sequence in string", token, current);
       Char escape = *current++;
       switch (escape) {
-        case '"': decoded += '"'; break;
-        case '/': decoded += '/'; break;
-        case '\\': decoded += '\\'; break;
-        case 'b': decoded += '\b'; break;
-        case 'f': decoded += '\f'; break;
-        case 'n': decoded += '\n'; break;
-        case 'r': decoded += '\r'; break;
-        case 't': decoded += '\t'; break;
+        case '"':
+          decoded += '"';
+          break;
+        case '/':
+          decoded += '/';
+          break;
+        case '\\':
+          decoded += '\\';
+          break;
+        case 'b':
+          decoded += '\b';
+          break;
+        case 'f':
+          decoded += '\f';
+          break;
+        case 'n':
+          decoded += '\n';
+          break;
+        case 'r':
+          decoded += '\r';
+          break;
+        case 't':
+          decoded += '\t';
+          break;
         case 'u': {
           unsigned int unicode;
           if (!decodeUnicodeCodePoint(token, current, end, unicode))
             return false;
           decoded += codePointToUTF8(unicode);
-        }
-        break;
+        } break;
         default:
           return addError("Bad escape sequence in string", token, current);
       }
@@ -10923,18 +8141,15 @@ Reader::decodeString(Token& token, std::string& decoded) {
   return true;
 }
 
-bool
-Reader::decodeUnicodeCodePoint(Token& token,
-                               Location& current,
-                               Location end,
-                               unsigned int& unicode) {
-
-  if (!decodeUnicodeEscapeSequence(token, current, end, unicode))
-    return false;
+bool Reader::decodeUnicodeCodePoint(Token &token, Location &current,
+                                    Location end, unsigned int &unicode) {
+  if (!decodeUnicodeEscapeSequence(token, current, end, unicode)) return false;
   if (unicode >= 0xD800 && unicode <= 0xDBFF) {
     // surrogate pairs
     if (end - current < 6)
-      return addError("additional six characters expected to parse unicode surrogate pair.", token, current);
+      return addError(
+          "additional six characters expected to parse unicode surrogate pair.",
+          token, current);
     unsigned int surrogatePair;
     if (*(current++) == '\\' && *(current++) == 'u') {
       if (decodeUnicodeEscapeSequence(token, current, end, surrogatePair)) {
@@ -10942,39 +8157,40 @@ Reader::decodeUnicodeCodePoint(Token& token,
       } else
         return false;
     } else
-      return addError("expecting another \\u token to begin the second half of a unicode surrogate pair", token, current);
+      return addError(
+          "expecting another \\u token to begin the second half of a unicode "
+          "surrogate pair",
+          token, current);
   }
   return true;
 }
 
-bool
-Reader::decodeUnicodeEscapeSequence(Token& token,
-                                    Location& current,
-                                    Location end,
-                                    unsigned int& unicode) {
+bool Reader::decodeUnicodeEscapeSequence(Token &token, Location &current,
+                                         Location end, unsigned int &unicode) {
   if (end - current < 4)
-    return addError("Bad unicode escape sequence in string: four digits expected.", token, current);
+    return addError(
+        "Bad unicode escape sequence in string: four digits expected.", token,
+        current);
   unicode = 0;
   for (int index = 0; index < 4; ++index) {
     Char c = *current++;
     unicode *= 16;
-    if (c >= '0'  &&  c <= '9')
+    if (c >= '0' && c <= '9')
       unicode += c - '0';
-    else if (c >= 'a'  &&  c <= 'f')
+    else if (c >= 'a' && c <= 'f')
       unicode += c - 'a' + 10;
-    else if (c >= 'A'  &&  c <= 'F')
+    else if (c >= 'A' && c <= 'F')
       unicode += c - 'A' + 10;
     else
-      return addError("Bad unicode escape sequence in string: hexadecimal digit expected.", token, current);
+      return addError(
+          "Bad unicode escape sequence in string: hexadecimal digit expected.",
+          token, current);
   }
   return true;
 }
 
-
-bool
-Reader::addError(const std::string& message,
-                 Token& token,
-                 Location extra) {
+bool Reader::addError(const std::string &message, Token &token,
+                      Location extra) {
   ErrorInfo info;
   info.token_ = token;
   info.message_ = message;
@@ -10983,57 +8199,40 @@ Reader::addError(const std::string& message,
   return false;
 }
 
-
-bool
-Reader::recoverFromError(TokenType skipUntilToken) {
+bool Reader::recoverFromError(TokenType skipUntilToken) {
   int errorCount = int(errors_.size());
   Token skip;
   for (;;) {
     if (!readToken(skip))
-      errors_.resize(errorCount);   // discard errors caused by recovery
-    if (skip.type_ == skipUntilToken  ||  skip.type_ == tokenEndOfStream)
-      break;
+      errors_.resize(errorCount);  // discard errors caused by recovery
+    if (skip.type_ == skipUntilToken || skip.type_ == tokenEndOfStream) break;
   }
   errors_.resize(errorCount);
   return false;
 }
 
-
-bool
-Reader::addErrorAndRecover(const std::string& message,
-                           Token& token,
-                           TokenType skipUntilToken) {
+bool Reader::addErrorAndRecover(const std::string &message, Token &token,
+                                TokenType skipUntilToken) {
   addError(message, token);
   return recoverFromError(skipUntilToken);
 }
 
+Value &Reader::currentValue() { return *(nodes_.top()); }
 
-Value&
-Reader::currentValue() {
-  return *(nodes_.top());
-}
-
-
-Reader::Char
-Reader::getNextChar() {
-  if (current_ == end_)
-    return 0;
+Reader::Char Reader::getNextChar() {
+  if (current_ == end_) return 0;
   return *current_++;
 }
 
-
-void
-Reader::getLocationLineAndColumn(Location location,
-                                 int& line,
-                                 int& column) const {
+void Reader::getLocationLineAndColumn(Location location, int &line,
+                                      int &column) const {
   Location current = begin_;
   Location lastLineStart = current;
   line = 0;
-  while (current < location  &&  current != end_) {
+  while (current < location && current != end_) {
     Char c = *current++;
     if (c == '\r') {
-      if (*current == '\n')
-        ++current;
+      if (*current == '\n') ++current;
       lastLineStart = current;
       ++line;
     } else if (c == '\n') {
@@ -11046,9 +8245,7 @@ Reader::getLocationLineAndColumn(Location location,
   ++line;
 }
 
-
-std::string
-Reader::getLocationLineAndColumn(Location location) const {
+std::string Reader::getLocationLineAndColumn(Location location) const {
   int line, column;
   getLocationLineAndColumn(location, line, column);
   char buffer[18 + 16 + 16 + 1];
@@ -11056,50 +8253,39 @@ Reader::getLocationLineAndColumn(Location location) const {
   return buffer;
 }
 
-
 // Deprecated. Preserved for backward compatibility
-std::string
-Reader::getFormatedErrorMessages() const {
+std::string Reader::getFormatedErrorMessages() const {
   return getFormattedErrorMessages();
 }
 
-
-std::string
-Reader::getFormattedErrorMessages() const {
+std::string Reader::getFormattedErrorMessages() const {
   std::string formattedMessage;
   for (Errors::const_iterator itError = errors_.begin();
-       itError != errors_.end();
-       ++itError) {
-    const ErrorInfo& error = *itError;
-    formattedMessage += "* " + getLocationLineAndColumn(error.token_.start_) + "\n";
+       itError != errors_.end(); ++itError) {
+    const ErrorInfo &error = *itError;
+    formattedMessage +=
+        "* " + getLocationLineAndColumn(error.token_.start_) + "\n";
     formattedMessage += "  " + error.message_ + "\n";
     if (error.extra_)
-      formattedMessage += "See " + getLocationLineAndColumn(error.extra_) + " for detail.\n";
+      formattedMessage +=
+          "See " + getLocationLineAndColumn(error.extra_) + " for detail.\n";
   }
   return formattedMessage;
 }
 
-
-std::istream& operator>>(std::istream& sin, Value& root) {
+std::istream &operator>>(std::istream &sin, Value &root) {
   Json::Reader reader;
   bool ok = reader.parse(sin, root, true);
-  //JSON_ASSERT( ok );
-  if (!ok)
-    throw std::runtime_error(reader.getFormattedErrorMessages());
+  // JSON_ASSERT( ok );
+  if (!ok) throw std::runtime_error(reader.getFormattedErrorMessages());
   return sin;
 }
 
-
-} // namespace Json
+}  // namespace Json
 
 // //////////////////////////////////////////////////////////////////////
 // End of content of file: src/lib_json/json_reader.cpp
 // //////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 // //////////////////////////////////////////////////////////////////////
 // Beginning of content of file: src/lib_json/json_batchallocator.h
@@ -11108,15 +8294,16 @@ std::istream& operator>>(std::istream& sin, Value& root) {
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
+// See file LICENSE for detail or copy at
+// https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #ifndef JSONCPP_BATCHALLOCATOR_H_INCLUDED
-# define JSONCPP_BATCHALLOCATOR_H_INCLUDED
+#define JSONCPP_BATCHALLOCATOR_H_INCLUDED
 
-# include <stdlib.h>
-# include <assert.h>
+#include <assert.h>
+#include <stdlib.h>
 
-# ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
+#ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 
 namespace Json {
 
@@ -11125,114 +8312,111 @@ namespace Json {
  * This memory allocator allocates memory for a batch of object (specified by
  * the page size, the number of object in each page).
  *
- * It does not allow the destruction of a single object. All the allocated objects
- * can be destroyed at once. The memory can be either released or reused for future
- * allocation.
+ * It does not allow the destruction of a single object. All the allocated
+ * objects can be destroyed at once. The memory can be either released or reused
+ * for future allocation.
  *
- * The in-place new operator must be used to construct the object using the pointer
- * returned by allocate.
+ * The in-place new operator must be used to construct the object using the
+ * pointer returned by allocate.
  */
-template<typename AllocatedType
-         , const unsigned int objectPerAllocation>
+template <typename AllocatedType, const unsigned int objectPerAllocation>
 class BatchAllocator {
  public:
   typedef AllocatedType Type;
 
   BatchAllocator(unsigned int objectsPerPage = 255)
-    : freeHead_(0)
-    , objectsPerPage_(objectsPerPage) {
-//      printf( "Size: %d => %s\n", sizeof(AllocatedType), typeid(AllocatedType).name() );
-    assert(sizeof(AllocatedType) * objectPerAllocation >= sizeof(AllocatedType*));    // We must be able to store a slist in the object free space.
+      : freeHead_(0), objectsPerPage_(objectsPerPage) {
+    //      printf( "Size: %d => %s\n", sizeof(AllocatedType),
+    //      typeid(AllocatedType).name() );
+    assert(sizeof(AllocatedType) * objectPerAllocation >=
+           sizeof(AllocatedType *));  // We must be able to store a slist in the
+                                      // object free space.
     assert(objectsPerPage >= 16);
-    batches_ = allocateBatch(0);     // allocated a dummy page
+    batches_ = allocateBatch(0);  // allocated a dummy page
     currentBatch_ = batches_;
   }
 
   ~BatchAllocator() {
-    for (BatchInfo* batch = batches_; batch;) {
-      BatchInfo* nextBatch = batch->next_;
+    for (BatchInfo *batch = batches_; batch;) {
+      BatchInfo *nextBatch = batch->next_;
       free(batch);
       batch = nextBatch;
     }
   }
 
   /// allocate space for an array of objectPerAllocation object.
-  /// @warning it is the responsability of the caller to call objects constructors.
-  AllocatedType* allocate() {
-    if (freeHead_) {   // returns node from free list.
-      AllocatedType* object = freeHead_;
-      freeHead_ = *(AllocatedType**)object;
+  /// @warning it is the responsability of the caller to call objects
+  /// constructors.
+  AllocatedType *allocate() {
+    if (freeHead_) {  // returns node from free list.
+      AllocatedType *object = freeHead_;
+      freeHead_ = *(AllocatedType **)object;
       return object;
     }
     if (currentBatch_->used_ == currentBatch_->end_) {
       currentBatch_ = currentBatch_->next_;
-      while (currentBatch_  &&  currentBatch_->used_ == currentBatch_->end_)
+      while (currentBatch_ && currentBatch_->used_ == currentBatch_->end_)
         currentBatch_ = currentBatch_->next_;
 
-      if (!currentBatch_) {    // no free batch found, allocate a new one
+      if (!currentBatch_) {  // no free batch found, allocate a new one
         currentBatch_ = allocateBatch(objectsPerPage_);
-        currentBatch_->next_ = batches_; // insert at the head of the list
+        currentBatch_->next_ = batches_;  // insert at the head of the list
         batches_ = currentBatch_;
       }
     }
-    AllocatedType* allocated = currentBatch_->used_;
+    AllocatedType *allocated = currentBatch_->used_;
     currentBatch_->used_ += objectPerAllocation;
     return allocated;
   }
 
   /// Release the object.
-  /// @warning it is the responsability of the caller to actually destruct the object.
-  void release(AllocatedType* object) {
+  /// @warning it is the responsability of the caller to actually destruct the
+  /// object.
+  void release(AllocatedType *object) {
     assert(object != 0);
-    *(AllocatedType**)object = freeHead_;
+    *(AllocatedType **)object = freeHead_;
     freeHead_ = object;
   }
 
  private:
   struct BatchInfo {
-    BatchInfo* next_;
-    AllocatedType* used_;
-    AllocatedType* end_;
+    BatchInfo *next_;
+    AllocatedType *used_;
+    AllocatedType *end_;
     AllocatedType buffer_[objectPerAllocation];
   };
 
   // disabled copy constructor and assignement operator.
-  BatchAllocator(const BatchAllocator&);
-  void operator =(const BatchAllocator&);
+  BatchAllocator(const BatchAllocator &);
+  void operator=(const BatchAllocator &);
 
-  static BatchInfo* allocateBatch(unsigned int objectsPerPage) {
-    const unsigned int mallocSize = sizeof(BatchInfo) - sizeof(AllocatedType) * objectPerAllocation
-                                    + sizeof(AllocatedType) * objectPerAllocation * objectsPerPage;
-    BatchInfo* batch = static_cast<BatchInfo*>(malloc(mallocSize));
+  static BatchInfo *allocateBatch(unsigned int objectsPerPage) {
+    const unsigned int mallocSize =
+        sizeof(BatchInfo) - sizeof(AllocatedType) * objectPerAllocation +
+        sizeof(AllocatedType) * objectPerAllocation * objectsPerPage;
+    BatchInfo *batch = static_cast<BatchInfo *>(malloc(mallocSize));
     batch->next_ = 0;
     batch->used_ = batch->buffer_;
     batch->end_ = batch->buffer_ + objectsPerPage;
     return batch;
   }
 
-  BatchInfo* batches_;
-  BatchInfo* currentBatch_;
+  BatchInfo *batches_;
+  BatchInfo *currentBatch_;
   /// Head of a single linked list within the allocated space of freeed object
-  AllocatedType* freeHead_;
+  AllocatedType *freeHead_;
   unsigned int objectsPerPage_;
 };
 
+}  // namespace Json
 
-} // namespace Json
+#endif  // ifndef JSONCPP_DOC_INCLUDE_IMPLEMENTATION
 
-# endif // ifndef JSONCPP_DOC_INCLUDE_IMPLEMENTATION
-
-#endif // JSONCPP_BATCHALLOCATOR_H_INCLUDED
-
+#endif  // JSONCPP_BATCHALLOCATOR_H_INCLUDED
 
 // //////////////////////////////////////////////////////////////////////
 // End of content of file: src/lib_json/json_batchallocator.h
 // //////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 // //////////////////////////////////////////////////////////////////////
 // Beginning of content of file: src/lib_json/json_valueiterator.inl
@@ -11241,7 +8425,8 @@ class BatchAllocator {
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
+// See file LICENSE for detail or copy at
+// https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 // included by json_value.cpp
 
@@ -11257,107 +8442,94 @@ namespace Json {
 
 ValueIteratorBase::ValueIteratorBase()
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  : current_()
-  , isNull_(true) {
+    : current_(), isNull_(true) {
 }
 #else
-  : isArray_(true)
-  , isNull_(true) {
+    : isArray_(true), isNull_(true) {
   iterator_.array_ = ValueInternalArray::IteratorState();
 }
 #endif
 
-
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-ValueIteratorBase::ValueIteratorBase(const Value::ObjectValues::iterator& current)
-  : current_(current)
-  , isNull_(false) {
-}
+ValueIteratorBase::ValueIteratorBase(
+    const Value::ObjectValues::iterator &current)
+    : current_(current), isNull_(false) {}
 #else
-ValueIteratorBase::ValueIteratorBase(const ValueInternalArray::IteratorState& state)
-  : isArray_(true) {
+ValueIteratorBase::ValueIteratorBase(
+    const ValueInternalArray::IteratorState &state)
+    : isArray_(true) {
   iterator_.array_ = state;
 }
 
-
-ValueIteratorBase::ValueIteratorBase(const ValueInternalMap::IteratorState& state)
-  : isArray_(false) {
+ValueIteratorBase::ValueIteratorBase(
+    const ValueInternalMap::IteratorState &state)
+    : isArray_(false) {
   iterator_.map_ = state;
 }
 #endif
 
-Value&
-ValueIteratorBase::deref() const {
+Value &ValueIteratorBase::deref() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   return current_->second;
 #else
-  if (isArray_)
-    return ValueInternalArray::dereference(iterator_.array_);
+  if (isArray_) return ValueInternalArray::dereference(iterator_.array_);
   return ValueInternalMap::value(iterator_.map_);
 #endif
 }
 
-
-void
-ValueIteratorBase::increment() {
+void ValueIteratorBase::increment() {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   ++current_;
 #else
-  if (isArray_)
-    ValueInternalArray::increment(iterator_.array_);
+  if (isArray_) ValueInternalArray::increment(iterator_.array_);
   ValueInternalMap::increment(iterator_.map_);
 #endif
 }
 
-
-void
-ValueIteratorBase::decrement() {
+void ValueIteratorBase::decrement() {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   --current_;
 #else
-  if (isArray_)
-    ValueInternalArray::decrement(iterator_.array_);
+  if (isArray_) ValueInternalArray::decrement(iterator_.array_);
   ValueInternalMap::decrement(iterator_.map_);
 #endif
 }
 
-
-ValueIteratorBase::difference_type
-ValueIteratorBase::computeDistance(const SelfType& other) const {
+ValueIteratorBase::difference_type ValueIteratorBase::computeDistance(
+    const SelfType &other) const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-# ifdef JSON_USE_CPPTL_SMALLMAP
+#ifdef JSON_USE_CPPTL_SMALLMAP
   return current_ - other.current_;
-# else
+#else
   // Iterator for null value are initialized using the default
   // constructor, which initialize current_ to the default
   // std::map::iterator. As begin() and end() are two instance
   // of the default std::map::iterator, they can not be compared.
   // To allow this, we handle this comparison specifically.
-  if (isNull_  &&  other.isNull_) {
+  if (isNull_ && other.isNull_) {
     return 0;
   }
 
-
-  // Usage of std::distance is not portable (does not compile with Sun Studio 12 RogueWave STL,
-  // which is the one used by default).
-  // Using a portable hand-made version for non random iterator instead:
+  // Usage of std::distance is not portable (does not compile with Sun Studio 12
+  // RogueWave STL, which is the one used by default). Using a portable
+  // hand-made version for non random iterator instead:
   //   return difference_type( std::distance( current_, other.current_ ) );
   difference_type myDistance = 0;
-  for (Value::ObjectValues::iterator it = current_; it != other.current_; ++it) {
+  for (Value::ObjectValues::iterator it = current_; it != other.current_;
+       ++it) {
     ++myDistance;
   }
   return myDistance;
-# endif
+#endif
 #else
   if (isArray_)
-    return ValueInternalArray::distance(iterator_.array_, other.iterator_.array_);
+    return ValueInternalArray::distance(iterator_.array_,
+                                        other.iterator_.array_);
   return ValueInternalMap::distance(iterator_.map_, other.iterator_.map_);
 #endif
 }
 
-
-bool
-ValueIteratorBase::isEqual(const SelfType& other) const {
+bool ValueIteratorBase::isEqual(const SelfType &other) const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   if (isNull_) {
     return other.isNull_;
@@ -11370,47 +8542,36 @@ ValueIteratorBase::isEqual(const SelfType& other) const {
 #endif
 }
 
-
-void
-ValueIteratorBase::copy(const SelfType& other) {
+void ValueIteratorBase::copy(const SelfType &other) {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   current_ = other.current_;
 #else
-  if (isArray_)
-    iterator_.array_ = other.iterator_.array_;
+  if (isArray_) iterator_.array_ = other.iterator_.array_;
   iterator_.map_ = other.iterator_.map_;
 #endif
 }
 
-
-Value
-ValueIteratorBase::key() const {
+Value ValueIteratorBase::key() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   const Value::CZString czstring = (*current_).first;
   if (czstring.c_str()) {
-    if (czstring.isStaticString())
-      return Value(StaticString(czstring.c_str()));
+    if (czstring.isStaticString()) return Value(StaticString(czstring.c_str()));
     return Value(czstring.c_str());
   }
   return Value(czstring.index());
 #else
-  if (isArray_)
-    return Value(ValueInternalArray::indexOf(iterator_.array_));
+  if (isArray_) return Value(ValueInternalArray::indexOf(iterator_.array_));
   bool isStatic;
-  const char* memberName = ValueInternalMap::key(iterator_.map_, isStatic);
-  if (isStatic)
-    return Value(StaticString(memberName));
+  const char *memberName = ValueInternalMap::key(iterator_.map_, isStatic);
+  if (isStatic) return Value(StaticString(memberName));
   return Value(memberName);
 #endif
 }
 
-
-UInt
-ValueIteratorBase::index() const {
+UInt ValueIteratorBase::index() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   const Value::CZString czstring = (*current_).first;
-  if (!czstring.c_str())
-    return czstring.index();
+  if (!czstring.c_str()) return czstring.index();
   return Value::UInt(-1);
 #else
   if (isArray_)
@@ -11419,19 +8580,15 @@ ValueIteratorBase::index() const {
 #endif
 }
 
-
-const char*
-ValueIteratorBase::memberName() const {
+const char *ValueIteratorBase::memberName() const {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  const char* name = (*current_).first.c_str();
+  const char *name = (*current_).first.c_str();
   return name ? name : "";
 #else
-  if (!isArray_)
-    return ValueInternalMap::key(iterator_.map_);
+  if (!isArray_) return ValueInternalMap::key(iterator_.map_);
   return "";
 #endif
 }
-
 
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
@@ -11441,30 +8598,27 @@ ValueIteratorBase::memberName() const {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 
-ValueConstIterator::ValueConstIterator() {
-}
-
+ValueConstIterator::ValueConstIterator() {}
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-ValueConstIterator::ValueConstIterator(const Value::ObjectValues::iterator& current)
-  : ValueIteratorBase(current) {
-}
+ValueConstIterator::ValueConstIterator(
+    const Value::ObjectValues::iterator &current)
+    : ValueIteratorBase(current) {}
 #else
-ValueConstIterator::ValueConstIterator(const ValueInternalArray::IteratorState& state)
-  : ValueIteratorBase(state) {
-}
+ValueConstIterator::ValueConstIterator(
+    const ValueInternalArray::IteratorState &state)
+    : ValueIteratorBase(state) {}
 
-ValueConstIterator::ValueConstIterator(const ValueInternalMap::IteratorState& state)
-  : ValueIteratorBase(state) {
-}
+ValueConstIterator::ValueConstIterator(
+    const ValueInternalMap::IteratorState &state)
+    : ValueIteratorBase(state) {}
 #endif
 
-ValueConstIterator&
-ValueConstIterator::operator =(const ValueIteratorBase& other) {
+ValueConstIterator &ValueConstIterator::operator=(
+    const ValueIteratorBase &other) {
   copy(other);
   return *this;
 }
-
 
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
@@ -11474,48 +8628,35 @@ ValueConstIterator::operator =(const ValueIteratorBase& other) {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 
-ValueIterator::ValueIterator() {
-}
-
+ValueIterator::ValueIterator() {}
 
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-ValueIterator::ValueIterator(const Value::ObjectValues::iterator& current)
-  : ValueIteratorBase(current) {
-}
+ValueIterator::ValueIterator(const Value::ObjectValues::iterator &current)
+    : ValueIteratorBase(current) {}
 #else
-ValueIterator::ValueIterator(const ValueInternalArray::IteratorState& state)
-  : ValueIteratorBase(state) {
-}
+ValueIterator::ValueIterator(const ValueInternalArray::IteratorState &state)
+    : ValueIteratorBase(state) {}
 
-ValueIterator::ValueIterator(const ValueInternalMap::IteratorState& state)
-  : ValueIteratorBase(state) {
-}
+ValueIterator::ValueIterator(const ValueInternalMap::IteratorState &state)
+    : ValueIteratorBase(state) {}
 #endif
 
-ValueIterator::ValueIterator(const ValueConstIterator& other)
-  : ValueIteratorBase(other) {
-}
+ValueIterator::ValueIterator(const ValueConstIterator &other)
+    : ValueIteratorBase(other) {}
 
-ValueIterator::ValueIterator(const ValueIterator& other)
-  : ValueIteratorBase(other) {
-}
+ValueIterator::ValueIterator(const ValueIterator &other)
+    : ValueIteratorBase(other) {}
 
-ValueIterator&
-ValueIterator::operator =(const SelfType& other) {
+ValueIterator &ValueIterator::operator=(const SelfType &other) {
   copy(other);
   return *this;
 }
 
-} // namespace Json
+}  // namespace Json
 
 // //////////////////////////////////////////////////////////////////////
 // End of content of file: src/lib_json/json_valueiterator.inl
 // //////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 // //////////////////////////////////////////////////////////////////////
 // Beginning of content of file: src/lib_json/json_value.cpp
@@ -11524,29 +8665,32 @@ ValueIterator::operator =(const SelfType& other) {
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
+// See file LICENSE for detail or copy at
+// https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #if !defined(JSON_IS_AMALGAMATION)
-# include <json/value.h>
-# include <json/writer.h>
-# ifndef JSON_USE_SIMPLE_INTERNAL_ALLOCATOR
-#  include "json_batchallocator.h"
-# endif // #ifndef JSON_USE_SIMPLE_INTERNAL_ALLOCATOR
-#endif // if !defined(JSON_IS_AMALGAMATION)
-#include <iostream>
-#include <utility>
-#include <stdexcept>
-#include <cstring>
+#include <json/value.h>
+#include <json/writer.h>
+#ifndef JSON_USE_SIMPLE_INTERNAL_ALLOCATOR
+#include "json_batchallocator.h"
+#endif  // #ifndef JSON_USE_SIMPLE_INTERNAL_ALLOCATOR
+#endif  // if !defined(JSON_IS_AMALGAMATION)
 #include <cassert>
+#include <cstring>
+#include <iostream>
+#include <stdexcept>
+#include <utility>
 #ifdef JSON_USE_CPPTL
-# include <cpptl/conststring.h>
+#include <cpptl/conststring.h>
 #endif
-#include <cstddef>    // size_t
+#include <cstddef>  // size_t
 
-#define JSON_ASSERT_UNREACHABLE assert( false )
-#define JSON_ASSERT( condition ) assert( condition );  // @todo <= change this into an exception throw
-#define JSON_FAIL_MESSAGE( message ) throw std::runtime_error( message );
-#define JSON_ASSERT_MESSAGE( condition, message ) if (!( condition )) JSON_FAIL_MESSAGE( message )
+#define JSON_ASSERT_UNREACHABLE assert(false)
+#define JSON_ASSERT(condition) \
+  assert(condition);  // @todo <= change this into an exception throw
+#define JSON_FAIL_MESSAGE(message) throw std::runtime_error(message);
+#define JSON_ASSERT_MESSAGE(condition, message) \
+  if (!(condition)) JSON_FAIL_MESSAGE(message)
 
 namespace Json {
 
@@ -11561,10 +8705,8 @@ const LargestInt Value::minLargestInt = LargestInt(~(LargestUInt(-1) / 2));
 const LargestInt Value::maxLargestInt = LargestInt(LargestUInt(-1) / 2);
 const LargestUInt Value::maxLargestUInt = LargestUInt(-1);
 
-
 /// Unknown size marker
-static const unsigned int unknown = (unsigned) - 1;
-
+static const unsigned int unknown = (unsigned)-1;
 
 /** Duplicates the specified string value.
  * @param value Pointer to the string to duplicate. Must be zero-terminated if
@@ -11573,29 +8715,23 @@ static const unsigned int unknown = (unsigned) - 1;
  *               computed using strlen(value).
  * @return Pointer on the duplicate instance of string.
  */
-static inline char*
-duplicateStringValue(const char* value,
-                     unsigned int length = unknown) {
-  if (length == unknown)
-    length = (unsigned int)strlen(value);
-  char* newString = static_cast<char*>(malloc(length + 1));
+static inline char *duplicateStringValue(const char *value,
+                                         unsigned int length = unknown) {
+  if (length == unknown) length = (unsigned int)strlen(value);
+  char *newString = static_cast<char *>(malloc(length + 1));
   JSON_ASSERT_MESSAGE(newString != 0, "Failed to allocate string value buffer");
   memcpy(newString, value, length);
   newString[length] = 0;
   return newString;
 }
 
-
 /** Free the string duplicated by duplicateStringValue().
  */
-static inline void
-releaseStringValue(char* value) {
-  if (value)
-    free(value);
+static inline void releaseStringValue(char *value) {
+  if (value) free(value);
 }
 
-} // namespace Json
-
+}  // namespace Json
 
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
@@ -11605,13 +8741,13 @@ releaseStringValue(char* value) {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 #if !defined(JSON_IS_AMALGAMATION)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-#  include "json_internalarray.inl"
-#  include "json_internalmap.inl"
-# endif // JSON_VALUE_USE_INTERNAL_MAP
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+#include "json_internalarray.inl"
+#include "json_internalmap.inl"
+#endif  // JSON_VALUE_USE_INTERNAL_MAP
 
-# include "json_valueiterator.inl"
-#endif // if !defined(JSON_IS_AMALGAMATION)
+#include "json_valueiterator.inl"
+#endif  // if !defined(JSON_IS_AMALGAMATION)
 
 namespace Json {
 
@@ -11623,27 +8759,20 @@ namespace Json {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 
-
-Value::CommentInfo::CommentInfo()
-  : comment_(0) {
-}
+Value::CommentInfo::CommentInfo() : comment_(0) {}
 
 Value::CommentInfo::~CommentInfo() {
-  if (comment_)
-    releaseStringValue(comment_);
+  if (comment_) releaseStringValue(comment_);
 }
 
-
-void
-Value::CommentInfo::setComment(const char* text) {
-  if (comment_)
-    releaseStringValue(comment_);
+void Value::CommentInfo::setComment(const char *text) {
+  if (comment_) releaseStringValue(comment_);
   JSON_ASSERT(text != 0);
-  JSON_ASSERT_MESSAGE(text[0] == '\0' || text[0] == '/', "Comments must start with /");
+  JSON_ASSERT_MESSAGE(text[0] == '\0' || text[0] == '/',
+                      "Comments must start with /");
   // It seems that /**/ style comments are acceptable as well.
   comment_ = duplicateStringValue(text);
 }
-
 
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
@@ -11652,81 +8781,58 @@ Value::CommentInfo::setComment(const char* text) {
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
-# ifndef JSON_VALUE_USE_INTERNAL_MAP
+#ifndef JSON_VALUE_USE_INTERNAL_MAP
 
 // Notes: index_ indicates if the string was allocated when
 // a string is stored.
 
-Value::CZString::CZString(ArrayIndex index)
-  : cstr_(0)
-  , index_(index) {
-}
+Value::CZString::CZString(ArrayIndex index) : cstr_(0), index_(index) {}
 
-Value::CZString::CZString(const char* cstr, DuplicationPolicy allocate)
-  : cstr_(allocate == duplicate ? duplicateStringValue(cstr)
-          : cstr)
-  , index_(allocate) {
-}
+Value::CZString::CZString(const char *cstr, DuplicationPolicy allocate)
+    : cstr_(allocate == duplicate ? duplicateStringValue(cstr) : cstr),
+      index_(allocate) {}
 
-Value::CZString::CZString(const CZString& other)
-  : cstr_(other.index_ != noDuplication &&  other.cstr_ != 0
-          ?  duplicateStringValue(other.cstr_)
-          : other.cstr_)
-  , index_(other.cstr_ ? (other.index_ == noDuplication ? noDuplication : duplicate)
-           : other.index_) {
-}
+Value::CZString::CZString(const CZString &other)
+    : cstr_(other.index_ != noDuplication && other.cstr_ != 0
+                ? duplicateStringValue(other.cstr_)
+                : other.cstr_),
+      index_(other.cstr_
+                 ? (other.index_ == noDuplication ? noDuplication : duplicate)
+                 : other.index_) {}
 
 Value::CZString::~CZString() {
-  if (cstr_  &&  index_ == duplicate)
-    releaseStringValue(const_cast<char*>(cstr_));
+  if (cstr_ && index_ == duplicate)
+    releaseStringValue(const_cast<char *>(cstr_));
 }
 
-void
-Value::CZString::swap(CZString& other) {
+void Value::CZString::swap(CZString &other) {
   std::swap(cstr_, other.cstr_);
   std::swap(index_, other.index_);
 }
 
-Value::CZString&
-Value::CZString::operator =(const CZString& other) {
+Value::CZString &Value::CZString::operator=(const CZString &other) {
   CZString temp(other);
   swap(temp);
   return *this;
 }
 
-bool
-Value::CZString::operator<(const CZString& other) const  {
-  if (cstr_)
-    return strcmp(cstr_, other.cstr_) < 0;
+bool Value::CZString::operator<(const CZString &other) const {
+  if (cstr_) return strcmp(cstr_, other.cstr_) < 0;
   return index_ < other.index_;
 }
 
-bool
-Value::CZString::operator==(const CZString& other) const  {
-  if (cstr_)
-    return strcmp(cstr_, other.cstr_) == 0;
+bool Value::CZString::operator==(const CZString &other) const {
+  if (cstr_) return strcmp(cstr_, other.cstr_) == 0;
   return index_ == other.index_;
 }
 
+ArrayIndex Value::CZString::index() const { return index_; }
 
-ArrayIndex
-Value::CZString::index() const {
-  return index_;
-}
+const char *Value::CZString::c_str() const { return cstr_; }
 
+bool Value::CZString::isStaticString() const { return index_ == noDuplication; }
 
-const char*
-Value::CZString::c_str() const {
-  return cstr_;
-}
-
-bool
-Value::CZString::isStaticString() const {
-  return index_ == noDuplication;
-}
-
-#endif // ifndef JSON_VALUE_USE_INTERNAL_MAP
-
+#endif  // ifndef JSON_VALUE_USE_INTERNAL_MAP
 
 // //////////////////////////////////////////////////////////////////
 // //////////////////////////////////////////////////////////////////
@@ -11741,11 +8847,12 @@ Value::CZString::isStaticString() const {
  * This optimization is used in ValueInternalMap fast allocator.
  */
 Value::Value(ValueType type)
-  : type_(type)
-  , allocated_(0)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+    : type_(type),
+      allocated_(0),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   switch (type) {
@@ -11782,142 +8889,145 @@ Value::Value(ValueType type)
   }
 }
 
-
 #if defined(JSON_HAS_INT64)
 Value::Value(UInt value)
-  : type_(uintValue)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+    : type_(uintValue),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.uint_ = value;
 }
 
 Value::Value(Int value)
-  : type_(intValue)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+    : type_(intValue),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.int_ = value;
 }
 
-#endif // if defined(JSON_HAS_INT64)
-
+#endif  // if defined(JSON_HAS_INT64)
 
 Value::Value(Int64 value)
-  : type_(intValue)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+    : type_(intValue),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.int_ = value;
 }
 
-
 Value::Value(UInt64 value)
-  : type_(uintValue)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+    : type_(uintValue),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.uint_ = value;
 }
 
 Value::Value(double value)
-  : type_(realValue)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+    : type_(realValue),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.real_ = value;
 }
 
-Value::Value(const char* value)
-  : type_(stringValue)
-  , allocated_(true)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+Value::Value(const char *value)
+    : type_(stringValue),
+      allocated_(true),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.string_ = duplicateStringValue(value);
 }
 
-
-Value::Value(const char* beginValue,
-             const char* endValue)
-  : type_(stringValue)
-  , allocated_(true)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+Value::Value(const char *beginValue, const char *endValue)
+    : type_(stringValue),
+      allocated_(true),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
-  value_.string_ = duplicateStringValue(beginValue,
-                                        (unsigned int)(endValue - beginValue));
+  value_.string_ =
+      duplicateStringValue(beginValue, (unsigned int)(endValue - beginValue));
 }
 
-
-Value::Value(const std::string& value)
-  : type_(stringValue)
-  , allocated_(true)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+Value::Value(const std::string &value)
+    : type_(stringValue),
+      allocated_(true),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
-  value_.string_ = duplicateStringValue(value.c_str(),
-                                        (unsigned int)value.length());
-
+  value_.string_ =
+      duplicateStringValue(value.c_str(), (unsigned int)value.length());
 }
 
-Value::Value(const StaticString& value)
-  : type_(stringValue)
-  , allocated_(false)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+Value::Value(const StaticString &value)
+    : type_(stringValue),
+      allocated_(false),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
-  value_.string_ = const_cast<char*>(value.c_str());
+  value_.string_ = const_cast<char *>(value.c_str());
 }
 
-
-# ifdef JSON_USE_CPPTL
-Value::Value(const CppTL::ConstString& value)
-  : type_(stringValue)
-  , allocated_(true)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+#ifdef JSON_USE_CPPTL
+Value::Value(const CppTL::ConstString &value)
+    : type_(stringValue),
+      allocated_(true),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.string_ = duplicateStringValue(value, value.length());
 }
-# endif
+#endif
 
 Value::Value(bool value)
-  : type_(booleanValue)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+    : type_(booleanValue),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   value_.bool_ = value;
 }
 
-
-Value::Value(const Value& other)
-  : type_(other.type_)
-  , comments_(0)
-# ifdef JSON_VALUE_USE_INTERNAL_MAP
-  , itemIsUsed_(0)
+Value::Value(const Value &other)
+    : type_(other.type_),
+      comments_(0)
+#ifdef JSON_VALUE_USE_INTERNAL_MAP
+      ,
+      itemIsUsed_(0)
 #endif
 {
   switch (type_) {
@@ -11954,13 +9064,12 @@ Value::Value(const Value& other)
   if (other.comments_) {
     comments_ = new CommentInfo[numberOfCommentPlacement];
     for (int comment = 0; comment < numberOfCommentPlacement; ++comment) {
-      const CommentInfo& otherComment = other.comments_[comment];
+      const CommentInfo &otherComment = other.comments_[comment];
       if (otherComment.comment_)
         comments_[comment].setComment(otherComment.comment_);
     }
   }
 }
-
 
 Value::~Value() {
   switch (type_) {
@@ -11971,8 +9080,7 @@ Value::~Value() {
     case booleanValue:
       break;
     case stringValue:
-      if (allocated_)
-        releaseStringValue(value_.string_);
+      if (allocated_) releaseStringValue(value_.string_);
       break;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     case arrayValue:
@@ -11991,19 +9099,16 @@ Value::~Value() {
       JSON_ASSERT_UNREACHABLE;
   }
 
-  if (comments_)
-    delete[] comments_;
+  if (comments_) delete[] comments_;
 }
 
-Value&
-Value::operator=(const Value& other) {
+Value &Value::operator=(const Value &other) {
   Value temp(other);
   swap(temp);
   return *this;
 }
 
-void
-Value::swap(Value& other) {
+void Value::swap(Value &other) {
   ValueType temp = type_;
   type_ = other.type_;
   other.type_ = temp;
@@ -12013,27 +9118,17 @@ Value::swap(Value& other) {
   other.allocated_ = temp2;
 }
 
-ValueType
-Value::type() const {
-  return type_;
-}
+ValueType Value::type() const { return type_; }
 
-
-int
-Value::compare(const Value& other) const {
-  if (*this < other)
-    return -1;
-  if (*this > other)
-    return 1;
+int Value::compare(const Value &other) const {
+  if (*this < other) return -1;
+  if (*this > other) return 1;
   return 0;
 }
 
-
-bool
-Value::operator <(const Value& other) const {
+bool Value::operator<(const Value &other) const {
   int typeDelta = type_ - other.type_;
-  if (typeDelta)
-    return typeDelta < 0 ? true : false;
+  if (typeDelta) return typeDelta < 0 ? true : false;
   switch (type_) {
     case nullValue:
       return false;
@@ -12046,16 +9141,14 @@ Value::operator <(const Value& other) const {
     case booleanValue:
       return value_.bool_ < other.value_.bool_;
     case stringValue:
-      return (value_.string_ == 0  &&  other.value_.string_)
-             || (other.value_.string_
-                 &&  value_.string_
-                 && strcmp(value_.string_, other.value_.string_) < 0);
+      return (value_.string_ == 0 && other.value_.string_) ||
+             (other.value_.string_ && value_.string_ &&
+              strcmp(value_.string_, other.value_.string_) < 0);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     case arrayValue:
     case objectValue: {
       int delta = int(value_.map_->size() - other.value_.map_->size());
-      if (delta)
-        return delta < 0;
+      if (delta) return delta < 0;
       return (*value_.map_) < (*other.value_.map_);
     }
 #else
@@ -12070,30 +9163,19 @@ Value::operator <(const Value& other) const {
   return false;  // unreachable
 }
 
-bool
-Value::operator <=(const Value& other) const {
-  return !(other < *this);
-}
+bool Value::operator<=(const Value &other) const { return !(other < *this); }
 
-bool
-Value::operator >=(const Value& other) const {
-  return !(*this < other);
-}
+bool Value::operator>=(const Value &other) const { return !(*this < other); }
 
-bool
-Value::operator >(const Value& other) const {
-  return other < *this;
-}
+bool Value::operator>(const Value &other) const { return other < *this; }
 
-bool
-Value::operator ==(const Value& other) const {
-  //if ( type_ != other.type_ )
+bool Value::operator==(const Value &other) const {
+  // if ( type_ != other.type_ )
   // GCC 2.95.3 says:
   // attempt to take address of bit-field structure member `Json::Value::type_'
   // Beats me, but a temp solves the problem.
   int temp = other.type_;
-  if (type_ != temp)
-    return false;
+  if (type_ != temp) return false;
   switch (type_) {
     case nullValue:
       return true;
@@ -12106,15 +9188,14 @@ Value::operator ==(const Value& other) const {
     case booleanValue:
       return value_.bool_ == other.value_.bool_;
     case stringValue:
-      return (value_.string_ == other.value_.string_)
-             || (other.value_.string_
-                 &&  value_.string_
-                 && strcmp(value_.string_, other.value_.string_) == 0);
+      return (value_.string_ == other.value_.string_) ||
+             (other.value_.string_ && value_.string_ &&
+              strcmp(value_.string_, other.value_.string_) == 0);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     case arrayValue:
     case objectValue:
-      return value_.map_->size() == other.value_.map_->size()
-             && (*value_.map_) == (*other.value_.map_);
+      return value_.map_->size() == other.value_.map_->size() &&
+             (*value_.map_) == (*other.value_.map_);
 #else
     case arrayValue:
       return value_.array_->compare(*(other.value_.array_)) == 0;
@@ -12127,20 +9208,14 @@ Value::operator ==(const Value& other) const {
   return false;  // unreachable
 }
 
-bool
-Value::operator !=(const Value& other) const {
-  return !(*this == other);
-}
+bool Value::operator!=(const Value &other) const { return !(*this == other); }
 
-const char*
-Value::asCString() const {
+const char *Value::asCString() const {
   JSON_ASSERT(type_ == stringValue);
   return value_.string_;
 }
 
-
-std::string
-Value::asString() const {
+std::string Value::asString() const {
   switch (type_) {
     case nullValue:
       return "";
@@ -12157,30 +9232,30 @@ Value::asString() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return ""; // unreachable
+  return "";  // unreachable
 }
 
-# ifdef JSON_USE_CPPTL
-CppTL::ConstString
-Value::asConstString() const {
+#ifdef JSON_USE_CPPTL
+CppTL::ConstString Value::asConstString() const {
   return CppTL::ConstString(asString().c_str());
 }
-# endif
+#endif
 
-
-Value::Int
-Value::asInt() const {
+Value::Int Value::asInt() const {
   switch (type_) {
     case nullValue:
       return 0;
     case intValue:
-      JSON_ASSERT_MESSAGE(value_.int_ >= minInt  &&  value_.int_ <= maxInt, "unsigned integer out of signed int range");
+      JSON_ASSERT_MESSAGE(value_.int_ >= minInt && value_.int_ <= maxInt,
+                          "unsigned integer out of signed int range");
       return Int(value_.int_);
     case uintValue:
-      JSON_ASSERT_MESSAGE(value_.uint_ <= UInt(maxInt), "unsigned integer out of signed int range");
+      JSON_ASSERT_MESSAGE(value_.uint_ <= UInt(maxInt),
+                          "unsigned integer out of signed int range");
       return Int(value_.uint_);
     case realValue:
-      JSON_ASSERT_MESSAGE(value_.real_ >= minInt  &&  value_.real_ <= maxInt, "Real out of signed integer range");
+      JSON_ASSERT_MESSAGE(value_.real_ >= minInt && value_.real_ <= maxInt,
+                          "Real out of signed integer range");
       return Int(value_.real_);
     case booleanValue:
       return value_.bool_ ? 1 : 0;
@@ -12191,24 +9266,27 @@ Value::asInt() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return 0; // unreachable;
+  return 0;  // unreachable;
 }
 
-
-Value::UInt
-Value::asUInt() const {
+Value::UInt Value::asUInt() const {
   switch (type_) {
     case nullValue:
       return 0;
     case intValue:
-      JSON_ASSERT_MESSAGE(value_.int_ >= 0, "Negative integer can not be converted to unsigned integer");
-      JSON_ASSERT_MESSAGE(value_.int_ <= maxUInt, "signed integer out of UInt range");
+      JSON_ASSERT_MESSAGE(
+          value_.int_ >= 0,
+          "Negative integer can not be converted to unsigned integer");
+      JSON_ASSERT_MESSAGE(value_.int_ <= maxUInt,
+                          "signed integer out of UInt range");
       return UInt(value_.int_);
     case uintValue:
-      JSON_ASSERT_MESSAGE(value_.uint_ <= maxUInt, "unsigned integer out of UInt range");
+      JSON_ASSERT_MESSAGE(value_.uint_ <= maxUInt,
+                          "unsigned integer out of UInt range");
       return UInt(value_.uint_);
     case realValue:
-      JSON_ASSERT_MESSAGE(value_.real_ >= 0  &&  value_.real_ <= maxUInt,  "Real out of unsigned integer range");
+      JSON_ASSERT_MESSAGE(value_.real_ >= 0 && value_.real_ <= maxUInt,
+                          "Real out of unsigned integer range");
       return UInt(value_.real_);
     case booleanValue:
       return value_.bool_ ? 1 : 0;
@@ -12219,24 +9297,24 @@ Value::asUInt() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return 0; // unreachable;
+  return 0;  // unreachable;
 }
 
+#if defined(JSON_HAS_INT64)
 
-# if defined(JSON_HAS_INT64)
-
-Value::Int64
-Value::asInt64() const {
+Value::Int64 Value::asInt64() const {
   switch (type_) {
     case nullValue:
       return 0;
     case intValue:
       return value_.int_;
     case uintValue:
-      JSON_ASSERT_MESSAGE(value_.uint_ <= UInt64(maxInt64), "unsigned integer out of Int64 range");
+      JSON_ASSERT_MESSAGE(value_.uint_ <= UInt64(maxInt64),
+                          "unsigned integer out of Int64 range");
       return value_.uint_;
     case realValue:
-      JSON_ASSERT_MESSAGE(value_.real_ >= minInt64  &&  value_.real_ <= maxInt64, "Real out of Int64 range");
+      JSON_ASSERT_MESSAGE(value_.real_ >= minInt64 && value_.real_ <= maxInt64,
+                          "Real out of Int64 range");
       return Int(value_.real_);
     case booleanValue:
       return value_.bool_ ? 1 : 0;
@@ -12247,22 +9325,22 @@ Value::asInt64() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return 0; // unreachable;
+  return 0;  // unreachable;
 }
 
-
-Value::UInt64
-Value::asUInt64() const {
+Value::UInt64 Value::asUInt64() const {
   switch (type_) {
     case nullValue:
       return 0;
     case intValue:
-      JSON_ASSERT_MESSAGE(value_.int_ >= 0, "Negative integer can not be converted to UInt64");
+      JSON_ASSERT_MESSAGE(value_.int_ >= 0,
+                          "Negative integer can not be converted to UInt64");
       return value_.int_;
     case uintValue:
       return value_.uint_;
     case realValue:
-      JSON_ASSERT_MESSAGE(value_.real_ >= 0  &&  value_.real_ <= maxUInt64,  "Real out of UInt64 range");
+      JSON_ASSERT_MESSAGE(value_.real_ >= 0 && value_.real_ <= maxUInt64,
+                          "Real out of UInt64 range");
       return UInt(value_.real_);
     case booleanValue:
       return value_.bool_ ? 1 : 0;
@@ -12273,13 +9351,11 @@ Value::asUInt64() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return 0; // unreachable;
+  return 0;  // unreachable;
 }
-# endif // if defined(JSON_HAS_INT64)
+#endif  // if defined(JSON_HAS_INT64)
 
-
-LargestInt
-Value::asLargestInt() const {
+LargestInt Value::asLargestInt() const {
 #if defined(JSON_NO_INT64)
   return asInt();
 #else
@@ -12287,9 +9363,7 @@ Value::asLargestInt() const {
 #endif
 }
 
-
-LargestUInt
-Value::asLargestUInt() const {
+LargestUInt Value::asLargestUInt() const {
 #if defined(JSON_NO_INT64)
   return asUInt();
 #else
@@ -12297,9 +9371,7 @@ Value::asLargestUInt() const {
 #endif
 }
 
-
-double
-Value::asDouble() const {
+double Value::asDouble() const {
   switch (type_) {
     case nullValue:
       return 0.0;
@@ -12308,9 +9380,10 @@ Value::asDouble() const {
     case uintValue:
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
       return static_cast<double>(value_.uint_);
-#else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-      return static_cast<double>(Int(value_.uint_ / 2)) * 2 + Int(value_.uint_ & 1);
-#endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
+#else   // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
+      return static_cast<double>(Int(value_.uint_ / 2)) * 2 +
+             Int(value_.uint_ & 1);
+#endif  // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
     case realValue:
       return value_.real_;
     case booleanValue:
@@ -12322,11 +9395,10 @@ Value::asDouble() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return 0; // unreachable;
+  return 0;  // unreachable;
 }
 
-float
-Value::asFloat() const {
+float Value::asFloat() const {
   switch (type_) {
     case nullValue:
       return 0.0f;
@@ -12335,9 +9407,10 @@ Value::asFloat() const {
     case uintValue:
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
       return static_cast<float>(value_.uint_);
-#else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-      return static_cast<float>(Int(value_.uint_ / 2)) * 2 + Int(value_.uint_ & 1);
-#endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
+#else   // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
+      return static_cast<float>(Int(value_.uint_ / 2)) * 2 +
+             Int(value_.uint_ & 1);
+#endif  // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
     case realValue:
       return static_cast<float>(value_.real_);
     case booleanValue:
@@ -12349,11 +9422,10 @@ Value::asFloat() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return 0.0f; // unreachable;
+  return 0.0f;  // unreachable;
 }
 
-bool
-Value::asBool() const {
+bool Value::asBool() const {
   switch (type_) {
     case nullValue:
       return false;
@@ -12365,69 +9437,59 @@ Value::asBool() const {
     case booleanValue:
       return value_.bool_;
     case stringValue:
-      return value_.string_  &&  value_.string_[0] != 0;
+      return value_.string_ && value_.string_[0] != 0;
     case arrayValue:
     case objectValue:
       return value_.map_->size() != 0;
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return false; // unreachable;
+  return false;  // unreachable;
 }
 
-
-bool
-Value::isConvertibleTo(ValueType other) const {
+bool Value::isConvertibleTo(ValueType other) const {
   switch (type_) {
     case nullValue:
       return true;
     case intValue:
-      return (other == nullValue  &&  value_.int_ == 0)
-             || other == intValue
-             || (other == uintValue  && value_.int_ >= 0)
-             || other == realValue
-             || other == stringValue
-             || other == booleanValue;
+      return (other == nullValue && value_.int_ == 0) || other == intValue ||
+             (other == uintValue && value_.int_ >= 0) || other == realValue ||
+             other == stringValue || other == booleanValue;
     case uintValue:
-      return (other == nullValue  &&  value_.uint_ == 0)
-             || (other == intValue  && value_.uint_ <= (unsigned)maxInt)
-             || other == uintValue
-             || other == realValue
-             || other == stringValue
-             || other == booleanValue;
+      return (other == nullValue && value_.uint_ == 0) ||
+             (other == intValue && value_.uint_ <= (unsigned)maxInt) ||
+             other == uintValue || other == realValue || other == stringValue ||
+             other == booleanValue;
     case realValue:
-      return (other == nullValue  &&  value_.real_ == 0.0)
-             || (other == intValue  &&  value_.real_ >= minInt  &&  value_.real_ <= maxInt)
-             || (other == uintValue  &&  value_.real_ >= 0  &&  value_.real_ <= maxUInt)
-             || other == realValue
-             || other == stringValue
-             || other == booleanValue;
+      return (other == nullValue && value_.real_ == 0.0) ||
+             (other == intValue && value_.real_ >= minInt &&
+              value_.real_ <= maxInt) ||
+             (other == uintValue && value_.real_ >= 0 &&
+              value_.real_ <= maxUInt) ||
+             other == realValue || other == stringValue ||
+             other == booleanValue;
     case booleanValue:
-      return (other == nullValue  &&  value_.bool_ == false)
-             || other == intValue
-             || other == uintValue
-             || other == realValue
-             || other == stringValue
-             || other == booleanValue;
+      return (other == nullValue && value_.bool_ == false) ||
+             other == intValue || other == uintValue || other == realValue ||
+             other == stringValue || other == booleanValue;
     case stringValue:
-      return other == stringValue
-             || (other == nullValue  && (!value_.string_  ||  value_.string_[0] == 0));
+      return other == stringValue ||
+             (other == nullValue &&
+              (!value_.string_ || value_.string_[0] == 0));
     case arrayValue:
-      return other == arrayValue
-             || (other == nullValue  &&  value_.map_->size() == 0);
+      return other == arrayValue ||
+             (other == nullValue && value_.map_->size() == 0);
     case objectValue:
-      return other == objectValue
-             || (other == nullValue  &&  value_.map_->size() == 0);
+      return other == objectValue ||
+             (other == nullValue && value_.map_->size() == 0);
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return false; // unreachable;
+  return false;  // unreachable;
 }
 
-
 /// Number of values in array or object
-ArrayIndex
-Value::size() const {
+ArrayIndex Value::size() const {
   switch (type_) {
     case nullValue:
     case intValue:
@@ -12455,28 +9517,21 @@ Value::size() const {
     default:
       JSON_ASSERT_UNREACHABLE;
   }
-  return 0; // unreachable;
+  return 0;  // unreachable;
 }
 
-
-bool
-Value::empty() const {
+bool Value::empty() const {
   if (isNull() || isArray() || isObject())
     return size() == 0u;
   else
     return false;
 }
 
+bool Value::operator!() const { return isNull(); }
 
-bool
-Value::operator!() const {
-  return isNull();
-}
-
-
-void
-Value::clear() {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue  || type_ == objectValue);
+void Value::clear() {
+  JSON_ASSERT(type_ == nullValue || type_ == arrayValue ||
+              type_ == objectValue);
 
   switch (type_) {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
@@ -12497,17 +9552,15 @@ Value::clear() {
   }
 }
 
-void
-Value::resize(ArrayIndex newSize) {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue);
-  if (type_ == nullValue)
-    *this = Value(arrayValue);
+void Value::resize(ArrayIndex newSize) {
+  JSON_ASSERT(type_ == nullValue || type_ == arrayValue);
+  if (type_ == nullValue) *this = Value(arrayValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   ArrayIndex oldSize = size();
   if (newSize == 0)
     clear();
   else if (newSize > oldSize)
-    (*this)[ newSize - 1 ];
+    (*this)[newSize - 1];
   else {
     for (ArrayIndex index = newSize; index < oldSize; ++index) {
       value_.map_->erase(index);
@@ -12519,17 +9572,13 @@ Value::resize(ArrayIndex newSize) {
 #endif
 }
 
-
-Value&
-Value::operator[](ArrayIndex index) {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue);
-  if (type_ == nullValue)
-    *this = Value(arrayValue);
+Value &Value::operator[](ArrayIndex index) {
+  JSON_ASSERT(type_ == nullValue || type_ == arrayValue);
+  if (type_ == nullValue) *this = Value(arrayValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   CZString key(index);
   ObjectValues::iterator it = value_.map_->lower_bound(key);
-  if (it != value_.map_->end()  && (*it).first == key)
-    return (*it).second;
+  if (it != value_.map_->end() && (*it).first == key) return (*it).second;
 
   ObjectValues::value_type defaultValue(key, null);
   it = value_.map_->insert(it, defaultValue);
@@ -12539,167 +9588,118 @@ Value::operator[](ArrayIndex index) {
 #endif
 }
 
-
-Value&
-Value::operator[](int index) {
+Value &Value::operator[](int index) {
   JSON_ASSERT(index >= 0);
-  return (*this)[ ArrayIndex(index) ];
+  return (*this)[ArrayIndex(index)];
 }
 
-
-const Value&
-Value::operator[](ArrayIndex index) const {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == arrayValue);
-  if (type_ == nullValue)
-    return null;
+const Value &Value::operator[](ArrayIndex index) const {
+  JSON_ASSERT(type_ == nullValue || type_ == arrayValue);
+  if (type_ == nullValue) return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   CZString key(index);
   ObjectValues::const_iterator it = value_.map_->find(key);
-  if (it == value_.map_->end())
-    return null;
+  if (it == value_.map_->end()) return null;
   return (*it).second;
 #else
-  Value* value = value_.array_->find(index);
+  Value *value = value_.array_->find(index);
   return value ? *value : null;
 #endif
 }
 
-
-const Value&
-Value::operator[](int index) const {
+const Value &Value::operator[](int index) const {
   JSON_ASSERT(index >= 0);
-  return (*this)[ ArrayIndex(index) ];
+  return (*this)[ArrayIndex(index)];
 }
 
-
-Value&
-Value::operator[](const char* key) {
+Value &Value::operator[](const char *key) {
   return resolveReference(key, false);
 }
 
-
-Value&
-Value::resolveReference(const char* key,
-                        bool isStatic) {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
-  if (type_ == nullValue)
-    *this = Value(objectValue);
+Value &Value::resolveReference(const char *key, bool isStatic) {
+  JSON_ASSERT(type_ == nullValue || type_ == objectValue);
+  if (type_ == nullValue) *this = Value(objectValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-  CZString actualKey(key, isStatic ? CZString::noDuplication
-                     : CZString::duplicateOnCopy);
+  CZString actualKey(
+      key, isStatic ? CZString::noDuplication : CZString::duplicateOnCopy);
   ObjectValues::iterator it = value_.map_->lower_bound(actualKey);
-  if (it != value_.map_->end()  && (*it).first == actualKey)
-    return (*it).second;
+  if (it != value_.map_->end() && (*it).first == actualKey) return (*it).second;
 
   ObjectValues::value_type defaultValue(actualKey, null);
   it = value_.map_->insert(it, defaultValue);
-  Value& value = (*it).second;
+  Value &value = (*it).second;
   return value;
 #else
   return value_.map_->resolveReference(key, isStatic);
 #endif
 }
 
-
-Value
-Value::get(ArrayIndex index,
-           const Value& defaultValue) const {
-  const Value* value = &((*this)[index]);
+Value Value::get(ArrayIndex index, const Value &defaultValue) const {
+  const Value *value = &((*this)[index]);
   return value == &null ? defaultValue : *value;
 }
 
+bool Value::isValidIndex(ArrayIndex index) const { return index < size(); }
 
-bool
-Value::isValidIndex(ArrayIndex index) const {
-  return index < size();
-}
-
-
-
-const Value&
-Value::operator[](const char* key) const {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
-  if (type_ == nullValue)
-    return null;
+const Value &Value::operator[](const char *key) const {
+  JSON_ASSERT(type_ == nullValue || type_ == objectValue);
+  if (type_ == nullValue) return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   CZString actualKey(key, CZString::noDuplication);
   ObjectValues::const_iterator it = value_.map_->find(actualKey);
-  if (it == value_.map_->end())
-    return null;
+  if (it == value_.map_->end()) return null;
   return (*it).second;
 #else
-  const Value* value = value_.map_->find(key);
+  const Value *value = value_.map_->find(key);
   return value ? *value : null;
 #endif
 }
 
-
-Value&
-Value::operator[](const std::string& key) {
-  return (*this)[ key.c_str() ];
+Value &Value::operator[](const std::string &key) {
+  return (*this)[key.c_str()];
 }
 
-
-const Value&
-Value::operator[](const std::string& key) const {
-  return (*this)[ key.c_str() ];
+const Value &Value::operator[](const std::string &key) const {
+  return (*this)[key.c_str()];
 }
 
-Value&
-Value::operator[](const StaticString& key) {
+Value &Value::operator[](const StaticString &key) {
   return resolveReference(key, true);
 }
 
-
-# ifdef JSON_USE_CPPTL
-Value&
-Value::operator[](const CppTL::ConstString& key) {
-  return (*this)[ key.c_str() ];
+#ifdef JSON_USE_CPPTL
+Value &Value::operator[](const CppTL::ConstString &key) {
+  return (*this)[key.c_str()];
 }
 
-
-const Value&
-Value::operator[](const CppTL::ConstString& key) const {
-  return (*this)[ key.c_str() ];
+const Value &Value::operator[](const CppTL::ConstString &key) const {
+  return (*this)[key.c_str()];
 }
-# endif
+#endif
 
+Value &Value::append(const Value &value) { return (*this)[size()] = value; }
 
-Value&
-Value::append(const Value& value) {
-  return (*this)[size()] = value;
-}
-
-
-Value
-Value::get(const char* key,
-           const Value& defaultValue) const {
-  const Value* value = &((*this)[key]);
+Value Value::get(const char *key, const Value &defaultValue) const {
+  const Value *value = &((*this)[key]);
   return value == &null ? defaultValue : *value;
 }
 
-
-Value
-Value::get(const std::string& key,
-           const Value& defaultValue) const {
+Value Value::get(const std::string &key, const Value &defaultValue) const {
   return get(key.c_str(), defaultValue);
 }
 
-Value
-Value::removeMember(const char* key) {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
-  if (type_ == nullValue)
-    return null;
+Value Value::removeMember(const char *key) {
+  JSON_ASSERT(type_ == nullValue || type_ == objectValue);
+  if (type_ == nullValue) return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   CZString actualKey(key, CZString::noDuplication);
   ObjectValues::iterator it = value_.map_->find(actualKey);
-  if (it == value_.map_->end())
-    return null;
+  if (it == value_.map_->end()) return null;
   Value old(it->second);
   value_.map_->erase(it);
   return old;
 #else
-  Value* value = value_.map_->find(key);
+  Value *value = value_.map_->find(key);
   if (value) {
     Value old(*value);
     value_.map_.remove(key);
@@ -12710,51 +9710,41 @@ Value::removeMember(const char* key) {
 #endif
 }
 
-Value
-Value::removeMember(const std::string& key) {
+Value Value::removeMember(const std::string &key) {
   return removeMember(key.c_str());
 }
 
-# ifdef JSON_USE_CPPTL
-Value
-Value::get(const CppTL::ConstString& key,
-           const Value& defaultValue) const {
+#ifdef JSON_USE_CPPTL
+Value Value::get(const CppTL::ConstString &key,
+                 const Value &defaultValue) const {
   return get(key.c_str(), defaultValue);
 }
-# endif
+#endif
 
-bool
-Value::isMember(const char* key) const {
-  const Value* value = &((*this)[key]);
+bool Value::isMember(const char *key) const {
+  const Value *value = &((*this)[key]);
   return value != &null;
 }
 
-
-bool
-Value::isMember(const std::string& key) const {
+bool Value::isMember(const std::string &key) const {
   return isMember(key.c_str());
 }
 
-
-# ifdef JSON_USE_CPPTL
-bool
-Value::isMember(const CppTL::ConstString& key) const {
+#ifdef JSON_USE_CPPTL
+bool Value::isMember(const CppTL::ConstString &key) const {
   return isMember(key.c_str());
 }
 #endif
 
-Value::Members
-Value::getMemberNames() const {
-  JSON_ASSERT(type_ == nullValue  ||  type_ == objectValue);
-  if (type_ == nullValue)
-    return Value::Members();
+Value::Members Value::getMemberNames() const {
+  JSON_ASSERT(type_ == nullValue || type_ == objectValue);
+  if (type_ == nullValue) return Value::Members();
   Members members;
   members.reserve(value_.map_->size());
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
   ObjectValues::const_iterator it = value_.map_->begin();
   ObjectValues::const_iterator itEnd = value_.map_->end();
-  for (; it != itEnd; ++it)
-    members.push_back(std::string((*it).first.c_str()));
+  for (; it != itEnd; ++it) members.push_back(std::string((*it).first.c_str()));
 #else
   ValueInternalMap::IteratorState it;
   ValueInternalMap::IteratorState itEnd;
@@ -12767,8 +9757,8 @@ Value::getMemberNames() const {
 }
 //
 //# ifdef JSON_USE_CPPTL
-//EnumMemberNames
-//Value::enumMemberNames() const
+// EnumMemberNames
+// Value::enumMemberNames() const
 //{
 //   if ( type_ == objectValue )
 //   {
@@ -12780,8 +9770,8 @@ Value::getMemberNames() const {
 //}
 //
 //
-//EnumValues
-//Value::enumValues() const
+// EnumValues
+// Value::enumValues() const
 //{
 //   if ( type_ == objectValue  ||  type_ == arrayValue )
 //      return CppTL::Enum::anyValues( *(value_.map_),
@@ -12791,107 +9781,56 @@ Value::getMemberNames() const {
 //
 //# endif
 
+bool Value::isNull() const { return type_ == nullValue; }
 
-bool
-Value::isNull() const {
-  return type_ == nullValue;
+bool Value::isBool() const { return type_ == booleanValue; }
+
+bool Value::isInt() const { return type_ == intValue; }
+
+bool Value::isUInt() const { return type_ == uintValue; }
+
+bool Value::isIntegral() const {
+  return type_ == intValue || type_ == uintValue || type_ == booleanValue;
 }
 
+bool Value::isDouble() const { return type_ == realValue; }
 
-bool
-Value::isBool() const {
-  return type_ == booleanValue;
+bool Value::isNumeric() const { return isIntegral() || isDouble(); }
+
+bool Value::isString() const { return type_ == stringValue; }
+
+bool Value::isArray() const {
+  return type_ == nullValue || type_ == arrayValue;
 }
 
-
-bool
-Value::isInt() const {
-  return type_ == intValue;
+bool Value::isObject() const {
+  return type_ == nullValue || type_ == objectValue;
 }
 
-
-bool
-Value::isUInt() const {
-  return type_ == uintValue;
-}
-
-
-bool
-Value::isIntegral() const {
-  return type_ == intValue
-         ||  type_ == uintValue
-         ||  type_ == booleanValue;
-}
-
-
-bool
-Value::isDouble() const {
-  return type_ == realValue;
-}
-
-
-bool
-Value::isNumeric() const {
-  return isIntegral() || isDouble();
-}
-
-
-bool
-Value::isString() const {
-  return type_ == stringValue;
-}
-
-
-bool
-Value::isArray() const {
-  return type_ == nullValue  ||  type_ == arrayValue;
-}
-
-
-bool
-Value::isObject() const {
-  return type_ == nullValue  ||  type_ == objectValue;
-}
-
-
-void
-Value::setComment(const char* comment,
-                  CommentPlacement placement) {
-  if (!comments_)
-    comments_ = new CommentInfo[numberOfCommentPlacement];
+void Value::setComment(const char *comment, CommentPlacement placement) {
+  if (!comments_) comments_ = new CommentInfo[numberOfCommentPlacement];
   comments_[placement].setComment(comment);
 }
 
-
-void
-Value::setComment(const std::string& comment,
-                  CommentPlacement placement) {
+void Value::setComment(const std::string &comment, CommentPlacement placement) {
   setComment(comment.c_str(), placement);
 }
 
-
-bool
-Value::hasComment(CommentPlacement placement) const {
-  return comments_ != 0  &&  comments_[placement].comment_ != 0;
+bool Value::hasComment(CommentPlacement placement) const {
+  return comments_ != 0 && comments_[placement].comment_ != 0;
 }
 
-std::string
-Value::getComment(CommentPlacement placement) const {
-  if (hasComment(placement))
-    return comments_[placement].comment_;
+std::string Value::getComment(CommentPlacement placement) const {
+  if (hasComment(placement)) return comments_[placement].comment_;
   return "";
 }
 
-
-std::string
-Value::toStyledString() const {
+std::string Value::toStyledString() const {
   StyledWriter writer;
   return writer.write(*this);
 }
 
-
-Value::const_iterator
-Value::begin() const {
+Value::const_iterator Value::begin() const {
   switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
     case arrayValue:
@@ -12911,8 +9850,7 @@ Value::begin() const {
 #else
     case arrayValue:
     case objectValue:
-      if (value_.map_)
-        return const_iterator(value_.map_->begin());
+      if (value_.map_) return const_iterator(value_.map_->begin());
       break;
 #endif
     default:
@@ -12921,8 +9859,7 @@ Value::begin() const {
   return const_iterator();
 }
 
-Value::const_iterator
-Value::end() const {
+Value::const_iterator Value::end() const {
   switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
     case arrayValue:
@@ -12942,8 +9879,7 @@ Value::end() const {
 #else
     case arrayValue:
     case objectValue:
-      if (value_.map_)
-        return const_iterator(value_.map_->end());
+      if (value_.map_) return const_iterator(value_.map_->end());
       break;
 #endif
     default:
@@ -12952,9 +9888,7 @@ Value::end() const {
   return const_iterator();
 }
 
-
-Value::iterator
-Value::begin() {
+Value::iterator Value::begin() {
   switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
     case arrayValue:
@@ -12974,8 +9908,7 @@ Value::begin() {
 #else
     case arrayValue:
     case objectValue:
-      if (value_.map_)
-        return iterator(value_.map_->begin());
+      if (value_.map_) return iterator(value_.map_->begin());
       break;
 #endif
     default:
@@ -12984,8 +9917,7 @@ Value::begin() {
   return iterator();
 }
 
-Value::iterator
-Value::end() {
+Value::iterator Value::end() {
   switch (type_) {
 #ifdef JSON_VALUE_USE_INTERNAL_MAP
     case arrayValue:
@@ -13005,8 +9937,7 @@ Value::end() {
 #else
     case arrayValue:
     case objectValue:
-      if (value_.map_)
-        return iterator(value_.map_->end());
+      if (value_.map_) return iterator(value_.map_->end());
       break;
 #endif
     default:
@@ -13014,42 +9945,26 @@ Value::end() {
   }
   return iterator();
 }
-
 
 // class PathArgument
 // //////////////////////////////////////////////////////////////////
 
-PathArgument::PathArgument()
-  : kind_(kindNone) {
-}
-
+PathArgument::PathArgument() : kind_(kindNone) {}
 
 PathArgument::PathArgument(ArrayIndex index)
-  : index_(index)
-  , kind_(kindIndex) {
-}
+    : index_(index), kind_(kindIndex) {}
 
+PathArgument::PathArgument(const char *key) : key_(key), kind_(kindKey) {}
 
-PathArgument::PathArgument(const char* key)
-  : key_(key)
-  , kind_(kindKey) {
-}
-
-
-PathArgument::PathArgument(const std::string& key)
-  : key_(key.c_str())
-  , kind_(kindKey) {
-}
+PathArgument::PathArgument(const std::string &key)
+    : key_(key.c_str()), kind_(kindKey) {}
 
 // class Path
 // //////////////////////////////////////////////////////////////////
 
-Path::Path(const std::string& path,
-           const PathArgument& a1,
-           const PathArgument& a2,
-           const PathArgument& a3,
-           const PathArgument& a4,
-           const PathArgument& a5) {
+Path::Path(const std::string &path, const PathArgument &a1,
+           const PathArgument &a2, const PathArgument &a3,
+           const PathArgument &a4, const PathArgument &a5) {
   InArgs in;
   in.push_back(&a1);
   in.push_back(&a2);
@@ -13059,12 +9974,9 @@ Path::Path(const std::string& path,
   makePath(path, in);
 }
 
-
-void
-Path::makePath(const std::string& path,
-               const InArgs& in) {
-  const char* current = path.c_str();
-  const char* end = current + path.length();
+void Path::makePath(const std::string &path, const InArgs &in) {
+  const char *current = path.c_str();
+  const char *end = current + path.length();
   InArgs::const_iterator itInArg = in.begin();
   while (current != end) {
     if (*current == '[') {
@@ -13073,11 +9985,11 @@ Path::makePath(const std::string& path,
         addPathInArg(path, in, itInArg, PathArgument::kindIndex);
       else {
         ArrayIndex index = 0;
-        for (; current != end && *current >= '0'  &&  *current <= '9'; ++current)
+        for (; current != end && *current >= '0' && *current <= '9'; ++current)
           index = index * 10 + ArrayIndex(*current - '0');
         args_.push_back(index);
       }
-      if (current == end  ||  *current++ != ']')
+      if (current == end || *current++ != ']')
         invalidPath(path, int(current - path.c_str()));
     } else if (*current == '%') {
       addPathInArg(path, in, itInArg, PathArgument::kindKey);
@@ -13085,20 +9997,16 @@ Path::makePath(const std::string& path,
     } else if (*current == '.') {
       ++current;
     } else {
-      const char* beginName = current;
-      while (current != end  &&  !strchr("[.", *current))
-        ++current;
+      const char *beginName = current;
+      while (current != end && !strchr("[.", *current)) ++current;
       args_.push_back(std::string(beginName, current));
     }
   }
 }
 
-
-void
-Path::addPathInArg(const std::string& path,
-                   const InArgs& in,
-                   InArgs::const_iterator& itInArg,
-                   PathArgument::Kind kind) {
+void Path::addPathInArg(const std::string &path, const InArgs &in,
+                        InArgs::const_iterator &itInArg,
+                        PathArgument::Kind kind) {
   if (itInArg == in.end()) {
     // Error: missing argument %d
   } else if ((*itInArg)->kind_ != kind) {
@@ -13108,21 +10016,16 @@ Path::addPathInArg(const std::string& path,
   }
 }
 
-
-void
-Path::invalidPath(const std::string& path,
-                  int location) {
+void Path::invalidPath(const std::string &path, int location) {
   // Error: invalid path.
 }
 
-
-const Value&
-Path::resolve(const Value& root) const {
-  const Value* node = &root;
+const Value &Path::resolve(const Value &root) const {
+  const Value *node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const PathArgument& arg = *it;
+    const PathArgument &arg = *it;
     if (arg.kind_ == PathArgument::kindIndex) {
-      if (!node->isArray()  ||  node->isValidIndex(arg.index_)) {
+      if (!node->isArray() || node->isValidIndex(arg.index_)) {
         // Error: unable to resolve path (array value expected at position...
       }
       node = &((*node)[arg.index_]);
@@ -13132,41 +10035,35 @@ Path::resolve(const Value& root) const {
       }
       node = &((*node)[arg.key_]);
       if (node == &Value::null) {
-        // Error: unable to resolve path (object has no member named '' at position...)
+        // Error: unable to resolve path (object has no member named '' at
+        // position...)
       }
     }
   }
   return *node;
 }
 
-
-Value
-Path::resolve(const Value& root,
-              const Value& defaultValue) const {
-  const Value* node = &root;
+Value Path::resolve(const Value &root, const Value &defaultValue) const {
+  const Value *node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const PathArgument& arg = *it;
+    const PathArgument &arg = *it;
     if (arg.kind_ == PathArgument::kindIndex) {
-      if (!node->isArray()  ||  node->isValidIndex(arg.index_))
+      if (!node->isArray() || node->isValidIndex(arg.index_))
         return defaultValue;
       node = &((*node)[arg.index_]);
     } else if (arg.kind_ == PathArgument::kindKey) {
-      if (!node->isObject())
-        return defaultValue;
+      if (!node->isObject()) return defaultValue;
       node = &((*node)[arg.key_]);
-      if (node == &Value::null)
-        return defaultValue;
+      if (node == &Value::null) return defaultValue;
     }
   }
   return *node;
 }
 
-
-Value&
-Path::make(Value& root) const {
-  Value* node = &root;
+Value &Path::make(Value &root) const {
+  Value *node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const PathArgument& arg = *it;
+    const PathArgument &arg = *it;
     if (arg.kind_ == PathArgument::kindIndex) {
       if (!node->isArray()) {
         // Error: node is not an array at position ...
@@ -13182,17 +10079,11 @@ Path::make(Value& root) const {
   return *node;
 }
 
-
-} // namespace Json
+}  // namespace Json
 
 // //////////////////////////////////////////////////////////////////////
 // End of content of file: src/lib_json/json_value.cpp
 // //////////////////////////////////////////////////////////////////////
-
-
-
-
-
 
 // //////////////////////////////////////////////////////////////////////
 // Beginning of content of file: src/lib_json/json_writer.cpp
@@ -13201,52 +10092,51 @@ Path::make(Value& root) const {
 // Copyright 2007-2010 Baptiste Lepilleur
 // Distributed under MIT license, or public domain if desired and
 // recognized in your jurisdiction.
-// See file LICENSE for detail or copy at https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
+// See file LICENSE for detail or copy at
+// https://github.com/open-source-parsers/jsoncpp/blob/master/LICENSE
 
 #if !defined(JSON_IS_AMALGAMATION)
-# include <json/writer.h>
-# include "json_tool.h"
-#endif // if !defined(JSON_IS_AMALGAMATION)
-#include <utility>
+#include <json/writer.h>
+
+#include "json_tool.h"
+#endif  // if !defined(JSON_IS_AMALGAMATION)
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
+#include <utility>
 
-#if _MSC_VER >= 1400 // VC++ 8.0
-#pragma warning( disable : 4996 )   // disable warning about strdup being deprecated.
+#if _MSC_VER >= 1400  // VC++ 8.0
+#pragma warning( \
+    disable : 4996)  // disable warning about strdup being deprecated.
 #endif
 
 namespace Json {
 
-static bool containsControlCharacter(const char* str) {
+static bool containsControlCharacter(const char *str) {
   while (*str) {
-    if (isControlCharacter(*(str++)))
-      return true;
+    if (isControlCharacter(*(str++))) return true;
   }
   return false;
 }
 
-
 std::string valueToString(LargestInt value) {
   UIntToStringBuffer buffer;
-  char* current = buffer + sizeof(buffer);
+  char *current = buffer + sizeof(buffer);
   bool isNegative = value < 0;
-  if (isNegative)
-    value = -value;
+  if (isNegative) value = -value;
   uintToString(LargestUInt(value), current);
-  if (isNegative)
-    *--current = '-';
+  if (isNegative) *--current = '-';
   assert(current >= buffer);
   return current;
 }
 
-
 std::string valueToString(LargestUInt value) {
   UIntToStringBuffer buffer;
-  char* current = buffer + sizeof(buffer);
+  char *current = buffer + sizeof(buffer);
   uintToString(value, current);
   assert(current >= buffer);
   return current;
@@ -13258,28 +10148,27 @@ std::string valueToString(Int value) {
   return valueToString(LargestInt(value));
 }
 
-
 std::string valueToString(UInt value) {
   return valueToString(LargestUInt(value));
 }
 
-#endif // # if defined(JSON_HAS_INT64)
-
+#endif  // # if defined(JSON_HAS_INT64)
 
 std::string valueToString(double value) {
   char buffer[32];
-#if defined(_MSC_VER) && defined(__STDC_SECURE_LIB__) // Use secure version with visual studio 2005 to avoid warning.
+#if defined(_MSC_VER) && \
+    defined(__STDC_SECURE_LIB__)  // Use secure version with visual studio 2005
+                                  // to avoid warning.
   sprintf_s(buffer, sizeof(buffer), "%#.16g", value);
 #else
   sprintf(buffer, "%#.16g", value);
 #endif
-  char* ch = buffer + strlen(buffer) - 1;
-  if (*ch != '0')
-    return buffer; // nothing to truncate, so save time
+  char *ch = buffer + strlen(buffer) - 1;
+  if (*ch != '0') return buffer;  // nothing to truncate, so save time
   while (ch > buffer && *ch == '0') {
     --ch;
   }
-  char* last_nonzero = ch;
+  char *last_nonzero = ch;
   while (ch >= buffer) {
     switch (*ch) {
       case '0':
@@ -13305,23 +10194,22 @@ std::string valueToString(double value) {
   return buffer;
 }
 
+std::string valueToString(bool value) { return value ? "true" : "false"; }
 
-std::string valueToString(bool value) {
-  return value ? "true" : "false";
-}
-
-std::string valueToQuotedString(const char* value) {
+std::string valueToQuotedString(const char *value) {
   // Not sure how to handle unicode...
-  if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL && !containsControlCharacter(value))
+  if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL &&
+      !containsControlCharacter(value))
     return std::string("\"") + value + "\"";
   // We have to walk value and escape any special characters.
   // Appending to std::string is not efficient, but this should be rare.
   // (Note: forward slashes are *not* rare, but I am not escaping them.)
-  std::string::size_type maxsize = strlen(value) * 2 + 3; // allescaped+quotes+NULL
+  std::string::size_type maxsize =
+      strlen(value) * 2 + 3;  // allescaped+quotes+NULL
   std::string result;
-  result.reserve(maxsize); // to avoid lots of mallocs
+  result.reserve(maxsize);  // to avoid lots of mallocs
   result += "\"";
-  for (const char* c = value; *c != 0; ++c) {
+  for (const char *c = value; *c != 0; ++c) {
     switch (*c) {
       case '\"':
         result += "\\\"";
@@ -13344,18 +10232,18 @@ std::string valueToQuotedString(const char* value) {
       case '\t':
         result += "\\t";
         break;
-      //case '/':
+      // case '/':
       // Even though \/ is considered a legal escape in JSON, a bare
       // slash is also legal, so I see no reason to escape it.
       // (I hope I am not misunderstanding something.
-      // blep notes: actually escaping \/ may be useful in javascript to avoid </
-      // sequence.
-      // Should add a flag to allow this compatibility mode and prevent this
-      // sequence from occurring.
+      // blep notes: actually escaping \/ may be useful in javascript to avoid
+      // </ sequence. Should add a flag to allow this compatibility mode and
+      // prevent this sequence from occurring.
       default:
         if (isControlCharacter(*c)) {
           std::ostringstream oss;
-          oss << "\\u" << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << static_cast<int>(*c);
+          oss << "\\u" << std::hex << std::uppercase << std::setfill('0')
+              << std::setw(4) << static_cast<int>(*c);
           result += oss.str();
         } else {
           result += *c;
@@ -13369,35 +10257,23 @@ std::string valueToQuotedString(const char* value) {
 
 // Class Writer
 // //////////////////////////////////////////////////////////////////
-Writer::~Writer() {
-}
-
+Writer::~Writer() {}
 
 // Class FastWriter
 // //////////////////////////////////////////////////////////////////
 
-FastWriter::FastWriter()
-  : yamlCompatiblityEnabled_(false) {
-}
+FastWriter::FastWriter() : yamlCompatiblityEnabled_(false) {}
 
+void FastWriter::enableYAMLCompatibility() { yamlCompatiblityEnabled_ = true; }
 
-void
-FastWriter::enableYAMLCompatibility() {
-  yamlCompatiblityEnabled_ = true;
-}
-
-
-std::string
-FastWriter::write(const Value& root) {
+std::string FastWriter::write(const Value &root) {
   document_ = "";
   writeValue(root);
   document_ += "\n";
   return document_;
 }
 
-
-void
-FastWriter::writeValue(const Value& value) {
+void FastWriter::writeValue(const Value &value) {
   switch (value.type()) {
     case nullValue:
       document_ += "null";
@@ -13421,45 +10297,33 @@ FastWriter::writeValue(const Value& value) {
       document_ += "[";
       int size = value.size();
       for (int index = 0; index < size; ++index) {
-        if (index > 0)
-          document_ += ",";
+        if (index > 0) document_ += ",";
         writeValue(value[index]);
       }
       document_ += "]";
-    }
-    break;
+    } break;
     case objectValue: {
       Value::Members members(value.getMemberNames());
       document_ += "{";
-      for (Value::Members::iterator it = members.begin();
-           it != members.end();
+      for (Value::Members::iterator it = members.begin(); it != members.end();
            ++it) {
-        const std::string& name = *it;
-        if (it != members.begin())
-          document_ += ",";
+        const std::string &name = *it;
+        if (it != members.begin()) document_ += ",";
         document_ += valueToQuotedString(name.c_str());
-        document_ += yamlCompatiblityEnabled_ ? ": "
-                     : ":";
+        document_ += yamlCompatiblityEnabled_ ? ": " : ":";
         writeValue(value[name]);
       }
       document_ += "}";
-    }
-    break;
+    } break;
   }
 }
-
 
 // Class StyledWriter
 // //////////////////////////////////////////////////////////////////
 
-StyledWriter::StyledWriter()
-  : rightMargin_(74)
-  , indentSize_(3) {
-}
+StyledWriter::StyledWriter() : rightMargin_(74), indentSize_(3) {}
 
-
-std::string
-StyledWriter::write(const Value& root) {
+std::string StyledWriter::write(const Value &root) {
   document_ = "";
   addChildValues_ = false;
   indentString_ = "";
@@ -13470,9 +10334,7 @@ StyledWriter::write(const Value& root) {
   return document_;
 }
 
-
-void
-StyledWriter::writeValue(const Value& value) {
+void StyledWriter::writeValue(const Value &value) {
   switch (value.type()) {
     case nullValue:
       pushValue("null");
@@ -13504,8 +10366,8 @@ StyledWriter::writeValue(const Value& value) {
         indent();
         Value::Members::iterator it = members.begin();
         for (;;) {
-          const std::string& name = *it;
-          const Value& childValue = value[name];
+          const std::string &name = *it;
+          const Value &childValue = value[name];
           writeCommentBeforeValue(childValue);
           writeWithIndent(valueToQuotedString(name.c_str()));
           document_ += " : ";
@@ -13520,14 +10382,11 @@ StyledWriter::writeValue(const Value& value) {
         unindent();
         writeWithIndent("}");
       }
-    }
-    break;
+    } break;
   }
 }
 
-
-void
-StyledWriter::writeArrayValue(const Value& value) {
+void StyledWriter::writeArrayValue(const Value &value) {
   unsigned size = value.size();
   if (size == 0)
     pushValue("[]");
@@ -13539,7 +10398,7 @@ StyledWriter::writeArrayValue(const Value& value) {
       bool hasChildValue = !childValues_.empty();
       unsigned index = 0;
       for (;;) {
-        const Value& childValue = value[index];
+        const Value &childValue = value[index];
         writeCommentBeforeValue(childValue);
         if (hasChildValue)
           writeWithIndent(childValues_[index]);
@@ -13556,12 +10415,11 @@ StyledWriter::writeArrayValue(const Value& value) {
       }
       unindent();
       writeWithIndent("]");
-    } else { // output on a single line
+    } else {  // output on a single line
       assert(childValues_.size() == size);
       document_ += "[ ";
       for (unsigned index = 0; index < size; ++index) {
-        if (index > 0)
-          document_ += ", ";
+        if (index > 0) document_ += ", ";
         document_ += childValues_[index];
       }
       document_ += " ]";
@@ -13569,87 +10427,68 @@ StyledWriter::writeArrayValue(const Value& value) {
   }
 }
 
-
-bool
-StyledWriter::isMultineArray(const Value& value) {
+bool StyledWriter::isMultineArray(const Value &value) {
   int size = value.size();
-  bool isMultiLine = size * 3 >= rightMargin_ ;
+  bool isMultiLine = size * 3 >= rightMargin_;
   childValues_.clear();
-  for (int index = 0; index < size  &&  !isMultiLine; ++index) {
-    const Value& childValue = value[index];
-    isMultiLine = isMultiLine  ||
-                  ((childValue.isArray()  ||  childValue.isObject())  &&
-                   childValue.size() > 0);
+  for (int index = 0; index < size && !isMultiLine; ++index) {
+    const Value &childValue = value[index];
+    isMultiLine =
+        isMultiLine || ((childValue.isArray() || childValue.isObject()) &&
+                        childValue.size() > 0);
   }
-  if (!isMultiLine) {   // check if line length > max line length
+  if (!isMultiLine) {  // check if line length > max line length
     childValues_.reserve(size);
     addChildValues_ = true;
-    int lineLength = 4 + (size - 1) * 2; // '[ ' + ', '*n + ' ]'
-    for (int index = 0; index < size  &&  !isMultiLine; ++index) {
+    int lineLength = 4 + (size - 1) * 2;  // '[ ' + ', '*n + ' ]'
+    for (int index = 0; index < size && !isMultiLine; ++index) {
       writeValue(value[index]);
       lineLength += int(childValues_[index].length());
-      isMultiLine = isMultiLine  &&  hasCommentForValue(value[index]);
+      isMultiLine = isMultiLine && hasCommentForValue(value[index]);
     }
     addChildValues_ = false;
-    isMultiLine = isMultiLine  ||  lineLength >= rightMargin_;
+    isMultiLine = isMultiLine || lineLength >= rightMargin_;
   }
   return isMultiLine;
 }
 
-
-void
-StyledWriter::pushValue(const std::string& value) {
+void StyledWriter::pushValue(const std::string &value) {
   if (addChildValues_)
     childValues_.push_back(value);
   else
     document_ += value;
 }
 
-
-void
-StyledWriter::writeIndent() {
+void StyledWriter::writeIndent() {
   if (!document_.empty()) {
     char last = document_[document_.length() - 1];
-    if (last == ' ')       // already indented
+    if (last == ' ')  // already indented
       return;
-    if (last != '\n')      // Comments may add new-line
+    if (last != '\n')  // Comments may add new-line
       document_ += '\n';
   }
   document_ += indentString_;
 }
 
-
-void
-StyledWriter::writeWithIndent(const std::string& value) {
+void StyledWriter::writeWithIndent(const std::string &value) {
   writeIndent();
   document_ += value;
 }
 
+void StyledWriter::indent() { indentString_ += std::string(indentSize_, ' '); }
 
-void
-StyledWriter::indent() {
-  indentString_ += std::string(indentSize_, ' ');
-}
-
-
-void
-StyledWriter::unindent() {
+void StyledWriter::unindent() {
   assert(int(indentString_.size()) >= indentSize_);
   indentString_.resize(indentString_.size() - indentSize_);
 }
 
-
-void
-StyledWriter::writeCommentBeforeValue(const Value& root) {
-  if (!root.hasComment(commentBefore))
-    return;
+void StyledWriter::writeCommentBeforeValue(const Value &root) {
+  if (!root.hasComment(commentBefore)) return;
   document_ += normalizeEOL(root.getComment(commentBefore));
   document_ += "\n";
 }
 
-
-void
-StyledWriter::writeCommentAfterValueOnSameLine(const Value& root) {
+void StyledWriter::writeCommentAfterValueOnSameLine(const Value &root) {
   if (root.hasComment(commentAfterOnSameLine))
     document_ += " " + normalizeEOL(root.getComment(commentAfterOnSameLine));
 
@@ -13660,47 +10499,37 @@ StyledWriter::writeCommentAfterValueOnSameLine(const Value& root) {
   }
 }
 
-
-bool
-StyledWriter::hasCommentForValue(const Value& value) {
-  return value.hasComment(commentBefore)
-         ||  value.hasComment(commentAfterOnSameLine)
-         ||  value.hasComment(commentAfter);
+bool StyledWriter::hasCommentForValue(const Value &value) {
+  return value.hasComment(commentBefore) ||
+         value.hasComment(commentAfterOnSameLine) ||
+         value.hasComment(commentAfter);
 }
 
-
-std::string
-StyledWriter::normalizeEOL(const std::string& text) {
+std::string StyledWriter::normalizeEOL(const std::string &text) {
   std::string normalized;
   normalized.reserve(text.length());
-  const char* begin = text.c_str();
-  const char* end = begin + text.length();
-  const char* current = begin;
+  const char *begin = text.c_str();
+  const char *end = begin + text.length();
+  const char *current = begin;
   while (current != end) {
     char c = *current++;
-    if (c == '\r') {   // mac or dos EOL
-      if (*current == '\n')   // convert dos EOL
+    if (c == '\r') {         // mac or dos EOL
+      if (*current == '\n')  // convert dos EOL
         ++current;
       normalized += '\n';
-    } else // handle unix EOL & other char
+    } else  // handle unix EOL & other char
       normalized += c;
   }
   return normalized;
 }
 
-
 // Class StyledStreamWriter
 // //////////////////////////////////////////////////////////////////
 
 StyledStreamWriter::StyledStreamWriter(std::string indentation)
-  : document_(NULL)
-  , rightMargin_(74)
-  , indentation_(indentation) {
-}
+    : document_(NULL), rightMargin_(74), indentation_(indentation) {}
 
-
-void
-StyledStreamWriter::write(std::ostream& out, const Value& root) {
+void StyledStreamWriter::write(std::ostream &out, const Value &root) {
   document_ = &out;
   addChildValues_ = false;
   indentString_ = "";
@@ -13708,12 +10537,10 @@ StyledStreamWriter::write(std::ostream& out, const Value& root) {
   writeValue(root);
   writeCommentAfterValueOnSameLine(root);
   *document_ << "\n";
-  document_ = NULL; // Forget the stream, for safety.
+  document_ = NULL;  // Forget the stream, for safety.
 }
 
-
-void
-StyledStreamWriter::writeValue(const Value& value) {
+void StyledStreamWriter::writeValue(const Value &value) {
   switch (value.type()) {
     case nullValue:
       pushValue("null");
@@ -13745,8 +10572,8 @@ StyledStreamWriter::writeValue(const Value& value) {
         indent();
         Value::Members::iterator it = members.begin();
         for (;;) {
-          const std::string& name = *it;
-          const Value& childValue = value[name];
+          const std::string &name = *it;
+          const Value &childValue = value[name];
           writeCommentBeforeValue(childValue);
           writeWithIndent(valueToQuotedString(name.c_str()));
           *document_ << " : ";
@@ -13761,14 +10588,11 @@ StyledStreamWriter::writeValue(const Value& value) {
         unindent();
         writeWithIndent("}");
       }
-    }
-    break;
+    } break;
   }
 }
 
-
-void
-StyledStreamWriter::writeArrayValue(const Value& value) {
+void StyledStreamWriter::writeArrayValue(const Value &value) {
   unsigned size = value.size();
   if (size == 0)
     pushValue("[]");
@@ -13780,7 +10604,7 @@ StyledStreamWriter::writeArrayValue(const Value& value) {
       bool hasChildValue = !childValues_.empty();
       unsigned index = 0;
       for (;;) {
-        const Value& childValue = value[index];
+        const Value &childValue = value[index];
         writeCommentBeforeValue(childValue);
         if (hasChildValue)
           writeWithIndent(childValues_[index]);
@@ -13797,12 +10621,11 @@ StyledStreamWriter::writeArrayValue(const Value& value) {
       }
       unindent();
       writeWithIndent("]");
-    } else { // output on a single line
+    } else {  // output on a single line
       assert(childValues_.size() == size);
       *document_ << "[ ";
       for (unsigned index = 0; index < size; ++index) {
-        if (index > 0)
-          *document_ << ", ";
+        if (index > 0) *document_ << ", ";
         *document_ << childValues_[index];
       }
       *document_ << " ]";
@@ -13810,45 +10633,39 @@ StyledStreamWriter::writeArrayValue(const Value& value) {
   }
 }
 
-
-bool
-StyledStreamWriter::isMultineArray(const Value& value) {
+bool StyledStreamWriter::isMultineArray(const Value &value) {
   int size = value.size();
-  bool isMultiLine = size * 3 >= rightMargin_ ;
+  bool isMultiLine = size * 3 >= rightMargin_;
   childValues_.clear();
-  for (int index = 0; index < size  &&  !isMultiLine; ++index) {
-    const Value& childValue = value[index];
-    isMultiLine = isMultiLine  ||
-                  ((childValue.isArray()  ||  childValue.isObject())  &&
-                   childValue.size() > 0);
+  for (int index = 0; index < size && !isMultiLine; ++index) {
+    const Value &childValue = value[index];
+    isMultiLine =
+        isMultiLine || ((childValue.isArray() || childValue.isObject()) &&
+                        childValue.size() > 0);
   }
-  if (!isMultiLine) {   // check if line length > max line length
+  if (!isMultiLine) {  // check if line length > max line length
     childValues_.reserve(size);
     addChildValues_ = true;
-    int lineLength = 4 + (size - 1) * 2; // '[ ' + ', '*n + ' ]'
-    for (int index = 0; index < size  &&  !isMultiLine; ++index) {
+    int lineLength = 4 + (size - 1) * 2;  // '[ ' + ', '*n + ' ]'
+    for (int index = 0; index < size && !isMultiLine; ++index) {
       writeValue(value[index]);
       lineLength += int(childValues_[index].length());
-      isMultiLine = isMultiLine  &&  hasCommentForValue(value[index]);
+      isMultiLine = isMultiLine && hasCommentForValue(value[index]);
     }
     addChildValues_ = false;
-    isMultiLine = isMultiLine  ||  lineLength >= rightMargin_;
+    isMultiLine = isMultiLine || lineLength >= rightMargin_;
   }
   return isMultiLine;
 }
 
-
-void
-StyledStreamWriter::pushValue(const std::string& value) {
+void StyledStreamWriter::pushValue(const std::string &value) {
   if (addChildValues_)
     childValues_.push_back(value);
   else
     *document_ << value;
 }
 
-
-void
-StyledStreamWriter::writeIndent() {
+void StyledStreamWriter::writeIndent() {
   /*
     Some comments in this method would have been nice. ;-)
 
@@ -13864,38 +10681,25 @@ StyledStreamWriter::writeIndent() {
   *document_ << '\n' << indentString_;
 }
 
-
-void
-StyledStreamWriter::writeWithIndent(const std::string& value) {
+void StyledStreamWriter::writeWithIndent(const std::string &value) {
   writeIndent();
   *document_ << value;
 }
 
+void StyledStreamWriter::indent() { indentString_ += indentation_; }
 
-void
-StyledStreamWriter::indent() {
-  indentString_ += indentation_;
-}
-
-
-void
-StyledStreamWriter::unindent() {
+void StyledStreamWriter::unindent() {
   assert(indentString_.size() >= indentation_.size());
   indentString_.resize(indentString_.size() - indentation_.size());
 }
 
-
-void
-StyledStreamWriter::writeCommentBeforeValue(const Value& root) {
-  if (!root.hasComment(commentBefore))
-    return;
+void StyledStreamWriter::writeCommentBeforeValue(const Value &root) {
+  if (!root.hasComment(commentBefore)) return;
   *document_ << normalizeEOL(root.getComment(commentBefore));
   *document_ << "\n";
 }
 
-
-void
-StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value& root) {
+void StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value &root) {
   if (root.hasComment(commentAfterOnSameLine))
     *document_ << " " + normalizeEOL(root.getComment(commentAfterOnSameLine));
 
@@ -13906,56 +10710,45 @@ StyledStreamWriter::writeCommentAfterValueOnSameLine(const Value& root) {
   }
 }
 
-
-bool
-StyledStreamWriter::hasCommentForValue(const Value& value) {
-  return value.hasComment(commentBefore)
-         ||  value.hasComment(commentAfterOnSameLine)
-         ||  value.hasComment(commentAfter);
+bool StyledStreamWriter::hasCommentForValue(const Value &value) {
+  return value.hasComment(commentBefore) ||
+         value.hasComment(commentAfterOnSameLine) ||
+         value.hasComment(commentAfter);
 }
 
-
-std::string
-StyledStreamWriter::normalizeEOL(const std::string& text) {
+std::string StyledStreamWriter::normalizeEOL(const std::string &text) {
   std::string normalized;
   normalized.reserve(text.length());
-  const char* begin = text.c_str();
-  const char* end = begin + text.length();
-  const char* current = begin;
+  const char *begin = text.c_str();
+  const char *end = begin + text.length();
+  const char *current = begin;
   while (current != end) {
     char c = *current++;
-    if (c == '\r') {   // mac or dos EOL
-      if (*current == '\n')   // convert dos EOL
+    if (c == '\r') {         // mac or dos EOL
+      if (*current == '\n')  // convert dos EOL
         ++current;
       normalized += '\n';
-    } else // handle unix EOL & other char
+    } else  // handle unix EOL & other char
       normalized += c;
   }
   return normalized;
 }
 
-
-std::ostream& operator<<(std::ostream& sout, const Value& root) {
+std::ostream &operator<<(std::ostream &sout, const Value &root) {
   Json::StyledStreamWriter writer;
   writer.write(sout, root);
   return sout;
 }
 
-
-} // namespace Json
+}  // namespace Json
 
 // //////////////////////////////////////////////////////////////////////
 // End of content of file: src/lib_json/json_writer.cpp
 // //////////////////////////////////////////////////////////////////////
 
-
-
-
-
 //
 // end of src/jsoncpp.cpp
 //
-
 
 //
 // start of src/jsoncustomwriter.cpp
@@ -13992,27 +10785,20 @@ THE SOFTWARE.
 
 namespace Json {
 
-CustomWriter::CustomWriter(std::string opencurly,
-                           std::string closecurly,
-                           std::string opensquare,
-                           std::string closesquare,
-                           std::string colon,
-                           std::string comma,
-                           std::string indent,
-                           int maxWidth)
-  : opencurly_(opencurly)
-  , closecurly_(closecurly)
-  , opensquare_(opensquare)
-  , closesquare_(closesquare)
-  , colon_(colon)
-  , comma_(comma)
-  , indent_(indent)
-  , maxWidth_(maxWidth) {
-}
+CustomWriter::CustomWriter(std::string opencurly, std::string closecurly,
+                           std::string opensquare, std::string closesquare,
+                           std::string colon, std::string comma,
+                           std::string indent, int maxWidth)
+    : opencurly_(opencurly),
+      closecurly_(closecurly),
+      opensquare_(opensquare),
+      closesquare_(closesquare),
+      colon_(colon),
+      comma_(comma),
+      indent_(indent),
+      maxWidth_(maxWidth) {}
 
-
-std::string
-CustomWriter::write(const Value& root) {
+std::string CustomWriter::write(const Value &root) {
   document_ = "";
   indentString_ = "";
   writeValue(root, document_, false);
@@ -14020,9 +10806,8 @@ CustomWriter::write(const Value& root) {
   return document_;
 }
 
-
-void
-CustomWriter::writeValue(const Value& value, std::string& doc, bool forceSingleLine) {
+void CustomWriter::writeValue(const Value &value, std::string &doc,
+                              bool forceSingleLine) {
   switch (value.type()) {
     case nullValue:
       doc += "null";
@@ -14055,16 +10840,14 @@ CustomWriter::writeValue(const Value& value, std::string& doc, bool forceSingleL
         }
       }
       doc += opensquare_;
-      if (isMulti)
-        indent();
+      if (isMulti) indent();
       for (int index = 0; index < value.size(); ++index) {
         if (isMulti) {
           doc += "\n";
           doc += indentString_;
         }
         writeValue(value[index], doc, false);
-        if (index < value.size() - 1)
-          doc += comma_;
+        if (index < value.size() - 1) doc += comma_;
       }
       if (isMulti) {
         unindent();
@@ -14072,8 +10855,7 @@ CustomWriter::writeValue(const Value& value, std::string& doc, bool forceSingleL
         doc += indentString_;
       }
       doc += closesquare_;
-    }
-    break;
+    } break;
     case objectValue: {
       bool isMulti = false;
       if (!forceSingleLine) {
@@ -14088,22 +10870,18 @@ CustomWriter::writeValue(const Value& value, std::string& doc, bool forceSingleL
       }
       Value::Members members(value.getMemberNames());
       doc += opencurly_;
-      if (isMulti)
-        indent();
-      for (Value::Members::iterator it = members.begin();
-           it != members.end();
+      if (isMulti) indent();
+      for (Value::Members::iterator it = members.begin(); it != members.end();
            ++it) {
         if (isMulti) {
           doc += "\n";
           doc += indentString_;
-
         }
-        const std::string& name = *it;
+        const std::string &name = *it;
         doc += valueToQuotedString(name.c_str());
         doc += colon_;
         writeValue(value[name], doc, forceSingleLine);
-        if (!(it + 1 == members.end()))
-          doc += comma_;
+        if (!(it + 1 == members.end())) doc += comma_;
       }
       if (isMulti) {
         unindent();
@@ -14111,31 +10889,22 @@ CustomWriter::writeValue(const Value& value, std::string& doc, bool forceSingleL
         doc += indentString_;
       }
       doc += closecurly_;
-    }
-    break;
+    } break;
   }
 }
 
+void CustomWriter::indent() { indentString_ += indent_; }
 
-void
-CustomWriter::indent() {
-  indentString_ += indent_;
-}
-
-
-void
-CustomWriter::unindent() {
+void CustomWriter::unindent() {
   int idSize = int(indent_.size());
   int idsSize = int(indentString_.size());
-  if (idsSize >= idSize)
-    indentString_.resize(idsSize - idSize);
+  if (idsSize >= idSize) indentString_.resize(idsSize - idSize);
 }
 
-}
+}  // namespace Json
 //
 // end of src/jsoncustomwriter.cpp
 //
-
 
 //
 // start of src/material.cpp
@@ -14144,21 +10913,21 @@ CustomWriter::unindent() {
 // The very central Material class
 // -- Anthony Scopatz
 
+#include <math.h>  // modf
+
+#include <iomanip>  // std::setprecision
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <iomanip>  // std::setprecision
-#include <math.h>   // modf
-#include <stdexcept>
 
 #ifndef PYNE_IS_AMALGAMATED
-#include "transmuters.h"
 #include "material.h"
+#include "transmuters.h"
 #endif
 
 // h5wrap template
 template double h5wrap::get_array_index(hid_t, int, hid_t);
 const int mcnp_line_length = 79;
-
 
 /***************************/
 /*** Protected Functions ***/
@@ -14173,7 +10942,6 @@ double pyne::Material::get_comp_sum() {
   return sum;
 }
 
-
 void pyne::Material::norm_comp() {
   double sum = get_comp_sum();
   if (sum != 1.0 && sum != 0.0) {
@@ -14181,12 +10949,11 @@ void pyne::Material::norm_comp() {
       i->second = i->second / sum;
   }
 
-  if (mass < 0.0)
-    mass = sum;
+  if (mass < 0.0) mass = sum;
 }
 
-
-void pyne::Material::_load_comp_protocol0(hid_t db, std::string datapath, int row) {
+void pyne::Material::_load_comp_protocol0(hid_t db, std::string datapath,
+                                          int row) {
   // Clear current content
   comp.clear();
 
@@ -14203,11 +10970,11 @@ void pyne::Material::_load_comp_protocol0(hid_t db, std::string datapath, int ro
 
   // Iterate over datasets in the group.
   for (int matg = 0; matg < matG; matg++) {
-    nuckeylen = 1 + H5Lget_name_by_idx(matgroup, ".", H5_INDEX_NAME, H5_ITER_INC, matg,
-                                       NULL, 0, H5P_DEFAULT);
-    char* nkey = new char[nuckeylen];
-    nuckeylen = H5Lget_name_by_idx(matgroup, ".", H5_INDEX_NAME, H5_ITER_INC, matg,
-                                   nkey, nuckeylen, H5P_DEFAULT);
+    nuckeylen = 1 + H5Lget_name_by_idx(matgroup, ".", H5_INDEX_NAME,
+                                       H5_ITER_INC, matg, NULL, 0, H5P_DEFAULT);
+    char *nkey = new char[nuckeylen];
+    nuckeylen = H5Lget_name_by_idx(matgroup, ".", H5_INDEX_NAME, H5_ITER_INC,
+                                   matg, nkey, nuckeylen, H5P_DEFAULT);
     nuckey = nkey;
     nucset = H5Dopen2(matgroup, nkey, H5P_DEFAULT);
     nucvalue = h5wrap::get_array_index<double>(nucset, row);
@@ -14225,7 +10992,6 @@ void pyne::Material::_load_comp_protocol0(hid_t db, std::string datapath, int ro
   atoms_per_molecule = -1.0;
 }
 
-
 void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath,
                                           int row) {
   std::string nucpath;
@@ -14237,10 +11003,11 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath,
     _load_comp_protocol1(db, datapath, nucpath, row);
   } else {
     H5Dclose(data_set);
-    throw std::runtime_error("Can't find location of the nuclide list: nucpath attribute not found!");
+    throw std::runtime_error(
+        "Can't find location of the nuclide list: nucpath attribute not "
+        "found!");
   }
 }
-
 
 void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath,
                                           std::string nucpath, int row) {
@@ -14297,7 +11064,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath,
             comp_values_array_type);
 
   // make the data array, have to over-allocate
-  material_data* mat_data = new material_data[material_data_size];
+  material_data *mat_data = new material_data[material_data_size];
 
   // Finally, get data and put in on this instance
   H5Dread(data_set, desc, mem_space, data_hyperslab, H5P_DEFAULT, mat_data);
@@ -14317,8 +11084,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath,
   //
   std::string attrpath = datapath + "_metadata";
   bool attrpath_exists = h5wrap::path_exists(db, attrpath);
-  if (!attrpath_exists)
-    return;
+  if (!attrpath_exists) return;
 
   hid_t metadatapace, attrtype, metadataet, metadatalab, attrmemspace;
   int attrrank;
@@ -14337,7 +11103,7 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath,
 
   // convert to in-memory JSON
   Json::Reader reader;
-  reader.parse((char*)attrdata[0].p, (char*)attrdata[0].p + attrdata[0].len,
+  reader.parse((char *)attrdata[0].p, (char *)attrdata[0].p + attrdata[0].len,
                metadata, false);
 
   // close attr data objects
@@ -14347,13 +11113,12 @@ void pyne::Material::_load_comp_protocol1(hid_t db, std::string datapath,
   H5Tclose(attrtype);
 }
 
-
-void pyne::Material::from_hdf5(char* filename, char* datapath, int row, int protocol) {
+void pyne::Material::from_hdf5(char *filename, char *datapath, int row,
+                               int protocol) {
   std::string fname(filename);
   std::string dpath(datapath);
   from_hdf5(fname, dpath, row, protocol);
 }
-
 
 int pyne::Material::detect_hdf5_layout(hid_t db, std::string path) {
   // Check hdf5 material layout:
@@ -14378,7 +11143,8 @@ int pyne::Material::detect_hdf5_layout(hid_t db, std::string path) {
   bool matpath_exists = (status == 0);
   if (!matpath_exists && !path_exists) {
     return prot1_layout::path_donotexists;
-  } else if (path_info.type == H5O_TYPE_DATASET || matpath_info.type == H5O_TYPE_DATASET) {
+  } else if (path_info.type == H5O_TYPE_DATASET ||
+             matpath_info.type == H5O_TYPE_DATASET) {
     return prot1_layout::old_layout;
   } else if (matpath_info.type == H5O_TYPE_GROUP) {
     return prot1_layout::new_layout;
@@ -14387,21 +11153,19 @@ int pyne::Material::detect_hdf5_layout(hid_t db, std::string path) {
   }
 }
 
-
-void pyne::Material::from_hdf5(std::string filename, std::string datapath, int row, int protocol) {
+void pyne::Material::from_hdf5(std::string filename, std::string datapath,
+                               int row, int protocol) {
   // Turn off annoying HDF5 errors
   herr_t status;
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
   // Check that the file is there
-  if (!pyne::file_exists(filename))
-    throw pyne::FileNotFound(filename);
+  if (!pyne::file_exists(filename)) throw pyne::FileNotFound(filename);
   // Check to see if the file is in HDF5 format.
   bool ish5 = H5Fis_hdf5(filename.c_str());
-  if (!ish5)
-    throw h5wrap::FileNotHDF5(filename);
+  if (!ish5) throw h5wrap::FileNotHDF5(filename);
 
-  //Set file access properties so it closes cleanly
+  // Set file access properties so it closes cleanly
   hid_t fapl;
   fapl = H5Pcreate(H5P_FILE_ACCESS);
   H5Pset_fclose_degree(fapl, H5F_CLOSE_STRONG);
@@ -14413,19 +11177,20 @@ void pyne::Material::from_hdf5(std::string filename, std::string datapath, int r
   // Load via various protocols
   if (protocol == 0) {
     bool datapath_exists = h5wrap::path_exists(db, datapath);
-    if (!datapath_exists)
-      throw h5wrap::PathNotFound(filename, datapath);
+    if (!datapath_exists) throw h5wrap::PathNotFound(filename, datapath);
     _load_comp_protocol0(db, datapath, row);
   } else if (protocol == 1) {
-
     int prot1_hdf5_layout = detect_hdf5_layout(db, datapath);
     switch (prot1_hdf5_layout) {
       case prot1_layout::path_donotexists:
-        throw std::runtime_error("/material and " + datapath + " paths do not exist.");
+        throw std::runtime_error("/material and " + datapath +
+                                 " paths do not exist.");
         break;
 
       case prot1_layout::unknown:
-        throw std::runtime_error(datapath + " is not a dataset and /material entity is not a group nor a dataset.");
+        throw std::runtime_error(datapath +
+                                 " is not a dataset and /material entity is "
+                                 "not a group nor a dataset.");
         break;
 
       case old_layout:
@@ -14448,16 +11213,17 @@ void pyne::Material::from_hdf5(std::string filename, std::string datapath, int r
   norm_comp();
 }
 
-
-void pyne::Material::deprecated_write_hdf5(char* filename, char* datapath, char* nucpath, float row, int chunksize) {
+void pyne::Material::deprecated_write_hdf5(char *filename, char *datapath,
+                                           char *nucpath, float row,
+                                           int chunksize) {
   std::string fname(filename);
   std::string groupname(datapath);
   std::string nuclist(nucpath);
   deprecated_write_hdf5(fname, groupname, nuclist, row, chunksize);
 }
 
-
-std::vector<int> pyne::Material::write_hdf5_nucpath(hid_t db, std::string nucpath) {
+std::vector<int> pyne::Material::write_hdf5_nucpath(hid_t db,
+                                                    std::string nucpath) {
   //
   // Read in nuclist if available, write it out if not
   //
@@ -14474,7 +11240,8 @@ std::vector<int> pyne::Material::write_hdf5_nucpath(hid_t db, std::string nucpat
     nuc_dims[0] = nuc_size;
     bool missing_nucs = false;
     for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
-      missing_nucs |= !std::binary_search(nuclides.begin(), nuclides.end(), i->first);
+      missing_nucs |=
+          !std::binary_search(nuclides.begin(), nuclides.end(), i->first);
       if (missing_nucs) {
         break;
       }
@@ -14482,7 +11249,7 @@ std::vector<int> pyne::Material::write_hdf5_nucpath(hid_t db, std::string nucpat
     if (missing_nucs)
       std::cout
           << "One or more nuclides are missing from the existing nuclides "
-          "list, material will likely not be written correctly."
+             "list, material will likely not be written correctly."
           << std::endl;
 
   } else {
@@ -14504,7 +11271,6 @@ std::vector<int> pyne::Material::write_hdf5_nucpath(hid_t db, std::string nucpat
   return nuclides;
 }
 
-
 void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
                                          float row, int chunksize,
                                          std::vector<int> nuclides) {
@@ -14521,20 +11287,23 @@ void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
   hsize_t data_max_dims[1] = {H5S_UNLIMITED};
   hsize_t data_offset[1] = {0};
 
-  size_t material_data_size = sizeof(pyne::material_data) + sizeof(double) * (nuc_size - 1);
+  size_t material_data_size =
+      sizeof(pyne::material_data) + sizeof(double) * (nuc_size - 1);
   hid_t desc = H5Tcreate(H5T_COMPOUND, material_data_size);
-  hid_t comp_values_array_type = H5Tarray_create2(H5T_NATIVE_DOUBLE, 1, nuc_dims);
+  hid_t comp_values_array_type =
+      H5Tarray_create2(H5T_NATIVE_DOUBLE, 1, nuc_dims);
 
   // make the data table type
-  H5Tinsert(desc, "mass", HOFFSET(pyne::material_data, mass), H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "mass", HOFFSET(pyne::material_data, mass),
+            H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "density", HOFFSET(pyne::material_data, density),
             H5T_NATIVE_DOUBLE);
-  H5Tinsert(desc, "atoms_per_molecule", HOFFSET(pyne::material_data, atoms_per_mol),
-            H5T_NATIVE_DOUBLE);
+  H5Tinsert(desc, "atoms_per_molecule",
+            HOFFSET(pyne::material_data, atoms_per_mol), H5T_NATIVE_DOUBLE);
   H5Tinsert(desc, "comp", HOFFSET(pyne::material_data, comp),
             comp_values_array_type);
 
-  material_data* mat_data  = new material_data[material_data_size];
+  material_data *mat_data = new material_data[material_data_size];
   (*mat_data).mass = mass;
   (*mat_data).density = density;
   (*mat_data).atoms_per_mol = atoms_per_molecule;
@@ -14585,7 +11354,8 @@ void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
   // Get the data hyperslab
   data_hyperslab = H5Dget_space(data_set);
   hsize_t data_count[1] = {1};
-  H5Sselect_hyperslab(data_hyperslab, H5S_SELECT_SET, data_offset, NULL, data_count, NULL);
+  H5Sselect_hyperslab(data_hyperslab, H5S_SELECT_SET, data_offset, NULL,
+                      data_count, NULL);
 
   // Get a memory space for writing
   hid_t mem_space = H5Screate_simple(1, data_count, data_max_dims);
@@ -14613,7 +11383,8 @@ void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
   if (attrpath_exists) {
     metadataet = H5Dopen2(db, attrpath.c_str(), H5P_DEFAULT);
     metadatapace = H5Dget_space(metadataet);
-    attrrank = H5Sget_simple_extent_dims(metadatapace, data_dims, data_max_dims);
+    attrrank =
+        H5Sget_simple_extent_dims(metadatapace, data_dims, data_max_dims);
 
     if (data_dims[0] <= row_num) {
       // row == -0, extend to data set so that we can append, or
@@ -14625,7 +11396,7 @@ void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
     data_offset[0] = row_num;
   } else {
     hid_t metadataetparams;
-    hsize_t attrchunkdims [1];
+    hsize_t attrchunkdims[1];
 
     // Make data set properties to enable chunking
     metadataetparams = H5Pcreate(H5P_DATASET_CREATE);
@@ -14633,9 +11404,9 @@ void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
     H5Pset_chunk(metadataetparams, 1, attrchunkdims);
     H5Pset_deflate(metadataetparams, 1);
 
-    hvl_t attrfillvalue [1];
+    hvl_t attrfillvalue[1];
     attrfillvalue[0].len = 3;
-    attrfillvalue[0].p = (char*) "{}\n";
+    attrfillvalue[0].p = (char *)"{}\n";
     H5Pset_fill_value(metadataetparams, attrtype, &attrfillvalue);
 
     // make dataset
@@ -14647,17 +11418,19 @@ void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
   }
 
   // set the attr string
-  hvl_t attrdata [1];
+  hvl_t attrdata[1];
   Json::FastWriter writer;
   std::string metadatatr = writer.write(metadata);
-  attrdata[0].p = (char*) metadatatr.c_str();
+  attrdata[0].p = (char *)metadatatr.c_str();
   attrdata[0].len = metadatatr.length();
 
   // write the attr
   metadatalab = H5Dget_space(metadataet);
-  H5Sselect_hyperslab(metadatalab, H5S_SELECT_SET, data_offset, NULL, data_count, NULL);
+  H5Sselect_hyperslab(metadatalab, H5S_SELECT_SET, data_offset, NULL,
+                      data_count, NULL);
   attrmemspace = H5Screate_simple(1, data_count, data_max_dims);
-  H5Dwrite(metadataet, attrtype, attrmemspace, metadatalab, H5P_DEFAULT, attrdata);
+  H5Dwrite(metadataet, attrtype, attrmemspace, metadatalab, H5P_DEFAULT,
+           attrdata);
 
   // close attr data objects
   H5Fflush(db, H5F_SCOPE_GLOBAL);
@@ -14668,15 +11441,13 @@ void pyne::Material::write_hdf5_datapath(hid_t db, std::string datapath,
   delete[] mat_data;
 }
 
-
 void pyne::Material::write_hdf5(std::string filename, std::string datapath,
                                 float row, int chunksize) {
-  if (datapath.front() != '/')
-    datapath = '/' + datapath;
+  if (datapath.front() != '/') datapath = '/' + datapath;
 
   hid_t material_grp_id;  // Holder of HDF5 Id of the "/material" group
   hid_t data_id;  // Holder of HDF5 Id of the data group to write the data
-  // (located in "/material/datapath")
+                  // (located in "/material/datapath")
 
   // Turn off annoying HDF5 errors
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
@@ -14709,16 +11480,15 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
 
   } else {
     bool ish5 = H5Fis_hdf5(filename.c_str());
-    if (!ish5)
-      throw h5wrap::FileNotHDF5(filename);
+    if (!ish5) throw h5wrap::FileNotHDF5(filename);
     db = H5Fopen(filename.c_str(), H5F_ACC_RDWR, fapl);
   }
   int prot1_hdf5_layout = detect_hdf5_layout(db, datapath);
   switch (prot1_hdf5_layout) {
     case prot1_layout::unknown: {
-      throw std::runtime_error(
-          datapath +
-          " is not a dataset and /material entity is neither a group nor a dataset.");
+      throw std::runtime_error(datapath +
+                               " is not a dataset and /material entity is "
+                               "neither a group nor a dataset.");
       break;
     }
 
@@ -14731,7 +11501,7 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
         // if path exists grab the nucpath
         bool nucpath_detetcted = detect_nuclidelist(data_set, nucpath);
         if (!nucpath_detetcted) {  // can't find a valid nuclide list path
-          // from datapath... fail
+                                   // from datapath... fail
           throw std::runtime_error(
               "Can't find the nuclide list path in the existing datapath. "
               "Can't add your material to the datapath.");
@@ -14757,7 +11527,7 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
     }
   }
 
-  //datapath is provided with a "/" so need to open with fullpath
+  // datapath is provided with a "/" so need to open with fullpath
   // Group "/material/datapath" does not exist create it
   if (!h5wrap::path_exists(db, "/material" + datapath)) {
     data_id = H5Gcreate2(db, ("/material" + datapath).c_str(), H5P_DEFAULT,
@@ -14778,9 +11548,10 @@ void pyne::Material::write_hdf5(std::string filename, std::string datapath,
   H5Fclose(db);
 }
 
-
-void pyne::Material::deprecated_write_hdf5(std::string filename, std::string datapath,
-                                           std::string nucpath, float row, int chunksize) {
+void pyne::Material::deprecated_write_hdf5(std::string filename,
+                                           std::string datapath,
+                                           std::string nucpath, float row,
+                                           int chunksize) {
   // Turn off annoying HDF5 errors
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
@@ -14792,8 +11563,7 @@ void pyne::Material::deprecated_write_hdf5(std::string filename, std::string dat
   hid_t db;
   if (pyne::file_exists(filename)) {
     bool ish5 = H5Fis_hdf5(filename.c_str());
-    if (!ish5)
-      throw h5wrap::FileNotHDF5(filename);
+    if (!ish5) throw h5wrap::FileNotHDF5(filename);
     db = H5Fopen(filename.c_str(), H5F_ACC_RDWR, fapl);
   } else
     db = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, fapl);
@@ -14803,9 +11573,9 @@ void pyne::Material::deprecated_write_hdf5(std::string filename, std::string dat
   H5Fclose(db);
 }
 
-
 void pyne::Material::deprecated_write_hdf5(hid_t db, std::string datapath,
-                                           std::string nucpath, float row, int chunksize) {
+                                           std::string nucpath, float row,
+                                           int chunksize) {
   int row_num = (int)row;
 
   //
@@ -14833,11 +11603,11 @@ void pyne::Material::deprecated_write_hdf5(hid_t db, std::string datapath,
   }
 }
 
-
 std::string pyne::Material::openmc(std::string frac_type) {
   std::ostringstream oss;
 
-  std::set<int> carbon_set; carbon_set.insert(nucname::id("C"));
+  std::set<int> carbon_set;
+  carbon_set.insert(nucname::id("C"));
   pyne::Material temp_mat = this->expand_elements(carbon_set);
 
   // vars for consistency
@@ -14846,7 +11616,7 @@ std::string pyne::Material::openmc(std::string frac_type) {
   std::string indent = "  ";
 
   // open the material element
-  oss << "<material id=" ;
+  oss << "<material id=";
 
   // add the mat number
   if (temp_mat.metadata.isMember("mat_number")) {
@@ -14855,32 +11625,36 @@ std::string pyne::Material::openmc(std::string frac_type) {
   }
   // mat numbers are required for openmc
   else {
-    throw pyne::ValueError("No material number found in metadata. This is not valid for use in OpenMC.");
+    throw pyne::ValueError(
+        "No material number found in metadata. This is not valid for use in "
+        "OpenMC.");
     oss << new_quote << "?" << end_quote;
   }
 
   // add name if specified
   if (temp_mat.metadata.isMember("name")) {
-    oss << "name=" << new_quote << temp_mat.metadata["name"].asString() << end_quote;
+    oss << "name=" << new_quote << temp_mat.metadata["name"].asString()
+        << end_quote;
   }
   // close the material tag
   oss << ">";
   // new line
   oss << std::endl;
 
-  //indent
+  // indent
   oss << indent;
 
   // specify density
   oss << "<density ";
   // if density is negtaive, report to user
   if (temp_mat.density < 0.0) {
-    throw pyne::ValueError("A density < 0.0 was found. This is not valid for use in OpenMC.");
+    throw pyne::ValueError(
+        "A density < 0.0 was found. This is not valid for use in OpenMC.");
   }
   std::string density_str = std::to_string(temp_mat.density);
   // remove trailing zeros
   density_str.erase(density_str.find_last_not_of('0') + 1, std::string::npos);
-  oss << "value=" <<  std::fixed << new_quote << density_str << end_quote;
+  oss << "value=" << std::fixed << new_quote << density_str << end_quote;
   oss << "units=" << new_quote << "g/cc" << end_quote << "/>";
   // new line
   oss << std::endl;
@@ -14900,14 +11674,15 @@ std::string pyne::Material::openmc(std::string frac_type) {
     if (f->second == 0.0) {
       continue;
     }
-    //indent
+    // indent
     oss << "  ";
     // start a new nuclide element
     oss << "<nuclide name=" << new_quote;
     oss << pyne::nucname::openmc(f->first);
     oss << end_quote;
     oss << frac_attrib;
-    oss << std::setprecision(4) << std::scientific << new_quote << f->second << end_quote;
+    oss << std::setprecision(4) << std::scientific << new_quote << f->second
+        << end_quote;
     oss << "/>";
     // new line
     oss << std::endl;
@@ -14925,7 +11700,8 @@ std::string pyne::Material::openmc(std::string frac_type) {
   if (temp_mat.metadata.isMember("temperature")) {
     oss << indent;
     oss << "<temperature>";
-    oss << new_quote << temp_mat.metadata["temperature"].asString() << end_quote;
+    oss << new_quote << temp_mat.metadata["temperature"].asString()
+        << end_quote;
     oss << "</temperature>";
     oss << std::endl;
   }
@@ -14933,7 +11709,8 @@ std::string pyne::Material::openmc(std::string frac_type) {
   if (temp_mat.metadata.isMember("macroscopic")) {
     oss << indent;
     oss << "<macroscopic name=";
-    oss << new_quote << temp_mat.metadata["macroscropic"].asString() << end_quote;
+    oss << new_quote << temp_mat.metadata["macroscropic"].asString()
+        << end_quote;
     oss << "/>";
     oss << std::endl;
   }
@@ -14952,11 +11729,10 @@ std::string pyne::Material::openmc(std::string frac_type) {
   return oss.str();
 }
 
-
 ///---------------------------------------------------------------------------//
 std::string pyne::Material::get_uwuw_name() {
   // standard uwuw material name is : "mat:<Name of Material>/rho:<density>"
-  if (! metadata.isMember("name")) {
+  if (!metadata.isMember("name")) {
     pyne::warning("The material has no name");
     return "";
   }
@@ -14972,7 +11748,6 @@ std::string pyne::Material::get_uwuw_name() {
   return uwuw_name.str();
 }
 
-
 ///---------------------------------------------------------------------------//
 std::string pyne::Material::mcnp(std::string frac_type, bool mult_den) {
   //////////////////// Begin card creation ///////////////////////
@@ -14987,7 +11762,8 @@ std::string pyne::Material::mcnp(std::string frac_type, bool mult_den) {
   // 'density'
   if (density != -1.0) {
     std::stringstream ds;
-    ds << std::setprecision(5) << std::fixed << "C density = " << density << std::endl;
+    ds << std::setprecision(5) << std::fixed << "C density = " << density
+       << std::endl;
     oss << ds.str();
   }
   // 'source'
@@ -14997,7 +11773,8 @@ std::string pyne::Material::mcnp(std::string frac_type, bool mult_den) {
   // Metadata comments
   if (metadata.isMember("comments")) {
     std::string comment_string = "comments: " + metadata["comments"].asString();
-    oss << pyne::comment_line_wrapping(comment_string, comment_prefix, mcnp_line_length);
+    oss << pyne::comment_line_wrapping(comment_string, comment_prefix,
+                                       mcnp_line_length);
   }
 
   // Metadata mat_num
@@ -15019,7 +11796,6 @@ std::string pyne::Material::mcnp(std::string frac_type, bool mult_den) {
   return oss.str();
 }
 
-
 ///---------------------------------------------------------------------------//
 std::string pyne::Material::phits(std::string frac_type, bool mult_den) {
   //////////////////// Begin card creation ///////////////////////
@@ -15034,7 +11810,8 @@ std::string pyne::Material::phits(std::string frac_type, bool mult_den) {
   // Metadata comments
   if (metadata.isMember("comments")) {
     std::string comment_string = "comments: " + metadata["comments"].asString();
-    oss << pyne::comment_line_wrapping(comment_string, comment_prefix, mcnp_line_length);
+    oss << pyne::comment_line_wrapping(comment_string, comment_prefix,
+                                       mcnp_line_length);
   }
 
   // Metadata mat_num
@@ -15048,10 +11825,12 @@ std::string pyne::Material::phits(std::string frac_type, bool mult_den) {
   oss << " ]" << std::endl;
 
   // check for metadata
-  std::string keyworkds[7] = {"GAS", "ESTEP", "NLIB", "PLIB", "PNLIB", "ELIB", "HLIB"};
+  std::string keyworkds[7] = {"GAS",   "ESTEP", "NLIB", "PLIB",
+                              "PNLIB", "ELIB",  "HLIB"};
   for (auto keyword : keyworkds) {
     if (metadata.isMember(keyword)) {
-      oss << "     " << keyword << "=" << metadata[keyword].asInt() << std::endl;
+      oss << "     " << keyword << "=" << metadata[keyword].asInt()
+          << std::endl;
     }
   }
   // COND should be "<" or "=" or ">" if present
@@ -15069,8 +11848,8 @@ std::string pyne::Material::phits(std::string frac_type, bool mult_den) {
   return oss.str();
 }
 
-
-std::string pyne::Material::mcnp_frac(std::map<int, double> fracs, std::string frac_type) {
+std::string pyne::Material::mcnp_frac(std::map<int, double> fracs,
+                                      std::string frac_type) {
   std::string frac_sign = "";
   if ("atom" != frac_type) {
     frac_sign = "-";
@@ -15099,18 +11878,19 @@ std::string pyne::Material::mcnp_frac(std::map<int, double> fracs, std::string f
       }
       // The int needs a little formatting
       std::stringstream fs;
-      fs << std::setprecision(4) << std::scientific << frac_sign << i->second << std::endl;
+      fs << std::setprecision(4) << std::scientific << frac_sign << i->second
+         << std::endl;
       oss << fs.str();
     }
   }
   return oss.str();
 }
 
-
 ///---------------------------------------------------------------------------//
 /// Create a set out of the static string array.
 std::set<std::string> fluka_builtin(pyne::fluka_mat_strings,
-                                    pyne::fluka_mat_strings + pyne::FLUKA_MAT_NUM);
+                                    pyne::fluka_mat_strings +
+                                        pyne::FLUKA_MAT_NUM);
 
 ///---------------------------------------------------------------------------//
 /// not_fluka_builtin
@@ -15152,7 +11932,7 @@ std::string pyne::Material::fluka(int id, std::string frac_type) {
 /// certain metadata.
 std::string pyne::Material::fluka_material_str(int id) {
   std::stringstream ms;
-  std::string fluka_name; // needed to determine if built-in
+  std::string fluka_name;  // needed to determine if built-in
 
   int nucid = comp.begin()->first;
 
@@ -15161,7 +11941,8 @@ std::string pyne::Material::fluka_material_str(int id) {
     fluka_name = metadata["fluka_name"].asString();
   } else {  // Should be elemental
     if (comp.size() > 1) {
-      std::cerr << "Error: this mix is a compound, there should be a fluka_name defined."
+      std::cerr << "Error: this mix is a compound, there should be a "
+                   "fluka_name defined."
                 << std::endl;
       return ms.str();
     }
@@ -15203,7 +11984,8 @@ std::string pyne::Material::fluka_material_component(int fid, int nucid,
 ///---------------------------------------------------------------------------//
 /// Given all the info, return the Material string
 std::string pyne::Material::fluka_material_line(int znum, double atomic_mass,
-                                                int fid, std::string fluka_name) {
+                                                int fid,
+                                                std::string fluka_name) {
   std::stringstream ls;
 
   if (metadata.isMember("comments")) {
@@ -15212,15 +11994,15 @@ std::string pyne::Material::fluka_material_line(int znum, double atomic_mass,
     ls << std::endl;
   }
   ls << std::setw(10) << std::left << "MATERIAL";
-  ls << std::setprecision(0) << std::fixed << std::showpoint <<
-     std::setw(10) << std::right << (float)znum;
+  ls << std::setprecision(0) << std::fixed << std::showpoint << std::setw(10)
+     << std::right << (float)znum;
 
   ls << fluka_format_field(atomic_mass);
   // Note this is the current object density, and may or may not be meaningful
   ls << fluka_format_field(std::sqrt(density * density));
 
-  ls << std::setprecision(0) << std::fixed << std::showpoint <<
-     std::setw(10) << std::right << (float)fid;
+  ls << std::setprecision(0) << std::fixed << std::showpoint << std::setw(10)
+     << std::right << (float)fid;
   ls << std::setw(10) << std::right << "";
   ls << std::setw(10) << std::right << "";
   ls << std::setw(10) << std::left << fluka_name << std::endl;
@@ -15241,8 +12023,8 @@ std::string pyne::Material::fluka_format_field(float field) {
   double intpart;
   modf(field, &intpart);
   if (field == intpart) {
-    ls << std::setprecision(0) << std::fixed << std::showpoint
-       << std::setw(10) << std::right << field;
+    ls << std::setprecision(0) << std::fixed << std::showpoint << std::setw(10)
+       << std::right << field;
   } else {
     // This will print however many digits after the decimal, up to a max of six
     ls.unsetf(std::ios::showpoint);
@@ -15294,7 +12076,7 @@ std::string pyne::Material::fluka_compound_str(int id, std::string frac_type) {
   pyne::comp_iter nuc = comp.begin();
   // This will pick up multiples of 3 components
   while (counter >= 3) {
-    ss << std::setw(10) << std::left  << "COMPOUND";
+    ss << std::setw(10) << std::left << "COMPOUND";
 
     temp_s << frac_sign << nuc->second;
 
@@ -15323,7 +12105,7 @@ std::string pyne::Material::fluka_compound_str(int id, std::string frac_type) {
 
   // Get the last (or only, as the case may be) one or two fractions
   if (nuc != comp.end()) {
-    ss << std::setw(10) << std::left  << "COMPOUND";
+    ss << std::setw(10) << std::left << "COMPOUND";
     temp_s << frac_sign << nuc->second;
     ss << std::setw(10) << std::right << temp_s.str();
     ss << std::setw(10) << std::right << nucname::fluka(nuc->first);
@@ -15350,17 +12132,14 @@ std::string pyne::Material::fluka_compound_str(int id, std::string frac_type) {
   return ss.str();
 }
 
-
-void pyne::Material::from_text(char* filename) {
+void pyne::Material::from_text(char *filename) {
   std::string fname(filename);
   from_text(fname);
 }
 
-
 void pyne::Material::from_text(std::string filename) {
   // Check that the file is there
-  if (!pyne::file_exists(filename))
-    throw pyne::FileNotFound(filename);
+  if (!pyne::file_exists(filename)) throw pyne::FileNotFound(filename);
 
   // New filestream
   std::ifstream f;
@@ -15372,9 +12151,7 @@ void pyne::Material::from_text(std::string filename) {
 
   f >> keystr;
   while (!f.eof()) {
-
-    if (0 == keystr.length())
-      continue;
+    if (0 == keystr.length()) continue;
 
     if (keystr == "Mass") {
       f >> valstr;
@@ -15397,7 +12174,6 @@ void pyne::Material::from_text(std::string filename) {
       getline(f, valstr);
       valstr = valstr.substr(0, valstr.length() - 1);
       metadata[keystr] = valstr;
-
     }
     f >> keystr;
   }
@@ -15406,12 +12182,10 @@ void pyne::Material::from_text(std::string filename) {
   norm_comp();
 }
 
-
-void pyne::Material::write_text(char* filename) {
+void pyne::Material::write_text(char *filename) {
   std::string fname(filename);
   write_text(fname);
 }
-
 
 void pyne::Material::write_text(std::string filename) {
   std::ofstream f;
@@ -15420,14 +12194,11 @@ void pyne::Material::write_text(std::string filename) {
   Json::Reader reader;
   std::vector<std::string> obj = metadata.getMemberNames();
 
-  if (0 <= mass)
-    f << "Mass    " << mass << "\n";
+  if (0 <= mass) f << "Mass    " << mass << "\n";
 
-  if (0 <= density)
-    f << "Density "  << density << "\n";
+  if (0 <= density) f << "Density " << density << "\n";
 
-  if (0 <= atoms_per_molecule)
-    f << "APerM   " << atoms_per_molecule << "\n";
+  if (0 <= atoms_per_molecule) f << "APerM   " << atoms_per_molecule << "\n";
 
   for (int i = 0; i < metadata.size(); i = i + 2) {
     f << metadata.get(obj.at(i), "") << metadata.get(obj.at(i + 1), "");
@@ -15436,14 +12207,12 @@ void pyne::Material::write_text(std::string filename) {
   std::string nuc_name;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
     nuc_name = pyne::nucname::name(i->first) + "  ";
-    while (nuc_name.length() < 8)
-      nuc_name += " ";
+    while (nuc_name.length() < 8) nuc_name += " ";
     f << nuc_name << i->second << "\n";
   }
 
   f.close();
 }
-
 
 void pyne::Material::load_json(Json::Value json) {
   Json::Value::Members keys = json["comp"].getMemberNames();
@@ -15459,7 +12228,6 @@ void pyne::Material::load_json(Json::Value json) {
   metadata = json["metadata"];
 }
 
-
 Json::Value pyne::Material::dump_json() {
   Json::Value json = Json::Value(Json::objectValue);
   Json::Value jcomp = Json::Value(Json::objectValue);
@@ -15473,16 +12241,13 @@ Json::Value pyne::Material::dump_json() {
   return json;
 }
 
-
-void pyne::Material::from_json(char* filename) {
+void pyne::Material::from_json(char *filename) {
   std::string fname(filename);
   from_json(fname);
 }
 
-
 void pyne::Material::from_json(std::string filename) {
-  if (!pyne::file_exists(filename))
-    throw pyne::FileNotFound(filename);
+  if (!pyne::file_exists(filename)) throw pyne::FileNotFound(filename);
   std::string s;
   std::ifstream f(filename.c_str(), std::ios::in | std::ios::binary);
   f.seekg(0, std::ios::end);
@@ -15496,12 +12261,10 @@ void pyne::Material::from_json(std::string filename) {
   load_json(json);
 }
 
-
-void pyne::Material::write_json(char* filename) {
+void pyne::Material::write_json(char *filename) {
   std::string fname(filename);
   write_json(fname);
 }
-
 
 void pyne::Material::write_json(std::string filename) {
   Json::Value json = dump_json();
@@ -15512,7 +12275,6 @@ void pyne::Material::write_json(std::string filename) {
   f << s << "\n";
   f.close();
 }
-
 
 /************************/
 /*** Public Functions ***/
@@ -15527,7 +12289,6 @@ pyne::Material::Material() {
   metadata = Json::Value(Json::objectValue);
 }
 
-
 pyne::Material::Material(pyne::comp_map cm, double m, double d, double apm,
                          Json::Value attributes) {
   // Initializes the mass stream based on an isotopic component dictionary.
@@ -15536,12 +12297,10 @@ pyne::Material::Material(pyne::comp_map cm, double m, double d, double apm,
   density = d;
   atoms_per_molecule = apm;
   metadata = attributes;
-  if (!comp.empty())
-    norm_comp();
+  if (!comp.empty()) norm_comp();
 }
 
-
-pyne::Material::Material(char* filename, double m, double d, double apm,
+pyne::Material::Material(char *filename, double m, double d, double apm,
                          Json::Value attributes) {
   mass = m;
   density = d;
@@ -15550,8 +12309,7 @@ pyne::Material::Material(char* filename, double m, double d, double apm,
 
   // Check that the file is there
   std::string fname(filename);
-  if (!pyne::file_exists(fname))
-    throw pyne::FileNotFound(fname);
+  if (!pyne::file_exists(fname)) throw pyne::FileNotFound(fname);
 
   // Check to see if the file is in HDF5 format.
   bool ish5 = H5Fis_hdf5(fname.c_str());
@@ -15561,18 +12319,17 @@ pyne::Material::Material(char* filename, double m, double d, double apm,
     from_text(fname);
 }
 
-
 pyne::Material::Material(std::string filename, double m, double d, double apm,
                          Json::Value attributes) {
-  // Initializes the mass stream based on an isotopic composition file with a string name.
+  // Initializes the mass stream based on an isotopic composition file with a
+  // string name.
   mass = m;
   density = d;
   atoms_per_molecule = apm;
   metadata = attributes;
 
   // Check that the file is there
-  if (!pyne::file_exists(filename))
-    throw pyne::FileNotFound(filename);
+  if (!pyne::file_exists(filename)) throw pyne::FileNotFound(filename);
 
   // Check to see if the file is in HDF5 format.
   bool ish5 = H5Fis_hdf5(filename.c_str());
@@ -15582,14 +12339,11 @@ pyne::Material::Material(std::string filename, double m, double d, double apm,
     from_text(filename);
 }
 
-
-pyne::Material::~Material() {
-}
-
+pyne::Material::~Material() {}
 
 /*--- Method definitions ---*/
-std::ostream& operator<<(std::ostream& os, pyne::Material mat) {
-  //print the Mass Stream to stdout
+std::ostream &operator<<(std::ostream &os, pyne::Material mat) {
+  // print the Mass Stream to stdout
   os << "\tMass: " << mat.mass << "\n";
   os << "\t---------\n";
   for (pyne::comp_iter i = mat.comp.begin(); i != mat.comp.end(); i++) {
@@ -15598,23 +12352,19 @@ std::ostream& operator<<(std::ostream& os, pyne::Material mat) {
   return os;
 }
 
-
 // Note this refines << for an inheritor of std::ostream.
-std::ostringstream& operator<<(std::ostringstream& os, pyne::Material mat) {
+std::ostringstream &operator<<(std::ostringstream &os, pyne::Material mat) {
   return os;
 }
-
 
 void pyne::Material::normalize() {
   // normalizes the mass
   mass = 1.0;
 }
 
-
 pyne::comp_map pyne::Material::mult_by_mass() {
   // bypass calculation if already normalized.
-  if (mass == 1.0)
-    return comp;
+  if (mass == 1.0) return comp;
 
   pyne::comp_map cm;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
@@ -15623,63 +12373,61 @@ pyne::comp_map pyne::Material::mult_by_mass() {
   return cm;
 }
 
-
 pyne::comp_map pyne::Material::activity() {
   pyne::comp_map act;
   double masspermole = mass * pyne::N_A;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); ++i) {
-    act[i->first] = masspermole * (i->second) * decay_const(i->first) / \
+    act[i->first] = masspermole * (i->second) * decay_const(i->first) /
                     atomic_mass(i->first);
   }
   return act;
 }
 
-
 pyne::comp_map pyne::Material::decay_heat() {
   pyne::comp_map dh;
   double masspermole = mass * pyne::N_A;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); ++i) {
-    dh[i->first] = masspermole * (i->second) * \
-                   decay_const(metastable_id(i->first, nucname::snum(i->first))) * \
-                   q_val(i->first) / atomic_mass(i->first) / pyne::MeV_per_MJ;
+    dh[i->first] =
+        masspermole * (i->second) *
+        decay_const(metastable_id(i->first, nucname::snum(i->first))) *
+        q_val(i->first) / atomic_mass(i->first) / pyne::MeV_per_MJ;
   }
   return dh;
 }
-
 
 pyne::comp_map pyne::Material::dose_per_g(std::string dose_type, int source) {
   pyne::comp_map dose;
   const double pCi_per_Bq = 27.027027;
   if (dose_type == "ext_air") {
     for (pyne::comp_iter i = comp.begin(); i != comp.end(); ++i) {
-      dose[i->first] = Ci_per_Bq * pyne::N_A * (i->second) * \
-                       decay_const(i->first) * ext_air_dose(i->first, source) / \
+      dose[i->first] = Ci_per_Bq * pyne::N_A * (i->second) *
+                       decay_const(i->first) * ext_air_dose(i->first, source) /
                        atomic_mass(i->first);
     }
   } else if (dose_type == "ext_soil") {
     for (pyne::comp_iter i = comp.begin(); i != comp.end(); ++i) {
-      dose[i->first] = Ci_per_Bq * pyne::N_A * (i->second) * \
-                       decay_const(i->first) * ext_soil_dose(i->first, source) / \
+      dose[i->first] = Ci_per_Bq * pyne::N_A * (i->second) *
+                       decay_const(i->first) * ext_soil_dose(i->first, source) /
                        atomic_mass(i->first);
     }
   } else if (dose_type == "ingest") {
     for (pyne::comp_iter i = comp.begin(); i != comp.end(); ++i) {
-      dose[i->first] = pCi_per_Bq * pyne::N_A * (i->second) * \
-                       decay_const(i->first) * ingest_dose(i->first, source) / \
+      dose[i->first] = pCi_per_Bq * pyne::N_A * (i->second) *
+                       decay_const(i->first) * ingest_dose(i->first, source) /
                        atomic_mass(i->first);
     }
   } else if (dose_type == "inhale") {
     for (pyne::comp_iter i = comp.begin(); i != comp.end(); ++i) {
-      dose[i->first] = pCi_per_Bq * pyne::N_A * (i->second) * \
-                       decay_const(i->first) * inhale_dose(i->first, source) / \
+      dose[i->first] = pCi_per_Bq * pyne::N_A * (i->second) *
+                       decay_const(i->first) * inhale_dose(i->first, source) /
                        atomic_mass(i->first);
     }
   } else {
-    throw std::invalid_argument("Dose type must be one of: ext_air, ext_soil, ingest, inhale.");
+    throw std::invalid_argument(
+        "Dose type must be one of: ext_air, ext_soil, ingest, inhale.");
   }
   return dose;
 }
-
 
 double pyne::Material::molecular_mass(double apm) {
   // Calculate the atomic weight of the Material
@@ -15688,21 +12436,20 @@ double pyne::Material::molecular_mass(double apm) {
   for (pyne::comp_iter nuc = comp.begin(); nuc != comp.end(); nuc++)
     inverseA += (nuc->second) / pyne::atomic_mass(nuc->first);
 
-  if (inverseA == 0.0)
-    return inverseA;
+  if (inverseA == 0.0) return inverseA;
 
   // select the atoms per mol
-  double atsperm = 1.0; // default to 1.0
+  double atsperm = 1.0;  // default to 1.0
   if (0.0 <= apm) {
-    atsperm = apm;            // take the function argument, if valid
+    atsperm = apm;  // take the function argument, if valid
     if (atoms_per_molecule < 0.0)
-      atoms_per_molecule = apm;     // Store the function argument on class, if class has no value
+      atoms_per_molecule =
+          apm;  // Store the function argument on class, if class has no value
   } else if (0.0 <= atoms_per_molecule)
     atsperm = atoms_per_molecule;  // select the class's value
 
   return atsperm / inverseA;
 }
-
 
 pyne::Material pyne::Material::expand_elements(std::set<int> exception_ids) {
   // Expands the natural elements of a material and returns a new material note
@@ -15711,8 +12458,7 @@ pyne::Material pyne::Material::expand_elements(std::set<int> exception_ids) {
   int n, nabund, znuc, zabund;
   comp_map newcomp;
   std::map<int, double>::iterator abund_itr, abund_end;
-  if (pyne::natural_abund_map.empty())
-    pyne::_load_atomic_mass_map();
+  if (pyne::natural_abund_map.empty()) pyne::_load_atomic_mass_map();
   abund_itr = pyne::natural_abund_map.begin();
   abund_end = pyne::natural_abund_map.end();
   zabund = nucname::znum((*abund_itr).first);
@@ -15736,8 +12482,9 @@ pyne::Material pyne::Material::expand_elements(std::set<int> exception_ids) {
         nabund = (*abund_itr).first;
         zabund = nucname::znum(nabund);
 
-        if (zabund == znuc && 0 != nucname::anum(nabund) && 0.0 != (*abund_itr).second)
-          newcomp[nabund] = (*abund_itr).second * (*nuc).second * \
+        if (zabund == znuc && 0 != nucname::anum(nabund) &&
+            0.0 != (*abund_itr).second)
+          newcomp[nabund] = (*abund_itr).second * (*nuc).second *
                             atomic_mass(nabund) / atomic_mass(n);
         else if (n == nabund && 0.0 == (*abund_itr).second)
           newcomp.insert(*nuc);
@@ -15753,13 +12500,12 @@ pyne::Material pyne::Material::expand_elements(std::set<int> exception_ids) {
   return Material(newcomp, mass, density, atoms_per_molecule, metadata);
 }
 
-
 // Wrapped version for calling from python
-pyne::Material pyne::Material::expand_elements(int** int_ptr_arry) {
+pyne::Material pyne::Material::expand_elements(int **int_ptr_arry) {
   std::set<int> nucvec;
   // Set first pointer to first int pointed to by arg
   if (int_ptr_arry != NULL) {
-    int* int_ptr = *int_ptr_arry;
+    int *int_ptr = *int_ptr_arry;
     while (int_ptr != NULL) {
       nucvec.insert(*int_ptr);
       int_ptr++;
@@ -15767,7 +12513,6 @@ pyne::Material pyne::Material::expand_elements(int** int_ptr_arry) {
   }
   return expand_elements(nucvec);
 }
-
 
 pyne::Material pyne::Material::collapse_elements(std::set<int> exception_ids) {
   ////////////////////////////////////////////////////////////////////////
@@ -15812,19 +12557,17 @@ pyne::Material pyne::Material::collapse_elements(std::set<int> exception_ids) {
   return collapsed;
 }
 
-
 // Wrapped version for calling from python
-pyne::Material pyne::Material::collapse_elements(int** int_ptr_arry) {
+pyne::Material pyne::Material::collapse_elements(int **int_ptr_arry) {
   std::set<int> nucvec;
   // Set first pointer to first int pointed to by arg
-  int* int_ptr = *int_ptr_arry;
+  int *int_ptr = *int_ptr_arry;
   while (int_ptr != NULL) {
     nucvec.insert(*int_ptr);
     int_ptr++;
   }
   return collapse_elements(nucvec);
 }
-
 
 // Set up atom or mass frac map
 std::map<int, double> pyne::Material::get_density_frac(std::string frac_type,
@@ -15836,7 +12579,7 @@ std::map<int, double> pyne::Material::get_density_frac(std::string frac_type,
       fracs = to_atom_dens();
       for (comp_iter ci = fracs.begin(); ci != fracs.end(); ci++) {
         ci->second *= pyne::cm2_per_barn;  // unit requirememt is [10^24
-        // atoms/cm3] = [atoms/b.cm]
+                                           // atoms/cm3] = [atoms/b.cm]
       }
     } else {
       fracs = to_atom_frac();
@@ -15852,7 +12595,6 @@ std::map<int, double> pyne::Material::get_density_frac(std::string frac_type,
   return fracs;
 }
 
-
 double pyne::Material::mass_density(double num_dens, double apm) {
   if (0.0 <= num_dens) {
     double mw = molecular_mass(apm);
@@ -15861,15 +12603,12 @@ double pyne::Material::mass_density(double num_dens, double apm) {
   return density;
 }
 
-
 double pyne::Material::number_density(double mass_dens, double apm) {
-  if (0 <= mass_dens)
-    density = mass_dens;
+  if (0 <= mass_dens) density = mass_dens;
   double mw = molecular_mass(apm);
   double num_dens = density * pyne::N_A * atoms_per_molecule / mw;
   return num_dens;
 }
-
 
 /*--- Stub-Stream Computation ---*/
 pyne::Material pyne::Material::sub_mat(std::set<int> nucset) {
@@ -15879,35 +12618,32 @@ pyne::Material pyne::Material::sub_mat(std::set<int> nucset) {
 
   pyne::comp_map cm;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
-    if (0 < nucset.count(i->first))
-      cm[i->first] = (i->second) * mass;
+    if (0 < nucset.count(i->first)) cm[i->first] = (i->second) * mass;
   }
   return pyne::Material(cm, -1, -1);
 }
-
 
 pyne::Material pyne::Material::sub_mat(std::set<std::string> nucset) {
   // Grabs a substream from this stream based on a set of strings.
   // Strings can be of any form.
   std::set<int> iset;
-  for (std::set<std::string>::iterator i = nucset.begin(); i != nucset.end(); i++) {
+  for (std::set<std::string>::iterator i = nucset.begin(); i != nucset.end();
+       i++) {
     iset.insert(pyne::nucname::id(*i));
   }
   return sub_mat(iset);
 }
 
-
 pyne::Material pyne::Material::set_mat(std::set<int> nucset, double value) {
   // Sets a sub-material from this mat based on a set of integers.
-  // Integers can either be of id form -OR- they can be a z-numer (is 8 for O, 93 for Np, etc).
-  // n is the name of the new material.
+  // Integers can either be of id form -OR- they can be a z-numer (is 8 for O,
+  // 93 for Np, etc). n is the name of the new material.
 
   pyne::comp_map cm;
 
   // Add non-set components
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
-    if (0 == nucset.count(i->first))
-      cm[i->first] = (i->second) * mass;
+    if (0 == nucset.count(i->first)) cm[i->first] = (i->second) * mass;
   }
 
   // Add set component
@@ -15917,43 +12653,41 @@ pyne::Material pyne::Material::set_mat(std::set<int> nucset, double value) {
   return pyne::Material(cm, -1, -1);
 }
 
-
-pyne::Material pyne::Material::set_mat(std::set<std::string> nucset, double value) {
+pyne::Material pyne::Material::set_mat(std::set<std::string> nucset,
+                                       double value) {
   // Sets a substream from this stream based on a set of strings.
   // Strings can be of any form.
   std::set<int> iset;
-  for (std::set<std::string>::iterator i = nucset.begin(); i != nucset.end(); i++) {
+  for (std::set<std::string>::iterator i = nucset.begin(); i != nucset.end();
+       i++) {
     iset.insert(pyne::nucname::id(*i));
   }
   return set_mat(iset, value);
 }
 
-
 pyne::Material pyne::Material::del_mat(std::set<int> nucset) {
   // Removes a sub-material from this mat based on a set of integers.
-  // Integers can either be of id form -OR- they can be a z-numer (is 8 for O, 93 for Np, etc).
-  // n is the name of the new material.
+  // Integers can either be of id form -OR- they can be a z-numer (is 8 for O,
+  // 93 for Np, etc). n is the name of the new material.
 
   pyne::comp_map cm;
   for (pyne::comp_iter i = comp.begin(); i != comp.end(); i++) {
     // Only add to new comp if not in nucset
-    if (0 == nucset.count(i->first))
-      cm[i->first] = (i->second) * mass;
+    if (0 == nucset.count(i->first)) cm[i->first] = (i->second) * mass;
   }
   return pyne::Material(cm, -1, -1);
 }
-
 
 pyne::Material pyne::Material::del_mat(std::set<std::string> nucset) {
   // Removes a substream from this stream based on a set of strings.
   // Strings can be of any form.
   std::set<int> iset;
-  for (std::set<std::string>::iterator i = nucset.begin(); i != nucset.end(); i++) {
+  for (std::set<std::string>::iterator i = nucset.begin(); i != nucset.end();
+       i++) {
     iset.insert(pyne::nucname::id(*i));
   }
   return del_mat(iset);
 }
-
 
 pyne::Material pyne::Material::sub_range(int lower, int upper) {
   // Grabs a sub-material from this mat based on a range of integers.
@@ -15970,7 +12704,6 @@ pyne::Material pyne::Material::sub_range(int lower, int upper) {
   }
   return pyne::Material(cm, -1, -1);
 }
-
 
 pyne::Material pyne::Material::set_range(int lower, int upper, double value) {
   // Sets a sub-material from this mat based on a range of integers.
@@ -15990,7 +12723,6 @@ pyne::Material pyne::Material::set_range(int lower, int upper, double value) {
   return pyne::Material(cm, -1, -1);
 }
 
-
 pyne::Material pyne::Material::del_range(int lower, int upper) {
   // Removes a sub-material from this mat based on a range of integers.
   if (upper < lower) {
@@ -16007,42 +12739,35 @@ pyne::Material pyne::Material::del_range(int lower, int upper) {
   return pyne::Material(cm, -1, -1);
 }
 
-
 pyne::Material pyne::Material::sub_elem(int elem) {
   // Returns a material of the element that is a submaterial of this one.
   return sub_range(elem, elem + 10000000);
 }
-
 
 pyne::Material pyne::Material::sub_lan() {
   // Returns a material of Lanthanides that is a sub-material of this one.
   return sub_range(570000000, 720000000);
 }
 
-
 pyne::Material pyne::Material::sub_act() {
-  //Returns a material of Actindes that is a sub-material of this one.
+  // Returns a material of Actindes that is a sub-material of this one.
   return sub_range(890000000, 1040000000);
 }
-
 
 pyne::Material pyne::Material::sub_tru() {
   // Returns a material of Transuranics that is a sub-material of this one.
   return sub_range(930000000, INT_MAX);
 }
 
-
 pyne::Material pyne::Material::sub_ma() {
   // Returns a material of Minor Actinides that is a sub-material of this one.
   return sub_range(930000000, 1040000000).del_range(940000000, 950000000);
 }
 
-
 pyne::Material pyne::Material::sub_fp() {
   // Returns a material of Fission Products that is a sub-material of this one.
   return sub_range(0, 890000000);
 }
-
 
 /*--- Atom Frac Functions ---*/
 std::map<int, double> pyne::Material::to_atom_frac() {
@@ -16053,11 +12778,11 @@ std::map<int, double> pyne::Material::to_atom_frac() {
   std::map<int, double> atom_fracs = std::map<int, double>();
 
   for (comp_iter ci = comp.begin(); ci != comp.end(); ci++)
-    atom_fracs[ci->first] = (ci->second) * mat_mw / pyne::atomic_mass(ci->first);
+    atom_fracs[ci->first] =
+        (ci->second) * mat_mw / pyne::atomic_mass(ci->first);
 
   return atom_fracs;
 }
-
 
 void pyne::Material::from_atom_frac(std::map<int, double> atom_fracs) {
   // atom frac must be of the form {nuc: af}, eg, water
@@ -16068,13 +12793,13 @@ void pyne::Material::from_atom_frac(std::map<int, double> atom_fracs) {
   comp.clear();
   atoms_per_molecule = 0.0;
 
-  for (std::map<int, double>::iterator afi = atom_fracs.begin(); afi != atom_fracs.end(); afi++) {
+  for (std::map<int, double>::iterator afi = atom_fracs.begin();
+       afi != atom_fracs.end(); afi++) {
     comp[afi->first] = (afi->second) * pyne::atomic_mass(afi->first);
     atoms_per_molecule += (afi->second);
   }
   norm_comp();
 }
-
 
 std::map<int, double> pyne::Material::to_atom_dens() {
   // Returns an atom density map from this material's composition
@@ -16083,11 +12808,11 @@ std::map<int, double> pyne::Material::to_atom_dens() {
   std::map<int, double> atom_dens = std::map<int, double>();
 
   for (comp_iter ci = comp.begin(); ci != comp.end(); ci++)
-    atom_dens[ci->first] = (ci->second) * density * pyne::N_A / pyne::atomic_mass(ci->first);
+    atom_dens[ci->first] =
+        (ci->second) * density * pyne::N_A / pyne::atomic_mass(ci->first);
 
   return atom_dens;
 }
-
 
 std::vector<std::pair<double, double> > pyne::Material::gammas() {
   std::vector<std::pair<double, double> > result;
@@ -16101,13 +12826,12 @@ std::vector<std::pair<double, double> > pyne::Material::gammas() {
 
     std::vector<std::pair<double, double> > raw_gammas = pyne::gammas(state_id);
     for (int i = 0; i < raw_gammas.size(); ++i) {
-      result.push_back(std::make_pair(raw_gammas[i].first,
-                                      atom_fracs[ci->first]*raw_gammas[i].second));
+      result.push_back(std::make_pair(
+          raw_gammas[i].first, atom_fracs[ci->first] * raw_gammas[i].second));
     }
   }
   return result;
 }
-
 
 std::vector<std::pair<double, double> > pyne::Material::xrays() {
   std::vector<std::pair<double, double> > result;
@@ -16121,32 +12845,27 @@ std::vector<std::pair<double, double> > pyne::Material::xrays() {
 
     std::vector<std::pair<double, double> > raw_xrays = pyne::xrays(state_id);
     for (int i = 0; i < raw_xrays.size(); ++i) {
-      result.push_back(std::make_pair(raw_xrays[i].first,
-                                      atom_fracs[ci->first]*raw_xrays[i].second));
+      result.push_back(std::make_pair(
+          raw_xrays[i].first, atom_fracs[ci->first] * raw_xrays[i].second));
     }
   }
   return result;
 }
 
-
 std::vector<std::pair<double, double> > pyne::Material::photons(bool norm) {
-  std::vector<std::pair<double, double> >  txray = this->xrays();
-  std::vector<std::pair<double, double> >  tgammas = this->gammas();
-  for (int i = 0; i < txray.size(); ++i)
-    tgammas.push_back(txray[i]);
-  if (norm)
-    tgammas = normalize_radioactivity(tgammas);
+  std::vector<std::pair<double, double> > txray = this->xrays();
+  std::vector<std::pair<double, double> > tgammas = this->gammas();
+  for (int i = 0; i < txray.size(); ++i) tgammas.push_back(txray[i]);
+  if (norm) tgammas = normalize_radioactivity(tgammas);
   return tgammas;
 }
-
 
 std::vector<std::pair<double, double> > pyne::Material::normalize_radioactivity(
     std::vector<std::pair<double, double> > unnormed) {
   std::vector<std::pair<double, double> > normed;
   double sum = 0.0;
   for (int i = 0; i < unnormed.size(); ++i) {
-    if (!isnan(unnormed[i].second))
-      sum = sum + unnormed[i].second;
+    if (!isnan(unnormed[i].second)) sum = sum + unnormed[i].second;
   }
   for (int i = 0; i < unnormed.size(); ++i) {
     if (!isnan(unnormed[i].second)) {
@@ -16171,35 +12890,31 @@ void pyne::Material::from_activity(std::map<int, double> activities) {
       continue;
     else if (dc == 0.0)
       throw std::invalid_argument("Activity keys must be radionuclides.");
-    comp[acti->first] = (acti->second) * pyne::atomic_mass(acti->first) / \
-                        pyne::N_A / dc;
+    comp[acti->first] =
+        (acti->second) * pyne::atomic_mass(acti->first) / pyne::N_A / dc;
   }
   norm_comp();
 }
-
 
 #ifdef PYNE_DECAY
 pyne::Material pyne::Material::decay(double t) {
   throw pyne::ValueError("Material::decay is not supported in this amalgamated"
                          "version of PyNE.");
 }
-#endif //  PYNE_DECAY
+#endif  //  PYNE_DECAY
 
-
-pyne::Material pyne::Material::cram(std::vector<double> A,
-                                    const int order) {
+pyne::Material pyne::Material::cram(std::vector<double> A, const int order) {
+  Material rtn;
   throw pyne::ValueError("Material::cram is not supported in this amalgamated"
                          "version of PyNE.");
 }
 
-
-pyne::Material pyne::Material::operator+ (double y) {
+pyne::Material pyne::Material::operator+(double y) {
   // Overloads x + y
   return pyne::Material(comp, mass + y, density);
 }
 
-
-pyne::Material pyne::Material::operator+ (Material y) {
+pyne::Material pyne::Material::operator+(Material y) {
   // Overloads x + y
   pyne::comp_map cm;
   pyne::comp_map xwgt = mult_by_mass();
@@ -16213,39 +12928,34 @@ pyne::Material pyne::Material::operator+ (Material y) {
   }
 
   for (pyne::comp_iter i = ywgt.begin(); i != ywgt.end(); i++) {
-    if (0 == cm.count(i->first))
-      cm[i->first] = ywgt[i->first];
+    if (0 == cm.count(i->first)) cm[i->first] = ywgt[i->first];
   }
 
   return pyne::Material(cm, -1, -1);
 }
 
-
-pyne::Material pyne::Material::operator* (double y) {
+pyne::Material pyne::Material::operator*(double y) {
   // Overloads x * y
   return pyne::Material(comp, mass * y, density);
 }
 
-
-pyne::Material pyne::Material::operator/ (double y) {
+pyne::Material pyne::Material::operator/(double y) {
   // Overloads x / y
   return pyne::Material(comp, mass / y, density);
 }
 
-
-bool pyne::detect_nuclidelist(hid_t data_set, std::string& nucpath) {
+bool pyne::detect_nuclidelist(hid_t data_set, std::string &nucpath) {
   hid_t nuc_attr = H5Aopen(data_set, "nucpath", H5P_DEFAULT);
 
   // can't find the "nucpath" Attribute
-  if (nuc_attr < 0)
-    return false;
+  if (nuc_attr < 0) return false;
 
   H5A_info_t nuc_info;
   H5Aget_info(nuc_attr, &nuc_info);
   hsize_t nuc_attr_len = nuc_info.data_size;
   hid_t str_attr = H5Tcopy(H5T_C_S1);
   H5Tset_size(str_attr, nuc_attr_len);
-  char* nucpathbuf = new char[nuc_attr_len];
+  char *nucpathbuf = new char[nuc_attr_len];
   H5Aread(nuc_attr, str_attr, nucpathbuf);
   nucpath = std::string(nucpathbuf, nuc_attr_len);
   delete[] nucpathbuf;
@@ -16258,30 +12968,28 @@ bool pyne::detect_nuclidelist(hid_t data_set, std::string& nucpath) {
 // end of src/material.cpp
 //
 
-
 //
 // start of src/material_library.cpp
 //
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-#include < iostream>
+#include <iostream>
 
 #ifndef PYNE_IS_AMALGAMATED
 #include "material_library.h"
 #endif
 
 // Empty Constructor
-pyne::MaterialLibrary::MaterialLibrary() {};
+pyne::MaterialLibrary::MaterialLibrary(){};
 
 // Default constructor when loading from HDF5 file
-pyne::MaterialLibrary::MaterialLibrary(const std::string& filename,
-                                       const std::string& datapath) {
+pyne::MaterialLibrary::MaterialLibrary(const std::string &filename,
+                                       const std::string &datapath) {
   // load materials
 
   // Check that the file is there
-  if (!pyne::file_exists(filename))
-    throw pyne::FileNotFound(filename);
+  if (!pyne::file_exists(filename)) throw pyne::FileNotFound(filename);
 
   // Check to see if the file is in HDF5 format.
   bool ish5 = H5Fis_hdf5(filename.c_str());
@@ -16296,8 +13004,8 @@ pyne::MaterialLibrary::MaterialLibrary(const std::string& filename,
 };
 
 // Append Material to the library from hdf5 file
-void pyne::MaterialLibrary::from_hdf5(const std::string& filename,
-                                      const std::string& datapath) {
+void pyne::MaterialLibrary::from_hdf5(const std::string &filename,
+                                      const std::string &datapath) {
   if (!pyne::file_exists(filename)) {
     throw std::runtime_error("File " + filename +
                              " not found or no read permission");
@@ -16344,7 +13052,7 @@ void pyne::MaterialLibrary::from_hdf5(const std::string& filename,
   H5Fclose(db);
 }
 
-void pyne::MaterialLibrary::merge(const pyne::MaterialLibrary& mat_lib) {
+void pyne::MaterialLibrary::merge(const pyne::MaterialLibrary &mat_lib) {
   pyne::matname_set mats_to_add = mat_lib.get_keylist();
   for (auto it = mats_to_add.begin(); it != mats_to_add.end(); it++) {
     pyne::Material mat = Material(mat_lib.get_material(*it));
@@ -16352,7 +13060,7 @@ void pyne::MaterialLibrary::merge(const pyne::MaterialLibrary& mat_lib) {
   }
 }
 
-void pyne::MaterialLibrary::merge(pyne::MaterialLibrary* mat_lib) {
+void pyne::MaterialLibrary::merge(pyne::MaterialLibrary *mat_lib) {
   merge(*mat_lib);
 }
 
@@ -16376,9 +13084,8 @@ Json::Value pyne::MaterialLibrary::dump_json() {
   return json;
 }
 
-void pyne::MaterialLibrary::from_json(const std::string& filename) {
-  if (!pyne::file_exists(filename))
-    throw pyne::FileNotFound(filename);
+void pyne::MaterialLibrary::from_json(const std::string &filename) {
+  if (!pyne::file_exists(filename)) throw pyne::FileNotFound(filename);
   std::string s;
   std::ifstream f(filename.c_str(), std::ios::in | std::ios::binary);
   f.seekg(0, std::ios::end);
@@ -16392,7 +13099,7 @@ void pyne::MaterialLibrary::from_json(const std::string& filename) {
   load_json(json);
 }
 
-void pyne::MaterialLibrary::write_json(const std::string& filename) {
+void pyne::MaterialLibrary::write_json(const std::string &filename) {
   Json::Value json = dump_json();
   Json::StyledWriter writer;
   std::string s = writer.write(json);
@@ -16401,7 +13108,7 @@ void pyne::MaterialLibrary::write_json(const std::string& filename) {
   f.close();
 }
 
-int pyne::MaterialLibrary::ensure_material_number(pyne::Material& mat) const {
+int pyne::MaterialLibrary::ensure_material_number(pyne::Material &mat) const {
   int mat_number = -1;
   if (mat.metadata.isMember("mat_number")) {
     if (Json::intValue <= mat.metadata["mat_number"].type() &&
@@ -16432,7 +13139,7 @@ int pyne::MaterialLibrary::ensure_material_number(pyne::Material& mat) const {
 }
 
 std::string pyne::MaterialLibrary::ensure_material_name_and_number(
-    pyne::Material& mat) const {
+    pyne::Material &mat) const {
   std::string mat_name = "";
   int mat_number = ensure_material_number(mat);
 
@@ -16457,8 +13164,8 @@ void pyne::MaterialLibrary::add_material(pyne::Material mat) {
   add_material(mat_name, mat);
 }
 
-void pyne::MaterialLibrary::add_material(const std::string& key,
-                                         const pyne::Material& mat) {
+void pyne::MaterialLibrary::add_material(const std::string &key,
+                                         const pyne::Material &mat) {
   pyne::shr_mat_ptr new_mat = std::make_shared<pyne::Material>(mat);
 
   int mat_number = ensure_material_number(*new_mat);
@@ -16466,24 +13173,23 @@ void pyne::MaterialLibrary::add_material(const std::string& key,
     new_mat->metadata["name"] = key;
   }
   append_to_nuclist(*new_mat);
-  if (mat_number > 0)
-    mat_number_set.insert(mat_number);
+  if (mat_number > 0) mat_number_set.insert(mat_number);
   keylist.insert(key);
   material_library[key] = new_mat;
 }
 
-void pyne::MaterialLibrary::del_material(const std::string& key) {
+void pyne::MaterialLibrary::del_material(const std::string &key) {
   material_library.erase(key);
   keylist.erase(key);
 }
 
 pyne::Material pyne::MaterialLibrary::get_material(
-    const std::string& mat_name) const {
+    const std::string &mat_name) const {
   return *(this->get_material_ptr(mat_name));
 }
 
 pyne::shr_mat_ptr pyne::MaterialLibrary::get_material_ptr(
-    const std::string& mat_name) const {
+    const std::string &mat_name) const {
   auto it = material_library.find(mat_name);
   if (it != material_library.end()) {
     return it->second;
@@ -16492,8 +13198,8 @@ pyne::shr_mat_ptr pyne::MaterialLibrary::get_material_ptr(
   }
 }
 
-void pyne::MaterialLibrary::write_hdf5(const std::string& filename,
-                                       const std::string& datapath,
+void pyne::MaterialLibrary::write_hdf5(const std::string &filename,
+                                       const std::string &datapath,
                                        bool h5_overwrite) const {
   // Turn off annoying HDF5 errors
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
@@ -16570,24 +13276,25 @@ void pyne::MaterialLibrary::write_hdf5_nucpath(hid_t db,
                                                std::string nucpath) const {
   int nuc_size;
   nuc_size = nuclist.size();
-  vector<int> nuc_data;
+  std::vector<int> nuc_data;
   for (auto nuc : nuclist) {
     nuc_data.push_back(nuc);
   }
-  
+
   hsize_t nuc_dims[1];
   nuc_dims[0] = nuc_size;
   hid_t nuc_space = H5Screate_simple(1, nuc_dims, NULL);
   hid_t nuc_set = H5Dcreate2(db, nucpath.c_str(), H5T_NATIVE_INT, nuc_space,
                              H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-  H5Dwrite(nuc_set, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, nuc_data.data());
+  H5Dwrite(nuc_set, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+           nuc_data.data());
 
   H5Fflush(db, H5F_SCOPE_GLOBAL);
   H5Sclose(nuc_space);
   H5Dclose(nuc_set);
 }
 
-void pyne::MaterialLibrary::append_to_nuclist(const pyne::Material& mat) {
+void pyne::MaterialLibrary::append_to_nuclist(const pyne::Material &mat) {
   pyne::comp_map mat_comp = mat.comp;
   for (auto nuclide : mat_comp) {
     nuclist.insert(nuclide.first);
@@ -16595,7 +13302,7 @@ void pyne::MaterialLibrary::append_to_nuclist(const pyne::Material& mat) {
 }
 
 int pyne::MaterialLibrary::get_length_of_table(
-    hid_t db, const std::string& datapath) const {
+    hid_t db, const std::string &datapath) const {
   // Turn off annoying HDF5 errors
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
@@ -16608,8 +13315,7 @@ int pyne::MaterialLibrary::get_length_of_table(
   // Initilize to dataspace, to find the indices we are looping over
   hid_t arr_space = H5Dget_space(ds);
   // failure to read the dapaspace return 0 for the size
-  if (arr_space < 0)
-    return 0;
+  if (arr_space < 0) return 0;
 
   hsize_t arr_dims[1];
   int arr_ndim = H5Sget_simple_extent_dims(arr_space, arr_dims, NULL);
@@ -16620,7 +13326,6 @@ int pyne::MaterialLibrary::get_length_of_table(
 //
 // end of src/material_library.cpp
 //
-
 
 //
 // start of src/tally.cpp
@@ -16638,8 +13343,12 @@ int pyne::MaterialLibrary::get_length_of_table(
 #include "tally.h"
 #endif
 
-enum entity_type_enum {VOLUME, SURFACE, MESH}; // Enumeration for entity types
-enum tally_type_enum {FLUX, CURRENT};  // Enumeration for tally types
+enum entity_type_enum {
+  VOLUME,
+  SURFACE,
+  MESH
+};                                       // Enumeration for entity types
+enum tally_type_enum { FLUX, CURRENT };  // Enumeration for tally types
 
 const std::string tally_type_enum2string[] = {"Flux", "Current"};
 const std::string entity_type_enum2string[] = {"Volume", "Surface", "Mesh"};
@@ -16669,11 +13378,9 @@ pyne::Tally::Tally() {
 }
 
 // Default constructor
-pyne::Tally::Tally(std::string type, std::string part_name,
-                   int ent, std::string ent_type,
-                   std::string ent_name, std::string tal_name,
-                   double size, double norm) {
-
+pyne::Tally::Tally(std::string type, std::string part_name, int ent,
+                   std::string ent_type, std::string ent_name,
+                   std::string tal_name, double size, double norm) {
   tally_type = type;
   particle_names.push_back(pyne::particle::name(part_name));
   entity_id = ent;
@@ -16685,10 +13392,8 @@ pyne::Tally::Tally(std::string type, std::string part_name,
 }
 
 pyne::Tally::Tally(std::string type, std::vector<std::string> part_names,
-                   int ent, std::string ent_type,
-                   std::string ent_name, std::string tal_name,
-                   double size, double norm) {
-
+                   int ent, std::string ent_type, std::string ent_name,
+                   std::string tal_name, double size, double norm) {
   tally_type = type;
   particle_names = part_names;
   for (int i = 0; i < particle_names.size(); i++) {
@@ -16703,12 +13408,13 @@ pyne::Tally::Tally(std::string type, std::vector<std::string> part_names,
 }
 
 pyne::Tally::Tally(std::string part_name, std::string ent_geom,
-                   std::vector<double> orgn,
-                   std::vector<double> mesh_i, std::vector<double> mesh_j, std::vector<double> mesh_k,
-                   std::vector<int> ints_i, std::vector<int> ints_j, std::vector<int> ints_k,
-                   std::vector<double> e_bounds_, std::vector<int> e_ints_,
-                   std::vector<double> axs_, std::vector<double> vec_,
-                   std::string tal_name, double norm) {
+                   std::vector<double> orgn, std::vector<double> mesh_i,
+                   std::vector<double> mesh_j, std::vector<double> mesh_k,
+                   std::vector<int> ints_i, std::vector<int> ints_j,
+                   std::vector<int> ints_k, std::vector<double> e_bounds_,
+                   std::vector<int> e_ints_, std::vector<double> axs_,
+                   std::vector<double> vec_, std::string tal_name,
+                   double norm) {
   // Empty Tally Constructor
   entity_type = "Mesh";
   entity_name = "";
@@ -16736,7 +13442,7 @@ pyne::Tally::~Tally() {}
 
 /*--- Method definitions ---*/
 //
-void pyne::Tally::from_hdf5(char* filename, char* datapath, int row) {
+void pyne::Tally::from_hdf5(char *filename, char *datapath, int row) {
   std::string fname(filename);
   std::string dpath(datapath);
   from_hdf5(fname, dpath, row);
@@ -16749,13 +13455,11 @@ void pyne::Tally::from_hdf5(std::string filename, std::string datapath,
   int data_row = row;
 
   // check for file existence
-  if (!pyne::file_exists(filename))
-    throw pyne::FileNotFound(filename);
+  if (!pyne::file_exists(filename)) throw pyne::FileNotFound(filename);
 
   // check to make sure is a HDF5 file
   bool is_h5 = H5Fis_hdf5(filename.c_str());
-  if (!is_h5)
-    throw h5wrap::FileNotHDF5(filename);
+  if (!is_h5) throw h5wrap::FileNotHDF5(filename);
 
   // Open file and dataset.
   hid_t file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
@@ -16763,8 +13467,8 @@ void pyne::Tally::from_hdf5(std::string filename, std::string datapath,
 
   // Get dataspace and allocate memory for read buffer.
   hid_t space = H5Dget_space(dset);
-  int rank  = H5Sget_simple_extent_ndims(space);
-  hsize_t dims[1]; // for length of dataset
+  int rank = H5Sget_simple_extent_ndims(space);
+  hsize_t dims[1];  // for length of dataset
 
   // get the length of the dataset
   int ndims = H5Sget_simple_extent_dims(space, dims, NULL);
@@ -16779,15 +13483,14 @@ void pyne::Tally::from_hdf5(std::string filename, std::string datapath,
     rank_chunk = H5Pget_chunk(prop, rank, chunk_dimsr);
 
   // allocate memory for data from file
-  tally_struct* read_data = new tally_struct[dims[0]];
+  tally_struct *read_data = new tally_struct[dims[0]];
 
   // if row number is larger than data set only give last element
-  if (row >= dims[0])
-    data_row = dims[0] - 1;
+  if (row >= dims[0]) data_row = dims[0] - 1;
 
   // Create variable-length string datatype.
   hid_t strtype = H5Tcopy(H5T_C_S1);
-  int status  = H5Tset_size(strtype, H5T_VARIABLE);
+  int status = H5Tset_size(strtype, H5T_VARIABLE);
 
   // Create the compound datatype for memory.
   hid_t memtype = create_memtype();
@@ -16816,11 +13519,10 @@ void pyne::Tally::from_hdf5(std::string filename, std::string datapath,
 
   // tidy up
   delete[] read_data;
-
 }
 
 // Dummy Wrapper around C Style Functions
-void pyne::Tally::write_hdf5(char* filename, char* datapath) {
+void pyne::Tally::write_hdf5(char *filename, char *datapath) {
   std::string fname(filename);
   std::string groupname(datapath);
   write_hdf5(fname, groupname);
@@ -16834,20 +13536,20 @@ hid_t pyne::Tally::create_filetype() {
   hid_t strtype = H5Tcopy(H5T_C_S1);
   status = H5Tset_size(strtype, H5T_VARIABLE);
 
-  hid_t filetype = H5Tcreate(H5T_COMPOUND, 8 + 8 + 8 +
-                             (3 * sizeof(hvl_t)) + 8 + 8);
+  hid_t filetype =
+      H5Tcreate(H5T_COMPOUND, 8 + 8 + 8 + (3 * sizeof(hvl_t)) + 8 + 8);
   status = H5Tinsert(filetype, "entity_id", 0, H5T_STD_I64BE);
   status = H5Tinsert(filetype, "entity_type", 8, H5T_STD_I64BE);
   status = H5Tinsert(filetype, "tally_type", 8 + 8, H5T_STD_I64BE);
   status = H5Tinsert(filetype, "particle_name", 8 + 8 + 8, strtype);
-  status = H5Tinsert(filetype, "entity_name", 8 + 8 + 8 +
-                     sizeof(hvl_t), strtype);
-  status = H5Tinsert(filetype, "tally_name", 8 + 8 + 8 +
-                     (2 * sizeof(hvl_t)), strtype);
-  status = H5Tinsert(filetype, "entity_size", 8 + 8 + 8 +
-                     (3 * sizeof(hvl_t)), H5T_IEEE_F64BE);
-  status = H5Tinsert(filetype, "normalization", 8 + 8 + 8 +
-                     (3 * sizeof(hvl_t)) + 8, H5T_IEEE_F64BE);
+  status =
+      H5Tinsert(filetype, "entity_name", 8 + 8 + 8 + sizeof(hvl_t), strtype);
+  status = H5Tinsert(filetype, "tally_name", 8 + 8 + 8 + (2 * sizeof(hvl_t)),
+                     strtype);
+  status = H5Tinsert(filetype, "entity_size", 8 + 8 + 8 + (3 * sizeof(hvl_t)),
+                     H5T_IEEE_F64BE);
+  status = H5Tinsert(filetype, "normalization",
+                     8 + 8 + 8 + (3 * sizeof(hvl_t)) + 8, H5T_IEEE_F64BE);
   return filetype;
 }
 
@@ -16861,20 +13563,20 @@ hid_t pyne::Tally::create_memtype() {
   status = H5Tset_size(strtype, H5T_VARIABLE);
   // Create the compound datatype for memory.
   hid_t memtype = H5Tcreate(H5T_COMPOUND, sizeof(tally_struct));
-  status = H5Tinsert(memtype, "entity_id",
-                     HOFFSET(tally_struct, entity_id), H5T_NATIVE_INT);
-  status = H5Tinsert(memtype, "entity_type",
-                     HOFFSET(tally_struct, entity_type), H5T_NATIVE_INT);
-  status = H5Tinsert(memtype, "tally_type",
-                     HOFFSET(tally_struct, tally_type), H5T_NATIVE_INT);
+  status = H5Tinsert(memtype, "entity_id", HOFFSET(tally_struct, entity_id),
+                     H5T_NATIVE_INT);
+  status = H5Tinsert(memtype, "entity_type", HOFFSET(tally_struct, entity_type),
+                     H5T_NATIVE_INT);
+  status = H5Tinsert(memtype, "tally_type", HOFFSET(tally_struct, tally_type),
+                     H5T_NATIVE_INT);
   status = H5Tinsert(memtype, "particle_name",
                      HOFFSET(tally_struct, particle_name), strtype);
   status = H5Tinsert(memtype, "entity_name", HOFFSET(tally_struct, entity_name),
                      strtype);
   status = H5Tinsert(memtype, "tally_name", HOFFSET(tally_struct, tally_name),
                      strtype);
-  status = H5Tinsert(memtype, "entity_size",
-                     HOFFSET(tally_struct, entity_size), H5T_NATIVE_DOUBLE);
+  status = H5Tinsert(memtype, "entity_size", HOFFSET(tally_struct, entity_size),
+                     H5T_NATIVE_DOUBLE);
   status = H5Tinsert(memtype, "normalization",
                      HOFFSET(tally_struct, normalization), H5T_NATIVE_DOUBLE);
   return memtype;
@@ -16913,11 +13615,10 @@ hid_t pyne::Tally::create_dataspace(hid_t file, std::string datapath) {
 // if file exists & data path doesnt creates new datapath,
 // otherwise creates new file
 void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
-
   // turn of annoying hdf5 errors
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 
-  tally_struct tally_data[1]; // storage for the tally to add
+  tally_struct tally_data[1];  // storage for the tally to add
 
   // setup the data to write
   tally_data[0].entity_id = entity_id;
@@ -16942,7 +13643,6 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
   tally_data[0].entity_size = entity_size;
   tally_data[0].normalization = normalization;
 
-
   // check for file existence
   bool is_exist = pyne::file_exists(filename);
   // create new file
@@ -16950,18 +13650,17 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
   // check to make sure is a HDF5 file
   bool is_h5 = H5Fis_hdf5(filename.c_str());
 
-  if (is_exist && !is_h5)
-    throw h5wrap::FileNotHDF5(filename);
+  if (is_exist && !is_h5) throw h5wrap::FileNotHDF5(filename);
 
   if (!is_exist) {  // is a new file
-    hid_t file = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
-                           H5P_DEFAULT);
+    hid_t file =
+        H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     // create a dataspace
     hid_t dset = create_dataspace(file, datapath);
 
     hid_t memtype = create_memtype();
 
-    herr_t status; // iostatus
+    herr_t status;  // iostatus
 
     status = H5Dwrite(dset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, tally_data);
 
@@ -16971,9 +13670,9 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
     //    status = H5Tclose(filetype);
     status = H5Fclose(file);
 
-  }  else if (is_exist && is_h5) {  // already exists and is an hdf file
+  } else if (is_exist && is_h5) {  // already exists and is an hdf file
     // then we append the data to the end
-    herr_t data_status; // iostatus
+    herr_t data_status;  // iostatus
 
     // Open file and dataset.
     hid_t file = H5Fopen(filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
@@ -16984,24 +13683,25 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
     hid_t dset;
     // if fails neet to create dataset
     // still need to check that the datapath exists
-    if (data_status != 0) { // doesnt exist
+    if (data_status != 0)  // doesnt exist
+    {
       dset = create_dataspace(file, datapath.c_str());
       hid_t memtype = create_memtype();
-      herr_t status; // iostatus
+      herr_t status;  // iostatus
 
-      status = H5Dwrite(dset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, tally_data);
+      status =
+          H5Dwrite(dset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, tally_data);
 
       // close the data sets
       status = H5Dclose(dset);
       status = H5Fclose(file);
     } else {
-
       dset = H5Dopen2(file, datapath.c_str(), H5P_DEFAULT);
 
       // Get dataspace and allocate memory for read buffer.
       hid_t space = H5Dget_space(dset);
-      int rank  = H5Sget_simple_extent_ndims(space);
-      hsize_t dims[1]; // for length of dataset
+      int rank = H5Sget_simple_extent_ndims(space);
+      hsize_t dims[1];  // for length of dataset
 
       // get the length of the dataset
       int ndims = H5Sget_simple_extent_dims(space, dims, NULL);
@@ -17015,11 +13715,11 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
         rank_chunk = H5Pget_chunk(prop, rank, chunk_dimsr);
 
       // allocate memory for data from file
-      tally_struct* read_data = new tally_struct[dims[0]];
+      tally_struct *read_data = new tally_struct[dims[0]];
 
       // Create variable-length string datatype.
       hid_t strtype = H5Tcopy(H5T_C_S1);
-      int status  = H5Tset_size(strtype, H5T_VARIABLE);
+      int status = H5Tset_size(strtype, H5T_VARIABLE);
 
       // Create the compound datatype for memory.
       hid_t memtype = create_memtype();
@@ -17048,7 +13748,8 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
       space = H5Screate_simple(1, new_length, NULL);
 
       // Write the dataset to memory
-      status = H5Dwrite(dset, memtype, space, filespace, H5P_DEFAULT, tally_data);
+      status =
+          H5Dwrite(dset, memtype, space, filespace, H5P_DEFAULT, tally_data);
 
       // tidy up
       status = H5Dvlen_reclaim(memtype, space, H5P_DEFAULT, read_data);
@@ -17062,10 +13763,11 @@ void pyne::Tally::write_hdf5(std::string filename, std::string datapath) {
   }
 }
 
-std::ostream& operator<<(std::ostream& os, pyne::Tally tal) {
-  //print the Tally to ostream
+std::ostream &operator<<(std::ostream &os, pyne::Tally tal) {
+  // print the Tally to ostream
   os << "\t---------\n";
-  os << "\t Tallying " << pyne::join_to_string(tal.particle_names, ", ") << " " << tal.tally_type << std::endl;
+  os << "\t Tallying " << pyne::join_to_string(tal.particle_names, ", ") << " "
+     << tal.tally_type << std::endl;
   os << "\t in/on " << tal.entity_type << " " << tal.entity_id << std::endl;
   return os;
 }
@@ -17083,8 +13785,7 @@ std::string pyne::Tally::mcnp(int tally_index, std::string mcnp_version,
 
   // particle token
   for (int i = 0; i < particle_names.size(); i++) {
-    if (i > 0)
-      particle_token += ",";
+    if (i > 0) particle_token += ",";
     if (mcnp_version.find("mcnp5") != std::string::npos)
       particle_token += pyne::particle::mcnp(particle_names[i]);
     else if (mcnp_version.find("mcnp6") != std::string::npos)
@@ -17096,8 +13797,7 @@ std::string pyne::Tally::mcnp(int tally_index, std::string mcnp_version,
   output << "C " << tally_name << std::endl;
   output << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
-  if (normalization != 1.0)
-    output << std::scientific;
+  if (normalization != 1.0) output << std::scientific;
   int tally_id = 0;
 
   // neednt check entity type
@@ -17137,11 +13837,9 @@ template <typename T>
 bool pyne::Tally::is_zero(T vect) {
   int size = sizeof(vect) / sizeof(vect[0]);
   bool result = true;
-  for (int i = 0; i < size; i++)
-    result &= (vect[i] == 0);
+  for (int i = 0; i < size; i++) result &= (vect[i] == 0);
   return result;
 }
-
 
 // Form the tally line as function of its properties
 std::string pyne::Tally::form_mcnp_tally(int tally_index, int type,
@@ -17150,8 +13848,7 @@ std::string pyne::Tally::form_mcnp_tally(int tally_index, int type,
                                          double normalization) {
   std::stringstream tally_stream;  // tally stream
   tally_stream << std::setiosflags(std::ios::fixed) << std::setprecision(6);
-  if (normalization != 1.0)
-    tally_stream << std::scientific;
+  if (normalization != 1.0) tally_stream << std::scientific;
 
   tally_stream << "F" << tally_index << type << ":" << particle_token << " "
                << entity_id << std::endl;
@@ -17166,7 +13863,6 @@ std::string pyne::Tally::form_mcnp_tally(int tally_index, int type,
 
   return tally_stream.str();
 }
-
 
 // Form the mesh tally line as function of its properties
 std::string pyne::Tally::form_mcnp_meshtally(
@@ -17188,10 +13884,12 @@ std::string pyne::Tally::form_mcnp_meshtally(
   } else if (entity_geometry.find("Cylinder") != std::string::npos) {
     mtally_stream << "CYL" << std::endl;
     if (!is_zero(axs)) {
-      mtally_stream << indent_block << "AXS=" << pyne::join_to_string(axs) << std::endl;
+      mtally_stream << indent_block << "AXS=" << pyne::join_to_string(axs)
+                    << std::endl;
     }
     if (!is_zero(vec)) {
-      mtally_stream << indent_block << "VEC=" << pyne::join_to_string(vec) << std::endl;
+      mtally_stream << indent_block << "VEC=" << pyne::join_to_string(vec)
+                    << std::endl;
     }
     mtally_stream << indent_block;
   }
@@ -17221,13 +13919,13 @@ std::string pyne::Tally::form_mcnp_meshtally(
   return mtally_stream.str();
 }
 
-
 // Produces valid fluka tally
 std::string pyne::Tally::fluka(std::string unit_number) {
-  std::stringstream output; // output stream
+  std::stringstream output;  // output stream
 
   if (particle_names.size() != 1) {
-    std::cout << "Fluka multi-particles tally have not been yet implemented!" << std:: endl;
+    std::cout << "Fluka multi-particles tally have not been yet implemented!"
+              << std::endl;
     exit(1);
   }
   std::string particle_name = particle_names[0];
@@ -17235,7 +13933,7 @@ std::string pyne::Tally::fluka(std::string unit_number) {
   // check entity type
   if (entity_type.find("Volume") != std::string::npos) {
     // ok
-  }  else if (entity_type.find("Surface") != std::string::npos) {
+  } else if (entity_type.find("Surface") != std::string::npos) {
     std::cout << "Surface tally not valid in FLUKA" << std::endl;
   } else {
     std::cout << "Unknown entity type" << std::endl;
@@ -17245,7 +13943,7 @@ std::string pyne::Tally::fluka(std::string unit_number) {
   output << std::setiosflags(std::ios::fixed) << std::setprecision(1);
   // check tally type
   if (tally_type.find("Flux") != std::string::npos) {
-    output << std::setw(10) << std::left  << "USRTRACK";
+    output << std::setw(10) << std::left << "USRTRACK";
     output << std::setw(10) << std::right << "     1.0";
     output << std::setw(10) << std::right
            << pyne::particle::fluka(particle_name);
@@ -17258,12 +13956,12 @@ std::string pyne::Tally::fluka(std::string unit_number) {
     } else
       output << std::setw(10) << std::right << 1.0;
 
-    output << std::setw(10) << std::right << "   1000."; // number of eints
+    output << std::setw(10) << std::right << "   1000.";  // number of eints
     tally_name.resize(8);
     output << std::setw(8) << std::left
-           << tally_name; // may need to make sure less than 10 chars
+           << tally_name;  // may need to make sure less than 10 chars
     output << std::endl;
-    output << std::setw(10) << std::left  << "USRTRACK";
+    output << std::setw(10) << std::left << "USRTRACK";
     output << std::setw(10) << std::right << "   10.E1";
     output << std::setw(10) << std::right << "   1.E-3";
     output << std::setw(10) << std::right << "        ";
@@ -17273,30 +13971,30 @@ std::string pyne::Tally::fluka(std::string unit_number) {
     output << std::setw(8) << std::left << "       &";
     // end of usrtrack
   } else if (tally_type.find("Current") != std::string::npos) {
-    output << std::setw(10) << std::left  << "USRBDX  ";
+    output << std::setw(10) << std::left << "USRBDX  ";
     output << std::setw(10) << std::right << "   110.0";
     output << std::setw(10) << std::right
            << pyne::particle::fluka(particle_name);
     output << std::setw(10) << std::right << unit_number;
-    output << std::setw(10) << std::right << entity_name; // upstream
-    output << std::setw(10) << std::right << entity_name; // downstream
+    output << std::setw(10) << std::right << entity_name;  // upstream
+    output << std::setw(10) << std::right << entity_name;  // downstream
     if (entity_size > 0.0)
-      output << std::setw(10) << std::right << entity_size; // area
+      output << std::setw(10) << std::right << entity_size;  // area
     else
       output << std::setw(10) << std::right << 1.0;
 
     tally_name.resize(8);
     output << std::setw(8) << std::right
-           << tally_name; // may need to make sure less than 10 chars
+           << tally_name;  // may need to make sure less than 10 chars
     output << std::endl;
-    output << std::setw(10) << std::left  << "USRBDX  ";
+    output << std::setw(10) << std::left << "USRBDX  ";
     output << std::setw(10) << std::right << "  10.0E1";
     output << std::setw(10) << std::right << "     0.0";
-    output << std::setw(10) << std::right << "  1000.0"; // number of ints
-    output << std::setw(10) << std::right << "12.56637"; // 4pi
+    output << std::setw(10) << std::right << "  1000.0";  // number of ints
+    output << std::setw(10) << std::right << "12.56637";  // 4pi
     output << std::setw(10) << std::right << "     0.0";
     output << std::setw(10) << std::right
-           << "   240.0"; // number of angular ints
+           << "   240.0";  // number of angular ints
     output << std::setw(8) << std::left << "       &";
     // end of usrbdx
   } else {
@@ -17307,7 +14005,6 @@ std::string pyne::Tally::fluka(std::string unit_number) {
 //
 // end of src/tally.cpp
 //
-
 
 //
 // start of src/atomic_data.cpp
@@ -17330,38 +14027,38 @@ std::string pyne::Tally::fluka(std::string unit_number) {
 
 void pyne::_load_atomic_mass_map_memory() {
   // header version of atomic weight table data
-  //see if the data table is already loaded
+  // see if the data table is already loaded
   if (!atomic_mass_map.empty()) {
     return;
   } else {
     _insert_atomic_mass_map();
   }
-  //see if the data table is already loaded
+  // see if the data table is already loaded
   if (!natural_abund_map.empty()) {
     return;
   } else {
     _insert_abund_map();
   }
   // calculate the atomic_masses of the elements
-  std::map<int, double> :: iterator it;
+  std::map<int, double>::iterator it;
 
-  for (int z = 1; z <= 92 ; z++) {
+  for (int z = 1; z <= 92; z++) {
     // loop through the natural abundance map
     double element_atomic_weight = 0.0;
-    for (it = natural_abund_map.begin(); it != natural_abund_map.end() ; ++it) {
+    for (it = natural_abund_map.begin(); it != natural_abund_map.end(); ++it) {
       // if the atomic number of the abudance matches the
       // that of index
       if (pyne::nucname::znum(it->first) == z) {
         // take atomic abundance and multiply by mass
         // to get the mass of that nuclide / 100 since abundance is in %
-        element_atomic_weight += (it->second * atomic_mass_map[it->first] / 100.0);
+        element_atomic_weight +=
+            (it->second * atomic_mass_map[it->first] / 100.0);
       }
     }
     // insert the abundance of the element into the list
     atomic_mass_map[z * 10000000] = element_atomic_weight;
   }
 }
-
 
 void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[10010000] = 1.00782503224;
@@ -20801,7 +17498,6 @@ void pyne::_insert_atomic_mass_map() {
   atomic_mass_map[1182950000] = 295.216332;
 }
 
-
 void pyne::_insert_abund_map() {
   natural_abund_map[10010000] = 99.9885;
   natural_abund_map[10020000] = 0.0115;
@@ -21096,7 +17792,6 @@ void pyne::_insert_abund_map() {
 // end of src/atomic_data.cpp
 //
 
-
 //
 // start of src/measure.cpp
 //
@@ -21136,38 +17831,43 @@ class CartVect {
   double coords[3];
 
  public:
-
   inline CartVect() {}
 
   inline CartVect(double tx, double ty, double tz) { set(tx, ty, tz); }
 
-  inline CartVect(const CartVect& other) { set(other.coords); }
+  inline CartVect(const CartVect &other) { set(other.coords); }
 
-  inline void set(double tx, double ty, double tz)
-  { coords[0] = tx; coords[1] = ty; coords[2] = tz; }
+  inline void set(double tx, double ty, double tz) {
+    coords[0] = tx;
+    coords[1] = ty;
+    coords[2] = tz;
+  }
 
-  inline void set(const double* c)
-  { coords[0] = c[0]; coords[1] = c[1]; coords[2] = c[2]; }
+  inline void set(const double *c) {
+    coords[0] = c[0];
+    coords[1] = c[1];
+    coords[2] = c[2];
+  }
 
   inline double x() const { return coords[0]; }
   inline double y() const { return coords[1]; }
   inline double z() const { return coords[2]; }
 
-  inline CartVect& operator+=(const CartVect& other) {
+  inline CartVect &operator+=(const CartVect &other) {
     coords[0] += other.coords[0];
     coords[1] += other.coords[1];
     coords[2] += other.coords[2];
     return *this;
   }
 
-  inline CartVect& operator-=(const CartVect& other) {
+  inline CartVect &operator-=(const CartVect &other) {
     coords[0] -= other.coords[0];
     coords[1] -= other.coords[1];
     coords[2] -= other.coords[2];
     return *this;
   }
 
-  inline CartVect& operator*=(const CartVect& other);
+  inline CartVect &operator*=(const CartVect &other);
 
   inline double lensqr() const;
 
@@ -21175,41 +17875,38 @@ class CartVect {
 
   inline CartVect operator~() const;
 
-
-  inline CartVect& operator*=(double a) {
+  inline CartVect &operator*=(double a) {
     coords[0] *= a;
     coords[1] *= a;
     coords[2] *= a;
     return *this;
   }
 
-  inline CartVect& operator/=(double a) {
+  inline CartVect &operator/=(double a) {
     coords[0] /= a;
     coords[1] /= a;
     coords[2] /= a;
     return *this;
   }
-
-
 };
 
-inline CartVect operator+(const CartVect& v1, const CartVect& v2) {
+inline CartVect operator+(const CartVect &v1, const CartVect &v2) {
   CartVect rval(v1);
   rval += v2;
   return rval;
 }
 
-inline CartVect operator-(const CartVect& v1, const CartVect& v2) {
+inline CartVect operator-(const CartVect &v1, const CartVect &v2) {
   CartVect rval(v1);
   rval -= v2;
   return rval;
 }
 
-inline double operator%(const CartVect& v1, const CartVect& v2) {
+inline double operator%(const CartVect &v1, const CartVect &v2) {
   return v1.x() * v2.x() + v1.y() * v2.y() + v1.z() * v2.z();
 }
 
-inline CartVect operator*(const CartVect& v1, const CartVect& v2) {
+inline CartVect operator*(const CartVect &v1, const CartVect &v2) {
   return CartVect(v1.y() * v2.z() - v1.z() * v2.y(),
                   v1.z() * v2.x() - v1.x() * v2.z(),
                   v1.x() * v2.y() - v1.y() * v2.x());
@@ -21220,33 +17917,30 @@ inline CartVect CartVect::operator~() const {
   return CartVect(invlen * x(), invlen * y(), invlen * z());
 }
 
-inline CartVect& CartVect::operator*=(const CartVect& other)
-{ return *this = *this * other; }
+inline CartVect &CartVect::operator*=(const CartVect &other) {
+  return *this = *this * other;
+}
 
-inline double CartVect::lensqr() const
-{ return *this % *this; }
+inline double CartVect::lensqr() const { return *this % *this; }
 
-inline double CartVect::len() const
-{ return sqrt(lensqr()); }
+inline double CartVect::len() const { return sqrt(lensqr()); }
 
-inline static double tet_volume(const CartVect& v0,
-                                const CartVect& v1,
-                                const CartVect& v2,
-                                const CartVect& v3) {
+inline static double tet_volume(const CartVect &v0, const CartVect &v1,
+                                const CartVect &v2, const CartVect &v3) {
   return 1. / 6. * (((v1 - v0) * (v2 - v0)) % (v3 - v0));
 }
 
-double edge_length(const double* start_vtx_coords,
-                   const double*   end_vtx_coords) {
-  const CartVect* start = reinterpret_cast<const CartVect*>(start_vtx_coords);
-  const CartVect*   end = reinterpret_cast<const CartVect*>(end_vtx_coords);
+double edge_length(const double *start_vtx_coords,
+                   const double *end_vtx_coords) {
+  const CartVect *start = reinterpret_cast<const CartVect *>(start_vtx_coords);
+  const CartVect *end = reinterpret_cast<const CartVect *>(end_vtx_coords);
   return (*start - *end).len();
 }
 
-double measure(moab::EntityType type,
-               int num_vertices,
-               const double* vertex_coordinates) {
-  const CartVect* coords = reinterpret_cast<const CartVect*>(vertex_coordinates);
+double measure(moab::EntityType type, int num_vertices,
+               const double *vertex_coordinates) {
+  const CartVect *coords =
+      reinterpret_cast<const CartVect *>(vertex_coordinates);
   switch (type) {
     case moab::MBEDGE:
       return (coords[0] - coords[1]).len();
@@ -21256,8 +17950,7 @@ double measure(moab::EntityType type,
       num_vertices = 4;
     case moab::MBPOLYGON: {
       CartVect mid(0, 0, 0);
-      for (int i = 0; i < num_vertices; ++i)
-        mid += coords[i];
+      for (int i = 0; i < num_vertices; ++i) mid += coords[i];
       mid /= num_vertices;
 
       double sum = 0.0;
@@ -21268,20 +17961,20 @@ double measure(moab::EntityType type,
       return 0.5 * sum;
     }
     case moab::MBTET:
-      return tet_volume(coords[0], coords[1], coords[2], coords[3]) ;
+      return tet_volume(coords[0], coords[1], coords[2], coords[3]);
     case moab::MBPYRAMID:
       return tet_volume(coords[0], coords[1], coords[2], coords[4]) +
-             tet_volume(coords[0], coords[2], coords[3], coords[4]) ;
+             tet_volume(coords[0], coords[2], coords[3], coords[4]);
     case moab::MBPRISM:
       return tet_volume(coords[0], coords[1], coords[2], coords[5]) +
              tet_volume(coords[3], coords[5], coords[4], coords[0]) +
-             tet_volume(coords[1], coords[4], coords[5], coords[0]) ;
+             tet_volume(coords[1], coords[4], coords[5], coords[0]);
     case moab::MBHEX:
       return tet_volume(coords[0], coords[1], coords[3], coords[4]) +
              tet_volume(coords[7], coords[3], coords[6], coords[4]) +
              tet_volume(coords[4], coords[5], coords[1], coords[6]) +
              tet_volume(coords[1], coords[6], coords[3], coords[4]) +
-             tet_volume(coords[2], coords[6], coords[3], coords[1]) ;
+             tet_volume(coords[2], coords[6], coords[3], coords[1]);
     default:
       return 0.0;
   }
@@ -21291,7 +17984,6 @@ double measure(moab::EntityType type,
 // end of src/measure.cpp
 //
 
-
 //
 // start of src/source_sampling.cpp
 //
@@ -21300,39 +17992,34 @@ double measure(moab::EntityType type,
 #endif
 
 // Global sampler instance
-static pyne::Sampler* sampler = NULL;
+static pyne::Sampler *sampler = NULL;
 // Global variable for mode range
 const int SUBVOXEL_START = 3;
 
 // Fortran API
-void pyne::sampling_setup_(int* mode, int* cell_list_size) {
+void pyne::sampling_setup_(int *mode, int *cell_list_size) {
   if (sampler == NULL) {
     std::string filename("source.h5m");
     std::string e_bounds_file("e_bounds");
     std::vector<double> e_bounds = read_e_bounds(e_bounds_file);
     std::map<std::string, std::string> tag_names;
-    tag_names.insert(std::pair<std::string, std::string> ("src_tag_name",
-                                                          "source_density"));
-    tag_names.insert(std::pair<std::string, std::string> ("bias_tag_name",
-                                                          "biased_source_density"));
-    tag_names.insert(std::pair<std::string, std::string> ("cell_number_tag_name",
-                                                          "cell_number"));
-    tag_names.insert(std::pair<std::string, std::string> ("cell_fracs_tag_name",
-                                                          "cell_fracs"));
-    tag_names.insert(std::pair<std::string, std::string> ("e_bounds_tag_name",
-                                                          "e_bounds"));
+    tag_names.insert(
+        std::pair<std::string, std::string>("src_tag_name", "source_density"));
+    tag_names.insert(std::pair<std::string, std::string>(
+        "bias_tag_name", "biased_source_density"));
+    tag_names.insert(std::pair<std::string, std::string>("cell_number_tag_name",
+                                                         "cell_number"));
+    tag_names.insert(std::pair<std::string, std::string>("cell_fracs_tag_name",
+                                                         "cell_fracs"));
+    tag_names.insert(
+        std::pair<std::string, std::string>("e_bounds_tag_name", "e_bounds"));
     sampler = new pyne::Sampler(filename, tag_names, e_bounds, *mode);
     *cell_list_size = sampler->get_cell_list_size();
   }
 }
 
-void pyne::particle_birth_(double* rands,
-                           double* x,
-                           double* y,
-                           double* z,
-                           double* e,
-                           double* w,
-                           int* cell_list) {
+void pyne::particle_birth_(double *rands, double *x, double *y, double *z,
+                           double *e, double *w, int *cell_list) {
   std::vector<double> rands2(rands, rands + 6);
   pyne::SourceParticle src = sampler->particle_birth(rands2);
   *x = src.get_x();
@@ -21350,39 +18037,37 @@ std::vector<double> pyne::read_e_bounds(std::string e_bounds_file) {
   std::ifstream inputFile(e_bounds_file.c_str());
   double value;
   if (inputFile) {
-    while (inputFile >> value)
-      e_bounds.push_back(value);
+    while (inputFile >> value) e_bounds.push_back(value);
   } else {
-    std::cout << "warning: e_bounds file is not provided, it will be read from photon source file" << std::endl;
+    std::cout << "warning: e_bounds file is not provided, it will be read from "
+                 "photon source file"
+              << std::endl;
   }
   return e_bounds;
 }
 
-
 // C++ API
-pyne::Sampler::Sampler(std::string filename,
-                       std::string src_tag_name,
-                       std::vector<double> e_bounds,
-                       bool uniform)
-  : filename(filename), src_tag_name(src_tag_name), e_bounds(e_bounds) {
+pyne::Sampler::Sampler(std::string filename, std::string src_tag_name,
+                       std::vector<double> e_bounds, bool uniform)
+    : filename(filename), src_tag_name(src_tag_name), e_bounds(e_bounds) {
   bias_mode = (uniform) ? UNIFORM : ANALOG;
   setup();
 }
 
-pyne::Sampler::Sampler(std::string filename,
-                       std::string src_tag_name,
-                       std::vector<double> e_bounds,
-                       std::string bias_tag_name)
-  : filename(filename), src_tag_name(src_tag_name), e_bounds(e_bounds), bias_tag_name(bias_tag_name) {
+pyne::Sampler::Sampler(std::string filename, std::string src_tag_name,
+                       std::vector<double> e_bounds, std::string bias_tag_name)
+    : filename(filename),
+      src_tag_name(src_tag_name),
+      e_bounds(e_bounds),
+      bias_tag_name(bias_tag_name) {
   bias_mode = USER;
   setup();
 }
 
 pyne::Sampler::Sampler(std::string filename,
                        std::map<std::string, std::string> tag_names,
-                       std::vector<double> e_bounds,
-                       int mode)
-  : filename(filename), tag_names(tag_names), e_bounds(e_bounds), mode(mode) {
+                       std::vector<double> e_bounds, int mode)
+    : filename(filename), tag_names(tag_names), e_bounds(e_bounds), mode(mode) {
   // determine the bias_mode
   if (mode == 0) {
     bias_mode = ANALOG;
@@ -21421,19 +18106,20 @@ pyne::Sampler::Sampler(std::string filename,
     if (e_bounds.size() == 0) {
       throw std::invalid_argument("e_bounds_tag_name not found");
     }
-  } else { // e_bounds provided in h5m file
+  } else {  // e_bounds provided in h5m file
+    e_bounds_tag_name = tag_names["e_bounds_tag_name"];
     if (e_bounds.size() > 0) {
       // there is also an user defined e_bounds
-      std::cout << "warning: e_bounds in 'source.h5m' will be used." << std::endl;
+      std::cout << "warning: e_bounds in 'source.h5m' will be used."
+                << std::endl;
     }
   }
   setup();
 }
 
 pyne::Sampler::Sampler(std::string filename,
-                       std::map<std::string, std::string> tag_names,
-                       int mode)
-  : filename(filename), tag_names(tag_names), mode(mode) {
+                       std::map<std::string, std::string> tag_names, int mode)
+    : filename(filename), tag_names(tag_names), mode(mode) {
   // determine the bias_mode
   if (mode == 0) {
     bias_mode = ANALOG;
@@ -21496,17 +18182,17 @@ pyne::SourceParticle pyne::Sampler::particle_birth(std::vector<double> rands) {
   if (ve_type == moab::MBHEX) {
     if (mesh_mode == SUBVOXEL) {
       cell_list.emplace_back(cell_number[ve_idx * max_num_cells + c_idx]);
-    } else { // Voxel
+    } else {  // Voxel
       for (int c = 0; c < max_num_cells; c++) {
         cell_list.emplace_back(cell_number[ve_idx * max_num_cells + c]);
       }
     }
   }
-  pyne::SourceParticle src = SourceParticle(pos[0], pos[1], pos[2],
-                                            sample_e(e_idx, rands[5]), sample_w(pdf_idx), cell_list);
+  pyne::SourceParticle src =
+      SourceParticle(pos[0], pos[1], pos[2], sample_e(e_idx, rands[5]),
+                     sample_w(pdf_idx), cell_list);
   return src;
 }
-
 
 void pyne::Sampler::setup() {
   moab::ErrorCode rval;
@@ -21525,8 +18211,10 @@ void pyne::Sampler::setup() {
     throw std::runtime_error("Problem entities of dimension 3");
   num_ves = ves.size();
   int num_hex, num_tet;
-  rval = mesh->get_number_entities_by_type(loaded_file_set, moab::MBHEX, num_hex);
-  rval = mesh->get_number_entities_by_type(loaded_file_set, moab::MBTET, num_tet);
+  rval =
+      mesh->get_number_entities_by_type(loaded_file_set, moab::MBHEX, num_hex);
+  rval =
+      mesh->get_number_entities_by_type(loaded_file_set, moab::MBTET, num_tet);
   if (num_hex == num_ves) {
     ve_type = moab::MBHEX;
     verts_per_ve = 8;
@@ -21578,8 +18266,7 @@ void pyne::Sampler::mesh_e_bounds_data() {
   // get e_bounds tag data
   moab::ErrorCode rval;
   moab::Tag e_bounds_tag;
-  rval = mesh->tag_get_handle(e_bounds_tag_name.c_str(),
-                              e_bounds_tag);
+  rval = mesh->tag_get_handle(e_bounds_tag_name.c_str(), e_bounds_tag);
   if (rval == moab::MB_SUCCESS) {
     // use e_bounds in 'source.h5m'
     e_bounds.resize(num_e_groups + 1);
@@ -21592,7 +18279,8 @@ void pyne::Sampler::mesh_e_bounds_data() {
   }
 }
 
-void pyne::Sampler::mesh_geom_data(moab::Range ves, std::vector<double>& volumes) {
+void pyne::Sampler::mesh_geom_data(moab::Range ves,
+                                   std::vector<double> &volumes) {
   // Get connectivity.
   moab::ErrorCode rval;
   std::vector<moab::EntityHandle> connect;
@@ -21603,7 +18291,7 @@ void pyne::Sampler::mesh_geom_data(moab::Range ves, std::vector<double>& volumes
   // Grab the coordinates that define 4 connected points within a mesh volume
   // element and setup a data structure to allow uniform sampling with each
   // mesh volume element.
-  double* coords;
+  double *coords = new double[verts_per_ve * 3];
   int v;
   for (v = 0; v < num_ves; ++v) {
     rval = mesh->get_coords(&connect[verts_per_ve * v], verts_per_ve, coords);
@@ -21636,10 +18324,8 @@ void pyne::Sampler::mesh_tag_data(moab::Range ves,
   moab::Tag cell_fracs_tag;
 
   // get src tag data
-  rval = mesh->tag_get_handle(src_tag_name.c_str(),
-                              moab::MB_TAG_VARLEN,
-                              moab::MB_TYPE_DOUBLE,
-                              src_tag);
+  rval = mesh->tag_get_handle(src_tag_name.c_str(), moab::MB_TAG_VARLEN,
+                              moab::MB_TYPE_DOUBLE, src_tag);
   // THIS rval FAILS because we do not know number of energy groups a priori.
   // That's okay. That's what the next line is all about:
   num_e_groups = num_groups(src_tag);
@@ -21654,10 +18340,8 @@ void pyne::Sampler::mesh_tag_data(moab::Range ves,
   cell_fracs.resize(num_ves, 1.0);
   if (ve_type == moab::MBHEX) {
     // Read the cell_number tag and cell_fracs tag
-    rval = mesh->tag_get_handle(cell_number_tag_name.c_str(),
-                                cell_number_tag);
-    rval = mesh->tag_get_handle(cell_fracs_tag_name.c_str(),
-                                cell_fracs_tag);
+    rval = mesh->tag_get_handle(cell_number_tag_name.c_str(), cell_number_tag);
+    rval = mesh->tag_get_handle(cell_fracs_tag_name.c_str(), cell_fracs_tag);
     has_cell_fracs = check_cell_fracs(cell_fracs_tag);
     max_num_cells = get_max_num_cells(cell_fracs_tag);
     if (mesh_mode == SUBVOXEL) {
@@ -21665,7 +18349,9 @@ void pyne::Sampler::mesh_tag_data(moab::Range ves,
       num_e_groups /= p_src_num_cells;
       // cell_fracs must exist in SUBVOXEL mode
       if (has_cell_fracs == false) {
-        throw std::runtime_error("No cell_fracs tag found in sub-voxel R2S. Wrong source file used.");
+        throw std::runtime_error(
+            "No cell_fracs tag found in sub-voxel R2S. Wrong source file "
+            "used.");
       }
       cell_fracs.resize(num_ves * p_src_num_cells);
       rval = mesh->tag_get_data(cell_fracs_tag, ves, &cell_fracs[0]);
@@ -21716,39 +18402,39 @@ std::vector<double> pyne::Sampler::read_bias_pdf(moab::Range ves,
   int v, c, e;
   moab::ErrorCode rval;
   if (bias_mode == UNIFORM) {
-    // Sub-voxel Uniform sampling: uniform in space, analog in energy. Biased PDF is
-    // found by normalizing the total photon emission density to 1 in each
-    // mesh volume element and multiplying by the volume of the element.
+    // Sub-voxel Uniform sampling: uniform in space, analog in energy. Biased
+    // PDF is found by normalizing the total photon emission density to 1 in
+    // each mesh volume element and multiplying by the volume of the element.
     double q_in_group;
     for (v = 0; v < num_ves; ++v) {
       for (c = 0; c < p_src_num_cells; ++c) {
         q_in_group = 0.0;
         for (e = 0; e < num_e_groups; ++e) {
-          q_in_group += pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e];
+          q_in_group +=
+              pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e];
         }
 
         if (q_in_group > 0) {
           for (e = 0; e < num_e_groups; ++e) {
-            bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] =
+            bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups +
+                     e] =
                 volumes[v] * cell_fracs[v * p_src_num_cells + c] *
-                pdf[v * p_src_num_cells * num_e_groups +
-                      c * num_e_groups + e] / q_in_group;
+                pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] /
+                q_in_group;
           }
         } else {
           for (e = 0; e < num_e_groups; ++e) {
-            bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] = 0.0;
+            bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups +
+                     e] = 0.0;
           }
         }
-
       }
     }
   } else if (bias_mode == USER) {
     // Get the biased PDF from the mesh
     moab::Tag bias_tag;
-    rval = mesh->tag_get_handle(bias_tag_name.c_str(),
-                                moab::MB_TAG_VARLEN,
-                                moab::MB_TYPE_DOUBLE,
-                                bias_tag);
+    rval = mesh->tag_get_handle(bias_tag_name.c_str(), moab::MB_TAG_VARLEN,
+                                moab::MB_TYPE_DOUBLE, bias_tag);
     num_bias_groups = num_groups(bias_tag);
     if (num_bias_groups == num_e_groups * p_src_num_cells) {
       // Spatial, cell and energy biasing. The supplied bias PDF values are
@@ -21760,8 +18446,8 @@ std::vector<double> pyne::Sampler::read_bias_pdf(moab::Range ves,
       for (v = 0; v < num_ves; ++v) {
         for (c = 0; c < p_src_num_cells; c++) {
           for (e = 0; e < num_e_groups; ++e)
-            bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] *=
-                volumes[v] * cell_fracs[v * p_src_num_cells + c];
+            bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups +
+                     e] *= volumes[v] * cell_fracs[v * p_src_num_cells + c];
         }
       }
     } else if (num_bias_groups == 1) {
@@ -21777,27 +18463,32 @@ std::vector<double> pyne::Sampler::read_bias_pdf(moab::Range ves,
         q_in_group = 0;
         for (c = 0; c < p_src_num_cells; ++c) {
           for (e = 0; e < num_e_groups; ++e) {
-            q_in_group += pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e];
+            q_in_group +=
+                pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e];
           }
         }
         if (q_in_group > 0) {
           for (c = 0; c < p_src_num_cells; ++c) {
             for (e = 0; e < num_e_groups; ++e) {
-              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] =
-                  spatial_pdf[v] * volumes[v] * cell_fracs[v * p_src_num_cells + c] *
-                  pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] /
-                  q_in_group;
+              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups +
+                       e] = spatial_pdf[v] * volumes[v] *
+                            cell_fracs[v * p_src_num_cells + c] *
+                            pdf[v * p_src_num_cells * num_e_groups +
+                                c * num_e_groups + e] /
+                            q_in_group;
             }
           }
         } else {
           for (c = 0; c < p_src_num_cells; ++c)
             for (e = 0; e < num_e_groups; ++e) {
-              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] =  0;
+              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups +
+                       e] = 0;
             }
         }
       }
     } else if (num_bias_groups == num_e_groups) {
-      // Voxel and energy biasing. Apply the energy bias to all the sub-voxel in the voxel
+      // Voxel and energy biasing. Apply the energy bias to all the sub-voxel in
+      // the voxel
       std::vector<double> spa_erg_pdf(num_ves * num_e_groups);
       rval = mesh->tag_get_data(bias_tag, ves, &spa_erg_pdf[0]);
       if (rval != moab::MB_SUCCESS)
@@ -21807,37 +18498,42 @@ std::vector<double> pyne::Sampler::read_bias_pdf(moab::Range ves,
         for (e = 0; e < num_e_groups; ++e) {
           q_in_group = 0.0;
           for (c = 0; c < p_src_num_cells; ++c) {
-            q_in_group += pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e];
+            q_in_group +=
+                pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e];
           }
           if (q_in_group > 0) {
             for (c = 0; c < p_src_num_cells; ++c) {
-              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] =
-                  spa_erg_pdf[v * num_e_groups + e] * volumes[v] * cell_fracs[v * p_src_num_cells + c] *
-                  pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] / q_in_group;
+              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups +
+                       e] = spa_erg_pdf[v * num_e_groups + e] * volumes[v] *
+                            cell_fracs[v * p_src_num_cells + c] *
+                            pdf[v * p_src_num_cells * num_e_groups +
+                                c * num_e_groups + e] /
+                            q_in_group;
             }
           } else {
             for (c = 0; c < p_src_num_cells; ++c) {
-              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups + e] = 0.0;
+              bias_pdf[v * p_src_num_cells * num_e_groups + c * num_e_groups +
+                       e] = 0.0;
             }
           }
         }
       }
     } else {
-      throw std::length_error("Length of bias tag must equal length of the"
-                              "  p_src_num_cells*num_e_group, num_e_groups, or 1.");
+      throw std::length_error(
+          "Length of bias tag must equal length of the"
+          "  p_src_num_cells*num_e_group, num_e_groups, or 1.");
     }
   }
   double q_in_all = 0.0;
-  for (int i = 0; i < bias_pdf.size(); i++)
-    q_in_all += bias_pdf[i];
+  for (int i = 0; i < bias_pdf.size(); i++) q_in_all += bias_pdf[i];
   if (q_in_all <= 0.0) {
     throw std::runtime_error("Bias data are ALL ZERO!");
   }
   return bias_pdf;
 }
 
-
-moab::CartVect pyne::Sampler::sample_xyz(int ve_idx, std::vector<double> rands) {
+moab::CartVect pyne::Sampler::sample_xyz(int ve_idx,
+                                         std::vector<double> rands) {
   double s = rands[0];
   double t = rands[1];
   double u = rands[2];
@@ -21863,10 +18559,8 @@ moab::CartVect pyne::Sampler::sample_xyz(int ve_idx, std::vector<double> rands) 
     }
   }
 
-  return s * all_edge_points[ve_idx].x_vec + \
-         t * all_edge_points[ve_idx].y_vec + \
-         u * all_edge_points[ve_idx].z_vec + \
-         all_edge_points[ve_idx].o_point;
+  return s * all_edge_points[ve_idx].x_vec + t * all_edge_points[ve_idx].y_vec +
+         u * all_edge_points[ve_idx].z_vec + all_edge_points[ve_idx].o_point;
 }
 
 double pyne::Sampler::sample_e(int e_idx, double rand) {
@@ -21879,12 +18573,10 @@ double pyne::Sampler::sample_w(int pdf_idx) {
   return (bias_mode == ANALOG) ? 1.0 : biased_weights[pdf_idx];
 }
 
-void pyne::Sampler::normalize_pdf(std::vector<double>& pdf) {
+void pyne::Sampler::normalize_pdf(std::vector<double> &pdf) {
   double sum = 0;
-  for (int i = 0; i < pdf.size(); ++i)
-    sum += pdf[i];
-  for (int i = 0; i < pdf.size(); ++i)
-    pdf[i] /= sum;
+  for (int i = 0; i < pdf.size(); ++i) sum += pdf[i];
+  for (int i = 0; i < pdf.size(); ++i) pdf[i] /= sum;
 }
 
 int pyne::Sampler::num_groups(moab::Tag tag) {
@@ -21901,8 +18593,11 @@ bool pyne::Sampler::check_cell_fracs(moab::Tag cell_fracs_tag) {
   int tag_size;
   rval = mesh->tag_get_bytes(cell_fracs_tag, *(&tag_size));
   if (rval != moab::MB_SUCCESS) {
-    std::cout << "Warning: Old version source file used. No cell_number and cell_fracs tag found!" << std::endl;
-    std::cout << "Default cell_number [-1] and cell_fracs [1.0] will be used." << std::endl;
+    std::cout << "Warning: Old version source file used. No cell_number and "
+                 "cell_fracs tag found!"
+              << std::endl;
+    std::cout << "Default cell_number [-1] and cell_fracs [1.0] will be used."
+              << std::endl;
     has_cell_fracs = false;
   } else {
     has_cell_fracs = true;
@@ -21950,8 +18645,7 @@ pyne::AliasTable::AliasTable(std::vector<double> p) {
   std::vector<double> large(n);
   int i, a, g;
 
-  for (i = 0; i < n; ++i)
-    p[i] *= n;
+  for (i = 0; i < n; ++i) p[i] *= n;
 
   // Set separate index lists for small and large probabilities:
   int n_s = 0;
@@ -21966,8 +18660,8 @@ pyne::AliasTable::AliasTable(std::vector<double> p) {
 
   // Work through index lists
   while (n_s && n_l) {
-    a = small[--n_s]; // Schwarz's l
-    g = large[--n_l]; // Schwarz's g
+    a = small[--n_s];  // Schwarz's l
+    g = large[--n_l];  // Schwarz's g
     prob[a] = p[a];
     alias[a] = g;
     p[g] = p[g] + p[a] - 1;
@@ -21977,16 +18671,15 @@ pyne::AliasTable::AliasTable(std::vector<double> p) {
       large[n_l++] = g;
   }
 
-  while (n_l)
-    prob[large[--n_l]] = 1;
+  while (n_l) prob[large[--n_l]] = 1;
 
   while (n_s)
     // can only happen through numeric instability
-    prob[small[--n_s] ] = 1;
+    prob[small[--n_s]] = 1;
 }
 
 int pyne::AliasTable::sample_pdf(double rand1, double rand2) {
-  int i = (int) n * rand1;
+  int i = (int)n * rand1;
   return rand2 < prob[i] ? i : alias[i];
 }
 
@@ -21998,14 +18691,11 @@ pyne::SourceParticle::SourceParticle() {
   w = -1.0;
 }
 
-pyne::SourceParticle::SourceParticle(double _x, double _y, double _z,
-                                     double _e, double _w, std::vector<int> _cell_list)
-  : x(_x), y(_y), z(_z),
-    e(_e), w(_w), cell_list(_cell_list) {}
+pyne::SourceParticle::SourceParticle(double _x, double _y, double _z, double _e,
+                                     double _w, std::vector<int> _cell_list)
+    : x(_x), y(_y), z(_z), e(_e), w(_w), cell_list(_cell_list) {}
 
-pyne::SourceParticle::~SourceParticle() {};
+pyne::SourceParticle::~SourceParticle(){};
 //
 // end of src/source_sampling.cpp
 //
-
-

@@ -3,7 +3,7 @@
 set -e
 
 # Clone pyne repo
-git clone --depth 1 https://github.com/pyne/pyne -b develop
+git clone --depth 1 https://github.com/bam241/pyne -b windows_build
 
 # Update amalgamated pyne
 cd pyne/src
@@ -17,8 +17,7 @@ python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
 cp pyne.cpp pyne.h ..
 githash=`git rev-parse HEAD`
 cd ..
-astyle --options=../../astyle_google.ini --suffix=none --verbose --formatted \
-       "pyne.cpp" "pyne.h"
+clang-format -i --style=file pyne.cpp pyne.h
 python remove_unsupported.py
 mv -fv pyne.cpp.new pyne.cpp
 
