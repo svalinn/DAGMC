@@ -6389,11 +6389,11 @@ double pyne::half_life(int nuc) {
   if (result.size() == 1) {
     return result[0];
   }
-#ifndef _WIN32
+//#ifndef _WIN32
   return 1.0 / 0.0;
-#else
-  return -1.0;
-#endif
+//#else
+//  return -1.0;
+//#endif
 }
 
 double pyne::half_life(char *nuc) {
