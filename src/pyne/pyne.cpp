@@ -6390,7 +6390,9 @@ double pyne::half_life(int nuc) {
     return result[0];
   }
 //#ifndef _WIN32
-  return 1.0 / 0.0;
+double one = 1.0;
+double zero = 0.0;
+return one / zero;
 //#else
 //  return -1.0;
 //#endif
