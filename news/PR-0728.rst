@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:**
+- adding special build flag to enable old hdf5 interface for PyNE when compiling
+  against hdf5@1.12+
+
+**Security:** None
