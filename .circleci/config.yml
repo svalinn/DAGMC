@@ -20,7 +20,7 @@ jobs:
 
   coverage:
     docker:
-      - image: valinn/dagmc-ci-ubuntu-18.04-gcc-ext-hdf5_1.10.4-moab_5.1.0:latest
+      - image: svalinn/dagmc-ci-ubuntu-18.04-gcc-ext-hdf5_1.10.4-moab_5.1.0:latest
         auth: 
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASS
