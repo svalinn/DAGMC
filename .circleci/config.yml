@@ -44,7 +44,7 @@ jobs:
                      -DDOUBLE_DOWN=OFF
             cmake --build .
             make all test
-            coveralls --root . -E ".*gtest.*" -E ".*CMakeFiles.*"
+            /root/.local/bin/coveralls --root . -E ".*gtest.*" -E ".*CMakeFiles.*"
 
 
   build_and_test:
