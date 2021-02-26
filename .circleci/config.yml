@@ -92,16 +92,12 @@ workflows:
       
       - coverage:
           context: dockerhub
+
+      - house_keeping:
+          context: dockerhub
           filters:
             branches:
               ignore: develop
-      
-      - house_keeping:
-          context: dockerhub
-          matrix:
-            parameters:
-              img: ["18.04"]
-
 
       - build_and_test:
           context: dockerhub
