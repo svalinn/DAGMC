@@ -10,14 +10,15 @@ source ${docker_env}
 function build_dagmc() {
 
 
-  if [ "$COVERAGE" == "ON" ]; then
-    local ADDITIONAL_CMAKE_FLAGS="-DCOVERAGE=ON"
-  fi
+
 
   if [ "$1" == "shared" ]; then
     local build_dir=${dagmc_build_dir_shared}
     local install_dir=${dagmc_install_dir_shared}
     local static_exe=OFF
+    if [ "$COVERAGE" == "ON" ]; then
+      local ADDITIONAL_CMAKE_FLAGS="-DCOVERAGE=ON"
+    fi
   else
     local build_dir=${dagmc_build_dir_static}
     local install_dir=${dagmc_install_dir_static}
