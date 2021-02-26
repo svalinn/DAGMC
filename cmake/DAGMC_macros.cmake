@@ -279,7 +279,7 @@ macro (dagmc_install_library lib_name)
   endif ()
   # List all the source files
   if (COVERALLS)
-    SET(COVERAGE_SRCS ${SRC_FILES} [PARENT_SCOPE])
+    SET(COVERAGE_SRCS ${COVERAGE_SRCS} ${SRC_FILES} PARENT_SCOPE) 
   endif()
 
   # Keep a list of all libraries being installed

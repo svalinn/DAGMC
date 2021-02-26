@@ -28,5 +28,5 @@ cmake ${dagmc_build_dir} -DCOVERALLS=ON \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
             -DDOUBLE_DOWN=${double_down} \
             -Ddd_ROOT=${double_down_install_dir}
-make -j4
+make -j8
 make coveralls
