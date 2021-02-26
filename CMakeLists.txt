@@ -49,4 +49,13 @@ add_subdirectory(src)
 
 dagmc_make_configure_files()
 
+if (COVERALLS)
+  # Create the coveralls target.
+  coveralls_setup(
+      "${COVERAGE_SRCS}" # The source files.
+      ON                 # If we should upload.
+      "${PROJECT_SOURCE_DIR}/cmake") # (Optional) Alternate project cmake module path.
+endif()
+
+
 message("")

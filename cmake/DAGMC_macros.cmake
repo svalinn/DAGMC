@@ -312,14 +312,6 @@ macro (dagmc_install_exe exe_name)
     endif ()
     install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
   endif ()
-  if (COVERALLS)
-    # Create the coveralls target.
-    coveralls_setup(
-        "${COVERAGE_SRCS}" # The source files.
-        ON                 # If we should upload.
-        "${PROJECT_SOURCE_DIR}/cmake") # (Optional) Alternate project cmake module path.
-  endif()
-
 
 endmacro ()
 
