@@ -46,8 +46,8 @@ function build_dagmc() {
   cd ${build_dir}
   cd bld
   cmake ${dagmc_build_dir} ${ADDITIONAL_CMAKE_FLAGS} \
-               -BUILD_SHARED_LIBS=${SHARED} \
-               -BUILD_STATIC_LIBS=$STATIC} \
+               -DBUILD_SHARED_LIBS=${SHARED} \
+               -DBUILD_STATIC_LIBS=$STATIC} \
                -DMOAB_DIR=${moab_install_dir} \
                -DBUILD_GEANT4=ON \
                -DGEANT4_DIR=${geant4_install_dir} \
