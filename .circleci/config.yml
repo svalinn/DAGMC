@@ -30,6 +30,7 @@ jobs:
           name: install pre-requisites
           command: |
             pip install --user cpp-coveralls
+            apt-get update
             apt-get -y install curl
       - checkout
       - run:
