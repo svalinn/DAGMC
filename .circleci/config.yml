@@ -34,13 +34,13 @@ jobs:
           name: Setup environment
           command: |
             echo "export COVERAGE=ON" >> $BASH_ENV
-            echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
-            echo "export SYSTEM=<< parameters.img >>" >> $BASH_ENV
-            echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
-            echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
+            echo "export COMPILER=gcc" >> $BASH_ENV
+            echo "export SYSTEM=18.04" >> $BASH_ENV
+            echo "export MOAB_VERSION=5.1.0" >> $BASH_ENV
+            echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
             echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
             echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
-            echo "export DOUBLE_DOWN=<< parameters.double_down >>" >> $BASH_ENV
+            echo "export DOUBLE_DOWN=OFF" >> $BASH_ENV
       - run:
           name: Building DAGMC
           command: CI/circleci/install.sh
