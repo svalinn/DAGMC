@@ -190,6 +190,10 @@ macro (dagmc_get_link_libs)
   set(LINK_LIBS_STATIC)
 
   foreach (extern_name IN LISTS LINK_LIBS_EXTERN_NAMES)
+    if (COVERALLS)
+      list(APPEND LINK_LIBS_SHARED gcov)
+      list(APPEND LINK_LIBS_STATIC gcov)
+    endif()
     list(APPEND LINK_LIBS_SHARED ${${extern_name}_SHARED})
     list(APPEND LINK_LIBS_STATIC ${${extern_name}_STATIC})
   endforeach ()
@@ -248,9 +252,6 @@ macro (dagmc_install_library lib_name)
     endif()
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
-    if (COVERALLS)
-      target_link_libraries(${lib_name}-shared gcov )
-    endif()
     install(TARGETS ${lib_name}-shared
             EXPORT DAGMCTargets
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
@@ -269,9 +270,7 @@ macro (dagmc_install_library lib_name)
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
     target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
-    if (COVERALLS)
-      target_link_libraries(${lib_name}-static gcov )
-    endif()
+
     install(TARGETS ${lib_name}-static
             EXPORT DAGMCTargets
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
@@ -316,9 +315,6 @@ macro (dagmc_install_exe exe_name)
         target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
       endif ()
     endif ()
-    if (COVERALLS)
-      target_link_libraries(${exe_name} gcov )
-    endif()
     install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
   endif ()
 
