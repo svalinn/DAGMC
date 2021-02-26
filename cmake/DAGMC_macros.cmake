@@ -135,6 +135,14 @@ macro (dagmc_setup_flags)
   set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES     "")
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES   "")
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
+  
+  
+  # Coverage can only be set if -g is used.
+  if (COVERAGE)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+  endif()
+
 
   if (BUILD_EXE)
     if (BUILD_STATIC_EXE)
@@ -335,10 +343,6 @@ macro (dagmc_install_test test_name ext)
         target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
       endif ()
     endif ()
-    if (COVERAGE)
-      target_compile_options(${test_name} PRIVATE --coverage)
-      target_link_libraries(${test_name} PRIVATE --coverage)
-    endif()
     install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
     add_test(NAME ${test_name} COMMAND ${test_name})
     set_property(TEST ${test_name} PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=''")

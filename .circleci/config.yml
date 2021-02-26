@@ -26,25 +26,30 @@ jobs:
           password: $DOCKERHUB_PASS
     working_directory: /root/build_dir/DAGMC
     steps:
-      - checkout
       - run:
           name: install cpp-coveralls
           command: pip install --user cpp-coveralls
+      - checkout
       - run:
-          name: DAGMC coverage
-          command: |  
-            mkdir -p bld
-            cd bld
-            cmake .. -DMOAB_DIR=${moab_install_dir} \
-                     -DBUILD_GEANT4=ON \
-                     -DGEANT4_DIR=${geant4_install_dir} \
-                     -DBUILD_CI_TESTS=ON \
-                     -DBUILD_MW_REG_TESTS=OFF \
-                     -DBUILD_STATIC_EXE=OFF \
-                     -DDOUBLE_DOWN=OFF
-            cmake --build .
-            make all test
-            /root/.local/bin/coveralls --root . -E ".*gtest.*" -E ".*CMakeFiles.*"
+          name: Setup environment
+          command: |
+            echo "export COVERAGE=ON" >> $BASH_ENV
+            echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
+            echo "export SYSTEM=<< parameters.img >>" >> $BASH_ENV
+            echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
+            echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
+            echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+            echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
+            echo "export DOUBLE_DOWN=<< parameters.double_down >>" >> $BASH_ENV
+      - run:
+          name: Building DAGMC
+          command: CI/circleci/install.sh
+      - run:
+          name: Testing DAGMC
+          command: CI/circleci/tests.sh
+      - run:
+          name: Build coverage report
+          command: /CI/circleci/coverall.sh
 
 
   build_and_test:

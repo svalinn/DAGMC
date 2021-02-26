@@ -9,6 +9,11 @@ source ${docker_env}
 
 function build_dagmc() {
 
+
+  if [ "$COVERAGE" == "ON" ];
+    local ADDITIONAL_CMAKE_FLAGS="-DCOVERAGE=ON"
+  fi
+
   if [ "$1" == "shared" ]; then
     local build_dir=${dagmc_build_dir_shared}
     local install_dir=${dagmc_install_dir_shared}
@@ -35,7 +40,8 @@ function build_dagmc() {
   mkdir -p ${build_dir}/bld
   cd ${build_dir}
   cd bld
-  cmake ${dagmc_build_dir} -DMOAB_DIR=${moab_install_dir} \
+  cmake ${dagmc_build_dir} ${ADDITIONAL_CMAKE_FLAGS} \
+               -DMOAB_DIR=${moab_install_dir} \
                -DBUILD_GEANT4=ON \
                -DGEANT4_DIR=${geant4_install_dir} \
                -DBUILD_CI_TESTS=ON \
