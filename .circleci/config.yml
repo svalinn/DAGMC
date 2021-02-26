@@ -43,7 +43,7 @@ jobs:
                      -DBUILD_STATIC_EXE=OFF \
                      -DDOUBLE_DOWN=OFF
             cmake --build .
-            ./tests
+            make all test
             coveralls --root . -E ".*gtest.*" -E ".*CMakeFiles.*"
 
 
