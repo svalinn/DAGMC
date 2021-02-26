@@ -43,7 +43,7 @@ jobs:
             echo "export DOUBLE_DOWN=OFF" >> $BASH_ENV
       - run:
           name: Build coverage report
-          command: /CI/circleci/coverall.sh
+          command: CI/circleci/coverall.sh
 
 
   build_and_test:
