@@ -272,17 +272,10 @@ macro (dagmc_install_library lib_name)
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   endif ()
-
+  # List all the source files
   if (COVERALLS)
-    set(COVERAGE_SRCS ${SRC_FILES})
-
-    # Create the coveralls target.
-    coveralls_setup(
-        "${COVERAGE_SRCS}" # The source files.
-        ON                 # If we should upload.
-        "${PROJECT_SOURCE_DIR}/cmake") # (Optional) Alternate project cmake module path.
+    SET(COVERAGE_SRCS ${SRC_FILES} [PARENT_SCOPE])
   endif()
-
 
   # Keep a list of all libraries being installed
   set(DAGMC_LIBRARIES ${DAGMC_LIBRARIES} ${lib_name} CACHE INTERNAL "DAGMC_LIBRARIES")
@@ -319,6 +312,15 @@ macro (dagmc_install_exe exe_name)
     endif ()
     install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
   endif ()
+  if (COVERALLS)
+    # Create the coveralls target.
+    coveralls_setup(
+        "${COVERAGE_SRCS}" # The source files.
+        ON                 # If we should upload.
+        "${PROJECT_SOURCE_DIR}/cmake") # (Optional) Alternate project cmake module path.
+  endif()
+
+
 endmacro ()
 
 # Install a unit test
