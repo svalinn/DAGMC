@@ -66,12 +66,7 @@ function(coveralls_setup _COVERAGE_SRCS _COVERALLS_UPLOAD)
 
 		# Run regress tests.
 		COMMAND ${CMAKE_CTEST_COMMAND} 
-				--output-on-failure 
-				--label-exclude TallyDataDeathTest.ZeroEnergyBins 
-				--label-exclude KDENeighborhoodDeathTest.NullMOABInstance 
-				--label-exclude KDENeighborhoodDeathTest.InvalidTallyEvent
-				--label-exclude KDEMeshTallyDeathTest.MissingInputMesh
-
+				--output-on-failure --label-exclude *DeathTest*
 
 		# Generate Gcov and translate it into coveralls JSON.
 		# We do this by executing an external CMake script.
