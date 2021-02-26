@@ -43,6 +43,10 @@ dagmc_setup_flags()
 
 if (BUILD_TESTS)
   enable_testing()
+  if (COVERAGE)
+    target_compile_options(tests PRIVATE --coverage)
+    target_link_libraries(tests PRIVATE --coverage)
+  endif()
 endif ()
 
 add_subdirectory(src)

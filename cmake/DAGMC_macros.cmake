@@ -62,6 +62,7 @@ macro (dagmc_setup_options)
 
   option(BUILD_TESTS    "Build unit tests" ON)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
+  option(COVERAGE "Enable Coverage" OFF)
 
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
@@ -74,6 +75,10 @@ macro (dagmc_setup_options)
 
   option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
 
+  if (NOT BUILD_TESTS AND NOT BUILD_CI_TESTS AND COVERAGE)
+    message(WARNING "COVERAGE is enabled but not not the BUILD_TESTS or BUILD_CI_TESTS")
+  endif()
+  
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
     set(BUILD_MCNP6  ON)

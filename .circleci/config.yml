@@ -1,9 +1,6 @@
 version: 2.1
 jobs:
   house_keeping:
-    parameters:
-      img:
-        type: string
     docker:
       - image: svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
         auth: 
@@ -20,6 +17,35 @@ jobs:
       - run:
           name: Housekeeping
           command: CI/circleci/housekeeping.sh
+
+  coverage:
+    docker:
+      - image: valinn/dagmc-ci-ubuntu-18.04-<gcc-ext-hdf5_1.10.4-moab_5.1.0:latest
+        auth: 
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASS
+    working_directory: /root/build_dir/DAGMC
+    steps:
+      - checkout
+      - run:
+          name: install cpp-coveralls
+          command: pip install --user cpp-coveralls
+      - run:
+          name: DAGMC coverage
+          command: |  
+            mkdir -p /bld
+            cd bld
+            cmake .. -DMOAB_DIR=${moab_install_dir} \
+                     -DBUILD_GEANT4=ON \
+                     -DGEANT4_DIR=${geant4_install_dir} \
+                     -DBUILD_CI_TESTS=ON \
+                     -DBUILD_MW_REG_TESTS=OFF \
+                     -DBUILD_STATIC_EXE=OFF \
+                     -DDOUBLE_DOWN=OFF
+            cmake --build .
+            ./tests
+            coveralls --root . -E ".*gtest.*" -E ".*CMakeFiles.*"
+
 
   build_and_test:
     parameters:
@@ -46,6 +72,7 @@ jobs:
           name: Setup environment
           command: |
             echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
+            echo "export SYSTEM=<< parameters.img >>" >> $BASH_ENV
             echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
             echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
             echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
@@ -63,14 +90,18 @@ workflows:
   pull_request: # Run only for PullRequest
     jobs:
       
+      - coverage:
+          context: dockerhub
+          filters:
+            branches:
+              ignore: develop
+      
       - house_keeping:
           context: dockerhub
           matrix:
             parameters:
               img: ["18.04"]
-          filters:
-            branches:
-              ignore: develop
+
 
       - build_and_test:
           context: dockerhub
