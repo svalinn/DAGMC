@@ -10,7 +10,7 @@ source ${docker_env}
 function build_dagmc() {
 
 
-  if [ "$COVERAGE" == "ON" ];
+  if [ "$COVERAGE" == "ON" ]; then
     local ADDITIONAL_CMAKE_FLAGS="-DCOVERAGE=ON"
   fi
 
