@@ -27,8 +27,10 @@ jobs:
     working_directory: /root/build_dir/DAGMC
     steps:
       - run:
-          name: install cpp-coveralls
-          command: pip install --user cpp-coveralls
+          name: install pre-requisites
+          command: |
+            pip install --user cpp-coveralls
+            apt-get install curl
       - checkout
       - run:
           name: Setup environment
