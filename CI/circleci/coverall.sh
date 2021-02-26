@@ -5,14 +5,10 @@ set -ex
 source ${docker_env}
 
 
-local build_dir=${dagmc_build_dir_shared}
-local install_dir=${dagmc_install_dir_shared}
-local static_exe=OFF
-local SHARED=ON
-local STATIC=OFF
-if [ "$COVERAGE" == "ON" ]; then
-    local ADDITIONAL_CMAKE_FLAGS=""
-fi
+build_dir=${dagmc_build_dir_shared}
+install_dir=${dagmc_install_dir_shared}
+static_exe=OFF
+
 
 rm -rf ${build_dir}/bld ${install_dir}
 mkdir -p ${build_dir}/bld
@@ -20,8 +16,6 @@ cd ${build_dir}
 cd bld
 cmake ${dagmc_build_dir} -DCOVERALLS=ON \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DBUILD_SHARED_LIBS=${SHARED} \
-            -DBUILD_STATIC_LIBS=$STATIC} \
             -DMOAB_DIR=${moab_install_dir} \
             -DBUILD_GEANT4=ON \
             -DGEANT4_DIR=${geant4_install_dir} \
