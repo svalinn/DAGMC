@@ -33,7 +33,7 @@ jobs:
       - run:
           name: DAGMC coverage
           command: |  
-            mkdir -p /bld
+            mkdir -p bld
             cd bld
             cmake .. -DMOAB_DIR=${moab_install_dir} \
                      -DBUILD_GEANT4=ON \
