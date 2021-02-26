@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  coveralls: coveralls/coveralls@1.0.6
 jobs:
   house_keeping:
     docker:
@@ -44,9 +46,12 @@ jobs:
             echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
             echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
             echo "export DOUBLE_DOWN=OFF" >> $BASH_ENV
+            echo "export COVERALLS_SERVICE_NAME=Circle-ci" >> $BASH_ENV
+            echo "export COVERALLS_REPO_TOKEN=XwwjAGfgPYsPdIz1sRX5X83qtI5plys4A" >> $BASH_ENV
       - run:
           name: Build coverage report
           command: CI/circleci/coverall.sh
+      - coveralls/upload
 
 
   build_and_test:
