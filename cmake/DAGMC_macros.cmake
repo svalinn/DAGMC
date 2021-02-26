@@ -62,7 +62,7 @@ macro (dagmc_setup_options)
 
   option(BUILD_TESTS    "Build unit tests" ON)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
-  option(COVERAGE "Enable Coverage" OFF)
+  option(COVERALLS "Generate coveralls data" OFF)
 
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
@@ -75,8 +75,8 @@ macro (dagmc_setup_options)
 
   option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
 
-  if (NOT BUILD_TESTS AND NOT BUILD_CI_TESTS AND COVERAGE)
-    message(WARNING "COVERAGE is enabled but not not the BUILD_TESTS or BUILD_CI_TESTS")
+  if (NOT BUILD_TESTS AND NOT BUILD_CI_TESTS AND COVERALLS)
+    message(WARNING "COVERALLS is enabled but not not the BUILD_TESTS or BUILD_CI_TESTS")
   endif()
   
   if (BUILD_ALL)
@@ -137,11 +137,9 @@ macro (dagmc_setup_flags)
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
   
   
-  # Coverage can only be set if -g is used.
-  if (COVERAGE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
-      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lgcov --coverage")
+  if (COVERALLS)
+    include(Coveralls)
+    coveralls_turn_on_coverage()
   endif()
 
 
@@ -274,6 +272,17 @@ macro (dagmc_install_library lib_name)
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
   endif ()
+
+  if (COVERALLS)
+    set(COVERAGE_SRCS ${SRC_FILES})
+
+    # Create the coveralls target.
+    coveralls_setup(
+        "${COVERAGE_SRCS}" # The source files.
+        ON                 # If we should upload.
+        )
+  endif()
+
 
   # Keep a list of all libraries being installed
   set(DAGMC_LIBRARIES ${DAGMC_LIBRARIES} ${lib_name} CACHE INTERNAL "DAGMC_LIBRARIES")

@@ -42,12 +42,6 @@ jobs:
             echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
             echo "export DOUBLE_DOWN=OFF" >> $BASH_ENV
       - run:
-          name: Building DAGMC
-          command: CI/circleci/install.sh
-      - run:
-          name: Testing DAGMC
-          command: CI/circleci/tests.sh
-      - run:
           name: Build coverage report
           command: /CI/circleci/coverall.sh
 
