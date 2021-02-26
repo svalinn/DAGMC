@@ -19,7 +19,7 @@ function build_dagmc() {
     local SHARED=ON
     local STATIC=OFF
     if [ "$COVERAGE" == "ON" ]; then
-      local ADDITIONAL_CMAKE_FLAGS="-DCOVERAGE=ON -DCMAKE_BUILD_TYPE=DEBUG"
+      local ADDITIONAL_CMAKE_FLAGS="-DCOVERAGE=ON -DCMAKE_BUILD_TYPE=Debug"
     fi
   else
     local SHARED=OFF
@@ -63,9 +63,9 @@ function build_dagmc() {
   make -j${jobs}
   make install
 }
-
-build_dagmc "static"
-
+if [ "$COVERAGE" != "ON" ]; then
+  build_dagmc "static"
+fi
 build_dagmc "shared"
 
 cd
