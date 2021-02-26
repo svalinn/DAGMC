@@ -248,6 +248,9 @@ macro (dagmc_install_library lib_name)
     endif()
     target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
+    if (COVERALLS)
+      target_link_libraries(${lib_name}-shared gcov )
+    endif()
     install(TARGETS ${lib_name}-shared
             EXPORT DAGMCTargets
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
@@ -266,11 +269,14 @@ macro (dagmc_install_library lib_name)
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
     target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
-
+    if (COVERALLS)
+      target_link_libraries(${lib_name}-static gcov )
+    endif()
     install(TARGETS ${lib_name}-static
             EXPORT DAGMCTargets
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
+
   endif ()
   # List all the source files
   if (COVERALLS)
@@ -310,6 +316,9 @@ macro (dagmc_install_exe exe_name)
         target_link_libraries(${exe_name} PUBLIC ${LINK_LIBS_SHARED})
       endif ()
     endif ()
+    if (COVERALLS)
+      target_link_libraries(${exe_name} gcov )
+    endif()
     install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
   endif ()
 
