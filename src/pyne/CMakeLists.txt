@@ -1,6 +1,6 @@
 message("")
 
-execute_process(amalgamate_pyne.sh)
+execute_process(COMMAND amalgamate_pyne.sh)
 
 file(GLOB SRC_FILES "*.cpp")
 file(GLOB PUB_HEADERS "*.hpp")
