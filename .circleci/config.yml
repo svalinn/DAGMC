@@ -1,9 +1,6 @@
 version: 2.1
 jobs:
   house_keeping:
-    parameters:
-      img:
-        type: string
     docker:
       - image: svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
         auth: 
@@ -20,6 +17,39 @@ jobs:
       - run:
           name: Housekeeping
           command: CI/circleci/housekeeping.sh
+
+  coverage:
+    docker:
+      - image: svalinn/dagmc-ci-ubuntu-18.04-gcc-ext-hdf5_1.10.4-moab_5.1.0:latest
+        auth: 
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASS
+    working_directory: /root/build_dir/DAGMC
+    steps:
+      - run:
+          name: install pre-requisites
+          command: |
+            pip install --user cpp-coveralls
+            apt-get update
+            apt-get -y install curl
+      - checkout
+      - run:
+          name: Setup environment
+          command: |
+            echo "export COVERAGE=ON" >> $BASH_ENV
+            echo "export COMPILER=gcc" >> $BASH_ENV
+            echo "export SYSTEM=18.04" >> $BASH_ENV
+            echo "export MOAB_VERSION=5.1.0" >> $BASH_ENV
+            echo "export HDF5_VERSION=1.10.4" >> $BASH_ENV
+            echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
+            echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
+            echo "export DOUBLE_DOWN=OFF" >> $BASH_ENV
+            echo "export COVERALLS_SERVICE_NAME=Circle-ci" >> $BASH_ENV
+            echo "export COVERALLS_REPO_TOKEN=XwwjAGfgPYsPdIz1sRX5X83qtI5plys4A" >> $BASH_ENV
+      - run:
+          name: Build coverage report
+          command: CI/circleci/coverall.sh
+
 
   build_and_test:
     parameters:
@@ -46,6 +76,7 @@ jobs:
           name: Setup environment
           command: |
             echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
+            echo "export SYSTEM=<< parameters.img >>" >> $BASH_ENV
             echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
             echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
             echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
@@ -63,11 +94,11 @@ workflows:
   pull_request: # Run only for PullRequest
     jobs:
       
+      - coverage:
+          context: dockerhub
+
       - house_keeping:
           context: dockerhub
-          matrix:
-            parameters:
-              img: ["18.04"]
           filters:
             branches:
               ignore: develop

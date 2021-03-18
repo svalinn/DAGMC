@@ -48,3 +48,8 @@ endif ()
 if (BUILD_OVERLAP_CHECK)
   add_subdirectory(overlap_check)
 endif ()
+
+# send the COVERAGE_SRCS Value to parent scope
+if (COVERALLS)
+  SET(COVERAGE_SRCS ${COVERAGE_SRCS} PARENT_SCOPE)
+endif()

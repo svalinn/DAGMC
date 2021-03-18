@@ -2,8 +2,8 @@ message("")
 
 find_package(Geant4 REQUIRED)
 
-set(SRC_FILES DagSolid.cc)
-set(PUB_HEADERS DagSolid.hh)
+file(GLOB SRC_FILES "*.cc")
+file(GLOB PUB_HEADERS "*.hh")
 
 set(LINK_LIBS dagmc pyne_dagmc uwuw)
 set(LINK_LIBS_EXTERN_NAMES Geant4_LIBRARIES)

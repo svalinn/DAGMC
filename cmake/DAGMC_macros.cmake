@@ -62,6 +62,7 @@ macro (dagmc_setup_options)
 
   option(BUILD_TESTS    "Build unit tests" ON)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
+  option(COVERALLS "Generate coveralls data" OFF)
 
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
   option(BUILD_STATIC_LIBS "Build static libraries" ON)
@@ -74,6 +75,10 @@ macro (dagmc_setup_options)
 
   option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
 
+  if (NOT BUILD_TESTS AND NOT BUILD_CI_TESTS AND COVERALLS)
+    message(WARNING "COVERALLS is enabled but not not the BUILD_TESTS or BUILD_CI_TESTS")
+  endif()
+  
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
     set(BUILD_MCNP6  ON)
@@ -130,6 +135,13 @@ macro (dagmc_setup_flags)
   set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES     "")
   set(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES   "")
   set(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES "")
+  
+  
+  if (COVERALLS)
+    include(Coveralls)
+    coveralls_turn_on_coverage()
+  endif()
+
 
   if (BUILD_EXE)
     if (BUILD_STATIC_EXE)
@@ -178,6 +190,10 @@ macro (dagmc_get_link_libs)
   set(LINK_LIBS_STATIC)
 
   foreach (extern_name IN LISTS LINK_LIBS_EXTERN_NAMES)
+    if (COVERALLS)
+      list(APPEND LINK_LIBS_SHARED gcov)
+      list(APPEND LINK_LIBS_STATIC gcov)
+    endif()
     list(APPEND LINK_LIBS_SHARED ${${extern_name}_SHARED})
     list(APPEND LINK_LIBS_STATIC ${${extern_name}_STATIC})
   endforeach ()
@@ -259,7 +275,12 @@ macro (dagmc_install_library lib_name)
             EXPORT DAGMCTargets
             ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
+
   endif ()
+  # List all the source files
+  if (COVERALLS)
+    SET(COVERAGE_SRCS ${COVERAGE_SRCS} ${SRC_FILES} PARENT_SCOPE) 
+  endif()
 
   # Keep a list of all libraries being installed
   set(DAGMC_LIBRARIES ${DAGMC_LIBRARIES} ${lib_name} CACHE INTERNAL "DAGMC_LIBRARIES")
@@ -296,6 +317,7 @@ macro (dagmc_install_exe exe_name)
     endif ()
     install(TARGETS ${exe_name} DESTINATION ${INSTALL_BIN_DIR})
   endif ()
+
 endmacro ()
 
 # Install a unit test
@@ -324,6 +346,7 @@ macro (dagmc_install_test test_name ext)
       endif ()
     else ()
       if (BUILD_STATIC_EXE)
+
         target_link_libraries(${test_name} ${LINK_LIBS_STATIC})
       else ()
         target_link_libraries(${test_name} ${LINK_LIBS_SHARED})
@@ -332,6 +355,8 @@ macro (dagmc_install_test test_name ext)
     install(TARGETS ${test_name} DESTINATION ${INSTALL_TESTS_DIR})
     add_test(NAME ${test_name} COMMAND ${test_name})
     set_property(TEST ${test_name} PROPERTY ENVIRONMENT "LD_LIBRARY_PATH=''")
+
+
 endif ()
 endmacro ()
 

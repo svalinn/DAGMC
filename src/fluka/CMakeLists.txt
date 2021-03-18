@@ -2,8 +2,8 @@ message("")
 
 find_package(Fluka REQUIRED)
 
-set(SRC_FILES fluka_funcs.cpp)
-set(PUB_HEADERS fluka_funcs.h)
+file(GLOB SRC_FILES "*.cpp")
+file(GLOB PUB_HEADERS "*.h")
 
 set(LINK_LIBS ${FLUKA_LIBRARIES} dagmc pyne_dagmc uwuw)
 set(LINK_LIBS_EXTERN_NAMES)

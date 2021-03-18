@@ -46,7 +46,19 @@ if (BUILD_TESTS)
 endif ()
 
 add_subdirectory(src)
-
 dagmc_make_configure_files()
+
+if (COVERALLS)
+  # exclude Pyne from coverage
+  #string(REPLACE "${CMAKE_CURRENT_LIST_DIR}/src/pyne/pyne.cpp;" "" COVERAGE_SRCS ${COVERAGE_SRCS})
+  #string(REPLACE "${CMAKE_CURRENT_LIST_DIR}/src/pyne/pyne.h;" "" COVERAGE_SRCS ${COVERAGE_SRCS})
+  MESSAGE("FILE_VOVERED: ${COVERAGE_SRCS}")
+  # Create the coveralls target.
+  coveralls_setup(
+      "${COVERAGE_SRCS}" # The source files.
+      ON                 # If we should upload.
+      "${PROJECT_SOURCE_DIR}/cmake") # (Optional) Alternate project cmake module path.
+endif()
+
 
 message("")
