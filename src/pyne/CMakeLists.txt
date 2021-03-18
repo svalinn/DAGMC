@@ -1,7 +1,9 @@
 message("")
 
-set(SRC_FILES pyne.cpp)
-set(PUB_HEADERS pyne.h)
+execute_process(amalgamate_pyne.sh)
+
+file(GLOB SRC_FILES "*.cpp")
+file(GLOB PUB_HEADERS "*.hpp")
 
 set(LINK_LIBS)
 set(LINK_LIBS_EXTERN_NAMES HDF5_LIBRARIES MOAB_LIBRARIES)

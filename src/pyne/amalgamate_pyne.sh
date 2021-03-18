@@ -2,9 +2,6 @@
 
 set -e
 
-# Clone pyne repo
-git clone --depth 1 https://github.com/pyne/pyne -b develop
-
 # Update amalgamated pyne
 cd pyne/src
 python atomicgen.py
@@ -28,5 +25,4 @@ cp -v pyne/share/source_mcnp6.F90 ../mcnp/mcnp6/pyne_source/source.F90
 
 # Delete pyne repo
 rm -rf pyne
-update_date=`date "+%y/%m/%d"`
-echo "$update_date: PyNE/pyne $githash" >> pyne.version
+
