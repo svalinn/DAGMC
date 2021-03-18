@@ -5,7 +5,7 @@ set -ex
 source ${docker_env}
 
 
-build_dir=${dagmc_build_dir_shared}
+build_dir=${dagmc_build_dir}
 install_dir=${dagmc_install_dir_shared}
 static_exe=OFF
 
