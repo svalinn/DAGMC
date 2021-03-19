@@ -1,5 +1,18 @@
 message("")
 
+find_package(Git)
+  if (GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
+    message(STATUS "Updating PyNE submodule")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT)
+    if (NOT GIT_SUBMOD_RESULT EQUAL 0)
+      message(FATAL_ERROR "git submodule update --init failed with \
+          ${GIT_SUBMOD_RESULT}, please checkout submodules")
+    endif ()
+  endif ()
+
+
 MESSAGE("${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh")
 execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR}/pyne ${CMAKE_CURRENT_BINARY_DIR} RESULT_VARIABLE STATUS  OUTPUT_VARIABLE OUTPUT2)
 if(STATUS AND NOT STATUS EQUAL 0)
