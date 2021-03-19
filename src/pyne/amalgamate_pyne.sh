@@ -3,7 +3,7 @@
 set -e
 
 # Update amalgamated pyne
-cd pyne/src
+cd $1/src
 python atomicgen.py
 cd ..
 python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
@@ -11,7 +11,7 @@ python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
     src/json-forwards.h src/json.h src/jsoncpp.cpp src/jsoncustomwriter.* \
     src/material.* src/material_library.* src/tally.* src/atomic_data.* src/measure.* \
     src/source_sampling.*
-cp pyne.cpp pyne.h ..
+cp pyne.cpp pyne.h $2
 githash=`git rev-parse HEAD`
 cd ..
 astyle --options=../../astyle_google.ini --suffix=none --verbose --formatted \
