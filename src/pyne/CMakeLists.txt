@@ -1,7 +1,7 @@
 message("")
 
 find_package(Git)
-  if (GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
+  if (GIT_FOUND)
     message(STATUS "Updating PyNE submodule")
     execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
