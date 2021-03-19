@@ -3,7 +3,7 @@ message("")
 find_package(Git)
   if (GIT_FOUND)
     message(STATUS "Updating PyNE submodule")
-    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --force
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       RESULT_VARIABLE GIT_SUBMOD_RESULT)
     if (NOT GIT_SUBMOD_RESULT EQUAL 0)
