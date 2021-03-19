@@ -5,8 +5,8 @@ if(ret EQUAL 1)
     message( FATAL_ERROR "Not able to amalgamate PyNE")
 endif()
 
-file(GLOB SRC_FILES "*.cpp")
-file(GLOB PUB_HEADERS "*.h")
+set(SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/pyne.cpp)
+set(PUB_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/pyne.h)
 
 set(LINK_LIBS)
 set(LINK_LIBS_EXTERN_NAMES HDF5_LIBRARIES MOAB_LIBRARIES)
