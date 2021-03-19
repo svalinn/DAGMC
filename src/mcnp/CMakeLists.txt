@@ -10,6 +10,7 @@ endif ()
 include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
 include_directories(${CMAKE_SOURCE_DIR}/src/tally)
+MESSAGE("MCNP, CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}")
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/src/pyne)
 include_directories(${CMAKE_SOURCE_DIR}/src/uwuw)
 
