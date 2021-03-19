@@ -1,8 +1,10 @@
 message("")
 
 execute_process(COMMAND amalgamate_pyne.sh)
-if(ret EQUAL 1)
-    message( FATAL_ERROR "Not able to amalgamate PyNE")
+if(STATUS AND NOT STATUS EQUAL 0)
+  message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS}")
+else()
+  message(STATUS "PyNE AMALGAMATION SUCCESSFULL")
 endif()
 
 set(SRC_FILES ${CMAKE_CURRENT_BINARY_DIR}/pyne.cpp)
