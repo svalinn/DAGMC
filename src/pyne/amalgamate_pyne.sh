@@ -3,6 +3,7 @@
 set -e
 
 # Update amalgamated pyne
+echo $1/src
 ls $1/src
 cd $1/src
 # ls
