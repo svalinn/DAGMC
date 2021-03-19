@@ -1,6 +1,9 @@
 message("")
 
 execute_process(COMMAND amalgamate_pyne.sh)
+if("{$?}" EQUAL 1)
+    message( FATAL_ERROR "Not able to amalgamate PyNE")
+endif()
 
 file(GLOB SRC_FILES "*.cpp")
 file(GLOB PUB_HEADERS "*.h")
