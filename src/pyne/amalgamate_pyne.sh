@@ -3,7 +3,9 @@
 set -e
 
 # Update amalgamated pyne
+ls $1/src
 cd $1/src
+ls
 python atomicgen.py
 cd ..
 python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
