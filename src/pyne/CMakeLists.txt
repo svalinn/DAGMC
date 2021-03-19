@@ -1,7 +1,7 @@
 message("")
 
 execute_process(COMMAND amalgamate_pyne.sh)
-if("{$?}" EQUAL 1)
+if(ret EQUAL 1)
     message( FATAL_ERROR "Not able to amalgamate PyNE")
 endif()
 
