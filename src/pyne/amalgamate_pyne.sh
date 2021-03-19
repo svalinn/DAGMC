@@ -15,8 +15,7 @@ python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
 cp pyne.cpp pyne.h $2
 githash=`git rev-parse HEAD`
 cd ..
-astyle --options=../../astyle_google.ini --suffix=none --verbose --formatted \
-       "pyne.cpp" "pyne.h"
+
 python remove_unsupported.py
 mv -fv pyne.cpp.new pyne.cpp
 
