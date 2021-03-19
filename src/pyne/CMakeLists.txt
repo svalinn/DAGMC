@@ -1,6 +1,6 @@
 message("")
 
-execute_process(COMMAND amalgamate_pyne.sh)
+execute_process(COMMAND amalgamate_pyne.sh RESULT_VARIABLE STATUS)
 if(STATUS AND NOT STATUS EQUAL 0)
   message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS}")
 else()
