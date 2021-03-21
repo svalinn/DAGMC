@@ -1,12 +1,14 @@
 message("")
 
-
-MESSAGE("${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh")
-execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} RESULT_VARIABLE STATUS  OUTPUT_VARIABLE OUTPUT2)
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh 
+                        ${CMAKE_CURRENT_SOURCE_DIR} 
+                        ${CMAKE_CURRENT_SOURCE_DIR} 
+                        RESULT_VARIABLE STATUS 
+                        OUTPUT_VARIABLE OUTPUT)
 if(STATUS AND NOT STATUS EQUAL 0)
   message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS}")
 else()
-  message(STATUS "PyNE AMALGAMATION SUCCESSFUL ${OUTPUT2}")
+  message(STATUS "PyNE AMALGAMATION SUCCESSFUL ${OUTPUT}")
 endif()
 
 set(SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/pyne.cpp)

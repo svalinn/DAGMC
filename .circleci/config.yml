@@ -45,8 +45,7 @@ jobs:
       - run:
           name: "Pull Submodules"
           command: |
-            git submodule init
-            git submodule update
+            git submodule update --init 
       - run:
           name: Setup environment
           command: |
