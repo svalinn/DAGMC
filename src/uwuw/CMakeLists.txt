@@ -8,7 +8,7 @@ set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${CMAKE_SOURCE_DIR}/src/dagmc)
 include_directories(${CMAKE_BINARY_DIR}/src/dagmc)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/../pyne)
+include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 
 dagmc_install_library(uwuw)
 

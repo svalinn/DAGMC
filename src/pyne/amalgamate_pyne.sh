@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# take 2 arguments:
+# $1 location of the pyne source folder
+# $2 destination of the amalgamated files
+
 set -e
 
 # Update amalgamated pyne

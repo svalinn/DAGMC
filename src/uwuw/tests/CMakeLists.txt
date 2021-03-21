@@ -4,7 +4,7 @@ set(LINK_LIBS uwuw)
 set(LINK_LIBS_EXTERN_NAMES)
 
 include_directories(${GTEST_INCLUDE_DIR})
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/../pyne)
+include_directories(${CMAKE_SOURCE_DIR}/src/pyne)
 include_directories(${CMAKE_SOURCE_DIR}/src/uwuw)
 
 dagmc_install_test(uwuw_unit_tests              cpp)
