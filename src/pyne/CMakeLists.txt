@@ -1,7 +1,18 @@
 message("")
 
-set(SRC_FILES pyne.cpp)
-set(PUB_HEADERS pyne.h)
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh 
+                        ${CMAKE_CURRENT_SOURCE_DIR} 
+                        ${CMAKE_CURRENT_SOURCE_DIR} 
+                        RESULT_VARIABLE STATUS 
+                        OUTPUT_VARIABLE OUTPUT)
+if(STATUS AND NOT STATUS EQUAL 0)
+  message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS}")
+else()
+  message(STATUS "PyNE AMALGAMATION SUCCESSFUL ${OUTPUT}")
+endif()
+
+set(SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/pyne.cpp)
+set(PUB_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/pyne.h)
 
 set(LINK_LIBS)
 set(LINK_LIBS_EXTERN_NAMES HDF5_LIBRARIES MOAB_LIBRARIES)

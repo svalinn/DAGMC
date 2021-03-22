@@ -43,6 +43,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: "Pull Submodules"
+          command: |
+            git submodule update --init 
+      - run:
           name: Setup environment
           command: |
             echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV

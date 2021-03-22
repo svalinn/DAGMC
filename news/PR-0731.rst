@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- now adds pyne as a submodule, and amalgmate at compilation
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
