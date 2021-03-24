@@ -37,7 +37,7 @@ if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
 endif()
 
 # Check to see if submodules exist (by checking one)
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/pyne/README.md")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/pyne/pyne/readme.rst")
   message(FATAL_ERROR "The git submodules were not downloaded! GIT_SUBMODULE was \
     turned off or failed. Please update submodules and try again.")
 endif()
