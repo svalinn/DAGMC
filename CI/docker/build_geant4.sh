@@ -27,7 +27,7 @@ cmake ../geant4.${geant4_version} -DBUILD_STATIC_LIBS=ON \
              -DCMAKE_CXX_COMPILER=${CXX} \
              -DCMAKE_INSTALL_RPATH=${geant4_install_dir}/lib \
              -DCMAKE_INSTALL_PREFIX=${geant4_install_dir}
-make -j${jobs}
+make -j${ci_jobs}
 make install
 cd
 rm -rf ${geant4_build_dir}
