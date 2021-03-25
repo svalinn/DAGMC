@@ -1,0 +1,13 @@
+**Added:**
+
+  - CMake option to checkout PyNE submodule automatically
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

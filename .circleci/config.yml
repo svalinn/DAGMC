@@ -6,7 +6,7 @@ jobs:
         type: string
     docker:
       - image: svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
-        auth: 
+        auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASS
     working_directory: /root/build_dir/DAGMC
@@ -36,16 +36,12 @@ jobs:
         default: "OFF"
     docker:
       - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-ext-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
-        auth: 
+        auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASS
     working_directory: /root/build_dir/DAGMC
     steps:
       - checkout
-      - run:
-          name: "Pull Submodules"
-          command: |
-            git submodule update --init 
       - run:
           name: Setup environment
           command: |
@@ -66,7 +62,7 @@ workflows:
   version: 2
   pull_request: # Run only for PullRequest
     jobs:
-      
+
       - house_keeping:
           context: dockerhub
           matrix:
