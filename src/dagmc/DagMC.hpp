@@ -165,6 +165,7 @@ class DagMC {
   /**\brief Removes the graveyard if one is present. */
   ErrorCode remove_graveyard();
 
+
   /**\brief Create a graveyard (a volume representing the volume boundary).
    *
    * Create a cuboid volume marked with metadata indicating it is the boundary
@@ -177,6 +178,9 @@ class DagMC {
   /** Returns true if the model has a graveyard volume, false if not */
   bool has_graveyard();
 
+  /** Returns true if the model has any trees, false if not */
+  bool has_acceleration_datastructures();
+
   /** Retrieve the graveyard group on the model if it exists */
   ErrorCode get_graveyard_group(EntityHandle& graveyard_group);
 
@@ -187,6 +191,12 @@ class DagMC {
    */
   ErrorCode box_to_surf(const double llc[3], const double urc[3],
                         EntityHandle& surface_set);
+
+  /**\brief Removes the BVH for the specified volume */
+  ErrorCode remove_bvh(EntityHandle volume, bool unjoin_vol = false);
+
+  /**\brief Builds the BVH for a specified volume */
+  ErrorCode build_bvh(EntityHandle volume);
 
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();

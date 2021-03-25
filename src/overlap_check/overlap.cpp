@@ -149,7 +149,7 @@ ErrorCode check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
       for (auto& loc : locations) {
         rval = check_location_for_overlap(GQT, all_vols, loc, dir, overlap_map);
         MB_CHK_SET_ERR_CONT(rval, "Failed to check point for overlap");
-#pragma omp critical
+        #pragma omp critical
         prog_bar.set_value(100.0 * (double)num_checked++ /
                            (double)num_locations);
       }

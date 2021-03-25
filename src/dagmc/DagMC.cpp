@@ -75,7 +75,8 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
   this->set_numerical_precision(p_numerical_precision);
 }
 
-DagMC::DagMC(Interface* mb_impl, double overlap_tolerance,
+DagMC::DagMC(Interface* mb_impl,
+             double overlap_tolerance,
              double p_numerical_precision) {
   moab_instance_created = false;
   // set the internal moab pointer
@@ -275,8 +276,11 @@ ErrorCode DagMC::remove_graveyard() {
   sets_to_delete.insert(graveyard_group);
 
   // check for bounding box trees on the model
+#ifdef DOUBLE_DOWN
+  bool trees_exist = ray_tracer->has_bvh();
+#else
   bool trees_exist = geom_tool()->have_obb_tree();
-
+#endif
   // get the graveyard volume
   Range graveyard_vols;
   rval =
@@ -294,14 +298,15 @@ ErrorCode DagMC::remove_graveyard() {
   // update the implicit complement tree if needed
   if (trees_exist) {
     if (implicit_complement) {
-      rval = geom_tool()->delete_obb_tree(implicit_complement, true);
+      rval = remove_bvh(implicit_complement, true);
       MB_CHK_SET_ERR(rval,
                      "Failed to delete the implicit complement OBBTree/BVH");
     }
     for (auto vol : graveyard_vols) {
       // will recursively delete the graveyard volume's surface trees as well
-      rval = geom_tool()->delete_obb_tree(vol);
-      MB_CHK_SET_ERR(rval, "Failed to delete the graveyard volume's tree");
+      rval = remove_bvh(vol);
+      MB_CHK_SET_ERR(rval,
+                     "Failed to delete the graveyard volume's tree");
     }
   }
 
@@ -354,7 +359,7 @@ ErrorCode DagMC::remove_graveyard() {
 
   // re-construct the implicit complement's tree if needed
   if (trees_exist && implicit_complement) {
-    rval = geom_tool()->construct_obb_tree(implicit_complement);
+    rval = build_bvh(implicit_complement);
     MB_CHK_SET_ERR(rval,
                    "Failed to re-create the implicit complement OBBTree/BVH");
   }
@@ -401,7 +406,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // currently relying on the BVH as looping over all vertices may
   // be too expensive
-  if (!geom_tool()->have_obb_tree()) {
+  if (!has_acceleration_datastructures()) {
     MB_CHK_SET_ERR(MB_FAILURE, "Graveyard creation attempted without BVH");
   }
 
@@ -519,18 +524,22 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // OBBTree/BVH updates
 
+  // update the geometry sets
+  rval = geom_tool()->find_geomsets();
+  MB_CHK_SET_ERR(rval, "Failed to update the geometry sets");
+
   // delete the implicit complement tree (but not the surface trees)
-  rval = geom_tool()->delete_obb_tree(implicit_complement, true);
+  rval = remove_bvh(implicit_complement, true);
   MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
 
   // create BVH for both the new implicit complement and the new graveyard
   // volume
-  rval = geom_tool()->construct_obb_tree(volume_set);
+  rval = build_bvh(volume_set);
   MB_CHK_SET_ERR(
       rval,
       "Failed to build accel. data structure for the new graveyard volume");
 
-  rval = geom_tool()->construct_obb_tree(implicit_complement);
+  rval = build_bvh(implicit_complement);
   MB_CHK_SET_ERR(
       rval,
       "Failed to build accel. data structure for the new implicit complement");
@@ -645,6 +654,39 @@ ErrorCode DagMC::init_OBBTree() {
   MB_CHK_SET_ERR(rval, "Failed to setup problem indices");
 
   return MB_SUCCESS;
+}
+
+ErrorCode DagMC::remove_bvh(EntityHandle volume, bool unjoin_vol) {
+  ErrorCode rval = MB_SUCCESS;
+  #ifdef DOUBLE_DOWN
+    // we don't use unjoin_volume here because
+    // double-down creates a BVH for each volume
+    ray_tracer->deleteBVH(volume);
+  #else
+    rval = geom_tool()->delete_obb_tree(volume, unjoin_vol);
+    MB_CHK_SET_ERR(rval,
+                    "Failed to delete the volume's OBBTree/BVH");
+  #endif
+  return rval;
+}
+
+ErrorCode DagMC::build_bvh(EntityHandle volume) {
+  ErrorCode rval = MB_SUCCESS;
+  #ifdef DOUBLE_DOWN
+    ray_tracer->createBVH(volume);
+  #else
+    rval = geom_tool()->construct_obb_tree(volume);
+    MB_CHK_SET_ERR(rval, "Failed to create the bvh for a volume.");
+  #endif
+  return rval;
+}
+
+bool DagMC::has_acceleration_datastructures() {
+  #ifdef DOUBLE_DOWN
+  return ray_tracer->has_bvh();
+  #else
+  return geom_tool()->have_obb_tree();
+  #endif
 }
 
 // helper function to finish setting up required tags.
@@ -900,6 +942,19 @@ ErrorCode DagMC::write_mesh(const char* ffile, const int flen) {
 
   return MB_SUCCESS;
 }
+
+ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
+                               double maxPt[3]) {
+  ErrorCode rval = MB_SUCCESS;
+  #ifdef DOUBLE_DOWN
+  rval = ray_tracer->get_bbox(volume, minPt, maxPt);
+  #else
+  rval = GTT->get_bounding_coords(volume, minPt, maxPt);
+  #endif
+  MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
+  return MB_SUCCESS;
+}
+
 
 /* SECTION V: Metadata handling */
 
