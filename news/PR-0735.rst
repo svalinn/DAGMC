@@ -2,11 +2,14 @@
 
 **Changed:** None
 
+- updated location & checksum of GEANT4 tarball
+ 
 **Deprecated:** None
 
 **Removed:** None
 
 **Fixed:** 
+
 - Renamed `jobs` variable CI build system to avoid undocumented conflict with `git submodule`
 
 **Security:** None
