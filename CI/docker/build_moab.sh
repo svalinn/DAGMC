@@ -39,7 +39,7 @@ cmake ../moab -DBUILD_SHARED_LIBS=ON \
               -DCMAKE_C_COMPILER=${CC} \
               -DCMAKE_CXX_COMPILER=${CXX} \
               -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}:${moab_install_dir}
-make -j${jobs}
+make -j${ci_jobs}
 make install
 cd
 rm -rf ${moab_build_dir}
