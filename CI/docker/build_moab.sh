@@ -26,7 +26,7 @@ cd ../bld
                  --with-hdf5=${hdf5_install_dir} \
                  --prefix=${moab_install_dir} \
                  CC=${CC} CXX=${CXX}
-make -j${jobs}
+make -j${ci_jobs}
 make install
 cd
 rm -rf ${moab_build_dir}
