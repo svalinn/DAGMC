@@ -26,7 +26,7 @@ cmake ../moab -DBUILD_SHARED_LIBS=OFF \
               -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
               -DCMAKE_C_COMPILER=${CC} \
               -DCMAKE_CXX_COMPILER=${CXX} \
-              -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}:${moab_install_dir}
+              -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib
 make -j${ci_jobs}
 make install
 rm -rf *
