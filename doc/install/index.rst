@@ -9,7 +9,7 @@ should know that the following will be required:
 2.  MCNP5_ or MCNP6_ source code, if you intend to install DAG-MCNP5 or
     DAG-MCNP6
 3.  FLUKA_, if you intend to install FluDAG
-4.  Cubit_ or Trelis_, for the creation of geometry
+4.  Coreform Cubit_ for the creation of geometry
 
 Once you have the basic pre-requisite peices in place you can proceed to the
 DAGMC installation. There are three main steps in the DAGMC installation:
@@ -29,5 +29,4 @@ options available to you.
 ..  _MCNP5: https://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.shtml
 ..  _MCNP6: https://mcnp.lanl.gov
 ..  _FLUKA: http://www.fluka.org/fluka.php
-..  _Cubit: https://cubit.sandia.gov
-..  _Trelis: https://www.csimsoft.com/trelis
+..  _Cubit: https://coreform.com/products/coreform-cubit/

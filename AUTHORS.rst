@@ -27,8 +27,8 @@ included contributions from the following:
 * Julie C. Zachman
 * Xiaokang Zhang
 
-The DAGMC project also relies heavily on the MOAB_ project and the Trelis_
+The DAGMC project also relies heavily on the MOAB_ project and the Coreform Cubit_
 software package.
 
 .. _MOAB: http://sigma.mcs.anl.gov/moab-library
-.. _Trelis: http://www.csimsoft.com/trelis.jsp
+.. _Cubit: https://coreform.com/products/coreform-cubit/

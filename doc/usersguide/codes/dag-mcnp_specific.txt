@@ -31,7 +31,7 @@ keywords have been added to the command line to specify the necessary files.
 
 :``gcad=<geom_file>`` (required): Specify the filename of the input geometry
     file. It can be in one of two formats: the MOAB (\*.h5m) format (this is the
-    format produced by ``export dagmc`` in Trelis/Cubit), or a facet file
+    format produced by ``export dagmc`` in Cubit), or a facet file
     produced by DAGMC. If this entry is not present, DAG-MCNP will assume that
     it is running in native MCNP mode.
 
