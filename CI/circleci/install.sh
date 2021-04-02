@@ -10,8 +10,13 @@
 # If you are in the DAGMC root directory:
 #
 #    $ docker run -v ${PWD}:/root/build_dir/DAGMC -w /root/build_dir/DAGMC \
-#              -it svalinn/dagmc-ci-ubuntu-16.04-clang-ext-hdf5_1.10.4-moab_5.1.0 \
-#              CI/circleci/install.sh
+#              -it svalinn/dagmc-ci-ubuntu-16.04-clang-ext-hdf5_1.10.4-moab_5.1.0
+#
+# Inside the docker container:
+#
+#    $ CI/circleci/install.sh
+#
+#    $ CI/circleci/tests.sh
 #
 
 
