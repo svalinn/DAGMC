@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:**
+
+  - Added a job to CI for running tests with the DOUBLE_DOWN option enabled.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
