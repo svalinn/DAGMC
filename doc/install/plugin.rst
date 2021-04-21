@@ -28,10 +28,10 @@ somewhere else, modify these instructions appropriately.
 These operations may need to be performed as the root user (sudo).
 
 1.  If it does not already exist, create a folder called ``plugins`` in
-    ``/Applications/Trelis-16.0/Contents/MacOS``.
-2.  Unpack the tarball in ``/Applications/Trelis-16.0/Contents/MacOS/plugins``.
+    ``/Applications/Coreform-Cubit-2020.2.app/Contents/MacOS``.
+2.  Unpack the tarball in ``/Applications/Coreform-Cubit-2020.2.app/Contents/MacOS/plugins``.
 3.  Change directory to
-    ``/Applications/Trelis-16.0/Contents/MacOS/plugins/dagmc``.
+    ``/Applications/Coreform-Cubit-2020.2.app/Contents/MacOS/plugins/dagmc``.
 4.  Run the install script: ``./install.sh``.
 
 Windows install
