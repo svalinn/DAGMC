@@ -14,9 +14,7 @@ else, modify these instructions appropriately.
 
 These operations may need to be performed as the root user (sudo).
 
-1.  Unpack the tarball in ``/opt/Coreform-Cubit-2020.2/bin/plugins``.
-2.  Change directory to ``/opt/Coreform-Cubit-2020.2/bin/plugins/dagmc``.
-3.  Run the install script: ``./install.sh``.
+- Unpack the tarball in the Cubit installation folder (``/opt/Coreform-Cubit-2020.2`` by default).
 
 OS/X install
 ~~~~~~~~~~~~
@@ -27,12 +25,7 @@ somewhere else, modify these instructions appropriately.
 
 These operations may need to be performed as the root user (sudo).
 
-1.  If it does not already exist, create a folder called ``plugins`` in
-    ``/Applications/Coreform-Cubit-2020.2.app/Contents/MacOS``.
-2.  Unpack the tarball in ``/Applications/Coreform-Cubit-2020.2.app/Contents/MacOS/plugins``.
-3.  Change directory to
-    ``/Applications/Coreform-Cubit-2020.2.app/Contents/MacOS/plugins/dagmc``.
-4.  Run the install script: ``./install.sh``.
+- Unpack the tarball in the Cubit installation folder (``/Applications/Coreform-Cubit-2020.2.app/Contents/`` by default).
 
 Windows install
 ~~~~~~~~~~~~~~~
