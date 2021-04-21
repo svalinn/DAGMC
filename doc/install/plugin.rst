@@ -22,7 +22,7 @@ OS/X install
 ~~~~~~~~~~~~
 
 Obtain the OS/X plugin from the link above. These instructions assume that you
-have installed Cubit in ``/Applications/Trelis-16.0``. If you installed it
+have installed Cubit in ``/Applications/Coreform-Cubit-2020.2.app``. If you installed it
 somewhere else, modify these instructions appropriately.
 
 These operations may need to be performed as the root user (sudo).
