@@ -25,7 +25,7 @@ code, since each MC code specifies materials in a different way. Instead, we tag
 groups of volumes with a name and syntax that corresponds to material
 compositions in a predefined material library.
 
-The group naming syntax for describing materials in Cubit/Trelis is:
+The group naming syntax for describing materials in Cubit is:
 ::
 
     CUBIT> group "mat:<Name of Material>"
@@ -187,7 +187,7 @@ and the number of particles to simulate. The problem is then run with
 Worked example
 ~~~~~~~~~~~~~~
 
-Open Cubit/Trelis, and let's place some volumes to create our first problem. We
+Open Cubit, and let's place some volumes to create our first problem. We
 will create 4 cubes of side 10 cm, shifting each in a different direction.
 ::
 

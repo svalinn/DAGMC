@@ -1,4 +1,4 @@
-Producing solid models for DAGMC using Cubit/Trelis
+Producing solid models for DAGMC using Cubit
 ===================================================
 
 The general workflow for the production of models for analysis using DAGMC
@@ -76,7 +76,7 @@ Preparing solid models
 In theory, solid models can be prepared in any modeling software
 system (e.g. SolidWorks, Pro/E, Catia, etc).  What is most important
 about the choice of solid modeling system is the ability to export to
-a format that can be imported by Trelis or Cubit, in particular:
+a format that can be imported by Cubit, in particular:
 
     * ACIS (\*.sat)
     * STEP (\*.stp, \*.step, etc)
@@ -224,7 +224,7 @@ Finishing up and final notes
 Having prepared your model to completion with the appropriate groups created
 , you can choose to save your model in various formats. Previously
 we recommended ACIS \*.sat files, but any format that reliably retains
-imprortant metadata will suffice.  Recommended storage formats are ACIS, \*.Trelis or
+imprortant metadata will suffice.  Recommended storage formats are ACIS or
 \*.cub files.
 
 One should also use the :ref:`make_watertight`. tool on the
