@@ -8,7 +8,7 @@ if [ ${MOAB_VERSION} == "master" ] || [ ${MOAB_VERSION} == "develop" ]; then
   branch=${MOAB_VERSION}
 else
 #  branch=Version${MOAB_VERSION}
-  commit=${MOAB_VERSION}
+  branch=${MOAB_VERSION}
 fi
 
 rm -rf ${moab_build_dir}/bld ${moab_install_dir}
