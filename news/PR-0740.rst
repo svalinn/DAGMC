@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- docker stack now checks out commit 9c96d17 (Merged commit of @pshriwise thread fix)
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
