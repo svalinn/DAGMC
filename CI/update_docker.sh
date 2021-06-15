@@ -18,7 +18,7 @@ done
 ubuntu_versions="16.04 18.04"
 compilers="gcc clang"
 hdf5_versions="1.10.4"
-moab_versions="5.1.0 develop master"
+moab_versions="9c96d17 develop master"
 for ubuntu_version in ${ubuntu_versions}; do
   image_name="svalinn/dagmc-ci-ubuntu-${ubuntu_version}"
   docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
