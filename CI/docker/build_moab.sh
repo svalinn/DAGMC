@@ -16,8 +16,8 @@ mkdir -p ${moab_build_dir}/bld
 cd ${moab_build_dir}
 #git clone --depth 1 https://bitbucket.org/fathomteam/moab -b ${branch}
 git clone https://bitbucket.org/fathomteam/moab 
-git checkout ${branch}
 cd moab
+git checkout ${branch}
 autoreconf -fi
 cd ../bld
 ../moab/configure --enable-pymoab \
