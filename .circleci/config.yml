@@ -79,7 +79,7 @@ workflows:
               img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
-              moab: ["5.1.0"]
+              moab: ["9c96d17"]
           requires:
             - house_keeping
           filters:
@@ -95,7 +95,7 @@ workflows:
               img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
               hdf5: ["1.10.4"]
-              moab: ["5.1.0", "develop", "master"]
+              moab: ["9c96d17", "develop", "master"]
           filters:
             branches:
               only: develop
