@@ -99,7 +99,6 @@ workflows:
           name: "Double Down"
           img: "18.04"
           compiler: "gcc"
-          hdf5: "1.10.4"
           moab: "master"
           double_down: "ON"
           filters:
