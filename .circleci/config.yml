@@ -33,7 +33,7 @@ jobs:
         type: string
         default: "OFF"
     docker:
-      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-ext-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
+      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-ext-hdf5-moab_<< parameters.moab >>:latest
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASS
