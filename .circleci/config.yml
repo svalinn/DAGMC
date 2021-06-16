@@ -27,8 +27,6 @@ jobs:
         type: string
       compiler:
         type: string
-      hdf5:
-        type: string
       moab:
         type: string
       double_down:
