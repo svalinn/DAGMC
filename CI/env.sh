@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source versions.sh
+
 export ci_jobs=`grep -c processor /proc/cpuinfo`
 
 export CTEST_OUTPUT_ON_FAILURE=1

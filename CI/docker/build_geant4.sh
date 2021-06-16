@@ -2,11 +2,6 @@
 
 set -ex
 
-# Geant version and corresponding SHASUM
-export geant4_version=10.5.1
-export geant4_basename=geant4-v${geant4_version}
-export geant4_tarball=${geant4_basename}.tar.gz
-export geant4_shasum=2397eb859dc4de095ff66059d8bda9f060fdc42e10469dd7890946293eeb0e39
 
 source ${docker_env}
 

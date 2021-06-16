@@ -47,7 +47,6 @@ jobs:
           command: |
             echo "export COMPILER=<< parameters.compiler >>" >> $BASH_ENV
             echo "export MOAB_VERSION=<< parameters.moab >>" >> $BASH_ENV
-            echo "export HDF5_VERSION=<< parameters.hdf5 >>" >> $BASH_ENV
             echo "export REPO_SLUG=${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PR_REPONAME}" >> $BASH_ENV
             echo "export PULL_REQUEST=${CIRCLE_PR_NUMBER}" >> $BASH_ENV
             echo "export DOUBLE_DOWN=<< parameters.double_down >>" >> $BASH_ENV
@@ -78,8 +77,7 @@ workflows:
             parameters:
               img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
-              hdf5: ["1.10.4"]
-              moab: ["5.1.0"]
+              moab: ["Version5.1.0"]
           requires:
             - house_keeping
           filters:
@@ -94,8 +92,7 @@ workflows:
             parameters:
               img: [ "16.04", "18.04"]
               compiler: ["clang", "gcc"]
-              hdf5: ["1.10.4"]
-              moab: ["5.1.0", "develop", "master"]
+              moab: ["Version5.1.0", "develop", "master"] # this should be a specific MOAB branch that exist on https://bitbucket.org/fathomteam/moab
           filters:
             branches:
               only: develop
