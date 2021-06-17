@@ -7,8 +7,8 @@ FROM svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext-hdf5_${HDF5}
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
-# MOAB Verions: 5.1.0
-ARG MOAB=5.1.0
+# MOAB Commit: 9c96d17 (Merged commit of @pshriwise thread fix)
+ARG MOAB=9c96d17
 ENV MOAB_VERSION ${MOAB}
 RUN if [ "${MOAB_VERSION}" != "master" ] && [ "${MOAB_VERSION}" != "develop" ]; then \
         /root/etc/CI/docker/build_moab.sh; \
