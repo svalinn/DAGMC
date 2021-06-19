@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:**
+
+  - Threadsafe fix for the overlap check test.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
