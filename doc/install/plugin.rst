@@ -33,4 +33,4 @@ Windows install
 A plugin for Windows is currently being developed; it will be posted to the
 DAGMC plugins page when it is ready.
 
-..  _DAGMC_plugins: https://github.com/svalinn/Cubit-plugin/releases/tag/0.1.0
+..  _DAGMC_plugins: https://github.com/svalinn/Cubit-plugin/releases
