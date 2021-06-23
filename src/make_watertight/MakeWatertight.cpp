@@ -1750,9 +1750,10 @@ moab::ErrorCode MakeWatertight::seal_surface_loops(
   // to do this more efficiently than a manual O(n) search through an
   // unsorted vector.
 
+    skin_loops.resize(skin.size());
+
   moab::ErrorCode rval;
   for (unsigned j = 0; j < skin.size(); ++j) {
-    skin_loops.push_back(moab::EntityHandle());
     rval = MBI()->create_meshset(
         moab::MESHSET_TRACK_OWNER | moab::MESHSET_ORDERED, skin_loops[j]);
     MB_CHK_SET_ERR(rval, "failed to zip: creating skin_loop_set failed");
