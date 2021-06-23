@@ -234,7 +234,7 @@ macro (dagmc_install_library lib_name)
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
     endif ()
-    message("LINK LIBS: ${LINK_LIBS_SHARED}")
+    message(STATUS "LINK LIBS: ${LINK_LIBS_SHARED}")
     target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
     if (DOUBLE_DOWN)
       target_compile_definitions(${lib_name}-shared PRIVATE DOUBLE_DOWN)

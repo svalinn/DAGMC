@@ -13,5 +13,6 @@ The first step is to clone the `DAGMC repository <DAGMC_repo_>`_.
     $ git clone https://github.com/svalinn/DAGMC
     $ cd DAGMC
     $ git checkout develop
+    $ git submodule update --init
 
 ..  _DAGMC_repo: https://github.com/svalinn/DAGMC

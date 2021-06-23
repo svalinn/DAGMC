@@ -47,7 +47,7 @@ function build_dagmc() {
                -DCMAKE_INSTALL_PREFIX=${install_dir} \
                -DDOUBLE_DOWN=${double_down} \
                -Ddd_ROOT=${double_down_install_dir}
-  make -j${jobs}
+  make -j${ci_jobs}
   make install
 }
 
