@@ -18,13 +18,46 @@ env:
 jobs:
   main:
     runs-on: windows-2019
-    name: 'DAGMC Build for Windows'
+    strategy:
+      matrix:
+        cubit: [17.1.0, 2021.3,  2021.4,  2021.5]
+
+    name: 'Cubit Svalinn Plugin ${{ matrix.cubit }} Build for Windows'
     steps:
         
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-activate-base: true
           activate-environment: ""
+
+      - name: Environment Variables
+        shell: bash -l {0}
+        run: |
+          COREFORM_BASE_URL=https://f002.backblazeb2.com/file/cubit-downloads/Coreform-Cubit/Releases
+
+          CUBIT_BASE_NAME=Coreform-Cubit-${{ matrix.cubit }}
+          if [ "${{ matrix.cubit }}" == "17.1.0" ]; then
+            BASE=Trelis-17.1.0
+            BASESDK=Trelis-SDK-17.1.0
+            CUBIT_BASE_NAME=Trelis-17.1
+          elif [ "${{ matrix.cubit }}" == "2021.3" ]; then
+            BASE=Coreform-Cubit-2021.3.0
+            CUBIT_BASE_NAME=Coreform-Cubit-2021.3
+          elif [ "${{ matrix.cubit }}" == "2021.4" ]; then
+            BASE=Coreform-Cubit-2021.4%2B15017_05893177
+          elif [ "${{ matrix.cubit }}" == "2021.5" ]; then
+            BASE=Coreform-Cubit-2021.5%2B15962_5043ef39
+          fi
+          echo "COREFORM_BASE_URL=${COREFORM_BASE_URL}/Windows/" >> $GITHUB_ENV
+          echo "CUBIT_PKG=${BASE}-Win64.exe" >> $GITHUB_ENV
+          echo "CUBIT_SDK_PKG=${BASESDK}-Win64.zip" >> $GITHUB_ENV
+          echo "CUBIT_BASE_NAME=${CUBIT_BASE_NAME}" >> $GITHUB_ENV
+
+          echo "CURRENT=$(pwd)" >> $GITHUB_ENV
+          echo "PLUGIN_ABS_PATH=" >> $GITHUB_ENV
+          echo "SCRIPTPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "PLUGIN_ABS_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
+
 
 
       - name: Conda dependencies
@@ -46,6 +79,7 @@ jobs:
       - name: Build MOAB
         shell: bash -l {0}
         run: |
+          cd ${PLUGIN_ABS_PATH}
           git clone https://bitbucket.org/fathomteam/moab
           mkdir moab_build moab_install
           cd moab_build
@@ -106,4 +140,81 @@ jobs:
           cmake --build . --config Release
           cmake --install . --config Release
 
+
+      - name: Cubit download
+        shell: bash -l {0}
+        env:   
+          CUBIT_DEB_URL: ${{ secrets[matrix.URL] }}
+          CUBIT_SDK_URL: ${{ secrets[matrix.URL_SDK] }}
+        run: |
+          cd ${PLUGIN_ABS_PATH}
+          mkdir Cubit
+          cd Cubit
+          curl -L ${COREFORM_BASE_URL}${CUBIT_PKG} --output ${CUBIT_PKG}
+          7z x ${CUBIT_PKG}
+
+
+          if [ "${{ matrix.cubit }}" = "17.1.0" ]; then
+            curl -L ${COREFORM_BASE_URL}${CUBIT_SDK_PKG} --output ${CUBIT_SDK_PKG}
+            7z x ${CUBIT_SDK_PKG}
+            cp -r Trelis*/* ./
+          # else
+          #   cp -r Coreform*/* ./
+          #   cd bin
+          #   cp -pv CubitExport.cmake CubitExport.cmake.orig
+          #   sed -i "s/\"\/\.\.\/app_logger\"/\"\"/" CubitExport.cmake
+          #   cp -pv CubitUtilConfig.cmake CubitUtilConfig.cmake.orig
+          #   sed -i "s/\/\.\.\/app_logger\;//" CubitUtilConfig.cmake
+          fi
+
+      - uses: actions/checkout@v2
+
+      - name: build plugin
+        shell: bash -l {0}
+        run: |
+          cd ${PLUGIN_ABS_PATH}
+          #cp -r /d/a/Cubit-plugin/Cubit-plugin ./
+          cd Cubit-plugin
+          rm -rf mcnp2cad
+          git clone  https://github.com/bam241/mcnp2cad -b windows
+          cd ../
+          mkdir plugin_build plugin_install
+          cd plugin_build
+          cmake ../Cubit-plugin/ \
+                -G"Visual Studio 16 2019" \
+                -DCubit_DIR="../Cubit/bin" \
+                -DCUBIT_ROOT="../Cubit/bin" \
+                -DUPDATE_SUBMODULES=OFF \
+                -DDAGMC_DIR="../dagmc_install" \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_INSTALL_PREFIX=../plugin_install  \
+                -DHDF5_ROOT="C:/Program Files/HDF_Group/HDF5/1.8.21" \
+                -DHDF5_hdf5_LIBRARY_RELEASE="C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_hl.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libzlib.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libszip.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_cpp.lib" \
+                -DCMAKE_EXE_LINKER_FLAGS="" \
+                -DCMAKE_MODULE_LINKER_FLAGS="" \
+                -DCMAKE_SHARED_LINKER_FLAGS="" \
+                -DCMAKE_STATIC_LINKER_FLAGS="" 
+          cmake --build . --config Release
+          cmake --install . --config Release
+
+      - name: prepare pkg
+        shell: bash
+        run: |
+          cd ${PLUGIN_ABS_PATH}
+          mkdir -p bin/plugins
+          cd bin/plugins
+          cp ../../moab_install/bin/MOAB.dll ./
+          cp ../../dagmc_install/lib/*.lib ./
+          cp ../../plugin_install/bin/* ./
+          cp ../../plugin_install/lib/* ./
+          cd ${PLUGIN_ABS_PATH}
+          tar -cvf svalinn_plugin_windows_${{ matrix.cubit }}.tar  bin
+          cp svalinn_plugin_windows_${{ matrix.cubit }}.tar C:/Users/runneradmin/
+
+
+      - name: 'Upload package'
+        uses: actions/upload-artifact@v2
+        with:
+          name: svalinn-plugin_Windows_${{ matrix.cubit }}.tar
+          path: C:/Users/runneradmin/svalinn_plugin_windows_${{ matrix.cubit }}.tar
 
