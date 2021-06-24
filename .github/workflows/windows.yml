@@ -41,9 +41,15 @@ jobs:
           cd hdf
           msiexec.exe /i HDF5-1.8.21-win64.msi /passive /norestart
 
+      - name: Environment Variables
+        shell: bash -l {0}
+        run: |
+          echo "HOME_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
+
       - name: Build MOAB
         shell: bash -l {0}
         run: |
+          cd ${HOME_PATH}
           git clone https://bitbucket.org/fathomteam/moab
           mkdir moab_build moab_install
           cd moab_build
@@ -73,7 +79,7 @@ jobs:
       - name: build DAGMC
         shell: bash -l {0}
         run: |
-          cd D:/a/DAGMC/DAGMC
+          cd ${HOME_PATH}
           mkdir build 
           #git clone https://github.com/bam241/dagmc -b windows
           # cd dagmc
@@ -83,7 +89,7 @@ jobs:
 
           # cd ../../../dagmc_build
           cd build
-          cmake .. \
+          cmake ../dagmc \
                 -G"Visual Studio 16 2019" \
                 -DBUILD_EXE=OFF \
                 -DBUILD_SHARED_LIBS=ON \
@@ -93,7 +99,7 @@ jobs:
                 -DBUILD_UWUW=ON \
                 -DBUILD_MAKE_WATERTIGHT=ON \
                 -DBUILD_TESTS=OFF \
-                -DMOAB_DIR="D:/a/DAGMC/DAGMC/moab_install" \
+                -DMOAB_DIR=../moab_install \
                 -DHDF5_ROOT="C:/Program Files/HDF_Group/HDF5/1.8.21" \
                 -DHDF5_hdf5_LIBRARY_RELEASE="C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_hl.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libzlib.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libszip.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_cpp.lib" \
                 -DCMAKE_INSTALL_PREFIX=../dagmc_install/ \
