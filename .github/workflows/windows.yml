@@ -68,13 +68,14 @@ jobs:
           cmake --build . --config Release
           cmake --install . --config Release
 
+      - uses: actions/checkout@v2
 
       - name: build DAGMC
         shell: bash -l {0}
         run: |
           cd ${PLUGIN_ABS_PATH}
           mkdir dagmc_build dagmc_install
-          git clone https://github.com/bam241/dagmc -b windows
+          # git clone https://github.com/bam241/dagmc -b windows
           # cd dagmc
           # git submodule update --init --recursive
           # cd src/pyne
@@ -102,8 +103,7 @@ jobs:
                 -DCMAKE_STATIC_LINKER_FLAGS="" \
                 -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
-          cmake --install . --config Release
+          cmake --test . --config Release
 
 
-#      - uses: actions/checkout@v2
 
