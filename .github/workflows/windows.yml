@@ -6,9 +6,11 @@ on:
   pull_request:
     branches:
       - develop
+      - master
   push:
     branches:
       - develop
+      - master
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -16,7 +18,7 @@ env:
 jobs:
   main:
     runs-on: windows-2019
-    name: 'DAGMC ${{ matrix.cubit }} Build for Windows'
+    name: 'DAGMC Build for Windows'
     steps:
         
       - uses: conda-incubator/setup-miniconda@v2
