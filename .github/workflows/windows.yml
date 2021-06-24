@@ -73,7 +73,7 @@ jobs:
       - name: build DAGMC
         shell: bash -l {0}
         run: |
-          cd D:\a\DAGMC\DAGMC
+          cd D:/a/DAGMC/DAGMC
           mkdir build 
           #git clone https://github.com/bam241/dagmc -b windows
           # cd dagmc
