@@ -73,17 +73,17 @@ jobs:
       - name: build DAGMC
         shell: bash -l {0}
         run: |
-          cd ${PLUGIN_ABS_PATH}
-          mkdir dagmc_build dagmc_install
-          # git clone https://github.com/bam241/dagmc -b windows
+          cd D:\a\DAGMC\DAGMC
+          mkdir build 
+          #git clone https://github.com/bam241/dagmc -b windows
           # cd dagmc
           # git submodule update --init --recursive
           # cd src/pyne
           # ./amalgamate_pyne.sh `pwd` `pwd`
 
           # cd ../../../dagmc_build
-          cd dagmc_build
-          cmake ../dagmc \
+          cd build
+          cmake .. \
                 -G"Visual Studio 16 2019" \
                 -DBUILD_EXE=OFF \
                 -DBUILD_SHARED_LIBS=ON \
