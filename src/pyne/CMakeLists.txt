@@ -1,6 +1,6 @@
 message("")
 
-execute_process(COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh 
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh 
                         ${CMAKE_CURRENT_SOURCE_DIR} 
                         ${CMAKE_CURRENT_SOURCE_DIR} 
                         RESULT_VARIABLE STATUS 
