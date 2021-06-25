@@ -89,6 +89,7 @@ jobs:
 
           # cd ../../../dagmc_build
           cd build
+          ls D:/a/DAGMC/DAGMC/src/pyne/amalgamate_pyne.sh
           cmake ../dagmc \
                 -G"Visual Studio 16 2019" \
                 -DBUILD_EXE=OFF \
