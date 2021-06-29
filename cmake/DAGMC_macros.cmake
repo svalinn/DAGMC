@@ -233,6 +233,8 @@ macro (dagmc_install_library lib_name)
       set_target_properties(${lib_name}-shared
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
+      set_property(TARGET ${lib_name}-shared PROPERTY CXX_STANDARD_REQUIRED ON)
+
     endif ()
     message(STATUS "LINK LIBS: ${LINK_LIBS_SHARED}")
     target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})

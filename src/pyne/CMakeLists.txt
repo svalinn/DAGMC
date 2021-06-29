@@ -8,7 +8,6 @@ if(STATUS AND NOT STATUS EQUAL 0)
 else()
   message(STATUS "PyNE AMALGAMATION SUCCESSFUL ${OUTPUT}")
 endif()
-set_property(TARGET my_target PROPERTY CXX_STANDARD_REQUIRED ON)
 
 set(SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/pyne.cpp)
 set(PUB_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/pyne.h)
@@ -27,3 +26,5 @@ if(NOT (${HDF5_VERSION} VERSION_LESS 1.12.0))
  endif()
 
 dagmc_install_library(pyne_dagmc)
+
+
