@@ -4,10 +4,6 @@ execute_process(COMMAND C:/Program Files/Git/bin/bash.EXE -c "${CMAKE_CURRENT_SO
                         RESULT_VARIABLE STATUS 
                         OUTPUT_VARIABLE OUTPUT)
 
-if(MSVC)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-endif(MSVC)
-
 if(STATUS AND NOT STATUS EQUAL 0)
   message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS}")
 else()

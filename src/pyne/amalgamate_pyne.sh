@@ -17,7 +17,8 @@ python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
     src/material.* src/material_library.* src/tally.* src/atomic_data.* src/measure.* \
     src/source_sampling.*
 cp pyne.cpp pyne.h $2
-
+sed -i s/std::filesystem::canonical\(filename.c_str\(\)\)/filename.c_str\(\)/ pyne.cpp
+ 
 githash=`git rev-parse HEAD`
 cd $2
 python $1/remove_unsupported.py
