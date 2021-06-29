@@ -64,10 +64,10 @@ jobs:
                 -DCMAKE_INSTALL_PREFIX=../moab_install/ \
                 -DHDF5_ROOT="C:/Program Files/HDF_Group/HDF5/1.8.21" \
                 -DHDF5_hdf5_LIBRARY_RELEASE="C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_hl.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libzlib.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libszip.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_cpp.lib" \
-                -DCMAKE_EXE_LINKER_FLAGS="" \
-                -DCMAKE_MODULE_LINKER_FLAGS="" \
-                -DCMAKE_SHARED_LINKER_FLAGS="" \
-                -DCMAKE_STATIC_LINKER_FLAGS="" \
+                -DCMAKE_EXE_LINKER_FLAGS="/std:c++latest" \
+                -DCMAKE_MODULE_LINKER_FLAGS="/std:c++latest" \
+                -DCMAKE_SHARED_LINKER_FLAGS="/std:c++latest" \
+                -DCMAKE_STATIC_LINKER_FLAGS="/std:c++latest" \
                 -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_C_COMPILER="C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/cl.exe" \
                 -DCMAKE_CXX_COMPILER="C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.27.29110/bin/Hostx64/x64/cl.exe"
