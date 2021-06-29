@@ -4,7 +4,7 @@ execute_process(COMMAND bash -c "${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh 
                         RESULT_VARIABLE STATUS 
                         OUTPUT_VARIABLE OUTPUT)
 if(STATUS AND NOT STATUS EQUAL 0)
-  message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS}")
+  message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS} ${OUTPUT}")
 else()
   message(STATUS "PyNE AMALGAMATION SUCCESSFUL ${OUTPUT}")
 endif()
