@@ -111,7 +111,7 @@ jobs:
                 -DCMAKE_STATIC_LINKER_FLAGS="" \
                 -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
-          cmake --test . --config Release
+#          cmake --test . --config Release
 
 
 
