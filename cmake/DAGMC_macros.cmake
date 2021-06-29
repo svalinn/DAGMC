@@ -259,7 +259,6 @@ macro (dagmc_install_library lib_name)
       set_target_properties(${lib_name}-static
         PROPERTIES INSTALL_RPATH "" INSTALL_RPATH_USE_LINK_PATH FALSE)
     endif ()
-    set_property(TARGET ${lib_name}-static  PROPERTY CXX_STANDARD 17)
     set_property(TARGET ${lib_name}-static PROPERTY CXX_STANDARD_REQUIRED ON)
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
     target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
