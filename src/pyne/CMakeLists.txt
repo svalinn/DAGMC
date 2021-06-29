@@ -1,6 +1,6 @@
 message("")
 message("bash ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}")
-execute_process(COMMAND "cmd C:/Program Files/Git/bin/bash.EXE ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}" 
+execute_process(COMMAND "cmd dir" 
                         RESULT_VARIABLE STATUS 
                         OUTPUT_VARIABLE OUTPUT)
 if(STATUS AND NOT STATUS EQUAL 0)
