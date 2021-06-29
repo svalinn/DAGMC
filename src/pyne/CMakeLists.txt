@@ -27,4 +27,5 @@ if(NOT (${HDF5_VERSION} VERSION_LESS 1.12.0))
 
 dagmc_install_library(pyne_dagmc)
 
-
+set_property(TARGET pyne_dagmc-static PROPERTY CXX_STANDARD 17)
+set_property(TARGET pyne_dagmc-static PROPERTY CXX_STANDARD_REQUIRED ON)
