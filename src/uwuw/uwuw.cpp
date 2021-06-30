@@ -1,8 +1,10 @@
 #include "uwuw.hpp"
 
 #ifndef _WIN32
-#include <unistd.h>
+  #include <unistd.h>
+  #include <filesystem>
 #endif
+
 #include <iostream>
 
 // Empty Constructor
@@ -68,7 +70,7 @@ std::string UWUW::get_full_filepath(std::string filename) {
 #ifndef _WIN32
   const char* full_filepath = realpath(filename.c_str(), NULL);
 #else
-  const char* full_filepath = filename.c_str();
+  const char* full_filepath = std::filesystem::canonical(filename.c_str()).string().c_str();
 #endif
   return std::string(full_filepath);
 }
