@@ -16,7 +16,7 @@ python amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
     src/json-forwards.h src/json.h src/jsoncpp.cpp src/jsoncustomwriter.* \
     src/material.* src/material_library.* src/tally.* src/atomic_data.* src/measure.* \
     src/source_sampling.*
-#sed -i s/std::filesystem::canonical\(filename.c_str\(\)\)/filename.c_str\(\)/ pyne.cpp
+sed -i s/std::filesystem::canonical\(filename.c_str\(\)\)/std::filesystem::canonical\(filename\)/ pyne.cpp
 
 cp pyne.cpp pyne.h $2
  
