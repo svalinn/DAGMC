@@ -69,12 +69,12 @@ std::string UWUW::get_full_filepath(std::string filename) {
                  filename.end());
   // use stdlib call
 #ifndef _WIN32
-  const char* full_filepath = realpath(filename.c_str(), NULL);
+  const stf::string full_filepath = realpath(filename.c_str(), NULL);
 #else
-  const char* full_filepath =
-      std::filesystem::canonical(filename.c_str()).string().c_str();
+  const stf::string full_filepath =
+      std::filesystem::canonical(filename.c_str()).string();
 #endif
-  return std::string(full_filepath);
+  return full_filepath;
 }
 
 // see if file exists
