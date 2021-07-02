@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- website now points to github for plugin download
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
