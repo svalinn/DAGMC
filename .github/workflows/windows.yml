@@ -82,15 +82,11 @@ jobs:
           cd ${HOME_PATH}
           mkdir build 
           #git clone https://github.com/bam241/dagmc -b windows
-          cd dagmc
-          git submodule update --init --recursive
-          # cd src/pyne
-          # ./amalgamate_pyne.sh `pwd` `pwd`
+          #cd dagmc
+          #git submodule update --init --recursive
 
           # cd ../../../dagmc_build
           cd ../build
-          ls D:/a/DAGMC/DAGMC/src/pyne
-          #bash D:/a/DAGMC/DAGMC/src/pyne/amalgamate_pyne.sh D:/a/DAGMC/DAGMC/src/pyne D:/a/DAGMC/DAGMC/src/pyne
           cmake ../dagmc \
                 -G"Visual Studio 16 2019" \
                 -DBUILD_EXE=OFF \
@@ -111,7 +107,6 @@ jobs:
                 -DCMAKE_STATIC_LINKER_FLAGS="" \
                 -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
-#          cmake --test . --config Release
 
 
 
