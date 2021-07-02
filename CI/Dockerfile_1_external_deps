@@ -17,4 +17,3 @@ ENV double_down_install_dir=${install_dir}/double-down/
 
 # Build Embree
 RUN /root/etc/CI/docker/build_embree.sh
-
