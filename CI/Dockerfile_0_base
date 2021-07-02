@@ -27,7 +27,7 @@ RUN apt-get -y update; \
                        wget; \
     pip install cython; \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10; \
-    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10; \
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10;
 
 # Copy scripts to docker image
 RUN mkdir -p /root/etc/
