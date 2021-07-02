@@ -1,3 +1,5 @@
+import sys
+
 if sys.version > '3':
     with open('pyne.cpp', 'r', encoding='utf-8') as reader: lines = reader.readlines()
 else:
