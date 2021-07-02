@@ -1,6 +1,6 @@
 ARG UBUNTU_VERSION=18.04
 ARG COMPILER=gcc
-FROM svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext
+FROM ghcr.io/svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext
 
 
 
