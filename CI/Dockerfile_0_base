@@ -6,10 +6,27 @@ SHELL ["/bin/bash", "-c"]
 
 # Update core packages
 RUN apt-get -y update; \
-    apt-get -y install autoconf clang cmake g++ gcc gfortran git libblas-dev \
-                       libhdf5-dev liblapack-dev libpython2.7-dev libtool libeigen3-dev\
-                       python-numpy python-pip python-setuptools wget; \
-    pip install cython
+    apt-get -y install autoconf \
+                       clang \
+                       cmake \
+                       g++ \
+                       gcc \
+                       gfortran \
+                       git \
+                       libblas-dev \
+                       libhdf5-dev \
+                       liblapack-dev \
+                       libtool \
+                       libeigen3-dev\
+                       python-numpy \
+                       python3.8-pip \
+                       python3.8-setuptools \
+                       python3.8-dev \
+                       libpython3.8-dev \
+                       wget; \
+    pip install cython; \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 10; \
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10; \
 
 # Copy scripts to docker image
 RUN mkdir -p /root/etc/
