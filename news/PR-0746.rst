@@ -1,0 +1,15 @@
+**Added:** None
+
+  - GitHub Action to build and upload Docker images.
+
+**Changed:**
+
+  - Location of Dockerimages from Dockerhub to GHCR.
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
