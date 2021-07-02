@@ -7,7 +7,7 @@ if(MSVC)
                         "${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}"
                         RESULT_VARIABLE STATUS 
                         OUTPUT_VARIABLE OUTPUT)
-ELSE()
+ELSE(MSVC)
   execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
                         RESULT_VARIABLE STATUS 
                         OUTPUT_VARIABLE OUTPUT)
