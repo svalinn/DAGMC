@@ -86,7 +86,7 @@ jobs:
           #git submodule update --init --recursive
 
           # cd ../../../dagmc_build
-          cd ../build
+          cd build
           cmake ../dagmc \
                 -G"Visual Studio 16 2019" \
                 -DBUILD_EXE=OFF \
