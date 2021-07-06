@@ -1,4 +1,4 @@
-with open('pyne.cpp', 'r') as reader:
+with open('pyne.cpp', 'r', encoding='utf-8') as reader:
     lines = reader.readlines()
 
 writer = open('pyne.cpp.new', 'w')
