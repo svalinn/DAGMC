@@ -5,7 +5,7 @@ jobs:
       img:
         type: string
     docker:
-      - image: svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
+      - image: svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping:latest
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASS
@@ -35,7 +35,7 @@ jobs:
         type: string
         default: "OFF"
     docker:
-      - image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-ext-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
+      - image: svalinn/test_dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-ext-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASS
