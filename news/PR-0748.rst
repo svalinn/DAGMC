@@ -1,0 +1,15 @@
+**Added:** None
+
+  - Improved GitHub Action to build and upload Docker images.
+
+**Changed:**
+
+  - Sequential building of Dockerimages
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
