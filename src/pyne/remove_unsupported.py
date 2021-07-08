@@ -10,6 +10,7 @@ if sys.version > '3':
 else:
     writer = open('pyne.cpp.new', 'w')
 write_line = True
+
 for i, line in enumerate(lines):
     if 'pyne::Material pyne::Material::decay(' in line:
         write_line = False

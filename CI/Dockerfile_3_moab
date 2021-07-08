@@ -1,7 +1,7 @@
 ARG UBUNTU_VERSION=18.04
 ARG COMPILER=gcc
 ARG HDF5=1.10.4
-FROM svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext-hdf5_${HDF5}
+FROM ghcr.io/svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext-hdf5_${HDF5}
 
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
