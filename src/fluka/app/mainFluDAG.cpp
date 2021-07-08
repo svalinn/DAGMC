@@ -43,21 +43,6 @@ int main(int argc, char* argv[]) {
   std::string infile = "dagmc.h5m";
   std::string dagmc_file = "";
 
-<<<<<<< HEAD
-  if (argc == 1) {  // then its a fluka run
-    // fluka creates a run dir one lvl higher
-    infile = "../" + infile;
-    flukarun = true;
-  } else if (argc > 2) {
-    std::cout << "run as main_fludag <facet_file>  to produce"
-              << " material assignments" << std::endl;
-    std::cout << "too many arguments provided" << std::endl;
-    exit(1);
-  } else {             // its a pre process run
-    infile = argv[1];  // must be the 2nd argument
-  }
-
-=======
   // form the inputs and determine if this is a true calculation or a preprocess run
   ProgOptions po("mainfludag: a DAGMC enabled version of FLUKA-CERN");
   po.addOpt<std::string>("dagmc", "Path to h5m DAGMC file to proccess", &dagmc_file);
@@ -76,7 +61,6 @@ int main(int argc, char* argv[]) {
   }
 
   // test to see if the file exists
->>>>>>> 62c61b02f (Fixed to reflect FLUKA-CERN)
   std::ifstream h5mfile(infile.c_str());  // filestream for mesh geom
   if (!h5mfile.good()) {
     std::cout << "h5m file does not exist" << std::endl;
@@ -84,21 +68,10 @@ int main(int argc, char* argv[]) {
   }
 
   // get the current time
-<<<<<<< HEAD
-  time(&time_before); /* get current time; same as: timer = time(NULL)  */
-
-  // DAG call to load the file
-  std::cout << "Loading the faceted geometry file " << infile << "..."
-            << std::endl;
-  error = DAG->load_file(
-      infile.c_str());  // load the dag file takeing the faceting from h5m
-
-=======
   time(&time_before);  /* get current time; same as: timer = time(NULL)  */
 
   // DAG call to load the file
   error = DAG->load_file(infile.c_str()); // load the dag file takeing the faceting from h5m
->>>>>>> 62c61b02f (Fixed to reflect FLUKA-CERN)
   if (error != moab::MB_SUCCESS) {
     std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
     exit(EXIT_FAILURE);
@@ -106,19 +79,9 @@ int main(int argc, char* argv[]) {
 
   time(&time_after);
 
-<<<<<<< HEAD
-  double seconds = difftime(
-      time_after, time_before);  // get the time in seconds to load file
-
-  time_before = time_after;  // reset time to now for the next call
-
-  std::cout << "Time to load the h5m file = " << seconds << " seconds"
-            << std::endl;
-=======
   double seconds = difftime(time_after, time_before); //get the time in seconds to load file
   time_before = time_after; // reset time to now for the next call
   std::cout << "Time to load the h5m file = " << seconds << " seconds" << std::endl;
->>>>>>> 62c61b02f (Fixed to reflect FLUKA-CERN)
 
   // DAG call to initialize geometry
   // if more than 1 argument provided
