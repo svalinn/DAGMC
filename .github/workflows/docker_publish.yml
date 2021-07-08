@@ -38,7 +38,7 @@ jobs:
           push: true
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: ghcr.io/shimwell/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          tags: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
       
 
   build_and_push_base:
@@ -73,7 +73,7 @@ jobs:
           push: true
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: ghcr.io/shimwell/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}
+          tags: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}
 
 
   build_and_push_external_deps:
@@ -114,7 +114,7 @@ jobs:
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
             COMPILER=${{ matrix.compiler }}
-          tags: ghcr.io/shimwell/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext
+          tags: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext
 
 
   build_and_push_hdf5:
@@ -159,7 +159,7 @@ jobs:
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
             COMPILER=${{ matrix.compiler }}
             HDF5=${{ matrix.hdf5_versions }}
-          tags: ghcr.io/shimwell/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}
+          tags: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}
 
 
   build_and_push_moab:
@@ -210,4 +210,4 @@ jobs:
             COMPILER=${{ matrix.compiler }}
             HDF5=${{ matrix.hdf5_versions }}
             MOAB=${{ matrix.moab_versions }}
-          tags: ghcr.io/shimwell/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
+          tags: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
