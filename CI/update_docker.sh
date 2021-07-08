@@ -20,7 +20,7 @@ compilers="gcc clang"
 hdf5_versions="1.10.4"
 moab_versions="9c96d17 develop master"
 for ubuntu_version in ${ubuntu_versions}; do
-  image_name="svalinn/test_dagmc-ci-ubuntu-${ubuntu_version}"
+  image_name="svalinn/dagmc-ci-ubuntu-${ubuntu_version}"
   docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
                -f CI/Dockerfile_0_base .
   if [ "$PUSH" = true ]; then docker push ${image_name}; fi
@@ -51,5 +51,5 @@ for ubuntu_version in ${ubuntu_versions}; do
 done
 
 # Building image for houe keeping
-docker build -t svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping -f CI/Dockerfile_1_housekeeping .
-if [ "$PUSH" = true ]; then docker push svalinn/test_dagmc-ci-ubuntu-18.04-housekeeping; fi
+docker build -t svalinn/dagmc-ci-ubuntu-18.04-housekeeping -f CI/Dockerfile_1_housekeeping .
+if [ "$PUSH" = true ]; then docker push svalinn/dagmc-ci-ubuntu-18.04-housekeeping; fi
