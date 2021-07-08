@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAGMC: Direct Accelerated Geometry Monte Carlo &#8212; DAGMC</title>
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="DAGMC installation overview" href="install/index.html" /> 
@@ -326,33 +326,35 @@ $(document).keydown(function(evt) {
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<a class="reference external image-reference" href="https://travis-ci.org/svalinn/DAGMC"><img alt="https://travis-ci.org/svalinn/DAGMC.svg?branch=develop" class="align-left" src="https://travis-ci.org/svalinn/DAGMC.svg?branch=develop" style="width: 90px; height: 20px;" /></a>
+<a class="reference external image-reference" href="https://circleci.com/gh/svalinn/DAGMC"><img alt="https://circleci.com/gh/svalinn/DAGMC.svg?style=shield" class="align-left" src="https://circleci.com/gh/svalinn/DAGMC.svg?style=shield" style="width: 90px; height: 20px;" /></a>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 <p>Direct Accelerated Geometry Monte Carlo (DAGMC) is a software package that
 allows users to perform Monte Carlo radiation transport directly on CAD models.</p>
 <p>DAGMC has been integrated into a variety of Monte Carlo radiation codes
-including <a class="reference external" href="https://mcnp.lanl.gov">MCNP5</a>, <a class="reference external" href="https://mcnp.lanl.gov">MCNP6</a>, <a class="reference external" href="http://geant4.cern.ch">Geant4</a>, <a class="reference external" href="http://www.fluka.org/fluka.php">FLUKA</a>, <a class="reference external" href="https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html">Tripoli4</a>, <a class="reference external" href="https://docs.openmc.org/en/latest/index.html">OpenMC</a>, and <a class="reference external" href="http://web.ornl.gov/sci/nsed/rnsd/rt">Shift</a>. There are also
-efforts planned to integrate DAGMC into other codes such as <a class="reference external" href="http://montecarlo.vtt.fi">Serpent2</a>, <a class="reference external" href="http://phits.jaea.go.jp">Phits</a>, and Frensie.</p>
-<p>DAGMC currently relies on using the solid modeling software <a class="reference external" href="https://cubit.sandia.gov">Cubit</a> or its
-commercial counterpart, <a class="reference external" href="http://www.csimsoft.com/trelis">Trelis</a>, to prepare solid models. These packages can be
+including <a class="reference external" href="https://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.shtml">MCNP5</a>, <a class="reference external" href="https://mcnp.lanl.gov">MCNP6</a>, <a class="reference external" href="https://geant4.cern.ch">Geant4</a>, <a class="reference external" href="http://www.fluka.org/fluka.php">FLUKA</a>, <a class="reference external" href="https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html">Tripoli4</a>, <a class="reference external" href="https://docs.openmc.org/en/latest/index.html">OpenMC</a>, and <a class="reference external" href="https://meitner.ornl.gov/doe-codes/shift">Shift</a>. There are also
+efforts planned to integrate DAGMC into other codes such as <a class="reference external" href="http://montecarlo.vtt.fi">Serpent2</a>, <a class="reference external" href="https://phits.jaea.go.jp">Phits</a>, and <a class="reference external" href="https://github.com/FRENSIE/FRENSIE">FRENSIE</a>.</p>
+<p>DAGMC currently relies on using the commercial solid modeling software <a class="reference external" href="https://coreform.com/products/coreform-cubit/">Cubit</a> (or its
+<a class="reference external" href="https://cubit.sandia.gov">government-use counterpart</a> available from
+Sandia National Laboratories)
+to prepare solid models. These packages can be
 used to import CAD models from other tools such as SolidWorks, CATIA, etc., or
-to create geometry from scratch. DAGMC also relies on Trelis/Cubit to assign
+to create geometry from scratch. DAGMC also relies on Cubit to assign
 materials and other geometry-related information.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="install/index.html">DAGMC installation overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="install/dependencies.html">Installing dependencies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install/dagmc.html">Installing DAGMC</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install/plugin.html">Installing the Cubit/Trelis plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install/plugin.html">Installing the Cubit plugin</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usersguide/index.html">User’s guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usersguide/trelis_basics.html">Cubit/Trelis basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/cubit_basics.html">Cubit basics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usersguide/uw2.html">University of Wisconsin Unified Workflow (UWUW)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usersguide/codes/index.html">Monte Carlo code-specific steps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usersguide/trelis_workflow.html">Producing solid models for DAGMC using Cubit/Trelis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usersguide/cubit_workflow.html">Producing solid models for DAGMC using Cubit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usersguide/tally.html">DAGMC unstructured mesh tallies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usersguide/tools.html">DAGMC tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usersguide/postprocessing.html">Post-processing</a></li>
@@ -364,6 +366,10 @@ materials and other geometry-related information.</p>
 <li class="toctree-l2"><a class="reference external" href="https://groups.google.com/forum/#!forum/dagmc-users">Join the DAGMC mailing list</a></li>
 <li class="toctree-l2"><a class="reference external" href="https://github.com/svalinn/DAGMC">Source code</a></li>
 <li class="toctree-l2"><a class="reference external" href="https://github.com/svalinn/DAGMC/issues">Report an issue</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHANGELOG.html">DAGMC Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHANGELOG.html#v3-2-0">v3.2.0</a></li>
 </ul>
 </li>
 </ul>
@@ -380,13 +386,13 @@ materials and other geometry-related information.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

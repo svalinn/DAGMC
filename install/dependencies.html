@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Installing dependencies &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installing DAGMC" href="dagmc.html" />
@@ -66,9 +66,13 @@
 <div id="sidebar">
  <div id="sidebar_section"><ul>
 <li><a class="reference internal" href="#">Installing dependencies</a><ul>
+<li><a class="reference internal" href="#eigen3">Eigen3</a><ul>
+<li><a class="reference internal" href="#package-manager-installation">Package manager installation</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#hdf5">HDF5</a><ul>
 <li><a class="reference internal" href="#source-installation">Source installation</a></li>
-<li><a class="reference internal" href="#package-manager-installation">Package manager installation</a></li>
+<li><a class="reference internal" href="#id1">Package manager installation</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#moab-installation">MOAB installation</a></li>
@@ -91,6 +95,7 @@ using a package manager.</p>
 <p>The following dependencies are required:</p>
 <blockquote>
 <div><ul class="simple">
+<li><p><a class="reference external" href="http://eigen.tuxfamily.org/index.php">Eigen3</a></p></li>
 <li><p><a class="reference external" href="http://www.hdfgroup.org/HDF5">HDF5</a></p></li>
 <li><p><a class="reference external" href="http://press3.mcs.anl.gov/sigma/moab-library">MOAB</a></p></li>
 </ul>
@@ -101,6 +106,21 @@ DAGMC in the subdirectory <code class="docutils literal notranslate"><span class
 $ mkdir dagmc_bld
 $ cd dagmc_bld
 </pre></div>
+</div>
+<div class="section" id="eigen3">
+<h2>Eigen3<a class="headerlink" href="#eigen3" title="Permalink to this headline">¶</a></h2>
+<p>The best way to install the Eigen3 package is with your package manager.</p>
+<div class="section" id="package-manager-installation">
+<h3>Package manager installation<a class="headerlink" href="#package-manager-installation" title="Permalink to this headline">¶</a></h3>
+<p>Debian linux users can install the latest HDF5 release with:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install libeigen3-dev
+</pre></div>
+</div>
+<p>Redhat linux users can do likewise with:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo yum install eigen3-devel
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="hdf5">
 <h2>HDF5<a class="headerlink" href="#hdf5" title="Permalink to this headline">¶</a></h2>
@@ -124,8 +144,8 @@ $ make install
 </pre></div>
 </div>
 </div>
-<div class="section" id="package-manager-installation">
-<h3>Package manager installation<a class="headerlink" href="#package-manager-installation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3>Package manager installation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>Debian linux users can install the latest HDF5 release with:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install libhdf5-dev
 </pre></div>
@@ -204,13 +224,13 @@ $ which mbconvert
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

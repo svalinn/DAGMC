@@ -3,7 +3,7 @@ Code-specific steps for DAG-Tripoli4
 
 There are three varieties of code-specific steps:
 
-1.  defining attributes of the geometry using groups in Cubit/Trelis
+1.  defining attributes of the geometry using groups in Cubit
 2.  defining DAGMC runtime parameters using input file syntax
 3.  changes to the command-line
 

@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>Cubit/Trelis basics &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cubit basics &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="University of Wisconsin Unified Workflow (UWUW)" href="uw2.html" />
@@ -65,8 +65,8 @@
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Cubit/Trelis basics</a><ul>
-<li><a class="reference internal" href="#pre-processing-solid-models-using-cubit-trelis">Pre-processing solid models using Cubit/Trelis</a><ul>
+<li><a class="reference internal" href="#">Cubit basics</a><ul>
+<li><a class="reference internal" href="#pre-processing-solid-models-using-cubit">Pre-processing solid models using Cubit</a><ul>
 <li><a class="reference internal" href="#importing-the-solid-model">Importing the solid model</a></li>
 <li><a class="reference internal" href="#imprint-and-merge">Imprint and merge</a></li>
 <li><a class="reference internal" href="#grouping-volumes-and-surfaces">Grouping volumes and surfaces</a></li>
@@ -82,20 +82,20 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="cubit-trelis-basics">
-<h1>Cubit/Trelis basics<a class="headerlink" href="#cubit-trelis-basics" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="pre-processing-solid-models-using-cubit-trelis">
-<h2>Pre-processing solid models using Cubit/Trelis<a class="headerlink" href="#pre-processing-solid-models-using-cubit-trelis" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="cubit-basics">
+<h1>Cubit basics<a class="headerlink" href="#cubit-basics" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pre-processing-solid-models-using-cubit">
+<h2>Pre-processing solid models using Cubit<a class="headerlink" href="#pre-processing-solid-models-using-cubit" title="Permalink to this headline">¶</a></h2>
 <p>This section focuses on steps that are independent of the Monte Carlo code used
 for analysis. Additional steps for the unified workflow, <a class="reference external" href="uw2.html">UW2</a>, or
 <a class="reference external" href="codes/index.html">Monte Carlo code-specific workflows</a> may be followed as
 needed.</p>
 <div class="section" id="importing-the-solid-model">
 <h3>Importing the solid model<a class="headerlink" href="#importing-the-solid-model" title="Permalink to this headline">¶</a></h3>
-<p>The first step in Cubit/Trelis is to import the generated solid model. Depending
+<p>The first step in Cubit is to import the generated solid model. Depending
 on the complexity of the model, this step can take several seconds up to a half
 an hour. As an initial user, it is recommend to start with simple models and
-geometries to obtain a better understanding of Cubit/Trelis.</p>
+geometries to obtain a better understanding of Cubit.</p>
 </div>
 <div class="section" id="imprint-and-merge">
 <h3>Imprint and merge<a class="headerlink" href="#imprint-and-merge" title="Permalink to this headline">¶</a></h3>
@@ -153,7 +153,7 @@ section on its full usage is highly recommended.</p>
 <div class="section" id="production-of-the-dagmc-geometry">
 <span id="geom-production"></span><h3>Production of the DAGMC geometry<a class="headerlink" href="#production-of-the-dagmc-geometry" title="Permalink to this headline">¶</a></h3>
 <p>Now that the geometry is ready for DAGMC we must export it. Using the
-Cubit/Trelis plugin make this very straightforward, assuming that the user has
+Cubit plugin make this very straightforward, assuming that the user has
 proceeded through the previous steps then all one must do is use the export
 dagmc command.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; export dagmc &lt;filename&gt; [faceting_tolerance &lt;faceting tolerance&gt;]
@@ -181,7 +181,7 @@ length tolerances of 1.0e-4 cm and 5.0 cm respectively</p>
 <p>The time taken to perform this step depends upon the complexity of the model, it
 could  take seconds for very simple models to hours for very complex models. It
 is also possible that faceting artifacts or failures could occur at this point,
-so monitor the output of this command in the Cubit/Trelis command line. If
+so monitor the output of this command in the Cubit command line. If
 issues due occurs, these should be addressed following the workflow listed
 above.</p>
 <p>Where faceting_tolerance, normal_tolerance, and length tolerance are optional
@@ -195,11 +195,11 @@ arguments. For example, to export the currently loaded file to a file called
 <div class="section" id="roadmap-for-the-future">
 <h2>Roadmap for the future<a class="headerlink" href="#roadmap-for-the-future" title="Permalink to this headline">¶</a></h2>
 <p>Currently we have a number of standalone command line tools that are run sequentially
-on a model following faceting using Cubit/Trelis. We run <cite>make_watertight</cite> to seal
+on a model following faceting using Cubit. We run <cite>make_watertight</cite> to seal
 models to ensure no topological weaknesses exist and we run <cite>uwuw_preproc</cite> to add
 materials into analysis geometries. It is envisioned that at some point in the
-near future that we will integrate these as options within the Cubit/Trelis plugin.</p>
-<a class="reference internal image-reference" href="../_images/plugin_infrastructure.png"><img alt="The future infrastructure for the Cubit/Trelis plugin" src="../_images/plugin_infrastructure.png" style="width: 800px; height: 350px;" /></a>
+near future that we will integrate these as options within the Cubit plugin.</p>
+<a class="reference internal image-reference" href="../_images/plugin_infrastructure.png"><img alt="The future infrastructure for the Cubit plugin" src="../_images/plugin_infrastructure.png" style="width: 800px; height: 350px;" /></a>
 <p>This will allow you to add additional options if you want the model to be made
 watertight and/or if you want to add materials to the resultant geometry. There will
 always be power users that prefer the command line tools. These tools will continue
@@ -215,13 +215,13 @@ to be supported with identical infrastructure.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

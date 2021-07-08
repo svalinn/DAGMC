@@ -9,7 +9,7 @@ Code-Specific steps for OpenMC
 
 There are two varieties of code-specific steps for OpenMC_:
 
-1.  Defining attributes of the geometry using Cubit/Trelis groups
+1.  Defining attributes of the geometry using Cubit groups
 2.  Defining DAGMC runtime parameters using the OpenMC input files
 
 Geometry metadata
@@ -105,7 +105,7 @@ boundary between the problem and the outside world.  This volume should surround
 the entire geometry with a shell of finite thickness. Any geometric shape can be
 used, but a cubic shell is recommended to maximize performance.
 
-To create a containing volume, make two volumes in Cubit/Trelis with the same
+To create a containing volume, make two volumes in Cubit with the same
 shape and same center with one slightly larger than the other, making sure that
 both bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The result is a containing volume for the problem.

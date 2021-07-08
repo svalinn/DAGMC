@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DAGMC Changelog &#8212; DAGMC</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Gallery of projects that use DAGMC" href="gallery/gallery.html" />
+    <link rel="prev" title="Developer’s theory guide" href="contribute/devtheory.html" /> 
+  </head><body> 
+<div id="page-div" class="page">
+<div id="header">
+    <a id="uwhome" href="http://www.wisc.edu"><img src="_static/images/wordmark.gif" alt="University of Wisconsin–Madison" width="260" height="11" /></a> 
+    <a id="crest" href="http://www.wisc.edu"><img src="_static/images/crest.png" alt="" width="70" height="106" /></a>
+    <h1 id="siteTitle"><a href="index.html"><img src="_static/images/logo.png" alt="" height="50x" /><span>DAGMC</span></a></h1>
+    <div id="tagline"><span>Direct Accelerated Geometry Monte Carlo Toolkit</span></div>
+    <ul id="globalnav">
+      <li id="uwsearch"><a href="http://www.wisc.edu/search/">UW Search</a></li>
+      <li><a href="http://cnerg.github.com">CNERG</a></li>
+      <li><a href="http://my.wisc.edu">My UW</a></li>
+      <li><a href="http://map.wisc.edu">Map</a></li>
+      <li id="last_tool"><a href="http://www.today.wisc.edu">Calendar</a></li>
+    </ul>
+    <form role="search" action="search.html" method="get" id="cse-search-box">
+      <div>
+      <label class="screen-reader-text" for="q">Search for:</label>
+      <input type="text" id="q" name="q" value="Enter keywords here...." />
+      <input type="submit" id="sa" value="Search" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      </div>
+    </form>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+</div>
+
+    <div id="nav" class="main-menu-container">
+      <ul id="menu-main" class="sf-menu">
+        <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
+        <li class="menu-item"><a href="index.html">DAGMC</a></li>
+        <li class="menu-item" style="margin-right: 10px">
+          <a href="contribute/devtheory.html" title="Developer’s theory guide"
+             accesskey="P">previous</a>
+          </li>
+        <li class="menu-item" >
+          <a href="gallery/gallery.html" title="Gallery of projects that use DAGMC"
+             accesskey="N">next</a>
+          </li>
+        <li class="menu-item" >
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+          </li> 
+      </ul>
+    </div>
+  <div id="c_container"> 
+<div id="sidebar">
+ <div id="sidebar_section"><ul>
+<li><a class="reference internal" href="#">DAGMC Changelog</a><ul>
+<li><a class="reference internal" href="#v3-2-0">v3.2.0</a></li>
+</ul>
+</li>
+</ul>
+ </div>
+</div> 
+    <div id="content" class="inline-block">
+          <div class="post">
+            
+  <div class="section" id="dagmc-changelog">
+<h1>DAGMC Changelog<a class="headerlink" href="#dagmc-changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="v3-2-0">
+<h2>v3.2.0<a class="headerlink" href="#v3-2-0" title="Permalink to this headline">¶</a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p><cite>DagMC::git_sha</cite> method (PR#707)</p></li>
+<li><p>Added <cite>libeigen3-dev</cite> package to be installed by <cite>apt</cite> (PR#683)</p></li>
+<li><p>Tool for checking DagMC models for overlaps. (PR#641)</p></li>
+<li><p>turn off fortran support in MOAB build (PR#684)</p></li>
+<li><p>use ‘&amp;&amp;’ to join successive build steps to fail build on first failure (PR#684)</p></li>
+<li><p>remove specification of unused FORTRAN compiler for HDF5 &amp; MOAB builds (PR#684)</p></li>
+<li><p>Note on adding DagMC libraries to LD_LIBRARY_PATH for OpenMC usage. (PR#625)</p></li>
+<li><p>Link to installation instructions for OpenMC with DagMC. (PR#625)</p></li>
+<li><p>Documentation section on material assignment by name for OpenMC model
+prep. (PR#616)</p></li>
+<li><p>MCNP6 version of pyne mesh source.F90. (PR#604)</p></li>
+<li><p>Documentation on model prep for OpenMC simulations with a DAGMC
+geometry. (PR#599)</p></li>
+<li><p>Added a script which updates amalgamated pyne. (PR#595)</p></li>
+<li><p>OpenMC material writing capability for UWUW workflow via updates to the
+amalgamated PyNE source. (PR#594)</p></li>
+<li><p>Community best practices including issue templates, pull request templates,
+contributing guidelines, and code of conduct. (PR#589)</p></li>
+<li><p>Added PyNE mesh source routine functionality. This can be enabled by setting
+the <code class="docutils literal notranslate"><span class="pre">BUILD_MCNP_PYNE_SOURCE</span></code> compiler definition to <code class="docutils literal notranslate"><span class="pre">ON</span></code>. (PR#585)</p></li>
+<li><p>Added ability for users to disable building static or shared libraries (PR#572)</p></li>
+<li><p>Patch file for DAG-MCNP6.2 (PR#569)</p></li>
+<li><p>Default to a Release build. This results in optimization flags being used
+everywhere as appropriate. (PR#555)</p>
+<ul>
+<li><p>Note that MCNP is still configured to use no more than <code class="docutils literal notranslate"><span class="pre">-O1</span></code></p></li>
+</ul>
+</li>
+<li><p>Add macros to <code class="docutils literal notranslate"><span class="pre">cmake/DAGMC_macros.cmake</span></code>. This results in much less
+duplicated cmake elsewhere. The following macros were added: (PR#555)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_setup_build</span></code>: Sets core variables used throughout the rest of the
+project.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_setup_options</span></code>: Defines cmake build options.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_setup_flags</span></code>: Defines compiler flags.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_get_link_libs</span></code>: Used by the <code class="docutils literal notranslate"><span class="pre">dagmc_install_X</span></code> macros to
+determine the names of the libraries that need to be linked.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_make_configure_file</span></code>: Setup the <code class="docutils literal notranslate"><span class="pre">DAGMCConfig.cmake</span></code> file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_install_library</span></code>: Install a library.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_install_exe</span></code>: Install an executable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_install_test</span></code>: Install a unit test.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc_install_test_file</span></code>: Install a file needed for unit testing.</p></li>
+</ul>
+</li>
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">FindFluka.cmake</span></code> file to find the Fluka library. (PR#555)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">RPATH</span></code> functionality so that all executables and libraries
+automatically know where their dependencies are located. This removes the need
+for users to add anything to their <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code>. This can be turned off
+by setting <code class="docutils literal notranslate"><span class="pre">-DBUILD_RPATH=OFF</span></code>. (PR#555)</p></li>
+<li><p>Add ability to build with position-independent code (PIC). This can be turned
+on by setting <code class="docutils literal notranslate"><span class="pre">-DBUILD_PIC=ON</span></code>. (PR#555)</p></li>
+<li><p>Add options to enable/disable building all optional functionality. The
+following options were added: (PR#555)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">BUILD_BUILD_OBB</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BUILD_MAKE_WATERTIGHT</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BUILD_TESTS</span></code></p></li>
+</ul>
+</li>
+<li><p>Documentation explaining the new requirement that all PRs must include a file
+explaining what the PR does. (PR#545)</p></li>
+<li><p>Template for the news directory. (PR#545)</p></li>
+<li><p>Additional boundary condition options in the dagmcMetaData class (PR#690)</p></li>
+</ul>
+<p><strong>Changed:</strong></p>
+<ul class="simple">
+<li><p>replaced calls for overlap tolerance and numerical precision in DagMC constructor (PR#708)</p></li>
+<li><p>Packages now use direct path to include one-another, instead of relative ones (PR#703)</p></li>
+<li><p>No longer require Fortran compiler unless building MCNP5/6 (PR#701)</p></li>
+<li><p>Update amalgamated PyNE version to v0.7.3 (PR#700)</p></li>
+<li><p>revamped Material management to leverage the PyNE::MaterialLibrary in place of the map&lt;string, PyNE::Material&gt; (PR#700)</p></li>
+<li><p>Add DAGMC guard around (PR#695):</p>
+<ul>
+<li><p>changed if statement in history_neutral_high.F90</p></li>
+<li><p>check for goto statement in charged_particle_history.F90</p></li>
+</ul>
+</li>
+<li><p>Adding optional double-down dependency to enable ray tracing with Embree. (PR#693)</p></li>
+<li><p>Replacing Travis in favor of CircleCI (PR#692, PR#698)</p></li>
+<li><p>Splitting up the docker container building process into multiple files (PR#692, PR#697)</p></li>
+<li><p>dagmcMetaData (PR#688, PR#689, PR#690):</p>
+<ul>
+<li><p>Behavior to ignore missing density assignments for more flexible integration with certain codes. (PR#688)</p></li>
+<li><p>Updates to the coding style. (PR#689)</p></li>
+<li><p>Allows boundary condition values, graveyard material assignments, and vacuum material assignments to be lowercase</p></li>
+</ul>
+</li>
+<li><p>removed LAPACK dependency; replaced with Eigen3 for DAGMC (PR#686) and MOAB (PR#683)</p></li>
+<li><p>Enabling testing for the shared object build of DAGMC (PR#674)</p></li>
+<li><p>Adding RPATH value for our build of Geant4 on CI (PR#674)</p></li>
+<li><p>Including additional test output on failure in CI (PR#674)</p></li>
+<li><p>PullRequest-Agent suggestionsmcnp (PR#665)</p>
+<ul>
+<li><p>using std::err for errors</p></li>
+<li><p>update to C++11 standards for converting ints to strings</p></li>
+<li><p>removed unnecessary comments</p></li>
+<li><p>moved Graveyard and Vacuum strings to variables</p></li>
+</ul>
+</li>
+<li><p>PullRequest-Agent suggestions MakeWaterTight (PR#666):</p>
+<ul>
+<li><p>remove commented code blocks that are either outdated or are debug statements</p></li>
+<li><p>improvements to some logic for clarity</p></li>
+<li><p>use of standard library containers to avoid potential memory leaks in Arc.cpp/Gen.cpp</p></li>
+<li><p>improvements to struct/variable names</p></li>
+<li><p>declared variables for “magic numbers”</p></li>
+<li><p>passing by const reference where possible to avoid unnecessary memory allocation</p></li>
+<li><p>removed an unused function (Arc::create_loops_from_oriented_edges_fast)</p></li>
+</ul>
+</li>
+<li><p>PullRequest-Agent suggestions DagMC (PR#671, PR#676):</p>
+<ul>
+<li><p>updated pointer management to RAII (“Resource Allocation Is Initialization”) technique, MBI is now a shared_ptr unless passed
+as a raw pointer in the DagMC constructor (can be returned as a shared_ptr if not provided as a raw pointer),  GTT is now a
+shared_ptr, and can only be returned as such, GQT is now a uniq_ptr, (and can’t be return - not change there)</p></li>
+<li><p>tests: DagMC instance is now a shared_ptr, when used, MBI instance is now a shared_ptr</p></li>
+</ul>
+</li>
+<li><p>PullRequest-Agent suggestions uwuw, tally, overlap_check, build_obb, misc/tests (PR#680)</p></li>
+<li><p>PullRequest-Agent suggestions Geat4 (PR#691)</p></li>
+<li><p>Updates to variable names in make_watertight files (PR#672)</p></li>
+<li><p>Changed name of overlap_check executable directory from “build” to
+“app”. (PR#653)</p></li>
+<li><p>all directories named <cite>build</cite> are changed to <cite>app</cite> for clarity. (PR#645)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc/src/make_watertight</span></code>: now accepting output_filename. (PR#636)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dagmc/src/check_watertight</span></code>: now accepting output_filename. (PR#636)</p></li>
+<li><p>Have the update_pyne script copy over the source.F90 files in pyne for MCNP5
+and MCNP6. (PR#626)</p></li>
+<li><p>Update amalgamated pyne. (PR#626)</p></li>
+<li><p>Updated amalgamated pyne. (PR#617)</p></li>
+<li><p>The <cite>ASTYLE_ONLY</cite> Travis variable has been replaced with a <cite>HOUSEKEEPING_ONLY</cite>
+variable. If this variable is on, DAGMC will not be built and it will instead
+only perform 3 housekeeping checks: (PR#610)</p>
+<ul>
+<li><p>News file: the CI will fail if a news file with the correct filename is not
+included.</p></li>
+<li><p>Astyle: the version of astyle we use on the CI has been upgraded to 3.1.
+This is the version that is default on Ubuntu 18.04.</p></li>
+<li><p>Documentation: the CI will now attempt to build the DAGMC documentation and
+will fail if it finds any errors or warnings.</p></li>
+</ul>
+</li>
+<li><p>The dockerfile has been modified so that it can be built with both Ubuntu
+16.04 and 18.04. (PR#610)</p></li>
+<li><p>The docker images have been moved from the cnerg dockerhub organization to the
+svalinn organization. (PR#610)</p></li>
+<li><p>The new build matrix for the non-housekeeping run is 2x2x2: (PR#610)</p>
+<ul>
+<li><p>Ubuntu 16.04 vs. 18.04</p></li>
+<li><p>gcc vs. clang</p></li>
+<li><p>gcc-5.3 on 16.04; gcc-7.3 on 18.04</p></li>
+<li><p>clang-3.8 on 16.04; clang-6.0 on 18.04</p></li>
+<li><p>MOAB 5.1.0 vs. master vs. develop</p></li>
+</ul>
+</li>
+<li><p>The builds that use MOAB master and develop are allowed to fail without the
+entire CI failing. The CI will show as having passed once the housekeeping
+build and the four MOAB 5.1.0 builds have passed. (PR#610)</p></li>
+<li><p>The CI will only build against MOAB master and develop during non-pull request
+builds; i.e. only during push builds and nightlies. (PR#610)</p></li>
+<li><p>MOAB 5.1.0 is now included in the docker image so it does not need to be built
+every time the CI is run. (PR#610)</p>
+<ul>
+<li><p>This is to save time, since we expect that previous versions of MOAB will
+not change. If it does change, we can update the Docker images.</p></li>
+<li><p>MOAB master is still built every time it is needed.</p></li>
+</ul>
+</li>
+<li><p>MOAB is now built with pymoab support. This is for future-proofing in case
+DAGMC ever needs access to this functionality. (PR#610)</p></li>
+<li><p>MOAB is now built against both custom-built HDF5 (1.10.4, up from 1.8.13) and
+against system HDF5. (PR#610)</p>
+<ul>
+<li><p>The MOAB built against system HDF5 is currently unused, however, as there is
+currently a bug that makes it so DAGMC cannot build static executables if
+using system HDF5. If/when this bug is fixed, then building DAGMC with
+system HDF5 can be added to the build matrix.</p></li>
+</ul>
+</li>
+<li><p>Geant4 has been upgraded to version 10.5. (PR#610)</p></li>
+<li><p>Building the documentation will throw an error if it encounters any warnings
+or errors. The previous warnings and errors that were occurring have been
+fixed. (PR#610)</p></li>
+<li><p>Throw a fatal error if trying to build static executables but not static
+libraries, or shared executables but not shared libraries. (PR#605)</p></li>
+<li><p>Added measure and source_sampling to amalgamated pyne and removed the
+standalone files we used to use. (PR#604)</p></li>
+<li><p>Move keyword type to FC card in the document doc/userguide/tally.rst.
+(PR#600)</p></li>
+<li><p>A small change to a single line of the dag-mcnp model prep file. (PR#599)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> (PR#597)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/mcnp/meshtal_funcs.cpp</span></code> (PR#597)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/tally/KDEMeshTally.cpp</span></code> (PR#597)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/tally/MeshTally.cpp</span></code> (PR#597)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/tally/MeshTally.hpp</span></code> (PR#597)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/tally/MeshTally.hpp</span></code> (PR#597)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/tally/TallyData.cpp</span></code> (PR#597)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/tally/TrackLengthMeshTally.cpp</span></code> (PR#597)</p></li>
+<li><p>CMake commands for linking all DAGMC libraries s.t. they are added to the exported targets. (PR#662)</p></li>
+<li><p>Updated amalgamated pyne to match the main pyne repo. (PR#595)</p></li>
+<li><p>Travis CI no longer attempts to build DAGMC against moab master. (PR#584)</p></li>
+<li><p>When configuring MPI-enabled DAG-MCNP6, do not rely on
+<code class="docutils literal notranslate"><span class="pre">MPI_Fortran_INCLUDE_PATH</span></code> being set because this variable is not set when
+using CMake 3.10 or newer. Instead, use <code class="docutils literal notranslate"><span class="pre">MPI_Fortran_COMPILER</span></code>. (PR#579)</p></li>
+<li><p>Use the values of <code class="docutils literal notranslate"><span class="pre">MOAB_INCLUDE_DIRS</span></code> and <code class="docutils literal notranslate"><span class="pre">MOAB_LIBRARY_DIRS</span></code> from
+<code class="docutils literal notranslate"><span class="pre">MOABConfig.cmake</span></code> instead of trying to determine them ourselves. Note that
+this change makes DAGMC incompatible with MOAB 5.0. (PR#578)</p></li>
+<li><p>Use MOAB 5.1.0 on CI instead of 5.0. (PR#578)</p></li>
+<li><p>CMakeFile for DAG-MCNP6 to accomodate MCNP6.2. (PR#569)</p></li>
+<li><p>Use bind(c) in fmesh_mod.F90 to avoid the need for name mangling on the C++
+side. (PR#556)</p></li>
+<li><p>Rename MCNP patch files to mcnpXXX.patch, where XXX is the version turned
+into a 3-digit number. (PR#556)</p></li>
+<li><p>Change pretty much every <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> file in the entire repo to use the
+new macros. Almost all the cmake files got much shorter because of this
+change. (PR#555)</p></li>
+<li><p>Change how we find HDF5. Previously, HDF5 was required to be in users’
+<code class="docutils literal notranslate"><span class="pre">$PATH</span></code>. Now, the location of HDF5 is determined automatically by reading
+variables from <code class="docutils literal notranslate"><span class="pre">MOABConfig.cmake</span></code>. (PR#555)</p></li>
+<li><p>Change how we find MOAB. Previously, MOAB was required to be in users’
+<code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code>. Now, users must specify <code class="docutils literal notranslate"><span class="pre">-DMOAB_DIR</span></code> when running
+cmake. (PR#555)</p>
+<ul>
+<li><p>Note that the <code class="docutils literal notranslate"><span class="pre">MOABConfig.cmake</span></code> file is no longer used to find any MOAB
+files.</p></li>
+</ul>
+</li>
+<li><p>Since users no longer need to change their <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> or <code class="docutils literal notranslate"><span class="pre">$LD_LIBRARY_PATH</span></code>,
+remove the changes to those variables in the CI scripts. (PR#555)</p></li>
+<li><p>Rename the cmake commands used to build DAG-MCNP5/6 with plotting and MPI
+support. The new commands are <code class="docutils literal notranslate"><span class="pre">BUILD_MCNP_PLOT</span></code> and <code class="docutils literal notranslate"><span class="pre">BUILD_MCNP_MPI</span></code>.
+(PR#555)</p></li>
+<li><p>Rename the cmake command used to build static executables from
+<code class="docutils literal notranslate"><span class="pre">BUILD_STATIC</span></code> to <code class="docutils literal notranslate"><span class="pre">BUILD_STATIC_EXE</span></code>. The old name was confusing because
+the option only controls the linking of executables, while libraries are
+always built both static and dynamic. (PR#555)</p></li>
+<li><p>Rename the <code class="docutils literal notranslate"><span class="pre">test</span></code> folders in <code class="docutils literal notranslate"><span class="pre">src/dagmc</span></code> and <code class="docutils literal notranslate"><span class="pre">src/mcnp</span></code> to <code class="docutils literal notranslate"><span class="pre">tests</span></code> to
+conform with other unit test directories. (PR#555)</p></li>
+<li><p>Move the source files for the make_watertight and uwuw_preproc executables
+into a new <code class="docutils literal notranslate"><span class="pre">build</span></code> directory, keeping the source files for the library where
+they are. This conforms with other DAGMC features that have both a library and
+an executable. (PR#555)</p></li>
+<li><p>Replace the mcnpfuncs internal library with an object library. (PR#555)</p></li>
+<li><p>For the pyne_dagmc library, only use <code class="docutils literal notranslate"><span class="pre">-O0</span></code> optimzation when building with
+Intel C++. (PR#555)</p></li>
+<li><p>Update documentation to reflect all changes. (PR#555)</p></li>
+<li><p>Moved all source code into the <code class="docutils literal notranslate"><span class="pre">src</span></code> directory. (PR#552)</p></li>
+<li><p>Fix download link to astyle 3.0.1 .deb file. (PR#549)</p></li>
+<li><p>Direct Travis to grab the docker image from the cnerg dockerhub account
+instead of Lucas’s account. (PR#546)</p></li>
+</ul>
+<p><strong>Deprecated:</strong></p>
+<ul class="simple">
+<li><p>DagMC: Deprecated constructor using a raw pointer for the MBI instance,
+prefered way uses shared_ptr for MBI instance. (PR#671)</p></li>
+<li><p><cite>DagMC::interface_revision</cite> method (PR#707)</p></li>
+</ul>
+<p><strong>Removed:</strong></p>
+<ul class="simple">
+<li><p>Remove the <code class="docutils literal notranslate"><span class="pre">FindHDF5.cmake</span></code> file as it is no longer needed. (PR#555)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gtest/README</span></code> and <code class="docutils literal notranslate"><span class="pre">gtest/configure.sh</span></code>: no longer used; last commit in
+March 2014. (PR#544)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tools/build/*</span></code>: no longer used; last commit in June 2014. (PR#544)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cmake/FindPyne.cmake</span></code>: no longer used; last commit in June 2014. (PR#544)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tools/finish_dagmc_geom*</span></code>: out of date; last commit in June 2014. (PR#544)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tools/txcorp_bld/*</span></code>: no idea what this is; last commit in June 2014. (PR#544)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tools/dagmc_tag_eg/*</span></code>: out of date; last commit in October 2014. (PR#544)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tally/tools/boundary_correction/*</span></code>: broken; last commit in June 2016. (PR#544)</p></li>
+</ul>
+<p><strong>Fixed:</strong></p>
+<ul class="simple">
+<li><p>pyne::MaterialLibrary calls in fluka_funcs.</p></li>
+<li><p>Tally::particle_name to Tally::particle_names update in fluka_funcs as well.</p></li>
+<li><p>eigen3:</p>
+<ul>
+<li><p>remove bad flag in MOAB build (PR#684)</p></li>
+<li><p>fixed use include directories (PR#694)</p></li>
+</ul>
+</li>
+<li><p>Regenerate the DAGMC_LIBRARIES variable upon re-running cmake. (PR#643)</p></li>
+<li><p>Fix error in documentation where cmake was not pointing to the DAGMC source
+dir as it should. (PR#632)</p></li>
+<li><p>Updated links to OpenMC documentation. (PR#630)</p></li>
+<li><p>Make the MW_REG_TEST_MODELS_URL variable available to the docker image. (PR#621)</p></li>
+<li><p>The <cite>make_watertight_regression_tests</cite> should now be run if the CI is not
+doing a PR build. (PR#610)</p>
+<ul>
+<li><p>I believe this was broken for an undetermined amount of time; I do not
+believe they were ever getting run regardless of whether the CI was doing a
+PR build or not. This is because intrinsic Travis variables like
+<cite>$TRAVIS_PULL_REQUEST</cite> are only available to <cite>.travis.yml</cite>; if they are
+needed in other scripts, they need to be passed manually, and this was not
+happening before.</p></li>
+</ul>
+</li>
+<li><p>Fixes issue with unstructured mesh tallies. (PR#597)</p></li>
+<li><p>Now produces a vector tag of size num_groups instead of num_groups+2 scalar
+tags. (PR#597)</p></li>
+<li><p>Also produces a total tally tag. (PR#597)</p></li>
+</ul>
+<p><strong>Security:</strong> None</p>
+</div>
+</div>
+
+
+          </div>
+      </div>
+
+    </div>
+</div>
+    <div id="footer">
+      <p>
+        &copy; Copyright 2012-2020, The UW CNERG Team.
+      </p>
+      <p>
+      Last updated on Jul 08, 2021.
+      </p>
+      <p>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      </p>
+    </div>
+  </body>
+</html>

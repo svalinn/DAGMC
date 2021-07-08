@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAGMC tools &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Post-processing" href="postprocessing.html" />
@@ -86,16 +86,16 @@ educate what those tools are and how to use them.</p>
 <div class="section" id="make-watertight">
 <span id="id1"></span><h2>make_watertight<a class="headerlink" href="#make-watertight" title="Permalink to this headline">¶</a></h2>
 <p>A model is considered watertight if the faceting of all topologically linked
-surfaces are coincident. Models produced by Cubit/Trelis are not guarenteed to
+surfaces are coincident. Models produced by Cubit are not guaranteed to
 be watertight, and as a general rule, the more complicated the model, the less
 likely it is to be completely watertight.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">make_watertight</span></code> tool aims to fix any watertightness issues in a model by
 using faceted curve information to seal triangle facets that meet on the same
 curve. An example of its use is shown here: the red lines show the geometry
 before <code class="docutils literal notranslate"><span class="pre">make_watertight</span></code> and the black lines show the geometry after its use.</p>
-<a class="reference internal image-reference" href="../_images/watertight.png"><img alt="An example of the use of make_wateright: the red lines show the geometry before ``make_watertight`` and the black lines show the geometry after its use." src="../_images/watertight.png" style="width: 600px; height: 500px;" /></a>
+<a class="reference internal image-reference" href="../_images/watertight.png"><img alt="An example of the use of make_watertight: the red lines show the geometry before ``make_watertight`` and the black lines show the geometry after its use." src="../_images/watertight.png" style="width: 600px; height: 500px;" /></a>
 <p><code class="docutils literal notranslate"><span class="pre">make_watertight</span></code> can be run with:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ make_wateright &lt;filename&gt;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ make_watertight &lt;filename&gt;
 </pre></div>
 </div>
 <p>The product will be a file named, <cite>filename_zip.h5m</cite>, and a summary is provided
@@ -107,7 +107,7 @@ of what operations were done to seal the model.</p>
 given model is. It should be used as a post-processing step after
 <code class="docutils literal notranslate"><span class="pre">make_watertight</span></code> to verify that the model has been made more watertight.</p>
 <p><code class="docutils literal notranslate"><span class="pre">check_watertight</span></code> can be run  with:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ check_wateright &lt;filename&gt;
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ check_watertight &lt;filename&gt;
 </pre></div>
 </div>
 <p>Both <code class="docutils literal notranslate"><span class="pre">make_watertight``and</span> <span class="pre">``check_watertight</span></code> are built during the main DAGMC
@@ -128,7 +128,7 @@ filename are specificed:</p>
 -s  &lt;int&gt; - extract a specific surface or range of surfaces
 -c  &lt;int&gt; - extract a specific curve or range of curves
 -1  - extract edges only
--2  - extract two dimensional entites only e.g. Tri, Quad, etc.
+-2  - extract two dimensional entities only e.g. Tri, Quad, etc.
 -3  - extract three dimensional entities only, e.g. tet, hex, etc.
 -h  - print help
 -f  - list available read/write formats
@@ -139,7 +139,7 @@ filename are specificed:</p>
 <h2>mklostvis<a class="headerlink" href="#mklostvis" title="Permalink to this headline">¶</a></h2>
 <p>Sometimes either poor quality CAD, incorrect imprinting &amp; merging or overlapping
 volumes; particles are regarded as lost by the Monte Carlo code. It is therefore
-neccessary to be able to examine where the particles were lost and in which
+necessary to be able to examine where the particles were lost and in which
 direction they were travelling in. The tool <a class="reference external" href="https://github.com/svalinn/meshtools/tree/master/lostparticles">mklostvis</a> is designed for this
 purpose, reading the output of the MCNP lost particle information and producing
 a Cubit or journal file which will draw the lost particles as vertices and their
@@ -163,13 +163,13 @@ that shown below.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

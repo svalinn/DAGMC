@@ -2,21 +2,21 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>University of Wisconsin Unified Workflow (UWUW) &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Monte Carlo code-specific steps" href="codes/index.html" />
-    <link rel="prev" title="Cubit/Trelis basics" href="trelis_basics.html" /> 
+    <link rel="prev" title="Cubit basics" href="cubit_basics.html" /> 
   </head><body> 
 <div id="page-div" class="page">
 <div id="header">
@@ -48,7 +48,7 @@
         <li class="menu-item"><a href="http://svalinn.github.io">Svalinn</a></li>
         <li class="menu-item"><a href="../index.html">DAGMC</a></li>
         <li class="menu-item" style="margin-right: 10px">
-          <a href="trelis_basics.html" title="Cubit/Trelis basics"
+          <a href="cubit_basics.html" title="Cubit basics"
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
@@ -108,7 +108,7 @@ problem to be defined across all MC codes.</p>
 code, since each MC code specifies materials in a different way. Instead, we tag
 groups of volumes with a name and syntax that corresponds to material
 compositions in a predefined material library.</p>
-<p>The group naming syntax for describing materials in Cubit/Trelis is:</p>
+<p>The group naming syntax for describing materials in Cubit is:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;mat:&lt;Name of Material&gt;&quot;
 </pre></div>
 </div>
@@ -234,7 +234,7 @@ keywords have been added to the command line to specify the necessary files.</p>
 <dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required)</dt>
 <dd class="field-odd"><p>Specify the filename of the input geometry
 file. It can be in one of two formats: the MOAB (*.h5m) format (this is the
-format produced by <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
+format produced by <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Cubit), or a facet file
 produced by DAGMC. If this entry is not present, DAG-MCNP will assume that
 it is running in native MCNP mode.</p>
 </dd>
@@ -315,7 +315,7 @@ and the number of particles to simulate. The problem is then run with</p>
 </div>
 <div class="section" id="worked-example">
 <h2>Worked example<a class="headerlink" href="#worked-example" title="Permalink to this headline">¶</a></h2>
-<p>Open Cubit/Trelis, and let’s place some volumes to create our first problem. We
+<p>Open Cubit, and let’s place some volumes to create our first problem. We
 will create 4 cubes of side 10 cm, shifting each in a different direction.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; brick x 10
 CUBIT&gt; move Volume 1 x 20 include_merged
@@ -568,13 +568,13 @@ Idle&gt; /gps/energy 1.0 MeV
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

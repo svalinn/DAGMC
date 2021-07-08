@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>Producing solid models for DAGMC using Cubit/Trelis &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Producing solid models for DAGMC using Cubit &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="DAGMC unstructured mesh tallies" href="tally.html" />
@@ -65,7 +65,7 @@
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Producing solid models for DAGMC using Cubit/Trelis</a><ul>
+<li><a class="reference internal" href="#">Producing solid models for DAGMC using Cubit</a><ul>
 <li><a class="reference internal" href="#preparing-solid-models">Preparing solid models</a><ul>
 <li><a class="reference internal" href="#knowing-the-model">Knowing the model</a></li>
 <li><a class="reference internal" href="#identifying-weaknesses-in-the-model">Identifying weaknesses in the model</a></li>
@@ -82,8 +82,8 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="producing-solid-models-for-dagmc-using-cubit-trelis">
-<h1>Producing solid models for DAGMC using Cubit/Trelis<a class="headerlink" href="#producing-solid-models-for-dagmc-using-cubit-trelis" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="producing-solid-models-for-dagmc-using-cubit">
+<h1>Producing solid models for DAGMC using Cubit<a class="headerlink" href="#producing-solid-models-for-dagmc-using-cubit" title="Permalink to this headline">¶</a></h1>
 <p>The general workflow for the production of models for analysis using DAGMC
 looks like that shown in the Figure below.</p>
 <a class="reference internal image-reference" href="../_images/general_workflow.png"><img alt="The general workflow for producing quality CAD for DAGMC models." src="../_images/general_workflow.png" style="height: 400px;" /></a>
@@ -161,7 +161,7 @@ CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 <p>In theory, solid models can be prepared in any modeling software
 system (e.g. SolidWorks, Pro/E, Catia, etc).  What is most important
 about the choice of solid modeling system is the ability to export to
-a format that can be imported by Trelis or Cubit, in particular:</p>
+a format that can be imported by Cubit, in particular:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>ACIS (*.sat)</p></li>
@@ -297,7 +297,7 @@ since it was never defined, but it automatically defines all undefined space in 
 <p>Having prepared your model to completion with the appropriate groups created
 , you can choose to save your model in various formats. Previously
 we recommended ACIS *.sat files, but any format that reliably retains
-imprortant metadata will suffice.  Recommended storage formats are ACIS, *.Trelis or
+imprortant metadata will suffice.  Recommended storage formats are ACIS or
 *.cub files.</p>
 <p>One should also use the <a class="reference internal" href="tools.html#make-watertight"><span class="std std-ref">make_watertight</span></a>. tool on the
 produced DAGMC *.h5m file in order to completely seal your geometry, this
@@ -314,13 +314,13 @@ should help prevent tolerance issues due to faceting.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

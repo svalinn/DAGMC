@@ -2,20 +2,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Code-Specific steps for OpenMC &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Producing solid models for DAGMC using Cubit/Trelis" href="../trelis_workflow.html" />
+    <link rel="next" title="Producing solid models for DAGMC using Cubit" href="../cubit_workflow.html" />
     <link rel="prev" title="Code-specific steps for DAG-Tripoli4" href="dag-tripoli4.html" /> 
   </head><body> 
 <div id="page-div" class="page">
@@ -52,7 +52,7 @@
              accesskey="P">previous</a>
           </li>
         <li class="menu-item" >
-          <a href="../trelis_workflow.html" title="Producing solid models for DAGMC using Cubit/Trelis"
+          <a href="../cubit_workflow.html" title="Producing solid models for DAGMC using Cubit"
              accesskey="N">next</a>
           </li>
         <li class="menu-item" >
@@ -93,7 +93,7 @@
 <h1>Code-Specific steps for OpenMC<a class="headerlink" href="#code-specific-steps-for-openmc" title="Permalink to this headline">¶</a></h1>
 <p>There are two varieties of code-specific steps for <a class="reference external" href="https://docs.openmc.org/en/latest/index.html">OpenMC</a>:</p>
 <ol class="arabic simple">
-<li><p>Defining attributes of the geometry using Cubit/Trelis groups</p></li>
+<li><p>Defining attributes of the geometry using Cubit groups</p></li>
 <li><p>Defining DAGMC runtime parameters using the OpenMC input files</p></li>
 </ol>
 <div class="section" id="geometry-metadata">
@@ -102,7 +102,7 @@
 conditions, and temperatures.</p>
 <div class="section" id="material-assignment">
 <h3>Material Assignment<a class="headerlink" href="#material-assignment" title="Permalink to this headline">¶</a></h3>
-<p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
+<p>The generic workflow description includes details on <a class="reference internal" href="../cubit_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
 a specific naming convention is required for OpenMC. To define materials,
 the material ID must be provided in the group name. The format for the group
 name is as follows: <code class="docutils literal notranslate"><span class="pre">mat:[matid]</span></code>.</p>
@@ -172,7 +172,7 @@ particles are removed from the simulation upon entry. This volume represents the
 boundary between the problem and the outside world.  This volume should surround
 the entire geometry with a shell of finite thickness. Any geometric shape can be
 used, but a cubic shell is recommended to maximize performance.</p>
-<p>To create a containing volume, make two volumes in Cubit/Trelis with the same
+<p>To create a containing volume, make two volumes in Cubit with the same
 shape and same center with one slightly larger than the other, making sure that
 both bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The result is a containing volume for the problem.</p>
@@ -237,13 +237,13 @@ executed.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

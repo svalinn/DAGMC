@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
-    <title>Installing the Cubit/Trelis plugin &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Installing the Cubit plugin &#8212; DAGMC</title>
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="User’s guide" href="../usersguide/index.html" />
@@ -65,7 +65,7 @@
   <div id="c_container"> 
 <div id="sidebar">
  <div id="sidebar_section"><ul>
-<li><a class="reference internal" href="#">Installing the Cubit/Trelis plugin</a><ul>
+<li><a class="reference internal" href="#">Installing the Cubit plugin</a><ul>
 <li><a class="reference internal" href="#linux-install">Linux install</a></li>
 <li><a class="reference internal" href="#os-x-install">OS/X install</a></li>
 <li><a class="reference internal" href="#windows-install">Windows install</a></li>
@@ -77,37 +77,30 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="installing-the-cubit-trelis-plugin">
-<h1>Installing the Cubit/Trelis plugin<a class="headerlink" href="#installing-the-cubit-trelis-plugin" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="installing-the-cubit-plugin">
+<h1>Installing the Cubit plugin<a class="headerlink" href="#installing-the-cubit-plugin" title="Permalink to this headline">¶</a></h1>
 <p>There is a common location that stores all the plugins that are available for
-use. Go to the <a class="reference external" href="http://go.wisc.edu/dagmc-trelis">DAGMC Plugins</a> page and download the plugin
+use. Go to the <a class="reference external" href="https://github.com/svalinn/Cubit-plugin/releases">DAGMC Plugins</a> page and download the plugin
 appropriate for your operating system.</p>
 <div class="section" id="linux-install">
 <h2>Linux install<a class="headerlink" href="#linux-install" title="Permalink to this headline">¶</a></h2>
 <p>Obtain the Linux plugin from the link above. These instructions assume that you
-have installed Trelis in <code class="docutils literal notranslate"><span class="pre">/opt/Trelis-16.0</span></code>. If you installed it somewhere
+have installed Cubit in <code class="docutils literal notranslate"><span class="pre">/opt/Coreform-Cubit-2020.2</span></code>. If you installed it somewhere
 else, modify these instructions appropriately.</p>
 <p>These operations may need to be performed as the root user (sudo).</p>
-<ol class="arabic simple">
-<li><p>Unpack the tarball in <code class="docutils literal notranslate"><span class="pre">/opt/Trelis-16.0/bin/plugins</span></code>.</p></li>
-<li><p>Change directory to <code class="docutils literal notranslate"><span class="pre">/opt/Trelis-16.0/bin/plugins/dagmc</span></code>.</p></li>
-<li><p>Run the install script: <code class="docutils literal notranslate"><span class="pre">./install.sh</span></code>.</p></li>
-</ol>
+<ul class="simple">
+<li><p>Unpack the tarball in the Cubit installation folder (<code class="docutils literal notranslate"><span class="pre">/opt/Coreform-Cubit-2020.2</span></code> by default).</p></li>
+</ul>
 </div>
 <div class="section" id="os-x-install">
 <h2>OS/X install<a class="headerlink" href="#os-x-install" title="Permalink to this headline">¶</a></h2>
 <p>Obtain the OS/X plugin from the link above. These instructions assume that you
-have installed Trelis in <code class="docutils literal notranslate"><span class="pre">/Applications/Trelis-16.0</span></code>. If you installed it
+have installed Cubit in <code class="docutils literal notranslate"><span class="pre">/Applications/Coreform-Cubit-2020.2.app</span></code>. If you installed it
 somewhere else, modify these instructions appropriately.</p>
 <p>These operations may need to be performed as the root user (sudo).</p>
-<ol class="arabic simple">
-<li><p>If it does not already exist, create a folder called <code class="docutils literal notranslate"><span class="pre">plugins</span></code> in
-<code class="docutils literal notranslate"><span class="pre">/Applications/Trelis-16.0/Contents/MacOS</span></code>.</p></li>
-<li><p>Unpack the tarball in <code class="docutils literal notranslate"><span class="pre">/Applications/Trelis-16.0/Contents/MacOS/plugins</span></code>.</p></li>
-<li><p>Change directory to
-<code class="docutils literal notranslate"><span class="pre">/Applications/Trelis-16.0/Contents/MacOS/plugins/dagmc</span></code>.</p></li>
-<li><p>Run the install script: <code class="docutils literal notranslate"><span class="pre">./install.sh</span></code>.</p></li>
-</ol>
+<ul class="simple">
+<li><p>Unpack the tarball in the Cubit installation folder (<code class="docutils literal notranslate"><span class="pre">/Applications/Coreform-Cubit-2020.2.app/Contents/</span></code> by default).</p></li>
+</ul>
 </div>
 <div class="section" id="windows-install">
 <h2>Windows install<a class="headerlink" href="#windows-install" title="Permalink to this headline">¶</a></h2>
@@ -124,13 +117,13 @@ DAGMC plugins page when it is ready.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

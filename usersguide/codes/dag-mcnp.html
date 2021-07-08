@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Code-specific steps for DAG-MCNP5/6 &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Tallies" href="dag-mcnp_deprecated.html" />
@@ -88,7 +88,7 @@
 the term “DAG-MCNP” refers to both.</p>
 <p>There are three varieties of code-specific steps for DAG-MCNP:</p>
 <ol class="arabic simple">
-<li><p>Defining attributes of the geometry using Cubit/Trelis groups</p></li>
+<li><p>Defining attributes of the geometry using Cubit groups</p></li>
 <li><p>Defining DAGMC runtime parameters using the DAGMC input file</p></li>
 <li><p>Specifying additional parameters on the command line</p></li>
 </ol>
@@ -98,7 +98,7 @@ the term “DAG-MCNP” refers to both.</p>
 assignments, and boundary conditions.</p>
 <div class="section" id="materials-and-densities">
 <h3>Materials and densities<a class="headerlink" href="#materials-and-densities" title="Permalink to this headline">¶</a></h3>
-<p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
+<p>The generic workflow description includes details on <a class="reference internal" href="../cubit_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
 a specific naming convention is required for DAG-MCNP. To define materials,
 both the MCNP material ID and density must be provided in the group name. The
 format for the group name is as follows: <code class="docutils literal notranslate"><span class="pre">mat:[matid]/rho:[density]</span></code>.</p>
@@ -145,7 +145,7 @@ geometry with a shell of finite thickness; this is known as the “graveyard.”
 geometric shape can be used for this, but a cubic shell is preferred. The
 graveyard represents the outside world, and any particle that enters it will be
 terminated.</p>
-<p>To create a graveyard volume, create two volumes in Cubit/Trelis with the same shape
+<p>To create a graveyard volume, create two volumes in Cubit with the same shape
 and same center with one slightly larger than the other, making sure that both
 bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The remaining volume is the graveyard.</p>
@@ -210,7 +210,7 @@ keywords have been added to the command line to specify the necessary files.</p>
 <dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">gcad=&lt;geom_file&gt;</span></code> (required)</dt>
 <dd class="field-odd"><p>Specify the filename of the input geometry
 file. It can be in one of two formats: the MOAB (*.h5m) format (this is the
-format produced by <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Trelis/Cubit), or a facet file
+format produced by <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">dagmc</span></code> in Cubit), or a facet file
 produced by DAGMC. If this entry is not present, DAG-MCNP will assume that
 it is running in native MCNP mode.</p>
 </dd>
@@ -260,13 +260,13 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

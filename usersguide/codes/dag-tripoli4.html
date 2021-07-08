@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Code-specific steps for DAG-Tripoli4 &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Code-Specific steps for OpenMC" href="openmc.html" />
@@ -86,7 +86,7 @@
 <h1>Code-specific steps for DAG-Tripoli4<a class="headerlink" href="#code-specific-steps-for-dag-tripoli4" title="Permalink to this headline">¶</a></h1>
 <p>There are three varieties of code-specific steps:</p>
 <ol class="arabic simple">
-<li><p>defining attributes of the geometry using groups in Cubit/Trelis</p></li>
+<li><p>defining attributes of the geometry using groups in Cubit</p></li>
 <li><p>defining DAGMC runtime parameters using input file syntax</p></li>
 <li><p>changes to the command-line</p></li>
 </ol>
@@ -97,7 +97,7 @@ compositions and boundary conditions in the geometry.</p>
 <div class="section" id="assigning-materials-densities">
 <h3>Assigning materials &amp; densities<a class="headerlink" href="#assigning-materials-densities" title="Permalink to this headline">¶</a></h3>
 <p>The generic workflow description includes details on
-<a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but a specific naming convention is required
+<a class="reference internal" href="../cubit_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but a specific naming convention is required
 for DAG-Tripoli4. To define materials, the Tripoli composition name
 must be provided in the group name. The format for the group name is
 as follows:</p>
@@ -255,13 +255,13 @@ material compositions that have been assigned in the previous step.</p>
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>

@@ -11,7 +11,7 @@ make_watertight
 ~~~~~~~~~~~~~~~
 
 A model is considered watertight if the faceting of all topologically linked
-surfaces are coincident. Models produced by Cubit/Trelis are not guarenteed to
+surfaces are coincident. Models produced by Cubit are not guaranteed to
 be watertight, and as a general rule, the more complicated the model, the less
 likely it is to be completely watertight.
 
@@ -23,14 +23,14 @@ before ``make_watertight`` and the black lines show the geometry after its use.
 ..  image:: watertight.png
     :height: 500
     :width:  600
-    :alt: An example of the use of make_wateright: the red lines show the
+    :alt: An example of the use of make_watertight: the red lines show the
           geometry before ``make_watertight`` and the black lines show the
           geometry after its use.
 
 ``make_watertight`` can be run with:
 ::
 
-    $ make_wateright <filename>
+    $ make_watertight <filename>
 
 The product will be a file named, `filename_zip.h5m`, and a summary is provided
 of what operations were done to seal the model.
@@ -45,7 +45,7 @@ given model is. It should be used as a post-processing step after
 ``check_watertight`` can be run  with:
 ::
 
-    $ check_wateright <filename>
+    $ check_watertight <filename>
 
 Both ``make_watertight``and ``check_watertight`` are built during the main DAGMC
 build procedure and can be found in DAGMC's `bin` directory.
@@ -69,7 +69,7 @@ The options which control mbconvert are:
     -s  <int> - extract a specific surface or range of surfaces
     -c  <int> - extract a specific curve or range of curves
     -1  - extract edges only
-    -2  - extract two dimensional entites only e.g. Tri, Quad, etc.
+    -2  - extract two dimensional entities only e.g. Tri, Quad, etc.
     -3  - extract three dimensional entities only, e.g. tet, hex, etc.
     -h  - print help
     -f  - list available read/write formats
@@ -79,7 +79,7 @@ mklostvis
 
 Sometimes either poor quality CAD, incorrect imprinting & merging or overlapping
 volumes; particles are regarded as lost by the Monte Carlo code. It is therefore
-neccessary to be able to examine where the particles were lost and in which
+necessary to be able to examine where the particles were lost and in which
 direction they were travelling in. The tool mklostvis_ is designed for this
 purpose, reading the output of the MCNP lost particle information and producing
 a Cubit or journal file which will draw the lost particles as vertices and their

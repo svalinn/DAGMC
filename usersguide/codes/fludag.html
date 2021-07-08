@@ -2,17 +2,17 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Code-specific steps for FluDAG &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Code-specific steps for DAG-Tripoli4" href="dag-tripoli4.html" />
@@ -87,7 +87,7 @@
 <h1>Code-specific steps for FluDAG<a class="headerlink" href="#code-specific-steps-for-fludag" title="Permalink to this headline">¶</a></h1>
 <p>There are several varieties of code-specific steps:</p>
 <ol class="arabic simple">
-<li><p>Defining attributes of the geometry using groups in Cubit/Trelis</p></li>
+<li><p>Defining attributes of the geometry using groups in Cubit</p></li>
 <li><p>Producing material assignments in FLUKA input format from the h5m file, with
 the help of FluDAG</p></li>
 <li><p>Preparing the FLUKA input file for running with DAGMC</p></li>
@@ -100,7 +100,7 @@ Eventually we would like to add the capability to define boundary conditions and
 tally locations.</p>
 <div class="section" id="assigning-materials-and-densities">
 <h3>Assigning materials and densities<a class="headerlink" href="#assigning-materials-and-densities" title="Permalink to this headline">¶</a></h3>
-<p>The generic workflow description includes details on <a class="reference internal" href="../trelis_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>,
+<p>The generic workflow description includes details on <a class="reference internal" href="../cubit_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>,
 but a specific naming convention is required for FluDAG. To define materials,
 the FLUKA material name must be provided in the group name. The group name must
 be that of a valid FLUKA material; for example, any of the default materials or
@@ -212,7 +212,7 @@ GEOEND
 <p>Running FluDAG bears some similarity to running <code class="docutils literal notranslate"><span class="pre">FLUGG</span></code>. The first step is to
 create the CAD geometry of the problem you wish to run. In order to produce the
 material assignment data from the CAD geometry we must first
-<a class="reference internal" href="../trelis_basics.html#geom-production"><span class="std std-ref">facet the file</span></a> using the Cubit/Trelis plugin. Using the
+<a class="reference internal" href="../cubit_basics.html#geom-production"><span class="std std-ref">facet the file</span></a> using the Cubit plugin. Using the
 subsequently-defined geometry file, the user must produce the <code class="docutils literal notranslate"><span class="pre">mat.inp</span></code> file.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ /path/to/fludag/executable/mainfludag geom.h5m
 </pre></div>
@@ -245,13 +245,13 @@ geometry file to a fixed file called <code class="docutils literal notranslate">
 </div>
     <div id="footer">
       <p>
-        &copy; Copyright 2012-2019, The UW CNERG Team.
+        &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Oct 17, 2019.
+      Last updated on Jul 08, 2021.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.2.0.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
       </p>
     </div>
   </body>
