@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- retiring python2 in CI
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

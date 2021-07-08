@@ -1,7 +1,7 @@
-with open('pyne.cpp', 'r') as reader:
+with open('pyne.cpp', 'r', encoding='utf-8') as reader:
     lines = reader.readlines()
 
-writer = open('pyne.cpp.new', 'w')
+writer = open('pyne.cpp.new', 'w', encoding='utf-8')
 write_line = True
 for i, line in enumerate(lines):
     if 'pyne::Material pyne::Material::decay(' in line:
