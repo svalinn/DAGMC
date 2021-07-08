@@ -12,7 +12,6 @@ jobs:
       matrix:
         ubuntu_versions : [
           16.04,
-          18.04,
         ]
 
     steps:
