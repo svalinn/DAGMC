@@ -54,7 +54,8 @@ jobs:
           echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v2
-        path: /root/build_dir/DAGMC
+        with:
+          path: /root/build_dir/DAGMC
 
 
          
