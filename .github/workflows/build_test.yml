@@ -53,9 +53,11 @@ jobs:
           export COMPILER=${{ matrix.compiler }}
           export HDF5_VERSION=${{ matrix.hdf5_versions }}
           export REPO_SLUG=${GITHUB_REPOSITORY}
-          export PULL_REQUEST=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          export PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)
           export DOUBLE_DOWN="OFF"
-          echo  $GITHUB_REF | cut -d"/" -f3
+          echo $PULL_REQUEST
+         
       - name: Building DAGMC
         run: |
+          echo $MOAB_VERSION
           CI/circleci/install.sh
