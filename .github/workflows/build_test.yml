@@ -22,22 +22,27 @@ jobs:
 
     strategy:
       matrix:
-       ubuntu_versions : [
+        ubuntu_versions : [
           16.04,
           18.04,
           ]
-       compiler : [
+        compiler : [
           gcc,
           clang,
           ]
-       hdf5_versions : [
+        hdf5_versions : [
          1.10.4,
-       ]
-       moab_versions : [
+        ]
+        moab_versions : [
          9c96d17,
          develop,
          master,
-       ]
+        ]
+        isPR:
+          - ${{ contains(github.event_name, 'release' }}
+        exclude:
+          - isPR: true
+            moab_versions: [develop, master]
 
     container:
       image: svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:latest
