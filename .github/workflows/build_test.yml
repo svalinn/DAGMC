@@ -48,7 +48,7 @@ jobs:
           apt-get install software-properties-common
           add-apt-repository ppa:git-core/ppa
           apt update
-          apt install git
+          apt install -y git
 
       - name: Checkout repository
         uses: actions/checkout@v2
