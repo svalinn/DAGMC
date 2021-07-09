@@ -39,7 +39,7 @@ jobs:
          master,
         ]
         isPR:
-          - ${{ contains(github.event_name, 'release' }}
+          - ${{ contains(github.event_name, 'pull_request') }}
         exclude:
           - isPR: true
             moab_versions: [develop, master]
