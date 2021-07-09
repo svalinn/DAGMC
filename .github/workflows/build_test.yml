@@ -68,6 +68,9 @@ jobs:
       - name: Building DAGMC
         run: |
           cd /root/build_dir/DAGMC
-          ls
-          git --version
           CI/circleci/install.sh
+
+      - name: Testing DAGMC
+        run: |
+          cd /root/build_dir/DAGMC
+          CI/circleci/tests.sh
