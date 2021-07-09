@@ -37,7 +37,8 @@ jobs:
           CI/circleci/housekeeping.sh
 
 
-  build-and-push-image:
+  BuildTest:
+    needs: Housekeeping
     runs-on: ubuntu-latest
 
     env:
