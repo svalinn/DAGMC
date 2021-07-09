@@ -56,6 +56,9 @@ jobs:
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
           echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
           echo $PULL_REQUEST
+          cd /root/build_dir/DAGMC
+          ls /root/dagmc
+          ln -s /root/dagmc ./
          
       - name: Building DAGMC
         run: |
