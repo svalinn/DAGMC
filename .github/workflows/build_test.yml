@@ -49,14 +49,13 @@ jobs:
 
       - name: Setup
         run: |
-          mkdir /root/build_dir/DAGMC
           echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
           echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
           echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
           echo "REPO_SLUG=${GITHUB_REPOSITORY}}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
           echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
-          mv $GITHUB_WORKSPACE /root/build_dir/DAGMC/
+          mv $GITHUB_WORKSPACE /root/build_dir/DAGMC
          
       - name: Building DAGMC
         run: |
