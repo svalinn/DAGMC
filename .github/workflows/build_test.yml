@@ -48,8 +48,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v2
-        with:
-          submodules: recursive
 
       - name: Setup
         run: |
@@ -64,5 +62,6 @@ jobs:
       - name: Building DAGMC
         run: |
           cd /root/build_dir/DAGMC
+          git submodule update --init --recursive
           ls 
           CI/circleci/install.sh
