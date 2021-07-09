@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- Moving CI from CircleCI to GithubAction
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
