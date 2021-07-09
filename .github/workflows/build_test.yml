@@ -43,6 +43,10 @@ jobs:
       image: svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:latest
     
     steps:
+     
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Setup
         run: |
           mkdir /root/build_dir/DAGMC
@@ -52,12 +56,7 @@ jobs:
           echo "REPO_SLUG=${GITHUB_REPOSITORY}}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
           echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          path: /root/build_dir/DAGMC
-
-
+          mv $GITHUB_WORKSPACE /root/build_dir/DAGMC/
          
       - name: Building DAGMC
         run: |
