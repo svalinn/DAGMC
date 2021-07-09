@@ -43,11 +43,16 @@ jobs:
       image: svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:latest
     
     steps:
-      - name: deps
-        run: apt-get install git
+      - name: Install latest git
+        run: |
+          add-apt-repository ppa:git-core/ppa
+          apt update
+          apt install git
 
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       - name: Setup
         run: |
