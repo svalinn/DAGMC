@@ -55,6 +55,7 @@ jobs:
           export REPO_SLUG=${GITHUB_REPOSITORY}
           export PULL_REQUEST=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           export DOUBLE_DOWN="OFF"
+          echo $GITHUB_REF
       - name: Building DAGMC
         run: |
           CI/circleci/install.sh
