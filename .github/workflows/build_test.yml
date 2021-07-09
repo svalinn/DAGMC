@@ -62,6 +62,7 @@ jobs:
       - name: Building DAGMC
         run: |
           cd /root/build_dir/DAGMC
+          ls
           git submodule update --init --recursive
           ls 
           CI/circleci/install.sh
