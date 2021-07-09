@@ -48,5 +48,5 @@ jobs:
 
       - name: Building DAGMC
         run: |
-          ls /root/build_dir
+          mkdir /root/build_dir/DAGMC
           CI/circleci/install.sh
