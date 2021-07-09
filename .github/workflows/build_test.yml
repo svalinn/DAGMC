@@ -16,7 +16,7 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
 
-   env:
+    env:
       hdf5_versions: ${{ matrix.hdf5_versions }}
       hdf5_build_dir: hdf5_build_dir
 
