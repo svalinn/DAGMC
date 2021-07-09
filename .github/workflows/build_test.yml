@@ -40,7 +40,7 @@ jobs:
        ]
 
     container:
-      image: svalinn/dagmc-ci-ubuntu-<< parameters.img >>-<< parameters.compiler >>-ext-hdf5_<< parameters.hdf5 >>-moab_<< parameters.moab >>:latest
+      image: svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:latest
     
     steps:
       - name: Building DAGMC
