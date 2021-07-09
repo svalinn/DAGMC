@@ -81,9 +81,6 @@ jobs:
         run: |
           cd ${HOME_PATH}
           mkdir build 
-          #git clone https://github.com/bam241/dagmc -b windows
-          #cd dagmc
-          #git submodule update --init --recursive
 
           # cd ../../../dagmc_build
           cd build
