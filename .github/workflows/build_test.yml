@@ -47,4 +47,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Building DAGMC
-        run: CI/circleci/install.sh
+        run: |
+          ls /root/
+          CI/circleci/install.sh
