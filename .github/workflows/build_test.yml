@@ -46,6 +46,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Setup
+        run: |
+          mkdir /root/build_dir/DAGMC
+          export MOAB_VERSION=${{ matrix.moab_versions }}
+
       - name: Building DAGMC
         run: |
           mkdir /root/build_dir/DAGMC
