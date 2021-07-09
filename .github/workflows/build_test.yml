@@ -65,4 +65,5 @@ jobs:
           ls
           git submodule update --init --recursive
           ls 
+          git --version
           CI/circleci/install.sh
