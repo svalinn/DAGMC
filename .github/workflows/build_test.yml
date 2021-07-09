@@ -23,12 +23,8 @@ jobs:
 
       - name: Setup environment 
         run: |
-          echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
-          echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
-          echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
           echo "REPO_SLUG=${GITHUB_REPOSITORY}}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
-          echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
           ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
 
       - name: Housekeeping
