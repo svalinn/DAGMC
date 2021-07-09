@@ -50,7 +50,11 @@ jobs:
         run: |
           mkdir /root/build_dir/DAGMC
           export MOAB_VERSION=${{ matrix.moab_versions }}
-
+          export COMPILER=${{ matrix.compiler }}
+          export HDF5_VERSION=${{ matrix.hdf5_versions }}
+          export REPO_SLUG=${GITHUB_REPOSITORY}
+          export PULL_REQUEST=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          export DOUBLE_DOWN="OFF"
       - name: Building DAGMC
         run: |
           CI/circleci/install.sh
