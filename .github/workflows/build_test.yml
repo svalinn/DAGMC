@@ -25,7 +25,9 @@ jobs:
         run: |
           echo "REPO_SLUG=${GITHUB_REPOSITORY}}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
-
+          mkdir /root/build_dir
+          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
+     
       - name: Housekeeping
         run: |
           cd $GITHUB_WORKSPACE
