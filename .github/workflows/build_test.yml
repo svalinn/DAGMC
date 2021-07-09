@@ -44,4 +44,4 @@ jobs:
     
     steps:
       - name: Building DAGMC
-        command: CI/circleci/install.sh
+        run: CI/circleci/install.sh
