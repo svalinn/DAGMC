@@ -14,7 +14,6 @@ RUN apt-get -y update; \
                        gfortran \
                        libblas-dev \
                        libhdf5-dev \
-                       liblapack-dev \
                        libtool \
                        libeigen3-dev\
                        python3-numpy \
