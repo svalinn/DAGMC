@@ -16,7 +16,7 @@ jobs:
   Housekeeping:
     runs-on: ubuntu-latest
     container:
-      image: svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
     steps:
       - name: Install latest git
         run: |
