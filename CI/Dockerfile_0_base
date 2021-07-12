@@ -12,7 +12,6 @@ RUN apt-get -y update; \
                        g++ \
                        gcc \
                        gfortran \
-                       libblas-dev \
                        libhdf5-dev \
                        libtool \
                        libeigen3-dev\
