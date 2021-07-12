@@ -38,7 +38,7 @@ jobs:
       - name: Housekeeping
         run: |
           cd $GITHUB_WORKSPACE
-          CI/circleci/housekeeping.sh
+          CI/scripts/housekeeping.sh
 
 
   BuildTest:
@@ -104,9 +104,9 @@ jobs:
       - name: Building DAGMC
         run: |
           cd $GITHUB_WORKSPACE
-          CI/circleci/install.sh
+          CI/scripts/install.sh
 
       - name: Testing DAGMC
         run: |
           cd $GITHUB_WORKSPACE
-          CI/circleci/tests.sh
+          CI/scripts/tests.sh
