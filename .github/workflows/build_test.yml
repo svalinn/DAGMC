@@ -103,10 +103,10 @@ jobs:
          
       - name: Building DAGMC
         run: |
-          cd /root/build_dir/DAGMC
+          cd $GITHUB_WORKSPACE
           CI/circleci/install.sh
 
       - name: Testing DAGMC
         run: |
-          cd /root/build_dir/DAGMC
+          cd $GITHUB_WORKSPACE
           CI/circleci/tests.sh
