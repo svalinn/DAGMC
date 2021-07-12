@@ -12,7 +12,6 @@ RUN apt-get -y update; \
                        g++ \
                        gcc \
                        gfortran \
-                       git \
                        libblas-dev \
                        libhdf5-dev \
                        liblapack-dev \
@@ -24,7 +23,11 @@ RUN apt-get -y update; \
                        python3-setuptools \
                        python3-dev \
                        libpython3-dev \
-                       wget; \
+                       wget \
+                       software-properties-common; \
+    add-apt-repository ppa:git-core/ppa; \
+    apt-get update; \
+    apt-get install -y git; \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10; \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10; \
     pip install cython;

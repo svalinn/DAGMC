@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+ - install newer version of git in CI images
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
