@@ -61,7 +61,147 @@ jobs:
           path: /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}.tar
           retention-days: 1
 
-  # build-deps-img:
+  
+
+  build-housekeeping-img:
+    needs: build-base-img
+    runs-on: ubuntu-latest
+    env:
+      hdf5_versions: 1.10.4
+      hdf5_build_dir: hdf5_build_dir
+    strategy:
+      matrix:
+        ubuntu_versions : [18.04,]
+        isMerged: 
+          - ${{ contains(github.event_name, 'push') }}
+
+    steps:
+      - name: Environment setup
+        run: |
+          if [ "${{ matrix.isMerged }}" == "false" ]; then
+            echo "root_name=dagmc_${{ github.sha }}" >> $GITHUB_ENV
+          else
+            echo "root_name=dagmc" >> $GITHUB_ENV
+          fi
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
+          path: /tmp/
+
+      - name: Load image
+        run: |
+          docker load --input /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}.tar
+          docker image ls -a
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+
+      - name: Build and push Dockerfile_1_housekeeping
+        uses: docker/build-push-action@v2
+        with:
+          file: CI/Dockerfile_1_housekeeping
+          context: .
+          build-args: |
+            ROOT_NAME=${{ env.root_name }}
+            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
+          tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          outputs: type=docker,dest=/tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping.tar
+
+      - name: Upload artifact
+        if: ${{ contains(github.event_name, 'pull_request') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          path: /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping.tar
+          retention-days: 1
+
+  housekeeping:
+    if: ${{ contains(github.event_name, 'pull_request') }}
+    needs: [build-housekeeping-img]
+    runs-on: ubuntu-latest
+    env:
+      hdf5_versions: 1.10.4
+      hdf5_build_dir: hdf5_build_dir
+      
+    strategy:
+      matrix:
+        ubuntu_versions : [18.04,]
+        isMerged: 
+          - ${{ contains(github.event_name, 'push') }}
+        isPR: 
+          - ${{ contains(github.event_name, 'pull_request') }}
+    steps:
+      - name: Environment setup
+        run: |
+          if [ "${{ matrix.isMerged }}" == "false" ]; then
+            echo "root_name=dagmc_${{ github.sha }}" >> $GITHUB_ENV
+          else
+            echo "root_name=dagmc" >> $GITHUB_ENV
+          fi
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          path: /tmp
+
+      - name: Load image
+        run: |
+          docker load --input /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping.tar
+          docker image ls -a
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Test Housekeeping
+        if:  ${{ matrix.isPR }}
+        env:
+          docker_img: ghcr.io/${{ github.actor }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+        run: |
+          touch docker_env
+          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> docker_env
+          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> docker_env
+
+          docker run -t $docker_img \
+                     --env-file docker_env \
+                     -v $$GITHUB_WORKSPACE:/root/build_dir/DAGMC \
+                     -w /root/build_dir/DAGMC \
+                     -c /bin/bash "CI/scripts/housekeeping.sh"
+
+# build-deps-img:
   #   needs: build-base-img
   #   runs-on: ubuntu-latest
   #   strategy:
@@ -230,148 +370,6 @@ jobs:
   #         name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
   #         path: /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}.tar
   #         retention-days: 1
-
-  build-housekeeping-img:
-    needs: build-base-img
-    runs-on: ubuntu-latest
-    env:
-      hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir
-    strategy:
-      matrix:
-        ubuntu_versions : [18.04,]
-        isMerged: 
-          - ${{ contains(github.event_name, 'push') }}
-
-    steps:
-      - name: Environment setup
-        run: |
-          if [ "${{ matrix.isMerged }}" == "false" ]; then
-            echo "root_name=dagmc_${{ github.sha }}" >> $GITHUB_ENV
-          else
-            echo "root_name=dagmc" >> $GITHUB_ENV
-          fi
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
-          path: /tmp/
-
-      - name: Load image
-        run: |
-          docker load --input /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}.tar
-          docker image ls -a
-
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-
-      - name: Build and push Dockerfile_1_housekeeping
-        uses: docker/build-push-action@v2
-        with:
-          file: CI/Dockerfile_1_housekeeping
-          context: .
-          push: true
-          build-args: |
-            ROOT_NAME=${{ env.root_name }}
-            ORG_NAME=${{ github.actor }}
-            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: ghcr.io/${{ github.actor }}/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
-          #outputs: type=docker,dest=/tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping.tar
-
-      # - name: Upload artifact
-      #   if: ${{ contains(github.event_name, 'pull_request') }}
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
-      #     path: /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping.tar
-      #     retention-days: 1
-
-  housekeeping:
-    if: ${{ contains(github.event_name, 'pull_request') }}
-    needs: [build-housekeeping-img]
-    runs-on: ubuntu-latest
-    env:
-      hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir
-      
-    strategy:
-      matrix:
-        ubuntu_versions : [18.04,]
-        isMerged: 
-          - ${{ contains(github.event_name, 'push') }}
-        isPR: 
-          - ${{ contains(github.event_name, 'pull_request') }}
-    steps:
-      - name: Environment setup
-        run: |
-          if [ "${{ matrix.isMerged }}" == "false" ]; then
-            echo "root_name=dagmc_${{ github.sha }}" >> $GITHUB_ENV
-          else
-            echo "root_name=dagmc" >> $GITHUB_ENV
-          fi
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
-          path: /tmp
-
-      - name: Load image
-        run: |
-          docker load --input /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping.tar
-          docker image ls -a
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Test Housekeeping
-        if:  ${{ matrix.isPR }}
-        env:
-          docker_img: ghcr.io/${{ github.actor }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
-        run: |
-          touch docker_env
-          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> docker_env
-          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> docker_env
-
-          docker run -t $docker_img \
-                     --env-file docker_env \
-                     -v $$GITHUB_WORKSPACE:/root/build_dir/DAGMC \
-                     -w /root/build_dir/DAGMC \
-                     -c /bin/bash "CI/scripts/housekeeping.sh"
-
-
   
   # test_img:
   #   if: ${{ contains(github.event_name, 'pull_request') }}
