@@ -1,5 +1,6 @@
 ARG UBUNTU_VERSION=18.04
-FROM ghcr.io/svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
+ROOT_NAME=dagmc
+FROM ghcr.io/svalinn/${ROOT_NAME}-ci-ubuntu-${UBUNTU_VERSION}
 
 RUN pip install sphinx; \
     apt-get -y install astyle
