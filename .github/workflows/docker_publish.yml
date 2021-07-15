@@ -52,7 +52,7 @@ jobs:
           context: .
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
+          tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
 
 
   
@@ -101,7 +101,7 @@ jobs:
           build-args: |
             ROOT_NAME=${{ env.root_name }}
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
 
   housekeeping:
@@ -152,7 +152,7 @@ jobs:
       - name: Test Housekeeping
         if:  ${{ matrix.isPR }}
         env:
-          docker_img: ${{ github.actor }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          docker_img: ghcr.io/${{ github.actor }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
         run: |
           touch docker_env
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> docker_env
