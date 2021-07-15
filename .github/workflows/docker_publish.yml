@@ -119,6 +119,7 @@ jobs:
           - ${{ contains(github.event_name, 'push') }}
         isPR: 
           - ${{ contains(github.event_name, 'pull_request') }}
+    container: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
     steps:
       - name: Environment setup
         run: |
@@ -148,20 +149,17 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Test Housekeeping
+      - name: Setup Housekeeping
         if:  ${{ matrix.isPR }}
-        env:
-          docker_img: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
         run: |
           touch docker_env
-          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> docker_env
-          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> docker_env
+          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
+          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
+          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
 
-          docker run -t $docker_img \
-                     --env-file docker_env \
-                     -v $$GITHUB_WORKSPACE:/root/build_dir/DAGMC \
-                     -w /root/build_dir/DAGMC \
-                     -c /bin/bash "CI/scripts/housekeeping.sh"
+      - name: Run Housekeeping
+        if: ${{ matrix.isPR }}
+        run: /bin/bash "CI/scripts/housekeeping.sh"
 
 # build-deps-img:
   #   needs: build-base-img
