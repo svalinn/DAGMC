@@ -33,6 +33,7 @@ jobs:
           else
             echo "root_name=dagmc" >> $GITHUB_ENV
           fi
+          mkdir mycache
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -53,12 +54,12 @@ jobs:
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
           tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
-          outputs: type=docker,dest=/tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}.tar
+          cache-to: [type=local,dest= ${{ github.workspace }}/mycache ]
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
-          path: /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}.tar
+          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}_cache
+          path: ${{ github.workspace }}/mycache
           retention-days: 1
 
   
@@ -83,6 +84,8 @@ jobs:
           else
             echo "root_name=dagmc" >> $GITHUB_ENV
           fi
+          mkdir mycache
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -99,13 +102,9 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
-          path: /tmp/
+          name: ${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}_cache
+          path: ${{ github.workspace }}/mycache
 
-      - name: Load image
-        run: |
-          docker load --input /tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}.tar
-          docker image ls -a
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -120,6 +119,7 @@ jobs:
             ROOT_NAME=${{ env.root_name }}
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
           tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          cache-from: [type=local,dest= ${{ github.workspace }}/mycache ]
           outputs: type=docker,dest=/tmp/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping.tar
 
       - name: Upload artifact
