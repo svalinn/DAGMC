@@ -171,7 +171,6 @@ jobs:
         uses:  kc1r74p/delete-package-versions@main
         with:
             package-name: dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
-            owner: ${{ github.repository_owner }}
             package-type: 'container'
 
 
