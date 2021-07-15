@@ -128,22 +128,7 @@ jobs:
           else
             echo "root_name=dagmc" >> $GITHUB_ENV
           fi
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
