@@ -170,10 +170,10 @@ jobs:
       - name: delete package
         run: |
           curl \
-              -u ${{ secrets.PAT }}:x-oauth-basic \
+              -u ${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} \
               -X DELETE \
               -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/orgs/svalinn/packages/docker/ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+              https://api.github.com/orgs/svalinn/packages/docker/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
       # - uses: actions/delete-package-versions@v1
       #   with:
       #     owner: ${{ github.repository_owner }}
