@@ -137,7 +137,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
- 
       - name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
@@ -152,7 +151,7 @@ jobs:
       - name: Test Housekeeping
         if:  ${{ matrix.isPR }}
         env:
-          docker_img: ghcr.io/${{ github.actor }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          docker_img: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
         run: |
           touch docker_env
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> docker_env
