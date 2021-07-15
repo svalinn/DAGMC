@@ -160,7 +160,9 @@ jobs:
     steps:
       - uses: actions/delete-package-versions@v1
         with:
+          owner: ${{ github.repository_owner }}
           package-name: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          num-old-versions-to-delete: 10
 
 # build-deps-img:
   #   needs: build-base-img
