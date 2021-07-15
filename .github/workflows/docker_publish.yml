@@ -160,6 +160,7 @@ jobs:
     steps:
       - uses: smartsquaregmbh/delete-old-packages@v0.3.1
         with:
+          organization: svalinn
           names: dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
 # build-deps-img:
