@@ -137,7 +137,7 @@ jobs:
       - name: Setup Housekeeping
         if:  ${{ matrix.isPR }}
         run: |
-          touch docker_env
+          mkdir /root/build_dir/
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
           ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
