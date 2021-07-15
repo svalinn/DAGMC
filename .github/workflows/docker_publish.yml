@@ -160,6 +160,8 @@ jobs:
     steps:
       - uses: smartsquaregmbh/delete-old-packages@v0.3.1
         with:
+          owner: svalinn
+          repo: dagmc
           organization: svalinn
           names: dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
