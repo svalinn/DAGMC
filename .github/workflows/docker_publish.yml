@@ -170,7 +170,7 @@ jobs:
       - name: delete package
         run: |
           curl \
-              -u ${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }} \
+              -u ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} \
               -X DELETE \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/orgs/svalinn/packages/docker/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
