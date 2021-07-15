@@ -144,7 +144,9 @@ jobs:
 
       - name: Run Housekeeping
         if: ${{ matrix.isPR }}
-        run: /bin/bash "CI/scripts/housekeeping.sh"
+        run: |
+          cd $GITHUB_WORKSPACE
+          /bin/bash "CI/scripts/housekeeping.sh"
 
 # build-deps-img:
   #   needs: build-base-img
