@@ -54,7 +54,6 @@ jobs:
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
           tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
-          cache-to: [type=local,dest= ${{ github.workspace }}/mycache ]
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
