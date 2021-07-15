@@ -158,12 +158,9 @@ jobs:
         isMerged: 
           - ${{ contains(github.event_name, 'push') }}
     steps:
-      - uses: smartsquaregmbh/delete-old-packages@v0.3.1
+      - uses: actions/delete-package-versions@v1
         with:
-          owner: svalinn
-          repo: dagmc
-          organization: svalinn
-          names: dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          package-name: dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
 # build-deps-img:
   #   needs: build-base-img
