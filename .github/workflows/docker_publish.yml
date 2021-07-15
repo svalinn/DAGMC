@@ -54,9 +54,6 @@ jobs:
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
           tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
 
-
-  
-
   build-housekeeping-img:
     needs: build-base-img
     runs-on: ubuntu-latest
@@ -147,6 +144,23 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           /bin/bash "CI/scripts/housekeeping.sh"
+      
+  clean_housekeeping_img:
+    if: ${{ contains(github.event_name, 'pull_request') && always() }}
+    needs: housekeeping
+    runs-on: ubuntu-latest
+    env:
+      hdf5_versions: 1.10.4
+      hdf5_build_dir: hdf5_build_dir
+    strategy:
+      matrix:
+        ubuntu_versions : [18.04,]
+        isMerged: 
+          - ${{ contains(github.event_name, 'push') }}
+    steps:
+      - uses: actions/delete-package-versions@v1
+        with:
+          package-name: svalinn/dagmc_tmp-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
 # build-deps-img:
   #   needs: build-base-img
