@@ -165,14 +165,15 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: delete package
         run: |
           curl \
+              -u ${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }}
               -X DELETE \
               -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/orgs/svalinn/packages/docker/ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+              https://api.github.com/orgs/svalinn/packages/docker/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
       # - uses: actions/delete-package-versions@v1
       #   with:
       #     owner: ${{ github.repository_owner }}
