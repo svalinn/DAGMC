@@ -1,0 +1,12 @@
+**Added:** 
+- add test for dockerfile updates
+
+**Changed:** None
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None

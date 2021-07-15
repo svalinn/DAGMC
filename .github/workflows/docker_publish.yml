@@ -146,7 +146,6 @@ jobs:
         if: ${{ matrix.isPR }}
         run: |
           cd $GITHUB_WORKSPACE
-          ls
           /bin/bash "CI/scripts/housekeeping.sh"
 
 # build-deps-img:
