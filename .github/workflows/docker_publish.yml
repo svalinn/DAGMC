@@ -173,6 +173,7 @@ jobs:
             package-name: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
             package-type: 'container'
             token: ${{ secrets.PAT }}
+            ignore-tag: 'test'
 
 
         # with:
