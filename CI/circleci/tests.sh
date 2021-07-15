@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# Manual testing that mimics CI
+# --------------------------------
+# 
+# Run `CI/circleci/install.sh` in one of the CI Docker images with the root dir 
+# of the DAGMC repo as the working directory.  Note that CI only runs on 
+# MOAB_VERSION=5.1.0 and HDF5_VERSION=1.10.4
+#
+# If you are in the DAGMC root directory:
+#
+#    $ docker run -v ${PWD}:/root/build_dir/DAGMC -w /root/build_dir/DAGMC \
+#              -it svalinn/dagmc-ci-ubuntu-16.04-clang-ext-hdf5_1.10.4-moab_5.1.0
+#
+# Inside the docker container:
+#
+#    $ CI/circleci/install.sh
+#
+#    $ CI/circleci/tests.sh
+
 set -ex
 
 source ${docker_env}
