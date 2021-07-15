@@ -53,7 +53,7 @@ jobs:
           context: .
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          cache-to: local, type=local,src=/tmp/mycache
+          cache-to: type=local,dest=/tmp/mycache
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
