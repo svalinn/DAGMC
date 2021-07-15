@@ -158,12 +158,26 @@ jobs:
         isMerged: 
           - ${{ contains(github.event_name, 'push') }}
     steps:
-      - uses: smartsquaregmbh/delete-old-packages@v0.3.1
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v1
         with:
-          owner: svalinn
-          repo: dagmc
-          names: dagmc_*-housekeeping
-          dry-run: true
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: delete package
+        run: |
+          curl \
+              -X DELETE \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/orgs/ORG/packages/docker/ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+      # - uses: actions/delete-package-versions@v1
+      #   with:
+      #     owner: ${{ github.repository_owner }}
+      #     package-name: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+      #     num-old-versions-to-delete: 10
 
 # build-deps-img:
   #   needs: build-base-img
