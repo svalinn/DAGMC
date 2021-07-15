@@ -160,7 +160,7 @@ jobs:
     steps:
       - uses: actions/delete-package-versions@v1
         with:
-          package-name: svalinn/dagmc_tmp-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          package-name: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
 # build-deps-img:
   #   needs: build-base-img
