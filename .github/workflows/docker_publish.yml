@@ -52,8 +52,6 @@ jobs:
         ubuntu_versions : [18.04,]
 
     steps:
-      - name: Environment setup
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -64,10 +62,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-
       - name: Checkout repository
         uses: actions/checkout@v2
-
 
       - name: Build and push Dockerfile_1_housekeeping
         uses: docker/build-push-action@v2
