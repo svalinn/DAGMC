@@ -16,7 +16,7 @@ jobs:
           18.04,
           20.04,
           ]
-    name: Build docker image Ubuntu ${{ matrix.ubuntu_versions }} basics dependencies
+    name: Ubuntu ${{ matrix.ubuntu_versions }} basics deps
 
     steps:
       - name: Checkout repository
@@ -95,7 +95,7 @@ jobs:
           1.10.4,
         ]
 
-    name: Adding ${{ matrix.compiler }} and hdf5 ${{ matrix.hdf5_versions }} to the docker image
+    name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }}
 
     steps:
       - name: Set up QEMU
@@ -161,7 +161,7 @@ jobs:
           master,
         ]
 
-    name: Adding Moab ${{ matrix.moab_versions }} to the docker image
+    name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}
 
     steps:
       - name: Set up QEMU
@@ -285,7 +285,7 @@ jobs:
       matrix:
         ubuntu_versions : [18.04,]
 
-    name: Tagging housekeeping docker image as 'stable'
+    name: Housekeeping':' latest -> stable
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -330,10 +330,7 @@ jobs:
          master,
         ]
 
-    name: Tagging ubuntu ${{ matrix.ubuntu_versions }} \
-                  with ${{ matrix.compiler }}, \
-                  hdf5 ${{ matrix.hdf5_versions }} \
-                  and Moab ${{ matrix.moab_versions }} docker image as 'stable'
+    name: U${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}':' latest -> stable
 
     steps:
       - name: Set up QEMU
