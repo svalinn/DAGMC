@@ -107,7 +107,7 @@ jobs:
           /bin/bash "CI/scripts/housekeeping.sh"
       
   pushing_housekeeping_stable_img:
-    if: ${{ github.repository_owner == 'svalinn' }}
+    # if: ${{ github.repository_owner == 'svalinn' }}
     needs: housekeeping
     runs-on: ubuntu-latest
     env:
