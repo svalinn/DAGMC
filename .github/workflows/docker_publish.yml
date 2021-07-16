@@ -1,14 +1,11 @@
+name: Build & Publish docker image for DAGMC-CI
+
 on:
   push:
     paths:
       - 'CI/*'
-    branches: 
-      - develop
-  pull_request:
-    paths:
-      - 'CI/*'
-    branches: 
-      - develop
+      - '.github/workflows/docker_publish.yml'
+
 
 jobs:
   build-base-img:
@@ -19,20 +16,12 @@ jobs:
           18.04,
           # 20.04,
           ]
-        isMerged: 
-          - ${{ contains(github.event_name, 'push') }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       
       - name: Environment setup
-        run: |
-          if [ "${{ matrix.isMerged }}" == "false" ]; then
-            echo "root_name=dagmc_${{ github.sha }}" >> $GITHUB_ENV
-          else
-            echo "root_name=dagmc" >> $GITHUB_ENV
-          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -52,7 +41,7 @@ jobs:
           context: .
           build-args: |
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}
+          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}
 
   build-housekeeping-img:
     needs: build-base-img
@@ -63,17 +52,10 @@ jobs:
     strategy:
       matrix:
         ubuntu_versions : [18.04,]
-        isMerged: 
-          - ${{ contains(github.event_name, 'push') }}
 
     steps:
       - name: Environment setup
-        run: |
-          if [ "${{ matrix.isMerged }}" == "false" ]; then
-            echo "root_name=dagmc_${{ github.sha }}" >> $GITHUB_ENV
-          else
-            echo "root_name=dagmc" >> $GITHUB_ENV
-          fi
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -96,43 +78,29 @@ jobs:
           context: .
           push: true
           build-args: |
-            ROOT_NAME=${{ env.root_name }}
+            OWNER=${{ github.repository_owner }}
             UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: ghcr.io/svalinn/${{ env.root_name }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
+          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
 
   housekeeping:
-    if: ${{ contains(github.event_name, 'pull_request') }}
     needs: [build-housekeeping-img]
     runs-on: ubuntu-latest
     env:
       hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir
-      
+      hdf5_build_dir: hdf5_build_dir    
     strategy:
       matrix:
         ubuntu_versions : [18.04,]
-        isMerged: 
-          - ${{ contains(github.event_name, 'push') }}
-        isPR: 
-          - ${{ contains(github.event_name, 'pull_request') }}
-    container: ghcr.io/svalinn/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
-    steps:
-      - name: Environment setup
-        run: |
-          if [ "${{ matrix.isMerged }}" == "false" ]; then
-            echo "root_name=dagmc_${{ github.sha }}" >> $GITHUB_ENV
-          else
-            echo "root_name=dagmc" >> $GITHUB_ENV
-          fi
+    container: ghcr.io/${{ github.repository_owner }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           submodules: recursive
 
       - name: Setup Housekeeping
-        if:  ${{ matrix.isPR }}
         run: |
           mkdir /root/build_dir/
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
@@ -140,13 +108,12 @@ jobs:
           ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
 
       - name: Run Housekeeping
-        if: ${{ matrix.isPR }}
         run: |
           cd $GITHUB_WORKSPACE
           /bin/bash "CI/scripts/housekeeping.sh"
       
-  clean_housekeeping_img:
-    if: ${{ contains(github.event_name, 'pull_request') && always() }}
+  pushing_housekeeping_stable_img:
+    if: ${{ github.repository_owner == 'svalinn' }}
     needs: housekeeping
     runs-on: ubuntu-latest
     env:
@@ -155,8 +122,7 @@ jobs:
     strategy:
       matrix:
         ubuntu_versions : [18.04,]
-        isMerged: 
-          - ${{ contains(github.event_name, 'push') }}
+
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -167,13 +133,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: cleanup
-        uses:  kc1r74p/delete-package-versions@main
+
+      - name: Push Image to stable img
+        uses: akhilerm/tag-push-action@v1.0.0
         with:
-            package-name: dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping
-            package-type: 'container'
-            token: ${{ secrets.PAT }}
-            ignore-tag: 'test'
+          src: ghcr.io/${{ github.repository_owner }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:latest
+          dst: ghcr.io/${{ github.repository_owner }}/dagmc_${{ github.sha }}-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:stable
 
 
         # with:
