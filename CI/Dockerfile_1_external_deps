@@ -1,6 +1,6 @@
 ARG UBUNTU_VERSION=18.04ARG
-ARG ROOT_NAME=dagmc
-FROM ghcr.io/svalinn/${ROOT_NAME}-ci-ubuntu-${UBUNTU_VERSION}
+ARG OWNER=svalinn
+FROM ghcr.io/${OWNER}/dagmc-ci-ci-ubuntu-${UBUNTU_VERSION}
 
 #setting the COMPILER variable
 ARG COMPILER=gcc
