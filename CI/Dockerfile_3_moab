@@ -1,7 +1,7 @@
 ARG UBUNTU_VERSION=18.04
 ARG COMPILER=gcc
 ARG HDF5=1.10.4
-AARG OWNER=svalinn
+ARG OWNER=svalinn
 FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext-hdf5_${HDF5}
 
 # Set MOAB env variable
