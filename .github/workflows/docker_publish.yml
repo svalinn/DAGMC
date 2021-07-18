@@ -258,7 +258,6 @@ jobs:
 
       - name: Setup
         run: |
-          mkdir /root/build_dir/
           echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
           echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
           echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
