@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- prevent housekeeping to run on merge in svlainn org
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
