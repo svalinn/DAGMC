@@ -274,7 +274,7 @@ jobs:
       - name: Run DAGMC Test
         run: |
           cd $GITHUB_WORKSPACE
-          /bin/bash "/scripts/tests.sh"
+          /bin/bash "CI/scripts/tests.sh"
 
   pushing_housekeeping_stable_img:
     # if: ${{ github.repository_owner == 'svalinn' }}
