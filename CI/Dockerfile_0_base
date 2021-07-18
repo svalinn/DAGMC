@@ -3,6 +3,9 @@ FROM ubuntu:${UBUNTU_VERSION}
 
 # Use bash as the default shell
 SHELL ["/bin/bash", "-c"]
+# Ubuntu Setup
+ENV TZ=America/Chicago
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Update core packages
 RUN apt-get -y update; \
@@ -12,9 +15,7 @@ RUN apt-get -y update; \
                        g++ \
                        gcc \
                        gfortran \
-                       libblas-dev \
                        libhdf5-dev \
-                       liblapack-dev \
                        libtool \
                        libeigen3-dev\
                        python3-numpy \
