@@ -223,7 +223,6 @@ jobs:
           /bin/bash "CI/scripts/housekeeping.sh"
       
   test_img:
-    if: ${{ contains(github.event_name, 'pull_request') }}
     needs: [build-moab-img]
     runs-on: ubuntu-latest
     env:
