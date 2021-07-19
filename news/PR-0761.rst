@@ -1,0 +1,12 @@
+**Added:** None
+
+**Changed:** 
+- test should be run on merge to ensure everything is ok before retagging
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
