@@ -45,8 +45,8 @@ jobs:
     strategy:
       matrix:
         ubuntu_versions : [
-          16.04,
           18.04,
+          20.04,
           ]
         compiler : [
           gcc,
