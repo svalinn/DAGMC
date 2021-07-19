@@ -16,7 +16,7 @@ jobs:
   Housekeeping:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-18.04-housekeeping:latest
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-18.04-housekeeping:stable
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -69,7 +69,7 @@ jobs:
             moab_versions: master           
 
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:latest
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:stable
     
     steps:
       - name: Checkout repository
