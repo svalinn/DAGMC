@@ -8,8 +8,7 @@ FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext-hdf5_${H
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
-# MOAB Commit: 9c96d17 (Merged commit of @pshriwise thread fix)
-ARG MOAB=9c96d17
+ARG MOAB=5.3.0
 ENV MOAB_VERSION ${MOAB}
 RUN if [ "${MOAB_VERSION}" != "master" ] && [ "${MOAB_VERSION}" != "develop" ]; then \
         /root/etc/CI/docker/build_moab.sh; \
