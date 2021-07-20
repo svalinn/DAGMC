@@ -1,10 +1,18 @@
 message("")
+message("bash ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}")
 
-execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh 
-                        ${CMAKE_CURRENT_SOURCE_DIR} 
-                        ${CMAKE_CURRENT_SOURCE_DIR} 
+
+if(MSVC)
+  execute_process(COMMAND C:/Program Files/Git/bin/bash.EXE -c 
+                        "${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}"
                         RESULT_VARIABLE STATUS 
                         OUTPUT_VARIABLE OUTPUT)
+ELSE(MSVC)
+  execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
+                        RESULT_VARIABLE STATUS 
+                        OUTPUT_VARIABLE OUTPUT)
+endif(MSVC)
+                        
 if(STATUS AND NOT STATUS EQUAL 0)
   message(STATUS "PyNE AMALGAMATION FAILED: ${STATUS}")
 else()

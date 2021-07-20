@@ -1112,7 +1112,7 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(
       MB_CHK_SET_ERR(moab::MB_FAILURE, "edges exist");
     }
     assert(0 == n_edges);  //*** Why can't we have edges? (Also, this assertion
-                           //  is never used)
+                           // is never used)
 
     // get the range of skin edges from the range of facets
     moab::Range skin_edges, skin_edges2;
@@ -1149,14 +1149,14 @@ moab::ErrorCode MakeWatertight::prepare_surfaces(
 
     // separate this part from prepare surfaces into make_mesh_watertight??
 
-    moab::EntityHandle skin_loop_sets[skin.size()];
+    std::vector<moab::EntityHandle> skin_loop_sets;
     result =
         seal_surface_loops(*i, skin_loop_sets, skin, curve_sets, normal_tag,
                            orig_curve_tag, facet_tol, surf_id, debug);
     MB_CHK_SET_ERR(result, "could not seal the surface loops");
 
     // Remove the sets of skin loops
-    result = MBI()->delete_entities(&skin_loop_sets[0], skin.size());
+    result = MBI()->delete_entities(skin_loop_sets.data(), skin.size());
     MB_CHK_SET_ERR(result, "failed to zip: deleting skin_loop_sets failed");
 
   }  // loop over each surface
@@ -1738,7 +1738,7 @@ moab::ErrorCode MakeWatertight::merge_skin_verts(moab::Range& skin_verts,
 }
 
 moab::ErrorCode MakeWatertight::seal_surface_loops(
-    moab::EntityHandle surf, moab::EntityHandle skin_loops[],
+    moab::EntityHandle surf, std::vector<moab::EntityHandle>& skin_loops,
     std::vector<std::vector<moab::EntityHandle> > skin,
     std::vector<moab::EntityHandle> curves, moab::Tag normal_tag,
     moab::Tag orig_curve_tag, double facet_tol, int surf_id, bool debug) {
@@ -1749,6 +1749,8 @@ moab::ErrorCode MakeWatertight::seal_surface_loops(
   // This prevents stale handles. I suspect moab can use upward adjacencies
   // to do this more efficiently than a manual O(n) search through an
   // unsorted vector.
+
+  skin_loops.resize(skin.size());
 
   moab::ErrorCode rval;
   for (unsigned j = 0; j < skin.size(); ++j) {

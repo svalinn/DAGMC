@@ -35,7 +35,6 @@ macro (dagmc_setup_build)
   execute_process(COMMAND date +%m/%d/%y OUTPUT_VARIABLE ENV_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process(COMMAND date +%H:%M:%S OUTPUT_VARIABLE ENV_TIME OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
 endmacro ()
 
 macro (dagmc_setup_options)
@@ -140,9 +139,11 @@ macro (dagmc_setup_flags)
       set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
       set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS)
       set(CMAKE_SHARED_LIBRARY_LINK_Fortran_FLAGS)
-      set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
-      set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
-      set(CMAKE_EXE_LINK_DYNAMIC_Fortran_FLAGS)
+      if(NOT MSVC)
+        set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
+        set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+        set(CMAKE_EXE_LINK_DYNAMIC_Fortran_FLAGS)
+      endif()
     else ()
       message(STATUS "Building shared executables")
       set(BUILD_SHARED_EXE ON)
@@ -227,6 +228,8 @@ macro (dagmc_install_library lib_name)
       set_target_properties(${lib_name}-shared
         PROPERTIES INSTALL_RPATH "${INSTALL_RPATH_DIRS}"
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
     endif ()
     message(STATUS "LINK LIBS: ${LINK_LIBS_SHARED}")
     target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
@@ -251,6 +254,7 @@ macro (dagmc_install_library lib_name)
       set_target_properties(${lib_name}-static
         PROPERTIES INSTALL_RPATH "" INSTALL_RPATH_USE_LINK_PATH FALSE)
     endif ()
+
     target_link_libraries(${lib_name}-static ${LINK_LIBS_STATIC})
     target_include_directories(${lib_name}-static INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
                                                             ${MOAB_INCLUDE_DIRS})
