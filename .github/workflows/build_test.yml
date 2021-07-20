@@ -14,6 +14,7 @@ on:
 
 jobs:
   Housekeeping:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/svalinn/dagmc-ci-ubuntu-18.04-housekeeping:stable
@@ -35,7 +36,6 @@ jobs:
 
 
   BuildTest:
-    needs: Housekeeping
     runs-on: ubuntu-latest
 
     env:
