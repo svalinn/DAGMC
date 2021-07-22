@@ -29,7 +29,7 @@ Next version
    * website now points to github for plugin download (#744)
    * Location of double-down header files. (#745)
    * Location of Dockerimages from Dockerhub to GHCR. (#746)
-   * update MOAB version (#740, #760, #768)
+   * update MOAB version (#740, #760, #768, #771)
 
 
 **Deprecated:** 
@@ -53,6 +53,7 @@ Next version
 **Maintenance:**
 
    * move CI to github actions (#752, #753, #761, #763, #766)
+   * move CI docker build of MOAB to CMake (#771)
 
 v3.2.0
 ====================
