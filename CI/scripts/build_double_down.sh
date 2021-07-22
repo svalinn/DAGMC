@@ -13,6 +13,6 @@ ln -snf double-down src
 cd ${double_down_build_dir}/bld
 cmake ${double_down_build_dir}/src -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
       -DMOAB_DIR=${moab_install_dir} -DEMBREE_DIR=$HOME/EMBREE/
-make -j${jobs}
+make -j${ci_jobs}
 make install
 cd

@@ -6,7 +6,7 @@ the term "DAG-MCNP" refers to both.
 
 There are three varieties of code-specific steps for DAG-MCNP:
 
-1.  Defining attributes of the geometry using Cubit/Trelis groups
+1.  Defining attributes of the geometry using Cubit groups
 2.  Defining DAGMC runtime parameters using the DAGMC input file
 3.  Specifying additional parameters on the command line
 
@@ -75,7 +75,7 @@ geometric shape can be used for this, but a cubic shell is preferred. The
 graveyard represents the outside world, and any particle that enters it will be
 terminated.
 
-To create a graveyard volume, create two volumes in Cubit/Trelis with the same shape
+To create a graveyard volume, create two volumes in Cubit with the same shape
 and same center with one slightly larger than the other, making sure that both
 bound the entire problem geometry. Then, subtract the smaller one from the
 larger one. The remaining volume is the graveyard.

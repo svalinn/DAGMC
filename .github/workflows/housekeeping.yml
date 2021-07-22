@@ -1,0 +1,29 @@
+name: Housekeeping checks
+
+on:
+  # allows us to run workflows manually
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  Housekeeping:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-18.04-housekeeping:stable
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup environment 
+        run: |
+          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
+          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
+          mkdir /root/build_dir
+          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
+     
+      - name: Housekeeping
+        run: |
+          cd $GITHUB_WORKSPACE
+          CI/scripts/housekeeping.sh

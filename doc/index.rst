@@ -26,10 +26,12 @@ DAGMC has been integrated into a variety of Monte Carlo radiation codes
 including MCNP5_, MCNP6_, Geant4_, FLUKA_, Tripoli4_, OpenMC_, and Shift_. There are also
 efforts planned to integrate DAGMC into other codes such as Serpent2_, Phits_, and FRENSIE_.
 
-DAGMC currently relies on using the solid modeling software Cubit_ or its
-commercial counterpart, Trelis_, to prepare solid models. These packages can be
+DAGMC currently relies on using the commercial solid modeling software Cubit_ (or its
+`government-use counterpart <https://cubit.sandia.gov>`_ available from 
+Sandia National Laboratories)
+to prepare solid models. These packages can be
 used to import CAD models from other tools such as SolidWorks, CATIA, etc., or
-to create geometry from scratch. DAGMC also relies on Trelis/Cubit to assign
+to create geometry from scratch. DAGMC also relies on Cubit to assign
 materials and other geometry-related information.
 
 ..  toctree::
@@ -47,8 +49,7 @@ materials and other geometry-related information.
 
 ..  _CNERG: https://cnerg.github.io
 ..  _MOAB: https://press3.mcs.anl.gov/sigma/moab-library
-..  _Cubit: https://cubit.sandia.gov
-..  _Trelis: https://www.csimsoft.com/trelis
+..  _Cubit: https://coreform.com/products/coreform-cubit/
 ..  _MCNP5: https://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.shtml
 ..  _MCNP6: https://mcnp.lanl.gov
 ..  _Geant4: https://geant4.cern.ch

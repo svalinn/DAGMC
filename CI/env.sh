@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export jobs=`grep -c processor /proc/cpuinfo`
+export ci_jobs=`grep -c processor /proc/cpuinfo`
 
 export CTEST_OUTPUT_ON_FAILURE=1
 
@@ -20,7 +20,7 @@ export  FC=`which gfortran`
 if [ "$COMPILER" == "gcc" ]; then
   export  CC=`which gcc`
   export CXX=`which g++`
-  export jobs="4"
+  export ci_jobs="4"
 elif [ "$COMPILER" == "clang" ]; then
   export  CC=`which clang`
   export CXX=`which clang++`

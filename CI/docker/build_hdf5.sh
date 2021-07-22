@@ -29,7 +29,7 @@ cd bld
 ../hdf5-${HDF5_VERSION}/configure --enable-shared \
                  --prefix=${hdf5_install_dir} \
                  CC=${CC} CXX=${CXX}
-make -j${jobs}
+make -j${ci_jobs}
 make install
 cd
 rm -rf ${hdf5_build_dir}

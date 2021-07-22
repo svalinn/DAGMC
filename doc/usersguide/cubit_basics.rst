@@ -1,7 +1,7 @@
-Cubit/Trelis basics
+Cubit basics
 ===================
 
-Pre-processing solid models using Cubit/Trelis
+Pre-processing solid models using Cubit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section focuses on steps that are independent of the Monte Carlo code used
@@ -12,10 +12,10 @@ needed.
 Importing the solid model
 -------------------------
 
-The first step in Cubit/Trelis is to import the generated solid model. Depending
+The first step in Cubit is to import the generated solid model. Depending
 on the complexity of the model, this step can take several seconds up to a half
 an hour. As an initial user, it is recommend to start with simple models and
-geometries to obtain a better understanding of Cubit/Trelis.
+geometries to obtain a better understanding of Cubit.
 
 Imprint and merge
 -----------------
@@ -97,7 +97,7 @@ Production of the DAGMC geometry
 --------------------------------
 
 Now that the geometry is ready for DAGMC we must export it. Using the
-Cubit/Trelis plugin make this very straightforward, assuming that the user has
+Cubit plugin make this very straightforward, assuming that the user has
 proceeded through the previous steps then all one must do is use the export
 dagmc command.
 ::
@@ -130,7 +130,7 @@ length tolerances of 1.0e-4 cm and 5.0 cm respectively
 The time taken to perform this step depends upon the complexity of the model, it
 could  take seconds for very simple models to hours for very complex models. It
 is also possible that faceting artifacts or failures could occur at this point,
-so monitor the output of this command in the Cubit/Trelis command line. If
+so monitor the output of this command in the Cubit command line. If
 issues due occurs, these should be addressed following the workflow listed
 above.
 
@@ -146,15 +146,15 @@ Roadmap for the future
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Currently we have a number of standalone command line tools that are run sequentially
-on a model following faceting using Cubit/Trelis. We run `make_watertight` to seal
+on a model following faceting using Cubit. We run `make_watertight` to seal
 models to ensure no topological weaknesses exist and we run `uwuw_preproc` to add
 materials into analysis geometries. It is envisioned that at some point in the
-near future that we will integrate these as options within the Cubit/Trelis plugin.
+near future that we will integrate these as options within the Cubit plugin.
 
 ..  image:: plugin_infrastructure.png
     :height: 350
     :width:  800
-    :alt: The future infrastructure for the Cubit/Trelis plugin
+    :alt: The future infrastructure for the Cubit plugin
 
 This will allow you to add additional options if you want the model to be made
 watertight and/or if you want to add materials to the resultant geometry. There will

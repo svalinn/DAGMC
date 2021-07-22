@@ -21,8 +21,8 @@ fi
 
 # Build the double_down project if needed
 if [ "${DOUBLE_DOWN}" == "ON" ]; then
-  CI/circleci/build_double_down.sh
+  CI/scripts/build_double_down.sh
 fi
 
 # Build and install DAGMC
-CI/circleci/build_dagmc.sh
+CI/scripts/build_dagmc.sh

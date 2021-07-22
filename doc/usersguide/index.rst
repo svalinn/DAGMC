@@ -46,10 +46,10 @@ creation.
 ..  toctree::
     :maxdepth: 1
 
-    trelis_basics
+    cubit_basics
     uw2
     codes/index
-    trelis_workflow
+    cubit_workflow
     tally
     tools
     postprocessing

@@ -1,5 +1,7 @@
-ARG UBUNTU_VERSION=18.04
-FROM svalinn/dagmc-ci-ubuntu-${UBUNTU_VERSION}
+ARG UBUNTU_VERSION=18.04ARG
+ARG OWNER=svalinn
+ARG TAG=latest
+FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}:$TAG
 
 #setting the COMPILER variable
 ARG COMPILER=gcc
@@ -17,4 +19,3 @@ ENV double_down_install_dir=${install_dir}/double-down/
 
 # Build Embree
 RUN /root/etc/CI/docker/build_embree.sh
-

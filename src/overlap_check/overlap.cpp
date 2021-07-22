@@ -31,6 +31,7 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
   }
 
   if (vols_found.size() > 1) {
+#pragma omp critical
     overlap_map[vols_found] = loc;
   }
 
@@ -51,6 +52,7 @@ ErrorCode check_location_for_overlap(std::shared_ptr<GeomQueryTool>& GQT,
   }
 
   if (vols_found.size() > 1) {
+#pragma omp critical
     overlap_map[vols_found] = loc;
   }
 
