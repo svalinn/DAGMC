@@ -7,16 +7,16 @@ on:
     branches:
       - develop
     paths-ignore:
-      - '.github/workflow/docker_publish.yml'
-      - '.github/workflow/housekeeping.yml'
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/housekeeping.yml'
       - 'CI/**'
       - 'news/**' 
   push:
     branches:
       - develop
     paths-ignore:
-      - '.github/workflow/docker_publish.yml'
-      - '.github/workflow/housekeeping.yml'
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/housekeeping.yml'
       - 'CI/**'
       - 'news/**'
 
