@@ -1,0 +1,13 @@
+**Added:** None
+
+**Changed:** 
+    - temporary docker file used for CI docker testing are now tagged ci_testing
+    - new argument TAG (defaulting to latest) for our dockerfiles to specify against which tag you want to build
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:** None
+
+**Security:** None
