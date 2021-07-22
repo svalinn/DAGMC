@@ -5,6 +5,8 @@ on:
     paths:
       - 'CI/*'
       - '.github/workflows/docker_publish.yml'
+    paths-ignore:
+      - 'CI/scripts/changelog_test.sh'
 
 
 jobs:
