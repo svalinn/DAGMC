@@ -30,6 +30,8 @@ Next version
    * Location of double-down header files. (#745)
    * Location of Dockerimages from Dockerhub to GHCR. (#746)
    * update MOAB version (#740, #760, #768)
+   * Installing clang-format in the docker container instead of in the housekeeping script (#726)
+
 
 
 **Deprecated:** 
