@@ -1,6 +1,6 @@
 ARG UBUNTU_VERSION=18.04
 ARG OWNER=svalinn
-FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}:ci-testing
+FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}:ci_testing
 
 RUN pip install sphinx; \
     apt-get -y install astyle

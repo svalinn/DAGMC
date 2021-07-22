@@ -1,7 +1,7 @@
 ARG UBUNTU_VERSION=18.04
 ARG COMPILER=gcc
 ARG OWNER=svalinn
-FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext:ci-testing
+FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}-${COMPILER}-ext:ci_testing
 
 
 
