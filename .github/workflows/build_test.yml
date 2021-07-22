@@ -41,9 +41,9 @@ jobs:
          1.10.4,
         ]
         moab_versions : [
-         9c96d17,
-         develop,
-         master,
+          5.3.0,
+          develop,
+          master,
         ]
         isPR:
           - ${{ contains(github.event_name, 'pull_request') }}
