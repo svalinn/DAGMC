@@ -10,7 +10,10 @@ Creating a Pull Request
 1. Fork this repository from `develop` and create a branch for new code.
 2. Add or update any applicable tests for the new code.
 3. If applicable, update the [README documentation](https://github.com/svalinn/DAGMC/blob/develop/README.rst) or [website documentation](https://github.com/svalinn/DAGMC/tree/develop/doc).
-4. Issue a pull request using the pull request template. All pull requests must be accompanied by a news update.
+4. Issue a pull request using the pull request template. All pull requests must include a meaningful change
+   to the [CHANGELOG](doc/CHANGELOG.rst).  You can either add a new entry
+   to the CHANGELOG, or just add a reference to this pull request number if the change is already included
+   in a prior entry.
 
 Reporting an Issue
 ------------------
