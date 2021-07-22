@@ -6,38 +6,23 @@ on:
   pull_request:
     branches:
       - develop
-      - master
+    paths-ignore:
+      - '.github/workflow/docker_publish.yml'
+      - '.github/workflow/housekeeping.yml'
+      - 'CI/**'
+      - 'news/**' 
   push:
     branches:
       - develop
-      - master
+    paths-ignore:
+      - '.github/workflow/docker_publish.yml'
+      - '.github/workflow/housekeeping.yml'
+      - 'CI/**'
+      - 'news/**'
 
 jobs:
-  Housekeeping:
-    if: ${{ github.event_name == 'pull_request' }}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-18.04-housekeeping:stable
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup environment 
-        run: |
-          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
-          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
-          mkdir /root/build_dir
-          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
-     
-      - name: Housekeeping
-        run: |
-          cd $GITHUB_WORKSPACE
-          CI/scripts/housekeeping.sh
-
-
   BuildTest:
     runs-on: ubuntu-latest
-
     env:
       hdf5_versions: ${{ matrix.hdf5_versions }}
       hdf5_build_dir: hdf5_build_dir
