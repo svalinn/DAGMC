@@ -9,20 +9,50 @@ Next version
 
 **Added:** 
 
+   * adding BUILD_EXE option (default ON) allowing to build only the dagmc libs without the executable (for static and/or shared libs) (#717)
+   * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
+   * CMake option to checkout PyNE submodule automatically (#734)
+   * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765)
+
+
 **Changed:** 
 
-   * converted from news files to CHANGELOG
+   * reformat all files using clang-format (#679)
+   * change housekeeping to test format against clang-format (#679)
+   * now install dagmc header when building and installing static libs (#717)
+   * now adds pyne as a submodule, and amalgamate at compilation (#731)
+   * converted from news files to CHANGELOG (#769)
+   * updated location & checksum of GEANT4 tarball (#735)
+   * updated all documentation to refer to Coreform Cubit instead of Trelis (#736)
+   * Added a job to CI for running tests with the DOUBLE_DOWN option enabled. (#738)
+   - Threadsafe fix for the overlap check test. (#743)
+   - website now points to github for plugin download (#744)
+   - Location of double-down header files. (#745)
+   - Location of Dockerimages from Dockerhub to GHCR. (#746)
+   - update MOAB version (#740, #760, #768)
+
 
 **Deprecated:** 
 
+   - retiring python2 in CI (#747)
+
+
 **Removed:** 
+   
+   * Removed the data member defaultFacetingTolerance from the class DagMC. (#711)
+
 
 **Fixed:** 
+
+    * adding special build flag to enable old hdf5 interface for PyNE when compiling against hdf5@1.12+ (#728)
+    * Renamed `jobs` variable CI build system to avoid undocumented conflict with `git submodule` (#735)
+
 
 **Security:** 
 
 **Maintenance:**
 
+   * move CI to github actions (#752, #753, #761, #763, #766)
 
 v3.2.0
 ====================
