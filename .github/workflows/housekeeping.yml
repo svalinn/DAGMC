@@ -1,4 +1,4 @@
-name: Standard Build and Test
+name: Housekeeping checks
 
 on:
   # allows us to run workflows manually
