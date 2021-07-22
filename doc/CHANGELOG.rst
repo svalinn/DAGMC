@@ -25,16 +25,16 @@ Next version
    * updated location & checksum of GEANT4 tarball (#735)
    * updated all documentation to refer to Coreform Cubit instead of Trelis (#736)
    * Added a job to CI for running tests with the DOUBLE_DOWN option enabled. (#738)
-   - Threadsafe fix for the overlap check test. (#743)
-   - website now points to github for plugin download (#744)
-   - Location of double-down header files. (#745)
-   - Location of Dockerimages from Dockerhub to GHCR. (#746)
-   - update MOAB version (#740, #760, #768)
+   * Threadsafe fix for the overlap check test. (#743)
+   * website now points to github for plugin download (#744)
+   * Location of double-down header files. (#745)
+   * Location of Dockerimages from Dockerhub to GHCR. (#746)
+   * update MOAB version (#740, #760, #768)
 
 
 **Deprecated:** 
 
-   - retiring python2 in CI (#747)
+   * retiring python2 in CI (#747)
 
 
 **Removed:** 
