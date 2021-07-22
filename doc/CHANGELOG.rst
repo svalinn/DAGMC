@@ -4,6 +4,26 @@ DAGMC Changelog
 
 .. current developments
 
+Next version
+====================
+
+**Added:** 
+
+**Changed:** 
+
+   * converted from news files to CHANGELOG
+
+**Deprecated:** 
+
+**Removed:** 
+
+**Fixed:** 
+
+**Security:** 
+
+**Maintenance:**
+
+
 v3.2.0
 ====================
 
