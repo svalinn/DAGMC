@@ -36,12 +36,13 @@ jobs:
       #   run: |
       #     cd hdf
       #     msiexec.exe /i HDF5-1.8.21-win64.msi /passive /norestart
-      #                 -DHDF5_hdf5_LIBRARY_RELEASE="C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_hl.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libzlib.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libszip.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_cpp.lib" \
+      #                 
 
       - name: Environment Variables
         shell: bash -l {0}
         run: |
           echo "HOME_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
+          echo "CONDA_LOC=/c/Users/mouginot/Anaconda3/Library" >> $GITHUB_ENV
 
       - name: Build MOAB
         shell: bash -l {0}
@@ -59,7 +60,8 @@ jobs:
                 -DBUILD_SHARED_LIBS=ON \
                 -G"Visual Studio 16 2019"  \
                 -DCMAKE_INSTALL_PREFIX=../moab_install/ \
-                -DHDF5_ROOT="/c/Users/mouginot/Anaconda3/Library" \
+                -DHDF5_ROOT="${CONDA_LOC}" \
+                -DHDF5_hdf5_LIBRARY_RELEASE="${CONDA_LOC}/lib/libhdf5_hl.lib;${CONDA_LOC}/lib/libhdf5.lib;${CONDA_LOC}/lib/libzlib.lib;${CONDA_LOC}/lib/libszip.lib;${CONDA_LOC}/lib/libhdf5_cpp.lib" \
                 -DCMAKE_EXE_LINKER_FLAGS="/std:c++latest" \
                 -DCMAKE_MODULE_LINKER_FLAGS="/std:c++latest" \
                 -DCMAKE_SHARED_LINKER_FLAGS="/std:c++latest" \
