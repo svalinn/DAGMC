@@ -7,7 +7,7 @@ DAGMC Changelog
 Next version
 ====================
 
-**Added:** 
+**Added:**
 
    * adding BUILD_EXE option (default ON) allowing to build only the dagmc libs without the executable (for static and/or shared libs) (#717)
    * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
@@ -16,7 +16,7 @@ Next version
    * Enforcing usage of Python3 for PyNE amalgamation. (#773)
 
 
-**Changed:** 
+**Changed:**
 
    * reformat all files using clang-format (#679)
    * change housekeeping to test format against clang-format (#679)
@@ -37,23 +37,24 @@ Next version
    * limit the extend of housekeeping workflows to pull_request (#774)
 
 
-**Deprecated:** 
+**Deprecated:**
 
    * retiring python2 in CI (#747)
 
 
-**Removed:** 
-   
+**Removed:**
+
    * Removed the data member defaultFacetingTolerance from the class DagMC. (#711)
+   * Circle CI status badge in the README (#777)
 
 
-**Fixed:** 
+**Fixed:**
 
     * adding special build flag to enable old hdf5 interface for PyNE when compiling against hdf5@1.12+ (#728)
     * Renamed `jobs` variable CI build system to avoid undocumented conflict with `git submodule` (#735)
 
 
-**Security:** 
+**Security:**
 
 **Maintenance:**
 
@@ -115,7 +116,7 @@ v3.2.0
   on by setting ``-DBUILD_PIC=ON``. (PR#555)
 * Add options to enable/disable building all optional functionality. The
   following options were added: (PR#555)
-  
+
   * ``BUILD_BUILD_OBB``
   * ``BUILD_MAKE_WATERTIGHT``
   * ``BUILD_TESTS``
@@ -147,7 +148,7 @@ v3.2.0
   * Updates to the coding style. (PR#689)
   * Allows boundary condition values, graveyard material assignments, and vacuum material assignments to be lowercase
 
-* removed LAPACK dependency; replaced with Eigen3 for DAGMC (PR#686) and MOAB (PR#683) 
+* removed LAPACK dependency; replaced with Eigen3 for DAGMC (PR#686) and MOAB (PR#683)
 * Enabling testing for the shared object build of DAGMC (PR#674)
 * Adding RPATH value for our build of Geant4 on CI (PR#674)
 * Including additional test output on failure in CI (PR#674)
@@ -170,8 +171,8 @@ v3.2.0
 
 * PullRequest-Agent suggestions DagMC (PR#671, PR#676):
 
-  * updated pointer management to RAII ("Resource Allocation Is Initialization") technique, MBI is now a shared_ptr unless passed 
-    as a raw pointer in the DagMC constructor (can be returned as a shared_ptr if not provided as a raw pointer),  GTT is now a 
+  * updated pointer management to RAII ("Resource Allocation Is Initialization") technique, MBI is now a shared_ptr unless passed
+    as a raw pointer in the DagMC constructor (can be returned as a shared_ptr if not provided as a raw pointer),  GTT is now a
     shared_ptr, and can only be returned as such, GQT is now a uniq_ptr, (and can't be return - not change there)
   * tests: DagMC instance is now a shared_ptr, when used, MBI instance is now a shared_ptr
 
