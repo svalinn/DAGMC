@@ -7,10 +7,6 @@ on:
     branches:
       - develop
       - master
-  push:
-    branches:
-      - develop
-      - master
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
