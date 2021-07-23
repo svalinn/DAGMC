@@ -6,6 +6,7 @@ on:
       - 'CI/*'
       - '.github/workflows/docker_publish.yml'
 
+      
 jobs:
   build-base-img:
     runs-on: ubuntu-latest
