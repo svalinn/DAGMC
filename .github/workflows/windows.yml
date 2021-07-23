@@ -26,25 +26,12 @@ jobs:
         run: |
           conda install curl eigen
           conda install -c conda-forge hdf5
-
-      # - name: HDF5 download
-      #   shell:  bash -l {0}
-      #   run: |
-      #     curl -L https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.21/bin/hdf5-1.8.21-Std-win7_64-vs14.zip --output hdf5-1.8.21-Std-win7_64-vs14.zip
-      #     unzip hdf5-1.8.21-Std-win7_64-vs14.zip
-      # - name: HDF5 install
-      #   shell:  cmd
-      #   run: |
-      #     cd hdf
-      #     msiexec.exe /i HDF5-1.8.21-win64.msi /passive /norestart
-      #                 
-
+   
       - name: Environment Variables
         shell: bash -l {0}
         run: |
           echo "HOME_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
           echo "CONDA_LOC=C:/Miniconda/Library" >> $GITHUB_ENV
-          ls C:/Miniconda/Library/lib
 
       - name: Build MOAB
         shell: bash -l {0}
