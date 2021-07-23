@@ -24,7 +24,7 @@ jobs:
       - name: Conda dependencies
         shell:  bash -l {0}
         run: |
-          conda install curl eigen hdf5
+          conda install curl eigen hdf5 szip zlib
 
       # - name: HDF5 download
       #   shell:  bash -l {0}
