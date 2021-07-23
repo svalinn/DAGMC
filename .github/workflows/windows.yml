@@ -24,18 +24,19 @@ jobs:
       - name: Conda dependencies
         shell:  bash -l {0}
         run: |
-          conda install curl eigen
+          conda install curl eigen hdf5
 
-      - name: HDF5 download
-        shell:  bash -l {0}
-        run: |
-          curl -L https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.21/bin/hdf5-1.8.21-Std-win7_64-vs14.zip --output hdf5-1.8.21-Std-win7_64-vs14.zip
-          unzip hdf5-1.8.21-Std-win7_64-vs14.zip
-      - name: HDF5 install
-        shell:  cmd
-        run: |
-          cd hdf
-          msiexec.exe /i HDF5-1.8.21-win64.msi /passive /norestart
+      # - name: HDF5 download
+      #   shell:  bash -l {0}
+      #   run: |
+      #     curl -L https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.21/bin/hdf5-1.8.21-Std-win7_64-vs14.zip --output hdf5-1.8.21-Std-win7_64-vs14.zip
+      #     unzip hdf5-1.8.21-Std-win7_64-vs14.zip
+      # - name: HDF5 install
+      #   shell:  cmd
+      #   run: |
+      #     cd hdf
+      #     msiexec.exe /i HDF5-1.8.21-win64.msi /passive /norestart
+      #                 -DHDF5_hdf5_LIBRARY_RELEASE="C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_hl.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libzlib.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libszip.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_cpp.lib" \
 
       - name: Environment Variables
         shell: bash -l {0}
@@ -58,8 +59,7 @@ jobs:
                 -DBUILD_SHARED_LIBS=ON \
                 -G"Visual Studio 16 2019"  \
                 -DCMAKE_INSTALL_PREFIX=../moab_install/ \
-                -DHDF5_ROOT="C:/Program Files/HDF_Group/HDF5/1.8.21" \
-                -DHDF5_hdf5_LIBRARY_RELEASE="C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_hl.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libzlib.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libszip.lib;C:/Program Files/HDF_Group/HDF5/1.8.21/lib/libhdf5_cpp.lib" \
+                -DHDF5_ROOT="/c/Users/mouginot/Anaconda3/Library" \
                 -DCMAKE_EXE_LINKER_FLAGS="/std:c++latest" \
                 -DCMAKE_MODULE_LINKER_FLAGS="/std:c++latest" \
                 -DCMAKE_SHARED_LINKER_FLAGS="/std:c++latest" \
