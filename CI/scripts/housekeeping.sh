@@ -10,7 +10,7 @@ cd ${dagmc_build_dir}
 if ! command -v clang-format &> /dev/null
 then
     echo "clang-format could not be found"
-    exit
+    exit 1
 fi
 # Run clang-format check
 
