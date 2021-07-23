@@ -1,6 +1,8 @@
 name: Build & Publish docker image for DAGMC-CI
 
 on:
+  # allows us to run workflows manually
+  workflow_dispatch:
   push:
     paths:
       - 'CI/?ocker**'
@@ -97,7 +99,6 @@ jobs:
         ]
 
     name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }}
-
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
