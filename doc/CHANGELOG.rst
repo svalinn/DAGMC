@@ -31,7 +31,7 @@ Next version
    * Location of Dockerimages from Dockerhub to GHCR. (#746)
    * update MOAB version (#740, #760, #768, #771)
    * updated PyNE to version 0.7.5 (#770)
-   * improve path pattern to trigger docker build workflow
+   * improve path pattern to trigger docker build workflow (#772)
 
 
 **Deprecated:** 
