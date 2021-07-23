@@ -50,7 +50,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd ${HOME_PATH}
-          git clone --branch cpp17 https://bitbucket.org/bam241/moab
+          git clone --depth 1 https://bitbucket.org/fathomteam/moab -b 5.3.0
           mkdir moab_build moab_install
           cd moab_build
           cmake ../moab \
