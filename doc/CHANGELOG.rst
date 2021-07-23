@@ -30,6 +30,7 @@ Next version
    * Location of double-down header files. (#745)
    * Location of Dockerimages from Dockerhub to GHCR. (#746)
    * update MOAB version (#740, #760, #768, #771)
+   * improve path pattern to trigger docker build workflow (#772)
 
 
 **Deprecated:** 
