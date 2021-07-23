@@ -48,7 +48,8 @@ Next version
 
     * adding special build flag to enable old hdf5 interface for PyNE when compiling against hdf5@1.12+ (#728)
     * Renamed `jobs` variable CI build system to avoid undocumented conflict with `git submodule` (#735)
-
+    * Windows compatibility fix
+    * remove_unsupported.py script is now compatible with python2...
 
 **Security:** 
 
