@@ -89,6 +89,12 @@ jobs:
                 -DCMAKE_STATIC_LINKER_FLAGS="" \
                 -DCMAKE_BUILD_TYPE=Release
           cmake --build . --config Release
+      - name: test DAGMC
+        shell: bash -l {0}
+        run: |
+          cd ${HOME_PATH}/build
+          make all test
+
 
 
 
