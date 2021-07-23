@@ -3,7 +3,7 @@ name: Build & Publish docker image for DAGMC-CI
 on:
   push:
     paths:
-      - 'CI/*'
+      - 'CI/?ocker**'
       - '.github/workflows/docker_publish.yml'
 
       
