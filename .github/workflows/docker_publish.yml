@@ -1,6 +1,8 @@
 name: Build & Publish docker image for DAGMC-CI
 
 on:
+  # allows us to run workflows manually
+  workflow_dispatch:
   push:
     paths:
       - 'CI/?ocker**'

@@ -14,6 +14,7 @@ Next version
    * CMake option to checkout PyNE submodule automatically (#734)
    * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)
    * Enforcing usage of Python3 for PyNE amalgamation. (#773)
+   * Adding workflow_dispatch option to docker_publish workflow (#775)
 
 
 **Changed:** 
