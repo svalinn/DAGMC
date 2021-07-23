@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "HOME_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
           echo "CONDA_LOC=C:/Miniconda/Library" >> $GITHUB_ENV
-          ls C:/Miniconda/Library
+          ls C:/Miniconda/Library/lib
 
       - name: Build MOAB
         shell: bash -l {0}
