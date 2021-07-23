@@ -1,7 +1,6 @@
 message("")
-find_package (Python3 COMPONENTS Interpreter)
 
-execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh ${Python3_EXECUTABLE}
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/amalgamate_pyne.sh 
                         ${CMAKE_CURRENT_SOURCE_DIR} 
                         ${CMAKE_CURRENT_SOURCE_DIR} 
                         RESULT_VARIABLE STATUS 
