@@ -29,9 +29,10 @@ Next version
    * website now points to github for plugin download (#744)
    * Location of double-down header files. (#745)
    * Location of Dockerimages from Dockerhub to GHCR. (#746)
-   * update MOAB version (#740, #760, #768)
+   * update MOAB version (#740, #760, #768, #771)
    * Installing clang-format in the docker container instead of in the housekeeping script (#726)
-
+   * updated PyNE to version 0.7.5 (#770)
+   * improve path pattern to trigger docker build workflow (#772)
 
 
 **Deprecated:** 
@@ -55,6 +56,7 @@ Next version
 **Maintenance:**
 
    * move CI to github actions (#752, #753, #761, #763, #766)
+   * move CI docker build of MOAB to CMake (#771)
 
 v3.2.0
 ====================
