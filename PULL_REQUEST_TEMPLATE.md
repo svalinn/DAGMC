@@ -17,7 +17,8 @@ What is the current behavior? What is the new behavior?
 ## Other Information
 Other relevant information to this pull request.
 
-## News file
-All pull requests are required to include an updated news file with the PR.
-The file should be located at the `/news/PR-<#>.rst` where `<#>` should be replaced with the appropriate PR number.
-Please see [here](https://github.com/svalinn/DAGMC/blob/develop/news/TEMPLATE.rst) for the news file template.
+## Changelog file
+All pull requests are required to update the [CHANGELOG](doc/CHANGELOG.rst) file with the PR.  Your update can take different forms including:
+
+* creating a new entry describing your change, including a reference to this pull request number
+* adding a reference to your pull request number to an exist entry if that entry can include your changes
