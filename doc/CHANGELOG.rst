@@ -13,7 +13,7 @@ Next version
    * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
    * CMake option to checkout PyNE submodule automatically (#734)
    * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)
-   * Ensuring Python3 is present and enforcing it for PyNE amalgamation
+   * Enforcing usage of Python3 for PyNE amalgamation. (#773)
 
 
 **Changed:** 
