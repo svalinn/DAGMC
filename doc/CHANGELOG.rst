@@ -13,6 +13,7 @@ Next version
    * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
    * CMake option to checkout PyNE submodule automatically (#734)
    * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)
+   * Enforcing usage of Python3 for PyNE amalgamation. (#773)
 
 
 **Changed:** 
@@ -30,6 +31,7 @@ Next version
    * Location of double-down header files. (#745)
    * Location of Dockerimages from Dockerhub to GHCR. (#746)
    * update MOAB version (#740, #760, #768, #771)
+   * Installing clang-format in the docker container instead of in the housekeeping script (#726)
    * updated PyNE to version 0.7.5 (#770)
    * improve path pattern to trigger docker build workflow (#772)
 
