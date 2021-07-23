@@ -1,6 +1,9 @@
 DAGMC: Direct Accelerated Geometry Monte Carlo
 ==============================================
 
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/build_test.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/build_test.yml
+
 ..  image:: https://github.com/svalinn/DAGMC/actions/workflows/docker_publish.yml/badge.svg?branch=develop
     :target: https://github.com/svalinn/DAGMC/actions/workflows/docker_publish.yml
 
