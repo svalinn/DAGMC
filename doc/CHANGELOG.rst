@@ -34,6 +34,7 @@ Next version
    * Installing clang-format in the docker container instead of in the housekeeping script (#726)
    * updated PyNE to version 0.7.5 (#770)
    * improve path pattern to trigger docker build workflow (#772)
+   * limit the extend of housekeeping workflows to pull_request (#774)
 
 
 **Deprecated:** 
