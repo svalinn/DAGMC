@@ -71,14 +71,14 @@ jobs:
           cd build
           cmake ../dagmc \
                 -G"Visual Studio 16 2019" \
-                -DBUILD_EXE=OFF \
+                -DBUILD_EXE=ON \
                 -DBUILD_SHARED_LIBS=ON \
                 -DBUILD_STATIC_LIBS=OFF \
                 -DBUILD_TALLY=OFF \
                 -DBUILD_BUILD_OBB=OFF \
                 -DBUILD_UWUW=ON \
                 -DBUILD_MAKE_WATERTIGHT=ON \
-                -DBUILD_CI_TESTS=ON \
+                -DBUILD_TESTS=ON \
                 -DMOAB_DIR=../moab_install \
                 -DHDF5_ROOT="${CONDA_LOC}" \
                 -DHDF5_hdf5_LIBRARY_RELEASE="${CONDA_LOC}/lib/libhdf5_hl.lib;${CONDA_LOC}/lib/libhdf5.lib;${CONDA_LOC}/lib/zlib.lib;${CONDA_LOC}/lib/szip.lib;${CONDA_LOC}/lib/libhdf5_cpp.lib" \
@@ -93,7 +93,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd ${HOME_PATH}/build
-          PATH=../dagmc_install/bin:$PATH make test
+          PATH=../dagmc_install//bin:$PATH make test
 
 
 
