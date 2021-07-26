@@ -1,6 +1,6 @@
 message(STATUS "Building gtest")
 
-set(GTEST_DIR gtest-1.7.0)
+set(GTEST_DIR gtest-1.8.1)
 set(GTEST_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/${GTEST_DIR}/include PARENT_SCOPE)
 
 # Source files
