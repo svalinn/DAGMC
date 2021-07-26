@@ -72,7 +72,6 @@ jobs:
           cmake ../dagmc \
                 -G"Visual Studio 16 2019" \
                 -DBUILD_EXE=OFF \
-                -
                 -DBUILD_SHARED_LIBS=ON \
                 -DBUILD_STATIC_LIBS=OFF \
                 -DBUILD_TALLY=OFF \
