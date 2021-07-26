@@ -93,7 +93,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd ${HOME_PATH}/build
-          make test
+          PATH=../dagmc_install//bin:$PATH make test
 
 
 
