@@ -103,6 +103,10 @@
 #include "gtest/internal/gtest-port.h"
 #include "gtest/internal/gtest-internal.h"
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+  #define GTEST_STDLIB_CXX11 1
+#endif
+
 namespace testing {
 
 // Definitions in the 'internal' and 'internal2' name spaces are

@@ -51,10 +51,6 @@
 #ifndef GTEST_INCLUDE_GTEST_GTEST_H_
 #define GTEST_INCLUDE_GTEST_GTEST_H_
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  #define GTEST_STDLIB_CXX11 1
-#endif
-
 #include <limits>
 #include <ostream>
 #include <vector>
