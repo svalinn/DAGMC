@@ -79,6 +79,7 @@ jobs:
                 -DBUILD_BUILD_OBB=OFF \
                 -DBUILD_UWUW=ON \
                 -DBUILD_MAKE_WATERTIGHT=ON \
+                -DBUILD_OVERLAP_CHECK=OFF \
                 -DBUILD_TESTS=ON \
                 -DMOAB_DIR=../moab_install \
                 -DHDF5_ROOT="${CONDA_LOC}" \
