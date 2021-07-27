@@ -109,7 +109,12 @@ endmacro ()
 macro (dagmc_setup_flags)
   message("")
 
-  set(CMAKE_CXX_STANDARD 11)
+  if(MSVC)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set(CMAKE_CXX_STANDARD 17) 
+  else()
+    set(CMAKE_CXX_STANDARD 11)
+  endif()
 
   if (BUILD_PIC)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
