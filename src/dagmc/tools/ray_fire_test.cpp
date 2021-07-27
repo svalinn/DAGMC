@@ -2,8 +2,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
-#include <unistd.h>
-
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+  #include <sys/resource.h>
+  #include <unistd.h>
+#else
+  #include <io.h>
+#endif
 #include <cfloat>
 #include <cstdlib>
 #include <fstream>
@@ -16,12 +20,7 @@
 #include "moab/CartVect.hpp"
 #include "moab/Core.hpp"
 #include "moab/Interface.hpp"
-#if !defined(_MSC_VER) && !defined(__MINGW32__)
-#include <sys/resource.h>
-#include <unistd.h>
-#else
-#include <io.h>
-#endif
+
 #ifdef SOLARIS
 extern "C" int getrusage(int, struct rusage*);
 #ifndef RUSAGE_SELF

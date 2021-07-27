@@ -1,9 +1,10 @@
 #include "uwuw.hpp"
 
-#ifndef _WIN32
-#include <unistd.h>
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+   #include <sys/resource.h>
+   #include <unistd.h>
 #else
-#include <filesystem>
+   #include <io.h>
 #endif
 
 #include <iostream>
