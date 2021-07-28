@@ -96,7 +96,7 @@ jobs:
       - name: test DAGMC
         shell: bash -l {0}
         run: |
-          D:/a/DAGMC/dagmc_install/bin/pt_vol_test.exe
+          ldd D:/a/DAGMC/dagmc_install/bin/pt_vol_test.exe
           D:/a/DAGMC/dagmc_install/bin/ray_fire_test.exe
           D:/a/DAGMC/dagmc_install/bin/test_geom.exe
           D:/a/DAGMC/dagmc_install/tests/dagmc_unit_tests.exe
