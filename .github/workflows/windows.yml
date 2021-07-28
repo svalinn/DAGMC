@@ -96,8 +96,23 @@ jobs:
       - name: test DAGMC
         shell: bash -l {0}
         run: |
-          cd ${HOME_PATH}/build
-          PATH=../dagmc_install//bin:$PATH make test
+          D:/a/DAGMC/dagmc_install/bin/pt_vol_test.exe
+          D:/a/DAGMC/dagmc_install/bin/ray_fire_test.exe
+          D:/a/DAGMC/dagmc_install/bin/test_geom.exe
+          D:/a/DAGMC/dagmc_install/tests/dagmc_unit_tests.exe
+          D:/a/DAGMC/dagmc_install/tests/dagmc_pointinvol_test.exe
+          D:/a/DAGMC/dagmc_install/tests/dagmc_rayfire_test.exe
+          D:/a/DAGMC/dagmc_install/tests/dagmc_simple_test.exe
+          D:/a/DAGMC/dagmc_install/bin/uwuw_preproc.exe
+          D:/a/DAGMC/dagmc_install/tests/uwuw_unit_tests.exe
+          D:/a/DAGMC/dagmc_install/tests/uwuw_unit_tests_tally.exe
+          D:/a/DAGMC/dagmc_install/tests/uwuw_unit_tests_preprocessor.exe
+          D:/a/DAGMC/dagmc_install/bin/make_watertight.exe
+          D:/a/DAGMC/dagmc_install/bin/check_watertight.exe
+          D:/a/DAGMC/dagmc_install/tests/make_watertight_cylinder_tests.exe
+          D:/a/DAGMC/dagmc_install/tests/make_watertight_cone_tests.exe
+          D:/a/DAGMC/dagmc_install/tests/make_watertight_no_curve_sphere_tests.exe
+          D:/a/DAGMC/dagmc_install/tests/make_watertight_sphere_n_box_test.exe
 
 
 
