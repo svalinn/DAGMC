@@ -102,18 +102,12 @@ jobs:
           ls -al D:/a/DAGMC/dagmc_install/bin/
           cd D:/a/DAGMC/dagmc_install/bin/
           ./dagmc_unit_tests.exe
-          ./pt_vol_test.exe
-          ./ray_fire_test.exe
-          ./test_geom.exe
           ./dagmc_pointinvol_test.exe
           ./dagmc_rayfire_test.exe
           ./dagmc_simple_test.exe
-          ./uwuw_preproc.exe
           ./uwuw_unit_tests.exe
           ./uwuw_unit_tests_tally.exe
           ./uwuw_unit_tests_preprocessor.exe
-          ./make_watertight.exe
-          ./check_watertight.exe
           ./make_watertight_cylinder_tests.exe
           ./make_watertight_cone_tests.exe
           ./make_watertight_no_curve_sphere_tests.exe
