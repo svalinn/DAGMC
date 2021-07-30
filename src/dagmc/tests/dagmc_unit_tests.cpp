@@ -21,7 +21,7 @@ class DagmcMetadataTest : public ::testing::Test {
   // initalize variables for each test
   virtual void SetUp() {
     // Default h5m file for testing
-    std::string infile = "D:/a/DAGMC/moab_install/test_dagmc.h5m";
+    std::string infile = "D:/a/DAGMC/moab_install/bin/test_dagmc.h5m";
 
     DAG = std::make_shared<moab::DagMC>();
 
