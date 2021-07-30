@@ -99,24 +99,25 @@ jobs:
           cp -r D:/a/DAGMC/moab_install/* D:/a/DAGMC/dagmc_install/
           cp -r D:/a/DAGMC/dagmc_install/tests/* D:/a/DAGMC/dagmc_install/bin/
           
-          ls D:/a/DAGMC/dagmc_install/bin/
-          D:/a/DAGMC/dagmc_install/bin/dagmc_unit_tests.exe
-          D:/a/DAGMC/dagmc_install/bin/pt_vol_test.exe
-          D:/a/DAGMC/dagmc_install/bin/ray_fire_test.exe
-          D:/a/DAGMC/dagmc_install/bin/test_geom.exe
-          D:/a/DAGMC/dagmc_install/tests/dagmc_pointinvol_test.exe
-          D:/a/DAGMC/dagmc_install/tests/dagmc_rayfire_test.exe
-          D:/a/DAGMC/dagmc_install/tests/dagmc_simple_test.exe
-          D:/a/DAGMC/dagmc_install/bin/uwuw_preproc.exe
-          D:/a/DAGMC/dagmc_install/tests/uwuw_unit_tests.exe
-          D:/a/DAGMC/dagmc_install/tests/uwuw_unit_tests_tally.exe
-          D:/a/DAGMC/dagmc_install/tests/uwuw_unit_tests_preprocessor.exe
-          D:/a/DAGMC/dagmc_install/bin/make_watertight.exe
-          D:/a/DAGMC/dagmc_install/bin/check_watertight.exe
-          D:/a/DAGMC/dagmc_install/tests/make_watertight_cylinder_tests.exe
-          D:/a/DAGMC/dagmc_install/tests/make_watertight_cone_tests.exe
-          D:/a/DAGMC/dagmc_install/tests/make_watertight_no_curve_sphere_tests.exe
-          D:/a/DAGMC/dagmc_install/tests/make_watertight_sphere_n_box_test.exe
+          ls -al D:/a/DAGMC/dagmc_install/bin/
+          cd D:/a/DAGMC/dagmc_install/bin/
+          ./dagmc_unit_tests.exe
+          ./pt_vol_test.exe
+          ./ray_fire_test.exe
+          ./test_geom.exe
+          ./dagmc_pointinvol_test.exe
+          ./dagmc_rayfire_test.exe
+          ./dagmc_simple_test.exe
+          ./uwuw_preproc.exe
+          ./uwuw_unit_tests.exe
+          ./uwuw_unit_tests_tally.exe
+          ./uwuw_unit_tests_preprocessor.exe
+          ./make_watertight.exe
+          ./check_watertight.exe
+          ./make_watertight_cylinder_tests.exe
+          ./make_watertight_cone_tests.exe
+          ./make_watertight_no_curve_sphere_tests.exe
+          ./make_watertight_sphere_n_box_test.exe
 
 
 
