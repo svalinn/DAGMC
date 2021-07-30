@@ -2,10 +2,10 @@
 #define DAGMC_MCNP_IFACE_H
 
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
-   #include <sys/resource.h>
-   #include <unistd.h>
+#include <sys/resource.h>
+#include <unistd.h>
 #else
-   #include <io.h>
+#include <io.h>
 #endif
 #include <fstream>
 #include <map>
