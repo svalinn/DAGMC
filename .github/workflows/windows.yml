@@ -97,7 +97,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cp -r D:/a/DAGMC/moab_install/* D:/a/DAGMC/dagmc_install/
-          cp D:/a/DAGMC/dagmc_install/tests/ D:/a/DAGMC/dagmc_install/bin/
+          cp D:/a/DAGMC/dagmc_install/tests/* D:/a/DAGMC/dagmc_install/bin/
           cd D:/a/DAGMC/dagmc_install/bin
           ./dagmc_pointinvol_test.exe
           ./dagmc_rayfire_test.exe
