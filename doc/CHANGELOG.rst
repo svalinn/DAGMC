@@ -36,6 +36,7 @@ Next version
    * updated PyNE to version 0.7.5 (#770)
    * improve path pattern to trigger docker build workflow (#772)
    * limit the extend of housekeeping workflows to pull_request (#774)
+   * upgrade g-test to 1.8.0 (#778)
 
 
 **Deprecated:**
