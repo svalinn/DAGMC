@@ -32,13 +32,17 @@ jobs:
         run: |
           echo "HOME_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
           echo "CONDA_LOC=C:/Miniconda/Library" >> $GITHUB_ENV
+          echo "PATH=$PATH:"$HOME_PATH/../install_dir/bin" >> $GITHUB_ENV
+          echo "PATH=$PATH:"$HOME_PATH/../install_dir/tests" >> $GITHUB_ENV
+          cd ${HOME_PATH}
+          mkdir install_dir
 
       - name: Build MOAB
         shell: bash -l {0}
         run: |
           cd ${HOME_PATH}
           git clone --depth 1 https://bitbucket.org/fathomteam/moab -b 5.3.0
-          mkdir moab_build moab_install
+          mkdir moab_build 
           cd moab_build
           cmake ../moab \
                 -DENABLE_BLASLAPACK=OFF \
@@ -48,7 +52,7 @@ jobs:
                 -DENABLE_HDF5=ON \
                 -DBUILD_SHARED_LIBS=ON \
                 -G"Visual Studio 16 2019"  \
-                -DCMAKE_INSTALL_PREFIX=../moab_install/ \
+                -DCMAKE_INSTALL_PREFIX=../install_dir/ \
                 -DHDF5_ROOT="${CONDA_LOC}" \
                 -DHDF5_hdf5_LIBRARY_RELEASE="${CONDA_LOC}/lib/libhdf5_hl.lib;${CONDA_LOC}/lib/libhdf5.lib;${CONDA_LOC}/lib/zlib.lib;${CONDA_LOC}/lib/libhdf5_cpp.lib" \
                 -DCMAKE_EXE_LINKER_FLAGS="/std:c++latest" \
@@ -81,10 +85,10 @@ jobs:
                 -DBUILD_MAKE_WATERTIGHT=ON \
                 -DBUILD_OVERLAP_CHECK=OFF \
                 -DBUILD_TESTS=ON \
-                -DMOAB_DIR=../moab_install \
+                -DMOAB_DIR=../install_dir \
                 -DHDF5_ROOT="${CONDA_LOC}" \
                 -DHDF5_hdf5_LIBRARY_RELEASE="${CONDA_LOC}/lib/libhdf5_hl.lib;${CONDA_LOC}/lib/libhdf5.lib;${CONDA_LOC}/lib/zlib.lib;${CONDA_LOC}/lib/libhdf5_cpp.lib" \
-                -DCMAKE_INSTALL_PREFIX=../dagmc_install/ \
+                -DCMAKE_INSTALL_PREFIX=../install_dir/ \
                 -DCMAKE_EXE_LINKER_FLAGS="" \
                 -DCMAKE_MODULE_LINKER_FLAGS="" \
                 -DCMAKE_SHARED_LINKER_FLAGS="" \
@@ -96,17 +100,14 @@ jobs:
       - name: test DAGMC
         shell: bash -l {0}
         run: |
-          cp -r D:/a/DAGMC/moab_install/* D:/a/DAGMC/dagmc_install/
-          cp D:/a/DAGMC/dagmc_install/tests/* D:/a/DAGMC/dagmc_install/bin/
-          cd D:/a/DAGMC/dagmc_install/bin
-          ./dagmc_pointinvol_test.exe
-          ./dagmc_rayfire_test.exe
-          ./dagmc_simple_test.exe
-          ./dagmc_unit_tests.exe
-          ./make_watertight_cone_tests.exe
-          ./make_watertight_cylinder_tests.exe
-          ./make_watertight_no_curve_sphere_tests.exe
-          ./make_watertight_sphere_n_box_test.exe
+          dagmc_pointinvol_test.exe
+          dagmc_rayfire_test.exe
+          dagmc_simple_test.exe
+          dagmc_unit_tests.exe
+          make_watertight_cone_tests.exe
+          make_watertight_cylinder_tests.exe
+          make_watertight_no_curve_sphere_tests.exe
+          make_watertight_sphere_n_box_test.exe
 
 
 
