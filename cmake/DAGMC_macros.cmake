@@ -112,9 +112,6 @@ macro (dagmc_setup_flags)
 
   if(MSVC)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-  # else()
-  #   set(CMAKE_CXX_STANDARD 11)
   endif()
 
   if (BUILD_PIC)
