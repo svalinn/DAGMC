@@ -32,8 +32,8 @@ jobs:
         run: |
           echo "HOME_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
           echo "CONDA_LOC=C:/Miniconda/Library" >> $GITHUB_ENV
-          echo "PATH=$PATH:"$HOME_PATH/../install_dir/bin" >> $GITHUB_ENV
-          echo "PATH=$PATH:"$HOME_PATH/../install_dir/tests" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME_PATH/../install_dir/bin" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME_PATH/../install_dir/tests" >> $GITHUB_ENV
           cd ${HOME_PATH}
           mkdir install_dir
 
