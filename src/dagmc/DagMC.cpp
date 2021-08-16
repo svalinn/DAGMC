@@ -801,27 +801,23 @@ Tag DagMC::get_tag(const char* name, int size, TagType store, DataType type,
 
 /* SECTION VI: Other */
 
-ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
-                               double maxPt[3]) {
-  #ifdef DOUBLE_DOWN
-    ErrorCode rval = ray_tracer->get_bbox(volume, minPt, maxPt);
-  #else
-    ErrorCode rval = GTT->get_bounding_coords(volume, minPt, maxPt);
-  #endif
+ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3], double maxPt[3]) {
+#ifdef DOUBLE_DOWN
+  ErrorCode rval = ray_tracer->get_bbox(volume, minPt, maxPt);
+#else
+  ErrorCode rval = GTT->get_bounding_coords(volume, minPt, maxPt);
+#endif
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::getobb(EntityHandle volume,
-                        double center[3],
-                        double axis1[3],
-                        double axis2[3],
-                        double axis3[3]) {
-  #ifdef DOUBLE_DOWN
-    ErrorCode rval = ray_tracer->get_obb(volume, center, axis1, axis2, axis3);
-  #else
-    ErrorCode rval = GTT->get_obb(volume, center, axis1, axis2, axis3);
-  #endif
+ErrorCode DagMC::getobb(EntityHandle volume, double center[3], double axis1[3],
+                        double axis2[3], double axis3[3]) {
+#ifdef DOUBLE_DOWN
+  ErrorCode rval = ray_tracer->get_obb(volume, center, axis1, axis2, axis3);
+#else
+  ErrorCode rval = GTT->get_obb(volume, center, axis1, axis2, axis3);
+#endif
   MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
   return MB_SUCCESS;
 }
