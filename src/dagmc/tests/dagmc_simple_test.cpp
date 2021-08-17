@@ -250,3 +250,19 @@ TEST_F(DagmcSimpleTest, dagmc_test_boundary) {
   // check ray leaving volume
   EXPECT_EQ(expect_result, result);
 }
+
+TEST_F(DagmcSimpleTest, dagmc_test_get_obb) {
+  int vol_idx = 1;
+  EntityHandle vol_h = DAG->entity_by_index(3, vol_idx);
+
+  double llc[3], urc[3];
+  ErrorCode rval = DAG->getobb(vol_h, llc, urc);
+  EXPECT_EQ(rval, MB_SUCCESS);
+
+  // hardcoded value for 'test_geom.h5m'
+  double geom_extent = 5.0;
+  for (int i = 0; i < 3; i++) {
+    EXPECT_LE(llc[i], -geom_extent);
+    EXPECT_GE(urc[i], geom_extent);
+  }
+}
