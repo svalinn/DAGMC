@@ -165,7 +165,6 @@ class DagMC {
   /**\brief Removes the graveyard if one is present. */
   ErrorCode remove_graveyard();
 
-
   /**\brief Create a graveyard (a volume representing the volume boundary).
    *
    * Create a cuboid volume marked with metadata indicating it is the boundary

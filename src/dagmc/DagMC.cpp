@@ -75,8 +75,7 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
   this->set_numerical_precision(p_numerical_precision);
 }
 
-DagMC::DagMC(Interface* mb_impl,
-             double overlap_tolerance,
+DagMC::DagMC(Interface* mb_impl, double overlap_tolerance,
              double p_numerical_precision) {
   moab_instance_created = false;
   // set the internal moab pointer
@@ -305,8 +304,7 @@ ErrorCode DagMC::remove_graveyard() {
     for (auto vol : graveyard_vols) {
       // will recursively delete the graveyard volume's surface trees as well
       rval = remove_bvh(vol);
-      MB_CHK_SET_ERR(rval,
-                     "Failed to delete the graveyard volume's tree");
+      MB_CHK_SET_ERR(rval, "Failed to delete the graveyard volume's tree");
     }
   }
 
@@ -658,35 +656,34 @@ ErrorCode DagMC::init_OBBTree() {
 
 ErrorCode DagMC::remove_bvh(EntityHandle volume, bool unjoin_vol) {
   ErrorCode rval = MB_SUCCESS;
-  #ifdef DOUBLE_DOWN
-    // we don't use unjoin_volume here because
-    // double-down creates a BVH for each volume
-    ray_tracer->deleteBVH(volume);
-  #else
-    rval = geom_tool()->delete_obb_tree(volume, unjoin_vol);
-    MB_CHK_SET_ERR(rval,
-                    "Failed to delete the volume's OBBTree/BVH");
-  #endif
+#ifdef DOUBLE_DOWN
+  // we don't use unjoin_volume here because
+  // double-down creates a BVH for each volume
+  ray_tracer->deleteBVH(volume);
+#else
+  rval = geom_tool()->delete_obb_tree(volume, unjoin_vol);
+  MB_CHK_SET_ERR(rval, "Failed to delete the volume's OBBTree/BVH");
+#endif
   return rval;
 }
 
 ErrorCode DagMC::build_bvh(EntityHandle volume) {
   ErrorCode rval = MB_SUCCESS;
-  #ifdef DOUBLE_DOWN
-    ray_tracer->createBVH(volume);
-  #else
-    rval = geom_tool()->construct_obb_tree(volume);
-    MB_CHK_SET_ERR(rval, "Failed to create the bvh for a volume.");
-  #endif
+#ifdef DOUBLE_DOWN
+  ray_tracer->createBVH(volume);
+#else
+  rval = geom_tool()->construct_obb_tree(volume);
+  MB_CHK_SET_ERR(rval, "Failed to create the bvh for a volume.");
+#endif
   return rval;
 }
 
 bool DagMC::has_acceleration_datastructures() {
-  #ifdef DOUBLE_DOWN
+#ifdef DOUBLE_DOWN
   return ray_tracer->has_bvh();
-  #else
+#else
   return geom_tool()->have_obb_tree();
-  #endif
+#endif
 }
 
 // helper function to finish setting up required tags.
