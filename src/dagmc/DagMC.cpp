@@ -14,6 +14,8 @@
 #include <set>
 #include <sstream>
 #include <string>
+
+#include "util.hpp"
 #ifndef M_PI /* windows */
 #define M_PI 3.14159265358979323846
 #endif
@@ -212,6 +214,423 @@ ErrorCode DagMC::setup_indices() {
   return MB_SUCCESS;
 }
 
+bool DagMC::has_graveyard() {
+  EntityHandle eh;
+  return get_graveyard_group(eh) == MB_SUCCESS && eh != 0;
+}
+
+ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
+  Range groups;
+  ErrorCode rval = get_groups(groups);
+  MB_CHK_SET_ERR_CONT(rval, "Failed to retrieve groups");
+
+  graveyard_group = 0;
+  int graveyard_count = 0;
+  // get the name of each group and check for the GRAVEYARD_NAME string
+  for (auto group : groups) {
+    std::string group_name;
+    rval = get_group_name(group, group_name);
+    MB_CHK_SET_ERR_CONT(rval, "Failed to get a group name");
+
+    // convert name to lower case for comparison
+    dagmc_util::lowercase_str(group_name);
+
+    // resize to match the length (trims trailing empty values)
+    group_name.resize(GRAVEYARD_NAME.size());
+
+    // check for the graveyard string
+    if (group_name == GRAVEYARD_NAME) {
+      graveyard_group = group;
+      graveyard_count++;
+    }
+  }
+
+  // there should not be more than one graveyard group
+  if (graveyard_count > 1) {
+    MB_CHK_SET_ERR(MB_FAILURE,
+                   "More than one graveyard group is present in the model. "
+                       << graveyard_count << " graveyard groups were found.");
+  }
+
+  // if the graveyard was not found, return an error
+  if (graveyard_group == 0) {
+    return MB_ENTITY_NOT_FOUND;
+  }
+
+  return MB_SUCCESS;
+}
+
+ErrorCode DagMC::remove_graveyard() {
+  ErrorCode rval;
+
+  EntityHandle graveyard_group;
+  rval = get_graveyard_group(graveyard_group);
+  if (rval == MB_ENTITY_NOT_FOUND) {
+    return MB_SUCCESS;
+  }
+  MB_CHK_SET_ERR(rval, "Failed to check for existing graveyard volume");
+
+  // ranges of sets, entities, and vertices to delete
+  Range sets_to_delete, ents_to_delete, verts_to_delete;
+  sets_to_delete.insert(graveyard_group);
+
+  // check for bounding box trees on the model
+#ifdef DOUBLE_DOWN
+  bool trees_exist = ray_tracer->has_bvh();
+#else
+  bool trees_exist = geom_tool()->have_obb_tree();
+#endif
+  // get the graveyard volume
+  Range graveyard_vols;
+  rval =
+      moab_instance()->get_entities_by_handle(graveyard_group, graveyard_vols);
+  MB_CHK_SET_ERR(rval, "Failed to get the graveyard volume(s)");
+  sets_to_delete.merge(graveyard_vols);
+
+  // get the implicit complement, it's children will need updating
+  EntityHandle implicit_complement = 0;
+  rval = geom_tool()->get_implicit_complement(implicit_complement);
+  if (rval != MB_ENTITY_NOT_FOUND || rval != MB_SUCCESS) {
+    MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
+  }
+
+  // update the implicit complement tree if needed
+  if (trees_exist) {
+    if (implicit_complement) {
+      rval = remove_bvh(implicit_complement, true);
+      MB_CHK_SET_ERR(rval,
+                     "Failed to delete the implicit complement OBBTree/BVH");
+    }
+    for (auto vol : graveyard_vols) {
+      // will recursively delete the graveyard volume's surface trees as well
+      rval = remove_bvh(vol);
+      MB_CHK_SET_ERR(rval, "Failed to delete the graveyard volume's tree");
+    }
+  }
+
+  // get all sets underneath these volumes
+  for (auto vol : graveyard_vols) {
+    Range children;
+    // recursively collect all child sets
+    rval = moab_instance()->get_child_meshsets(vol, children, -1);
+    MB_CHK_SET_ERR(rval,
+                   "Failed to get the child geometry of the graveyard volume");
+    sets_to_delete.merge(children);
+  }
+
+  // collect the vertices of each set
+  for (auto entity_set : sets_to_delete) {
+    Range vertices;
+    rval =
+        moab_instance()->get_entities_by_type(entity_set, MBVERTEX, vertices);
+    MB_CHK_SET_ERR(rval, "Failed to get vertices of a graveyard set");
+    verts_to_delete.merge(vertices);
+  }
+
+  // get the union of the graveyard vertices' adjacencies.
+  // this should retrieve all elements connected to these vertices
+  // (edges, triangles, tets, etc. )
+  Range adj;
+  rval = moab_instance()->get_adjacencies(verts_to_delete, 1, true, adj,
+                                          Interface::UNION);
+  MB_CHK_SET_ERR(rval,
+                 "Failed to get dimension 1 adjacencies of graveyard vertices");
+  ents_to_delete.merge(adj);
+  adj.clear();
+  rval = moab_instance()->get_adjacencies(verts_to_delete, 2, true, adj,
+                                          Interface::UNION);
+  MB_CHK_SET_ERR(rval,
+                 "Failed to get dimension 2 adjacencies of graveyard vertices");
+  ents_to_delete.merge(adj);
+
+  // delete accumulated entity sets
+  rval = moab_instance()->delete_entities(sets_to_delete);
+  MB_CHK_SET_ERR(rval, "Failed to delete graveyard entity sets");
+
+  // delete accumulated entities
+  rval = moab_instance()->delete_entities(ents_to_delete);
+  MB_CHK_SET_ERR(rval, "Failed to delete graveyard entities");
+
+  // delete accumulated vertices (this must come last)
+  rval = moab_instance()->delete_entities(verts_to_delete);
+  MB_CHK_SET_ERR(rval, "Failed to delete graveyard vertices");
+
+  // re-construct the implicit complement's tree if needed
+  if (trees_exist && implicit_complement) {
+    rval = build_bvh(implicit_complement);
+    MB_CHK_SET_ERR(rval,
+                   "Failed to re-create the implicit complement OBBTree/BVH");
+  }
+
+  // update geometry sets in the GTT
+  rval = geom_tool()->find_geomsets();
+  MB_CHK_SET_ERR(rval,
+                 "Failed to find geometry sets after removing the graveyard");
+
+  // re-initialize DAGMC indices
+  rval = setup_indices();
+  MB_CHK_SET_ERR(rval, "Failed to setup DAGMC indices");
+
+  return MB_SUCCESS;
+}
+
+ErrorCode DagMC::create_graveyard(bool overwrite) {
+  /* Method summary
+    - Determine the global axis-aligned bounding box of the current model
+    - Create a new volume set for the graveyard
+    - Create a new group labeled as the graveyard and add volume to that group
+    - Create an inner surface from the bounding box
+    - Create an outer surface by extending the inner surface
+    - Add surfaces as children of the new graveyard volume and the implicit
+       complement
+    - Set the surface senses w.r.t. the new graveyard volume and implicit
+       complement
+    - Delete the implicit complement volume's out-of-date OBBTree/BVH
+    - Construct the new volume's OBBTree/BVH
+    - Construct the updated implicit complement OBBTree/BVH
+  */
+  ErrorCode rval;
+
+  // remove existing graveyard
+  if (overwrite) {
+    remove_graveyard();
+  }
+
+  // if a graveyard already exists at this point,
+  // report an error
+  if (has_graveyard()) {
+    MB_CHK_SET_ERR(MB_FAILURE, "Graveyard already exists");
+  }
+
+  // currently relying on the BVH as looping over all vertices may
+  // be too expensive
+  if (!has_acceleration_datastructures()) {
+    MB_CHK_SET_ERR(MB_FAILURE, "Graveyard creation attempted without BVH");
+  }
+
+  BBOX box;
+  for (int i = 0; i < num_entities(3); i++) {
+    // get the bounding box of the volume
+    moab::EntityHandle vol = this->entity_by_index(3, i + 1);
+    double vmin[3], vmax[3];
+    rval = this->getobb(vol, vmin, vmax);  // this method name is a misnomer
+    MB_CHK_SET_ERR(rval, "Failed to get volume bounding box");
+    // update the global bounding box
+    box.update(vmin);
+    box.update(vmax);
+  }
+
+  if (!box.valid()) {
+    MB_CHK_SET_ERR(rval,
+                   "Invalid model bounding box generated for graveyard volume");
+  }
+
+  // create a new volume meshset
+  EntityHandle volume_set;
+  rval = MBI->create_meshset(0, volume_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a graveyard volume set");
+
+  // add volume set to the model
+  rval = geom_tool()->add_geo_set(volume_set, 3);
+  MB_CHK_SET_ERR(rval, "Failed to add the volume to the GeomTopoTool");
+
+  // set the category tag
+  std::string volume_str;
+  volume_str.resize(CATEGORY_TAG_SIZE);
+  volume_str = "Volume";
+  rval = MBI->tag_set_data(category_tag(), &volume_set, 1, volume_str.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard volume category");
+
+  // create group set for the graveyard volume
+  EntityHandle group_set;
+  rval = MBI->create_meshset(0, group_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a new graveyard group set");
+
+  rval = geom_tool()->add_geo_set(group_set, 4);
+  MB_CHK_SET_ERR(rval, "Failed to add the graveyard group to the GeomTopoTool");
+
+  // set the group category
+  std::string group_str;
+  group_str.resize(CATEGORY_TAG_SIZE);
+  group_str = "Group";
+  rval = MBI->tag_set_data(category_tag(), &group_set, 1, group_str.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the group category");
+
+  // set the volume name tag data (material metadata)
+  rval = MBI->tag_set_data(name_tag(), &group_set, 1, GRAVEYARD_NAME.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set the graveyard name");
+
+  // add the graveyard volume to this group
+  rval = MBI->add_entities(group_set, &volume_set, 1);
+  MB_CHK_SET_ERR(rval,
+                 "Failed to add the graveyard volume to the graveyard group");
+
+  /// SURFACE CREATION ///
+
+  // expand the box a bit
+  box.expand(10.0 * numerical_precision());
+
+  // tear down the implicit complement tree
+  EntityHandle implicit_complement;
+  rval = geom_tool()->get_implicit_complement(implicit_complement);
+  MB_CHK_SET_ERR(rval, "Failed to get the implicit complement");
+
+  EntityHandle inner_surface;
+  rval = box_to_surf(box.lower, box.upper, inner_surface);
+
+  // establish the volume-surface parent-child relationship with the inner
+  // surface
+  rval = MBI->add_parent_child(volume_set, inner_surface);
+  MB_CHK_SET_ERR(rval,
+                 "Failed to create the graveyard parent-child relationship");
+
+  // establish the volume-surface parent-child relationship with the inner
+  // surface
+  rval = MBI->add_parent_child(implicit_complement, inner_surface);
+  MB_CHK_SET_ERR(rval,
+                 "Failed to create the graveyard parent-child relationship");
+
+  // set the surface senses (all triangles have outward normals so this should
+  // be REVERSE wrt the graveyard volume)
+  EntityHandle inner_senses[2] = {implicit_complement, volume_set};
+  rval = MBI->tag_set_data(sense_tag(), &inner_surface, 1, inner_senses);
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
+
+  // expand the box a bit again for the outer surface
+  box.expand(10.0 * numerical_precision());
+
+  EntityHandle outer_surface;
+  rval = box_to_surf(box.lower, box.upper, outer_surface);
+
+  // establish the volume-surface parent-child relationship with the outer
+  // surface
+  rval = MBI->add_parent_child(volume_set, outer_surface);
+  MB_CHK_SET_ERR(rval,
+                 "Failed to create the graveyard parent-child relationship");
+
+  // establish the volume-surface parent-child relationship with the outer
+  // surface
+  rval = MBI->add_parent_child(implicit_complement, outer_surface);
+  MB_CHK_SET_ERR(rval,
+                 "Failed to create the graveyard parent-child relationship");
+
+  // set the surface senses (all triangles have outward normals so this should
+  // be FORWARD wrt the graveyard volume)
+  EntityHandle outer_senses[2] = {volume_set, implicit_complement};
+  rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
+
+  // OBBTree/BVH updates
+
+  // update the geometry sets
+  rval = geom_tool()->find_geomsets();
+  MB_CHK_SET_ERR(rval, "Failed to update the geometry sets");
+
+  // delete the implicit complement tree (but not the surface trees)
+  rval = remove_bvh(implicit_complement, true);
+  MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
+
+  // create BVH for both the new implicit complement and the new graveyard
+  // volume
+  rval = build_bvh(volume_set);
+  MB_CHK_SET_ERR(
+      rval,
+      "Failed to build accel. data structure for the new graveyard volume");
+
+  rval = build_bvh(implicit_complement);
+  MB_CHK_SET_ERR(
+      rval,
+      "Failed to build accel. data structure for the new implicit complement");
+
+  // re-initialize indices
+  rval = setup_indices();
+  MB_CHK_SET_ERR(rval, "Failed to setup indices after graveyard creation");
+
+  return rval;
+}
+
+ErrorCode DagMC::box_to_surf(const double llc[3], const double urc[3],
+                             EntityHandle& surface_set) {
+  ErrorCode rval;
+
+  // start with vertices
+  std::vector<std::array<double, 3>> vertex_coords;
+  // vertex coordinates for the lower z face
+  vertex_coords.push_back({urc[0], llc[1], urc[2]});
+  vertex_coords.push_back({urc[0], urc[1], urc[2]});
+  vertex_coords.push_back({llc[0], urc[1], urc[2]});
+  vertex_coords.push_back({llc[0], llc[1], urc[2]});
+  // vertex coordinate for the upper z face
+  vertex_coords.push_back({urc[0], llc[1], llc[2]});
+  vertex_coords.push_back({urc[0], urc[1], llc[2]});
+  vertex_coords.push_back({llc[0], urc[1], llc[2]});
+  vertex_coords.push_back({llc[0], llc[1], llc[2]});
+
+  std::vector<moab::EntityHandle> box_verts;
+  for (const auto& coords : vertex_coords) {
+    EntityHandle new_vertex;
+    rval = MBI->create_vertex(coords.data(), new_vertex);
+    MB_CHK_SET_ERR(rval, "Failed to create graveyard vertex");
+    box_verts.push_back(new_vertex);
+  }
+
+  // now we have 8 vertices to create triangles with
+  std::vector<std::array<int, 3>> connectivity_indices;
+  // lower z
+  connectivity_indices.push_back({0, 1, 3});
+  connectivity_indices.push_back({3, 1, 2});
+  // upper z
+  connectivity_indices.push_back({4, 7, 5});
+  connectivity_indices.push_back({7, 6, 5});
+  // lower x
+  connectivity_indices.push_back({6, 3, 2});
+  connectivity_indices.push_back({7, 3, 6});
+  // upper x
+  connectivity_indices.push_back({0, 4, 1});
+  connectivity_indices.push_back({5, 1, 4});
+  // lower y
+  connectivity_indices.push_back({0, 3, 4});
+  connectivity_indices.push_back({7, 4, 3});
+  // upper y
+  connectivity_indices.push_back({1, 6, 2});
+  connectivity_indices.push_back({6, 1, 5});
+
+  moab::Range new_tris;
+  for (const auto& ind : connectivity_indices) {
+    EntityHandle new_triangle;
+    std::array<EntityHandle, 3> tri_conn = {
+        box_verts[ind[0]], box_verts[ind[1]], box_verts[ind[2]]};
+    rval = MBI->create_element(moab::MBTRI, tri_conn.data(), 3, new_triangle);
+    MB_CHK_SET_ERR(rval, "Failed to create new graveyard triangle");
+    new_tris.insert(new_triangle);
+  }
+
+  // create a surface set
+  rval = MBI->create_meshset(0, surface_set);
+  MB_CHK_SET_ERR(rval, "Failed to create a graveyard surface set");
+
+  // add the triangles and vertices to the surface
+  rval = MBI->add_entities(surface_set, new_tris);
+  MB_CHK_SET_ERR(rval, "Failed to add triangles to the graveyard surface set");
+
+  rval = MBI->add_entities(surface_set, box_verts.data(), box_verts.size());
+  MB_CHK_SET_ERR(rval, "Failed to add vertices to the graveyard surface set");
+
+  // tag the surface set with the appropriate info
+  rval = geom_tool()->add_geo_set(surface_set, 2);
+  MB_CHK_SET_ERR(rval, "Failed to add the surface to the GeomTopoTool");
+
+  // set the category tag
+  std::string surface_str;
+  surface_str.resize(CATEGORY_TAG_SIZE);
+  surface_str = "Surface";
+  rval =
+      MBI->tag_set_data(category_tag(), &surface_set, 1, surface_str.c_str());
+  MB_CHK_SET_ERR(rval, "Failed to set graveyard volume category");
+
+  return rval;
+}
+
 // initialise the obb tree
 ErrorCode DagMC::init_OBBTree() {
   ErrorCode rval;
@@ -233,6 +652,38 @@ ErrorCode DagMC::init_OBBTree() {
   MB_CHK_SET_ERR(rval, "Failed to setup problem indices");
 
   return MB_SUCCESS;
+}
+
+ErrorCode DagMC::remove_bvh(EntityHandle volume, bool unjoin_vol) {
+  ErrorCode rval = MB_SUCCESS;
+#ifdef DOUBLE_DOWN
+  // we don't use unjoin_volume here because
+  // double-down creates a BVH for each volume
+  ray_tracer->deleteBVH(volume);
+#else
+  rval = geom_tool()->delete_obb_tree(volume, unjoin_vol);
+  MB_CHK_SET_ERR(rval, "Failed to delete the volume's OBBTree/BVH");
+#endif
+  return rval;
+}
+
+ErrorCode DagMC::build_bvh(EntityHandle volume) {
+  ErrorCode rval = MB_SUCCESS;
+#ifdef DOUBLE_DOWN
+  ray_tracer->createBVH(volume);
+#else
+  rval = geom_tool()->construct_obb_tree(volume);
+  MB_CHK_SET_ERR(rval, "Failed to create the bvh for a volume.");
+#endif
+  return rval;
+}
+
+bool DagMC::has_acceleration_datastructures() {
+#ifdef DOUBLE_DOWN
+  return ray_tracer->has_bvh();
+#else
+  return geom_tool()->have_obb_tree();
+#endif
 }
 
 // helper function to finish setting up required tags.
@@ -428,21 +879,32 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
     entIndices[*rit - setOffset] = idx++;
 
   // get group handles
-  Tag category_tag = get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE,
-                             MB_TAG_SPARSE, MB_TYPE_OPAQUE);
-  char group_category[CATEGORY_TAG_SIZE];
-  std::fill(group_category, group_category + CATEGORY_TAG_SIZE, '\0');
-  sprintf(group_category, "%s", "Group");
-  const void* const group_val[] = {&group_category};
   Range groups;
-  rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &category_tag,
-                                           group_val, 1, groups);
+  rval = get_groups(groups);
   if (MB_SUCCESS != rval) return rval;
+
   group_handles().resize(groups.size() + 1);
   group_handles()[0] = 0;
   std::copy(groups.begin(), groups.end(), &group_handles()[1]);
 
   return MB_SUCCESS;
+}
+
+ErrorCode DagMC::get_groups(Range& groups) {
+  // get group handles
+  Tag cat_tag = category_tag();
+  std::string group_category = "Group";
+  group_category.resize(CATEGORY_TAG_SIZE);
+  const void* const group_val[] = {group_category.c_str()};
+  ErrorCode rval = MBI->get_entities_by_type_and_tag(0, MBENTITYSET, &cat_tag,
+                                                     group_val, 1, groups);
+  MB_CHK_SET_ERR(rval, "Failed to retrieve groups from the MOAB instance");
+  return rval;
+}
+
+Tag DagMC::category_tag() {
+  return get_tag(CATEGORY_TAG_NAME, CATEGORY_TAG_SIZE, MB_TAG_SPARSE,
+                 MB_TYPE_OPAQUE);
 }
 
 /* SECTION IV: Handling DagMC settings */

@@ -3,6 +3,7 @@
 
 #include <assert.h>
 
+#include <limits>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -37,6 +38,7 @@ static const int curve_handle_idx = 1;
 static const int surfs_handle_idx = 2;
 static const int vols_handle_idx = 3;
 static const int groups_handle_idx = 4;
+static const std::string GRAVEYARD_NAME = "mat:graveyard";
 
 class CartVect;
 class GeomQueryTool;
@@ -160,7 +162,41 @@ class DagMC {
    */
   ErrorCode setup_indices();
 
+  /**\brief Removes the graveyard if one is present. */
+  ErrorCode remove_graveyard();
+
+  /**\brief Create a graveyard (a volume representing the volume boundary).
+   *
+   * Create a cuboid volume marked with metadata indicating it is the boundary
+   * of the DAGMC model. This method will fail if a graveyard volume already
+   * exists and `overwrite` is not true. Requires BVH tree's existence.
+   *
+   */
+  ErrorCode create_graveyard(bool overwrite = false);
+
+  /** Returns true if the model has a graveyard volume, false if not */
+  bool has_graveyard();
+
+  /** Returns true if the model has any trees, false if not */
+  bool has_acceleration_datastructures();
+
+  /** Retrieve the graveyard group on the model if it exists */
+  ErrorCode get_graveyard_group(EntityHandle& graveyard_group);
+
  private:
+  /** convenience function for converting a bounding box into a box of triangles
+   *  with outward facing normals and setting up set structure necessary for
+   *  representation as a geometric entity
+   */
+  ErrorCode box_to_surf(const double llc[3], const double urc[3],
+                        EntityHandle& surface_set);
+
+  /**\brief Removes the BVH for the specified volume */
+  ErrorCode remove_bvh(EntityHandle volume, bool unjoin_vol = false);
+
+  /**\brief Builds the BVH for a specified volume */
+  ErrorCode build_bvh(EntityHandle volume);
+
   /** loading code shared by load_file and load_existing_contents */
   ErrorCode finish_loading();
 
@@ -240,6 +276,9 @@ class DagMC {
   unsigned int num_entities(int dimension);
 
  private:
+  /** get all group sets on the model */
+  ErrorCode get_groups(Range& groups);
+
   /** build internal index vectors that speed up handle-by-id, etc. */
   ErrorCode build_indices(Range& surfs, Range& vols);
 
@@ -361,6 +400,7 @@ class DagMC {
    * EntitySets - PCS
    */
   Tag obb_tag() { return NULL; }
+  Tag category_tag();
   Tag geom_tag() { return GTT->get_geom_tag(); }
   Tag id_tag() { return GTT->get_gid_tag(); }
   Tag sense_tag() { return GTT->get_sense_tag(); }
@@ -472,7 +512,45 @@ class DagMC {
   std::vector<double> disList;
   std::vector<int> dirList;
   std::vector<EntityHandle> surList, facList;
-};
+
+  // axis-aligned box used to track geometry bounds
+  // (internal use only)
+  struct BBOX {
+    constexpr static double INFTY{std::numeric_limits<double>::max()};
+
+    double lower[3] = {INFTY, INFTY, INFTY};
+    double upper[3] = {-INFTY, -INFTY, -INFTY};
+
+    /** ensure box corners are valid */
+    bool valid() {
+      return (lower[0] <= upper[0] && lower[1] <= upper[1] &&
+              lower[2] <= upper[2]);
+    }
+
+    /** update box to ensure the provided point is contained */
+    void update(double x, double y, double z) {
+      lower[0] = x < lower[0] ? x : lower[0];
+      lower[1] = y < lower[1] ? y : lower[1];
+      lower[2] = z < lower[2] ? z : lower[2];
+
+      upper[0] = x > upper[0] ? x : upper[0];
+      upper[1] = y > upper[1] ? y : upper[1];
+      upper[2] = z > upper[2] ? z : upper[2];
+    }
+
+    /** expand the box by some absolute value*/
+    void expand(double bump) {
+      for (int i = 0; i < 3; i++) {
+        upper[i] += bump;
+        lower[i] -= bump;
+      }
+    }
+
+    /** update box to ensure the provided point is contained */
+    void update(double xyz[3]) { update(xyz[0], xyz[1], xyz[2]); }
+  };
+
+};  // end DagMC
 
 inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
   assert(2 <= dimension && 3 >= dimension &&

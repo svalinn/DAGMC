@@ -4,6 +4,8 @@
 #include <iostream>
 #include <set>
 
+#include "util.hpp"
+
 // constructor for metadata class
 dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr, bool verbosity,
                              bool require_density_present)
@@ -339,9 +341,7 @@ void dagmcMetaData::parse_tally_volume_data() {
 }
 
 std::string dagmcMetaData::to_lower(std::string input) {
-  for (int i = 0; i < input.size(); i++) {
-    input[i] = std::tolower(input[i]);
-  }
+  dagmc_util::lowercase_str(input);
   return input;
 }
 
