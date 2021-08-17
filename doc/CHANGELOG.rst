@@ -16,13 +16,6 @@ Next version
    * Enforcing usage of Python3 for PyNE amalgamation. (#773)
    * Adding workflow_dispatch option to docker_publish workflow (#776)
    * DagMC methods for creation and removal of the graveyard volume (#714)
-     * DagMC::remove_graveyard
-     * DagMC::create_graveyard
-     * DagMC::has_graveyard
-     * DagMC::get_graveyard_group
-     * DagMC::category_tag
-     * DagMC::box_to_surf (private method)
-
 
 **Changed:**
 
