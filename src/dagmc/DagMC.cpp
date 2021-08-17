@@ -943,19 +943,6 @@ ErrorCode DagMC::write_mesh(const char* ffile, const int flen) {
   return MB_SUCCESS;
 }
 
-ErrorCode DagMC::getobb(EntityHandle volume, double minPt[3],
-                               double maxPt[3]) {
-  ErrorCode rval = MB_SUCCESS;
-  #ifdef DOUBLE_DOWN
-  rval = ray_tracer->get_bbox(volume, minPt, maxPt);
-  #else
-  rval = GTT->get_bounding_coords(volume, minPt, maxPt);
-  #endif
-  MB_CHK_SET_ERR(rval, "Failed to get obb for volume");
-  return MB_SUCCESS;
-}
-
-
 /* SECTION V: Metadata handling */
 
 ErrorCode DagMC::get_group_name(EntityHandle group_set, std::string& name) {
