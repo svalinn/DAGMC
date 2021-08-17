@@ -445,7 +445,7 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   return MB_SUCCESS;
 }
 
-/* SECTION IV: : Handling DagMC settings */
+/* SECTION IV: Handling DagMC settings */
 
 double DagMC::overlap_thickness() {
   return ray_tracer->get_overlap_thickness();
