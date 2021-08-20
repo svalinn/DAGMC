@@ -15,7 +15,7 @@ Next version
    * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)
    * Enforcing usage of Python3 for PyNE amalgamation. (#773)
    * Adding workflow_dispatch option to docker_publish workflow (#776)
-
+   * DagMC methods for creation and removal of the graveyard volume (#714)
 
 **Changed:**
 
@@ -56,6 +56,8 @@ Next version
     * Renamed `jobs` variable CI build system to avoid undocumented conflict with `git submodule` (#735)
     * Windows compatibility fix
     * remove_unsupported.py script is now compatible with python2...
+    * Return correct bounding boxes when configured with Double-Down. (#779)
+
 
 **Security:**
 
