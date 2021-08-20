@@ -40,6 +40,7 @@ jobs:
       - name: Build MOAB
         shell: bash -l {0}
         run: |
+          cd $GITHUB_WORKSPACE/..
           mkdir -pv moab/bld
           cd moab
           git clone https://bitbucket.org/fathomteam/moab -b 5.3.0 --depth 1 --shallow-submodules
@@ -54,7 +55,7 @@ jobs:
                   -DBUILD_SHARED_LIBS=ON \
                   -DENABLE_BLASLAPACK=OFF \
                   -DENABLE_FORTRAN=OFF \
-                  -DCMAKE_INSTALL_PREFIX=/opt/moab
+                  -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../moab
           make
           make install
           cd ../..
@@ -65,7 +66,7 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/bld
           cd $GITHUB_WORKSPACE/bld
-          cmake ../ -DMOAB_DIR=/opt/moab \
+          cmake ../ -DMOAB_DIR=$GITHUB_WORKSPACE/../moab \
                       -DBUILD_CI_TESTS=ON \
                       -DBUILD_STATIC_EXE=OFF \
                       -DCMAKE_INSTALL_PREFIX=/root/dagmc
