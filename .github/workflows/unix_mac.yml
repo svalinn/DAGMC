@@ -34,8 +34,8 @@ jobs:
       - name: Initial setup
         shell: bash -l {0}
         run: |
-        brew install eigen gcc@6 gsed hdf5
-        brew link hdf5
+          brew install eigen gcc@6 gsed hdf5
+          brew link hdf5
 
       - name: Build MOAB
         shell: bash -l {0}
