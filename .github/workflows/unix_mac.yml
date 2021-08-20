@@ -65,7 +65,7 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/bld
           cd $GITHUB_WORKSPACE/bld
-          cmake ${dagmc_build_dir} -DMOAB_DIR=/opt/moab \
+          cmake ../ -DMOAB_DIR=/opt/moab \
                       -DBUILD_CI_TESTS=ON \
                       -DBUILD_STATIC_EXE=OFF \
                       -DCMAKE_INSTALL_PREFIX=/root/dagmc
