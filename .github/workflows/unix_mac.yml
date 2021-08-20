@@ -29,107 +29,48 @@ jobs:
       - name: Environment Variables
         shell: bash -l {0}
         run: |
-          COREFORM_BASE_URL=https://f002.backblazeb2.com/file/cubit-downloads/Coreform-Cubit/Releases
 
-          if [ "${{ matrix.cubit }}" == "17.1.0" ]; then
-            BASE=Trelis-17.1.0
-            BASESDK=Trelis-SDK-17.1.0
-            CUBIT_BASE_NAME=Trelis-17.1
-            HDF5_PATH=/usr/lib/x86_64-linux-gnu/hdf5/serial
-          elif [ "${{ matrix.cubit }}" == "2021.4" ]; then
-            BASE=Coreform-Cubit-2021.4%2B15017_05893177
-            CUBIT_BASE_NAME=Coreform-Cubit-2021.4
-            HDF5_PATH=/usr/local/HDF_Group/HDF5/1.12.0
-          elif [ "${{ matrix.cubit }}" == "2021.5" ]; then
-            BASE=Coreform-Cubit-2021.5%2B15962_5043ef39
-            CUBIT_BASE_NAME=Coreform-Cubit-2021.5
-            HDF5_PATH=/usr/local/HDF_Group/HDF5/1.12.0
-          fi
-
-          SUFFIX=Mac64
-          EXT=dmg
-          echo "SED=gsed" >> $GITHUB_ENV
-          echo "BUILD_SHARED_LIBS=OFF" >> $GITHUB_ENV
-          echo "BUILD_STATIC_LIBS=ON" >> $GITHUB_ENV
-          echo "system=mac" >> $GITHUB_ENV
-          echo "CUBIT_PATH=/Applications/${CUBIT_BASE_NAME}.app/Contents" >> $GITHUB_ENV
-          echo "COREFORM_BASE_URL=${COREFORM_BASE_URL}/MacOS/" >> $GITHUB_ENV
-
-          echo "OS=${{ matrix.os }}" >> $GITHUB_ENV
-          echo "OS_VERSION=${{ matrix.os_version }}" >> $GITHUB_ENV
-          echo "CMAKE_ADDITIONAL_FLAGS=-DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0" >> $GITHUB_ENV
-
-          echo "CUBIT_PKG=${BASE}-${SUFFIX}.${EXT}" >> $GITHUB_ENV
-          echo "CUBIT_SDK_PKG=${BASESDK}-${SUFFIX}.tar.gz" >> $GITHUB_ENV
-          echo "CUBIT_BASE_NAME=${CUBIT_BASE_NAME}" >> $GITHUB_ENV
-
-          echo "CURRENT=$(pwd)" >> $GITHUB_ENV
-          echo "SCRIPTPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PLUGIN_ABS_PATH=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
-          echo "FOLDER_PKG=$GITHUB_WORKSPACE/pkg" >> $GITHUB_ENV
-
-          echo "" >> ${HOME}/.bash_profile
-          echo "source $GITHUB_WORKSPACE/scripts/unix_share_build.sh" >> $HOME/.bash_profile
       
       - name: Initial setup
         shell: bash -l {0}
         run: |
-          ${system}_install_prerequisites
- 
-      - name: Downloading packages
-        shell: bash -l {0}
-        run: |
-          mkdir -p $FOLDER_PKG
-          cd ${FOLDER_PKG}
-          curl -L ${COREFORM_BASE_URL}${CUBIT_PKG} --output ${CUBIT_PKG}
-          if [ "${{ matrix.cubit }}" = "17.1.0" ]; then
-            curl -L ${COREFORM_BASE_URL}${CUBIT_SDK_PKG} --output ${CUBIT_SDK_PKG}
-          fi
-          mkdir ${SCRIPTPATH}/release
-
-      - name: Cubit setup
-        shell: bash -l {0}
-        run: |
-          ${system}_setup_cubit ${{ matrix.cubit }}
-
-      - name: Build HDF5
-        shell: bash -l {0}
-        run: |
-          ${system}_build_hdf5
+        brew install eigen gcc@6 gsed hdf5
+        brew link hdf5
 
       - name: Build MOAB
         shell: bash -l {0}
         run: |
-          build_moab
+          mkdir -pv moab/bld
+          cd moab
+          git clone https://bitbucket.org/fathomteam/moab -b 5.3.0 --depth 1 --shallow-submodules
+          cd moab
+          # # patching MOAB CMakeLists.txt to use default find(HDF5)
+          # $SED -i "s/HDF5_MOAB/HDF5/" CMakeLists.txt
+          # cd ..
+          # #end of patch
+          cd bld
+          cmake ../moab -DENABLE_HDF5=ON \
+                  -DHDF5_ROOT=$HDF5_PATH \
+                  -DBUILD_SHARED_LIBS=ON \
+                  -DENABLE_BLASLAPACK=OFF \
+                  -DENABLE_FORTRAN=OFF \
+                  -DCMAKE_INSTALL_PREFIX=/opt/moab
+          make
+          make install
+          cd ../..
+          rm -rf moab/moab moab/bld
 
       - name: Build DAGMC
         shell: bash -l {0}
         run: |
-          build_dagmc
+          mkdir -p $GITHUB_WORKSPACE/bld
+          cd $GITHUB_WORKSPACE/bld
+          cmake ${dagmc_build_dir} -DMOAB_DIR=/opt/moab \
+                      -DBUILD_CI_TESTS=ON \
+                      -DBUILD_STATIC_EXE=OFF \
+                      -DCMAKE_INSTALL_PREFIX=/root/dagmc
+                      # -DDOUBLE_DOWN=${double_down} \
+                      # -Ddd_ROOT=${double_down_install_dir}
+          make
+          make install
 
-      - name: Build plugin
-        shell: bash -l {0}
-        run: |
-          build_plugin 
-
-      - name: Prepare package
-        shell: bash -l {0}
-        run: |
-          ${system}_build_plugin_pkg ${{ matrix.cubit }}
-
-      - if: github.event_name != 'release'
-        name: Upload artifact for CI
-        uses: actions/upload-artifact@v2
-        with:
-          name: svalinn-plugin_${{ matrix.os }}-${{ matrix.os_version }}_cubit_${{ matrix.cubit }}.tgz
-          path: ${{ github.workspace }}/release/svalinn-plugin_${{ matrix.os }}-${{ matrix.os_version }}_cubit_${{ matrix.cubit }}.tgz
-          if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn` 
-    
-      - if: github.event_name == 'release'
-        name: Upload binaries into the release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/release/svalinn-plugin_${{ matrix.os }}-${{ matrix.os_version }}_cubit_${{ matrix.cubit }}.tgz
-          asset_name: svalinn-plugin_${{ matrix.os }}-${{ matrix.os_version }}_cubit_${{ matrix.cubit }}.tgz
-          tag: ${{ github.ref }}
