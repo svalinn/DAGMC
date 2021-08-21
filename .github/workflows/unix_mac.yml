@@ -32,7 +32,7 @@ jobs:
       - name: Initial setup
         shell: bash -l {0}
         run: |
-          brew install eigen gcc@6 hdf5
+          brew install eigen gcc@6 hdf5 python3
           # # brew link hdf5
           # eval "$(pyenv init -)"
           # pyenv install 3.9.1
