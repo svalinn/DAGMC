@@ -25,15 +25,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
       - name: Initial setup
         shell: bash -l {0}
         run: |
-          brew install eigen gcc@6 hdf5 pyenv
-          # brew link hdf5
-          eval "$(pyenv init -)"
-          pyenv install 3.9.1
-          pyenv global 3.9.1
+          brew install eigen gcc@6 hdf5
+          # # brew link hdf5
+          # eval "$(pyenv init -)"
+          # pyenv install 3.9.1
+          # pyenv global 3.9.1
           pip install numpy cython
 
       # - name: Environment Variables
@@ -47,7 +50,6 @@ jobs:
         run: |
           pyenv init -
           which python
-          pyenv global 3.9.1
           python --version
           cd $GITHUB_WORKSPACE/..
           mkdir -pv moab/bld
