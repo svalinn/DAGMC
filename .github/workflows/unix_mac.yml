@@ -63,6 +63,7 @@ jobs:
           # #end of patch
           cd bld
           cmake ../moab -DENABLE_HDF5=ON \
+                        -DENABLE_PYMOAB=ON \
                         -DHDF5_ROOT=$HDF5_PATH \
                         -DBUILD_SHARED_LIBS=ON \
                         -DENABLE_BLASLAPACK=OFF \
@@ -70,15 +71,14 @@ jobs:
                         -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../moab
           make
           make install
-          rm -rf *
-          cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${HDF5_PATH} \
-                        -DENABLE_PYMOAB=ON \
-                        -DENABLE_BLASLAPACK=OFF \
-                        -DENABLE_FORTRAN=OFF \
-                        -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../moab \
-                        -DBUILD_SHARED_LIBS=ON
-          make -j${ci_jobs}
-          make install
+          # rm -rf *
+          # cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${HDF5_PATH} \
+          #               -DENABLE_BLASLAPACK=OFF \
+          #               -DENABLE_FORTRAN=OFF \
+          #               -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../moab \
+          #               -DBUILD_SHARED_LIBS=ON
+          # make -j${ci_jobs}
+          # make install
           cd ../..
           rm -rf moab/moab moab/bld
 
