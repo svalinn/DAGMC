@@ -35,8 +35,8 @@ jobs:
         shell: bash -l {0}
         run: |
           brew install eigen gcc@6 gsed hdf5
-          brew link hdf5
-          brew install numpy --with-python3
+          # brew link hdf5
+          brew install numpy
 
       - name: Build MOAB
         shell: bash -l {0}
