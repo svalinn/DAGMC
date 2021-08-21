@@ -33,7 +33,7 @@ jobs:
           # brew link hdf5
           pyenv install 3.9.1
           pyenv global 3.9.1
-          pip install numpy
+          pip install numpy cython
 
       - name: Environment Variables
         shell: bash -l {0}
