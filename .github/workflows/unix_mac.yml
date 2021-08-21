@@ -31,7 +31,7 @@ jobs:
         run: |
           brew install eigen gcc@6 hdf5 pyenv
           # brew link hdf5
-          eval "$(pyenv init -)
+          eval "$(pyenv init -)"
           pyenv install 3.9.1
           pyenv global 3.9.1
           pip install numpy cython
