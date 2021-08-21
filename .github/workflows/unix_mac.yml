@@ -63,7 +63,7 @@ jobs:
           # #end of patch
           cd bld
           cmake ../moab -DENABLE_HDF5=ON \
-                        -DENABLE_PYMOAB=ON \
+                        -DENABLE_PYMOAB=OFF \
                         -DHDF5_ROOT=$HDF5_PATH \
                         -DBUILD_SHARED_LIBS=ON \
                         -DENABLE_BLASLAPACK=OFF \
