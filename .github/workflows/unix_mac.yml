@@ -46,6 +46,9 @@ jobs:
         shell: bash -l {0}
         run: |
           eval "$(pyenv init -)"
+          which python
+          python --version
+
           cd $GITHUB_WORKSPACE/..
           mkdir -pv moab/bld
           cd moab
