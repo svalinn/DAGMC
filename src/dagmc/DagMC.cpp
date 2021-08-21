@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include <algorithm>
-#include <array>
 #include <climits>
 #include <fstream>
 #include <iostream>
