@@ -32,6 +32,7 @@ jobs:
           xcode-select --install
           brew install eigen gcc@6 gsed hdf5 pyenv
           # brew link hdf5
+          eval "$(pyenv init -)
           pyenv install 3.9.1
           pyenv global 3.9.1
           pip install numpy cython
@@ -45,6 +46,7 @@ jobs:
       - name: Build MOAB
         shell: bash -l {0}
         run: |
+          eval "$(pyenv init -)
           cd $GITHUB_WORKSPACE/..
           mkdir -pv moab/bld
           cd moab
@@ -78,6 +80,7 @@ jobs:
       - name: Build DAGMC
         shell: bash -l {0}
         run: |
+          eval "$(pyenv init -)
           mkdir -p $GITHUB_WORKSPACE/bld
           cd $GITHUB_WORKSPACE/bld
           cmake ../ -DMOAB_DIR=$GITHUB_WORKSPACE/../moab \
