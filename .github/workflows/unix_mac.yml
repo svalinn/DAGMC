@@ -45,7 +45,7 @@ jobs:
       - name: Build MOAB
         shell: bash -l {0}
         run: |
-          eval "$(pyenv init -)
+          eval "$(pyenv init -)"
           cd $GITHUB_WORKSPACE/..
           mkdir -pv moab/bld
           cd moab
@@ -79,7 +79,7 @@ jobs:
       - name: Build DAGMC
         shell: bash -l {0}
         run: |
-          eval "$(pyenv init -)
+          eval "$(pyenv init -)"
           mkdir -p $GITHUB_WORKSPACE/bld
           cd $GITHUB_WORKSPACE/bld
           cmake ../ -DMOAB_DIR=$GITHUB_WORKSPACE/../moab \
