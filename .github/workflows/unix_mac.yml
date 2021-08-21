@@ -91,6 +91,8 @@ jobs:
           cmake ../ -DMOAB_DIR=$GITHUB_WORKSPACE/../moab \
                       -DBUILD_CI_TESTS=ON \
                       -DBUILD_STATIC_EXE=OFF \
+                      -DBUILD_SHARED_LIBS=ON \
+                      -DBUILD_STATIC_LIBS=OFF \
                       -DCMAKE_INSTALL_PREFIX=/root/dagmc
                       # -DDOUBLE_DOWN=${double_down} \
                       # -Ddd_ROOT=${double_down_install_dir}
