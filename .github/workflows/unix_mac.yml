@@ -29,6 +29,7 @@ jobs:
       - name: Initial setup
         shell: bash -l {0}
         run: |
+          xcode-select --install
           brew install eigen gcc@6 gsed hdf5 pyenv
           # brew link hdf5
           pyenv install 3.9.1
