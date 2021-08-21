@@ -30,7 +30,7 @@ jobs:
         shell: bash -l {0}
         run: |
           xcode-select --install
-          brew install eigen gcc@6 gsed hdf5 pyenv
+          brew install eigen gcc@6 hdf5 pyenv
           # brew link hdf5
           eval "$(pyenv init -)
           pyenv install 3.9.1
