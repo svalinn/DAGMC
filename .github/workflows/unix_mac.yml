@@ -26,17 +26,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Environment Variables
-        shell: bash -l {0}
-        run: |
-
-      
       - name: Initial setup
         shell: bash -l {0}
         run: |
-          brew install eigen gcc@6 gsed hdf5
+          brew install eigen gcc@6 gsed hdf5 pyenv
           # brew link hdf5
-          brew install numpy
+          pyenv install 3.9.1
+          pyenv global 3.9.1
+          pip install numpy
+
+      - name: Environment Variables
+        shell: bash -l {0}
+        run: |
+          echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> $HOME/.bash_profile
+      
 
       - name: Build MOAB
         shell: bash -l {0}
