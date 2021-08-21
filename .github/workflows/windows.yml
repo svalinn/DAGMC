@@ -103,8 +103,7 @@ jobs:
       - name: test DAGMC
         shell: bash -l {0}
         run: |
-          ls $HOME_PATH/install_dir/tests
-          echo $PATH
+          cd $HOME_PATH/install_dir/tests
           dagmc_pointinvol_test.exe
           dagmc_rayfire_test.exe
           dagmc_simple_test.exe
