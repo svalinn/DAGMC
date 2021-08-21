@@ -47,8 +47,8 @@ jobs:
         run: |
           eval "$(pyenv init -)"
           which python
+          pyenv global 3.9.1
           python --version
-
           cd $GITHUB_WORKSPACE/..
           mkdir -pv moab/bld
           cd moab
