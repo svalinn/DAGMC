@@ -98,8 +98,7 @@ jobs:
       - name: Installation Environment Variables
         shell: bash -l {0}
         run: |
-          echo "PATH=$PATH;$HOME_PATH/install_dir/bin" >> $GITHUB_ENV
-          echo "PATH=$PATH;$HOME_PATH/install_dir/tests" >> $GITHUB_ENV
+          echo "PATH=$PATH:/d/a/DAGMC/DAGMC/../install_dir/bin:/d/a/DAGMC/DAGMC/../install_dir/tests" >> $GITHUB_ENV
 
       - name: test DAGMC
         shell: bash -l {0}
