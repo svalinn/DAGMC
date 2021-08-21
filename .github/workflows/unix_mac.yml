@@ -45,7 +45,7 @@ jobs:
       - name: Build MOAB
         shell: bash -l {0}
         run: |
-          eval "$(pyenv init -)"
+          pyenv init -
           which python
           pyenv global 3.9.1
           python --version
