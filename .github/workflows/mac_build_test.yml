@@ -18,7 +18,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  main:
+  BuildTest:
     runs-on: macos-10.15
 
     steps:
