@@ -93,7 +93,7 @@ jobs:
                       -DBUILD_STATIC_EXE=OFF \
                       -DBUILD_SHARED_LIBS=ON \
                       -DBUILD_STATIC_LIBS=OFF \
-                      -DCMAKE_INSTALL_PREFIX=/root/dagmc
+                      -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../dagmc
                       # -DDOUBLE_DOWN=${double_down} \
                       # -Ddd_ROOT=${double_down_install_dir}
           make
