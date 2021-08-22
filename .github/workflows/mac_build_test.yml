@@ -1,4 +1,4 @@
-name: Mac builds
+name: Mac Build/Test
 
 on:
   # allows us to run workflows manually
@@ -20,8 +20,6 @@ env:
 jobs:
   main:
     runs-on: macos-10.15
-
-    name: 'Cubit ${{ matrix.cubit }} Build for ${{ matrix.os }} ${{ matrix.os_version }} of Svalinn Plugin'
 
     steps:
       - uses: actions/checkout@v2
@@ -90,9 +88,4 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/bld
           PATH=$GITHUB_WORKSPACE/bld/bin:$PATH make test
-          cd $GITHUB_WORKSPACE
-          git clean -dfx
-          cd $GITHUB_WORKSPACE/cmake/test_config
-          cmake . -DDAGMC_ROOT=$GITHUB_WORKSPACE/../dagmc
-          make all test
 
