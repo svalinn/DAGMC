@@ -16,6 +16,7 @@ Next version
    * Enforcing usage of Python3 for PyNE amalgamation. (#773)
    * Adding workflow_dispatch option to docker_publish workflow (#776)
    * DagMC methods for creation and removal of the graveyard volume (#714)
+   * CI build and test now support MacOS (shared build, no pymoab, no Double Down) (#780)
 
 **Changed:**
 

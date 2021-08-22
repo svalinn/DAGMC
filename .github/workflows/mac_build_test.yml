@@ -1,0 +1,76 @@
+name: Mac Build/Test
+
+on:
+  # allows us to run workflows manually
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - develop
+      - master
+  push:
+    branches:
+      - develop
+      - master
+  release:
+    types: # This configuration does not affect the page_build event above
+      - created
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  BuildTest:
+    runs-on: macos-10.15
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Initial setup
+        shell: bash -l {0}
+        run: |
+          brew install eigen gcc@6 hdf5
+
+      - name: Environment Variables
+        shell: bash -l {0}
+        run: |
+          echo "HOME=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
+      
+
+      - name: Build MOAB
+        shell: bash -l {0}
+        run: |
+          cd ${HOME}
+          mkdir -pv moab/bld
+          cd moab
+          git clone https://bitbucket.org/fathomteam/moab -b 5.3.0 --depth 1 --shallow-submodules
+          cd bld
+          cmake ../moab -DENABLE_HDF5=ON \
+                        -DENABLE_PYMOAB=OFF \
+                        -DHDF5_ROOT=$HDF5_PATH \
+                        -DBUILD_SHARED_LIBS=ON \
+                        -DENABLE_BLASLAPACK=OFF \
+                        -DENABLE_FORTRAN=OFF \
+                        -DCMAKE_INSTALL_PREFIX=${HOME}/moab
+          make
+          make install
+          rm -rf ${HOME}/moab/moab ${HOME}/moab/bld
+
+      - name: Build DAGMC
+        shell: bash -l {0}
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/bld
+          cd $GITHUB_WORKSPACE/bld
+          cmake ../ -DMOAB_DIR=${HOME}/moab \
+                      -DBUILD_CI_TESTS=ON \
+                      -DBUILD_STATIC_EXE=OFF \
+                      -DBUILD_SHARED_LIBS=ON \
+                      -DBUILD_STATIC_LIBS=OFF \
+                      -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc
+          make
+          make install
+
+      - name: Testing DAGMC
+        shell: bash -l {0}
+        run: |
+          cd $GITHUB_WORKSPACE/bld
+          PATH=$GITHUB_WORKSPACE/bld/bin:$PATH make test
+
