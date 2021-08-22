@@ -34,10 +34,6 @@ jobs:
         run: |
           brew install eigen gcc@6 hdf5
           brew link --overwrite python
-          # # brew link hdf5
-          # eval "$(pyenv init -)"
-          # pyenv install 3.9.1
-          # pyenv global 3.9.1
           pip install numpy cython
 
       # - name: Environment Variables
@@ -49,18 +45,10 @@ jobs:
       - name: Build MOAB
         shell: bash -l {0}
         run: |
-          pyenv init -
-          which python
-          python --version
           cd $GITHUB_WORKSPACE/..
           mkdir -pv moab/bld
           cd moab
           git clone https://bitbucket.org/fathomteam/moab -b 5.3.0 --depth 1 --shallow-submodules
-          # cd moab
-          # # patching MOAB CMakeLists.txt to use default find(HDF5)
-          # $SED -i "s/HDF5_MOAB/HDF5/" CMakeLists.txt
-          # cd ..
-          # #end of patch
           cd bld
           cmake ../moab -DENABLE_HDF5=ON \
                         -DENABLE_PYMOAB=OFF \
@@ -85,7 +73,6 @@ jobs:
       - name: Build DAGMC
         shell: bash -l {0}
         run: |
-          eval "$(pyenv init -)"
           mkdir -p $GITHUB_WORKSPACE/bld
           cd $GITHUB_WORKSPACE/bld
           cmake ../ -DMOAB_DIR=$GITHUB_WORKSPACE/../moab \
@@ -98,4 +85,14 @@ jobs:
                       # -Ddd_ROOT=${double_down_install_dir}
           make
           make install
+      - name: Testing DAGMC
+        shell: bash -l {0}
+        run: |
+          cd $GITHUB_WORKSPACE/bld
+          PATH=$GITHUB_WORKSPACE/bld/bin:$PATH make test
+          cd $GITHUB_WORKSPACE
+          git clean -dfx
+          cd $GITHUB_WORKSPACE/cmake/test_config
+          cmake . -DDAGMC_ROOT=$GITHUB_WORKSPACE/../dagmc
+          make all test
 
