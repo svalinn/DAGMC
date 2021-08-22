@@ -1,6 +1,13 @@
 #include "uwuw.hpp"
 
+#if !defined(_MSC_VER) && !defined(__MINGW32__)
+#include <sys/resource.h>
 #include <unistd.h>
+#else
+#include <io.h>
+
+#include <filesystem>
+#endif
 
 #include <iostream>
 
@@ -64,8 +71,13 @@ std::string UWUW::get_full_filepath(std::string filename) {
   filename.erase(std::remove(filename.begin(), filename.end(), ' '),
                  filename.end());
   // use stdlib call
-  const char* full_filepath = realpath(filename.c_str(), NULL);
-  return std::string(full_filepath);
+#ifndef _WIN32
+  const std::string full_filepath = realpath(filename.c_str(), NULL);
+#else
+  const std::string full_filepath =
+      std::filesystem::canonical(filename.c_str()).string();
+#endif
+  return full_filepath;
 }
 
 // see if file exists
