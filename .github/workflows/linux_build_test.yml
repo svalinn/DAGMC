@@ -1,4 +1,4 @@
-name: Standard Build and Test
+name: Linux Build/Test
 
 on:
   # allows us to run workflows manually
