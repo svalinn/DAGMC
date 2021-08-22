@@ -23,27 +23,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
+
       - name: Initial setup
         shell: bash -l {0}
         run: |
           brew install eigen gcc@6 hdf5
-          brew link --overwrite python
-          pip install numpy cython
 
-      # - name: Environment Variables
-      #   shell: bash -l {0}
-      #   run: |
-      #     echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> $HOME/.bash_profile
+      - name: Environment Variables
+        shell: bash -l {0}
+        run: |
+          echo "HOME=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
       
 
       - name: Build MOAB
         shell: bash -l {0}
         run: |
-          cd $GITHUB_WORKSPACE/..
+          cd ${HOME}
           mkdir -pv moab/bld
           cd moab
           git clone https://bitbucket.org/fathomteam/moab -b 5.3.0 --depth 1 --shallow-submodules
@@ -54,35 +49,25 @@ jobs:
                         -DBUILD_SHARED_LIBS=ON \
                         -DENABLE_BLASLAPACK=OFF \
                         -DENABLE_FORTRAN=OFF \
-                        -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../moab
+                        -DCMAKE_INSTALL_PREFIX=${HOME}/moab
           make
           make install
-          # rm -rf *
-          # cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${HDF5_PATH} \
-          #               -DENABLE_BLASLAPACK=OFF \
-          #               -DENABLE_FORTRAN=OFF \
-          #               -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../moab \
-          #               -DBUILD_SHARED_LIBS=ON
-          # make -j${ci_jobs}
-          # make install
-          cd ../..
-          rm -rf moab/moab moab/bld
+          rm -rf ${HOME}/moab/moab ${HOME}/moab/bld
 
       - name: Build DAGMC
         shell: bash -l {0}
         run: |
           mkdir -p $GITHUB_WORKSPACE/bld
           cd $GITHUB_WORKSPACE/bld
-          cmake ../ -DMOAB_DIR=$GITHUB_WORKSPACE/../moab \
+          cmake ../ -DMOAB_DIR=${HOME}/moab \
                       -DBUILD_CI_TESTS=ON \
                       -DBUILD_STATIC_EXE=OFF \
                       -DBUILD_SHARED_LIBS=ON \
                       -DBUILD_STATIC_LIBS=OFF \
-                      -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/../dagmc
-                      # -DDOUBLE_DOWN=${double_down} \
-                      # -Ddd_ROOT=${double_down_install_dir}
+                      -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc
           make
           make install
+
       - name: Testing DAGMC
         shell: bash -l {0}
         run: |
