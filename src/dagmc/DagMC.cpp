@@ -21,11 +21,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#ifdef DOUBLE_DOWN
-#include "double_down/MOABRay.h"
-#include "double_down/RTI.hpp"
-#endif
-
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"
 #define FACETING_TOL_TAG_NAME "FACETING_TOL"
 static const int null_delimiter_length = 1;

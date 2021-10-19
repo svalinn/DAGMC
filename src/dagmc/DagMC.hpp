@@ -21,6 +21,10 @@
 #include "moab/Interface.hpp"
 #include "moab/Range.hpp"
 
+#ifdef DOUBLE_DOWN
+#include "double_down/RTI.hpp"
+#endif
+
 class RefEntity;
 
 struct DagmcVolData {
@@ -28,8 +32,6 @@ struct DagmcVolData {
   double density, importance;
   std::string comp_name;
 };
-
-class RayTracingInterface;
 
 namespace moab {
 
@@ -477,7 +479,7 @@ class DagMC {
   std::shared_ptr<GeomTopoTool> GTT;
   // type alias for ray tracing engine
 #ifdef DOUBLE_DOWN
-  using RayTracer = RayTracingInterface;
+  using RayTracer = double_down::RayTracingInterface;
 #else
   using RayTracer = GeomQueryTool;
 #endif
