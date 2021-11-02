@@ -74,6 +74,8 @@ v3.2.1
    * DagMC methods for creation and removal of the graveyard volume (#714)
    * CI build and test now support MacOS (shared build, no pymoab, no Double Down) (#780)
    * Added GitHub style citation file (CITATION.cff) (#790)
+   * exposed the new find_volume() method that is implemented in MOAB GQT (#718)
+
 
 **Changed:**
 
