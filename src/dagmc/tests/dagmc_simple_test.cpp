@@ -160,6 +160,7 @@ TEST_F(DagmcSimpleTest, dagmc_find_volume) {
   int vol_idx = 1;
   int vol_dim = 3;
   double xyz[3] = {0.0, 0.0, 0.0};
+  EntityHandle vol_h;
   EntityHandle expected_vol_h = DAG->entity_by_index(vol_dim, vol_idx);
   ErrorCode rval = DAG->find_volume(xyz, vol_h);
   EXPECT_EQ(rval, MB_SUCCESS);
