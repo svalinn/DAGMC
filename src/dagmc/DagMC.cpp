@@ -16,6 +16,10 @@
 #include <sstream>
 #include <string>
 
+#ifdef DOUBLE_DOWN
+#include "double_down/RTI.hpp"
+#endif
+
 #include "util.hpp"
 #ifndef M_PI /* windows */
 #define M_PI 3.14159265358979323846

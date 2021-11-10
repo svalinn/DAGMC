@@ -21,10 +21,6 @@
 #include "moab/Interface.hpp"
 #include "moab/Range.hpp"
 
-#ifdef DOUBLE_DOWN
-#include "double_down/RTI.hpp"
-#endif
-
 class RefEntity;
 
 struct DagmcVolData {
@@ -32,6 +28,10 @@ struct DagmcVolData {
   double density, importance;
   std::string comp_name;
 };
+
+namespace double_down {
+class RayTracingInterface;
+}
 
 namespace moab {
 
