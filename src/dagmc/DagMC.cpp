@@ -16,14 +16,13 @@
 #include <sstream>
 #include <string>
 
+#ifdef DOUBLE_DOWN
+#include "double_down/RTI.hpp"
+#endif
+
 #include "util.hpp"
 #ifndef M_PI /* windows */
 #define M_PI 3.14159265358979323846
-#endif
-
-#ifdef DOUBLE_DOWN
-#include "double_down/MOABRay.h"
-#include "double_down/RTI.hpp"
 #endif
 
 #define MB_OBB_TREE_TAG_NAME "OBB_TREE"

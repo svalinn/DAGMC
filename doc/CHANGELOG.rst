@@ -20,6 +20,7 @@ Next version
 
 **Changed:**
 
+   * RayTracer type alias and double-down includes. (#786)
    * reformat all files using clang-format (#679)
    * change housekeeping to test format against clang-format (#679)
    * now install dagmc header when building and installing static libs (#717)
