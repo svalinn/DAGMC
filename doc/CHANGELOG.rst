@@ -11,7 +11,7 @@ Next version
 
    * adding BUILD_EXE option (default ON) allowing to build only the dagmc libs without the executable (for static and/or shared libs) (#717)
    * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
-   * CMake option to checkout PyNE submodule automatically (#734)
+   * CMake option to checkout PyNE submodule automatically (#734, #787)
    * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)
    * Enforcing usage of Python3 for PyNE amalgamation. (#773)
    * Adding workflow_dispatch option to docker_publish workflow (#776)
