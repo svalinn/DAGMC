@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # take 2 arguments:
 # $1 location of the pyne source folder
