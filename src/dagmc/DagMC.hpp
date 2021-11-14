@@ -225,9 +225,10 @@ class DagMC {
 
   ErrorCode point_in_volume_slow(const EntityHandle volume, const double xyz[3],
                                  int& result);
-
+#if MOAB_VERSION_MAJOR == 5 && MOAB_VERSION_MINOR > 2
   ErrorCode find_volume(const double xyz[3], EntityHandle& volume,
                         const double* uvw = NULL);
+#endif
 
   ErrorCode test_volume_boundary(const EntityHandle volume,
                                  const EntityHandle surface,
