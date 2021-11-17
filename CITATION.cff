@@ -38,9 +38,9 @@ authors:
   given-names: "Matthew"
 - family-names: "Zhang"
   given-names: "Xiaokang"
-# @vijaysm unkown familiy/given name
-# - family-names: ""
-#   given-names: ""
+- family-names: "Mahadevan"
+  given-names: "Vijay"
+  orcid: "https://orcid.org/0000-0002-3337-2607"
 - family-names: "brooks"
   given-names: "helen"
 - family-names: "Romano"
@@ -57,9 +57,9 @@ authors:
 # # @SudoVim unkown familiy/given name
 # - family-names: ""
 #   given-names: ""
-# @iulian787 unkown familiy/given name
-# - family-names: ""
-  # given-names: ""
+- family-names: "Grindeanu"
+  given-names: "Iulian"
+  orcid: "https://orcid.org/0000-0002-0264-8236"
 - family-names: "Xu"
   given-names: "Eric"
 - family-names: "Relson"
