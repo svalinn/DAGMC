@@ -11,7 +11,7 @@ set -e
 cd $1/pyne/src
 python3 atomicgen.py
 cd ..
-python3 amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
+python3 amalgamate.py -f license.txt src/pyne_version.h src/utils.* src/extra_types.h src/h5wrap.h \
     src/state_map.cpp src/nucname.* src/rxname.* src/particle.* src/data.* \
     src/json-forwards.h src/json.h src/jsoncpp.cpp src/jsoncustomwriter.* \
     src/material.* src/material_library.* src/tally.* src/atomic_data.* src/measure.* \
