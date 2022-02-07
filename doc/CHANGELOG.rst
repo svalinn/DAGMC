@@ -13,7 +13,7 @@ Next version
    * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
    * CMake option to checkout PyNE submodule automatically (#734, #787)
    * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)
-   * Enforcing usage of Python3 for PyNE amalgamation. (#773)
+   * Enforcing usage of Python3 for PyNE amalgamation. (#773,#791)
    * Adding workflow_dispatch option to docker_publish workflow (#776)
    * DagMC methods for creation and removal of the graveyard volume (#714)
    * CI build and test now support MacOS (shared build, no pymoab, no Double Down) (#780)
