@@ -9,7 +9,7 @@ set -e
 # Update amalgamated pyne
 
 cd $1/pyne/src
-python atomicgen.py
+python3 atomicgen.py
 cd ..
 python3 amalgamate.py -f license.txt src/utils.* src/extra_types.h src/h5wrap.h \
     src/state_map.cpp src/nucname.* src/rxname.* src/particle.* src/data.* \
