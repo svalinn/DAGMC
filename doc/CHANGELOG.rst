@@ -7,6 +7,9 @@ DAGMC Changelog
 Next version
 ====================
 
+v3.2.1
+====================
+
 **Added:**
 
    * adding BUILD_EXE option (default ON) allowing to build only the dagmc libs without the executable (for static and/or shared libs) (#717)
