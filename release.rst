@@ -27,19 +27,19 @@ Procedure
 
 1. Prepare PyNE for release
     a. Create release candidate (RC) branch in pyne/pyne
-    b. Create a pull request (PR) into the pyne RC branch in order to
+    b. Create a pull request (PR) *into the PyNE RC branch* in order to
         i. Change the version number in `pyne/pyne_version.py`
         ii. Update `CHANGELOG.txt`
     c. Merge that PR when approved
-    d. Potentially perform other update to the RC branch via PRs
+    d. Potentially perform other updates to the RC branch via PRs
     e. *DO NOT MERGE* RC branch
 2. Prepare DAGMC for release
     a. Create RC branch in svalinn/DAGMC
     b. Create PR into DAGMC RC branch
         i. Update PyNE Submodule in DAGMC after all changes are made to PyNE RC
-           branch but before it is merged
-        ii. Update DAGMC version number in `CMakeLists.txt`
-        iii. Update `CHANGELOG.rst`
+           branch. The PyNE RC branch is still not merged at this point.
+        ii. Update the DAGMC version number in `CMakeLists.txt`
+        iii. Update DAGMC's `CHANGELOG.rst`
     c. Merge that PR when approved
     d. Potentially perform other updates to the RC branch via PRs
     e. *DO NOT MERGE* RC branch
