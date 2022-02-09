@@ -45,7 +45,8 @@ Procedure
     e. *DO NOT MERGE* RC branch
 3. Update DAGMC `stable` tag to future release hash = DAGMC RC branch HEAD
 4. Manually invoke Github action to rebuild PyNE Docker images.  Note that this
-   will automatically build & test PyNE with the updated DAGMC
+   will automatically build & test PyNE with the updated DAGMC RC that is
+   pointed to by the `stable` tag
 5. Publish the DAGMC release
     a. Merge DAGMC RC branch to develop
     b. Create reelase from develop
