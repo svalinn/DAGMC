@@ -19,7 +19,7 @@ dependencies.
 Assumptions
 ------------
 
-1. The DAGMC sourec code repository has a tag named `stable` that points to the same SHA as the newest release.
+1. The DAGMC source code repository has a tag named `stable` that points to the same SHA as the newest release.
 2. The PyNE CI docker images rely on the DAGMC `stable` source code tag (this was incorporated in PyNE PR #1415)
 
 Procedure
