@@ -7,19 +7,23 @@ DAGMC Changelog
 Next version
 ====================
 
+v3.2.1
+====================
+
 **Added:**
 
    * adding BUILD_EXE option (default ON) allowing to build only the dagmc libs without the executable (for static and/or shared libs) (#717)
    * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
-   * CMake option to checkout PyNE submodule automatically (#734)
+   * CMake option to checkout PyNE submodule automatically (#734, #787)
    * GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)
-   * Enforcing usage of Python3 for PyNE amalgamation. (#773)
+   * Enforcing usage of Python3 for PyNE amalgamation. (#773,#792)
    * Adding workflow_dispatch option to docker_publish workflow (#776)
    * DagMC methods for creation and removal of the graveyard volume (#714)
    * CI build and test now support MacOS (shared build, no pymoab, no Double Down) (#780)
 
 **Changed:**
 
+   * RayTracer type alias and double-down includes. (#786)
    * reformat all files using clang-format (#679)
    * change housekeeping to test format against clang-format (#679)
    * now install dagmc header when building and installing static libs (#717)

@@ -29,7 +29,9 @@ struct DagmcVolData {
   std::string comp_name;
 };
 
+namespace double_down {
 class RayTracingInterface;
+}
 
 namespace moab {
 
@@ -477,7 +479,7 @@ class DagMC {
   std::shared_ptr<GeomTopoTool> GTT;
   // type alias for ray tracing engine
 #ifdef DOUBLE_DOWN
-  using RayTracer = RayTracingInterface;
+  using RayTracer = double_down::RayTracingInterface;
 #else
   using RayTracer = GeomQueryTool;
 #endif
