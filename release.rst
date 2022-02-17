@@ -45,15 +45,19 @@ Procedure
     d. Potentially perform other updates to the RC branch via PRs
     e. *DO NOT MERGE* RC branch
 3. Update DAGMC `stable <stable_>`_ tag to future release hash = DAGMC RC branch HEAD
+   
+   `git tag -d stable; git tag stable; git push -f --tags upstream`
 4. Manually invoke `Github action to rebuild PyNE Docker images
    <https://github.com/pyne/pyne/actions/workflows/docker_publish.yml>`_.  Note
    that this will automatically build & test PyNE with the updated DAGMC RC that
    is pointed to by the `stable <stable_>`_ tag
-5. Publish the DAGMC release
-    a. Merge DAGMC RC branch to `develop`
-    b. Create reelase from `develop`
-6. Publish PyNE release 
+5. Publish PyNE release - DAGMC depends on a specific hash of PyNE, while PyNE
+   depends on a tag of DAGMC
     a. Merge PyNE RC branch to `develop`
-    b. Create reelase from `develop`
+    b. Create release from `develop`
+6. Update PyNE Submodule in DAGMC after merge of PyNE RC
+7. Publish the DAGMC release
+    a. Merge DAGMC RC branch to `develop`
+    b. Create release from `develop`
 
 .. _stable: https://github.com/svalinn/DAGMC/releases/tag/stable
