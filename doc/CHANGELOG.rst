@@ -72,6 +72,7 @@ v3.2.1
 
    * move CI to github actions (#752, #753, #761, #763, #766)
    * move CI docker build of MOAB to CMake (#771)
+   * updated version number for release in `CMakeLists.txt` (#798)
 
 v3.2.0
 ====================
