@@ -34,6 +34,7 @@ static const std::string GRAVEYARD_NAME = "mat:graveyard";
 
 class CartVect;
 class GeomQueryTool;
+class GeomQueryTool::RayHistory;
 
 /**\brief
  *
