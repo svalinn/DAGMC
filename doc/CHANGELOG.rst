@@ -35,6 +35,8 @@ Next version
    * Tweak conda environment for Windows build to avoid conflicting gtest headers (#888)
    * Restrict cython version for MOAB (#893)
    * Various documentation updates (#869)
+   * cleaned up headers to include fewer upstream headers (#800)
+
 
 v3.2.2
 ====================
@@ -61,6 +63,19 @@ v3.2.1
 **Fixed:**
 
 **Security:**
+
+**Maintenance:**
+
+
+**Added:**
+
+**Changed:**
+
+**Deprecated:**
+
+**Removed:**
+
+**Fixed:**
 
 **Maintenance:**
 
