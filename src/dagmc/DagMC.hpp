@@ -11,18 +11,7 @@
 #include <vector>
 
 #include "DagMCVersion.hpp"
-#include "MBTagConventions.hpp"
-#include "logger.hpp"
-#include "moab/CartVect.hpp"
-#include "moab/Core.hpp"
-#include "moab/FileOptions.hpp"
-#include "moab/GeomQueryTool.hpp"
-#include "moab/GeomTopoTool.hpp"
-#include "moab/GeomUtil.hpp"
 #include "moab/Interface.hpp"
-#include "moab/Range.hpp"
-
-class RefEntity;
 
 struct DagmcVolData {
   int mat_id;
