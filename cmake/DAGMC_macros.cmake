@@ -209,7 +209,7 @@ macro (dagmc_make_configure_files)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/dagmc/)
   configure_file(cmake/DAGMCConfigVersion.cmake.in DAGMCConfigVersion.cmake @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfigVersion.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/dagmc)
-  install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+  install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/dagmc)
 endmacro ()
 
 # To use the dagmc_install macros, the following lists must be defined:
