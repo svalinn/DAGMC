@@ -63,7 +63,7 @@ macro (dagmc_setup_options)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
 
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-  option(BUILD_STATIC_LIBS "Build static libraries" ON)
+  option(BUILD_STATIC_LIBS "Build static libraries" OFF)
 
   option(BUILD_EXE        "Build DAGMC executables"  ON)
   option(BUILD_STATIC_EXE "Build static executables" OFF)
