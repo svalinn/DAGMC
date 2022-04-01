@@ -1,6 +1,6 @@
 message("")
 
-find_package(Geant4 REQUIRED)
+find_package(Geant4 10.4.2 REQUIRED)
 
 set(SRC_FILES DagSolid.cc)
 set(PUB_HEADERS DagSolid.hh)
