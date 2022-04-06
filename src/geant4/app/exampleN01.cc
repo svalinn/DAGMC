@@ -16,8 +16,8 @@
 #include "G4UImanager.hh"
 
 #ifdef GEANT4_GT_10_6
-#include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
+#include "G4VisExecutive.hh"
 #else
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
