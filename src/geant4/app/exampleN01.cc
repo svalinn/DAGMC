@@ -15,16 +15,17 @@
 #include "G4Timer.hh"
 #include "G4UImanager.hh"
 
-//#ifdef G4UI_USE
-#include "G4UIExecutive.hh"
-
-//#ifdef G4VIS_USE
+#ifdef GEANT4_GT_10_6
 #include "G4VisExecutive.hh"
-//#endif
-
-//#ifdef G4UI_USE
 #include "G4UIExecutive.hh"
-//#endif
+#else
+#ifdef G4VIS_USE
+#include "G4VisExecutive.hh"
+#endif
+#ifdef G4UI_USE
+#include "G4UIExecutive.hh"
+#endif
+#endif
 
 #ifndef uwuw_hpp
 #define uwuw_hpp 1

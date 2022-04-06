@@ -2,6 +2,11 @@ message("")
 
 find_package(Geant4 10.4.2 REQUIRED)
 
+if ( Geant4_VERSION GREATER_EQUAL 10.6 )
+  message(STATUS "Configuring DAGMC for Geant4 version >= 10.6")
+  add_compile_definitions(GEANT4_GT_10_6=1)
+endif()
+
 set(SRC_FILES DagSolid.cc)
 set(PUB_HEADERS DagSolid.hh)
 
