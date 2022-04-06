@@ -18,6 +18,9 @@ Next version
    * Minor typo fixes in documentation (#851)
    * Removed unused Circle CI yml (#859)
 
+**Fixed:**
+   * Patch to compile with Geant4 10.6     
+
 
 v3.2.2
 ====================
@@ -42,7 +45,7 @@ v3.2.1
 **Removed:**
 
 **Fixed:**
-
+      
 **Security:**
 
 **Maintenance:**
