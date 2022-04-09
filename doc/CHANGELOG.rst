@@ -7,6 +7,12 @@ DAGMC Changelog
 Next version
 ====================
 
+**Changed:**
+
+   * Placing installed CMake configuration files in project directory (#802)
+   * Removing build of static libs as a default option (#802)
+
+
 v3.2.1
 ====================
 

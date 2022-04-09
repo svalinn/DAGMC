@@ -41,6 +41,7 @@ function build_dagmc() {
                -DBUILD_CI_TESTS=ON \
                -DBUILD_MW_REG_TESTS=${build_mw_reg_tests} \
                -DBUILD_STATIC_EXE=${static_exe} \
+               -DBUILD_STATIC_LIBS=${static_exe} \
                -DCMAKE_C_COMPILER=${CC} \
                -DCMAKE_CXX_COMPILER=${CXX} \
                -DCMAKE_Fortran_COMPILER=${FC} \

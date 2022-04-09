@@ -28,4 +28,4 @@ if(@DOUBLE_DOWN@)
                HINTS @dd_CMAKE_CONFIG@)
 endif()
 
-include(@CMAKE_INSTALL_PREFIX@/lib/cmake/DAGMCTargets.cmake)
+include(@CMAKE_INSTALL_PREFIX@/lib/cmake/dagmc/DAGMCTargets.cmake)

@@ -63,7 +63,7 @@ macro (dagmc_setup_options)
   option(BUILD_CI_TESTS "Build everything needed to run the CI tests" OFF)
 
   option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-  option(BUILD_STATIC_LIBS "Build static libraries" ON)
+  option(BUILD_STATIC_LIBS "Build static libraries" OFF)
 
   option(BUILD_EXE        "Build DAGMC executables"  ON)
   option(BUILD_STATIC_EXE "Build static executables" OFF)
@@ -203,13 +203,13 @@ endmacro ()
 # Setup the configuration file and install
 macro (dagmc_make_configure_files)
   message("")
-  message(STATUS "DAGMC cmake config file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfig.cmake")
-  message(STATUS "DAGMC cmake version file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/DAGMCConfigVersion.cmake")
+  message(STATUS "DAGMC cmake config file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/dagmc/DAGMCConfig.cmake")
+  message(STATUS "DAGMC cmake version file: ${CMAKE_INSTALL_PREFIX}/${INSTALL_LIB_DIR}/cmake/dagmc/DAGMCConfigVersion.cmake")
   configure_file(cmake/DAGMCConfig.cmake.in DAGMCConfig.cmake @ONLY)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfig.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/dagmc/)
   configure_file(cmake/DAGMCConfigVersion.cmake.in DAGMCConfigVersion.cmake @ONLY)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfigVersion.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/)
-  install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/DAGMCConfigVersion.cmake DESTINATION ${INSTALL_LIB_DIR}/cmake/dagmc)
+  install(EXPORT DAGMCTargets DESTINATION ${INSTALL_LIB_DIR}/cmake/dagmc)
 endmacro ()
 
 # To use the dagmc_install macros, the following lists must be defined:
