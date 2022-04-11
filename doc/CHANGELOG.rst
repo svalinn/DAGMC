@@ -9,6 +9,26 @@ Next version
 
 **Added:**
 
+   * Added link to latest Conda package in GitHub README.md
+
+**Changed:**
+
+**Deprecated:**
+
+**Removed:**
+
+**Fixed:**
+
+**Security:**
+
+**Maintenance:**
+
+
+v3.2.1
+====================
+
+**Added:**
+
    * adding BUILD_EXE option (default ON) allowing to build only the dagmc libs without the executable (for static and/or shared libs) (#717)
    * Including installation of a CMake version file for use with `find_package` in client codes. (#722)
    * CMake option to checkout PyNE submodule automatically (#734, #787)
