@@ -11,7 +11,7 @@ Next version
 
    * Placing installed CMake configuration files in project directory (#802)
    * Removing build of static libs as a default option (#802)
-
+   * Adding PYTHONPATH to linux CI images and creating pymoab installation directories (#802)
 
 v3.2.1
 ====================
