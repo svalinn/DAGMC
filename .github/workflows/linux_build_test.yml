@@ -10,7 +10,7 @@ on:
       - '.github/workflows/docker_publish.yml'
       - '.github/workflows/housekeeping.yml'
       - 'CI/**'
-      - 'news/**' 
+      - 'news/**'
   push:
     branches:
       - develop
@@ -51,11 +51,11 @@ jobs:
           - isPR: true
             moab_versions: develop
           - isPR: true
-            moab_versions: master           
+            moab_versions: master
 
     container:
       image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:stable
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -70,8 +70,9 @@ jobs:
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
           echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
+          echo "PYTHONPATH="/root/build_dir/moab/bld/pymoab/lib/python3.6/site-packages:$PYTHONPATH"" >> $GITHUB_ENV
           ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
-         
+
       - name: Building DAGMC
         run: |
           cd $GITHUB_WORKSPACE
