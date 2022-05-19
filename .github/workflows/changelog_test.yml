@@ -23,11 +23,10 @@ jobs:
           apk add --no-cache bash git openssh
           git --version
 
-      - name: Checkout repository
-        uses: actions/checkout@v2
-    
-      - name: Housekeeping
-        run: |
+      - name: Checkout repository and housekeeping
+        uses: actions/checkout@v3
+      - run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
           cd $GITHUB_WORKSPACE
           CI/scripts/changelog_test.sh
 
