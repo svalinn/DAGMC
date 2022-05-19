@@ -7,6 +7,9 @@ DAGMC Changelog
 Next version
 ====================
 
+v3.2.2
+====================
+
 **Changed:**
 
    * Placing installed CMake configuration files in project directory (#802)
