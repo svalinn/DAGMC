@@ -78,7 +78,7 @@ ENV HDF5_VERSION=${HDF5}
 #TODO move sh file contents into this Dockerfile
 RUN /root/etc/CI/docker/build_hdf5.sh
 
-from hdf5 as moab
+FROM hdf5 as moab
 
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
