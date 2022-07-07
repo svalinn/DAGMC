@@ -1,0 +1,7 @@
+ARG UBUNTU_VERSION=18.04
+ARG OWNER=svalinn
+ARG TAG=latest
+FROM ghcr.io/${OWNER}/dagmc-ci-ubuntu-${UBUNTU_VERSION}:$TAG
+
+RUN pip install sphinx; \
+    apt-get -y install clang-format

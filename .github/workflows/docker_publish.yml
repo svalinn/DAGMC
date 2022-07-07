@@ -37,7 +37,8 @@ jobs:
       - name: Build and Export Dockerfile_0_base
         uses: docker/build-push-action@v2
         with:
-          file: CI/Dockerfile_0_base
+          file: CI/Dockerfile
+          target: base
           push: true
           context: .
           build-args: |
@@ -116,7 +117,8 @@ jobs:
       - name: Build and push Dockerfile_1_external_deps
         uses: docker/build-push-action@v2
         with:
-          file: CI/Dockerfile_1_external_deps
+          file: CI/Dockerfile
+          target: external_deps
           context: .
           push: false
           build-args: |
@@ -129,7 +131,8 @@ jobs:
       - name: Build and export Dockerfile_2_hdf5
         uses: docker/build-push-action@v2
         with:
-          file: CI/Dockerfile_2_hdf5
+          file: CI/Dockerfile
+          target: hdf5
           context: .
           push: true
           build-args: |
@@ -184,7 +187,8 @@ jobs:
       - name: Build and push Dockerfile_3_moab
         uses: docker/build-push-action@v2
         with:
-          file: CI/Dockerfile_3_moab
+          file: CI/Dockerfile
+          target: moab
           context: .
           push: true
           build-args: |

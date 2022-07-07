@@ -1,5 +1,5 @@
 ARG UBUNTU_VERSION=18.04
-FROM ubuntu:${UBUNTU_VERSION} as base
+FROM ubuntu:${UBUNTU_VERSION} AS base
 
 # Use bash as the default shell
 SHELL ["/bin/bash", "-c"]
@@ -65,7 +65,7 @@ ENV double_down_install_dir=${install_dir}/double-down/
 #TODO move sh file contents into this Dockerfile
 RUN /root/etc/CI/docker/build_embree.sh
 
-FROM external_deps as hdf5
+FROM external_deps AS hdf5
 
 # Set HDF5 env variable
 ENV hdf5_build_dir=${build_dir}/hdf5
@@ -78,7 +78,7 @@ ENV HDF5_VERSION=${HDF5}
 #TODO move sh file contents into this Dockerfile
 RUN /root/etc/CI/docker/build_hdf5.sh
 
-FROM hdf5 as moab
+FROM hdf5 AS moab
 
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
