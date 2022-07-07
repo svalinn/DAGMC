@@ -55,5 +55,5 @@ for ubuntu_version in ${ubuntu_versions}; do
 done
 
 # Building image for houe keeping
-docker build -t svalinn/dagmc-ci-ubuntu-18.04-docs -f CI/docs.Dockerfile .
+docker build -t svalinn/dagmc-ci-ubuntu-18.04-housekeeping -f CI/Dockerfile_1_housekeeping .
 if [ "$PUSH" = true ]; then docker push svalinn/dagmc-ci-ubuntu-18.04-housekeeping; fi
