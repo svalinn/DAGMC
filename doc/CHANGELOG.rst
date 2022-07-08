@@ -7,6 +7,11 @@ DAGMC Changelog
 Next version
 ====================
 
+**Changed:**
+
+   * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
+
+
 v3.2.2
 ====================
 

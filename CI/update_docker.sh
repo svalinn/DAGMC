@@ -22,20 +22,23 @@ moab_versions="5.3.0 develop master"
 for ubuntu_version in ${ubuntu_versions}; do
   image_name="svalinn/dagmc-ci-ubuntu-${ubuntu_version}"
   docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
-               -f CI/Dockerfile_0_base .
+                -f CI/Dockerfile \
+                --target base .
   if [ "$PUSH" = true ]; then docker push ${image_name}; fi
   for compiler in $compilers; do
     image_name="svalinn/dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-ext"
     docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
                                   --build-arg COMPILER=${compiler} \
-                 -f CI/Dockerfile_1_external_deps .
+                 -f CI/Dockerfile \
+                 --target external_deps .
     if [ "$PUSH" = true ]; then docker push ${image_name}; fi
     for hdf5 in $hdf5_versions; do
       image_name="svalinn/dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-ext-hdf5_${hdf5}"
       docker build -t ${image_name} --build-arg UBUNTU_VERSION=${ubuntu_version} \
                                     --build-arg COMPILER=${compiler} \
                                     --build-arg HDF5=${hdf5} \
-                   -f CI/Dockerfile_2_hdf5 .
+                   -f CI/Dockerfile \
+                   --target hdf5 .
       if [ "$PUSH" = true ]; then docker push ${image_name}; fi
       for moab in $moab_versions; do
         image_name="svalinn/dagmc-ci-ubuntu-${ubuntu_version}-${compiler}-ext-hdf5_${hdf5}-moab_${moab}"
@@ -43,7 +46,8 @@ for ubuntu_version in ${ubuntu_versions}; do
                                       --build-arg COMPILER=${compiler} \
                                       --build-arg HDF5=${hdf5} \
                                       --build-arg MOAB=${moab} \
-                     -f CI/Dockerfile_3_moab .
+                     -f CI/Dockerfile \
+                     --target moab .
         if [ "$PUSH" = true ]; then docker push ${image_name}; fi
       done
     done
