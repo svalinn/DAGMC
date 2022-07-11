@@ -10,6 +10,7 @@ Next version
 **Changed:**
 
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
+   * Adding safe folder to allow CI to compile DAGMC (#814)
 
 
 v3.2.2
