@@ -14,7 +14,7 @@ jobs:
       image: ghcr.io/svalinn/dagmc-ci-ubuntu-18.04-housekeeping:stable
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup environment 
         run: |
