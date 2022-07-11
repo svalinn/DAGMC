@@ -218,7 +218,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-          set-safe-directory: '/__w/DAGMC/DAGMC'
+          set-safe-directory: "/__w/DAGMC/DAGMC"
 
 
       - name: Setup
@@ -266,6 +266,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+          set-safe-directory: "/__w/DAGMC/DAGMC"
 
       - name: Setup
         run: |
