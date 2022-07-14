@@ -218,11 +218,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-          set-safe-directory: ${GITHUB_WORKSPACE}
-
 
       - name: Setup
         run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
           mkdir /root/build_dir/
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
@@ -266,10 +265,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
-          set-safe-directory: ${GITHUB_WORKSPACE}
 
       - name: Setup
         run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
           echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
           echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
           echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
