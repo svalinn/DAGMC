@@ -269,6 +269,7 @@ jobs:
       - name: Setup
         run: |
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          git config --global --add safe.directory /github/home
           echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
           echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
           echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
