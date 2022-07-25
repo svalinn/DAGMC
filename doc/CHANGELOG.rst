@@ -10,7 +10,8 @@ Next version
 **Changed:**
 
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
-   * Move install scripts into Dockerfile (#817)
+   * Correction to CMake variable name in OpenMC install instructions (#817)
+   * Move install scripts into Dockerfile (#822)
 
 
 v3.2.2
