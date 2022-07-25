@@ -1,4 +1,23 @@
 ARG UBUNTU_VERSION=18.04
+# or clang
+
+
+ARG ci_jobs=8
+ARG MOAB_BRANCH=5.4.0
+ARG build_dir=/root/build_dir
+ARG install_dir=/root/opt
+ARG geant4_version=10.5.1
+ARG EMBREE_BRANCH='v3.6.1'
+ARG HDF5_VERSION=1.10.4
+ARG HDF5_VERSION_major=1.10
+
+# if clang then change cc and cxx
+# ARG COMPILER=gcc
+# or clang
+ARG CC=gcc
+# or clang++
+ARG CXX=g++
+
 FROM ubuntu:${UBUNTU_VERSION} AS base
 
 # Use bash as the default shell
@@ -34,60 +53,139 @@ RUN apt-get -y update; \
     pip install cython;
 
 
-# Copy scripts to docker image
-RUN mkdir -p /root/etc/
-COPY CI/ /root/etc/CI
-#TODO move sh file contents into this Dockerfile
-ENV docker_env=/root/etc/CI/env.sh
-
-ENV build_dir=/root/build_dir
-ENV install_dir=/root/opt
 
 
 FROM base as external_deps
 
-#setting the COMPILER variable
-ARG COMPILER=gcc
-ENV COMPILER=${COMPILER}
+ARG build_dir
+ARG install_dir
+ARG COMPILER
+ARG ci_jobs
+ARG geant4_version
+ARG CC
+ARG CXX
+ARG EMBREE_BRANCH
 
-# Set Geant4 env variable
+ENV geant4_basename=geant4-v${geant4_version}
+ENV geant4_tarball=${geant4_basename}.tar.gz
+ENV geant4_shasum=2397eb859dc4de095ff66059d8bda9f060fdc42e10469dd7890946293eeb0e39
 ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
-# Build Geant4
-#TODO move sh file contents into this Dockerfile
-RUN /root/etc/CI/docker/build_geant4.sh
+RUN mkdir -p ${geant4_build_dir}/bld
+RUN cd ${geant4_build_dir} && \
+    wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${geant4_version}/${geant4_tarball} --no-check-certificate && \
+    tar -xzf ${geant4_tarball} && \
+    cd bld && \
+    cmake ../${geant4_basename} -DBUILD_STATIC_LIBS=ON \
+                -DGEANT4_USE_SYSTEM_EXPAT=OFF \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_C_COMPILER=${CC} \
+                -DCMAKE_CXX_COMPILER=${CXX} \
+                -DCMAKE_INSTALL_RPATH=${geant4_install_dir}/lib \
+                -DCMAKE_INSTALL_PREFIX=${geant4_install_dir} && \
+    make -j${ci_jobs} && \
+    make install && \
+    cd && \
+    rm -rf ${geant4_build_dir}
 
+# these don't appear to be used yet
 ENV double_down_build_dir=${build_dir}/double-down/
 ENV double_down_install_dir=${install_dir}/double-down/
 
-# Build Embree
-#TODO move sh file contents into this Dockerfile
-RUN /root/etc/CI/docker/build_embree.sh
+ENV embree_install_dir=${install_dir}/embree
+
+RUN mkdir EMBREE && \
+    cd EMBREE && \
+    git clone -b ${EMBREE_BRANCH} https://github.com/embree/embree && \
+    mkdir build && \
+    cd build && \
+    cmake ../embree -DCMAKE_INSTALL_PREFIX=${embree_install_dir} \
+        -DEMBREE_ISPC_SUPPORT=OFF \
+        -DEMBREE_TASKING_SYSTEM=INTERNAL \
+        -DEMBREE_TUTORIALS=OFF \
+        -DEMBREE_TBB_ROOT=/usr && \
+    make -j2 && make -j2 install && \
+    rm -rf $HOME/EMBREE/embree
+
 
 FROM external_deps AS hdf5
+
+ARG build_dir
+ARG install_dir
+ARG ci_jobs
+ARG HDF5_VERSION
+ARG HDF5_VERSION_major
+ARG CC
+ARG CXX
 
 # Set HDF5 env variable
 ENV hdf5_build_dir=${build_dir}/hdf5
 ENV hdf5_install_dir=${install_dir}/hdf5
 
-# Build HDF5
-# HDF5 argument possible value: 1.10.4 or system
-ARG HDF5=1.10.4
-ENV HDF5_VERSION=${HDF5}
-#TODO move sh file contents into this Dockerfile
-RUN /root/etc/CI/docker/build_hdf5.sh
+RUN mkdir -p ${hdf5_build_dir}/bld && \
+    cd ${hdf5_build_dir} && \
+    wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION_major}/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.gz && \
+    tar -xzf hdf5-${HDF5_VERSION}.tar.gz && \
+    cd bld && \
+    ../hdf5-${HDF5_VERSION}/configure --enable-shared \
+        --prefix=${hdf5_install_dir} \
+        CC=${CC} \
+        CXX=${CXX} && \
+    make -j${ci_jobs} && \
+    make install && \
+    cd && \
+    rm -rf ${hdf5_build_dir}
+
 
 FROM hdf5 AS moab
+
+ARG ci_jobs
+ARG MOAB_BRANCH
+ARG CC
+ARG CXX
+ARG build_dir
+ARG install_dir
 
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
-ARG MOAB=5.3.0
-ENV MOAB_VERSION ${MOAB}
-#TODO move sh file contents into this Dockerfile
-RUN if [ "${MOAB_VERSION}" != "master" ] && [ "${MOAB_VERSION}" != "develop" ]; then \
-        /root/etc/CI/docker/build_moab.sh; \
-    fi;
+RUN mkdir -p ${moab_build_dir}/bld
+RUN cd ${moab_build_dir} && \
+    git clone -b ${MOAB_BRANCH} --depth 1 https://bitbucket.org/fathomteam/moab && \
+    cd bld && \
+    cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+                -DENABLE_BLASLAPACK=OFF \
+                -DENABLE_FORTRAN=OFF \
+                -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
+                -DCMAKE_C_COMPILER=${CC} \
+                -DCMAKE_CXX_COMPILER=${CXX} \
+                -DBUILD_SHARED_LIBS=OFF && \
+    make -j${ci_jobs} && \
+    make install && \
+    rm -rf * && \
+    cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+                -DENABLE_PYMOAB=ON \
+                -DENABLE_BLASLAPACK=OFF \
+                -DENABLE_FORTRAN=OFF \
+                -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
+                -DCMAKE_C_COMPILER=${CC} \
+                -DCMAKE_CXX_COMPILER=${CXX} \
+                -DBUILD_SHARED_LIBS=ON \
+                -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib && \
+    # ensure that the installation directory for python packages exist
+    for d in $(echo $PYTHONPATH | tr : '\n'); do mkdir -p $d; done && \
+    make -j${ci_jobs} && \
+    make install && \
+    cd && \
+    rm -rf ${moab_build_dir}
 
+ENV dagmc_build_dir=${build_dir}/DAGMC
+ENV dagmc_install_dir=${install_dir}/DAGMC
+
+ENV dagmc_build_dir_shared=${dagmc_build_dir}-shared
+ENV dagmc_install_dir_shared=${dagmc_install_dir}-shared
+
+ENV dagmc_build_dir_static=${dagmc_build_dir}-static
+ENV dagmc_install_dir_static=${dagmc_install_dir}-static
