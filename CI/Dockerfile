@@ -1,21 +1,23 @@
-ARG UBUNTU_VERSION=18.04
-# or clang
+# Svalinn DAGMC Dockerfile
 
+ARG UBUNTU_VERSION=18.04
 
 ARG ci_jobs=8
 ARG MOAB_BRANCH=5.4.0
-ARG build_dir=/root/build_dir
-ARG install_dir=/root/opt
-ARG geant4_version=10.5.1
 ARG EMBREE_BRANCH='v3.6.1'
+ARG geant4_version=10.5.1
+
 ARG HDF5_VERSION=1.10.4
+# currently major version must be manually set to match HDF5 version
 ARG HDF5_VERSION_major=1.10
 
-# if clang then change cc and cxx
-# ARG COMPILER=gcc
-# or clang
+ARG build_dir=/root/build_dir
+ARG install_dir=/root/opt
+
+# clang and gcc are options for the compiler but to use them CC and CXX must be set
+# if clang then change cc to clang and cxx to clang++
+# if gcc then change cc to gcc and cxx to g++
 ARG CC=gcc
-# or clang++
 ARG CXX=g++
 
 FROM ubuntu:${UBUNTU_VERSION} AS base
@@ -53,8 +55,6 @@ RUN apt-get -y update; \
     pip install cython;
 
 
-
-
 FROM base as external_deps
 
 ARG build_dir
@@ -89,7 +89,9 @@ RUN cd ${geant4_build_dir} && \
     cd && \
     rm -rf ${geant4_build_dir}
 
-# these don't appear to be used yet
+# these two double down ENVs don't appear to be used yet
+# However they were in orginal dockerfile, so they have been kept
+# TODO add double down to the dockerfile
 ENV double_down_build_dir=${build_dir}/double-down/
 ENV double_down_install_dir=${install_dir}/double-down/
 
@@ -119,7 +121,6 @@ ARG HDF5_VERSION_major
 ARG CC
 ARG CXX
 
-# Set HDF5 env variable
 ENV hdf5_build_dir=${build_dir}/hdf5
 ENV hdf5_install_dir=${install_dir}/hdf5
 
