@@ -11,6 +11,7 @@ Next version
 
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
    * Correction to CMake variable name in OpenMC install instructions (#817)
+   * Updating documentation publishing URL (#823)
 
 
 v3.2.2
