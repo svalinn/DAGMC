@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>DAGMC unstructured mesh tallies &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/default.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -77,13 +79,13 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="dagmc-unstructured-mesh-tallies">
-<h1>DAGMC unstructured mesh tallies<a class="headerlink" href="#dagmc-unstructured-mesh-tallies" title="Permalink to this headline">¶</a></h1>
+  <section id="dagmc-unstructured-mesh-tallies">
+<h1>DAGMC unstructured mesh tallies<a class="headerlink" href="#dagmc-unstructured-mesh-tallies" title="Permalink to this heading">¶</a></h1>
 <p>DAGMC supports several advanced mesh tally options including tetrahedral mesh
 tallies (tetmeshes) and kernel density estimator tallies. Both options require
 an unstructured mesh.</p>
-<div class="section" id="mesh-production-workflow">
-<h2>Mesh production workflow<a class="headerlink" href="#mesh-production-workflow" title="Permalink to this headline">¶</a></h2>
+<section id="mesh-production-workflow">
+<h2>Mesh production workflow<a class="headerlink" href="#mesh-production-workflow" title="Permalink to this heading">¶</a></h2>
 <p>Cubit can be used to generate the unstructured meshes needed for tallies.
 To do so, use the following steps.</p>
 <ol class="arabic simple">
@@ -102,9 +104,9 @@ to a faceted .h5m file that DAGMC can use.</p></li>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mbconvert mesh.h5m mesh.vtk
 </pre></div>
 </div>
-</div>
-<div class="section" id="tetrahedral-mesh-tallies">
-<h2>Tetrahedral mesh tallies<a class="headerlink" href="#tetrahedral-mesh-tallies" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="tetrahedral-mesh-tallies">
+<h2>Tetrahedral mesh tallies<a class="headerlink" href="#tetrahedral-mesh-tallies" title="Permalink to this heading">¶</a></h2>
 <p>Currently the tetmesh tally option is only available in DAG-MCNP5/6, but there
 are plans to expand this to all the codes that DAGMC currently supports.</p>
 <p>Once you have used the above instructions to produce one or more meshes in .h5m
@@ -134,9 +136,9 @@ viewing or post-processing with <a class="reference external" href="https://wci.
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ mbconvert mesh_out.h5m mesh_out.vtk
 </pre></div>
 </div>
-</div>
-<div class="section" id="kernel-density-estimator-tallies">
-<h2>Kernel density estimator tallies<a class="headerlink" href="#kernel-density-estimator-tallies" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="kernel-density-estimator-tallies">
+<h2>Kernel density estimator tallies<a class="headerlink" href="#kernel-density-estimator-tallies" title="Permalink to this heading">¶</a></h2>
 <p>The kernel density estimator tallies are a suite of tallies that allow scoring
 to be done using the vertices of a tetmesh or add additional mesh-based scoring
 such as collision estimator tallies. The theoretical details behind KDE tallies
@@ -161,8 +163,8 @@ fc4 dagmc type=kde_subtrack inp=mesh.h5m out=mesh_out.h5m
     subtracks=3 seed=11699913
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -175,10 +177,10 @@ fc4 dagmc type=kde_subtrack inp=mesh.h5m out=mesh_out.h5m
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>

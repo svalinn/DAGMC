@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>DAGMC Changelog &#8212; DAGMC</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/default.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -65,6 +67,10 @@
 <div id="sidebar">
  <div id="sidebar_section"><ul>
 <li><a class="reference internal" href="#">DAGMC Changelog</a><ul>
+<li><a class="reference internal" href="#next-version">Next version</a></li>
+<li><a class="reference internal" href="#v3-2-2">v3.2.2</a></li>
+<li><a class="reference internal" href="#v3-2-1">v3.2.1</a></li>
+<li><a class="reference internal" href="#id1">v3.2.1</a></li>
 <li><a class="reference internal" href="#v3-2-0">v3.2.0</a></li>
 </ul>
 </li>
@@ -74,10 +80,121 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="dagmc-changelog">
-<h1>DAGMC Changelog<a class="headerlink" href="#dagmc-changelog" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="v3-2-0">
-<h2>v3.2.0<a class="headerlink" href="#v3-2-0" title="Permalink to this headline">¶</a></h2>
+  <section id="dagmc-changelog">
+<h1>DAGMC Changelog<a class="headerlink" href="#dagmc-changelog" title="Permalink to this heading">¶</a></h1>
+<section id="next-version">
+<h2>Next version<a class="headerlink" href="#next-version" title="Permalink to this heading">¶</a></h2>
+<p><strong>Changed:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Using multi stage Dockerfile to reduce the number of Dockerfile (#813)</p></li>
+<li><p>Correction to CMake variable name in OpenMC install instructions (#817)</p></li>
+<li><p>Updating documentation publishing URL (#823)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="v3-2-2">
+<h2>v3.2.2<a class="headerlink" href="#v3-2-2" title="Permalink to this heading">¶</a></h2>
+<p><strong>Changed:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Placing installed CMake configuration files in project directory (#802)</p></li>
+<li><p>Removing build of static libs as a default option (#802)</p></li>
+<li><p>Adding PYTHONPATH to linux CI images and creating pymoab installation directories (#802)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="v3-2-1">
+<h2>v3.2.1<a class="headerlink" href="#v3-2-1" title="Permalink to this heading">¶</a></h2>
+<p><strong>Added:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Added link to latest Conda package in GitHub README.md</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Changed:</strong></p>
+<p><strong>Deprecated:</strong></p>
+<p><strong>Removed:</strong></p>
+<p><strong>Fixed:</strong></p>
+<p><strong>Security:</strong></p>
+<p><strong>Maintenance:</strong></p>
+</section>
+<section id="id1">
+<h2>v3.2.1<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<p><strong>Added:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>adding BUILD_EXE option (default ON) allowing to build only the dagmc libs without the executable (for static and/or shared libs) (#717)</p></li>
+<li><p>Including installation of a CMake version file for use with <cite>find_package</cite> in client codes. (#722)</p></li>
+<li><p>CMake option to checkout PyNE submodule automatically (#734, #787)</p></li>
+<li><p>GitHub Action to build and upload Docker images. (#746, #748, #754, #757, #758, #759, #765, #767)</p></li>
+<li><p>Enforcing usage of Python3 for PyNE amalgamation. (#773,#792)</p></li>
+<li><p>Adding workflow_dispatch option to docker_publish workflow (#776)</p></li>
+<li><p>DagMC methods for creation and removal of the graveyard volume (#714)</p></li>
+<li><p>CI build and test now support MacOS (shared build, no pymoab, no Double Down) (#780)</p></li>
+<li><p>Added GitHub style citation file (CITATION.cff) (#790)</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Changed:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>RayTracer type alias and double-down includes. (#786)</p></li>
+<li><p>reformat all files using clang-format (#679)</p></li>
+<li><p>change housekeeping to test format against clang-format (#679)</p></li>
+<li><p>now install dagmc header when building and installing static libs (#717)</p></li>
+<li><p>now adds pyne as a submodule, and amalgamate at compilation (#731)</p></li>
+<li><p>converted from news files to CHANGELOG (#769)</p></li>
+<li><p>updated location &amp; checksum of GEANT4 tarball (#735)</p></li>
+<li><p>updated all documentation to refer to Coreform Cubit instead of Trelis (#736)</p></li>
+<li><p>Added a job to CI for running tests with the DOUBLE_DOWN option enabled. (#738)</p></li>
+<li><p>Threadsafe fix for the overlap check test. (#743)</p></li>
+<li><p>website now points to github for plugin download (#744)</p></li>
+<li><p>Location of double-down header files. (#745)</p></li>
+<li><p>Location of Dockerimages from Dockerhub to GHCR. (#746)</p></li>
+<li><p>update MOAB version (#740, #760, #768, #771)</p></li>
+<li><p>Installing clang-format in the docker container instead of in the housekeeping script (#726)</p></li>
+<li><p>updated PyNE to version 0.7.5 (#770)</p></li>
+<li><p>improve path pattern to trigger docker build workflow (#772)</p></li>
+<li><p>limit the extend of housekeeping workflows to pull_request (#774)</p></li>
+<li><p>upgrade g-test to 1.8.0 (#778)</p></li>
+<li><p>updated CI badges (#784)</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Deprecated:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>retiring python2 in CI (#747)</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Removed:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Removed the data member defaultFacetingTolerance from the class DagMC. (#711)</p></li>
+<li><p>Circle CI status badge in the README (#777)</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Fixed:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>adding special build flag to enable old hdf5 interface for PyNE when compiling against <a class="reference external" href="mailto:hdf5&#37;&#52;&#48;1&#46;12+">hdf5<span>&#64;</span>1<span>&#46;</span>12+</a> (#728)</p></li>
+<li><p>Renamed <cite>jobs</cite> variable CI build system to avoid undocumented conflict with <cite>git submodule</cite> (#735)</p></li>
+<li><p>Windows compatibility fix</p></li>
+<li><p>remove_unsupported.py script is now compatible with python2…</p></li>
+<li><p>Return correct bounding boxes when configured with Double-Down. (#779)</p></li>
+</ul>
+</div></blockquote>
+<p><strong>Security:</strong></p>
+<p><strong>Maintenance:</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>move CI to github actions (#752, #753, #761, #763, #766)</p></li>
+<li><p>move CI docker build of MOAB to CMake (#771)</p></li>
+<li><p>updated version number for release in <cite>CMakeLists.txt</cite> (#798)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="v3-2-0">
+<h2>v3.2.0<a class="headerlink" href="#v3-2-0" title="Permalink to this heading">¶</a></h2>
 <p><strong>Added:</strong></p>
 <ul class="simple">
 <li><p><cite>DagMC::git_sha</cite> method (PR#707)</p></li>
@@ -381,8 +498,8 @@ tags. (PR#597)</p></li>
 <li><p>Also produces a total tally tag. (PR#597)</p></li>
 </ul>
 <p><strong>Security:</strong> None</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -395,10 +512,10 @@ tags. (PR#597)</p></li>
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>

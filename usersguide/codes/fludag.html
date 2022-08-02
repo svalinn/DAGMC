@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Code-specific steps for FluDAG &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/default.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -83,8 +85,8 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="code-specific-steps-for-fludag">
-<h1>Code-specific steps for FluDAG<a class="headerlink" href="#code-specific-steps-for-fludag" title="Permalink to this headline">¶</a></h1>
+  <section id="code-specific-steps-for-fludag">
+<h1>Code-specific steps for FluDAG<a class="headerlink" href="#code-specific-steps-for-fludag" title="Permalink to this heading">¶</a></h1>
 <p>There are several varieties of code-specific steps:</p>
 <ol class="arabic simple">
 <li><p>Defining attributes of the geometry using groups in Cubit</p></li>
@@ -93,13 +95,13 @@ the help of FluDAG</p></li>
 <li><p>Preparing the FLUKA input file for running with DAGMC</p></li>
 <li><p>Inserting the material assignments into the FLUKA input deck</p></li>
 </ol>
-<div class="section" id="geometry-metadata">
-<h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
+<section id="geometry-metadata">
+<h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this heading">¶</a></h2>
 <p>In FluDAG, the geometry file can be used to define material assignments.
 Eventually we would like to add the capability to define boundary conditions and
 tally locations.</p>
-<div class="section" id="assigning-materials-and-densities">
-<h3>Assigning materials and densities<a class="headerlink" href="#assigning-materials-and-densities" title="Permalink to this headline">¶</a></h3>
+<section id="assigning-materials-and-densities">
+<h3>Assigning materials and densities<a class="headerlink" href="#assigning-materials-and-densities" title="Permalink to this heading">¶</a></h3>
 <p>The generic workflow description includes details on <a class="reference internal" href="../cubit_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>,
 but a specific naming convention is required for FluDAG. To define materials,
 the FLUKA material name must be provided in the group name. The group name must
@@ -148,9 +150,9 @@ material information for them.</p></li>
 highest-numbered volume. You can easily modify what material property that you
 would like the implicit compliment (or any other volume) to have by changing the
 material on the ASSIGNMAT card.</p>
-</div>
-<div class="section" id="defining-the-graveyard">
-<h3>Defining the graveyard<a class="headerlink" href="#defining-the-graveyard" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="defining-the-graveyard">
+<h3>Defining the graveyard<a class="headerlink" href="#defining-the-graveyard" title="Permalink to this heading">¶</a></h3>
 <p>Typical FLUKA models contain a zero-importance volume that bounds the volumes of
 interest and extends to infinity. Since solid models cannot include infinite
 volumes, it is necessary to define a finite zero-importance volume around your
@@ -178,15 +180,15 @@ CUBIT&gt; group &quot;mat:BLCKHOLE&quot; add vol 102
 </pre></div>
 </div>
 <p>When FluDAG is run, the importance of any graveyard volumes will be set to zero.</p>
-</div>
-<div class="section" id="scoring-assignments">
-<h3>Scoring assignments<a class="headerlink" href="#scoring-assignments" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="scoring-assignments">
+<h3>Scoring assignments<a class="headerlink" href="#scoring-assignments" title="Permalink to this heading">¶</a></h3>
 <p>DAGMC does not currently support scoring assignments through group names. Users
 must add these to the FLUKA input deck manually.</p>
-</div>
-</div>
-<div class="section" id="preparing-the-fludag-input-file">
-<h2>Preparing the FluDAG input file<a class="headerlink" href="#preparing-the-fludag-input-file" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="preparing-the-fludag-input-file">
+<h2>Preparing the FluDAG input file<a class="headerlink" href="#preparing-the-fludag-input-file" title="Permalink to this heading">¶</a></h2>
 <p>The FluDAG input file will look almost identical to the originating FLUKA input
 file. The exception will be the removal of all data between the cards
 <code class="docutils literal notranslate"><span class="pre">GEOBEGIN</span></code> and <code class="docutils literal notranslate"><span class="pre">GEOEND</span></code>, i.e. all native FLUKA input data. The last entry
@@ -206,9 +208,9 @@ GEOEND
 GEOEND
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-fludag">
-<h2>Running FluDAG<a class="headerlink" href="#running-fludag" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="running-fludag">
+<h2>Running FluDAG<a class="headerlink" href="#running-fludag" title="Permalink to this heading">¶</a></h2>
 <p>Running FluDAG bears some similarity to running <code class="docutils literal notranslate"><span class="pre">FLUGG</span></code>. The first step is to
 create the CAD geometry of the problem you wish to run. In order to produce the
 material assignment data from the CAD geometry we must first
@@ -234,8 +236,8 @@ geometry file to a fixed file called <code class="docutils literal notranslate">
       ++{standard fluka options}++ &lt;fludag_input_file&gt;
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -248,10 +250,10 @@ geometry file to a fixed file called <code class="docutils literal notranslate">
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>

@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Code-specific steps for DAG-MCNP5/6 &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/default.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -82,8 +84,8 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="code-specific-steps-for-dag-mcnp5-6">
-<h1>Code-specific steps for DAG-MCNP5/6<a class="headerlink" href="#code-specific-steps-for-dag-mcnp5-6" title="Permalink to this headline">¶</a></h1>
+  <section id="code-specific-steps-for-dag-mcnp5-6">
+<h1>Code-specific steps for DAG-MCNP5/6<a class="headerlink" href="#code-specific-steps-for-dag-mcnp5-6" title="Permalink to this heading">¶</a></h1>
 <p>Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6, and
 the term “DAG-MCNP” refers to both.</p>
 <p>There are three varieties of code-specific steps for DAG-MCNP:</p>
@@ -92,12 +94,12 @@ the term “DAG-MCNP” refers to both.</p>
 <li><p>Defining DAGMC runtime parameters using the DAGMC input file</p></li>
 <li><p>Specifying additional parameters on the command line</p></li>
 </ol>
-<div class="section" id="geometry-metadata">
-<h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this headline">¶</a></h2>
+<section id="geometry-metadata">
+<h2>Geometry metadata<a class="headerlink" href="#geometry-metadata" title="Permalink to this heading">¶</a></h2>
 <p>In DAG-MCNP, the geometry file can be used to define material and density
 assignments, and boundary conditions.</p>
-<div class="section" id="materials-and-densities">
-<h3>Materials and densities<a class="headerlink" href="#materials-and-densities" title="Permalink to this headline">¶</a></h3>
+<section id="materials-and-densities">
+<h3>Materials and densities<a class="headerlink" href="#materials-and-densities" title="Permalink to this heading">¶</a></h3>
 <p>The generic workflow description includes details on <a class="reference internal" href="../cubit_basics.html#grouping-basics"><span class="std std-ref">Grouping volumes and surfaces</span></a>, but
 a specific naming convention is required for DAG-MCNP. To define materials,
 both the MCNP material ID and density must be provided in the group name. The
@@ -131,9 +133,9 @@ volume 102, the following command should be used:</p>
 <p>DAGMC will recognize that volume 102 is the graveyard, and the <code class="docutils literal notranslate"><span class="pre">_comp</span></code> keyword
 will trigger it to assign the specified material and density to the implicit
 complement rather than the graveyard.</p>
-</div>
-<div class="section" id="boundary-conditions">
-<h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="boundary-conditions">
+<h3>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this heading">¶</a></h3>
 <p>There are two general classes of boundary condition supported by DAG-MCNP:
 vacuum boundaries and surface boundary conditions.</p>
 <p><strong>Vacuum boundaries: defining the “graveyard”</strong></p>
@@ -178,10 +180,10 @@ reflecting surfaces. This command would achieve that:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>CUBIT&gt; group &quot;boundary:Reflecting&quot; add surf 10 11
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="the-dag-mcnp-input-file">
-<h2>The DAG-MCNP input file<a class="headerlink" href="#the-dag-mcnp-input-file" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="the-dag-mcnp-input-file">
+<h2>The DAG-MCNP input file<a class="headerlink" href="#the-dag-mcnp-input-file" title="Permalink to this heading">¶</a></h2>
 <p>Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6.</p>
 <p>The DAG-MCNP input file contains only the data cards section of a standard MCNP
 input file. There are no cell or surface cards included in the input file.</p>
@@ -201,9 +203,9 @@ geometry capability.</p>
                         on            do use physics flight distance
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-dag-mcnp">
-<h2>Running DAG-MCNP<a class="headerlink" href="#running-dag-mcnp" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="running-dag-mcnp">
+<h2>Running DAG-MCNP<a class="headerlink" href="#running-dag-mcnp" title="Permalink to this heading">¶</a></h2>
 <p>Running DAG-MCNP is identical to running the standard MCNP, but a few new
 keywords have been added to the command line to specify the necessary files.</p>
 <dl class="field-list simple">
@@ -249,8 +251,8 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
 </div>
 <div class="toctree-wrapper compound">
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -263,10 +265,10 @@ was produced in the previous step to remove extraneous nuclides, and re-run with
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>

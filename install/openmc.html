@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Installing for use with OpenMC &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/default.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -82,8 +84,8 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="installing-for-use-with-openmc">
-<h1>Installing for use with OpenMC<a class="headerlink" href="#installing-for-use-with-openmc" title="Permalink to this headline">¶</a></h1>
+  <section id="installing-for-use-with-openmc">
+<h1>Installing for use with OpenMC<a class="headerlink" href="#installing-for-use-with-openmc" title="Permalink to this heading">¶</a></h1>
 <p><strong>Note: DagMC can simultaneously be built with support for other physics codes
 while being installed as a dependency for OpenMC.</strong></p>
 <p>This document explains how to install DAGMC for use with OpenMC, assuming you have
@@ -91,8 +93,8 @@ already installed the required <a class="reference external" href="dependencies.
 <p>DAGMC is an optional dependency of <a class="reference external" href="https://mit-crpg.github.io/openmc">OpenMC</a>. Therefore, the install process for
 this code only generates and installs the DAGMC libraries necessary for linkage
 with OpenMC.</p>
-<div class="section" id="get-dagmc">
-<h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this headline">¶</a></h2>
+<section id="get-dagmc">
+<h2>Get DAGMC<a class="headerlink" href="#get-dagmc" title="Permalink to this heading">¶</a></h2>
 <p>As before, this guide assumes that you are building DAGMC in the subdirectory
 <code class="docutils literal notranslate"><span class="pre">dagmc_bld</span></code> of your home directory.</p>
 <p>The first step is to clone the <a class="reference external" href="https://github.com/svalinn/DAGMC">DAGMC repository</a>.</p>
@@ -105,9 +107,9 @@ $ git checkout develop
 $ git submodule update --init
 </pre></div>
 </div>
-</div>
-<div class="section" id="configure-dag-code">
-<h2>Configure DAGMC<a class="headerlink" href="#configure-dag-code" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="configure-dag-code">
+<h2>Configure DAGMC<a class="headerlink" href="#configure-dag-code" title="Permalink to this heading">¶</a></h2>
 <p>First, create and enter the build directory.</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cd $HOME/dagmc_bld/DAGMC
 $ ln -s DAGMC src
@@ -124,12 +126,12 @@ to represent this location.</p>
 <p>CMake variables are used to configure DAGMC with your desired build options. A
 few examples will be shown here, but you can see a list of all possible options
 <a class="reference external" href="cmake_options.html">here</a>.</p>
-<div class="section" id="installing-dagmc-as-a-dependency-of-openmc">
-<h3>Installing DAGMC as a dependency of OpenMC<a class="headerlink" href="#installing-dagmc-as-a-dependency-of-openmc" title="Permalink to this headline">¶</a></h3>
+<section id="installing-dagmc-as-a-dependency-of-openmc">
+<h3>Installing DAGMC as a dependency of OpenMC<a class="headerlink" href="#installing-dagmc-as-a-dependency-of-openmc" title="Permalink to this heading">¶</a></h3>
 <p>From the build directory, run:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ cmake ../src -DMOAB_DIR=$HOME/dagmc_bld/MOAB \
                -DBUILD_TALLY=ON \
-               -DCMAKE_INSTALL_PATH=$INSTALL_PATH
+               -DCMAKE_INSTALL_PREFIX=$INSTALL_PATH
 </pre></div>
 </div>
 <p>If the CMake configuration proceeded successfully, you are now ready to install
@@ -146,23 +148,23 @@ subdirectories of <code class="docutils literal notranslate"><span class="pre">$
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/dagmc_bld/dagmc/lib
 </pre></div>
 </div>
-</div>
-<div class="section" id="installing-openmc-with-dagmc-geometry-enabled">
-<h3>Installing OpenMC with DagMC geometry enabled<a class="headerlink" href="#installing-openmc-with-dagmc-geometry-enabled" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="installing-openmc-with-dagmc-geometry-enabled">
+<h3>Installing OpenMC with DagMC geometry enabled<a class="headerlink" href="#installing-openmc-with-dagmc-geometry-enabled" title="Permalink to this heading">¶</a></h3>
 <p>To install OpenMC with support for DagMC please refer to OpenMC’s installation
 from source instructions <a class="reference external" href="https://openmc.readthedocs.io/en/latest/usersguide/install.html?#installing-from-source">here</a>.</p>
-</div>
-</div>
-<div class="section" id="test-dagmc">
-<h2>Test DAGMC<a class="headerlink" href="#test-dagmc" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="test-dagmc">
+<h2>Test DAGMC<a class="headerlink" href="#test-dagmc" title="Permalink to this heading">¶</a></h2>
 <p>We regularly run the DAGMC test suite on <a class="reference external" href="https://circleci.com/gh/svalinn/DAGMC">CircleCI</a> as part of our continuous
 integration system. You may however wish to run the tests yourself in order to
 verify you have installed DAGMC correctly.</p>
 <p>If the tests have completed successfully, you are now ready to run your first
 DAGMC problem. See the <a class="reference external" href="../usersguide/index.html">DAGMC user’s guide</a>
 for more information.</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -175,10 +177,10 @@ for more information.</p>
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>

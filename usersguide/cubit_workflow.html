@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Producing solid models for DAGMC using Cubit &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/default.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -82,8 +84,8 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="producing-solid-models-for-dagmc-using-cubit">
-<h1>Producing solid models for DAGMC using Cubit<a class="headerlink" href="#producing-solid-models-for-dagmc-using-cubit" title="Permalink to this headline">¶</a></h1>
+  <section id="producing-solid-models-for-dagmc-using-cubit">
+<h1>Producing solid models for DAGMC using Cubit<a class="headerlink" href="#producing-solid-models-for-dagmc-using-cubit" title="Permalink to this heading">¶</a></h1>
 <p>The general workflow for the production of models for analysis using DAGMC
 looks like that shown in the Figure below.</p>
 <a class="reference internal image-reference" href="../_images/general_workflow.png"><img alt="The general workflow for producing quality CAD for DAGMC models." src="../_images/general_workflow.png" style="height: 400px;" /></a>
@@ -156,8 +158,8 @@ CUBIT&gt; group &quot;smallvols&quot; add volume with volume &lt; 1.e-5
 </li>
 <li><p>If no lost particles or leaks, then the model is ready for transport</p></li>
 </ol>
-<div class="section" id="preparing-solid-models">
-<h2>Preparing solid models<a class="headerlink" href="#preparing-solid-models" title="Permalink to this headline">¶</a></h2>
+<section id="preparing-solid-models">
+<h2>Preparing solid models<a class="headerlink" href="#preparing-solid-models" title="Permalink to this heading">¶</a></h2>
 <p>In theory, solid models can be prepared in any modeling software
 system (e.g. SolidWorks, Pro/E, Catia, etc).  What is most important
 about the choice of solid modeling system is the ability to export to
@@ -185,8 +187,8 @@ require running a DAGMC-based analysis and assessing whether or not
 the model yielded expected results or a small enough number of lost
 particles. If the results did not meet expectations, changes to the
 model may be in order.</p>
-<div class="section" id="knowing-the-model">
-<h3>Knowing the model<a class="headerlink" href="#knowing-the-model" title="Permalink to this headline">¶</a></h3>
+<section id="knowing-the-model">
+<h3>Knowing the model<a class="headerlink" href="#knowing-the-model" title="Permalink to this heading">¶</a></h3>
 <p>The first consideration to address is where the solid model originated
 and for what purpose. In many instances, models constructed for
 manufacturing purposes will have tolerances that are undesirable for
@@ -200,9 +202,9 @@ point for preparing the model. If it was made with particle transport
 in mind, then very little work may be needed; but as with the example
 above, some models may require changes to accommodate the needs of a
 DAGMC-based analysis.</p>
-</div>
-<div class="section" id="identifying-weaknesses-in-the-model">
-<h3>Identifying weaknesses in the model<a class="headerlink" href="#identifying-weaknesses-in-the-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="identifying-weaknesses-in-the-model">
+<h3>Identifying weaknesses in the model<a class="headerlink" href="#identifying-weaknesses-in-the-model" title="Permalink to this heading">¶</a></h3>
 <p>When assessing a model that is to be used for particle transport two
 primary concerns must addressed. These concerns are:</p>
 <blockquote>
@@ -228,9 +230,9 @@ however, some 3D modeling programs like SolidWorks have built in tools
 to identify these occurrences. Rely on the modeling program to
 identify these problematic features and use the steps in the
 next section to change, reduce and remove their effect on the model.</p>
-</div>
-<div class="section" id="modifying-your-model">
-<h3>Modifying your model<a class="headerlink" href="#modifying-your-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="modifying-your-model">
+<h3>Modifying your model<a class="headerlink" href="#modifying-your-model" title="Permalink to this heading">¶</a></h3>
 <p>Once the gaps and overlaps in the model have been identified, the
 three following methods may be used to change, reduce, and remove their
 effect on the model.</p>
@@ -273,9 +275,9 @@ while maintaining the most important characteristics of the system.</p>
 <p><em>Note: Of all steps, the removal of superfluous details is the most
 subjective and heavily dependent on the model’s intended
 application.</em></p>
-</div>
-<div class="section" id="assessing-your-model">
-<h3>Assessing your model<a class="headerlink" href="#assessing-your-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="assessing-your-model">
+<h3>Assessing your model<a class="headerlink" href="#assessing-your-model" title="Permalink to this heading">¶</a></h3>
 <p>Lost particles are undesirable; lost particles usually indicate
 weaknesses and failures within the geometry. While the goal of the
 DAGMC project is to guarantee that there will never be lost particles,
@@ -291,9 +293,9 @@ convenient to not define all space in a given model, for example the space insid
 tokamak which is occupied by air or vacuum, or the water volume in a reactor. The
 power of the implicit compliment lies in the fact that it is not a true CAD body
 since it was never defined, but it automatically defines all undefined space in the model.</p>
-</div>
-<div class="section" id="finishing-up-and-final-notes">
-<h3>Finishing up and final notes<a class="headerlink" href="#finishing-up-and-final-notes" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="finishing-up-and-final-notes">
+<h3>Finishing up and final notes<a class="headerlink" href="#finishing-up-and-final-notes" title="Permalink to this heading">¶</a></h3>
 <p>Having prepared your model to completion with the appropriate groups created
 , you can choose to save your model in various formats. Previously
 we recommended ACIS *.sat files, but any format that reliably retains
@@ -302,9 +304,9 @@ imprortant metadata will suffice.  Recommended storage formats are ACIS or
 <p>One should also use the <a class="reference internal" href="tools.html#make-watertight"><span class="std std-ref">make_watertight</span></a>. tool on the
 produced DAGMC *.h5m file in order to completely seal your geometry, this
 should help prevent tolerance issues due to faceting.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -317,10 +319,10 @@ should help prevent tolerance issues due to faceting.</p>
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>

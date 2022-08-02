@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Developer’s theory guide &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/default.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -109,28 +111,28 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="developer-s-theory-guide">
-<h1>Developer’s theory guide<a class="headerlink" href="#developer-s-theory-guide" title="Permalink to this headline">¶</a></h1>
+  <section id="developer-s-theory-guide">
+<h1>Developer’s theory guide<a class="headerlink" href="#developer-s-theory-guide" title="Permalink to this heading">¶</a></h1>
 <p>This guide is meant to give developers a comprehensive understanding of how
 DAGMC works as it exists in MOAB and the key components one may use during
 development.</p>
-<div class="section" id="constructor">
-<h2>Constructor<a class="headerlink" href="#constructor" title="Permalink to this headline">¶</a></h2>
+<section id="constructor">
+<h2>Constructor<a class="headerlink" href="#constructor" title="Permalink to this heading">¶</a></h2>
 <p>To initialize a DAGMC instance, the constructor must be called. If the
 constructor is called with no arguments, then a new MOAB instance is created
 and attached to the DAGMC instance.
 Otherwise, a pointer to an existing MOAB instance can be passed in the
 constructor and a DAGMC instance will be attached to that existing MOAB instance.</p>
-</div>
-<div class="section" id="dagmc-setup">
-<h2>DAGMC setup<a class="headerlink" href="#dagmc-setup" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="dagmc-setup">
+<h2>DAGMC setup<a class="headerlink" href="#dagmc-setup" title="Permalink to this heading">¶</a></h2>
 <p>There are three main steps to setting up a DAGMC geometry. First the storage
 space for the implicit complement is created. Then the OBB trees are built.
 And finally the sets of indices for volumes and surfaces are generated.
 See sections below for more information about implicit complements, OBBs,
 and indices.</p>
-<div class="section" id="topology">
-<h3>Topology<a class="headerlink" href="#topology" title="Permalink to this headline">¶</a></h3>
+<section id="topology">
+<h3>Topology<a class="headerlink" href="#topology" title="Permalink to this heading">¶</a></h3>
 <p>Every mesh-based geometry contains entity sets that are either volumes, surfaces, or curves.
 There are two types of relationships that can relate entities to other entities.
 The first is called a parent-child relationship. Volumes are parents to surfaces
@@ -142,20 +144,20 @@ The surface entity sets contain the triangles and their vertices for that
 surface. The curve entity sets contain edges and their vertices. The volume entity sets,
 however, are empty. While a volume is parent to surfaces (the parent-child
 relationship), the volume does not contain any mesh entities.</p>
-</div>
-<div class="section" id="sense-tags">
-<h3>Sense tags<a class="headerlink" href="#sense-tags" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="sense-tags">
+<h3>Sense tags<a class="headerlink" href="#sense-tags" title="Permalink to this heading">¶</a></h3>
 <p>Each surface is tagged with the two volume handles of the adjacent volumes.
 The first of the two surfaces is designated as the forward direction and the
 second is designated with the reverse direction. It is important to note that
 these surfaces senses may not be consistent with how an MC code determines
 the surface sense.</p>
-</div>
-</div>
-<div class="section" id="indices">
-<h2>Indices<a class="headerlink" href="#indices" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="types-of-indices">
-<h3>Types of indices<a class="headerlink" href="#types-of-indices" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="indices">
+<h2>Indices<a class="headerlink" href="#indices" title="Permalink to this heading">¶</a></h2>
+<section id="types-of-indices">
+<h3>Types of indices<a class="headerlink" href="#types-of-indices" title="Permalink to this heading">¶</a></h3>
 <p>There are three ways to identify any surface and volume in a geometry:
 global ID, index, or entity handle. The global ID is an integer number that
 corresponds to the Cubit ID. As a result, the set of global IDs does not
@@ -165,9 +167,9 @@ numerical reference for each volume or surface in the geometry. It is important
 to note that index starts from one (not zero). The third method
 is to identify by the entity handle of the entity set. The entity handle is
 assigned by MOAB and is not necessarily contiguous.</p>
-</div>
-<div class="section" id="cross-referencing">
-<h3>Cross referencing<a class="headerlink" href="#cross-referencing" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="cross-referencing">
+<h3>Cross referencing<a class="headerlink" href="#cross-referencing" title="Permalink to this heading">¶</a></h3>
 <p>If one type of index is known, then either of the other two can be determined.
 By using the functions below or a combination of the functions, either global ID,
 index, or entity handle can be determined. It is important to note that surfaces
@@ -180,12 +182,12 @@ handle. There are five methods for cross referencing: entity handle by index
 (<code class="docutils literal notranslate"><span class="pre">entity_by_index</span></code>), global ID by index (<code class="docutils literal notranslate"><span class="pre">id_by_index</span></code>), entity handle by global
 ID (<code class="docutils literal notranslate"><span class="pre">entity_by_id</span></code>), global ID by entity handle (<code class="docutils literal notranslate"><span class="pre">get_entity_id</span></code>), index by entity
 handle (<code class="docutils literal notranslate"><span class="pre">index_by_handle</span></code>).</p>
-</div>
-</div>
-<div class="section" id="obb-tree">
-<h2>OBB Tree<a class="headerlink" href="#obb-tree" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="what-is-an-obb">
-<h3>What is an OBB?<a class="headerlink" href="#what-is-an-obb" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="obb-tree">
+<h2>OBB Tree<a class="headerlink" href="#obb-tree" title="Permalink to this heading">¶</a></h2>
+<section id="what-is-an-obb">
+<h3>What is an OBB?<a class="headerlink" href="#what-is-an-obb" title="Permalink to this heading">¶</a></h3>
 <p>An OBB, or Oriented Bounding Box, is a box that contains a single facet or set
 of facets and is oriented such that it is the smallest possible box
 encompassing the facet(s), as opposed to having an axis aligned with the full geometry.
@@ -195,9 +197,9 @@ possible. An example is the facet outlined in red below and it’s corresponding
 OBB. For the the rest of this section, facets will be represented by a line with
 a 2D OBB.</p>
 <a class="reference internal image-reference" href="../_images/3d-obb.png"><img alt="Image of a 3-D Oriented Bounding Box (OBB) around a facet" src="../_images/3d-obb.png" style="width: 300px; height: 300px;" /></a>
-</div>
-<div class="section" id="obb-tree-construction">
-<h3>OBB tree construction<a class="headerlink" href="#obb-tree-construction" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="obb-tree-construction">
+<h3>OBB tree construction<a class="headerlink" href="#obb-tree-construction" title="Permalink to this heading">¶</a></h3>
 <p>First, the OBB tree for each surface is built. This is built top down where the
 top level is an OBB that contains all the surface’s facets. Then the set of facets
 is split roughly in half and two new OBBs form around each of the new sets.
@@ -209,12 +211,12 @@ corresponding OBB tree is created.</p>
 joined together to create a complete OBB tree for a volume. See the example
 below where the green, red, and blue surfaces make up a volume.</p>
 <a class="reference internal image-reference" href="../_images/vol-obb-tree.png"><img alt="Image of OBB tree structure for a volume" src="../_images/vol-obb-tree.png" style="width: 675px; height: 500px;" /></a>
-</div>
-</div>
-<div class="section" id="implicit-complement">
-<h2>Implicit complement<a class="headerlink" href="#implicit-complement" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="what-is-the-implicit-complement-how-is-it-formed">
-<h3>What is the implicit complement &amp; how is it formed?<a class="headerlink" href="#what-is-the-implicit-complement-how-is-it-formed" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="implicit-complement">
+<h2>Implicit complement<a class="headerlink" href="#implicit-complement" title="Permalink to this heading">¶</a></h2>
+<section id="what-is-the-implicit-complement-how-is-it-formed">
+<h3>What is the implicit complement &amp; how is it formed?<a class="headerlink" href="#what-is-the-implicit-complement-how-is-it-formed" title="Permalink to this heading">¶</a></h3>
 <p>The implicit complement is the space not defined by the CAD model. It is formed
 by looking at the sense(s) of each surface individually. A surface between two
 volumes has both a forward and reverse sense defined with respect to the
@@ -223,19 +225,19 @@ reverse, means that only one side of that surface has a volume defined. The
 collection of all surfaces in the geometry that only have one sense defined are
 the surfaces that create the implicit complement by changing the sense already
 defined.</p>
-</div>
-<div class="section" id="id1">
-<h3>OBB tree construction<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="id1">
+<h3>OBB tree construction<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
 <p>The OBB tree construction for the implicit complement is very similar to the
 construction of OBB trees for general volumes. However, since the surfaces that
 make the implicit complement are all part of other volumes, the OBB trees for
 the surfaces are already known, and therefore the only construction step
 necessary is joining the trees to create a complete OBB tree for the implicit
 complement volume.</p>
-</div>
-</div>
-<div class="section" id="ray-history">
-<h2>Ray history<a class="headerlink" href="#ray-history" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="ray-history">
+<h2>Ray history<a class="headerlink" href="#ray-history" title="Permalink to this heading">¶</a></h2>
 <p>DAGMC implements a class called RayHistory which is local to the DAGMC class.
 The ray history stores a vector containing all the entity handles of the triangles
 that the ray has crossed. This structure can be emptied (<code class="docutils literal notranslate"><span class="pre">reset</span></code>), the last
@@ -256,17 +258,17 @@ triangle could be hit again.</p></li>
 </ol>
 <p>The RayHistory class is an optional argument to the DAGMC ray functions, which will otherwise
 not retain nor exclude any intersections other than those not numerically possible.</p>
-</div>
-<div class="section" id="point-in-volume">
-<h2>Point in volume<a class="headerlink" href="#point-in-volume" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="point-in-volume">
+<h2>Point in volume<a class="headerlink" href="#point-in-volume" title="Permalink to this heading">¶</a></h2>
 <p>Given a volume entity handle, position, and ray direction (optional), the
 <code class="docutils literal notranslate"><span class="pre">point_in_volume</span></code> function will test if the point is inside or outside the given
 volume. It is assumed that the test volume exists and is known. Passing a
 direction vector to this function adds robustness and ensures consistent results.
 Otherwise, a random direction is used.</p>
-</div>
-<div class="section" id="ray-fire">
-<h2>Ray fire<a class="headerlink" href="#ray-fire" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="ray-fire">
+<h2>Ray fire<a class="headerlink" href="#ray-fire" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ray_fire</span></code> function will return the entity handle of the next surface to be
 crossed along with the distance to that surface given the ray’s direction. If
 the ray is being tracked in a straight line through multiple volumes, passing
@@ -274,20 +276,20 @@ in the ray-history is important to keep the ray from intersecting facets more
 than once (ie, if the particle is streaming). It is important to note that
 when tracking through multiple volumes, <code class="docutils literal notranslate"><span class="pre">ray_fire</span></code> must be called multiple times
 as it may only be called for a single volume at a time.</p>
-</div>
-<div class="section" id="next-volume">
-<h2>Next volume<a class="headerlink" href="#next-volume" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="next-volume">
+<h2>Next volume<a class="headerlink" href="#next-volume" title="Permalink to this heading">¶</a></h2>
 <p>If the next surface is known (after calling <code class="docutils literal notranslate"><span class="pre">ray_fire</span></code>), the entity handle of the
 next volume can be determined by calling <code class="docutils literal notranslate"><span class="pre">next_volume</span></code>. Given the next surface and
 the known current volume, the next volume is determined by looking at the other
 volume tagged on that surface (as described in the Sense Tags section above).
 This assumes that a valid surface and volume are provided. If no next volume
 exists, then the call will return 0 for the next volume.</p>
-</div>
-<div class="section" id="dagmc-metadata">
-<h2>DAGMC Metadata<a class="headerlink" href="#dagmc-metadata" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="metadata-structure-in-dagmc-files">
-<h3>Metadata Structure in DAGMC Files<a class="headerlink" href="#metadata-structure-in-dagmc-files" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="dagmc-metadata">
+<h2>DAGMC Metadata<a class="headerlink" href="#dagmc-metadata" title="Permalink to this heading">¶</a></h2>
+<section id="metadata-structure-in-dagmc-files">
+<h3>Metadata Structure in DAGMC Files<a class="headerlink" href="#metadata-structure-in-dagmc-files" title="Permalink to this heading">¶</a></h3>
 <p>This section describes the structure used to represent DAGMC metadata using
 MOAB’s .h5m format. This is useful knowledge when constructing DAGMC geometries
 manually or when adding support for their generation from a new source.</p>
@@ -305,9 +307,9 @@ entry are contained by the metadata entity set.</p>
 <dd><p>only used in DAG-MCNP simulations.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="dagmc-s-metadata-interface">
-<h3>DAGMC’s Metadata Interface<a class="headerlink" href="#dagmc-s-metadata-interface" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="dagmc-s-metadata-interface">
+<h3>DAGMC’s Metadata Interface<a class="headerlink" href="#dagmc-s-metadata-interface" title="Permalink to this heading">¶</a></h3>
 <p>DAGMC’s metadata interface allows one to navigate metadata in more
 straightforward ways than querying MOAB tags directly, allowing one to retrieve
 entities with specific attributes quickly. The metadata class is constructed
@@ -333,15 +335,15 @@ material definitions in each volume of the model.</p>
 functions like <code class="docutils literal notranslate"><span class="pre">get_surface_property</span></code> and <code class="docutils literal notranslate"><span class="pre">get_volume_property</span></code> which allow
 one to retrieve metadata values for a keyword using the surface/volume index or
 MOAB entity handle.</p>
-</div>
-<div class="section" id="the-university-of-wisconsin-unified-workflow-uwuw-interface">
-<h3>The University of Wisconsin Unified Workflow (UWUW) Interface<a class="headerlink" href="#the-university-of-wisconsin-unified-workflow-uwuw-interface" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-university-of-wisconsin-unified-workflow-uwuw-interface">
+<h3>The University of Wisconsin Unified Workflow (UWUW) Interface<a class="headerlink" href="#the-university-of-wisconsin-unified-workflow-uwuw-interface" title="Permalink to this heading">¶</a></h3>
 <p>The UWUW class in DagMC uses an amalgamated version of PyNE’s C++ code to
 interface with PyNE material and tally libraries. PyNE’s “physics code neutral”
 data formats allow the data in UWUW DAGMC files to interface with many different
 physics codes using the same .h5m file.</p>
-<div class="section" id="standard-use">
-<h4>Standard Use<a class="headerlink" href="#standard-use" title="Permalink to this headline">¶</a></h4>
+<section id="standard-use">
+<h4>Standard Use<a class="headerlink" href="#standard-use" title="Permalink to this heading">¶</a></h4>
 <p>The UWUW class is typically constructed using the path to a .h5m file containing
 a material library. Both material and tally definitions along with their
 assignment to EntitySets in the MOAB geometry are loaded into the UWUW instance
@@ -372,9 +374,9 @@ geometric EntitySets generated by the DAGMC metadata class is directly
 transferred to the UWUW class in the <code class="docutils literal notranslate"><span class="pre">process_materials</span></code> method. Certain
 utility functions of DAGMC’s metadata class like <code class="docutils literal notranslate"><span class="pre">unpack_string</span></code> are used in
 UWUW as well for convenience in other areas of UWUW as well.</p>
-</div>
-<div class="section" id="custom-hdf5-datapaths">
-<h4>Custom hdf5 datapaths<a class="headerlink" href="#custom-hdf5-datapaths" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="custom-hdf5-datapaths">
+<h4>Custom hdf5 datapaths<a class="headerlink" href="#custom-hdf5-datapaths" title="Permalink to this heading">¶</a></h4>
 <p>While it is recommended that the default hdf5 datapaths for PyNE data are
 used. It is possible to provide specific datapaths to the interface. This can be
 done by creating a UWUW object with an empty constructor. This will subvert the
@@ -393,10 +395,10 @@ uwuw-&gt;load_pyne_tallies(&quot;hdf5_tally_file_path&quot;, datapath = &quot;/c
 in this way. UWUW contains a <code class="docutils literal notranslate"><span class="pre">get_full_filepath</span></code> method for convenience.</p>
 </dd>
 </dl>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -409,10 +411,10 @@ in this way. UWUW contains a <code class="docutils literal notranslate"><span cl
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>

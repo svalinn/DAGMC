@@ -2,16 +2,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Understanding ray history state in DAG-MCNP5/6 &#8212; DAGMC</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/default.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -77,11 +79,11 @@
     <div id="content" class="inline-block">
           <div class="post">
             
-  <div class="section" id="understanding-ray-history-state-in-dag-mcnp5-6">
-<h1>Understanding ray history state in DAG-MCNP5/6<a class="headerlink" href="#understanding-ray-history-state-in-dag-mcnp5-6" title="Permalink to this headline">¶</a></h1>
+  <section id="understanding-ray-history-state-in-dag-mcnp5-6">
+<h1>Understanding ray history state in DAG-MCNP5/6<a class="headerlink" href="#understanding-ray-history-state-in-dag-mcnp5-6" title="Permalink to this heading">¶</a></h1>
 <p>Note that all the information here applies to both DAG-MCNP5 and DAG-MCNP6.</p>
-<div class="section" id="documenting-calls-to-the-track-method-in-mcnp">
-<h2>Documenting calls to the track() method in MCNP<a class="headerlink" href="#documenting-calls-to-the-track-method-in-mcnp" title="Permalink to this headline">¶</a></h2>
+<section id="documenting-calls-to-the-track-method-in-mcnp">
+<h2>Documenting calls to the track() method in MCNP<a class="headerlink" href="#documenting-calls-to-the-track-method-in-mcnp" title="Permalink to this heading">¶</a></h2>
 <p>The method used in MCNP to find the distance to the next boundary is
 track().  DAGMC completely circumvents any call to track() and uses
 its own version.</p>
@@ -96,9 +98,9 @@ cases for MCNP.</p>
 <li><p>(transm.F90): optical thickness of material for point detector/dxtran</p></li>
 <li><p>(electr.F90): electron substep transport  (also in the updated electron_history.F90)</p></li>
 </ol>
-</div>
-<div class="section" id="mapping-the-possible-ray-history-states">
-<h2>Mapping the possible ray history states<a class="headerlink" href="#mapping-the-possible-ray-history-states" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="mapping-the-possible-ray-history-states">
+<h2>Mapping the possible ray history states<a class="headerlink" href="#mapping-the-possible-ray-history-states" title="Permalink to this heading">¶</a></h2>
 <p>For each new particle history, the ray history is reset to be empty.</p>
 <p>The only mechanism by which a ray history can grow is during ray firing:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>MBErrorCode result = DAG-&gt;ray_fire( vol, point, dir, next_surf, next_surf_dist,
@@ -123,9 +125,9 @@ to make it look like a boundary crossing/streaming event
 <p>During reflection, we reset the history to the last interaction,
 erasing the tail except for the last facet.</p>
 <p>It is also possible to rollback the history removing the most recent interaction.</p>
-</div>
-<div class="section" id="other-history-state-variables">
-<h2>Other history state variables<a class="headerlink" href="#other-history-state-variables" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="other-history-state-variables">
+<h2>Other history state variables<a class="headerlink" href="#other-history-state-variables" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><dl class="simple">
 <dt>visited_surface (bool)</dt><dd><ul>
@@ -147,8 +149,8 @@ the first ray_fire in each history</p></li>
 </li>
 <li><p>last_nps (int)</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -161,10 +163,10 @@ the first ray_fire in each history</p></li>
         &copy; Copyright 2012-2020, The UW CNERG Team.
       </p>
       <p>
-      Last updated on Jul 08, 2021.
+      Last updated on Aug 02, 2022.
       </p>
       <p>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.5.1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 5.0.1.
       </p>
     </div>
   </body>
