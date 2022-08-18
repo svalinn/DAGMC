@@ -158,6 +158,9 @@ ARG CC
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
+# Set the hdf5 install dir as this is also needed by moab compile
+ENV hdf5_install_dir=${install_dir}/hdf5
+
 RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
     git clone -b ${MOAB_BRANCH} --depth 1 https://bitbucket.org/fathomteam/moab && \
