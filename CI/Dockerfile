@@ -112,7 +112,7 @@ RUN mkdir -p ${embree_build_dir}/build && \
                     -DEMBREE_TBB_ROOT=/usr && \
     make -j${ci_jobs} && \
     make -j${ci_jobs} install && \
-    rm -rf $HOME/EMBREE/embree
+    rm -rf ${embree_build_dir}
 
 
 FROM external_deps AS hdf5
