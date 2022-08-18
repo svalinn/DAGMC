@@ -190,3 +190,4 @@ ENV dagmc_install_dir_shared=${dagmc_install_dir}-shared
 
 ENV dagmc_build_dir_static=${dagmc_build_dir}-static
 ENV dagmc_install_dir_static=${dagmc_install_dir}-static
+

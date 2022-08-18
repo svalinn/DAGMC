@@ -63,7 +63,7 @@ jobs:
           cmake --build . --config Release
           cmake --install . --config Release
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: build DAGMC
         shell: bash -l {0}

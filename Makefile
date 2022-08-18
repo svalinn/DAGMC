@@ -7,7 +7,7 @@ GH_SOURCE_BRANCH  = develop
 # Repository branch that contains the rendered HTML
 GH_PUBLISH_BRANCH = gh-pages
 # Repository that contains the rendered HTML
-GH_UPSTREAM_URL   = https://github.com/svalinn/DAGMC
+GH_UPSTREAM_URL   = git@github.com:svalinn/DAGMC
 # Directory that contains the rendered HTML
 BUILDDIR          = gh-build
 # Sphinx executable
