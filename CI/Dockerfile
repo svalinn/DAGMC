@@ -74,8 +74,8 @@ ENV geant4_shasum=2397eb859dc4de095ff66059d8bda9f060fdc42e10469dd7890946293eeb0e
 ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
-RUN mkdir -p ${geant4_build_dir}/build
-RUN cd ${geant4_build_dir} && \
+RUN mkdir -p ${geant4_build_dir}/build && \
+    cd ${geant4_build_dir} && \
     wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${geant4_version}/${geant4_tarball} --no-check-certificate && \
     tar -xzf ${geant4_tarball} && \
     cd build && \
@@ -158,8 +158,8 @@ ARG CC
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
-RUN mkdir -p ${moab_build_dir}/build
-RUN cd ${moab_build_dir} && \
+RUN mkdir -p ${moab_build_dir}/build && \
+    cd ${moab_build_dir} && \
     git clone -b ${MOAB_BRANCH} --depth 1 https://bitbucket.org/fathomteam/moab && \
     cd build && \
     cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
