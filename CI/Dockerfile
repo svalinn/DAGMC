@@ -107,7 +107,7 @@ RUN mkdir EMBREE && \
         -DEMBREE_TASKING_SYSTEM=INTERNAL \
         -DEMBREE_TUTORIALS=OFF \
         -DEMBREE_TBB_ROOT=/usr && \
-    make -j2 && make -j2 install && \
+    make -j${ci_jobs} && make -j${ci_jobs} install && \
     rm -rf $HOME/EMBREE/embree
 
 
