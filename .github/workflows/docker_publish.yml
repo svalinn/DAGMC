@@ -8,7 +8,7 @@ on:
       - 'CI/?ocker**'
       - '.github/workflows/docker_publish.yml'
 
-      
+
 jobs:
   build-base-img:
     runs-on: ubuntu-latest
@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -67,7 +67,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build and push Dockerfile_1_housekeeping
         uses: docker/build-push-action@v2
@@ -112,7 +112,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build and push Dockerfile_1_external_deps
         uses: docker/build-push-action@v2
@@ -163,7 +163,7 @@ jobs:
           1.10.4,
         ]
         moab_versions : [
-          5.3.0,
+          5.4.0,
           develop,
           master,
         ]
@@ -182,7 +182,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build and push Dockerfile_3_moab
         uses: docker/build-push-action@v2
@@ -215,12 +215,13 @@ jobs:
     name: Running Housekeeping scrips
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
       - name: Setup
         run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
           mkdir /root/build_dir/
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
@@ -261,12 +262,17 @@ jobs:
     name: Installing and Testing DAGMC
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
       - name: Setup
         run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          git config --global --add safe.directory /github/home/
+          git config --global --add safe.directory /github/home/.cache
+          git config --global --add safe.directory /github/home/.cache/pip
+          git config --global --add safe.directory /github/home/.cache/pip/http
           echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
           echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
           echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV

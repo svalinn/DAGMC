@@ -80,6 +80,8 @@ RUN /root/etc/CI/docker/build_hdf5.sh
 
 FROM hdf5 AS moab
 
+ENV PYTHONPATH=/root/build_dir/moab/bld/pymoab/lib/python3.6/site-packages
+
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
@@ -91,3 +93,4 @@ RUN if [ "${MOAB_VERSION}" != "master" ] && [ "${MOAB_VERSION}" != "develop" ]; 
         /root/etc/CI/docker/build_moab.sh; \
     fi;
 
+RUN python -c "import pymoab"
