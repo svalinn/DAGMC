@@ -58,8 +58,7 @@ RUN apt-get -y update; \
 FROM base as external_deps
 
 ARG build_dir
-ARG install_dir
-ARG COMPILER
+ARG install_dir 
 ARG ci_jobs
 ARG geant4_version
 ARG CC
