@@ -100,8 +100,8 @@ ENV double_down_install_dir=${install_dir}/double-down/
 ENV embree_install_dir=${install_dir}/embree
 ENV embree_build_dir=${build_dir}/embree
 
-RUN mkdir -p ${hdf5_build_dir}/build && \
-    cd ${hdf5_build_dir} && \
+RUN mkdir -p ${embree_build_dir}/build && \
+    cd ${embree_build_dir} && \
     git clone -b ${EMBREE_BRANCH} https://github.com/embree/embree && \
     mkdir build && \
     cd build && \
