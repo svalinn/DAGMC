@@ -1,7 +1,5 @@
 # Svalinn DAGMC Dockerfile
 
-# build this docker file
-
 ARG UBUNTU_VERSION=18.04
 
 ARG ci_jobs=8
@@ -22,11 +20,13 @@ ARG install_dir=/root/opt
 ARG CC=gcc
 ARG CXX=g++
 
+
 FROM ubuntu:${UBUNTU_VERSION} AS base
 
 # Use bash as the default shell
 SHELL ["/bin/bash", "-c"]
-# Ubuntu Setup
+
+# timezone setup
 ENV TZ=America/Chicago
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -59,13 +59,14 @@ RUN apt-get -y update; \
 
 FROM base as external_deps
 
-ARG build_dir
-ARG install_dir 
-ARG ci_jobs
+# accessing gloabl ARGs in build stage
 ARG geant4_version
-ARG CC
-ARG CXX
 ARG EMBREE_BRANCH
+ARG install_dir 
+ARG build_dir
+ARG ci_jobs
+ARG CXX
+ARG CC
 
 ENV geant4_basename=geant4-v${geant4_version}
 ENV geant4_tarball=${geant4_basename}.tar.gz
@@ -116,13 +117,14 @@ RUN mkdir -p ${hdf5_build_dir}/build && \
 
 FROM external_deps AS hdf5
 
-ARG build_dir
-ARG install_dir
-ARG ci_jobs
-ARG HDF5_VERSION
+# accessing gloabl ARGs in build stage
 ARG HDF5_VERSION_major
-ARG CC
+ARG HDF5_VERSION
+ARG install_dir
+ARG build_dir
+ARG ci_jobs
 ARG CXX
+ARG CC
 
 ENV hdf5_build_dir=${build_dir}/hdf5
 ENV hdf5_install_dir=${install_dir}/hdf5
@@ -144,12 +146,13 @@ RUN mkdir -p ${hdf5_build_dir}/build && \
 
 FROM hdf5 AS moab
 
-ARG ci_jobs
-ARG MOAB_BRANCH
-ARG CC
-ARG CXX
-ARG build_dir
+# accessing gloabl ARGs in build stage
 ARG install_dir
+ARG MOAB_BRANCH
+ARG build_dir
+ARG ci_jobs
+ARG CXX
+ARG CC
 
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
@@ -169,7 +172,7 @@ RUN cd ${moab_build_dir} && \
     make -j${ci_jobs} && \
     make install && \
     rm -rf * && \
-    cmake ../moab -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib && \
+    cmake ../moab -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib \
                   -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
                   -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
                   -DCMAKE_CXX_COMPILER=${CXX} \
@@ -177,7 +180,7 @@ RUN cd ${moab_build_dir} && \
                   -DENABLE_BLASLAPACK=OFF \
                   -DBUILD_SHARED_LIBS=ON \
                   -DENABLE_FORTRAN=OFF \
-                  -DENABLE_PYMOAB=ON \
+                  -DENABLE_PYMOAB=ON && \
     # ensure that the installation directory for python packages exist
     for d in $(echo $PYTHONPATH | tr : '\n'); do mkdir -p $d; done && \
     make -j${ci_jobs} && \
