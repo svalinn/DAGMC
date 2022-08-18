@@ -1,5 +1,7 @@
 # Svalinn DAGMC Dockerfile
 
+# build this docker file
+
 ARG UBUNTU_VERSION=18.04
 
 ARG ci_jobs=8
@@ -71,18 +73,18 @@ ENV geant4_shasum=2397eb859dc4de095ff66059d8bda9f060fdc42e10469dd7890946293eeb0e
 ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
-RUN mkdir -p ${geant4_build_dir}/bld
+RUN mkdir -p ${geant4_build_dir}/build
 RUN cd ${geant4_build_dir} && \
     wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${geant4_version}/${geant4_tarball} --no-check-certificate && \
     tar -xzf ${geant4_tarball} && \
-    cd bld && \
-    cmake ../${geant4_basename} -DBUILD_STATIC_LIBS=ON \
-                -DGEANT4_USE_SYSTEM_EXPAT=OFF \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_C_COMPILER=${CC} \
-                -DCMAKE_CXX_COMPILER=${CXX} \
-                -DCMAKE_INSTALL_RPATH=${geant4_install_dir}/lib \
-                -DCMAKE_INSTALL_PREFIX=${geant4_install_dir} && \
+    cd build && \
+    cmake ../${geant4_basename} -DCMAKE_INSTALL_RPATH=${geant4_install_dir}/lib \
+                                -DCMAKE_INSTALL_PREFIX=${geant4_install_dir} \
+                                -DGEANT4_USE_SYSTEM_EXPAT=OFF \
+                                -DCMAKE_BUILD_TYPE=Release \
+                                -DCMAKE_CXX_COMPILER=${CXX} \
+                                -DCMAKE_C_COMPILER=${CC} \
+                                -DBUILD_STATIC_LIBS=ON && \
     make -j${ci_jobs} && \
     make install && \
     cd && \
@@ -95,18 +97,20 @@ ENV double_down_build_dir=${build_dir}/double-down/
 ENV double_down_install_dir=${install_dir}/double-down/
 
 ENV embree_install_dir=${install_dir}/embree
+ENV embree_build_dir=${build_dir}/embree
 
-RUN mkdir EMBREE && \
-    cd EMBREE && \
+RUN mkdir -p ${hdf5_build_dir}/build && \
+    cd ${hdf5_build_dir} && \
     git clone -b ${EMBREE_BRANCH} https://github.com/embree/embree && \
     mkdir build && \
     cd build && \
     cmake ../embree -DCMAKE_INSTALL_PREFIX=${embree_install_dir} \
-        -DEMBREE_ISPC_SUPPORT=OFF \
-        -DEMBREE_TASKING_SYSTEM=INTERNAL \
-        -DEMBREE_TUTORIALS=OFF \
-        -DEMBREE_TBB_ROOT=/usr && \
-    make -j${ci_jobs} && make -j${ci_jobs} install && \
+                    -DEMBREE_TASKING_SYSTEM=INTERNAL \
+                    -DEMBREE_ISPC_SUPPORT=OFF \
+                    -DEMBREE_TUTORIALS=OFF \
+                    -DEMBREE_TBB_ROOT=/usr && \
+    make -j${ci_jobs} && \
+    make -j${ci_jobs} install && \
     rm -rf $HOME/EMBREE/embree
 
 
@@ -123,15 +127,15 @@ ARG CXX
 ENV hdf5_build_dir=${build_dir}/hdf5
 ENV hdf5_install_dir=${install_dir}/hdf5
 
-RUN mkdir -p ${hdf5_build_dir}/bld && \
+RUN mkdir -p ${hdf5_build_dir}/build && \
     cd ${hdf5_build_dir} && \
     wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION_major}/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.gz && \
     tar -xzf hdf5-${HDF5_VERSION}.tar.gz && \
-    cd bld && \
+    cd build && \
     ../hdf5-${HDF5_VERSION}/configure --enable-shared \
         --prefix=${hdf5_install_dir} \
-        CC=${CC} \
-        CXX=${CXX} && \
+        CXX=${CXX} \
+        CC=${CC} && \
     make -j${ci_jobs} && \
     make install && \
     cd && \
@@ -151,29 +155,29 @@ ARG install_dir
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
-RUN mkdir -p ${moab_build_dir}/bld
+RUN mkdir -p ${moab_build_dir}/build
 RUN cd ${moab_build_dir} && \
     git clone -b ${MOAB_BRANCH} --depth 1 https://bitbucket.org/fathomteam/moab && \
-    cd bld && \
+    cd build && \
     cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
-                -DENABLE_BLASLAPACK=OFF \
-                -DENABLE_FORTRAN=OFF \
-                -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
-                -DCMAKE_C_COMPILER=${CC} \
-                -DCMAKE_CXX_COMPILER=${CXX} \
-                -DBUILD_SHARED_LIBS=OFF && \
+                  -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
+                  -DCMAKE_CXX_COMPILER=${CXX} \
+                  -DCMAKE_C_COMPILER=${CC} \
+                  -DENABLE_BLASLAPACK=OFF \
+                  -DBUILD_SHARED_LIBS=OFF \
+                  -DENABLE_FORTRAN=OFF && \
     make -j${ci_jobs} && \
     make install && \
     rm -rf * && \
-    cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
-                -DENABLE_PYMOAB=ON \
-                -DENABLE_BLASLAPACK=OFF \
-                -DENABLE_FORTRAN=OFF \
-                -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
-                -DCMAKE_C_COMPILER=${CC} \
-                -DCMAKE_CXX_COMPILER=${CXX} \
-                -DBUILD_SHARED_LIBS=ON \
-                -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib && \
+    cmake ../moab -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib && \
+                  -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+                  -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
+                  -DCMAKE_CXX_COMPILER=${CXX} \
+                  -DCMAKE_C_COMPILER=${CC} \
+                  -DENABLE_BLASLAPACK=OFF \
+                  -DBUILD_SHARED_LIBS=ON \
+                  -DENABLE_FORTRAN=OFF \
+                  -DENABLE_PYMOAB=ON \
     # ensure that the installation directory for python packages exist
     for d in $(echo $PYTHONPATH | tr : '\n'); do mkdir -p $d; done && \
     make -j${ci_jobs} && \
