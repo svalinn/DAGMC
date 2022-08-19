@@ -103,7 +103,6 @@ ENV embree_build_dir=${build_dir}/embree
 RUN mkdir -p ${embree_build_dir}/build && \
     cd ${embree_build_dir} && \
     git clone -b ${EMBREE_BRANCH} https://github.com/embree/embree && \
-    mkdir build && \
     cd build && \
     cmake ../embree -DCMAKE_INSTALL_PREFIX=${embree_install_dir} \
                     -DEMBREE_TASKING_SYSTEM=INTERNAL \
