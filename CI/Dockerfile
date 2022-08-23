@@ -192,12 +192,4 @@ RUN mkdir -p ${moab_build_dir}/build && \
     cd && \
     rm -rf ${moab_build_dir}
 
-ENV dagmc_build_dir=${build_dir}/DAGMC
-ENV dagmc_install_dir=${install_dir}/DAGMC
-
-ENV dagmc_build_dir_shared=${dagmc_build_dir}-shared
-ENV dagmc_install_dir_shared=${dagmc_install_dir}-shared
-
-ENV dagmc_build_dir_static=${dagmc_build_dir}-static
-ENV dagmc_install_dir_static=${dagmc_install_dir}-static
 
