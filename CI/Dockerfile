@@ -185,8 +185,6 @@ RUN mkdir -p ${moab_build_dir}/build && \
                   -DBUILD_SHARED_LIBS=ON \
                   -DENABLE_FORTRAN=OFF \
                   -DENABLE_PYMOAB=ON && \
-    # ensure that the installation directory for python packages exist
-    for d in $(echo $PYTHONPATH | tr : '\n'); do mkdir -p $d; done && \
     make -j${ci_jobs} && \
     make install && \
     cd && \
