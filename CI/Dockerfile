@@ -187,7 +187,7 @@ RUN mkdir -p ${moab_build_dir}/build && \
                   -DENABLE_PYMOAB=ON && \
     mkdir -p ${moab_build_dir}/build/pymoab/lib/python3.6/site-packages && \
     PYTHONPATH=${moab_build_dir}/build/pymoab/lib/python3.6/site-packages:${PYTHONPATH} make -j${ci_jobs} && \
-    make install && \
+    PYTHONPATH=${moab_build_dir}/build/pymoab/lib/python3.6/site-packages:${PYTHONPATH} make install && \
     cd && \
     rm -rf ${moab_build_dir}
 
