@@ -185,6 +185,7 @@ RUN mkdir -p ${moab_build_dir}/build && \
                   -DBUILD_SHARED_LIBS=ON \
                   -DENABLE_FORTRAN=OFF \
                   -DENABLE_PYMOAB=ON && \
+    mkdir -p ${moab_build_dir}/build/pymoab/lib/python3.6/site-packages && \
     PYTHONPATH=${moab_build_dir}/build/pymoab/lib/python3.6/site-packages:${PYTHONPATH} make -j${ci_jobs} && \
     make install && \
     cd && \
