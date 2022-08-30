@@ -2,7 +2,7 @@
 
 set -ex
 
-source ${docker_env}
+#source ${docker_env}
 
 cd ${dagmc_build_dir}
 
