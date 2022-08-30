@@ -2,9 +2,6 @@
 
 set -ex
 
-export dagmc_build_dir=${build_dir}/dagmc
-cd ${dagmc_build_dir}
-
 # Ensure clang-format is there
 if ! command -v clang-format &> /dev/null
 then
