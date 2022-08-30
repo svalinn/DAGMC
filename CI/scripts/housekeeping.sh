@@ -2,8 +2,6 @@
 
 set -ex
 
-#source ${docker_env}
-
 export dagmc_build_dir=${build_dir}/dagmc
 cd ${dagmc_build_dir}
 
