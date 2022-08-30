@@ -56,6 +56,11 @@ RUN apt-get -y update; \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10; \
     pip install cython;
 
+ARG build_dir
+ARG install_dir
+
+ENV build_dir=${build_dir}
+ENV install_dir=${install_dir}
 
 FROM base as external_deps
 
