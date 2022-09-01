@@ -12,7 +12,7 @@ Next version
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
    * Adding safe folder to allow CI to compile DAGMC (#814)
    * Correction to CMake variable name in OpenMC install instructions (#817)
-   * Move install scripts into Dockerfile (#822)
+   * Move install scripts into Dockerfile  (#822)
    * Updating documentation publishing URL (#823)
 
 

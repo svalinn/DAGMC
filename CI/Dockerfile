@@ -56,6 +56,11 @@ RUN apt-get -y update; \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10; \
     pip install cython;
 
+ARG build_dir
+ARG install_dir
+
+ENV build_dir=${build_dir}
+ENV install_dir=${install_dir}
 
 FROM base as external_deps
 
@@ -185,8 +190,9 @@ RUN mkdir -p ${moab_build_dir}/build && \
                   -DBUILD_SHARED_LIBS=ON \
                   -DENABLE_FORTRAN=OFF \
                   -DENABLE_PYMOAB=ON && \
-    make -j${ci_jobs} && \
-    make install && \
+    mkdir -p ${moab_build_dir}/build/pymoab/lib/python3.6/site-packages && \
+    PYTHONPATH=${moab_build_dir}/build/pymoab/lib/python3.6/site-packages:${PYTHONPATH} make -j${ci_jobs} && \
+    PYTHONPATH=${moab_build_dir}/build/pymoab/lib/python3.6/site-packages:${PYTHONPATH} make install && \
     cd && \
     rm -rf ${moab_build_dir}
 

@@ -2,10 +2,6 @@
 
 set -ex
 
-source ${docker_env}
-
-cd ${dagmc_build_dir}
-
 # Ensure clang-format is there
 if ! command -v clang-format &> /dev/null
 then
