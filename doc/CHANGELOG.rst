@@ -13,6 +13,7 @@ Next version
    * Adding safe folder to allow CI to compile DAGMC (#814)
    * Correction to CMake variable name in OpenMC install instructions (#817)
    * Updating documentation publishing URL (#823)
+   * Update Pyne submodule (#845)
 
 
 v3.2.2
