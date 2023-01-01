@@ -4,7 +4,7 @@
 ARG UBUNTU_VERSION=18.04
 
 ARG ci_jobs=8
-ARG MOAB_BRANCH=5.4.0
+ARG MOAB_BRANCH=5.4.1
 ARG EMBREE_BRANCH='v3.6.1'
 ARG geant4_version=10.5.1
 
@@ -14,8 +14,6 @@ ARG HDF5_VERSION_major=1.10
 
 ARG build_dir=/root/build_dir
 ARG install_dir=/root/opt
-# hdf5_install_dir is needed by moab and hdf5 build stages
-ARG hdf5_install_dir=${install_dir}/hdf5
 
 # clang and gcc are options for the compiler but to use them CC and CXX must be set
 # if clang then change cc to clang and cxx to clang++
@@ -127,7 +125,6 @@ FROM external_deps AS hdf5
 
 # accessing gloabl ARGs in build stage
 ARG HDF5_VERSION_major
-ARG hdf5_install_dir
 ARG HDF5_VERSION
 ARG install_dir
 ARG build_dir
@@ -136,6 +133,7 @@ ARG CXX
 ARG CC
 
 ENV hdf5_build_dir=${build_dir}/hdf5
+ENV hdf5_install_dir=${install_dir}/hdf5
 
 RUN mkdir -p ${hdf5_build_dir}/build && \
     cd ${hdf5_build_dir} && \
@@ -155,7 +153,6 @@ RUN mkdir -p ${hdf5_build_dir}/build && \
 FROM hdf5 AS moab
 
 # accessing gloabl ARGs in build stage
-ARG hdf5_install_dir
 ARG install_dir
 ARG MOAB_BRANCH
 ARG build_dir
