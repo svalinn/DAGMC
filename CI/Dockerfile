@@ -1,5 +1,6 @@
 # Svalinn DAGMC Dockerfile
 
+# Global ARGS set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=18.04
 
 ARG ci_jobs=8
@@ -13,6 +14,8 @@ ARG HDF5_VERSION_major=1.10
 
 ARG build_dir=/root/build_dir
 ARG install_dir=/root/opt
+# hdf5_install_dir is needed by moab and hdf5 build stages
+ARG hdf5_install_dir=${install_dir}/hdf5
 
 # clang and gcc are options for the compiler but to use them CC and CXX must be set
 # if clang then change cc to clang and cxx to clang++
@@ -124,6 +127,7 @@ FROM external_deps AS hdf5
 
 # accessing gloabl ARGs in build stage
 ARG HDF5_VERSION_major
+ARG hdf5_install_dir
 ARG HDF5_VERSION
 ARG install_dir
 ARG build_dir
@@ -132,7 +136,6 @@ ARG CXX
 ARG CC
 
 ENV hdf5_build_dir=${build_dir}/hdf5
-ENV hdf5_install_dir=${install_dir}/hdf5
 
 RUN mkdir -p ${hdf5_build_dir}/build && \
     cd ${hdf5_build_dir} && \
@@ -152,6 +155,7 @@ RUN mkdir -p ${hdf5_build_dir}/build && \
 FROM hdf5 AS moab
 
 # accessing gloabl ARGs in build stage
+ARG hdf5_install_dir
 ARG install_dir
 ARG MOAB_BRANCH
 ARG build_dir
@@ -162,9 +166,6 @@ ARG CC
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
-
-# Set the hdf5 install dir as this is also needed by moab compile
-ENV hdf5_install_dir=${install_dir}/hdf5
 
 RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
@@ -195,5 +196,3 @@ RUN mkdir -p ${moab_build_dir}/build && \
     PYTHONPATH=${moab_build_dir}/build/pymoab/lib/python3.6/site-packages:${PYTHONPATH} make install && \
     cd && \
     rm -rf ${moab_build_dir}
-
-
