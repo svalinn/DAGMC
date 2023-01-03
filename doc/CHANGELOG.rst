@@ -14,6 +14,7 @@ Next version
    * Correction to CMake variable name in OpenMC install instructions (#817)
    * Updating documentation publishing URL (#823)
    * Update Pyne submodule (#845)
+   * Update Pyne submodule (#848)
 
 
 v3.2.2
