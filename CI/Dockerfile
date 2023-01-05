@@ -2,7 +2,9 @@
 
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=18.04
-
+ARG build_mw_reg_tests=OFF
+ARG double_down=ON
+ARG static_exe=OFF
 ARG ci_jobs=8
 ARG MOAB_BRANCH=5.3.0
 ARG EMBREE_BRANCH='v3.6.1'
@@ -97,15 +99,11 @@ RUN mkdir -p ${geant4_build_dir}/build && \
     cd && \
     rm -rf ${geant4_build_dir}
 
-# these two double down ENVs don't appear to be used yet
-# However they were in orginal dockerfile, so they have been kept
-# TODO add double down to the dockerfile
-ENV double_down_build_dir=${build_dir}/double-down/
-ENV double_down_install_dir=${install_dir}/double-down/
 
 ENV embree_install_dir=${install_dir}/embree
 ENV embree_build_dir=${build_dir}/embree
 
+# Clone and install Embree
 RUN mkdir -p ${embree_build_dir}/build && \
     cd ${embree_build_dir} && \
     git clone -b ${EMBREE_BRANCH} https://github.com/embree/embree && \
@@ -120,6 +118,19 @@ RUN mkdir -p ${embree_build_dir}/build && \
     cd && \
     rm -rf ${embree_build_dir}
 
+ENV double_down_build_dir=${build_dir}/double-down/
+ENV double_down_install_dir=${install_dir}/double-down/
+
+# Clone and install Double-Down
+RUN git clone --shallow-submodules --single-branch --branch v1.0.0 --depth 1 https://github.com/pshriwise/double-down.git && \
+    cd {double_down_build_dir} && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DMOAB_DIR=/MOAB \
+             -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
+             -DEMBREE_DIR=${embree_install_dir} \
+    make -j"$compile_cores" && \
+    make -j"$compile_cores" install
 
 FROM external_deps AS hdf5
 
@@ -193,3 +204,31 @@ RUN mkdir -p ${moab_build_dir}/build && \
     PYTHONPATH=${moab_build_dir}/build/pymoab/lib/python3.6/site-packages:${PYTHONPATH} make install && \
     cd && \
     rm -rf ${moab_build_dir}
+
+FROM moab as dagmc
+
+ARG build_mw_reg_tests
+ARG install_dir
+ARG static_exe
+
+COPY src/ ${build_dir}
+
+RUN mkdir ${dagmc_build_dir} && \
+    cd dagmc_build_dir && \
+    mkdir build && \
+    cd build && \
+    cmake ${dagmc_build_dir} -DMOAB_DIR=${moab_install_dir} \
+                             -DBUILD_GEANT4=ON \
+                             -DGEANT4_DIR=${geant4_install_dir} \
+                             -DBUILD_CI_TESTS=ON \
+                             -DBUILD_MW_REG_TESTS=${build_mw_reg_tests} \
+                             -DBUILD_STATIC_EXE=${static_exe} \
+                             -DBUILD_STATIC_LIBS=${static_exe} \
+                             -DCMAKE_C_COMPILER=${CC} \
+                             -DCMAKE_CXX_COMPILER=${CXX} \
+                             -DCMAKE_Fortran_COMPILER=gfortran \
+                             -DCMAKE_INSTALL_PREFIX=${install_dir} \
+                             -DDOUBLE_DOWN=${double_down} \
+                             -Ddd_ROOT=${double_down_install_dir} && \
+    make -j${ci_jobs} && \
+    make install
