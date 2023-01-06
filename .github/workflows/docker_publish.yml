@@ -257,6 +257,10 @@ jobs:
          develop,
          master,
         ]
+        static_exe : [
+         OFF,
+         ON,
+        ]
     container: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
 
     name: Installing and Testing DAGMC
@@ -266,30 +270,23 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup
-        run: |
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          git config --global --add safe.directory /github/home/
-          git config --global --add safe.directory /github/home/.cache
-          git config --global --add safe.directory /github/home/.cache/pip
-          git config --global --add safe.directory /github/home/.cache/pip/http
-          echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
-          echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
-          echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
-          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
-          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
-          echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
-          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
-
-      - name: Install DAGMC
-        run: |
-          cd $GITHUB_WORKSPACE
-          /bin/bash "CI/scripts/install.sh"
-
-      - name: Run DAGMC Test
-        run: |
-          cd $GITHUB_WORKSPACE
-          /bin/bash "CI/scripts/tests.sh"
+      - name: Install DAGMC in Docker image and test
+        uses: docker/build-push-action@v2
+        with:
+          file: CI/Dockerfile
+          target: dagmc_test
+          context: .
+          push: false
+          build-args: |
+            OWNER=${{ github.repository_owner }}
+            TAG=ci_testing
+            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
+            COMPILER=${{ matrix.compiler }}
+            HDF5=${{ matrix.hdf5_versions }}
+            MOAB=${{ matrix.moab_versions }}
+            static_exe=OFF
+            build_mw_reg_tests=ON
+          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}-static_exe_dagmc_${{ matrix.static_exe }}:ci_testing
 
   pushing_housekeeping_stable_img:
     if: ${{ github.repository_owner == 'svalinn' }}

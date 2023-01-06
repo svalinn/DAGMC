@@ -1,17 +1,17 @@
 # Svalinn DAGMC Dockerfile
 
 # Global ARGS set before the first build stage are accessable by all build stages
-ARG UBUNTU_VERSION=18.04
 ARG build_mw_reg_tests=OFF
-ARG double_down=ON
-ARG static_exe=OFF
-ARG ci_jobs=8
-ARG MOAB_BRANCH=5.3.0
 ARG EMBREE_BRANCH='v3.6.1'
 ARG geant4_version=10.5.1
+ARG UBUNTU_VERSION=18.04
+ARG MOAB_BRANCH=5.3.0
+ARG double_down=OFF
+ARG static_exe=OFF
+ARG ci_jobs=20
 
 ARG HDF5_VERSION=1.10.4
-# currently major version must be manually set to match HDF5 version
+# currently HDF5 major version must be manually set to match HDF5 version
 ARG HDF5_VERSION_major=1.10
 
 ARG build_dir=/root/build_dir
@@ -64,6 +64,7 @@ ARG install_dir
 
 ENV build_dir=${build_dir}
 ENV install_dir=${install_dir}
+
 
 FROM base as external_deps
 
@@ -118,19 +119,6 @@ RUN mkdir -p ${embree_build_dir}/build && \
     cd && \
     rm -rf ${embree_build_dir}
 
-ENV double_down_build_dir=${build_dir}/double-down/
-ENV double_down_install_dir=${install_dir}/double-down/
-
-# Clone and install Double-Down
-RUN git clone --shallow-submodules --single-branch --branch v1.0.0 --depth 1 https://github.com/pshriwise/double-down.git && \
-    cd {double_down_build_dir} && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DMOAB_DIR=/MOAB \
-             -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
-             -DEMBREE_DIR=${embree_install_dir} \
-    make -j"$compile_cores" && \
-    make -j"$compile_cores" install
 
 FROM external_deps AS hdf5
 
@@ -205,19 +193,43 @@ RUN mkdir -p ${moab_build_dir}/build && \
     cd && \
     rm -rf ${moab_build_dir}
 
+ENV double_down_build_dir=${build_dir}/double-down
+ENV double_down_install_dir=${install_dir}/double-down
+
+# Clone and install Double-Down
+# performed after moab install as double-down requires moab
+RUN mkdir -p ${double_down_build_dir}/build && \
+    cd ${double_down_build_dir} && \
+    git clone --shallow-submodules --single-branch --branch v1.0.0 --depth 1 https://github.com/pshriwise/double-down.git && \
+    cd build && \
+    cmake ../double-down -DMOAB_DIR=${moab_install_dir} \
+                         -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
+                         -DEMBREE_DIR=${embree_install_dir} && \
+    make -j${ci_jobs} && \
+    make -j${ci_jobs} install
+
+
 FROM moab as dagmc
 
+# accessing gloabl ARGs in build stage
 ARG build_mw_reg_tests
 ARG install_dir
 ARG static_exe
+ARG CXX
+ARG CC
 
-COPY src/ ${build_dir}
+ENV dagmc_build_dir=${build_dir}/dagmc
+ENV dagmc_install_dir=${install_dir}/dagmc
 
-RUN mkdir ${dagmc_build_dir} && \
-    cd dagmc_build_dir && \
-    mkdir build && \
+# copies the enitre git repo into the dockerfile to ensure the submodules can also be found
+RUN mkdir -p ${dagmc_build_dir}/build
+COPY . ${dagmc_build_dir}
+RUN cd  ${dagmc_build_dir} && git submodule update --init
+
+RUN mkdir -p ${dagmc_build_dir}/build && \
+    cd ${dagmc_build_dir} && \
     cd build && \
-    cmake ${dagmc_build_dir} -DMOAB_DIR=${moab_install_dir} \
+    cmake ../${dagmc} -DMOAB_DIR=${moab_install_dir} \
                              -DBUILD_GEANT4=ON \
                              -DGEANT4_DIR=${geant4_install_dir} \
                              -DBUILD_CI_TESTS=ON \
@@ -232,3 +244,19 @@ RUN mkdir ${dagmc_build_dir} && \
                              -Ddd_ROOT=${double_down_install_dir} && \
     make -j${ci_jobs} && \
     make install
+
+
+FROM dagmc as dagmc_test
+
+# Test DAGMC executables
+RUN cd ${dagmc_build_dir}/build && \
+    make test
+
+# clean out config test directory for next build
+RUN cd ${dagmc_build_dir} && \
+    git clean -dxf .
+
+# Test DAGMC CMake configuration file
+RUN cd ${dagmc_build_dir}/cmake/test_config && \
+    cmake . -DDAGMC_ROOT=${dagmc_install_dir} && \
+    make all test
