@@ -131,16 +131,9 @@ The time taken to perform this step depends upon the complexity of the model, it
 could  take seconds for very simple models to hours for very complex models. It
 is also possible that faceting artifacts or failures could occur at this point,
 so monitor the output of this command in the Cubit command line. If
-issues due occurs, these should be addressed following the workflow listed
+issues occur, these should be addressed following the workflow listed
 above.
 
-
-Where faceting_tolerance, normal_tolerance, and length tolerance are optional
-arguments. For example, to export the currently loaded file to a file called
-"large_facets.h5m" with a faceting tolerance of 1.e-5, use
-::
-
-    CUBIT> export dagmc "large_facets.h5m" faceting_tolerance 1.e-5
 
 Roadmap for the future
 ~~~~~~~~~~~~~~~~~~~~~~
