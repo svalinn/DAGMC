@@ -47,7 +47,7 @@ given model is. It should be used as a post-processing step after
 
     $ check_watertight <filename>
 
-Both ``make_watertight``and ``check_watertight`` are built during the main DAGMC
+Both ``make_watertight`` and ``check_watertight`` are built during the main DAGMC
 build procedure and can be found in DAGMC's `bin` directory.
 
 mbconvert
@@ -77,8 +77,8 @@ The options which control mbconvert are:
 mklostvis
 ~~~~~~~~~
 
-Sometimes either poor quality CAD, incorrect imprinting & merging or overlapping
-volumes; particles are regarded as lost by the Monte Carlo code. It is therefore
+Sometimes either poor quality CAD, incorrect imprinting and merging, or overlapping
+volumes cause particles to be regarded as lost by the Monte Carlo code. It is therefore
 necessary to be able to examine where the particles were lost and in which
 direction they were travelling in. The tool mklostvis_ is designed for this
 purpose, reading the output of the MCNP lost particle information and producing
