@@ -162,6 +162,8 @@ The command for running OpenMC is identical to an OpenMC run using native
 geometry. Certain modifications to the OpenMC input files are required,
 however. The DAGMC geometry must be available as a ``.h5m`` file and provided
 with ``dagmc_universe`` in the ``geometry.xml`` file.
+For more information on how to use DAGMC geometries in OpenMC,
+see `here <https://github.com/openmc-dev/openmc/pull/1825>`_.
 
 ..  toctree::
     :hidden:

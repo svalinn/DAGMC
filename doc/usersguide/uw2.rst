@@ -166,13 +166,16 @@ OpenMC-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 
 To run a OpenMC UWUW simulation, a ``.h5m`` file containing the UWUW model
-must be present in the OpenMC run directory and a ``dagmc_universe`` loaded in
+must be present in the OpenMC run directory and a ``dagmc_universe`` present in
 the ``geometry.xml`` like so:
 ::
 
    <dagmc_universe> filename="dagmc.h5m" id="1" />
 
 OpenMC will then load the geometry and material library when setting up the simulation.
+For more information on how to use DAGMC geometries in OpenMC,
+see `here <https://github.com/openmc-dev/openmc/pull/1825>`_.
+
 
 Geant4-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
