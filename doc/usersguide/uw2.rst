@@ -165,12 +165,12 @@ now run as if it were a standard FLUKA problem
 OpenMC-specific steps
 ~~~~~~~~~~~~~~~~~~~~~
 
-To run a OpenMC UWUW simulation, a ``dagmc.h5m`` file containing the UWUW model
-must be present in the OpenMC run directory and a ``dagmc`` element in the
-``settings.xml`` file must be set to true like so:
+To run a OpenMC UWUW simulation, a ``.h5m`` file containing the UWUW model
+must be present in the OpenMC run directory and a ``dagmc_universe`` loaded in
+the ``geometry.xml`` like so:
 ::
 
-   <dagmc>true</dagmc>
+   <dagmc_universe> filename="dagmc.h5m" id="1" />
 
 OpenMC will then load the geometry and material library when setting up the simulation.
 

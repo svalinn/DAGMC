@@ -160,10 +160,8 @@ Running DAG-OpenMC
 
 The command for running OpenMC is identical to an OpenMC run using native
 geometry. Certain modifications to the OpenMC input files are required,
-however. The element ``<dagmc>true</dagmc>`` must be present in the
-``settings.xml`` file, and the DAGMC geometry must be named or symbolically
-linked as ``dagmc.h5m`` in the directory where the ``openmc`` command is
-executed.
+however. The DAGMC geometry must be available as a ``.h5m`` file and provided
+with ``dagmc_universe`` in the ``geometry.xml`` file.
 
 ..  toctree::
     :hidden:
