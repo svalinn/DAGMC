@@ -1,5 +1,7 @@
 # Svalinn DAGMC Dockerfile
 
+
+
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG build_mw_reg_tests=OFF
 ARG EMBREE_BRANCH='v3.6.1'
@@ -254,7 +256,7 @@ ARG dagmc_install_dir
 
 # Test DAGMC executables
 RUN cd ${dagmc_build_dir}/build && \
-    make test
+    PATH=${dagmc_install_dir}/bin:$PATH make test
 
 # clean out config test directory for next build
 RUN cd ${dagmc_build_dir} && \
