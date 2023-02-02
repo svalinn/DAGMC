@@ -256,7 +256,7 @@ ARG dagmc_install_dir
 
 # Test DAGMC executables
 RUN cd ${dagmc_build_dir}/build && \
-    PATH=${dagmc_install_dir}/bin:$PATH make test
+    PATH=${dagmc_install_dir}/bin:$PATH CTEST_OUTPUT_ON_FAILURE=1 make test
 
 # clean out config test directory for next build
 RUN cd ${dagmc_build_dir} && \
@@ -265,4 +265,4 @@ RUN cd ${dagmc_build_dir} && \
 # Test DAGMC CMake configuration file
 RUN cd ${dagmc_build_dir}/cmake/test_config && \
     cmake . -DDAGMC_ROOT=${dagmc_install_dir} && \
-    make all test
+    CTEST_OUTPUT_ON_FAILURE=1 make all test
