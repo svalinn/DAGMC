@@ -15,6 +15,8 @@ Next version
    * Move install scripts into Dockerfile  (#822)
    * Updating documentation publishing URL (#823)
    * Update Pyne submodule (#845)
+   * Update Pyne submodule (#848)
+   * Minor typo fixes in documentation (#851)
 
 
 v3.2.2
