@@ -251,8 +251,8 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
 
 FROM dagmc as dagmc_test
 
-ARG dagmc_build_dir
-ARG dagmc_install_dir
+ENV dagmc_build_dir=${build_dir}/dagmc
+ENV dagmc_install_dir=${install_dir}/dagmc
 
 # Test DAGMC executables
 RUN cd ${dagmc_build_dir}/build && \
