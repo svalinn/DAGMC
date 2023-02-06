@@ -231,8 +231,8 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           /bin/bash "CI/scripts/housekeeping.sh"
-      
-  test_img:
+
+  build-dagmc-img:
     needs: [build-moab-img]
     runs-on: ubuntu-latest
     env:
@@ -262,6 +262,64 @@ jobs:
          ON,
         ]
     container: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
+
+    name: Installing and Testing DAGMC
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install DAGMC in Docker image and test
+        uses: docker/build-push-action@v3
+        with:
+          file: CI/Dockerfile
+          target: dagmc
+          context: .
+          push: false
+          build-args: |
+            OWNER=${{ github.repository_owner }}
+            TAG=ci_testing
+            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
+            COMPILER=${{ matrix.compiler }}
+            HDF5=${{ matrix.hdf5_versions }}
+            MOAB=${{ matrix.moab_versions }}
+            build_mw_reg_tests=ON
+          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}-dagmc:ci_testing
+
+  test_img:
+    needs: [build-dagmc-img]
+    runs-on: ubuntu-latest
+    env:
+      hdf5_versions: 1.10.4
+      hdf5_build_dir: hdf5_build_dir
+
+    strategy:
+      matrix:
+        ubuntu_versions : [
+          18.04,
+          20.04,
+          ]
+        compiler : [
+          gcc,
+          clang,
+          ]
+        hdf5_versions : [
+         1.10.4,
+        ]
+        moab_versions : [
+         5.3.0,
+         develop,
+         master,
+        ]
+        static_exe : [
+         OFF,
+         ON,
+        ]
+    container: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}-dagmc-test:ci_testing
 
     name: Installing and Testing DAGMC
     steps:
