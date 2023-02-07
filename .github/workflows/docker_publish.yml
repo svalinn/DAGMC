@@ -279,7 +279,7 @@ jobs:
           file: CI/Dockerfile
           target: dagmc
           context: .
-          push: false
+          push: true
           build-args: |
             OWNER=${{ github.repository_owner }}
             TAG=ci_testing
