@@ -342,7 +342,7 @@ jobs:
 
   pushing_test_stable_img:
     if: ${{ github.repository_owner == 'svalinn' }}
-    needs: [test_img]
+    needs: [build-test-dagmc-img]
     runs-on: ubuntu-latest
     env:
       hdf5_versions: 1.10.4
