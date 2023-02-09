@@ -260,7 +260,6 @@ jobs:
          OFF,
          ON,
         ]
-    container: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
 
     name: Installing DAGMC
     steps:        
