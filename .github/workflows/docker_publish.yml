@@ -169,7 +169,6 @@ jobs:
         ]
 
     name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}
-
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -267,6 +266,13 @@ jobs:
     steps:        
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout repository
         uses: actions/checkout@v3
