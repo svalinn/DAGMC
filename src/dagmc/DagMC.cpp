@@ -391,33 +391,51 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   */
   ErrorCode rval;
 
-  // remove existing graveyard
-  if (overwrite) {
+  // remove existing graveyard if overwrite is true
+  if (has_graveyard() && overwrite) {
     remove_graveyard();
   }
 
-  // if a graveyard already exists at this point,
+  // if a graveyard already exists and we aren't overwriting it,
   // report an error
-  if (has_graveyard()) {
+  if (has_graveyard() && !overwrite) {
     MB_CHK_SET_ERR(MB_FAILURE, "Graveyard already exists");
   }
 
-  // currently relying on the BVH as looping over all vertices may
-  // be too expensive
-  if (!has_acceleration_datastructures()) {
-    MB_CHK_SET_ERR(MB_FAILURE, "Graveyard creation attempted without BVH");
-  }
-
+  // create a bounding box for all volumes
   BBOX box;
-  for (int i = 0; i < num_entities(3); i++) {
-    // get the bounding box of the volume
-    moab::EntityHandle vol = this->entity_by_index(3, i + 1);
-    double vmin[3], vmax[3];
-    rval = this->getobb(vol, vmin, vmax);  // this method name is a misnomer
-    MB_CHK_SET_ERR(rval, "Failed to get volume bounding box");
-    // update the global bounding box
-    box.update(vmin);
-    box.update(vmax);
+
+  // if there are no acceleration data structures present, build
+  // the bounding box using the vertex coordinates
+  if (!has_acceleration_datastructures()) {
+    // get the vertices of every surface
+    for (int i = 0; i < num_entities(2); i++) {
+      // get the bounding box of the volume
+      moab::EntityHandle surf = this->entity_by_index(2, i + 1);
+      moab::Range vertices;
+      rval = this->moab_instance()->get_entities_by_type(surf, moab::MBVERTEX, vertices);
+      MB_CHK_SET_ERR(rval, "Failed to get surface vertices");
+      double coords[3];
+      for (auto vertex : vertices) {
+        // get each vertex coordinate and update box
+        rval = this->moab_instance()->get_coords(&vertex, 1, coords);
+        MB_CHK_SET_ERR(rval, "Failed to get vertex coordinates");
+        box.update(coords);
+      }
+    }
+  // if there acceleration data structures exist, use those for
+  // a faster bounding box build
+  } else {
+    for (int i = 0; i < num_entities(3); i++) {
+      // get the bounding box of the volume
+      moab::EntityHandle vol = this->entity_by_index(3, i + 1);
+      double vmin[3], vmax[3];
+      rval = this->getobb(vol, vmin, vmax);  // this method name is a misnomer
+      MB_CHK_SET_ERR(rval, "Failed to get volume bounding box");
+      // update the global bounding box
+      box.update(vmin);
+      box.update(vmax);
+    }
   }
 
   if (!box.valid()) {
@@ -532,15 +550,18 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // create BVH for both the new implicit complement and the new graveyard
   // volume
-  rval = build_bvh(volume_set);
-  MB_CHK_SET_ERR(
-      rval,
-      "Failed to build accel. data structure for the new graveyard volume");
-
-  rval = build_bvh(implicit_complement);
-  MB_CHK_SET_ERR(
-      rval,
-      "Failed to build accel. data structure for the new implicit complement");
+  if (has_acceleration_datastructures()) {
+    // build the BVH for the new graveyard volume
+    rval = build_bvh(volume_set);
+    MB_CHK_SET_ERR(
+        rval,
+        "Failed to build accel. data structure for the new graveyard volume");
+    // re-build the BVH for the implicit complement
+    rval = build_bvh(implicit_complement);
+    MB_CHK_SET_ERR(
+        rval,
+        "Failed to build accel. data structure for the new implicit complement");
+  }
 
   // re-initialize indices
   rval = setup_indices();
