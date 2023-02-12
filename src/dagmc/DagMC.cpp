@@ -274,12 +274,8 @@ ErrorCode DagMC::remove_graveyard() {
   Range sets_to_delete, ents_to_delete, verts_to_delete;
   sets_to_delete.insert(graveyard_group);
 
-  // check for bounding box trees on the model
-#ifdef DOUBLE_DOWN
-  bool trees_exist = ray_tracer->has_bvh();
-#else
-  bool trees_exist = geom_tool()->have_obb_tree();
-#endif
+  bool trees_exist = has_acceleration_datastructures();
+
   // get the graveyard volume
   Range graveyard_vols;
   rval =
@@ -290,7 +286,7 @@ ErrorCode DagMC::remove_graveyard() {
   // get the implicit complement, it's children will need updating
   EntityHandle implicit_complement = 0;
   rval = geom_tool()->get_implicit_complement(implicit_complement);
-  if (rval != MB_ENTITY_NOT_FOUND || rval != MB_SUCCESS) {
+  if (rval != MB_ENTITY_NOT_FOUND && rval != MB_SUCCESS) {
     MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
   }
 
@@ -489,9 +485,19 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   box.expand(10.0 * numerical_precision());
 
   // tear down the implicit complement tree
-  EntityHandle implicit_complement;
+  EntityHandle implicit_complement = 0;
   rval = geom_tool()->get_implicit_complement(implicit_complement);
-  MB_CHK_SET_ERR(rval, "Failed to get the implicit complement");
+  if (rval != MB_ENTITY_NOT_FOUND && rval != MB_SUCCESS) {
+    MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
+  }
+  // create the implicit complement if it coesn't exist at this point
+  // the code below that inserts the graveyard into the implicit complement can
+  // be run without changing the model at this point
+  if (!implicit_complement) {
+    setup_impl_compl();
+    rval = geom_tool()->get_implicit_complement(implicit_complement);
+    MB_CHK_SET_ERR(rval, "Failed to get implicit complement right after creation");
+  }
 
   EntityHandle inner_surface;
   rval = box_to_surf(box.lower, box.upper, inner_surface);
@@ -533,7 +539,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
                  "Failed to create the graveyard parent-child relationship");
 
   // set the surface senses (all triangles have outward normals so this should
-  // be FORWARD wrt the graveyard volume)
+  // be FORWARD wrt the graveyard volume and REVERSE wrt the implicit complement)
   EntityHandle outer_senses[2] = {volume_set, implicit_complement};
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
