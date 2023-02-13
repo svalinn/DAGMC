@@ -555,8 +555,10 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   MB_CHK_SET_ERR(rval, "Failed to update the geometry sets");
 
   // delete the implicit complement tree (but not the surface trees)
-  rval = remove_bvh(implicit_complement, true);
-  MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
+  if (has_acceleration_datastructures()) {
+    rval = remove_bvh(implicit_complement, true);
+    MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
+  }
 
   // create BVH for both the new implicit complement and the new graveyard
   // volume
