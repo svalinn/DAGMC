@@ -261,6 +261,9 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
 }
 
 ErrorCode DagMC::remove_graveyard() {
+
+  if (!has_graveyard()) return MB_SUCCESS;
+
   ErrorCode rval;
 
   EntityHandle graveyard_group;
@@ -388,7 +391,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   ErrorCode rval;
 
   // remove existing graveyard if overwrite is true
-  if (has_graveyard() && overwrite) {
+  if (overwrite) {
     remove_graveyard();
   }
 
@@ -494,7 +497,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   // the code below that inserts the graveyard into the implicit complement can
   // be run without changing the model at this point
   if (!implicit_complement) {
-    setup_impl_compl();
+    rval = setup_impl_compl();
+    MB_CHK_SET_ERR(rval, "Failed to create the implicit complement.");
     rval = geom_tool()->get_implicit_complement(implicit_complement);
     MB_CHK_SET_ERR(rval, "Failed to get implicit complement right after creation");
   }
