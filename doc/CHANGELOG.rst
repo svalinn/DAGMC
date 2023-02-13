@@ -9,6 +9,7 @@ Next version
 
 **Changed:**
 
+   * Improvements/corrections to graveyard capabilities (#855)
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
    * Adding safe folder to allow CI to compile DAGMC (#814)
    * Correction to CMake variable name in OpenMC install instructions (#817)
