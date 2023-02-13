@@ -397,7 +397,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
 
   // if a graveyard already exists and we aren't overwriting it,
   // report an error
-  if (has_graveyard() && !overwrite) {
+  if (has_graveyard()) {
     MB_CHK_SET_ERR(MB_FAILURE, "Graveyard already exists");
   }
 
@@ -554,15 +554,13 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = geom_tool()->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to update the geometry sets");
 
-  // delete the implicit complement tree (but not the surface trees)
-  if (has_acceleration_datastructures()) {
-    rval = remove_bvh(implicit_complement, true);
-    MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
-  }
-
   // create BVH for both the new implicit complement and the new graveyard
   // volume
   if (has_acceleration_datastructures()) {
+    // delete the implicit complement tree (but not the surface trees)
+    rval = remove_bvh(implicit_complement, true);
+    MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
+
     // build the BVH for the new graveyard volume
     rval = build_bvh(volume_set);
     MB_CHK_SET_ERR(
