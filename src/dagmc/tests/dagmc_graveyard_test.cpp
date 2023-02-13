@@ -335,7 +335,8 @@ TEST_F(DagmcGraveyardTest, dagmc_graveyard_test_trelis_file_no_bvh) {
 
   EXPECT_FALSE(DAG->has_graveyard());
 
-  rval = DAG->create_graveyard();
+  // create graveyard with overwrite on when graveyard isn't present
+  rval = DAG->create_graveyard(true);
   EXPECT_EQ(MB_SUCCESS, rval);
 
   // the implicit complement will be created here too
