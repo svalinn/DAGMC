@@ -261,7 +261,6 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
 }
 
 ErrorCode DagMC::remove_graveyard() {
-
   if (!has_graveyard()) return MB_SUCCESS;
 
   ErrorCode rval;
@@ -412,7 +411,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
       // get the bounding box of the volume
       moab::EntityHandle surf = this->entity_by_index(2, i + 1);
       moab::Range vertices;
-      rval = this->moab_instance()->get_entities_by_type(surf, moab::MBVERTEX, vertices);
+      rval = this->moab_instance()->get_entities_by_type(surf, moab::MBVERTEX,
+                                                         vertices);
       MB_CHK_SET_ERR(rval, "Failed to get surface vertices");
       double coords[3];
       for (auto vertex : vertices) {
@@ -422,8 +422,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
         box.update(coords);
       }
     }
-  // if there acceleration data structures exist, use those for
-  // a faster bounding box build
+    // if there acceleration data structures exist, use those for
+    // a faster bounding box build
   } else {
     for (int i = 0; i < num_entities(3); i++) {
       // get the bounding box of the volume
@@ -500,7 +500,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
     rval = setup_impl_compl();
     MB_CHK_SET_ERR(rval, "Failed to create the implicit complement.");
     rval = geom_tool()->get_implicit_complement(implicit_complement);
-    MB_CHK_SET_ERR(rval, "Failed to get implicit complement right after creation");
+    MB_CHK_SET_ERR(rval,
+                   "Failed to get implicit complement right after creation");
   }
 
   EntityHandle inner_surface;
@@ -543,7 +544,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
                  "Failed to create the graveyard parent-child relationship");
 
   // set the surface senses (all triangles have outward normals so this should
-  // be FORWARD wrt the graveyard volume and REVERSE wrt the implicit complement)
+  // be FORWARD wrt the graveyard volume and REVERSE wrt the implicit
+  // complement)
   EntityHandle outer_senses[2] = {volume_set, implicit_complement};
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
@@ -568,9 +570,9 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
         "Failed to build accel. data structure for the new graveyard volume");
     // re-build the BVH for the implicit complement
     rval = build_bvh(implicit_complement);
-    MB_CHK_SET_ERR(
-        rval,
-        "Failed to build accel. data structure for the new implicit complement");
+    MB_CHK_SET_ERR(rval,
+                   "Failed to build accel. data structure for the new implicit "
+                   "complement");
   }
 
   // re-initialize indices
