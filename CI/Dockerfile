@@ -236,7 +236,8 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
                       -DBUILD_GEANT4=ON \
                       -DGEANT4_DIR=${geant4_install_dir} \
                       -DBUILD_CI_TESTS=ON \
-                      -DBUILD_MW_REG_TESTS=${build_mw_reg_tests} \
+                      # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
+                      -DBUILD_MW_REG_TESTS=OFF \
                       -DBUILD_STATIC_EXE=${static_exe} \
                       -DBUILD_STATIC_LIBS=${static_exe} \
                       -DCMAKE_C_COMPILER=${CC} \
