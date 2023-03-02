@@ -10,7 +10,6 @@ on:
 
 jobs:
   build-test-dagmc-img:
-    needs: [build-moab-img]
     runs-on: ubuntu-latest
     env:
       hdf5_versions: 1.10.4
