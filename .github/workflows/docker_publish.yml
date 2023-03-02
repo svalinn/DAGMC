@@ -5,234 +5,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'CI/?ocker**'
+      - 'CI/Dockerfile'
       - '.github/workflows/docker_publish.yml'
 
-
 jobs:
-  build-base-img:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ubuntu_versions : [
-          18.04,
-          20.04,
-          ]
-    name: Ubuntu ${{ matrix.ubuntu_versions }} basics deps
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and Export Dockerfile_0_base
-        uses: docker/build-push-action@v2
-        with:
-          file: CI/Dockerfile
-          target: base
-          push: true
-          context: .
-          build-args: |
-            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}:ci_testing
-
-  build-housekeeping-img:
-    needs: build-base-img
-    runs-on: ubuntu-latest
-    env:
-      hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir
-    strategy:
-      matrix:
-        ubuntu_versions : [18.04,]
-
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build and push Dockerfile_1_housekeeping
-        uses: docker/build-push-action@v2
-        with:
-          file: CI/Dockerfile_1_housekeeping
-          context: .
-          push: true
-          build-args: |
-            OWNER=${{ github.repository_owner }}
-            TAG=ci_testing
-            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:ci_testing
-
-
-  build-deps-img:
-    needs: build-base-img
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ubuntu_versions : [
-          18.04,
-          20.04,
-          ]
-        compiler : [
-          gcc,
-          clang,
-          ]
-        hdf5_versions : [
-          1.10.4,
-        ]
-
-    name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }}
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build and push Dockerfile_1_external_deps
-        uses: docker/build-push-action@v2
-        with:
-          file: CI/Dockerfile
-          target: external_deps
-          context: .
-          push: false
-          build-args: |
-            OWNER=${{ github.repository_owner }}
-            TAG=ci_testing
-            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-            COMPILER=${{ matrix.compiler }}
-          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext:ci_testing
-
-      - name: Build and export Dockerfile_2_hdf5
-        uses: docker/build-push-action@v2
-        with:
-          file: CI/Dockerfile
-          target: hdf5
-          context: .
-          push: true
-          build-args: |
-            OWNER=${{ github.repository_owner }}
-            TAG=ci_testing
-            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-            COMPILER=${{ matrix.compiler }}
-            HDF5=${{ matrix.hdf5_versions }}
-          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}:ci_testing
-
-  build-moab-img:
-    needs: build-deps-img
-    runs-on: ubuntu-latest
-    env:
-      hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir
-    strategy:
-      matrix:
-        ubuntu_versions : [
-          18.04,
-          20.04,
-          ]
-        compiler : [
-          gcc,
-          clang,
-          ]
-        hdf5_versions : [
-          1.10.4,
-        ]
-        moab_versions : [
-          5.4.0,
-          develop,
-          master,
-        ]
-
-    name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}
-
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build and push Dockerfile_3_moab
-        uses: docker/build-push-action@v2
-        with:
-          file: CI/Dockerfile
-          target: moab
-          context: .
-          push: true
-          build-args: |
-            OWNER=${{ github.repository_owner }}
-            TAG=ci_testing
-            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
-            COMPILER=${{ matrix.compiler }}
-            HDF5=${{ matrix.hdf5_versions }}
-            MOAB=${{ matrix.moab_versions }}
-          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
-
-  housekeeping:
-    if: ${{ github.repository_owner != 'svalinn' || github.event_name == 'pull_request' }}
-    needs: [build-housekeeping-img]
-    runs-on: ubuntu-latest
-    env:
-      hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir    
-    strategy:
-      matrix:
-        ubuntu_versions : [18.04,]
-    container: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:ci_testing
-
-    name: Running Housekeeping scrips
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup
-        run: |
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          mkdir /root/build_dir/
-          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
-          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
-          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
-
-      - name: Run Housekeeping
-        run: |
-          cd $GITHUB_WORKSPACE
-          /bin/bash "CI/scripts/housekeeping.sh"
-      
-  test_img:
+  build-test-dagmc-img:
     needs: [build-moab-img]
     runs-on: ubuntu-latest
     env:
@@ -257,123 +34,82 @@ jobs:
          develop,
          master,
         ]
-    container: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
+        static_exe : [
+         OFF,
+         ON,
+        ]
 
-    name: Installing and Testing DAGMC
-    steps:
+    name: Installing DAGMC
+    steps:        
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Install DAGMC in Docker image
+        uses: docker/build-push-action@v3
         with:
-          submodules: recursive
+          file: CI/Dockerfile
+          target: dagmc
+          context: .
+          push: false
+          build-args: |
+            OWNER=${{ github.repository_owner }}
+            TAG=ci_testing
+            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
+            COMPILER=${{ matrix.compiler }}
+            HDF5=${{ matrix.hdf5_versions }}
+            MOAB=${{ matrix.moab_versions }}
+            build_mw_reg_tests=ON
+          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}-dagmc:ci_testing
 
-      - name: Setup
-        run: |
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
-          git config --global --add safe.directory /github/home/
-          git config --global --add safe.directory /github/home/.cache
-          git config --global --add safe.directory /github/home/.cache/pip
-          git config --global --add safe.directory /github/home/.cache/pip/http
-          echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
-          echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
-          echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
-          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
-          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
-          echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
-          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
+      - name: Test DAGMC in Docker image
+        uses: docker/build-push-action@v3
+        with:
+          file: CI/Dockerfile
+          target: dagmc_test
+          context: .
+          push: false
+          build-args: |
+            OWNER=${{ github.repository_owner }}
+            TAG=ci_testing
+            UBUNTU_VERSION=${{ matrix.ubuntu_versions }}
+            COMPILER=${{ matrix.compiler }}
+            HDF5=${{ matrix.hdf5_versions }}
+            MOAB=${{ matrix.moab_versions }}
+            build_mw_reg_tests=ON
+          tags: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}-dagmc-test:ci_testing
 
-      - name: Install DAGMC
-        run: |
-          cd $GITHUB_WORKSPACE
-          /bin/bash "CI/scripts/install.sh"
-
-      - name: Run DAGMC Test
-        run: |
-          cd $GITHUB_WORKSPACE
-          /bin/bash "CI/scripts/tests.sh"
-
-  pushing_housekeeping_stable_img:
-    if: ${{ github.repository_owner == 'svalinn' }}
-    needs: [test_img]
-    runs-on: ubuntu-latest
-    env:
-      hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir
-    strategy:
-      matrix:
-        ubuntu_versions : [18.04,]
-
-    name: Housekeeping':' latest -> stable
-    steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        if: ${{ github.repository_owner == 'svalinn' }}
+        uses: docker/setup-qemu-action@v2
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v1
+        if: ${{ github.repository_owner == 'svalinn' }}
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Image as stable img
-        uses: akhilerm/tag-push-action@v1.0.0
-        with:
-          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:ci_testing
-          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:stable
-
-      - name: Push Image as latest img
-        uses: akhilerm/tag-push-action@v1.0.0
-        with:
-          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:ci_testing
-          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-housekeeping:latest
-
-  pushing_test_stable_img:
-    if: ${{ github.repository_owner == 'svalinn' }}
-    needs: [test_img]
-    runs-on: ubuntu-latest
-    env:
-      hdf5_versions: 1.10.4
-      hdf5_build_dir: hdf5_build_dir
-
-    strategy:
-      matrix:
-        ubuntu_versions : [
-          18.04,
-          20.04,
-          ]
-        compiler : [
-          gcc,
-          clang,
-          ]
-        hdf5_versions : [
-         1.10.4,
-        ]
-        moab_versions : [
-         5.3.0,
-         develop,
-         master,
-        ]
-
-    name: Ubuntu${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}':' latest -> stable
-
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push Image as stable img
-        uses: akhilerm/tag-push-action@v1.0.0
+        if: ${{ github.repository_owner == 'svalinn' }}
+        uses: akhilerm/tag-push-action@v2.1.0
         with:
           src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
           dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:stable
 
       - name: Push Image as latest img
-        uses: akhilerm/tag-push-action@v1.0.0
+        if: ${{ github.repository_owner == 'svalinn' }}
+        uses: akhilerm/tag-push-action@v2.1.0
         with:
           src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
           dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:latest
