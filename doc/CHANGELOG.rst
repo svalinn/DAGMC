@@ -16,6 +16,7 @@ Next version
    * Update Pyne submodule (#845)
    * Update Pyne submodule (#848)
    * Minor typo fixes in documentation (#851)
+   * Moved scripts to Dockerfile and parallel CI (#822)
 
 
 v3.2.2
