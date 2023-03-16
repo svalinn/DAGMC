@@ -35,9 +35,6 @@ materials and other geometry-related information.
 
 For more information, please visit the `DAGMC website <DAGMC_>`_.
 
-..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml/badge.svg?branch=develop
-    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml
-
 Quick links:
 
 * `Install guide <https://svalinn.github.io/DAGMC/install/index.html>`_
@@ -45,8 +42,10 @@ Quick links:
 * `Contributors guide <https://svalinn.github.io/DAGMC/contribute/index.html>`_
 * `Release instructions <release.rst>`_
 
-Preview CI for MOAB `master` and `develop`
-------------------------------------------
+*Preview CI for MOAB `master` and `develop`*
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml
 
 ..  _DAGMC: https://svalinn.github.io/DAGMC
 ..  _Cubit: https://coreform.com/products/coreform-cubit/
