@@ -79,7 +79,7 @@ Redhat linux users can do likewise with:
 MOAB installation
 ~~~~~~~~~~~~~~~~~
 
-As of DAGMC version 3.1, MOAB version 5.1.0 or higher is required. The following
+As of DAGMC version 3.2, MOAB version 5.3.0 or higher is required. The following
 commands can be used to download MOAB from its `source repository <MOAB_>`_ and
 set it up for building.
 ::
@@ -87,36 +87,24 @@ set it up for building.
     $ cd $HOME/dagmc_bld
     $ mkdir -p MOAB/bld
     $ cd MOAB
-    $ git clone https://bitbucket.org/fathomteam/moab
-    $ cd moab
-    $ git checkout Version5.1.0
-    $ autoreconf -fi
-    $ cd ..
-    $ ln -s moab src
+    $ git clone --depth 1 -b 5.3.0 https://bitbucket.org/fathomteam/moab
 
-If you have followed the source install route, then the following commands
-should be used to build MOAB.
+To build moab using the default packages:
 ::
 
     $ cd bld
-    $ ../src/configure --enable-optimize \
-                       --enable-shared \
-                       --disable-debug \
-                       --with-hdf5=$HOME/dagmc_bld/HDF5 \
-                       --prefix=$HOME/dagmc_bld/MOAB
+    $ cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+              -DENABLE_PYMOAB=ON \
+              -DENABLE_BLASLAPACK=OFF \
+              -DENABLE_FORTRAN=OFF \
+              -DCMAKE_INSTALL_PREFIX=$HOME/dagmc_bld/MOAB \
+              -DCMAKE_C_COMPILER=${CC} \
+              -DCMAKE_CXX_COMPILER=${CXX} \
+              -DBUILD_SHARED_LIBS=ON \
+              -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib
     $ make
     $ make check
     $ make install
-
-If you have followed the package manager install route, then the following
-configure command should be used to build MOAB.
-::
-
-    $ ../src/configure --enable-optimize \
-                       --enable-shared \
-                       --disable-debug \
-                       --with-hdf5=/usr/lib/x86_64-linux-gnu/hdf5/serial \
-                       --prefix=$HOME/dagmc_bld/MOAB
 
 Making sure the dependencies were installed correctly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
