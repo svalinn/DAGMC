@@ -125,7 +125,7 @@ successfully.
     $ which h5ls
     $ which mbconvert
 
-If you have installed the dependencies corretly, you are now ready to
+If you have installed the dependencies correctly, you are now ready to
 `install DAGMC <dagmc.html>`_.
 
 ..  _HDF5: http://www.hdfgroup.org/HDF5
