@@ -18,6 +18,7 @@ Next version
    * Minor typo fixes in documentation (#851)
    * Removed unused Circle CI yml (#859)
    * Added configuration options to CMake configuration file (#86)
+   * Change test-on-merge against MOAB master/develop to be optional (#??)
 
 **Fixed:**
    * Patch to compile with Geant4 10.6     

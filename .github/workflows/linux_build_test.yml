@@ -42,6 +42,59 @@ jobs:
         ]
         moab_versions : [
           5.3.0,
+        ]
+
+    container:
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:stable
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup
+        run: |
+          echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
+          echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
+          echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
+          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
+          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
+          echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
+          echo "PYTHONPATH="/root/build_dir/moab/bld/pymoab/lib/python3.6/site-packages:$PYTHONPATH"" >> $GITHUB_ENV
+          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
+
+      - name: Building DAGMC
+        run: |
+          cd $GITHUB_WORKSPACE
+          CI/scripts/install.sh
+
+      - name: Testing DAGMC
+        run: |
+          cd $GITHUB_WORKSPACE
+          CI/scripts/tests.sh
+
+  BuildTestMasterDev:
+    needs: BuildTest
+    runs-on: ubuntu-latest
+    env:
+      hdf5_versions: ${{ matrix.hdf5_versions }}
+      hdf5_build_dir: hdf5_build_dir
+
+    strategy:
+      matrix:
+        ubuntu_versions : [
+          18.04,
+          20.04,
+          ]
+        compiler : [
+          gcc,
+          clang,
+          ]
+        hdf5_versions : [
+         1.10.4,
+        ]
+        moab_versions : [
           develop,
           master,
         ]
@@ -74,11 +127,13 @@ jobs:
           ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
 
       - name: Building DAGMC
+        continue-on-error: true
         run: |
           cd $GITHUB_WORKSPACE
           CI/scripts/install.sh
 
       - name: Testing DAGMC
+        continue-on-error: true
         run: |
           cd $GITHUB_WORKSPACE
           CI/scripts/tests.sh
