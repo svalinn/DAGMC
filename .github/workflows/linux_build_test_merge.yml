@@ -4,8 +4,9 @@ on:
   # allows us to run workflows manually
   workflow_dispatch:
   push:
-    branches:
-      - develop
+# REMOVED for testing
+#    branches:
+#      - develop
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
       - '.github/workflows/housekeeping.yml'
