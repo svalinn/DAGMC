@@ -11,12 +11,20 @@ DAGMC: Direct Accelerated Geometry Monte Carlo
 
 |
 
-..  image:: https://circleci.com/gh/svalinn/DAGMC.svg?style=shield
-    :target: https://circleci.com/gh/svalinn/DAGMC
-    :height: 20
-    :width: 90
-    :align: left
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test.yml
 
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/mac_build_test.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/mac_build_test.yml
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/windows_build_test.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/windows_build_test.yml
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/docker_publish.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/docker_publish.yml
+
+..  image:: https://anaconda.org/conda-forge/dagmc/badges/version.svg
+    :target: https://anaconda.org/conda-forge/dagmc
 |
 
 Direct Accelerated Geometry Monte Carlo (DAGMC) is a software package that
