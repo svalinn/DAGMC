@@ -15,10 +15,11 @@ DAGMC: Direct Accelerated Geometry Monte Carlo
 
 ..  image:: https://anaconda.org/conda-forge/dagmc/badges/version.svg
     :target: https://anaconda.org/conda-forge/dagmc
-\[Preview for MOAB `master` and `develop`: 
+
+\[Preview for MOAB `master` and `develop`:\] 
+
 ..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml/badge.svg?branch=develop
     :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml
-    \]
 
 Direct Accelerated Geometry Monte Carlo (DAGMC) is a software package that
 allows users to perform Monte Carlo radiation transport directly on CAD models.
