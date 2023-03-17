@@ -164,7 +164,6 @@ jobs:
         ]
         moab_versions : [
           5.3.0,
-          master,
         ]
 
     name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}
@@ -346,7 +345,6 @@ jobs:
         ]
         moab_versions : [
          5.3.0,
-         master,
         ]
 
     name: Ubuntu${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}':' latest -> stable
