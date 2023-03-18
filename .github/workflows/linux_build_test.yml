@@ -59,7 +59,7 @@ jobs:
           echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
           echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
           echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
-          echo "PYTHONPATH="/root/build_dir/moab/bld/pymoab/lib/python3.6/site-packages:$PYTHONPATH"" >> $GITHUB_ENV
+          echo "PYTHONPATH=/root/build_dir/moab/bld/pymoab/lib/python3.8/site-packages:${PYTHONPATH}" >> $GITHUB_ENV
           ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
 
       - name: Building DAGMC

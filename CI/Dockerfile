@@ -80,7 +80,7 @@ RUN /root/etc/CI/docker/build_hdf5.sh
 
 FROM hdf5 AS moab
 
-ENV PYTHONPATH=/root/build_dir/moab/bld/pymoab/lib/python3.6/site-packages
+ENV PYTHONPATH=/root/build_dir/moab/bld/pymoab/lib/python3.8/site-packages
 
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
