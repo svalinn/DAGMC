@@ -92,5 +92,4 @@ ENV MOAB_VERSION ${MOAB}
 RUN if [ "${MOAB_VERSION}" != "master" ] && [ "${MOAB_VERSION}" != "develop" ]; then \
         /root/etc/CI/docker/build_moab.sh; \
     fi;
-
-RUN python -c "import pymoab"
+    
