@@ -466,6 +466,56 @@ class DagMC {
     return MBI_shared_ptr;
   }
 
+  // Verbosity levels
+  // -1 : "override" the current verbosity setting and write message
+  //  0 : No output
+  //  1 : All output
+  int set_verbosity(int val) {
+    int verbosity_max = 0;
+    int verbosity_min = 1;
+    if (val < verbosity_min || val > verbosity_max)
+      warning("Invalid verbosity value " + std::to_string(val) +
+              " will be set to nearest valid value.");
+    val = std::min(std::max(verbosity_min, val), verbosity_max);
+    return verbosity = val;
+  }
+
+  int get_verbosity(int val) { return verbosity; }
+
+  /** console output mechanism
+   *  @param msg Message to be written to the console
+   *  @param lvl Message will not be written if the verbosity level
+   *             is higher than the class instance's current verbosity setting.
+   *             Use of -1 ensures the message will always be written.
+   *  @param newline Whether or not to apend a newline to the message.
+   */
+  void message(const std::string& msg, int lvl = 1, bool newline = true) const {
+    // do not write message if level is higher than
+    // verbosity setting
+    if (lvl > verbosity) return;
+    // otherwise, display message
+    if (newline)
+      std::cout << msg << "\n";
+    else
+      std::cout << msg;
+  }
+
+  /** write a warning message to the console
+   *  @param msg Message to be written to the console
+   *  @param newline Whether or not to apend a newline to the message.
+   */
+  void warning(const std::string& msg, bool newline = true) const {
+    message("WARNING: " + msg, -1, newline);
+  }
+
+  /** write an error message to the console
+   *  @param msg Message to be written to the console
+   *  @param newline Whether or not to apend a newline to the message.
+   */
+  void err_msg(const std::string& msg, bool newline = true) const {
+    message("ERROR: " + msg, -1, newline);
+  }
+
  private:
   /* PRIVATE MEMBER DATA */
 
@@ -485,6 +535,9 @@ class DagMC {
 #endif
 
   std::unique_ptr<RayTracer> ray_tracer;
+
+  /** verbosity setting for DAGMC operations */
+  int verbosity{1};
 
  public:
   Tag nameTag, facetingTolTag;

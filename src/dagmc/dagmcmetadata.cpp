@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <iostream>
-#include <sstream>
 #include <set>
+#include <sstream>
 
 #include "util.hpp"
 
@@ -285,10 +285,12 @@ void dagmcMetaData::parse_importance_data() {
         importance_map[eh][pair.first] = imp;
       } else {
         std::stringstream ss;
-        ss << "Volume with ID " << volid << " has more than one importance " << std::endl;
+        ss << "Volume with ID " << volid << " has more than one importance "
+           << std::endl;
         ss << "Assigned for particle type " << pair.first << std::endl;
         ss << "Only one importance value per volume per particle type "
-                     "is allowed" << std::endl;
+              "is allowed"
+           << std::endl;
         message(ss.str(), -1, false);
         exit(EXIT_FAILURE);
       }
@@ -363,14 +365,13 @@ void dagmcMetaData::parse_boundary_data() {
     if (boundary_assignment.size() != 1) {
       std::stringstream ss;
       ss << "More than one boundary conditions specified for " << surfid
-                << std::endl;
-      ss << surfid << " has the following density assignments"
-                << std::endl;
+         << std::endl;
+      ss << surfid << " has the following density assignments" << std::endl;
       for (int j = 0; j < boundary_assignment.size(); j++) {
         ss << boundary_assignment[j] << std::endl;
       }
       ss << "Please check your boundary condition assignments " << surfid
-                << std::endl;
+         << std::endl;
       err_msg(ss.str());
       exit(EXIT_FAILURE);
     }
@@ -623,8 +624,9 @@ std::pair<std::string, std::string> dagmcMetaData::split_string(
     int str_length = property_string.length() - found_delimiter;
     second = property_string.substr(found_delimiter + 1, str_length);
   } else {
-    warning("Didn't find any delimiter.\n "
-            "Returning empty strings");
+    warning(
+        "Didn't find any delimiter.\n "
+        "Returning empty strings");
   }
 
   return {first, second};

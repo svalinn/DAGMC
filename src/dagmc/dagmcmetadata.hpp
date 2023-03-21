@@ -1,8 +1,8 @@
 #ifndef SRC_DAGMC_DAGMCMETADATA_HPP_
 #define SRC_DAGMC_DAGMCMETADATA_HPP_
 #include <iostream>
-#include <sstream>
 #include <set>
+#include <sstream>
 
 #include "DagMC.hpp"
 
@@ -117,14 +117,14 @@ class dagmcMetaData {
   int set_verbosity(int val) {
     int verbosity_max = 0;
     int verbosity_min = 1;
-    if (val < verbosity_min || val > verbosity_max) warning("Invalid verbosity value " + std::to_string(val) + " will be set to nearest valid value.");
+    if (val < verbosity_min || val > verbosity_max)
+      warning("Invalid verbosity value " + std::to_string(val) +
+              " will be set to nearest valid value.");
     val = std::min(std::max(verbosity_min, val), verbosity_max);
     return verbosity = val;
   }
 
-  int get_verbosity(int val) {
-    return verbosity;
-  }
+  int get_verbosity(int val) { return verbosity; }
 
   /** console output mechanism
    *  @param msg Message to be written to the console
@@ -132,9 +132,8 @@ class dagmcMetaData {
    *             is higher than the class instance's current verbosity setting.
    *             Use of -1 ensures the message will always be written.
    *  @param newline Whether or not to apend a newline to the message.
-  */
-  void message(const std::string& msg, int lvl = 1, bool newline = true) const
-  {
+   */
+  void message(const std::string& msg, int lvl = 1, bool newline = true) const {
     // do not write message if level is higher than
     // verbosity setting
     if (lvl > verbosity) return;
@@ -148,25 +147,23 @@ class dagmcMetaData {
   /** write a warning message to the console
    *  @param msg Message to be written to the console
    *  @param newline Whether or not to apend a newline to the message.
-  */
-  void warning(const std::string& msg, bool newline = true) const
-  {
+   */
+  void warning(const std::string& msg, bool newline = true) const {
     message("WARNING: " + msg, -1, newline);
   }
 
   /** write an error message to the console
    *  @param msg Message to be written to the console
    *  @param newline Whether or not to apend a newline to the message.
-  */
-  void err_msg(const std::string& msg, bool newline = true) const
-  {
+   */
+  void err_msg(const std::string& msg, bool newline = true) const {
     message("ERROR: " + msg, -1, newline);
   }
 
   // private member variables
  private:
   moab::DagMC* DAG;  // Pointer to DAGMC instance
-  int verbosity {1};      // Provide additional output while setting up and parsing
+  int verbosity{1};  // Provide additional output while setting up and parsing
                      // properties
   bool require_density;  // Require that all volumes have a specified density
                          // value
