@@ -261,6 +261,8 @@ ErrorCode DagMC::get_graveyard_group(EntityHandle& graveyard_group) {
 }
 
 ErrorCode DagMC::remove_graveyard() {
+  if (!has_graveyard()) return MB_SUCCESS;
+
   ErrorCode rval;
 
   EntityHandle graveyard_group;
@@ -274,12 +276,8 @@ ErrorCode DagMC::remove_graveyard() {
   Range sets_to_delete, ents_to_delete, verts_to_delete;
   sets_to_delete.insert(graveyard_group);
 
-  // check for bounding box trees on the model
-#ifdef DOUBLE_DOWN
-  bool trees_exist = ray_tracer->has_bvh();
-#else
-  bool trees_exist = geom_tool()->have_obb_tree();
-#endif
+  bool trees_exist = has_acceleration_datastructures();
+
   // get the graveyard volume
   Range graveyard_vols;
   rval =
@@ -290,7 +288,7 @@ ErrorCode DagMC::remove_graveyard() {
   // get the implicit complement, it's children will need updating
   EntityHandle implicit_complement = 0;
   rval = geom_tool()->get_implicit_complement(implicit_complement);
-  if (rval != MB_ENTITY_NOT_FOUND || rval != MB_SUCCESS) {
+  if (rval != MB_ENTITY_NOT_FOUND && rval != MB_SUCCESS) {
     MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
   }
 
@@ -391,33 +389,52 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   */
   ErrorCode rval;
 
-  // remove existing graveyard
+  // remove existing graveyard if overwrite is true
   if (overwrite) {
     remove_graveyard();
   }
 
-  // if a graveyard already exists at this point,
+  // if a graveyard already exists and we aren't overwriting it,
   // report an error
   if (has_graveyard()) {
     MB_CHK_SET_ERR(MB_FAILURE, "Graveyard already exists");
   }
 
-  // currently relying on the BVH as looping over all vertices may
-  // be too expensive
-  if (!has_acceleration_datastructures()) {
-    MB_CHK_SET_ERR(MB_FAILURE, "Graveyard creation attempted without BVH");
-  }
-
+  // create a bounding box for all volumes
   BBOX box;
-  for (int i = 0; i < num_entities(3); i++) {
-    // get the bounding box of the volume
-    moab::EntityHandle vol = this->entity_by_index(3, i + 1);
-    double vmin[3], vmax[3];
-    rval = this->getobb(vol, vmin, vmax);  // this method name is a misnomer
-    MB_CHK_SET_ERR(rval, "Failed to get volume bounding box");
-    // update the global bounding box
-    box.update(vmin);
-    box.update(vmax);
+
+  // if there are no acceleration data structures present, build
+  // the bounding box using the vertex coordinates
+  if (!has_acceleration_datastructures()) {
+    // get the vertices of every surface
+    for (int i = 0; i < num_entities(2); i++) {
+      // get the bounding box of the volume
+      moab::EntityHandle surf = this->entity_by_index(2, i + 1);
+      moab::Range vertices;
+      rval = this->moab_instance()->get_entities_by_type(surf, moab::MBVERTEX,
+                                                         vertices);
+      MB_CHK_SET_ERR(rval, "Failed to get surface vertices");
+      double coords[3];
+      for (auto vertex : vertices) {
+        // get each vertex coordinate and update box
+        rval = this->moab_instance()->get_coords(&vertex, 1, coords);
+        MB_CHK_SET_ERR(rval, "Failed to get vertex coordinates");
+        box.update(coords);
+      }
+    }
+    // if there acceleration data structures exist, use those for
+    // a faster bounding box build
+  } else {
+    for (int i = 0; i < num_entities(3); i++) {
+      // get the bounding box of the volume
+      moab::EntityHandle vol = this->entity_by_index(3, i + 1);
+      double vmin[3], vmax[3];
+      rval = this->getobb(vol, vmin, vmax);  // this method name is a misnomer
+      MB_CHK_SET_ERR(rval, "Failed to get volume bounding box");
+      // update the global bounding box
+      box.update(vmin);
+      box.update(vmax);
+    }
   }
 
   if (!box.valid()) {
@@ -471,9 +488,21 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   box.expand(10.0 * numerical_precision());
 
   // tear down the implicit complement tree
-  EntityHandle implicit_complement;
+  EntityHandle implicit_complement = 0;
   rval = geom_tool()->get_implicit_complement(implicit_complement);
-  MB_CHK_SET_ERR(rval, "Failed to get the implicit complement");
+  if (rval != MB_ENTITY_NOT_FOUND && rval != MB_SUCCESS) {
+    MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
+  }
+  // create the implicit complement if it doesn't exist at this point
+  // the code below that inserts the graveyard into the implicit complement can
+  // be run without changing the model at this point
+  if (!implicit_complement) {
+    rval = setup_impl_compl();
+    MB_CHK_SET_ERR(rval, "Failed to create the implicit complement.");
+    rval = geom_tool()->get_implicit_complement(implicit_complement);
+    MB_CHK_SET_ERR(rval,
+                   "Failed to get implicit complement right after creation");
+  }
 
   EntityHandle inner_surface;
   rval = box_to_surf(box.lower, box.upper, inner_surface);
@@ -515,7 +544,8 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
                  "Failed to create the graveyard parent-child relationship");
 
   // set the surface senses (all triangles have outward normals so this should
-  // be FORWARD wrt the graveyard volume)
+  // be FORWARD wrt the graveyard volume and REVERSE wrt the implicit
+  // complement)
   EntityHandle outer_senses[2] = {volume_set, implicit_complement};
   rval = MBI->tag_set_data(sense_tag(), &outer_surface, 1, outer_senses);
   MB_CHK_SET_ERR(rval, "Failed to set graveyard surface senses");
@@ -526,21 +556,24 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   rval = geom_tool()->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to update the geometry sets");
 
-  // delete the implicit complement tree (but not the surface trees)
-  rval = remove_bvh(implicit_complement, true);
-  MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
-
   // create BVH for both the new implicit complement and the new graveyard
   // volume
-  rval = build_bvh(volume_set);
-  MB_CHK_SET_ERR(
-      rval,
-      "Failed to build accel. data structure for the new graveyard volume");
+  if (has_acceleration_datastructures()) {
+    // delete the implicit complement tree (but not the surface trees)
+    rval = remove_bvh(implicit_complement, true);
+    MB_CHK_SET_ERR(rval, "Failed to delete the implicit complement tree");
 
-  rval = build_bvh(implicit_complement);
-  MB_CHK_SET_ERR(
-      rval,
-      "Failed to build accel. data structure for the new implicit complement");
+    // build the BVH for the new graveyard volume
+    rval = build_bvh(volume_set);
+    MB_CHK_SET_ERR(
+        rval,
+        "Failed to build accel. data structure for the new graveyard volume");
+    // re-build the BVH for the implicit complement
+    rval = build_bvh(implicit_complement);
+    MB_CHK_SET_ERR(rval,
+                   "Failed to build accel. data structure for the new implicit "
+                   "complement");
+  }
 
   // re-initialize indices
   rval = setup_indices();
