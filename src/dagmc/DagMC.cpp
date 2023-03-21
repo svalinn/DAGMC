@@ -493,7 +493,7 @@ ErrorCode DagMC::create_graveyard(bool overwrite) {
   if (rval != MB_ENTITY_NOT_FOUND && rval != MB_SUCCESS) {
     MB_CHK_SET_ERR(rval, "Could not get the implicit complement");
   }
-  // create the implicit complement if it coesn't exist at this point
+  // create the implicit complement if it doesn't exist at this point
   // the code below that inserts the graveyard into the implicit complement can
   // be run without changing the model at this point
   if (!implicit_complement) {
