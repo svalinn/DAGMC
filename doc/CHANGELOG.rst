@@ -22,8 +22,8 @@ Next version
    * Change test-on-merge against MOAB master/develop to be optional (#870)
 
 **Fixed:**
-   * Patch to compile with Geant4 10.6     
-
+   * Patch to compile with Geant4 10.6
+   * Enhance console logging capabilities (#872)
 
 v3.2.2
 ====================
@@ -48,7 +48,7 @@ v3.2.1
 **Removed:**
 
 **Fixed:**
-      
+
 **Security:**
 
 **Maintenance:**
