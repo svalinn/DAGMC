@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <set>
 
 #include "util.hpp"
@@ -10,7 +11,7 @@
 dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr, bool verbosity,
                              bool require_density_present)
     : DAG(dag_ptr),
-      verbose(verbosity),
+      verbosity(verbosity ? 1 : 0),
       require_density(require_density_present) {
   // these are the keywords that dagmc will understand
   // from groups if you need to process more
@@ -50,7 +51,7 @@ std::string dagmcMetaData::get_volume_property(std::string property,
   } else if (property == "tally") {
     value = tally_data_eh[eh];
   } else {
-    std::cout << "Not a valid property for volumes" << std::endl;
+    std::cerr << "Not a valid property for volumes" << std::endl;
   }
   return value;
 }
@@ -228,7 +229,7 @@ void dagmcMetaData::parse_material_data() {
     // implicit complement
     else if (DAG->is_implicit_complement(eh)) {
       if (implicit_complement_material == "") {
-        std::cout << "Implicit Complement assumed to be Vacuum" << std::endl;
+        message("Implicit Complement assumed to be Vacuum");
         volume_material_property_data_eh[eh] = "mat:Vacuum";
         volume_material_data_eh[eh] = vacuum_str;
       } else {
@@ -283,12 +284,12 @@ void dagmcMetaData::parse_importance_data() {
         }
         importance_map[eh][pair.first] = imp;
       } else {
-        std::cout << "Volume with ID " << volid
-                  << " has more than one importance " << std::endl;
-        std::cout << "Assigned for particle type " << pair.first << std::endl;
-        std::cout << "Only one importance value per volume per particle type "
-                     "is allowed"
-                  << std::endl;
+        std::stringstream ss;
+        ss << "Volume with ID " << volid << " has more than one importance " << std::endl;
+        ss << "Assigned for particle type " << pair.first << std::endl;
+        ss << "Only one importance value per volume per particle type "
+                     "is allowed" << std::endl;
+        message(ss.str(), -1, false);
         exit(EXIT_FAILURE);
       }
     }
@@ -303,11 +304,11 @@ void dagmcMetaData::parse_importance_data() {
       std::string particle = *it;
       moab::EntityHandle eh = DAG->entity_by_index(3, i);
       if (importance_map[eh].count(particle) == 0) {
-        if (verbose) {
-          std::cout << "Warning: Volume with ID " << DAG->id_by_index(3, i);
-          std::cout << " does not have an importance set for particle ";
-          std::cout << particle << " assuming importance 1.0 " << std::endl;
-        }
+        std::stringstream ss;
+        ss << "Volume with ID " << DAG->id_by_index(3, i);
+        ss << " does not have an importance set for particle ";
+        ss << particle << " assuming importance 1.0 ";
+        message(ss.str(), 1);
         // give this particle default importance
         importance_map[eh][particle] = 1.0;
       }
@@ -360,15 +361,17 @@ void dagmcMetaData::parse_boundary_data() {
 
     boundary_assignment = boundary_assignments[eh];
     if (boundary_assignment.size() != 1) {
-      std::cout << "More than one boundary conditions specified for " << surfid
+      std::stringstream ss;
+      ss << "More than one boundary conditions specified for " << surfid
                 << std::endl;
-      std::cout << surfid << " has the following density assignments"
+      ss << surfid << " has the following density assignments"
                 << std::endl;
       for (int j = 0; j < boundary_assignment.size(); j++) {
-        std::cout << boundary_assignment[j] << std::endl;
+        ss << boundary_assignment[j] << std::endl;
       }
-      std::cout << "Please check your boundary condition assignments " << surfid
+      ss << "Please check your boundary condition assignments " << surfid
                 << std::endl;
+      err_msg(ss.str());
       exit(EXIT_FAILURE);
     }
     // 2d entities have been tagged with the boundary condition property
@@ -620,8 +623,8 @@ std::pair<std::string, std::string> dagmcMetaData::split_string(
     int str_length = property_string.length() - found_delimiter;
     second = property_string.substr(found_delimiter + 1, str_length);
   } else {
-    std::cout << "Didn't find any delimiter" << std::endl;
-    std::cout << "Returning empty strings" << std::endl;
+    warning("Didn't find any delimiter.\n "
+            "Returning empty strings");
   }
 
   return {first, second};
