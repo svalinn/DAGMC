@@ -20,10 +20,10 @@ Next version
    * Removed unused Circle CI yml (#859)
    * Added configuration options to CMake configuration file (#867)
    * Change test-on-merge against MOAB master/develop to be optional (#870)
+   * Enhance console logging capabilities (#872)
 
 **Fixed:**
    * Patch to compile with Geant4 10.6
-   * Enhance console logging capabilities (#872)
 
 v3.2.2
 ====================
