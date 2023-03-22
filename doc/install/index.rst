@@ -3,7 +3,8 @@ DAGMC installation overview
 
 This document describes the DAGMC installation process. 
 
-If you plan to use OpenMC_, you can follow their installation instructions with
+If you plan to use OpenMC_, you can follow `their installation 
+instructions <OpenMC_install>`_ with
 DAGMC built-in.
 
 Otherwise.... Before you begin, you should know that the following will be
@@ -35,3 +36,4 @@ options available to you.
 ..  _MCNP6: https://mcnp.lanl.gov
 ..  _FLUKA: http://www.fluka.org/fluka.php
 ..  _Cubit: https://coreform.com/products/coreform-cubit/
+..  _OpenMC_install: https://docs.openmc.org/en/stable/quickinstall.html
