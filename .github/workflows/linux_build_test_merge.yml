@@ -1,15 +1,8 @@
-name: Linux Build/Test
+name: Linux Build/Test on Merge
 
 on:
   # allows us to run workflows manually
   workflow_dispatch:
-  pull_request:
-    branches:
-      - develop
-    paths-ignore:
-      - '.github/workflows/docker_publish.yml'
-      - '.github/workflows/housekeeping.yml'
-      - 'CI/**'
   push:
     branches:
       - develop
@@ -19,7 +12,7 @@ on:
       - 'CI/**'
 
 jobs:
-  BuildTest:
+  BuildTestMasterDev:
     runs-on: ubuntu-latest
     env:
       hdf5_versions: ${{ matrix.hdf5_versions }}
@@ -39,7 +32,7 @@ jobs:
          1.10.4,
         ]
         moab_versions : [
-          5.3.0,
+          master,
         ]
 
     container:

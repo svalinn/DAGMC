@@ -163,9 +163,7 @@ jobs:
           1.10.4,
         ]
         moab_versions : [
-          5.4.0,
-          develop,
-          master,
+          5.3.0,
         ]
 
     name: Ubuntu ${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}
@@ -254,8 +252,6 @@ jobs:
         ]
         moab_versions : [
          5.3.0,
-         develop,
-         master,
         ]
     container: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:ci_testing
 
@@ -349,8 +345,6 @@ jobs:
         ]
         moab_versions : [
          5.3.0,
-         develop,
-         master,
         ]
 
     name: Ubuntu${{ matrix.ubuntu_versions }} + ${{ matrix.compiler }} hdf5 ${{ matrix.hdf5_versions }} + Moab ${{ matrix.moab_versions }}':' latest -> stable
