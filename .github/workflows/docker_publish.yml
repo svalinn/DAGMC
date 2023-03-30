@@ -50,12 +50,7 @@ jobs:
           quiet: false
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: OWNER=${{ github.repository_owner }},
-            TAG=ci_testing,
-            UBUNTU_VERSION=${{ matrix.ubuntu_versions }},
-            COMPILER=${{ matrix.compiler }},
-            HDF5=${{ matrix.hdf5_versions }},
-            MOAB=${{ matrix.moab_versions }}
+          build-args: OWNER=${{ github.repository_owner }}, TAG=ci_testing, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, COMPILER=${{ matrix.compiler }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
 
       # - name: Build and Export Dockerfile_0_base # replace this with 1 multistage docker build
       #   uses: docker/build-push-action@v2
