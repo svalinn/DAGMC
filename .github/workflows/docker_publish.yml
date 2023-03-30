@@ -248,7 +248,7 @@ jobs:
           /bin/bash "CI/scripts/housekeeping.sh"
       
   test_img:
-    needs: [build-moab-img]
+    needs: [build-base-img]
     runs-on: ubuntu-latest
     env:
       hdf5_versions: 1.10.4
