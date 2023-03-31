@@ -9,6 +9,7 @@ Next version
 
 **Changed:**
 
+   * use multistage docker build action in docker_publish.yml (#875)
    * Improvements/corrections to graveyard capabilities (#855)
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
    * Adding safe folder to allow CI to compile DAGMC (#814)
