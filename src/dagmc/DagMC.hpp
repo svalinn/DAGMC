@@ -471,8 +471,8 @@ class DagMC {
   //  0 : No output
   //  1 : All output
   int set_verbosity(int val) {
-    int verbosity_max = 0;
-    int verbosity_min = 1;
+    int verbosity_min = 0;
+    int verbosity_max = 1;
     if (val < verbosity_min || val > verbosity_max)
       warning("Invalid verbosity value " + std::to_string(val) +
               " will be set to nearest valid value.");
@@ -480,7 +480,7 @@ class DagMC {
     return verbosity = val;
   }
 
-  int get_verbosity(int val) { return verbosity; }
+  int get_verbosity() const { return verbosity; }
 
   /** console output mechanism
    *  @param msg Message to be written to the console
