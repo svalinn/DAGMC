@@ -289,9 +289,8 @@ void dagmcMetaData::parse_importance_data() {
            << std::endl;
         ss << "Assigned for particle type " << pair.first << std::endl;
         ss << "Only one importance value per volume per particle type "
-              "is allowed"
-           << std::endl;
-        message(ss.str(), -1, false);
+              "is allowed";
+        message(ss.str(), -1);
         exit(EXIT_FAILURE);
       }
     }
@@ -370,8 +369,7 @@ void dagmcMetaData::parse_boundary_data() {
       for (int j = 0; j < boundary_assignment.size(); j++) {
         ss << boundary_assignment[j] << std::endl;
       }
-      ss << "Please check your boundary condition assignments " << surfid
-         << std::endl;
+      ss << "Please check your boundary condition assignments " << surfid;
       err_msg(ss.str());
       exit(EXIT_FAILURE);
     }
