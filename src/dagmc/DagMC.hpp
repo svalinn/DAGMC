@@ -75,11 +75,10 @@ class DagMC {
   DagMC(std::shared_ptr<Interface> mb_impl = nullptr,
         double overlap_tolerance = 0., double numerical_precision = .001);
   // Deprecated Constructor
-  [
-      [deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... "
-                  ")")]] DagMC(Interface* mb_impl,
-                               double overlap_tolerance = 0.,
-                               double numerical_precision = .001);
+  [[deprecated(
+      "Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... "
+      ")")]] DagMC(Interface* mb_impl, double overlap_tolerance = 0.,
+                   double numerical_precision = .001);
   // Destructor
   ~DagMC();
 
