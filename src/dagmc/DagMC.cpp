@@ -1295,11 +1295,12 @@ Tag DagMC::get_tag(const char* name, int size, TagType store, DataType type,
   if (!create_if_missing) flags |= MB_TAG_EXCL;
   ErrorCode result =
       MBI->tag_get_handle(name, size, type, retval, flags, def_value);
-  if (create_if_missing && MB_SUCCESS != result)
+  if (create_if_missing && MB_SUCCESS != result) {
     std::stringstream ss;
     ss << "Couldn't find nor create tag named " << name;
     logger.error(ss.str());
-
+  }
+  
   return retval;
 }
 

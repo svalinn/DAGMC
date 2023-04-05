@@ -7,7 +7,7 @@
 class DagMC_Logger {
 
 public:
-    void DagMC_Logger(int _verbosity = 1) {
+    DagMC_Logger(int _verbosity = 1) {
         set_verbosity(_verbosity);
     };
 
@@ -18,7 +18,7 @@ public:
             warning("Invalid verbosity value " + std::to_string(val) +
                     " will be set to nearest valid value.");
         val = std::min(std::max(verbosity_min, val), verbosity_max);
-        return verbosity = val;    
+        verbosity = val;    
     };
 
     int get_verbosity() {return verbosity;};
