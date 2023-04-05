@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <set>
+#include <sstream>
 
 #include "util.hpp"
 
@@ -10,7 +11,7 @@
 dagmcMetaData::dagmcMetaData(moab::DagMC* dag_ptr, bool verbosity,
                              bool require_density_present)
     : DAG(dag_ptr),
-      verbose(verbosity),
+      logger(verbosity),
       require_density(require_density_present) {
   // these are the keywords that dagmc will understand
   // from groups if you need to process more
@@ -50,7 +51,7 @@ std::string dagmcMetaData::get_volume_property(std::string property,
   } else if (property == "tally") {
     value = tally_data_eh[eh];
   } else {
-    std::cout << "Not a valid property for volumes" << std::endl;
+    logger.error("Not a valid property for volumes");
   }
   return value;
 }
@@ -77,8 +78,9 @@ std::string dagmcMetaData::get_surface_property(std::string property,
   } else if (property == "tally") {
     value = tally_data_eh[eh];
   } else {
-    std::cerr << property << " is not a valid property for surfaces"
-              << std::endl;
+    std::stringstream ss;
+    ss << property << " is not a valid property for surfaces";
+    logger.error(ss.str());
   }
   return value;
 }
@@ -139,17 +141,18 @@ void dagmcMetaData::parse_material_data() {
         material_props.erase(material_props.begin() + position);
       } else {
         // failure, a volume can only have a single material associated with it
-        std::cerr << "More than one material for volume with id " << cellid
-                  << std::endl;
-        std::cerr << "that does not the the _comp tag associated with it."
-                  << std::endl;
-        std::cerr << cellid
-                  << " has the following material assignments:" << std::endl;
+        std::stringstream ss;
+        ss << "More than one material for volume with id " << cellid
+            << std::endl;
+        ss << "that does not the the _comp tag associated with it."
+            << std::endl;
+        ss << cellid
+            << " has the following material assignments:" << std::endl;
         for (int j = 0; j < material_props.size(); j++) {
-          std::cerr << material_props[j] << std::endl;
+          ss << material_props[j] << std::endl;
         }
-        std::cerr << "Please check your material assignments " << cellid
-                  << std::endl;
+        ss << "Please check your material assignments " << cellid;
+        logger.error(ss.str());
         exit(EXIT_FAILURE);
       }
     } else {
@@ -157,25 +160,27 @@ void dagmcMetaData::parse_material_data() {
       // at least one entry, "" if nothing is found
       // if there is no material property - not failure for impl_comp
       if (material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
-        std::cerr << "No material property found for volume with ID " << cellid
+        std::stringstream ss;
+        ss << "No material property found for volume with ID " << cellid
                   << std::endl;
-        std::cerr << "Every volume must have exactly one mat: property"
-                  << std::endl;
+        ss << "Every volume must have exactly one mat: property";
+        logger.error(ss.str());
         exit(EXIT_FAILURE);
       }
     }
 
     // this is never ok for a volume to have more than one property for density
     if (density_props.size() > 1) {
-      std::cerr << "More than one density specified for " << cellid
+      std::stringstream ss;
+      ss << "More than one density specified for " << cellid
                 << std::endl;
-      std::cerr << cellid << " has the following density assignments"
+      ss << cellid << " has the following density assignments"
                 << std::endl;
       for (int j = 0; j < density_props.size(); j++) {
-        std::cerr << density_props[j] << std::endl;
+        ss << density_props[j] << std::endl;
       }
-      std::cerr << "Please check your density assignments " << cellid
-                << std::endl;
+      ss << "Please check your density assignments " << cellid;
+      logger.error(ss.str());
       exit(EXIT_FAILURE);
     }
 
@@ -196,10 +201,12 @@ void dagmcMetaData::parse_material_data() {
     // the material property to an int
     if (require_density && try_to_make_int(material_props[0]) &&
         density_props[0].empty() && !(DAG->is_implicit_complement(eh))) {
-      std::cerr << "Using the simplified naming scheme without a density"
+      std::stringstream ss;
+      ss << "Using the simplified naming scheme without a density"
                 << std::endl;
-      std::cerr << "property is forbidden, please rename the group mat:"
-                << material_props[0] << std::endl;
+      ss << "property is forbidden, please rename the group mat:"
+                << material_props[0];
+      logger.error(ss.str());
       exit(EXIT_FAILURE);
     }
 
@@ -228,7 +235,7 @@ void dagmcMetaData::parse_material_data() {
     // implicit complement
     else if (DAG->is_implicit_complement(eh)) {
       if (implicit_complement_material == "") {
-        std::cout << "Implicit Complement assumed to be Vacuum" << std::endl;
+        logger.message("Implicit Complement assumed to be Vacuum");
         volume_material_property_data_eh[eh] = "mat:Vacuum";
         volume_material_data_eh[eh] = vacuum_str;
       } else {
@@ -277,18 +284,21 @@ void dagmcMetaData::parse_importance_data() {
         try {
           imp = std::stod(pair.second.c_str());
         } catch (const std::exception& e) {
-          std::cerr << "Can't parse importance " << pair.second
-                    << " as a float: " << e.what() << std::endl;
+          std::stringstream ss;
+          ss << "Can't parse importance " << pair.second
+                    << " as a float: " << e.what();
+          logger.error(ss.str());
           exit(EXIT_FAILURE);
         }
         importance_map[eh][pair.first] = imp;
       } else {
-        std::cout << "Volume with ID " << volid
+        std::stringstream ss;
+        ss << "Volume with ID " << volid
                   << " has more than one importance " << std::endl;
-        std::cout << "Assigned for particle type " << pair.first << std::endl;
-        std::cout << "Only one importance value per volume per particle type "
-                     "is allowed"
-                  << std::endl;
+        ss << "Assigned for particle type " << pair.first << std::endl;
+        ss << "Only one importance value per volume per particle type "
+                     "is allowed";
+        logger.error(ss.str());
         exit(EXIT_FAILURE);
       }
     }
@@ -303,11 +313,11 @@ void dagmcMetaData::parse_importance_data() {
       std::string particle = *it;
       moab::EntityHandle eh = DAG->entity_by_index(3, i);
       if (importance_map[eh].count(particle) == 0) {
-        if (verbose) {
-          std::cout << "Warning: Volume with ID " << DAG->id_by_index(3, i);
-          std::cout << " does not have an importance set for particle ";
-          std::cout << particle << " assuming importance 1.0 " << std::endl;
-        }
+        std::stringstream ss;
+        ss << "Warning: Volume with ID " << DAG->id_by_index(3, i);
+        ss << " does not have an importance set for particle ";
+        ss << particle << " assuming importance 1.0 ";
+        logger.message(ss.str());
         // give this particle default importance
         importance_map[eh][particle] = 1.0;
       }
@@ -360,15 +370,16 @@ void dagmcMetaData::parse_boundary_data() {
 
     boundary_assignment = boundary_assignments[eh];
     if (boundary_assignment.size() != 1) {
-      std::cout << "More than one boundary conditions specified for " << surfid
+      std::stringstream ss;
+      ss<< "More than one boundary conditions specified for " << surfid
                 << std::endl;
-      std::cout << surfid << " has the following density assignments"
+      ss << surfid << " has the following density assignments"
                 << std::endl;
       for (int j = 0; j < boundary_assignment.size(); j++) {
-        std::cout << boundary_assignment[j] << std::endl;
+        ss << boundary_assignment[j] << std::endl;
       }
-      std::cout << "Please check your boundary condition assignments " << surfid
-                << std::endl;
+      ss << "Please check your boundary condition assignments " << surfid;
+      logger.error(ss.str());
       exit(EXIT_FAILURE);
     }
     // 2d entities have been tagged with the boundary condition property
@@ -427,7 +438,7 @@ dagmcMetaData::get_property_assignments(std::string property, int dimension,
       metadata_keywords, keyword_synonyms, delimiters.c_str());
 
   if (moab::MB_SUCCESS != rval) {
-    std::cerr << "DAGMC failed to parse metadata properties" << std::endl;
+    logger.error("DAGMC failed to parse metadata properties");
     exit(EXIT_FAILURE);
   }
 
@@ -620,8 +631,8 @@ std::pair<std::string, std::string> dagmcMetaData::split_string(
     int str_length = property_string.length() - found_delimiter;
     second = property_string.substr(found_delimiter + 1, str_length);
   } else {
-    std::cout << "Didn't find any delimiter" << std::endl;
-    std::cout << "Returning empty strings" << std::endl;
+    logger.meesage("Didn't find any delimiter");
+    logger.message("Returning empty strings");
   }
 
   return {first, second};

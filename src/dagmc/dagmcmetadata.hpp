@@ -4,6 +4,7 @@
 #include <set>
 
 #include "DagMC.hpp"
+#include "logger.hpp"
 
 class dagmcMetaData {
  public:
@@ -125,6 +126,8 @@ class dagmcMetaData {
   const std::string reflecting_str{"Reflecting"};
   const std::string white_str{"White"};
   const std::string periodic_str{"Periodic"};
+
+  DagMC_Logger logger;
 };
 
 #endif  // SRC_DAGMC_DAGMCMETADATA_HPP_

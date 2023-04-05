@@ -48,9 +48,9 @@ const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
 DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
-             double p_numerical_precision) {
+             double p_numerical_precision, int verbosity) : logger(verbosity) {
 #ifdef DOUBLE_DOWN
-  std::cout << "Using the DOUBLE-DOWN interface to Embree." << std::endl;
+  logger.message("Using the DOUBLE-DOWN interface to Embree.", 1);
 #endif
 
   moab_instance_created = false;
@@ -76,7 +76,8 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
 }
 
 DagMC::DagMC(Interface* mb_impl, double overlap_tolerance,
-             double p_numerical_precision) {
+             double p_numerical_precision, int verbosity) : 
+             logger(verbosity) {
   moab_instance_created = false;
   // set the internal moab pointer
   MBI = mb_impl;
@@ -116,7 +117,9 @@ float DagMC::version(std::string* version_string) {
 ErrorCode DagMC::load_file(const char* cfile) {
   ErrorCode rval;
   std::string filename(cfile);
-  std::cout << "Loading file " << cfile << std::endl;
+  std::stringstream ss;
+  ss << "Loading file " << cfile;
+  logger.message(ss.str(), 1);
   // load options
   char options[120] = {0};
   std::string file_ext = "";  // file extension
@@ -138,14 +141,15 @@ ErrorCode DagMC::load_file(const char* cfile) {
     // in '.h5m'
     std::string filename(cfile);
     if (file_ext != ".h5m") {
-      std::cerr << "DagMC warning: unhandled file loading options."
-                << std::endl;
+      logger.error("DagMC warning: unhandled file loading options.");
     }
   } else if (MB_SUCCESS != rval) {
-    std::cerr << "DagMC Couldn't read file " << cfile << std::endl;
+    std::stringstream ss;
+    ss << "DagMC Couldn't read file " << cfile;
     std::string message;
     if (MB_SUCCESS == MBI->get_last_error(message) && !message.empty())
-      std::cerr << "Error message: " << message << std::endl;
+      ss << std::endl << "Error message: " << message;
+    logger.error(ss.str());
 
     return rval;
   }
@@ -162,8 +166,7 @@ ErrorCode DagMC::setup_impl_compl() {
   // Create data structures for implicit complement
   ErrorCode rval = GTT->setup_implicit_complement();
   if (MB_SUCCESS != rval) {
-    std::cerr << "Failed to find or create implicit complement handle."
-              << std::endl;
+    logger.error("Failed to find or create implicit complement handle.");
     return rval;
   }
   return MB_SUCCESS;
@@ -191,7 +194,7 @@ ErrorCode DagMC::setup_obbs() {
 
   // If we havent got an OBB Tree, build one.
   if (!GTT->have_obb_tree()) {
-    std::cout << "Building acceleration data structures..." << std::endl;
+    logger.message("Building acceleration data structures...",1);
 #ifdef DOUBLE_DOWN
     rval = ray_tracer->init();
 #else
@@ -759,11 +762,13 @@ ErrorCode DagMC::finish_loading() {
   }
 
   // initialize ray_tracer
-  std::cout << "Initializing the GeomQueryTool..." << std::endl;
+  logger.message("Initializing the GeomQueryTool...", 1);
   rval = GTT->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to find the geometry sets");
 
-  std::cout << "Using faceting tolerance: " << facetingTolerance << std::endl;
+  std::stringstream ss;
+  ss << "Using faceting tolerance: " << facetingTolerance;
+  logger.message(ss.str(), 1);
 
   return MB_SUCCESS;
 }
@@ -876,7 +881,7 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
   if (surfs.size() == 0 || vols.size() == 0) {
-    std::cout << "Volumes or Surfaces not found" << std::endl;
+    logger.message("Volumes or Surfaces not found", 1);
     return MB_ENTITY_NOT_FOUND;
   }
   setOffset = std::min(*surfs.begin(), *vols.begin());
@@ -965,7 +970,9 @@ ErrorCode DagMC::write_mesh(const char* ffile, const int flen) {
   if (ffile && 0 < flen) {
     rval = MBI->write_mesh(ffile);
     if (MB_SUCCESS != rval) {
-      std::cerr << "Failed to write mesh to " << ffile << "." << std::endl;
+      std::stringstream ss;
+      ss << "Failed to write mesh to " << ffile << ".";
+      logger.error(ss.str());
       return rval;
     }
   }
@@ -1289,7 +1296,9 @@ Tag DagMC::get_tag(const char* name, int size, TagType store, DataType type,
   ErrorCode result =
       MBI->tag_get_handle(name, size, type, retval, flags, def_value);
   if (create_if_missing && MB_SUCCESS != result)
-    std::cerr << "Couldn't find nor create tag named " << name << std::endl;
+    std::stringstream ss;
+    ss << "Couldn't find nor create tag named " << name;
+    logger.error(ss.str());
 
   return retval;
 }
