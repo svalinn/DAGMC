@@ -631,7 +631,7 @@ std::pair<std::string, std::string> dagmcMetaData::split_string(
     int str_length = property_string.length() - found_delimiter;
     second = property_string.substr(found_delimiter + 1, str_length);
   } else {
-    logger.meesage("Didn't find any delimiter");
+    logger.message("Didn't find any delimiter");
     logger.message("Returning empty strings");
   }
 
