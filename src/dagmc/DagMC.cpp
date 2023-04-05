@@ -50,7 +50,7 @@ const std::map<std::string, std::string> DagMC::no_synonyms;
 DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
              double p_numerical_precision, int verbosity) : logger(verbosity) {
 #ifdef DOUBLE_DOWN
-  logger.message("Using the DOUBLE-DOWN interface to Embree.", 1);
+  logger.message("Using the DOUBLE-DOWN interface to Embree.");
 #endif
 
   moab_instance_created = false;
@@ -119,7 +119,7 @@ ErrorCode DagMC::load_file(const char* cfile) {
   std::string filename(cfile);
   std::stringstream ss;
   ss << "Loading file " << cfile;
-  logger.message(ss.str(), 1);
+  logger.message(ss.str());
   // load options
   char options[120] = {0};
   std::string file_ext = "";  // file extension
@@ -194,7 +194,7 @@ ErrorCode DagMC::setup_obbs() {
 
   // If we havent got an OBB Tree, build one.
   if (!GTT->have_obb_tree()) {
-    logger.message("Building acceleration data structures...",1);
+    logger.message("Building acceleration data structures...");
 #ifdef DOUBLE_DOWN
     rval = ray_tracer->init();
 #else
@@ -762,13 +762,13 @@ ErrorCode DagMC::finish_loading() {
   }
 
   // initialize ray_tracer
-  logger.message("Initializing the GeomQueryTool...", 1);
+  logger.message("Initializing the GeomQueryTool...");
   rval = GTT->find_geomsets();
   MB_CHK_SET_ERR(rval, "Failed to find the geometry sets");
 
   std::stringstream ss;
   ss << "Using faceting tolerance: " << facetingTolerance;
-  logger.message(ss.str(), 1);
+  logger.message(ss.str());
 
   return MB_SUCCESS;
 }
@@ -881,7 +881,7 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   ErrorCode rval = MB_SUCCESS;
 
   if (surfs.size() == 0 || vols.size() == 0) {
-    logger.message("Volumes or Surfaces not found", 1);
+    logger.message("Volumes or Surfaces not found");
     return MB_ENTITY_NOT_FOUND;
   }
   setOffset = std::min(*surfs.begin(), *vols.begin());
