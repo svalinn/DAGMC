@@ -48,7 +48,8 @@ const std::map<std::string, std::string> DagMC::no_synonyms;
 
 // DagMC Constructor
 DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
-             double p_numerical_precision, int verbosity) : logger(verbosity) {
+             double p_numerical_precision, int verbosity)
+    : logger(verbosity) {
 #ifdef DOUBLE_DOWN
   logger.message("Using the DOUBLE-DOWN interface to Embree.");
 #endif
@@ -76,8 +77,8 @@ DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
 }
 
 DagMC::DagMC(Interface* mb_impl, double overlap_tolerance,
-             double p_numerical_precision, int verbosity) : 
-             logger(verbosity) {
+             double p_numerical_precision, int verbosity)
+    : logger(verbosity) {
   moab_instance_created = false;
   // set the internal moab pointer
   MBI = mb_impl;
@@ -1300,7 +1301,7 @@ Tag DagMC::get_tag(const char* name, int size, TagType store, DataType type,
     ss << "Couldn't find nor create tag named " << name;
     logger.error(ss.str());
   }
-  
+
   return retval;
 }
 

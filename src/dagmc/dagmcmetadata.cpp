@@ -143,11 +143,10 @@ void dagmcMetaData::parse_material_data() {
         // failure, a volume can only have a single material associated with it
         std::stringstream ss;
         ss << "More than one material for volume with id " << cellid
-            << std::endl;
+           << std::endl;
         ss << "that does not the the _comp tag associated with it."
-            << std::endl;
-        ss << cellid
-            << " has the following material assignments:" << std::endl;
+           << std::endl;
+        ss << cellid << " has the following material assignments:" << std::endl;
         for (int j = 0; j < material_props.size(); j++) {
           ss << material_props[j] << std::endl;
         }
@@ -162,7 +161,7 @@ void dagmcMetaData::parse_material_data() {
       if (material_props[0] == "" && !(DAG->is_implicit_complement(eh))) {
         std::stringstream ss;
         ss << "No material property found for volume with ID " << cellid
-                  << std::endl;
+           << std::endl;
         ss << "Every volume must have exactly one mat: property";
         logger.error(ss.str());
         exit(EXIT_FAILURE);
@@ -172,10 +171,8 @@ void dagmcMetaData::parse_material_data() {
     // this is never ok for a volume to have more than one property for density
     if (density_props.size() > 1) {
       std::stringstream ss;
-      ss << "More than one density specified for " << cellid
-                << std::endl;
-      ss << cellid << " has the following density assignments"
-                << std::endl;
+      ss << "More than one density specified for " << cellid << std::endl;
+      ss << cellid << " has the following density assignments" << std::endl;
       for (int j = 0; j < density_props.size(); j++) {
         ss << density_props[j] << std::endl;
       }
@@ -202,10 +199,9 @@ void dagmcMetaData::parse_material_data() {
     if (require_density && try_to_make_int(material_props[0]) &&
         density_props[0].empty() && !(DAG->is_implicit_complement(eh))) {
       std::stringstream ss;
-      ss << "Using the simplified naming scheme without a density"
-                << std::endl;
+      ss << "Using the simplified naming scheme without a density" << std::endl;
       ss << "property is forbidden, please rename the group mat:"
-                << material_props[0];
+         << material_props[0];
       logger.error(ss.str());
       exit(EXIT_FAILURE);
     }
@@ -286,18 +282,18 @@ void dagmcMetaData::parse_importance_data() {
         } catch (const std::exception& e) {
           std::stringstream ss;
           ss << "Can't parse importance " << pair.second
-                    << " as a float: " << e.what();
+             << " as a float: " << e.what();
           logger.error(ss.str());
           exit(EXIT_FAILURE);
         }
         importance_map[eh][pair.first] = imp;
       } else {
         std::stringstream ss;
-        ss << "Volume with ID " << volid
-                  << " has more than one importance " << std::endl;
+        ss << "Volume with ID " << volid << " has more than one importance "
+           << std::endl;
         ss << "Assigned for particle type " << pair.first << std::endl;
         ss << "Only one importance value per volume per particle type "
-                     "is allowed";
+              "is allowed";
         logger.error(ss.str());
         exit(EXIT_FAILURE);
       }
@@ -371,10 +367,9 @@ void dagmcMetaData::parse_boundary_data() {
     boundary_assignment = boundary_assignments[eh];
     if (boundary_assignment.size() != 1) {
       std::stringstream ss;
-      ss<< "More than one boundary conditions specified for " << surfid
-                << std::endl;
-      ss << surfid << " has the following density assignments"
-                << std::endl;
+      ss << "More than one boundary conditions specified for " << surfid
+         << std::endl;
+      ss << surfid << " has the following density assignments" << std::endl;
       for (int j = 0; j < boundary_assignment.size(); j++) {
         ss << boundary_assignment[j] << std::endl;
       }
