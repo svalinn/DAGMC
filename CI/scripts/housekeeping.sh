@@ -23,6 +23,7 @@ if [ -z "${clang_diffs}" ]; then
 else
   echo "ERROR: Style guide checker failed. Please run clang-format."
   echo "clang_diffs: ${clang_diffs}"
+  git diff
   exit 1
 fi
 
