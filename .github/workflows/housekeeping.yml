@@ -26,4 +26,5 @@ jobs:
       - name: Housekeeping
         run: |
           cd $GITHUB_WORKSPACE
+          git config --global --add safe.directory /__w/DAGMC/DAGMC
           CI/scripts/housekeeping.sh

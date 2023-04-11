@@ -12,6 +12,7 @@
 
 #include "DagMCVersion.hpp"
 #include "MBTagConventions.hpp"
+#include "logger.hpp"
 #include "moab/CartVect.hpp"
 #include "moab/Core.hpp"
 #include "moab/FileOptions.hpp"
@@ -73,13 +74,15 @@ class DagMC {
  public:
   // Constructor
   DagMC(std::shared_ptr<Interface> mb_impl = nullptr,
-        double overlap_tolerance = 0., double numerical_precision = .001);
+        double overlap_tolerance = 0., double numerical_precision = .001,
+        int verbosity = 1);
   // Deprecated Constructor
   [
       [deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... "
                   ")")]] DagMC(Interface* mb_impl,
                                double overlap_tolerance = 0.,
-                               double numerical_precision = .001);
+                               double numerical_precision = .001,
+                               int verbosity = 1);
   // Destructor
   ~DagMC();
 
@@ -514,6 +517,9 @@ class DagMC {
   std::vector<double> disList;
   std::vector<int> dirList;
   std::vector<EntityHandle> surList, facList;
+
+  /** logger **/
+  DagMC_Logger logger;
 
   // axis-aligned box used to track geometry bounds
   // (internal use only)
