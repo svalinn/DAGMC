@@ -11,7 +11,7 @@ find_path(dd_CMAKE_CONFIG NAMES ddConfig.cmake
           HINTS ${dd_ROOT} $ENV{dd_ROOT}
           PATHS ENV LD_LIBRARY_PATH
           PATHS ${DOUBLE_DOWN_DIR}
-          PATH_SUFFIXES lib Lib cmake lib/cmake/
+          PATH_SUFFIXES lib Lib cmake lib/cmake/ lib/cmake/dd
           NO_DEFAULT_PATH)
 
 message(STATUS "Found dd in ${dd_CMAKE_CONFIG}")

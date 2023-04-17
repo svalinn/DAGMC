@@ -23,7 +23,8 @@ Next version
    * Introduced logger to better manage console output (#876)
 
 **Fixed:**
-   * Patch to compile with Geant4 10.6     
+   * Patch to compile with Geant4 10.6
+   * Patched cmake-search paths for double-down and MOAB (#878)
 
 
 v3.2.2
