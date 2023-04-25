@@ -14,6 +14,55 @@ set(DAGMC_VERSION @DAGMC_VERSION@)
 
 message(STATUS "Configuring DAGMC ${DAGMC_VERSION}")
 
+# Values for DAGMC configuration options
+
+# "Build DAG-MCNP5"
+set(DAGMC_BUILD_MCNP5 @BUILD_MCNP5@)
+# "Build DAG-MCNP6"
+set(DAGMC_BUILD_MCNP6 @BUILD_MCNP6@)
+# "Build DAG-MCNP5/6 with plotting support"
+set(DAGMC_BUILD_MCNP_PLOT @BUILD_MCNP_PLOT@)
+# "Build DAG-MCNP5/6 with OpenMP support"
+set(DAGMC_BUILD_MCNP_OPENMP @BUILD_MCNP_OPENMP@)
+# "Build DAG-MCNP5/6 with MPI support"
+set(DAGMC_BUILD_MCNP_MPI @BUILD_MCNP_MPI@)
+# "Build DAG-MCNP5/6 with PyNE mesh source support"
+set(DAGMC_BUILD_MCNP_PYNE_SOURCE @BUILD_MCNP_PYNE_SOURCE@)
+# "Build DAG-Geant4"
+set(DAGMC_BUILD_GEANT4 @BUILD_GEANT4@)
+# "Build DAG-Geant4 with visualization support"
+set(DAGMC_WITH_GEANT4_UIVIS @WITH_GEANT4_UIVIS@)
+# Build FluDAG
+set(DAGMC_BUILD_FLUKA @BUILD_FLUKA@)
+# "Build UWUW library and uwuw_preproc"
+set(DAGMC_BUILD_UWUW @BUILD_UWUW@)
+# "Build dagtally library"
+set(DAGMC_BUILD_TALLY @BUILD_TALLY@)
+# "Build build_obb tool"
+set(DAGMC_BUILD_BUILD_OBB @BUILD_BUILD_OBB@)
+# "Build make_watertight tool"
+set(DAGMC_BUILD_MAKE_WATERTIGHT @BUILD_MAKE_WATERTIGHT@)
+# "Build overlap_check tool"
+set(DAGMC_BUILD_OVERLAP_CHECK @BUILD_OVERLAP_CHECK@)
+# "Build unit tests"
+set(DAGMC_BUILD_TESTS @BUILD_TESTS@)
+# "Build everything needed to run the CI tests"
+set(DAGMC_BUILD_CI_TESTS @BUILD_CI_TESTS@)
+# "Build shared libraries"
+set(DAGMC_BUILD_SHARED_LIBS @BUILD_SHARED_LIBS@)
+# "Build static libraries"
+set(DAGMC_BUILD_STATIC_LIBS @BUILD_STATIC_LIBS@)
+# "Build DAGMC executables"
+set(DAGMC_BUILD_EXE @BUILD_EXE@)
+# "Build static executables"
+set(DAGMC_BUILD_STATIC_EXE @BUILD_STATIC_EXE@)
+# "Build with PIC"
+set(DAGMC_BUILD_PIC @BUILD_PIC@)
+# "Build libraries and executables with RPATH"
+set(DAGMC_BUILD_RPATH @BUILD_RPATH@)
+# "Enable ray tracing with Embree via double down"
+set(DAGMC_DOUBLE_DOWN @DOUBLE_DOWN@)
+
 set(DAGMC_INCLUDE_DIRS @CMAKE_INSTALL_PREFIX@/@INSTALL_INCLUDE_DIR@ @MOAB_INCLUDE_DIRS@)
 set(DAGMC_LIBRARY_DIRS @CMAKE_INSTALL_PREFIX@/@INSTALL_LIB_DIR@ @MOAB_LIBRARY_DIRS@)
 set(DAGMC_LIBRARIES @DAGMC_LIBRARIES@)

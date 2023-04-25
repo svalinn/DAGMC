@@ -167,9 +167,11 @@ ARG ci_jobs
 ARG CXX
 ARG CC
 
+
 # Set MOAB env variable
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
+
 
 RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
@@ -273,3 +275,4 @@ RUN cd ${dagmc_build_dir} && \
 RUN cd ${dagmc_build_dir}/cmake/test_config && \
     cmake . -DDAGMC_ROOT=${dagmc_install_dir} && \
     CTEST_OUTPUT_ON_FAILURE=1 make all test
+

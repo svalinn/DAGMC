@@ -9,6 +9,7 @@ Next version
 
 **Changed:**
 
+   * Improvements/corrections to graveyard capabilities (#855)
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813)
    * Adding safe folder to allow CI to compile DAGMC (#814)
    * Correction to CMake variable name in OpenMC install instructions (#817)
@@ -18,6 +19,13 @@ Next version
    * Minor typo fixes in documentation (#851)
    * Moved scripts to Dockerfile and parallel CI (#822)
    * Removed unused Circle CI yml (#859)
+   * Added configuration options to CMake configuration file (#867)
+   * Change test-on-merge against MOAB master/develop to be optional (#870)
+   * Introduced logger to better manage console output (#876)
+
+**Fixed:**
+   * Patch to compile with Geant4 10.6
+   * Patched cmake-search paths for double-down and MOAB (#878)
 
 
 v3.2.2
@@ -43,7 +51,7 @@ v3.2.1
 **Removed:**
 
 **Fixed:**
-
+      
 **Security:**
 
 **Maintenance:**

@@ -6,11 +6,10 @@ on:
   pull_request:
     branches:
       - develop
-      - master
   push:
     branches:
       - develop
-      - master
+
   release:
     types: # This configuration does not affect the page_build event above
       - created

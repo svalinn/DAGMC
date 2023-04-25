@@ -9,6 +9,10 @@
 #include "G4VScoringMesh.hh"
 #include "G4Version.hh"
 
+#ifdef GEANT4_GT_10_6
+using MeshScoreMap = G4VScoringMesh::MeshScoreMap;
+#endif
+
 ExN01UserScoreWriter::ExN01UserScoreWriter() : G4VScoreWriter() { ; }
 
 ExN01UserScoreWriter::~ExN01UserScoreWriter() { ; }
