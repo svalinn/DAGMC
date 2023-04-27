@@ -4,7 +4,6 @@
 # docker build -t dagmc -f CI/Dockerfile .
 
 # Global ARGS set before the first build stage are accessable by all build stages
-ARG build_mw_reg_tests=OFF
 ARG EMBREE_BRANCH='v3.6.1'
 ARG geant4_version=10.5.1
 ARG UBUNTU_VERSION=18.04
@@ -216,7 +215,6 @@ RUN mkdir -p ${double_down_build_dir}/build && \
 FROM moab as dagmc
 
 # accessing gloabl ARGs in build stage
-ARG build_mw_reg_tests
 ARG install_dir
 ARG build_dir
 ARG static_exe
