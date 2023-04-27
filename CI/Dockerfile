@@ -12,12 +12,6 @@ ARG MOAB_BRANCH=5.3.0
 ARG double_down=OFF
 ARG static_exe=OFF
 ARG ci_jobs=20
-
-# dependency_image_location defaults to using a local image for all the dependencies
-# This also allows one to specify a remote image from a container registry
-# The DAGMC container registry can be found here https://github.com/orgs/svalinn/packages
-ARG dependency_image_location=moab
-
 ARG HDF5_VERSION=1.10.4
 # currently HDF5 major version must be manually set to match HDF5 version
 ARG HDF5_VERSION_major=1.10
@@ -219,7 +213,7 @@ RUN mkdir -p ${double_down_build_dir}/build && \
     make -j${ci_jobs} install
 
 
-FROM ${dependency_image_location} as dagmc
+FROM moab as dagmc
 
 # accessing gloabl ARGs in build stage
 ARG build_mw_reg_tests
