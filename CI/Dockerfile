@@ -170,17 +170,6 @@ RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
     git clone -b ${MOAB_BRANCH} --depth 1 https://bitbucket.org/fathomteam/moab && \
     cd build && \
-    # static building of moab is also an option and was required for older versions
-    # cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
-    #               -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
-    #               -DCMAKE_CXX_COMPILER=${CXX} \
-    #               -DCMAKE_C_COMPILER=${CC} \
-    #               -DENABLE_BLASLAPACK=OFF \
-    #               -DBUILD_SHARED_LIBS=OFF \
-    #               -DENABLE_FORTRAN=OFF && \
-    # make -j${ci_jobs} && \
-    # make install && \
-    # rm -rf * && \
     cmake ../moab -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib \
                   -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
                   -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
