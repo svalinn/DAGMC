@@ -31,10 +31,6 @@ jobs:
         moab_versions : [
          5.3.0,
         ]
-        static_exe : [
-         OFF,
-         ON,
-        ]
 
     name: Installing Dependencies
     steps:        
