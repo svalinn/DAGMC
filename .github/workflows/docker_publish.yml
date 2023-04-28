@@ -50,6 +50,7 @@ jobs:
           stages: base, external_deps, hdf5
           server-stage: moab
           quiet: false
+          parallel: true
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
           build-args: UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
@@ -96,10 +97,15 @@ jobs:
           stages: dagmc
           server-stage: dagmc_test
           quiet: false
+          parallel: true
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
           build-args: UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
 
+  push_stable_ci_img:
+    needs: [build-dagmc_test-img]
+    runs-on: ubuntu-latest
+    
       - name: Log in to the Container registry
         if: ${{ github.repository_owner == 'svalinn' }}
         uses: docker/login-action@v2
