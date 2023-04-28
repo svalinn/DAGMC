@@ -58,7 +58,6 @@ jobs:
     needs: [build-dependency-img]
     runs-on: ubuntu-latest
     env:
-      hdf5_versions: 1.10.4
       hdf5_build_dir: hdf5_build_dir
 
     strategy:
