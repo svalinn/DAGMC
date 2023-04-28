@@ -9,7 +9,6 @@ ARG geant4_version=10.5.1
 ARG UBUNTU_VERSION=18.04
 ARG MOAB_BRANCH=5.3.0
 ARG double_down=OFF
-ARG static_exe=OFF
 ARG ci_jobs=20
 ARG HDF5_VERSION=1.10.4
 # currently HDF5 major version must be manually set to match HDF5 version
@@ -205,7 +204,6 @@ FROM moab as dagmc
 # accessing gloabl ARGs in build stage
 ARG install_dir
 ARG build_dir
-ARG static_exe
 ARG CXX
 ARG CC
 
@@ -226,8 +224,8 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
                       -DBUILD_CI_TESTS=ON \
                       # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
                       -DBUILD_MW_REG_TESTS=OFF \
-                      -DBUILD_STATIC_EXE=${static_exe} \
-                      -DBUILD_STATIC_LIBS=${static_exe} \
+                      -DBUILD_STATIC_EXE=OFF \
+                      -DBUILD_STATIC_LIBS=OFF \
                       -DCMAKE_C_COMPILER=${CC} \
                       -DCMAKE_CXX_COMPILER=${CXX} \
                       -DCMAKE_Fortran_COMPILER=gfortran \

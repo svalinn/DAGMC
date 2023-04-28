@@ -53,7 +53,7 @@ jobs:
           quiet: false
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: OWNER=${{ github.repository_owner }}, TAG=ci_testing, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, COMPILER=${{ matrix.compiler }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
+          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
 
   build-dagmc_test-img:
     needs: [build-dependency-img]
@@ -100,7 +100,7 @@ jobs:
           quiet: false
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, COMPILER=${{ matrix.compiler }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
+          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
 
       - name: Log in to the Container registry
         if: ${{ github.repository_owner == 'svalinn' }}
