@@ -9,7 +9,7 @@ ARG geant4_version=10.7.4
 ARG UBUNTU_VERSION=18.04
 ARG MOAB_BRANCH=5.3.0
 ARG double_down=OFF
-ARG ci_jobs=20
+ARG ci_jobs=4
 ARG HDF5_VERSION=1.10.4
 # currently HDF5 major version must be manually set to match HDF5 version
 ARG HDF5_VERSION_major=1.10
@@ -17,12 +17,7 @@ ARG HDF5_VERSION_major=1.10
 ARG build_dir=/root/build_dir
 ARG install_dir=/root/opt
 
-# clang and gcc are options for the compiler but to use them CC and CXX must be set
-# if clang then change cc to clang and cxx to clang++
-# if gcc then change cc to gcc and cxx to g++
-ARG CC=gcc
-ARG CXX=g++
-
+ARG COMPILER=gcc
 
 FROM ubuntu:${UBUNTU_VERSION} AS base
 
@@ -65,8 +60,17 @@ ARG install_dir
 ENV build_dir=${build_dir}
 ENV install_dir=${install_dir}
 
+FROM base as compiler-gcc
 
-FROM base as external_deps
+ENV CC=gcc
+ENV CXX=g++
+
+FROM base as compiler-clang
+
+ENV CC=clang
+ENV CXX=clang++
+
+FROM compiler-${COMPILER} as external_deps
 
 # accessing gloabl ARGs in build stage
 ARG geant4_version
