@@ -18,6 +18,7 @@ jobs:
       matrix:
         ubuntu_versions : [
           20.04,
+          22.04,
           ]
         compiler : [
           gcc,
@@ -64,6 +65,7 @@ jobs:
       matrix:
         ubuntu_versions : [
           20.04,
+          22.04,
           ]
         compiler : [
           gcc,
@@ -110,6 +112,7 @@ jobs:
       matrix:
         ubuntu_versions : [
           20.04,
+          22.04,
           ]
         compiler : [
           gcc,
