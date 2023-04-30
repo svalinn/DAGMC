@@ -37,3 +37,4 @@ options available to you.
 ..  _FLUKA: http://www.fluka.org/fluka.php
 ..  _Cubit: https://coreform.com/products/coreform-cubit/
 ..  _OpenMC_install: https://docs.openmc.org/en/stable/quickinstall.html
+..  _OpenMC: https://docs.openmc.org/en/latest/index.html
