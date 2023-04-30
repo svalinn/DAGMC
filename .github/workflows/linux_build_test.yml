@@ -34,8 +34,8 @@ jobs:
     strategy:
       matrix:
         ubuntu_versions : [
-          18.04,
           20.04,
+          22.04,
           ]
         compiler : [
           gcc,
@@ -56,6 +56,24 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+
+      - name: Build DAGMC
+        run: |
+          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
+          cd $GITHUB_WORKSPACE
+          mkdir -p build
+          cd build
+          cmake .. -DMOAB_DIR=/root/opt/moab \
+                      -DBUILD_GEANT4=ON \
+                      -DGEANT4_DIR=/root/opt/geant4 \
+                      -DBUILD_CI_TESTS=ON \
+                      -DBUILD_MW_REG_TESTS=OFF \
+                      -DBUILD_STATIC_EXE=OFF \
+                      -DBUILD_STATIC_LIBS=OFF \
+                      -DCMAKE_Fortran_COMPILER=gfortran \
+                      -DCMAKE_INSTALL_PREFIX=/root/opt/dagmc \
+                      -DDOUBLE_DOWN=${double_down} \
+                      -Ddd_ROOT=${double_down_install_dir} && \
 
       - name: Setup
         run: |
