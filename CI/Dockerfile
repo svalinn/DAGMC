@@ -222,6 +222,8 @@ RUN cd  ${dagmc_build_dir} && git submodule update --init
 RUN mkdir -p ${dagmc_build_dir}/build && \
     cd ${dagmc_build_dir} && \
     cd build && \
+    echo ${dagmc} && \
+    ls -l ../${dagmc} && \
     cmake ../${dagmc} -DMOAB_DIR=${moab_install_dir} \
                       -DBUILD_GEANT4=ON \
                       -DGEANT4_DIR=${geant4_install_dir} \
