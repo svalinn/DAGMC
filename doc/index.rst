@@ -25,6 +25,7 @@ DAGMC: Direct Accelerated Geometry Monte Carlo
 
 ..  image:: https://anaconda.org/conda-forge/dagmc/badges/version.svg
     :target: https://anaconda.org/conda-forge/dagmc
+
 |
 
 Direct Accelerated Geometry Monte Carlo (DAGMC) is a software package that
