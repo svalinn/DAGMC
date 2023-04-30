@@ -6,7 +6,7 @@
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG EMBREE_BRANCH='v3.6.1'
 ARG geant4_version=10.7.4
-ARG UBUNTU_VERSION=18.04
+ARG UBUNTU_VERSION=20.04
 ARG MOAB_BRANCH=5.3.0
 ARG double_down=OFF
 ARG ci_jobs=4
@@ -222,9 +222,7 @@ RUN cd  ${dagmc_build_dir} && git submodule update --init
 RUN mkdir -p ${dagmc_build_dir}/build && \
     cd ${dagmc_build_dir} && \
     cd build && \
-    echo ${dagmc} && \
-    ls -l ../${dagmc} && \
-    cmake ../${dagmc} -DMOAB_DIR=${moab_install_dir} \
+    cmake ../ -DMOAB_DIR=${moab_install_dir} \
                       -DBUILD_GEANT4=ON \
                       -DGEANT4_DIR=${geant4_install_dir} \
                       -DBUILD_CI_TESTS=ON \
