@@ -223,19 +223,19 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
     cd ${dagmc_build_dir} && \
     cd build && \
     cmake ../ -DMOAB_DIR=${moab_install_dir} \
-                      -DBUILD_GEANT4=ON \
-                      -DGEANT4_DIR=${geant4_install_dir} \
-                      -DBUILD_CI_TESTS=ON \
-                      # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
-                      -DBUILD_MW_REG_TESTS=OFF \
-                      -DBUILD_STATIC_EXE=OFF \
-                      -DBUILD_STATIC_LIBS=OFF \
-                      -DCMAKE_C_COMPILER=${CC} \
-                      -DCMAKE_CXX_COMPILER=${CXX} \
-                      -DCMAKE_Fortran_COMPILER=gfortran \
-                      -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
-                      -DDOUBLE_DOWN=${double_down} \
-                      -Ddd_ROOT=${double_down_install_dir} && \
+              -DBUILD_GEANT4=ON \
+              -DGEANT4_DIR=${geant4_install_dir} \
+              -DBUILD_CI_TESTS=ON \
+              # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
+              -DBUILD_MW_REG_TESTS=OFF \
+              -DBUILD_STATIC_EXE=OFF \
+              -DBUILD_STATIC_LIBS=OFF \
+              -DCMAKE_C_COMPILER=${CC} \
+              -DCMAKE_CXX_COMPILER=${CXX} \
+              -DCMAKE_Fortran_COMPILER=gfortran \
+              -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
+              -DDOUBLE_DOWN=${double_down} \
+              -Ddd_ROOT=${double_down_install_dir} && \
     make -j${ci_jobs} && \
     make install
 
