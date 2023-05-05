@@ -174,6 +174,7 @@ RUN mkdir -p ${moab_build_dir}/build && \
     git clone -b ${MOAB_BRANCH} --depth 1 https://bitbucket.org/fathomteam/moab && \
     cd build && \
     cmake ../moab -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib \
+                  -DCMAKE_BUILD_TYPE=Release \
                   -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
                   -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
                   -DCMAKE_CXX_COMPILER=${CXX} \
