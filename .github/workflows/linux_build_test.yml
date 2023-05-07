@@ -1,25 +1,12 @@
-name: Linux Build/Test
+name: Build & Publish docker image for DAGMC-CI & Build/Test DAGMC
 
 on:
   # allows us to run workflows manually
   workflow_dispatch:
   pull_request:
-    branches:
-      - develop
-    paths-ignore:
-      - '.github/workflows/docker_publish.yml'
-      - '.github/workflows/housekeeping.yml'
-      - 'CI/**'
-  push:
-    branches:
-      - develop
-    paths-ignore:
-      - '.github/workflows/docker_publish.yml'
-      - '.github/workflows/housekeeping.yml'
-      - 'CI/**'
 
 jobs:
-  dagmc_build_test:
+  build-dependency-img:
     runs-on: ubuntu-latest
 
     strategy:
@@ -39,7 +26,7 @@ jobs:
          5.3.0,
         ]
 
-    name: Installing DAGMC
+    name: Installing Dependencies
     steps:        
       - name: Log in to the Container registry
         uses: docker/login-action@v2
@@ -51,14 +38,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Test DAGMC in Docker image
+      - name: Installing Dependencies in Docker image & Testing DAGMC
+        id: build
         uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
-          stages: moab, dagmc
-          server-stage: dagmc_test
+          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
+          stages: base, external_deps, hdf5, moab, dagmc
+          server-stage: dagmc-test
           quiet: false
           parallel: true
-          tag-latest-on-default: false
+          tag-latest-on-default: true
           dockerfile: CI/Dockerfile
           build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
