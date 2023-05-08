@@ -17,7 +17,7 @@ Next version
    * Update Pyne submodule (#845)
    * Update Pyne submodule (#848)
    * Minor typo fixes in documentation (#851)
-   * Moved scripts to Dockerfile and parallel CI (#822)
+   * Moved scripts to Dockerfile and parallel CI (#863)
    * Removed unused Circle CI yml (#859)
    * Added configuration options to CMake configuration file (#867)
    * Change test-on-merge against MOAB master/develop to be optional (#870)
