@@ -1,6 +1,7 @@
 #include "dagmcmetadata.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <iostream>
 #include <set>
 #include <sstream>
