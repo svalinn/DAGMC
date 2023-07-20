@@ -70,6 +70,27 @@ jobs:
           dockerfile: CI/Dockerfile
           build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
 
+  push_stable_ci_img:
+    needs: [build-dependency-img]
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ubuntu_versions : [
+          20.04,
+          22.04,
+          ]
+        compiler : [
+          gcc,
+          clang,
+          ]
+        hdf5_versions : [
+         1.10.4,
+        ]
+        moab_versions : [
+         5.3.0,
+        ]
+        
     name: Pushing final images
     steps:       
       - name: Log in to the Container registry
