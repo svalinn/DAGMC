@@ -237,7 +237,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
               -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
               -DDOUBLE_DOWN=${double_down} \
               -Ddd_ROOT=${double_down_install_dir} && \
-    make -j${ci_jobs} && \
+    make -j1 && \
     make install
 
 
