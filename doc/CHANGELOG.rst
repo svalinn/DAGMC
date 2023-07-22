@@ -26,6 +26,7 @@ Next version
 **Fixed:**
    * Patch to compile with Geant4 10.6
    * Patched cmake-search paths for double-down and MOAB (#878)
+   * Removed gtest from windows build environment (#886)
 
 
 v3.2.2
