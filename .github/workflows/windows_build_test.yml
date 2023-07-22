@@ -7,8 +7,6 @@ on:
     branches:
       - develop
   push:
-    branches:
-      - develop
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
