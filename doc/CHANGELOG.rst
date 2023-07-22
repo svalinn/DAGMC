@@ -27,7 +27,7 @@ Next version
    * Patch to compile with Geant4 10.6
    * Patched cmake-search paths for double-down and MOAB (#878)
    * Removed gtest from windows build environment (#886)
-
+   * Patch to compile with gcc-13
 
 v3.2.2
 ====================
