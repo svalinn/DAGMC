@@ -8,7 +8,9 @@ on:
 jobs:
   build-dependency-img:
     runs-on: ubuntu-latest
-
+    permissions:
+      packages: write
+      
     strategy:
       matrix:
         ubuntu_versions : [
