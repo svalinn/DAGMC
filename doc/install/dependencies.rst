@@ -94,6 +94,7 @@ To build moab using the default packages:
 
     $ cd bld
     $ cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+              -DCMAKE_BUILD_TYPE=Release \
               -DENABLE_PYMOAB=ON \
               -DENABLE_BLASLAPACK=OFF \
               -DENABLE_FORTRAN=OFF \

@@ -7,7 +7,7 @@ If you plan to use OpenMC_, you can follow `their installation
 instructions <OpenMC_install>`_ with
 DAGMC built-in.
 
-Otherwise.... Before you begin, you should know that the following will be
+Otherwise, before you begin, you should know that the following will be
 required:
 
 1.  A basic understanding of Unix/Linux shell commands and how to navigate
