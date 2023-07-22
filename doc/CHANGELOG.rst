@@ -24,10 +24,10 @@ Next version
    * Introduced logger to better manage console output (#876)
 
 **Fixed:**
-   * Patch to compile with Geant4 10.6
+   * Patch to compile with Geant4 10.6 (#803)
    * Patched cmake-search paths for double-down and MOAB (#878)
    * Removed gtest from windows build environment (#886)
-   * Patch to compile with gcc-13
+   * Patch to compile with gcc-13 (#882)
 
 v3.2.2
 ====================
