@@ -79,7 +79,7 @@ Redhat linux users can do likewise with:
 MOAB installation
 ~~~~~~~~~~~~~~~~~
 
-As of DAGMC version 3.2, MOAB version 5.1.0 or higher is required. The following
+As of DAGMC version 3.2, a MOAB version between 5.1.0 and 5.3.0 is required. The following
 commands can be used to download MOAB from its `source repository <MOAB_>`_ and
 set it up for building.
 ::
