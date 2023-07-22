@@ -27,7 +27,7 @@ Next version
    * Patch to compile with Geant4 10.6 (#803)
    * Patched cmake-search paths for double-down and MOAB (#878)
    * Patch to compile with gcc-13 (#882)
-   * Tweak conda environment for Windows build to avoid conflicting gtest headers ()
+   * Tweak conda environment for Windows build to avoid conflicting gtest headers (#888)
 
 v3.2.2
 ====================
