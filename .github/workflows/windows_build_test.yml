@@ -26,6 +26,7 @@ jobs:
         run: |
           conda install curl eigen
           conda install -c conda-forge hdf5=1.10.6
+#         yaml-cpp package has conflicting gtest headers and is not needed for this project
           conda remove -y yaml-cpp
 
       - name: Environment Variables
