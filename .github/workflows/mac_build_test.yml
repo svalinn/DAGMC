@@ -6,9 +6,17 @@ on:
   pull_request:
     branches:
       - develop
+    paths-ignore:
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/housekeeping.yml'
+      - 'CI/**'
   push:
     branches:
       - develop
+    paths-ignore:
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/housekeeping.yml'
+      - 'CI/**'
 
   release:
     types: # This configuration does not affect the page_build event above
