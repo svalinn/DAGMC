@@ -8,6 +8,8 @@ on:
       - develop
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/mac_build_test.yml'
+      - '.github/workflows/windows_build_test.yml'
       - '.github/workflows/housekeeping.yml'
       - 'CI/**'
   push:
@@ -15,6 +17,8 @@ on:
       - develop
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/mac_build_test.yml'
+      - '.github/workflows/windows_build_test.yml'
       - '.github/workflows/housekeeping.yml'
       - 'CI/**'
 
