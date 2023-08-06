@@ -1,4 +1,4 @@
-name: Build & Publish docker image for DAGMC-CI & Build/Test DAGMC
+name: Linux Build/Test for PR and collaborator push
 
 on:
   # allows us to run workflows manually
@@ -25,16 +25,17 @@ on:
       - 'doc/CHANGELOG.rst'
 
 jobs:
-  build-dependency-img:
+  BuildTestMasterDev:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      
+    env:
+      hdf5_versions: ${{ matrix.hdf5_versions }}
+      hdf5_build_dir: hdf5_build_dir
+
     strategy:
       matrix:
         ubuntu_versions : [
+          18.04,
           20.04,
-          22.04,
           ]
         compiler : [
           gcc,
@@ -44,75 +45,40 @@ jobs:
          1.10.4,
         ]
         moab_versions : [
-         5.3.0,
+          5.3.0,
         ]
 
-    name: Installing Dependencies
-    steps:        
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}/moab:stable
 
+      steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Installing Dependencies in Docker image & Testing DAGMC
-        id: build
-        uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
-          stages: base, external_deps, hdf5, moab, dagmc
-          server-stage: dagmc_test
-          quiet: false
-          parallel: true
-          tag-latest-on-default: false
-          dockerfile: CI/Dockerfile
-          build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
+          submodules: recursive
 
-  push_stable_ci_img:
-    needs: [build-dependency-img]
-    runs-on: ubuntu-latest
+      - name: Building DAGMC
+        run: |
+          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
+          mkdir -p ./build
+          cd ./build
+          cmake ../ -DMOAB_DIR=${moab_install_dir} \
+              -DBUILD_GEANT4=ON \
+              -DGEANT4_DIR=${geant4_install_dir} \
+              -DBUILD_CI_TESTS=ON \
+              -DBUILD_MW_REG_TESTS=OFF \
+              -DBUILD_STATIC_EXE=OFF \
+              -DBUILD_STATIC_LIBS=OFF \
+              -DCMAKE_C_COMPILER=${CC} \
+              -DCMAKE_CXX_COMPILER=${CXX} \
+              -DCMAKE_Fortran_COMPILER=gfortran \
+              -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
+              -DDOUBLE_DOWN=${double_down} \
+              -Ddd_ROOT=${double_down_install_dir} && \
+          make -j4 && \
+          make install
 
-    strategy:
-      matrix:
-        ubuntu_versions : [
-          20.04,
-          22.04,
-          ]
-        compiler : [
-          gcc,
-          clang,
-          ]
-        hdf5_versions : [
-         1.10.4,
-        ]
-        moab_versions : [
-         5.3.0,
-        ]
-        
-    name: Pushing final images
-    steps:       
-      - name: Log in to the Container registry
-        if: ${{ github.actor == 'svalinn' }}
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push Image as stable img
-        if: ${{ github.actor == 'svalinn' }}
-        uses: akhilerm/tag-push-action@v2.1.0
-        with:
-          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}/dagmc:refs_heads_${{ github.ref_name }}-bk0
-          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:stable
-
-      - name: Push Image as latest img
-        if: ${{ github.actor == 'svalinn' }}
-        uses: akhilerm/tag-push-action@v2.1.0
-        with:
-          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}/dagmc:refs_heads_${{ github.ref_name }}-bk0
-          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:latest
+      - name: Testing DAGMC
+        run: |
+          cd $GITHUB_WORKSPACE
+          PATH=${install_dir}/dagmc/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
