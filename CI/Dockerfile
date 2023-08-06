@@ -52,7 +52,7 @@ RUN apt-get -y update; \
     apt-get install -y git; \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10; \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10; \
-    pip install cython;
+    pip install "cython<3";
 
 ARG build_dir
 ARG install_dir
