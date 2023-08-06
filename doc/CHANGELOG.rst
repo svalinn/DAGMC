@@ -28,7 +28,7 @@ Next version
    * Patched cmake-search paths for double-down and MOAB (#878)
    * Patch to compile with gcc-13 (#882)
    * Tweak conda environment for Windows build to avoid conflicting gtest headers (#888)
-   * Restrict cython version for MOAB (#)
+   * Restrict cython version for MOAB (#893)
 
 v3.2.2
 ====================
