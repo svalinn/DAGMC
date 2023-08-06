@@ -3,6 +3,7 @@ name: Test the permissions for a simple build/push
 on:
   # allows us to run workflows manually
   workflow_dispatch:
+  push:
   pull_request:
 
 jobs:
