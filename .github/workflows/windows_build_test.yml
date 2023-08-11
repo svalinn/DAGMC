@@ -6,9 +6,21 @@ on:
   pull_request:
     branches:
       - develop
+    paths-ignore:
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/mac_build_test.yml'
+      - '.github/workflows/linux_build_test.yml'
+      - '.github/workflows/housekeeping.yml'
+      - 'CI/**'
   push:
     branches:
       - develop
+    paths-ignore:
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/mac_build_test.yml'
+      - '.github/workflows/linux_build_test.yml'
+      - '.github/workflows/housekeeping.yml'
+      - 'CI/**'
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
