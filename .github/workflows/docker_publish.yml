@@ -11,8 +11,6 @@ on:
 jobs:
   build-dependency-img:
     runs-on: ubuntu-latest
-    env:
-      hdf5_build_dir: hdf5_build_dir
 
     strategy:
       matrix:
@@ -58,8 +56,6 @@ jobs:
   build-dagmc_test-img:
     needs: [build-dependency-img]
     runs-on: ubuntu-latest
-    env:
-      hdf5_build_dir: hdf5_build_dir
 
     strategy:
       matrix:
@@ -105,8 +101,6 @@ jobs:
   push_stable_ci_img:
     needs: [build-dagmc_test-img]
     runs-on: ubuntu-latest
-    env:
-      hdf5_build_dir: hdf5_build_dir
 
     strategy:
       matrix:
