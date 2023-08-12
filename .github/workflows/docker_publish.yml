@@ -36,7 +36,7 @@ jobs:
           echo "tag-latest-on-default=false" >> "$GITHUB_ENV"
 
       - name: condition on trigger parameters
-        if: ${{ github.repository_owner == "svalinn" && github.ref == "refs/heads/develop" }}
+        if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         run: |
           echo "tag-latest-on-default=true" >> "$GITHUB_ENV"
 
@@ -90,7 +90,7 @@ jobs:
           echo "tag-latest-on-default=false" >> "$GITHUB_ENV"
 
       - name: condition on trigger parameters
-        if: ${{ github.repository_owner == "svalinn" && github.ref == "refs/heads/develop" }}
+        if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         run: |
           echo "tag-latest-on-default=true" >> "$GITHUB_ENV"
 
