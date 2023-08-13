@@ -59,8 +59,6 @@ jobs:
           ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
           mkdir -p ./build
           cd ./build
-          env
-          pwd
           git config --global --add safe.directory $GITHUB_WORKSPACE
           cmake ../ -DMOAB_DIR=${moab_install_dir} \
               -DBUILD_GEANT4=ON \
