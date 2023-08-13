@@ -52,33 +52,7 @@ v3.2.1
 
 **Added:**
 
-   * Added link to latest Conda package in GitHub README.md
-
-**Changed:**
-
-**Deprecated:**
-
-**Removed:**
-
-**Fixed:**
-
-**Security:**
-
-**Maintenance:**
-
-
-**Added:**
-
-**Changed:**
-
-**Deprecated:**
-
-**Removed:**
-
-**Fixed:**
-
-**Maintenance:**
-
+   * Added link to latest Conda package in GitHub README.md (#801)
 
 v3.2.1
 ====================
