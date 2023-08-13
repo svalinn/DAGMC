@@ -25,7 +25,7 @@ on:
       - 'doc/CHANGELOG.rst'
 
 jobs:
-  BuildTestMasterDev:
+  BuildTest:
     runs-on: ubuntu-latest
 
     strategy:
