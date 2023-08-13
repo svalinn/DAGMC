@@ -8,19 +8,22 @@ on:
       - develop
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
-      - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/linux_build_test.yml'
+      - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/housekeeping.yml'
       - 'CI/**'
+      - 'doc/CHANGELOG.rst'
+
   push:
     branches:
       - develop
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
-      - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/linux_build_test.yml'
+      - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/housekeeping.yml'
       - 'CI/**'
+      - 'doc/CHANGELOG.rst'
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -11,8 +11,6 @@ on:
 jobs:
   build-dependency-img:
     runs-on: ubuntu-latest
-    env:
-      hdf5_build_dir: hdf5_build_dir
 
     strategy:
       matrix:
@@ -32,7 +30,16 @@ jobs:
         ]
 
     name: Installing Dependencies
-    steps:        
+    steps:
+      - name: default environment
+        run: |
+          echo "tag-latest-on-default=false" >> "$GITHUB_ENV"
+
+      - name: condition on trigger parameters
+        if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
+        run: |
+          echo "tag-latest-on-default=true" >> "$GITHUB_ENV"
+
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
@@ -51,15 +58,13 @@ jobs:
           server-stage: moab
           quiet: false
           parallel: true
-          tag-latest-on-default: false
+          tag-latest-on-default: ${{ env.tag-latest-on-default }}
           dockerfile: CI/Dockerfile
           build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
 
   build-dagmc_test-img:
     needs: [build-dependency-img]
     runs-on: ubuntu-latest
-    env:
-      hdf5_build_dir: hdf5_build_dir
 
     strategy:
       matrix:
@@ -80,6 +85,15 @@ jobs:
 
     name: Installing DAGMC
     steps:        
+      - name: default environment
+        run: |
+          echo "tag-latest-on-default=false" >> "$GITHUB_ENV"
+
+      - name: condition on trigger parameters
+        if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
+        run: |
+          echo "tag-latest-on-default=true" >> "$GITHUB_ENV"
+
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
@@ -90,7 +104,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Test DAGMC in Docker image
+      - name: Build & test DAGMC in Docker image
         uses: firehed/multistage-docker-build-action@v1
         with:
           repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}
@@ -98,15 +112,13 @@ jobs:
           server-stage: dagmc_test
           quiet: false
           parallel: true
-          tag-latest-on-default: false
+          tag-latest-on-default: ${{ env.tag-latest-on-default }}
           dockerfile: CI/Dockerfile
           build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
 
   push_stable_ci_img:
     needs: [build-dagmc_test-img]
     runs-on: ubuntu-latest
-    env:
-      hdf5_build_dir: hdf5_build_dir
 
     strategy:
       matrix:
@@ -135,16 +147,16 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push Image as stable img
-        if: ${{ github.repository_owner == 'svalinn' }}
+      - name: Push Image as latest img
+        if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         uses: akhilerm/tag-push-action@v2.1.0
         with:
-          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}/dagmc:refs_heads_${{ github.ref_name }}-bk0
-          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:stable
+          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}/dagmc:latest
+          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:latest
 
       - name: Push Image as latest img
-        if: ${{ github.repository_owner == 'svalinn' }}
+        if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         uses: akhilerm/tag-push-action@v2.1.0
         with:
-          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}/dagmc:refs_heads_${{ github.ref_name }}-bk0
-          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:latest
+          src: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:latest
+          dst: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}:stable
