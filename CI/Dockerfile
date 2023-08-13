@@ -44,8 +44,8 @@ RUN apt-get -y update; \
                        python3-pip \
                        python3-setuptools \
                        python3-dev \
-                       wget \
                        libpython3-dev \
+                       wget \
                        software-properties-common; \
     add-apt-repository ppa:git-core/ppa; \
     apt-get update; \
