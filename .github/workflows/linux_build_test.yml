@@ -60,6 +60,7 @@ jobs:
           mkdir -p ./build
           cd ./build
           env
+          pwd
           cmake ../ -DMOAB_DIR=${moab_install_dir} \
               -DBUILD_GEANT4=ON \
               -DGEANT4_DIR=${geant4_install_dir} \
