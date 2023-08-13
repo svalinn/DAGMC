@@ -61,6 +61,7 @@ jobs:
           cd ./build
           env
           pwd
+          git config --global --add safe.directory $GITHUB_WORKSPACE
           cmake ../ -DMOAB_DIR=${moab_install_dir} \
               -DBUILD_GEANT4=ON \
               -DGEANT4_DIR=${geant4_install_dir} \
