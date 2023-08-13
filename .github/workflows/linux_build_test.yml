@@ -80,5 +80,5 @@ jobs:
 
       - name: Testing DAGMC
         run: |
-          cd $GITHUB_WORKSPACE
+          cd $GITHUB_WORKSPACE/build
           PATH=${install_dir}/dagmc/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
