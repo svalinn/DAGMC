@@ -1,4 +1,4 @@
-name: Linux Build/Test
+name: Linux Build/Test for PR and collaborator push
 
 on:
   # allows us to run workflows manually
@@ -27,15 +27,12 @@ on:
 jobs:
   BuildTest:
     runs-on: ubuntu-latest
-    env:
-      hdf5_versions: ${{ matrix.hdf5_versions }}
-      hdf5_build_dir: hdf5_build_dir
 
     strategy:
       matrix:
         ubuntu_versions : [
-          18.04,
           20.04,
+          22.04,
           ]
         compiler : [
           gcc,
@@ -49,7 +46,7 @@ jobs:
         ]
 
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-ext-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}:stable
+      image: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-ext-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}/moab:latest
 
     steps:
       - name: Checkout repository
@@ -57,24 +54,29 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup
-        run: |
-          echo "MOAB_VERSION=${{ matrix.moab_versions }}" >> $GITHUB_ENV
-          echo "COMPILER=${{ matrix.compiler }}" >> $GITHUB_ENV
-          echo "HDF5_VERSION=${{ matrix.hdf5_versions }}" >> $GITHUB_ENV
-          echo "REPO_SLUG=${GITHUB_REPOSITORY}" >> $GITHUB_ENV
-          echo "PULL_REQUEST=$(echo  $GITHUB_REF | cut -d"/" -f3)" >> $GITHUB_ENV
-          echo "DOUBLE_DOWN="OFF"" >> $GITHUB_ENV
-          echo "PYTHONPATH=/root/build_dir/moab/bld/pymoab/lib/python3.8/site-packages:${PYTHONPATH}" >> $GITHUB_ENV
-          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
-
       - name: Building DAGMC
         run: |
-          cd $GITHUB_WORKSPACE
-          git config --global --add safe.directory /__w/DAGMC/DAGMC
-          CI/scripts/install.sh
+          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
+          mkdir -p ./build
+          cd ./build
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          cmake ../ -DMOAB_DIR=${moab_install_dir} \
+              -DBUILD_GEANT4=ON \
+              -DGEANT4_DIR=${geant4_install_dir} \
+              -DBUILD_CI_TESTS=ON \
+              -DBUILD_MW_REG_TESTS=OFF \
+              -DBUILD_STATIC_EXE=OFF \
+              -DBUILD_STATIC_LIBS=OFF \
+              -DCMAKE_C_COMPILER=${CC} \
+              -DCMAKE_CXX_COMPILER=${CXX} \
+              -DCMAKE_Fortran_COMPILER=gfortran \
+              -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
+              -DDOUBLE_DOWN=${double_down} \
+              -Ddd_ROOT=${double_down_install_dir} && \
+          make -j2 && \
+          make install
 
       - name: Testing DAGMC
         run: |
-          cd $GITHUB_WORKSPACE
-          CI/scripts/tests.sh
+          cd $GITHUB_WORKSPACE/build
+          PATH=${install_dir}/dagmc/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
