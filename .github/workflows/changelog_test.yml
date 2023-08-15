@@ -11,7 +11,6 @@ env:
 
 jobs:
   changelog_update:
-    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     container:
       image: alpine:3.14
@@ -34,4 +33,4 @@ jobs:
           change=`git diff svalinn/develop -- doc/CHANGELOG.rst | wc -l`
           git remote remove svalinn
           if [ $change -eq 0 ]; then exit 1; fi
-          
+
