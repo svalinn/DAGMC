@@ -32,5 +32,8 @@ jobs:
           git fetch svalinn
           change=`git diff svalinn/develop -- doc/CHANGELOG.rst | wc -l`
           git remote remove svalinn
-          if [ $change -eq 0 ]; then exit 1; fi
+          if [ $change -eq 0 ]; then 
+            echo "doc/Changelog.rst has not been updated"
+            exit 1 
+          fi
 
