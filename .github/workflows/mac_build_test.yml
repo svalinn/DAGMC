@@ -11,6 +11,7 @@ on:
       - '.github/workflows/linux_build_test.yml'
       - '.github/workflows/windows_build_test.yml'
       - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
       - 'CI/**'
       - 'doc/CHANGELOG.rst'
 
@@ -22,6 +23,7 @@ on:
       - '.github/workflows/linux_build_test.yml'
       - '.github/workflows/windows_build_test.yml'
       - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
       - 'CI/**'
       - 'doc/CHANGELOG.rst'
 
