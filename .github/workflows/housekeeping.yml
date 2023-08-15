@@ -27,4 +27,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           git config --global --add safe.directory /__w/DAGMC/DAGMC
-          CI/scripts/housekeeping.sh
+          find src/ \( -name "*.hpp" -o -name "*.cpp" -o -name "*.hh" -o -name "*.cc" -o -name "*.h" \) \
+              \( -not -path "src/gtest*" -not -path "src/mcnp/mcnp?/Source/*" -not -path "src/pyne*" \)  \
+              -exec clang-format -style=file -i {} \;
