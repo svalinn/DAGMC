@@ -25,8 +25,13 @@ jobs:
 
       - name: Checkout repository and housekeeping
         uses: actions/checkout@v3
+
       - run: |
           git config --global --add safe.directory ${GITHUB_WORKSPACE}
           cd $GITHUB_WORKSPACE
-          CI/scripts/changelog_test.sh
-
+          git remote add svalinn https://github.com/svalinn/DAGMC.git
+          git fetch svalinn
+          change=`git diff svalinn/develop -- doc/CHANGELOG.rst | wc -l`
+          git remote remove svalinn
+          if [ $change -eq 0 ]; then exit 1; fi
+          
