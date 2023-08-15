@@ -44,7 +44,8 @@ namespace moab {
 const bool counting = false; /* controls counts of ray casts and pt_in_vols */
 
 // Empty synonym map for DagMC::parse_metadata()
-const std::map<std::string, std::string> DagMC::no_synonyms;
+const std::map<std::string, std::string> 
+  DagMC::no_synonyms;
 
 // DagMC Constructor
 DagMC::DagMC(std::shared_ptr<moab::Interface> mb_impl, double overlap_tolerance,
