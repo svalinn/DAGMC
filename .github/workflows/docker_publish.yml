@@ -60,7 +60,7 @@ jobs:
           parallel: true
           tag-latest-on-default: ${{ env.tag-latest-on-default }}
           dockerfile: CI/Dockerfile
-          build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
+          build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5_VERSION=${{ matrix.hdf5_versions }}, MOAB_BRANCH=${{ matrix.moab_versions }}
 
   build-dagmc_test-img:
     needs: [build-dependency-img]
@@ -114,7 +114,7 @@ jobs:
           parallel: true
           tag-latest-on-default: ${{ env.tag-latest-on-default }}
           dockerfile: CI/Dockerfile
-          build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5=${{ matrix.hdf5_versions }}, MOAB=${{ matrix.moab_versions }}
+          build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5_VERSION=${{ matrix.hdf5_versions }}, MOAB_BRANCH=${{ matrix.moab_versions }}
 
   push_stable_ci_img:
     needs: [build-dagmc_test-img]

@@ -22,7 +22,7 @@ Next version
    * Added configuration options to CMake configuration file (#867)
    * Change test-on-merge against MOAB master/develop to be optional (#870)
    * Introduced logger to better manage console output (#876)
-   * Streamline CI to take advantage of better docker image management (#880)
+   * Streamline CI to take advantage of better docker image management (#880, #896)
    * Move more CI from scripts to actions (#895)
 
 **Fixed:**
