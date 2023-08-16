@@ -3,7 +3,18 @@ name: Test against MOAB master on PR merge
 on:
   # allows us to run workflows manually
   workflow_dispatch:
-
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/linux_build_test.yml'
+      - '.github/workflows/mac_build_test.yml'
+      - '.github/workflows/windows_build_test.yml'
+      - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
+      - 'CI/**'
+      - 'doc/**'
 jobs:
   build-dependency-img:
     runs-on: ubuntu-latest
