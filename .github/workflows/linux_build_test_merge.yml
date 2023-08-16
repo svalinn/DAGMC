@@ -1,4 +1,4 @@
-name: Build & Publish docker image for DAGMC-CI
+name: Test against MOAB master on PR merge
 
 on:
   # allows us to run workflows manually
@@ -11,12 +11,10 @@ jobs:
     strategy:
       matrix:
         ubuntu_versions : [
-          20.04,
           22.04,
           ]
         compiler : [
           gcc,
-          clang,
           ]
         hdf5_versions : [
          1.10.4,
@@ -65,18 +63,16 @@ jobs:
     strategy:
       matrix:
         ubuntu_versions : [
-          20.04,
           22.04,
           ]
         compiler : [
           gcc,
-          clang,
           ]
         hdf5_versions : [
          1.10.4,
         ]
         moab_versions : [
-         5.3.0,
+         master,
         ]
 
     name: Installing DAGMC
@@ -119,18 +115,16 @@ jobs:
     strategy:
       matrix:
         ubuntu_versions : [
-          20.04,
           22.04,
           ]
         compiler : [
           gcc,
-          clang,
           ]
         hdf5_versions : [
          1.10.4,
         ]
         moab_versions : [
-         5.3.0,
+         master,
         ]
 
     name: Pushing final images
