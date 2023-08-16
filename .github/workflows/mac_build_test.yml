@@ -13,7 +13,7 @@ on:
       - '.github/workflows/housekeeping.yml'
       - '.github/workflows/changelog_test.yml'
       - 'CI/**'
-      - 'doc/CHANGELOG.rst'
+      - 'doc/**'
 
   push:
     branches:
@@ -25,7 +25,7 @@ on:
       - '.github/workflows/housekeeping.yml'
       - '.github/workflows/changelog_test.yml'
       - 'CI/**'
-      - 'doc/CHANGELOG.rst'
+      - 'doc/**'
 
   release:
     types: # This configuration does not affect the page_build event above
