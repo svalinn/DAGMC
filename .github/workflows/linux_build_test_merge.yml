@@ -16,7 +16,7 @@ on:
       - 'CI/**'
       - 'doc/**'
 jobs:
-  build-dependency-img:
+  build-dependency-and-test-img:
     runs-on: ubuntu-latest
 
     strategy:
@@ -77,7 +77,7 @@ jobs:
           build-args: COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5_VERSION=${{ matrix.hdf5_versions }}, MOAB_BRANCH=${{ matrix.moab_versions }}, double_down=${{ matrix.double_down }}
 
   push_stable_ci_img:
-    needs: [build-dagmc_test-img]
+    needs: [build-dependency-and-test-img]
     runs-on: ubuntu-latest
 
     strategy:
