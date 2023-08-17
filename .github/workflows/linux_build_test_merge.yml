@@ -33,6 +33,15 @@ jobs:
         moab_versions : [
          master,
         ]
+        double_down : [
+          OFF,
+        ]
+        include:
+          - ubuntu_versions: 22.04
+            compiler: gcc
+            hdf5_versions: 1.10.4
+            moab_versions : 5.3.0
+            double_down : ON
 
     name: Installing Dependencies
     steps:
