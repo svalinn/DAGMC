@@ -11,8 +11,9 @@ on:
       - '.github/workflows/linux_build_test.yml'
       - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
       - 'CI/**'
-      - 'doc/CHANGELOG.rst'
+      - 'doc/**'
 
   push:
     branches:
@@ -22,8 +23,9 @@ on:
       - '.github/workflows/linux_build_test.yml'
       - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
       - 'CI/**'
-      - 'doc/CHANGELOG.rst'
+      - 'doc/**'
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

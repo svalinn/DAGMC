@@ -11,8 +11,9 @@ on:
       - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/windows_build_test.yml'
       - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
       - 'CI/**'
-      - 'doc/CHANGELOG.rst'
+      - 'doc/**'
   push:
     branches:
       - develop
@@ -21,8 +22,9 @@ on:
       - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/windows_build_test.yml'
       - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
       - 'CI/**'
-      - 'doc/CHANGELOG.rst'
+      - 'doc/**'
 
 jobs:
   BuildTest:

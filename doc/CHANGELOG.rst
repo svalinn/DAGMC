@@ -23,6 +23,7 @@ Next version
    * Change test-on-merge against MOAB master/develop to be optional (#870)
    * Introduced logger to better manage console output (#876)
    * Streamline CI to take advantage of better docker image management (#880)
+   * Move more CI from scripts to actions (#895)
 
 **Fixed:**
    * Patch to compile with Geant4 10.6 (#803)
