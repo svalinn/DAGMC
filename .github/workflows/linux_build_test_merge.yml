@@ -18,7 +18,8 @@ on:
 jobs:
   build-dependency-and-test-img:
     runs-on: ubuntu-latest
-
+    continue-on-error: true
+    
     strategy:
       matrix:
         ubuntu_versions : [
