@@ -11,8 +11,6 @@ ARG MOAB_BRANCH=5.3.0
 ARG double_down=OFF
 ARG ci_jobs=4
 ARG HDF5_VERSION=1.10.4
-# currently HDF5 major version must be manually set to match HDF5 version
-ARG HDF5_VERSION_major=1.10
 
 ARG build_dir=/root/build_dir
 ARG install_dir=/root/opt
@@ -127,7 +125,6 @@ RUN mkdir -p ${embree_build_dir}/build && \
 FROM external_deps AS hdf5
 
 # accessing gloabl ARGs in build stage
-ARG HDF5_VERSION_major
 ARG HDF5_VERSION
 ARG install_dir
 ARG build_dir
@@ -140,6 +137,7 @@ ENV hdf5_install_dir=${install_dir}/hdf5
 
 RUN mkdir -p ${hdf5_build_dir}/build && \
     cd ${hdf5_build_dir} && \
+    export HDF5_VERSION_major=`python -c "print('.'.join('${HDF5_VERSION}'.split('.')[:-1]))"` && \
     wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION_major}/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.gz && \
     tar -xzf hdf5-${HDF5_VERSION}.tar.gz && \
     cd build && \
