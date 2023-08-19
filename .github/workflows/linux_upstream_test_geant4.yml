@@ -1,4 +1,4 @@
-name: Test against MOAB master on PR merge
+name: Test against newer Geant4 on PR merge
 
 on:
   # allows us to run workflows manually
