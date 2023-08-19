@@ -1,6 +1,10 @@
 name: Test newest version of upstream dependencies on merge
 description: Builds and tests the newest merged version of DAGMC against newer versions of upstream dependencies
 inputs:
+  token:
+    description: token for logging in to the GHCR
+    required: true
+    default: ''
   ubuntu_version:
     description: Underlying OS version
     required: false
@@ -34,7 +38,7 @@ runs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ inputs.token }}
 
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1

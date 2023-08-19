@@ -25,4 +25,5 @@ jobs:
       - name: use upstream test composite action
         uses: ./.github/actions/upstream-test
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           moab_version: master
