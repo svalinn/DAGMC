@@ -25,7 +25,7 @@ inputs:
     description: Whether or not to test Double Down
     required: false
     default: OFF
-  geant4_version:
+  geant_version:
     description: Version of Geant4
     required: false
     default: 10.7.4
@@ -43,11 +43,11 @@ runs:
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.compiler}}-${{ inputs.geant4_version }}-hdf5_${{ inputs.hdf5_version }}-moab_${{ inputs.moab_version }}
+          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.compiler}}-geant_${{ inputs.geant_version }}-hdf5_${{ inputs.hdf5_version }}-moab_${{ inputs.moab_version }}
           stages: base, external_deps, hdf5, moab, dagmc
           server-stage: dagmc_test
           quiet: false
           parallel: true
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: COMPILER=${{ inputs.compiler }}, UBUNTU_VERSION=${{ inputs.ubuntu_version }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_BRANCH=${{ inputs.moab_version }}, double_down=${{ inputs.double_down }}, geant4_version=%{{ inputs.geant4_version }}
+          build-args: COMPILER=${{ inputs.compiler }}, UBUNTU_VERSION=${{ inputs.ubuntu_version }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_BRANCH=${{ inputs.moab_version }}, double_down=${{ inputs.double_down }}, geant4_version=%{{ inputs.geant_version }}
