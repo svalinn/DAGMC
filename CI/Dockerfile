@@ -207,6 +207,7 @@ FROM moab as dagmc
 # accessing gloabl ARGs in build stage
 ARG install_dir
 ARG build_dir
+ARG double_down
 ARG CXX
 ARG CC
 

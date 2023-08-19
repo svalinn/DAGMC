@@ -24,6 +24,7 @@ Next version
    * Introduced logger to better manage console output (#876)
    * Streamline CI to take advantage of better docker image management (#880, #896)
    * Move more CI from scripts to actions (#895)
+   * Add double-down to test-on-merge (#898)
 
 **Fixed:**
    * Patch to compile with Geant4 10.6 (#803)
