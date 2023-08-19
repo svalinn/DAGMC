@@ -19,9 +19,12 @@ jobs:
     continue-on-error: true
     
     steps:
-        - name: use upstream test composite action
-          uses: ./.github/actions/upstream-test
-          with:
-            double_down: ON
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: use upstream test composite action
+        uses: ./.github/actions/upstream-test
+        with:
+          double_down: ON
             
             

@@ -19,7 +19,10 @@ jobs:
     continue-on-error: true
     
     steps:
-        - name: use upstream test composite action
-          uses: ./.github/actions/upstream-test
-          with:
-            moab_version: master
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: use upstream test composite action
+        uses: ./.github/actions/upstream-test
+        with:
+          moab_version: master

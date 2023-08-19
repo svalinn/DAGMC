@@ -19,8 +19,11 @@ jobs:
     continue-on-error: true
     
     steps:
-        - name: use upstream test composite action
-          uses: ./.github/actions/upstream-test
-          with:
-            geant4_version: 11.1.1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: use upstream test composite action
+        uses: ./.github/actions/upstream-test
+        with:
+          geant4_version: 11.1.1
             
