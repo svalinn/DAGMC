@@ -1,0 +1,52 @@
+name: Test newest version of upstream dependencies on merge
+description: Builds and tests the newest merged version of DAGMC against newer versions of upstream dependencies
+inputs:
+  ubuntu_version:
+    description: Underlying OS version
+    required: false
+    default: 22.04
+  compiler:
+    description: which compiler to use: gcc or clang
+    required: false
+    default: gcc
+  hdf5_version:
+    description: Version of HDF5
+    required: false
+    default: 1.10.4
+  moab_version:
+    description: Version of MOAB
+    required: false
+    default: 5.3.0
+  double_down:
+    description: Whether or not to test Double Down
+    required: false
+    default: OFF
+  geant4_version:
+    description: Version of Geant4
+    required: false
+    default: 10.7.4
+
+runs:
+  using: "composite"
+  steps:
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Installing Dependencies in Docker image
+        uses: firehed/multistage-docker-build-action@v1
+        with:
+          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.compiler}}-${{ inputs.geant4_version }}-hdf5_${{ inputs.hdf5_version }}-moab_${{ inputs.moab_version }}
+          stages: base, external_deps, hdf5, moab, dagmc
+          server-stage: dagmc_test
+          quiet: false
+          parallel: true
+          tag-latest-on-default: false
+          dockerfile: CI/Dockerfile
+          build-args: COMPILER=${{ inputs.compiler }}, UBUNTU_VERSION=${{ inputs.ubuntu_version }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_BRANCH=${{ inputs.moab_version }}, double_down=${{ inputs.double_down }}, geant4_version=%{{ inputs.geant4_version }}
