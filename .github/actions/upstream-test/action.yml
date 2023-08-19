@@ -5,6 +5,10 @@ inputs:
     description: token for logging in to the GHCR
     required: true
     default: ''
+  geant_version:
+    description: Version of Geant4
+    required: false
+    default: 10.7.4
   ubuntu_version:
     description: Underlying OS version
     required: false
@@ -25,10 +29,6 @@ inputs:
     description: Whether or not to test Double Down
     required: false
     default: OFF
-  geant_version:
-    description: Version of Geant4
-    required: false
-    default: 10.7.4
 
 runs:
   using: "composite"
