@@ -11,20 +11,31 @@ DAGMC: Direct Accelerated Geometry Monte Carlo
 
 |
 
-..  image:: https://circleci.com/gh/svalinn/DAGMC.svg?style=shield
-    :target: https://circleci.com/gh/svalinn/DAGMC
-    :height: 20
-    :width: 90
-    :align: left
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test.yml
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/mac_build_test.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/mac_build_test.yml
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/windows_build_test.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/windows_build_test.yml
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/docker_publish.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/docker_publish.yml
+
+..  image:: https://anaconda.org/conda-forge/dagmc/badges/version.svg
+    :target: https://anaconda.org/conda-forge/dagmc
 
 |
 
 Direct Accelerated Geometry Monte Carlo (DAGMC) is a software package that
 allows users to perform Monte Carlo radiation transport directly on CAD models.
 
-DAGMC has been integrated into a variety of Monte Carlo radiation codes
-including MCNP5_, MCNP6_, Geant4_, FLUKA_, Tripoli4_, OpenMC_, and Shift_. There are also
-efforts planned to integrate DAGMC into other codes such as Serpent2_, Phits_, and FRENSIE_.
+DAGMC has been integrated into a variety of Monte Carlo radiation codes.
+Implementations are actively maintained from OpenMC_ and MCNP6_. Implementations
+are occasionally updated for Geant4_ and FLUKA_.  The last implementation for
+Shift_ is still used internally at ORNL. An implementation is available for
+MCNP5_. DAGMC was demonstrated in Tripoli4_ in 2010, but not maintained.
 
 DAGMC currently relies on using the commercial solid modeling software Cubit_ (or its
 `government-use counterpart <https://cubit.sandia.gov>`_ available from 
@@ -48,15 +59,12 @@ materials and other geometry-related information.
     gallery/gallery
 
 ..  _CNERG: https://cnerg.github.io
-..  _MOAB: https://press3.mcs.anl.gov/sigma/moab-library
+..  _MOAB: https://sigma.mcs.anl.gov/moab-library/
 ..  _Cubit: https://coreform.com/products/coreform-cubit/
-..  _MCNP5: https://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.shtml
+..  _MCNP5: https://mcnp.lanl.gov
 ..  _MCNP6: https://mcnp.lanl.gov
 ..  _Geant4: https://geant4.cern.ch
 ..  _FLUKA: http://www.fluka.org/fluka.php
 ..  _Tripoli4: https://rsicc.ornl.gov/codes/ccc/ccc8/ccc-806.html
 ..  _Shift: https://meitner.ornl.gov/doe-codes/shift
-..  _Serpent2: http://montecarlo.vtt.fi
 ..  _OpenMC: https://docs.openmc.org/en/latest/index.html
-..  _Phits: https://phits.jaea.go.jp
-..  _FRENSIE: https://github.com/FRENSIE/FRENSIE
