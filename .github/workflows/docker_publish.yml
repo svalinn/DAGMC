@@ -59,7 +59,7 @@ jobs:
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-geant_${{ matrix.geant_version }}-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
+          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-geant4_${{ matrix.geant_version }}-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}
           stages: base, external_deps, hdf5, moab, dagmc
           server-stage: dagmc_test
           quiet: false
@@ -109,7 +109,7 @@ jobs:
       - name: Store image name
         if: ${{ github.repository_owner == 'svalinn' }}
         run: |
-          echo "image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-geant_${{ matrix.geant_version }}-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}" >> "$GITHUB_ENV"
+          echo "image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler }}-geant4_${{ matrix.geant_version }}-hdf5_${{ matrix.hdf5_versions }}-moab_${{ matrix.moab_versions }}" >> "$GITHUB_ENV"
 
       - name: Push Image as latest img
         if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
