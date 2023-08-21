@@ -18,7 +18,6 @@ on:
 jobs:
   build-dependency-and-test-img:
     runs-on: ubuntu-latest
-    continue-on-error: true
     
     steps:
       - name: Checkout repository
