@@ -43,7 +43,7 @@ runs:
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.compiler}}-geant_${{ inputs.geant_version }}-hdf5_${{ inputs.hdf5_version }}-moab_${{ inputs.moab_version }}
+          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.compiler}}-geant4_${{ inputs.geant_version }}-hdf5_${{ inputs.hdf5_version }}-moab_${{ inputs.moab_version }}
           stages: base, external_deps, hdf5, moab, dagmc
           server-stage: dagmc_test
           quiet: false
