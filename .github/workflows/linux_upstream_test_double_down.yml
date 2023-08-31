@@ -1,0 +1,32 @@
+name: Test against Double Down on PR merge
+
+on:
+  # allows us to run workflows manually
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - '.github/workflows/docker_publish.yml'
+      - '.github/workflows/linux_build_test.yml'
+      - '.github/workflows/mac_build_test.yml'
+      - '.github/workflows/windows_build_test.yml'
+      - '.github/workflows/housekeeping.yml'
+      - '.github/workflows/changelog_test.yml'
+      - 'CI/**'
+      - 'doc/**'
+jobs:
+  build-dependency-and-test-img:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: use upstream test composite action
+        uses: ./.github/actions/upstream-test
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          double_down: ON
+            
+            

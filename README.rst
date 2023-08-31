@@ -42,10 +42,16 @@ Quick links:
 * `Contributors guide <https://svalinn.github.io/DAGMC/contribute/index.html>`_
 * `Release instructions <release.rst>`_
 
-*Preview CI for MOAB `master` and `develop`*
+*Preview CI for versions of upstream dependencies *
 
-..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml/badge.svg?branch=develop
-    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_build_test_merge.yml
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_moab.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_moab.yml
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_geant4.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_geant4.yml
+
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_double_down.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_double_down.yml
 
 ..  _DAGMC: https://svalinn.github.io/DAGMC
 ..  _Cubit: https://coreform.com/products/coreform-cubit/
