@@ -82,7 +82,7 @@ jobs:
                     -DBUILD_STATIC_EXE=OFF \
                     -DBUILD_SHARED_LIBS=ON \
                     -DBUILD_STATIC_LIBS=OFF \
-                    -DCMAKE_CXX_FLAGS="-Wreorder" \
+                    -DCMAKE_CXX_FLAGS="-Werror=reorder" \
                     -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc
           make
           make install
