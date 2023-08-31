@@ -25,6 +25,7 @@ Next version
    * Streamline CI to take advantage of better docker image management (#880, #896)
    * Move more CI from scripts to actions (#895)
    * Add double-down to test-on-merge (#898)
+   * Adding flags to CI to ensure compatibility with MOOSE apps (#902)
 
 **Fixed:**
    * Patch to compile with Geant4 10.6 (#803)
@@ -57,7 +58,7 @@ v3.2.1
 **Removed:**
 
 **Fixed:**
-      
+
 **Security:**
 
 **Maintenance:**
