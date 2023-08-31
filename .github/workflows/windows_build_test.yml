@@ -9,10 +9,11 @@ on:
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
       - '.github/workflows/linux_build_test.yml'
-      - '.github/workflows/linux_build_test_merge.yml'
+      - '.github/workflows/linux_upstream_test_*'
       - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/housekeeping.yml'
       - '.github/workflows/changelog_test.yml'
+      - '.github/actions/**'
       - 'CI/**'
       - 'doc/**'
 
@@ -22,10 +23,11 @@ on:
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
       - '.github/workflows/linux_build_test.yml'
-      - '.github/workflows/linux_build_test_merge.yml'
+      - '.github/workflows/linux_upstream_test_*'
       - '.github/workflows/mac_build_test.yml'
       - '.github/workflows/housekeeping.yml'
       - '.github/workflows/changelog_test.yml'
+      - '.github/actions/**'
       - 'CI/**'
       - 'doc/**'
 
