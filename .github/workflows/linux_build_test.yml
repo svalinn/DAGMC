@@ -78,6 +78,7 @@ jobs:
               -DCMAKE_Fortran_COMPILER=gfortran \
               -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
               -DDOUBLE_DOWN=${double_down} \
+              -DCMAKE_CXX_FLAGS="-Werror=reorder" \
               -Ddd_ROOT=${double_down_install_dir} && \
           make -j2 && \
           make install

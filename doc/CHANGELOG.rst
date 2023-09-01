@@ -24,6 +24,8 @@ Next version
    * Streamline CI to take advantage of better docker image management (#880, #896)
    * Move more CI from scripts to actions (#895)
    * Develop advisory tests on merge for MOAB, double-down and Geant4 (#870, #898, #899)
+   * Adding flags to CI to ensure compatibility with MOOSE apps (#902)
+   * Fixing order of attribute initialization in the metadata class (#903)
 
 **Fixed:**
    * Patch to compile with Geant4 10.6 (#803)
@@ -56,7 +58,7 @@ v3.2.1
 **Removed:**
 
 **Fixed:**
-      
+
 **Security:**
 
 **Maintenance:**
