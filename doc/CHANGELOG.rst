@@ -26,6 +26,7 @@ Next version
    * Develop advisory tests on merge for MOAB, double-down and Geant4 (#870, #898, #899, #904)
    * Adding flags to CI to ensure compatibility with MOOSE apps (#902)
    * Fixing order of attribute initialization in the metadata class (#903)
+   * Adding const identifier to cross-reference methods (#906)
 
 **Fixed:**
    * Patch to compile with Geant4 10.6 (#803)
