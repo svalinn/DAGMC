@@ -263,16 +263,16 @@ class DagMC {
    */
 
   /** map from dimension & global ID to EntityHandle */
-  EntityHandle entity_by_id(int dimension, int id);
+  EntityHandle entity_by_id(int dimension, int id) const;
   /** map from dimension & base-1 ordinal index to EntityHandle */
-  EntityHandle entity_by_index(int dimension, int index);
+  EntityHandle entity_by_index(int dimension, int index) const;
   /** map from dimension & base-1 ordinal index to global ID */
-  int id_by_index(int dimension, int index);
+  int id_by_index(int dimension, int index) const;
   /** PPHW: Missing dim & global ID ==> base-1 ordinal index */
   /** map from EntityHandle to base-1 ordinal index */
-  int index_by_handle(EntityHandle handle);
+  int index_by_handle(EntityHandle handle) const;
   /** map from EntityHandle to global ID */
-  int get_entity_id(EntityHandle this_ent);
+  int get_entity_id(EntityHandle this_ent) const;
 
   /**\brief get number of geometric sets corresponding to geometry of specified
    *dimension
@@ -282,7 +282,7 @@ class DagMC {
    *the dimensionality of the entities in question \return integer number of
    *entities of that dimension
    */
-  unsigned int num_entities(int dimension);
+  unsigned int num_entities(int dimension) const;
 
  private:
   /** get all group sets on the model */
@@ -564,18 +564,18 @@ class DagMC {
 
 };  // end DagMC
 
-inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
+inline EntityHandle DagMC::entity_by_index(int dimension, int index) const {
   assert(2 <= dimension && 3 >= dimension &&
          (unsigned)index < entHandles[dimension].size());
   return entHandles[dimension][index];
 }
 
-inline int DagMC::index_by_handle(EntityHandle handle) {
+inline int DagMC::index_by_handle(EntityHandle handle) const {
   assert(handle - setOffset < entIndices.size());
   return entIndices[handle - setOffset];
 }
 
-inline unsigned int DagMC::num_entities(int dimension) {
+inline unsigned int DagMC::num_entities(int dimension) const {
   assert(vertex_handle_idx <= dimension && groups_handle_idx >= dimension);
   return entHandles[dimension].size() - 1;
 }
