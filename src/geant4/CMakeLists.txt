@@ -2,7 +2,11 @@ message("")
 
 find_package(Geant4 10.4.2 REQUIRED)
 
-if ( Geant4_VERSION GREATER_EQUAL 10.6 )
+if ( Geant4_VERSION GREATER_EQUAL 11.0 )
+  message(STATUS "Configuring DAGMC for Geant4 version >= 11.0")
+  add_compile_definitions(GEANT4_GT_10_6=1)
+  add_compile_definitions(GEANT4_GT_11=1)
+  elseif( Geant4_VERSION GREATER_EQUAL 10.6 )
   message(STATUS "Configuring DAGMC for Geant4 version >= 10.6")
   add_compile_definitions(GEANT4_GT_10_6=1)
 endif()
