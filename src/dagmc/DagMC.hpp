@@ -225,10 +225,6 @@ class DagMC {
 
   ErrorCode point_in_volume_slow(const EntityHandle volume, const double xyz[3],
                                  int& result);
-#if MOAB_VERSION_MAJOR == 5 && MOAB_VERSION_MINOR > 2
-  ErrorCode find_volume(const double xyz[3], EntityHandle& volume,
-                        const double* uvw = NULL);
-#endif
 
   ErrorCode test_volume_boundary(const EntityHandle volume,
                                  const EntityHandle surface,
@@ -263,16 +259,16 @@ class DagMC {
    */
 
   /** map from dimension & global ID to EntityHandle */
-  EntityHandle entity_by_id(int dimension, int id) const;
+  EntityHandle entity_by_id(int dimension, int id);
   /** map from dimension & base-1 ordinal index to EntityHandle */
-  EntityHandle entity_by_index(int dimension, int index) const;
+  EntityHandle entity_by_index(int dimension, int index);
   /** map from dimension & base-1 ordinal index to global ID */
-  int id_by_index(int dimension, int index) const;
+  int id_by_index(int dimension, int index);
   /** PPHW: Missing dim & global ID ==> base-1 ordinal index */
   /** map from EntityHandle to base-1 ordinal index */
-  int index_by_handle(EntityHandle handle) const;
+  int index_by_handle(EntityHandle handle);
   /** map from EntityHandle to global ID */
-  int get_entity_id(EntityHandle this_ent) const;
+  int get_entity_id(EntityHandle this_ent);
 
   /**\brief get number of geometric sets corresponding to geometry of specified
    *dimension
@@ -282,7 +278,7 @@ class DagMC {
    *the dimensionality of the entities in question \return integer number of
    *entities of that dimension
    */
-  unsigned int num_entities(int dimension) const;
+  unsigned int num_entities(int dimension);
 
  private:
   /** get all group sets on the model */
@@ -564,18 +560,18 @@ class DagMC {
 
 };  // end DagMC
 
-inline EntityHandle DagMC::entity_by_index(int dimension, int index) const {
+inline EntityHandle DagMC::entity_by_index(int dimension, int index) {
   assert(2 <= dimension && 3 >= dimension &&
          (unsigned)index < entHandles[dimension].size());
   return entHandles[dimension][index];
 }
 
-inline int DagMC::index_by_handle(EntityHandle handle) const {
+inline int DagMC::index_by_handle(EntityHandle handle) {
   assert(handle - setOffset < entIndices.size());
   return entIndices[handle - setOffset];
 }
 
-inline unsigned int DagMC::num_entities(int dimension) const {
+inline unsigned int DagMC::num_entities(int dimension) {
   assert(vertex_handle_idx <= dimension && groups_handle_idx >= dimension);
   return entHandles[dimension].size() - 1;
 }
