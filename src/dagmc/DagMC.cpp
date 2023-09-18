@@ -811,15 +811,6 @@ ErrorCode DagMC::point_in_volume_slow(EntityHandle volume, const double xyz[3],
   return rval;
 }
 
-#if MOAB_VERSION_MAJOR == 5 && MOAB_VERSION_MINOR > 2
-// find a which volume contains the current point
-ErrorCode DagMC::find_volume(const double xyz[3], EntityHandle& volume,
-                             const double* uvw) {
-  ErrorCode rval = ray_tracer->find_volume(xyz, volume, uvw);
-  return rval;
-}
-#endif
-
 // detemine distance to nearest surface
 ErrorCode DagMC::closest_to_location(EntityHandle volume,
                                      const double coords[3], double& result,
@@ -870,11 +861,11 @@ ErrorCode DagMC::next_vol(EntityHandle surface, EntityHandle old_volume,
 
 /* SECTION III: Indexing & Cross-referencing */
 
-EntityHandle DagMC::entity_by_id(int dimension, int id) const {
+EntityHandle DagMC::entity_by_id(int dimension, int id) {
   return GTT->entity_by_id(dimension, id);
 }
 
-int DagMC::id_by_index(int dimension, int index) const {
+int DagMC::id_by_index(int dimension, int index) {
   EntityHandle h = entity_by_index(dimension, index);
   if (!h) return 0;
 
@@ -883,7 +874,7 @@ int DagMC::id_by_index(int dimension, int index) const {
   return result;
 }
 
-int DagMC::get_entity_id(EntityHandle this_ent) const {
+int DagMC::get_entity_id(EntityHandle this_ent) {
   return GTT->global_id(this_ent);
 }
 
