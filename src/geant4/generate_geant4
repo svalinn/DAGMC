@@ -2,11 +2,13 @@
 
 from optparse import OptionParser
 import os,errno
-from itaps import iMesh,iBase
+import sys
 # for material handling
-from pyne.material import Material,MaterialLibrary
+from pyne.material import Material
+from pyne.material_library import MaterialLibrary
 from pyne.nucname import name, znum, anum, id, alara
 from pyne.data import atomic_mass
+from pyne import dagmc
 
 # for coloring the volumes
 import colorsys
@@ -70,7 +72,7 @@ def parse_arguments():
             try:
                 fh = open(options.dag_file, "r")
             except IOError:
-                print "Error: can\'t find DAG file"
+                print("Error: can't find DAG file")
             else:
                 fh.close()
         if not options.directory:
@@ -90,69 +92,17 @@ dag_filename : h5m filename
 
 Returns
 ---------
-dag_volnames : dictionary of volume names
-
+dag_vol_names : list of volume names
+dag_materials : dictionary of material assignments
 """
 
 def _get_dag_info(dag_filename):
-    dag_vol_names = [] # list of dag volume names (Cubit id)
-    dag_materials = {} # list of material assignments from group
 
-    # create imesh instance
-    dag_geom = iMesh.Mesh()
-    # load the file
-    dag_geom.load(dag_filename)
+    dag_materials = dagmc.cell_material_assignments(dag_filename)
 
-    # get all entities
-    ents = dag_geom.getEntities()
+    dag_vol_names = [dag_materials.keys()]
 
-    # create a  mesh set
-    mesh_set = dag_geom.getEntSets()
-    # list of volume ent handles
-
-    mat_list = []
-    # get all geom_dimension ents
-    geom_list = []
-
-    cat_list = []
-
-    vol_tag = dag_geom.getTagHandle('GEOM_DIMENSION')
-
-    name_tag = dag_geom.getTagHandle('GLOBAL_ID')
-
-    mat_tag = dag_geom.getTagHandle('NAME')
-
-    cat_tag = dag_geom.getTagHandle('CATEGORY')
-
-    # get the list we need
-    for i in mesh_set:
-        tags = dag_geom.getAllTags(i)
-        for tag in tags:
-            if tag == vol_tag:
-                geom_list.append(i)
-            if tag == mat_tag:
-                mat_list.append(i)
-            if tag == cat_tag:
-                cat_list.append(i)
-
-    # for the 3d entities
-    for entity in geom_list:
-        if vol_tag[entity] == 3:
-             dag_vol_names.append(str(name_tag[entity]))          
-
-
-    # loop over all the volumes
-    for entity in geom_list:
-        # loop over the material sets
-        for meshset in mat_list:
-            # if volume in set
-            if meshset.contains(entity):
-                mat_name = mat_tag[meshset]
-                volume_name = name_tag[entity]
-                dag_materials[volume_name]="".join( chr( val ) for val in mat_name )
-
-
-    return dag_vol_names,dag_materials
+    return dag_vol_names, dag_materials
 
 """
 Function to pull out the pyne materials from the h5m file
@@ -179,8 +129,8 @@ def _get_material_info(dag_file):
         mat_lib.from_hdf5(dag_file)
         materials =  mat_lib.keys()
     except:
-        print "!! There are no materials in the h5m file !!"
-        print " Assuming all volumes contain vacuum "
+        print("There are no materials in the h5m file!!")
+        print("Assuming all volumes contain vacuum")
         materials = {}
     
     nuclides = set()
@@ -534,7 +484,7 @@ dag_volume_names : list or dictionary of volume names
 def _setup_dagspecific_headers(dag_volume_names, tallies_needed):
 
     if not dag_volume_names:
-        print "dag volume names not assigned", sys.exc_info()[0]
+        print("dag volume names not assigned", sys.exc_info()[0])
         raise
 
     headers = {}
@@ -1680,7 +1630,7 @@ def _write_files(path, dictionary_files):
         try:
             fh = open(path+'/'+key, "w")
         except IOError:
-                print "Error: "+file+" file exists"
+                print("Error: "+key+" file exists")
         else:
             for line in dictionary_files[key]:
                 fh.write(line)
@@ -1707,9 +1657,12 @@ def _create_directory_structure(directory):
     _mkdir_p(directory+'/src')
     return
 
+# Fix: Don't know what it does
+"""
 def _dagmc_volume_material(dagmc_h5m, index):
 
     return material_name
+ """
 
 """
 Function from http://stackoverflow.com/questions
@@ -1724,7 +1677,7 @@ def _mkdir_p(path):
     try:
         os.makedirs(path)
     except OSError:     
-        print "Error: can\'t create directory, "+path
+        print("Error: can't create directory, "+path)
         raise
 
 
