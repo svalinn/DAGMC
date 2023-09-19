@@ -1,37 +1,31 @@
 # Find Geant4 cmake config file
 set(Geant4_SEARCH_DIRS)
-set(Geant4_FIND_VERSION ${Geant4_FIND_VERSION})
+
 file(GLOB Geant4_SEARCH_DIRS "${GEANT4_DIR}/lib*/Geant4-*")
 string(REPLACE "\n" ";" Geant4_SEARCH_DIRS ${Geant4_SEARCH_DIRS})
-
-# Extract the version number from the first directory in Geant4_SEARCH_DIRS
-if(Geant4_SEARCH_DIRS)
-    # Extract the version number from the directory name
-    list(GET Geant4_SEARCH_DIRS 0 Geant4_LIB_DIR)
-    file(RELATIVE_PATH Geant4_VERSION ${GEANT4_DIR} ${Geant4_LIB_DIR})
-    string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" Geant4_VERSION ${Geant4_VERSION})
-
-    if(Geant4_VERSION)
-        message("Found Geant4 version ${Geant4_VERSION}")
-        
-        # Compare the versions
-        if(Geant4_FIND_VERSION VERSION_GREATER Geant4_VERSION)
-            set(Geant4_VERSION_COMPATIBLE false)
-        else()
-            set(Geant4_VERSION_COMPATIBLE true)
-        endif()
-    else()
-        message(FATAL_ERROR "Failed to extract Geant4 version from directory name")
-    endif()
-else()
-    message(FATAL_ERROR "No Geant4 installation found")
-endif()
 
 find_path(Geant4_CMAKE_CONFIG
   NAMES Geant4Config.cmake
   PATHS ${Geant4_SEARCH_DIRS}
   NO_DEFAULT_PATH
 )
+
+find_path(Geant4_CMAKE_CONFIG_VERSION
+  NAMES Geant4ConfigVersion.cmake
+  PATHS ${Geant4_CMAKE_CONFIG}
+  NO_DEFAULT_PATH
+  )
+
+if (Geant4_CMAKE_CONFIG_VERSION)
+  set(Geant4_CMAKE_CONFIG_VERSION ${Geant4_CMAKE_CONFIG_VERSION}/Geant4ConfigVersion.cmake)
+  include(${Geant4_CMAKE_CONFIG_VERSION})
+  set(Geant4_VERSION ${PACKAGE_VERSION})
+  set(Geant4_VERSION_COMPATIBLE ${PACKAGE_VERSION_COMPATIBLE})
+  set(Geant4_VERSION_EXACT ${PACKAGE_VERSION_EXACT})
+else ()
+  message(FATAL_ERROR "Could not find Geant4")
+endif ()
+
 if (Geant4_CMAKE_CONFIG)
   set(Geant4_CMAKE_CONFIG ${Geant4_CMAKE_CONFIG}/Geant4Config.cmake)
   message(STATUS "Geant4_CMAKE_CONFIG: ${Geant4_CMAKE_CONFIG}")
@@ -65,7 +59,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS_SAVE})
 
 message(STATUS "Geant4 version: ${Geant4_VERSION}")
 message(STATUS "Geant4 version required: ${Geant4_FIND_VERSION}")
-message(STATUS "Geant4 version compatible: ${Geant4_VERSION_COMPATIBLE}")
+message(STATUS "Geant4 version compatible: ${PACKAGE_VERSION_COMPATIBLE}")
 message(STATUS "Geant4 version exact: ${PACKAGE_VERSION_EXACT}")
 message(STATUS "Geant4_INCLUDE_DIRS: ${Geant4_INCLUDE_DIRS}")
 message(STATUS "Geant4_LIBRARIES_SHARED: ${Geant4_LIBRARIES_SHARED}")
