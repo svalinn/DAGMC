@@ -7,6 +7,9 @@ DAGMC Changelog
 Next version
 ====================
 
+v3.2.3
+====================
+
 **Changed:**
 
    * Improvements/corrections to graveyard capabilities (#855)
