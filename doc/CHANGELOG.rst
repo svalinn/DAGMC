@@ -47,9 +47,6 @@ v3.2.2
    * Removing build of static libs as a default option (#802)
    * Adding PYTHONPATH to linux CI images and creating pymoab installation directories (#802)
 
-v3.2.1
-====================
-
 **Added:**
 
    * Added link to latest Conda package in GitHub README.md (#801)
