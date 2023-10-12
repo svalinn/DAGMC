@@ -41,7 +41,6 @@ RUN apt-get -y update; \
                        python3 \
                        python3-pip \
                        python3-setuptools \
-                       python3-packaging \
                        python3-dev \
                        libpython3-dev \
                        wget \
