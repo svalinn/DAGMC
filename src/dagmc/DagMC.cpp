@@ -870,11 +870,11 @@ ErrorCode DagMC::next_vol(EntityHandle surface, EntityHandle old_volume,
 
 /* SECTION III: Indexing & Cross-referencing */
 
-EntityHandle DagMC::entity_by_id(int dimension, int id) {
+EntityHandle DagMC::entity_by_id(int dimension, int id) const {
   return GTT->entity_by_id(dimension, id);
 }
 
-int DagMC::id_by_index(int dimension, int index) {
+int DagMC::id_by_index(int dimension, int index) const {
   EntityHandle h = entity_by_index(dimension, index);
   if (!h) return 0;
 
@@ -883,7 +883,7 @@ int DagMC::id_by_index(int dimension, int index) {
   return result;
 }
 
-int DagMC::get_entity_id(EntityHandle this_ent) {
+int DagMC::get_entity_id(EntityHandle this_ent) const {
   return GTT->global_id(this_ent);
 }
 
