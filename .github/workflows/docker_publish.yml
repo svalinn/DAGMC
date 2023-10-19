@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "CI/Dockerfile"
-      - ".github/workflows/docker_publish.yml"
+      - 'CI/Dockerfile'
+      - '.github/workflows/docker_publish.yml'
 
 jobs:
   build-dependency-and-test-img:
@@ -14,12 +14,26 @@ jobs:
 
     strategy:
       matrix:
-        ubuntu_versions: [20.04, 22.04]
-        compiler: [gcc, clang]
-        hdf5_versions: [1.10.4]
-        moab_versions: [5.3.0, 5.4.0]
-        double_down: [OFF]
-        geant_version: [10.7.4, 11.1.2]
+        ubuntu_versions : [
+          20.04,
+          22.04,
+          ]
+        compiler : [
+          gcc,
+          clang,
+          ]
+        hdf5_versions : [
+         1.10.4,
+        ]
+        moab_versions : [
+         5.3.0,
+        ]
+        double_down : [
+          OFF,
+        ]
+        geant_version : [
+          10.7.4,
+        ]
 
     name: Installing Dependencies, Building DAGMC and running tests
     steps:
@@ -54,21 +68,37 @@ jobs:
           dockerfile: CI/Dockerfile
           build-args: double_down=${{ matrix.double_down}}, geant4_version=${{ matrix.geant_version }}, COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_versions }}, HDF5_VERSION=${{ matrix.hdf5_versions }}, MOAB_BRANCH=${{ matrix.moab_versions }}
 
+
   push_stable_ci_img:
     needs: [build-dependency-and-test-img]
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        ubuntu_versions: [20.04, 22.04]
-        compiler: [gcc, clang]
-        hdf5_versions: [1.10.4]
-        moab_versions: [5.3.0, 5.4.0]
-        double_down: [OFF]
-        geant_version: [10.7.4, 11.1.2]
+        ubuntu_versions : [
+          20.04,
+          22.04,
+          ]
+        compiler : [
+          gcc,
+          clang,
+          ]
+        hdf5_versions : [
+         1.10.4,
+        ]
+        moab_versions : [
+         5.3.0,
+        ]
+        double_down : [
+          OFF,
+        ]
+        geant_version : [
+          10.7.4,
+          11.1.2
+        ]
 
     name: Pushing final images
-    steps:
+    steps:       
       - name: Log in to the Container registry
         if: ${{ github.repository_owner == 'svalinn' }}
         uses: docker/login-action@v2
