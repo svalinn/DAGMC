@@ -55,6 +55,7 @@ jobs:
         ]
         geant_version : [
           10.7.4,
+          11.1.2
         ]
 
     container:
