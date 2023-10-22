@@ -21,7 +21,7 @@ Next version
    * Removed unused Circle CI yml (#859)
    * Added configuration options to CMake configuration file (#867)
    * Introduced logger to better manage console output (#876)
-   * Streamline CI to take advantage of better docker image management (#880, #896)
+   * Streamline CI to take advantage of better docker image management (#880, #896, #915)
    * Move more CI from scripts to actions (#895)
    * Develop advisory tests on merge for MOAB, double-down and Geant4 (#870, #898, #899, #904)
    * Adding flags to CI to ensure compatibility with MOOSE apps (#902)
