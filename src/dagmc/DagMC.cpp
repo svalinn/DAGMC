@@ -16,6 +16,14 @@
 #include <sstream>
 #include <string>
 
+
+#include "moab/CartVect.hpp"
+#include "moab/FileOptions.hpp"
+#include "moab/GeomTopoTool.hpp"
+#include "moab/GeomQueryTool.hpp"
+#include "moab/GeomUtil.hpp"
+#include "moab/Range.hpp"
+
 #ifdef DOUBLE_DOWN
 #include "double_down/RTI.hpp"
 #endif

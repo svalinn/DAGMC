@@ -35,6 +35,8 @@ Next version
    * Tweak conda environment for Windows build to avoid conflicting gtest headers (#888)
    * Restrict cython version for MOAB (#893)
    * Various documentation updates (#869)
+   * cleaned up headers to include fewer upstream headers (#800)
+
 
 v3.2.2
 ====================
@@ -45,25 +47,9 @@ v3.2.2
    * Removing build of static libs as a default option (#802)
    * Adding PYTHONPATH to linux CI images and creating pymoab installation directories (#802)
 
-v3.2.1
-====================
-
 **Added:**
 
-   * Added link to latest Conda package in GitHub README.md
-
-**Changed:**
-
-**Deprecated:**
-
-**Removed:**
-
-**Fixed:**
-
-**Security:**
-
-**Maintenance:**
-
+   * Added link to latest Conda package in GitHub README.md (#801)
 
 v3.2.1
 ====================
