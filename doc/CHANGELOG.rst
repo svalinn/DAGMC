@@ -37,7 +37,7 @@ Next version
    * Various documentation updates (#869)
 
 **Added:**
-   * Add Geant4 v11.1.2 to docker builds for CI ()
+   * Add Geant4 v11.1.2 to docker builds for CI (#923)
 
 v3.2.2
 ====================
