@@ -36,6 +36,9 @@ Next version
    * Restrict cython version for MOAB (#893)
    * Various documentation updates (#869)
 
+**Added:**
+   * Add Geant4 v11.1.2 to docker builds for CI ()
+
 v3.2.2
 ====================
 
