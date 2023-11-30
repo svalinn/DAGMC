@@ -1,7 +1,7 @@
 # Find Geant4 cmake config file
 set(Geant4_SEARCH_DIRS)
 
-file(GLOB Geant4_SEARCH_DIRS "${GEANT4_DIR}/lib*/Geant4-*")
+file(GLOB Geant4_SEARCH_DIRS "${GEANT4_DIR}/lib*/Geant4*")
 string(REPLACE "\n" ";" Geant4_SEARCH_DIRS ${Geant4_SEARCH_DIRS})
 
 find_path(Geant4_CMAKE_CONFIG
