@@ -47,7 +47,7 @@ jobs:
       - name: Initial setup
         shell: bash -l {0}
         run: |
-          brew install eigen gcc hdf5
+          brew install eigen hdf5
 
       - name: Environment Variables
         shell: bash -l {0}
