@@ -22,6 +22,8 @@ include(${MOAB_CMAKE_CONFIG})
 set(ENV{PATH} "${HDF5_DIR}:$ENV{PATH}")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
 find_package(HDF5 REQUIRED)
+# Remove HDF5 transitive dependencies that are system libraries
+list(FILTER HDF5_LIBRARIES EXCLUDE REGEX ".*lib(pthread|dl|m).*")
 set(HDF5_LIBRARIES_SHARED ${HDF5_LIBRARIES})
 # CMake doesn't let you find_package(HDF5) twice so we have to do this instead
 if (BUILD_STATIC_LIBS)
