@@ -35,6 +35,7 @@ Next version
    * Tweak conda environment for Windows build to avoid conflicting gtest headers (#888)
    * Restrict cython version for MOAB (#893)
    * Various documentation updates (#869)
+   * Fix for HDF5 library linking issue (#926)
 
 v3.2.2
 ====================
