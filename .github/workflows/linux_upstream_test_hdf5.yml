@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - develop
+      - newer-hdf5
     paths-ignore:
       - '.github/workflows/docker_publish.yml'
       - '.github/workflows/linux_build_test.yml'
