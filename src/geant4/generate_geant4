@@ -71,10 +71,9 @@ def parse_arguments():
         if options.dag_file:
             try:
                 fh = open(options.dag_file, "r")
-            except IOError:
-                print("Error: can't find DAG file")
-            else:
                 fh.close()
+            except IOError:
+                print("Error: can't find DAG file: '{} ".format(options.dag_file))
         if not options.directory:
             options.directory = os.getcwd()
     else:
@@ -100,7 +99,7 @@ def _get_dag_info(dag_filename):
 
     dag_materials = dagmc.cell_material_assignments(dag_filename)
 
-    dag_vol_names = [dag_materials.keys()]
+    dag_vol_names = list(dag_materials.keys())
 
     return dag_vol_names, dag_materials
 
@@ -129,8 +128,8 @@ def _get_material_info(dag_file):
         mat_lib.from_hdf5(dag_file)
         materials =  mat_lib.keys()
     except:
-        print("There are no materials in the h5m file!!")
-        print("Assuming all volumes contain vacuum")
+        print("There are no materials in the h5m file.\n"
+              "Assuming all volumes contain vacuum")
         materials = {}
     
     nuclides = set()
@@ -484,7 +483,7 @@ dag_volume_names : list or dictionary of volume names
 def _setup_dagspecific_headers(dag_volume_names, tallies_needed):
 
     if not dag_volume_names:
-        print("dag volume names not assigned", sys.exc_info()[0])
+        print("DAGMC volume names are not assigned", sys.exc_info()[0])
         raise
 
     headers = {}
@@ -1629,12 +1628,11 @@ def _write_files(path, dictionary_files):
     for key in dictionary_files:
         try:
             fh = open(path+'/'+key, "w")
-        except IOError:
-                print("Error: "+key+" file exists")
-        else:
             for line in dictionary_files[key]:
                 fh.write(line)
                 fh.close
+        except IOError:
+                print("Error: '{}' file exists".format(key))
 
 
 """ 
@@ -1657,13 +1655,6 @@ def _create_directory_structure(directory):
     _mkdir_p(directory+'/src')
     return
 
-# Fix: Don't know what it does
-"""
-def _dagmc_volume_material(dagmc_h5m, index):
-
-    return material_name
- """
-
 """
 Function from http://stackoverflow.com/questions
 /600268/mkdir-p-functionality-in-python, to create 
@@ -1677,7 +1668,7 @@ def _mkdir_p(path):
     try:
         os.makedirs(path)
     except OSError:     
-        print("Error: can't create directory, "+path)
+        print("Error: can't create directory '{}' ".format(path))
         raise
 
 
