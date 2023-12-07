@@ -33,6 +33,7 @@ jobs:
         ]
         geant_version : [
           10.7.4,
+          11.1.2
         ]
 
     name: Installing Dependencies, Building DAGMC and running tests
@@ -94,6 +95,7 @@ jobs:
         ]
         geant_version : [
           10.7.4,
+          11.1.2
         ]
 
     name: Pushing final images

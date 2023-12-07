@@ -5,7 +5,7 @@
 
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG EMBREE_BRANCH='v3.6.1'
-ARG geant4_version=10.7.4
+ARG geant4_version=11.1.2
 ARG UBUNTU_VERSION=20.04
 ARG MOAB_BRANCH=5.3.0
 ARG double_down=OFF

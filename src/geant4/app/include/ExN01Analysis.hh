@@ -7,6 +7,10 @@
 #ifndef ExN01Analysis_h
 #define ExN01Analysis_h 1
 
+#ifdef GEANT4_GT_11
+#include "G4AnalysisManager.hh"
+#else
 #include "g4root.hh"
+#endif
 
 #endif
