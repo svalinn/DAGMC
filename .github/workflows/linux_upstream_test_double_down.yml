@@ -27,6 +27,4 @@ jobs:
         uses: ./.github/actions/upstream-test
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          double_down: ON
-            
-            
+          double_down_version: develop

@@ -5,7 +5,7 @@ inputs:
     description: token for logging in to the GHCR
     required: true
     default: ''
-  geant_version:
+  geant4_version:
     description: Version of Geant4
     required: false
     default: 11.1.2
@@ -25,10 +25,10 @@ inputs:
     description: Version of MOAB
     required: false
     default: 5.3.0
-  double_down:
-    description: Whether or not to test Double Down
+  double_down_version:
+    description: Version of Double Down
     required: false
-    default: OFF
+    default: develop
 
 runs:
   using: "composite"
@@ -50,4 +50,4 @@ runs:
           parallel: true
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: COMPILER=${{ inputs.compiler }}, geant4_version=${{ inputs.geant_version }}, UBUNTU_VERSION=${{ inputs.ubuntu_version }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_BRANCH=${{ inputs.moab_version }}, double_down=${{ inputs.double_down }}
+          build-args: COMPILER=${{ inputs.compiler }}, Geant4_VERSION=${{ inputs.geant4_version }}, UBUNTU_VERSION=${{ inputs.ubuntu_version }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_VERSION=${{ inputs.moab_version }}, DOUBLE_DOWN_VERSION=${{ inputs.double_down_version }}

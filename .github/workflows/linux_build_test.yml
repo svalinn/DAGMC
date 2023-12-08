@@ -36,7 +36,7 @@ jobs:
 
     strategy:
       matrix:
-        ubuntu_versions : [
+        ubuntu_version : [
           20.04,
           22.04,
           ]
@@ -44,21 +44,18 @@ jobs:
           gcc,
           clang,
           ]
-        hdf5_versions : [
-         1.10.4,
+        hdf5_version : [
+          1.10.4,
         ]
-        moab_versions : [
+        moab_version : [
           5.3.0,
-        ]
-        double_down : [
-          OFF,
         ]
         geant_version : [
           10.7.4,
         ]
 
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-geant4_${{ matrix.geant_version }}-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}/moab:latest
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-geant4_${{ matrix.geant_version }}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}/moab:latest
 
     steps:
       - name: Checkout repository
@@ -83,7 +80,7 @@ jobs:
               -DCMAKE_CXX_COMPILER=${CXX} \
               -DCMAKE_Fortran_COMPILER=gfortran \
               -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
-              -DDOUBLE_DOWN=${double_down} \
+              -DDOUBLE_DOWN=ON \
               -DCMAKE_CXX_FLAGS="-Werror=reorder" \
               -Ddd_ROOT=${double_down_install_dir} && \
           make -j2 && \
