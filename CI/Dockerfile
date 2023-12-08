@@ -77,14 +77,14 @@ ARG CI_JOBS
 ARG CXX
 ARG CC
 
-ENV geant4_basename=geant4-v${geant4_version}
+ENV geant4_basename=geant4-v${Geant4_VERSION}
 ENV geant4_tarball=${geant4_basename}.tar.gz
 ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
 RUN mkdir -p ${geant4_build_dir}/build && \
     cd ${geant4_build_dir} && \
-    wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${geant4_version}/${geant4_tarball} --no-check-certificate && \
+    wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${Geant4_VERSION}/${geant4_tarball} --no-check-certificate && \
     tar -xzf ${geant4_tarball} && \
     cd build && \
     cmake ../${geant4_basename} -DCMAKE_INSTALL_RPATH=${geant4_install_dir}/lib \
