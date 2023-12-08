@@ -42,7 +42,7 @@ Quick links:
 * `Contributors guide <https://svalinn.github.io/DAGMC/contribute/index.html>`_
 * `Release instructions <release.rst>`_
 
-*Preview CI for versions of upstream dependencies *
+**Preview CI for versions of upstream dependencies**
 
 ..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_moab.yml/badge.svg?branch=develop
     :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_moab.yml
