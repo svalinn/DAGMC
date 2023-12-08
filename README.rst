@@ -53,8 +53,8 @@ Quick links:
 ..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_double_down.yml/badge.svg?branch=develop
     :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_double_down.yml
 
-..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_hdf5.yml/badge.svg?branch=newer-hdf5
-    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_hdf5.yml
+..  image:: https://github.com/bquan0/DAGMC/actions/workflows/linux_upstream_test_hdf5.yml/badge.svg?branch=newer-hdf5
+    :target: https://github.com/bquan0/DAGMC/actions/workflows/linux_upstream_test_hdf5.yml
 
 ..  _DAGMC: https://svalinn.github.io/DAGMC
 ..  _Cubit: https://coreform.com/products/coreform-cubit/
