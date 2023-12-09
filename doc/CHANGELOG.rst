@@ -27,6 +27,7 @@ Next version
    * Adding flags to CI to ensure compatibility with MOOSE apps (#902)
    * Fixing order of attribute initialization in the metadata class (#903)
    * Adding const identifier to cross-reference methods (#906)
+   * Allow Double Down v1.1.0 Installation in Dockerfile (#929)
 
 **Fixed:**
    * Patch to compile with Geant4 11.x (#803 #907)
