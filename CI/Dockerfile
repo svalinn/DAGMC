@@ -6,7 +6,7 @@
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=1.10.4
-ARG EMBREE_VERSION='v4.0.1'
+ARG EMBREE_VERSION=4.0.1
 ARG Geant4_VERSION=11.1.2
 ARG MOAB_VERSION=5.3.0
 ARG DOUBLE_DOWN_VERSION=1.1.0
@@ -48,7 +48,7 @@ RUN apt-get update --yes && \
     libpython3-dev \
     software-properties-common && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
-    pip install "cython<3";
+    pip3 install "cython<3";
 
 ARG build_dir
 ARG install_dir
@@ -87,13 +87,14 @@ RUN mkdir -p ${geant4_build_dir}/build && \
     wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${Geant4_VERSION}/${geant4_tarball} --no-check-certificate && \
     tar -xzf ${geant4_tarball} && \
     cd build && \
-    cmake ../${geant4_basename} -DCMAKE_INSTALL_RPATH=${geant4_install_dir}/lib \
-                                -DCMAKE_INSTALL_PREFIX=${geant4_install_dir} \
-                                -DGEANT4_USE_SYSTEM_EXPAT=OFF \
-                                -DCMAKE_BUILD_TYPE=Release \
-                                -DCMAKE_CXX_COMPILER=${CXX} \
-                                -DCMAKE_C_COMPILER=${CC} \
-                                -DBUILD_STATIC_LIBS=ON && \
+    cmake ../${geant4_basename} \
+        -DCMAKE_INSTALL_RPATH=${geant4_install_dir}/lib \
+        -DCMAKE_INSTALL_PREFIX=${geant4_install_dir} \
+        -DGEANT4_USE_SYSTEM_EXPAT=OFF \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_CXX_COMPILER=${CXX} \
+        -DCMAKE_C_COMPILER=${CC} \
+        -DBUILD_STATIC_LIBS=ON && \
     make -j${CI_JOBS} && \
     make install && \
     cd && \
@@ -106,7 +107,7 @@ ENV embree_build_dir=${build_dir}/embree
 # Clone and install Embree
 RUN mkdir -p ${embree_build_dir}/build && \
     cd ${embree_build_dir} && \
-    git clone -b ${EMBREE_VERSION} https://github.com/embree/embree && \
+    git clone -b v${EMBREE_VERSION} https://github.com/embree/embree && \
     cd build && \
     cmake ../embree -DCMAKE_INSTALL_PREFIX=${embree_install_dir} \
                     -DEMBREE_TASKING_SYSTEM=INTERNAL \
@@ -169,16 +170,17 @@ RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
     git clone -b ${MOAB_VERSION} --depth 1 https://bitbucket.org/fathomteam/moab && \
     cd build && \
-    cmake ../moab -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib \
-                  -DCMAKE_BUILD_TYPE=Release \
-                  -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
-                  -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
-                  -DCMAKE_CXX_COMPILER=${CXX} \
-                  -DCMAKE_C_COMPILER=${CC} \
-                  -DENABLE_BLASLAPACK=OFF \
-                  -DBUILD_SHARED_LIBS=ON \
-                  -DENABLE_FORTRAN=OFF \
-                  -DENABLE_PYMOAB=ON && \
+    cmake ../moab \
+        -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+        -DCMAKE_INSTALL_PREFIX=${moab_install_dir} \
+        -DCMAKE_CXX_COMPILER=${CXX} \
+        -DCMAKE_C_COMPILER=${CC} \
+        -DENABLE_BLASLAPACK=OFF \
+        -DBUILD_SHARED_LIBS=ON \
+        -DENABLE_FORTRAN=OFF \
+        -DENABLE_PYMOAB=ON && \
     make -j${CI_JOBS} && \
     make install && \
     cd && \
@@ -191,11 +193,12 @@ ENV double_down_install_dir=${install_dir}/double-down
 # performed after moab install as double-down requires moab
 RUN mkdir -p ${double_down_build_dir}/build && \
     cd ${double_down_build_dir} && \
-    git clone --shallow-submodules --single-branch --branch ${DOUBLE_DOWN_VERSION} --depth 1 https://github.com/pshriwise/double-down.git && \
+    git clone --shallow-submodules --single-branch --branch v${DOUBLE_DOWN_VERSION} --depth 1 https://github.com/pshriwise/double-down.git && \
     cd build && \
-    cmake ../double-down -DMOAB_DIR=${moab_install_dir} \
-                         -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
-                         -DEMBREE_DIR=${embree_install_dir} && \
+    cmake ../double-down \
+        -DMOAB_DIR=${moab_install_dir} \
+        -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \
+        -DEMBREE_DIR=${embree_install_dir} && \
     make -j${CI_JOBS} && \
     make -j${CI_JOBS} install
 
@@ -219,20 +222,21 @@ RUN cd  ${dagmc_build_dir} && git submodule update --init
 RUN mkdir -p ${dagmc_build_dir}/build && \
     cd ${dagmc_build_dir} && \
     cd build && \
-    cmake ../ -DMOAB_DIR=${moab_install_dir} \
-              -DBUILD_GEANT4=ON \
-              -DGEANT4_DIR=${geant4_install_dir} \
-              -DBUILD_CI_TESTS=ON \
-              # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
-              -DBUILD_MW_REG_TESTS=OFF \
-              -DBUILD_STATIC_EXE=OFF \
-              -DBUILD_STATIC_LIBS=OFF \
-              -DCMAKE_C_COMPILER=${CC} \
-              -DCMAKE_CXX_COMPILER=${CXX} \
-              -DCMAKE_Fortran_COMPILER=gfortran \
-              -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
-              -DDOUBLE_DOWN=ON \
-              -Ddd_ROOT=${double_down_install_dir} && \
+    cmake ../ \
+        -DMOAB_DIR=${moab_install_dir} \
+        -DBUILD_GEANT4=ON \
+        -DGEANT4_DIR=${geant4_install_dir} \
+        -DBUILD_CI_TESTS=ON \
+        # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
+        -DBUILD_MW_REG_TESTS=OFF \
+        -DBUILD_STATIC_EXE=OFF \
+        -DBUILD_STATIC_LIBS=OFF \
+        -DCMAKE_C_COMPILER=${CC} \
+        -DCMAKE_CXX_COMPILER=${CXX} \
+        -DCMAKE_Fortran_COMPILER=gfortran \
+        -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
+        -DDOUBLE_DOWN=ON \
+        -Ddd_ROOT=${double_down_install_dir} && \
     make -j${CI_JOBS} && \
     make install
 
