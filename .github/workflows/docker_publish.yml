@@ -29,7 +29,7 @@ jobs:
          5.3.0,
         ]
         double_down_version : [
-          develop,
+          1.1.0,
         ]
         geant4_version : [
           10.7.4,
@@ -91,7 +91,7 @@ jobs:
           5.3.0,
         ]
         double_down_version : [
-          develop,
+          1.1.0,
         ]
         geant4_version : [
           10.7.4,

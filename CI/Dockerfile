@@ -6,10 +6,10 @@
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=1.10.4
-ARG EMBREE_VERSION='v3.6.1'
+ARG EMBREE_VERSION='v4.0.1'
 ARG Geant4_VERSION=11.1.2
 ARG MOAB_VERSION=5.3.0
-ARG DOUBLE_DOWN_VERSION='develop'
+ARG DOUBLE_DOWN_VERSION=1.1.0
 ARG CI_JOBS=4
 
 ARG build_dir=/root/build_dir

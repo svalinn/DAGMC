@@ -28,7 +28,7 @@ inputs:
   double_down_version:
     description: Version of Double Down
     required: false
-    default: develop
+    default: 1.1.0
 
 runs:
   using: "composite"
