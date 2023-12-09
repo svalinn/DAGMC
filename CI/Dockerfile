@@ -6,10 +6,10 @@
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=1.10.4
-ARG EMBREE_VERSION=4.0.1
+ARG EMBREE_VERSION=v4.0.1
 ARG Geant4_VERSION=11.1.2
 ARG MOAB_VERSION=5.3.0
-ARG DOUBLE_DOWN_VERSION=1.1.0
+ARG DOUBLE_DOWN_VERSION=v1.1.0
 ARG CI_JOBS=4
 
 ARG build_dir=/root/build_dir
@@ -107,7 +107,7 @@ ENV embree_build_dir=${build_dir}/embree
 # Clone and install Embree
 RUN mkdir -p ${embree_build_dir}/build && \
     cd ${embree_build_dir} && \
-    git clone -b v${EMBREE_VERSION} https://github.com/embree/embree && \
+    git clone -b ${EMBREE_VERSION} https://github.com/embree/embree && \
     cd build && \
     cmake ../embree -DCMAKE_INSTALL_PREFIX=${embree_install_dir} \
                     -DEMBREE_TASKING_SYSTEM=INTERNAL \
@@ -193,7 +193,7 @@ ENV double_down_install_dir=${install_dir}/double-down
 # performed after moab install as double-down requires moab
 RUN mkdir -p ${double_down_build_dir}/build && \
     cd ${double_down_build_dir} && \
-    git clone --shallow-submodules --single-branch --branch v${DOUBLE_DOWN_VERSION} --depth 1 https://github.com/pshriwise/double-down.git && \
+    git clone -b ${DOUBLE_DOWN_VERSION} --depth 1 https://github.com/pshriwise/double-down.git && \
     cd build && \
     cmake ../double-down \
         -DMOAB_DIR=${moab_install_dir} \

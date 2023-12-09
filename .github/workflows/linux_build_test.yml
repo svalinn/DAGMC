@@ -43,7 +43,7 @@ jobs:
         compiler : [
           gcc,
           clang,
-          ]
+        ]
         hdf5_version : [
           1.10.4,
         ]
