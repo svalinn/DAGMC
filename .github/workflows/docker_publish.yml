@@ -60,13 +60,13 @@ jobs:
       - name: Configure docker image tag and build arguments
         run: |
           image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}
-          if ${{ matrix.geant4_version }}; then
+          if [ ${{ matrix.geant4_version }} != "OFF" ] ; then
             image_base_tag=${image_base_tag}-geant4_${{ matrix.geant4_version }}
             GEANT4=ON
           else
             GEANT4=OFF
           fi
-          if ${{ matrix.double_down_version }}
+          if [ ${{ matrix.double_down_version }} != "OFF" ] ; then
             image_base_tag=${image_base_tag}-double_down_${{ matrix.double_down_version }}
             DOUBLE_DOWN=ON
           else
@@ -131,10 +131,10 @@ jobs:
         if: ${{ github.repository_owner == 'svalinn' }}
         run: |
           image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}
-          if ${{ matrix.geant4_version }} ; then
+          if [ ${{ matrix.geant4_version }} != "OFF" ] ; then
             image_base_tag=${image_base_tag}-geant4_${{ matrix.geant4_version }}
           fi
-          if ${{ matrix.double_down_version }} ; then
+          if [ ${{ matrix.double_down_version }} != "OFF" ] ; then
             image_base_tag=${image_base_tag}-double_down_${{ matrix.double_down_version }}
           fi
           echo "image_base_tag=${image_base_tag}" >> "$GITHUB_ENV"
