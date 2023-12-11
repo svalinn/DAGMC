@@ -54,11 +54,11 @@ jobs:
           10.7.4,
         ]
         double_down_version : [
-
+          OFF
         ]
 
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}${{ matrix.geant_version != '' && '-geant4_' || '' }}${{ matrix.geant_version }}${{ matrix.double_down_version != '' && '-double_down_' || '' }}${{ matrix.double_down_version }}/moab:latest
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}${{ matrix.geant_version != 'OFF' && '-geant4_' || '' }}${{ matrix.geant_version }}${{ matrix.double_down_version != 'OFF' && '-double_down_' || '' }}${{ matrix.double_down_version }}/moab:latest
 
     steps:
       - name: Checkout repository
@@ -73,7 +73,7 @@ jobs:
           cd ./build
           git config --global --add safe.directory $GITHUB_WORKSPACE
           cmake ../ -DMOAB_DIR=${moab_install_dir} \
-              -DBUILD_GEANT4=${{ matrix.geant_version != '' && 'ON' || 'OFF' }} \
+              -DBUILD_GEANT4=${{ matrix.geant_version != 'OFF' && 'ON' || 'OFF' }} \
               -DGEANT4_DIR=${geant4_install_dir} \
               -DBUILD_CI_TESTS=ON \
               -DBUILD_MW_REG_TESTS=OFF \
@@ -83,7 +83,7 @@ jobs:
               -DCMAKE_CXX_COMPILER=${CXX} \
               -DCMAKE_Fortran_COMPILER=gfortran \
               -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
-              -DDOUBLE_DOWN=${{ matrix.double_down_version != '' && 'ON' || 'OFF' }} \
+              -DDOUBLE_DOWN=${{ matrix.double_down_version != 'OFF' && 'ON' || 'OFF' }} \
               -DCMAKE_CXX_FLAGS="-Werror=reorder" \
               -Ddd_ROOT=${double_down_install_dir} && \
           make -j2 && \
