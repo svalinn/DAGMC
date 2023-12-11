@@ -7,8 +7,10 @@
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=1.10.4
 ARG EMBREE_VERSION=v4.0.1
-ARG Geant4_VERSION=11.1.2
+ARG GEANT4=ON
+ARG GEANT4_VERSION=11.1.2
 ARG MOAB_VERSION=5.3.0
+ARG DOUBLE_DOWN=ON
 ARG DOUBLE_DOWN_VERSION=v1.1.0
 ARG CI_JOBS=4
 
@@ -29,25 +31,27 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install Build Dependencies
 RUN apt-get update --yes && \
     apt-get install --yes \
-    git \
-    wget \
-    autoconf \
-    clang \
-    cmake \
-    g++ \
-    gcc \
-    gfortran \
-    libhdf5-dev \
-    libtool \
-    libeigen3-dev\
-    python3-numpy \
-    python3 \
-    python3-pip \
-    python3-setuptools \
-    python3-dev \
-    libpython3-dev \
-    software-properties-common && \
+        git \
+        wget \
+        autoconf \
+        clang \
+        cmake \
+        g++ \
+        gcc \
+        gfortran \
+        libhdf5-dev \
+        libtool \
+        libeigen3-dev\
+        python3-numpy \
+        python3 \
+        python3-pip \
+        python3-setuptools \
+        python3-dev \
+        libpython3-dev \
+        software-properties-common && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 10 && \
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10 && \
     pip3 install "cython<3";
 
 ARG build_dir
@@ -69,7 +73,7 @@ ENV CXX=clang++
 FROM compiler-${COMPILER} as external_deps
 
 # accessing gloabl ARGs in build stage
-ARG Geant4_VERSION
+ARG GEANT4_VERSION
 ARG EMBREE_VERSION
 ARG install_dir 
 ARG build_dir
@@ -77,14 +81,14 @@ ARG CI_JOBS
 ARG CXX
 ARG CC
 
-ENV geant4_basename=geant4-v${Geant4_VERSION}
+ENV geant4_basename=geant4-v${GEANT4_VERSION}
 ENV geant4_tarball=${geant4_basename}.tar.gz
 ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
 RUN mkdir -p ${geant4_build_dir}/build && \
     cd ${geant4_build_dir} && \
-    wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${Geant4_VERSION}/${geant4_tarball} --no-check-certificate && \
+    wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${GEANT4_VERSION}/${geant4_tarball} --no-check-certificate && \
     tar -xzf ${geant4_tarball} && \
     cd build && \
     cmake ../${geant4_basename} \
@@ -210,6 +214,8 @@ ARG install_dir
 ARG build_dir
 ARG CXX
 ARG CC
+ARG GEANT4
+ARG DOUBLE_DOWN
 
 ENV dagmc_build_dir=${build_dir}/dagmc
 ENV dagmc_install_dir=${install_dir}/dagmc
@@ -224,7 +230,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
     cd build && \
     cmake ../ \
         -DMOAB_DIR=${moab_install_dir} \
-        -DBUILD_GEANT4=ON \
+        -DBUILD_GEANT4=${GEANT4} \
         -DGEANT4_DIR=${geant4_install_dir} \
         -DBUILD_CI_TESTS=ON \
         # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
@@ -235,7 +241,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
         -DCMAKE_CXX_COMPILER=${CXX} \
         -DCMAKE_Fortran_COMPILER=gfortran \
         -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
-        -DDOUBLE_DOWN=ON \
+        -DDOUBLE_DOWN=${DOUBLE_DOWN} \
         -Ddd_ROOT=${double_down_install_dir} && \
     make -j${CI_JOBS} && \
     make install

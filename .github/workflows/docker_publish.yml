@@ -17,23 +17,23 @@ jobs:
         ubuntu_version : [
           20.04,
           22.04,
-          ]
+        ]
         compiler : [
           gcc,
           clang,
-          ]
+        ]
         hdf5_version : [
           1.10.4,
         ]
         moab_version : [
           5.3.0,
         ]
-        double_down_version : [
-          v1.1.0,
-        ]
         geant4_version : [
           10.7.4,
           11.1.2
+        ]
+        double_down_version : [
+
         ]
 
     name: Installing Dependencies, Building DAGMC and running tests
@@ -57,17 +57,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Configure docker image tag and build arguments
+        run: |
+          image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}
+          if [[ -n "${{ matrix.geant4_version }}" ]]; then
+            image_base_tag=${image_base_tag}-geant4_${{ matrix.geant4_version }}
+            GEANT4=ON
+          else
+            GEANT4=OFF
+          fi
+          if [[ -n "${{ matrix.double_down_version }}" ]]; then
+            image_base_tag=${image_base_tag}-double_down_${{ matrix.double_down_version }}
+            DOUBLE_DOWN=ON
+          else
+            DOUBLE_DOWN=OFF
+          fi
+          echo "image_base_tag=${image_base_tag}" >> "$GITHUB_ENV"
+          echo "GEANT4=${GEANT4}" >> "$GITHUB_ENV"
+          echo "DOUBLE_DOWN=${DOUBLE_DOWN}" >> "$GITHUB_ENV"
+
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-geant4_${{ matrix.geant4_version }}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}
+          repository: $image_base_tag
           stages: base, external_deps, hdf5, moab, dagmc
           server-stage: dagmc_test
           quiet: false
           parallel: true
-          tag-latest-on-default: ${{ env.tag-latest-on-default }}
+          tag-latest-on-default: $tag-latest-on-default
           dockerfile: CI/Dockerfile
-          build-args: DOUBLE_DOWN_VERSION=${{ matrix.double_down_version}}, Geant4_VERSION=${{ matrix.geant4_version }}, COMPILER=${{ matrix.compiler }}, UBUNTU_VERSION=${{ matrix.ubuntu_version }}, HDF5_VERSION=${{ matrix.hdf5_version }}, MOAB_VERSION=${{ matrix.moab_version }}
+          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_version }}, COMPILER=${{ matrix.compiler }}, HDF5_VERSION=${{ matrix.hdf5_version }}, MOAB_VERSION=${{ matrix.moab_version }}, GEANT4=$GEANT4, GEANT4_VERSION=${{ matrix.geant4_version }}, DOUBLE_DOWN=$DOUBLE_DOWN, DOUBLE_DOWN_VERSION=${{ matrix.double_down_version}}
 
 
   push_stable_ci_img:
@@ -79,23 +98,23 @@ jobs:
         ubuntu_version : [
           20.04,
           22.04,
-          ]
+        ]
         compiler : [
           gcc,
           clang,
-          ]
+        ]
         hdf5_version : [
           1.10.4,
         ]
         moab_version : [
           5.3.0,
         ]
-        double_down_version : [
-          v1.1.0,
-        ]
         geant4_version : [
           10.7.4,
           11.1.2
+        ]
+        double_down_version : [
+
         ]
 
     name: Pushing final images
@@ -108,21 +127,28 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Store image name
+      - name: Configure docker image tag
         if: ${{ github.repository_owner == 'svalinn' }}
         run: |
-          echo "image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler }}-geant4_${{ matrix.geant4_version }}-hdf5_${{ matrix.hdf5_version }}-moab_${{ matrix.moab_version }}" >> "$GITHUB_ENV"
+          image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}
+          if [[ -n "${{ matrix.geant4_version }}" ]]; then
+            image_base_tag=${image_base_tag}-geant4_${{ matrix.geant4_version }}
+          fi
+          if [[ -n "${{ matrix.double_down_version }}" ]]; then
+            image_base_tag=${image_base_tag}-double_down_${{ matrix.double_down_version }}
+          fi
+          echo "image_base_tag=${image_base_tag}" >> "$GITHUB_ENV"
 
       - name: Push Image as latest img
         if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         uses: akhilerm/tag-push-action@v2.1.0
         with:
-          src: ${{ env.image_base_tag }}/dagmc:latest
-          dst: ${{ env.image_base_tag }}:latest
+          src: $image_base_tag/dagmc:latest
+          dst: $image_base_tag:latest
 
       - name: Push Image as latest img
         if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         uses: akhilerm/tag-push-action@v2.1.0
         with:
-          src: ${{ env.image_base_tag }}:latest
-          dst: ${{ env.image_base_tag }}:stable
+          src: $image_base_tag:latest
+          dst: $image_base_tag:stable
