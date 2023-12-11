@@ -214,7 +214,7 @@ RUN if [ "${DOUBLE_DOWN}" = "ON" ]; then \
         make -j${CI_JOBS} && \
         make -j${CI_JOBS} install && \
         cd && \
-        rm -rf ${double_down_build_dir} \
+        rm -rf ${double_down_build_dir}; \
     fi
 
 
