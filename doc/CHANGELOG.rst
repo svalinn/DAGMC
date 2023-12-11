@@ -29,7 +29,7 @@ Next version
    * Adding const identifier to cross-reference methods (#906)
 
 **Fixed:**
-   * Patch to compile with Geant4 11.x (#803 #907)
+   * Patch to compile with Geant4 11.x (#803 #907 #927)
    * Patched cmake-search paths for double-down and MOAB (#878)
    * Patch to compile with gcc-13 (#882)
    * Tweak conda environment for Windows build to avoid conflicting gtest headers (#888)
