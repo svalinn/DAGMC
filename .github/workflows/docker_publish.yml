@@ -79,14 +79,14 @@ jobs:
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: $image_base_tag
+          repository: ${{ env.image_base_tag }}
           stages: base, external_deps, hdf5, moab, dagmc
           server-stage: dagmc_test
           quiet: false
           parallel: true
-          tag-latest-on-default: $tag-latest-on-default
+          tag-latest-on-default: ${{ env.tag-latest-on-default }}
           dockerfile: CI/Dockerfile
-          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_version }}, COMPILER=${{ matrix.compiler }}, HDF5_VERSION=${{ matrix.hdf5_version }}, MOAB_VERSION=${{ matrix.moab_version }}, GEANT4=$GEANT4, GEANT4_VERSION=${{ matrix.geant4_version }}, DOUBLE_DOWN=$DOUBLE_DOWN, DOUBLE_DOWN_VERSION=${{ matrix.double_down_version}}
+          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_version }}, COMPILER=${{ matrix.compiler }}, HDF5_VERSION=${{ matrix.hdf5_version }}, MOAB_VERSION=${{ matrix.moab_version }}, GEANT4=${{ env.GEANT4 }}, GEANT4_VERSION=${{ matrix.geant4_version }}, DOUBLE_DOWN=${{ env.DOUBLE_DOWN }}, DOUBLE_DOWN_VERSION=${{ matrix.double_down_version}}
 
 
   push_stable_ci_img:
@@ -143,12 +143,12 @@ jobs:
         if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         uses: akhilerm/tag-push-action@v2.1.0
         with:
-          src: $image_base_tag/dagmc:latest
-          dst: $image_base_tag:latest
+          src: ${{ env.image_base_tag }}/dagmc:latest
+          dst: ${{ env.image_base_tag }}:latest
 
       - name: Push Image as latest img
         if: ${{ github.repository_owner == 'svalinn' && github.ref == 'refs/heads/develop' }}
         uses: akhilerm/tag-push-action@v2.1.0
         with:
-          src: $image_base_tag:latest
-          dst: $image_base_tag:stable
+          src: ${{ env.image_base_tag }}:latest
+          dst: ${{ env.image_base_tag }}:stable
