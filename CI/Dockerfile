@@ -104,7 +104,7 @@ RUN if [ "${GEANT4}" = "ON" ]; then \
         make -j${CI_JOBS} && \
         make install && \
         cd && \
-        rm -rf ${geant4_build_dir} \
+        rm -rf ${geant4_build_dir}; \
     fi
 
 
@@ -194,7 +194,7 @@ RUN if [ "${DOUBLE_DOWN}" = "ON" ]; then \
         make -j${CI_JOBS} && \
         make -j${CI_JOBS} install && \
         cd && \
-        rm -rf ${embree_build_dir} \
+        rm -rf ${embree_build_dir}; \
     fi
 
 ENV double_down_build_dir=${build_dir}/double-down
