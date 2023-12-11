@@ -1,4 +1,4 @@
-name: Test against newer Double Down on PR merge
+name: Test against Double Down development branch on PR merge
 
 on:
   # allows us to run workflows manually
