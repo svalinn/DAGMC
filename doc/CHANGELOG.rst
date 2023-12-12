@@ -23,14 +23,14 @@ Next version
    * Introduced logger to better manage console output (#876)
    * Streamline CI to take advantage of better docker image management (#880, #896, #915)
    * Move more CI from scripts to actions (#895)
-   * Develop advisory tests on merge for MOAB, double-down and Geant4 (#870, #898, #899, #904)
+   * Develop advisory tests on merge for MOAB, double-down and Geant4, hdf5 (#870, #898, #899, #904, #925)
    * Adding flags to CI to ensure compatibility with MOOSE apps (#902)
    * Fixing order of attribute initialization in the metadata class (#903)
    * Adding const identifier to cross-reference methods (#906)
    * Allow Double Down v1.1.0 Installation in Dockerfile (#929)
 
 **Fixed:**
-   * Patch to compile with Geant4 11.x (#803 #907)
+   * Patch to compile with Geant4 11.x (#803 #907 #927)
    * Patched cmake-search paths for double-down and MOAB (#878)
    * Patch to compile with gcc-13 (#882)
    * Tweak conda environment for Windows build to avoid conflicting gtest headers (#888)

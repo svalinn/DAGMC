@@ -53,6 +53,9 @@ Quick links:
 ..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_double_down.yml/badge.svg?branch=develop
     :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_double_down.yml
 
+..  image:: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_hdf5.yml/badge.svg?branch=develop
+    :target: https://github.com/svalinn/DAGMC/actions/workflows/linux_upstream_test_hdf5.yml
+
 ..  _DAGMC: https://svalinn.github.io/DAGMC
 ..  _Cubit: https://coreform.com/products/coreform-cubit/
 ..  _MCNP5: https://laws.lanl.gov/vhosts/mcnp.lanl.gov/mcnp5.shtml

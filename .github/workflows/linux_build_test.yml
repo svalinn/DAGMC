@@ -52,6 +52,7 @@ jobs:
         ]
         geant_version : [
           10.7.4,
+          11.1.2
         ]
         double_down_version : [
           OFF
