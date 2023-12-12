@@ -50,7 +50,7 @@ jobs:
         moab_version : [
           5.3.0,
         ]
-        geant_version : [
+        geant4_version : [
           10.7.4,
           11.1.2
         ]
@@ -59,7 +59,7 @@ jobs:
         ]
 
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}${{ matrix.geant_version != 'OFF' && '-geant4_' || '' }}${{ matrix.geant_version }}${{ matrix.double_down_version != 'OFF' && '-double_down_' || '' }}${{ matrix.double_down_version }}/moab:latest
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler}}-hdf5_${{ matrix.hdf5_version}}-moab_${{ matrix.moab_version }}${{ matrix.geant4_version != 'OFF' && '-geant4_' || '' }}${{ matrix.geant4_version != 'OFF' && matrix.geant4_version || '' }}${{ matrix.double_down_version != 'OFF' && '-double_down_' || '' }}${{ matrix.double_down_version != 'OFF' && matrix.double_down_version || '' }}/moab:latest
 
     steps:
       - name: Checkout repository
@@ -74,7 +74,7 @@ jobs:
           cd ./build
           git config --global --add safe.directory $GITHUB_WORKSPACE
           cmake ../ -DMOAB_DIR=${moab_install_dir} \
-              -DBUILD_GEANT4=${{ matrix.geant_version != 'OFF' && 'ON' || 'OFF' }} \
+              -DBUILD_GEANT4=${{ matrix.geant4_version != 'OFF' && 'ON' || 'OFF' }} \
               -DGEANT4_DIR=${geant4_install_dir} \
               -DBUILD_CI_TESTS=ON \
               -DBUILD_MW_REG_TESTS=OFF \
