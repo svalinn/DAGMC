@@ -89,7 +89,7 @@ macro (dagmc_setup_options)
   endif()
 
 if (DOUBLE_DOWN)
-  find_package(DOUBLE_DOWN REQUIRED)
+  find_package(DOUBLE_DOWN 1.1.0 REQUIRED)
 endif()
 
 
