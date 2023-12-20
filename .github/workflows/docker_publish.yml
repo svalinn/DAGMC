@@ -29,7 +29,7 @@ jobs:
          5.3.0,
         ]
         double_down_version : [
-          1.1.0,
+          v1.1.0,
         ]
         geant_version : [
           10.7.4,
