@@ -45,12 +45,12 @@ jobs:
           clang,
           ]
         hdf5_versions : [
-         1.10.4,
+          1.10.4,
         ]
         moab_versions : [
           5.3.0,
         ]
-        double_down : [
+        double_down_version : [
           OFF,
         ]
         geant_version : [
@@ -84,7 +84,7 @@ jobs:
               -DCMAKE_CXX_COMPILER=${CXX} \
               -DCMAKE_Fortran_COMPILER=gfortran \
               -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
-              -DDOUBLE_DOWN=${double_down} \
+              -DDOUBLE_DOWN=${{ matrix.double_down_version != 'OFF' && 'ON' || 'OFF' }} \
               -DCMAKE_CXX_FLAGS="-Werror=reorder" \
               -Ddd_ROOT=${double_down_install_dir} && \
           make -j2 && \

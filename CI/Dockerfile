@@ -8,7 +8,8 @@ ARG EMBREE_BRANCH='v3.6.1'
 ARG geant4_version=11.1.2
 ARG UBUNTU_VERSION=20.04
 ARG MOAB_BRANCH=5.3.0
-ARG double_down=OFF
+ARG double_down=ON
+ARG DOUBLE_DOWN_VERSION=1.1.0
 ARG ci_jobs=4
 ARG HDF5_VERSION=1.10.4
 
@@ -156,6 +157,7 @@ FROM hdf5 AS moab
 # accessing gloabl ARGs in build stage
 ARG install_dir
 ARG MOAB_BRANCH
+ARG DOUBLE_DOWN_VERSION
 ARG build_dir
 ARG ci_jobs
 ARG CXX
@@ -193,7 +195,7 @@ ENV double_down_install_dir=${install_dir}/double-down
 # performed after moab install as double-down requires moab
 RUN mkdir -p ${double_down_build_dir}/build && \
     cd ${double_down_build_dir} && \
-    git clone --shallow-submodules --single-branch --branch v1.0.0 --depth 1 https://github.com/pshriwise/double-down.git && \
+    git clone --shallow-submodules --single-branch --branch $DOUBLE_DOWN_VERSION --depth 1 https://github.com/pshriwise/double-down.git && \
     cd build && \
     cmake ../double-down -DMOAB_DIR=${moab_install_dir} \
                          -DCMAKE_INSTALL_PREFIX=${double_down_install_dir} \

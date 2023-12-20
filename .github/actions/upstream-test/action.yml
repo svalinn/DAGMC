@@ -25,10 +25,10 @@ inputs:
     description: Version of MOAB
     required: false
     default: 5.3.0
-  double_down:
+  double_down_version:
     description: Whether or not to test Double Down
     required: false
-    default: OFF
+    default: 1.1.0
 
 runs:
   using: "composite"
