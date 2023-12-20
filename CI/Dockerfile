@@ -10,7 +10,7 @@ ARG UBUNTU_VERSION=20.04
 ARG MOAB_BRANCH=5.3.0
 ARG double_down=OFF
 ARG ci_jobs=4
-ARG HDF5_VERSION=1.10.4
+ARG HDF5_VERSION=1.14.3
 
 ARG build_dir=/root/build_dir
 ARG install_dir=/root/opt
