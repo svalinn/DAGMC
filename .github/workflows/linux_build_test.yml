@@ -39,11 +39,11 @@ jobs:
         ubuntu_versions : [
           20.04,
           22.04,
-          ]
+        ]
         compiler : [
           gcc,
           clang,
-          ]
+        ]
         hdf5_versions : [
           1.10.4,
         ]
