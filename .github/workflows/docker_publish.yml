@@ -33,7 +33,7 @@ jobs:
           11.1.2
         ]
         double_down_version : [
-          no
+          off
         ]
 
     name: Installing Dependencies, Building DAGMC and running tests
@@ -108,7 +108,7 @@ jobs:
           11.1.2
         ]
         double_down_version : [
-          no
+          off
         ]
 
     name: Pushing final images

@@ -7,10 +7,10 @@
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=1.14.3
 ARG EMBREE_VERSION=v4.0.1
-# Setting GEANT4_VERSION=no will disable GEANT4 build
+# Setting GEANT4_VERSION=off will disable GEANT4 build
 ARG GEANT4_VERSION=11.1.2
 ARG MOAB_VERSION=5.3.0
-# Setting DOUBLE_DOWN_VERSION=no will disable DOUBLE_DOWN build
+# Setting DOUBLE_DOWN_VERSION=off will disable DOUBLE_DOWN build
 ARG DOUBLE_DOWN_VERSION=v1.1.0
 ARG CI_JOBS=4
 
@@ -86,7 +86,7 @@ ENV geant4_tarball=${geant4_basename}.tar.gz
 ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
-RUN if [ "${GEANT4_VERSION}" != "no" ]; then \
+RUN if [ "${GEANT4_VERSION}" != "off" ]; then \
         mkdir -p ${geant4_build_dir}/build && \
         cd ${geant4_build_dir} && \
         wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${GEANT4_VERSION}/${geant4_tarball} --no-check-certificate && \
@@ -177,7 +177,7 @@ ENV embree_install_dir=${install_dir}/embree
 ENV embree_build_dir=${build_dir}/embree
 
 # Clone and install Embree
-RUN if [ "${DOUBLE_DOWN_VERSION}" != "no" ]; then \
+RUN if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then \
         mkdir -p ${embree_build_dir}/build && \
         cd ${embree_build_dir} && \
         git clone -b ${EMBREE_VERSION} https://github.com/embree/embree && \
@@ -199,7 +199,7 @@ ENV double_down_install_dir=${install_dir}/double-down
 
 # Clone and install Double-Down
 # Performed after moab and embree install as double-down requires moab and embree
-RUN if [ "${DOUBLE_DOWN_VERSION}" != "no" ]; then \
+RUN if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then \
         mkdir -p ${double_down_build_dir}/build && \
         cd ${double_down_build_dir} && \
         git clone -b ${DOUBLE_DOWN_VERSION} --depth 1 https://github.com/pshriwise/double-down.git && \
@@ -238,7 +238,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
     cd build && \
     cmake ../ \
         -DMOAB_DIR=${moab_install_dir} \
-        -DBUILD_GEANT4=${if [ "${GEANT4_VERSION}" != "no" ]; then echo "ON"; else echo "OFF"; fi} \
+        -DBUILD_GEANT4=${if [ "${GEANT4_VERSION}" != "off" ]; then echo "ON"; else echo "OFF"; fi} \
         -DGEANT4_DIR=${geant4_install_dir} \
         -DBUILD_CI_TESTS=ON \
         # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
@@ -249,7 +249,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
         -DCMAKE_CXX_COMPILER=${CXX} \
         -DCMAKE_Fortran_COMPILER=gfortran \
         -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
-        -DDOUBLE_DOWN=${if [ "${DOUBLE_DOWN_VERSION}" != "no" ]; then echo "ON"; else echo "OFF"; fi} \
+        -DDOUBLE_DOWN=${if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then echo "ON"; else echo "OFF"; fi} \
         -Ddd_ROOT=${double_down_install_dir} && \
     make -j${CI_JOBS} && \
     make install

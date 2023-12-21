@@ -8,7 +8,7 @@ inputs:
   geant4_version:
     description: Version of Geant4
     required: false
-    default: no
+    default: off
   ubuntu_version:
     description: Underlying OS version
     required: false
@@ -28,7 +28,7 @@ inputs:
   double_down_version:
     description: Version of Double Down
     required: false
-    default: no
+    default: off
 
 runs:
   using: "composite"
