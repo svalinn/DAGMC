@@ -238,7 +238,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
     cd build && \
     cmake ../ \
         -DMOAB_DIR=${moab_install_dir} \
-        -DBUILD_GEANT4=${if [ "${GEANT4_VERSION}" != "off" ]; then echo "ON"; else echo "OFF"; fi} \
+        -DBUILD_GEANT4=$([ "${GEANT4_VERSION}" != "off" ] && echo "ON" || echo "OFF") \
         -DGEANT4_DIR=${geant4_install_dir} \
         -DBUILD_CI_TESTS=ON \
         # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
@@ -249,7 +249,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
         -DCMAKE_CXX_COMPILER=${CXX} \
         -DCMAKE_Fortran_COMPILER=gfortran \
         -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
-        -DDOUBLE_DOWN=${if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then echo "ON"; else echo "OFF"; fi} \
+        -DDOUBLE_DOWN=$([ "${DOUBLE_DOWN_VERSION}" != "off" ] && echo "ON" || echo "OFF") \
         -Ddd_ROOT=${double_down_install_dir} && \
     make -j${CI_JOBS} && \
     make install
