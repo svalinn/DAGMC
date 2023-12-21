@@ -46,19 +46,11 @@ runs:
           image_base_tag=ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.compiler}}-hdf5_${{ inputs.hdf5_version}}-moab_${{ inputs.moab_version }}
           if [ ${{ inputs.geant4_version }} != "OFF" ] ; then
             image_base_tag=${image_base_tag}-geant4_${{ inputs.geant4_version }}
-            GEANT4=ON
-          else
-            GEANT4=OFF
           fi
           if [ ${{ inputs.double_down_version }} != "OFF" ] ; then
             image_base_tag=${image_base_tag}-double_down_${{ inputs.double_down_version }}
-            DOUBLE_DOWN=ON
-          else
-            DOUBLE_DOWN=OFF
           fi
           echo "image_base_tag=${image_base_tag}" >> $GITHUB_ENV
-          echo "GEANT4=${GEANT4}" >> $GITHUB_ENV
-          echo "DOUBLE_DOWN=${DOUBLE_DOWN}" >> $GITHUB_ENV
 
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1
@@ -70,4 +62,4 @@ runs:
           parallel: true
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: UBUNTU_VERSION=${{ inputs.ubuntu_version }}, COMPILER=${{ inputs.compiler }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_VERSION=${{ inputs.moab_version }}, GEANT4=${{ env.GEANT4 }}, GEANT4_VERSION=${{ inputs.geant4_version }}, DOUBLE_DOWN=${{ env.DOUBLE_DOWN }}, DOUBLE_DOWN_VERSION=${{ inputs.double_down_version }}
+          build-args: UBUNTU_VERSION=${{ inputs.ubuntu_version }}, COMPILER=${{ inputs.compiler }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_VERSION=${{ inputs.moab_version }}, GEANT4_VERSION=${{ inputs.geant4_version }}, DOUBLE_DOWN_VERSION=${{ inputs.double_down_version }}

@@ -7,10 +7,10 @@
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=1.14.3
 ARG EMBREE_VERSION=v4.0.1
-ARG GEANT4=ON
+# Setting GEANT4_VERSION=OFF will disable GEANT4 build
 ARG GEANT4_VERSION=11.1.2
 ARG MOAB_VERSION=5.3.0
-ARG DOUBLE_DOWN=ON
+# Setting DOUBLE_DOWN_VERSION=OFF will disable DOUBLE_DOWN build
 ARG DOUBLE_DOWN_VERSION=v1.1.0
 ARG CI_JOBS=4
 
@@ -42,9 +42,9 @@ RUN apt-get update --yes && \
         libhdf5-dev \
         libtool \
         libeigen3-dev\
-        python3-numpy \
         python3 \
         python3-pip \
+        python3-numpy \
         python3-setuptools \
         python3-dev \
         libpython3-dev \
@@ -52,7 +52,7 @@ RUN apt-get update --yes && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 10 && \
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10 && \
-    pip3 install "cython<3";
+    pip install "cython<3";
 
 ARG build_dir
 ARG install_dir
@@ -73,7 +73,6 @@ ENV CXX=clang++
 FROM compiler-${COMPILER} as external_deps
 
 # accessing gloabl ARGs in build stage
-ARG GEANT4
 ARG GEANT4_VERSION
 ARG EMBREE_VERSION
 ARG install_dir 
@@ -87,7 +86,7 @@ ENV geant4_tarball=${geant4_basename}.tar.gz
 ENV geant4_build_dir=${build_dir}/geant4
 ENV geant4_install_dir=${install_dir}/geant4
 
-RUN if [ "${GEANT4}" = "ON" ]; then \
+RUN if [ "${GEANT4_VERSION}" != "OFF" ]; then \
         mkdir -p ${geant4_build_dir}/build && \
         cd ${geant4_build_dir} && \
         wget https://gitlab.cern.ch/geant4/geant4/-/archive/v${GEANT4_VERSION}/${geant4_tarball} --no-check-certificate && \
@@ -123,7 +122,7 @@ ENV hdf5_install_dir=${install_dir}/hdf5
 
 RUN mkdir -p ${hdf5_build_dir}/build && \
     cd ${hdf5_build_dir} && \
-    export HDF5_VERSION_major=`python3 -c "print('.'.join('${HDF5_VERSION}'.split('.')[:-1]))"` && \
+    export HDF5_VERSION_major=`python -c "print('.'.join('${HDF5_VERSION}'.split('.')[:-1]))"` && \
     wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION_major}/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.gz && \
     tar -xzf hdf5-${HDF5_VERSION}.tar.gz && \
     cd build && \
@@ -142,7 +141,6 @@ FROM hdf5 AS moab
 # accessing gloabl ARGs in build stage
 ARG install_dir
 ARG MOAB_VERSION
-ARG DOUBLE_DOWN
 ARG DOUBLE_DOWN_VERSION
 ARG build_dir
 ARG CI_JOBS
@@ -179,8 +177,7 @@ ENV embree_install_dir=${install_dir}/embree
 ENV embree_build_dir=${build_dir}/embree
 
 # Clone and install Embree
-# Required for Double-Down
-RUN if [ "${DOUBLE_DOWN}" = "ON" ]; then \
+RUN if [ "${DOUBLE_DOWN_VERSION}" != "OFF" ]; then \
         mkdir -p ${embree_build_dir}/build && \
         cd ${embree_build_dir} && \
         git clone -b ${EMBREE_VERSION} https://github.com/embree/embree && \
@@ -202,7 +199,7 @@ ENV double_down_install_dir=${install_dir}/double-down
 
 # Clone and install Double-Down
 # Performed after moab and embree install as double-down requires moab and embree
-RUN if [ "${DOUBLE_DOWN}" = "ON" ]; then \
+RUN if [ "${DOUBLE_DOWN_VERSION}" != "OFF" ]; then \
         mkdir -p ${double_down_build_dir}/build && \
         cd ${double_down_build_dir} && \
         git clone -b ${DOUBLE_DOWN_VERSION} --depth 1 https://github.com/pshriwise/double-down.git && \
@@ -225,8 +222,8 @@ ARG install_dir
 ARG build_dir
 ARG CXX
 ARG CC
-ARG GEANT4
-ARG DOUBLE_DOWN
+ARG GEANT4_VERSION
+ARG DOUBLE_DOWN_VERSION
 
 ENV dagmc_build_dir=${build_dir}/dagmc
 ENV dagmc_install_dir=${install_dir}/dagmc
@@ -241,7 +238,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
     cd build && \
     cmake ../ \
         -DMOAB_DIR=${moab_install_dir} \
-        -DBUILD_GEANT4=${GEANT4} \
+        -DBUILD_GEANT4=${if [ "${GEANT4_VERSION}" != "OFF" ]; then echo "ON"; else echo "OFF"; fi} \
         -DGEANT4_DIR=${geant4_install_dir} \
         -DBUILD_CI_TESTS=ON \
         # reg tests disabled see issue https://github.com/svalinn/DAGMC/issues/858
@@ -252,7 +249,7 @@ RUN mkdir -p ${dagmc_build_dir}/build && \
         -DCMAKE_CXX_COMPILER=${CXX} \
         -DCMAKE_Fortran_COMPILER=gfortran \
         -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
-        -DDOUBLE_DOWN=${DOUBLE_DOWN} \
+        -DDOUBLE_DOWN=${if [ "${DOUBLE_DOWN_VERSION}" != "OFF" ]; then echo "ON"; else echo "OFF"; fi} \
         -Ddd_ROOT=${double_down_install_dir} && \
     make -j${CI_JOBS} && \
     make install
