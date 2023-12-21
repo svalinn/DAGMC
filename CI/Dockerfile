@@ -5,7 +5,7 @@
 
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=22.04
-ARG HDF5_VERSION=1.10.4
+ARG HDF5_VERSION=1.14.3
 ARG EMBREE_VERSION=v4.0.1
 ARG GEANT4=ON
 ARG GEANT4_VERSION=11.1.2

@@ -12,6 +12,14 @@ v3.2.3
 
 **Changed:**
 
+  * Update hdf5 to v1.14.3 from v1.10.4 (#931 #933)
+  * Allow Double Down v1.1.0 Installation in Dockerfile (#929)
+
+v3.2.3
+====================
+
+**Changed:**
+
    * Improvements/corrections to graveyard capabilities (#855)
    * Using multi stage Dockerfile to reduce the number of Dockerfile (#813, #894)
    * Adding safe folder to allow CI to compile DAGMC (#814)
@@ -30,7 +38,6 @@ v3.2.3
    * Adding flags to CI to ensure compatibility with MOOSE apps (#902)
    * Fixing order of attribute initialization in the metadata class (#903)
    * Adding const identifier to cross-reference methods (#906)
-   * Allow Double Down v1.1.0 Installation in Dockerfile (#929)
 
 **Fixed:**
    * Patch to compile with Geant4 11.x (#803 #907 #927)
