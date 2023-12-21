@@ -62,4 +62,10 @@ runs:
           parallel: true
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: UBUNTU_VERSION=${{ inputs.ubuntu_version }}, COMPILER=${{ inputs.compiler }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_VERSION=${{ inputs.moab_version }}, GEANT4_VERSION=${{ inputs.geant4_version }}, DOUBLE_DOWN_VERSION=${{ inputs.double_down_version }}
+          build-args: >
+            UBUNTU_VERSION=${{ inputs.ubuntu_version }}, 
+            COMPILER=${{ inputs.compiler }}, 
+            HDF5_VERSION=${{ inputs.hdf5_version }}, 
+            MOAB_VERSION=${{ inputs.moab_version }}, 
+            GEANT4_VERSION=${{ inputs.geant4_version }}, 
+            DOUBLE_DOWN_VERSION=${{ inputs.double_down_version }}

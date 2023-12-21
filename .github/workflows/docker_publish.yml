@@ -78,7 +78,13 @@ jobs:
           parallel: true
           tag-latest-on-default: ${{ env.tag-latest-on-default }}
           dockerfile: CI/Dockerfile
-          build-args: UBUNTU_VERSION=${{ matrix.ubuntu_version }}, COMPILER=${{ matrix.compiler }}, HDF5_VERSION=${{ matrix.hdf5_version }}, MOAB_VERSION=${{ matrix.moab_version }}, GEANT4_VERSION=${{ matrix.geant4_version }}, DOUBLE_DOWN_VERSION=${{ matrix.double_down_version}}
+          build-args: > 
+            UBUNTU_VERSION=${{ matrix.ubuntu_version }},
+            COMPILER=${{ matrix.compiler }},
+            HDF5_VERSION=${{ matrix.hdf5_version }},
+            MOAB_VERSION=${{ matrix.moab_version }},
+            GEANT4_VERSION=${{ matrix.geant4_version }},
+            DOUBLE_DOWN_VERSION=${{ matrix.double_down_version}}
 
 
   push_stable_ci_img:
