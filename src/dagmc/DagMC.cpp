@@ -920,17 +920,19 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   std::copy(vols.begin(), vols.end(), iter);
 
   // Ensure the implicit complement volume is placed at the back of this vector
-  //   Many codes iterate over the DAGMC volumes by index and all explicit volumes should
-  //   be checked before the implicit complement
-  EntityHandle implicit_complement {0};
+  //   Many codes iterate over the DAGMC volumes by index and all explicit
+  //   volumes should be checked before the implicit complement
+  EntityHandle implicit_complement{0};
   rval = geom_tool()->get_implicit_complement(implicit_complement);
   if (rval == MB_SUCCESS && implicit_complement != 0) {
-    auto it = std::find(vol_handles().begin(), vol_handles().end(), implicit_complement);
+    auto it = std::find(vol_handles().begin(), vol_handles().end(),
+                        implicit_complement);
     if (it != vol_handles().end()) {
       vol_handles().erase(it);
-    }
-    else {
-      logger.message("Could not find the implicit complement in the volume handles vector");
+    } else {
+      logger.message(
+          "Could not find the implicit complement in the volume handles "
+          "vector");
       return MB_FAILURE;
     }
     // insert the implicit complement at the end of the vector
