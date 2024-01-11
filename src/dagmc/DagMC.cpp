@@ -894,12 +894,6 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
     logger.message("Volumes or Surfaces not found");
     return MB_ENTITY_NOT_FOUND;
   }
-  setOffset = std::min(*surfs.begin(), *vols.begin());
-  // surf/vol offsets are just first handles
-  EntityHandle tmp_offset = std::max(surfs.back(), vols.back());
-
-  // set size
-  entIndices.resize(tmp_offset - setOffset + 1);
 
   // store surf/vol handles lists (surf/vol by index) and
   // index by handle lists
@@ -911,8 +905,10 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   *(iter++) = 0;
   std::copy(surfs.begin(), surfs.end(), iter);
   int idx = 1;
-  for (Range::iterator rit = surfs.begin(); rit != surfs.end(); ++rit)
-    entIndices[*rit - setOffset] = idx++;
+  for (auto surf_handle : surf_handles()) {
+    if (surf_handle == 0) continue;
+    entIndices[surf_handle] = idx++;
+  }
 
   vol_handles().resize(vols.size() + 1);
   iter = vol_handles().begin();
@@ -928,7 +924,7 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   //   be checked before the implicit complement
   EntityHandle implicit_complement {0};
   rval = geom_tool()->get_implicit_complement(implicit_complement);
-  if (rval != MB_SUCCESS) {
+  if (rval != MB_SUCCESS || implicit_complement == 0) {
     logger.message("Could not get the implicit complement");
     return rval;
   }
@@ -943,8 +939,10 @@ ErrorCode DagMC::build_indices(Range& surfs, Range& vols) {
   vol_handles().push_back(implicit_complement);
 
   idx = 1;
-  for (Range::iterator rit = vols.begin(); rit != vols.end(); ++rit)
-    entIndices[*rit - setOffset] = idx++;
+  for (auto vol_handle : vol_handles()) {
+    if (vol_handle == 0) continue;
+    entIndices[vol_handle] = idx++;
+  }
 
   // get group handles
   Range groups;
