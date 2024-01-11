@@ -4,7 +4,6 @@
 #include <assert.h>
 
 #include <limits>
-#include <unordered_map>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -78,12 +77,10 @@ class DagMC {
         double overlap_tolerance = 0., double numerical_precision = .001,
         int verbosity = 1);
   // Deprecated Constructor
-  [
-      [deprecated("Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... "
-                  ")")]] DagMC(Interface* mb_impl,
-                               double overlap_tolerance = 0.,
-                               double numerical_precision = .001,
-                               int verbosity = 1);
+  [[deprecated(
+      "Replaced by DagMC(std::shared_ptr<Interface> mb_impl, ... "
+      ")")]] DagMC(Interface* mb_impl, double overlap_tolerance = 0.,
+                   double numerical_precision = .001, int verbosity = 1);
   // Destructor
   ~DagMC();
 
