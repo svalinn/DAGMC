@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
-#include <filesystem>
 
 #include "DagMC.hpp"
 #include "moab/Core.hpp"
@@ -67,7 +67,8 @@ TEST_F(DagmcIPCPositionTest, dagmc_implicit_complement_position_test) {
   ASSERT_EQ(rval, MB_SUCCESS);
   ASSERT_NE(ipc, 0);
 
-  // there are 3 volumes in the original model and we've added the implicit complement
+  // there are 3 volumes in the original model and we've added the implicit
+  // complement
   int num_vols = dagmc2->num_entities(3);
   ASSERT_EQ(num_vols, 4);
 
