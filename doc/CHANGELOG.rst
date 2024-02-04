@@ -10,6 +10,7 @@ Next version
 **Changed:**
 
   * Update hdf5 to v1.14.3 from v1.10.4 (#931 #933)
+  * Ensure implicit complement handle is placed at the back of DAGMC volume indices (#935)
 
 v3.2.3
 ====================
