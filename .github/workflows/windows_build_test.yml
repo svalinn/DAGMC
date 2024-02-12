@@ -64,7 +64,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd ${HOME_PATH}
-          git clone --depth 1 https://bitbucket.org/fathomteam/moab -b 5.3.0
+          git clone --depth 1 https://bitbucket.org/fathomteam/moab -b 5.5.1 # may not work, need to merge https://bitbucket.org/fathomteam/moab/pull-requests/662
           mkdir moab_build
           cd moab_build
           cmake ../moab \
