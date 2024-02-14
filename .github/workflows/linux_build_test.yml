@@ -48,7 +48,7 @@ jobs:
           1.14.3,
         ]
         moab_versions : [
-          5.3.0,
+          5.5.1,
         ]
         double_down : [
           OFF,
