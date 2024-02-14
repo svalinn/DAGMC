@@ -61,7 +61,7 @@ jobs:
           cd ${HOME}
           mkdir -pv moab/bld
           cd moab
-          git clone https://bitbucket.org/fathomteam/moab -b 5.3.0 --depth 1 --shallow-submodules
+          git clone https://bitbucket.org/fathomteam/moab -b 5.5.1 --depth 1 --shallow-submodules
           cd bld
           cmake ../moab -DENABLE_HDF5=ON \
                         -DENABLE_PYMOAB=OFF \
