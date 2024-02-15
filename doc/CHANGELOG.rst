@@ -13,6 +13,10 @@ Next version
   * Ensure implicit complement handle is placed at the back of DAGMC volume indices (#935)
   * Update MOAB to 5.5.1 from 5.3.0 (#939 #940)
 
+**Removed:**
+
+  * Remove Eigen3 dependency from DAGMC (#941)
+
 v3.2.3
 ====================
 
