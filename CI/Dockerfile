@@ -168,7 +168,7 @@ ENV moab_install_dir=${install_dir}/moab
 
 RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
-    git clone -b ${MOAB_BRANCH} --depth 1 https://bitbucket.org/fathomteam/moab && \
+    git clone -b disable-blaslapack https://ahnaf-tahmid@bitbucket.org/ahnaf-tahmid-chowdhury/moab.git && \
     cd build && \
     cmake ../moab -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib \
                   -DCMAKE_BUILD_TYPE=Release \
