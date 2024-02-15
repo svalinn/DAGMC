@@ -36,7 +36,6 @@ RUN apt-get -y update; \
                        gfortran \
                        libhdf5-dev \
                        libtool \
-                       libeigen3-dev\
                        python3-numpy \
                        python3 \
                        python3-pip \
