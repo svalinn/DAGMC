@@ -73,13 +73,36 @@ ENV CXX=clang++
 FROM compiler-${COMPILER} as external_deps
 
 # accessing gloabl ARGs in build stage
-ARG GEANT4_VERSION
-ARG EMBREE_VERSION
 ARG install_dir 
 ARG build_dir
 ARG CI_JOBS
 ARG CXX
 ARG CC
+ARG DOUBLE_DOWN_VERSION
+ARG EMBREE_VERSION
+ARG GEANT4_VERSION
+
+ENV embree_install_dir=${install_dir}/embree
+ENV embree_build_dir=${build_dir}/embree
+
+# Clone and install Embree
+RUN if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then \
+        mkdir -p ${embree_build_dir}/build && \
+        cd ${embree_build_dir} && \
+        git clone -b ${EMBREE_VERSION} https://github.com/embree/embree && \
+        cd build && \
+        cmake ../embree \
+            -DCMAKE_INSTALL_PREFIX=${embree_install_dir} \
+            -DEMBREE_TASKING_SYSTEM=INTERNAL \
+            -DEMBREE_ISPC_SUPPORT=OFF \
+            -DEMBREE_TUTORIALS=OFF \
+            -DEMBREE_TBB_ROOT=/usr && \
+        make -j${CI_JOBS} && \
+        make -j${CI_JOBS} install && \
+        cd && \
+        rm -rf ${embree_build_dir}; \
+    fi
+
 
 ENV geant4_basename=geant4-v${GEANT4_VERSION}
 ENV geant4_tarball=${geant4_basename}.tar.gz
@@ -110,12 +133,12 @@ RUN if [ "${GEANT4_VERSION}" != "off" ]; then \
 FROM external_deps AS hdf5
 
 # accessing gloabl ARGs in build stage
-ARG HDF5_VERSION
 ARG install_dir
 ARG build_dir
 ARG CI_JOBS
 ARG CXX
 ARG CC
+ARG HDF5_VERSION
 
 ENV hdf5_build_dir=${build_dir}/hdf5
 ENV hdf5_install_dir=${install_dir}/hdf5
@@ -140,12 +163,12 @@ FROM hdf5 AS moab
 
 # accessing gloabl ARGs in build stage
 ARG install_dir
-ARG MOAB_VERSION
-ARG DOUBLE_DOWN_VERSION
 ARG build_dir
 ARG CI_JOBS
 ARG CXX
 ARG CC
+ARG MOAB_VERSION
+ARG DOUBLE_DOWN_VERSION
 
 
 # Set MOAB env variable
@@ -173,26 +196,6 @@ RUN mkdir -p ${moab_build_dir}/build && \
     cd && \
     rm -rf ${moab_build_dir}
 
-ENV embree_install_dir=${install_dir}/embree
-ENV embree_build_dir=${build_dir}/embree
-
-# Clone and install Embree
-RUN if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then \
-        mkdir -p ${embree_build_dir}/build && \
-        cd ${embree_build_dir} && \
-        git clone -b ${EMBREE_VERSION} https://github.com/embree/embree && \
-        cd build && \
-        cmake ../embree \
-            -DCMAKE_INSTALL_PREFIX=${embree_install_dir} \
-            -DEMBREE_TASKING_SYSTEM=INTERNAL \
-            -DEMBREE_ISPC_SUPPORT=OFF \
-            -DEMBREE_TUTORIALS=OFF \
-            -DEMBREE_TBB_ROOT=/usr && \
-        make -j${CI_JOBS} && \
-        make -j${CI_JOBS} install && \
-        cd && \
-        rm -rf ${embree_build_dir}; \
-    fi
 
 ENV double_down_build_dir=${build_dir}/double-down
 ENV double_down_install_dir=${install_dir}/double-down
