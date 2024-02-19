@@ -12,6 +12,7 @@ dagmc_install_test(dagmc_pointinvol_test cpp)
 dagmc_install_test(dagmc_rayfire_test    cpp)
 dagmc_install_test(dagmc_simple_test     cpp)
 dagmc_install_test(dagmc_graveyard_test  cpp)
+dagmc_install_test(dagmc_ipc_index_test cpp)
 
 dagmc_install_test_file(test_dagmc.h5m)
 dagmc_install_test_file(test_dagmc_impl.h5m)

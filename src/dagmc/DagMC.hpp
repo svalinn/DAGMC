@@ -8,6 +8,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "DagMCVersion.hpp"
@@ -499,10 +500,8 @@ class DagMC {
  private:
   /** store some lists indexed by handle */
   std::vector<EntityHandle> entHandles[5];
-  /** lowest-valued handle among entity sets representing surfs and vols */
-  EntityHandle setOffset;
-  /** entity index (contiguous 1-N indices); indexed like rootSets */
-  std::vector<int> entIndices;
+  /** surface and volume mapping from EntitiyHandle to DAGMC index */
+  std::unordered_map<EntityHandle, int> entIndices;
   /** corresponding geometric entities; also indexed like rootSets */
   std::vector<RefEntity*> geomEntities;
 
@@ -571,8 +570,8 @@ inline EntityHandle DagMC::entity_by_index(int dimension, int index) const {
 }
 
 inline int DagMC::index_by_handle(EntityHandle handle) const {
-  assert(handle - setOffset < entIndices.size());
-  return entIndices[handle - setOffset];
+  assert(entIndices.count(handle) > 0);
+  return entIndices.at(handle);
 }
 
 inline unsigned int DagMC::num_entities(int dimension) const {
