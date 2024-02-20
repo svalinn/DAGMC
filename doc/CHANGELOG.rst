@@ -12,6 +12,7 @@ Next version
   * Update hdf5 to v1.14.3 from v1.10.4 (#931 #933)
   * Ensure implicit complement handle is placed at the back of DAGMC volume indices (#935)
   * Update MOAB to 5.5.1 from 5.3.0 (#939 #940)
+  * Simplify Housekeeping Process for DAGMC (#943)
 
 v3.2.3
 ====================
