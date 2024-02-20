@@ -76,13 +76,14 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_basurl = 'localhost:8888'
 html_theme = 'sphinx_rtd_theme'
+html_logo = 'assets/logo_small.png'
+html_favicon = 'assets/favicon.png'
 html_theme_options = {
     'canonical_url': '',
     'analytics_id': '',
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': False,
-
     'logo_only': False,
 
     # Toc options

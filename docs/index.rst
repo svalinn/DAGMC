@@ -11,6 +11,10 @@ CAD-based geometry models. It is built on top of the MOAB mesh database. DAGMC
 is developed and maintained by the Computationan Nuclear Engineering Research
 Group (CNERG) at the University of Wisconsin -- Madison.
 
+.. image:: assets/hab1.png
+   :height: 400
+   :alt: "NASA Mars habitat module represented in MCNP using DAGMC"
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -29,4 +33,5 @@ Table of Contents
     :maxdepth: 2
 
     self
+    usersguide/index
     api/index
