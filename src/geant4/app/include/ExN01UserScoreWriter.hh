@@ -1,7 +1,7 @@
 #ifndef ExN01UserScoreWriter_h
 #define ExN01UserScoreWriter_h 1
 
-//#include "MBCore.hpp"
+// #include "MBCore.hpp"
 #include <vector>
 
 #include "G4VScoreWriter.hh"

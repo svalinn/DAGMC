@@ -52,9 +52,9 @@ void CellTally::write_data(double num_histories) {
 
   std::cout << "cell id = " << cell_id << std::endl;
   std::cout << "type = "
-            << (expected_type == TallyEvent::COLLISION
-                    ? "collision "
-                    : expected_type == TallyEvent::TRACK ? "track " : "none");
+            << (expected_type == TallyEvent::COLLISION ? "collision "
+                : expected_type == TallyEvent::TRACK   ? "track "
+                                                       : "none");
   std::cout << std::endl;
 
   std::cout << "volume = " << cell_volume << std::endl << std::endl;
