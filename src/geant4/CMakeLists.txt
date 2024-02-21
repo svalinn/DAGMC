@@ -1,6 +1,10 @@
 message("")
 
-find_package(Geant4 10.4.2 REQUIRED)
+find_package(Geant4 REQUIRED)
+if (${Geant4_VERSION} VERSION_LESS 10.4.2)
+  message(FATAL_ERROR "Discovered Geant4 Version: ${Geant4_VERSION}. \
+  Please update Geant4 version to 10.4.2 or greater.")
+endif()
 
 if ( Geant4_VERSION GREATER_EQUAL 11.0 )
   message(STATUS "Configuring DAGMC for Geant4 version >= 11.0")

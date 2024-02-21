@@ -34,7 +34,7 @@ jobs:
           11.1.2
         ]
         double_down_version : [
-          v1.0.0,
+          off,
           v1.1.0,
         ]
 
@@ -115,7 +115,8 @@ jobs:
           11.1.2
         ]
         double_down_version : [
-          off
+          off,
+          v1.1.0,
         ]
 
     name: Pushing final images
