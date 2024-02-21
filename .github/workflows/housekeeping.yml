@@ -48,7 +48,7 @@ jobs:
             echo
             echo -e "\033[1;31mPlease fix the style guide and commit the result.\033[0m"
             echo
-            echo "You can use the following command to format your code at once."
+            echo "You can use the following command to format all files at once."
             echo
             echo "find src/ \\( -name \"*.hpp\" -o -name \"*.cpp\" -o -name \"*.hh\" -o -name \"*.cc\" -o -name \"*.h\" \\) \\"
             echo "              \\( -not -path \"src/gtest*\" -not -path \"src/mcnp/mcnp?/Source/*\" -not -path \"src/pyne*\" \\) \\"
