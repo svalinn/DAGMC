@@ -8,6 +8,7 @@ on:
       - develop
     paths:
       - 'src/**'
+      - '.github/workflows/housekeeping.yml'
 
 jobs:
   main:
