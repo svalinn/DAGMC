@@ -50,7 +50,7 @@ jobs:
             echo "You can use the following command to format your code at once."
             echo
             echo "find src/ \\( -name \"*.hpp\" -o -name \"*.cpp\" -o -name \"*.hh\" -o -name \"*.cc\" -o -name \"*.h\" \\) \\"
-            echo "              \\( -not -path \"src/gtest*\" -not -path \"src/mcnp/mcnp?/Source/*\" -not -path \"src/pyne*\" \\)  \\"
+            echo "              \\( -not -path \"src/gtest*\" -not -path \"src/mcnp/mcnp?/Source/*\" -not -path \"src/pyne*\" \\) \\"
             echo "              -exec clang-format -style=file -i {} \\;"
             echo 
             echo "This command will automatically format your code according to the project's style guide."
