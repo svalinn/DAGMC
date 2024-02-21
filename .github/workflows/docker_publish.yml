@@ -34,7 +34,8 @@ jobs:
           11.1.2
         ]
         double_down_version : [
-          off
+          v1.0.0,
+          v1.1.0,
         ]
 
     name: Installing Dependencies, Building DAGMC and running tests
