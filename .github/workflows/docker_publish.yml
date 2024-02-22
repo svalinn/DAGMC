@@ -30,10 +30,12 @@ jobs:
           5.5.1,
         ]
         geant4_version : [
+          off,
           10.7.4,
           11.1.2
         ]
         double_down_version : [
+          off,
           v1.1.0,
         ]
 
@@ -110,10 +112,12 @@ jobs:
           5.5.1,
         ]
         geant4_version : [
+          off,
           10.7.4,
           11.1.2
         ]
         double_down_version : [
+          off,
           v1.1.0,
         ]
 
