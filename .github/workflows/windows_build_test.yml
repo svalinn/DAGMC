@@ -76,6 +76,7 @@ jobs:
                 -DBUILD_SHARED_LIBS=ON \
                 -G"Visual Studio 16 2019"  \
                 -DCMAKE_INSTALL_PREFIX=../install_dir/ \
+                -DEIGEN3_DIR="${CONDA_LOC}/include/eigen3" \
                 -DHDF5_ROOT="${CONDA_LOC}" \
                 -DHDF5_hdf5_LIBRARY_RELEASE="${CONDA_LOC}/lib/libhdf5_hl.lib;${CONDA_LOC}/lib/libhdf5.lib;${CONDA_LOC}/lib/zlib.lib;${CONDA_LOC}/lib/libhdf5_cpp.lib" \
                 -DCMAKE_EXE_LINKER_FLAGS="/std:c++latest -DH5_BUILT_AS_DYNAMIC_LIB" \
