@@ -69,7 +69,7 @@ using namespace moab;
 
 #define plot true
 
-//#define G4SPECSDEBUG 1
+// #define G4SPECSDEBUG 1
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Standard contructor has blank name and defines no facets.

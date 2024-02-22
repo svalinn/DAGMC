@@ -31,7 +31,7 @@ extern "C" int getrusage(int, struct rusage*);
 using namespace moab;
 
 // define following macro for verbose debugging of random ray generation
-//#define DEBUG
+// #define DEBUG
 #if !defined(_MSC_VER) && !defined(__MINGW32__)
 void get_time_mem(double& tot_time, double& user_time, double& sys_time,
                   double& tot_mem);
