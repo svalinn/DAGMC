@@ -24,7 +24,7 @@ inputs:
   moab_version:
     description: Version of MOAB
     required: false
-    default: 5.3.0
+    default: 5.5.1
   double_down_version:
     description: Version of Double Down
     required: false
