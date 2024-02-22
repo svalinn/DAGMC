@@ -28,4 +28,3 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           geant_version: 11.1.2
-            

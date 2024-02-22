@@ -5,10 +5,10 @@ inputs:
     description: token for logging in to the GHCR
     required: true
     default: ''
-  geant_version:
+  geant4_version:
     description: Version of Geant4
     required: false
-    default: 11.1.2
+    default: off
   ubuntu_version:
     description: Underlying OS version
     required: false
@@ -25,10 +25,10 @@ inputs:
     description: Version of MOAB
     required: false
     default: 5.3.0
-  double_down:
-    description: Whether or not to test Double Down
+  double_down_version:
+    description: Version of Double Down
     required: false
-    default: OFF
+    default: off
 
 runs:
   using: "composite"
@@ -43,11 +43,24 @@ runs:
       - name: Installing Dependencies in Docker image
         uses: firehed/multistage-docker-build-action@v1
         with:
-          repository: ghcr.io/${{ github.repository_owner }}/dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}-${{ inputs.compiler}}-geant4_${{ inputs.geant_version }}-hdf5_${{ inputs.hdf5_version }}-moab_${{ inputs.moab_version }}
+          repository: >
+            ghcr.io/${{ github.repository_owner }}/
+            dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}
+            -${{ inputs.compiler}}
+            -hdf5_${{ inputs.hdf5_version}}
+            -moab_${{ inputs.moab_version }}
+            -geant4_${{ inputs.geant4_version }}
+            -double_down_${{ inputs.double_down_version }}
           stages: base, external_deps, hdf5, moab, dagmc
           server-stage: dagmc_test
           quiet: false
           parallel: true
           tag-latest-on-default: false
           dockerfile: CI/Dockerfile
-          build-args: COMPILER=${{ inputs.compiler }}, geant4_version=${{ inputs.geant_version }}, UBUNTU_VERSION=${{ inputs.ubuntu_version }}, HDF5_VERSION=${{ inputs.hdf5_version }}, MOAB_BRANCH=${{ inputs.moab_version }}, double_down=${{ inputs.double_down }}
+          build-args: >
+            UBUNTU_VERSION=${{ inputs.ubuntu_version }}, 
+            COMPILER=${{ inputs.compiler }}, 
+            HDF5_VERSION=${{ inputs.hdf5_version }}, 
+            MOAB_VERSION=${{ inputs.moab_version }}, 
+            GEANT4_VERSION=${{ inputs.geant4_version }}, 
+            DOUBLE_DOWN_VERSION=${{ inputs.double_down_version }}

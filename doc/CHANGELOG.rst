@@ -14,6 +14,7 @@ Next version
   * Update MOAB to 5.5.1 from 5.3.0 (#939 #940)
   * Update README regarding OpenMC (#938)
   * Simplify Housekeeping Process for DAGMC (#943)
+  * Allow Double Down v1.1.0 Installation in Dockerfile (#929)
 
 v3.2.3
 ====================

@@ -1,4 +1,4 @@
-name: Test against MOAB master on PR merge
+name: Test against MOAB development branch (master) on PR merge
 
 on:
   # allows us to run workflows manually
