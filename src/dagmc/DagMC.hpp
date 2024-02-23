@@ -218,20 +218,24 @@ class DagMC {
   *
   * @param volume The volume within which the ray is fired.
   * @param ray_start A 3-element array representing the starting point of the ray.
-  * @param ray_dir A 3-element array representing the direction of the ray.
+  * @param ray_dir A 3-element array representing the unit direction of the ray.
   * @param[out] next_surf The handle of the next surface hit by the ray.
   * @param[out] next_surf_dist The distance from the ray start to the next surface.
   * @param history Optional. A pointer to a RayHistory object for storing the ray's path.
   * @param dist_limit Optional. The maximum distance the ray should travel. Default is 0, which means no limit.
-  * @param ray_orientation Optional. The orientation of the ray. Default is 1.
-  * @param stats Optional. A pointer to a TrvStats object for storing traversal statistics.
+  * @param ray_orientation Optional. The orientation triangle normals considered valid for a hit.Default is 1 (forward).
+  * @param stats Optional. A pointer to a TrvStats object for storing traversal statistics of the ray. Default is NULL.
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
-                     const double ray_dir[3], EntityHandle& next_surf,
-                     double& next_surf_dist, RayHistory* history = NULL,
-                     double dist_limit = 0, int ray_orientation = 1,
+  ErrorCode ray_fire(const EntityHandle volume,
+                     const double ray_start[3],
+                     const double ray_dir[3],
+                     EntityHandle& next_surf,
+                     double& next_surf_dist,
+                     RayHistory* history = NULL,
+                     double dist_limit = 0,
+                     int ray_orientation = 1,
                      OrientedBoxTreeTool::TrvStats* stats = NULL);
 
 
@@ -240,25 +244,32 @@ class DagMC {
   *
   * @param volume The volume within which the point is being tested.
   * @param xyz A 3-element array representing the coordinates of the point.
-  * @param[out] result The result of the operation. It will be set to 1 if the point is inside the volume, 0 if it is outside, and -1 if the point is on the boundary.
-  * @param uvw Optional. A 3-element array representing the direction from the point to the volume. Default is NULL.
-  * @param history Optional. A pointer to a RayHistory object for storing the ray's path. Default is NULL.
+  * @param[out] result The result of the operation. It will be set to 1 if the
+  * point is inside the volume and 0 if it is outside.
+  * @param uvw Optional. A 3-element array representing the unit direction from the
+  * point to the volume. Default is NULL. A randomly generated direction will be
+  * used if not provided.
+  * @param history Optional. A pointer to a RayHistory object for masking out previously hit triangles. Default is NULL.
   *
-  * @return Returns an ErrorCode indicating the success or failure of the operation.
+  * @return Returns an ErrorCode indicating the success or failure of the
+  * operation.
   */
-  ErrorCode point_in_volume(const EntityHandle volume, const double xyz[3],
-                            int& result, const double* uvw = NULL,
+  ErrorCode point_in_volume(const EntityHandle volume,
+                            const double xyz[3],
+                            int& result,
+                            const double* uvw = NULL,
                             const RayHistory* history = NULL);
   /**
   * @brief Determines whether a given point is inside a specified volume. This function is slower than point_in_volume.
   *
   * @param volume The volume within which the point is being tested.
   * @param xyz A 3-element array representing the coordinates of the point.
-  * @param[out] result The result of the operation. It will be set to 1 if the point is inside the volume, 0 if it is outside, and -1 if the point is on the boundary.
+  * @param[out] result The result of the operation. It will be set to 1 if the point is inside the volume and 0 if it is outside.
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode point_in_volume_slow(const EntityHandle volume, const double xyz[3],
+  ErrorCode point_in_volume_slow(const EntityHandle volume,
+                                 const double xyz[3],
                                  int& result);
 
 #if MOAB_VERSION_MAJOR == 5 && MOAB_VERSION_MINOR > 2
@@ -267,30 +278,40 @@ class DagMC {
   *
   * @param xyz A 3-element array representing the coordinates of the point.
   * @param[out] volume The volume containing the point.
-  * @param uvw Optional. A 3-element array representing the direction from the point to the volume. Default is NULL.
+  * @param uvw Optional. A 3-element array representing the unit direction to be used when firing a test ray. Default is NULL.
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode find_volume(const double xyz[3], EntityHandle& volume,
+  ErrorCode find_volume(const double xyz[3],
+                        EntityHandle& volume,
                         const double* uvw = NULL);
 #endif
 
   /**
-  * @brief Tests whether a given point is on the boundary of a specified volume and surface.
+  * @brief Given a ray starting at a surface of a volume, check whether the ray enters or exits
+  * the volume.
+  *
+  * This function is most useful for rays that change directions at a surface crossing.
+  * It can be used to check whether a direction change redirects the ray back into the
+  * originating volume.
   *
   * @param volume The volume to be tested.
   * @param surface The surface to be tested.
   * @param xyz A 3-element array representing the coordinates of the point.
-  * @param uvw A 3-element array representing the direction from the point to the volume.
-  * @param[out] result The result of the operation. It will be set to 1 if the point is on the boundary, 0 otherwise.
-  * @param history Optional. A pointer to a RayHistory object for storing the ray's path. Default is NULL.
+  * @param uvw A 3-element array representing the unit direction from the point to the volume.
+  * @param[out] result The result of the operation. If present and
+  * non-empty, the history is used to look up the surface facet at which the ray begins. Absent
+  * a history, the facet nearest to xyz will be looked up.  The history should always be provided
+  * if available, as it avoids the computational expense of a nearest-facet query. Default is NULL.
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
   ErrorCode test_volume_boundary(const EntityHandle volume,
                                  const EntityHandle surface,
-                                 const double xyz[3], const double uvw[3],
-                                 int& result, const RayHistory* history = NULL);
+                                 const double xyz[3],
+                                 const double uvw[3],
+                                 int& result,
+                                 const RayHistory* history = NULL);
 
   /**
   * @brief Finds the point in a specified volume that is closest to a given location.
@@ -302,8 +323,10 @@ class DagMC {
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode closest_to_location(EntityHandle volume, const double point[3],
-                                double& result, EntityHandle* surface = 0);
+  ErrorCode closest_to_location(EntityHandle volume,
+                                const double point[3],
+                                double& result,
+                                EntityHandle* surface = 0);
 
   /**
   * @brief Measures the volume of a specified volume.
@@ -328,6 +351,8 @@ class DagMC {
   /**
   * @brief Determines the sense of one or more surfaces with respect to a specified volume.
   *
+  * This method assumes that the surfaces passed in are part of the volume.
+  *
   * @param volume The volume with respect to which the sense is determined.
   * @param num_surfaces The number of surfaces for which to determine the sense.
   * @param surfaces An array of handles of the surfaces for which to determine the sense.
@@ -335,11 +360,15 @@ class DagMC {
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode surface_sense(EntityHandle volume, int num_surfaces,
-                          const EntityHandle* surfaces, int* senses_out);
+  ErrorCode surface_sense(EntityHandle volume,
+                          int num_surfaces,
+                          const EntityHandle* surfaces,
+                          int* senses_out);
 
   /**
   * @brief Determines the sense of a surface with respect to a specified volume.
+  *
+  * This method assumes that the surface passed in is part of the volume.
   *
   * @param volume The volume with respect to which the sense is determined.
   * @param surface The handle of the surface for which to determine the sense.
@@ -347,7 +376,8 @@ class DagMC {
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode surface_sense(EntityHandle volume, EntityHandle surface,
+  ErrorCode surface_sense(EntityHandle volume,
+                          EntityHandle surface,
                           int& sense_out);
 
   /**
@@ -355,12 +385,14 @@ class DagMC {
   *
   * @param surf The surface with respect to which the angle is determined.
   * @param xyz A 3-element array representing the coordinates of the point.
-  * @param angle A 3-element array in which to store the determined angle.
+  * @param angle[out] A 3-element array in which to store the determined angle.
   * @param history Optional. A pointer to a RayHistory object for storing the ray's path. Default is NULL.
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode get_angle(EntityHandle surf, const double xyz[3], double angle[3],
+  ErrorCode get_angle(EntityHandle surf,
+                      const double xyz[3],
+                      double angle[3],
                       const RayHistory* history = NULL);
 
   /**
@@ -372,8 +404,11 @@ class DagMC {
   *
   * @return Returns an ErrorCode indicating the success or failure of the operation.
   */
-  ErrorCode next_vol(EntityHandle surface, EntityHandle old_volume,
-                     EntityHandle& new_volume);  /* SECTION III: Indexing & Cross-referencing */
+  ErrorCode next_vol(EntityHandle surface,
+                     EntityHandle old_volume,
+                     EntityHandle& new_volume);
+
+  /* SECTION III: Indexing & Cross-referencing */
  public:
   /** Most calling apps refer to geometric entities with a combination of
    *  base-1/0 ordinal index (or rank) and global ID (or name).
