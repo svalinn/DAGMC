@@ -1,5 +1,5 @@
-Cubit basics
-===================
+Metadata Assignment in Cubit
+============================
 
 Pre-processing solid models using Cubit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

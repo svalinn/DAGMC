@@ -1,7 +1,7 @@
 .. _api:
 
-API
-===
+C++ API
+=======
 
 .. toctree::
     :maxdepth: 2

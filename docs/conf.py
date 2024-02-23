@@ -24,7 +24,7 @@ subprocess.call("doxygen Doxyfile", shell=True)
 # -- Project information -----------------------------------------------------
 
 project = 'DAGMC'
-copyright = '2024'
+copyright = '2024, University of Wisconsin -- Madison and DAGMC contributors.'
 author = 'DAGMC Development Community'
 
 version = '3.2.3'
@@ -66,6 +66,9 @@ highlight_language = 'C++'
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+# respect TOC ordering in rst files
+autodoc_member_order = 'bysource'
 
 
 # -- Options for HTML output -------------------------------------------------

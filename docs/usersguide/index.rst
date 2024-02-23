@@ -33,8 +33,9 @@ much manual data transfer you wish to do.
 |  OpenMC Materials       | A              |  M             |
 +-------------------------+----------------+----------------+
 
-**N** not supported, **A** automatic production at run time, **M** manually
-performed
+* **N** not supported
+* **A** automatic production at run time
+* **M** manually performed
 
 If you are interested in running your geometry in multiple physics packages with
 minimal effort, the |UW2| workflow will be the best option as it will automate
@@ -46,16 +47,16 @@ creation.
 ..  toctree::
     :maxdepth: 1
 
+    cubit_workflow
     cubit_basics
     uw2
-    codes/index
-    cubit_workflow
     tally
-    tools
-    postprocessing
+    codes/index
+
 
 ..  toctree::
     :hidden:
 
+    tools
     mcnp2cad
-    UnderstandingRayHistoryState
+    postprocessing
