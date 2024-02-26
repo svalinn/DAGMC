@@ -8,11 +8,11 @@
 
 class dagmcMetaData {
  public:
- /**
-  * @brief Constructs a new DagmcMetadata object.
-  *
-  * @param dagmc A pointer to the DagMC instance associated with this metadata.
-  */  // Constructor
+  /**
+   * @brief Constructs a new DagmcMetadata object.
+   *
+   * @param dagmc A pointer to the DagMC instance associated with this metadata.
+   */  // Constructor
   dagmcMetaData(moab::DagMC* DAGptr, bool verbosity = false,
                 bool require_density_present = true);
 
@@ -27,7 +27,8 @@ class dagmcMetaData {
    * This function reads the properties from the associated DagMC instance and
    * stores them in internal data structures for efficient access.
    */
-  void load_property_data();  void load_property_data();
+  void load_property_data();
+  void load_property_data();
 
   /**
    * @brief Retrieves a specified property for a given volume.
@@ -37,8 +38,7 @@ class dagmcMetaData {
    *
    * @return Returns the value of the specified property for the given volume.
    */
-  std::string get_volume_property(std::string property,
-                                  moab::EntityHandle vol);
+  std::string get_volume_property(std::string property, moab::EntityHandle vol);
 
   // get a property for the specified volume, treats the vol parameter as
   // an index by default and as an ID if idx is false.
@@ -54,15 +54,15 @@ class dagmcMetaData {
    *
    * @return Returns the value of the specified property for the given volume.
    */
-  std::string get_volume_property(std::string property,
-                                  int vol,
+  std::string get_volume_property(std::string property, int vol,
                                   bool idx = true);
 
   /**
    * @brief Retrieves a specified property for a given surface.
    *
    * @param property The name of the property to retrieve.
-   * @param surface The handle of the surface for which to retrieve the property.
+   * @param surface The handle of the surface for which to retrieve the
+   * property.
    *
    * @return Returns the value of the specified property for the given surface.
    */
@@ -80,15 +80,15 @@ class dagmcMetaData {
    *
    * @return Returns the value of the specified property for the given surface.
    */
-  std::string get_surface_property(std::string property,
-                                   int surface,
+  std::string get_surface_property(std::string property, int surface,
                                    bool idx = true);
 
-   /**
+  /**
    * @brief Unpacks a string into a vector of substrings.
    *
-   * The input string is expected to be of the form "delimiter<data>delimiter<data>delimiter".
-   * The function will unpack this into a vector of the form "data[0],data[1],...".
+   * The input string is expected to be of the form
+   * "delimiter<data>delimiter<data>delimiter". The function will unpack this
+   * into a vector of the form "data[0],data[1],...".
    *
    * @param to_unpack The string to unpack.
    * @param delimiters The delimiters used to separate the data in the string.
@@ -107,15 +107,17 @@ class dagmcMetaData {
    *
    * @return Returns a pair of strings. The first element of the pair is the
    *         substring before the first occurrence of the delimiter. The second
-   *         element is the substring after the first occurrence of the delimiter.
+   *         element is the substring after the first occurrence of the
+   * delimiter.
    */
   std::pair<std::string, std::string> split_string(std::string property_string,
                                                    std::string delimiter);
 
-   /**
+  /**
    * @brief Extracts the value of a desired key from a property string.
    *
-   * The property string is expected to be of the form "key:property/key:property".
+   * The property string is expected to be of the form
+   * "key:property/key:property".
    *
    * @param property_string The string containing the properties.
    * @param property The key for which to return the value.
@@ -127,10 +129,8 @@ class dagmcMetaData {
    *
    * @return Returns the value of the specified key from the property string.
    */
-  std::string return_property(std::string property_string,
-                              std::string property,
-                              std::string delimiter = ":",
-                              bool chopped = true);
+  std::string return_property(std::string property_string, std::string property,
+                              std::string delimiter = ":", bool chopped = true);
 
   /**
    * @brief Tests if a string can be converted to an integer.
@@ -144,7 +144,7 @@ class dagmcMetaData {
 
   // private member functions
  private:
-   /**
+  /**
    * @brief Parses the material data from the associated DagMC instance.
    */
   void parse_material_data();
@@ -176,7 +176,8 @@ class dagmcMetaData {
 
   /**
    * @brief Parses property for entities with the specified dimension and
-   *        delimiters. Optionally removes duplicate property values if necessary.
+   *        delimiters. Optionally removes duplicate property values if
+   * necessary.
    *
    * @param property The name of the property to retrieve.
    * @param dimension The dimension of the entities for which to retrieve the
@@ -189,8 +190,7 @@ class dagmcMetaData {
    *         are vectors of property values.
    */
   std::map<moab::EntityHandle, std::vector<std::string>>
-  get_property_assignments(std::string property,
-                           int dimension,
+  get_property_assignments(std::string property, int dimension,
                            std::string delimiters,
                            bool remove_duplicates = true);
 
@@ -201,7 +201,8 @@ class dagmcMetaData {
    *
    * @return Returns a vector of properties with all duplicates removed.
    */
-  std::vector<std::string> remove_duplicate_properties(std::vector<std::string> properties);
+  std::vector<std::string> remove_duplicate_properties(
+      std::vector<std::string> properties);
 
   /**
    * @brief Removes less informative properties from a set of properties.
@@ -279,7 +280,8 @@ class dagmcMetaData {
    * @brief Map storing the importance data for each entity.
    *
    * The keys are the entity handles. The values are maps where the keys are
-   * particle types and the values are the importance values for those particles.
+   * particle types and the values are the importance values for those
+   * particles.
    */
   std::map<moab::EntityHandle, std::map<std::string, double>> importance_map;
 
