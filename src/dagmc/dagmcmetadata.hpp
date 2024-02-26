@@ -28,7 +28,6 @@ class dagmcMetaData {
    * stores them in internal data structures for efficient access.
    */
   void load_property_data();
-  void load_property_data();
 
   /**
    * @brief Retrieves a specified property for a given volume.
