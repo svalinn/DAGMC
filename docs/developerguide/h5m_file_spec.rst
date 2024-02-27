@@ -73,7 +73,10 @@ The curve entity sets contain edges and their vertices. The volume entity sets,
 however, are empty. While a volume is parent to surfaces (the parent-child
 relationship), the volume does not contain any mesh entities.
 
-Sense tags¶ Each surface is tagged with the two volume handles of the adjacent
+Sense tags¶
+~~~~~~~~~~
+
+Each surface is tagged with the two volume handles of the adjacent
 volumes. The first of the two surfaces is designated as the forward direction
 and the second is designated with the reverse direction. It is important to note
 that these surfaces senses may not be consistent with how an MC code determines
