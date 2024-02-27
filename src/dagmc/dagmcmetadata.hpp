@@ -161,34 +161,38 @@ class dagmcMetaData {
   // private member functions
  private:
   /**
-   * @brief Parses the material data from the associated DagMC instance.
+   * @brief Parses the material and density assignmens from group meshsets in
+   * the associated DagMC instance using the "mat" and "rho" keywords,
+   * respectively. Populates the volume_material_property_data_eh,
+   * volume_material_data_eh, and volume_density_data_eh maps.
    */
   void parse_material_data();
 
   /**
-   * @brief Parses the importance data from the associated DagMC instance.
+   * @brief Parses the volume importance data from group meshsets in the
+   * associated DagMC instance using the "importance" keyword. Populates the
+   * volume_importance_data_eh map.
    */
   void parse_importance_data();
 
   /**
-   * @brief Parses the boundary data from the associated DagMC instance.
+   * @brief Parses the boundary data from group meshsets in the the associated
+   * DagMC instance using the "boundary" keyword. Populates the
+   * surface_boundary_data_eh map.
    */
   void parse_boundary_data();
 
   /**
-   * @brief Parses the tally surface data from the associated DagMC instance.
+   * @brief Parses the tally surface data from group meshsets in the associated
+   * DagMC instance using the "tally" keyword. Populates the tally_data_eh map.
    */
   void parse_tally_surface_data();
 
   /**
-   * @brief Parses the tally volume data from the associated DagMC instance.
+   * @brief Parses the tally volume data from group meshsets in the associated
+   * DagMC instance using the "tally" keyword. Populates the tally_data_eh map.
    */
   void parse_tally_volume_data();
-
-  /**
-   * @brief Finalizes the counters after all data has been parsed.
-   */
-  void finalise_counters();
 
   /**
    * @brief Parses property for entities with the specified dimension and
