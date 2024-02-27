@@ -28,4 +28,6 @@ Table of Contents
     self
     usersguide/index
     developerguide/index
+    theoryguide/index
+    filespec/index
     api/index
