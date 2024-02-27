@@ -24,9 +24,13 @@ class dagmcMetaData {
   /**
    * @brief Constructs a new DagmcMetadata object.
    *
-   * @param dagmc A pointer to the DagMC instance associated with this metadata.
-   */  // Constructor
-  dagmcMetaData(moab::DagMC* DAGptr, bool verbosity = false,
+   * @param DAGptr A pointer to the DagMC instance associated with this metadata.
+   * @param verbosity A boolean flag to control verbosity. If true, the metadata manager
+   *                  will provide additional output while setting up and parsing properties.
+   * @param density A boolean flag to control density requirement. If true, the metadata
+   *                manager will require that all volumes have a specified density value.
+   */
+    dagmcMetaData(moab::DagMC* DAGptr, bool verbosity = false,
                 bool require_density_present = true);
 
   /**
@@ -208,6 +212,11 @@ class dagmcMetaData {
 
   /**
    * @brief Removes duplicate properties from a vector of properties.
+   *
+   * Group names are parsed in such a way that the property and value are two separate
+   * entries in the array. For example, a tag like "particle:neutron/1.0" will return as
+   * "neutron" and "neutron/1.0". This function searches each item for its more
+   * information-rich partner and removes the degenerate item(s).
    *
    * @param properties The vector of properties from which to remove duplicates.
    *
