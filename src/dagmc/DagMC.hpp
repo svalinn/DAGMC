@@ -404,14 +404,22 @@ class DagMC {
                           int& sense_out);
 
   /**
-   * @brief Gets the angle between the normal of a specified surface and a ray
-   * from the ray origin in a specified direction.
+   * @brief Returns the normal vector of a surface at the specified point. from
+   * the ray origin in a specified direction. It is assumed that the specified
+   * point is on the surface.
    *
-   * @param surf The surface with respect to which the angle is determined.
+   * This method first identifies which triangle contains this point and then
+   * calculates the unit outward normal of that triangle.  The triangle of the
+   * provided volume that is nearest the provided point is used for this
+   * calculation. The search for that triangle can be circumvented by providing a
+   * RayHistory, in which case the last triangle of the history will be used.
+   *
+   * @param surf The surface for which a normal vector is determined.
    * @param xyz A 3-element array representing the coordinates of the point.
-   * @param angle[out] A 3-element array in which to store the determined angle.
-   * @param history Optional. A pointer to a RayHistory object for storing the
-   * ray's path. Default is NULL.
+   * @param angle[out] A 3-element array in which to store the determined
+   * surface normal.
+   * @param history Optional. A pointer to a RayHistory object storing
+   * previously hit triangles. Default is NULL.
    *
    * @return Returns an ErrorCode indicating the success or failure of the
    * operation.
@@ -600,8 +608,7 @@ class DagMC {
   Tag sense_tag() { return GTT->get_sense_tag(); }
 
  private:
-  /** tokenize the metadata stored in group names - basically borrowed from
-   * ReadCGM.cpp */
+  /** tokenize the metadata stored in group names */
   void tokenize(const std::string& str, std::vector<std::string>& tokens,
                 const char* delimiters = "_") const;
 
