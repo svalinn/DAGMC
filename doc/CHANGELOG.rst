@@ -15,6 +15,7 @@ Next version
   * Update README regarding OpenMC (#938)
   * Simplify Housekeeping Process for DAGMC (#943)
   * Allow Double Down v1.1.0 Installation in Dockerfile (#929)
+  * Inline documentation improvements (#945)
 
 v3.2.3
 ====================
