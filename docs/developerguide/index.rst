@@ -7,3 +7,4 @@ Developer's Guide
     :maxdepth: 1
 
     understanding_ray_history
+    h5m_file_spec

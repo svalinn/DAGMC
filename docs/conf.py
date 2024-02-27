@@ -97,7 +97,8 @@ html_theme_options = {
     'titles_only': False
 }
 
-html_css_files = [ 'css/custom.css' ]
+html_static_path = ['_static']
+html_css_files = [ '_static/theme_override.css' ]
 maximum_signature_line_length = 80
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -112,3 +113,6 @@ breathe_projects = {
 }
 breathe_default_project = "DAGMC"
 breathe_default_members = ('members', 'undoc-members')
+
+def setup(app):
+    app.add_css_file('theme_override.css')
