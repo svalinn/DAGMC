@@ -411,8 +411,8 @@ class DagMC {
    * This method first identifies which triangle contains this point and then
    * calculates the unit outward normal of that triangle.  The triangle of the
    * provided volume that is nearest the provided point is used for this
-   * calculation. The search for that triangle can be circumvented by providing a
-   * RayHistory, in which case the last triangle of the history will be used.
+   * calculation. The search for that triangle can be circumvented by providing
+   * a RayHistory, in which case the last triangle of the history will be used.
    *
    * @param surf The surface for which a normal vector is determined.
    * @param xyz A 3-element array representing the coordinates of the point.
