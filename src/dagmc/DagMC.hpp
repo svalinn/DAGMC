@@ -265,6 +265,12 @@ class DagMC {
    * @brief Determines whether a given point is inside a specified volume. This
    * function is slower than point_in_volume.
    *
+   * This method is adapted from "Point in Polyhedron Testing Using Spherical
+   * Polygons", Paulo Cezar Pinto Carvalho and Paulo Roma Cavalcanti, _Graphics
+   * Gems V_, pg. 42. The original algorithm was described in "An Efficient
+   * Point In Polyhedron Algorithm", Jeff Lane, Bob Magedson, and Mike Rarick,
+   * _Computer Vision, Graphics, and Image Processing 26_, pg. 118-225, 1984.
+   *
    * @param volume The volume within which the point is being tested.
    * @param xyz A 3-element array representing the coordinates of the point.
    * @param[out] result The result of the operation. It will be set to 1 if the
@@ -283,7 +289,8 @@ class DagMC {
    * @param xyz A 3-element array representing the coordinates of the point.
    * @param[out] volume The volume containing the point.
    * @param uvw Optional. A 3-element array representing the unit direction to
-   * be used when firing a test ray. Default is NULL.
+   * be used when firing a test ray. Default is NULL. If no value is provided
+   * a random direction for the ray will be generated.
    *
    * @return Returns an ErrorCode indicating the success or failure of the
    * operation.
@@ -305,11 +312,13 @@ class DagMC {
    * @param xyz A 3-element array representing the coordinates of the point.
    * @param uvw A 3-element array representing the unit direction from the point
    * to the volume.
-   * @param[out] result The result of the operation. If present and
-   * non-empty, the history is used to look up the surface facet at which the
-   * ray begins. Absent a history, the facet nearest to xyz will be looked up.
-   * The history should always be provided if available, as it avoids the
-   * computational expense of a nearest-facet query. Default is NULL.
+   * @param[out] result The result of the operation. Set to 1 if ray is entering
+   * volume, or 0 if it is leaving.
+   * @param history If present and non-empty, the history is used to look up the
+   * surface facet at which the ray begins. Absent a history, the facet nearest
+   * to xyz will be looked up. The history should always be provided if
+   * available, as it avoids the computational expense of a nearest-facet query.
+   * Default is NULL.
    *
    * @return Returns an ErrorCode indicating the success or failure of the
    * operation.
@@ -395,8 +404,8 @@ class DagMC {
                           int& sense_out);
 
   /**
-   * @brief Gets the angle between a specified surface and a ray from a given
-   * point in a specified direction.
+   * @brief Gets the angle between the normal of a specified surface and a ray
+   * from the ray origin in a specified direction.
    *
    * @param surf The surface with respect to which the angle is determined.
    * @param xyz A 3-element array representing the coordinates of the point.

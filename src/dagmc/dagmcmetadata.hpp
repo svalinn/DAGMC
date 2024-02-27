@@ -7,6 +7,19 @@
 #include "logger.hpp"
 
 class dagmcMetaData {
+/**
+ * @class dagmcMetaData
+ * @brief A class to manage metadata in DAGMC models.
+ *
+ * The dagmcMetaData class provides functionality to parse and manage metadata
+ * that defines properties associated with volumes and surfaces in a DAGMC model
+ * (a .h5m file). These properties can include material assignments, density
+ * values, importance values, boundary conditions, and tally assignments.
+ *
+ * The class provides functions to parse metadata from the model group meshsets
+ * based on a set of keywords (e.g. "mat" or "rho"), retrieve metadata for
+ * specific entities, and check the validity of the discovered metadata.
+ */
  public:
   /**
    * @brief Constructs a new DagmcMetadata object.
