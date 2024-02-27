@@ -124,7 +124,7 @@ class dagmcMetaData {
    * @return Returns a pair of strings. The first element of the pair is the
    *         substring before the first occurrence of the delimiter. The second
    *         element is the substring after the first occurrence of the
-   * delimiter.
+   *         delimiter.
    */
   std::pair<std::string, std::string> split_string(std::string property_string,
                                                    std::string delimiter);
@@ -193,7 +193,7 @@ class dagmcMetaData {
   /**
    * @brief Parses property for entities with the specified dimension and
    *        delimiters. Optionally removes duplicate property values if
-   * necessary.
+   *        necessary.
    *
    * @param property The name of the property to retrieve.
    * @param dimension The dimension of the entities for which to retrieve the
