@@ -31,3 +31,4 @@ Table of Contents
     theoryguide/index
     filespec/index
     api/index
+    glossary

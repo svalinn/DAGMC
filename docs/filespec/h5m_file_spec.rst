@@ -1,7 +1,43 @@
-DAGMC File Specification
-========================
+DAGMC .h5m File Specification
+=============================
 
-.. table:: Geometric EntitySet Tag Descriptions
+The `.h5m` file is a generic file format supported by :term:`MOAB`. These files
+may contain meshes intended for any number of purposes with various element
+types. Some basics regarding :term:`MOAB` constructs is required to navigate
+following specification, namely :term:`EntitySet`'s' and :term:`Tag`'s. See the
+:ref:`glossary` for more information on these items.
+
+Geometric EntitySets¶
+---------------------
+
+For an `.h5m` file to be used with :term:`DAGMC`, :term:`EntitySet`'s that are
+"tagged" specific information must be present. Only :term:`EntitySet`'s that are
+tagged with the required information will be "seen" by the :term:`DAGMC`
+interface. These tags are used to identify the geometric entities (volumes,
+surfaces, curves, and vertices) as well as their relationships to each other.
+Tags on geometric :term:`EntitySet`'s are also used to establish topological
+relationships. For example, the `GEOM_SENSE_2` tag (described in the
+`geom_tags`_ table) is used to relate surfaces to the volumes on either side
+of the surface.The `GEOM_DIM` tag is used to indicate the dimensionality of the
+geometric `EntitySet`. See the `geom_dim_table`_ for valid entries for this tag.
+
+Metdata EntitySets
+------------------
+
+To apply a :term:`DAGMC` geometry in transport, certain properties need to be
+associated with the geometry. Examples of these properties include:
+
+  - Material assignments
+  - Boundary conditions
+  - Temperatures
+  - Tallies
+
+Please refer to :ref:`code-specific-steps` for any properties that may be specific
+to the transport code you intened to use.
+
+.. _geom_tags:
+
+.. table:: **Geometric EntitySet Tag Descriptions**
 
 +-----------------------+------------------+------------+------+-------------+--------------------------------------------------------------------------------------------------------------+
 | Tag Name              | Type             | Real Type  | Size | Tagged On   | Purpose                                                                                                      |
@@ -28,21 +64,26 @@ DAGMC File Specification
 +-----------------------+------------------+------------+------+-------------+--------------------------------------------------------------------------------------------------------------+
 
 
+.. _geom_dim_table:
+
 .. table:: Dimensionality Values of the `GEOM_DIM` Tag
 
-+----------------+----------------------+
++-----------------+----------------------+
 | Geometry Object | Dimensionality [*]_ |
-+================+======================+
-| Vertex         | 0                    |
-+----------------+----------------------+
-| Curve          | 1                    |
-+----------------+----------------------+
-| Surface        | 2                    |
-+----------------+----------------------+
-| Volume         | 3                    |
-+----------------+----------------------+
++=================+======================+
+| Vertex          | 0                    |
++-----------------+----------------------+
+| Curve           | 1                    |
++-----------------+----------------------+
+| Surface         | 2                    |
++-----------------+----------------------+
+| Volume          | 3                    |
++-----------------+----------------------+
 
 .. [*] The value of the `GEOM_DIM` tag on the geometric `EntitySet`.
+
+
+
 
 .. table:: Oriented Bounding Box Tree Tag Descriptions
 
