@@ -6,8 +6,20 @@ Glossary
 
 .. glossary::
 
+    CAD
+        Computer-Aided Design
+
+    CAE
+        Computer-Aided Engineering
+
+    CSG
+        Constructive Solid Geometry
+
     DAGMC
         Direct Accelerated Geometry Monte Carlo toolkit
+
+    FEA
+        Finite Element Analysis
 
     MOAB
         Mesh-Oriented datABase
