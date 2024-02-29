@@ -70,6 +70,7 @@ jobs:
 
       - name: Building DAGMC
         run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
           mkdir -p build
           cd build
           cmake ../ \
