@@ -88,7 +88,7 @@ jobs:
           cd build
           cmake ../ \
               -DMOAB_DIR=${moab_install_dir} \
-              -DBUILD_GEANT4=$([ "${GEANT4_VERSION}" != "off" ] && echo "ON" || echo "OFF") \
+              -DBUILD_GEANT4=$([ "${{ matrix.geant4_version }}" != "off" ] && echo "ON" || echo "OFF") \
               -DGEANT4_DIR=${geant4_install_dir} \
               -DBUILD_CI_TESTS=ON \
               -DBUILD_MW_REG_TESTS=OFF \
@@ -98,7 +98,7 @@ jobs:
               -DCMAKE_CXX_COMPILER=${CXX} \
               -DCMAKE_Fortran_COMPILER=gfortran \
               -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
-              -DDOUBLE_DOWN=$([ "${DOUBLE_DOWN_VERSION}" != "off" ] && echo "ON" || echo "OFF") \
+              -DDOUBLE_DOWN=$([ "${{ matrix.double_down_version }}" != "off" ] && echo "ON" || echo "OFF") \
               -Ddd_ROOT=${double_down_install_dir}
           make -j${CI_JOBS}
           make install
