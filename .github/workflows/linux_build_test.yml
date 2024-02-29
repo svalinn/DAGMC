@@ -1,4 +1,4 @@
-name: Linux Build/Test for PR and collaborator push
+name: Linux Build/Test
 
 on:
   # allows us to run workflows manually
@@ -36,7 +36,7 @@ jobs:
 
     strategy:
       matrix:
-        ubuntu_versions : [
+        ubuntu_version : [
           20.04,
           22.04,
         ]
@@ -44,23 +44,36 @@ jobs:
           gcc,
           clang,
         ]
-        hdf5_versions : [
+        hdf5_version : [
           1.14.3,
         ]
-        moab_versions : [
+        moab_version : [
           5.4.1,
           5.5.1,
         ]
-        double_down : [
-          OFF,
-        ]
-        geant_version : [
+        geant4_version : [
           10.7.4,
           11.1.2
         ]
+        double_down_version : [
+          v1.1.0,
+        ]
 
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_versions }}-${{ matrix.compiler}}-geant4_${{ matrix.geant_version }}-hdf5_${{ matrix.hdf5_versions}}-moab_${{ matrix.moab_versions }}/moab:latest
+      image: >
+        ghcr.io/svalinn/dagmc-ci-ubuntu-${{ 
+          matrix.ubuntu_version
+        }}-${{ 
+          matrix.compiler
+        }}-hdf5_${{ 
+          matrix.hdf5_version
+        }}-moab_${{ 
+          matrix.moab_version 
+        }}-geant4_${{ 
+          matrix.geant4_version 
+        }}-double_down_${{ 
+          matrix.double_down_version 
+        }}:latest
 
     steps:
       - name: Checkout repository
@@ -70,12 +83,11 @@ jobs:
 
       - name: Building DAGMC
         run: |
-          ln -s $GITHUB_WORKSPACE /root/build_dir/DAGMC
-          mkdir -p ./build
-          cd ./build
-          git config --global --add safe.directory $GITHUB_WORKSPACE
-          cmake ../ -DMOAB_DIR=${moab_install_dir} \
-              -DBUILD_GEANT4=ON \
+          mkdir -p build
+          cd build
+          cmake ../ \
+              -DMOAB_DIR=${moab_install_dir} \
+              -DBUILD_GEANT4=$([ "${GEANT4_VERSION}" != "off" ] && echo "ON" || echo "OFF") \
               -DGEANT4_DIR=${geant4_install_dir} \
               -DBUILD_CI_TESTS=ON \
               -DBUILD_MW_REG_TESTS=OFF \
@@ -84,14 +96,12 @@ jobs:
               -DCMAKE_C_COMPILER=${CC} \
               -DCMAKE_CXX_COMPILER=${CXX} \
               -DCMAKE_Fortran_COMPILER=gfortran \
-              -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
-              -DDOUBLE_DOWN=${double_down} \
-              -DCMAKE_CXX_FLAGS="-Werror=reorder" \
-              -Ddd_ROOT=${double_down_install_dir} && \
-          make -j2 && \
+              -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
+              -DDOUBLE_DOWN=$([ "${DOUBLE_DOWN_VERSION}" != "off" ] && echo "ON" || echo "OFF") \
+              -Ddd_ROOT=${double_down_install_dir}
+          make -j${CI_JOBS}
           make install
 
       - name: Testing DAGMC
         run: |
-          cd $GITHUB_WORKSPACE/build
-          PATH=${install_dir}/dagmc/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
+          PATH=${dagmc_install_dir}/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
