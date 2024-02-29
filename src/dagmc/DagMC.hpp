@@ -212,44 +212,231 @@ class DagMC {
 
   typedef GeomQueryTool::RayHistory RayHistory;
 
+  /**
+   * @brief Fires a ray from a starting point in a given direction and returns
+   * the next surface hit.
+   *
+   * @param volume The volume within which the ray is fired.
+   * @param ray_start A 3-element array representing the starting point of the
+   * ray.
+   * @param ray_dir A 3-element array representing the unit direction of the
+   * ray.
+   * @param[out] next_surf The handle of the next surface hit by the ray.
+   * @param[out] next_surf_dist The distance from the ray start to the next
+   * surface.
+   * @param history Optional. A pointer to a RayHistory object for storing the
+   * ray's path.
+   * @param dist_limit Optional. The maximum distance the ray should travel.
+   * Default is 0, which means no limit.
+   * @param ray_orientation Optional. The orientation triangle normals
+   * considered valid for a hit.Default is 1 (forward).
+   * @param stats Optional. A pointer to a TrvStats object for storing traversal
+   * statistics of the ray. Default is NULL.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode ray_fire(const EntityHandle volume, const double ray_start[3],
                      const double ray_dir[3], EntityHandle& next_surf,
                      double& next_surf_dist, RayHistory* history = NULL,
                      double dist_limit = 0, int ray_orientation = 1,
                      OrientedBoxTreeTool::TrvStats* stats = NULL);
 
+  /**
+   * @brief Determines whether a given point is inside a specified volume.
+   *
+   * @param volume The volume within which the point is being tested.
+   * @param xyz A 3-element array representing the coordinates of the point.
+   * @param[out] result The result of the operation. It will be set to 1 if the
+   * point is inside the volume and 0 if it is outside.
+   * @param uvw Optional. A 3-element array representing the unit direction from
+   * the point to the volume. Default is NULL. A randomly generated direction
+   * will be used if not provided.
+   * @param history Optional. A pointer to a RayHistory object for masking out
+   * previously hit triangles. Default is NULL.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode point_in_volume(const EntityHandle volume, const double xyz[3],
                             int& result, const double* uvw = NULL,
                             const RayHistory* history = NULL);
-
+  /**
+   * @brief Determines whether a given point is inside a specified volume. This
+   * function is slower than point_in_volume.
+   *
+   * This method is adapted from "Point in Polyhedron Testing Using Spherical
+   * Polygons", Paulo Cezar Pinto Carvalho and Paulo Roma Cavalcanti, _Graphics
+   * Gems V_, pg. 42. The original algorithm was described in "An Efficient
+   * Point In Polyhedron Algorithm", Jeff Lane, Bob Magedson, and Mike Rarick,
+   * _Computer Vision, Graphics, and Image Processing 26_, pg. 118-225, 1984.
+   *
+   * @param volume The volume within which the point is being tested.
+   * @param xyz A 3-element array representing the coordinates of the point.
+   * @param[out] result The result of the operation. It will be set to 1 if the
+   * point is inside the volume and 0 if it is outside.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode point_in_volume_slow(const EntityHandle volume, const double xyz[3],
                                  int& result);
+
 #if MOAB_VERSION_MAJOR == 5 && MOAB_VERSION_MINOR > 2
+  /**
+   * @brief Finds the volume containing a given point.
+   *
+   * @param xyz A 3-element array representing the coordinates of the point.
+   * @param[out] volume The volume containing the point.
+   * @param uvw Optional. A 3-element array representing the unit direction to
+   * be used when firing a test ray. Default is NULL. If no value is provided
+   * a random direction for the ray will be generated.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode find_volume(const double xyz[3], EntityHandle& volume,
                         const double* uvw = NULL);
 #endif
 
+  /**
+   * @brief Given a ray starting at a surface of a volume, check whether the ray
+   * enters or exits the volume.
+   *
+   * This function is most useful for rays that change directions at a surface
+   * crossing. It can be used to check whether a direction change redirects the
+   * ray back into the originating volume.
+   *
+   * @param volume The volume to be tested.
+   * @param surface The surface to be tested.
+   * @param xyz A 3-element array representing the coordinates of the point.
+   * @param uvw A 3-element array representing the unit direction from the point
+   * to the volume.
+   * @param[out] result The result of the operation. Set to 1 if ray is entering
+   * volume, or 0 if it is leaving.
+   * @param history If present and non-empty, the history is used to look up the
+   * surface facet at which the ray begins. Absent a history, the facet nearest
+   * to xyz will be looked up. The history should always be provided if
+   * available, as it avoids the computational expense of a nearest-facet query.
+   * Default is NULL.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode test_volume_boundary(const EntityHandle volume,
                                  const EntityHandle surface,
                                  const double xyz[3], const double uvw[3],
                                  int& result, const RayHistory* history = NULL);
 
+  /**
+   * @brief Finds the point in a specified volume that is closest to a given
+   * location.
+   *
+   * @param volume The volume to be searched.
+   * @param point A 3-element array representing the coordinates of the
+   * location.
+   * @param[out] result The distance from the location to the closest point in
+   * the volume.
+   * @param[out] surface Optional. The handle of the surface on which the
+   * closest point lies. Default is 0.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode closest_to_location(EntityHandle volume, const double point[3],
                                 double& result, EntityHandle* surface = 0);
 
+  /**
+   * @brief Measures the volume of a specified volume.
+   *
+   * @param volume The volume to be measured.
+   * @param[out] result The measured volume.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode measure_volume(EntityHandle volume, double& result);
 
+  /**
+   * @brief Measures the area of a specified surface.
+   *
+   * @param surface The surface to be measured.
+   * @param[out] result The measured area.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode measure_area(EntityHandle surface, double& result);
 
+  /**
+   * @brief Determines the sense of one or more surfaces with respect to a
+   * specified volume.
+   *
+   * This method assumes that the surfaces passed in are part of the volume.
+   *
+   * @param volume The volume with respect to which the sense is determined.
+   * @param num_surfaces The number of surfaces for which to determine the
+   * sense.
+   * @param surfaces An array of handles of the surfaces for which to determine
+   * the sense.
+   * @param[out] senses_out An array in which to store the determined senses.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode surface_sense(EntityHandle volume, int num_surfaces,
                           const EntityHandle* surfaces, int* senses_out);
 
+  /**
+   * @brief Determines the sense of a surface with respect to a specified
+   * volume.
+   *
+   * This method assumes that the surface passed in is part of the volume.
+   *
+   * @param volume The volume with respect to which the sense is determined.
+   * @param surface The handle of the surface for which to determine the sense.
+   * @param[out] sense_out The determined sense.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode surface_sense(EntityHandle volume, EntityHandle surface,
                           int& sense_out);
 
+  /**
+   * @brief Returns the normal vector of a surface at the specified point. from
+   * the ray origin in a specified direction. It is assumed that the specified
+   * point is on the surface.
+   *
+   * This method first identifies which triangle contains this point and then
+   * calculates the unit outward normal of that triangle.  The triangle of the
+   * provided volume that is nearest the provided point is used for this
+   * calculation. The search for that triangle can be circumvented by providing
+   * a RayHistory, in which case the last triangle of the history will be used.
+   *
+   * @param surf The surface for which a normal vector is determined.
+   * @param xyz A 3-element array representing the coordinates of the point.
+   * @param angle[out] A 3-element array in which to store the determined
+   * surface normal.
+   * @param history Optional. A pointer to a RayHistory object storing
+   * previously hit triangles. Default is NULL.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode get_angle(EntityHandle surf, const double xyz[3], double angle[3],
                       const RayHistory* history = NULL);
 
+  /**
+   * @brief Finds the volume adjacent to a specified surface and volume.
+   *
+   * @param surface The surface across which to find the adjacent volume.
+   * @param old_volume The volume from which to find the adjacent volume.
+   * @param[out] new_volume The handle of the adjacent volume.
+   *
+   * @return Returns an ErrorCode indicating the success or failure of the
+   * operation.
+   */
   ErrorCode next_vol(EntityHandle surface, EntityHandle old_volume,
                      EntityHandle& new_volume);
 
@@ -397,7 +584,14 @@ class DagMC {
                                  std::vector<EntityHandle>& return_list,
                                  int dimension = 0,
                                  const std::string* value = NULL);
-
+  /**
+   * @brief Checks if a given volume is the implicit complement.
+   *
+   * @param volume The volume to be checked.
+   *
+   * @return Returns true if the volume is the implicit complement, false
+   * otherwise.
+   */
   bool is_implicit_complement(EntityHandle volume);
 
   /** get the tag for the "name" of a surface == global ID */
@@ -414,8 +608,7 @@ class DagMC {
   Tag sense_tag() { return GTT->get_sense_tag(); }
 
  private:
-  /** tokenize the metadata stored in group names - basically borrowed from
-   * ReadCGM.cpp */
+  /** tokenize the metadata stored in group names */
   void tokenize(const std::string& str, std::vector<std::string>& tokens,
                 const char* delimiters = "_") const;
 
