@@ -59,18 +59,8 @@ jobs:
           v1.1.0,
         ]
 
-    env:
-      container_image: |
-        ghcr.io/svalinn/dagmc-ci-ubuntu-
-        ${{ matrix.ubuntu_version }}-
-        ${{ matrix.compiler }}-
-        hdf5_${{ matrix.hdf5_version }}-
-        moab_${{ matrix.moab_version }}-
-        geant4_${{ matrix.geant4_version }}-
-        double_down_${{ matrix.double_down_version }}/moab:latest
-
     container:
-      image: ${{ env.container_image }}
+      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler }}-hdf5_${{ matrix.hdf5_version }}-moab_${{ matrix.moab_version }}-geant4_${{ matrix.geant4_version }}-double_down_${{ matrix.double_down_version }}/moab:latest
 
     steps:
       - name: Checkout repository
