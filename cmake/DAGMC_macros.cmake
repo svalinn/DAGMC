@@ -90,7 +90,7 @@ macro (dagmc_setup_options)
 
 if (DOUBLE_DOWN)
   find_package(DOUBLE_DOWN REQUIRED)
-  if (DOUBLE_DOWN_VERSION VERSION_LESS 1.1.0)
+  if (dd_VERSION VERSION_LESS 1.1.0)
     message(FATAL_ERROR "Discovered Double Down Version: ${DOUBLE_DOWN_VERSION}. \
     Please update Double Down to version 1.1.0 or greater.")
   endif()

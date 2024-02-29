@@ -39,7 +39,6 @@ RUN apt-get update --yes && \
         g++ \
         gcc \
         gfortran \
-        libhdf5-dev \
         libtool \
         libeigen3-dev\
         python3 \

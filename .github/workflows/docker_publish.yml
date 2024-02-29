@@ -30,6 +30,7 @@ jobs:
           5.5.1,
         ]
         geant4_version : [
+          off,
           10.7.4,
           11.1.2
         ]
@@ -111,6 +112,7 @@ jobs:
           5.5.1,
         ]
         geant4_version : [
+          off,
           10.7.4,
           11.1.2
         ]
