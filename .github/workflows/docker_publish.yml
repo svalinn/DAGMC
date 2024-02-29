@@ -1,4 +1,4 @@
-name: Build & Publish docker image for DAGMC-CI
+name: Build & Publish docker image
 
 on:
   # allows us to run workflows manually

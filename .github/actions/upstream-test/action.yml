@@ -44,13 +44,21 @@ runs:
         uses: firehed/multistage-docker-build-action@v1
         with:
           repository: >
-            ghcr.io/${{ github.repository_owner }}/
-            dagmc-ci-ubuntu-${{ inputs.ubuntu_version }}
-            -${{ inputs.compiler}}
-            -hdf5_${{ inputs.hdf5_version}}
-            -moab_${{ inputs.moab_version }}
-            -geant4_${{ inputs.geant4_version }}
-            -double_down_${{ inputs.double_down_version }}
+            ghcr.io/${{
+              github.repository_owner
+            }}/dagmc-ci-ubuntu-${{
+              inputs.ubuntu_version
+            }}-${{
+              inputs.compiler
+            }}-hdf5_${{
+              inputs.hdf5_version
+            }}-moab_${{
+              inputs.moab_version
+            }}-geant4_${{
+              inputs.geant4_version
+            }}-double_down_${{
+              inputs.double_down_version
+            }}
           stages: base, external_deps, hdf5, moab, dagmc
           server-stage: dagmc_test
           quiet: false
