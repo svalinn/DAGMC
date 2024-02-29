@@ -59,8 +59,18 @@ jobs:
           v1.1.0,
         ]
 
+    env:
+      container_image: |
+        ghcr.io/svalinn/dagmc-ci-ubuntu-
+        ${{ matrix.ubuntu_version }}-
+        ${{ matrix.compiler }}-
+        hdf5_${{ matrix.hdf5_version }}-
+        moab_${{ matrix.moab_version }}-
+        geant4_${{ matrix.geant4_version }}-
+        double_down_${{ matrix.double_down_version }}/moab:latest
+
     container:
-      image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{ matrix.ubuntu_version }}-${{ matrix.compiler }}-hdf5_${{ matrix.hdf5_version }}-moab_${{ matrix.moab_version }}-geant4_${{ matrix.geant4_version }}-double_down_${{ matrix.double_down_version }}/moab:latest
+      image: ${{ env.container_image }}
 
     steps:
       - name: Checkout repository
@@ -92,4 +102,5 @@ jobs:
 
       - name: Testing DAGMC
         run: |
+          cd ${GITHUB_WORKSPACE}/build
           PATH=${install_dir}/dagmc/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
