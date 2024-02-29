@@ -133,6 +133,24 @@ extern struct {
 } mulbou_;
 }
 
+// the CHCMPT struct for
+// setting the input name
+extern "C" {
+  extern struct {
+    char comptr[50];
+    char inpfil[200];
+    char pwddir[200];
+    char hlfdir[200];
+    char homdir[200];
+    char hostnm[200];
+    char usrflk[200];
+    char grpflk[200];
+    char inpnam[200];
+    char chinpf[256];
+    char hfpath[200];
+  } chcmpt_;
+}
+
 // struct to hold particle state
 struct particle_state {
   moab::DagMC::RayHistory history;
