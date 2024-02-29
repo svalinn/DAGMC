@@ -73,7 +73,7 @@ jobs:
           matrix.geant4_version 
         }}-double_down_${{ 
           matrix.double_down_version 
-        }}:latest
+        }}/moab:latest
 
     steps:
       - name: Checkout repository
@@ -96,7 +96,7 @@ jobs:
               -DCMAKE_C_COMPILER=${CC} \
               -DCMAKE_CXX_COMPILER=${CXX} \
               -DCMAKE_Fortran_COMPILER=gfortran \
-              -DCMAKE_INSTALL_PREFIX=${dagmc_install_dir} \
+              -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
               -DDOUBLE_DOWN=$([ "${DOUBLE_DOWN_VERSION}" != "off" ] && echo "ON" || echo "OFF") \
               -Ddd_ROOT=${double_down_install_dir}
           make -j${CI_JOBS}
@@ -104,4 +104,4 @@ jobs:
 
       - name: Testing DAGMC
         run: |
-          PATH=${dagmc_install_dir}/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
+          PATH=${install_dir}/dagmc/bin:${PATH} CTEST_OUTPUT_ON_FAILURE=1 make test
