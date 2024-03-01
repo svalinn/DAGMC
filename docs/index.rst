@@ -11,39 +11,64 @@ CAD-based geometry models. It is built on top of the MOAB mesh database. DAGMC
 is developed and maintained by the Computationan Nuclear Engineering Research
 Group (CNERG) at the University of Wisconsin -- Madison.
 
+.. carousel::
+    :show_controls:
+    :show_fade:
+    :show_captions_below:
+
+    .. figure:: assets/manifold-cad.png
+       :height: 400px
+
+       CAD
+
+       A pipe manifold modeled in :term:`Coreform Cubit`.
+
+    .. figure:: assets/manifold-tris.png
+       :height: 400px
+
+       Surface Mesh w/ Embedded Topology
+
+       A DAGMC surface mesh of the piping manifold.
+
+    .. figure:: assets/manifold-flux.png
+       :height: 400px
+
+       Flux Results
+
+       A flux mapping generated using :term:`OpenMC`.
 
 Usage of CAD-Based Geometry vs. CSG in Monte Carlo Particle Transport
 =====================================================================
 
-Most Monte Carlo codes natively support :ref:`CSG` geometry as it is very robust
-for particle tracking applications. However, use of  :ref:`CAD`` (Computer-Aided
+Most Monte Carlo codes natively support :term:`CSG` geometry as it is very robust
+for particle tracking applications. However, use of  :term:`CAD` (Computer-Aided
 Design) geometry offers several advantages, especially in the context of modern
-engineering and design practices. :ref:`CAD` geometry provides benefits in a
+engineering and design practices. :term:`CAD` geometry provides benefits in a
 number pieces in the engineering design chain:
 
 Visualization and Realism
 -------------------------
-:ref:`CAD`` geometry provides an interacctive visual representation of the
+:term:`CAD` geometry provides an interacctive visual representation of the
 design, making it easier for designers and engineers to conceptualize and
-iterate upon their ideas. Unlike :ref:`CSG`, which relies on a fixed set of
-surface objects, :ref:`CAD`` geometry offers a more intuitive approach by
+iterate upon their ideas. Unlike :term:`CSG`, which relies on a fixed set of
+surface objects, :term:`CAD` geometry offers a more intuitive approach by
 allowing users to see the design in a realistic manner.
 
 Flexibility and Iteration
 --------------------------
-:ref:`CAD`` geometry offers unparalleled flexibility in design iteration.
+:term:`CAD` geometry offers unparalleled flexibility in design iteration.
 Designers can easily modify shapes, dimensions, and features with simple clicks
 and adjustments, enabling rapid prototyping and experimentation. In contrast,
-while most Monte Carlo codes :ref:`CSG` offer some option to visualize geometry,
+while most Monte Carlo codes :term:`CSG` offer some option to visualize geometry,
 these tools are often limited (2D slices and laggy interaction) and require a
-specific native format. Iteration on :ref:`CSG` geometry is in turn inherently
+specific native format. Iteration on :term:`CSG` geometry is in turn inherently
 less intuitive.
 
 Simulation and Analysis
 ------------------------
-:ref:`CAD`` geometry enables integration with simulation and analysis tools for
+:term:`CAD` geometry enables integration with simulation and analysis tools for
 evaluating the performance and behavior of designs under various conditions.
-From :ref:`FEA` to fluid dynamics simulations, :refe:`CAD`` software allows
+From :term:`FEA` to fluid dynamics simulations, :term:`CAD` software allows
 engineers to validate their designs before physical prototyping, saving time and
 resources.
 
@@ -72,7 +97,7 @@ Advantages of Surface Mesh (Triangles)
 
 2. **Higher Fidelty Boundary Representations**: Volumetric meshes are often
    limited in how well they can resolve the boundary between parts in a
-   :ref:`CAD` model due to constriants on mesh quality of interior elements.
+   :term:`CAD` model due to constriants on mesh quality of interior elements.
    This commonnly results in a more coarse approximation of boundaries than can
    be achieved with a surface mesh for the same number of triangle elements.
    They are also able to more accurately capture features of varying sizes, such
@@ -145,10 +170,6 @@ internal fields while surface meshes are generally able to better conserve
 volume and surface area and may be better suited for models involving complex
 geometry or large numbers of parts. Performance considerations between the two
 are often problem-dependent and should be evaluated on a case-by-case basis.
-
-.. image:: assets/manifold-cad.png
-   :height: 400
-   :alt: "NASA Mars habitat module represented in MCNP using DAGMC"
 
 .. toctree::
    :maxdepth: 2

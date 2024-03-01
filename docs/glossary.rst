@@ -15,14 +15,25 @@ Glossary
     CSG
         Constructive Solid Geometry
 
+    `Coreform Cubit <https://coreform.com/products/coreform-cubit/>`_
+        A commercial software package for mesh generation, geometry
+        simplification, and mesh-based simulations.
+
+    `Cubit <https://cubit.sandia.gov/>`_
+        A Sandia National Laboratory software package for mesh generation, geometry
+        simplification, and mesh-based simulations.
+
     DAGMC
         Direct Accelerated Geometry Monte Carlo toolkit
 
     FEA
         Finite Element Analysis
 
-    MOAB
+    `MOAB <https://sigma.mcs.anl.gov/moab-library/>`_
         Mesh-Oriented datABase
+
+    `OpenMC <https://docs.openmc.org>`_
+        An open-source Monte Carlo code for neutron and photon transport.
 
     EntitySet
         An arbitrary collection of entities in MOAB, including other

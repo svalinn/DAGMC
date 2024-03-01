@@ -39,6 +39,7 @@ release = '3.2.3'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_carousel.carousel',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.todo',

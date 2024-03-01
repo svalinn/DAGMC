@@ -4,3 +4,4 @@ sphinx
 sphinx-rtd-theme
 breathe
 sphinx-sitemap
+sphinx-carousel
