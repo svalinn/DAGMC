@@ -1,3 +1,5 @@
+..  _h5m-file-spec:
+
 DAGMC .h5m File Specification
 =============================
 

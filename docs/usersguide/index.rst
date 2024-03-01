@@ -1,4 +1,4 @@
-User's guide
+User's Guide
 ============
 
 ..  |UW2| replace:: UW\ :sup:`2`

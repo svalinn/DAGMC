@@ -47,7 +47,7 @@ Table of Contents
 
     foryou/index
     usersguide/index
-    developerguide/index
+    contribute/index
     theoryguide/index
     filespec/index
     api/index

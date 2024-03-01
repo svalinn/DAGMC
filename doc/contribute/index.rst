@@ -1,5 +1,5 @@
-Contribute
-==========
+Contributor's Guide
+=================
 
 DAGMC is an open-source BSD3-licensed project, open for anyone to fork, make
 personal changes, or contribute changes back to us. DAGMC exists in the open so
