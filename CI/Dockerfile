@@ -37,7 +37,6 @@ RUN apt-get update --yes && \
         autoconf \
         make \
         cmake \
-        gcc \
         g++ \
         clang \
         gfortran \
