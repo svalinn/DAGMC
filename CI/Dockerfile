@@ -30,9 +30,11 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install Build Dependencies
 RUN apt-get update --yes && \
-    apt-get install --yes \
+    apt-get install --yes --no-install-recommends \
         git \
         wget \
+        ca-certificates \
+        make \
         autoconf \
         clang \
         cmake \
@@ -40,18 +42,8 @@ RUN apt-get update --yes && \
         gcc \
         gfortran \
         libtool \
-        libeigen3-dev\
-        python3 \
-        python3-pip \
-        python3-numpy \
-        python3-setuptools \
-        python3-dev \
-        libpython3-dev \
-        software-properties-common && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3 10 && \
-    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10 && \
-    pip install "cython<3";
+        libeigen3-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*;
 
 ARG build_dir
 ARG install_dir
@@ -144,7 +136,7 @@ ENV hdf5_install_dir=${install_dir}/hdf5
 
 RUN mkdir -p ${hdf5_build_dir}/build && \
     cd ${hdf5_build_dir} && \
-    export HDF5_VERSION_major=`python -c "print('.'.join('${HDF5_VERSION}'.split('.')[:-1]))"` && \
+    export HDF5_VERSION_major=$(echo "$HDF5_VERSION" | cut -d. -f1-2) && \
     wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${HDF5_VERSION_major}/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.gz && \
     tar -xzf hdf5-${HDF5_VERSION}.tar.gz && \
     cd build && \
@@ -174,6 +166,14 @@ ARG DOUBLE_DOWN_VERSION
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
+RUN apt-get update --yes && \
+    apt-get install --yes --no-install-recommends \
+        python3-dev \
+        python3-pip \
+        python3-setuptools \
+        python3-numpy \
+        cython3 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*;
 
 RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
