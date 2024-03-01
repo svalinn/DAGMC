@@ -1,4 +1,4 @@
-name: Test against newer Geant4 on PR merge
+name: Test against Geant4 development branch (master) on PR merge
 
 on:
   # allows us to run workflows manually
@@ -27,4 +27,4 @@ jobs:
         uses: ./.github/actions/upstream-test
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          geant_version: 11.1.2
+          geant_version: master

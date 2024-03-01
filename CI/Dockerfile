@@ -8,9 +8,9 @@ ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=hdf5_1_14_3
 ARG MOAB_VERSION=5.5.1
 # Setting GEANT4_VERSION=off will disable GEANT4 build
-ARG GEANT4_VERSION=v11.1.2
+ARG GEANT4_VERSION=off
 # Setting DOUBLE_DOWN_VERSION=off will disable DOUBLE_DOWN build
-ARG DOUBLE_DOWN_VERSION=v1.1.0
+ARG DOUBLE_DOWN_VERSION=off
 # Setting DOUBLE_DOWN_VERSION=off will disable EMBREE build 
 ARG EMBREE_VERSION=v4.0.1
 
@@ -51,17 +51,17 @@ ARG INSTALL_DIR
 ENV BUILD_DIR=${BUILD_DIR}
 ENV INSTALL_DIR=${INSTALL_DIR}
 
-FROM base as compiler-gcc
+FROM base AS compiler-gcc
 
 ENV CC=gcc
 ENV CXX=g++
 
-FROM base as compiler-clang
+FROM base AS compiler-clang
 
 ENV CC=clang
 ENV CXX=clang++
 
-FROM compiler-${COMPILER} as external_deps
+FROM compiler-${COMPILER} AS external_deps
 
 # accessing gloabl ARGs in build stage
 ARG INSTALL_DIR 
@@ -204,7 +204,7 @@ RUN if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then \
     fi
 
 
-FROM moab as dagmc
+FROM moab AS dagmc
 
 # accessing gloabl ARGs in build stage
 ARG INSTALL_DIR
@@ -243,7 +243,7 @@ RUN mkdir -p ${DAGMC_BUILD_DIR}/build && \
     make install
 
 
-FROM dagmc as dagmc_test
+FROM dagmc AS dagmc_test
 
 ENV DAGMC_BUILD_DIR=${BUILD_DIR}/dagmc
 ENV DAGMC_INSTALL_DIR=${INSTALL_DIR}/dagmc
@@ -261,3 +261,19 @@ RUN cd ${DAGMC_BUILD_DIR}/cmake/test_config && \
     cmake . -DDAGMC_ROOT=${DAGMC_INSTALL_DIR} && \
     CTEST_OUTPUT_ON_FAILURE=1 make all test
 
+FROM scratch AS binaries
+
+ARG INSTALL_DIR
+
+COPY --from=dagmc_test ${INSTALL_DIR} ${INSTALL_DIR}
+
+ENV PATH=${DAGMC_INSTALL_DIR}/bin:$PATH
+ENV PATH=${MOAB_INSTALL_DIR}/bin:$PATH
+ENV PATH=${EMBREE_INSTALL_DIR}/bin:$PATH
+ENV PATH=${DOUBLE_DOWN_INSTALL_DIR}/bin:$PATH
+ENV PATH=${HDF5_INSTALL_DIR}/bin:$PATH
+ENV PATH=${GEANT4_INSTALL_DIR}/bin:$PATH
+
+WORKDIR ${INSTALL_DIR}
+
+ENTRYPOINT ["/bin/bash"]

@@ -20,7 +20,7 @@ inputs:
   hdf5_version:
     description: Version of HDF5
     required: false
-    default: 1.14.3
+    default: hdf5_1_14_3
   moab_version:
     description: Version of MOAB
     required: false
