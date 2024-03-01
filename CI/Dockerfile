@@ -6,18 +6,19 @@
 # Global ARGS set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=1.14.3
-ARG EMBREE_VERSION=v4.0.1
+ARG MOAB_VERSION=5.5.1
 # Setting GEANT4_VERSION=off will disable GEANT4 build
 ARG GEANT4_VERSION=11.1.2
-ARG MOAB_VERSION=5.5.1
 # Setting DOUBLE_DOWN_VERSION=off will disable DOUBLE_DOWN build
 ARG DOUBLE_DOWN_VERSION=v1.1.0
-ARG CI_JOBS=4
+# Setting DOUBLE_DOWN_VERSION=off will disable EMBREE build 
+ARG EMBREE_VERSION=v4.0.1
 
 ARG build_dir=/root/build_dir
-ARG install_dir=/root/opt
+ARG install_dir=/opt
 
 ARG COMPILER=gcc
+ARG CI_JOBS=4
 
 FROM ubuntu:${UBUNTU_VERSION} AS base
 
@@ -41,7 +42,8 @@ RUN apt-get update --yes && \
         g++ \
         gcc \
         gfortran \
-        libtool \
+        python3 \
+        libpython3-dev \
         libeigen3-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*;
 
@@ -166,15 +168,6 @@ ARG DOUBLE_DOWN_VERSION
 ENV moab_build_dir=${build_dir}/moab
 ENV moab_install_dir=${install_dir}/moab
 
-RUN apt-get update --yes && \
-    apt-get install --yes --no-install-recommends \
-        python3-dev \
-        python3-pip \
-        python3-setuptools \
-        python3-numpy \
-        cython3 && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*;
-
 RUN mkdir -p ${moab_build_dir}/build && \
     cd ${moab_build_dir} && \
     git clone -b ${MOAB_VERSION} --depth 1 https://bitbucket.org/fathomteam/moab && \
@@ -189,7 +182,7 @@ RUN mkdir -p ${moab_build_dir}/build && \
         -DENABLE_BLASLAPACK=OFF \
         -DBUILD_SHARED_LIBS=ON \
         -DENABLE_FORTRAN=OFF \
-        -DENABLE_PYMOAB=ON && \
+        -DENABLE_PYMOAB=OFF && \
     make -j${CI_JOBS} && \
     make install && \
     cd && \
