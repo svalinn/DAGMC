@@ -10,16 +10,20 @@ Design) geometry offers several advantages, especially in the context of modern
 engineering and design practices. :term:`CAD` geometry provides benefits in a
 number pieces in the engineering design chain:
 
-Visualization and Realism
--------------------------
+----
+
+**Visualization and Realism**
+
 :term:`CAD` geometry provides an interacctive visual representation of the
 design, making it easier for designers and engineers to conceptualize and
 iterate upon their ideas. Unlike :term:`CSG`, which relies on a fixed set of
 surface objects, :term:`CAD` geometry offers a more intuitive approach by
 allowing users to see the design in a realistic manner.
 
-Flexibility and Iteration
---------------------------
+----
+
+**Flexibility and Iteration**
+
 :term:`CAD` geometry offers unparalleled flexibility in design iteration.
 Designers can easily modify shapes, dimensions, and features with simple clicks
 and adjustments, enabling rapid prototyping and experimentation. In contrast,
@@ -28,8 +32,10 @@ these tools are often limited (2D slices and laggy interaction) and require a
 specific native format. Iteration on :term:`CSG` geometry is in turn inherently
 less intuitive.
 
-Simulation and Analysis
-------------------------
+----
+
+**Simulation and Analysis**
+
 :term:`CAD` geometry enables integration with simulation and analysis tools for
 evaluating the performance and behavior of designs under various conditions.
 From :term:`FEA` to fluid dynamics simulations, :term:`CAD` software allows
@@ -54,10 +60,12 @@ practical and integrated approach, simplifying the workflow and enhancing
 productivity.
 
 Advantages and Disadvantages of Surface Mesh (Triangles) vs. Volumetric Mesh (Tetrahedra)
-===========================================================================================
+-----------------------------------------------------------------------------------------
 
-Advantages of Surface Mesh (Triangles)
-----------------------------------------
+When using :term:`CAD` geometry for Monte Carlo simulations, the choice between
+
+**Advantages of Surface Mesh (Triangles)**
+
 
 2. **Higher Fidelty Boundary Representations**: Volumetric meshes are often
    limited in how well they can resolve the boundary between parts in a
@@ -79,8 +87,7 @@ Advantages of Surface Mesh (Triangles)
    certain regions in which the particle's average path length is much larger
    than the local elements.
 
-Disadvantages of Surface Mesh (Triangles)
--------------------------------------------
+**Disadvantages of Surface Mesh (Triangles)**
 
 1. **Limited Volume Representation**: Surface meshes do not capture the internal
    volume of the object directly, which can limit their applicability for
@@ -97,8 +104,7 @@ Disadvantages of Surface Mesh (Triangles)
    volume-based information from surface meshes can introduce uncertainties and
    approximation errors.
 
-Advantages of Volumetric Mesh (Tetrahedra)
-------------------------------------------
+**Advantages of Volumetric Mesh (Tetrahedra)**
 
 1. **Volume Representation**: Volumetric meshes directly represent the internal
    volume of the object, allowing for a more accurate simulation of complex
@@ -110,8 +116,7 @@ Advantages of Volumetric Mesh (Tetrahedra)
    representation of the boundaries and interfaces between different materials
    or regions.
 
-Disadvantages of Volumetric Mesh (Tetrahedra)
------------------------------------------------
+**Disadvantages of Volumetric Mesh (Tetrahedra)**
 
 1. **Higher Computational Cost**: Generating and solving volumetric meshes can
    be computationally expensive, especially for large and complex geometries.

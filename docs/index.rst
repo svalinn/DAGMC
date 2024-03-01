@@ -43,7 +43,7 @@ Table of Contents
 =================
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     foryou/index
     usersguide/index
