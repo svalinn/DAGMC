@@ -8,7 +8,7 @@ ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=hdf5_1_14_3
 ARG MOAB_VERSION=5.5.1
 # Setting GEANT4_VERSION=off will disable GEANT4 build
-ARG GEANT4_VERSION=v11.1.2
+ARG GEANT4_VERSION=v11.2.1
 # Setting DOUBLE_DOWN_VERSION=off will disable DOUBLE_DOWN build
 ARG DOUBLE_DOWN_VERSION=v1.1.0
 # Setting DOUBLE_DOWN_VERSION=off will disable EMBREE build 
@@ -18,7 +18,7 @@ ARG BUILD_DIR=/root/build
 ARG INSTALL_DIR=/opt
 
 ARG COMPILER=gcc
-ARG CI_JOBS=6
+ARG CI_JOBS=4
 
 FROM ubuntu:${UBUNTU_VERSION} AS base
 
@@ -42,6 +42,7 @@ RUN apt-get update --yes && \
         gfortran \
         python3 \
         libpython3-dev \
+        zlib1g-dev \
         libeigen3-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*;
 
