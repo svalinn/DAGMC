@@ -15,6 +15,7 @@ jobs:
     strategy:
       matrix:
         ubuntu_version : [
+          20.04,
           22.04,
         ]
         compiler : [
@@ -31,7 +32,7 @@ jobs:
         geant4_version : [
           off,
           v10.7.4,
-          v11.1.2
+          v11.2.1,
         ]
         double_down_version : [
           off,
@@ -96,6 +97,7 @@ jobs:
     strategy:
       matrix:
         ubuntu_version : [
+          20.04,
           22.04,
         ]
         compiler : [
@@ -112,7 +114,7 @@ jobs:
         geant4_version : [
           off,
           v10.7.4,
-          v11.1.2
+          v11.2.1,
         ]
         double_down_version : [
           off,
