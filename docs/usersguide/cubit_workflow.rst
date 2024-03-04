@@ -1,5 +1,5 @@
 Producing solid models for DAGMC using Cubit
-===================================================
+============================================
 
 The general workflow for the production of models for analysis using DAGMC
 looks like that shown in the Figure below.
@@ -56,19 +56,54 @@ The general workflow for the production of DAGMC models is the following:
     - inspect volumes in pre-imprint model with significant change in volume
     - re-check for small areas, curves, volumes
     - any problems in these steps repair volumes in pre-imprint model and go back to step 3
+
+
+
 7.  Facet model
     ::
 
         CUBIT> export dagmc "geom.h5m" faceting_tolerance 1.0e-4
 
-8.  Seal model if possible (use `make_watertight <tools.html#make-watertight>`_)
+8.  Ensure the model is sealed with the :ref:`check_watertight` tool. If not, attempt to
+    seal the model if possible using the :ref:`make_watertight` tool.
+
+
 9.  Flood and/or transport particles in model
+
 10. If lost particles or leaky:
 
     - examine lost locations (use `mklostvis.pl <tools.html#mklostvis>`_)
     - examine "leaks"/tunneling (can use a mesh tally to locate)
     - repair the pre-imprint/merge model (go to step 2)
 11. If no lost particles or leaks, then the model is ready for transport
+
+.. _coreform_export:
+
+Using the Coreform Cubit plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If using the Coreform Cubit plugin to generate DAGMC models (`export cf_dagmc`)
+available since the 2023.8 release, steps 1-6 remain the same.
+
+7. At this point, the model is meshed using either the tetmesher or trimesher.
+   These models are inherently watertight thanks to the meshing algorithms
+   applied in Coreform.
+
+8. Export the model using the `export cf_dagmc` command
+   ::
+
+       CUBIT> export cf_dagmc "geom.h5m"
+
+Steps 9-11 remain the same as well.
+
+In contrast to the `export dagmc` command, this pathway allows for visualization
+of the faceting in Cubit before export and for singe-surface modifications to be
+made for fine-tuning the resulting DAGMC model.
+
+Additionally, if a tetmesh is used, the model can be exported as a DAGMC model
+with surfaces that are conformal to the boundaries of the tetmesh, which can be
+advantageous when preparing a model for multiphysics or for unstructured mesh
+tallies in the Monte Carlo simulation.
 
 Preparing solid models
 ~~~~~~~~~~~~~~~~~~~~~~

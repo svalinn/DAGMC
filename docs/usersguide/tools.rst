@@ -35,6 +35,8 @@ before ``make_watertight`` and the black lines show the geometry after its use.
 The product will be a file named, `filename_zip.h5m`, and a summary is provided
 of what operations were done to seal the model.
 
+.. _check_watertight:
+
 check_watertight
 ~~~~~~~~~~~~~~~~
 
