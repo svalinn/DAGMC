@@ -16,6 +16,7 @@ Next version
   * Simplify Housekeeping Process for DAGMC (#943)
   * Allow Double Down v1.1.0 Installation in Dockerfile (#929 #944 #949)
   * Inline documentation improvements (#945)
+  * RTD documentation site (#950)
 
 v3.2.3
 ====================

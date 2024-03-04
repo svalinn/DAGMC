@@ -1,0 +1,7 @@
+
+# Required python packages for building documentation
+sphinx
+sphinx-rtd-theme
+breathe
+sphinx-sitemap
+sphinx-carousel

@@ -1,8 +1,6 @@
 Monte Carlo code-specific steps
 ===============================
 
-.. _code-specific-steps:
-
 ..  toctree::
     :maxdepth: 1
 
