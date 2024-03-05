@@ -1,4 +1,4 @@
-name: Test against newer hdf5 on PR merge
+name: Test against HDF5 development branch on PR merge
 
 on:
   # allows us to run workflows manually
@@ -28,4 +28,4 @@ jobs:
         uses: ./.github/actions/upstream-test
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          hdf5_version: 1.14.3
+          hdf5_version: develop

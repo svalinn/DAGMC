@@ -23,7 +23,7 @@ jobs:
           clang,
         ]
         hdf5_version : [
-          1.14.3,
+          hdf5_1_14_3,
         ]
         moab_version : [
           5.4.1,
@@ -31,8 +31,8 @@ jobs:
         ]
         geant4_version : [
           off,
-          10.7.4,
-          11.1.2
+          v10.7.4,
+          v11.2.1,
         ]
         double_down_version : [
           off,
@@ -105,7 +105,7 @@ jobs:
           clang,
         ]
         hdf5_version : [
-          1.14.3,
+          hdf5_1_14_3,
         ]
         moab_version : [
           5.4.1,
@@ -113,8 +113,8 @@ jobs:
         ]
         geant4_version : [
           off,
-          10.7.4,
-          11.1.2
+          v10.7.4,
+          v11.2.1,
         ]
         double_down_version : [
           off,
