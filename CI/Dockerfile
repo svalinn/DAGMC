@@ -3,7 +3,7 @@
 # build from repository root directory with command
 # docker build -t dagmc -f CI/Dockerfile .
 
-# Global ARGS set before the first build stage are accessable by all build stages
+# Global arguments set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=22.04
 ARG HDF5_VERSION=hdf5_1_14_3
 ARG MOAB_VERSION=5.5.1
@@ -34,7 +34,6 @@ RUN apt-get update --yes && \
     apt-get install --yes --no-install-recommends \
         git \
         ca-certificates \
-        autoconf \
         make \
         cmake \
         g++ \
@@ -52,16 +51,22 @@ ARG INSTALL_DIR
 ENV BUILD_DIR=${BUILD_DIR}
 ENV INSTALL_DIR=${INSTALL_DIR}
 
+
+# set default compiler to gcc
 FROM base AS compiler-gcc
 
 ENV CC=gcc
 ENV CXX=g++
 
+
+# set default compiler to clang
 FROM base AS compiler-clang
 
 ENV CC=clang
 ENV CXX=clang++
 
+
+# Install External Dependencies
 FROM compiler-${COMPILER} AS external_deps
 
 # accessing gloabl ARGs in build stage
@@ -70,9 +75,10 @@ ARG BUILD_DIR
 ARG CI_JOBS
 ARG CXX
 ARG CC
+
+# Build Embree
 ARG DOUBLE_DOWN_VERSION
 ARG EMBREE_VERSION
-ARG GEANT4_VERSION
 
 ENV EMBREE_INSTALL_DIR=${INSTALL_DIR}/Embree
 ENV EMBREE_BUILD_DIR=${BUILD_DIR}/Embree
@@ -95,6 +101,9 @@ RUN if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then \
         rm -rf ${EMBREE_BUILD_DIR}; \
     fi
 
+
+# Build Geant4
+ARG GEANT4_VERSION
 
 ENV GEANT4_BUILD_DIR=${BUILD_DIR}/geant4
 ENV GEANT4_INSTALL_DIR=${INSTALL_DIR}/geant4
@@ -119,14 +128,7 @@ RUN if [ "${GEANT4_VERSION}" != "off" ]; then \
     fi
 
 
-FROM external_deps AS hdf5
-
-# accessing gloabl ARGs in build stage
-ARG INSTALL_DIR
-ARG BUILD_DIR
-ARG CI_JOBS
-ARG CXX
-ARG CC
+# Build HDF5
 ARG HDF5_VERSION
 
 ENV HDF5_BUILD_DIR=${BUILD_DIR}/hdf5
@@ -136,29 +138,18 @@ RUN mkdir -p ${HDF5_BUILD_DIR}/build && \
     cd ${HDF5_BUILD_DIR} && \
     git clone -b ${HDF5_VERSION} --depth 1 https://github.com/HDFGroup/hdf5.git && \
     cd build && \
-    ../hdf5/configure --enable-shared \
-        --prefix=${HDF5_INSTALL_DIR} \
-        CXX=${CXX} \
-        CC=${CC} && \
+    cmake ../hdf5 \
+        -DCMAKE_INSTALL_PREFIX=${HDF5_INSTALL_DIR} \
+        -DBUILD_SHARED_LIBS=ON && \
     make -j${CI_JOBS} && \
     make install && \
     cd && \
     rm -rf ${HDF5_BUILD_DIR}
 
 
-FROM hdf5 AS moab
-
-# accessing gloabl ARGs in build stage
-ARG INSTALL_DIR
-ARG BUILD_DIR
-ARG CI_JOBS
-ARG CXX
-ARG CC
+# Build MOAB
 ARG MOAB_VERSION
-ARG DOUBLE_DOWN_VERSION
 
-
-# Set MOAB env variable
 ENV MOAB_BUILD_DIR=${BUILD_DIR}/moab
 ENV MOAB_INSTALL_DIR=${INSTALL_DIR}/moab
 
@@ -184,6 +175,9 @@ RUN mkdir -p ${MOAB_BUILD_DIR}/build && \
     rm -rf ${MOAB_BUILD_DIR}
 
 
+# Build Double Down
+ARG DOUBLE_DOWN_VERSION
+
 ENV DOUBLE_DOWN_BUILD_DIR=${BUILD_DIR}/double-down
 ENV DOUBLE_DOWN_INSTALL_DIR=${INSTALL_DIR}/double-down
 
@@ -205,7 +199,8 @@ RUN if [ "${DOUBLE_DOWN_VERSION}" != "off" ]; then \
     fi
 
 
-FROM moab AS dagmc
+# Build DAGMC
+FROM external_deps AS dagmc
 
 # accessing gloabl ARGs in build stage
 ARG INSTALL_DIR
@@ -218,7 +213,7 @@ ARG DOUBLE_DOWN_VERSION
 ENV DAGMC_BUILD_DIR=${BUILD_DIR}/dagmc
 ENV DAGMC_INSTALL_DIR=${INSTALL_DIR}/dagmc
 
-# copies the enitre git repo into the dockerfile to ensure the submodules can also be found
+# Copy the enitre git repo into the dockerfile to ensure the submodules can also be found
 COPY . ${DAGMC_BUILD_DIR}
 
 RUN mkdir -p ${DAGMC_BUILD_DIR}/build && \
@@ -244,6 +239,7 @@ RUN mkdir -p ${DAGMC_BUILD_DIR}/build && \
     make install
 
 
+# Test DAGMC
 FROM dagmc AS dagmc_test
 
 ENV DAGMC_BUILD_DIR=${BUILD_DIR}/dagmc
@@ -262,7 +258,9 @@ RUN cd ${DAGMC_BUILD_DIR}/cmake/test_config && \
     cmake . -DDAGMC_ROOT=${DAGMC_INSTALL_DIR} && \
     CTEST_OUTPUT_ON_FAILURE=1 make all test
 
-FROM scratch AS binaries
+
+# Release image
+FROM ubuntu:${UBUNTU_VERSION} AS final
 
 ARG INSTALL_DIR
 

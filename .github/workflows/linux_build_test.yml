@@ -37,7 +37,6 @@ jobs:
     strategy:
       matrix:
         ubuntu_version : [
-          20.04,
           22.04,
         ]
         compiler : [

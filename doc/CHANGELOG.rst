@@ -16,7 +16,7 @@ Next version
   * Simplify Housekeeping Process for DAGMC (#943)
   * Allow Double Down v1.1.0 Installation in Dockerfile (#929 #944 #949)
   * Inline documentation improvements (#945)
-  * Streamline dependencies of docker CI images (#951)
+  * Streamline dependencies of docker CI images (#951 #952)
 
 v3.2.3
 ====================
