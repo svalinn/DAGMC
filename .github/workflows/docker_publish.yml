@@ -75,7 +75,7 @@ jobs:
         uses: firehed/multistage-docker-build-action@v1
         with:
           repository: ${{ env.image_base_tag }}
-          stages: base, external_deps, hdf5, moab, dagmc
+          stages: base, external_deps, dagmc, final
           server-stage: dagmc_test
           quiet: false
           parallel: true

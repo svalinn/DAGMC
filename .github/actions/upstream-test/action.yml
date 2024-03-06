@@ -59,7 +59,7 @@ runs:
             }}-double_down_${{
               inputs.double_down_version
             }}
-          stages: base, external_deps, hdf5, moab, dagmc
+          stages: base, external_deps, dagmc
           server-stage: dagmc_test
           quiet: false
           parallel: true
