@@ -39,7 +39,7 @@ jobs:
     runs-on: windows-2019
     steps:
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-activate-base: true
           activate-environment: ""
@@ -89,7 +89,9 @@ jobs:
           cmake --build . --config Release
           cmake --install . --config Release
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: build DAGMC
         shell: bash -l {0}

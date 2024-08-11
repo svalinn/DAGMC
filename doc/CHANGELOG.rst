@@ -10,13 +10,17 @@ Next version
 **Changed:**
 
   * Update hdf5 to v1.14.3 from v1.10.4 (#931 #933)
-  * Ensure implicit complement handle is placed at the back of DAGMC volume indices (#935)
   * Update MOAB to 5.5.1 from 5.3.0 (#939 #940)
   * Update README regarding OpenMC (#938)
   * Simplify Housekeeping Process for DAGMC (#943)
   * Allow Double Down v1.1.0 Installation in Dockerfile (#929 #944 #949)
   * Inline documentation improvements (#945)
   * Streamline dependencies of docker CI images (#951 #952)
+  * Update github actions to newer versions as necessary (#958)
+
+**Fixed:**
+
+  * Ensure implicit complement handle is placed at the back of DAGMC volume indices (#935)
   * Fixed to reflect FLUKA-CERN (#677)
 
 v3.2.3
