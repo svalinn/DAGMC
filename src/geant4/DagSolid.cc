@@ -68,6 +68,7 @@ using namespace moab;
 #include "DagSolid.hh"
 
 #define plot true
+#define debug false
 
 // #define G4SPECSDEBUG 1
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,27 +122,30 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
 
   Interface* moab = dagmc->moab_instance();
   moab->get_child_meshsets(fvolEntity, surfs, 1);
-
+  int sense = 0;
   if (plot) {
     for (unsigned i = 0; i < surfs.size(); i++) {
       My_sulf_hit = surfs[i];
       moab->get_number_entities_by_type(surfs[i], MBTRI, num_entities);
-
       moab->get_entities_by_type(surfs[i], MBTRI, tris);
-
+      dagmc->surface_sense(fvolEntity,surfs[i],sense);
       for (unsigned j = 0; j < tris.size(); j++) {
         moab->get_connectivity(tris[j], tri_conn, n_verts);
         moab->get_coords(tri_conn, n_verts, coords[0].array());
 
-        vertex[0] = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm,
-                                  coords[0][2] * cm);
-        vertex[1] = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm,
-                                  coords[1][2] * cm);
-        vertex[2] = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm,
-                                  coords[2][2] * cm);
+	vertex[0] = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm,
+				  coords[0][2] * cm);
+	vertex[1] = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm,
+				  coords[1][2] * cm);
+	vertex[2] = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm,
+				  coords[2][2] * cm);
 
-        G4TriangularFacet* facet =
-            new G4TriangularFacet(vertex[0], vertex[1], vertex[2], ABSOLUTE);
+	G4TriangularFacet* facet = NULL;
+	if ( sense > 0 ) {
+	  facet = new G4TriangularFacet(vertex[0], vertex[1], vertex[2], ABSOLUTE);
+	} else {
+	  facet = new G4TriangularFacet(vertex[2], vertex[1], vertex[0], ABSOLUTE);
+	}
         AddFacet((G4VFacet*)facet);
 
         for (G4int k = 0; k < 3; k++) {
@@ -190,40 +194,45 @@ DagSolid::~DagSolid() {}
 EInside DagSolid::Inside(const G4ThreeVector& p) const {
   G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
 
-  double u = rand();
-  double v = rand();
-  double w = rand();
-
-  const double magnitude = sqrt(u * u + v * v + w * w);
-  u /= magnitude;
-  v /= magnitude;
-  w /= magnitude;
-
-  G4double direction[3] = {u, v, w};
-
   G4double minDist = 0.0;
 
   int result;
   ErrorCode ec;
-  ec = fdagmc->point_in_volume(
-      fvolEntity, point, result,
-      direction);  // if uvw is not given, this function generate uvw ran
 
-  if (ec != MB_SUCCESS) {
-    G4cout << "failed to get point in volume" << std::endl;
-    exit(1);
+  if (debug) {
+    std::cout << "Inside: " << std::endl;
   }
-
-  ec = fdagmc->closest_to_location(fvolEntity, point, minDist);
+  
+  // are we inside
+  fdagmc->point_in_volume(fvolEntity, point, result);
+  // also need to know how far from the surface
+  fdagmc->closest_to_location(fvolEntity, point, minDist);
 
   // if on surface
-  if (minDist <= 0.5 * kCarTolerance) {
+  if (minDist <= kCarToleranceHalf) {
+    if (debug) {
+      std::cout << "dist: " << minDist << std::endl;
+      std::cout << "inside: " << result << std::endl;
+      std::cout << "return: (onsurf) " << kSurface << std::endl;
+    }
     return kSurface;
   } else {
-    if (result == 0)
+    // result == 0 is outside 
+    if (result == 0 || minDist > kCarToleranceHalf) {
+      if (debug) {
+	std::cout << "dist: " << minDist << std::endl;
+	std::cout << "inside: " << result << std::endl;
+	std::cout << "return: (outside) " << kOutside << std::endl;
+      }
       return kOutside;
-    else
+    } else {
+      if (debug) {
+	std::cout << "dist: " << minDist << std::endl;
+	std::cout << "inside: " << result << std::endl;
+	std::cout << "return: (inside) " << kInside << std::endl;
+      }
       return kInside;
+    }
   }
 }
 
@@ -237,7 +246,9 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
 G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
   G4double ang[3] = {0, 0, 1};
   G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
-
+  
+  // currently get warnings from RTI.cpp in double down since the
+  // point may not be on the surface 
   fdagmc->get_angle(My_sulf_hit, position, ang);
 
   G4ThreeVector normal = G4ThreeVector(ang[0], ang[1], ang[2]);
@@ -253,24 +264,44 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
                                 const G4ThreeVector& v) const {
   G4double minDist = kInfinity;
   G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
-  G4double dir[3] = {v.x(), v.y(), v.z()};
+  G4ThreeVector vec = v.unit();
+  G4double dir[3] = {vec.x(), vec.y(), vec.z()};
   EntityHandle next_surf;
   G4double distance;
-
-  DagMC::RayHistory history;
+  G4double forwardDistance,reverseDistance;
 
   // perform the ray fire with modified dag call
-  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, distance, &history, 0,
-                   -1);
-  history.reset();
+  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, forwardDistance, NULL, 0,  1);
+  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, reverseDistance, NULL, 0, -1);
+  distance = reverseDistance;
   distance *= cm;  // convert back to mm
 
-  if (next_surf == 0)  // no intersection
+  if(debug) {
+    std::cout << "DistanceToIn(trace) " << std::endl;
+    std::cout << "pos: " << p.x() << " " << p.y() << "  " << p.z() << std::endl;
+    std::cout << "distance: " << distance << std::endl;
+    std::cout << "direction: " << v.x() << " " << v.y() << " " << v.z() << std::endl;
+    std::cout << "forwraddistance: " << forwardDistance << std::endl;
+  }  
+  if (next_surf == 0) { // no intersection
+    if(debug) {
+      std::cout << "hit:nothing" << std::endl;
+      std::cout << "return: " << kInfinity << std::endl;
+    }
     return kInfinity;
-  else if (-kCarTolerance * 0.5 >= distance && distance <= kCarTolerance * 0.5)
+  } else if (distance <= std::abs(kCarToleranceHalf)) {
+    if(debug) {
+      std::cout << "hit:on surface" << std::endl;
+      std::cout << "return: " << 0.0 << std::endl;
+    }
     return 0.0;
-  else
+  } else {
+    if(debug) {
+      std::cout << "hit:surface" << std::endl;
+      std::cout << "return: " << distance << std::endl;
+    }
     return distance;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -287,10 +318,17 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
 
   fdagmc->closest_to_location(fvolEntity, point, minDist);
   minDist *= cm;  // convert back to mm
-  if (minDist <= kCarTolerance * 0.5)
-    return 0.0;
-  else
-    return minDist;
+
+  if(debug) {
+    std::cout << "DistanceToIn(point)" << std::endl;
+    std::cout << "pos: " << p.x() << " " << p.y() << " " << p.z() << std::endl;
+    std::cout << "return: " << minDist << std::endl;
+  }
+  
+  //if (minDist <= kCarToleranceHalf)
+  //  return 0.0;
+  //else
+  return minDist;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -314,40 +352,71 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
 G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
                                  const G4bool calcNorm, G4bool* validNorm,
                                  G4ThreeVector* n) const {
-  G4double minDist = kInfinity;
-  double position[3] = {p.x() / cm, p.y() / cm,
-                        p.z() / cm};  // convert position to cm
-  double dir[3] = {v.x(), v.y(), v.z()};
+
+  double position[3] = {p.x()/cm, p.y()/cm, p.z()/cm};  // convert position to cm
+  G4ThreeVector vec = v.unit();
+  double dir[3] = {vec.x(), vec.y(), vec.z()};
 
   EntityHandle next_surf;
-  double next_dist;
-  DagMC::RayHistory history;
+  G4double distance;
+  G4double forwardDistance, backwardDistance;
 
-  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, next_dist, &history, 0,
-                   1);
-  history.reset();
-  next_dist *= cm;  // convert back to mm
+  fdagmc->ray_fire(fvolEntity,position,dir,next_surf,forwardDistance,NULL,0,1);
+  fdagmc->ray_fire(fvolEntity,position,dir,next_surf,backwardDistance,NULL,0,-1);
 
-  // no more surfaces
-  if (next_surf == 0) return kInfinity;
+  distance = forwardDistance;
 
+  if(debug) {
+    std::cout << "DistanceToOut(trace) " << std::endl;
+    std::cout << "pos: " << p.x() << " " << p.y() << "  " << p.z() << std::endl;
+    std::cout << "distance: " << distance << std::endl;
+    std::cout << "direction: " << v.x() << " " << v.y() << " " << v.z() << std::endl;
+    std::cout << "forwraddistance: " << forwardDistance << std::endl;
+  }  
+
+  // no surfaces to hit
+  if (next_surf == 0) {
+    if(debug) {
+      std::cout << "return: kInfinity" << std::endl;
+    }
+    return kInfinity;
+  }
+  
+  // calculate the normal
   if (calcNorm) {
-    *n = SurfaceNormal(p + minDist * v);
-    *validNorm = false;
-  }
-
-  if (next_dist < minDist) minDist = next_dist;
-
-  // particle considered to be on surface
-  if (minDist > 0.0 && minDist <= 0.5 * kCarTolerance) {
-    return 0.0;
-  } else if (minDist < kInfinity) {
-    if (calcNorm)  // if calc norm true,s should set validNorm true
+    *n = SurfaceNormal(p + v*distance);
+    DagMC::RayHistory history;
+    // fire twice
+    fdagmc->ray_fire(fvolEntity,position,dir,next_surf,forwardDistance,&history,0,1);
+    fdagmc->ray_fire(fvolEntity,position,dir,next_surf,forwardDistance,&history,0,1);
+    if(next_surf != 0 ) 
       *validNorm = true;
-    return minDist;
-  } else {
-    return 0.0;  // was kinfinity
+    else
+      *validNorm = false;
   }
+
+  // must convert here since previous needs it in cm
+  distance *= cm;  // convert back to mm
+  
+  // we are on a surface
+  if ( distance > 0.0 && distance <= kCarToleranceHalf ) {
+    if(debug) {
+      std::cout << "on a surface" << std::endl;
+      std::cout << "distance: " << distance << std::endl;
+    }
+    return 0.0;
+  }
+
+  // distance greater than kCarTolerance
+  if ( distance > 0.0 ) {
+    if (debug) {
+      std::cout << "normal intersection" << std::endl;
+      std::cout << "distance: " << distance << std::endl;      
+    }
+    return distance;
+  }
+  std::cout << "help" << std::endl;
+  return 0.0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -361,11 +430,11 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
   G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
 
   fdagmc->closest_to_location(fvolEntity, point, minDist);
-  minDist *= cm;  // convert back to mm
-  if (minDist < kCarTolerance / 2.0)
+  minDist *= cm;
+  if (minDist < kCarToleranceHalf)
     return 0.0;
   else
-    return minDist;
+    return minDist; //convert back to mm
 }
 
 ///////////////////////////////////////////////////////////////////////////////

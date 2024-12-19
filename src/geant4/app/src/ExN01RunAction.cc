@@ -24,8 +24,8 @@ void ExN01RunAction::BeginOfRunAction(const G4Run* /*run*/) {
   G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file  - DagGeant.root
-  G4String fileName = "DagGeant";
-  analysisManager->OpenFile(fileName);
+  //G4String fileName = "DagGeant";
+  //analysisManager->OpenFile(fileName);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
