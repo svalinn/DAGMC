@@ -391,6 +391,41 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
   G4double distance;
   G4double forwardDistance, backwardDistance;
 
+  EntityHandle surf1,surf2;
+  G4double hit1,hit2;
+  DagMC::RayHistory history;
+
+  G4bool leaving = false;
+    
+  fdagmc->ray_fire(fvolEntity,position,dir,surf1,hit1,&history,0,1);
+  fdagmc->ray_fire(fvolEntity,position,dir,surf2,hit2,&history,0,1);
+
+  // if the first hit was too close to surface and there are no further hits
+  // then we are leaving the volume (return either 0 )
+  if(hit1 <= kCarToleranceHalf && surf2 == 0) {
+    leaving = true;
+    distance = 0.;
+  // if the hit is too close to the surface and there are more intersections
+  // return the far hit distance
+  } else if ( hit1 <= kCarToleranceHalf && surf2 != 0)
+    distance = hit2;
+  // if the hit is far away enough and there are more intersections
+  else if ( hit1 > kCarToleranceHalf && surf2 != 0)
+    distance = hit1;
+  // else we are leaving at the first hit
+  else {
+    leaving = true;
+    distance = hit1;
+  }
+  // possibility of no hit?
+
+  if(calcNorm) {
+    if(leaving) {
+      *n = SurfaceNormal(p + v*distance);
+      *validNorm = true;
+    } 
+  }
+  
   fdagmc->ray_fire(fvolEntity,position,dir,next_surf,forwardDistance,NULL,0,1);
   fdagmc->ray_fire(fvolEntity,position,dir,next_surf_b,backwardDistance,NULL,0,-1);
 
