@@ -269,20 +269,12 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
   G4double dir[3] = {vec.x(), vec.y(), vec.z()};
   EntityHandle next_surf = 0;
   G4double distance;
-  G4double forwardDistance,reverseDistance;
 
-  // use the safety
-  G4double safety = DistanceToIn(p);
+  fdagmc->ray_fire(fvolEntity, position, dir, next_surf, distance, NULL, 0, -1);
+  distance = distance*cm;  // convert back to mm
   
-  // if we aren't close enough to the surface
-  if (safety > kCarToleranceHalf) {
-    fdagmc->ray_fire(fvolEntity, position, dir, next_surf, reverseDistance, NULL, 0, -1);
-    distance = reverseDistance*cm;  // convert back to mm
-    if (next_surf == 0) return kInfinity;
-  } else {
-    // otherwise use the safety
-    distance = safety*cm;
-  }
+  if (next_surf == 0) return kInfinity;
+  
 
   if(debug) {
     std::cout << "DistanceToIn(raytrace) " << std::endl;
