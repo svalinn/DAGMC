@@ -218,18 +218,18 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
     return kSurface;
   } else {
     // result == 0 is outside 
-    if (result == 0 || minDist > kCarToleranceHalf) {
+    if (result == 0 && minDist > kCarToleranceHalf) {
       if (debug) {
-	std::cout << "dist: " << minDist << std::endl;
-	std::cout << "inside: " << result << std::endl;
-	std::cout << "return: (outside) " << kOutside << std::endl;
+	      std::cout << "dist: " << minDist << std::endl;
+	      std::cout << "inside: " << result << std::endl;
+	      std::cout << "return: (outside) " << kOutside << std::endl;
       }
       return kOutside;
     } else {
       if (debug) {
-	std::cout << "dist: " << minDist << std::endl;
-	std::cout << "inside: " << result << std::endl;
-	std::cout << "return: (inside) " << kInside << std::endl;
+	      std::cout << "dist: " << minDist << std::endl;
+	      std::cout << "inside: " << result << std::endl;
+	      std::cout << "return: (inside) " << kInside << std::endl;
       }
       return kInside;
     }
@@ -611,18 +611,31 @@ G4double DagSolid::GetMinZExtent() const { return zMinExtent / cm; }
 //
 G4double DagSolid::GetMaxZExtent() const { return zMaxExtent / cm; }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+/*
+ * Return the volume of the volume - note DAGMC is always in the units of cm
+ */
 G4double DagSolid::GetCubicVolume() {
   G4double result;
   fdagmc->measure_volume(fvolEntity, result);
   return result * cm * cm * cm;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+/*
+ * Return the surface area of the volume - 
+ * note DAGMC is always in the units of cm
+ */
 G4double DagSolid::GetSurfaceArea() {
   G4double result;
-  fdagmc->measure_area(fvolEntity, result);
-  return result * cm * cm;
+  // get the moab instance
+  moab::Interface *moab = fdagmc->moab_instance();
+  std::vector<moab::EntityHandle> surfaces;
+  moab::ErrorCode rval = moab->get_child_meshsets(fvolEntity,surfaces);
+
+  G4double area = 0.;
+  for (auto surface : surfaces) {
+    G4double surf_area;
+    fdagmc->measure_area(surface,surf_area);
+    area += surf_area;
+  } 
+  return area * cm * cm;
 }

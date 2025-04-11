@@ -119,6 +119,83 @@ TEST_F(DagSolidTest, point_outside_volume) {
 }
 
 /*
+ * surface normal test - test all 6 faces of the cube
+ */
+TEST_F(DagSolidTest, surface_normal_test) {
+  // set the vector to be the rhs
+  G4ThreeVector position = G4ThreeVector(50., 0., 0.);
+
+  G4ThreeVector normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 1.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(-50.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0],-1.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(-50.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(-50.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(50.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(0.);
+  position.setZ(50.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 1.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(0.);
+  position.setZ(-50.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], -1.0);
+
+  return;
+}
+
+/*
  * ray fire test, distance to in
  * only for points external to a volume
  */
@@ -265,6 +342,6 @@ TEST_F(DagSolidTest, volume_test) {
  */
 TEST_F(DagSolidTest, surface_area_test) {
   G4double surface_area = vol_1->GetSurfaceArea();
-  std::cout << surface_area << std::endl;
+  EXPECT_EQ(6*100.*10*10, surface_area);
   return;
 }
