@@ -8,6 +8,27 @@
 #include "DagSolid.hh"
 #include "G4TessellatedSolid.hh"
 
+class DagSolidTestImprinted : public ::testing::Test {
+  protected:
+   virtual void SetUp() {
+     DagMC* dagmc = new moab::DagMC();  // create dag instance
+ 
+     // dag_volumes
+     const char* h5mfilename = "test_geom_two_vol.h5m";
+     dagmc->load_file(h5mfilename);
+     dagmc->init_OBBTree();
+ 
+     // new volume
+     vol_1 = new DagSolid("vol_1", dagmc, 1);
+     vol_2 = new DagSolid("vol_2", dagmc, 2);
+    }
+ 
+  protected:
+   DagSolid* vol_1;
+   DagSolid* vol_2;
+};
+ 
+
 class DagSolidTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
@@ -312,5 +333,153 @@ TEST_F(DagSolidTest, volume_test) {
 TEST_F(DagSolidTest, surface_area_test) {
   G4double surface_area = vol_1->GetSurfaceArea();
   EXPECT_EQ(6 * 100. * 10 * 10, surface_area);
+  return;
+}
+
+/*
+ * Empty common setup function
+ */
+TEST_F(DagSolidTestImprinted, SetUp) {}
+
+/*
+ * surface normal test - test all 6 faces of the cube
+ */
+TEST_F(DagSolidTestImprinted, surface_normal_test) {
+  // set the vector to be the rhs
+  G4ThreeVector position = G4ThreeVector(5., 0., 0.);
+
+  G4ThreeVector normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 1.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(-5.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0],-1.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(-5.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(-5.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(5.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(0.);
+  position.setZ(5.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 1.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(0.);
+  position.setZ(-50.);
+
+  normal = vol_1->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], -1.0);
+
+  // now test volume 2
+  
+  position.setX(0.);
+  position.setY(150.);
+  position.setZ(0.);
+
+   normal = vol_2->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  position.setX(0.);
+  position.setY(50.);
+  position.setZ(0.);
+
+   normal = vol_2->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], -1.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  position.setX(50.);
+  position.setY(100.);
+  position.setZ(0.);
+
+   normal = vol_2->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 1.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+  position.setX(-50.);
+  position.setY(100.);
+  position.setZ(0.);
+
+   normal = vol_2->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], -1.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 0.0);
+
+
+  // set the vector to be the rhs
+  position.setX(0.);
+  position.setY(100.);
+  position.setZ(50.);
+
+   normal = vol_2->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], 1.0);
+
+  // set the vector to be the lhs
+  position.setX(0.);
+  position.setY(100.);
+  position.setZ(-50.);
+
+  normal = vol_2->SurfaceNormal(position);
+
+  EXPECT_EQ(normal[0], 0.0);
+  EXPECT_EQ(normal[1], 0.0);
+  EXPECT_EQ(normal[2], -1.0);
+
+
   return;
 }
