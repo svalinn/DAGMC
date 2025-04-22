@@ -8,6 +8,13 @@
 #include "DagSolid.hh"
 #include "G4TessellatedSolid.hh"
 
+/*
+* Notes: DAGMC geometries implicitly have units of cm's due to the history of development with
+* centimetre based physics engines. Please note that Geant4 uses units of mm internally (and can 
+* course be changed) for the purposes of this test note that mm's are being passed into the various
+* function calls, e.g. a call to the PointInVolume(10,0,0) refers to (10mm,0,0).
+*/
+
 class DagSolidTestImprinted : public ::testing::Test {
   protected:
    virtual void SetUp() {
