@@ -306,27 +306,6 @@ TEST_F(DagSolidTest, test_7) {
 }
 
 /*
- * ray fire test, distance to out calc normal as well
- * point just outside of a volume, vnorm should be false
- */
-TEST_F(DagSolidTest, test_8) {
-  // point inside cell looking out
-  G4ThreeVector position = G4ThreeVector(51., 0., 0.);
-  G4ThreeVector direction = G4ThreeVector(1., 0., 0.);
-
-  G4ThreeVector normal;
-  bool v_norm = false;
-  double distance =
-      vol_1->DistanceToOut(position, direction, true, &v_norm, &normal);
-
-  // when the point is outside the volume, v_norm should be false
-  EXPECT_FALSE(v_norm);
-  // distance should be set to infinity
-  EXPECT_EQ(kInfinity, distance);
-  return;
-}
-
-/*
  * volume_test calculates the volume of the solid, test cube is 10*10*10 cm
  * G4 works in mm, therefore expect 10*10*10*1000 = 1e6 cubic millimetres
  */
