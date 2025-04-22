@@ -80,7 +80,6 @@ DagSolid::DagSolid(const G4String& name, moab::DagMC* dagmc, int volID)
 
   // cache entity handles of triangles for later
   for (moab::EntityHandle surf : fSurfaces) {
-    G4cout << fvolEntity << " " << surf << G4endl;
 
     std::vector<moab::EntityHandle> triangles;
     moab->get_entities_by_type(surf, moab::MBTRI, triangles);
