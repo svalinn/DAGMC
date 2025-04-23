@@ -13,6 +13,11 @@ class G4VPhysicalVolume;
 #include "G4SDParticleFilter.hh"
 #include "G4VUserDetectorConstruction.hh"
 
+#include "DagMC.hpp"
+#include "dagmcmetadata.hpp"
+#include "moab/Interface.hpp"
+#include "pyne.h"
+
 #ifndef uwuw_hpp
 #define uwuw_hpp 1
 #include "uwuw.hpp"
@@ -22,10 +27,13 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
  public:
   ExN01DetectorConstruction(UWUW* uwuw_workflow_data);
   ~ExN01DetectorConstruction();
+   
 
  public:
   virtual G4VPhysicalVolume* Construct();
   virtual void ConstructSDandField();
+
+  G4double GetMaxOrdinate();
 
   // the tally library
   std::map<std::string, pyne::Tally> tally_library;
@@ -50,6 +58,9 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   G4LogicalVolume* world_volume_log;
 
   UWUW* workflow_data;
+  moab::DagMC* dagmc;
+  dagmcMetaData* DMD;
+
 };
 
 #endif

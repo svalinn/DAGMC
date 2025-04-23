@@ -24,23 +24,19 @@
 #include "G4Tubs.hh"
 #include "G4VPrimitiveScorer.hh"
 #include "G4VisAttributes.hh"
-#include "dagmcmetadata.hpp"
 #include "globals.hh"
-//
 
-#include "DagMC.hpp"
 #include "DagSolid.hh"
 #include "DagSolidMaterial.hh"
 #include "DagSolidTally.hh"
-#include "moab/Interface.hpp"
-#include "pyne.h"
+#include "DagSolidColors.hh"
 
-moab::DagMC* dagmc = new moab::DagMC();  // create dag instance
-dagmcMetaData* DMD;
+
 // constructor
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data)
     : world_volume_log(0) {
   workflow_data = uwuw_workflow_data;
+  dagmc = new moab::DagMC();
 }
 
 // destructor
@@ -61,16 +57,6 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   // -- World Volume in which we place other volumes
   // we can probably do something like get the obb for the implicit complement
   // and use that as the size for the world vol
-  G4double world_width = 50000.0 * cm;
-  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(2. * world_width);
-
-  G4Box* world_volume =
-      new G4Box("world_volume_box", world_width, world_width, world_width);
-  world_volume_log = new G4LogicalVolume(
-      world_volume, material_lib["mat:Vacuum"], "world_vol_log", 0, 0, 0);
-  world_volume_log->SetVisAttributes(invis);
-  G4PVPlacement* world_volume_phys = new G4PVPlacement(
-      0, G4ThreeVector(), world_volume_log, "world_vol", 0, false, 0);
 
   // load the dagmc file - only to get the counts of volumes
   moab::ErrorCode rval = dagmc->load_file(workflow_data->full_filepath.c_str());
@@ -90,6 +76,23 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   // attach a metadata instance
   DMD = new dagmcMetaData(dagmc);
   DMD->load_property_data();
+
+  // set the world
+  G4double world_width = GetMaxOrdinate()*cm;
+  G4GeometryManager::GetInstance()->SetWorldMaximumExtent(2. * world_width);
+
+  G4Box* world_volume =
+      new G4Box("world_volume_box", world_width, world_width, world_width);
+  world_volume_log = new G4LogicalVolume(
+      world_volume, material_lib["mat:Vacuum"], "world_vol_log", 0, 0, 0);
+  world_volume_log->SetVisAttributes(invis);
+  G4PVPlacement* world_volume_phys = new G4PVPlacement(
+      0, G4ThreeVector(), world_volume_log, "world_vol", 0, false, 0);
+
+  // set the colours to be used
+  UniformColorGenerator *colorgen = new UniformColorGenerator(material_lib.size());
+  colorgen->Generate();
+  std::vector<RGB> colours = colorgen->GetColours();
 
   // get count of entities
   G4int num_of_objects = dagmc->num_entities(3);
@@ -114,23 +117,61 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
     dag_volumes.push_back(dag_vol);
     // make new logical volume
     std::string material_name = mat_name;
+    G4cout << "mat_name: " << mat_name << G4endl;
     if (mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
       material_name = "mat:Vacuum";
     }
 
+    G4cout << material_lib[material_name] << G4endl;
+
     G4LogicalVolume* dag_vol_log =
         new G4LogicalVolume(dag_vol, material_lib[material_name],
                             "vol_" + idx_str + "_log", 0, 0, 0);
+    // set the vis attributes                            
+    if (mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
+      dag_vol_log ->SetVisAttributes(invis);
+    } else {
+      dag_vol_log ->SetVisAttributes(G4Color(colours[dag_idx].r,
+                                             colours[dag_idx].g,
+                                             colours[dag_idx].b));
+    }
     dag_logical_volumes[dag_idx] = dag_vol_log;
     // make a new physical placement
     G4PVPlacement* dag_vol_phys = new G4PVPlacement(
         0, G4ThreeVector(0 * cm, 0 * cm, 0 * cm), dag_vol_log,
         "volume_" + idx_str + "_phys", world_volume_log, false, 0);
     dag_physical_volumes.push_back(dag_vol_phys);
+
+      
+
   }
 
   return world_volume_phys;
 }
+
+// find the maximum coordinate in any direction using the graveyard
+// used to set a sensible mother volume size
+G4double ExN01DetectorConstruction::GetMaxOrdinate() {
+  moab::EntityHandle volume;
+  // load the properties from the metadata instance
+  for (int dag_idx = 1; dag_idx < dagmc->num_entities(3) ; dag_idx++) {
+    int dag_id = dagmc->id_by_index(3, dag_idx);
+    volume = dagmc->entity_by_id(3, dag_id);
+    // get the material_name
+    std::string mat_name = DMD->volume_material_property_data_eh[volume];
+    if (mat_name == "mat:Graveyard" ) break;
+  }
+  G4double min[3], max[3];
+  moab::ErrorCode rval = dagmc->getobb(volume,min,max);
+  G4double x = std::max(std::abs(min[0]), std::abs(max[0]));
+  G4double y = std::max(std::abs(min[1]), std::abs(max[1]));
+  G4double z = std::max(std::abs(min[2]), std::abs(max[2]));
+  
+  G4double max_ordinate = std::max(x, std::max(y, z));
+  return max_ordinate;
+}
+
+
 
 // Constructs the tallies
 void ExN01DetectorConstruction::ConstructSDandField() {
