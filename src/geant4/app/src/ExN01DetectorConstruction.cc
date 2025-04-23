@@ -89,13 +89,15 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   G4PVPlacement* world_volume_phys = new G4PVPlacement(
       0, G4ThreeVector(), world_volume_log, "world_vol", 0, false, 0);
 
+   // get count of entities
+  G4int num_of_objects = dagmc->num_entities(3);
+
   // set the colours to be used
   UniformColorGenerator *colorgen = new UniformColorGenerator(material_lib.size());
+  //UniformColorGenerator *colorgen = new UniformColorGenerator(num_of_objects);
   colorgen->Generate();
-  std::vector<RGB> colours = colorgen->GetColours();
+  std::vector<RGB> colours = colorgen->GetColors();
 
-  // get count of entities
-  G4int num_of_objects = dagmc->num_entities(3);
 
   G4cout << "There are " << num_of_objects << " dag volumes" << G4endl;
 
@@ -117,12 +119,9 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
     dag_volumes.push_back(dag_vol);
     // make new logical volume
     std::string material_name = mat_name;
-    G4cout << "mat_name: " << mat_name << G4endl;
     if (mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
       material_name = "mat:Vacuum";
     }
-
-    G4cout << material_lib[material_name] << G4endl;
 
     G4LogicalVolume* dag_vol_log =
         new G4LogicalVolume(dag_vol, material_lib[material_name],
@@ -131,18 +130,20 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
     if (mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
       dag_vol_log ->SetVisAttributes(invis);
     } else {
-      dag_vol_log ->SetVisAttributes(G4Color(colours[dag_idx].r,
-                                             colours[dag_idx].g,
-                                             colours[dag_idx].b));
+      // use distance in place of an index
+      G4int mat_idx = std::distance(material_lib.begin(),
+                                    material_lib.find(mat_name));
+      // set the colour
+      dag_vol_log ->SetVisAttributes(G4Color(colours[mat_idx].r,
+                                             colours[mat_idx].g,
+                                             colours[mat_idx].b));
     }
     dag_logical_volumes[dag_idx] = dag_vol_log;
     // make a new physical placement
     G4PVPlacement* dag_vol_phys = new G4PVPlacement(
         0, G4ThreeVector(0 * cm, 0 * cm, 0 * cm), dag_vol_log,
         "volume_" + idx_str + "_phys", world_volume_log, false, 0);
-    dag_physical_volumes.push_back(dag_vol_phys);
-
-      
+    dag_physical_volumes.push_back(dag_vol_phys);     
 
   }
 
