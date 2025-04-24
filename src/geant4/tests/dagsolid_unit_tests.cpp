@@ -80,7 +80,7 @@ TEST_F(DagSolidTest, point_out_outside_tolerance) {
  */
 TEST_F(DagSolidTest, point_out_surface_tolerance) {
   // sample position
-  G4ThreeVector position = G4ThreeVector(50. + (9.99e-9 / 2.0), 0., 0.);
+  G4ThreeVector position = G4ThreeVector(50. + 4.99e-10, 0., 0.);
   // point in volume test
   EInside inside = vol_1->Inside(position);
 
@@ -95,7 +95,7 @@ TEST_F(DagSolidTest, point_out_surface_tolerance) {
  */
 TEST_F(DagSolidTest, point_on_surface_tolerance) {
   // sample position
-  G4ThreeVector position = G4ThreeVector(50. - (9.999e-9 / 2.0), 0., 0.);
+  G4ThreeVector position = G4ThreeVector(50. - 4.99e-10, 0., 0.);
   // point in volume test
   EInside inside = vol_1->Inside(position);
 
