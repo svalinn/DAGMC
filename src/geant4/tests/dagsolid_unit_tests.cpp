@@ -136,7 +136,7 @@ TEST_F(DagSolidTest, surface_normal_test) {
 
   normal = vol_1->SurfaceNormal(position);
 
-  EXPECT_EQ(normal[0],-1.0);
+  EXPECT_EQ(normal[0], -1.0);
   EXPECT_EQ(normal[1], 0.0);
   EXPECT_EQ(normal[2], 0.0);
 
@@ -147,7 +147,7 @@ TEST_F(DagSolidTest, surface_normal_test) {
   normal = vol_1->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 0.0);
-  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[1], -1.0);
   EXPECT_EQ(normal[2], 0.0);
 
   // set the vector to be the lhs
@@ -157,7 +157,7 @@ TEST_F(DagSolidTest, surface_normal_test) {
   normal = vol_1->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 0.0);
-  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[1], -1.0);
   EXPECT_EQ(normal[2], 0.0);
 
   // set the vector to be the lhs
@@ -321,6 +321,6 @@ TEST_F(DagSolidTest, volume_test) {
  */
 TEST_F(DagSolidTest, surface_area_test) {
   G4double surface_area = vol_1->GetSurfaceArea();
-  EXPECT_EQ(6*100.*10*10, surface_area);
+  EXPECT_EQ(6 * 100. * 10 * 10, surface_area);
   return;
 }

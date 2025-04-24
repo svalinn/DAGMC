@@ -70,7 +70,7 @@ using namespace moab;
 #define plot true
 #define debug false
 
-//#define DAGDEBUG 
+// #define DAGDEBUG
 
 // #define G4SPECSDEBUG 1
 ///////////////////////////////////////////////////////////////////////////////
@@ -130,24 +130,26 @@ DagSolid::DagSolid(const G4String& name, DagMC* dagmc, int volID)
       My_sulf_hit = surfs[i];
       moab->get_number_entities_by_type(surfs[i], MBTRI, num_entities);
       moab->get_entities_by_type(surfs[i], MBTRI, tris);
-      dagmc->surface_sense(fvolEntity,surfs[i],sense);
+      dagmc->surface_sense(fvolEntity, surfs[i], sense);
       for (unsigned j = 0; j < tris.size(); j++) {
         moab->get_connectivity(tris[j], tri_conn, n_verts);
         moab->get_coords(tri_conn, n_verts, coords[0].array());
 
-	vertex[0] = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm,
-				  coords[0][2] * cm);
-	vertex[1] = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm,
-				  coords[1][2] * cm);
-	vertex[2] = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm,
-				  coords[2][2] * cm);
+        vertex[0] = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm,
+                                  coords[0][2] * cm);
+        vertex[1] = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm,
+                                  coords[1][2] * cm);
+        vertex[2] = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm,
+                                  coords[2][2] * cm);
 
-	G4TriangularFacet* facet = NULL;
-	if ( sense > 0 ) {
-	  facet = new G4TriangularFacet(vertex[0], vertex[1], vertex[2], ABSOLUTE);
-	} else {
-	  facet = new G4TriangularFacet(vertex[2], vertex[1], vertex[0], ABSOLUTE);
-	}
+        G4TriangularFacet* facet = NULL;
+        if (sense > 0) {
+          facet =
+              new G4TriangularFacet(vertex[0], vertex[1], vertex[2], ABSOLUTE);
+        } else {
+          facet =
+              new G4TriangularFacet(vertex[2], vertex[1], vertex[0], ABSOLUTE);
+        }
         AddFacet((G4VFacet*)facet);
 
         for (G4int k = 0; k < 3; k++) {
@@ -208,7 +210,7 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
 
   // if on surface
   EInside result;
-  if (minDist*cm <= kCarToleranceHalf) {
+  if (minDist * cm <= kCarToleranceHalf) {
     result = kSurface;
   } else {
     if (inside == 0) {
@@ -218,14 +220,14 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
     }
   }
 
-  #ifdef DAGDEBUGA
-    G4cout << "<<<<<" << G4endl;
-    G4cout << "Inside(p)" << G4endl;
-    G4cout << "Name: " << Myname << G4endl;
-    G4cout << "pos: " << p << G4endl;
-    G4cout << "return: " << result << G4endl;
-    G4cout << ">>>>>" << G4endl;
-  #endif
+#ifdef DAGDEBUGA
+  G4cout << "<<<<<" << G4endl;
+  G4cout << "Inside(p)" << G4endl;
+  G4cout << "Name: " << Myname << G4endl;
+  G4cout << "pos: " << p << G4endl;
+  G4cout << "return: " << result << G4endl;
+  G4cout << ">>>>>" << G4endl;
+#endif
   return result;
 }
 
@@ -244,18 +246,18 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
   fdagmc->closest_to_location(fvolEntity, position, distance, &surface);
 
   // currently get warnings from RTI.cpp in double down since the
-  // point may not be on the surface 
+  // point may not be on the surface
   fdagmc->get_angle(surface, position, ang);
 
   G4ThreeVector normal = G4ThreeVector(ang[0], ang[1], ang[2]);
 
-  #ifdef DAGDEBUG
-    G4cout << "<<<<<" << G4endl;
-    G4cout << "SurfaceNormal(p)" << G4endl;
-    G4cout << "Name: " << Myname << G4endl;
-    G4cout << "normal: " << normal << G4endl;
-    G4cout << ">>>>>" << G4endl;
-  #endif
+#ifdef DAGDEBUG
+  G4cout << "<<<<<" << G4endl;
+  G4cout << "SurfaceNormal(p)" << G4endl;
+  G4cout << "Name: " << Myname << G4endl;
+  G4cout << "normal: " << normal << G4endl;
+  G4cout << ">>>>>" << G4endl;
+#endif
 
   return normal;
 }
@@ -276,26 +278,26 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
 
   // look for an entering intesection, i.e. opposing the ray direction
   fdagmc->ray_fire(fvolEntity, position, dir, next_surf, distance, NULL, 0, -1);
-  
+
   // if we are close the surface set surfaace distance 0
-  if (distance*cm <= kCarToleranceHalf) {
+  if (distance * cm <= kCarToleranceHalf) {
     distance = 0.;
   }
 
   // no hits
   if (next_surf == 0) return kInfinity;
 
-  #ifdef DAGDEBUG
-    G4cout << "<<<<<" << G4endl;
-    G4cout << "DistanceToIn(p,v) " << G4endl;
-    G4cout << "Name: " << Myname << G4endl;
-    G4cout << "pos: " << p << G4endl;
-    G4cout << "direction: " << v << G4endl;
-    G4cout << "distance: " << distance*cm << G4endl;
-    G4cout << ">>>>>" << G4endl;
-  #endif
+#ifdef DAGDEBUG
+  G4cout << "<<<<<" << G4endl;
+  G4cout << "DistanceToIn(p,v) " << G4endl;
+  G4cout << "Name: " << Myname << G4endl;
+  G4cout << "pos: " << p << G4endl;
+  G4cout << "direction: " << v << G4endl;
+  G4cout << "distance: " << distance * cm << G4endl;
+  G4cout << ">>>>>" << G4endl;
+#endif
 
-  return distance*cm;
+  return distance * cm;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -313,16 +315,16 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
 
   fdagmc->closest_to_location(fvolEntity, point, minDist);
 
-  #ifdef DAGDEBUG
-    G4cout << "<<<<<" << G4endl;
-    G4cout << "DistanceToIn(p)" << G4endl;
-    G4cout << "Name: " << Myname << G4endl;
-    G4cout << "pos: " << p << G4endl;
-    G4cout << "return: " << minDist*cm << G4endl;
-    G4cout << ">>>>>" << G4endl;
-  #endif
+#ifdef DAGDEBUG
+  G4cout << "<<<<<" << G4endl;
+  G4cout << "DistanceToIn(p)" << G4endl;
+  G4cout << "Name: " << Myname << G4endl;
+  G4cout << "pos: " << p << G4endl;
+  G4cout << "return: " << minDist * cm << G4endl;
+  G4cout << ">>>>>" << G4endl;
+#endif
 
-  return minDist*cm;
+  return minDist * cm;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -350,17 +352,18 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
 G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
                                  const G4bool calcNorm, G4bool* validNorm,
                                  G4ThreeVector* n) const {
-
-  double position[3] = {p.x()/cm, p.y()/cm, p.z()/cm};  // convert position to cm
+  double position[3] = {p.x() / cm, p.y() / cm,
+                        p.z() / cm};  // convert position to cm
   G4ThreeVector vec = v.unit();
   double dir[3] = {vec.x(), vec.y(), vec.z()};
 
   EntityHandle surface;
   G4double distance;
   moab::DagMC::RayHistory history;
-    
+
   // fire a ray
-  fdagmc->ray_fire(fvolEntity,position,dir,surface,distance,&history,0,1);
+  fdagmc->ray_fire(fvolEntity, position, dir, surface, distance, &history, 0,
+                   1);
 
   // if we are asked to calculate the normal
   if (calcNorm) {
@@ -368,40 +371,39 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
     // get the direction vector;
     double normal[3];
     double hit[3];
-    hit[0] = position[0] + (distance*dir[0]);
-    hit[1] = position[1] + (distance*dir[1]);
-    hit[2] = position[2] + (distance*dir[2]);
+    hit[0] = position[0] + (distance * dir[0]);
+    hit[1] = position[1] + (distance * dir[1]);
+    hit[2] = position[2] + (distance * dir[2]);
 
     fdagmc->get_angle(surface, hit, normal, &history);
-    *n = G4ThreeVector(normal[0],normal[1],normal[2]);
+    *n = G4ThreeVector(normal[0], normal[1], normal[2]);
     G4int sense;
     fdagmc->surface_sense(fvolEntity, surface, sense);
     if (sense == -1) *n = -(*n);
-  
   }
 
   // if hit is too close
-   if ( distance*cm <= kCarToleranceHalf ) {
+  if (distance * cm <= kCarToleranceHalf) {
     distance = 0.;
   }
 
-  #ifdef DAGDEBUG
-    G4cout << "<<<<<" << G4endl;
-    G4cout << "DistanceToOut(p,v) " << G4endl;
-    G4cout << "Name: " << Myname << G4endl;
-    G4cout << "point: " << p << G4endl;
-    G4cout << "direction: " << v << G4endl;
-    G4cout << "distance: " << distance*cm << G4endl;
-    G4cout << "calcNorm: " << calcNorm << G4endl;
-    if (calcNorm) {
-      G4cout << "validNorm: " << *validNorm << G4endl;
-      G4cout << "normal: " << n->x() << " " << n->y() << " " << n->z() << G4endl;
-    }
-    G4cout << ">>>>>" << G4endl;
-  #endif 
+#ifdef DAGDEBUG
+  G4cout << "<<<<<" << G4endl;
+  G4cout << "DistanceToOut(p,v) " << G4endl;
+  G4cout << "Name: " << Myname << G4endl;
+  G4cout << "point: " << p << G4endl;
+  G4cout << "direction: " << v << G4endl;
+  G4cout << "distance: " << distance * cm << G4endl;
+  G4cout << "calcNorm: " << calcNorm << G4endl;
+  if (calcNorm) {
+    G4cout << "validNorm: " << *validNorm << G4endl;
+    G4cout << "normal: " << n->x() << " " << n->y() << " " << n->z() << G4endl;
+  }
+  G4cout << ">>>>>" << G4endl;
+#endif
 
   // return the hit distance
-  return distance*cm;
+  return distance * cm;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -418,16 +420,16 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
 
   fdagmc->closest_to_location(fvolEntity, point, minDist);
 
-  #ifdef DAGDEBUG
-    G4cout << "<<<<<" << G4endl;
-    G4cout << "DistanceToOut(p)" << G4endl;
-    G4cout << "Name: " << Myname << G4endl;
-    G4cout << "pos: " << p << G4endl;
-    G4cout << "return: " << minDist*cm << G4endl;
-    G4cout << ">>>>>" << G4endl;
-  #endif
-  
-  return minDist*cm;
+#ifdef DAGDEBUG
+  G4cout << "<<<<<" << G4endl;
+  G4cout << "DistanceToOut(p)" << G4endl;
+  G4cout << "Name: " << Myname << G4endl;
+  G4cout << "pos: " << p << G4endl;
+  G4cout << "return: " << minDist * cm << G4endl;
+  G4cout << ">>>>>" << G4endl;
+#endif
+
+  return minDist * cm;
   // return DistanceToIn(p);
 }
 
@@ -557,21 +559,21 @@ G4double DagSolid::GetCubicVolume() {
 }
 
 /*
- * Return the surface area of the volume - 
+ * Return the surface area of the volume -
  * note DAGMC is always in the units of cm
  */
 G4double DagSolid::GetSurfaceArea() {
   G4double result;
   // get the moab instance
-  moab::Interface *moab = fdagmc->moab_instance();
+  moab::Interface* moab = fdagmc->moab_instance();
   std::vector<moab::EntityHandle> surfaces;
-  moab::ErrorCode rval = moab->get_child_meshsets(fvolEntity,surfaces);
+  moab::ErrorCode rval = moab->get_child_meshsets(fvolEntity, surfaces);
 
   G4double area = 0.;
   for (auto surface : surfaces) {
     G4double surf_area;
-    fdagmc->measure_area(surface,surf_area);
+    fdagmc->measure_area(surface, surf_area);
     area += surf_area;
-  } 
+  }
   return area * cm * cm;
 }
