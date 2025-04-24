@@ -12,7 +12,6 @@
 #include "G4PhysListFactory.hh"
 #include "G4RunManager.hh"
 #include "G4RunManagerFactory.hh"
-
 #include "G4ScoringManager.hh"
 #include "G4Timer.hh"
 #include "G4UImanager.hh"
@@ -39,13 +38,13 @@ int main(int argc, char* argv[]) {
   Timer.Start();
 
   G4int nThreads = 64;
-  G4RunManager* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
-  #ifdef G4MULTITHREADED
+  G4RunManager* runManager =
+      G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+#ifdef G4MULTITHREADED
   if (nThreads > 0) {
     runManager->SetNumberOfThreads(nThreads);
   }
-  #endif
-
+#endif
 
   // Activate command-based scorer
   G4ScoringManager* scManager = G4ScoringManager::GetScoringManager();

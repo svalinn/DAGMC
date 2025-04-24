@@ -8,19 +8,19 @@
 
 // struct for RGB
 struct RGB {
-    double r, g, b;
+  double r, g, b;
 };
 
 class UniformColorGenerator {
-  public:
+ public:
   UniformColorGenerator(int num_colors);
   ~UniformColorGenerator();
   void Generate();
   std::vector<RGB> GetColors();
 
-  private:
+ private:
   int num_colors;
   std::vector<RGB> colors;
 };
 
-#endif //UNIFORM_COLOR_GEN_HPP
+#endif  // UNIFORM_COLOR_GEN_HPP

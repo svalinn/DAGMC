@@ -9,32 +9,32 @@
 #include "G4TessellatedSolid.hh"
 
 /*
-* Notes: DAGMC geometries implicitly have units of cm's due to the history of development with
-* centimetre based physics engines. Please note that Geant4 uses units of mm internally (and can 
-* course be changed) for the purposes of this test note that mm's are being passed into the various
-* function calls, e.g. a call to the PointInVolume(10,0,0) refers to (10mm,0,0).
-*/
+ * Notes: DAGMC geometries implicitly have units of cm's due to the history of
+ * development with centimetre based physics engines. Please note that Geant4
+ * uses units of mm internally (and can course be changed) for the purposes of
+ * this test note that mm's are being passed into the various function calls,
+ * e.g. a call to the PointInVolume(10,0,0) refers to (10mm,0,0).
+ */
 
 class DagSolidTestImprinted : public ::testing::Test {
-  protected:
-   virtual void SetUp() {
-     DagMC* dagmc = new moab::DagMC();  // create dag instance
- 
-     // dag_volumes
-     const char* h5mfilename = "test_geom_two_vol.h5m";
-     dagmc->load_file(h5mfilename);
-     dagmc->init_OBBTree();
- 
-     // new volume
-     vol_1 = new DagSolid("vol_1", dagmc, 1);
-     vol_2 = new DagSolid("vol_2", dagmc, 2);
-    }
- 
-  protected:
-   DagSolid* vol_1;
-   DagSolid* vol_2;
+ protected:
+  virtual void SetUp() {
+    DagMC* dagmc = new moab::DagMC();  // create dag instance
+
+    // dag_volumes
+    const char* h5mfilename = "test_geom_two_vol.h5m";
+    dagmc->load_file(h5mfilename);
+    dagmc->init_OBBTree();
+
+    // new volume
+    vol_1 = new DagSolid("vol_1", dagmc, 1);
+    vol_2 = new DagSolid("vol_2", dagmc, 2);
+  }
+
+ protected:
+  DagSolid* vol_1;
+  DagSolid* vol_2;
 };
- 
 
 class DagSolidTest : public ::testing::Test {
  protected:
@@ -366,7 +366,7 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
 
   normal = vol_1->SurfaceNormal(position);
 
-  EXPECT_EQ(normal[0],-1.0);
+  EXPECT_EQ(normal[0], -1.0);
   EXPECT_EQ(normal[1], 0.0);
   EXPECT_EQ(normal[2], 0.0);
 
@@ -377,7 +377,7 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
   normal = vol_1->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 0.0);
-  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[1], -1.0);
   EXPECT_EQ(normal[2], 0.0);
 
   // set the vector to be the lhs
@@ -387,7 +387,7 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
   normal = vol_1->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 0.0);
-  EXPECT_EQ(normal[1],-1.0);
+  EXPECT_EQ(normal[1], -1.0);
   EXPECT_EQ(normal[2], 0.0);
 
   // set the vector to be the lhs
@@ -423,12 +423,12 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
   EXPECT_EQ(normal[2], -1.0);
 
   // now test volume 2
-  
+
   position.setX(0.);
   position.setY(150.);
   position.setZ(0.);
 
-   normal = vol_2->SurfaceNormal(position);
+  normal = vol_2->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 0.0);
   EXPECT_EQ(normal[1], 1.0);
@@ -438,7 +438,7 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
   position.setY(50.);
   position.setZ(0.);
 
-   normal = vol_2->SurfaceNormal(position);
+  normal = vol_2->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 0.0);
   EXPECT_EQ(normal[1], -1.0);
@@ -448,7 +448,7 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
   position.setY(100.);
   position.setZ(0.);
 
-   normal = vol_2->SurfaceNormal(position);
+  normal = vol_2->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 1.0);
   EXPECT_EQ(normal[1], 0.0);
@@ -458,19 +458,18 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
   position.setY(100.);
   position.setZ(0.);
 
-   normal = vol_2->SurfaceNormal(position);
+  normal = vol_2->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], -1.0);
   EXPECT_EQ(normal[1], 0.0);
   EXPECT_EQ(normal[2], 0.0);
-
 
   // set the vector to be the rhs
   position.setX(0.);
   position.setY(100.);
   position.setZ(50.);
 
-   normal = vol_2->SurfaceNormal(position);
+  normal = vol_2->SurfaceNormal(position);
 
   EXPECT_EQ(normal[0], 0.0);
   EXPECT_EQ(normal[1], 0.0);
@@ -486,7 +485,6 @@ TEST_F(DagSolidTestImprinted, surface_normal_test) {
   EXPECT_EQ(normal[0], 0.0);
   EXPECT_EQ(normal[1], 0.0);
   EXPECT_EQ(normal[2], -1.0);
-
 
   return;
 }

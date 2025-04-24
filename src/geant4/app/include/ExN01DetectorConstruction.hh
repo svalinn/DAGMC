@@ -9,11 +9,10 @@ class G4VPhysicalVolume;
 #include <string>
 #include <vector>
 
+#include "DagMC.hpp"
 #include "DagSolidTally.hh"
 #include "G4SDParticleFilter.hh"
 #include "G4VUserDetectorConstruction.hh"
-
-#include "DagMC.hpp"
 #include "dagmcmetadata.hpp"
 #include "moab/Interface.hpp"
 #include "pyne.h"
@@ -27,7 +26,6 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
  public:
   ExN01DetectorConstruction(UWUW* uwuw_workflow_data);
   ~ExN01DetectorConstruction();
-   
 
  public:
   virtual G4VPhysicalVolume* Construct();
@@ -60,7 +58,6 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   UWUW* workflow_data;
   moab::DagMC* dagmc;
   dagmcMetaData* DMD;
-
 };
 
 #endif

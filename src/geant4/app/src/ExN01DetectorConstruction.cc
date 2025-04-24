@@ -5,6 +5,10 @@
 
 #include "ExN01DetectorConstruction.hh"
 
+#include "DagSolid.hh"
+#include "DagSolidColors.hh"
+#include "DagSolidMaterial.hh"
+#include "DagSolidTally.hh"
 #include "ExN01Analysis.hh"
 #include "ExN01SensitiveDetector.hh"
 #include "G4Box.hh"
@@ -25,12 +29,6 @@
 #include "G4VPrimitiveScorer.hh"
 #include "G4VisAttributes.hh"
 #include "globals.hh"
-
-#include "DagSolid.hh"
-#include "DagSolidMaterial.hh"
-#include "DagSolidTally.hh"
-#include "DagSolidColors.hh"
-
 
 // constructor
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data)
@@ -78,7 +76,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   DMD->load_property_data();
 
   // set the world
-  G4double world_width = GetMaxOrdinate()*cm;
+  G4double world_width = GetMaxOrdinate() * cm;
   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(2. * world_width);
 
   G4Box* world_volume =
@@ -89,15 +87,16 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
   G4PVPlacement* world_volume_phys = new G4PVPlacement(
       0, G4ThreeVector(), world_volume_log, "world_vol", 0, false, 0);
 
-   // get count of entities
+  // get count of entities
   G4int num_of_objects = dagmc->num_entities(3);
 
   // set the colours to be used
-  UniformColorGenerator *colorgen = new UniformColorGenerator(material_lib.size());
-  //UniformColorGenerator *colorgen = new UniformColorGenerator(num_of_objects);
+  UniformColorGenerator* colorgen =
+      new UniformColorGenerator(material_lib.size());
+  // UniformColorGenerator *colorgen = new
+  // UniformColorGenerator(num_of_objects);
   colorgen->Generate();
   std::vector<RGB> colours = colorgen->GetColors();
-
 
   G4cout << "There are " << num_of_objects << " dag volumes" << G4endl;
 
@@ -126,25 +125,23 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
     G4LogicalVolume* dag_vol_log =
         new G4LogicalVolume(dag_vol, material_lib[material_name],
                             "vol_" + idx_str + "_log", 0, 0, 0);
-    // set the vis attributes                            
+    // set the vis attributes
     if (mat_name == "mat:Graveyard" || mat_name == "mat:Vacuum") {
-      dag_vol_log ->SetVisAttributes(invis);
+      dag_vol_log->SetVisAttributes(invis);
     } else {
       // use distance in place of an index
-      G4int mat_idx = std::distance(material_lib.begin(),
-                                    material_lib.find(mat_name));
+      G4int mat_idx =
+          std::distance(material_lib.begin(), material_lib.find(mat_name));
       // set the colour
-      dag_vol_log ->SetVisAttributes(G4Color(colours[mat_idx].r,
-                                             colours[mat_idx].g,
-                                             colours[mat_idx].b));
+      dag_vol_log->SetVisAttributes(
+          G4Color(colours[mat_idx].r, colours[mat_idx].g, colours[mat_idx].b));
     }
     dag_logical_volumes[dag_idx] = dag_vol_log;
     // make a new physical placement
     G4PVPlacement* dag_vol_phys = new G4PVPlacement(
         0, G4ThreeVector(0 * cm, 0 * cm, 0 * cm), dag_vol_log,
         "volume_" + idx_str + "_phys", world_volume_log, false, 0);
-    dag_physical_volumes.push_back(dag_vol_phys);     
-
+    dag_physical_volumes.push_back(dag_vol_phys);
   }
 
   return world_volume_phys;
@@ -155,24 +152,22 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
 G4double ExN01DetectorConstruction::GetMaxOrdinate() {
   moab::EntityHandle volume;
   // load the properties from the metadata instance
-  for (int dag_idx = 1; dag_idx < dagmc->num_entities(3) ; dag_idx++) {
+  for (int dag_idx = 1; dag_idx < dagmc->num_entities(3); dag_idx++) {
     int dag_id = dagmc->id_by_index(3, dag_idx);
     volume = dagmc->entity_by_id(3, dag_id);
     // get the material_name
     std::string mat_name = DMD->volume_material_property_data_eh[volume];
-    if (mat_name == "mat:Graveyard" ) break;
+    if (mat_name == "mat:Graveyard") break;
   }
   G4double min[3], max[3];
-  moab::ErrorCode rval = dagmc->getobb(volume,min,max);
+  moab::ErrorCode rval = dagmc->getobb(volume, min, max);
   G4double x = std::max(std::abs(min[0]), std::abs(max[0]));
   G4double y = std::max(std::abs(min[1]), std::abs(max[1]));
   G4double z = std::max(std::abs(min[2]), std::abs(max[2]));
-  
+
   G4double max_ordinate = std::max(x, std::max(y, z));
   return max_ordinate;
 }
-
-
 
 // Constructs the tallies
 void ExN01DetectorConstruction::ConstructSDandField() {
