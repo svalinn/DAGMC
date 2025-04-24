@@ -9,6 +9,10 @@ Next version
 
 **Changed:**
 
+=======
+  * Added quality of life features to DagGeant4 e.g. colouring geometries
+  * Enabled MultiThreading for DagGeant4
+  * Fixed Geant4 tracking when using non-trivial geometries 
   * Fixed Geant4 tracking when using non-trivial geometries (#981)
   * Adding info messages to CMake output for double down (#962)
   * Update hdf5 to v1.14.3 from v1.10.4 (#931 #933)
