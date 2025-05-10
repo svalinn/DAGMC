@@ -1,6 +1,6 @@
 
-#ifndef ExN01DetectorConstruction_H
-#define ExN01DetectorConstruction_H 1
+#ifndef ExN01DetectorConstruction_HH
+#define ExN01DetectorConstruction_HH 1
 
 class G4LogicalVolume;
 class G4VPhysicalVolume;
@@ -10,8 +10,18 @@ class G4VPhysicalVolume;
 #include <vector>
 
 #include "DagMC.hpp"
+#include "DagSolid.hh"
+#include "DagSolidColors.hh"
+#include "DagSolidMagneticField.hh"
+#include "DagSolidMaterial.hh"
 #include "DagSolidTally.hh"
-#include "G4SDParticleFilter.hh"
+
+#include "ExN01DetectorMessenger.hh"
+
+#include "G4Material.hh"
+#include "G4MagneticField.hh"
+#include "G4FieldManager.hh"
+#include "G4TransportationManager.hh"
 #include "G4VUserDetectorConstruction.hh"
 #include "dagmcmetadata.hpp"
 #include "moab/Interface.hpp"
@@ -30,34 +40,30 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
  public:
   virtual G4VPhysicalVolume* Construct();
   virtual void ConstructSDandField();
+  void SetBFieldFileName(G4String filename);
+  G4String GetBFieldFileName();
 
-  G4double GetMaxOrdinate();
-
-  // the tally library
-  std::map<std::string, pyne::Tally> tally_library;
-  // dag_volumes collection mapped by id number
-  std::map<int, G4LogicalVolume*> dag_logical_volumes;
-  // particle filters for tallies
-  std::map<std::string, G4SDParticleFilter*> particle_filters;
-
-  void BuildParticleFilter(std::vector<std::string> particle_name);
-  void build_histogram();
-  void add_histogram_description(std::string tally_name);
-  void end_histogram();
+  G4double GetMaxOrdinate();  
 
  private:
   std::string _to_string(int var);
 
  private:
+  static G4ThreadLocal MagneticField* fMagneticField;
+  static G4ThreadLocal G4FieldManager* fFieldMgr;
+
   // Logical volumes
   //
-  std::string uwuw_filename;
-
-  G4LogicalVolume* world_volume_log;
-
+  MagneticField* magField;
+  G4LogicalVolume* fWorldVolumeLog;
+  //std::map<int, G4LogicalVolume*> dag_logical_volumes;
+  std::vector<G4LogicalVolume*> dag_logical_volumes;
   UWUW* workflow_data;
   moab::DagMC* dagmc;
   dagmcMetaData* DMD;
+  std::map<std::string, G4Material*> material_lib;
+  G4String bfield_filename;
+  ExN01DetectorMessenger *fDetectorMessenger;
 };
 
 #endif
