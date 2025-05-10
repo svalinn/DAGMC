@@ -4,6 +4,8 @@
 //      GEANT 4 - exampleN01
 // --------------------------------------------------------------
 
+#include <filesystem>
+
 #include "ExN01ActionInitialization.hh"
 #include "ExN01DetectorConstruction.hh"
 #include "ExN01PhysicsList.hh"
@@ -33,13 +35,44 @@
 #include "uwuw.hpp"
 #endif
 
+#include "moab/ProgOptions.hpp" // prog options
+
 int main(int argc, char* argv[]) {
   G4Timer Timer;
   Timer.Start();
 
-  G4int nThreads = 64;
+  // Activate UI-command base scorer
+  // load the UWUW data
+
+  G4int nThreads;
+  std::string dag_file;
+  std::string macro_file;
+  
+  ProgOptions po("DagGeant4: a DAG tool for Geant4");
+  po.addOpt<G4int>("threads,t", "number of threads to use", &nThreads);
+  po.addOpt<std::string>("dagmc,d", "Path to DAGMC file to proccess", &dag_file);
+  po.addOpt<std::string>("macro,m", "Path to DAGMC file to proccess", &macro_file);
+
+  po.addOptionHelpHeading("Options for loading files");
+
+  // get the options
+  po.parseCommandLine(argc, argv);
+  UWUW *workflow_data = NULL;
+  // check too see the dagmc file exists
+  if(std::filesystem::exists(dag_file)){
+    workflow_data = new UWUW(dag_file);
+  } else {
+    std::cerr << "Error: dagmc file does not exist" << std::endl;
+    return -1;
+  }
+
+  if (nThreads == 0 ) {
+    nThreads = 4;
+  }
+  
   G4RunManager* runManager =
       G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+
 #ifdef G4MULTITHREADED
   if (nThreads > 0) {
     runManager->SetNumberOfThreads(nThreads);
@@ -48,50 +81,35 @@ int main(int argc, char* argv[]) {
 
   // Activate command-based scorer
   G4ScoringManager* scManager = G4ScoringManager::GetScoringManager();
-  scManager->SetVerboseLevel(1);
+  scManager->SetVerboseLevel(20);
   scManager->SetScoreWriter(new ExN01UserScoreWriter());
-
-  std::string uwuw_file(argv[1]);  // file containing data & uwuw
-
-  // Activate UI-command base scorer
-  // load the UWUW data
-  UWUW* workflow_data = new UWUW(uwuw_file);
-
+ 
   // setup detectors and scores
   runManager->SetUserInitialization(
       new ExN01DetectorConstruction(workflow_data));
 
   G4PhysListFactory* physListFactory = new G4PhysListFactory();
   G4VUserPhysicsList* physicsList =
-      physListFactory->GetReferencePhysList("QGSP_BIC_HP");
+      physListFactory->GetReferencePhysList("QGSP_BIC_AllHPT");
   runManager->SetUserInitialization(physicsList);
 
   // set mandatory user action class
-  //
   ExN01ActionInitialization* actionInitialization =
       new ExN01ActionInitialization(workflow_data);
   runManager->SetUserInitialization(actionInitialization);
 
-  //  G4VUserPrimaryGeneratorAction* gen_action = new
-  //  ExN01PrimaryGeneratorAction;
-  // runManager->SetUserAction(gen_action);
-
-  //  G4VUserSteppingAction* step_action = new ExN01SteppingAction;
-  // runManager->SetUserAction(step_action);
-
-  // Initialize G4 kernel
-  //
+  // lets get started
   runManager->Initialize();
 
   // Get the pointer to the UI manager and set verbosities
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   // batch mode
-  if (argc > 2) {
+  if (!macro_file.empty()) {
     G4String command = "/control/execute ";
-    std::string filename(argv[2]);
     G4UIExecutive* ui = new G4UIExecutive(argc, argv, "tcsh");
-    UImanager->ApplyCommand(command + filename);
+    G4cout << command + macro_file << G4endl;
+    UImanager->ApplyCommand(command + macro_file);
     ui->SessionStart();
     delete ui;
   } else {
