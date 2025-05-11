@@ -171,6 +171,7 @@ G4double ExN01DetectorConstruction::GetMaxOrdinate() {
 void ExN01DetectorConstruction::SetBFieldFileName(G4String filename) {
   // set the filename
   bfield_filename = filename;
+  // rebuild the field & detectors
   ConstructSDandField();
 }
 
@@ -184,18 +185,22 @@ void ExN01DetectorConstruction::ConstructSDandField() {
   if (!bfield_filename.empty()) {
     G4cout << "Loading magnetic field from file: " << bfield_filename
            << "..." << G4endl;
+    if (fMagneticField) {
+      delete fMagneticField;
+      fMagneticField = nullptr;
+    }
     fMagneticField = new MagneticField();
     fMagneticField->LoadFile(bfield_filename);
-    G4FieldManager* fieldMgr = new G4FieldManager(fMagneticField);
-    fieldMgr->SetDetectorField(fMagneticField);
-    fieldMgr->CreateChordFinder(fMagneticField);
+    if(fFieldMgr) {
+      delete fFieldMgr;
+      fFieldMgr = nullptr;
+    }
+    fFieldMgr = new G4FieldManager(fMagneticField);
+    fFieldMgr->SetDetectorField(fMagneticField);
+    fFieldMgr->CreateChordFinder(fMagneticField);
     // set the field to be global
     fWorldVolumeLog->SetFieldManager(fFieldMgr, true);
-    G4double point[4] = {0.7*m,0.0,0.0,0.0};
-    G4double field[3]; 
-    fMagneticField->GetFieldValue(point,field);
-    G4cout << "Field:" << field[0] << " " << field[1];
-    G4cout << " " << field[2] << G4endl;
+    G4cout << "Magnetic field loaded." << G4endl;
   }
 }
 
