@@ -9,6 +9,18 @@
 #include <string>
 #include <set>
 
+
+double LinearInterpolation(const double x1, const double x2,
+  const double f1, const double f2, const double x) {
+  
+  if (x2 == x1) {
+    std::cout << "x1: " << x1 << " x2: " << x2 << std::endl;
+    std::cout << "f1: " << f1 << " f2: " << f2 << std::endl;
+    throw std::invalid_argument("x0 and x1 cannot be the same (division by zero).");
+  } 
+  return f1 + ( (f2 - f1) / (x2 - x1) ) * (x - x1);
+}
+
 double BilinearInterpolation(const std::array<double,2> x_stencil,
   const std::array<double,2> y_stencil,
   const std::array<double,4> f_values,
@@ -22,7 +34,10 @@ double BilinearInterpolation(const std::array<double,2> x_stencil,
   
   double denom = (x2 - x1) * (y1 - y2);
   if (denom == 0.0) {
-    throw std::invalid_argument("Invalid grid cell dimensions.");
+    if (y1 - y2 == 0.0)
+      return LinearInterpolation(x1, x2, f_values[0], f_values[1], x);
+    else
+      return LinearInterpolation(y1, y2, f_values[2], f_values[3], y);
   }
 
   // order of f_values is: p[0,0], p[0,1], p[0,1], p[1,1];

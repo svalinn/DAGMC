@@ -24,8 +24,7 @@ void MagneticField::LoadFile(const std::string filename) {
 
   double r,z,br,bz,btheta;
   // while we can read
-  while ( input.good() ) {
-    input >> r >> z >> br >> bz >> btheta;
+  while ( input >> r >> z >> br >> bz >> btheta ) {
     // push_back to the storage array 
     // note using G4units so that data in natively in mm;
     radial_pos.push_back(r*m);
@@ -57,7 +56,8 @@ void MagneticField::ProcessField() {
   // set the size of the data
   n_r = unique_r.size();
   n_z = unique_z.size();
-
+  
+  // set the size of the vectors
   // copy in the set data
   std::copy(unique_r.begin(), unique_r.end(),
 	    std::back_inserter(r_point));
@@ -78,6 +78,7 @@ int MagneticField::FindRadialIndex(const double r) const {
   const std::vector<double>::const_iterator it_r = std::lower_bound(r_point.begin(),
     r_point.end(), r);
   radialIndex = it_r - r_point.begin();
+
   return radialIndex;
 }
 
@@ -88,6 +89,7 @@ int MagneticField::FindVerticalIndex(const double z)  const {
   std::vector<double>::const_iterator it_z = std::lower_bound(z_point.begin(),
     z_point.end(), z);
   verticalIndex = it_z - z_point.begin();
+
   return verticalIndex;
 }
 
@@ -112,7 +114,7 @@ int MagneticField::GlobalIndexByRadialandVerticalPosition(const double r,
   const double z) const {
   int r_index = FindRadialIndex(r);
   int z_index = FindVerticalIndex(z);
-  return GlobalIndexByRadialandVerticalIndex(r_index,z_index);
+  return GlobalIndexByRadialandVerticalIndex(1,1);
 }
 
 std::array<double,2> MagneticField::LookupRPtsByIndex(const int r_index) const {
@@ -173,11 +175,12 @@ std::array<std::array<double,4>, 3> MagneticField::GetFourFieldValuesByIndex(con
 									    const int z_index) const {
   std::array<std::array<double,4>, 3> values;
   // interpolation array
+  
   // order of values needs to be: p[0,0], p[0,1], p[1,0], p[1,1];
   for ( int dir = 0 ; dir < 3 ; dir++ ) {
-    int index = (r_index-1*n_z) + z_index-1; // q11
+    int index = (r_index-1)*n_z + z_index-1; // q11
     values[dir][0] = b_field[index][dir];
-    index = (r_index-1*n_z) + z_index; // q12
+    index = (r_index-1)*n_z + z_index; // q12
     values[dir][1] = b_field[index][dir];
     index = (r_index*n_z) + z_index-1; // q21
     values[dir][2] = b_field[index][dir];
@@ -225,10 +228,10 @@ void MagneticField::FieldByInterpolation(const double r,
   // get the radial and vertical bounding points
   std::array<double,2> r_pts = LookupRPtsByValue(r);
   std::array<double,2> z_pts = LookupZPtsByValue(z);
-    
+
   // get the 4 values nearest us
   std::array<std::array<double,4>, 3> values = GetFourFieldValuesByValue(r,z);
-  
+
   // b field 
   field_x = BilinearInterpolation(r_pts,z_pts,
 					  values[0],r,z);
