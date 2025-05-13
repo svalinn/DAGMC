@@ -152,7 +152,7 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
 
   // find out the nearest surface
   fdagmc->closest_to_location(fvolEntity, position, distance, &surface);
-
+ 
   // now figure out the normal
   // TODO check expectation about sign flips for shared surfaces
   moab::ErrorCode rval = fdagmc->get_angle(surface, position, ang);
