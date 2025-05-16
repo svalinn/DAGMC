@@ -19,7 +19,7 @@
 class DagSolidTestImprinted : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    DagMC* dagmc = new moab::DagMC();  // create dag instance
+    moab::DagMC* dagmc = new moab::DagMC();  // create dag instance
 
     // dag_volumes
     const char* h5mfilename = "test_geom_two_vol.h5m";
