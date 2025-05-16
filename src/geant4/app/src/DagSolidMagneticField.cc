@@ -75,9 +75,16 @@ void MagneticField::ProcessField() {
 int MagneticField::FindRadialIndex(const double r) const {
   int radialIndex = 0;
   // given r find the owning radial index
-  const std::vector<double>::const_iterator it_r = std::lower_bound(r_point.begin(),
+  const std::vector<double>::const_iterator it_r = std::upper_bound(r_point.begin(),
     r_point.end(), r);
-  radialIndex = it_r - r_point.begin();
+
+  // if we are pointing outside return the last element
+  if (it_r - r_point.begin() > r_point.size() - 1)
+    radialIndex = r_point.size() - 1;
+  else if (it_r - r_point.begin() <= 0 )
+    radialIndex = 0;
+  else
+    radialIndex = it_r - r_point.begin();
 
   return radialIndex;
 }
@@ -85,10 +92,18 @@ int MagneticField::FindRadialIndex(const double r) const {
 // given the vertical position return its index
 int MagneticField::FindVerticalIndex(const double z)  const {
   int verticalIndex = 0;
+  
   // given z find the owning vertical index
   std::vector<double>::const_iterator it_z = std::lower_bound(z_point.begin(),
     z_point.end(), z);
-  verticalIndex = it_z - z_point.begin();
+
+  // if we are pointing outside return the last element
+  if (it_z - z_point.begin() > z_point.size() - 1)
+    verticalIndex = z_point.size() - 1;
+  else if (it_z - z_point.begin() <= 0 )
+     verticalIndex = 0;
+  else
+     verticalIndex = it_z - z_point.begin();
 
   return verticalIndex;
 }
@@ -178,7 +193,7 @@ std::array<std::array<double,4>, 3> MagneticField::GetFourFieldValuesByIndex(con
   
   // order of values needs to be: p[0,0], p[0,1], p[1,0], p[1,1];
   for ( int dir = 0 ; dir < 3 ; dir++ ) {
-    int index = (r_index-1)*n_z + z_index-1; // q11
+    int index = r_index*n_z + z_index; // q11
     values[dir][0] = b_field[index][dir];
     index = (r_index-1)*n_z + z_index; // q12
     values[dir][1] = b_field[index][dir];

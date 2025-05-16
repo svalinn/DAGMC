@@ -95,5 +95,14 @@ TEST_F(DagSolidMagneticFieldTest, sample_test) {
   EXPECT_EQ(0.0, field[1]);
   EXPECT_EQ(0.0, field[2]);
 
+  point[0] = 1100.0;
+  point[1] = 0.0;
+  point[2] = 0.0;
+
+  magneticField->GetFieldValue(point,field);
+  // expect field x to be 0.0
+  EXPECT_EQ(0.0, field[0]);
+  EXPECT_EQ(0.0, field[1]);
+  EXPECT_EQ(0.0, field[2]);
   return;
 }
