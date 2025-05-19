@@ -34,7 +34,7 @@ class G4VPhysicalVolume;
 
 class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
  public:
-  ExN01DetectorConstruction(UWUW* uwuw_workflow_data);
+  ExN01DetectorConstruction(UWUW* uwuw_workflow_data, G4String magnetic_field_filename);
   ~ExN01DetectorConstruction();
 
  public:
@@ -44,9 +44,6 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   G4String GetBFieldFileName();
 
   G4double GetMaxOrdinate();  
-
- private:
-  std::string _to_string(int var);
 
  private:
   static G4ThreadLocal MagneticField* fMagneticField;

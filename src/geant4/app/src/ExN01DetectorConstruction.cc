@@ -24,9 +24,12 @@ G4ThreadLocal MagneticField* ExN01DetectorConstruction::fMagneticField = nullptr
 G4ThreadLocal G4FieldManager* ExN01DetectorConstruction::fFieldMgr = nullptr;
 
 // constructor
-ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data)
-    : fWorldVolumeLog(0),fDetectorMessenger(0),bfield_filename("") {
+ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data, 
+                                                     G4String magnetic_field_filename)
+    : fWorldVolumeLog(0),fDetectorMessenger(0) {
   workflow_data = uwuw_workflow_data;
+  bfield_filename = magnetic_field_filename;
+
   dagmc = new moab::DagMC();
   // load the material from the UW^2 library
   material_lib = load_uwuw_materials(workflow_data);
@@ -99,7 +102,7 @@ G4VPhysicalVolume* ExN01DetectorConstruction::Construct() {
 
   // load the properties from the metadata instance
   for (int dag_idx = 1; dag_idx < num_of_objects; dag_idx++) {
-    G4String idx_str = _to_string(dag_idx);
+    G4String idx_str = std::to_string(dag_idx);
     // get the MBEntity handle for the volume
     int dag_id = dagmc->id_by_index(3, dag_idx);
     moab::EntityHandle volume = dagmc->entity_by_id(3, dag_id);
@@ -201,13 +204,7 @@ void ExN01DetectorConstruction::ConstructSDandField() {
     // set the field to be global
     fWorldVolumeLog->SetFieldManager(fFieldMgr, true);
     G4cout << "Magnetic field loaded." << G4endl;
+  } else {
+    G4cout << "No magnetic field file specified." << G4endl;
   }
-}
-
-// as soon as we shift to c++11 or higher this should be removed
-std::string ExN01DetectorConstruction::_to_string(int var) {
-  std::ostringstream outstr;
-  outstr << var;
-  std::string ret_string = outstr.str();
-  return ret_string;
-}
+} 

@@ -44,13 +44,13 @@ int main(int argc, char* argv[]) {
   // Activate UI-command base scorer
   // load the UWUW data
 
-  G4int nThreads;
-  std::string dag_file;
-  std::string macro_file;
+  std::string dag_file = "";
+  std::string bfield_file = "";
+  std::string macro_file = "";
   
   ProgOptions po("DagGeant4: a DAG tool for Geant4");
-  po.addOpt<G4int>("threads,t", "number of threads to use", &nThreads);
   po.addOpt<std::string>("dagmc,d", "Path to DAGMC file to proccess", &dag_file);
+  po.addOpt<std::string>("bfield,b", "Path to Bfield file to proccess", &bfield_file);
   po.addOpt<std::string>("macro,m", "Path to DAGMC file to proccess", &macro_file);
 
   po.addOptionHelpHeading("Options for loading files");
@@ -66,18 +66,21 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  if (nThreads == 0 ) {
-    nThreads = 4;
+  // if the bfield string set - see if the file exists
+  if(bfield_file.length() && !std::filesystem::exists(bfield_file)){
+    std::cerr << "Error: bfield file does not exist" << std::endl;
+    return -1;
   }
-  
-  G4RunManager* runManager =
-      G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 
-#ifdef G4MULTITHREADED
-  if (nThreads > 0) {
-    runManager->SetNumberOfThreads(nThreads);
+  // detect if we are in batch mode or not
+  G4UIExecutive* ui = nullptr;
+  if (macro_file.length() == 0) {
+    ui = new G4UIExecutive(argc, argv);
   }
-#endif
+
+  //G4RunManager* runManager =
+  //    G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+  G4RunManager* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Tasking);
 
   // Activate command-based scorer
   G4ScoringManager* scManager = G4ScoringManager::GetScoringManager();
@@ -86,7 +89,7 @@ int main(int argc, char* argv[]) {
  
   // setup detectors and scores
   runManager->SetUserInitialization(
-      new ExN01DetectorConstruction(workflow_data));
+      new ExN01DetectorConstruction(workflow_data, bfield_file));
 
   G4PhysListFactory* physListFactory = new G4PhysListFactory();
   G4VUserPhysicsList* physicsList =
@@ -99,29 +102,24 @@ int main(int argc, char* argv[]) {
   runManager->SetUserInitialization(actionInitialization);
 
   // lets get started
-  runManager->Initialize();
+  //runManager->Initialize();
+  G4VisManager* visManager = new G4VisExecutive;
+  visManager->Initialize();
 
   // Get the pointer to the UI manager and set verbosities
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   // batch mode
-  if (!macro_file.empty()) {
+  if (!ui) {
     G4String command = "/control/execute ";
-    G4UIExecutive* ui = new G4UIExecutive(argc, argv, "tcsh");
-    G4cout << command + macro_file << G4endl;
     UImanager->ApplyCommand(command + macro_file);
+  } else {
+    UImanager->ApplyCommand("/control/execute vis.mac");
+    //if ( ui->IsGUI()) {
+    //  UImanager->ApplyCommand("/control/execute gui.mac");
+   // }
     ui->SessionStart();
     delete ui;
-  } else {
-    G4VisManager* visManager = new G4VisExecutive;
-    visManager->Initialize();
-
-    G4UIExecutive* UI = new G4UIExecutive(argc, argv);
-    UImanager->ApplyCommand("/control/execute vis.mac");
-
-    UI->SessionStart();
-    delete visManager;
-    delete UI;
   }
 
   // stop the timer
@@ -139,6 +137,8 @@ int main(int argc, char* argv[]) {
   G4cout << G4endl;
 
   delete runManager;
+  delete visManager;
+  delete workflow_data;
 
   return 0;
 }
