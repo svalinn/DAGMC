@@ -1,36 +1,4 @@
 //
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration and of QinetiQ Ltd,   *
-// * subject to DEFCON 705 IPR conditions.                            *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-// $Id: DagSolid.hh,v 1.10 2010/12/10 16:30:13 gunter Exp $
-// GEANT4 tag $Name: geant4-09-05 $
-//
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//
-// MODULE:              DagSolid.hh
-//
 // Date:                27/03/2014
 // Author:              A. Davis M. C. Han, C. H. Kim, J. H. Jeong, Y. S. Yeom,
 // S.
@@ -43,6 +11,7 @@
 // CHANGE HISTORY
 // --------------
 //
+// 19th May 2025, A Davis - version 2.0 
 // 27 March 2014, A Davis, UW - Updated description text
 // 31 October 2010, J. H. Jeong, Hanyang Univ., KR
 //  - Created.
@@ -69,12 +38,7 @@
 
 // #define DAGDEBUG 1
 
-
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Standard contructor has blank name and defines no facets.
-//
+// Constructor for empty DagSolid
 DagSolid::DagSolid()
     : G4VSolid("dummy"), cubicVolume(0.), surfaceArea(0.) {
   geometryType = "DagSolid";
@@ -87,23 +51,20 @@ DagSolid::DagSolid()
   zMaxExtent = -kInfinity;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// Alternative constructor. Simple define name and geometry type - no facets
-// to define.
-//
+// Main Constructor
 DagSolid::DagSolid(const G4String& name, moab::DagMC* dagmc, int volID)
     : G4VSolid(name), cubicVolume(0.), surfaceArea(0.) {
   geometryType = "DagSolid";
 
-  Myname = name;
-  fdagmc = dagmc;
+  Myname = name; // set the name
+  fdagmc = dagmc; // set the dagmc instance
   // get the moab instance from the DAGMC pointer
   moab = fdagmc->moab_instance();
 
   fvolID = volID;
   fvolEntity = fdagmc->entity_by_index(3, volID);
 
+  // get extents from the bounding box
   double min[3], max[3];
   fdagmc->getobb(fvolEntity, min, max);
 
@@ -114,8 +75,8 @@ DagSolid::DagSolid(const G4String& name, moab::DagMC* dagmc, int volID)
   zMinExtent = min[2];
   zMaxExtent = max[2];
 
-   // if surfaces have not been instantiated yet, do so
-   if (fSurfaces.size() == 0) {
+  // if surfaces have not been instantiated yet, do so
+  if (fSurfaces.size() == 0) {
     moab->get_child_meshsets(fvolEntity, fSurfaces, 1);
   }
 
@@ -127,11 +88,8 @@ DagSolid::DagSolid(const G4String& name, moab::DagMC* dagmc, int volID)
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
 // Fake default constructor - sets only member data and allocates memory
 //                            for usage restricted to object persistency.
-//
 DagSolid::DagSolid(__void__& a)
     : G4VSolid(a),
       geometryType("DagSolid"),
@@ -144,19 +102,13 @@ DagSolid::DagSolid(__void__& a)
       zMinExtent(0.),
       zMaxExtent(0.) {}
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// Destructor.
-//
+// Destructor
 DagSolid::~DagSolid() {
   if(fPolyhedron) 
     delete fPolyhedron;  
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// EInside DagSolid::Inside (const G4ThreeVector &p) const
-//
+// Determine if the point p is inside the solid or not
 EInside DagSolid::Inside(const G4ThreeVector& p) const {
   G4double point[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
 
@@ -192,13 +144,8 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
   return result;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// G4ThreeVector DagSolid::SurfaceNormal (const G4ThreeVector &p) const
-//
 // Return the outwards pointing unit normal of the shape for the
-// surface closest to the point at offset p.
-
+// surface closest to the point at offset p. 
 G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
   G4double ang[3] = {0, 0, 1};
   G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
@@ -208,10 +155,11 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
   // find out the nearest surface
   fdagmc->closest_to_location(fvolEntity, position, distance, &surface);
  
-    // now figure out the normal
+  // now figure out the normal
   // TODO check expectation about sign flips for shared surfaces
   moab::ErrorCode rval = fdagmc->get_angle(surface, position, ang);
 
+  // backup estimate of normal - a la G4TessellatedSolid
   if ( rval != moab::MB_SUCCESS) {
     return (p.z() > 0 ? G4ThreeVector(0,0,1) : G4ThreeVector(0,0,-1));
   } else {
@@ -235,11 +183,8 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
 
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// G4double DistanceToIn(const G4ThreeVector& p, const G4ThreeVector& v)
-//
-//
+// Given a point, p and a vector, v, determine the distance
+// from the point oustide the volume until we enter
 G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
                                 const G4ThreeVector& v) const {
   G4double minDist = kInfinity;
@@ -273,14 +218,8 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
   return distance * cm;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// G4double DistanceToIn(const G4ThreeVector& p)
-//
 // Calculate distance to nearest surface of shape from an outside point p.
 // The distance can be an underestimate
-//
-/////////////////////////////////////////////////////////////////////////
 G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
   G4double minDist = kInfinity;
   G4double point[3] = {p.x() / cm, p.y() / cm,
@@ -300,12 +239,6 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
   return minDist * cm;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// G4double DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
-//                        const G4bool calcNorm=false,
-//                        G4bool *validNorm=0, G4ThreeVector *n=0);
-//
 // Return distance along the normalised vector v to the shape, from a
 // point at an offset p inside or on the surface of the shape.
 // Intersections with surfaces, when the point is not greater
@@ -317,11 +250,9 @@ G4double DagSolid::DistanceToIn(const G4ThreeVector& p) const {
 //     * false, if the solid does not lie entirely behind or on the
 //       exiting surface.
 // If calcNorm is false, then validNorm and n are unused.
-
 // distqance to out - when inside - if the distaance is within halfkcartolerance
 // then return 0, if aasked to calculate the normal then
 // set validnorm true and set the normal
-
 G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
                                  const G4bool calcNorm, G4bool* validNorm,
                                  G4ThreeVector* n) const {
@@ -390,10 +321,6 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
   return distance * cm;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// G4double DistanceToOut(const G4ThreeVector& p)
-//
 // Calculate distance to nearest surface of shape from an inside point.
 // The distance can be an underestimate.
 G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
@@ -417,33 +344,22 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
   // return DistanceToIn(p);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// G4GeometryType GetEntityType() const;
-//
-// Provide identification of the class of an object (required for persistency
-// and STEP interface).
-//
+// Return the entity type
 G4GeometryType DagSolid::GetEntityType() const { return geometryType; }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+// for visualiation adds in our case the polyhedron 
 void DagSolid::DescribeYourselfTo(G4VGraphicsScene& scene) const {
   scene.AddSolid(*this);
 }
 
+// string based description of the solid
 std::ostream& DagSolid::StreamInfo(std::ostream& os) const {
   os << G4endl;
   os << "Geometry Type    = " << geometryType << G4endl;
   return os;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// CalculateExtent
-//
 // Based on correction provided by Stan Seibert, University of Texas.
-//
 G4bool DagSolid::CalculateExtent(const EAxis pAxis,
                                  const G4VoxelLimits& pVoxelLimit,
                                  const G4AffineTransform& pTransform,
@@ -511,6 +427,8 @@ G4bool DagSolid::CalculateExtent(const EAxis pAxis,
   return true;
 }
 
+// sampling the solid, get a random point on the surface
+// used during visualisation if GetPolyhedron fails
 G4ThreeVector DagSolid::GetPointOnSurface() const {
 
   // pick a random surface
@@ -555,6 +473,8 @@ G4ThreeVector DagSolid::GetPointOnSurface() const {
   return samplePoint;
 }
 
+// Create a polyhedron for visualising the the solid in the
+// geant4 viewer
 G4Polyhedron* DagSolid::CreatePolyhedron () const
 {
   // Create a polyhedron from the facets and vertices of the solid.
@@ -652,6 +572,7 @@ G4Polyhedron* DagSolid::CreatePolyhedron () const
   return polyhedron;
 }
 
+// get the Polyhedron if it doesnt exist create it
 G4Polyhedron* DagSolid::GetPolyhedron() const
 {
   if (fPolyhedron == nullptr) 
@@ -659,6 +580,7 @@ G4Polyhedron* DagSolid::GetPolyhedron() const
   return fPolyhedron;
 }
 
+// get the Cartesian extent of the solid
 G4VisExtent DagSolid::GetExtent() const {
   // Define the sides of the box into which the G4Tubs instance would fit.
   return G4VisExtent (GetMinXExtent(), GetMaxXExtent(),
@@ -666,46 +588,40 @@ G4VisExtent DagSolid::GetExtent() const {
     GetMinZExtent(), GetMaxZExtent());
 }
 
+// get the bounding limits of the solid
 void DagSolid::BoundingLimits(G4ThreeVector& pMin, G4ThreeVector& pMax) const {
   pMin = G4ThreeVector(GetMinXExtent(), GetMinYExtent(), GetMinZExtent());
   pMax = G4ThreeVector(GetMaxXExtent(), GetMaxYExtent(), GetMaxZExtent());
 }
 
+// get the minimum extent in the x direction
 G4double DagSolid::GetMinXExtent() const { return xMinExtent * cm; }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+// get the maximum extent in the x direction
 G4double DagSolid::GetMaxXExtent() const { return xMaxExtent * cm; }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+// get the minimum extent in the y direction
 G4double DagSolid::GetMinYExtent() const { return yMinExtent * cm; }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+// get the maximum extent in the y direction
 G4double DagSolid::GetMaxYExtent() const { return yMaxExtent * cm; }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+// get the minimum extent in the z direction
 G4double DagSolid::GetMinZExtent() const { return zMinExtent * cm; }
 
-///////////////////////////////////////////////////////////////////////////////
-//
+// get the maximum extent in the z direction
 G4double DagSolid::GetMaxZExtent() const { return zMaxExtent * cm; }
 
-/*
- * Return the volume of the volume - note DAGMC is always in the units of cm
- */
+// Return the volume of the volume 
+// note DAGMC is always in the units of cm
 G4double DagSolid::GetCubicVolume() {
   G4double result;
   fdagmc->measure_volume(fvolEntity, result);
   return result * cm * cm * cm;
 }
 
-/*
- * Return the surface area of the volume -
- * note DAGMC is always in the units of cm
- */
+// Return the surface area of the volume -
+// note DAGMC is always in the units of cm
 G4double DagSolid::GetSurfaceArea() {
   G4double result;
   // get the moab instance

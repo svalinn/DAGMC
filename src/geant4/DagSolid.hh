@@ -1,52 +1,3 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration and of QinetiQ Ltd,   *
-// * subject to DEFCON 705 IPR conditions.                            *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-// $Id: DagSolid.hh,v 1.10 2010/12/10 16:30:13 gunter Exp $
-// GEANT4 tag $Name: geant4-09-05 $
-//
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//
-// MODULE:              DagSolid.hh
-//
-// Date:                20/12/2010
-// Author:              M. C. Han, C. H. Kim, J. H. Jeong, Y. S. Yeom, S. Kim,
-//                      Paul. P. H. Wilson, J. Apostolakis
-// Organisation:        Hanyang Univ., KR
-//
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//
-// CHANGE HISTORY
-// --------------
-//
-// 31 October 2010, J. H. Jeong, Hanyang Univ., KR
-//  - Created.
-//
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-///////////////////////////////////////////////////////////////////////////////
 #ifndef DagSolid_hh
 #define DagSolid_hh 1
 
@@ -58,7 +9,6 @@
 
 #include "DagMC.hpp"
 #include "G4AffineTransform.hh"
-//#include "G4TessellatedSolid.hh"
 #include "G4VSolid.hh"
 #include "G4VGraphicsScene.hh"
 #include "G4VPVParameterisation.hh"
@@ -68,54 +18,96 @@
 
 class DagSolid : public G4VSolid {
  public:  // with description
-  DagSolid();
+  // empty constructor
+  DagSolid(); 
+  // main constructor
   DagSolid(const G4String& name, moab::DagMC* dagmc, int volID);
-  virtual ~DagSolid();
+  // destructor
+  virtual ~DagSolid(); 
 
-  // Mandatory Functions
-
+  // given a point p determine if the point is inside the volume
   virtual EInside Inside(const G4ThreeVector& p) const;
 
+  // return the surface normal given the point p
   virtual G4ThreeVector SurfaceNormal(const G4ThreeVector& p) const;
+
+  // given the point p and the vector v, determine the distance until
+  // the ray enters the solid
   virtual G4double DistanceToIn(const G4ThreeVector& p,
                                 const G4ThreeVector& v) const;
+
+  // given the point p, determine an estimate until the ray
+  // would enter the solid
   virtual G4double DistanceToIn(const G4ThreeVector& p) const;
+
+  // given the point p and the vector v, determine the distance until
+  // the ray leaves the solid, could be asked to provide a valid normal
   virtual G4double DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
                                  const G4bool calcNorm = false,
                                  G4bool* validNorm = 0,
                                  G4ThreeVector* n = 0) const;
+
+  // given the point p, provide an estimate of the distance until
+  // a ray would leave
   virtual G4double DistanceToOut(const G4ThreeVector& p) const;
+
+  // return the GeometryType
   virtual G4GeometryType GetEntityType() const;
 
+  // calculate the extent of the solid given an axis and rotation
   virtual G4bool CalculateExtent(const EAxis pAxis,
                                  const G4VoxelLimits& pVoxelLimit,
                                  const G4AffineTransform& pTransform,
                                  G4double& pMin, G4double& pMax) const;
-                                 
+
+  // text dump of the DagSolid object
   virtual std::ostream& StreamInfo(std::ostream& os) const;
 
+  // return a valid point on the surface of the solid
   G4ThreeVector GetPointOnSurface() const;
-
-  G4Polyhedron* CreatePolyhedron() const;
-
-  G4Polyhedron* GetPolyhedron() const;
-
+ 
+  // return the volume of the solid
   virtual G4double GetCubicVolume();
-  virtual G4double GetSurfaceArea();
-  
-  G4VisExtent GetExtent() const;
 
+  // returns the total surface areas of the
+  // solid
+  virtual G4double GetSurfaceArea();
+
+  // return the bounding limits of the solid
   void BoundingLimits(G4ThreeVector& pMin, G4ThreeVector& pMax) const;
 
+  // return the minimum extent of the solid in the x direction 
   G4double GetMinXExtent() const;
+
+  // return the maximum extent of the solid in the x direction 
   G4double GetMaxXExtent() const;
+
+  // return the minimum extent of the solid in the y direction 
   G4double GetMinYExtent() const;
+
+  // return the maxmimum extent of the solid in the y direction 
   G4double GetMaxYExtent() const;
+
+  // return the minimum extent of the solid in the z direction 
   G4double GetMinZExtent() const;
+
+  // return the maximum extent of the solid in the z direction 
   G4double GetMaxZExtent() const;
+
   // Functions for visualization
 
+  // add the solid to a G4 scene 
   virtual void DescribeYourselfTo(G4VGraphicsScene& scene) const;
+
+  // create a polyhedron for visualisation
+  G4Polyhedron* CreatePolyhedron() const;
+
+  // returns the polyhedron if it exists, if not
+  // calls CreatePolyhedron
+  G4Polyhedron* GetPolyhedron() const;
+
+  // gets an extent for visualisation
+  G4VisExtent GetExtent() const;
 
  public:  // without description
   DagSolid(__void__&);
