@@ -182,7 +182,7 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
 // from the point oustide the volume until we enter
 G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
                                 const G4ThreeVector& v) const {
-  G4double minDist = kInfinity;
+
   G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
   G4ThreeVector vec = v.unit();
   G4double dir[3] = {vec.x(), vec.y(), vec.z()};
@@ -425,8 +425,6 @@ G4bool DagSolid::CalculateExtent(const EAxis pAxis,
 // sampling the solid, get a random point on the surface
 // used during visualisation if GetPolyhedron fails
 G4ThreeVector DagSolid::GetPointOnSurface() const {
-  // pick a random surface
-  G4int surf_idx = (G4int)G4RandFlat::shoot(0., fSurfaces.size());
 
   // number of triangles
   G4int num_tri = fTriangles.size();
@@ -614,7 +612,6 @@ G4double DagSolid::GetCubicVolume() {
 // Return the surface area of the volume -
 // note DAGMC is always in the units of cm
 G4double DagSolid::GetSurfaceArea() {
-  G4double result;
   // get the moab instance
   std::vector<moab::EntityHandle> surfaces;
   moab::ErrorCode rval = moab->get_child_meshsets(fvolEntity, surfaces);
