@@ -80,6 +80,8 @@ DagSolid::DagSolid(const G4String& name, moab::DagMC* dagmc, int volID)
 
   // cache entity handles of triangles for later
   for (moab::EntityHandle surf : fSurfaces) {
+    G4cout << fvolEntity << " " << surf << G4endl;
+
     std::vector<moab::EntityHandle> triangles;
     moab->get_entities_by_type(surf, moab::MBTRI, triangles);
     fTriangles.insert(fTriangles.end(), triangles.begin(), triangles.end());
@@ -499,6 +501,7 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
   G4int nFacets = facetCollection.size();
   G4int nVertices = vertexCollection.size();
 
+  #ifdef G4_VERSION GT 11
   // make a new polyhedron container
   auto polyhedron = new G4Polyhedron(nVertices, nFacets);
   // now loop over the surfaces creating the facets
@@ -558,7 +561,68 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
     }
   }
   //  finalise the polyhedron
+  # else
+  // make a HepPolyhedron first, then make a Polyhedron from it
 
+  //std::vector<std::array<G4double,3>> xyz_arr;
+  //xyz_arr.reserve(nVertices);
+  G4double xyz_arr[nVertices][3];
+
+  std::map<moab::EntityHandle,G4int> vertex_lookup;
+  // create a map of ThreeVectors for the polyhedron
+  for (int i = 0; i < nVertices; i++) {
+    moab::EntityHandle vertex = vertexCollection[i];
+    // get the coordinates
+    G4double coords[3];
+    // get the coordinates of the vertex
+    moab->get_coords(&vertex, 1, coords);
+
+    // create the G4 vertex
+    G4double xyz[3] = {coords[0]*cm, coords[1]*cm, coords[2]*cm};
+    //xyz_arr[i] = xyz;
+    xyz_arr[i][0] = xyz[0];
+    xyz_arr[i][1] = xyz[1];
+    xyz_arr[i][2] = xyz[2];
+    
+    vertex_lookup[vertex] = i+1; // note uses a 1 based indexing
+  }
+
+  //std::vector<std::array<G4int,4>> faces_arr;
+  //faces_arr.reserve(nFacets);
+  G4int faces_arr[nFacets][4];
+  // loop over the surfaces
+  G4int facet_idx = 0;
+  for (unsigned i = 0; i < fSurfaces.size(); i++) {
+    // get the triangle entities
+    std::vector<moab::EntityHandle> facets;
+
+    // get the triangles on the surface
+    moab->get_entities_by_type(fSurfaces[i], moab::MBTRI, facets);
+    G4int surfaceSense;
+    fdagmc->surface_sense(fvolEntity, fSurfaces[i], surfaceSense);
+
+    // for each triangle
+    for (moab::EntityHandle facet : facets) {
+      // get the connectivity of the triangle
+      const moab::EntityHandle* tri_conn;
+      G4int n_verts;
+      moab->get_connectivity(facet, tri_conn, n_verts);
+      
+      // get each vertex
+      G4int vertex[3];
+      for (int j = 0; j < n_verts; j++) {
+        faces_arr[facet_idx][j] = vertex_lookup[tri_conn[j]];
+      }
+      faces_arr[facet_idx][3] = 0;
+      //faces_arr[i] = {vertex[0],vertex[1],vertex[2],0};
+      facet_idx++;
+    }
+  }
+  HepPolyhedron *poly = new HepPolyhedron();
+  poly->createPolyhedron(nVertices, nFacets,
+			 xyz_arr, faces_arr);
+  G4Polyhedron* polyhedron = new G4Polyhedron(*poly);
+  #endif
   return polyhedron;
 }
 
