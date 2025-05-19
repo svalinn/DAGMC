@@ -171,7 +171,8 @@ void ExN01DetectorConstruction::ConstructSDandField() {
     if (scorer.tally_type.find("Flux") != std::string::npos &&
         scorer.entity_type.find("Volume") != std::string::npos) {
       int vol_id = scorer.entity_id;
-      moab::EntityHandle vol = dagmc->entity_by_id(3, vol_id);  // convert id to eh
+      moab::EntityHandle vol =
+          dagmc->entity_by_id(3, vol_id);         // convert id to eh
       int vol_idx = dagmc->index_by_handle(vol);  // get the volume index
 
       particles = volume_part_map[vol_id];
@@ -213,7 +214,8 @@ void ExN01DetectorConstruction::ConstructSDandField() {
   int sd_index = 0;  // the number of sensitive detectors
   //  loop over the volume indices
   for (it = volume_part_map.begin(); it != volume_part_map.end(); ++it) {
-    moab::EntityHandle vol = dagmc->entity_by_id(3, it->first);  // convert id to eh
+    moab::EntityHandle vol =
+        dagmc->entity_by_id(3, it->first);      // convert id to eh
     int vol_idx = dagmc->index_by_handle(vol);  // get the volume index
 
     // turn the idx into string

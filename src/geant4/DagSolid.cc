@@ -182,7 +182,6 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
 // from the point oustide the volume until we enter
 G4double DagSolid::DistanceToIn(const G4ThreeVector& p,
                                 const G4ThreeVector& v) const {
-
   G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
   G4ThreeVector vec = v.unit();
   G4double dir[3] = {vec.x(), vec.y(), vec.z()};
@@ -425,7 +424,6 @@ G4bool DagSolid::CalculateExtent(const EAxis pAxis,
 // sampling the solid, get a random point on the surface
 // used during visualisation if GetPolyhedron fails
 G4ThreeVector DagSolid::GetPointOnSurface() const {
-
   // number of triangles
   G4int num_tri = fTriangles.size();
   // sampled triangle
