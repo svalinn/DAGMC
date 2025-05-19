@@ -140,7 +140,7 @@ TEST_F(DagSolidTest, surface_normal_test) {
   EXPECT_EQ(normal[1], 0.0);
   EXPECT_EQ(normal[2], 0.0);
 
-  // set the vector to be the lhs
+  // set the vector to be the back
   position.setX(0.);
   position.setY(-50.);
 
@@ -150,17 +150,7 @@ TEST_F(DagSolidTest, surface_normal_test) {
   EXPECT_EQ(normal[1], -1.0);
   EXPECT_EQ(normal[2], 0.0);
 
-  // set the vector to be the lhs
-  position.setX(0.);
-  position.setY(-50.);
-
-  normal = vol_1->SurfaceNormal(position);
-
-  EXPECT_EQ(normal[0], 0.0);
-  EXPECT_EQ(normal[1], -1.0);
-  EXPECT_EQ(normal[2], 0.0);
-
-  // set the vector to be the lhs
+  // set the vector to be the front
   position.setX(0.);
   position.setY(50.);
 
@@ -170,7 +160,7 @@ TEST_F(DagSolidTest, surface_normal_test) {
   EXPECT_EQ(normal[1], 1.0);
   EXPECT_EQ(normal[2], 0.0);
 
-  // set the vector to be the lhs
+  // set the vector to be the top
   position.setX(0.);
   position.setY(0.);
   position.setZ(50.);
@@ -181,7 +171,7 @@ TEST_F(DagSolidTest, surface_normal_test) {
   EXPECT_EQ(normal[1], 0.0);
   EXPECT_EQ(normal[2], 1.0);
 
-  // set the vector to be the lhs
+  // set the vector to be the bottom
   position.setX(0.);
   position.setY(0.);
   position.setZ(-50.);
