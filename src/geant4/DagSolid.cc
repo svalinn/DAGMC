@@ -427,7 +427,6 @@ G4bool DagSolid::CalculateExtent(const EAxis pAxis,
 G4ThreeVector DagSolid::GetPointOnSurface() const {
   // pick a random surface
   G4int surf_idx = (G4int)G4RandFlat::shoot(0., fSurfaces.size());
-  moab::EntityHandle fSurf = fSurfaces[surf_idx];
 
   // number of triangles
   G4int num_tri = fTriangles.size();
