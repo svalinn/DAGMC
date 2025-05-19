@@ -53,22 +53,23 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 #include "DagMC.hpp"
 #include "G4AffineTransform.hh"
-#include "G4TessellatedSolid.hh"
+//#include "G4TessellatedSolid.hh"
+#include "G4VSolid.hh"
 #include "G4VGraphicsScene.hh"
 #include "G4VPVParameterisation.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VoxelLimits.hh"
 #include "globals.hh"
-using namespace moab;
 
-class DagSolid : public G4TessellatedSolid {
+class DagSolid : public G4VSolid {
  public:  // with description
   DagSolid();
-  DagSolid(const G4String& name, DagMC* dagmc, int volID);
+  DagSolid(const G4String& name, moab::DagMC* dagmc, int volID);
   virtual ~DagSolid();
 
   // Mandatory Functions
@@ -90,10 +91,22 @@ class DagSolid : public G4TessellatedSolid {
                                  const G4VoxelLimits& pVoxelLimit,
                                  const G4AffineTransform& pTransform,
                                  G4double& pMin, G4double& pMax) const;
+                                 
   virtual std::ostream& StreamInfo(std::ostream& os) const;
+
+  G4ThreeVector GetPointOnSurface() const;
+
+  G4Polyhedron* CreatePolyhedron() const;
+
+  G4Polyhedron* GetPolyhedron() const;
 
   virtual G4double GetCubicVolume();
   virtual G4double GetSurfaceArea();
+  
+  G4VisExtent GetExtent() const;
+
+  void BoundingLimits(G4ThreeVector& pMin, G4ThreeVector& pMax) const;
+
   G4double GetMinXExtent() const;
   G4double GetMaxXExtent() const;
   G4double GetMinYExtent() const;
@@ -115,25 +128,30 @@ class DagSolid : public G4TessellatedSolid {
   void CopyObjects(const DagSolid& s);
 
  private:
-  G4GeometryType geometryType;
-  G4double cubicVolume;
-  G4double surfaceArea;
-  G4double xMinExtent;
-  G4double xMaxExtent;
-  G4double yMinExtent;
-  G4double yMaxExtent;
-  G4double zMinExtent;
-  G4double zMaxExtent;
 
-  G4String Myname;
+  G4GeometryType geometryType; // the geant4 solid type
+  G4double cubicVolume; // the volumes volume
+  G4double surfaceArea; // the surface area of the volume
+  G4double xMinExtent; // lowest x extent
+  G4double xMaxExtent; // highest x extent
+  G4double yMinExtent; // lowest y extent
+  G4double yMaxExtent; // highest y extent
+  G4double zMinExtent; // lowest z extent
+  G4double zMaxExtent; // highest z extent
 
-  DagMC* fdagmc;
-  G4int fvolID;
-  EntityHandle fvolEntity;
+  G4String Myname; // the name of the solid
 
-  mutable EntityHandle Last_sulf_hit;
-  mutable G4int nVertices;
-  EntityHandle My_sulf_hit;
+  G4double kCarToleranceHalf = kCarTolerance/2.; // half the tracking tolerance
+  moab::DagMC* fdagmc; // the DAGMC pointer
+  moab::Interface* moab; // the MOAB pointer associated with DAGMC
+  G4int fvolID; // the ID of the volume 
+  moab::EntityHandle fvolEntity; // its MOAB entity handle
+
+  mutable G4Polyhedron *fPolyhedron = nullptr; // a pointer 
+  
+  std::vector<moab::EntityHandle> fSurfaces; // surfaces of the volume
+  std::vector<moab::EntityHandle> fTriangles; // triangles of the volume
+
 };
 
 #endif
