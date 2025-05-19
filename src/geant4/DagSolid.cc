@@ -501,7 +501,7 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
   G4int nFacets = facetCollection.size();
   G4int nVertices = vertexCollection.size();
 
-  #ifdef G4_VERSION GT 11
+  #ifdef GEANT4_GT_11
   // make a new polyhedron container
   auto polyhedron = new G4Polyhedron(nVertices, nFacets);
   // now loop over the surfaces creating the facets
@@ -611,7 +611,12 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
       // get each vertex
       G4int vertex[3];
       for (int j = 0; j < n_verts; j++) {
-        faces_arr[facet_idx][j] = vertex_lookup[tri_conn[j]];
+        if(surfaceSense > 0) {
+          faces_arr[facet_idx][j] = vertex_lookup[tri_conn[j]];
+        } else {
+          G4int i = 2-j;
+          faces_arr[facet_idx][j] = vertex_lookup[tri_conn[i]];
+        }
       }
       faces_arr[facet_idx][3] = 0;
       //faces_arr[i] = {vertex[0],vertex[1],vertex[2],0};
