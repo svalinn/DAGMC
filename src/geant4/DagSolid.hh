@@ -9,21 +9,21 @@
 
 #include "DagMC.hpp"
 #include "G4AffineTransform.hh"
-#include "G4VSolid.hh"
 #include "G4VGraphicsScene.hh"
 #include "G4VPVParameterisation.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4VSolid.hh"
 #include "G4VoxelLimits.hh"
 #include "globals.hh"
 
 class DagSolid : public G4VSolid {
  public:  // with description
   // empty constructor
-  DagSolid(); 
+  DagSolid();
   // main constructor
   DagSolid(const G4String& name, moab::DagMC* dagmc, int volID);
   // destructor
-  virtual ~DagSolid(); 
+  virtual ~DagSolid();
 
   // given a point p determine if the point is inside the volume
   virtual EInside Inside(const G4ThreeVector& p) const;
@@ -65,7 +65,7 @@ class DagSolid : public G4VSolid {
 
   // return a valid point on the surface of the solid
   G4ThreeVector GetPointOnSurface() const;
- 
+
   // return the volume of the solid
   virtual G4double GetCubicVolume();
 
@@ -76,27 +76,27 @@ class DagSolid : public G4VSolid {
   // return the bounding limits of the solid
   void BoundingLimits(G4ThreeVector& pMin, G4ThreeVector& pMax) const;
 
-  // return the minimum extent of the solid in the x direction 
+  // return the minimum extent of the solid in the x direction
   G4double GetMinXExtent() const;
 
-  // return the maximum extent of the solid in the x direction 
+  // return the maximum extent of the solid in the x direction
   G4double GetMaxXExtent() const;
 
-  // return the minimum extent of the solid in the y direction 
+  // return the minimum extent of the solid in the y direction
   G4double GetMinYExtent() const;
 
-  // return the maxmimum extent of the solid in the y direction 
+  // return the maxmimum extent of the solid in the y direction
   G4double GetMaxYExtent() const;
 
-  // return the minimum extent of the solid in the z direction 
+  // return the minimum extent of the solid in the z direction
   G4double GetMinZExtent() const;
 
-  // return the maximum extent of the solid in the z direction 
+  // return the maximum extent of the solid in the z direction
   G4double GetMaxZExtent() const;
 
   // Functions for visualization
 
-  // add the solid to a G4 scene 
+  // add the solid to a G4 scene
   virtual void DescribeYourselfTo(G4VGraphicsScene& scene) const;
 
   // create a polyhedron for visualisation
@@ -120,30 +120,29 @@ class DagSolid : public G4VSolid {
   void CopyObjects(const DagSolid& s);
 
  private:
+  G4GeometryType geometryType;  // the geant4 solid type
+  G4double cubicVolume;         // the volumes volume
+  G4double surfaceArea;         // the surface area of the volume
+  G4double xMinExtent;          // lowest x extent
+  G4double xMaxExtent;          // highest x extent
+  G4double yMinExtent;          // lowest y extent
+  G4double yMaxExtent;          // highest y extent
+  G4double zMinExtent;          // lowest z extent
+  G4double zMaxExtent;          // highest z extent
 
-  G4GeometryType geometryType; // the geant4 solid type
-  G4double cubicVolume; // the volumes volume
-  G4double surfaceArea; // the surface area of the volume
-  G4double xMinExtent; // lowest x extent
-  G4double xMaxExtent; // highest x extent
-  G4double yMinExtent; // lowest y extent
-  G4double yMaxExtent; // highest y extent
-  G4double zMinExtent; // lowest z extent
-  G4double zMaxExtent; // highest z extent
+  G4String Myname;  // the name of the solid
 
-  G4String Myname; // the name of the solid
+  G4double kCarToleranceHalf =
+      kCarTolerance / 2.;         // half the tracking tolerance
+  moab::DagMC* fdagmc;            // the DAGMC pointer
+  moab::Interface* moab;          // the MOAB pointer associated with DAGMC
+  G4int fvolID;                   // the ID of the volume
+  moab::EntityHandle fvolEntity;  // its MOAB entity handle
 
-  G4double kCarToleranceHalf = kCarTolerance/2.; // half the tracking tolerance
-  moab::DagMC* fdagmc; // the DAGMC pointer
-  moab::Interface* moab; // the MOAB pointer associated with DAGMC
-  G4int fvolID; // the ID of the volume 
-  moab::EntityHandle fvolEntity; // its MOAB entity handle
+  mutable G4Polyhedron* fPolyhedron = nullptr;  // a pointer
 
-  mutable G4Polyhedron *fPolyhedron = nullptr; // a pointer 
-  
-  std::vector<moab::EntityHandle> fSurfaces; // surfaces of the volume
-  std::vector<moab::EntityHandle> fTriangles; // triangles of the volume
-
+  std::vector<moab::EntityHandle> fSurfaces;   // surfaces of the volume
+  std::vector<moab::EntityHandle> fTriangles;  // triangles of the volume
 };
 
 #endif

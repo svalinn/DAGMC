@@ -11,7 +11,7 @@
 // CHANGE HISTORY
 // --------------
 //
-// 19th May 2025, A Davis - version 2.0 
+// 19th May 2025, A Davis - version 2.0
 // 27 March 2014, A Davis, UW - Updated description text
 // 31 October 2010, J. H. Jeong, Hanyang Univ., KR
 //  - Created.
@@ -23,6 +23,7 @@
 #include <iostream>
 
 #include "DagMC.hpp"
+#include "DagSolid.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4TessellatedSolid.hh"
 #include "G4TriangularFacet.hh"
@@ -34,13 +35,10 @@
 #include "moab/Interface.hpp"
 #include "moab/Range.hpp"
 
-#include "DagSolid.hh"
-
 // #define DAGDEBUG 1
 
 // Constructor for empty DagSolid
-DagSolid::DagSolid()
-    : G4VSolid("dummy"), cubicVolume(0.), surfaceArea(0.) {
+DagSolid::DagSolid() : G4VSolid("dummy"), cubicVolume(0.), surfaceArea(0.) {
   geometryType = "DagSolid";
 
   xMinExtent = kInfinity;
@@ -56,8 +54,8 @@ DagSolid::DagSolid(const G4String& name, moab::DagMC* dagmc, int volID)
     : G4VSolid(name), cubicVolume(0.), surfaceArea(0.) {
   geometryType = "DagSolid";
 
-  Myname = name; // set the name
-  fdagmc = dagmc; // set the dagmc instance
+  Myname = name;   // set the name
+  fdagmc = dagmc;  // set the dagmc instance
   // get the moab instance from the DAGMC pointer
   moab = fdagmc->moab_instance();
 
@@ -80,11 +78,11 @@ DagSolid::DagSolid(const G4String& name, moab::DagMC* dagmc, int volID)
     moab->get_child_meshsets(fvolEntity, fSurfaces, 1);
   }
 
-  // cache entity handles of triangles for later 
-  for ( moab::EntityHandle surf : fSurfaces) {
+  // cache entity handles of triangles for later
+  for (moab::EntityHandle surf : fSurfaces) {
     std::vector<moab::EntityHandle> triangles;
     moab->get_entities_by_type(surf, moab::MBTRI, triangles);
-    fTriangles.insert(fTriangles.end(),triangles.begin(),triangles.end());
+    fTriangles.insert(fTriangles.end(), triangles.begin(), triangles.end());
   }
 }
 
@@ -104,8 +102,7 @@ DagSolid::DagSolid(__void__& a)
 
 // Destructor
 DagSolid::~DagSolid() {
-  if(fPolyhedron) 
-    delete fPolyhedron;  
+  if (fPolyhedron) delete fPolyhedron;
 }
 
 // Determine if the point p is inside the solid or not
@@ -145,7 +142,7 @@ EInside DagSolid::Inside(const G4ThreeVector& p) const {
 }
 
 // Return the outwards pointing unit normal of the shape for the
-// surface closest to the point at offset p. 
+// surface closest to the point at offset p.
 G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
   G4double ang[3] = {0, 0, 1};
   G4double position[3] = {p.x() / cm, p.y() / cm, p.z() / cm};  // convert to cm
@@ -154,16 +151,15 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
 
   // find out the nearest surface
   fdagmc->closest_to_location(fvolEntity, position, distance, &surface);
- 
+
   // now figure out the normal
   // TODO check expectation about sign flips for shared surfaces
   moab::ErrorCode rval = fdagmc->get_angle(surface, position, ang);
 
   // backup estimate of normal - a la G4TessellatedSolid
-  if ( rval != moab::MB_SUCCESS) {
-    return (p.z() > 0 ? G4ThreeVector(0,0,1) : G4ThreeVector(0,0,-1));
+  if (rval != moab::MB_SUCCESS) {
+    return (p.z() > 0 ? G4ThreeVector(0, 0, 1) : G4ThreeVector(0, 0, -1));
   } else {
-
     // return the normal
     G4ThreeVector normal = G4ThreeVector(ang[0], ang[1], ang[2]);
 
@@ -180,7 +176,6 @@ G4ThreeVector DagSolid::SurfaceNormal(const G4ThreeVector& p) const {
   G4cout << "normal: " << normal << G4endl;
   G4cout << ">>>>>" << G4endl;
 #endif
-
 }
 
 // Given a point, p and a vector, v, determine the distance
@@ -270,7 +265,7 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
                    1);
 
   // if we hit nothing
-  if(!surface) distance = kInfinity;
+  if (!surface) distance = kInfinity;
 
   // if we are asked to calculate the normal
   if (calcNorm) {
@@ -283,10 +278,10 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p, const G4ThreeVector& v,
     hit[1] = position[1] + (distance * dir[1]);
     hit[2] = position[2] + (distance * dir[2]);
 
-    // the the angle 
+    // the the angle
     moab::ErrorCode rval = fdagmc->get_angle(surface, hit, normal, &history);
-    if ( rval != moab::MB_SUCCESS) {
-      *n = (p.z() > 0 ? G4ThreeVector(0,0,1) : G4ThreeVector(0,0,-1));
+    if (rval != moab::MB_SUCCESS) {
+      *n = (p.z() > 0 ? G4ThreeVector(0, 0, 1) : G4ThreeVector(0, 0, -1));
     } else {
       *n = G4ThreeVector(normal[0], normal[1], normal[2]);
     }
@@ -347,7 +342,7 @@ G4double DagSolid::DistanceToOut(const G4ThreeVector& p) const {
 // Return the entity type
 G4GeometryType DagSolid::GetEntityType() const { return geometryType; }
 
-// for visualiation adds in our case the polyhedron 
+// for visualiation adds in our case the polyhedron
 void DagSolid::DescribeYourselfTo(G4VGraphicsScene& scene) const {
   scene.AddSolid(*this);
 }
@@ -430,7 +425,6 @@ G4bool DagSolid::CalculateExtent(const EAxis pAxis,
 // sampling the solid, get a random point on the surface
 // used during visualisation if GetPolyhedron fails
 G4ThreeVector DagSolid::GetPointOnSurface() const {
-
   // pick a random surface
   G4int surf_idx = (G4int)G4RandFlat::shoot(0., fSurfaces.size());
   moab::EntityHandle fSurf = fSurfaces[surf_idx];
@@ -453,33 +447,29 @@ G4ThreeVector DagSolid::GetPointOnSurface() const {
   G4double b = G4RandFlat::shoot(0., 1.);
 
   //
-  G4ThreeVector x1,x2,x3;
+  G4ThreeVector x1, x2, x3;
 
   // vertices
-  x1 = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm,
-                            coords[0][2] * cm);
-  x2 = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm,
-                            coords[1][2] * cm);
-  x3 = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm,
-                            coords[2][2] * cm);
+  x1 = G4ThreeVector(coords[0][0] * cm, coords[0][1] * cm, coords[0][2] * cm);
+  x2 = G4ThreeVector(coords[1][0] * cm, coords[1][1] * cm, coords[1][2] * cm);
+  x3 = G4ThreeVector(coords[2][0] * cm, coords[2][1] * cm, coords[2][2] * cm);
 
-  // the sample point                           
+  // the sample point
   G4ThreeVector samplePoint;
 
   samplePoint = (1 - std::sqrt(a)) * x1 + (std::sqrt(a) * (1 - b)) * x2 +
-               (std::sqrt(a) * b) * x3;
-  
+                (std::sqrt(a) * b) * x3;
+
   // return the point
   return samplePoint;
 }
 
 // Create a polyhedron for visualising the the solid in the
 // geant4 viewer
-G4Polyhedron* DagSolid::CreatePolyhedron () const
-{
+G4Polyhedron* DagSolid::CreatePolyhedron() const {
   // Create a polyhedron from the facets and vertices of the solid.
   // get the moab instance
-  
+
   std::unordered_set<moab::EntityHandle> facetSet;
   // loop over the surfaces - we need to get all the triangles
   for (unsigned i = 0; i < fSurfaces.size(); i++) {
@@ -488,23 +478,26 @@ G4Polyhedron* DagSolid::CreatePolyhedron () const
     // get the triangles
     moab->get_entities_by_type(fSurfaces[i], moab::MBTRI, facets);
     // insert them for later
-    //facetCollection.insert(facetCollection.end(), facets.begin(), facets.end());
+    // facetCollection.insert(facetCollection.end(), facets.begin(),
+    // facets.end());
     facetSet.insert(facets.begin(), facets.end());
   }
   // make the collection removing duplicates
-  std::vector<moab::EntityHandle> facetCollection(facetSet.begin(),facetSet.end());
+  std::vector<moab::EntityHandle> facetCollection(facetSet.begin(),
+                                                  facetSet.end());
 
   // get the vertices used by the facets
   std::vector<moab::EntityHandle> vertexCollection;
-  moab->get_connectivity(&facetCollection[0], facetCollection.size(), vertexCollection);
+  moab->get_connectivity(&facetCollection[0], facetCollection.size(),
+                         vertexCollection);
 
   // remove duplicates
   std::unordered_set<moab::EntityHandle> vertexSet(vertexCollection.begin(),
-    vertexCollection.end());
+                                                   vertexCollection.end());
 
   // clearout the vector
   vertexCollection.clear();
-  // insert the set 
+  // insert the set
   vertexCollection.assign(vertexSet.begin(), vertexSet.end());
 
   // instanciate the polyhedron
@@ -520,7 +513,7 @@ G4Polyhedron* DagSolid::CreatePolyhedron () const
   std::map<moab::EntityHandle, int> g4VertexMap;
 
   // create a map of ThreeVectors for the polyhedron
-  for ( int i = 0 ; i < nVertices ; i++ ) {
+  for (int i = 0; i < nVertices; i++) {
     moab::EntityHandle vertex = vertexCollection[i];
     // get the coordinates
     G4double coords[3];
@@ -528,20 +521,20 @@ G4Polyhedron* DagSolid::CreatePolyhedron () const
     moab->get_coords(&vertex, 1, coords);
 
     // create the G4 vertex
-    G4ThreeVector g4vertex = G4ThreeVector(coords[0] * cm, coords[1] * cm,
-                                           coords[2] * cm);
+    G4ThreeVector g4vertex =
+        G4ThreeVector(coords[0] * cm, coords[1] * cm, coords[2] * cm);
 
-    polyhedron->SetVertex(i+1,g4vertex);                                           
-    g4VertexMap[vertex] = i+1;                                           
-  } 
+    polyhedron->SetVertex(i + 1, g4vertex);
+    g4VertexMap[vertex] = i + 1;
+  }
 
   G4int facet_index = 0;
-  // loop over the surfaces 
+  // loop over the surfaces
   for (unsigned i = 0; i < fSurfaces.size(); i++) {
     // get the triangle entities
     std::vector<moab::EntityHandle> facets;
 
-    //get the triangles on the surface
+    // get the triangles on the surface
     moab->get_entities_by_type(fSurfaces[i], moab::MBTRI, facets);
     G4int surfaceSense;
     fdagmc->surface_sense(fvolEntity, fSurfaces[i], surfaceSense);
@@ -549,10 +542,10 @@ G4Polyhedron* DagSolid::CreatePolyhedron () const
     // for each triangle
     for (moab::EntityHandle facet : facets) {
       // get the connectivity of the triangle
-      const moab::EntityHandle *tri_conn;
+      const moab::EntityHandle* tri_conn;
       G4int n_verts;
-      moab->get_connectivity(facet, tri_conn , n_verts);
-      
+      moab->get_connectivity(facet, tri_conn, n_verts);
+
       // get each vertex
       G4int vertex[3];
       for (int j = 0; j < n_verts; j++) {
@@ -560,9 +553,11 @@ G4Polyhedron* DagSolid::CreatePolyhedron () const
       }
       // get the sense in case we need to flip the triangle
       if (surfaceSense > 0) {
-        polyhedron->SetFacet(facet_index+1, vertex[0], vertex[1], vertex[2], 0);
+        polyhedron->SetFacet(facet_index + 1, vertex[0], vertex[1], vertex[2],
+                             0);
       } else {
-        polyhedron->SetFacet(facet_index+1, vertex[2], vertex[1], vertex[0], 0);
+        polyhedron->SetFacet(facet_index + 1, vertex[2], vertex[1], vertex[0],
+                             0);
       }
       facet_index++;
     }
@@ -573,19 +568,16 @@ G4Polyhedron* DagSolid::CreatePolyhedron () const
 }
 
 // get the Polyhedron if it doesnt exist create it
-G4Polyhedron* DagSolid::GetPolyhedron() const
-{
-  if (fPolyhedron == nullptr) 
-    fPolyhedron = CreatePolyhedron();
+G4Polyhedron* DagSolid::GetPolyhedron() const {
+  if (fPolyhedron == nullptr) fPolyhedron = CreatePolyhedron();
   return fPolyhedron;
 }
 
 // get the Cartesian extent of the solid
 G4VisExtent DagSolid::GetExtent() const {
   // Define the sides of the box into which the G4Tubs instance would fit.
-  return G4VisExtent (GetMinXExtent(), GetMaxXExtent(),
-    GetMinYExtent(), GetMaxYExtent(),
-    GetMinZExtent(), GetMaxZExtent());
+  return G4VisExtent(GetMinXExtent(), GetMaxXExtent(), GetMinYExtent(),
+                     GetMaxYExtent(), GetMinZExtent(), GetMaxZExtent());
 }
 
 // get the bounding limits of the solid
@@ -612,7 +604,7 @@ G4double DagSolid::GetMinZExtent() const { return zMinExtent * cm; }
 // get the maximum extent in the z direction
 G4double DagSolid::GetMaxZExtent() const { return zMaxExtent * cm; }
 
-// Return the volume of the volume 
+// Return the volume of the volume
 // note DAGMC is always in the units of cm
 G4double DagSolid::GetCubicVolume() {
   G4double result;
