@@ -10,12 +10,12 @@
 #include "DagMC.hpp"
 #include "G4AffineTransform.hh"
 #include "G4Polyhedron.hh"
-#include "HepPolyhedron.h"
 #include "G4VGraphicsScene.hh"
 #include "G4VPVParameterisation.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VSolid.hh"
 #include "G4VoxelLimits.hh"
+#include "HepPolyhedron.h"
 #include "globals.hh"
 
 class DagSolid : public G4VSolid {
@@ -143,8 +143,8 @@ class DagSolid : public G4VSolid {
 
   mutable G4Polyhedron* fPolyhedron = nullptr;  // a pointer
 
-  std::vector<moab::EntityHandle> fSurfaces ;   // surfaces of the volume
-  std::vector<moab::EntityHandle> fTriangles ;  // triangles of the volume
+  std::vector<moab::EntityHandle> fSurfaces;   // surfaces of the volume
+  std::vector<moab::EntityHandle> fTriangles;  // triangles of the volume
 };
 
 #endif

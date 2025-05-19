@@ -501,7 +501,7 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
   G4int nFacets = facetCollection.size();
   G4int nVertices = vertexCollection.size();
 
-  #ifdef GEANT4_GT_11
+#ifdef GEANT4_GT_11
   // make a new polyhedron container
   auto polyhedron = new G4Polyhedron(nVertices, nFacets);
   // now loop over the surfaces creating the facets
@@ -560,15 +560,15 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
       facet_index++;
     }
   }
-  //  finalise the polyhedron
-  # else
+//  finalise the polyhedron
+#else
   // make a HepPolyhedron first, then make a Polyhedron from it
 
-  //std::vector<std::array<G4double,3>> xyz_arr;
-  //xyz_arr.reserve(nVertices);
+  // std::vector<std::array<G4double,3>> xyz_arr;
+  // xyz_arr.reserve(nVertices);
   G4double xyz_arr[nVertices][3];
 
-  std::map<moab::EntityHandle,G4int> vertex_lookup;
+  std::map<moab::EntityHandle, G4int> vertex_lookup;
   // create a map of ThreeVectors for the polyhedron
   for (int i = 0; i < nVertices; i++) {
     moab::EntityHandle vertex = vertexCollection[i];
@@ -578,17 +578,17 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
     moab->get_coords(&vertex, 1, coords);
 
     // create the G4 vertex
-    G4double xyz[3] = {coords[0]*cm, coords[1]*cm, coords[2]*cm};
-    //xyz_arr[i] = xyz;
+    G4double xyz[3] = {coords[0] * cm, coords[1] * cm, coords[2] * cm};
+    // xyz_arr[i] = xyz;
     xyz_arr[i][0] = xyz[0];
     xyz_arr[i][1] = xyz[1];
     xyz_arr[i][2] = xyz[2];
-    
-    vertex_lookup[vertex] = i+1; // note uses a 1 based indexing
+
+    vertex_lookup[vertex] = i + 1;  // note uses a 1 based indexing
   }
 
-  //std::vector<std::array<G4int,4>> faces_arr;
-  //faces_arr.reserve(nFacets);
+  // std::vector<std::array<G4int,4>> faces_arr;
+  // faces_arr.reserve(nFacets);
   G4int faces_arr[nFacets][4];
   // loop over the surfaces
   G4int facet_idx = 0;
@@ -607,27 +607,26 @@ G4Polyhedron* DagSolid::CreatePolyhedron() const {
       const moab::EntityHandle* tri_conn;
       G4int n_verts;
       moab->get_connectivity(facet, tri_conn, n_verts);
-      
+
       // get each vertex
       G4int vertex[3];
       for (int j = 0; j < n_verts; j++) {
-        if(surfaceSense > 0) {
+        if (surfaceSense > 0) {
           faces_arr[facet_idx][j] = vertex_lookup[tri_conn[j]];
         } else {
-          G4int i = 2-j;
+          G4int i = 2 - j;
           faces_arr[facet_idx][j] = vertex_lookup[tri_conn[i]];
         }
       }
       faces_arr[facet_idx][3] = 0;
-      //faces_arr[i] = {vertex[0],vertex[1],vertex[2],0};
+      // faces_arr[i] = {vertex[0],vertex[1],vertex[2],0};
       facet_idx++;
     }
   }
-  HepPolyhedron *poly = new HepPolyhedron();
-  poly->createPolyhedron(nVertices, nFacets,
-			 xyz_arr, faces_arr);
+  HepPolyhedron* poly = new HepPolyhedron();
+  poly->createPolyhedron(nVertices, nFacets, xyz_arr, faces_arr);
   G4Polyhedron* polyhedron = new G4Polyhedron(*poly);
-  #endif
+#endif
   return polyhedron;
 }
 
