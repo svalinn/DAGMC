@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "DagMC.hpp"
+#include "G4Polyhedron.hh"
 #include "G4AffineTransform.hh"
 #include "G4VGraphicsScene.hh"
 #include "G4VPVParameterisation.hh"
