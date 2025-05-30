@@ -209,11 +209,9 @@ void dagmcMetaData::parse_material_data() {
 
     // set the material value
     volume_material_property_data_eh[eh] = grp_name;
-
-    bool is_graveyard =
-        to_lower(grp_name).find(to_lower(graveyard_str)) != std::string::npos;
-    bool is_vacuum =
-        to_lower(grp_name).find(to_lower(vacuum_str)) != std::string::npos;
+    logger.message("Group name -- " + grp_name);
+    bool is_graveyard = (to_lower(grp_name) == to_lower(graveyard_mat_str()));
+    bool is_vacuum = (to_lower(grp_name) == to_lower(vacuum_mat_str()));
 
     // not graveyard or vacuum or implicit compliment
     if (!is_graveyard && !is_vacuum && !DAG->is_implicit_complement(eh)) {
@@ -221,20 +219,20 @@ void dagmcMetaData::parse_material_data() {
     }
     // found graveyard
     else if (is_graveyard) {
-      volume_material_property_data_eh[eh] = "mat:Graveyard";
-      volume_material_data_eh[eh] = graveyard_str;
+      volume_material_property_data_eh[eh] = graveyard_mat_str();
+      volume_material_data_eh[eh] = graveyard_str();
     }
     // vacuum
     else if (is_vacuum) {
-      volume_material_property_data_eh[eh] = "mat:Vacuum";
-      volume_material_data_eh[eh] = vacuum_str;
+      volume_material_property_data_eh[eh] = vacuum_mat_str();
+      volume_material_data_eh[eh] = vacuum_str();
     }
     // implicit complement
     else if (DAG->is_implicit_complement(eh)) {
       if (implicit_complement_material == "") {
         logger.message("Implicit Complement assumed to be Vacuum");
-        volume_material_property_data_eh[eh] = "mat:Vacuum";
-        volume_material_data_eh[eh] = vacuum_str;
+        volume_material_property_data_eh[eh] = vacuum_mat_str();
+        volume_material_data_eh[eh] = vacuum_str();
       } else {
         volume_material_property_data_eh[eh] =
             "mat:" + implicit_complement_material;
@@ -379,18 +377,18 @@ void dagmcMetaData::parse_boundary_data() {
       exit(EXIT_FAILURE);
     }
     // 2d entities have been tagged with the boundary condition property
-    // ie. both surfaces and its members triangles,
+    // ie. both surfaces and its member triangles
 
     std::string bc_string = to_lower(boundary_assignment[0]);
 
-    if (bc_string.find(to_lower(reflecting_str)) != std::string::npos)
-      surface_boundary_data_eh[eh] = reflecting_str;
-    if (bc_string.find(to_lower(white_str)) != std::string::npos)
-      surface_boundary_data_eh[eh] = white_str;
-    if (bc_string.find(to_lower(periodic_str)) != std::string::npos)
-      surface_boundary_data_eh[eh] = periodic_str;
-    if (bc_string.find(to_lower(vacuum_str)) != std::string::npos)
-      surface_boundary_data_eh[eh] = vacuum_str;
+    if (bc_string.find(to_lower(reflecting_str())) != std::string::npos)
+      surface_boundary_data_eh[eh] = reflecting_str();
+    if (bc_string.find(to_lower(white_str())) != std::string::npos)
+      surface_boundary_data_eh[eh] = white_str();
+    if (bc_string.find(to_lower(periodic_str())) != std::string::npos)
+      surface_boundary_data_eh[eh] = periodic_str();
+    if (bc_string.find(to_lower(vacuum_str())) != std::string::npos)
+      surface_boundary_data_eh[eh] = vacuum_str();
   }
 }
 

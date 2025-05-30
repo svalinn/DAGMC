@@ -15,7 +15,7 @@ macro (dagmc_setup_build)
   if (NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND
       NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND
       NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    message(FATAL_ERROR "Specified CMAKE_BUILD_TYPE is invalid; valid options are Release, Debug, RelWithDebInfo")
+    message(FATAL_ERROR "Specified CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} is invalid; valid options are Release, Debug, RelWithDebInfo")
   endif ()
   string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPER)
   message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
@@ -73,6 +73,8 @@ macro (dagmc_setup_options)
 
   option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
 
+  option(PULL_INSTALL_MOAB "Enable automatic downloading of MOAB dependency, provide a MOAB TAG version" OFF)
+  
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
     set(BUILD_MCNP6  ON)
@@ -89,11 +91,13 @@ macro (dagmc_setup_options)
   endif()
 
 if (DOUBLE_DOWN)
+  message(STATUS "DOUBLE_DOWN has been enabled for ray tracing. Searching for package...")
   find_package(DOUBLE_DOWN REQUIRED)
   if (dd_VERSION VERSION_LESS 1.1.0)
     message(FATAL_ERROR "Discovered Double Down Version: ${DOUBLE_DOWN_VERSION}. \
     Please update Double Down to version 1.1.0 or greater.")
   endif()
+  message(STATUS "Found DOUBLE_DOWN.")
 endif()
 
 
@@ -251,6 +255,11 @@ macro (dagmc_install_library lib_name)
             EXPORT DAGMCTargets
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
+    # Required to ensure that MOAB is built before DAGMC and to properly link against MOAB
+    if(PULL_INSTALL_MOAB)
+      target_link_libraries(${lib_name}-shared PUBLIC ${MOAB_LIBRARY_DIRS}/libMOAB${CMAKE_SHARED_LIBRARY_SUFFIX})
+      add_dependencies(${lib_name}-shared MOAB)
+    endif()
   endif ()
 
   if (BUILD_STATIC_LIBS)

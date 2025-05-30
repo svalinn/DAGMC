@@ -46,9 +46,6 @@ static bool visited_surface = false;
 static bool use_dist_limit = false;
 static double dist_limit;  // needs to be thread-local
 
-static std::string graveyard_str = "Graveyard";
-static std::string vacuum_str = "Vacuum";
-
 void dagmcinit_(char* cfile, int* clen,   // geom
                 char* ftol, int* ftlen,   // faceting tolerance
                 int* parallel_file_mode,  // parallel read mode
@@ -203,8 +200,8 @@ void write_cell_cards(std::ostringstream& lcadfile,
       // that material numbers are assigned
       mat_num = DMD->volume_material_data_eh[entity];
       // if we cant make an int from the mat_num
-      if (mat_num.find(graveyard_str) == std::string::npos &&
-          mat_num.find(vacuum_str) == std::string::npos) {
+      if (mat_num.find(DMD->graveyard_str()) == std::string::npos &&
+          mat_num.find(DMD->vacuum_str()) == std::string::npos) {
         if (!DMD->try_to_make_int(mat_num)) {
           std::cerr << "Failed to cast material number to an integer"
                     << std::endl;
@@ -220,15 +217,15 @@ void write_cell_cards(std::ostringstream& lcadfile,
 
       density = DMD->volume_density_data_eh[entity];
       // if we have a vacuum problem
-      if (mat_num == graveyard_str || mat_num == vacuum_str) {
+      if (mat_num == DMD->graveyard_str() || mat_num == DMD->vacuum_str()) {
         mat_num = "0";
         density = "";
       }
     } else {
       std::string mat_name = DMD->volume_material_property_data_eh[entity];
       // if we not vacuum or graveyard
-      if (mat_name.find(vacuum_str) == std::string::npos &&
-          mat_name.find(graveyard_str) == std::string::npos) {
+      if (mat_name.find(DMD->vacuum_str()) == std::string::npos &&
+          mat_name.find(DMD->graveyard_str()) == std::string::npos) {
         if (workflow_data->material_library.count(mat_name) == 0) {
           std::cerr << "Material with name " << mat_name << " not found "
                     << std::endl;
@@ -269,10 +266,10 @@ void write_cell_cards(std::ostringstream& lcadfile,
       }
       double imp = 1.0;
       // if we find graveyard always have importance 0.0
-      if (mat_name.find(graveyard_str) != std::string::npos) {
+      if (mat_name.find(DMD->graveyard_str()) != std::string::npos) {
         imp = 0.0;
         // no splitting can happenin vacuum set to 1
-      } else if (mat_name.find(vacuum_str) != std::string::npos) {
+      } else if (mat_name.find(DMD->vacuum_str()) != std::string::npos) {
         imp = 1.0;
         // otherwise as the map says
       } else {
@@ -282,7 +279,7 @@ void write_cell_cards(std::ostringstream& lcadfile,
     }
     // its possible no importances were assigned
     if (set.size() == 0) {
-      if (mat_name.find(graveyard_str) == std::string::npos) {
+      if (mat_name.find(DMD->graveyard_str()) == std::string::npos) {
         importances = "imp:n=1";
       } else {
         importances = "imp:n=0";
@@ -290,7 +287,7 @@ void write_cell_cards(std::ostringstream& lcadfile,
     }
 
     // add descriptive comments for special volumes
-    if (mat_name.find(graveyard_str) != std::string::npos) {
+    if (mat_name.find(DMD->graveyard_str()) != std::string::npos) {
       importances += "  $ graveyard";
     } else if (DAG->is_implicit_complement(entity)) {
       importances += "  $ implicit complement";

@@ -146,7 +146,6 @@ TEST_F(UWUWTest, mat_write) {
   mat.metadata["mat_number"] = 1;
   // check openmc material write
   std::string openmc_rep = mat.openmc();
-  std::cout << openmc_rep << std::endl;
   std::stringstream expected_rep;
   expected_rep << "  <material id=\"1\" name=\"Water\" >\n";
   expected_rep << "    <density value=\"1.\" units=\"g/cc\" />\n";

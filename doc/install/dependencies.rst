@@ -47,18 +47,17 @@ Source installation
 
 The tarball containing the HDF5 source code can also be downloaded from the
 `HDF5 website <HDF5_>`_. Note that if you choose this option, we recommend you
-obtain HDF5 version 1.8.13 instead of the newest version. The following commands
+obtain HDF5 version 1.14.3 instead of the newest version. The following commands
 can be used to install HDF5 from source.
 ::
 
-    $ mkdir -p $HOME/dagmc_bld/HDF5/bld
+    $ mkdir -p $HOME/dagmc_bld/HDF5/build
     $ cd $HOME/dagmc_bld/HDF5
-    $ wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
-    $ tar -xzvf hdf5-1.8.13.tar.gz
-    $ ln -s hdf5-1.8.13 src
-    $ cd bld
-    $ ../src/configure --enable-shared \
-                       --prefix=$HOME/dagmc_bld/HDF5
+    $ git clone -b 1.14.3 --depth 1 https://github.com/HDFGroup/hdf5.git && \
+    $ cd build
+    $ cmake ../hdf5 \
+        -DCMAKE_INSTALL_PREFIX=$HOME/dagmc_bld/HDF5 \
+        -DBUILD_SHARED_LIBS=ON
     $ make
     $ make check
     $ make install
@@ -74,12 +73,14 @@ Debian linux users can install the latest HDF5 release with:
 Redhat linux users can do likewise with:
 ::
 
-    $ sudo yum install libhdf5-dev
+    $ sudo yum install -y epel-release
+    $ sudo yum config-manager --enable epel
+    $ sudo yum install hdf5-devel
 
 MOAB installation
 ~~~~~~~~~~~~~~~~~
 
-As of DAGMC version 3.2, a MOAB version between 5.1.0 and 5.3.0 is required. The following
+As of DAGMC version 3.2.3, MOAB version 5.5.1 is preferred. The following
 commands can be used to download MOAB from its `source repository <MOAB_>`_ and
 set it up for building.
 ::
@@ -87,23 +88,34 @@ set it up for building.
     $ cd $HOME/dagmc_bld
     $ mkdir -p MOAB/bld
     $ cd MOAB
-    $ git clone --depth 1 -b 5.3.0 https://bitbucket.org/fathomteam/moab
+    $ git clone --depth 1 -b 5.5.1 https://bitbucket.org/fathomteam/moab
 
 To build moab using the default packages:
 ::
 
     $ cd bld
-    $ cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=${hdf5_install_dir} \
+    $ cmake ../moab -DENABLE_HDF5=ON -DHDF5_ROOT=$HOME/dagmc_bld/HDF5 \
               -DCMAKE_BUILD_TYPE=Release \
               -DENABLE_PYMOAB=ON \
               -DENABLE_BLASLAPACK=OFF \
               -DENABLE_FORTRAN=OFF \
               -DCMAKE_INSTALL_PREFIX=$HOME/dagmc_bld/MOAB \
               -DBUILD_SHARED_LIBS=ON \
-              -DCMAKE_INSTALL_RPATH=${hdf5_install_dir}/lib:${moab_install_dir}/lib
+              -DCMAKE_INSTALL_RPATH=$HOME/dagmc_bld/HDF5/lib:$HOME/dagmc_bld/MOAB/lib
     $ make
     $ make check
     $ make install
+
+If you whish to avoid building MOAB from source, it is possible to build it at
+the same time as DAGMC by setting the ``PULL_INSTALL_MOAB`` option to the 
+desired MOAB version. This will automatically download and build MOAB as a 
+dependency of DAGMC. When using this option it is assumed that HDF5 is properly
+installed on your computer and you will need to provide its location for the 
+MOAB installation. For example, to build MOAB version 5.5.1, you would add the 
+following flag to the cmake command when building DAGMC:
+::
+
+    $ cmake ../dagmc -DPULL_INSTALL_MOAB=5.5.1 -DHDF5_ROOT=PATH_TO_HDF5
 
 Making sure the dependencies were installed correctly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -128,5 +140,5 @@ If you have installed the dependencies correctly, you are now ready to
 `install DAGMC <dagmc.html>`_.
 
 ..  _HDF5: http://www.hdfgroup.org/HDF5
-..  _MOAB: http://press3.mcs.anl.gov/sigma/moab-library
+..  _MOAB: https://sigma.mcs.anl.gov/moab-library/
 ..  _Eigen3: http://eigen.tuxfamily.org/index.php

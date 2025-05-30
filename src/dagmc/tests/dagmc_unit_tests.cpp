@@ -81,6 +81,63 @@ TEST_F(DagmcMetadataTest, TestMatAssigns) {
   }
 }
 //---------------------------------------------------------------------------//
+// FIXTURE-BASED TESTS: Tests to make sure that vacuum detection is done
+// properly
+//---------------------------------------------------------------------------//
+TEST_F(DagmcMetadataTest, TestVacuumName) {
+  // Test default behavior for vacuum name
+  {
+    // new metadata instance
+    dgm = std::make_shared<dagmcMetaData>(DAG.get());
+    // process
+    dgm->load_property_data();
+
+    int num_vol = DAG->num_entities(3);
+    std::vector<int> vol_ids = {1, 2, 3, 4};
+
+    std::vector<std::string> vacuum_names = {"Hydrogen", "Hydrogen", "Hydrogen",
+                                             "Vacuum"};
+    for (int id : vol_ids) {
+      std::string mat_prop = dgm->get_volume_property("material", id, false);
+      EXPECT_EQ(mat_prop, vacuum_names[id - 1]);
+    }
+  }
+
+  // Changing the vacuum name to detect mat:Hydrogen as the vacuum
+  {
+    dgm = std::make_shared<dagmcMetaData>(DAG.get());
+
+    dgm->set_vacuum_mat_str("mat:Hydrogen");
+    dgm->load_property_data();
+    int num_vol = DAG->num_entities(3);
+    std::vector<int> vol_ids = {1, 2, 3, 4};
+
+    std::vector<std::string> vacuum_names = {"Vacuum", "Vacuum", "Vacuum",
+                                             "Vacuum"};
+    for (int id : vol_ids) {
+      std::string mat_prop = dgm->get_volume_property("material", id, false);
+      EXPECT_EQ(mat_prop, vacuum_names[id - 1]);
+    }
+  }
+
+  // Ensuring that partial name overlap don't affect vacuum detection
+  {
+    dgm = std::make_shared<dagmcMetaData>(DAG.get());
+
+    dgm->set_vacuum_mat_str("Hydro");
+    dgm->load_property_data();
+    int num_vol = DAG->num_entities(3);
+    std::vector<int> vol_ids = {1, 2, 3, 4};
+
+    std::vector<std::string> vacuum_names = {"Hydrogen", "Hydrogen", "Hydrogen",
+                                             "Vacuum"};
+    for (int id : vol_ids) {
+      std::string mat_prop = dgm->get_volume_property("material", id, false);
+      EXPECT_EQ(mat_prop, vacuum_names[id - 1]);
+    }
+  }
+}
+//---------------------------------------------------------------------------//
 // FIXTURE-BASED TESTS: Tests to make sure that all densities have successfully
 // been assigned and successfully retreved from the metadata class
 // in this test there was no density data assigned, so it should be ""

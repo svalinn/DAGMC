@@ -26,7 +26,7 @@ class MakeWatertightTest : public ::testing::Test {
   virtual void SetUp();
   void reload_mesh();
   virtual void TearDown();
-  virtual void setFilename(){};
+  virtual void setFilename() {};
 
   // make sure the expected number of entities with dimension are present
   moab::ErrorCode check_num_ents(int ent_dimension, int expected_num);

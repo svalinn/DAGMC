@@ -316,6 +316,21 @@ class dagmcMetaData {
    */
   std::map<moab::EntityHandle, std::map<std::string, double>> importance_map;
 
+  // Getting some constant keyword values
+  const std::string& graveyard_str() const { return graveyard_str_; }
+  const std::string& vacuum_str() const { return vacuum_str_; }
+  const std::string& vacuum_mat_str() const { return vacuum_mat_str_; }
+  const std::string& graveyard_mat_str() const { return graveyard_mat_str_; }
+  const std::string& reflecting_str() const { return reflecting_str_; }
+  const std::string& white_str() const { return white_str_; }
+  const std::string& periodic_str() const { return periodic_str_; }
+
+  // Allowing modify some constant keyword values
+  void set_graveyard_str(std::string val) { graveyard_str_ = val; }
+  void set_vacuum_str(std::string val) { vacuum_str_ = val; }
+  void set_vacuum_mat_str(std::string val) { vacuum_mat_str_ = val; }
+  void set_graveyard_mat_str(std::string val) { graveyard_mat_str_ = val; }
+
   // private member variables
  private:
   /**
@@ -351,11 +366,14 @@ class dagmcMetaData {
   std::map<std::string, std::string> keyword_synonyms;
 
   // Some constant keyword values
-  const std::string graveyard_str{"Graveyard"};
-  const std::string vacuum_str{"Vacuum"};
-  const std::string reflecting_str{"Reflecting"};
-  const std::string white_str{"White"};
-  const std::string periodic_str{"Periodic"};
+  const std::string reflecting_str_{"Reflecting"};
+  const std::string white_str_{"White"};
+  const std::string periodic_str_{"Periodic"};
+  // Some less constant keyword values
+  std::string graveyard_str_{"Graveyard"};
+  std::string vacuum_str_{"Vacuum"};
+  std::string vacuum_mat_str_{"mat:Vacuum"};
+  std::string graveyard_mat_str_{"mat:Graveyard"};
 
   DagMC_Logger logger;
 };

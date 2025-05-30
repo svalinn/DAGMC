@@ -102,8 +102,8 @@ bool Tally::get_energy_bin(double energy, unsigned int& ebin) {
           break;
         }
       }  // end for
-    }    // end else in bounds and >1 energy bin
-  }      // end if in bounds
+    }  // end else in bounds and >1 energy bin
+  }  // end if in bounds
 
   return bin_exists;
 }

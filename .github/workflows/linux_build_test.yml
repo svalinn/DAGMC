@@ -44,20 +44,31 @@ jobs:
           clang,
         ]
         hdf5_version : [
-          1.14.3,
+          1.14.6,
         ]
         moab_version : [
           5.4.1,
           5.5.1,
         ]
+        pull_install_moab : [
+          off,
+        ]
         geant4_version : [
-          10.7.4,
-          11.1.2
+          v10.7.4,
+          v11.2.1
         ]
         double_down_version : [
           off,
           v1.1.0,
         ]
+        include:
+          - ubuntu_version: 22.04
+            compiler: gcc
+            hdf5_version: 1.14.6
+            moab_version: 5.4.1
+            pull_install_moab: on
+            geant4_version: off
+            double_down_version: off
 
     container:
       image: ghcr.io/svalinn/dagmc-ci-ubuntu-${{
@@ -72,7 +83,7 @@ jobs:
                 matrix.geant4_version
               }}-double_down_${{
                 matrix.double_down_version
-              }}/moab:latest
+              }}/external_deps:latest
 
     steps:
       - name: Checkout repository
@@ -86,9 +97,10 @@ jobs:
           mkdir -p build
           cd build
           cmake ../ \
-              -DMOAB_DIR=${moab_install_dir} \
+              -DMOAB_DIR=${MOAB_INSTALL_DIR} \
               -DBUILD_GEANT4=$([ "${{ matrix.geant4_version }}" != "off" ] && echo "ON" || echo "OFF") \
-              -DGEANT4_DIR=${geant4_install_dir} \
+              -DPULL_INSTALL_MOAB=$([ "${{ matrix.pull_install_moab }}" != "on" ] && echo "OFF" || echo "ON -DHDF5_ROOT=${HDF5_INSTALL_DIR}") \
+              -DGEANT4_DIR=${GEANT4_INSTALL_DIR} \
               -DBUILD_CI_TESTS=ON \
               -DBUILD_MW_REG_TESTS=OFF \
               -DBUILD_STATIC_EXE=OFF \
@@ -98,7 +110,7 @@ jobs:
               -DCMAKE_Fortran_COMPILER=gfortran \
               -DCMAKE_INSTALL_PREFIX=${install_dir}/dagmc \
               -DDOUBLE_DOWN=$([ "${{ matrix.double_down_version }}" != "off" ] && echo "ON" || echo "OFF") \
-              -Ddd_ROOT=${double_down_install_dir}
+              -Ddd_ROOT=${DOUBLE_DOWN_INSTALL_DIR}
           make -j${CI_JOBS}
           make install
 

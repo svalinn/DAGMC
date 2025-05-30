@@ -5,7 +5,7 @@
 
 # Global arguments set before the first build stage are accessable by all build stages
 ARG UBUNTU_VERSION=22.04
-ARG HDF5_VERSION=hdf5_1_14_3
+ARG HDF5_VERSION=1.14.6
 ARG MOAB_VERSION=5.5.1
 # Setting GEANT4_VERSION=off will disable GEANT4 build
 ARG GEANT4_VERSION=v11.2.1
@@ -136,7 +136,7 @@ ENV HDF5_INSTALL_DIR=${INSTALL_DIR}/hdf5
 
 RUN mkdir -p ${HDF5_BUILD_DIR}/build && \
     cd ${HDF5_BUILD_DIR} && \
-    git clone -b ${HDF5_VERSION} --depth 1 https://github.com/HDFGroup/hdf5.git && \
+    git clone -b hdf5_${HDF5_VERSION} --depth 1 https://github.com/HDFGroup/hdf5.git && \
     cd build && \
     cmake ../hdf5 \
         -DCMAKE_INSTALL_PREFIX=${HDF5_INSTALL_DIR} \

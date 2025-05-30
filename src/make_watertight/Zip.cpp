@@ -419,7 +419,7 @@ moab::ErrorCode Zip::remove_inverted_tris(moab::Tag normal_tag,
       }
 
     }  // loop until the entire surface has attempted to be refaceted
-  }    // loop over each patch of inverted tris
+  }  // loop over each patch of inverted tris
 
   if (failures_occur) {
     if (debug)

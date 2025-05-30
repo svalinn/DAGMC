@@ -61,3 +61,8 @@ Note that unless set, all boolean options default to ``OFF``.
     * ``-DBUILD_PIC=ON`` Build with position-independent code. (Default: OFF)
 
     * ``-DBUILD_RPATH=ON`` Build with RPATH functionality. (Default: ON)
+
+    * ``-DPULL_INSTALL_MOAB=MOAB_version`` Enables automatic downloading of MOAB
+      dependency, provide a MOAB TAG version, (default: OFF). When using this 
+      option, it is required to provide the path to HDF5 location, using 
+      ``-DHDF5_ROOT``.

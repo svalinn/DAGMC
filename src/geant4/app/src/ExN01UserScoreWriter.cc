@@ -104,8 +104,8 @@ void ExN01UserScoreWriter::DumpAllQuantitiesToFile(const G4String& fileName,
           rval = MBI()->tag_set_data(tag_handle, &(mesh_elements[idx]), 1,
                                      &result);
         }  // z
-      }    // y
-    }      // x
+      }  // y
+    }  // x
   }
 
   // save the file

@@ -314,21 +314,19 @@ moab::ErrorCode CheckWatertight::check_mesh_for_watertightness(
             the_coords_and_id[j].z2 = endpt_coords[2];
           }
           std::cout << "  edge of surf " << the_coords_and_id[j].surf_id
-                    << " unmatched: "
-                    << " (" << the_coords_and_id[j].x1 << ","
+                    << " unmatched: " << " (" << the_coords_and_id[j].x1 << ","
                     << the_coords_and_id[j].y1 << "," << the_coords_and_id[j].z1
                     << ") (" << the_coords_and_id[j].x2 << ","
                     << the_coords_and_id[j].y2 << "," << the_coords_and_id[j].z2
-                    << ")"
-                    << " v0=" << the_coords_and_id[j].vert1
+                    << ")" << " v0=" << the_coords_and_id[j].vert1
                     << " v1=" << the_coords_and_id[j].vert2 << " j=" << j
                     << " k=" << k << std::endl;
         }
         unmatched_counter++;
         break;
       }  // k loop
-    }    // j loop
-  }      // volume loop
+    }  // j loop
+  }  // volume loop
 
   if (!test) {
     // print time and summary

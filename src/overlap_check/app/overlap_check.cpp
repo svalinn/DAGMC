@@ -48,15 +48,13 @@ int main(int argc, char* argv[]) {
   MB_CHK_SET_ERR(rval, "Failed to load file: " << filename);
 
   if (points_per_tri_edge == 0) {
-    std::cout << "NOTICE: "
-              << "\n";
+    std::cout << "NOTICE: " << "\n";
     std::cout
         << "\t Performing overlap check using triangle vertex locations only."
         << "\n"
         << "\t Use the '-p' option to check more points on the triangle edges."
         << "\n"
-        << "\t Run '$ overlap_check --help' for more information."
-        << "\n\n";
+        << "\t Run '$ overlap_check --help' for more information." << "\n\n";
   }
 
   std::cout << "Running overlap check:" << std::endl;

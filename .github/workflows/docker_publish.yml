@@ -22,7 +22,7 @@ jobs:
           clang,
         ]
         hdf5_version : [
-          hdf5_1_14_3,
+          1.14.6,
         ]
         moab_version : [
           5.4.1,
@@ -103,7 +103,7 @@ jobs:
           clang,
         ]
         hdf5_version : [
-          hdf5_1_14_3,
+          1.14.6,
         ]
         moab_version : [
           5.4.1,
