@@ -8,7 +8,7 @@ if (FLUKA_LIBRARIES)
   get_filename_component(FLUKA_LIBRARIES ${FLUKA_LIBRARIES} ABSOLUTE)
 endif ()
 
-set(FLUKA_LIBRARIES ${FLUKA_LIBRARIES}/libfluka.a gfortran)
+set(FLUKA_LIBRARIES ${FLUKA_LIBRARIES}/libfluka.a ${FLUKA_LIBRARIES}/libgeometry.a ${FLUKA_LIBRARIES}/libtool.a ${FLUKA_LIBRARIES}/libdata.a ${FLUKA_LIBRARIES}/libmath.a gfortran)
 
 message(STATUS "FLUKA_LIBRARIES: ${FLUKA_LIBRARIES}")
 
