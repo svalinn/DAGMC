@@ -73,7 +73,9 @@ macro (dagmc_setup_options)
 
   option(DOUBLE_DOWN "Enable ray tracing with Embree via double down" OFF)
 
-  option(PULL_INSTALL_MOAB "Enable automatic downloading of MOAB dependency, provide a MOAB TAG version" OFF)
+  option(DOWNLOAD_HDF5 "Enable automatic downloading of HDF5 dependency" ON)
+  option(DOWNLOAD_MOAB "Enable automatic downloading of MOAB dependency" ON)
+  option(DOWNLOAD_EIGEN3 "Enable automatic downloading of Eigen3 dependency" ON)
   
   if (BUILD_ALL)
     set(BUILD_MCNP5  ON)
@@ -243,22 +245,21 @@ macro (dagmc_install_library lib_name)
                    INSTALL_RPATH_USE_LINK_PATH TRUE)
 
     endif ()
+    list(APPEND LINK_LIBS_SHARED MOAB)
     message(STATUS "LINK LIBS: ${LINK_LIBS_SHARED}")
     target_link_libraries(${lib_name}-shared PUBLIC ${LINK_LIBS_SHARED})
     if (DOUBLE_DOWN)
       target_compile_definitions(${lib_name}-shared PRIVATE DOUBLE_DOWN)
       target_link_libraries(${lib_name}-shared PUBLIC dd)
     endif()
-    target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
-                                                            ${MOAB_INCLUDE_DIRS})
+    target_include_directories(${lib_name}-shared INTERFACE $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>)
     install(TARGETS ${lib_name}-shared
             EXPORT DAGMCTargets
             LIBRARY DESTINATION ${INSTALL_LIB_DIR}
             PUBLIC_HEADER DESTINATION ${INSTALL_INCLUDE_DIR})
     # Required to ensure that MOAB is built before DAGMC and to properly link against MOAB
-    if(PULL_INSTALL_MOAB)
-      target_link_libraries(${lib_name}-shared PUBLIC ${MOAB_LIBRARY_DIRS}/libMOAB${CMAKE_SHARED_LIBRARY_SUFFIX})
-      add_dependencies(${lib_name}-shared MOAB)
+    if(DOWNLOAD_MOAB)
+      add_dependencies(${lib_name}-shared moab-project)
     endif()
   endif ()
 
@@ -361,3 +362,38 @@ macro (dagmc_install_test_file filename)
   install(FILES ${filename} DESTINATION ${INSTALL_TESTS_DIR})
   configure_file(${CMAKE_CURRENT_LIST_DIR}/${filename} ${CMAKE_CURRENT_BINARY_DIR}/${filename} COPYONLY)
 endmacro ()
+
+# Install dependent library via ExternalProject
+macro(install_dependent_library _library _folder)
+  if(APPLE)
+    add_custom_target(fix-${_library} ALL
+      COMMAND find ${_folder} -type l -delete
+      COMMAND for lib_file in *${CMAKE_SHARED_LIBRARY_SUFFIX}* \; do
+                install_name_tool -add_rpath @loader_path "$$lib_file" \;
+                identifier_file=`otool -D "$$lib_file" | sed -n 's/.*\\///p'` \;
+                if [ "$$lib_file" != "$$identifier_file" ] \; then
+                  mv "$$lib_file" "$$identifier_file" \;
+                fi \;
+              done
+      WORKING_DIRECTORY ${_folder}
+      DEPENDS dagmc-shared
+      )
+  elseif(UNIX)
+    add_custom_target(fix-${_library} ALL
+      COMMAND find ${_folder} -type l -delete
+      COMMAND for lib_file in *${CMAKE_SHARED_LIBRARY_SUFFIX}* \; do
+                patchelf --set-rpath '$$ORIGIN/' "$$lib_file" \;
+                identifier_file=`objdump -p "$$lib_file" | grep SONAME | awk '{print $$2}'` \;
+                if [ "$$lib_file" != "$$identifier_file" ] \; then
+                  mv "$$lib_file" "$$identifier_file" \;
+                fi \;
+              done
+      WORKING_DIRECTORY ${_folder}
+      DEPENDS dagmc-shared
+      )
+  endif()
+  install(DIRECTORY ${_folder}/
+    DESTINATION ${INSTALL_LIB_DIR}
+    FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}*"
+    )
+endmacro()

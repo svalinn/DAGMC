@@ -1,5 +1,5 @@
-project(DAGMC)
 cmake_minimum_required(VERSION 3.18)
+project(DAGMC)
 enable_language(CXX)
 
 # Set DAGMC version
@@ -45,20 +45,7 @@ if(BUILD_MCNP5 OR BUILD_MCNP6)
 endif()
 
 # Dealing with MOAB
-if (PULL_INSTALL_MOAB)
-  set(MOAB_VERSION ${PULL_INSTALL_MOAB})  
-
-  # Ensure MOAB_VERSION
-  if(NOT ${MOAB_VERSION} MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+")
-    MESSAGE("MOAB_VERSION: ${MOAB_VERSION} not recognized. Defaulting to 5.5.1")
-    set(MOAB_VERSION "5.5.1")
-  endif()
-  MESSAGE("MOAB_VERSION to be installed: ${MOAB_VERSION}")
-  include(MOAB_PullAndMake)
-  moab_pull_make(${MOAB_VERSION})
-else()
-  find_package(MOAB REQUIRED)
-endif()
+include(ExternalProjects)
 
 find_package(OpenMP)
 
