@@ -16,6 +16,7 @@ Next version
 
 **Fixed**
   * Fixed HDF5 naming convention for docker container building and naming (#976)
+  * Allowed for modern CMake policies to be used (#989)
 
 
 v3.2.4
