@@ -1296,7 +1296,7 @@ def _setup_build(dag_h5m):
 
     file_contents.append('#----------------------------------------------------------------------------\n')
     file_contents.append('# Setup the project\n')
-    file_contents.append('cmake_minimum_required(VERSION 2.6 FATAL_ERROR)\n')
+    file_contents.append('cmake_minimum_required(VERSION 2.6...4.2)\n')
     file_contents.append('project(N01)\n')
     file_contents.append('\n')
     file_contents.append('#----------------------------------------------------------------------------\n')
