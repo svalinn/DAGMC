@@ -69,9 +69,8 @@ jobs:
         shell: bash -l {0}
         run: |
           cd ${HOME}
-          mkdir -pv moab/bld
-          cd moab
-          git clone https://bitbucket.org/fathomteam/moab -b 5.5.1 --depth 1 --shallow-submodules
+          mkdir -pv moab
+          git clone -b 5.5.1 --depth 1 --shallow-submodules https://bitbucket.org/fathomteam/moab moab_src
 
           # In CMavke v4 TestEndianess.c.in was renamed to TestEndianness.c.in
           # to fix a typo. MOAB v5.5.1 used a custom config/TestBigEndian.cmake
@@ -89,36 +88,40 @@ jobs:
           #
           # $ git grep -m 1 '(HAVE_' -- config/TestBigEndian.cmake
           # config/TestBigEndian.cmake:8:  IF(HAVE_${VARIABLE} MATCHES ^HAVE_${VARIABLE}$)
-          cd bld
-          cmake ../moab -DENABLE_HDF5=ON \
-                        -DENABLE_PYMOAB=OFF \
-                        -DHDF5_ROOT=$HDF5_PATH \
-                        -DBUILD_SHARED_LIBS=ON \
-                        -DENABLE_BLASLAPACK=OFF \
-                        -DENABLE_FORTRAN=OFF \
-                        -DHAVE_WORDS_BIGENDIAN=TRUE \
-                        -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
-                        -DEIGEN3_DIR="${EIGEN_PREFIX}/include/eigen3"
-                        -DCMAKE_INSTALL_PREFIX=${HOME}/moab
-          make
-          make install
-          rm -rf ${HOME}/moab/moab ${HOME}/moab/bld
+          cmake \
+              -DCMAKE_INSTALL_PREFIX=${HOME}/moab \
+              -DHAVE_WORDS_BIGENDIAN=TRUE \
+              -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+              -DEIGEN3_DIR="${EIGEN_PREFIX}/include/eigen3" \
+              -DENABLE_HDF5=ON \
+              -DENABLE_PYMOAB=OFF \
+              -DBUILD_SHARED_LIBS=ON \
+              -DENABLE_BLASLAPACK=OFF \
+              -DENABLE_FORTRAN=OFF \
+              -S moab_src \
+              -B bld
+          cmake -LH bld
+          cmake --build bld --parallel
+          cmake --install bld
+          rm -rf moab_src bld lib
 
       - name: Build DAGMC
         shell: bash -l {0}
         run: |
-          mkdir -p $GITHUB_WORKSPACE/bld
-          cd $GITHUB_WORKSPACE/bld
-          cmake ../ -DMOAB_DIR=${HOME}/moab \
-                    -DCMAKE_PREFIX_PATH="${EIGEN_PREFIX};$(brew --prefix)" \
-                    -DBUILD_CI_TESTS=ON \
-                    -DBUILD_STATIC_EXE=OFF \
-                    -DBUILD_SHARED_LIBS=ON \
-                    -DBUILD_STATIC_LIBS=OFF \
-                    -DCMAKE_CXX_FLAGS="-Werror=reorder" \
-                    -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc
-          make
-          make install
+          cmake \
+            -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc \
+            -DCMAKE_PREFIX_PATH="${EIGEN_PREFIX};$(brew --prefix)" \
+            -DMOAB_DIR=${HOME}/moab \
+            -DBUILD_CI_TESTS=ON \
+            -DBUILD_STATIC_EXE=OFF \
+            -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_STATIC_LIBS=OFF \
+            -DCMAKE_CXX_FLAGS="-Werror=reorder" \
+            -S . \
+            -B $GITHUB_WORKSPACE/bld
+          cmake -LH bld
+          cmake --build bld --parallel
+          cmake --install bld
 
       - name: Testing DAGMC
         shell: bash -l {0}
