@@ -16,7 +16,6 @@ on:
       - '.github/actions/**'
       - 'CI/**'
       - 'doc/**'
-
   push:
     branches:
       - develop
@@ -47,47 +46,82 @@ jobs:
       - name: Initial setup
         shell: bash -l {0}
         run: |
-          brew install eigen hdf5
+          brew install hdf5
+
+          # Homebrew's Eigen in 2026 is Eigen v5.x, which is incompatible with
+          # MOAB v5.5.1 FindEigen3.cmake. Homebrew has bad version control, and
+          # so instead of trying to force Homebrew to install a compatible version,
+          # build Eigen v3.4.0 (a header-only library) from source to ensure that
+          # Eigen3Config.cmake is generated for DAGMC's CMake invocation to use
+          # find_package(Eigen3 REQUIRED NO_MODULE).
+          curl -sL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.bz2 | tar xj -C /tmp
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/eigen -S /tmp/eigen-3.4.0 -B /tmp/eigen-build
+          cmake --build /tmp/eigen-build --parallel
+          cmake --install /tmp/eigen-build
+          echo "EIGEN_PREFIX=/tmp/eigen" >> $GITHUB_ENV
 
       - name: Environment Variables
         shell: bash -l {0}
         run: |
           echo "HOME=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
 
-
       - name: Build MOAB
         shell: bash -l {0}
         run: |
           cd ${HOME}
-          mkdir -pv moab/bld
-          cd moab
-          git clone https://bitbucket.org/fathomteam/moab -b 5.5.1 --depth 1 --shallow-submodules
-          cd bld
-          cmake ../moab -DENABLE_HDF5=ON \
-                        -DENABLE_PYMOAB=OFF \
-                        -DHDF5_ROOT=$HDF5_PATH \
-                        -DBUILD_SHARED_LIBS=ON \
-                        -DENABLE_BLASLAPACK=OFF \
-                        -DENABLE_FORTRAN=OFF \
-                        -DCMAKE_INSTALL_PREFIX=${HOME}/moab
-          make
-          make install
-          rm -rf ${HOME}/moab/moab ${HOME}/moab/bld
+          mkdir -pv moab
+          git clone -b 5.5.1 --depth 1 --shallow-submodules https://bitbucket.org/fathomteam/moab moab_src
+
+          # In CMavke v4 TestEndianess.c.in was renamed to TestEndianness.c.in
+          # to fix a typo. MOAB v5.5.1 used a custom config/TestBigEndian.cmake
+          # that hardcodes the use of TestEndianess.c.in.
+          #
+          #  $ git grep "TestEndianess.c.in"
+          #  config/TestBigEndian.cmake:39:    CONFIGURE_FILE("${CMAKE_ROOT}/Modules/TestEndianess.c.in"
+          #
+          # As config/ is first in CMAKE_MODULE_PATH, MOAB's broken version is
+          # used instead of CMake's working built-in module. To avoid this, set
+          # HAVE_WORDS_BIGENDIAN=TRUE to skip the test, instead of deleting the
+          # broken module. This works as HAVE_WORDS_BIGENDIAN=TRUE skips the test
+          # test_big_endian, defaulting to little-endian, which for effectively all
+          # runner platforms is correct.
+          #
+          # $ git grep -m 1 '(HAVE_' -- config/TestBigEndian.cmake
+          # config/TestBigEndian.cmake:8:  IF(HAVE_${VARIABLE} MATCHES ^HAVE_${VARIABLE}$)
+          cmake \
+              -DCMAKE_INSTALL_PREFIX=${HOME}/moab \
+              -DHAVE_WORDS_BIGENDIAN=TRUE \
+              -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+              -DEIGEN3_DIR="${EIGEN_PREFIX}/include/eigen3" \
+              -DENABLE_HDF5=ON \
+              -DENABLE_PYMOAB=OFF \
+              -DBUILD_SHARED_LIBS=ON \
+              -DENABLE_BLASLAPACK=OFF \
+              -DENABLE_FORTRAN=OFF \
+              -S moab_src \
+              -B bld
+          cmake -LH bld
+          cmake --build bld --parallel
+          cmake --install bld
+          rm -rf moab_src bld lib
 
       - name: Build DAGMC
         shell: bash -l {0}
         run: |
-          mkdir -p $GITHUB_WORKSPACE/bld
-          cd $GITHUB_WORKSPACE/bld
-          cmake ../ -DMOAB_DIR=${HOME}/moab \
-                    -DBUILD_CI_TESTS=ON \
-                    -DBUILD_STATIC_EXE=OFF \
-                    -DBUILD_SHARED_LIBS=ON \
-                    -DBUILD_STATIC_LIBS=OFF \
-                    -DCMAKE_CXX_FLAGS="-Werror=reorder" \
-                    -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc
-          make
-          make install
+          cmake \
+            -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc \
+            -DCMAKE_PREFIX_PATH="${EIGEN_PREFIX};$(brew --prefix)" \
+            -DMOAB_DIR=${HOME}/moab \
+            -DBUILD_CI_TESTS=ON \
+            -DBUILD_STATIC_EXE=OFF \
+            -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_STATIC_LIBS=OFF \
+            -DCMAKE_CXX_FLAGS="-Werror=reorder" \
+            -S . \
+            -B $GITHUB_WORKSPACE/bld
+          cmake -LH bld
+          cmake --build bld --parallel
+          cmake --install bld
 
       - name: Testing DAGMC
         shell: bash -l {0}
