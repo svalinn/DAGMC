@@ -3,12 +3,12 @@
 
 #include "G4MagneticField.hh"
 #include "G4SystemOfUnits.hh"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <array>
 #include <vector>
 #include <string>
 #include <set>
-
 
 double LinearInterpolation(const double x1, const double x2,
   const double f1, const double f2, const double x) {
@@ -54,6 +54,29 @@ double BilinearInterpolation(const std::array<double,2> x_stencil,
 }
 
 enum Sampling { NEAREST, BILINEAR_INTERPOLATION };
+
+// Class to provide a simple magnetic field in and around
+// a wire following amperes law, it is assumed that the field
+// is centred on 0,0 in the x,y plane and that the wire points along
+// the z axis. 
+class WireMagneticField : public G4MagneticField {
+  public:
+  // Constructor
+  WireMagneticField(const G4double radius = 5*cm,
+		    const G4double mu = 1.256*e-6*m,
+		    const G4double current = 1e6);
+
+  // Destructor
+  ~WireMagneticField();
+
+  // main lookup function
+  void GetFieldValue(const G4double Point[4],
+		     double *field) const override;
+  private:
+  G4double wireRadius;
+  G4double current;
+  
+}
 
 class MagneticField : public G4MagneticField {
   public:

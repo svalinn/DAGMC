@@ -59,7 +59,10 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   moab::DagMC* dagmc;
   dagmcMetaData* DMD;
   std::map<std::string, G4Material*> material_lib;
-  G4String bfield_filename;
+  G4String fBfieldFilename;
+  G4double fWireCurrent;
+  G4double fWireRadius;
+  G4double fWirePermeability;
   ExN01DetectorMessenger *fDetectorMessenger;
 };
 

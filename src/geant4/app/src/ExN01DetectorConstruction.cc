@@ -26,7 +26,8 @@ G4ThreadLocal G4FieldManager* ExN01DetectorConstruction::fFieldMgr = nullptr;
 // constructor
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data, 
                                                      G4String magnetic_field_filename)
-    : fWorldVolumeLog(0),fDetectorMessenger(0) {
+  : fWorldVolumeLog(0),fDetectorMessenger(0),fWireCurrent(0),
+    fWireRadius(0),fWirePemeability(0) {
   workflow_data = uwuw_workflow_data;
   bfield_filename = magnetic_field_filename;
 
@@ -173,14 +174,42 @@ G4double ExN01DetectorConstruction::GetMaxOrdinate() {
 
 void ExN01DetectorConstruction::SetBFieldFileName(G4String filename) {
   // set the filename
-  bfield_filename = filename;
-  // rebuild the field & detectors
-  ConstructSDandField();
+  fBfieldFilename = filename;
 }
 
 G4String ExN01DetectorConstruction::GetBFieldFileName() {
   // set the filename
-  return bfield_filename;
+  return fBfieldFilename;
+}
+
+void ExN01DetectorConstruction::SetWireFieldCurrent(G4double current) {
+  // set the current
+  fWireCurrent = current;
+}
+
+G4double ExN01DetectorConstruction::GetWireFieldCurrent() {
+  // set the filename
+  return fWireCurrent;
+}
+
+void ExN01DetectorConstruction::SetWireFieldRadius(G4double radius) {
+  // set the current
+  fWireRadius = radius;
+}
+
+G4double ExN01DetectorConstruction::GetWireFieldRadius() {
+  // set the filename
+  return fWireRadius;
+}
+
+void ExN01DetectorConstruction::SetWireFieldPerm(G4double permeability) {
+  // set the current
+  fWirePermeability = permeability;
+}
+
+G4double ExN01DetectorConstruction::GetWireFieldRadius() {
+  // set the filename
+  return fWirePermeability;
 }
 
 void ExN01DetectorConstruction::ConstructSDandField() {
@@ -206,5 +235,35 @@ void ExN01DetectorConstruction::ConstructSDandField() {
     G4cout << "Magnetic field loaded." << G4endl;
   } else {
     G4cout << "No magnetic field file specified." << G4endl;
+    // clear out any existing field
+    if (fMagneticField) {
+      delete fMagneticField;
+      fMagneticField = nullptr;
+    }
+
+    // check for issues
+    if ( fWireCurrent == 0. ) {
+      G4Exception("Ex01DetectorConstruction","1",0,"Wire Current is 0"); 
+    }
+    // make sure that radius is gt 0
+    if ( fWireRadius <= 0. ) {
+      G4Exception("Ex01DetectorConstruction","1",0,"Wire Radius <= 0");       
+    }
+    // make sure permeability
+    if ( fWirePermability <= 0. ) { 
+      G4Exception("Ex01DetectorConstruction","1",0,"Wire Permeability <= 0");      
+    }
+
+    // create a new wire magnetic field
+    fMagneticField = new WireMagneticField(fWireCurrent,
+					   fWireRadius,
+					   fWirePermeability);
+    // attach to the field manager
+    fFieldMgr = new G4FieldManager(fMagneticField);
+    fFieldMgr->SetDetectorField(fMagneticField);
+    fFieldMgr->CreateChordFinder(fMagneticField);
+    // set the field to be global
+    fWorldVolumeLog->SetFieldManager(fFieldMgr, true);
+    G4cout << "Using a simple wire based magnetic field." << G4endl;
   }
 } 

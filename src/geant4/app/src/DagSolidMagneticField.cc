@@ -3,6 +3,52 @@
 #include <iostream>
 #include <fstream>
 
+WireMagneticField::WireMagneticField(const G4double radius,
+				     const G4double mu,
+				     const G4double current) {
+  wireRadius = radius;
+  wireCurrent = current;
+  wireMu = mu;
+}
+
+WireMagneticField::~WireMagneticField() {
+}
+
+// set the magnetic field value given the position
+WireMagneticField::GetFieldValue(const G4double Point[4],
+				 double *field) {
+  // radius squared
+  G4double r2 = Point[0]*Point[0] + Point[1]*Point[1];
+  G4double B = 0;
+  
+  // calculate the field strength
+  if (r2 < wireRadius) {
+    B = wireMu*std::sqrt(r2)*current/2*pi*wireRadius*wireRadius;
+  } else if ( r2 == wireRadius*wireRadius ) {
+    B  = wireMu*current/(twopi*wireRadius);
+  } else {
+    B = (CLHEP::mu0*current)/(twopi*std::sqrt(r2));
+  }
+  
+  // calculate field direction, always tangent to circle
+  // if current +ve anticlockwise, if -ve clockwise
+  G4double i = 0;
+  G4double j = 0;
+  if ( wireCurrent > 0 ) {
+    i = -Point[1];
+    j = Point[0];
+  } else {
+    i = Point[1];
+    j = -Point[0];
+  }
+
+  // dont forget to normalise vector
+  Field[0] = B*i/std::sqrt(r2);
+  Field[1] = B*j/std::sqrt(r2);
+  Field[2] = 0;
+  return;
+}
+
 MagneticField::MagneticField(const Sampling samplingMode) {
   // set the sampling mode
   mode = samplingMode;
