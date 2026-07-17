@@ -129,7 +129,8 @@ std::map<std::string, G4Material*> get_g4materials(
         g4mat->AddElement(element_map[mat_it->first], mat_it->second);
       }
     }
-    material_map["mat:" + mat.metadata["name"].asString()] = g4mat;
+    // note DAGMC already has mat: in the name
+    material_map[mat.metadata["name"].asString()] = g4mat;
   }
 
   // Add vacuum
