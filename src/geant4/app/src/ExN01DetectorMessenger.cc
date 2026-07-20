@@ -40,7 +40,7 @@ ExN01DetectorMessenger::ExN01DetectorMessenger(ExN01DetectorConstruction* Det) :
 ExN01DetectorMessenger::~ExN01DetectorMessenger() {
   delete fBFieldCmd;
   delete fWireFieldCurrentCmd;
-  delete fWireFiledRadiusCmd;
+  delete fWireFieldRadiusCmd;
   delete fWireFieldPermCmd;
   delete fFieldConstructCmd;
   delete fDirectory;  

@@ -63,7 +63,7 @@ class WireMagneticField : public G4MagneticField {
   public:
   // Constructor
   WireMagneticField(const G4double radius = 5*cm,
-		    const G4double mu = 1.256*e-6*m,
+		    const G4double mu = 1.256e-6*m,
 		    const G4double current = 1e6);
 
   // Destructor
@@ -74,8 +74,8 @@ class WireMagneticField : public G4MagneticField {
 		     double *field) const override;
   private:
   G4double wireRadius;
-  G4double current;
-  
+  G4double wireCurrent;
+  G4double wireMu;
 }
 
 class MagneticField : public G4MagneticField {

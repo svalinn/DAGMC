@@ -15,7 +15,7 @@ WireMagneticField::~WireMagneticField() {
 }
 
 // set the magnetic field value given the position
-WireMagneticField::GetFieldValue(const G4double Point[4],
+void WireMagneticField::GetFieldValue(const G4double Point[4],
 				 double *field) {
   // radius squared
   G4double r2 = Point[0]*Point[0] + Point[1]*Point[1];
