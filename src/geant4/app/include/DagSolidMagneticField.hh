@@ -67,11 +67,12 @@ class WireMagneticField : public G4MagneticField {
 		    const G4double current = 1e6);
 
   // Destructor
-  ~WireMagneticField();
+  ~WireMagneticField() override;
 
   // main lookup function
   void GetFieldValue(const G4double Point[4],
-		     double *field) const override;
+		                double *field) const override;
+                    
   private:
   G4double wireRadius;
   G4double wireCurrent;
