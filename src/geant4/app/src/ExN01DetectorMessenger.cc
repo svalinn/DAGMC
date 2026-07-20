@@ -53,7 +53,7 @@ void ExN01DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue
   }
   // we have recieved the wirefield current cmd
   if (command == fWireFieldCurrentCmd) {
-    G4double value = GetNewDoubleRawValue(newValue);
+    G4double value = G4UIcmdWithADoubleAndUnit::GetNewDoubleRawValue(newValue);
     if ( value == 0.0 ) {
       G4cout << "Current set to 0, must be +ve or -ve" << G4endl; 
     }
@@ -61,19 +61,19 @@ void ExN01DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue
   }
   // we have recieved the radius command
   if (command == fWireFieldRadiusCmd) {
-    G4double value = GetNewDoubleRawValue(newValue);
+    G4double value = G4UIcmdWithADoubleAndUnit::GetNewDoubleRawValue(newValue);
     if ( value <= 0.0 ) {
       G4cout << "Wire Radius 0 or less, must be +ve" << G4endl; 
     }
-    fDetector->SetWireFieldRadius(GetNewDoubleRawValue(newValue));
+    fDetector->SetWireFieldRadius(G4UIcmdWithADoubleAndUnit::GetNewDoubleRawValue(newValue));
   }
   // we have recieved the permeability command
   if (command == fWireFieldPermCmd) {
-    G4double value = GetNewDoubleRawValue(newValue);
+    G4double value = G4UIcmdWithADoubleAndUnit::GetNewDoubleRawValue(newValue);
     if ( value <= 0.0 ) {
       G4cout << "Wire permeability 0 or less, must be +ve" << G4endl; 
     }    
-    fDetector->SetWireFieldPerm(GetNewDoubleRawValue(newValue));
+    fDetector->SetWireFieldPermeability(G4UIcmdWithADoubleAndUnit::GetNewDoubleRawValue(newValue));
   }
   // we have recieved the contruct command
   if (command == fFieldConstructCmd) {

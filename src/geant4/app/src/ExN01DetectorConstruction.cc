@@ -212,11 +212,6 @@ G4double ExN01DetectorConstruction::GetWireFieldPermeability() {
   return fWirePermeability;
 }
 
-G4double ExN01DetectorConstruction::GetWireFieldRadius() {
-  // set the filename
-  return fWirePermeability;
-}
-
 void ExN01DetectorConstruction::ConstructSDandField() {
   // instanciate the magnetic field
   if (!fBfieldFilename.empty()) {
@@ -227,7 +222,7 @@ void ExN01DetectorConstruction::ConstructSDandField() {
       fMagneticField = nullptr;
     }
     fMagneticField = new MagneticField();
-    fMagneticField->LoadFile(bfield_filename);
+    fMagneticField->LoadFile(fBfieldFilename);
     if(fFieldMgr) {
       delete fFieldMgr;
       fFieldMgr = nullptr;
