@@ -202,9 +202,14 @@ G4double ExN01DetectorConstruction::GetWireFieldRadius() {
   return fWireRadius;
 }
 
-void ExN01DetectorConstruction::SetWireFieldPerm(const G4double permeability) {
+void ExN01DetectorConstruction::SetWireFieldPermeability  (const G4double permeability) {
   // set the current
   fWirePermeability = permeability;
+}
+
+G4double ExN01DetectorConstruction::GetWireFieldPermeability() {
+  // set the filename
+  return fWirePermeability;
 }
 
 G4double ExN01DetectorConstruction::GetWireFieldRadius() {
