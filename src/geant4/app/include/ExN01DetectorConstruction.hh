@@ -41,7 +41,13 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   virtual G4VPhysicalVolume* Construct();
   virtual void ConstructSDandField();
   void SetBFieldFileName(G4String filename);
+  void SetWireFieldCurrent(G4double current);
+  void SetWireFieldRadius(const G4double radius);
+  void SetWireFieldPermeability(const G4double permeability);
   G4String GetBFieldFileName();
+  G4double GetWireFieldCurrent();
+  G4double GetWireFieldRadius();
+  G4double GetWireFieldPermeability();
 
   G4double GetMaxOrdinate();  
 

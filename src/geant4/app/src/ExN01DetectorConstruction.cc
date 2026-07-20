@@ -27,9 +27,9 @@ G4ThreadLocal G4FieldManager* ExN01DetectorConstruction::fFieldMgr = nullptr;
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data, 
                                                      G4String magnetic_field_filename)
   : fWorldVolumeLog(0),fDetectorMessenger(0),fWireCurrent(0),
-    fWireRadius(0),fWirePemeability(0) {
+    fWireRadius(0),fWirePermeability(0) {
   workflow_data = uwuw_workflow_data;
-  bfield_filename = magnetic_field_filename;
+  fBfieldFilename = magnetic_field_filename;
 
   dagmc = new moab::DagMC();
   // load the material from the UW^2 library
@@ -182,7 +182,7 @@ G4String ExN01DetectorConstruction::GetBFieldFileName() {
   return fBfieldFilename;
 }
 
-void ExN01DetectorConstruction::SetWireFieldCurrent(G4double current) {
+void ExN01DetectorConstruction::SetWireFieldCurrent(const G4double current) {
   // set the current
   fWireCurrent = current;
 }
@@ -192,7 +192,7 @@ G4double ExN01DetectorConstruction::GetWireFieldCurrent() {
   return fWireCurrent;
 }
 
-void ExN01DetectorConstruction::SetWireFieldRadius(G4double radius) {
+void ExN01DetectorConstruction::SetWireFieldRadius(const G4double radius) {
   // set the current
   fWireRadius = radius;
 }
@@ -202,7 +202,7 @@ G4double ExN01DetectorConstruction::GetWireFieldRadius() {
   return fWireRadius;
 }
 
-void ExN01DetectorConstruction::SetWireFieldPerm(G4double permeability) {
+void ExN01DetectorConstruction::SetWireFieldPerm(const G4double permeability) {
   // set the current
   fWirePermeability = permeability;
 }
@@ -214,8 +214,8 @@ G4double ExN01DetectorConstruction::GetWireFieldRadius() {
 
 void ExN01DetectorConstruction::ConstructSDandField() {
   // instanciate the magnetic field
-  if (!bfield_filename.empty()) {
-    G4cout << "Loading magnetic field from file: " << bfield_filename
+  if (!fBfieldFilename.empty()) {
+    G4cout << "Loading magnetic field from file: " << fBfieldFilename
            << "..." << G4endl;
     if (fMagneticField) {
       delete fMagneticField;
@@ -243,15 +243,15 @@ void ExN01DetectorConstruction::ConstructSDandField() {
 
     // check for issues
     if ( fWireCurrent == 0. ) {
-      G4Exception("Ex01DetectorConstruction","1",0,"Wire Current is 0"); 
+      G4Exception("Ex01DetectorConstruction","1",FatalErrorInArgument,"Wire Current is 0"); 
     }
     // make sure that radius is gt 0
     if ( fWireRadius <= 0. ) {
-      G4Exception("Ex01DetectorConstruction","1",0,"Wire Radius <= 0");       
+      G4Exception("Ex01DetectorConstruction","1",FatalErrorInArgument,"Wire Radius <= 0");       
     }
     // make sure permeability
-    if ( fWirePermability <= 0. ) { 
-      G4Exception("Ex01DetectorConstruction","1",0,"Wire Permeability <= 0");      
+    if ( fWirePermeability <= 0. ) { 
+      G4Exception("Ex01DetectorConstruction","1",FatalErrorInArgument,"Wire Permeability <= 0");      
     }
 
     // create a new wire magnetic field
