@@ -1,13 +1,6 @@
 #include "ExN01DetectorMessenger.hh"
 #include "ExN01DetectorConstruction.hh"
 
-#include "G4UIcmdWithAString.hh"
-#include "G4UIcmdWithADoubleAndUnit.hh"
-#include "G4UIcmdWithoutParameter.hh"
-#include "G4UIcommand.hh"
-#include "G4UIdirectory.hh"
-#include "G4UIparameter.hh"
-
 ExN01DetectorMessenger::ExN01DetectorMessenger(ExN01DetectorConstruction* Det) : G4UImessenger
 (), fDetector(Det)
 {

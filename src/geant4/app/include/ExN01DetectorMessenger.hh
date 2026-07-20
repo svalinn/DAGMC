@@ -2,11 +2,20 @@
 #define ExN01DetectorMessenger_hh 1
 
 #include "G4UImessenger.hh"
+#include "G4UIcmdWithAString.hh"
+#include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWithoutParameter.hh"
+#include "G4UIcommand.hh"
+#include "G4UIdirectory.hh"
+#include "G4UIparameter.hh"
+
 #include "globals.hh"
 
 class ExN01DetectorConstruction;
 class G4UIdirectory;
 class G4UIcmdWithAString;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithoutParameter;
 
 class ExN01DetectorMessenger : public G4UImessenger
 {
