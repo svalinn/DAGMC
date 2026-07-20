@@ -76,7 +76,7 @@ class WireMagneticField : public G4MagneticField {
   G4double wireRadius;
   G4double wireCurrent;
   G4double wireMu;
-}
+};
 
 class MagneticField : public G4MagneticField {
   public:
