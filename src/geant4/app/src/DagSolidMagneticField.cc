@@ -23,11 +23,11 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
   
   // calculate the field strength
   if (r2 < wireRadius) {
-    B = wireMu*std::sqrt(r2)*current/2*pi*wireRadius*wireRadius;
+    B = wireMu*std::sqrt(r2)*wireCurrent/2*CLHEP::pi*wireRadius*wireRadius;
   } else if ( r2 == wireRadius*wireRadius ) {
-    B  = wireMu*current/(twopi*wireRadius);
+    B  = wireMu*wireCurrent/(2*CLHEP::pi*wireRadius);
   } else {
-    B = (CLHEP::mu0*current)/(twopi*std::sqrt(r2));
+    B = (CLHEP::mu0*wireCurrent)/(2*CLHEP::pi*std::sqrt(r2));
   }
   
   // calculate field direction, always tangent to circle
@@ -43,9 +43,9 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
   }
 
   // dont forget to normalise vector
-  Field[0] = B*i/std::sqrt(r2);
-  Field[1] = B*j/std::sqrt(r2);
-  Field[2] = 0;
+  field[0] = B*i/std::sqrt(r2);
+  field[1] = B*j/std::sqrt(r2);
+  field[2] = 0;
   return;
 }
 
