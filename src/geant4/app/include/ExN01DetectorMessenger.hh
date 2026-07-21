@@ -31,6 +31,7 @@ class ExN01DetectorMessenger : public G4UImessenger
 
     G4UIdirectory* fDirectory;
     G4UIcmdWithoutParameter* fFieldConstructCmd;
+    G4UIcmdWithAString* fBFieldTypeCmd;
     G4UIcmdWithAString* fBFieldCmd;
     G4UIcmdWithADoubleAndUnit* fWireFieldCurrentCmd;
     G4UIcmdWithADoubleAndUnit* fWireFieldRadiusCmd;

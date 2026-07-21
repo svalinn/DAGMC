@@ -6,6 +6,12 @@ ExN01DetectorMessenger::ExN01DetectorMessenger(ExN01DetectorConstruction* Det) :
 {
   fDirectory = new G4UIdirectory("/det/");
   fDirectory->SetGuidance("UI command to control B field commands");
+  // command for the field type
+  fBFieldTypeCmd = new G4UIcmdWithAString("/det/setBFieldType", this);
+  fBFieldTypeCmd->SetGuidance("Set the B field Type");
+  fBFieldTypeCmd->SetParameterName("bFieldType", false);
+  fBFieldTypeCmd->AvailableForStates(G4State_Idle);
+  fBFieldTypeCmd->SetToBeBroadcasted(false);
   // command for the file based field
   fBFieldCmd = new G4UIcmdWithAString("/det/setBFieldFile", this);
   fBFieldCmd->SetGuidance("Set the file to read the B field from");
@@ -34,10 +40,10 @@ ExN01DetectorMessenger::ExN01DetectorMessenger(ExN01DetectorConstruction* Det) :
   fFieldConstructCmd = new G4UIcmdWithoutParameter("/det/construct",this);
   fFieldConstructCmd->AvailableForStates(G4State_Idle);
   fFieldConstructCmd->SetToBeBroadcasted(false);
-
 }
 
 ExN01DetectorMessenger::~ExN01DetectorMessenger() {
+  delete fBFieldTypeCmd;
   delete fBFieldCmd;
   delete fWireFieldCurrentCmd;
   delete fWireFieldRadiusCmd;
@@ -47,6 +53,15 @@ ExN01DetectorMessenger::~ExN01DetectorMessenger() {
 }
 
 void ExN01DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
+  // set the b field filename
+  if (command == fBFieldType) {
+    if (newValue != "file" && newValue != "wire" && newValue != "none") {
+      G4cout << "Warn: Invalid B field type specified, must be 'file', 'wire' or 'none'" << G4endl;
+      fDetector->SetBFieldType("none");
+    } else {
+      fDetector->SetBFieldType(newValue);
+    }
+  }
   // set the b field filename
   if (command == fBFieldCmd) {
     fDetector->SetBFieldFileName(newValue);
@@ -84,6 +99,9 @@ void ExN01DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue
 G4String ExN01DetectorMessenger::GetCurrentValue(G4UIcommand* command)
 {
   G4String ans;
+  if (command == fBFieldTypeCmd) {
+    ans = fDetector->GetBFieldType();
+  }
   if (command == fBFieldCmd) {
     ans = fDetector->GetBFieldFileName();
   }

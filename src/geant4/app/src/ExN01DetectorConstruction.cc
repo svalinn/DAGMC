@@ -27,7 +27,7 @@ G4ThreadLocal G4FieldManager* ExN01DetectorConstruction::fFieldMgr = nullptr;
 ExN01DetectorConstruction::ExN01DetectorConstruction(UWUW* uwuw_workflow_data, 
                                                      G4String magnetic_field_filename)
   : fWorldVolumeLog(0),fDetectorMessenger(0),fWireCurrent(0),
-    fWireRadius(0),fWirePermeability(0) {
+    fWireRadius(0),fWirePermeability(0), fBfieldType("none") {
   workflow_data = uwuw_workflow_data;
   fBfieldFilename = magnetic_field_filename;
 
@@ -172,6 +172,16 @@ G4double ExN01DetectorConstruction::GetMaxOrdinate() {
   return max_ordinate*1.2;
 }
 
+void ExN01DetectorConstruction::SetBFieldType(G4String name) {
+  // set the name
+  fBfieldType = name;
+}
+
+G4String ExN01DetectorConstruction::GetBFieldType() {
+  // set the filename
+  return fBfieldType;
+}
+
 void ExN01DetectorConstruction::SetBFieldFileName(G4String filename) {
   // set the filename
   fBfieldFilename = filename;
@@ -214,7 +224,7 @@ G4double ExN01DetectorConstruction::GetWireFieldPermeability() {
 
 void ExN01DetectorConstruction::ConstructSDandField() {
   // instanciate the magnetic field
-  if (!fBfieldFilename.empty()) {
+  if (fBfieldType == "file") {
     G4cout << "Loading magnetic field from file: " << fBfieldFilename
            << "..." << G4endl;
     if (fMagneticField) {
@@ -236,7 +246,7 @@ void ExN01DetectorConstruction::ConstructSDandField() {
     // set the field to be global
     fWorldVolumeLog->SetFieldManager(fFieldMgr, true);
     G4cout << "Magnetic field loaded." << G4endl;
-  } else {
+  } elseif (fBfieldType == "wire") {
     G4cout << "No magnetic field file specified." << G4endl;
     // clear out any existing field
     if (fMagneticField) {
@@ -268,5 +278,7 @@ void ExN01DetectorConstruction::ConstructSDandField() {
     // set the field to be global
     fWorldVolumeLog->SetFieldManager(fFieldMgr, true);
     G4cout << "Using a simple wire based magnetic field." << G4endl;
+  } else {
+    G4cout << "No fields specified, using no magnetic field." << G4endl;
   }
 } 

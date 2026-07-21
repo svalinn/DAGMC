@@ -40,11 +40,13 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
  public:
   virtual G4VPhysicalVolume* Construct();
   virtual void ConstructSDandField();
+  void SetBFieldType(G4String name);
   void SetBFieldFileName(G4String filename);
   void SetWireFieldCurrent(G4double current);
   void SetWireFieldRadius(const G4double radius);
   void SetWireFieldPermeability(const G4double permeability);
   G4String GetBFieldFileName();
+  G4String GetBFieldType();
   G4double GetWireFieldCurrent();
   G4double GetWireFieldRadius();
   G4double GetWireFieldPermeability();
@@ -65,6 +67,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
   moab::DagMC* dagmc;
   dagmcMetaData* DMD;
   std::map<std::string, G4Material*> material_lib;
+  G4String fBfieldType;
   G4String fBfieldFilename;
   G4double fWireCurrent;
   G4double fWireRadius;
