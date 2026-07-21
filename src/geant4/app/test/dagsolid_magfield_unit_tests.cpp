@@ -146,5 +146,31 @@ TEST_F(DagSolidWireMagneticFieldTest, sample_test) {
   EXPECT_EQ(0.0, field[1]);
   EXPECT_EQ(0.0, field[2]);
 
+  // test inside the coil 
+  point[0] = 1.0;
+  point[1] = 0.0;
+  point[2] = 0.0;
+  magneticField->GetFieldValue(point,field);
+  G4double expected = 1.*1.*1e6/(2*3.14159265358979323846*5.*5.);
+
+  // should be equal to mu*r*I/2pi*R^2
+  EXPECT_NEAR(expected, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
+  EXPECT_EQ(0.0, field[0]);
+  EXPECT_NEAR(exp, field[1], 1e-6);
+  EXPECT_EQ(0.0, field[2]);
+
+  // now test outside (on the far side)
+  point[0] = 0.0;
+  point[1] = -10.0;
+  point[2] = 0.0;
+  magneticField->GetFieldValue(point,field);
+  expected = 4*3.14159265358979323846e-7*1e6/(2*3.14159265358979323846*10.);
+
+  // should be equal to mu0*I/2pi*r
+  EXPECT_NEAR(expected, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
+  EXPECT_EQ(0.0, field[0]);
+  EXPECT_NEAR(-expected, field[1], 1e-6);
+  EXPECT_EQ(0.0, field[2]);
+
   return;
 }
