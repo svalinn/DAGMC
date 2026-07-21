@@ -133,5 +133,18 @@ TEST_F(DagSolidWireMagneticFieldTest, sample_test) {
   EXPECT_NEAR(31830.98861837907, field[1], 1e-6);
   EXPECT_EQ(0.0, field[2]);
 
+  // snure the vector points left when up
+  point[0] = 0.0;
+  point[1] = 5.0;
+  point[2] = 0.0;
+  // get the value
+  magneticField->GetFieldValue(point,field);
+
+  // vector should now point left so -ve
+  EXPECT_NEAR(31830.98861837907, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
+  EXPECT_NEAR(-31830.98861837907, field[0], 1e-6);
+  EXPECT_EQ(0.0, field[1]);
+  EXPECT_EQ(0.0, field[2]);
+
   return;
 }
