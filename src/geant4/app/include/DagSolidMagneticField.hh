@@ -91,11 +91,11 @@ class MagneticField : public G4MagneticField {
   void GetFieldValue(const G4double Point[4],
                     double *field) const override;                     
 
-  private:
   // load the file containing white space delimited
   // r, z, Br, Bz, Btoroial
   void LoadFile(std::string filename);
 
+  private:
   // main function called by GetFieldValue
   // to interpolate the 3d B field as a function 
   // of Cartesian coordinates

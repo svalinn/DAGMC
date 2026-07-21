@@ -94,7 +94,7 @@ G4String ExN01DetectorMessenger::GetCurrentValue(G4UIcommand* command)
     ans = fDetector->GetWireFieldRadius();
   }
   if (command == fWireFieldPermCmd) {
-    ans = fDetector->GetWireFieldPerm();
+    ans = fDetector->GetWireFieldPermeability();
   }
   return ans;
 }

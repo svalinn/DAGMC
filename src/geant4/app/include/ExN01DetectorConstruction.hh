@@ -57,7 +57,7 @@ class ExN01DetectorConstruction : public G4VUserDetectorConstruction {
 
   // Logical volumes
   //
-  MagneticField* magField;
+  G4MagneticField* magField;
   G4LogicalVolume* fWorldVolumeLog;
   //std::map<int, G4LogicalVolume*> dag_logical_volumes;
   std::vector<G4LogicalVolume*> dag_logical_volumes;
