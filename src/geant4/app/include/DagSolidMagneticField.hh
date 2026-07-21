@@ -88,7 +88,7 @@ class MagneticField : public G4MagneticField {
   ~MagneticField() override;
 
   // main lookup function that Geant4 will call
-  void GetFieldValue(const src/ExN01DetectorConstruction.ccG4double Point[4],
+  void GetFieldValue(const G4double Point[4],
                     double *field) const override;                     
 
   // load the file containing white space delimited
