@@ -246,7 +246,7 @@ void ExN01DetectorConstruction::ConstructSDandField() {
     // set the field to be global
     fWorldVolumeLog->SetFieldManager(fFieldMgr, true);
     G4cout << "Magnetic field loaded." << G4endl;
-  } elseif (fBfieldType == "wire") {
+  } else if (fBfieldType == "wire") {
     G4cout << "No magnetic field file specified." << G4endl;
     // clear out any existing field
     if (fMagneticField) {

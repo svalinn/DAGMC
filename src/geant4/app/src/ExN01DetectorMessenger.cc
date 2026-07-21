@@ -54,7 +54,7 @@ ExN01DetectorMessenger::~ExN01DetectorMessenger() {
 
 void ExN01DetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue) {
   // set the b field filename
-  if (command == fBFieldType) {
+  if (command == fBFieldTypeCmd) {
     if (newValue != "file" && newValue != "wire" && newValue != "none") {
       G4cout << "Warn: Invalid B field type specified, must be 'file', 'wire' or 'none'" << G4endl;
       fDetector->SetBFieldType("none");
