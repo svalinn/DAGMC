@@ -221,8 +221,11 @@ void ExN01DetectorConstruction::ConstructSDandField() {
       delete fMagneticField;
       fMagneticField = nullptr;
     }
-    fMagneticField = new MagneticField();
-    fMagneticField->LoadFile(fBfieldFilename);
+    // load the field from file
+    MagneticField* field = new MagneticField();
+    field->LoadFile(fBfieldFilename);
+    // attach to the class field variable
+    fMagneticField = field;
     if(fFieldMgr) {
       delete fFieldMgr;
       fFieldMgr = nullptr;
