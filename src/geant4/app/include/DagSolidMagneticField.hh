@@ -10,7 +10,7 @@
 #include <string>
 #include <set>
 
-double LinearInterpolation(const double x1, const double x2,
+inline double LinearInterpolation(const double x1, const double x2,
   const double f1, const double f2, const double x) {
   
   if (x2 == x1) {
@@ -21,7 +21,7 @@ double LinearInterpolation(const double x1, const double x2,
   return f1 + ( (f2 - f1) / (x2 - x1) ) * (x - x1);
 }
 
-double BilinearInterpolation(const std::array<double,2> x_stencil,
+inline double BilinearInterpolation(const std::array<double,2> x_stencil,
   const std::array<double,2> y_stencil,
   const std::array<double,4> f_values,
   const double x,
