@@ -20,7 +20,7 @@
 #include "G4VisAttributes.hh"
 #include "globals.hh"
 
-G4ThreadLocal MagneticField* ExN01DetectorConstruction::fMagneticField = nullptr;
+G4ThreadLocal G4MagneticField* ExN01DetectorConstruction::fMagneticField = nullptr;
 G4ThreadLocal G4FieldManager* ExN01DetectorConstruction::fFieldMgr = nullptr;
 
 // constructor
