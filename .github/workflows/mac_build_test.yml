@@ -44,9 +44,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Initial setup
-        shell: bash -l {0}
+        shell: bash -leo pipefail {0}
         run: |
-          brew install hdf5
+          # zlib: see the comment on ZLIB_ROOT in the "Build DAGMC" step below.
+          brew install hdf5 zlib
 
           # Homebrew's Eigen in 2026 is Eigen v5.x, which is incompatible with
           # MOAB v5.5.1 FindEigen3.cmake. Homebrew has bad version control, and
@@ -61,12 +62,12 @@ jobs:
           echo "EIGEN_PREFIX=/tmp/eigen" >> $GITHUB_ENV
 
       - name: Environment Variables
-        shell: bash -l {0}
+        shell: bash -leo pipefail {0}
         run: |
           echo "HOME=$GITHUB_WORKSPACE/.." >> $GITHUB_ENV
 
       - name: Build MOAB
-        shell: bash -l {0}
+        shell: bash -leo pipefail {0}
         run: |
           cd ${HOME}
           mkdir -pv moab
@@ -106,11 +107,21 @@ jobs:
           rm -rf moab_src bld lib
 
       - name: Build DAGMC
-        shell: bash -l {0}
+        shell: bash -leo pipefail {0}
         run: |
+          # cmake/HDF5_macro.cmake narrows CMAKE_FIND_LIBRARY_SUFFIXES to the shared
+          # library suffix (.dylib on macOS) before calling find_package(HDF5).
+          # Homebrew's hdf5-config.cmake in turn calls find_dependency(ZLIB), and the
+          # macOS SDK ships zlib only as a .tbd stub (usr/lib/libz.tbd), which that
+          # narrowed suffix list excludes. FindZLIB then finds the SDK header but no
+          # library and the configure step dies with
+          #   Could NOT find ZLIB (missing: ZLIB_LIBRARY) (found version "1.2.12")
+          # Homebrew's zlib is a real .dylib, but keg-only and therefore not under
+          # $(brew --prefix)/lib, so point ZLIB_ROOT at its keg explicitly.
           cmake \
             -DCMAKE_INSTALL_PREFIX=${HOME}/dagmc \
             -DCMAKE_PREFIX_PATH="${EIGEN_PREFIX};$(brew --prefix)" \
+            -DZLIB_ROOT="$(brew --prefix zlib)" \
             -DMOAB_DIR=${HOME}/moab \
             -DBUILD_CI_TESTS=ON \
             -DBUILD_STATIC_EXE=OFF \
@@ -124,7 +135,7 @@ jobs:
           cmake --install bld
 
       - name: Testing DAGMC
-        shell: bash -l {0}
+        shell: bash -leo pipefail {0}
         run: |
           cd $GITHUB_WORKSPACE/bld
           PATH=$GITHUB_WORKSPACE/bld/bin:$PATH make test
