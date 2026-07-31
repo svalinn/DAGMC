@@ -17,6 +17,10 @@ Next version
 **Fixed**
   * Fixed HDF5 naming convention for docker container building and naming (#976)
   * Allowed for modern CMake policies to be used (#989)
+  * Fixed the macOS CI build: zlib is now found by HDF5's CMake config, and failing
+    steps stop the job instead of masking the real error (#994)
+  * Fixed the changelog check, which had been failing on checkout since the Node 20
+    deprecation, by dropping the alpine:3.14 container (#994)
 
 
 v3.2.4
