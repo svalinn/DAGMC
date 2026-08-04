@@ -21,6 +21,8 @@ Next version
     steps stop the job instead of masking the real error (#994)
   * Fixed the changelog check, which had been failing on checkout since the Node 20
     deprecation, by dropping the alpine:3.14 container (#994)
+  * Made the overlap_check ray direction independent of the compiler, which had
+    been picking a different direction under GCC than under Clang (#996)
 
 
 v3.2.4
