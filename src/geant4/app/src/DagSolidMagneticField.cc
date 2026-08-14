@@ -48,8 +48,20 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
   }
 
   // dont forget to normalise vector
-  field[0] = B*i/std::sqrt(r2);
-  field[1] = B*j/std::sqrt(r2);
+  // set components small when needed
+  if ( i < 1e-38 ) {
+    field[0] = 0;
+  } else {
+    field[0] = B*i/std::sqrt(r2);
+  }
+
+  if ( j < 1e-38 ) {
+    field[1] = 0.;
+  } else {
+    field[1] = B*j/std::sqrt(r2);
+  }
+
+  // z field always zero
   field[2] = 0;
   
   G4cout << "Debug" << G4endl;
