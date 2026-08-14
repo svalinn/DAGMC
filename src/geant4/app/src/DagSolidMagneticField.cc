@@ -27,6 +27,7 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
   } else {
     B = CLHEP::mu0*wireCurrent/(2*CLHEP::pi*r);
   }
+  G4cout << "r: " << r << G4endl;
   G4cout << "B: " << B << G4endl;
   if ( r == 0. ) {                       // wire axis: field is zero, no NaN
     field[0] = 0.; field[1] = 0.; field[2] = 0.;
