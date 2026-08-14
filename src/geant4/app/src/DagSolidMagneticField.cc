@@ -17,56 +17,25 @@ WireMagneticField::~WireMagneticField() {
 // set the magnetic field value given the position
 void WireMagneticField::GetFieldValue(const G4double Point[4],
 				 double *field) const {
-  // radius squared
-  G4double r2 = Point[0]*Point[0] + Point[1]*Point[1];
-  G4double B = 0;
-  
-  // calculate the field strength
-  if (r2 < wireRadius) {
-    B = wireMu*std::sqrt(r2)*wireCurrent/2*CLHEP::pi*wireRadius*wireRadius;
-  } else if ( r2 == wireRadius*wireRadius ) {
-    B  = wireMu*wireCurrent/(2*CLHEP::pi*wireRadius);
-  } else {
-    B = (CLHEP::mu0*wireCurrent)/(2*CLHEP::pi*std::sqrt(r2));
-  }
-  
-  // calculate field direction, always tangent to circle
-  // if current +ve anticlockwise, if -ve clockwise
-  G4double i = 0;
-  G4double j = 0;
-  if ( wireCurrent > 0 ) {
-    i = -Point[1];
-    j = Point[0];
-  } else {
-    i = Point[1];
-    j = -Point[0];
-  }
 
-  // dont forget to normalise vector
-  // set components small when needed
-  if ( abs(i) < 1.e-38 ) {
-    field[0] = 1.e-38;
+  G4double r = std::sqrt(Point[0]*Point[0] + Point[1]*Point[1]);
+  G4double B = 0.;
+  if ( r < wireRadius ) {
+    B = wireMu*wireCurrent*r/(2*CLHEP::pi*wireRadius*wireRadius);
+  } else if ( r == wireRadius ) {
+    B = wireMu*wireCurrent/(2*CLHEP::pi*wireRadius);
   } else {
-    field[0] = (B < 1e-38) ? 1.0e-38 : B*i/std::sqrt(r2);
+    B = CLHEP::mu0*wireCurrent/(2*CLHEP::pi*r);
   }
-
-  if ( abs(j) < 1.e-38 ) {
-    field[1] = 1.0e-38;
-  } else {
-    field[1] = (B < 1e-38) ? 1e-38 : B*j/std::sqrt(r2);
+  if ( r == 0. ) {                       // wire axis: field is zero, no NaN
+    field[0] = 0.; field[1] = 0.; field[2] = 0.;
+    return;
   }
+  G4double Bt = (wireCurrent > 0) ? B : -B;
+  field[0] = -Bt*Point[1]/r;             // azimuthal, tangent to circle
+  field[1] =  Bt*Point[0]/r;
+  field[2] = 0.;                         // Bz always zero
 
-
-  
-  G4cout << "Debug" << G4endl;
-  G4cout << "B: " << B << G4endl;
-  G4cout << "i: " << i << " j: " << j << G4endl;
-  G4cout << "r2: " << r2 << " sqrt(r2): " << std::sqrt(r2) << G4endl;
-  G4cout << "Field x: " << B*i/std::sqrt(r2) << G4endl;
-  G4cout << "Field y: " << B*j/std::sqrt(r2) << G4endl;
-  G4cout << "Point: " << Point[0] << " " << Point[1] << " " << Point[2] << G4endl;
-  G4cout << "Field: " << field[0] << " " << field[1] << " " << field[2] << G4endl;
-  G4cout << "Debug " << G4endl;
   return;
 }
 
