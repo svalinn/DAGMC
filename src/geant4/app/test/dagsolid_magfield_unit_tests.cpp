@@ -130,6 +130,7 @@ TEST_F(DagSolidWireMagneticFieldTest, sample_test) {
   // having set permiability to 1 and cureent to 1e6
   // we expect the magniutde of the field to be 
   // 1e6/(2*pi*5) = 1e6/(10*pi) = 1e5/pi = 31830.98861837907
+  // test on the surface of the wire
   EXPECT_NEAR(31830.98861837907, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
   EXPECT_EQ(0.0, field[0]);
   EXPECT_NEAR(31830.98861837907, field[1], 1e-6);
@@ -143,6 +144,7 @@ TEST_F(DagSolidWireMagneticFieldTest, sample_test) {
   magneticField->GetFieldValue(point,field);
 
   // vector should now point left so -ve
+  // also test on the surface of the wire
   EXPECT_NEAR(31830.98861837907, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
   EXPECT_NEAR(-31830.98861837907, field[0], 1e-6);
   EXPECT_EQ(0.0, field[1]);
@@ -166,8 +168,7 @@ TEST_F(DagSolidWireMagneticFieldTest, sample_test) {
   point[1] = -10.0;
   point[2] = 0.0;
   magneticField->GetFieldValue(point,field);
-  expected = 4.*PI*1.e-7*1e6/(2.*PI*10.*10.);
-
+  expected = 1*1e6/(2.*PI*10.*10.);
   // should be equal to mu0*I/2pi*r
   EXPECT_NEAR(expected, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
   EXPECT_EQ(0.0, field[0]);
