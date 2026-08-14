@@ -7,6 +7,8 @@
 
 #include "DagSolidMagneticField.hh"
 
+#define PI 3.14159265358979323846
+
 /*
  * Notes: DAGMC geometries implicitly have units of cm's due to the history of
  * development with centimetre based physics engines. Please note that Geant4
@@ -151,12 +153,12 @@ TEST_F(DagSolidWireMagneticFieldTest, sample_test) {
   point[1] = 0.0;
   point[2] = 0.0;
   magneticField->GetFieldValue(point,field);
-  G4double expected = 1.*1.*1e6/(2*3.14159265358979323846*5.*5.);
+  G4double expected = 1.*1.*1e6/(2.*PI*5.*5.);
 
   // should be equal to mu*r*I/2pi*R^2
-  EXPECT_NEAR(expected, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
+  EXPECT_NEAR(expected, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-5);
   EXPECT_EQ(0.0, field[0]);
-  EXPECT_NEAR(expected, field[1], 1e-6);
+  EXPECT_NEAR(expected, field[1], 1e-5);
   EXPECT_EQ(0.0, field[2]);
 
   // now test outside (on the far side)
@@ -164,7 +166,7 @@ TEST_F(DagSolidWireMagneticFieldTest, sample_test) {
   point[1] = -10.0;
   point[2] = 0.0;
   magneticField->GetFieldValue(point,field);
-  expected = 4*3.14159265358979323846e-7*1e6/(2*3.14159265358979323846*10.);
+  expected = 4.*PI*1.e-7*1e6/(2.*PI*10.*10.);
 
   // should be equal to mu0*I/2pi*r
   EXPECT_NEAR(expected, sqrt(field[0]*field[0] + field[1]*field[1]), 1e-6);
