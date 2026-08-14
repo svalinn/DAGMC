@@ -47,17 +47,16 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
   if ( abs(i) < 1.e-38 ) {
     field[0] = 1.e-38;
   } else {
-    field[0] = B*i/std::sqrt(r2);
+    field[0] = (B < 1e-38) ? 1.0e-38 : B*i/std::sqrt(r2);
   }
 
   if ( abs(j) < 1.e-38 ) {
     field[1] = 1.0e-38;
   } else {
-    field[1] = B*j/std::sqrt(r2);
+    field[1] = (B < 1e-38) ? 1e-38 : B*j/std::sqrt(r2);
   }
 
-  // z field always zero
-  field[2] = 0;
+
   
   G4cout << "Debug" << G4endl;
   G4cout << "B: " << B << G4endl;
