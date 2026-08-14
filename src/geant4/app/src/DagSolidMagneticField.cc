@@ -36,6 +36,8 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
   field[1] =  Bt*Point[0]/r;
   field[2] = 0.;                         // Bz always zero
 
+  G4cout << "field: " << field[0] << " " << field[1] << " " << field[2] << G4endl;
+
   return;
 }
 
