@@ -51,7 +51,7 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
   G4cout << "B: " << B << G4endl;
   G4cout << "i: " << i << " j: " << j << G4endl;
   G4cout << "r2: " << r2 << " sqrt(r2): " << std::sqrt(r2) << G4endl;
-  B4cout << Point[0] << " " << Point[1] << " " << Point[2] << G4endl;
+  G4cout << Point[0] << " " << Point[1] << " " << Point[2] << G4endl;
   G4cout << field[0] << " " << field[1] << " " << field[2] << G4endl;
   G4cout << "Debug " << G4endl;
   return;
