@@ -36,6 +36,7 @@ v3.2.4
   * Simplify Housekeeping Process for DAGMC (#943)
   * Allow Double Down v1.1.0 Installation in Dockerfile (#929 #944 #949)
   * Inline documentation improvements (#945)
+  * RTD documentation site (#950)
   * Streamline dependencies of docker CI images (#951 #952)
   * Update github actions to newer versions as necessary (#958)
   * CMake error message update (#960)

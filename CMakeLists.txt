@@ -68,6 +68,7 @@ if (BUILD_TESTS)
   enable_testing()
 endif ()
 
+add_subdirectory(docs)
 add_subdirectory(src)
 
 dagmc_make_configure_files()

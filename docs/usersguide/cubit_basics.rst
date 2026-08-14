@@ -98,7 +98,6 @@ section on its full usage is highly recommended.
 Assinging Metadata to Volumes and Surfaces: Coreform Cubit
 ----------------------------------------------------------
 
-
 Please refer to Coreform's `DAGMC Tutorial
 <https://coreform.com/products/coreform-cubit/tutorials/dagmc/tutorial_1/>`_ for
 more inform on how to apply DAGMC metadata for the integrated DAGMC export

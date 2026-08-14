@@ -17,3 +17,5 @@ build
 #ignore pyne amalgamation
 src/pyne/pyne.cpp
 src/pyne/pyne.h
+docs/Doxyfile
+docs/_build
