@@ -42,20 +42,15 @@ void WireMagneticField::GetFieldValue(const G4double Point[4],
     j = -Point[0];
   }
 
-  // set field to zero if B small
-  if ( B < 1.e-15 ) {
-    B = 0.;
-  }
-
   // dont forget to normalise vector
   // set components small when needed
-  if ( i < 1e-38 ) {
+  if ( i < 1.e-38 ) {
     field[0] = 0;
   } else {
     field[0] = B*i/std::sqrt(r2);
   }
 
-  if ( j < 1e-38 ) {
+  if ( j < 1.e-38 ) {
     field[1] = 0.;
   } else {
     field[1] = B*j/std::sqrt(r2);
