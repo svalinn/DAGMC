@@ -44,6 +44,11 @@ v3.2.4
   * Localize invocation of git submodule for PyNE (#968)
   * Fixed the name of the Graveyard and the Vaccuum to mat:Graveyard and mat:Vacuum (and lower case) (#971)
 
+**Fixed:**
+
+  * Ensure implicit complement handle is placed at the back of DAGMC volume indices (#935)
+  * Fixed to reflect FLUKA-CERN (#677)
+
 v3.2.3
 ====================
 

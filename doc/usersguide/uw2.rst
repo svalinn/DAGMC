@@ -147,7 +147,7 @@ run the ``mainfludag`` executable to produce the ``mat.inp`` file which contains
 all the detailed material assignments and compound descriptions.
 ::
 
-    $ mainfludag geom.h5m
+    $ mainfludag --dagmc geom.h5m
 
 The user should then paste the contents of ``mat.inp`` into the main FLUKA input
 deck. Now the user must make a symbolic link to the geometry file named
