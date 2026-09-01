@@ -8,6 +8,12 @@ Next version
 ====================
 
 **Changed:**
+  * Public headers are now installed into ``include/dagmc/`` instead of the top
+    level of the install prefix's ``include/`` directory, following the
+    ``include/<project>/`` convention of DAGMC's dependencies (e.g. MOAB,
+    Eigen). Consumers using ``find_package(DAGMC)`` (imported targets or
+    ``DAGMC_INCLUDE_DIRS``) are unaffected. The previous layout can be restored
+    with ``-DINSTALL_INCLUDE_DIR=include``. (#998)
   * Update formating of few files to comply with clang-format (#937)
   * Update default HDF5 version to 1.14.6 (#976, #978)
 
