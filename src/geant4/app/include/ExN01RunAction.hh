@@ -7,6 +7,8 @@
 #define ExN01RunAction_h 1
 
 #include "G4UserRunAction.hh"
+#include "G4AnalysisManager.hh"
+#include "G4TScoreHistFiller.hh"
 #include "globals.hh"
 
 #ifndef uwuw_hpp

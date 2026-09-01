@@ -1,0 +1,27 @@
+#ifndef ExN01DetectorMessenger_hh
+#define ExN01DetectorMessenger_hh 1
+
+#include "G4UImessenger.hh"
+#include "globals.hh"
+
+class ExN01DetectorConstruction;
+class G4UIdirectory;
+class G4UIcmdWithAString;
+
+class ExN01DetectorMessenger : public G4UImessenger
+{
+  public:
+    ExN01DetectorMessenger(ExN01DetectorConstruction*);
+    ~ExN01DetectorMessenger();
+
+    virtual void SetNewValue(G4UIcommand*, G4String);
+    virtual G4String GetCurrentValue(G4UIcommand* command);
+
+  private:
+    ExN01DetectorConstruction* fDetector;
+
+    G4UIdirectory* fDirectory;
+    G4UIcmdWithAString* fBFieldCmd;
+};
+
+#endif

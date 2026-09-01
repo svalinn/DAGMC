@@ -28,6 +28,11 @@ v3.2.4
 
 **Changed:**
 
+=======
+  * Added quality of life features to DagGeant4 e.g. colouring geometries
+  * Enabled MultiThreading for DagGeant4
+  * Fixed Geant4 tracking when using non-trivial geometries 
+  * Fixed Geant4 tracking when using non-trivial geometries (#981)
   * Adding info messages to CMake output for double down (#962)
   * Update hdf5 to v1.14.3 from v1.10.4 for linux builds (#931 #933)
   * Ensure implicit complement handle is placed at the back of DAGMC volume indices (#935)

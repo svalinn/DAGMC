@@ -30,6 +30,13 @@ std::map<std::string, G4Material*> load_uwuw_materials(UWUW* workflow_data) {
   std::map<std::string, G4Material*> g4_materials;
   g4_materials = get_g4materials(g4_elements, material_library);
 
+  G4cout << "Materials in the library:" << G4endl;
+  for (std::map<std::string, G4Material*>::iterator it = g4_materials.begin();
+       it != g4_materials.end(); ++it) {
+    G4cout << "Material: " << it->first << G4endl;
+    G4cout << it->second << G4endl;
+  }
+
   return g4_materials;
 }
 
@@ -122,6 +129,7 @@ std::map<std::string, G4Material*> get_g4materials(
         g4mat->AddElement(element_map[mat_it->first], mat_it->second);
       }
     }
+    // note DAGMC already has mat: in the name
     material_map[mat.metadata["name"].asString()] = g4mat;
   }
 
