@@ -23,7 +23,12 @@ macro (dagmc_setup_build)
   # Installation directories
   set(INSTALL_BIN_DIR     bin)
   set(INSTALL_LIB_DIR     lib)
-  set(INSTALL_INCLUDE_DIR include)
+  # Namespace the installed headers to avoid polluting the top level of the
+  # install prefix's include directory. This behavior can be overridden with
+  # -DINSTALL_INCLUDE_DIR
+  if (NOT INSTALL_INCLUDE_DIR)
+    set(INSTALL_INCLUDE_DIR include/dagmc)
+  endif ()
   set(INSTALL_TESTS_DIR   tests)
   set(INSTALL_TOOLS_DIR   tools)
   set(INSTALL_SHARE_DIR   share)
