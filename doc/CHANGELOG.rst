@@ -19,6 +19,7 @@ Next version
 
 **Added:**
   * Allow download & build of MOAB from cmake at build time (#969)
+  * Added linking against FLUKA version distributed by FLUKA.CERN (#991)
 
 **Fixed**
   * Fixed HDF5 naming convention for docker container building and naming (#976)
