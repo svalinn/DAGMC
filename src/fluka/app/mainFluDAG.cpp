@@ -6,15 +6,18 @@
  * \brief  Functions called by fluka
  * \note   Unittested
  */
-//--------------------------ß-------------------------//
+//----------------------------------------------------//
 #include <time.h>  // for timing the routine
 
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 
+//---------------------------------------------------------------------------//
 #include "DagMC.hpp"
 #include "dagmcmetadata.hpp"
 #include "fluka_funcs.h"
+#include "moab/ProgOptions.hpp"
 
 #define flukam flukam_
 
@@ -39,37 +42,40 @@ int main(int argc, char* argv[]) {
 
   // Default h5m filename is for fluka runs
   std::string infile = "dagmc.h5m";
+  std::string dagmc_file = "";
 
-  if (argc == 1) {  // then its a fluka run
-    // fluka creates a run dir one lvl higher
-    infile = "../" + infile;
+  // form the inputs and determine if this is a true calculation or a preprocess
+  // run
+  ProgOptions po("mainfludag: a DAGMC enabled version of FLUKA-CERN");
+  po.addOpt<std::string>("dagmc", "Path to h5m DAGMC file to proccess",
+                         &dagmc_file);
+  po.addOptionalArgs<std::string>(0, "", "");
+  po.parseCommandLine(argc, argv);
+
+  // if no string has been provided, dagmc command not applied
+  // we assume that its a FLUKA run
+  if (dagmc_file.empty()) {
     flukarun = true;
-  } else if (argc > 2) {
-    std::cout << "run as main_fludag <facet_file>  to produce"
-              << " material assignments" << std::endl;
-    std::cout << "too many arguments provided" << std::endl;
-    exit(1);
-  } else {             // its a pre process run
-    infile = argv[1];  // must be the 2nd argument
+    // fluka creates a run dir one lvl higher than cwd
+    infile = "../" + infile;
+  } else {
+    // dagmc command has been set do the its a process run
+    infile = dagmc_file;
   }
 
+  // test to see if the file exists
   std::ifstream h5mfile(infile.c_str());  // filestream for mesh geom
   if (!h5mfile.good()) {
     std::cout << "h5m file does not exist" << std::endl;
     exit(1);
   }
 
-  int max_pbl = 1;
-
   // get the current time
   time(&time_before); /* get current time; same as: timer = time(NULL)  */
 
   // DAG call to load the file
-  std::cout << "Loading the faceted geometry file " << infile << "..."
-            << std::endl;
   error = DAG->load_file(
       infile.c_str());  // load the dag file takeing the faceting from h5m
-
   if (error != moab::MB_SUCCESS) {
     std::cerr << "DAGMC failed to read input file: " << infile << std::endl;
     exit(EXIT_FAILURE);
@@ -79,9 +85,7 @@ int main(int argc, char* argv[]) {
 
   double seconds = difftime(
       time_after, time_before);  // get the time in seconds to load file
-
-  time_before = time_after;  // reset time to now for the next call
-
+  time_before = time_after;      // reset time to now for the next call
   std::cout << "Time to load the h5m file = " << seconds << " seconds"
             << std::endl;
 
@@ -92,11 +96,12 @@ int main(int argc, char* argv[]) {
     error = DAG->init_OBBTree();
   } else {
     // otherwise this is a preprocess run
-    // no need to build the tree
+    // no need to build the tree - its faster
     error = DAG->setup_impl_compl();
     error = DAG->setup_indices();
   }
 
+  // check
   if (error != moab::MB_SUCCESS) {
     std::cerr << "DAGMC failed to initialize geometry and create OBB tree"
               << std::endl;
@@ -104,9 +109,9 @@ int main(int argc, char* argv[]) {
   }
 
   time(&time_after);
-
   seconds = difftime(time_after, time_before);
   std::cout << "Time to initialise the geometry" << seconds << std::endl;
+
   // if fluka preprocess run then create mat file to paste into input deck
   if (!flukarun) {
     std::string lcad = "mat.inp";
@@ -119,8 +124,29 @@ int main(int argc, char* argv[]) {
     fludag_write_ididx(vol_id);
   } else {
     // call fluka run
-    // flugg mode is flag = 1
-    const int flag = 1;
+
+    // check for the input file argument
+    // get it from the command line
+    if (argc >= 1) {
+      // convert to std::string
+      std::string chinpf_s(argv[1]);
+      char chinpf[256] = "";
+      memset(chinpf, ' ', 256);
+      std::copy(chinpf_s.begin(), chinpf_s.end(), chinpf);
+      strcpy(chcmpt_.chinpf, chinpf);
+    } else {
+      // get it from the environment
+      std::cout << "from env" << std::endl;
+      char* env = std::getenv("INPF");
+      std::cout << env << std::endl;
+      strncpy(env, chcmpt_.chinpf, sizeof(env));
+      if (chcmpt_.chinpf[0] == 0) {
+        //	flabrt("FLUKAM","FLUDAG NO INPUT SPECIFIED");
+        return 1;
+      }
+    }
+    const int flag = 2;
+    std::cout << "running fluka" << std::endl;
     flukam(flag);
   }
 

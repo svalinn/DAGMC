@@ -1,0 +1,16 @@
+**Added:**
+Fixes to allow compilation against FLUKA-CERN
+
+**Changed:**
+
+- Fixes to allow compilation against FLUKA-CERN
+
+**Deprecated:** None
+
+**Removed:** None
+
+**Fixed:**
+
+Now allows compilation against FLUKA-CERN
+
+**Security:** None
