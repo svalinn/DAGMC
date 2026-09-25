@@ -91,7 +91,15 @@ ErrorCode check_instance_for_overlaps(std::shared_ptr<Interface> MBI,
   int num_locations = all_verts.size() + pnts_per_edge * all_edges.size();
   int num_checked = 1;
 
-  CartVect dir(rand(), rand(), rand());
+  // The order in which function arguments are evaluated is unspecified, so
+  // calling rand() three times inside the constructor picks a different
+  // direction depending on the compiler: GCC evaluates right to left, Clang
+  // left to right. Evaluate the calls in a defined order instead, so that the
+  // same geometry gives the same answer whichever compiler was used.
+  const double dir_x = rand();
+  const double dir_y = rand();
+  const double dir_z = rand();
+  CartVect dir(dir_x, dir_y, dir_z);
   dir.normalize();
 
   ProgressBar prog_bar;
