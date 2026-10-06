@@ -8,3 +8,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/uwuw)
 include_directories(${CMAKE_SOURCE_DIR}/src/geant4)
 
 dagmc_install_exe(DagGeant4)
+
+if (BUILD_TESTS)
+  add_subdirectory(test)
+endif ()

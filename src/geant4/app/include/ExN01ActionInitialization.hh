@@ -3,6 +3,10 @@
 
 #include <string>
 
+#include "G4AnalysisManager.hh"
+#include "G4TScoreHistFiller.hh"
+#include "G4Types.hh"
+
 #include "G4VUserActionInitialization.hh"
 
 #ifndef uwuw_hpp
@@ -21,6 +25,9 @@ class ExN01ActionInitialization : public G4VUserActionInitialization {
   virtual void BuildForMaster() const;
   virtual void Build() const;
   UWUW* workflow_data;
+private:
+  G4TScoreHistFiller<G4AnalysisManager>* filler;
+
 };
 
 #endif

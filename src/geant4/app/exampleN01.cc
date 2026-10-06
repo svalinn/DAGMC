@@ -4,6 +4,8 @@
 //      GEANT 4 - exampleN01
 // --------------------------------------------------------------
 
+#include <filesystem>
+
 #include "ExN01ActionInitialization.hh"
 #include "ExN01DetectorConstruction.hh"
 #include "ExN01PhysicsList.hh"
@@ -11,6 +13,7 @@
 #include "ExN01UserScoreWriter.hh"
 #include "G4PhysListFactory.hh"
 #include "G4RunManager.hh"
+#include "G4RunManagerFactory.hh"
 #include "G4ScoringManager.hh"
 #include "G4Timer.hh"
 #include "G4UImanager.hh"
@@ -32,71 +35,91 @@
 #include "uwuw.hpp"
 #endif
 
+#include "moab/ProgOptions.hpp" // prog options
+
 int main(int argc, char* argv[]) {
   G4Timer Timer;
   Timer.Start();
 
-  // Construct the default run manager
-  G4RunManager* runManager = new G4RunManager;
+  // Activate UI-command base scorer
+  // load the UWUW data
+
+  std::string dag_file = "";
+  std::string bfield_file = "";
+  std::string macro_file = "";
+  
+  ProgOptions po("DagGeant4: a DAG tool for Geant4");
+  po.addOpt<std::string>("dagmc,d", "Path to DAGMC file to proccess", &dag_file);
+  po.addOpt<std::string>("bfield,b", "Path to Bfield file to proccess", &bfield_file);
+  po.addOpt<std::string>("macro,m", "Path to DAGMC file to proccess", &macro_file);
+
+  po.addOptionHelpHeading("Options for loading files");
+
+  // get the options
+  po.parseCommandLine(argc, argv);
+  UWUW *workflow_data = NULL;
+  // check too see the dagmc file exists
+  if(std::filesystem::exists(dag_file)){
+    workflow_data = new UWUW(dag_file);
+  } else {
+    std::cerr << "Error: dagmc file does not exist" << std::endl;
+    return -1;
+  }
+
+  // if the bfield string set - see if the file exists
+  if(bfield_file.length() && !std::filesystem::exists(bfield_file)){
+    std::cerr << "Error: bfield file does not exist" << std::endl;
+    return -1;
+  }
+
+  // detect if we are in batch mode or not
+  G4UIExecutive* ui = nullptr;
+  if (macro_file.length() == 0) {
+    ui = new G4UIExecutive(argc, argv);
+  }
+
+  //G4RunManager* runManager =
+  //    G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+  G4RunManager* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Tasking);
 
   // Activate command-based scorer
   G4ScoringManager* scManager = G4ScoringManager::GetScoringManager();
-  scManager->SetVerboseLevel(1);
+  scManager->SetVerboseLevel(20);
   scManager->SetScoreWriter(new ExN01UserScoreWriter());
-
-  std::string uwuw_file(argv[1]);  // file containing data & uwuw
-
-  // Activate UI-command base scorer
-  // load the UWUW data
-  UWUW* workflow_data = new UWUW(uwuw_file);
-
+ 
   // setup detectors and scores
   runManager->SetUserInitialization(
-      new ExN01DetectorConstruction(workflow_data));
+      new ExN01DetectorConstruction(workflow_data, bfield_file));
 
   G4PhysListFactory* physListFactory = new G4PhysListFactory();
   G4VUserPhysicsList* physicsList =
-      physListFactory->GetReferencePhysList("QGSP_BIC_HP");
+      physListFactory->GetReferencePhysList("QGSP_BIC_AllHPT");
   runManager->SetUserInitialization(physicsList);
 
   // set mandatory user action class
-  //
   ExN01ActionInitialization* actionInitialization =
       new ExN01ActionInitialization(workflow_data);
   runManager->SetUserInitialization(actionInitialization);
 
-  //  G4VUserPrimaryGeneratorAction* gen_action = new
-  //  ExN01PrimaryGeneratorAction;
-  // runManager->SetUserAction(gen_action);
-
-  //  G4VUserSteppingAction* step_action = new ExN01SteppingAction;
-  // runManager->SetUserAction(step_action);
-
-  // Initialize G4 kernel
-  //
-  runManager->Initialize();
+  // lets get started
+  //runManager->Initialize();
+  G4VisManager* visManager = new G4VisExecutive;
+  visManager->Initialize();
 
   // Get the pointer to the UI manager and set verbosities
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   // batch mode
-  if (argc > 2) {
+  if (!ui) {
     G4String command = "/control/execute ";
-    std::string filename(argv[2]);
-    G4UIExecutive* ui = new G4UIExecutive(argc, argv, "tcsh");
-    UImanager->ApplyCommand(command + filename);
+    UImanager->ApplyCommand(command + macro_file);
+  } else {
+    UImanager->ApplyCommand("/control/execute vis.mac");
+    //if ( ui->IsGUI()) {
+    //  UImanager->ApplyCommand("/control/execute gui.mac");
+   // }
     ui->SessionStart();
     delete ui;
-  } else {
-    G4VisManager* visManager = new G4VisExecutive;
-    visManager->Initialize();
-
-    G4UIExecutive* UI = new G4UIExecutive(argc, argv);
-    UImanager->ApplyCommand("/control/execute vis.mac");
-
-    UI->SessionStart();
-    delete visManager;
-    delete UI;
   }
 
   // stop the timer
@@ -114,6 +137,8 @@ int main(int argc, char* argv[]) {
   G4cout << G4endl;
 
   delete runManager;
+  delete visManager;
+  delete workflow_data;
 
   return 0;
 }
